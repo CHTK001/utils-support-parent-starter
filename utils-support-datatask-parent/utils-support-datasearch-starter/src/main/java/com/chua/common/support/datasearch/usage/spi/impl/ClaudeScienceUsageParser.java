@@ -115,7 +115,11 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         return result;
     }
 
-    /** 探测 frames 表实际存在的令牌列。 */
+    /**
+     * 探测 frames 表实际存在的令牌列。
+     * @param conn 连接，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> collectPresentColumns(Connection conn) throws SQLException {
         List<String> present = new ArrayList<>();
         Set<String> columns = new HashSet<>();
@@ -142,7 +146,11 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         return present;
     }
 
-    /** 构建可选的令牌列投影查询。 */
+    /**
+     * 构建可选的令牌列投影查询。
+     * @param present 方法入参 present
+     * @return 结果字符串
+     */
     private static String buildQuery(List<String> present) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT id, parent_frame_id, model, created_at, updated_at, completed_at");
@@ -164,6 +172,14 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         return sql.toString();
     }
 
+    /**
+     * 转为AiUsage。
+     *
+     * @param rs 方法入参 rs
+     * @param present 方法入参 present
+     * @return AiUsage 对象
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
     private AiUsage toAiUsage(ResultSet rs, List<String> present) throws SQLException {
         int mainInput = getInt(rs, present, "input_tokens");
         int mainOutput = getInt(rs, present, "output_tokens");
@@ -204,6 +220,14 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
                 .build();
     }
 
+    /**
+     * 获取Int。
+     *
+     * @param rs 方法入参 rs
+     * @param present 方法入参 present
+     * @param column 列，不允许为 null
+     * @return 结果数值
+     */
     private int getInt(ResultSet rs, List<String> present, String column) {
         if (!present.contains(column)) {
             return 0;
@@ -215,6 +239,12 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 时间戳转为毫秒数。
+     *
+     * @param values 方法入参 values
+     * @return 结果数值
+     */
     private long timestampToMillis(String... values) {
         for (String value : values) {
             if (value == null || value.isBlank()) {

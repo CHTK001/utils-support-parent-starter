@@ -1,5 +1,6 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.annotation.TableName;
 import com.chua.datasource.support.engine.MemoryWhereParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -307,6 +308,7 @@ public class RocksDbOrmStore {
     * @param where WHERE 子句（可为 空）
     * @param params 参数 列表
     * @return 列 名 已 映射 为 字段 名 的 WHERE 子句
+    * @param fieldMap 字段映射，不允许为 null
     */
     private static String mapWhereColumns(String where, Map<String, String> fieldMap) {
         if (where == null || where.trim().isEmpty() || fieldMap.isEmpty()) {
@@ -425,17 +427,12 @@ public class RocksDbOrmStore {
     private static Field findField(Class<?> entityClass, String field) {
         Map<String, Field> cache = FIELD_CACHE.computeIfAbsent(entityClass, k -> new ConcurrentHashMap<>());
         return cache.computeIfAbsent(field, f -> {
-            Class<?> clazz = entityClass;
-            while (clazz != null && clazz != Object.class) {
-                try {
-                    Field fd = clazz.getDeclaredField(f);
-                    fd.setAccessible(true);
-                    return fd;
-                } catch (NoSuchFieldException e) {
-                    clazz = clazz.getSuperclass();
-                }
+            Field fd = ReflectUtils.findField(entityClass, f);
+            if (fd == null) {
+                return null;
             }
-            return null;
+            fd.setAccessible(true);
+            return fd;
         });
     }
 

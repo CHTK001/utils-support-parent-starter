@@ -228,8 +228,12 @@ public class H264NvencEncoder implements VideoEncoder {
         } catch (Throwable e) {
              log.warn("[H264NvencEncoder] {} 初始化失败: {}", codecName, e.getMessage());
             if (recorder != null) {
-                try { recorder.stop(); } catch (Throwable ignored) {}
-                try { recorder.release(); } catch (Throwable ignored) {}
+                try {
+                    recorder.stop();
+                } catch (Throwable ignored) {}
+                try {
+                    recorder.release();
+                } catch (Throwable ignored) {}
                 recorder = null;
             }
             return false;
@@ -550,7 +554,10 @@ public class H264NvencEncoder implements VideoEncoder {
                 if (pos + spsLen > data.length) {
                     break;
                 }
-                baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
+                baos.write(0x00);
+                baos.write(0x00);
+                baos.write(0x00);
+                baos.write(0x01);
                 baos.write(data, pos, spsLen);
                 pos += spsLen;
             }
@@ -569,7 +576,10 @@ public class H264NvencEncoder implements VideoEncoder {
                 if (pos + ppsLen > data.length) {
                     break;
                 }
-                baos.write(0x00); baos.write(0x00); baos.write(0x00); baos.write(0x01);
+                baos.write(0x00);
+                baos.write(0x00);
+                baos.write(0x00);
+                baos.write(0x01);
                 baos.write(data, pos, ppsLen);
                 pos += ppsLen;
             }
@@ -677,9 +687,15 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         started = false;
         if (recorder != null) {
-            try { recorder.flush(); } catch (Throwable ignored) {}
-            try { recorder.stop(); } catch (Throwable ignored) {}
-            try { recorder.release(); } catch (Throwable ignored) {}
+            try {
+                recorder.flush();
+            } catch (Throwable ignored) {}
+            try {
+                recorder.stop();
+            } catch (Throwable ignored) {}
+            try {
+                recorder.release();
+            } catch (Throwable ignored) {}
             recorder = null;
         }
         if (swsCtx != null) {

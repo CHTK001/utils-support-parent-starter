@@ -5,9 +5,9 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.nio.file.Path;
 
 /**
- * Copilot VS Code extension offline provider.
+ * Copilot 的 VS Code 扩展离线提供者。
  *
- * <p>Scans {@code ~/.vscode/extensions/GitHub.copilot-*} for the Copilot extension manifest.</p>
+ * <p>扫描 {@code ~/.vscode/extensions/GitHub.copilot-*} 目录，查找 Copilot 扩展的清单文件。</p>
  *
  * @author CH
  * @since 4.0.0.45

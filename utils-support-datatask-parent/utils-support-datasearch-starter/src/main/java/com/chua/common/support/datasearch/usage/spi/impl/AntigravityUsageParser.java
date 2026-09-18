@@ -20,14 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Antigravity (Google, agentic IDE/CLI) usage parser.
+* Antigravity（Google 出品的智能体式 IDE/CLI）用量解析器。
 *
-* <p>Antigravity persists session transcripts under
+* <p>Antigravity 将会话 transcript 持久化在
 * {@code <geminiHome>/antigravity/brain/<uuid>/.system_generated/logs/
-* transcript.jsonl} ({@code geminiHome} = {@code GEMINI_HOME} /
-* {@code ~/.gemini}). Transcript lines carry model-selection changes and
-* planner/thinking events but <b>no token counters</b>; the parser derives
-* an estimated per-turn usage using the same heuristic TokenTracker uses:</p>
+* transcript.jsonl}（{@code geminiHome} 取 {@code GEMINI_HOME} 或
+* {@code ~/.gemini}）。transcript 中只记录模型切换与 planner/thinking 事件，
+* <b>不含 token 计数</b>；解析器沿用 TokenTracker 的启发式算法推算每轮用量：</p>
 *
 * <pre>
 *   input  = max(0, contextTokensDelta)      // CJK 1 token/char, other 1/4 chars
@@ -35,15 +34,14 @@ import java.util.regex.Pattern;
 *   reasoning = thinking tokens
 * </pre>
 *
-* <p>Context tokens are accumulated across the transcript; on each
-* {@code PLANNER_RESPONSE} the delta since the previous billed planner
-* (or since context reset on model switch) is emitted as the input.
-* Model is recovered from {@code USER_INPUT} "Model Selection" lines
-* and from the variant-root {@code settings.json}; unknown →
-* {@code "antigravity-unknown"}.</p>
+* <p>上下文 token 在整份 transcript 上累积；每次遇到
+* {@code PLANNER_RESPONSE}，就把相对上一次计费 planner 的增量
+* （若发生过模型切换，则从上下文重置点起算）作为 input 输出。
+* 模型从 {@code USER_INPUT} 的 "Model Selection" 行
+* 以及变体根目录的 {@code settings.json} 中还原；无法识别时取
+* {@code "antigravity-unknown"}。</p>
 *
-* <p>All records are flagged {@code estimated = true} because Antigravity
-* does not persist a token counter locally.</p>
+* <p>由于 Antigravity 不在本地持久化 token 计数，所有记录均标记 {@code estimated = true}。</p>
 *
 * @author CH
 * @since 4.0.0.44

@@ -95,7 +95,14 @@ public class ObjectBeanPath implements BeanPath {
     }
 
     @SuppressWarnings("unchecked")
-    /** 解析 */
+    /**
+     * 解析
+     * @param source 来源，不允许为 null
+     * @param parts 方法入参 parts
+     * @param start 启动，不允许为 null
+     * @param end 结束，不允许为 null
+     * @return 对象 对象
+     */
     private Object resolve(Object source, String[] parts, int start, int end) {
         Object current = source;
         for (int i = start; i < end; i++) {
@@ -128,7 +135,12 @@ public class ObjectBeanPath implements BeanPath {
         return current;
     }
 
-    /** 解析Field */
+    /**
+     * 解析Field
+     * @param bean 方法入参 bean
+     * @param prop 方法入参 prop
+     * @return 对象 对象
+     */
     private Object resolveField(Object bean, String prop) {
         try {
             return ClassUtils.getFieldValue(prop, bean);
@@ -137,7 +149,11 @@ public class ObjectBeanPath implements BeanPath {
         }
     }
 
-    /** NormalizeProp */
+    /**
+     * NormalizeProp
+     * @param prop 方法入参 prop
+     * @return 结果字符串
+     */
     private String normalizeProp(String prop) {
         if (StringUtils.isEmpty(prop) || namingStyle == NamingStyle.RAW) {
             return prop;
@@ -146,7 +162,11 @@ public class ObjectBeanPath implements BeanPath {
         return ignoreCase ? camel.toLowerCase() : camel;
     }
 
-    /** ExtractIndex */
+    /**
+     * ExtractIndex
+     * @param part 方法入参 part
+     * @return 结果数值
+     */
     private static int extractIndex(String part) {
         int start = part.indexOf('[');
         if (start < 0) {

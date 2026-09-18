@@ -158,15 +158,15 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
  // 若非 null,则在编码过程中用于对调色板条目重新排序
  // 排序以最小化 trns 块的大小。因此,源中的某个索引
-    // 'i' in the source should be encoded as index 'PLTE_order[i]'.
-    // PLTE_order will be null unless 'initialize' is called with an
- // 索引颜色模型镜像类型。
+    // 'i' 应编码为索引 'PLTE_order[i]'。
+    // 除非 'initialize' 被传入
+ // 索引颜色模型，否则 PLTE_order 为 null。
     /** Plte_订单 */
     public int[] PLTE_order = null;
 
  // bkgd chunk
-    // If external (non-PNG sourced) data has red = green = blue,
- // always 存储 it as gray 和 promote When.js.js 写入
+    // 若外部（非 PNG 来源）数据满足 red = green = blue，
+ // 则始终按 gray 存储，并在写出时做类型提升
     /** Bkgd_present */
     public boolean bKGD_present;
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
@@ -379,6 +379,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * RFC1123 格式化编码。通过更新文本块的数据结构,
     * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
     */
+    /** tEXtcreation时间present */
     public boolean tEXt_creation_time_present;
     /** 文本_创建_时间_iter */
     private ListIterator<String> tEXt_creation_time_iter = null;
@@ -386,15 +387,15 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public static final String tEXt_creationTimeKey = "Creation Time";
 
  // trns chunk
-    // If external (non-PNG sourced) data has red = green = blue,
- // always 存储 it as gray 和 promote When.js.js 写入
+    // 若外部（非 PNG 来源）数据满足 red = green = blue，
+ // 则始终按 gray 存储，并在写出时做类型提升
 /** Trns_present */
 public boolean tRNS_present;
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
     // ;
     /** Trns_color类型 */
     public int tRNS_colorType;
- // May have fewer entries than PLTE_R, etc.
+ // 条目数可能少于 PLTE_R 等表
     // ;
     /** Trns_alpha */
     public byte[] tRNS_alpha;
@@ -482,6 +483,13 @@ public boolean tRNS_present;
               null, null);
     }
 
+    /**
+     * 调用Boolean。
+     *
+     * @param target 目标，不允许为 null
+     * @param methodName 方法名称，不允许为 null
+     * @return Boolean 对象
+     */
     private static Boolean invokeBoolean(Object target, String methodName) {
         try {
             return (Boolean) ReflectUtils.invoke(target, methodName, Object.class);
@@ -490,6 +498,13 @@ public boolean tRNS_present;
         }
     }
 
+    /**
+     * 调用字符串。
+     *
+     * @param target 目标，不允许为 null
+     * @param methodName 方法名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String invokeString(Object target, String methodName) {
         try {
             return (String) ReflectUtils.invoke(target, methodName, Object.class);
@@ -556,7 +571,7 @@ public boolean tRNS_present;
             byte[] blues = new byte[size];
             icm.getBlues(blues);
 
-            // Determine whether the color tables are actually a gray ramp
+            // 判断颜色表是否实际上就是一条灰度渐变
  // if the color 类型 是否包含 not been 设置 上一个
             boolean isGray = false;
             if (!IHDR_present ||
@@ -610,10 +625,10 @@ public boolean tRNS_present;
 
                     PLTE_order = new int[alpha.length];
 
-                    // Reorder the palette so that non-opaque entries
- // come 第一个.  自 the trns chunk 执行 not have
-                    // to store trailing 255's, this can save a
- // considerable amount 的 space When.js.js 编码
+                    // 重排调色板，使非不透明条目
+ // 排在前面。由于 trns 块不必
+                    // 存储末尾的 255，这可省下
+ // 相当可观的空间（在编码
  // 仅含一个透明像素值的图像,
  // 例如来自 GIF 源的图像。
 
@@ -2662,6 +2677,11 @@ public boolean tRNS_present;
         }
     }
 
+    /**
+     * 初始化ImageCreation时间。
+     *
+     * @param offsetDateTime 偏移量日期时间，不允许为 null
+     */
     void initImageCreationTime(OffsetDateTime offsetDateTime) {
  // 检查 for 收入 参数
         if (offsetDateTime != null) {
@@ -2692,6 +2712,11 @@ public boolean tRNS_present;
         initImageCreationTime(offDateTime);
     }
 
+    /**
+     * 解码ImageCreation时间来自文本分块。
+     *
+     * @param iterChunk iter分块，不允许为 null
+     */
     void decodeImageCreationTimeFromTextChunk(ListIterator<String> iterChunk) {
  // 检查 for 收入 参数
         if (iterChunk != null && iterChunk.hasNext()) {
@@ -2709,6 +2734,9 @@ public boolean tRNS_present;
         }
     }
 
+    /**
+     * 编码ImageCreation时间转为文本分块。
+     */
     void encodeImageCreationTimeToTextChunk() {
  // 检查标准/文档/图像创建时间是否存在。
         if (creation_time_present) {
@@ -2828,6 +2856,11 @@ public boolean tRNS_present;
         return retVal;
     }
 
+    /**
+     * 是否含有TransparentColor。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     boolean hasTransparentColor() {
         return tRNS_present &&
                (tRNS_colorType == PNG.PNG_COLOR_RGB ||

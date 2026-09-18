@@ -37,10 +37,20 @@ public class JdkTcpClient implements TcpClient {
     private static final ThreadLocal<ByteBuffer> HEADER_BUFFER =
             ThreadLocal.withInitial(() -> ByteBuffer.allocate(HEADER_SIZE));
 
+    /**
+     * 构造方法，创建 JdkTcp客户端 实例。
+     */
     public JdkTcpClient() {
         this(0, 0, 0);
     }
 
+    /**
+     * 构造方法，创建 JdkTcp客户端 实例。
+     *
+     * @param poolSize pool大小，不允许为 null
+     * @param connectTimeout connect超时时间，不允许为 null
+     * @param readTimeout 读取超时时间，不允许为 null
+     */
     public JdkTcpClient(int poolSize, int connectTimeout, int readTimeout) {
         this.connectTimeout = connectTimeout > 0 ? connectTimeout : DEFAULT_CONNECT_TIMEOUT;
         this.readTimeout = readTimeout > 0 ? readTimeout : DEFAULT_READ_TIMEOUT;
@@ -63,11 +73,22 @@ public class JdkTcpClient implements TcpClient {
             WRITE_BUFFER.remove();
             HEADER_BUFFER.remove();
             if (ch != null) {
-                try { ch.close(); } catch (IOException ignored) {}
+                try {
+                    ch.close();
+                } catch (IOException ignored) {
+                }
             }
         }
     }
 
+    /**
+     * exchange。
+     *
+     * @param ch 方法入参 ch
+     * @param request 请求，不允许为 null
+     * @return 结果值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private byte[] exchange(SocketChannel ch, byte[] request) throws IOException {
         ByteBuffer buf = WRITE_BUFFER.get();
         int needed = HEADER_SIZE + request.length;
@@ -94,6 +115,13 @@ public class JdkTcpClient implements TcpClient {
         return bodyBuf.array();
     }
 
+    /**
+     * 读取Fully。
+     *
+     * @param ch 方法入参 ch
+     * @param buf 方法入参 buf
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void readFully(SocketChannel ch, ByteBuffer buf) throws IOException {
         while (buf.hasRemaining()) {
             int read = ch.read(buf);

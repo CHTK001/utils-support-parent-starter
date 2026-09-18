@@ -20,6 +20,11 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMethod {
+    /**
+     * 值。
+     *
+     * @return 结果字符串
+     */
     String value();
     String method() default "";
 }

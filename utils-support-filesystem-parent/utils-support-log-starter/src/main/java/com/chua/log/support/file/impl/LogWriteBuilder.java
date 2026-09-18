@@ -258,6 +258,7 @@ public class LogWriteBuilder extends WriteBuilder {
 
     /**
     * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
+    * @return BufferedWriter 对象
     */
     private BufferedWriter createWriter() throws IOException {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
@@ -270,6 +271,8 @@ public class LogWriteBuilder extends WriteBuilder {
 
     /**
     * 将 pending 中的条目解析为行列表。
+    * @param entry 条目，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     @SuppressWarnings("unchecked")
     private List<String> resolveLines(Object entry) {
@@ -294,6 +297,8 @@ public class LogWriteBuilder extends WriteBuilder {
 
     /**
     * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
+    * @param line 方法入参 line
+    * @return 结果字符串
     */
     private String formatLine(String line) {
         StringBuilder sb = new StringBuilder();

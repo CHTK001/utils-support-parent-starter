@@ -47,13 +47,22 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParser {
 
-    /** 会话根目录（如 ~/.acode/sessions）。 */
+    /**
+     * 会话根目录（如 ~/.acode/sessions）。
+     * @return 路径 对象
+     */
     protected abstract Path sessionsRoot();
 
-    /** 提供者名称（如 acode / every-code）。 */
+    /**
+     * 提供者名称（如 acode / every-code）。
+     * @return 结果字符串
+     */
     protected abstract String providerName();
 
-    /** 默认模型名。 */
+    /**
+     * 默认模型名。
+     * @return 结果字符串
+     */
     protected abstract String defaultModel();
 
     /**
@@ -213,6 +222,12 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
         return files.stream().sorted().toList();
     }
 
+    /**
+     * 收集。
+     *
+     * @param dir 目录，不允许为 null
+     * @param files 方法入参 files
+     */
     private void collect(Path dir, List<Path> files) {
         if (!Files.isDirectory(dir)) {
             return;

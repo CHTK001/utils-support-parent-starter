@@ -208,7 +208,11 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     public void close() {
         clearCache();
         if (namingService != null) {
-            try { namingService.shutDown(); } catch (NacosException e) { log.error("", e); }
+            try {
+                namingService.shutDown();
+            } catch (NacosException e) {
+                log.error("", e);
+            }
         }
     }
 }

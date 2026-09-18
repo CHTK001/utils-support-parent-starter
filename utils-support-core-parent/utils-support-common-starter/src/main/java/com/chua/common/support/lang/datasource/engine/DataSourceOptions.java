@@ -31,12 +31,24 @@ public record DataSourceOptions(
         Tunnel tunnel,
         Map<String, String> jtdsUrlParams
 ) {
+    /**
+     * 构造方法，创建 数据来源选项 实例。
+     *
+     * @param name 名称，不允许为 null
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     * @param database 方法入参 database
+     * @param username 用户名，不允许为 null
+     * @param password 密码，不允许为 null
+     * @param tunnel 方法入参 tunnel
+     */
     public DataSourceOptions(String name, String host, int port, String database, String username, String password, Tunnel tunnel) {
         this(name, host, port, database, username, password, tunnel, null);
     }
 
     /**
     * 获取 jTDS URL 参数，null 或空时返回空 Map。
+    * @return 结果映射，无数据时为空映射
     */
     public Map<String, String> jtdsUrlParams() {
         return jtdsUrlParams != null ? jtdsUrlParams : Map.of();

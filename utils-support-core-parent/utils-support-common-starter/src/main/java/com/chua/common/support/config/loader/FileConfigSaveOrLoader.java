@@ -91,7 +91,11 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
         }
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     * @param key 键，不允许为 null
+     * @return 路径 对象
+     */
     private Path resolve(String key) {
         Path target = rootPath.resolve(key).normalize();
         if (!target.startsWith(rootPath)) {

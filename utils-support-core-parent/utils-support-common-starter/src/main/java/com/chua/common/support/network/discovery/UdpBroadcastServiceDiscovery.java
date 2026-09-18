@@ -31,6 +31,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 * @author CH
 * @since 4.0.0.42
  */@Spi("udp-broadcast")
+/**
+ * UdpBroadcast服务Discovery类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @Slf4j
 public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery implements Runnable {
 

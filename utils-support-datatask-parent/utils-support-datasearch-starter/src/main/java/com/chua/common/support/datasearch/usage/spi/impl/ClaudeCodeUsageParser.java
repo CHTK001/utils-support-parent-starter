@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* Claude Code usage parser — parses token usage from local JSONL session files.
+* Claude Code 用量解析器——从本地 JSONL 会话文件解析 token 用量。
 *
-* <p>Data source is the {@code ~/.claude/projects} directory, where Claude
-* Code writes one append-only JSONL transcript per session. Each
-* {@code type=assistant} record carries the upstream token usage block:</p>
+* <p>数据源为 {@code ~/.claude/projects} 目录，Claude
+* Code 会在其中为每个会话写入一份仅追加的 JSONL transcript。每条
+* {@code type=assistant} 记录都带有上游返回的 token 用量块：</p>
 *
 * <pre>{@code
 * {

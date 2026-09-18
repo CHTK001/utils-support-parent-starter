@@ -315,6 +315,14 @@ public class ApngDecoder {
         }
     }
 
+    /**
+     * paethPredictor。
+     *
+     * @param a 方法入参 a
+     * @param b 方法入参 b
+     * @param c 方法入参 c
+     * @return 结果数值
+     */
     private static int paethPredictor(int a, int b, int c) {
         int p = a + b - c;
         int pa = Math.abs(p - a);
@@ -416,6 +424,14 @@ public class ApngDecoder {
         }
     }
 
+    /**
+     * blendOver。
+     *
+     * @param dst 方法入参 dst
+     * @param src 方法入参 src
+     * @param srcAlpha 方法入参 srcAlpha
+     * @return 结果数值
+     */
     private static int blendOver(int dst, int src, int srcAlpha) {
         int dr = (dst >>> 16) & 0xFF, dg = (dst >>> 8) & 0xFF, db = dst & 0xFF;
         int sr = (src >>> 16) & 0xFF, sg = (src >>> 8) & 0xFF, sb = src & 0xFF;
@@ -466,6 +482,12 @@ public class ApngDecoder {
         boolean added;
     }
 
+    /**
+     * 解析FrameControl。
+     *
+     * @param data 数据，不允许为 null
+     * @return FrameControl 对象
+     */
     private static FrameControl parseFrameControl(byte[] data) {
         FrameControl ctrl = new FrameControl();
         if (data.length >= 30) {

@@ -271,7 +271,11 @@ public class MultiProgressBar implements AutoCloseable {
         }
     }
 
-    /** IndexOf */
+    /**
+     * IndexOf
+     * @param name 名称，不允许为 null
+     * @return 结果数值
+     */
     private int indexOf(String name) {
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).state.getTaskName().equals(name)) {

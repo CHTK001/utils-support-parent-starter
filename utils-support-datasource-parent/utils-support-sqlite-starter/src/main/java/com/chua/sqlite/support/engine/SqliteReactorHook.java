@@ -1,5 +1,7 @@
 package com.chua.sqlite.support.engine;
 
+import com.chua.common.support.utils.NativeLoader;
+import com.chua.common.support.utils.NativeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -110,7 +112,9 @@ public final class SqliteReactorHook implements AutoCloseable {
             }
         } catch (Throwable e) {
             INSTANCES.remove(instanceId);
-            if (callbackArena != null) callbackArena.close();
+            if (callbackArena != null) {
+                callbackArena.close();
+            }
             throw new RuntimeException("Failed to open async hook", e);
         }
     }
@@ -136,6 +140,12 @@ public final class SqliteReactorHook implements AutoCloseable {
                   .subscribeOn(Schedulers.boundedElastic());
     }
 
+    /**
+     * execSync。
+     *
+     * @param sql SQL，不允许为 null
+     * @return 结果数值
+     */
     private int execSync(String sql) {
         try (var arena = Arena.ofConfined()) {
             return (int) HOOK_EXEC_ASYNC_HANDLE.invoke(
@@ -156,13 +166,17 @@ public final class SqliteReactorHook implements AutoCloseable {
     */
     @SuppressWarnings("unused")
     private static void onNativeEvent(MemorySegment jsonPtr, MemorySegment userIdPtr) {
-        if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) return;
+        if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) {
+            return;
+        }
 
         try {
             long userId = userIdPtr.reinterpret(Long.MAX_VALUE).get(ValueLayout.JAVA_LONG, 0);
             SqliteReactorHook instance = INSTANCES.get(userId);
 
-            if (instance == null) return;
+            if (instance == null) {
+                return;
+            }
 
             String json = jsonPtr.reinterpret(Long.MAX_VALUE).getString(0, StandardCharsets.UTF_8);
             SqliteChangeEvent event = parseEvent(json);
@@ -174,7 +188,9 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
     @Override
     public void close() {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         closed = true;
 
         INSTANCES.remove(instanceId);
@@ -197,6 +213,11 @@ public final class SqliteReactorHook implements AutoCloseable {
         }
     }
 
+    /**
+     * 是否打开。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isOpen() {
         return !closed && handle != null && !handle.equals(MemorySegment.NULL);
     }
@@ -208,6 +229,7 @@ public final class SqliteReactorHook implements AutoCloseable {
     /**
     * 创建 onNativeEvent 的 MethodHandle（用于 FFM upcall）。
     * <p>注意：这是一个 static 方法，通过 user_data 分发到实例。</p>
+    * @return 方法处理 对象
     */
     private static MethodHandle onEventHandle() {
         try {
@@ -221,30 +243,26 @@ public final class SqliteReactorHook implements AutoCloseable {
         }
     }
 
+    /**
+     * 加载Library。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean loadLibrary() {
-        if (LIBRARY_RESOLVED) return LIBRARY_OK;
+        if (LIBRARY_RESOLVED) {
+            return LIBRARY_OK;
+        }
         synchronized (SqliteReactorHook.class) {
-            if (LIBRARY_RESOLVED) return LIBRARY_OK;
+            if (LIBRARY_RESOLVED) {
+                return LIBRARY_OK;
+            }
             try {
-                String os = System.getProperty("os.name", "").toLowerCase();
-                String libName;
-                String dirName;
-                if (os.contains("win")) {
-                    libName = "sqlite3_hook.dll";
-                    dirName = "windows-x86_64";
-                } else {
-                    libName = "libsqlite3_hook.so";
-                    dirName = "linux-x86_64";
-                }
-                try (var is = SqliteReactorHook.class.getResourceAsStream("/native/" + dirName + "/" + libName)) {
-                    if (is == null) throw new UnsatisfiedLinkError("Native library not found: " + libName);
-                    var tmpDir = java.nio.file.Files.createTempDirectory("sqlite-hook");
-                    var tmpPath = tmpDir.resolve(libName);
-                    java.nio.file.Files.copy(is, tmpPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                    tmpPath.toFile().deleteOnExit();
-                    tmpDir.toFile().deleteOnExit();
-                    System.load(tmpPath.toAbsolutePath().toString());
-                }
+                // 统一走项目受控的原生库加载体系：由 NativeLoader 按平台目录抽取、MD5 去重后加载，
+                // 避免业务代码直接调用 System.load（与同包 SqliteHookConnection 保持一致用法）
+                NativeLoader.of("sqlite3-hook")
+                        .glob(NativeUtils.getLibraryFileName("sqlite3_hook"))
+                        .toTarget(NativeUtils.tempRoot().resolve("sqlite3-hook").toFile().getAbsolutePath())
+                        .load();
                 SYM_LOOKUP = SymbolLookup.loaderLookup();
                 HOOK_OPEN_ASYNC_HANDLE = bind("hook_open_async",
                     FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
@@ -262,18 +280,35 @@ public final class SqliteReactorHook implements AutoCloseable {
         }
     }
 
+    /**
+     * 绑定。
+     *
+     * @param name 名称，不允许为 null
+     * @param desc 描述，不允许为 null
+     * @return 方法处理 对象
+     */
     private static MethodHandle bind(String name, FunctionDescriptor desc) {
         MemorySegment sym = SYM_LOOKUP.find(name)
             .orElseThrow(() -> new UnsatisfiedLinkError("Symbol not found: " + name));
         return LINKER.downcallHandle(sym, desc);
     }
 
+    /**
+     * 解析Event。
+     *
+     * @param json 方法入参 json
+     * @return SqliteChangeEvent 对象
+     */
     static SqliteChangeEvent parseEvent(String json) {
-        if (json == null || json.isEmpty()) return null;
+        if (json == null || json.isEmpty()) {
+            return null;
+        }
 
         // 验证 JSON 格式
         String type = extractString(json, "type");
-        if (type == null) return null; // 无效 JSON 或缺少 type 字段
+        if (type == null) {
+            return null; // 无效 JSON 或缺少 type 字段
+        }
 
         String table = extractString(json, "table");
         long rowId = extractLong(json, "rowId");
@@ -294,23 +329,49 @@ public final class SqliteReactorHook implements AutoCloseable {
         };
     }
 
+    /**
+     * extract字符串。
+     *
+     * @param json 方法入参 json
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractString(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
-        if (ki < 0) return null;
+        if (ki < 0) {
+            return null;
+        }
         int ci = json.indexOf(':', ki + key.length() + 2);
-        if (ci < 0) return null;
+        if (ci < 0) {
+            return null;
+        }
         int si = json.indexOf('"', ci + 1);
-        if (si < 0) return null;
+        if (si < 0) {
+            return null;
+        }
         int ei = json.indexOf('"', si + 1);
-        if (ei < 0) ei = json.length() - 1;
+        if (ei < 0) {
+            ei = json.length() - 1;
+        }
         return json.substring(si + 1, ei);
     }
 
+    /**
+     * extractLong。
+     *
+     * @param json 方法入参 json
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     private static long extractLong(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
-        if (ki < 0) return 0L;
+        if (ki < 0) {
+            return 0L;
+        }
         int ci = json.indexOf(':', ki + key.length() + 2);
-        if (ci < 0) return 0L;
+        if (ci < 0) {
+            return 0L;
+        }
         int end = ci + 1;
         while (end < json.length() && Character.isDigit(json.charAt(end))) end++;
         try {

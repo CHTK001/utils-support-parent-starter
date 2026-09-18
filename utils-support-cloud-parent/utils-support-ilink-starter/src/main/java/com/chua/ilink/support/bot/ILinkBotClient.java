@@ -246,22 +246,40 @@ public class ILinkBotClient implements BotClient {
     }
 
     @Override
-    public ILinkBotClient token(String t) { this.token = t; return this; }
+    public ILinkBotClient token(String t) {
+        this.token = t;
+        return this;
+    }
 
     @Override
-    public ILinkBotClient secret(String s) { this.secret = s; return this; }
+    public ILinkBotClient secret(String s) {
+        this.secret = s;
+        return this;
+    }
 
     @Override
-    public ILinkBotClient encodingAesKey(String k) { this.encodingAesKey = k; return this; }
+    public ILinkBotClient encodingAesKey(String k) {
+        this.encodingAesKey = k;
+        return this;
+    }
 
     @Override
-    public ILinkBotClient baseUrl(String url) { this.baseUrl = url; return this; }
+    public ILinkBotClient baseUrl(String url) {
+        this.baseUrl = url;
+        return this;
+    }
 
     @Override
-    public ILinkBotClient connectTimeoutMillis(long ms) { this.connectTimeoutMillis = ms; return this; }
+    public ILinkBotClient connectTimeoutMillis(long ms) {
+        this.connectTimeoutMillis = ms;
+        return this;
+    }
 
     @Override
-    public ILinkBotClient readTimeoutMillis(long ms) { this.readTimeoutMillis = ms; return this; }
+    public ILinkBotClient readTimeoutMillis(long ms) {
+        this.readTimeoutMillis = ms;
+        return this;
+    }
 
     @Override
     public ILinkBotClient configSaveOrLoader(com.chua.common.support.config.loader.ConfigSaveOrLoader loader) { return this; }
@@ -698,6 +716,10 @@ public class ILinkBotClient implements BotClient {
     * @param millis 毫秒数
     */
     private static void sleepQuietly(long millis) {
-        try { Thread.sleep(millis); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

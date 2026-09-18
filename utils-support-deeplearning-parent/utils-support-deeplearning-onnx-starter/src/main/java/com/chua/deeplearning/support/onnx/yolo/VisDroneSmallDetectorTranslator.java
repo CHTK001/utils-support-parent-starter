@@ -34,6 +34,9 @@ public class VisDroneSmallDetectorTranslator extends YoloTranslator {
             "truck", "tricycle", "awning-tricycle", "bus", "motor"
     );
 
+    /**
+     * 构造方法，创建 VisDroneSmallDetectorTranslator 实例。
+     */
     public VisDroneSmallDetectorTranslator() {
         super(640, 0.10f, 0.50f, VISDRONE_10_CLASSES, true);
     }

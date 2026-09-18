@@ -77,6 +77,9 @@ public class FileSource {
     * @param InputStream InputStream
     * @param OutputStream OutputStream
     * @param String String
+    * @param inputStream input流，不允许为 null
+    * @param outputStream output流，不允许为 null
+    * @param type 类型，不允许为 null
     */
     private FileSource(String path, InputStream inputStream, OutputStream outputStream, String type) {
         this(path, null, inputStream, outputStream, type);
@@ -89,6 +92,10 @@ public class FileSource {
     * @param InputStream InputStream
     * @param OutputStream OutputStream
     * @param String String
+    * @param url URL，不允许为 null
+    * @param inputStream input流，不允许为 null
+    * @param outputStream output流，不允许为 null
+    * @param type 类型，不允许为 null
     */
     private FileSource(String path, URL url, InputStream inputStream, OutputStream outputStream, String type) {
         this.path = path;
@@ -100,6 +107,8 @@ public class FileSource {
 
     /**
     * 通过文件路径创建输入源
+    * @param path 路径，不允许为 null
+    * @return 文件来源 对象
     */
     public static FileSource of(String path) {
         return new FileSource(path);
@@ -110,6 +119,7 @@ public class FileSource {
     *
     * @param url  源地址
     * @param type 文件格式类型（用于 SPI 查找转换器，当无法从 URL 推断时使用）
+    * @return 文件来源 对象
     */
     public static FileSource of(URL url, String type) {
         return new FileSource(null, url, null, null, type);
@@ -119,6 +129,7 @@ public class FileSource {
     * 通过 URL 创建输入源（自动从 URL 路径推断文件类型）
     *
     * @param url 源地址
+    * @return 文件来源 对象
     */
     public static FileSource of(URL url) {
         String path = url.getPath();
@@ -131,6 +142,9 @@ public class FileSource {
 
     /**
     * 通过输入流 + 文件类型创建输入源（类型用于 SPI 查找对应的转换器实现）
+    * @param inputStream input流，不允许为 null
+    * @param type 类型，不允许为 null
+    * @return 文件来源 对象
     */
     public static FileSource of(InputStream inputStream, String type) {
         return new FileSource(null, null, inputStream, null, type);
@@ -138,52 +152,82 @@ public class FileSource {
 
     /**
     * 通过输出流 + 文件类型创建输出目标（类型用于 SPI 查找对应的转换器实现）
+    * @param outputStream output流，不允许为 null
+    * @param type 类型，不允许为 null
+    * @return 文件来源 对象
     */
     public static FileSource of(OutputStream outputStream, String type) {
         return new FileSource(null, null, null, outputStream, type);
     }
 
-    /** 是否Path */
+    /**
+     * 是否Path
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isPath() {
         return path != null;
     }
 
-    /** 是否Url */
+    /**
+     * 是否Url
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isUrl() {
         return url != null;
     }
 
-    /** 是否InputStream */
+    /**
+     * 是否InputStream
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isInputStream() {
         return inputStream != null;
     }
 
-    /** 是否OutputStream */
+    /**
+     * 是否OutputStream
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isOutputStream() {
         return outputStream != null;
     }
 
-    /** 获取Path */
+    /**
+     * 获取Path
+     * @return 结果字符串
+     */
     public String getPath() {
         return path;
     }
 
-    /** 获取Url */
+    /**
+     * 获取Url
+     * @return URL 对象
+     */
     public URL getUrl() {
         return url;
     }
 
-    /** 获取InputStream */
+    /**
+     * 获取InputStream
+     * @return Input流 对象
+     */
     public InputStream getInputStream() {
         return inputStream;
     }
 
-    /** 获取OutputStream */
+    /**
+     * 获取OutputStream
+     * @return Output流 对象
+     */
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
-    /** 获取Type */
+    /**
+     * 获取Type
+     * @return 结果字符串
+     */
     public String getType() {
         return type;
     }

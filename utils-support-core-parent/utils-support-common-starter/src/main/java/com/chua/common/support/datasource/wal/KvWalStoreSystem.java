@@ -25,6 +25,12 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private final ScheduledExecutorService scheduler =
             ThreadUtils.newDaemonSingleThreadScheduledExecutor("kv-compact");
 
+    /**
+     * 构造方法，创建 KvWalStoreSystem 实例。
+     *
+     * @param config 配置，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public KvWalStoreSystem(WalStoreConfig config) throws IOException {
         this.config = config;
         this.walLogs = new SegmentWalLog[config.shardCount()];
@@ -44,6 +50,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         }
     }
 
+    /**
+     * fsync全部。
+     */
     private void fsyncAll() {
         for (SegmentWalLog log : walLogs) { try { log.sync(); } catch (IOException ignored) {} }
     }
@@ -55,7 +64,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     @Override
     public long append(String key, byte[] payload) throws IOException {
-        if (closed) throw new IllegalStateException("closed");
+        if (closed) {
+            throw new IllegalStateException("closed");
+        }
         int idx = shardHash(key.getBytes(StandardCharsets.UTF_8)) % config.shardCount();
         long lsn = walLogs[idx].append((byte) 0x01, payload == null ? new byte[0] : payload);
         totalRecords.incrementAndGet();
@@ -100,7 +111,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = new ArrayList<>();
-        for (SegmentWalLog log : walLogs) all.addAll(log.listSegments());
+        for (SegmentWalLog log : walLogs) {
+            all.addAll(log.listSegments());
+        }
         return all;
     }
 
@@ -108,7 +121,10 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     public void close() throws IOException {
         closed = true;
         scheduler.shutdownNow();
-        try { scheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+        try {
+            scheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+        }
         for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
     }
 
@@ -118,24 +134,41 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     * 可复用写缓冲，最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024
     */
     private static final int KV_WRITE_BUF_SIZE = 1024;
+    /** 写入Buf */
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
     /**
     * FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确
+    * @param data 数据，不允许为 null
+    * @return 结果数值
     */
     private static int shardHash(byte[] data) {
         int h = 0x811c9dc5;
-        for (byte b : data) h = (h ^ b) * 0x01000193;
+        for (byte b : data) {
+            h = (h ^ b) * 0x01000193;
+        }
         return h & 0x7FFFFFFF;
     }
 
+    /**
+     * 放入。
+     *
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     * @return 结果数值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public long put(String key, byte[] value) throws IOException {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         int vlen = value == null ? 0 : value.length;
         int total = 4 + kb.length + 4 + vlen;
-        if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        if (writeBuf.length < total) {
+            writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        }
         ByteBuffer.wrap(writeBuf, 0, total).putInt(kb.length).put(kb).putInt(vlen);
-        if (value != null) System.arraycopy(value, 0, writeBuf, 4 + kb.length + 4, vlen);
+        if (value != null) {
+            System.arraycopy(value, 0, writeBuf, 4 + kb.length + 4, vlen);
+        }
         int idx = shardHash(kb) % config.shardCount();
         byte[] payload = Arrays.copyOf(writeBuf, total);
         long lsn = walLogs[idx].append((byte) 0x01, payload);
@@ -146,21 +179,38 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     /**
     * 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串
+    * @param key 键，不允许为 null
+    * @param value 值，不允许为 null
+    * @return 结果数值
     */
     public long putFast(byte[] key, byte[] value) throws IOException {
         int vlen = value == null ? 0 : value.length;
         int total = 4 + key.length + 4 + vlen;
-        if (writeBuf.length < total) writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        if (writeBuf.length < total) {
+            writeBuf = new byte[Math.max(total * 2, KV_WRITE_BUF_SIZE)];
+        }
         ByteBuffer.wrap(writeBuf, 0, total).putInt(key.length).put(key).putInt(vlen);
-        if (value != null) System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
+        if (value != null) {
+            System.arraycopy(value, 0, writeBuf, 4 + key.length + 4, vlen);
+        }
         int idx = shardHash(key) % config.shardCount();
         byte[] payload = Arrays.copyOf(writeBuf, total);
         long lsn = walLogs[idx].append((byte) 0x01, payload);
-        try { memIndex.put(new String(key, StandardCharsets.UTF_8), value == null ? new byte[0] : Arrays.copyOf(value, vlen)); } catch (Exception ignored) {}
+        try {
+            memIndex.put(new String(key, StandardCharsets.UTF_8), value == null ? new byte[0] : Arrays.copyOf(value, vlen));
+        } catch (Exception ignored) {
+        }
         totalRecords.incrementAndGet();
         return lsn;
     }
 
+    /**
+     * 获取字节数组。
+     *
+     * @param key 键，不允许为 null
+     * @return 可选结果，不存在时为 Optional.empty()
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public Optional<byte[]> getBytes(String key) throws IOException {
         byte[] v = memIndex.get(key);
         return v == null ? Optional.empty() : Optional.of(v);
@@ -172,22 +222,43 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         for (SegmentWalLog log : walLogs) {
             try {
                 log.replay((lsn, op, payload) -> {
-                    if ((op & 0x80) != 0) { memIndex.remove(decodeKey(payload)); return true; }
+                    if ((op & 0x80) != 0) {
+                        memIndex.remove(decodeKey(payload));
+                        return true;
+                    }
                     String k = decodeKey(payload);
-                    if (k != null) memIndex.put(k, extractValue(payload));
+                    if (k != null) {
+                        memIndex.put(k, extractValue(payload));
+                    }
                     return true;
                 });
             } catch (IOException ignored) {}
         }
     }
 
+    /**
+     * 解码键。
+     *
+     * @param payload 方法入参 payload
+     * @return 结果字符串
+     */
     private static String decodeKey(byte[] payload) {
-        if (payload == null || payload.length < 8) return null;
+        if (payload == null || payload.length < 8) {
+            return null;
+        }
         int klen = ByteBuffer.wrap(payload).getInt();
-        if (klen <= 0 || klen + 8 > payload.length) return null;
+        if (klen <= 0 || klen + 8 > payload.length) {
+            return null;
+        }
         return new String(payload, 4, klen, StandardCharsets.UTF_8);
     }
 
+    /**
+     * extract值。
+     *
+     * @param payload 方法入参 payload
+     * @return 结果值
+     */
     private static byte[] extractValue(byte[] payload) {
         int klen = ByteBuffer.wrap(payload).getInt();
         int vlen = ByteBuffer.wrap(payload, klen + 4, 4).getInt();
@@ -197,6 +268,13 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     /** 供测试访问内部 walLogs，生产环境不应暴露 */
     SegmentWalLog[] getWalLogs() { return walLogs; }
 
+    /**
+     * 创建。
+     *
+     * @param baseDir base目录，不允许为 null
+     * @return KvWalStoreSystem 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public static KvWalStoreSystem create(Path baseDir) throws IOException {
         return new KvWalStoreSystem(new WalStoreEnvDetector().detect(baseDir));
     }

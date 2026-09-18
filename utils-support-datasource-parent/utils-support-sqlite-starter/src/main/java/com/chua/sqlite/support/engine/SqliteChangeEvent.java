@@ -49,20 +49,35 @@ public final class SqliteChangeEvent {
         this.rowId = rowId;
     }
 
+    /**
+     * 插入。
+     *
+     * @param table 表，不允许为 null
+     * @param rowId 行ID，不允许为 null
+     * @return SqliteChangeEvent 对象
+     */
     public static SqliteChangeEvent insert(String table, long rowId) {
-        /**
-        * 更新。
-        * @param table table
-        * @param rowId rowid
-        * @return 更新的结果
-        */
         return new SqliteChangeEvent(Type.INSERT, table, rowId);
     }
 
+    /**
+     * 更新。
+     *
+     * @param table 表，不允许为 null
+     * @param rowId 行ID，不允许为 null
+     * @return SqliteChangeEvent 对象
+     */
     public static SqliteChangeEvent update(String table, long rowId) {
         return new SqliteChangeEvent(Type.UPDATE, table, rowId);
     }
 
+    /**
+     * 删除。
+     *
+     * @param table 表，不允许为 null
+     * @param rowId 行ID，不允许为 null
+     * @return SqliteChangeEvent 对象
+     */
     public static SqliteChangeEvent delete(String table, long rowId) {
         return new SqliteChangeEvent(Type.DELETE, table, rowId);
     }

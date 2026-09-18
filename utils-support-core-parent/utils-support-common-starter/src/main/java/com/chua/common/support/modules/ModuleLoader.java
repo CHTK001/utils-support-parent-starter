@@ -372,8 +372,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddExportsMethod == null) {
                     try {
-                        // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），无法用 ReflectUtils 替代
-                        implAddExportsMethod = Module.class.getDeclaredMethod(
+                        implAddExportsMethod = Module.class.getDeclaredMethod( // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），ReflectUtils 不覆盖 JDK 内部适配
                                 "implAddExports", String.class, Module.class);
                         implAddExportsMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {
@@ -400,8 +399,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddOpensMethod == null) {
                     try {
-                        // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），无法用 ReflectUtils 替代
-                        implAddOpensMethod = Module.class.getDeclaredMethod(
+                        implAddOpensMethod = Module.class.getDeclaredMethod( // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），ReflectUtils 不覆盖 JDK 内部适配
                                 "implAddOpens", String.class, Module.class);
                         implAddOpensMethod.setAccessible(true);
                     } catch (NoSuchMethodException e) {

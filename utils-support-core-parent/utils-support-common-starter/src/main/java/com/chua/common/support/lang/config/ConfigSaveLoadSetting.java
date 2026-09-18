@@ -12,6 +12,12 @@ import java.nio.charset.StandardCharsets;
 * @author CH
 * @since 4.0.0.42
  */@Data
+/**
+ * 配置保存加载Setting类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @Builder
 public class ConfigSaveLoadSetting {
 

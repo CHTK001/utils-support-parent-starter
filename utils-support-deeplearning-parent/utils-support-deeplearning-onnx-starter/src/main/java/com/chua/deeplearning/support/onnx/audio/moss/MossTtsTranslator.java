@@ -102,6 +102,11 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 加载配置。
+     *
+     * @param manifest 方法入参 manifest
+     */
     private void loadConfig(JsonNode manifest) {
         JsonNode templates = manifest.get("prompt_templates");
         userPromptPrefix = toIntList(templates.get("user_prompt_prefix_token_ids"));
@@ -158,6 +163,12 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 转为Int列出。
+     *
+     * @param node 节点，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Integer> toIntList(JsonNode node) {
         List<Integer> values = new ArrayList<>();
         for (JsonNode item : node) {
@@ -232,6 +243,12 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * stereoFlat。
+     *
+     * @param stereo 方法入参 stereo
+     * @return 结果值
+     */
     private static float[] stereoFlat(float[][] stereo) {
         int n = stereo[0].length;
         float[] flat = new float[2 * n];
@@ -271,6 +288,14 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * resampleLinear。
+     *
+     * @param in 方法入参 in
+     * @param srcRate src速率，不允许为 null
+     * @param dstRate dst速率，不允许为 null
+     * @return 结果值
+     */
     private static float[] resampleLinear(float[] in, float srcRate, float dstRate) {
         long newLenLong = (long) in.length * (long) dstRate / (long) srcRate;
         int newLen = (int) Math.min(newLenLong, Integer.MAX_VALUE - 1);
@@ -412,6 +437,12 @@ public class MossTtsTranslator implements AutoCloseable {
         return chunks;
     }
 
+    /**
+     * 追加NonEmpty。
+     *
+     * @param list 列出，不允许为 null
+     * @param s 方法入参 s
+     */
     private void appendNonEmpty(List<String> list, String s) {
         String trimmed = s.trim();
         if (!trimmed.isEmpty()) {
@@ -465,6 +496,12 @@ public class MossTtsTranslator implements AutoCloseable {
         return AudioUtils.toWavBytes(pcm, 48000);
     }
 
+    /**
+     * selectVoice提示词。
+     *
+     * @param voice 方法入参 voice
+     * @return 结果列表，无数据时为空列表
+     */
     private List<int[]> selectVoicePrompt(String voice) {
         int[][] codes = voicePrompts.get(voice);
         if (codes == null && !voicePrompts.isEmpty()) {
@@ -510,6 +547,13 @@ public class MossTtsTranslator implements AutoCloseable {
         return rows.toArray(new int[0][]);
     }
 
+    /**
+     * 追加文本Rows。
+     *
+     * @param rows 方法入参 rows
+     * @param tokens 方法入参 tokens
+     * @param rowWidth 行宽度，不允许为 null
+     */
     private void appendTextRows(List<int[]> rows, List<Integer> tokens, int rowWidth) {
         for (int token : tokens) {
             int[] row = new int[rowWidth];
@@ -519,6 +563,13 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 追加AudioRows。
+     *
+     * @param rows 方法入参 rows
+     * @param codes 方法入参 codes
+     * @param rowWidth 行宽度，不允许为 null
+     */
     private void appendAudioRows(List<int[]> rows, List<int[]> codes, int rowWidth) {
         for (int[] codeRow : codes) {
             int[] row = new int[rowWidth];
@@ -573,6 +624,13 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 运行Prefill。
+     *
+     * @param inputIds 方法入参 inputIds
+     * @return Prefill状态 对象
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private PrefillState runPrefill(int[][] inputIds) throws OrtException {
         int seqLen = inputIds.length;
         int rowWidth = inputIds[0].length;
@@ -614,6 +672,14 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * generateFrames。
+     *
+     * @param state 状态，不允许为 null
+     * @param maxFrames 最大值Frames，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private List<int[]> generateFrames(PrefillState state, int maxFrames) throws OrtException {
         List<int[]> audioTokens = new ArrayList<>();
         int rowWidth = nVq + 1;
@@ -729,6 +795,13 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 解码Audio。
+     *
+     * @param audioTokens 方法入参 audioTokens
+     * @return 结果值
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private float[] decodeAudio(List<int[]> audioTokens) throws OrtException {
         int numFrames = audioTokens.size();
         if (numFrames == 0) {
@@ -770,6 +843,13 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * extract最后一个Hidden。
+     *
+     * @param tensor 方法入参 tensor
+     * @return OnnxTensor 对象
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private OnnxTensor extractLastHidden(OnnxTensor tensor) throws OrtException {
         long[] shape = tensor.getInfo().getShape();
         float[] last;
@@ -785,6 +865,12 @@ public class MossTtsTranslator implements AutoCloseable {
                 FloatBuffer.wrap(last.clone()), new long[]{1, last.length});
     }
 
+    /**
+     * 首个Int。
+     *
+     * @param raw 方法入参 raw
+     * @return 结果数值
+     */
     private static int firstInt(Object raw) {
         List<Integer> values = new ArrayList<>();
         collect(raw, values);
@@ -800,6 +886,13 @@ public class MossTtsTranslator implements AutoCloseable {
         return values.get(0);
     }
 
+    /**
+     * flattenInts。
+     *
+     * @param raw 方法入参 raw
+     * @param limit 上限，不允许为 null
+     * @return 结果值
+     */
     private static int[] flattenInts(Object raw, int limit) {
         List<Integer> values = new ArrayList<>();
         collect(raw, values);
@@ -815,6 +908,12 @@ public class MossTtsTranslator implements AutoCloseable {
         return result;
     }
 
+    /**
+     * 收集。
+     *
+     * @param raw 方法入参 raw
+     * @param out 方法入参 out
+     */
     private static void collect(Object raw, List<Integer> out) {
         if (raw instanceof Integer integer) {
             out.add(integer);
@@ -844,6 +943,12 @@ public class MossTtsTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * clampUnit。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果数值
+     */
     private static float clampUnit(double value) {
         double clamped = Math.max(1e-6, Math.min(value, 1.0 - 1e-6));
         /**
@@ -862,6 +967,11 @@ public class MossTtsTranslator implements AutoCloseable {
         closeQuietly(codecSession);
     }
 
+    /**
+     * 关闭Quietly。
+     *
+     * @param session 会话，不允许为 null
+     */
     private void closeQuietly(OrtSession session) {
         if (session != null) {
             try {

@@ -175,6 +175,11 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
         return this;
     }
 
+    /**
+     * 构建Similarity操作。
+     *
+     * @return 结果字符串
+     */
     private String buildSimilarityOp() {
         String algo = getAlgorithm().name().toUpperCase();
         return switch (algo) {
@@ -232,6 +237,12 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
         return jsonArrayToFloatArray(s);
     }
 
+    /**
+     * float数组转为Json。
+     *
+     * @param vector 方法入参 vector
+     * @return 结果字符串
+     */
     private static String floatArrayToJson(float[] vector) {
         if (vector == null || vector.length == 0) {
             return "[]";
@@ -248,6 +259,12 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
         return sb.toString();
     }
 
+    /**
+     * json数组转为Float数组。
+     *
+     * @param json 方法入参 json
+     * @return 结果值
+     */
     private static float[] jsonArrayToFloatArray(String json) {
         if (json == null || json.isBlank()) {
             return null;

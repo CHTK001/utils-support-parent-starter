@@ -143,6 +143,8 @@ public class SipServer extends AbstractServer implements TcpServer {
     */
         /**
         * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
+        * @param config 配置，不允许为 null
+        * @return 结果字符串
         */
     private static String resolveToken(SipConfig config) {
         String file = config.getTokenFile();
@@ -161,6 +163,12 @@ public class SipServer extends AbstractServer implements TcpServer {
         return config.getToken();
     }
 
+/**
+ * 服务端Setting。
+ *
+ * @param config 配置，不允许为 null
+ * @return 服务端Setting 对象
+ */
 private static ServerSetting serverSetting(SipConfig config) {
         ServerSetting setting = ServerSetting.defaults();
         setting.setHost(config.getHost());
@@ -492,7 +500,9 @@ private static ServerSetting serverSetting(SipConfig config) {
         SignalConnection conn = new SignalConnection(clientId, host, port, sessionToken, writer);
         SignalConnection previous = registry.put(clientId, conn);
         SipMetrics.get().onClientConnect();
-        if (previous == null) SipMetrics.get().onAuthAccept();
+        if (previous == null) {
+            SipMetrics.get().onAuthAccept();
+        }
         if (previous != null) {
             // 同一 clientId 重复接入：踢掉旧连接，防止注册表互相覆盖导致隧道串线
             log.warn("SIP 客户端重复接入，踢掉旧连接: clientId={}", clientId);
@@ -507,7 +517,10 @@ private static ServerSetting serverSetting(SipConfig config) {
 
         String line;
         while (running && (line = reader.readLine()) != null) {
-            if (!rateLimiter.allowFrame(clientId)) { log.debug("SIP 帧限速: client={}", clientId); continue; }
+            if (!rateLimiter.allowFrame(clientId)) {
+                log.debug("SIP 帧限速: client={}", clientId);
+                continue;
+            }
             handleSignal(clientId, line);
         }
                 rateLimiter.releaseConnection(clientId);
@@ -828,6 +841,7 @@ onSignalClosed(clientId);
     * @param port     可达端口
     * @param token    会话令牌
     * @param writer   输出
+    * @return 结果值
     */
     private record SignalConnection(String clientId, String host, int port, String token, PrintWriter writer) {
 
@@ -851,6 +865,7 @@ onSignalClosed(clientId);
     *
     * @param aId 访问方客户端标识
     * @param bId 服务提供方客户端标识
+    * @return 结果值
     */
     private record TunnelChannel(String aId, String bId) {
     }

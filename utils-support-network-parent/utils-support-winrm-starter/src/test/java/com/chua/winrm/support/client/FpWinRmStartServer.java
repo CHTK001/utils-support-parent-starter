@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 绗竴姝ワ細浠呭惎鍔ㄨ繙绋?FilePushServer锛堝悗鍙帮級锛岄獙璇佺洃鍚€? */
 public class FpWinRmStartServer {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         String sshTunnel = "http://172.16.9.194:5985/wsman";
         WinRmExecClient winrm = WinRmExecClient.builder()

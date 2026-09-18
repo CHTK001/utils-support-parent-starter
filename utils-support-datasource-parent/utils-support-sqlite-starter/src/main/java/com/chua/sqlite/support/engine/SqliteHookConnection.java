@@ -68,6 +68,11 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
+    /**
+     * 构造方法，创建 SqliteHook连接 实例。
+     *
+     * @param handle 处理，不允许为 null
+     */
     private SqliteHookConnection(MemorySegment handle) {
         this.handle = handle;
     }
@@ -115,9 +120,17 @@ public final class SqliteHookConnection implements AutoCloseable {
         * 是否打开。
         * @return 是否打开的结果
         */
-        try { HOOK_CLOSE_HANDLE.invoke(handle); } catch (Throwable ignored) {}
+        try {
+            HOOK_CLOSE_HANDLE.invoke(handle);
+        } catch (Throwable ignored) {
+        }
     }
 
+    /**
+     * 是否打开。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isOpen() {
         /**
         * drain缓冲同步。
@@ -125,6 +138,9 @@ public final class SqliteHookConnection implements AutoCloseable {
         return handle != null && !handle.equals(MemorySegment.NULL);
     }
 
+    /**
+     * drain缓冲区Sync。
+     */
     private void drainBufferSync() {
         try (var arena = Arena.ofConfined()) {
             MemorySegment buf = arena.allocate(BUFFER_SIZE);
@@ -146,6 +162,11 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
+    /**
+     * 加载Library。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean loadLibrary() {
         if (LIBRARY_RESOLVED) {
             return LIBRARY_OK;
@@ -174,6 +195,13 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
+    /**
+     * 绑定。
+     *
+     * @param name 名称，不允许为 null
+     * @param desc 描述，不允许为 null
+     * @return 方法处理 对象
+     */
     private static MethodHandle bind(String name, FunctionDescriptor desc) {
         MemorySegment sym = SYM_LOOKUP.find(name)
                 .orElseThrow(() -> new UnsatisfiedLinkError("符号未找到: " + name));
@@ -185,6 +213,12 @@ public final class SqliteHookConnection implements AutoCloseable {
         return LINKER.downcallHandle(sym, desc);
     }
 
+    /**
+     * 解析Event。
+     *
+     * @param json 方法入参 json
+     * @return SqliteChangeEvent 对象
+     */
     static SqliteChangeEvent parseEvent(String json) {
         if (json == null || json.isEmpty()) {
             return null;
@@ -217,6 +251,13 @@ public final class SqliteHookConnection implements AutoCloseable {
         }
     }
 
+    /**
+     * extract字符串。
+     *
+     * @param json 方法入参 json
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractString(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
         if (ki < 0) {
@@ -237,6 +278,13 @@ public final class SqliteHookConnection implements AutoCloseable {
         return json.substring(si + 1, ei);
     }
 
+    /**
+     * extractLong。
+     *
+     * @param json 方法入参 json
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     private static long extractLong(String json, String key) {
         int ki = json.indexOf("\"" + key + "\"");
         if (ki < 0) {

@@ -80,6 +80,7 @@ public class VideoInfoResult {
     private Integer videoVoteCount;
 
  // 视频信息结果 特定 字段
+    /** videoMark列出 */
     private List<?> videoMarkList;
     private List<?> downloadList; // download列表
     private List<?> playAddressesList; // play地址列表

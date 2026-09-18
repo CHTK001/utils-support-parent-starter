@@ -30,6 +30,9 @@ class MemoryWhereParserTest {
         return new MemoryWhereParser().parse(where, List.of(params));
     }
 
+    /**
+     * 测试：EmptyClause。
+     */
     @Test
     @DisplayName("空条件恒为 true")
     void testEmptyClause() {
@@ -38,6 +41,9 @@ class MemoryWhereParserTest {
         assertTrue(new MemoryWhereParser().parse("  ", List.of()).test(user));
     }
 
+    /**
+     * 测试：Equals。
+     */
     @Test
     @DisplayName("等值匹配(支持数字参数自动转型)")
     void testEquals() {
@@ -51,6 +57,9 @@ class MemoryWhereParserTest {
         assertFalse(byAge.test(lisi));
     }
 
+    /**
+     * 测试：Comparison。
+     */
     @Test
     @DisplayName("不等与大小比较")
     void testComparison() {
@@ -63,6 +72,9 @@ class MemoryWhereParserTest {
         assertFalse(parse("age > ?", 25).test(user));
     }
 
+    /**
+     * 测试：SnakeCase列。
+     */
     @Test
     @DisplayName("蛇形列名(dept_id)可正确解析到 deptId 属性")
     void testSnakeCaseColumn() {
@@ -71,6 +83,9 @@ class MemoryWhereParserTest {
         assertFalse(parse("dept_id = ?", 8L).test(user));
     }
 
+    /**
+     * 测试：Like。
+     */
     @Test
     @DisplayName("LIKE 按包含关系匹配")
     void testLike() {
@@ -79,6 +94,9 @@ class MemoryWhereParserTest {
         assertFalse(parse("name LIKE ?", "%李四%").test(user));
     }
 
+    /**
+     * 测试：In。
+     */
     @Test
     @DisplayName("IN / NOT IN")
     void testIn() {
@@ -88,6 +106,9 @@ class MemoryWhereParserTest {
         assertTrue(parse("age NOT IN (?, ?)", 26, 30).test(user));
     }
 
+    /**
+     * 测试：Between。
+     */
     @Test
     @DisplayName("BETWEEN 闭区间")
     void testBetween() {
@@ -97,6 +118,9 @@ class MemoryWhereParserTest {
         assertFalse(parse("age BETWEEN ? AND ?", 26, 30).test(user));
     }
 
+    /**
+     * 测试：NullChecks。
+     */
     @Test
     @DisplayName("IS NULL / IS NOT NULL")
     void testNullChecks() {
@@ -106,6 +130,9 @@ class MemoryWhereParserTest {
         assertFalse(parse("name IS NOT NULL").test(user));
     }
 
+    /**
+     * 测试：AndCombination。
+     */
     @Test
     @DisplayName("AND 组合:多条件同时满足")
     void testAndCombination() {
@@ -116,6 +143,9 @@ class MemoryWhereParserTest {
         assertFalse(p.test(mismatch));
     }
 
+    /**
+     * 测试：GroupedOr。
+     */
     @Test
     @DisplayName("括号分组 + OR 优先级")
     void testGroupedOr() {

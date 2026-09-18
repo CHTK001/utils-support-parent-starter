@@ -101,6 +101,9 @@ public class WalStoreEnvDetector implements RuntimeDetector {
 
     /**
     * 带命名空间的检测。
+    * @param baseDir base目录，不允许为 null
+    * @param namespace 方法入参 namespace
+    * @return WalStore配置 对象
     */
     public WalStoreConfig detect(Path baseDir, String namespace) {
         WalStoreConfig cfg = detect(baseDir);
@@ -118,8 +121,16 @@ public class WalStoreEnvDetector implements RuntimeDetector {
 
     // ==================== 内部检测 ====================
 
+    /**
+     * detectSSD。
+     *
+     * @param baseDir base目录，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean detectSSD(Path baseDir) {
-        if (baseDir == null) return false;
+        if (baseDir == null) {
+            return false;
+        }
         try {
             // Windows: 检查卷是否为 SSD
             String os = System.getProperty("os.name").toLowerCase();
@@ -134,6 +145,12 @@ public class WalStoreEnvDetector implements RuntimeDetector {
         return false;
     }
 
+    /**
+     * detectSSDWindows。
+     *
+     * @param baseDir base目录，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean detectSSDWindows(Path baseDir) {
         try {
             String dir = baseDir.toAbsolutePath().toString();
@@ -145,7 +162,10 @@ public class WalStoreEnvDetector implements RuntimeDetector {
             pb.redirectErrorStream(true);
             Process p = pb.start();
             boolean done = p.waitFor(3, java.util.concurrent.TimeUnit.SECONDS);
-            if (!done) { p.destroyForcibly(); return false; }
+            if (!done) {
+                p.destroyForcibly();
+                return false;
+            }
             String out = new String(p.getInputStream().readAllBytes()).trim();
             return out.contains("SSD") || out.contains("fixed");
         } catch (Exception e) {
@@ -153,19 +173,30 @@ public class WalStoreEnvDetector implements RuntimeDetector {
         }
     }
 
+    /**
+     * detectSSDLinux。
+     *
+     * @param baseDir base目录，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean detectSSDLinux(Path baseDir) {
         try {
             String disk = baseDir.toAbsolutePath().toString().substring(0, 3); // "/dev/sd"
             Process pb = new ProcessBuilder("lsblk", "-d", "-o", "NAME,ROTA", disk)
                     .redirectErrorStream(true).start();
             boolean done = pb.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
-            if (!done) { pb.destroyForcibly(); return false; }
+            if (!done) {
+                pb.destroyForcibly();
+                return false;
+            }
             String out = new String(pb.getInputStream().readAllBytes()).trim();
             // ROTA=0 表示 SSD，ROTA=1 表示 HDD
             String[] lines = out.split("\n");
             for (String line : lines) {
                 String[] parts = line.trim().split("\\s+");
-                if (parts.length >= 2 && "0".equals(parts[1])) return true;
+                if (parts.length >= 2 && "0".equals(parts[1])) {
+                    return true;
+                }
             }
             return false;
         } catch (Exception e) {
@@ -173,6 +204,13 @@ public class WalStoreEnvDetector implements RuntimeDetector {
         }
     }
 
+    /**
+     * clamp。
+     *
+     * @param value 值，不允许为 null
+     * @param max 最大值，不允许为 null
+     * @return 结果数值
+     */
     private static int clamp(int value, int max) {
         return Math.min(Math.max(value, 1), max);
     }

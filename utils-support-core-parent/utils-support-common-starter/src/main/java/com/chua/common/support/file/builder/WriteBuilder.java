@@ -65,22 +65,34 @@ public abstract class WriteBuilder {
         this.file = file;
     }
 
-    /** 获取File */
+    /**
+     * 获取File
+     * @return 文件 对象
+     */
     public File getFile() {
         return file;
     }
 
-    /** 获取Charset */
+    /**
+     * 获取Charset
+     * @return 字符集 对象
+     */
     public Charset getCharset() {
         return charset;
     }
 
-    /** 获取TemplateFile */
+    /**
+     * 获取TemplateFile
+     * @return 文件 对象
+     */
     public File getTemplateFile() {
         return templateFile;
     }
 
-    /** 获取TemplateData */
+    /**
+     * 获取TemplateData
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> getTemplateData() {
         return templateData;
     }

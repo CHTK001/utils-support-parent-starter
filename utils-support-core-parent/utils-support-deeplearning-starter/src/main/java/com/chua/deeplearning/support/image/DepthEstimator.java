@@ -147,6 +147,13 @@ class DefaultDepthEstimator implements DepthEstimator {
     */
     private String device = "cpu";
 
+    /**
+     * 构造方法，创建 Default深度Estimator 实例。
+     *
+     * @param engine 引擎，不允许为 null
+     * @param modelName 模型名称，不允许为 null
+     * @param setting 方法入参 setting
+     */
     DefaultDepthEstimator(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

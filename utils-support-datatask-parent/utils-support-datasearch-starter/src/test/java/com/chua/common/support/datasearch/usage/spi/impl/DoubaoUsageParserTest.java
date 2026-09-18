@@ -33,6 +33,12 @@ public class DoubaoUsageParserTest {
     private static int pass = 0;
     private static int fail = 0;
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         if (args.length >= 3 && "verify".equals(args[0])) {
             int code = verifyChild(args[1], Path.of(args[2]));
@@ -58,6 +64,14 @@ public class DoubaoUsageParserTest {
 
     // ==================== child process ====================
 
+    /**
+     * spawn子节点。
+     *
+     * @param key 键，不允许为 null
+     * @param dbPath db路径，不允许为 null
+     * @return 结果数值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static int spawnChild(String key, String dbPath) throws Exception {
         String javaBin = Path.of(System.getProperty("java.home"), "bin",
                 System.getProperty("os.name", "").toLowerCase().contains("win") ? "java.exe" : "java").toString();
@@ -79,6 +93,13 @@ public class DoubaoUsageParserTest {
         return code;
     }
 
+    /**
+     * 验证子节点。
+     *
+     * @param key 键，不允许为 null
+     * @param dbPath db路径，不允许为 null
+     * @return 结果数值
+     */
     private static int verifyChild(String key, Path dbPath) {
         System.setProperty("user.home", System.getProperty("user.home"));
         // 直接读 env（由子进程注入）
@@ -101,6 +122,11 @@ public class DoubaoUsageParserTest {
         return fail > 0 ? 1 : 0;
     }
 
+    /**
+     * 收集。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<AiUsage> collect() {
         DoubaoUsageParser parser = new DoubaoUsageParser();
         List<AiUsage> out = new ArrayList<>();
@@ -113,6 +139,11 @@ public class DoubaoUsageParserTest {
         return out;
     }
 
+    /**
+     * 子节点Classpath。
+     *
+     * @return 结果字符串
+     */
     private static String childClasspath() {
         java.net.URL location = DoubaoUsageParserTest.class.getProtectionDomain().getCodeSource().getLocation();
         Path testClasses;
@@ -147,6 +178,12 @@ public class DoubaoUsageParserTest {
 
     // ==================== fixtures ====================
 
+    /**
+     * 创建DoubaoFixture。
+     *
+     * @return 路径 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static Path createDoubaoFixture() throws Exception {
         Path db = Files.createTempDirectory("doubao-fixture-").resolve("cc-switch.db");
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -168,6 +205,12 @@ public class DoubaoUsageParserTest {
         return db;
     }
 
+    /**
+     * 创建EmptyFixture。
+     *
+     * @return 路径 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static Path createEmptyFixture() throws Exception {
         Path db = Files.createTempDirectory("doubao-empty-").resolve("cc-switch.db");
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -182,6 +225,12 @@ public class DoubaoUsageParserTest {
         return db;
     }
 
+    /**
+     * 创建表。
+     *
+     * @param stmt 方法入参 stmt
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static void createTable(Statement stmt) throws Exception {
         stmt.execute("CREATE TABLE proxy_request_logs ("
                 + "request_id TEXT PRIMARY KEY, provider_id TEXT NOT NULL, "
@@ -202,6 +251,12 @@ public class DoubaoUsageParserTest {
                 + "data_source TEXT NOT NULL DEFAULT 'proxy')");
     }
 
+    /**
+     * 校验。
+     *
+     * @param condition condition（布尔开关）
+     * @param message 消息，不允许为 null
+     */
     private static void check(boolean condition, String message) {
         if (condition) {
             pass++;

@@ -9,6 +9,13 @@ import javax.annotation.Nullable;
 
 public interface ImageSettingProcessor {
 
+    /**
+     * 处理。
+     *
+     * @param imageData image数据，不允许为 null
+     * @param settingValue setting值，不允许为 null
+     * @return 结果值
+     */
     @Nullable
     byte[] process(@Nonnull byte[] imageData, @Nonnull String settingValue);
 }

@@ -898,6 +898,12 @@ public abstract class JdbcEngine extends AbstractEngine {
         return "unknown";
     }
 
+    /**
+     * 解析Manager。
+     *
+     * @param clazz 类，不允许为 null
+     * @return T 对象
+     */
     @SuppressWarnings("unchecked")
     private <T> T resolveManager(Class<T> clazz) {
         try {
@@ -1004,6 +1010,12 @@ public abstract class JdbcEngine extends AbstractEngine {
         return result;
     }
 
+    /**
+     * escapeIdentifier。
+     *
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String escapeIdentifier(String name) {
         // 调用方负责按需添加引用符，此处仅做安全转义
         return StringUtils.replace(name, "`", "``");

@@ -41,7 +41,11 @@ public class HtmlRenderer implements DocumentProvider {
         write(outputFile, content);
     }
 
-    /** 写入 */
+    /**
+     * 写入
+     * @param outputFile output文件，不允许为 null
+     * @param content 内容，不允许为 null
+     */
     private void write(File outputFile, String content) {
         try {
             File parent = outputFile.getParentFile();

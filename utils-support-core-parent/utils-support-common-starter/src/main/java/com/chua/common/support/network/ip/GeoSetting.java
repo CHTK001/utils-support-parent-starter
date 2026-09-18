@@ -26,6 +26,7 @@ public class GeoSetting {
     * 创建 GeoSetting 实例
     * @param databaseFile databaseFile
     * @param String String
+    * @param licenseKey license键，不允许为 null
     */
     public GeoSetting(String databaseFile, String licenseKey) {
         this.databaseFile = databaseFile;
@@ -39,6 +40,7 @@ public class GeoSetting {
 
     /**
     * 创建 Builder
+    * @return Builder 对象
     */
     public static Builder builder() {
         return new Builder();
@@ -51,9 +53,15 @@ public class GeoSetting {
         private String licenseKey = "";
 
         /** DatabaseFile */
-        public Builder databaseFile(String databaseFile) { this.databaseFile = databaseFile; return this; }
+        public Builder databaseFile(String databaseFile) {
+            this.databaseFile = databaseFile;
+            return this;
+        }
         /** LicenseKey */
-        public Builder licenseKey(String licenseKey) { this.licenseKey = licenseKey; return this; }
+        public Builder licenseKey(String licenseKey) {
+            this.licenseKey = licenseKey;
+            return this;
+        }
         /** 构建 */
         public GeoSetting build() { return new GeoSetting(databaseFile, licenseKey); }
     }

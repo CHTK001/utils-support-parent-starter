@@ -243,6 +243,8 @@ public enum Protocol {
 
     /**
     * UNKNOWN
+    * @param 0 方法入参 0
+    * @param false 方法入参 false
      */
     UNKNOWN("Unknown", 0, false);
 
@@ -259,6 +261,13 @@ public enum Protocol {
      */
     private final boolean text;
 
+    /**
+     * 构造方法，创建 Protocol 实例。
+     *
+     * @param displayName display名称，不允许为 null
+     * @param defaultPort default端口，不允许为 null
+     * @param text 文本，不允许为 null
+     */
     Protocol(String displayName, int defaultPort, boolean text) {
         this.displayName = displayName;
         this.defaultPort = defaultPort;

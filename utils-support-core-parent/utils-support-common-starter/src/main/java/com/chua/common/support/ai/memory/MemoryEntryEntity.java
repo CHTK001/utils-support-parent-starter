@@ -53,7 +53,11 @@ public class MemoryEntryEntity {
     */
     private Map<String, Object> metadata;
 
-    /** From */
+    /**
+     * From
+     * @param entry 条目，不允许为 null
+     * @return Memory条目实体 对象
+     */
     public static MemoryEntryEntity from(MemoryEntry entry) {
         if (entry == null) {
             return null;
@@ -71,7 +75,10 @@ public class MemoryEntryEntity {
         return e;
     }
 
-    /** ToEntry */
+    /**
+     * ToEntry
+     * @return Memory条目 对象
+     */
     public MemoryEntry toEntry() {
         return MemoryEntry.builder()
                 .id(id)

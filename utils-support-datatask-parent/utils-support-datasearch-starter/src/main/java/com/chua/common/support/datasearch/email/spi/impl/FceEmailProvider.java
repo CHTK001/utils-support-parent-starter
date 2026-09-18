@@ -147,6 +147,12 @@ public class FceEmailProvider implements EmailProvider {
         return nm.find() ? nm.group(1) : null;
     }
 
+    /**
+     * random前缀。
+     *
+     * @param length 长度，不允许为 null
+     * @return 结果字符串
+     */
     private static String randomPrefix(int length) {
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(length);
@@ -156,6 +162,11 @@ public class FceEmailProvider implements EmailProvider {
         return sb.toString();
     }
 
+    /**
+     * 解析Api键。
+     *
+     * @return 结果字符串
+     */
     private static String resolveApiKey() {
         String key = System.getProperty("fce.api.key");
         if (key != null && !key.isBlank()) {

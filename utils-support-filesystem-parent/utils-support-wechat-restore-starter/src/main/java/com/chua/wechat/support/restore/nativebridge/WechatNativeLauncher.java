@@ -64,6 +64,9 @@ public final class WechatNativeLauncher {
     */
     private static final String DEFAULT_HOST_DIR = ".chua-wechat";
 
+    /**
+     * 构造方法，创建 WechatNativeLauncher 实例。
+     */
     private WechatNativeLauncher() {
     }
 

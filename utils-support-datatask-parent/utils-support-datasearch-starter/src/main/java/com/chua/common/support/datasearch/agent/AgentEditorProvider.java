@@ -1799,7 +1799,10 @@ public class AgentEditorProvider {
         *
         * @param json 待解析的 JSON 字符串
         */
-        JsonParser(String json) { this.json = json; this.pos = 0; }
+        JsonParser(String json) {
+            this.json = json;
+            this.pos = 0;
+        }
 
         /**
         * 解析 JSON 字符串为 Java 对象，根据首字符分发到对应的解析方法。
@@ -1816,7 +1819,10 @@ public class AgentEditorProvider {
                 case '[' -> parseArray();
                 case '"' -> parseString();
                 case 't', 'f' -> parseBoolean();
-                case 'n' -> { pos += 4; yield null; }
+                case 'n' -> {
+                    pos += 4;
+                    yield null;
+                }
                 default -> parseNumber();
             };
         }
@@ -1832,7 +1838,10 @@ public class AgentEditorProvider {
             Map<String, Object> map = new LinkedHashMap<>();
             pos++;
             skipWhitespace();
-            if (pos < json.length() && json.charAt(pos) == '}') { pos++; return map; }
+            if (pos < json.length() && json.charAt(pos) == '}') {
+                pos++;
+                return map;
+            }
             while (pos < json.length()) {
                 skipWhitespace();
                 String key = parseString();
@@ -1840,7 +1849,10 @@ public class AgentEditorProvider {
                 pos++;
                 map.put(key, parse());
                 skipWhitespace();
-                if (pos < json.length() && json.charAt(pos) == ',') { pos++; continue; }
+                if (pos < json.length() && json.charAt(pos) == ',') {
+                    pos++;
+                    continue;
+                }
                 break;
             }
             skipWhitespace();
@@ -1861,11 +1873,17 @@ public class AgentEditorProvider {
             List<Object> list = new ArrayList<>();
             pos++;
             skipWhitespace();
-            if (pos < json.length() && json.charAt(pos) == ']') { pos++; return list; }
+            if (pos < json.length() && json.charAt(pos) == ']') {
+                pos++;
+                return list;
+            }
             while (pos < json.length()) {
                 list.add(parse());
                 skipWhitespace();
-                if (pos < json.length() && json.charAt(pos) == ',') { pos++; continue; }
+                if (pos < json.length() && json.charAt(pos) == ',') {
+                    pos++;
+                    continue;
+                }
                 break;
             }
             skipWhitespace();
@@ -1892,8 +1910,15 @@ public class AgentEditorProvider {
                 }
                 if (c == '\\') {
                     char next = pos < json.length() ? json.charAt(pos++) : ' ';
-                    sb.append(switch (next) { case 'n' -> '\n'; case 'r' -> '\r'; case 't' -> '\t'; default -> next; });
-                } else sb.append(c);
+                    sb.append(switch (next) {
+                        case 'n' -> '\n';
+                        case 'r' -> '\r';
+                        case 't' -> '\t';
+                        default -> next;
+                    });
+                } else {
+                    sb.append(c);
+                }
             }
             return sb.toString();
         }
@@ -1931,8 +1956,12 @@ public class AgentEditorProvider {
         * @return 解析得到的 布尔值（true 或 false）
         */
         private Boolean parseBoolean() {
-            if (json.startsWith("true", pos)) { pos += 4; return true; }
-            pos += 5; return false;
+            if (json.startsWith("true", pos)) {
+                pos += 4;
+                return true;
+            }
+            pos += 5;
+            return false;
         }
 
         /**

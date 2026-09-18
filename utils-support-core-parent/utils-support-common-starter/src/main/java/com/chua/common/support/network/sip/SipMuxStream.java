@@ -44,6 +44,12 @@ class SipMuxStream {
     */
     private volatile boolean closed;
 
+    /**
+     * 构造方法，创建 SipMux流 实例。
+     *
+     * @param channelId channelID，不允许为 null
+     * @param connection 连接，不允许为 null
+     */
     SipMuxStream(String channelId, SipMuxConnection connection) {
         this.channelId = channelId;
         this.connection = connection;

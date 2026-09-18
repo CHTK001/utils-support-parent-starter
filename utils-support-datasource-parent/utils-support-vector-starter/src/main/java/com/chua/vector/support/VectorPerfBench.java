@@ -51,6 +51,9 @@ public class VectorPerfBench {
     */
     }
 
+    /**
+     * 运行全部。
+     */
     private static void runAll() {
         printf("\n【MemoryVectorStorage】\n");
         bench("memory-cosine",      () -> VectorStorageBuilder.newBuilder().dimension(DIM).algorithm(VectorCompareAlgorithm.cosine()).build());
@@ -67,17 +70,25 @@ public class VectorPerfBench {
 
         printf("\n【JVectorVectorStorage MEMORY】\n");
         bench("jvector-mem-cosine", () -> {
-            var p = new JVectorStorageProperties(); p.setMode(JVectorStorageProperties.Mode.MEMORY);
+            var p = new JVectorStorageProperties();
+            p.setMode(JVectorStorageProperties.Mode.MEMORY);
             return VectorStorageProvider.of("jvector").dimension(DIM)
                     .algorithm(VectorCompareAlgorithm.cosine()).properties(p).build();
         });
         bench("jvector-mem-eucl",   () -> {
-            var p = new JVectorStorageProperties(); p.setMode(JVectorStorageProperties.Mode.MEMORY);
+            var p = new JVectorStorageProperties();
+            p.setMode(JVectorStorageProperties.Mode.MEMORY);
             return VectorStorageProvider.of("jvector").dimension(DIM)
                     .algorithm(VectorCompareAlgorithm.euclidean()).properties(p).build();
         });
     }
 
+    /**
+     * bench。
+     *
+     * @param name 名称，不允许为 null
+     * @param factory 工厂，不允许为 null
+     */
     private static void bench(String name, StorageFactory factory) {
         try {
             VectorStorage storage = factory.create();
@@ -143,8 +154,17 @@ public class VectorPerfBench {
         }
     }
 
+    /**
+     * safe刷写。
+     *
+     * @param s 方法入参 s
+     */
     private static void safeFlush(VectorStorage s) {
-        try { if (s instanceof DefaultVectorStorage ds) ds.flush(); } catch (Exception ignored) {}
+        try {
+            if (s instanceof DefaultVectorStorage ds) {
+                ds.flush();
+            }
+        } catch (Exception ignored) {}
     /**
     * 随机向量。
     * @param dim dim
@@ -152,6 +172,12 @@ public class VectorPerfBench {
     */
     }
 
+    /**
+     * randomVector。
+     *
+     * @param dim 方法入参 dim
+     * @return 结果值
+     */
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
         for (int i = 0; i < dim; i++) {
@@ -165,6 +191,13 @@ public class VectorPerfBench {
     */
     }
 
+    /**
+     * 解析。
+     *
+     * @param name 名称，不允许为 null
+     * @return 路径 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static Path resolve(String name) throws Exception {
         Path p = benchDir.resolve(name);
         Files.createDirectories(p);
@@ -179,10 +212,20 @@ public class VectorPerfBench {
     */
     }
 
+    /**
+     * 删除Recursively。
+     *
+     * @param dir 目录，不允许为 null
+     */
     private static void deleteRecursively(Path dir) {
-        try { Files.walk(dir).sorted(java.util.Comparator.reverseOrder())
-                .forEach(p -> { try { Files.delete(p); } catch (Exception ignored) {} }); }
-        catch (Exception ignored) {}
+        try {
+            Files.walk(dir).sorted(java.util.Comparator.reverseOrder())
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (Exception ignored) {}
+                    });
+        } catch (Exception ignored) {}
     }
 
     private static void printf(String fmt, Object... args) { System.out.printf(fmt, args); }

@@ -52,6 +52,13 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * extractChapters。
+     *
+     * @param epubBytes epub字节数组，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private List<String> extractChapters(byte[] epubBytes) throws IOException {
         List<String> chapters = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(epubBytes))) {
@@ -70,6 +77,12 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         return chapters;
     }
 
+    /**
+     * extract文本来自Html。
+     *
+     * @param html 方法入参 html
+     * @return 结果字符串
+     */
     private String extractTextFromHtml(String html) {
         // 简单提取 HTML 中的文本内容
         StringBuilder sb = new StringBuilder();

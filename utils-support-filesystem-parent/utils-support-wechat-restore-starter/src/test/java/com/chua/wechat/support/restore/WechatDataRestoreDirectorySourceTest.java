@@ -50,6 +50,11 @@ class WechatDataRestoreDirectorySourceTest {
 
     // ==================== 零配置一键还原 ====================
 
+    /**
+     * directory来源应当RestorePlaintextDatabaseWithout任意配置。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void directorySourceShouldRestorePlaintextDatabaseWithoutAnyConfig() throws Exception {
         File dataDir = newDir("data");
@@ -71,6 +76,11 @@ class WechatDataRestoreDirectorySourceTest {
         assertTrue(csv.contains("你好，微信"), "CSV 正文应保留中文");
     }
 
+    /**
+     * directory来源应当RestoreEncryptedDatabaseWithout任意配置。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void directorySourceShouldRestoreEncryptedDatabaseWithoutAnyConfig() throws Exception {
         File dataDir = newDir("data");
@@ -89,6 +99,11 @@ class WechatDataRestoreDirectorySourceTest {
         assertTrue(csv.contains("hello wechat"));
     }
 
+    /**
+     * directory来源应当HonourExplicitOutput目录。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void directorySourceShouldHonourExplicitOutputDir() throws Exception {
         File dataDir = newDir("data");
@@ -103,6 +118,11 @@ class WechatDataRestoreDirectorySourceTest {
                 "显式指定输出目录时不应再创建缺省目录");
     }
 
+    /**
+     * repeatedRestore应当NotReconsumePreviousOutput。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void repeatedRestoreShouldNotReconsumePreviousOutput() throws Exception {
         File dataDir = newDir("data");
@@ -126,6 +146,11 @@ class WechatDataRestoreDirectorySourceTest {
 
     // ==================== 目录源不被「不是文件」拦下 ====================
 
+    /**
+     * directory来源应当NotBeRejectedAsNon文件。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void directorySourceShouldNotBeRejectedAsNonFile() throws Exception {
         File dataDir = newDir("data");
@@ -144,6 +169,9 @@ class WechatDataRestoreDirectorySourceTest {
         assertFalse(message.contains("不是文件"), "目录源被基类校验拦下了: " + message);
     }
 
+    /**
+     * 文件来源应当StillUseBaseClassValidation。
+     */
     @Test
     void fileSourceShouldStillUseBaseClassValidation() {
         File missing = new File(tempDir.toFile(), "missing.db");
@@ -154,6 +182,11 @@ class WechatDataRestoreDirectorySourceTest {
         assertTrue(error.getMessage().contains("不是文件"), "实际错误: " + error.getMessage());
     }
 
+    /**
+     * directory来源应当FailWhen编号DatabaseFound。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void directorySourceShouldFailWhenNoDatabaseFound() throws Exception {
         File dataDir = newDir("empty");
@@ -166,6 +199,11 @@ class WechatDataRestoreDirectorySourceTest {
                 "实际错误: " + result.getErrorMessage());
     }
 
+    /**
+     * cli收集Databases应当SkipGeneratedOutput目录。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void cliCollectDatabasesShouldSkipGeneratedOutputDir() throws Exception {
         File dataDir = newDir("data");
@@ -181,6 +219,9 @@ class WechatDataRestoreDirectorySourceTest {
     }
 
     // ==================== 缺省配置补齐 ====================
+    /**
+     * withDirectoryDefaults应当Inject数据目录AndOutput目录。
+     */
     @Test
     void withDirectoryDefaultsShouldInjectDataDirAndOutputDir() {
         File dataDir = newDir("data");
@@ -195,6 +236,9 @@ class WechatDataRestoreDirectorySourceTest {
         assertEquals(ExportFormat.CSV, effective.getFormat());
     }
 
+    /**
+     * withDirectoryDefaults应当KeepExplicitValues。
+     */
     @Test
     void withDirectoryDefaultsShouldKeepExplicitValues() {
         File dataDir = newDir("data");

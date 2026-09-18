@@ -94,7 +94,11 @@ public class AiTokenServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    /** 发送Unauthorized */
+    /**
+     * 发送Unauthorized
+     * @param response 响应，不允许为 null
+     * @param message 消息，不允许为 null
+     */
     private void sendUnauthorized(ServerResponse response, String message) {
         response.setStatus(401);
         response.setContentType("application/json; charset=utf-8");

@@ -195,11 +195,9 @@ public class ObjectUtils {
 
 
     /**
-    * 返回 as 哈希 编码 for the given 对象; typically the 值 的
-    * {@code Object#hashCode()}}. If the object is an array,
-    * this 方法 will delegate 转为 任意 的 the {@code nullSafeHashCode}
-    * 方法 for arrays 入 this 类. If the 对象 是否 {@code null},
-    * this 方法 返回 0.
+    * 返回给定对象的哈希码，通常即为该对象 {@code Object#hashCode()} 的返回值。
+    * 若对象为数组，本方法会委托给本类中对应的 {@code nullSafeHashCode}
+    * 数组重载方法；若对象为 {@code null}，本方法返回 0。
     *
     * @see Object#hashCode()
     * @see #nullSafeHashCode(Object[])

@@ -51,7 +51,11 @@ public class ContextCompressionConfig {
     /** Workspace */
     private String workspace = ".agent/memory";
 
-    /** From */
+    /**
+     * From
+     * @param agent 方法入参 agent
+     * @return 上下文Compression配置 对象
+     */
     public static ContextCompressionConfig from(AgentCompressionConfig agent) {
         if (agent == null) {
             return ContextCompressionConfig.builder().build();
@@ -65,7 +69,10 @@ public class ContextCompressionConfig {
                 .build();
     }
 
-    /** ToAgentConfig */
+    /**
+     * ToAgentConfig
+     * @return AgentCompression配置 对象
+     */
     public AgentCompressionConfig toAgentConfig() {
         return AgentCompressionConfig.builder()
                 .enabled(enabled)

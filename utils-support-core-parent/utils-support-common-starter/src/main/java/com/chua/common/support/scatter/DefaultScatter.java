@@ -15,9 +15,16 @@ public class DefaultScatter implements Scatter {
 
     private final ScatterBuilder<?> builder;
     private final ScatterSetting setting;
+    /** discovery */
     private AbstractScatterDiscovery discovery;
+    /** 节点服务端 */
     private ScatterNodeServer nodeServer;
 
+    /**
+     * 构造方法，创建 DefaultScatter 实例。
+     *
+     * @param builder 方法入参 builder
+     */
     public DefaultScatter(ScatterBuilder<?> builder) {
         this.builder = builder;
         this.setting = builder.setting;

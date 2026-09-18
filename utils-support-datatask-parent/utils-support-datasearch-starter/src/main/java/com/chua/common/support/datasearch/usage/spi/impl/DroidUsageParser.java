@@ -17,19 +17,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Droid (Factory) usage parser.
+ * Droid（Factory）用量解析器。
  *
- * <p>Droid (Factory's CLI) persists session settings under
- * {@code ~/.factory/sessions/}: each session keeps a
- * {@code settings.json} with accumulated token totals and a session
- * header carrying the model + provider. The session file is also a
- * JSONL event log: lines carrying {@code tokenUsage} / {@code usage}
- * blocks report per-turn real usage.</p>
+ * <p>Droid（Factory 推出的 CLI）会把会话设置存放在 {@code ~/.factory/sessions/} 下：
+ * 每个会话对应一个 {@code settings.json}，其中累计了 token 总量，
+ * 会话头部还携带模型与服务商信息。会话文件本身也是 JSONL 事件日志：
+ * 含 {@code tokenUsage} / {@code usage} 块的行上报了每一轮的真实用量。</p>
  *
- * <p>This parser reads both the settings.json cumulative counters and
- * the per-turn usage blocks, normalizing Droid's model names
- * (e.g. {@code "custom:GLM-5.1-[Proxy]-0"} becomes {@code "glm-5-1-0"})
- * for cross-tool comparison.</p>
+ * <p>本解析器同时读取 settings.json 的累计计数器和逐轮用量块，并对 Droid 的
+ * 模型名做归一化（例如 {@code "custom:GLM-5.1-[Proxy]-0"} 归一为
+ * {@code "glm-5-1-0"}），以便跨工具对比。</p>
  *
  * @author CH
  * @since 4.0.0.43
@@ -128,6 +125,13 @@ public class DroidUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /**
+     * 解析LineSafe。
+     *
+     * @param line 方法入参 line
+     * @param file 文件，不允许为 null
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     private Optional<AiUsage> parseLineSafe(String line, Path file) {
         try {
             return parseLine(line, file);

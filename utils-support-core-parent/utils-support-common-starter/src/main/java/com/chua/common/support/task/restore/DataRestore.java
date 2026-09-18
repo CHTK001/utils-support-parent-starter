@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  * <pre>{@code
  * // 按类型创建还原器，输出默认 CSV
- * DataRestore restore = DataRestore.create("idb");
+ * DataRestore restore = DataRestore.create("ibd");
  * DataRestoreResult result = restore.restore(new File("user.ibd"));
  *
  * // 指定输出格式与目录

@@ -19,6 +19,9 @@ import javax.annotation.Nullable;
  */
 public class TerminalUtils {
 
+    /**
+     * 构造方法，创建 TerminalUtils 实例。
+     */
     private TerminalUtils() {
     }
 
@@ -82,7 +85,10 @@ public class TerminalUtils {
     /** OS名称 */
     private static String osName;
 
-    /** 是否Windows */
+    /**
+     * 是否Windows
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isWindows() {
         if (osName == null) {
             osName = System.getProperty("os.name").toLowerCase();
@@ -90,7 +96,10 @@ public class TerminalUtils {
         return osName.contains("win");
     }
 
-    /** 是否Unix */
+    /**
+     * 是否Unix
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isUnix() {
         if (osName == null) {
             osName = System.getProperty("os.name").toLowerCase();
@@ -170,7 +179,10 @@ public class TerminalUtils {
         return DEFAULT_TERMINAL_WIDTH;
     }
 
-    /** 是否拥有CursorMovementSupport */
+    /**
+     * 是否拥有CursorMovementSupport
+     * @return 是否成功（true 表示成功）
+     */
     static boolean hasCursorMovementSupport() {
         return cursorMovementSupported;
     }
@@ -179,19 +191,31 @@ public class TerminalUtils {
     synchronized static void closeTerminal() {
     }
 
-    /** 过滤ActiveConsumers */
+    /**
+     * 过滤ActiveConsumers
+     * @param clazz 类，不允许为 null
+     * @return 流 对象
+     */
     static <T extends ProgressBarConsumer> Stream<T> filterActiveConsumers(Class<T> clazz) {
         return activeConsumers.stream()
             .filter(clazz::isInstance)
             .map(clazz::cast);
     }
 
-    /** 移动CursorUp */
+    /**
+     * 移动CursorUp
+     * @param count 数量，不允许为 null
+     * @return 结果字符串
+     */
     static String moveCursorUp(int count) {
         return ESCAPE_CHAR + "[" + count + "A" + CARRIAGE_RETURN;
     }
 
-    /** 移动CursorDown */
+    /**
+     * 移动CursorDown
+     * @param count 数量，不允许为 null
+     * @return 结果字符串
+     */
     static String moveCursorDown(int count) {
         return ESCAPE_CHAR + "[" + count + "B" + CARRIAGE_RETURN;
     }

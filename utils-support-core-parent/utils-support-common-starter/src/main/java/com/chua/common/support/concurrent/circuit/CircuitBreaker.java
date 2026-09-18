@@ -164,6 +164,8 @@ public class CircuitBreaker {
 
     /**
     * 递归评估节点（支持短路优化）
+    * @param node 节点，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean evaluateNode(BTreeNode node) {
         if (node == null) {
@@ -182,6 +184,8 @@ public class CircuitBreaker {
     *
     * <p>AND：左边 false → 直接返回 false，不评估右边
     * OR：左边 true → 直接返回 true，不评估右边
+    * @param node 节点，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean evaluateLogic(BTreeNode node) {
         boolean leftResult = evaluateNode(node.getLeft());

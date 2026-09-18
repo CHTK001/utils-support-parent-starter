@@ -22,6 +22,9 @@ public enum PanType {
     PAN_123("123", "123网盘"),
     MAGNET("magnet", "磁力链接"),
     ED2K("ed2k", "电¿链接"),
+    /**
+     * 构造方法，创建 OTHERS 实例。
+     */
     OTHERS("others", "其他");
 
     /** 代码 */
@@ -29,6 +32,12 @@ public enum PanType {
     /** 名称 */
     private final String name;
 
+    /**
+     * 构造方法，创建 Pan类型 实例。
+     *
+     * @param code 编码，不允许为 null
+     * @param name 名称，不允许为 null
+     */
     PanType(String code, String name) {
         this.code = code;
         this.name = name;

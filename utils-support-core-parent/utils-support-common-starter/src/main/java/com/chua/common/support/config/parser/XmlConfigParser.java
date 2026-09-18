@@ -199,6 +199,8 @@ public class XmlConfigParser implements ConfigParser {
     }
     /**
     *              XML       
+    * @param element 元素，不允许为 null
+    * @return 结果映射，无数据时为空映射
     */
     private Map<String, Object> parseElement(Element element) {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -244,6 +246,8 @@ public class XmlConfigParser implements ConfigParser {
         return result;
     }
     /**
+     * @param element 元素，不允许为 null
+     * @return 是否成功（true 表示成功）
     */
     private boolean hasOnlyTextContent(Element element) {
         NodeList children = element.getChildNodes();

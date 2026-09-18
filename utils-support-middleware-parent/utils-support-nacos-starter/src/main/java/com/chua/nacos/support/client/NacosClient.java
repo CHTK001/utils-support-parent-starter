@@ -244,35 +244,50 @@ public class NacosClient implements AutoCloseable {
         * @param addr addr
         * @return 服务端addr的结果
         */
-        public Builder serverAddr(String addr) { this.serverAddr = addr; return this; }
+        public Builder serverAddr(String addr) {
+            this.serverAddr = addr;
+            return this;
+        }
         /**
         * Namespace
         *
         * @param ns ns
         * @return namespace的结果
         */
-        public Builder namespace(String ns) { this.namespace = ns; return this; }
+        public Builder namespace(String ns) {
+            this.namespace = ns;
+            return this;
+        }
         /**
         * 用户名
         *
         * @param u u
         * @return 用户名的结果
         */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /**
         * 密码
         *
         * @param p p
         * @return 密码的结果
         */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
         /**
         * 超时
         *
         * @param ms ms
         * @return 超时的结果
         */
-        public Builder timeout(long ms) { this.timeout = ms; return this; }
+        public Builder timeout(long ms) {
+            this.timeout = ms;
+            return this;
+        }
 
         /**
         * 构建
@@ -309,21 +324,30 @@ public class NacosClient implements AutoCloseable {
         * @param dataId 数据标识
         * @return 数据id的结果
         */
-        public ConfigOperation dataId(String dataId) { this.dataId = dataId; return this; }
+        public ConfigOperation dataId(String dataId) {
+            this.dataId = dataId;
+            return this;
+        }
         /**
         * 分组
         *
         * @param group 群体
         * @return 群体的结果
         */
-        public ConfigOperation group(String group) { this.group = group; return this; }
+        public ConfigOperation group(String group) {
+            this.group = group;
+            return this;
+        }
         /**
         * 超时
         *
         * @param ms ms
         * @return 超时的结果
         */
-        public ConfigOperation timeout(long ms) { this.timeoutMs = ms; return this; }
+        public ConfigOperation timeout(long ms) {
+            this.timeoutMs = ms;
+            return this;
+        }
 
         /**
         * 获取配置内容。
@@ -484,49 +508,70 @@ public class NacosClient implements AutoCloseable {
         * @param name 名称
         * @return 服务名称的结果
         */
-        public NamingOperation serviceName(String name) { this.serviceName = name; return this; }
+        public NamingOperation serviceName(String name) {
+            this.serviceName = name;
+            return this;
+        }
         /**
         * Ip
         *
         * @param ip ip
         * @return ip的结果
         */
-        public NamingOperation ip(String ip) { this.ip = ip; return this; }
+        public NamingOperation ip(String ip) {
+            this.ip = ip;
+            return this;
+        }
         /**
         * 端口
         *
         * @param port 端口
         * @return 端口的结果
         */
-        public NamingOperation port(int port) { this.port = port; return this; }
+        public NamingOperation port(int port) {
+            this.port = port;
+            return this;
+        }
         /**
         * 权重
         *
         * @param w w
         * @return 权重的结果
         */
-        public NamingOperation weight(double w) { this.weight = w; return this; }
+        public NamingOperation weight(double w) {
+            this.weight = w;
+            return this;
+        }
         /**
         * Healthy
         *
         * @param h h
         * @return healthy的结果
         */
-        public NamingOperation healthy(boolean h) { this.healthy = h; return this; }
+        public NamingOperation healthy(boolean h) {
+            this.healthy = h;
+            return this;
+        }
         /**
         * Ephemeral
         *
         * @param e e
         * @return ephemeral的结果
         */
-        public NamingOperation ephemeral(boolean e) { this.ephemeral = e; return this; }
+        public NamingOperation ephemeral(boolean e) {
+            this.ephemeral = e;
+            return this;
+        }
         /**
         * Metadata
         *
         * @param m m
         * @return metadata的结果
         */
-        public NamingOperation metadata(Map<String, String> m) { this.metadata = m; return this; }
+        public NamingOperation metadata(Map<String, String> m) {
+            this.metadata = m;
+            return this;
+        }
         /**
         * Metadata
         *
@@ -534,7 +579,10 @@ public class NacosClient implements AutoCloseable {
         * @param value 值
         * @return metadata的结果
         */
-        public NamingOperation metadata(String key, String value) { this.metadata.put(key, value); return this; }
+        public NamingOperation metadata(String key, String value) {
+            this.metadata.put(key, value);
+            return this;
+        }
 
         /**
         * 注册服务实例。

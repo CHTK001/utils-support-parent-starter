@@ -239,6 +239,11 @@ public class CommitOperation {
 
     // ==================== 内部方法 ====================
 
+    /**
+     * do提交。
+     *
+     * @return 结果字符串
+     */
     private String doCommit() {
         try {
             client.open();

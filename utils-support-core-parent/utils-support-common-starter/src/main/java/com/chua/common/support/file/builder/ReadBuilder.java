@@ -54,12 +54,18 @@ public abstract class ReadBuilder {
         this.file = file;
     }
 
-    /** 获取File */
+    /**
+     * 获取File
+     * @return 文件 对象
+     */
     public File getFile() {
         return file;
     }
 
-    /** 获取Charset */
+    /**
+     * 获取Charset
+     * @return 字符集 对象
+     */
     public Charset getCharset() {
         return charset;
     }

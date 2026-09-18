@@ -360,6 +360,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
 
     /**
     * 通用数据库配置。
+    * @param props 属性，不允许为 null
     */
     private void configureGenericDb(Properties props) {
         String host = environment.getString(KEY_HOST, "localhost");

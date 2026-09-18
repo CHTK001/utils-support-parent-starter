@@ -49,6 +49,12 @@ public class IpcInvoker implements Invoker {
         return (T) createProxy(apiClass);
     }
 
+    /**
+     * 创建Proxy。
+     *
+     * @param apiClass 方法入参 apiClass
+     * @return 对象 对象
+     */
     private <T> Object createProxy(Class<T> apiClass) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {
@@ -73,6 +79,12 @@ public class IpcInvoker implements Invoker {
         );
     }
 
+    /**
+     * 解析BaseURL。
+     *
+     * @param clazz 类，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolveBaseUrl(Class<?> clazz) {
         String[] classLevelAnnotations = {
                 "org.springframework.web.bind.annotation.RequestMapping"
@@ -105,6 +117,12 @@ public class IpcInvoker implements Invoker {
         return "";
     }
 
+    /**
+     * 解析Namespace。
+     *
+     * @param clazz 类，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolveNamespace(Class<?> clazz) {
         IpcMethod im = clazz.getAnnotation(IpcMethod.class);
         if (im != null && !StringUtils.isEmpty(im.value())) {
@@ -124,6 +142,12 @@ public class IpcInvoker implements Invoker {
         return this;
     }
 
+    /**
+     * extractAnnotation值。
+     *
+     * @param ann 方法入参 ann
+     * @return 结果字符串
+     */
     private static String extractAnnotationValue(Annotation ann) {
         try {
 Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new Object[0], new Object[0]);
@@ -167,7 +191,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         */
         public Object invoke(Object proxy, Method method, Object[] args) {
             if (method.getDeclaringClass() == Object.class) {
-                try { return ReflectUtils.invoke(this, method.getName(), method.getReturnType(), method.getParameterTypes(), args); } catch (Exception e) { return null; }
+                try {
+                    return ReflectUtils.invoke(this, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
+                } catch (Exception e) {
+                    return null;
+                }
             }
 
             IpcMethod im = method.getAnnotation(IpcMethod.class);

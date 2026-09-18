@@ -68,6 +68,12 @@ import java.util.Map;
         "com.chua.starter.datasource.repository.CircuitBreakerConfigRepository",
         "com.chua.starter.datasource.repository.DistributedLockConfigRepository"
 })
+/**
+ * ConcurrentEndpoint类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class ConcurrentEndpoint {
 
     private static final String METRIC_RATE_LIMITER = "ratelimiter"; // 指标rate限制
@@ -458,6 +464,13 @@ public class ConcurrentEndpoint {
         return Map.of("configs", configs, "status", status);
     }
 
+    /**
+     * ratelimiter配置保存。
+     *
+     * @param name 名称，不允许为 null
+     * @param body 请求体，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> ratelimiterConfigSave(String name, Map<String, Object> body) {
         if (rateLimiterRepo == null) {
             return Map.of("error", "配置存储未初始化（未配置 datasource）");
@@ -488,6 +501,13 @@ public class ConcurrentEndpoint {
         return Map.of("name", name, "message", "保存成功");
     }
 
+    /**
+     * circuitbreaker配置保存。
+     *
+     * @param name 名称，不允许为 null
+     * @param body 请求体，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> circuitbreakerConfigSave(String name, Map<String, Object> body) {
         if (cbRepo == null) {
             return Map.of("error", "配置存储未初始化（未配置 datasource）");
@@ -514,6 +534,13 @@ public class ConcurrentEndpoint {
         return Map.of("name", name, "message", "保存成功，缓存已清除");
     }
 
+    /**
+     * lock配置保存。
+     *
+     * @param name 名称，不允许为 null
+     * @param body 请求体，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> lockConfigSave(String name, Map<String, Object> body) {
         if (lockRepo == null) {
             return Map.of("error", "配置存储未初始化（未配置 datasource）");

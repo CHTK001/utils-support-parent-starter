@@ -27,65 +27,136 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
 
     protected final ScatterSetting setting;
 
+    /**
+     * 构造方法，创建 ScatterBuilder 实例。
+     *
+     * @param protocol 方法入参 protocol
+     */
     protected ScatterBuilder(String protocol) {
         this(protocol, new ScatterSetting());
     }
 
+    /**
+     * 构造方法，创建 ScatterBuilder 实例。
+     *
+     * @param protocol 方法入参 protocol
+     * @param setting 方法入参 setting
+     */
     protected ScatterBuilder(String protocol, ScatterSetting setting) {
         this.setting = setting == null ? new ScatterSetting() : setting;
         this.setting.setProtocol(protocol);
     }
 
+    /**
+     * udp。
+     *
+     * @return UdpScatterBuilder 对象
+     */
     public static UdpScatterBuilder udp() {
         return new UdpScatterBuilder();
     }
 
+    /**
+     * tcp。
+     *
+     * @return TcpScatterBuilder 对象
+     */
     public static TcpScatterBuilder tcp() {
         return new TcpScatterBuilder();
     }
 
+    /**
+     * 节点ID。
+     *
+     * @param nodeId 节点ID，不允许为 null
+     * @return B 对象
+     */
     public B nodeId(String nodeId) {
         setting.setNodeId(nodeId);
         return (B) this;
     }
 
+    /**
+     * 分组ID。
+     *
+     * @param groupId 分组ID，不允许为 null
+     * @return B 对象
+     */
     public B groupId(String groupId) {
         setting.setGroupId(groupId);
         return (B) this;
     }
 
+    /**
+     * 主机。
+     *
+     * @param host 主机，不允许为 null
+     * @return B 对象
+     */
     public B host(String host) {
         setting.setHost(host);
         return (B) this;
     }
 
+    /**
+     * 端口。
+     *
+     * @param port 端口，不允许为 null
+     * @return B 对象
+     */
     public B port(int port) {
         setting.setPort(port);
         return (B) this;
     }
 
+    /**
+     * announce主机。
+     *
+     * @param announceHost announce主机，不允许为 null
+     * @return B 对象
+     */
     public B announceHost(String announceHost) {
         setting.setAnnounceHost(announceHost);
         return (B) this;
     }
 
+    /**
+     * 服务路径。
+     *
+     * @param servicePath 服务路径，不允许为 null
+     * @return B 对象
+     */
     public B servicePath(String servicePath) {
         setting.setServicePath(servicePath);
         return (B) this;
     }
 
-    /** 路由模式：设置网段（如 "192.168.1.0/24"）。 */
+    /**
+     * 路由模式：设置网段（如 "192.168.1.0/24"）。
+     * @param subnet 方法入参 subnet
+     * @return B 对象
+     */
     public B subnet(String subnet) {
         setting.setSubnet(subnet);
         return (B) this;
     }
 
-    /** seed 引导模式：设置 seed 地址列表。 */
+    /**
+     * seed 引导模式：设置 seed 地址列表。
+     * @param addresses 方法入参 addresses
+     * @return B 对象
+     */
     public B seeds(String... addresses) {
         setting.setSeeds(java.util.Arrays.asList(addresses));
         return (B) this;
     }
 
+    /**
+     * seeds。
+     *
+     * @param addresses 方法入参 addresses
+     * @return B 对象
+     */
     public B seeds(java.util.List<String> addresses) {
         setting.setSeeds(addresses);
         return (B) this;
@@ -93,50 +164,94 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
 
     /**
     * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。
+    * @param spiName spi名称，不允许为 null
+    * @return B 对象
     */
     public B spiName(String spiName) {
         setting.setSpiName(spiName);
         return (B) this;
     }
 
-    /** 直接注入服务端实现对象（未启动）。 */
+    /**
+     * 直接注入服务端实现对象（未启动）。
+     * @param server 服务端，不允许为 null
+     * @return B 对象
+     */
     public B server(TcpServer server) {
         setting.setServer(server);
         return (B) this;
     }
 
-    /** 直接注入客户端实现对象（未启动）。 */
+    /**
+     * 直接注入客户端实现对象（未启动）。
+     * @param client 客户端，不允许为 null
+     * @return B 对象
+     */
     public B client(TcpClient client) {
         setting.setClient(client);
         return (B) this;
     }
 
+    /**
+     * autoDiscovery间隔。
+     *
+     * @param millis 毫秒数，不允许为 null
+     * @return B 对象
+     */
     public B autoDiscoveryInterval(long millis) {
         setting.setAutoDiscoveryIntervalMillis(millis);
         return (B) this;
     }
 
+    /**
+     * heartbeat间隔。
+     *
+     * @param millis 毫秒数，不允许为 null
+     * @return B 对象
+     */
     public B heartbeatInterval(long millis) {
         setting.setHeartbeatIntervalMillis(millis);
         return (B) this;
     }
 
+    /**
+     * fail移除数量。
+     *
+     * @param count 数量，不允许为 null
+     * @return B 对象
+     */
     public B failRemoveCount(int count) {
         setting.setFailRemoveCount(count);
         return (B) this;
     }
 
+    /**
+     * 超时时间毫秒数。
+     *
+     * @param millis 毫秒数，不允许为 null
+     * @return B 对象
+     */
     public B timeoutMillis(long millis) {
         setting.setTimeoutMillis(millis);
         return (B) this;
     }
 
+    /**
+     * persistenceEnabled。
+     *
+     * @param enabled enabled（布尔开关）
+     * @return B 对象
+     */
     public B persistenceEnabled(boolean enabled) {
         setting.setPersistenceEnabled(enabled);
         return (B) this;
     }
 
-    /** 持久化文件路径。 */
+    /**
+     * 持久化文件路径。
+     * @param file 文件，不允许为 null
+     * @return B 对象
+     */
     public B persistenceFile(String file) {
         setting.setPersistenceFile(file);
         return (B) this;

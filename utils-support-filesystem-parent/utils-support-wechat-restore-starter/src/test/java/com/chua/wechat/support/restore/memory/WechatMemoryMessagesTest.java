@@ -26,6 +26,11 @@ class WechatMemoryMessagesTest {
     @TempDir
     File tempDir;
 
+    /**
+     * 测试：解析Sender名称ByCoverage。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldResolveSenderNameByCoverage() throws Exception {
         // 库簇 id 空间 1..3；消息页只出现 1 和 3 → 应全部解析
@@ -48,6 +53,11 @@ class WechatMemoryMessagesTest {
         assertTrue(lines.get(2).contains("wxid_c"));
     }
 
+    /**
+     * 测试：LeaveSenderEmptyWhen编号ClusterCovers。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldLeaveSenderEmptyWhenNoClusterCovers() throws Exception {
         List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
@@ -66,6 +76,11 @@ class WechatMemoryMessagesTest {
         assertEquals("", cells[3]);
     }
 
+    /**
+     * 测试：PreferSame处理Cluster。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldPreferSameProcessCluster() throws Exception {
         // 两个库簇 id 空间相同、分属不同进程；页在 pid 100 → 必须选 pid 100 的那个
@@ -83,6 +98,11 @@ class WechatMemoryMessagesTest {
         assertFalse(csv.contains("wxid_other"));
     }
 
+    /**
+     * 测试：EscapeCommaAndQuoteIn内容。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldEscapeCommaAndQuoteInContent() throws Exception {
         List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
@@ -96,6 +116,11 @@ class WechatMemoryMessagesTest {
         assertTrue(csv.contains("\"a,b\"\"c\""));
     }
 
+    /**
+     * 测试：写入ID映射。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldWriteIdMap() throws Exception {
         List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
@@ -110,6 +135,11 @@ class WechatMemoryMessagesTest {
         assertTrue(csv.contains("wxid_b"));
     }
 
+    /**
+     * 测试：写入SelfContainedHtmlReport。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void shouldWriteSelfContainedHtmlReport() throws Exception {
         List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
@@ -134,6 +164,9 @@ class WechatMemoryMessagesTest {
         assertTrue(text.contains("\"s\":1"));
     }
 
+    /**
+     * 测试：格式化时间。
+     */
     @Test
     void shouldFormatTime() {
         // 不锁定具体时区：只校验格式与非法输入降级

@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 杩滅▼鏍￠獙 D:\fp-sync锛氭枃浠舵暟 + 鎬诲ぇ灏?+ 3 涓け璐ユ枃浠舵槸鍚﹀凡琛ュ伩鎺ㄩ€併€? */
 public class FpWinRmVerifyD {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         WinRmExecClient wr = WinRmExecClient.builder()
                 .host("172.16.9.194").port(5985)

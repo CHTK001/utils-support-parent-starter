@@ -13,6 +13,12 @@ import com.chua.deeplearning.support.ai.result.PredictResultObject;
  */
 public interface Detector extends AutoCloseable {
 
+    /**
+     * detect。
+     *
+     * @param input 方法入参 input
+     * @return Predict结果对象 对象
+     */
     PredictResultObject<?> detect(Object input);
 
     @Override

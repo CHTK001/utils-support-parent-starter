@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * WinRM 閫愭鎺㈡祴锛氬畾浣嶆寕璧风偣銆? */
 public class FpWinRmStep {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("[1] 鏋勫缓 WinRmExecClient...");
         WinRmExecClient winrm = WinRmExecClient.builder()

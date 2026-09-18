@@ -14,12 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * HPROF to JSON file converter.
+ * HPROF 转 JSON 文件转换器。
  *
- * <p>Parses a binary hprof heap dump and emits a JSON document containing
- * the class histogram, top retained objects and leak suspects. The JSON
- * layout is stable and machine readable so downstream AI agents can ingest
- * it directly.</p>
+ * <p>解析二进制 hprof 堆转储，输出包含类直方图、保留量最大的对象以及
+ * 内存泄漏嫌疑对象的 JSON 文档。该 JSON 布局稳定且机器可读，
+ * 便于下游 AI Agent 直接摄取。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,24 +28,24 @@ import java.nio.file.Path;
 public class HprofToJsonFileConvertSystem implements FileConvertSystem {
 
     /**
-    * Source file format identifier.
+    * 源文件格式标识。
     */
     private static final String SOURCE_TYPE = "hprof";
 
     /**
-    * Target file format identifier.
+    * 目标文件格式标识。
     */
     private static final String TARGET_TYPE = "json";
 
     @Override
-    /** Whether supported */
+    /** 是否支持该源/目标格式组合 */
     public boolean isSupported(String sourceType, String targetType) {
         return SOURCE_TYPE.equalsIgnoreCase(sourceType)
                 && TARGET_TYPE.equalsIgnoreCase(targetType);
     }
 
     @Override
-    /** Convert */
+    /** 执行转换 */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
             HprofParser.Result result = HprofParser.parse(toInputStream(source), source.getPath());
@@ -59,11 +58,11 @@ public class HprofToJsonFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Resolve the source to an input stream.
+    * 将源解析为输入流。
     *
-    * @param source source file descriptor
-    * @return input stream
-    * @throws IOException when the source cannot be read
+    * @param source 源文件描述
+    * @return 输入流
+    * @throws IOException 源不可读时抛出
     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
@@ -79,12 +78,12 @@ public class HprofToJsonFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Write the generated content to the target.
+    * 把生成的内容写入目标。
     *
-    * @param target  target file descriptor
-    * @param content content bytes
-    * @param setting conversion settings
-    * @throws IOException when the target cannot be written
+    * @param target  目标文件描述
+    * @param content 内容字节
+    * @param setting 转换设置
+    * @throws IOException 目标不可写时抛出
     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {

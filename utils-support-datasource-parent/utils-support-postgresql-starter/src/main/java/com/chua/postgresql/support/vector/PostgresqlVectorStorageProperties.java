@@ -52,6 +52,12 @@ public record PostgresqlVectorStorageProperties(
                 DEFAULT_IVFFLAT_LISTS, DEFAULT_HNSW_M, DEFAULT_HNSW_EF_SEARCH);
     }
 
+    /**
+     * of。
+     *
+     * @param obj 对象，不允许为 null
+     * @return PostgresqlVectorStorage属性 对象
+     */
     public static PostgresqlVectorStorageProperties of(Object obj) {
         if (obj instanceof PostgresqlVectorStorageProperties props) {
             return props;

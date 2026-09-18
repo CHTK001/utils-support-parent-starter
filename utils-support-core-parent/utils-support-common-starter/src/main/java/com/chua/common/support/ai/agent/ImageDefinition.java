@@ -68,17 +68,29 @@ public class ImageDefinition extends AgentDefinition {
         this.imageClient = imageClient;
     }
 
-    /** 获取ImageModel */
+    /**
+     * 获取ImageModel
+     * @return 结果字符串
+     */
     public String getImageModel() {
         return imageModel;
     }
 
-    /** 获取ImageClient */
+    /**
+     * 获取ImageClient
+     * @return Image客户端 对象
+     */
     public ImageClient getImageClient() {
         return imageClient;
     }
 
-    /** 快速构建 ImageDefinition */
+    /**
+     * 快速构建 ImageDefinition
+     * @param base 方法入参 base
+     * @param imageModel image模型，不允许为 null
+     * @param imageClient image客户端，不允许为 null
+     * @return ImageDefinition 对象
+     */
     public static ImageDefinition wrap(AgentDefinition base, String imageModel, ImageClient imageClient) {
         return new ImageDefinition(
                 base.getId(), base.getName(), base.getDescription(), base.getRole(),

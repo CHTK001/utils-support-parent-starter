@@ -17,6 +17,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+/**
+ * Florence2Translator类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class Florence2Translator implements ITranslator<Object[], String> {
     private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class);
     private static final String NAME = "florence2";
@@ -33,17 +39,26 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static final int MAX_NEW_TOKENS = 100;
     private static final String MODEL_DIR = "vision/florence2/";
     private static final String CACHE_ROOT = System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir"));
+    /** tokenizer */
     private HuggingFaceTokenizer tokenizer;
+    /** ort环境 */
     private OrtEnvironment ortEnv;
+    /** vision会话 */
     private OrtSession visionSession;
+    /** embed会话 */
     private OrtSession embedSession;
+    /** decoder会话 */
     private OrtSession decoderSession;
     private volatile boolean prepared;
     @Override public String name() { return NAME; }
     private synchronized void prepare() throws Exception {
-        if (prepared) return;
+        if (prepared) {
+            return;
+        }
         Path modelDir = Path.of(CACHE_ROOT, MODEL_DIR);
-        if (!Files.exists(modelDir)) Files.createDirectories(modelDir);
+        if (!Files.exists(modelDir)) {
+            Files.createDirectories(modelDir);
+        }
         downloadModels(modelDir);
         Path visionPath = modelDir.resolve("vision_encoder.onnx");
         Path embedPath = modelDir.resolve("embed_tokens.onnx");
@@ -63,11 +78,18 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
         prepared = true;
     }
+    /**
+     * downloadModels。
+     *
+     * @param modelDir 模型目录，不允许为 null
+     */
     private void downloadModels(Path modelDir) {
         String base = "https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/onnx/";
         for (String f : new String[]{"vision_encoder.onnx", "embed_tokens.onnx", "decoder_model_merged.onnx"}) {
             Path target = modelDir.resolve(f);
-            if (Files.exists(target)) continue;
+            if (Files.exists(target)) {
+                continue;
+            }
             try {
                 Files.copy(java.net.URI.create(base + f).toURL().openStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 log.info("[Florence-2] Downloaded: {} ({}MB)", f, target.toFile().length() / 1024 / 1024);
@@ -83,24 +105,39 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     }
     @Override public String translate(Object[] input) {
         try {
-            if (input == null || input.length < 2) throw new IllegalArgumentException("Input: Object[]{byte[] image, String taskPrompt}");
+            if (input == null || input.length < 2) {
+                throw new IllegalArgumentException("Input: Object[]{byte[] image, String taskPrompt}");
+            }
             byte[] imageData = (byte[]) input[0];
             String taskPrompt = (String) input[1];
-            if (imageData == null || imageData.length == 0) throw new IllegalArgumentException("Image data is empty");
+            if (imageData == null || imageData.length == 0) {
+                throw new IllegalArgumentException("Image data is empty");
+            }
             prepare();
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);
             return generate(encoderHidden, taskPrompt).trim();
         } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
+    /**
+     * preprocessImage。
+     *
+     * @param imageData image数据，不允许为 null
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private float[] preprocessImage(byte[] imageData) throws Exception {
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);
-        if (src == null || src.empty()) throw new IllegalArgumentException("Cannot decode image");
+        if (src == null || src.empty()) {
+            throw new IllegalArgumentException("Cannot decode image");
+        }
         try {
             Mat resized = new Mat();
             Imgproc.resize(src, resized, new org.opencv.core.Size(IMAGE_SIZE, IMAGE_SIZE), 0, 0, Imgproc.INTER_CUBIC);
-            if (resized.channels() == 3) Imgproc.cvtColor(resized, resized, Imgproc.COLOR_BGR2RGB);
+            if (resized.channels() == 3) {
+                Imgproc.cvtColor(resized, resized, Imgproc.COLOR_BGR2RGB);
+            }
             float[] pixels = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
             for (int y = 0; y < IMAGE_SIZE; y++) {
                 for (int x = 0; x < IMAGE_SIZE; x++) {
@@ -116,6 +153,13 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             return pixels;
         } finally { src.release(); }
     }
+    /**
+     * inferVision。
+     *
+     * @param pixels 方法入参 pixels
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private float[][] inferVision(float[] pixels) throws Exception {
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(pixels), new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
             try (OrtSession.Result result = visionSession.run(Map.of("pixel_values", tensor))) {
@@ -124,11 +168,21 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 int seqLen = (int) s[1];
                 float[] flat = features.getFloatBuffer().array();
                 float[][] matrix = new float[seqLen][HIDDEN_SIZE];
-                for (int i = 0; i < seqLen; i++) System.arraycopy(flat, i * HIDDEN_SIZE, matrix[i], 0, HIDDEN_SIZE);
+                for (int i = 0; i < seqLen; i++) {
+                    System.arraycopy(flat, i * HIDDEN_SIZE, matrix[i], 0, HIDDEN_SIZE);
+                }
                 return matrix;
             }
         }
     }
+    /**
+     * generate。
+     *
+     * @param encoderHidden 方法入参 encoderHidden
+     * @param taskPrompt task提示词，不允许为 null
+     * @return 结果字符串
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private String generate(float[][] encoderHidden, String taskPrompt) throws Exception {
         int seqLen = ENCODER_SEQ_LEN;
         long[] encMask = new long[seqLen];
@@ -146,7 +200,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 int embedSeqLen = (int) embedOut.getInfo().getShape()[1];
                 float[][] embeds = new float[embedSeqLen][HIDDEN_SIZE];
                 float[] embedFlat = embedOut.getFloatBuffer().array();
-                for (int i = 0; i < embedSeqLen; i++) System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
+                for (int i = 0; i < embedSeqLen; i++) {
+                    System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
+                }
                 OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
                 OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
                 Map<String, OnnxTensor> decoderInputs = new HashMap<>();
@@ -176,7 +232,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             int stepSeqLen = (int) stepEmbedOut.getInfo().getShape()[1];
                             float[][] stepEmbeds = new float[stepSeqLen][HIDDEN_SIZE];
                             float[] stepEmbedFlat = stepEmbedOut.getFloatBuffer().array();
-                            for (int i = 0; i < stepSeqLen; i++) System.arraycopy(stepEmbedFlat, i * HIDDEN_SIZE, stepEmbeds[i], 0, HIDDEN_SIZE);
+                            for (int i = 0; i < stepSeqLen; i++) {
+                                System.arraycopy(stepEmbedFlat, i * HIDDEN_SIZE, stepEmbeds[i], 0, HIDDEN_SIZE);
+                            }
                             OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
                             OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
                             Map<String, OnnxTensor> stepDecoderInputs = new HashMap<>();
@@ -194,7 +252,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                 OnnxTensor stepLogitsTensor = (OnnxTensor) stepDecodeResult.get("logits").get();
                                 float[] stepLogits = stepLogitsTensor.getFloatBuffer().array();
                                 int nextTok = argmax(stepLogits, (stepSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
-                                if (nextTok == EOS_ID) { log.debug("[Florence-2] EOS at step {}", step); break; }
+                                if (nextTok == EOS_ID) {
+                                    log.debug("[Florence-2] EOS at step {}", step);
+                                    break;
+                                }
                                 generatedTokens.add((long) nextTok);
                                 for (int l = 0; l < NUM_LAYERS; l++) {
                                     pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key").get();
@@ -203,20 +264,36 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                     pastKV[l][3] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
                                 }
                             }
-                            stepEmbedsTensor.close(); stepEncoderHiddenTensor.close(); stepIdsTensor.close();
+                            stepEmbedsTensor.close();
+                            stepEncoderHiddenTensor.close();
+                            stepIdsTensor.close();
                         }
                     }
-                    embedsTensor.close(); encoderHiddenTensor.close(); idsTensor.close();
+                    embedsTensor.close();
+                    encoderHiddenTensor.close();
+                    idsTensor.close();
                 }
             }
         } finally { encoderMaskTensor.close(); }
         long[] finalIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
-        try { return tokenizer.decode(finalIds); }
-        catch (Exception e) { log.warn("[Florence-2] decode failed: {}", e.getMessage()); return joinTokens(generatedTokens); }
+        try {
+            return tokenizer.decode(finalIds);
+        } catch (Exception e) {
+            log.warn("[Florence-2] decode failed: {}", e.getMessage());
+            return joinTokens(generatedTokens);
+        }
     }
     private static String joinTokens(List<Long> tokens) { StringBuilder sb = new StringBuilder(); for (long t : tokens) sb.append((char) Math.min(t, 0x10FFFFL)); return sb.toString(); }
     private static float[] floatArrayFrom2D(float[][] m) { int r = m.length, c = m[0].length; float[] flat = new float[r * c]; for (int i = 0; i < r; i++) System.arraycopy(m[i], 0, flat, i * c, c); return flat; }
     private static int argmax(float[] logits, int offset, int vocabSize) { int maxIdx = 0; float maxVal = Float.NEGATIVE_INFINITY; for (int i = 0; i < vocabSize; i++) { float v = logits[offset + i]; if (v > maxVal) { maxVal = v; maxIdx = i; } } return maxIdx; }
+    /**
+     * 创建BoolTensor。
+     *
+     * @param env 环境，不允许为 null
+     * @param val val（布尔开关）
+     * @return OnnxTensor 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static OnnxTensor createBoolTensor(OrtEnvironment env, boolean val) throws Exception {
         return (OnnxTensor) ReflectUtils.invokeStatic(OnnxTensor.class, "createTensor", OnnxTensor.class,
                 new Class<?>[]{OrtEnvironment.class, Object.class, long[].class}, env, new boolean[]{val}, new long[]{1});
@@ -225,8 +302,27 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     @Override
     public void close() {
         prepared = false;
-        if (tokenizer != null) { try { tokenizer.close(); } catch (Exception ignored) {} tokenizer = null; }
-        closeS(visionSession); closeS(embedSession); closeS(decoderSession);
+        if (tokenizer != null) {
+            try {
+                tokenizer.close();
+            } catch (Exception ignored) {}
+            tokenizer = null;
+        }
+        closeS(visionSession);
+        closeS(embedSession);
+        closeS(decoderSession);
     }
-    private static void closeS(OrtSession s) { if (s != null) { try { s.close(); } catch (Exception ignored) {} } }
+
+    /**
+     * 关闭单个 ONNX 会话，异常静默忽略。
+     *
+     * @param s 待关闭的会话，可为 null
+     */
+    private static void closeS(OrtSession s) {
+        if (s != null) {
+            try {
+                s.close();
+            } catch (Exception ignored) {}
+        }
+    }
 }

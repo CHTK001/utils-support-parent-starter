@@ -129,14 +129,26 @@ public class ImageSobelFilter extends AbstractImageFilter {
         // 根据方向选择使用Sobel算子
         if (xdirect) {
             // X方向卷积核（垂直方向算子）
-            k0 = sobelX[0]; k1 = sobelX[1]; k2 = sobelX[2];
-            k3 = sobelX[3]; k4 = sobelX[4]; k5 = sobelX[5];
-            k6 = sobelX[6]; k7 = sobelX[7]; k8 = sobelX[8];
+            k0 = sobelX[0];
+            k1 = sobelX[1];
+            k2 = sobelX[2];
+            k3 = sobelX[3];
+            k4 = sobelX[4];
+            k5 = sobelX[5];
+            k6 = sobelX[6];
+            k7 = sobelX[7];
+            k8 = sobelX[8];
         } else {
             // Y方向卷积核（水平方向算子）
-            k0 = sobelY[0]; k1 = sobelY[1]; k2 = sobelY[2];
-            k3 = sobelY[3]; k4 = sobelY[4]; k5 = sobelY[5];
-            k6 = sobelY[6]; k7 = sobelY[7]; k8 = sobelY[8];
+            k0 = sobelY[0];
+            k1 = sobelY[1];
+            k2 = sobelY[2];
+            k3 = sobelY[3];
+            k4 = sobelY[4];
+            k5 = sobelY[5];
+            k6 = sobelY[6];
+            k7 = sobelY[7];
+            k8 = sobelY[8];
         }
 
         // 临时变量初始化

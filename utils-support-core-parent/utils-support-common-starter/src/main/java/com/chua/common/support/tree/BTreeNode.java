@@ -18,10 +18,21 @@ class BTreeNode<K, V> {
     List<BTreeNode<K, V>> children = new ArrayList<>(); // children
     boolean leaf; // leaf
 
+    /**
+     * 构造方法，创建 BTree节点 实例。
+     *
+     * @param leaf leaf（布尔开关）
+     */
     BTreeNode(boolean leaf) {
         this(leaf, 16);
     }
 
+    /**
+     * 构造方法，创建 BTree节点 实例。
+     *
+     * @param leaf leaf（布尔开关）
+     * @param capacity 方法入参 capacity
+     */
     BTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
         if (keys instanceof ArrayList) {

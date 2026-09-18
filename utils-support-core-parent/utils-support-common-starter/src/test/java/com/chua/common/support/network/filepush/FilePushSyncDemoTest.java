@@ -63,9 +63,18 @@ public final class FilePushSyncDemoTest {
 
     private static boolean allPassed = true;
 
+    /**
+     * 构造方法，创建 文件推送SyncDemo测试 实例。
+     */
     private FilePushSyncDemoTest() {
     }
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         boolean remote = "remote".equalsIgnoreCase(System.getProperty("filepush.demo.mode", "local"));
         String scale = System.getProperty("filepush.demo.scale", remote ? "small" : "full");
@@ -117,6 +126,10 @@ public final class FilePushSyncDemoTest {
 
     /**
      * 本地模式：进程内起服务端，做字节级校验。
+     * @param host 主机，不允许为 null
+     * @param source 来源，不允许为 null
+     * @param target 目标，不允许为 null
+     * @param dataset 方法入参 dataset
      */
     private static void runLocal(String host, Path source, Path target, Dataset dataset) throws Exception {
         deleteRecursively(target);
@@ -181,6 +194,10 @@ public final class FilePushSyncDemoTest {
     /**
      * 远端模式：无法访问对端文件系统，改用"二次增量全跳过"证明每个文件都已按
      * 相同 size + mtime 落到远端——这是服务端清单协商的直接结果。
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     * @param source 来源，不允许为 null
+     * @param dataset 方法入参 dataset
      */
     private static void runRemote(String host, int port, Path source, Dataset dataset) throws Exception {
         System.out.println();
@@ -254,6 +271,9 @@ public final class FilePushSyncDemoTest {
 
     /**
      * 逐文件比对源与目标的 SHA-256、大小、修改时间，并检查目标端没有多余文件。
+     * @param source 来源，不允许为 null
+     * @param target 目标，不允许为 null
+     * @param dataset 方法入参 dataset
      */
     private static void verifyByteIdentical(Path source, Path target, Dataset dataset) throws IOException {
         List<Path> sourceFiles = listPushedFiles(source);
@@ -339,6 +359,8 @@ public final class FilePushSyncDemoTest {
 
     /**
      * 生成一份结构真实的数据集：配置、文档、订单 CSV、二进制包，外加一个被排除的日志。
+     * @param root 根节点，不允许为 null
+     * @param d 方法入参 d
      */
     private static void buildDataset(Path root, Dataset d) throws IOException {
         deleteRecursively(root);
@@ -402,6 +424,13 @@ public final class FilePushSyncDemoTest {
         System.out.println("已生成源数据集：" + listAllFiles(root).size() + " 个文件（含 1 个待排除日志）");
     }
 
+    /**
+     * markdown。
+     *
+     * @param index 索引，不允许为 null
+     * @param rows 方法入参 rows
+     * @return 结果字符串
+     */
     private static String markdown(int index, int rows) {
         StringBuilder sb = new StringBuilder(rows * 64);
         sb.append("# 设计说明 ").append(String.format("%02d", index)).append("\n\n");
@@ -414,6 +443,13 @@ public final class FilePushSyncDemoTest {
         return sb.toString();
     }
 
+    /**
+     * csv请求体。
+     *
+     * @param idBase IDBase，不允许为 null
+     * @param rows 方法入参 rows
+     * @return 结果字符串
+     */
     private static String csvBody(int idBase, int rows) {
         StringBuilder sb = new StringBuilder(rows * 72 + 64);
         sb.append("orderId,customerId,product,quantity,amount,createdAt\n");
@@ -431,7 +467,12 @@ public final class FilePushSyncDemoTest {
 
     // ------------------------------------------------------------------ output
 
-    /** 打印目录树；文件数超过 TREE_DETAIL_LIMIT 时只打印目录级汇总 */
+    /**
+     * 打印目录树；文件数超过 TREE_DETAIL_LIMIT 时只打印目录级汇总
+     * @param label 标签，不允许为 null
+     * @param root 根节点，不允许为 null
+     * @param dataset 方法入参 dataset
+     */
     private static void printTree(String label, Path root, Dataset dataset) throws IOException {
         List<Path> files = listAllFiles(root);
         long bytes = 0;
@@ -465,10 +506,23 @@ public final class FilePushSyncDemoTest {
         }
     }
 
+    /**
+     * abbreviate。
+     *
+     * @param text 文本，不允许为 null
+     * @param max 最大值，不允许为 null
+     * @return 结果字符串
+     */
     private static String abbreviate(String text, int max) {
         return text.length() <= max ? text : "..." + text.substring(text.length() - max + 3);
     }
 
+    /**
+     * human字节数组。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private static String humanBytes(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -484,6 +538,13 @@ public final class FilePushSyncDemoTest {
 
     // ------------------------------------------------------------------ helpers
 
+    /**
+     * 列出全部Files。
+     *
+     * @param root 根节点，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static List<Path> listAllFiles(Path root) throws IOException {
         List<Path> result = new ArrayList<>();
         if (!Files.isDirectory(root)) {
@@ -501,7 +562,11 @@ public final class FilePushSyncDemoTest {
         return result;
     }
 
-    /** 源端实际参与同步的文件（应用 excludes 后的清单） */
+    /**
+     * 源端实际参与同步的文件（应用 excludes 后的清单）
+     * @param root 根节点，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<Path> listPushedFiles(Path root) throws IOException {
         List<Path> result = new ArrayList<>();
         for (Path file : listAllFiles(root)) {
@@ -513,11 +578,25 @@ public final class FilePushSyncDemoTest {
         return result;
     }
 
+    /**
+     * 写入。
+     *
+     * @param file 文件，不允许为 null
+     * @param content 内容，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void write(Path file, String content) throws IOException {
         Files.createDirectories(file.getParent());
         Files.writeString(file, content, StandardCharsets.UTF_8);
     }
 
+    /**
+     * sha256。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果字符串
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static String sha256(Path file) throws IOException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -538,6 +617,12 @@ public final class FilePushSyncDemoTest {
         }
     }
 
+    /**
+     * safe大小。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果数值
+     */
     private static long safeSize(Path file) {
         try {
             return Files.size(file);
@@ -546,6 +631,11 @@ public final class FilePushSyncDemoTest {
         }
     }
 
+    /**
+     * defaultWork目录。
+     *
+     * @return 结果字符串
+     */
     private static String defaultWorkDir() {
         Path candidate = Path.of("E:/temp/filepush-demo");
         Path parent = candidate.getParent();
@@ -554,6 +644,12 @@ public final class FilePushSyncDemoTest {
                 : Path.of(System.getProperty("java.io.tmpdir"), "filepush-demo").toString();
     }
 
+    /**
+     * failures。
+     *
+     * @param result 结果，不允许为 null
+     * @return 结果字符串
+     */
     private static String failures(PushResult result) {
         List<FileTaskResult> failures = result.failures();
         if (failures.isEmpty()) {
@@ -568,6 +664,13 @@ public final class FilePushSyncDemoTest {
         return sb.toString();
     }
 
+    /**
+     * 校验。
+     *
+     * @param label 标签，不允许为 null
+     * @param condition condition（布尔开关）
+     * @param detail 方法入参 detail
+     */
     private static void check(String label, boolean condition, String detail) {
         if (!condition) {
             allPassed = false;
@@ -576,6 +679,12 @@ public final class FilePushSyncDemoTest {
                 + (condition ? "" : " — " + detail));
     }
 
+    /**
+     * 删除Recursively。
+     *
+     * @param root 根节点，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void deleteRecursively(Path root) throws IOException {
         if (!Files.exists(root)) {
             return;

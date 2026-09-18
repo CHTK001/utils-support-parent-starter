@@ -23,6 +23,11 @@ public enum TmdbGenre {
     TV_MOVIE(10770, "电视电影"),
     THRILLER(53, "惊悚"),
     WAR(10752, "战争"),
+    /**
+     * 构造方法，创建 WESTERN 实例。
+     *
+     * @param 37 方法入参 37
+     */
     WESTERN(37, "西部");
 
     /** 标识 */
@@ -30,6 +35,12 @@ public enum TmdbGenre {
     /** 名称 */
     private final String name;
 
+    /**
+     * 构造方法，创建 TmdbGenre 实例。
+     *
+     * @param id ID，不允许为 null
+     * @param name 名称，不允许为 null
+     */
     TmdbGenre(int id, String name) {
         this.id = id;
         this.name = name;

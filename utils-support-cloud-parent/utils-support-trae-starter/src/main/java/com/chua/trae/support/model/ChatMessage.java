@@ -7,5 +7,10 @@ package com.chua.trae.support.model;
  */
 
 public interface ChatMessage {
+    /**
+     * role。
+     *
+     * @return 结果字符串
+     */
     String role();
 }

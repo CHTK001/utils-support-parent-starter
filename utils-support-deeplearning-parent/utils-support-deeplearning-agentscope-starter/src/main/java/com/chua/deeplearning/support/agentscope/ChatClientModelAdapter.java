@@ -61,6 +61,11 @@ public class ChatClientModelAdapter implements Model {
         this.modelName = modelName != null ? modelName : "chat-client";
     }
 
+    /**
+     * 获取打开Ai客户端。
+     *
+     * @return 打开AI客户端 对象
+     */
     private OpenAIClient getOpenAiClient() {
         if (openAiClient == null) {
             synchronized (this) {
@@ -152,6 +157,15 @@ public class ChatClientModelAdapter implements Model {
         return Flux.just(response);
     }
 
+    /**
+     * callWithTools。
+     *
+     * @param prompt 提示词，不允许为 null
+     * @param history 方法入参 history
+     * @param tools 方法入参 tools
+     * @param systemPrompt system提示词，不允许为 null
+     * @return Chat响应 对象
+     */
     private ChatResponse callWithTools(String prompt, List<ChatMessage> history, List<ToolSchema> tools, String systemPrompt) {
         String modelId = chatClient.getModel();
         if (modelId == null || modelId.isBlank()) {
@@ -228,6 +242,12 @@ public class ChatClientModelAdapter implements Model {
                 .build();
     }
 
+    /**
+     * 构建Tools提示词。
+     *
+     * @param tools 方法入参 tools
+     * @return 结果字符串
+     */
     private String buildToolsPrompt(List<ToolSchema> tools) {
         if (tools == null || tools.isEmpty()) {
             return "";
@@ -246,6 +266,12 @@ public class ChatClientModelAdapter implements Model {
         return sb.toString();
     }
 
+    /**
+     * 解析Json。
+     *
+     * @param json 方法入参 json
+     * @return 结果映射，无数据时为空映射
+     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJson(String json) {
         if (json == null || json.isBlank()) {
@@ -260,6 +286,12 @@ public class ChatClientModelAdapter implements Model {
         }
     }
 
+    /**
+     * 转为Json值映射。
+     *
+     * @param params 参数，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
         Map<String, JsonValue> result = new HashMap<>();
         if (params != null) {
@@ -277,6 +309,9 @@ public class ChatClientModelAdapter implements Model {
         return modelName;
     }
 
+    /**
+     * 关闭。
+     */
     public void close() {
         try {
             chatClient.close();

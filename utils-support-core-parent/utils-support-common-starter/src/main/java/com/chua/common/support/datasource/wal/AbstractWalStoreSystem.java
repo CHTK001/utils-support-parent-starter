@@ -28,6 +28,12 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     protected volatile boolean closed = false;
     protected final AtomicLong totalRecords = new AtomicLong(0);
 
+    /**
+     * 构造方法，创建 AbstractWalStoreSystem 实例。
+     *
+     * @param config 配置，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     protected AbstractWalStoreSystem(WalStoreConfig config) throws IOException {
         this.config = config;
         this.router = new ShardRouter(config.shardCount());
@@ -37,6 +43,11 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         open();
     }
 
+    /**
+     * 打开。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     protected void open() throws IOException {
         Path walDir = config.baseDir().resolve("_wal");
         Files.createDirectories(walDir);
@@ -63,18 +74,25 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     @Override
     public void close() throws IOException {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         closed = true;
         compactScheduler.shutdownNow();
         for (SegmentWalLog log : walLogs) {
-            try { log.close(); } catch (IOException ignored) {}
+            try {
+                log.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 
     // ==================== 写入 =============
     @Override
     public long append(K key, byte[] payload) throws IOException {
-        if (closed) throw new IllegalStateException("StoreSystem 已关闭");
+        if (closed) {
+            throw new IllegalStateException("StoreSystem 已关闭");
+        }
         String keyStr = key.toString();
         int shardIdx = router.shardOf(keyStr);
         long lsn = walLogs[shardIdx].append((byte) opType(), payload == null ? new byte[0] : payload.clone());
@@ -85,10 +103,14 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     // ==================== 点查 =============
     @Override
     public Optional<byte[]> get(K key) throws IOException {
-        if (closed) throw new IllegalStateException("StoreSystem 已关闭");
+        if (closed) {
+            throw new IllegalStateException("StoreSystem 已关闭");
+        }
         String keyStr = key.toString();
         Optional<ShardedIndex.EntryLoc> locOpt = index.get(keyStr);
-        if (locOpt.isEmpty()) return Optional.empty();
+        if (locOpt.isEmpty()) {
+            return Optional.empty();
+        }
         ShardedIndex.EntryLoc loc = locOpt.get();
         // 从对应分片读取
         return Optional.ofNullable(readFromSegment(loc.segmentNo(), loc.offset(), loc.length()));
@@ -112,7 +134,9 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         List<Map.Entry<K, byte[]>> result = new ArrayList<>();
         for (Map.Entry<String, ShardedIndex.EntryLoc> e : indexed) {
             byte[] payload = readFromSegment(e.getValue().segmentNo(), e.getValue().offset(), e.getValue().length());
-            if (payload != null) result.add(Map.entry((K) e.getKey(), payload));
+            if (payload != null) {
+                result.add(Map.entry((K) e.getKey(), payload));
+            }
         }
         return result;
     }
@@ -121,7 +145,9 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     @Override
     public boolean delete(K key) throws IOException {
         String keyStr = key.toString();
-        if (!index.contains(keyStr)) return false;
+        if (!index.contains(keyStr)) {
+            return false;
+        }
         int shardIdx = router.shardOf(keyStr);
         walLogs[shardIdx].append((byte) (opType() | AbstractWalFileSystem.OP_TOMBSTONE), new byte[0]);
         index.remove(keyStr);
@@ -135,16 +161,28 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         log.info("[wal-store] rebuilding index for type={}", type());
         index.clear();
         totalRecords.set(0);
-        for (int i = 0; i < config.shardCount(); i++) rebuildShardIndex(i);
+        for (int i = 0; i < config.shardCount(); i++) {
+            rebuildShardIndex(i);
+        }
         log.info("[wal-store] index rebuilt: {} records", totalRecords.get());
     }
 
+    /**
+     * 重建分片索引。
+     *
+     * @param shardIdx 分片索引，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     protected void rebuildShardIndex(int shardIdx) throws IOException {
         for (WalSegmentInfo seg : walLogs[shardIdx].listSegments()) {
             walLogs[shardIdx].replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                if (isTombstone(op)) return true;
+                if (isTombstone(op)) {
+                    return true;
+                }
                 String key = decodeKey(payload);
-                if (key == null) return true;
+                if (key == null) {
+                    return true;
+                }
                 index.put(key, new ShardedIndex.EntryLoc(seg.segmentNo(), lsn, payload.length));
                 totalRecords.incrementAndGet();
                 return true;
@@ -154,7 +192,9 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     @Override
     public void compact() throws IOException {
-        for (SegmentWalLog log : walLogs) log.purgeCheckpointed(1);
+        for (SegmentWalLog log : walLogs) {
+            log.purgeCheckpointed(1);
+        }
         rebuildIndex();
     }
 
@@ -165,26 +205,60 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = new ArrayList<>();
-        for (SegmentWalLog log : walLogs) all.addAll(log.listSegments());
+        for (SegmentWalLog log : walLogs) {
+            all.addAll(log.listSegments());
+        }
         return all;
     }
 
     // ==================== 子类扩展点 =============
+    /**
+     * 操作类型。
+     *
+     * @return 结果值
+     */
     protected abstract byte opType();
+    /**
+     * 解码键。
+     *
+     * @param payload 方法入参 payload
+     * @return 结果字符串
+     */
     protected abstract String decodeKey(byte[] payload);
+    /**
+     * 解码值。
+     *
+     * @param key 键，不允许为 null
+     * @param payload 方法入参 payload
+     * @return 对象 对象
+     */
     protected abstract Object decodeValue(K key, byte[] payload);
 
     // ==================== 内部工具 =============
+    /**
+     * 读取来自分段。
+     *
+     * @param segmentNo 分段编号，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @param length 长度，不允许为 null
+     * @return 结果值
+     */
     private byte[] readFromSegment(int segmentNo, long offset, int length) {
-        if (segmentNo < 0 || segmentNo >= walLogs.length) return null;
+        if (segmentNo < 0 || segmentNo >= walLogs.length) {
+            return null;
+        }
         try {
             java.nio.file.Path segFile = walLogs[segmentNo].listSegments().stream()
                     .filter(s -> s.segmentNo() == segmentNo).findFirst()
                     .map(WalSegmentInfo::path).orElse(null);
-            if (segFile == null) return null;
+            if (segFile == null) {
+                return null;
+            }
             try (java.io.FileInputStream fis = new java.io.FileInputStream(segFile.toFile());
                  java.nio.channels.FileChannel ch = fis.getChannel()) {
-                if (offset + length > ch.size()) return null;
+                if (offset + length > ch.size()) {
+                    return null;
+                }
                 java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(length);
                 ch.read(buf, offset);
                 return buf.array();
@@ -194,6 +268,12 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
 
     protected static boolean isTombstone(byte op) { return (op & AbstractWalFileSystem.OP_TOMBSTONE) != 0; }
 
+    /**
+     * namespace。
+     *
+     * @param shardIdx 分片索引，不允许为 null
+     * @return 结果字符串
+     */
     protected String namespace(int shardIdx) {
         return config.namespace() + "-" + String.format("%04d", shardIdx);
     }

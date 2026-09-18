@@ -146,7 +146,11 @@ public class MemoryMcpPlugin {
         });
     }
 
-    /** 处理保存 */
+    /**
+     * 处理保存
+     * @param args 参数，不允许为 null
+     * @return McpTool结果 对象
+     */
     private McpToolResult handleSave(Map<String, Object> args) {
         String content = (String) args.get("content");
         if (content == null || content.isBlank()) {
@@ -164,7 +168,11 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(Map.of("success", true, "id", id));
     }
 
-    /** 处理搜索 */
+    /**
+     * 处理搜索
+     * @param args 参数，不允许为 null
+     * @return McpTool结果 对象
+     */
     private McpToolResult handleSearch(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
         int limit = toInt(args.get("limit"), 10);
@@ -172,7 +180,11 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(results);
     }
 
-    /** 处理List */
+    /**
+     * 处理List
+     * @param args 参数，不允许为 null
+     * @return McpTool结果 对象
+     */
     private McpToolResult handleList(Map<String, Object> args) {
         String type = (String) args.get("type");
         int limit = toInt(args.get("limit"), 20);
@@ -180,19 +192,30 @@ public class MemoryMcpPlugin {
         return McpToolResult.success(results);
     }
 
-    /** 处理删除 */
+    /**
+     * 处理删除
+     * @param args 参数，不允许为 null
+     * @return McpTool结果 对象
+     */
     private McpToolResult handleDelete(Map<String, Object> args) {
         String id = (String) args.get("id");
         boolean deleted = manager.delete(id);
         return McpToolResult.success(Map.of("deleted", deleted));
     }
 
-    /** 处理计算数量 */
+    /**
+     * 处理计算数量
+     * @return McpTool结果 对象
+     */
     private McpToolResult handleCount() {
         return McpToolResult.success(Map.of("count", manager.count()));
     }
 
-    /** ToDouble */
+    /**
+     * ToDouble
+     * @param obj 对象，不允许为 null
+     * @return 结果数值
+     */
     private double toDouble(Object obj) {
         if (obj instanceof Number n) {
             return n.doubleValue();
@@ -200,7 +223,12 @@ public class MemoryMcpPlugin {
         return 0.5;
     }
 
-    /** ToInt */
+    /**
+     * ToInt
+     * @param obj 对象，不允许为 null
+     * @param defaultVal 方法入参 defaultVal
+     * @return 结果数值
+     */
     private int toInt(Object obj, int defaultVal) {
         if (obj instanceof Number n) {
             return n.intValue();
@@ -208,7 +236,11 @@ public class MemoryMcpPlugin {
         return defaultVal;
     }
 
-    /** ToTagList */
+    /**
+     * ToTagList
+     * @param obj 对象，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();

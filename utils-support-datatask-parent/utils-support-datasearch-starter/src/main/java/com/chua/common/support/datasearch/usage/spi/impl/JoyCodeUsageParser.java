@@ -16,21 +16,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* joy编码 usage parser.
+* JoyCode 用量解析器。
 *
-* <p>JoyCode is a Chinese AI coding IDE (by JD.com) using an OpenAI-compatible
-* API (e.g. joyAI-编码-1.5, deepseek-V4-Pro). Real per-请求 usage 是否 tracked
-* 服务端-side by the joy编码 platform — no 账单 令牌 are 存储 本地.</p>
+* <p>JoyCode 是京东（JD.com）推出的国产 AI 编程 IDE，使用 OpenAI 兼容 API
+* （例如 joyAI-code-1.5、deepseek-V4-Pro）。真实的单次请求用量由 JoyCode
+* 平台在服务端统计，本地不存储任何计费 token。</p>
 *
-* <p>The only local token data lives in editor logs under
-* {@code %USERPROFILE%\AppData\Roaming\JoyCode\logs}: {@code [NonMessageTokens]}
-* 线 carry a 客户端-side estimate 的 系统 提示符 + tool definition 令牌,
-* computed 之前 each 请求. These are a 降低 bound on real 输入 usage —
-* every record 是否 flagged {@code estimated = true} so downstream aggregation
-* 能否 exclude them 从 账单 totals.</p>
+* <p>本地唯一的 token 数据位于编辑器日志目录
+* {@code %USERPROFILE%\AppData\Roaming\JoyCode\logs}：{@code [NonMessageTokens]}
+* 行记录的是客户端侧估算出的系统提示词 + 工具定义 token，在每次请求之前算出。
+* 这些数值只是真实输入用量的下界——每条记录都被标记为
+* {@code estimated = true}，便于下游聚合时把它们从账单总量中排除。</p>
 *
-* <p>{@code [OpenAI Inner]} model-selection events contain no token data and
-* are intentionally ignored.</p>
+* <p>{@code [OpenAI Inner]} 的模型选择事件不含 token 数据，按设计予以忽略。</p>
 *
 * @author CH
 * @since 4.0.0.42

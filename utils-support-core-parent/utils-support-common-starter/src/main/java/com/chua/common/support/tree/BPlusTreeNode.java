@@ -27,10 +27,21 @@ class BPlusTreeNode<K, V> {
     /** 叶子节点之间的链表后继指针；内部节点为 空 */
     BPlusTreeNode<K, V> next;
 
+    /**
+     * 构造方法，创建 BPlusTree节点 实例。
+     *
+     * @param leaf leaf（布尔开关）
+     */
     BPlusTreeNode(boolean leaf) {
         this(leaf, 16);
     }
 
+    /**
+     * 构造方法，创建 BPlusTree节点 实例。
+     *
+     * @param leaf leaf（布尔开关）
+     * @param capacity 方法入参 capacity
+     */
     BPlusTreeNode(boolean leaf, int capacity) {
         this.leaf = leaf;
         if (keys instanceof ArrayList) {
@@ -46,6 +57,7 @@ class BPlusTreeNode<K, V> {
 
     /**
     * 返回 键 的当前容量（用于拷贝时预估新节点大小）。
+    * @return 结果数值
     */
     int keysCapacity() {
         return keys instanceof ArrayList ? ((ArrayList<?>) keys).size() : keys.size();

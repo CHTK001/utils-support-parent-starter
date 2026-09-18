@@ -31,10 +31,6 @@ public class HEICImageWriter extends ImageWriter {
     * @param spi spi
     */
     public HEICImageWriter(HEICImageWriterSpi spi) {
-        /**
-        * 设置输出。
-        * @param output 输出
-        */
         super(spi);
     }
 
@@ -110,10 +106,23 @@ public class HEICImageWriter extends ImageWriter {
     */
     }
 
+    /**
+     * 获取ImageTypes。
+     *
+     * @param index 索引，不允许为 null
+     * @return 迭代器 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {
         return null;
     }
 
+    /**
+     * 能否编码Image。
+     *
+     * @param type 类型，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean canEncodeImage(ImageTypeSpecifier type) {
         return type != null && (type.getColorModel().getNumComponents() == 3 ||
                 type.getColorModel().getNumComponents() == 4);

@@ -54,6 +54,11 @@ class WechatDataRestoreSqlCipherTest {
     @TempDir
     Path tempDir;
 
+    /**
+     * sqlcipher模式应当RestoreEncryptedDatabase结束转为结束。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlcipherModeShouldRestoreEncryptedDatabaseEndToEnd() throws Exception {
         File dataDir = newDir("data");
@@ -83,6 +88,11 @@ class WechatDataRestoreSqlCipherTest {
         }
     }
 
+    /**
+     * sqlcipher模式应当AcceptPlaintextDatabase。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlcipherModeShouldAcceptPlaintextDatabase() throws Exception {
         File dataDir = newDir("data");
@@ -98,6 +108,11 @@ class WechatDataRestoreSqlCipherTest {
         assertEquals(0, listFiles(plainDir).size(), "明文库无需解密，不应写出明文副本");
     }
 
+    /**
+     * sqlcipher模式应当Fail响应Wrong键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlcipherModeShouldFailOnWrongKey() throws Exception {
         File dataDir = newDir("data");
@@ -113,6 +128,11 @@ class WechatDataRestoreSqlCipherTest {
                 "实际错误: " + result.getErrorMessage());
     }
 
+    /**
+     * sqlcipher模式应当FailWithout键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlcipherModeShouldFailWithoutKey() throws Exception {
         File dataDir = newDir("data");
@@ -128,6 +148,11 @@ class WechatDataRestoreSqlCipherTest {
         assertTrue(result.getErrorMessage().contains("密钥"), "实际错误: " + result.getErrorMessage());
     }
 
+    /**
+     * sqlcipher模式应当FailWhen编号DatabaseFound。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlcipherModeShouldFailWhenNoDatabaseFound() throws Exception {
         File dataDir = newDir("data");
@@ -144,6 +169,11 @@ class WechatDataRestoreSqlCipherTest {
 
     // ==================== auto 模式收敛 ====================
 
+    /**
+     * auto模式应当SucceedViaSQLCipherWhen键Available。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void autoModeShouldSucceedViaSqlCipherWhenKeyAvailable() throws Exception {
         File dataDir = newDir("data");
@@ -160,6 +190,11 @@ class WechatDataRestoreSqlCipherTest {
         assertEquals(2, result.getFileCount());
     }
 
+    /**
+     * auto模式应当ThrowWhenSQLCipherFailsAnd编号ToolFallback。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void autoModeShouldThrowWhenSqlCipherFailsAndNoToolFallback() throws Exception {
         File dataDir = newDir("data");
@@ -178,6 +213,9 @@ class WechatDataRestoreSqlCipherTest {
                 () -> new WechatDataRestore().doRestore(encrypted, autoConfig(options, out)));
     }
 
+    /**
+     * auto模式应当ThrowWhenNothingConfigured。
+     */
     @Test
     void autoModeShouldThrowWhenNothingConfigured() {
         File source = new File(tempDir.toFile(), "session.db");

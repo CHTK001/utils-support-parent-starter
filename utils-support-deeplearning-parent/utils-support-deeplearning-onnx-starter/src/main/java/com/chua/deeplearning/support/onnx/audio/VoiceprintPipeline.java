@@ -136,7 +136,11 @@ public class VoiceprintPipeline implements AutoCloseable {
         return new SearchConfig(this);
     }
 
-    /** 提取声纹特征（可选降噪 + VAD 预处理）。 */
+    /**
+     * 提取声纹特征（可选降噪 + VAD 预处理）。
+     * @param samplePath sample路径，不允许为 null
+     * @return 结果值
+     */
     float[] extract(Path samplePath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(samplePath);
         if (denoiseEnhancer != null) {
@@ -250,6 +254,14 @@ public class VoiceprintPipeline implements AutoCloseable {
         return out;
     }
 
+    /**
+     * rms。
+     *
+     * @param s 方法入参 s
+     * @param off 方法入参 off
+     * @param len 方法入参 len
+     * @return 结果数值
+     */
     private static float rms(float[] s, int off, int len) {
         double sum = 0;
         for (int i = off; i < off + len; i++) {
@@ -258,12 +270,18 @@ public class VoiceprintPipeline implements AutoCloseable {
         return (float) Math.sqrt(sum / len);
     }
 
-    /** 向量存储。 */
+    /**
+     * 向量存储。
+     * @return VectorStorage 对象
+     */
     VectorStorage storage() {
         return storage;
     }
 
-    /** 检索上限。 */
+    /**
+     * 检索上限。
+     * @return 结果数值
+     */
     int maxResults() {
         return maxResults;
     }
@@ -611,6 +629,12 @@ public class VoiceprintPipeline implements AutoCloseable {
         }
     }
 
+    /**
+     * trimOrNull。
+     *
+     * @param v 方法入参 v
+     * @return 结果字符串
+     */
     private static String trimOrNull(Object v) {
         if (v == null) {
             return null;

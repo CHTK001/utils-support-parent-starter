@@ -101,6 +101,12 @@ public class ZipformerFbank {
     */
     }
 
+    /**
+     * 计算PowerSpectrum。
+     *
+     * @param frame 方法入参 frame
+     * @param powerSpec 方法入参 powerSpec
+     */
     private void computePowerSpectrum(double[] frame, double[] powerSpec) {
         for (int k = 0; k < NUM_BINS; k++) {
             double re = 0;
@@ -114,6 +120,11 @@ public class ZipformerFbank {
         }
     }
 
+    /**
+     * 构建PoveyWindow。
+     *
+     * @return 结果值
+     */
     private float[] buildPoveyWindow() {
         float[] w = new float[FRAME_LENGTH];
         for (int i = 0; i < FRAME_LENGTH; i++) {
@@ -129,6 +140,11 @@ public class ZipformerFbank {
     */
     }
 
+    /**
+     * 构建MelBanks。
+     *
+     * @return 结果值
+     */
     private float[][] buildMelBanks() {
         int numFFTBins = NUM_BINS;
         double melLow = melToHertzInverse(LOW_FREQ);
@@ -164,10 +180,22 @@ public class ZipformerFbank {
         return banks;
     }
 
+    /**
+     * hertz转为MelInverse。
+     *
+     * @param mel 方法入参 mel
+     * @return 结果数值
+     */
     private static double hertzToMelInverse(double mel) {
         return 700.0 * (Math.exp(mel / 1127.0) - 1.0);
     }
 
+    /**
+     * mel转为HertzInverse。
+     *
+     * @param hz 方法入参 hz
+     * @return 结果数值
+     */
     private static double melToHertzInverse(double hz) {
         return 1127.0 * Math.log(1.0 + hz / 700.0);
     }

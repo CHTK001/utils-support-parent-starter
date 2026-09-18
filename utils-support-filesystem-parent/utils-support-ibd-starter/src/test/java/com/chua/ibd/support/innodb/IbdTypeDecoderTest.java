@@ -85,6 +85,9 @@ class IbdTypeDecoderTest {
 
     // ==================== ENUM ====================
 
+    /**
+     * 测试：解码OneByteEnum。
+     */
     @Test
     @DisplayName("ENUM 1 字节序号：0x02 -> PG（film.rating 第 1 行）")
     void shouldDecodeOneByteEnum() {
@@ -96,6 +99,9 @@ class IbdTypeDecoderTest {
                         + "若实现按 4 字节左侧补零读，会得到 33554432");
     }
 
+    /**
+     * 测试：解码IllegalEnumAsNull。
+     */
     @Test
     @DisplayName("ENUM 序号 0 表示非法值，输出 NULL")
     void shouldDecodeIllegalEnumAsNull() {
@@ -104,6 +110,9 @@ class IbdTypeDecoderTest {
         assertNull(IbdTypeDecoder.decode(rating, bytes("00")));
     }
 
+    /**
+     * 测试：解码TwoByteEnum。
+     */
     @Test
     @DisplayName("ENUM 元素数 > 255 时占 2 字节，序号按实际宽度解释")
     void shouldDecodeTwoByteEnum() {
@@ -119,6 +128,9 @@ class IbdTypeDecoderTest {
 
     // ==================== SET ====================
 
+    /**
+     * 测试：解码OneByte设置。
+     */
     @Test
     @DisplayName("SET 1 字节位图：0x0C -> Deleted Scenes,Behind the Scenes（film 第 1 行）")
     void shouldDecodeOneByteSet() {
@@ -130,6 +142,9 @@ class IbdTypeDecoderTest {
                 "0x0C = 二进制 1100 -> 第 3、4 个成员");
     }
 
+    /**
+     * 测试：解码Empty设置。
+     */
     @Test
     @DisplayName("SET 空集合输出空串")
     void shouldDecodeEmptySet() {
@@ -139,6 +154,9 @@ class IbdTypeDecoderTest {
         assertEquals("", IbdTypeDecoder.decode(features, bytes("00")));
     }
 
+    /**
+     * 测试：计算设置宽度。
+     */
     @Test
     @DisplayName("SET 元素数 4 个只占 1 字节（不是 4 字节）")
     void shouldComputeSetWidth() {
@@ -150,6 +168,9 @@ class IbdTypeDecoderTest {
 
     // ==================== 有符号整数符号位翻转 ====================
 
+    /**
+     * 测试：解码SignedTinyInt。
+     */
     @Test
     @DisplayName("TINYINT 有符号：0x81 -> 1（staff.active 第 1 行）")
     void shouldDecodeSignedTinyInt() {
@@ -159,6 +180,9 @@ class IbdTypeDecoderTest {
         assertEquals(127L, IbdTypeDecoder.decode(column("v", IbdColumnType.TINY, 4), bytes("ff")));
     }
 
+    /**
+     * 测试：解码UnsignedInt。
+     */
     @Test
     @DisplayName("无符号整数不翻转符号位")
     void shouldDecodeUnsignedInt() {
@@ -170,6 +194,9 @@ class IbdTypeDecoderTest {
 
     // ==================== DECIMAL ====================
 
+    /**
+     * 测试：解码DecimalFourTwo。
+     */
     @Test
     @DisplayName("DECIMAL(4,2)：0x8063 -> 0.99（film.rental_rate 第 1 行）")
     void shouldDecodeDecimalFourTwo() {
@@ -179,6 +206,9 @@ class IbdTypeDecoderTest {
         assertEquals(new BigDecimal("0.99"), IbdTypeDecoder.decode(rate, bytes("8063")));
     }
 
+    /**
+     * 测试：解码DecimalFiveTwo。
+     */
     @Test
     @DisplayName("DECIMAL(5,2)：0x801463 -> 20.99（film.replacement_cost 第 1 行）")
     void shouldDecodeDecimalFiveTwo() {
@@ -188,6 +218,9 @@ class IbdTypeDecoderTest {
         assertEquals(new BigDecimal("20.99"), IbdTypeDecoder.decode(cost, bytes("801463")));
     }
 
+    /**
+     * 测试：解码NegativeDecimal。
+     */
     @Test
     @DisplayName("DECIMAL 负数是把整段按位取反，且首字节符号位必须清掉")
     void shouldDecodeNegativeDecimal() {
@@ -200,6 +233,9 @@ class IbdTypeDecoderTest {
 
     // ==================== 时间 ====================
 
+    /**
+     * 测试：解码时间戳In目标Zone。
+     */
     @Test
     @DisplayName("TIMESTAMP 存 UTC 秒，按 +08:00 渲染 -> 2006-02-15 05:03:42（film 第 1 行）")
     void shouldDecodeTimestampInTargetZone() {
@@ -212,6 +248,9 @@ class IbdTypeDecoderTest {
                 "同一串字节在 UTC 下少 8 小时 —— 证明存的是 UTC 秒");
     }
 
+    /**
+     * 测试：解码日期Time2。
+     */
     @Test
     @DisplayName("DATETIME(0) 占 5 字节：0x99781D6124 -> 2006-02-14 22:04:36（customer 第 1 行）")
     void shouldDecodeDateTime2() {
@@ -223,12 +262,18 @@ class IbdTypeDecoderTest {
         assertEquals("2006-02-14 22:04:36", IbdTypeDecoder.decode(column, bytes("99781d6124")));
     }
 
+    /**
+     * 测试：解码日期。
+     */
     @Test
     @DisplayName("DATE 占 3 字节：0x0FAC4F -> 2006-02-15")
     void shouldDecodeDate() {
         assertEquals("2006-02-15", IbdTypeDecoder.decode(column("d", IbdColumnType.DATE, 3), bytes("0fac4f")));
     }
 
+    /**
+     * 测试：解码Time2。
+     */
     @Test
     @DisplayName("TIME(0) 占 3 字节：0x80C8B8 -> 12:34:56")
     void shouldDecodeTime2() {
@@ -239,6 +284,9 @@ class IbdTypeDecoderTest {
         assertEquals("12:34:56", IbdTypeDecoder.decode(column, bytes("80c8b8")));
     }
 
+    /**
+     * 测试：解码Year。
+     */
     @Test
     @DisplayName("YEAR 存的是 1900 起的偏移：0x6A -> 2006（film 第 1 行）")
     void shouldDecodeYear() {
@@ -247,6 +295,9 @@ class IbdTypeDecoderTest {
 
     // ==================== 字符串 ====================
 
+    /**
+     * 测试：解码Varchar。
+     */
     @Test
     @DisplayName("VARCHAR 直接按列字符集解码（film.title 第 1 行）")
     void shouldDecodeVarchar() {
@@ -256,6 +307,9 @@ class IbdTypeDecoderTest {
                 IbdTypeDecoder.decode(title, bytes("41434144454d592044494e4f53415552")));
     }
 
+    /**
+     * 测试：StripTrailingSpacesOfChar。
+     */
     @Test
     @DisplayName("CHAR 要去掉页里填充的尾部空格")
     void shouldStripTrailingSpacesOfChar() {
@@ -265,6 +319,9 @@ class IbdTypeDecoderTest {
         assertEquals("English", IbdTypeDecoder.decode(column, "English".getBytes()));
     }
 
+    /**
+     * 测试：解码BinaryAsHex。
+     */
     @Test
     @DisplayName("binary 字符集（collation 63）输出 0x 十六进制")
     void shouldDecodeBinaryAsHex() {
@@ -276,6 +333,9 @@ class IbdTypeDecoderTest {
 
     // ==================== GEOMETRY ====================
 
+    /**
+     * 测试：解码GeometryAsInternal格式化。
+     */
     @Test
     @DisplayName("GEOMETRY 原样输出 SRID + WKB 的十六进制（address.location 第 1 行）")
     void shouldDecodeGeometryAsInternalFormat() {
@@ -290,6 +350,9 @@ class IbdTypeDecoderTest {
 
     // ==================== 系统列 ====================
 
+    /**
+     * 测试：计算System列宽度。
+     */
     @Test
     @DisplayName("系统列宽度：DB_TRX_ID 6 字节、DB_ROLL_PTR 7 字节、DB_ROW_ID 6 字节")
     void shouldComputeSystemColumnWidth() {
@@ -298,6 +361,9 @@ class IbdTypeDecoderTest {
         assertEquals(6, column(IbdColumn.COL_DB_ROW_ID, IbdColumnType.LONGLONG, 0).fixedSize());
     }
 
+    /**
+     * 测试：解码System列AsUnsigned。
+     */
     @Test
     @DisplayName("系统列按无符号输出（DB_ROLL_PTR 第 1 行）")
     void shouldDecodeSystemColumnAsUnsigned() {

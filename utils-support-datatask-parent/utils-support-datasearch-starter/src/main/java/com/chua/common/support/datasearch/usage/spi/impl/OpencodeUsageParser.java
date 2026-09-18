@@ -102,6 +102,13 @@ public class OpencodeUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /**
+     * 转为AiUsage。
+     *
+     * @param rs 方法入参 rs
+     * @return AiUsage 对象
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         long startTime = rs.getLong(1);
         String provider = rs.getString(2);

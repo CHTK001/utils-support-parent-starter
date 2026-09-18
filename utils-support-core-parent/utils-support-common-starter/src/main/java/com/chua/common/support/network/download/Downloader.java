@@ -85,6 +85,9 @@ public class Downloader {
     private DownloadProtocol protocol = DownloadProtocol.DEFAULT;
 
     // ===== 构造 =====
+    /**
+     * 构造方法，创建 Downloader 实例。
+     */
     private Downloader() {
     }
 

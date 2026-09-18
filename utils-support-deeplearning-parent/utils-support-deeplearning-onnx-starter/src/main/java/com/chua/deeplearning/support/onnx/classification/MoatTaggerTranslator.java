@@ -45,10 +45,19 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     */
     private final Path csvPath;
 
+    /**
+     * 构造方法，创建 MoatTaggerTranslator 实例。
+     */
     public MoatTaggerTranslator() {
         this(TOP_K, null);
     }
 
+    /**
+     * 构造方法，创建 MoatTaggerTranslator 实例。
+     *
+     * @param topk 方法入参 topk
+     * @param csvPath csv路径，不允许为 null
+     */
     public MoatTaggerTranslator(int topk, Path csvPath) {
         this.topk = topk;
         this.csvPath = csvPath;
@@ -149,9 +158,13 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {
-            String line; boolean first = true;
+            String line;
+            boolean first = true;
             while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; }
+                if (first) {
+                    first = false;
+                    continue;
+                }
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 2) {
                     names.add(parts[1].trim());

@@ -42,6 +42,9 @@ public final class CudaEnvironmentInstaller {
     /** 安装锁：同一 JVM 内只触发一次安装，避免并发重复下载 */
     private static final AtomicBoolean INSTALLING = new AtomicBoolean(false);
 
+    /**
+     * 构造方法，创建 CudaEnvironmentInstaller 实例。
+     */
     private CudaEnvironmentInstaller() {
     }
 
@@ -230,6 +233,12 @@ public final class CudaEnvironmentInstaller {
         return "sh " + script.toAbsolutePath();
     }
 
+    /**
+     * truncate。
+     *
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private static String truncate(String s) {
         if (s == null || s.length() <= 200) {
             return s == null ? "" : s;

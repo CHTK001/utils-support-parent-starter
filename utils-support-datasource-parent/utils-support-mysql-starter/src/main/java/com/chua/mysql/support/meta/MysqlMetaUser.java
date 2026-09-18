@@ -33,10 +33,6 @@ public class MysqlMetaUser implements MetaUser {
     * @param dataSource 数据源
     */
     public MysqlMetaUser(DataSource dataSource) {
-        /**
-        * 列表。
-        * @return 列表的结果
-        */
         this.dataSource = dataSource;
     }
 
@@ -64,13 +60,6 @@ public class MysqlMetaUser implements MetaUser {
 
     @Override
     public UserCreateBuilder create(String username) {
-        /**
-        * alter。
-        * @param username 用户名
-        * @return alter的结果
-        * @param ds ds
-        * @param sql sql
-        */
         return new CreateStep(dataSource, username);
     }
 
@@ -85,6 +74,12 @@ public class MysqlMetaUser implements MetaUser {
         return true;
     }
 
+    /**
+     * exec。
+     *
+     * @param ds 方法入参 ds
+     * @param sql SQL，不允许为 null
+     */
     private static void exec(DataSource ds, String sql) {
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {

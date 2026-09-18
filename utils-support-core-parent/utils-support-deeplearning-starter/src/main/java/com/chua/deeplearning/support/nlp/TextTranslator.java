@@ -147,6 +147,13 @@ class DefaultTextTranslator implements TextTranslator {
     */
     private String device = "cpu";
 
+    /**
+     * 构造方法，创建 Default文本Translator 实例。
+     *
+     * @param engine 引擎，不允许为 null
+     * @param modelName 模型名称，不允许为 null
+     * @param setting 方法入参 setting
+     */
     DefaultTextTranslator(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

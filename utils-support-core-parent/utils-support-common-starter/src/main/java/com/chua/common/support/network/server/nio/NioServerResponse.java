@@ -409,6 +409,8 @@ public class NioServerResponse implements ServerResponse {
     * 构建 HTTP 响应头字节（状态行 + 自动头 + 用户头 + 空行）。
     * <p>零分配快路径：echo 场景（status=200 + 无用户头）直接复用预拼字节模板，
     * 只在数字部分按 body 长度动态填充。带用户头或非默认状态才走慢路径。</p>
+    * @param bodyLength 请求体长度，不允许为 null
+    * @return 结果值
     */
     private byte[] buildHttpHeaders(int bodyLength) {
         // 快路径:status=200 + 无用户自定义 header + keep-alive,即 echo 场景
@@ -437,6 +439,8 @@ public class NioServerResponse implements ServerResponse {
     /**
     * echo header 零分配构建:状态行 + Content-Type + Content-Length(<len>) + Connection: keep-alive + 空行。
     * 首次按 body 长度缓存到 {@link #ECHO_HEADER_CACHE},后续同长度直接返回。
+    * @param bodyLength 请求体长度，不允许为 null
+    * @return 结果值
     */
     private static byte[] buildEchoHeader(int bodyLength) {
         byte[] cached = ECHO_HEADER_CACHE.get(bodyLength);
@@ -461,12 +465,16 @@ public class NioServerResponse implements ServerResponse {
 
     /**
     * 判断 channel 是否已关闭（SSE close 后）。
+    * @return 是否成功（true 表示成功）
     */
     public boolean isChannelClosed() {
         return channelClosed;
     }
 
-    /** 解析Body */
+    /**
+     * 解析Body
+     * @return 结果值
+     */
     private byte[] resolveBody() {
         if (body != null) {
             return body;
@@ -481,7 +489,10 @@ public class NioServerResponse implements ServerResponse {
     /** 空字节数组常量 */
     private static final byte[] EMPTY_BYTES = new byte[0];
 
-    /** 写入Headers */
+    /**
+     * 写入Headers
+     * @param status 状态，不允许为 null
+     */
     private void writeHeaders(int status) {
         try {
             ByteArrayOutputStream headerBuf = new ByteArrayOutputStream(256);
@@ -516,7 +527,10 @@ public class NioServerResponse implements ServerResponse {
         this.streamWriter = writer;
     }
 
-    /** 写入ToChannel */
+    /**
+     * 写入ToChannel
+     * @param data 数据，不允许为 null
+     */
     private void writeToChannel(byte[] data) {
         // 流式钩子优先(AIO 复用):TLS 感知的阻塞写出
         if (streamWriter != null) {
@@ -550,6 +564,8 @@ public class NioServerResponse implements ServerResponse {
     /**
     * gather write：将多个 ByteBuffer 一次性写出（zero copy，避免中间拼接）。
     * 使用 varargs 重载直接调用 channel.write(ByteBuffer[])，减少包装开销。
+    * @param headerBuf 请求头Buf，不允许为 null
+    * @param bodyBuf 请求体Buf，不允许为 null
     */
     private void writeToChannel(ByteBuffer headerBuf, ByteBuffer bodyBuf) {
         // 无通道场景(AIO 复用):同 writeToChannel(byte[]) 的兜底保护
@@ -571,7 +587,11 @@ public class NioServerResponse implements ServerResponse {
         }
     }
 
-    /** ReasonPhrase */
+    /**
+     * ReasonPhrase
+     * @param code 编码，不允许为 null
+     * @return 结果字符串
+     */
     private static String reasonPhrase(int code) {
         return switch (code) {
             case 200 -> "OK";

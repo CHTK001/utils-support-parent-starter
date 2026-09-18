@@ -79,6 +79,9 @@ public class TcpServerRequest implements ServerRequest {
         }
     }
 
+    /**
+     * 解析。
+     */
     private void parse() {
         String text = new String(body, charset);
         int headerEnd = text.indexOf("\r\n\r\n");
@@ -121,6 +124,12 @@ public class TcpServerRequest implements ServerRequest {
         }
     }
 
+    /**
+     * 解析方法。
+     *
+     * @param raw 方法入参 raw
+     * @return Http方法 对象
+     */
     private HttpMethod parseMethod(String raw) {
         try {
             return HttpMethod.valueOf(raw.toUpperCase());
@@ -129,11 +138,23 @@ public class TcpServerRequest implements ServerRequest {
         }
     }
 
+    /**
+     * extract路径。
+     *
+     * @param uri URI，不允许为 null
+     * @return 结果字符串
+     */
     private String extractPath(String uri) {
         int q = uri.indexOf('?');
         return q >= 0 ? uri.substring(0, q) : uri;
     }
 
+    /**
+     * 解析查询参数。
+     *
+     * @param uri URI，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, String> parseQueryParams(String uri) {
         int q = uri.indexOf('?');
         if (q < 0 || q + 1 >= uri.length()) {

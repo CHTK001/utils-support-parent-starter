@@ -500,12 +500,22 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
         return idx >= 0 ? idx : -1;
     }
 
-    /** 读取小端序 16 位整数 */
+    /**
+     * 读取小端序 16 位整数
+     * @param b 方法入参 b
+     * @param off 方法入参 off
+     * @return 结果数值
+     */
     private static int readLeShort(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
     }
 
-    /** 读取小端序 32 位整数 */
+    /**
+     * 读取小端序 32 位整数
+     * @param b 方法入参 b
+     * @param off 方法入参 off
+     * @return 结果数值
+     */
     private static int readLeInt(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8) |
                 ((b[off + 2] & 0xff) << 16) | ((b[off + 3] & 0xff) << 24);

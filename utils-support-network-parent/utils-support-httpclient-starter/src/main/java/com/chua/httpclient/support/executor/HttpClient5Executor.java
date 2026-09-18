@@ -152,7 +152,10 @@ public class HttpClient5Executor implements HttpClientExecutor {
     /** 关闭 */
     public void close() {
         if (client != null) {
-            try { client.close(); } catch (Exception ignored) {}
+            try {
+                client.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 }

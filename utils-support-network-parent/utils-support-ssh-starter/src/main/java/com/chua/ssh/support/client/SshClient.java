@@ -107,14 +107,23 @@ public class SshClient implements AutoCloseable {
     /** Builder */
     public static Builder builder() { return new Builder(); }
 
-    /** 创建 */
+    /**
+     * 创建
+     * @param host 主机，不允许为 null
+     * @param username 用户名，不允许为 null
+     * @param password 密码，不允许为 null
+     * @return Ssh客户端 对象
+     */
     public static SshClient create(String host, String username, String password) {
         return builder().host(host).username(username).password(password).build();
     }
 
     // ==================== 连接管理 ====================
 
-    /** 连接 */
+    /**
+     * 连接
+     * @return Ssh客户端 对象
+     */
     public SshClient connect() {
         try {
             sshClient = org.apache.sshd.client.SshClient.setUpDefaultClient();
@@ -215,7 +224,10 @@ public class SshClient implements AutoCloseable {
         ExecOperation(SshClient client) { this.client = client; }
 
         /** Command */
-        public ExecOperation command(String cmd) { this.command = cmd; return this; }
+        public ExecOperation command(String cmd) {
+            this.command = cmd;
+            return this;
+        }
 
         /** 执行 */
         public ExecResult execute() {
@@ -297,7 +309,10 @@ public class SshClient implements AutoCloseable {
 
         /** 关闭 */
         public void close() {
-            try { channel.close(); } catch (Exception ignored) {}
+            try {
+                channel.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -555,15 +570,30 @@ public class SshClient implements AutoCloseable {
         TerminalOperation(SshClient client) { this.client = client; }
 
         /** Pty */
-        public TerminalOperation pty(boolean v) { this.pty = v; return this; }
+        public TerminalOperation pty(boolean v) {
+            this.pty = v;
+            return this;
+        }
         /** Width */
-        public TerminalOperation width(int w) { this.width = w; return this; }
+        public TerminalOperation width(int w) {
+            this.width = w;
+            return this;
+        }
         /** Height */
-        public TerminalOperation height(int h) { this.height = h; return this; }
+        public TerminalOperation height(int h) {
+            this.height = h;
+            return this;
+        }
         /** OnOutput */
-        public TerminalOperation onOutput(Consumer<String> callback) { this.outputCallback = callback; return this; }
+        public TerminalOperation onOutput(Consumer<String> callback) {
+            this.outputCallback = callback;
+            return this;
+        }
         /** On关闭 */
-        public TerminalOperation onClose(Runnable callback) { this.closeCallback = callback; return this; }
+        public TerminalOperation onClose(Runnable callback) {
+            this.closeCallback = callback;
+            return this;
+        }
 
         /** 连接 */
         public TerminalOperation connect() {
@@ -704,7 +734,13 @@ public class SshClient implements AutoCloseable {
 
     // ==================== ExecResult ====================
 
-    /** ExecResult */
+    /**
+     * ExecResult
+     * @param exitCode exit编码，不允许为 null
+     * @param stdout 方法入参 stdout
+     * @param stderr 方法入参 stderr
+     * @return 结果值
+     */
     public record ExecResult(int exitCode, String stdout, String stderr) {
         /** 获取Output */
         public String getOutput() {
@@ -745,19 +781,40 @@ public class SshClient implements AutoCloseable {
         private int sessionTimeout = 30;
 
         /** Host */
-        public Builder host(String h) { this.host = h; return this; }
+        public Builder host(String h) {
+            this.host = h;
+            return this;
+        }
         /** Port */
-        public Builder port(int p) { this.port = p; return this; }
+        public Builder port(int p) {
+            this.port = p;
+            return this;
+        }
         /** Username */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /** Password */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
         /** PrivateKey */
-        public Builder privateKey(String path) { this.privateKeyPath = path; return this; }
+        public Builder privateKey(String path) {
+            this.privateKeyPath = path;
+            return this;
+        }
         /** 连接Timeout */
-        public Builder connectTimeout(int t) { this.connectTimeout = t; return this; }
+        public Builder connectTimeout(int t) {
+            this.connectTimeout = t;
+            return this;
+        }
         /** SessionTimeout */
-        public Builder sessionTimeout(int t) { this.sessionTimeout = t; return this; }
+        public Builder sessionTimeout(int t) {
+            this.sessionTimeout = t;
+            return this;
+        }
 
         /** 构建 */
         public SshClient build() {

@@ -680,7 +680,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     // ==================== 静态辅助方法 ====================
 
     private static void bindParams(Statement stmt, Object... params) {
-        if (params == null) return;
+        if (params == null) {
+            return;
+        }
         for (int i = 0; i < params.length; i++) {
             stmt.bind(i, params[i]);
         }
@@ -712,7 +714,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                 String name = cm.getName();
                 if (name != null && !name.isEmpty()) {
                     Object value = row.get(name);
-                    if (value != null) setFieldValue(instance, name, value);
+                    if (value != null) {
+                        setFieldValue(instance, name, value);
+                    }
                 }
             });
             return instance;
@@ -725,9 +729,13 @@ public class JdbcReactorEngine implements ReactorEngine {
         List<String> candidates = List.of(columnName, toCamelCase(columnName));
         for (String candidate : candidates) {
             java.lang.reflect.Field field = findField(instance.getClass(), candidate);
-            if (field == null) continue;
+            if (field == null) {
+                continue;
+            }
             Object converted = com.chua.common.support.converter.Converter.convertIfNecessary(value, field.getType());
-            if (converted != null) ReflectUtils.setField(instance, candidate, converted);
+            if (converted != null) {
+                ReflectUtils.setField(instance, candidate, converted);
+            }
             return;
         }
     }
@@ -737,7 +745,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     private static String toCamelCase(String name) {
-        if (name == null || name.isEmpty()) return name;
+        if (name == null || name.isEmpty()) {
+            return name;
+        }
         StringBuilder sb = new StringBuilder(name.length());
         boolean upperNext = false;
         for (int i = 0; i < name.length(); i++) {
@@ -757,7 +767,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
         ConnectionFactory factory = r2dbcFactories.get(name);
-        if (factory == null) return null;
+        if (factory == null) {
+            return null;
+        }
         return new EngineDataSource<T>() {
             @Override public String name() { return name; }
             @Override public T getSource() { return null; }
@@ -783,7 +795,12 @@ public class JdbcReactorEngine implements ReactorEngine {
     */
     public void close() {
         for (ConnectionFactory f : r2dbcFactories.values()) {
-            if (f instanceof AutoCloseable ac) { try { ac.close(); } catch (Exception ignored) {} }
+            if (f instanceof AutoCloseable ac) {
+                try {
+                    ac.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
         r2dbcFactories.clear();
         jdbcDataSources.clear();
@@ -801,7 +818,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public <T> Engine store(String name, List<T> data) { throw new UnsupportedOperationException(); }
         @Override
-        public Engine setDefaultDataSourceName(String name) { JdbcReactorEngine.this.defaultDataSourceName = name; return this; }
+        public Engine setDefaultDataSourceName(String name) {
+            JdbcReactorEngine.this.defaultDataSourceName = name;
+            return this;
+        }
         @Override
         public SqlExecutor getExecutor(String dataSourceName) {
             return new R2dbcSqlExecutorWrapper(r2dbcFactories.get(dataSourceName), dialects.get(dataSourceName));
@@ -868,7 +888,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)))
@@ -877,7 +899,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.from(Flux.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
@@ -892,7 +916,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {
                     Object val = rows.getFirst().values().iterator().next();
-                    if (val instanceof Number n) total = n.longValue();
+                    if (val instanceof Number n) {
+                        total = n.longValue();
+                    }
                 }
             } catch (Exception ignored) {}
             pagination.setTotal(total);
@@ -901,7 +927,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public int execute(String sql, Object... params) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             return Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(Result::getRowsUpdated).reduce(0L, Long::sum),
@@ -910,18 +938,28 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         @Override
         public int[] batch(String sql, List<Object[]> batchParams) {
-            if (factory == null) throw new IllegalStateException("R2DBC 连接工厂未配置");
+            if (factory == null) {
+                throw new IllegalStateException("R2DBC 连接工厂未配置");
+            }
             List<Integer> results = Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.fromIterable(batchParams)
-                            .flatMap(p -> { Statement s = conn.createStatement(sql); bindParams(s, p); return Flux.from(s.execute()).flatMap(Result::getRowsUpdated).reduce(0L, Long::sum); })
+                            .flatMap(p -> {
+                                Statement s = conn.createStatement(sql);
+                                bindParams(s, p);
+                                return Flux.from(s.execute()).flatMap(Result::getRowsUpdated).reduce(0L, Long::sum);
+                            })
                             .map((Long l) -> l.intValue()).collectList(),
                     conn -> Mono.empty()).block();
             return results == null ? new int[0] : results.stream().mapToInt(Integer::intValue).toArray();
         }
         private static String trimSql(String sql) {
-            if (sql == null) return "";
+            if (sql == null) {
+                return "";
+            }
             String t = sql.trim();
-            while (t.endsWith(";")) t = t.substring(0, t.length() - 1).trim();
+            while (t.endsWith(";")) {
+                t = t.substring(0, t.length() - 1).trim();
+            }
             return t;
         }
     }
@@ -934,14 +972,18 @@ public class JdbcReactorEngine implements ReactorEngine {
         public List<Map<String, Object>> query(String sql, Object... params) {
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-                for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
                 List<Map<String, Object>> result = new ArrayList<>();
                 try (java.sql.ResultSet rs = ps.executeQuery()) {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
                         Map<String, Object> row = new LinkedHashMap<>();
-                        for (int i = 1; i <= colCount; i++) row.put(meta.getColumnLabel(i), rs.getObject(i));
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(meta.getColumnLabel(i), rs.getObject(i));
+                        }
                         result.add(row);
                     }
                 }
@@ -953,7 +995,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
             try (java.sql.Connection conn = ds.getConnection();
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-                for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
                 List<T> result = new ArrayList<>();
                 try (java.sql.ResultSet rs = ps.executeQuery()) {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
@@ -963,7 +1007,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                         for (int i = 1; i <= colCount; i++) {
                             String label = meta.getColumnLabel(i);
                             Object value = rs.getObject(i);
-                            if (value != null) setFieldValue(instance, label, value);
+                            if (value != null) {
+                                setFieldValue(instance, label, value);
+                            }
                         }
                         result.add(instance);
                     }
@@ -979,7 +1025,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {
                     Object val = rows.getFirst().values().iterator().next();
-                    if (val instanceof Number n) total = n.longValue();
+                    if (val instanceof Number n) {
+                        total = n.longValue();
+                    }
                 }
             } catch (Exception ignored) {}
             pagination.setTotal(total);
@@ -989,7 +1037,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         public int execute(String sql, Object... params) {
         try (java.sql.Connection conn = ds.getConnection();
              java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
-                for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
                 return ps.executeUpdate();
             } catch (Exception e) { throw new IllegalStateException("执行失败: " + sql, e); }
         }
@@ -999,7 +1049,9 @@ public class JdbcReactorEngine implements ReactorEngine {
                  java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
                 if (batchParams != null) {
                     for (Object[] p : batchParams) {
-                        for (int i = 0; i < p.length; i++) ps.setObject(i + 1, p[i]);
+                        for (int i = 0; i < p.length; i++) {
+                            ps.setObject(i + 1, p[i]);
+                        }
                         ps.addBatch();
                     }
                 }
@@ -1007,9 +1059,13 @@ public class JdbcReactorEngine implements ReactorEngine {
             } catch (Exception e) { throw new IllegalStateException("批量执行失败: " + sql, e); }
         }
         private static String trimSql(String sql) {
-            if (sql == null) return "";
+            if (sql == null) {
+                return "";
+            }
             String t = sql.trim();
-            while (t.endsWith(";")) t = t.substring(0, t.length() - 1).trim();
+            while (t.endsWith(";")) {
+                t = t.substring(0, t.length() - 1).trim();
+            }
             return t;
         }
     }

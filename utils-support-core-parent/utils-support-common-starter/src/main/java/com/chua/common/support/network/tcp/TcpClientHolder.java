@@ -14,6 +14,9 @@ import com.chua.common.support.scatter.ScatterNode;
 */
 public final class TcpClientHolder {
 
+    /**
+     * 构造方法，创建 Tcp客户端Holder 实例。
+     */
     private TcpClientHolder() {
     }
 

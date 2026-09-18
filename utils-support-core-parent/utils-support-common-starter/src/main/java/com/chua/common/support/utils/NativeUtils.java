@@ -11,6 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 本地库工具类。
  *
+ * <p>本类是项目受控原生库加载体系的底层加载器（{@link NativeLoader} 的最终落点）：
+ * 平台/架构归一化、classpath 抽取、临时目录释放与加载去重都集中在此完成。
+ * 因此类内对 {@code System.load}/{@code System.loadLibrary} 的直接调用属于
+ * 规约豁免的加载基础设施，全项目仅允许在本类中出现，业务代码须改用
+ * {@code NativeLoader.of(taskId).toTarget(dir).glob(pattern).load()}。</p>
+ *
  * @author CH
  * @since 4.0.0.42
 */
@@ -124,7 +130,10 @@ public class NativeUtils {
         switch (OS_ARCH) {
             case "x86_64" -> { arches.add("x86"); }
             case "x86" -> { arches.add("x86_64"); }
-            case "aarch64" -> { arches.add("x86_64"); arches.add("arm"); }
+            case "aarch64" -> {
+                arches.add("x86_64");
+                arches.add("arm");
+            }
             case "arm" -> { arches.add("x86_64"); }
             case "ppc64le" -> { arches.add("ppc"); }
             case "mips" -> { arches.add("x86_64"); }
@@ -232,6 +241,7 @@ public class NativeUtils {
 
  // 1. 系统.加载图书馆
         try {
+            // 受控加载基础设施：优先尝试 java.library.path，失败则继续后续 classpath/目录回退策略
             System.loadLibrary(libraryName);
             markLoaded(key, libraryName, "System.loadLibrary");
             return true;
@@ -364,6 +374,7 @@ public class NativeUtils {
             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
             is.close();
             temp.toFile().deleteOnExit();
+            // 受控加载基础设施：classpath 资源已抽取为受管临时文件，此处为全项目唯一的原生库加载落地点之一
             System.load(temp.toAbsolutePath().toString());
             LOADED_PATHS.add(temp.toAbsolutePath().toString());
         } catch (Exception e) {
@@ -383,6 +394,7 @@ public class NativeUtils {
             throw new UnsatisfiedLinkError("文件不存在: " + libPath);
         }
         try {
+            // 受控加载基础设施：路径已校验存在并纳入 LOADED_PATHS 统一登记，NativeLoader 抽取后的加载统一走本方法
             System.load(libFile.getAbsolutePath());
             LOADED_PATHS.add(libFile.getAbsolutePath());
         } catch (UnsatisfiedLinkError e) {

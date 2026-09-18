@@ -131,12 +131,18 @@ public class JdkUdpServer extends AbstractServer {
                 InetSocketAddress sender = new InetSocketAddress(packet.getAddress(), packet.getPort());
                 workerPool.submit(() -> handlePacket(data, sender));
             } catch (Exception e) {
-                if (running) log.debug("UDP 接收异常: {}", e.getMessage());
+                if (running) {
+                    log.debug("UDP 接收异常: {}", e.getMessage());
+                }
             }
         }
     }
 
-    /** 处理Packet */
+    /**
+     * 处理Packet
+     * @param data 数据，不允许为 null
+     * @param sender 方法入参 sender
+     */
     private void handlePacket(byte[] data, InetSocketAddress sender) {
         UdpHandler handler = findHandler();
         if (handler != null) {
@@ -153,7 +159,10 @@ public class JdkUdpServer extends AbstractServer {
         }
     }
 
-    /** 查找Handler */
+    /**
+     * 查找Handler
+     * @return Udp处理器 对象
+     */
     private UdpHandler findHandler() {
         for (Map.Entry<String, UdpHandler> entry : handlers.entrySet()) {
             if ("*".equals(entry.getKey())) {

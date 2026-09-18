@@ -325,8 +325,12 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
         for (int i = 0; i < n; i++) {
             int j = Integer.reverse(i) >>> (32 - bits);
             if (i < j) {
-                double temp = re[i]; re[i] = re[j]; re[j] = temp;
-                temp = im[i]; im[i] = im[j]; im[j] = temp;
+                double temp = re[i];
+                re[i] = re[j];
+                re[j] = temp;
+                temp = im[i];
+                im[i] = im[j];
+                im[j] = temp;
             }
         }
         for (int size = 2; size <= n; size *= 2) {

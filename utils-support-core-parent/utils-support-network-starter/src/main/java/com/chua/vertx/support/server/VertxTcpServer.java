@@ -272,6 +272,14 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         return body;
     }
 
+    /**
+     * 读取Fully。
+     *
+     * @param in 方法入参 in
+     * @param buf 方法入参 buf
+     * @return 结果数值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static int readFully(InputStream in, byte[] buf) throws IOException {
         int total = 0;
         while (total < buf.length) {

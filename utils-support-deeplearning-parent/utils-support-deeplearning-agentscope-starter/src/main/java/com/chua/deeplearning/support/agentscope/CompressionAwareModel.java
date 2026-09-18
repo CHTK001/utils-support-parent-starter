@@ -92,6 +92,8 @@ public class CompressionAwareModel implements Model {
 
     /**
     * 包内测试 / 调试入口，与 流 路径一致。
+    * @param messages 方法入参 messages
+    * @return 结果列表，无数据时为空列表
     */
     List<ChatMessage> detectAndCompress(List<ChatMessage> messages) {
         return compressor.maybeCompress(messages);

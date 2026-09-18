@@ -209,10 +209,24 @@ public class AnnotationUtils {
         return null;
     }
 
+    /**
+     * 获取Annotation。
+     *
+     * @param clazz 类，不允许为 null
+     * @param annotationClass 方法入参 annotationClass
+     * @return A 对象
+     */
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass) {
         return getAnnotation((AnnotatedElement) clazz, annotationClass);
     }
 
+    /**
+     * 获取Annotation。
+     *
+     * @param method 方法，不允许为 null
+     * @param annotationClass 方法入参 annotationClass
+     * @return A 对象
+     */
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass) {
         return getAnnotation((AnnotatedElement) method, annotationClass);
     }

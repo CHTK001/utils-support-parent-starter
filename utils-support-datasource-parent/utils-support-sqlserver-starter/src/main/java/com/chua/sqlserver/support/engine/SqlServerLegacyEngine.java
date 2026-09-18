@@ -65,6 +65,12 @@ public class SqlServerLegacyEngine extends JdbcEngine {
         return addDataSource(options);
     }
 
+    /**
+     * 添加数据来源。
+     *
+     * @param options 选项，不允许为 null
+     * @return 引擎 对象
+     */
     public Engine addDataSource(DataSourceOptions options) {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");
@@ -116,7 +122,14 @@ public class SqlServerLegacyEngine extends JdbcEngine {
             @Override public String url() { return ds.getJdbcUrl(); }
             @Override public String username() { return options.username(); }
             @Override public String password() { return options.password(); }
-            @Override public void close() { if (ds instanceof AutoCloseable c) { try { c.close(); } catch (Exception ignored) {} } }
+            @Override public void close() {
+                if (ds instanceof AutoCloseable c) {
+                    try {
+                        c.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
         });
     }
 }

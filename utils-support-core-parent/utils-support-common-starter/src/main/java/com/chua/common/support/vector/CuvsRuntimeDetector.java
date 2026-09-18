@@ -194,10 +194,20 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
         }
     }
 
+    /**
+     * 是否Windows。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
+    /**
+     * 是否Linux。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isLinux() {
         return System.getProperty("os.name").toLowerCase().contains("linux");
     }

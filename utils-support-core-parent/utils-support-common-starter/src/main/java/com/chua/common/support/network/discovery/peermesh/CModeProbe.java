@@ -186,7 +186,11 @@ public class CModeProbe implements ProbeStrategy {
         }
     }
 
-    /** InetAtoN */
+    /**
+     * InetAtoN
+     * @param ip IP，不允许为 null
+     * @return 结果数值
+     */
     private static int inetAtoN(String ip) {
         try {
             byte[] bytes = InetAddress.getByName(ip).getAddress();
@@ -202,7 +206,11 @@ public class CModeProbe implements ProbeStrategy {
         }
     }
 
-    /** InetNtoA */
+    /**
+     * InetNtoA
+     * @param ip IP，不允许为 null
+     * @return 结果字符串
+     */
     private static String inetNtoA(int ip) {
         return String.format("%d.%d.%d.%d",
                 (ip >> 24) & 0xFF,

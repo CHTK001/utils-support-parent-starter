@@ -26,6 +26,8 @@ public final class SkillPrompt {
 
     /**
     * 生成技能 Markdown 段。
+    * @param skills 方法入参 skills
+    * @return 结果字符串
     */
     public static String section(Map<String, SkillDefinition> skills) {
         return AgentSystemPromptBuilder.buildSkillsSection(skills);
@@ -33,6 +35,8 @@ public final class SkillPrompt {
 
     /**
     * 生成技能 Markdown 段。
+    * @param skillManager 方法入参 skillManager
+    * @return 结果字符串
     */
     public static String section(SkillManager skillManager) {
         if (skillManager == null) {
@@ -43,6 +47,9 @@ public final class SkillPrompt {
 
     /**
     * 将技能说明追加到已有 system（空 skills 则原样返回）。
+    * @param baseSystem 方法入参 baseSystem
+    * @param skillManager 方法入参 skillManager
+    * @return 结果字符串
     */
     public static String inject(String baseSystem, SkillManager skillManager) {
         String sec = section(skillManager);
@@ -57,6 +64,9 @@ public final class SkillPrompt {
 
     /**
     * 将技能说明追加到已有 system。
+    * @param baseSystem 方法入参 baseSystem
+    * @param skills 方法入参 skills
+    * @return 结果字符串
     */
     public static String inject(String baseSystem, Map<String, SkillDefinition> skills) {
         String sec = section(skills);

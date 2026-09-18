@@ -43,27 +43,40 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
     * @playwright/mcp /
     * 
     * @puppeteer/mcp）。
+    * @return 结果字符串
     */
     protected abstract String npmPackage();
 
-    /** MCP server 安装键名（默认 npm 包末段）。 */
+    /**
+     * MCP server 安装键名（默认 npm 包末段）。
+     * @return 结果字符串
+     */
     protected String mcpServerKey() {
         String pkg = npmPackage();
         int slash = pkg.lastIndexOf('/');
         return slash >= 0 ? pkg.substring(slash + 1) : pkg;
     }
 
-    /** 启动命令（默认 npx）。 */
+    /**
+     * 启动命令（默认 npx）。
+     * @return 结果字符串
+     */
     protected String mcpCommand() {
         return "npx";
     }
 
-    /** 启动参数（默认 {@code -y <npmPackage>}）。 */
+    /**
+     * 启动参数（默认 {@code -y <npmPackage>}）。
+     * @return 结果列表，无数据时为空列表
+     */
     protected List<String> mcpArgs() {
         return List.of("-y", npmPackage());
     }
 
-    /** 该外部服务提供的工具描述符。 */
+    /**
+     * 该外部服务提供的工具描述符。
+     * @return 结果列表，无数据时为空列表
+     */
     protected abstract List<McpToolDescriptor> browserToolDescriptors();
 
     @Override
@@ -104,6 +117,13 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
         return listAvailableEditors();
     }
 
+    /**
+     * 写入服务端配置。
+     *
+     * @param editor 方法入参 editor
+     * @param install install（布尔开关）
+     * @return 是否成功（true 表示成功）
+     */
     @SuppressWarnings("unchecked")
     private boolean writeServerConfig(AgentEditor editor, boolean install) {
         try {

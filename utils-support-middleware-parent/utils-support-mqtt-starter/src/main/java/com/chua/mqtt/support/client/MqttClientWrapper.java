@@ -155,10 +155,18 @@ public class MqttClientWrapper implements AutoCloseable {
                     connected.set(false);
                     log.warn("MQTT 连接断开: {}", cause.getMessage());
                     for (Consumer<Throwable> listener : disconnectListeners) {
-                        try { listener.accept(cause); } catch (Exception e) { log.error("断开回调异常", e); }
+                        try {
+                            listener.accept(cause);
+                        } catch (Exception e) {
+                            log.error("断开回调异常", e);
+                        }
                     }
                     for (Consumer<Throwable> listener : errorListeners) {
-                        try { listener.accept(cause); } catch (Exception e) { log.error("错误回调异常", e); }
+                        try {
+                            listener.accept(cause);
+                        } catch (Exception e) {
+                            log.error("错误回调异常", e);
+                        }
                     }
                 }
 
@@ -170,10 +178,16 @@ public class MqttClientWrapper implements AutoCloseable {
                     List<BiConsumer<String, String>> exactHandlers = topicHandlers.get(topic);
                     if (exactHandlers != null) {
                         for (BiConsumer<String, String> h : exactHandlers) {
-                            try { h.accept(topic, payload); } catch (Exception e) {
+                            try {
+                                h.accept(topic, payload);
+                            } catch (Exception e) {
                                 log.error("消息处理异常", e);
                                 for (Consumer<Throwable> listener : errorListeners) {
-                                    try { listener.accept(e); } catch (Exception ex) { log.error("错误回调异常", ex); }
+                                    try {
+                                        listener.accept(e);
+                                    } catch (Exception ex) {
+                                        log.error("错误回调异常", ex);
+                                    }
                                 }
                             }
                         }
@@ -182,10 +196,16 @@ public class MqttClientWrapper implements AutoCloseable {
                     for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicHandlers.entrySet()) {
                         if (!entry.getKey().equals(topic) && matchTopic(entry.getKey(), topic)) {
                             for (BiConsumer<String, String> h : entry.getValue()) {
-                                try { h.accept(topic, payload); } catch (Exception e) {
+                                try {
+                                    h.accept(topic, payload);
+                                } catch (Exception e) {
                                     log.error("消息处理异常", e);
                                     for (Consumer<Throwable> listener : errorListeners) {
-                                        try { listener.accept(e); } catch (Exception ex) { log.error("错误回调异常", ex); }
+                                        try {
+                                            listener.accept(e);
+                                        } catch (Exception ex) {
+                                            log.error("错误回调异常", ex);
+                                        }
                                     }
                                 }
                             }
@@ -215,7 +235,11 @@ public class MqttClientWrapper implements AutoCloseable {
 
             // 触发连接回调
             for (Runnable listener : connectListeners) {
-                try { listener.run(); } catch (Exception e) { log.error("连接回调异常", e); }
+                try {
+                    listener.run();
+                } catch (Exception e) {
+                    log.error("连接回调异常", e);
+                }
             }
         } catch (Exception e) {
             throw new MqttClientException("MQTT 连接失败: " + broker, e);
@@ -238,7 +262,11 @@ public class MqttClientWrapper implements AutoCloseable {
 
             // 触发断开回调
             for (Consumer<Throwable> listener : disconnectListeners) {
-                try { listener.accept(new RuntimeException("客户端主动关闭")); } catch (Exception e) { log.error("断开回调异常", e); }
+                try {
+                    listener.accept(new RuntimeException("客户端主动关闭"));
+                } catch (Exception e) {
+                    log.error("断开回调异常", e);
+                }
             }
 
             log.info("MQTT 客户端关闭");
@@ -383,56 +411,80 @@ public class MqttClientWrapper implements AutoCloseable {
         * @param b b
         * @return broker的结果
         */
-        public Builder broker(String b) { this.broker = b; return this; }
+        public Builder broker(String b) {
+            this.broker = b;
+            return this;
+        }
         /**
         * 客户端id
         *
         * @param id 标识
         * @return 客户端id的结果
         */
-        public Builder clientId(String id) { this.clientId = id; return this; }
+        public Builder clientId(String id) {
+            this.clientId = id;
+            return this;
+        }
         /**
         * 用户名
         *
         * @param u u
         * @return 用户名的结果
         */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /**
         * 密码
         *
         * @param p p
         * @return 密码的结果
         */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
         /**
         * keepalive
         *
         * @param sec sec
         * @return keepAlive的结果
         */
-        public Builder keepAlive(int sec) { this.keepAlive = sec; return this; }
+        public Builder keepAlive(int sec) {
+            this.keepAlive = sec;
+            return this;
+        }
         /**
         * clean会话
         *
         * @param c c
         * @return clean会话的结果
         */
-        public Builder cleanSession(boolean c) { this.cleanSession = c; return this; }
+        public Builder cleanSession(boolean c) {
+            this.cleanSession = c;
+            return this;
+        }
         /**
         * connection超时
         *
         * @param sec sec
         * @return connection超时的结果
         */
-        public Builder connectionTimeout(int sec) { this.connectionTimeout = sec; return this; }
+        public Builder connectionTimeout(int sec) {
+            this.connectionTimeout = sec;
+            return this;
+        }
         /**
         * automaticreconnect
         *
         * @param r r
         * @return automaticReconnect的结果
         */
-        public Builder automaticReconnect(boolean r) { this.automaticReconnect = r; return this; }
+        public Builder automaticReconnect(boolean r) {
+            this.automaticReconnect = r;
+            return this;
+        }
 
         /**
         * 构建
@@ -468,21 +520,30 @@ public class MqttClientWrapper implements AutoCloseable {
         * @param t t
         * @return topic的结果
         */
-        public SubscribeOperation topic(String t) { this.topic = t; return this; }
+        public SubscribeOperation topic(String t) {
+            this.topic = t;
+            return this;
+        }
         /**
         * Qos
         *
         * @param q q
         * @return qos的结果
         */
-        public SubscribeOperation qos(int q) { this.qos = q; return this; }
+        public SubscribeOperation qos(int q) {
+            this.qos = q;
+            return this;
+        }
         /**
         * 处理器
         *
         * @param h h
         * @return 处理器的结果
         */
-        public SubscribeOperation handler(BiConsumer<String, String> h) { this.handler = h; return this; }
+        public SubscribeOperation handler(BiConsumer<String, String> h) {
+            this.handler = h;
+            return this;
+        }
         /**
         * on消息
         *
@@ -542,53 +603,77 @@ public class MqttClientWrapper implements AutoCloseable {
         * @param t t
         * @return topic的结果
         */
-        public PublishOperation topic(String t) { this.topic = t; return this; }
+        public PublishOperation topic(String t) {
+            this.topic = t;
+            return this;
+        }
         /**
         * Payload
         *
         * @param p p
         * @return payload的结果
         */
-        public PublishOperation payload(String p) { this.payload = p.getBytes(StandardCharsets.UTF_8); return this; }
+        public PublishOperation payload(String p) {
+            this.payload = p.getBytes(StandardCharsets.UTF_8);
+            return this;
+        }
         /**
         * Payload
         *
         * @param p p
         * @return payload的结果
         */
-        public PublishOperation payload(byte[] p) { this.payload = p; return this; }
+        public PublishOperation payload(byte[] p) {
+            this.payload = p;
+            return this;
+        }
         /**
         * Qos
         *
         * @param q q
         * @return qos的结果
         */
-        public PublishOperation qos(int q) { this.qos = q; return this; }
+        public PublishOperation qos(int q) {
+            this.qos = q;
+            return this;
+        }
         /**
         * Retained
         *
         * @param r r
         * @return retained的结果
         */
-        public PublishOperation retained(boolean r) { this.retained = r; return this; }
+        public PublishOperation retained(boolean r) {
+            this.retained = r;
+            return this;
+        }
         /**
         * Qos
         *
         * @return qos0的结果
         */
-        public PublishOperation qos0() { this.qos = 0; return this; }
+        public PublishOperation qos0() {
+            this.qos = 0;
+            return this;
+        }
         /**
         * Qos
         *
         * @return qos1的结果
         */
-        public PublishOperation qos1() { this.qos = 1; return this; }
+        public PublishOperation qos1() {
+            this.qos = 1;
+            return this;
+        }
         /**
         * Qos
         *
         * @return qos2的结果
         */
-        public PublishOperation qos2() { this.qos = 2; return this; }
+        public PublishOperation qos2() {
+            this.qos = 2;
+            return this;
+        }
 
         /** 发送 */
         public void send() {

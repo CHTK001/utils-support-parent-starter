@@ -33,6 +33,9 @@ class FeishuBotClientTest {
 
     // ==================== 配置类测试 ====================
 
+    /**
+     * 测试：ConfigureAppIDAnd密钥。
+     */
     @Test
     @DisplayName("configure-设置appId和appSecret")
     void shouldConfigureAppIdAndSecret() {
@@ -40,6 +43,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：处理NullAppIDInConfigure。
+     */
     @Test
     @DisplayName("configure-appId为null时保留null,getConfig返回空串占位")
     void shouldHandleNullAppIdInConfigure() {
@@ -49,6 +55,9 @@ class FeishuBotClientTest {
         assertEquals("", fresh.getConfig().get("appId"));
     }
 
+    /**
+     * 测试：PreserveWhitespaceAppIDInConfigure。
+     */
     @Test
     @DisplayName("configure-appId为空格时赋值空格(getConfig原样返回)")
     void shouldPreserveWhitespaceAppIdInConfigure() {
@@ -58,6 +67,9 @@ class FeishuBotClientTest {
         assertEquals(" ", fresh.getConfig().get("appId"));
     }
 
+    /**
+     * 测试：设置AppIDVia令牌。
+     */
     @Test
     @DisplayName("token-单独设置appId")
     void shouldSetAppIdViaToken() {
@@ -65,6 +77,9 @@ class FeishuBotClientTest {
         assertEquals(TEST_APP_ID, client.getConfig().get("appId"));
     }
 
+    /**
+     * 测试：设置App密钥Via密钥。
+     */
     @Test
     @DisplayName("secret-单独设置appSecret")
     void shouldSetAppSecretViaSecret() {
@@ -72,6 +87,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：Ignore编码Aes键。
+     */
     @Test
     @DisplayName("encodingAesKey-飞书不支持,直接返回this")
     void shouldIgnoreEncodingAesKey() {
@@ -79,12 +97,18 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：HaveDefaultBaseURL。
+     */
     @Test
     @DisplayName("baseUrl-默认值")
     void shouldHaveDefaultBaseUrl() {
         assertEquals("https://open.feishu.cn/open-apis", client.getConfig().get("baseUrl"));
     }
 
+    /**
+     * 测试：设置CustomBaseURL。
+     */
     @Test
     @DisplayName("baseUrl-自定义")
     void shouldSetCustomBaseUrl() {
@@ -92,6 +116,9 @@ class FeishuBotClientTest {
         assertEquals("https://custom.example.com/open-apis", client.getConfig().get("baseUrl"));
     }
 
+    /**
+     * 测试：NotOverrideBaseURLWhenEmpty。
+     */
     @Test
     @DisplayName("baseUrl-空字符串不覆盖")
     void shouldNotOverrideBaseUrlWhenEmpty() {
@@ -100,6 +127,9 @@ class FeishuBotClientTest {
         assertEquals("https://original.example.com", client.getConfig().get("baseUrl"));
     }
 
+    /**
+     * 测试：设置Connect超时时间。
+     */
     @Test
     @DisplayName("connectTimeoutMillis-设置")
     void shouldSetConnectTimeout() {
@@ -107,6 +137,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：设置读取超时时间。
+     */
     @Test
     @DisplayName("readTimeoutMillis-设置")
     void shouldSetReadTimeout() {
@@ -114,6 +147,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：ReturnThisFor配置Loader。
+     */
     @Test
     @DisplayName("configSaveOrLoader-直接返回this")
     void shouldReturnThisForConfigLoader() {
@@ -121,6 +157,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：设置Webhook验证令牌。
+     */
     @Test
     @DisplayName("webhookVerifyToken-设置")
     void shouldSetWebhookVerifyToken() {
@@ -128,6 +167,9 @@ class FeishuBotClientTest {
         assertEquals(false, client.isUseWebhookMode(), "未start前仍为轮询模式");
     }
 
+    /**
+     * 测试：设置用户Store。
+     */
     @Test
     @DisplayName("userStore-设置")
     void shouldSetUserStore() {
@@ -135,6 +177,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：NotOverride用户StoreWithNull。
+     */
     @Test
     @DisplayName("userStore-null不覆盖")
     void shouldNotOverrideUserStoreWithNull() {
@@ -146,12 +191,18 @@ class FeishuBotClientTest {
 
     // ==================== 生命周期测试 ====================
 
+    /**
+     * 测试：NotBeRunningInitially。
+     */
     @Test
     @DisplayName("isRunning-默认false")
     void shouldNotBeRunningInitially() {
         assertFalse(client.isRunning());
     }
 
+    /**
+     * 测试：ThrowWhenAppIDMissing。
+     */
     @Test
     @DisplayName("start-appId为空时抛出IllegalStateException")
     void shouldThrowWhenAppIdMissing() {
@@ -160,6 +211,9 @@ class FeishuBotClientTest {
         assertThrows(IllegalStateException.class, fresh::start);
     }
 
+    /**
+     * 测试：ThrowWhenApp密钥Missing。
+     */
     @Test
     @DisplayName("start-appSecret为空时抛出IllegalStateException")
     void shouldThrowWhenAppSecretMissing() {
@@ -168,6 +222,9 @@ class FeishuBotClientTest {
         assertThrows(IllegalStateException.class, fresh::start);
     }
 
+    /**
+     * 测试：ThrowWhenBothMissing。
+     */
     @Test
     @DisplayName("start-缺少凭证时抛出")
     void shouldThrowWhenBothMissing() {
@@ -175,12 +232,18 @@ class FeishuBotClientTest {
         assertThrows(IllegalStateException.class, fresh::start);
     }
 
+    /**
+     * 测试：停止SafelyWhenNotStarted。
+     */
     @Test
     @DisplayName("stop-未start时调用不抛异常")
     void shouldStopSafelyWhenNotStarted() {
         assertDoesNotThrow(() -> client.stop());
     }
 
+    /**
+     * 测试：NotBeRunningAfter停止。
+     */
     @Test
     @DisplayName("stop-stop后isRunning为false")
     void shouldNotBeRunningAfterStop() {
@@ -188,6 +251,9 @@ class FeishuBotClientTest {
         assertFalse(client.isRunning());
     }
 
+    /**
+     * 测试：启动And停止WithRealCredentials。
+     */
     @Test
     @Disabled("需要真实 appId/appSecret 及网络访问飞书开放平台")
     @DisplayName("start+stop-真实凭据完整生命周期")
@@ -206,6 +272,9 @@ class FeishuBotClientTest {
 
     // ==================== 发送消息测试 ====================
 
+    /**
+     * 测试：FailWhenNotStarted。
+     */
     @Test
     @DisplayName("sendText-未start时返回fail")
     void shouldFailWhenNotStarted() {
@@ -215,6 +284,9 @@ class FeishuBotClientTest {
         assertNotNull(result.getErrorMessage());
     }
 
+    /**
+     * 测试：FailAsyncWhenNotStarted。
+     */
     @Test
     @DisplayName("sendTextAsync-未start时返回fail")
     void shouldFailAsyncWhenNotStarted() {
@@ -227,6 +299,9 @@ class FeishuBotClientTest {
         }
     }
 
+    /**
+     * 测试：FailImageWhenNotStarted。
+     */
     @Test
     @DisplayName("sendImage-未start时返回fail")
     void shouldFailImageWhenNotStarted() {
@@ -234,6 +309,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：FailVoice。
+     */
     @Test
     @DisplayName("sendVoice-飞书不支持,返回fail")
     void shouldFailVoice() {
@@ -244,6 +322,9 @@ class FeishuBotClientTest {
                 "错误信息应提及 voice/support, 实际: " + result.getErrorMessage());
     }
 
+    /**
+     * 测试：FailVideo。
+     */
     @Test
     @DisplayName("sendVideo-飞书不支持,返回fail")
     void shouldFailVideo() {
@@ -251,6 +332,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：Fail文件。
+     */
     @Test
     @DisplayName("sendFile-飞书不支持,返回fail")
     void shouldFailFile() {
@@ -258,6 +342,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：FailWhen消息类型Null。
+     */
     @Test
     @DisplayName("send-消息类型为null且未start时返回Client not started")
     void shouldFailWhenMessageTypeNull() {
@@ -271,6 +358,9 @@ class FeishuBotClientTest {
         assertEquals("Client not started", result.getErrorMessage());
     }
 
+    /**
+     * 测试：Fail发送WhenNotStarted。
+     */
     @Test
     @DisplayName("send-未start时任意类型消息返回fail")
     void shouldFailSendWhenNotStarted() {
@@ -279,6 +369,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：发送Real文本。
+     */
     @Test
     @Disabled("需要真实 appId/appSecret 及网络访问飞书开放平台")
     @DisplayName("sendText-真实发送文本到用户")
@@ -295,6 +388,9 @@ class FeishuBotClientTest {
         real.stop();
     }
 
+    /**
+     * 测试：发送RealImage。
+     */
     @Test
     @Disabled("需要真实 appId/appSecret 及网络访问飞书开放平台")
     @DisplayName("sendImage-真实发送图片到用户")
@@ -317,6 +413,9 @@ class FeishuBotClientTest {
 
     // ==================== 群组操作测试 ====================
 
+    /**
+     * 测试：ReturnEmptyWhenNotStarted。
+     */
     @Test
     @DisplayName("listGroups-未start时返回空列表")
     void shouldReturnEmptyWhenNotStarted() {
@@ -325,6 +424,9 @@ class FeishuBotClientTest {
         assertTrue(groups.isEmpty());
     }
 
+    /**
+     * 测试：Fail发送转为分组WhenNotStarted。
+     */
     @Test
     @DisplayName("sendToGroup-未start时返回fail")
     void shouldFailSendToGroupWhenNotStarted() {
@@ -332,6 +434,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：Fail发送转为分组AsyncWhenNotStarted。
+     */
     @Test
     @DisplayName("sendToGroupAsync-未start时返回fail")
     void shouldFailSendToGroupAsyncWhenNotStarted() {
@@ -344,6 +449,9 @@ class FeishuBotClientTest {
         }
     }
 
+    /**
+     * 测试：FailMentionWhenNotStarted。
+     */
     @Test
     @DisplayName("sendToGroupMention-未start时返回fail")
     void shouldFailMentionWhenNotStarted() {
@@ -351,6 +459,9 @@ class FeishuBotClientTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：FailMentionAsyncWhenNotStarted。
+     */
     @Test
     @DisplayName("sendToGroupMentionAsync-未start时返回fail")
     void shouldFailMentionAsyncWhenNotStarted() {
@@ -364,6 +475,9 @@ class FeishuBotClientTest {
         }
     }
 
+    /**
+     * 测试：列出RealGroups。
+     */
     @Test
     @Disabled("需要真实 appId/appSecret 及网络访问飞书开放平台")
     @DisplayName("listGroups-真实获取群组列表")
@@ -381,6 +495,9 @@ class FeishuBotClientTest {
 
     // ==================== 监听器测试 ====================
 
+    /**
+     * 测试：添加消息监听器。
+     */
     @Test
     @DisplayName("addMessageListener-注册")
     void shouldAddMessageListener() {
@@ -388,6 +505,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：Not添加Null监听器。
+     */
     @Test
     @DisplayName("addMessageListener-null不注册")
     void shouldNotAddNullListener() {
@@ -395,6 +515,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：移除消息监听器。
+     */
     @Test
     @DisplayName("removeMessageListener-移除已注册监听器")
     void shouldRemoveMessageListener() {
@@ -404,12 +527,18 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：NotThrowWhenRemovingUnregistered。
+     */
     @Test
     @DisplayName("removeMessageListener-未注册监听器不抛异常")
     void shouldNotThrowWhenRemovingUnregistered() {
         assertDoesNotThrow(() -> client.removeMessageListener(msg -> {}));
     }
 
+    /**
+     * 测试：添加Error监听器。
+     */
     @Test
     @DisplayName("addErrorListener-注册")
     void shouldAddErrorListener() {
@@ -417,6 +546,9 @@ class FeishuBotClientTest {
         assertSame(client, result);
     }
 
+    /**
+     * 测试：Not添加NullError监听器。
+     */
     @Test
     @DisplayName("addErrorListener-null不注册")
     void shouldNotAddNullErrorListener() {
@@ -426,6 +558,9 @@ class FeishuBotClientTest {
 
     // ==================== 配置获取测试 ====================
 
+    /**
+     * 测试：ContainAppID。
+     */
     @Test
     @DisplayName("getConfig-包含appId")
     void shouldContainAppId() {
@@ -434,6 +569,9 @@ class FeishuBotClientTest {
         assertEquals(TEST_APP_ID, config.get("appId"));
     }
 
+    /**
+     * 测试：ContainBaseURL。
+     */
     @Test
     @DisplayName("getConfig-包含baseUrl")
     void shouldContainBaseUrl() {
@@ -441,6 +579,9 @@ class FeishuBotClientTest {
         assertNotNull(config.get("baseUrl"));
     }
 
+    /**
+     * 测试：ContainRunning状态。
+     */
     @Test
     @DisplayName("getConfig-包含running状态")
     void shouldContainRunningStatus() {
@@ -448,6 +589,9 @@ class FeishuBotClientTest {
         assertNotNull(config.get("running"));
     }
 
+    /**
+     * 测试：ContainWebhook模式状态。
+     */
     @Test
     @DisplayName("getConfig-包含useWebhookMode状态")
     void shouldContainWebhookModeStatus() {
@@ -455,12 +599,18 @@ class FeishuBotClientTest {
         assertNotNull(config.get("useWebhookMode"));
     }
 
+    /**
+     * 测试：ReturnChallengeWhen编号验证令牌。
+     */
     @Test
     @DisplayName("verifyChallenge-未设置verifyToken时原样返回")
     void shouldReturnChallengeWhenNoVerifyToken() {
         assertEquals("test_challenge", client.verifyChallenge("test_challenge"));
     }
 
+    /**
+     * 测试：ReturnChallengeWhenMatch。
+     */
     @Test
     @DisplayName("verifyChallenge-匹配时返回challenge")
     void shouldReturnChallengeWhenMatch() {
@@ -468,6 +618,9 @@ class FeishuBotClientTest {
         assertEquals("secret_challenge", client.verifyChallenge("secret_challenge"));
     }
 
+    /**
+     * 测试：ReturnNullWhenNotMatch。
+     */
     @Test
     @DisplayName("verifyChallenge-不匹配时返回null")
     void shouldReturnNullWhenNotMatch() {
@@ -477,6 +630,9 @@ class FeishuBotClientTest {
 
     // ==================== 出站消息工厂测试 ====================
 
+    /**
+     * 测试：创建文本消息。
+     */
     @Test
     @DisplayName("BotOutboundMessage.text-创建文本消息")
     void shouldCreateTextMessage() {
@@ -487,6 +643,9 @@ class FeishuBotClientTest {
         assertFalse(msg.isToGroup());
     }
 
+    /**
+     * 测试：创建分组文本消息。
+     */
     @Test
     @DisplayName("BotOutboundMessage.groupText-创建群组文本消息")
     void shouldCreateGroupTextMessage() {
@@ -495,6 +654,9 @@ class FeishuBotClientTest {
         assertEquals(TEST_GROUP, msg.getToUser());
     }
 
+    /**
+     * 测试：创建分组Mention消息。
+     */
     @Test
     @DisplayName("BotOutboundMessage.groupTextMention-创建群组@提及消息")
     void shouldCreateGroupMentionMessage() {
@@ -503,6 +665,9 @@ class FeishuBotClientTest {
         assertEquals(List.of(TEST_USER), msg.getMentionedUsers());
     }
 
+    /**
+     * 测试：创建Image消息。
+     */
     @Test
     @DisplayName("BotOutboundMessage.image-创建图片消息")
     void shouldCreateImageMessage() {
@@ -511,6 +676,9 @@ class FeishuBotClientTest {
         assertEquals("/tmp/img.png", msg.getMediaPath());
     }
 
+    /**
+     * 测试：创建Voice消息。
+     */
     @Test
     @DisplayName("BotOutboundMessage.voice-创建语音消息")
     void shouldCreateVoiceMessage() {
@@ -520,6 +688,9 @@ class FeishuBotClientTest {
 
     // ==================== 发送结果测试 ====================
 
+    /**
+     * 测试：创建Ok结果。
+     */
     @Test
     @DisplayName("BotSendResult.ok-创建成功结果")
     void shouldCreateOkResult() {
@@ -528,6 +699,9 @@ class FeishuBotClientTest {
         assertEquals("msg_id_123", result.getMsgId());
     }
 
+    /**
+     * 测试：创建Fail结果。
+     */
     @Test
     @DisplayName("BotSendResult.fail-创建失败结果")
     void shouldCreateFailResult() {
@@ -539,6 +713,9 @@ class FeishuBotClientTest {
 
     // ==================== SPI工厂测试 ====================
 
+    /**
+     * 测试：创建FeishuBot客户端。
+     */
     @Test
     @DisplayName("FeishuBotClientFactory-create创建FeishuBotClient")
     void shouldCreateFeishuBotClient() {
@@ -548,6 +725,9 @@ class FeishuBotClientTest {
         assertTrue(result instanceof FeishuBotClient);
     }
 
+    /**
+     * 测试：ReturnBuilder。
+     */
     @Test
     @DisplayName("FeishuBotClientFactory-builder返回Builder")
     void shouldReturnBuilder() {
@@ -556,6 +736,9 @@ class FeishuBotClientTest {
         assertNotNull(builder);
     }
 
+    /**
+     * 测试：Auto加载Feishu客户端。
+     */
     @Test
     @DisplayName("BotClient.auto-feishu-通过SPI获取FeishuBotClient")
     void shouldAutoLoadFeishuClient() {
@@ -564,6 +747,9 @@ class FeishuBotClientTest {
         assertTrue(result instanceof FeishuBotClient);
     }
 
+    /**
+     * 测试：Auto加载FeishuBuilder。
+     */
     @Test
     @DisplayName("BotClient.builder-feishu-通过SPI获取Builder")
     void shouldAutoLoadFeishuBuilder() {
@@ -571,6 +757,9 @@ class FeishuBotClientTest {
         assertNotNull(builder);
     }
 
+    /**
+     * 测试：设置令牌ViaBuilder。
+     */
     @Test
     @DisplayName("Builder-token-设置appId")
     void shouldSetTokenViaBuilder() {
@@ -581,6 +770,9 @@ class FeishuBotClientTest {
         assertEquals(TEST_APP_ID, result.getConfig().get("appId"));
     }
 
+    /**
+     * 测试：设置密钥ViaBuilder。
+     */
     @Test
     @DisplayName("Builder-secret-设置appSecret")
     void shouldSetSecretViaBuilder() {
@@ -592,6 +784,11 @@ class FeishuBotClientTest {
 
     // ==================== 工具方法 ====================
 
+    /**
+     * sleepQuietly。
+     *
+     * @param millis 毫秒数，不允许为 null
+     */
     private static void sleepQuietly(long millis) {
         try {
             Thread.sleep(millis);

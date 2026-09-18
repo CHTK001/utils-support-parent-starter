@@ -184,7 +184,8 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     /** 调整大小 */
     public void resize(File input, File output, int width, int height) throws IOException {
         FFmpegOptions opts = new FFmpegOptions();
-        opts.setWidth(width); opts.setHeight(height);
+        opts.setWidth(width);
+        opts.setHeight(height);
         convertVideo(input, output, resolvFormat(output), opts);
     }
 
@@ -196,9 +197,15 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
         }
         String filter;
         switch (angle) {
-            case 90: filter = "transpose=1"; break;
-            case 180: filter = "transpose=1,transpose=1"; break;
-            case 270: filter = "transpose=2"; break;
+            case 90:
+                filter = "transpose=1";
+                break;
+            case 180:
+                filter = "transpose=1,transpose=1";
+                break;
+            case 270:
+                filter = "transpose=2";
+                break;
             default: throw new IllegalArgumentException("Angle must be 90/180/270");
         }
         FFmpeg.atPath(getBinDir())
@@ -415,15 +422,18 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
         for (Stream s : result.getStreams()) {
             if ("video".equals(s.getCodecType())) {
                 FFmpegMediaInfo.VideoStream vs = new FFmpegMediaInfo.VideoStream();
-                vs.setIndex(s.getIndex()); vs.setCodec(s.getCodecName());
-                vs.setWidth(s.getWidth()); vs.setHeight(s.getHeight());
+                vs.setIndex(s.getIndex());
+                vs.setCodec(s.getCodecName());
+                vs.setWidth(s.getWidth());
+                vs.setHeight(s.getHeight());
                 vs.setFps(s.getAvgFrameRate() != null ? s.getAvgFrameRate().doubleValue() : 0);
                 vs.setBitrate(s.getBitRate() != null ? s.getBitRate() : 0);
                 vs.setDuration(s.getDuration() != null ? s.getDuration().doubleValue() : 0);
                 info.setVideoStream(vs);
             } else if ("audio".equals(s.getCodecType())) {
                 FFmpegMediaInfo.AudioStream as = new FFmpegMediaInfo.AudioStream();
-                as.setIndex(s.getIndex()); as.setCodec(s.getCodecName());
+                as.setIndex(s.getIndex());
+                as.setCodec(s.getCodecName());
                 as.setSampleRate(s.getSampleRate() != null ? s.getSampleRate() : 0);
                 as.setChannels(s.getChannels() != null ? s.getChannels() : 0);
                 as.setChannelLayout(s.getChannelLayout());
@@ -495,7 +505,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @return resolv格式化的结果
     */
     private String resolvFormat(File output) {
-        String n = output.getName(); int d = n.lastIndexOf('.'); return d > 0 ? n.substring(d + 1) : null;
+        String n = output.getName();
+        int d = n.lastIndexOf('.');
+        return d > 0 ? n.substring(d + 1) : null;
     }
 
     /**

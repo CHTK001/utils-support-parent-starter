@@ -41,6 +41,11 @@ public enum Event {
     */
     private final String name;
 
+    /**
+     * 构造方法，创建 Event 实例。
+     *
+     * @param name 名称，不允许为 null
+     */
     Event(String name) {
         this.name = name;
     }

@@ -225,126 +225,180 @@ public class SymmetricEnvironment {
         * @param engineName engine名称
         * @return engine名称的结果
         */
-        public Builder engineName(String engineName) { props.put(KEY_ENGINE_NAME, engineName); return this; }
+        public Builder engineName(String engineName) {
+            props.put(KEY_ENGINE_NAME, engineName);
+            return this;
+        }
         /**
         * db类型
         *
         * @param dbType db类型
         * @return db类型的结果
         */
-        public Builder dbType(String dbType) { props.put(KEY_DB_TYPE, dbType); return this; }
+        public Builder dbType(String dbType) {
+            props.put(KEY_DB_TYPE, dbType);
+            return this;
+        }
         /**
         * 分组标识
         *
         * @param groupId 群体标识
         * @return 群体id的结果
         */
-        public Builder groupId(String groupId) { props.put(KEY_GROUP_ID, groupId); return this; }
+        public Builder groupId(String groupId) {
+            props.put(KEY_GROUP_ID, groupId);
+            return this;
+        }
         /**
         * 外部id
         *
         * @param externalId 外部标识
         * @return 外部id的结果
         */
-        public Builder externalId(String externalId) { props.put(KEY_EXTERNAL_ID, externalId); return this; }
+        public Builder externalId(String externalId) {
+            props.put(KEY_EXTERNAL_ID, externalId);
+            return this;
+        }
         /**
         * registrationurl
         *
         * @param url url
         * @return registrationUrl的结果
         */
-        public Builder registrationUrl(String url) { props.put(KEY_REGISTRATION_URL, url); return this; }
+        public Builder registrationUrl(String url) {
+            props.put(KEY_REGISTRATION_URL, url);
+            return this;
+        }
         /**
         * 同步url
         *
         * @param url url
         * @return 同步url的结果
         */
-        public Builder syncUrl(String url) { props.put(KEY_SYNC_URL, url); return this; }
+        public Builder syncUrl(String url) {
+            props.put(KEY_SYNC_URL, url);
+            return this;
+        }
         /**
         * 主机
         *
         * @param host 主机
         * @return 主机的结果
         */
-        public Builder host(String host) { props.put(KEY_HOST, host); return this; }
+        public Builder host(String host) {
+            props.put(KEY_HOST, host);
+            return this;
+        }
         /**
         * 端口
         *
         * @param port 端口
         * @return 端口的结果
         */
-        public Builder port(String port) { props.put(KEY_PORT, port); return this; }
+        public Builder port(String port) {
+            props.put(KEY_PORT, port);
+            return this;
+        }
         /**
         * 端口
         *
         * @param port 端口
         * @return 端口的结果
         */
-        public Builder port(int port) { props.put(KEY_PORT, String.valueOf(port)); return this; }
+        public Builder port(int port) {
+            props.put(KEY_PORT, String.valueOf(port));
+            return this;
+        }
         /**
         * 用户名
         *
         * @param username 用户名
         * @return 用户名的结果
         */
-        public Builder username(String username) { props.put(KEY_USERNAME, username); return this; }
+        public Builder username(String username) {
+            props.put(KEY_USERNAME, username);
+            return this;
+        }
         /**
         * 密码
         *
         * @param password 密码
         * @return 密码的结果
         */
-        public Builder password(String password) { props.put(KEY_PASSWORD, password); return this; }
+        public Builder password(String password) {
+            props.put(KEY_PASSWORD, password);
+            return this;
+        }
         /**
         * Database
         *
         * @param database database
         * @return database的结果
         */
-        public Builder database(String database) { props.put(KEY_DATABASE, database); return this; }
+        public Builder database(String database) {
+            props.put(KEY_DATABASE, database);
+            return this;
+        }
         /**
         * tableinclude列表
         *
         * @param list 列表
         * @return tableinclude列表的结果
         */
-        public Builder tableIncludeList(String list) { props.put(KEY_TABLE_INCLUDE_LIST, list); return this; }
+        public Builder tableIncludeList(String list) {
+            props.put(KEY_TABLE_INCLUDE_LIST, list);
+            return this;
+        }
         /**
         * tableexclude列表
         *
         * @param list 列表
         * @return tableexclude列表的结果
         */
-        public Builder tableExcludeList(String list) { props.put(KEY_TABLE_EXCLUDE_LIST, list); return this; }
+        public Builder tableExcludeList(String list) {
+            props.put(KEY_TABLE_EXCLUDE_LIST, list);
+            return this;
+        }
         /**
         * Auto创建Tables
         *
         * @param v v
         * @return auto创建tables的结果
         */
-        public Builder autoCreateTables(boolean v) { props.put(KEY_AUTO_CREATE_TABLES, String.valueOf(v)); return this; }
+        public Builder autoCreateTables(boolean v) {
+            props.put(KEY_AUTO_CREATE_TABLES, String.valueOf(v));
+            return this;
+        }
         /**
         * Initial加载
         *
         * @param v v
         * @return initial加载的结果
         */
-        public Builder initialLoad(boolean v) { props.put(KEY_INITIAL_LOAD, String.valueOf(v)); return this; }
+        public Builder initialLoad(boolean v) {
+            props.put(KEY_INITIAL_LOAD, String.valueOf(v));
+            return this;
+        }
         /**
         * Auto注册
         *
         * @param v v
         * @return auto注册的结果
         */
-        public Builder autoRegister(boolean v) { props.put(KEY_AUTO_REGISTER, String.valueOf(v)); return this; }
+        public Builder autoRegister(boolean v) {
+            props.put(KEY_AUTO_REGISTER, String.valueOf(v));
+            return this;
+        }
         /**
         * autosetup
         *
         * @param v v
         * @return autoSetup的结果
         */
-        public Builder autoSetup(boolean v) { props.put(KEY_AUTO_SETUP, String.valueOf(v)); return this; }
+        public Builder autoSetup(boolean v) {
+            props.put(KEY_AUTO_SETUP, String.valueOf(v));
+            return this;
+        }
         /**
         * 财产
         *
@@ -352,7 +406,10 @@ public class SymmetricEnvironment {
         * @param value 值
         * @return 财产的结果
         */
-        public Builder property(String key, String value) { props.put(key, value); return this; }
+        public Builder property(String key, String value) {
+            props.put(key, value);
+            return this;
+        }
         /**
         * polling间隔
         *
@@ -360,14 +417,21 @@ public class SymmetricEnvironment {
         * @param unit unit
         * @return polling间隔的结果
         */
-        public Builder pollingInterval(long interval, TimeUnit unit) { this.pollingInterval = interval; this.timeUnit = unit; return this; }
+        public Builder pollingInterval(long interval, TimeUnit unit) {
+            this.pollingInterval = interval;
+            this.timeUnit = unit;
+            return this;
+        }
         /**
         * 事件
         *
         * @param events 事件
         * @return 事件的结果
         */
-        public Builder events(WatcherEvent... events) { this.events = Set.of(events); return this; }
+        public Builder events(WatcherEvent... events) {
+            this.events = Set.of(events);
+            return this;
+        }
 
         /**
         * 构建 目录poller环境。

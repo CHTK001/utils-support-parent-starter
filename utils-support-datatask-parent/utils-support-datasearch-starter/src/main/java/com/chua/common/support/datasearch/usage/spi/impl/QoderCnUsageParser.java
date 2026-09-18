@@ -34,6 +34,11 @@ public class QoderCnUsageParser extends BaseUsageParser {
 
     private static final Path PROJECTS_DIR = resolveProjectsDir();
 
+    /**
+     * 解析Projects目录。
+     *
+     * @return 路径 对象
+     */
     private static Path resolveProjectsDir() {
         String override = System.getenv("QODER_CN_PROJECTS_DIR");
         if (override != null && !override.isBlank()) {
@@ -81,6 +86,13 @@ public class QoderCnUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /**
+     * 解析Jsonl文件。
+     *
+     * @param file 文件，不允许为 null
+     * @param result 结果，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
@@ -97,6 +109,12 @@ public class QoderCnUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析节点。
+     *
+     * @param node 节点，不允许为 null
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     private Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return Optional.empty();

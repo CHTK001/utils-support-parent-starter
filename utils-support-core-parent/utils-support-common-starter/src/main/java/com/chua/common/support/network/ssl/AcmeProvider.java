@@ -16,6 +16,10 @@ public interface AcmeProvider {
 
     /**
     * 连接 ACME 服务器
+    * @param serverUrl 服务端URL，不允许为 null
+    * @param email 方法入参 email
+    * @param privateKeyPem private键Pem，不允许为 null
+    * @return Acme连接结果 对象
     */
     default AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem) {
         return connect(serverUrl, email, privateKeyPem, null, null);
@@ -29,16 +33,25 @@ public interface AcmeProvider {
 
     /**
     * 获取域名验证信息
+    * @param domains 方法入参 domains
+    * @param challengeType challenge类型，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType);
 
     /**
     * 申请证书
+    * @param domains 方法入参 domains
+    * @param challengeType challenge类型，不允许为 null
+    * @return AcmeCertificate结果 对象
     */
     AcmeCertificateResult requestCertificate(List<String> domains, String challengeType);
 
     /**
     * 续签证书
+    * @param domains 方法入参 domains
+    * @param challengeType challenge类型，不允许为 null
+    * @return AcmeCertificate结果 对象
     */
     AcmeCertificateResult renewCertificate(List<String> domains, String challengeType);
 
@@ -59,11 +72,14 @@ public interface AcmeProvider {
 
     /**
     * 吊销证书
+    * @param certificatePem 方法入参 certificatePem
+    * @return 是否成功（true 表示成功）
     */
     boolean revokeCertificate(String certificatePem);
 
     /**
     * 获取账户私钥 PEM
+    * @return 结果字符串
     */
     String getAccountPrivateKeyPem();
 

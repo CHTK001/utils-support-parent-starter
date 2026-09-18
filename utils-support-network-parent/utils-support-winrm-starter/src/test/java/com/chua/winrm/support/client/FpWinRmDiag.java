@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 璇婃柇 FPServer 浠诲姟澶辫触鍘熷洜锛氱洿鎺ユ墜鍔ㄦ墽琛屽懡浠ょ湅鎶ラ敊銆? */
 public class FpWinRmDiag {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         WinRmExecClient wr = WinRmExecClient.builder()
                 .host("172.16.9.194").port(5985)

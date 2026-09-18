@@ -81,6 +81,13 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     */
     private final Store state;
 
+    /**
+     * 构造方法，创建 WechatMemoryAccumulator 实例。
+     *
+     * @param store 方法入参 store
+     * @param persist persist（布尔开关）
+     * @param state 状态，不允许为 null
+     */
     private WechatMemoryAccumulator(File store, boolean persist, Store state) {
         this.store = store;
         this.persist = persist;

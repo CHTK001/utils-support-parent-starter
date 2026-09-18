@@ -362,7 +362,9 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             } else {
                 // 长边在 height 方向，角度需补偿 90°，同时交换 rw/rh
                 angle = (float) rotatedRect.angle + 90;
-                float tmp = rw; rw = rh; rh = tmp;
+                float tmp = rw;
+                rw = rh;
+                rh = tmp;
             }
             if (angle > 90) {
                 angle -= 180;

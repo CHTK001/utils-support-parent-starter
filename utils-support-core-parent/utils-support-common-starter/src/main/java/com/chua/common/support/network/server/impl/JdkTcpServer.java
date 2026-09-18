@@ -416,7 +416,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** DoAccept */
+    /**
+     * DoAccept
+     * @param key 键，不允许为 null
+     */
     private void doAccept(SelectionKey key) throws IOException {
         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
         if (sc == null) {
@@ -443,7 +446,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** Do读取 */
+    /**
+     * Do读取
+     * @param key 键，不允许为 null
+     */
     private void doRead(SelectionKey key) throws IOException {
         SocketChannel sc = (SocketChannel) key.channel();
         Attachment att = (Attachment) key.attachment();
@@ -455,7 +461,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** 读取Frame */
+    /**
+     * 读取Frame
+     * @param sc 方法入参 sc
+     * @param att 方法入参 att
+     * @return 是否成功（true 表示成功）
+     */
     private boolean readFrame(SocketChannel sc, Attachment att) throws IOException {
         if (att.state == State.HEADER) {
             // 只在起始位置清空 header，避免半包场景下把已读字节清掉导致数据丢失
@@ -487,12 +498,22 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         return !att.bodyBuf.hasRemaining();
     }
 
-    /** KeyFor */
+    /**
+     * KeyFor
+     * @param sc 方法入参 sc
+     * @param att 方法入参 att
+     * @return Selection键 对象
+     */
     private SelectionKey keyFor(SocketChannel sc, Attachment att) {
         return sc.keyFor(att.ioSelector);
     }
 
-    /** 处理Request */
+    /**
+     * 处理Request
+     * @param sc 方法入参 sc
+     * @param reqData 请求数据，不允许为 null
+     * @param att 方法入参 att
+     */
     private void processRequest(SocketChannel sc, byte[] reqData, Attachment att) {
         if (frameHandler == null || urlMappingFilter == null || urlMappingFilter.getFactory().routeCount() == 0) {
             // 无 URL 路由时走旧帧式路径（零开销）
@@ -537,6 +558,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /**
     * 写回空响应（200 + Content-Length: 0）。
+    * @param sc 方法入参 sc
     */
     private void writeEmptyResponse(SocketChannel sc) {
         try {
@@ -585,7 +607,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** 关闭Channel */
+    /**
+     * 关闭Channel
+     * @param key 键，不允许为 null
+     */
     private void closeChannel(SelectionKey key) {
         if (key != null) {
             try {
@@ -597,7 +622,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** 处理Connection */
+    /**
+     * 处理Connection
+     * @param socket 方法入参 socket
+     */
     private void handleConnection(Socket socket) {
         String clientKey = socket.getRemoteSocketAddress().toString();
         log.debug("TCP 连接: {}", clientKey);
@@ -640,7 +668,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
         }
     }
 
-    /** 查找Handler */
+    /**
+     * 查找Handler
+     * @param clientKey 客户端键，不允许为 null
+     * @return Tcp处理器 对象
+     */
     private TcpHandler findHandler(String clientKey) {
         TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {

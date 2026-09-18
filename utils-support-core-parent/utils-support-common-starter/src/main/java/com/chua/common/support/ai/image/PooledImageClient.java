@@ -268,6 +268,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
     /**
     * 应用链式配置到借出的实例
+    * @param inner 方法入参 inner
     */
     private void applyChain(ImageClient inner) {
         if (chainConfigurer != null) {

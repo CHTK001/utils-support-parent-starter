@@ -294,6 +294,12 @@ public final class WekaInstanceData {
         throw new WekaException("数值列「" + name + "」内容类型不匹配: " + value.getClass().getSimpleName());
     }
 
+    /**
+     * 收集Values。
+     *
+     * @param columnName 列名称，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> collectValues(String columnName) {
         var values = new LinkedHashSet<String>();
         for (var row : rows) {

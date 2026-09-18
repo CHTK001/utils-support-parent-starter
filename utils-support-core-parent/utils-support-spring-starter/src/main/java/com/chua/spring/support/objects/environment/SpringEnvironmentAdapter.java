@@ -21,6 +21,13 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     * Spring 属性占位符解析器
     */
     private static final PropertyPlaceholderHelper HELPER =
+            /**
+             * PropertyPlaceholderHelper。
+             *
+             * @param null 方法入参 null
+             * @param true 方法入参 true
+             * @return 结果值
+             */
             new PropertyPlaceholderHelper("${", "}", ":", null, true);
 
     /**

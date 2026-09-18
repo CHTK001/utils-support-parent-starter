@@ -7,8 +7,17 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * WechatExportUtils测试类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 class WechatExportUtilsTest {
 
+    /**
+     * 测试：Sanitize文件名称。
+     */
     @Test
     void testSanitizeFileName() {
         assertEquals("unknown", WechatExportUtils.sanitizeFileName(null));
@@ -20,6 +29,9 @@ class WechatExportUtilsTest {
         assertEquals(50, result.length());
     }
 
+    /**
+     * 测试：是否分组Chat。
+     */
     @Test
     void testIsGroupChat() {
         assertTrue(WechatExportUtils.isGroupChat("wxid_xxx@chatroom"));
@@ -28,6 +40,9 @@ class WechatExportUtilsTest {
         assertFalse(WechatExportUtils.isGroupChat(""));
     }
 
+    /**
+     * 测试：查找会话Db。
+     */
     @Test
     void testFindSessionDb() {
         File tempDir = null;
@@ -52,6 +67,9 @@ class WechatExportUtilsTest {
         }
     }
 
+    /**
+     * 测试：DeriveAccount目录。
+     */
     @Test
     void testDeriveAccountDir() {
         File accountDir = new File("C:/xwechat_files/wxid_test");
@@ -61,11 +79,17 @@ class WechatExportUtilsTest {
         assertEquals(accountDir, result);
     }
 
+    /**
+     * 测试：DeriveAccount目录Null。
+     */
     @Test
     void testDeriveAccountDirNull() {
         assertNull(WechatExportUtils.deriveAccountDir(null));
     }
 
+    /**
+     * 测试：EscapeCsv字段。
+     */
     @Test
     void testEscapeCsvField() {
         assertEquals("hello", WechatExportUtils.escapeCsvField("hello"));
@@ -75,6 +99,9 @@ class WechatExportUtilsTest {
         assertEquals("", WechatExportUtils.escapeCsvField(null));
     }
 
+    /**
+     * 测试：构建SQLScript。
+     */
     @Test
     void testBuildSqlScript() {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -90,6 +117,9 @@ class WechatExportUtilsTest {
         assertTrue(sql.contains("`message`"));
     }
 
+    /**
+     * 测试：构建SQLScriptWithoutStructure。
+     */
     @Test
     void testBuildSqlScriptWithoutStructure() {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -102,6 +132,9 @@ class WechatExportUtilsTest {
         assertTrue(sql.contains("INSERT INTO"));
     }
 
+    /**
+     * 测试：构建SQLScriptWithSchema。
+     */
     @Test
     void testBuildSqlScriptWithSchema() {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -116,6 +149,9 @@ class WechatExportUtilsTest {
         assertTrue(sql.startsWith("CREATE DATABASE IF NOT EXISTS `wechat_db`"), "实际开头: " + sql);
     }
 
+    /**
+     * 测试：构建SQLScriptWithoutSchema是否含有编号Prologue。
+     */
     @Test
     void testBuildSqlScriptWithoutSchemaHasNoPrologue() {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -149,6 +185,9 @@ class WechatExportUtilsTest {
         assertFalse(ddl.contains("AUTO_INCREMENT"), "源表有 id 时不该补代理主键，实际: \n" + sql);
     }
 
+    /**
+     * 测试：构建SQLScript应当添加Surrogate键When编号ID列。
+     */
     @Test
     void testBuildSqlScriptShouldAddSurrogateKeyWhenNoIdColumn() {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -163,6 +202,13 @@ class WechatExportUtilsTest {
         assertEquals(1, countOccurrences(ddl, "`id`"), "实际: \n" + sql);
     }
 
+    /**
+     * 数量Occurrences。
+     *
+     * @param text 文本，不允许为 null
+     * @param needle 方法入参 needle
+     * @return 结果数值
+     */
     private static int countOccurrences(String text, String needle) {
         int count = 0;
         int index = text.indexOf(needle);
@@ -173,6 +219,11 @@ class WechatExportUtilsTest {
         return count;
     }
 
+    /**
+     * 测试：解析Json转为Rows。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testParseJsonToRows() throws Exception {
         String json = "[{\"username\":\"wxid_test\",\"message\":\"hello\"}]";
@@ -187,6 +238,11 @@ class WechatExportUtilsTest {
         jsonFile.delete();
     }
 
+    /**
+     * 测试：解析Json转为RowsSingle对象。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testParseJsonToRowsSingleObject() throws Exception {
         String json = "{\"username\":\"wxid_test\"}";
@@ -200,6 +256,9 @@ class WechatExportUtilsTest {
         jsonFile.delete();
     }
 
+    /**
+     * 测试：转为SQL值。
+     */
     @Test
     void testToSqlValue() {
         assertEquals("NULL", WechatExportUtils.toSqlValue(null));
@@ -208,6 +267,11 @@ class WechatExportUtilsTest {
         assertEquals("true", WechatExportUtils.toSqlValue(true));
     }
 
+    /**
+     * 删除Recursively。
+     *
+     * @param dir 目录，不允许为 null
+     */
     private void deleteRecursively(File dir) {
         File[] files = dir.listFiles();
         if (files != null) {

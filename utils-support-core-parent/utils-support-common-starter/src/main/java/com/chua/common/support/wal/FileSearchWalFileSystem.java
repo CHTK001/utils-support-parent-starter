@@ -158,7 +158,11 @@ public class FileSearchWalFileSystem implements WalFileSystem {
                     new java.io.BufferedInputStream(java.nio.file.Files.newInputStream(seg.path())))) {
                 while (true) {
                     byte[] header = new byte[com.chua.common.support.wal.WalConfig.RECORD_HEADER_BYTES];
-                    try { in.readFully(header); } catch (java.io.EOFException e) { break; }
+                    try {
+                        in.readFully(header);
+                    } catch (java.io.EOFException e) {
+                        break;
+                    }
                     int len = readInt(header, com.chua.common.support.wal.WalConfig.CRC32_BYTES
                             + com.chua.common.support.wal.WalConfig.LSN_BYTES
                             + com.chua.common.support.wal.WalConfig.OP_BYTES);
@@ -167,7 +171,11 @@ public class FileSearchWalFileSystem implements WalFileSystem {
                         continue;
                     }
                     byte[] payload = new byte[len];
-                    try { in.readFully(payload); } catch (java.io.EOFException e) { break; }
+                    try {
+                        in.readFully(payload);
+                    } catch (java.io.EOFException e) {
+                        break;
+                    }
                     if (contains(payload, keyword)) {
                         hits.add(new WalSearchHit(lsn, header[com.chua.common.support.wal.WalConfig.CRC32_BYTES
                                 + com.chua.common.support.wal.WalConfig.LSN_BYTES], payload));
@@ -227,7 +235,10 @@ public class FileSearchWalFileSystem implements WalFileSystem {
         for (int i = 0; i <= data.length - keyword.length; i++) {
             boolean match = true;
             for (int j = 0; j < keyword.length; j++) {
-                if (data[i + j] != keyword[j]) { match = false; break; }
+                if (data[i + j] != keyword[j]) {
+                    match = false;
+                    break;
+                }
             }
             if (match) {
                 return true;

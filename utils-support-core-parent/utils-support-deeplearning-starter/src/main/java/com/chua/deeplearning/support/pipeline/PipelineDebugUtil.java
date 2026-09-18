@@ -35,6 +35,11 @@ public class PipelineDebugUtil {
         this.enabled = enabled;
     }
 
+    /**
+     * 构造方法，创建 PipelineDebugUtil 实例。
+     *
+     * @param pipelineName pipeline名称，不允许为 null
+     */
     public PipelineDebugUtil(String pipelineName) {
         this(pipelineName, true);
     }
@@ -75,6 +80,12 @@ public class PipelineDebugUtil {
         snapshot(stepName + "_" + index, data);
     }
 
+    /**
+     * 转为字节数组。
+     *
+     * @param data 数据，不允许为 null
+     * @return 结果值
+     */
     private static byte[] toBytes(Object data) {
         if (data instanceof byte[] b) {
             return b;

@@ -34,10 +34,21 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
     */
     }
 
+    /**
+     * 构造方法，创建 FireSmokeDetectorTranslator 实例。
+     *
+     * @param arguments 方法入参 arguments
+     */
     public FireSmokeDetectorTranslator(Map<String, ?> arguments) {
         super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments), FIRE_SMOKE_2_CLASSES, true);
     }
 
+    /**
+     * 解析Input大小。
+     *
+     * @param arguments 方法入参 arguments
+     * @return 结果数值
+     */
     private static int resolveInputSize(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("inputSize")) {
             return Integer.parseInt(arguments.get("inputSize").toString());

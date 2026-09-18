@@ -26,6 +26,11 @@ class WechatMemoryAccumulatorTest {
     @TempDir
     File tempDir;
 
+    /**
+     * 合并WithoutStore应当Return当前运行Only。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void mergeWithoutStoreShouldReturnCurrentRunOnly() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -36,6 +41,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(1, snapshot.addedMessages());
     }
 
+    /**
+     * accumulateDisabled应当IgnoreExistingStore。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void accumulateDisabledShouldIgnoreExistingStore() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -49,6 +59,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals("new", snapshot.messages().getFirst().content());
     }
 
+    /**
+     * repeatedScanOfSame页应当NotDuplicate。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void repeatedScanOfSamePageShouldNotDuplicate() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -63,6 +78,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(1, second.messages().size());
     }
 
+    /**
+     * 新建Messages应当追加转为Existing。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void newMessagesShouldAppendToExisting() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -78,6 +98,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals("第二条", second.messages().get(1).content());
     }
 
+    /**
+     * escaping应当SurviveRoundTrip。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void escapingShouldSurviveRoundTrip() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -97,6 +122,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(nasty, reloaded.messages().getFirst().content());
     }
 
+    /**
+     * records应当BeAccumulatedAndDeduplicated。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void recordsShouldBeAccumulatedAndDeduplicated() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -108,6 +138,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(1, second.merged().records().size());
     }
 
+    /**
+     * unknown表应当RoundTripAsNull。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void unknownTableShouldRoundTripAsNull() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -128,6 +163,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(2, checked);
     }
 
+    /**
+     * 重建应当SkipRecordsWithUnknown表。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void rebuildShouldSkipRecordsWithUnknownTable() throws Exception {
         List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
@@ -154,6 +194,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(List.of("contact"), tables);
     }
 
+    /**
+     * describe应当ReportStore大小。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void describeShouldReportStoreSize() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -163,6 +208,11 @@ class WechatMemoryAccumulatorTest {
         assertTrue(WechatMemoryAccumulator.describe(store).contains("1 条消息"));
     }
 
+    /**
+     * fingerprint应当Ignore页地址。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void fingerprintShouldIgnorePageAddress() throws Exception {
         // 页地址每次运行都变，指纹里不能带它，否则累积会失效
@@ -173,6 +223,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals(first, second);
     }
 
+    /**
+     * unresolvedSender应当BeUpgradedByLaterScan。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void unresolvedSenderShouldBeUpgradedByLaterScan() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -197,6 +252,11 @@ class WechatMemoryAccumulatorTest {
         assertEquals("wxid_9", second.messages().getFirst().username());
     }
 
+    /**
+     * upgradingSender应当NotDuplicateMessages。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void upgradingSenderShouldNotDuplicateMessages() throws Exception {
         File store = new File(tempDir, WechatMemoryAccumulator.FILE_NAME);
@@ -220,6 +280,11 @@ class WechatMemoryAccumulatorTest {
         }
     }
 
+    /**
+     * extract每个应当发出Empty结果When编号处理。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void extractEachShouldEmitEmptyResultWhenNoProcess() throws Exception {
         // 一个进程都没扫到也必须回调一次，让调用方拿到「空结果」而不是 null

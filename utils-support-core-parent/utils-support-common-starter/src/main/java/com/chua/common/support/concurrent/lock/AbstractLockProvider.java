@@ -50,12 +50,23 @@ public abstract class AbstractLockProvider implements LockProvider {
         doUnlock();
     }
 
-    /** DoTry锁 */
+    /**
+     * DoTry锁
+     * @param timeout 超时时间，不允许为 null
+     * @param timeUnit 时间Unit，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     protected abstract boolean doTryLock(int timeout, TimeUnit timeUnit);
     /** Do解锁 */
     protected abstract void doUnlock();
-    /** Do获取Name */
+    /**
+     * Do获取Name
+     * @return 结果字符串
+     */
     protected abstract String doGetName();
-    /** Do获取Type */
+    /**
+     * Do获取Type
+     * @return 结果字符串
+     */
     protected abstract String doGetType();
 }

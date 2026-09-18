@@ -606,6 +606,12 @@ public class SignUtils {
         return result;
     }
 
+    /**
+     * 过滤Sign键。
+     *
+     * @param params 参数，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, ?> filterSignKey(Map<String, ?> params) {
         if (params == null) {
             return null;

@@ -157,6 +157,12 @@ public class H2SearchEngineImpl implements SearchEngine {
         return null;
     }
 
+    /**
+     * 获取连接。
+     *
+     * @return 连接 对象
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
     private Connection getConn() throws SQLException {
         DataSource ds = getDataSource();
         if (ds == null) {

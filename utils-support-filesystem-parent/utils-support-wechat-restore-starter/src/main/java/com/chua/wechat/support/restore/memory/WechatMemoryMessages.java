@@ -106,6 +106,9 @@ public final class WechatMemoryMessages {
     */
     private static final int MAX_CONTENT = 4000;
 
+    /**
+     * 构造方法，创建 WechatMemoryMessages 实例。
+     */
     private WechatMemoryMessages() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }

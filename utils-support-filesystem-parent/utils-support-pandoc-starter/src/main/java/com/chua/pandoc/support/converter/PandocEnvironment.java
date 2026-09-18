@@ -268,7 +268,9 @@ public class PandocEnvironment {
                 CmdExecutors.execute("installer -pkg /tmp/pandoc.pkg -target /", 120, TimeUnit.SECONDS);
                 CmdExecutors.execute("hdiutil detach \"" + mountPoint.toAbsolutePath() + "\"", 30, TimeUnit.SECONDS);
             } finally {
-                try { Files.deleteIfExists(mountPoint); } catch (Exception ignored) {}
+                try {
+                    Files.deleteIfExists(mountPoint);
+                } catch (Exception ignored) {}
             }
 
             String pandocBin = "/usr/local/bin/pandoc";
@@ -337,7 +339,9 @@ public class PandocEnvironment {
                     return pandocBin.toAbsolutePath().toString();
                 }
             } finally {
-                try { deleteDirectory(extractDir); } catch (Exception ignored) {}
+                try {
+                    deleteDirectory(extractDir);
+                } catch (Exception ignored) {}
             }
 
             return "pandoc";
@@ -397,7 +401,9 @@ public class PandocEnvironment {
             try (var walk = Files.walk(path)) {
                 walk.sorted(java.util.Comparator.reverseOrder())
                     .forEach(p -> {
-                        try { Files.deleteIfExists(p); } catch (Exception ignored) {}
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (Exception ignored) {}
                     });
             }
         }

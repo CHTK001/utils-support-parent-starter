@@ -99,6 +99,9 @@ public final class WechatRestoreCli {
             "  wechat_memory__*.csv   各表原始导出（含 schema.sql / summary.md）",
             "");
 
+    /**
+     * 构造方法，创建 WechatRestoreCli 实例。
+     */
     private WechatRestoreCli() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }

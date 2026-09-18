@@ -44,6 +44,9 @@ public final class WechatBlobCodec {
     */
     private static final double TEXT_RATIO = 0.9;
 
+    /**
+     * 构造方法，创建 WechatBlobCodec 实例。
+     */
     private WechatBlobCodec() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }

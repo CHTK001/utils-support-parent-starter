@@ -53,6 +53,12 @@ public class PpOcrOpencvTranslator {
     */
     }
 
+    /**
+     * 构造方法，创建 PpOcrOpencvTranslator 实例。
+     *
+     * @param modelResourcePath 模型Resource路径，不允许为 null
+     * @param dictResourcePath dictResource路径，不允许为 null
+     */
     public PpOcrOpencvTranslator(String modelResourcePath, String dictResourcePath) {
         this.modelResourcePath = modelResourcePath;
         this.dict = loadCharacterDict(dictResourcePath);
@@ -65,6 +71,12 @@ public class PpOcrOpencvTranslator {
     */
     }
 
+    /**
+     * 加载CharacterDict。
+     *
+     * @param resourcePath resource路径，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<String> loadCharacterDict(String resourcePath) {
         List<String> chars = new ArrayList<>();
         try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader().getResourceAsStream(resourcePath)) {
@@ -75,7 +87,10 @@ public class PpOcrOpencvTranslator {
             boolean inDict = false;
             for (String line : content.split("\n")) {
                 String trimmed = line.trim();
-                if (trimmed.equals("character_dict:")) { inDict = true; continue; }
+                if (trimmed.equals("character_dict:")) {
+                    inDict = true;
+                    continue;
+                }
                 if (inDict) {
                     if (trimmed.startsWith("- ")) {
                         String raw = trimmed.substring(2).trim();
@@ -98,6 +113,12 @@ public class PpOcrOpencvTranslator {
         return table;
     }
 
+    /**
+     * recognize。
+     *
+     * @param imageData image数据，不允许为 null
+     * @return 结果字符串
+     */
     public String recognize(byte[] imageData) {
         ensureModel();
         Mat src = decodeImage(imageData);
@@ -163,7 +184,7 @@ public class PpOcrOpencvTranslator {
         int numClasses = dict.size();
  // Determine seqlen 从 total 和 num类
  // For PP-OCR rec: 输出 是否 [1, seqlen, num类]
-        // But we don't know the exact shape, so infer from dict size
+        // 但无法确知精确形状，因此借助字典长度反推
  // 尝试 转为 查找 the best seqlen
         int seqLen = 0;
         int bestRemainder = Integer.MAX_VALUE;
@@ -195,7 +216,10 @@ public class PpOcrOpencvTranslator {
                 int base = t * numClasses;
                 for (int c = 0; c < numClasses; c++) {
                     float val = values[base + c];
-                    if (val > bestVal) { bestVal = val; maxIdx = c; }
+                    if (val > bestVal) {
+                        bestVal = val;
+                        maxIdx = c;
+                    }
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
@@ -212,7 +236,10 @@ public class PpOcrOpencvTranslator {
                 float bestVal = Float.NEGATIVE_INFINITY;
                 for (int c = 0; c < numClasses; c++) {
                     float val = values[c * seqLen + t];
-                    if (val > bestVal) { bestVal = val; maxIdx = c; }
+                    if (val > bestVal) {
+                        bestVal = val;
+                        maxIdx = c;
+                    }
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
@@ -270,6 +297,9 @@ public class PpOcrOpencvTranslator {
     */
     public void close() {
         // net lifecycle managed by GC (OpenCV Java binding)
-        if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }
+        if (modelFile != null) {
+            modelFile.toFile().delete();
+            modelFile = null;
+        }
     }
 }

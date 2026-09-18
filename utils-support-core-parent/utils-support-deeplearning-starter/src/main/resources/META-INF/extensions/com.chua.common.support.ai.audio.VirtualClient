@@ -1,0 +1,4 @@
+parakeet=com.chua.deeplearning.support.audio.CliAsrAudioClient
+parakeet-v3=com.chua.deeplearning.support.audio.CliAsrAudioClient
+nemo-speech=com.chua.deeplearning.support.audio.CliAsrAudioClient
+nemo-speech-asr=com.chua.deeplearning.support.audio.CliAsrAudioClient

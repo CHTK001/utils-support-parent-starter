@@ -66,7 +66,9 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
             while (!closed) {
                 Object payload = queue.poll();
                 if (payload == null) {
-                    try { Thread.sleep(5); } catch (InterruptedException ie) {
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
                     }
@@ -180,7 +182,9 @@ executor.submit(() -> {
                         }
                     } else {
  // 无数据时短暂休眠，避免 忙碌-Spin
-                        try { Thread.sleep(1); } catch (InterruptedException ie) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                             break;
                         }

@@ -16,12 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit tests for the hprof to JSON / Markdown conversion chain.
+ * hprof 转 JSON / Markdown 链路的单元测试。
  *
- * <p>These tests exercise the serializers directly with a hand-built
- * {@link HprofParser.Result} so they do not require a real hprof binary.
- * A real hprof parse test would need a sample heap dump on the test class
- * path; when one is available it can be added here.</p>
+ * <p>这些测试直接用手工构造的 {@link HprofParser.Result} 驱动序列化器，
+ * 因此不需要真实的 hprof 二进制文件。若要测试真实 hprof 解析，
+ * 需要在测试类路径放置一份堆转储样例；有了样例之后可以在此补充。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,7 +39,7 @@ class HprofConverterTest {
         HprofParser.Result result = new HprofParser.Result(
                 List.of(suspect), List.of(row), List.of(suspect),
                 List.of("static OrderCache.cache"), Map.of("sticky class", 1L),
-                Map.of(), 1_200_000_000L, 1L);
+                Map.of(), List.of(), 1_200_000_000L, 1L);
 
         String json = HprofToJsonSerializer.serialize(result, "sample.hprof");
         assertNotNull(json);
@@ -62,7 +61,7 @@ class HprofConverterTest {
     }
 
     /**
-     * Markdown serializer produces the class histogram table.
+     * Markdown 序列化器产出类直方图表格。
      */
     @Test
     void toMarkdownEmitsHistogramTable() {
@@ -72,7 +71,7 @@ class HprofConverterTest {
         HprofParser.Result result = new HprofParser.Result(
                 List.of(suspect), List.of(row), List.of(suspect),
                 List.of("static OrderCache.cache"), Map.of("sticky class", 1L),
-                Map.of(), 1_200_000_000L, 1L);
+                Map.of(), List.of(), 1_200_000_000L, 1L);
 
         String md = HprofToMarkdownSerializer.serialize(result, "sample.hprof");
         assertNotNull(md);
@@ -85,7 +84,7 @@ class HprofConverterTest {
     }
 
     /**
-     * formatSize handles the unit boundaries.
+     * formatSize 覆盖各容量单位的换算边界。
      */
     @Test
     void formatSizeUnitBoundaries() {

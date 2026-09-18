@@ -32,43 +32,88 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
 
     private final Map<String, String> routeServiceMap = new ConcurrentHashMap<>();
     private final String discoveryName;
+    /** balance */
     private String balance = "weight";
+    /** protocol */
     private String protocol;
+    /** scatterID */
     private String scatterId;
+    /** exclude服务端ID */
     private String excludeServerId;
     private volatile ServiceDiscovery serviceDiscovery;
 
+    /**
+     * 构造方法，创建 服务Discovery服务端过滤 实例。
+     *
+     * @param discoveryName discovery名称，不允许为 null
+     */
     public ServiceDiscoveryServerFilter(String discoveryName) {
         this.discoveryName = discoveryName;
     }
 
+    /**
+     * 构造方法，创建 服务Discovery服务端过滤 实例。
+     *
+     * @param serviceDiscovery 服务Discovery，不允许为 null
+     */
     public ServiceDiscoveryServerFilter(ServiceDiscovery serviceDiscovery) {
         this.discoveryName = null;
         this.serviceDiscovery = serviceDiscovery;
     }
 
+    /**
+     * 添加Route。
+     *
+     * @param pathPrefix 路径前缀，不允许为 null
+     * @param servicePath 服务路径，不允许为 null
+     */
     public void addRoute(String pathPrefix, String servicePath) {
         routeServiceMap.put(pathPrefix, servicePath);
     }
 
+    /**
+     * 设置Routes。
+     *
+     * @param routes 方法入参 routes
+     */
     public void setRoutes(Map<String, String> routes) {
         if (routes != null) {
             routeServiceMap.putAll(routes);
         }
     }
 
+    /**
+     * 设置Balance。
+     *
+     * @param balance 方法入参 balance
+     */
     public void setBalance(String balance) {
         this.balance = balance;
     }
 
+    /**
+     * 设置Protocol。
+     *
+     * @param protocol 方法入参 protocol
+     */
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
 
+    /**
+     * 设置ScatterID。
+     *
+     * @param scatterId scatterID，不允许为 null
+     */
     public void setScatterId(String scatterId) {
         this.scatterId = scatterId;
     }
 
+    /**
+     * 设置Exclude服务端ID。
+     *
+     * @param excludeServerId exclude服务端ID，不允许为 null
+     */
     public void setExcludeServerId(String excludeServerId) {
         this.excludeServerId = excludeServerId;
     }
@@ -134,7 +179,11 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     public void doFilter(ServerRequest request, ServerResponse response,
                           ServerFilterChain chain) throws Exception {
         executeDiscovery(request, response, (req, res) -> {
-            try { chain.doFilter(req, res); } catch (Exception e) { throw new RuntimeException(e); }
+            try {
+                chain.doFilter(req, res);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -206,6 +255,8 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
     * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
     * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
+    * @param serverId 服务端ID，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean isExcluded(String serverId) {
         if (serverId == null) {
@@ -230,6 +281,12 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
         return false;
     }
 
+    /**
+     * match服务路径。
+     *
+     * @param path 路径，不允许为 null
+     * @return 结果字符串
+     */
     private String matchServicePath(String path) {
         for (Map.Entry<String, String> entry : routeServiceMap.entrySet()) {
             String prefix = entry.getKey();

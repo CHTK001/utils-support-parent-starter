@@ -11,13 +11,13 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-* MiMo Code (Xiaomi) usage parser.
+* MiMo Code（小米）用量解析器。
 *
-* <p>MiMo Code (mimocode) is Xiaomi's agentic CLI, an OpenCode fork that
-* persists assistant turns in the {@code message} table of
-* {@code ~/.local/share/mimocode/mimocode.db} (Windows:
-* {@code %APPDATA%\mimocode\mimocode.db}). The {@code data} JSON column
-* carries per-request tokens:</p>
+* <p>MiMo Code（mimocode）是小米推出的 agentic CLI，是 OpenCode 的分支，
+* 会把助手轮次持久化到 {@code ~/.local/share/mimocode/mimocode.db} 的
+* {@code message} 表中（Windows 下为
+* {@code %APPDATA%\mimocode\mimocode.db}）。{@code data} JSON 列
+* 携带每次请求的 token：</p>
 *
 * <pre>{@code
 * {
@@ -30,12 +30,12 @@ import java.util.Map;
 * }
 * }</pre>
 *
-* <p>miMo code mirrors the user's Claude Code / claude-mem history into its
-* own {@code message} table with {@code providerID="anthropic"}. Those rows
-* are <b>excluded</b> here (they are already counted by the Claude parser);
-* only turns whose {@code providerID} is {@code "mimo"} or
-* {@code "xiaomi"} (miMo's own runtime/auto-router) are emitted, matching
-* TokenTracker's discriminator.
+* <p>miMo code 会把用户的 Claude Code / claude-mem 历史镜像进自己的
+* {@code message} 表，其 {@code providerID="anthropic"}。这些行
+* <b>在此处被排除</b>（Claude 解析器已统计过它们）；
+* 只输出 {@code providerID} 为 {@code "mimo"} 或
+* {@code "xiaomi"}（miMo 自身的运行时/自动路由）的轮次，
+* 与 TokenTracker 的判别口径保持一致。
 *
 * @author CH
 * @since 4.0.0.44

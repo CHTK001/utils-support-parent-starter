@@ -333,10 +333,28 @@ public class SmbClient implements AutoCloseable {
     @Override
     /** 关闭 */
     public void close() {
-        try { if (diskShare != null) diskShare.close(); } catch (Exception ignored) {}
-        try { if (session != null) session.close(); } catch (Exception ignored) {}
-        try { if (connection != null) connection.close(); } catch (Exception ignored) {}
-        try { smbClient.close(); } catch (Exception ignored) {}
+        try {
+            if (diskShare != null) {
+                diskShare.close();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            smbClient.close();
+        } catch (Exception ignored) {
+        }
     }
 
     /** 校验共享 */

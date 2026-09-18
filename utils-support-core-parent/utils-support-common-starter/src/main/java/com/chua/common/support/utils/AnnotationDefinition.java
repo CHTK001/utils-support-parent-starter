@@ -45,12 +45,6 @@ public final class AnnotationDefinition<A extends Annotation> {
 
     private AnnotationDefinition(A annotation, Source source, Class<A> annotationClass,
                                  boolean subclassOverridesParent) {
-        /**
-        * 的direct。
-        * @param annotation 注解
-        * @param annotationClass 注解类
-        * @return 的direct的结果
-        */
         this.annotation = annotation;
         this.source = source;
         this.annotationClass = annotationClass;
@@ -63,6 +57,13 @@ public final class AnnotationDefinition<A extends Annotation> {
     */
     }
 
+    /**
+     * ofDirect。
+     *
+     * @param annotation 方法入参 annotation
+     * @param annotationClass 方法入参 annotationClass
+     * @return AnnotationDefinition 对象
+     */
     public static <A extends Annotation> AnnotationDefinition<A> ofDirect(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, false);
     /**
@@ -73,14 +74,35 @@ public final class AnnotationDefinition<A extends Annotation> {
     */
     }
 
+    /**
+     * ofInherited。
+     *
+     * @param annotation 方法入参 annotation
+     * @param annotationClass 方法入参 annotationClass
+     * @return AnnotationDefinition 对象
+     */
     public static <A extends Annotation> AnnotationDefinition<A> ofInherited(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.INHERITED, annotationClass, false);
     }
 
+    /**
+     * ofAliasResolved。
+     *
+     * @param annotation 方法入参 annotation
+     * @param annotationClass 方法入参 annotationClass
+     * @return AnnotationDefinition 对象
+     */
     public static <A extends Annotation> AnnotationDefinition<A> ofAliasResolved(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.ALIAS_RESOLVED, annotationClass, false);
     }
 
+    /**
+     * ofOverridden方法。
+     *
+     * @param annotation 方法入参 annotation
+     * @param annotationClass 方法入参 annotationClass
+     * @return AnnotationDefinition 对象
+     */
     public static <A extends Annotation> AnnotationDefinition<A> ofOverriddenMethod(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.OVERRIDDEN_METHOD, annotationClass, false);
     }
@@ -95,14 +117,29 @@ public final class AnnotationDefinition<A extends Annotation> {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, true);
     }
 
+    /**
+     * 获取Annotation。
+     *
+     * @return A 对象
+     */
     public A getAnnotation() {
         return annotation;
     }
 
+    /**
+     * 获取来源。
+     *
+     * @return 来源 对象
+     */
     public Source getSource() {
         return source;
     }
 
+    /**
+     * 获取AnnotationClass。
+     *
+     * @return Class 对象
+     */
     public Class<A> getAnnotationClass() {
         return annotationClass;
     }

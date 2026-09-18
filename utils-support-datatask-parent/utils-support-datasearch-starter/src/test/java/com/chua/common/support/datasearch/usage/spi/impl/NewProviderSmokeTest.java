@@ -125,6 +125,13 @@ public class NewProviderSmokeTest {
         }
     }
 
+    /**
+     * 校验提供者。
+     *
+     * @param spiType spi类型，不允许为 null
+     * @param key 键，不允许为 null
+     * @param label 标签，不允许为 null
+     */
     private static <T> void checkProvider(Class<T> spiType, String key, String label) {
         if (ServiceProvider.of(spiType).getExtension(key) == null) {
             System.err.println("FAIL " + label + " missing: " + key);
@@ -135,6 +142,12 @@ public class NewProviderSmokeTest {
         }
     }
 
+    /**
+     * 校验。
+     *
+     * @param condition condition（布尔开关）
+     * @param message 消息，不允许为 null
+     */
     private static void check(boolean condition, String message) {
         if (condition) {
             passCount++;

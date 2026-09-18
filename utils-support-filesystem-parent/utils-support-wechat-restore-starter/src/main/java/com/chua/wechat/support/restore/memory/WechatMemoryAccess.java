@@ -140,6 +140,12 @@ public final class WechatMemoryAccess implements AutoCloseable {
     */
     private final int pid;
 
+    /**
+     * 构造方法，创建 WechatMemoryAccess 实例。
+     *
+     * @param handle 处理，不允许为 null
+     * @param pid 方法入参 pid
+     */
     private WechatMemoryAccess(long handle, int pid) {
         this.handle = handle;
         this.pid = pid;
@@ -364,6 +370,7 @@ public final class WechatMemoryAccess implements AutoCloseable {
     * @param size      大小
     * @param protect   保护属性
     * @param privateMem 是否私有内存（堆 / 栈）；false 表示映射区（DLL / 共享内存）
+    * @return 结果值
     */
     public record Region(long base, long size, int protect, boolean privateMem) {
     }

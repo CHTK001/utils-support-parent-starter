@@ -94,7 +94,10 @@ public class BcEciesCipher implements EciesCipher {
             result[off++] = (byte)(eLen);
             System.arraycopy(ephemeralPub, 0, result, off, eLen);
             off += eLen;
-            result[off++] = 0; result[off++] = 0; result[off++] = 0; result[off++] = 16;
+            result[off++] = 0;
+            result[off++] = 0;
+            result[off++] = 0;
+            result[off++] = 16;
             System.arraycopy(iv, 0, result, off, 16);
             off += 16;
             result[off++] = (byte)(len >> 24);

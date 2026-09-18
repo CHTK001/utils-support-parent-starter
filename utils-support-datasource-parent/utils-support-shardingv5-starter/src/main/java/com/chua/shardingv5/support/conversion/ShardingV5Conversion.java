@@ -89,7 +89,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     * @param auto auto
     * @return autoDiscover的结果
     */
-    public ShardingV5Conversion autoDiscover(boolean auto) { this.autoDiscover = auto; return this; }
+    public ShardingV5Conversion autoDiscover(boolean auto) {
+        this.autoDiscover = auto;
+        return this;
+    }
 
     /**
     * 设置表缓存 TTL。
@@ -287,7 +290,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
                         .sorted((a, b) -> naturalCompare(b, a))
                         .collect(Collectors.toList());
             }
-            if (matched.isEmpty()) { log.warn("未匹配到表: " + tc.prefix); continue; }
+            if (matched.isEmpty()) {
+                log.warn("未匹配到表: " + tc.prefix);
+                continue;
+            }
 
             var limited = matched.size() > tc.shardCount
                     ? matched.subList(0, tc.shardCount) : matched;
@@ -457,10 +463,15 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     static class TableConfig {
-        final String prefix; final String shardingColumn;
-        final int shardCount; final String algorithm;
+        final String prefix;
+        final String shardingColumn;
+        final int shardCount;
+        final String algorithm;
         TableConfig(String p, String sc, int c, String a) {
-            this.prefix = p; this.shardingColumn = sc; this.shardCount = c; this.algorithm = a;
+            this.prefix = p;
+            this.shardingColumn = sc;
+            this.shardCount = c;
+            this.algorithm = a;
         }
     }
 

@@ -77,6 +77,11 @@ public class SourceDataTable extends MutableDataTable {
         this.setters = resolveSetters(entityClass, getters);
     }
 
+    /**
+     * 获取列Types。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
@@ -89,6 +94,11 @@ public class SourceDataTable extends MutableDataTable {
         return engine;
     }
 
+    /**
+     * 获取实体Class。
+     *
+     * @return Class 对象
+     */
     public Class<?> getEntityClass() {
         return entityClass;
     }
@@ -310,6 +320,12 @@ public class SourceDataTable extends MutableDataTable {
         return names;
     }
 
+    /**
+     * 转为列Types。
+     *
+     * @param getters 方法入参 getters
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<Class<?>> toColumnTypes(List<Method> getters) {
         List<Class<?>> types = new ArrayList<>(getters.size());
         for (Method getter : getters) {

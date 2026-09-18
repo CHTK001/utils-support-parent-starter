@@ -61,7 +61,7 @@ public final class AstUtils {
         com.sun.tools.javac.api.JavacTrees javacTrees =
                 (com.sun.tools.javac.api.JavacTrees) com.sun.source.util.Trees.instance(env);
         try {
-            Field contextField = com.sun.tools.javac.api.JavacTrees.class.getDeclaredField("context");
+            Field contextField = com.sun.tools.javac.api.JavacTrees.class.getDeclaredField("context"); // [P3C 1.10 豁免] javac 内部类私有字段适配，本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用
             contextField.setAccessible(true);
             return (com.sun.tools.javac.util.Context) contextField.get(javacTrees);
         } catch (Exception e) {

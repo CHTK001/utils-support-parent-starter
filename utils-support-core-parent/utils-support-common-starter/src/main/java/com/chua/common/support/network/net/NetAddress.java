@@ -66,7 +66,10 @@ public class NetAddress implements Serializable {
         parse(url);
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     * @param url URL，不允许为 null
+     */
     private void parse(String url) {
         if (StringUtils.isNullOrEmpty(url)) { return; }
         try {
@@ -127,6 +130,7 @@ public class NetAddress implements Serializable {
     * 解析 R2DBC URL。
     * 格式：r2dbc:{driver}:[mem|file|...]://[{host}[:port]][/database]
     * 例如：r2dbc:h2:mem://testdb、r2dbc:mysql://localhost:3306/mydb
+    * @param url URL，不允许为 null
     */
     private void parseR2dbcUrl(String url) {
         this.r2dbc = true;
@@ -134,7 +138,10 @@ public class NetAddress implements Serializable {
         String afterPrefix = url.substring("r2dbc:".length());
         // 分割 driver 和 rest
         int firstColon = afterPrefix.indexOf(':');
-        if (firstColon < 0) { this.address = url; return; }
+        if (firstColon < 0) {
+            this.address = url;
+            return;
+        }
         this.protocol = afterPrefix.substring(0, firstColon); // "h2" 或 "mysql"
         String rest = afterPrefix.substring(firstColon + 1); // ":mem://testdb"
         if (rest.startsWith(":")) {
@@ -142,7 +149,10 @@ public class NetAddress implements Serializable {
         }
         // 找 ://
         int schemeEnd = rest.indexOf("://");
-        if (schemeEnd < 0) { this.address = url; return; }
+        if (schemeEnd < 0) {
+            this.address = url;
+            return;
+        }
         String authority = rest.substring(0, schemeEnd); // "mem" 或 "localhost:3306"
         String pathPart = rest.substring(schemeEnd + 3); // "testdb" 或 "/mydb"
 
@@ -155,7 +165,10 @@ public class NetAddress implements Serializable {
             if (this.host != null && this.host.contains(":")) {
                 String[] hp = this.host.split(":");
                 this.host = hp[0];
-                try { this.port = Integer.parseInt(hp[1]); } catch (NumberFormatException ignored) {}
+                try {
+                    this.port = Integer.parseInt(hp[1]);
+                } catch (NumberFormatException ignored) {
+                }
             }
             this.path = slashIdx >= 0 ? authority.substring(slashIdx) : "";
         } else {
@@ -176,45 +189,76 @@ public class NetAddress implements Serializable {
         this.address = this.host + (this.port != null && this.port > 0 ? ":" + this.port : "");
     }
 
-    /** Of */
+    /**
+     * Of
+     * @param url URL，不允许为 null
+     * @return Net地址 对象
+     */
     public static NetAddress of(String url) {
         return new NetAddress(url);
     }
 
-    /** Of */
+    /**
+     * Of
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     * @return Net地址 对象
+     */
     public static NetAddress of(String host, int port) {
         return new NetAddress(host + ":" + port);
     }
 
-    /** ToInetSocketAddress */
+    /**
+     * ToInetSocketAddress
+     * @return InetSocket地址 对象
+     */
     public InetSocketAddress toInetSocketAddress() {
         if (host != null && port != null) { return new InetSocketAddress(host, port); }
         return null;
     }
 
-    /** 获取Port */
+    /**
+     * 获取Port
+     * @param defaultPort default端口，不允许为 null
+     * @return 结果数值
+     */
     public int getPort(int defaultPort) {
         return port != null && port > 0 ? port : defaultPort;
     }
 
-    /** 获取Host */
+    /**
+     * 获取Host
+     * @return 结果字符串
+     */
     public String getHost() {
         return host;
     }
 
-    /** 获取Host（带默认值） */
+    /**
+     * 获取Host（带默认值）
+     * @param defaultHost default主机，不允许为 null
+     * @return 结果字符串
+     */
     public String getHost(String defaultHost) {
         return StringUtils.isNullOrEmpty(host) || "127.0.0.1".equals(host)
                 ? (defaultHost != null ? defaultHost : "127.0.0.1")
                 : host;
     }
 
-    /** 获取Protocol */
+    /**
+     * 获取Protocol
+     * @param defaultProtocol 方法入参 defaultProtocol
+     * @return 结果字符串
+     */
     public String getProtocol(String defaultProtocol) {
         return StringUtils.isNullOrEmpty(protocol) ? defaultProtocol : protocol;
     }
 
-    /** 获取DefaultPort */
+    /**
+     * 获取DefaultPort
+     * @param protocol 方法入参 protocol
+     * @return 结果数值
+     */
     private static int getDefaultPort(String protocol) {
         if (StringUtils.isNullOrEmpty(protocol)) { return -1; }
         return switch (protocol.toLowerCase()) {

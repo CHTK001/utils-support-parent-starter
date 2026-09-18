@@ -6,6 +6,12 @@ import com.chua.winrm.support.client.WinRmExecClient;
  * WinRM 逐步探测：定位挂起点。
  */
 public class FpWinRmStep {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("[1] 构建 WinRmExecClient...");
         WinRmExecClient winrm = WinRmExecClient.builder()

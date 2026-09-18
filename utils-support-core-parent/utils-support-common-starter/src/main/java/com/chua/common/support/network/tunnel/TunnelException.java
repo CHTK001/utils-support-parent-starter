@@ -21,6 +21,7 @@ public class TunnelException extends RuntimeException {
     * 创建 TunnelException 实例
     * @param message message
     * @param Throwable Throwable
+    * @param cause 方法入参 cause
     */
     public TunnelException(String message, Throwable cause) {
         super(message, cause);

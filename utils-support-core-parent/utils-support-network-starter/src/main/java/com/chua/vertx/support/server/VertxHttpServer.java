@@ -441,9 +441,18 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override public int getStatus() { return status; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setStatus(int statusCode) { this.status = statusCode; return this; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(byte[] body) { this.result = body; return this; }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(String body) { this.result = body; return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setStatus(int statusCode) {
+            this.status = statusCode;
+            return this;
+        }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(byte[] body) {
+            this.result = body;
+            return this;
+        }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setBody(String body) {
+            this.result = body;
+            return this;
+        }
         @Override public com.chua.common.support.network.server.response.ServerResponse setHeader(String name, String value) { return this; }
         @Override public String getHeader(String name) { return null; }
         @Override public HttpHeader getHeaders() { return HttpHeader.create(); }
@@ -473,7 +482,10 @@ public class VertxHttpServer extends AbstractServer {
         @Override public void writeRaw(byte[] bytes) {
             ws.writeBinaryMessage(io.vertx.core.buffer.Buffer.buffer(bytes));
         }
-        @Override public com.chua.common.support.network.server.response.ServerResponse setResult(Object result) { this.result = result; return this; }
+        @Override public com.chua.common.support.network.server.response.ServerResponse setResult(Object result) {
+            this.result = result;
+            return this;
+        }
         @Override public Object getResult() { return result; }
         @Override public com.chua.common.support.network.server.response.ServerResponse sse() { return this; }
         @Override public void sseEvent(String event, String data) { }

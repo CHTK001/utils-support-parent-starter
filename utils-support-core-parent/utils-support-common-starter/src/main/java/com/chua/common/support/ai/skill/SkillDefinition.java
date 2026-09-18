@@ -41,6 +41,7 @@ public class SkillDefinition {
     * @param arguments List
     * @param arguments arguments
     * @param handler SkillHandler
+    * @param description 描述，不允许为 null
     */
     public SkillDefinition(String name, String description, List<SkillArgumentSchema> arguments, SkillHandler handler) {
         this.name = name;
@@ -49,22 +50,34 @@ public class SkillDefinition {
         this.handler = handler;
     }
 
-    /** 获取Name */
+    /**
+     * 获取Name
+     * @return 结果字符串
+     */
     public String getName() {
         return name;
     }
 
-    /** 获取Description */
+    /**
+     * 获取Description
+     * @return 结果字符串
+     */
     public String getDescription() {
         return description;
     }
 
-    /** 获取Arguments */
+    /**
+     * 获取Arguments
+     * @return 结果列表，无数据时为空列表
+     */
     public List<SkillArgumentSchema> getArguments() {
         return arguments;
     }
 
-    /** 获取Handler */
+    /**
+     * 获取Handler
+     * @return Skill处理器 对象
+     */
     public SkillHandler getHandler() {
         return handler;
     }

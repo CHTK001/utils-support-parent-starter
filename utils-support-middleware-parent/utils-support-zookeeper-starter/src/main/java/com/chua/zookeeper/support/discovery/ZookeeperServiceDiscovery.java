@@ -284,7 +284,11 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
                 }
                 return list;
             } catch (ConcurrentModificationException e) {
-                try { Thread.sleep(100); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
             } catch (Exception e) {
                 if (e.getMessage() != null && e.getMessage().contains("STOPPED")) {
                     return null;

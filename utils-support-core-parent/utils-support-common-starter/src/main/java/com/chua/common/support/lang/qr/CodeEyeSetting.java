@@ -40,17 +40,26 @@ public class CodeEyeSetting {
     */
     private String rtCodeEyeImage;
 
-    /** 获取LTCodeEyeImage */
+    /**
+     * 获取LTCodeEyeImage
+     * @return 结果字符串
+     */
     public String getLTCodeEyeImage() {
         return ltCodeEyeImage;
     }
 
-    /** 获取LBCodeEyeImage */
+    /**
+     * 获取LBCodeEyeImage
+     * @return 结果字符串
+     */
     public String getLBCodeEyeImage() {
         return lbCodeEyeImage;
     }
 
-    /** 获取RTCodeEyeImage */
+    /**
+     * 获取RTCodeEyeImage
+     * @return 结果字符串
+     */
     public String getRTCodeEyeImage() {
         return rtCodeEyeImage;
     }

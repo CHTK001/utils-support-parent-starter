@@ -38,6 +38,8 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     * @param targetClass targetClass
     * @param Method Method
     * @param String String
+    * @param method 方法，不允许为 null
+    * @param path 路径，不允许为 null
     */
     public IpcMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path) {
         this.objectContext = objectContext;
@@ -89,7 +91,12 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         }
     }
 
-    /** 解析Args */
+    /**
+     * 解析Args
+     * @param params 参数，不允许为 null
+     * @param parameters 方法入参 parameters
+     * @return 对象 对象
+     */
     private static Object[] resolveArgs(Object params, Parameter[] parameters) {
         if (params == null) {
             return new Object[parameters.length];
@@ -102,7 +109,12 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         return args;
     }
 
-    /** 转换Param */
+    /**
+     * 转换Param
+     * @param v 方法入参 v
+     * @param t 方法入参 t
+     * @return 对象 对象
+     */
     private static Object convertParam(Object v, Class<?> t) {
         if (v == null) {
             return null;
@@ -129,7 +141,12 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         return v;
     }
 
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+     * @param response 响应，不允许为 null
+     * @param status 状态，不允许为 null
+     * @param msg 消息，不允许为 null
+     */
     private static void sendError(ServerResponse response, int status, String msg) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);

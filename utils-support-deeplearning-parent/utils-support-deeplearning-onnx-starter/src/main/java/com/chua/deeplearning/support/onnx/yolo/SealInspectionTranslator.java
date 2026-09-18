@@ -33,6 +33,11 @@ public class SealInspectionTranslator extends YoloTranslator {
     */
     }
 
+    /**
+     * 构造方法，创建 SealInspectionTranslator 实例。
+     *
+     * @param arguments 方法入参 arguments
+     */
     public SealInspectionTranslator(Map<String, ?> arguments) {
         super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments), SEAL_4_CLASSES, true);
     /**
@@ -42,6 +47,12 @@ public class SealInspectionTranslator extends YoloTranslator {
     */
     }
 
+    /**
+     * 解析Input大小。
+     *
+     * @param arguments 方法入参 arguments
+     * @return 结果数值
+     */
     private static int resolveInputSize(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("inputSize")) {
             return Integer.parseInt(arguments.get("inputSize").toString());
@@ -54,6 +65,12 @@ public class SealInspectionTranslator extends YoloTranslator {
     */
     }
 
+    /**
+     * 解析Threshold。
+     *
+     * @param arguments 方法入参 arguments
+     * @return 结果数值
+     */
     private static float resolveThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("confThreshold")) {
             return Float.parseFloat(arguments.get("confThreshold").toString());
@@ -61,6 +78,12 @@ public class SealInspectionTranslator extends YoloTranslator {
         return 0.75f;
     }
 
+    /**
+     * 解析NmsThreshold。
+     *
+     * @param arguments 方法入参 arguments
+     * @return 结果数值
+     */
     private static float resolveNmsThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("iouThreshold")) {
             return Float.parseFloat(arguments.get("iouThreshold").toString());

@@ -23,7 +23,10 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface RouterStrategy {
 
-    /** 策略名称 */
+    /**
+     * 策略名称
+     * @return 结果字符串
+     */
     default String name() {
         return getClass().getSimpleName()
                 .replace("RouterStrategy", "")
@@ -73,6 +76,7 @@ public interface RouterStrategy {
     * @param model    模型
     * @param weight   权重
     * @param client   ChatClient 实例
+    * @return 结果值
     */
     record WeightedClient(String provider, String model, int weight, ChatClient client) {
     }

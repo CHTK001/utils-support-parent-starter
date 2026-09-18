@@ -24,10 +24,19 @@ public class FruitClassificationTranslator extends SiglipZeroShotClassificationT
             */
             "papaya,passion fruit,coconut,avocado,chanoy";
 
+    /**
+     * 构造方法，创建 FruitClassificationTranslator 实例。
+     */
     public FruitClassificationTranslator() {
         super(buildArgs(FRUITS));
     }
 
+    /**
+     * 构建参数。
+     *
+     * @param candidates 方法入参 candidates
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, Object> buildArgs(String candidates) {
         Map<String, Object> args = new HashMap<>();
         args.put("candidates", candidates);

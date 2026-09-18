@@ -62,6 +62,7 @@ public final class RateLimiterFlow {
     * 创建 RateLimiterFlow 实例
     * @param name name
     * @param double double
+    * @param permitsPerSecond 方法入参 permitsPerSecond
     */
     private RateLimiterFlow(String name, double permitsPerSecond) {
         this.name = name;

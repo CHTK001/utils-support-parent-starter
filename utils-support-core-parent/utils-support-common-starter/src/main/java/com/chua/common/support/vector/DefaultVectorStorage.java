@@ -262,7 +262,12 @@ public class DefaultVectorStorage implements VectorStorage {
             coldIndex.clear();
             shardMetas.clear();
             shardBuffers.values().forEach(sb -> {
-                try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
+                try {
+                    if (sb.fc().isOpen()) {
+                        sb.fc().close();
+                    }
+                } catch (IOException ignored) {
+                }
             });
             shardBuffers.clear();
             if (mode != Mode.MEMORY && dir.toFile().exists()) {
@@ -316,7 +321,12 @@ public class DefaultVectorStorage implements VectorStorage {
             coldIndex.clear();
             shardMetas.clear();
             shardBuffers.values().forEach(sb -> {
-                try { if (sb.fc().isOpen()) sb.fc().close(); } catch (IOException ignored) { }
+                try {
+                    if (sb.fc().isOpen()) {
+                        sb.fc().close();
+                    }
+                } catch (IOException ignored) {
+                }
             });
             shardBuffers.clear();
         } finally {
@@ -336,7 +346,9 @@ public class DefaultVectorStorage implements VectorStorage {
             List<Vector> toFlush = new ArrayList<>(hot.values());
             int shardIdx = coldShards.isEmpty() ? 0 : coldShards.lastKey() + 1;
             Path shardPath = dir.resolve(String.format("shard_%04d.bin", shardIdx));
-            try { writeShard(shardPath, toFlush); } catch (IOException e) {
+            try {
+                writeShard(shardPath, toFlush);
+            } catch (IOException e) {
                 throw new UncheckedIOException("刷盘失败", e);
             }
             buildShardIndex(shardIdx, shardPath, 8L, toFlush.size());
@@ -759,7 +771,9 @@ public class DefaultVectorStorage implements VectorStorage {
             if (smallest == idx) {
                 break;
             }
-            VectorScored tmp = heap[idx]; heap[idx] = heap[smallest]; heap[smallest] = tmp;
+            VectorScored tmp = heap[idx];
+            heap[idx] = heap[smallest];
+            heap[smallest] = tmp;
             idx = smallest;
         }
     }
@@ -781,14 +795,22 @@ public class DefaultVectorStorage implements VectorStorage {
         for (; i < end16; i += SIMD) {
             double d0=0,d1=0,d2=0,d3=0,d4=0,d5=0,d6=0,d7=0,
                    d8=0,d9=0,d10=0,d11=0,d12=0,d13=0,d14=0,d15=0;
-            d0  += a[i]   * b[i];   d1  += a[i+1] * b[i+1];
-            d2  += a[i+2] * b[i+2]; d3  += a[i+3] * b[i+3];
-            d4  += a[i+4] * b[i+4]; d5  += a[i+5] * b[i+5];
-            d6  += a[i+6] * b[i+6]; d7  += a[i+7] * b[i+7];
-            d8  += a[i+8] * b[i+8]; d9  += a[i+9] * b[i+9];
-            d10 += a[i+10]* b[i+10];d11 += a[i+11]* b[i+11];
-            d12 += a[i+12]* b[i+12];d13 += a[i+13]* b[i+13];
-            d14 += a[i+14]* b[i+14];d15 += a[i+15]* b[i+15];
+            d0 += a[i] * b[i];
+            d1 += a[i+1] * b[i+1];
+            d2 += a[i+2] * b[i+2];
+            d3 += a[i+3] * b[i+3];
+            d4 += a[i+4] * b[i+4];
+            d5 += a[i+5] * b[i+5];
+            d6 += a[i+6] * b[i+6];
+            d7 += a[i+7] * b[i+7];
+            d8 += a[i+8] * b[i+8];
+            d9 += a[i+9] * b[i+9];
+            d10 += a[i+10] * b[i+10];
+            d11 += a[i+11] * b[i+11];
+            d12 += a[i+12] * b[i+12];
+            d13 += a[i+13] * b[i+13];
+            d14 += a[i+14] * b[i+14];
+            d15 += a[i+15] * b[i+15];
             dot += d0+d1+d2+d3+d4+d5+d6+d7+d8+d9+d10+d11+d12+d13+d14+d15;
         }
         for (; i < len; i++) {

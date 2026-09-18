@@ -71,7 +71,11 @@ public class FibonacciBackoffProvider implements BackoffProvider {
         attempt.set(0);
     }
 
-    /** Fib */
+    /**
+     * Fib
+     * @param n 方法入参 n
+     * @return 结果数值
+     */
     private static long fib(int n) {
         if (n <= 1) {
             return n;

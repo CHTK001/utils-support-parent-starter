@@ -41,6 +41,9 @@ public final class LocalServiceRegistry {
     */
     private final Map<String, CopyOnWriteArrayList<Object>> services = new ConcurrentHashMap<>();
 
+    /**
+     * 构造方法，创建 Local服务Registry 实例。
+     */
     private LocalServiceRegistry() {
     }
 

@@ -21,12 +21,18 @@ public class UsageStats {
     /** 平均延迟（毫秒） */
     private double avgLatencyMs;
 
-    /** 平均值TokensPer调用 */
+    /**
+     * 平均值TokensPer调用
+     * @return 结果数值
+     */
     public double avgTokensPerCall() {
         return totalCalls == 0 ? 0 : (double) totalTokens / totalCalls;
     }
 
-    /** 兼容 getAvgTokensPerCall 调用 */
+    /**
+     * 兼容 getAvgTokensPerCall 调用
+     * @return 结果数值
+     */
     public double getAvgTokensPerCall() {
         return avgTokensPerCall();
     }

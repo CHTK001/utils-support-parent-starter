@@ -318,6 +318,12 @@ public class CampplusEmbedding {
         }
     }
 
+    /**
+     * 转为Float数组。
+     *
+     * @param t 方法入参 t
+     * @return 结果值
+     */
     private static float[] toFloatArray(ai.onnxruntime.OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         /**
@@ -329,6 +335,11 @@ public class CampplusEmbedding {
         return arr;
     }
 
+    /**
+     * l2Normalize。
+     *
+     * @param v 方法入参 v
+     */
     private static void l2Normalize(float[] v) {
         double s = 0;
         /**
@@ -348,10 +359,22 @@ public class CampplusEmbedding {
         }
     }
 
+    /**
+     * hz转为Mel。
+     *
+     * @param hz 方法入参 hz
+     * @return 结果数值
+     */
     private static double hzToMel(double hz) {
         return 1127.0 * Math.log(1.0 + hz / 700.0);
     }
 
+    /**
+     * mel转为Hertz。
+     *
+     * @param mel 方法入参 mel
+     * @return 结果数值
+     */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.exp(mel / 1127.0) - 1.0);
     }
@@ -359,7 +382,10 @@ public class CampplusEmbedding {
     /** 关闭会话 */
     public void close() {
         if (session != null) {
-            try { session.close(); } catch (Exception ignore) {}
+            try {
+                session.close();
+            } catch (Exception ignore) {
+            }
         }
     }
 

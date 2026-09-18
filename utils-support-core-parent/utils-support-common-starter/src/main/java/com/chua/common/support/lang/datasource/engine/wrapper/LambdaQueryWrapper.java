@@ -451,6 +451,9 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
     * 渲染单个条件为 SQL 片段。
     * <p>处理嵌套条件（括号包裹）、IN/BETWEEN 等特殊语法。</p>
+    * @param sb 方法入参 sb
+    * @param params 参数，不允许为 null
+    * @param c 方法入参 c
     */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

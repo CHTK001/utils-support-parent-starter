@@ -16,26 +16,25 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Serializes a parsed hprof result into a self-contained HTML report.
+ * 将解析出的 hprof 结果序列化为自包含的 HTML 报告。
  *
- * <p>The HTML is a single file: inline CSS, inline JS, and
- * {@code ECharts} loaded from the jsDelivr CDN (the same CDN constant used
- * by {@code BenchmarkHtmlProvider}). It renders:</p>
+ * <p>HTML 为单个文件：CSS 内联、JS 内联，
+ * {@code ECharts} 由 jsDelivr CDN 加载（与
+ * {@code BenchmarkHtmlProvider} 使用同一个 CDN 常量）。报告渲染：</p>
  *
  * <ul>
- *   <li>a KPI card row (total retained, object count, top-N share,
- *   collection share, loader count)</li>
- *   <li>a bar chart of the top-20 classes by retained size</li>
- *   <li>a bar chart of the top-20 classes by instance count</li>
- *   <li>a pie chart of the GC-root distribution</li>
- *   <li>the analysis findings ("why is memory high") with severity badges</li>
- *   <li>the plain-language conclusions</li>
+ *   <li>KPI 卡片行（retained 总量、对象数量、Top-N 占比、
+ *   集合类占比、类加载器数量）</li>
+ *   <li>按 retained 大小排序的 Top-20 类柱状图</li>
+ *   <li>按实例数量排序的 Top-20 类柱状图</li>
+ *   <li>GC-root 分布饼图</li>
+ *   <li>分析发现（"内存为何偏高"）并带严重级别徽标</li>
+ *   <li>通俗语言的结论</li>
  * </ul>
  *
- * <p>The data is embedded as a JSON object so the chart code stays
- * generic; the report is safe to open offline (only the ECharts script is
- * fetched, and the page still renders its tables / findings if the CDN is
- * unreachable).</p>
+ * <p>数据以 JSON 对象形式内嵌，从而让图表代码保持
+ * 通用；报告离线打开同样安全（仅拉取 ECharts 脚本，
+ * 即使 CDN 不可达，页面仍会渲染表格与发现项）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,14 +49,17 @@ public final class HprofToHtmlSerializer {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /**
+     * 构造方法，创建 Hprof转为HtmlSerializer 实例。
+     */
     private HprofToHtmlSerializer() {
     }
 
     /**
-    * Serialize the parsed result to an HTML document without an AI summary.
+    * 将解析结果序列化为不含 AI 摘要的 HTML 文档。
     *
     * @param result   parsed hprof result
-    * @param fileName source file name for the report header
+    * @param fileName 报告页头显示的源文件名
     * @return HTML document
     */
     public static String serialize(HprofParser.Result result, String fileName) {
@@ -65,30 +67,162 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Serialize the parsed result to an HTML document with an AI summary block.
+    * 将解析结果序列化为带 AI 摘要区块的 HTML 文档。
     *
     * @param result   parsed hprof result
-    * @param fileName source file name for the report header
-    * @param aiSummary optional AI summary text, the block is omitted when null/blank
+    * @param fileName 报告页头显示的源文件名
+    * @param aiSummary 可选的 AI 摘要文本，为 null 或空白时省略该区块
     * @return HTML document
     */
     public static String serialize(HprofParser.Result result, String fileName, String aiSummary) {
         Objects.requireNonNull(result, "result");
-        HprofAnalysis analysis = HprofAnalyzer.analyze(result);
+        HprofAnalysis analysis = HprofAnalyzer.analyze(result,
+                fileName == null ? null : new java.io.File(fileName));
+        com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan =
+                com.chua.hprof.support.action.HprofActionPlanner.plan(result, analysis);
         StringBuilder sb = new StringBuilder(4096);
         appendHtmlHead(sb, fileName, result);
         appendKpiCards(sb, analysis, result);
+        appendProblemAndPlan(sb, plan);
         appendRootCause(sb, analysis);
+        appendCrashContext(sb, analysis);
         appendCharts(sb);
         appendFindings(sb, analysis, result);
+        appendRefChains(sb, result);
         appendNonJdk(sb, analysis, result);
         appendConclusions(sb, analysis);
+        appendChecklist(sb, plan);
         appendAiSummary(sb, aiSummary);
         appendDetails(sb, result);
         appendTables(sb, analysis, result);
         appendScript(sb, analysis, fileName);
         appendHtmlTail(sb);
         return sb.toString();
+    }
+
+    /**
+    * 追加顶层"问题 + 处理步骤"行动卡片（非开发人员可直接读）。
+    *
+    * @param sb   输出缓冲
+    * @param plan 处置计划
+    */
+    private static void appendProblemAndPlan(StringBuilder sb,
+                                             com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
+        sb.append("<div class=\"action-card card\">\n")
+                .append("<div class=\"rc-label\">📌 问题是什么 · 怎么处理（按优先级）</div>\n")
+                .append("<div class=\"problem-summary\">").append(escape(plan.problemSummary())).append("</div>\n")
+                .append("<ol class=\"action-list\">\n");
+        for (com.chua.hprof.support.action.HprofActionPlanner.ActionItem item : plan.items()) {
+            sb.append("<li class=\"action-p").append(item.priority()).append("\">")
+                    .append("<span class=\"action-pri\">P").append(item.priority()).append("</span> ")
+                    .append("<span class=\"action-title\">").append(escape(item.title())).append("</span>")
+                    .append("<div class=\"action-how\">").append(escape(item.how())).append("</div>")
+                    .append("<div class=\"action-effect\">预期：").append(escape(item.expectedEffect())).append("</div>")
+                    .append("</li>\n");
+        }
+        sb.append("</ol>\n</div>\n");
+    }
+
+    /**
+    * 追加引用链可视化区块（top 持有类的 3 层：持有实例 → 字段 → 子引用）。
+    *
+    * @param sb     输出缓冲
+    * @param result 解析结果
+    */
+    private static void appendRefChains(StringBuilder sb, HprofParser.Result result) {
+        if (result.refChains() == null || result.refChains().isEmpty()) {
+            return;
+        }
+        sb.append("<h2>引用链可视化（谁持有谁）</h2>\n<div class=\"card\">\n");
+        for (com.chua.hprof.support.parser.HprofRefChainWalker.RefChain chain : result.refChains()) {
+            sb.append("<div class=\"chain\">\n")
+                    .append("<div class=\"chain-head\">持有者 ")
+                    .append(escape(chain.holderClass()))
+                    .append(" <span class=\"id\">#").append(chain.holderId()).append("</span>")
+                    .append("（保留 ").append(escape(HprofObject.formatSize(chain.holderRetained())))
+                    .append("）</div>\n")
+                    .append("<div class=\"chain-mid\">└ 自身字段：");
+            if (chain.fields().isEmpty()) {
+                sb.append("（无引用字段）");
+            } else {
+                boolean first = true;
+                for (com.chua.hprof.support.model.HprofClassDetail.FieldValueDetail fv : chain.fields()) {
+                    if (!first) {
+                        sb.append("，");
+                    }
+                    first = false;
+                    sb.append(escape(fv.getName())).append("=").append(escape(fv.getValueText()));
+                }
+            }
+            sb.append("</div>\n<div class=\"chain-tail\">└ 持有子引用（按保留大小）：");
+            if (chain.children().isEmpty()) {
+                sb.append("（叶子对象，无可展开子引用）");
+            } else {
+                boolean first = true;
+                for (com.chua.hprof.support.parser.HprofRefChainWalker.ChildRef child : chain.children()) {
+                    if (!first) {
+                        sb.append("<br>　");
+                    }
+                    first = false;
+                    sb.append(escape(child.className()))
+                            .append(" → ").append(escape(HprofObject.formatSize(child.retained())))
+                            .append(" <span class=\"id\">#").append(child.instanceId()).append("</span>");
+                }
+            }
+            sb.append("</div>\n</div>\n");
+        }
+        sb.append("</div>\n");
+    }
+
+    /**
+    * 追加可勾选处置清单（localStorage 记忆勾选状态）。
+    *
+    * @param sb   输出缓冲
+    * @param plan 处置计划
+    */
+    private static void appendChecklist(StringBuilder sb,
+                                        com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
+        sb.append("<h2>处置清单（处理一项勾一项）</h2>\n<div class=\"card checklist\">\n");
+        for (com.chua.hprof.support.action.HprofActionPlanner.ActionItem item : plan.items()) {
+            sb.append("<label class=\"check-row\">\n")
+                    .append("<input type=\"checkbox\" data-item=\"")
+                    .append(escape(item.id())).append("\"")
+                    .append(" onchange=\"toggleCheck(this)\"> ")
+                    .append("<span class=\"check-label\" data-for=\"")
+                    .append(escape(item.id())).append("\">")
+                    .append("<b>P").append(item.priority()).append("</b> ")
+                    .append(escape(item.title())).append("</span>")
+                    .append("<div class=\"check-verify\">验证：").append(escape(item.verify())).append("</div>")
+                    .append("</label>\n");
+        }
+        sb.append("</div>\n");
+    }
+
+    /**
+    * 追加崩溃语境区块（OOM 判定 / 堆水位 / hs_err 证据）。
+    *
+    * @param sb       输出缓冲
+    * @param analysis 分析结果
+    */
+    private static void appendCrashContext(StringBuilder sb, HprofAnalysis analysis) {
+        if (analysis.crashSignals == null || analysis.crashSignals.isEmpty()) {
+            return;
+        }
+        sb.append("<div class=\"crash").append(analysis.oomLikely ? " oom" : "")
+                .append(" card\">\n")
+                .append("<div class=\"rc-label\">")
+                .append(analysis.oomLikely
+                        ? "⚠ 崩溃语境判定（强烈疑似 OOM）"
+                        : "崩溃语境判定（证据不足）")
+                .append("</div>\n");
+        for (com.chua.hprof.support.crash.CrashContext.CrashSignal signal : analysis.crashSignals) {
+            sb.append("<div class=\"crash-item\"><span class=\"crash-kind\">")
+                    .append(escape(signal.kind())).append("</span> ")
+                    .append(escape(signal.detail())).append("</div>\n")
+                    .append("<div class=\"crash-ev\">证据：")
+                    .append(escape(signal.evidence())).append("</div>\n");
+        }
+        sb.append("</div>\n");
     }
 
     /**
@@ -108,7 +242,7 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the HTML head with inline CSS.
+    * 追加带内联 CSS 的 HTML 头部。
     *
     * @param sb       output buffer
     * @param fileName source file name
@@ -156,6 +290,39 @@ public final class HprofToHtmlSerializer {
                 .append("  .root-cause .rc-label { font-weight: 700; font-size: 13px; color: #991b1b;")
                 .append("                           margin-bottom: 6px; }\n")
                 .append("  .root-cause .rc-text { font-size: 14px; color: #7f1d1d; line-height: 1.8; }\n")
+                .append("  .crash { background: #fff; border: 2px solid #fca5a5; margin-bottom: 12px; }\n")
+                .append("  .crash.oom { border-color: #ef4444; background: linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%); }\n")
+                .append("  .crash .crash-item { font-size: 14px; color: #1f2937; margin: 6px 0 2px; }\n")
+                .append("  .crash .crash-kind { display: inline-block; font-size: 11px; font-weight: 700;")
+                .append("                          background: #fee2e2; color: #b91c1c; padding: 1px 8px;")
+                .append("                          border-radius: 10px; margin-right: 6px; }\n")
+                .append("  .crash .crash-ev { font-size: 12px; color: #6b7280; padding-left: 4px; }\n")
+                .append("  .action-card { background: linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);")
+                .append("                 border: 2px solid #93c5fd; margin-bottom: 12px; }\n")
+                .append("  .action-card .problem-summary { font-size: 14px; color: #1e3a8a; margin: 6px 0 10px;")
+                .append("                                   font-weight: 600; }\n")
+                .append("  .action-list { margin: 0 0 0 4px; padding-left: 18px; }\n")
+                .append("  .action-list li { margin: 8px 0; }\n")
+                .append("  .action-pri { display: inline-block; font-size: 11px; font-weight: 700;")
+                .append("               background: #1e40af; color: #fff; padding: 1px 7px; border-radius: 10px;")
+                .append("               margin-right: 6px; }\n")
+                .append("  li.action-p2 .action-pri { background: #f59e0b; }\n")
+                .append("  li.action-p3 .action-pri { background: #6b7280; }\n")
+                .append("  .action-title { font-weight: 600; color: #111827; }\n")
+                .append("  .action-how { font-size: 13px; color: #374151; margin-top: 2px; }\n")
+                .append("  .action-effect { font-size: 12px; color: #059669; margin-top: 2px; }\n")
+                .append("  .chain { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 14px;")
+                .append("          margin-bottom: 10px; background: #fafafa; }\n")
+                .append("  .chain-head { font-weight: 600; font-size: 13px; color: #1d4ed8; }\n")
+                .append("  .chain-mid, .chain-tail { font-size: 12px; color: #374151; margin-top: 4px;")
+                .append("         font-family: ui-monospace, monospace; }\n")
+                .append("  .chain .id { color: #6b7280; }\n")
+                .append("  .checklist label { display: block; padding: 8px 0; border-bottom: 1px solid #f3f4f6;")
+                .append("                      font-size: 14px; }\n")
+                .append("  .checklist input { margin-right: 8px; transform: scale(1.1); }\n")
+                .append("  .checklist .check-label { color: #111827; }\n")
+                .append("  .checklist .check-verify { font-size: 12px; color: #059669; margin: 2px 0 0 24px; }\n")
+                .append("  .checklist input:checked + .check-label { text-decoration: line-through; color: #9ca3af; }\n")
                 .append("  .concl { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;")
                 .append("           padding: 14px; font-size: 14px; }\n")
                 .append("  .concl li { margin-bottom: 6px; }\n")
@@ -314,7 +481,7 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the AI summary block. Omitted entirely when the summary is blank.
+    * 追加 AI 摘要区块；摘要为空白时整块省略。
     *
     * @param sb        output buffer
     * @param aiSummary AI summary text, may be null/blank
@@ -330,10 +497,10 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the "点开看详情" block: for each captured top class, a
-    * collapsible {@code <details>} showing its retained-largest instances
-    * and their field values (which field holds the big collection / array /
-    * string) plus the static field holders. This answers "who stored what".
+    * 追加"点开看详情"区块：对每个已采集的热点类，用
+    * 可折叠的 {@code <details>} 展示其 retained 最大的实例
+    * 及字段取值（哪个字段持有大集合 / 数组 /
+    * 字符串），并列出静态字段持有者。用于回答"谁存了什么"。
     *
     * @param sb     output buffer
     * @param result parsed result with classDetails
@@ -409,8 +576,8 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * One table row. When the class has captured instance details, the row
-    * expands via {@code <details>} to show the field values.
+    * 表格中的一行。若该类已采集到实例明细，则该行
+    * 通过 {@code <details>} 展开以展示字段取值。
     *
     * @param sb    output buffer
     * @param row   histogram row
@@ -440,7 +607,7 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the inline script that drives the ECharts.
+    * 追加驱动 ECharts 的内联脚本。
     *
     * @param sb       output buffer
     * @param analysis analysis
@@ -493,11 +660,22 @@ public final class HprofToHtmlSerializer {
                 .append("  if(document.readyState==='loading'){")
                 .append("    document.addEventListener('DOMContentLoaded',initAll);")
                 .append("  } else { initAll(); }\n")
+                .append("  function toggleCheck(el){ var k='hprof-check-'+el.dataset.item;")
+                .append("    try{ if(el.checked){localStorage.setItem(k,'1');}")
+                .append("      else{localStorage.removeItem(k);} }catch(e){} }")
+                .append("  function restoreChecks(){ try{ document.querySelectorAll('.checklist input')")
+                .append(".forEach(function(el){ if(localStorage.getItem('hprof-check-'+el.dataset.item))")
+                .append("{ el.checked=true; var lbl=el.parentElement.querySelector('.check-label');")
+                .append("if(lbl){lbl.style.textDecoration='line-through';lbl.style.color='#9ca3af';} } });")
+                .append("}catch(e){} }\n")
+                .append("  if(document.readyState==='loading'){")
+                .append("    document.addEventListener('DOMContentLoaded',restoreChecks);")
+                .append("  } else { restoreChecks(); }\n")
                 .append("</script>\n");
     }
 
     /**
-    * Build the embedded JSON data object for the charts.
+    * 构造图表使用的内嵌 JSON 数据对象。
     *
     * @param analysis analysis
     * @param fileName source file name

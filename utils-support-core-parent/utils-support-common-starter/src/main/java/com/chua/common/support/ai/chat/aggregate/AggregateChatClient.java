@@ -400,6 +400,8 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 过滤出健康的客户端列表
+    * @param clients 方法入参 clients
+    * @return 结果列表，无数据时为空列表
     */
     private List<RouterStrategy.WeightedClient> filterHealthy(List<RouterStrategy.WeightedClient> clients) {
         if (!autoSwitchEnabled) {
@@ -416,6 +418,8 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 检查客户端健康状态（用于定时健康检查）
+    * @param client 客户端，不允许为 null
+    * @return 模型HealthChecker模型Health校验结果 对象
     */
     private ModelHealthChecker.ModelHealthCheckResult checkClientHealth(ChatClient client) {
         try {
@@ -436,6 +440,8 @@ public class AggregateChatClient implements ChatClient {
     /**
     * 同步对话并返回完整响应（含用量信息）。
     @Override
+    * @param prompt 提示词，不允许为 null
+    * @return ChatSync响应 对象
     /** ChatSyncWithResponse */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);

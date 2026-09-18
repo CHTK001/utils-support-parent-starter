@@ -724,6 +724,14 @@ public class FileEngine extends AbstractEngine {
         return value;
     }
 
+    /**
+     * 上限Slice。
+     *
+     * @param data 数据，不允许为 null
+     * @param limit 上限，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
         if (limit <= 0 && offset <= 0) {
             return data;

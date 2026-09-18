@@ -14,6 +14,12 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
+/**
+ * U2netSegTranslator类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public final class U2netSegTranslator implements Translator<Image, Image> {
 
     private static final int SIZE = 320;
@@ -21,6 +27,7 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
 
     private final MattingTranslator.MattingMode mode;
     private int width, height;
+    /** originalImage */
     private BufferedImage originalImage;
 
     public U2netSegTranslator() { this(DEFAULT_MODE); }
@@ -55,7 +62,9 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         int h = (int) sh[sh.length - 2];
         int w = (int) sh[sh.length - 1];
         float[] vals = alpha.toFloatArray();
-        for (int i = 0; i < vals.length; i++) vals[i] = Math.max(0f, Math.min(1f, vals[i]));
+        for (int i = 0; i < vals.length; i++) {
+            vals[i] = Math.max(0f, Math.min(1f, vals[i]));
+        }
         BufferedImage mask = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = mask.getRaster();
         int idx = 0;
@@ -78,15 +87,33 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         };
     }
 
+    /**
+     * 转为BufferedImage。
+     *
+     * @param input 方法入参 input
+     * @return BufferedImage 对象
+     */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
-        if (wrapped instanceof BufferedImage bi) return bi;
+        if (wrapped instanceof BufferedImage bi) {
+            return bi;
+        }
         throw new IllegalStateException("无法获取 BufferedImage");
     }
 
+    /**
+     * resize转为。
+     *
+     * @param input 方法入参 input
+     * @param tw 方法入参 tw
+     * @param th 方法入参 th
+     * @return BufferedImage 对象
+     */
     private BufferedImage resizeTo(Image input, int tw, int th) {
         BufferedImage src = toBufferedImage(input);
-        if (src.getWidth() == tw && src.getHeight() == th) return src;
+        if (src.getWidth() == tw && src.getHeight() == th) {
+            return src;
+        }
         BufferedImage resized = new BufferedImage(tw, th, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = resized.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -95,6 +122,12 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         return resized;
     }
 
+    /**
+     * 创建AlphaOnlyImage。
+     *
+     * @param mask 方法入参 mask
+     * @return Image 对象
+     */
     private Image createAlphaOnlyImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++)
@@ -105,6 +138,12 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /**
+     * 创建RgbaImage。
+     *
+     * @param mask 方法入参 mask
+     * @return Image 对象
+     */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++)
@@ -116,6 +155,13 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /**
+     * 创建RgbImage。
+     *
+     * @param mask 方法入参 mask
+     * @param bgValue bg值，不允许为 null
+     * @return Image 对象
+     */
     private Image createRgbImage(BufferedImage mask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++)

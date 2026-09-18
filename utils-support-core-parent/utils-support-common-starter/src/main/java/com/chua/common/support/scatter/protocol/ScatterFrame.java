@@ -19,6 +19,14 @@ public class ScatterFrame {
     private final String path;
     private final byte[] payload;
 
+    /**
+     * 构造方法，创建 ScatterFrame 实例。
+     *
+     * @param type 类型，不允许为 null
+     * @param requestId 请求ID，不允许为 null
+     * @param path 路径，不允许为 null
+     * @param payload 方法入参 payload
+     */
     public ScatterFrame(byte type, int requestId, String path, byte[] payload) {
         this.type = type;
         this.requestId = requestId;
@@ -26,18 +34,38 @@ public class ScatterFrame {
         this.payload = payload == null ? new byte[0] : payload;
     }
 
+    /**
+     * 获取类型。
+     *
+     * @return 结果值
+     */
     public byte getType() {
         return type;
     }
 
+    /**
+     * 获取请求ID。
+     *
+     * @return 结果数值
+     */
     public int getRequestId() {
         return requestId;
     }
 
+    /**
+     * 获取路径。
+     *
+     * @return 结果字符串
+     */
     public String getPath() {
         return path;
     }
 
+    /**
+     * 获取Payload。
+     *
+     * @return 结果值
+     */
     public byte[] getPayload() {
         return payload;
     }

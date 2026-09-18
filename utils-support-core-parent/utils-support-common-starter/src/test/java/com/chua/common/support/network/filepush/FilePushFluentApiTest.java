@@ -146,7 +146,10 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** 服务端链式：同步目录两种重载 + 其余参数 + config() 下钻 */
+    /**
+     * 服务端链式：同步目录两种重载 + 其余参数 + config() 下钻
+     * @param root 根节点，不允许为 null
+     */
     private static void testServerChaining(Path root) {
         System.out.println("--- 3. FilePushServer 链式 ---");
         Path target = root.resolve("srv-target");
@@ -196,7 +199,10 @@ public class FilePushFluentApiTest {
         check("targetDir(null 字符串) 快速失败", threw, "抛出 IllegalArgumentException -> " + threw);
     }
 
-    /** 客户端链式：源目录两种重载 + 过滤模式可变参数重载 + config() 下钻 */
+    /**
+     * 客户端链式：源目录两种重载 + 过滤模式可变参数重载 + config() 下钻
+     * @param root 根节点，不允许为 null
+     */
     private static void testClientChaining(Path root) throws IOException {
         System.out.println("--- 4. FilePushClient 链式 ---");
         Path source = root.resolve("cli-source");
@@ -266,7 +272,10 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** 纯链式构建服务端与客户端，完成全量推送 + 增量二次推送 */
+    /**
+     * 纯链式构建服务端与客户端，完成全量推送 + 增量二次推送
+     * @param root 根节点，不允许为 null
+     */
     private static void testChainedEndToEnd(Path root) throws Exception {
         System.out.println("--- 6. 纯链式端到端推送 ---");
         Path source = root.resolve("e2e-src");
@@ -325,7 +334,10 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** onFile 进度回调：逐文件触发一次、增量跳过不触发、回调抛异常不影响推送 */
+    /**
+     * onFile 进度回调：逐文件触发一次、增量跳过不触发、回调抛异常不影响推送
+     * @param root 根节点，不允许为 null
+     */
     private static void testOnFileCallback(Path root) throws Exception {
         Path source = root.resolve("cb-src");
         Path target = root.resolve("cb-dst");
@@ -379,14 +391,22 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** 反射读取客户端限流信号量的可用许可数 */
+    /**
+     * 反射读取客户端限流信号量的可用许可数
+     * @param client 客户端，不允许为 null
+     * @return 结果数值
+     */
     private static int permits(FilePushClient client) throws Exception {
         Field field = FilePushClient.class.getDeclaredField("fileLimiter");
         field.setAccessible(true);
         return ((Semaphore) field.get(client)).availablePermits();
     }
 
-    /** 失败明细拼成一行，便于断言输出 */
+    /**
+     * 失败明细拼成一行，便于断言输出
+     * @param result 结果，不允许为 null
+     * @return 结果字符串
+     */
     private static String failures(PushResult result) {
         if (!result.hasFailures()) {
             return "";
@@ -397,12 +417,20 @@ public class FilePushFluentApiTest {
         return sb.append(']').toString();
     }
 
-    /** 读文件全部字节，不存在时返回 null */
+    /**
+     * 读文件全部字节，不存在时返回 null
+     * @param file 文件，不允许为 null
+     * @return 结果值
+     */
     private static byte[] readAll(Path file) throws IOException {
         return Files.exists(file) ? Files.readAllBytes(file) : null;
     }
 
-    /** 安全取文件大小 */
+    /**
+     * 安全取文件大小
+     * @param file 文件，不允许为 null
+     * @return 结果字符串
+     */
     private static String safeSize(Path file) {
         try {
             return Files.exists(file) ? Files.size(file) + " bytes" : "不存在";
@@ -411,7 +439,12 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** 断言并打印 */
+    /**
+     * 断言并打印
+     * @param label 标签，不允许为 null
+     * @param condition condition（布尔开关）
+     * @param detail 方法入参 detail
+     */
     private static void check(String label, boolean condition, String detail) {
         if (!condition) {
             allPassed = false;
@@ -419,14 +452,21 @@ public class FilePushFluentApiTest {
         System.out.println("  [" + (condition ? "PASS" : "FAIL") + "] " + label + " | " + detail);
     }
 
-    /** 生成随机字节 */
+    /**
+     * 生成随机字节
+     * @param size 大小，不允许为 null
+     * @return 结果值
+     */
     private static byte[] randomBytes(int size) {
         byte[] data = new byte[size];
         new Random(7).nextBytes(data);
         return data;
     }
 
-    /** 递归删除目录或文件 */
+    /**
+     * 递归删除目录或文件
+     * @param root 根节点，不允许为 null
+     */
     private static void deleteRecursively(Path root) {
         if (!Files.exists(root)) {
             return;

@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Kilo CLI usage parser.
+* Kilo CLI 用量解析器。
 *
-* <p>Kilo CLI (kilo.ai) is an OpenCode fork that persists assistant turns in
-* the {@code message} table of {@code ~/.local/share/kilo/kilo.db} (or
-* {@code $XDG_DATA_HOME/kilo/kilo.db}). Each assistant row's {@code data}
-* JSON column carries per-request token breakdown:</p>
+* <p>Kilo CLI（kilo.ai）是 OpenCode 的分支，它把助手回复写入
+* {@code ~/.local/share/kilo/kilo.db}（或
+* {@code $XDG_DATA_HOME/kilo/kilo.db}）的 {@code message} 表。每条助手记录的 {@code data}
+* JSON 列携带逐次请求的 token 明细：</p>
 *
 * <pre>{@code
 * {
@@ -35,15 +35,14 @@ import java.util.Map;
 * }
 * }</pre>
 *
-* <p>Token semantics: {@code tokens.input} is already the <b>non-cached</b>
-* input; {@code cache.read} / {@code cache.write} are tracked separately and
-* are <i>not</i> added into the total. The {@code session} table also exists
-* with cumulative per-session counters, but per-request usage (used for
-* billing) lives here; the cumulative session totals would double-count
-* against this source so only {@code message} rows are streamed.</p>
+* <p>token 语义：{@code tokens.input} 本身就是<b>非缓存</b>
+* 输入；{@code cache.read} / {@code cache.write} 单独统计，
+* <i>不</i>计入总量。{@code session} 表同样存在，保存按会话累计的计数，
+* 但用于计费的逐次请求用量记录在本表；若把会话累计值也取过来会与本源重复计数，
+* 因此只读取 {@code message} 行。</p>
 *
-* <p>Newer Kilo CLI versions may write to the OpenCode v2 layout
-* ({@code session_message}); both tables are probed and merged.</p>
+* <p>新版 Kilo CLI 可能写入 OpenCode v2 结构
+* （{@code session_message}）；两张表都会被探测并合并。</p>
 *
 * @author CH
 * @since 4.0.0.44

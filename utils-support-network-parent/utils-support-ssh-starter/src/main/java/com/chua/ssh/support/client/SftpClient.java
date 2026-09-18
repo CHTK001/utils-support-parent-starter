@@ -211,14 +211,20 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 本地的结果
         */
-        public UploadOperation local(String p) { localPath = p; return this; }
+        public UploadOperation local(String p) {
+            localPath = p;
+            return this;
+        }
         /**
         * 远程
         *
         * @param p p
         * @return 远程的结果
         */
-        public UploadOperation remote(String p) { remotePath = p; return this; }
+        public UploadOperation remote(String p) {
+            remotePath = p;
+            return this;
+        }
         /** 执行 */
         public void exec() {
             try {
@@ -254,14 +260,20 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 远程的结果
         */
-        public DownloadOperation remote(String p) { remotePath = p; return this; }
+        public DownloadOperation remote(String p) {
+            remotePath = p;
+            return this;
+        }
         /**
         * 本地
         *
         * @param p p
         * @return 本地的结果
         */
-        public DownloadOperation local(String p) { localPath = p; return this; }
+        public DownloadOperation local(String p) {
+            localPath = p;
+            return this;
+        }
         /** 执行 */
         public void exec() {
             try {
@@ -297,7 +309,10 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 路径的结果
         */
-        public ListOperation path(String p) { path = p; return this; }
+        public ListOperation path(String p) {
+            path = p;
+            return this;
+        }
         /**
         * 执行
         *
@@ -341,14 +356,20 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 路径的结果
         */
-        public MkdirOperation path(String p) { path = p; return this; }
+        public MkdirOperation path(String p) {
+            path = p;
+            return this;
+        }
         /**
         * Recursive
         *
         * @param r r
         * @return recursive的结果
         */
-        public MkdirOperation recursive(boolean r) { recursive = r; return this; }
+        public MkdirOperation recursive(boolean r) {
+            recursive = r;
+            return this;
+        }
         /** 执行 */
         public void exec() {
             try {
@@ -357,7 +378,9 @@ public class SftpClient implements AutoCloseable {
                         if (part.isEmpty()) {
                             continue;
                         }
-                        try { client.getSftp().mkdir(path); } catch (IOException ignored) {}
+                        try {
+                            client.getSftp().mkdir(path);
+                        } catch (IOException ignored) {}
                     }
                 } else {
                     client.getSftp().mkdir(path);
@@ -388,14 +411,20 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 路径的结果
         */
-        public RmOperation path(String p) { path = p; return this; }
+        public RmOperation path(String p) {
+            path = p;
+            return this;
+        }
         /**
         * Recursive
         *
         * @param r r
         * @return recursive的结果
         */
-        public RmOperation recursive(boolean r) { recursive = r; return this; }
+        public RmOperation recursive(boolean r) {
+            recursive = r;
+            return this;
+        }
         /** 执行 */
         public void exec() {
             try {
@@ -432,18 +461,28 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 从的结果
         */
-        public RenameOperation from(String p) { oldPath = p; return this; }
+        public RenameOperation from(String p) {
+            oldPath = p;
+            return this;
+        }
         /**
         * 转为
         *
         * @param p p
         * @return 转为的结果
         */
-        public RenameOperation to(String p) { newPath = p; return this; }
+        public RenameOperation to(String p) {
+            newPath = p;
+            return this;
+        }
         /** 执行 */
         public void exec() {
-            try { client.getSftp().rename(oldPath, newPath); log.info("重命名: {} -> {}", oldPath, newPath); }
-            catch (Exception e) { throw new SftpClientException("重命名失败", e); }
+            try {
+                client.getSftp().rename(oldPath, newPath);
+                log.info("重命名: {} -> {}", oldPath, newPath);
+            } catch (Exception e) {
+                throw new SftpClientException("重命名失败", e);
+            }
         }
     }
 
@@ -464,7 +503,10 @@ public class SftpClient implements AutoCloseable {
         * @param p p
         * @return 路径的结果
         */
-        public StatOperation path(String p) { path = p; return this; }
+        public StatOperation path(String p) {
+            path = p;
+            return this;
+        }
         /**
         * 执行
         *
@@ -517,42 +559,60 @@ public class SftpClient implements AutoCloseable {
         * @param h h
         * @return 主机的结果
         */
-        public Builder host(String h) { host = h; return this; }
+        public Builder host(String h) {
+            host = h;
+            return this;
+        }
         /**
         * 端口
         *
         * @param p p
         * @return 端口的结果
         */
-        public Builder port(int p) { port = p; return this; }
+        public Builder port(int p) {
+            port = p;
+            return this;
+        }
         /**
         * 用户名
         *
         * @param u u
         * @return 用户名的结果
         */
-        public Builder username(String u) { username = u; return this; }
+        public Builder username(String u) {
+            username = u;
+            return this;
+        }
         /**
         * 密码
         *
         * @param p p
         * @return 密码的结果
         */
-        public Builder password(String p) { password = p; return this; }
+        public Builder password(String p) {
+            password = p;
+            return this;
+        }
         /**
         * 私募键
         *
         * @param path 路径
         * @return 私募键的结果
         */
-        public Builder privateKey(String path) { this.privateKeyPath = path; return this; }
+        public Builder privateKey(String path) {
+            this.privateKeyPath = path;
+            return this;
+        }
         /**
         * 连接超时
         *
         * @param t t
         * @return 连接超时的结果
         */
-        public Builder connectTimeout(int t) { connectTimeout = t; return this; }
+        public Builder connectTimeout(int t) {
+            connectTimeout = t;
+            return this;
+        }
         /**
         * 构建
         *

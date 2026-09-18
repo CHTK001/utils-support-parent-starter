@@ -3,11 +3,10 @@ package com.chua.hprof.support.model;
 import lombok.Getter;
 
 /**
- * Heap dump class histogram entry.
+ * 堆转储类直方图条目。
  *
- * <p>Aggregated per-class statistics: instance count, shallow and retained
- * sizes. This is the primary table consumed by the markdown report renderer
- * (class name / instance count / memory used).</p>
+ * <p>按类聚合的统计信息：实例数、浅堆大小与保留堆大小。这是 Markdown
+ * 报告渲染器使用的主表（类名 / 实例数 / 内存占用）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -16,42 +15,42 @@ import lombok.Getter;
 public class HprofHistogramRow {
 
     /**
-    * Simple class name (without package), e.g. {@code HashMap}
+    * 简单类名（不含包名），例如 {@code HashMap}
     */
     private final String simpleName;
 
     /**
-    * Fully qualified class name, e.g. {@code java.util.HashMap}
+    * 全限定类名，例如 {@code java.util.HashMap}
     */
     private final String className;
 
     /**
-    * Instance count in the heap
+    * 堆中的实例数
     */
     private final long instanceCount;
 
     /**
-    * Shallow size in bytes
+    * 浅堆大小（字节）
     */
     private final long shallowSize;
 
     /**
-    * Retained size in bytes
+    * 保留堆大小（字节）
     */
     private final long retainedSize;
 
     /**
-    * Human readable retained size, e.g. {@code 1.2 GB}
+    * 可读形式的保留堆大小，例如 {@code 1.2 GB}
     */
     private final String retainedSizeText;
 
     /**
-    * Create an HprofHistogramRow instance.
+    * 创建 HprofHistogramRow 实例。
     *
-    * @param className fully qualified class name
-    * @param instanceCount instance count
-    * @param shallowSize shallow size in bytes
-    * @param retainedSize retained size in bytes
+    * @param className    全限定类名
+    * @param instanceCount 实例数
+    * @param shallowSize  浅堆大小（字节）
+    * @param retainedSize 保留堆大小（字节）
     */
     public HprofHistogramRow(String className, long instanceCount, long shallowSize, long retainedSize) {
         this.className = className;
@@ -63,13 +62,13 @@ public class HprofHistogramRow {
     }
 
     /**
-    * Create an HprofHistogramRow instance with an explicit class name.
+    * 创建显式指定类名的 HprofHistogramRow 实例。
     *
-    * @param simpleName simple class name
-    * @param className fully qualified class name
-    * @param instanceCount instance count
-    * @param shallowSize shallow size in bytes
-    * @param retainedSize retained size in bytes
+    * @param simpleName   简单类名
+    * @param className    全限定类名
+    * @param instanceCount 实例数
+    * @param shallowSize  浅堆大小（字节）
+    * @param retainedSize 保留堆大小（字节）
     */
     public HprofHistogramRow(String simpleName, String className,
                              long instanceCount, long shallowSize, long retainedSize) {
@@ -82,10 +81,10 @@ public class HprofHistogramRow {
     }
 
     /**
-    * Extract the simple name from a fully qualified class name.
+    * 从全限定类名中截取简单类名。
     *
-    * @param className fully qualified class name
-    * @return the part after the last dot, or the whole name when no dot
+    * @param className 全限定类名
+    * @return 最后一个点号之后的部分；没有点号时返回整个名称
     */
     private static String simpleNameOf(String className) {
         if (className == null) {

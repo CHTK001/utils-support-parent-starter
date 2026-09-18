@@ -80,14 +80,29 @@ public class ClusterServer implements AutoCloseable {
         return node.discovery();
     }
 
+    /**
+     * 获取Http端口。
+     *
+     * @return 结果数值
+     */
     public int getHttpPort() {
         return node.getHttpPort();
     }
 
+    /**
+     * 获取Tcp端口。
+     *
+     * @return 结果数值
+     */
     public int getTcpPort() {
         return node.getTcpPort();
     }
 
+    /**
+     * 获取Scatter端口。
+     *
+     * @return 结果数值
+     */
     public int getScatterPort() {
         return node.getScatterPort();
     }

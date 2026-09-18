@@ -53,6 +53,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
                 return t;
             });
 
+    /**
+     * 构造方法，创建 Seed模式Discovery 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public SeedModeDiscovery(ScatterSetting setting) {
         super(setting);
     }
@@ -84,7 +89,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 与单个 seed 同步：拉取完整服务表合并（hash 同步）。 */
+    /**
+     * 与单个 seed 同步：拉取完整服务表合并（hash 同步）。
+     * @param seed 方法入参 seed
+     * @return 是否成功（true 表示成功）
+     */
     private boolean syncWithSeed(ScatterNode seed) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
@@ -96,7 +105,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         return false;
     }
 
-    /** 向 seed 推送自身 hash（新节点接入下发一次）。 */
+    /**
+     * 向 seed 推送自身 hash（新节点接入下发一次）。
+     * @param seed 方法入参 seed
+     */
     private void pushSelf(ScatterNode seed) {
         try {
             Discovery self = getServiceAll(setting.getServicePath()).stream()
@@ -176,6 +188,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /**
     * 选举：seed 全掉线时，最小 nodeId 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。
+    * @param candidates 方法入参 candidates
     */
     private void electNewSeed(List<Discovery> candidates) {
         if (candidates.isEmpty()) {
@@ -195,7 +208,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。 */
+    /**
+     * 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。
+     * @param elected 方法入参 elected
+     */
     private void broadcastElection(Discovery elected) {
         byte[] payload = Json.toJson(elected).getBytes(StandardCharsets.UTF_8);
         ScatterFrame elec = new ScatterFrame(ScatterProtocol.TYPE_ELEC,
@@ -217,7 +233,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         log.info("seed 全掉线，选举新引导节点: {}", elected.getServerId());
     }
 
-    /** 与普通节点同步（复用路由模式的 syncWith）。 */
+    /**
+     * 与普通节点同步（复用路由模式的 syncWith）。
+     * @param node 节点，不允许为 null
+     */
     private void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());

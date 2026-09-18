@@ -50,18 +50,31 @@ public class NumberUtils {
     private static final Map<Character, Integer> CN_UNITS = new HashMap<>();
     static {
         CN_DIGITS.put('零', 0);
-        CN_DIGITS.put('一', 1); CN_DIGITS.put('壹', 1); CN_DIGITS.put('两', 2);
-        CN_DIGITS.put('二', 2); CN_DIGITS.put('贰', 2);
-        CN_DIGITS.put('三', 3); CN_DIGITS.put('叁', 3);
-        CN_DIGITS.put('四', 4); CN_DIGITS.put('肆', 4);
-        CN_DIGITS.put('五', 5); CN_DIGITS.put('伍', 5);
-        CN_DIGITS.put('六', 6); CN_DIGITS.put('陆', 6);
-        CN_DIGITS.put('七', 7); CN_DIGITS.put('柒', 7);
-        CN_DIGITS.put('八', 8); CN_DIGITS.put('捌', 8);
-        CN_DIGITS.put('九', 9); CN_DIGITS.put('玖', 9);
-        CN_UNITS.put('十', 10); CN_UNITS.put('拾', 10);
-        CN_UNITS.put('百', 100); CN_UNITS.put('佰', 100);
-        CN_UNITS.put('千', 1000); CN_UNITS.put('仟', 1000);
+        CN_DIGITS.put('一', 1);
+        CN_DIGITS.put('壹', 1);
+        CN_DIGITS.put('两', 2);
+        CN_DIGITS.put('二', 2);
+        CN_DIGITS.put('贰', 2);
+        CN_DIGITS.put('三', 3);
+        CN_DIGITS.put('叁', 3);
+        CN_DIGITS.put('四', 4);
+        CN_DIGITS.put('肆', 4);
+        CN_DIGITS.put('五', 5);
+        CN_DIGITS.put('伍', 5);
+        CN_DIGITS.put('六', 6);
+        CN_DIGITS.put('陆', 6);
+        CN_DIGITS.put('七', 7);
+        CN_DIGITS.put('柒', 7);
+        CN_DIGITS.put('八', 8);
+        CN_DIGITS.put('捌', 8);
+        CN_DIGITS.put('九', 9);
+        CN_DIGITS.put('玖', 9);
+        CN_UNITS.put('十', 10);
+        CN_UNITS.put('拾', 10);
+        CN_UNITS.put('百', 100);
+        CN_UNITS.put('佰', 100);
+        CN_UNITS.put('千', 1000);
+        CN_UNITS.put('仟', 1000);
         CN_UNITS.put('万', 10000);
         CN_UNITS.put('亿', 100000000);
     }
@@ -1567,10 +1580,10 @@ public class NumberUtils {
         return (null == number) ? BigInteger.ZERO : new BigInteger(number);
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>byte</code>, returning
-    * <code>zero</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>byte</code>，转换失败时返回
+    * <code>zero</code>（即 0）。</p>
     *
-    * <p>If the string is <code>null</code>, <code>zero</code> is returned.</p>
+    * <p>若字符串为 <code>null</code>，则返回 <code>zero</code>（即 0）。</p>
     *
     * <pre>
     *   NumberHelper.toByte(null) = 0
@@ -1587,10 +1600,9 @@ public class NumberUtils {
         return toByte(str, (byte) 0);
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>byte</code>, returning a
-    * 默认 值 if the 转换 失败.</p>
+    * <p>将 <code>String</code> 转换为 <code>byte</code>，转换失败时返回默认值。</p>
     *
-    * <p>If the string is <code>null</code>, the default value is returned.</p>
+    * <p>若字符串为 <code>null</code>，则返回默认值。</p>
     *
     * <pre>
     *   NumberHelper.toByte(null, 1) = 1
@@ -1614,11 +1626,11 @@ public class NumberUtils {
         }
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>double</code>, returning
-    * <code>0.0d</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>double</code>，转换失败时返回
+    * <code>0.0d</code>。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>,
-    * <code>0.0d</code> is returned.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，
+    * 则返回 <code>0.0d</code>。</p>
     *
     * <pre>
     *   NumberHelper.toDouble(null)   = 0.0d
@@ -1650,11 +1662,11 @@ public class NumberUtils {
         }
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>double</code>, returning a
-    * 默认 值 if the 转换 失败.</p>
+    * <p>将 <code>String</code> 转换为 <code>double</code>，转换失败时返回
+    * 默认值。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>, the default
-    * 值 是否 返回.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，则返回
+    * 默认值。</p>
     *
     * <pre>
     *   NumberHelper.toDouble(null, 1.1d)   = 1.1d
@@ -1679,10 +1691,10 @@ public class NumberUtils {
         }
     }
     /**
-    * <p>Convert a <code>BigDecimal</code> to a <code>double</code>.</p>
+    * <p>将 <code>BigDecimal</code> 转换为 <code>double</code>。</p>
     *
-    * <p>If the <code>BigDecimal</code> <code>value</code> is
-    * <code>null</code>, then the specified default value is returned.</p>
+    * <p>若 <code>BigDecimal</code> 参数 <code>value</code> 为
+    * <code>null</code>，则返回指定的默认值。</p>
     *
     * <pre>
     *   NumberHelper.toDouble(null)                     = 0.0d
@@ -1690,8 +1702,8 @@ public class NumberUtils {
     * </pre>
     *
     * @param value the <code>bigdecimal</code> 转为 转换, may be <code>空</code>.
-    * @return the double represented by the <code>bigdecimal</code> 或
-    * <code>0.0d</code> if the <code>BigDecimal</code> is <code>null</code>.
+    * @return <code>bigdecimal</code> 所表示的 double 值，若
+    * <code>BigDecimal</code> 为 <code>null</code> 则返回 <code>0.0d</code>。
     * @since 3.8
     */
     public static double toDouble(final BigDecimal value) {
@@ -1713,11 +1725,11 @@ public class NumberUtils {
         return value == null ? defaultValue : value.doubleValue();
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>double</code>, returning
-    * <code>0.0d</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>double</code>，转换失败时返回
+    * <code>0.0d</code>。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>,
-    * <code>0.0d</code> is returned.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，
+    * 则返回 <code>0.0d</code>。</p>
     *
     * <pre>
     *   NumberHelper.toDoubleValue(null)   = 0.0d
@@ -1734,11 +1746,11 @@ public class NumberUtils {
         return toDoubleValue(str, 0.0d);
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>double</code>, returning a
-    * 默认 值 if the 转换 失败.</p>
+    * <p>将 <code>String</code> 转换为 <code>double</code>，转换失败时返回
+    * 默认值。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>, the default
-    * 值 是否 返回.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，则返回
+    * 默认值。</p>
     *
     * <pre>
     *   NumberHelper.toDoubleValue(null, 1.1d)   = 1.1d
@@ -1763,11 +1775,11 @@ public class NumberUtils {
         }
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>float</code>, returning
-    * <code>0.0f</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>float</code>，转换失败时返回
+    * <code>0.0f</code>。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>,
-    * <code>0.0f</code> is returned.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，
+    * 则返回 <code>0.0f</code>。</p>
     *
     * <pre>
     *   NumberHelper.toFloat(null)   = 0.0f
@@ -1784,11 +1796,11 @@ public class NumberUtils {
         return toFloat(str, null);
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>float</code>, returning a
-    * 默认 值 if the 转换 失败.</p>
+    * <p>将 <code>String</code> 转换为 <code>float</code>，转换失败时返回
+    * 默认值。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>, the default
-    * 值 是否 返回.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，则返回
+    * 默认值。</p>
     *
     * <pre>
     *   NumberHelper.toFloat(null, 1.1f)   = 1.0f
@@ -1813,11 +1825,11 @@ public class NumberUtils {
         }
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>float</code>, returning
-    * <code>0.0f</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>float</code>，转换失败时返回
+    * <code>0.0f</code>。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>,
-    * <code>0.0f</code> is returned.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，
+    * 则返回 <code>0.0f</code>。</p>
     *
     * <pre>
     *   NumberHelper.toFloatValue(null)   = 0.0f
@@ -1834,11 +1846,11 @@ public class NumberUtils {
         return toFloatValue(str, 0.0f);
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>float</code>, returning a
-    * 默认 值 if the 转换 失败.</p>
+    * <p>将 <code>String</code> 转换为 <code>float</code>，转换失败时返回
+    * 默认值。</p>
     *
-    * <p>If the string <code>str</code> is <code>null</code>, the default
-    * 值 是否 返回.</p>
+    * <p>若字符串 <code>str</code> 为 <code>null</code>，则返回
+    * 默认值。</p>
     *
     * <pre>
     *   NumberHelper.toFloatValue(null, 1.1f)   = 1.1f
@@ -2106,10 +2118,10 @@ public class NumberUtils {
         );
     }
     /**
-    * <p>Convert a <code>String</code> to a <code>short</code>, returning
-    * <code>zero</code> if the conversion fails.</p>
+    * <p>将 <code>String</code> 转换为 <code>short</code>，转换失败时返回
+    * <code>zero</code>（即 0）。</p>
     *
-    * <p>If the string is <code>null</code>, <code>zero</code> is returned.</p>
+    * <p>若字符串为 <code>null</code>，则返回 <code>zero</code>（即 0）。</p>
     *
     * <pre>
     *   NumberHelper.toShort(null) = 0
@@ -2129,7 +2141,7 @@ public class NumberUtils {
     * <p>Convert a <code>String</code> to an <code>short</code>, returning a
     * 默认 值 if the 转换 失败.</p>
     *
-    * <p>If the string is <code>null</code>, the default value is returned.</p>
+    * <p>若字符串为 <code>null</code>，则返回默认值。</p>
     *
     * <pre>
     *   NumberHelper.toShort(null, 1) = 1

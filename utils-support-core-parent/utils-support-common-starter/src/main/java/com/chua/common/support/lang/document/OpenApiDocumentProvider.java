@@ -40,11 +40,13 @@ public interface OpenApiDocumentProvider {
 
     /**
     * 导出格式名称。
+    * @return 结果字符串
     */
     String getType();
 
     /**
     * 支持的文件扩展名（[".html"] / [".md"] / [".docx"]）。
+    * @return 字符串 对象
     */
     String[] getExtensions();
 

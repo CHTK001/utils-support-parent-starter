@@ -48,6 +48,12 @@ public enum Model3DStyle {
     /** 描述 */
     private final String description;
 
+    /**
+     * 构造方法，创建 Model3DStyle 实例。
+     *
+     * @param code 编码，不允许为 null
+     * @param description 描述，不允许为 null
+     */
     Model3DStyle(String code, String description) {
         this.code = code;
         this.description = description;

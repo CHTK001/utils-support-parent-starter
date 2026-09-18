@@ -51,6 +51,11 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
         return this;
     }
 
+    /**
+     * 解析模型。
+     *
+     * @return 结果字符串
+     */
     private String resolveModel() {
         return modelName != null && !modelName.isBlank() ? modelName : DEFAULT_MODEL;
     }

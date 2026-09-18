@@ -48,7 +48,11 @@ public class ColumnMetadata {
     /** 字段位置 */
     private int position;
 
-    /** 使用方言的引用符包裹列名 */
+    /**
+     * 使用方言的引用符包裹列名
+     * @param dialect 方法入参 dialect
+     * @return 结果字符串
+     */
     public String getQuotedName(Dialect dialect) {
         return dialect.quote(columnName);
     }

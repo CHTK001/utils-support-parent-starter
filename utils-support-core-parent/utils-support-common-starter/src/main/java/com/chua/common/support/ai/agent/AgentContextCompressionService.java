@@ -15,12 +15,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* Context compression service - two phase strategy.
+* 上下文压缩服务——两阶段策略。
 *
-* <p>Phase 1: When message count reaches threshold, save full context as baseline snapshot,
-* then execute regular compression (keep last N messages).</p>
-* <p>Phase 2: After baseline established, every N rounds: load baseline snapshot,
-* summarize it with fresh ChatClient session, then correct deviation with current context.</p>
+* <p>阶段一：当消息条数达到阈值时，先把完整上下文保存为基线快照，
+* 再执行常规压缩（只保留最后 N 条消息）。</p>
+* <p>阶段二：基线建立之后，每经过 N 轮：加载基线快照，
+* 用全新的 ChatClient 会话对其进行摘要，再结合当前上下文修正偏差。</p>
 *
 * <p>轻量复用入口见 {@link com.chua.common.support.ai.context.ContextCompressor}，
 * Agent 与普通 ChatClient 均可使用，不绑定工具/计划。</p>
@@ -153,7 +153,11 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
-    /** 压缩Context */
+    /**
+     * 压缩Context
+     * @param fullContext full上下文，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     public List<ChatMessage> compressContext(List<ChatMessage> fullContext) {
         if (fullContext == null || fullContext.isEmpty()) {
             return fullContext;
@@ -192,7 +196,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return result;
     }
 
-    /** 是否应该TriggerDeviationCorrection */
+    /**
+     * 是否应该TriggerDeviationCorrection
+     * @return 是否成功（true 表示成功）
+     */
     public boolean shouldTriggerDeviationCorrection() {
         if (!config.isEnabled() || !baselineSaved) {
             return false;
@@ -207,12 +214,18 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return shouldTrigger;
     }
 
-    /** 是否BaselineSaved */
+    /**
+     * 是否BaselineSaved
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isBaselineSaved() {
         return baselineSaved;
     }
 
-    /** 保存Baseline */
+    /**
+     * 保存Baseline
+     * @param fullContext full上下文，不允许为 null
+     */
     private void saveBaseline(List<ChatMessage> fullContext) {
         try {
             String json = Json.toJson(fullContext);
@@ -235,7 +248,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
-    /** 加载Baseline */
+    /**
+     * 加载Baseline
+     * @return 结果列表，无数据时为空列表
+     */
     public List<ChatMessage> loadBaseline() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -257,7 +273,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return Collections.emptyList();
     }
 
-    /** 保存BaselineSummary */
+    /**
+     * 保存BaselineSummary
+     * @param summary 方法入参 summary
+     */
     private void saveBaselineSummary(String summary) {
         try {
             MemoryEntry entry = MemoryEntry.builder()
@@ -277,7 +296,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
-    /** 加载BaselineSummary */
+    /**
+     * 加载BaselineSummary
+     * @return 结果字符串
+     */
     private String loadBaselineSummary() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -315,7 +337,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
-    /** 加载RoundsAfterBaseline */
+    /**
+     * 加载RoundsAfterBaseline
+     * @return 结果数值
+     */
     private int loadRoundsAfterBaseline() {
         try {
             MemoryManager memoryManager = createMemoryManager();
@@ -337,7 +362,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return 0;
     }
 
-    /** SummarizeBaseline */
+    /**
+     * SummarizeBaseline
+     * @param client 客户端，不允许为 null
+     * @param baseline 方法入参 baseline
+     * @return 结果字符串
+     */
     private String summarizeBaseline(ChatClient client, List<ChatMessage> baseline) {
         ChatClient freshClient = client.newChat();
         freshClient.system("You are a context compression assistant. "
@@ -378,7 +408,11 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return parseMessages(correctedText, currentContext);
     }
 
-    /** 构建CompressedText */
+    /**
+     * 构建CompressedText
+     * @param messages 方法入参 messages
+     * @return 结果字符串
+     */
     private String buildCompressedText(List<ChatMessage> messages) {
         StringBuilder sb = new StringBuilder();
         int count = 0;
@@ -391,7 +425,11 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return sb.toString();
     }
 
-    /** 格式化Messages */
+    /**
+     * 格式化Messages
+     * @param messages 方法入参 messages
+     * @return 结果字符串
+     */
     private String formatMessages(List<ChatMessage> messages) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < messages.size(); i++) {
@@ -402,7 +440,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return sb.toString();
     }
 
-    /** 解析Messages */
+    /**
+     * 解析Messages
+     * @param correctedText corrected文本，不允许为 null
+     * @param fallback 方法入参 fallback
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ChatMessage> parseMessages(String correctedText, List<ChatMessage> fallback) {
         if (correctedText == null || correctedText.isBlank()) {
             return fallback;
@@ -439,12 +482,18 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         return result;
     }
 
-    /** 解析CompressionClient */
+    /**
+     * 解析CompressionClient
+     * @return Chat客户端 对象
+     */
     private ChatClient resolveCompressionClient() {
         return compressionChatClient != null ? compressionChatClient : fallbackChatClient;
     }
 
-    /** 创建MemoryManager */
+    /**
+     * 创建MemoryManager
+     * @return MemoryManager 对象
+     */
     private MemoryManager createMemoryManager() {
         try {
             MemoryConfig memConfig = MemoryConfig.builder()
@@ -457,7 +506,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         }
     }
 
-    /** GenerateBaselineId */
+    /**
+     * GenerateBaselineId
+     * @return 结果字符串
+     */
     private static String generateBaselineId() {
         return "baseline-" + System.currentTimeMillis();
     }

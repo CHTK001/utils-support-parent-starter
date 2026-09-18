@@ -152,7 +152,9 @@ public class BenchmarkDocumentData extends DocumentData {
             Map<String, Object> values = (Map<String, Object>) reqs.get("values");
             if (values != null) {
                 Number rate = (Number) values.get("rate");
-                if (rate != null) row.setRps(rate.doubleValue());
+                if (rate != null) {
+                    row.setRps(rate.doubleValue());
+                }
                 Number count = (Number) values.get("count");
                 if (count != null && row.getTotal() == 0) {
                     row.setTotal(count.longValue());

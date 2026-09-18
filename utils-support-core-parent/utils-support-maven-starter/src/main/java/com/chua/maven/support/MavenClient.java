@@ -153,6 +153,11 @@ public class MavenClient implements AutoCloseable {
     /** 测试_模式 */
     private static final Pattern TESTING_PATTERN = Pattern.compile("Tests run:\\s+(\\d+)");
 
+    /**
+     * 构造方法，创建 Maven客户端 实例。
+     *
+     * @param builder 方法入参 builder
+     */
     MavenClient(MavenClientBuilder builder) {
         this.projectPath = builder.getProjectPath();
         this.goals = builder.getEffectiveGoals();

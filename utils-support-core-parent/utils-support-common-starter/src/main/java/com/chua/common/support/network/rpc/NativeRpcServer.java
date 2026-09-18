@@ -187,7 +187,11 @@ public class NativeRpcServer implements RpcServer {
         }
     }
 
-    /** 调用 */
+    /**
+     * 调用
+     * @param request 请求，不允许为 null
+     * @return Rpc响应 对象
+     */
     private RpcResponse invoke(RpcRequest request) {
         RpcResponse response = new RpcResponse();
         try {
@@ -228,12 +232,21 @@ public class NativeRpcServer implements RpcServer {
             return method;
         }
         Class<?>[] paramTypes = resolveParamTypes(typeNames);
-        method = service.getClass().getMethod(request.getMethod(), paramTypes);
+        method = ReflectUtils.findMethod(service.getClass(), request.getMethod(), paramTypes);
+        if (method == null) {
+            throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
+        }
         ClassUtils.setAccessible(method);
         methodCache.putIfAbsent(key, method);
         return method;
     }
 
+    /**
+     * 解析参数Types。
+     *
+     * @param typeNames 类型Names，不允许为 null
+     * @return Class 对象
+     */
     private Class<?>[] resolveParamTypes(String[] typeNames) {
         if (typeNames == null) {
             return new Class<?>[0];
@@ -245,7 +258,11 @@ public class NativeRpcServer implements RpcServer {
         return types;
     }
 
-    /** 构建记录错误Response */
+    /**
+     * 构建记录错误Response
+     * @param e 方法入参 e
+     * @return Rpc响应 对象
+     */
     private RpcResponse buildErrorResponse(Exception e) {
         RpcResponse err = new RpcResponse();
         err.setSuccess(false);
@@ -302,6 +319,7 @@ public class NativeRpcServer implements RpcServer {
     * @param method     方法名
     * @param paramTypes 参数类型名数组
     * @since 4.0.0.42
+    * @return 结果值
     */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override

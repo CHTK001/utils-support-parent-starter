@@ -139,7 +139,10 @@ public enum FileType {
     PROPERTIES("properties", Category.CODE),
 
     // ========== 其他 ==========
-    /** 未知类型 */
+    /**
+     * 未知类型
+     * @param OTHER 方法入参 OTHER
+     */
     UNKNOWN("", Category.OTHER);
 
     /** 文件扩展名列表（小写，不含点） */
@@ -147,16 +150,37 @@ public enum FileType {
     /** 文件类别 */
     private final Category category;
 
+    /**
+     * 构造方法，创建 文件类型 实例。
+     *
+     * @param primaryExtension 方法入参 primaryExtension
+     * @param category 方法入参 category
+     */
     FileType(String primaryExtension, Category category) {
         this.extensions = new String[]{primaryExtension};
         this.category = category;
     }
 
+    /**
+     * 构造方法，创建 文件类型 实例。
+     *
+     * @param ext1 方法入参 ext1
+     * @param ext2 方法入参 ext2
+     * @param category 方法入参 category
+     */
     FileType(String ext1, String ext2, Category category) {
         this.extensions = new String[]{ext1, ext2};
         this.category = category;
     }
 
+    /**
+     * 构造方法，创建 文件类型 实例。
+     *
+     * @param ext1 方法入参 ext1
+     * @param ext2 方法入参 ext2
+     * @param ext3 方法入参 ext3
+     * @param category 方法入参 category
+     */
     FileType(String ext1, String ext2, String ext3, Category category) {
         this.extensions = new String[]{ext1, ext2, ext3};
         this.category = category;

@@ -337,6 +337,12 @@ public class GoogleColabClient implements AutoCloseable {
                 .build();
     }
 
+    /**
+     * runtime名称。
+     *
+     * @param runtimeId runtimeID，不允许为 null
+     * @return 结果字符串
+     */
     private String runtimeName(String runtimeId) {
         return runtimeId.contains("/") ? runtimeId : parent + "/notebookRuntimes/" + runtimeId;
     /**
@@ -346,6 +352,12 @@ public class GoogleColabClient implements AutoCloseable {
     */
     }
 
+    /**
+     * 模板Resource。
+     *
+     * @param templateId 模板ID，不允许为 null
+     * @return 结果字符串
+     */
     private String templateResource(String templateId) {
         return templateId.contains("/") ? templateId : parent + "/notebookRuntimeTemplates/" + templateId;
     /**
@@ -357,10 +369,22 @@ public class GoogleColabClient implements AutoCloseable {
     */
     }
 
+    /**
+     * execution名称。
+     *
+     * @param executionId executionID，不允许为 null
+     * @return 结果字符串
+     */
     private String executionName(String executionId) {
         return executionId.contains("/") ? executionId : parent + "/notebookExecutionJobs/" + executionId;
     }
 
+    /**
+     * extractID。
+     *
+     * @param resourceName resource名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractId(String resourceName) {
         if (resourceName == null || !resourceName.contains("/")) {
             return resourceName;
@@ -368,6 +392,11 @@ public class GoogleColabClient implements AutoCloseable {
         return resourceName.substring(resourceName.lastIndexOf('/') + 1);
     }
 
+    /**
+     * awaitQuietly。
+     *
+     * @param future 方法入参 future
+     */
     private static void awaitQuietly(com.google.api.gax.longrunning.OperationFuture<?, ?> future) {
         try {
             future.get();

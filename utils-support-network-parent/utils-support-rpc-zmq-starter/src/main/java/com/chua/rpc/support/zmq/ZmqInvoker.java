@@ -137,17 +137,12 @@ public class ZmqInvoker implements Invoker {
     * @return 提取到的值，无法解析时返回空字符串
     */
     private static String extractAnnotationValue(Annotation ann) {
-        try {
-            java.lang.reflect.Method m = ann.getClass().getMethod("value");
-            Object r = m.invoke(ann);
-            if (r instanceof String s) {
-                return s;
-            }
-            if (r instanceof String[] a && a.length > 0) {
-                return a[0];
-            }
-        } catch (Exception ignored) {
- // 注解无 值 属性时忽略
+        Object r = ReflectUtils.invoke(ann, "value", Object.class);
+        if (r instanceof String s) {
+            return s;
+        }
+        if (r instanceof String[] a && a.length > 0) {
+            return a[0];
         }
         return "";
     }

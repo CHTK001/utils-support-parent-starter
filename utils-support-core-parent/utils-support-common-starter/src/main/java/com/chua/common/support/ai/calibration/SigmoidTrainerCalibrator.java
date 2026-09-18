@@ -380,6 +380,9 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 计算标准差
+    * @param values 方法入参 values
+    * @param mean 方法入参 mean
+    * @return 结果数值
     */
     private double calculateStd(List<Double> values, double mean) {
         if (values.isEmpty()) {

@@ -176,9 +176,9 @@ public class OpenAiChatClient implements ChatClient {
     private String thinkingEffort;
 
     /**
-    * 是否使用流式请求（默认 false，非流式一次返回完整结果）
+    * 是否使用流式请求（默认 true：异步 chat() 走流式；chatSync() 内部临时强制为 false）
     */
-    private boolean stream;
+    private boolean stream = true;
 
     /**
     * 是否启用智能搜索
@@ -418,23 +418,30 @@ public class OpenAiChatClient implements ChatClient {
     @Override
     /** 对话同步 */
     public String chatSync(String prompt) {
-        StringBuilder result = new StringBuilder();
-        StringBuilder reasoning = new StringBuilder();
-        chat(prompt, response -> {
-            if (response.getState() == ChatResponse.State.STREAMING) {
-                if (response.getContent() != null) {
-                    result.append(response.getContent());
+        // 同步方法强制使用非流式，不受外部 stream(true) 影响
+        boolean savedStream = this.stream;
+        this.stream = false;
+        try {
+            StringBuilder result = new StringBuilder();
+            StringBuilder reasoning = new StringBuilder();
+            chat(prompt, response -> {
+                if (response.getState() == ChatResponse.State.STREAMING) {
+                    if (response.getContent() != null) {
+                        result.append(response.getContent());
+                    }
+                    if (response.getReasoningContent() != null) {
+                        reasoning.append(response.getReasoningContent());
+                    }
                 }
-                if (response.getReasoningContent() != null) {
-                    reasoning.append(response.getReasoningContent());
-                }
+            });
+            // 仅当显式开启深度思考时才附带思维链，关闭思考时只返回正式回答
+            if (thinking && reasoning.length() > 0) {
+                return reasoning.toString() + "\n---\n" + result.toString();
             }
-        });
-        // 仅当显式开启深度思考时才附带思维链，关闭思考时只返回正式回答
-        if (thinking && reasoning.length() > 0) {
-            return reasoning.toString() + "\n---\n" + result.toString();
+            return result.toString();
+        } finally {
+            this.stream = savedStream;
         }
-        return result.toString();
     }
 
     @Override

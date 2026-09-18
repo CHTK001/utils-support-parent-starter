@@ -12,23 +12,21 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * AnythingLLM Desktop (Mintplex Labs) usage parser.
+ * AnythingLLM Desktop（Mintplex Labs）用量解析器。
  *
- * <p>AnythingLLM Desktop stores chat history in a SQLite database whose
- * {@code workspace_chats} table carries per-message token metrics inside
- * the {@code response} JSON column ({@code $.metrics.*}), available since
- * version 1.7.1:</p>
+ * <p>AnythingLLM Desktop 把聊天历史存放在 SQLite 数据库中，其
+ * {@code workspace_chats} 表在 {@code response} JSON 列（{@code $.metrics.*}）
+ * 内记录了每条消息的 token 指标，该字段自 1.7.1 版本起提供：</p>
  *
  * <pre>{@code
  * metrics = { "prompt_tokens": 120, "completion_tokens": 45,
  *             "total_tokens": 165, "model": "gpt-5-mini" }
  * }</pre>
  *
- * <p>Database location: {@code %APPDATA%\anythingllm-desktop\storage\anythingllm.db}
- * on Windows, {@code ~/Library/Application Support/...} on macOS,
- * {@code $XDG_CONFIG_HOME/anythingllm-desktop/storage/anythingllm.db} on
- * Linux. {@code createdAt} is a Prisma epoch-millisecond value (seconds are
- * accepted for compatibility).</p>
+ * <p>数据库位置：Windows 下为 {@code %APPDATA%\anythingllm-desktop\storage\anythingllm.db}，
+ * macOS 下为 {@code ~/Library/Application Support/...}，
+ * Linux 下为 {@code $XDG_CONFIG_HOME/anythingllm-desktop/storage/anythingllm.db}。
+ * {@code createdAt} 为 Prisma 写入的 epoch 毫秒值（为兼容也接受秒）。</p>
  *
  * @author CH
  * @since 4.0.0.45

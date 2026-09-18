@@ -31,6 +31,11 @@ public class RocksDbEngineUnitTest {
     /** 引擎实例 */
     private RocksDbEngine engine;
 
+    /**
+     * 设置Up。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @BeforeEach
     void setUp() throws Exception {
         Path dbPath = tempDir.resolve("rocksdb_test");
@@ -39,6 +44,9 @@ public class RocksDbEngineUnitTest {
         engine.addDataSource("default", dbPath.toString());
     }
 
+    /**
+     * tearDown。
+     */
     @AfterEach
     void tearDown() {
         if (engine != null) {
@@ -48,6 +56,9 @@ public class RocksDbEngineUnitTest {
 
     // ==================== 字节 KV ====================
 
+    /**
+     * 测试：放入And获取字节数组。
+     */
     @Test
     void testPutAndGetBytes() {
         byte[] key = "k1".getBytes();
@@ -57,12 +68,18 @@ public class RocksDbEngineUnitTest {
         assertArrayEquals(value, got);
     }
 
+    /**
+     * 测试：获取字节数组ReturnsNullWhenMissing。
+     */
     @Test
     void testGetBytesReturnsNullWhenMissing() {
         byte[] got = engine.getBytes("default", "missing".getBytes());
         assertNull(got);
     }
 
+    /**
+     * 测试：删除字节数组。
+     */
     @Test
     void testDeleteBytes() {
         engine.putBytes("default", "del".getBytes(), "x".getBytes());
@@ -70,6 +87,9 @@ public class RocksDbEngineUnitTest {
         assertNull(engine.getBytes("default", "del".getBytes()));
     }
 
+    /**
+     * 测试：Scan字节数组With前缀。
+     */
     @Test
     void testScanBytesWithPrefix() {
         engine.putBytes("default", "pfx:1".getBytes(), "a".getBytes());
@@ -79,6 +99,9 @@ public class RocksDbEngineUnitTest {
         assertEquals(2, rows.size(), "前缀扫描应匹配 2 条");
     }
 
+    /**
+     * 测试：写入批次。
+     */
     @Test
     void testWriteBatch() {
         byte[] op0 = {(byte) 0};
@@ -95,6 +118,11 @@ public class RocksDbEngineUnitTest {
         assertNull(engine.getBytes("default", "bk3".getBytes()), "writeBatch 的 delete 分支 应 移除 键");
     }
 
+    /**
+     * 测试：字节数组PersistAcross引擎Restart。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testBytesPersistAcrossEngineRestart() throws Exception {
         // 字节 KV 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
@@ -117,6 +145,11 @@ public class RocksDbEngineUnitTest {
         }
     }
 
+    /**
+     * 测试：DocumentsPersistAcross引擎Restart。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testDocumentsPersistAcrossEngineRestart() throws Exception {
         // 文档 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
@@ -141,17 +174,26 @@ public class RocksDbEngineUnitTest {
 
     // ==================== 字符串 KV（KvEngine） ====================
 
+    /**
+     * 测试：字符串放入获取。
+     */
     @Test
     void testStringPutGet() {
         engine.put("sk", "sv");
         assertEquals("sv", engine.get("sk"));
     }
 
+    /**
+     * 测试：字符串获取ReturnsNullWhenMissing。
+     */
     @Test
     void testStringGetReturnsNullWhenMissing() {
         assertNull(engine.get("missing"));
     }
 
+    /**
+     * 测试：字符串删除。
+     */
     @Test
     void testStringDelete() {
         engine.put("sd", "sv");
@@ -159,6 +201,9 @@ public class RocksDbEngineUnitTest {
         assertFalse(engine.delete("sd"));
     }
 
+    /**
+     * 测试：Incr。
+     */
     @Test
     void testIncr() {
         long v1 = engine.incr("counter");
@@ -167,6 +212,11 @@ public class RocksDbEngineUnitTest {
         assertEquals(2, v2);
     }
 
+    /**
+     * 测试：字符串KvPersistAcross引擎Restart。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testStringKvPersistAcrossEngineRestart() throws Exception {
         // 字符串 KV 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
@@ -193,6 +243,9 @@ public class RocksDbEngineUnitTest {
         }
     }
 
+    /**
+     * 测试：查找全部By前缀。
+     */
     @Test
     void testFindAllByPrefix() {
         engine.put("user:1", "a");
@@ -207,6 +260,9 @@ public class RocksDbEngineUnitTest {
 
     // ==================== 文档存储（DocumentStore） ====================
 
+    /**
+     * 测试：Document插入And查找ByID。
+     */
     @Test
     void testDocumentInsertAndFindById() {
         Map<String, Object> doc = Map.of("id", "doc1", "name", "Alice", "content", "hello world");
@@ -218,11 +274,17 @@ public class RocksDbEngineUnitTest {
         assertEquals("Alice", found.get("name"));
     }
 
+    /**
+     * 测试：Document查找ByIDReturnsNullWhenMissing。
+     */
     @Test
     void testDocumentFindByIdReturnsNullWhenMissing() {
         assertNull(engine.findById("articles", "missing", (Class<Map<String, Object>>) (Class<?>) Map.class));
     }
 
+    /**
+     * 测试：Document更新。
+     */
     @Test
     void testDocumentUpdate() {
         Map<String, Object> doc = Map.of("id", "doc1", "name", "Alice");
@@ -236,6 +298,9 @@ public class RocksDbEngineUnitTest {
         assertEquals("Bob", found.get("name"));
     }
 
+    /**
+     * 测试：Document删除。
+     */
     @Test
     void testDocumentDelete() {
         Map<String, Object> doc = Map.of("id", "doc1", "name", "Alice");
@@ -245,6 +310,9 @@ public class RocksDbEngineUnitTest {
         assertFalse(engine.delete("articles", "doc1"));
     }
 
+    /**
+     * 测试：Document查找全部。
+     */
     @Test
     void testDocumentFindAll() {
         engine.insert("articles", Map.of("id", "d1", "name", "A"));
@@ -256,6 +324,9 @@ public class RocksDbEngineUnitTest {
 
     // ==================== 全文检索（FulltextSearch） ====================
 
+    /**
+     * 测试：Fulltext搜索。
+     */
     @Test
     void testFulltextSearch() {
         Map<String, Object> article = Map.of("id", "d1", "title", "hello world news");
@@ -270,6 +341,9 @@ public class RocksDbEngineUnitTest {
         assertTrue(noResults.isEmpty());
     }
 
+    /**
+     * 测试：删除Fulltext索引。
+     */
     @Test
     void testDropFulltextIndex() {
         engine.insert("articles", Map.of("id", "d1", "content", "hello world"));
@@ -329,6 +403,9 @@ public class RocksDbEngineUnitTest {
         }
     }
 
+    /**
+     * 测试：OrmStoreAnd查询。
+     */
     @Test
     void testOrmStoreAndQuery() {
         User u1 = new User();
@@ -351,6 +428,9 @@ public class RocksDbEngineUnitTest {
         assertEquals("Bob", filtered.getFirst().name);
     }
 
+    /**
+     * 测试：Orm查询WithSnakeCase列。
+     */
     @Test
     void testOrmQueryWithSnakeCaseColumn() {
         User u1 = new User();
@@ -371,6 +451,9 @@ public class RocksDbEngineUnitTest {
         assertEquals("Bob", filtered.getFirst().name);
     }
 
+    /**
+     * 测试：Orm更新WithSnakeCase列。
+     */
     @Test
     void testOrmUpdateWithSnakeCaseColumn() {
         User u1 = new User();
@@ -388,6 +471,9 @@ public class RocksDbEngineUnitTest {
         assertEquals(999, all.getFirst().deptId, "更新 后 deptId 应 为 999");
     }
 
+    /**
+     * 测试：Orm更新。
+     */
     @Test
     void testOrmUpdate() {
         User u1 = new User();
@@ -404,6 +490,9 @@ public class RocksDbEngineUnitTest {
         assertEquals(31, all.getFirst().age, "更新 后 age 应 为 31");
     }
 
+    /**
+     * 测试：Orm删除。
+     */
     @Test
     void testOrmDelete() {
         User u1 = new User();
@@ -424,6 +513,9 @@ public class RocksDbEngineUnitTest {
         assertEquals("Bob", remaining.getFirst().name);
     }
 
+    /**
+     * 测试：OrmPersistenceAcross查询。
+     */
     @Test
     void testOrmPersistenceAcrossQuery() {
         User u1 = new User();
@@ -437,6 +529,11 @@ public class RocksDbEngineUnitTest {
         assertEquals("Alice", first.getFirst().name, "RocksDB 持久化 数据 应 被 再次 查询 命中");
     }
 
+    /**
+     * 测试：OrmRealPersistenceAcross引擎Restart。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testOrmRealPersistenceAcrossEngineRestart() throws Exception {
         // 验证 ORM 数据 真正 落盘 到 RocksDB（而非 仅 内存）：
@@ -470,6 +567,11 @@ public class RocksDbEngineUnitTest {
 
     // ==================== 并发 回归（竞态 修复 验证） ====================
 
+    /**
+     * 测试：IncrConcurrent编号LostUpdates。
+     *
+     * @throws InterruptedException 当执行过程不满足前置条件时
+     */
     @Test
     void testIncrConcurrentNoLostUpdates() throws InterruptedException {
         int threads = 8;
@@ -501,6 +603,11 @@ public class RocksDbEngineUnitTest {
                 "并发 incr 不 应 丢失 计数（H1 修复 验证）");
     }
 
+    /**
+     * 测试：OrmStoreAutoSeqConcurrent编号DuplicateKeys。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void testOrmStoreAutoSeqConcurrentNoDuplicateKeys() throws Exception {
         // 实体 无 id 字段 → 走 自增 序号；并 发 写入 不 应 产生 重复 行 键（H2 修复 验证）
@@ -540,6 +647,11 @@ public class RocksDbEngineUnitTest {
                 "并 发 自增 序号 写入 不 应 产生 重复 行 键 导致 行 丢失（H2 修复 验证）");
     }
 
+    /**
+     * 测试：FtsConcurrent插入编号LostDocs。
+     *
+     * @throws InterruptedException 当执行过程不满足前置条件时
+     */
     @Test
     void testFtsConcurrentInsertNoLostDocs() throws InterruptedException {
         // 并 发 插入 含 相同 token 的 文档，FTS 不 应 丢 任 何 文档（C1 修复 验证）
@@ -591,6 +703,9 @@ public class RocksDbEngineUnitTest {
         }
     }
 
+    /**
+     * 测试：Orm查询上限偏移量Paging。
+     */
     @Test
     void testOrmQueryLimitOffsetPaging() {
         // 分页 验证：limit/offset 由 基类 processQueryResult 统一 截取
@@ -609,6 +724,9 @@ public class RocksDbEngineUnitTest {
         assertEquals("u6", page2.getLast().name);
     }
 
+    /**
+     * 测试：Orm查询上限偏移量Beyond结束。
+     */
     @Test
     void testOrmQueryLimitOffsetBeyondEnd() {
         // offset 超 出 总 行数 时 返回 空 列表（不 抛 异常）
@@ -621,6 +739,9 @@ public class RocksDbEngineUnitTest {
         assertTrue(beyond.isEmpty(), "offset 超 出 总 行数 应 返回 空");
     }
 
+    /**
+     * 测试：Orm查询数量。
+     */
     @Test
     void testOrmQueryCount() {
         // count() 终端 方法 验证
@@ -639,6 +760,9 @@ public class RocksDbEngineUnitTest {
 
     // ==================== SPI 注册 ====================
 
+    /**
+     * 测试：SpiRegistration。
+     */
     @Test
     void testSpiRegistration() {
         RocksDbEngine eng = ServiceProvider.of(RocksDbEngine.class).getExtension("rocksdb");
@@ -647,6 +771,9 @@ public class RocksDbEngineUnitTest {
 
     // ==================== close ====================
 
+    /**
+     * 测试：关闭。
+     */
     @Test
     void testClose() {
         assertDoesNotThrow(engine::close);

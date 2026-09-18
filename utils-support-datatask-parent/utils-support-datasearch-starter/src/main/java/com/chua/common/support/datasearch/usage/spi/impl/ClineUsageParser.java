@@ -14,11 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Cline usage parser.
+ * Cline 用量解析器。
  *
- * <p>Cline CLI stores one session JSON per run under
- * {@code ~/.cline/data/sessions/<id>/<id>.json}, containing real per-session
- * token usage reported by the upstream provider:</p>
+ * <p>Cline CLI 会在 {@code ~/.cline/data/sessions/<id>/<id>.json} 下为每次运行保存一个会话 JSON，
+ * 其中记录了由上游服务商上报的单会话真实 token 用量：</p>
  *
  * <pre>{@code
  * {
@@ -38,7 +37,7 @@ import java.util.List;
  * }
  * }</pre>
  *
- * <p>Companion {@code *.messages.json} files are skipped.</p>
+ * <p>同目录下的配套文件 {@code *.messages.json} 会被跳过。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,7 +49,7 @@ public class ClineUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-    * Returns the SPI name for Cline.
+    * 返回 Cline 的 SPI 名称。
     *
     * @return {@code "cline"}
     */
@@ -68,9 +67,9 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-    * Parses all Cline CLI session files and extracts token usage.
+    * 解析全部 Cline CLI 会话文件并提取 token 用量。
     *
-    * @return list of AiUsage records, one per completed session
+    * @return AiUsage 记录列表，每个已完成的会话对应一条
     */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
@@ -91,10 +90,10 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-    * Parses a single Cline session file into an AiUsage record.
+    * 将单个 Cline 会话文件解析为一条 AiUsage 记录。
     *
-    * @param file path to the session JSON file
-    * @return the parsed AiUsage, or empty if the file has no usage data
+    * @param file 会话 JSON 文件路径
+    * @return 解析得到的 AiUsage；文件没有用量数据时返回空
     */
     private java.util.Optional<AiUsage> parseSession(Path file) {
         try {

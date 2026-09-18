@@ -225,6 +225,9 @@ public final class TraceContext {
         }
     }
 
+    /**
+     * pop。
+     */
     public static void pop() {
         if (!ENABLED) { return; }
 
@@ -276,6 +279,11 @@ public final class TraceContext {
         MAX_DEPTH.set(depth);
     }
 
+    /**
+     * 获取TraceID。
+     *
+     * @return 结果字符串
+     */
     public static String getTraceId() {
         Deque<TraceNode> stack = STACK.get();
         return stack.isEmpty() ? null : stack.peek().traceId;
@@ -396,7 +404,10 @@ public final class TraceContext {
         // 找到根节点的耗时作为基准
         long rootElapsed = 0;
         for (TraceNode n : nodes) {
-            if (n.isRoot) { rootElapsed = n.elapsed; break; }
+            if (n.isRoot) {
+                rootElapsed = n.elapsed;
+                break;
+            }
         }
         if (rootElapsed == 0 && !nodes.isEmpty()) {
             rootElapsed = nodes.getFirst().elapsed;
@@ -545,24 +556,39 @@ public final class TraceContext {
     * @param traceId 追踪标识
     */
     private static void putMdc(String traceId) {
-        if (!mdcAvailable || mdcPutHandle == null) { return; }
-        try { mdcPutHandle.invoke("traceId", traceId); } catch (Throwable ignored) { mdcAvailable = false; }
+        if (!mdcAvailable || mdcPutHandle == null) {
+            return;
+        }
+        try {
+            mdcPutHandle.invoke("traceId", traceId);
+        } catch (Throwable ignored) {
+            mdcAvailable = false;
+        }
     }
 
     /**
     * 移除mdc。
     */
     private static void removeMdc() {
-        if (!mdcAvailable || mdcRemoveHandle == null) { return; }
-        try { mdcRemoveHandle.invoke("traceId"); } catch (Throwable ignored) { mdcAvailable = false; }
+        if (!mdcAvailable || mdcRemoveHandle == null) {
+            return;
+        }
+        try {
+            mdcRemoveHandle.invoke("traceId");
+        } catch (Throwable ignored) {
+            mdcAvailable = false;
+        }
     }
 
     /**
     * 初始化mdc处理。
+    *
+    * <p>豁免说明：SLF4J 为可选依赖，此处按软探测方式加载并取方法句柄，
+    * 本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用。</p>
     */
     private static void initMdcHandles() {
         try {
-            Class<?> c = Class.forName("org.slf4j.MDC");
+            Class<?> c = Class.forName("org.slf4j.MDC"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
             MethodHandles.Lookup l = MethodHandles.lookup();
             mdcPutHandle = l.unreflect(c.getMethod("put", String.class, String.class));
             mdcRemoveHandle = l.unreflect(c.getMethod("remove", String.class));
@@ -572,15 +598,18 @@ public final class TraceContext {
     /**
     * 获取日志记录器。
     * @return 获取日志记录器的结果
+    *
+    * <p>豁免说明：SLF4J 为可选依赖，按需软探测加载；本模块未依赖
+    * utils-support-common-starter，无 ReflectUtils 可用。</p>
     */
     private static Object getLogger() throws Throwable {
         if (logger == null && slf4jAvailable) {
-            Class<?> fc = Class.forName("org.slf4j.LoggerFactory");
+            Class<?> fc = Class.forName("org.slf4j.LoggerFactory"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
             MethodHandle fh = MethodHandles.lookup().findStatic(fc, "getLogger",
-                    MethodType.methodType(Class.forName("org.slf4j.Logger"), Class.class));
+                    MethodType.methodType(Class.forName("org.slf4j.Logger"), Class.class)); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
             logger = fh.invoke(TraceContext.class);
             loggerInfoHandle = MethodHandles.lookup().unreflect(
-                    logger.getClass().getMethod("info", String.class));
+                    logger.getClass().getMethod("info", String.class)); // [P3C 1.10 豁免] 可选依赖 Logger 实例为运行时类型，需按名取 info 方法句柄
         }
         return logger;
     }
@@ -589,7 +618,7 @@ public final class TraceContext {
     * 初始化slf4j处理。
     */
     private static void initSlf4jHandle() {
-        try { Class.forName("org.slf4j.LoggerFactory"); }
+        try { Class.forName("org.slf4j.LoggerFactory"); } // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
         catch (Exception ignored) { slf4jAvailable = false; }
     }
 

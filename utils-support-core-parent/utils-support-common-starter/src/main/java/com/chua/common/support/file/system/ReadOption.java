@@ -43,12 +43,18 @@ public class ReadOption {
         return new ReadOption();
     }
 
-    /** 是否AsMap */
+    /**
+     * 是否AsMap
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isAsMap() {
         return asMap;
     }
 
-    /** 获取开始Row */
+    /**
+     * 获取开始Row
+     * @return 结果数值
+     */
     public int getStartRow() {
         return startRow;
     }
@@ -64,7 +70,10 @@ public class ReadOption {
         return this;
     }
 
-    /** 获取Limit */
+    /**
+     * 获取Limit
+     * @return 结果数值
+     */
     public int getLimit() {
         return limit;
     }

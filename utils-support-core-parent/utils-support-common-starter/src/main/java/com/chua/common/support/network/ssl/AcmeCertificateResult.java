@@ -64,6 +64,8 @@ public class AcmeCertificateResult {
 
     /**
     * 创建需要验证的结果
+    * @param validationInfos 方法入参 validationInfos
+    * @return AcmeCertificate结果 对象
     */
     public static AcmeCertificateResult needValidation(List<AcmeValidationInfo> validationInfos) {
         AcmeCertificateResult result = new AcmeCertificateResult();
@@ -75,6 +77,8 @@ public class AcmeCertificateResult {
 
     /**
     * 创建失败结果
+    * @param error 方法入参 error
+    * @return AcmeCertificate结果 对象
     */
     public static AcmeCertificateResult fail(String error) {
         AcmeCertificateResult result = new AcmeCertificateResult();

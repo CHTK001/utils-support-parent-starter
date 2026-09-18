@@ -87,6 +87,7 @@ public class FtpConfig {
 
     /**
     * 创建默认 FTP 配置。
+    * @return Ftp配置 对象
     */
     public static FtpConfig defaults() {
         return new FtpConfig();
@@ -94,6 +95,7 @@ public class FtpConfig {
 
     /**
     * 创建配置构建器。
+    * @return Builder 对象
     */
     public static Builder builder() {
         return new Builder();

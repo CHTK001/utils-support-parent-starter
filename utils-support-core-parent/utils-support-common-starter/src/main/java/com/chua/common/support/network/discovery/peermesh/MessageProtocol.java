@@ -62,6 +62,7 @@ public class MessageProtocol {
     *
     * @param type 消息类型
     * @param payload 消息负载（JSON 字符串）
+    * @return 结果值
     */
     public record PeerMeshMessage(byte type, String payload) {
     }

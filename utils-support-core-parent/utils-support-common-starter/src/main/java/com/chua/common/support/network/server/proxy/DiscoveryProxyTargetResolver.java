@@ -30,6 +30,7 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     * 创建 DiscoveryProxyTargetResolver 实例
     * @param serviceDiscovery serviceDiscovery
     * @param String String
+    * @param servicePath 服务路径，不允许为 null
     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath) {
         this(serviceDiscovery, servicePath, null, "weight");
@@ -40,6 +41,8 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     * @param serviceDiscovery serviceDiscovery
     * @param String String
     * @param String String
+    * @param servicePath 服务路径，不允许为 null
+    * @param scatterId scatterID，不允许为 null
     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath, String scatterId) {
         this(serviceDiscovery, servicePath, scatterId, "weight");

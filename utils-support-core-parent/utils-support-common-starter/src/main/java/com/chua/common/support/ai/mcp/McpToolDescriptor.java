@@ -37,6 +37,7 @@ public class McpToolDescriptor {
     * @param inputSchema Map
     * @param Object Object
     * @param inputSchema inputSchema
+    * @param description 描述，不允许为 null
     */
     public McpToolDescriptor(String name, String description, Map<String, Object> inputSchema) {
         this(name, null, description, inputSchema);
@@ -50,6 +51,8 @@ public class McpToolDescriptor {
     * @param inputSchema Map
     * @param Object Object
     * @param inputSchema inputSchema
+    * @param serverName 服务端名称，不允许为 null
+    * @param description 描述，不允许为 null
     */
     public McpToolDescriptor(String name, String serverName, String description, Map<String, Object> inputSchema) {
         this.name = name;
@@ -58,22 +61,34 @@ public class McpToolDescriptor {
         this.inputSchema = inputSchema;
     }
 
-    /** 获取Name */
+    /**
+     * 获取Name
+     * @return 结果字符串
+     */
     public String getName() {
         return name;
     }
 
-    /** 获取ServerName */
+    /**
+     * 获取ServerName
+     * @return 结果字符串
+     */
     public String getServerName() {
         return serverName;
     }
 
-    /** 获取Description */
+    /**
+     * 获取Description
+     * @return 结果字符串
+     */
     public String getDescription() {
         return description;
     }
 
-    /** 获取InputSchema */
+    /**
+     * 获取InputSchema
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> getInputSchema() {
         return inputSchema;
     }

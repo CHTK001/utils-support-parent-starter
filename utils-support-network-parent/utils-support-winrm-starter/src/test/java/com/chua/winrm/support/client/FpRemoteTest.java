@@ -1,4 +1,4 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 import java.nio.file.*;
@@ -16,6 +16,12 @@ public class FpRemoteTest {
 
     static WinRmExecClient winrm;
     static Process serverProc; // 鏈満杩愯鐨勮繙绋嬭浆鍙戣繘绋嬶紙闈炲繀闇€锛岀洿鎺?WinRM 璋冪敤鍗冲彲锛?
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("=== FilePush 杩滅▼瀹炴祴 ===");
 
@@ -124,7 +130,11 @@ public class FpRemoteTest {
         System.exit(ok ? 0 : 1);
     }
 
-    /** 鐢熸垚澶ч噺娴嬭瘯鏂囦欢锛?000 涓枃浠讹紝0~5MB锛屽灞傚瓙鐩綍 */
+    /**
+     * 鐢熸垚澶ч噺娴嬭瘯鏂囦欢锛?000 涓枃浠讹紝0~5MB锛屽灞傚瓙鐩綍
+     * @param root 根节点，不允许为 null
+     * @return 结果数值
+     */
     static long generateTestFiles(Path root) throws IOException {
         Random rnd = new Random(12345);
         long total = 0;
@@ -144,14 +154,21 @@ public class FpRemoteTest {
                 size = rnd.nextInt(5 * 1024 * 1024); // < 5MB
             }
             byte[] data = new byte[size];
-            if (size > 0) rnd.nextBytes(data);
+            if (size > 0) {
+                rnd.nextBytes(data);
+            }
             Files.write(root.resolve(dir + "/file_" + i + ".bin"), data);
             total += size;
         }
         return total;
     }
 
-    /** 閫掑綊閮ㄧ讲鏈湴鐩綍鍒拌繙绋嬶紙WinRM + 鍘嬬缉浼犺緭锛?*/
+    /**
+     * 閫掑綊閮ㄧ讲鏈湴鐩綍鍒拌繙绋嬶紙WinRM + 鍘嬬缉浼犺緭锛?
+     * @param winrm 方法入参 winrm
+     * @param localDir local目录，不允许为 null
+     * @param remoteDir remote目录，不允许为 null
+     */
     static void deployDir(WinRmExecClient winrm, String localDir, String remoteDir) throws Exception {
         Path dir = Path.of(localDir);
         if (!Files.isDirectory(dir)) {
@@ -173,7 +190,12 @@ public class FpRemoteTest {
         System.out.println("  閮ㄧ讲瀹屾垚: " + localDir + " -> " + remoteDir);
     }
 
-    /** 涓婁紶鍗曚釜鏂囦欢鍒拌繙绋?*/
+    /**
+     * 涓婁紶鍗曚釜鏂囦欢鍒拌繙绋?
+     * @param winrm 方法入参 winrm
+     * @param localFile local文件，不允许为 null
+     * @param remotePath remote路径，不允许为 null
+     */
     static void uploadFile(WinRmExecClient winrm, Path localFile, String remotePath) throws Exception {
         // 閫氳繃 WinRM Shell 涓婁紶锛氬厛鍒涘缓鏂囦欢鍐呭锛岀敤 PowerShell 鐨?[IO.File]::WriteAllBytes
         byte[] data = Files.readAllBytes(localFile);
@@ -197,7 +219,12 @@ public class FpRemoteTest {
     /** 閫掑綊鍒犻櫎鐩綍 */
     static void deleteRecursively(Path root) {
         try (var walk = Files.walk(root).sorted(java.util.Comparator.reverseOrder())) {
-            walk.forEach(p -> { try { Files.deleteIfExists(p); } catch (Exception ignored) {} });
+            walk.forEach(p -> {
+                try {
+                    Files.deleteIfExists(p);
+                } catch (Exception ignored) {
+                }
+            });
         } catch (Exception ignored) {}
     }
 }

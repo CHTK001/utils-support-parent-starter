@@ -49,6 +49,9 @@ public final class WechatMemoryRebuilder {
     */
     private static final int BATCH_SIZE = 500;
 
+    /**
+     * 构造方法，创建 WechatMemoryRebuilder 实例。
+     */
     private WechatMemoryRebuilder() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
@@ -103,8 +106,10 @@ public final class WechatMemoryRebuilder {
                 if (columns.isEmpty()) {
                     continue;
                 }
+                String origin = entry.getKey().substring(0, entry.getKey().lastIndexOf('#'));
+                int rowidColumn = rowidColumnIndex(findSchema(origin, result), columns);
                 createTable(connection, table, columns);
-                insert(connection, table, columns, entry.getValue());
+                insert(connection, table, columns, rowidColumn, entry.getValue());
                 columnsOf.put(table, columns);
             }
             connection.commit();
@@ -169,6 +174,29 @@ public final class WechatMemoryRebuilder {
     }
 
     /**
+    * 定位 rowid 别名列在导出列里的下标。
+    *
+    * <p>列名对不上时返回 {@code -1}：例如没有可用 schema 而退化成
+    * {@code column1..columnN} 的兜底列，此时宁可不回填也不能猜。</p>
+    *
+    * @param schema  表结构，可为 null
+    * @param columns 导出列名
+    * @return 列下标；无法确定返回 -1
+    */
+    private static int rowidColumnIndex(WechatMemoryPageParser.TableSchema schema, List<String> columns) {
+        String alias = WechatMemoryPageParser.rowidAlias(schema);
+        if (alias == null) {
+            return -1;
+        }
+        for (int i = 0; i < columns.size(); i++) {
+            if (alias.equalsIgnoreCase(columns.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
     * 建表（所有列声明为 TEXT，见类注释）。
     *
     * @param connection 连接
@@ -198,9 +226,10 @@ public final class WechatMemoryRebuilder {
     * @param table      表名
     * @param columns    列名
     * @param records    记录
+    * @param rowidColumn rowid 别名列下标，-1 表示无
     * @throws SQLException 插入失败
     */
-    private static void insert(Connection connection, String table, List<String> columns,
+    private static void insert(Connection connection, String table, List<String> columns, int rowidColumn,
                                List<WechatMemoryExtractor.ExtractedRecord> records)
             throws SQLException {
         StringBuilder sql = new StringBuilder("INSERT INTO ").append(quote(table)).append(" (");
@@ -220,7 +249,11 @@ public final class WechatMemoryRebuilder {
             for (WechatMemoryExtractor.ExtractedRecord record : records) {
                 String[] values = record.values();
                 for (int i = 0; i < columns.size(); i++) {
-                    statement.setString(i + 1, i < values.length ? values[i] : null);
+                    String value = i < values.length ? values[i] : null;
+                    if (i == rowidColumn && (value == null || value.isEmpty()) && record.rowid() > 0) {
+                        value = String.valueOf(record.rowid());
+                    }
+                    statement.setString(i + 1, value);
                 }
                 statement.addBatch();
                 if (++pending >= BATCH_SIZE) {

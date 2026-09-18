@@ -99,6 +99,13 @@ public class GooseConversationParser implements ConversationParser {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
+    /**
+     * 转为Messages。
+     *
+     * @param rs 方法入参 rs
+     * @return 结果列表，无数据时为空列表
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
     private List<ConversationMessage> toMessages(ResultSet rs) throws SQLException {
         String messageId = rs.getString("message_id");
         String sessionId = rs.getString("session_id");
@@ -134,6 +141,12 @@ public class GooseConversationParser implements ConversationParser {
     */
     }
 
+    /**
+     * safe解析。
+     *
+     * @param raw 方法入参 raw
+     * @return Json节点 对象
+     */
     private JsonNode safeParse(String raw) {
         try {
             return Json.parse(raw);
@@ -144,6 +157,13 @@ public class GooseConversationParser implements ConversationParser {
     }
 
 
+    /**
+     * 首个NonBlank。
+     *
+     * @param value 值，不允许为 null
+     * @param fallback 方法入参 fallback
+     * @return 结果字符串
+     */
     private static String firstNonBlank(String value, String fallback) {
         if (value != null && !value.isBlank()) {
             return value;

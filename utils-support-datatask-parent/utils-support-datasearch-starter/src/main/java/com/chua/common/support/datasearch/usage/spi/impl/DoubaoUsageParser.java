@@ -60,6 +60,11 @@ public class DoubaoUsageParser extends BaseUsageParser {
                     + "AND " + PROVIDER_SQL_FILTER + " "
                     + "ORDER BY created_at ASC";
 
+    /**
+     * 解析Db路径。
+     *
+     * @return 路径 对象
+     */
     private static Path resolveDbPath() {
         String override = System.getenv("DOUBAO_USAGE_DB");
         if (override != null && !override.isBlank()) {

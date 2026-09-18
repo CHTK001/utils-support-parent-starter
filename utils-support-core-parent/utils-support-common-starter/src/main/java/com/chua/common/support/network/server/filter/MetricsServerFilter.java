@@ -281,7 +281,12 @@ public class MetricsServerFilter implements ServerFilter {
         callback.onMetrics(snap);
     }
 
-    /** 获取Percentile */
+    /**
+     * 获取Percentile
+     * @param sorted 方法入参 sorted
+     * @param percentile 方法入参 percentile
+     * @return 结果数值
+     */
     private static long getPercentile(List<Long> sorted, double percentile) {
         if (sorted.isEmpty()) {
             return 0;

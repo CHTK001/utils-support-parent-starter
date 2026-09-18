@@ -109,6 +109,8 @@ public class FileTypeConverter implements TypeConverter<File> {
     *   <li>Documents/Downloads/Desktop 子目录下查找</li>
     *   <li>直接作为文件路径</li>
     * </ol>
+    * @param str 字符串，不允许为 null
+    * @return 文件 对象
     */
     private File stringToFile(String str) {
         if (str.startsWith(HTTP_PREFIX)) {

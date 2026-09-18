@@ -55,6 +55,8 @@ public class TxtTextExtractor implements TextExtractor {
 
     /**
     * 跳过 UTF-8 BOM 字节 (EF BB BF)。
+    * @param in 方法入参 in
+    * @return Input流 对象
     */
     private InputStream skipBom(InputStream in) throws IOException {
         in.mark(3);

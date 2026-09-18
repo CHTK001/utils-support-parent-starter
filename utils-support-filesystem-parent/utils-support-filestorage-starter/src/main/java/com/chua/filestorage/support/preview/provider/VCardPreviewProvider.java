@@ -49,6 +49,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * 解析VCard。
+     *
+     * @param vcf 方法入参 vcf
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ContactInfo> parseVCard(String vcf) {
         List<ContactInfo> contacts = new ArrayList<>();
         String[] lines = vcf.split("\r?\n");
@@ -113,6 +119,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * extract值。
+     *
+     * @param line 方法入参 line
+     * @return 结果字符串
+     */
     private String extractValue(String line) {
         int colonIdx = line.indexOf(':');
         if (colonIdx < 0) {
@@ -127,6 +139,13 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * 构建Html。
+     *
+     * @param contacts 方法入参 contacts
+     * @param fileSize 文件大小，不允许为 null
+     * @return 结果字符串
+     */
     private String buildHtml(List<ContactInfo> contacts, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -208,6 +227,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * escapeHtml。
+     *
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -215,6 +240,12 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

@@ -45,22 +45,40 @@ public class ILinkBotClientFactory implements BotClient.Factory {
         private final ILinkBotClient client = new ILinkBotClient();
 
         @Override
-        public Builder token(String token) { client.token(token); return this; }
+        public Builder token(String token) {
+            client.token(token);
+            return this;
+        }
 
         @Override
-        public Builder secret(String secret) { client.secret(secret); return this; }
+        public Builder secret(String secret) {
+            client.secret(secret);
+            return this;
+        }
 
         @Override
-        public Builder encodingAesKey(String key) { client.encodingAesKey(key); return this; }
+        public Builder encodingAesKey(String key) {
+            client.encodingAesKey(key);
+            return this;
+        }
 
         @Override
-        public Builder baseUrl(String baseUrl) { client.baseUrl(baseUrl); return this; }
+        public Builder baseUrl(String baseUrl) {
+            client.baseUrl(baseUrl);
+            return this;
+        }
 
         @Override
-        public Builder connectTimeoutMillis(long ms) { client.connectTimeoutMillis(ms); return this; }
+        public Builder connectTimeoutMillis(long ms) {
+            client.connectTimeoutMillis(ms);
+            return this;
+        }
 
         @Override
-        public Builder readTimeoutMillis(long ms) { client.readTimeoutMillis(ms); return this; }
+        public Builder readTimeoutMillis(long ms) {
+            client.readTimeoutMillis(ms);
+            return this;
+        }
 
         @Override
         public Builder configSaveOrLoader(

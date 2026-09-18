@@ -12,6 +12,7 @@ public interface PermissionManager {
 
     /**
     * 返回 SPI 扩展键（如 "MySQL"、"PostgreSQL"）。
+    * @return 结果字符串
     */
     String type();
 

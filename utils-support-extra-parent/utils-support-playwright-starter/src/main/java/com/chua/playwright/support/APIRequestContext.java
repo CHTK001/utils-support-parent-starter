@@ -4,21 +4,26 @@ import com.chua.playwright.support.spi.Engine;
 
 /**
 * 双模式 {@code APIRequestContext}。
+* 封装 API 请求上下文，按引擎句柄转发具体调用。
+*
 * @author CH
- /**
- * api请求上下文类。
- *
- * @author CH
- * @since 4.0.0
- */
-   * @return 状态的结果
- */
+* @since 4.0.0
+*/
 public class APIRequestContext {
 
     private final Engine engine; // engine
     private final long handle; // 处理
 
-    APIRequestContext(Engine engine, long handle) { this.engine = engine; this.handle = handle; }
+    /**
+     * 创建 API 请求上下文句柄包装。
+     *
+     * @param engine 驱动引擎实例，不允许为 null
+     * @param handle 引擎侧的请求上下文句柄标识
+     */
+    APIRequestContext(Engine engine, long handle) {
+        this.engine = engine;
+        this.handle = handle;
+    }
 /**
 * 获取。
 * @param url url

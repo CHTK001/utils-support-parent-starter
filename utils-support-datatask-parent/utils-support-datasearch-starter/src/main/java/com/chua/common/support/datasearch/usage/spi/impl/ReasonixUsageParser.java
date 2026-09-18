@@ -65,6 +65,12 @@ public class ReasonixUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 解析Snapshot。
+     *
+     * @param file 文件，不允许为 null
+     * @return AiUsage 对象
+     */
     private AiUsage parseSnapshot(Path file) {
         try {
             JsonNode telemetry = Json.parse(Files.readString(file));
@@ -107,6 +113,12 @@ public class ReasonixUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析时间戳。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果数值
+     */
     private long resolveTimestamp(Path file) {
         Path meta = Path.of(file.toString().replace(".telemetry.json", "") + ".meta");
         try {
@@ -127,6 +139,12 @@ public class ReasonixUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析模型。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果字符串
+     */
     private String resolveModel(Path file) {
         Path meta = Path.of(file.toString().replace(".telemetry.json", "") + ".meta");
         try {
@@ -142,6 +160,11 @@ public class ReasonixUsageParser extends BaseUsageParser {
         return DEFAULT_MODEL;
     }
 
+    /**
+     * 列出TelemetryFiles。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listTelemetryFiles() {
         List<Path> files = new ArrayList<>();
         for (String sub : new String[]{"projects", "sessions"}) {

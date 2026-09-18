@@ -355,6 +355,11 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         this.classLoader = classLoader;
     }
 
+    /**
+     * 获取类型。
+     *
+     * @return Class 对象
+     */
     public Class<?> getType() {
         return type;
     }
@@ -440,6 +445,11 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         this.ex = ex;
     }
 
+    /**
+     * 获取Finder类型。
+     *
+     * @return Class 对象
+     */
     public Class<?> getFinderType() {
         return finderType;
     }

@@ -213,7 +213,12 @@ public class SmbFileStorage extends AbstractFileStorage {
     @Override
     /** 关闭 */
     public void close() {
-        try { if (smbClient != null) smbClient.close(); } catch (Exception ignored) {}
+        try {
+            if (smbClient != null) {
+                smbClient.close();
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     /**

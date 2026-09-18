@@ -12,6 +12,9 @@ package com.chua.common.support.lang.process;
  */
 class StringDisplayUtils {
 
+    /**
+     * 构造方法，创建 字符串DisplayUtils 实例。
+     */
     private StringDisplayUtils() {
     }
 

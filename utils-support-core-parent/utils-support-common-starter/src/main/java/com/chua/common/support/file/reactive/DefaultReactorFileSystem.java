@@ -28,12 +28,16 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     */
     private final long sizeThreshold;
 
+    /**
+     * 构造方法，创建 DefaultReactor文件System 实例。
+     */
     public DefaultReactorFileSystem() {
         this(DEFAULT_SIZE_THRESHOLD);
     }
 
     /**
     * 构造并指定阈值。
+    * @param sizeThreshold 大小Threshold，不允许为 null
     */
     public DefaultReactorFileSystem(long sizeThreshold) {
         this.sizeThreshold = Math.max(1, sizeThreshold);
@@ -120,6 +124,12 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
 
     /* ==================== 内部方法 ==================== */
 
+    /**
+     * 是否Large文件。
+     *
+     * @param path 路径，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isLargeFile(Path path) {
         try {
             return java.nio.file.Files.size(path) >= sizeThreshold;
@@ -131,6 +141,9 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     /**
     * 使用 AsynchronousFileChannel 异步写入。
     * Windows 上底层为 IOCP 真·非阻塞；Linux 上 JVM 内部使用线程池模拟。
+    * @param path 路径，不允许为 null
+    * @param data 数据，不允许为 null
+    * @return Mono 对象
     */
     private Mono<Void> writeAsync(Path path, byte[] data) {
         return Mono.create(sink -> {
@@ -169,7 +182,15 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
         });
     }
 
+    /**
+     * 关闭Quietly。
+     *
+     * @param channel 方法入参 channel
+     */
     private static void closeQuietly(AsynchronousFileChannel channel) {
-        try { channel.close(); } catch (IOException ignored) { }
+        try {
+            channel.close();
+        } catch (IOException ignored) {
+        }
     }
 }

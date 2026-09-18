@@ -148,17 +148,29 @@ public class JdkBeanCopier implements BeanCopier {
         }
     }
 
-    /** 获取读取Descriptors */
+    /**
+     * 获取读取Descriptors
+     * @param clazz 类，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, PropertyDescriptor> getReadDescriptors(Class<?> clazz) {
         return READ_CACHE.computeIfAbsent(clazz, JdkBeanCopier::resolveReadDescriptors);
     }
 
-    /** 获取写入Descriptors */
+    /**
+     * 获取写入Descriptors
+     * @param clazz 类，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, PropertyDescriptor> getWriteDescriptors(Class<?> clazz) {
         return WRITE_CACHE.computeIfAbsent(clazz, JdkBeanCopier::resolveWriteDescriptors);
     }
 
-    /** 解析读取Descriptors */
+    /**
+     * 解析读取Descriptors
+     * @param clazz 类，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, PropertyDescriptor> resolveReadDescriptors(Class<?> clazz) {
         Map<String, PropertyDescriptor> result = new LinkedHashMap<>();
         for (PropertyDescriptor pd : getPropertyDescriptors(clazz)) {
@@ -169,7 +181,11 @@ public class JdkBeanCopier implements BeanCopier {
         return result;
     }
 
-    /** 解析写入Descriptors */
+    /**
+     * 解析写入Descriptors
+     * @param clazz 类，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, PropertyDescriptor> resolveWriteDescriptors(Class<?> clazz) {
         Map<String, PropertyDescriptor> result = new LinkedHashMap<>();
         for (PropertyDescriptor pd : getPropertyDescriptors(clazz)) {
@@ -180,7 +196,11 @@ public class JdkBeanCopier implements BeanCopier {
         return result;
     }
 
-    /** 获取PropertyDescriptors */
+    /**
+     * 获取PropertyDescriptors
+     * @param clazz 类，不允许为 null
+     * @return PropertyDescriptor 对象
+     */
     private static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(clazz, Object.class);
@@ -190,7 +210,12 @@ public class JdkBeanCopier implements BeanCopier {
         }
     }
 
-    /** 转换IfNeeded */
+    /**
+     * 转换IfNeeded
+     * @param value 值，不允许为 null
+     * @param targetType 目标类型，不允许为 null
+     * @return 对象 对象
+     */
     private static Object convertIfNeeded(Object value, Class<?> targetType) {
         if (targetType.isInstance(value)) {
             return value;

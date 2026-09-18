@@ -13,11 +13,23 @@ public class ClickHouse20Dialect extends SqlDialect {
     */
     public ClickHouse20Dialect() { super("clickhouse20", defaultProps()); }
     public ClickHouse20Dialect(Properties properties) { super("clickhouse20", merge(defaultProps(), properties)); }
+    /**
+     * default属性。
+     *
+     * @return 属性 对象
+     */
     private static Properties defaultProps() {
         Properties p = new Properties();
         p.setProperty("driver", "ru.yandex.clickhouse.ClickHouseDriver");
         return p;
     }
+    /**
+     * 合并。
+     *
+     * @param a 方法入参 a
+     * @param b 方法入参 b
+     * @return 属性 对象
+     */
     private static Properties merge(Properties a, Properties b) {
         Properties m = new Properties(a);
         if (b != null) {

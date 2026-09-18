@@ -177,13 +177,6 @@ public class TcpServerFilterChainTest {
         sb.append("Connection: close\r\n");
         sb.append("\r\n");
         if (body != null && !body.isEmpty()) {
-            /**
-            * 读取fully。
-            * @param in 入
-            * @param buf buf
-            * @param s s
-            * @return 修剪转为第一个线的结果
-             */
             sb.append(body);
         }
         return sb.toString();
@@ -196,6 +189,13 @@ public class TcpServerFilterChainTest {
      */
     }
 
+    /**
+     * 读取Fully。
+     *
+     * @param in 方法入参 in
+     * @param buf 方法入参 buf
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static void readFully(InputStream in, byte[] buf) throws Exception {
         int total = 0;
         while (total < buf.length) {
@@ -207,6 +207,12 @@ public class TcpServerFilterChainTest {
         }
     }
 
+    /**
+     * trim转为首个Line。
+     *
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private static String trimToFirstLine(String s) {
         int idx = s.indexOf('\n');
         return idx >= 0 ? s.substring(0, idx) : s.trim().substring(0, Math.min(120, s.length()));

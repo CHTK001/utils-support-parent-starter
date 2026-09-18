@@ -58,17 +58,30 @@ public interface MethodIntercept<T> {
 
     /**
     * 方法调用前的前置处理
+    * @param obj 对象，不允许为 null
+    * @param method 方法，不允许为 null
+    * @param args 参数，不允许为 null
+    * @param proxy 方法入参 proxy
     */
     default void before(Object obj, Method method, Object[] args, T proxy) {
     }
 
     /**
     * 拦截方法调用并执行自定义逻辑
+    * @param obj 对象，不允许为 null
+    * @param method 方法，不允许为 null
+    * @param args 参数，不允许为 null
+    * @param proxy 方法入参 proxy
+    * @return 对象 对象
     */
     Object invoke(Object obj, Method method, Object[] args, T proxy) throws Throwable;
 
     /**
     * 方法调用后的后置处理
+    * @param obj 对象，不允许为 null
+    * @param method 方法，不允许为 null
+    * @param args 参数，不允许为 null
+    * @param proxy 方法入参 proxy
     */
     default void after(Object obj, Method method, Object[] args, T proxy) {
     }
@@ -77,6 +90,11 @@ public interface MethodIntercept<T> {
     * 异常处理，当方法调用发生异常时此方法会被调用
     *
     * @return 异常处理结果，返回 空 表示不处理异常
+    * @param obj 对象，不允许为 null
+    * @param method 方法，不允许为 null
+    * @param args 参数，不允许为 null
+    * @param proxy 方法入参 proxy
+    * @param throwable 方法入参 throwable
     */
     default Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
         return null;
@@ -84,6 +102,11 @@ public interface MethodIntercept<T> {
 
     /**
     * 调用目标对象的原始方法
+    * @param obj 对象，不允许为 null
+    * @param method 方法，不允许为 null
+    * @param args 参数，不允许为 null
+    * @param proxy 方法入参 proxy
+    * @return 对象 对象
     */
     default Object defaultInvoke(Object obj, Method method, Object[] args, T proxy) throws Throwable {
         return ClassUtils.invokeMethod(method, obj, args);

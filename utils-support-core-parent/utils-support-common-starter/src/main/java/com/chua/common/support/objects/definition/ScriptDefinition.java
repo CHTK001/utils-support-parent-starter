@@ -83,6 +83,7 @@ public interface ScriptDefinition extends BeanDefinition {
     * 获取脚本编译使用的类加载器。
     *
     * <return>脚本类加载器，未编译时返回 null</return>
+    * @return ClassLoader 对象
     */
     ClassLoader getScriptClassLoader();
 

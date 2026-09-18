@@ -40,6 +40,7 @@ public interface RemoteServiceManager {
 
     /**
     * 建立 SSH 连接。
+    * @param config 配置，不允许为 null
     */
     void connect(SshConfig config);
 
@@ -50,6 +51,7 @@ public interface RemoteServiceManager {
 
     /**
     * 判断 SSH 是否已连接。
+    * @return 是否成功（true 表示成功）
     */
     boolean isConnected();
 
@@ -57,21 +59,32 @@ public interface RemoteServiceManager {
     * 启动远程服务。
     *
     * @return 远程进程 PID
+    * @param serviceName 服务名称，不允许为 null
+    * @param jarPath jar路径，不允许为 null
+    * @param startCmd 启动Cmd，不允许为 null
     */
     long startRemote(String serviceName, String jarPath, String startCmd);
 
     /**
     * 停止远程服务。
+    * @param pid 方法入参 pid
+    * @param serviceName 服务名称，不允许为 null
     */
     void stopRemote(long pid, String serviceName);
 
     /**
     * 重启远程服务。
+    * @param pid 方法入参 pid
+    * @param serviceName 服务名称，不允许为 null
+    * @param jarPath jar路径，不允许为 null
+    * @param startCmd 启动Cmd，不允许为 null
     */
     void restartRemote(long pid, String serviceName, String jarPath, String startCmd);
 
     /**
     * 查询远程服务运行状态。
+    * @param pid 方法入参 pid
+    * @return 是否成功（true 表示成功）
     */
     boolean isRemoteRunning(long pid);
 
@@ -95,6 +108,9 @@ public interface RemoteServiceManager {
 
     /**
     * 在远程主机上安装服务（创建启动脚本、写入 systemd unit 等）。
+    * @param serviceName 服务名称，不允许为 null
+    * @param remoteJarPath remoteJar路径，不允许为 null
+    * @param startCmd 启动Cmd，不允许为 null
     */
     default void installRemote(String serviceName, String remoteJarPath, String startCmd) {
         // 无操作：SSH 模式依赖手动或外部配置
@@ -102,6 +118,7 @@ public interface RemoteServiceManager {
 
     /**
     * 在远程主机上卸载服务。
+    * @param serviceName 服务名称，不允许为 null
     */
     default void uninstallRemote(String serviceName) {
         // 无操作

@@ -7,9 +7,22 @@ import java.util.List;
  */
 
 public class TimeRangeConfig {
-    final String shardingColumn; final String start; final String end; // 分库分表column
+    final String shardingColumn; // 分库分表column
+    final String start;
+    final String end;
     final List<String> realTables; // realtables
+    /**
+     * 构造方法，创建 时间Range配置 实例。
+     *
+     * @param sc 方法入参 sc
+     * @param s 方法入参 s
+     * @param e 方法入参 e
+     * @param t 方法入参 t
+     */
     TimeRangeConfig(String sc, String s, String e, List<String> t) {
-        this.shardingColumn = sc; this.start = s; this.end = e; this.realTables = t;
+        this.shardingColumn = sc;
+        this.start = s;
+        this.end = e;
+        this.realTables = t;
     }
 }

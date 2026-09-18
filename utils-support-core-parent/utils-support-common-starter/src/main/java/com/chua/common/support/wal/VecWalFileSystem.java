@@ -50,17 +50,28 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
     }
 
+    /**
+     * 编码。
+     *
+     * @param id ID，不允许为 null
+     * @param dim 方法入参 dim
+     * @param data 数据，不允许为 null
+     * @param metadata 方法入参 metadata
+     * @return 结果值
+     */
     public static byte[] encode(String id, int dim, float[] data, String metadata) {
         byte[] idBytes = id.getBytes(StandardCharsets.UTF_8);
         byte[] metaBytes = metadata == null ? new byte[0] : metadata.getBytes(StandardCharsets.UTF_8);
         int total = 4 + idBytes.length + 4 + dim * 4 + 4 + metaBytes.length;
         ByteBuffer bb = ByteBuffer.allocate(total);
-        bb.putInt(idBytes.length); bb.put(idBytes);
+        bb.putInt(idBytes.length);
+        bb.put(idBytes);
         bb.putInt(dim);
         for (float f : data) {
             bb.putFloat(f);
         }
-        bb.putInt(metaBytes.length); bb.put(metaBytes);
+        bb.putInt(metaBytes.length);
+        bb.put(metaBytes);
         /**
         * decode。
         * @param payload payload
@@ -80,24 +91,34 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         * @param data 数据
         * @param metadata metadata
         */
-        bb.position(0); bb.get(result);
+        bb.position(0);
+        bb.get(result);
         return result;
     }
 
+    /**
+     * 解码。
+     *
+     * @param payload 方法入参 payload
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     public static Optional<VecRecord> decode(byte[] payload) {
         if (payload == null || payload.length < 12) {
             return Optional.empty();
         }
         int pos = 0;
-        int idLen = ByteBuffer.wrap(payload, pos, 4).getInt(); pos += 4;
+        int idLen = ByteBuffer.wrap(payload, pos, 4).getInt();
+        pos += 4;
         if (idLen < 0 || pos + idLen > payload.length) {
             return Optional.empty();
         }
-        String id = new String(payload, pos, idLen, StandardCharsets.UTF_8); pos += idLen;
+        String id = new String(payload, pos, idLen, StandardCharsets.UTF_8);
+        pos += idLen;
         if (pos + 4 > payload.length) {
             return Optional.empty();
         }
-        int dim = ByteBuffer.wrap(payload, pos, 4).getInt(); pos += 4;
+        int dim = ByteBuffer.wrap(payload, pos, 4).getInt();
+        pos += 4;
         if (pos + dim * 4 > payload.length) {
             return Optional.empty();
         }
@@ -108,7 +129,8 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         pos += dim * 4;
         String metadata = null;
         if (pos + 4 <= payload.length) {
-            int metaLen = ByteBuffer.wrap(payload, pos, 4).getInt(); pos += 4;
+            int metaLen = ByteBuffer.wrap(payload, pos, 4).getInt();
+            pos += 4;
             if (metaLen > 0 && pos + metaLen <= payload.length) {
                 metadata = new String(payload, pos, metaLen, StandardCharsets.UTF_8);
             }

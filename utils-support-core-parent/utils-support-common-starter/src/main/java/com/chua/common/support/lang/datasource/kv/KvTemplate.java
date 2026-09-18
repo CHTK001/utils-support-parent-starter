@@ -50,42 +50,75 @@ public class KvTemplate {
         return engine;
     }
 
-    /** 获取 */
+    /**
+     * 获取
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     public String get(String key) {
         return engine.get(key);
     }
 
-    /** Put */
+    /**
+     * Put
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     */
     public void put(String key, String value) {
         engine.put(key, value);
     }
 
-    /** Put */
+    /**
+     * Put
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     * @param ttl 方法入参 ttl
+     */
     public void put(String key, String value, Duration ttl) {
         engine.put(key, value, ttl);
     }
 
-    /** ContainsKey */
+    /**
+     * ContainsKey
+     * @param key 键，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean containsKey(String key) {
         return engine.containsKey(key);
     }
 
-    /** 删除 */
+    /**
+     * 删除
+     * @param key 键，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean delete(String key) {
         return engine.delete(key);
     }
 
-    /** Incr */
+    /**
+     * Incr
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     public long incr(String key) {
         return engine.incr(key);
     }
 
-    /** Ttl */
+    /**
+     * Ttl
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     public long ttl(String key) {
         return engine.ttl(key);
     }
 
-    /** Expire */
+    /**
+     * Expire
+     * @param key 键，不允许为 null
+     * @param seconds 方法入参 seconds
+     */
     public void expire(String key, long seconds) {
         engine.expire(key, seconds);
     }

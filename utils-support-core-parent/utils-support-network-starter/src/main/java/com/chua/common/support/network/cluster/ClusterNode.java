@@ -242,13 +242,22 @@ public class ClusterNode implements AutoCloseable {
     @Override
     public void close() throws Exception {
         if (nodeServer != null) {
-            try { nodeServer.close(); } catch (Exception ignored) {}
+            try {
+                nodeServer.close();
+            } catch (Exception ignored) {
+            }
         }
         if (tcpProxy != null) {
-            try { tcpProxy.close(); } catch (Exception ignored) {}
+            try {
+                tcpProxy.close();
+            } catch (Exception ignored) {
+            }
         }
         if (httpServer != null) {
-            try { httpServer.close(); } catch (Exception ignored) {}
+            try {
+                httpServer.close();
+            } catch (Exception ignored) {
+            }
         }
         try {
             for (String path : registeredPaths) {
@@ -258,7 +267,10 @@ public class ClusterNode implements AutoCloseable {
             }
         } catch (Exception ignored) {}
         if (discovery != null) {
-            try { discovery.close(); } catch (Exception ignored) {}
+            try {
+                discovery.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 }

@@ -9,5 +9,10 @@ package com.chua.deeplearning.support.engine;
 @FunctionalInterface
 public interface ModelRegistrar {
 
+    /**
+     * 注册。
+     *
+     * @param registry 方法入参 registry
+     */
     void register(ModelRegistry registry);
 }

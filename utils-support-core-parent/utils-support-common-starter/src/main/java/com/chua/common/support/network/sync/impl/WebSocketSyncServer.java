@@ -229,6 +229,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 处理连接
+    * @param conn 连接，不允许为 null
     */
     private void handleConnection(Connection conn) {
         try {
@@ -246,6 +247,8 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 执行 WebSocket 握手
+    * @param conn 连接，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -285,6 +288,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 读取 WebSocket 帧
+    * @param conn 连接，不允许为 null
     */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -348,6 +352,8 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 计算 WebSocket 接受密钥
+    * @param key 键，不允许为 null
+    * @return 结果字符串
     */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -361,6 +367,8 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     *
     * <p>协议规定：仅客户端帧需掩码（masked），服务端帧必须无掩码——否则客户端按协议
     * 校验会异常关闭连接（1006）。</p>
+    * @param payload 方法入参 payload
+    * @return 结果值
     */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
@@ -384,6 +392,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 关闭连接
+    * @param conn 连接，不允许为 null
     */
     private void closeConnection(Connection conn) {
         try {
@@ -400,6 +409,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
 
     /**
     * 通知监听器
+    * @param action 方法入参 action
     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {

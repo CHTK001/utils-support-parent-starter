@@ -88,6 +88,11 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
         prepared = true;
     }
+    /**
+     * downloadModels。
+     *
+     * @param modelDir 模型目录，不允许为 null
+     */
     private void downloadModels(Path modelDir) {
         String base = "https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/onnx/";
         for (String f : new String[]{"vision_encoder.onnx", "embed_tokens.onnx", "decoder_model_merged.onnx"}) {
@@ -137,6 +142,13 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             return generate(encoderHidden, taskPrompt).trim();
         } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
+    /**
+     * preprocessImage。
+     *
+     * @param imageData image数据，不允许为 null
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private float[] preprocessImage(byte[] imageData) throws Exception {
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);
@@ -169,6 +181,13 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             return pixels;
         } finally { src.release(); }
     }
+    /**
+     * inferVision。
+     *
+     * @param pixels 方法入参 pixels
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private float[][] inferVision(float[] pixels) throws Exception {
         try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(pixels), new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
             try (OrtSession.Result result = visionSession.run(Map.of("pixel_values", tensor))) {
@@ -184,6 +203,14 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             }
         }
     }
+    /**
+     * generate。
+     *
+     * @param encoderHidden 方法入参 encoderHidden
+     * @param taskPrompt task提示词，不允许为 null
+     * @return 结果字符串
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private String generate(float[][] encoderHidden, String taskPrompt) throws Exception {
         int seqLen = ENCODER_SEQ_LEN;
         long[] encMask = new long[seqLen];
@@ -256,7 +283,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                 OnnxTensor stepLogitsTensor = (OnnxTensor) stepDecodeResult.get("logits").get();
                                 float[] stepLogits = stepLogitsTensor.getFloatBuffer().array();
                                 int nextTok = argmax(stepLogits, (stepSeqLen - 1) * VOCAB_SIZE, VOCAB_SIZE);
-                                if (nextTok == EOS_ID) { log.debug("[Florence-2] EOS at step {}", step); break; }
+                                if (nextTok == EOS_ID) {
+                                    log.debug("[Florence-2] EOS at step {}", step);
+                                    break;
+                                }
                                 generatedTokens.add((long) nextTok);
                                 for (int l = 0; l < NUM_LAYERS; l++) {
                                     pastKV[l][0] = (OnnxTensor) stepDecodeResult.get("present." + l + ".decoder.key").get();
@@ -265,39 +295,103 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                                     pastKV[l][3] = (OnnxTensor) stepDecodeResult.get("present." + l + ".encoder.value").get();
                                 }
                             }
-                            stepEmbedsTensor.close(); stepEncoderHiddenTensor.close(); stepIdsTensor.close();
+                            stepEmbedsTensor.close();
+                            stepEncoderHiddenTensor.close();
+                            stepIdsTensor.close();
                         }
                     }
-                    embedsTensor.close(); encoderHiddenTensor.close(); idsTensor.close();
+                    embedsTensor.close();
+                    encoderHiddenTensor.close();
+                    idsTensor.close();
                 }
             }
-        } finally { encoderMaskTensor.close(); }
+        } finally {
+            encoderMaskTensor.close();
+        }
         long[] finalIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
-        try { return tokenizer.decode(finalIds); }
-        catch (Exception e) { log.warn("[Florence-2] decode failed: {}", e.getMessage()); return joinTokens(generatedTokens); }
+        try {
+            return tokenizer.decode(finalIds);
+        } catch (Exception e) {
+            log.warn("[Florence-2] decode failed: {}", e.getMessage());
+            return joinTokens(generatedTokens);
+        }
     }
-    private static String joinTokens(List<Long> tokens) { StringBuilder sb = new StringBuilder(); for (long t : tokens) sb.append((char) Math.min(t, 0x10FFFFL)); return sb.toString(); }
     /**
-    * floatarray从2D。
-    * @param m m
-    * @return floatArrayFrom2D的结果
-    */
-    private static float[] floatArrayFrom2D(float[][] m) { int r = m.length, c = m[0].length; float[] flat = new float[r * c]; for (int i = 0; i < r; i++) System.arraycopy(m[i], 0, flat, i * c, c); return flat; }
+     * 按字符码位拼接 token，作为 tokenizer 解码失败时的兜底。
+     *
+     * @param tokens 生成的 token id 列表，不允许为 null
+     * @return 拼接后的文本
+     */
+    private static String joinTokens(List<Long> tokens) {
+        StringBuilder sb = new StringBuilder();
+        for (long t : tokens) {
+            sb.append((char) Math.min(t, 0x10FFFFL));
+        }
+        return sb.toString();
+    }
+
     /**
-    * argmax。
-    * @param logits logits
-    * @param offset 偏移量
-    * @param vocabSize vocab大小
-    * @return argmax的结果
-    */
-    private static int argmax(float[] logits, int offset, int vocabSize) { int maxIdx = 0; float maxVal = Float.NEGATIVE_INFINITY; for (int i = 0; i < vocabSize; i++) { float v = logits[offset + i]; if (v > maxVal) { maxVal = v; maxIdx = i; } } return maxIdx; }
+     * 将二维浮点数组按行优先展平为一维数组。
+     *
+     * @param m 二维浮点数组，不允许为 null
+     * @return 展平后的一维数组
+     */
+    private static float[] floatArrayFrom2D(float[][] m) {
+        int r = m.length;
+        int c = m[0].length;
+        float[] flat = new float[r * c];
+        for (int i = 0; i < r; i++) {
+            System.arraycopy(m[i], 0, flat, i * c, c);
+        }
+        return flat;
+    }
+
     /**
-    * 关闭。
-    */
-    public void close() { prepared = false; if (tokenizer != null) { try { tokenizer.close(); } catch (Exception ignored) {} tokenizer = null; } closeS(visionSession); closeS(embedSession); closeS(decoderSession); }
+     * 在 logits 指定区间内求最大值的下标。
+     *
+     * @param logits 展平的 logits 数组，不允许为 null
+     * @param offset 区间起始下标
+     * @param vocabSize 词表大小，即区间长度
+     * @return 区间内最大值对应的下标
+     */
+    private static int argmax(float[] logits, int offset, int vocabSize) {
+        int maxIdx = 0;
+        float maxVal = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < vocabSize; i++) {
+            float v = logits[offset + i];
+            if (v > maxVal) {
+                maxVal = v;
+                maxIdx = i;
+            }
+        }
+        return maxIdx;
+    }
+
     /**
-    * 关闭s。
-    * @param s s
-    */
-    private static void closeS(OrtSession s) { if (s != null) { try { s.close(); } catch (Exception ignored) {} } }
+     * 关闭翻译器，释放 tokenizer 与全部 ONNX 会话资源。
+     */
+    public void close() {
+        prepared = false;
+        if (tokenizer != null) {
+            try {
+                tokenizer.close();
+            } catch (Exception ignored) {}
+            tokenizer = null;
+        }
+        closeS(visionSession);
+        closeS(embedSession);
+        closeS(decoderSession);
+    }
+    /**
+     * 关闭单个 ONNX 会话，异常静默忽略。
+     *
+     * @param s 待关闭的会话，可为 null
+     */
+    private static void closeS(OrtSession s) {
+        if (s != null) {
+            try {
+                s.close();
+            } catch (Exception ignored) {}
+        }
+    }
 }

@@ -108,6 +108,11 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         }
     }
 
+    /**
+     * deflate。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void deflate() throws IOException {
         int len = def.deflate(buf, 0, buf.length);
         int off = 0;
@@ -135,6 +140,11 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         write(wbuf1, 0, 1);
     }
 
+    /**
+     * 完成。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void finish() throws IOException {
         try {
             if (!def.finished()) {

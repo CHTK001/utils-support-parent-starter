@@ -32,6 +32,7 @@ public class SafeOptional<T, R> {
     * 创建 SafeOptional 实例
     * @param isNone isNone
     * @param R R
+    * @param apply 应用，不允许为 null
     */
     public SafeOptional(boolean isNone, R apply) {
         this.isNone = isNone;

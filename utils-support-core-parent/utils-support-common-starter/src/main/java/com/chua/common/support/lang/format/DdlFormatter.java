@@ -51,6 +51,8 @@ public class DdlFormatter extends SqlFormatter {
 
     /**
     * 带参构造器（自定义配置）
+    * @param keepComments keepComments（布尔开关）
+    * @param upperCaseKeywords upperCaseKeywords（布尔开关）
     */
     public DdlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         super(keepComments, upperCaseKeywords);
@@ -58,6 +60,9 @@ public class DdlFormatter extends SqlFormatter {
 
     /**
     * 全参构造器（自定义所有配置）
+    * @param keepComments keepComments（布尔开关）
+    * @param upperCaseKeywords upperCaseKeywords（布尔开关）
+    * @param compressWhitespace compressWhitespace（布尔开关）
     */
     public DdlFormatter(boolean keepComments, boolean upperCaseKeywords, boolean compressWhitespace) {
         super(keepComments, upperCaseKeywords, compressWhitespace);

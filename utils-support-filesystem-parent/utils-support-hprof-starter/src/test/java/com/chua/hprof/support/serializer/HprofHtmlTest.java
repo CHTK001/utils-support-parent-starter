@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit tests for the HTML serializer and the rule-based analyzer.
+ * HTML 序列化器与规则分析器的单元测试。
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,7 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class HprofHtmlTest {
 
     /**
-     * A hand-built result that exercises every analyzer rule.
+     * 手工构造的结果，可触发分析器的每一条规则。
+     * @return HprofParser结果 对象
      */
     private static HprofParser.Result bigHeap() {
         HprofObject top = new HprofObject("java.util.HashMap", 500_000L, 20_000_000L, 500_000_000L);
@@ -40,11 +41,11 @@ class HprofHtmlTest {
                 List.of(top), histogram, topRetained,
                 List.of("sticky class:java.lang.Class"),
                 Map.of("sticky class", 40L, "thread object", 600L, "JNI global", 1500L),
-                Map.of(), totalRetained, 3_600_000L);
+                Map.of(), List.of(), totalRetained, 3_600_000L);
     }
 
     /**
-     * The HTML document carries every visual section.
+     * HTML 文档包含全部可视化区块。
      */
     @Test
     void htmlContainsAllSections() {
@@ -62,7 +63,7 @@ class HprofHtmlTest {
     }
 
     /**
-     * The embedded JSON data block is well-formed and carries chart data.
+     * 内嵌的 JSON 数据块格式合法且带有图表数据。
      */
     @Test
     void embeddedDataIsJson() throws Exception {
@@ -80,7 +81,7 @@ class HprofHtmlTest {
     }
 
     /**
-     * The analyzer fires the high-severity rules on a concentrated heap.
+     * 内存高度集中时，分析器会触发高严重度规则。
      */
     @Test
     void analyzerFiresHighSeverityRules() {
@@ -95,7 +96,7 @@ class HprofHtmlTest {
     }
 
     /**
-     * The JSON document now carries the analysis block.
+     * JSON 文档此时包含 analysis 区块。
      */
     @Test
     void jsonContainsAnalysisBlock() throws Exception {
@@ -106,10 +107,14 @@ class HprofHtmlTest {
         assertTrue(root.get("analysis").get("findings").size() > 0, "findings");
         assertTrue(root.get("analysis").get("conclusions").size() > 0, "conclusions");
         assertNotNull(root.get("analysis").get("metrics").get("top10_retained_ratio"), "metrics");
+        var gcRoots = root.get("analysis").get("gc_roots");
+        assertNotNull(gcRoots, "gc_roots node");
+        assertEquals(1500, gcRoots.get("by_kind").get("JNI global").asInt(), "jni global count");
+        assertTrue(gcRoots.get("roots").size() > 0, "gc roots list");
     }
 
     /**
-     * The AI summary block appears only when provided.
+     * 仅在传入 AI 总结时才渲染 AI 总结区块。
      */
     @Test
     void aiSummaryBlockPresentWhenProvided() {
@@ -127,7 +132,7 @@ class HprofHtmlTest {
     }
 
     /**
-     * The HprofAiSummarizer delegates to the ChatClient.chatSync.
+     * HprofAiSummarizer 会委托给 ChatClient.chatSync。
      */
     @Test
     void aiSummarizerDelegatesToChatClient() {
@@ -142,5 +147,41 @@ class HprofHtmlTest {
                 com.chua.hprof.support.ai.HprofAiSummarizer.of((ChatClient) null);
         assertTrue(!disabled.isEnabled());
         assertEquals(null, disabled.summarize(bigHeap()));
+    }
+
+    /**
+     * 分析器把根因以结构化分区呈现，而不只是一大段文本。
+     */
+    @Test
+    void rootCauseIsStructured() {
+        HprofAnalysis analysis = HprofAnalyzer.analyze(bigHeap());
+        assertNotNull(analysis.rootCauseHeadline, "headline");
+        assertTrue(!analysis.rootCauseHeadline.isBlank(), "headline non-blank");
+        assertNotNull(analysis.rootCauseSections, "sections");
+        List<String> labels = analysis.rootCauseSections.stream()
+                .map(s -> s.label()).toList();
+        assertTrue(labels.contains("主要根因"), "primary cause: " + labels);
+        assertTrue(labels.contains("具体机制"), "mechanisms: " + labels);
+        assertTrue(labels.contains("优先处置"), "action: " + labels);
+        assertTrue(analysis.rootCauseMechanisms != null && !analysis.rootCauseMechanisms.isEmpty(),
+                "at least one mechanism fires on a concentrated heap");
+        // 向后兼容的纯文本仍然存在，并且覆盖了各分区内容
+        assertTrue(analysis.rootCause.contains("【主要根因】"), "rootCause blob keeps labels");
+    }
+
+    /**
+     * MCP 诊断工具返回一张简洁的"根因 + 方案"卡片。
+     */
+    @Test
+    void mcpDiagnoseCard() {
+        String card = com.chua.hprof.support.mcp.HprofMcpProvider.diagnose(bigHeap(), "sample.hprof");
+        assertNotNull(card);
+        assertTrue(card.contains("【一句话结论】"), "headline block");
+        assertTrue(card.contains("【问题原因（根因判定）】"), "cause block");
+        assertTrue(card.contains("▸ 主要根因"), "cause section rendered");
+        assertTrue(card.contains("【关键证据】"), "evidence block");
+        assertTrue(card.contains("【解决方案（按优先级）】"), "solution block");
+        assertTrue(card.contains("怎么做"), "solution how-to line");
+        assertTrue(card.contains("[P2]"), "priority marker");
     }
 }

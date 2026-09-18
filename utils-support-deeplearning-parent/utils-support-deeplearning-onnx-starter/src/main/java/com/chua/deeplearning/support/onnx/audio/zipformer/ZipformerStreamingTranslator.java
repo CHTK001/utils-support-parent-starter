@@ -83,6 +83,14 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         buildInitialStates();
     }
 
+    /**
+     * 解析模型。
+     *
+     * @param dir 目录，不允许为 null
+     * @param prefix 前缀，不允许为 null
+     * @return 路径 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private Path resolveModel(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             return stream
@@ -93,6 +101,12 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 加载Vocab。
+     *
+     * @param modelDir 模型目录，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void loadVocab(Path modelDir) throws IOException {
         Path tokensFile = modelDir.resolve("tokens.txt");
         if (!Files.exists(tokensFile)) {
@@ -103,6 +117,12 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 读取Tokens。
+     *
+     * @param is 是否，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void readTokens(InputStream is) throws IOException {
         try (BufferedReader reader =
                      new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -257,6 +277,9 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         return result;
     }
 
+    /**
+     * resetStreaming。
+     */
     private void resetStreaming() {
         streamingEncoderOut.clear();
         closeStates(streamingStates);
@@ -266,6 +289,12 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         streamingDecoderOut = null;
     }
 
+    /**
+     * 处理EncoderChunks。
+     *
+     * @param features 方法入参 features
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private void processEncoderChunks(float[][] features) throws OrtException {
         int totalFrames = features.length;
         int numChunks = Math.max(1, (totalFrames + DECODE_CHUNK_LEN - 1) / DECODE_CHUNK_LEN);

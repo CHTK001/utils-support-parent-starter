@@ -1072,7 +1072,9 @@ public class HttpClientBuilder {
             sb.append(url.contains("?") ? '&' : '?');
             boolean first = true;
             for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
-                if (!first) sb.append('&');
+                if (!first) {
+                    sb.append('&');
+                }
                 sb.append(java.net.URLEncoder.encode(entry.getKey(), java.nio.charset.StandardCharsets.UTF_8));
                 sb.append('=');
                 if (entry.getValue() != null) {
@@ -1188,6 +1190,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 GET 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> getAsync() {
         method = HttpMethod.GET;
@@ -1196,6 +1199,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 GET 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void getAsync(Callback<ClientResponse> callback) {
         getAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1203,6 +1207,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 POST 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> postAsync() {
         method = HttpMethod.POST;
@@ -1211,6 +1216,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 POST 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void postAsync(Callback<ClientResponse> callback) {
         postAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1218,6 +1224,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PUT 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> putAsync() {
         method = HttpMethod.PUT;
@@ -1226,6 +1233,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PUT 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void putAsync(Callback<ClientResponse> callback) {
         putAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1233,6 +1241,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 DELETE 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> deleteAsync() {
         method = HttpMethod.DELETE;
@@ -1241,6 +1250,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 DELETE 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void deleteAsync(Callback<ClientResponse> callback) {
         deleteAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1248,6 +1258,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PATCH 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> patchAsync() {
         method = HttpMethod.PATCH;
@@ -1256,6 +1267,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PATCH 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void patchAsync(Callback<ClientResponse> callback) {
         patchAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1263,6 +1275,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 HEAD 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> headAsync() {
         method = HttpMethod.HEAD;
@@ -1271,6 +1284,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 HEAD 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void headAsync(Callback<ClientResponse> callback) {
         headAsync().subscribe(callback::onSuccess, callback::onError);
@@ -1278,6 +1292,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 OPTIONS 请求，返回 {@link Mono}。
+    * @return Mono 对象
     */
     public Mono<ClientResponse> optionsAsync() {
         method = HttpMethod.OPTIONS;
@@ -1286,6 +1301,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 OPTIONS 请求，通过回调通知结果。
+    * @param callback 回调，不允许为 null
     */
     public void optionsAsync(Callback<ClientResponse> callback) {
         optionsAsync().subscribe(callback::onSuccess, callback::onError);

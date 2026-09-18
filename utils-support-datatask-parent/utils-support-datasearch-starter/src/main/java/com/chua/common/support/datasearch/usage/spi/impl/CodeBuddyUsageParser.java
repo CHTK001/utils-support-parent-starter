@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 * }
 * }</pre>
 *
-* <p>The CN-edition twin directory {@code ~/.codebuddycn} is scanned as well.</p>
+* <p>国内版的同名目录 {@code ~/.codebuddycn} 也会被一并扫描。</p>
 *
 * @author CH
 * @since 4.0.0.42

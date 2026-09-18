@@ -54,16 +54,25 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
     }
 
+    /**
+     * 编码。
+     *
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     * @return 结果值
+     */
     public static byte[] encode(String key, byte[] value) {
         byte[] kb = key.getBytes(StandardCharsets.UTF_8);
         ByteBuffer bb = ByteBuffer.allocate(4 + kb.length + 4 + (value == null ? 0 : value.length));
-        bb.putInt(kb.length); bb.put(kb);
+        bb.putInt(kb.length);
+        bb.put(kb);
         bb.putInt(value == null ? 0 : value.length);
         if (value != null) {
             bb.put(value);
         }
         byte[] result = new byte[bb.position()];
-        bb.position(0); bb.get(result);
+        bb.position(0);
+        bb.get(result);
         /**
         * decode。
         * @param payload payload
@@ -81,6 +90,12 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
     */
     }
 
+    /**
+     * 解码。
+     *
+     * @param payload 方法入参 payload
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     public static Optional<KvPair> decode(byte[] payload) {
         if (payload == null || payload.length < 8) {
             return Optional.empty();
@@ -90,7 +105,8 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         if (keyLen < 0 || keyLen > bb.remaining()) {
             return Optional.empty();
         }
-        byte[] kb = new byte[keyLen]; bb.get(kb);
+        byte[] kb = new byte[keyLen];
+        bb.get(kb);
         int valLen = bb.getInt();
         byte[] val = valLen > 0 ? new byte[valLen] : new byte[0];
         if (valLen > 0) {

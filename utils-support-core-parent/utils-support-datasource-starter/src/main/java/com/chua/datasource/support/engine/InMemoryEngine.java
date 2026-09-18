@@ -195,6 +195,12 @@ public class InMemoryEngine extends AbstractEngine {
         return m.group(1);
     }
 
+    /**
+     * evaluate查询。
+     *
+     * @param wrapper 方法入参 wrapper
+     * @return 结果列表，无数据时为空列表
+     */
     @SuppressWarnings("unchecked")
     <T> List<T> evaluateQuery(EngineQueryWrapper<T> wrapper) {
         List<T> data = getData(wrapper.getEntityClass());
@@ -275,6 +281,14 @@ public class InMemoryEngine extends AbstractEngine {
         return null;
     }
 
+    /**
+     * evaluate页。
+     *
+     * @param wrapper 方法入参 wrapper
+     * @param pn 方法入参 pn
+     * @param ps 方法入参 ps
+     * @return 页 对象
+     */
     <T> Page<T> evaluatePage(EngineQueryWrapper<T> wrapper, int pn, int ps) {
         List<T> all = evaluateQuery(wrapper);
         int from = (pn - 1) * ps;
@@ -285,6 +299,12 @@ public class InMemoryEngine extends AbstractEngine {
         return new Page<>(pn, ps, all.size(), all.subList(from, to));
     }
 
+    /**
+     * evaluate更新。
+     *
+     * @param wrapper 方法入参 wrapper
+     * @return 结果数值
+     */
     <T> int evaluateUpdate(EngineUpdateWrapper<T> wrapper) {
         List<T> data = getData(wrapper.getEntityClass());
         if (data.isEmpty()) {
@@ -307,6 +327,12 @@ public class InMemoryEngine extends AbstractEngine {
         return count;
     }
 
+    /**
+     * evaluate删除。
+     *
+     * @param wrapper 方法入参 wrapper
+     * @return 结果数值
+     */
     <T> int evaluateDelete(EngineDeleteWrapper<T> wrapper) {
         List<T> data = getData(wrapper.getEntityClass());
         if (data.isEmpty()) {

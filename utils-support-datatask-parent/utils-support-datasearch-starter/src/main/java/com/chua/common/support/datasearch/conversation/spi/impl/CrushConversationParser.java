@@ -88,6 +88,11 @@ public class CrushConversationParser implements ConversationParser {
                 .flatMap(this::streamDatabase, 2);
     }
 
+    /**
+     * 列出ProjectDatabases。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listProjectDatabases() {
         List<Path> result = new ArrayList<>();
         if (!Files.exists(PROJECTS_INDEX)) {
@@ -120,6 +125,12 @@ public class CrushConversationParser implements ConversationParser {
         return result;
     }
 
+    /**
+     * 流Database。
+     *
+     * @param db 方法入参 db
+     * @return Flux 对象
+     */
     private Flux<ConversationMessage> streamDatabase(Path db) {
         return Flux.<ConversationMessage>create(sink -> {
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -149,6 +160,14 @@ public class CrushConversationParser implements ConversationParser {
           });
     }
 
+    /**
+     * 转为Messages。
+     *
+     * @param rs 方法入参 rs
+     * @param db 方法入参 db
+     * @return 结果列表，无数据时为空列表
+     * @throws SQLException 当执行过程不满足前置条件时
+     */
     private List<ConversationMessage> toMessages(ResultSet rs, Path db) throws SQLException {
         String messageId = rs.getString("id");
         String sessionId = rs.getString("session_id");
@@ -183,6 +202,12 @@ public class CrushConversationParser implements ConversationParser {
         return result;
     }
 
+    /**
+     * safe解析。
+     *
+     * @param raw 方法入参 raw
+     * @return Json节点 对象
+     */
     private JsonNode safeParse(String raw) {
         try {
             return Json.parse(raw);
@@ -198,11 +223,24 @@ public class CrushConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * as字符串。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String asStr(Object value) {
         return value == null ? "" : value.toString();
     }
 
 
+    /**
+     * 首个NonBlank。
+     *
+     * @param value 值，不允许为 null
+     * @param fallback 方法入参 fallback
+     * @return 结果字符串
+     */
     private static String firstNonBlank(String value, String fallback) {
         if (value != null && !value.isBlank()) {
             return value;

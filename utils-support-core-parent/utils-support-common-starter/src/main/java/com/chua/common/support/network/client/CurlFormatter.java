@@ -36,6 +36,9 @@ import java.util.Map;
  */
 public final class CurlFormatter {
 
+    /**
+     * 构造方法，创建 CurlFormatter 实例。
+     */
     private CurlFormatter() {
     }
 
@@ -75,7 +78,9 @@ public final class CurlFormatter {
         } else if (body == null && builder._formData() != null && !builder._formData().isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (java.util.Map.Entry<String, String> entry : builder._formData().entrySet()) {
-                if (sb.length() > 0) sb.append('&');
+                if (sb.length() > 0) {
+                    sb.append('&');
+                }
                 sb.append(java.net.URLEncoder.encode(entry.getKey(), java.nio.charset.StandardCharsets.UTF_8));
                 sb.append('=');
                 if (entry.getValue() != null) {
@@ -134,11 +139,17 @@ public final class CurlFormatter {
         // User-Agent / Referer / Cookie 快捷选项
         if (headers != null) {
             String ua = headers.get("User-Agent");
-            if (ua != null) sb.append(" -A ").append(quote(ua));
+            if (ua != null) {
+                sb.append(" -A ").append(quote(ua));
+            }
             String ref = headers.get("Referer");
-            if (ref != null) sb.append(" -e ").append(quote(ref));
+            if (ref != null) {
+                sb.append(" -e ").append(quote(ref));
+            }
             String cookie = headers.get("Cookie");
-            if (cookie != null) sb.append(" -b ").append(quote(cookie));
+            if (cookie != null) {
+                sb.append(" -b ").append(quote(cookie));
+            }
         }
 
         // Authorization
@@ -183,13 +194,27 @@ public final class CurlFormatter {
         }
     }
 
+    /**
+     * 是否Json。
+     *
+     * @param s 方法入参 s
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isJson(String s) {
         String t = s.strip();
         return t.startsWith("{") || t.startsWith("[");
     }
 
+    /**
+     * quote。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String quote(String value) {
-        if (value == null) return "''";
+        if (value == null) {
+            return "''";
+        }
         if (value.indexOf(' ') < 0 && value.indexOf('"') < 0
                 && value.indexOf('\'') < 0 && value.indexOf('$') < 0
                 && value.indexOf('!') < 0 && value.indexOf('(') < 0) {

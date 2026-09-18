@@ -123,6 +123,12 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
         }
     }
 
+    /**
+     * 解析Instant转为毫秒数。
+     *
+     * @param ts 方法入参 ts
+     * @return 结果数值
+     */
     private long parseInstantToMillis(String ts) {
         if (ts == null || ts.isBlank()) {
             return 0L;

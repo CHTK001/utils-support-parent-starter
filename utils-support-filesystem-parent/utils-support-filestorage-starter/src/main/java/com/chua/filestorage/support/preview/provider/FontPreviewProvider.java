@@ -126,6 +126,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 获取格式化。
+     *
+     * @param ext 方法入参 ext
+     * @return 结果字符串
+     */
     private String getFormat(String ext) {
         return switch (ext) {
             case "ttf" -> "truetype";
@@ -137,6 +143,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
         };
     }
 
+    /**
+     * 获取格式化名称。
+     *
+     * @param ext 方法入参 ext
+     * @return 结果字符串
+     */
     private String getFormatName(String ext) {
         return switch (ext) {
             case "ttf" -> "TrueType Font";
@@ -148,6 +160,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
         };
     }
 
+    /**
+     * human大小。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

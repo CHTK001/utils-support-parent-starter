@@ -11,16 +11,28 @@ import java.util.Map;
  */
 public interface ServletRequest {
 
-    /** 获取请求体字节 */
+    /**
+     * 获取请求体字节
+     * @return 结果值
+     */
     byte[] getBody();
 
-    /** 获取查询字符串 */
+    /**
+     * 获取查询字符串
+     * @return 结果字符串
+     */
     String getQueryString();
 
-    /** 获取远程客户端 IP */
+    /**
+     * 获取远程客户端 IP
+     * @return 结果字符串
+     */
     String getRemoteAddr();
 
-    /** 获取远程客户端端口 */
+    /**
+     * 获取远程客户端端口
+     * @return 结果数值
+     */
     int getRemotePort();
 
     /**
@@ -30,7 +42,10 @@ public interface ServletRequest {
     */
     Map<String, String> getHeaders();
 
-    /** 获取所有请求头名称枚举 */
+    /**
+     * 获取所有请求头名称枚举
+     * @return Enumeration 对象
+     */
     Enumeration<String> getHeaderNames();
 
     /**
@@ -41,9 +56,15 @@ public interface ServletRequest {
     */
     String getHeader(String name);
 
-    /** 获取 HTTP 方法（如 获取 / POST） */
+    /**
+     * 获取 HTTP 方法（如 获取 / POST）
+     * @return 结果字符串
+     */
     String getMethod();
 
-    /** 获取请求 URI 路径 */
+    /**
+     * 获取请求 URI 路径
+     * @return 结果字符串
+     */
     String getRequestURI();
 }

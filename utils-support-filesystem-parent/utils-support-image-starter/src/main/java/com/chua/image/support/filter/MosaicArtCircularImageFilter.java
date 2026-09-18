@@ -240,6 +240,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 读取图片
+    * @param p 方法入参 p
+    * @return BufferedImage 对象
     */
     private BufferedImage ImageIORead(Path p) throws IOException {
         return javax.imageio.ImageIO.read(p.toFile());
@@ -247,6 +249,10 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 颜色匹配选贴图
+    * @param r 方法入参 r
+    * @param g 方法入参 g
+    * @param b 方法入参 b
+    * @return BufferedImage 对象
     */
     private BufferedImage pickTile(int r, int g, int b) {
         BufferedImage best = null;
@@ -267,6 +273,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 贴图平均色（缓存）
+    * @param t 方法入参 t
+    * @return 结果值
     */
     private int[] averageOf(BufferedImage t) {
         int[] px = t.getRGB(0, 0, t.getWidth(), t.getHeight(), null, 0, t.getWidth());
@@ -282,6 +290,13 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 从源图采样格子平均色
+    * @param pixels 方法入参 pixels
+    * @param w 方法入参 w
+    * @param h 方法入参 h
+    * @param cx 方法入参 cx
+    * @param cy 方法入参 cy
+    * @param cs 方法入参 cs
+    * @return 结果值
     */
     private int[] averageColor(int[] pixels, int w, int h, int cx, int cy, int cs) {
         int x0 = Math.max(0, cx - cs / 2);
@@ -307,6 +322,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 扩展名白名单切分
+    * @param exts 方法入参 exts
+    * @return 结果值
     */
     private java.util.Set<String> splitExtensions(String exts) {
         if (exts == null || exts.isEmpty()) {
@@ -320,6 +337,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
     * 解析十六进制颜色
+    * @param hex 方法入参 hex
+    * @return 结果值
     */
     private java.awt.Color parseColor(String hex) {
         try {

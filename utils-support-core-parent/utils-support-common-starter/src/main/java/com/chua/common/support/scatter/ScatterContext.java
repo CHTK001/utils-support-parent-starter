@@ -18,6 +18,13 @@ public class ScatterContext {
     /** 超时毫秒 */
     private final long timeoutMillis;
 
+    /**
+     * 构造方法，创建 Scatter上下文 实例。
+     *
+     * @param requestId 请求ID，不允许为 null
+     * @param path 路径，不允许为 null
+     * @param timeoutMillis 超时时间毫秒数，不允许为 null
+     */
     public ScatterContext(String requestId, String path, long timeoutMillis) {
         this.requestId = requestId;
         this.path = path;

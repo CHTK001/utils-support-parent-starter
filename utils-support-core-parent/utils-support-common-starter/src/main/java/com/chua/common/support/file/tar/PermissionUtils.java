@@ -21,6 +21,9 @@ import java.util.Set;
  */
 public class PermissionUtils {
 
+    /**
+     * 构造方法，创建 PermissionUtils 实例。
+     */
     private PermissionUtils() {
     }
 

@@ -6,6 +6,12 @@ import com.chua.winrm.support.client.WinRmExecClient;
  * 用计划任务启动远程 FilePushServer（避免阻塞 WinRM 会话）。
  */
 public class FpWinRmSchtask {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("[1] connect...");
         WinRmExecClient winrm = WinRmExecClient.builder()

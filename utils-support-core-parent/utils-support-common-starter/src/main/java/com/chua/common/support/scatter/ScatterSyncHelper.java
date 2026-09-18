@@ -31,10 +31,16 @@ public final class ScatterSyncHelper {
     */
     private static volatile TcpClient customClient;
 
+    /**
+     * 构造方法，创建 ScatterSyncHelper 实例。
+     */
     private ScatterSyncHelper() {
     }
 
-    /** 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。 */
+    /**
+     * 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。
+     * @param client 客户端，不允许为 null
+     */
     public static void setCustomClient(TcpClient client) {
         customClient = client;
     }
@@ -141,6 +147,16 @@ public final class ScatterSyncHelper {
         }
     }
 
+    /**
+     * 发送Tcp。
+     *
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     * @param payload 方法入参 payload
+     * @param timeoutMillis 超时时间毫秒数，不允许为 null
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static byte[] sendTcp(String host, int port, byte[] payload, long timeoutMillis) throws Exception {
         TcpClient client = customClient;
         if (client != null) {
@@ -153,6 +169,16 @@ public final class ScatterSyncHelper {
         }
     }
 
+    /**
+     * 发送Udp。
+     *
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     * @param payload 方法入参 payload
+     * @param timeoutMillis 超时时间毫秒数，不允许为 null
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static byte[] sendUdp(String host, int port, byte[] payload, long timeoutMillis) throws Exception {
         try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
             socket.setSoTimeout((int) Math.min(timeoutMillis, Integer.MAX_VALUE));
@@ -165,6 +191,12 @@ public final class ScatterSyncHelper {
         }
     }
 
+    /**
+     * 下一个请求ID。
+     *
+     * @param node 节点，不允许为 null
+     * @return 结果数值
+     */
     private static int nextRequestId(ScatterNode node) {
         String key = node.getNodeId() + ":" + node.getHost() + ":" + node.getPort();
         int seq = REQUEST_ID_SEQ.merge(key, 1, Integer::sum);

@@ -127,95 +127,206 @@ public class SipConfig {
 
     /**
     * 创建配置构建器。
+    * @return Builder 对象
     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * 是否Compress。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isCompress() {
         return compress;
     }
 
+    /**
+     * 设置Compress。
+     *
+     * @param compress compress（布尔开关）
+     */
     public void setCompress(boolean compress) {
         this.compress = compress;
     }
 
+    /**
+     * 是否Encrypt。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isEncrypt() {
         return encrypt;
     }
 
+    /**
+     * 设置Encrypt。
+     *
+     * @param encrypt encrypt（布尔开关）
+     */
     public void setEncrypt(boolean encrypt) {
         this.encrypt = encrypt;
     }
 
+    /**
+     * 获取Compressor。
+     *
+     * @return 结果字符串
+     */
     public String getCompressor() {
         return compressor;
     }
 
+    /**
+     * 设置Compressor。
+     *
+     * @param compressor 方法入参 compressor
+     */
     public void setCompressor(String compressor) {
         this.compressor = compressor;
     }
 
+    /**
+     * 获取Cipher。
+     *
+     * @return 结果字符串
+     */
     public String getCipher() {
         return cipher;
     }
 
+    /**
+     * 设置Cipher。
+     *
+     * @param cipher 方法入参 cipher
+     */
     public void setCipher(String cipher) {
         this.cipher = cipher;
     }
 
+    /**
+     * 获取令牌。
+     *
+     * @return 结果字符串
+     */
     public String getToken() {
         return token;
     }
 
+    /**
+     * 设置令牌。
+     *
+     * @param token 令牌，不允许为 null
+     */
     public void setToken(String token) {
         this.token = token;
     }
 
+    /**
+     * 获取主机。
+     *
+     * @return 结果字符串
+     */
     public String getHost() {
         return host;
     }
 
+    /**
+     * 设置主机。
+     *
+     * @param host 主机，不允许为 null
+     */
     public void setHost(String host) {
         this.host = host;
     }
 
+    /**
+     * 获取端口。
+     *
+     * @return 结果数值
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * 设置端口。
+     *
+     * @param port 端口，不允许为 null
+     */
     public void setPort(int port) {
         this.port = port;
     }
 
+    /**
+     * 获取数据Plane模式。
+     *
+     * @return 结果字符串
+     */
     public String getDataPlaneMode() {
         return dataPlaneMode;
     }
 
+    /**
+     * 设置数据Plane模式。
+     *
+     * @param dataPlaneMode 数据Plane模式，不允许为 null
+     */
     public void setDataPlaneMode(String dataPlaneMode) {
         this.dataPlaneMode = dataPlaneMode;
     }
 
+    /**
+     * 获取最小值Frame间隔Ns。
+     *
+     * @return 结果数值
+     */
     public long getMinFrameIntervalNs() {
         return minFrameIntervalNs;
     }
 
+    /**
+     * 设置最小值Frame间隔Ns。
+     *
+     * @param minFrameIntervalNs 最小值Frame间隔Ns，不允许为 null
+     */
     public void setMinFrameIntervalNs(long minFrameIntervalNs) {
         this.minFrameIntervalNs = minFrameIntervalNs;
     }
 
+    /**
+     * 获取最大值AuthPerIPPer最小值。
+     *
+     * @return 结果数值
+     */
     public int getMaxAuthPerIpPerMin() {
         return maxAuthPerIpPerMin;
     }
 
+    /**
+     * 设置最大值AuthPerIPPer最小值。
+     *
+     * @param maxAuthPerIpPerMin 最大值AuthPerIPPer最小值，不允许为 null
+     */
     public void setMaxAuthPerIpPerMin(int maxAuthPerIpPerMin) {
         this.maxAuthPerIpPerMin = maxAuthPerIpPerMin;
     }
 
+    /**
+     * 获取令牌文件。
+     *
+     * @return 结果字符串
+     */
     public String getTokenFile() {
         return tokenFile;
     }
 
+    /**
+     * 设置令牌文件。
+     *
+     * @param tokenFile 令牌文件，不允许为 null
+     */
     public void setTokenFile(String tokenFile) {
         this.tokenFile = tokenFile;
     }

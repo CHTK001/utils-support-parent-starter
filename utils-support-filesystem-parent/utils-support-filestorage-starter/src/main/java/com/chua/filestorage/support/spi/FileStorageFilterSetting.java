@@ -78,6 +78,7 @@ public interface FileStorageFilterSetting {
     *
     * @param id     滤镜 标识（对应 镜像过滤器 SPI 名称，如 {@code "resize"}、{@code "blur"}）
     * @param params 滤镜参数（键值对）
+    * @return 结果值
     */
     record ImageFilterConfig(String id, Map<String, Object> params) {
 

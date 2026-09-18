@@ -968,7 +968,7 @@ public class StringUtils {
     }
 
     /**
-    * <p>Check if a CharSequence starts with a specified prefix (optionally case insensitive).</p>
+    * <p>检查 CharSequence 是否以指定前缀开头（可选是否忽略大小写）。</p>
     *
     * @param str        the charsequence 转为 检查, may be 空
     * @param prefix     the 前缀 转为 查找, may be 空
@@ -3044,6 +3044,12 @@ public class StringUtils {
 
     }
 
+    /**
+     * 是否InvisibleChar。
+     *
+     * @param c 方法入参 c
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean isInvisibleChar(int c) {
         return c == 8203 || c == 173;
     }
@@ -3097,6 +3103,13 @@ public class StringUtils {
         }
     }
 
+    /**
+     * in。
+     *
+     * @param needle 方法入参 needle
+     * @param haystack 方法入参 haystack
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean in(final String needle, final String... haystack) {
         final int len = haystack.length;
         for (int i = 0; i < len; i++) {
@@ -3107,6 +3120,13 @@ public class StringUtils {
         return false;
     }
 
+    /**
+     * inSorted。
+     *
+     * @param needle 方法入参 needle
+     * @param haystack 方法入参 haystack
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean inSorted(String needle, String[] haystack) {
         return Arrays.binarySearch(haystack, needle) >= 0;
     }
@@ -3163,6 +3183,12 @@ public class StringUtils {
         return new URL(url.getProtocol(), url.getHost(), url.getPort(), fixedFile);
     }
 
+    /**
+     * stripControlChars。
+     *
+     * @param input 方法入参 input
+     * @return 结果字符串
+     */
     private static String stripControlChars(final String input) {
         return CONTROL_CHARS.matcher(input).replaceAll("");
     }
@@ -3175,7 +3201,7 @@ public class StringUtils {
     * @param str        The 字符串.
     * @param prefix     The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
     * @param ignoreCase Indicates whether the compare should ignore 大小写.
-    * @param prefixes   Additional prefixes that are valid (optional).
+    * @param prefixes   其他合法的前缀（可选）。
     * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
     */
     private static String prependIfMissing(final String str, final CharSequence prefix, final boolean ignoreCase, final CharSequence... prefixes) {
@@ -3220,7 +3246,7 @@ public class StringUtils {
     *
     * @param str      The 字符串.
     * @param prefix   The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
-    * @param prefixes Additional prefixes that are valid.
+    * @param prefixes 其他合法的前缀。
     * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
     * @since 3.2
     */
@@ -3256,7 +3282,7 @@ public class StringUtils {
     *
     * @param str      The 字符串.
     * @param prefix   The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
-    * @param prefixes Additional prefixes that are valid (optional).
+    * @param prefixes 其他合法的前缀（可选）。
     * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
     * @since 3.2
     */

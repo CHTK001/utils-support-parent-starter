@@ -45,10 +45,20 @@ final class CRC {
 
     CRC() {}
 
+    /**
+     * reset。
+     */
     void reset() {
         crc = 0xffffffff;
     }
 
+    /**
+     * 更新。
+     *
+     * @param data 数据，不允许为 null
+     * @param off 方法入参 off
+     * @param len 方法入参 len
+     */
     void update(byte[] data, int off, int len) {
         int c = crc;
         for (int n = 0; n < len; n++) {
@@ -57,10 +67,20 @@ final class CRC {
         crc = c;
     }
 
+    /**
+     * 更新。
+     *
+     * @param data 数据，不允许为 null
+     */
     void update(int data) {
         crc = crcTable[(crc ^ data) & 0xff] ^ (crc >>> 8);
     }
 
+    /**
+     * 获取值。
+     *
+     * @return 结果数值
+     */
     int getValue() {
         return crc ^ 0xffffffff;
     }

@@ -223,6 +223,12 @@ public class MossTextToAudioClient implements TextToAudioClient {
         }
     }
 
+    /**
+     * tts目录。
+     *
+     * @return 路径 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private Path ttsDir() throws IOException {
         String prop = System.getProperty("speech.loop.moss.dir");
         Path dir = (prop != null && !prop.isBlank())
@@ -232,6 +238,12 @@ public class MossTextToAudioClient implements TextToAudioClient {
         return dir;
     }
 
+    /**
+     * codec目录。
+     *
+     * @return 路径 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private Path codecDir() throws IOException {
         String prop = System.getProperty("speech.loop.codec.dir");
         Path dir = (prop != null && !prop.isBlank())
@@ -241,6 +253,14 @@ public class MossTextToAudioClient implements TextToAudioClient {
         return dir;
     }
 
+    /**
+     * downloadMissing。
+     *
+     * @param dir 目录，不允许为 null
+     * @param files 方法入参 files
+     * @param mirrorBase 方法入参 mirrorBase
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void downloadMissing(Path dir, String[] files, String mirrorBase) throws IOException {
         Files.createDirectories(dir);
         for (String name : files) {
@@ -257,6 +277,11 @@ public class MossTextToAudioClient implements TextToAudioClient {
         }
     }
 
+    /**
+     * 缓存根节点。
+     *
+     * @return 结果字符串
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

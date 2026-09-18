@@ -399,7 +399,11 @@ public class ArmeriaHttpServer extends AbstractServer {
                 return b;
             }
             if (r instanceof java.nio.file.Path p) {
-                try { return java.nio.file.Files.readAllBytes(p); } catch (Exception e) { return null; }
+                try {
+                    return java.nio.file.Files.readAllBytes(p);
+                } catch (Exception e) {
+                    return null;
+                }
             }
             return r.toString().getBytes(StandardCharsets.UTF_8);
         }

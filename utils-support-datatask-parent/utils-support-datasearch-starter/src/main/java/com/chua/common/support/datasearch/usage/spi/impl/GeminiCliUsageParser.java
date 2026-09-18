@@ -72,6 +72,12 @@ public class GeminiCliUsageParser extends BaseUsageParser {
                 .flatMap(this::streamFile, 4);
     }
 
+    /**
+     * 流文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamFile(Path file) {
         return Flux.using(
                         () -> Files.newBufferedReader(file),
@@ -126,6 +132,13 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析LineSafe。
+     *
+     * @param line 方法入参 line
+     * @param sessionId 会话ID，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<AiUsage> parseLineSafe(String line, String sessionId) {
         try {
             return parseLine(line, sessionId);
@@ -135,6 +148,13 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析Line。
+     *
+     * @param line 方法入参 line
+     * @param sessionId 会话ID，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<AiUsage> parseLine(String line, String sessionId) {
         if (line.isBlank()) {
             return List.of();
@@ -173,6 +193,11 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         return new ArrayList<>(List.of(builder.build()));
     }
 
+    /**
+     * 列出Transcripts。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listTranscripts() {
         if (!Files.isDirectory(GEMINI_TMP)) {
             return List.of();

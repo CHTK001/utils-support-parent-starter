@@ -248,49 +248,73 @@ public class MysqlCdcListener {
         * @param host 主机
         * @return 主机的结果
         */
-        public Builder host(String host) { this.host = host; return this; }
+        public Builder host(String host) {
+            this.host = host;
+            return this;
+        }
         /**
         * 端口。
         * @param port 端口
         * @return 端口的结果
         */
-        public Builder port(int port) { this.port = port; return this; }
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
         /**
         * 用户名。
         * @param username 用户名
         * @return 用户名的结果
         */
-        public Builder username(String username) { this.username = username; return this; }
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
         /**
         * 密码。
         * @param password 密码
         * @return 密码的结果
         */
-        public Builder password(String password) { this.password = password; return this; }
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
         /**
         * 服务端id。
         * @param serverId 服务端标识
         * @return 服务端id的结果
         */
-        public Builder serverId(int serverId) { this.serverId = serverId; return this; }
+        public Builder serverId(int serverId) {
+            this.serverId = serverId;
+            return this;
+        }
         /**
         * tableid。
         * @param tableId tableid
         * @return tableId的结果
         */
-        public Builder tableId(Long tableId) { this.tableId = tableId; return this; }
+        public Builder tableId(Long tableId) {
+            this.tableId = tableId;
+            return this;
+        }
         /**
         * pipelineid。
         * @param pipelineId pipelineid
         * @return pipelineId的结果
         */
-        public Builder pipelineId(String pipelineId) { this.pipelineId = pipelineId; return this; }
+        public Builder pipelineId(String pipelineId) {
+            this.pipelineId = pipelineId;
+            return this;
+        }
         /**
         * pipelineengine。
         * @param engine engine
         * @return pipelineEngine的结果
         */
-        public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
+        public Builder pipelineEngine(PipelineEngine engine) {
+            this.pipelineEngine = engine;
+            return this;
+        }
 
         /**
         * 构建。

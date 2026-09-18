@@ -74,6 +74,11 @@ public class ClineConversationParser implements ConversationParser {
                         4);
     }
 
+    /**
+     * 列出消息Files。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listMessageFiles() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             return List.of();
@@ -88,6 +93,12 @@ public class ClineConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * 解析文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ConversationMessage> parseFile(Path file) {
         try {
             JsonNode root = Json.parse(Files.readString(file));
@@ -108,6 +119,13 @@ public class ClineConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * 解析消息。
+     *
+     * @param node 节点，不允许为 null
+     * @param sessionId 会话ID，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ConversationMessage> parseMessage(JsonNode node, String sessionId) {
         String role = node.get("role").toStringValue();
         long ts = node.get("ts").toLongValue(0L);

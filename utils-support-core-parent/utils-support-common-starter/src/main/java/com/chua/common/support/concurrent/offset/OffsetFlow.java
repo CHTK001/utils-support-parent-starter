@@ -192,6 +192,7 @@ public final class OffsetFlow implements AutoCloseable {
 
     /**
     * 获取或初始化存储。
+    * @return 偏移量Store 对象
     */
     private OffsetStore getStore() {
         if (store == null) {
@@ -200,7 +201,11 @@ public final class OffsetFlow implements AutoCloseable {
         return store;
     }
 
-    /** 查找Provider */
+    /**
+     * 查找Provider
+     * @param providerName 提供者名称，不允许为 null
+     * @return 偏移量Store 对象
+     */
     private OffsetStore findProvider(String providerName) {
         return ServiceProvider.of(OffsetStore.class).getNewExtension(providerName, config);
     }

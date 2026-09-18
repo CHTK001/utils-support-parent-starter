@@ -233,42 +233,60 @@ public class ZookeeperClient implements AutoCloseable {
         * @param connectString 连接字符串
         * @return 连接字符串的结果
         */
-        public Builder connectString(String connectString) { this.connectString = connectString; return this; }
+        public Builder connectString(String connectString) {
+            this.connectString = connectString;
+            return this;
+        }
         /**
         * 会话超时ms
         *
         * @param ms ms
         * @return 会话超时ms的结果
         */
-        public Builder sessionTimeoutMs(int ms) { this.sessionTimeoutMs = ms; return this; }
+        public Builder sessionTimeoutMs(int ms) {
+            this.sessionTimeoutMs = ms;
+            return this;
+        }
         /**
         * connection超时ms
         *
         * @param ms ms
         * @return connection超时ms的结果
         */
-        public Builder connectionTimeoutMs(int ms) { this.connectionTimeoutMs = ms; return this; }
+        public Builder connectionTimeoutMs(int ms) {
+            this.connectionTimeoutMs = ms;
+            return this;
+        }
         /**
         * 重试basesleepms
         *
         * @param ms ms
         * @return 重试basesleepms的结果
         */
-        public Builder retryBaseSleepMs(int ms) { this.retryBaseSleepMs = ms; return this; }
+        public Builder retryBaseSleepMs(int ms) {
+            this.retryBaseSleepMs = ms;
+            return this;
+        }
         /**
         * 重试最大值重试
         *
         * @param max 最大
         * @return 重试最大重试的结果
         */
-        public Builder retryMaxRetries(int max) { this.retryMaxRetries = max; return this; }
+        public Builder retryMaxRetries(int max) {
+            this.retryMaxRetries = max;
+            return this;
+        }
         /**
         * Namespace
         *
         * @param namespace namespace
         * @return namespace的结果
         */
-        public Builder namespace(String namespace) { this.namespace = namespace; return this; }
+        public Builder namespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
 
         /**
         * 构建
@@ -339,59 +357,86 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public CreateBuilder path(String path) { this.path = path; return this; }
+        public CreateBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
         /**
         * 数据
         *
         * @param data 数据
         * @return 数据的结果
         */
-        public CreateBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
+        public CreateBuilder data(String data) {
+            this.data = data != null ? data.getBytes() : null;
+            return this;
+        }
         /**
         * 数据
         *
         * @param data 数据
         * @return 数据的结果
         */
-        public CreateBuilder data(byte[] data) { this.data = data; return this; }
+        public CreateBuilder data(byte[] data) {
+            this.data = data;
+            return this;
+        }
         /**
         * 创建父ifneeded
         *
         * @param flag flag
         * @return 创建父ifneeded的结果
         */
-        public CreateBuilder creatingParentsIfNeeded(boolean flag) { this.creatingParentsIfNeeded = flag; return this; }
+        public CreateBuilder creatingParentsIfNeeded(boolean flag) {
+            this.creatingParentsIfNeeded = flag;
+            return this;
+        }
         /**
         * withacl
         *
         * @param acl 访问控制列表
         * @return withACL的结果
         */
-        public CreateBuilder withACL(Map<String, byte[]> acl) { this.acl = acl; return this; }
+        public CreateBuilder withACL(Map<String, byte[]> acl) {
+            this.acl = acl;
+            return this;
+        }
 
         /**
         * 设置为持久节点（默认）。
         * @return persistent的结果
         */
-        public CreateBuilder persistent() { this.mode = org.apache.zookeeper.CreateMode.PERSISTENT; return this; }
+        public CreateBuilder persistent() {
+            this.mode = org.apache.zookeeper.CreateMode.PERSISTENT;
+            return this;
+        }
 
         /**
         * 设置为持久顺序节点。
         * @return persistentSequential的结果
         */
-        public CreateBuilder persistentSequential() { this.mode = org.apache.zookeeper.CreateMode.PERSISTENT_SEQUENTIAL; return this; }
+        public CreateBuilder persistentSequential() {
+            this.mode = org.apache.zookeeper.CreateMode.PERSISTENT_SEQUENTIAL;
+            return this;
+        }
 
         /**
         * 设置为临时节点，客户端断开后自动删除。
         * @return ephemeral的结果
         */
-        public CreateBuilder ephemeral() { this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL; return this; }
+        public CreateBuilder ephemeral() {
+            this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL;
+            return this;
+        }
 
         /**
         * 设置为临时顺序节点，自动追加递增序号。
         * @return ephemeralSequential的结果
         */
-        public CreateBuilder ephemeralSequential() { this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL_SEQUENTIAL; return this; }
+        public CreateBuilder ephemeralSequential() {
+            this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL_SEQUENTIAL;
+            return this;
+        }
 
         /**
         * 兼容旧 API：设置为临时节点。
@@ -448,21 +493,30 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public DeleteBuilder path(String path) { this.path = path; return this; }
+        public DeleteBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
         /**
         * 删除childrenifneeded
         *
         * @param flag flag
         * @return 删除childrenifneeded的结果
         */
-        public DeleteBuilder deletingChildrenIfNeeded(boolean flag) { this.deletingChildrenIfNeeded = flag; return this; }
+        public DeleteBuilder deletingChildrenIfNeeded(boolean flag) {
+            this.deletingChildrenIfNeeded = flag;
+            return this;
+        }
         /**
         * Quiet
         *
         * @param flag flag
         * @return quiet的结果
         */
-        public DeleteBuilder quiet(boolean flag) { this.quiet = flag; return this; }
+        public DeleteBuilder quiet(boolean flag) {
+            this.quiet = flag;
+            return this;
+        }
 
         /**
         * 执行删除。
@@ -502,7 +556,10 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public GetDataBuilder path(String path) { this.path = path; return this; }
+        public GetDataBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
 
         /**
         * 获取数据（字节数组）。
@@ -558,21 +615,30 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public SetDataBuilder path(String path) { this.path = path; return this; }
+        public SetDataBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
         /**
         * 数据
         *
         * @param data 数据
         * @return 数据的结果
         */
-        public SetDataBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
+        public SetDataBuilder data(String data) {
+            this.data = data != null ? data.getBytes() : null;
+            return this;
+        }
         /**
         * 数据
         *
         * @param data 数据
         * @return 数据的结果
         */
-        public SetDataBuilder data(byte[] data) { this.data = data; return this; }
+        public SetDataBuilder data(byte[] data) {
+            this.data = data;
+            return this;
+        }
 
         /**
         * 执行设置。
@@ -605,7 +671,10 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public CheckExistsBuilder path(String path) { this.path = path; return this; }
+        public CheckExistsBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
 
         /**
         * 判断是否存在。
@@ -639,7 +708,10 @@ public class ZookeeperClient implements AutoCloseable {
         * @param path 路径
         * @return 路径的结果
         */
-        public GetChildrenBuilder path(String path) { this.path = path; return this; }
+        public GetChildrenBuilder path(String path) {
+            this.path = path;
+            return this;
+        }
 
         /**
         * 获取子节点列表。

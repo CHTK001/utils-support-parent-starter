@@ -16,7 +16,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,10 +43,19 @@ public class CnIdCardRecognizer {
     */
     private final String recModel;
 
+    /**
+     * 构造方法，创建 CnIDCardRecognizer 实例。
+     */
     public CnIdCardRecognizer() {
         this("id-card-detect", "paddleocrv6-rec");
     }
 
+    /**
+     * 构造方法，创建 CnIDCardRecognizer 实例。
+     *
+     * @param detectModel detect模型，不允许为 null
+     * @param recModel rec模型，不允许为 null
+     */
     public CnIdCardRecognizer(String detectModel, String recModel) {
         this.detectModel = detectModel;
         this.recModel = recModel;
@@ -113,6 +121,12 @@ public class CnIdCardRecognizer {
         return results;
     }
 
+    /**
+     * detectCard。
+     *
+     * @param imageData image数据，不允许为 null
+     * @return DetectedObjects 对象
+     */
     private DetectedObjects detectCard(byte[] imageData) {
         try {
             ITranslator<Image, DetectedObjects> detector = createTranslator(detectModel);
@@ -135,6 +149,12 @@ public class CnIdCardRecognizer {
         }
     }
 
+    /**
+     * recognize文本。
+     *
+     * @param cropImage 方法入参 cropImage
+     * @return 结果字符串
+     */
     private String recognizeText(byte[] cropImage) {
         try {
             ITranslator<byte[], String> recognizer = createTranslator(recModel);
@@ -149,6 +169,12 @@ public class CnIdCardRecognizer {
         }
     }
 
+    /**
+     * 创建Translator。
+     *
+     * @param modelId 模型ID，不允许为 null
+     * @return ITranslator 对象
+     */
     @SuppressWarnings("unchecked")
     private <I, O> ITranslator<I, O> createTranslator(String modelId) {
         try {
@@ -164,10 +190,19 @@ public class CnIdCardRecognizer {
         }
     }
 
+    /**
+     * 获取BoundingBoxes。
+     *
+     * @param cards 方法入参 cards
+     * @return 结果列表，无数据时为空列表
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private List<BoundingBox> getBoundingBoxes(DetectedObjects cards) throws Exception {
-        Field f = cards.getClass().getDeclaredField("boundingBoxes");
-        f.setAccessible(true);
-        return (List<BoundingBox>) f.get(cards);
+        List<BoundingBox> boxes = (List<BoundingBox>) ReflectUtils.getField(cards, "boundingBoxes");
+        if (boxes == null) {
+            throw new IllegalStateException("读取 DJL DetectedObjects.boundingBoxes 字段失败");
+        }
+        return boxes;
     /**
     * 获取probabilities。
     * @param cards 卡片
@@ -177,18 +212,41 @@ public class CnIdCardRecognizer {
     */
     }
 
+    /**
+     * 获取Probabilities。
+     *
+     * @param cards 方法入参 cards
+     * @return 结果列表，无数据时为空列表
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private List<Double> getProbabilities(DetectedObjects cards) throws Exception {
-        Field f = cards.getClass().getSuperclass().getDeclaredField("probabilities");
-        f.setAccessible(true);
-        return (List<Double>) f.get(cards);
+        List<Double> probabilities = (List<Double>) ReflectUtils.getField(cards, "probabilities");
+        if (probabilities == null) {
+            throw new IllegalStateException("读取 DJL DetectedObjects.probabilities 字段失败");
+        }
+        return probabilities;
     }
 
+    /**
+     * 转为Byte数组。
+     *
+     * @param img 方法入参 img
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private byte[] toByteArray(BufferedImage img) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "png", baos);
         return baos.toByteArray();
     }
 
+    /**
+     * 字节数组转为BufferedImage。
+     *
+     * @param data 数据，不允许为 null
+     * @return BufferedImage 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private BufferedImage bytesToBufferedImage(byte[] data) throws Exception {
         return ImageIO.read(new ByteArrayInputStream(data));
     }

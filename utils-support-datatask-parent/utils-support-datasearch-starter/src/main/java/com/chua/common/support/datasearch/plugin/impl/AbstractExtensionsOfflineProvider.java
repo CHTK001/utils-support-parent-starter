@@ -29,7 +29,10 @@ public abstract class AbstractExtensionsOfflineProvider implements com.chua.comm
     /** 用户主目录 */
     protected static final Path USER_HOME = Path.of(System.getProperty("user.home", "."));
 
-    /** 扩展根目录。 */
+    /**
+     * 扩展根目录。
+     * @return 路径 对象
+     */
     protected abstract Path extensionsDir();
 
     @Override

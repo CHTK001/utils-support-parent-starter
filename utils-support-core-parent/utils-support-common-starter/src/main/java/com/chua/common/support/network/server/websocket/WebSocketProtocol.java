@@ -112,6 +112,9 @@ public final class WebSocketProtocol {
 
     /**
     * 构建指定 opcode 的帧（服务端发送，不掩码，FIN=1）。
+    * @param opcode 方法入参 opcode
+    * @param data 数据，不允许为 null
+    * @return 结果值
     */
     private static byte[] buildFrame(byte opcode, byte[] data) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length + 10);
@@ -179,6 +182,8 @@ public final class WebSocketProtocol {
 
     /**
     * 读取完整数据到目标数组。
+    * @param in 方法入参 in
+    * @param target 目标，不允许为 null
     */
     private static void readFully(InputStream in, byte[] target) throws IOException {
         int off = 0;
@@ -197,6 +202,7 @@ public final class WebSocketProtocol {
     * @param opcode  操作码（0x1 文本、0x2 二进制、0x8 关闭、0x9 ping、0xA pong）
     * @author CH
     * @param payload 载荷
+    * @return 结果值
     */
     public record Frame(int opcode, byte[] payload) {
     }

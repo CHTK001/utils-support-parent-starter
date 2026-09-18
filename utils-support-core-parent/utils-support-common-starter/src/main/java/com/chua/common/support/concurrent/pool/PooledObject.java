@@ -46,6 +46,11 @@ class PooledObject<T> {
     /** 累计借出次数 */
     private volatile int borrowCount;
 
+    /**
+     * 构造方法，创建 Pooled对象 实例。
+     *
+     * @param object 对象，不允许为 null
+     */
     PooledObject(T object) {
         this.object = object;
         this.status = Status.IDLE;
@@ -54,26 +59,56 @@ class PooledObject<T> {
         this.borrowCount = 0;
     }
 
+    /**
+     * 获取对象。
+     *
+     * @return T 对象
+     */
     T getObject() {
         return object;
     }
 
+    /**
+     * 获取状态。
+     *
+     * @return 状态 对象
+     */
     Status getStatus() {
         return status;
     }
 
+    /**
+     * 设置状态。
+     *
+     * @param status 状态，不允许为 null
+     */
     void setStatus(Status status) {
         this.status = status;
     }
 
+    /**
+     * 获取最后一个Borrow时间。
+     *
+     * @return 结果数值
+     */
     long getLastBorrowTime() {
         return lastBorrowTime;
     }
 
+    /**
+     * 获取最后一个Return时间。
+     *
+     * @return 结果数值
+     */
     long getLastReturnTime() {
         return lastReturnTime;
     }
 
+    /**
+     * 获取Borrow数量。
+     *
+     * @return 结果数值
+     */
     int getBorrowCount() {
         return borrowCount;
     }

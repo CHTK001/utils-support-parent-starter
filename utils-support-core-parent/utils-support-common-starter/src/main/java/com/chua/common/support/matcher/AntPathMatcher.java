@@ -425,6 +425,7 @@ public class AntPathMatcher implements PathMatcher {
     * @param pattern                                {@code null}   
     * @param str                                                   {@code null}   
     * @return                                         {@code true}                {@code false}
+    * @param uriTemplateVariables URI模板Variables，不允许为 null
     */
     private boolean notMatchStrings(String pattern, String str, Map<String, String> uriTemplateVariables) {
         return !getStringMatcher(pattern).matchStrings(str, uriTemplateVariables);

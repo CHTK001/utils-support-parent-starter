@@ -30,11 +30,15 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
     /** 用户主目录 */
     protected static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
-    /** 插件根目录列表。 */
+    /**
+     * 插件根目录列表。
+     * @return 结果列表，无数据时为空列表
+     */
     protected abstract List<Path> pluginRoots();
 
     /**
     * 清单文件名（如 plugin.json / package.json），子类可选覆写。
+    * @return 结果字符串
     */
     protected String manifestFile() {
         return "plugin.json";
@@ -42,6 +46,9 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
 
     /**
     * 从清单 JSON 中读取 name / description / version（默认实现宽松解析）。
+    * @param json 方法入参 json
+    * @param key 键，不允许为 null
+    * @return 结果字符串
     */
     protected String readManifestField(String json, String key) {
         if (json == null || json.isBlank()) {

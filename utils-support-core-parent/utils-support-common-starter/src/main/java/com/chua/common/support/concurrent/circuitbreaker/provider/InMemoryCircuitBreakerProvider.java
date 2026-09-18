@@ -71,6 +71,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     * @param failureThreshold int
     * @param failureThreshold int
     * @param waitDuration long
+    * @param successThreshold 方法入参 successThreshold
     */
     public InMemoryCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         this.name = name;

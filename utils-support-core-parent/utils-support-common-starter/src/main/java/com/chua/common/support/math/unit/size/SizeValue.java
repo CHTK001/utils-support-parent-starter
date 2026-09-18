@@ -209,27 +209,42 @@ public final class SizeValue implements Comparable<SizeValue> {
         return this.bytes < 0;
     }
 
-    /** ToByte获取大小 */
+    /**
+     * ToByte获取大小
+     * @return 结果数值
+     */
     public long toByteSize() {
         return this.bytes;
     }
 
-    /** ToKilobyte获取大小 */
+    /**
+     * ToKilobyte获取大小
+     * @return 结果数值
+     */
     public long toKilobyteSize() {
         return this.bytes / BYTES_PER_KB;
     }
 
-    /** ToMegabyte获取大小 */
+    /**
+     * ToMegabyte获取大小
+     * @return 结果数值
+     */
     public long toMegabyteSize() {
         return this.bytes / BYTES_PER_MB;
     }
 
-    /** ToGigabyte获取大小 */
+    /**
+     * ToGigabyte获取大小
+     * @return 结果数值
+     */
     public long toGigabyteSize() {
         return this.bytes / BYTES_PER_GB;
     }
 
-    /** ToTerabyte获取大小 */
+    /**
+     * ToTerabyte获取大小
+     * @return 结果数值
+     */
     public long toTerabyteSize() {
         return this.bytes / BYTES_PER_TB;
     }

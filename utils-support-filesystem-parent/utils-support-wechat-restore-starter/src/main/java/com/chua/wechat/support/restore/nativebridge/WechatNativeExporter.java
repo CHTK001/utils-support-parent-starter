@@ -622,6 +622,7 @@ public final class WechatNativeExporter {
     *
     * @param username    会话标识（wxid / 群 id）
     * @param displayName 会话显示名
+    * @return 结果值
     */
     private record SessionInfo(String username, String displayName) {
     }

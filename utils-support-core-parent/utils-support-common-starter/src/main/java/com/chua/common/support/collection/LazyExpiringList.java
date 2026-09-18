@@ -75,6 +75,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * 私有构造，通过 {@link #builder()} 创建。
+    * @param b 方法入参 b
     */
     private LazyExpiringList(Builder<E> b) {
         this.loader = b.loader;

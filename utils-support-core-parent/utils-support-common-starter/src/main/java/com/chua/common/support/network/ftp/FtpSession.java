@@ -289,6 +289,8 @@ class FtpSession {
 
     /**
     * 检查是否允许执行指定操作。
+    * @param file 文件，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     boolean canAccess(File file) {
         Path resolved = resolvePath(file.getPath());
@@ -297,6 +299,8 @@ class FtpSession {
 
     /**
     * 检查是否允许写入。
+    * @param path 路径，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     boolean canWrite(Path path) {
         if (anonymous) {
@@ -310,7 +314,9 @@ class FtpSession {
     * 关闭会话。
     */
     void close() {
-        if (closed) return;
+        if (closed) {
+            return;
+        }
         closed = true;
         dataChannel.close();
         try {

@@ -47,7 +47,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private static final String PROVIDER_OPENCLAW = "openclaw";
 
     /**
-    * Returns the SPI name for OpenClaw.
+    * 返回 OpenClaw 的 SPI 名称。
     *
     * @return {@code "openclaw"}
     */
@@ -56,7 +56,7 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-    * Streams per-completion usage records from all trajectory files.
+    * 从所有转录文件中以流式方式输出按补全粒度的用量记录。
     */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -70,6 +70,12 @@ public class OpenClawUsageParser extends BaseUsageParser {
                 .flatMap(this::streamTrajectoryFile, 4);
     }
 
+    /**
+     * 流Trajectory文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamTrajectoryFile(Path file) {
         return streamLines(file)
                 .flatMap(line -> Mono.fromCallable(() -> parseLine(line))
@@ -82,6 +88,11 @@ public class OpenClawUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 列出TrajectoryFiles。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listTrajectoryFiles() {
         Path agentsDir = OPENCLAW_DIR.resolve("agents");
         if (!Files.isDirectory(agentsDir)) {
@@ -107,13 +118,13 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-    * Locates the usage block of a model.completed event.
+    * 定位 model.completed 事件的用量块。
     *
-    * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
-    * it at the top level, so both positions are checked.</p>
+    * <p>OpenClaw 把用量嵌套在 {@code data.usage} 下；较早的 schema 可能把它
+    * 放在顶层，因此两个位置都要检查。</p>
     *
-    * @param node parsed trajectory line
-    * @return the usage block, or a missing node when absent
+    * @param node 已解析的转录行
+    * @return 用量块；不存在时返回 missing 节点
     */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");
@@ -123,6 +134,12 @@ public class OpenClawUsageParser extends BaseUsageParser {
         return node.get("usage");
     }
 
+    /**
+     * 解析Line。
+     *
+     * @param line 方法入参 line
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     private Optional<AiUsage> parseLine(String line) {
         if (line.isBlank()) {
             return Optional.empty();

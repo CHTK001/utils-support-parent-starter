@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 鎶婄粺璁¤剼鏈啓鎴愭湰鍦?exe 骞惰杩滅▼鐩存帴鎵ц锛岄伩鍏?PS1 鏉冮檺/缂栫爜闂銆? * 缁撴灉鍐欏叆 D:\fp-stat.txt銆? */
 public class FpWinRmStatViaExe {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         WinRmExecClient wr = WinRmExecClient.builder()
                 .host("172.16.9.194").port(5985)

@@ -12,26 +12,26 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Unsloth Studio usage parser.
+ * Unsloth Studio 用量解析器。
  *
- * <p>Unsloth Studio persists durable inference usage in a SQLite database
- * at {@code ~/.unsloth/studio/studio.db} ({@code UNSLOTH_STUDIO_HOME}
- * overrides the home). Two sources are read, chat first:</p>
+ * <p>Unsloth Studio 会把可持久化的推理用量写入 SQLite 数据库
+ * {@code ~/.unsloth/studio/studio.db}（可用 {@code UNSLOTH_STUDIO_HOME}
+ * 覆盖主目录）。共读取两个来源，优先取 chat：</p>
  *
  * <ul>
- *   <li>{@code chat_messages} (role {@code assistant}) — token counters live
- *       in the {@code metadata_json} column under {@code $.contextUsage.*};
- *       the model comes from {@code $.responseDetails.responseModelId},
- *       falling back to {@code $.contextUsage.modelId} then the thread's
- *       {@code model_id}.</li>
- *   <li>{@code api_usage_events} — scalar {@code prompt_tokens}/
- *       {@code completion_tokens}/{@code total_tokens} columns.</li>
+ *   <li>{@code chat_messages}（role 为 {@code assistant}）—— token 计数位于
+ *       {@code metadata_json} 列的 {@code $.contextUsage.*} 下；
+ *       模型取自 {@code $.responseDetails.responseModelId}，
+ *       依次回退到 {@code $.contextUsage.modelId}，再回退到会话的
+ *       {@code model_id}。</li>
+ *   <li>{@code api_usage_events} —— 独立的 {@code prompt_tokens}/
+ *       {@code completion_tokens}/{@code total_tokens} 列。</li>
  * </ul>
  *
- * <p>Token semantics follow {@code normalizeLocalStudioTokens}:
- * {@code prompt_tokens} is cache-inclusive, so non-cached input = total −
- * completion − cacheRead − cacheWrite; reasoning is carried inside
- * {@code completion_tokens} and split out separately.</p>
+ * <p>token 语义遵循 {@code normalizeLocalStudioTokens}：
+ * {@code prompt_tokens} 已包含缓存，因此非缓存输入 = 总量 −
+ * completion − cacheRead − cacheWrite；推理 token 包含在
+ * {@code completion_tokens} 之内，并单独拆分出来。</p>
  *
  * @author CH
  * @since 4.0.0.45

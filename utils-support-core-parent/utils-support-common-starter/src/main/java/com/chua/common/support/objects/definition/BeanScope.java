@@ -27,6 +27,11 @@ public enum BeanScope {
     */
     private final String name;
 
+    /**
+     * 构造方法，创建 BeanScope 实例。
+     *
+     * @param name 名称，不允许为 null
+     */
     BeanScope(String name) {
         this.name = name;
     }

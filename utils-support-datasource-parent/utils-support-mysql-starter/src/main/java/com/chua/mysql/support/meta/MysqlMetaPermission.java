@@ -102,11 +102,6 @@ public class MysqlMetaPermission implements MetaPermission {
 
     @Override
     public MetaPermission onColumn(String tableName, String columnName) {
-        /**
-        * grant。
-        * @param privileges privileges
-        * @return grant的结果
-        */
         return this;
     }
 
@@ -127,6 +122,12 @@ public class MysqlMetaPermission implements MetaPermission {
     */
     }
 
+    /**
+     * stripQuote。
+     *
+     * @param raw 方法入参 raw
+     * @return 结果字符串
+     */
     private static String stripQuote(String raw) {
         if (raw == null || !raw.contains("@")) {
             return raw;
@@ -136,6 +137,12 @@ public class MysqlMetaPermission implements MetaPermission {
         return u.startsWith("'") ? u.substring(1) : u;
     }
 
+    /**
+     * execSQL。
+     *
+     * @param ds 方法入参 ds
+     * @param sql SQL，不允许为 null
+     */
     private static void execSql(DataSource ds, String sql) {
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {

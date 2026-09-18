@@ -29,7 +29,14 @@ public class MysqlUser {
     public MysqlUser() {
     }
 
-    /** 全参构造器 */
+    /**
+     * 全参构造器
+     * @param id ID，不允许为 null
+     * @param name 名称，不允许为 null
+     * @param age 方法入参 age
+     * @param deptId deptID，不允许为 null
+     * @param amount 方法入参 amount
+     */
     public MysqlUser(Long id, String name, Integer age, Long deptId, Double amount) {
         this.id = id;
         this.name = name;

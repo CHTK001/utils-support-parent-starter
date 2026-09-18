@@ -124,10 +124,16 @@ public class OpenAiImageClient implements ImageClient {
     }
     @Override
     /** Quality */
-    public ImageClient quality(String quality) { this.quality = quality; return this; }
+    public ImageClient quality(String quality) {
+        this.quality = quality;
+        return this;
+    }
     @Override
     /** Style */
-    public ImageClient style(String style) { this.style = style; return this; }
+    public ImageClient style(String style) {
+        this.style = style;
+        return this;
+    }
     @Override
     /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }

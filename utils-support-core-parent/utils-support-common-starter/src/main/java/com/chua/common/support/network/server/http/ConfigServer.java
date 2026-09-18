@@ -188,7 +188,12 @@ public interface ConfigServer extends Server {
         return this;
     }
 
-    /** 创建ReflectiveHandler */
+    /**
+     * 创建ReflectiveHandler
+     * @param targetClass 目标Class，不允许为 null
+     * @param method 方法，不允许为 null
+     * @return 服务端处理器 对象
+     */
     private ServerHandler createReflectiveHandler(Class<?> targetClass, Method method) {
         return (request, response) -> {
             try {
@@ -211,7 +216,14 @@ public interface ConfigServer extends Server {
         };
     }
 
-    /** 调用Method */
+    /**
+     * 调用Method
+     * @param target 目标，不允许为 null
+     * @param method 方法，不允许为 null
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     * @return 对象 对象
+     */
     private Object invokeMethod(Object target, Method method, ServerRequest request, ServerResponse response) throws Exception {
         Parameter[] params = method.getParameters();
         Object[] args = new Object[params.length];
@@ -242,7 +254,12 @@ public interface ConfigServer extends Server {
         return ReflectUtils.invoke(target, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
-    /** 解析StringParam */
+    /**
+     * 解析StringParam
+     * @param request 请求，不允许为 null
+     * @param param 参数，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolveStringParam(ServerRequest request, Parameter param) {
         String name = param.isNamePresent() ? param.getName() : param.getType().getSimpleName().toLowerCase();
 

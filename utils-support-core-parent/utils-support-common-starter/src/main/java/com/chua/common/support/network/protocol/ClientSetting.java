@@ -130,19 +130,40 @@ public class ClientSetting {
         private long writeTimeout = 30_000;
 
         /** Host */
-        public Builder host(String h) { host = h; return this; }
+        public Builder host(String h) {
+            host = h;
+            return this;
+        }
         /** Port */
-        public Builder port(int p) { port = p; return this; }
+        public Builder port(int p) {
+            port = p;
+            return this;
+        }
         /** Username */
-        public Builder username(String u) { username = u; return this; }
+        public Builder username(String u) {
+            username = u;
+            return this;
+        }
         /** Password */
-        public Builder password(String p) { password = p; return this; }
+        public Builder password(String p) {
+            password = p;
+            return this;
+        }
         /** 连接Timeout */
-        public Builder connectTimeout(long t) { connectTimeout = t; return this; }
+        public Builder connectTimeout(long t) {
+            connectTimeout = t;
+            return this;
+        }
         /** 读取Timeout */
-        public Builder readTimeout(long t) { readTimeout = t; return this; }
+        public Builder readTimeout(long t) {
+            readTimeout = t;
+            return this;
+        }
         /** 写入Timeout */
-        public Builder writeTimeout(long t) { writeTimeout = t; return this; }
+        public Builder writeTimeout(long t) {
+            writeTimeout = t;
+            return this;
+        }
 
         /** 构建 */
         public ClientSetting build() {

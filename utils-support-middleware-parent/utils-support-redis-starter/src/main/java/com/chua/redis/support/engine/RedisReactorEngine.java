@@ -51,6 +51,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @SuppressWarnings("rawtypes")
 @ Spi("redis")
+/**
+ * RedisReactor引擎类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class RedisReactorEngine implements ReactorEngine {
 
     /**

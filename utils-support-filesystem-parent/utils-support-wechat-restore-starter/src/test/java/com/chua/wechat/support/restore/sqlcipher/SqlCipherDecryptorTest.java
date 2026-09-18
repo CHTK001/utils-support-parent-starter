@@ -68,6 +68,9 @@ class SqlCipherDecryptorTest {
 
     // ==================== 密钥解析 ====================
 
+    /**
+     * 解析Hex键应当解码Plain64Hex。
+     */
     @Test
     void parseHexKeyShouldDecodePlain64Hex() {
         byte[] key = SqlCipherDecryptor.parseHexKey(KEY_HEX);
@@ -76,18 +79,27 @@ class SqlCipherDecryptorTest {
         assertEquals(0x1F, key[31] & 0xFF);
     }
 
+    /**
+     * 解析Hex键应当AcceptUppercaseAndHex前缀。
+     */
     @Test
     void parseHexKeyShouldAcceptUppercaseAndHexPrefix() {
         assertArrayEquals(SqlCipherDecryptor.parseHexKey(KEY_HEX),
                 SqlCipherDecryptor.parseHexKey("0x" + KEY_HEX.toUpperCase()));
     }
 
+    /**
+     * 解析Hex键应当AcceptXQuoteWrapper。
+     */
     @Test
     void parseHexKeyShouldAcceptXQuoteWrapper() {
         assertArrayEquals(SqlCipherDecryptor.parseHexKey(KEY_HEX),
                 SqlCipherDecryptor.parseHexKey("x'" + KEY_HEX + "'"));
     }
 
+    /**
+     * 解析Hex键应当IgnoreWhitespace。
+     */
     @Test
     void parseHexKeyShouldIgnoreWhitespace() {
         String spaced = KEY_HEX.substring(0, 32) + " \n\t" + KEY_HEX.substring(32);
@@ -95,6 +107,9 @@ class SqlCipherDecryptorTest {
                 SqlCipherDecryptor.parseHexKey(spaced));
     }
 
+    /**
+     * 解析Hex键应当StripTrailingSaltFrom96Hex。
+     */
     @Test
     void parseHexKeyShouldStripTrailingSaltFrom96Hex() {
         byte[] withSalt = SqlCipherDecryptor.parseHexKey(KEY_HEX + SALT_HEX);
@@ -102,6 +117,9 @@ class SqlCipherDecryptorTest {
         assertArrayEquals(SqlCipherDecryptor.parseHexKey(KEY_HEX), withSalt);
     }
 
+    /**
+     * 解析Hex键应当RejectIllegalInput。
+     */
     @Test
     void parseHexKeyShouldRejectIllegalInput() {
         assertThrows(IllegalArgumentException.class, () -> SqlCipherDecryptor.parseHexKey(null));
@@ -114,6 +132,11 @@ class SqlCipherDecryptorTest {
 
     // ==================== 明文识别与密钥校验 ====================
 
+    /**
+     * 是否PlainSqlite应当DetectPlainAndEncrypted。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void isPlainSqliteShouldDetectPlainAndEncrypted() throws Exception {
         assertTrue(SqlCipherDecryptor.isPlainSqlite(newDb("plain.db")));
@@ -122,6 +145,11 @@ class SqlCipherDecryptorTest {
         assertFalse(SqlCipherDecryptor.isPlainSqlite(new File(tempDir.toFile(), "missing.db")));
     }
 
+    /**
+     * 是否键Valid应当AcceptCorrect键AndRejectWrong键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void isKeyValidShouldAcceptCorrectKeyAndRejectWrongKey() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -130,6 +158,11 @@ class SqlCipherDecryptorTest {
         assertFalse(SqlCipherDecryptor.isKeyValid(encrypted, null));
     }
 
+    /**
+     * 是否键Valid应当TreatPlainDatabaseAsValid。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void isKeyValidShouldTreatPlainDatabaseAsValid() throws Exception {
         assertTrue(SqlCipherDecryptor.isKeyValid(newDb("plain.db"), null));
@@ -137,6 +170,11 @@ class SqlCipherDecryptorTest {
 
     // ==================== 探测 ====================
 
+    /**
+     * detect应当ReportPlaintextDatabase。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void detectShouldReportPlaintextDatabase() throws Exception {
         File plain = newDb("plain.db");
@@ -149,6 +187,11 @@ class SqlCipherDecryptorTest {
         assertEquals((int) Math.ceil((double) plain.length() / PAGE_SIZE), detection.pageCount());
     }
 
+    /**
+     * detect应当ReportEncryptedDatabaseWithProfile。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void detectShouldReportEncryptedDatabaseWithProfile() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -163,6 +206,11 @@ class SqlCipherDecryptorTest {
         assertEquals(encrypted.length() / PAGE_SIZE, detection.pageCount());
     }
 
+    /**
+     * detect应当ReportFailureForWrong键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void detectShouldReportFailureForWrongKey() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -174,6 +222,9 @@ class SqlCipherDecryptorTest {
         assertNull(detection.profile());
     }
 
+    /**
+     * detect应当RejectMissing文件。
+     */
     @Test
     void detectShouldRejectMissingFile() {
         assertThrows(IllegalArgumentException.class,
@@ -182,6 +233,11 @@ class SqlCipherDecryptorTest {
 
     // ==================== 密钥探针 ====================
 
+    /**
+     * 键Probe应当AcceptOnlyCorrect键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void keyProbeShouldAcceptOnlyCorrectKey() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -195,6 +251,11 @@ class SqlCipherDecryptorTest {
         assertEquals(PAGE_SIZE, probe.page().length);
     }
 
+    /**
+     * 键Probe应当Reject文件SmallerThanOne页。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void keyProbeShouldRejectFileSmallerThanOnePage() throws Exception {
         File tiny = new File(tempDir.toFile(), "tiny.db");
@@ -205,6 +266,11 @@ class SqlCipherDecryptorTest {
 
     // ==================== 解密 ====================
 
+    /**
+     * decrypt应当RestorePlaintextSqlite。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void decryptShouldRestorePlaintextSqlite() throws Exception {
         File plain = newReservedDb("seed.db");
@@ -231,6 +297,11 @@ class SqlCipherDecryptorTest {
         }
     }
 
+    /**
+     * decrypt应当Restore转为Explicit目标。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void decryptShouldRestoreToExplicitTarget() throws Exception {
         File plain = newReservedDb("seed.db");
@@ -245,6 +316,11 @@ class SqlCipherDecryptorTest {
         assertEquals(plain.length(), target.length());
     }
 
+    /**
+     * decrypt应当RejectWrong键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void decryptShouldRejectWrongKey() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -254,6 +330,11 @@ class SqlCipherDecryptorTest {
                 SqlCipherDecryptor.parseHexKey(WRONG_KEY_HEX), target));
     }
 
+    /**
+     * decrypt应当RejectShort键。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void decryptShouldRejectShortKey() throws Exception {
         File encrypted = encrypt(newReservedDb("seed.db"), "session.db");
@@ -263,6 +344,11 @@ class SqlCipherDecryptorTest {
                 () -> SqlCipherDecryptor.decrypt(encrypted, new byte[16], target));
     }
 
+    /**
+     * decrypt应当复制PlainDatabaseVerbatim。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void decryptShouldCopyPlainDatabaseVerbatim() throws Exception {
         File plain = newDb("plain.db");
@@ -276,6 +362,11 @@ class SqlCipherDecryptorTest {
 
     // ==================== 密钥派生 ====================
 
+    /**
+     * pbkdf2应当MatchSingleIterationHmac。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void pbkdf2ShouldMatchSingleIterationHmac() throws Exception {
         byte[] password = SqlCipherDecryptor.parseHexKey(KEY_HEX);
@@ -291,6 +382,9 @@ class SqlCipherDecryptorTest {
                 "迭代 1 次时 PBKDF2 应等于 HMAC(password, salt || BE32(1))");
     }
 
+    /**
+     * pbkdf2应当RejectNonPositiveIterations。
+     */
     @Test
     void pbkdf2ShouldRejectNonPositiveIterations() {
         assertThrows(IllegalArgumentException.class,

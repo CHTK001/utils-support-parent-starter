@@ -118,7 +118,13 @@ public class PolledDirectoryBackup implements BackupStrategy {
             List<Path> backedUp = backupPolledFiles(config.getSourceDir(), targetDir, config);
 
             long totalSize = backedUp.stream()
-                    .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } })
+                    .mapToLong(p -> {
+                        try {
+                            return Files.size(p);
+                        } catch (Exception e) {
+                            return 0;
+                        }
+                    })
                     .sum();
 
             return BackupResult.success(targetDir, backedUp, totalSize, System.currentTimeMillis() - start);

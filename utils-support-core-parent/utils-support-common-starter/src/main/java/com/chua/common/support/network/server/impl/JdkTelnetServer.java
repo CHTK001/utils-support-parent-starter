@@ -278,6 +278,7 @@ public class JdkTelnetServer extends AbstractServer {
     *
     * @param name    命令名称
     * @param command 命令处理器
+    * @return JdkTelnet服务端 对象
     */
     public JdkTelnetServer registerCommand(String name, TelnetCommand command) {
         commands.put(name.toLowerCase(), command);
@@ -295,6 +296,7 @@ public class JdkTelnetServer extends AbstractServer {
 
     /**
     * 获取会话数量。
+    * @return 结果数值
     */
     public int getSessionCount() {
         return sessions.size();

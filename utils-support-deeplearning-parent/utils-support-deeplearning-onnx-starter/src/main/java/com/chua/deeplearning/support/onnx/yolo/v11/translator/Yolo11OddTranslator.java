@@ -321,6 +321,12 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         return Batchifier.STACK;
     }
 
+    /**
+     * defaultClasses。
+     *
+     * @param size 大小，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)
                 .mapToObj(index -> "obb-" + index)

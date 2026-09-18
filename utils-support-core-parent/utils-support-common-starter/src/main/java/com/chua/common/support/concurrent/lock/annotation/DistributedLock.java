@@ -15,6 +15,7 @@ public @interface DistributedLock {
 
     /**
     * 锁的名称，支持 SpEL 表达式。
+    * @return 结果字符串
     */
     String name();
 

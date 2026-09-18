@@ -104,6 +104,8 @@ public class PlaceholderSupport {
     * @param placeholderPrefix placeholderPrefix
     * @param String String
     * @param String String
+    * @param placeholderSuffix placeholder后缀，不允许为 null
+    * @param valueSeparator 值分隔符，不允许为 null
     */
     public PlaceholderSupport(String placeholderPrefix, String placeholderSuffix, String valueSeparator) {
         this();
@@ -333,6 +335,8 @@ public class PlaceholderSupport {
 
     /**
     * 解析变量值：如果是引号包裹则去引号，否则尝试通过 Resolver 解析
+    * @param value 值，不允许为 null
+    * @return 结果字符串
     */
     private String resolveVariableValue(String value) {
         if (value.startsWith("'") || value.startsWith("\"")) {
@@ -349,6 +353,10 @@ public class PlaceholderSupport {
 
     /**
     * 数值比较辅助方法
+    * @param left 方法入参 left
+    * @param right 方法入参 right
+    * @param operator 方法入参 operator
+    * @return 是否成功（true 表示成功）
     */
     private boolean compareNumbers(double left, double right, String operator) {
         return switch (operator) {
@@ -364,6 +372,10 @@ public class PlaceholderSupport {
 
     /**
     * 字符串比较辅助方法
+    * @param left 方法入参 left
+    * @param right 方法入参 right
+    * @param operator 方法入参 operator
+    * @return 是否成功（true 表示成功）
     */
     private boolean compareStrings(String left, String right, String operator) {
         return switch (operator) {
@@ -413,6 +425,9 @@ public class PlaceholderSupport {
 
     /**
     * 从字符串形式的列表中根据索引取值
+    * @param arrayStr 数组字符串，不允许为 null
+    * @param indexStr 索引字符串，不允许为 null
+    * @return 结果字符串
     */
     private String resolveArrayIndex(String arrayStr, String indexStr) {
         try {
@@ -429,6 +444,9 @@ public class PlaceholderSupport {
 
     /**
     * 从字符串形式的 Map 中根据 Key 取值
+    * @param mapStr 映射字符串，不允许为 null
+    * @param key 键，不允许为 null
+    * @return 结果字符串
     */
     private String resolveMapAccess(String mapStr, String key) {
         String content = mapStr.substring(1, mapStr.length() - 1);
@@ -447,6 +465,8 @@ public class PlaceholderSupport {
 
     /**
     * 移除字符串首尾的单引号或双引号
+    * @param str 字符串，不允许为 null
+    * @return 结果字符串
     */
     private String removeQuotes(String str) {
         if (str == null) {
@@ -463,6 +483,7 @@ public class PlaceholderSupport {
     /**
     * 获取当前时间格式化后的字符串
     * @param format 日期格式，默认为 "yyyy-MM-dd HH:mm:ss"
+    * @return 结果字符串
     */
     private String nowFunction(String format) {
         if (format == null || format.isEmpty()) {
@@ -473,6 +494,8 @@ public class PlaceholderSupport {
 
     /**
     * 生成 UUID
+    * @param args 参数，不允许为 null
+    * @return 结果字符串
     */
     private String uuidFunction(String args) {
         return UUID.randomUUID().toString();
@@ -481,6 +504,7 @@ public class PlaceholderSupport {
     /**
     * 生成随机整数
     * @param args 上界 (默认 100)
+    * @return 结果字符串
     */
     private String randomFunction(String args) {
         int bound = 100;
@@ -494,6 +518,8 @@ public class PlaceholderSupport {
 
     /**
     * 转大写
+    * @param args 参数，不允许为 null
+    * @return 结果字符串
     */
     private String upperFunction(String args) {
         String value = removeQuotes(args);
@@ -502,6 +528,8 @@ public class PlaceholderSupport {
 
     /**
     * 转小写
+    * @param args 参数，不允许为 null
+    * @return 结果字符串
     */
     private String lowerFunction(String args) {
         String value = removeQuotes(args);
@@ -510,6 +538,8 @@ public class PlaceholderSupport {
 
     /**
     * 获取字符串长度
+    * @param args 参数，不允许为 null
+    * @return 结果字符串
     */
     private String lengthFunction(String args) {
         String value = removeQuotes(args);
@@ -520,6 +550,7 @@ public class PlaceholderSupport {
     // ==================== 链式配置方法 ====================
     /**
     * 启用函数功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport functionEnable() {
         this.functionEnabled = true;
@@ -528,6 +559,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用函数功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport functionDisable() {
         this.functionEnabled = false;
@@ -536,6 +568,7 @@ public class PlaceholderSupport {
 
     /**
     * 启用三元表达式功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport ternary() {
         this.ternaryEnabled = true;
@@ -544,6 +577,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用三元表达式功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport ternaryDisable() {
         this.ternaryEnabled = false;
@@ -552,6 +586,7 @@ public class PlaceholderSupport {
 
     /**
     * 启用数组/Map 访问功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport arrayAccess() {
         this.arrayAccessEnabled = true;
@@ -560,6 +595,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用数组/Map 访问功能
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport arrayAccessDisable() {
         this.arrayAccessEnabled = false;
@@ -568,6 +604,7 @@ public class PlaceholderSupport {
 
     /**
     * 设置忽略不可解析的占位符
+    * @return PlaceholderSupport 对象
     */
     public PlaceholderSupport ignoreUnresolvable() {
         this.ignoreUnresolvablePlaceholders = true;

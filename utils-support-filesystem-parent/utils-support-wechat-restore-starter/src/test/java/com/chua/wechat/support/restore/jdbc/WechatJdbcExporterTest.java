@@ -45,6 +45,11 @@ class WechatJdbcExporterTest {
 
     // ==================== CSV ====================
 
+    /**
+     * csv应当Export每个表转为Own文件。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void csvShouldExportEachTableToOwnFile() throws Exception {
         File db = newDb();
@@ -73,6 +78,11 @@ class WechatJdbcExporterTest {
         assertEquals("1,Alice", contactLines.get(1));
     }
 
+    /**
+     * csv应当Honour上限Option。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void csvShouldHonourLimitOption() throws Exception {
         File db = newDb();
@@ -88,6 +98,11 @@ class WechatJdbcExporterTest {
         assertEquals(2, msgLines.size(), "limit=1 时只应导出 1 行数据");
     }
 
+    /**
+     * csv应当HonourWhitelistOption。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void csvShouldHonourWhitelistOption() throws Exception {
         File db = newDb();
@@ -103,6 +118,11 @@ class WechatJdbcExporterTest {
         assertFalse(new File(out, DB_BASE + "__Contact.csv").exists());
     }
 
+    /**
+     * csv应当HonourBlacklistOption。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void csvShouldHonourBlacklistOption() throws Exception {
         File db = newDb();
@@ -120,6 +140,11 @@ class WechatJdbcExporterTest {
 
     // ==================== SQL ====================
 
+    /**
+     * SQL应当发出创建And插入Statements。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlShouldEmitCreateAndInsertStatements() throws Exception {
         File db = newDb();
@@ -138,6 +163,11 @@ class WechatJdbcExporterTest {
         assertEquals(3, script.split("INSERT INTO `MSG` \\(", -1).length - 1, "应有 3 条 INSERT");
     }
 
+    /**
+     * SQL应当SkipStructureWhenDisabled。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void sqlShouldSkipStructureWhenDisabled() throws Exception {
         File db = newDb();
@@ -160,6 +190,11 @@ class WechatJdbcExporterTest {
 
     // ==================== EXCEL ====================
 
+    /**
+     * excel应当ExportWorkbookWhen文件SystemAvailable。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void excelShouldExportWorkbookWhenFileSystemAvailable() throws Exception {
         Assumptions.assumeTrue(excelFileSystemAvailable(),
@@ -180,6 +215,11 @@ class WechatJdbcExporterTest {
 
     // ==================== 异常与边界 ====================
 
+    /**
+     * json格式化应当BeRejected。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void jsonFormatShouldBeRejected() throws Exception {
         File db = newDb();
@@ -189,6 +229,9 @@ class WechatJdbcExporterTest {
                 () -> WechatJdbcExporter.export(db, config(ExportFormat.JSON), out));
     }
 
+    /**
+     * missingDatabase应当BeRejected。
+     */
     @Test
     void missingDatabaseShouldBeRejected() {
         File out = tempDir.resolve("missing-out").toFile();
@@ -197,6 +240,11 @@ class WechatJdbcExporterTest {
                         config(ExportFormat.CSV), out));
     }
 
+    /**
+     * emptyDatabase应当Fail。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     void emptyDatabaseShouldFail() throws Exception {
         File empty = new File(tempDir.toFile(), "empty.db");
@@ -267,20 +315,31 @@ class WechatJdbcExporterTest {
     /**
      * 探测 excel FileSystem 是否可用。
      *
-     * <p>直接读取 SPI 注册文件判断是否存在 {@code excel=} 实现，而不是调用
+     * <p>读取 SPI 注册文件判断是否存在 {@code excel=} 实现，而不是调用
      * {@link FileSystem#create(String)}：后者对未知类型并不抛异常，无法作为可用性判据。
      * 缺失实现时（未引入 utils-support-excel-starter）跳过 EXCEL 用例。</p>
+     *
+     * <p>必须用 {@code getResources} 遍历<b>全部</b>注册文件：{@code ServiceProvider} 会把类路径上
+     * 每个 jar 的同名文件合并，而 {@code getResourceAsStream} 只返回第一个命中——第一个通常是
+     * {@code utils-support-common-starter} 那份（只注册 csv / json / xml / txt / zip / archive / tar），
+     * 只看它就会在 excel 实际可用时误判为不可用，把本用例永久跳过。</p>
      *
      * @return 可用返回 true
      */
     private static boolean excelFileSystemAvailable() {
         String resource = "META-INF/extensions/" + FileSystem.class.getName();
-        try (java.io.InputStream in = WechatJdbcExporterTest.class.getClassLoader().getResourceAsStream(resource)) {
-            if (in == null) {
-                return false;
+        try {
+            java.util.Enumeration<java.net.URL> urls =
+                    WechatJdbcExporterTest.class.getClassLoader().getResources(resource);
+            while (urls.hasMoreElements()) {
+                try (java.io.InputStream in = urls.nextElement().openStream()) {
+                    String registrations = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+                    if (registrations.lines().anyMatch(line -> line.trim().startsWith("excel="))) {
+                        return true;
+                    }
+                }
             }
-            String registrations = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            return registrations.lines().anyMatch(line -> line.trim().startsWith("excel="));
+            return false;
         } catch (Exception e) {
             return false;
         }

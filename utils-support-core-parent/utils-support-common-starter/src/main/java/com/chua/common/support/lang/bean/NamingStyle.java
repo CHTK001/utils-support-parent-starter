@@ -31,6 +31,8 @@ public enum NamingStyle {
 
     /**
     * 将属性名按当前风格转换为驼峰格式。
+    * @param name 名称，不允许为 null
+    * @return 结果字符串
     */
     public String toCamel(String name) {
         return switch (this) {
@@ -43,6 +45,8 @@ public enum NamingStyle {
 
     /**
     * 将驼峰属性名按当前风格转换。
+    * @param camel 方法入参 camel
+    * @return 结果字符串
     */
     public String fromCamel(String camel) {
         return switch (this) {
@@ -54,7 +58,11 @@ public enum NamingStyle {
         };
     }
 
-    /** UnderscoreToCamel */
+    /**
+     * UnderscoreToCamel
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String underscoreToCamel(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -72,7 +80,11 @@ public enum NamingStyle {
         return sb.toString();
     }
 
-    /** KebabToCamel */
+    /**
+     * KebabToCamel
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String kebabToCamel(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;
@@ -90,7 +102,11 @@ public enum NamingStyle {
         return sb.toString();
     }
 
-    /** CamelToUnderscore */
+    /**
+     * CamelToUnderscore
+     * @param camel 方法入参 camel
+     * @return 结果字符串
+     */
     private static String camelToUnderscore(String camel) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {
@@ -107,7 +123,11 @@ public enum NamingStyle {
         return sb.toString();
     }
 
-    /** CamelToKebab */
+    /**
+     * CamelToKebab
+     * @param camel 方法入参 camel
+     * @return 结果字符串
+     */
     private static String camelToKebab(String camel) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < camel.length(); i++) {

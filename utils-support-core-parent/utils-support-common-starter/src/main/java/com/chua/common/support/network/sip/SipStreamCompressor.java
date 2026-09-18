@@ -43,6 +43,7 @@ public interface SipStreamCompressor {
 
     /**
     * SPI 名称（用于日志/诊断）。
+    * @return 结果字符串
     */
     String name();
 

@@ -240,13 +240,19 @@ public class WebhookInboundAdapter {
         * @param port 端口
         * @return 端口的结果
         */
-        public Builder port(int port) { this.port = port; return this; }
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
         /**
         * pipelineengine。
         * @param engine engine
         * @return pipelineEngine的结果
         */
-        public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
+        public Builder pipelineEngine(PipelineEngine engine) {
+            this.pipelineEngine = engine;
+            return this;
+        }
 
         /**
         * 构建。

@@ -180,6 +180,8 @@ public abstract class SqlFormatter implements Formatter {
 
     /**
     * 启用高亮
+    * @param config 配置，不允许为 null
+    * @return SQLFormatter 对象
     */
     public SqlFormatter withHighlight(HighlightConfig config) {
         this.highlightConfig = config;

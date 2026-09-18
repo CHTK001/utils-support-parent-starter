@@ -679,6 +679,9 @@ public class AgentScopeAgent implements Agent {
         log.info("\n{}", sb);
     }
 
+    /**
+     * printSystemPromptsTree。
+     */
     private void printSystemPromptsTree() {
         boolean leader = definition != null && definition.isLeader();
         String mainName = definition != null && definition.getName() != null ? definition.getName() : "?";
@@ -701,6 +704,11 @@ public class AgentScopeAgent implements Agent {
         }
         log.info("[AgentTree] begin\n{}\n[AgentTree] end", sb);
     }
+    /**
+     * logArchitecture。
+     *
+     * @param effectiveMaxIters effective最大值Iters，不允许为 null
+     */
     private void logArchitecture(int effectiveMaxIters) {
         String mainAgentId = definition != null && definition.getId() != null ? definition.getId() : "agent";
         String mainAgentName = definition != null && definition.getName() != null ? definition.getName() : "Agent";

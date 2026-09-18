@@ -47,6 +47,9 @@ public class LocalServiceManager implements ServiceManager {
         this.tracker = tracker;
     }
 
+    /**
+     * 构造方法，创建 Local服务Manager 实例。
+     */
     public LocalServiceManager() {
         this(new PidFileProcessTracker());
     }
@@ -139,6 +142,12 @@ public class LocalServiceManager implements ServiceManager {
         log.info("[service] uninstall 无需操作（进程级管理）");
     }
 
+    /**
+     * extract名称。
+     *
+     * @param jarPath jar路径，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractName(String jarPath) {
         if (jarPath == null) {
             return NAME_FALLBACK;

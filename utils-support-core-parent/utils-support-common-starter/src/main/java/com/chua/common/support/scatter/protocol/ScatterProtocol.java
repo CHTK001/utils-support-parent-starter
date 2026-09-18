@@ -34,6 +34,9 @@ public final class ScatterProtocol {
     /** 类型：选举通知 */
     public static final byte TYPE_ELEC = 0x05;
 
+    /**
+     * 构造方法，创建 ScatterProtocol 实例。
+     */
     private ScatterProtocol() {
     }
 }

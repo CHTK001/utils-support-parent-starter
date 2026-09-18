@@ -21,6 +21,12 @@ public class FpWinRmFullTest {
 
     static WinRmExecClient winrm;
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("=== FilePush 远程实测 (172.16.9.194) ===");
 
@@ -124,7 +130,11 @@ public class FpWinRmFullTest {
         }
     }
 
-    /** 生成 500 个文件：0~10MB 随机，多级目录 */
+    /**
+     * 生成 500 个文件：0~10MB 随机，多级目录
+     * @param root 根节点，不允许为 null
+     * @return 结果数值
+     */
     static long generateFiles(Path root) throws Exception {
         Random rnd = new Random(7);
         long total = 0;
@@ -144,23 +154,40 @@ public class FpWinRmFullTest {
                 size = rnd.nextInt(10 * 1024 * 1024);
             }
             byte[] data = new byte[size];
-            if (size > 0) rnd.nextBytes(data);
+            if (size > 0) {
+                rnd.nextBytes(data);
+            }
             Files.write(parent.resolve("file_" + i + ".bin"), data);
             total += size;
         }
         return total;
     }
 
+    /**
+     * 数量Files。
+     *
+     * @param root 根节点，不允许为 null
+     * @return 结果数值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     static long countFiles(Path root) throws Exception {
         try (var walk = Files.walk(root)) {
             return walk.filter(Files::isRegularFile).count();
         }
     }
 
+    /**
+     * 删除Recursively。
+     *
+     * @param root 根节点，不允许为 null
+     */
     static void deleteRecursively(Path root) {
         try (var walk = Files.walk(root).sorted(java.util.Comparator.reverseOrder())) {
             walk.forEach(p -> {
-                try { Files.deleteIfExists(p); } catch (Exception ignored) {}
+                try {
+                    Files.deleteIfExists(p);
+                } catch (Exception ignored) {
+                }
             });
         } catch (Exception ignored) {}
     }

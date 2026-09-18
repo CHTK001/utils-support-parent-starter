@@ -191,7 +191,10 @@ public class ChatRequest {
         * @param model 模型名
         * @return 当前 构建器
         */
-        public Builder model(String model) { req.model = model; return this; }
+        public Builder model(String model) {
+            req.model = model;
+            return this;
+        }
 
         /**
         * 设置消息列表。
@@ -199,7 +202,10 @@ public class ChatRequest {
         * @param messages 消息列表
         * @return 当前 构建器
         */
-        public Builder messages(List<ChatMessage> messages) { req.messages = messages; return this; }
+        public Builder messages(List<ChatMessage> messages) {
+            req.messages = messages;
+            return this;
+        }
 
         /**
         * 设置是否流式。
@@ -207,7 +213,10 @@ public class ChatRequest {
         * @param stream 流式标志
         * @return 当前 构建器
         */
-        public Builder stream(Boolean stream) { req.stream = stream; return this; }
+        public Builder stream(Boolean stream) {
+            req.stream = stream;
+            return this;
+        }
 
         /**
         * 设置温度。
@@ -215,7 +224,10 @@ public class ChatRequest {
         * @param t 温度值
         * @return 当前 构建器
         */
-        public Builder temperature(Double t) { req.temperature = t; return this; }
+        public Builder temperature(Double t) {
+            req.temperature = t;
+            return this;
+        }
 
         /**
         * 设置最大 令牌 数。
@@ -223,7 +235,10 @@ public class ChatRequest {
         * @param m 上限
         * @return 当前 构建器
         */
-        public Builder maxTokens(Integer m) { req.maxTokens = m; return this; }
+        public Builder maxTokens(Integer m) {
+            req.maxTokens = m;
+            return this;
+        }
 
         /**
         * 设置 Top-P。
@@ -231,7 +246,10 @@ public class ChatRequest {
         * @param p Top-P 值
         * @return 当前 构建器
         */
-        public Builder topP(Double p) { req.topP = p; return this; }
+        public Builder topP(Double p) {
+            req.topP = p;
+            return this;
+        }
 
         /**
         * 设置工具定义。
@@ -239,7 +257,10 @@ public class ChatRequest {
         * @param tools 工具列表
         * @return 当前 构建器
         */
-        public Builder tools(List<ToolDefinition> tools) { req.tools = tools; return this; }
+        public Builder tools(List<ToolDefinition> tools) {
+            req.tools = tools;
+            return this;
+        }
 
         /**
         * 设置工具选择策略。
@@ -247,7 +268,10 @@ public class ChatRequest {
         * @param tc 策略
         * @return 当前 构建器
         */
-        public Builder toolChoice(String tc) { req.toolChoice = tc; return this; }
+        public Builder toolChoice(String tc) {
+            req.toolChoice = tc;
+            return this;
+        }
 
         /**
         * 设置扩展参数。
@@ -255,7 +279,10 @@ public class ChatRequest {
         * @param extra 扩展 映射
         * @return 当前 构建器
         */
-        public Builder extra(Map<String, Object> extra) { req.extra = extra; return this; }
+        public Builder extra(Map<String, Object> extra) {
+            req.extra = extra;
+            return this;
+        }
 
         /**
         * 构建请求。

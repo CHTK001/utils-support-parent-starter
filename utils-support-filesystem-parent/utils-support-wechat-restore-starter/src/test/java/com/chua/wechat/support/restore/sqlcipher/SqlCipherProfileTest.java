@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class SqlCipherProfileTest {
 
+    /**
+     * candidates应当启动WithWechat4。
+     */
     @Test
     void candidatesShouldStartWithWechat4() {
         SqlCipherProfile first = SqlCipherProfile.candidates().getFirst();
@@ -24,6 +27,9 @@ class SqlCipherProfileTest {
         assertEquals(64, first.hmacSize());
     }
 
+    /**
+     * wechat4Layout应当MatchSQLCipherReserve。
+     */
     @Test
     void wechat4LayoutShouldMatchSqlCipherReserve() {
         SqlCipherProfile profile = SqlCipherProfile.candidates().getFirst();
@@ -33,6 +39,9 @@ class SqlCipherProfileTest {
         assertTrue(profile.hmacEnabled());
     }
 
+    /**
+     * 每个Candidate应当HaveAlignedCipher大小。
+     */
     @Test
     void everyCandidateShouldHaveAlignedCipherSize() {
         for (SqlCipherProfile profile : SqlCipherProfile.candidates()) {
@@ -43,18 +52,27 @@ class SqlCipherProfileTest {
         }
     }
 
+    /**
+     * tooSmall页大小应当Throw。
+     */
     @Test
     void tooSmallPageSizeShouldThrow() {
         assertThrows(IllegalArgumentException.class,
                 () -> new SqlCipherProfile("bad", 100, "PBKDF2WithHmacSHA512", 1, "HmacSHA512", 64));
     }
 
+    /**
+     * misalignedCipher大小应当Throw。
+     */
     @Test
     void misalignedCipherSizeShouldThrow() {
         assertThrows(IllegalArgumentException.class,
                 () -> new SqlCipherProfile("bad", 4096, "PBKDF2WithHmacSHA512", 1, "HmacSHA512", 63));
     }
 
+    /**
+     * oversizedHmac应当Throw。
+     */
     @Test
     void oversizedHmacShouldThrow() {
         assertThrows(IllegalArgumentException.class,

@@ -42,6 +42,12 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 解析Fbx。
+     *
+     * @param data 数据，不允许为 null
+     * @return FbxInfo 对象
+     */
     private FbxInfo parseFbx(byte[] data) {
         FbxInfo info = new FbxInfo();
 
@@ -93,6 +99,13 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * 构建Html。
+     *
+     * @param info 方法入参 info
+     * @param fileSize 文件大小，不允许为 null
+     * @return 结果字符串
+     */
     private String buildHtml(FbxInfo info, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -133,6 +146,12 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * escapeHtml。
+     *
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -140,6 +159,12 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

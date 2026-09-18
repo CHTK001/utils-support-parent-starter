@@ -287,7 +287,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
 
     // ==================== 内部方法 ====================
 
-    /** 添加Document */
+    /**
+     * 添加Document
+     * @param doc 方法入参 doc
+     */
     private synchronized void addDocument(RagDocument doc) {
         documents.add(doc);
         saveDb();
@@ -302,7 +305,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
-    /** 加载Db */
+    /**
+     * 加载Db
+     * @return 结果列表，无数据时为空列表
+     */
     private List<RagDocument> loadDb() {
         if (!Files.exists(dbFile)) {
             return new ArrayList<>();
@@ -315,7 +321,12 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
-    /** ExtractText */
+    /**
+     * ExtractText
+     * @param data 数据，不允许为 null
+     * @param fileName 文件名称，不允许为 null
+     * @return 结果字符串
+     */
     private String extractText(byte[] data, String fileName) {
         if (textExtractor == null) {
             return new String(data, StandardCharsets.UTF_8);
@@ -332,7 +343,11 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         }
     }
 
-    /** ExtractExtension */
+    /**
+     * ExtractExtension
+     * @param fileName 文件名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractExtension(String fileName) {
         int idx = fileName.lastIndexOf('.');
         return idx >= 0 ? fileName.substring(idx + 1).toLowerCase() : "";

@@ -26,10 +26,18 @@ import java.util.concurrent.Executors;
 public class UdpScatterNodeServer extends AbstractServer {
 
     private final ScatterNodeHandler handler;
+    /** socket */
     private DatagramSocket socket;
+    /** workerPool */
     private ExecutorService workerPool;
     private volatile boolean running = false;
 
+    /**
+     * 构造方法，创建 UdpScatter节点服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param handler 处理器，不允许为 null
+     */
     public UdpScatterNodeServer(ServerSetting setting, ScatterNodeHandler handler) {
         super(setting);
         this.handler = handler;
@@ -49,6 +57,9 @@ public class UdpScatterNodeServer extends AbstractServer {
         }
     }
 
+    /**
+     * 接收Loop。
+     */
     private void receiveLoop() {
         byte[] buffer = new byte[65536];
         while (running) {

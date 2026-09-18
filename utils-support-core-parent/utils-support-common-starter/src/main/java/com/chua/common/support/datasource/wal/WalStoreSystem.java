@@ -36,13 +36,22 @@ import java.util.Optional;
  */
 public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
 
-    /** 存储类型标识 */
+    /**
+     * 存储类型标识
+     * @return 结果字符串
+     */
     String type();
 
-    /** 基目录 */
+    /**
+     * 基目录
+     * @return 路径 对象
+     */
     Path baseDir();
 
-    /** 分片数量 */
+    /**
+     * 分片数量
+     * @return 结果数值
+     */
     int shardCount();
 
     // ==================== 写入 ====================
@@ -58,6 +67,7 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
 
     /**
     * 批量追加（线程安全，内部攒批）。
+    * @param items 方法入参 items
     */
     default void appendBatch(List<WalAppendItem<K>> items) throws java.io.IOException {
         for (WalAppendItem<K> item : items) {
@@ -80,6 +90,8 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
 
     /**
     * 判断 key 是否存在。
+    * @param key 键，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     boolean contains(K key) throws java.io.IOException;
 
@@ -106,6 +118,7 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     * 逻辑删除（追加 tombstone 记录）。
     *
     * @return 是否成功（key 存在返回 true）
+    * @param key 键，不允许为 null
     */
     boolean delete(K key) throws java.io.IOException;
 
@@ -123,16 +136,19 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
 
     /**
     * 当前总记录数（有效记录，不含 tombstone）。
+    * @return 结果数值
     */
     int size();
 
     /**
     * 列出所有分片元信息。
+    * @return 结果列表，无数据时为空列表
     */
     List<WalSegmentInfo> listSegments() throws java.io.IOException;
 
     /**
     * 存储类型（kv/ts/vec/jdbc）。
+    * @return Store类型 对象
     */
     StoreType storeType();
 

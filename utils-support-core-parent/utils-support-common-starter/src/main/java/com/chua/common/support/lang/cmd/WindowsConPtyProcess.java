@@ -345,12 +345,18 @@ public final class WindowsConPtyProcess implements Closeable {
         STARTUPINFOEX_SIZE = siExSize;
     }
 
-    /** 是否Available */
+    /**
+     * 是否Available
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean isAvailable() {
         return AVAILABLE;
     }
 
-    /** 是否Windows */
+    /**
+     * 是否Windows
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
@@ -455,7 +461,12 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
-    /** 开始 */
+    /**
+     * 开始
+     * @param cmdArray cmd数组，不允许为 null
+     * @param workDir work目录，不允许为 null
+     * @return WindowsConPty处理 对象
+     */
     public static WindowsConPtyProcess start(String[] cmdArray, String workDir) throws IOException {
         if (!AVAILABLE) {
             throw new UnsupportedOperationException("ConPTY is not available on this system");
@@ -557,11 +568,17 @@ public final class WindowsConPtyProcess implements Closeable {
                             hpcSeg, ValueLayout.ADDRESS.byteSize(),
                             MemorySegment.NULL, MemorySegment.NULL);
                 } catch (Throwable t) {
-                    try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
+                    try {
+                        DeleteProcThreadAttributeList.invokeExact(attrListMem);
+                    } catch (Throwable ignored) {
+                    }
                     throw new IOException("UpdateProcThreadAttribute failed", t);
                 }
                 if (ret == 0) {
-                    try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
+                    try {
+                        DeleteProcThreadAttributeList.invokeExact(attrListMem);
+                    } catch (Throwable ignored) {
+                    }
                     throw new IOException("UpdateProcThreadAttribute failed, error=" + getLastError());
                 }
 
@@ -610,12 +627,18 @@ public final class WindowsConPtyProcess implements Closeable {
                             pi
                     );
                 } catch (Throwable t) {
-                    try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
+                    try {
+                        DeleteProcThreadAttributeList.invokeExact(attrListMem);
+                    } catch (Throwable ignored) {
+                    }
                     closeHandle(hPC);
                     throw new IOException("CreateProcessW failed", t);
                 }
                 if (ret == 0) {
-                    try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
+                    try {
+                        DeleteProcThreadAttributeList.invokeExact(attrListMem);
+                    } catch (Throwable ignored) {
+                    }
                     closeHandle(hPC);
                     throw new IOException("CreateProcessW failed, error=" + getLastError());
                 }
@@ -624,7 +647,10 @@ public final class WindowsConPtyProcess implements Closeable {
                 MemorySegment hThr = pi.get(ValueLayout.ADDRESS, 8);
 
                 // 清理属性列表资源
-                try { DeleteProcThreadAttributeList.invokeExact(attrListMem); } catch (Throwable ignored) {}
+                try {
+                    DeleteProcThreadAttributeList.invokeExact(attrListMem);
+                } catch (Throwable ignored) {
+                }
 
                 // 关闭输入管道写端
                 closeHandle(inWrite);
@@ -653,12 +679,18 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
-    /** 获取InputStream */
+    /**
+     * 获取InputStream
+     * @return Input流 对象
+     */
     public InputStream getInputStream() {
         return inputStream;
     }
 
-    /** WaitFor */
+    /**
+     * WaitFor
+     * @return 结果数值
+     */
     public int waitFor() throws InterruptedException {
         if (hProcess == null) {
             return -1;
@@ -679,7 +711,11 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
-    /** WaitFor */
+    /**
+     * WaitFor
+     * @param timeout 超时时间，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean waitFor(long timeout) throws InterruptedException {
         if (hProcess == null) {
             return true;
@@ -695,7 +731,9 @@ public final class WindowsConPtyProcess implements Closeable {
     /** 关闭 */
     public void close() {
         if (inputStream != null) {
-            try { inputStream.close(); } catch (Exception ignored) {
+            try {
+                inputStream.close();
+            } catch (Exception ignored) {
             }
             inputStream = null;
         }
@@ -704,7 +742,9 @@ public final class WindowsConPtyProcess implements Closeable {
             hThread = null;
         }
         if (hProcess != null) {
-            try { TerminateProcess.invokeExact(hProcess, 1); } catch (Throwable ignored) {
+            try {
+                TerminateProcess.invokeExact(hProcess, 1);
+            } catch (Throwable ignored) {
             }
             closeHandle(hProcess);
             hProcess = null;
@@ -718,7 +758,9 @@ public final class WindowsConPtyProcess implements Closeable {
             hInputWrite = null;
         }
         if (hPC != null) {
-            try { ClosePseudoConsole.invokeExact(hPC); } catch (Throwable ignored) {
+            try {
+                ClosePseudoConsole.invokeExact(hPC);
+            } catch (Throwable ignored) {
             }
             hPC = null;
         }

@@ -102,7 +102,10 @@ public class TraeHttpClient {
         * @param authManager 认证实例，不可为 空
         * @return 当前 构建器
         */
-        public Builder authManager(AuthManager authManager) { this.authManager = authManager; return this; }
+        public Builder authManager(AuthManager authManager) {
+            this.authManager = authManager;
+            return this;
+        }
 
         /**
         * 设置 API 主机。
@@ -110,7 +113,10 @@ public class TraeHttpClient {
         * @param apiHost 主机地址，不可为 空
         * @return 当前 构建器
         */
-        public Builder apiHost(String apiHost) { this.apiHost = apiHost; return this; }
+        public Builder apiHost(String apiHost) {
+            this.apiHost = apiHost;
+            return this;
+        }
 
         /**
         * 设置 App 标识。
@@ -118,7 +124,10 @@ public class TraeHttpClient {
         * @param appId 应用标识
         * @return 当前 构建器
         */
-        public Builder appId(String appId) { this.appId = appId; return this; }
+        public Builder appId(String appId) {
+            this.appId = appId;
+            return this;
+        }
 
         /**
         * 设置 IDE 版本。
@@ -126,7 +135,10 @@ public class TraeHttpClient {
         * @param v 版本号
         * @return 当前 构建器
         */
-        public Builder ideVersion(String v) { this.ideVersion = v; return this; }
+        public Builder ideVersion(String v) {
+            this.ideVersion = v;
+            return this;
+        }
 
         /**
         * 设置 IDE 版本码。
@@ -134,7 +146,10 @@ public class TraeHttpClient {
         * @param v 版本码
         * @return 当前 构建器
         */
-        public Builder ideVersionCode(String v) { this.ideVersionCode = v; return this; }
+        public Builder ideVersionCode(String v) {
+            this.ideVersionCode = v;
+            return this;
+        }
 
         /**
         * 设置 HTTP 代理。
@@ -143,7 +158,11 @@ public class TraeHttpClient {
         * @param port 代理端口
         * @return 当前 构建器
         */
-        public Builder httpProxy(String host, int port) { this.httpProxy = host; this.proxyPort = port; return this; }
+        public Builder httpProxy(String host, int port) {
+            this.httpProxy = host;
+            this.proxyPort = port;
+            return this;
+        }
 
         /**
         * 构建 HTTP 客户端。

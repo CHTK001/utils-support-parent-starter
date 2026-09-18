@@ -28,6 +28,12 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
 
     private final ScatterNodeHandler handler;
 
+    /**
+     * 构造方法，创建 ScatterTcp节点服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param handler 处理器，不允许为 null
+     */
     public ScatterTcpNodeServer(ServerSetting setting, ScatterNodeHandler handler) {
         super(setting);
         this.handler = handler;

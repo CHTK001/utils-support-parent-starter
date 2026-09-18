@@ -83,7 +83,12 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
         return result;
     }
 
-    /** 前置Base */
+    /**
+     * 前置Base
+     * @param basePath base路径，不允许为 null
+     * @param subPaths 方法入参 subPaths
+     * @return 字符串 对象
+     */
     private static String[] prependBase(String basePath, String[] subPaths) {
         String[] result = new String[subPaths.length];
         for (int i = 0; i < subPaths.length; i++) {

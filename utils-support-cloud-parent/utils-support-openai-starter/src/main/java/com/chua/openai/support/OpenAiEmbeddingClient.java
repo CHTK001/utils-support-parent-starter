@@ -135,7 +135,10 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             throw new RuntimeException("OpenAI 嵌入向量请求失败: " + e.getMessage(), e);
         } finally {
             if (client != null) {
-                try { client.close(); } catch (Exception ignored) { }
+                try {
+                    client.close();
+                } catch (Exception ignored) {
+                }
             }
         }
     }
@@ -180,7 +183,10 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
             throw new RuntimeException("OpenAI 嵌入向量请求失败: " + e.getMessage(), e);
         } finally {
             if (client != null) {
-                try { client.close(); } catch (Exception ignored) { }
+                try {
+                    client.close();
+                } catch (Exception ignored) {
+                }
             }
         }
     }

@@ -35,7 +35,10 @@ public final class CipherFlow {
     /** 提供者名称，默认 "bc" */
     private String provider = DEFAULT_PROVIDER;
 
-    /** 构造函数 */
+    /**
+     * 构造函数
+     * @param algorithm 方法入参 algorithm
+     */
     private CipherFlow(String algorithm) {
         this.algorithm = algorithm;
     }
@@ -134,57 +137,90 @@ public final class CipherFlow {
         };
     }
 
-    /** AES（JDK 内置） */
+    /**
+     * AES（JDK 内置）
+     * @return AesCipher 对象
+     */
     public AesCipher aes() {
         return new AesCipher();
     }
 
-    /** DES（JDK 内置） */
+    /**
+     * DES（JDK 内置）
+     * @return DesCipher 对象
+     */
     public DesCipher des() {
         return new DesCipher();
     }
 
-    /** RSA 非对称加解密 / 签名验签 */
+    /**
+     * RSA 非对称加解密 / 签名验签
+     * @return RsaCipher 对象
+     */
     public RsaCipher rsa() {
         return RsaCipher.create(provider);
     }
 
-    /** SM2 非对称加解密 / 签名验签 */
+    /**
+     * SM2 非对称加解密 / 签名验签
+     * @return Sm2Cipher 对象
+     */
     public Sm2Cipher sm2() {
         return Sm2Cipher.create(provider);
     }
 
-    /** SM4 对称加解密 */
+    /**
+     * SM4 对称加解密
+     * @return Sm4Cipher 对象
+     */
     public Sm4Cipher sm4() {
         return Sm4Cipher.create(provider);
     }
 
-    /** ECIES 椭圆曲线集成加密 */
+    /**
+     * ECIES 椭圆曲线集成加密
+     * @return EciesCipher 对象
+     */
     public EciesCipher ecies() {
         return EciesCipher.create(provider);
     }
 
-    /** HPKE（RFC 9180）混合公钥加密 */
+    /**
+     * HPKE（RFC 9180）混合公钥加密
+     * @return HpkeCipher 对象
+     */
     public HpkeCipher hpke() {
         return HpkeCipher.create(provider);
     }
 
-    /** Twofish 对称加解密 */
+    /**
+     * Twofish 对称加解密
+     * @return TwofishCipher 对象
+     */
     public TwofishCipher twofish() {
         return TwofishCipher.create(provider);
     }
 
-    /** Noekeon 对称加解密 */
+    /**
+     * Noekeon 对称加解密
+     * @return NoekeonCipher 对象
+     */
     public NoekeonCipher noekeon() {
         return NoekeonCipher.create(provider);
     }
 
-    /** 3DES 对称加解密 */
+    /**
+     * 3DES 对称加解密
+     * @return DesedeCipher 对象
+     */
     public DesedeCipher desede() {
         return DesedeCipher.create(provider);
     }
 
-    /** HPKE 链式门面（委托 {@link HpkeFlow}） */
+    /**
+     * HPKE 链式门面（委托 {@link HpkeFlow}）
+     * @return HpkeFlow 对象
+     */
     public HpkeFlow hpkeFlow() {
         return HpkeFlow.of(provider);
     }

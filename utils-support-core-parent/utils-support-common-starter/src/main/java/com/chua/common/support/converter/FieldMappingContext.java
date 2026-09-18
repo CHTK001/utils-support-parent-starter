@@ -51,32 +51,50 @@ public class FieldMappingContext {
         return new Builder();
     }
 
-    /** 获取FieldName */
+    /**
+     * 获取FieldName
+     * @return 结果字符串
+     */
     public String getFieldName() {
         return fieldName;
     }
 
-    /** 获取MappedName */
+    /**
+     * 获取MappedName
+     * @return 结果字符串
+     */
     public String getMappedName() {
         return mappedName;
     }
 
-    /** 获取格式化 */
+    /**
+     * 获取格式化
+     * @return 结果字符串
+     */
     public String getFormat() {
         return format;
     }
 
-    /** 获取DefaultValue */
+    /**
+     * 获取DefaultValue
+     * @return 结果字符串
+     */
     public String getDefaultValue() {
         return defaultValue;
     }
 
-    /** 获取Context */
+    /**
+     * 获取Context
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> getContext() {
         return context;
     }
 
-    /** 获取OriginalValue */
+    /**
+     * 获取OriginalValue
+     * @return 对象 对象
+     */
     public Object getOriginalValue() {
         return originalValue;
     }

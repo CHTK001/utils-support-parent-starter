@@ -118,7 +118,11 @@ public class FileOffsetStore implements OffsetStore {
         cache.clear();
     }
 
-    /** 创建Offset */
+    /**
+     * 创建Offset
+     * @param subscriberId subscriberID，不允许为 null
+     * @return 偏移量 对象
+     */
     private Offset createOffset(String subscriberId) {
         return new FileOffset(subscriberId);
     }

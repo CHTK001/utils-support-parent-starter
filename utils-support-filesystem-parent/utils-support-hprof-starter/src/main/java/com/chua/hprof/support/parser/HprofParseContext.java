@@ -22,23 +22,21 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * GridKit hprof-heap backed HPROF binary reader used by {@link HprofParser}.
+ * 基于 GridKit hprof-heap 的 HPROF 二进制读取器，供 {@link HprofParser} 使用。
  *
- * <p>Parses an HPROF heap dump through
- * {@code org.gridkit.jvmtool:hprof-heap} (the NetBeans PerfLib HPROF backend
- * that backs Eclipse MAT) and materialises it into {@link HprofRecord} rows.
- * Class histograms are aggregated from {@code JavaClass.getInstancesCount()}
- * and {@code getRetainedSizeByClass()}; GC roots are collected from
- * {@code HprofHeap.getGCRoots()}.</p>
+ * <p>通过 {@code org.gridkit.jvmtool:hprof-heap}（Eclipse MAT 所使用的
+ * NetBeans PerfLib HPROF 后端）解析 HPROF 堆转储，
+ * 并落地为 {@link HprofRecord} 行。
+ * 类直方图由 {@code JavaClass.getInstancesCount()} 与
+ * {@code getRetainedSizeByClass()} 聚合；GC 根从
+ * {@code HprofHeap.getGCRoots()} 收集。</p>
  *
- * <p>Unlike HAHA / Shark (which only support 32-bit Android dumps),
- * hprof-heap correctly parses 64-bit JDK heap dumps (8-byte record
- * lengths and 8-byte identifiers), so a 790MB
- * {@code java_error_in_idea.hprof} from a JDK 25 crash dump parses
- * correctly.</p>
+ * <p>HAHA / Shark 只支持 32 位的 Android 转储，而 hprof-heap 能正确解析
+ * 64 位 JDK 堆转储（8 字节记录长度与 8 字节标识符），
+ * 因此 JDK 25 崩溃转储中 790MB 的
+ * {@code java_error_in_idea.hprof} 也能被正确解析。</p>
  *
- * <p>The caller is expected to run the parse on a worker thread when the
- * dump is large.</p>
+ * <p>转储较大时，调用方应把解析放到工作线程中执行。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -46,7 +44,7 @@ import java.util.Set;
 public final class HprofParseContext {
 
     /**
-    * Parsed record row, immutable.
+    * 已解析的记录行，不可变。
     */
     public record HprofRecord(String className,
                               long instanceCount,
@@ -58,40 +56,50 @@ public final class HprofParseContext {
     }
 
     /**
-    * Parsed context holder, immutable.
+    * 解析上下文载体，不可变。
     */
     public record ParsedContext(List<HprofRecord> objects,
                                 Map<String, Long> retainedByClass,
                                 Map<String, Long> countByClass,
                                 List<String> gcRoots,
                                 Map<String, Long> gcRootsByKind,
-                                Map<String, HprofClassDetail> classDetails) {
+                                Map<String, HprofClassDetail> classDetails,
+                                List<HprofRefChainWalker.RefChain> refChains) {
     }
 
+    /**
+     * 构造方法，创建 Hprof解析上下文 实例。
+     */
     private HprofParseContext() {
     }
 
     /**
-    * Maximum number of top classes for which instance-level detail is captured.
+    * 采集实例级明细的 Top 类数量上限。
     */
     private static final int DETAIL_CLASS_LIMIT = 20;
 
     /**
-    * Maximum number of top instances captured per class.
+    * 每个类采集的 Top 实例数量上限。
     */
     private static final int DETAIL_INSTANCE_LIMIT = 5;
 
     /**
-    * Maximum number of field values captured per instance.
+    * 每个实例采集的字段值数量上限。
     */
     private static final int DETAIL_FIELD_LIMIT = 20;
 
     /**
-    * Parse an hprof file into a context.
+    * 为挑出保留量最大的实例，每个类最多扫描的实例数。
+    * 即使某个类有百万级实例，也能把明细遍历控制在有限开销内。
+    */
+    private static final int DETAIL_SCAN_LIMIT = 5000;
+
+    /**
+    * 解析 hprof 文件为上下文。
     *
-    * @param file hprof binary file
-    * @return parsed context
-    * @throws IOException when the file cannot be read
+    * @param file hprof 二进制文件
+    * @return 解析上下文
+    * @throws IOException 文件不可读时抛出
     */
     public static ParsedContext parse(File file) throws IOException {
         Objects.requireNonNull(file, "file");
@@ -103,18 +111,16 @@ public final class HprofParseContext {
     }
 
     /**
-    * Parse raw hprof bytes into a context.
+    * 解析 hprof 原始字节为上下文。
     *
-    * <p>The bytes are written to a temp file and handed to the GridKit
-    * reader, because hprof-heap only accepts {@link File} input. When the
-    * system temp space is too small for the long-map scratch the reader
-    * needs, this method is expected to fail — callers that need to parse
-    * a byte[] on disk-constrained machines should stage the file under a
-    * directory with enough free space first.</p>
+    * <p>字节会被写入临时文件再交给 GridKit 读取器，因为 hprof-heap 只接受
+    * {@link File} 输入。当系统临时空间不足以放下读取器所需的 long-map
+    * 暂存数据时，本方法预期会失败——需要在磁盘受限的机器上解析 byte[] 的调用方，
+    * 应先把文件落到剩余空间充足的目录下。</p>
     *
-    * @param data hprof bytes
-    * @return parsed context
-    * @throws IOException when the bytes cannot be parsed
+    * @param data hprof 字节
+    * @return 解析上下文
+    * @throws IOException 字节无法解析时抛出
     */
     public static ParsedContext parse(byte[] data) throws IOException {
         Objects.requireNonNull(data, "data");
@@ -126,10 +132,10 @@ public final class HprofParseContext {
     }
 
     /**
-    * Aggregate class histogram and GC roots from an open GridKit heap.
+    * 从已打开的 GridKit 堆读取器聚合类直方图与 GC 根。
     *
-    * @param heap open GridKit heap reader
-    * @return parsed context
+    * @param heap 已打开的 GridKit 堆读取器
+    * @return 解析上下文
     */
     private static ParsedContext parse(Heap heap) {
         List<HprofRecord> objects = new ArrayList<>();
@@ -144,9 +150,9 @@ public final class HprofParseContext {
             }
             long instances = cls.getInstancesCount();
             long retained = cls.getRetainedSizeByClass();
-            // allInstancesSize is the summed shallow size across every
-            // instance of the class; getInstanceSize() is unreliable for
-            // array classes (varies per element) so prefer the total.
+            // allInstancesSize 是该类所有实例浅堆大小之和；
+            // getInstanceSize() 对数组类不可靠（大小随元素而变），
+            // 因此优先采用总量值。
             long shallow = Math.max(cls.getAllInstancesSize(), 0L);
             objects.add(new HprofRecord(name, instances, shallow, retained,
                     cls.getJavaClassId(), null, null));
@@ -158,19 +164,20 @@ public final class HprofParseContext {
         Map<String, Long> gcRootsByKind = countGcRootsByKind(heap);
         Map<String, HprofClassDetail> classDetails =
                 collectClassDetails(heap, objects);
+        List<HprofRefChainWalker.RefChain> refChains =
+                HprofRefChainWalker.walk(heap, objects);
         return new ParsedContext(objects, retainedByClass, countByClass,
-                gcRoots, gcRootsByKind, classDetails);
+                gcRoots, gcRootsByKind, classDetails, refChains);
     }
 
     /**
-    * For the top classes (by retained size), capture the field values of
-    * their retained-largest instances and the static field holders. This
-    * is what powers the "click to expand details" view in the report -
-    * it answers "who stored what" instead of just "how much".
+    * 针对保留量最大的那些类，采集其保留量最大实例的字段值，
+    * 以及静态字段持有者。报告的“点击展开明细”视图正是基于这部分数据——
+    * 它回答的是"谁持有了什么"，而不只是"占了多少"。
     *
-    * @param heap open GridKit heap reader
-    * @param objects per-class records
-    * @return class name to detail map
+    * @param heap    已打开的 GridKit 堆读取器
+    * @param objects 按类聚合的记录
+    * @return 类名到明细的映射
     */
     private static Map<String, HprofClassDetail> collectClassDetails(Heap heap,
                                                                       List<HprofRecord> objects) {
@@ -192,53 +199,95 @@ public final class HprofParseContext {
                     captured++;
                 }
             } catch (Throwable t) {
-                // some classes (e.g. array types, JDK internals) throw on
-                // instance walk; skip them rather than abort the report
+                // 部分类（如数组类、JDK 内部类）遍历实例时会抛异常；
+                // 跳过它们，而不是让整份报告中断
             }
         }
         return details;
     }
 
     /**
-    * Build the detail for one class: top instances + static fields.
+    * 构建单个类的明细：Top 实例 + 静态字段。
     *
-    * @param heap      open GridKit heap reader
-    * @param className class name
-    * @param record    per-class record
-    * @return the class detail
+    * <p>会扫描该类的所有实例，保留保留量最大的
+    * {@link #DETAIL_INSTANCE_LIMIT} 个。对多数类而言全量扫描开销很小
+    * （数万个实例只需几毫秒），而且这是找到真正最大持有者的唯一办法——
+    * 顺序取"前 N 个"对于大集合只会拿到一批很小的早期实例。</p>
+    *
+    * @param heap   已打开的 GridKit 堆读取器
+    * @param record 该类的按类记录
+    * @return 类明细
     */
     private static HprofClassDetail buildClassDetail(Heap heap, HprofRecord record) {
+        JavaClass cls = heap.getJavaClassByID(record.objectId());
+        if (cls == null) {
+            return new HprofClassDetail(record.className(), List.of(), List.of());
+        }
+        // 保留最大的前 5 个实例（用固定容量堆式选择，避免排序整个列表）。
+        // 用 JavaClass.getInstances()（LazyInstanceList，逐实例惰性生成）而非
+        // Heap.getAllInstances(classId)——后者在 GridKit 里会忽略 classId 参数
+        // 退化成全堆迭代器，导致每个类抓到的是同一批全局最大实例。
         List<HprofClassDetail.InstanceDetail> instances = new ArrayList<>();
         int scanned = 0;
-        for (Instance inst : heap.getAllInstances(record.objectId())) {
+        for (Instance inst : cls.getInstances()) {
             scanned++;
-            if (scanned >= DETAIL_INSTANCE_LIMIT) {
+            if (scanned >= DETAIL_SCAN_LIMIT) {
                 break;
             }
-            List<HprofClassDetail.FieldValueDetail> fieldValues = new ArrayList<>();
-            for (FieldValue fv : inst.getFieldValues()) {
-                if (fieldValues.size() >= DETAIL_FIELD_LIMIT) {
-                    break;
-                }
-                fieldValues.add(toFieldValueDetail(fv, false));
+            long retained = inst.getRetainedSize();
+            if (retained <= 0) {
+                continue;
             }
-            instances.add(new HprofClassDetail.InstanceDetail(
-                    inst.getInstanceId(), inst.getRetainedSize(),
-                    inst.getSize(), fieldValues));
+            HprofClassDetail.InstanceDetail detail = instanceDetail(inst);
+            if (instances.size() < DETAIL_INSTANCE_LIMIT) {
+                instances.add(detail);
+            } else {
+                int minIdx = 0;
+                for (int i = 1; i < instances.size(); i++) {
+                    if (instances.get(i).getRetainedSize()
+                            < instances.get(minIdx).getRetainedSize()) {
+                        minIdx = i;
+                    }
+                }
+                if (retained > instances.get(minIdx).getRetainedSize()) {
+                    instances.set(minIdx, detail);
+                }
+            }
+        }
+        if (instances.isEmpty()) {
+            return new HprofClassDetail(record.className(), List.of(), List.of());
         }
         instances.sort((a, b) -> Long.compare(b.getRetainedSize(), a.getRetainedSize()));
         return new HprofClassDetail(record.className(), instances, List.of());
     }
 
     /**
-    * Convert a GridKit FieldValue into a human-readable detail.
+    * 构造单个实例明细。
     *
-    * @param fv       field value
-    * @param isStatic whether the field is static
-    * @return the detail
+    * @param inst 实例
+    * @return 实例明细
     */
-    private static HprofClassDetail.FieldValueDetail toFieldValueDetail(FieldValue fv,
-                                                                        boolean isStatic) {
+    private static HprofClassDetail.InstanceDetail instanceDetail(Instance inst) {
+        List<HprofClassDetail.FieldValueDetail> fieldValues = new ArrayList<>();
+        for (FieldValue fv : inst.getFieldValues()) {
+            if (fieldValues.size() >= DETAIL_FIELD_LIMIT) {
+                break;
+            }
+            fieldValues.add(toFieldValueDetail(fv, false));
+        }
+        return new HprofClassDetail.InstanceDetail(
+                inst.getInstanceId(), inst.getRetainedSize(), inst.getSize(), fieldValues);
+    }
+
+    /**
+    * 把 GridKit 的 FieldValue 转换为可读明细。
+    *
+    * @param fv       字段值
+    * @param isStatic 该字段是否为静态字段
+    * @return 字段明细
+    */
+    static HprofClassDetail.FieldValueDetail toFieldValueDetail(FieldValue fv,
+                                                                 boolean isStatic) {
         Field field = fv.getField();
         String fieldName = field != null ? field.getName() : "?";
         Type type = field != null ? field.getType() : null;
@@ -250,12 +299,11 @@ public final class HprofParseContext {
     }
 
     /**
-    * Render a raw field value as a short human-readable string.
+    * 把原始字段值渲染为简短可读的字符串。
     *
-    * @param rawValue  raw value text from GridKit (may be an object id or
-    *                  a string literal)
-    * @param typeName  target type name
-    * @return the readable text
+    * @param rawValue GridKit 给出的原始值文本（可能是对象 id 或字符串字面量）
+    * @param typeName 目标类型名
+    * @return 可读文本
     */
     private static String readableValue(String rawValue, String typeName) {
         if (rawValue == null) {
@@ -265,24 +313,24 @@ public final class HprofParseContext {
         if (value.isEmpty()) {
             return "null";
         }
-        // array types: the value text is the element count
+        // 数组类型：值文本即元素个数
         if (typeName.endsWith("[]")) {
             return typeName + "[" + value + "]";
         }
-        // numeric / primitive: show as-is
+        // 数值 / 基本类型：原样展示
         if (typeName.startsWith("int") || typeName.startsWith("long")
                 || typeName.startsWith("boolean") || typeName.startsWith("char")) {
             return value;
         }
-        // reference type: GridKit returns the target object id
+        // 引用类型：GridKit 返回的是目标对象 id
         return typeName + "@" + value;
     }
 
     /**
-    * Count GC roots per kind.
+    * 按种类统计 GC 根数量。
     *
-    * @param heap open GridKit heap reader
-    * @return kind to count map
+    * @param heap 已打开的 GridKit 堆读取器
+    * @return 种类到数量的映射
     */
     private static Map<String, Long> countGcRootsByKind(Heap heap) {
         Map<String, Long> byKind = new HashMap<>();
@@ -293,10 +341,10 @@ public final class HprofParseContext {
     }
 
     /**
-    * Collect distinct GC root kind + class descriptions.
+    * 收集去重后的 GC 根种类 + 类描述。
     *
-    * @param heap open GridKit heap reader
-    * @return gc root descriptions
+    * @param heap 已打开的 GridKit 堆读取器
+    * @return GC 根描述列表
     */
     private static List<String> collectGcRoots(Heap heap) {
         Set<String> seen = new LinkedHashSet<>();

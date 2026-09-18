@@ -15,6 +15,7 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 * @param onCondition ON 关联条件 SQL 片段，如 {@code "user.id = order.user_id"}
 * @author CH
 * @since 4.0.0.42
+ * @return 结果值
  */
 public record JoinClause(String joinType, String table, String alias, String onCondition) {
 

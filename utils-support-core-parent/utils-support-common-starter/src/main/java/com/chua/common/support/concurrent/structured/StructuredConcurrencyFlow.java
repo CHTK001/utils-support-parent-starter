@@ -146,61 +146,102 @@ public final class StructuredConcurrencyFlow {
         this.name = name;
     }
 
-    /** Of */
+    /**
+     * Of
+     * @param name 名称，不允许为 null
+     * @return StructuredConcurrencyFlow 对象
+     */
     public static StructuredConcurrencyFlow of(String name) {
         return new StructuredConcurrencyFlow(name);
     }
 
-    /** FailureStrategy */
+    /**
+     * FailureStrategy
+     * @param failureStrategy 方法入参 failureStrategy
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow failureStrategy(FailureStrategy failureStrategy) {
         this.failureStrategy = failureStrategy;
         return this;
     }
 
-    /** Success计算数量 */
+    /**
+     * Success计算数量
+     * @param successCount success数量，不允许为 null
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow successCount(int successCount) {
         this.successCount = successCount;
         return this;
     }
 
-    /** Failure计算数量 */
+    /**
+     * Failure计算数量
+     * @param failureCount failure数量，不允许为 null
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow failureCount(int failureCount) {
         this.failureCount = failureCount;
         return this;
     }
 
-    /** 最大值Retries */
+    /**
+     * 最大值Retries
+     * @param maxRetries 最大值Retries，不允许为 null
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow maxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
         return this;
     }
 
-    /** Backoff */
+    /**
+     * Backoff
+     * @param backoff 方法入参 backoff
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow backoff(BackoffProvider backoff) {
         this.backoff = backoff;
         return this;
     }
 
-    /** Timeout */
+    /**
+     * Timeout
+     * @param timeout 超时时间，不允许为 null
+     * @param unit 方法入参 unit
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow timeout(long timeout, TimeUnit unit) {
         this.timeout = timeout;
         this.timeUnit = unit;
         return this;
     }
 
-    /** Fallback */
+    /**
+     * Fallback
+     * @param fallback 方法入参 fallback
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
     }
 
-    /** 提交 */
+    /**
+     * 提交
+     * @param task 方法入参 task
+     * @return StructuredConcurrencyFlow 对象
+     */
     public <T> StructuredConcurrencyFlow submit(Callable<T> task) {
         tasks.add(task);
         return this;
     }
 
-    /** 提交 */
+    /**
+     * 提交
+     * @param task 方法入参 task
+     * @return StructuredConcurrencyFlow 对象
+     */
     public StructuredConcurrencyFlow submit(Runnable task) {
         tasks.add(() -> {
             task.run();
@@ -214,12 +255,19 @@ public final class StructuredConcurrencyFlow {
         executeAll();
     }
 
-    /** Collect */
+    /**
+     * Collect
+     * @return 结果列表，无数据时为空列表
+     */
     public <T> List<T> collect() throws Exception {
         return (List<T>) executeAll();
     }
 
-    /** 合并 */
+    /**
+     * 合并
+     * @param merger 方法入参 merger
+     * @return R 对象
+     */
     public <T, R> R merge(Function<List<T>, R> merger) throws Exception {
         return merger.apply((List<T>) executeAll());
     }
@@ -243,7 +291,10 @@ public final class StructuredConcurrencyFlow {
         return CACHE.computeIfAbsent(name, k -> createProvider(failureStrategy));
     }
 
-    /** 执行All */
+    /**
+     * 执行All
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Object> executeAll() throws Exception {
         if (tasks.isEmpty()) {
             return List.of();
@@ -264,6 +315,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 快速失败策略：使用 invokeAll 并行执行，任一失败即取消其余。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Object> executeFailFast(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -281,13 +334,19 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 收集最佳策略：使用 invokeAll 并行执行，忽略失败的任务，返回 null 作为失败标记。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Object> executeCollectBest(ExecutorService executor) {
         try {
             List<Future<Object>> futures = invokeAll(executor);
             return futures.stream()
                     .map(f -> {
-                        try { return getWithTimeout(f); } catch (Exception e) { return null; }
+                        try {
+                            return getWithTimeout(f);
+                        } catch (Exception e) {
+                            return null;
+                        }
                     })
                     .collect(Collectors.toList());
         } catch (InterruptedException e) {
@@ -298,6 +357,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 成功计数策略：达到指定成功数后立即取消其余任务。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Object> executeSuccessCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -331,6 +392,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 失败计数策略：达到指定失败数后停止。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Object> executeFailureCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -355,6 +418,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 带重试的失败策略：任务失败后进行重试。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Object> executeWithRetry(ExecutorService executor) throws Exception {
         List<Object> results = new ArrayList<>();
@@ -398,6 +463,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 使用执行器并行执行所有任务。
+    * @param executor 方法入参 executor
+    * @return 结果列表，无数据时为空列表
     */
     private List<Future<Object>> invokeAll(ExecutorService executor) throws InterruptedException {
         return executor.invokeAll(tasks.stream()
@@ -405,7 +472,11 @@ public final class StructuredConcurrencyFlow {
                 .collect(Collectors.toList()));
     }
 
-    /** 获取WithTimeout */
+    /**
+     * 获取WithTimeout
+     * @param future 方法入参 future
+     * @return 对象 对象
+     */
     private Object getWithTimeout(Future<Object> future) throws Exception {
         if (timeout > 0 && timeUnit != null) {
             return future.get(timeout, timeUnit);
@@ -413,7 +484,11 @@ public final class StructuredConcurrencyFlow {
         return future.get();
     }
 
-    /** 处理Failure */
+    /**
+     * 处理Failure
+     * @param e 方法入参 e
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Object> handleFailure(Exception e) throws Exception {
         if (fallback != null) {
             return List.of(fallback.get());
@@ -421,14 +496,21 @@ public final class StructuredConcurrencyFlow {
         throw e;
     }
 
-    /** CancelRemaining */
+    /**
+     * CancelRemaining
+     * @param futures 方法入参 futures
+     * @param startIndex 启动索引，不允许为 null
+     */
     private void cancelRemaining(List<Future<Object>> futures, int startIndex) {
         for (int i = startIndex; i < futures.size(); i++) {
             futures.get(i).cancel(true);
         }
     }
 
-    /** 解析Backoff */
+    /**
+     * 解析Backoff
+     * @return Backoff提供者 对象
+     */
     private BackoffProvider resolveBackoff() {
         if (backoff != null) {
             return backoff;
@@ -436,7 +518,10 @@ public final class StructuredConcurrencyFlow {
         return new ExponentialBackoffProvider();
     }
 
-    /** 解析Executor */
+    /**
+     * 解析Executor
+     * @return Executor服务 对象
+     */
     private ExecutorService resolveExecutor() {
         return ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
@@ -507,6 +592,8 @@ public final class StructuredConcurrencyFlow {
 
     /**
     * 根据失败策略创建对应的 Provider。
+    * @param strategy 方法入参 strategy
+    * @return StructuredConcurrency提供者 对象
     */
     private static StructuredConcurrencyProvider createProvider(FailureStrategy strategy) {
         return switch (strategy) {

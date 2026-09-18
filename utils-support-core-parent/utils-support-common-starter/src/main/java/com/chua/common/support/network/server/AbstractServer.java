@@ -253,7 +253,10 @@ public abstract class AbstractServer implements ConfigServer {
     */
     private static volatile java.util.List<ResponseConverter> CONVERTER_CACHE;
 
-    /** Converters */
+    /**
+     * Converters
+     * @return 结果值
+     */
     private static java.util.List<ResponseConverter> converters() {
         java.util.List<ResponseConverter> cached = CONVERTER_CACHE;
         if (cached != null) {
@@ -266,7 +269,10 @@ public abstract class AbstractServer implements ConfigServer {
         return loaded;
     }
 
-    /** 转换Result */
+    /**
+     * 转换Result
+     * @param response 响应，不允许为 null
+     */
     private void convertResult(ServerResponse response) {
         Object result = response.getResult();
         if (result == null) {

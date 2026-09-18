@@ -15,6 +15,7 @@ public @interface TableDefinition {
 
     /**
     * 表名。
+    * @return 结果字符串
     */
     String value();
 }

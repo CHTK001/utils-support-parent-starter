@@ -60,6 +60,9 @@ public final class AesGcmUtils {
     */
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    /**
+     * 构造方法，创建 AesGcmUtils 实例。
+     */
     private AesGcmUtils() {
     }
 

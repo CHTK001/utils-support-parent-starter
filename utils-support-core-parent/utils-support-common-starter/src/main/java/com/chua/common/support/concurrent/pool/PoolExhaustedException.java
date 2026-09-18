@@ -23,6 +23,7 @@ public class PoolExhaustedException extends RuntimeException {
     * 创建 PoolExhaustedException 实例
     * @param message message
     * @param Throwable Throwable
+    * @param cause 方法入参 cause
     */
     public PoolExhaustedException(String message, Throwable cause) {
         super(message, cause);

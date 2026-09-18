@@ -30,6 +30,9 @@ class LambdaWrapperSqlBuildTest {
         return new LambdaQueryWrapper<>(FixtureUser.class);
     }
 
+    /**
+     * 测试：ComparisonOperators。
+     */
     @Test
     @DisplayName("比较运算符渲染:列名蛇形 + ? 占位符 + 参数顺序")
     void testComparisonOperators() {
@@ -48,6 +51,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(sql.hasWhere());
     }
 
+    /**
+     * 测试：LikeVariants。
+     */
     @Test
     @DisplayName("LIKE 系列:%值% / %值 / 值%")
     void testLikeVariants() {
@@ -62,6 +68,9 @@ class LambdaWrapperSqlBuildTest {
         assertEquals("张%", right.params().getFirst());
     }
 
+    /**
+     * 测试：InAndNotIn。
+     */
     @Test
     @DisplayName("IN / NOT IN:占位符展开与参数收集")
     void testInAndNotIn() {
@@ -78,6 +87,9 @@ class LambdaWrapperSqlBuildTest {
         assertEquals(List.of(1L, 2L), notIn.params());
     }
 
+    /**
+     * 测试：Between。
+     */
     @Test
     @DisplayName("BETWEEN:两个占位符,参数先小后大")
     void testBetween() {
@@ -88,6 +100,9 @@ class LambdaWrapperSqlBuildTest {
         assertEquals(List.of(18, 30), sql.params());
     }
 
+    /**
+     * 测试：NullPredicates。
+     */
     @Test
     @DisplayName("IS NULL / IS NOT NULL:不产生参数")
     void testNullPredicates() {
@@ -100,6 +115,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(notNull.params().isEmpty());
     }
 
+    /**
+     * 测试：NestedGroups。
+     */
     @Test
     @DisplayName("AND/OR 嵌套分组:括号包裹")
     void testNestedGroups() {
@@ -113,6 +131,9 @@ class LambdaWrapperSqlBuildTest {
         assertEquals(List.of(1L, 30, 50, "管理员"), sql.params());
     }
 
+    /**
+     * 测试：OrderBy。
+     */
     @Test
     @DisplayName("ORDER BY:升降序渲染")
     void testOrderBy() {
@@ -124,6 +145,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(sql.hasOrderBy());
     }
 
+    /**
+     * 测试：SelectProjection。
+     */
     @Test
     @DisplayName("投影:Lambda 列 + 聚合函数 AS 别名")
     void testSelectProjection() {
@@ -139,6 +163,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(sql.hasGroupBy());
     }
 
+    /**
+     * 测试：分组ByHaving。
+     */
     @Test
     @DisplayName("GROUP BY + HAVING:参数与 WHERE 参数分离")
     void testGroupByHaving() {
@@ -154,6 +181,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(sql.hasHaving());
     }
 
+    /**
+     * 测试：Joins。
+     */
     @Test
     @DisplayName("JOIN:INNER/LEFT/RIGHT 类型、别名与 ON 条件保留")
     void testJoins() {
@@ -170,6 +200,9 @@ class LambdaWrapperSqlBuildTest {
         assertTrue(sql.hasJoins());
     }
 
+    /**
+     * 测试：上限偏移量。
+     */
     @Test
     @DisplayName("LIMIT / OFFSET:部件记录与非法参数校验")
     void testLimitOffset() {
@@ -184,6 +217,9 @@ class LambdaWrapperSqlBuildTest {
         assertFalse(plain.hasOffset());
     }
 
+    /**
+     * 测试：InvalidPaging参数。
+     */
     @Test
     @DisplayName("非法 limit/offset 抛出 IllegalArgumentException")
     void testInvalidPagingArgs() {
@@ -191,6 +227,9 @@ class LambdaWrapperSqlBuildTest {
         assertThrows(IllegalArgumentException.class, () -> wrapper().offset(-1));
     }
 
+    /**
+     * 测试：EmptyCondition。
+     */
     @Test
     @DisplayName("空条件:WHERE 为空串,参数为空")
     void testEmptyCondition() {

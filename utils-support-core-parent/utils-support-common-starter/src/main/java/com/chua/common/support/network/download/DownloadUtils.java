@@ -18,6 +18,9 @@ import java.nio.file.Path;
  */
 public final class DownloadUtils {
 
+    /**
+     * 构造方法，创建 DownloadUtils 实例。
+     */
     private DownloadUtils() {
     }
 

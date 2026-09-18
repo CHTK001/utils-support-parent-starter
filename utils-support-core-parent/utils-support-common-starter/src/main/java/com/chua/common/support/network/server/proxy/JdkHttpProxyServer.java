@@ -17,14 +17,31 @@ import java.net.InetSocketAddress;
 @Spi({"http-proxy"})
 public class JdkHttpProxyServer extends TcpProxyServer {
 
+    /**
+     * 构造方法，创建 JdkHttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public JdkHttpProxyServer(ServerSetting setting) {
         super(setting);
     }
 
+    /**
+     * 构造方法，创建 JdkHttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param backend 方法入参 backend
+     */
     public JdkHttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting, backend);
     }
 
+    /**
+     * 构造方法，创建 JdkHttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param targetResolver 目标Resolver，不允许为 null
+     */
     public JdkHttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting, targetResolver);
     }

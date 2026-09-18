@@ -78,6 +78,8 @@ public interface SpeakerDiarizer {
 
     /**
     * 设置 SPI 提供者（链式调用）。
+    * @param provider 提供者，不允许为 null
+    * @return SpeakerDiarizer 对象
     */
     default SpeakerDiarizer provider(String provider) {
         return this;

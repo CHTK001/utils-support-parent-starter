@@ -98,9 +98,15 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         return shared;
     }
 
+    /**
+     * 构造方法，创建 C3DActionDetectionTranslator 实例。
+     */
     public C3DActionDetectionTranslator() {
     }
 
+    /**
+     * prepare。
+     */
     private void prepare() {
         if (loaded) {
             return;
@@ -219,7 +225,10 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                 results.sort(Comparator.comparingDouble(ActionDetectionResult::timestamp));
                 return results.size() > POST_NMS_TOP_N ? results.subList(0, POST_NMS_TOP_N) : results;
             } finally {
-                try { Files.deleteIfExists(tempVideo); } catch (Exception ignored) {}
+                try {
+                    Files.deleteIfExists(tempVideo);
+                } catch (Exception ignored) {
+                }
             }
         } catch (Exception e) {
             log.error("C3D 动作检测推理失败", e);
@@ -231,6 +240,12 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         }
     }
 
+    /**
+     * preprocess。
+     *
+     * @param frames 方法入参 frames
+     * @return 结果值
+     */
     private float[] preprocess(List<Mat> frames) {
         int frameSize = INPUT_HEIGHT * INPUT_WIDTH;
         int chStride = INPUT_FRAMES * frameSize;
@@ -268,6 +283,14 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         return data;
     }
 
+    /**
+     * 解析Tensor。
+     *
+     * @param result 结果，不允许为 null
+     * @param name 名称，不允许为 null
+     * @param expectedDims 方法入参 expectedDims
+     * @return 结果值
+     */
     private float[][] parseTensor(OrtSession.Result result, String name, int expectedDims) {
         try {
             var opt = result.get(name);
@@ -299,6 +322,14 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         }
     }
 
+    /**
+     * postprocess。
+     *
+     * @param predBboxes 方法入参 predBboxes
+     * @param predScores 方法入参 predScores
+     * @param timestamp 时间戳，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ActionDetectionResult> postprocess(float[][] predBboxes, float[][] predScores, float timestamp) {
         List<ActionDetectionResult> results = new ArrayList<>();
         int numDetections = Math.min(predBboxes.length, predScores.length);
@@ -341,6 +372,13 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         return results;
     }
 
+    /**
+     * nms。
+     *
+     * @param detections 方法入参 detections
+     * @param threshold 方法入参 threshold
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Detection> nms(List<Detection> detections, float threshold) {
         List<Detection> result = new ArrayList<>();
         boolean[] suppressed = new boolean[detections.size()];
@@ -357,18 +395,6 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                 Detection b = detections.get(j);
                 float iou = computeIou(a, b);
                 if (iou > threshold) {
-                    /**
-                    * computeiou。
-                    * @param a a
-                    * @param b b
-                    * @return computeIou的结果
-                    * @param x1 x1
-                    * @param y1 y1
-                    * @param x2 x2
-                    * @param y2 y2
-                    * @param score score
-                    * @param classId 类id
-                    */
                     suppressed[j] = true;
                 /**
                 * computeIou。
@@ -382,6 +408,13 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         return result;
     }
 
+    /**
+     * 计算Iou。
+     *
+     * @param a 方法入参 a
+     * @param b 方法入参 b
+     * @return 结果数值
+     */
     private float computeIou(Detection a, Detection b) {
         float ax1 = a.x1, ay1 = a.y1, ax2 = a.x2, ay2 = a.y2;
         float bx1 = b.x1, by1 = b.y1, bx2 = b.x2, by2 = b.y2;

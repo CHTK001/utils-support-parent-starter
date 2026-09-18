@@ -13,6 +13,7 @@ public interface Subscriber {
 
     /**
     * 返回订阅器唯一 标识
+    * @return 结果字符串
     */
     String subscriberId();
 

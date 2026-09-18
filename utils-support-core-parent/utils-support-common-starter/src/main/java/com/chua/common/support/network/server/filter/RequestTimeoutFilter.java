@@ -36,6 +36,8 @@ public class RequestTimeoutFilter implements ServerFilter {
 
     /**
     * 创建超时过滤器（秒）。
+    * @param seconds 方法入参 seconds
+    * @return 请求超时时间过滤 对象
     */
     public static RequestTimeoutFilter ofSeconds(int seconds) {
         return new RequestTimeoutFilter(seconds * 1000L);

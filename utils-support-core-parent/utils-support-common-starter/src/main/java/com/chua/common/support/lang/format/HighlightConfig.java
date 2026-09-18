@@ -162,13 +162,21 @@ public class HighlightConfig {
 
     // ==================== Getter/Setter ====================
 
-    /** 设置Type */
+    /**
+     * 设置Type
+     * @param type 类型，不允许为 null
+     * @return Highlight配置 对象
+     */
     public HighlightConfig setType(HighlightType type) {
         this.type = type;
         return this;
     }
 
-    /** 设置Enabled */
+    /**
+     * 设置Enabled
+     * @param enabled enabled（布尔开关）
+     * @return Highlight配置 对象
+     */
     public HighlightConfig setEnabled(boolean enabled) {
         this.enabled = enabled;
         return this;
@@ -176,6 +184,8 @@ public class HighlightConfig {
 
     /**
     * 获取关键词的ANSI颜色
+    * @param category 方法入参 category
+    * @return 结果字符串
     */
     public String getAnsiColor(KeywordCategory category) {
         return ansiColors.getOrDefault(category, ANSI_RESET);
@@ -183,6 +193,8 @@ public class HighlightConfig {
 
     /**
     * 获取关键词的HTML颜色
+    * @param category 方法入参 category
+    * @return 结果字符串
     */
     public String getHtmlColor(KeywordCategory category) {
         return htmlColors.getOrDefault(category, HTML_END);
@@ -190,6 +202,9 @@ public class HighlightConfig {
 
     /**
     * 自定义ANSI颜色
+    * @param category 方法入参 category
+    * @param color 方法入参 color
+    * @return Highlight配置 对象
     */
     public HighlightConfig setAnsiColor(KeywordCategory category, String color) {
         ansiColors.put(category, color);
@@ -198,6 +213,9 @@ public class HighlightConfig {
 
     /**
     * 自定义HTML颜色
+    * @param category 方法入参 category
+    * @param color 方法入参 color
+    * @return Highlight配置 对象
     */
     public HighlightConfig setHtmlColor(KeywordCategory category, String color) {
         htmlColors.put(category, color);
@@ -206,6 +224,7 @@ public class HighlightConfig {
 
     /**
     * 获取ANSI重置码
+    * @return 结果字符串
     */
     public String getAnsiReset() {
         return ANSI_RESET;
@@ -213,6 +232,7 @@ public class HighlightConfig {
 
     /**
     * 获取HTML结束标签
+    * @return 结果字符串
     */
     public String getHtmlEnd() {
         return HTML_END;

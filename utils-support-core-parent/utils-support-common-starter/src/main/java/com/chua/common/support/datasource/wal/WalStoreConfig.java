@@ -22,6 +22,11 @@ public class WalStoreConfig {
     private final Path baseDir;
     private final String namespace;
 
+    /**
+     * 构造方法，创建 WalStore配置 实例。
+     *
+     * @param b 方法入参 b
+     */
     private WalStoreConfig(Builder b) {
         this.shardCount = b.shardCount;
         this.segmentBytes = b.segmentBytes;
@@ -54,14 +59,38 @@ public class WalStoreConfig {
         private Path baseDir;
         private String namespace = "default";
 
-        public Builder shardCount(int n) { this.shardCount = n; return this; }
-        public Builder segmentBytes(long bytes) { this.segmentBytes = bytes; return this; }
-        public Builder flushBatchSize(int n) { this.flushBatchSize = n; return this; }
-        public Builder flushIntervalMs(long ms) { this.flushIntervalMs = ms; return this; }
-        public Builder cpuCores(int n) { this.cpuCores = n; return this; }
-        public Builder isSSD(boolean v) { this.isSSD = v; return this; }
-        public Builder baseDir(Path p) { this.baseDir = p; return this; }
-        public Builder namespace(String ns) { this.namespace = ns; return this; }
+        public Builder shardCount(int n) {
+            this.shardCount = n;
+            return this;
+        }
+        public Builder segmentBytes(long bytes) {
+            this.segmentBytes = bytes;
+            return this;
+        }
+        public Builder flushBatchSize(int n) {
+            this.flushBatchSize = n;
+            return this;
+        }
+        public Builder flushIntervalMs(long ms) {
+            this.flushIntervalMs = ms;
+            return this;
+        }
+        public Builder cpuCores(int n) {
+            this.cpuCores = n;
+            return this;
+        }
+        public Builder isSSD(boolean v) {
+            this.isSSD = v;
+            return this;
+        }
+        public Builder baseDir(Path p) {
+            this.baseDir = p;
+            return this;
+        }
+        public Builder namespace(String ns) {
+            this.namespace = ns;
+            return this;
+        }
 
         public WalStoreConfig build() {
             return new WalStoreConfig(this);

@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Crush usage parser.
+ * Crush 用量解析器。
  *
- * <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
- * at {@code <project>/.crush/crush.db}, indexed by
- * {@code ~/.local/share/crush/projects.json} (or
- * {@code %USERPROFILE%\AppData\Local\crush\projects.json} on Windows).
- * The {@code sessions} table holds session-level token and cost aggregates:</p>
+ * <p>Crush（github.com/charmbracelet/crush）在每个项目下维护独立的 SQLite 数据库
+ * {@code <project>/.crush/crush.db}，并由
+ * {@code ~/.local/share/crush/projects.json}（Windows 下为
+ * {@code %USERPROFILE%\AppData\Local\crush\projects.json}）建立索引。
+ * {@code sessions} 表保存会话级别的 token 与费用汇总：</p>
  *
  * <pre>{@code
  * CREATE TABLE sessions (

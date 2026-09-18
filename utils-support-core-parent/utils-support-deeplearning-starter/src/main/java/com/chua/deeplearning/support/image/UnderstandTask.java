@@ -43,6 +43,11 @@ public enum UnderstandTask {
     /** 提示符 前缀 */
     private final String prompt;
 
+    /**
+     * 构造方法，创建 UnderstandTask 实例。
+     *
+     * @param prompt 提示词，不允许为 null
+     */
     UnderstandTask(String prompt) {
         this.prompt = prompt;
     }

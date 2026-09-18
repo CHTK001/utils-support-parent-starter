@@ -15,6 +15,7 @@ public @interface ColumnDefinition {
 
     /**
     * 列名（数据库字段名）。
+    * @return 结果字符串
     */
     String value();
 

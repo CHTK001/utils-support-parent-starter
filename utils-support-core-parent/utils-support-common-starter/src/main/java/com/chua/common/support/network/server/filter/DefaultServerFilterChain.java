@@ -39,6 +39,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     * 创建 DefaultServerFilterChain 实例
     * @param filters filters
     * @param ServerHandler ServerHandler
+    * @param handler 处理器，不允许为 null
     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler) {
         this(filters, handler, null);
@@ -50,6 +51,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     * @param ServerHandler ServerHandler
     * @param List List
     * @param listeners listeners
+    * @param handler 处理器，不允许为 null
     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler, List<FilterChainListener> listeners) {
         this.filters = filters;
@@ -113,7 +115,12 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         return requestPath.startsWith(pattern + "/");
     }
 
-    /** 通知Before */
+    /**
+     * 通知Before
+     * @param filter 过滤，不允许为 null
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     */
     private void notifyBefore(ServerFilter filter, ServerRequest request, ServerResponse response) {
         List<FilterChainListener> currentListeners = getListeners(request);
         if (currentListeners == null) {
@@ -128,7 +135,13 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         }
     }
 
-    /** 通知After */
+    /**
+     * 通知After
+     * @param filter 过滤，不允许为 null
+     * @param elapsed 方法入参 elapsed
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     */
     private void notifyAfter(ServerFilter filter, long elapsed, ServerRequest request, ServerResponse response) {
         List<FilterChainListener> currentListeners = getListeners(request);
         if (currentListeners == null) {
@@ -144,7 +157,11 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     }
 
     @SuppressWarnings("unchecked")
-    /** 获取Listeners */
+    /**
+     * 获取Listeners
+     * @param request 请求，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<FilterChainListener> getListeners(ServerRequest request) {
         Object value = request.getAttribute("_chainListeners");
         if (value instanceof List<?>) {

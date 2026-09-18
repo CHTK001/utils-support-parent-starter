@@ -1060,6 +1060,7 @@ public final class WechatMemoryKeyScanner {
     *
     * @param pid              进程号
     * @param workingSetBytes  工作集字节数
+    * @return 结果值
     */
     public record PidInfo(int pid, long workingSetBytes) {
     }

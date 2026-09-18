@@ -147,6 +147,13 @@ public final class Formatter {
         return repeat("█", filled) + repeat("░", length - filled);
     }
 
+    /**
+     * 请求头。
+     *
+     * @param sb 方法入参 sb
+     * @param headers 请求头，不允许为 null
+     * @param widths 方法入参 widths
+     */
     private static void header(StringBuilder sb, String[] headers, int[] widths) {
         sb.append("┃");
         for (int c = 0; c < headers.length; c++) {
@@ -156,40 +163,48 @@ public final class Formatter {
         sb.append('\n');
     }
 
+    /**
+     * 行。
+     *
+     * @param sb 方法入参 sb
+     * @param cells 方法入参 cells
+     * @param widths 方法入参 widths
+     */
     private static void row(StringBuilder sb, String[] cells, int[] widths) {
         sb.append("│");
         for (int c = 0; c < cells.length; c++) {
-            /**
-            * sep。
-            * @param sb sb
-            * @param widths widths
-            * @param l l
-            * @param m m
-            * @param r r
-            */
             String cell = cells[c] == null ? "" : cells[c];
             sb.append(' ').append(cell).append(repeat(" ", widths[c] - width(cell))).append("  │");
         }
         sb.append('\n');
     }
 
+    /**
+     * sep。
+     *
+     * @param sb 方法入参 sb
+     * @param widths 方法入参 widths
+     * @param l 方法入参 l
+     * @param m 方法入参 m
+     * @param r 方法入参 r
+     */
     private static void sep(StringBuilder sb, int[] widths, String l, String m, String r) {
         sb.append(l);
         for (int c = 0; c < widths.length; c++) {
             sb.append(repeat("━", widths[c] + 3));
             if (c < widths.length - 1) {
-                /**
-                * width。
-                * @param s s
-                * @return width的结果
-                * @param n n
-                */
                 sb.append(m);
             }
         }
         sb.append(r).append('\n');
     }
 
+    /**
+     * 宽度。
+     *
+     * @param s 方法入参 s
+     * @return 结果数值
+     */
     private static int width(String s) {
         if (s == null) {
             return 0;
@@ -203,6 +218,13 @@ public final class Formatter {
         return w;
     }
 
+    /**
+     * repeat。
+     *
+     * @param s 方法入参 s
+     * @param n 方法入参 n
+     * @return 结果字符串
+     */
     private static String repeat(String s, int n) {
         if (n <= 0) {
             return "";

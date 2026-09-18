@@ -49,7 +49,10 @@ public final class HpkeFlow {
     /** 可选附加认证数据（须收发一致） */
     private byte[] aad;
 
-    /** 构造函数，传入底层原语 */
+    /**
+     * 构造函数，传入底层原语
+     * @param cipher 方法入参 cipher
+     */
     private HpkeFlow(HpkeCipher cipher) {
         this.cipher = cipher;
     }

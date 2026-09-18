@@ -6,6 +6,11 @@ package com.chua.common.support.file.builder;
  */
 
 public interface WriteCallback {
+    /**
+     * 响应Complete。
+     *
+     * @param success success（布尔开关）
+     */
     void onComplete(boolean success);
 
     /** On开始 */

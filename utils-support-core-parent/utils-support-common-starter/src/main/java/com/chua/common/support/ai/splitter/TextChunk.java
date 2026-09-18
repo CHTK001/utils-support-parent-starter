@@ -11,6 +11,7 @@ package com.chua.common.support.ai.splitter;
 * @param type        分块类型
 * @author CH
 * @since 4.0.0.42
+ * @return 结果值
  */
 public record TextChunk(int index, int startOffset, int endOffset, String text, String type) {
 }

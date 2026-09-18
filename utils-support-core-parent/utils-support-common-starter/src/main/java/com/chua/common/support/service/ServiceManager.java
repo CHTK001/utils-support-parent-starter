@@ -42,11 +42,17 @@ public interface ServiceManager {
 
     /**
     * 停止服务（按 PID 或进程名）。
+    * @param pid 方法入参 pid
+    * @param serviceName 服务名称，不允许为 null
     */
     void stop(long pid, String serviceName);
 
     /**
     * 重启服务。
+    * @param pid 方法入参 pid
+    * @param serviceName 服务名称，不允许为 null
+    * @param jarPath jar路径，不允许为 null
+    * @param startCmd 启动Cmd，不允许为 null
     */
     void restart(long pid, String serviceName, String jarPath, String startCmd);
 
@@ -70,6 +76,9 @@ public interface ServiceManager {
 
     /**
     * 安装服务（创建启动脚本、注册为系统服务等，幂等操作）。
+    * @param serviceName 服务名称，不允许为 null
+    * @param jarPath jar路径，不允许为 null
+    * @param startCmd 启动Cmd，不允许为 null
     */
     default void install(String serviceName, String jarPath, String startCmd) {
         // 无操作：进程级管理不需要安装步骤
@@ -77,6 +86,7 @@ public interface ServiceManager {
 
     /**
     * 卸载服务（删除启动脚本、注销系统服务等）。
+    * @param serviceName 服务名称，不允许为 null
     */
     default void uninstall(String serviceName) {
         // 无操作

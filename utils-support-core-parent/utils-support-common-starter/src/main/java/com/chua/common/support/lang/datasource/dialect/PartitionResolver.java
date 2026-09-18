@@ -11,32 +11,62 @@ import java.util.List;
  */
 public interface PartitionResolver {
 
-    /** 创建Partition */
+    /**
+     * 创建Partition
+     * @param partitionMetadata 分区Metadata，不允许为 null
+     * @return 结果字符串
+     */
     default String createPartition(PartitionMetadata partitionMetadata) {
         throw new UnsupportedOperationException("当前数据库不支持创建分区");
     }
 
-    /** DropPartition */
+    /**
+     * DropPartition
+     * @param tableName 表名称，不允许为 null
+     * @param partitionName 分区名称，不允许为 null
+     * @return 结果字符串
+     */
     default String dropPartition(String tableName, String partitionName) {
         throw new UnsupportedOperationException("当前数据库不支持删除分区");
     }
 
-    /** TruncatePartition */
+    /**
+     * TruncatePartition
+     * @param tableName 表名称，不允许为 null
+     * @param partitionName 分区名称，不允许为 null
+     * @return 结果字符串
+     */
     default String truncatePartition(String tableName, String partitionName) {
         throw new UnsupportedOperationException("当前数据库不支持清空分区");
     }
 
-    /** 查询Partitions */
+    /**
+     * 查询Partitions
+     * @param tableName 表名称，不允许为 null
+     * @param schema 方法入参 schema
+     * @return 结果字符串
+     */
     default String queryPartitions(String tableName, String schema) {
         throw new UnsupportedOperationException("当前数据库不支持查询分区");
     }
 
-    /** 查询PartitionNames */
+    /**
+     * 查询PartitionNames
+     * @param tableName 表名称，不允许为 null
+     * @param schema 方法入参 schema
+     * @return 结果字符串
+     */
     default String queryPartitionNames(String tableName, String schema) {
         return queryPartitions(tableName, schema);
     }
 
-    /** 是否存在Partition */
+    /**
+     * 是否存在Partition
+     * @param tableName 表名称，不允许为 null
+     * @param partitionName 分区名称，不允许为 null
+     * @param schema 方法入参 schema
+     * @return 结果字符串
+     */
     default String existsPartition(String tableName, String partitionName, String schema) {
         throw new UnsupportedOperationException("当前数据库不支持查询分区存在性");
     }

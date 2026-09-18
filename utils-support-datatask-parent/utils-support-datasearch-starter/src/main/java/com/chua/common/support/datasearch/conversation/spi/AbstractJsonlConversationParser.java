@@ -83,6 +83,12 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
                 .flatMap(this::streamFile, 4);
     }
 
+    /**
+     * 流文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<ConversationMessage> streamFile(Path file) {
         return Flux.using(
                         () -> Files.newBufferedReader(file),

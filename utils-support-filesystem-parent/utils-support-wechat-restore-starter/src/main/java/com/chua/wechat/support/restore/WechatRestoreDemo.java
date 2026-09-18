@@ -15,6 +15,12 @@ import java.util.*;
  */
 public class WechatRestoreDemo {
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         // 模拟会话数据
         List<Map<String, Object>> messages = new ArrayList<>();

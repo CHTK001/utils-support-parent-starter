@@ -61,6 +61,11 @@ public enum ProtocolType {
     IPC(ServerCategory.APPLICATION),
     SSH(ServerCategory.APPLICATION),
     SMB(ServerCategory.APPLICATION),
+    /**
+     * 构造方法，创建 UNKNOWN 实例。
+     *
+     * @param APPLICATION 方法入参 APPLICATION
+     */
     UNKNOWN(ServerCategory.APPLICATION);
 
     /**

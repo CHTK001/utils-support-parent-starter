@@ -71,6 +71,7 @@ public class DataSourceFlyway implements Flyway {
 
     private final DataSource dataSource;
     private final List<String> locations = new ArrayList<>();
+    /** 分隔符 */
     private String separator = "__";
     /** 语句级容错：方言差异语句（如 MySQL PREPARE 在 H2 下报错）跳过并记 FAILED，不中断整体迁移。
     * 对齐 DataSourceScriptProperties.continueOnError 默认 true 语义 */
@@ -278,6 +279,11 @@ public class DataSourceFlyway implements Flyway {
 
     /**
     * 主键冲突时的降级更新（按 version + script_name 复合键定位，保留最新 checksum/success）。
+    * @param version 版本，不允许为 null
+    * @param description 描述，不允许为 null
+    * @param script 方法入参 script
+    * @param checksum 方法入参 checksum
+    * @param success 方法入参 success
     */
     private void updateRecord(String version, String description, String script, String checksum, String success) {
         String sql = "UPDATE " + HISTORY_TABLE
@@ -296,6 +302,8 @@ public class DataSourceFlyway implements Flyway {
 
     /**
     * 判断是否为唯一键/主键冲突异常（MySQL 1062 / H2 23505 / PG 23505 / Oracle 1）。
+    * @param e 方法入参 e
+    * @return 是否成功（true 表示成功）
     */
     private static boolean isPrimaryKeyConflict(SQLException e) {
         String code = String.valueOf(e.getErrorCode());
@@ -362,6 +370,9 @@ public class DataSourceFlyway implements Flyway {
     * 版本号段数值比较（对齐三方 Flyway 版本语义）。
     * <p>示例：{@code 1.0} vs {@code 1.0.0} → 段数不同，数值相等时短版本在前；
     * {@code 1.2} vs {@code 1.10} → 1.2 < 1.10（数值比较，非字典序）。</p>
+    * @param a 方法入参 a
+    * @param b 方法入参 b
+    * @return 结果数值
     */
     private static int compareVersions(String a, String b) {
         String[] pa = a.split("\\.");
@@ -381,6 +392,12 @@ public class DataSourceFlyway implements Flyway {
         return a.compareTo(b);
     }
 
+    /**
+     * 解析分段。
+     *
+     * @param s 方法入参 s
+     * @return 结果数值
+     */
     private static int parseSegment(String s) {
         try {
             return Integer.parseInt(s);
@@ -392,6 +409,8 @@ public class DataSourceFlyway implements Flyway {
     /**
     * 将版本字符串解析为 MigrationInfo 所需的主版本号（取首段）。
     * 无法解析时返回 0（仅影响排序展示，不影响执行）。
+    * @param version 版本，不允许为 null
+    * @return 结果数值
     */
     private static long parseMajorVersion(String version) {
         return parseSegment(version.split("\\.")[0]);
@@ -462,6 +481,9 @@ public class DataSourceFlyway implements Flyway {
     * （形如 {@code jar:file:/path/to.jar!/db/init}），避免 {@code new File(jarUrl)}
     * 直接解析 jar URL 的失败问题。临时目录按 jar 名 + 资源路径隔离，
     * 避免多 jar 同名脚本互相覆盖。</p>
+    * @param jarUrl jarURL，不允许为 null
+    * @param resourcePath resource路径，不允许为 null
+    * @param target 目标，不允许为 null
     */
     private void extractJarScripts(URL jarUrl, String resourcePath, Map<String, ScriptFile> target) {
         try {
@@ -571,6 +593,8 @@ public class DataSourceFlyway implements Flyway {
     /**
     * 通过 {@link ScriptConverter} SPI 对语句列表做目标库方言转换。
     * <p>协议未设置或 SPI 无可用实现时原样返回（保持向后兼容）。</p>
+    * @param statements 方法入参 statements
+    * @return 结果列表，无数据时为空列表
     */
     private List<String> applyConversion(List<String> statements) {
         if (protocol == null || protocol.isBlank()) {
@@ -585,6 +609,9 @@ public class DataSourceFlyway implements Flyway {
 
     /**
     * 截断语句用于日志展示。
+    * @param s 方法入参 s
+    * @param max 最大值，不允许为 null
+    * @return 结果字符串
     */
     private static String truncate(String s, int max) {
         if (s == null || s.length() <= max) {
@@ -661,6 +688,7 @@ public class DataSourceFlyway implements Flyway {
     * @param description 脚本描述，取自文件名 {@code V{版本}__{描述}.sql} 的下划线后部分
     * @param fileName    脚本文件全名（如 {@code V1__init.sql}），写入版本记录表以便追溯
     * @param path        脚本绝对路径，执行时据此读取内容
+    * @return 结果值
     */
     private record ScriptFile(String version, String description, String fileName, Path path) {
     }

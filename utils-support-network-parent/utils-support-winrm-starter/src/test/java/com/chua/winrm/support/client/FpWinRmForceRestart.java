@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 寮烘潃鍗犵敤 9777 鐨勬棫杩涚▼ + 閲嶅惎 FPServer + 绛夌鍙ｅ氨缁€? */
 public class FpWinRmForceRestart {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         WinRmExecClient wr = WinRmExecClient.builder()
                 .host("172.16.9.194").port(5985)

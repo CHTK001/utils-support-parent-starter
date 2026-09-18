@@ -375,6 +375,13 @@ public class SqlDialect extends AbstractDialect {
         }
     }
 
+    /**
+     * 合并。
+     *
+     * @param defaults 方法入参 defaults
+     * @param overrides 方法入参 overrides
+     * @return 属性 对象
+     */
     private static Properties merge(Properties defaults, Properties overrides) {
         Properties merged = new Properties(defaults);
         merged.putAll(overrides);

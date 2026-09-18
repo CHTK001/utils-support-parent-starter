@@ -25,12 +25,19 @@ public class RpcServiceScanner {
         this.server = server;
     }
 
-    /** Of */
+    /**
+     * Of
+     * @param server 服务端，不允许为 null
+     * @return Rpc服务Scanner 对象
+     */
     public static RpcServiceScanner of(RpcServer server) {
         return new RpcServiceScanner(server);
     }
 
-    /** 注册 */
+    /**
+     * 注册
+     * @param beans 方法入参 beans
+     */
     public void register(Object... beans) {
         for (Object bean : beans) {
             RpcService annotation = bean.getClass().getAnnotation(RpcService.class);
@@ -40,7 +47,12 @@ public class RpcServiceScanner {
         }
     }
 
-    /** 解析Name */
+    /**
+     * 解析Name
+     * @param implClass 方法入参 implClass
+     * @param annotation 方法入参 annotation
+     * @return 结果字符串
+     */
     private String resolveName(Class<?> implClass, RpcService annotation) {
         if (annotation != null) {
             if (annotation.interfaceClass() != void.class) {

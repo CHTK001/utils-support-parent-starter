@@ -187,7 +187,11 @@ public class EmailDirectory implements PolledDirectory {
                     break;
                 } catch (Exception e) {
                     log.error("邮件轮询异常: {}", e.getMessage());
-                    try { Thread.sleep(pollIntervalSeconds * 1000L); } catch (InterruptedException ie) { break; }
+                    try {
+                        Thread.sleep(pollIntervalSeconds * 1000L);
+                    } catch (InterruptedException ie) {
+                        break;
+                    }
                 }
             }
         }, "email-poller");
@@ -218,17 +222,35 @@ public class EmailDirectory implements PolledDirectory {
         private int pollIntervalSeconds = 60;
 
         /** ImapHost */
-        public Builder imapHost(String h) { this.imapHost = h; return this; }
+        public Builder imapHost(String h) {
+            this.imapHost = h;
+            return this;
+        }
         /** ImapPort */
-        public Builder imapPort(int p) { this.imapPort = p; return this; }
+        public Builder imapPort(int p) {
+            this.imapPort = p;
+            return this;
+        }
         /** Username */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /** Password */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
         /** Folder */
-        public Builder folder(String f) { this.folder = f; return this; }
+        public Builder folder(String f) {
+            this.folder = f;
+            return this;
+        }
         /** 取出Interval */
-        public Builder pollInterval(int seconds) { this.pollIntervalSeconds = seconds; return this; }
+        public Builder pollInterval(int seconds) {
+            this.pollIntervalSeconds = seconds;
+            return this;
+        }
 
         /** 构建 */
         public EmailDirectory build() {

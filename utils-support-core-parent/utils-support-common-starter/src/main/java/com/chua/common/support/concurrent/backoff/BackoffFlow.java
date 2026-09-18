@@ -170,7 +170,12 @@ public final class BackoffFlow {
         execute(task, 0);
     }
 
-    /** 执行 */
+    /**
+     * 执行
+     * @param task 方法入参 task
+     * @param attempt 方法入参 attempt
+     * @return T 对象
+     */
     private <T> T execute(Callable<T> task, int attempt) throws Exception {
         try {
             return task.call();
@@ -186,7 +191,11 @@ public final class BackoffFlow {
         }
     }
 
-    /** 执行 */
+    /**
+     * 执行
+     * @param task 方法入参 task
+     * @param attempt 方法入参 attempt
+     */
     private void execute(Runnable task, int attempt) {
         try {
             task.run();

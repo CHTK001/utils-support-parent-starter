@@ -160,6 +160,11 @@ public class RustImageProcessor implements ImageProcessor {
 
     /**
     * 使用 malloc 协议处理图像（v0.1 兼容模式）
+    * @param arena 方法入参 arena
+    * @param input 方法入参 input
+    * @param len 方法入参 len
+    * @param paramJson 参数Json，不允许为 null
+    * @return 结果值
     */
     private byte[] processMalloc(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         MemorySegment result = (MemorySegment) LINKER.downcallHandle(
@@ -179,6 +184,11 @@ public class RustImageProcessor implements ImageProcessor {
     * 3. 返回值 > 0 表示写入字节数，直接从缓冲区读取
     * 4. 返回值 < 0 表示容量不足，|返回值| 为所需字节数，扩容后重试
     * 5. 返回值 = 0 表示处理失败
+    * @param arena 方法入参 arena
+    * @param input 方法入参 input
+    * @param len 方法入参 len
+    * @param paramJson 参数Json，不允许为 null
+    * @return 结果值
     */
     private byte[] processShared(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         long capacity = sharedBufferCapacity;

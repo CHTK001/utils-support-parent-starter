@@ -107,6 +107,9 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
 
     /**
     * 渲染单个条件为 SQL 片段。
+    * @param sb 方法入参 sb
+    * @param params 参数，不允许为 null
+    * @param c 方法入参 c
     */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

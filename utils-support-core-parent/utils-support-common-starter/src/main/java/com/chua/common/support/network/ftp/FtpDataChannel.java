@@ -154,6 +154,7 @@ class FtpDataChannel {
 
     /**
     * 是否正在监听连接（PASV 模式已启动）。
+    * @return 是否成功（true 表示成功）
     */
     boolean isListening() {
         return serverSocket != null && !serverSocket.isClosed();

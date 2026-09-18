@@ -117,6 +117,12 @@ public class AioHttpServer extends AbstractServer {
     private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> COMBINE_POOL =
             new java.util.concurrent.ConcurrentLinkedQueue<>();
 
+    /**
+     * acquireCombined。
+     *
+     * @param size 大小，不允许为 null
+     * @return Byte缓冲区 对象
+     */
     private static ByteBuffer acquireCombined(int size) {
         ByteBuffer b = COMBINE_POOL.poll();
         if (b == null || b.capacity() < size) {
@@ -127,6 +133,11 @@ public class AioHttpServer extends AbstractServer {
         return b;
     }
 
+    /**
+     * releaseCombined。
+     *
+     * @param b 方法入参 b
+     */
     private static void releaseCombined(ByteBuffer b) {
         if (b != null && b.capacity() >= COMBINE_THRESHOLD && COMBINE_POOL.size() < 64) {
             b.clear();
@@ -700,6 +711,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 单步解密:flip → unwrap → compact;UNDERFLOW 置强制读标志后继续驱动。
+    * @param state 状态，不允许为 null
     */
     private void tlsUnwrapStep(ConnState state) {
         TlsState tls = state.tls;
@@ -775,6 +787,11 @@ public class AioHttpServer extends AbstractServer {
             onFail.accept(e);
         }
     }
+    /**
+     * tls响应Network数据。
+     *
+     * @param state 状态，不允许为 null
+     */
     private void tlsOnNetworkData(ConnState state) {
         TlsState tls = state.tls;
         ByteBuffer netIn = tls.netIn;
@@ -835,7 +852,10 @@ public class AioHttpServer extends AbstractServer {
         issueRead(state);
     }
 
-    /** 执行 engine 的全部委托任务(密钥协商/签名等)。 */
+    /**
+     * 执行 engine 的全部委托任务(密钥协商/签名等)。
+     * @param tls 方法入参 tls
+     */
     private static void drainTasks(TlsState tls) {
         Runnable task;
         while ((task = tls.engine.getDelegatedTask()) != null) {
@@ -845,6 +865,9 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * Future 阻塞读网络(握手与 WS 帧循环使用,虚拟线程阻塞零平台线程占用)。
+    * @param state 状态，不允许为 null
+    * @param dst 方法入参 dst
+    * @param timeoutMs 超时时间毫秒数，不允许为 null
     */
     private void readNetBlocking(ConnState state, ByteBuffer dst, long timeoutMs) throws Exception {
         Integer n;
@@ -858,7 +881,12 @@ public class AioHttpServer extends AbstractServer {
         }
     }
 
-    /** Future 阻塞写网络直至缓冲排空。 */
+    /**
+     * Future 阻塞写网络直至缓冲排空。
+     * @param state 状态，不允许为 null
+     * @param src 方法入参 src
+     * @param timeoutMs 超时时间毫秒数，不允许为 null
+     */
     private void writeNetBlocking(ConnState state, ByteBuffer src, long timeoutMs) throws Exception {
         while (src.hasRemaining()) {
             Integer n;
@@ -906,6 +934,7 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 启动一轮异步明文读取并喂给 WS 帧解码器。
     * 明文来源:明文连接读 readBuf;TLS 连接经数据面 unwrap 产出的 plain。
+    * @param state 状态，不允许为 null
     */
     private void wsIssueRead(ConnState state) {
         if (!running || state.closed.get()) {
@@ -974,6 +1003,8 @@ public class AioHttpServer extends AbstractServer {
     * 喂一个明文分片给 WS 帧解码器。
     *
     * @return true=连接继续;false=连接应终止(已关闭/关闭中)
+    * @param state 状态，不允许为 null
+    * @param src 方法入参 src
     */
     private boolean wsFeed(ConnState state, ByteBuffer src) {
         WsDecoder d = state.wsDecoder();
@@ -1125,6 +1156,8 @@ public class AioHttpServer extends AbstractServer {
     }
     /**
     * 按主题分发 WebSocket 消息({@code topic\nbody} 约定,与 NIO 版一致)。
+    * @param frame 方法入参 frame
+    * @param conn 连接，不允许为 null
     */
     private void dispatchWsMessage(WebSocketProtocol.Frame frame, AioWsConnection conn) {
         String text = new String(frame.payload(), StandardCharsets.UTF_8);
@@ -1209,6 +1242,9 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 构建基于 {@code @OnMessage} 注解方法的处理器。
+    * @param bean 方法入参 bean
+    * @param method 方法，不允许为 null
+    * @return 服务端处理器 对象
     */
     private ServerHandler createWsMessageHandler(Object bean, Method method) {
         return (request, response) -> {
@@ -1247,6 +1283,8 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 打开原始读取流:明文连接直读通道;TLS 连接经引擎解密,
     * 供 WS 帧循环在虚拟线程上以阻塞方式消费。
+    * @param state 状态，不允许为 null
+    * @return Input流 对象
     */
     private InputStream openRawReader(ConnState state) {
         TlsState tls = state.tls;
@@ -1323,6 +1361,8 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 打开原始写入流:明文连接直写通道;TLS 连接 wrap 后写出,
     * 供 WS 握手响应与帧发送在虚拟线程上以阻塞方式写。
+    * @param state 状态，不允许为 null
+    * @return Output流 对象
     */
     private OutputStream openRawWriter(ConnState state) {
         TlsState tls = state.tls;
@@ -1659,9 +1699,18 @@ public class AioHttpServer extends AbstractServer {
         }
 
         @Override public int getStatus() { return status; }
-        @Override public ServerResponse setStatus(int statusCode) { this.status = statusCode; return this; }
-        @Override public ServerResponse setBody(byte[] body) { this.result = body; return this; }
-        @Override public ServerResponse setBody(String body) { this.result = body; return this; }
+        @Override public ServerResponse setStatus(int statusCode) {
+            this.status = statusCode;
+            return this;
+        }
+        @Override public ServerResponse setBody(byte[] body) {
+            this.result = body;
+            return this;
+        }
+        @Override public ServerResponse setBody(String body) {
+            this.result = body;
+            return this;
+        }
         @Override public ServerResponse setHeader(String name, String value) { return this; }
         @Override public String getHeader(String name) { return null; }
         @Override public com.chua.common.support.network.http.HttpHeader getHeaders() {
@@ -1693,7 +1742,10 @@ public class AioHttpServer extends AbstractServer {
         @Override public void writeRaw(byte[] bytes) {
             connection.sendRaw(bytes);
         }
-        @Override public ServerResponse setResult(Object result) { this.result = result; return this; }
+        @Override public ServerResponse setResult(Object result) {
+            this.result = result;
+            return this;
+        }
         @Override public Object getResult() { return result; }
         @Override public ServerResponse sse() { return this; }
         @Override public void sseEvent(String event, String data) { }

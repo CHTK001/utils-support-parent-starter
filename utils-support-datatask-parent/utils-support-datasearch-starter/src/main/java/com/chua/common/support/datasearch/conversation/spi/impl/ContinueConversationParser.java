@@ -88,6 +88,11 @@ public class ContinueConversationParser implements ConversationParser {
                         4);
     }
 
+    /**
+     * 列出会话Files。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listSessionFiles() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             return List.of();
@@ -110,6 +115,12 @@ public class ContinueConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * 解析文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ConversationMessage> parseFile(Path file) {
         try {
             JsonNode root = Json.parse(Files.readString(file));
@@ -129,6 +140,13 @@ public class ContinueConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * 解析条目。
+     *
+     * @param entry 条目，不允许为 null
+     * @param sessionId 会话ID，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<ConversationMessage> parseEntry(JsonNode entry, String sessionId) {
         JsonNode message = entry.get("message");
         if (message.isMissingValue()) {

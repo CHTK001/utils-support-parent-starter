@@ -12,13 +12,13 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * CC Switch usage parser.
+ * CC Switch 用量解析器。
  *
- * <p>CC Switch (github.com/farion1231/cc-switch) is a Tauri desktop manager
- * for Claude Code / Codex / Gemini CLI providers. It keeps a SQLite database
- * at {@code ~/.cc-switch/cc-switch.db} whose {@code proxy_request_logs}
- * table records every routed request (proxy interception or CLI session
- * import) with full token, cost and latency detail.</p>
+ * <p>CC Switch（github.com/farion1231/cc-switch）是一个基于 Tauri 的桌面管理工具，
+ * 用于管理 Claude Code / Codex / Gemini CLI 的模型服务商配置。它在
+ * {@code ~/.cc-switch/cc-switch.db} 维护一个 SQLite 数据库，其中的
+ * {@code proxy_request_logs} 表逐条记录了每次被转发的请求（代理拦截或 CLI 会话导入），
+ * 包含完整的 token、费用与延迟明细。</p>
  *
  * @author CH
  * @since 4.0.0.42

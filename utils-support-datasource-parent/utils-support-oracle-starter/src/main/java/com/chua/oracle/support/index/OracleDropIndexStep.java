@@ -23,6 +23,12 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
     /** 表 */
     private String table;
 
+    /**
+     * 构造方法，创建 Oracle删除索引Step 实例。
+     *
+     * @param dataSource 数据来源，不允许为 null
+     * @param indexName 索引名称，不允许为 null
+     */
     OracleDropIndexStep(DataSource dataSource, String indexName) {
         this.dataSource = dataSource;
         this.indexName = indexName;

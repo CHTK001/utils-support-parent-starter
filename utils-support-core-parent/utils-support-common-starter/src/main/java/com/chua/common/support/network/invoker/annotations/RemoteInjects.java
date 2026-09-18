@@ -15,5 +15,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RemoteInjects {
+    /**
+     * 值。
+     *
+     * @return RemoteInject 对象
+     */
     RemoteInject[] value();
 }

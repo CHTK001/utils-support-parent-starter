@@ -55,10 +55,21 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     */
     }
 
+    /**
+     * 编码。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @return 结果值
+     */
     public static byte[] encode(String measure, long ts, double value) {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
         ByteBuffer bb = ByteBuffer.allocate(4 + kb.length + 8 + 8);
-        bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value);
+        bb.putInt(kb.length);
+        bb.put(kb);
+        bb.putLong(ts);
+        bb.putDouble(value);
         return bb.array();
     /**
     * encodewithttl。
@@ -70,10 +81,23 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     */
     }
 
+    /**
+     * 编码WithTtl。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @param ttlSec 方法入参 ttlSec
+     * @return 结果值
+     */
     public static byte[] encodeWithTtl(String measure, long ts, double value, int ttlSec) {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
         ByteBuffer bb = ByteBuffer.allocate(4 + kb.length + 8 + 8 + 4);
-        bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value); bb.putInt(ttlSec);
+        bb.putInt(kb.length);
+        bb.put(kb);
+        bb.putLong(ts);
+        bb.putDouble(value);
+        bb.putInt(ttlSec);
         return bb.array();
     /**
     * decode。
@@ -82,12 +106,19 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     */
     }
 
+    /**
+     * 解码。
+     *
+     * @param payload 方法入参 payload
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     public static Optional<TsRecord> decode(byte[] payload) {
         if (payload == null || payload.length < 20) {
             return Optional.empty();
         }
         int pos = 0;
-        int keyLen = ByteBuffer.wrap(payload, pos, 4).getInt(); pos += 4;
+        int keyLen = ByteBuffer.wrap(payload, pos, 4).getInt();
+        pos += 4;
         if (keyLen <= 0 || pos + keyLen > payload.length) {
             return Optional.empty();
         }
@@ -96,8 +127,10 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         if (pos + 16 > payload.length) {
             return Optional.empty();
         }
-        long ts = ByteBuffer.wrap(payload, pos, 8).getLong(); pos += 8;
-        double value = ByteBuffer.wrap(payload, pos, 8).getDouble(); pos += 8;
+        long ts = ByteBuffer.wrap(payload, pos, 8).getLong();
+        pos += 8;
+        double value = ByteBuffer.wrap(payload, pos, 8).getDouble();
+        pos += 8;
         Integer ttlSec = pos + 4 <= payload.length ? ByteBuffer.wrap(payload, pos, 4).getInt() : null;
         return Optional.of(new TsRecord(measure, ts, value, ttlSec));
     /**
@@ -111,6 +144,15 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     */
     }
 
+    /**
+     * Ts记录。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @param ttlSec 方法入参 ttlSec
+     * @return 结果值
+     */
     public record TsRecord(String measure, long ts, double value, Integer ttlSec) {
         /**
         * expireAt。

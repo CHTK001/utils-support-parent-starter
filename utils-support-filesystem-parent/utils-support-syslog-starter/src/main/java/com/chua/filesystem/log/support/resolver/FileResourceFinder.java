@@ -430,7 +430,8 @@ public class FileResourceFinder implements ResourceFinder {
             Process p = pb.start();
             boolean ok = p.waitFor(5, TimeUnit.SECONDS);
             if (!ok) {
-                p.destroyForcibly(); return false;
+                p.destroyForcibly();
+                return false;
             }
             try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
                 return r.readLine() != null;
