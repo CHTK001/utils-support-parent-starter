@@ -57,6 +57,18 @@ public interface Flyway {
     Flyway separator(String separator);
 
     /**
+    * 设置目标数据库协议名，启用 {@link ScriptConverter} SPI 方言转换。
+    * <p>默认空实现（不做转换）；{@code DataSourceFlyway} 覆盖此方法，在语句拆分后、
+    * JDBC 执行前按协议做 MySQL→目标库的方言兼容转换。传入 {@code null} 或空串表示原样执行。</p>
+    *
+    * @param protocol 数据库协议名（如 {@code sqlite}、{@code postgresql}、{@code oracle}）
+    * @return this
+    */
+    default Flyway protocol(String protocol) {
+        return this;
+    }
+
+    /**
     * 获取迁移信息，包含已应用与待应用的脚本。
     *
     * @return 迁移信息列表（按版本升序）
