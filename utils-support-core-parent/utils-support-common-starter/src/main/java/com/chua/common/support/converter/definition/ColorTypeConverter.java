@@ -166,7 +166,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-    * Check if string is rgb format
+    * 判断字符串是否为 rgb 格式
     *
     * @param str rgb string
     * @return true if rgb
@@ -176,7 +176,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-    * Check if string is rgba format
+    * 判断字符串是否为 rgba 格式
     *
     * @param str rgba string
     * @return true if rgba

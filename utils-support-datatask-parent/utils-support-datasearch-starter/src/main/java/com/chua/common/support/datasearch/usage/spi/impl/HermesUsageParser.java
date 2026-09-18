@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Hermes Agent usage parser.
+* Hermes Agent 用量解析器。
 *
-* <p>Hermes (by Hugging Face) is an agentic coding assistant that persists
-* per-会话 令牌 和 cost tallies 入 a sqlite database at
-* {@code ~/.hermes/state.db} on Linux/macOS or
-* {@code %LOCALAPPDATA%\hermes\state.db} on Windows. The
-* {@code sessions} table records one row per session with cumulative
-* 令牌 counters 和 per-call breakdown:</p>
+* <p>Hermes（Hugging Face 出品）是一款智能体式编码助手，它把每个会话的
+* token 与费用统计持久化到 sqlite 数据库：Linux/macOS 下位于
+* {@code ~/.hermes/state.db}，Windows 下位于
+* {@code %LOCALAPPDATA%\hermes\state.db}。
+* {@code sessions} 表每个会话一行，记录累计 token 计数与逐次调用明细：</p>
 *
 * <pre>{@code
 * 创建 TABLE 会话 (

@@ -49,6 +49,11 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     public OnnxRetinaFaceTranslator() {
     }
 
+    /**
+     * 构造方法，创建 OnnxRetinaFaceTranslator 实例。
+     *
+     * @param arguments 方法入参 arguments
+     */
     public OnnxRetinaFaceTranslator(Map<String, ?> arguments) {
         if (arguments != null) {
             Object ct = arguments.get("threshold");

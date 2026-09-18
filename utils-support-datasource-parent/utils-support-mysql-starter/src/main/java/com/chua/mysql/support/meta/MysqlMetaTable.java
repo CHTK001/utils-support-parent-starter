@@ -72,6 +72,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return result;
     }
 
+    /**
+     * 创建。
+     *
+     * @param tableName 表名称，不允许为 null
+     * @return 表创建Builder 对象
+     */
     public TableCreateBuilder create(String tableName) {
         return new MysqlTableCreateBuilder(this, tableName);
     }
@@ -188,6 +194,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
+    /**
+     * quote。
+     *
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     String quote(String name) {
         Dialect dialect = resolveDialect();
         if (dialect != null) {
@@ -196,6 +208,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return "`" + name + "`";
     }
 
+    /**
+     * 执行更新。
+     *
+     * @param sql SQL，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -206,6 +224,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
     }
 
+    /**
+     * 解析Dialect。
+     *
+     * @return Dialect 对象
+     */
     Dialect resolveDialect() {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         return eds != null ? eds.getDialect() : null;

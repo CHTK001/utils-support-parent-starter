@@ -37,16 +37,25 @@ public class Neo4jEngineIntegrationTest {
 
     private Neo4jEngine engine;
 
+    /**
+     * 启动Container。
+     */
     @BeforeAll
     static void startContainer() {
         NEO4J.start();
     }
 
+    /**
+     * 停止Container。
+     */
     @AfterAll
     static void stopContainer() {
         NEO4J.stop();
     }
 
+    /**
+     * 设置Up。
+     */
     @BeforeEach
     void setUp() {
         engine = new Neo4jEngine();
@@ -67,6 +76,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== getExecutor 返回 null ====================
 
+    /**
+     * 测试：获取ExecutorReturnsNull。
+     */
     @Test
     void testGetExecutorReturnsNull() {
         assertNull(engine.getExecutor(), "Neo4jEngine.getExecutor() 应返回 null");
@@ -74,6 +86,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== list / query ====================
 
+    /**
+     * 测试：列出全部。
+     */
     @Test
     void testListAll() {
         List<Person> all = engine.query(Person.class).list();
@@ -83,6 +98,9 @@ public class Neo4jEngineIntegrationTest {
         assertTrue(all.stream().allMatch(p -> p.getAge() != null), "age 非空");
     }
 
+    /**
+     * 测试：查询WithEqCondition。
+     */
     @Test
     void testQueryWithEqCondition() {
         List<Person> list = engine.query(Person.class)
@@ -93,6 +111,9 @@ public class Neo4jEngineIntegrationTest {
         assertEquals(2L, list.getFirst().getId());
     }
 
+    /**
+     * 测试：查询WithGtCondition。
+     */
     @Test
     void testQueryWithGtCondition() {
         List<Person> list = engine.query(Person.class)
@@ -101,6 +122,9 @@ public class Neo4jEngineIntegrationTest {
         assertEquals(2, list.size(), "age > 28 应有 Bob(30) 和 Carol(35)");
     }
 
+    /**
+     * 测试：查询WithLikeCondition。
+     */
     @Test
     void testQueryWithLikeCondition() {
         // Neo4jEngine LIKE → CONTAINS 语义，去掉 %
@@ -111,6 +135,9 @@ public class Neo4jEngineIntegrationTest {
         assertEquals("Alice", list.getFirst().getName());
     }
 
+    /**
+     * 测试：查询WithInCondition。
+     */
     @Test
     void testQueryWithInCondition() {
         List<Person> list = engine.query(Person.class)
@@ -124,6 +151,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== one ====================
 
+    /**
+     * 测试：One。
+     */
     @Test
     void testOne() {
         Person p = engine.query(Person.class)
@@ -134,6 +164,9 @@ public class Neo4jEngineIntegrationTest {
         assertEquals(35, p.getAge());
     }
 
+    /**
+     * 测试：OneReturnsNullWhen编号Match。
+     */
     @Test
     void testOneReturnsNullWhenNoMatch() {
         Person p = engine.query(Person.class)
@@ -144,6 +177,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== page ====================
 
+    /**
+     * 测试：页。
+     */
     @Test
     void testPage() {
         var page = engine.query(Person.class)
@@ -157,6 +193,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== count（通过 list().size() 验证）====================
 
+    /**
+     * 测试：数量Via列出大小。
+     */
     @Test
     void testCountViaListSize() {
         // Neo4jEngine 未覆写 count()，用 list().size() 间接验证
@@ -166,6 +205,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== update ====================
 
+    /**
+     * 测试：更新。
+     */
     @Test
     void testUpdate() {
         int affected = engine.update(Person.class)
@@ -182,6 +224,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== delete ====================
 
+    /**
+     * 测试：删除。
+     */
     @Test
     void testDelete() {
         int affected = engine.delete(Person.class)
@@ -196,6 +241,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== 原生 Cypher 参数化 ====================
 
+    /**
+     * 测试：NativeCypherWith参数。
+     */
     @Test
     void testNativeCypherWithParams() {
         // 使用 $p0 占位符
@@ -212,6 +260,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== 空结果 ====================
 
+    /**
+     * 测试：Empty结果。
+     */
     @Test
     void testEmptyResult() {
         List<Person> list = engine.query(Person.class)
@@ -222,6 +273,9 @@ public class Neo4jEngineIntegrationTest {
 
     // ==================== close ====================
 
+    /**
+     * 测试：关闭。
+     */
     @Test
     void testClose() {
         Neo4jEngine temp = new Neo4jEngine();

@@ -339,7 +339,12 @@ public class FastSamSegmentTranslator {
 
     /** 关闭 */
     public synchronized void close() {
-        try { if (session != null) session.close(); } catch (Exception ignore) {}
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignore) {
+        }
         session = null;
         ortEnv = null;
     }

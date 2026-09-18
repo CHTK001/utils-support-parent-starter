@@ -14,22 +14,22 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Zed editor agent usage parser.
+ * Zed 编辑器 Agent 用量解析器。
  *
- * <p>Zed persists agent threads in a SQLite database whose {@code threads}
- * table stores one row per thread with a BLOB {@code data} column — either
- * raw JSON or zstd-compressed JSON (governed by {@code data_type}). Only
- * raw-JSON rows are parsed here; compressed rows are skipped silently.</p>
+ * <p>Zed 将 Agent 会话线程持久化在 SQLite 数据库中，其 {@code threads} 表
+ * 每个线程一行，{@code data} 列是 BLOB——可能是原始 JSON，也可能是
+ * zstd 压缩的 JSON（由 {@code data_type} 决定）。这里只解析原始 JSON 行，
+ * 压缩行静默跳过。</p>
  *
- * <p>Each thread JSON carries {@code cumulative_token_usage} (a cumulative
- * snapshot rewritten on every send) and/or {@code request_token_usage}
- * (per-request entries with {@code input_tokens} / {@code output_tokens} /
- * {@code cache_read_input_tokens} / {@code cache_creation_input_tokens}).
- * Per-request entries are preferred; otherwise the cumulative snapshot
- * yields one record per thread. {@code input_tokens} is cache-exclusive.
- * Location: {@code %LOCALAPPDATA%\Zed\threads\threads.db} on Windows,
- * {@code $XDG_DATA_HOME/zed/threads/threads.db} on Linux,
- * {@code ~/Library/Application Support/Zed/threads/threads.db} on macOS.</p>
+ * <p>每个线程 JSON 携带 {@code cumulative_token_usage}（每次发送都会被重写的
+ * 累计快照）与/或 {@code request_token_usage}（逐请求条目，含
+ * {@code input_tokens} / {@code output_tokens} /
+ * {@code cache_read_input_tokens} / {@code cache_creation_input_tokens}）。
+ * 优先采用逐请求条目；否则退化为累计快照，每个线程产出一条记录。
+ * {@code input_tokens} 不含缓存。
+ * 数据库位置：Windows 下为 {@code %LOCALAPPDATA%\Zed\threads\threads.db}，
+ * Linux 下为 {@code $XDG_DATA_HOME/zed/threads/threads.db}，
+ * macOS 下为 {@code ~/Library/Application Support/Zed/threads/threads.db}。</p>
  *
  * @author CH
  * @since 4.0.0.45

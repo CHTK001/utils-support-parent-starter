@@ -128,6 +128,8 @@ public class NioServerRequest implements ServerRequest {
     * @param channel channel
     * @param long long
     * @param String String
+    * @param maxRequestSize 最大值请求大小，不允许为 null
+    * @param charset 字符集，不允许为 null
     */
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
         this.channel = channel;
@@ -267,6 +269,7 @@ public class NioServerRequest implements ServerRequest {
 
     /**
     * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
+    * @return 结果数值
     */
     private int feedBufBody() {
         if (bodyRemaining == 0) {
@@ -292,6 +295,7 @@ public class NioServerRequest implements ServerRequest {
 
     /**
     * 消费 chunked 编码:推进 chunk 头/体,直至终止 chunk(0)。返回 0=还需更多;1=完成;-1=错误。
+    * @return 结果数值
     */
     private int feedChunked() {
         while (true) {
@@ -343,7 +347,13 @@ public class NioServerRequest implements ServerRequest {
         }
     }
 
-    /** 追加Body */
+    /**
+     * 追加Body
+     * @param src 方法入参 src
+     * @param off 方法入参 off
+     * @param len 方法入参 len
+     * @return 结果值
+     */
     private byte[] appendBody(byte[] src, int off, int len) {
         int newLen = (body != null ? body.length : 0) + len;
         byte[] out = new byte[newLen];
@@ -367,6 +377,7 @@ public class NioServerRequest implements ServerRequest {
 
     /**
     * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
+    * @return 结果字符串
     */
     private String nextLineFromBuf() {
         int start = buf.position();
@@ -387,7 +398,10 @@ public class NioServerRequest implements ServerRequest {
         return null;
     }
 
-    /** 解析RequestLine */
+    /**
+     * 解析RequestLine
+     * @param line 方法入参 line
+     */
     private void parseRequestLine(String line) {
         int s1 = line.indexOf(' ');
         if (s1 < 0) {
@@ -407,7 +421,10 @@ public class NioServerRequest implements ServerRequest {
         }
     }
 
-    /** 当前解析状态(供事件循环判断) */
+    /**
+     * 当前解析状态(供事件循环判断)
+     * @return 解析状态 对象
+     */
     ParseState parseState() {
         return parseState;
     }
@@ -418,7 +435,11 @@ public class NioServerRequest implements ServerRequest {
         if (method == null || method.isEmpty()) {
             return HttpMethod.GET;
         }
-        try { return HttpMethod.valueOf(method.toUpperCase()); } catch (IllegalArgumentException e) { return HttpMethod.OPTIONS; }
+        try {
+            return HttpMethod.valueOf(method.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return HttpMethod.OPTIONS;
+        }
     }
     @Override public String getHeader(String name) { return headers.get(name.toLowerCase()); }
     @Override
@@ -434,7 +455,9 @@ public class NioServerRequest implements ServerRequest {
         Map<String, String> map = new LinkedHashMap<>();
         for (String pair : queryString.split("&")) {
             String[] kv = pair.split("=", 2);
-            if (kv.length > 0) map.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+            if (kv.length > 0) {
+                map.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+            }
         }
         return map;
     }
@@ -445,7 +468,11 @@ public class NioServerRequest implements ServerRequest {
         if (cl == null) {
             return -1;
         }
-        try { return Long.parseLong(cl); } catch (NumberFormatException e) { return -1; }
+        try {
+            return Long.parseLong(cl);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
     @Override public byte[] getBody() { return body != null ? body : new byte[0]; }
     @Override public String getBodyString() { return new String(getBody(), resolveCharset()); }
@@ -494,13 +521,17 @@ public class NioServerRequest implements ServerRequest {
             Map<String, String> form = new LinkedHashMap<>();
             for (String pair : bodyStr.split("&")) {
                 String[] kv = pair.split("=", 2);
-                if (kv.length > 0) form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+                if (kv.length > 0) {
+                    form.put(decode(kv[0]), kv.length > 1 ? decode(kv[1]) : "");
+                }
             }
             return form;
         }
         if (lower.startsWith("multipart/form-data")) {
             MultipartParser parser = ServiceProvider.of(MultipartParser.class).getExtension("fileupload");
-            if (parser != null) return parser.parseFormFields(getBody(), ct);
+            if (parser != null) {
+                return parser.parseFormFields(getBody(), ct);
+            }
         }
         return Collections.emptyMap();
     }
@@ -518,14 +549,21 @@ public class NioServerRequest implements ServerRequest {
 
     /** 解码 */
     private String decode(String value) { return URLDecoder.decode(value, defaultCharset); }
-    /** 解析Charset */
+    /**
+     * 解析Charset
+     * @return 字符集 对象
+     */
     private Charset resolveCharset() {
         String contentType = getContentType();
         if (contentType != null) {
             for (String part : contentType.split(";")) {
                 String v = part.trim();
                 if (v.regionMatches(true, 0, "charset=", 0, 8)) {
-                    try { return Charset.forName(v.substring(8).trim()); } catch (Exception ignored) { return defaultCharset; }
+                    try {
+                        return Charset.forName(v.substring(8).trim());
+                    } catch (Exception ignored) {
+                        return defaultCharset;
+                    }
                 }
             }
         }

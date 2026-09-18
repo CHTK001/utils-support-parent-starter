@@ -43,7 +43,10 @@ public class MysqlUserManager implements UserManager, DataSourceAware {
                 UserInfo ui = new UserInfo();
                 ui.setUser(rs.getString("user"));
                 ui.setHost(rs.getString("host"));
-                try { ui.setPassword(rs.getString("authentication_string")); } catch (Exception ignored) {}
+                try {
+                    ui.setPassword(rs.getString("authentication_string"));
+                } catch (Exception ignored) {
+                }
                 list.add(ui);
             }
         } catch (Exception e) {

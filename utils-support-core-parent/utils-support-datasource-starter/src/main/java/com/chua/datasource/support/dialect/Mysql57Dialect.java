@@ -18,22 +18,15 @@ public class Mysql57Dialect extends SqlDialect {
     * MySQL57Dialect。
     */
     public Mysql57Dialect() {
-        /**
-        * MySQL57Dialect。
-        * @param properties 属性
-        */
         super("mysql", defaultProps("com.mysql.jdbc.Driver", " ENGINE=InnoDB DEFAULT CHARSET=utf8"));
     }
 
+    /**
+     * 构造方法，创建 Mysql57Dialect 实例。
+     *
+     * @param properties 属性，不允许为 null
+     */
     public Mysql57Dialect(Properties properties) {
-        /**
-        * 默认props。
-        * @param driver driver
-        * @param tableType table类型
-        * @return 默认props的结果
-        * @param defaults 默认
-        * @param overrides overrides
-        */
         super("mysql", merge(defaultProps("com.mysql.jdbc.Driver", " ENGINE=InnoDB DEFAULT CHARSET=utf8"), properties));
     /**
     * 默认props。
@@ -45,6 +38,13 @@ public class Mysql57Dialect extends SqlDialect {
     */
     }
 
+    /**
+     * default属性。
+     *
+     * @param driver 方法入参 driver
+     * @param tableType 表类型，不允许为 null
+     * @return 属性 对象
+     */
     private static Properties defaultProps(String driver, String tableType) {
         Properties p = new Properties();
         p.setProperty("driver", driver);
@@ -52,6 +52,13 @@ public class Mysql57Dialect extends SqlDialect {
         return p;
     }
 
+    /**
+     * 合并。
+     *
+     * @param defaults 方法入参 defaults
+     * @param overrides 方法入参 overrides
+     * @return 属性 对象
+     */
     private static Properties merge(Properties defaults, Properties overrides) {
         Properties merged = new Properties(defaults);
         if (overrides != null) {

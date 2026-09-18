@@ -17,13 +17,13 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * GitHub Copilot CLI usage parser.
+ * GitHub Copilot CLI 用量解析器。
  *
- * <p>GitHub Copilot CLI persists per-session event transcripts under
- * {@code ~/.copilot/session-state/<session-id>/events.jsonl}. The
- * {@code session.shutdown} event carries an authoritative per-model usage
- * snapshot ({@code modelMetrics}) plus session cost in nano-AIU
- * (1 nano-AIU = 1e-10 USD):</p>
+ * <p>GitHub Copilot CLI 会把按会话组织的事件转录持久化到
+ * {@code ~/.copilot/session-state/<session-id>/events.jsonl}。其中的
+ * {@code session.shutdown} 事件携带一份权威的按模型用量快照
+ * （{@code modelMetrics}），以及以 nano-AIU 计的会话费用
+ * （1 nano-AIU = 1e-10 USD）：</p>
  *
  * <pre>{@code
  * {
@@ -44,10 +44,9 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>Token semantics: {@code inputTokens} is cache-inclusive (the raw
- * {@code input} field of {@code tokenDetails} excludes cache while
- * {@code usage.inputTokens} does not), so the reported input is kept as-is
- * and cache read/write/reasoning are surfaced separately.</p>
+ * <p>token 语义：{@code inputTokens} 已包含缓存（{@code tokenDetails} 的原始
+ * {@code input} 字段不含缓存，而 {@code usage.inputTokens} 含缓存），
+ * 因此上报的输入量按原值保留，缓存读、缓存写与推理 token 单独呈现。</p>
  *
  * @author CH
  * @since 4.0.0.44

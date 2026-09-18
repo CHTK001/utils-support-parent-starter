@@ -64,6 +64,8 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * 渲染 HTML 报告。
+    * @param data 数据，不允许为 null
+    * @return 结果字符串
     */
     private String render(BenchmarkDocumentData data) {
         List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>(data.getRows());
@@ -259,7 +261,9 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
                 }
                 function initChart(id, option) {
                   const el = document.getElementById(id);
-                  if (!el) return;
+                  if (!el) {
+                      return;
+                  }
                   const chart = echarts.init(el);
                   chart.setOption(option);
                   window.addEventListener('resize', () => chart.resize());
@@ -312,6 +316,8 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * HTML 转义。
+    * @param s 方法入参 s
+    * @return 结果字符串
     */
     private static String escape(String s) {
         if (s == null) {
@@ -323,6 +329,8 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * JS 字符串转义。
+    * @param s 方法入参 s
+    * @return 结果字符串
     */
     private static String escapeJs(String s) {
         if (s == null) {
@@ -334,6 +342,8 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * 写入文件。
+    * @param outputFile output文件，不允许为 null
+    * @param content 内容，不允许为 null
     */
     private void write(File outputFile, String content) {
         try {

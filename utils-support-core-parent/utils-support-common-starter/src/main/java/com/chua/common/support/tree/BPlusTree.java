@@ -300,6 +300,12 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     */
     }
 
+    /**
+     * 删除。
+     *
+     * @param node 节点，不允许为 null
+     * @param key 键，不允许为 null
+     */
     private void delete(BPlusTreeNode<K, V> node, K key) {
         int i = 0;
         int n = node.keys.size();
@@ -328,7 +334,10 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public boolean isEmpty() { return size == 0; }
     @Override
-    public void clear() { root = new BPlusTreeNode<>(true, maxChildren); size = 0; }
+    public void clear() {
+        root = new BPlusTreeNode<>(true, maxChildren);
+        size = 0;
+    }
     @Override
     public TreeNode<K, V> toBinaryTree() { return BinaryTreeConverter.bPlusToBinary(this); }
     @Override

@@ -85,7 +85,10 @@ public class OnnxFeatureClient implements FeatureClient {
     /** 关闭 */
     public void close() {
         if (translator != null) {
-            try { ((AutoCloseable) translator).close(); } catch (Exception ignore) {}
+            try {
+                ((AutoCloseable) translator).close();
+            } catch (Exception ignore) {
+            }
         }
     }
 }

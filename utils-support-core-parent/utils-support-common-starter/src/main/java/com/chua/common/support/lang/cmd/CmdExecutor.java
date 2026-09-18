@@ -315,7 +315,11 @@ public interface CmdExecutor extends AutoCloseable {
             }
         });
         synchronized (lock) {
-            try { lock.wait(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         return result[0];
     }

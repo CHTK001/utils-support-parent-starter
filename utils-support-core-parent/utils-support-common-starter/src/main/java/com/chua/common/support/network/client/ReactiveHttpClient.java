@@ -32,12 +32,18 @@ public final class ReactiveHttpClient implements HttpClient {
 
     private final HttpClient delegate;
 
+    /**
+     * 构造方法，创建 ReactiveHttp客户端 实例。
+     *
+     * @param delegate 方法入参 delegate
+     */
     public ReactiveHttpClient(HttpClient delegate) {
         this.delegate = delegate;
     }
 
     /**
     * 获取响应式客户端（自动选择最优执行器）。
+    * @return ReactiveHttp客户端 对象
     */
     public static ReactiveHttpClient of() {
         return new ReactiveHttpClient(HttpClientFactory.getClient());
@@ -45,6 +51,8 @@ public final class ReactiveHttpClient implements HttpClient {
 
     /**
     * 获取指定执行器的响应式客户端。
+    * @param executorName executor名称，不允许为 null
+    * @return ReactiveHttp客户端 对象
     */
     public static ReactiveHttpClient of(String executorName) {
         return new ReactiveHttpClient(HttpClientFactory.getClient(executorName));
@@ -52,6 +60,7 @@ public final class ReactiveHttpClient implements HttpClient {
 
     /**
     * 获取底层委托的普通客户端。
+    * @return Http客户端 对象
     */
     public HttpClient getDelegate() {
         return delegate;

@@ -65,7 +65,12 @@ public class KimiCodeUsageParser extends BaseUsageParser {
                 });
     }
 
-    /** 直接读取全量行再逐行解析，避免 Flux 流式 emit 丢失行。 */
+    /**
+     * 直接读取全量行再逐行解析，避免 Flux 流式 emit 丢失行。
+     * @param file 文件，不允许为 null
+     * @param seenUuids 方法入参 seenUuids
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamWireFile(Path file, Set<String> seenUuids) {
         String model = resolveModel(file);
         List<AiUsage> out = new ArrayList<>();
@@ -143,6 +148,12 @@ public class KimiCodeUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析模型。
+     *
+     * @param wireFile wire文件，不允许为 null
+     * @return 结果字符串
+     */
     private String resolveModel(Path wireFile) {
         String session = DEFAULT_MODEL;
         try (Stream<String> lines = Files.lines(wireFile)) {
@@ -185,6 +196,12 @@ public class KimiCodeUsageParser extends BaseUsageParser {
         return session.isEmpty() ? DEFAULT_MODEL : session;
     }
 
+    /**
+     * 转为Epoch毫秒数。
+     *
+     * @param node 节点，不允许为 null
+     * @return 结果数值
+     */
     private long toEpochMillis(JsonNode node) {
         if (node == null || node.isMissingValue()) {
             return 0L;
@@ -196,6 +213,11 @@ public class KimiCodeUsageParser extends BaseUsageParser {
         return parseInstantToMillis(node.toStringValue());
     }
 
+    /**
+     * 列出WireFiles。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listWireFiles() {
         Path sessionsDir = kimiCodeHome.resolve("sessions");
         if (!Files.isDirectory(sessionsDir)) {

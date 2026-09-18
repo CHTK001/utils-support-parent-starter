@@ -32,6 +32,11 @@ public class JdkAsyncProvider extends AbstractAsyncProvider {
             4, Runtime.getRuntime().availableProcessors() * 2,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(),
+            /**
+             * NamedThread工厂。
+             *
+             * @return 结果值
+             */
             new NamedThreadFactory("async"));
 
     /**

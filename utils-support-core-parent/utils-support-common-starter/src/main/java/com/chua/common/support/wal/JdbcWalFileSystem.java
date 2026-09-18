@@ -61,11 +61,14 @@ public class JdbcWalFileSystem extends AbstractWalFileSystem {
         for (int i = 0; i < colsAndVals.length; i += 2) {
             byte[] nb = colsAndVals[i].getBytes(StandardCharsets.UTF_8);
             byte[] vb = colsAndVals[i + 1].getBytes(StandardCharsets.UTF_8);
-            bb.putInt(nb.length); bb.put(nb);
-            bb.putInt(vb.length); bb.put(vb);
+            bb.putInt(nb.length);
+            bb.put(nb);
+            bb.putInt(vb.length);
+            bb.put(vb);
         }
         byte[] result = new byte[bb.position()];
-        bb.position(0); bb.get(result);
+        bb.position(0);
+        bb.get(result);
         return result;
     }
 }

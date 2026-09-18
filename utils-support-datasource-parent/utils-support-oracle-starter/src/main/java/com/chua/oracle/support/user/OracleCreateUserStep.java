@@ -25,6 +25,12 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     /** 主机 */
     private String host = "";
 
+    /**
+     * 构造方法，创建 Oracle创建用户Step 实例。
+     *
+     * @param dataSource 数据来源，不允许为 null
+     * @param username 用户名，不允许为 null
+     */
     OracleCreateUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = username;

@@ -45,6 +45,11 @@ public final class NewProviderDataTest {
     private static int failureCount = 0;
     private static int passCount = 0;
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     */
     public static void main(String[] args) {
         if (args.length >= 3 && "verify".equals(args[0])) {
             int code = verifyChild(args[1], Paths.get(args[2]));
@@ -60,6 +65,9 @@ public final class NewProviderDataTest {
 
     // ==================== hermetic phase ====================
 
+    /**
+     * 运行HermeticPhase。
+     */
     private static void runHermeticPhase() {
         hermeticUsage("acode", NewProviderDataTest::writeCodexForkFixture, Map.of("TOKENTRACKER_ACODE_HOME", ""));
         hermeticUsage("every-code", NewProviderDataTest::writeCodexForkFixture, Map.of("CODE_HOME", ""));
@@ -90,6 +98,13 @@ public final class NewProviderDataTest {
         verifyVipParsers();
     }
 
+    /**
+     * hermeticUsage。
+     *
+     * @param key 键，不允许为 null
+     * @param writer 方法入参 writer
+     * @param envSuffix 环境后缀，不允许为 null
+     */
     private static void hermeticUsage(String key, FixtureWriter writer, Map<String, String> envSuffix) {
         try {
             Path home = Files.createTempDirectory("newpro-" + key + "-");
@@ -106,6 +121,11 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * hermeticSkill。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void hermeticSkill(String key) {
         try {
             Path home = Files.createTempDirectory("newskill-" + key + "-");
@@ -117,6 +137,11 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * hermeticPlugin。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void hermeticPlugin(String key) {
         try {
             Path home = Files.createTempDirectory("newplugin-" + key + "-");
@@ -128,6 +153,15 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * spawn子节点。
+     *
+     * @param key 键，不允许为 null
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @return 结果数值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static int spawnChild(String key, Path home, Map<String, String> env) throws Exception {
         String javaBin = Path.of(System.getProperty("java.home"), "bin",
                 System.getProperty("os.name", "").toLowerCase().contains("win") ? "java.exe" : "java").toString();
@@ -150,6 +184,13 @@ public final class NewProviderDataTest {
         return code;
     }
 
+    /**
+     * 验证子节点。
+     *
+     * @param key 键，不允许为 null
+     * @param home 方法入参 home
+     * @return 结果数值
+     */
     private static int verifyChild(String key, Path home) {
         if (key.startsWith("usage:")) {
             verifyUsageProvider(key.substring("usage:".length()));
@@ -177,10 +218,17 @@ public final class NewProviderDataTest {
         return failureCount > 0 ? 1 : 0;
     }
 
+    /**
+     * 验证Usage提供者。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifyUsageProvider(String key) {
         UsageParser parser = ServiceProvider.of(UsageParser.class).getExtension(key);
         check(parser != null, key + " SPI 注册存在");
-        if (parser == null) return;
+        if (parser == null) {
+            return;
+        }
         List<AiUsage> records;
         try {
             records = parser.streamAll().collectList().block(Duration.ofMinutes(1));
@@ -189,7 +237,9 @@ public final class NewProviderDataTest {
             return;
         }
         check(records != null && !records.isEmpty(), key + " 解析出记录（" + (records == null ? 0 : records.size()) + " 条）");
-        if (records == null || records.isEmpty()) return;
+        if (records == null || records.isEmpty()) {
+            return;
+        }
 
         check(records.stream().noneMatch(r -> r.getProvider() == null || r.getProvider().isBlank()),
                 key + " provider 字段有值");
@@ -215,36 +265,63 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * 验证Skill提供者。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifySkillProvider(String key) {
         SkillOfflineProvider provider = ServiceProvider.of(SkillOfflineProvider.class).getExtension(key);
         check(provider != null, key + " SPI 注册存在");
-        if (provider == null) return;
+        if (provider == null) {
+            return;
+        }
         try { check(provider.isInstalled(), key + " isInstalled() = true"); }
         catch (Exception e) { check(false, key + " isInstalled 异常: " + e.getMessage()); }
         List<SkillDefinition> skills;
         try { skills = provider.listAgentSkills(); }
-        catch (Exception e) { check(false, key + " listAgentSkills 异常: " + e.getMessage()); return; }
+        catch (Exception e) {
+            check(false, key + " listAgentSkills 异常: " + e.getMessage());
+            return;
+        }
         check(skills != null && !skills.isEmpty(), key + " 扫描出技能（" + (skills == null ? 0 : skills.size()) + " 个）");
-        if (skills == null || skills.isEmpty()) return;
+        if (skills == null || skills.isEmpty()) {
+            return;
+        }
         check(skills.stream().noneMatch(s -> s.getName() == null || s.getName().isBlank()), key + " 技能 name 有值");
         check(skills.stream().noneMatch(s -> s.getDescription() == null || s.getDescription().isBlank()), key + " 技能 description 有值");
         check(skills.stream().noneMatch(s -> s.getHandler() == null), key + " 技能 handler 有值");
     }
 
+    /**
+     * 验证Plugin提供者。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifyPluginProvider(String key) {
         PluginOfflineProvider provider = ServiceProvider.of(PluginOfflineProvider.class).getExtension(key);
         check(provider != null, key + " PluginOfflineProvider 注册存在");
-        if (provider == null) return;
+        if (provider == null) {
+            return;
+        }
         List<PluginDefinition> plugins;
         try { plugins = provider.listPlugins(); }
-        catch (Exception e) { check(false, key + " listPlugins 异常: " + e.getMessage()); return; }
+        catch (Exception e) {
+            check(false, key + " listPlugins 异常: " + e.getMessage());
+            return;
+        }
         check(plugins != null && !plugins.isEmpty(), key + " 扫描出插件（" + (plugins == null ? 0 : plugins.size()) + " 个）");
-        if (plugins == null || plugins.isEmpty()) return;
+        if (plugins == null || plugins.isEmpty()) {
+            return;
+        }
         check(plugins.stream().noneMatch(p -> p.getId() == null || p.getId().isBlank()), key + " 插件 id 有值");
         check(plugins.stream().noneMatch(p -> p.getName() == null || p.getName().isBlank()), key + " 插件 name 有值");
         check(plugins.stream().noneMatch(p -> p.getSource() == null || p.getSource().isBlank()), key + " 插件 source 有值");
     }
 
+    /**
+     * 验证McpProviders。
+     */
     private static void verifyMcpProviders() {
         String[] keys = {"agent-browser", "playwright", "puppeteer", "context7", "firecrawl",
                 "fetch", "memory", "sequential-thinking", "git", "sqlite", "brave-search",
@@ -252,15 +329,27 @@ public final class NewProviderDataTest {
         for (String key : keys) {
             McpProvider provider = ServiceProvider.of(McpProvider.class).getExtension(key);
             check(provider != null, "McpProvider[" + key + "] 注册存在");
-            if (provider == null) continue;
+            if (provider == null) {
+                continue;
+            }
             McpClient client = provider.create();
             check(client != null, "McpProvider[" + key + "] create() 非空");
-            if (client == null) continue;
-            try { client.init(); } catch (Exception e) { check(false, "McpProvider[" + key + "] init 异常: " + e.getMessage()); return; }
+            if (client == null) {
+                continue;
+            }
+            try {
+                client.init();
+            } catch (Exception e) {
+                check(false, "McpProvider[" + key + "] init 异常: " + e.getMessage());
+                return;
+            }
             check(client.isInitialized(), "McpProvider[" + key + "] isInitialized()=true");
             List<McpToolDescriptor> tools;
             try { tools = client.listTools(); }
-            catch (Exception e) { check(false, "McpProvider[" + key + "] listTools 异常: " + e.getMessage()); continue; }
+            catch (Exception e) {
+                check(false, "McpProvider[" + key + "] listTools 异常: " + e.getMessage());
+                continue;
+            }
             check(tools != null && !tools.isEmpty(), "McpProvider[" + key + "] toolDescriptors 非空（" + (tools == null ? 0 : tools.size()) + " 个）");
             if (tools != null && !tools.isEmpty()) {
                 check(tools.stream().noneMatch(t -> t.getName() == null || t.getName().isBlank()),
@@ -273,6 +362,9 @@ public final class NewProviderDataTest {
 
     // ==================== real-data phase ====================
 
+    /**
+     * 运行Real数据Phase。
+     */
     private static void runRealDataPhase() {
         for (String key : new String[]{
                 "claude-science", "kimi-code", "pi", "reasonix", "qoder-cn", "dsh"}) {
@@ -351,12 +443,22 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * 验证RealPlugin。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifyRealPlugin(String key) {
         PluginOfflineProvider provider = ServiceProvider.of(PluginOfflineProvider.class).getExtension(key);
-        if (provider == null) return;
+        if (provider == null) {
+            return;
+        }
         try {
             List<PluginDefinition> plugins = provider.listPlugins();
-            if (plugins == null || plugins.isEmpty()) { System.out.println("SKIP 真实数据[" + key + "]：本机无插件"); return; }
+            if (plugins == null || plugins.isEmpty()) {
+                System.out.println("SKIP 真实数据[" + key + "]：本机无插件");
+                return;
+            }
             long bad = plugins.stream().filter(p -> p.getName() == null || p.getName().isBlank()
                     || p.getSource() == null || p.getSource().isBlank()).count();
             check(bad == 0, "真实数据[" + key + "] 插件关键字段有值（共 " + plugins.size() + " 个，异常 " + bad + " 个）");
@@ -365,13 +467,26 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * 验证RealUsage。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifyRealUsage(String key) {
         UsageParser parser = ServiceProvider.of(UsageParser.class).getExtension(key);
-        if (parser == null) return;
+        if (parser == null) {
+            return;
+        }
         List<AiUsage> records;
         try { records = parser.streamAll().collectList().block(Duration.ofMinutes(2)); }
-        catch (Exception e) { System.out.println("SKIP 真实数据[" + key + "]：解析异常 " + e.getMessage()); return; }
-        if (records == null || records.isEmpty()) { System.out.println("SKIP 真实数据[" + key + "]：本机无数据"); return; }
+        catch (Exception e) {
+            System.out.println("SKIP 真实数据[" + key + "]：解析异常 " + e.getMessage());
+            return;
+        }
+        if (records == null || records.isEmpty()) {
+            System.out.println("SKIP 真实数据[" + key + "]：本机无数据");
+            return;
+        }
         boolean creditBased = "qoder-cn".equals(key);
         long bad;
         if (creditBased) {
@@ -386,13 +501,26 @@ public final class NewProviderDataTest {
         check(bad == 0, "真实数据[" + key + "] 关键字段有值（共 " + records.size() + " 条，异常 " + bad + " 条）");
     }
 
+    /**
+     * 验证RealSkill。
+     *
+     * @param key 键，不允许为 null
+     */
     private static void verifyRealSkill(String key) {
         SkillOfflineProvider provider = ServiceProvider.of(SkillOfflineProvider.class).getExtension(key);
-        if (provider == null) return;
+        if (provider == null) {
+            return;
+        }
         try {
-            if (!provider.isInstalled()) { System.out.println("SKIP 真实数据[" + key + "]：本机未安装"); return; }
+            if (!provider.isInstalled()) {
+                System.out.println("SKIP 真实数据[" + key + "]：本机未安装");
+                return;
+            }
             List<SkillDefinition> skills = provider.listAgentSkills();
-            if (skills == null || skills.isEmpty()) { System.out.println("SKIP 真实数据[" + key + "]：本机无技能"); return; }
+            if (skills == null || skills.isEmpty()) {
+                System.out.println("SKIP 真实数据[" + key + "]：本机无技能");
+                return;
+            }
             long bad = skills.stream().filter(s -> s.getName() == null || s.getName().isBlank()
                     || s.getDescription() == null || s.getDescription().isBlank()).count();
             check(bad == 0, "真实数据[" + key + "] 技能关键字段有值（共 " + skills.size() + " 个，异常 " + bad + " 个）");
@@ -403,6 +531,11 @@ public final class NewProviderDataTest {
 
     // ==================== child classpath ====================
 
+    /**
+     * 子节点Classpath。
+     *
+     * @return 结果字符串
+     */
     private static String childClasspath() {
         java.net.URL location = NewProviderDataTest.class.getProtectionDomain().getCodeSource().getLocation();
         Path testClasses;
@@ -414,7 +547,12 @@ public final class NewProviderDataTest {
         if (Files.isDirectory(testClasses)) { cp.append(testClasses).append(File.pathSeparator); }
         Path cpFile = Paths.get(System.getProperty("java.io.tmpdir"), "ds-cp.txt");
         if (Files.exists(cpFile)) {
-            try { String deps = Files.readString(cpFile).trim(); if (!deps.isEmpty()) cp.append(deps); }
+            try {
+                String deps = Files.readString(cpFile).trim();
+                if (!deps.isEmpty()) {
+                    cp.append(deps);
+                }
+            }
             catch (IOException ignored) {}
         } else { cp.append(System.getProperty("java.class.path")); }
         return cp.toString();
@@ -422,6 +560,14 @@ public final class NewProviderDataTest {
 
     // ==================== fixtures ====================
 
+    /**
+     * 写入ClaudeScienceFixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws SQLException 当执行过程不满足前置条件时
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeClaudeScienceFixture(Path home, Map<String, String> env) throws SQLException, IOException {
         Path db = Paths.get(env.get("CLAUDE_SCIENCE_DB_PATH"));
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -438,6 +584,13 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * 写入Kimi编码Fixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeKimiCodeFixture(Path home, Map<String, String> env) throws IOException {
         Path wire = home.resolve("sessions").resolve("wdhash").resolve("sess-1")
                 .resolve("agents").resolve("main").resolve("wire.jsonl");
@@ -450,6 +603,13 @@ public final class NewProviderDataTest {
                 ""), StandardCharsets.UTF_8);
     }
 
+    /**
+     * 写入PiFixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writePiFixture(Path home, Map<String, String> env) throws IOException {
         Path session = home.resolve("agent").resolve("sessions").resolve("cwd").resolve("sess-1.jsonl");
         Files.createDirectories(session.getParent());
@@ -459,6 +619,13 @@ public final class NewProviderDataTest {
                 + "\"reasoningTokens\":0,\"totalTokens\":3165}}}", StandardCharsets.UTF_8);
     }
 
+    /**
+     * 写入ReasonixFixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeReasonixFixture(Path home, Map<String, String> env) throws IOException {
         Path project = home.resolve("projects").resolve("proj-1");
         Files.createDirectories(project);
@@ -471,6 +638,13 @@ public final class NewProviderDataTest {
                 StandardCharsets.UTF_8);
     }
 
+    /**
+     * 写入QoderCnFixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeQoderCnFixture(Path home, Map<String, String> env) throws IOException {
         Path session = home.resolve("proj-1").resolve("sess-1.jsonl");
         Files.createDirectories(session.getParent());
@@ -480,6 +654,13 @@ public final class NewProviderDataTest {
                 + "\"credits\":0.03285,\"original_credits\":0.03285}}}\n", StandardCharsets.UTF_8);
     }
 
+    /**
+     * 写入DshFixture。
+     *
+     * @param home 方法入参 home
+     * @param env 环境，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeDshFixture(Path home, Map<String, String> env) throws IOException {
         Path session = home.resolve("sessions").resolve("proj-1").resolve("sess-1").resolve("session.jsonl");
         Files.createDirectories(session.getParent());
@@ -515,6 +696,13 @@ public final class NewProviderDataTest {
         Files.writeString(sessionsDir.resolve("rollout.jsonl"), jsonLine + "\n", StandardCharsets.UTF_8);
     }
 
+    /**
+     * 写入SkillFixture。
+     *
+     * @param key 键，不允许为 null
+     * @param home 方法入参 home
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writeSkillFixture(String key, Path home) throws IOException {
         Path configDir = switch (key) {
             case "grok" -> home.resolve(".grok");
@@ -569,6 +757,13 @@ public final class NewProviderDataTest {
         }
     }
 
+    /**
+     * 写入PluginFixture。
+     *
+     * @param key 键，不允许为 null
+     * @param home 方法入参 home
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static void writePluginFixture(String key, Path home) throws IOException {
         switch (key) {
             case "claude" -> {
@@ -624,6 +819,12 @@ public final class NewProviderDataTest {
 
     // ==================== assertions ====================
 
+    /**
+     * 校验。
+     *
+     * @param condition condition（布尔开关）
+     * @param message 消息，不允许为 null
+     */
     private static void check(boolean condition, String message) {
         if (condition) {
             passCount++;

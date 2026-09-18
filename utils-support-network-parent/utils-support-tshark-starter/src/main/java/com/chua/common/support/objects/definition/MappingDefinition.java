@@ -7,6 +7,16 @@ package com.chua.common.support.objects.definition;
 * @since 4.0.0.42
  */
 public interface MappingDefinition {
+    /**
+     * 获取BeanDefinition。
+     *
+     * @return BeanDefinition 对象
+     */
     BeanDefinition getBeanDefinition();
+    /**
+     * 获取Urls。
+     *
+     * @return 字符串 对象
+     */
     String[] getUrls();
 }

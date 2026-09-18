@@ -149,6 +149,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
 
     /**
     * 构建连接限流信号量（maxConnections > 0 时启用），供 doStart 分支复用。
+    * @return Semaphore 对象
     */
     private Semaphore maxConnectionsSemaphore() {
         int maxConn = setting.getMaxConnections();
@@ -195,7 +196,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
                 if (connectionLimiter != null && !connectionLimiter.tryAcquire()) {
                     log.warn("{} 连接数超限 (max={})，拒绝 {}", getClass().getSimpleName(),
                             setting.getMaxConnections(), clientSocket.getRemoteSocketAddress());
-                    try { clientSocket.close(); } catch (IOException ignored) {}
+                    try {
+                        clientSocket.close();
+                    } catch (IOException ignored) {
+                    }
                     continue;
                 }
                 proxyPool.submit(() -> {
@@ -293,7 +297,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
         log.info("{} nonBlockingAcceptLoop ended", getClass().getSimpleName());
     }
 
-    /** 静默关闭Socket。 */
+    /**
+     * 静默关闭Socket。
+     * @param s 方法入参 s
+     */
     private void closeSocket(Socket s) {
         try {
             s.close();
@@ -393,6 +400,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
 
     /**
     * 安全关闭 Socket。
+    * @param socket 方法入参 socket
     */
     protected static void closeQuietly(Socket socket) {
         if (socket != null && !socket.isClosed()) {

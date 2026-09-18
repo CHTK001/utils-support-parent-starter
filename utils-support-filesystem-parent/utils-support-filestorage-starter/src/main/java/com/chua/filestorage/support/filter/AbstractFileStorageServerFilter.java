@@ -152,6 +152,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         return storageMap.isEmpty() ? null : storageMap.values().iterator().next();
     }
 
+    /**
+     * 获取Pdf缓存。
+     *
+     * @return PreviewPdf缓存 对象
+     */
     PreviewPdfCache getPdfCache() {
         return pdfCache;
     }
@@ -245,7 +250,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     * @return 解析int的结果
     */
     private Integer parseInt(String s) {
-        try { return Integer.valueOf(s); } catch (Exception e) { return null; }
+        try {
+            return Integer.valueOf(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

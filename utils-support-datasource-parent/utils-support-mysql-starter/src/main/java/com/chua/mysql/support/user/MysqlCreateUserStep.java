@@ -19,6 +19,12 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
     /** 主机 */
     private String host = "%";
 
+    /**
+     * 构造方法，创建 Mysql创建用户Step 实例。
+     *
+     * @param dataSource 数据来源，不允许为 null
+     * @param username 用户名，不允许为 null
+     */
     MysqlCreateUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = username;

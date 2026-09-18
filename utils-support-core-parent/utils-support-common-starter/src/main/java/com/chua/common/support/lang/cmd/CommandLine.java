@@ -110,13 +110,19 @@ public final class CommandLine {
     }
 
     @Nonnull
-    /** ProgramName */
+    /**
+     * ProgramName
+     * @return 结果字符串
+     */
     public String programName() {
         return programName;
     }
 
     @Nonnull
-    /** ProgramDescription */
+    /**
+     * ProgramDescription
+     * @return 结果字符串
+     */
     public String programDescription() {
         return programDescription;
     }
@@ -452,6 +458,8 @@ public final class CommandLine {
 
     /**
     * 格式化选项名称（如 "-p, --port"）。
+    * @param opt 方法入参 opt
+    * @return 结果字符串
     */
     private static String formatOptionName(CliOption opt) {
         StringBuilder sb = new StringBuilder();
@@ -473,6 +481,8 @@ public final class CommandLine {
 
     /**
     * 返回类型的友好提示字符串。
+    * @param opt 方法入参 opt
+    * @return 结果字符串
     */
     private static String typeHint(CliOption opt) {
         switch (opt.type()) {
@@ -492,6 +502,8 @@ public final class CommandLine {
 
     /**
     * 检查指定长名称是否在已定义的选项中。
+    * @param longName long名称，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean isOptionDefined(String longName) {
         return findOption(longName) != null;
@@ -499,6 +511,8 @@ public final class CommandLine {
 
     /**
     * 按长名称查找选项。
+    * @param longName long名称，不允许为 null
+    * @return CliOption 对象
     */
     @Nullable
     private CliOption findOption(String longName) {
@@ -512,6 +526,8 @@ public final class CommandLine {
 
     /**
     * 按短名称查找选项。
+    * @param shortName short名称，不允许为 null
+    * @return CliOption 对象
     */
     @Nullable
     private CliOption findOptionByShortName(String shortName) {
@@ -525,6 +541,8 @@ public final class CommandLine {
 
     /**
     * 通过长名称或短名称查找选项。
+    * @param name 名称，不允许为 null
+    * @return CliOption 对象
     */
     @Nullable
     private CliOption resolveOption(String name) {
@@ -537,6 +555,9 @@ public final class CommandLine {
 
     /**
     * 将选项值转为字符串（组装时使用）。
+    * @param opt 方法入参 opt
+    * @param value 值，不允许为 null
+    * @return 结果字符串
     */
     private static String valueToString(CliOption opt, Object value) {
         if (value == null) {
@@ -556,6 +577,9 @@ public final class CommandLine {
 
     /**
     * 将字符串值转换为选项对应的类型。
+    * @param opt 方法入参 opt
+    * @param value 值，不允许为 null
+    * @return 对象 对象
     */
 @SuppressWarnings("unchecked")
     private static Object convertValue(CliOption opt, String value) {
@@ -625,6 +649,7 @@ public final class CommandLine {
     * 获取控制台宽度（用于帮助文本自动换行）。
     *
     * <p>默认返回 80 列，适用于大多数终端环境。</p>
+    * @return 结果数值
     */
     private static int getConsoleWidth() {
         return 80;
@@ -1302,6 +1327,7 @@ public final class CommandLine {
 
     /**
     * 获取所有选项的长名称列表（用于错误提示）。
+    * @return 结果字符串
     */
     private String optionNames() {
         StringBuilder sb = new StringBuilder();

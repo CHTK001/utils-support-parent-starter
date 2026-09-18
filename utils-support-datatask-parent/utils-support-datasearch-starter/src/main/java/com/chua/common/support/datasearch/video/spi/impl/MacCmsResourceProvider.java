@@ -66,10 +66,18 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     */
     private static final int TIMEOUT_SECONDS = 20;
 
+    /**
+     * 构造方法，创建 MacCmsResource提供者 实例。
+     */
     public MacCmsResourceProvider() {
         super();
     }
 
+    /**
+     * 构造方法，创建 MacCmsResource提供者 实例。
+     *
+     * @param videoSource video来源，不允许为 null
+     */
     public MacCmsResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }

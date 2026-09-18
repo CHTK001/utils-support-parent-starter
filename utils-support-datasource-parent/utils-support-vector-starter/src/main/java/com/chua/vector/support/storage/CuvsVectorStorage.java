@@ -635,6 +635,13 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         return candidates.subList(0, topK);
     }
 
+    /**
+     * 查找IDByOrd。
+     *
+     * @param ord 方法入参 ord
+     * @param idToOrd ID转为Ord，不允许为 null
+     * @return 结果字符串
+     */
     private static String findIdByOrd(int ord, Map<String, Integer> idToOrd) {
         return idToOrd.entrySet().stream()
                 .filter(e -> e.getValue() == ord)

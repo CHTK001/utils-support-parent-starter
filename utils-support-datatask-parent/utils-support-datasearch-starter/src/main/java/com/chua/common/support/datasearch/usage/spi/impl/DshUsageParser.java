@@ -66,6 +66,12 @@ public class DshUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 解析会话文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<AiUsage> parseSessionFile(Path file) {
         List<AiUsage> result = new ArrayList<>();
         String headerModel = null;
@@ -144,6 +150,11 @@ public class DshUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /**
+     * 列出会话Files。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listSessionFiles() {
         Path sessionsRoot = dshHome.resolve("sessions");
         if (!Files.isDirectory(sessionsRoot)) {

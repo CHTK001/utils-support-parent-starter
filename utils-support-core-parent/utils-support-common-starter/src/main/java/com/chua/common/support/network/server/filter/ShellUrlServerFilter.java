@@ -175,7 +175,11 @@ public class ShellUrlServerFilter implements EndServerFilter {
         return new ProtocolType[]{ProtocolType.SSH};
     }
 
-    /** NormalizePath */
+    /**
+     * NormalizePath
+     * @param commandName command名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String normalizePath(String commandName) {
         if (commandName == null || commandName.isBlank()) {
             return "/";

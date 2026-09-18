@@ -173,12 +173,20 @@ public class MultipartBody {
         return out.toByteArray();
     }
 
-    /** 写入 */
+    /**
+     * 写入
+     * @param out 方法入参 out
+     * @param data 数据，不允许为 null
+     */
     private static void write(ByteArrayOutputStream out, byte[] data) {
         out.write(data, 0, data.length);
     }
 
-    /** 写入 */
+    /**
+     * 写入
+     * @param out 方法入参 out
+     * @param str 字符串，不允许为 null
+     */
     private static void write(ByteArrayOutputStream out, String str) {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
         out.write(bytes, 0, bytes.length);

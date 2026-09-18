@@ -248,49 +248,73 @@ public class MqttInboundAdapter {
         * @param brokerUrl brokerurl
         * @return brokerUrl的结果
         */
-        public Builder brokerUrl(String brokerUrl) { this.brokerUrl = brokerUrl; return this; }
+        public Builder brokerUrl(String brokerUrl) {
+            this.brokerUrl = brokerUrl;
+            return this;
+        }
         /**
         * 客户端id。
         * @param clientId 客户端标识
         * @return 客户端id的结果
         */
-        public Builder clientId(String clientId) { this.clientId = clientId; return this; }
+        public Builder clientId(String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
         /**
         * topic。
         * @param topic topic
         * @return topic的结果
         */
-        public Builder topic(String topic) { this.topic = topic; return this; }
+        public Builder topic(String topic) {
+            this.topic = topic;
+            return this;
+        }
         /**
         * pipelineid。
         * @param pipelineId pipelineid
         * @return pipelineId的结果
         */
-        public Builder pipelineId(String pipelineId) { this.pipelineId = pipelineId; return this; }
+        public Builder pipelineId(String pipelineId) {
+            this.pipelineId = pipelineId;
+            return this;
+        }
         /**
         * pipelineengine。
         * @param engine engine
         * @return pipelineEngine的结果
         */
-        public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
+        public Builder pipelineEngine(PipelineEngine engine) {
+            this.pipelineEngine = engine;
+            return this;
+        }
         /**
         * qos。
         * @param qos qos
         * @return qos的结果
         */
-        public Builder qos(int qos) { this.qos = qos; return this; }
+        public Builder qos(int qos) {
+            this.qos = qos;
+            return this;
+        }
         /**
         * 用户名。
         * @param username 用户名
         * @return 用户名的结果
         */
-        public Builder username(String username) { this.username = username; return this; }
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
         /**
         * 密码。
         * @param password 密码
         * @return 密码的结果
         */
-        public Builder password(String password) { this.password = password; return this; }
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
 
         /**
         * 构建。

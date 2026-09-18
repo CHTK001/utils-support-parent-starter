@@ -39,42 +39,83 @@ public interface ApmStorage {
     /** SPI 默认实现 键 — 当未配置 / SPI 找不到实现时，使用 noopstorage。 */
     String DEFAULT_NAME = "noop";
 
-    /** 启动存储 — 初始化连接池 / 打开文件 / 建表。 */
+    /**
+     * 启动存储 — 初始化连接池 / 打开文件 / 建表。
+     * @param config 配置，不允许为 null
+     */
     void start(StorageConfig config);
 
     /** 停止存储 — 关闭连接 / 刷盘。 */
     void stop();
 
-    /** 追加一条传输记录（扁平化）。 */
+    /**
+     * 追加一条传输记录（扁平化）。
+     * @param event 方法入参 event
+     */
     void appendTransmission(TransmissionEvent event);
 
-    /** 追加一条依赖图边。 */
+    /**
+     * 追加一条依赖图边。
+     * @param edge 方法入参 edge
+     */
     void appendDependency(DependencyEdge edge);
 
-    /** 追加一条句柄泄漏记录。 */
+    /**
+     * 追加一条句柄泄漏记录。
+     * @param record 记录，不允许为 null
+     */
     void appendLeak(LeakRecord record);
 
-    /** 追加一条日志记录。 */
+    /**
+     * 追加一条日志记录。
+     * @param record 记录，不允许为 null
+     */
     void appendLog(LogRecord record);
 
-    /** 查询传输记录。 */
+    /**
+     * 查询传输记录。
+     * @param query 查询，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<TransmissionEvent> queryTransmissions(Query query);
 
-    /** 查询依赖图边。 */
+    /**
+     * 查询依赖图边。
+     * @param query 查询，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<DependencyEdge> queryDependencies(Query query);
 
-    /** 查询句柄泄漏。 */
+    /**
+     * 查询句柄泄漏。
+     * @param query 查询，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<LeakRecord> queryLeaks(Query query);
 
-    /** 查询日志。 */
+    /**
+     * 查询日志。
+     * @param query 查询，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<LogRecord> queryLogs(Query query);
 
-    /** 统计 — 各类型当前总数 / 命中 查询 的数量。 */
+    /**
+     * 统计 — 各类型当前总数 / 命中 查询 的数量。
+     * @return 结果映射，无数据时为空映射
+     */
     Map<String, Long> stats();
 
-    /** 清理过期数据 — 由实现决定触发时机（定时 / 容量超限）。 */
+    /**
+     * 清理过期数据 — 由实现决定触发时机（定时 / 容量超限）。
+     * @param retentionMillis retention毫秒数，不允许为 null
+     * @return 结果数值
+     */
     long cleanup(long retentionMillis);
 
-    /** 实现名称 — 用于日志区分 / 多实现选择。 */
+    /**
+     * 实现名称 — 用于日志区分 / 多实现选择。
+     * @return 结果字符串
+     */
     String name();
 }

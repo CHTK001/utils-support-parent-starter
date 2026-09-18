@@ -27,6 +27,11 @@ public class OnnxActionDetector implements ActionDetector {
     */
     private String device = "cpu";
 
+    /**
+     * 构造方法，创建 OnnxActionDetector 实例。
+     *
+     * @param apiKey api键，不允许为 null
+     */
     public OnnxActionDetector(String apiKey) {
     }
 
@@ -36,6 +41,11 @@ public class OnnxActionDetector implements ActionDetector {
         return this;
     }
 
+    /**
+     * 解析模型。
+     *
+     * @return 结果字符串
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "c3d-action-detection";
     }

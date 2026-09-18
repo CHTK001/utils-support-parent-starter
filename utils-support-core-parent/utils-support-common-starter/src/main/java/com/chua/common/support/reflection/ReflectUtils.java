@@ -20,6 +20,9 @@ import java.util.function.Function;
  *   <li>实例化：{@link #instantiate}, {@link #forName}</li>
  *   <li>动态代理：{@link #newProxy}</li>
  *   <li>Lambda 工厂：{@link #asFunctionalInterface}</li>
+ *   <li>方法/构造器元数据查找：{@link #findMethod}, {@link #findDeclaredMethod},
+ *   {@link #findDeclaredConstructors}（仅在需要 {@code Method}/{@code Constructor} 元数据时使用，
+ *   纯调用请优先用 {@link #invoke} 系列方法）</li>
  * </ul>
  *
  * <h3>缓存策略</h3>
@@ -483,6 +486,73 @@ public final class ReflectUtils {
             log.debug("[ReflectUtils] 按子串查找字段异常: {}", nameSubstring, e);
         }
         return null;
+    }
+
+    // ==================== 方法与构造器查找 ====================
+
+    /**
+    * 查找公共方法（含父类与接口继承），语义等价于 {@code Class.getMethod}。
+    *
+    * <p>供需要拿到 {@link java.lang.reflect.Method} 元数据（如读取返回类型、修饰符、注解）
+    * 或需要自行判定"方法不存在"再抛错的场景使用；仅调用方法请优先使用
+    * {@link #invoke(Object, String, Class, Class[], Object...)}。</p>
+    *
+    * @param clazz      目标类，为 null 时返回 null
+    * @param methodName 方法名，为 null 时返回 null
+    * @param paramTypes 参数类型，按精确签名匹配，可为空数组表示无参方法
+    * @return 匹配的 Method，未找到或入参非法时返回 null（不抛 {@code NoSuchMethodException}）
+    */
+    public static java.lang.reflect.Method findMethod(Class<?> clazz, String methodName,
+                                                      Class<?>... paramTypes) {
+        if (clazz == null || methodName == null) {
+            return null;
+        }
+        try {
+            return clazz.getMethod(methodName, paramTypes); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findMethod 对外封装）
+        } catch (NoSuchMethodException e) {
+            log.debug("[ReflectUtils] 未找到公共方法: {}.{}({})", clazz.getSimpleName(), methodName);
+            return null;
+        }
+    }
+
+    /**
+    * 查找本类声明的方法（含私有，不含继承），语义等价于 {@code Class.getDeclaredMethod}。
+    *
+    * <p>与 {@link #findMethod(Class, String, Class[])} 的区别：本方法只看入参 {@code clazz}
+    * 自身声明的方法，可用于定位私有/包级方法；需要沿继承链查找时由调用方自行向上遍历。</p>
+    *
+    * @param clazz      目标类，为 null 时返回 null
+    * @param methodName 方法名，为 null 时返回 null
+    * @param paramTypes 参数类型，按精确签名匹配，可为空数组表示无参方法
+    * @return 匹配的 Method，未找到或入参非法时返回 null（不抛 {@code NoSuchMethodException}）
+    */
+    public static java.lang.reflect.Method findDeclaredMethod(Class<?> clazz, String methodName,
+                                                              Class<?>... paramTypes) {
+        if (clazz == null || methodName == null) {
+            return null;
+        }
+        try {
+            return clazz.getDeclaredMethod(methodName, paramTypes); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredMethod 对外封装）
+        } catch (NoSuchMethodException e) {
+            log.debug("[ReflectUtils] 未找到声明方法: {}.{}({})", clazz.getSimpleName(), methodName);
+            return null;
+        }
+    }
+
+    /**
+    * 查找本类声明的全部构造器（含私有），语义等价于 {@code Class.getDeclaredConstructors}。
+    *
+    * <p>供构造器挑选场景（如按参数个数最多、按参数类型可赋值性匹配）使用；
+    * 已知参数类型时请优先使用 {@link #instantiate(Class, Object...)}。</p>
+    *
+    * @param clazz 目标类，为 null 时返回空数组
+    * @return 声明构造器数组，无声明构造器或入参非法时返回空数组（不为 null）
+    */
+    public static java.lang.reflect.Constructor<?>[] findDeclaredConstructors(Class<?> clazz) {
+        if (clazz == null) {
+            return new java.lang.reflect.Constructor<?>[0];
+        }
+        return clazz.getDeclaredConstructors(); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findDeclaredConstructors 对外封装）
     }
 
     // ==================== 实例化 ====================

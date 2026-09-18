@@ -29,6 +29,7 @@ public class NoPermissionException extends RuntimeException {
     * 创建 NoPermissionException 实例
     * @param message message
     * @param Throwable Throwable
+    * @param cause 方法入参 cause
     */
     public NoPermissionException(String message, Throwable cause) {
         super(message, cause);

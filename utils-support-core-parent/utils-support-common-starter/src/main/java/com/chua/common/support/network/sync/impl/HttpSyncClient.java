@@ -355,7 +355,10 @@ public class HttpSyncClient implements SyncClient {
 
     // ==================== 工具方法 ====================
 
-    /** 通知Listeners */
+    /**
+     * 通知Listeners
+     * @param action 方法入参 action
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

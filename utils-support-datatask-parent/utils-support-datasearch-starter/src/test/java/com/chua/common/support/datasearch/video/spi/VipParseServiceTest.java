@@ -18,6 +18,11 @@ public class VipParseServiceTest {
     private static int pass = 0;
     private static int fail = 0;
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     */
     public static void main(String[] args) {
         VipParseService svc = new VipParseService();
 
@@ -69,6 +74,12 @@ public class VipParseServiceTest {
         }
     }
 
+    /**
+     * 校验。
+     *
+     * @param cond cond（布尔开关）
+     * @param msg 消息，不允许为 null
+     */
     private static void check(boolean cond, String msg) {
         if (cond) {
             pass++;

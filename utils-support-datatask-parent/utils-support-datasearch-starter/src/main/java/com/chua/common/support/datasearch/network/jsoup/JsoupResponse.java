@@ -290,85 +290,124 @@ public class JsoupResponse {
             * @param path 路径
             * @return 路径的结果
             */
-            public MappingsPathBuilder path(String path) { this.path = path; return this; }
+            public MappingsPathBuilder path(String path) {
+                this.path = path;
+                return this;
+            }
             /**
             * Attribute
             *
             * @param attribute attribute
             * @return attribute的结果
             */
-            public MappingsPathBuilder attribute(String attribute) { this.attribute = attribute; return this; }
+            public MappingsPathBuilder attribute(String attribute) {
+                this.attribute = attribute;
+                return this;
+            }
             /**
             * 第一个
             *
             * @param first 第一个
             * @return 第一个的结果
             */
-            public MappingsPathBuilder first(boolean first) { this.first = first; return this; }
+            public MappingsPathBuilder first(boolean first) {
+                this.first = first;
+                return this;
+            }
             /**
             * 最后一个
             *
             * @param last 最后一个
             * @return 最后一个的结果
             */
-            public MappingsPathBuilder last(boolean last) { this.last = last; return this; }
+            public MappingsPathBuilder last(boolean last) {
+                this.last = last;
+                return this;
+            }
             /**
             * Function
             *
             * @param function function
             * @return function的结果
             */
-            public MappingsPathBuilder function(Function<Element, String> function) { this.function = function; return this; }
+            public MappingsPathBuilder function(Function<Element, String> function) {
+                this.function = function;
+                return this;
+            }
             /**
             * 类型
             *
             * @param type 类型
             * @return 类型的结果
             */
-            public MappingsPathBuilder type(PathType type) { this.type = type; return this; }
+            public MappingsPathBuilder type(PathType type) {
+                this.type = type;
+                return this;
+            }
             /**
             * 字段
             *
             * @param field 字段
             * @return 字段的结果
             */
-            public MappingsPathBuilder field(String field) { this.field = field; return this; }
+            public MappingsPathBuilder field(String field) {
+                this.field = field;
+                return this;
+            }
             /**
             * Href
             *
             * @return href的结果
             */
-            public MappingsPathBuilder href() { this.attribute("href"); return this; }
+            public MappingsPathBuilder href() {
+                this.attribute("href");
+                return this;
+            }
             /**
             * Src
             *
             * @return src的结果
             */
-            public MappingsPathBuilder src() { this.attribute("src"); return this; }
+            public MappingsPathBuilder src() {
+                this.attribute("src");
+                return this;
+            }
             /**
             * 是否第一个
             *
             * @return 是否第一个的结果
             */
-            public MappingsPathBuilder isFirst() { this.first(true); return this; }
+            public MappingsPathBuilder isFirst() {
+                this.first(true);
+                return this;
+            }
             /**
             * 是否最后一个
             *
             * @return 是否最后一个的结果
             */
-            public MappingsPathBuilder isLast() { this.last(true); return this; }
+            public MappingsPathBuilder isLast() {
+                this.last(true);
+                return this;
+            }
             /**
             * CSS
             *
             * @return css的结果
             */
-            public MappingsPathBuilder css() { this.type(PathType.CSS); return this; }
+            public MappingsPathBuilder css() {
+                this.type(PathType.CSS);
+                return this;
+            }
             /**
             * Function
             *
             * @return function的结果
             */
-            public MappingsPathBuilder function() { this.type(PathType.XPATH_FUNCTION); return this; }
+            public MappingsPathBuilder function() {
+                this.type(PathType.XPATH_FUNCTION);
+                return this;
+            }
 
             /**
             * 构建
@@ -432,7 +471,10 @@ public class JsoupResponse {
         * @param consumer consumer
         * @return peek的结果
         */
-        public View peek(Consumer<Elements> consumer) { consumer.accept(elements); return this; }
+        public View peek(Consumer<Elements> consumer) {
+            consumer.accept(elements);
+            return this;
+        }
         /**
         * 映射
         *
@@ -453,14 +495,20 @@ public class JsoupResponse {
         * @param mapper 映射器
         * @return 第一个的结果
         */
-        public <R> R first(Function<Element, R> mapper) { Element first = elements.first(); return first == null ? null : mapper.apply(first); }
+        public <R> R first(Function<Element, R> mapper) {
+            Element first = elements.first();
+            return first == null ? null : mapper.apply(first);
+        }
         /**
         * 最后一个
         *
         * @param mapper 映射器
         * @return 最后一个的结果
         */
-        public <R> R last(Function<Element, R> mapper) { Element last = elements.last(); return last == null ? null : mapper.apply(last); }
+        public <R> R last(Function<Element, R> mapper) {
+            Element last = elements.last();
+            return last == null ? null : mapper.apply(last);
+        }
         /**
         * 获取Elements
         *

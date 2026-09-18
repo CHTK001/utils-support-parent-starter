@@ -212,6 +212,11 @@ public class ModelscopeHubClient {
         return ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/oauth2:" + token + "@" + repoId + ".git";
     }
 
+    /**
+     * 构建Auth请求头。
+     *
+     * @return 结果字符串
+     */
     private String buildAuthHeader() {
         if (token == null || token.isBlank()) {
             return "";

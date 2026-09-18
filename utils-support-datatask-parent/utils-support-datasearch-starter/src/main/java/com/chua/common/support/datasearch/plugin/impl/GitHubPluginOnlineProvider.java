@@ -104,6 +104,12 @@ public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
         return result;
     }
 
+    /**
+     * 编码。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String encode(String value) {
         try {
             return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8.toString());

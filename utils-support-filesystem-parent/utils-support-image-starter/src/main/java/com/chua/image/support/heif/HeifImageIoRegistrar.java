@@ -34,6 +34,11 @@ public final class HeifImageIoRegistrar {
         }
     }
 
+    /**
+     * 是否Available。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean isAvailable() {
         try {
             return ImageIO.getImageReadersByFormatName("heic").hasNext()

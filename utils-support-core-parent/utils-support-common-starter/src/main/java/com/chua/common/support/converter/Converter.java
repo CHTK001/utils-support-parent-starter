@@ -558,6 +558,9 @@ public final class Converter {
 
     /**
     * 格式化 LocalDateTime
+    * @param dateTime 日期时间，不允许为 null
+    * @param pattern 模式，不允许为 null
+    * @return 结果字符串
     */
     public static String formatDate(LocalDateTime dateTime, String pattern) {
         if (dateTime == null || pattern == null) {
@@ -597,6 +600,9 @@ public final class Converter {
 
     /**
     * 泛型参数类型的转换处理
+    * @param value 值，不允许为 null
+    * @param pt 方法入参 pt
+    * @return E 对象
     */
     private static <E> E convertParameterized(Object value, ParameterizedType pt) {
         Class<?> rawClass = (Class<?>) pt.getRawType();
@@ -622,6 +628,8 @@ public final class Converter {
 
     /**
     * 创建基本类型默认值
+    * @param type 类型，不允许为 null
+    * @return E 对象
     */
     private static <E> E createDefaultPrimitive(Class<?> type) {
         return (E) DEFAULT_VALUE.get(type);
@@ -629,6 +637,9 @@ public final class Converter {
 
     /**
     * 转换为带类型的 List
+    * @param value 值，不允许为 null
+    * @param args 参数，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     private static <E> List<E> convertToListWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
@@ -645,6 +656,9 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Set
+    * @param value 值，不允许为 null
+    * @param args 参数，不允许为 null
+    * @return 结果集合，无数据时为空集合
     */
     private static <E> Set<E> convertToSetWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
@@ -661,6 +675,9 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Optional
+    * @param value 值，不允许为 null
+    * @param args 参数，不允许为 null
+    * @return 可选结果，不存在时为 Optional.empty()
     */
     private static <E> Optional<E> convertToOptionalWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
@@ -672,6 +689,9 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Map
+    * @param value 值，不允许为 null
+    * @param args 参数，不允许为 null
+    * @return 结果映射，无数据时为空映射
     */
     private static <K, V> Map<K, V> convertToMapWithType(Object value, Type[] args) {
         Type keyType = args.length > 0 ? args[0] : Object.class;
@@ -692,6 +712,8 @@ public final class Converter {
 
     /**
     * 基本类型转包装类
+    * @param target 目标，不允许为 null
+    * @return Class 对象
     */
     public static <T> Class<T> convertIfPrimitive(Class<T> target) {
         if (target == null || !target.isPrimitive()) {
@@ -702,6 +724,8 @@ public final class Converter {
 
     /**
     * 创建 Integer 转换
+    * @param value 值，不允许为 null
+    * @return Integer 对象
     */
     public static Integer createInteger(Object value) {
         return convertIfNecessary(value, Integer.class);
@@ -709,6 +733,9 @@ public final class Converter {
 
     /**
     * 创建 Integer 转换并返回默认值
+    * @param value 值，不允许为 null
+    * @param defaultValue default值，不允许为 null
+    * @return 结果数值
     */
     public static int createInteger(Object value, int defaultValue) {
         Integer result = createInteger(value);
@@ -717,6 +744,8 @@ public final class Converter {
 
     /**
     * 创建 Float 转换
+    * @param value 值，不允许为 null
+    * @return Float 对象
     */
     public static Float createFloat(String value) {
         return convertIfNecessary(value, Float.class);
@@ -724,6 +753,8 @@ public final class Converter {
 
     /**
     * 判断是否存在转换器
+    * @param returnType return类型，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     public static boolean hasConverter(Class<?> returnType) {
         return CUSTOM_CONVERTERS.containsKey(returnType) || CONVERTER_MAP_LOADER.containsKey(returnType);
@@ -731,6 +762,8 @@ public final class Converter {
 
     /**
     * 转换为 BigDecimal
+    * @param num 方法入参 num
+    * @return BigDecimal 对象
     */
     public static BigDecimal toBigDecimal(String num) {
         return convertIfNecessary(num, BigDecimal.class);
@@ -738,6 +771,8 @@ public final class Converter {
 
     /**
     * 安全的 LocalDateTime 解析
+    * @param o 方法入参 o
+    * @return Local日期时间 对象
     */
     public static LocalDateTime parseLocalDateTimeSafe(Object o) {
         return convertIfNecessary(o, LocalDateTime.class);
@@ -745,6 +780,8 @@ public final class Converter {
 
     /**
     * 转换为 BufferedImage
+    * @param predict 方法入参 predict
+    * @return BufferedImage 对象
     */
     public static BufferedImage toBufferedImage(Object predict) {
         return convertIfNecessary(predict, BufferedImage.class);

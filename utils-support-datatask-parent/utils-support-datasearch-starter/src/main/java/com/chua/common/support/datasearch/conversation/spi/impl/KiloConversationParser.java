@@ -91,6 +91,12 @@ public class KiloConversationParser implements ConversationParser {
                 .doOnComplete(() -> log.info("[kilo] conversation stream complete"));
     }
 
+    /**
+     * 转为消息。
+     *
+     * @param row 行，不允许为 null
+     * @return Conversation消息 对象
+     */
     private ConversationMessage toMessage(Map<String, Object> row) {
         JsonNode part = safeParse(asStr(row.get("part_data")));
         JsonNode msg = safeParse(asStr(row.get("msg_data")));
@@ -124,6 +130,12 @@ public class KiloConversationParser implements ConversationParser {
                 .build();
     }
 
+    /**
+     * extract模型ID。
+     *
+     * @param raw 方法入参 raw
+     * @return 结果字符串
+     */
     private String extractModelId(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
@@ -141,6 +153,12 @@ public class KiloConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * safe解析。
+     *
+     * @param raw 方法入参 raw
+     * @return Json节点 对象
+     */
     private JsonNode safeParse(String raw) {
         try {
             return Json.parse(raw);
@@ -150,6 +168,12 @@ public class KiloConversationParser implements ConversationParser {
         }
     }
 
+    /**
+     * as字符串。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String asStr(Object value) {
         return value == null ? "" : value.toString();
     }

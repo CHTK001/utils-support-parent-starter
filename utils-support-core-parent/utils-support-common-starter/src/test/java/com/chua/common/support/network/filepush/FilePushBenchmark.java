@@ -96,7 +96,10 @@ public class FilePushBenchmark {
         System.exit(allPassed ? 0 : 1);
     }
 
-    /** 场景一：少量大文件全量推送 */
+    /**
+     * 场景一：少量大文件全量推送
+     * @param root 根节点，不允许为 null
+     */
     private static void benchLargeFiles(Path root) throws Exception {
         Path source = root.resolve("large-src");
         Path target = root.resolve("large-dst");
@@ -117,7 +120,10 @@ public class FilePushBenchmark {
         deleteRecursively(target);
     }
 
-    /** 场景二：大文件下分片大小扫描 */
+    /**
+     * 场景二：大文件下分片大小扫描
+     * @param root 根节点，不允许为 null
+     */
     private static void benchChunkSizeSweep(Path root) throws Exception {
         Path source = root.resolve("large-src");
         long totalBytes = (long) LARGE_FILE_COUNT * LARGE_FILE_MB * 1024 * 1024;
@@ -131,7 +137,10 @@ public class FilePushBenchmark {
         }
     }
 
-    /** 场景三：大量小文件全量推送 */
+    /**
+     * 场景三：大量小文件全量推送
+     * @param root 根节点，不允许为 null
+     */
     private static void benchManySmallFiles(Path root) throws Exception {
         Path source = root.resolve("small-src");
         Path target = root.resolve("small-dst");
@@ -152,7 +161,10 @@ public class FilePushBenchmark {
         record("小文件 4000x8KB (31MB, 40 目录)", result, ok);
     }
 
-    /** 场景四：增量同步——二次推送应全部跳过，且服务端 mtime 与源一致 */
+    /**
+     * 场景四：增量同步——二次推送应全部跳过，且服务端 mtime 与源一致
+     * @param root 根节点，不允许为 null
+     */
     private static void benchIncremental(Path root) throws Exception {
         Path source = root.resolve("small-src");
         Path target = root.resolve("small-dst");
@@ -167,7 +179,10 @@ public class FilePushBenchmark {
         record("增量同步（二次推送）", second, ok);
     }
 
-    /** 场景五：增量与清理共存——未变更文件不得被误删 */
+    /**
+     * 场景五：增量与清理共存——未变更文件不得被误删
+     * @param root 根节点，不允许为 null
+     */
     private static void benchIncrementalWithCleanup(Path root) throws Exception {
         Path source = root.resolve("cleanup-src");
         Path target = root.resolve("cleanup-dst");
@@ -208,6 +223,7 @@ public class FilePushBenchmark {
      * 加锁，使同一通道上的并发定位写退化为串行。为定位瓶颈，对每种落盘方式分别在
      * <b>并发</b>与<b>单线程</b>下各测一次：单线程值隔离"开关句柄"开销，
      * 并发值 / 单线程值的加速比则暴露"共享通道锁竞争"。</p>
+     * @param root 根节点，不允许为 null
      */
     private static void benchWritePrimitives(Path root) throws Exception {
         Path dir = root.resolve("primitive");
@@ -459,7 +475,12 @@ public class FilePushBenchmark {
         return ok;
     }
 
-    /** 打印并记录一行基准结果 */
+    /**
+     * 打印并记录一行基准结果
+     * @param label 标签，不允许为 null
+     * @param result 结果，不允许为 null
+     * @param passed passed（布尔开关）
+     */
     private static void record(String label, PushResult result, boolean passed) {
         allPassed &= passed;
         System.out.printf("%n[%s] %s%n  成功=%d 失败=%d 跳过=%d 耗时=%dms 吞吐=%.2f MB/s%n",
@@ -472,7 +493,13 @@ public class FilePushBenchmark {
                 passed ? "" : "  <<< FAIL"));
     }
 
-    /** 断言并打印 */
+    /**
+     * 断言并打印
+     * @param label 标签，不允许为 null
+     * @param condition condition（布尔开关）
+     * @param detail 方法入参 detail
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean check(String label, boolean condition, String detail) {
         if (!condition) {
             allPassed = false;
@@ -481,7 +508,11 @@ public class FilePushBenchmark {
         return condition;
     }
 
-    /** 安全取文件大小 */
+    /**
+     * 安全取文件大小
+     * @param file 文件，不允许为 null
+     * @return 结果字符串
+     */
     private static String safeSize(Path file) {
         try {
             return Files.exists(file) ? String.valueOf(Files.size(file)) : "不存在";
@@ -490,14 +521,21 @@ public class FilePushBenchmark {
         }
     }
 
-    /** 生成随机字节 */
+    /**
+     * 生成随机字节
+     * @param size 大小，不允许为 null
+     * @return 结果值
+     */
     private static byte[] randomBytes(int size) {
         byte[] data = new byte[size];
         new Random(42).nextBytes(data);
         return data;
     }
 
-    /** 递归删除目录或文件 */
+    /**
+     * 递归删除目录或文件
+     * @param root 根节点，不允许为 null
+     */
     private static void deleteRecursively(Path root) {
         if (!Files.exists(root)) {
             return;

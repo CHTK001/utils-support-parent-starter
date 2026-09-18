@@ -139,6 +139,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param balance 负载均衡策略名称
     * @param protocol 协议类型
     * @return 组合后的缓存键字符串
+    * @param scatterId scatterID，不允许为 null
     */
     private String buildCacheKey(String path, String scatterId, String balance, String protocol) {
         return path + "#" + (scatterId != null ? scatterId : "") + "#"

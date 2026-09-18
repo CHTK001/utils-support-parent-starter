@@ -89,6 +89,7 @@ public class DdlBuilder {
     * 创建 DdlBuilder 实例
     * @param mode mode
     * @param String String
+    * @param tableName 表名称，不允许为 null
     */
     private DdlBuilder(Mode mode, String tableName) {
         this.mode = mode;
@@ -125,16 +126,60 @@ public class DdlBuilder {
         return new DdlBuilder(Mode.DROP, tableName);
     }
 
-    /** 设置数据库模式名（Schema）。 */
-    public DdlBuilder schema(String schema) { this.schema = schema; return this; }
-    /** 设置表注释。 */
-    public DdlBuilder comment(String comment) { this.comment = comment; return this; }
-    /** 设置数据库引擎（如 InnoDB）。 */
-    public DdlBuilder engine(String engine) { this.engine = engine; return this; }
-    /** 设置字符集（如 utf8mb4）。 */
-    public DdlBuilder charset(String charset) { this.charset = charset; return this; }
-    /** 设置重命名后的新表名（仅 ALTER 模式）。 */
-    public DdlBuilder renameTo(String newName) { this.newTableName = newName; return this; }
+    /**
+    * 设置数据库模式名（Schema）。
+    *
+    * @param schema 数据库模式名，为空时生成的 DDL 不带模式前缀
+    * @return 当前构建器实例，便于链式调用
+    */
+    public DdlBuilder schema(String schema) {
+        this.schema = schema;
+        return this;
+    }
+
+    /**
+    * 设置表注释。
+    *
+    * @param comment 表注释内容，为空时不生成 COMMENT 子句
+    * @return 当前构建器实例，便于链式调用
+    */
+    public DdlBuilder comment(String comment) {
+        this.comment = comment;
+        return this;
+    }
+
+    /**
+    * 设置数据库引擎（如 InnoDB）。
+    *
+    * @param engine 存储引擎名称，为空时不生成 ENGINE 子句
+    * @return 当前构建器实例，便于链式调用
+    */
+    public DdlBuilder engine(String engine) {
+        this.engine = engine;
+        return this;
+    }
+
+    /**
+    * 设置字符集（如 utf8mb4）。
+    *
+    * @param charset 字符集名称，为空时不生成 CHARSET 子句
+    * @return 当前构建器实例，便于链式调用
+    */
+    public DdlBuilder charset(String charset) {
+        this.charset = charset;
+        return this;
+    }
+
+    /**
+    * 设置重命名后的新表名（仅 ALTER 模式）。
+    *
+    * @param newName 重命名后的新表名，仅在 ALTER 模式下生效
+    * @return 当前构建器实例，便于链式调用
+    */
+    public DdlBuilder renameTo(String newName) {
+        this.newTableName = newName;
+        return this;
+    }
 
     /**
     * 添加列定义。

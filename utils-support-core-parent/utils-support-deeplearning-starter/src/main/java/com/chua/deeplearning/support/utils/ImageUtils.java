@@ -582,6 +582,12 @@ public final class ImageUtils {
             throw new RuntimeException(e);
         }
     }
+/**
+ * 编码。
+ *
+ * @param mat 方法入参 mat
+ * @return 结果值
+ */
 public static byte[] encode(Mat mat) {
         return encode(mat, ".png");
     }

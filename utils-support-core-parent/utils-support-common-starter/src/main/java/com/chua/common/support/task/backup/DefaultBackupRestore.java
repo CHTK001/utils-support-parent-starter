@@ -218,7 +218,13 @@ public class DefaultBackupRestore implements BackupRestore {
     */
     private long calcTotalSize(List<Path> files) {
         return files.stream()
-                .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } })
+                .mapToLong(p -> {
+                    try {
+                        return Files.size(p);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
                 .sum();
     }
 

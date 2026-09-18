@@ -86,6 +86,9 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
         this.fbank = new DfsmnKaldiFbank(dither);
     }
 
+    /**
+     * prepare。
+     */
     private void prepare() {
         if (loaded) {
             return;

@@ -49,6 +49,11 @@ public final class HeifLibraryLoader {
         }
     }
 
+    /**
+     * 是否Loaded。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public static boolean isLoaded() {
         return loaded;
     }

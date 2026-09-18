@@ -45,6 +45,9 @@ class IbdSqlParserTest {
 
     // ==================== 列名提取 ====================
 
+    /**
+     * 测试：Extract列Names来自Ddl。
+     */
     @Test
     void shouldExtractColumnNamesFromDdl() {
         List<String> columns = new IbdDataRestore().parseCreateTableColumns(ACTOR_SQL);
@@ -53,6 +56,9 @@ class IbdSqlParserTest {
                 "应取出真实列名，并跳过 PRIMARY KEY / KEY 这些表级约束");
     }
 
+    /**
+     * 测试：ExtractColumnsWithoutBacktick。
+     */
     @Test
     void shouldExtractColumnsWithoutBacktick() {
         String sql = "CREATE TABLE t (\n  id int NOT NULL,\n  name varchar(10)\n) ENGINE=InnoDB;";
@@ -60,11 +66,17 @@ class IbdSqlParserTest {
         assertEquals(List.of("id", "name"), new IbdDataRestore().parseCreateTableColumns(sql));
     }
 
+    /**
+     * 测试：ReturnEmptyColumnsWhen编号Ddl。
+     */
     @Test
     void shouldReturnEmptyColumnsWhenNoDdl() {
         assertTrue(new IbdDataRestore().parseCreateTableColumns("SELECT 1;").isEmpty());
     }
 
+    /**
+     * 测试：NotTreat列类型ParensAs结束OfDdl。
+     */
     @Test
     void shouldNotTreatColumnTypeParensAsEndOfDdl() {
         String sql = "CREATE TABLE t (\n"
@@ -78,6 +90,9 @@ class IbdSqlParserTest {
 
     // ==================== 行解析 ====================
 
+    /**
+     * 测试：解析RowsWithReal列Names。
+     */
     @Test
     void shouldParseRowsWithRealColumnNames() {
         List<Map<String, Object>> rows = new IbdDataRestore().parseSqlToRows(ACTOR_SQL);
@@ -93,6 +108,9 @@ class IbdSqlParserTest {
         assertEquals("2006-02-15 04:34:33", first.get("last_update"));
     }
 
+    /**
+     * 测试：KeepCommaInside字符串值。
+     */
     @Test
     void shouldKeepCommaInsideStringValue() {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` varchar(50),\n  `c` int\n) ENGINE=InnoDB;"
@@ -104,6 +122,9 @@ class IbdSqlParserTest {
         assertEquals("2", row.get("c"));
     }
 
+    /**
+     * 测试：处理EscapedQuotes。
+     */
     @Test
     void shouldHandleEscapedQuotes() {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` varchar(50)\n) ENGINE=InnoDB;"
@@ -112,6 +133,9 @@ class IbdSqlParserTest {
         assertEquals("it's ok", new IbdDataRestore().parseSqlToRows(sql).getFirst().get("b"));
     }
 
+    /**
+     * 测试：处理NestedParensAndNull。
+     */
     @Test
     void shouldHandleNestedParensAndNull() {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` point,\n  `c` int\n) ENGINE=InnoDB;"
@@ -123,6 +147,9 @@ class IbdSqlParserTest {
         assertEquals("null", row.get("c"));
     }
 
+    /**
+     * 测试：解析Multi行Values。
+     */
     @Test
     void shouldParseMultiRowValues() {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` varchar(10)\n) ENGINE=InnoDB;"
@@ -134,6 +161,9 @@ class IbdSqlParserTest {
         assertEquals("y", rows.get(1).get("b"));
     }
 
+    /**
+     * 测试：FallBack转为索引KeysWhenDdlMissing。
+     */
     @Test
     void shouldFallBackToIndexKeysWhenDdlMissing() {
         List<Map<String, Object>> rows = new IbdDataRestore().parseSqlToRows(
@@ -144,6 +174,9 @@ class IbdSqlParserTest {
         assertEquals("x", rows.getFirst().get("1"));
     }
 
+    /**
+     * 测试：ReturnEmptyRowsWhen编号插入。
+     */
     @Test
     void shouldReturnEmptyRowsWhenNoInsert() {
         assertTrue(new IbdDataRestore().parseSqlToRows("CREATE TABLE t (\n  `a` int\n);").isEmpty());
@@ -151,6 +184,9 @@ class IbdSqlParserTest {
 
     // ==================== 值拆分 ====================
 
+    /**
+     * 测试：拆分Values。
+     */
     @Test
     void shouldSplitValues() {
         IbdDataRestore restore = new IbdDataRestore();
@@ -195,6 +231,9 @@ class IbdSqlParserTest {
         assertFalse(result.contains("NOT EXISTS `sakila`"), "不应出现残缺的 NOT EXISTS，实际: " + result);
     }
 
+    /**
+     * 测试：Rename表OnlyAndKeepOriginalSchema。
+     */
     @Test
     void shouldRenameTableOnlyAndKeepOriginalSchema() {
         String sql = "INSERT INTO `sakila`.`actor` VALUES (1,'A');";
@@ -204,6 +243,9 @@ class IbdSqlParserTest {
         assertEquals("INSERT INTO `sakila`.`actor_new` VALUES (1,'A');", result);
     }
 
+    /**
+     * 测试：RenameSchemaOnlyAndKeepOriginal表。
+     */
     @Test
     void shouldRenameSchemaOnlyAndKeepOriginalTable() {
         String sql = "INSERT INTO `sakila`.`actor` VALUES (1,'A');";
@@ -213,6 +255,9 @@ class IbdSqlParserTest {
         assertEquals("INSERT INTO `sakila_new`.`actor` VALUES (1,'A');", result);
     }
 
+    /**
+     * 测试：RenameBareUnquoted表名称。
+     */
     @Test
     void shouldRenameBareUnquotedTableName() {
         String sql = "CREATE TABLE actor (\n  `actor_id` int\n);\nINSERT INTO actor VALUES (1);";
@@ -241,6 +286,9 @@ class IbdSqlParserTest {
         assertTrue(result.contains("REFERENCES `country` (`country_id`)"), "外键目标不应被改名，实际: " + result);
     }
 
+    /**
+     * 测试：ReturnOriginalWhenNothingSpecified。
+     */
     @Test
     void shouldReturnOriginalWhenNothingSpecified() {
         String sql = "INSERT INTO `sakila`.`actor` VALUES (1,'A');";
@@ -251,6 +299,9 @@ class IbdSqlParserTest {
         assertEquals(sql, restore.replaceTableNames(sql, (String) null));
     }
 
+    /**
+     * 测试：NotTouchQuotedLiteralsLookingLikeStatements。
+     */
     @Test
     void shouldNotTouchQuotedLiteralsLookingLikeStatements() {
         String sql = "INSERT INTO `sakila`.`actor` VALUES (1,'INSERT INTO `fake`.`t` VALUES (9)');";
@@ -275,6 +326,9 @@ class IbdSqlParserTest {
                 + "USE `sakila_new`;\n", prologue);
     }
 
+    /**
+     * 测试：发出EmptyPrologueWhen目标SchemaBlank。
+     */
     @Test
     void shouldEmitEmptyPrologueWhenTargetSchemaBlank() {
         assertEquals("", IbdDataRestore.schemaPrologue(null));
@@ -282,6 +336,13 @@ class IbdSqlParserTest {
         assertEquals("", IbdDataRestore.schemaPrologue("   "));
     }
 
+    /**
+     * 数量Occurrences。
+     *
+     * @param text 文本，不允许为 null
+     * @param needle 方法入参 needle
+     * @return 结果数值
+     */
     private static int countOccurrences(String text, String needle) {
         int count = 0;
         int index = text.indexOf(needle);

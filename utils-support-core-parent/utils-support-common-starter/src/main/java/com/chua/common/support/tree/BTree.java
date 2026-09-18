@@ -308,7 +308,10 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     @Override
     public boolean isEmpty() { return size == 0; }
     @Override
-    public void clear() { root = new BTreeNode<>(true, order); size = 0; }
+    public void clear() {
+        root = new BTreeNode<>(true, order);
+        size = 0;
+    }
     @Override
     public TreeNode<K, V> toBinaryTree() { return BinaryTreeConverter.bTreeToBinary(this); }
     @Override

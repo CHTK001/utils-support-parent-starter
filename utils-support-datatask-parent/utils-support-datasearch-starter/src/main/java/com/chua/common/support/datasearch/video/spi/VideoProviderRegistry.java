@@ -112,14 +112,20 @@ public final class VideoProviderRegistry {
         try {
             InputStream is = VideoProviderRegistry.class.getClassLoader()
                     .getResourceAsStream("blocked-providers.json");
-            if (is == null) { log.warn("[Registry] blocked-providers.json NOT FOUND"); return; }
+            if (is == null) {
+                log.warn("[Registry] blocked-providers.json NOT FOUND");
+                return;
+            }
             byte[] bytes = is.readAllBytes();
             Root root = MAPPER.readValue(bytes, Root.class);
             if (root != null && root.blocked != null) {
                 for (BlockedEntry entry : root.blocked) {
                     if (entry.getName() != null) {
                         BlockReason reason = BlockReason.RATE_LIMITED;
-                        try { reason = BlockReason.valueOf(entry.getReason()); } catch (Exception ignored) {}
+                        try {
+                            reason = BlockReason.valueOf(entry.getReason());
+                        } catch (Exception ignored) {
+                        }
                         BLOCKED_PROVIDERS.put(entry.getName(), reason);
                     }
                 }

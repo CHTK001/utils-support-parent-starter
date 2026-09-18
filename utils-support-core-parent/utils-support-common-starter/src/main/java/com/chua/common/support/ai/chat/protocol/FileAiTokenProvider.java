@@ -315,6 +315,8 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 脱敏令牌，仅显示前 8 位。
+    * @param token 令牌，不允许为 null
+    * @return 结果字符串
     */
     public static String maskToken(String token) {
         if (token == null) {

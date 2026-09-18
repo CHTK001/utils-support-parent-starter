@@ -22,7 +22,12 @@ public class Person {
     public Person() {
     }
 
-    /** 全参构造器 */
+    /**
+     * 全参构造器
+     * @param id ID，不允许为 null
+     * @param name 名称，不允许为 null
+     * @param age 方法入参 age
+     */
     public Person(Long id, String name, Integer age) {
         this.id = id;
         this.name = name;

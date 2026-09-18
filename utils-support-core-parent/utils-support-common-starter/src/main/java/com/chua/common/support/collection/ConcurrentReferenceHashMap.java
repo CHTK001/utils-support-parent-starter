@@ -173,17 +173,27 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
 
-    /** 获取加载Factor */
+    /**
+     * 获取加载Factor
+     * @return 结果数值
+     */
     protected final float getLoadFactor() {
         return this.loadFactor;
     }
 
-    /** 获取Segments获取大小 */
+    /**
+     * 获取Segments获取大小
+     * @return 结果数值
+     */
     protected final int getSegmentsSize() {
         return this.segments.length;
     }
 
-    /** 获取Segment */
+    /**
+     * 获取Segment
+     * @param index 索引，不允许为 null
+     * @return 分段 对象
+     */
     protected final Segment getSegment(int index) {
         return this.segments[index];
     }
@@ -272,7 +282,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
 
-    /** Put */
+    /**
+     * Put
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     * @param overwriteExisting overwriteExisting（布尔开关）
+     * @return V 对象
+     */
     private V put(final K key, final V value, final boolean overwriteExisting) {
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
             @Override
@@ -420,13 +436,22 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
 
-    /** DoTask */
+    /**
+     * DoTask
+     * @param key 键，不允许为 null
+     * @param task 方法入参 task
+     * @return T 对象
+     */
     private <T> T doTask(Object key, AbstractTask<T> task) {
         int hash = getHash(key);
         return getSegmentForHash(hash).doTask(hash, key, task);
     }
 
-    /** 获取SegmentForHash */
+    /**
+     * 获取SegmentForHash
+     * @param hash 方法入参 hash
+     * @return 分段 对象
+     */
     private Segment getSegmentForHash(int hash) {
         return this.segments[(hash >>> (32 - this.shift)) & (this.segments.length - 1)];
     }

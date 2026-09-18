@@ -342,8 +342,12 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
             }
             j ^= bit;
             if (i < j) {
-                double tr = outRe[i]; outRe[i] = outRe[j]; outRe[j] = tr;
-                double ti = outIm[i]; outIm[i] = outIm[j]; outIm[j] = ti;
+                double tr = outRe[i];
+                outRe[i] = outRe[j];
+                outRe[j] = tr;
+                double ti = outIm[i];
+                outIm[i] = outIm[j];
+                outIm[j] = ti;
             }
         }
         // 蝶形

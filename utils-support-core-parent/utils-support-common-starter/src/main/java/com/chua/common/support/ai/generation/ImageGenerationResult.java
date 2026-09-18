@@ -9,6 +9,7 @@ package com.chua.common.support.ai.generation;
 * @param prompt 生成提示词
 * @author CH
 * @since 2026/08/11
+ * @return 结果值
  */
 public record ImageGenerationResult(java.util.List<GeneratedImage> images, String prompt) {
 

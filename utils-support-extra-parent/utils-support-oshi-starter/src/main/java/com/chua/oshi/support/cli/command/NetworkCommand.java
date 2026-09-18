@@ -66,6 +66,12 @@ public final class NetworkCommand extends AbstractCommand {
         }
     }
 
+    /**
+     * 格式化Speed。
+     *
+     * @param bps 方法入参 bps
+     * @return 结果字符串
+     */
     private static String formatSpeed(long bps) {
         if (bps <= 0) {
             return "N/A";

@@ -82,6 +82,8 @@ public class AgentChatClient implements ChatClient {
 
     /**
     * 设置执行模式
+    * @param mode 模式，不允许为 null
+    * @return AgentChat客户端 对象
     */
     public AgentChatClient mode(AgentMode mode) {
         this.mode = mode;
@@ -90,13 +92,18 @@ public class AgentChatClient implements ChatClient {
 
     /**
     * 设置是否启用 MCP
+    * @param mcp mcp（布尔开关）
+    * @return AgentChat客户端 对象
     */
     public AgentChatClient mcp(boolean mcp) {
         this.mcp = mcp;
         return this;
     }
 
-    /** 获取Or创建Agent */
+    /**
+     * 获取Or创建Agent
+     * @return Agent 对象
+     */
     private Agent getOrCreateAgent() {
         if (agent != null) {
             return agent;

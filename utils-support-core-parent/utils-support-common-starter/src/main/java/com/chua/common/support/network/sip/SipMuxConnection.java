@@ -84,6 +84,15 @@ class SipMuxConnection {
     */
     private volatile boolean closed;
 
+    /**
+     * 构造方法，创建 SipMux连接 实例。
+     *
+     * @param client 客户端，不允许为 null
+     * @param role 方法入参 role
+     * @param socket 方法入参 socket
+     * @param out 方法入参 out
+     * @param in 方法入参 in
+     */
     private SipMuxConnection(SipClient client, String role, Socket socket, OutputStream out, InputStream in) {
         this.client = client;
         this.role = role;
@@ -138,7 +147,9 @@ class SipMuxConnection {
     void attach(SipMuxStream stream) {
         streams.put(stream.channelId(), stream);
         List<byte[]> early = earlyFrames.remove(stream.channelId());
-        if (early != null && !early.isEmpty()) SipMetrics.get().onMuxFlush(early.size());
+        if (early != null && !early.isEmpty()) {
+            SipMetrics.get().onMuxFlush(early.size());
+        }
         if (early != null) {
             for (byte[] payload : early) {
                 stream.dispatch(payload);

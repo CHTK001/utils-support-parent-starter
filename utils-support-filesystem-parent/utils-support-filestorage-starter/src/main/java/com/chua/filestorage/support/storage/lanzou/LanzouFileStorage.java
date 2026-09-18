@@ -123,6 +123,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 从 cookie 文件（Netscape 或 playwright JSON）读取并拼装为 Cookie 头串。
+    * @param path 路径，不允许为 null
+    * @return 结果字符串
     */
     private String loadCookie(String path) {
         if (path == null || path.isEmpty()) {
@@ -141,6 +143,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 解析 Netscape cookie 文件（每行 7 字段）。
+    * @param raw 方法入参 raw
+    * @return 结果字符串
     */
     private String parseNetscapeCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -163,6 +167,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 解析 playwright JSON cookie 数组（[{name,value,...}]）。
+    * @param raw 方法入参 raw
+    * @return 结果字符串
     */
     private String parseJsonCookie(String raw) {
         StringBuilder builder = new StringBuilder();
@@ -180,6 +186,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 从 cookie 串提取登录 UID（ylogin 字段）。
+    * @param cookie 方法入参 cookie
+    * @return 结果字符串
     */
     private String extractUid(String cookie) {
         if (cookie == null) {
@@ -370,6 +378,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 递归列出某文件夹下的全部文件（含子文件夹）。
+    * @param folderId 文件夹ID，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     private List<LanzouFile> listAll(String folderId) {
         List<LanzouFile> result = new ArrayList<>();
@@ -382,6 +392,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 列出文件夹下的文件（task=5）。
+    * @param folderId 文件夹ID，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     private List<LanzouFile> listFiles(String folderId) {
         String resp = postTask("5", Map.of("folder_id", folderId, "pg", "1"), referer);
@@ -396,6 +408,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 列出文件夹下的子文件夹（task=47）。
+    * @param folderId 文件夹ID，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     private List<LanzouFile> listFolders(String folderId) {
         String resp = postTask("47", Map.of("folder_id", folderId), referer);
@@ -410,6 +424,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 解析文件/文件夹数组为模型列表。
+    * @param root 根节点，不允许为 null
+    * @param list 列出，不允许为 null
+    * @param directory directory（布尔开关）
     */
     private void parseFileArray(JsonObject root, List<LanzouFile> list, boolean directory) {
         JsonArray array = root.getJsonArray("text");
@@ -426,6 +443,9 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 单个文件/文件夹对象转换。
+    * @param o 方法入参 o
+    * @param directory directory（布尔开关）
+    * @return Lanzou文件 对象
     */
     private LanzouFile toLanzouFile(JsonObject o, boolean directory) {
         String id = directory ? o.getType("fol_id", "", String.class) : o.getType("id", "", String.class);
@@ -446,6 +466,10 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 提交 doupload.php 任务。
+    * @param task 方法入参 task
+    * @param params 参数，不允许为 null
+    * @param referer 方法入参 referer
+    * @return 结果字符串
     */
     private String postTask(String task, Map<String, String> params, String referer) {
         Map<String, String> body = new LinkedHashMap<>(params);
@@ -455,6 +479,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 从 Key（<file_id>/<name> 或纯 file_id）解析出 file_id。
+    * @param key 键，不允许为 null
+    * @return 结果字符串
     */
     private String resolveFileId(String key) {
         if (key == null) {
@@ -468,6 +494,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 解析上传目标文件夹 ID。
+    * @param filePath 文件路径，不允许为 null
+    * @return 结果字符串
     */
     private String resolveFolderId(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
@@ -480,6 +508,8 @@ public class LanzouFileStorage extends AbstractFileStorage {
 
     /**
     * 解析蓝奏云大小文本（如 "330.6 K"）为字节数。
+    * @param sizeText 大小文本，不允许为 null
+    * @return 结果数值
     */
     private long parseSize(String sizeText) {
         if (sizeText == null || sizeText.isEmpty()) {

@@ -82,6 +82,8 @@ public class BTreeNode {
     * @param type type
     * @param String String
     * @param Object Object
+    * @param operator 方法入参 operator
+    * @param value 值，不允许为 null
     */
     public BTreeNode(Type type, String operator, Object value) {
         this.type = type;
@@ -108,6 +110,9 @@ public class BTreeNode {
 
     /**
     * 创建 AND 节点
+    * @param left 方法入参 left
+    * @param right 方法入参 right
+    * @return BTree节点 对象
     */
     public static BTreeNode and(BTreeNode left, BTreeNode right) {
         return logic("AND", left, right);
@@ -115,6 +120,9 @@ public class BTreeNode {
 
     /**
     * 创建 OR 节点
+    * @param left 方法入参 left
+    * @param right 方法入参 right
+    * @return BTree节点 对象
     */
     public static BTreeNode or(BTreeNode left, BTreeNode right) {
         return logic("OR", left, right);
@@ -194,38 +202,57 @@ public class BTreeNode {
 
     // ==================== 属性方法 ====================
 
-    /** 获取Type */
+    /**
+     * 获取Type
+     * @return 类型 对象
+     */
     public Type getType() {
         return type;
     }
 
-    /** 获取Operator */
+    /**
+     * 获取Operator
+     * @return 结果字符串
+     */
     public String getOperator() {
         return operator;
     }
 
-    /** 获取Value */
+    /**
+     * 获取Value
+     * @return 对象 对象
+     */
     public Object getValue() {
         return value;
     }
 
-    /** 获取Left */
+    /**
+     * 获取Left
+     * @return BTree节点 对象
+     */
     public BTreeNode getLeft() {
         return left;
     }
 
-    /** 获取Right */
+    /**
+     * 获取Right
+     * @return BTree节点 对象
+     */
     public BTreeNode getRight() {
         return right;
     }
 
-    /** 获取Children */
+    /**
+     * 获取Children
+     * @return 结果列表，无数据时为空列表
+     */
     public List<BTreeNode> getChildren() {
         return children;
     }
 
     /**
     * 是否为叶子节点（无子节点）
+    * @return 是否成功（true 表示成功）
     */
     public boolean isLeaf() {
         return type == Type.COLUMN || type == Type.VALUE || type == Type.RAW;
@@ -233,6 +260,7 @@ public class BTreeNode {
 
     /**
     * 是否为逻辑运算节点
+    * @return 是否成功（true 表示成功）
     */
     public boolean isLogic() {
         return type == Type.LOGIC;
@@ -240,6 +268,7 @@ public class BTreeNode {
 
     /**
     * 是否为 AND 节点
+    * @return 是否成功（true 表示成功）
     */
     public boolean isAnd() {
         return type == Type.LOGIC && "AND".equalsIgnoreCase(operator);
@@ -247,6 +276,7 @@ public class BTreeNode {
 
     /**
     * 是否为 OR 节点
+    * @return 是否成功（true 表示成功）
     */
     public boolean isOr() {
         return type == Type.LOGIC && "OR".equalsIgnoreCase(operator);
@@ -254,6 +284,7 @@ public class BTreeNode {
 
     /**
     * 获取字符串值
+    * @return 结果字符串
     */
     public String asString() {
         return value != null ? String.valueOf(value) : operator;
@@ -261,6 +292,7 @@ public class BTreeNode {
 
     /**
     * 获取整数值
+    * @return Integer 对象
     */
     public Integer asInteger() {
         if (value instanceof Number n) { return n.intValue(); }
@@ -270,6 +302,7 @@ public class BTreeNode {
 
     /**
     * 获取双精度值
+    * @return Double 对象
     */
     public Double asDouble() {
         if (value instanceof Number n) { return n.doubleValue(); }

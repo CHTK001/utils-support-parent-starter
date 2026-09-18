@@ -85,6 +85,7 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /**
     * 获取当前最大 LSN。
+    * @return 结果数值
     */
     long currentLsn();
 
@@ -92,11 +93,13 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /**
     * 列出所有分片元信息。
+    * @return 结果值
     */
     java.util.List<WalSegmentInfo> listSegments() throws java.io.IOException;
 
     /**
     * 获取当前活跃分片。
+    * @return Wal分段Info 对象
     */
     WalSegmentInfo currentSegment();
 
@@ -111,11 +114,13 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /**
     * 加载 checkpoint 元信息。
+    * @return CheckpointMeta 对象
     */
     CheckpointMeta loadCheckpoint() throws java.io.IOException;
 
     /**
     * 推进 checkpoint。
+    * @param lsn 方法入参 lsn
     */
     void markCheckpoint(long lsn) throws java.io.IOException;
 
@@ -128,6 +133,9 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /**
     * 批量条目（用于 追加批量）。
+    * @param op 操作，不允许为 null
+    * @param payload 方法入参 payload
+    * @return 结果值
     */
     record WalBatchEntry(byte op, byte[] payload) {
         /**

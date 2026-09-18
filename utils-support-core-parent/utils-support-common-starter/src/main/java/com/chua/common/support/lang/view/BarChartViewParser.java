@@ -148,6 +148,7 @@ public class BarChartViewParser implements ViewParser {
     * @param value 条目数值
     * @author CH
     * @since 4.0.0.42
+    * @return 结果值
     */
     private record Entry(String name, double value) {
     }

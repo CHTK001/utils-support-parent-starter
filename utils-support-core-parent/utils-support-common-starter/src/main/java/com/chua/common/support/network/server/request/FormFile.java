@@ -31,6 +31,8 @@ public class FormFile {
     * @param String String
     * @param byte byte
     * @param data data
+    * @param fileName 文件名称，不允许为 null
+    * @param contentType 内容类型，不允许为 null
     */
     public FormFile(String fieldName, String fileName, String contentType, byte[] data) {
         this.fieldName = fieldName;

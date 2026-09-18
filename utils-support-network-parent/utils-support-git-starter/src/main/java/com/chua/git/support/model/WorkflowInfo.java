@@ -14,6 +14,7 @@ package com.chua.git.support.model;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 结果值
  */
 public record WorkflowInfo(long id, String name, String path, String state, String htmlUrl) {
 }

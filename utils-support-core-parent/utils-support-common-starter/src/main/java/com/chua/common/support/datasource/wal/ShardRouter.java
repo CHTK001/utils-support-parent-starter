@@ -13,13 +13,22 @@ public final class ShardRouter {
 
     private final int shardCount;
 
+    /**
+     * 构造方法，创建 分片Router 实例。
+     *
+     * @param shardCount 分片数量，不允许为 null
+     */
     public ShardRouter(int shardCount) {
-        if (shardCount < 1) throw new IllegalArgumentException("shardCount must be >= 1");
+        if (shardCount < 1) {
+            throw new IllegalArgumentException("shardCount must be >= 1");
+        }
         this.shardCount = shardCount;
     }
 
     /**
     * 根据 key 计算所属分片序号（0 ~ shardCount-1）。
+    * @param key 键，不允许为 null
+    * @return 结果数值
     */
     public int shardOf(Object key) {
         int hash = key == null ? 0 : key.hashCode();
@@ -29,6 +38,7 @@ public final class ShardRouter {
 
     /**
     * 返回分片数量。
+    * @return 结果数值
     */
     public int shardCount() {
         return shardCount;
@@ -36,6 +46,8 @@ public final class ShardRouter {
 
     /**
     * 返回分片名称（用于文件命名）。
+    * @param idx 索引，不允许为 null
+    * @return 结果字符串
     */
     public String shardName(int idx) {
         return String.format("shard_%04d", idx);

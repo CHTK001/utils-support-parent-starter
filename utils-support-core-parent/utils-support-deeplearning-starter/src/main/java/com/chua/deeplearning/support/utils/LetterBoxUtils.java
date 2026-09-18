@@ -144,9 +144,18 @@ public class LetterBoxUtils {
         int padH = targetH - newH;
         int top = 0, left = 0;
         switch (position) {
-            case CENTER -> { left = padW / 2; top = padH / 2; }
-            case LEFT_TOP -> { left = 0; top = 0; }
-            case RIGHT_BOTTOM -> { left = padW; top = padH; }
+            case CENTER -> {
+                left = padW / 2;
+                top = padH / 2;
+            }
+            case LEFT_TOP -> {
+                left = 0;
+                top = 0;
+            }
+            case RIGHT_BOTTOM -> {
+                left = padW;
+                top = padH;
+            }
         }
         g2d.drawImage(resized, left, top, null);
         g2d.dispose();

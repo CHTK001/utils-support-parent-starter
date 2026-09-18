@@ -48,7 +48,11 @@ public class FileInfo {
     /** 文件权限字符串 */
     private String permissions;
 
-    /** From */
+    /**
+     * From
+     * @param path 路径，不允许为 null
+     * @return 文件Info 对象
+     */
     public static FileInfo from(Path path) {
         File file = path.toFile();
         return FileInfo.builder()

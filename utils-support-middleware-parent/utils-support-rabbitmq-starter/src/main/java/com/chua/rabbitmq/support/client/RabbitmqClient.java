@@ -198,7 +198,10 @@ public class RabbitmqClient implements AutoCloseable {
         if (closed.compareAndSet(false, true)) {
             try {
                 for (Channel ch : channelCache.values()) {
-                    try { ch.close(); } catch (Exception ignored) {}
+                    try {
+                        ch.close();
+                    } catch (Exception ignored) {
+                    }
                 }
                 channelCache.clear();
                 if (connection != null && connection.isOpen()) {
@@ -255,7 +258,10 @@ public class RabbitmqClient implements AutoCloseable {
     public void closeChannel(String name) {
         Channel ch = channelCache.remove(name);
         if (ch != null) {
-            try { ch.close(); } catch (Exception ignored) {}
+            try {
+                ch.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -332,63 +338,90 @@ public class RabbitmqClient implements AutoCloseable {
         * @param h h
         * @return 主机的结果
         */
-        public Builder host(String h) { this.host = h; return this; }
+        public Builder host(String h) {
+            this.host = h;
+            return this;
+        }
         /**
         * 端口
         *
         * @param p p
         * @return 端口的结果
         */
-        public Builder port(int p) { this.port = p; return this; }
+        public Builder port(int p) {
+            this.port = p;
+            return this;
+        }
         /**
         * 用户名
         *
         * @param u u
         * @return 用户名的结果
         */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /**
         * 密码
         *
         * @param p p
         * @return 密码的结果
         */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
         /**
         * 虚拟主机
         *
         * @param vh vh
         * @return 虚拟主机的结果
         */
-        public Builder virtualHost(String vh) { this.virtualHost = vh; return this; }
+        public Builder virtualHost(String vh) {
+            this.virtualHost = vh;
+            return this;
+        }
         /**
         * connection超时
         *
         * @param ms ms
         * @return connection超时的结果
         */
-        public Builder connectionTimeout(int ms) { this.connectionTimeout = ms; return this; }
+        public Builder connectionTimeout(int ms) {
+            this.connectionTimeout = ms;
+            return this;
+        }
         /**
         * 心跳
         *
         * @param sec sec
         * @return 心跳的结果
         */
-        public Builder heartbeat(int sec) { this.heartbeat = sec; return this; }
+        public Builder heartbeat(int sec) {
+            this.heartbeat = sec;
+            return this;
+        }
         /**
         * automaticrecovery
         *
         * @param r r
         * @return automaticRecovery的结果
         */
-        public Builder automaticRecovery(boolean r) { this.automaticRecovery = r; return this; }
+        public Builder automaticRecovery(boolean r) {
+            this.automaticRecovery = r;
+            return this;
+        }
         /**
         * Prefetch
         *
         * @param count 数量
         * @return prefetch的结果
         */
-        public Builder prefetch(int count) { this.prefetchCount = count; return this; }
+        public Builder prefetch(int count) {
+            this.prefetchCount = count;
+            return this;
+        }
 
         /**
         * 构建
@@ -428,59 +461,86 @@ public class RabbitmqClient implements AutoCloseable {
         * @param n n
         * @return 名称的结果
         */
-        public ExchangeOperation name(String n) { this.name = n; return this; }
+        public ExchangeOperation name(String n) {
+            this.name = n;
+            return this;
+        }
         /**
         * 类型
         *
         * @param t t
         * @return 类型的结果
         */
-        public ExchangeOperation type(String t) { this.type = t; return this; }
+        public ExchangeOperation type(String t) {
+            this.type = t;
+            return this;
+        }
         /**
         * Durable
         *
         * @param d d
         * @return durable的结果
         */
-        public ExchangeOperation durable(boolean d) { this.durable = d; return this; }
+        public ExchangeOperation durable(boolean d) {
+            this.durable = d;
+            return this;
+        }
         /**
         * Auto删除
         *
         * @param ad ad
         * @return auto删除的结果
         */
-        public ExchangeOperation autoDelete(boolean ad) { this.autoDelete = ad; return this; }
+        public ExchangeOperation autoDelete(boolean ad) {
+            this.autoDelete = ad;
+            return this;
+        }
         /**
         * 参数
         *
         * @param a a
         * @return 参数的结果
         */
-        public ExchangeOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
+        public ExchangeOperation arguments(Map<String, Object> a) {
+            this.arguments = a;
+            return this;
+        }
         /**
         * Direct
         *
         * @return direct的结果
         */
-        public ExchangeOperation direct() { this.type = "direct"; return this; }
+        public ExchangeOperation direct() {
+            this.type = "direct";
+            return this;
+        }
         /**
         * Topic
         *
         * @return topic的结果
         */
-        public ExchangeOperation topic() { this.type = "topic"; return this; }
+        public ExchangeOperation topic() {
+            this.type = "topic";
+            return this;
+        }
         /**
         * Fanout
         *
         * @return fanout的结果
         */
-        public ExchangeOperation fanout() { this.type = "fanout"; return this; }
+        public ExchangeOperation fanout() {
+            this.type = "fanout";
+            return this;
+        }
         /**
         * 头部
         *
         * @return 头部的结果
         */
-        public ExchangeOperation headers() { this.type = "headers"; return this; }
+        public ExchangeOperation headers() {
+            this.type = "headers";
+            return this;
+        }
 
         /** Declare */
         public void declare() {
@@ -501,8 +561,12 @@ public class RabbitmqClient implements AutoCloseable {
         * @return exists的结果
         */
         public boolean exists() {
-            try { client.getChannel().exchangeDeclarePassive(name); return true; }
-            catch (IOException e) { return false; }
+            try {
+                client.getChannel().exchangeDeclarePassive(name);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
         }
     }
 
@@ -536,35 +600,50 @@ public class RabbitmqClient implements AutoCloseable {
         * @param n n
         * @return 名称的结果
         */
-        public QueueOperation name(String n) { this.name = n; return this; }
+        public QueueOperation name(String n) {
+            this.name = n;
+            return this;
+        }
         /**
         * Durable
         *
         * @param d d
         * @return durable的结果
         */
-        public QueueOperation durable(boolean d) { this.durable = d; return this; }
+        public QueueOperation durable(boolean d) {
+            this.durable = d;
+            return this;
+        }
         /**
         * Exclusive
         *
         * @param e e
         * @return exclusive的结果
         */
-        public QueueOperation exclusive(boolean e) { this.exclusive = e; return this; }
+        public QueueOperation exclusive(boolean e) {
+            this.exclusive = e;
+            return this;
+        }
         /**
         * Auto删除
         *
         * @param ad ad
         * @return auto删除的结果
         */
-        public QueueOperation autoDelete(boolean ad) { this.autoDelete = ad; return this; }
+        public QueueOperation autoDelete(boolean ad) {
+            this.autoDelete = ad;
+            return this;
+        }
         /**
         * 参数
         *
         * @param a a
         * @return 参数的结果
         */
-        public QueueOperation arguments(Map<String, Object> a) { this.arguments.putAll(a); return this; }
+        public QueueOperation arguments(Map<String, Object> a) {
+            this.arguments.putAll(a);
+            return this;
+        }
 
         /**
         * 设置消息 TTL（毫秒）
@@ -719,28 +798,40 @@ public class RabbitmqClient implements AutoCloseable {
         * @param q q
         * @return 队列的结果
         */
-        public BindOperation queue(String q) { this.queue = q; return this; }
+        public BindOperation queue(String q) {
+            this.queue = q;
+            return this;
+        }
         /**
         * Exchange
         *
         * @param e e
         * @return exchange的结果
         */
-        public BindOperation exchange(String e) { this.exchange = e; return this; }
+        public BindOperation exchange(String e) {
+            this.exchange = e;
+            return this;
+        }
         /**
         * routing键
         *
         * @param k k
         * @return routing键的结果
         */
-        public BindOperation routingKey(String k) { this.routingKey = k; return this; }
+        public BindOperation routingKey(String k) {
+            this.routingKey = k;
+            return this;
+        }
         /**
         * 参数
         *
         * @param a a
         * @return 参数的结果
         */
-        public BindOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
+        public BindOperation arguments(Map<String, Object> a) {
+            this.arguments = a;
+            return this;
+        }
 
         /** 绑定 */
         public void bind() {
@@ -787,84 +878,120 @@ public class RabbitmqClient implements AutoCloseable {
         * @param e e
         * @return exchange的结果
         */
-        public PublishOperation exchange(String e) { this.exchange = e; return this; }
+        public PublishOperation exchange(String e) {
+            this.exchange = e;
+            return this;
+        }
         /**
         * routing键
         *
         * @param k k
         * @return routing键的结果
         */
-        public PublishOperation routingKey(String k) { this.routingKey = k; return this; }
+        public PublishOperation routingKey(String k) {
+            this.routingKey = k;
+            return this;
+        }
         /**
         * 主体
         *
         * @param b b
         * @return 主体的结果
         */
-        public PublishOperation body(String b) { this.body = b.getBytes(StandardCharsets.UTF_8); return this; }
+        public PublishOperation body(String b) {
+            this.body = b.getBytes(StandardCharsets.UTF_8);
+            return this;
+        }
         /**
         * 主体
         *
         * @param b b
         * @return 主体的结果
         */
-        public PublishOperation body(byte[] b) { this.body = b; return this; }
+        public PublishOperation body(byte[] b) {
+            this.body = b;
+            return this;
+        }
         /**
         * 内容类型
         *
         * @param ct ct
         * @return 内容类型的结果
         */
-        public PublishOperation contentType(String ct) { propsBuilder.contentType(ct); return this; }
+        public PublishOperation contentType(String ct) {
+            propsBuilder.contentType(ct);
+            return this;
+        }
         /**
         * 消息id
         *
         * @param id 标识
         * @return 消息id的结果
         */
-        public PublishOperation messageId(String id) { propsBuilder.messageId(id); return this; }
+        public PublishOperation messageId(String id) {
+            propsBuilder.messageId(id);
+            return this;
+        }
         /**
         * correlationid
         *
         * @param id 标识
         * @return correlationId的结果
         */
-        public PublishOperation correlationId(String id) { propsBuilder.correlationId(id); return this; }
+        public PublishOperation correlationId(String id) {
+            propsBuilder.correlationId(id);
+            return this;
+        }
         /**
         * reply转为
         *
         * @param queue 队列
         * @return reply转为的结果
         */
-        public PublishOperation replyTo(String queue) { propsBuilder.replyTo(queue); return this; }
+        public PublishOperation replyTo(String queue) {
+            propsBuilder.replyTo(queue);
+            return this;
+        }
         /**
         * Expiration
         *
         * @param ms ms
         * @return expiration的结果
         */
-        public PublishOperation expiration(String ms) { propsBuilder.expiration(ms); return this; }
+        public PublishOperation expiration(String ms) {
+            propsBuilder.expiration(ms);
+            return this;
+        }
         /**
         * Priority
         *
         * @param p p
         * @return priority的结果
         */
-        public PublishOperation priority(int p) { propsBuilder.priority(p); return this; }
+        public PublishOperation priority(int p) {
+            propsBuilder.priority(p);
+            return this;
+        }
         /**
         * 类型
         *
         * @param t t
         * @return 类型的结果
         */
-        public PublishOperation type(String t) { propsBuilder.type(t); return this; }
+        public PublishOperation type(String t) {
+            propsBuilder.type(t);
+            return this;
+        }
         /**
         * 头部
         *
         * @param h h
         * @return 头部的结果
         */
-        public PublishOperation headers(Map<String, Object> h) { propsBuilder.headers(h); return this; }
+        public PublishOperation headers(Map<String, Object> h) {
+            propsBuilder.headers(h);
+            return this;
+        }
         /**
         * 头部
         *
@@ -886,28 +1013,40 @@ public class RabbitmqClient implements AutoCloseable {
         * @param p p
         * @return persistent的结果
         */
-        public PublishOperation persistent(boolean p) { propsBuilder.deliveryMode(p ? 2 : 1); return this; }
+        public PublishOperation persistent(boolean p) {
+            propsBuilder.deliveryMode(p ? 2 : 1);
+            return this;
+        }
         /**
         * nonpersistent
         *
         * @param t t
         * @return nonPersistent的结果
         */
-        public PublishOperation nonPersistent(boolean t) { propsBuilder.deliveryMode(t ? 1 : 2); return this; }
+        public PublishOperation nonPersistent(boolean t) {
+            propsBuilder.deliveryMode(t ? 1 : 2);
+            return this;
+        }
 
         /**
         * 开启 Publisher Confirm 模式
         * @param c c
         * @return confirm的结果
         */
-        public PublishOperation confirm(boolean c) { this.useConfirm = c; return this; }
+        public PublishOperation confirm(boolean c) {
+            this.useConfirm = c;
+            return this;
+        }
         /**
         * confirm超时
         *
         * @param ms ms
         * @return confirm超时的结果
         */
-        public PublishOperation confirmTimeout(long ms) { this.confirmTimeoutMs = ms; return this; }
+        public PublishOperation confirmTimeout(long ms) {
+            this.confirmTimeoutMs = ms;
+            return this;
+        }
 
         /**
         * 同步发送
@@ -1040,56 +1179,80 @@ public class RabbitmqClient implements AutoCloseable {
         * @param q q
         * @return 队列的结果
         */
-        public ConsumeOperation queue(String q) { this.queue = q; return this; }
+        public ConsumeOperation queue(String q) {
+            this.queue = q;
+            return this;
+        }
         /**
         * autoACK
         *
         * @param a a
         * @return autoACK的结果
         */
-        public ConsumeOperation autoAck(boolean a) { this.autoAck = a; return this; }
+        public ConsumeOperation autoAck(boolean a) {
+            this.autoAck = a;
+            return this;
+        }
         /**
         * consumer标签
         *
         * @param t t
         * @return consumer标签的结果
         */
-        public ConsumeOperation consumerTag(String t) { this.consumerTag = t; return this; }
+        public ConsumeOperation consumerTag(String t) {
+            this.consumerTag = t;
+            return this;
+        }
         /**
         * no本地
         *
         * @param n n
         * @return no本地的结果
         */
-        public ConsumeOperation noLocal(boolean n) { this.noLocal = n; return this; }
+        public ConsumeOperation noLocal(boolean n) {
+            this.noLocal = n;
+            return this;
+        }
         /**
         * Exclusive
         *
         * @param e e
         * @return exclusive的结果
         */
-        public ConsumeOperation exclusive(boolean e) { this.exclusive = e; return this; }
+        public ConsumeOperation exclusive(boolean e) {
+            this.exclusive = e;
+            return this;
+        }
         /**
         * 参数
         *
         * @param a a
         * @return 参数的结果
         */
-        public ConsumeOperation arguments(Map<String, Object> a) { this.arguments = a; return this; }
+        public ConsumeOperation arguments(Map<String, Object> a) {
+            this.arguments = a;
+            return this;
+        }
         /**
         * Prefetch
         *
         * @param count 数量
         * @return prefetch的结果
         */
-        public ConsumeOperation prefetch(int count) { this.prefetch = count; return this; }
+        public ConsumeOperation prefetch(int count) {
+            this.prefetch = count;
+            return this;
+        }
         /**
         * 通道
         *
         * @param name 名称
         * @return 通道的结果
         */
-        public ConsumeOperation channel(String name) { this.channelName = name; return this; }
+        public ConsumeOperation channel(String name) {
+            this.channelName = name;
+            return this;
+        }
 
         /**
         * 处理器
@@ -1097,7 +1260,10 @@ public class RabbitmqClient implements AutoCloseable {
         * @param h h
         * @return 处理器的结果
         */
-        public ConsumeOperation handler(Consumer<MessageHandler> h) { this.handler = h; return this; }
+        public ConsumeOperation handler(Consumer<MessageHandler> h) {
+            this.handler = h;
+            return this;
+        }
 
         /**
         * on消息
@@ -1185,7 +1351,10 @@ public class RabbitmqClient implements AutoCloseable {
                 ch.txCommit();
                 return result;
             } catch (Exception e) {
-                try { ch.txRollback(); } catch (Exception ignored) {}
+                try {
+                    ch.txRollback();
+                } catch (Exception ignored) {
+                }
                 throw new RabbitmqClientException("事务执行失败", e);
             }
         }

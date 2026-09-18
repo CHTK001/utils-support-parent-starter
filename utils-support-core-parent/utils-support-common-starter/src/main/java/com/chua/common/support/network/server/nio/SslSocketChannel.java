@@ -286,6 +286,8 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
     * 校验 wrap/unwrap 结果，非 OK 状态抛出异常。
+    * @param result 结果，不允许为 null
+    * @param phase 方法入参 phase
     */
     private static void check(SSLEngineResult result, String phase) throws SSLException {
         if (result.getStatus() != SSLEngineResult.Status.OK
@@ -298,6 +300,8 @@ public class SslSocketChannel extends SocketChannel {
     * 将 src 中尽可能多的字节拷贝到 dst。
     *
     * @return 实际拷贝字节数
+    * @param src 方法入参 src
+    * @param dst 方法入参 dst
     */
     private static int copy(ByteBuffer src, ByteBuffer dst) {
         int n = Math.min(src.remaining(), dst.remaining());

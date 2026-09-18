@@ -51,6 +51,8 @@ public class SkillArgumentSchema {
     * @param required boolean
     * @param enumValues List
     * @param enumValues enumValues
+    * @param description 描述，不允许为 null
+    * @param type 类型，不允许为 null
     */
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {
         this.name = name;
@@ -60,32 +62,50 @@ public class SkillArgumentSchema {
         this.enumValues = enumValues;
     }
 
-    /** 获取Name */
+    /**
+     * 获取Name
+     * @return 结果字符串
+     */
     public String getName() {
         return name;
     }
 
-    /** 获取Description */
+    /**
+     * 获取Description
+     * @return 结果字符串
+     */
     public String getDescription() {
         return description;
     }
 
-    /** 获取Type */
+    /**
+     * 获取Type
+     * @return 结果字符串
+     */
     public String getType() {
         return type;
     }
 
-    /** 是否Required */
+    /**
+     * 是否Required
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isRequired() {
         return required;
     }
 
-    /** 获取EnumValues */
+    /**
+     * 获取EnumValues
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getEnumValues() {
         return enumValues;
     }
 
-    /** ToMap */
+    /**
+     * ToMap
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);

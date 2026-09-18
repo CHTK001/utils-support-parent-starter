@@ -30,30 +30,51 @@ public class OffsetConfig {
     */
     private String provider = "file";
 
+    /**
+     * 构造方法，创建 偏移量配置 实例。
+     */
     OffsetConfig() {
     }
 
+    /**
+     * 构造方法，创建 偏移量配置 实例。
+     *
+     * @param basePath base路径，不允许为 null
+     * @param persistent persistent（布尔开关）
+     */
     OffsetConfig(Path basePath, boolean persistent) {
         this.basePath = basePath;
         this.persistent = persistent;
     }
 
-    /** 获取BasePath */
+    /**
+     * 获取BasePath
+     * @return 路径 对象
+     */
     public Path getBasePath() {
         return basePath;
     }
 
-    /** 是否Persistent */
+    /**
+     * 是否Persistent
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isPersistent() {
         return persistent;
     }
 
-    /** 获取刷新Interval */
+    /**
+     * 获取刷新Interval
+     * @return 结果数值
+     */
     public long getFlushInterval() {
         return flushInterval;
     }
 
-    /** 获取Provider */
+    /**
+     * 获取Provider
+     * @return 结果字符串
+     */
     public String getProvider() {
         return provider;
     }

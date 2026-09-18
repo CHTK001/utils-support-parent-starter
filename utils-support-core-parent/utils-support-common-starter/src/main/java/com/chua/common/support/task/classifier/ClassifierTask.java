@@ -97,6 +97,7 @@ public interface ClassifierTask {
     * @param probabilities 各类别概率分布（可能为空 映射）
     * @author CH
     * @since 4.0.0.42
+    * @return 结果值
     */
     record Result(String label, double confidence, Map<String, Double> probabilities) {
     }
@@ -110,6 +111,7 @@ public interface ClassifierTask {
     * @param kappa        Kappa 一致性系数
     * @author CH
     * @since 4.0.0.42
+    * @return 结果值
     */
     record Report(int numInstances, int numFolds, double accuracyPct, double kappa) {
     }

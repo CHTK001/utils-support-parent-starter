@@ -40,12 +40,23 @@ public class TreeNode<K, V> {
         this.children = new ArrayList<>();
     }
 
+    /**
+     * 构造方法，创建 Tree节点 实例。
+     *
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     */
     public TreeNode(K key, V value) {
         this.key = key;
         this.value = value;
         this.children = new ArrayList<>();
     }
 
+    /**
+     * 是否Leaf。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isLeaf() {
         return left == null && right == null && children.isEmpty();
     }

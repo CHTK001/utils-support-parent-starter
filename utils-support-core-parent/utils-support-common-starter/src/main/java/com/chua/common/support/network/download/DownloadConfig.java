@@ -49,6 +49,11 @@ public class DownloadConfig {
     /** 断点续传起始偏移字节数（>0 时启用，由框架自动设置） */
     private final long resumeOffset;
 
+    /**
+     * 构造方法，创建 Download配置 实例。
+     *
+     * @param builder 方法入参 builder
+     */
     private DownloadConfig(Builder builder) {
         this.url = builder.url;
         this.targetDir = builder.targetDir;
@@ -134,7 +139,10 @@ public class DownloadConfig {
         * @param url 合法的 HTTP/HTTPS URL，不能为 null 或空白
         * @return Builder 自身，支持链式调用
         */
-        public Builder url(String url) { this.url = url; return this; }
+        public Builder url(String url) {
+            this.url = url;
+            return this;
+        }
 
         /**
         * 设置目标下载目录。
@@ -142,7 +150,10 @@ public class DownloadConfig {
         * @param targetDir 目标目录，为 null 时使用当前工作目录
         * @return Builder 自身
         */
-        public Builder targetDir(Path targetDir) { this.targetDir = targetDir; return this; }
+        public Builder targetDir(Path targetDir) {
+            this.targetDir = targetDir;
+            return this;
+        }
 
         /**
         * 设置显式文件名。
@@ -150,7 +161,10 @@ public class DownloadConfig {
         * @param filename 期望的文件名，为 null 或空白时从 URL 路径自动解析
         * @return Builder 自身
         */
-        public Builder filename(String filename) { this.filename = filename; return this; }
+        public Builder filename(String filename) {
+            this.filename = filename;
+            return this;
+        }
 
         /**
         * 设置期望的 MD5 校验值。
@@ -158,7 +172,10 @@ public class DownloadConfig {
         * @param expectedMd5 小写十六进制 MD5 字符串，为 null 或空白时跳过校验
         * @return Builder 自身
         */
-        public Builder expectedMd5(String expectedMd5) { this.expectedMd5 = expectedMd5; return this; }
+        public Builder expectedMd5(String expectedMd5) {
+            this.expectedMd5 = expectedMd5;
+            return this;
+        }
 
         /**
         * 设置并发下载线程数。
@@ -166,7 +183,10 @@ public class DownloadConfig {
         * @param concurrency 线程数，必须 >= 1，传入小于 1 的值会自动调整为 1
         * @return Builder 自身
         */
-        public Builder concurrency(int concurrency) { this.concurrency = Math.max(1, concurrency); return this; }
+        public Builder concurrency(int concurrency) {
+            this.concurrency = Math.max(1, concurrency);
+            return this;
+        }
 
         /**
         * 设置下载限速。
@@ -174,7 +194,10 @@ public class DownloadConfig {
         * @param maxSpeed 限速字节/秒，0 表示不限速
         * @return Builder 自身
         */
-        public Builder maxSpeed(long maxSpeed) { this.maxSpeed = maxSpeed; return this; }
+        public Builder maxSpeed(long maxSpeed) {
+            this.maxSpeed = maxSpeed;
+            return this;
+        }
 
         /**
         * 设置 HTTP 代理。
@@ -182,7 +205,10 @@ public class DownloadConfig {
         * @param proxy 代理对象，为 null 时不使用代理
         * @return Builder 自身
         */
-        public Builder proxy(Proxy proxy) { this.proxy = proxy; return this; }
+        public Builder proxy(Proxy proxy) {
+            this.proxy = proxy;
+            return this;
+        }
 
         /**
         * 设置下载完成后是否自动解压压缩包。
@@ -190,7 +216,10 @@ public class DownloadConfig {
         * @param autoExtract true 表示下载完成后自动解压
         * @return Builder 自身
         */
-        public Builder autoExtract(boolean autoExtract) { this.autoExtract = autoExtract; return this; }
+        public Builder autoExtract(boolean autoExtract) {
+            this.autoExtract = autoExtract;
+            return this;
+        }
 
         /**
         * 设置解压目标目录。
@@ -198,7 +227,10 @@ public class DownloadConfig {
         * @param extractTo 解压目标目录，为 null 时使用下载目录
         * @return Builder 自身
         */
-        public Builder extractTo(Path extractTo) { this.extractTo = extractTo; return this; }
+        public Builder extractTo(Path extractTo) {
+            this.extractTo = extractTo;
+            return this;
+        }
 
         /**
         * 设置是否跳过 MD5 校验。
@@ -206,7 +238,10 @@ public class DownloadConfig {
         * @param skipMd5Check true 表示跳过校验（即使设置了 expectedMd5）
         * @return Builder 自身
         */
-        public Builder skipMd5Check(boolean skipMd5Check) { this.skipMd5Check = skipMd5Check; return this; }
+        public Builder skipMd5Check(boolean skipMd5Check) {
+            this.skipMd5Check = skipMd5Check;
+            return this;
+        }
 
         /**
         * 设置是否强制重新下载。
@@ -214,7 +249,10 @@ public class DownloadConfig {
         * @param forceDownload true 表示忽略本地已有文件强制重新下载
         * @return Builder 自身
         */
-        public Builder forceDownload(boolean forceDownload) { this.forceDownload = forceDownload; return this; }
+        public Builder forceDownload(boolean forceDownload) {
+            this.forceDownload = forceDownload;
+            return this;
+        }
 
         /**
         * 设置是否在控制台显示下载进度条。
@@ -222,7 +260,10 @@ public class DownloadConfig {
         * @param showProgress true 显示进度条，false 静默下载
         * @return Builder 自身
         */
-        public Builder showProgress(boolean showProgress) { this.showProgress = showProgress; return this; }
+        public Builder showProgress(boolean showProgress) {
+            this.showProgress = showProgress;
+            return this;
+        }
 
         /**
         * 设置连接超时。
@@ -230,7 +271,10 @@ public class DownloadConfig {
         * @param connectTimeoutMs 超时毫秒数
         * @return Builder 自身
         */
-        public Builder connectTimeoutMs(int connectTimeoutMs) { this.connectTimeoutMs = connectTimeoutMs; return this; }
+        public Builder connectTimeoutMs(int connectTimeoutMs) {
+            this.connectTimeoutMs = connectTimeoutMs;
+            return this;
+        }
 
         /**
         * 设置读取超时。
@@ -238,7 +282,10 @@ public class DownloadConfig {
         * @param readTimeoutMs 超时毫秒数
         * @return Builder 自身
         */
-        public Builder readTimeoutMs(int readTimeoutMs) { this.readTimeoutMs = readTimeoutMs; return this; }
+        public Builder readTimeoutMs(int readTimeoutMs) {
+            this.readTimeoutMs = readTimeoutMs;
+            return this;
+        }
 
         /**
         * 设置自定义 HTTP 请求头。
@@ -246,7 +293,10 @@ public class DownloadConfig {
         * @param headers 键值对形式的请求头，会覆盖默认头
         * @return Builder 自身
         */
-        public Builder headers(Map<String, String> headers) { this.headers = headers; return this; }
+        public Builder headers(Map<String, String> headers) {
+            this.headers = headers;
+            return this;
+        }
 
         /**
         * 设置断点续传起始偏移字节数。
@@ -256,7 +306,10 @@ public class DownloadConfig {
         * @param resumeOffset 已下载的字节数
         * @return Builder 自身
         */
-        public Builder resumeOffset(long resumeOffset) { this.resumeOffset = resumeOffset; return this; }
+        public Builder resumeOffset(long resumeOffset) {
+            this.resumeOffset = resumeOffset;
+            return this;
+        }
 
         /**
         * 构建不可变的 {@link DownloadConfig} 实例。

@@ -48,34 +48,67 @@ public class SipMetrics {
     private final Map<String, AtomicLong> errorsByCategory = new ConcurrentHashMap<>();
 
     public void onAuthAccept() { authAcceptTotal.incrementAndGet(); }
-    public void onAuthReject(String category) { authRejectTotal.incrementAndGet(); incError(category); }
+    /**
+     * 记录一次鉴权拒绝事件：累加拒绝总量，并按分类计数。
+     *
+     * @param category 错误分类标识（如 "auth.bad_sig"）；为 null 或空串时仅累加拒绝总量，不写入分类计数
+     */
+    public void onAuthReject(String category) {
+        authRejectTotal.incrementAndGet();
+        incError(category);
+    }
     public void onServiceRegister() { serviceRegisterTotal.incrementAndGet(); }
     public void onServiceUnregister() { serviceUnregisterTotal.incrementAndGet(); }
+    /**
+     * 响应Tunnel打开。
+     */
     public void onTunnelOpen() {
         tunnelOpenTotal.incrementAndGet();
         activeTunnels.incrementAndGet();
     }
+    /**
+     * 响应Tunnel关闭。
+     *
+     * @param reason 方法入参 reason
+     */
     public void onTunnelClose(String reason) {
         tunnelCloseTotal.incrementAndGet();
         activeTunnels.decrementAndGet();
-        if ("error".equals(reason)) errorCloseTotal.incrementAndGet();
+        if ("error".equals(reason)) {
+            errorCloseTotal.incrementAndGet();
+        }
     }
     public void onClientConnect() { activeClients.incrementAndGet(); }
     public void onClientDisconnect() { activeClients.decrementAndGet(); }
     public void onFrameBytesIn(long n) { if (n > 0) frameBytesIn.addAndGet(n); }
     public void onFrameBytesOut(long n) { if (n > 0) frameBytesOut.addAndGet(n); }
+    /**
+     * 响应Mux刷写。
+     *
+     * @param frames 方法入参 frames
+     */
     public void onMuxFlush(int frames) {
-        if (frames > 0) muxFlushTotal.addAndGet(frames);
+        if (frames > 0) {
+            muxFlushTotal.addAndGet(frames);
+        }
     }
     public void onMuxEarlyFrameBuffered() { muxEarlyFrameBufferedTotal.incrementAndGet(); }
     public void onMuxCloseMarker() { muxCloseMarkerTotal.incrementAndGet(); }
+    /**
+     * incError。
+     *
+     * @param category 方法入参 category
+     */
     public void incError(String category) {
-        if (category == null || category.isEmpty()) return;
+        if (category == null || category.isEmpty()) {
+            return;
+        }
         errorsByCategory.computeIfAbsent(category, k -> new AtomicLong()).incrementAndGet();
     }
 
     /**
     * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
+    * @return 结果映射，无数据时为空映射
     */
     public Map<String, Object> snapshot() {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -112,7 +145,9 @@ public class SipMetrics {
             sb.append(prefix);
         }
         s.forEach((k, v) -> {
-            if (v instanceof Map) return;
+            if (v instanceof Map) {
+                return;
+            }
             sb.append(' ').append(k).append('=').append(v);
         });
         @SuppressWarnings("unchecked")

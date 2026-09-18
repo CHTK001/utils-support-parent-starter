@@ -81,7 +81,10 @@ public class FFmpegOptions {
     */
     public static FFmpegOptions highQuality() {
         FFmpegOptions o = new FFmpegOptions();
-        o.videoCodec = "libx264"; o.quality = 18; o.preset = "slow"; o.audioBitrate = "320k";
+        o.videoCodec = "libx264";
+        o.quality = 18;
+        o.preset = "slow";
+        o.audioBitrate = "320k";
         return o;
     }
 
@@ -92,7 +95,11 @@ public class FFmpegOptions {
     */
     public static FFmpegOptions webOptimized() {
         FFmpegOptions o = new FFmpegOptions();
-        o.videoCodec = "libx264"; o.audioCodec = "aac"; o.quality = 23; o.preset = "fast"; o.pixelFormat = "yuv420p";
+        o.videoCodec = "libx264";
+        o.audioCodec = "aac";
+        o.quality = 23;
+        o.preset = "fast";
+        o.pixelFormat = "yuv420p";
         return o;
     }
 

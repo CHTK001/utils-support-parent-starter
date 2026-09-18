@@ -54,6 +54,9 @@ public final class ContextCompressor {
 
     /**
     * 轻量配置创建。
+    * @param config 配置，不允许为 null
+    * @param fallbackClient fallback客户端，不允许为 null
+    * @return 上下文Compressor 对象
     */
     public static ContextCompressor create(ContextCompressionConfig config, ChatClient fallbackClient) {
         return new ContextCompressor(config, fallbackClient);
@@ -72,12 +75,18 @@ public final class ContextCompressor {
         return new ContextCompressor(cfg, fallbackClient);
     }
 
-    /** Disabled */
+    /**
+     * Disabled
+     * @return 上下文Compressor 对象
+     */
     public static ContextCompressor disabled() {
         return new ContextCompressor(ContextCompressionConfig.builder().enabled(false).build(), null);
     }
 
-    /** 是否Enabled */
+    /**
+     * 是否Enabled
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isEnabled() {
         return config.isEnabled()
                 && config.getCompressionThreshold() > 0;
@@ -91,6 +100,8 @@ public final class ContextCompressor {
     *   <li>已有基线且到偏差阈值：基线矫正</li>
     *   <li>已有基线但未到偏差阈值：原样返回</li>
     * </ul>
+    * @param messages 方法入参 messages
+    * @return 结果列表，无数据时为空列表
     */
     public List<ChatMessage> maybeCompress(List<ChatMessage> messages) {
         if (!isEnabled() || messages == null) {
@@ -132,6 +143,8 @@ public final class ContextCompressor {
 
     /**
     * 强制压缩（忽略消息数阈值，仍尊重 enabled）。
+    * @param fullContext full上下文，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     public List<ChatMessage> compress(List<ChatMessage> fullContext) {
         if (!config.isEnabled() || fullContext == null) {
@@ -147,6 +160,8 @@ public final class ContextCompressor {
     * 将 prompt 视为 {@code List<ChatMessage>} 的 user 消息，
     * 返回压缩后的内容（若未触发压缩则原样返回）。
     * </p>
+    * @param prompt 提示词，不允许为 null
+    * @return 结果字符串
     */
     public String compressPrompt(String prompt) {
         if (!isEnabled() || prompt == null) {
@@ -159,18 +174,25 @@ public final class ContextCompressor {
         return compressed.getFirst().getContent();
     }
 
-    /** 是否BaselineSaved */
+    /**
+     * 是否BaselineSaved
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isBaselineSaved() {
         return delegate.isBaselineSaved();
     }
 
-    /** 获取Config */
+    /**
+     * 获取Config
+     * @return 上下文Compression配置 对象
+     */
     public ContextCompressionConfig getConfig() {
         return config;
     }
 
     /**
     * 底层服务（测试/高级场景）。
+    * @return Agent上下文Compression服务 对象
     */
     public AgentContextCompressionService getService() {
         return delegate;

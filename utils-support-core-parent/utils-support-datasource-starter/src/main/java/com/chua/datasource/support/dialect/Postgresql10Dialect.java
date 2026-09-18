@@ -22,6 +22,11 @@ public class Postgresql10Dialect extends SqlDialect {
         super("postgresql10");
     }
 
+    /**
+     * 构造方法，创建 Postgresql10Dialect 实例。
+     *
+     * @param properties 属性，不允许为 null
+     */
     public Postgresql10Dialect(Properties properties) {
         super("postgresql10", properties);
     }

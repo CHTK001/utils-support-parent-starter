@@ -416,18 +416,24 @@ public class Zip4jFileSystem implements FileSystem {
             final byte[] bytes; // bytes
 
             EntryData(String entryName, File source) {
-                this.entryName = entryName; this.source = source;
-                this.inputStream = null; this.bytes = null;
+                this.entryName = entryName;
+                this.source = source;
+                this.inputStream = null;
+                this.bytes = null;
             }
 
             EntryData(String entryName, InputStream inputStream) {
-                this.entryName = entryName; this.source = null;
-                this.inputStream = inputStream; this.bytes = null;
+                this.entryName = entryName;
+                this.source = null;
+                this.inputStream = inputStream;
+                this.bytes = null;
             }
 
             EntryData(String entryName, byte[] bytes) {
-                this.entryName = entryName; this.source = null;
-                this.inputStream = null; this.bytes = bytes;
+                this.entryName = entryName;
+                this.source = null;
+                this.inputStream = null;
+                this.bytes = bytes;
             }
 
             String getEntryName() { return entryName; }

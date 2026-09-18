@@ -98,7 +98,11 @@ public class EngineMemoryStore implements MemoryStore {
         syncToEngine();
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     * @param entry 条目，不允许为 null
+     * @return Memory条目 对象
+     */
     private MemoryEntry normalize(MemoryEntry entry) {
         var b = entry.toBuilder();
         if (entry.getId() == null || entry.getId().isBlank()) {
@@ -204,7 +208,11 @@ public class EngineMemoryStore implements MemoryStore {
         }
     }
 
-    /** ListAll */
+    /**
+     * ListAll
+     * @param limit 上限，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<MemoryEntry> listAll(int limit) {
         return rows.stream()
                 .map(MemoryEntryEntity::toEntry)

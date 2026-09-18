@@ -83,7 +83,12 @@ public class FilePushRoundTripTest {
         System.exit(allPassed ? 0 : 1);
     }
 
-    /** 校验推送结果 */
+    /**
+     * 校验推送结果
+     * @param result 结果，不允许为 null
+     * @param expectedFiles 方法入参 expectedFiles
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean checkResult(PushResult result, int expectedFiles) {
         boolean ok = result.hasFailures();
         System.out.println("[checkResult] " + (ok ? "FAIL" : "PASS")
@@ -116,7 +121,12 @@ public class FilePushRoundTripTest {
         return ok;
     }
 
-    /** 校验服务端统计 */
+    /**
+     * 校验服务端统计
+     * @param server 服务端，不允许为 null
+     * @param expectedFiles 方法入参 expectedFiles
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean verifyStats(FilePushServer server, int expectedFiles) {
         var stats = server.snapshotStats();
         boolean ok = stats.get("files") == expectedFiles
@@ -139,14 +149,21 @@ public class FilePushRoundTripTest {
         return ok;
     }
 
-    /** 生成随机字节 */
+    /**
+     * 生成随机字节
+     * @param size 大小，不允许为 null
+     * @return 结果值
+     */
     private static byte[] randomBytes(int size) {
         byte[] data = new byte[size];
         new Random(42).nextBytes(data);
         return data;
     }
 
-    /** 递归删除目录 */
+    /**
+     * 递归删除目录
+     * @param root 根节点，不允许为 null
+     */
     private static void deleteRecursively(Path root) {
         if (!Files.exists(root)) {
             return;

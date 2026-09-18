@@ -76,6 +76,7 @@ public final class IbdSdiReader {
     * @param type 记录类型（1 表 / 2 表空间）
     * @param id   对象 id
     * @param json 解压后的 JSON 字节
+    * @return 结果值
     */
     public record SdiRecord(int type, long id, byte[] json) {
 

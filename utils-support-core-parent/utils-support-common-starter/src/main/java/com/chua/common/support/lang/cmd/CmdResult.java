@@ -175,7 +175,12 @@ public class CmdResult {
                 '}';
     }
 
-    /** Truncate */
+    /**
+     * Truncate
+     * @param str 字符串，不允许为 null
+     * @param max 最大值，不允许为 null
+     * @return 结果字符串
+     */
     private static String truncate(String str, int max) {
         if (str == null || str.length() <= max) {
             return str;

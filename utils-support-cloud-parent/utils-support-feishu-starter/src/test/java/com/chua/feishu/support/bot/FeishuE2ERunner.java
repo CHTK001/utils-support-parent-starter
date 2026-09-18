@@ -18,10 +18,18 @@ import com.chua.common.support.ai.bot.BotInboundMessage;
  */
 public final class FeishuE2ERunner {
 
+    /**
+     * 构造方法，工具类禁止实例化。
+     */
     private FeishuE2ERunner() {
     }
 
-    /** 主入口 */
+    /**
+     * 主入口，读取环境变量凭据后启动飞书机器人长连接并自动回复。
+     *
+     * @param args 命令行参数，未使用
+     * @throws Exception 当等待连接期间线程被中断时
+     */
     public static void main(String[] args) throws Exception {
         String appId = require("FEISHU_APP_ID");
         String appSecret = require("FEISHU_APP_SECRET");
@@ -41,6 +49,12 @@ public final class FeishuE2ERunner {
         }
     }
 
+    /**
+     * 收到入站消息后打印详情并原样回复。
+     *
+     * @param client 飞书机器人客户端，不允许为 null
+     * @param msg 入站消息，不允许为 null
+     */
     private static void onMessage(FeishuBotClient client,
             BotInboundMessage msg) {
         System.out.printf("[RECV] from=%s group=%s mentionedBot=%s"
@@ -57,6 +71,13 @@ public final class FeishuE2ERunner {
                 result.getErrorMessage());
     }
 
+    /**
+     * 读取必填环境变量。
+     *
+     * @param name 环境变量名，不允许为 null
+     * @return 环境变量值，保证非空白
+     * @throws IllegalStateException 当环境变量缺失或为空白时
+     */
     private static String require(String name) {
         String value = System.getenv(name);
         if (value == null || value.isBlank()) {

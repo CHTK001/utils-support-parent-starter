@@ -11,9 +11,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Serializes a parsed hprof result into the JSON document shape:
+ * 将解析后的 hprof 结果序列化为 JSON 文档结构：
  * <pre>{@code
  * {
  *   "leak_suspects": [
@@ -29,15 +30,18 @@ public final class HprofToJsonSerializer {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /**
+     * 私有构造函数：本类为静态工具类，仅通过静态方法对外提供能力，禁止外部实例化。
+     */
     private HprofToJsonSerializer() {
     }
 
     /**
-    * Serialize the parsed result to a JSON string.
+    * 将解析后的 hprof 结果序列化为 JSON 字符串。
     *
-    * @param result   parsed hprof result
-    * @param fileName source file name for the metadata block
-    * @return JSON document string
+    * @param result   解析后的 hprof 结果，不允许为 null
+    * @param fileName 用于元信息块的源文件名
+    * @return JSON 文档字符串
     */
     public static String serialize(HprofParser.Result result, String fileName) {
         try {
@@ -48,11 +52,11 @@ public final class HprofToJsonSerializer {
     }
 
     /**
-    * Build the root JSON document node.
+    * 构建 JSON 文档根节点。
     *
-    * @param result   parsed hprof result
-    * @param fileName source file name
-    * @return the document node
+    * @param result   解析后的 hprof 结果，不允许为 null
+    * @param fileName 源文件名
+    * @return 文档根节点
     */
     private static JsonNode buildDocument(HprofParser.Result result, String fileName) {
         ObjectNode root = MAPPER.createObjectNode();
@@ -83,7 +87,8 @@ public final class HprofToJsonSerializer {
         // algorithmic analysis (findings + conclusions) so an AI can read
         // the "why is memory high" answer directly from the document
         com.chua.hprof.support.analyzer.HprofAnalyzer.HprofAnalysis analysis =
-                com.chua.hprof.support.analyzer.HprofAnalyzer.analyze(result);
+                com.chua.hprof.support.analyzer.HprofAnalyzer.analyze(result,
+                        fileName == null ? null : new java.io.File(fileName));
         ObjectNode analysisNode = root.putObject("analysis");
         ArrayNode findings = analysisNode.putArray("findings");
         for (com.chua.hprof.support.analyzer.HprofAnalyzer.HprofFinding f : analysis.findingDetails) {
@@ -96,13 +101,28 @@ public final class HprofToJsonSerializer {
         ArrayNode conclusions = analysisNode.putArray("conclusions");
         for (String c : analysis.conclusions) {
             conclusions.add(c);
-        }        ObjectNode metrics = analysisNode.putObject("metrics");
+        }
+        ObjectNode metrics = analysisNode.putObject("metrics");
         metrics.put("top10_retained_ratio", analysis.topNRetainedRatio);
         metrics.put("collection_retained_bytes", analysis.collectionRetainedBytes);
         metrics.put("class_loader_class_count", analysis.classLoaderClassCount);
         metrics.put("string_and_binary_retained_bytes", analysis.stringAndBinaryRetainedBytes);
         metrics.put("jdk_retained_bytes", analysis.jdkRetainedBytes);
         metrics.put("non_jdk_retained_bytes", analysis.nonJdkRetainedBytes);
+        // GC 根分布：区分线程池 / JNI / 类加载器泄漏的关键线索
+        ObjectNode gcRootsNode = analysisNode.putObject("gc_roots");
+        ObjectNode byKind = gcRootsNode.putObject("by_kind");
+        if (analysis.gcRootsByKind != null) {
+            for (Map.Entry<String, Long> e : analysis.gcRootsByKind.entrySet()) {
+                byKind.put(e.getKey(), e.getValue());
+            }
+        }
+        ArrayNode rootsArr = gcRootsNode.putArray("roots");
+        if (result.gcRoots() != null) {
+            for (String r : result.gcRoots()) {
+                rootsArr.add(r);
+            }
+        }
         ArrayNode nonJdkGroups = analysisNode.putArray("non_jdk_packages");
         for (com.chua.hprof.support.analyzer.HprofAnalyzer.PackageGroup g : analysis.nonJdkPackageGroups) {
             ObjectNode item = nonJdkGroups.addObject();
@@ -111,6 +131,35 @@ public final class HprofToJsonSerializer {
             item.put("retained_bytes", g.retained());
         }
         analysisNode.put("root_cause", analysis.rootCause);
+        analysisNode.put("root_cause_headline", analysis.rootCauseHeadline);
+        ArrayNode rcMechanisms = analysisNode.putArray("root_cause_mechanisms");
+        if (analysis.rootCauseMechanisms != null) {
+            for (String m : analysis.rootCauseMechanisms) {
+                rcMechanisms.add(m);
+            }
+        }
+        ArrayNode rcSections = analysisNode.putArray("root_cause_sections");
+        if (analysis.rootCauseSections != null) {
+            for (com.chua.hprof.support.analyzer.HprofAnalyzer.RootCauseSection s
+                    : analysis.rootCauseSections) {
+                ObjectNode sec = rcSections.addObject();
+                sec.put("label", s.label());
+                sec.put("text", s.text());
+            }
+        }
+        // 崩溃语境（OOM 推断 / 堆水位 / hs_err 证据）
+        ObjectNode crashNode = analysisNode.putObject("crash_context");
+        crashNode.put("oom_likely", analysis.oomLikely);
+        ArrayNode crashSignals = crashNode.putArray("signals");
+        if (analysis.crashSignals != null) {
+            for (com.chua.hprof.support.crash.CrashContext.CrashSignal s : analysis.crashSignals) {
+                ObjectNode item = crashSignals.addObject();
+                item.put("kind", s.kind());
+                item.put("detail", s.detail());
+                item.put("evidence", s.evidence());
+                item.put("oom_likely", s.oomLikely());
+            }
+        }
         // 逐实例字段明细：让 AI 能读到"是谁把东西存进去了"
         ArrayNode classDetails = root.putArray("class_details");
         if (result.classDetails() != null) {
@@ -139,6 +188,47 @@ public final class HprofToJsonSerializer {
                     f.put("value", fv.getValueText());
                 }
             }
+        }
+
+        // 3 层引用链（持有实例 → 字段 → 子引用）
+        ArrayNode refChains = root.putArray("ref_chains");
+        if (result.refChains() != null) {
+            for (com.chua.hprof.support.parser.HprofRefChainWalker.RefChain chain : result.refChains()) {
+                ObjectNode c = refChains.addObject();
+                c.put("holder_class", chain.holderClass());
+                c.put("holder_id", chain.holderId());
+                c.put("holder_retained", chain.holderRetained());
+                ArrayNode fvs = c.putArray("fields");
+                for (com.chua.hprof.support.model.HprofClassDetail.FieldValueDetail fv : chain.fields()) {
+                    ObjectNode f = fvs.addObject();
+                    f.put("name", fv.getName());
+                    f.put("value", fv.getValueText());
+                }
+                ArrayNode children = c.putArray("children");
+                for (com.chua.hprof.support.parser.HprofRefChainWalker.ChildRef child : chain.children()) {
+                    ObjectNode ch = children.addObject();
+                    ch.put("class", child.className());
+                    ch.put("retained", child.retained());
+                    ch.put("instance_id", child.instanceId());
+                }
+            }
+        }
+
+        // 处置计划（问题 → 怎么做 → 预期 → 验证）
+        com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan =
+                com.chua.hprof.support.action.HprofActionPlanner.plan(result, analysis);
+        ObjectNode planNode = root.putObject("action_plan");
+        planNode.put("problem_summary", plan.problemSummary());
+        planNode.put("idea_specific", plan.ideaSpecific());
+        ArrayNode planItems = planNode.putArray("items");
+        for (com.chua.hprof.support.action.HprofActionPlanner.ActionItem item : plan.items()) {
+            ObjectNode p = planItems.addObject();
+            p.put("id", item.id());
+            p.put("title", item.title());
+            p.put("how", item.how());
+            p.put("expected_effect", item.expectedEffect());
+            p.put("verify", item.verify());
+            p.put("priority", item.priority());
         }
         return root;
     }

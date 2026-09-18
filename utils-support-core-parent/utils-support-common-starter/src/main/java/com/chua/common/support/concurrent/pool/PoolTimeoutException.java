@@ -23,6 +23,7 @@ public class PoolTimeoutException extends RuntimeException {
     * 创建 PoolTimeoutException 实例
     * @param message message
     * @param Throwable Throwable
+    * @param cause 方法入参 cause
     */
     public PoolTimeoutException(String message, Throwable cause) {
         super(message, cause);

@@ -108,6 +108,11 @@ public enum InterceptPoint {
      */
     private final String key;
 
+    /**
+     * 构造方法，创建 InterceptPoint 实例。
+     *
+     * @param key 键，不允许为 null
+     */
     InterceptPoint(String key) {
         this.key = key;
     }

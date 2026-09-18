@@ -44,7 +44,12 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
         return this;
     }
 
-    /** GeneratePseudoVector */
+    /**
+     * GeneratePseudoVector
+     * @param text 文本，不允许为 null
+     * @param dim 方法入参 dim
+     * @return 结果值
+     */
     private float[] generatePseudoVector(String text, int dim) {
         float[] vector = new float[dim];
         int hash = text != null ? text.hashCode() : 0;
@@ -56,7 +61,10 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
         return vector;
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     * @param vector 方法入参 vector
+     */
     private void normalize(float[] vector) {
         float norm = 0;
         for (float v : vector) {

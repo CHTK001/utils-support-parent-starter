@@ -293,8 +293,14 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
 
     /** 关闭 */
     public synchronized void close() {
-        try { if (session != null) session.close(); } catch (Exception ignore) {}
-        session = null; ortEnv = null;
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignore) {
+        }
+        session = null;
+        ortEnv = null;
     }
     /**
     * 创建 Translator（支持外部阈值覆盖）。

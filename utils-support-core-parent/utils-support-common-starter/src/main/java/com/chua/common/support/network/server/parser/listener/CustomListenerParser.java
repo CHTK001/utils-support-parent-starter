@@ -64,7 +64,11 @@ public class CustomListenerParser implements ListenerParser {
         return 100;
     }
 
-    /** MatchAnnotation */
+    /**
+     * MatchAnnotation
+     * @param method 方法，不允许为 null
+     * @return 结果字符串
+     */
     private String matchAnnotation(Method method) {
         if (method.isAnnotationPresent(OnEventOpen.class)) {
             return "open";

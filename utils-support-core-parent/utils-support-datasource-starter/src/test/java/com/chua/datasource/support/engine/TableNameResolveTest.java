@@ -15,18 +15,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DisplayName("表名解析测试")
 class TableNameResolveTest {
 
+    /**
+     * 测试：DefaultSnakeCase。
+     */
     @Test
     @DisplayName("无注解:简单类名驼峰转下划线")
     void testDefaultSnakeCase() {
         assertEquals("fixture_user", AbstractEngine.resolveTableName(FixtureUser.class));
     }
 
+    /**
+     * 测试：Annotated表名称。
+     */
     @Test
     @DisplayName("有 @TableName:优先使用注解值")
     void testAnnotatedTableName() {
         assertEquals("t_order", AbstractEngine.resolveTableName(FixtureOrderEntity.class));
     }
 
+    /**
+     * 测试：SimpleLowerCase。
+     */
     @Test
     @DisplayName("连续大写按逐字符规则转换")
     void testSimpleLowerCase() {

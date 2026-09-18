@@ -24,6 +24,9 @@ import java.util.Locale;
  */
 public final class HprofToMarkdownSerializer {
 
+    /**
+     * 构造方法，创建 Hprof转为MarkdownSerializer 实例。
+     */
     private HprofToMarkdownSerializer() {
     }
 
@@ -35,15 +38,105 @@ public final class HprofToMarkdownSerializer {
     * @return Markdown 文档
     */
     public static String serialize(HprofParser.Result result, String fileName) {
-        HprofAnalysis analysis = HprofAnalyzer.analyze(result);
+        HprofAnalysis analysis = HprofAnalyzer.analyze(result,
+                fileName == null ? null : new java.io.File(fileName));
+        com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan =
+                com.chua.hprof.support.action.HprofActionPlanner.plan(result, analysis);
         StringBuilder sb = new StringBuilder();
         appendHeader(sb, result, fileName);
+        appendProblemAndPlan(sb, plan);
+        appendCrashContext(sb, analysis);
         appendRootCause(sb, analysis);
         appendClassHistogram(sb, result.histogram());
         appendNonJdk(sb, analysis);
+        appendRefChains(sb, result);
         appendLeakSuspects(sb, result.topRetained());
         appendConclusions(sb, analysis);
+        appendChecklist(sb, plan);
         return sb.toString();
+    }
+
+    /**
+    * 追加"问题 + 处理步骤"段落。
+    *
+    * @param sb   输出缓冲
+    * @param plan 处置计划
+    */
+    private static void appendProblemAndPlan(StringBuilder sb,
+                                             com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
+        sb.append("## 问题是什么 · 怎么处理\n\n");
+        sb.append(plan.problemSummary()).append("\n\n");
+        sb.append("| 优先级 | 做什么 | 怎么做 | 预期效果 |\n");
+        sb.append("|--------|--------|--------|----------|\n");
+        for (com.chua.hprof.support.action.HprofActionPlanner.ActionItem item : plan.items()) {
+            sb.append("| P").append(item.priority())
+                    .append(" | ").append(item.title())
+                    .append(" | ").append(item.how())
+                    .append(" | ").append(item.expectedEffect())
+                    .append(" |\n");
+        }
+        sb.append("\n");
+    }
+
+    /**
+    * 追加引用链段落。
+    *
+    * @param sb     输出缓冲
+    * @param result 解析结果
+    */
+    private static void appendRefChains(StringBuilder sb, HprofParser.Result result) {
+        if (result.refChains() == null || result.refChains().isEmpty()) {
+            return;
+        }
+        sb.append("## 引用链（谁持有谁）\n\n");
+        for (com.chua.hprof.support.parser.HprofRefChainWalker.RefChain chain : result.refChains()) {
+            sb.append("- **").append(chain.holderClass())
+                    .append("**（#").append(chain.holderId())
+                    .append("，保留 ").append(HprofObject.formatSize(chain.holderRetained())).append("）\n");
+            if (!chain.fields().isEmpty()) {
+                sb.append("  - 自身字段：");
+                boolean first = true;
+                for (com.chua.hprof.support.model.HprofClassDetail.FieldValueDetail fv : chain.fields()) {
+                    if (!first) {
+                        sb.append("，");
+                    }
+                    first = false;
+                    sb.append(fv.getName()).append("=").append(fv.getValueText());
+                }
+                sb.append("\n");
+            }
+            if (!chain.children().isEmpty()) {
+                sb.append("  - 持有子引用（按保留大小）：");
+                boolean first = true;
+                for (com.chua.hprof.support.parser.HprofRefChainWalker.ChildRef child : chain.children()) {
+                    if (!first) {
+                        sb.append("；");
+                    }
+                    first = false;
+                    sb.append(child.className()).append(" → ")
+                            .append(HprofObject.formatSize(child.retained()))
+                            .append(" (#").append(child.instanceId()).append(")");
+                }
+                sb.append("\n");
+            }
+        }
+        sb.append("\n");
+    }
+
+    /**
+    * 追加可勾选处置清单（Markdown 用 - [ ] 复选框）。
+    *
+    * @param sb   输出缓冲
+    * @param plan 处置计划
+    */
+    private static void appendChecklist(StringBuilder sb,
+                                        com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
+        sb.append("## 处置清单（处理一项勾一项）\n\n");
+        for (com.chua.hprof.support.action.HprofActionPlanner.ActionItem item : plan.items()) {
+            sb.append("- [ ] **P").append(item.priority()).append("** ").append(item.title()).append('\n');
+            sb.append("  - 验证：").append(item.verify()).append('\n');
+        }
+        sb.append("\n");
     }
 
     /**
@@ -58,6 +151,26 @@ public final class HprofToMarkdownSerializer {
         sb.append("- **源文件**：`").append(fileName == null ? "stream" : fileName).append("`\n");
         sb.append("- **存活对象数**：").append(result.totalObjectCount()).append("\n");
         sb.append("- **总保留内存**：").append(HprofObject.formatSize(result.totalRetainedBytes())).append("\n");
+        sb.append("\n");
+    }
+
+    /**
+    * 追加崩溃语境段落（OOM 判定 / 堆水位 / hs_err 证据）。
+    *
+    * @param sb       输出缓冲
+    * @param analysis 分析结果
+    */
+    private static void appendCrashContext(StringBuilder sb, HprofAnalysis analysis) {
+        if (analysis.crashSignals == null || analysis.crashSignals.isEmpty()) {
+            return;
+        }
+        sb.append(analysis.oomLikely
+                        ? "## ⚠ 崩溃语境判定（强烈疑似 OOM）\n\n"
+                        : "## 崩溃语境判定（证据不足）\n\n");
+        for (com.chua.hprof.support.crash.CrashContext.CrashSignal signal : analysis.crashSignals) {
+            sb.append("- **").append(signal.kind()).append("**：").append(signal.detail())
+                    .append("。*证据：").append(signal.evidence()).append("*\n");
+        }
         sb.append("\n");
     }
 

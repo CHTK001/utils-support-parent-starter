@@ -38,6 +38,11 @@ public class HttpProxyServer extends AbstractProxyServer {
     /** 连接池容量上限 */
     private static final int BACKEND_POOL_MAX = 8;
 
+    /**
+     * 构造方法，创建 HttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public HttpProxyServer(ServerSetting setting) {
         super(setting);
         initProxy();
@@ -46,6 +51,12 @@ public class HttpProxyServer extends AbstractProxyServer {
         this.readTimeoutMs = setting.getWriteTimeout();
     }
 
+    /**
+     * 构造方法，创建 HttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param targetResolver 目标Resolver，不允许为 null
+     */
     public HttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         initProxy();
@@ -54,11 +65,20 @@ public class HttpProxyServer extends AbstractProxyServer {
         this.readTimeoutMs = setting.getWriteTimeout();
     }
 
+    /**
+     * 构造方法，创建 HttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     * @param backend 方法入参 backend
+     */
     public HttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
         log.debug("HttpProxyServer created, preferNonBlockingAccept={}", preferNonBlockingAccept);
     }
 
+    /**
+     * 初始化Proxy。
+     */
     private void initProxy() {
         this.preferNonBlockingAccept = false;
     }
@@ -68,7 +88,11 @@ public class HttpProxyServer extends AbstractProxyServer {
         return com.chua.common.support.network.ProtocolType.HTTP;
     }
 
-    /** 借出后端连接：优先复用池中空闲连接，无则新建。 */
+    /**
+     * 借出后端连接：优先复用池中空闲连接，无则新建。
+     * @param backend 方法入参 backend
+     * @return Socket 对象
+     */
     private Socket borrowBackend(InetSocketAddress backend) throws IOException {
         Socket pooled;
         while ((pooled = backendPool.poll()) != null) {
@@ -87,7 +111,11 @@ public class HttpProxyServer extends AbstractProxyServer {
         return s;
     }
 
-    /** 归还后端连接：keep-alive 且池未满才复用，否则关闭。 */
+    /**
+     * 归还后端连接：keep-alive 且池未满才复用，否则关闭。
+     * @param socket 方法入参 socket
+     * @param keepAlive keepAlive（布尔开关）
+     */
     private void returnBackend(Socket socket, boolean keepAlive) {
         if (keepAlive && backendPool.size() < BACKEND_POOL_MAX
                 && !socket.isClosed() && !socket.isInputShutdown() && !socket.isOutputShutdown()) {
@@ -100,7 +128,11 @@ public class HttpProxyServer extends AbstractProxyServer {
         }
     }
 
-    /** 响应头是否 Connection: close（连接不可复用）。 */
+    /**
+     * 响应头是否 Connection: close（连接不可复用）。
+     * @param header 请求头，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean connectionClose(byte[] header) {
         String head = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
         for (String line : head.split("\r\n")) {
@@ -230,6 +262,8 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
     * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
+    * @param in 方法入参 in
+    * @return 结果值
     */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
@@ -253,6 +287,9 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
     * 读取请求体（按 Content-Length 或 chunked）。
+    * @param in 方法入参 in
+    * @param headText 头部文本，不允许为 null
+    * @return 结果值
     */
     private byte[] readBody(InputStream in, String headText) throws IOException {
         int len = contentLength(headText);
@@ -271,11 +308,23 @@ OutputStream backOut = backendSocket.getOutputStream();
         return new byte[0];
     }
 
+    /**
+     * 是否Chunked。
+     *
+     * @param header 请求头，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isChunked(byte[] header) {
         String text = new String(header, java.nio.charset.StandardCharsets.ISO_8859_1);
         return text.toLowerCase().contains("transfer-encoding: chunked");
     }
 
+    /**
+     * 内容长度。
+     *
+     * @param headText 头部文本，不允许为 null
+     * @return 结果数值
+     */
     private int contentLength(String headText) {
         for (String line : headText.split("\r\n")) {
             if (line.toLowerCase().startsWith("content-length:")) {
@@ -291,12 +340,18 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
     * 响应头中的 Content-Length（用于判断是否转发 body）。
+    * @param header 请求头，不允许为 null
+    * @return 结果数值
     */
     private int contentLength(byte[] header) {
         return contentLength(new String(header, java.nio.charset.StandardCharsets.ISO_8859_1));
     }
 
-    /** 原样泵送响应体（chunked 或定长）。 */
+    /**
+     * 原样泵送响应体（chunked 或定长）。
+     * @param in 方法入参 in
+     * @param out 方法入参 out
+     */
     private void pipeRaw(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         int n;
@@ -308,6 +363,9 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
     * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
+    * @param in 方法入参 in
+    * @param out 方法入参 out
+    * @param length 长度，不允许为 null
     */
     private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
         byte[] buffer = new byte[8192];
@@ -325,6 +383,8 @@ OutputStream backOut = backendSocket.getOutputStream();
 
     /**
     * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
+    * @param in 方法入参 in
+    * @param out 方法入参 out
     */
     private void pipeChunked(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
@@ -370,6 +430,14 @@ OutputStream backOut = backendSocket.getOutputStream();
         }
     }
 
+    /**
+     * 写入Simple。
+     *
+     * @param out 方法入参 out
+     * @param code 编码，不允许为 null
+     * @param msg 消息，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void writeSimple(OutputStream out, int code, String msg) throws IOException {
         String body = msg == null ? "" : msg;
         String resp = "HTTP/1.1 " + code + " " + (code == 502 ? "Bad Gateway" : "Error") + "\r\n"

@@ -12,6 +12,9 @@ class NmapScannerModelTest {
 
  // ── 扫描期权 ───────────────────────────────────────────────────────────
 
+    /**
+     * scan选项defaults。
+     */
     @Test
     void scanOptions_defaults() {
         NmapScanner.ScanOptions opts = NmapScanner.ScanOptions.defaults();
@@ -24,6 +27,9 @@ class NmapScannerModelTest {
         assertEquals(NmapScanner.ScanType.TCP_CONNECT, opts.getScanType());
     }
 
+    /**
+     * scan选项fast。
+     */
     @Test
     void scanOptions_fast() {
         NmapScanner.ScanOptions opts = NmapScanner.ScanOptions.fast();
@@ -31,6 +37,9 @@ class NmapScannerModelTest {
         assertEquals(500, opts.getConcurrency());
     }
 
+    /**
+     * scan选项thorough。
+     */
     @Test
     void scanOptions_thorough() {
         NmapScanner.ScanOptions opts = NmapScanner.ScanOptions.thorough();
@@ -39,6 +48,9 @@ class NmapScannerModelTest {
         assertTrue(opts.isServiceDetection());
     }
 
+    /**
+     * scan选项chaining。
+     */
     @Test
     void scanOptions_chaining() {
         NmapScanner.ScanOptions opts = new NmapScanner.ScanOptions()
@@ -56,6 +68,9 @@ class NmapScannerModelTest {
 
  // ── 端口信息 ──────────────────────────────────────────────────────────────
 
+    /**
+     * 端口Info转为字符串打开。
+     */
     @Test
     void portInfo_toString_open() {
         NmapScanner.PortInfo p = new NmapScanner.PortInfo();
@@ -69,6 +84,9 @@ class NmapScannerModelTest {
         assertTrue(s.contains("http"));
     }
 
+    /**
+     * 端口Info全部states。
+     */
     @Test
     void portInfo_all_states() {
         for (NmapScanner.PortState state : NmapScanner.PortState.values()) {
@@ -80,6 +98,9 @@ class NmapScannerModelTest {
 
  // ── 主机信息 ──────────────────────────────────────────────────────────────
 
+    /**
+     * 主机Info转为字符串alive。
+     */
     @Test
     void hostInfo_toString_alive() {
         NmapScanner.HostInfo h = new NmapScanner.HostInfo();
@@ -91,6 +112,9 @@ class NmapScannerModelTest {
         assertTrue(s.contains("alive"));
     }
 
+    /**
+     * 主机Info转为字符串down。
+     */
     @Test
     void hostInfo_toString_down() {
         NmapScanner.HostInfo h = new NmapScanner.HostInfo();
@@ -99,6 +123,9 @@ class NmapScannerModelTest {
         assertTrue(h.toString().contains("down"));
     }
 
+    /**
+     * 主机Infofields。
+     */
     @Test
     void hostInfo_fields() {
         NmapScanner.HostInfo h = new NmapScanner.HostInfo();
@@ -116,6 +143,9 @@ class NmapScannerModelTest {
 
  // ── 扫描结果 ────────────────────────────────────────────────────────────
 
+    /**
+     * scan结果fields。
+     */
     @Test
     void scanResult_fields() {
         NmapScanner.ScanResult r = new NmapScanner.ScanResult();
@@ -131,6 +161,9 @@ class NmapScannerModelTest {
 
  // ── 服务信息 ───────────────────────────────────────────────────────────
 
+    /**
+     * 服务Infofields。
+     */
     @Test
     void serviceInfo_fields() {
         NmapScanner.ServiceInfo s = new NmapScanner.ServiceInfo();
@@ -147,6 +180,9 @@ class NmapScannerModelTest {
 
  // ── os信息 ────────────────────────────────────────────────────────────────
 
+    /**
+     * osInfofields。
+     */
     @Test
     void osInfo_fields() {
         NmapScanner.OsInfo o = new NmapScanner.OsInfo();
@@ -162,6 +198,9 @@ class NmapScannerModelTest {
 
  // ── 扫描进步 ──────────────────────────────────────────────────────────
 
+    /**
+     * scanProgressfields。
+     */
     @Test
     void scanProgress_fields() {
         NmapScanner.ScanProgress p = new NmapScanner.ScanProgress();
@@ -176,6 +215,9 @@ class NmapScannerModelTest {
 
  // ── 扫描类型 enum ─────────────────────────────────────────────────────────
 
+    /**
+     * scan类型全部values。
+     */
     @Test
     void scanType_all_values() {
         assertEquals(4, NmapScanner.ScanType.values().length);

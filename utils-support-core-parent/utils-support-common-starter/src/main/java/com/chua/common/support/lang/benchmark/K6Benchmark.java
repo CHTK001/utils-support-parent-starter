@@ -59,6 +59,11 @@ public class K6Benchmark implements Benchmark {
               vus: __ENV.VUS,
               iterations: __ENV.ITERATIONS,
             };
+            /**
+             * 函数。
+             *
+             * @return 结果值
+             */
             export default function () {
               http.get(__ENV.TARGET_URL);
             }

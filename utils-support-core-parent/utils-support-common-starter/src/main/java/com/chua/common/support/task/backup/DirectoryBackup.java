@@ -62,7 +62,13 @@ public class DirectoryBackup implements BackupStrategy {
             }
 
             long totalSize = changedFiles.stream()
-                    .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } })
+                    .mapToLong(p -> {
+                        try {
+                            return Files.size(p);
+                        } catch (Exception e) {
+                            return 0;
+                        }
+                    })
                     .sum();
 
             return BackupResult.success(targetDir, changedFiles, totalSize, System.currentTimeMillis() - start);

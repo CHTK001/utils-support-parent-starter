@@ -58,6 +58,12 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 解析Eml。
+     *
+     * @param eml 方法入参 eml
+     * @return EmailInfo 对象
+     */
     private EmailInfo parseEml(String eml) {
         EmailInfo info = new EmailInfo();
 
@@ -135,6 +141,13 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * 构建Html。
+     *
+     * @param info 方法入参 info
+     * @param fileSize 文件大小，不允许为 null
+     * @return 结果字符串
+     */
     private String buildHtml(EmailInfo info, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -283,6 +296,12 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         return out.toByteArray();
     }
 
+    /**
+     * escapeHtml。
+     *
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -290,6 +309,12 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

@@ -21,6 +21,9 @@ class RemoteScanTest {
 
     private RustNmapScanner scanner; // scanner
 
+    /**
+     * 设置Up。
+     */
     @BeforeEach
     void setUp() {
         Assumptions.assumeTrue(NATIVE_LOADED, "跳过：动态库未加载");
@@ -30,6 +33,9 @@ class RemoteScanTest {
                 .setConcurrency(200));
     }
 
+    /**
+     * ping。
+     */
     @Test
     @Order(1)
     @DisplayName("Ping 检测主机存活")
@@ -38,6 +44,9 @@ class RemoteScanTest {
         log.info("[扫描] {} ping: alive={} latency={}ms", TARGET, info.isAlive(), info.getLatency());
     }
 
+    /**
+     * scancommonports。
+     */
     @Test
     @Order(2)
     @DisplayName("扫描常用端口")
@@ -58,6 +67,9 @@ class RemoteScanTest {
         Assertions.assertNotNull(result);
     }
 
+    /**
+     * scanwebports。
+     */
     @Test
     @Order(3)
     @DisplayName("扫描 Web 相关端口 (80/443/8080/8443/8888)")
@@ -79,6 +91,9 @@ class RemoteScanTest {
         }
     }
 
+    /**
+     * scandbports。
+     */
     @Test
     @Order(4)
     @DisplayName("扫描数据库端口 (3306/5432/6379/27017/1433)")
@@ -94,6 +109,9 @@ class RemoteScanTest {
         }
     }
 
+    /**
+     * scanadminports。
+     */
     @Test
     @Order(5)
     @DisplayName("扫描运维端口 (22/3389/5900)")
@@ -109,6 +127,9 @@ class RemoteScanTest {
         }
     }
 
+    /**
+     * detectos。
+     */
     @Test
     @Order(6)
     @DisplayName("OS 指纹识别")
@@ -118,6 +139,9 @@ class RemoteScanTest {
                 TARGET, os.getName(), os.getFamily(), os.getAccuracy());
     }
 
+    /**
+     * 解析hostname。
+     */
     @Test
     @Order(7)
     @DisplayName("DNS 解析")

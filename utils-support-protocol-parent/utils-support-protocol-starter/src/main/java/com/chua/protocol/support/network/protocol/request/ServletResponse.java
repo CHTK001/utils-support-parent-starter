@@ -8,10 +8,16 @@ package com.chua.protocol.support.network.protocol.request;
  */
 public interface ServletResponse {
 
-    /** 设置响应 内容-类型 */
+    /**
+     * 设置响应 内容-类型
+     * @param contentType 内容类型，不允许为 null
+     */
     void setContentType(String contentType);
 
-    /** 设置响应状态码 */
+    /**
+     * 设置响应状态码
+     * @param status 状态，不允许为 null
+     */
     void setStatus(int status);
 
     /**
@@ -30,6 +36,9 @@ public interface ServletResponse {
     */
     void addHeader(String name, String value);
 
-    /** 写入响应体字符串 */
+    /**
+     * 写入响应体字符串
+     * @param body 请求体，不允许为 null
+     */
     void setBodyString(String body);
 }

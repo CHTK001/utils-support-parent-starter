@@ -12,6 +12,7 @@ import com.chua.common.support.network.rpc.RpcRequest;
 import com.chua.common.support.network.rpc.RpcResponse;
 import com.chua.common.support.network.rpc.RpcSerialization;
 import com.chua.common.support.network.rpc.RpcServer;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
@@ -407,7 +408,10 @@ public class ZmqRpcServer implements RpcServer {
             return method;
         }
         Class<?>[] paramTypes = resolveParamTypes(typeNames);
-        method = service.getClass().getMethod(request.getMethod(), paramTypes);
+        method = ReflectUtils.findMethod(service.getClass(), request.getMethod(), paramTypes);
+        if (method == null) {
+            throw new NoSuchMethodException("服务方法不存在: " + request.getService() + "." + request.getMethod());
+        }
         method.setAccessible(true);
         methodCache.putIfAbsent(key, method);
         return method;

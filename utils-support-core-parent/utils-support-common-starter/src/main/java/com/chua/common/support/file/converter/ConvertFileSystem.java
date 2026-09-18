@@ -61,6 +61,7 @@ public interface ConvertFileSystem {
 
     /**
     * 支持的转换类型
+    * @return 转换Support 对象
     */
     ConvertSupport[] supportedTypes();
 
@@ -69,6 +70,7 @@ public interface ConvertFileSystem {
     *
     * @param sourceFormat 源格式
     * @param targetFormat 目标格式
+    * @return 结果值
     */
     record ConvertSupport(String sourceFormat, String targetFormat) {
         @Override

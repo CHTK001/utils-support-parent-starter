@@ -39,6 +39,11 @@ public class JavaEngine implements Engine {
 
     private synchronized long alloc() { return nextHandle++; }
 
+    /**
+     * playwright。
+     *
+     * @return 结果值
+     */
     synchronized com.microsoft.playwright.Playwright playwright() {
         if (pw == null) {
             pw = com.microsoft.playwright.Playwright.create();
@@ -46,6 +51,13 @@ public class JavaEngine implements Engine {
         return pw;
     }
 
+    /**
+     * 获取。
+     *
+     * @param handle 处理，不允许为 null
+     * @param type 类型，不允许为 null
+     * @return T 对象
+     */
     @SuppressWarnings("unchecked")
     private <T> T get(long handle, Class<T> type) {
         Object o = registry.get(handle);

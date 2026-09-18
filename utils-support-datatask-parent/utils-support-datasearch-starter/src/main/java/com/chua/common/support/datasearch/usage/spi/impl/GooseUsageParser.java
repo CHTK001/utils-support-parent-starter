@@ -74,6 +74,12 @@ public class GooseUsageParser extends BaseUsageParser {
                 .doOnComplete(() -> log.info("[goose] stream complete"));
     }
 
+    /**
+     * 转为AiUsage。
+     *
+     * @param row 行，不允许为 null
+     * @return AiUsage 对象
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int inputTokens = asInt(row.get("input_tokens"));
         int outputTokens = asInt(row.get("output_tokens"));

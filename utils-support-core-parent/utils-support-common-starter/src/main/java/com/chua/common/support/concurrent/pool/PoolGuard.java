@@ -30,6 +30,12 @@ public class PoolGuard<T> implements AutoCloseable {
     /** 是否已归还 */
     private boolean returned;
 
+    /**
+     * 构造方法，创建 PoolGuard 实例。
+     *
+     * @param pool 方法入参 pool
+     * @param object 对象，不允许为 null
+     */
     PoolGuard(ObjectPool<T> pool, T object) {
         this.pool = pool;
         this.object = object;

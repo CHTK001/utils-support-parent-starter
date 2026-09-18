@@ -247,6 +247,9 @@ public class LiteRawMap implements Map<String, Object> {
 
     /**
     * 递归扁平化
+    * @param map 映射，不允许为 null
+    * @param prefix 前缀，不允许为 null
+    * @param result 结果，不允许为 null
     */
     private void flattenInternal(Map<String, ?> map, String prefix, Map<String, Object> result) {
         for (Map.Entry<String, ?> entry : map.entrySet()) {

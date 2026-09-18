@@ -1,5 +1,6 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.hprof.support.mcp.HprofMcpProvider;
 import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.serializer.HprofToJsonSerializer;
 import com.chua.hprof.support.serializer.HprofToHtmlSerializer;
@@ -18,13 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * End-to-end test against a real hprof file.
+ * 针对真实 hprof 文件的端到端测试。
  *
- * <p>Reads {@code C:\Users\Administrator\java_error_in_idea.hprof} when
- * present, parses it through the GridKit hprof-heap backend and verifies
- * the JSON / Markdown output shape. Each test auto-assumes the file
- * exists; when the file is absent (CI or a fresh checkout) the test is
- * silently skipped.</p>
+ * <p>当 {@code C:\Users\Administrator\java_error_in_idea.hprof} 存在时读取它，
+ * 经由 GridKit hprof-heap 后端解析，并校验 JSON / Markdown 的输出结构。
+ * 每个测试都会自行假设该文件存在；若文件缺失（CI 环境或全新检出的代码），
+ * 则静默跳过该测试。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -37,7 +37,7 @@ class HprofRealFileTest {
     private static final String HPROF_PATH = "C:\\Users\\Administrator\\java_error_in_idea.hprof";
 
     /**
-     * Skip the test when the hprof file is not on disk.
+     * 磁盘上没有 hprof 文件时跳过本测试。
      */
     private void assumeHprofPresent() {
         Assumptions.assumeTrue(new File(HPROF_PATH).exists(),
@@ -45,14 +45,20 @@ class HprofRealFileTest {
     }
 
     /**
-     * Parse a real hprof file and verify the result is non-empty.
+     * 解析真实 hprof 文件并校验结果非空。
      *
-     * <p>All four tests share a single parse of the 790MB dump via this
-     * static holder (each parse takes several minutes).</p>
+     * <p>四个测试通过该静态持有者共享对 790MB 转储的单次解析
+     * （每次解析需要数分钟）。</p>
      */
     private static final java.util.concurrent.atomic.AtomicReference<HprofParser.Result> CACHED =
             new java.util.concurrent.atomic.AtomicReference<>();
 
+    /**
+     * 解析Once。
+     *
+     * @return HprofParser结果 对象
+     * @throws java.io.IOException 当执行过程不满足前置条件时
+     */
     private static HprofParser.Result parseOnce() throws java.io.IOException {
         HprofParser.Result existing = CACHED.get();
         if (existing != null) {
@@ -69,7 +75,7 @@ class HprofRealFileTest {
     }
 
     /**
-     * Parse a real hprof file and verify the result is non-empty.
+     * 解析真实 hprof 文件并校验结果非空。
      */
     @Test
     void parseRealHprof() throws Exception {
@@ -83,7 +89,7 @@ class HprofRealFileTest {
     }
 
     /**
-     * Convert a real hprof file to JSON and verify the leak_suspects shape.
+     * 将真实 hprof 文件转为 JSON，并校验 leak_suspects 结构。
      */
     @Test
     void toJsonOfRealHprof() throws Exception {
@@ -112,7 +118,7 @@ class HprofRealFileTest {
         assertTrue(row0.has("instance_count"));
         assertTrue(row0.has("retained_size"));
 
-        // write to a temp file so the user can inspect
+        // 写入临时文件，便于人工查看结果
         Path out = Path.of("target", "real-hprof.json");
         Files.createDirectories(out.getParent());
         Files.writeString(out, json);
@@ -120,7 +126,7 @@ class HprofRealFileTest {
     }
 
     /**
-     * Convert a real hprof file to Markdown and verify the table shape.
+     * 将真实 hprof 文件转为 Markdown，并校验表格结构。
      */
     @Test
     void toMarkdownOfRealHprof() throws Exception {
@@ -182,5 +188,28 @@ class HprofRealFileTest {
         Files.writeString(out, html);
         System.out.println("[hprof] html written to " + out.toAbsolutePath()
                 + " (" + html.length() + " chars)");
+    }
+
+    /**
+     * 针对真实 hprof 文件生成简洁的 MCP 诊断卡。
+     */
+    @Test
+    void diagnoseRealHprof() throws Exception {
+        assumeHprofPresent();
+        HprofParser.Result result = parseOnce();
+        File file = new File(HPROF_PATH);
+        String card = HprofMcpProvider.diagnose(result, file.getPath());
+        assertNotNull(card, "diagnose card");
+        assertTrue(card.contains("【一句话结论】"), "conclusion block");
+        assertTrue(card.contains("【问题原因（根因判定）】"), "cause block");
+        assertTrue(card.contains("▸ 主要根因"), "primary cause section");
+        assertTrue(card.contains("【关键证据】"), "evidence block");
+        assertTrue(card.contains("【解决方案（按优先级）】"), "solution block");
+
+        Path out = Path.of("target", "real-hprof-diagnose.txt");
+        Files.createDirectories(out.getParent());
+        Files.writeString(out, card);
+        System.out.println("\n[hprof] ===== diagnose card =====\n" + card);
+        System.out.println("[hprof] diagnose written to " + out.toAbsolutePath());
     }
 }

@@ -58,7 +58,11 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         totalOutputTokens = 0;
         startTime = System.currentTimeMillis();
         log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
-        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+        return next.apply(input).doOnEach(signal -> {
+            if (!signal.isOnError() && signal.get() != null) {
+                onEvent(signal.get());
+            }
+        });
     }
 
     @Override
@@ -67,7 +71,11 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                                           Function<io.agentscope.core.middleware.ReasoningInput, Flux<AgentEvent>> next) {
         iteration++;
         log.debug("[Middleware] onReasoning called, iteration={}", iteration);
-        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+        return next.apply(input).doOnEach(signal -> {
+            if (!signal.isOnError() && signal.get() != null) {
+                onEvent(signal.get());
+            }
+        });
     }
 
     @Override
@@ -75,9 +83,18 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                                       io.agentscope.core.middleware.ActingInput input,
                                       Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
         log.debug("[Middleware] onActing called");
-        return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
+        return next.apply(input).doOnEach(signal -> {
+            if (!signal.isOnError() && signal.get() != null) {
+                onEvent(signal.get());
+            }
+        });
     }
 
+    /**
+     * 响应Event。
+     *
+     * @param event 方法入参 event
+     */
     private void onEvent(AgentEvent event) {
         log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
         log.debug("[Middleware] onEvent: {}", event != null ? event.getType() : "null");
@@ -156,6 +173,13 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         return null;
     }
 
+    /**
+     * 是否PlanRelated。
+     *
+     * @param type 类型，不允许为 null
+     * @param toolName tool名称，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isPlanRelated(String type, String toolName) {
         if (type != null && (type.toUpperCase(Locale.ROOT).startsWith("PLAN_") || type.contains("PLAN"))) {
             return true;

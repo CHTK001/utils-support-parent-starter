@@ -78,6 +78,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
 
     public YoloWorldDetectorTranslator() { this(null); }
 
+    /**
+     * 构造方法，创建 YoloWorldDetectorTranslator 实例。
+     *
+     * @param config 配置，不允许为 null
+     */
     public YoloWorldDetectorTranslator(Map<String, ?> config) {
         this.threshold = readDouble(config, "threshold", DEFAULT_THRESHOLD);
         this.nmsThreshold = readDouble(config, "iouThreshold", DEFAULT_NMS_THRESHOLD);
@@ -96,6 +101,12 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         }
     }
 
+    /**
+     * 解析Classes。
+     *
+     * @param raw 方法入参 raw
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<String> parseClasses(String raw) {
         if (raw == null || raw.trim().isEmpty()) {
             return Collections.emptyList();
@@ -193,10 +204,15 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return result;
     }
 
+    /** original宽度 */
     private int originalWidth;
+    /** original高度 */
     private int originalHeight;
+    /** letterPadX */
     private int letterPadX;
+    /** letterPadY */
     private int letterPadY;
+    /** letterScale */
     private float letterScale;
 
     @Override
@@ -368,7 +384,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         if (v == null || v.trim().isEmpty()) {
             return d;
         }
-        try { return Double.parseDouble(v.trim()); } catch (Exception e) { return d; }
+        try {
+            return Double.parseDouble(v.trim());
+        } catch (Exception e) {
+            return d;
+        }
     }
     /**
     * 读取int。
@@ -382,6 +402,10 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         if (v == null || v.trim().isEmpty()) {
             return d;
         }
-        try { return Integer.parseInt(v.trim()); } catch (Exception e) { return d; }
+        try {
+            return Integer.parseInt(v.trim());
+        } catch (Exception e) {
+            return d;
+        }
     }
 }

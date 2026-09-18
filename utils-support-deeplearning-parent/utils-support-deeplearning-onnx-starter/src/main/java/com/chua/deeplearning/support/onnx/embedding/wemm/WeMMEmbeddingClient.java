@@ -53,7 +53,11 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         this.setting = setting;
     }
 
-    /** 解析模型标识为资源基础路径 */
+    /**
+     * 解析模型标识为资源基础路径
+     * @param model 模型，不允许为 null
+     * @return WeMMEmbeddingTranslator 对象
+     */
     private WeMMEmbeddingTranslator createTranslator(String model) {
         String m = model == null ? "" : model.toLowerCase();
         if (m.contains("9b")) {
@@ -88,7 +92,10 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         return this;
     }
 
-    /** 获取翻译器 */
+    /**
+     * 获取翻译器
+     * @return WeMMEmbeddingTranslator 对象
+     */
     private WeMMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() ? "wemm-embedding-2b" : model;

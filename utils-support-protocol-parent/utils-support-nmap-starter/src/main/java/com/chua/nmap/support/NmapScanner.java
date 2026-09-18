@@ -782,7 +782,10 @@ public interface NmapScanner {
         * @param timeout 超时
         * @return 设置超时的结果
         */
-        public ScanOptions setTimeout(int timeout) { this.timeout = timeout; return this; }
+        public ScanOptions setTimeout(int timeout) {
+            this.timeout = timeout;
+            return this;
+        }
         /**
         * 获取concurrency。
         * @return 获取concurrency的结果
@@ -793,7 +796,10 @@ public interface NmapScanner {
         * @param concurrency concurrency
         * @return 设置concurrency的结果
         */
-        public ScanOptions setConcurrency(int concurrency) { this.concurrency = concurrency; return this; }
+        public ScanOptions setConcurrency(int concurrency) {
+            this.concurrency = concurrency;
+            return this;
+        }
         /**
         * 获取重试。
         * @return 获取重试的结果
@@ -804,7 +810,10 @@ public interface NmapScanner {
         * @param retries 重试
         * @return 设置重试的结果
         */
-        public ScanOptions setRetries(int retries) { this.retries = retries; return this; }
+        public ScanOptions setRetries(int retries) {
+            this.retries = retries;
+            return this;
+        }
         /**
         * 获取延迟。
         * @return 获取延迟的结果
@@ -815,7 +824,10 @@ public interface NmapScanner {
         * @param delay 延迟
         * @return 设置延迟的结果
         */
-        public ScanOptions setDelay(int delay) { this.delay = delay; return this; }
+        public ScanOptions setDelay(int delay) {
+            this.delay = delay;
+            return this;
+        }
         /**
         * 是否服务detection。
         * @return 是否服务detection的结果
@@ -826,7 +838,10 @@ public interface NmapScanner {
         * @param serviceDetection 服务detection
         * @return 设置服务detection的结果
         */
-        public ScanOptions setServiceDetection(boolean serviceDetection) { this.serviceDetection = serviceDetection; return this; }
+        public ScanOptions setServiceDetection(boolean serviceDetection) {
+            this.serviceDetection = serviceDetection;
+            return this;
+        }
         /**
         * 是否osdetection。
         * @return 是否osdetection的结果
@@ -837,7 +852,10 @@ public interface NmapScanner {
         * @param osDetection osdetection
         * @return 设置osdetection的结果
         */
-        public ScanOptions setOsDetection(boolean osDetection) { this.osDetection = osDetection; return this; }
+        public ScanOptions setOsDetection(boolean osDetection) {
+            this.osDetection = osDetection;
+            return this;
+        }
         /**
         * 获取扫描类型。
         * @return 获取扫描类型的结果
@@ -848,7 +866,10 @@ public interface NmapScanner {
         * @param scanType 扫描类型
         * @return 设置扫描类型的结果
         */
-        public ScanOptions setScanType(ScanType scanType) { this.scanType = scanType; return this; }
+        public ScanOptions setScanType(ScanType scanType) {
+            this.scanType = scanType;
+            return this;
+        }
 
         /**
         * 默认。

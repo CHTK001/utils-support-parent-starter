@@ -1,4 +1,4 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
@@ -6,6 +6,12 @@ import com.chua.winrm.support.client.WinRmExecClient;
  * 1. 鏉€鎺夋棫 Java 杩涚▼ 2. 娓呯┖ D:\fp-sync 3. 閲嶅惎鍒?D:\fp-sync 4. 楠岃瘉
  */
 public class FpWinRmResetToD {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         WinRmExecClient winrm = WinRmExecClient.builder()
                 .host("172.16.9.194").port(5985)

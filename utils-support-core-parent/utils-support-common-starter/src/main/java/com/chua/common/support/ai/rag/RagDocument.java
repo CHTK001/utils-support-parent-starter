@@ -30,6 +30,11 @@ public record RagDocument(
 ) {
     /**
     * 创建处理中的文档记录。
+    * @param id ID，不允许为 null
+    * @param fileName 文件名称，不允许为 null
+    * @param fileType 文件类型，不允许为 null
+    * @param fileSize 文件大小，不允许为 null
+    * @return RagDocument 对象
     */
     public static RagDocument processing(String id, String fileName, String fileType, long fileSize) {
         return new RagDocument(id, fileName, fileType, fileSize, 0, "PROCESSING", null, System.currentTimeMillis(), Map.of());
@@ -37,6 +42,8 @@ public record RagDocument(
 
     /**
     * 返回带错误状态的文档记录。
+    * @param errorMessage error消息，不允许为 null
+    * @return RagDocument 对象
     */
     public RagDocument withError(String errorMessage) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "FAILED", errorMessage, createTime, metadata);
@@ -44,6 +51,8 @@ public record RagDocument(
 
     /**
     * 返回带分块数的文档记录（状态置为 READY）。
+    * @param chunkCount 分块数量，不允许为 null
+    * @return RagDocument 对象
     */
     public RagDocument withChunkCount(int chunkCount) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "READY", null, createTime, metadata);
@@ -51,6 +60,8 @@ public record RagDocument(
 
     /**
     * 返回带指定状态的文档记录。
+    * @param status 状态，不允许为 null
+    * @return RagDocument 对象
     */
     public RagDocument withStatus(String status) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, status, errorMessage, createTime, metadata);

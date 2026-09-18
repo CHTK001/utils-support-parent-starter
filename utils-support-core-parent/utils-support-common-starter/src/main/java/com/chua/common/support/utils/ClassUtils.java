@@ -1046,12 +1046,15 @@ public class ClassUtils {
     * @param params       
     * @return       
     * @param tClass t类
+    *
+    * <p>豁免说明：本类为反射基础设施，按构造器匹配创建实例是工具类核心职责，
+    * 允许在内部实现中直接使用 java.lang.reflect API。</p>
     */
     private static <T> T createAlgorithm(Class<T> tClass, Object[] params) {
         Map<Constructor<?>, Object[]> loss = new LinkedHashMap<>(8);
         Map<Constructor<?>, Object[]> allnull = new LinkedHashMap<>(8);
         Map<Class<?>, Object> typeAndValue = createTypeAndValue(params);
-        Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors();
+        Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（构造器匹配创建实例）
         for (Constructor<?> declaredConstructor : declaredConstructors) {
             T algorithm = null;
             try {
@@ -1667,12 +1670,15 @@ public class ClassUtils {
     * @param classes       
     * @param <T>           
     * @return       
+    *
+    * <p>豁免说明：本类为反射基础设施，按参数可赋值性挑选构造器是工具类核心职责，
+    * 允许在内部实现中直接使用 java.lang.reflect API。</p>
     */
     public static <T> Constructor<T> getConstructor(Class<T> tClass, Class<?>[] classes) {
         if (null == tClass || null == classes) {
             return null;
         }
-        Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors();
+        Constructor<?>[] declaredConstructors = tClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getConstructor 构造器匹配）
         Constructor<?> item = null;
         root:
         for (Constructor<?> declaredConstructor : declaredConstructors) {
@@ -2386,13 +2392,16 @@ public class ClassUtils {
     * @param type  字段所属类型
     * @param bean  目标对象
     * @param <T>   目标对象泛型
+    *
+    * <p>豁免说明：本类为反射基础设施，"setter 优先、字段访问回退"的赋值策略是工具类核心职责，
+    * 允许在内部实现中直接使用 java.lang.reflect API。</p>
     */
     public static <T> void setAllFieldValue(Field field, Object value, Class<T> type, T bean) {
         Class<?> type1 = field.getType();
         value = Converter.convertIfNecessary(value, type1);
         String name = field.getName();
         try {
-            Method method = type.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), type1);
+            Method method = type.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), type1); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setter 方法定位）
             if (null != method) {
                 setAccessible(method);
                 method.invoke(bean, value);
@@ -3024,10 +3033,13 @@ public class ClassUtils {
     * @return 实例化成功的对象
     * @throws RuntimeException 实例化失败（InstantiationException / IllegalAccessException /
     *                          InvocationTargetException / NoSuchMethodException）时抛出
+    *
+    * <p>豁免说明：本类为反射基础设施，枚举构造器并按参数个数匹配调用是工具类核心职责，
+    * 允许在内部实现中直接使用 java.lang.reflect API。</p>
     */
     public static <T>T newInstance(Class<T> protoMapClass, Object...args) {
         try {
-            Constructor<?>[] declaredConstructors = protoMapClass.getDeclaredConstructors();
+            Constructor<?>[] declaredConstructors = protoMapClass.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance 构造器枚举匹配）
             for (Constructor<?> declaredConstructor : declaredConstructors) {
                 if(declaredConstructor.getParameterCount() == args.length) {
                     try {
@@ -3100,7 +3112,7 @@ public class ClassUtils {
         if(null != t) {
             return t;
         }
-        Constructor<?>[] declaredConstructors = target.getDeclaredConstructors();
+        Constructor<?>[] declaredConstructors = target.getDeclaredConstructors(); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器枚举匹配）
         for (Constructor<?> declaredConstructor : declaredConstructors) {
             Parameter[] parameters = declaredConstructor.getParameters();
             Object[] newArgs = createArgs(parameters, map);

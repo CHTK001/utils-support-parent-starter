@@ -23,12 +23,20 @@ public enum LogLevel {
     /** 错误 */
     ERROR(4),
 
-    /** 严重 */
+    /**
+     * 严重
+     * @param 5 方法入参 5
+     */
     CRITICAL(5);
 
     /** Severity */
     private final int severity;
 
+    /**
+     * 构造方法，创建 Log级别 实例。
+     *
+     * @param severity 方法入参 severity
+     */
     LogLevel(int severity) {
         this.severity = severity;
     }

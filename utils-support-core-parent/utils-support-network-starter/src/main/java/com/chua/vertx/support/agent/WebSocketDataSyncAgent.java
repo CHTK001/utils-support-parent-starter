@@ -77,6 +77,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     * @param String String
     * @param String String
     * @param DataSyncSource DataSyncSource
+    * @param sourceId 来源ID，不允许为 null
+    * @param serverUri 服务端URI，不允许为 null
+    * @param source 来源，不允许为 null
     */
     public WebSocketDataSyncAgent(String agentId, String sourceId, String serverUri, DataSyncSource source) {
         this.agentId = agentId;
@@ -183,7 +186,10 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         t.start();
     }
 
-    /** 处理ServerMessage */
+    /**
+     * 处理ServerMessage
+     * @param msg 消息，不允许为 null
+     */
     private void handleServerMessage(String msg) {
         try {
             Map<String, Object> map = Json.fromJson(msg, Map.class);
@@ -214,7 +220,10 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         }
     }
 
-    /** 发送Json */
+    /**
+     * 发送Json
+     * @param body 请求体，不允许为 null
+     */
     private void sendJson(Map<String, Object> body) {
         if (webSocket == null) {
             return;

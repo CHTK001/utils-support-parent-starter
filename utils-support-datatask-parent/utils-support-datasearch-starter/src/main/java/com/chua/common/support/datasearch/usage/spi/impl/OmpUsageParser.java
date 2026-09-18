@@ -17,12 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
- * oh-my-pi (omp) usage parser.
+ * oh-my-pi（omp）用量解析器。
  *
- * <p>oh-my-pi (a pi-coding-agent fork/router) writes one append-only JSONL
- * per session under {@code ~/.omp/agent/sessions/}
- * ({@code OMP_HOME} overrides the home). Only {@code type=message} lines
- * with {@code message.role=assistant} carry real token usage:</p>
+ * <p>oh-my-pi（pi-coding-agent 的分支/路由层）会在 {@code ~/.omp/agent/sessions/}
+ * 下为每个会话写入一份仅追加的 JSONL
+ * （可用 {@code OMP_HOME} 覆盖主目录）。只有 {@code type=message}
+ * 且 {@code message.role=assistant} 的行才携带真实 token 用量：</p>
  *
  * <pre>{@code
  * {
@@ -42,10 +42,9 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>{@code usage.input} is cache-exclusive; cached input is reported
- * separately via {@code cacheRead}/{@code cacheWrite}. Records are
- * de-duplicated by the line-level 8-char {@code id}. Model is per-message
- * (omp is a router); the fallback is {@code omp-unknown}.</p>
+ * <p>{@code usage.input} 不含缓存部分；缓存输入通过 {@code cacheRead}/{@code cacheWrite}
+ * 单独上报。记录按行级 8 字符 {@code id} 去重。模型以消息为单位记录
+ * （omp 本身是一层路由），取不到时回退为 {@code omp-unknown}。</p>
  *
  * @author CH
  * @since 4.0.0.45
@@ -59,6 +58,9 @@ public class OmpUsageParser extends BaseUsageParser {
 
     private final Path sessionsDir;
 
+    /**
+     * 构造方法，创建 OmpUsageParser 实例。
+     */
     public OmpUsageParser() {
         String home = System.getenv("OMP_HOME");
         Path ompHome = (home != null && !home.isBlank())

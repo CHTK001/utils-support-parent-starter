@@ -108,7 +108,10 @@ public final class Projects {
         return ipList;
     }
 
-    /** 获取JdkMajorVersion */
+    /**
+     * 获取JdkMajorVersion
+     * @return 结果数值
+     */
     public static int getJdkMajorVersion() {
         String version = System.getProperty("java.version");
         if (version.startsWith("1.")) {
@@ -128,7 +131,10 @@ public final class Projects {
         }
     }
 
-    /** 获取UserHomePath */
+    /**
+     * 获取UserHomePath
+     * @return CharSequence 对象
+     */
     public static CharSequence getUserHomePath() {
         return System.getProperty("user.home");
     }

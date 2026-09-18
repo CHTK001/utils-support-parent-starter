@@ -220,7 +220,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** Rebuild */
         public synchronized void rebuild() {
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
         }
@@ -235,7 +237,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             rawVectors.add(vector.clone());
             vectors.add(VTS.createFloatVector(vector));
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             return true;
@@ -285,7 +289,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 }
             } catch (Exception e) {
                 if (graph != null) {
-                    try { graph.close(); } catch (Exception ignored) {}
+                    try {
+                        graph.close();
+                    } catch (Exception ignored) {}
                     graph = null;
                 }
                 log.warn("[jvector] 图搜索失败，降级为暴力扫描: {}", e.getMessage());
@@ -416,7 +422,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 unregister(id, ord);
             }
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             return true;
@@ -432,7 +440,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             rawVectors.set(ord, vector.clone());
             vectors.set(ord, VTS.createFloatVector(vector));
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             return true;
@@ -445,10 +455,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         /** Clear */
         public synchronized void clear() {
-            vectors.clear(); rawVectors.clear();
+            vectors.clear();
+            rawVectors.clear();
             resetOrdinals();
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
         }
@@ -457,7 +470,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** 关闭 */
         public synchronized void close() {
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
         }
@@ -692,14 +707,19 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         /** Clear */
         public synchronized void clear() {
-            vectors.clear(); rawVectors.clear();
+            vectors.clear();
+            rawVectors.clear();
             resetOrdinals();
             vectorsDirty = false;
             if (diskGraph != null) {
-                try { diskGraph.close(); } catch (Exception ignored) {}
+                try {
+                    diskGraph.close();
+                } catch (Exception ignored) {}
                 diskGraph = null;
             }
-            try { Files.deleteIfExists(vectorDataPath); } catch (IOException ignored) {}
+            try {
+                Files.deleteIfExists(vectorDataPath);
+            } catch (IOException ignored) {}
         }
 
         @Override
@@ -709,7 +729,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 ensureGraphBuilt();
             }
             if (diskGraph != null) {
-                try { diskGraph.close(); } catch (Exception ignored) {}
+                try {
+                    diskGraph.close();
+                } catch (Exception ignored) {}
                 diskGraph = null;
             }
             if (vectorsDirty) {
@@ -721,7 +743,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** Rebuild */
         public synchronized void rebuild() {
             if (diskGraph != null) {
-                try { diskGraph.close(); } catch (Exception ignored) {}
+                try {
+                    diskGraph.close();
+                } catch (Exception ignored) {}
                 diskGraph = null;
             }
             saveVectors();
@@ -794,7 +818,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** Rebuild */
         public synchronized void rebuild() {
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             pqVectors = null;
@@ -905,10 +931,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         @Override
         /** Clear */
         public synchronized void clear() {
-            vectors.clear(); rawVectors.clear();
+            vectors.clear();
+            rawVectors.clear();
             resetOrdinals();
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             pqVectors = null;
@@ -918,7 +947,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         /** 关闭 */
         public synchronized void close() {
             if (graph != null) {
-                try { graph.close(); } catch (Exception ignored) {}
+                try {
+                    graph.close();
+                } catch (Exception ignored) {}
                 graph = null;
             }
             pqVectors = null;

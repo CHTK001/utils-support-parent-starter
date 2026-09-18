@@ -222,8 +222,14 @@ public class H2MetaSearch extends AbstractMetaSearch {
 
         @Override public SearchFieldBuilder analyzer(String analyzer) { return this; }
         @Override public SearchFieldBuilder searchAnalyzer(String searchAnalyzer) { return this; }
-        @Override public SearchFieldBuilder index(boolean indexed) { this.indexed = indexed; return this; }
-        @Override public SearchFieldBuilder store(boolean stored) { this.stored = stored; return this; }
+        @Override public SearchFieldBuilder index(boolean indexed) {
+            this.indexed = indexed;
+            return this;
+        }
+        @Override public SearchFieldBuilder store(boolean stored) {
+            this.stored = stored;
+            return this;
+        }
         @Override public SearchFieldBuilder keyword() { return this; }
         @Override public SearchFieldBuilder text() { return this; }
         @Override public SearchFieldBuilder integer() { return this; }

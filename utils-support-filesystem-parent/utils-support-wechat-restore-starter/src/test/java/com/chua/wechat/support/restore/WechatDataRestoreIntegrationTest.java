@@ -42,6 +42,11 @@ class WechatDataRestoreIntegrationTest {
     private File runtimeDir;
     private File outputDir;
 
+    /**
+     * 设置Up。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     @BeforeEach
     void setUp() throws IOException {
         // 创建模拟 session.db（SQLite 格式头部）
@@ -60,6 +65,9 @@ class WechatDataRestoreIntegrationTest {
         Files.createDirectories(outputDir.toPath());
     }
 
+    /**
+     * 测试：RestorePipelineWithNative模式。
+     */
     @Test
     void testRestorePipelineWithNativeMode() {
         Map<String, Object> options = new HashMap<>();
@@ -81,6 +89,9 @@ class WechatDataRestoreIntegrationTest {
         assertThrows(Exception.class, () -> restore.doRestore(sessionDb, config));
     }
 
+    /**
+     * 测试：RestorePipelineWithTool模式。
+     */
     @Test
     void testRestorePipelineWithToolMode() {
         Map<String, Object> options = new HashMap<>();
@@ -101,6 +112,9 @@ class WechatDataRestoreIntegrationTest {
         assertThrows(Exception.class, () -> restore.doRestore(sessionDb, config));
     }
 
+    /**
+     * 测试：RestorePipelineWithAuto模式。
+     */
     @Test
     void testRestorePipelineWithAutoMode() {
         Map<String, Object> options = new HashMap<>();
@@ -125,6 +139,9 @@ class WechatDataRestoreIntegrationTest {
         assertThrows(Exception.class, () -> restore.doRestore(sessionDb, config));
     }
 
+    /**
+     * 测试：RestoreWithValid配置Returns结果。
+     */
     @Test
     void testRestoreWithValidConfigReturnsResult() {
         Map<String, Object> options = new HashMap<>();
@@ -154,6 +171,9 @@ class WechatDataRestoreIntegrationTest {
         assertTrue(config.isIncludeStructure());
     }
 
+    /**
+     * 测试：ExportFormats。
+     */
     @Test
     void testExportFormats() {
         // 验证所有支持的导出格式

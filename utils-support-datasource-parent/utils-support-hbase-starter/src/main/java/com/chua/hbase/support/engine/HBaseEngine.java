@@ -114,6 +114,11 @@ public class HBaseEngine extends AbstractEngine {
         }
     }
 
+    /**
+     * 连接。
+     *
+     * @return 连接 对象
+     */
     private Connection conn() {
         EngineDataSource<Object> ds = defaultDataSourceName == null
                 ? null : dataSources.get(defaultDataSourceName);

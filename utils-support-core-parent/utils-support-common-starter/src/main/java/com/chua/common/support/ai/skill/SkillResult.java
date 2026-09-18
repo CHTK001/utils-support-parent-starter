@@ -38,27 +38,44 @@ public class SkillResult {
         this.errorMessage = errorMessage;
     }
 
-    /** Success */
+    /**
+     * Success
+     * @param content 内容，不允许为 null
+     * @return Skill结果 对象
+     */
     public static SkillResult success(Object content) {
         return new SkillResult(true, content, null);
     }
 
-    /** 记录错误 */
+    /**
+     * 记录错误
+     * @param errorMessage error消息，不允许为 null
+     * @return Skill结果 对象
+     */
     public static SkillResult error(String errorMessage) {
         return new SkillResult(false, null, errorMessage);
     }
 
-    /** 是否Success */
+    /**
+     * 是否Success
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isSuccess() {
         return success;
     }
 
-    /** 获取Content */
+    /**
+     * 获取Content
+     * @return 对象 对象
+     */
     public Object getContent() {
         return content;
     }
 
-    /** 获取记录错误Message */
+    /**
+     * 获取记录错误Message
+     * @return 结果字符串
+     */
     public String getErrorMessage() {
         return errorMessage;
     }

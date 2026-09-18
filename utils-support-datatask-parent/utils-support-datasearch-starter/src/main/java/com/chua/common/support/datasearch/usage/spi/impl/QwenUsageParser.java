@@ -36,7 +36,7 @@ import java.util.Map;
  * }
  * }</pre>
  *
- * <p>Each session line is expanded into one AiUsage record per model.</p>
+ * <p>每条会话行会按其中的模型逐条展开为 AiUsage 记录。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -84,6 +84,12 @@ public class QwenUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 解析LineSafe。
+     *
+     * @param line 方法入参 line
+     * @return 结果列表，无数据时为空列表
+     */
     private List<AiUsage> parseLineSafe(String line) {
         try {
             return parseLine(line);
@@ -93,6 +99,12 @@ public class QwenUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 解析Line。
+     *
+     * @param line 方法入参 line
+     * @return 结果列表，无数据时为空列表
+     */
     private List<AiUsage> parseLine(String line) {
         if (line.isBlank()) {
             return List.of();

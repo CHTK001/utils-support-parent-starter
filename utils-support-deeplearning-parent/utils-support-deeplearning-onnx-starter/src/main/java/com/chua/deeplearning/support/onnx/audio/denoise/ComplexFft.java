@@ -92,6 +92,12 @@ class ComplexFft {
         return real;
     }
 
+    /**
+     * 是否PowerOfTwo。
+     *
+     * @param n 方法入参 n
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isPowerOfTwo(int n) {
         return n > 0 && (n & (n - 1)) == 0;
     }
@@ -109,8 +115,12 @@ class ComplexFft {
         for (int i = 0; i < n; i++) {
             int j = Integer.reverse(i) >>> (32 - bits);
             if (j > i) {
-                float tr = real[i]; real[i] = real[j]; real[j] = tr;
-                float ti = imag[i]; imag[i] = imag[j]; imag[j] = ti;
+                float tr = real[i];
+                real[i] = real[j];
+                real[j] = tr;
+                float ti = imag[i];
+                imag[i] = imag[j];
+                imag[j] = ti;
             }
         }
         for (int len = 2; len <= n; len <<= 1) {

@@ -33,6 +33,7 @@ public enum SizeUnit {
     TERABYTES("TB", 1024L * 1024L * 1024L * 1024L),
     /**
     * 拍字节
+    * @param 1024L 方法入参 1024L
     */
     PETABYTES("PB", 1024L * 1024L * 1024L * 1024L * 1024L);
 
@@ -51,6 +52,12 @@ public enum SizeUnit {
     */
     private final long byteSize;
 
+    /**
+     * 构造方法，创建 大小Unit 实例。
+     *
+     * @param suffix 后缀，不允许为 null
+     * @param byteSize byte大小，不允许为 null
+     */
     SizeUnit(String suffix, long byteSize) {
         this.suffix = suffix;
         this.byteSize = byteSize;

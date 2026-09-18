@@ -548,7 +548,10 @@ public class AudioRecognitionPipeline {
             return transcripts;
         } finally {
             if (client != null) {
-                try { client.close(); } catch (Exception ignore) {}
+                try {
+                    client.close();
+                } catch (Exception ignore) {
+                }
             }
         }
     }

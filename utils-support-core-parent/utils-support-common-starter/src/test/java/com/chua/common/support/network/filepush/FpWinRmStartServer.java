@@ -6,6 +6,12 @@ import com.chua.winrm.support.client.WinRmExecClient;
  * 第一步：仅启动远程 FilePushServer（后台），验证监听。
  */
 public class FpWinRmStartServer {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         String sshTunnel = "http://172.16.9.194:5985/wsman";
         WinRmExecClient winrm = WinRmExecClient.builder()

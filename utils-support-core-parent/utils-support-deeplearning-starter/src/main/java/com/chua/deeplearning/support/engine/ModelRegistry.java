@@ -564,6 +564,25 @@ public final class ModelRegistry {
     }
 
     /**
+    * 确保模型文件就绪并返回其本地路径：命中下载缓存直接返回，否则按 downloadUrl 及镜像下载。
+    *
+    * <p>与 {@link #resolveModelPath(String)} 的区别：后者在模型根目录存在时会先遍历目录并
+    * 提前返回兜底路径，不触发下载；本方法专用于「模型文件由 Java 侧代管下载」的场景
+    * （如外部 CLI 只接受本地模型文件路径）。</p>
+    *
+    * @param modelId 模型标识
+    * @return 本地文件路径；未注册、无下载地址或下载失败返回 空
+    */
+    public static Path ensureDownloaded(String modelId) {
+        Entry entry = REGISTRY.get(modelId);
+        if (entry == null || entry.downloadUrl() == null || entry.downloadUrl().isBlank()) {
+            return null;
+        }
+        Path cached = cachedDownloadTarget(modelId, entry);
+        return cached != null ? cached : tryDownloadFromRemote(modelId, entry);
+    }
+
+    /**
     * 从下载缓存目录解析已缓存模型文件（如 GGUF）。
     *
     * @param modelId 模型标识

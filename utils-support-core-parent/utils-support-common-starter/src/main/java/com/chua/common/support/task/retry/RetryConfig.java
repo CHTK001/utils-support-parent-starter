@@ -50,7 +50,10 @@ public class RetryConfig {
     * @param maxRetries 最大重试
     * @return 设置最大重试的结果
     */
-    public RetryConfig setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; return this; }
+    public RetryConfig setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+        return this;
+    }
     /**
     * 获取延迟
     *
@@ -63,7 +66,10 @@ public class RetryConfig {
     * @param delay 延迟
     * @return 设置延迟的结果
     */
-    public RetryConfig setDelay(long delay) { this.delay = delay; return this; }
+    public RetryConfig setDelay(long delay) {
+        this.delay = delay;
+        return this;
+    }
     /**
     * 获取Multiplier
     *
@@ -76,7 +82,10 @@ public class RetryConfig {
     * @param multiplier multiplier
     * @return 设置multiplier的结果
     */
-    public RetryConfig setMultiplier(double multiplier) { this.multiplier = multiplier; return this; }
+    public RetryConfig setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+        return this;
+    }
     /**
     * 获取退避strategy
     *
@@ -89,7 +98,10 @@ public class RetryConfig {
     * @param backoffStrategy 退避strategy
     * @return 设置退避strategy的结果
     */
-    public RetryConfig setBackoffStrategy(BackoffStrategy backoffStrategy) { this.backoffStrategy = backoffStrategy; return this; }
+    public RetryConfig setBackoffStrategy(BackoffStrategy backoffStrategy) {
+        this.backoffStrategy = backoffStrategy;
+        return this;
+    }
     /**
     * 获取重试on异常
     *
@@ -102,7 +114,10 @@ public class RetryConfig {
     * @param retryOnException 重试on异常
     * @return 设置重试on异常的结果
     */
-    public RetryConfig setRetryOnException(Predicate<Throwable> retryOnException) { this.retryOnException = retryOnException; return this; }
+    public RetryConfig setRetryOnException(Predicate<Throwable> retryOnException) {
+        this.retryOnException = retryOnException;
+        return this;
+    }
     /**
     * 获取重试监听器
     *
@@ -115,5 +130,8 @@ public class RetryConfig {
     * @param retryListener 重试监听器
     * @return 设置重试监听器的结果
     */
-    public RetryConfig setRetryListener(RetryListenerCallback retryListener) { this.retryListener = retryListener; return this; }
+    public RetryConfig setRetryListener(RetryListenerCallback retryListener) {
+        this.retryListener = retryListener;
+        return this;
+    }
 }

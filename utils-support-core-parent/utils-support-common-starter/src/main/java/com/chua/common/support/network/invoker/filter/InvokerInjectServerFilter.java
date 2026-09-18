@@ -42,13 +42,23 @@ public class InvokerInjectServerFilter implements ServerFilter {
         return Integer.MIN_VALUE + 1000;
     }
 
-    /** 获取SharedContext */
+    /**
+     * 获取SharedContext
+     * @param ctx 上下文，不允许为 null
+     * @return SharedInvocation上下文 对象
+     */
     private static SharedInvocationContext getSharedContext(InvocationContext ctx) {
         Object shared = ctx.getAttribute("sharedContext");
         return shared instanceof SharedInvocationContext s ? s : null;
     }
 
-    /** 应用Target */
+    /**
+     * 应用Target
+     * @param target 目标，不允许为 null
+     * @param value 值，不允许为 null
+     * @param ctx 上下文，不允许为 null
+     * @param shared 方法入参 shared
+     */
     private static void applyTarget(String target, String value, InvocationContext ctx, SharedInvocationContext shared) {
         if (target.startsWith("headers.")) {
             ctx.addHeader(target.substring(8), value);

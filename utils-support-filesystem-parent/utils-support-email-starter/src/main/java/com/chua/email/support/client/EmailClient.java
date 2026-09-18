@@ -215,49 +215,70 @@ public class EmailClient {
         * @param t t
         * @return 转为的结果
         */
-        public SendOperation to(String t) { this.to = t; return this; }
+        public SendOperation to(String t) {
+            this.to = t;
+            return this;
+        }
         /**
         * 主题
         *
         * @param s s
         * @return 主题的结果
         */
-        public SendOperation subject(String s) { this.subject = s; return this; }
+        public SendOperation subject(String s) {
+            this.subject = s;
+            return this;
+        }
         /**
         * 主体
         *
         * @param b b
         * @return 主体的结果
         */
-        public SendOperation body(String b) { this.body = b; return this; }
+        public SendOperation body(String b) {
+            this.body = b;
+            return this;
+        }
         /**
         * HTML
         *
         * @param h h
         * @return html的结果
         */
-        public SendOperation html(boolean h) { this.html = h; return this; }
+        public SendOperation html(boolean h) {
+            this.html = h;
+            return this;
+        }
         /**
         * 从
         *
         * @param f f
         * @return 从的结果
         */
-        public SendOperation from(String f) { this.from = f; return this; }
+        public SendOperation from(String f) {
+            this.from = f;
+            return this;
+        }
         /**
         * Cc
         *
         * @param c c
         * @return cc的结果
         */
-        public SendOperation cc(String c) { this.cc.add(c); return this; }
+        public SendOperation cc(String c) {
+            this.cc.add(c);
+            return this;
+        }
         /**
         * Bcc
         *
         * @param b b
         * @return bcc的结果
         */
-        public SendOperation bcc(String b) { this.bcc.add(b); return this; }
+        public SendOperation bcc(String b) {
+            this.bcc.add(b);
+            return this;
+        }
         /**
         * Attachment
         *
@@ -265,7 +286,10 @@ public class EmailClient {
         * @param data 数据
         * @return attachment的结果
         */
-        public SendOperation attachment(String name, byte[] data) { this.attachments.put(name, data); return this; }
+        public SendOperation attachment(String name, byte[] data) {
+            this.attachments.put(name, data);
+            return this;
+        }
 
         /**
         * 执行发送。
@@ -369,28 +393,40 @@ public class EmailClient {
         * @param f f
         * @return 文件夹的结果
         */
-        public FetchOperation folder(String f) { this.folder = f; return this; }
+        public FetchOperation folder(String f) {
+            this.folder = f;
+            return this;
+        }
         /**
         * 限制
         *
         * @param l l
         * @return 限制的结果
         */
-        public FetchOperation limit(int l) { this.limit = l; return this; }
+        public FetchOperation limit(int l) {
+            this.limit = l;
+            return this;
+        }
         /**
         * unreadonly
         *
         * @param u u
         * @return unreadOnly的结果
         */
-        public FetchOperation unreadOnly(boolean u) { this.unreadOnly = u; return this; }
+        public FetchOperation unreadOnly(boolean u) {
+            this.unreadOnly = u;
+            return this;
+        }
         /**
         * 搜索
         *
         * @param s s
         * @return 搜索的结果
         */
-        public FetchOperation search(String s) { this.searchTerm = s; return this; }
+        public FetchOperation search(String s) {
+            this.searchTerm = s;
+            return this;
+        }
 
         /**
         * 获取邮件列表。
@@ -494,21 +530,30 @@ public class EmailClient {
         * @param f f
         * @return 文件夹的结果
         */
-        public WatchOperation folder(String f) { this.folder = f; return this; }
+        public WatchOperation folder(String f) {
+            this.folder = f;
+            return this;
+        }
         /**
         * 取出间隔
         *
         * @param seconds seconds
         * @return poll间隔的结果
         */
-        public WatchOperation pollInterval(int seconds) { this.pollInterval = seconds; return this; }
+        public WatchOperation pollInterval(int seconds) {
+            this.pollInterval = seconds;
+            return this;
+        }
         /**
         * on消息
         *
         * @param h h
         * @return on消息的结果
         */
-        public WatchOperation onMessage(Consumer<Map<String, Object>> h) { this.onMessage = h; return this; }
+        public WatchOperation onMessage(Consumer<Map<String, Object>> h) {
+            this.onMessage = h;
+            return this;
+        }
 
         /**
         * 启动监听（自动降级：SMTP 不可用→轮询）。
@@ -536,7 +581,11 @@ public class EmailClient {
                         break;
                     } catch (Exception e) {
                         log.error("邮件轮询异常: {}", e.getMessage());
-                        try { Thread.sleep(pollInterval * 1000L); } catch (InterruptedException ie) { break; }
+                        try {
+                            Thread.sleep(pollInterval * 1000L);
+                        } catch (InterruptedException ie) {
+                            break;
+                        }
                     }
                 }
                 log.info("邮件监听停止");
@@ -600,56 +649,80 @@ public class EmailClient {
         * @param h h
         * @return smtp主机的结果
         */
-        public Builder smtpHost(String h) { this.smtpHost = h; return this; }
+        public Builder smtpHost(String h) {
+            this.smtpHost = h;
+            return this;
+        }
         /**
         * smtp端口
         *
         * @param p p
         * @return smtp端口的结果
         */
-        public Builder smtpPort(int p) { this.smtpPort = p; return this; }
+        public Builder smtpPort(int p) {
+            this.smtpPort = p;
+            return this;
+        }
         /**
         * imap主机
         *
         * @param h h
         * @return imap主机的结果
         */
-        public Builder imapHost(String h) { this.imapHost = h; return this; }
+        public Builder imapHost(String h) {
+            this.imapHost = h;
+            return this;
+        }
         /**
         * imap端口
         *
         * @param p p
         * @return imap端口的结果
         */
-        public Builder imapPort(int p) { this.imapPort = p; return this; }
+        public Builder imapPort(int p) {
+            this.imapPort = p;
+            return this;
+        }
         /**
         * pop主机
         *
         * @param h h
         * @return pop3主机的结果
         */
-        public Builder pop3Host(String h) { this.pop3Host = h; return this; }
+        public Builder pop3Host(String h) {
+            this.pop3Host = h;
+            return this;
+        }
         /**
         * pop端口
         *
         * @param p p
         * @return pop3端口的结果
         */
-        public Builder pop3Port(int p) { this.pop3Port = p; return this; }
+        public Builder pop3Port(int p) {
+            this.pop3Port = p;
+            return this;
+        }
         /**
         * 用户名
         *
         * @param u u
         * @return 用户名的结果
         */
-        public Builder username(String u) { this.username = u; return this; }
+        public Builder username(String u) {
+            this.username = u;
+            return this;
+        }
         /**
         * 密码
         *
         * @param p p
         * @return 密码的结果
         */
-        public Builder password(String p) { this.password = p; return this; }
+        public Builder password(String p) {
+            this.password = p;
+            return this;
+        }
 
         /**
         * 构建

@@ -27,6 +27,14 @@ final class PNGIDATOutputStream extends PNGImageOutputStream {
         (byte)'I', (byte)'D', (byte)'A', (byte)'T'
     };
 
+    /**
+     * 构造方法，创建 PNGIDATOutput流 实例。
+     *
+     * @param stream 流，不允许为 null
+     * @param chunkLength 分块长度，不允许为 null
+     * @param deflaterLevel deflater级别，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     PNGIDATOutputStream(ImageOutputStream stream, int chunkLength, int deflaterLevel) throws IOException {
         super(stream, chunkLength, deflaterLevel);
 

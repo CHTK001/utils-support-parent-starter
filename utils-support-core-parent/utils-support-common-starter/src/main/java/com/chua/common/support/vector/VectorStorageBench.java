@@ -78,7 +78,11 @@ public class VectorStorageBench {
         try {
             Files.walk(dir)
                     .sorted(java.util.Comparator.reverseOrder())
-                    .forEach(p -> { try { Files.delete(p); } catch (Exception ignored) {} });
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (Exception ignored) {}
+                    });
         } catch (Exception ignored) {}
     }
 
@@ -154,7 +158,8 @@ public class VectorStorageBench {
         for (int i = 0; i < COUNT / 10; i++) {
             warmup.add("id_" + i, randomVector(dim));
         }
-        warmup.flush(); warmup.close();
+        warmup.flush();
+        warmup.close();
 
         // 写入 + 分批刷盘
         DefaultVectorStorage storage = DefaultVectorStorage.builder()

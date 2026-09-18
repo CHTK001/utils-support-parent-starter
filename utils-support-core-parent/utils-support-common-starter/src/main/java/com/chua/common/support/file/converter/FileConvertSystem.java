@@ -51,6 +51,7 @@ public interface FileConvertSystem {
     *
     * @param source 源文件格式
     * @param target 目标文件格式
+    * @return 结果值
     */
     record ConvertPair(String source, String target) {
     }

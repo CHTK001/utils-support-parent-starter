@@ -74,6 +74,7 @@ public interface ReactorFileSystem {
     * @param path    文件路径
     * @param content 追加内容
     * @return 完成信号
+    * @param data 数据，不允许为 null
     */
     Mono<Void> appendBytes(Path path, byte[] data);
 

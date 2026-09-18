@@ -147,7 +147,10 @@ public class ScriptFlow {
         return results;
     }
 
-    /** 获取ScriptExtension */
+    /**
+     * 获取ScriptExtension
+     * @return 结果字符串
+     */
     private String getScriptExtension() {
         return switch (provider.engineName()) {
             case "js" -> ".js";

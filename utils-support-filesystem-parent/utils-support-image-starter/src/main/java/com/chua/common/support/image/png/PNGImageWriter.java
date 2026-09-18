@@ -422,17 +422,17 @@ public final class PNGImageWriter extends ImageWriter {
             int chunkRed = metadata.bKGD_red;
             int chunkGreen = metadata.bKGD_green;
             int chunkBlue = metadata.bKGD_blue;
-            // Special case: image is RGB(A) and chunk is Gray
- // Promote chunk 内容 转为 RGB
+            // 特殊情况：图像为 RGB(A) 而 chunk 为 Gray
+ // 把 chunk 内容提升为 RGB
             if (colorType == PNG.PNG_COLOR_RGB &&
                 chunkType == PNG.PNG_COLOR_GRAY) {
- // Make a gray bkgd chunk look like RGB
+ // 让灰度的 bkgd chunk 表现得像 RGB
                 chunkType = colorType;
                 chunkRed = chunkGreen = chunkBlue =
                     metadata.bKGD_gray;
             }
 
- // Ignore 状态 的 alpha 入 color类型
+ // 忽略与 color 类型不一致的 alpha
             if (chunkType != colorType) {
                 processWarningOccurred(0,
 "bKGD metadata has incompatible color type.\n" +
@@ -642,6 +642,12 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
+    /**
+     * 分块类型。
+     *
+     * @param typeString 类型字符串，不允许为 null
+     * @return 结果数值
+     */
     private static int chunkType(String typeString) {
         char c0 = typeString.charAt(0);
         char c1 = typeString.charAt(1);

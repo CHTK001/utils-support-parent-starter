@@ -70,6 +70,8 @@ public enum HttpVersion {
     * Cloudflare quiche-java 或 Netty 的 netty-incubator-codec-http3）。</p>
     *
     * <p>当请求指定 HTTP/3 但执行器不支持时，执行器会自动降级到 HTTP/2。</p>
+    * @param 3 方法入参 3
+    * @param 0 方法入参 0
     */
     HTTP_3(3, 0);
 
@@ -78,6 +80,12 @@ public enum HttpVersion {
     /** Minor */
     private final int minor;
 
+    /**
+     * 构造方法，创建 Http版本 实例。
+     *
+     * @param major 方法入参 major
+     * @param minor 方法入参 minor
+     */
     HttpVersion(int major, int minor) {
         this.major = major;
         this.minor = minor;

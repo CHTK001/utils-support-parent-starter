@@ -24,8 +24,12 @@ import java.util.function.Consumer;
 public class RustNmapScanner implements NmapScanner {
 
     private final ExecutorService executor;
+    /** 选项 */
     private ScanOptions options = ScanOptions.defaults();
 
+    /**
+     * 构造方法，创建 RustNmapScanner 实例。
+     */
     public RustNmapScanner() {
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
@@ -169,11 +173,11 @@ public class RustNmapScanner implements NmapScanner {
             long startTime = System.currentTimeMillis();
             String result = RustNmapBridge.pingHost(host, timeoutMs);
             long latency = System.currentTimeMillis() - startTime;
-            // Parse JSON result to check if host is alive
+            // 解析 JSON 结果，判断主机是否存活
             boolean alive = result != null && !result.isEmpty() && !result.contains("error");
             hostInfo.setAlive(alive);
             hostInfo.setLatency(latency);
-            // Parse additional info from result if available
+            // 结果非空时进一步解析附加信息
             if (result != null && !result.isEmpty()) {
                 parseHostInfoFromJson(hostInfo, result);
             }
@@ -364,6 +368,14 @@ public class RustNmapScanner implements NmapScanner {
         return portInfo;
     }
     
+    /**
+     * 解析端口结果。
+     *
+     * @param port 端口，不允许为 null
+     * @param result 结果，不允许为 null
+     * @param protocol 方法入参 protocol
+     * @return 端口Info 对象
+     */
     private PortInfo parsePortResult(int port, String result, String protocol) {
         PortInfo portInfo = new PortInfo();
         portInfo.setPort(port);
@@ -389,6 +401,8 @@ public class RustNmapScanner implements NmapScanner {
     
     /**
     * 从JSON结果解析主机信息
+    * @param hostInfo 主机Info，不允许为 null
+    * @param json 方法入参 json
     */
     private void parseHostInfoFromJson(HostInfo hostInfo, String json) {
         // Simple JSON parsing - in production use a proper JSON library
@@ -409,7 +423,9 @@ public class RustNmapScanner implements NmapScanner {
         if (json.contains("ttl")) {
             int start = json.indexOf("ttl") + 5;
             int end = json.indexOf(",", start);
-            if (end == -1) end = json.indexOf("}", start);
+            if (end == -1) {
+                end = json.indexOf("}", start);
+            }
             if (end > start) {
                 try {
                     hostInfo.setTtl(Integer.parseInt(json.substring(start, end).trim()));
@@ -418,6 +434,13 @@ public class RustNmapScanner implements NmapScanner {
         }
     }
 
+    /**
+     * 解析端口Range结果。
+     *
+     * @param result 结果，不允许为 null
+     * @param protocol 方法入参 protocol
+     * @return 结果列表，无数据时为空列表
+     */
     private List<PortInfo> parsePortRangeResult(String result, String protocol) {
         List<PortInfo> portInfos = new ArrayList<>();
         if (result == null || result.trim().isEmpty()) {
@@ -456,6 +479,12 @@ public class RustNmapScanner implements NmapScanner {
         return portInfos;
     }
 
+    /**
+     * 解析端口状态。
+     *
+     * @param state 状态，不允许为 null
+     * @return 端口状态 对象
+     */
     private PortState parsePortState(String state) {
         return switch (state.toLowerCase()) {
             case "open" -> PortState.OPEN;
@@ -465,6 +494,12 @@ public class RustNmapScanner implements NmapScanner {
         };
     }
 
+    /**
+     * 解析主机列出结果。
+     *
+     * @param result 结果，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<HostInfo> parseHostListResult(String result) {
         List<HostInfo> hosts = new ArrayList<>();
         if (result == null || result.isEmpty()) {
@@ -473,7 +508,9 @@ public class RustNmapScanner implements NmapScanner {
         
         String[] lines = result.split("\n");
         for (String line : lines) {
-            if (line.isEmpty()) continue;
+            if (line.isEmpty()) {
+                continue;
+            }
             String[] parts = line.split("\\|");
             if (parts.length >= 1) {
                 HostInfo hostInfo = new HostInfo();

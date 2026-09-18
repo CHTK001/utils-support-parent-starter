@@ -213,6 +213,12 @@ public abstract class BaseUsageParser implements UsageParser {
         return result;
     }
 
+    /**
+     * 转为Day。
+     *
+     * @param millis 毫秒数，不允许为 null
+     * @return 结果字符串
+     */
     private String toDay(Long millis) {
         if (millis == null) {
             return "";

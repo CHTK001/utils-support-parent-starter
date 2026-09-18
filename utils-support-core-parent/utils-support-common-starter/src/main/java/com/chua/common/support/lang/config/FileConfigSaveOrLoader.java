@@ -17,6 +17,12 @@ import java.util.Optional;
 * @author CH
 * @since 4.0.0.42
  */@Spi({"file", "local"})
+/**
+ * 文件配置保存OrLoader类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @SpiOrder(100)
 public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 

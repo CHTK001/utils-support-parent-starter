@@ -135,6 +135,15 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probabilities, boxes);
     }
 
+    /**
+     * 解码级别。
+     *
+     * @param candidates 方法入参 candidates
+     * @param clsArray cls数组，不允许为 null
+     * @param regArray reg数组，不允许为 null
+     * @param iouArray iou数组，不允许为 null
+     * @param stride 方法入参 stride
+     */
     private void decodeLevel(List<Candidate> candidates, NDArray clsArray, NDArray regArray, NDArray iouArray, int stride) {
         var cls = clsArray.toFloatArray();
         var reg = regArray.toFloatArray();

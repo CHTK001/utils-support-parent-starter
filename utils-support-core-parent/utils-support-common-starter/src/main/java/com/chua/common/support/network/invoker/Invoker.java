@@ -15,11 +15,15 @@ public interface Invoker {
 
     /**
     * 为指定接口创建动态代理（带缓存）。
+    * @param apiClass 方法入参 apiClass
+    * @return T 对象
     */
     <T> T create(Class<T> apiClass);
 
     /**
     * 创建新的动态代理实例（不缓存）。
+    * @param apiClass 方法入参 apiClass
+    * @return T 对象
     */
     <T> T createNew(Class<T> apiClass);
 

@@ -273,7 +273,11 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 double diagJ = Math.sqrt(rj.getWidth() * rj.getWidth() + rj.getHeight() * rj.getHeight());
                 if (dist < Math.max(diagI, diagJ) * 0.25) {
                     suppressed[probs.get(j) >= probs.get(i) ? j : i] = true;
-                    if (probs.get(j) >= probs.get(i)) { cxI = cxJ; cyI = cyJ; diagI = diagJ; }
+                    if (probs.get(j) >= probs.get(i)) {
+                        cxI = cxJ;
+                        cyI = cyJ;
+                        diagI = diagJ;
+                    }
                     continue;
                 }
                 double ix1 = Math.max(ri.getX(), rj.getX());

@@ -35,6 +35,8 @@ public class MapPropertySource extends AbstractPropertySource {
 
     /**
     * 设置属性值
+    * @param key 键，不允许为 null
+    * @param value 值，不允许为 null
     */
     public void setProperty(String key, Object value) {
         if (key != null) {

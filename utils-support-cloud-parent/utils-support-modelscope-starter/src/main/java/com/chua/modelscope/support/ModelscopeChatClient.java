@@ -66,16 +66,27 @@ public class ModelscopeChatClient implements ChatClient {
 
     private final ChatClientSetting setting;
 
+    /** 模型 */
     private String model;
+    /** system */
     private String system;
+    /** temperature */
     private Double temperature;
+    /** 最大值Tokens */
     private Integer maxTokens;
+    /** 顶部P */
     private Double topP;
     private final List<ChatMessage> history = new ArrayList<>();
+    /** externalHistory */
     private List<ChatMessage> externalHistory;
     private final List<String> imageUrls = new ArrayList<>();
     private final List<Attachment> attachments = new ArrayList<>();
 
+    /**
+     * 构造方法，创建 ModelscopeChat客户端 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public ModelscopeChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -191,6 +202,12 @@ public class ModelscopeChatClient implements ChatClient {
         newChat();
     }
 
+    /**
+     * postChatCompletions。
+     *
+     * @param prompt 提示词，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> postChatCompletions(String prompt) {
         JsonObject body = JsonObject.create()
                 .fluentPut("model", model != null && !model.isBlank() ? model : DEFAULT_MODEL)
@@ -224,6 +241,12 @@ public class ModelscopeChatClient implements ChatClient {
         }
     }
 
+    /**
+     * 构建Messages。
+     *
+     * @param prompt 提示词，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<JsonObject> buildMessages(String prompt) {
         List<JsonObject> messages = new ArrayList<>();
         if (system != null && !system.isBlank()) {
@@ -244,6 +267,12 @@ public class ModelscopeChatClient implements ChatClient {
         return messages;
     }
 
+    /**
+     * 构建用户消息。
+     *
+     * @param prompt 提示词，不允许为 null
+     * @return Json对象 对象
+     */
     private JsonObject buildUserMessage(String prompt) {
         List<JsonObject> parts = new ArrayList<>();
         for (String imageUrl : imageUrls) {
@@ -278,6 +307,12 @@ public class ModelscopeChatClient implements ChatClient {
                 .fluentPut("content", parts);
     }
 
+    /**
+     * 转为请求URL。
+     *
+     * @param url URL，不允许为 null
+     * @return 结果字符串
+     */
     private String toRequestUrl(String url) {
         if (url == null) {
             return "";
@@ -291,6 +326,12 @@ public class ModelscopeChatClient implements ChatClient {
         return Path.of(url).toAbsolutePath().toUri().toString();
     }
 
+    /**
+     * 解析Usage。
+     *
+     * @param usageObj usage对象，不允许为 null
+     * @return AiUsage 对象
+     */
     private AiUsage parseUsage(Object usageObj) {
         Map<String, Object> usage = castMap(usageObj);
         if (usage == null || usage.isEmpty()) {
@@ -305,6 +346,11 @@ public class ModelscopeChatClient implements ChatClient {
                 .build();
     }
 
+    /**
+     * 构建Auth请求头。
+     *
+     * @return 结果字符串
+     */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
         if (appKey == null || appKey.isBlank()) {
@@ -313,6 +359,11 @@ public class ModelscopeChatClient implements ChatClient {
         return "Bearer " + appKey;
     }
 
+    /**
+     * normalizeBaseURL。
+     *
+     * @return 结果字符串
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -327,16 +378,34 @@ public class ModelscopeChatClient implements ChatClient {
         return url;
     }
 
+    /**
+     * cast映射。
+     *
+     * @param obj 对象，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> castMap(Object obj) {
         return obj instanceof Map ? (Map<String, Object>) obj : null;
     }
 
+    /**
+     * cast列出。
+     *
+     * @param obj 对象，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> castList(Object obj) {
         return obj instanceof List ? (List<Map<String, Object>>) obj : null;
     }
 
+    /**
+     * asInteger。
+     *
+     * @param obj 对象，不允许为 null
+     * @return Integer 对象
+     */
     private Integer asInteger(Object obj) {
         if (obj instanceof Number number) {
             return number.intValue();

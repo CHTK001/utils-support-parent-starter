@@ -428,7 +428,7 @@ public class JdkCompiler implements Compiler {
 
             // 获取 ClassLoader 中该包对应的所有 URL 资源
             Enumeration<URL> urlEnumeration = classLoader.getResources(javaPackageName);
-            // one URL for each jar on the classpath that has the given package
+            // classpath 上每个包含该包的 jar 对应一个 URL
             while (urlEnumeration.hasMoreElements()) {
                 URL element = urlEnumeration.nextElement();
                 result.addAll(listUnder(packageName, element));

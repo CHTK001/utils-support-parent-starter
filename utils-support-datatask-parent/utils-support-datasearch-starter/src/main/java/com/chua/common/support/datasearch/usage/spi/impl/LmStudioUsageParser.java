@@ -16,13 +16,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * LM Studio usage parser.
+ * LM Studio 用量解析器。
  *
- * <p>LM Studio persists OpenAI-compatible server responses as
- * pretty-printed log files under {@code ~/.lmstudio/server-logs/}
- * (all platforms). Each completed Chat Completions / Responses API call
- * writes a structured log line that contains a top-level
- * {@code "usage"} object with scalar token counters:</p>
+ * <p>LM Studio 会把 OpenAI 兼容的服务端响应以格式化日志文件的形式
+ * 保存在 {@code ~/.lmstudio/server-logs/} 目录下
+ * （各平台一致）。每次完成的 Chat Completions / Responses API 调用
+ * 都会写入一条结构化日志，其中包含顶层的
+ * {@code "usage"} 对象以及标量 token 计数：</p>
  *
  * <pre>{@code
  * "usage": {
@@ -34,18 +34,17 @@ import java.util.regex.Pattern;
  * }
  * }</pre>
  *
- * <p>Token semantics follow {@code normalizeLocalStudioTokens}:
- * {@code prompt_tokens} is the <b>full</b> prompt (cache-inclusive), so
- * non-cached input = total − completion − cacheRead − cacheWrite;
- * {@code output} excludes reasoning.</p>
+ * <p>token 语义遵循 {@code normalizeLocalStudioTokens}：
+ * {@code prompt_tokens} 是<b>完整</b>提示（含缓存），因此
+ * 非缓存输入 = 总量 − completion − cacheRead − cacheWrite；
+ * {@code output} 不含 reasoning。</p>
  *
- * <p>Each record is deduped by its response {@code id}
- * ({@code chatcmpl-…} / {@code cmpl-…} / {@code resp_…}); when the id is
- * absent the parser falls back to a fingerprint of
- * (file, model, timestamp, totals).</p>
+ * <p>每条记录按响应 {@code id}
+ * （{@code chatcmpl-…} / {@code cmpl-…} / {@code resp_…}）去重；若缺少 id，
+ * 则回退到由（文件、模型、时间戳、各项总量）组成的指纹。</p>
  *
- * <p>All records carry {@code estimated = false} when a usage block is
- * present (the tokens are real, provided by the model server).</p>
+ * <p>只要存在 usage 块，所有记录的 {@code estimated = false}
+ * （token 数为模型服务返回的真实值）。</p>
  *
  * @author CH
  * @since 4.0.0.44
@@ -78,6 +77,11 @@ public class LmStudioUsageParser extends BaseUsageParser {
             "^\\[(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\][\\s\\S]*$",
             Pattern.MULTILINE);
 
+    /**
+     * 解析LmstudioHome。
+     *
+     * @return 路径 对象
+     */
     private static Path resolveLmstudioHome() {
         String override = System.getenv("LMSTUDIO_HOME");
         if (override != null && !override.isBlank()) {
@@ -259,15 +263,20 @@ public class LmStudioUsageParser extends BaseUsageParser {
                 continue;
             }
             switch (c) {
-                case '"': inString = true; break;
-                case '{': depth++; break;
+                case '"':
+                    inString = true;
+                    break;
+                case '{':
+                    depth++;
+                    break;
                 case '}':
                     depth--;
                     if (depth == 0) {
                         return i;
                     }
                     break;
-                default: break;
+                default:
+                    break;
             }
         }
         return -1;

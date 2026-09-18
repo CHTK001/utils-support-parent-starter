@@ -66,7 +66,13 @@ public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgume
         return null;
     }
 
-    /** 解析StringParam */
+    /**
+     * 解析StringParam
+     * @param request 请求，不允许为 null
+     * @param method 方法，不允许为 null
+     * @param index 索引，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolveStringParam(ServerRequest request, Method method, int index) {
         java.lang.reflect.Parameter param = method.getParameters()[index];
         String name = param.isNamePresent() ? param.getName() : param.getType().getSimpleName().toLowerCase();

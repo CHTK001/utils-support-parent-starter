@@ -92,7 +92,10 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
         definitionMap.clear();
     }
 
-    /** 开始Consumer */
+    /**
+     * 开始Consumer
+     * @param topic 方法入参 topic
+     */
     private void startConsumer(String topic) {
         executor.submit(() -> {
             var queue = topicQueues.computeIfAbsent(topic, t -> new LinkedBlockingQueue<>(QUEUE_CAPACITY));

@@ -30,6 +30,7 @@ public class IpFilter implements ServerFilter {
 
     /**
     * 创建黑名单模式过滤器。
+    * @return IP过滤 对象
     */
     public static IpFilter blacklist() {
         return new IpFilter(false);
@@ -37,6 +38,7 @@ public class IpFilter implements ServerFilter {
 
     /**
     * 创建白名单模式过滤器。
+    * @return IP过滤 对象
     */
     public static IpFilter whitelist() {
         return new IpFilter(true);
@@ -97,7 +99,11 @@ public class IpFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    /** Deny */
+    /**
+     * Deny
+     * @param response 响应，不允许为 null
+     * @param clientIp 客户端IP，不允许为 null
+     */
     private void deny(ServerResponse response, String clientIp) {
         response.setStatus(403);
         response.setBody("{\"error\":\"Forbidden\",\"ip\":\"" + clientIp + "\"}");
@@ -106,6 +112,8 @@ public class IpFilter implements ServerFilter {
 
     /**
     * 从 remoteAddress 提取 IP（去除端口）。
+    * @param remoteAddress remote地址，不允许为 null
+    * @return 结果字符串
     */
     private String extractIp(String remoteAddress) {
         if (remoteAddress == null) {

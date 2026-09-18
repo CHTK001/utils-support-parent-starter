@@ -72,9 +72,18 @@ public class ZipformerZhAudioClient implements VirtualClient {
     @Override public VirtualClient prompt(String p) { return this; }
     @Override public VirtualClient temperature(Double t) { return this; }
     @Override public VirtualClient seed(Long s) { return this; }
-    @Override public VirtualClient audio(byte[] a) { setting.setAudio(a); return this; }
-    @Override public VirtualClient audio(InputStream in) { setting.setAudioInput(in); return this; }
-    @Override public VirtualClient audio(Path p) { setting.setAudioPath(p); return this; }
+    @Override public VirtualClient audio(byte[] a) {
+        setting.setAudio(a);
+        return this;
+    }
+    @Override public VirtualClient audio(InputStream in) {
+        setting.setAudioInput(in);
+        return this;
+    }
+    @Override public VirtualClient audio(Path p) {
+        setting.setAudioPath(p);
+        return this;
+    }
 
     @Override
     public String transcribe(Path path) {
@@ -204,6 +213,12 @@ public class ZipformerZhAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 加载来自EmbeddedOrHf。
+     *
+     * @param modelDir 模型目录，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void loadFromEmbeddedOrHf(Path modelDir) throws IOException {
  // 先尝试从 类路径 嵌入资源解压
         try {
@@ -291,7 +306,10 @@ public class ZipformerZhAudioClient implements VirtualClient {
 
     @Override public void close() {
         if (translator != null) {
-            try { translator.close(); } catch (Exception ignore) {}
+            try {
+                translator.close();
+            } catch (Exception ignore) {
+            }
         }
         prepared = false;
     }

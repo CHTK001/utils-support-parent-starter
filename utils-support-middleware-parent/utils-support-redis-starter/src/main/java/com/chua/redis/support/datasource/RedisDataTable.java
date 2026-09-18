@@ -153,6 +153,11 @@ public class RedisDataTable implements DataTable {
         return Collections.unmodifiableList(columnNames);
     }
 
+    /**
+     * 获取列Types。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     public List<Class<?>> getColumnTypes() {
         ensureLoaded();
         return Collections.unmodifiableList(columnTypes);

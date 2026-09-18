@@ -108,6 +108,9 @@ public class MavenClientBuilder {
     */
     private static final List<String> DEFAULT_GOALS = List.of("compile");
 
+    /**
+     * 构造方法，创建 Maven客户端Builder 实例。
+     */
     MavenClientBuilder() {
         this.goals = new ArrayList<>();
         this.profiles = new ArrayList<>();
@@ -116,67 +119,106 @@ public class MavenClientBuilder {
 
     // ==================== Getter ====================
 
-    /** 获取ProjectPath */
+    /**
+     * 获取ProjectPath
+     * @return 结果字符串
+     */
     public String getProjectPath() {
         return projectPath;
     }
 
-    /** 获取Goals */
+    /**
+     * 获取Goals
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getGoals() {
         return goals;
     }
 
-    /** 获取EffectiveGoals */
+    /**
+     * 获取EffectiveGoals
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getEffectiveGoals() {
         return goals.isEmpty() ? DEFAULT_GOALS : goals;
     }
 
-    /** 获取Profiles */
+    /**
+     * 获取Profiles
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getProfiles() {
         return profiles;
     }
 
-    /** 是否跳过Tests */
+    /**
+     * 是否跳过Tests
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isSkipTests() {
         return skipTests;
     }
 
-    /** 是否Quiet */
+    /**
+     * 是否Quiet
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isQuiet() {
         return quiet;
     }
 
-    /** 是否调试 */
+    /**
+     * 是否调试
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isDebug() {
         return debug;
     }
 
-    /** 是否Offline */
+    /**
+     * 是否Offline
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isOffline() {
         return offline;
     }
 
-    /** 获取JdkVersion */
+    /**
+     * 获取JdkVersion
+     * @return 结果字符串
+     */
     public String getJdkVersion() {
         return jdkVersion;
     }
 
-    /** 获取ProgressCallback */
+    /**
+     * 获取ProgressCallback
+     * @return MavenCompilerProgress 对象
+     */
     public MavenCompilerProgress getProgressCallback() {
         return progressCallback;
     }
 
-    /** 获取CompilerCallback */
+    /**
+     * 获取CompilerCallback
+     * @return MavenCompiler回调 对象
+     */
     public MavenCompilerCallback getCompilerCallback() {
         return compilerCallback;
     }
 
-    /** 获取Properties */
+    /**
+     * 获取Properties
+     * @return 属性 对象
+     */
     public Properties getProperties() {
         return properties;
     }
 
-    /** 获取Executor */
+    /**
+     * 获取Executor
+     * @return Executor服务 对象
+     */
     public ExecutorService getExecutor() {
         return executor;
     }

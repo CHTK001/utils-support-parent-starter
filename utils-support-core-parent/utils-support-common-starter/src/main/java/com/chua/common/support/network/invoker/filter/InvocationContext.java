@@ -74,19 +74,40 @@ public class InvocationContext implements ServerRequest, ServerResponse {
     @Override public List<FormFile> getFiles() { return Collections.emptyList(); }
     @Override public HttpMethod getMethod() { return null; }
 
-    @Override public ServerResponse setStatus(int statusCode) { this.statusCode = statusCode; return this; }
+    @Override public ServerResponse setStatus(int statusCode) {
+        this.statusCode = statusCode;
+        return this;
+    }
     @Override public int getStatus() { return statusCode; }
-    @Override public ServerResponse setHeader(String name, String value) { addHeader(name, value); return this; }
-    @Override public ServerResponse setContentType(String contentType) { addHeader("Content-Type", contentType); return this; }
-    @Override public ServerResponse setBody(byte[] body) { this.body = body; return this; }
-    @Override public ServerResponse setBody(String body) { this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : null; return this; }
+    @Override public ServerResponse setHeader(String name, String value) {
+        addHeader(name, value);
+        return this;
+    }
+    @Override public ServerResponse setContentType(String contentType) {
+        addHeader("Content-Type", contentType);
+        return this;
+    }
+    @Override public ServerResponse setBody(byte[] body) {
+        this.body = body;
+        return this;
+    }
+    @Override public ServerResponse setBody(String body) {
+        this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : null;
+        return this;
+    }
     @Override public OutputStream getOutputStream() { return null; }
     @Override public ServerResponse sendRedirect(String location) { return this; }
-    @Override public ServerResponse sendError(int statusCode, String message) { this.statusCode = statusCode; return this; }
+    @Override public ServerResponse sendError(int statusCode, String message) {
+        this.statusCode = statusCode;
+        return this;
+    }
     @Override public void flush() {}
     @Override public boolean isCommitted() { return ended; }
     @Override public boolean isEnded() { return ended; }
-    @Override public ServerResponse setResult(Object result) { this.result = result; return this; }
+    @Override public ServerResponse setResult(Object result) {
+        this.result = result;
+        return this;
+    }
     @Override
     public ServerResponse reset() {
         headers.clear();

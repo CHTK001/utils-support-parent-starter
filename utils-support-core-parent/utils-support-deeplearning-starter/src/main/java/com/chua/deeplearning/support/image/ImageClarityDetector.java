@@ -188,6 +188,13 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
     */
     private String device = DEFAULT_DEVICE;
 
+    /**
+     * 构造方法，创建 DefaultImageClarityDetector 实例。
+     *
+     * @param engine 引擎，不允许为 null
+     * @param modelName 模型名称，不允许为 null
+     * @param setting 方法入参 setting
+     */
     DefaultImageClarityDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

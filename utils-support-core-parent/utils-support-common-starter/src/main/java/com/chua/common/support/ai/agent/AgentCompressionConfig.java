@@ -88,27 +88,42 @@ public class AgentCompressionConfig {
     /** Retainmessages */
     private int retainMessages = 6;
 
-    /** 是否Enabled */
+    /**
+     * 是否Enabled
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
-    /** 获取ContextCompressionThreshold */
+    /**
+     * 获取ContextCompressionThreshold
+     * @return 结果数值
+     */
     public int getContextCompressionThreshold() {
         return contextCompressionThreshold;
     }
 
-    /** 获取ContextDeviationThreshold */
+    /**
+     * 获取ContextDeviationThreshold
+     * @return 结果数值
+     */
     public int getContextDeviationThreshold() {
         return contextDeviationThreshold;
     }
 
-    /** 获取CompressionChatClient */
+    /**
+     * 获取CompressionChatClient
+     * @return Chat客户端 对象
+     */
     public ChatClient getCompressionChatClient() {
         return compressionChatClient;
     }
 
-    /** 获取RetainMessages */
+    /**
+     * 获取RetainMessages
+     * @return 结果数值
+     */
     public int getRetainMessages() {
         return retainMessages;
     }

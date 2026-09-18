@@ -45,37 +45,60 @@ public class VideoGenerationSpec {
         this.client = client;
     }
 
-    /** Prompt */
+    /**
+     * Prompt
+     * @param prompt 提示词，不允许为 null
+     * @return VideoGenerationSpec 对象
+     */
     public VideoGenerationSpec prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    /** Ratio */
+    /**
+     * Ratio
+     * @param ratio 比率，不允许为 null
+     * @return VideoGenerationSpec 对象
+     */
     public VideoGenerationSpec ratio(String ratio) {
         this.ratio = ratio;
         return this;
     }
 
-    /** CameraMovement */
+    /**
+     * CameraMovement
+     * @param cameraMovement 方法入参 cameraMovement
+     * @return VideoGenerationSpec 对象
+     */
     public VideoGenerationSpec cameraMovement(String cameraMovement) {
         this.cameraMovement = cameraMovement;
         return this;
     }
 
-    /** RefImageKey */
+    /**
+     * RefImageKey
+     * @param refImageKey refImage键，不允许为 null
+     * @return VideoGenerationSpec 对象
+     */
     public VideoGenerationSpec refImageKey(String refImageKey) {
         this.refImageKey = refImageKey;
         return this;
     }
 
-    /** TimeoutSeconds */
+    /**
+     * TimeoutSeconds
+     * @param timeoutSeconds 超时时间Seconds，不允许为 null
+     * @return VideoGenerationSpec 对象
+     */
     public VideoGenerationSpec timeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
         return this;
     }
 
-    /** Generate */
+    /**
+     * Generate
+     * @return VideoGeneration结果 对象
+     */
     public VideoGenerationResult generate() {
         return client.generateVideo(prompt, ratio, cameraMovement, refImageKey, timeoutSeconds);
     }

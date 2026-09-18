@@ -62,182 +62,330 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
 
     // ==================== 条件 API ====================
 
-    /** 创建Condition */
+    /**
+     * 创建Condition
+     * @param column 列，不允许为 null
+     * @param operator 方法入参 operator
+     * @param value 值，不允许为 null
+     * @return Condition 对象
+     */
     private Condition createCondition(SFunction<T, ?> column, String operator, Object value) {
         Condition c = new Condition(column, operator, value);
         c.setColumnName(resolveColumn(column));
         return c;
     }
 
-    /** 等于（=） */
+    /**
+     * 等于（=）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C eq(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "=", value));
         return (C) this;
     }
 
-    /** 等于（=）（字符串列名方式） */
+    /**
+     * 等于（=）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C eq(String column, Object value) {
         conditions.add(Condition.of(column, "=", value));
         return (C) this;
     }
 
-    /** 不等于（!=） */
+    /**
+     * 不等于（!=）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C ne(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "!=", value));
         return (C) this;
     }
 
-    /** 不等于（!=）（字符串列名方式） */
+    /**
+     * 不等于（!=）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C ne(String column, Object value) {
         conditions.add(Condition.of(column, "!=", value));
         return (C) this;
     }
 
-    /** 大于（>） */
+    /**
+     * 大于（>）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C gt(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, ">", value));
         return (C) this;
     }
 
-    /** 大于（>）（字符串列名方式） */
+    /**
+     * 大于（>）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C gt(String column, Object value) {
         conditions.add(Condition.of(column, ">", value));
         return (C) this;
     }
 
-    /** 大于等于（>=） */
+    /**
+     * 大于等于（>=）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C ge(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, ">=", value));
         return (C) this;
     }
 
-    /** 大于等于（>=）（字符串列名方式） */
+    /**
+     * 大于等于（>=）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C ge(String column, Object value) {
         conditions.add(Condition.of(column, ">=", value));
         return (C) this;
     }
 
-    /** 小于（<） */
+    /**
+     * 小于（<）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C lt(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "<", value));
         return (C) this;
     }
 
-    /** 小于（<）（字符串列名方式） */
+    /**
+     * 小于（<）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C lt(String column, Object value) {
         conditions.add(Condition.of(column, "<", value));
         return (C) this;
     }
 
-    /** 小于等于（<=） */
+    /**
+     * 小于等于（<=）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C le(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "<=", value));
         return (C) this;
     }
 
-    /** 小于等于（<=）（字符串列名方式） */
+    /**
+     * 小于等于（<=）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C le(String column, Object value) {
         conditions.add(Condition.of(column, "<=", value));
         return (C) this;
     }
 
-    /** 模糊匹配（LIKE %value%） */
+    /**
+     * 模糊匹配（LIKE %value%）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C like(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "LIKE", "%" + value + "%"));
         return (C) this;
     }
 
-    /** 模糊匹配（LIKE %value%）（字符串列名方式） */
+    /**
+     * 模糊匹配（LIKE %value%）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C like(String column, Object value) {
         conditions.add(Condition.of(column, "LIKE", "%" + value + "%"));
         return (C) this;
     }
 
-    /** 左模糊匹配（LIKE %value） */
+    /**
+     * 左模糊匹配（LIKE %value）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C likeLeft(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "LIKE", "%" + value));
         return (C) this;
     }
 
-    /** 左模糊匹配（LIKE %value）（字符串列名方式） */
+    /**
+     * 左模糊匹配（LIKE %value）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C likeLeft(String column, Object value) {
         conditions.add(Condition.of(column, "LIKE", "%" + value));
         return (C) this;
     }
 
-    /** 右模糊匹配（LIKE value%） */
+    /**
+     * 右模糊匹配（LIKE value%）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C likeRight(SFunction<T, ?> column, Object value) {
         conditions.add(createCondition(column, "LIKE", value + "%"));
         return (C) this;
     }
 
-    /** 右模糊匹配（LIKE value%）（字符串列名方式） */
+    /**
+     * 右模糊匹配（LIKE value%）（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param value 值，不允许为 null
+     * @return C 对象
+     */
     public C likeRight(String column, Object value) {
         conditions.add(Condition.of(column, "LIKE", value + "%"));
         return (C) this;
     }
 
-    /** IN 查询 */
+    /**
+     * IN 查询
+     * @param column 列，不允许为 null
+     * @param values 方法入参 values
+     * @return C 对象
+     */
     public C in(SFunction<T, ?> column, Collection<?> values) {
         conditions.add(createCondition(column, "IN", values));
         return (C) this;
     }
 
-    /** IN 查询（字符串列名方式） */
+    /**
+     * IN 查询（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param values 方法入参 values
+     * @return C 对象
+     */
     public C in(String column, Collection<?> values) {
         conditions.add(Condition.of(column, "IN", values));
         return (C) this;
     }
 
-    /** NOT IN 查询 */
+    /**
+     * NOT IN 查询
+     * @param column 列，不允许为 null
+     * @param values 方法入参 values
+     * @return C 对象
+     */
     public C notIn(SFunction<T, ?> column, Collection<?> values) {
         conditions.add(createCondition(column, "NOT IN", values));
         return (C) this;
     }
 
-    /** NOT IN 查询（字符串列名方式） */
+    /**
+     * NOT IN 查询（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param values 方法入参 values
+     * @return C 对象
+     */
     public C notIn(String column, Collection<?> values) {
         conditions.add(Condition.of(column, "NOT IN", values));
         return (C) this;
     }
 
-    /** IS NULL 判断 */
+    /**
+     * IS NULL 判断
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C isNull(SFunction<T, ?> column) {
         conditions.add(createCondition(column, "IS NULL", null));
         return (C) this;
     }
 
-    /** IS NULL 判断（字符串列名方式） */
+    /**
+     * IS NULL 判断（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C isNull(String column) {
         conditions.add(Condition.of(column, "IS NULL", null));
         return (C) this;
     }
 
-    /** IS NOT NULL 判断 */
+    /**
+     * IS NOT NULL 判断
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C isNotNull(SFunction<T, ?> column) {
         conditions.add(createCondition(column, "IS NOT NULL", null));
         return (C) this;
     }
 
-    /** IS NOT NULL 判断（字符串列名方式） */
+    /**
+     * IS NOT NULL 判断（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C isNotNull(String column) {
         conditions.add(Condition.of(column, "IS NOT NULL", null));
         return (C) this;
     }
 
-    /** BETWEEN 范围查询 */
+    /**
+     * BETWEEN 范围查询
+     * @param column 列，不允许为 null
+     * @param start 启动，不允许为 null
+     * @param end 结束，不允许为 null
+     * @return C 对象
+     */
     public C between(SFunction<T, ?> column, Object start, Object end) {
         conditions.add(createCondition(column, "BETWEEN", new Object[]{start, end}));
         return (C) this;
     }
 
-    /** BETWEEN 范围查询（字符串列名方式） */
+    /**
+     * BETWEEN 范围查询（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @param start 启动，不允许为 null
+     * @param end 结束，不允许为 null
+     * @return C 对象
+     */
     public C between(String column, Object start, Object end) {
         conditions.add(Condition.of(column, "BETWEEN", new Object[]{start, end}));
         return (C) this;
     }
 
-    /** AND 逻辑分组，括号包裹一组条件 */
+    /**
+     * AND 逻辑分组，括号包裹一组条件
+     * @param andGroup and分组，不允许为 null
+     * @return C 对象
+     */
     public C and(Consumer<C> andGroup) {
         C sub = newInstance();
         andGroup.accept(sub);
@@ -245,7 +393,11 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
         return (C) this;
     }
 
-    /** OR 逻辑分组，括号包裹一组条件 */
+    /**
+     * OR 逻辑分组，括号包裹一组条件
+     * @param orGroup or分组，不允许为 null
+     * @return C 对象
+     */
     public C or(Consumer<C> orGroup) {
         C sub = newInstance();
         orGroup.accept(sub);
@@ -253,31 +405,51 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
         return (C) this;
     }
 
-    /** 升序排序 */
+    /**
+     * 升序排序
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C orderByAsc(SFunction<T, ?> column) {
         orderBys.add(resolveColumn(column) + " ASC");
         return (C) this;
     }
 
-    /** 升序排序（字符串列名方式） */
+    /**
+     * 升序排序（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C orderByAsc(String column) {
         orderBys.add(column + " ASC");
         return (C) this;
     }
 
-    /** 降序排序 */
+    /**
+     * 降序排序
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C orderByDesc(SFunction<T, ?> column) {
         orderBys.add(resolveColumn(column) + " DESC");
         return (C) this;
     }
 
-    /** 降序排序（字符串列名方式） */
+    /**
+     * 降序排序（字符串列名方式）
+     * @param column 列，不允许为 null
+     * @return C 对象
+     */
     public C orderByDesc(String column) {
         orderBys.add(column + " DESC");
         return (C) this;
     }
 
-    /** 设置表别名 */
+    /**
+     * 设置表别名
+     * @param alias 方法入参 alias
+     * @return C 对象
+     */
     public C tableAlias(String alias) {
         this.tableAlias = alias;
         return (C) this;
@@ -305,17 +477,26 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
 
     // ==================== 访问器 ====================
 
-    /** 获取EntityClass */
+    /**
+     * 获取EntityClass
+     * @return Class 对象
+     */
     public Class<T> getEntityClass() {
         return entityClass;
     }
 
-    /** 获取Conditions */
+    /**
+     * 获取Conditions
+     * @return 结果列表，无数据时为空列表
+     */
     public List<Condition> getConditions() {
         return conditions;
     }
 
-    /** 获取OrderBys */
+    /**
+     * 获取OrderBys
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getOrderBys() {
         return orderBys;
     }

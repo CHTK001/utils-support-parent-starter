@@ -157,6 +157,8 @@ public final class SslUtils {
 
     /**
     * 从 KeyStore 文件（JKS/PKCS12）加载。
+    * @param ssl 方法入参 ssl
+    * @return 键Store 对象
     */
     private static KeyStore loadKeyStoreFile(ServerSetting.SslConfig ssl) throws Exception {
         String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
@@ -170,6 +172,8 @@ public final class SslUtils {
 
     /**
     * 从 PEM 证书文件和私钥文件加载为 KeyStore。
+    * @param ssl 方法入参 ssl
+    * @return 键Store 对象
     */
     private static KeyStore loadPemKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -196,6 +200,8 @@ public final class SslUtils {
 
     /**
     * 使用 {@link JdkCertificateProvider} 自动生成自签名证书并加载为 KeyStore。
+    * @param ssl 方法入参 ssl
+    * @return 键Store 对象
     */
     private static KeyStore generateSelfSignedKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         JdkCertificateProvider provider = new JdkCertificateProvider();
@@ -281,6 +287,7 @@ public final class SslUtils {
     * 避免加载后 KeyManagerFactory 解密密钥条目失败（BadPaddingException）。</p>
     *
     * @return 密码字符数组
+    * @param ssl 方法入参 ssl
     */
     public static char[] getKeyStorePassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyStorePassword() != null
@@ -291,6 +298,7 @@ public final class SslUtils {
     * 获取私钥密码字符数组。
     *
     * @return 密码字符数组，未设置时返回空数组
+    * @param ssl 方法入参 ssl
     */
     public static char[] getKeyPassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyPassword() != null

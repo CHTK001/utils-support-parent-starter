@@ -33,7 +33,9 @@ public class InnerJoinStrategy implements JoinStrategy {
                 if (ctx.projectColumns() != null && !ctx.projectColumns().isEmpty()) {
                     Map<String, Object> projected = new LinkedHashMap<>();
                     for (String col : ctx.projectColumns()) {
-                        if (merged.containsKey(col)) projected.put(col, merged.get(col));
+                        if (merged.containsKey(col)) {
+                            projected.put(col, merged.get(col));
+                        }
                     }
                     result.add(projected);
                 } else {

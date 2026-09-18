@@ -178,6 +178,7 @@ public class LatencyStrategy implements RouterStrategy {
     * @param elapsed 耗时（毫秒）
     * @param error   provider 抛出的异常（成功时为 null）
     * @since 4.0.0.42
+    * @return 结果值
     */
     private record Result(WeightedClient client, String text, long elapsed, Exception error) {
     }

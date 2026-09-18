@@ -105,6 +105,11 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
         return rows;
     }
 
+    /**
+     * 获取Http客户端。
+     *
+     * @return ReactiveHttp客户端 对象
+     */
     private ReactiveHttpClient getHttpClient() {
         if (httpClient == null) {
             synchronized (this) {

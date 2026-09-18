@@ -18,14 +18,13 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * WorkBuddy (Tencent) usage parser.
+ * WorkBuddy（腾讯）用量解析器。
  *
- * <p>WorkBuddy Code (npm {@code @tencent-ai/workbuddy-code}) is the CN-edition
- * Claude-Code fork sibling of CodeBuddy. It persists each session as a
- * transcript under {@code ~/.workbuddy/projects/<project>/<sessionId>.jsonl}
- * with nested sub-agent transcripts under {@code sessions/<sid>/subagents/}.
- * Completed assistant turns carry real per-request usage via
- * {@code providerData.rawUsage}:</p>
+ * <p>WorkBuddy Code（npm 包 {@code @tencent-ai/workbuddy-code}）是 CodeBuddy 的国内版
+ * Claude-Code 分支。它在 {@code ~/.workbuddy/projects/<project>/<sessionId>.jsonl}
+ * 下按会话保存 transcript，子智能体的嵌套 transcript 位于
+ * {@code sessions/<sid>/subagents/}。已完成的助手轮次通过
+ * {@code providerData.rawUsage} 携带真实的逐次请求用量：</p>
  *
  * <pre>{@code
  * {
@@ -49,16 +48,16 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>Unlike CodeBuddy (whose {@code cache_creation} is usually 0), WorkBuddy
- * bills both cache-read <i>and</i> cache-write into {@code prompt_tokens}, so
- * the non-cached input must subtract <b>both</b> {@code cache_read} and
- * {@code cache_creation}; reasoning is carried inside
- * {@code completion_tokens} and split out separately.</p>
+ * <p>与 CodeBuddy（其 {@code cache_creation} 通常为 0）不同，WorkBuddy
+ * 会把缓存读取<i>和</i>缓存写入都计入 {@code prompt_tokens} 计费，因此
+ * 非缓存输入必须同时减去 {@code cache_read} 与
+ * {@code cache_creation}；reasoning 包含在
+ * {@code completion_tokens} 内，再单独拆分出来。</p>
  *
- * <p>De-dup key is {@code providerData.messageId} (response-level, shared by
- * the assistant message and its function_call pair); falls back to
- * {@code id} then {@code sessionId:timestamp}. Records whose rawUsage is all
- * zero are skipped (request-start placeholder that is back-filled in place).</p>
+ * <p>去重键为 {@code providerData.messageId}（响应级别，助手消息与其
+ * function_call 成对共享）；缺失时依次回退到
+ * {@code id}，再到 {@code sessionId:timestamp}。rawUsage 全为 0 的记录会被跳过
+ * （那是请求开始的占位行，之后会就地回填）。</p>
  *
  * @author CH
  * @since 4.0.0.44

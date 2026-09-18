@@ -138,7 +138,9 @@ public class CypherExpressionParser implements ExpressionParser {
             case FUNCTION -> {
                 StringBuilder sb = new StringBuilder(tree.getOperator()).append("(");
                 for (int i = 0; i < tree.getChildren().size(); i++) {
-                    if (i > 0) sb.append(", ");
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
                     sb.append(generate(tree.getChildren().get(i)));
                 }
                 sb.append(")");

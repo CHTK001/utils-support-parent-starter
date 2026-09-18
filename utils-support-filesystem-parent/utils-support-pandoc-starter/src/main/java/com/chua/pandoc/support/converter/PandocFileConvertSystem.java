@@ -186,10 +186,16 @@ public class PandocFileConvertSystem implements FileConvertSystem {
             throw new RuntimeException("Pandoc 转换失败", e);
         } finally {
             if (tempInput != null && !source.isPath()) {
-                try { Files.deleteIfExists(tempInput); } catch (Exception ignored) {}
+                try {
+                    Files.deleteIfExists(tempInput);
+                } catch (Exception ignored) {
+                }
             }
             if (tempOutput != null) {
-                try { Files.deleteIfExists(tempOutput); } catch (Exception ignored) {}
+                try {
+                    Files.deleteIfExists(tempOutput);
+                } catch (Exception ignored) {
+                }
             }
         }
     }

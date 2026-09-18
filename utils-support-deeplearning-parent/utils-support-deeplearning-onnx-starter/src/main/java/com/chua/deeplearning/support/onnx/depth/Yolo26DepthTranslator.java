@@ -81,6 +81,11 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
         }
     }
 
+    /**
+     * ensurePrepared。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private synchronized void ensurePrepared() throws Exception {
         if (prepared) {
             return;
@@ -97,6 +102,13 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
         log.info("[Yolo26Depth] ORT ready, model={}", modelPath);
     }
 
+    /**
+     * 深度结果。
+     *
+     * @param imageBytes image字节数组，不允许为 null
+     * @return 深度结果 对象
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private DepthResult depthResult(byte[] imageBytes) throws Exception {
         BufferedImage src = ImageIO.read(new ByteArrayInputStream(imageBytes));
         int origW = src.getWidth();
@@ -245,7 +257,10 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     @Override
     public void close() {
         if (session != null) {
-            try { session.close(); } catch (Exception ignore) { }
+            try {
+                session.close();
+            } catch (Exception ignore) {
+            }
         }
         ortEnv = null;
         prepared = false;

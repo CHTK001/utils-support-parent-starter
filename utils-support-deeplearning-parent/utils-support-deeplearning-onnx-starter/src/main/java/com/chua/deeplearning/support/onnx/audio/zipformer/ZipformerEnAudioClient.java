@@ -46,7 +46,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
     };
 
     private final AudioClientSetting setting;
+    /** translator */
     private ZipformerEnOfflineTranslator translator;
+    /** prepared */
     private boolean prepared;
 
     /**
@@ -149,6 +151,9 @@ public class ZipformerEnAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * ensurePrepared。
+     */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -169,6 +174,13 @@ public class ZipformerEnAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * download。
+     *
+     * @param dir 目录，不允许为 null
+     * @param name 名称，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void download(Path dir, String name) throws IOException {
         Files.createDirectories(dir);
         log.info("[ZipformerEN] downloading {}...", name);
@@ -179,6 +191,12 @@ public class ZipformerEnAudioClient implements VirtualClient {
         Files.move(temp, dir.resolve(name), StandardCopyOption.REPLACE_EXISTING);
     }
 
+    /**
+     * 模型目录。
+     *
+     * @return 路径 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-en.dir");
         Path dir = (prop != null && !prop.isBlank())
@@ -188,6 +206,11 @@ public class ZipformerEnAudioClient implements VirtualClient {
         return dir;
     }
 
+    /**
+     * 解析Audio路径。
+     *
+     * @return 路径 对象
+     */
     private Path resolveAudioPath() {
         if (setting.getAudioPath() != null) {
             return setting.getAudioPath();
@@ -211,6 +234,11 @@ public class ZipformerEnAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 缓存根节点。
+     *
+     * @return 结果字符串
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

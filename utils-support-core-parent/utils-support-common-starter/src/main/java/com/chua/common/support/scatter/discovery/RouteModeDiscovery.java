@@ -37,10 +37,16 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
                 return t;
             });
 
+    /** probeRound */
     private long probeRound = 0;
     /** 每轮同步请求 ID 计数器 */
     private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
 
+    /**
+     * 构造方法，创建 Route模式Discovery 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public RouteModeDiscovery(ScatterSetting setting) {
         super(setting);
     }
@@ -65,7 +71,10 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    /** 向目标节点拉取服务表并合并（gossip 扩散）。 */
+    /**
+     * 向目标节点拉取服务表并合并（gossip 扩散）。
+     * @param node 节点，不允许为 null
+     */
     protected void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(String.valueOf(roundRequestIdSeq.incrementAndGet()),
                 setting.getServicePath(), setting.getTimeoutMillis());
@@ -120,6 +129,12 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
+    /**
+     * 转为Long。
+     *
+     * @param addr 方法入参 addr
+     * @return 结果数值
+     */
     private static long toLong(byte[] addr) {
         long v = 0;
         for (byte b : addr) {
@@ -128,6 +143,12 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
         return v;
     }
 
+    /**
+     * 转为IP。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String toIp(long value) {
         return ((value >> 24) & 0xff) + "." + ((value >> 16) & 0xff) + "."
                 + ((value >> 8) & 0xff) + "." + (value & 0xff);

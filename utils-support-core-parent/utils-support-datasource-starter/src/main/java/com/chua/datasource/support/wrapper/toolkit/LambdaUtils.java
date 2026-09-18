@@ -28,8 +28,7 @@ public class LambdaUtils {
     */
     public static <T> String resolveObject(SFunction<T, ?> func) {
         try {
-            // [P3C 1.10 豁免] 序列化 writeReplace 方法句柄
-            var writeReplace = func.getClass().getDeclaredMethod("writeReplace");
+            var writeReplace = func.getClass().getDeclaredMethod("writeReplace"); // [P3C 1.10 豁免] JDK 序列化 lambda 隐藏类的私有 writeReplace，ReflectUtils 的 MethodHandle 路径无法访问该隐藏类
             writeReplace.setAccessible(true);
             var lambda = (SerializedLambda) writeReplace.invoke(func);
             String methodName = lambda.getImplMethodName();

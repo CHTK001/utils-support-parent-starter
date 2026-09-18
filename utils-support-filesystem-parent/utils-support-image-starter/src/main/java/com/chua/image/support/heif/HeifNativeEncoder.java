@@ -124,7 +124,7 @@ public class HeifNativeEncoder {
     * @return 转为jpegbytes的结果
     */
     private static byte[] toJpegBytes(BufferedImage image, float quality) throws IOException {
-        // Convert to RGB for JPEG encoding (JPEG does not support alpha or indexed color)
+        // 转为 RGB 再交给 JPEG 编码（JPEG 不支持 alpha 通道与索引色）
         BufferedImage rgb;
         if (image.getType() == BufferedImage.TYPE_INT_RGB
                 || image.getType() == BufferedImage.TYPE_3BYTE_BGR) {

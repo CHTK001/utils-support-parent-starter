@@ -12,16 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AI summary generator for hprof heap-dump analysis.
+ * hprof 堆转储分析结果的 AI 总结生成器。
  *
- * <p>Builds a compact, structured prompt from the parsed
- * {@link HprofParser.Result} + {@link HprofAnalyzer.HprofAnalysis} and asks
- * a {@link ChatClient} to produce a short plain-language summary in Chinese:
- * what the dominant memory holders are, why they are retained, and the
- * top action to take. The summary is meant to be dropped verbatim into
- * the HTML report's "AI 总结" block.</p>
+ * <p>基于解析得到的 {@link HprofParser.Result} + {@link HprofAnalyzer.HprofAnalysis}
+ * 拼装出一段紧凑、结构化的提示词，交给 {@link ChatClient} 用通俗中文生成简短总结：
+ * 最主要的内存占用来源是什么、它们为何被保留，以及最优先的一条处理建议。
+ * 总结文本会被原样放入 HTML 报告的 "AI 总结" 区块。</p>
  *
- * <p>Usage:</p>
+ * <p>用法：</p>
  *
  * <pre>{@code
  * ChatClient client = ChatClient.create("openai", "sk-xxx");
@@ -29,9 +27,8 @@ import java.util.Map;
  *         .summarize(result);
  * }</pre>
  *
- * <p>When no {@link ChatClient} is configured, {@link #summarize} returns
- * {@code null} and the HTML renderer simply omits the AI block, so the
- * report degrades gracefully offline.</p>
+ * <p>未配置 {@link ChatClient} 时，{@link #summarize} 返回
+ * {@code null}，HTML 渲染器随之省略 AI 区块，因此离线场景下报告可优雅降级。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -41,7 +38,7 @@ public final class HprofAiSummarizer {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-    * System prompt injected as the model's role.
+    * 作为模型角色注入的系统提示词。
     */
     private static final String SYSTEM_PROMPT =
             "你是一名 JVM 内存分析专家。根据给出的堆转储统计（算法判定 + 结论 + 排行 + GC 根），"
@@ -49,34 +46,39 @@ public final class HprofAiSummarizer {
                     + "以及一条最优先的处理建议。语言要直接、可执行，避免空泛套话。";
 
     /**
-    * The ChatClient used to produce the summary (may be null).
+    * 用于生成总结的 ChatClient（可能为 null）。
     */
     private final ChatClient chatClient;
 
     /**
-    * Model name override (optional).
+    * 模型名覆盖（可选）。
     */
     private String model;
 
+    /**
+     * 构造方法，创建 HprofAiSummarizer 实例。
+     *
+     * @param chatClient chat客户端，不允许为 null
+     */
     private HprofAiSummarizer(ChatClient chatClient) {
         this.chatClient = chatClient;
     }
 
     /**
-    * Create a summarizer that uses the given client.
+    * 创建使用指定客户端的总结器。
     *
-    * @param chatClient AI client, null disables summary
-    * @return the summarizer
+    * @param chatClient AI 客户端，为 null 时禁用总结
+    * @return 总结器
     */
     public static HprofAiSummarizer of(ChatClient chatClient) {
         return new HprofAiSummarizer(chatClient);
     }
 
     /**
-    * Create a summarizer from a client setting.
+    * 依据客户端配置创建总结器。
     *
-    * @param setting client setting
-    * @return the summarizer, or a disabled one when the setting is null
+    * @param setting 客户端配置
+    * @return 总结器；配置为 null 时返回禁用态的总结器
     */
     public static HprofAiSummarizer of(ChatClientSetting setting) {
         if (setting == null) {
@@ -86,10 +88,10 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * Set the model name for the summary call.
+    * 设置总结调用使用的模型名。
     *
-    * @param model model name, null clears
-    * @return this
+    * @param model 模型名，传 null 表示清除
+    * @return 当前实例
     */
     public HprofAiSummarizer model(String model) {
         this.model = model;
@@ -97,19 +99,19 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * Whether an AI summary will actually be produced.
+    * 是否会真正产出 AI 总结。
     *
-    * @return true when a client is configured
+    * @return 已配置客户端时返回 true
     */
     public boolean isEnabled() {
         return chatClient != null;
     }
 
     /**
-    * Produce the AI summary for a parsed result.
+    * 为一次解析结果生成 AI 总结。
     *
-    * @param result parsed result
-    * @return summary text, or null when no client is configured
+    * @param result 解析结果
+    * @return 总结文本；未配置客户端时返回 null
     */
     public String summarize(HprofParser.Result result) {
         if (chatClient == null || result == null) {
@@ -122,11 +124,11 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * Build the compact prompt from analysis + result.
+    * 由分析结论 + 解析结果拼装出紧凑的提示词。
     *
-    * @param analysis analysis
-    * @param result   parsed result
-    * @return the prompt string
+    * @param analysis 分析结论
+    * @param result   解析结果
+    * @return 提示词字符串
     */
     private static String buildPrompt(HprofAnalysis analysis, HprofParser.Result result) {
         try {
@@ -153,7 +155,7 @@ public final class HprofAiSummarizer {
             }
             return "堆转储统计（JSON）：\n" + MAPPER.writeValueAsString(payload);
         } catch (Exception e) {
-            // fall back to a plain-text prompt on any serialization problem
+            // 序列化出现任何问题时，退化为纯文本提示词
             return String.join("\n",
                     "总保留内存 " + HprofObject.formatSize(result.totalRetainedBytes()),
                     "对象数 " + result.totalObjectCount(),

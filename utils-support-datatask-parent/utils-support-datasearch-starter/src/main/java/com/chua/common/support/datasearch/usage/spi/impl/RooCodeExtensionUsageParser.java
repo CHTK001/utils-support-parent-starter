@@ -54,6 +54,12 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
         return usage;
     }
 
+    /**
+     * 解析Roocode模型。
+     *
+     * @param taskId taskID，不允许为 null
+     * @return 结果字符串
+     */
     private String resolveRoocodeModel(String taskId) {
         for (Map.Entry<Path, String> entry : resolveTaskFilesOnDisk().entrySet()) {
             if (!taskId.equals(entry.getValue())) {

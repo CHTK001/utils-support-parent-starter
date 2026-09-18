@@ -65,6 +65,12 @@ public class PiUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 流文件。
+     *
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamFile(Path file) {
         java.util.List<AiUsage> out = new ArrayList<>();
         try (Stream<String> lines = Files.lines(file)) {
@@ -80,6 +86,12 @@ public class PiUsageParser extends BaseUsageParser {
         return Flux.fromIterable(out);
     }
 
+    /**
+     * 解析Line。
+     *
+     * @param line 方法入参 line
+     * @return AiUsage 对象
+     */
     private AiUsage parseLine(String line) {
         if (line.isBlank()) {
             return null;
@@ -137,6 +149,13 @@ public class PiUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 转为毫秒数。
+     *
+     * @param entry 条目，不允许为 null
+     * @param msg 消息，不允许为 null
+     * @return 结果数值
+     */
     private long toMillis(JsonNode entry, JsonNode msg) {
         JsonNode tsNode = msg.get("timestamp");
         if (tsNode.isMissingValue()) {
@@ -152,6 +171,11 @@ public class PiUsageParser extends BaseUsageParser {
         return parseInstantToMillis(tsNode.toStringValue());
     }
 
+    /**
+     * 列出会话Files。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     private List<Path> listSessionFiles() {
         Path sessionsDir = agentDir.resolve("sessions");
         if (!Files.isDirectory(sessionsDir)) {

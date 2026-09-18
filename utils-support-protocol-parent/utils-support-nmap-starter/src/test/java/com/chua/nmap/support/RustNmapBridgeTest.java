@@ -18,6 +18,9 @@ class RustNmapBridgeTest {
     private static final Logger log = LoggerFactory.getLogger(RustNmapBridgeTest.class); // 日志
     private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded(); // NAT加载
 
+    /**
+     * log加载状态。
+     */
     @BeforeAll
     static void logLoadStatus() {
         if (NATIVE_LOADED) {
@@ -32,6 +35,9 @@ class RustNmapBridgeTest {
 
     // ── 加载状态 ──────────────────────────────────────────────────────────────
 
+    /**
+     * 是否Loadedreturnsboolean。
+     */
     @Test
     @DisplayName("isLoaded 返回明确的布尔值")
     void isLoaded_returns_boolean() {
@@ -41,6 +47,9 @@ class RustNmapBridgeTest {
         // 只要不抛异常即通过
     }
 
+    /**
+     * ensureLoadedthrowswhennotloaded。
+     */
     @Test
     @DisplayName("未加载时 ensureLoaded 抛出 UnsupportedOperationException")
     void ensureLoaded_throws_when_not_loaded() {
@@ -52,6 +61,9 @@ class RustNmapBridgeTest {
         }
     }
 
+    /**
+     * 获取加载Errorwhennotloaded。
+     */
     @Test
     @DisplayName("getLoadError 在未加载时返回非null")
     void getLoadError_when_not_loaded() {
@@ -63,6 +75,9 @@ class RustNmapBridgeTest {
 
     // ── 集成测试（需要动态库）────────────────────────────────────────────────
 
+    /**
+     * 获取版本returns字符串。
+     */
     @Test
     @DisplayName("getVersion 返回版本字符串")
     void getVersion_returns_string() {
@@ -73,6 +88,9 @@ class RustNmapBridgeTest {
         log.info("[RustNmap] 版本: {}", version);
     }
 
+    /**
+     * 是否ValidIPvalid。
+     */
     @Test
     @DisplayName("isValidIp 验证合法IP")
     void isValidIp_valid() {
@@ -82,6 +100,9 @@ class RustNmapBridgeTest {
         assertTrue(RustNmapBridge.isValidIp("8.8.8.8"));
     }
 
+    /**
+     * 是否ValidIPinvalid。
+     */
     @Test
     @DisplayName("isValidIp 拒绝非法IP")
     void isValidIp_invalid() {
@@ -91,6 +112,9 @@ class RustNmapBridgeTest {
         assertFalse(RustNmapBridge.isValidIp(""));
     }
 
+    /**
+     * 是否ValidSubnetvalid。
+     */
     @Test
     @DisplayName("isValidSubnet 验证合法CIDR")
     void isValidSubnet_valid() {
@@ -99,6 +123,9 @@ class RustNmapBridgeTest {
         assertTrue(RustNmapBridge.isValidSubnet("10.0.0.0/8"));
     }
 
+    /**
+     * 是否ValidSubnetinvalid。
+     */
     @Test
     @DisplayName("isValidSubnet 拒绝非法格式")
     void isValidSubnet_invalid() {
@@ -107,6 +134,9 @@ class RustNmapBridgeTest {
         assertFalse(RustNmapBridge.isValidSubnet("not-a-subnet"));
     }
 
+    /**
+     * scanSingleTcp端口localhost。
+     */
     @Test
     @DisplayName("scanSingleTcpPort 扫描本地回环端口")
     void scanSingleTcpPort_localhost() {
@@ -118,6 +148,9 @@ class RustNmapBridgeTest {
         log.info("[RustNmap] 127.0.0.1:65534 状态码={}", result);
     }
 
+    /**
+     * ping主机returnsjson。
+     */
     @Test
     @DisplayName("pingHost 返回JSON结果")
     void pingHost_returns_json() {
@@ -127,6 +160,9 @@ class RustNmapBridgeTest {
         log.info("[RustNmap] pingHost 127.0.0.1 结果: {}", result);
     }
 
+    /**
+     * 获取LocalIpsreturnsjson。
+     */
     @Test
     @DisplayName("getLocalIps 返回JSON数组")
     void getLocalIps_returns_json() {

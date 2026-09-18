@@ -13,15 +13,31 @@ public class SeedAddress {
     private final String host;
     private final int port;
 
+    /**
+     * 构造方法，创建 Seed地址 实例。
+     *
+     * @param host 主机，不允许为 null
+     * @param port 端口，不允许为 null
+     */
     public SeedAddress(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    /**
+     * 获取主机。
+     *
+     * @return 结果字符串
+     */
     public String getHost() {
         return host;
     }
 
+    /**
+     * 获取端口。
+     *
+     * @return 结果数值
+     */
     public int getPort() {
         return port;
     }
@@ -66,6 +82,12 @@ public class SeedAddress {
         return port > 0 ? port : fallbackPort;
     }
 
+    /**
+     * 转为Socket地址。
+     *
+     * @param fallbackPort fallback端口，不允许为 null
+     * @return InetSocket地址 对象
+     */
     public InetSocketAddress toSocketAddress(int fallbackPort) {
         return new InetSocketAddress(host, effectivePort(fallbackPort));
     }

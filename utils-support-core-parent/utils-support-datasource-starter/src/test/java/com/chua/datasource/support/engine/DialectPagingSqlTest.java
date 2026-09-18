@@ -22,6 +22,9 @@ class DialectPagingSqlTest {
     /** 基础查询 SQL */
     private static final String BASE_SQL = "SELECT * FROM fixture_user";
 
+    /**
+     * 测试：PaginationCalculation。
+     */
     @Test
     @DisplayName("Pagination:offset = (pageNum-1) * pageSize")
     void testPaginationCalculation() {
@@ -34,6 +37,9 @@ class DialectPagingSqlTest {
         assertEquals(20, third.getLimit());
     }
 
+    /**
+     * 测试：PaginationSafeFallback。
+     */
     @Test
     @DisplayName("Pagination:非法页码/页长兜底为第 1 页与最小 1 条")
     void testPaginationSafeFallback() {
@@ -46,6 +52,9 @@ class DialectPagingSqlTest {
         assertEquals(1, negative.getLimit());
     }
 
+    /**
+     * 测试：Default上限偏移量。
+     */
     @Test
     @DisplayName("默认方言:追加 LIMIT ? OFFSET ?")
     void testDefaultLimitOffset() {
@@ -55,6 +64,9 @@ class DialectPagingSqlTest {
         assertEquals(BASE_SQL + " LIMIT 10 OFFSET 20", sql);
     }
 
+    /**
+     * 测试：CustomPagination模板。
+     */
     @Test
     @DisplayName("自定义 pagination-sql 模板:{sql}/{offset}/{limit} 占位符替换")
     void testCustomPaginationTemplate() {
@@ -69,6 +81,9 @@ class DialectPagingSqlTest {
         assertEquals(BASE_SQL + " OFFSET 15 ROWS FETCH NEXT 15 ROWS ONLY", sql);
     }
 
+    /**
+     * 测试：SQL服务端模板。
+     */
     @Test
     @DisplayName("SQL Server 2012 方言:分页渲染为 OFFSET ... ROWS FETCH NEXT")
     void testSqlServerTemplate() {

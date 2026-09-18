@@ -13,7 +13,10 @@ import java.util.Map;
  */
 public interface JoinStrategy {
 
-    /** 策略名称 */
+    /**
+     * 策略名称
+     * @return 结果字符串
+     */
     String name();
 
     /** 是否启用（none 默认不启用） */

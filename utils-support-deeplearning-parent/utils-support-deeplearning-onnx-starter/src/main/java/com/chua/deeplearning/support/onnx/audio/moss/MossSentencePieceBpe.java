@@ -135,6 +135,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
         return idToPiece.size();
     }
 
+    /**
+     * 编码Normalized。
+     *
+     * @param normalized 方法入参 normalized
+     * @param out 方法入参 out
+     */
     private void encodeNormalized(String normalized, List<Integer> out) {
         int pos = 0;
         int len = normalized.length();
@@ -154,6 +160,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
         }
     }
 
+    /**
+     * 编码Word。
+     *
+     * @param word 方法入参 word
+     * @param out 方法入参 out
+     */
     private void encodeWord(String word, List<Integer> out) {
         List<String> symbols = new ArrayList<>();
         for (int i = 0; i < word.length(); ) {
@@ -195,6 +207,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
         }
     }
 
+    /**
+     * 追加ByteFallback。
+     *
+     * @param symbol 方法入参 symbol
+     * @param out 方法入参 out
+     */
     private void appendByteFallback(String symbol, List<Integer> out) {
         byte[] bytes = symbol.getBytes(StandardCharsets.UTF_8);
         for (byte b : bytes) {
@@ -206,6 +224,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
         }
     }
 
+    /**
+     * 拆分用户Defined。
+     *
+     * @param text 文本，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> splitUserDefined(String text) {
         List<String> segments = new ArrayList<>();
         if (userDefinedIds.isEmpty()) {
@@ -242,6 +266,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
     */
     }
 
+    /**
+     * 是否用户Defined。
+     *
+     * @param segment 分段，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isUserDefined(String segment) {
         Integer id = pieceToId.get(segment);
         return id != null && userDefinedIds.contains(id);
@@ -254,6 +284,13 @@ public class MossSentencePieceBpe implements AutoCloseable {
     */
     }
 
+    /**
+     * 解析Piece。
+     *
+     * @param data 数据，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @param length 长度，不允许为 null
+     */
     private void parsePiece(byte[] data, int offset, int length) {
         int end = offset + length;
         String piece = null;
@@ -303,6 +340,13 @@ public class MossSentencePieceBpe implements AutoCloseable {
         }
     }
 
+    /**
+     * 读取Varint。
+     *
+     * @param data 数据，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @return 结果值
+     */
     private int[] readVarint(byte[] data, int offset) {
         long value = 0;
         int shift = 0;
@@ -318,6 +362,13 @@ public class MossSentencePieceBpe implements AutoCloseable {
         return new int[]{(int) value, pos};
     }
 
+    /**
+     * 读取IntLE。
+     *
+     * @param data 数据，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @return 结果数值
+     */
     private int readIntLE(byte[] data, int offset) {
         return (data[offset] & 0xFF)
                 | ((data[offset + 1] & 0xFF) << 8)

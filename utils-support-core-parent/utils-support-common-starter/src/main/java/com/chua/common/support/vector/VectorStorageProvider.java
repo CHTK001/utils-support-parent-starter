@@ -33,6 +33,7 @@ public interface VectorStorageProvider {
 
     /**
     * SPI 名称（如 "memory", "jvector", "milvus"）。
+    * @return 结果字符串
     */
     String name();
 
@@ -105,6 +106,7 @@ public interface VectorStorageProvider {
 
     /**
     * 返回所有已注册的 SPI 名称。
+    * @return 结果列表，无数据时为空列表
     */
     static List<String> providers() {
         return ServiceProvider.of(VectorStorageProvider.class)

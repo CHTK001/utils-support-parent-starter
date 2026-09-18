@@ -42,16 +42,27 @@ public class ElasticsearchEngineIntegrationTest {
 
     private ElasticsearchEngine engine;
 
+    /**
+     * 启动Container。
+     */
     @BeforeAll
     static void startContainer() {
         ES.start();
     }
 
+    /**
+     * 停止Container。
+     */
     @AfterAll
     static void stopContainer() {
         ES.stop();
     }
 
+    /**
+     * 设置Up。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @BeforeEach
     void setUp() throws Exception {
         engine = new ElasticsearchEngine();
@@ -127,11 +138,17 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== getExecutor 返回 null ====================
 
+    /**
+     * 测试：获取ExecutorReturnsNull。
+     */
     @Test
     void testGetExecutorReturnsNull() {
         assertNull(engine.getExecutor(), "ElasticsearchEngine.getExecutor() 应返回 null");
     }
 
+    /**
+     * 测试：获取客户端NotNull。
+     */
     @Test
     void testGetClientNotNull() {
         assertNotNull(engine.getClient(), "客户端应已初始化");
@@ -139,6 +156,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== list / query ====================
 
+    /**
+     * 测试：列出全部。
+     */
     @Test
     void testListAll() {
         List<EsDoc> all = engine.query(EsDoc.class).list();
@@ -147,6 +167,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertTrue(all.stream().allMatch(d -> d.getTitle() != null), "title 非空");
     }
 
+    /**
+     * 测试：查询WithEqCondition。
+     */
     @Test
     void testQueryWithEqCondition() {
         List<EsDoc> list = engine.query(EsDoc.class)
@@ -157,6 +180,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertEquals(2L, list.getFirst().getId());
     }
 
+    /**
+     * 测试：查询WithGtCondition。
+     */
     @Test
     void testQueryWithGtCondition() {
         List<EsDoc> list = engine.query(EsDoc.class)
@@ -165,6 +191,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertEquals(2, list.size(), "id > 2 应有 3、4 两条");
     }
 
+    /**
+     * 测试：查询WithLikeCondition。
+     */
     @Test
     void testQueryWithLikeCondition() {
         // LIKE → wildcard，% 转为 *，命中含 "引擎" 的标题
@@ -175,6 +204,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertTrue(list.stream().anyMatch(d -> d.getTitle().contains("引擎")));
     }
 
+    /**
+     * 测试：查询WithInCondition。
+     */
     @Test
     void testQueryWithInCondition() {
         List<EsDoc> list = engine.query(EsDoc.class)
@@ -188,6 +220,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== one ====================
 
+    /**
+     * 测试：One。
+     */
     @Test
     void testOne() {
         EsDoc doc = engine.query(EsDoc.class)
@@ -197,6 +232,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertEquals("分布式系统设计", doc.getTitle());
     }
 
+    /**
+     * 测试：OneReturnsNullWhen编号Match。
+     */
     @Test
     void testOneReturnsNullWhenNoMatch() {
         EsDoc doc = engine.query(EsDoc.class)
@@ -207,6 +245,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== page ====================
 
+    /**
+     * 测试：页。
+     */
     @Test
     void testPage() {
         var page = engine.query(EsDoc.class).page(1, 2);
@@ -217,6 +258,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== update / delete 空实现 ====================
 
+    /**
+     * 测试：更新是否编号操作。
+     */
     @Test
     void testUpdateIsNoOp() {
         int affected = engine.update(EsDoc.class)
@@ -226,6 +270,9 @@ public class ElasticsearchEngineIntegrationTest {
         assertEquals(0, affected, "ElasticsearchEngine.update() 为空实现，恒返回 0");
     }
 
+    /**
+     * 测试：删除是否编号操作。
+     */
     @Test
     void testDeleteIsNoOp() {
         int affected = engine.delete(EsDoc.class)
@@ -236,6 +283,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== 空结果 ====================
 
+    /**
+     * 测试：Empty结果。
+     */
     @Test
     void testEmptyResult() {
         List<EsDoc> list = engine.query(EsDoc.class)
@@ -246,6 +296,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     // ==================== close ====================
 
+    /**
+     * 测试：关闭。
+     */
     @Test
     void testClose() {
         assertDoesNotThrow(engine::close);

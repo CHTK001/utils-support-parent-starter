@@ -21,12 +21,18 @@ public enum TaskPriority {
 
     /**
     * 高优先级
+    * @param 10 方法入参 10
     */
     HIGH(10);
 
     /** 级别 */
     private final int level;
 
+    /**
+     * 构造方法，创建 TaskPriority 实例。
+     *
+     * @param level 级别，不允许为 null
+     */
     TaskPriority(int level) {
         this.level = level;
     }

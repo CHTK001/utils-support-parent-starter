@@ -37,8 +37,8 @@ import java.util.Map;
  * }
  * }</pre>
  *
- * <p>Session start times come from the {@code sessions.json} index file,
- * which maps sessionId to a creation timestamp in epoch milliseconds.</p>
+ * <p>会话起始时间取自 {@code sessions.json} 索引文件，
+ * 该文件把 sessionId 映射为以 epoch 毫秒表示的创建时间戳。</p>
  *
  * @author CH
  * @since 4.0.0.42

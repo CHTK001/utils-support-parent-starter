@@ -372,7 +372,10 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     // ==================== 工具方法 ====================
 
-    /** 关闭Silently */
+    /**
+     * 关闭Silently
+     * @param s 方法入参 s
+     */
     private void closeSilently(Socket s) {
         if (s != null && !s.isClosed()) {
             try {
@@ -383,7 +386,10 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知Listeners
+     * @param action 方法入参 action
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

@@ -10,5 +10,11 @@ import com.chua.common.support.datasearch.video.model.VideoSearch;
 
 public interface ResourceProvider {
 
+    /**
+     * 搜索Resource。
+     *
+     * @param videoSearch video搜索，不允许为 null
+     * @return Return页结果 对象
+     */
     ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch);
 }

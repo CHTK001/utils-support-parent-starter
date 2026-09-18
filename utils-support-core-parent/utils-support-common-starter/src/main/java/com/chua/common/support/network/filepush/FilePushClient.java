@@ -544,7 +544,13 @@ public class FilePushClient implements AutoCloseable {
         return result;
     }
 
-    /** 判断相对路径是否匹配包含模式（空模式列表 = 全部匹配） */
+    /**
+     * 判断相对路径是否匹配包含模式（空模式列表 = 全部匹配）
+     * @param sourceDir 来源目录，不允许为 null
+     * @param file 文件，不允许为 null
+     * @param includes 方法入参 includes
+     * @return 是否成功（true 表示成功）
+     */
     private boolean matchesIncludes(Path sourceDir, Path file, List<String> includes) {
         if (includes == null || includes.isEmpty()) {
             return true;
@@ -558,7 +564,13 @@ public class FilePushClient implements AutoCloseable {
         return false;
     }
 
-    /** 判断相对路径是否匹配排除模式 */
+    /**
+     * 判断相对路径是否匹配排除模式
+     * @param sourceDir 来源目录，不允许为 null
+     * @param file 文件，不允许为 null
+     * @param excludes 方法入参 excludes
+     * @return 是否成功（true 表示成功）
+     */
     private boolean matchesExcludes(Path sourceDir, Path file, List<String> excludes) {
         if (excludes == null || excludes.isEmpty()) {
             return false;
@@ -887,7 +899,10 @@ public class FilePushClient implements AutoCloseable {
         return new FileTaskResult(relativePath, true, fileSize, null);
     }
 
-    /** 打开到服务端的 TCP 连接（带重连重试） */
+    /**
+     * 打开到服务端的 TCP 连接（带重连重试）
+     * @return Socket 对象
+     */
     private Socket openSocket() throws IOException {
         int maxRetries = 5;
         IOException last = null;
@@ -971,6 +986,7 @@ public class FilePushClient implements AutoCloseable {
     * @param success 是否推送成功
     * @param fileSize 文件字节数（成功时）
     * @param error 失败原因（成功时为 null）
+    * @return 结果值
     */
     public record FileTaskResult(String relativePath, boolean success, long fileSize, String error) {
     }

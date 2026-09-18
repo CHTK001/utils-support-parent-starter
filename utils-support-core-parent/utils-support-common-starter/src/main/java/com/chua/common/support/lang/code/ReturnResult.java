@@ -63,6 +63,8 @@ public class ReturnResult<T> implements Serializable {
     * @param code code
     * @param T T
     * @param String String
+    * @param data 数据，不允许为 null
+    * @param msg 消息，不允许为 null
     */
     public ReturnResult(String code, T data, String msg) {
         this.code = code;
@@ -445,7 +447,11 @@ public class ReturnResult<T> implements Serializable {
 
     // ==================== 反射填充 ====================
 
-    /** Analysis */
+    /**
+     * Analysis
+     * @param target 目标，不允许为 null
+     * @return T 对象
+     */
     private T analysis(Class<T> target) {
         T realType = realType(target);
         if (null == realType) {
@@ -462,7 +468,13 @@ public class ReturnResult<T> implements Serializable {
         return realType;
     }
 
-    /** Render */
+    /**
+     * Render
+     * @param aClass 方法入参 aClass
+     * @param realType real类型，不允许为 null
+     * @param entryKey 条目键，不允许为 null
+     * @param value 值，不允许为 null
+     */
     private void render(Class<?> aClass, T realType, String entryKey, Object value) {
         Field field = ClassUtils.findField(aClass, entryKey);
         if (null == field) {
@@ -475,7 +487,11 @@ public class ReturnResult<T> implements Serializable {
         }
     }
 
-    /** RealType */
+    /**
+     * RealType
+     * @param target 目标，不允许为 null
+     * @return T 对象
+     */
     private T realType(Class<T> target) {
         Class<?> aClass = this.getClass();
         Type superclass = aClass.getGenericSuperclass();

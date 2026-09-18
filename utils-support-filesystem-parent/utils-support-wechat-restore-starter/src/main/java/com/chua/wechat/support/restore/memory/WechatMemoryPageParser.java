@@ -79,6 +79,9 @@ public final class WechatMemoryPageParser {
     */
     private static final int MAX_CELLS = 1200;
 
+    /**
+     * 构造方法，创建 WechatMemory页Parser 实例。
+     */
     private WechatMemoryPageParser() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
@@ -89,6 +92,7 @@ public final class WechatMemoryPageParser {
     * @param address 该页在目标进程中的起始地址
     * @param strict  是否通过严格铺满校验
     * @param records 解析出的记录
+    * @return 结果值
     */
     public record LeafPage(long address, boolean strict, List<LeafRecord> records) {
     }
@@ -99,6 +103,7 @@ public final class WechatMemoryPageParser {
     * @param rowid       行号
     * @param values      各列的值（已转成字符串，NULL 为空串）
     * @param serialTypes SQLite 序列类型
+    * @return 结果值
     */
     public record LeafRecord(long rowid, String[] values, int[] serialTypes) {
 
@@ -491,6 +496,57 @@ public final class WechatMemoryPageParser {
             return null;
         }
         return new TableSchema(name, columns, declarations, ddl);
+    }
+
+    /**
+    * 找出 rowid 别名列（声明为 {@code INTEGER PRIMARY KEY} 的单列主键）。
+    *
+    * <p>这类列的值<b>不存在记录体里</b>，SQLite 只把它存在 B 树的键上，所以按页解析记录体
+    * 读到的那一格恒为 {@code NULL}，必须由单元格自带的 rowid 回填。别名列名在各表之间并不
+    * 统一（实测有 {@code id} / {@code local_id} / {@code tid} / {@code business_type} 等），
+    * 因此只能按 DDL 判定，不能按列名猜。</p>
+    *
+    * @param schema 表结构，可为 null
+    * @return 别名列名；无别名列或有多个候选（无法判定）时返回 null
+    */
+    public static String rowidAlias(TableSchema schema) {
+        if (schema == null || schema.ddl() == null) {
+            return null;
+        }
+        String ddl = schema.ddl();
+        // WITHOUT ROWID 表里声明 INTEGER PRIMARY KEY 也只是普通列，回填反而会造假
+        if (ddl.toUpperCase(Locale.ROOT).contains("WITHOUT ROWID")) {
+            return null;
+        }
+        int leftParen = ddl.indexOf('(');
+        int rightParen = ddl.lastIndexOf(')');
+        if (leftParen < 0 || rightParen <= leftParen) {
+            return null;
+        }
+        String alias = null;
+        for (String part : splitTopLevel(ddl.substring(leftParen + 1, rightParen))) {
+            String item = part.trim();
+            if (item.isEmpty()) {
+                continue;
+            }
+            String upper = item.toUpperCase(Locale.ROOT);
+            // 表级约束（含 PRIMARY KEY(a,b) 复合主键）都不是 rowid 别名
+            if (upper.startsWith("CONSTRAINT ") || upper.startsWith("PRIMARY KEY")
+                    || upper.startsWith("UNIQUE") || upper.startsWith("CHECK")
+                    || upper.startsWith("FOREIGN KEY")) {
+                continue;
+            }
+            String[] tokens = item.split("\\s+", 2);
+            if (tokens.length < 2 || !tokens[1].matches("(?i)INTEGER\\s+PRIMARY\\s+KEY\\b.*")) {
+                continue;
+            }
+            String column = unquote(tokens[0]);
+            if (column.isEmpty() || alias != null) {
+                return null;
+            }
+            alias = column;
+        }
+        return alias;
     }
 
     /**

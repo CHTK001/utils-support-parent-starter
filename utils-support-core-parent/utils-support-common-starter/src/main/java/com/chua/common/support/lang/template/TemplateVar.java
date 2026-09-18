@@ -18,6 +18,7 @@ import java.util.Map;
 * @param path  变量在输入中的键路径（如 {@code user.address[0].city}），缺失时为空串
 * @author CH
 * @since 4.0.0.42
+ * @return 结果值
  */
 public record TemplateVar(String name, Object value, String path) {
 

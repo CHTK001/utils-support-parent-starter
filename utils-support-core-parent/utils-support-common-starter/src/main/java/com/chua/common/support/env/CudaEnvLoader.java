@@ -39,6 +39,9 @@ public final class CudaEnvLoader {
     /** 单例缓存：null=未加载 */
     private static volatile Map<String, String> CACHE;
 
+    /**
+     * 构造方法，创建 Cuda环境Loader 实例。
+     */
     private CudaEnvLoader() {
     }
 
@@ -110,6 +113,7 @@ public final class CudaEnvLoader {
 
     /**
     * 懒加载单例：double-check，仅首次读取 .env。
+    * @return 结果映射，无数据时为空映射
     */
     private static Map<String, String> load() {
         Map<String, String> cached = CACHE;

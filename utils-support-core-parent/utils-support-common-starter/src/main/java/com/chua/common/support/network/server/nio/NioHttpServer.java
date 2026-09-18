@@ -170,7 +170,10 @@ public class NioHttpServer extends AbstractServer {
                 // 用于验证不同分片数下的吞吐拐点
                 String el = System.getProperty("bench.el");
                 if (el != null) {
-                    try { eventLoops = Integer.parseInt(el); } catch (NumberFormatException ignored) {}
+                    try {
+                        eventLoops = Integer.parseInt(el);
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
             }
             eventLoops = Math.max(1, eventLoops);
@@ -219,6 +222,7 @@ public class NioHttpServer extends AbstractServer {
     /**
     * 事件循环(分片版):每分片一个 Selector + 线程,处理该分片连接的 OP_READ/OP_WRITE。
     * 分片 0 额外承载 OP_ACCEPT。连接不占线程;完整请求解析后提交虚拟线程 worker 池执行 handler 链。
+    * @param idx 索引，不允许为 null
     */
     private void eventLoop(int idx) {
         Selector sel = selectors[idx];
@@ -330,7 +334,10 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
-    /** 处理Accept */
+    /**
+     * 处理Accept
+     * @param key 键，不允许为 null
+     */
     private void handleAccept(SelectionKey key) throws IOException {
         SocketChannel accepted = serverChannel.accept();
         if (accepted == null) {
@@ -365,7 +372,10 @@ public class NioHttpServer extends AbstractServer {
         log.debug("nio accepted -> shard={}", shard);
     }
 
-    /** 处理读取 */
+    /**
+     * 处理读取
+     * @param key 键，不允许为 null
+     */
     private void handleRead(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 请求已在 worker 处理中:摘除读兴趣,避免事件循环空转与重复提交 worker;
@@ -413,6 +423,8 @@ public class NioHttpServer extends AbstractServer {
     * <p>仅适用于非阻塞 handler(setting.inlineDispatch=true 且非 SSL/WS)。
     * 若单次 write 未写完(对端背压),剩余字节追加 pendingWrite 队列,
     * 由事件循环按既有 OP_WRITE 路径续写,不丢失数据。</p>
+    * @param st 方法入参 st
+    * @param key 键，不允许为 null
     */
     private void processRequestInline(ConnectionState st, SelectionKey key) {
         try {
@@ -472,7 +484,11 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
-    /** 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写 */
+    /**
+     * 事件循环线程同步写缓冲队列;写不完整时交由 OP_WRITE 续写
+     * @param st 方法入参 st
+     * @param key 键，不允许为 null
+     */
     private void flushInlineWrite(ConnectionState st, SelectionKey key) {
         synchronized (st.writeQueue) {
             while (true) {
@@ -500,6 +516,8 @@ public class NioHttpServer extends AbstractServer {
 
     /**
     * worker(虚拟线程)执行 handler 链,响应通过 asyncWriter 交给事件循环 OP_WRITE 写出。
+    * @param st 方法入参 st
+    * @param key 键，不允许为 null
     */
     private void processRequest(ConnectionState st, SelectionKey key) {
         try {
@@ -559,6 +577,8 @@ public class NioHttpServer extends AbstractServer {
     * 而非全部串行在 2 个事件循环线程上(Windows 上限),显著提升多核吞吐。</p>
     * <p>线程安全:与事件循环 {@link #handleWrite} 共用 st.writeQueue 同一把锁排空,
     * worker 只操作 writeQueue + rearmReadQueues(仅入队),interestOps 仍只由事件循环修改。</p>
+    * @param st 方法入参 st
+    * @param key 键，不允许为 null
     */
     private void processRequestDirectWrite(ConnectionState st, SelectionKey key) {
         try {
@@ -643,7 +663,10 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
-    /** 处理写入 */
+    /**
+     * 处理写入
+     * @param key 键，不允许为 null
+     */
     private void handleWrite(SelectionKey key) throws IOException {
         ConnectionState st = (ConnectionState) key.attachment();
         // 与 worker 的 asyncWriter 共用同一把锁排空队列:
@@ -677,7 +700,11 @@ public class NioHttpServer extends AbstractServer {
         }
     }
 
-    /** 关闭Conn */
+    /**
+     * 关闭Conn
+     * @param key 键，不允许为 null
+     * @param st 方法入参 st
+     */
     private void closeConn(SelectionKey key, ConnectionState st) {
         try {
             key.cancel();
@@ -711,6 +738,7 @@ public class NioHttpServer extends AbstractServer {
     /**
     * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
     * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
+    * @param channel 方法入参 channel
     */
     private void handleConnection(SocketChannel channel) {
         try {
@@ -771,6 +799,8 @@ public class NioHttpServer extends AbstractServer {
 
     /**
     * 处理 WebSocket 升级：握手后进入帧循环，按主题分发消息。
+    * @param channel 方法入参 channel
+    * @param request 请求，不允许为 null
     */
     private void handleWebSocketUpgrade(SocketChannel channel, NioServerRequest request) {
         OutputStream out = null;
@@ -827,6 +857,8 @@ public class NioHttpServer extends AbstractServer {
 
     /**
     * 按主题分发 WebSocket 消息（{@code topic\nbody} 约定，与 JdkWebSocketServer 一致）。
+    * @param frame 方法入参 frame
+    * @param conn 连接，不允许为 null
     */
     private void dispatchWsMessage(WebSocketProtocol.Frame frame, WsConnection conn) {
         String text = new String(frame.payload(), StandardCharsets.UTF_8);
@@ -911,6 +943,9 @@ public class NioHttpServer extends AbstractServer {
 
     /**
     * 构建基于 {@code @OnMessage} 注解方法的处理器。
+    * @param bean 方法入参 bean
+    * @param method 方法，不允许为 null
+    * @return 服务端处理器 对象
     */
     private ServerHandler createWsMessageHandler(Object bean, Method method) {
         return (request, response) -> {
@@ -1033,9 +1068,21 @@ public class NioHttpServer extends AbstractServer {
         }
 
         @Override public int getStatus() { return status; }
-        @Override public ServerResponse setStatus(int statusCode) { this.status = statusCode; return this; }
-        @Override public ServerResponse setBody(byte[] body) { this.result = body; return this; }
-        @Override public ServerResponse setBody(String body) { this.result = body; return this; }
+        @Override
+        public ServerResponse setStatus(int statusCode) {
+            this.status = statusCode;
+            return this;
+        }
+        @Override
+        public ServerResponse setBody(byte[] body) {
+            this.result = body;
+            return this;
+        }
+        @Override
+        public ServerResponse setBody(String body) {
+            this.result = body;
+            return this;
+        }
         @Override public ServerResponse setHeader(String name, String value) { return this; }
         @Override public String getHeader(String name) { return null; }
         @Override public HttpHeader getHeaders() { return HttpHeader.create(); }
@@ -1065,7 +1112,11 @@ public class NioHttpServer extends AbstractServer {
         @Override public void writeRaw(byte[] bytes) {
             connection.sendRaw(bytes);
         }
-        @Override public ServerResponse setResult(Object result) { this.result = result; return this; }
+        @Override
+        public ServerResponse setResult(Object result) {
+            this.result = result;
+            return this;
+        }
         @Override public Object getResult() { return result; }
         @Override public ServerResponse sse() { return this; }
         @Override public void sseEvent(String event, String data) { }
@@ -1074,6 +1125,9 @@ public class NioHttpServer extends AbstractServer {
 
     /**
         * 判断是否保持连接
+        * @param request 请求，不允许为 null
+        * @param response 响应，不允许为 null
+        * @return 是否成功（true 表示成功）
         */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {
@@ -1087,7 +1141,10 @@ public class NioHttpServer extends AbstractServer {
         return "HTTP/1.1".equalsIgnoreCase(request.getHttpVersion());
     }
 
-    /** 安静关闭SocketChannel */
+    /**
+     * 安静关闭SocketChannel
+     * @param ch 方法入参 ch
+     */
     private static void closeQuietly(SocketChannel ch) {
         try {
             ch.close();

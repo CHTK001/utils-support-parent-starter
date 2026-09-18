@@ -2,6 +2,7 @@ package com.chua.common.support.objects.definition;
 
 import com.chua.common.support.proxy.ProxyProvider;
 import com.chua.common.support.proxy.intercept.BridgingMethodIntercept;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
@@ -192,7 +193,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * @return 选择最大参数constructor的结果
     */
     private static Constructor<?> selectMaxParamConstructor(Class<?> beanClass) {
-        Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+        Constructor<?>[] constructors = ReflectUtils.findDeclaredConstructors(beanClass);
         if (constructors.length == 0) {
             return null;
         }

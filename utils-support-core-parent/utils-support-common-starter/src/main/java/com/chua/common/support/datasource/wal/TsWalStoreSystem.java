@@ -18,6 +18,12 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
 
+    /**
+     * 构造方法，创建 TsWalStoreSystem 实例。
+     *
+     * @param config 配置，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public TsWalStoreSystem(WalStoreConfig config) throws IOException {
         this.config = config;
         this.walLogs = new SegmentWalLog[config.shardCount()];
@@ -39,7 +45,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
 
     @Override
     public long append(String key, byte[] payload) throws IOException {
-        if (closed) throw new IllegalStateException("closed");
+        if (closed) {
+            throw new IllegalStateException("closed");
+        }
         int idx = Math.abs(key.hashCode()) % config.shardCount();
         long lsn = walLogs[idx].append((byte) 0x02, payload == null ? new byte[0] : payload);
         totalRecords.incrementAndGet();
@@ -61,7 +69,10 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public void compact() throws IOException {
         for (SegmentWalLog log : walLogs) {
-            try { log.purgeCheckpointed(1); } catch (Exception e) {}
+            try {
+                log.purgeCheckpointed(1);
+            } catch (Exception e) {
+            }
         }
     }
     @Override
@@ -69,7 +80,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public List<WalSegmentInfo> listSegments() throws IOException {
         List<WalSegmentInfo> all = new ArrayList<>();
-        for (SegmentWalLog log : walLogs) all.addAll(log.listSegments());
+        for (SegmentWalLog log : walLogs) {
+            all.addAll(log.listSegments());
+        }
         return all;
     }
     @Override
@@ -80,28 +93,67 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== TS 专用 ====================
 
+    /**
+     * 追加。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @return 结果数值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public long append(String measure, long ts, double value) throws IOException {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
         byte[] payload = new byte[4 + kb.length + 8 + 8];
         ByteBuffer bb = ByteBuffer.wrap(payload);
-        bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value);
+        bb.putInt(kb.length);
+        bb.put(kb);
+        bb.putLong(ts);
+        bb.putDouble(value);
         return append(measure, payload);
     }
 
+    /**
+     * 追加WithTtl。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @param ttlSec 方法入参 ttlSec
+     * @return 结果数值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public long appendWithTtl(String measure, long ts, double value, int ttlSec) throws IOException {
         byte[] kb = measure.getBytes(StandardCharsets.UTF_8);
         byte[] payload = new byte[4 + kb.length + 8 + 8 + 4];
         ByteBuffer bb = ByteBuffer.wrap(payload);
-        bb.putInt(kb.length); bb.put(kb); bb.putLong(ts); bb.putDouble(value); bb.putInt(ttlSec);
+        bb.putInt(kb.length);
+        bb.put(kb);
+        bb.putLong(ts);
+        bb.putDouble(value);
+        bb.putInt(ttlSec);
         return append(measure, payload);
     }
 
+    /**
+     * 查询Range。
+     *
+     * @param measure 方法入参 measure
+     * @param fromTs 来自Ts，不允许为 null
+     * @param toTs 转为Ts，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @param limit 上限，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public List<TsPoint> queryRange(String measure, long fromTs, long toTs, int offset, int limit) throws IOException {
         List<TsPoint> result = new ArrayList<>();
         int idx = Math.abs(measure.hashCode()) % config.shardCount();
         for (WalSegmentInfo seg : walLogs[idx].listSegments()) {
             walLogs[idx].replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                if ((op & 0x80) != 0) return true;
+                if ((op & 0x80) != 0) {
+                    return true;
+                }
                 TsPoint p = decodeTs(payload);
                 if (p != null && p.measure().equals(measure) && p.ts() >= fromTs && p.ts() < toTs)
                     result.add(p);
@@ -114,21 +166,43 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         return result.subList(from, to);
     }
 
+    /**
+     * latest。
+     *
+     * @param measure 方法入参 measure
+     * @return 可选结果，不存在时为 Optional.empty()
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public Optional<TsPoint> latest(String measure) throws IOException {
         List<TsPoint> pts = queryRange(measure, Long.MIN_VALUE, Long.MAX_VALUE, 0, 1);
         return pts.isEmpty() ? Optional.empty() : Optional.of(pts.getFirst());
     }
 
+    /**
+     * 解码Ts。
+     *
+     * @param payload 方法入参 payload
+     * @return TsPoint 对象
+     */
     private TsPoint decodeTs(byte[] payload) {
-        if (payload == null || payload.length < 20) return null;
+        if (payload == null || payload.length < 20) {
+            return null;
+        }
         int pos = 0;
-        int keyLen = ByteBuffer.wrap(payload, pos, 4).getInt(); pos += 4;
-        if (keyLen <= 0 || pos + keyLen > payload.length) return null;
+        int keyLen = ByteBuffer.wrap(payload, pos, 4).getInt();
+        pos += 4;
+        if (keyLen <= 0 || pos + keyLen > payload.length) {
+            return null;
+        }
         String measure = new String(payload, pos, keyLen, StandardCharsets.UTF_8);
         pos += keyLen;
-        if (pos + 16 > payload.length) return null;
-        long ts = ByteBuffer.wrap(payload, pos, 8).getLong(); pos += 8;
-        double value = ByteBuffer.wrap(payload, pos, 8).getDouble(); pos += 8;
+        if (pos + 16 > payload.length) {
+            return null;
+        }
+        long ts = ByteBuffer.wrap(payload, pos, 8).getLong();
+        pos += 8;
+        double value = ByteBuffer.wrap(payload, pos, 8).getDouble();
+        pos += 8;
         Integer ttlSec = pos + 4 <= payload.length ? ByteBuffer.wrap(payload, pos, 4).getInt() : null;
         return new TsPoint(measure, ts, value, ttlSec);
     }
@@ -140,6 +214,15 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         }
     }
 
+    /**
+     * TsPoint。
+     *
+     * @param measure 方法入参 measure
+     * @param ts 方法入参 ts
+     * @param value 值，不允许为 null
+     * @param ttlSec 方法入参 ttlSec
+     * @return 结果值
+     */
     public record TsPoint(String measure, long ts, double value, Integer ttlSec) {
         public long expireAt() { return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L; }
     }
@@ -153,16 +236,32 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         }
     }
 
+    /**
+     * aggregate。
+     *
+     * @param measure 方法入参 measure
+     * @param fromTs 来自Ts，不允许为 null
+     * @param toTs 转为Ts，不允许为 null
+     * @param fn 函数，不允许为 null
+     * @return TsAggregate 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public TsAggregate aggregate(String measure, long fromTs, long toTs, AggregateFn fn) throws IOException {
         List<TsPoint> pts = queryRange(measure, fromTs, toTs, 0, Integer.MAX_VALUE);
-        if (pts.isEmpty()) return TsAggregate.empty(measure, fromTs, toTs);
+        if (pts.isEmpty()) {
+            return TsAggregate.empty(measure, fromTs, toTs);
+        }
         double sum = 0;
         double min = Double.POSITIVE_INFINITY;
         double max = Double.NEGATIVE_INFINITY;
         for (TsPoint p : pts) {
             sum += p.value();
-            if (p.value() < min) min = p.value();
-            if (p.value() > max) max = p.value();
+            if (p.value() < min) {
+                min = p.value();
+            }
+            if (p.value() > max) {
+                max = p.value();
+            }
         }
         long n = pts.size();
         return switch (fn) {
@@ -174,6 +273,13 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
         };
     }
 
+    /**
+     * 创建。
+     *
+     * @param baseDir base目录，不允许为 null
+     * @return TsWalStoreSystem 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public static TsWalStoreSystem create(Path baseDir) throws IOException {
         return new TsWalStoreSystem(new WalStoreEnvDetector().detect(baseDir));
     }

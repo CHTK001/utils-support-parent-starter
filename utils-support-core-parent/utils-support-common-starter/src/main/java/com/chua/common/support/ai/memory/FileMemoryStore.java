@@ -170,7 +170,11 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
-    /** ListAll */
+    /**
+     * ListAll
+     * @param limit 上限，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<MemoryEntry> listAll(int limit) {
         List<MemoryEntry> result = new ArrayList<>();
         try {

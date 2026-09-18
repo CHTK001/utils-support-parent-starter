@@ -118,6 +118,11 @@ public class OpenCVImageProcessor implements ImageProcessor {
         return new CloseableMob(data);
     }
 
+    /**
+     * closeableMob。
+     *
+     * @return CloseableMob 对象
+     */
     private static CloseableMob closeableMob() {
         return new CloseableMob();
     }

@@ -224,19 +224,31 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /** TopP */
-    public ChatClient topP(Double topP) { this.topP = topP; return this; }
+    public ChatClient topP(Double topP) {
+        this.topP = topP;
+        return this;
+    }
 
     @Override
     /** 停止 */
-    public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
+    public ChatClient stop(List<String> stop) {
+        this.stop = stop;
+        return this;
+    }
 
     @Override
     /** Seed */
-    public ChatClient seed(Long seed) { this.seed = seed; return this; }
+    public ChatClient seed(Long seed) {
+        this.seed = seed;
+        return this;
+    }
 
     @Override
     /** Response格式化 */
-    public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
+    public ChatClient responseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
+        return this;
+    }
 
     @Override
     /** 添加Image */
@@ -524,6 +536,9 @@ public class QwenProxyChatClient implements ChatClient {
 
     /**
     * 从回答文本中提取图片 URL。
+    * @param text 文本，不允许为 null
+    * @param prompt 提示词，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();

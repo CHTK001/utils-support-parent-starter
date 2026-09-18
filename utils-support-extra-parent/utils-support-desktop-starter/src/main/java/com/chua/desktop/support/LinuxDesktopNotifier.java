@@ -18,6 +18,9 @@ public class LinuxDesktopNotifier implements NativeDesktopNotifier {
         Process p = pb.start();
         p.waitFor();
     }
-    @Override public boolean isSupported() { String os = System.getProperty("os.name","").toLowerCase(); return !os.contains("win") && !os.contains("mac"); }
+    @Override public boolean isSupported() {
+        String os = System.getProperty("os.name","").toLowerCase();
+        return !os.contains("win") && !os.contains("mac");
+    }
     @Override public String getPlatform() { return "linux"; }
 }

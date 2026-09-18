@@ -158,6 +158,12 @@ public enum ZoneIdEnum {
     /** ZoneID名称CN */
     private final String zoneIdNameCn;
 
+    /**
+     * 构造方法，创建 ZoneIDEnum 实例。
+     *
+     * @param zoneIdName zoneID名称，不允许为 null
+     * @param zoneIdNameCn zoneID名称Cn，不允许为 null
+     */
     ZoneIdEnum(String zoneIdName, String zoneIdNameCn) {
         this.zoneIdName = zoneIdName;
         this.zoneIdNameCn = zoneIdNameCn;

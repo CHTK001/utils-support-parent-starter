@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class TarUtils {
 
+	/**
+	 * 构造方法，创建 TarUtils 实例。
+	 */
 	private TarUtils() {
 	}
 

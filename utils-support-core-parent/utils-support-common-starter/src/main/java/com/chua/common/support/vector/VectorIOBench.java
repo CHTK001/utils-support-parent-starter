@@ -51,6 +51,14 @@ public class VectorIOBench {
         System.out.println("\n测试目录已清理: " + testDir);
     }
 
+    /**
+     * 运行测试。
+     *
+     * @param count 数量，不允许为 null
+     * @param flushBatch 刷写批次，不允许为 null
+     * @param label 标签，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private static void runTest(int count, int flushBatch, String label) throws Exception {
         System.out.println("────────────────────────────────────────────");
         System.out.println("【" + label + "】");
@@ -129,7 +137,8 @@ public class VectorIOBench {
                     int dim = in.readInt();
                     for (int i = 0; i < count; i++) {
                         int idLen = in.readInt();
-                        byte[] idBytes = new byte[idLen]; in.readFully(idBytes);
+                        byte[] idBytes = new byte[idLen];
+                        in.readFully(idBytes);
                         float[] v = new float[dim];
                         for (int j = 0; j < dim; j++) {
                             v[j] = in.readFloat();
@@ -261,7 +270,13 @@ public class VectorIOBench {
     private static long totalDiskSize(Path dir) {
         try {
             return Files.list(dir).filter(p -> p.toString().endsWith(".bin"))
-                    .mapToLong(p -> { try { return Files.size(p); } catch (Exception e) { return 0; } }).sum();
+                    .mapToLong(p -> {
+                        try {
+                            return Files.size(p);
+                        } catch (Exception e) {
+                            return 0;
+                        }
+                    }).sum();
         } catch (Exception e) { return 0; }
     }
 
@@ -281,7 +296,12 @@ public class VectorIOBench {
     */
     private static void deleteRecursively(Path dir) {
         try { Files.walk(dir).sorted(Comparator.reverseOrder())
-                .forEach(p -> { try { Files.delete(p); } catch (Exception ignored) {} });
+                .forEach(p -> {
+                    try {
+                        Files.delete(p);
+                    } catch (Exception ignored) {
+                    }
+                });
         } catch (Exception ignored) {}
     }
 }

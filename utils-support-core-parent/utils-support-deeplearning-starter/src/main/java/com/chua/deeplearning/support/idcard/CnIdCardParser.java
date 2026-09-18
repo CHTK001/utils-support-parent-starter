@@ -127,6 +127,12 @@ public class CnIdCardParser {
         return parse(sb.toString());
     }
 
+    /**
+     * pad。
+     *
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private static String pad(String s) {
         return s.length() >= 2 ? s : "0" + s;
     }

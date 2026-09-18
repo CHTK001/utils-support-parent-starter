@@ -30,12 +30,18 @@ public class McpToolCall {
         this.arguments = arguments;
     }
 
-    /** 获取ToolName */
+    /**
+     * 获取ToolName
+     * @return 结果字符串
+     */
     public String getToolName() {
         return toolName;
     }
 
-    /** 获取Arguments */
+    /**
+     * 获取Arguments
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> getArguments() {
         return arguments;
     }

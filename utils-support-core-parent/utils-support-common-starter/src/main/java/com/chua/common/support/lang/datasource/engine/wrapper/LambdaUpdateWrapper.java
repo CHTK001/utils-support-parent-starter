@@ -167,6 +167,8 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     /**
     * 构建 WHERE 子句和参数列表。
     * <p>遍历所有条件，用 AND 连接，参数追加到已有参数列表之后。</p>
+    * @param sb 方法入参 sb
+    * @param params 参数，不允许为 null
     */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
@@ -179,6 +181,9 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
 
     /**
     * 渲染单个条件为 SQL 片段。
+    * @param sb 方法入参 sb
+    * @param params 参数，不允许为 null
+    * @param c 方法入参 c
     */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

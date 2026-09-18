@@ -19,6 +19,12 @@ public class FpRemoteTest {
     static WinRmExecClient winrm;
     static Process serverProc; // 本机运行的远程转发进程（非必需，直接 WinRM 调用即可）
 
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("=== FilePush 远程实测 ===");
 
@@ -130,7 +136,11 @@ public class FpRemoteTest {
         System.exit(ok ? 0 : 1);
     }
 
-    /** 生成大量测试文件：2000 个文件，0~5MB，多层子目录 */
+    /**
+     * 生成大量测试文件：2000 个文件，0~5MB，多层子目录
+     * @param root 根节点，不允许为 null
+     * @return 结果数值
+     */
     static long generateTestFiles(Path root) throws IOException {
         Random rnd = new Random(12345);
         long total = 0;
@@ -150,14 +160,21 @@ public class FpRemoteTest {
                 size = rnd.nextInt(5 * 1024 * 1024); // < 5MB
             }
             byte[] data = new byte[size];
-            if (size > 0) rnd.nextBytes(data);
+            if (size > 0) {
+                rnd.nextBytes(data);
+            }
             Files.write(root.resolve(dir + "/file_" + i + ".bin"), data);
             total += size;
         }
         return total;
     }
 
-    /** 递归部署本地目录到远程（WinRM + 压缩传输） */
+    /**
+     * 递归部署本地目录到远程（WinRM + 压缩传输）
+     * @param winrm 方法入参 winrm
+     * @param localDir local目录，不允许为 null
+     * @param remoteDir remote目录，不允许为 null
+     */
     static void deployDir(WinRmExecClient winrm, String localDir, String remoteDir) throws Exception {
         Path dir = Path.of(localDir);
         if (!Files.isDirectory(dir)) {
@@ -179,7 +196,12 @@ public class FpRemoteTest {
         System.out.println("  部署完成: " + localDir + " -> " + remoteDir);
     }
 
-    /** 上传单个文件到远程 */
+    /**
+     * 上传单个文件到远程
+     * @param winrm 方法入参 winrm
+     * @param localFile local文件，不允许为 null
+     * @param remotePath remote路径，不允许为 null
+     */
     static void uploadFile(WinRmExecClient winrm, Path localFile, String remotePath) throws Exception {
         // 通过 WinRM Shell 上传：先创建文件内容，用 PowerShell 的 [IO.File]::WriteAllBytes
         byte[] data = Files.readAllBytes(localFile);
@@ -202,10 +224,18 @@ public class FpRemoteTest {
         }
     }
 
-    /** 递归删除目录 */
+    /**
+     * 递归删除目录
+     * @param root 根节点，不允许为 null
+     */
     static void deleteRecursively(Path root) {
         try (var walk = Files.walk(root).sorted(java.util.Comparator.reverseOrder())) {
-            walk.forEach(p -> { try { Files.deleteIfExists(p); } catch (Exception ignored) {} });
+            walk.forEach(p -> {
+                try {
+                    Files.deleteIfExists(p);
+                } catch (Exception ignored) {
+                }
+            });
         } catch (Exception ignored) {}
     }
 }

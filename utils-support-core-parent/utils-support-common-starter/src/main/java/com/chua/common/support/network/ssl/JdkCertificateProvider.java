@@ -176,6 +176,10 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 构建 keytool 命令字符串
+    * @param primaryDomain 方法入参 primaryDomain
+    * @param domains 方法入参 domains
+    * @param keystoreFile keystore文件，不允许为 null
+    * @return 结果字符串
     */
     private String buildKeytoolCommand(String primaryDomain, List<String> domains, String keystoreFile) {
         StringBuilder cmd = new StringBuilder(KEYTOOL);
@@ -201,6 +205,8 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 构建 SAN 扩展字符串
+    * @param domains 方法入参 domains
+    * @return 结果字符串
     */
     private String buildSanExtension(List<String> domains) {
         StringBuilder sb = new StringBuilder();
@@ -220,6 +226,8 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 构建 DN (Distinguished Name)
+    * @param domain 方法入参 domain
+    * @return 结果字符串
     */
     private String buildDName(String domain) {
         return "CN=" + domain + ",OU=Self-Signed,O=JDK-Certificate,L=Unknown,ST=Unknown,C=CN";
@@ -227,6 +235,7 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 获取签名算法
+    * @return 结果字符串
     */
     private String getSigAlg() {
         if ("EC".equalsIgnoreCase(keyAlg)) {
@@ -237,6 +246,8 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 判断是否为 IP 地址
+    * @param value 值，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private boolean isIpAddress(String value) {
         if (value == null || value.isEmpty()) {
@@ -307,6 +318,8 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 获取密钥库文件路径
+    * @param domain 方法入参 domain
+    * @return 结果字符串
     */
     public String getKeystorePath(String domain) {
         if (keystorePath != null && !keystorePath.isEmpty()) {
@@ -320,6 +333,8 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
     * 将 X509 证书转换为 PEM 格式
+    * @param cert 方法入参 cert
+    * @return 结果字符串
     */
     private String convertToPem(X509Certificate cert) throws Exception {
         StringBuilder pem = new StringBuilder();

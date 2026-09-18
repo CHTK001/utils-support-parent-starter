@@ -113,7 +113,10 @@ public enum DataSyncErrorCode {
     /** Sink 方向错误 */
     SINK_DIRECTION_ERROR(9002, "Sink 方向错误，应为 OUTPUT: sinkId={0}, direction={1}"),
 
-    /** 方向不匹配 */
+    /**
+     * 方向不匹配
+     * @param 9003 方法入参 9003
+     */
     DIRECTION_MISMATCH(9003, "Source/Sink 方向不匹配: source={0}, sink={1}");
 
     /** 代码 */
@@ -121,6 +124,12 @@ public enum DataSyncErrorCode {
     /** 模板 */
     private final String template;
 
+    /**
+     * 构造方法，创建 数据SyncError编码 实例。
+     *
+     * @param code 编码，不允许为 null
+     * @param template 模板，不允许为 null
+     */
     DataSyncErrorCode(int code, String template) {
         this.code = code;
         this.template = template;

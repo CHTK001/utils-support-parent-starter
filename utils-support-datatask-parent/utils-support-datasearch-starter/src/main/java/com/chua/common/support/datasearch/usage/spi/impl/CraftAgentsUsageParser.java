@@ -3,6 +3,12 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Path;
+/**
+ * CraftAgentsUsageParser类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @Spi("craft")
 public class CraftAgentsUsageParser extends AgentSessionUsageParser {
 

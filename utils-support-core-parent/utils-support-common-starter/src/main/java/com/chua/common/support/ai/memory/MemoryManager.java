@@ -76,6 +76,8 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 使用指定存储实现创建管理器。
+    * @param config 配置，不允许为 null
+    * @param store 方法入参 store
     */
     public MemoryManager(MemoryConfig config, MemoryStore store) {
         this.config = config != null ? config : MemoryConfig.builder().build();
@@ -84,6 +86,8 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * Engine 记忆快捷构造（{@link EngineMemoryStore}）。
+    * @param engine 引擎，不允许为 null
+    * @return MemoryManager 对象
     */
     public static MemoryManager ofEngine(Engine engine) {
         return ofEngine(engine, MemoryConfig.builder().storeType("engine").engine(engine).build());
@@ -91,6 +95,9 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * Engine 记忆快捷构造。
+    * @param engine 引擎，不允许为 null
+    * @param config 配置，不允许为 null
+    * @return MemoryManager 对象
     */
     public static MemoryManager ofEngine(Engine engine, MemoryConfig config) {
         MemoryConfig cfg = config != null ? config : MemoryConfig.builder().build();
@@ -99,7 +106,11 @@ public class MemoryManager implements AutoCloseable {
         return new MemoryManager(cfg, new EngineMemoryStore(engine, cfg));
     }
 
-    /** 创建Store */
+    /**
+     * 创建Store
+     * @param config 配置，不允许为 null
+     * @return MemoryStore 对象
+     */
     private static MemoryStore createStore(MemoryConfig config) {
         if (config != null && "engine".equalsIgnoreCase(config.getStoreType())
                 && config.getEngine() != null) {
@@ -235,6 +246,9 @@ public class MemoryManager implements AutoCloseable {
     * AI 总结并保存
     *
     * <p>调用 ChatClient 将对话内容提炼为结构化记忆条目。
+    * @param conversation 方法入参 conversation
+    * @param sessionId 会话ID，不允许为 null
+    * @param agentId agentID，不允许为 null
     */
     private void summarizeAndSave(String conversation, String sessionId, String agentId) {
         try {
@@ -252,6 +266,9 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 原始保存（不做 AI 总结）
+    * @param content 内容，不允许为 null
+    * @param sessionId 会话ID，不允许为 null
+    * @param agentId agentID，不允许为 null
     */
     private void saveRaw(String content, String sessionId, String agentId) {
         MemoryEntry entry = MemoryEntry.builder()
@@ -269,6 +286,8 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 构建总结 prompt
+    * @param content 内容，不允许为 null
+    * @return 结果字符串
     */
     private String buildSummarizerPrompt(String content) {
         String template = config.getSummarizerPrompt() != null
@@ -278,6 +297,10 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 解析 AI 总结结果
+    * @param result 结果，不允许为 null
+    * @param sessionId 会话ID，不允许为 null
+    * @param agentId agentID，不允许为 null
+    * @return Memory条目 对象
     */
     private MemoryEntry parseSummaryResult(String result, String sessionId, String agentId) {
         try {
@@ -309,7 +332,11 @@ public class MemoryManager implements AutoCloseable {
         }
     }
 
-    /** ExtractJson */
+    /**
+     * ExtractJson
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private String extractJson(String text) {
         if (text == null || text.isBlank()) {
             return "{}";
@@ -362,7 +389,11 @@ public class MemoryManager implements AutoCloseable {
         return "{}";
     }
 
-    /** ToTagList */
+    /**
+     * ToTagList
+     * @param obj 对象，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> toTagList(Object obj) {
         if (obj instanceof List<?> list) {
             return list.stream().map(String::valueOf).toList();
@@ -370,7 +401,11 @@ public class MemoryManager implements AutoCloseable {
         return List.of();
     }
 
-    /** ToDouble */
+    /**
+     * ToDouble
+     * @param obj 对象，不允许为 null
+     * @return Double 对象
+     */
     private Double toDouble(Object obj) {
         if (obj instanceof Number n) {
             return n.doubleValue();

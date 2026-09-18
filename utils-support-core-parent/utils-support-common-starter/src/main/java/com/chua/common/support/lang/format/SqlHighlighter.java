@@ -189,6 +189,9 @@ public class SqlHighlighter {
 
     /**
     * 使用ANSI颜色高亮（控制台）
+    * @param sql SQL，不允许为 null
+    * @param config 配置，不允许为 null
+    * @return 结果字符串
     */
     private static String highlightAnsi(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, false);
@@ -196,6 +199,9 @@ public class SqlHighlighter {
 
     /**
     * 使用HTML颜色高亮（网页）
+    * @param sql SQL，不允许为 null
+    * @param config 配置，不允许为 null
+    * @return 结果字符串
     */
     private static String highlightHtml(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, true);
@@ -203,6 +209,10 @@ public class SqlHighlighter {
 
     /**
     * 内部高亮实现
+    * @param sql SQL，不允许为 null
+    * @param config 配置，不允许为 null
+    * @param isHtml 是否Html（布尔开关）
+    * @return 结果字符串
     */
     private static String highlightInternal(String sql, HighlightConfig config, boolean isHtml) {
         StringBuilder result = new StringBuilder();
@@ -364,6 +374,8 @@ public class SqlHighlighter {
 
     /**
     * 判断是否为分隔符（括号、逗号、分号等）
+    * @param c 方法入参 c
+    * @return 是否成功（true 表示成功）
     */
     private static boolean isDelimiter(char c) {
         return c == '(' || c == ')' || c == ',' || c == ';' ||
@@ -373,6 +385,10 @@ public class SqlHighlighter {
 
     /**
     * 对单个Token应用高亮
+    * @param token 令牌，不允许为 null
+    * @param config 配置，不允许为 null
+    * @param isHtml 是否Html（布尔开关）
+    * @return 结果字符串
     */
     private static String applyHighlight(String token, HighlightConfig config, boolean isHtml) {
         if (token == null || token.isEmpty()) {
@@ -410,6 +426,8 @@ public class SqlHighlighter {
 
     /**
     * 判断是否为数字（整数或小数）
+    * @param str 字符串，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private static boolean isNumeric(String str) {
         if (str == null || str.isEmpty()) {
@@ -425,6 +443,8 @@ public class SqlHighlighter {
 
     /**
     * HTML转义
+    * @param text 文本，不允许为 null
+    * @return 结果字符串
     */
     private static String escapeHtml(String text) {
         if (text == null) {

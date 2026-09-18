@@ -310,6 +310,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 从空闲队列取出一个可用对象
+    * @return Pooled对象 对象
     */
     private PooledObject<T> pollIdleObject() {
         Iterator<PooledObject<T>> it = idleObjects.iterator();
@@ -338,6 +339,8 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 查找对象对应的 PooledObject
+    * @param object 对象，不允许为 null
+    * @return Pooled对象 对象
     */
     private PooledObject<T> findPooled(T object) {
         for (PooledObject<T> p : allObjects) {
@@ -350,6 +353,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 销毁 PooledObject 并从 allObjects 移除
+    * @param pooled 方法入参 pooled
     */
     private void destroyPooled(PooledObject<T> pooled) {
         pooled.setStatus(PooledObject.Status.INVALID);
@@ -359,6 +363,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 静默销毁对象（不抛异常）
+    * @param pooled 方法入参 pooled
     */
     private void destroyObjectQuietly(PooledObject<T> pooled) {
         try {

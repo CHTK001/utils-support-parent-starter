@@ -173,6 +173,7 @@ public enum IbdColumnType {
 
     /**
     * {@code JSON}，变长。
+    * @param 31 方法入参 31
     */
     JSON(31);
 
@@ -187,6 +188,11 @@ public enum IbdColumnType {
     */
     private final int code;
 
+    /**
+     * 构造方法，创建 Ibd列类型 实例。
+     *
+     * @param code 编码，不允许为 null
+     */
     IbdColumnType(int code) {
         this.code = code;
     }

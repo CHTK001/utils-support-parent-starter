@@ -46,13 +46,20 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     protected final Map<String, Integer> heartbeatFailCounts = new ConcurrentHashMap<>();
 
     protected final ScatterSetting setting;
+    /** remote客户端 */
     protected ScatterRemoteClient remoteClient;
 
+    /** discoveryExecutor */
     private ScheduledExecutorService discoveryExecutor;
     private volatile boolean started = false;
     /** 请求 ID 生成器（线程安全单调递增） */
     private final AtomicInteger requestIdSeq = new AtomicInteger(0);
 
+    /**
+     * 构造方法，创建 AbstractScatterDiscovery 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     protected AbstractScatterDiscovery(ScatterSetting setting) {
         super(new DiscoveryOption());
         this.setting = setting == null ? new ScatterSetting() : setting;
@@ -70,12 +77,18 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         return this;
     }
 
-    /** 获取分组。 */
+    /**
+     * 获取分组。
+     * @return 结果字符串
+     */
     public String getGroupId() {
         return setting.getGroupId();
     }
 
-    /** 获取配置。 */
+    /**
+     * 获取配置。
+     * @return ScatterSetting 对象
+     */
     public ScatterSetting getSetting() {
         return setting;
     }
@@ -161,7 +174,10 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         updateService(setting.getServicePath(), self);
     }
 
-    /** 动态权重（cpu+内存负载，0.1-1.0）。 */
+    /**
+     * 动态权重（cpu+内存负载，0.1-1.0）。
+     * @return 结果数值
+     */
     protected double computeDynamicWeight() {
         try {
             double cpu = 0.5;
@@ -262,6 +278,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
     * 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。
+    * @param d 方法入参 d
     */
     protected void probeHeartbeat(Discovery d) {
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
@@ -279,7 +296,10 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 合并对端服务表：逐条按 serverId 幂等合并（同分组）。 */
+    /**
+     * 合并对端服务表：逐条按 serverId 幂等合并（同分组）。
+     * @param remote 方法入参 remote
+     */
     protected void mergeRemote(java.util.List<Discovery> remote) {
         for (Discovery r : remote) {
             if (r != null && r.getServerId() != null && getGroupId().equals(r.getScatterId())) {
@@ -288,7 +308,10 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 心跳失败：累计计数，达阈值剔除。 */
+    /**
+     * 心跳失败：累计计数，达阈值剔除。
+     * @param node 节点，不允许为 null
+     */
     protected void onHeartbeatFail(ScatterNode node) {
         int count = heartbeatFailCounts.merge(node.getNodeId(), 1, Integer::sum);
         if (count >= setting.getFailRemoveCount()) {
@@ -298,24 +321,38 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** seed 引导条目不参与心跳剔除（仅引导地址）。 */
+    /**
+     * seed 引导条目不参与心跳剔除（仅引导地址）。
+     * @param d 方法入参 d
+     * @return 是否成功（true 表示成功）
+     */
     protected boolean isSeedNode(Discovery d) {
         return d.getMetadata() != null
                 && (Boolean.parseBoolean(d.getMetadata().get("seed"))
                 || Boolean.parseBoolean(d.getMetadata().get("self")));
     }
 
-    /** 生成单调递增的请求 ID（避免 UUID hash 碰撞与负数）。 */
+    /**
+     * 生成单调递增的请求 ID（避免 UUID hash 碰撞与负数）。
+     * @return 结果数值
+     */
     protected int genRequestId() {
         return Math.abs(requestIdSeq.incrementAndGet());
     }
 
-    /** 不可路由地址（0.0.0.0 等）跳过探活。 */
+    /**
+     * 不可路由地址（0.0.0.0 等）跳过探活。
+     * @param host 主机，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     protected boolean isUnroutable(String host) {
         return host == null || host.isBlank() || "0.0.0.0".equals(host);
     }
 
-    /** 解析 seed 地址为节点列表（供子类同步/扩散用）。 */
+    /**
+     * 解析 seed 地址为节点列表（供子类同步/扩散用）。
+     * @return 结果列表，无数据时为空列表
+     */
     protected List<ScatterNode> resolveSeeds() {
         List<ScatterNode> nodes = new ArrayList<>();
         if (setting.getSeeds() == null) {

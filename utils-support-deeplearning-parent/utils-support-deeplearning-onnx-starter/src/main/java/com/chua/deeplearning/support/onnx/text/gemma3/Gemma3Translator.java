@@ -616,7 +616,9 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     @Override
     public void close() {
         if (session != null) {
-            try { session.close(); } catch (Exception ignore) {}
+            try {
+                session.close();
+            } catch (Exception ignore) {}
         }
         ortEnv = null;
         initialized = false;

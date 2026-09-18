@@ -288,12 +288,16 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
 
     /**
     * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回通道。
+    * @param channel 方法入参 channel
+    * @param reqData 请求数据，不允许为 null
     */
     private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData) {
         InetSocketAddress remoteAddr = null;
         try {
             java.net.SocketAddress addr = channel.getRemoteAddress();
-            if (addr instanceof InetSocketAddress isa) remoteAddr = isa;
+            if (addr instanceof InetSocketAddress isa) {
+                remoteAddr = isa;
+            }
         } catch (Exception ignored) {
             // NOTHING
         }
@@ -320,6 +324,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
 
     /**
     * 写出长度帧：4 字节大端长度头 + body。
+    * @param channel 方法入参 channel
+    * @param data 数据，不允许为 null
     */
     private void writeFrame(AsynchronousSocketChannel channel, byte[] data) {
         if (data.length > 8 * 1024 * 1024) {
@@ -347,6 +353,7 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
 
     /**
     * 写出空响应帧（200 OK + Content-Length: 0）。
+    * @param channel 方法入参 channel
     */
     private void writeEmptyFrame(AsynchronousSocketChannel channel) {
         byte[] empty = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);

@@ -65,7 +65,11 @@ public class IpcServerFilter implements ServerFilter {
         handleIpcRequest(request, response);
     }
 
-    /** 处理IpcRequest */
+    /**
+     * 处理IpcRequest
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     */
     private void handleIpcRequest(ServerRequest request, ServerResponse response) {
         try {
             String body = request.getBodyString();
@@ -103,7 +107,11 @@ public class IpcServerFilter implements ServerFilter {
         }
     }
 
-    /** NormalizePath */
+    /**
+     * NormalizePath
+     * @param methodName 方法名称，不允许为 null
+     * @return 结果字符串
+     */
     private static String normalizePath(String methodName) {
         if (methodName == null || methodName.isBlank()) {
             return "/";
@@ -111,7 +119,12 @@ public class IpcServerFilter implements ServerFilter {
         return methodName.startsWith("/") ? methodName : "/" + methodName;
     }
 
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+     * @param res 方法入参 res
+     * @param status 状态，不允许为 null
+     * @param msg 消息，不允许为 null
+     */
     private void sendError(ServerResponse res, int status, String msg) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);

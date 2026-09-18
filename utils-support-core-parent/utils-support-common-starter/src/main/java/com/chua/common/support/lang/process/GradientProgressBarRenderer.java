@@ -174,6 +174,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getGrayToOrangeColor(double ratio) {
         if (ratio < 0.3) {
@@ -187,6 +189,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getGrayToGreenColor(double ratio) {
         if (ratio < 0.3) {
@@ -200,6 +204,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getBlueToCyanColor(double ratio) {
         if (ratio < 0.5) {
@@ -209,6 +215,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getRedToYellowColor(double ratio) {
         if (ratio < 0.5) {
@@ -218,6 +226,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getRainbowColor(double ratio) {
         if (ratio < 0.16) {
@@ -235,6 +245,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getMatrixColor(double ratio) {
         if (ratio < 0.2) {
@@ -250,6 +262,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getFireColor(double ratio) {
         if (ratio < 0.25) {
@@ -263,6 +277,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getOceanColor(double ratio) {
         if (ratio < 0.25) {
@@ -276,6 +292,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getNeonColor(double ratio) {
         if (ratio < 0.33) {
@@ -287,6 +305,8 @@ public class GradientProgressBarRenderer extends DefaultProgressBarRenderer {
         }
     }
     /**
+     * @param ratio 比率，不允许为 null
+     * @return 结果字符串
     */
     private String getSunsetColor(double ratio) {
         if (ratio < 0.33) {

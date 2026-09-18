@@ -54,6 +54,9 @@ public class TtlResponseCache {
 
     /**
     * 缓存条目：响应 + 过期时间戳。
+    * @param response 响应，不允许为 null
+    * @param expireAt 方法入参 expireAt
+    * @return 结果值
     */
     private record CacheEntry(ClientResponse response, long expireAt) {
         boolean isExpired() {

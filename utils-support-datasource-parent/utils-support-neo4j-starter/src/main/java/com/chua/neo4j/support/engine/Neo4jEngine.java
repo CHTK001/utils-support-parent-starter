@@ -92,6 +92,11 @@ public class Neo4jEngine implements Engine {
         }
     }
 
+    /**
+     * supportsNativePagination。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private boolean supportsNativePagination() {
         String v = dialectProps.getProperty("supports-native-pagination", "true");
         return !"false".equalsIgnoreCase(v.trim());
@@ -448,6 +453,15 @@ public class Neo4jEngine implements Engine {
         return cypherQuery(entityClass, conditions, 0, 0);
     }
 
+    /**
+     * cypher查询。
+     *
+     * @param entityClass 实体Class，不允许为 null
+     * @param conditions 方法入参 conditions
+     * @param offset 偏移量，不允许为 null
+     * @param limit 上限，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions, int offset, int limit) {
         if (driver == null) {
             log.warn("[neo4j-engine] 驱动未初始化，无法执行查询");

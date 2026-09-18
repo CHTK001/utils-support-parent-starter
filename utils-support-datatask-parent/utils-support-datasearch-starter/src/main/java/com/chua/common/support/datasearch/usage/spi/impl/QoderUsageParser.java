@@ -181,6 +181,12 @@ public class QoderUsageParser extends BaseUsageParser {
         return java.util.Optional.of(builder.build());
     }
 
+    /**
+     * 读取缓存Tokens。
+     *
+     * @param usage 方法入参 usage
+     * @return Integer 对象
+     */
     private Integer readCacheTokens(JsonNode usage) {
         int cacheRead = usage.get("cache_read_input_tokens").toIntValue(0);
         int cacheWrite = usage.get("cache_creation_input_tokens").toIntValue(0);

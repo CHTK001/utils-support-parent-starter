@@ -1,5 +1,6 @@
 package com.chua.hprof.support;
 
+import com.chua.hprof.support.differ.HprofDiffer;
 import com.chua.hprof.support.parser.HprofParser;
 import com.chua.hprof.support.serializer.HprofToJsonSerializer;
 import com.chua.hprof.support.serializer.HprofToHtmlSerializer;
@@ -9,23 +10,22 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * HPROF heap dump module facade.
+ * HPROF 堆转储模块门面。
  *
- * <p>Provides a one-call entry point to turn a binary hprof heap dump into
- * structured Java objects and the two report formats (JSON / Markdown) that
- * feed LLM analysis:</p>
+ * <p>提供一次调用的入口，把二进制 hprof 堆转储转换为结构化 Java 对象，
+ * 以及供 LLM 分析的两种报告格式（JSON / Markdown）：</p>
  *
  * <pre>
- * hprof binary
- *   | Java parse (hprof-parser)
- * Java objects / structured data
- *   | serialize (Jackson / hand written template)
+ * hprof 二进制
+ *   | Java 解析（hprof-parser）
+ * Java 对象 / 结构化数据
+ *   | 序列化（Jackson / 手写模板）
  * JSON / Markdown
- *   | hand to AI
- * AI gives plain language conclusions
+ *   | 交给 AI
+ * AI 给出通俗语言的结论
  * </pre>
  *
- * <p>JSON output shape:</p>
+ * <p>JSON 输出形态：</p>
  * <pre>
  * {
  *   "leak_suspects": [
@@ -38,7 +38,7 @@ import java.io.IOException;
  * }
  * </pre>
  *
- * <p>Markdown output shape:</p>
+ * <p>Markdown 输出形态：</p>
  * <pre>
  * | Class | Instance Count | Memory Used | Reference Chain |
  * |-------|----------------|-------------|-----------------|
@@ -51,45 +51,48 @@ import java.io.IOException;
 public final class HprofSupport {
 
     /**
-    * HPROF source format identifier.
+    * HPROF 源格式标识。
     */
     public static final String SOURCE_HPROF = "hprof";
 
     /**
-    * JSON target format identifier.
+    * JSON 目标格式标识。
     */
     public static final String TARGET_JSON = "json";
 
     /**
-    * Markdown target format identifier.
+    * Markdown 目标格式标识。
     */
     public static final String TARGET_MARKDOWN = "markdown";
 
     /**
-    * HTML target format identifier.
+    * HTML 目标格式标识。
     */
     public static final String TARGET_HTML = "html";
 
+    /**
+     * 构造方法，创建 HprofSupport 实例。
+     */
     private HprofSupport() {
     }
 
     /**
-    * Parse an hprof file into structured data.
+    * 解析 hprof 文件为结构化数据。
     *
-    * @param file hprof binary file
-    * @return parsed result (objects, class histogram, top retained)
-    * @throws IOException when the file cannot be read
+    * @param file hprof 二进制文件
+    * @return 解析结果（对象、类直方图、保留量排行）
+    * @throws IOException 文件不可读时抛出
     */
     public static HprofParser.Result parse(File file) throws IOException {
         return HprofParser.parse(file);
     }
 
     /**
-    * Convert an hprof file to the JSON document.
+    * 把 hprof 文件转换为 JSON 文档。
     *
-    * @param file hprof binary file
-    * @return JSON string
-    * @throws IOException when the file cannot be read
+    * @param file hprof 二进制文件
+    * @return JSON 字符串
+    * @throws IOException 文件不可读时抛出
     */
     public static String toJson(File file) throws IOException {
         HprofParser.Result result = HprofParser.parse(file);
@@ -97,11 +100,11 @@ public final class HprofSupport {
     }
 
     /**
-    * Convert an hprof file to a Markdown report.
+    * 把 hprof 文件转换为 Markdown 报告。
     *
-    * @param file hprof binary file
-    * @return Markdown string
-    * @throws IOException when the file cannot be read
+    * @param file hprof 二进制文件
+    * @return Markdown 字符串
+    * @throws IOException 文件不可读时抛出
     */
     public static String toMarkdown(File file) throws IOException {
         HprofParser.Result result = HprofParser.parse(file);
@@ -109,11 +112,11 @@ public final class HprofSupport {
     }
 
     /**
-    * Convert an hprof file to a self-contained HTML report (charts + findings).
+    * 把 hprof 文件转换为自包含的 HTML 报告（图表 + 判定结论）。
     *
-    * @param file hprof binary file
-    * @return HTML document
-    * @throws IOException when the file cannot be read
+    * @param file hprof 二进制文件
+    * @return HTML 文档
+    * @throws IOException 文件不可读时抛出
     */
     public static String toHtml(File file) throws IOException {
         HprofParser.Result result = HprofParser.parse(file);
@@ -121,16 +124,32 @@ public final class HprofSupport {
     }
 
     /**
-    * Convert an hprof file to a self-contained HTML report with an AI summary block.
+    * 把 hprof 文件转换为带 AI 总结区块的自包含 HTML 报告。
     *
-    * @param file hprof binary file
-    * @param summarizer AI summarizer (null disables the AI block)
-    * @return HTML document
-    * @throws IOException when the file cannot be read
+    * @param file       hprof 二进制文件
+    * @param summarizer AI 总结器（为 null 时不输出 AI 区块）
+    * @return HTML 文档
+    * @throws IOException 文件不可读时抛出
     */
     public static String toHtml(File file, com.chua.hprof.support.ai.HprofAiSummarizer summarizer) throws IOException {
         HprofParser.Result result = HprofParser.parse(file);
         String aiSummary = summarizer == null ? null : summarizer.summarize(result);
         return HprofToHtmlSerializer.serialize(result, file.getName(), aiSummary);
+    }
+
+    /**
+    * 对比两个 hprof 文件，返回按类统计的内存增长排行。
+    *
+    * <p>单个转储看不出内存在如何增长——本方法对两份转储做差值比较
+    * （例如 OOM 之前与紧随其后各取一份），从而让报告能点名导致崩溃的
+    * 泄漏类。</p>
+    *
+    * @param before 较早的转储（内存占用较少）
+    * @param after  较晚的转储（内存占用较多）
+    * @return 差值比较结果
+    * @throws IOException 任一文件不可读时抛出
+    */
+    public static HprofDiffer.Diff diff(File before, File after) throws IOException {
+        return HprofDiffer.compareFiles(before, after);
     }
 }

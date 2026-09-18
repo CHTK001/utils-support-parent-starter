@@ -651,6 +651,9 @@ public class HuggingfaceHubClient {
 
     /**
     * 解析 preupload 响应，返回指定路径的上传模式（lfs/regular）。
+    * @param preupload 方法入参 preupload
+    * @param pathInRepo 路径InRepo，不允许为 null
+    * @return 结果字符串
     */
     @SuppressWarnings("unchecked")
     private String extractUploadMode(Map<String, Object> preupload, String pathInRepo) {
@@ -668,6 +671,10 @@ public class HuggingfaceHubClient {
 
     /**
     * 执行 JSON 请求（POST/DELETE）并解析 Map 响应。
+    * @param method 方法，不允许为 null
+    * @param path 路径，不允许为 null
+    * @param body 请求体，不允许为 null
+    * @return 结果映射，无数据时为空映射
     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> postJson(String method, String path, String body) {
@@ -687,6 +694,8 @@ public class HuggingfaceHubClient {
 
     /**
     * 文件采样（前 512 字节，与 huggingface_hub 一致，用于 preupload 判定 LFS/regular）。
+    * @param content 内容，不允许为 null
+    * @return 结果值
     */
     private static byte[] sampleOf(byte[] content) {
         return java.util.Arrays.copyOf(content, (int) Math.min(512, content.length));
@@ -694,6 +703,8 @@ public class HuggingfaceHubClient {
 
     /**
     * 计算 SHA-256 十六进制摘要（LFS oid）。
+    * @param content 内容，不允许为 null
+    * @return 结果字符串
     */
     private static String sha256Hex(byte[] content) {
         try {
@@ -783,6 +794,9 @@ public class HuggingfaceHubClient {
     *
     * <p>GET 为幂等读操作，遇瞬时 5xx（代理/CDN 抖动）自动重试；
     * POST/DELETE 非幂等，不重试。</p>
+    * @param method 方法，不允许为 null
+    * @param path 路径，不允许为 null
+    * @return 结果映射，无数据时为空映射
     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> requestJson(String method, String path) {
@@ -819,12 +833,21 @@ public class HuggingfaceHubClient {
         return Json.fromJson(resp.getBodyString(), Map.class);
     }
 
+    /**
+     * 格式化路径。
+     *
+     * @param template 模板，不允许为 null
+     * @param repoId repoID，不允许为 null
+     * @return 结果字符串
+     */
     private String formatPath(String template, String repoId) {
         return String.format(template, repoId);
     }
 
     /**
     * 构建带鉴权信息的 git URL（oauth2:&lt;token&gt;@ 形式）。
+    * @param repoId repoID，不允许为 null
+    * @return 结果字符串
     */
     private String buildAuthenticatedGitUrl(String repoId) {
         if (token == null || token.isBlank()) {
@@ -833,6 +856,11 @@ public class HuggingfaceHubClient {
         return baseUrl + "/oauth2:" + token + "@" + repoId + ".git";
     }
 
+    /**
+     * 构建Auth请求头。
+     *
+     * @return 结果字符串
+     */
     private String buildAuthHeader() {
         if (token == null || token.isBlank()) {
             return "";

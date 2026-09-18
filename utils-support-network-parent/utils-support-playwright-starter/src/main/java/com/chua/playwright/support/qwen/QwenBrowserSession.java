@@ -193,10 +193,34 @@ public class QwenBrowserSession implements AutoCloseable {
     /** 关闭 */
     public void close() {
         Exception ex = null;
-        try { if (page != null) page.close(); } catch (Exception e) { ex = e; }
-        try { context.close(); } catch (Exception e) { if (ex == null) ex = e; }
-        try { browser.close(); } catch (Exception e) { if (ex == null) ex = e; }
-        try { playwright.close(); } catch (Exception e) { if (ex == null) ex = e; }
+        try {
+            if (page != null) {
+                page.close();
+            }
+        } catch (Exception e) {
+            ex = e;
+        }
+        try {
+            context.close();
+        } catch (Exception e) {
+            if (ex == null) {
+                ex = e;
+            }
+        }
+        try {
+            browser.close();
+        } catch (Exception e) {
+            if (ex == null) {
+                ex = e;
+            }
+        }
+        try {
+            playwright.close();
+        } catch (Exception e) {
+            if (ex == null) {
+                ex = e;
+            }
+        }
         if (ex != null) {
             log.warn("关闭通义千问浏览器会话异常: {}", ex.getMessage());
         }

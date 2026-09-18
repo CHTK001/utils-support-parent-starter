@@ -4,8 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Wx键NativeBridge测试类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 class WxKeyNativeBridgeTest {
 
+    /**
+     * 测试：是否Supported。
+     */
     @Test
     void testIsSupported() {
         boolean supported = WxKeyNativeBridge.isSupported();
@@ -17,6 +26,9 @@ class WxKeyNativeBridgeTest {
         }
     }
 
+    /**
+     * 测试：键模式。
+     */
     @Test
     void testKeyPattern() {
         assertTrue("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef".matches("^[0-9a-fA-F]{64}$"));

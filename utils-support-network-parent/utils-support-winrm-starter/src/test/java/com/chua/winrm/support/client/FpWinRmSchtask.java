@@ -1,10 +1,16 @@
-﻿package com.chua.winrm.support.client;
+﻿﻿package com.chua.winrm.support.client;
 
 import com.chua.winrm.support.client.WinRmExecClient;
 
 /**
  * 鐢ㄨ鍒掍换鍔″惎鍔ㄨ繙绋?FilePushServer锛堥伩鍏嶉樆濉?WinRM 浼氳瘽锛夈€? */
 public class FpWinRmSchtask {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("[1] connect...");
         WinRmExecClient winrm = WinRmExecClient.builder()

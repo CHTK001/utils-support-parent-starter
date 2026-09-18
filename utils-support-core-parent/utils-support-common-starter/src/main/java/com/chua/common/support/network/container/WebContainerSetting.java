@@ -74,7 +74,10 @@ public class WebContainerSetting {
     /** SSL/TLS 配置 */
     private SslConfig ssl = new SslConfig();
 
-    /** 追加的部署单元，不会覆盖已有列表 */
+    /**
+     * 追加的部署单元，不会覆盖已有列表
+     * @param unit 方法入参 unit
+     */
     public void addDeployUnit(DeployUnit unit) {
         if (deployUnits == null) {
             deployUnits = new ArrayList<>();

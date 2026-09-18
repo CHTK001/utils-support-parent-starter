@@ -14,10 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * HPROF to Markdown file converter.
+ * HPROF 转 Markdown 的文件转换器。
  *
- * <p>Parses a binary hprof heap dump and renders a human and AI readable
- * Markdown report containing the class histogram and leak suspects.</p>
+ * <p>解析二进制 hprof 堆转储，并渲染为便于人和 AI 阅读的
+ * Markdown 报告，内容包含类直方图与泄漏可疑对象。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -61,7 +61,7 @@ public class HprofToMarkdownFileConvertSystem implements FileConvertSystem {
     *
     * @param source source file descriptor
     * @return input stream
-    * @throws IOException when the source cannot be read
+    * @throws IOException 无法读取源文件时
     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
@@ -82,7 +82,7 @@ public class HprofToMarkdownFileConvertSystem implements FileConvertSystem {
     * @param target  target file descriptor
     * @param content content text
     * @param setting conversion settings
-    * @throws IOException when the target cannot be written
+    * @throws IOException 无法写入目标文件时
     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {

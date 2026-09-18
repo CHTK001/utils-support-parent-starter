@@ -92,6 +92,8 @@ public class LuceneExpressionParser implements ExpressionParser {
     *   <li>-field:value → NOT (field = value)</li>
     *   <li>field:[min TO max] → field BETWEEN min AND max</li>
     * </ul>
+    * @param expression 方法入参 expression
+    * @return 结果字符串
     */
     private String normalizeLucene(String expression) {
         // 简化处理，实际项目中可能需要更复杂的转换

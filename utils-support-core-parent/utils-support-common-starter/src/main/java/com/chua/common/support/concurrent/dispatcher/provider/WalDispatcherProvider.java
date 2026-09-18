@@ -188,6 +188,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
     * 获取或创建主题的无锁快速队列。
+    * @param topic 方法入参 topic
+    * @return LockFreeQueue 对象
     */
     private LockFreeQueue<byte[]> fastQueue(String topic) {
         return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(FAST_QUEUE_TYPE, FAST_QUEUE_CAPACITY));
@@ -231,6 +233,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
     * 获取或创建指定主题的 WAL 日志。
+    * @param topic 方法入参 topic
+    * @return WalLog 对象
     */
     private WalLog getLog(String topic) {
         return logs.computeIfAbsent(topic, t -> new WalLog(logDir.resolve("wal-" + t + ".log")));
@@ -238,6 +242,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
     * 启动消费者虚拟线程，从无锁快速队列读取并分发。
+    * @param topic 方法入参 topic
     */
     private void startConsumer(String topic) {
         var queue = fastQueue(topic);
@@ -263,6 +268,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
 
     /**
     * 分发已反序列化的消息到所有订阅者。
+    * @param topic 方法入参 topic
+    * @param data 数据，不允许为 null
     */
     private void dispatch(String topic, byte[] data) {
         var definitions = definitionMap.get(topic);
@@ -279,7 +286,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /** 写入Body */
+    /**
+     * 写入Body
+     * @param body 请求体，不允许为 null
+     * @return 结果值
+     */
     private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {
@@ -294,7 +305,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    /** 读取Body */
+    /**
+     * 读取Body
+     * @param data 数据，不允许为 null
+     * @return 对象 对象
+     */
     private Object readBody(byte[] data) {
         try {
             if (serializer == null) {

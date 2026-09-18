@@ -346,7 +346,10 @@ public class HttpApiOptions {
     * @param timeout 连接超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions connectTimeout(long timeout) { this.connectTimeout = timeout; return this; }
+    public HttpApiOptions connectTimeout(long timeout) {
+        this.connectTimeout = timeout;
+        return this;
+    }
 
     /**
     * 获取读取超时（毫秒）。
@@ -361,7 +364,10 @@ public class HttpApiOptions {
     * @param timeout 读取超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions readTimeout(long timeout) { this.readTimeout = timeout; return this; }
+    public HttpApiOptions readTimeout(long timeout) {
+        this.readTimeout = timeout;
+        return this;
+    }
 
     /**
     * 获取写入超时（毫秒）。
@@ -376,7 +382,10 @@ public class HttpApiOptions {
     * @param timeout 写入超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions writeTimeout(long timeout) { this.writeTimeout = timeout; return this; }
+    public HttpApiOptions writeTimeout(long timeout) {
+        this.writeTimeout = timeout;
+        return this;
+    }
 
     /**
     * 获取最大重试次数。
@@ -391,7 +400,10 @@ public class HttpApiOptions {
     * @param retries 最大重试次数，-1 表示不重试
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions retry(int retries) { this.maxRetries = retries; return this; }
+    public HttpApiOptions retry(int retries) {
+        this.maxRetries = retries;
+        return this;
+    }
 
     /**
     * 获取缓存有效期（毫秒）。
@@ -406,7 +418,10 @@ public class HttpApiOptions {
     * @param ttlMs 缓存有效期，-1 表示不缓存
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions cache(long ttlMs) { this.cacheTtl = ttlMs; return this; }
+    public HttpApiOptions cache(long ttlMs) {
+        this.cacheTtl = ttlMs;
+        return this;
+    }
 
     /**
     * 获取是否跟随重定向。
@@ -421,7 +436,10 @@ public class HttpApiOptions {
     * @param follow true 跟随重定向，false 不跟随
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions followRedirects(boolean follow) { this.followRedirects = follow; return this; }
+    public HttpApiOptions followRedirects(boolean follow) {
+        this.followRedirects = follow;
+        return this;
+    }
 
     /**
     * 获取 HTTP 协议版本。
@@ -436,7 +454,10 @@ public class HttpApiOptions {
     * @param version HTTP 版本（HTTP_1_1 / HTTP_2）
     * @return 当前配置实例（链式调用）
     */
-    public HttpApiOptions version(HttpVersion version) { this.version = version; return this; }
+    public HttpApiOptions version(HttpVersion version) {
+        this.version = version;
+        return this;
+    }
 
     /**
     * 获取代理主机名。
@@ -475,14 +496,30 @@ public class HttpApiOptions {
     */
     public void applyTo(RequestSpec spec) {
         defaultHeaders.forEach(spec::header);
-        if (connectTimeout >= 0) spec.connectTimeout(connectTimeout);
-        if (readTimeout >= 0) spec.readTimeout(readTimeout);
-        if (writeTimeout >= 0) spec.writeTimeout(writeTimeout);
-        if (maxRetries >= 0) spec.retry(maxRetries);
-        if (cacheTtl >= 0) spec.cache(cacheTtl);
-        if (followRedirects != null) spec.followRedirects(followRedirects);
-        if (version != null) spec.version(version);
-        if (proxyHost != null && !proxyHost.isEmpty()) spec.proxy(proxyHost, proxyPort);
+        if (connectTimeout >= 0) {
+            spec.connectTimeout(connectTimeout);
+        }
+        if (readTimeout >= 0) {
+            spec.readTimeout(readTimeout);
+        }
+        if (writeTimeout >= 0) {
+            spec.writeTimeout(writeTimeout);
+        }
+        if (maxRetries >= 0) {
+            spec.retry(maxRetries);
+        }
+        if (cacheTtl >= 0) {
+            spec.cache(cacheTtl);
+        }
+        if (followRedirects != null) {
+            spec.followRedirects(followRedirects);
+        }
+        if (version != null) {
+            spec.version(version);
+        }
+        if (proxyHost != null && !proxyHost.isEmpty()) {
+            spec.proxy(proxyHost, proxyPort);
+        }
     }
 
     /**

@@ -40,14 +40,20 @@ public class PdfReadBuilder extends ReadBuilder {
     * @param page page
     * @return 启动page的结果
     */
-    public PdfReadBuilder startPage(int page) { this.startPage = page; return this; }
+    public PdfReadBuilder startPage(int page) {
+        this.startPage = page;
+        return this;
+    }
 
     /**
     * 结束页
     * @param page page
     * @return 结束page的结果
     */
-    public PdfReadBuilder endPage(int page) { this.endPage = page; return this; }
+    public PdfReadBuilder endPage(int page) {
+        this.endPage = page;
+        return this;
+    }
 
     @Override
     /** with字符集 */

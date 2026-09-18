@@ -15,9 +15,9 @@ import ai.djl.translate.TranslatorContext;
 * 输入:  1x1x64x64 grayscale, normalized by /256
 * 输出: 136-dim (68 landmarks * 2 coordinates), 值 入 [0, 1] relative 转为 cropped face
 *
-* <p>The caller must crop the face region from the image using the detected bounding box
-* 之前 通过 it 转为 this translator. The 136 输出 值 are relative coordinates
-* within the cropped region.
+* <p>调用方必须先根据检测到的人脸框从图像中裁剪出人脸区域，
+* 再将其传入本解析器。136 个输出值是裁剪区域内的
+* 相对坐标。
 *
 * @author CH
 * @since 2026-08-08

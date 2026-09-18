@@ -106,6 +106,8 @@ public class DefaultQrCode extends AbstractQrCode {
     * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
     * <p/>
     * 源码参考 {@link com.google.zxing.qrcode.QRCodeWriter#encode(String, BarcodeFormat, int, int, Map)}
+    * @param qrCodeConfig qr编码配置，不允许为 null
+    * @return QR编码 对象
     */
     QRCode code(QrCodeOptions qrCodeConfig) throws WriterException {
         ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.L;

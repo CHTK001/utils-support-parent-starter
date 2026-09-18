@@ -32,6 +32,15 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     /** Sequence数字BUF */
     private final byte[] sequenceNumberBuf = new byte[4];
 
+    /**
+     * 构造方法，创建 PNGfdATOutput流 实例。
+     *
+     * @param stream 流，不允许为 null
+     * @param chunkLength 分块长度，不允许为 null
+     * @param deflaterLevel deflater级别，不允许为 null
+     * @param sequenceNumber 方法入参 sequenceNumber
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     PNGfdATOutputStream(ImageOutputStream stream, int chunkLength, int deflaterLevel, int sequenceNumber) throws IOException {
         super(stream, chunkLength, deflaterLevel);
         this.sequenceNumber = sequenceNumber;

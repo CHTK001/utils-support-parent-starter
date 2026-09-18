@@ -67,17 +67,26 @@ public class Page<T> {
         this.records = records != null ? records : Collections.emptyList();
     }
 
-    /** 获取当前页码（从 1 开始）。 */
+    /**
+     * 获取当前页码（从 1 开始）。
+     * @return 结果数值
+     */
     public int getPageNum() {
         return pageNum;
     }
 
-    /** 获取每页记录数。 */
+    /**
+     * 获取每页记录数。
+     * @return 结果数值
+     */
     public int getPageSize() {
         return pageSize;
     }
 
-    /** 获取总记录数。 */
+    /**
+     * 获取总记录数。
+     * @return 结果数值
+     */
     public long getTotal() {
         return total;
     }
@@ -92,12 +101,18 @@ public class Page<T> {
         return pageSize > 0 ? (total + pageSize - 1) / pageSize : 0;
     }
 
-    /** 获取当前页的数据列表。 */
+    /**
+     * 获取当前页的数据列表。
+     * @return 结果列表，无数据时为空列表
+     */
     public List<T> getRecords() {
         return records;
     }
 
-    /** 判断当前页是否为空（无数据）。 */
+    /**
+     * 判断当前页是否为空（无数据）。
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isEmpty() {
         return records.isEmpty();
     }

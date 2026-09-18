@@ -15,10 +15,20 @@ public class SimpleSqlParser {
 
     public SimpleSqlParser(JdbcWalStoreSystem store) { this.store = store; }
 
+    /**
+     * 解析Select。
+     *
+     * @param sql SQL，不允许为 null
+     * @param params 参数，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     public List<Map<String, Object>> parseSelect(String sql, Object... params) throws IOException {
         String lower = sql.trim().toLowerCase();
         int fromIdx = lower.indexOf(" from ");
-        if (fromIdx < 0) return Collections.emptyList();
+        if (fromIdx < 0) {
+            return Collections.emptyList();
+        }
         String afterFrom = sql.trim().substring(fromIdx + 6).trim();
         int whereIdx = afterFrom.toLowerCase().indexOf(" where ");
         int limIdx = afterFrom.toLowerCase().indexOf(" limit ");
@@ -29,20 +39,26 @@ public class SimpleSqlParser {
         List<Map<String, Object>> rows = new ArrayList<>();
         for (int i = 0; i < store.walLogs.length; i++) {
             SegmentWalLog log = store.walLogs[i];
-            if (log == null) continue;
+            if (log == null) {
+                continue;
+            }
             for (WalSegmentInfo seg : log.listSegments()) {
                 try {
                     log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
-                        if ((op & 0x80) != 0) return true;
-                        // JdbcWalStoreSystem payload: no key prefix, just encoded row
-                        // The row map from decodeValue includes the table info via rowId
-                        // We need to check if this payload belongs to our table
-                        // Since we can't easily extract table from payload alone, scan all and filter later
-                        // Actually, the key is passed to append() but not stored in payload
-                        // So we decode and check the row content
+                        if ((op & 0x80) != 0) {
+                            return true;
+                        }
+                        // JdbcWalStoreSystem 的载荷：不含主键前缀，只有编码后的行数据
+                        // decodeValue 得到的行映射会通过 rowId 携带表信息
+                        // 这里需要判断该载荷是否属于目标表
+                        // 由于仅凭载荷本身难以取出表名，先扫描全部分段再做过滤
+                        // 实际上 key 会传给 append()，但并未写入载荷
+                        // 因此只能解码后根据行内容判断
                         @SuppressWarnings("unchecked")
                         Map<String, Object> row = (Map<String, Object>) store.decodeValue(null, payload);
-                        if (row != null) rows.add(row);
+                        if (row != null) {
+                            rows.add(row);
+                        }
                         return true;
                     });
                 } catch (Exception ignored) {}

@@ -74,6 +74,12 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
                 .concatMap(this::streamTranscript, 4);
     }
 
+    /**
+     * 流Transcript。
+     *
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamTranscript(Path file) {
         return streamLines(file)
                 .filter(line -> !line.isBlank())
@@ -103,6 +109,12 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
         return files;
     }
 
+    /**
+     * 解析LineSafe。
+     *
+     * @param line 方法入参 line
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     private Optional<AiUsage> parseLineSafe(String line) {
         try {
             return parseLine(line);

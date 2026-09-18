@@ -46,6 +46,12 @@ public class YesCaptchaClient implements CaptchaParser {
         this.setting = setting;
     }
 
+    /**
+     * withPersistence。
+     *
+     * @param taskPersistence 方法入参 taskPersistence
+     * @return YesCaptcha客户端 对象
+     */
     public YesCaptchaClient withPersistence(TaskPersistence taskPersistence) {
         this.taskPersistence = taskPersistence;
         return this;
@@ -69,17 +75,17 @@ public class YesCaptchaClient implements CaptchaParser {
         if (taskPersistence != null) {
             var cached = taskPersistence.query(taskId);
             if (cached.isPresent()) {
-                /**
-                * 获取balance。
-                * @return 获取balance的结果
-                * @param options 期权
-                */
                 return cached.get();
             }
         }
         return getTaskResult(taskId);
     }
 
+    /**
+     * 获取Balance。
+     *
+     * @return 结果数值
+     */
     public double getBalance() {
         try {
             Map<String, Object> body = new HashMap<>();
@@ -103,6 +109,12 @@ public class YesCaptchaClient implements CaptchaParser {
         return 0.0;
     }
 
+    /**
+     * 构建Task。
+     *
+     * @param options 选项，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> buildTask(Map<String, String> options) {
         String captchaType = options.getOrDefault("captchaType", "ReCaptchaV2");
         Map<String, Object> task = new HashMap<>();
@@ -123,6 +135,12 @@ public class YesCaptchaClient implements CaptchaParser {
         return task;
     }
 
+    /**
+     * 映射转为YesCaptcha类型。
+     *
+     * @param captchaType captcha类型，不允许为 null
+     * @return 结果字符串
+     */
     private String mapToYesCaptchaType(String captchaType) {
         switch (captchaType) {
             case "ReCaptchaV2":
@@ -150,6 +168,12 @@ public class YesCaptchaClient implements CaptchaParser {
         }
     }
 
+    /**
+     * 创建Task。
+     *
+     * @param body 请求体，不允许为 null
+     * @return 结果字符串
+     */
     private String createTask(Map<String, Object> body) {
         try {
             String json = doPost(setting.getApiUrl() + "/createTask", body);
@@ -167,6 +191,12 @@ public class YesCaptchaClient implements CaptchaParser {
         return null;
     }
 
+    /**
+     * 获取Task结果。
+     *
+     * @param taskId taskID，不允许为 null
+     * @return Captcha响应 对象
+     */
     private CaptchaResponse getTaskResult(String taskId) {
         try {
             Map<String, Object> body = new HashMap<>();
@@ -236,6 +266,14 @@ public class YesCaptchaClient implements CaptchaParser {
                 .build();
     }
 
+    /**
+     * doPost。
+     *
+     * @param url URL，不允许为 null
+     * @param body 请求体，不允许为 null
+     * @return 结果字符串
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private String doPost(String url, Map<String, Object> body) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
@@ -256,6 +294,13 @@ public class YesCaptchaClient implements CaptchaParser {
         return null;
     }
 
+    /**
+     * 放入IfNotBlank。
+     *
+     * @param map 映射，不允许为 null
+     * @param key 键，不允许为 null
+     * @param value 值，不允许为 null
+     */
     private static void putIfNotBlank(Map<String, Object> map, String key, String value) {
         if (value != null && !value.isEmpty()) {
             map.put(key, value);

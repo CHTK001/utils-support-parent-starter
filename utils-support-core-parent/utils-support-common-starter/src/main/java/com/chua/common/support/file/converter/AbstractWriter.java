@@ -58,7 +58,11 @@ public abstract class AbstractWriter implements FileSystem {
         this.initialized = false;
     }
 
-    /** WithFile */
+    /**
+     * WithFile
+     * @param file 文件，不允许为 null
+     * @return AbstractWriter 对象
+     */
     public AbstractWriter withFile(File file) {
         this.file = file;
         this.initialized = false;
@@ -83,19 +87,31 @@ public abstract class AbstractWriter implements FileSystem {
         throw new UnsupportedOperationException();
     }
 
-    /** WithHeader */
+    /**
+     * WithHeader
+     * @param headers 请求头，不允许为 null
+     * @return AbstractWriter 对象
+     */
     public AbstractWriter withHeader(List<String> headers) {
         this.headers = headers != null ? new ArrayList<>(headers) : new ArrayList<>();
         return this;
     }
 
-    /** With写入Option */
+    /**
+     * With写入Option
+     * @param writeOption 写入Option，不允许为 null
+     * @return AbstractWriter 对象
+     */
     public AbstractWriter withWriteOption(WriteOption writeOption) {
         this.writeOption = writeOption;
         return this;
     }
 
-    /** WithAuto关闭Stream */
+    /**
+     * WithAuto关闭Stream
+     * @param autoCloseStream auto关闭流（布尔开关）
+     * @return AbstractWriter 对象
+     */
     public AbstractWriter withAutoCloseStream(boolean autoCloseStream) {
         if (writeOption == null) {
             writeOption = WriteOption.maps();
@@ -104,7 +120,11 @@ public abstract class AbstractWriter implements FileSystem {
         return this;
     }
 
-    /** 写入 */
+    /**
+     * 写入
+     * @param item 项，不允许为 null
+     * @return AbstractWriter 对象
+     */
     public <T> AbstractWriter write(T... item) throws IOException {
         if (item == null || item.length == 0) {
             return this;
@@ -123,7 +143,10 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     @SuppressWarnings("unchecked")
-    /** 写入Single */
+    /**
+     * 写入Single
+     * @param item 项，不允许为 null
+     */
     private void writeSingle(Object item) throws IOException {
         if (item instanceof Map) {
             doWrite((Map<String, Object>) item);
@@ -150,13 +173,25 @@ public abstract class AbstractWriter implements FileSystem {
 
     /** Do初始化 */
     protected abstract void doInitialize() throws IOException;
-    /** Do写入Line */
+    /**
+     * Do写入Line
+     * @param line 方法入参 line
+     */
     protected abstract void doWriteLine(String line) throws IOException;
-    /** Do写入Text */
+    /**
+     * Do写入Text
+     * @param text 文本，不允许为 null
+     */
     protected abstract void doWriteText(String text) throws IOException;
-    /** Do写入Bytes */
+    /**
+     * Do写入Bytes
+     * @param bytes 字节数组，不允许为 null
+     */
     protected abstract void doWriteBytes(byte[] bytes) throws IOException;
-    /** Do写入 */
+    /**
+     * Do写入
+     * @param data 数据，不允许为 null
+     */
     protected abstract void doWrite(Map<String, Object> data) throws IOException;
     /** Do刷新 */
     protected abstract void doFlush() throws IOException;
@@ -165,8 +200,16 @@ public abstract class AbstractWriter implements FileSystem {
 
     /** Finish */
     public void finish() {
-        try { doFinish(); } catch (IOException e) { throw new RuntimeException(e); }
-        try { close(); } catch (IOException e) { throw new RuntimeException(e); }
+        try {
+            doFinish();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /** 关闭 */

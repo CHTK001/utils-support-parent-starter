@@ -25,6 +25,12 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     /** Revokes */
     private final List<String> revokes = new ArrayList<>();
 
+    /**
+     * 构造方法，创建 MysqlAlter用户Step 实例。
+     *
+     * @param dataSource 数据来源，不允许为 null
+     * @param username 用户名，不允许为 null
+     */
     MysqlAlterUserStep(DataSource dataSource, String username) {
         this.dataSource = dataSource;
         this.username = username;

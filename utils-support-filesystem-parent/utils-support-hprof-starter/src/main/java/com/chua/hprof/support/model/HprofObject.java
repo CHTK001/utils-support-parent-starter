@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Heap dump object row model.
+ * 堆转储对象行模型。
  *
- * <p>Represents a single object (or object group) parsed from an hprof file,
- * used by the class histogram, dominator tree and reference chain views.
- * The {@code @Spi} annotation marks this as the standard hprof SPI record
- * type so downstream converters can locate it by name.</p>
+ * <p>表示从 hprof 文件中解析出的单个对象（或对象分组），
+ * 供类直方图、支配树与引用链视图使用。
+ * {@code @Spi} 注解把它标记为标准的 hprof SPI 记录
+ * 类型，便于下游转换器按名称定位。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -26,7 +26,7 @@ public class HprofObject {
     private String className;
 
     /**
-    * Instance count of this class in the heap
+    * 该类在堆中的实例数量
     */
     private long instanceCount;
 
@@ -46,7 +46,7 @@ public class HprofObject {
     private long objectId;
 
     /**
-    * GC root description when this object is a root
+    * 该对象属于 GC root 时的根描述
     */
     private String gcRoot;
 

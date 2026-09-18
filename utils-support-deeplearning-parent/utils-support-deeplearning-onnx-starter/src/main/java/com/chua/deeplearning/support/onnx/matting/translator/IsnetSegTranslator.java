@@ -49,16 +49,14 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
     * IsnetSegTranslator。
     */
     public IsnetSegTranslator() {
-        /**
-        * 处理输入。
-        * @param ctx ctx
-        * @param input 输入
-        * @return 处理输入的结果
-        * @param mode mode
-        */
         this(DEFAULT_MODE);
     }
 
+    /**
+     * 构造方法，创建 IsnetSegTranslator 实例。
+     *
+     * @param mode 模式，不允许为 null
+     */
     public IsnetSegTranslator(MattingTranslator.MattingMode mode) {
         this.mode = mode;
     }
@@ -132,6 +130,12 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         };
     }
 
+    /**
+     * 转为BufferedImage。
+     *
+     * @param input 方法入参 input
+     * @return BufferedImage 对象
+     */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage bi) {
@@ -140,6 +144,14 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         throw new IllegalStateException("无法获取 BufferedImage");
     }
 
+    /**
+     * resize转为。
+     *
+     * @param input 方法入参 input
+     * @param tw 方法入参 tw
+     * @param th 方法入参 th
+     * @return BufferedImage 对象
+     */
     private BufferedImage resizeTo(Image input, int tw, int th) {
         BufferedImage src = toBufferedImage(input);
         if (src.getWidth() == tw && src.getHeight() == th) {
@@ -159,6 +171,12 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         return resized;
     }
 
+    /**
+     * 创建AlphaOnlyImage。
+     *
+     * @param mask 方法入参 mask
+     * @return Image 对象
+     */
     private Image createAlphaOnlyImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -171,6 +189,12 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /**
+     * 创建RgbaImage。
+     *
+     * @param mask 方法入参 mask
+     * @return Image 对象
+     */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -183,6 +207,13 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
+    /**
+     * 创建RgbImage。
+     *
+     * @param mask 方法入参 mask
+     * @param bgValue bg值，不允许为 null
+     * @return Image 对象
+     */
     private Image createRgbImage(BufferedImage mask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {

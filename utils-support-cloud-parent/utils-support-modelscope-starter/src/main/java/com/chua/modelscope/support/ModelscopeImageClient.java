@@ -386,6 +386,12 @@ public class ModelscopeImageClient implements ImageClient {
         referenceImages.clear();
     }
 
+    /**
+     * 解析首个Image。
+     *
+     * @param json 方法入参 json
+     * @return BufferedImage 对象
+     */
     @SuppressWarnings("unchecked")
     private BufferedImage parseFirstImage(String json) {
         Map<String, Object> root;
@@ -422,6 +428,11 @@ public class ModelscopeImageClient implements ImageClient {
         throw new RuntimeException("ModelScope 响应缺少 b64_json 与 url 字段: " + json);
     }
 
+    /**
+     * 构建Auth请求头。
+     *
+     * @return 结果字符串
+     */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
         if (appKey == null || appKey.isBlank()) {
@@ -430,6 +441,11 @@ public class ModelscopeImageClient implements ImageClient {
         return "Bearer " + appKey;
     }
 
+    /**
+     * normalizeBaseURL。
+     *
+     * @return 结果字符串
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

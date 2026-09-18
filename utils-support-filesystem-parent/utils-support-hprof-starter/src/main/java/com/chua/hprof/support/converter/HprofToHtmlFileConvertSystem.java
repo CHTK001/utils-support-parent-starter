@@ -15,13 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * HPROF to HTML file converter.
+ * HPROF 转 HTML 的文件转换器。
  *
- * <p>Parses a binary hprof heap dump and renders a self-contained HTML
- * report with ECharts visualisations (retained / instance-count ranking,
- * GC-root pie), KPI cards, the algorithmic leak findings and the
- * plain-language conclusions. The output is a single HTML file: inline
- * CSS / JS, ECharts loaded from CDN.</p>
+ * <p>解析二进制 hprof 堆转储，并渲染为自包含的 HTML
+ * 报告，内含 ECharts 可视化（retained 大小 / 实例数排名、
+ * GC-root 饼图）、KPI 卡片、算法检出的内存泄漏结论以及
+ * 通俗语言的总结。输出为单个 HTML 文件：CSS / JS 内联，
+ * ECharts 由 CDN 加载。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -41,7 +41,7 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     private static final String TARGET_TYPE = "html";
 
     /**
-    * Optional AI summarizer. When null, the HTML report omits the AI block.
+    * 可选的 AI 摘要器。为 null 时，HTML 报告省略 AI 区块。
     */
     private volatile HprofAiSummarizer aiSummarizer;
 
@@ -52,7 +52,7 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Create a converter that embeds an AI summary block.
+    * 创建一个会内嵌 AI 摘要区块的转换器。
     *
     * @param aiSummarizer summarizer, null disables the AI block
     */
@@ -61,7 +61,7 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Set the AI summarizer to embed into the HTML report.
+    * 设置要内嵌到 HTML 报告中的 AI 摘要器。
     *
     * @param aiSummarizer summarizer, null clears
     * @return this converter for chaining
@@ -97,7 +97,7 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     *
     * @param source source file descriptor
     * @return input stream
-    * @throws IOException when the source cannot be read
+    * @throws IOException 无法读取源文件时
     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
@@ -118,7 +118,7 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     * @param target  target file descriptor
     * @param content HTML text
     * @param setting conversion settings
-    * @throws IOException when the target cannot be written
+    * @throws IOException 无法写入目标文件时
     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {

@@ -11,14 +11,26 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Wechat数据Restore测试类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 class WechatDataRestoreTest {
 
+    /**
+     * 测试：function Object() { [native code] }。
+     */
     @Test
     void testConstructor() {
         WechatDataRestore restore = new WechatDataRestore();
         assertNotNull(restore);
     }
 
+    /**
+     * 测试：模式Constants。
+     */
     @Test
     void testModeConstants() {
         assertEquals("auto", WechatDataRestore.MODE_AUTO);
@@ -26,6 +38,9 @@ class WechatDataRestoreTest {
         assertEquals("tool", WechatDataRestore.MODE_TOOL);
     }
 
+    /**
+     * 测试：OptionKeys。
+     */
     @Test
     void testOptionKeys() {
         assertEquals("mode", WechatDataRestore.OPTION_MODE);
@@ -41,6 +56,9 @@ class WechatDataRestoreTest {
         assertEquals("skip.groups", WechatDataRestore.OPTION_SKIP_GROUPS);
     }
 
+    /**
+     * 测试：DoRestoreWithTool模式Missing路径。
+     */
     @Test
     void testDoRestoreWithToolModeMissingPath() {
         WechatDataRestore restore = new WechatDataRestore();
@@ -52,6 +70,9 @@ class WechatDataRestoreTest {
         assertThrows(Exception.class, () -> restore.doRestore(source, createConfig(options)));
     }
 
+    /**
+     * 测试：DoRestoreWithNative模式NotWindows。
+     */
     @Test
     void testDoRestoreWithNativeModeNotWindows() {
         WechatDataRestore restore = new WechatDataRestore();
@@ -63,6 +84,9 @@ class WechatDataRestoreTest {
         assertThrows(Exception.class, () -> restore.doRestore(source, createConfig(options)));
     }
 
+    /**
+     * 测试：DoRestoreAuto模式Missing配置。
+     */
     @Test
     void testDoRestoreAutoModeMissingConfig() {
         WechatDataRestore restore = new WechatDataRestore();
@@ -75,6 +99,9 @@ class WechatDataRestoreTest {
         assertThrows(IllegalArgumentException.class, () -> restore.doRestore(source, createConfig(options)));
     }
 
+    /**
+     * 测试：DoRestoreWithInvalidRuntime目录。
+     */
     @Test
     void testDoRestoreWithInvalidRuntimeDir() {
         WechatDataRestore restore = new WechatDataRestore();
@@ -86,6 +113,9 @@ class WechatDataRestoreTest {
         assertThrows(IllegalArgumentException.class, () -> restore.doRestore(source, createConfig(options)));
     }
 
+    /**
+     * 测试：DoRestoreWithInvalid键。
+     */
     @Test
     void testDoRestoreWithInvalidKey() {
         WechatDataRestore restore = new WechatDataRestore();
@@ -98,6 +128,12 @@ class WechatDataRestoreTest {
         assertThrows(Exception.class, () -> restore.doRestore(source, createConfig(options)));
     }
 
+    /**
+     * 创建配置。
+     *
+     * @param options 选项，不允许为 null
+     * @return 数据Restore配置 对象
+     */
     private DataRestoreConfig createConfig(Map<String, Object> options) {
         return DataRestoreConfig.builder()
                 .format(ExportFormat.CSV)

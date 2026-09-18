@@ -585,22 +585,14 @@ public class DefaultQuick implements Quick {
                 return quickScript.run(this, bindings());
             }
             for (String methodName : new String[]{"run", "execute"}) {
-                try {
-                    Method method = clazz.getMethod(methodName);
-                    if (method.getParameterCount() == 0) {
-                        return ReflectUtils.invoke(instance, methodName, method.getReturnType());
-                    }
-                } catch (NoSuchMethodException ignored) {
-                    // 继续尝试下一个方法
+                Method method = ReflectUtils.findMethod(clazz, methodName);
+                if (method != null && method.getParameterCount() == 0) {
+                    return ReflectUtils.invoke(instance, methodName, method.getReturnType());
                 }
             }
-            try {
-                Method main = clazz.getMethod("main", String[].class);
-                if (Modifier.isStatic(main.getModifiers())) {
-                    ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class}, (Object) new String[0]);
-                }
-            } catch (NoSuchMethodException ignored) {
-                // 无 main 方法
+            Method main = ReflectUtils.findMethod(clazz, "main", String[].class);
+            if (main != null && Modifier.isStatic(main.getModifiers())) {
+                ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class}, (Object) new String[0]);
             }
             return null;
         } catch (Exception e) {

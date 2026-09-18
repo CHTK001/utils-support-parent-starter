@@ -53,6 +53,9 @@ public final class WechatMemoryExtractor {
     */
     private static final long CLUSTER_DISTANCE = 2L << 20;
 
+    /**
+     * 构造方法，创建 WechatMemoryExtractor 实例。
+     */
     private WechatMemoryExtractor() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
@@ -95,6 +98,7 @@ public final class WechatMemoryExtractor {
     * @param pageAddress 代表页地址
     * @param pages       组成该簇的全部页地址
     * @param idMap       id → username
+    * @return 结果值
     */
     public record IdCluster(int pid, long pageAddress, List<Long> pages, Map<Integer, String> idMap) {
     }
@@ -242,8 +246,66 @@ public final class WechatMemoryExtractor {
             attributed.add(new ExtractedRecord(record.pid(), record.pageAddress(), table,
                     record.rowid(), record.values(), record.serialTypes()));
         }
-        return new ExtractResult(new ArrayList<>(scans), attributed, schemas,
-                buildClusters(attributed));
+        List<ExtractedRecord> kept = pruneUntrustedName2id(attributed);
+        return new ExtractResult(new ArrayList<>(scans), kept, schemas, buildClusters(kept));
+    }
+
+    /**
+    * 收集可信的 Name2Id 页标识，判据是「整页至少有一条名字像用户标识」。
+    *
+    * <p>Name2Id 与一批单列／双列的辅助表（MD5 缓存表、MessageResourceInfo 等）列数常常恰好
+    * 相同，靠列数和类型相容度分不出来，只有内容能证明它是谁。</p>
+    *
+    * @param records 已归属的记录
+    * @return 可信页标识集合（{@code pid#页地址}）
+    */
+    static Set<String> trustedName2IdPages(List<ExtractedRecord> records) {
+        Set<String> trusted = new HashSet<>();
+        for (ExtractedRecord record : records) {
+            if (!isName2Id(record.table()) || record.values().length == 0) {
+                continue;
+            }
+            String name = record.values()[0] == null ? "" : record.values()[0].trim();
+            if (looksLikeUser(name)) {
+                trusted.add(record.pid() + "#" + record.pageAddress());
+            }
+        }
+        return trusted;
+    }
+
+    /**
+    * 撤销不可信页上 Name2Id 记录的归属。
+    *
+    * <p>误归属的记录仍带着 {@code name2id} 表名进入重建，会以 {@code name2id_2(column1)}
+    * 的名义出现在还原库里 —— 名字骗人，列名也一起退化。这里把表名置 null，交给重建器的
+    * 「无法判定归属即丢弃」规则处理。</p>
+    *
+    * @param attributed 已归属的记录
+    * @return 过滤后的记录
+    */
+    static List<ExtractedRecord> pruneUntrustedName2id(List<ExtractedRecord> attributed) {
+        Set<String> trusted = trustedName2IdPages(attributed);
+        List<ExtractedRecord> out = new ArrayList<>(attributed.size());
+        for (ExtractedRecord record : attributed) {
+            if (isName2Id(record.table())
+                    && !trusted.contains(record.pid() + "#" + record.pageAddress())) {
+                out.add(new ExtractedRecord(record.pid(), record.pageAddress(), null,
+                        record.rowid(), record.values(), record.serialTypes()));
+                continue;
+            }
+            out.add(record);
+        }
+        return out;
+    }
+
+    /**
+    * 判断表名是否为 Name2Id（大小写不敏感，不同库写法不同）。
+    *
+    * @param table 表名，可为 null
+    * @return 是 Name2Id 返回 true
+    */
+    private static boolean isName2Id(String table) {
+        return table != null && "name2id".equalsIgnoreCase(table);
     }
 
     /**
@@ -340,10 +402,11 @@ public final class WechatMemoryExtractor {
     * @return 库簇列表
     */
     static List<IdCluster> buildClusters(List<ExtractedRecord> records) {
+        Set<String> trusted = trustedName2IdPages(records);
         Map<String, Map<Integer, String>> pages = new LinkedHashMap<>();
         for (ExtractedRecord record : records) {
             // 表名大小写不敏感：微信不同库里同一张表可能写作 Name2Id / name2id
-            if (record.table() == null || !"name2id".equalsIgnoreCase(record.table())
+            if (!isName2Id(record.table())
                     || record.values().length == 0 || record.values().length > 2) {
                 continue;
             }
@@ -369,7 +432,7 @@ public final class WechatMemoryExtractor {
         List<IdCluster> clusters = new ArrayList<>();
         for (String key : keys) {
             Map<Integer, String> idMap = pages.get(key);
-            if (idMap.values().stream().noneMatch(WechatMemoryExtractor::looksLikeUser)) {
+            if (!trusted.contains(key)) {
                 // MessageResourceInfo / MessageResourceDetail 这类 2 列表会被误归属为 Name2Id
                 continue;
             }

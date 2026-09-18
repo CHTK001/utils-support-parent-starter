@@ -1,5 +1,7 @@
 package com.chua.hprof.support.analyzer;
 
+import com.chua.hprof.support.crash.CrashContext;
+import com.chua.hprof.support.crash.CrashContext.CrashSignal;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.parser.HprofParser;
@@ -60,6 +62,9 @@ public final class HprofAnalyzer {
             "org.w3c.", "org.xml.", "org.omg."
     };
 
+    /**
+     * 构造方法，创建 HprofAnalyzer 实例。
+     */
     private HprofAnalyzer() {
     }
 
@@ -70,10 +75,26 @@ public final class HprofAnalyzer {
     * @return 分析报告
     */
     public static HprofAnalysis analyze(HprofParser.Result result) {
+        return analyze(result, null);
+    }
+
+    /**
+    * 分析一个已解析的 hprof 结果，并叠加崩溃语境。
+    *
+    * @param result    解析结果
+    * @param hprofFile hprof 源文件（用于崩溃信号探测，可为 null）
+    * @return 分析报告
+    */
+    public static HprofAnalysis analyze(HprofParser.Result result, java.io.File hprofFile) {
         Objects.requireNonNull(result, "result");
         HprofAnalysis analysis = new HprofAnalysis();
         analysis.totalRetainedBytes = result.totalRetainedBytes();
         analysis.totalObjectCount = result.totalObjectCount();
+
+        // 崩溃语境探测（OOM 信号 / 堆水位 / hs_err 伴随日志）
+        analysis.crashSignals =
+                CrashContext.detect(hprofFile, result.totalRetainedBytes(), result.totalObjectCount());
+        analysis.oomLikely = analysis.crashSignals.stream().anyMatch(CrashSignal::oomLikely);
 
         List<HprofHistogramRow> histogram = result.histogram();
         analysis.topByRetained = topRows(histogram, 20);
@@ -160,10 +181,10 @@ public final class HprofAnalyzer {
         analysis.jdkRetainedBytes = jdk;
         analysis.nonJdkRetainedBytes = nonJdk;
 
-        // 综合 findings + 结论 + 根因
+        // 综合 findings + 结论 + 根因（叠加崩溃语境）
         analysis.findingDetails = buildFindings(analysis, result);
         analysis.conclusions = buildConclusions(analysis, result);
-        analysis.rootCause = buildRootCause(analysis, result);
+        buildRootCause(analysis, result);
         return analysis;
     }
 
@@ -441,31 +462,53 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 综合根因判定（回答"为什么产生了这么多对象"）。
+    * 综合根因判定，并填充结构化字段（供 HTML 报告 / MCP 诊断卡直接消费）。
     *
-    * @param analysis 进行中的分析
+    * <p>产出三部分：一句话结论 {@code rootCauseHeadline}、分节明细
+    * {@code rootCauseSections}（崩溃判定 / 主要根因 / 具体机制 / 对象来源 /
+    * 优先处置），并把分节拼成向后兼容的纯文本 {@code rootCause}。命中
+    * 的具体机制单独存入 {@code rootCauseMechanisms}。</p>
+    *
+    * @param analysis 进行中的分析（crashSignals / oomLikely 已在前序步骤填好）
     * @param result   解析结果
-    * @return 根因结论文本
     */
-    private static String buildRootCause(HprofAnalysis analysis, HprofParser.Result result) {
+    private static void buildRootCause(HprofAnalysis analysis, HprofParser.Result result) {
+        List<CrashSignal> crashSignals = analysis.crashSignals;
+        List<RootCauseSection> sections = new ArrayList<>();
         long total = Math.max(analysis.totalRetainedBytes, 1L);
-        StringBuilder sb = new StringBuilder();
-
-        // 1. 先判断主因属于非 JDK 代码还是 JDK 自身
         long nonJdk = analysis.nonJdkRetainedBytes;
-        if (nonJdk > total * 0.2 && !analysis.nonJdkPackageGroups.isEmpty()) {
-            PackageGroup top = analysis.nonJdkPackageGroups.get(0);
-            sb.append("主要根因：业务 / 第三方代码持有 - ")
-                    .append(top.name).append(" 包保留 ")
-                    .append(HprofObject.formatSize(top.retained))
-                    .append("（占非 JDK 的 ")
-                    .append(percent(top.retained / (double) Math.max(nonJdk, 1L)))
-                    .append("）");
-        } else {
-            sb.append("主要根因：JDK 自身类型为主，");
+
+        // 0. 崩溃语境判定
+        if (crashSignals != null && !crashSignals.isEmpty()) {
+            CrashSignal dominant = crashSignals.stream()
+                    .filter(CrashSignal::oomLikely)
+                    .findFirst().orElse(crashSignals.get(0));
+            boolean anyOom = crashSignals.stream().anyMatch(CrashSignal::oomLikely);
+            sections.add(new RootCauseSection("崩溃判定",
+                    dominant.detail() + "。" + (anyOom
+                            ? "结合存活堆水位与伴随信号，本次崩溃高度疑似内存耗尽（OOM）。"
+                            : "未捕获到明确的 OOM / native crash 伴随证据，崩溃更可能由其他原因"
+                            + "（GC 风暴、堆外内存、native 段错误）引发，需结合 hs_err 日志或 GC 日志确认。")));
         }
 
-        // 2. 叠加具体机制
+        // 1. 主要根因：业务 / 第三方代码持有 vs JDK 自身为主
+        PackageGroup top = null;
+        String primarySource;
+        if (nonJdk > total * 0.2 && !analysis.nonJdkPackageGroups.isEmpty()) {
+            top = analysis.nonJdkPackageGroups.get(0);
+            primarySource = top.name + " 包（业务 / 第三方）";
+            sections.add(new RootCauseSection("主要根因",
+                    "业务 / 第三方代码持有 - " + top.name + " 包保留 "
+                            + HprofObject.formatSize(top.retained)
+                            + "（占非 JDK 的 "
+                            + percent(top.retained / (double) Math.max(nonJdk, 1L)) + "）"));
+        } else {
+            primarySource = "JDK 运行时自身类型";
+            sections.add(new RootCauseSection("主要根因",
+                    "JDK 自身类型为主，无单一业务包主导"));
+        }
+
+        // 2. 具体机制
         List<String> mechanisms = new ArrayList<>();
         if (analysis.classLoaderClassCount >= 50) {
             mechanisms.add("类加载器泄漏（" + analysis.classLoaderClassCount
@@ -490,18 +533,39 @@ public final class HprofAnalyzer {
                 mechanisms.add("JNI 全局引用未释放（" + jni + " 个）");
             }
         }
+        analysis.rootCauseMechanisms = mechanisms;
         if (!mechanisms.isEmpty()) {
-            sb.append("。具体机制：").append(String.join("；", mechanisms));
+            sections.add(new RootCauseSection("具体机制", String.join("；", mechanisms)));
         } else if (analysis.topNRetainedRatio < 0.5) {
-            sb.append("。保留量分散（Top-10 仅占 ").append(percent(analysis.topNRetainedRatio)).append("），无单一热点。");
+            sections.add(new RootCauseSection("具体机制",
+                    "保留量分散（Top-10 仅占 " + percent(analysis.topNRetainedRatio) + "），无单一热点"));
         } else {
-            sb.append("。Top-10 类高度集中（占 ").append(percent(analysis.topNRetainedRatio)).append("），热点明确。");
+            sections.add(new RootCauseSection("具体机制",
+                    "Top-10 类高度集中（占 " + percent(analysis.topNRetainedRatio) + "），热点明确"));
         }
 
-        // 3. 对象数量说明
-        sb.append("。大量对象主要来自 ").append(objectOrigin(analysis)).append("。");
-        sb.append("建议优先处置：").append(firstAction(analysis, result)).append("。");
-        return sb.toString();
+        // 3. 对象来源 + 优先处置
+        sections.add(new RootCauseSection("对象来源", "大量对象主要来自 " + objectOrigin(analysis)));
+        sections.add(new RootCauseSection("优先处置", firstAction(analysis, result)));
+
+        analysis.rootCauseSections = sections;
+
+        // 一句话结论：疑似 OOM 判定 + 主要内存来源
+        String sourceDesc = top != null
+                ? top.name + " 包（业务 / 第三方，保留 " + HprofObject.formatSize(top.retained) + "）"
+                : primarySource;
+        analysis.rootCauseHeadline = (analysis.oomLikely
+                ? "高度疑似 OOM 崩溃"
+                : (crashSignals != null && !crashSignals.isEmpty()
+                ? "崩溃原因不确定（无明确 OOM 证据）"
+                : "未发现崩溃信号")) + "；内存主要来自 " + sourceDesc;
+
+        // 向后兼容：把分节拼成纯文本根因
+        StringBuilder sb = new StringBuilder();
+        for (RootCauseSection s : sections) {
+            sb.append("【").append(s.label()).append("】").append(s.text()).append("\n");
+        }
+        analysis.rootCause = sb.toString().trim();
     }
 
     /**
@@ -511,9 +575,6 @@ public final class HprofAnalyzer {
     * @return 来源说明
     */
     private static String objectOrigin(HprofAnalysis analysis) {
-        long collectionPct = analysis.collectionInstances > 0
-                ? analysis.collectionInstances
-                : 0;
         if (analysis.collectionInstances > 1_000_000L) {
             return "无界集合 / 缓存不断累积小对象（" + analysis.collectionInstances
                     + " 个集合 + 数组实例）";
@@ -568,8 +629,24 @@ public final class HprofAnalyzer {
     * @param retained 保留字节总数
     * @author CH
     * @since 4.0.0.42
+    * @return 结果值
     */
     public record PackageGroup(String name, long instances, long retained) {
+    }
+
+    /**
+    * 根因判定的一个分节（如"崩溃判定""主要根因"）。
+    *
+    * <p>结构化暴露，供 HTML 报告、MCP 诊断卡按节渲染，避免各自再解析
+    * 一整段自由文本。</p>
+    *
+    * @param label 分节标题（人类可读）
+    * @param text  分节正文
+    * @author CH
+    * @since 4.0.0.42
+    * @return 结果值
+    */
+    public record RootCauseSection(String label, String text) {
     }
 
     /**
@@ -581,6 +658,7 @@ public final class HprofAnalyzer {
     * @param detail   "为什么"说明
     * @author CH
     * @since 4.0.0.42
+    * @return 结果值
     */
     public record HprofFinding(String key, String severity, String title, String detail) {
 
@@ -709,5 +787,30 @@ public final class HprofAnalyzer {
         * 根因判定（回答"为什么这么多对象"）。
         */
         public String rootCause;
+
+        /**
+        * 一句话根因结论（疑似 OOM 判定 + 主要内存来源）。
+        */
+        public String rootCauseHeadline;
+
+        /**
+        * 结构化根因分节（崩溃判定 / 主要根因 / 具体机制 / 对象来源 / 优先处置）。
+        */
+        public List<RootCauseSection> rootCauseSections;
+
+        /**
+        * 命中的具体泄漏机制列表（类加载器 / 无界集合 / 字符串缓存 / 线程池 / JNI）。
+        */
+        public List<String> rootCauseMechanisms;
+
+        /**
+        * 崩溃语境信号（OOM 推断 / hs_err / 堆水位）。
+        */
+        public List<CrashSignal> crashSignals;
+
+        /**
+        * 是否强烈疑似 OOM 崩溃。
+        */
+        public boolean oomLikely;
     }
 }

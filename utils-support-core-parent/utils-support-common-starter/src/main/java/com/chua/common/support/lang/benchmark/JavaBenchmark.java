@@ -113,6 +113,10 @@ public class JavaBenchmark implements Benchmark {
 
     /**
     * 执行单档压测。
+    * @param client 客户端，不允许为 null
+    * @param uri URI，不允许为 null
+    * @param vus 方法入参 vus
+    * @return BenchmarkDocument数据Benchmark行 对象
     */
     private BenchmarkDocumentData.BenchmarkRow runLevel(HttpClient client, URI uri, int vus) throws Exception {
         int perVus = Math.max(1, config.getIterationsPerVus());
@@ -200,6 +204,9 @@ public class JavaBenchmark implements Benchmark {
 
     /**
     * 分位数（毫秒）。
+    * @param sortedMs sorted毫秒数，不允许为 null
+    * @param p 方法入参 p
+    * @return 结果数值
     */
     private static double percentile(long[] sortedMs, double p) {
         int idx = (int) Math.ceil(p * sortedMs.length) - 1;

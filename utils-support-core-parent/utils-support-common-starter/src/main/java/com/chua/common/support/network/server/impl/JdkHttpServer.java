@@ -70,7 +70,12 @@ public class JdkHttpServer extends AbstractServer {
         }
     }
 
-    /** 创建HttpsServer */
+    /**
+     * 创建HttpsServer
+     * @param addr 方法入参 addr
+     * @param sslContext ssl上下文，不允许为 null
+     * @return Http服务端 对象
+     */
     private HttpServer createHttpsServer(InetSocketAddress addr, SSLContext sslContext) {
         try {
             HttpsServer httpsServer = HttpsServer.create(addr, Math.max(setting.getBacklog(), 8192));
@@ -99,7 +104,10 @@ public class JdkHttpServer extends AbstractServer {
         return ProtocolType.HTTP;
     }
 
-    /** 处理Exchange */
+    /**
+     * 处理Exchange
+     * @param exchange 方法入参 exchange
+     */
     private void handleExchange(HttpExchange exchange) {
         HttpServerRequest request = new HttpServerRequest(exchange, setting.getMaxRequestSize(), setting.getCharset());
         HttpServerResponse response = new HttpServerResponse(exchange);

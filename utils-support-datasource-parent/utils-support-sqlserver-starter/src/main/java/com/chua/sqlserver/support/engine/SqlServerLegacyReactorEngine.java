@@ -46,6 +46,12 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
         return this;
     }
 
+    /**
+     * 查询全部。
+     *
+     * @param table 表，不允许为 null
+     * @return Flux 对象
+     */
     public Flux<Map<String, Object>> queryAll(String table) {
         return query("SELECT * FROM " + safeIdentifier(table));
     /**
@@ -57,6 +63,14 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     */
     }
 
+    /**
+     * 查询Where。
+     *
+     * @param table 表，不允许为 null
+     * @param where 方法入参 where
+     * @param params 参数，不允许为 null
+     * @return Flux 对象
+     */
     public Flux<Map<String, Object>> queryWhere(String table, String where, Object... params) {
         StringBuilder sql = new StringBuilder("SELECT * FROM ").append(safeIdentifier(table));
         if (where != null && !where.isEmpty()) {
@@ -65,6 +79,14 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
         return query(sql.toString(), params);
     }
 
+    /**
+     * 插入。
+     *
+     * @param table 表，不允许为 null
+     * @param cols 方法入参 cols
+     * @param vals 方法入参 vals
+     * @return Mono 对象
+     */
     public Mono<Integer> insert(String table, String[] cols, Object... vals) {
         StringBuilder sb = new StringBuilder("INSERT INTO ").append(table)
                 .append(" (").append(String.join(", ", cols)).append(") VALUES (");

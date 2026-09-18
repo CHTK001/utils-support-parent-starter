@@ -40,16 +40,25 @@ public class HBaseEngineIntegrationTest {
 
     private HBaseEngine engine;
 
+    /**
+     * 启动Container。
+     */
     @BeforeAll
     static void startContainer() {
         HBASE.start();
     }
 
+    /**
+     * 停止Container。
+     */
     @AfterAll
     static void stopContainer() {
         HBASE.stop();
     }
 
+    /**
+     * 设置Up。
+     */
     @BeforeEach
     void setUp() {
         engine = new HBaseEngine();
@@ -60,6 +69,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== createTable ====================
 
+    /**
+     * 测试：创建表Idempotent。
+     */
     @Test
     void testCreateTableIdempotent() {
         // 重复建表不抛异常（已存在则跳过）
@@ -68,6 +80,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== put / get ====================
 
+    /**
+     * 测试：放入And获取。
+     */
     @Test
     void testPutAndGet() {
         Map<String, String> vals = Map.of("name", "Alice", "age", "25");
@@ -78,6 +93,9 @@ public class HBaseEngineIntegrationTest {
         assertEquals("25", got.get("age"));
     }
 
+    /**
+     * 测试：获取ReturnsEmptyWhenMissing。
+     */
     @Test
     void testGetReturnsEmptyWhenMissing() {
         Map<String, String> got = engine.get(TABLE, "row_not_exist", FAMILY);
@@ -87,6 +105,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== scan ====================
 
+    /**
+     * 测试：Scan。
+     */
     @Test
     void testScan() {
         engine.put(TABLE, "scan001", FAMILY, Map.of("v", "a"));
@@ -99,6 +120,9 @@ public class HBaseEngineIntegrationTest {
         assertTrue(rows.stream().anyMatch(m -> "scan002".equals(m.get("__row"))));
     }
 
+    /**
+     * 测试：ScanWith行前缀。
+     */
     @Test
     void testScanWithRowPrefix() {
         engine.put(TABLE, "pfx:aaa", FAMILY, Map.of("x", "1"));
@@ -114,6 +138,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== deleteRow ====================
 
+    /**
+     * 测试：删除行。
+     */
     @Test
     void testDeleteRow() {
         engine.put(TABLE, "del001", FAMILY, Map.of("d", "v"));
@@ -128,6 +155,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== ORM 语义拒绝 ====================
 
+    /**
+     * 测试：StoreThrowsUnsupportedOperation。
+     */
     @Test
     void testStoreThrowsUnsupportedOperation() {
         assertThrows(UnsupportedOperationException.class,
@@ -135,6 +165,9 @@ public class HBaseEngineIntegrationTest {
                 "store() 应抛出 UnsupportedOperationException");
     }
 
+    /**
+     * 测试：查询列出ThrowsUnsupportedOperation。
+     */
     @Test
     void testQueryListThrowsUnsupportedOperation() {
         // HBaseEngine.executeNewQuery 抛 UnsupportedOperationException，
@@ -146,6 +179,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== put 覆盖写 ====================
 
+    /**
+     * 测试：放入Overwrite。
+     */
     @Test
     void testPutOverwrite() {
         engine.put(TABLE, "ov001", FAMILY, Map.of("v", "old"));
@@ -156,6 +192,9 @@ public class HBaseEngineIntegrationTest {
 
     // ==================== close ====================
 
+    /**
+     * 测试：关闭。
+     */
     @Test
     void testClose() {
         assertDoesNotThrow(engine::close);

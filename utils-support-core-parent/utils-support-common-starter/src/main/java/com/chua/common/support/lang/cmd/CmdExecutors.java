@@ -63,7 +63,10 @@ public final class CmdExecutors {
         synchronized (CmdExecutors.class) {
             DEFAULT_NAME = name;
             if (executor != null) {
-                try { executor.close(); } catch (Exception ignored) { }
+                try {
+                    executor.close();
+                } catch (Exception ignored) {
+                }
                 executor = null;
             }
         }
@@ -95,7 +98,10 @@ public final class CmdExecutors {
     public static void refresh() {
         synchronized (CmdExecutors.class) {
             if (executor != null) {
-                try { executor.close(); } catch (Exception ignored) { }
+                try {
+                    executor.close();
+                } catch (Exception ignored) {
+                }
                 executor = null;
             }
         }
@@ -109,7 +115,10 @@ public final class CmdExecutors {
     public static void shutdown() {
         synchronized (CmdExecutors.class) {
             if (executor != null) {
-                try { executor.close(); } catch (Exception ignored) { }
+                try {
+                    executor.close();
+                } catch (Exception ignored) {
+                }
                 executor = null;
             }
         }

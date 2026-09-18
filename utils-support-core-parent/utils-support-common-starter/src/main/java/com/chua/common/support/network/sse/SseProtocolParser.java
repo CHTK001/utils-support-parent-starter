@@ -184,6 +184,7 @@ public class SseProtocolParser {
 
     /**
     * 追加 data 行内容
+    * @param value 值，不允许为 null
     */
     private void appendData(String value) {
         if (dataBuffer == null) {

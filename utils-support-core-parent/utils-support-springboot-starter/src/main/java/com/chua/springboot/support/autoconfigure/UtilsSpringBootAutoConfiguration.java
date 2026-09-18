@@ -38,24 +38,46 @@ public class UtilsSpringBootAutoConfiguration {
         return new ApplicationAwareApplicationContextInitializer();
     }
 
+    /**
+     * bulkheadIntercept。
+     *
+     * @return BulkheadIntercept 对象
+     */
     @Bean
     @ConditionalOnMissingBean
     public BulkheadIntercept bulkheadIntercept() {
         return new BulkheadIntercept();
     }
 
+    /**
+     * 超时时间Intercept。
+     *
+     * @return 超时时间Intercept 对象
+     */
     @Bean
     @ConditionalOnMissingBean
     public TimeoutIntercept timeoutIntercept() {
         return new TimeoutIntercept();
     }
 
+    /**
+     * bulkheadAdvisor。
+     *
+     * @param intercept 方法入参 intercept
+     * @return BulkheadAdvisor 对象
+     */
     @Bean
     @ConditionalOnMissingBean
     public BulkheadAdvisor bulkheadAdvisor(BulkheadIntercept intercept) {
         return new BulkheadAdvisor(intercept);
     }
 
+/**
+ * 超时时间Advisor。
+ *
+ * @param intercept 方法入参 intercept
+ * @return 超时时间Advisor 对象
+ */
     @Bean
     @ConditionalOnMissingBean
 public TimeoutAdvisor timeoutAdvisor(TimeoutIntercept intercept) {

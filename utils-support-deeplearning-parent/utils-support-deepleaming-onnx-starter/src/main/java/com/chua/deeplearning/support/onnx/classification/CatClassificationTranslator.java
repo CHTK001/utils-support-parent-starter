@@ -22,10 +22,19 @@ public class CatClassificationTranslator extends SiglipZeroShotClassificationTra
             */
             "squirrel,deer,raccoon,fox,wolf,lion,tiger,bear";
 
+    /**
+     * 构造方法，创建 CatClassificationTranslator 实例。
+     */
     public CatClassificationTranslator() {
         super(buildArgs(CATS));
     }
 
+    /**
+     * 构建参数。
+     *
+     * @param candidates 方法入参 candidates
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<String, Object> buildArgs(String candidates) {
         Map<String, Object> args = new HashMap<>();
         args.put("candidates", candidates);

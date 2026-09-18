@@ -133,13 +133,22 @@ public class JdkWebSocketServer extends AbstractServer {
         return this;
     }
 
-    /** On订阅 */
+    /**
+     * On订阅
+     * @param topic 方法入参 topic
+     * @param handler 处理器，不允许为 null
+     * @return JdkWebSocket服务端 对象
+     */
     public JdkWebSocketServer onSubscribe(String topic, ServerHandler handler) {
         topicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
-    /** 发布 */
+    /**
+     * 发布
+     * @param topic 方法入参 topic
+     * @param payload 方法入参 payload
+     */
     public void publish(String topic, String payload) {
         try {
             String frame = buildTextFrame(payload);
@@ -174,7 +183,10 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    /** 处理Connection */
+    /**
+     * 处理Connection
+     * @param conn 连接，不允许为 null
+     */
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
@@ -196,7 +208,11 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    /** PerformHandshake */
+    /**
+     * PerformHandshake
+     * @param conn 连接，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         OutputStream out = conn.socket.getOutputStream();
@@ -230,7 +246,11 @@ public class JdkWebSocketServer extends AbstractServer {
         return true;
     }
 
-    /** ComputeWebSocketAccept */
+    /**
+     * ComputeWebSocketAccept
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     private String computeWebSocketAccept(String key) {
         try {
             String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -242,7 +262,10 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    /** 读取Frames */
+    /**
+     * 读取Frames
+     * @param conn 连接，不允许为 null
+     */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -326,7 +349,11 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    /** 构建TextFrame */
+    /**
+     * 构建TextFrame
+     * @param payload 方法入参 payload
+     * @return 结果字符串
+     */
     private String buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -350,7 +377,12 @@ public class JdkWebSocketServer extends AbstractServer {
         return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
     }
 
-    /** 创建MessageHandler */
+    /**
+     * 创建MessageHandler
+     * @param bean 方法入参 bean
+     * @param method 方法，不允许为 null
+     * @return 服务端处理器 对象
+     */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         ClassUtils.setAccessible(method);
         return (request, response) -> {
@@ -391,7 +423,11 @@ public class JdkWebSocketServer extends AbstractServer {
         };
     }
 
-    /** 构建关闭Frame */
+    /**
+     * 构建关闭Frame
+     * @param reason 方法入参 reason
+     * @return 结果字符串
+     */
     private String buildCloseFrame(String reason) throws Exception {
         byte[] data = reason.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -402,7 +438,10 @@ public class JdkWebSocketServer extends AbstractServer {
         return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
     }
 
-    /** 调用AnnotatedMethods */
+    /**
+     * 调用AnnotatedMethods
+     * @param annotationType annotation类型，不允许为 null
+     */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
             return;

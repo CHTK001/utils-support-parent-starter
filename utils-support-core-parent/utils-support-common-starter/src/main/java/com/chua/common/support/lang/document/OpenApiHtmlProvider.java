@@ -69,6 +69,8 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /**
     * 仅渲染 HTML，便于测试或预览。
+    * @param data 数据，不允许为 null
+    * @return 结果字符串
     */
     public String render(OpenApiDocumentData data) {
         String title = data.getTitle() != null ? data.getTitle() : "Open API 接口文档";
@@ -173,7 +175,11 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         return sb.toString();
     }
 
-    /** RenderEndpoint */
+    /**
+     * RenderEndpoint
+     * @param sb 方法入参 sb
+     * @param ep 方法入参 ep
+     */
     private void renderEndpoint(StringBuilder sb, OpenApiEndpoint ep) {
         String docId = "doc-" + ID_GEN.incrementAndGet();
         sb.append("<section class=\"doc-section\" id=\"sec-").append(docId).append("\">");
@@ -255,13 +261,19 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         sb.append("<hr></section>");
     }
 
-    /** SafeStr */
+    /**
+     * SafeStr
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private static String safeStr(String s) {
         return s == null ? "" : s;
     }
 
     /**
     * MethodToClass 映射 HTTP 方法到 CSS 类名（语义色）
+    * @param method 方法，不允许为 null
+    * @return 结果字符串
     */
     private static String methodToClass(String method) {
         return switch (method.toUpperCase()) {
@@ -276,7 +288,11 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         };
     }
 
-    /** Escape */
+    /**
+     * Escape
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private String escape(String s) {
         if (s == null) {
             return "";
@@ -352,12 +368,16 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
     private static final String SCRIPT = """
             (function() {
               const tree = document.getElementById('apiTree');
-              if (!tree) return;
+              if (!tree) {
+                  return;
+              }
               tree.addEventListener('click', function(e) {
                 const caret = e.target.closest && e.target.closest('.caret');
                 if (caret) {
                   const folder = caret.closest('.tree-folder');
-                  if (folder) folder.classList.toggle('collapsed');
+                  if (folder) {
+                      folder.classList.toggle('collapsed');
+                  }
                   return;
                 }
                 const link = e.target.closest && e.target.closest('.tree-link');
@@ -377,7 +397,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
                   });
                   tree.querySelectorAll('.tree-folder').forEach(f => {
                     const anyVisible = Array.from(f.querySelectorAll('.tree-file')).some(x => x.style.display !== 'none');
-                    if (q && !anyVisible) f.style.display = 'none';
+                    if (q && !anyVisible) {
+                        f.style.display = 'none';
+                    }
                     else { f.style.display = ''; if (q) f.classList.remove('collapsed'); }
                   });
                 });

@@ -19,12 +19,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * Kimi (Moonshot AI) CLI usage parser.
+ * Kimi（Moonshot AI）CLI 用量解析器。
  *
- * <p>Kimi Code CLI passively persists a per-session wire log under
- * {@code ~/.kimi/sessions/<workspace>/<sessionId>/wire.jsonl}
- * ({@code KIMI_HOME} overrides the home). Each {@code StatusUpdate}
- * message carries real per-response token counters:</p>
+ * <p>Kimi Code CLI 会在 {@code ~/.kimi/sessions/<workspace>/<sessionId>/wire.jsonl}
+ * 下被动持久化一份按会话组织的通信日志（可用 {@code KIMI_HOME} 覆盖主目录）。
+ * 每条 {@code StatusUpdate} 消息都带有真实的单次响应 token 计数：</p>
  *
  * <pre>{@code
  * {
@@ -42,11 +41,10 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>{@code input_other} is the non-cached input; cached input is reported
- * separately. Records are de-duplicated by {@code message_id} (later
- * StatusUpdates for the same response repeat the same totals). The default
- * model is resolved from {@code config.toml} {@code default_model}; the
- * fallback is {@code kimi-for-coding}.</p>
+ * <p>{@code input_other} 表示未命中缓存的输入，缓存输入单独上报。
+ * 记录按 {@code message_id} 去重（同一响应的后续 StatusUpdate 会重复相同的总量）。
+ * 默认模型取自 {@code config.toml} 的 {@code default_model}；
+ * 取不到时回退为 {@code kimi-for-coding}。</p>
  *
  * @author CH
  * @since 4.0.0.45
@@ -64,6 +62,9 @@ public class KimiUsageParser extends BaseUsageParser {
     private final Path sessionsDir;
     private final Path configPath;
 
+    /**
+     * 构造方法，创建 KimiUsageParser 实例。
+     */
     public KimiUsageParser() {
         String home = System.getenv("KIMI_HOME");
         Path kimiHome = (home != null && !home.isBlank())

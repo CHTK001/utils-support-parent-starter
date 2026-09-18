@@ -109,27 +109,42 @@ public class AggregateChatClientSetting {
     */
     private int maxRetriesOnSameModel = 3;
 
-    /** 获取Compression */
+    /**
+     * 获取Compression
+     * @return 上下文Compression配置 对象
+     */
     public ContextCompressionConfig getCompression() {
         return compression;
     }
 
-    /** 获取Strategy */
+    /**
+     * 获取Strategy
+     * @return 结果字符串
+     */
     public String getStrategy() {
         return strategy;
     }
 
-    /** 获取SkillPaths */
+    /**
+     * 获取SkillPaths
+     * @return 结果列表，无数据时为空列表
+     */
     public List<String> getSkillPaths() {
         return skillPaths;
     }
 
-    /** 获取Groups */
+    /**
+     * 获取Groups
+     * @return 结果列表，无数据时为空列表
+     */
     public List<GroupConfig> getGroups() {
         return groups;
     }
 
-    /** 获取Clients */
+    /**
+     * 获取Clients
+     * @return 结果列表，无数据时为空列表
+     */
     public List<ClientConfig> getClients() {
         return clients;
     }

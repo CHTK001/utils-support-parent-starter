@@ -102,6 +102,7 @@ public class PackageManager {
  *
  * @param packageId 包 ID
  * @param callback 实时输出回调
+ * @return Cmd结果 对象
  */
  public static CmdResult install(String packageId, LineCallback callback) {
  Type pm = detect().stream().findFirst().orElse(null);

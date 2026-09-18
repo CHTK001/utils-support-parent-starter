@@ -165,6 +165,11 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
         return pid;
     }
 
+    /**
+     * 是否Windows。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase().contains("win");
     }

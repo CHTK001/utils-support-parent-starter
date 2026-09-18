@@ -9,5 +9,11 @@ import com.chua.common.support.datasearch.video.model.SubtitleSearchResult;
  */
 
 public interface SubtitleSearchProvider {
+    /**
+     * 搜索Subtitles。
+     *
+     * @param request 请求，不允许为 null
+     * @return Return页结果 对象
+     */
     ReturnPageResult<SubtitleSearchResult> searchSubtitles(SubtitleSearchRequest request);
 }

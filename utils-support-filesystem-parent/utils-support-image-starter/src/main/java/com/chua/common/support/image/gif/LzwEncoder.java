@@ -80,6 +80,14 @@ class LzwEncoder {
     byte[] accum = new byte[256]; // accum
 
 
+    /**
+     * 构造方法，创建 LzwEncoder 实例。
+     *
+     * @param width 宽度，不允许为 null
+     * @param height 高度，不允许为 null
+     * @param pixels 方法入参 pixels
+     * @param colorDepth color深度，不允许为 null
+     */
     LzwEncoder(int width, int height, byte[] pixels, int colorDepth) {
         imgW = width;
         imgH = height;
@@ -88,6 +96,13 @@ class LzwEncoder {
     }
 
 
+    /**
+     * charOut。
+     *
+     * @param c 方法入参 c
+     * @param outs 方法入参 outs
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void charOut(byte c, OutputStream outs) throws IOException {
         accum[aCount++] = c;
         int s254 = 254;
@@ -97,6 +112,12 @@ class LzwEncoder {
     }
 
 
+    /**
+     * clBlock。
+     *
+     * @param outs 方法入参 outs
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void clBlock(OutputStream outs) throws IOException {
         clHash(hsize);
         freeEnt = clearCode + 2;
@@ -106,12 +127,24 @@ class LzwEncoder {
     }
 
 
+    /**
+     * clHash。
+     *
+     * @param hsize 方法入参 hsize
+     */
     void clHash(int hsize) {
         for (int i = 0; i < hsize; ++i) {
             htab[i] = -1;
         }
     }
 
+    /**
+     * compress。
+     *
+     * @param initBits 初始化Bits，不允许为 null
+     * @param outs 方法入参 outs
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void compress(int initBits, OutputStream outs) throws IOException {
         int fcode;
         int i /* = 0 */;
@@ -185,6 +218,12 @@ class LzwEncoder {
     }
 
 
+    /**
+     * 编码。
+     *
+     * @param os 方法入参 os
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void encode(OutputStream os) throws IOException {
         os.write(initCodeSize);
 
@@ -197,6 +236,12 @@ class LzwEncoder {
     }
 
 
+    /**
+     * 刷写Char。
+     *
+     * @param outs 方法入参 outs
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void flushChar(OutputStream outs) throws IOException {
         if (aCount > 0) {
             outs.write(aCount);
@@ -233,6 +278,13 @@ class LzwEncoder {
         return pix & 0xff;
     }
 
+    /**
+     * output。
+     *
+     * @param code 编码，不允许为 null
+     * @param outs 方法入参 outs
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void output(int code, OutputStream outs) throws IOException {
         curAccum &= masks[curBits];
 

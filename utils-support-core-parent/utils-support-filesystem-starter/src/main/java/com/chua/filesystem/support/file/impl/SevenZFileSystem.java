@@ -617,20 +617,28 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         private static class EntryData {
-            final String entryName; final File source; // entry名称
-            final InputStream inputStream; final byte[] bytes; // 输入流
+            final String entryName; // entry名称
+            final File source;
+            final InputStream inputStream; // 输入流
+            final byte[] bytes;
 
             EntryData(String entryName, File source) {
-                this.entryName = entryName; this.source = source;
-                this.inputStream = null; this.bytes = null;
+                this.entryName = entryName;
+                this.source = source;
+                this.inputStream = null;
+                this.bytes = null;
             }
             EntryData(String entryName, InputStream inputStream) {
-                this.entryName = entryName; this.source = null;
-                this.inputStream = inputStream; this.bytes = null;
+                this.entryName = entryName;
+                this.source = null;
+                this.inputStream = inputStream;
+                this.bytes = null;
             }
             EntryData(String entryName, byte[] bytes) {
-                this.entryName = entryName; this.source = null;
-                this.inputStream = null; this.bytes = bytes;
+                this.entryName = entryName;
+                this.source = null;
+                this.inputStream = null;
+                this.bytes = bytes;
             }
             String getEntryName() { return entryName; }
             File getSource() { return source; }

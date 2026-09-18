@@ -315,7 +315,10 @@ public class H2Flyway {
                 }
                 continue;
             }
-            if (c == '\'') { inStr = !inStr; sb.append(c); }
+            if (c == '\'') {
+                inStr = !inStr;
+                sb.append(c);
+            }
             else if (c == ';' && !inStr) { statements.add(sb.toString()); sb.setLength(0); }
             else { sb.append(c); }
         }

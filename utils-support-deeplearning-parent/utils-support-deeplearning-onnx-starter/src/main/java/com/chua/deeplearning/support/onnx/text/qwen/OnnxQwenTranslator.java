@@ -50,6 +50,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     */
     private int nLayers = 24;
 
+    /**
+     * 构造方法，创建 OnnxQwenTranslator 实例。
+     */
     public OnnxQwenTranslator() {
         this("qwen2-1.5b-onnx", false);
     /**
@@ -59,10 +62,25 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     */
     }
 
+    /**
+     * 构造方法，创建 OnnxQwenTranslator 实例。
+     *
+     * @param modelId 模型ID，不允许为 null
+     * @param useGpu useGpu（布尔开关）
+     */
     public OnnxQwenTranslator(String modelId, boolean useGpu) {
         this(modelId, useGpu, 0.7f, 1.2f, 40);
     }
 
+    /**
+     * 构造方法，创建 OnnxQwenTranslator 实例。
+     *
+     * @param modelId 模型ID，不允许为 null
+     * @param useGpu useGpu（布尔开关）
+     * @param temperature 方法入参 temperature
+     * @param repeatPenalty 方法入参 repeatPenalty
+     * @param topK 顶部K，不允许为 null
+     */
     public OnnxQwenTranslator(String modelId, boolean useGpu, float temperature, float repeatPenalty, int topK) {
         this.modelId = modelId;
         this.useGpu = useGpu;
@@ -106,7 +124,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             } catch (Exception e) {
                 last = e;
                 log.warn("[QwenOnnx] 下载 {} 失败(第{}次): {}", fileName, attempt + 1, e.getMessage());
-                try { Files.deleteIfExists(target); } catch (Exception ignore) {}
+                try {
+                    Files.deleteIfExists(target);
+                } catch (Exception ignore) {
+                }
                 Thread.sleep(3000L * (attempt + 1));
             }
         }
@@ -127,6 +148,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         }
     }
 
+    /**
+     * prepare。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private synchronized void prepare() throws Exception {
         if (initialized) {
             return;
@@ -247,14 +273,20 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
 
                 if (isEos(next)) {
                     for (OnnxTensor t : past.values()) {
-                        try { t.close(); } catch (Exception ignore) {}
+                        try {
+                            t.close();
+                        } catch (Exception ignore) {
+                        }
                     }
                     break;
                 }
                 String tokText = tokenizer.decode(new long[]{next});
                 if (tokText.contains("<|im_end|>") || tokText.contains("<|endoftext|>")) {
                     for (OnnxTensor t : past.values()) {
-                        try { t.close(); } catch (Exception ignore) {}
+                        try {
+                            t.close();
+                        } catch (Exception ignore) {
+                        }
                     }
                     break;
                 }
@@ -271,7 +303,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 // position_ids：新 token 的位置 = 当前已处理总长度（0-indexed）
                 long nextPos = totalSteps;
                 for (OnnxTensor t : past.values()) {
-                    try { t.close(); } catch (Exception ignore) {}
+                    try {
+                        t.close();
+                    } catch (Exception ignore) {
+                    }
                 }
                 past = collectPast(result);
                 inputIds = new long[]{next};
@@ -282,7 +317,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
             }
         }
         for (OnnxTensor t : past.values()) {
-            try { t.close(); } catch (Exception ignore) {}
+            try {
+                t.close();
+            } catch (Exception ignore) {
+            }
         }
         return out.toString().trim();
     }
@@ -363,6 +401,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         return false;
     }
 
+    /**
+     * 解析令牌ID。
+     *
+     * @param token 令牌，不允许为 null
+     * @return 结果数值
+     */
     private int resolveTokenId(String token) {
         try {
             long[] ids = tokenizer.encode(token).getIds();
@@ -372,6 +416,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         }
     }
 
+    /**
+     * ones。
+     *
+     * @param n 方法入参 n
+     * @return 结果值
+     */
     private static long[] ones(int n) {
         long[] r = new long[n];
         for (int i = 0; i < n; i++) {
@@ -385,6 +435,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     */
     }
 
+    /**
+     * range。
+     *
+     * @param n 方法入参 n
+     * @return 结果值
+     */
     private static long[] range(int n) {
         long[] r = new long[n];
         for (int i = 0; i < n; i++) {
@@ -400,6 +456,14 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     */
     }
 
+    /**
+     * 下一个令牌。
+     *
+     * @param logits 方法入参 logits
+     * @param tokens 方法入参 tokens
+     * @param promptLen 提示词Len，不允许为 null
+     * @return 结果数值
+     */
     private int nextToken(float[] logits, java.util.List<Long> tokens, int promptLen) {
         float[] scores = logits.clone();
         if (repeatPenalty > 1f) {
@@ -429,6 +493,14 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     */
     }
 
+    /**
+     * sample。
+     *
+     * @param scores 方法入参 scores
+     * @param temp 方法入参 temp
+     * @param k 方法入参 k
+     * @return 结果数值
+     */
     private int sample(float[] scores, float temp, int k) {
         float max = Float.NEGATIVE_INFINITY;
         for (float s : scores) {
@@ -470,6 +542,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         return argmax(scores);
     }
 
+    /**
+     * argmax。
+     *
+     * @param logits 方法入参 logits
+     * @return 结果数值
+     */
     private static int argmax(float[] logits) {
         int best = 0;
         float max = Float.NEGATIVE_INFINITY;
@@ -485,7 +563,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     @Override
     public void close() {
         if (session != null) {
-            try { session.close(); } catch (Exception ignore) {}
+            try {
+                session.close();
+            } catch (Exception ignore) {
+            }
         }
         ortEnv = null;
         initialized = false;

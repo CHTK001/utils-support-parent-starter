@@ -153,17 +153,17 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray alpha = list.getFirst();
 
-        // Flatten to float[] and reconstruct as 2D (avoid NDArray.get which ORT engine doesn't support)
+        // 先摊平为 float[] 再重建为二维（避开 NDArray.get，ORT 引擎不支持该方法）
         Shape shape = alpha.getShape();
         long[] sh = shape.getShape();
         int alphaHeight = sh.length >= 2 ? (int) sh[sh.length - 2] : 1;
         int alphaWidth = sh.length >= 1 ? (int) sh[sh.length - 1] : 1;
         float[] alphaValues = alpha.toFloatArray();
 
-        // Reject small outputs (e.g. if shape is [1,3,1024,1024] -> actual alpha is 2D)
+        // 剔除超量的输出（例如形状为 [1,3,1024,1024] 时，真正的 alpha 只有二维）
         int expected = alphaHeight * alphaWidth;
         if (alphaValues.length > expected * 2) {
- // 模型 输出 是否 multi-通道, pick 第一个 通道
+ // 模型输出为多通道，只取第一个通道
             alphaHeight = (int) sh[sh.length - 2];
             alphaWidth = (int) sh[sh.length - 1];
             expected = alphaHeight * alphaWidth;

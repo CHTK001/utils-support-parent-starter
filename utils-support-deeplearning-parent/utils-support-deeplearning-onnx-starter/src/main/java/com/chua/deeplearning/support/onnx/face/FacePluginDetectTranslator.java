@@ -21,8 +21,8 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 * 输入:  1x3x320x240 RGB, normalized by (pixel - 127) / 128
 * 输出: 信心 [N, 2] (bg, face), 位置 [N, 4]
 *
-* <p>Post-processing: decode boxes from raw SSD outputs using prior anchors,
-* apply 信心 阈值 和 NMS.
+* <p>后处理：用先验框（prior anchors）从 SSD 原始输出中解码出人脸框，
+* 再按置信度阈值过滤并执行 NMS。
 *
 * <p>Prior anchors (image 320x240, computed like Python box_utils.generate_priors):
 * 特征 映射 大小 width  [40, 20, 10, 5], height [30, 15, 8, 4]

@@ -55,7 +55,12 @@ public class RpcInvoker implements Invoker {
     private static final String DEFAULT_CLIENT = "json";
 
     @SuppressWarnings("unchecked")
-    /** 创建Proxy */
+    /**
+     * 创建Proxy
+     * @param apiClass 方法入参 apiClass
+     * @param isNew 是否新建（布尔开关）
+     * @return T 对象
+     */
     private <T> T createProxy(Class<T> apiClass, boolean isNew) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {
@@ -90,7 +95,11 @@ public class RpcInvoker implements Invoker {
         return DEFAULT_CLIENT;
     }
 
-    /** 解析BaseUrl */
+    /**
+     * 解析BaseUrl
+     * @param clazz 类，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolveBaseUrl(Class<?> clazz) {
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
@@ -120,7 +129,11 @@ public class RpcInvoker implements Invoker {
         return "";
     }
 
-    /** ExtractAnnotationValue */
+    /**
+     * ExtractAnnotationValue
+     * @param ann 方法入参 ann
+     * @return 结果字符串
+     */
     private static String extractAnnotationValue(Annotation ann) {
         try {
             Object r = ReflectUtils.invoke(ann, "value", Object.class);

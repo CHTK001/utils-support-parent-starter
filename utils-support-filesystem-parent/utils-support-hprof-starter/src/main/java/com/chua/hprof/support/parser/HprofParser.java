@@ -15,15 +15,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Unified entry point for hprof binary parsing.
+ * hprof 二进制解析的统一入口。
  *
- * <p>Wraps the GridKit hprof-heap
- * ({@code org.gridkit.jvmtool:hprof-heap}, the NetBeans PerfLib HPROF
- * backend that backs Eclipse MAT) to expose Java-structured data: object
- * instances, per-class histograms and top retained objects. The output of
- * {@link #parse(File)} / {@link #parse(InputStream)} is the intermediate
- * "Java object / structured data" stage in the hprof to JSON / Markdown to
- * AI analysis chain.</p>
+ * <p>包装 GridKit 的 hprof-heap
+ * （{@code org.gridkit.jvmtool:hprof-heap}，即 Eclipse MAT 所依赖的 NetBeans PerfLib HPROF
+ * 后端），对外提供 Java 结构化数据：对象实例、按类直方图与
+ * retained 占用最高的对象。{@link #parse(File)} / {@link #parse(InputStream)} 的输出
+ * 即为 hprof → JSON / Markdown → AI 分析链路中的
+ * "Java 对象 / 结构化数据" 中间层。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -39,10 +38,14 @@ public final class HprofParser {
                           List<String> gcRoots,
                           Map<String, Long> gcRootsByKind,
                           Map<String, HprofClassDetail> classDetails,
+                          List<HprofRefChainWalker.RefChain> refChains,
                           long totalRetainedBytes,
                           long totalObjectCount) {
     }
 
+    /**
+     * 构造方法，创建 HprofParser 实例。
+     */
     private HprofParser() {
     }
 
@@ -51,7 +54,7 @@ public final class HprofParser {
     *
     * @param file hprof binary file
     * @return parsed result
-    * @throws IOException when the file cannot be read
+    * @throws IOException 无法读取该文件时
     */
     public static Result parse(File file) throws IOException {
         Objects.requireNonNull(file, "file");
@@ -67,7 +70,7 @@ public final class HprofParser {
     *
     * @param is hprof binary stream
     * @return parsed result
-    * @throws IOException when the stream cannot be read
+    * @throws IOException 无法读取该流时
     */
     public static Result parse(InputStream is) throws IOException {
         Objects.requireNonNull(is, "input stream");
@@ -77,12 +80,12 @@ public final class HprofParser {
     }
 
     /**
-    * Parse an hprof stream, optionally with a file name for reports.
+    * 解析 hprof 流，可额外传入用于报告的文件名。
     *
     * @param is       hprof binary stream
     * @param fileName file name (nullable), used in markdown headers
     * @return parsed result
-    * @throws IOException when the stream cannot be read
+    * @throws IOException 无法读取该流时
     */
     public static Result parse(InputStream is, String fileName) throws IOException {
         Objects.requireNonNull(is, "input stream");
@@ -96,7 +99,7 @@ public final class HprofParser {
     *
     * @param data raw hprof bytes
     * @return parsed result
-    * @throws IOException when the bytes cannot be parsed
+    * @throws IOException 无法解析这些字节时
     */
     public static Result parseBytes(byte[] data) throws IOException {
         Objects.requireNonNull(data, "data");
@@ -124,8 +127,9 @@ public final class HprofParser {
         long totalCount = ctx.countByClass().values().stream().mapToLong(Long::longValue).sum();
         Map<String, Long> gcRootsByKind = ctx.gcRootsByKind();
         Map<String, HprofClassDetail> classDetails = ctx.classDetails();
+        List<HprofRefChainWalker.RefChain> refChains = ctx.refChains();
         return new Result(objects, histogram, topRetained, ctx.gcRoots(),
-                gcRootsByKind, classDetails, totalRetained, totalCount);
+                gcRootsByKind, classDetails, refChains, totalRetained, totalCount);
     }
 
     /**
@@ -147,11 +151,11 @@ public final class HprofParser {
     }
 
     /**
-    * Build per-class histogram rows from the parsed context.
+    * 基于解析上下文构建按类直方图行。
     *
-    * <p>The context already carries per-class shallow sizes (computed as
-    * {@code instanceSize * instances}) so the histogram is assembled in
-    * one pass without scanning the object list.</p>
+    * <p>上下文中已带有按类统计的浅堆大小（按
+    * {@code instanceSize * instances} 计算），因此直方图
+    * 可一次遍历组装完成，无需再扫描对象列表。</p>
     *
     * @param ctx parsed context
     * @return histogram rows sorted by retained size descending
@@ -172,7 +176,7 @@ public final class HprofParser {
             long[] acc = aggregate.computeIfAbsent(e.getKey(), k -> new long[2]);
             acc[0] = e.getValue();
         }
-        // shallow size per class: recompute from the object list (one pass)
+        // 每个类的浅堆大小：从对象列表重新累加（一次遍历）
         Map<String, Long> shallowByClass = new HashMap<>();
         for (HprofParseContext.HprofRecord record : ctx.objects()) {
             if (record.className() == null) {

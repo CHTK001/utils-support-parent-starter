@@ -328,9 +328,18 @@ public class H264SoftwareEncoder implements VideoEncoder {
     public synchronized void close() {
         started = false;
         if (recorder != null) {
-            try { recorder.flush(); } catch (Throwable ignored) {}
-            try { recorder.stop(); } catch (Throwable ignored) {}
-            try { recorder.release(); } catch (Throwable ignored) {}
+            try {
+                recorder.flush();
+            } catch (Throwable ignored) {
+            }
+            try {
+                recorder.stop();
+            } catch (Throwable ignored) {
+            }
+            try {
+                recorder.release();
+            } catch (Throwable ignored) {
+            }
             recorder = null;
         }
         if (swsFrame != null) {

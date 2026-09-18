@@ -247,10 +247,20 @@ public class WinRmExecClient implements AutoCloseable {
         return new TerminalOperation(this);
     }
 
+    /**
+     * 获取客户端。
+     *
+     * @return WinRm客户端 对象
+     */
     WinRmClient getClient() {
         return winRmClient;
     }
 
+    /**
+     * 是否Connected。
+     *
+     * @return 是否成功（true 表示成功）
+     */
     boolean isConnected() {
         return connected;
     }

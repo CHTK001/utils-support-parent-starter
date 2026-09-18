@@ -67,6 +67,12 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * extract文本。
+     *
+     * @param rtf 方法入参 rtf
+     * @return 结果字符串
+     */
     private String extractText(String rtf) {
         // 先按花括号配对剔除字体表、颜色表等非正文目标组，避免字体名泄漏到正文
         rtf = stripDestinationGroups(rtf);

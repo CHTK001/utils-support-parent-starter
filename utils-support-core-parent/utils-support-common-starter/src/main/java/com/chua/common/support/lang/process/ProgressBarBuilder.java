@@ -196,6 +196,7 @@ public class ProgressBarBuilder {
     * 设置为 Python 下载风格
     * 使用 Python 风格的下载进度条渲染
     * 内部使用 PythonDownloadProgressBarRenderer
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setPythonDownloadStyle() {
         this.style = ProgressBarStyle.PYTHON_DOWNLOAD;
@@ -214,6 +215,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为彩虹风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setRainbowStyle() {
         this.style = ProgressBarStyle.RAINBOW;
@@ -227,6 +229,7 @@ public class ProgressBarBuilder {
     * 设置渐变色风格
     *
     * @param gradientType 渐变色类型
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setGradientStyle(GradientProgressBarRenderer.GradientType gradientType) {
         ProgressBarStyle gradientStyle;
@@ -274,6 +277,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为矩阵风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setMatrixStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.MATRIX);
@@ -281,6 +285,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为火焰风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setFireStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.FIRE);
@@ -288,6 +293,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为海洋风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setOceanStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.OCEAN);
@@ -295,6 +301,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为霓虹风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setNeonStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.NEON);
@@ -302,6 +309,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为日落风格
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setSunsetStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.SUNSET);
@@ -311,6 +319,7 @@ public class ProgressBarBuilder {
     * 设置为 Python 加载风格
     * 类似 Python alive_progress 库的风格
     * 使用 PythonLoadingProgressBarRenderer
+    * @return ProgressBarBuilder 对象
     */
     public ProgressBarBuilder setPythonLoadingStyle() {
         this.style = ProgressBarStyle.PYTHON_LOADING;

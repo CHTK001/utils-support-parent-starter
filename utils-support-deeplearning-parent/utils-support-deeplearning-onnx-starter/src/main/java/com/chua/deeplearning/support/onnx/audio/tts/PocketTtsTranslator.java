@@ -1095,6 +1095,11 @@ public class PocketTtsTranslator {
         prepared = false;
     }
 
+    /**
+     * 关闭Quietly。
+     *
+     * @param s 方法入参 s
+     */
     private static void closeQuietly(ai.onnxruntime.OrtSession s) {
         if (s != null) {
             try {

@@ -133,6 +133,11 @@ public class GreptimeDbEngine extends AbstractEngine {
         return datasource().getSource();
     }
 
+    /**
+     * datasource。
+     *
+     * @return GreptimeDb引擎数据来源 对象
+     */
     private GreptimeDbEngineDataSource datasource() {
         EngineDataSource<Object> ds = null;
         if (defaultDataSourceName != null) {

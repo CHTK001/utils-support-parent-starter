@@ -763,6 +763,7 @@ public final class SqlCipherDecryptor {
     * @param salt    文件头 16 字节 salt
     * @param page    首页原始字节
     * @param profile 参数档案
+    * @return 结果值
     */
     public record KeyProbe(byte[] salt, byte[] page, SqlCipherProfile profile) {
 

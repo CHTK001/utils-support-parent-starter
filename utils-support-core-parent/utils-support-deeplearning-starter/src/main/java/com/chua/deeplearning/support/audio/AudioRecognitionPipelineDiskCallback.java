@@ -22,32 +22,16 @@ public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPip
 
     @Override
     public void onVad(List<SpeakerSegment> segments) {
-        /**
-        * on嵌入。
-        * @param embeddings 嵌入
-        */
         log.info("[audio-callback] VAD 切分完成：{} 个语音片段", segments.size());
     }
 
     @Override
     public void onEmbedding(float[][] embeddings) {
-        /**
-        * oncluster。
-        * @param assignments assignments
-        */
         log.info("[audio-callback] 说话人嵌入提取完成：{} 个片段", embeddings.length);
     }
 
     @Override
     public void onCluster(String[] assignments) {
-        /**
-        * ontranscribe。
-        * @param transcripts transcripts
-        * @param arr arr
-        * @return 去重数量的结果
-        * @param result 结果
-        * @param elapsedMs elapsedms
-        */
         log.info("[audio-callback] 说话人聚类完成：{} 个说话人", distinctCount(assignments));
     }
 
@@ -61,6 +45,12 @@ public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPip
         log.info("[audio-callback] 管线完成：{}ms，{} 个最终片段", elapsedMs, result.size());
     }
 
+    /**
+     * distinct数量。
+     *
+     * @param arr 数组，不允许为 null
+     * @return 结果数值
+     */
     private int distinctCount(String[] arr) {
         return (int) java.util.Arrays.stream(arr).distinct().count();
     }

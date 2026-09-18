@@ -21,6 +21,7 @@ public interface TreeEngine<K extends Comparable<K>, V> {
 
     /**
     * 引擎类型标识。
+    * @return 结果字符串
     */
     String type();
 
@@ -68,11 +69,13 @@ public interface TreeEngine<K extends Comparable<K>, V> {
 
     /**
     * 返回当前存储条目数量。
+    * @return 结果数值
     */
     int size();
 
     /**
     * 是否空。
+    * @return 是否成功（true 表示成功）
     */
     boolean isEmpty();
 

@@ -9,15 +9,15 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* faceplugin face 特征 extraction Translator (Inception-Rnet-v50).
+* faceplugin 人脸特征提取翻译器（Inception-Rnet-v50）。
 *
-* <p>Model: irn50_pytorch
-* 输入:  1x3x128x128 RGB, normalized by /256
-* 输出: 256-dim 嵌入 (irn50.远期 内部已做 torch.最大 合并两段 256 维),
-* 在输出阶段只需 L2 归一化。
+* <p>模型：irn50_pytorch
+* 输入：1x3x128x128 RGB，按 /256 归一化
+* 输出：256 维嵌入（irn50 内部已用 torch.maximum 合并两段 256 维），
+* 输出阶段只需做 L2 归一化。
 *
-* <p>The face image must be aligned (using landmarks) before passing to this translator.
-* Alignment 参数: lefteyex=48, lefteyey=64, righteyex=40 (从 Python SDK).
+* <p>传入本翻译器之前，人脸图像必须先完成对齐（基于人脸关键点）。
+* 对齐参数：lefteyex=48、lefteyey=64、righteyex=40（取自 Python SDK）。
 *
 * @author CH
 * @since 2026-08-08

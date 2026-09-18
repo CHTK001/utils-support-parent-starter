@@ -205,32 +205,50 @@ public class AgentDefinition {
         return new Builder();
     }
 
-    /** 获取Id */
+    /**
+     * 获取Id
+     * @return 结果字符串
+     */
     public String getId() {
         return id;
     }
 
-    /** 获取Name */
+    /**
+     * 获取Name
+     * @return 结果字符串
+     */
     public String getName() {
         return name;
     }
 
-    /** 获取Description */
+    /**
+     * 获取Description
+     * @return 结果字符串
+     */
     public String getDescription() {
         return description;
     }
 
-    /** 获取Role */
+    /**
+     * 获取Role
+     * @return 结果字符串
+     */
     public String getRole() {
         return role;
     }
 
-    /** 获取Instruction */
+    /**
+     * 获取Instruction
+     * @return 结果字符串
+     */
     public String getInstruction() {
         return instruction;
     }
 
-    /** 是否Planning */
+    /**
+     * 是否Planning
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isPlanning() {
         return planning;
     }
@@ -244,7 +262,10 @@ public class AgentDefinition {
         return mcp;
     }
 
-    /** 是否Leader */
+    /**
+     * 是否Leader
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isLeader() {
         return leader;
     }

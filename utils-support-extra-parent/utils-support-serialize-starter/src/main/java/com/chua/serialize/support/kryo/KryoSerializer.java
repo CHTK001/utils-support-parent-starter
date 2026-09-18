@@ -92,7 +92,10 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
             return output.toBytes();
         } finally {
             if (output != null) {
-                try { output.close(); } catch (Exception ignored) {}
+                try {
+                    output.close();
+                } catch (Exception ignored) {
+                }
             }
         }
     }
@@ -117,7 +120,10 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
             return (T) obj;
         } finally {
             if (input != null) {
-                try { input.close(); } catch (Exception ignored) {}
+                try {
+                    input.close();
+                } catch (Exception ignored) {
+                }
             }
         }
     }

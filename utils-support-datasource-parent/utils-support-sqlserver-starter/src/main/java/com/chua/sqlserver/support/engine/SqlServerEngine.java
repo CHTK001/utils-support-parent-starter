@@ -91,7 +91,14 @@ public class SqlServerEngine extends JdbcEngine {
             @Override public String url() { return ds.getJdbcUrl(); }
             @Override public String username() { return ds.getUsername(); }
             @Override public String password() { return ds.getPassword(); }
-            @Override public void close() { if (ds instanceof AutoCloseable c) { try { c.close(); } catch (Exception ignored) {} } }
+            @Override public void close() {
+                if (ds instanceof AutoCloseable c) {
+                    try {
+                        c.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
         });
     }
 }

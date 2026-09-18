@@ -51,14 +51,21 @@ public class AioHttpProxyServer extends AbstractServer {
         if (q != null) {
             AsynchronousSocketChannel ch;
             while ((ch = q.poll()) != null) {
-                if (ch.isOpen()) { onDone.accept(ch); return; }
+                if (ch.isOpen()) {
+                    onDone.accept(ch);
+                    return;
+                }
                 closeQuietly(ch);
             }
         }
         connectAsync(addr, onDone, onError);
     }
 
-    /** 用完归还到池(仅健康时) */
+    /**
+     * 用完归还到池(仅健康时)
+     * @param hostKey 主机键，不允许为 null
+     * @param ch 方法入参 ch
+     */
     private void returnBackend(String hostKey, AsynchronousSocketChannel ch) {
         if (ch != null && ch.isOpen()) {
             BACKEND_POOL.computeIfAbsent(hostKey, k -> new ArrayDeque<>())
@@ -68,6 +75,11 @@ public class AioHttpProxyServer extends AbstractServer {
         }
     }
 
+    /**
+     * 构造方法，创建 AioHttpProxy服务端 实例。
+     *
+     * @param setting 方法入参 setting
+     */
     public AioHttpProxyServer(ServerSetting setting) {
         super(setting);
     }
@@ -95,6 +107,9 @@ public class AioHttpProxyServer extends AbstractServer {
         }
     }
 
+    /**
+     * issueAccept。
+     */
     private void issueAccept() {
         // 不检查 running:start() 模板在 doStart 返回后才置位,否则首挂 accept 永不发生
         if (serverChannel == null || !serverChannel.isOpen()) {
@@ -116,6 +131,11 @@ public class AioHttpProxyServer extends AbstractServer {
         });
     }
 
+    /**
+     * 处理客户端。
+     *
+     * @param channel 方法入参 channel
+     */
     private void handleClient(AsynchronousSocketChannel channel) {
         activeConnections.incrementAndGet();
         try {
@@ -126,6 +146,11 @@ public class AioHttpProxyServer extends AbstractServer {
         issueClientRead(ctx);
     }
 
+    /**
+     * issue客户端读取。
+     *
+     * @param ctx 上下文，不允许为 null
+     */
     private void issueClientRead(ClientCtx ctx) {
         if (!running || ctx.closed) {
             finishClient(ctx);
@@ -159,6 +184,13 @@ public class AioHttpProxyServer extends AbstractServer {
                 });
     }
 
+    /**
+     * route。
+     *
+     * @param ctx 上下文，不允许为 null
+     * @param head 头部，不允许为 null
+     * @param leftover 方法入参 leftover
+     */
     private void route(ClientCtx ctx, RequestHead head, byte[] leftover) {
         if ("CONNECT".equalsIgnoreCase(head.method)) {
             tunnel(ctx, head);
@@ -245,6 +277,8 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * CONNECT 隧道:异步连目标 → 回 200 → 双向异步泵。
+    * @param ctx 上下文，不允许为 null
+    * @param head 头部，不允许为 null
     */
     private void tunnel(ClientCtx ctx, RequestHead head) {
         connectAsync(new InetSocketAddress(head.host, head.port),
@@ -268,6 +302,9 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * 转发请求到后端。
+    * @param ctx 上下文，不允许为 null
+    * @param head 头部，不允许为 null
+    * @param leftover 方法入参 leftover
     */
     private void forward(ClientCtx ctx, RequestHead head, byte[] leftover) {
         connectAsync(new InetSocketAddress(head.host, head.port),
@@ -338,6 +375,8 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * 请求头已发:补齐剩余请求体后进入响应阶段。
+    * @param ctx 上下文，不允许为 null
+    * @param backend 方法入参 backend
     */
     private void afterRequestHeadSent(ClientCtx ctx, AsynchronousSocketChannel backend) {
         if (ctx.reqBodyLeft > 0) {
@@ -352,6 +391,8 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * 异步读后端响应头并中继响应体。
+    * @param ctx 上下文，不允许为 null
+    * @param backend 方法入参 backend
     */
     private void readBackendResponse(ClientCtx ctx, AsynchronousSocketChannel backend) {
         ResponseParser parser = new ResponseParser();
@@ -435,6 +476,13 @@ public class AioHttpProxyServer extends AbstractServer {
         issueClientRead(ctx);
     }
 
+    /**
+     * concat。
+     *
+     * @param a 方法入参 a
+     * @param b 方法入参 b
+     * @return 结果值
+     */
     private static byte[] concat(byte[] a, byte[] b) {
         byte[] out = new byte[a.length + b.length];
         System.arraycopy(a, 0, out, 0, a.length);
@@ -560,6 +608,7 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
         * 结束客户端连接(幂等):关通道并扣减计数。
+        * @param ctx 上下文，不允许为 null
         */
     private void finishClient(ClientCtx ctx) {
         if (ctx.closed) {
@@ -573,6 +622,9 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * 回错误并关闭。
+    * @param ctx 上下文，不允许为 null
+    * @param code 编码，不允许为 null
+    * @param reason 方法入参 reason
     */
     private void respondErrorAndClose(ClientCtx ctx, int code, String reason) {
         byte[] resp = ("HTTP/1.1 " + code + " " + reason
@@ -635,6 +687,7 @@ public class AioHttpProxyServer extends AbstractServer {
 
     /**
     * 静默关闭通道。
+    * @param ch 方法入参 ch
     */
     private static void closeQuietly(AsynchronousSocketChannel ch) {
         if (ch != null) {

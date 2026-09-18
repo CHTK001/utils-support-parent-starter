@@ -42,7 +42,11 @@ public class CostStrategy implements RouterStrategy {
         return sorted.get(index);
     }
 
-    /** EvaluateComplexity */
+    /**
+     * EvaluateComplexity
+     * @param prompt 提示词，不允许为 null
+     * @return 结果数值
+     */
     private int evaluateComplexity(String prompt) {
         if (prompt == null || prompt.isEmpty()) {
             return 0;
@@ -57,7 +61,12 @@ public class CostStrategy implements RouterStrategy {
         return 2;
     }
 
-    /** MapComplexityToIndex */
+    /**
+     * MapComplexityToIndex
+     * @param complexity 方法入参 complexity
+     * @param total 总数，不允许为 null
+     * @return 结果数值
+     */
     private int mapComplexityToIndex(int complexity, int total) {
         if (total <= 1) {
             return 0;

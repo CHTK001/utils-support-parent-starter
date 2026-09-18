@@ -3,6 +3,7 @@ package com.chua.runtime.starter;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.lang.cmd.LineCallback;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.runtime.apm.ApmBootstrap;
 import com.chua.runtime.core.manager.DefaultRuntimeManager;
 import com.chua.runtime.core.manager.RuntimeManager;
@@ -316,7 +317,10 @@ public class RuntimeBoot {
         }
         // 方案 B（回退）：通过 classloader 找 RuntimeAgent 的代码源
         try {
-            Class<?> agentClass = Class.forName("com.chua.runtime.agent.RuntimeAgent");
+            Class<?> agentClass = ReflectUtils.forName("com.chua.runtime.agent.RuntimeAgent");
+            if (agentClass == null) {
+                return null;
+            }
             java.net.URL loc = agentClass.getProtectionDomain()
                     .getCodeSource().getLocation();
             Path p = Path.of(loc.toURI());

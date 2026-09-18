@@ -43,18 +43,15 @@ import reactor.core.scheduler.Schedulers;
 * }
 * }</pre>
 *
-* <p>AtomCode turn lines carry no {@code model}/{@code provider}/{@code costUsd}
-* fields. The serving model is resolved from the sibling {@code <session-id>.meta}
-* file ({@code turn_stats[].model_usage[]} keyed by {@code turn_id}, taking the
-* {@code model_id} of the entry with the largest token share); when the meta file
-* is absent or the turn is missing from it, the parser falls back to the
-* {@code default_model} declared in {@code ~/.atomcode/config.toml} (mapped to
-* the real model name via its {@code [models."..."]} section). The
-* {@code prompt} count is inclusive of cached input, so {@code inputTokens}
-* is stored as the non-cached portion ({@code prompt - cached}) and the
-* cached amount is reported separately via {@code cacheTokens} to avoid
-* double counting. Only token counts are extracted, so no cost estimation
-* 是否 执行 here.</p>
+* <p>AtomCode 的轮次行不含 {@code model}/{@code provider}/{@code costUsd}
+* 字段。实际服务模型从同级的 {@code <session-id>.meta}
+* 文件解析（{@code turn_stats[].model_usage[]} 以 {@code turn_id} 为键，取 token
+* 占比最大的条目的 {@code model_id}）；若 meta 文件缺失
+* 或该轮次未记录其中，则回退到 {@code ~/.atomcode/config.toml} 声明的
+* {@code default_model}（再通过其 {@code [models."..."]} 段映射为真实模型名）。
+* {@code prompt} 计数已包含命中缓存的输入，因此 {@code inputTokens}
+* 存放非缓存部分（{@code prompt - cached}），缓存量单独通过
+* {@code cacheTokens} 上报，避免重复计数。此处只提取 token 计数，因此不做费用估算。</p>
 *
 * @author CH
 * @since 4.0.0.42

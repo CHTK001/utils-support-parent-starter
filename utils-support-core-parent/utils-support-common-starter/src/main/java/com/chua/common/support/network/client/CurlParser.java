@@ -47,6 +47,9 @@ public final class CurlParser {
 
     private static final Pattern DATA_URL_ENCODE_PATTERN = Pattern.compile("^([^=]+)=(.*)$");
 
+    /**
+     * 构造方法，创建 CurlParser 实例。
+     */
     private CurlParser() {
     }
 
@@ -63,7 +66,9 @@ public final class CurlParser {
         BuilderState state = new BuilderState();
         for (int i = 0; i < tokens.size(); i++) {
             String token = tokens.get(i);
-            if ("curl".equals(token) || "--".equals(token)) continue;
+            if ("curl".equals(token) || "--".equals(token)) {
+                continue;
+            }
             i = consumeToken(token, tokens, i, state);
         }
         if (state.baseUrl == null) {
@@ -84,6 +89,12 @@ public final class CurlParser {
 
     // ==================== Token 瑙ｆ瀽 ====================
 
+    /**
+     * tokenize。
+     *
+     * @param command 方法入参 command
+     * @return 结果列表，无数据时为空列表
+     */
     static List<String> tokenize(String command) {
         String normalized = command.replaceAll("(?m)\\\\\n\\s*", " ");
         List<String> tokens = new ArrayList<>();
@@ -125,6 +136,15 @@ public final class CurlParser {
         return tokens;
     }
 
+    /**
+     * consume令牌。
+     *
+     * @param token 令牌，不允许为 null
+     * @param tokens 方法入参 tokens
+     * @param idx 索引，不允许为 null
+     * @param state 状态，不允许为 null
+     * @return 结果数值
+     */
     private static int consumeToken(String token, List<String> tokens, int idx, BuilderState state) {
         if (token.startsWith("-") && token.length() == 2 && !token.startsWith("--")) {
             return handleShortOption(token, tokens, idx, state);
@@ -180,7 +200,9 @@ public final class CurlParser {
                 String d = next(tokens, idx);
                 Matcher m = DATA_URL_ENCODE_PATTERN.matcher(d);
                 if (m.matches()) {
-                    if (state.formData == null) state.formData = new LinkedHashMap<>();
+                    if (state.formData == null) {
+                        state.formData = new LinkedHashMap<>();
+                    }
                     state.formData.put(java.net.URLEncoder.encode(m.group(1), StandardCharsets.UTF_8),
                             java.net.URLEncoder.encode(m.group(2), StandardCharsets.UTF_8));
                 } else {
@@ -234,7 +256,9 @@ public final class CurlParser {
             case "-F":
             case "--form": {
                 String f = next(tokens, idx);
-                if (state.formFields == null) state.formFields = new ArrayList<>();
+                if (state.formFields == null) {
+                    state.formFields = new ArrayList<>();
+                }
                 state.formFields.add(f);
                 return idx + 1;
             }
@@ -250,12 +274,23 @@ public final class CurlParser {
                 return idx + 1;
             default:
                 if (!token.startsWith("-")) {
-                    if (state.baseUrl == null) state.baseUrl = token;
+                    if (state.baseUrl == null) {
+                        state.baseUrl = token;
+                    }
                 }
                 return idx;
         }
     }
 
+    /**
+     * 处理ShortOption。
+     *
+     * @param opt 方法入参 opt
+     * @param tokens 方法入参 tokens
+     * @param idx 索引，不允许为 null
+     * @param state 状态，不允许为 null
+     * @return 结果数值
+     */
     private static int handleShortOption(String opt, List<String> tokens, int idx, BuilderState state) {
         String arg;
         switch (opt) {
@@ -328,12 +363,16 @@ public final class CurlParser {
             case "--proxy-user":
                 arg = next(tokens, idx);
                 int pc = arg.indexOf(':');
-                if (pc > 0) state.proxyAuth = arg;
+                if (pc > 0) {
+                    state.proxyAuth = arg;
+                }
                 return idx + 1;
             case "-F":
             case "--form":
                 arg = next(tokens, idx);
-                if (state.formFields == null) state.formFields = new ArrayList<>();
+                if (state.formFields == null) {
+                    state.formFields = new ArrayList<>();
+                }
                 state.formFields.add(arg);
                 return idx + 1;
             case "-T":
@@ -358,6 +397,12 @@ public final class CurlParser {
 
     // ==================== 鐘舵€佸簲鐢ㄥ埌 Builder ====================
 
+    /**
+     * 应用状态。
+     *
+     * @param builder 方法入参 builder
+     * @param state 状态，不允许为 null
+     */
     private static void applyState(HttpClientBuilder builder, BuilderState state) {
         // URL / path
         if (state.path != null && !state.path.isEmpty()) {
@@ -445,11 +490,17 @@ public final class CurlParser {
         }
 
         // Timeouts
-        if (state.connectTimeout != null) builder.connectTimeout(state.connectTimeout);
-        if (state.readTimeout != null) builder.readTimeout(state.readTimeout);
+        if (state.connectTimeout != null) {
+            builder.connectTimeout(state.connectTimeout);
+        }
+        if (state.readTimeout != null) {
+            builder.readTimeout(state.readTimeout);
+        }
 
         // Proxy
-        if (state.proxyHost != null) builder.proxy(state.proxyHost, state.proxyPort);
+        if (state.proxyHost != null) {
+            builder.proxy(state.proxyHost, state.proxyPort);
+        }
 
         // Redirects
         if (!state.followRedirects) {
@@ -457,6 +508,12 @@ public final class CurlParser {
         }
     }
 
+    /**
+     * 设置方法。
+     *
+     * @param builder 方法入参 builder
+     * @param method 方法，不允许为 null
+     */
     private static void setMethod(HttpClientBuilder builder, String method) {
         switch (method.toUpperCase()) {
             case "GET" -> builder.get();
@@ -496,12 +553,27 @@ public final class CurlParser {
 
     private enum BodyKind { NONE, DATA, DATA_URL_ENCODE }
 
+    /**
+     * up。
+     *
+     * @param s 方法入参 s
+     * @return 结果字符串
+     */
     private static String up(String s) {
         return s == null ? null : s.toUpperCase();
     }
 
+    /**
+     * 下一个。
+     *
+     * @param tokens 方法入参 tokens
+     * @param idx 索引，不允许为 null
+     * @return 结果字符串
+     */
     private static String next(List<String> tokens, int idx) {
-        if (idx + 1 < tokens.size()) return tokens.get(idx + 1);
+        if (idx + 1 < tokens.size()) {
+            return tokens.get(idx + 1);
+        }
         throw new IllegalArgumentException("Missing argument at token index " + idx);
     }
 }

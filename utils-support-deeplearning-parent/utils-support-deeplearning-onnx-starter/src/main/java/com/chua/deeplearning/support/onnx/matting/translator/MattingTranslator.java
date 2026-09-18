@@ -193,6 +193,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
         };
     }
 
+    /**
+     * 转为BufferedImage。
+     *
+     * @param input 方法入参 input
+     * @return BufferedImage 对象
+     */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage bufferedImage) {
@@ -206,6 +212,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
     */
     }
 
+    /**
+     * 创建AlphaOnlyImage。
+     *
+     * @param alphaMask 方法入参 alphaMask
+     * @return Image 对象
+     */
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -223,6 +235,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
     */
     }
 
+    /**
+     * 创建RgbaImage。
+     *
+     * @param alphaMask 方法入参 alphaMask
+     * @return Image 对象
+     */
     private Image createRgbaImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -241,6 +259,13 @@ public final class MattingTranslator implements Translator<Image, Image> {
     */
     }
 
+    /**
+     * 创建RgbImage。
+     *
+     * @param alphaMask 方法入参 alphaMask
+     * @param bgValue bg值，不允许为 null
+     * @return Image 对象
+     */
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -265,6 +290,15 @@ public final class MattingTranslator implements Translator<Image, Image> {
     */
     }
 
+    /**
+     * blendChannel。
+     *
+     * @param foreground 方法入参 foreground
+     * @param background 方法入参 background
+     * @param alpha 方法入参 alpha
+     * @param inverseAlpha 方法入参 inverseAlpha
+     * @return 结果数值
+     */
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
     /**
@@ -275,6 +309,11 @@ public final class MattingTranslator implements Translator<Image, Image> {
     */
     }
 
+    /**
+     * 创建LowInformationFallback。
+     *
+     * @return Image 对象
+     */
     private Image createLowInformationFallback() {
         return switch (mode) {
             case RGBA -> ImageFactory.getInstance()
@@ -295,6 +334,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
         };
     }
 
+    /**
+     * 是否LowInformationImage。
+     *
+     * @param image 方法入参 image
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isLowInformationImage(BufferedImage image) {
         if (image == null) {
             return false;
@@ -328,6 +373,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return null;
     }
 
+    /**
+     * 解析目标大小。
+     *
+     * @param configuration 配置，不允许为 null
+     * @return 结果数值
+     */
     private static int resolveTargetSize(DetectionConfiguration configuration) {
         if (configuration == null || configuration.modelName() == null) {
             return DEFAULT_TARGET_SIZE;
@@ -339,6 +390,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return DEFAULT_TARGET_SIZE;
     }
 
+    /**
+     * 解析模式。
+     *
+     * @param configuration 配置，不允许为 null
+     * @return Matting模式 对象
+     */
     private static MattingMode resolveMode(DetectionConfiguration configuration) {
         if (configuration == null || configuration.modelName() == null) {
             return MattingMode.RGBA;
@@ -350,6 +407,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
         return MattingMode.RGBA;
     }
 
+    /**
+     * 解析Normalize。
+     *
+     * @param configuration 配置，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean resolveNormalize(DetectionConfiguration configuration) {
         if (configuration == null || configuration.modelName() == null) {
             return true;

@@ -143,8 +143,18 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     /** 关闭 */
     public void close() {
         super.close();
-        try { if (sftp != null) { sftp.close(); } } catch (Exception ignored) {}
-        try { if (session != null) { session.close(); } } catch (Exception ignored) {}
+        try {
+            if (sftp != null) {
+                sftp.close();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            if (session != null) {
+                session.close();
+            }
+        } catch (Exception ignored) {
+        }
         if (client != null) {
             client.stop();
         }

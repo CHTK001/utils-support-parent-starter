@@ -242,13 +242,27 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
             }
 
             switch (request.getMethod()) {
-                case GET:      builder.GET(); break;
-                case DELETE:   builder.method("DELETE", bodyPublisher(request)); break;
-                case POST:     builder.POST(bodyPublisher(request)); break;
-                case PUT:      builder.PUT(bodyPublisher(request)); break;
-                case PATCH:    builder.method("PATCH", bodyPublisher(request)); break;
-                case HEAD:     builder.method("HEAD", HttpRequest.BodyPublishers.noBody()); break;
-                case OPTIONS:  builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody()); break;
+                case GET:
+                    builder.GET();
+                    break;
+                case DELETE:
+                    builder.method("DELETE", bodyPublisher(request));
+                    break;
+                case POST:
+                    builder.POST(bodyPublisher(request));
+                    break;
+                case PUT:
+                    builder.PUT(bodyPublisher(request));
+                    break;
+                case PATCH:
+                    builder.method("PATCH", bodyPublisher(request));
+                    break;
+                case HEAD:
+                    builder.method("HEAD", HttpRequest.BodyPublishers.noBody());
+                    break;
+                case OPTIONS:
+                    builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unsupported method: " + request.getMethod());
             }

@@ -21,11 +21,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * Command Code usage parser - parses token usage and cost from local session transcripts.
+ * Command Code 用量解析器——从本地会话转录中解析 token 用量与费用。
  *
- * <p>Data source is {@code ~/.commandcode/projects/<project-slug>/<session-id>.jsonl}.
- * Each session is an append-only JSONL transcript; assistant messages carry a top-level
- * {@code usage} block and a top-level {@code model} ({@code provider/model}):</p>
+ * <p>数据源为 {@code ~/.commandcode/projects/<project-slug>/<session-id>.jsonl}。
+ * 每个会话是一份只追加的 JSONL 转录；助手消息带有顶层
+ * {@code usage} 块和顶层 {@code model}（形如 {@code provider/model}）：</p>
  *
  * <pre>{@code
  * {
@@ -43,8 +43,8 @@ import reactor.core.scheduler.Schedulers;
  * }
  * }</pre>
  *
- * <p>Sidecar files ({@code *.checkpoints.jsonl}, {@code *.prompts.jsonl}, ...) are
- * excluded; only {@code <session-id>.jsonl} transcripts are scanned.</p>
+ * <p>旁路文件（{@code *.checkpoints.jsonl}、{@code *.prompts.jsonl} 等）会被排除，
+ * 只扫描 {@code <session-id>.jsonl} 转录文件。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -94,6 +94,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
 
     /**
     * 仅扫描主转录文件，跳过 checkpoints/prompts 等 sidecar。
+    * @param file 文件，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     private static boolean isTranscript(Path file) {
         String name = file.getFileName().toString();
@@ -102,6 +104,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
 
     /**
     * 单个 JSONL 文件的行流（惰性 + 背压）。
+    * @param file 文件，不允许为 null
+    * @return Flux 对象
     */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
@@ -113,6 +117,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
 
     /**
     * 安全解析单行，失败返回 empty。
+    * @param line 方法入参 line
+    * @return 结果值
     */
     private java.util.Optional<AiUsage> parseLineSafe(String line) {
         try {
@@ -127,6 +133,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     * 将一条转录行转换为 AiUsage 记录。
     *
     * <p>仅接受带顶层 {@code usage} 且含有效 token/费用的 assistant 消息行。</p>
+    * @param node 节点，不允许为 null
+    * @return 结果值
     */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         JsonNode type = node.get("type");

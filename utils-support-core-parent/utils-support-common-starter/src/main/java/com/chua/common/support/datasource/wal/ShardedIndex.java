@@ -39,6 +39,11 @@ public class ShardedIndex {
     /** EntryLoc：WAL 分片内的记录位置 */
     public record EntryLoc(int segmentNo, long offset, int length) {}
 
+    /**
+     * 构造方法，创建 Sharded索引 实例。
+     *
+     * @param shardCount 分片数量，不允许为 null
+     */
     @SuppressWarnings("unchecked")
     public ShardedIndex(int shardCount) {
         this.shardCount = shardCount;
@@ -52,6 +57,8 @@ public class ShardedIndex {
 
     /**
     * 按 key 精确查找，返回 EntryLoc。
+    * @param key 键，不允许为 null
+    * @return 可选结果，不存在时为 Optional.empty()
     */
     public Optional<EntryLoc> get(String key) {
         rwLock.readLock().lock();
@@ -65,6 +72,8 @@ public class ShardedIndex {
 
     /**
     * 判断 key 是否存在。
+    * @param key 键，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     public boolean contains(String key) {
         rwLock.readLock().lock();
@@ -80,6 +89,8 @@ public class ShardedIndex {
 
     /**
     * 写入索引（点查时调用，update 场景覆盖旧值）。
+    * @param key 键，不允许为 null
+    * @param loc 方法入参 loc
     */
     public void put(String key, EntryLoc loc) {
         rwLock.writeLock().lock();
@@ -93,6 +104,7 @@ public class ShardedIndex {
 
     /**
     * 删除索引条目（tombstone 时调用）。
+    * @param key 键，不允许为 null
     */
     public void remove(String key) {
         rwLock.writeLock().lock();
@@ -108,6 +120,9 @@ public class ShardedIndex {
 
     /**
     * 范围查询 [from, to)，合并所有分片结果并按 key 排序。
+    * @param from 来自，不允许为 null
+    * @param to 转为，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to) {
         rwLock.readLock().lock();
@@ -125,6 +140,11 @@ public class ShardedIndex {
 
     /**
     * 带分页的范围查询。
+    * @param from 来自，不允许为 null
+    * @param to 转为，不允许为 null
+    * @param offset 偏移量，不允许为 null
+    * @param limit 上限，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to, int offset, int limit) {
         List<Map.Entry<String, EntryLoc>> all = range(from, to);
@@ -137,6 +157,7 @@ public class ShardedIndex {
 
     /**
     * 批量写入索引（compaction 后重建时使用）。
+    * @param entries 方法入参 entries
     */
     public void putAll(List<IndexEntry> entries) {
         rwLock.writeLock().lock();
@@ -168,6 +189,7 @@ public class ShardedIndex {
 
     /**
     * 总索引条目数。
+    * @return 结果数值
     */
     public int size() {
         rwLock.readLock().lock();
@@ -184,6 +206,7 @@ public class ShardedIndex {
 
     /**
     * 分片数量。
+    * @return 结果数值
     */
     public int shardCount() {
         return shardCount;
@@ -191,6 +214,12 @@ public class ShardedIndex {
 
     // ==================== 内部工具 ====================
 
+    /**
+     * route。
+     *
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     private int route(String key) {
         int hash = key == null ? 0 : key.hashCode();
         return (hash & 0x7FFFFFFF) % shardCount;

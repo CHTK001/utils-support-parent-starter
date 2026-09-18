@@ -69,8 +69,14 @@ public class FileViewerStaticFilter implements ServerFilter {
     private static final java.util.Set<String> IMMUTABLE_EXTS;
     static {
         java.util.Set<String> s = new java.util.HashSet<>();
-        s.add("wasm"); s.add("js"); s.add("mjs");
-        s.add("woff"); s.add("woff2"); s.add("ttf"); s.add("otf"); s.add("eot");
+        s.add("wasm");
+        s.add("js");
+        s.add("mjs");
+        s.add("woff");
+        s.add("woff2");
+        s.add("ttf");
+        s.add("otf");
+        s.add("eot");
         IMMUTABLE_EXTS = java.util.Collections.unmodifiableSet(s);
     }
 

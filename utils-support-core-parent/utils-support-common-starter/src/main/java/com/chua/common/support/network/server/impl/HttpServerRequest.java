@@ -46,6 +46,8 @@ public class HttpServerRequest implements ServerRequest {
     * @param exchange exchange
     * @param long long
     * @param String String
+    * @param maxRequestSize 最大值请求大小，不允许为 null
+    * @param charset 字符集，不允许为 null
     */
     public HttpServerRequest(HttpExchange exchange, long maxRequestSize, String charset) {
         this.exchange = exchange;

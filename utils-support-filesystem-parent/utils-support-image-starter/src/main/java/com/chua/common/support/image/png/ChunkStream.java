@@ -30,6 +30,13 @@ final class ChunkStream extends ImageOutputStreamImpl {
     /** CRC */
     private final CRC crc = new CRC();
 
+    /**
+     * 构造方法，创建 分块流 实例。
+     *
+     * @param type 类型，不允许为 null
+     * @param stream 流，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     ChunkStream(int type, ImageOutputStream stream) throws IOException {
         this.stream = stream;
         this.startPos = stream.getStreamPosition();
@@ -67,6 +74,11 @@ final class ChunkStream extends ImageOutputStreamImpl {
         stream.write(b);
     }
 
+    /**
+     * 完成。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     void finish() throws IOException {
  // 写入 CRC
         stream.writeInt(crc.getValue());

@@ -239,19 +239,31 @@ public class DoubaoProxyChatClient implements ChatClient {
 
     @Override
     /** TopP */
-    public ChatClient topP(Double topP) { this.topP = topP; return this; }
+    public ChatClient topP(Double topP) {
+        this.topP = topP;
+        return this;
+    }
 
     @Override
     /** 停止 */
-    public ChatClient stop(List<String> stop) { this.stop = stop; return this; }
+    public ChatClient stop(List<String> stop) {
+        this.stop = stop;
+        return this;
+    }
 
     @Override
     /** Seed */
-    public ChatClient seed(Long seed) { this.seed = seed; return this; }
+    public ChatClient seed(Long seed) {
+        this.seed = seed;
+        return this;
+    }
 
     @Override
     /** Response格式化 */
-    public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
+    public ChatClient responseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
+        return this;
+    }
 
     @Override
     /** 添加Image */
@@ -598,7 +610,13 @@ return body.toJSONString();
         return doGenerateImage(prompt, ratio, null);
     }
 
-    /** DoGenerateImage */
+    /**
+     * DoGenerateImage
+     * @param prompt 提示词，不允许为 null
+     * @param ratio 比率，不允许为 null
+     * @param refImageKey refImage键，不允许为 null
+     * @return ImageGeneration结果 对象
+     */
     private ImageGenerationResult doGenerateImage(String prompt, String ratio, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
                 ? setting.getBaseUrl() : DEFAULT_BASE_URL;
@@ -760,6 +778,8 @@ return parseImageResult(result, prompt);
 
     /**
     * 从 SSE 事件中提取异步任务 ID。
+    * @param result 结果，不允许为 null
+    * @return 结果字符串
     */
     private String extractAsyncTaskId(DoubaoChatResult result) {
         List<Map<String, Object>> rawEvents = result.rawEvents();
@@ -796,6 +816,9 @@ return parseImageResult(result, prompt);
 
     /**
     * 轮询异步视频生成结果。
+    * @param taskId taskID，不允许为 null
+    * @param prompt 提示词，不允许为 null
+    * @return VideoGeneration结果 对象
     */
     private VideoGenerationResult pollAsyncVideo(String taskId, String prompt) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
@@ -810,6 +833,9 @@ return parseImageResult(result, prompt);
 
     /**
     * 解析图像生成结果。
+    * @param result 结果，不允许为 null
+    * @param prompt 提示词，不允许为 null
+    * @return ImageGeneration结果 对象
     */
     private ImageGenerationResult parseImageResult(DoubaoChatResult result, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
@@ -869,6 +895,9 @@ return parseImageResult(result, prompt);
 
     /**
     * 解析视频生成结果。
+    * @param result 结果，不允许为 null
+    * @param prompt 提示词，不允许为 null
+    * @return VideoGeneration结果 对象
     */
     private VideoGenerationResult parseVideoResult(DoubaoChatResult result, String prompt) {
         List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
@@ -931,14 +960,23 @@ return parseImageResult(result, prompt);
         return new VideoGenerationResult(videos, prompt);
     }
 
-/** ArrayOf */
+/**
+ * ArrayOf
+ * @param obj 对象，不允许为 null
+ * @return Json数组 对象
+ */
 private static JsonArray arrayOf(JsonObject obj) {
         JsonArray arr = new JsonArray();
         arr.add(obj);
         return arr;
     }
 
-    /** 获取Str */
+    /**
+     * 获取Str
+     * @param map 映射，不允许为 null
+     * @param keys 方法入参 keys
+     * @return 结果字符串
+     */
     private static String getStr(Map<?, ?> map, String... keys) {
         if (map == null) {
             return null;
@@ -952,12 +990,26 @@ private static JsonArray arrayOf(JsonObject obj) {
         return null;
     }
 
+    /**
+     * 获取映射。
+     *
+     * @param map 映射，不允许为 null
+     * @param key 键，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private static Map<?, ?> getMap(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         return val instanceof Map<?, ?> m ? m : null;
     }
 
-    /** IntVal */
+    /**
+     * IntVal
+     * @param first 首个，不允许为 null
+     * @param firstKey 首个键，不允许为 null
+     * @param second 方法入参 second
+     * @param secondKey second键，不允许为 null
+     * @return 结果数值
+     */
     private static int intVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -974,7 +1026,14 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
-    /** StrVal */
+    /**
+     * StrVal
+     * @param first 首个，不允许为 null
+     * @param firstKey 首个键，不允许为 null
+     * @param second 方法入参 second
+     * @param secondKey second键，不允许为 null
+     * @return 结果字符串
+     */
     private static String strVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -991,7 +1050,12 @@ private static JsonArray arrayOf(JsonObject obj) {
         return null;
     }
 
-    /** ToInt */
+    /**
+     * ToInt
+     * @param map 映射，不允许为 null
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     private static int toInt(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -1000,7 +1064,12 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
-    /** ToDouble */
+    /**
+     * ToDouble
+     * @param map 映射，不允许为 null
+     * @param key 键，不允许为 null
+     * @return 结果数值
+     */
     private static double toDouble(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -1009,7 +1078,11 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0.0;
     }
 
-    /** ExtractVideoUrlFromModel */
+    /**
+     * ExtractVideoUrlFromModel
+     * @param item 项，不允许为 null
+     * @return 结果字符串
+     */
     private static String extractVideoUrlFromModel(Map<?, ?> item) {
         try {
             Object vmStr = item.get("video_model");

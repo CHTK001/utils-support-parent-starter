@@ -41,6 +41,12 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
     }
 
+    /**
+     * 映射转为配置。
+     *
+     * @param map 映射，不允许为 null
+     * @return 数据Sync配置Definition 对象
+     */
     DataSyncConfigDefinition mapToConfig(Map<String, Object> map) {
         String inputId = getString(map, "inputId");
         String sourceId = getString(map, "sourceId");

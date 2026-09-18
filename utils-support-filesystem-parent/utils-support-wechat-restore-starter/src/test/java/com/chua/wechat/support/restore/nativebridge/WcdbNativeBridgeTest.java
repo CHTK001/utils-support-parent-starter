@@ -4,8 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * WcdbNativeBridge测试类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 class WcdbNativeBridgeTest {
 
+    /**
+     * 测试：是否Supported。
+     */
     @Test
     void testIsSupported() {
         boolean supported = WcdbNativeBridge.isSupported();
@@ -17,6 +26,9 @@ class WcdbNativeBridgeTest {
         }
     }
 
+    /**
+     * 测试：RcConstants。
+     */
     @Test
     void testRcConstants() {
         assertEquals(0, WcdbNativeBridge.RC_OK);

@@ -58,6 +58,14 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         loadVocab(modelDir.resolve("tokens.txt"));
     }
 
+    /**
+     * 解析。
+     *
+     * @param dir 目录，不允许为 null
+     * @param prefix 前缀，不允许为 null
+     * @return 结果字符串
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private String resolve(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             return stream.filter(p -> {
@@ -70,6 +78,12 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 加载Vocab。
+     *
+     * @param tokensFile tokens文件，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void loadVocab(Path tokensFile) throws IOException {
         try (InputStream is = Files.newInputStream(tokensFile);
              BufferedReader reader =
@@ -104,6 +118,13 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         return greedyDecode(encoderOut);
     }
 
+    /**
+     * 运行Encoder。
+     *
+     * @param features 方法入参 features
+     * @return 结果值
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private float[][] runEncoder(float[][] features) throws OrtException {
         int frames = features.length;
         try (OnnxTensor x = OnnxTensor.createTensor(env,
@@ -116,6 +137,13 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * greedy解码。
+     *
+     * @param encoderOut 方法入参 encoderOut
+     * @return 结果字符串
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private String greedyDecode(float[][] encoderOut) throws OrtException {
         StringBuilder sb = new StringBuilder();
         long[] context = {-1L, BLANK_ID};
@@ -147,6 +175,13 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         return piece.replace('\u2581', ' ');
     }
 
+    /**
+     * 运行Decoder。
+     *
+     * @param y 方法入参 y
+     * @return 结果值
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private float[] runDecoder(long[] y) throws OrtException {
         try (OnnxTensor tensor = OnnxTensor.createTensor(env,
                 new long[][]{y});
@@ -156,6 +191,14 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * 运行Joiner。
+     *
+     * @param encFrame 方法入参 encFrame
+     * @param decOut 方法入参 decOut
+     * @return 结果值
+     * @throws OrtException 当执行过程不满足前置条件时
+     */
     private float[] runJoiner(float[] encFrame, float[] decOut) throws OrtException {
         try (OnnxTensor encTensor = OnnxTensor.createTensor(env,
                 new float[][]{encFrame});
@@ -168,6 +211,12 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         }
     }
 
+    /**
+     * argmax。
+     *
+     * @param arr 数组，不允许为 null
+     * @return 结果数值
+     */
     private int argmax(float[] arr) {
         int maxIdx = 0;
         float maxVal = arr[0];
@@ -187,6 +236,11 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         closeQuietly(joinerSession);
     }
 
+    /**
+     * 关闭Quietly。
+     *
+     * @param session 会话，不允许为 null
+     */
     private void closeQuietly(OrtSession session) {
         if (session != null) {
             try {

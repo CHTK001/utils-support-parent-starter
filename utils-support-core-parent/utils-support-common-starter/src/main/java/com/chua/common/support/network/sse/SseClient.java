@@ -106,6 +106,7 @@ public interface SseClient {
     *
     * @param url 请求地址
     * @return 默认实现的 SSE 客户端连接
+    * @param listener 监听器，不允许为 null
     */
     static SseConnection get(String url, SseListener listener) {
         SseRequest request = SseRequest.builder()
@@ -121,6 +122,7 @@ public interface SseClient {
     * @param url  请求地址
     * @param body 请求体（JSON 字符串）
     * @return 默认实现的 SSE 客户端连接
+    * @param listener 监听器，不允许为 null
     */
     static SseConnection post(String url, String body, SseListener listener) {
         SseRequest request = SseRequest.builder()

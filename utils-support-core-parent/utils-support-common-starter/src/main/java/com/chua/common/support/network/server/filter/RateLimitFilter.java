@@ -75,6 +75,9 @@ public class RateLimitFilter implements ServerFilter {
     * @param double double
     * @param KeyStrategy KeyStrategy
     * @param String String
+    * @param qps 方法入参 qps
+    * @param keyStrategy 键Strategy，不允许为 null
+    * @param pathPrefix 路径前缀，不允许为 null
     */
     private RateLimitFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
         this.providerName = providerName;
@@ -85,6 +88,9 @@ public class RateLimitFilter implements ServerFilter {
 
     /**
     * 按 IP 限流。
+    * @param providerName 提供者名称，不允许为 null
+    * @param qps 方法入参 qps
+    * @return 速率上限过滤 对象
     */
     public static RateLimitFilter byIp(String providerName, double qps) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_IP, null);
@@ -92,6 +98,10 @@ public class RateLimitFilter implements ServerFilter {
 
     /**
     * 按路径限流。
+    * @param providerName 提供者名称，不允许为 null
+    * @param qps 方法入参 qps
+    * @param pathPrefix 路径前缀，不允许为 null
+    * @return 速率上限过滤 对象
     */
     public static RateLimitFilter byPath(String providerName, double qps, String pathPrefix) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
@@ -155,7 +165,11 @@ public class RateLimitFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    /** 解析Key */
+    /**
+     * 解析Key
+     * @param request 请求，不允许为 null
+     * @return 结果字符串
+     */
     private String resolveKey(ServerRequest request) {
         return switch (keyStrategy) {
             case GLOBAL -> "__global__";

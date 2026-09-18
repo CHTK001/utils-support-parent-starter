@@ -110,18 +110,46 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
         if (opts == null) {
             return args.toArray(new String[0]);
         }
-        if (opts.getVideoCodec() != null) { args.add("-c:v"); args.add(opts.getVideoCodec()); }
-        if (opts.getAudioCodec() != null) { args.add("-c:a"); args.add(opts.getAudioCodec()); }
-        if (opts.getVideoBitrate() != null) { args.add("-b:v"); args.add(opts.getVideoBitrate()); }
-        if (opts.getAudioBitrate() != null) { args.add("-b:a"); args.add(opts.getAudioBitrate()); }
-        if (opts.getFps() != null) { args.add("-r"); args.add(String.valueOf(opts.getFps())); }
-        if (opts.getWidth() != null && opts.getHeight() != null) {
-            args.add("-vf"); args.add("scale=" + opts.getWidth() + ":" + opts.getHeight());
+        if (opts.getVideoCodec() != null) {
+            args.add("-c:v");
+            args.add(opts.getVideoCodec());
         }
-        if (opts.getAudioSampleRate() != null) { args.add("-ar"); args.add(String.valueOf(opts.getAudioSampleRate())); }
-        if (opts.getAudioChannels() != null) { args.add("-ac"); args.add(String.valueOf(opts.getAudioChannels())); }
-        if (opts.getQuality() != null) { args.add("-crf"); args.add(String.valueOf(opts.getQuality())); }
-        if (opts.getPreset() != null) { args.add("-preset"); args.add(opts.getPreset()); }
+        if (opts.getAudioCodec() != null) {
+            args.add("-c:a");
+            args.add(opts.getAudioCodec());
+        }
+        if (opts.getVideoBitrate() != null) {
+            args.add("-b:v");
+            args.add(opts.getVideoBitrate());
+        }
+        if (opts.getAudioBitrate() != null) {
+            args.add("-b:a");
+            args.add(opts.getAudioBitrate());
+        }
+        if (opts.getFps() != null) {
+            args.add("-r");
+            args.add(String.valueOf(opts.getFps()));
+        }
+        if (opts.getWidth() != null && opts.getHeight() != null) {
+            args.add("-vf");
+            args.add("scale=" + opts.getWidth() + ":" + opts.getHeight());
+        }
+        if (opts.getAudioSampleRate() != null) {
+            args.add("-ar");
+            args.add(String.valueOf(opts.getAudioSampleRate()));
+        }
+        if (opts.getAudioChannels() != null) {
+            args.add("-ac");
+            args.add(String.valueOf(opts.getAudioChannels()));
+        }
+        if (opts.getQuality() != null) {
+            args.add("-crf");
+            args.add(String.valueOf(opts.getQuality()));
+        }
+        if (opts.getPreset() != null) {
+            args.add("-preset");
+            args.add(opts.getPreset());
+        }
         if (opts.isOverwrite()) { args.add("-y"); }
         if (opts.isMute()) { args.add("-an"); }
         if (opts.isRemoveVideo()) { args.add("-vn"); }

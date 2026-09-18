@@ -163,7 +163,10 @@ public final class NetUtils {
         }
     }
 
-    /** 解析LocalHost */
+    /**
+     * 解析LocalHost
+     * @return 结果字符串
+     */
     private static String resolveLocalHost() {
         try {
             InetAddress localHost = InetAddress.getLocalHost();

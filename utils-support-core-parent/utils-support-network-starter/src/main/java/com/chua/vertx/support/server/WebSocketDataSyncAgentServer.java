@@ -380,7 +380,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         public String getSourceId() { return sourceId; }
         /** 关闭 */
         public void close() {
-            try { socket.close(); } catch (IOException ignored) {}
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 

@@ -15,5 +15,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RemoteHeaders {
+    /**
+     * 值。
+     *
+     * @return Remote请求头 对象
+     */
     RemoteHeader[] value();
 }

@@ -46,14 +46,20 @@ public class TableMetadata {
     /** 存储引擎 */
     private String engine = "InnoDB";
 
-    /** 是否配置了分区 */
+    /**
+     * 是否配置了分区
+     * @return 是否成功（true 表示成功）
+     */
     public boolean hasPartitions() {
         return (partitionType != null && !partitionType.isEmpty()
                 && partitionColumn != null && !partitionColumn.isEmpty())
                 || (partitionDefinition != null && !partitionDefinition.isEmpty());
     }
 
-    /** 获取分区列元数据 */
+    /**
+     * 获取分区列元数据
+     * @return 列Metadata 对象
+     */
     public ColumnMetadata getPartitionColumn() {
         if (partitionColumn == null || partitionColumn.isEmpty() || columns == null) { return null; }
         return columns.stream()
@@ -61,7 +67,11 @@ public class TableMetadata {
                 .findFirst().orElse(null);
     }
 
-    /** 格式化分区 SQL */
+    /**
+     * 格式化分区 SQL
+     * @param dialect 方法入参 dialect
+     * @return 结果字符串
+     */
     public String formatPartitionSql(Dialect dialect) {
         if (!hasPartitions()) {
             return "";
@@ -72,7 +82,10 @@ public class TableMetadata {
         return dialect.formatPartitionSql(this);
     }
 
-    /** 主键列 */
+    /**
+     * 主键列
+     * @return 列Metadata 对象
+     */
     public ColumnMetadata getPrimaryKeyColumn() {
         if (columns == null) {
             return null;
@@ -80,7 +93,10 @@ public class TableMetadata {
         return columns.stream().filter(ColumnMetadata::isPrimaryKey).findFirst().orElse(null);
     }
 
-    /** 是否有主键 */
+    /**
+     * 是否有主键
+     * @return 是否成功（true 表示成功）
+     */
     public boolean hasPrimaryKey() {
         return getPrimaryKeyColumn() != null;
     }

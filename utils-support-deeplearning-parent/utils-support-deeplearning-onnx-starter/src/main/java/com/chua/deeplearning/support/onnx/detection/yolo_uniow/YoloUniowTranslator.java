@@ -383,6 +383,13 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
         }
     }
 
+    /**
+     * 读取Floats。
+     *
+     * @param is 是否，不允许为 null
+     * @return 结果值
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private static float[] readFloats(InputStream is) throws IOException {
         // 可靠读取全部字节（available() 在流上不可靠）
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();

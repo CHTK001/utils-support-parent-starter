@@ -50,6 +50,12 @@ public class DebugSaveCallback implements PipelineCallback {
     */
     }
 
+    /**
+     * 保存。
+     *
+     * @param name 名称，不允许为 null
+     * @param data 数据，不允许为 null
+     */
     private void save(String name, Object data) {
         if (data == null) {
             return;
@@ -66,6 +72,12 @@ public class DebugSaveCallback implements PipelineCallback {
         }
     }
 
+    /**
+     * 转为字节数组。
+     *
+     * @param data 数据，不允许为 null
+     * @return 结果值
+     */
     private static byte[] toBytes(Object data) {
         if (data instanceof byte[] b) {
             return b;

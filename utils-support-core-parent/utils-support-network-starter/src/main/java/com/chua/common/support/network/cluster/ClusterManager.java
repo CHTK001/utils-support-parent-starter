@@ -60,6 +60,13 @@ public class ClusterManager {
         this(discovery, balance, null);
     }
 
+    /**
+     * 构造方法，创建 ClusterManager 实例。
+     *
+     * @param discovery 方法入参 discovery
+     * @param balance 方法入参 balance
+     * @param selfNodeId self节点ID，不允许为 null
+     */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance, String selfNodeId) {
         this.discovery = discovery;
         this.balance = balance == null || balance.isBlank() ? "weight" : balance;
@@ -156,6 +163,12 @@ public class ClusterManager {
     * 构建故障退避的 TCP 代理目标解析器。
     */
     public com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver
+            /**
+             * 构造方法，创建 tcpResolver 实例。
+             *
+             * @param servicePath 服务路径，不允许为 null
+             * @param scatterId scatterID，不允许为 null
+             */
             tcpResolver(String servicePath, String scatterId) {
         return new com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver(
                 discovery, servicePath, scatterId, balance);

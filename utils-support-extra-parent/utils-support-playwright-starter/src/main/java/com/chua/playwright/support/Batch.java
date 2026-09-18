@@ -43,7 +43,16 @@ public class Batch {
     */
     }
 
-    public Batch stopOnError(boolean stop) { this.stopOnError = stop; return this; }
+    /**
+     * 设置批次执行遇到错误时是否中止。
+     *
+     * @param stop {@code true} 表示首个命令失败后即停止执行；{@code false} 表示忽略错误继续执行
+     * @return 当前批次实例，便于链式调用
+     */
+    public Batch stopOnError(boolean stop) {
+        this.stopOnError = stop;
+        return this;
+    }
     /**
     * 大小。
     * @return 大小的结果
@@ -56,11 +65,6 @@ public class Batch {
     * @return launch的结果
     */
     public int launch(boolean headless) {
-        /**
-        * 新page。
-        * @param targetHandle Target处理
-        * @return 新page的结果
-        */
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("headless", headless);
         return add("launch", null, p);
@@ -85,12 +89,25 @@ public class Batch {
         add("goto", pageHandle, p);
     }
 
+    /**
+     * click。
+     *
+     * @param handle 处理，不允许为 null
+     * @param selector 方法入参 selector
+     */
     public void click(int handle, String selector) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("selector", selector);
         add("click", handle, p);
     }
 
+    /**
+     * fill。
+     *
+     * @param handle 处理，不允许为 null
+     * @param selector 方法入参 selector
+     * @param value 值，不允许为 null
+     */
     public void fill(int handle, String selector, String value) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("selector", selector);
@@ -124,21 +141,12 @@ public class Batch {
     }
 
     /**
-    * 逐条执行所有命令。
-    * 当 {@code stopOnError=true} 时，遇到异常立即停止并抛出。
-    * @param action 动作
-    /**
-    * 执行。
-    * @return 执行的结果
-    */
-     * @param handle 处理
-     * @param params 参数
-     * @return 添加的结果
-      * @param action 动作
-     /**
-     * 执行。
-     * @return 执行的结果
-     */
+     * 逐条执行所有命令。
+     *
+     * <p>当 {@code stopOnError=true} 时，遇到异常立即停止并抛出；
+     * 否则将异常以 {@code error} 键的形式记录到对应位置后继续执行。</p>
+     *
+     * @return 结果列表，无数据时为空列表
      */
     public List<Object> execute() {
         List<Object> results = new ArrayList<>();
@@ -161,6 +169,14 @@ public class Batch {
         return results;
     }
 
+    /**
+     * dispatch。
+     *
+     * @param action 方法入参 action
+     * @param handle 处理，不允许为 null
+     * @param params 参数，不允许为 null
+     * @return 对象 对象
+     */
     private Object dispatch(String action, long handle, Map<String, Object> params) {
         switch (action) {
             case "launch":
@@ -195,6 +211,14 @@ public class Batch {
         }
     }
 
+    /**
+     * 添加。
+     *
+     * @param action 方法入参 action
+     * @param handle 处理，不允许为 null
+     * @param params 参数，不允许为 null
+     * @return 结果数值
+     */
     private int add(String action, Integer handle, Map<String, Object> params) {
         Map<String, Object> cmd = new LinkedHashMap<>();
         cmd.put("action", action);

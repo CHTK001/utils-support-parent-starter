@@ -141,6 +141,8 @@ public class DefaultScriptConverter implements ScriptConverter {
     * CREATE TABLE 方言转换：剥离 MySQL 专属行内索引、尾属性、列内联注释。
     * <p>注意：剥离列内联注释时保留列类型（正则锚定在类型名上），
     * 仅删除尾随的 {@code COMMENT 'xxx'} 段。</p>
+    * @param sql SQL，不允许为 null
+    * @return 结果字符串
     */
     private String convertCreateTable(String sql) {
         int lastParen = sql.lastIndexOf(')');
@@ -203,6 +205,8 @@ public class DefaultScriptConverter implements ScriptConverter {
     /**
     * ALTER TABLE 方言转换：剥离 MySQL 专属 AFTER 定位子句、列内联注释。
     * <p>ALTER 语句的 COMMENT 段可能不在行尾（如多列 ADD 子句），使用无行尾锚定的宽松剥离。</p>
+    * @param sql SQL，不允许为 null
+    * @return 结果字符串
     */
     private String convertAlterTable(String sql) {
         // 剥离内联注释（宽松模式：COMMENT 'xxx' 段后允许跟随逗号/空白）
@@ -217,6 +221,9 @@ public class DefaultScriptConverter implements ScriptConverter {
 
     /**
     * 类型与函数方言映射（保守策略：只替换可安全替换的独立类型/函数关键字）。
+    * @param sql SQL，不允许为 null
+    * @param protocol 方法入参 protocol
+    * @return 结果字符串
     */
     private String applyTypeAndFunctionMapping(String sql, String protocol) {
         switch (protocol) {

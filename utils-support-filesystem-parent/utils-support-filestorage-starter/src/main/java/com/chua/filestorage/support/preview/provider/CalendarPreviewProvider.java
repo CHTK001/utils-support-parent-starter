@@ -44,6 +44,12 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
                 .build();
     }
 
+    /**
+     * 解析Ics。
+     *
+     * @param ics 方法入参 ics
+     * @return 结果列表，无数据时为空列表
+     */
     private List<CalendarEvent> parseIcs(String ics) {
         List<CalendarEvent> events = new ArrayList<>();
         String[] lines = ics.split("\r?\n");
@@ -132,6 +138,13 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * 构建Html。
+     *
+     * @param events 方法入参 events
+     * @param fileSize 文件大小，不允许为 null
+     * @return 结果字符串
+     */
     private String buildHtml(List<CalendarEvent> events, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -189,6 +202,13 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * truncate。
+     *
+     * @param text 文本，不允许为 null
+     * @param maxLen 最大值Len，不允许为 null
+     * @return 结果字符串
+     */
     private String truncate(String text, int maxLen) {
         if (text.length() <= maxLen) {
             return text;
@@ -204,6 +224,12 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     */
     }
 
+    /**
+     * escapeHtml。
+     *
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -211,6 +237,12 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     *
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果字符串
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

@@ -86,6 +86,10 @@ public class BetaPureCalibrator implements PureCalibrator {
 
     /**
     * 连分数展开计算
+    * @param x 方法入参 x
+    * @param a 方法入参 a
+    * @param b 方法入参 b
+    * @return 结果数值
     */
     private double continuedFraction(double x, double a, double b) {
         double qab = a + b;
@@ -134,6 +138,8 @@ public class BetaPureCalibrator implements PureCalibrator {
 
     /**
     * 对数Gamma函数（Lanczos近似）
+    * @param x 方法入参 x
+    * @return 结果数值
     */
     private double logGamma(double x) {
         double[] coef = {76.18009172947146, -86.50532032941677,

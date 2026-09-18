@@ -25,6 +25,9 @@ class RustNmapScannerTest {
 
     private RustNmapScanner scanner; // scanner
 
+    /**
+     * 设置Up。
+     */
     @BeforeEach
     void setUp() {
         scanner = new RustNmapScanner();
@@ -32,6 +35,9 @@ class RustNmapScannerTest {
 
     // ── 配置测试（不依赖动态库）──────────────────────────────────────────────
 
+    /**
+     * default选项。
+     */
     @Test
     @DisplayName("默认选项正确")
     void default_options() {
@@ -40,6 +46,9 @@ class RustNmapScannerTest {
         assertEquals(1000, opts.getTimeout());
     }
 
+    /**
+     * 设置选项chaining。
+     */
     @Test
     @DisplayName("setOptions 链式调用")
     void set_options_chaining() {
@@ -51,6 +60,9 @@ class RustNmapScannerTest {
 
     // ── 动态库未加载时的降级行为 ──────────────────────────────────────────────
 
+    /**
+     * scanTcpPortsgracefulwhennotloaded。
+     */
     @Test
     @DisplayName("动态库未加载时 scanTcpPorts 返回空结果不抛异常")
     void scanTcpPorts_graceful_when_not_loaded() {
@@ -61,6 +73,9 @@ class RustNmapScannerTest {
         log.info("[RustNmap] 降级扫描结果: host={} ports={}", result.getHost(), result.getPorts().size());
     }
 
+    /**
+     * pinggracefulwhennotloaded。
+     */
     @Test
     @DisplayName("动态库未加载时 ping 返回 HostInfo 不抛异常")
     void ping_graceful_when_not_loaded() {
@@ -70,6 +85,9 @@ class RustNmapScannerTest {
         assertEquals("127.0.0.1", info.getIp());
     }
 
+    /**
+     * scanSubnetgracefulwhennotloaded。
+     */
     @Test
     @DisplayName("动态库未加载时 scanSubnet 返回空列表不抛异常")
     void scanSubnet_graceful_when_not_loaded() {
@@ -78,6 +96,9 @@ class RustNmapScannerTest {
         assertNotNull(hosts);
     }
 
+    /**
+     * detectOsgracefulwhennotloaded。
+     */
     @Test
     @DisplayName("动态库未加载时 detectOs 返回 OsInfo 不抛异常")
     void detectOs_graceful_when_not_loaded() {
@@ -88,6 +109,9 @@ class RustNmapScannerTest {
 
     // ── 集成测试（需要动态库）────────────────────────────────────────────────
 
+    /**
+     * scancommonportslocalhost。
+     */
     @Test
     @DisplayName("扫描本地常用端口")
     void scan_common_ports_localhost() {
@@ -111,6 +135,9 @@ class RustNmapScannerTest {
         }
     }
 
+    /**
+     * scan端口range。
+     */
     @Test
     @DisplayName("扫描端口范围 80-90")
     void scan_port_range() {
@@ -121,6 +148,9 @@ class RustNmapScannerTest {
         log.info("[RustNmap] 端口范围80-90: 开放={}", result.getOpenPorts());
     }
 
+    /**
+     * pinglocalhost。
+     */
     @Test
     @DisplayName("ping 本地回环")
     void ping_localhost() {
@@ -131,6 +161,9 @@ class RustNmapScannerTest {
         log.info("[RustNmap] ping 127.0.0.1: alive={} latency={}ms", info.isAlive(), info.getLatency());
     }
 
+    /**
+     * detect服务localhost。
+     */
     @Test
     @DisplayName("detectService 检测本地端口服务")
     void detect_service_localhost() {
@@ -141,6 +174,11 @@ class RustNmapScannerTest {
         log.info("[RustNmap] 服务检测 127.0.0.1:80 name={}", service.getName());
     }
 
+    /**
+     * asyncscancompletes。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("异步扫描完成并返回结果")
     void async_scan_completes() throws Exception {
@@ -152,6 +190,11 @@ class RustNmapScannerTest {
         log.info("[RustNmap] 异步扫描完成: 开放={}", result.getOpenPorts());
     }
 
+    /**
+     * scanwithprogress回调。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("带进度回调的扫描")
     void scan_with_progress_callback() throws Exception {
@@ -174,6 +217,9 @@ class RustNmapScannerTest {
         log.info("[RustNmap] 进度回调次数={} 开放={}", callbackCount.get(), result.getOpenPorts());
     }
 
+    /**
+     * detectos编号exception。
+     */
     @Test
     @DisplayName("detectOs 不抛异常")
     void detect_os_no_exception() {

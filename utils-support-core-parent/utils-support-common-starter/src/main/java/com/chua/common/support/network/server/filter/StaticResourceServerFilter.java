@@ -68,6 +68,9 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     */
     private volatile boolean redirectToIndex = true;
 
+    /**
+     * 构造方法，创建 StaticResource服务端过滤 实例。
+     */
     public StaticResourceServerFilter() {
         // NOTHING
     }
@@ -150,6 +153,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
 
     /**
     * 执行过滤逻辑。
+    * @param request 请求，不允许为 null
+    * @param response 响应，不允许为 null
+    * @param chain 方法入参 chain
+    * @return CompletionStage 对象
     */
     private CompletionStage<Void> doReactiveFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         String path = request.getPath();
@@ -224,31 +231,69 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
 
     /**
     * 推断静态资源 Content-Type。
+    * @param name 名称，不允许为 null
+    * @return 结果字符串
     */
     private String guessContentType(String name) {
         String lower = name.toLowerCase();
-        if (lower.endsWith(".html") || lower.endsWith(".htm")) return "text/html;charset=UTF-8";
-        if (lower.endsWith(".js") || lower.endsWith(".mjs")) return "application/javascript;charset=UTF-8";
-        if (lower.endsWith(".css")) return "text/css;charset=UTF-8";
-        if (lower.endsWith(".json")) return "application/json;charset=UTF-8";
-        if (lower.endsWith(".png")) return "image/png";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-        if (lower.endsWith(".gif")) return "image/gif";
-        if (lower.endsWith(".svg")) return "image/svg+xml";
-        if (lower.endsWith(".webp")) return "image/webp";
-        if (lower.endsWith(".ico")) return "image/x-icon";
-        if (lower.endsWith(".woff")) return "font/woff";
-        if (lower.endsWith(".woff2")) return "font/woff2";
-        if (lower.endsWith(".ttf")) return "font/ttf";
-        if (lower.endsWith(".otf")) return "font/otf";
-        if (lower.endsWith(".map")) return "application/json";
-        if (lower.endsWith(".txt")) return "text/plain;charset=UTF-8";
-        if (lower.endsWith(".xml")) return "application/xml;charset=UTF-8";
+        if (lower.endsWith(".html") || lower.endsWith(".htm")) {
+            return "text/html;charset=UTF-8";
+        }
+        if (lower.endsWith(".js") || lower.endsWith(".mjs")) {
+            return "application/javascript;charset=UTF-8";
+        }
+        if (lower.endsWith(".css")) {
+            return "text/css;charset=UTF-8";
+        }
+        if (lower.endsWith(".json")) {
+            return "application/json;charset=UTF-8";
+        }
+        if (lower.endsWith(".png")) {
+            return "image/png";
+        }
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+        if (lower.endsWith(".gif")) {
+            return "image/gif";
+        }
+        if (lower.endsWith(".svg")) {
+            return "image/svg+xml";
+        }
+        if (lower.endsWith(".webp")) {
+            return "image/webp";
+        }
+        if (lower.endsWith(".ico")) {
+            return "image/x-icon";
+        }
+        if (lower.endsWith(".woff")) {
+            return "font/woff";
+        }
+        if (lower.endsWith(".woff2")) {
+            return "font/woff2";
+        }
+        if (lower.endsWith(".ttf")) {
+            return "font/ttf";
+        }
+        if (lower.endsWith(".otf")) {
+            return "font/otf";
+        }
+        if (lower.endsWith(".map")) {
+            return "application/json";
+        }
+        if (lower.endsWith(".txt")) {
+            return "text/plain;charset=UTF-8";
+        }
+        if (lower.endsWith(".xml")) {
+            return "application/xml;charset=UTF-8";
+        }
         return "application/octet-stream";
     }
 
     /**
     * 规范化 URL 前缀（确保以 / 开头、不以 / 结尾）。
+    * @param prefix 前缀，不允许为 null
+    * @return 结果字符串
     */
     private static String normalizePrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
@@ -263,6 +308,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
 
     /**
     * 放行到后续过滤器链。
+    * @param request 请求，不允许为 null
+    * @param response 响应，不允许为 null
+    * @param chain 方法入参 chain
+    * @return CompletionStage 对象
     */
     private static CompletionStage<Void> passthrough(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         try {

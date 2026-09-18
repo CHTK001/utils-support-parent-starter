@@ -63,6 +63,9 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     * @param String String
     * @param String String
     * @param DataSyncSource DataSyncSource
+    * @param sourceId 来源ID，不允许为 null
+    * @param serverUrl 服务端URL，不允许为 null
+    * @param source 来源，不允许为 null
     */
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {
         this.agentId = agentId;
@@ -114,7 +117,10 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     /** DataUrl */
     public String dataUrl() { return ""; }
 
-    /** 处理拉取 */
+    /**
+     * 处理拉取
+     * @param args 参数，不允许为 null
+     */
     private void handlePull(Object[] args) {
         if (args.length == 0) {
             return;
@@ -132,7 +138,10 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         ));
     }
 
-    /** 处理推送 */
+    /**
+     * 处理推送
+     * @param args 参数，不允许为 null
+     */
     private void handlePush(Object[] args) {
         if (args.length == 0) {
             return;
@@ -149,7 +158,10 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
         emit(Map.of("type", "push_result", "status", "ok"));
     }
 
-    /** 发送 */
+    /**
+     * 发送
+     * @param data 数据，不允许为 null
+     */
     private void emit(Map<String, Object> data) {
         if (socket == null || !socket.connected()) {
             return;

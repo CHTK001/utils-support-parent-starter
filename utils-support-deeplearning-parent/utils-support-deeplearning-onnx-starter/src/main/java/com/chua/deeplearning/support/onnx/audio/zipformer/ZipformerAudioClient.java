@@ -49,7 +49,9 @@ public class ZipformerAudioClient implements VirtualClient {
     };
 
     private final AudioClientSetting setting;
+    /** translator */
     private ZipformerStreamingTranslator translator;
+    /** prepared */
     private boolean prepared;
 
     /**
@@ -170,6 +172,12 @@ public class ZipformerAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 模型目录。
+     *
+     * @return 路径 对象
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer.dir");
         if (prop != null && !prop.isBlank()) {
@@ -180,6 +188,12 @@ public class ZipformerAudioClient implements VirtualClient {
         return dir;
     }
 
+    /**
+     * downloadModels。
+     *
+     * @param dir 目录，不允许为 null
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void downloadModels(Path dir) throws IOException {
         Files.createDirectories(dir);
         List<String> failed = new ArrayList<>();
@@ -200,6 +214,11 @@ public class ZipformerAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 解析Audio路径。
+     *
+     * @return 路径 对象
+     */
     private Path resolveAudioPath() {
         if (setting.getAudioPath() != null) {
             return setting.getAudioPath();
@@ -223,6 +242,11 @@ public class ZipformerAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 缓存根节点。
+     *
+     * @return 结果字符串
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

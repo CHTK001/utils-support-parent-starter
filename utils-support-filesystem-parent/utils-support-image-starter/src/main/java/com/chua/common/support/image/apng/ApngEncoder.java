@@ -267,6 +267,13 @@ public class ApngEncoder {
         }
     }
 
+    /**
+     * 放入IntBE。
+     *
+     * @param data 数据，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @param value 值，不允许为 null
+     */
     private static void putIntBE(byte[] data, int offset, int value) {
         data[offset] = (byte) (value >>> 24);
         data[offset + 1] = (byte) (value >>> 16);

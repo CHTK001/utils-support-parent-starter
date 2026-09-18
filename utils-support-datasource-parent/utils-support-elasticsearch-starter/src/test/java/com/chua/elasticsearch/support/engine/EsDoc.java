@@ -22,7 +22,12 @@ public class EsDoc {
     public EsDoc() {
     }
 
-    /** 全参构造器 */
+    /**
+     * 全参构造器
+     * @param id ID，不允许为 null
+     * @param title 标题，不允许为 null
+     * @param content 内容，不允许为 null
+     */
     public EsDoc(Long id, String title, String content) {
         this.id = id;
         this.title = title;

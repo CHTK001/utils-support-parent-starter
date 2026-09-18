@@ -44,13 +44,14 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     * 深度anythingorttranslator。
     */
     public DepthAnythingOrtTranslator() {
-        /**
-        * 深度anythingorttranslator。
-        * @param modelId 模型标识
-        */
         this("depth-anything");
     }
 
+    /**
+     * 构造方法，创建 深度AnythingOrtTranslator 实例。
+     *
+     * @param modelId 模型ID，不允许为 null
+     */
     public DepthAnythingOrtTranslator(String modelId) {
         this.modelId = modelId;
     /**
@@ -75,6 +76,11 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
         }
     }
 
+    /**
+     * prepare。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     private synchronized void prepare() throws Exception {
         if (initialized) {
             return;
@@ -92,6 +98,13 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
         log.info("[DepthAnything] ORT ready, model={}", modelPath);
     }
 
+    /**
+     * 深度。
+     *
+     * @param imageBytes image字节数组，不允许为 null
+     * @return 结果值
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     public byte[] depth(byte[] imageBytes) throws Exception {
         prepare();
 
@@ -169,7 +182,11 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
 
     @Override
     public void close() {
-        if (session != null) { try { session.close(); } catch (Exception ignore) {} }
+        if (session != null) {
+            try {
+                session.close();
+            } catch (Exception ignore) {}
+        }
         ortEnv = null;
         initialized = false;
     }

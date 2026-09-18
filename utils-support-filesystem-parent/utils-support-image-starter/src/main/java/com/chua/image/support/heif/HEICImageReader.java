@@ -88,6 +88,11 @@ public class HEICImageReader extends ImageReader {
         this.image = null;
     }
 
+    /**
+     * ensureDecoded。
+     *
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     private void ensureDecoded() throws IOException {
         if (decoded) {
             return;

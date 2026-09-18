@@ -150,15 +150,11 @@ public class SpringBeanUtils {
         if (clazz == null || name == null) {
             return null;
         }
-        try {
-            return clazz.getMethod(name, paramTypes);
-        } catch (NoSuchMethodException e) {
-            try {
-                return clazz.getDeclaredMethod(name, paramTypes);
-            } catch (NoSuchMethodException ex) {
-                return null;
-            }
+        Method method = ReflectUtils.findMethod(clazz, name, paramTypes);
+        if (method != null) {
+            return method;
         }
+        return ReflectUtils.findDeclaredMethod(clazz, name, paramTypes);
     }
 
     /**

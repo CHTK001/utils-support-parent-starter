@@ -19,11 +19,16 @@ public interface MultipartParser {
 
     /**
     * 解析 multipart/form-data 请求体中的文件上传。
+    * @param body 请求体，不允许为 null
+    * @param contentType 内容类型，不允许为 null
+    * @return 结果列表，无数据时为空列表
     */
     List<FormFile> parse(byte[] body, String contentType);
 
     /**
     * 判断此解析器是否支持指定的 Content-Type。
+    * @param contentType 内容类型，不允许为 null
+    * @return 是否成功（true 表示成功）
     */
     boolean support(String contentType);
 

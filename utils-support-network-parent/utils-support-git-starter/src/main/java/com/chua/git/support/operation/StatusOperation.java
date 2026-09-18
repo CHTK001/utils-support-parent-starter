@@ -77,6 +77,12 @@ public class StatusOperation {
         }
     }
 
+    /**
+     * 转为列出。
+     *
+     * @param set 设置，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private List<String> toList(Set<String> set) {
         return set != null ? new ArrayList<>(set) : new ArrayList<>();
     }

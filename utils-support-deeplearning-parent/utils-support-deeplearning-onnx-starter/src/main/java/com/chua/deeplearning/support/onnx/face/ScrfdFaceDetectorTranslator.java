@@ -99,12 +99,17 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         for (Candidate c : candidates) {
             boolean keep = true;
             for (BoundingBox b : boxes) {
-                if (b.getIoU(c.rectangle()) > NMS_THRESHOLD) { keep = false; break; }
+                if (b.getIoU(c.rectangle()) > NMS_THRESHOLD) {
+                    keep = false;
+                    break;
+                }
                 if (!keep) {
                     continue;
                 }
             }
-            names.add("face"); probs.add(c.score()); boxes.add(c.landmark());
+            names.add("face");
+            probs.add(c.score());
+            boxes.add(c.landmark());
         }
         return new DetectedObjects(names, probs, boxes);
     }
@@ -134,7 +139,8 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
                 continue;
             }
             int location = idx / NUM_ANCHORS;
-            int y = location / featureSize; int x = location % featureSize;
+            int y = location / featureSize;
+            int x = location % featureSize;
             float l = boxes[idx * 4] * stride, t = boxes[idx * 4 + 1] * stride, r = boxes[idx * 4 + 2] * stride, b = boxes[idx * 4 + 3] * stride;
             float cx = x * stride + stride * 0.5f, cy = y * stride + stride * 0.5f;
             float x1 = clamp(cx - l, 0f, INPUT_SIZE - 1f), y1 = clamp(cy - t, 0f, INPUT_SIZE - 1f);
@@ -148,7 +154,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
                     points.add(new Point(clamp(cx + kps[idx * 10 + p * 2] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE, clamp(cy + kps[idx * 10 + p * 2 + 1] * stride, 0f, INPUT_SIZE - 1f) / INPUT_SIZE));
                 }
             }
-            float nX1 = x1 / INPUT_SIZE; float nY1 = y1 / INPUT_SIZE; float nW = (x2 - x1) / INPUT_SIZE; float nH = (y2 - y1) / INPUT_SIZE;
+            float nX1 = x1 / INPUT_SIZE;
+            float nY1 = y1 / INPUT_SIZE;
+            float nW = (x2 - x1) / INPUT_SIZE;
+            float nH = (y2 - y1) / INPUT_SIZE;
             candidates.add(new Candidate(new Landmark(nX1, nY1, nW, nH, points), score));
         }
     }

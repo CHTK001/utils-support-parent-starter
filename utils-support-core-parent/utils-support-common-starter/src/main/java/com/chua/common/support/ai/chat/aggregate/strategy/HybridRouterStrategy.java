@@ -129,6 +129,8 @@ public class HybridRouterStrategy implements RouterStrategy {
 
     /**
     * 过滤掉不健康的客户端
+    * @param clients 方法入参 clients
+    * @return 结果列表，无数据时为空列表
     */
     private List<WeightedClient> filterHealthy(List<WeightedClient> clients) {
         List<WeightedClient> result = new ArrayList<>(clients.size());

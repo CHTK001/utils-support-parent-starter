@@ -51,49 +51,80 @@ public class ImageGenerationSpec {
         this.client = client;
     }
 
-    /** Prompt */
+    /**
+     * Prompt
+     * @param prompt 提示词，不允许为 null
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
-    /** Ratio */
+    /**
+     * Ratio
+     * @param ratio 比率，不允许为 null
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec ratio(String ratio) {
         this.ratio = ratio;
         return this;
     }
 
-    /** N */
+    /**
+     * N
+     * @param n 方法入参 n
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec n(int n) {
         this.n = n;
         return this;
     }
 
-    /** Width */
+    /**
+     * Width
+     * @param width 宽度，不允许为 null
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec width(int width) {
         this.width = width;
         return this;
     }
 
-    /** Height */
+    /**
+     * Height
+     * @param height 高度，不允许为 null
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec height(int height) {
         this.height = height;
         return this;
     }
 
-    /** Quality */
+    /**
+     * Quality
+     * @param quality 方法入参 quality
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec quality(String quality) {
         this.quality = quality;
         return this;
     }
 
-    /** RefImageKey */
+    /**
+     * RefImageKey
+     * @param refImageKey refImage键，不允许为 null
+     * @return ImageGenerationSpec 对象
+     */
     public ImageGenerationSpec refImageKey(String refImageKey) {
         this.refImageKey = refImageKey;
         return this;
     }
 
-    /** Generate */
+    /**
+     * Generate
+     * @return ImageGeneration结果 对象
+     */
     public ImageGenerationResult generate() {
         return client.generateImage(prompt, ratio, n, width, height, quality, refImageKey);
     }

@@ -105,8 +105,14 @@ public class DoubaoBrowserSession implements AutoCloseable {
                         try { obj = JSON.parse(line); } catch (e) { continue; }
                         rawEvents.push(obj);
                         const evt = obj.event_type || obj.type;
-                        if (evt === 2005) { error = obj.event_data || obj.error_msg || extractMsg(obj); break; }
-                        if (evt === 2003) { finished = true; break; }
+                        if (evt === 2005) {
+                            error = obj.event_data || obj.error_msg || extractMsg(obj);
+                            break;
+                        }
+                        if (evt === 2003) {
+                            finished = true;
+                            break;
+                        }
                         if (evt === 2001 || evt === undefined) {
                             let data = obj.event_data;
                             if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) {} }
@@ -125,10 +131,16 @@ public class DoubaoBrowserSession implements AutoCloseable {
                                 if (msg?.is_finish) { finished = true; }
                                 continue; 
                             }
-                            if (ct === 2008) { thinking += t; push('thinking', t); }
+                            if (ct === 2008) {
+                                thinking += t;
+                                push('thinking', t);
+                            }
                             else if (ct === 10000) { thinking += t; push('thinking', t); }
                             else if (ct === 103) { 
-                                if (contentRaw.think) { thinking += contentRaw.think; push('thinking', contentRaw.think); }
+                                if (contentRaw.think) {
+                                    thinking += contentRaw.think;
+                                    push('thinking', contentRaw.think);
+                                }
                             }
                             else if (ct === 2002) { /* suggestions, skip */ }
                             else { text += t; push('text', t); }

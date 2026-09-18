@@ -58,6 +58,11 @@ class IbdInnoDbReaderTest {
 
     // ==================== actor：基础类型 ====================
 
+    /**
+     * 测试：读取ActorDefinition。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("actor.ibd：表定义、列顺序、主键 root 页都来自 SDI")
     void shouldReadActorDefinition() throws Exception {
@@ -76,6 +81,11 @@ class IbdInnoDbReaderTest {
         }
     }
 
+    /**
+     * 测试：读取全部ActorRows。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("actor.ibd：200 行，首行值与 TIMESTAMP 时区渲染")
     void shouldReadAllActorRows() throws Exception {
@@ -94,6 +104,11 @@ class IbdInnoDbReaderTest {
 
     // ==================== film：ENUM / SET / DECIMAL ====================
 
+    /**
+     * 测试：解码FilmEnumsAndDecimals。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("film.ibd：ENUM / SET / DECIMAL 都按真实字节解出可读值")
     void shouldDecodeFilmEnumsAndDecimals() throws Exception {
@@ -116,6 +131,11 @@ class IbdInnoDbReaderTest {
 
     // ==================== address：GEOMETRY ====================
 
+    /**
+     * 测试：解码Geometry。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("address.ibd：GEOMETRY 输出 SRID + WKB 的十六进制")
     void shouldDecodeGeometry() throws Exception {
@@ -131,6 +151,11 @@ class IbdInnoDbReaderTest {
 
     // ==================== staff：溢出页 ====================
 
+    /**
+     * 测试：读取OverflowLob。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("staff.ibd：36 KB 的 PNG 跨 3 个溢出页还原成功")
     void shouldReadOverflowLob() throws Exception {
@@ -145,6 +170,11 @@ class IbdInnoDbReaderTest {
         }
     }
 
+    /**
+     * 测试：解码SignedTinyInt。
+     *
+     * @throws Exception 当执行过程不满足前置条件时
+     */
     @Test
     @DisplayName("staff.ibd：active 列的有符号 TINYINT 符号位被翻转（0x81 -> 1）")
     void shouldDecodeSignedTinyInt() throws Exception {

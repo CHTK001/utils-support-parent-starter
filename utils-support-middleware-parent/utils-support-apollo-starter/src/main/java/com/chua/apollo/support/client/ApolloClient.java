@@ -154,14 +154,20 @@ public class ApolloClient implements AutoCloseable {
         * @param appId appid
         * @return appId的结果
         */
-        public Builder appId(String appId) { this.appId = appId; return this; }
+        public Builder appId(String appId) {
+            this.appId = appId;
+            return this;
+        }
         /**
         * Meta
         *
         * @param meta meta
         * @return meta的结果
         */
-        public Builder meta(String meta) { this.meta = meta; return this; }
+        public Builder meta(String meta) {
+            this.meta = meta;
+            return this;
+        }
 
         /**
         * Namespaces

@@ -113,6 +113,8 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     * @param setting setting
     * @param String String
     * @param String String
+    * @param username 用户名，不允许为 null
+    * @param password 密码，不允许为 null
     */
     public Socks5ProxyServer(ServerSetting setting, String username, String password) {
         this(setting, username, password, 5000, 30000);
@@ -179,7 +181,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     // ==================== SOCKS5 协议实现 ====================
 
-    /** NegotiateAuth */
+    /**
+     * NegotiateAuth
+     * @param in 方法入参 in
+     * @param out 方法入参 out
+     * @return 是否成功（true 表示成功）
+     */
     protected boolean negotiateAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != VERSION) {
@@ -225,7 +232,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         return true;
     }
 
-    /** DoUserPassAuth */
+    /**
+     * DoUserPassAuth
+     * @param in 方法入参 in
+     * @param out 方法入参 out
+     * @return 是否成功（true 表示成功）
+     */
     protected boolean doUserPassAuth(InputStream in, OutputStream out) throws IOException {
         int ver = in.read();
         if (ver != USER_PASS_VERSION) {
@@ -249,7 +261,11 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         return ok;
     }
 
-    /** 读取Request */
+    /**
+     * 读取Request
+     * @param in 方法入参 in
+     * @return Socks5请求 对象
+     */
     protected Socks5Request readRequest(InputStream in) throws IOException {
         int ver = in.read();
         int cmd = in.read();
@@ -304,7 +320,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         }
     }
 
-    /** 处理连接 */
+    /**
+     * 处理连接
+     * @param clientSocket 客户端Socket，不允许为 null
+     * @param out 方法入参 out
+     * @param target 目标，不允许为 null
+     */
     protected void handleConnect(Socket clientSocket, OutputStream out, InetSocketAddress target) throws IOException {
         if (target == null || target.isUnresolved()) {
             writeReply(out, REP_HOST_UNREACHABLE, new InetSocketAddress(0));
@@ -331,7 +352,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
         forwardBidirectional(clientSocket, backend);
     }
 
-    /** 写入Reply */
+    /**
+     * 写入Reply
+     * @param out 方法入参 out
+     * @param rep 方法入参 rep
+     * @param bindAddr 绑定Addr，不允许为 null
+     */
     protected void writeReply(OutputStream out, byte rep, InetSocketAddress bindAddr) throws IOException {
         out.write(new byte[]{VERSION, rep, 0x00, ATYP_IPV4, 0, 0, 0, 0, 0, 0});
         out.flush();
@@ -339,6 +365,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     /**
     * SOCKS5 客户端请求。
+    * @param command 方法入参 command
+    * @param target 目标，不允许为 null
+    * @return 结果值
     */
     public record Socks5Request(byte command, InetSocketAddress target) {
     }

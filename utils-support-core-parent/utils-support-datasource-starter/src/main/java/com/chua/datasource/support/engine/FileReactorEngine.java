@@ -64,13 +64,6 @@ public class FileReactorEngine implements ReactorEngine {
         return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
             @Override
             public Flux<T> list() {
-                /**
-                * one。
-                * @return one的结果
-                * @param clazz clazz
-                * @param pn pn
-                * @param ps ps
-                */
                 return Flux.fromIterable(doQuery(entityClass));
             /**
             * one。
@@ -234,13 +227,17 @@ public class FileReactorEngine implements ReactorEngine {
                         * @param exc exc
                         * @param attachment attachment
                         */
-                        try { channel.close(); } catch (IOException ignored) {}
+                        try {
+                            channel.close();
+                        } catch (IOException ignored) {}
                         sink.success(data);
                     }
 
                     @Override
                     public void failed(Throwable exc, Void attachment) {
-                        try { channel.close(); } catch (IOException ignored) {}
+                        try {
+                            channel.close();
+                        } catch (IOException ignored) {}
                         sink.error(exc);
                     }
                 });
@@ -258,6 +255,13 @@ public class FileReactorEngine implements ReactorEngine {
         });
     }
 
+    /**
+     * 解析Json。
+     *
+     * @param name 名称，不允许为 null
+     * @param bytes 字节数组，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJson(String name, byte[] bytes) {
         try {
@@ -274,6 +278,14 @@ public class FileReactorEngine implements ReactorEngine {
         }
     }
 
+    /**
+     * 解析Csv。
+     *
+     * @param name 名称，不允许为 null
+     * @param bytes 字节数组，不允许为 null
+     * @param separator 分隔符，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<Map<String, Object>> parseCsv(String name, byte[] bytes, char separator) {
         String content = new String(bytes, StandardCharsets.UTF_8);
         String[] lines = content.split("\n");
@@ -297,6 +309,13 @@ public class FileReactorEngine implements ReactorEngine {
         return result;
     }
 
+    /**
+     * 解析Line。
+     *
+     * @param line 方法入参 line
+     * @param separator 分隔符，不允许为 null
+     * @return 字符串 对象
+     */
     private static String[] parseLine(String line, char separator) {
         List<String> fields = new ArrayList<>();
         StringBuilder cur = new StringBuilder();

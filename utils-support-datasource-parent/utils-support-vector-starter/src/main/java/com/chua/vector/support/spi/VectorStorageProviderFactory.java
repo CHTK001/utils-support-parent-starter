@@ -172,6 +172,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     *
     * @param properties 属性
     * @return 转为属性的结果
+    * @param name 名称，不允许为 null
     */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {
@@ -187,6 +188,12 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
         return VectorStorageProperties.Backend.JVECTOR;
     }
 
+    /**
+     * 转为属性。
+     *
+     * @param properties 属性，不允许为 null
+     * @return VectorStorage属性 对象
+     */
     private static VectorStorageProperties toProperties(Object properties) {
         if (properties instanceof VectorStorageProperties props) {
             return props;

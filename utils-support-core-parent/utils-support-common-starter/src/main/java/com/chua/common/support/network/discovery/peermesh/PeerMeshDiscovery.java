@@ -765,7 +765,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         incrementServiceVersion();
     }
 
-    /** Node获取大小 */
+    /**
+     * Node获取大小
+     * @return 结果数值
+     */
     public int nodeSize() {
         return nodeTable.size();
     }

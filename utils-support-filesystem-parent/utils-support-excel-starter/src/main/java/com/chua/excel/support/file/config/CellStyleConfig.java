@@ -96,56 +96,88 @@ public class CellStyleConfig {
     private CellStyleConfig() {
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     * @return CellStyle配置 对象
+     */
     public static CellStyleConfig create() {
         return new CellStyleConfig();
     }
 
     // ==================== 字体链式方法 ====================
 
-    /** FontName */
+    /**
+     * FontName
+     * @param fontName font名称，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig fontName(String fontName) {
         this.fontName = fontName;
         return this;
     }
 
-    /** Font获取大小 */
+    /**
+     * Font获取大小
+     * @param fontSize font大小，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig fontSize(int fontSize) {
         this.fontSize = (short) fontSize;
         return this;
     }
 
-    /** Bold */
+    /**
+     * Bold
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig bold() {
         this.bold = true;
         return this;
     }
 
-    /** Bold */
+    /**
+     * Bold
+     * @param bold bold（布尔开关）
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig bold(boolean bold) {
         this.bold = bold;
         return this;
     }
 
-    /** Italic */
+    /**
+     * Italic
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig italic() {
         this.italic = true;
         return this;
     }
 
-    /** Strikeout */
+    /**
+     * Strikeout
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig strikeout() {
         this.strikeout = true;
         return this;
     }
 
-    /** Underline */
+    /**
+     * Underline
+     * @param underline 方法入参 underline
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig underline(byte underline) {
         this.underline = underline;
         return this;
     }
 
-    /** FontColor */
+    /**
+     * FontColor
+     * @param color 方法入参 color
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig fontColor(String color) {
         this.fontColor = color;
         return this;
@@ -153,13 +185,21 @@ public class CellStyleConfig {
 
     // ==================== 背景链式方法 ====================
 
-    /** BackgroundColor */
+    /**
+     * BackgroundColor
+     * @param color 方法入参 color
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig backgroundColor(String color) {
         this.backgroundColor = color;
         return this;
     }
 
-    /** FillPattern */
+    /**
+     * FillPattern
+     * @param fillPattern fill模式，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig fillPattern(FillPatternType fillPattern) {
         this.fillPattern = fillPattern;
         return this;
@@ -167,7 +207,11 @@ public class CellStyleConfig {
 
     // ==================== 边框链式方法 ====================
 
-    /** Border */
+    /**
+     * Border
+     * @param border 方法入参 border
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig border(BorderStyle border) {
         this.borderTop = border;
         this.borderBottom = border;
@@ -176,31 +220,51 @@ public class CellStyleConfig {
         return this;
     }
 
-    /** BorderTop */
+    /**
+     * BorderTop
+     * @param border 方法入参 border
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig borderTop(BorderStyle border) {
         this.borderTop = border;
         return this;
     }
 
-    /** BorderBottom */
+    /**
+     * BorderBottom
+     * @param border 方法入参 border
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig borderBottom(BorderStyle border) {
         this.borderBottom = border;
         return this;
     }
 
-    /** BorderLeft */
+    /**
+     * BorderLeft
+     * @param border 方法入参 border
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig borderLeft(BorderStyle border) {
         this.borderLeft = border;
         return this;
     }
 
-    /** BorderRight */
+    /**
+     * BorderRight
+     * @param border 方法入参 border
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig borderRight(BorderStyle border) {
         this.borderRight = border;
         return this;
     }
 
-    /** BorderColor */
+    /**
+     * BorderColor
+     * @param color 方法入参 color
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig borderColor(String color) {
         this.borderColor = color;
         return this;
@@ -208,67 +272,105 @@ public class CellStyleConfig {
 
     // ==================== 对齐链式方法 ====================
 
-    /** HorizontalLeft */
+    /**
+     * HorizontalLeft
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig horizontalLeft() {
         this.horizontalAlignment = HorizontalAlignment.LEFT;
         return this;
     }
 
-    /** HorizontalCenter */
+    /**
+     * HorizontalCenter
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig horizontalCenter() {
         this.horizontalAlignment = HorizontalAlignment.CENTER;
         return this;
     }
 
-    /** HorizontalRight */
+    /**
+     * HorizontalRight
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig horizontalRight() {
         this.horizontalAlignment = HorizontalAlignment.RIGHT;
         return this;
     }
 
-    /** HorizontalAlignment */
+    /**
+     * HorizontalAlignment
+     * @param alignment 方法入参 alignment
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig horizontalAlignment(HorizontalAlignment alignment) {
         this.horizontalAlignment = alignment;
         return this;
     }
 
-    /** VerticalTop */
+    /**
+     * VerticalTop
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig verticalTop() {
         this.verticalAlignment = VerticalAlignment.TOP;
         return this;
     }
 
-    /** VerticalCenter */
+    /**
+     * VerticalCenter
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig verticalCenter() {
         this.verticalAlignment = VerticalAlignment.CENTER;
         return this;
     }
 
-    /** VerticalBottom */
+    /**
+     * VerticalBottom
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig verticalBottom() {
         this.verticalAlignment = VerticalAlignment.BOTTOM;
         return this;
     }
 
-    /** VerticalAlignment */
+    /**
+     * VerticalAlignment
+     * @param alignment 方法入参 alignment
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig verticalAlignment(VerticalAlignment alignment) {
         this.verticalAlignment = alignment;
         return this;
     }
 
-    /** WrapText */
+    /**
+     * WrapText
+     * @param wrap 包装，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig wrapText(boolean wrap) {
         this.wrapText = wrap;
         return this;
     }
 
-    /** Indention */
+    /**
+     * Indention
+     * @param indention 方法入参 indention
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig indention(int indention) {
         this.indention = indention;
         return this;
     }
 
-    /** Rotation */
+    /**
+     * Rotation
+     * @param rotation 方法入参 rotation
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig rotation(int rotation) {
         this.rotation = rotation;
         return this;
@@ -276,7 +378,11 @@ public class CellStyleConfig {
 
     // ==================== 数据格式 ====================
 
-    /** Data格式化 */
+    /**
+     * Data格式化
+     * @param format 格式化，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig dataFormat(String format) {
         this.dataFormat = format;
         return this;
@@ -284,7 +390,11 @@ public class CellStyleConfig {
 
     // ==================== 行高 ====================
 
-    /** RowHeight */
+    /**
+     * RowHeight
+     * @param height 高度，不允许为 null
+     * @return CellStyle配置 对象
+     */
     public CellStyleConfig rowHeight(float height) {
         this.rowHeight = height;
         return this;
@@ -292,7 +402,10 @@ public class CellStyleConfig {
 
     // ==================== Getter ====================
 
-    /** 获取RowHeight */
+    /**
+     * 获取RowHeight
+     * @return Float 对象
+     */
     public Float getRowHeight() {
         return rowHeight;
     }
@@ -396,6 +509,8 @@ public class CellStyleConfig {
 
     /**
     * 判断颜色字符串是否为六位 RGB 格式。
+    * @param color 方法入参 color
+    * @return 是否成功（true 表示成功）
     */
     private static boolean isHexRgb(String color) {
         return color != null && color.matches("[0-9A-Fa-f]{6}");
@@ -403,6 +518,8 @@ public class CellStyleConfig {
 
     /**
     * 将六位 RGB 字符串转为 XSSFColor。
+    * @param hex 方法入参 hex
+    * @return XSSFColor 对象
     */
     private static XSSFColor hexToXssfColor(String hex) {
         Color awt = Color.decode("#" + hex);
@@ -415,6 +532,8 @@ public class CellStyleConfig {
 
     /**
     * 获取 IndexedColors 索引，支持名称或 RGB 十六进制回退。
+    * @param color 方法入参 color
+    * @return 结果值
     */
     private static short indexedColor(String color) {
         if (color == null || color.isEmpty()) {
@@ -431,6 +550,8 @@ public class CellStyleConfig {
 
     /**
     * 对字体应用颜色，XSSFWorkbook 下支持 RGB，否则回退 IndexedColors。
+    * @param font 方法入参 font
+    * @param workbook 方法入参 workbook
     */
     private void applyFontColor(Font font, Workbook workbook) {
         if (workbook instanceof XSSFWorkbook && isHexRgb(fontColor)) {
@@ -443,6 +564,8 @@ public class CellStyleConfig {
 
     /**
     * 对单元格背景应用颜色。
+    * @param style 方法入参 style
+    * @param workbook 方法入参 workbook
     */
     private void applyFillColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(backgroundColor)) {
@@ -452,7 +575,11 @@ public class CellStyleConfig {
         }
     }
 
-    /** 应用TopBorderColor */
+    /**
+     * 应用TopBorderColor
+     * @param style 方法入参 style
+     * @param workbook 方法入参 workbook
+     */
     private void applyTopBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setTopBorderColor(hexToXssfColor(borderColor));
@@ -461,7 +588,11 @@ public class CellStyleConfig {
         }
     }
 
-    /** 应用BottomBorderColor */
+    /**
+     * 应用BottomBorderColor
+     * @param style 方法入参 style
+     * @param workbook 方法入参 workbook
+     */
     private void applyBottomBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setBottomBorderColor(hexToXssfColor(borderColor));
@@ -470,7 +601,11 @@ public class CellStyleConfig {
         }
     }
 
-    /** 应用LeftBorderColor */
+    /**
+     * 应用LeftBorderColor
+     * @param style 方法入参 style
+     * @param workbook 方法入参 workbook
+     */
     private void applyLeftBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setLeftBorderColor(hexToXssfColor(borderColor));
@@ -479,7 +614,11 @@ public class CellStyleConfig {
         }
     }
 
-    /** 应用RightBorderColor */
+    /**
+     * 应用RightBorderColor
+     * @param style 方法入参 style
+     * @param workbook 方法入参 workbook
+     */
     private void applyRightBorderColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(borderColor)) {
             xssfStyle.setRightBorderColor(hexToXssfColor(borderColor));
