@@ -127,11 +127,19 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public String processSql(String sql, Pagination pagination) {
- // 优先读自定义分页模板（支持 {SQL} {偏移量} {限制} 占位符）
+ // 优先读自定义分页模板（支持 {SQL} {偏移量} {限制} {offset_clause} 占位符）
         String template = config("pagination-sql", null);
         if (template != null) {
+            // OFFSET/FETCH 方言（SQL Server/Oracle12c）必须有 ORDER BY，缺失时按 env 配置的伪排序补上
+            if (Boolean.parseBoolean(config("pagination-requires-order-by", "false"))
+                    && !sql.toUpperCase(java.util.Locale.ROOT).contains("ORDER BY")) {
+                sql = sql + config("pagination-order-by-fallback", " ORDER BY (SELECT NULL)");
+            }
+            String offsetClause = pagination.getOffset() > 0
+                    ? " OFFSET " + pagination.getOffset() : "";
             return template
                     .replace("{sql}", sql)
+                    .replace("{offset_clause}", offsetClause)
                     .replace("{offset}", String.valueOf(pagination.getOffset()))
                     .replace("{limit}", String.valueOf(pagination.getLimit()));
         }
@@ -141,14 +149,17 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
-        String configured = config("type." + jdbcTypeName(jdbcType), null);
-        if (configured != null) {
-            return configured;
-        }
         // 带长度的类型，用 {len}/{prec}/{scl} 占位符替换
         String len = length > 0 ? String.valueOf(length) : "255";
         String prec = precision > 0 ? String.valueOf(precision) : "10";
         String scl = scale > 0 ? String.valueOf(scale) : "0";
+        String configured = config("type." + jdbcTypeName(jdbcType), null);
+        if (configured != null) {
+            return configured
+                    .replace("{len}", len)
+                    .replace("{prec}", prec)
+                    .replace("{scl}", scl);
+        }
         String defaultType = config("type-default", "VARCHAR(" + len + ")");
         return defaultType
                 .replace("{len}", len)
@@ -174,10 +185,17 @@ public class SqlDialect extends AbstractDialect {
     public String getUpsertSql(String tableName, String columns, String values, String updateSet) {
         String template = config("upsert-template", null);
         if (template != null) {
+            String conflict = config("upsert-conflict-columns", null);
+            if (conflict == null || conflict.trim().isEmpty()) {
+                // 未显式配置冲突列时取首列（仓库惯例主键在首）
+                int comma = columns.indexOf(',');
+                conflict = comma > 0 ? columns.substring(0, comma).trim() : columns.trim();
+            }
             return template
                     .replace("{table}", quote(tableName))
                     .replace("{columns}", columns)
                     .replace("{values}", values)
+                    .replace("{conflict}", conflict)
                     .replace("{updateSet}", updateSet);
         }
         return super.getUpsertSql(tableName, columns, values, updateSet);
@@ -199,12 +217,34 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public String getTableComment(String comment) {
-        return config("table-comment", "");
+        return renderComment("table-comment", comment);
     }
 
     @Override
     public String getColumnComment(String comment) {
-        return config("column-comment", "");
+        return renderComment("column-comment", comment);
+    }
+
+    /**
+     * 渲染注释片段：模板含 {comment} 时注入转义后的注释文本。
+     *
+     * @param templateKey 模板配置键
+     * @param comment     注释内容，空时不输出
+     * @return 注释 SQL 片段，不支持或无内容时返回空串
+     */
+    private String renderComment(String templateKey, String comment) {
+        if (comment == null || comment.isEmpty()) {
+            return "";
+        }
+        String template = config(templateKey, null);
+        if (template == null || template.isEmpty()) {
+            // 方言未定义内联注释模板（如 Oracle/PostgreSQL 需单独 COMMENT ON 语句）
+            return "";
+        }
+        if (template.contains("{comment}")) {
+            return template.replace("{comment}", escape(comment));
+        }
+        return template;
     }
 
     @Override
@@ -335,10 +375,10 @@ public class SqlDialect extends AbstractDialect {
         if (schema == null || schema.isEmpty()) {
             return template;
         }
-        String condition = config("schema-condition-template", " AND {column} = '{value}'");
-        return template
+        String condition = config("schema-condition-template", " AND {column} = '{value}'")
                 .replace("{column}", schemaColumn)
                 .replace("{value}", escape(schema));
+        return template + condition;
     }
 
     // ==================== 配置加载 ====================
@@ -351,13 +391,21 @@ public class SqlDialect extends AbstractDialect {
     @Override
     protected Properties loadDefaultEnv() {
         String resourceName = "META-INF/dialect-env/" + protocol + ".env";
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-            // 资源不存在时直接返回空属性，避免 null 流导致 NPE
-            if (is == null) {
-                return new Properties();
+        Properties props = new Properties();
+        java.util.List<java.net.URL> urls = new java.util.ArrayList<>();
+        try {
+            java.util.Enumeration<java.net.URL> found =
+                    getClass().getClassLoader().getResources(resourceName);
+            while (found.hasMoreElements()) {
+                urls.add(found.nextElement());
             }
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                Properties props = new Properties();
+        } catch (IOException e) {
+            return props;
+        }
+        // 跨 jar 合并同名 env：类路径靠前的（原单资源加载语义）逐键优先，后续 jar 只补缺
+        for (java.net.URL url : urls) {
+            try (InputStream is = url.openStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     line = line.trim();
@@ -368,13 +416,19 @@ public class SqlDialect extends AbstractDialect {
                     if (idx < 0) {
                         continue;
                     }
-                    props.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+                    // 值侧不 trim：保留 "table-type= ENGINE=..." 这类模板的前导空格
+                    String key = line.substring(0, idx).trim();
+                    String value = line.substring(idx + 1);
+                    while (value.endsWith("\r") || value.endsWith(" ")) {
+                        value = value.substring(0, value.length() - 1);
+                    }
+                    props.putIfAbsent(key, value);
                 }
-                return props;
+            } catch (IOException e) {
+                // 单个资源读取失败不影响其余来源合并
             }
-        } catch (IOException e) {
-            return new Properties();
         }
+        return props;
     }
 
     /**

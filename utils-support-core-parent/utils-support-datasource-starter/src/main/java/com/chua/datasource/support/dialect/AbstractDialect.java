@@ -6,7 +6,6 @@ import com.chua.common.support.lang.datasource.dialect.Pagination;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,9 +30,9 @@ public abstract class AbstractDialect implements Dialect {
     protected Properties properties;
 
     /**
-     * 内存中的默认值缓存，避免重复从 属性 读取
+     * 内存中的默认值缓存，避免重复从 属性 读取（并发安全，不缓存 null）
     */
-    private final Map<String, String> configCache = new HashMap<>();
+    private final Map<String, String> configCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
      * 从类路径 {@code META-INF/dialect-env/{className-lowercase}.env} 加载默认配置。
@@ -50,17 +49,34 @@ public abstract class AbstractDialect implements Dialect {
      */
     protected Properties loadDefaultEnv() {
         String simpleName = getClass().getSimpleName().toLowerCase();
-        String resourceName = "META-INF/dialect-env/" + simpleName + ".env";
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-            if (is == null) {
-                return new Properties();
-            }
-            Properties props = new Properties();
-            props.load(new java.io.BufferedReader(new java.io.InputStreamReader(is, StandardCharsets.UTF_8)));
-            return props;
-        } catch (IOException e) {
-            return new Properties();
+        // MysqlDialect → mysql.env（此前按整名找 mysqldialect.env 永远落空）
+        if (simpleName.endsWith("dialect")) {
+            simpleName = simpleName.substring(0, simpleName.length() - "dialect".length());
         }
+        String resourceName = "META-INF/dialect-env/" + simpleName + ".env";
+        Properties props = new Properties();
+        try {
+            java.util.Enumeration<java.net.URL> urls =
+                    getClass().getClassLoader().getResources(resourceName);
+            while (urls.hasMoreElements()) {
+                java.net.URL url = urls.nextElement();
+                try (InputStream is = url.openStream()) {
+                    if (is != null) {
+                        Properties one = new Properties();
+                        one.load(new java.io.BufferedReader(new java.io.InputStreamReader(is, StandardCharsets.UTF_8)));
+                        // 类路径靠前的资源逐键优先，后续 jar 只补缺
+                        for (String key : one.stringPropertyNames()) {
+                            props.putIfAbsent(key, one.getProperty(key));
+                        }
+                    }
+                } catch (IOException e) {
+                    // 单个资源读取失败不影响其余来源合并
+                }
+            }
+        } catch (IOException e) {
+            return props;
+        }
+        return props;
     }
 
     @Override
@@ -89,8 +105,8 @@ public abstract class AbstractDialect implements Dialect {
         if (configured != null) {
             return configured;
         }
-        // 2. 回退到通用默认值
-        return "VARCHAR";
+        // 2. 回退到通用默认值（带长度，避免无长度 VARCHAR 在严格方言下建表失败）
+        return "VARCHAR(" + (length > 0 ? length : 255) + ")";
     }
 
     /**
@@ -169,18 +185,20 @@ public abstract class AbstractDialect implements Dialect {
      * @return 配置值
      */
     protected String config(String key, String defaultValue) {
-        String cacheKey = key;
-        if (configCache.containsKey(cacheKey)) {
-            return configCache.get(cacheKey);
+        String cached = configCache.get(key);
+        if (cached != null) {
+            return cached;
         }
         if (properties != null) {
             String val = properties.getProperty(key);
             if (val != null) {
-                configCache.put(cacheKey, val);
+                configCache.put(key, val);
                 return val;
             }
         }
-        configCache.put(cacheKey, defaultValue);
+        if (defaultValue != null) {
+            configCache.put(key, defaultValue);
+        }
         return defaultValue;
     }
 
