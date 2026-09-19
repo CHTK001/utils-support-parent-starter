@@ -6,7 +6,6 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.datasource.support.dialect.MysqlDialect;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -82,11 +81,17 @@ public class MysqlEngine extends JdbcEngine {
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);
         return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
+            private Dialect dialect = Dialect.require("mysql");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
             @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
-            @Override public Dialect getDialect() { return new MysqlDialect(); }
-            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect dialect) { return this; }
+            @Override public Dialect getDialect() { return dialect; }
+            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
+                if (d != null) {
+                    this.dialect = d;
+                }
+                return this;
+            }
             @Override public int tunnelPort() { return tunnelPortCapture[0]; }
             @Override public EngineDataSource<HikariDataSource> setTunnelPort(int tunnelPort) { return this; }
             @Override public String url() { return ds.getJdbcUrl(); }

@@ -80,11 +80,17 @@ public class ClickHouseEngine extends JdbcEngine {
         ds.setPassword(options.password());
         ds.setMaximumPoolSize(10);
         return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
+            private Dialect dialect = Dialect.require("clickhouse");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
             @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
-            @Override public Dialect getDialect() { return new ClickHouseDialect(); }
-            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect dialect) { return this; }
+            @Override public Dialect getDialect() { return dialect; }
+            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
+                if (d != null) {
+                    this.dialect = d;
+                }
+                return this;
+            }
             @Override public int tunnelPort() { return tunnelPortCapture[0]; }
             @Override public EngineDataSource<HikariDataSource> setTunnelPort(int tunnelPort) { return this; }
             @Override public String url() { return ds.getJdbcUrl(); }

@@ -118,11 +118,17 @@ public class SqlServerLegacyEngine extends JdbcEngine {
         ds.setMaximumPoolSize(DEFAULT_MAX_POOL_SIZE);
 
         return addDataSource(options.name(), new EngineDataSource<HikariDataSource>() {
+            private Dialect dialect = Dialect.require("sqlserver2008");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
             @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
-            @Override public Dialect getDialect() { return new SqlServerDialect(); }
-            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect dialect) { return this; }
+            @Override public Dialect getDialect() { return dialect; }
+            @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
+                if (d != null) {
+                    this.dialect = d;
+                }
+                return this;
+            }
             @Override public int tunnelPort() { return tunnelPortCapture[0]; }
             @Override public EngineDataSource<HikariDataSource> setTunnelPort(int tunnelPort) { return this; }
             @Override public String url() { return ds.getJdbcUrl(); }

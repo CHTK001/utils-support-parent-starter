@@ -745,6 +745,24 @@ public interface Dialect {
     }
 
     /**
+     * 通过 SPI 获取指定协议的方言实现，未注册时显式抛出。
+     * <p>引擎侧统一经此入口取方言，保证扩展点唯一：第三方只需在
+     * {@code META-INF/extensions/…Dialect} 注册即可零侵入接入。</p>
+     *
+     * @param protocol 数据库协议名（如 {@code mysql}、{@code postgresql}）
+     * @return 方言实例，永不为 空
+     * @throws IllegalStateException 协议未注册方言实现
+     */
+    static Dialect require(String protocol) {
+        Dialect dialect = getExtension(protocol);
+        if (dialect == null) {
+            throw new IllegalStateException("方言未注册: " + protocol
+                    + "，请在 META-INF/extensions/" + Dialect.class.getName() + " 中补充映射");
+        }
+        return dialect;
+    }
+
+    /**
      * 获取所有已注册的方言实现。
      *
      * @return SPI 键 → 方言实例的映射
