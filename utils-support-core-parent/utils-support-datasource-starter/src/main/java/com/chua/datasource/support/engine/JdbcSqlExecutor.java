@@ -136,15 +136,33 @@ public class JdbcSqlExecutor implements SqlExecutor {
 
     @Override
     public int[] batch(String sql, List<Object[]> batchParams) {
-        try (Connection conn = engine.getJdbcConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (batchParams != null) {
-                for (Object[] paramArray : batchParams) {
-                    bindParams(ps, paramArray);
-                    ps.addBatch();
+        try (Connection conn = engine.getJdbcConnection()) {
+            boolean prevAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                if (batchParams != null) {
+                    for (Object[] paramArray : batchParams) {
+                        bindParams(ps, paramArray);
+                        ps.addBatch();
+                    }
+                }
+                int[] results = ps.executeBatch();
+                conn.commit();
+                return results;
+            } catch (Exception inner) {
+                try {
+                    conn.rollback();
+                } catch (Exception re) {
+                    // 回滚失败不掩盖原始异常
+                }
+                throw inner;
+            } finally {
+                try {
+                    conn.setAutoCommit(prevAutoCommit);
+                } catch (Exception ae) {
+                    // 恢复失败留给连接池 reset
                 }
             }
-            return ps.executeBatch();
         } catch (Exception e) {
             throw new IllegalStateException("执行批量操作失败: " + sql, e);
         }
@@ -182,10 +200,11 @@ public class JdbcSqlExecutor implements SqlExecutor {
      */
     private String buildPageSql(String sql, Pagination pagination) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
-        if (dialect != null) {
-            return dialect.processSql(sql, pagination);
+        if (dialect == null) {
+            throw new IllegalStateException("数据源 '" + engine.getDefaultDataSourceName()
+                    + "' 未注册方言，无法生成安全分页 SQL（拒绝返回未分页全量结果）");
         }
-        return sql;
+        return dialect.processSql(sql, pagination);
     }
 
     /**

@@ -39,6 +39,13 @@ import java.util.List;
  */
 public abstract class JdbcEngine extends AbstractEngine {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(JdbcEngine.class);
+
+    /** SQL 标识符白名单：简单名或 库.表 限定名，仅字母数字下划线 */
+    private static final java.util.regex.Pattern IDENTIFIER_PATTERN =
+            java.util.regex.Pattern.compile("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)?");
+
     @Override
     @SuppressWarnings("unchecked")
     /**
@@ -303,9 +310,7 @@ public abstract class JdbcEngine extends AbstractEngine {
                     columnName = metaData.getColumnName(i);
                 }
                 Object value = rs.getObject(i);
-                if (value != null) {
-                    setFieldValue(instance, columnName, value);
-                }
+                setFieldValue(instance, columnName, value);
             }
             result.add(instance);
         }
@@ -382,7 +387,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (from >= data.size()) {
             return Collections.emptyList();
         }
-        return data.subList(from, to);
+        return new ArrayList<>(data.subList(from, to));
     }
 
     /**
@@ -539,7 +544,8 @@ public abstract class JdbcEngine extends AbstractEngine {
                 if (md != null) {
                     return md;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("协议 '{}' 的 MetaData SPI 解析失败，回退默认实现: {}", protocol, e.getMessage());
             }
         }
         return super.meta();
@@ -559,10 +565,12 @@ public abstract class JdbcEngine extends AbstractEngine {
                     return ds;
                 }
             }
-            // 回退：通过 Connection.unwrap 获取
-            java.sql.Connection conn = getJdbcConnection();
-            return conn.unwrap(javax.sql.DataSource.class);
+            // 回退：通过 Connection.unwrap 获取（连接用完即关，unwrap 出的 DataSource 独立存活）
+            try (java.sql.Connection conn = getJdbcConnection()) {
+                return conn.unwrap(javax.sql.DataSource.class);
+            }
         } catch (Exception e) {
+            log.warn("获取 JDBC DataSource 失败: {}", e.getMessage());
             return null;
         }
     }
@@ -930,6 +938,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             }
             return ext;
         } catch (Exception e) {
+            log.debug("SPI 管理器 {} 解析失败: {}", clazz.getSimpleName(), e.getMessage());
             return null;
         }
     }
@@ -975,8 +984,12 @@ public abstract class JdbcEngine extends AbstractEngine {
                 return provider.createDatabase(dbName);
             }
         }
-        return "CREATE DATABASE IF NOT EXISTS " + escapeIdentifier(dbName)
-                + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+        String ident = escapeIdentifier(dbName);
+        if ("mysql".equals(protocol) || "mariadb".equals(protocol)) {
+            return "CREATE DATABASE IF NOT EXISTS " + ident
+                    + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+        }
+        return "CREATE DATABASE IF NOT EXISTS " + ident;
     }
 
     /**
@@ -989,14 +1002,27 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (dbName == null || dbName.isBlank()) {
             return false;
         }
-        try (Connection conn = getJdbcConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                     "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA "
-                             + "WHERE SCHEMA_NAME = '" + escapeString(dbName) + "'")) {
-            return rs.next();
-        } catch (Exception e) {
+        String protocol = currentDialectProtocol();
+        try (Connection conn = getJdbcConnection()) {
+            if ("mysql".equals(protocol) || "mariadb".equals(protocol)) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?")) {
+                    ps.setString(1, dbName);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        return rs.next();
+                    }
+                }
+            }
+            try (ResultSet rs = conn.getMetaData().getCatalogs()) {
+                while (rs.next()) {
+                    if (dbName.equalsIgnoreCase(rs.getString(1))) {
+                        return true;
+                    }
+                }
+            }
             return false;
+        } catch (Exception e) {
+            throw new RuntimeException("检查数据库存在性失败: " + dbName, e);
         }
     }
 
@@ -1007,16 +1033,27 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     public List<String> listDatabases() {
         List<String> result = new ArrayList<>();
-        try (Connection conn = getJdbcConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SHOW DATABASES")) {
-            while (rs.next()) {
-                result.add(rs.getString(1));
+        String protocol = currentDialectProtocol();
+        boolean mysqlFamily = "mysql".equals(protocol) || "mariadb".equals(protocol);
+        try (Connection conn = getJdbcConnection()) {
+            if (mysqlFamily) {
+                try (Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery("SHOW DATABASES")) {
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                }
+                return result;
             }
+            try (ResultSet rs = conn.getMetaData().getCatalogs()) {
+                while (rs.next()) {
+                    result.add(rs.getString(1));
+                }
+            }
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("列出数据库失败", e);
         }
-        return result;
     }
 
     /**
@@ -1026,8 +1063,11 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return 结果字符串
      */
     private static String escapeIdentifier(String name) {
-        // 调用方负责按需添加引用符，此处仅做安全转义
-        return StringUtils.replace(name, "`", "``");
+        // 白名单校验：仅允许字母数字下划线（可带一层限定），杜绝拼接注入
+        if (name == null || name.isBlank() || !IDENTIFIER_PATTERN.matcher(name).matches()) {
+            throw new IllegalArgumentException("非法 SQL 标识符: " + name);
+        }
+        return name;
     }
 
     /**
