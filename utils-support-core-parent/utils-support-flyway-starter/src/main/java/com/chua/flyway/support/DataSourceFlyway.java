@@ -293,7 +293,7 @@ public class DataSourceFlyway implements Flyway {
      */
     private void updateRecord(String version, String description, String script, String checksum, String success) {
         String sql = "UPDATE " + HISTORY_TABLE
-                + " SET " + COL_CHECKSUM + " = ?, " + COL_SUCCESS + " WHERE "
+                + " SET " + COL_CHECKSUM + " = ?, " + COL_SUCCESS + " = ? WHERE "
                 + COL_VERSION + " = ? AND " + COL_SCRIPT_NAME + " = ?";
         try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, checksum);
