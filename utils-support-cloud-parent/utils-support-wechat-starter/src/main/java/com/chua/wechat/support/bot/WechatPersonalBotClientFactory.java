@@ -20,13 +20,13 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
 
     @Override
     public BotClient create() {
-        log.debug("Creating WeChat personal bot client");
+        log.debug("创建个人微信机器人客户端");
         return new WechatPersonalBotClient();
     }
 
     @Override
     public BotClient.Builder builder() {
-        log.debug("Creating WeChat personal bot client builder");
+        log.debug("创建个人微信机器人客户端构建器");
         return new WechatPersonalBuilder();
     }
 
@@ -38,15 +38,20 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
      */
     static class WechatPersonalBuilder implements BotClient.Builder {
 
-        private String bridgeUrl;
+        /** Hook 服务地址 */
+        private String baseUrl;
 
+        /** 入站回调地址 */
         private String callbackUrl;
 
+        /** 鉴权令牌 */
         private String token;
 
-        private long connectTimeoutMillis = 5_000L;
+        /** 连接超时（毫秒）*/
+        private long connectTimeoutMillis = WechatPersonalBotClient.DEFAULT_CONNECT_TIMEOUT_MILLIS;
 
-        private long readTimeoutMillis = 15_000L;
+        /** 读取超时（毫秒）*/
+        private long readTimeoutMillis = WechatPersonalBotClient.DEFAULT_READ_TIMEOUT_MILLIS;
 
         @Override
         public BotClient.Builder token(String token) {
@@ -66,7 +71,7 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
 
         @Override
         public BotClient.Builder baseUrl(String baseUrl) {
-            this.bridgeUrl = baseUrl;
+            this.baseUrl = baseUrl;
             return this;
         }
 
@@ -101,16 +106,14 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
         @Override
         public BotClient build() {
             WechatPersonalBotClient client = new WechatPersonalBotClient();
-            if (StringUtils.isNotBlank(bridgeUrl)) {
-                client.baseUrl(bridgeUrl);
-            }
+            client.baseUrl(baseUrl);
             if (StringUtils.isNotBlank(token)) {
                 client.token(token);
             }
             client.callbackUrl(callbackUrl);
             client.connectTimeoutMillis(connectTimeoutMillis);
             client.readTimeoutMillis(readTimeoutMillis);
-            log.debug("Built WeChat personal bot client with bridge={}", bridgeUrl);
+            log.debug("构建个人微信机器人客户端完成 url={}", baseUrl);
             return client;
         }
     }

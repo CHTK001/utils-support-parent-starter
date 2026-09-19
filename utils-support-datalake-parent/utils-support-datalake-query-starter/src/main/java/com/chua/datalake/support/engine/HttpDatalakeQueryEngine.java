@@ -123,6 +123,12 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     }
 
     @Override
+    /** 不支持元数据操作 */
+    public boolean supportsMeta() {
+        return false;
+    }
+
+    @Override
     /** 关闭 */
     public void close() {
         client.close();

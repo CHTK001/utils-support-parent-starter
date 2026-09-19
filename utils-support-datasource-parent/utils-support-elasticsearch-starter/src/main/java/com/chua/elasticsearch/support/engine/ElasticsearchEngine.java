@@ -119,6 +119,12 @@ public class ElasticsearchEngine implements Engine {
         return new EsMetaData(this);
     }
 
+    @Override
+    /** 支持元数据操作（meta() 返回真实实现） */
+    public boolean supportsMeta() {
+        return true;
+    }
+
     /**
      * 获取客户端
      *
@@ -165,11 +171,11 @@ public class ElasticsearchEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取数据源
-    *
-    * @param n n
-    * @return 获取数据源的结果
-    */
+     * 获取数据源
+     *
+     * @param n n
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
@@ -204,57 +210,57 @@ public class ElasticsearchEngine implements Engine {
 
             @Override
             /**
-    * 解析Column
-    * @param col col
-    * @param col col
-    * @param pn pn
-    * @param ps ps
-    * @param ps ps
-    * @param ps ps
-    * @param to 转为
-    * @param entityClass 实体类
-    * @param col col
-    * @param col col
-    * @param entityClass 实体类
-    * @param col col
-    * @param col col
-    * @param entityClass 实体类
-    * @param conditions 条件
-    * @param m m
-    * @param entityClass 实体类
-    * @param e e
-    * @param conditions 条件
-    * @param m m
-    * @param c c
-    * @param m m
-    * @param m m
-    * @param op op
-    * @param m m
-    * @param field 字段
-    * @param values 值
-    * @param m m
-    * @param field 字段
-    * @param values 值
-    * @param m m
-    * @param value 值
-    * @param s s
-    * @param l l
-    * @param i i
-    * @param s s
-    * @param b b
-    * @param d d
-    * @param f f
-    * @param b b
-    * @param value 值
-    * @param source 源
-    * @param entityClass 实体类
-    * @param converted 转换
-    * @param e e
-    * @param e e
-    * @param value 值
-    * @param targetType 目标类型
-    * @param num num
-    */
+             * 解析Column
+             * @param col col
+             * @param col col
+             * @param pn pn
+             * @param ps ps
+             * @param ps ps
+             * @param ps ps
+             * @param to 转为
+             * @param entityClass 实体类
+             * @param col col
+             * @param col col
+             * @param entityClass 实体类
+             * @param col col
+             * @param col col
+             * @param entityClass 实体类
+             * @param conditions 条件
+             * @param m m
+             * @param entityClass 实体类
+             * @param e e
+             * @param conditions 条件
+             * @param m m
+             * @param c c
+             * @param m m
+             * @param m m
+             * @param op op
+             * @param m m
+             * @param field 字段
+             * @param values 值
+             * @param m m
+             * @param field 字段
+             * @param values 值
+             * @param m m
+             * @param value 值
+             * @param s s
+             * @param l l
+             * @param i i
+             * @param s s
+             * @param b b
+             * @param d d
+             * @param f f
+             * @param b b
+             * @param value 值
+             * @param source 源
+             * @param entityClass 实体类
+             * @param converted 转换
+             * @param e e
+             * @param e e
+             * @param value 值
+             * @param targetType 目标类型
+             * @param num num
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -267,56 +273,56 @@ public class ElasticsearchEngine implements Engine {
 
                     @Override
                     /**
-            * 解析Column
-            * @param col col
-            * @param pn pn
-            * @param ps ps
-            * @param ps ps
-            * @param ps ps
-            * @param to 转为
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param m m
-            * @param entityClass 实体类
-            * @param e e
-            * @param conditions 条件
-            * @param m m
-            * @param c c
-            * @param m m
-            * @param m m
-            * @param op op
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param value 值
-            * @param s s
-            * @param l l
-            * @param i i
-            * @param s s
-            * @param b b
-            * @param d d
-            * @param f f
-            * @param b b
-            * @param value 值
-            * @param source 源
-            * @param entityClass 实体类
-            * @param converted 转换
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType 目标类型
-            * @param num num
-            */
+                     * 解析Column
+                     * @param col col
+                     * @param pn pn
+                     * @param ps ps
+                     * @param ps ps
+                     * @param ps ps
+                     * @param to 转为
+                     * @param entityClass 实体类
+                     * @param col col
+                     * @param col col
+                     * @param entityClass 实体类
+                     * @param col col
+                     * @param col col
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param m m
+                     * @param entityClass 实体类
+                     * @param e e
+                     * @param conditions 条件
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param value 值
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
+                     * @param e e
+                     * @param e e
+                     * @param value 值
+                     * @param targetType 目标类型
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -416,48 +422,48 @@ public class ElasticsearchEngine implements Engine {
 
                     @Override
                     /**
-            * 解析Column
-            * @param col col
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param m m
-            * @param entityClass 实体类
-            * @param e e
-            * @param conditions 条件
-            * @param m m
-            * @param c c
-            * @param m m
-            * @param m m
-            * @param op op
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param value 值
-            * @param s s
-            * @param l l
-            * @param i i
-            * @param s s
-            * @param b b
-            * @param d d
-            * @param f f
-            * @param b b
-            * @param value 值
-            * @param source 源
-            * @param entityClass 实体类
-            * @param converted 转换
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType 目标类型
-            * @param num num
-            */
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass 实体类
+                     * @param col col
+                     * @param col col
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param m m
+                     * @param entityClass 实体类
+                     * @param e e
+                     * @param conditions 条件
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param value 值
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
+                     * @param e e
+                     * @param e e
+                     * @param value 值
+                     * @param targetType 目标类型
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -468,7 +474,7 @@ public class ElasticsearchEngine implements Engine {
             @Override
             /** 更新 */
             public int update() {
-                return 0;
+                throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件更新");
             }
         };
     }
@@ -532,45 +538,45 @@ public class ElasticsearchEngine implements Engine {
 
                     @Override
                     /**
-            * 解析Column
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param m m
-            * @param entityClass 实体类
-            * @param e e
-            * @param conditions 条件
-            * @param m m
-            * @param c c
-            * @param m m
-            * @param m m
-            * @param op op
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param field 字段
-            * @param values 值
-            * @param m m
-            * @param value 值
-            * @param s s
-            * @param l l
-            * @param i i
-            * @param s s
-            * @param b b
-            * @param d d
-            * @param f f
-            * @param b b
-            * @param value 值
-            * @param source 源
-            * @param entityClass 实体类
-            * @param converted 转换
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType 目标类型
-            * @param num num
-            */
+                     * 解析Column
+                     * @param col col
+                     * @param entityClass 实体类
+                     * @param conditions 条件
+                     * @param m m
+                     * @param entityClass 实体类
+                     * @param e e
+                     * @param conditions 条件
+                     * @param m m
+                     * @param c c
+                     * @param m m
+                     * @param m m
+                     * @param op op
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param field 字段
+                     * @param values 值
+                     * @param m m
+                     * @param value 值
+                     * @param s s
+                     * @param l l
+                     * @param i i
+                     * @param s s
+                     * @param b b
+                     * @param d d
+                     * @param f f
+                     * @param b b
+                     * @param value 值
+                     * @param source 源
+                     * @param entityClass 实体类
+                     * @param converted 转换
+                     * @param e e
+                     * @param e e
+                     * @param value 值
+                     * @param targetType 目标类型
+                     * @param num num
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -581,7 +587,7 @@ public class ElasticsearchEngine implements Engine {
             @Override
             /** 移除 */
             public int remove() {
-                return 0;
+                throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件删除");
             }
         };
     }

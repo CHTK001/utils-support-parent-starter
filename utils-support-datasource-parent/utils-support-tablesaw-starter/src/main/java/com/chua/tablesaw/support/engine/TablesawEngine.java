@@ -266,6 +266,12 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
+    /** 不支持元数据操作 */
+    public boolean supportsMeta() {
+        return false;
+    }
+
+    @Override
     /** 关闭 */
     public void close() {
         tables.clear();
@@ -476,14 +482,14 @@ public class TablesawEngine implements Engine {
     }
 
     /**
-    * 解析 Lambda 表达式中的方法引用为属性名
-    * <p>
-    * 例如 {@code User::getName} 解析为 {@code "name"}。
-    * </p>
-    *
-    * @param column Lambda 方法引用
-    * @return 属性名字符串，解析失败返回 空
-    */
+     * 解析 Lambda 表达式中的方法引用为属性名
+     * <p>
+     * 例如 {@code User::getName} 解析为 {@code "name"}。
+     * </p>
+     *
+     * @param column Lambda 方法引用
+     * @return 属性名字符串，解析失败返回 空
+     */
     private String resolveLambdaColumn(SFunction<?, ?> column) {
         if (column == null) {
             return null;

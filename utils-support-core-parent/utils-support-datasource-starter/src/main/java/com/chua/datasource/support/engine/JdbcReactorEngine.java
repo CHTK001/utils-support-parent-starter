@@ -66,8 +66,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     protected final Engine delegate;
 
     /**
-    * 默认构造器，纯 R2DBC / 联邦模式使用。
-    */
+     * 默认构造器，纯 R2DBC / 联邦模式使用。
+     */
     public JdbcReactorEngine() {
         this(null);
     }
@@ -97,14 +97,14 @@ public class JdbcReactorEngine implements ReactorEngine {
     private DataSource unifiedDataSource;
 
     /**
-    * 添加 JDBC 数据源。根据数据源数量自动切换执行模式。
-    *
-    * @param name      数据源名称
-    * @param jdbcUrl   JDBC URL（如 jdbc:mysql://localhost:3306/mydb）
-    * @param username  用户名
-    * @param password  密码
-    * @return this
-    */
+     * 添加 JDBC 数据源。根据数据源数量自动切换执行模式。
+     *
+     * @param name      数据源名称
+     * @param jdbcUrl   JDBC URL（如 jdbc:mysql://localhost:3306/mydb）
+     * @param username  用户名
+     * @param password  密码
+     * @return this
+     */
     public JdbcReactorEngine addDataSource(String name, String jdbcUrl, String username, String password) {
         if (jdbcUrl == null) {
             throw new IllegalArgumentException("JDBC URL cannot be null");
@@ -843,6 +843,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public String getDefaultDataSourceName() { return defaultDataSourceName; }
         @Override
+        public boolean supportsMeta() { return false; }
+        @Override
         public void close() {}
     }
 
@@ -874,6 +876,8 @@ public class JdbcReactorEngine implements ReactorEngine {
         public Dialect getDialect(String dataSourceName) { return null; }
         @Override
         public String getDefaultDataSourceName() { return null; }
+        @Override
+        public boolean supportsMeta() { return false; }
         @Override
         public void close() {}
     }

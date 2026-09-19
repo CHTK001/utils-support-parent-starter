@@ -30,10 +30,10 @@ public class ReactorFlywayBridge implements Engine {
     private final JdbcReactorEngine delegate;
 
     /**
-    * 构造桥接适配器。
-    *
-    * @param delegate 目标响应式引擎
-    */
+     * 构造桥接适配器。
+     *
+     * @param delegate 目标响应式引擎
+     */
     public ReactorFlywayBridge(JdbcReactorEngine delegate) {
         this.delegate = delegate;
     }
@@ -132,6 +132,12 @@ public class ReactorFlywayBridge implements Engine {
     @Override
     public MetaData meta() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    /** 不支持元数据操作 */
+    public boolean supportsMeta() {
+        return false;
     }
 
     @Override

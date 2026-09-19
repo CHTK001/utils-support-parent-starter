@@ -35,9 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 个人微信机器人客户端，实现 {@link BotClient} 接口。
  *
- * <p>个人微信没有官方 API，本类不直接对接微信服务器，而是对接<b>本机运行的 hook
- * bridge</b>（如 wxhelper 注入 PC 微信后的 HTTP 服务，默认 {@code 127.0.0.1:19088}）：
- * 出站走 bridge 的发送接口，入站由 bridge 回调本机的 Spring 控制器，再交给
+ * <p>个人微信没有官方 API，本类不直接对接微信服务器，而是对接<b>本机运行的 Hook
+ * 服务</b>（如 wxhelper 注入 PC 微信后的 HTTP 服务，默认 {@code 127.0.0.1:19088}）：
+ * 出站走 Hook 服务的发送接口，入站由 Hook 服务回调本机的 Spring 控制器，再交给
  * {@link #deliver(String)} 解析并分发给监听器。</p>
  *
  * <h3>接入方式</h3>
@@ -49,11 +49,11 @@ import lombok.extern.slf4j.Slf4j;
  * }</pre>
  *
  * <h3>契约可移植性</h3>
- * <p>端点路径与请求字段名取自 wxhelper；换 bridge 实现时只需改
+ * <p>端点路径与请求字段名取自 wxhelper；换 Hook 服务实现时只需改
  * {@code xxxPath} 常量与入站键名列表 {@code FROM_USER_KEYS} 等，其余不动。
  * 本类不承诺任何官方兼容性。</p>
  *
- * <p><b>风险：</b>hook 个人微信违反《微信个人账号使用规范》，可能被封号。只应在
+ * <p><b>风险：</b>注入个人微信进程违反《微信个人账号使用规范》，可能被封号。只应在
  * 小号上使用，并在上层监听器里自行加入白名单与频控。</p>
  *
  * @author CH
@@ -62,7 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WechatPersonalBotClient implements BotClient {
 
-    /** bridge 默认监听地址 */
+    /** Hook 服务默认监听地址 */
     public static final String DEFAULT_BASE_URL = "http://127.0.0.1:19088";
 
     /** 发送文本端点 */
@@ -83,6 +83,12 @@ public class WechatPersonalBotClient implements BotClient {
     /** 群聊 wxid 后缀 */
     public static final String ROOM_SUFFIX = "@chatroom";
 
+    /** 默认连接超时（毫秒）*/
+    public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000L;
+
+    /** 默认读取超时（毫秒）*/
+    public static final long DEFAULT_READ_TIMEOUT_MILLIS = 15_000L;
+
     /** 微信消息类型：文本 */
     private static final int MSG_TYPE_TEXT = 1;
 
@@ -98,13 +104,49 @@ public class WechatPersonalBotClient implements BotClient {
     /** 微信消息类型：文件/表情等复合消息 */
     private static final int MSG_TYPE_FILE = 49;
 
-    /** 消息去重窗口大小，bridge 重推时避免重复回调 */
+    /** 消息去重窗口大小，Hook 服务重推时避免重复回调 */
     private static final int SEEN_CAPACITY = 512;
+
+    /** 鉴权头值前缀 */
+    private static final String BEARER_PREFIX = "Bearer ";
+
+    /** 回调注册接口的启用标记值 */
+    private static final int CALLBACK_ENABLED = 1;
+
+    /** 秒级与毫秒级时间戳的分界值，小于此值按秒处理 */
+    private static final long SECONDS_TIMESTAMP_THRESHOLD = 10_000_000_000L;
+
+    /** 每秒毫秒数 */
+    private static final long MILLIS_PER_SECOND = 1000L;
+
+    /**
+     * 入站消息中"会话对端"的候选键名，不同 Hook 服务命名不一致。
+     */
+    private static final String[] FROM_USER_KEYS = {
+            "talker", "senderWxid", "sender_wxid", "wxid", "fromUser", "strTalker"};
+
+    /**
+     * 入站消息中"群 wxid"的候选键名。
+     */
+    private static final String[] ROOM_KEYS = {
+            "roomWxid", "chatRoomId", "room_wxid", "chatroom"};
+
+    /**
+     * 入站消息中"群内真实发言人"的候选键名。
+     */
+    private static final String[] ROOM_SENDER_KEYS = {
+            "sender", "roomSender", "msgSender", "actualSender"};
+
+    /**
+     * 入站消息中"接收方"的候选键名，用于反推群会话。
+     */
+    private static final String[] TO_USER_KEYS = {
+            "toUserWxid", "toUser", "receiver", "to_wxid"};
 
     /** API 基础地址 */
     private String baseUrl = DEFAULT_BASE_URL;
 
-    /** bridge 鉴权令牌，非空时以 Bearer 头下发 */
+    /** Hook 服务鉴权令牌，非空时以 Bearer 头下发 */
     private String token;
 
     /** 密钥，未使用，仅为对齐 {@link BotClient} 接口 */
@@ -114,12 +156,12 @@ public class WechatPersonalBotClient implements BotClient {
     private String encodingAesKey;
 
     /** 连接超时（毫秒）*/
-    private long connectTimeoutMillis = 5_000L;
+    private long connectTimeoutMillis = DEFAULT_CONNECT_TIMEOUT_MILLIS;
 
     /** 读取超时（毫秒）*/
-    private long readTimeoutMillis = 15_000L;
+    private long readTimeoutMillis = DEFAULT_READ_TIMEOUT_MILLIS;
 
-    /** 注册给 bridge 的入站回调地址，为空表示由外部自行调用 deliver */
+    /** 注册给 Hook 服务的入站回调地址，为空表示由外部自行调用 deliver */
     private volatile String callbackUrl;
 
     /** 当前登录账号 wxid，用于过滤自己发出的消息 */
@@ -150,9 +192,9 @@ public class WechatPersonalBotClient implements BotClient {
     private final HttpClient httpClient = HttpClientFactory.getClient();
 
     /**
-     * 设置入站回调地址，{@code start()} 时注册给 bridge。
+     * 设置入站回调地址，{@code start()} 时注册给 Hook 服务。
      *
-     * @param callbackUrl 本机可被 bridge 访问到的地址
+     * @param callbackUrl 本机可被 Hook 服务访问到的地址
      * @return this
      */
     public WechatPersonalBotClient callbackUrl(String callbackUrl) {
@@ -161,7 +203,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 手动指定当前登录账号 wxid；不指定时由 {@code start()} 向 bridge 查询。
+     * 手动指定当前登录账号 wxid；不指定时由 {@code start()} 向 Hook 服务查询。
      *
      * @param selfWxid 自身 wxid
      * @return this
@@ -234,7 +276,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 校验 bridge 可达、解析自身 wxid，并向 bridge 注册回调地址。
+     * 校验 Hook 服务可达、解析自身 wxid，并向 Hook 服务注册回调地址。
      *
      * <p>不启动线程：入站消息由外部回调 {@link #deliver(String)} 注入。</p>
      */
@@ -243,14 +285,14 @@ public class WechatPersonalBotClient implements BotClient {
         resolveSelfWxid();
         registerCallbackUrl();
         running.set(true);
-        log.info("[WechatPersonal] bridge={} selfWxid={} started", baseUrl, selfWxid);
+        log.info("[WechatPersonal] 启动完成 url={} selfWxid={}", baseUrl, selfWxid);
         return this;
     }
 
     @Override
     public void stop() {
         running.set(false);
-        log.info("[WechatPersonal] stopped");
+        log.info("[WechatPersonal] 已停止");
     }
 
     @Override
@@ -261,7 +303,7 @@ public class WechatPersonalBotClient implements BotClient {
     @Override
     public BotSendResult sendText(String toUser, String content) {
         if (StringUtils.isBlank(toUser)) {
-            return BotSendResult.fail(-1, "toUser is required");
+            return BotSendResult.fail(-1, "接收人 wxid 不能为空");
         }
         JsonObject body = new JsonObject();
         body.fluentPut("wxid", toUser);
@@ -281,12 +323,12 @@ public class WechatPersonalBotClient implements BotClient {
 
     @Override
     public BotSendResult sendVoice(String toUser, String mediaPath) {
-        return BotSendResult.fail(-1, "voice message is not supported by the hook bridge");
+        return BotSendResult.fail(-1, "Hook 服务暂不支持语音消息");
     }
 
     @Override
     public BotSendResult sendVideo(String toUser, String mediaPath, String title, String desc) {
-        return BotSendResult.fail(-1, "video message is not supported by the hook bridge");
+        return BotSendResult.fail(-1, "Hook 服务暂不支持视频消息");
     }
 
     @Override
@@ -301,7 +343,7 @@ public class WechatPersonalBotClient implements BotClient {
         if (type == BotInboundMessage.Type.FILE) {
             return sendFile(message.getToUser(), message.getMediaPath());
         }
-        return BotSendResult.fail(-1, "Unsupported message type: " + type);
+        return BotSendResult.fail(-1, "不支持的消息类型: " + type);
     }
 
     @Override
@@ -321,7 +363,7 @@ public class WechatPersonalBotClient implements BotClient {
 
     @Override
     public List<BotGroupInfo> listGroups() {
-        // bridge 无稳定的会话列表接口，群与联系人由入站消息逐步沉淀到 userStore
+        // Hook 服务无稳定的会话列表接口，群与联系人由入站消息逐步沉淀到 userStore
         return Collections.emptyList();
     }
 
@@ -395,7 +437,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 注入 bridge 推送的一条或多条原始消息，供回调控制器调用。
+     * 注入 Hook 服务推送的一条或多条原始消息，供回调控制器调用。
      *
      * @param rawBody 回调请求体，单个 JSON 对象或 JSON 数组
      * @return 本次实际分发给监听器的消息，重复、自发、解析失败的条目不在其中
@@ -428,13 +470,13 @@ public class WechatPersonalBotClient implements BotClient {
      * 解析媒体消息，图片与文件共用同一套请求字段。
      *
      * @param toUser 接收者 wxid，不允许为空白
-     * @param path bridge 媒体接口路径
+     * @param path Hook 服务媒体接口路径
      * @param mediaPath 本地媒体文件路径，不允许为空白
      * @return 发送结果，参数缺失时返回失败结果
      */
     private BotSendResult sendMedia(String toUser, String path, String mediaPath) {
         if (StringUtils.isBlank(toUser) || StringUtils.isBlank(mediaPath)) {
-            return BotSendResult.fail(-1, "toUser and mediaPath are required");
+            return BotSendResult.fail(-1, "接收人 wxid 与媒体文件路径不能为空");
         }
         JsonObject body = new JsonObject();
         body.fluentPut("wxid", toUser);
@@ -443,9 +485,9 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 向 bridge 下发一次 JSON POST，并把响应折算成 {@link BotSendResult}。
+     * 向 Hook 服务下发一次 JSON POST，并把响应折算成 {@link BotSendResult}。
      *
-     * @param path bridge 接口路径
+     * @param path Hook 服务接口路径
      * @param body 请求 JSON 体，不允许为 null
      * @return 发送结果，调用异常时返回携带错误信息的失败结果
      */
@@ -461,9 +503,9 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * bridge 返回体不统一，按 status / code / errcode 任一为 0 判定成功。
+     * Hook 服务返回体不统一，按 status / code / errcode 任一为 0 判定成功。
      *
-     * @param responseBody bridge 响应体原文，可为空白
+     * @param responseBody Hook 服务响应体原文，可为空白
      * @return 发送结果，非 JSON 响应按成功处理
      */
     private BotSendResult parseSendResult(String responseBody) {
@@ -474,7 +516,7 @@ public class WechatPersonalBotClient implements BotClient {
         try {
             json = Json.getJsonObject(responseBody);
         } catch (Exception e) {
-            // 部分 bridge 直接返回纯文本 ok
+            // 部分 Hook 服务直接返回纯文本 ok
             return BotSendResult.ok(null);
         }
         if (json == null) {
@@ -490,9 +532,9 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 执行一次 bridge HTTP 请求，自动附带 JSON 头与 Bearer 令牌。
+     * 执行一次 Hook 服务 HTTP 请求，自动附带 JSON 头与 Bearer 令牌。
      *
-     * @param path bridge 接口路径
+     * @param path Hook 服务接口路径
      * @param method HTTP 方法，不允许为 null
      * @param body 请求 JSON 体，为 null 时不携带请求体
      * @return 响应体字符串
@@ -501,7 +543,7 @@ public class WechatPersonalBotClient implements BotClient {
         ClientRequest request = ClientRequest.of(baseUrl + path, method)
                 .header("Content-Type", "application/json");
         if (StringUtils.isNotBlank(token)) {
-            request.header("Authorization", "Bearer " + token);
+            request.header("Authorization", BEARER_PREFIX + token);
         }
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
@@ -538,7 +580,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 向 bridge 注册回调地址；bridge 不支持该接口时只告警，回调仍可由外部手工注入。
+     * 向 Hook 服务注册回调地址；Hook 服务不支持该接口时只告警，回调仍可由外部手工注入。
      */
     private void registerCallbackUrl() {
         if (StringUtils.isBlank(callbackUrl)) {
@@ -547,7 +589,7 @@ public class WechatPersonalBotClient implements BotClient {
         try {
             JsonObject body = new JsonObject();
             body.fluentPut("url", callbackUrl);
-            body.fluentPut("enable", 1);
+            body.fluentPut("enable", CALLBACK_ENABLED);
             String responseBody = execute(CALLBACK_REGISTER_PATH, HttpMethod.POST, body);
             log.info("[WechatPersonal] 回调地址已注册: {} -> {}", callbackUrl, responseBody);
         } catch (Exception e) {
@@ -582,7 +624,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 把 bridge 的原始消息映射为 {@link BotInboundMessage}，无有效消息体时返回空。
+     * 把 Hook 服务的原始消息映射为 {@link BotInboundMessage}，无有效消息体时返回空。
      *
      * @param item 原始消息键值对，不允许为 null
      * @return 入站消息；自发消息、重复消息或无有效消息体时返回 null
@@ -632,7 +674,7 @@ public class WechatPersonalBotClient implements BotClient {
     }
 
     /**
-     * 把 bridge 的消息类型码映射为统一的入站消息类型。
+     * 把 Hook 服务的消息类型码映射为统一的入站消息类型。
      *
      * @param msgType 消息类型码，可为 null
      * @return 消息类型，未知类型返回 UNKNOWN
@@ -738,7 +780,7 @@ public class WechatPersonalBotClient implements BotClient {
         }
         long value = timestamp.longValue();
         // 微信侧给的是秒级时间戳
-        return value < 10_000_000_000L ? value * 1000L : value;
+        return value < SECONDS_TIMESTAMP_THRESHOLD ? value * MILLIS_PER_SECOND : value;
     }
 
     /**
@@ -824,28 +866,4 @@ public class WechatPersonalBotClient implements BotClient {
     private static String stripTrailingSlash(String url) {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
     }
-
-    /**
-     * 入站消息中"会话对端"的候选键名，不同 bridge 命名不一致。
-     */
-    private static final String[] FROM_USER_KEYS = {
-            "talker", "senderWxid", "sender_wxid", "wxid", "fromUser", "strTalker"};
-
-    /**
-     * 入站消息中"群 wxid"的候选键名。
-     */
-    private static final String[] ROOM_KEYS = {
-            "roomWxid", "chatRoomId", "room_wxid", "chatroom"};
-
-    /**
-     * 入站消息中"群内真实发言人"的候选键名。
-     */
-    private static final String[] ROOM_SENDER_KEYS = {
-            "sender", "roomSender", "msgSender", "actualSender"};
-
-    /**
-     * 入站消息中"接收方"的候选键名，用于反推群会话。
-     */
-    private static final String[] TO_USER_KEYS = {
-            "toUserWxid", "toUser", "receiver", "to_wxid"};
 }

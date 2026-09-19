@@ -11,7 +11,7 @@
     </parent>
     <artifactId>utils-support-deeplearning-starter</artifactId>
     <name>Utils Support Deep Learning Starter</name>
-    <description>娣卞害瀛︿範鏍稿績锛氭ā鍨嬬鐞嗗紩鎿庛€丄I鑳藉姏鎺ュ彛銆丱penCV瀹炵幇銆佺炕璇戝櫒妯″紡</description>
+    <description>深度学习核心：模型管理引擎、AI能力接口、OpenCV实现、翻译器模式</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>

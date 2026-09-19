@@ -4,7 +4,6 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.engine.wrapper.AbstractLambdaWrapper;
-import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
 import com.chua.common.support.lang.datasource.engine.wrapper.JoinClause;
 import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
@@ -15,8 +14,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,8 +119,25 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      * @return 选择的结果
      */
     public ReactorLambdaQueryWrapper<T> select(String... columns) {
-        selectColumns.addAll(List.of(columns));
+        if (columns != null) {
+            for (String column : columns) {
+                selectColumns.add(checkSelectColumn(column));
+            }
+        }
         return this;
+    }
+
+    /**
+     * 校验字符串 SELECT 列：标识符白名单，额外放行 {@code *}。
+     *
+     * @param column 列名
+     * @return 校验通过的列名
+     */
+    private static String checkSelectColumn(String column) {
+        if ("*".equals(column)) {
+            return column;
+        }
+        return checkIdentifier(column);
     }
 
     /**
@@ -146,7 +160,11 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (columns == null || columns.length == 0) {
             throw new IllegalArgumentException("GROUP BY 列不能为空");
         }
-        this.groupByColumn = String.join(", ", columns);
+        String[] checked = new String[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            checked[i] = checkIdentifier(columns[i]);
+        }
+        this.groupByColumn = String.join(", ", checked);
         return this;
     }
 
@@ -237,7 +255,19 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (onCondition == null || onCondition.isBlank()) {
             throw new IllegalArgumentException("JOIN ON 条件不能为空");
         }
-        joins.add(new JoinClause(joinType, table, alias, onCondition));
+        // 表名允许 "表名 别名" 两段写法，各段均须为合法标识符
+        String[] tokens = table.trim().split("\\s+");
+        if (tokens.length > 2) {
+            throw new IllegalArgumentException("非法 JOIN 表名: " + table);
+        }
+        checkIdentifier(tokens[0]);
+        if (tokens.length == 2) {
+            checkIdentifier(tokens[1]);
+        }
+        if (alias != null && !alias.isBlank()) {
+            checkIdentifier(alias);
+        }
+        joins.add(new JoinClause(joinType, table.trim(), alias, onCondition));
         return this;
     }
 
@@ -255,11 +285,12 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (function == null || function.isBlank()) {
             throw new IllegalArgumentException("聚合函数名不能为空");
         }
-        String expr = column == null || column.isBlank()
+        checkIdentifier(function);
+        String expr = column == null || column.isBlank() || "*".equals(column)
                 ? function + "(*)"
-                : function + "(" + column + ")";
+                : function + "(" + checkIdentifier(column) + ")";
         if (alias != null && !alias.isBlank()) {
-            expr = expr + " AS " + alias;
+            expr = expr + " AS " + checkIdentifier(alias);
         }
         selectColumns.add(expr);
         return this;
@@ -536,13 +567,17 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
      */
     private String wrapPagination(String coreSql, int limit, int offset) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
-        if (dialect != null && offset % limit == 0) {
+        if (dialect == null || dialect.supportsLimit()) {
+            return coreSql + " LIMIT " + limit + " OFFSET " + offset;
+        }
+        if (offset % limit == 0) {
             Pagination pagination = new Pagination()
                     .setPageNum(offset / limit + 1)
                     .setPageSize(limit);
             return dialect.processSql(coreSql, pagination);
         }
-        return coreSql + " LIMIT " + limit + " OFFSET " + offset;
+        throw new UnsupportedOperationException("当前方言（" + dialect.protocol()
+                + "）不支持任意偏移分页，offset 必须是 limit 的整数倍: limit=" + limit + ", offset=" + offset);
     }
 
     // ==================== 内部实现 ====================
@@ -555,74 +590,5 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
         return LambdaUtils.resolveColumn(column);
-    }
-
-    /**
-     * 构建 WHERE 子句和参数列表。
-     * @param sb sb
-     * @param params 参数
-     */
-    protected void buildWhere(StringBuilder sb, List<Object> params) {
-        for (int i = 0; i < conditions.size(); i++) {
-            if (i > 0) {
-                sb.append(" AND ");
-            }
-            renderCondition(sb, params, conditions.get(i));
-        }
-    }
-
-    /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb sb
-     * @param params 参数
-     * @param c c
-     */
-    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
-        if (c.isNested()) {
-            sb.append("(");
-            for (int i = 0; i < c.getNested().size(); i++) {
-                if (i > 0) {
-                    sb.append(" ").append(c.getNestedOperator()).append(" ");
-                }
-                renderCondition(sb, params, c.getNested().get(i));
-            }
-            sb.append(")");
-            return;
-        }
-        String col = c.getColumnName();
-        if (col == null) {
-            col = "?";
-        }
-        sb.append(col);
-        switch (c.getOperator()) {
-            case "IS NULL":
-            case "IS NOT NULL":
-                sb.append(" ").append(c.getOperator());
-                break;
-            case "IN":
-            case "NOT IN":
-                sb.append(" ").append(c.getOperator()).append(" (");
-                Collection<?> vals = (Collection<?>) c.getValue();
-                Iterator<?> it = vals.iterator();
-                for (int i = 0; i < vals.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append("?");
-                    params.add(it.next());
-                }
-                sb.append(")");
-                break;
-            case "BETWEEN":
-                Object[] range = (Object[]) c.getValue();
-                sb.append(" BETWEEN ? AND ?");
-                params.add(range[0]);
-                params.add(range[1]);
-                break;
-            default:
-                sb.append(" ").append(c.getOperator()).append(" ?");
-                params.add(c.getValue());
-                break;
-        }
     }
 }

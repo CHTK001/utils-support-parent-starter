@@ -2,6 +2,7 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
@@ -52,6 +53,13 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     /** 表别名，用于多表关联查询 */
     protected String tableAlias;
 
+    /** 是否允许无 WHERE 条件的全表更新/删除（allowFullTable() 显式开启） */
+    protected boolean fullTableAllowed;
+
+    /** 合法 SQL 标识符：字母/数字/下划线，允许一级表限定（如 user_name、t.user_name） */
+    private static final Pattern IDENTIFIER_PATTERN =
+            Pattern.compile("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)?");
+
     /**
      * 创建 AbstractLambdaWrapper 实例
      * @param entityClass entityClass
@@ -93,7 +101,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C eq(String column, Object value) {
-        conditions.add(Condition.of(column, "=", value));
+        conditions.add(Condition.of(checkIdentifier(column), "=", value));
         return (C) this;
     }
 
@@ -115,7 +123,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C ne(String column, Object value) {
-        conditions.add(Condition.of(column, "!=", value));
+        conditions.add(Condition.of(checkIdentifier(column), "!=", value));
         return (C) this;
     }
 
@@ -137,7 +145,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C gt(String column, Object value) {
-        conditions.add(Condition.of(column, ">", value));
+        conditions.add(Condition.of(checkIdentifier(column), ">", value));
         return (C) this;
     }
 
@@ -159,7 +167,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C ge(String column, Object value) {
-        conditions.add(Condition.of(column, ">=", value));
+        conditions.add(Condition.of(checkIdentifier(column), ">=", value));
         return (C) this;
     }
 
@@ -181,7 +189,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C lt(String column, Object value) {
-        conditions.add(Condition.of(column, "<", value));
+        conditions.add(Condition.of(checkIdentifier(column), "<", value));
         return (C) this;
     }
 
@@ -203,7 +211,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C le(String column, Object value) {
-        conditions.add(Condition.of(column, "<=", value));
+        conditions.add(Condition.of(checkIdentifier(column), "<=", value));
         return (C) this;
     }
 
@@ -225,7 +233,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C like(String column, Object value) {
-        conditions.add(Condition.of(column, "LIKE", "%" + value + "%"));
+        conditions.add(Condition.of(checkIdentifier(column), "LIKE", "%" + value + "%"));
         return (C) this;
     }
 
@@ -247,7 +255,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C likeLeft(String column, Object value) {
-        conditions.add(Condition.of(column, "LIKE", "%" + value));
+        conditions.add(Condition.of(checkIdentifier(column), "LIKE", "%" + value));
         return (C) this;
     }
 
@@ -269,7 +277,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C likeRight(String column, Object value) {
-        conditions.add(Condition.of(column, "LIKE", value + "%"));
+        conditions.add(Condition.of(checkIdentifier(column), "LIKE", value + "%"));
         return (C) this;
     }
 
@@ -291,7 +299,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C in(String column, Collection<?> values) {
-        conditions.add(Condition.of(column, "IN", values));
+        conditions.add(Condition.of(checkIdentifier(column), "IN", values));
         return (C) this;
     }
 
@@ -313,7 +321,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C notIn(String column, Collection<?> values) {
-        conditions.add(Condition.of(column, "NOT IN", values));
+        conditions.add(Condition.of(checkIdentifier(column), "NOT IN", values));
         return (C) this;
     }
 
@@ -333,7 +341,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C isNull(String column) {
-        conditions.add(Condition.of(column, "IS NULL", null));
+        conditions.add(Condition.of(checkIdentifier(column), "IS NULL", null));
         return (C) this;
     }
 
@@ -353,7 +361,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C isNotNull(String column) {
-        conditions.add(Condition.of(column, "IS NOT NULL", null));
+        conditions.add(Condition.of(checkIdentifier(column), "IS NOT NULL", null));
         return (C) this;
     }
 
@@ -377,7 +385,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C between(String column, Object start, Object end) {
-        conditions.add(Condition.of(column, "BETWEEN", new Object[]{start, end}));
+        conditions.add(Condition.of(checkIdentifier(column), "BETWEEN", new Object[]{start, end}));
         return (C) this;
     }
 
@@ -421,7 +429,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C orderByAsc(String column) {
-        orderBys.add(column + " ASC");
+        orderBys.add(checkIdentifier(column) + " ASC");
         return (C) this;
     }
 
@@ -441,7 +449,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C orderByDesc(String column) {
-        orderBys.add(column + " DESC");
+        orderBys.add(checkIdentifier(column) + " DESC");
         return (C) this;
     }
 
@@ -451,8 +459,133 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * @return C 对象
      */
     public C tableAlias(String alias) {
-        this.tableAlias = alias;
+        this.tableAlias = checkIdentifier(alias);
         return (C) this;
+    }
+
+    /**
+     * 显式允许无 WHERE 条件的全表更新/删除。
+     * <p>更新/删除包装器默认在 {@code buildSql()} 时拒绝空 WHERE，
+     * 调用本方法后放行全表操作。</p>
+     *
+     * @return this
+     */
+    public C allowFullTable() {
+        this.fullTableAllowed = true;
+        return (C) this;
+    }
+
+    // ==================== WHERE 渲染（统一实现） ====================
+
+    /**
+     * 构建 WHERE 子句和参数列表。
+     * <p>遍历所有条件，普通条件之间以 AND 连接；若当前条件为 OR 嵌套分组，
+     * 则该分组与前文之间以 OR 连接（AND 嵌套分组仍以 AND 连接）。</p>
+     *
+     * @param sb     WHERE 片段缓冲
+     * @param params 参数收集列表
+     */
+    protected void buildWhere(StringBuilder sb, List<Object> params) {
+        for (int i = 0; i < conditions.size(); i++) {
+            if (i > 0) {
+                Condition current = conditions.get(i);
+                // OR 嵌套分组需要与前文以 OR 连接，其余条件统一 AND
+                boolean leadingOr = current.isNested()
+                        && "OR".equalsIgnoreCase(current.getNestedOperator());
+                sb.append(leadingOr ? " OR " : " AND ");
+            }
+            renderCondition(sb, params, conditions.get(i));
+        }
+    }
+
+    /**
+     * 渲染单个条件为 SQL 片段。
+     * <p>处理嵌套条件（括号包裹）、IS NULL、IN/BETWEEN 等特殊语法；
+     * 空集合的 IN 渲染为恒假条件 {@code 1 = 0}、NOT IN 渲染为恒真条件
+     * {@code 1 = 1}，避免生成非法的 {@code IN ()}。</p>
+     *
+     * @param sb     SQL 片段缓冲
+     * @param params 参数收集列表
+     * @param c      待渲染条件
+     */
+    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
+        if (c.isNested()) {
+            List<Condition> nested = c.getNested();
+            if (nested == null || nested.isEmpty()) {
+                sb.append("1 = 1");
+                return;
+            }
+            sb.append("(");
+            for (int i = 0; i < nested.size(); i++) {
+                if (i > 0) {
+                    sb.append(" ").append(c.getNestedOperator()).append(" ");
+                }
+                renderCondition(sb, params, nested.get(i));
+            }
+            sb.append(")");
+            return;
+        }
+        String col = c.getColumnName();
+        if (col == null) {
+            col = "?";
+        }
+        String operator = c.getOperator();
+        switch (operator) {
+            case "IS NULL":
+            case "IS NOT NULL":
+                sb.append(col).append(" ").append(operator);
+                break;
+            case "IN":
+            case "NOT IN": {
+                Collection<?> vals = (Collection<?>) c.getValue();
+                if (vals == null || vals.isEmpty()) {
+                    sb.append("IN".equals(operator) ? "1 = 0" : "1 = 1");
+                    break;
+                }
+                sb.append(col).append(" ").append(operator).append(" (");
+                Iterator<?> it = vals.iterator();
+                for (int i = 0; i < vals.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append("?");
+                    params.add(it.next());
+                }
+                sb.append(")");
+                break;
+            }
+            case "BETWEEN": {
+                Object[] range = (Object[]) c.getValue();
+                sb.append(col).append(" BETWEEN ? AND ?");
+                params.add(range[0]);
+                params.add(range[1]);
+                break;
+            }
+            default:
+                sb.append(col).append(" ").append(operator).append(" ?");
+                params.add(c.getValue());
+                break;
+        }
+    }
+
+    // ==================== 标识符校验 ====================
+
+    /**
+     * 校验字符串方式传入的 SQL 标识符（列名、别名），拒绝空格、引号、分号等
+     * 可拼接进 SQL 的字符，封闭字符串 API 的注入面。
+     *
+     * @param column 待校验标识符
+     * @return 校验通过的标识符原值
+     * @throws IllegalArgumentException 标识符为 null、空白或不满足白名单规则时抛出
+     */
+    protected static String checkIdentifier(String column) {
+        if (column == null || column.isBlank()) {
+            throw new IllegalArgumentException("SQL 标识符不能为空");
+        }
+        if (!IDENTIFIER_PATTERN.matcher(column).matches()) {
+            throw new IllegalArgumentException("非法 SQL 标识符: " + column);
+        }
+        return column;
     }
 
     // ==================== 子类扩展点 ====================

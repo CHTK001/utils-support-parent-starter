@@ -3,9 +3,6 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 import com.chua.common.support.lang.datasource.page.Page;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -49,16 +46,16 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /** JOIN 关联子句列表 */
     private final List<JoinClause> joins = new ArrayList<>();
     /**
-    * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
-    */
+     * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
+     */
     private String havingClause;
     /** HAVING 条件参数列表（与 ? 占位符顺序一致） */
     private final List<Object> havingParams = new ArrayList<>();
 
     /**
-    * 创建 LambdaQueryWrapper 实例
-    * @param entityClass entityClass
-    */
+     * 创建 LambdaQueryWrapper 实例
+     * @param entityClass entityClass
+     */
     public LambdaQueryWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -97,8 +94,25 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
      * @return this
      */
     public LambdaQueryWrapper<T> select(String... columns) {
-        selectColumns.addAll(List.of(columns));
+        if (columns != null) {
+            for (String column : columns) {
+                selectColumns.add(checkSelectColumn(column));
+            }
+        }
         return this;
+    }
+
+    /**
+     * 校验字符串 SELECT 列：标识符白名单，额外放行 {@code *}。
+     *
+     * @param column 列名
+     * @return 校验通过的列名
+     */
+    private static String checkSelectColumn(String column) {
+        if ("*".equals(column)) {
+            return column;
+        }
+        return checkIdentifier(column);
     }
 
     // ==================== GROUP BY ====================
@@ -124,7 +138,11 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
         if (columns == null || columns.length == 0) {
             throw new IllegalArgumentException("GROUP BY 列不能为空");
         }
-        this.groupByColumn = String.join(", ", columns);
+        String[] checked = new String[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            checked[i] = checkIdentifier(columns[i]);
+        }
+        this.groupByColumn = String.join(", ", checked);
         return this;
     }
 
@@ -215,7 +233,19 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
         if (onCondition == null || onCondition.isBlank()) {
             throw new IllegalArgumentException("JOIN ON 条件不能为空");
         }
-        joins.add(new JoinClause(joinType, table, alias, onCondition));
+        // 表名允许 "表名 别名" 两段写法，各段均须为合法标识符
+        String[] tokens = table.trim().split("\\s+");
+        if (tokens.length > 2) {
+            throw new IllegalArgumentException("非法 JOIN 表名: " + table);
+        }
+        checkIdentifier(tokens[0]);
+        if (tokens.length == 2) {
+            checkIdentifier(tokens[1]);
+        }
+        if (alias != null && !alias.isBlank()) {
+            checkIdentifier(alias);
+        }
+        joins.add(new JoinClause(joinType, table.trim(), alias, onCondition));
         return this;
     }
 
@@ -236,11 +266,12 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
         if (function == null || function.isBlank()) {
             throw new IllegalArgumentException("聚合函数名不能为空");
         }
-        String expr = column == null || column.isBlank()
+        checkIdentifier(function);
+        String expr = column == null || column.isBlank() || "*".equals(column)
                 ? function + "(*)"
-                : function + "(" + column + ")";
+                : function + "(" + checkIdentifier(column) + ")";
         if (alias != null && !alias.isBlank()) {
-            expr = expr + " AS " + alias;
+            expr = expr + " AS " + checkIdentifier(alias);
         }
         selectColumns.add(expr);
         return this;
@@ -424,83 +455,6 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
             return sb.toString();
         } catch (Exception e) {
             throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
-        }
-    }
-
-    /**
-     * 构建 WHERE 子句和参数列表。
-     * <p>遍历所有条件，普通条件之间以 AND 连接；若当前条件为 OR 嵌套分组，
-     * 则该分组与前文之间以 OR 连接（AND 嵌套分组仍以 AND 连接）。</p>
-     *
-     * @param sb     WHERE 片段缓冲
-     * @param params 参数收集列表
-     */
-    protected void buildWhere(StringBuilder sb, List<Object> params) {
-        for (int i = 0; i < conditions.size(); i++) {
-            if (i > 0) {
-                Condition current = conditions.get(i);
-                // OR 嵌套分组需要与前文以 OR 连接，其余条件统一 AND
-                boolean leadingOr = current.isNested()
-                        && "OR".equalsIgnoreCase(current.getNestedOperator());
-                sb.append(leadingOr ? " OR " : " AND ");
-            }
-            renderCondition(sb, params, conditions.get(i));
-        }
-    }
-
-    /**
-     * 渲染单个条件为 SQL 片段。
-     * <p>处理嵌套条件（括号包裹）、IN/BETWEEN 等特殊语法。</p>
-     * @param sb 方法入参 sb
-     * @param params 参数，不允许为 null
-     * @param c 方法入参 c
-     */
-    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
-        if (c.isNested()) {
-            sb.append("(");
-            for (int i = 0; i < c.getNested().size(); i++) {
-                if (i > 0) {
-                    sb.append(" ").append(c.getNestedOperator()).append(" ");
-                }
-                renderCondition(sb, params, c.getNested().get(i));
-            }
-            sb.append(")");
-            return;
-        }
-        String col = c.getColumnName();
-        if (col == null) {
-            col = "?";
-        }
-        sb.append(col);
-        switch (c.getOperator()) {
-            case "IS NULL":
-            case "IS NOT NULL":
-                sb.append(" ").append(c.getOperator());
-                break;
-            case "IN":
-            case "NOT IN":
-                sb.append(" ").append(c.getOperator()).append(" (");
-                Collection<?> vals = (Collection<?>) c.getValue();
-                Iterator<?> it = vals.iterator();
-                for (int i = 0; i < vals.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append("?");
-                    params.add(it.next());
-                }
-                sb.append(")");
-                break;
-            case "BETWEEN":
-                Object[] range = (Object[]) c.getValue();
-                sb.append(" BETWEEN ? AND ?");
-                params.add(range[0]);
-                params.add(range[1]);
-                break;
-            default:
-                sb.append(" ").append(c.getOperator()).append(" ?");
-                params.add(c.getValue());
-                break;
         }
     }
 

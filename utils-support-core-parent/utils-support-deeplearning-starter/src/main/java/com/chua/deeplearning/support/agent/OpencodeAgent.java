@@ -478,10 +478,7 @@ public class OpencodeAgent implements Agent {
      * @return 汇总响应
      */
     private AgentResponse runOnce(String input, Consumer<AgentEvent> onEvent) {
-        StringBuilder output = new StringBuilder();
-        List<AgentEvent> events = new ArrayList<>();
-        UsageAccum acc = new UsageAccum();
-        int[] stepCount = {0};
+        StreamState st = new StreamState(onEvent);
         boolean capped = false;
         long startMs = System.currentTimeMillis();
         fireDebug("PRE_CALL", preview(input), 1);
@@ -490,34 +487,22 @@ public class OpencodeAgent implements Agent {
             String[] args = buildArgs(input);
             try {
                 CliModelRunner.runStream(exe, args, timeoutSeconds, line -> {
-                    String t = line == null ? "" : line.trim();
-                    if (t.isEmpty() || t.charAt(0) != '{') {
-                        return;
-                    }
-                    AgentEvent ev = parseEvent(t, output, acc);
-                    if (ev != null) {
-                        events.add(ev);
-                        if (onEvent != null) {
-                            onEvent.accept(ev);
-                        }
-                        // 看门狗：step_finish 计一轮 LLM↔工具循环，达上限抛异常令 runStream 强杀进程
-                        if (maxToolIterations > 0 && "step_finish".equals(ev.type())
-                                && ++stepCount[0] >= maxToolIterations) {
-                            throw new IterationLimit();
-                        }
+                    // 看门狗：feedLine 在 step_finish 达上限时返回 true，抛异常令 runStream 强杀进程
+                    if (feedLine(st, line)) {
+                        throw new IterationLimit();
                     }
                 });
             } catch (IterationLimit limit) {
                 capped = true;
                 log.info("[opencode] 达到 maxToolIterations={}，提前终止进程（已采集 {} 事件）",
-                        maxToolIterations, events.size());
+                        maxToolIterations, st.events.size());
             }
             long duration = System.currentTimeMillis() - startMs;
             AgentResponse resp = AgentResponse.builder()
-                    .output(output.toString())
+                    .output(st.output.toString())
                     .mode(mode.name())
-                    .events(events)
-                    .usage(acc.toUsage(startMs, duration))
+                    .events(st.events)
+                    .usage(st.acc.toUsage(startMs, duration))
                     .build();
             resp.getMetadata().put("cli", cli.cliId());
             if (model != null) {
@@ -532,13 +517,58 @@ public class OpencodeAgent implements Agent {
             if (capped) {
                 resp.getMetadata().put("cappedByMaxToolIterations", Boolean.TRUE);
             }
-            fireDebug("POST_CALL", preview(output.toString()), 1);
+            fireDebug("POST_CALL", preview(st.output.toString()), 1);
             return resp;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException("opencode 执行失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 流式运行的可变累加状态（进程存活期间逐行更新）。
+     *
+     * <p>独立成类以便单测在不拉起真实进程的情况下驱动逐行解析与看门狗逻辑。</p>
+     */
+    static final class StreamState {
+        /** 文本输出累加 */
+        final StringBuilder output = new StringBuilder();
+        /** 已采集事件列表 */
+        final List<AgentEvent> events = new ArrayList<>();
+        /** token/费用累加器 */
+        final UsageAccum acc = new UsageAccum();
+        /** 逐事件回调，可为 null */
+        final Consumer<AgentEvent> onEvent;
+        /** step_finish 计数（看门狗用） */
+        int stepCount;
+
+        StreamState(Consumer<AgentEvent> onEvent) {
+            this.onEvent = onEvent;
+        }
+    }
+
+    /**
+     * 处理一行 NDJSON：解析为事件、回调 {@code onEvent}、累计文本与用量。
+     *
+     * @param st   流式累加状态
+     * @param line 原始行（可为 null 或非 JSON）
+     * @return 当 {@code maxToolIterations>0} 且本次为触发上限的 {@code step_finish} 时返回 true（调用方据此强杀进程）
+     */
+    boolean feedLine(StreamState st, String line) {
+        String t = line == null ? "" : line.trim();
+        if (t.isEmpty() || t.charAt(0) != '{') {
+            return false;
+        }
+        AgentEvent ev = parseEvent(t, st.output, st.acc);
+        if (ev == null) {
+            return false;
+        }
+        st.events.add(ev);
+        if (st.onEvent != null) {
+            st.onEvent.accept(ev);
+        }
+        return maxToolIterations > 0 && "step_finish".equals(ev.type()) && ++st.stepCount >= maxToolIterations;
     }
 
     /**
@@ -888,7 +918,7 @@ public class OpencodeAgent implements Agent {
     /**
      * 多次 step_finish 的 token/费用累加器。
      */
-    private static final class UsageAccum {
+    static final class UsageAccum {
         /** 输入 token 累计 */
         private int input;
         /** 输出 token 累计 */
