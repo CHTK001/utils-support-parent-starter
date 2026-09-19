@@ -11,13 +11,13 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* DUMP格式归档输入流提供者
-* <p>
-* DUMP格式通常用于Unix/Linux系统备份
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DUMP格式归档输入流提供者
+ * <p>
+ * DUMP格式通常用于Unix/Linux系统备份
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("dump")
 public class DumpCompressArchiveInputStream implements CompressArchiveInputStream {

@@ -6,23 +6,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
-* HEIF 原生编码器 — 将 缓冲镜像 编码为 HEIC（JPEG-基础 HEIF）。
-*
-* @author CH
-* @since 4.0.0.42
+ * HEIF 原生编码器 — 将 缓冲镜像 编码为 HEIC（JPEG-基础 HEIF）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HeifNativeEncoder {
 
     /**
-    * heifNAT编码器。
-    */
+     * heifNAT编码器。
+     */
     private HeifNativeEncoder() {}
 
     /**
-    * encode。
-    * @param image 镜像
-    * @param output 输出
-    */
+     * encode。
+     * @param image 镜像
+     * @param output 输出
+     */
     public static void encode(BufferedImage image, ImageOutputStream output) throws IOException {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -51,11 +51,11 @@ public class HeifNativeEncoder {
     }
 
     /**
-    * 写入box。
-    * @param out 出
-    * @param type 类型
-    * @param data 数据
-    */
+     * 写入box。
+     * @param out 出
+     * @param type 类型
+     * @param data 数据
+     */
     private static void writeBox(ByteArrayOutputStream out, String type, byte[] data) throws IOException {
         int size = 8 + data.length;
         out.write(intToBytes(size));
@@ -64,10 +64,10 @@ public class HeifNativeEncoder {
     }
 
     /**
-    * int转为bytes。
-    * @param value 值
-    * @return int转为bytes的结果
-    */
+     * int转为bytes。
+     * @param value 值
+     * @return int转为bytes的结果
+     */
     private static byte[] intToBytes(int value) {
         return new byte[]{
             (byte)((value >> 24) & 0xFF),
@@ -78,11 +78,11 @@ public class HeifNativeEncoder {
     }
 
     /**
-    * 构建hinfbox。
-    * @param w w
-    * @param h h
-    * @return 构建hinfbox的结果
-    */
+     * 构建hinfbox。
+     * @param w w
+     * @param h h
+     * @return 构建hinfbox的结果
+     */
     private static byte[] buildHinfBox(int w, int h) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         safeWrite(bos, new byte[]{0, 0, 0, 0});
@@ -94,11 +94,11 @@ public class HeifNativeEncoder {
     }
 
     /**
-    * 构建ispebox。
-    * @param w w
-    * @param h h
-    * @return 构建ispebox的结果
-    */
+     * 构建ispebox。
+     * @param w w
+     * @param h h
+     * @return 构建ispebox的结果
+     */
     private static byte[] buildIspeBox(int w, int h) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         safeWrite(bos, new byte[]{0, 0, 0, 0});
@@ -109,20 +109,20 @@ public class HeifNativeEncoder {
     }
 
     /**
-    * safe写入。
-    * @param out 出
-    * @param data 数据
-    */
+     * safe写入。
+     * @param out 出
+     * @param data 数据
+     */
     private static void safeWrite(ByteArrayOutputStream out, byte[] data) {
         out.write(data, 0, data.length);
     }
 
     /**
-    * 转为jpegbytes。
-    * @param image 镜像
-    * @param quality quality
-    * @return 转为jpegbytes的结果
-    */
+     * 转为jpegbytes。
+     * @param image 镜像
+     * @param quality quality
+     * @return 转为jpegbytes的结果
+     */
     private static byte[] toJpegBytes(BufferedImage image, float quality) throws IOException {
         // 转为 RGB 再交给 JPEG 编码（JPEG 不支持 alpha 通道与索引色）
         BufferedImage rgb;

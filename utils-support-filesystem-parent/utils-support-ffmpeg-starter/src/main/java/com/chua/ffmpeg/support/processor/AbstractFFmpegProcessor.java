@@ -7,36 +7,36 @@ import java.io.File;
 import java.io.IOException;
 
 /**
-* ffmpeg 处理器抽象基类，提供 ffmpeg 可执行文件查找和通用参数构建逻辑。
-*
-* @author CH
-* @since 4.0.0.42
+ * ffmpeg 处理器抽象基类，提供 ffmpeg 可执行文件查找和通用参数构建逻辑。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
 
     /**
-    * 是否已初始化可用
-    */
+     * 是否已初始化可用
+     */
     protected volatile boolean available;
 
     /**
-    * 初始化失败原因
-    */
+     * 初始化失败原因
+     */
     protected String loadError;
 
     /**
-    * ffmpeg 可执行文件路径
-    */
+     * ffmpeg 可执行文件路径
+     */
     protected File ffmpegFile;
 
     /**
-    * ffprobe 可执行文件路径
-    */
+     * ffprobe 可执行文件路径
+     */
     protected File ffprobeFile;
 
     /**
-    * 构造处理器并自动查找 ffmpeg。
-    */
+     * 构造处理器并自动查找 ffmpeg。
+     */
     protected AbstractFFmpegProcessor() {
         try {
             locateFFmpeg();
@@ -47,8 +47,8 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-    * 在系统 路径 和常见路径中查找 ffmpeg。
-    */
+     * 在系统 路径 和常见路径中查找 ffmpeg。
+     */
     protected void locateFFmpeg() {
         String os = System.getProperty("os.name").toLowerCase();
         String ffmpegExe = os.contains("win") ? "ffmpeg.exe" : "ffmpeg";
@@ -90,10 +90,10 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-    * 解析文件扩展名作为目标格式。
-    * @param output 输出
-    * @return resolve格式化的结果
-    */
+     * 解析文件扩展名作为目标格式。
+     * @param output 输出
+     * @return resolve格式化的结果
+     */
     protected String resolveFormat(File output) {
         String name = output.getName();
         int dot = name.lastIndexOf('.');
@@ -101,10 +101,10 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     /**
-    * 将 ffmpeg期权 转换为命令行参数字符串数组。
-    * @param opts opts
-    * @return 构建codec参数的结果
-    */
+     * 将 ffmpeg期权 转换为命令行参数字符串数组。
+     * @param opts opts
+     * @return 构建codec参数的结果
+     */
     protected String[] buildCodecArgs(FFmpegOptions opts) {
         java.util.List<String> args = new java.util.ArrayList<>();
         if (opts == null) {

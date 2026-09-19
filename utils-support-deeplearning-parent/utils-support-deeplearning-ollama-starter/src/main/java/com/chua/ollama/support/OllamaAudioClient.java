@@ -44,29 +44,29 @@ import java.util.Map;
 public class OllamaAudioClient implements VirtualClient {
 
     /**
-    * 客户端 配置
-    */
+     * 客户端 配置
+     */
     private final AudioClientSetting setting;
 
     /**
-    * ollama4j 原生 客户端
-    */
+     * ollama4j 原生 客户端
+     */
     private final Ollama ollama;
 
     /**
-    * 当前 模型 名称
-    */
+     * 当前 模型 名称
+     */
     private String model;
 
     /**
-    * 音频 语言
-    */
+     * 音频 语言
+     */
     private String language;
 
     /**
-    * 异步 任务 缓存（Ollama 无 原生 异步，以 本地 记录 模拟 轮询 契约）。
-    * <p>使用 有界 缓存 防止 长时间 运行 下 内存 无界 增长；超出 容量 时 最老 任务 被 驱逐。</p>
-    */
+     * 异步 任务 缓存（Ollama 无 原生 异步，以 本地 记录 模拟 轮询 契约）。
+     * <p>使用 有界 缓存 防止 长时间 运行 下 内存 无界 增长；超出 容量 时 最老 任务 被 驱逐。</p>
+     */
     private final Map<String, AudioResponse> taskCache =
             java.util.Collections.synchronizedMap(
                     new java.util.LinkedHashMap<String, AudioResponse>(64, 0.75f, true) {
@@ -77,10 +77,10 @@ public class OllamaAudioClient implements VirtualClient {
                     });
 
     /**
-    * 创建 Ollama 语音 识别 客户端。
-    *
-    * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
-    */
+     * 创建 Ollama 语音 识别 客户端。
+     *
+     * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
+     */
     public OllamaAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.ollama = OllamaSupport.client(setting != null ? setting.getBaseUrl() : null);
@@ -196,12 +196,12 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     /**
-    * 读取 音频 字节：优先 使用 已 配置 的 字节 数组，其次 读取 文件 路径。
-    *
-    * @param path  音频 文件 路径（可为 空）
-    * @param audio 已 配置 的 音频 字节（可为 空）
-    * @return 音频 字节 数组
-    */
+     * 读取 音频 字节：优先 使用 已 配置 的 字节 数组，其次 读取 文件 路径。
+     *
+     * @param path  音频 文件 路径（可为 空）
+     * @param audio 已 配置 的 音频 字节（可为 空）
+     * @return 音频 字节 数组
+     */
     private byte[] readAudio(Path path, byte[] audio) {
         if (audio != null && audio.length > 0) {
             return audio;
@@ -217,14 +217,14 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     /**
-    * 构建 转写 提示词：将 音频 以 Base64 形式 嵌入 提示词，交由 语音 模型 解析。
-    *
-    * <p>Ollama 的 音频 输入 依赖 模型 侧 对 内嵌 数据 的 支持；此 处 以
-    * 文本 化 方式 传递，兼容 支持 该 方式 的 语音 模型。</p>
-    *
-    * @param audioBytes 音频 字节
-    * @return 提示词
-    */
+     * 构建 转写 提示词：将 音频 以 Base64 形式 嵌入 提示词，交由 语音 模型 解析。
+     *
+     * <p>Ollama 的 音频 输入 依赖 模型 侧 对 内嵌 数据 的 支持；此 处 以
+     * 文本 化 方式 传递，兼容 支持 该 方式 的 语音 模型。</p>
+     *
+     * @param audioBytes 音频 字节
+     * @return 提示词
+     */
     private String buildTranscribePrompt(byte[] audioBytes) {
         String encoded = Base64.getEncoder().encodeToString(audioBytes);
         StringBuilder sb = new StringBuilder();

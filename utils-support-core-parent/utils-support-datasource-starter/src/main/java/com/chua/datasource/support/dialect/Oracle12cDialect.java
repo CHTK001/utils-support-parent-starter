@@ -8,8 +8,8 @@ public class Oracle12cDialect extends SqlDialect {
     */
     public Oracle12cDialect() { super("oracle12c"); }
     /**
-    * Oracle12cdialect。
-    * @param properties 属性
-    */
+     * Oracle12cdialect。
+     * @param properties 属性
+     */
     public Oracle12cDialect(Properties properties) { super("oracle12c", properties); }
 }

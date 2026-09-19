@@ -13,26 +13,26 @@ import javax.annotation.Nullable;
 
 
 /**
-* Date 类型转换器。
-* <p>将各种类型的值转换为 {@link Date}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link java.time.LocalDate} / {@link java.time.LocalDateTime} / {@link java.util.Calendar} / {@link Long} — 通过 DateUtils 转换</li>
-*   <li>{@link java.sql.Date} — 直接返回（子类）</li>
-*   <li>{@link String} — 通过 DateUtils.parseDate 解析日期字符串</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/26
+ * Date 类型转换器。
+ * <p>将各种类型的值转换为 {@link Date}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link java.time.LocalDate} / {@link java.time.LocalDateTime} / {@link java.util.Calendar} / {@link Long} — 通过 DateUtils 转换</li>
+ *   <li>{@link java.sql.Date} — 直接返回（子类）</li>
+ *   <li>{@link String} — 通过 DateUtils.parseDate 解析日期字符串</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/26
  */
 public class DateTypeConverter implements TypeConverter<Date> {
 
     /**
-    * 将给定值转换为 Date。
-    *
-    * @param value 源值
-    * @return Date 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 Date。
+     *
+     * @param value 源值
+     * @return Date 值，如果无法转换则返回 null
+     */
     @Override
     public Date convert(Object value) {
         Date date = convertIfNecessary(value);
@@ -69,10 +69,10 @@ public class DateTypeConverter implements TypeConverter<Date> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return Date.class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return Date.class
+     */
     @Override
     public Class<Date> getType() {
         return Date.class;

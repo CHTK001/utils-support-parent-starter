@@ -2,28 +2,28 @@ package com.chua.common.support.lang.algorithm.cipher;
 
 
 /**
-* 加解密算法统一门面，支持链式调用。
-*
-* <p>遵循项目 {@code XxxFlow} 家风，作为<b>所有加解密算法的统一入口</b>：按算法名绑定，
-* 再解析出对应实现（JDK 内置直接实例化；其余走 SPI 按提供者加载，当前内置 BouncyCastle "bc"）。</p>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* // 按算法名 + 提供者统一入口
-* byte[] enc = CipherFlow.of("sm2").provider("bc").sm2().encrypt(publicKey, data);
-* byte[] dec = CipherFlow.of("aes").aes().encrypt(key, data);
-*
-* // 具体算法直接链式（按算法名解析出对应类型）
-* byte[] rsaCt = CipherFlow.of("rsa").rsa().encrypt(publicKey, data);
-*
-* // HPKE 混合加密（委托 HpkeFlow 门面）
-* HpkeFlow hpke = CipherFlow.of("hpke").hpkeFlow();
-* HpkeFlow.SealedMessage msg = hpke.receiverPk(receiverPub).aad(aad).seal(plain);
-* byte[] out = hpke.secretKey(receiverPriv).enc(msg.enc()).aad(aad).open(msg.ciphertext());
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 加解密算法统一门面，支持链式调用。
+ *
+ * <p>遵循项目 {@code XxxFlow} 家风，作为<b>所有加解密算法的统一入口</b>：按算法名绑定，
+ * 再解析出对应实现（JDK 内置直接实例化；其余走 SPI 按提供者加载，当前内置 BouncyCastle "bc"）。</p>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * // 按算法名 + 提供者统一入口
+ * byte[] enc = CipherFlow.of("sm2").provider("bc").sm2().encrypt(publicKey, data);
+ * byte[] dec = CipherFlow.of("aes").aes().encrypt(key, data);
+ *
+ * // 具体算法直接链式（按算法名解析出对应类型）
+ * byte[] rsaCt = CipherFlow.of("rsa").rsa().encrypt(publicKey, data);
+ *
+ * // HPKE 混合加密（委托 HpkeFlow 门面）
+ * HpkeFlow hpke = CipherFlow.of("hpke").hpkeFlow();
+ * HpkeFlow.SealedMessage msg = hpke.receiverPk(receiverPub).aad(aad).seal(plain);
+ * byte[] out = hpke.secretKey(receiverPriv).enc(msg.enc()).aad(aad).open(msg.ciphertext());
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class CipherFlow {
 
@@ -46,22 +46,22 @@ public final class CipherFlow {
     // ==================== 工厂 ====================
 
     /**
-    * 按算法名创建门面（默认提供者 "bc"）。
-    *
-    * @param algorithm 算法名，如 "sm2"、"sm4"、"aes"、"hpke"
-    * @return 门面实例
-    */
+     * 按算法名创建门面（默认提供者 "bc"）。
+     *
+     * @param algorithm 算法名，如 "sm2"、"sm4"、"aes"、"hpke"
+     * @return 门面实例
+     */
     public static CipherFlow of(String algorithm) {
         return new CipherFlow(algorithm);
     }
 
     /**
-    * 按算法名 + 提供者创建门面。
-    *
-    * @param algorithm 算法名
-    * @param provider  提供者名称，如 "bc"
-    * @return 门面实例
-    */
+     * 按算法名 + 提供者创建门面。
+     *
+     * @param algorithm 算法名
+     * @param provider  提供者名称，如 "bc"
+     * @return 门面实例
+     */
     public static CipherFlow of(String algorithm, String provider) {
         CipherFlow flow = new CipherFlow(algorithm);
         if (provider != null && !provider.isEmpty()) {
@@ -73,41 +73,41 @@ public final class CipherFlow {
     // ==================== 配置（链式，返回 this） ====================
 
     /**
-    * 切换算法名。
-    *
-    * @param algorithm 算法名
-    * @return 当前门面
-    */
+     * 切换算法名。
+     *
+     * @param algorithm 算法名
+     * @return 当前门面
+     */
     public CipherFlow algorithm(String algorithm) {
         this.algorithm = algorithm;
         return this;
     }
 
     /**
-    * 切换提供者。
-    *
-    * @param provider 提供者名称，如 "bc"
-    * @return 当前门面
-    */
+     * 切换提供者。
+     *
+     * @param provider 提供者名称，如 "bc"
+     * @return 当前门面
+     */
     public CipherFlow provider(String provider) {
         this.provider = provider;
         return this;
     }
 
     /**
-    * 获取当前算法名。
-    *
-    * @return 算法名
-    */
+     * 获取当前算法名。
+     *
+     * @return 算法名
+     */
     public String algorithm() {
         return algorithm;
     }
 
     /**
-    * 获取当前提供者。
-    *
-    * @return 提供者名称
-    */
+     * 获取当前提供者。
+     *
+     * @return 提供者名称
+     */
     public String provider() {
         return provider;
     }
@@ -115,11 +115,11 @@ public final class CipherFlow {
     // ==================== 解析具体算法 ====================
 
     /**
-    * 按绑定的算法名解析出对应 {@link Cipher} 实现（统一入口）。
-    *
-    * @return 对应的 Cipher 实现
-    * @throws IllegalArgumentException 未知算法名时
-    */
+     * 按绑定的算法名解析出对应 {@link Cipher} 实现（统一入口）。
+     *
+     * @return 对应的 Cipher 实现
+     * @throws IllegalArgumentException 未知算法名时
+     */
     public Cipher resolve() {
         String name = algorithm == null ? "" : algorithm.toLowerCase();
         return switch (name) {

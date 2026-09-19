@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
-* 机构预报路径点实体。
-*
-* @author CH
-* @since 4.0.0.42
+ * 机构预报路径点实体。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

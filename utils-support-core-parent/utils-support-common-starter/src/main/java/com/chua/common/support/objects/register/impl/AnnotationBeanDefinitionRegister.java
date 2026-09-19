@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("annotation")
 @SpiDescribe("注解 Bean 定义注册器")

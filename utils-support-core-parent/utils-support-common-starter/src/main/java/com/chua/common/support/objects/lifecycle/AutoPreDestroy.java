@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

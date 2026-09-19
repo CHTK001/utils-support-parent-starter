@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 华为云 OBS 文件存储实现。
-*
-* <p>基于华为云 OBS SDK 实现 {@link FileStorage} SPI 接口。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 华为云 OBS 文件存储实现。
+ *
+ * <p>基于华为云 OBS SDK 实现 {@link FileStorage} SPI 接口。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"obs", "huawei"})
 public class HuaweiObsFileStorage extends AbstractFileStorage {

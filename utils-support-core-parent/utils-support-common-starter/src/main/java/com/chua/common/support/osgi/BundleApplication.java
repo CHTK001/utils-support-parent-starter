@@ -10,20 +10,20 @@ package com.chua.common.support.osgi;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface BundleApplication {
 
     /**
-    * OSGI 框架启动时回调，传入 Bundle 上下文供注册服务使用。
-    *
-    * @param context OSGI Bundle 上下文
-    */
+     * OSGI 框架启动时回调，传入 Bundle 上下文供注册服务使用。
+     *
+     * @param context OSGI Bundle 上下文
+     */
     void onBundleStart(BundleContext context);
 
     /**
-    * OSGI 框架停止时回调，用于清理已注册的服务。
-    *
-    * @param context OSGI Bundle 上下文
-    */
+     * OSGI 框架停止时回调，用于清理已注册的服务。
+     *
+     * @param context OSGI Bundle 上下文
+     */
     default void onBundleStop(BundleContext context) {}
 }

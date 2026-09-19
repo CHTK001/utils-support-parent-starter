@@ -16,29 +16,29 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* 项目信息工具类，提供获取当前项目的进程ID、本机地址、JDK版本等运行时环境信息。
-*
-* @author CH
-* @since 4.0.0.42
+ * 项目信息工具类，提供获取当前项目的进程ID、本机地址、JDK版本等运行时环境信息。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class Projects {
 
     /**
-    * 是否为 JDK 8
-    */
+     * 是否为 JDK 8
+     */
     public static final boolean JDK_8 = getJdkMajorVersion() == 8;
 
     /**
-    * 本机 IPv4 地址的十六进制表示（每段2位，共8位），如 C0A80101<br>
-    * 无法获取时默认值为 "00000000"
-    */
+     * 本机 IPv4 地址的十六进制表示（每段2位，共8位），如 C0A80101<br>
+     * 无法获取时默认值为 "00000000"
+     */
     static final String ADDRESS;
 
     /**
-    * 生成随机标识签名
-    *
-    * @return 基于时间ID和进程ID的SHA1十六进制签名
-    */
+     * 生成随机标识签名
+     *
+     * @return 基于时间ID和进程ID的SHA1十六进制签名
+     */
     static String randomIdSign() {
         String randomId = IdUtils.timeId();
         String tempToken = System.getProperty("SERVER_TEMP_TOKEN");
@@ -71,20 +71,20 @@ public final class Projects {
 
     }
     /**
-    * 获取当前进程ID
-    *
-    * @return 进程ID字符串
-    */
+     * 获取当前进程ID
+     *
+     * @return 进程ID字符串
+     */
     static String getPid() {
         String name = ManagementFactory.getRuntimeMXBean().getName();
         return name.split("@")[0];
     }
 
     /**
-    * 获取本机所有非回环、非链路本地地址的网卡IP地址列表
-    *
-    * @return IP地址列表，可能为空列表
-    */
+     * 获取本机所有非回环、非链路本地地址的网卡IP地址列表
+     *
+     * @return IP地址列表，可能为空列表
+     */
     static List<InetAddress> getAddressList() {
         List<InetAddress> ipList = new ArrayList<>();
         Enumeration<NetworkInterface> networkInterfaces = null;
@@ -140,10 +140,10 @@ public final class Projects {
     }
 
     /**
-    * 获取系统默认字符编码
-    *
-    * @return 默认字符编码
-    */
+     * 获取系统默认字符编码
+     *
+     * @return 默认字符编码
+     */
     public static java.nio.charset.Charset defaultCharset() {
         return java.nio.charset.Charset.defaultCharset();
     }

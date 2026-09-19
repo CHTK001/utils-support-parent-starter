@@ -11,13 +11,13 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* 增强现实格式归档输入流提供者
-* <p>
-* 增强现实（Arch Linux Linux）格式通常用于Unix/Linux静态库文件（.a文件）
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 增强现实格式归档输入流提供者
+ * <p>
+ * 增强现实（Arch Linux Linux）格式通常用于Unix/Linux静态库文件（.a文件）
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("ar")
 public class ArCompressArchiveInputStream implements CompressArchiveInputStream {

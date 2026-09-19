@@ -21,13 +21,13 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author CH
  * @since 2026/08/24
-*/
+ */
 @Slf4j
 public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
-    * 默认采样间隔:每 N 条慢请求记录一条日志
-    */
+     * 默认采样间隔:每 N 条慢请求记录一条日志
+     */
     private static final int DEFAULT_SAMPLE_EVERY = 10;
 
     /** 慢请求判定阈值(毫秒) */
@@ -50,11 +50,11 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-    * 创建慢请求过滤器。
-    *
-    * @param thresholdMillis 慢请求判定阈值(毫秒)
-    * @param sampleEvery     采样间隔:每 N 条慢请求记录一条日志
-    */
+     * 创建慢请求过滤器。
+     *
+     * @param thresholdMillis 慢请求判定阈值(毫秒)
+     * @param sampleEvery     采样间隔:每 N 条慢请求记录一条日志
+     */
     public SlowRequestServerFilter(long thresholdMillis, int sampleEvery) {
         this.thresholdMillis = thresholdMillis;
         this.sampleEvery = Math.max(sampleEvery, 1);
@@ -100,12 +100,12 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
 
     @Override
     /**
-    * 响应式Do过滤
-    *
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * 响应式Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         long start = System.nanoTime();
@@ -115,11 +115,11 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-    * 记录单请求耗时,超阈值按采样率告警。
-    *
-    * @param request 请求对象
-    * @param startNanos 开始时间(nanoTime)
-    */
+     * 记录单请求耗时,超阈值按采样率告警。
+     *
+     * @param request 请求对象
+     * @param startNanos 开始时间(nanoTime)
+     */
     private void recordLatency(ServerRequest request, long startNanos) {
         long costMillis = (System.nanoTime() - startNanos) / 1_000_000L;
         if (costMillis < thresholdMillis || !log.isWarnEnabled()) {
@@ -135,10 +135,10 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-    * 获取慢请求累计数量(监控接入用)。
-    *
-    * @return 慢请求总数
-    */
+     * 获取慢请求累计数量(监控接入用)。
+     *
+     * @return 慢请求总数
+     */
     public long getSlowCount() {
         return slowCount.get();
     }

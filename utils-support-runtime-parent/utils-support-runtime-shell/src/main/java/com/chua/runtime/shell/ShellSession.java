@@ -13,51 +13,51 @@ import java.net.Socket;
 import java.util.List;
 
 /**
-* Shell 会话 — 处理单个 Telnet 连接的命令交互。
-*
-* <p>支持 Tab 键补全：当客户端发送 \t 时，调用 Command.complete()
-* 或 命令registry.完成() 给出补全建议并回显。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Shell 会话 — 处理单个 Telnet 连接的命令交互。
+ *
+ * <p>支持 Tab 键补全：当客户端发送 \t 时，调用 Command.complete()
+ * 或 命令registry.完成() 给出补全建议并回显。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ShellSession implements Runnable {
 
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(ShellSession.class.getName());
     /**
-    * 欢迎横幅
+     * 欢迎横幅
      */
     private static final String BANNER = "Chua Runtime Shell v4.0.0.42";
 
     /**
-    * "exit" 命令
+     * "exit" 命令
      */
     private static final String CMD_EXIT = "exit";
 
     /**
-    * "quit" 命令
+     * "quit" 命令
      */
     private static final String CMD_QUIT = "quit";
 
     /**
-    * 客户端连接
+     * 客户端连接
      */
     private final Socket socket;
 
     /**
-    * 命令注册表
+     * 命令注册表
      */
     private final CommandRegistry registry;
 
     /**
-    * 创建会话。
-    *
-    * @param socket   客户端连接
-    * @param registry 命令注册表
+     * 创建会话。
+     *
+     * @param socket   客户端连接
+     * @param registry 命令注册表
      */
     public ShellSession(Socket socket, CommandRegistry registry) {
         this.socket = socket;
@@ -111,11 +111,11 @@ public class ShellSession implements Runnable {
     }
 
     /**
-    * 处理单行命令。
-    *
-    * @param line    行内容
-    * @param console 控制台输出
-    * @param writer  Telnet 输出
+     * 处理单行命令。
+     *
+     * @param line    行内容
+     * @param console 控制台输出
+     * @param writer  Telnet 输出
      */
     private void processLine(String line, Console console, PrintWriter writer) {
         String[] parts = line.split("\\s+");
@@ -141,10 +141,10 @@ public class ShellSession implements Runnable {
     }
 
     /**
-    * 处理 Tab 补全。
-    *
-    * @param current 当前行缓冲
-    * @param writer  Telnet 输出
+     * 处理 Tab 补全。
+     *
+     * @param current 当前行缓冲
+     * @param writer  Telnet 输出
      */
     private void handleCompletion(String current, PrintWriter writer) {
         String[] parts = current.split("\\s+", -1);
@@ -168,10 +168,10 @@ public class ShellSession implements Runnable {
     }
 
     /**
-    * 打印补全候选。
-    *
-    * @param matches 候选列表
-    * @param writer  输出
+     * 打印补全候选。
+     *
+     * @param matches 候选列表
+     * @param writer  输出
      */
     private void printCompletions(List<String> matches, PrintWriter writer) {
         if (matches == null || matches.isEmpty()) {

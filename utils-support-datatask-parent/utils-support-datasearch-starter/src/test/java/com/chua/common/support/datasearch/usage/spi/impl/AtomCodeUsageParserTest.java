@@ -12,22 +12,22 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
-* AtomCodeUsageParser 验收测试。
-*
-* <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
-* <pre>
-* 运行方式：{@code java com.chua.common.support.datasearch.usage.spi.impl.AtomCodeUsageParserTest}
-* 内部阶段：
-*   1. hermetic —— 子进程注入临时 ATOMCODE_HOME，端到端验收
-*      模型归属（meta 主导模型选取 / config 兜底 / 无 meta 文件）、
-*      token 口径（非缓存输入、缓存单列、totalTokens 汇总）、
-*      脏行与无 usage 行跳过；
-*   2. real —— 对本机 ~/.atomcode 真实数据验收（无数据时自动跳过）。
-* 任一校验失败抛出 {@link AssertionError} 并输出 FAIL，全部通过输出 PASS。
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * AtomCodeUsageParser 验收测试。
+ *
+ * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
+ * <pre>
+ * 运行方式：{@code java com.chua.common.support.datasearch.usage.spi.impl.AtomCodeUsageParserTest}
+ * 内部阶段：
+ *   1. hermetic —— 子进程注入临时 ATOMCODE_HOME，端到端验收
+ *      模型归属（meta 主导模型选取 / config 兜底 / 无 meta 文件）、
+ *      token 口径（非缓存输入、缓存单列、totalTokens 汇总）、
+ *      脏行与无 usage 行跳过；
+ *   2. real —— 对本机 ~/.atomcode 真实数据验收（无数据时自动跳过）。
+ * 任一校验失败抛出 {@link AssertionError} 并输出 FAIL，全部通过输出 PASS。
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class AtomCodeUsageParserTest {
 
@@ -38,8 +38,8 @@ public class AtomCodeUsageParserTest {
     private static int passCount = 0;
 
     /**
-    * main。
-    * @param args 子进程模式时传 {@code verify <tempHome>}
+     * main。
+     * @param args 子进程模式时传 {@code verify <tempHome>}
      */
     public static void main(String[] args) {
         if (args.length == 2 && "verify".equals(args[0])) {
@@ -56,7 +56,7 @@ public class AtomCodeUsageParserTest {
     // ==================== 阶段 1：合成数据端到端（子进程注入环境变量） ====================
 
     /**
-    * 构造临时 ATOMCODE_HOME，并以子进程方式运行解析验收。
+     * 构造临时 ATOMCODE_HOME，并以子进程方式运行解析验收。
      */
     private static void runHermeticPhase() {
         try {
@@ -79,9 +79,9 @@ public class AtomCodeUsageParserTest {
     }
 
     /**
-    * 写入合成 atomcode 数据：会话 A（meta 含主导模型选取 + 兜底）、
-    * 会话 B（无 meta）、脏行与无 usage 行、config.toml 兜底模型。
-    * @param home 临时 ATOMCODE_HOME
+     * 写入合成 atomcode 数据：会话 A（meta 含主导模型选取 + 兜底）、
+     * 会话 B（无 meta）、脏行与无 usage 行、config.toml 兜底模型。
+     * @param home 临时 ATOMCODE_HOME
      */
     private static void writeHermeticFixture(Path home) throws IOException {
         Path sessionDir = home.resolve("sessions").resolve("dirA");
@@ -118,9 +118,9 @@ public class AtomCodeUsageParserTest {
     }
 
     /**
-    * 子进程入口：对临时 HOME 运行解析并断言全部预期。
-    * @param home 注入的 ATOMCODE_HOME
-    * @return 退出码（0 = 全部通过）
+     * 子进程入口：对临时 HOME 运行解析并断言全部预期。
+     * @param home 注入的 ATOMCODE_HOME
+     * @return 退出码（0 = 全部通过）
      */
     private static int verifyHermetic(Path home) {
         List<AiUsage> records = new AtomCodeUsageParser().streamAll().collectList().block(Duration.ofMinutes(1));
@@ -165,7 +165,7 @@ public class AtomCodeUsageParserTest {
     // ==================== 阶段 2：本机真实数据验收 ====================
 
     /**
-    * 对本机 ~/.atomcode 真实数据做不变量验收；无数据时跳过。
+     * 对本机 ~/.atomcode 真实数据做不变量验收；无数据时跳过。
      */
     private static void runRealDataPhase() {
         Path sessions = Path.of(System.getProperty("user.home"), ".atomcode", "sessions");
@@ -202,9 +202,9 @@ public class AtomCodeUsageParserTest {
     // ==================== 断言基建 ====================
 
     /**
-    * 校验一条断言，失败计数并打印 FAIL。
-    * @param condition 条件
-    * @param message 说明
+     * 校验一条断言，失败计数并打印 FAIL。
+     * @param condition 条件
+     * @param message 说明
      */
     private static void check(boolean condition, String message) {
         if (condition) {

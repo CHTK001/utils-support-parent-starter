@@ -46,11 +46,11 @@ public class DirectVipParser implements VipParser {
     }
 
     /**
-    * 判断是否为视频直链格式。
-    *
-    * @param url URL
-    * @return 是否直链
-    */
+     * 判断是否为视频直链格式。
+     *
+     * @param url URL
+     * @return 是否直链
+     */
     private boolean isDirectUrl(String url) {
         String lower = url.toLowerCase(java.util.Locale.ROOT);
         return lower.endsWith(".mp4") || lower.endsWith(".m3u8") || lower.endsWith(".ts")

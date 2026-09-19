@@ -23,65 +23,65 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 中文 VITS TTS 合成器（vits-icefall-zh-aishell3，sherpa-onnx 导出）。
-* <p>
-* 流水线：中文文本 → 逐字查询 lexicon（字 → 音素序列）→ 音素转 令牌 标识
-* （{@code sil ... sil eos} 边界）→ VITS ONNX 单次前向 → 8khz 波形 WAV。
-* </p>
-* <p>
-* 模型约 30MB（fp32），174 个 AISHELL3 说话人，输出采样率 8000Hz（电话音质）。
-* 由 NAT加载 从 {@code audio/tts/vits-icefall-zh/} 解压到缓存目录后加载。
-* </p>
-* <p>
-* 对齐 sherpa-onnx {@code Lexicon::ConvertTextToTokenIdsChinese}：
-* 句首插入 {@code sil}，句末标点处追加 {@code eos} 并分段，整句末尾补
-* {@code sil} + {@code eos}；标点不在词表时用 {@code #0} 占位；OOV 字忽略。
-* </p>
-* <p>
-* ONNX 输入输出（模型.onnx 实测确认）：
-* <ul>
-*   <li>输入 {@code tokens}：(1, T) int64 音素 id 序列</li>
-*   <li>输入 {@code tokens_lens}：(1,) int64</li>
-*   <li>输入 {@code noise_scale}/{@code alpha}/{@code noise_scale_dur}：(1,) float32 采样参数</li>
-*   <li>输入 {@code speaker}：(1,) int64 说话人 id（0~173）</li>
-*   <li>输出 {@code audio}：(1, N) float32 @8kHz 波形</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 中文 VITS TTS 合成器（vits-icefall-zh-aishell3，sherpa-onnx 导出）。
+ * <p>
+ * 流水线：中文文本 → 逐字查询 lexicon（字 → 音素序列）→ 音素转 令牌 标识
+ * （{@code sil ... sil eos} 边界）→ VITS ONNX 单次前向 → 8khz 波形 WAV。
+ * </p>
+ * <p>
+ * 模型约 30MB（fp32），174 个 AISHELL3 说话人，输出采样率 8000Hz（电话音质）。
+ * 由 NAT加载 从 {@code audio/tts/vits-icefall-zh/} 解压到缓存目录后加载。
+ * </p>
+ * <p>
+ * 对齐 sherpa-onnx {@code Lexicon::ConvertTextToTokenIdsChinese}：
+ * 句首插入 {@code sil}，句末标点处追加 {@code eos} 并分段，整句末尾补
+ * {@code sil} + {@code eos}；标点不在词表时用 {@code #0} 占位；OOV 字忽略。
+ * </p>
+ * <p>
+ * ONNX 输入输出（模型.onnx 实测确认）：
+ * <ul>
+ *   <li>输入 {@code tokens}：(1, T) int64 音素 id 序列</li>
+ *   <li>输入 {@code tokens_lens}：(1,) int64</li>
+ *   <li>输入 {@code noise_scale}/{@code alpha}/{@code noise_scale_dur}：(1,) float32 采样参数</li>
+ *   <li>输入 {@code speaker}：(1,) int64 说话人 id（0~173）</li>
+ *   <li>输出 {@code audio}：(1, N) float32 @8kHz 波形</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class VitsTtsTranslator {
 
     /**
-    * 输出采样率（VITS-icefall 固定 8khz）
-    */
+     * 输出采样率（VITS-icefall 固定 8khz）
+     */
     private static final int SAMPLE_RATE = 8000;
 
     /**
-    * 类路径 资源根路径
-    */
+     * 类路径 资源根路径
+     */
     private static final String RESOURCE_BASE = "audio/tts/vits-icefall-zh/";
 
     /**
-    * 模型缓存根目录（音频/tts/）
-    */
+     * 模型缓存根目录（音频/tts/）
+     */
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
-    * 最大音素 令牌 数（防 OOM）
-    */
+     * 最大音素 令牌 数（防 OOM）
+     */
     private static final int MAX_TOKENS = 2000;
 
     /**
-    * 句末标点集合（对标 sherpa-onnx，命中后追加 eos 并分段）
-    */
+     * 句末标点集合（对标 sherpa-onnx，命中后追加 eos 并分段）
+     */
     private static final String SENTENCE_END_PUNCS = "。；！？：”";
 
     /**
-    * 非句末标点集合（直接以 #0 占位，不分段）
-    */
+     * 非句末标点集合（直接以 #0 占位，不分段）
+     */
     private static final String INLINE_PUNCS = "，、“、";
 
     /** ONNX 运行时环境 */
@@ -103,25 +103,25 @@ public class VitsTtsTranslator {
     private volatile boolean prepared;
 
     /**
-    * 构造合成器。
-    */
+     * 构造合成器。
+     */
     public VitsTtsTranslator() {
     }
 
     /**
-    * 说话人名称列表（speakers.txt 顺序，对应 speaker 标识 0~N-1）。
-    *
-    * @return 说话人名称列表
-    */
+     * 说话人名称列表（speakers.txt 顺序，对应 speaker 标识 0~N-1）。
+     *
+     * @return 说话人名称列表
+     */
     public List<String> speakerNames() {
         return speakers;
     }
 
     /**
-    * 准备模型（懒加载）。
-    *
-    * @throws Exception 准备异常
-    */
+     * 准备模型（懒加载）。
+     *
+     * @throws Exception 准备异常
+     */
     private synchronized void prepare() throws Exception {
         if (prepared) {
             return;
@@ -150,20 +150,20 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-    * 未配置时回落 {@code %TEMP%}。
-    *
-    * @return 缓存根目录
-    */
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
-    * 加载 令牌.txt（每行 {@code token id}）。
-    * @param path 路径
-    */
+     * 加载 令牌.txt（每行 {@code token id}）。
+     * @param path 路径
+     */
     private void loadTokens(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -177,9 +177,9 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 加载 lexicon.txt（每行 {@code 字 音素...}），音素逐一转 令牌 标识。
-    * @param path 路径
-    */
+     * 加载 lexicon.txt（每行 {@code 字 音素...}），音素逐一转 令牌 标识。
+     * @param path 路径
+     */
     private void loadLexicon(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -210,9 +210,9 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 加载 speakers.txt（每行一个说话人 标识，按行序对应 0~N-1）。
-    * @param path 路径
-    */
+     * 加载 speakers.txt（每行一个说话人 标识，按行序对应 0~N-1）。
+     * @param path 路径
+     */
     private void loadSpeakers(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (!line.isBlank()) {
@@ -222,11 +222,11 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 中文文本转音素 令牌 标识 序列（对齐 sherpa-onnx {@code Lexicon}）。
-    *
-    * @param text 中文文本
-    * @return token 标识 序列
-    */
+     * 中文文本转音素 令牌 标识 序列（对齐 sherpa-onnx {@code Lexicon}）。
+     *
+     * @param text 中文文本
+     * @return token 标识 序列
+     */
     private int[] textToTokenIds(String text) {
         Integer sil = token2id.get("sil");
         Integer eos = token2id.get("eos");
@@ -274,12 +274,12 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 中文文本转 WAV 字节（指定说话人）。
-    *
-    * @param text     中文文本
-    * @param speakerId 说话人 标识（0~173），负数或越界回退 0
-    * @return 8kHz WAV 音频字节
-    */
+     * 中文文本转 WAV 字节（指定说话人）。
+     *
+     * @param text     中文文本
+     * @param speakerId 说话人 标识（0~173），负数或越界回退 0
+     * @return 8kHz WAV 音频字节
+     */
     public byte[] synthesize(String text, int speakerId) {
         try {
             if (text == null || text.isBlank()) {
@@ -302,12 +302,12 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 运行 VITS ONNX 推理。
-    *
-    * @param tokenIds 音素 令牌 标识 序列
-    * @param sid      说话人 标识
-    * @return 8kHz 波形
-    */
+     * 运行 VITS ONNX 推理。
+     *
+     * @param tokenIds 音素 令牌 标识 序列
+     * @param sid      说话人 标识
+     * @return 8kHz 波形
+     */
     private float[] runInference(int[] tokenIds, int sid) throws Exception {
         long[] tokensShape = new long[]{1, tokenIds.length};
         long[] lenShape = new long[]{1};
@@ -337,11 +337,11 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * float 波形转 16-钻头 WAV 字节。
-    *
-    * @param samples 波形数据
-    * @return WAV 字节
-    */
+     * float 波形转 16-钻头 WAV 字节。
+     *
+     * @param samples 波形数据
+     * @return WAV 字节
+     */
     private static byte[] toWav(float[] samples) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {
@@ -358,10 +358,10 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 列表 转 int 数组。
-    * @param list 列表
-    * @return 转为intarray的结果
-    */
+     * 列表 转 int 数组。
+     * @param list 列表
+     * @return 转为intarray的结果
+     */
     private static int[] toIntArray(List<Integer> list) {
         int[] arr = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -371,10 +371,10 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * int 数组转 long 数组。
-    * @param arr arr
-    * @return 转为longarray的结果
-    */
+     * int 数组转 long 数组。
+     * @param arr arr
+     * @return 转为longarray的结果
+     */
     private static long[] toLongArray(int[] arr) {
         long[] out = new long[arr.length];
         for (int i = 0; i < arr.length; i++) {
@@ -384,8 +384,8 @@ public class VitsTtsTranslator {
     }
 
     /**
-    * 关闭资源。
-    */
+     * 关闭资源。
+     */
     public void close() {
         if (session != null) {
             try {

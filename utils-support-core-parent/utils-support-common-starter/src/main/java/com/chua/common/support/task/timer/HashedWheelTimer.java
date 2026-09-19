@@ -31,52 +31,52 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class HashedWheelTimer implements Timer {
 
     /**
-    * 槽位数
-    */
+     * 槽位数
+     */
     private final int slots;
 
     /**
-    * 每 tick 持续时间（毫秒）
-    */
+     * 每 tick 持续时间（毫秒）
+     */
     private final long tickMillis;
 
     /**
-    * 环形槽位（每个槽：持有 任务 双向链表）
-    */
+     * 环形槽位（每个槽：持有 任务 双向链表）
+     */
     private final Slot[] wheel;
 
     /**
-    * 当前 tick 指针（绝对时间轴推进）
-    */
+     * 当前 tick 指针（绝对时间轴推进）
+     */
     private volatile long currentTick;
 
     /**
-    * 运行标志
-    */
+     * 运行标志
+     */
     private volatile boolean running;
 
     /**
-    * tick 工作线程引用（用于 关闭 时中断睡眠立即退出）
-    */
+     * tick 工作线程引用（用于 关闭 时中断睡眠立即退出）
+     */
     private volatile Thread tickThread;
 
     /**
-    * 到期任务执行器（虚拟线程 per 任务，慢任务互不阻塞）
-    */
+     * 到期任务执行器（虚拟线程 per 任务，慢任务互不阻塞）
+     */
     private final ExecutorService taskExecutor;
 
     /**
-    * 构造。
-    *
-    * @param slots      槽位数
-    * @param tickDuration tick 间隔
-    * @param unit       时间单位
-    */
+     * 构造。
+     *
+     * @param slots      槽位数
+     * @param tickDuration tick 间隔
+     * @param unit       时间单位
+     */
     public HashedWheelTimer(int slots, long tickDuration, TimeUnit unit) {
         if (slots <= 0) {
             throw new IllegalArgumentException("slots 必须 > 0");
@@ -109,13 +109,13 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 计算目标槽位偏移。
-    *
-    * <p>规则：delay &le; 0（已到期）取 1 —— 挂到最近的下一槽尽快补触发，
-    * 而非等完整一圈；否则按 ceil(延迟 / tickmillis) 向上取整精确落位。</p>
-    * @param delayMillis 延迟millis
-    * @return computeslot偏移量的结果
-    */
+     * 计算目标槽位偏移。
+     *
+     * <p>规则：delay &le; 0（已到期）取 1 —— 挂到最近的下一槽尽快补触发，
+     * 而非等完整一圈；否则按 ceil(延迟 / tickmillis) 向上取整精确落位。</p>
+     * @param delayMillis 延迟millis
+     * @return computeslot偏移量的结果
+     */
     private int computeSlotOffset(long delayMillis) {
         if (delayMillis <= 0) {
             return 1;
@@ -163,8 +163,8 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 获取当前在轮任务总数（各槽原子计数的即时加和，弱一致快照）。
-    */
+     * 获取当前在轮任务总数（各槽原子计数的即时加和，弱一致快照）。
+     */
     @Override
     public int getTaskCount() {
         int sum = 0;
@@ -192,12 +192,12 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 启动 tick 循环线程。
-    *
-    * <p>tick 按<strong>绝对时间轴</strong>推进：以启动时刻为基准计算每个 tick 的
-    * 理论唤醒点，任务耗时不会造成漂移；若落后则连续补扫追赶。
-    * 到期任务先做周期重排（时间轴优先，不丢拍），再提交执行器并发运行。</p>
-    */
+     * 启动 tick 循环线程。
+     *
+     * <p>tick 按<strong>绝对时间轴</strong>推进：以启动时刻为基准计算每个 tick 的
+     * 理论唤醒点，任务耗时不会造成漂移；若落后则连续补扫追赶。
+     * 到期任务先做周期重排（时间轴优先，不丢拍），再提交执行器并发运行。</p>
+     */
     private void startTickThread() {
         Thread t = new Thread(() -> {
             long startNanos = System.nanoTime();
@@ -231,13 +231,13 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 提交到期任务到执行器：任何 Throwable 都在包装层兜底记录，
-    * 保证单任务故障不影响时间轮与其他任务。
-    *
-    * <p>使用手工构造的 {@link FutureTask}：<strong>先绑定 future 再入队</strong>，
-    * 消除"任务已启动但 cancel 读不到 期货"的竞态窗口。</p>
-    * @param task 任务
-    */
+     * 提交到期任务到执行器：任何 Throwable 都在包装层兜底记录，
+     * 保证单任务故障不影响时间轮与其他任务。
+     *
+     * <p>使用手工构造的 {@link FutureTask}：<strong>先绑定 future 再入队</strong>，
+     * 消除"任务已启动但 cancel 读不到 期货"的竞态窗口。</p>
+     * @param task 任务
+     */
     private void submitTask(TimerTask task) {
         var futureTask = new FutureTask<Void>(() -> {
             if (task.isCancelled()) {
@@ -259,11 +259,11 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 安全错误记录：SLF4J 输出失败时降级 stderr，
-    * 确保日志系统自身的故障不会反噬时间轮线程。
-    * @param taskName 任务名称
-    * @param failure 失败
-    */
+     * 安全错误记录：SLF4J 输出失败时降级 stderr，
+     * 确保日志系统自身的故障不会反噬时间轮线程。
+     * @param taskName 任务名称
+     * @param failure 失败
+     */
     private static void safeLogError(String taskName, Throwable failure) {
         try {
             log.error("[HashedWheelTimer] 任务执行失败: {}", taskName, failure);
@@ -274,37 +274,37 @@ public class HashedWheelTimer implements Timer {
     }
 
     /**
-    * 槽位：持有 任务 的双向链表，独立槽锁保护（分槽细粒度并发）。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 槽位：持有 任务 的双向链表，独立槽锁保护（分槽细粒度并发）。
+     * @author CH
+     * @since 4.0.0
+     */
     static class Slot {
 
         /**
-        * 槽首指针
-        */
+         * 槽首指针
+         */
         private TaskNode head;
 
         /**
-        * 槽内任务计数（原子读，支持无锁统计）
-        */
+         * 槽内任务计数（原子读，支持无锁统计）
+         */
         private final AtomicInteger size = new AtomicInteger();
 
         /**
-        * 尾指针
-        */
+         * 尾指针
+         */
         private TaskNode tail;
 
         /**
-        * 槽内互斥锁
-        */
+         * 槽内互斥锁
+         */
         private final ReentrantLock lock = new ReentrantLock();
 
         /**
-        * 添加任务到槽尾。
-        *
-        * @param task 任务
-        */
+         * 添加任务到槽尾。
+         *
+         * @param task 任务
+         */
         void add(TimerTask task) {
             lock.lock();
             try {
@@ -324,10 +324,10 @@ public class HashedWheelTimer implements Timer {
         }
 
         /**
-        * 从槽中移除指定任务。
-        *
-        * @param task 任务
-        */
+         * 从槽中移除指定任务。
+         *
+         * @param task 任务
+         */
         void remove(TimerTask task) {
             lock.lock();
             try {
@@ -353,10 +353,10 @@ public class HashedWheelTimer implements Timer {
         }
 
         /**
-        * 弹出并清空当前槽所有任务。
-        *
-        * @return 到期列表
-        */
+         * 弹出并清空当前槽所有任务。
+         *
+         * @return 到期列表
+         */
         List<TimerTask> drain() {
             List<TimerTask> out = new ArrayList<>();
             lock.lock();
@@ -376,35 +376,35 @@ public class HashedWheelTimer implements Timer {
         }
 
         /**
-        * 槽内任务数（原子快照）。
-        *
-        * @return 数量
-        */
+         * 槽内任务数（原子快照）。
+         *
+         * @return 数量
+         */
         int size() {
             return size.get();
         }
     }
 
     /**
-    * 双向链表节点。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 双向链表节点。
+     * @author CH
+     * @since 4.0.0
+     */
     static class TaskNode {
 
         /**
-        * 承载的任务
-        */
+         * 承载的任务
+         */
         final TimerTask taskFromWheel;
 
         /**
-        * 上一个节点
-        */
+         * 上一个节点
+         */
         TaskNode prev;
 
         /**
-        * 下一个节点
-        */
+         * 下一个节点
+         */
         TaskNode next;
 
         TaskNode(TimerTask task) {

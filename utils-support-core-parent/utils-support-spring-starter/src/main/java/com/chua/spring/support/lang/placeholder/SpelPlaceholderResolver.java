@@ -10,28 +10,28 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
-* Spring spel 占位符解析器，支持 {@code #{...}} 表达式。
-*
-* <p>当文本中出现 {@code #{...}} 格式的表达式时，交给 Spring SpEL 引擎求值。
-* 支持 spel 的全部能力：属性访问、方法调用、条件运算、Bean 引用等。</p>
-*
-* <p><b>支持 Bean 引用：</b>在 Spring 环境中注册 {@link BeanFactoryResolver}，
-* 表达式可通过 {@code @beanName} 引用容器中的 Bean，例如
-* {@code #{@config.getTimeout()}}。非 Spring 环境回退为纯表达式求值。</p>
-*
-* <p>本实现通过 {@code @Spi("spel")} 注册到注解式 SPI 框架，
-* 被占位符解析链自动发现与调用。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Spring spel 占位符解析器，支持 {@code #{...}} 表达式。
+ *
+ * <p>当文本中出现 {@code #{...}} 格式的表达式时，交给 Spring SpEL 引擎求值。
+ * 支持 spel 的全部能力：属性访问、方法调用、条件运算、Bean 引用等。</p>
+ *
+ * <p><b>支持 Bean 引用：</b>在 Spring 环境中注册 {@link BeanFactoryResolver}，
+ * 表达式可通过 {@code @beanName} 引用容器中的 Bean，例如
+ * {@code #{@config.getTimeout()}}。非 Spring 环境回退为纯表达式求值。</p>
+ *
+ * <p>本实现通过 {@code @Spi("spel")} 注册到注解式 SPI 框架，
+ * 被占位符解析链自动发现与调用。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("spel")
 @ConditionalOnClass("org.springframework.expression.spel.standard.SpelExpressionParser")
 public class SpelPlaceholderResolver implements PlaceholderResolver {
 
     /**
-    * spel 表达式解析器，线程安全，可复用
-    */
+     * spel 表达式解析器，线程安全，可复用
+     */
     private final ExpressionParser parser = new SpelExpressionParser();
 
     @Override

@@ -38,11 +38,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Agentscope 实现：将项目通用 {@link ChatClient} 桥接到 Agentscope Harness，
-* 支持多 Agent 编排、思考上限配置与链式调用。
-*
-* @author CH
-* @since 4.0.0.42
+ * Agentscope 实现：将项目通用 {@link ChatClient} 桥接到 Agentscope Harness，
+ * 支持多 Agent 编排、思考上限配置与链式调用。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class AgentScopeAgent implements Agent {
 
@@ -51,8 +51,8 @@ public class AgentScopeAgent implements Agent {
     private static final Logger log = LoggerFactory.getLogger(AgentScopeAgent.class);
 
     /**
-    * 重试相关
-    */
+     * 重试相关
+     */
     private int maxRetries = 0;
     /** 重试基础延迟 */
     /** 重试basedelay */
@@ -112,8 +112,8 @@ public class AgentScopeAgent implements Agent {
     private final Map<String, String> skillDescriptions = new java.util.LinkedHashMap<>(); // skilldescriptions
 
     /**
-    * 每次 运行 注册的 模型id 追踪，用于清理
-    */
+     * 每次 运行 注册的 模型id 追踪，用于清理
+     */
     private final List<String> registeredModelIds = new ArrayList<>();
 
     // ==================== Agent 接口覆写 ====================
@@ -580,12 +580,12 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-    * compute延迟
-    *
-    * @param attempt 尝试
-    * @param maxRetries 最大重试
-    * @return compute延迟的结果
-    */
+     * compute延迟
+     *
+     * @param attempt 尝试
+     * @param maxRetries 最大重试
+     * @return compute延迟的结果
+     */
     private long computeDelay(int attempt, int maxRetries) {
         AgentRetryConfig cfg = AgentRetryConfig.builder()
                 .backoffStrategy(retryStrategy)
@@ -597,24 +597,24 @@ public class AgentScopeAgent implements Agent {
 
 
     /**
-    * 解析最大值Iters
-    *
-    * @param chainValue chain值
-    * @param defValue def值
-    * @return resolve最大iters的结果
-    */
+     * 解析最大值Iters
+     *
+     * @param chainValue chain值
+     * @param defValue def值
+     * @return resolve最大iters的结果
+     */
     private static int resolveMaxIters(int chainValue, int defValue) {
         int effective = chainValue != 0 ? chainValue : (defValue != 0 ? defValue : 5);
         return effective > 0 ? effective : Integer.MAX_VALUE;
     }
 
     /**
-    * 解析模型id
-    *
-    * @param prefix 前缀
-    * @param chatClient 对话客户端
-    * @return resolve模型id的结果
-    */
+     * 解析模型id
+     *
+     * @param prefix 前缀
+     * @param chatClient 对话客户端
+     * @return resolve模型id的结果
+     */
     private static String resolveModelId(String prefix, ChatClient chatClient) {
         String suffix = "default";
         try {
@@ -625,10 +625,10 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-    * 解析Workspace
-    *
-    * @return resolveWorkspace的结果
-    */
+     * 解析Workspace
+     *
+     * @return resolveWorkspace的结果
+     */
     private String resolveWorkspace() {
         if (memoryConfig != null && memoryConfig.getWorkspace() != null && !memoryConfig.getWorkspace().isBlank()) {
             return memoryConfig.getWorkspace();
@@ -645,10 +645,10 @@ public class AgentScopeAgent implements Agent {
     private static final String ROUTER_NODE_LABEL = "\u53ef\u7528\u5b50 Agent"; // router节点标签
 
     /**
-    * 打印代理架构图。
-    * 当 print 配置为 true 时，随运行输出到宿主控制台。
-    * 依次输出主代理标识、各子代理节点、路由节点及系统提示词树。
-    */
+     * 打印代理架构图。
+     * 当 print 配置为 true 时，随运行输出到宿主控制台。
+     * 依次输出主代理标识、各子代理节点、路由节点及系统提示词树。
+     */
     private void printArchitectureDiagram() {
         boolean leader = definition != null && definition.isLeader();
         String mainLabel = leader ? "Main Agent"
@@ -729,10 +729,10 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-    * 将 skill处理器 桥接为 Agentscope Agenttool。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 将 skill处理器 桥接为 Agentscope Agenttool。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class SkillAgentTool implements io.agentscope.core.tool.AgentTool {
 
         private final String name; // 名称

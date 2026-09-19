@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
-* PeerMesh 服务发现配置。
-*
-* @author CH
-* @since 4.0.0.42
+ * PeerMesh 服务发现配置。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -22,8 +22,8 @@ import java.util.List;
 public class MeshConfig {
 
     /**
-    * 通信模式：udp 或 tcp。默认 tcp。
-    */
+     * 通信模式：udp 或 tcp。默认 tcp。
+     */
     @lombok.Builder.Default
     /** 模式 */
     private String mode = "tcp";
@@ -55,13 +55,13 @@ public class MeshConfig {
     private String bindIp;
 
     /**
-    * 绑定网卡名称，null 表示自动选择。
-    */
+     * 绑定网卡名称，null 表示自动选择。
+     */
     private String bindInterface;
 
     /**
-    * C 模式扫描间隔（秒）。默认 30 秒。
-    */
+     * C 模式扫描间隔（秒）。默认 30 秒。
+     */
     @lombok.Builder.Default
     /** Scan间隔 */
     private int scanInterval = 30;
@@ -87,14 +87,14 @@ public class MeshConfig {
     private List<String> seeds;
 
     /**
-    * 扫描网段列表（仅在 C 模式下使用）。
-    * 格式: CIDR (如 192.168.1.0/24)
-    */
+     * 扫描网段列表（仅在 C 模式下使用）。
+     * 格式: CIDR (如 192.168.1.0/24)
+     */
     private List<String> scanSubnets;
 
     /**
-    * 持久化文件路径（known_peers.json）。可为 null 表示仅内存。
-    */
+     * 持久化文件路径（known_peers.json）。可为 null 表示仅内存。
+     */
     private String peersFile;
 
 }

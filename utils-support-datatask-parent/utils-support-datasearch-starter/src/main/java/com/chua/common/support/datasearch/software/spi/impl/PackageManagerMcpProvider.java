@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 包管理器 MCP 提供器。
-*
-* <p>通过系统包管理器（winget/brew/apt 等）搜索和安装软件，以 MCP 工具形式暴露给 AI 客户端。
-*
-* @author CH
-* @since 4.0.0.42
+ * 包管理器 MCP 提供器。
+ *
+ * <p>通过系统包管理器（winget/brew/apt 等）搜索和安装软件，以 MCP 工具形式暴露给 AI 客户端。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("package-manager")
 public class PackageManagerMcpProvider extends PackageManagerProvider implements McpProvider {

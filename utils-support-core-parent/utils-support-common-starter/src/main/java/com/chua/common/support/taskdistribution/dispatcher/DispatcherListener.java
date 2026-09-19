@@ -10,20 +10,20 @@ import com.chua.common.support.taskdistribution.task.TaskResult;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface DispatcherListener {
 
     /**
-    * 消费到任务时回调。
-    *
-    * @param task 任务
-    */
+     * 消费到任务时回调。
+     *
+     * @param task 任务
+     */
     void onTask(Task<?> task);
 
     /**
-    * 消费到结果时回调。
-    *
-    * @param result 执行结果
-    */
+     * 消费到结果时回调。
+     *
+     * @param result 执行结果
+     */
     void onResult(TaskResult<?> result);
 }

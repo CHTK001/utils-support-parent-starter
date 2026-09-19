@@ -13,35 +13,35 @@ import com.chua.common.support.network.server.ServerSetting;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface ServerFilterConfig {
 
     /**
-    * 获取过滤器名称。
-    *
-    * @return 过滤器名称
-    */
+     * 获取过滤器名称。
+     *
+     * @return 过滤器名称
+     */
     String getFilterName();
 
     /**
-    * 获取指定名称的初始化参数值。
-    *
-    * @param name 参数名
-    * @return 参数值，不存在返回 null
-    */
+     * 获取指定名称的初始化参数值。
+     *
+     * @param name 参数名
+     * @return 参数值，不存在返回 null
+     */
     String getInitParameter(String name);
 
     /**
-    * 获取所有初始化参数。
-    *
-    * @return 参数 Map
-    */
+     * 获取所有初始化参数。
+     *
+     * @return 参数 Map
+     */
     Map<String, String> getInitParameters();
 
     /**
-    * 获取所属服务器的配置。
-    *
-    * @return 服务器配置
-    */
+     * 获取所属服务器的配置。
+     *
+     * @return 服务器配置
+     */
     ServerSetting getServerSetting();
 }

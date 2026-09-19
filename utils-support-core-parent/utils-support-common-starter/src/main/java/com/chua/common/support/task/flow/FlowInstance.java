@@ -30,93 +30,93 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface FlowInstance {
 
     /**
-    * 获取实例唯一标识。
-    *
-    * @return 实例 标识
-    */
+     * 获取实例唯一标识。
+     *
+     * @return 实例 标识
+     */
     String getInstanceId();
 
     /**
-    * 获取所属流程定义 标识。
-    *
-    * @return 流程 标识
-    */
+     * 获取所属流程定义 标识。
+     *
+     * @return 流程 标识
+     */
     String getFlowId();
 
     /**
-    * 获取实例当前状态。
-    *
-    * @return 实例状态
-    */
+     * 获取实例当前状态。
+     *
+     * @return 实例状态
+     */
     FlowStatus getStatus();
 
     /**
-    * 启动或续跑流程，不携带参数。
-    *
-    * <p>首次调用从起始节点开始执行；已挂起实例调用将合并执行上下文后继续。</p>
-    *
-    * @return 当前实例
-    */
+     * 启动或续跑流程，不携带参数。
+     *
+     * <p>首次调用从起始节点开始执行；已挂起实例调用将合并执行上下文后继续。</p>
+     *
+     * @return 当前实例
+     */
     FlowInstance run();
 
     /**
-    * 启动或续跑流程，并传入运行参数。
-    *
-    * <p>参数合并写入实例上下文，运行期间各节点可读取。
-    * 首次运行创建上下文，后续运行复用同一上下文。</p>
-    *
-    * @param params 运行参数
-    * @return 当前实例
-    */
+     * 启动或续跑流程，并传入运行参数。
+     *
+     * <p>参数合并写入实例上下文，运行期间各节点可读取。
+     * 首次运行创建上下文，后续运行复用同一上下文。</p>
+     *
+     * @param params 运行参数
+     * @return 当前实例
+     */
     FlowInstance run(Map<String, Object> params);
 
     /**
-    * 恢复被挂起的实例。
-    *
-    * <p>从挂起点继续执行后续节点，上下文保持不变。
-    * 仅在状态为 {@link FlowStatus#WAITED} 时有效。</p>
-    *
-    * @return 当前实例
-    */
+     * 恢复被挂起的实例。
+     *
+     * <p>从挂起点继续执行后续节点，上下文保持不变。
+     * 仅在状态为 {@link FlowStatus#WAITED} 时有效。</p>
+     *
+     * @return 当前实例
+     */
     FlowInstance resume();
 
     /**
-    * 终止实例执行。
-    *
-    * <p>立即中断流程，实例进入 {@link FlowStatus#TERMINATED} 状态。</p>
-    */
+     * 终止实例执行。
+     *
+     * <p>立即中断流程，实例进入 {@link FlowStatus#TERMINATED} 状态。</p>
+     */
     void terminate();
 
     /**
-    * 判断实例是否已执行完成。
-    *
-    * @return 完成返回 true，否则返回 false
-    */
+     * 判断实例是否已执行完成。
+     *
+     * @return 完成返回 true，否则返回 false
+     */
     boolean isCompleted();
 
     /**
-    * 获取实例唯一执行上下文。
-    *
-    * <p>节点通过上下文读写数据、存取属性、控制流转，
-    * 上下文在实例生命周期内保持不变。</p>
-    *
-    * @return 实例执行上下文
-    */
+     * 获取实例唯一执行上下文。
+     *
+     * <p>节点通过上下文读写数据、存取属性、控制流转，
+     * 上下文在实例生命周期内保持不变。</p>
+     *
+     * @return 实例执行上下文
+     */
     FlowContext getContext();
 
     /**
-    * 设置单节点最大执行次数上限。
-    *
-    * <p>需在首次 {@link #run()} 前调用。
-    * 节点执行次数达到上限时引擎判定死循环并终止流程，
-    * 当上限 <= 0 时恢复默认值。</p>
-    *
-    * @param maxLoopCount 执行次数上限
-    * @return 当前实例
-    */
+     * 设置单节点最大执行次数上限。
+     *
+     * <p>需在首次 {@link #run()} 前调用。
+     * 节点执行次数达到上限时引擎判定死循环并终止流程，
+     * 当上限 <= 0 时恢复默认值。</p>
+     *
+     * @param maxLoopCount 执行次数上限
+     * @return 当前实例
+     */
     FlowInstance maxLoopCount(int maxLoopCount);
 }

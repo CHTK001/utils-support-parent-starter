@@ -74,22 +74,22 @@ public class DoubaoUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "doubao"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "doubao"}
+     */
     @Override
     public String name() {
         return PROVIDER_DOU_BAO;
     }
 
     /**
-    * 流式解析豆包（火山方舟）用量记录。
-    *
-    * <p>无数据库或无匹配 provider 时返回空流。</p>
-    *
-    * @return 用量记录流
-    */
+     * 流式解析豆包（火山方舟）用量记录。
+     *
+     * <p>无数据库或无匹配 provider 时返回空流。</p>
+     *
+     * @return 用量记录流
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -104,11 +104,11 @@ public class DoubaoUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 proxy_request_logs 行映射为 {@link AiUsage}。
-    *
-    * @param row 数据库行
-    * @return 用量记录
-    */
+     * 将 proxy_request_logs 行映射为 {@link AiUsage}。
+     *
+     * @param row 数据库行
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int input = asInt(row.get("input_tokens"));
         int output = asInt(row.get("output_tokens"));

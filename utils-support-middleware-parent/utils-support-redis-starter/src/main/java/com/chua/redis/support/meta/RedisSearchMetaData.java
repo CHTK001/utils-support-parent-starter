@@ -12,17 +12,17 @@ import com.chua.datasource.support.meta.DefaultMetaData;
 import com.chua.redis.support.engine.RediSearchEngine;
 
 /**
-* Redis redi搜索 元数据入口。
-*
-* @author CH
-* @since 4.0.0.42
+ * Redis redi搜索 元数据入口。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RedisSearchMetaData extends DefaultMetaData {
 
     /**
-    * 创建 redis搜索meta数据 实例
-    * @param engine engine
-    */
+     * 创建 redis搜索meta数据 实例
+     * @param engine engine
+     */
     public RedisSearchMetaData(RediSearchEngine engine) {
         super(engine);
     }

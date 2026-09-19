@@ -34,52 +34,52 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * <p>每次 feed 返回:1=完整请求解析完成;0=还需更多数据;-1=解析错误。</p>
-*/
+ */
 public class NioServerRequest implements ServerRequest {
 
     /**
-    * HTTP 请求增量解析状态机的状态枚举。
-    *
-    * <p>状态推进路径:
-    * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。
-    * 每次调用 {@link #feed(ByteBuffer)} 时从当前状态继续消费数据,
-    * 数据不足则停留在原状态等待下次 feed。</p>
-    *
-    * @author CH
-    * @since 2026/08/12
-    */
+     * HTTP 请求增量解析状态机的状态枚举。
+     *
+     * <p>状态推进路径:
+     * {@code REQUEST_LINE → HEADERS → BODY → COMPLETE}。
+     * 每次调用 {@link #feed(ByteBuffer)} 时从当前状态继续消费数据,
+     * 数据不足则停留在原状态等待下次 feed。</p>
+     *
+     * @author CH
+     * @since 2026/08/12
+     */
     public enum ParseState {
         /**
-        * 请求行解析中:等待 "METHOD URI VERSION\r\n" 完整一行,
-        * 解析出 method/uri/path/queryString/httpVersion 后进入 HEADERS
-        */
+         * 请求行解析中:等待 "METHOD URI VERSION\r\n" 完整一行,
+         * 解析出 method/uri/path/queryString/httpVersion 后进入 HEADERS
+         */
         REQUEST_LINE,
         /**
-        * 头部解析中:逐行读取请求头直到空行(\r\n),
-        * 根据 Transfer-Encoding/Content-Length 决定进入 BODY 或直接 COMPLETE
-        */
+         * 头部解析中:逐行读取请求头直到空行(\r\n),
+         * 根据 Transfer-Encoding/Content-Length 决定进入 BODY 或直接 COMPLETE
+         */
         HEADERS,
         /**
-        * 请求体接收中:非 chunked 按 Content-Length 剩余字节数消费;
-        * chunked 则逐 chunk 推进(读 chunk 头 → 读 chunk 体 → 消费尾部 CRLF)
-        */
+         * 请求体接收中:非 chunked 按 Content-Length 剩余字节数消费;
+         * chunked 则逐 chunk 推进(读 chunk 头 → 读 chunk 体 → 消费尾部 CRLF)
+         */
         BODY,
         /**
-        * 解析完成:完整请求已就绪,可交由 handler 链处理;
-        * Keep-Alive 场景经 {@link #resetForNextRequest()} 重置回 REQUEST_LINE
-        */
+         * 解析完成:完整请求已就绪,可交由 handler 链处理;
+         * Keep-Alive 场景经 {@link #resetForNextRequest()} 重置回 REQUEST_LINE
+         */
         COMPLETE
     }
 
     /**
-    * 通道(阻塞/非阻塞 NIO 场景使用;AIO 等无通道场景为 null,
-    * 此时远端地址取 {@link #remoteAddress} 预存值)
-    */
+     * 通道(阻塞/非阻塞 NIO 场景使用;AIO 等无通道场景为 null,
+     * 此时远端地址取 {@link #remoteAddress} 预存值)
+     */
     private final SocketChannel channel;
     /**
-    * 预存的远端地址:构造时一次性取出,避免热路径反复系统调用;
-    * 无通道场景(AIO)必填,有通道场景可为 null
-    */
+     * 预存的远端地址:构造时一次性取出,避免热路径反复系统调用;
+     * 无通道场景(AIO)必填,有通道场景可为 null
+     */
     private final SocketAddress remoteAddress;
     /** 最大值请求尺寸 */
     private final long maxRequestSize;
@@ -139,13 +139,13 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 创建 NioServerRequest 实例(传输无关场景:AIO/IOCP 等无 {@link SocketChannel} 的实现,
-    * 解析状态机与 NIO 完全共用,仅远端地址由调用方在连接建立时预存传入)
-    *
-    * @param remoteAddress  远端地址(连接建立时预存,可为 null 表示未知)
-    * @param maxRequestSize 最大请求体尺寸(字节)
-    * @param charset        默认字符集名称
-    */
+     * 创建 NioServerRequest 实例(传输无关场景:AIO/IOCP 等无 {@link SocketChannel} 的实现,
+     * 解析状态机与 NIO 完全共用,仅远端地址由调用方在连接建立时预存传入)
+     *
+     * @param remoteAddress  远端地址(连接建立时预存,可为 null 表示未知)
+     * @param maxRequestSize 最大请求体尺寸(字节)
+     * @param charset        默认字符集名称
+     */
     public NioServerRequest(SocketAddress remoteAddress, long maxRequestSize, String charset) {
         this.channel = null;
         this.remoteAddress = remoteAddress;
@@ -154,11 +154,11 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 非阻塞增量解析:将新读到的数据并入解析缓冲并推进状态机。
-    *
-    * @param data 事件循环读到的数据(可空,表示无新数据仅推进)
-    * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
-    */
+     * 非阻塞增量解析:将新读到的数据并入解析缓冲并推进状态机。
+     *
+     * @param data 事件循环读到的数据(可空,表示无新数据仅推进)
+     * @return 1=完整请求已解析完成;0=需要更多数据;-1=解析错误
+     */
     public int feed(ByteBuffer data) {
         ensureBuf();
         // BODY 阶段:直接消费 data,不并入行解析缓冲,避免大 body 撑爆 8K 缓冲
@@ -268,9 +268,9 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
-    * @return 结果数值
-    */
+     * 从解析缓冲消费请求体(非 chunked)。返回 0=还需更多;1=完成;-1=错误。
+     * @return 结果数值
+     */
     private int feedBufBody() {
         if (bodyRemaining == 0) {
             parseState = ParseState.COMPLETE;
@@ -294,9 +294,9 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 消费 chunked 编码:推进 chunk 头/体,直至终止 chunk(0)。返回 0=还需更多;1=完成;-1=错误。
-    * @return 结果数值
-    */
+     * 消费 chunked 编码:推进 chunk 头/体,直至终止 chunk(0)。返回 0=还需更多;1=完成;-1=错误。
+     * @return 结果数值
+     */
     private int feedChunked() {
         while (true) {
             if (chunkHeaderPending) {
@@ -365,9 +365,9 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 懒分配行解析缓冲:空闲连接(从未收到数据)不占用 8KB。
-    * 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据。
-    */
+     * 懒分配行解析缓冲:空闲连接(从未收到数据)不占用 8KB。
+     * 初始为"空读取模式":limit=0,首次 feed 时 compact 不会误移动垃圾数据。
+     */
     private void ensureBuf() {
         if (buf == null) {
             buf = ByteBuffer.allocate(8192);
@@ -376,9 +376,9 @@ public class NioServerRequest implements ServerRequest {
     }
 
     /**
-    * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
-    * @return 结果字符串
-    */
+     * 从解析缓冲读取一行(以 \n 结尾,剔除 \r)。找不到完整行返回 null(不移除数据)。
+     * @return 结果字符串
+     */
     private String nextLineFromBuf() {
         int start = buf.position();
         int limit = buf.limit();
@@ -570,17 +570,17 @@ public class NioServerRequest implements ServerRequest {
         return defaultCharset;
     }
     /**
-    * 获取 HTTP 协议版本(如 "HTTP/1.1"),供 Keep-Alive 判断使用。
-    *
-    * @return 协议版本字符串
-    */
+     * 获取 HTTP 协议版本(如 "HTTP/1.1"),供 Keep-Alive 判断使用。
+     *
+     * @return 协议版本字符串
+     */
     public String getHttpVersion() { return httpVersion; }
 
     /**
-    * 重置解析状态以复用同一实例处理 Keep-Alive 连接的下一条请求。
-    * <p>保留行缓冲中未消费的数据(可能是 pipeline 的下一条请求前缀),
-    * 仅清空已解析字段并将状态机归位。</p>
-    */
+     * 重置解析状态以复用同一实例处理 Keep-Alive 连接的下一条请求。
+     * <p>保留行缓冲中未消费的数据(可能是 pipeline 的下一条请求前缀),
+     * 仅清空已解析字段并将状态机归位。</p>
+     */
     public void resetForNextRequest() {
         method = null;
         uri = null;

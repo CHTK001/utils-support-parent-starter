@@ -5,33 +5,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 火灾烟雾检测Translator（嵌入式，火/烟 2 类）。
-*
-* <p>模型：fiacecson20/cctv-ai-fire-smoke，YOLOv8n 320 检测，2 类：fire/smoke。
-* 嵌入式模型位于 {@code vision/fire-smoke/yolov8n/model.onnx}。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param arguments 参数
-* @return resolve输入大小的结果
+ * 火灾烟雾检测Translator（嵌入式，火/烟 2 类）。
+ *
+ * <p>模型：fiacecson20/cctv-ai-fire-smoke，YOLOv8n 320 检测，2 类：fire/smoke。
+ * 嵌入式模型位于 {@code vision/fire-smoke/yolov8n/model.onnx}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param arguments 参数
+ * @return resolve输入大小的结果
  */
 public class FireSmokeDetectorTranslator extends YoloTranslator {
 
     /**
-    * firesmokedetectortranslator。
-    */
+     * firesmokedetectortranslator。
+     */
     private static final List<String> FIRE_SMOKE_2_CLASSES = Arrays.asList("fire", "smoke");
 
     /**
-    * FireSmokeDetectorTranslator。
-    */
+     * FireSmokeDetectorTranslator。
+     */
     public FireSmokeDetectorTranslator() {
         this(null);
     /**
-    * firesmokedetectortranslator。
-    * @param arguments 参数
-    * @return resolve输入大小的结果
-    */
+     * firesmokedetectortranslator。
+     * @param arguments 参数
+     * @return resolve输入大小的结果
+     */
     }
 
     /**
@@ -58,10 +58,10 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
     }
 
     /**
-    * resolve阈值。
-    * @param arguments 参数
-    * @return resolve阈值的结果
-    */
+     * resolve阈值。
+     * @param arguments 参数
+     * @return resolve阈值的结果
+     */
     private static float resolveThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("confThreshold")) {
             return Float.parseFloat(arguments.get("confThreshold").toString());
@@ -70,10 +70,10 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
     }
 
     /**
-    * resolvenms阈值。
-    * @param arguments 参数
-    * @return resolvenms阈值的结果
-    */
+     * resolvenms阈值。
+     * @param arguments 参数
+     * @return resolvenms阈值的结果
+     */
     private static float resolveNmsThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("iouThreshold")) {
             return Float.parseFloat(arguments.get("iouThreshold").toString());

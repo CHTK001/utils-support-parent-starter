@@ -5,13 +5,13 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 实时天气信息实体。
-*
-* <p>对应 wttr.in {@code ?format=j1} 响应的 current_condition 简化字段，
-* 同时携带当天逐小时采样（{@link #hourly}）与未来数日预报（{@link #forecast}）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 实时天气信息实体。
+ *
+ * <p>对应 wttr.in {@code ?format=j1} 响应的 current_condition 简化字段，
+ * 同时携带当天逐小时采样（{@link #hourly}）与未来数日预报（{@link #forecast}）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class WeatherInfo {

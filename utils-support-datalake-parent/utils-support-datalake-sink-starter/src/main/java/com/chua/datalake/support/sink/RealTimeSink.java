@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
-* 实时 Sink — 将数据实时推送给 subscriber管理器。
-*
-* <p>实现 {@link AccessSink}，管线下发的每条数据将被实时感知。
-* 实际分发逻辑与 {@code SubscriberManager} 交互完成。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 实时 Sink — 将数据实时推送给 subscriber管理器。
+ *
+ * <p>实现 {@link AccessSink}，管线下发的每条数据将被实时感知。
+ * 实际分发逻辑与 {@code SubscriberManager} 交互完成。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("realtime")

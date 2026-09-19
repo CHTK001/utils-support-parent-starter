@@ -5,11 +5,11 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
-* 列元数据，描述表中的一个列（字段）信息。
-* <p>用于方言的 DDL 生成，如 CREATE TABLE、ALTER TABLE 等操作。</p>
-*
-* @author CH
-* @since 2024/12/12
+ * 列元数据，描述表中的一个列（字段）信息。
+ * <p>用于方言的 DDL 生成，如 CREATE TABLE、ALTER TABLE 等操作。</p>
+ *
+ * @author CH
+ * @since 2024/12/12
  */
 @Data
 @Accessors(chain = true)
@@ -31,8 +31,8 @@ public class ColumnMetadata {
     private int scale;
     /** 是否可为空 */
     /**
-    * 是否允许为空
-    */
+     * 是否允许为空
+     */
     private boolean nullable = true;
     /** 默认值 */
     private String defaultValue;

@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 2026/07/26
-*/
+ */
 @Slf4j
 @Spi({"jdk-udp"})
 public class JdkUdpServer extends AbstractServer {
@@ -56,9 +56,9 @@ public class JdkUdpServer extends AbstractServer {
     private Thread receiverThread;
 
     /**
-    * 创建 JdkUdpServer 实例
-    * @param setting setting
-    */
+     * 创建 JdkUdpServer 实例
+     * @param setting setting
+     */
     public JdkUdpServer(ServerSetting setting) {
         super(setting);
     }
@@ -173,63 +173,63 @@ public class JdkUdpServer extends AbstractServer {
     }
 
     /**
-    * 注册 UDP 处理器（链式调用）。
-    *
-    * @param name    处理器名称（"*" 表示匹配所有数据包）
-    * @param handler 处理器
-    * @return 当前服务器实例
-    */
+     * 注册 UDP 处理器（链式调用）。
+     *
+     * @param name    处理器名称（"*" 表示匹配所有数据包）
+     * @param handler 处理器
+     * @return 当前服务器实例
+     */
     public JdkUdpServer registerHandler(String name, UdpHandler handler) {
         handlers.put(name, handler);
         return this;
     }
 
     /**
-    * 设置最大请求大小。
-    *
-    * @param size 最大字节数
-    * @return 当前服务器实例
-    */
+     * 设置最大请求大小。
+     *
+     * @param size 最大字节数
+     * @return 当前服务器实例
+     */
     public JdkUdpServer maxRequestSize(long size) {
         setting.setMaxRequestSize(size);
         return this;
     }
 
     /**
-    * 设置工作线程数。
-    *
-    * @param threads 线程数
-    * @return 当前服务器实例
-    */
+     * 设置工作线程数。
+     *
+     * @param threads 线程数
+     * @return 当前服务器实例
+     */
     public JdkUdpServer workerThreads(int threads) {
         setting.setWorkerThreads(threads);
         return this;
     }
 
     /**
-    * 发送 UDP 数据包。
-    *
-    * @param host 目标主机
-    * @param port 目标端口
-    * @param data 数据
-    */
+     * 发送 UDP 数据包。
+     *
+     * @param host 目标主机
+     * @param port 目标端口
+     * @param data 数据
+     */
     public void send(String host, int port, byte[] data) throws Exception {
         DatagramPacket packet = new DatagramPacket(data, data.length, new InetSocketAddress(host, port));
         datagramSocket.send(packet);
     }
 
     /**
-    * UDP 处理器接口。
-    */
+     * UDP 处理器接口。
+     */
     @FunctionalInterface
     public interface UdpHandler {
         /**
-        * 处理 UDP 数据包。
-        *
-        * @param data   接收的数据
-        * @param sender 发送方地址
-        * @return 响应数据，null 表示不回复
-        */
+         * 处理 UDP 数据包。
+         *
+         * @param data   接收的数据
+         * @param sender 发送方地址
+         * @return 响应数据，null 表示不回复
+         */
         byte[] handle(byte[] data, InetSocketAddress sender) throws Exception;
     }
 }

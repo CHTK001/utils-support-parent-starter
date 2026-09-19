@@ -6,10 +6,10 @@ import lombok.Data;
 import java.time.Duration;
 
 /**
-* 3D 生成配置
-*
-* @author CH
-* @since 4.0.0.42
+ * 3D 生成配置
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class Model3DConfig {

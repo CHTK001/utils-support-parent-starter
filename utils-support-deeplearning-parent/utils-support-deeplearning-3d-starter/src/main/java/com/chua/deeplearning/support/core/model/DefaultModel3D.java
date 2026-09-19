@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
-* 默认 3D 模型实现
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认 3D 模型实现
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DefaultModel3D implements Model3D {
 

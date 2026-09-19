@@ -15,59 +15,59 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-*                                     ONNX
-* <p>
-*
-*                                                             
-*                
-* 1.                                        
-* 2.              [0, 1]       
-* 3.                         0.5            0.5   
-* 4.             
-* 5.                            
-* 6.                         
-*
-* @author CH
-* @since 2025-11-21
+ *                                     ONNX
+ * <p>
+ *
+ *                                                             
+ *                
+ * 1.                                        
+ * 2.              [0, 1]       
+ * 3.                         0.5            0.5   
+ * 4.             
+ * 5.                            
+ * 6.                         
+ *
+ * @author CH
+ * @since 2025-11-21
  */
 @Slf4j
 public class ImageTextSuperResolutionTranslator implements Translator<Image, Image> {
 
     /**
-    * ND                        ndarray
-    */
+     * ND                        ndarray
+     */
     private NDManager manager;
 
     /**
-    *                                                                
-    */
+     *                                                                
+     */
     private final int detectResolution = 512;
 
     /**
-    *                                           
-    *
-    * @param ctx                   
-    */
+     *                                           
+     *
+     * @param ctx                   
+     */
     @Override
     public void prepare(TranslatorContext ctx) {
         this.manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "OnnxRuntime");
     }
 
     /**
-    * nd列表
-    * <p>
-    *                
-    * 1.                   ndarray         FLOAT32
-    * 2.                                                 
-    * 3.                                  
-    * 4.                      HWC -> CHW
-    * 5.              [0, 1]                255   
-    * 6.                   (array - 0.5) / 0.5
-    *
-    * @param ctx                     
-    * @param input             
-    * @return                         NDList
-    */
+     * nd列表
+     * <p>
+     *                
+     * 1.                   ndarray         FLOAT32
+     * 2.                                                 
+     * 3.                                  
+     * 4.                      HWC -> CHW
+     * 5.              [0, 1]                255   
+     * 6.                   (array - 0.5) / 0.5
+     *
+     * @param ctx                     
+     * @param input             
+     * @return                         NDList
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (log.isDebugEnabled()) {
@@ -110,19 +110,19 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     /**
-    * nd列表
-    * <p>
-    *                
-    * 1.                               
-    * 2.                输出 * 0.5 + 0.5
-    * 3.                   [0,1]         
-    * 4.          UINT8                  [0,255]      
-    * 5.    ndarray
-    *
-    * @param ctx                    
-    * @param list                nd列表
-    * @return                               
-    */
+     * nd列表
+     * <p>
+     *                
+     * 1.                               
+     * 2.                输出 * 0.5 + 0.5
+     * 3.                   [0,1]         
+     * 4.          UINT8                  [0,255]      
+     * 5.    ndarray
+     *
+     * @param ctx                    
+     * @param list                nd列表
+     * @return                               
+     */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         if (log.isDebugEnabled()) {
@@ -159,10 +159,10 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     /**
-    *                      
-    *
-    * @return                               STACK      
-    */
+     *                      
+     *
+     * @return                               STACK      
+     */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

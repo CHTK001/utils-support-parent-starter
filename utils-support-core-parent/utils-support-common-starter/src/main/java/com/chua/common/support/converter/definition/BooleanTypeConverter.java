@@ -9,17 +9,17 @@ import javax.annotation.Nullable;
 
 
 /**
-* Boolean 类型转换器。
-* <p>将各种类型的值转换为 {@link Boolean}，支持以下特性：</p>
-* <ul>
-*   <li>字符串匹配：不区分大小写识别 true/t/yes/y/on/1（真）和 false/f/no/n/off/0（假）</li>
-*   <li>数值类型：非零值为 true，零值为 false</li>
-*   <li>字符类型：通过字符串匹配规则判断</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
-* @version 1.0.0
+ * Boolean 类型转换器。
+ * <p>将各种类型的值转换为 {@link Boolean}，支持以下特性：</p>
+ * <ul>
+ *   <li>字符串匹配：不区分大小写识别 true/t/yes/y/on/1（真）和 false/f/no/n/off/0（假）</li>
+ *   <li>数值类型：非零值为 true，零值为 false</li>
+ *   <li>字符类型：通过字符串匹配规则判断</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @version 1.0.0
  */
 @Slf4j
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
@@ -46,11 +46,11 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     }
 
     /**
-    * 将给定值转换为 Boolean。
-    *
-    * @param value 源值
-    * @return Boolean 值，如果无法转换则返回 null（null 输入返回 false）
-    */
+     * 将给定值转换为 Boolean。
+     *
+     * @param value 源值
+     * @return Boolean 值，如果无法转换则返回 null（null 输入返回 false）
+     */
     @Override
     public Boolean convert(Object value) {
         if (null == value) {
@@ -77,11 +77,11 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     }
 
     /**
-    * 解析字符串为 Boolean 值。
-    *
-    * @param s 字符串
-    * @return Boolean 值，如果无法识别则返回 null
-    */
+     * 解析字符串为 Boolean 值。
+     *
+     * @param s 字符串
+     * @return Boolean 值，如果无法识别则返回 null
+     */
     private Boolean parse(String s) {
         if (s == null) {
             return null;
@@ -108,10 +108,10 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return Boolean.class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return Boolean.class
+     */
     @Override
     public Class<Boolean> getType() {
         return Boolean.class;

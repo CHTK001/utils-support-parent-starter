@@ -55,8 +55,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     private static final Logger log = LoggerFactory.getLogger(CommandCodeUsageParser.class);
 
     /**
-    * Session transcripts root: ~/.commandcode/projects
-    */
+     * Session transcripts root: ~/.commandcode/projects
+     */
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".commandcode", "projects");
 
@@ -69,8 +69,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 流式解析全部 session 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
-    */
+     * 流式解析全部 session 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -93,20 +93,20 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 仅扫描主转录文件，跳过 checkpoints/prompts 等 sidecar。
-    * @param file 文件，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 仅扫描主转录文件，跳过 checkpoints/prompts 等 sidecar。
+     * @param file 文件，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isTranscript(Path file) {
         String name = file.getFileName().toString();
         return !name.contains(".checkpoints.") && !name.contains(".prompts.");
     }
 
     /**
-    * 单个 JSONL 文件的行流（惰性 + 背压）。
-    * @param file 文件，不允许为 null
-    * @return Flux 对象
-    */
+     * 单个 JSONL 文件的行流（惰性 + 背压）。
+     * @param file 文件，不允许为 null
+     * @return Flux 对象
+     */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
                 .filter(line -> !line.isBlank())
@@ -116,10 +116,10 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 安全解析单行，失败返回 empty。
-    * @param line 方法入参 line
-    * @return 结果值
-    */
+     * 安全解析单行，失败返回 empty。
+     * @param line 方法入参 line
+     * @return 结果值
+     */
     private java.util.Optional<AiUsage> parseLineSafe(String line) {
         try {
             return parseNode(Json.parse(line));
@@ -130,12 +130,12 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将一条转录行转换为 AiUsage 记录。
-    *
-    * <p>仅接受带顶层 {@code usage} 且含有效 token/费用的 assistant 消息行。</p>
-    * @param node 节点，不允许为 null
-    * @return 结果值
-    */
+     * 将一条转录行转换为 AiUsage 记录。
+     *
+     * <p>仅接受带顶层 {@code usage} 且含有效 token/费用的 assistant 消息行。</p>
+     * @param node 节点，不允许为 null
+     * @return 结果值
+     */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         JsonNode type = node.get("type");
         if (type.isMissingValue() || !"message".equals(type.toStringValue())) {

@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* gRPC 处理器 — intercepts gRPC 客户端/服务端 calls.
-*
-* @author CH
-* @since 4.0.0.42
+ * gRPC 处理器 — intercepts gRPC 客户端/服务端 calls.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class GrpcHandler extends AbstractAppHandler {
 
     /**
-    * 客户端 call
+     * 客户端 call
      */
     private static final String CLIENT_CALL = "io/grpc/ClientCall";
     /**
-    * 服务器 call
+     * 服务器 call
      */
     private static final String SERVER_CALL = "io/grpc/ServerCall";
     /**
-    * 客户端 方法
+     * 客户端 方法
      */
     private static final String[] CLIENT_METHODS = {"start", "sendMessage", "request", "halfClose"};
     /**
-    * 服务器 方法
+     * 服务器 方法
      */
     private static final String[] SERVER_METHODS = {"sendMessage", "close"};
 

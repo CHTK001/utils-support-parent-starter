@@ -12,34 +12,34 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
-* ZIP 压缩文件提取器
-*
-* <p>支持 .zip 格式的解压。使用 Java 原生 ZipInputStream 实现，包含防 Zip Slip 安全校验。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ZIP 压缩文件提取器
+ *
+ * <p>支持 .zip 格式的解压。使用 Java 原生 ZipInputStream 实现，包含防 Zip Slip 安全校验。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("zip")
 public class ZipExtractor implements Extractor {
 
     /**
-    * 获取支持的扩展名列表
-    *
-    * @return 支持的扩展名数组，仅包含 ".zip"
-    */
+     * 获取支持的扩展名列表
+     *
+     * @return 支持的扩展名数组，仅包含 ".zip"
+     */
     @Override
     public String[] supportedExtensions() {
         return new String[]{".zip"};
     }
 
     /**
-    * 从源 ZIP 文件中提取内容到目标目录
-    *
-    * @param sourceFile 源 ZIP 文件对象
-    * @param targetDir  目标解压目录对象
-    * @return 如果解压成功返回 true，否则返回 false
-    */
+     * 从源 ZIP 文件中提取内容到目标目录
+     *
+     * @param sourceFile 源 ZIP 文件对象
+     * @param targetDir  目标解压目录对象
+     * @return 如果解压成功返回 true，否则返回 false
+     */
     @Override
     public boolean extract(File sourceFile, File targetDir) {
         if (sourceFile == null || !sourceFile.exists()) {

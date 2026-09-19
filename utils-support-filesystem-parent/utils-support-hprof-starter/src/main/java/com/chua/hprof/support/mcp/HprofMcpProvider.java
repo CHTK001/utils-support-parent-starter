@@ -71,37 +71,37 @@ import java.util.Map;
 public class HprofMcpProvider implements McpProvider {
 
     /**
-    * Provider name.
-    */
+     * Provider name.
+     */
     public static final String NAME = "hprof";
 
     /**
-    * Tool input parameter name.
-    */
+     * Tool input parameter name.
+     */
     private static final String PARAM_PATH = "path";
 
     /**
-    * 可选的 AI 聊天客户端，用于生成 HTML 报告中的 AI 摘要区块。
-    */
+     * 可选的 AI 聊天客户端，用于生成 HTML 报告中的 AI 摘要区块。
+     */
     private volatile ChatClient chatClient;
 
     /**
-    * Set the optional AI chat client.
-    *
-    * @param chatClient AI client, null clears
-    * @return this provider for chaining
-    */
+     * Set the optional AI chat client.
+     *
+     * @param chatClient AI client, null clears
+     * @return this provider for chaining
+     */
     public HprofMcpProvider setChatClient(ChatClient chatClient) {
         this.chatClient = chatClient;
         return this;
     }
 
     /**
-    * 通过配置项设置可选的 AI 聊天客户端。
-    *
-    * @param setting AI client setting, null clears
-    * @return this provider for chaining
-    */
+     * 通过配置项设置可选的 AI 聊天客户端。
+     *
+     * @param setting AI client setting, null clears
+     * @return this provider for chaining
+     */
     public HprofMcpProvider setChatClientSetting(ChatClientSetting setting) {
         this.chatClient = setting == null ? null : ChatClient.create(setting);
         return this;
@@ -134,8 +134,8 @@ public class HprofMcpProvider implements McpProvider {
     protected class HprofMcpClient implements McpClient {
 
         /**
-        * Initialized flag.
-        */
+         * Initialized flag.
+         */
         private volatile boolean initialized = false;
 
         @Override
@@ -198,10 +198,10 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-        * hprof 分析工具的工具描述符列表。
-        *
-        * @return the tool descriptor list
-        */
+     * hprof 分析工具的工具描述符列表。
+     *
+     * @return the tool descriptor list
+     */
     public static List<McpToolDescriptor> toolDescriptors() {
         Map<String, Object> pathSchema = Map.of(
                 "type", "object",
@@ -234,23 +234,23 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-    * Parse the hprof file referenced by the argument map.
-    *
-    * @param args tool arguments
-    * @return parsed result
-    * @throws IOException 无法读取该文件时
-    */
+     * Parse the hprof file referenced by the argument map.
+     *
+     * @param args tool arguments
+     * @return parsed result
+     * @throws IOException 无法读取该文件时
+     */
     private HprofParser.Result parse(Map<String, Object> args) throws IOException {
         return parse(stringArg(args));
     }
 
     /**
-    * Parse the hprof file at the given path.
-    *
-    * @param path hprof file path
-    * @return parsed result
-    * @throws IOException 无法读取该文件时
-    */
+     * Parse the hprof file at the given path.
+     *
+     * @param path hprof file path
+     * @return parsed result
+     * @throws IOException 无法读取该文件时
+     */
     private HprofParser.Result parse(String path) throws IOException {
         File file = new File(path);
         if (!file.exists()) {
@@ -260,12 +260,12 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-    * Build the top-retained report text.
-    *
-    * @param path hprof file path
-    * @return report text
-    * @throws IOException 无法读取该文件时
-    */
+     * Build the top-retained report text.
+     *
+     * @param path hprof file path
+     * @return report text
+     * @throws IOException 无法读取该文件时
+     */
     private String topRetained(String path) throws IOException {
         HprofParser.Result result = parse(path);
         StringBuilder sb = new StringBuilder();
@@ -284,16 +284,16 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-    * 生成简洁的诊断卡（纯文本）：一句话结论 + 根因 + 证据 + 按优先级的解决方案。
-    *
-    * <p>复用 {@link HprofAnalyzer} 的结构化根因与 {@link HprofActionPlanner}
-    * 的处置计划，让 LLM agent 一次调用即可读到清晰的"为什么 / 怎么办"，
-    * 无需解析整页 HTML 或大 JSON。离线安全：全部来自规则引擎。</p>
-    *
-    * @param result   解析结果
-    * @param fileName hprof 文件路径（用于崩溃语境探测，可为 null）
-    * @return 诊断卡文本
-    */
+     * 生成简洁的诊断卡（纯文本）：一句话结论 + 根因 + 证据 + 按优先级的解决方案。
+     *
+     * <p>复用 {@link HprofAnalyzer} 的结构化根因与 {@link HprofActionPlanner}
+     * 的处置计划，让 LLM agent 一次调用即可读到清晰的"为什么 / 怎么办"，
+     * 无需解析整页 HTML 或大 JSON。离线安全：全部来自规则引擎。</p>
+     *
+     * @param result   解析结果
+     * @param fileName hprof 文件路径（用于崩溃语境探测，可为 null）
+     * @return 诊断卡文本
+     */
     public static String diagnose(HprofParser.Result result, String fileName) {
         HprofAnalysis analysis = HprofAnalyzer.analyze(result,
                 fileName == null ? null : new File(fileName));
@@ -363,11 +363,11 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-    * Read the "path" argument as a string.
-    *
-    * @param args tool arguments
-    * @return the string value or null
-    */
+     * Read the "path" argument as a string.
+     *
+     * @param args tool arguments
+     * @return the string value or null
+     */
     private static String stringArg(Map<String, Object> args) {
         Object value = args.get(PARAM_PATH);
         return value == null ? null : value.toString();

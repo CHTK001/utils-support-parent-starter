@@ -47,18 +47,18 @@ public class ClineConversationParser implements ConversationParser {
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "cline"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "cline"}
+     */
     @Override
     public String name() {
         return "cline";
     }
 
     /**
-    * 流式解析全部会话消息：每个 messages.json 一个惰性任务。
-    */
+     * 流式解析全部会话消息：每个 messages.json 一个惰性任务。
+     */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         List<Path> files = listMessageFiles();

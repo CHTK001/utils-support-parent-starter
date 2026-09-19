@@ -4,12 +4,12 @@ import java.util.Optional;
 
 
 /**
-* Optional 类型转换器。
-* <p>将任意值包装为 {@link Optional}，通过 Optional.ofNullable(value) 实现。</p>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/26
+ * Optional 类型转换器。
+ * <p>将任意值包装为 {@link Optional}，通过 Optional.ofNullable(value) 实现。</p>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/26
  */
 @SuppressWarnings("ALL")
 public class OptionalConverter implements TypeConverter<Optional> {

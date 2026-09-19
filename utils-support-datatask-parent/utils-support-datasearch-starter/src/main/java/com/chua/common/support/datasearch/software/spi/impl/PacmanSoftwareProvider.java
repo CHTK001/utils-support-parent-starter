@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Pacman 软件包管理器提供器。
-*
-* <p>通过 pacman CLI 在 Arch Linux 中搜索、安装和卸载软件包。
-* 支持 <code>pacman -Ss</code>、<code>pacman -S --noconfirm</code>、
-* <code>pacman -R --noconfirm</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * Pacman 软件包管理器提供器。
+ *
+ * <p>通过 pacman CLI 在 Arch Linux 中搜索、安装和卸载软件包。
+ * 支持 <code>pacman -Ss</code>、<code>pacman -S --noconfirm</code>、
+ * <code>pacman -R --noconfirm</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("pacman")
 public class PacmanSoftwareProvider implements SoftwareProvider {

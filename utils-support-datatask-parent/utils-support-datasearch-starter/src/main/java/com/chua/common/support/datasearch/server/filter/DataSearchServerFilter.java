@@ -43,48 +43,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 数据搜索服务过滤器。
-*
-* <p>将 {@code datasearch-starter} 内全部数据提供者（成语 / 古诗词 / 汉字字典 /
-* 手机归属地 / 星座运势 / 天气 / 节假日 / 行政区划 / 汇率 / 快递 / 台风 / IP 定位 /
-* 逆地理编码）暴露为统一 REST 接口，供任何 {@link com.chua.common.support.network.server.Server}
-* 挂载使用。</p>
-*
-* <p>接口统一前缀为 {@code /datasearch}，路由规则如下：</p>
-* <ul>
-*   <li>{@code /datasearch/idiom/get?word=守株待兔} — 成语精确查询</li>
-*   <li>{@code /datasearch/idiom/search?keyword=兔&limit=10} — 成语模糊搜索</li>
-*   <li>{@code /datasearch/idiom/random} — 随机成语</li>
-*   <li>{@code /datasearch/poetry/random} — 随机诗词</li>
-*   <li>{@code /datasearch/poetry/author?author=李白&limit=10} — 按作者检索诗词</li>
-*   <li>{@code /datasearch/poetry/search?keyword=明月&limit=10} — 诗词搜索</li>
-*   <li>{@code /datasearch/hanzi/get?character=中} — 汉字查询</li>
-*   <li>{@code /datasearch/hanzi/search?keyword=zhong&limit=10} — 汉字搜索</li>
-*   <li>{@code /datasearch/hanzi/random} — 随机汉字</li>
-*   <li>{@code /datasearch/phone?phone=13800138000} — 手机归属地</li>
-*   <li>{@code /datasearch/horoscope?sign=白羊座&type=today} — 星座运势</li>
-*   <li>{@code /datasearch/weather?city=北京} — 实时天气</li>
-*   <li>{@code /datasearch/holiday/check?date=2026-01-01} — 节假日判定</li>
-*   <li>{@code /datasearch/holiday/list?year=2026} — 年度节假日安排</li>
-*   <li>{@code /datasearch/region?level=2} — 行政区划扁平列表</li>
-*   <li>{@code /datasearch/region/children?parent=110000} — 下级区划</li>
-*   <li>{@code /datasearch/region/tree?level=2} — 行政区划树</li>
-*   <li>{@code /datasearch/exchange/rate?from=USD&to=CNY} — 汇率换算</li>
-*   <li>{@code /datasearch/exchange/rates?base=USD} — 全量汇率表</li>
-*   <li>{@code /datasearch/express?trackingNo=xxx} — 快递物流轨迹</li>
-*   <li>{@code /datasearch/typhoon/active} — 活跃台风列表</li>
-*   <li>{@code /datasearch/typhoon/detail?tfid=202618} — 台风详情</li>
-*   <li>{@code /datasearch/location/self} — 定位自身</li>
-*   <li>{@code /datasearch/location/ip?ip=8.8.8.8} — IP 定位</li>
-*   <li>{@code /datasearch/geocode/reverse?lat=39.9&lon=116.4} — 逆地理编码</li>
-*   <li>{@code /datasearch/geocode/ip?ip=8.8.8.8} — IP 转地址</li>
-* </ul>
-*
-* <p>响应统一为 JSON：{@code {"code":200,"msg":"ok","data":{...}}}。
-* 数据提供者均通过 SPI 惰性加载，未注册对应实现时返回 {@code code=404}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 数据搜索服务过滤器。
+ *
+ * <p>将 {@code datasearch-starter} 内全部数据提供者（成语 / 古诗词 / 汉字字典 /
+ * 手机归属地 / 星座运势 / 天气 / 节假日 / 行政区划 / 汇率 / 快递 / 台风 / IP 定位 /
+ * 逆地理编码）暴露为统一 REST 接口，供任何 {@link com.chua.common.support.network.server.Server}
+ * 挂载使用。</p>
+ *
+ * <p>接口统一前缀为 {@code /datasearch}，路由规则如下：</p>
+ * <ul>
+ *   <li>{@code /datasearch/idiom/get?word=守株待兔} — 成语精确查询</li>
+ *   <li>{@code /datasearch/idiom/search?keyword=兔&limit=10} — 成语模糊搜索</li>
+ *   <li>{@code /datasearch/idiom/random} — 随机成语</li>
+ *   <li>{@code /datasearch/poetry/random} — 随机诗词</li>
+ *   <li>{@code /datasearch/poetry/author?author=李白&limit=10} — 按作者检索诗词</li>
+ *   <li>{@code /datasearch/poetry/search?keyword=明月&limit=10} — 诗词搜索</li>
+ *   <li>{@code /datasearch/hanzi/get?character=中} — 汉字查询</li>
+ *   <li>{@code /datasearch/hanzi/search?keyword=zhong&limit=10} — 汉字搜索</li>
+ *   <li>{@code /datasearch/hanzi/random} — 随机汉字</li>
+ *   <li>{@code /datasearch/phone?phone=13800138000} — 手机归属地</li>
+ *   <li>{@code /datasearch/horoscope?sign=白羊座&type=today} — 星座运势</li>
+ *   <li>{@code /datasearch/weather?city=北京} — 实时天气</li>
+ *   <li>{@code /datasearch/holiday/check?date=2026-01-01} — 节假日判定</li>
+ *   <li>{@code /datasearch/holiday/list?year=2026} — 年度节假日安排</li>
+ *   <li>{@code /datasearch/region?level=2} — 行政区划扁平列表</li>
+ *   <li>{@code /datasearch/region/children?parent=110000} — 下级区划</li>
+ *   <li>{@code /datasearch/region/tree?level=2} — 行政区划树</li>
+ *   <li>{@code /datasearch/exchange/rate?from=USD&to=CNY} — 汇率换算</li>
+ *   <li>{@code /datasearch/exchange/rates?base=USD} — 全量汇率表</li>
+ *   <li>{@code /datasearch/express?trackingNo=xxx} — 快递物流轨迹</li>
+ *   <li>{@code /datasearch/typhoon/active} — 活跃台风列表</li>
+ *   <li>{@code /datasearch/typhoon/detail?tfid=202618} — 台风详情</li>
+ *   <li>{@code /datasearch/location/self} — 定位自身</li>
+ *   <li>{@code /datasearch/location/ip?ip=8.8.8.8} — IP 定位</li>
+ *   <li>{@code /datasearch/geocode/reverse?lat=39.9&lon=116.4} — 逆地理编码</li>
+ *   <li>{@code /datasearch/geocode/ip?ip=8.8.8.8} — IP 转地址</li>
+ * </ul>
+ *
+ * <p>响应统一为 JSON：{@code {"code":200,"msg":"ok","data":{...}}}。
+ * 数据提供者均通过 SPI 惰性加载，未注册对应实现时返回 {@code code=404}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DataSearchServerFilter implements ServerFilter {
 
@@ -202,12 +202,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 成语路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 成语路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleIdiom(String action, ServerRequest request, ServerResponse response) throws Exception {
         IdiomProvider provider = loadFirst(IdiomProvider.class);
         if (provider == null) {
@@ -236,12 +236,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 诗词路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 诗词路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handlePoetry(String action, ServerRequest request, ServerResponse response) throws Exception {
         PoetryProvider provider = loadFirst(PoetryProvider.class);
         if (provider == null) {
@@ -264,12 +264,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 汉字路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 汉字路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleHanzi(String action, ServerRequest request, ServerResponse response) throws Exception {
         HanziProvider provider = loadFirst(HanziProvider.class);
         if (provider == null) {
@@ -292,12 +292,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 节假日路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 节假日路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleHoliday(String action, ServerRequest request, ServerResponse response) throws Exception {
         HolidayProvider provider = loadFirst(HolidayProvider.class);
         if (provider == null) {
@@ -336,12 +336,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 行政区划路由
-    *
-    * @param subPath sub路径
-    * @param request 请求
-    * @param response 响应
-    */
+     * 行政区划路由
+     *
+     * @param subPath sub路径
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleRegion(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         RegionProvider provider = loadFirst(RegionProvider.class);
         if (provider == null) {
@@ -360,12 +360,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 汇率路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 汇率路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleExchange(String action, ServerRequest request, ServerResponse response) throws Exception {
         ExchangeRateProvider provider = loadFirst(ExchangeRateProvider.class);
         if (provider == null) {
@@ -395,12 +395,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 台风路由
-    *
-    * @param subPath sub路径
-    * @param request 请求
-    * @param response 响应
-    */
+     * 台风路由
+     *
+     * @param subPath sub路径
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleTyphoon(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         TyphoonProvider provider = loadFirst(TyphoonProvider.class);
         if (provider == null) {
@@ -415,12 +415,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 定位路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 定位路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleLocation(String action, ServerRequest request, ServerResponse response) throws Exception {
         LocationProvider provider = loadFirst(LocationProvider.class);
         if (provider == null) {
@@ -440,12 +440,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 逆地理编码路由
-    *
-    * @param action 动作
-    * @param request 请求
-    * @param response 响应
-    */
+     * 逆地理编码路由
+     *
+     * @param action 动作
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleGeocode(String action, ServerRequest request, ServerResponse response) throws Exception {
         GeocodeProvider provider = loadFirst(GeocodeProvider.class);
         if (provider == null) {
@@ -477,11 +477,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 手机归属地路由
-    *
-    * @param request 请求
-    * @param response 响应
-    */
+     * 手机归属地路由
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handlePhone(ServerRequest request, ServerResponse response) throws Exception {
         PhoneLocationProvider provider = loadFirst(PhoneLocationProvider.class);
         if (provider == null) {
@@ -492,11 +492,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 星座运势路由
-    *
-    * @param request 请求
-    * @param response 响应
-    */
+     * 星座运势路由
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleHoroscope(ServerRequest request, ServerResponse response) throws Exception {
         HoroscopeProvider provider = loadFirst(HoroscopeProvider.class);
         if (provider == null) {
@@ -507,11 +507,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 天气路由
-    *
-    * @param request 请求
-    * @param response 响应
-    */
+     * 天气路由
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleWeather(ServerRequest request, ServerResponse response) throws Exception {
         WeatherProvider provider = loadFirst(WeatherProvider.class);
         if (provider == null) {
@@ -522,11 +522,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 快递路由
-    *
-    * @param request 请求
-    * @param response 响应
-    */
+     * 快递路由
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleExpress(ServerRequest request, ServerResponse response) throws Exception {
         ExpressProvider provider = loadFirst(ExpressProvider.class);
         if (provider == null) {
@@ -542,11 +542,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 通过 SPI 加载首个可用实现
-    *
-    * @param type 类型
-    * @return 加载第一个的结果
-    */
+     * 通过 SPI 加载首个可用实现
+     *
+     * @param type 类型
+     * @return 加载第一个的结果
+     */
     private static <T> T loadFirst(Class<T> type) {
         Map<String, T> list = ServiceProvider.of(type).list();
         if (list == null || list.isEmpty()) {
@@ -556,11 +556,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 读取 限制 参数
-    *
-    * @param request 请求
-    * @return 限制的结果
-    */
+     * 读取 限制 参数
+     *
+     * @param request 请求
+     * @return 限制的结果
+     */
     private static int limit(ServerRequest request) {
         String value = request.getParam("limit");
         if (value == null || value.isBlank()) {
@@ -574,13 +574,13 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 读取 int 参数
-    *
-    * @param request 请求
-    * @param name 名称
-    * @param defaultValue 默认值
-    * @return int参数的结果
-    */
+     * 读取 int 参数
+     *
+     * @param request 请求
+     * @param name 名称
+     * @param defaultValue 默认值
+     * @return int参数的结果
+     */
     private static int intParam(ServerRequest request, String name, int defaultValue) {
         String value = request.getParam(name);
         if (value == null || value.isBlank()) {
@@ -594,13 +594,13 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 写入 JSON 响应
-    *
-    * @param response 响应
-    * @param code 编码
-    * @param msg msg
-    * @param data 数据
-    */
+     * 写入 JSON 响应
+     *
+     * @param response 响应
+     * @param code 编码
+     * @param msg msg
+     * @param data 数据
+     */
     private static void write(ServerResponse response, int code, String msg, Object data) {
         Map<String, Object> body = new LinkedHashMap<>(3);
         body.put("code", code);
@@ -613,11 +613,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 单对象转可序列化结构（优先 转为映射）
-    *
-    * @param obj obj
-    * @return 转为jsonable的结果
-    */
+     * 单对象转可序列化结构（优先 转为映射）
+     *
+     * @param obj obj
+     * @return 转为jsonable的结果
+     */
     private static Object toJsonable(Object obj) {
         if (obj == null) {
             return null;
@@ -650,11 +650,11 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 列表转可序列化结构
-    *
-    * @param list 列表
-    * @return 转为jsonable列表的结果
-    */
+     * 列表转可序列化结构
+     *
+     * @param list 列表
+     * @return 转为jsonable列表的结果
+     */
     private static List<Object> toJsonableList(List<?> list) {
         List<Object> result = new ArrayList<>();
         if (list != null) {
@@ -666,10 +666,10 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 接口索引
-    *
-    * @return 索引的结果
-    */
+     * 接口索引
+     *
+     * @return 索引的结果
+     */
     private static Map<String, Object> index() {
         Map<String, Object> map = new LinkedHashMap<>(32);
         map.put("page", "/datasearch/page");
@@ -705,10 +705,10 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 响应内置演示页面
-    *
-    * @param response 响应
-    */
+     * 响应内置演示页面
+     *
+     * @param response 响应
+     */
     private void servePage(ServerResponse response) {
         response.setStatus(200);
         response.setContentType("text/html; charset=utf-8");

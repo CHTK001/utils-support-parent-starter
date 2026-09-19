@@ -11,109 +11,109 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 
 /**
-* 视频动作检测器。
-* <p>输入视频数据，输出视频中检测到的动作序列（含时间戳、类别、置信度和空间位置）。</p>
-* <p>支持 9 种常见动作：举手、吃喝、吸烟、打电话、玩手机、趴桌睡觉、跌倒、洗手、拍照。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 视频动作检测器。
+ * <p>输入视频数据，输出视频中检测到的动作序列（含时间戳、类别、置信度和空间位置）。</p>
+ * <p>支持 9 种常见动作：举手、吃喝、吸烟、打电话、玩手机、趴桌睡觉、跌倒、洗手、拍照。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public interface ActionDetector {
 
     /**
-    * 通过 SPI 创建实例。
-    *
-    * @param provider 提供者 名称
-    * @param apiKey   API 密钥（本地引擎可空）
-    * @return 实例
-    */
+     * 通过 SPI 创建实例。
+     *
+     * @param provider 提供者 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
     static ActionDetector create(String provider, String apiKey) {
         return ServiceProvider.of(ActionDetector.class)
                 .getNewExtension(provider, apiKey);
     }
 
     /**
-    * 创建默认动作检测器。
-    *
-    * @param name 模型名称
-    * @return 检测器
-    */
+     * 创建默认动作检测器。
+     *
+     * @param name 模型名称
+     * @return 检测器
+     */
     static ActionDetector create(String name) {
         return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
 
     /**
-    * 创建动作检测器。
-    *
-    * @param name    模型名称
-    * @param setting 模型配置
-    * @return 检测器
-    */
+     * 创建动作检测器。
+     *
+     * @param name    模型名称
+     * @param setting 模型配置
+     * @return 检测器
+     */
     static ActionDetector create(String name, ModelSetting setting) {
         return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
 
     /**
-    * 查询该能力下全部可用模型。
-    *
-    * @return 模型 标识 列表
-    */
+     * 查询该能力下全部可用模型。
+     *
+     * @return 模型 标识 列表
+     */
     static List<String> listModels() {
         return ModelRegistry.getModelIdsByCapability(ActionDetector.class);
     }
 
     /**
-    * 设置模型名称。
-    *
-    * @param model 模型名称
-    * @return this
-    */
+     * 设置模型名称。
+     *
+     * @param model 模型名称
+     * @return this
+     */
     default ActionDetector model(String model) {
         return this;
     }
 
     /**
-    * 设置检测阈值。
-    *
-    * @param threshold 阈值
-    * @return this
-    */
+     * 设置检测阈值。
+     *
+     * @param threshold 阈值
+     * @return this
+     */
     ActionDetector threshold(float threshold);
 
     /**
-    * 设置模型路径。
-    *
-    * @param path 路径
-    * @return this
-    */
+     * 设置模型路径。
+     *
+     * @param path 路径
+     * @return this
+     */
     ActionDetector modelPath(String path);
 
     /**
-    * 设置运行设备。
-    *
-    * @param device 设备
-    * @return this
-    */
+     * 设置运行设备。
+     *
+     * @param device 设备
+     * @return this
+     */
     ActionDetector device(String device);
 
     /**
-    * 检测视频中的动作。
-    *
-    * @param videoData 视频文件数据
-    * @return 动作检测结果列表
-    */
+     * 检测视频中的动作。
+     *
+     * @param videoData 视频文件数据
+     * @return 动作检测结果列表
+     */
     List<ActionDetectionResult> detect(byte[] videoData);
 }
 
 /**
-* 默认动作检测器实现。
-*
-* @author CH
-* @since 4.0.0.42
-* @param videoData 视频数据
-* @return detect的结果
-* @param device device
-* @param model 模型
+ * 默认动作检测器实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param videoData 视频数据
+ * @return detect的结果
+ * @param device device
+ * @param model 模型
  */
 class DefaultActionDetector implements ActionDetector {
 
@@ -150,10 +150,10 @@ class DefaultActionDetector implements ActionDetector {
     public ActionDetector model(String model) {
         return this;
     /**
-    * 阈值。
-    * @param threshold 阈值
-    * @return 阈值的结果
-    */
+     * 阈值。
+     * @param threshold 阈值
+     * @return 阈值的结果
+     */
     }
 
     @Override
@@ -161,12 +161,12 @@ class DefaultActionDetector implements ActionDetector {
         this.threshold = threshold;
         return this;
     /**
-    * 模型路径。
-    * @param path 路径
-    * @return 模型路径的结果
-    * @param videoData 视频数据
-    * @param device device
-    */
+     * 模型路径。
+     * @param path 路径
+     * @return 模型路径的结果
+     * @param videoData 视频数据
+     * @param device device
+     */
     }
 
     @Override

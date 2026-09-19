@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Spring 数据 JPA 处理器 — intercepts Spring 数据 JPA 仓库 operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * Spring 数据 JPA 处理器 — intercepts Spring 数据 JPA 仓库 operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SpringDataJpaHandler extends AbstractAppHandler {
 
     /**
-    * JPA 仓库
+     * JPA 仓库
      */
     private static final String JPA_REPOSITORY = "org/springframework/data/repository/CrudRepository";
     /**
-    * 仓库 方法
+     * 仓库 方法
      */
     private static final String[] REPOSITORY_METHODS = {"save", "findById", "findAll", "deleteById", "count"};
 

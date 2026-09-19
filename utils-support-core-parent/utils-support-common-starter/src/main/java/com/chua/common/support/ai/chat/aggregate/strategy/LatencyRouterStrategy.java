@@ -15,31 +15,31 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
-* 低延迟策略 — 并行发起所有请求，取最先成功返回的。
-*
-* <p>适用于对延迟敏感的场景。�️ 会同时消耗多个 Key 的配额。
-* 同步使用并行竞速，流式回退到 {@link FailoverTemplate}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 低延迟策略 — 并行发起所有请求，取最先成功返回的。
+ *
+ * <p>适用于对延迟敏感的场景。�️ 会同时消耗多个 Key 的配额。
+ * 同步使用并行竞速，流式回退到 {@link FailoverTemplate}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("latency")
 public class LatencyRouterStrategy implements RouterStrategy {
 
     /**
-    * 同步执行最长等待时间（毫秒），超过此时间仍未返回则视为全部失败
-    */
+     * 同步执行最长等待时间（毫秒），超过此时间仍未返回则视为全部失败
+     */
     private static final long MAX_WAIT_MS = 60_000L;
 
     /**
-    * 竞速轮询间隔（毫秒），每 {@value} 毫秒检查一次 future 状态
-    */
+     * 竞速轮询间隔（毫秒），每 {@value} 毫秒检查一次 future 状态
+     */
     private static final long POLL_INTERVAL_MS = 100L;
 
     /**
-    * 空文本占位：当 provider 返回了响应但文本为 null 时使用
-    */
+     * 空文本占位：当 provider 返回了响应但文本为 null 时使用
+     */
     private static final String EMPTY_TEXT = "";
 
     @Override
@@ -127,13 +127,13 @@ public class LatencyRouterStrategy implements RouterStrategy {
     }
 
     /**
-    * 流式聊天：本策略不直接支持，回退到 {@link FailoverTemplate}。
-    *
-    * @param clients   provider 列表
-    * @param prompt    用户输入
-    * @param consumer  流式回调
-    * @throws Exception provider 自身可能抛出的异常
-    */
+     * 流式聊天：本策略不直接支持，回退到 {@link FailoverTemplate}。
+     *
+     * @param clients   provider 列表
+     * @param prompt    用户输入
+     * @param consumer  流式回调
+     * @throws Exception provider 自身可能抛出的异常
+     */
     @Override
     public void executeStream(List<WeightedClient> clients, String prompt,
                               Consumer<ChatResponse> consumer) throws Exception {
@@ -142,11 +142,11 @@ public class LatencyRouterStrategy implements RouterStrategy {
     }
 
     /**
-    * 取消除指定 future 之外的全部未完成 future。
-    *
-    * @param futures 待清理的 future 列表
-    * @param keep    需要保留的 future（赢家）
-    */
+     * 取消除指定 future 之外的全部未完成 future。
+     *
+     * @param futures 待清理的 future 列表
+     * @param keep    需要保留的 future（赢家）
+     */
     private void cancelOthers(List<CompletableFuture<Result>> futures, CompletableFuture<Result> keep) {
         for (CompletableFuture<Result> f : futures) {
             if (f != keep && !f.isDone()) {
@@ -156,10 +156,10 @@ public class LatencyRouterStrategy implements RouterStrategy {
     }
 
     /**
-    * 取消全部未完成 future，用于超时或异常路径下的资源回收。
-    *
-    * @param futures 待清理的 future 列表
-    */
+     * 取消全部未完成 future，用于超时或异常路径下的资源回收。
+     *
+     * @param futures 待清理的 future 列表
+     */
     private void cancelAll(List<CompletableFuture<Result>> futures) {
         for (CompletableFuture<Result> f : futures) {
             if (!f.isDone()) {
@@ -169,15 +169,15 @@ public class LatencyRouterStrategy implements RouterStrategy {
     }
 
     /**
-    * 竞速结果封装：provider、文本、耗时、异常。
-    *
-    * @param client  产生该结果的 provider
-    * @param text    响应文本（provider 失败时为 null）
-    * @param elapsed 耗时（毫秒）
-    * @param error   provider 抛出的异常（成功时为 null）
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 竞速结果封装：provider、文本、耗时、异常。
+     *
+     * @param client  产生该结果的 provider
+     * @param text    响应文本（provider 失败时为 null）
+     * @param elapsed 耗时（毫秒）
+     * @param error   provider 抛出的异常（成功时为 null）
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     private record Result(WeightedClient client, String text, long elapsed, Exception error) {
     }
 }

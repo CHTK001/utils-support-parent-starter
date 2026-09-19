@@ -47,17 +47,17 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private static final String PROVIDER_OPENCLAW = "openclaw";
 
     /**
-    * 返回 OpenClaw 的 SPI 名称。
-    *
-    * @return {@code "openclaw"}
-    */
+     * 返回 OpenClaw 的 SPI 名称。
+     *
+     * @return {@code "openclaw"}
+     */
     public String name() {
         return "openclaw";
     }
 
     /**
-    * 从所有转录文件中以流式方式输出按补全粒度的用量记录。
-    */
+     * 从所有转录文件中以流式方式输出按补全粒度的用量记录。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listTrajectoryFiles();
@@ -118,14 +118,14 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 定位 model.completed 事件的用量块。
-    *
-    * <p>OpenClaw 把用量嵌套在 {@code data.usage} 下；较早的 schema 可能把它
-    * 放在顶层，因此两个位置都要检查。</p>
-    *
-    * @param node 已解析的转录行
-    * @return 用量块；不存在时返回 missing 节点
-    */
+     * 定位 model.completed 事件的用量块。
+     *
+     * <p>OpenClaw 把用量嵌套在 {@code data.usage} 下；较早的 schema 可能把它
+     * 放在顶层，因此两个位置都要检查。</p>
+     *
+     * @param node 已解析的转录行
+     * @return 用量块；不存在时返回 missing 节点
+     */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");
         if (!data.isMissingValue() && !data.get("usage").isMissingValue()) {

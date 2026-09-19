@@ -18,48 +18,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Shell 命令反射处理器。
-*
-* <p>将 Shell 命令请求通过反射转发到目标 Bean 的方法上，支持参数解析、流式输出和视图渲染。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Shell 命令反射处理器。
+ *
+ * <p>将 Shell 命令请求通过反射转发到目标 Bean 的方法上，支持参数解析、流式输出和视图渲染。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ShellMethodServerHandler implements HttpDefaultServerHandler {
 
     /**
-    * 对象 上下文
-    */
+     * 对象 上下文
+     */
     private final ObjectContext objectContext;
     /**
-    * Target 类
-    */
+     * Target 类
+     */
     private final Class<?> targetClass;
     /**
-    * 方法
-    */
+     * 方法
+     */
     private final Method method;
     /**
-    * 路径
-    */
+     * 路径
+     */
     private final String path;
     /**
-    * produce
-    */
+     * produce
+     */
     private final String produce;
 
     /**
-    * 创建 shell方法服务端处理器 实例
-    * @param objectContext 对象上下文
-    * @param targetClass 类
-    * @param targetClass 目标类
-    * @param method 方法
-    * @param path 字符串
-    * @param path 字符串
-    * @param method 方法
-    * @param path 路径
-    * @param produce produce
-    */
+     * 创建 shell方法服务端处理器 实例
+     * @param objectContext 对象上下文
+     * @param targetClass 类
+     * @param targetClass 目标类
+     * @param method 方法
+     * @param path 字符串
+     * @param path 字符串
+     * @param method 方法
+     * @param path 路径
+     * @param produce produce
+     */
     public ShellMethodServerHandler(ObjectContext objectContext, Class<?> targetClass, Method method, String path, String produce) {
         this.objectContext = objectContext;
         this.targetClass = targetClass;
@@ -134,13 +134,13 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     /**
-    * 构建参数
-    *
-    * @param paramTypes 参数类型
-    * @param args 参数
-    * @param sshRes sshr
-    * @return 构建参数的结果
-    */
+     * 构建参数
+     *
+     * @param paramTypes 参数类型
+     * @param args 参数
+     * @param sshRes sshr
+     * @return 构建参数的结果
+     */
     private static Object[] buildArgs(Class<?>[] paramTypes, String[] args, SshCommandResponse sshRes) {
         Object[] result = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
@@ -156,12 +156,12 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     /**
-    * renderview
-    *
-    * @param data 数据
-    * @param produce produce
-    * @return renderView的结果
-    */
+     * renderview
+     *
+     * @param data 数据
+     * @param produce produce
+     * @return renderView的结果
+     */
     private static String renderView(Object data, String produce) {
         if (data == null) {
             return "";

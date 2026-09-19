@@ -62,22 +62,22 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     private final boolean jsonOutput;
 
     /**
-    * 构造 nemo-speech 的 CLI ASR 翻译器
-    *
-    * @param cli  CLI 描述（如 {@link CliModelRunner#nemoSpeech()}）
-    * @param model ASR 模型短名或本地路径；null=CLI 默认
-    */
+     * 构造 nemo-speech 的 CLI ASR 翻译器
+     *
+     * @param cli  CLI 描述（如 {@link CliModelRunner#nemoSpeech()}）
+     * @param model ASR 模型短名或本地路径；null=CLI 默认
+     */
     public CliAsrTranslator(CliModelRunner.CliDescriptor cli, String model) {
         this(cli, model, false);
     }
 
     /**
-    * 构造（可开 JSON 输出）
-    *
-    * @param cli        CLI 描述
-    * @param model      模型短名/路径，null=默认
-    * @param jsonOutput 是否 JSON 输出
-    */
+     * 构造（可开 JSON 输出）
+     *
+     * @param cli        CLI 描述
+     * @param model      模型短名/路径，null=默认
+     * @param jsonOutput 是否 JSON 输出
+     */
     public CliAsrTranslator(CliModelRunner.CliDescriptor cli, String model, boolean jsonOutput) {
         this.name = cli.cliId() + (model != null ? ":" + model : "");
         this.cli = cli;
@@ -86,19 +86,19 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
     @Override
     public String name() {
         return name;
     }
 
     /**
-    * 转写音频字节为文本
-    *
-    * @param audio 音频字节（WAV）
-    * @return 转写文本
-    */
+     * 转写音频字节为文本
+     *
+     * @param audio 音频字节（WAV）
+     * @return 转写文本
+     */
     @Override
     public String translate(byte[] audio) {
         try {
@@ -111,12 +111,12 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 实际 转写 实现 （ 声明 受检 异常 ）
-    *
-    * @param audio 音频
-    * @return 文本
-    * @throws Exception 定位/IO/进程/超时 失败
-    */
+     * 实际 转写 实现 （ 声明 受检 异常 ）
+     *
+     * @param audio 音频
+     * @return 文本
+     * @throws Exception 定位/IO/进程/超时 失败
+     */
     private String doTranslate(byte[] audio) throws Exception {
         if (audio == null || audio.length == 0) {
             throw new IllegalArgumentException("音频字节为空");
@@ -138,13 +138,13 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 优先走常驻服务会话；不适用或失败返回 {@code null}，由调用方回退单进程
-    *
-    * @param exe CLI 可执行文件
-    * @param wav 落盘后的音频
-    * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
-    * @return 转写结果；不适用时返回 {@code null}
-    */
+     * 优先走常驻服务会话；不适用或失败返回 {@code null}，由调用方回退单进程
+     *
+     * @param exe CLI 可执行文件
+     * @param wav 落盘后的音频
+     * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
+     * @return 转写结果；不适用时返回 {@code null}
+     */
     private String transcribeViaServer(Path exe, Path wav, String m) {
         if (m == null || m.isBlank() || !Files.isRegularFile(Path.of(m))) {
             return null;
@@ -162,14 +162,14 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 单进程 transcribe 调用（原始路径，每次新起进程）
-    *
-    * @param exe CLI 可执行文件
-    * @param wav 落盘后的音频
-    * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
-    * @return stdout 原文
-    * @throws Exception 定位/进程/超时 失败
-    */
+     * 单进程 transcribe 调用（原始路径，每次新起进程）
+     *
+     * @param exe CLI 可执行文件
+     * @param wav 落盘后的音频
+     * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
+     * @return stdout 原文
+     * @throws Exception 定位/进程/超时 失败
+     */
     private String transcribeViaProcess(Path exe, Path wav, String m) throws Exception {
         String[] args;
         if (m != null && !m.isBlank()) {
@@ -215,22 +215,22 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 转写并 以 默认 模型
-    *
-    * @param audio 音频
-    * @return 文本
-    * @throws Exception 失败
-    */
+     * 转写并 以 默认 模型
+     *
+     * @param audio 音频
+     * @return 文本
+     * @throws Exception 失败
+     */
     public String transcribe(byte[] audio) throws Exception {
         return doTranslate(audio);
     }
 
     /**
-    * 归一化 纯文本 输出（去 行首 尾 空白 合并 多余 空行）
-    *
-    * @param raw 原始
-    * @return 文本
-    */
+     * 归一化 纯文本 输出（去 行首 尾 空白 合并 多余 空行）
+     *
+     * @param raw 原始
+     * @return 文本
+     */
     private static String normalize(String raw) {
         if (raw == null) {
             return "";
@@ -239,11 +239,11 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 字节 编码 文本 （ 供 调用方 复用 校验 等 场景 ）
-    *
-    * @param s 文本
-    * @return 字节
-    */
+     * 字节 编码 文本 （ 供 调用方 复用 校验 等 场景 ）
+     *
+     * @param s 文本
+     * @return 字节
+     */
     public static byte[] utf8(String s) {
         return s == null ? new byte[0] : s.getBytes(StandardCharsets.UTF_8);
     }

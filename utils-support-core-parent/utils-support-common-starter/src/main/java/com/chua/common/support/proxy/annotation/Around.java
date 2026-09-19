@@ -73,42 +73,42 @@ import java.lang.annotation.Target;
  * @版本 1.1.0
  * @see com.chua.common.support.proxy.intercept.MethodArroundIntercept
  * @see MethodAnnotationIntercept
-*/
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Around {
 
     /**
-    * 方法匹配模式数组，支持以下两种形态：
-    * <ul>
-    *     <li>{@code com.foo.UserService#saveUser(..)} — 全签名匹配</li>
-    *     <li>{@code save*} — 仅方法名匹配（框架会同时匹配并任一命中即生效）</li>
-    * </ul>
-    *
-    * <p>留空数组（默认值）表示<b>匹配所有方法</b>，等价于切点 {@code "*"}。</p>
-    *
-    * @return 匹配模式数组，空数组代表全方法匹配
-    */
+     * 方法匹配模式数组，支持以下两种形态：
+     * <ul>
+     *     <li>{@code com.foo.UserService#saveUser(..)} — 全签名匹配</li>
+     *     <li>{@code save*} — 仅方法名匹配（框架会同时匹配并任一命中即生效）</li>
+     * </ul>
+     *
+     * <p>留空数组（默认值）表示<b>匹配所有方法</b>，等价于切点 {@code "*"}。</p>
+     *
+     * @return 匹配模式数组，空数组代表全方法匹配
+     */
     String[] value() default {};
 
     /**
-    * 匹配类型，支持精确匹配、通配符匹配、正则匹配和自动匹配。
-    *
-    * <p>默认 {@link MatchUtils.MatchType#AUTO} 由框架根据 pattern 形态自动判断：
-    * 含 {@code #} 视为签名匹配，否则视为方法名匹配；含 {@code * / ?} 视为通配符，否则精确匹配。</p>
-    *
-    * @return 匹配类型，默认 AUTO
-    */
+     * 匹配类型，支持精确匹配、通配符匹配、正则匹配和自动匹配。
+     *
+     * <p>默认 {@link MatchUtils.MatchType#AUTO} 由框架根据 pattern 形态自动判断：
+     * 含 {@code #} 视为签名匹配，否则视为方法名匹配；含 {@code * / ?} 视为通配符，否则精确匹配。</p>
+     *
+     * @return 匹配类型，默认 AUTO
+     */
     MatchUtils.MatchType matchType() default MatchUtils.MatchType.AUTO;
 
     /**
-    * 拦截器执行顺序，数值越小优先级越高（越靠外层执行）。
-    *
-    * <p>仅作为 {@code @Around} 上的快速覆盖，未指定（即使用默认 1000）时
-    * 回落到 {@link com.chua.common.support.proxy.intercept.MethodArroundIntercept#order()} 的返回值；
-    * 二者都显式指定时取较小值（更靠外的生效）。</p>
-    *
-    * @return 执行顺序值，默认 1000 表示不覆盖
-    */
+     * 拦截器执行顺序，数值越小优先级越高（越靠外层执行）。
+     *
+     * <p>仅作为 {@code @Around} 上的快速覆盖，未指定（即使用默认 1000）时
+     * 回落到 {@link com.chua.common.support.proxy.intercept.MethodArroundIntercept#order()} 的返回值；
+     * 二者都显式指定时取较小值（更靠外的生效）。</p>
+     *
+     * @return 执行顺序值，默认 1000 表示不覆盖
+     */
     int order() default 1000;
 }

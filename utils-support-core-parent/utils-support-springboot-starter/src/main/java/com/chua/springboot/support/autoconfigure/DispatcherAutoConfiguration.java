@@ -9,19 +9,19 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 
 /**
-* 分发器自动配置。
-*
-* @author CH
-* @since 2026/07/24
+ * 分发器自动配置。
+ *
+ * @author CH
+ * @since 2026/07/24
  */
 @AutoConfiguration
 public class DispatcherAutoConfiguration {
 
     /**
-    * 内存分发器提供者。
-    *
-    * @return DispatcherProvider 实例
-    */
+     * 内存分发器提供者。
+     *
+     * @return DispatcherProvider 实例
+     */
     @Bean
     @ConditionalOnMissingBean
     public DispatcherProvider memoryDispatcherProvider() {

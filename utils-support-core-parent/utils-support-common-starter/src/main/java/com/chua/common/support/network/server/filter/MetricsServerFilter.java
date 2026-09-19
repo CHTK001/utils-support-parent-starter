@@ -16,27 +16,27 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
-* 指标收集过滤器。
-*
-* <p>在过滤器链中拦截每个请求，记录端到端延迟，并按固定周期向回调输出聚合指标。
-* 指标包含：p50 / p75 / p90 / p95 / p99 延迟、QPS、TPS 等。</p>
-*
-* <p>使用方式：</p>
-* <pre>{@code
-* server.addFilter(new MetricsServerFilter(
-*     snapshot -> System.out.println(snapshot),
-*     10
-* ));
-* }</pre>
-*
-* @author CH
-* @since 2026/07/24
+ * 指标收集过滤器。
+ *
+ * <p>在过滤器链中拦截每个请求，记录端到端延迟，并按固定周期向回调输出聚合指标。
+ * 指标包含：p50 / p75 / p90 / p95 / p99 延迟、QPS、TPS 等。</p>
+ *
+ * <p>使用方式：</p>
+ * <pre>{@code
+ * server.addFilter(new MetricsServerFilter(
+ *     snapshot -> System.out.println(snapshot),
+ *     10
+ * ));
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/07/24
  */
 public class MetricsServerFilter implements ServerFilter {
 
     /**
-    * 指标快照。
-    */
+     * 指标快照。
+     */
     public static class MetricsSnapshot {
         /** 总数requests */
         private final long totalRequests;
@@ -149,8 +149,8 @@ public class MetricsServerFilter implements ServerFilter {
     }
 
     /**
-        * 指标回调接口。
-        */
+     * 指标回调接口。
+     */
     public interface MetricsCallback {
         void onMetrics(MetricsSnapshot snapshot);
     }
@@ -178,11 +178,11 @@ public class MetricsServerFilter implements ServerFilter {
     private volatile long lastPeriodTimestamp;
 
     /**
-    * 创建指标收集过滤器。
-    *
-    * @param callback      指标回调
-    * @param periodSeconds 输出周期（秒）
-    */
+     * 创建指标收集过滤器。
+     *
+     * @param callback      指标回调
+     * @param periodSeconds 输出周期（秒）
+     */
     public MetricsServerFilter(MetricsCallback callback, int periodSeconds) {
         this.callback = Objects.requireNonNull(callback, "callback must not be null");
         this.periodSeconds = periodSeconds > 0 ? periodSeconds : 10;

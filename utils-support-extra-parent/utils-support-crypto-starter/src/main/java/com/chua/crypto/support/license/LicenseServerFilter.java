@@ -13,85 +13,85 @@ import java.nio.file.Path;
 import java.util.Base64;
 
 /**
-* 校验服务器下发过滤器（{@link ServerFilter} 体系实现）
-*
-* <p>绑定 {@code /license} 端点：接收加密包引导器的指纹查询，
-* 校验注册合法性后下发注册的私钥封装块，未注册返回 403。
-*
-* <h2>配置参数（init）</h2>
-* <ul>
-*   <li>{@code license.registry} — 注册表文件路径，默认 {@code licenses.txt}</li>
-*   <li>{@code license.secret} — 响应签名密钥；配置后响应格式为
-*       {@code v1.base64(块).base64(HmacSHA256(secret,块))}，
-*       客户端须以相同 {@code chua.crypto.license-secret} 校验（生产必须配置）</li>
-* </ul>
-*
-* <p>使用示例：
-* <pre>{@code
-* LicenseRegistry registry = FileLicenseRegistry.load(Path.of("licenses.txt"));
-* registry.register(fingerprint, keyBlob);
-*
-* Server server = ServerBuilder.create().type("jdk").host("0.0.0.0").port(8641).build();
-* server.addFilter(new LicenseServerFilter(registry, "prod-secret".toCharArray()));
-* server.start();
-* }</pre>er(registry, "prod-secret".toCharArray()));
-* server.start();
-* }</pre>
-*
-* @author CH
-* @since 2026-08-26
+ * 校验服务器下发过滤器（{@link ServerFilter} 体系实现）
+ *
+ * <p>绑定 {@code /license} 端点：接收加密包引导器的指纹查询，
+ * 校验注册合法性后下发注册的私钥封装块，未注册返回 403。
+ *
+ * <h2>配置参数（init）</h2>
+ * <ul>
+ *   <li>{@code license.registry} — 注册表文件路径，默认 {@code licenses.txt}</li>
+ *   <li>{@code license.secret} — 响应签名密钥；配置后响应格式为
+ *       {@code v1.base64(块).base64(HmacSHA256(secret,块))}，
+ *       客户端须以相同 {@code chua.crypto.license-secret} 校验（生产必须配置）</li>
+ * </ul>
+ *
+ * <p>使用示例：
+ * <pre>{@code
+ * LicenseRegistry registry = FileLicenseRegistry.load(Path.of("licenses.txt"));
+ * registry.register(fingerprint, keyBlob);
+ *
+ * Server server = ServerBuilder.create().type("jdk").host("0.0.0.0").port(8641).build();
+ * server.addFilter(new LicenseServerFilter(registry, "prod-secret".toCharArray()));
+ * server.start();
+ * }</pre>er(registry, "prod-secret".toCharArray()));
+ * server.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026-08-26
  */
 public class LicenseServerFilter implements ServerFilter {
 
     /**
-    * 默认注册表文件路径
-    */
+     * 默认注册表文件路径
+     */
     private static final String DEFAULT_REGISTRY = "licenses.txt";
 
     /**
-    * 签名响应版本前缀（与 launch.执照键客户端 对应）
-    */
+     * 签名响应版本前缀（与 launch.执照键客户端 对应）
+     */
     private static final String SIGNED_PREFIX = "v1.";
 
     /**
-    * 注册表
-    */
+     * 注册表
+     */
     private LicenseRegistry registry;
 
     /**
-    * 响应签名密钥（为空则不下发签名）
-    */
+     * 响应签名密钥（为空则不下发签名）
+     */
     private char[] secret;
 
     /**
-    * 默认构造：初始化 时从参数/默认路径加载注册表
-    */
+     * 默认构造：初始化 时从参数/默认路径加载注册表
+     */
     public LicenseServerFilter() {
     }
 
     /**
-    * 注册表注入构造（编程装配场景，初始化 不再覆盖）
-    *
-    * @param registry 已加载的注册表
-    */
+     * 注册表注入构造（编程装配场景，初始化 不再覆盖）
+     *
+     * @param registry 已加载的注册表
+     */
     public LicenseServerFilter(LicenseRegistry registry) {
         this.registry = registry;
     }
 
     /**
-    * 全参构造：注册表 + 响应签名密钥（生产推荐）
-    *
-    * @param registry       已加载的注册表
-    * @param responseSecret 响应签名密钥（客户端 chua.加密货币.执照-secret 须一致）
-    */
+     * 全参构造：注册表 + 响应签名密钥（生产推荐）
+     *
+     * @param registry       已加载的注册表
+     * @param responseSecret 响应签名密钥（客户端 chua.加密货币.执照-secret 须一致）
+     */
     public LicenseServerFilter(LicenseRegistry registry, char[] responseSecret) {
         this.registry = registry;
         this.secret = responseSecret == null ? null : responseSecret.clone();
     }
 
     /**
-    * 初始化：未注入注册表时按配置路径加载；读取签名密钥
-    */
+     * 初始化：未注入注册表时按配置路径加载；读取签名密钥
+     */
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         if (registry == null) {
@@ -108,8 +108,8 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-    * 处理校验请求：已注册下发私钥封装块并终止链，未注册 403
-    */
+     * 处理校验请求：已注册下发私钥封装块并终止链，未注册 403
+     */
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!"POST".equalsIgnoreCase(String.valueOf(request.getMethod()))) {
@@ -132,27 +132,27 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-    * 绑定路径
-    */
+     * 绑定路径
+     */
     @Override
     public String supportPath() {
         return "/license";
     }
 
     /**
-    * 高优先级执行
-    */
+     * 高优先级执行
+     */
     @Override
     public int getOrder() {
         return 10;
     }
 
     /**
-    * 计算响应签名 hmacsha256(secret, blob)
-    *
-    * @param blob 私钥封装块
-    * @return 摘要
-    */
+     * 计算响应签名 hmacsha256(secret, blob)
+     *
+     * @param blob 私钥封装块
+     * @return 摘要
+     */
     private byte[] hmac(byte[] blob) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -164,12 +164,12 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
-    * 从 JSON 请求体提取指纹字段（严格匹配 64 位十六进制，防注入）
-    *
-    * @param json 请求体
-    * @param field 字段名
-    * @return 值或 空
-    */
+     * 从 JSON 请求体提取指纹字段（严格匹配 64 位十六进制，防注入）
+     *
+     * @param json 请求体
+     * @param field 字段名
+     * @return 值或 空
+     */
     static String extract(String json, String field) {
         if (json == null) {
             return null;

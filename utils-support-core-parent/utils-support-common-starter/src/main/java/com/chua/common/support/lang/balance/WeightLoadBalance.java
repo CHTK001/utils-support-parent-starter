@@ -10,37 +10,37 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
-* 加权随机负载均衡器。
-* <p>按节点权重构造概率区间后随机抽样，被选中的节点权重衰减以避免热点命中。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 加权随机负载均衡器。
+ * <p>按节点权重构造概率区间后随机抽样，被选中的节点权重衰减以避免热点命中。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("weight")
 public class WeightLoadBalance implements LoadBalance {
 
  /**
- * 权重衰减系数
- */
+  * 权重衰减系数
+  */
  private static final double WEIGHT_DECAY_FACTOR = 2.0;
 
  /**
- * 节点列表
- */
+  * 节点列表
+  */
  private final List<Node> nodes;
 
  /**
- * 默认构造，初始化空节点列表。
- */
+  * 默认构造，初始化空节点列表。
+  */
  public WeightLoadBalance() {
  this(new LinkedList<>());
  }
 
  /**
- * 使用给定节点列表构造。
- *
- * @param nodes 节点列表，为 null 时使用空列表
- */
+  * 使用给定节点列表构造。
+  *
+  * @param nodes 节点列表，为 null 时使用空列表
+  */
  public WeightLoadBalance(List<Node> nodes) {
  this.nodes = nodes == null ? new LinkedList<>() : nodes;
  }

@@ -28,7 +28,7 @@ import java.util.List;
  * @param options      选择 类型的候选选项
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record FlowNodeField(
         String key,
         String label,
@@ -40,81 +40,81 @@ public record FlowNodeField(
 ) {
 
     /**
-    * 创建文本输入字段。
-    *
-    * @param key   字段键
-    * @param label 字段展示名
-    * @return 字段元信息
-    */
+     * 创建文本输入字段。
+     *
+     * @param key   字段键
+     * @param label 字段展示名
+     * @return 字段元信息
+     */
     public static FlowNodeField input(String key, String label) {
         return new FlowNodeField(key, label, "input", false, null, null, null);
     }
 
     /**
-    * 创建文本输入字段（带必填标记）。
-    *
-    * @param key      字段键
-    * @param label    字段展示名
-    * @param required 是否必填
-    * @return 字段元信息
-    */
+     * 创建文本输入字段（带必填标记）。
+     *
+     * @param key      字段键
+     * @param label    字段展示名
+     * @param required 是否必填
+     * @return 字段元信息
+     */
     public static FlowNodeField input(String key, String label, boolean required) {
         return new FlowNodeField(key, label, "input", required, null, null, null);
     }
 
     /**
-    * 创建多行文本域字段。
-    *
-    * @param key         字段键
-    * @param label       字段展示名
-    * @param placeholder 占位提示
-    * @return 字段元信息
-    */
+     * 创建多行文本域字段。
+     *
+     * @param key         字段键
+     * @param label       字段展示名
+     * @param placeholder 占位提示
+     * @return 字段元信息
+     */
     public static FlowNodeField textarea(String key, String label, String placeholder) {
         return new FlowNodeField(key, label, "textarea", false, placeholder, null, null);
     }
 
     /**
-    * 创建下拉选择字段。
-    *
-    * @param key     字段键
-    * @param label   字段展示名
-    * @param options 候选选项
-    * @return 字段元信息
-    */
+     * 创建下拉选择字段。
+     *
+     * @param key     字段键
+     * @param label   字段展示名
+     * @param options 候选选项
+     * @return 字段元信息
+     */
     public static FlowNodeField select(String key, String label, List<FlowNodeOption> options) {
         return new FlowNodeField(key, label, "select", false, null, null, options);
     }
 
     /**
-    * 创建开关字段。
-    *
-    * @param key   字段键
-    * @param label 字段展示名
-    * @return 字段元信息
-    */
+     * 创建开关字段。
+     *
+     * @param key   字段键
+     * @param label 字段展示名
+     * @return 字段元信息
+     */
     public static FlowNodeField bool(String key, String label) {
         return new FlowNodeField(key, label, "switch", false, null, false, null);
     }
 
     /**
-    * 创建数字字段。
-    *
-    * @param key   字段键
-    * @param label 字段展示名
-    * @return 字段元信息
-    */
+     * 创建数字字段。
+     *
+     * @param key   字段键
+     * @param label 字段展示名
+     * @return 字段元信息
+     */
     public static FlowNodeField number(String key, String label) {
         return new FlowNodeField(key, label, "number", false, null, null, null);
     }
 
     /**
-    * 创建键值对编辑器字段。
-    *
-    * @param key   字段键
-    * @param label 字段展示名
-    * @return 字段元信息
-    */
+     * 创建键值对编辑器字段。
+     *
+     * @param key   字段键
+     * @param label 字段展示名
+     * @return 字段元信息
+     */
     public static FlowNodeField kv(String key, String label) {
         return new FlowNodeField(key, label, "kv", false, null, null, null);
     }

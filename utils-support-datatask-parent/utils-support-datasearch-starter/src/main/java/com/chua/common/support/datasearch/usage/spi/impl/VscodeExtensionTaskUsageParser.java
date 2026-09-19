@@ -17,76 +17,76 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
-* VS Code 系扩展用量解析器共享基类。
-*
-* <p>Kilo Code（kilocode.kilo-code）、Roo Code（rooveterinaryinc.roo-cline）等
-* Cline 派生扩展将任务持久化到 VS Code globalStorage 目录
-* {@code <IDE>/User/globalStorage/<extension-id>/tasks/<task-uuid>/ui_messages.json}。
-* 每个任务文件的消息数组中，助手消息携带 {@code role:"assistant"} 与
-* {@code usage:{inputTokens, outputTokens, cacheReadInputTokens,
-* cacheWriteTokens, costUSD}} 真实用量（由上游 provider 报告）：</p>
-*
-* <pre>{@code
-* {
-*   "role": "assistant",
-*   "provider": "anthropic",
-*   "api": "anthropic",
-*   "model": "claude-sonnet-4-5",
-*   "timestamp": 1730000000000,
-*   "requestId": "...",
-*   "text": "...",
-*   "usage": {
-*     "inputTokens": 1024,
-*     "outputTokens": 256,
-*     "cacheReadInputTokens": 800,
-*     "cacheWriteTokens": 0,
-*     "costUSD": 0.0112
-*   }
-* }
-* </pre>
-*
-* <p>不同 IDE 安装（Code / Cursor / CodeBuddy / ...）使用相同的 globalStorage
-* 布局，因此子类仅需扩展 id 前缀列表 + 任务目录名。任务级时间戳缺失时，
-* 以任务文件 mtime 兜底（仅用于聚合排序）。</p>
-*
-* @author CH
-* @since 4.0.0.43
+ * VS Code 系扩展用量解析器共享基类。
+ *
+ * <p>Kilo Code（kilocode.kilo-code）、Roo Code（rooveterinaryinc.roo-cline）等
+ * Cline 派生扩展将任务持久化到 VS Code globalStorage 目录
+ * {@code <IDE>/User/globalStorage/<extension-id>/tasks/<task-uuid>/ui_messages.json}。
+ * 每个任务文件的消息数组中，助手消息携带 {@code role:"assistant"} 与
+ * {@code usage:{inputTokens, outputTokens, cacheReadInputTokens,
+ * cacheWriteTokens, costUSD}} 真实用量（由上游 provider 报告）：</p>
+ *
+ * <pre>{@code
+ * {
+ *   "role": "assistant",
+ *   "provider": "anthropic",
+ *   "api": "anthropic",
+ *   "model": "claude-sonnet-4-5",
+ *   "timestamp": 1730000000000,
+ *   "requestId": "...",
+ *   "text": "...",
+ *   "usage": {
+ *     "inputTokens": 1024,
+ *     "outputTokens": 256,
+ *     "cacheReadInputTokens": 800,
+ *     "cacheWriteTokens": 0,
+ *     "costUSD": 0.0112
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>不同 IDE 安装（Code / Cursor / CodeBuddy / ...）使用相同的 globalStorage
+ * 布局，因此子类仅需扩展 id 前缀列表 + 任务目录名。任务级时间戳缺失时，
+ * 以任务文件 mtime 兜底（仅用于聚合排序）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
 
     private static final String CURRENCY_USD = "USD";
 
     /**
-    * 扩展 id 前缀列表（匹配 globalStorage 下的扩展目录）。
-    *
-    * @return 扩展 id 前缀（如 {@code "kilocode"}、{@code "rooveterinaryinc"}）
-    */
+     * 扩展 id 前缀列表（匹配 globalStorage 下的扩展目录）。
+     *
+     * @return 扩展 id 前缀（如 {@code "kilocode"}、{@code "rooveterinaryinc"}）
+     */
     protected abstract List<String> extensionIdPrefixes();
 
     /**
-    * 任务目录名（globalStorage/&lt;ext-id&gt;/ 之下的目录）。
-    *
-    * @return 任务目录名（如 {@code "tasks"}）
-    */
+     * 任务目录名（globalStorage/&lt;ext-id&gt;/ 之下的目录）。
+     *
+     * @return 任务目录名（如 {@code "tasks"}）
+     */
     protected abstract String taskDirName();
 
     /**
-    * 默认响应式流式入口：扫描全部 IDE 安装，惰性解析任务文件。
-    *
-    * <p>子类无需再自行覆写转接 {@link #fromTaskFiles()}。</p>
-    *
-    * @return 用量记录流
-    */
+     * 默认响应式流式入口：扫描全部 IDE 安装，惰性解析任务文件。
+     *
+     * <p>子类无需再自行覆写转接 {@link #fromTaskFiles()}。</p>
+     *
+     * @return 用量记录流
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         return fromTaskFiles();
     }
 
     /**
-    * 扫描全部 IDE 安装并解析任务文件（子类可直接复用）。
-    *
-    * @return 用量记录流
-    */
+     * 扫描全部 IDE 安装并解析任务文件（子类可直接复用）。
+     *
+     * @return 用量记录流
+     */
     protected Flux<AiUsage> fromTaskFiles() {
         List<Map<Path, String>> batches = collectTaskFiles();
         if (batches.isEmpty()) {
@@ -103,14 +103,14 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 收集全部 IDE 安装下的任务文件（按 globalStorage 根分组）。
-    *
-    * <p>每个 globalStorage 根扫描扩展目录：目录名匹配 {@link #extensionIdPrefixes()}
-    * 前缀之一即视为本扩展安装，取其下的 {@code <taskDirName>}/&lt;task-uuid&gt;/
-    * 作为任务目录。各批次 value 为「任务文件 → 任务 id」映射。</p>
-    *
-    * @return 任务文件批次（批次内 key 为任务文件，value 为任务 id）
-    */
+     * 收集全部 IDE 安装下的任务文件（按 globalStorage 根分组）。
+     *
+     * <p>每个 globalStorage 根扫描扩展目录：目录名匹配 {@link #extensionIdPrefixes()}
+     * 前缀之一即视为本扩展安装，取其下的 {@code <taskDirName>}/&lt;task-uuid&gt;/
+     * 作为任务目录。各批次 value 为「任务文件 → 任务 id」映射。</p>
+     *
+     * @return 任务文件批次（批次内 key 为任务文件，value 为任务 id）
+     */
     protected List<Map<Path, String>> collectTaskFiles() {
         List<String> prefixes = extensionIdPrefixes();
         List<Map<Path, String>> batches = new ArrayList<>();
@@ -143,12 +143,12 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 在 globalStorage 根下查找匹配任一扩展 id 前缀的扩展目录。
-    *
-    * @param globalStorage globalStorage 根
-    * @param prefixes 扩展 id 前缀列表
-    * @return 匹配到的扩展目录；无匹配或读取失败时返回 null
-    */
+     * 在 globalStorage 根下查找匹配任一扩展 id 前缀的扩展目录。
+     *
+     * @param globalStorage globalStorage 根
+     * @param prefixes 扩展 id 前缀列表
+     * @return 匹配到的扩展目录；无匹配或读取失败时返回 null
+     */
     private static Path resolveExtensionDir(Path globalStorage, List<String> prefixes) {
         try (Stream<Path> stream = Files.list(globalStorage)) {
             List<Path> candidates = stream
@@ -166,14 +166,14 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 枚举本机各 IDE 安装的 globalStorage 根目录。
-    *
-    * <p>支持 Code / Cursor / CodeBuddy / Windsurf / VS Code Insiders / Trae
-    * 等常见 VS Code 系 IDE 的 AppData 安装目录；{@code VSCODE_APPDATA_CANDIDATES}
-    * 覆盖主流产品名。找不到任何安装时返回空列表（解析器安静跳过）。</p>
-    *
-    * @return 存在的 globalStorage 根目录列表
-    */
+     * 枚举本机各 IDE 安装的 globalStorage 根目录。
+     *
+     * <p>支持 Code / Cursor / CodeBuddy / Windsurf / VS Code Insiders / Trae
+     * 等常见 VS Code 系 IDE 的 AppData 安装目录；{@code VSCODE_APPDATA_CANDIDATES}
+     * 覆盖主流产品名。找不到任何安装时返回空列表（解析器安静跳过）。</p>
+     *
+     * @return 存在的 globalStorage 根目录列表
+     */
     protected List<Path> enumerateGlobalStorageRoots() {
         String appData = System.getenv("APPDATA");
         if (appData == null || appData.isBlank()) {
@@ -190,20 +190,20 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * VS Code 系 IDE 的 AppData 产品目录候选列表。
-    */
+     * VS Code 系 IDE 的 AppData 产品目录候选列表。
+     */
     protected static final String[] VSCODE_APPDATA_CANDIDATES = {
             "Code", "Cursor", "VSCodium", "CodeBuddy", "CodeBuddyCN", "Windsurf",
             "Trae", "TraeCN", "Insiders"
     };
 
     /**
-    * 解析 {@code ui_messages.json} 中的任务文件，提取助手消息用量。
-    *
-    * @param root globalStorage 根（{@code <IDE>/User/globalStorage}）
-    * @param taskFiles 任务文件及其所属任务 id
-    * @return 解析出的用量记录
-    */
+     * 解析 {@code ui_messages.json} 中的任务文件，提取助手消息用量。
+     *
+     * @param root globalStorage 根（{@code <IDE>/User/globalStorage}）
+     * @param taskFiles 任务文件及其所属任务 id
+     * @return 解析出的用量记录
+     */
     protected List<AiUsage> parseTaskFiles(Path root, Map<Path, String> taskFiles) {
         List<AiUsage> result = new ArrayList<>();
         for (Map.Entry<Path, String> entry : taskFiles.entrySet()) {
@@ -227,13 +227,13 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将一条助手消息转换为 AiUsage 记录；非助手或无用量时返回 null。
-    *
-    * @param msg 解析后的消息对象
-    * @param taskId 任务 id（作为 requestId）
-    * @param fallbackTime 任务文件 mtime（毫秒，时间戳缺失时兜底）
-    * @return 用量记录或 null
-    */
+     * 将一条助手消息转换为 AiUsage 记录；非助手或无用量时返回 null。
+     *
+     * @param msg 解析后的消息对象
+     * @param taskId 任务 id（作为 requestId）
+     * @param fallbackTime 任务文件 mtime（毫秒，时间戳缺失时兜底）
+     * @return 用量记录或 null
+     */
     protected AiUsage toAiUsage(Map<String, Object> msg, String taskId, long fallbackTime) {
         if (!"assistant".equals(asStr(msg.get("role")))) {
             return null;
@@ -272,11 +272,11 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从消息中解析模型名；缺失时返回兜底值（provider 前缀形式）。
-    *
-    * @param msg 消息对象
-    * @return 模型名
-    */
+     * 从消息中解析模型名；缺失时返回兜底值（provider 前缀形式）。
+     *
+     * @param msg 消息对象
+     * @return 模型名
+     */
     protected String extractModelName(Map<String, Object> msg) {
         String model = asStr(msg.get("model"));
         if (!model.isBlank()) {
@@ -297,11 +297,11 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析任务 JSON 中的消息数组（兼容顶层数组或 {@code messages} 字段）。
-    *
-    * @param raw JSON 文本
-    * @return 消息列表（不可解析时为空）
-    */
+     * 解析任务 JSON 中的消息数组（兼容顶层数组或 {@code messages} 字段）。
+     *
+     * @param raw JSON 文本
+     * @return 消息列表（不可解析时为空）
+     */
     private static List<Map<String, Object>> parseMessagesArray(String raw) {
         com.chua.common.support.lang.json.JsonNode node =
                 com.chua.common.support.lang.json.Json.parse(raw);
@@ -323,19 +323,19 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 文件毫秒时间解析器（mtime 兜底）。
-    */
+     * 文件毫秒时间解析器（mtime 兜底）。
+     */
     static final class FileTimeResolver {
 
         private FileTimeResolver() {
         }
 
         /**
-        * 文件 mtime 毫秒；不可用时返回 0。
-        *
-        * @param file 文件
-        * @return mtime 毫秒或 0
-        */
+         * 文件 mtime 毫秒；不可用时返回 0。
+         *
+         * @param file 文件
+         * @return mtime 毫秒或 0
+         */
         static long millisOf(Path file) {
             try {
                 return Files.getLastModifiedTime(file).toMillis();

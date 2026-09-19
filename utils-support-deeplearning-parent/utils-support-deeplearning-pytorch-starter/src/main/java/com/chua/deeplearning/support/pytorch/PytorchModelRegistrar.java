@@ -11,15 +11,15 @@ import com.chua.deeplearning.support.image.ImageGenerator;
 import com.chua.deeplearning.support.nlp.TextTranslator;
 
 /**
-* pytorch 模块模型集中注册器。
-* <p>
-* 通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
-* relative路径 相对 模型 根目录，支持 pytorch/ 前缀。
-* 模型文件为 torchscript（.pt / .pth），由 DJL pytorch 引擎加载。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * pytorch 模块模型集中注册器。
+ * <p>
+ * 通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
+ * relative路径 相对 模型 根目录，支持 pytorch/ 前缀。
+ * 模型文件为 torchscript（.pt / .pth），由 DJL pytorch 引擎加载。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PytorchModelRegistrar implements ModelRegistrar {
 
@@ -266,14 +266,14 @@ public class PytorchModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {
@@ -284,17 +284,17 @@ public class PytorchModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    * @param downloadUrl downloadurl
-    * @param compress compress
-    * @param downloadFileName download文件名称
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,

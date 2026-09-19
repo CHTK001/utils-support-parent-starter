@@ -27,62 +27,62 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
 /**
-* DHT 传输层，基于 Netty NIO Datagram 通道 实现。
-* <p>
-* 提供 UDP 消息的收发、pending 匹配、超时控制和 JSON/KRPC 自动分发。
-* 相比原 {@link DhtUdpServer}，本类使用 Netty 非阻塞 IO，
-* 在高并发下吞吐更稳定，线程模型更清晰。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DHT 传输层，基于 Netty NIO Datagram 通道 实现。
+ * <p>
+ * 提供 UDP 消息的收发、pending 匹配、超时控制和 JSON/KRPC 自动分发。
+ * 相比原 {@link DhtUdpServer}，本类使用 Netty 非阻塞 IO，
+ * 在高并发下吞吐更稳定，线程模型更清晰。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DhtNettyServer {
 
     /**
-    * DHT 专用配置
-    */
+     * DHT 专用配置
+     */
     private final DhtConfig config;
 
     /**
-    * Netty 事件循环组，负责 IO 事件调度
-    */
+     * Netty 事件循环组，负责 IO 事件调度
+     */
     private NioEventLoopGroup group;
 
     /**
-    * UDP 监听 通道
-    */
+     * UDP 监听 通道
+     */
     private Channel channel;
 
     /**
-    * JSON 消息处理器，非 pending 匹配的消息将转发至此处理器
-    */
+     * JSON 消息处理器，非 pending 匹配的消息将转发至此处理器
+     */
     private volatile BiConsumer<DhtMessage, InetSocketAddress> messageHandler;
 
     /**
-    * 原始字节消息处理器，用于 KRPC/Bencode 格式消息分发
-    */
+     * 原始字节消息处理器，用于 KRPC/Bencode 格式消息分发
+     */
     private volatile BiConsumer<byte[], InetSocketAddress> rawMessageHandler;
 
     /**
-    * 自定义响应编码器，如果设置则优先于 JSON 编码
-    */
+     * 自定义响应编码器，如果设置则优先于 JSON 编码
+     */
     private volatile BiConsumer<DhtMessage, InetSocketAddress> responseEncoder;
 
     /**
-    * JSON 格式挂起请求映射，键为 "Targetid@主机:端口"
-    */
+     * JSON 格式挂起请求映射，键为 "Targetid@主机:端口"
+     */
     private final Map<String, CompletableFuture<DhtMessage>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
-    * KRPC / 原始字节格式挂起请求映射，键为 "{txid}@{主机}:{端口}"
-    */
+     * KRPC / 原始字节格式挂起请求映射，键为 "{txid}@{主机}:{端口}"
+     */
     private final Map<String, CompletableFuture<byte[]>> pendingRaw = new ConcurrentHashMap<>();
 
     /**
-    * 超时任务调度器（共享，避免每次创建线程池）。
-    */
+     * 超时任务调度器（共享，避免每次创建线程池）。
+     */
     private static final ScheduledExecutorService TIMEOUT_SCHEDULER = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "dht-netty-timeout");
         t.setDaemon(true);
@@ -90,19 +90,19 @@ public class DhtNettyServer {
     });
 
     /**
-    * 构造 DHT Netty 服务器。
-    *
-    * @param config DHT 配置
-    */
+     * 构造 DHT Netty 服务器。
+     *
+     * @param config DHT 配置
+     */
     public DhtNettyServer(DhtConfig config) {
         this.config = config;
     }
 
     /**
-    * 启动 UDP 监听并开始接收消息。
-    *
-    * @throws Exception 启动失败时抛出
-    */
+     * 启动 UDP 监听并开始接收消息。
+     *
+     * @throws Exception 启动失败时抛出
+     */
     public void start() throws Exception {
         group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
@@ -114,9 +114,9 @@ public class DhtNettyServer {
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
                     @Override
                     /**
-                    * 初始化通道
-                    * @param ch ch
-                    */
+                     * 初始化通道
+                     * @param ch ch
+                     */
                     protected void initChannel(NioDatagramChannel ch) {
                         ch.pipeline().addLast(new DhtPacketHandler());
                     }
@@ -130,8 +130,8 @@ public class DhtNettyServer {
     }
 
     /**
-    * 关闭服务器并释放资源。
-    */
+     * 关闭服务器并释放资源。
+     */
     public void close() {
         if (group != null) {
             group.shutdownGracefully();
@@ -142,44 +142,44 @@ public class DhtNettyServer {
     }
 
     /**
-    * 设置 JSON 消息处理器。
-    *
-    * @param handler 消息处理回调
-    */
+     * 设置 JSON 消息处理器。
+     *
+     * @param handler 消息处理回调
+     */
     public void setMessageHandler(BiConsumer<DhtMessage, InetSocketAddress> handler) {
         this.messageHandler = handler;
     }
 
     /**
-    * 设置原始字节消息处理器，用于 KRPC/Bencode 格式。
-    *
-    * @param handler 原始字节消息处理回调
-    */
+     * 设置原始字节消息处理器，用于 KRPC/Bencode 格式。
+     *
+     * @param handler 原始字节消息处理回调
+     */
     public void setRawMessageHandler(BiConsumer<byte[], InetSocketAddress> handler) {
         this.rawMessageHandler = handler;
     }
 
     /**
-    * 设置自定义响应编码器。
-    * <p>
-    * 如果设置，{@link #sendNoResponse(DhtMessage, InetSocketAddress)} 将优先使用此编码器而不是 JSON。
-    * 用于 KRPC 协议响应编码。
-    * </p>
-    *
-    * @param encoder 响应编码器，接收 dht消息 和目标地址
-    */
+     * 设置自定义响应编码器。
+     * <p>
+     * 如果设置，{@link #sendNoResponse(DhtMessage, InetSocketAddress)} 将优先使用此编码器而不是 JSON。
+     * 用于 KRPC 协议响应编码。
+     * </p>
+     *
+     * @param encoder 响应编码器，接收 dht消息 和目标地址
+     */
     public void setResponseEncoder(BiConsumer<DhtMessage, InetSocketAddress> encoder) {
         this.responseEncoder = encoder;
     }
 
     /**
-    * 发送 JSON 格式 DHT 消息并等待响应。
-    *
-    * @param message   要发送的 DHT 消息
-    * @param target    目标地址
-    * @param timeoutMs 超时时间（毫秒）
-    * @return CompletableFuture，完成时返回响应消息
-    */
+     * 发送 JSON 格式 DHT 消息并等待响应。
+     *
+     * @param message   要发送的 DHT 消息
+     * @param target    目标地址
+     * @param timeoutMs 超时时间（毫秒）
+     * @return CompletableFuture，完成时返回响应消息
+     */
     public CompletableFuture<DhtMessage> send(DhtMessage message, InetSocketAddress target, long timeoutMs) {
         CompletableFuture<DhtMessage> future = new CompletableFuture<>();
         String rpcKey = message.getTargetId() + "@" + target.getAddress().getHostAddress() + ":" + target.getPort();
@@ -192,14 +192,14 @@ public class DhtNettyServer {
     }
 
     /**
-    * 发送 DHT 消息（不等待响应）。
-    * <p>
-    * 如果设置了 {@link #responseEncoder}，则优先使用编码器而不是 JSON。
-    * </p>
-    *
-    * @param message 要发送的 DHT 消息
-    * @param target  目标地址
-    */
+     * 发送 DHT 消息（不等待响应）。
+     * <p>
+     * 如果设置了 {@link #responseEncoder}，则优先使用编码器而不是 JSON。
+     * </p>
+     *
+     * @param message 要发送的 DHT 消息
+     * @param target  目标地址
+     */
     public void sendNoResponse(DhtMessage message, InetSocketAddress target) {
         if (responseEncoder != null) {
             responseEncoder.accept(message, target);
@@ -211,17 +211,17 @@ public class DhtNettyServer {
     }
 
     /**
-    * 发送原始字节数据并等待响应。
-    * <p>
-    * 用于 KRPC 等非 JSON 格式的消息，pending键 通常为 "{txid}@{主机}:{端口}"。
-    * </p>
-    *
-    * @param data      原始字节数据
-    * @param target    目标地址
-    * @param pendingKey 挂起请求的键（用于响应匹配）
-    * @param timeoutMs 超时时间（毫秒）
-    * @return CompletableFuture，完成时返回响应字节数据
-    */
+     * 发送原始字节数据并等待响应。
+     * <p>
+     * 用于 KRPC 等非 JSON 格式的消息，pending键 通常为 "{txid}@{主机}:{端口}"。
+     * </p>
+     *
+     * @param data      原始字节数据
+     * @param target    目标地址
+     * @param pendingKey 挂起请求的键（用于响应匹配）
+     * @param timeoutMs 超时时间（毫秒）
+     * @return CompletableFuture，完成时返回响应字节数据
+     */
     public CompletableFuture<byte[]> sendRaw(byte[] data, InetSocketAddress target, String pendingKey, long timeoutMs) {
         CompletableFuture<byte[]> future = new CompletableFuture<>();
         pendingRaw.put(pendingKey, future);
@@ -232,33 +232,33 @@ public class DhtNettyServer {
     }
 
     /**
-    * 发送原始字节数据（不等待响应）。
-    *
-    * @param data   原始字节数据
-    * @param target 目标地址
-    */
+     * 发送原始字节数据（不等待响应）。
+     *
+     * @param data   原始字节数据
+     * @param target 目标地址
+     */
     public void sendNoResponseRaw(byte[] data, InetSocketAddress target) {
         ByteBuf buf = Unpooled.wrappedBuffer(data);
         channel.writeAndFlush(new DatagramPacket(buf, target));
     }
 
     /**
-    * 移除并返回挂起的原始请求。
-    *
-    * @param pendingKey 挂起请求的键
-    * @return CompletableFuture，未找到返回 空
-    */
+     * 移除并返回挂起的原始请求。
+     *
+     * @param pendingKey 挂起请求的键
+     * @return CompletableFuture，未找到返回 空
+     */
     public CompletableFuture<byte[]> removePendingRaw(String pendingKey) {
         return pendingRaw.remove(pendingKey);
     }
 
     /**
-    * 为 JSON 挂起的请求注册超时任务。
-    *
-    * @param future  completable期货
-    * @param reqId   请求标识
-    * @param timeoutMs 超时时间（毫秒）
-    */
+     * 为 JSON 挂起的请求注册超时任务。
+     *
+     * @param future  completable期货
+     * @param reqId   请求标识
+     * @param timeoutMs 超时时间（毫秒）
+     */
     private void scheduleTimeout(CompletableFuture<DhtMessage> future, String reqId, long timeoutMs) {
         if (timeoutMs <= 0) {
             return;
@@ -270,12 +270,12 @@ public class DhtNettyServer {
     }
 
     /**
-    * 为原始字节挂起的请求注册超时任务。
-    *
-    * @param future  completable期货
-    * @param reqId   请求标识
-    * @param timeoutMs 超时时间（毫秒）
-    */
+     * 为原始字节挂起的请求注册超时任务。
+     *
+     * @param future  completable期货
+     * @param reqId   请求标识
+     * @param timeoutMs 超时时间（毫秒）
+     */
     private void scheduleRawTimeout(CompletableFuture<byte[]> future, String reqId, long timeoutMs) {
         if (timeoutMs <= 0) {
             return;
@@ -287,17 +287,17 @@ public class DhtNettyServer {
     }
 
     /**
-    * Netty 数据包处理器，负责接收并分发消息。
-    * @author CH
-    * @since 4.0.0
-    */
+     * Netty 数据包处理器，负责接收并分发消息。
+     * @author CH
+     * @since 4.0.0
+     */
     private class DhtPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         @Override
         /**
-        * 通道读取
-        * @param ctx ctx
-        * @param packet 数据包
-        */
+         * 通道读取
+         * @param ctx ctx
+         * @param packet 数据包
+         */
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             SocketAddress sender = packet.sender();
             ByteBuf buf = packet.content();
@@ -314,10 +314,10 @@ public class DhtNettyServer {
 
         @Override
         /**
-        * 异常caught
-        * @param ctx ctx
-        * @param cause cause
-        */
+         * 异常caught
+         * @param ctx ctx
+         * @param cause cause
+         */
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             log.debug("DHT Netty server error", cause);
             ctx.close();
@@ -325,11 +325,11 @@ public class DhtNettyServer {
     }
 
     /**
-    * 处理 JSON 格式消息。
-    *
-    * @param data   消息字节数据
-    * @param sender 发送者地址
-    */
+     * 处理 JSON 格式消息。
+     *
+     * @param data   消息字节数据
+     * @param sender 发送者地址
+     */
     private void handleJsonMessage(byte[] data, InetSocketAddress sender) {
         String content = new String(data, StandardCharsets.UTF_8);
         try {
@@ -362,11 +362,11 @@ public class DhtNettyServer {
     }
 
     /**
-    * 处理 KRPC (Bencode) 格式消息。
-    *
-    * @param data   消息字节数据
-    * @param sender 发送者地址
-    */
+     * 处理 KRPC (Bencode) 格式消息。
+     *
+     * @param data   消息字节数据
+     * @param sender 发送者地址
+     */
     private void handleKrpcMessage(byte[] data, InetSocketAddress sender) {
         try {
             @SuppressWarnings("unchecked")

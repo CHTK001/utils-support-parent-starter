@@ -15,42 +15,42 @@ import com.chua.common.support.network.server.response.ServerResponse;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @FunctionalInterface
 public interface HttpDefaultServerHandler extends ServerHandler {
 
     /**
-    * 获取该处理器匹配的路径模式。默认为空字符串。
-    *
-    * @return 路径字符串
-    */
+     * 获取该处理器匹配的路径模式。默认为空字符串。
+     *
+     * @return 路径字符串
+     */
     default String path() {
         return "";
     }
 
     /**
-    * 获取该处理器匹配的 HTTP 方法。默认为 GET。
-    *
-    * @return HTTP 方法枚举
-    */
+     * 获取该处理器匹配的 HTTP 方法。默认为 GET。
+     *
+     * @return HTTP 方法枚举
+     */
     default HttpMethod method() {
         return HttpMethod.GET;
     }
 
     /**
-    * 获取该处理器需要的请求头配置。默认为空。
-    *
-    * @return HTTP 头集合
-    */
+     * 获取该处理器需要的请求头配置。默认为空。
+     *
+     * @return HTTP 头集合
+     */
     default HttpHeader headers() {
         return HttpHeader.create();
     }
 
     /**
-    * 获取处理器的描述信息，默认使用类名。
-    *
-    * @return 描述字符串
-    */
+     * 获取处理器的描述信息，默认使用类名。
+     *
+     * @return 描述字符串
+     */
     default String description() {
         return getClass().getSimpleName();
     }

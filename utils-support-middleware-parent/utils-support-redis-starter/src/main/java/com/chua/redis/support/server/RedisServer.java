@@ -4,92 +4,92 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 嵌入式 Redis 服务器，用于本地开发和测试。
-*
-* <p>封装 {@code redis.embedded.RedisServer}，提供便捷的启动/停止管理。
-* 依赖 scope 为 provided，生产环境不包含。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* // 默认端口 6379
-* RedisServer redis = RedisServer.create();
-* redis.start();
-*
-* // 自定义端口
-* RedisServer redis = RedisServer.create(6380);
-* redis.start();
-*
-* // 使用 builder
-* RedisServer redis = RedisServer.builder()
-*     .port(6380)
-*     .maxMemory("256mb")
-*     .build();
-* redis.start();
-* }</pre> *     .build();
-* redis.start();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 嵌入式 Redis 服务器，用于本地开发和测试。
+ *
+ * <p>封装 {@code redis.embedded.RedisServer}，提供便捷的启动/停止管理。
+ * 依赖 scope 为 provided，生产环境不包含。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * // 默认端口 6379
+ * RedisServer redis = RedisServer.create();
+ * redis.start();
+ *
+ * // 自定义端口
+ * RedisServer redis = RedisServer.create(6380);
+ * redis.start();
+ *
+ * // 使用 builder
+ * RedisServer redis = RedisServer.builder()
+ *     .port(6380)
+ *     .maxMemory("256mb")
+ *     .build();
+ * redis.start();
+ * }</pre> *     .build();
+ * redis.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Getter
 public class RedisServer {
 
     /**
-    * 底层嵌入式 Redis 服务器
-    */
+     * 底层嵌入式 Redis 服务器
+     */
     private final redis.embedded.RedisServer delegate;
 
     /**
-    * 服务器端口
-    */
+     * 服务器端口
+     */
     private final int port;
 
     /**
-    * 创建 redis服务端 实例
-    * @param delegate delegate
-    * @param port int
-    * @param port 端口
-    */
+     * 创建 redis服务端 实例
+     * @param delegate delegate
+     * @param port int
+     * @param port 端口
+     */
     private RedisServer(redis.embedded.RedisServer delegate, int port) {
         this.delegate = delegate;
         this.port = port;
     }
 
     /**
-    * 创建默认端口 (6379) 的 Redis 服务器。
-    *
-    * @return RedisServer 实例
-    */
+     * 创建默认端口 (6379) 的 Redis 服务器。
+     *
+     * @return RedisServer 实例
+     */
     public static RedisServer create() {
         return create(6379);
     }
 
     /**
-    * 创建指定端口的 Redis 服务器。
-    *
-    * @param port 端口号
-    * @return RedisServer 实例
-    */
+     * 创建指定端口的 Redis 服务器。
+     *
+     * @param port 端口号
+     * @return RedisServer 实例
+     */
     public static RedisServer create(int port) {
         return builder().port(port).build();
     }
 
     /**
-    * 创建 构建器。
-    *
-    * @return Builder 实例
-    */
+     * 创建 构建器。
+     *
+     * @return Builder 实例
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 启动 Redis 服务器。
-    *
-    * @return 当前实例，支持链式调用
-    */
+     * 启动 Redis 服务器。
+     *
+     * @return 当前实例，支持链式调用
+     */
     public RedisServer start() {
         try {
             delegate.start();
@@ -101,10 +101,10 @@ public class RedisServer {
     }
 
     /**
-    * 停止 Redis 服务器。
-    *
-    * @return 当前实例，支持链式调用
-    */
+     * 停止 Redis 服务器。
+     *
+     * @return 当前实例，支持链式调用
+     */
     public RedisServer stop() {
         try {
             delegate.stop();
@@ -116,44 +116,44 @@ public class RedisServer {
     }
 
     /**
-    * 判断服务器是否正在运行。
-    *
-    * @return 运行中返回 true
-    */
+     * 判断服务器是否正在运行。
+     *
+     * @return 运行中返回 true
+     */
     public boolean isActive() {
         return delegate.isActive();
     }
 
     /**
-    * 获取 Redis 连接地址。
-    *
-    * @return redis://127.0.0.1:{port}
-    */
+     * 获取 Redis 连接地址。
+     *
+     * @return redis://127.0.0.1:{port}
+     */
     public String getAddress() {
         return "redis://127.0.0.1:" + port;
     }
 
     /**
-    * 获取 Redis 连接 URL（兼容 Jedis/Redisson）。
-    *
-    * @return redis://127.0.0.1:{port}
-    */
+     * 获取 Redis 连接 URL（兼容 Jedis/Redisson）。
+     *
+     * @return redis://127.0.0.1:{port}
+     */
     public String getUrl() {
         return getAddress();
     }
 
     /**
-    * 关闭服务器（实现 auto关闭）。
-    */
+     * 关闭服务器（实现 auto关闭）。
+     */
     public void close() {
         stop();
     }
 
     /**
-    * 构建器 模式创建 redis服务端。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 构建器 模式创建 redis服务端。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class Builder {
         /** 端口 */
         private int port = 6379;
@@ -173,30 +173,30 @@ public class RedisServer {
         }
 
         /**
-        * 设置最大内存，如 "256mb"
-        * @param maxMemory 最大内存
-        * @return 最大内存的结果
-        */
+         * 设置最大内存，如 "256mb"
+         * @param maxMemory 最大内存
+         * @return 最大内存的结果
+         */
         public Builder maxMemory(String maxMemory) {
             this.maxMemory = maxMemory;
             return this;
         }
 
         /**
-        * 设置额外 Redis 配置参数
-        * @param args 参数
-        * @return 参数的结果
-        */
+         * 设置额外 Redis 配置参数
+         * @param args 参数
+         * @return 参数的结果
+         */
         public Builder args(String... args) {
             this.args = args;
             return this;
         }
 
         /**
-        * 构建 redis服务端 实例。
-        *
-        * @return RedisServer
-        */
+         * 构建 redis服务端 实例。
+         *
+         * @return RedisServer
+         */
         public RedisServer build() {
             try {
                 redis.embedded.RedisServerBuilder redisBuilder = redis.embedded.RedisServer.builder()

@@ -15,29 +15,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* 想法-CCNL/Randeng-BART-139M Seq2Seq ONNX 翻译器
-* <p>
-* 清华大学 想法-CCNL 在悟道 180G 中文语料上重训的 BART 中文版，
-* 参数量约 139M，对标英文 BART-基础 级规模。词表、tokenizer、位置嵌入均针对中文优化。
-* 适用于轻量级中文摘要、文本生成、信息抽取等任务。
-* </p>
-* <p>
-* 模型来源：huggingface.co/想法-CCNL/Randeng-BART-139M
-* 架构：编码器-解码器 (ONNX: 模型.onnx)
-* 输入：中文文本字符串
-* 输出：生成的中文字符串
-* </p>
-* <p>
-* 输入流程：
-* <ol>
-*   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
-*   <li>ONNX 模型正向推理得到 logits</li>
-*   <li>argmax 取每步最优 token ID</li>
-*   <li>Tokenizer decode 得到中文结果文本</li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0.42
+ * 想法-CCNL/Randeng-BART-139M Seq2Seq ONNX 翻译器
+ * <p>
+ * 清华大学 想法-CCNL 在悟道 180G 中文语料上重训的 BART 中文版，
+ * 参数量约 139M，对标英文 BART-基础 级规模。词表、tokenizer、位置嵌入均针对中文优化。
+ * 适用于轻量级中文摘要、文本生成、信息抽取等任务。
+ * </p>
+ * <p>
+ * 模型来源：huggingface.co/想法-CCNL/Randeng-BART-139M
+ * 架构：编码器-解码器 (ONNX: 模型.onnx)
+ * 输入：中文文本字符串
+ * 输出：生成的中文字符串
+ * </p>
+ * <p>
+ * 输入流程：
+ * <ol>
+ *   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
+ *   <li>ONNX 模型正向推理得到 logits</li>
+ *   <li>argmax 取每步最优 token ID</li>
+ *   <li>Tokenizer decode 得到中文结果文本</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RandengBartTranslator implements Translator<String, String> {
@@ -106,11 +106,11 @@ public class RandengBartTranslator implements Translator<String, String> {
     }
 
     /**
-    * 解析模型根
-    *
-    * @param modelPath 模型路径
-    * @return resolve模型根的结果
-    */
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -122,12 +122,12 @@ public class RandengBartTranslator implements Translator<String, String> {
     }
 
     /**
-    * 查找文件
-    *
-    * @param root 根
-    * @param name 名称
-    * @return find文件的结果
-    */
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

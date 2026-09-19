@@ -22,7 +22,7 @@ import java.util.zip.Inflater;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi("byte-array-compressor")
 public final class ByteArrayCompressor {
 
@@ -84,12 +84,12 @@ public final class ByteArrayCompressor {
     }
 
     /**
-    * 解压压缩帧为原始字节数组。
-    *
-    * @param frame 压缩帧（头部 8B + 压缩数据）
-    * @return 原始字节数据
-    * @throws IOException 解压过程异常
-    */
+     * 解压压缩帧为原始字节数组。
+     *
+     * @param frame 压缩帧（头部 8B + 压缩数据）
+     * @return 原始字节数据
+     * @throws IOException 解压过程异常
+     */
     public static byte[] decompressFrame(byte[] frame) throws IOException {
         if (frame == null || frame.length < HEADER_LEN) {
             throw new IOException("SIP 压缩帧数据为空或长度不足: " + (frame == null ? "null" : frame.length));
@@ -129,14 +129,14 @@ public final class ByteArrayCompressor {
     }
 
     /**
-    * 包装输出流：将字节数据压缩后写入目标输出流。
-    * <p>注意：此方法为便利方法，实际压缩逻辑在 {@link #compressFrame} 完成，</p>
-    * <p>建议直接调用 {@link #compressFrame} 配合 ByteArrayOutputStream 使用。</p>
-    *
-    * @param out 目标输出流
-    * @param data 要压缩的字节数据
-    * @throws IOException IO 异常
-    */
+     * 包装输出流：将字节数据压缩后写入目标输出流。
+     * <p>注意：此方法为便利方法，实际压缩逻辑在 {@link #compressFrame} 完成，</p>
+     * <p>建议直接调用 {@link #compressFrame} 配合 ByteArrayOutputStream 使用。</p>
+     *
+     * @param out 目标输出流
+     * @param data 要压缩的字节数据
+     * @throws IOException IO 异常
+     */
     public static void wrap(OutputStream out, byte[] data) throws IOException {
         if (out == null) {
             throw new IOException("输出流不能为 null");
@@ -147,14 +147,14 @@ public final class ByteArrayCompressor {
     }
 
     /**
-    * 从输入流读取压缩帧并解压。
-    * <p>建议直接调用 {@link #decompressFrame} 配合 ByteArrayInputStream 使用。</p>
-    *
-    * @param in 来源输入流
-    * @param dataLen 预期的压缩帧数据长度（不含头部），用于界定读取范围
-    * @return 解压后的原始字节数据
-    * @throws IOException IO 异常
-    */
+     * 从输入流读取压缩帧并解压。
+     * <p>建议直接调用 {@link #decompressFrame} 配合 ByteArrayInputStream 使用。</p>
+     *
+     * @param in 来源输入流
+     * @param dataLen 预期的压缩帧数据长度（不含头部），用于界定读取范围
+     * @return 解压后的原始字节数据
+     * @throws IOException IO 异常
+     */
     public static byte[] unwrap(InputStream in, int dataLen) throws IOException {
         if (in == null) {
             throw new IOException("输入流不能为 null");
@@ -172,10 +172,10 @@ public final class ByteArrayCompressor {
     }
 
     /**
-    * SPI 名称。
-    *
-    * @return 压缩器名称
-    */
+     * SPI 名称。
+     *
+     * @return 压缩器名称
+     */
     public String name() {
         return "byte-array-compressor";
     }

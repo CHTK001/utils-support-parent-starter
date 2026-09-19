@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* arcsoft 人脸裁剪翻译器
-*
-* @author CH
-* @since 4.0.0.42
+ * arcsoft 人脸裁剪翻译器
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedImage> {
@@ -27,9 +27,9 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
     private final FaceEngine faceEngine;
 
     /**
-    * 创建 arcfacecroppertranslator 实例
-    * @param faceEngine faceengine
-    */
+     * 创建 arcfacecroppertranslator 实例
+     * @param faceEngine faceengine
+     */
     public ArcFaceCropperTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }

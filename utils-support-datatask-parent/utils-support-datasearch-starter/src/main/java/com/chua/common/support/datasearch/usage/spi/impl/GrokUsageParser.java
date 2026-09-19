@@ -16,43 +16,43 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
-   * Grok 构建 (xAI) usage parser.
+ * Grok 构建 (xAI) usage parser.
  *
  * <p>Grok Build is xAI's agentic coding CLI. Each session lives under
  * {@code ~/.grok/sessions/<encoded-cwd>/<session-uuid>/} and contains:</p>
  * <ul>
  *   <li>{@code updates.jsonl} — ACP-style append-only event stream; the
-   * authoritative usage 源. Each {@code turn_completed} 事件 carries
+ * authoritative usage 源. Each {@code turn_completed} 事件 carries
  *       a per-turn usage block (NOT a running total):
  *       <pre>{@code
  *       {
-   * "参数": {
-   * "更新": {
-   * "会话更新": "turn_完成",
+ * "参数": {
+ * "更新": {
+ * "会话更新": "turn_完成",
  *             "usage": {
-   * "输入令牌": 1234,          // 含 缓存 的全量输入
-   * "输出令牌": 56,
-   * "缓存读取令牌": 900,
-   * "缓存创建令牌": 34,
-   * "ReasonML令牌": 12,
-   * "模型usage": { "grok-4.5-构建": { ... } }
+ * "输入令牌": 1234,          // 含 缓存 的全量输入
+ * "输出令牌": 56,
+ * "缓存读取令牌": 900,
+ * "缓存创建令牌": 34,
+ * "ReasonML令牌": 12,
+ * "模型usage": { "grok-4.5-构建": { ... } }
  *             }
  *           },
-   * "_meta": { "Agent时间戳ms": 1783322059000 }
+ * "_meta": { "Agent时间戳ms": 1783322059000 }
  *         },
-   * "时间戳": 1783322059
+ * "时间戳": 1783322059
  *       }
  *       }</pre></li>
  *   <li>{@code signals.json} — cumulative context-window counters, used only
-   * When.js no {@code turn_completed} 事件 carry usage (legacy 会话);
+ * When.js no {@code turn_completed} 事件 carry usage (legacy 会话);
  *       {@code totalTokens} is a context-size watermark, not a billed total.</li>
  * </ul>
  *
  * <p>Token semantics: Grok reports {@code inputTokens} inclusive of cached
-   * 输入, so the non-缓存 输入 是否 {@编码 输入令牌 - 缓存读取 -
-   * 缓存创建}; {@code outputTokens} 是否 reported minus ReasonML so the
-   * ReasonML 数量 是否 a separate, additive 字段. 全部 per-turn usage
-   * records are real (non-estimated) When.js present. When.js 下降 back 转为
+ * 输入, so the non-缓存 输入 是否 {@编码 输入令牌 - 缓存读取 -
+ * 缓存创建}; {@code outputTokens} 是否 reported minus ReasonML so the
+ * ReasonML 数量 是否 a separate, additive 字段. 全部 per-turn usage
+ * records are real (non-estimated) When.js present. When.js 下降 back 转为
  * {@code signals.json} the parser emits a single estimated context-token
  * snapshot flagged {@code estimated = true}.</p>
  *
@@ -69,9 +69,9 @@ public class GrokUsageParser extends BaseUsageParser {
     private static final String CURRENCY_USD = "USD"; // 货币usd
 
     /**
-    * resolveHome。
-    * @return resolveHome的结果
-    */
+     * resolveHome。
+     * @return resolveHome的结果
+     */
     private static Path resolveHome() {
         String grokHome = System.getenv("GROK_HOME");
         if (grokHome != null && !grokHome.isBlank()) {
@@ -81,21 +81,21 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "grok"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "grok"}
+     */
     @Override
     public String name() {
         return PROVIDER_GROK;
     }
 
     /**
-    * 流式解析全部会话的 turn_completed 用量事件。
-    *
-    * <p>按文件惰性拉取：先枚举 sessions 目录，再逐文件逐行流式解析，
-    * 内存占用与单条记录相关而非与总量相关。</p>
-    */
+     * 流式解析全部会话的 turn_completed 用量事件。
+     *
+     * <p>按文件惰性拉取：先枚举 sessions 目录，再逐文件逐行流式解析，
+     * 内存占用与单条记录相关而非与总量相关。</p>
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         Path sessionsDir = GROC_HOME.resolve("sessions");
@@ -126,11 +126,11 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 流式解析单个 更新.jsonl。
-    *
-    * @param file 更新 事件文件
-    * @return 逐 turn 用量记录流
-    */
+     * 流式解析单个 更新.jsonl。
+     *
+     * @param file 更新 事件文件
+     * @return 逐 turn 用量记录流
+     */
     private Flux<AiUsage> streamUpdatesFile(Path file) {
         return streamLines(file)
                 .flatMap(line -> Mono.fromCallable(() -> parseTurnLine(line))
@@ -144,11 +144,11 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析单行，仅处理 会话更新=turn_完成 且带 usage 块的事件。
-    *
-    * @param line 单行 JSON
-    * @return 用量记录（无则 空）
-    */
+     * 解析单行，仅处理 会话更新=turn_完成 且带 usage 块的事件。
+     *
+     * @param line 单行 JSON
+     * @return 用量记录（无则 空）
+     */
     private Optional<AiUsage> parseTurnLine(String line) {
         if (line.isBlank()) {
             return Optional.empty();
@@ -200,12 +200,12 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从 _meta.Agent时间戳ms / 顶层 时间戳 推断事件时间。
-    *
-    * @param meta _meta 节点
-    * @param root 根节点
-    * @return epoch 毫秒；无法解析时 0
-    */
+     * 从 _meta.Agent时间戳ms / 顶层 时间戳 推断事件时间。
+     *
+     * @param meta _meta 节点
+     * @param root 根节点
+     * @return epoch 毫秒；无法解析时 0
+     */
     private long parseGrokTimestamp(JsonNode meta, JsonNode root) {
         if (!meta.isMissingValue()) {
             int agentMs = meta.get("agentTimestampMs").toIntValue(0);
@@ -222,11 +222,11 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从 usage.模型usage 选出 令牌 量最大的模型名。
-    *
-    * @param usage usage 节点
-    * @return 模型名；无则 {@code "grok-build"}
-    */
+     * 从 usage.模型usage 选出 令牌 量最大的模型名。
+     *
+     * @param usage usage 节点
+     * @return 模型名；无则 {@code "grok-build"}
+     */
     private String pickGrokModel(JsonNode usage) {
         JsonNode modelUsage = usage.get("modelUsage");
         if (!modelUsage.isMissingValue() && modelUsage.isObject()) {
@@ -258,12 +258,12 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 读取 映射 中指定 键 的 int 值（容错，缺失/非数字返回 0）。
-    *
-    * @param map  统计 映射
-    * @param key  键名
-    * @return int 值
-    */
+     * 读取 映射 中指定 键 的 int 值（容错，缺失/非数字返回 0）。
+     *
+     * @param map  统计 映射
+     * @param key  键名
+     * @return int 值
+     */
     private static int asInt(java.util.Map<String, Object> map, String key) {
         return map == null ? 0 : asInt(map.get(key));
     }

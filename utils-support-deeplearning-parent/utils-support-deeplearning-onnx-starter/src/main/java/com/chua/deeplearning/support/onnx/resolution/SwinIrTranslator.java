@@ -16,21 +16,21 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
-* swinir ONNX
-* <p>
-* denoising / 父-resolution
-* </p>
-* <p>
-*      :
-* <ul>
-*   <li>HWC     CHW                       [0, 1]          
-*   <li>          mean/std                    
-* </ul>
-* <p>
-*      : Heliosoph/swinir-onnx
-*
-* @author CH
-* @since 4.0.0.42
+ * swinir ONNX
+ * <p>
+ * denoising / 父-resolution
+ * </p>
+ * <p>
+ *      :
+ * <ul>
+ *   <li>HWC     CHW                       [0, 1]          
+ *   <li>          mean/std                    
+ * </ul>
+ * <p>
+ *      : Heliosoph/swinir-onnx
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SwinIrTranslator implements Translator<Image, Image> {
@@ -48,8 +48,8 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     private int height;
 
     /**
-    * swinir 模型固定输入尺寸（128x128）
-    */
+     * swinir 模型固定输入尺寸（128x128）
+     */
     private static final int INPUT_SIZE = 128;
 
     @Override
@@ -121,24 +121,24 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 将浮点像素钳制并转为 [0, 255] uint8。
-    *
-    * @param v 浮点像素值
-    * @return 0-255 整数
-    */
+     * 将浮点像素钳制并转为 [0, 255] uint8。
+     *
+     * @param v 浮点像素值
+     * @return 0-255 整数
+     */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(255.0f, v));
         return (int) Math.round(x);
     }
 
     /**
-    * 缩放图像到目标尺寸（高质量双三次）。
-    *
-    * @param src 源图
-    * @param w   目标宽
-    * @param h   目标高
-    * @return 缩放后的图
-    */
+     * 缩放图像到目标尺寸（高质量双三次）。
+     *
+     * @param src 源图
+     * @param w   目标宽
+     * @param h   目标高
+     * @return 缩放后的图
+     */
     private static BufferedImage resize(BufferedImage src, int w, int h) {
         BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = out.createGraphics();

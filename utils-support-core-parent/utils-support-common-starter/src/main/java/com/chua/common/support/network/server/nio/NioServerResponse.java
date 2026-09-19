@@ -28,7 +28,7 @@ import java.util.TreeMap;
  *
  * @author CH
  * @since 2026/08/12
-*/
+ */
 public class NioServerResponse implements ServerResponse {
 
     /** Crlf */
@@ -81,22 +81,22 @@ public class NioServerResponse implements ServerResponse {
     private java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter;
 
     /**
-    * 创建 NioServerResponse 实例
-    * @param channel channel
-    */
+     * 创建 NioServerResponse 实例
+     * @param channel channel
+     */
     public NioServerResponse(SocketChannel channel) {
         this.channel = channel;
     }
 
     /**
-    * 设置异步写出回调(由事件循环注入)。
-    *
-    * <p>设置后 {@link #complete()} 不再直接写 channel,而是把响应头/体字节
-    * 交给回调,由传输层(AIO 完成回调 / NIO OP_WRITE)驱动写出。
-    * 供跨传输复用(AIO/IOCP 等 Proactor 实现)。</p>
-    *
-    * @param asyncWriter 异步写出回调,参数依次为响应头、响应体(体可为 null)
-    */
+     * 设置异步写出回调(由事件循环注入)。
+     *
+     * <p>设置后 {@link #complete()} 不再直接写 channel,而是把响应头/体字节
+     * 交给回调,由传输层(AIO 完成回调 / NIO OP_WRITE)驱动写出。
+     * 供跨传输复用(AIO/IOCP 等 Proactor 实现)。</p>
+     *
+     * @param asyncWriter 异步写出回调,参数依次为响应头、响应体(体可为 null)
+     */
     public void setAsyncWriter(java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter) {
         this.asyncWriter = asyncWriter;
     }
@@ -335,9 +335,9 @@ public class NioServerResponse implements ServerResponse {
     // ─── 内部方法 ─────────────────────────────────────────
 
     /**
-    * 完成响应：将缓冲区内容写入到 channel。
-    * <p>SSE 模式下只关闭 channel；缓冲模式下构建完整 HTTP/1.1 响应报文。</p>
-    */
+     * 完成响应：将缓冲区内容写入到 channel。
+     * <p>SSE 模式下只关闭 channel；缓冲模式下构建完整 HTTP/1.1 响应报文。</p>
+     */
     public void complete() {
         if (sent) {
             return;
@@ -367,10 +367,10 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * zero-copy(sendfile) 发送文件:响应头走普通写入,文件体通过
-    * {@link java.nio.channels.FileChannel#transferTo} 在内核态直接发送到 SocketChannel,
-    * 避免文件内容经过用户态缓冲拷贝,大文件/大响应体场景显著降低 CPU 占用、提高并发吞吐。
-    */
+     * zero-copy(sendfile) 发送文件:响应头走普通写入,文件体通过
+     * {@link java.nio.channels.FileChannel#transferTo} 在内核态直接发送到 SocketChannel,
+     * 避免文件内容经过用户态缓冲拷贝,大文件/大响应体场景显著降低 CPU 占用、提高并发吞吐。
+     */
     @Override
     public ServerResponse sendFile(java.nio.file.Path file) {
         if (sent || ended) {
@@ -406,12 +406,12 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * 构建 HTTP 响应头字节（状态行 + 自动头 + 用户头 + 空行）。
-    * <p>零分配快路径：echo 场景（status=200 + 无用户头）直接复用预拼字节模板，
-    * 只在数字部分按 body 长度动态填充。带用户头或非默认状态才走慢路径。</p>
-    * @param bodyLength 请求体长度，不允许为 null
-    * @return 结果值
-    */
+     * 构建 HTTP 响应头字节（状态行 + 自动头 + 用户头 + 空行）。
+     * <p>零分配快路径：echo 场景（status=200 + 无用户头）直接复用预拼字节模板，
+     * 只在数字部分按 body 长度动态填充。带用户头或非默认状态才走慢路径。</p>
+     * @param bodyLength 请求体长度，不允许为 null
+     * @return 结果值
+     */
     private byte[] buildHttpHeaders(int bodyLength) {
         // 快路径:status=200 + 无用户自定义 header + keep-alive,即 echo 场景
         if (statusCode == 200 && headers.isEmpty()) {
@@ -437,11 +437,11 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * echo header 零分配构建:状态行 + Content-Type + Content-Length(<len>) + Connection: keep-alive + 空行。
-    * 首次按 body 长度缓存到 {@link #ECHO_HEADER_CACHE},后续同长度直接返回。
-    * @param bodyLength 请求体长度，不允许为 null
-    * @return 结果值
-    */
+     * echo header 零分配构建:状态行 + Content-Type + Content-Length(<len>) + Connection: keep-alive + 空行。
+     * 首次按 body 长度缓存到 {@link #ECHO_HEADER_CACHE},后续同长度直接返回。
+     * @param bodyLength 请求体长度，不允许为 null
+     * @return 结果值
+     */
     private static byte[] buildEchoHeader(int bodyLength) {
         byte[] cached = ECHO_HEADER_CACHE.get(bodyLength);
         if (cached != null) {
@@ -464,9 +464,9 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * 判断 channel 是否已关闭（SSE close 后）。
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断 channel 是否已关闭（SSE close 后）。
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isChannelClosed() {
         return channelClosed;
     }
@@ -512,17 +512,17 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * 流式直写钩子(非 SocketChannel 传输复用,如 AIO Proactor):
-    * 设置后 {@code writeToChannel} 经由此回调输出(SSE/直写路径),
-    * 优先级高于 channel 直写。
-    */
+     * 流式直写钩子(非 SocketChannel 传输复用,如 AIO Proactor):
+     * 设置后 {@code writeToChannel} 经由此回调输出(SSE/直写路径),
+     * 优先级高于 channel 直写。
+     */
     private java.util.function.Consumer<byte[]> streamWriter;
 
     /**
-    * 设置流式直写钩子(AIO 等传输实现调用)。
-    *
-    * @param writer 字节消费器
-    */
+     * 设置流式直写钩子(AIO 等传输实现调用)。
+     *
+     * @param writer 字节消费器
+     */
     public void setStreamWriter(java.util.function.Consumer<byte[]> writer) {
         this.streamWriter = writer;
     }
@@ -562,11 +562,11 @@ public class NioServerResponse implements ServerResponse {
     }
 
     /**
-    * gather write：将多个 ByteBuffer 一次性写出（zero copy，避免中间拼接）。
-    * 使用 varargs 重载直接调用 channel.write(ByteBuffer[])，减少包装开销。
-    * @param headerBuf 请求头Buf，不允许为 null
-    * @param bodyBuf 请求体Buf，不允许为 null
-    */
+     * gather write：将多个 ByteBuffer 一次性写出（zero copy，避免中间拼接）。
+     * 使用 varargs 重载直接调用 channel.write(ByteBuffer[])，减少包装开销。
+     * @param headerBuf 请求头Buf，不允许为 null
+     * @param bodyBuf 请求体Buf，不允许为 null
+     */
     private void writeToChannel(ByteBuffer headerBuf, ByteBuffer bodyBuf) {
         // 无通道场景(AIO 复用):同 writeToChannel(byte[]) 的兜底保护
         if (channelClosed || channel == null) {

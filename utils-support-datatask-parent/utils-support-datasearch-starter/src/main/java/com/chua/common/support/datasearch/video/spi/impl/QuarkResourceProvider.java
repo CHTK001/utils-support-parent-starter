@@ -51,28 +51,28 @@ public class QuarkResourceProvider extends AbstractResourceProvider {
     private static final String PLACEHOLDER_NAME = "夸克网盘资源";
 
     /**
-    * 创建 quark资源提供器 实例（无参构造，使用默认数据源）。
-    */
+     * 创建 quark资源提供器 实例（无参构造，使用默认数据源）。
+     */
     public QuarkResourceProvider() {
         super();
     }
 
     /**
-    * 创建 quark资源提供器 实例。
-    *
-    * @param vs 视频数据源，不能为 null
-    */
+     * 创建 quark资源提供器 实例。
+     *
+     * @param vs 视频数据源，不能为 null
+     */
     public QuarkResourceProvider(VideoSource vs) {
         super(vs);
     }
 
     @Override
     /**
-    * 搜索resource。
-    *
-    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
-    * @return 搜索resource的结果；命中 SPA 壳页时返回不可用错误
-    */
+     * 搜索resource。
+     *
+     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+     * @return 搜索resource的结果；命中 SPA 壳页时返回不可用错误
+     */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {
@@ -111,13 +111,13 @@ public class QuarkResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 解析夸克HTML。
-    * <p>提取真实分享链接（pan.quark.cn/s/xxx）作为结果，
-    * 跳过重复链接，避免把 SPA 页面标题当作条目。</p>
-    *
-    * @param html 响应 HTML 文本，不能为 null
-    * @param results 结果列表，方法内追加条目，不能为 null
-    */
+     * 解析夸克HTML。
+     * <p>提取真实分享链接（pan.quark.cn/s/xxx）作为结果，
+     * 跳过重复链接，避免把 SPA 页面标题当作条目。</p>
+     *
+     * @param html 响应 HTML 文本，不能为 null
+     * @param results 结果列表，方法内追加条目，不能为 null
+     */
     private void parseQuarkHtml(String html, List<VideoInfoResult> results) {
         Set<String> seen = new LinkedHashSet<>(MAX_RESULT_COUNT);
         Matcher m = SHARE_LINK_PATTERN.matcher(html);

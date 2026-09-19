@@ -21,18 +21,18 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 训练管线。
-* <p>
-* 职责：将训练契约（同一份 {@code ueba-config.yaml} + 超参数）落盘，生成并（可选）
-* 执行调用 {@code train_ueba.py} 的 Python 命令。Python 脚本训练 auto编码器 与
-* LSTM/GRU+Attention，导出 ONNX 模型，并将归一化参数与类别词表回写到训练配置，
-* 随模型一起输出到 输出dir。调用方将回写后的配置复制回 {@code ueba-config.yaml}
-* 即可让推理端（{@code UebaEngine}）与训练端完全兼容。</p>
-*
-* <p>由 {@code Ueba.training().build()} 构造，勿直接 new。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 训练管线。
+ * <p>
+ * 职责：将训练契约（同一份 {@code ueba-config.yaml} + 超参数）落盘，生成并（可选）
+ * 执行调用 {@code train_ueba.py} 的 Python 命令。Python 脚本训练 auto编码器 与
+ * LSTM/GRU+Attention，导出 ONNX 模型，并将归一化参数与类别词表回写到训练配置，
+ * 随模型一起输出到 输出dir。调用方将回写后的配置复制回 {@code ueba-config.yaml}
+ * 即可让推理端（{@code UebaEngine}）与训练端完全兼容。</p>
+ *
+ * <p>由 {@code Ueba.training().build()} 构造，勿直接 new。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class UebaTrainer {
@@ -120,11 +120,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 准备训练产物并返回可执行命令（不执行 Python）。
-    *
-    * @return 训练结果
-    * @throws UncheckedIOException 当产物落盘失败时
-    */
+     * 准备训练产物并返回可执行命令（不执行 Python）。
+     *
+     * @return 训练结果
+     * @throws UncheckedIOException 当产物落盘失败时
+     */
     public TrainingResult prepare() {
         try {
             Files.createDirectories(outputDir);
@@ -144,11 +144,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 执行训练（阻塞直至完成或超时）。
-    *
-    * @return 训练结果，包含已执行的命令
-    * @throws IllegalStateException 当 Python 执行失败或超时时
-    */
+     * 执行训练（阻塞直至完成或超时）。
+     *
+     * @return 训练结果，包含已执行的命令
+     * @throws IllegalStateException 当 Python 执行失败或超时时
+     */
     public TrainingResult execute() {
         TrainingResult prepared = prepare();
         try {
@@ -183,11 +183,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 将同一份配置（原样复制或序列化）写入输出目录。
-    *
-    * @return 落盘后的配置路径
-    * @throws IOException 当写入失败时
-    */
+     * 将同一份配置（原样复制或序列化）写入输出目录。
+     *
+     * @return 落盘后的配置路径
+     * @throws IOException 当写入失败时
+     */
     private Path materializeConfig() throws IOException {
         Path target = outputDir.resolve(DERIVED_CONFIG_FILE);
         if (configSource != null && Files.isRegularFile(configSource)) {
@@ -199,11 +199,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 写入训练参数记录文件。
-    *
-    * @param paramsFile 目标文件
-    * @throws IOException 当写入失败时
-    */
+     * 写入训练参数记录文件。
+     *
+     * @param paramsFile 目标文件
+     * @throws IOException 当写入失败时
+     */
     private void writeParams(Path paramsFile) throws IOException {
         String content = String.format(Locale.ROOT,
                 "epochs: %d%nbatchSize: %d%nlearningRate: %s%ndataCsv: %s%n",
@@ -212,11 +212,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 将内置训练脚本复制到输出目录。
-    *
-    * @return 脚本文件路径
-    * @throws IOException 当复制失败时
-    */
+     * 将内置训练脚本复制到输出目录。
+     *
+     * @return 脚本文件路径
+     * @throws IOException 当复制失败时
+     */
     private Path copyScript() throws IOException {
         Path scriptFile = outputDir.resolve("train_ueba.py");
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(TRAINING_SCRIPT_RESOURCE)) {
@@ -229,12 +229,12 @@ public class UebaTrainer {
     }
 
     /**
-    * 组装 Python 训练命令。
-    *
-    * @param scriptFile 训练脚本路径
-    * @param configFile 配置路径
-    * @return 完整命令字符串
-    */
+     * 组装 Python 训练命令。
+     *
+     * @param scriptFile 训练脚本路径
+     * @param configFile 配置路径
+     * @return 完整命令字符串
+     */
     private String buildCommand(Path scriptFile, Path configFile) {
         List<String> parts = new ArrayList<>(12);
         parts.add(quote(pythonCommand));
@@ -252,11 +252,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 将命令字符串按空白拆分为参数列表（简单处理，路径含空格需引号）。
-    *
-    * @param command 命令字符串
-    * @return 参数列表
-    */
+     * 将命令字符串按空白拆分为参数列表（简单处理，路径含空格需引号）。
+     *
+     * @param command 命令字符串
+     * @return 参数列表
+     */
     private static List<String> parseCommand(String command) {
         List<String> result = new ArrayList<>(8);
         StringBuilder current = new StringBuilder();
@@ -281,11 +281,11 @@ public class UebaTrainer {
     }
 
     /**
-    * 若路径含空白则加双引号包裹。
-    *
-    * @param value 原始值
-    * @return 包裹后的值
-    */
+     * 若路径含空白则加双引号包裹。
+     *
+     * @param value 原始值
+     * @return 包裹后的值
+     */
     private static String quote(String value) {
         if (value.indexOf(' ') >= 0 || value.indexOf('\t') >= 0) {
             return "\"" + value + "\"";

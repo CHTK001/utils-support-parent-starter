@@ -10,57 +10,57 @@ import com.chua.runtime.shell.output.Console;
 import java.util.List;
 
 /**
-* 运行时命令 — 显示 Runtime 管理状态。
-*
-* @author CH
-* @since 4.0.0.42
+ * 运行时命令 — 显示 Runtime 管理状态。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RuntimeCommand implements Command {
 
     /**
-    * 主命令名
+     * 主命令名
      */
     private static final String CMD_NAME = "runtime";
 
     /**
-    * "列表" 子命令
+     * "列表" 子命令
      */
     private static final String SUB_LIST = "list";
 
     /**
-    * "启动" 子命令
+     * "启动" 子命令
      */
     private static final String SUB_START = "start";
 
     /**
-    * "停止" 子命令
+     * "停止" 子命令
      */
     private static final String SUB_STOP = "stop";
 
     /**
-    * "状态" 子命令
+     * "状态" 子命令
      */
     private static final String SUB_STATUS = "status";
 
     /**
-    * "日志" 子命令
+     * "日志" 子命令
      */
     private static final String SUB_LOG = "log";
 
     /**
-    * PID 显示前缀
+     * PID 显示前缀
      */
     private static final String PID_PREFIX = "PID: ";
 
     /**
-    * 运行时管理器
+     * 运行时管理器
      */
     private final RuntimeManager manager;
 
     /**
-    * 创建运行时命令。
-    *
-    * @param manager 运行时管理器
+     * 创建运行时命令。
+     *
+     * @param manager 运行时管理器
      */
     public RuntimeCommand(RuntimeManager manager) {
         this.manager = manager;
@@ -104,9 +104,9 @@ public class RuntimeCommand implements Command {
     }
 
     /**
-    * 列出所有工件。
-    *
-    * @param console 控制台
+     * 列出所有工件。
+     *
+     * @param console 控制台
      */
     private void listAll(Console console) {
         console.header("运行工件");
@@ -125,10 +125,10 @@ public class RuntimeCommand implements Command {
     }
 
     /**
-    * 启动工件。
-    *
-    * @param console 控制台
-    * @param args    参数
+     * 启动工件。
+     *
+     * @param console 控制台
+     * @param args    参数
      */
     private void startArtifact(Console console, String[] args) {
         if (args.length < 2) {
@@ -141,10 +141,10 @@ public class RuntimeCommand implements Command {
     }
 
     /**
-    * 停止工件。
-    *
-    * @param console 控制台
-    * @param args    参数
+     * 停止工件。
+     *
+     * @param console 控制台
+     * @param args    参数
      */
     private void stopArtifact(Console console, String[] args) {
         if (args.length < 2) {
@@ -157,10 +157,10 @@ public class RuntimeCommand implements Command {
     }
 
     /**
-    * 查看工件状态。
-    *
-    * @param console 控制台
-    * @param args    参数
+     * 查看工件状态。
+     *
+     * @param console 控制台
+     * @param args    参数
      */
     private void statusArtifact(Console console, String[] args) {
         if (args.length < 2) {
@@ -173,10 +173,10 @@ public class RuntimeCommand implements Command {
     }
 
     /**
-    * 查看工件日志。
-    *
-    * @param console 控制台
-    * @param args    参数
+     * 查看工件日志。
+     *
+     * @param console 控制台
+     * @param args    参数
      */
     private void tailLog(Console console, String[] args) {
         if (args.length < 2) {

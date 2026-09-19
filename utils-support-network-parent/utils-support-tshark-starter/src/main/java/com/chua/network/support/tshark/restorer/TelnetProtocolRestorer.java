@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* Telnet 协议还原器。
-*
-* <p>Telnet 协议 IAC 命令还原，处理 0xFF 转义序列。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Telnet 协议还原器。
+ *
+ * <p>Telnet 协议 IAC 命令还原，处理 0xFF 转义序列。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -77,11 +77,11 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为telnet命令
-    *
-    * @param cmd CMD
-    * @return 转为telnet命令的结果
-    */
+     * 转为telnet命令
+     *
+     * @param cmd CMD
+     * @return 转为telnet命令的结果
+     */
     private static String toTelnetCommand(int cmd) {
         return switch (cmd) {
             case 0xfb -> "WILL";
@@ -103,11 +103,11 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为telnet期权
-    *
-    * @param option 期权
-    * @return 转为telnet期权的结果
-    */
+     * 转为telnet期权
+     *
+     * @param option 期权
+     * @return 转为telnet期权的结果
+     */
     private static String toTelnetOption(int option) {
         return switch (option) {
             case 0x00 -> "TRANSMIT-BINARY";

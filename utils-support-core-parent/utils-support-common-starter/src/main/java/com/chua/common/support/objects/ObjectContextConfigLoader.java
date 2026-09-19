@@ -29,13 +29,13 @@ import java.util.List;
  *
  * @author CH
  * @since 2026/07/20
-*/
+ */
 @Slf4j
 public final class ObjectContextConfigLoader {
 
     /**
-    * 配置文件搜索路径列表
-    */
+     * 配置文件搜索路径列表
+     */
     private static final String[] CONFIG_LOCATIONS = {
             "application.yml",
             "application.yaml",
@@ -45,36 +45,36 @@ public final class ObjectContextConfigLoader {
     };
 
     /**
-    * 配置属性前缀
-    */
+     * 配置属性前缀
+     */
     private static final String PREFIX = "object-context";
 
     /**
-    * SPI 开关配置键
-    */
+     * SPI 开关配置键
+     */
     private static final String KEY_SPI = PREFIX + ".spi-enabled";
 
     /**
-    * 注解扫描开关配置键
-    */
+     * 注解扫描开关配置键
+     */
     private static final String KEY_ANNOTATION_SCAN = PREFIX + ".annotation-scan-enabled";
 
     /**
-    * 扫描包列表配置键
-    */
+     * 扫描包列表配置键
+     */
     private static final String KEY_SCAN_PACKAGES = PREFIX + ".scan-packages";
 
     /**
-    * 私有构造函数，防止实例化
-    */
+     * 私有构造函数，防止实例化
+     */
     private ObjectContextConfigLoader() {
     }
 
     /**
-    * 从 类路径 加载配置，文件不存在或解析失败时返回 构建器 默认值。
-    *
-    * @return 解析后的配置
-    */
+     * 从 类路径 加载配置，文件不存在或解析失败时返回 构建器 默认值。
+     *
+     * @return 解析后的配置
+     */
     public static ObjectContextConfig load() {
         PropertySource source = loadApplicationPropertySource();
         if (source == null || source == PropertySource.EMPTY) {
@@ -84,11 +84,11 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 将属性源绑定为 {@link ObjectContextConfig}。
-    *
-    * @param source 属性源
-    * @return 配置
-    */
+     * 将属性源绑定为 {@link ObjectContextConfig}。
+     *
+     * @param source 属性源
+     * @return 配置
+     */
     public static ObjectContextConfig bind(PropertySource source) {
         if (source == null || source == PropertySource.EMPTY) {
             return ObjectContextConfig.builder().build();
@@ -113,10 +113,10 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 加载 application 属性源。
-    *
-    * @return 属性源，如果未找到则返回 空
-    */
+     * 加载 application 属性源。
+     *
+     * @return 属性源，如果未找到则返回 空
+     */
     private static PropertySource loadApplicationPropertySource() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -140,12 +140,12 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 解析输入流为属性源。
-    *
-    * @param location 配置文件位置
-    * @param is       输入流
-    * @return 解析后的属性源
-    */
+     * 解析输入流为属性源。
+     *
+     * @param location 配置文件位置
+     * @param is       输入流
+     * @return 解析后的属性源
+     */
     private static PropertySource parse(String location, InputStream is) {
         String extension = FileUtils.getExtension(location);
         ConfigParser parser = ServiceProvider.of(ConfigParser.class).getNewExtension(extension);
@@ -156,13 +156,13 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 解析布尔类型的配置属性。
-    *
-    * @param source      属性源
-    * @param key         配置键
-    * @param defaultValue 默认值
-    * @return 解析后的布尔值
-    */
+     * 解析布尔类型的配置属性。
+     *
+     * @param source      属性源
+     * @param key         配置键
+     * @param defaultValue 默认值
+     * @return 解析后的布尔值
+     */
     private static boolean resolveBoolean(PropertySource source, String key, boolean defaultValue) {
         Object value = source.getProperty(key);
         if (value == null) {
@@ -179,11 +179,11 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 解析扫描包列表配置。
-    *
-    * @param source 属性源
-    * @return 扫描包列表
-    */
+     * 解析扫描包列表配置。
+     *
+     * @param source 属性源
+     * @return 扫描包列表
+     */
     private static List<String> resolveScanPackages(PropertySource source) {
         Object value = source.getProperty(KEY_SCAN_PACKAGES);
         if (value == null) {
@@ -228,10 +228,10 @@ public final class ObjectContextConfigLoader {
     }
 
     /**
-    * 类似 Spring Boot：从启动 main 类推断默认扫描包。
-    *
-    * @return 主类的包名，如果无法推断则返回 空
-    */
+     * 类似 Spring Boot：从启动 main 类推断默认扫描包。
+     *
+     * @return 主类的包名，如果无法推断则返回 空
+     */
     private static String detectMainPackage() {
         try {
             String command = System.getProperty("sun.java.command");

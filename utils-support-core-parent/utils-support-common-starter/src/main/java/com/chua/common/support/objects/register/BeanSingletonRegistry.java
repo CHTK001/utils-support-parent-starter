@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 public abstract class BeanSingletonRegistry {
 
@@ -23,10 +23,10 @@ public abstract class BeanSingletonRegistry {
     private final Map<String, Object> singletonInstances = new ConcurrentHashMap<>();
 
     /**
-    * 获取或创建单例 Bean
-    * @param beanName Bean名称
-    * @return 获取单例的结果
-    */
+     * 获取或创建单例 Bean
+     * @param beanName Bean名称
+     * @return 获取单例的结果
+     */
     public Object getSingleton(String beanName) {
         if (beanName == null) {
             return null;
@@ -49,10 +49,10 @@ public abstract class BeanSingletonRegistry {
     }
 
     /**
-    * 注册单例 Bean
-    * @param beanName Bean名称
-    * @param bean Bean
-    */
+     * 注册单例 Bean
+     * @param beanName Bean名称
+     * @param bean Bean
+     */
     public void registerSingleton(String beanName, Object bean) {
         if (beanName == null || bean == null) {
             return;
@@ -63,9 +63,9 @@ public abstract class BeanSingletonRegistry {
     }
 
     /**
-    * 注册单例 Beandefinition
-    * @param beanDefinition Beandefinition
-    */
+     * 注册单例 Beandefinition
+     * @param beanDefinition Beandefinition
+     */
     public void registerSingleton(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
             return;
@@ -79,26 +79,26 @@ public abstract class BeanSingletonRegistry {
     }
 
     /**
-    * 获取单例 Beandefinition
-    * @param beanName Bean名称
-    * @return 获取单例Beandefinition的结果
-    */
+     * 获取单例 Beandefinition
+     * @param beanName Bean名称
+     * @return 获取单例Beandefinition的结果
+     */
     public BeanDefinition getSingletonBeanDefinition(String beanName) {
         return beanName != null ? singletonBeans.get(beanName) : null;
     }
 
     /**
-    * 是否包含单例 Bean
-    * @param beanName Bean名称
-    * @return contains单例的结果
-    */
+     * 是否包含单例 Bean
+     * @param beanName Bean名称
+     * @return contains单例的结果
+     */
     public boolean containsSingleton(String beanName) {
         return beanName != null && singletonInstances.containsKey(beanName);
     }
 
     /**
-    * 销毁所有单例
-    */
+     * 销毁所有单例
+     */
     public void destroySingletons() {
         for (BeanDefinition def : singletonBeans.values()) {
             if (def != null) {

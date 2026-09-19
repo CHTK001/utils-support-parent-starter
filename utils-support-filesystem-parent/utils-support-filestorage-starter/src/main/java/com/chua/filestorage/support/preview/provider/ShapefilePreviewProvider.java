@@ -12,11 +12,11 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* Shapefile (SHP) 地理数据预览提供器。
-* <p>SPI 类型：{@code preview-shapefile}。解析 SHP 文件头部，提取几何类型和边界信息。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Shapefile (SHP) 地理数据预览提供器。
+ * <p>SPI 类型：{@code preview-shapefile}。解析 SHP 文件头部，提取几何类型和边界信息。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-shapefile")
 public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
@@ -52,10 +52,10 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 解析shp。
-    * @param data 数据
-    * @return 解析shp的结果
-    */
+     * 解析shp。
+     * @param data 数据
+     * @return 解析shp的结果
+     */
     private ShpInfo parseShp(byte[] data) {
         ShpInfo info = new ShpInfo();
 
@@ -94,13 +94,13 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
         // 边界框: 偏移 36-67
     /**
-    * shp信息类。
-    *
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    * @return human大小的结果
-    */
+     * shp信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         buf.position(36);
         info.xmin = buf.getDouble();
         info.ymin = buf.getDouble();
@@ -109,11 +109,11 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
         return info;
     /**
-    * 构建html。
-    * @param info 信息
-    * @param fileSize 文件大小
-    * @return 构建html的结果
-    */
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     /**
@@ -163,11 +163,11 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
         return sb.toString();
     /**
-    * 构建简单html。
-    * @param ext ext
-    * @param fileSize 文件大小
-    * @return 构建简单html的结果
-    */
+     * 构建简单html。
+     * @param ext ext
+     * @param fileSize 文件大小
+     * @return 构建简单html的结果
+     */
     }
 
     /**
@@ -203,13 +203,13 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
 
         return sb.toString();
     /**
-    * escapehtml。
-    * @param text 文本
-    * @return escapeHtml的结果
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    */
+     * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     /**

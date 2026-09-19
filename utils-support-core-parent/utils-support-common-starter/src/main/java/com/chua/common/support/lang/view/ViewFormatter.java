@@ -16,43 +16,43 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* View 格式化器，提供表格渲染的公共逻辑。
-*
-* <p>所有 {@link ViewParser} 实现共享以下能力：</p>
-* <ul>
-*   <li>将 Map / Iterable / POJO 统一提取为二维字符串行</li>
-*   <li>计算列宽、补齐行、绘制水平线</li>
-*   <li>终端框线 / 纯文本 / Markdown 三种输出风格</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * View 格式化器，提供表格渲染的公共逻辑。
+ *
+ * <p>所有 {@link ViewParser} 实现共享以下能力：</p>
+ * <ul>
+ *   <li>将 Map / Iterable / POJO 统一提取为二维字符串行</li>
+ *   <li>计算列宽、补齐行、绘制水平线</li>
+ *   <li>终端框线 / 纯文本 / Markdown 三种输出风格</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class ViewFormatter {
 
     /**
-    * 空数据占位文本
-    */
+     * 空数据占位文本
+     */
     public static final String EMPTY_PLACEHOLDER = "(empty)";
 
     /**
-    * 字段读取失败时的占位字符
-    */
+     * 字段读取失败时的占位字符
+     */
     public static final String UNKNOWN_CELL = "?";
 
     /**
-    * 单值渲染时的占位列名
-    */
+     * 单值渲染时的占位列名
+     */
     public static final String INDEX_COLUMN = "#";
 
     /**
-    * Map 渲染时的 Key 列名
-    */
+     * Map 渲染时的 Key 列名
+     */
     public static final String KEY_COLUMN = "Key";
 
     /**
-    * Map 渲染时的 Value 列名
-    */
+     * Map 渲染时的 Value 列名
+     */
     public static final String VALUE_COLUMN = "Value";
 
     private ViewFormatter() { }
@@ -62,11 +62,11 @@ public final class ViewFormatter {
     // -------------------------------------------------------------------------
 
     /**
-    * 将数据统一提取为二维行集合，第一行为表头。
-    *
-    * @param data 待渲染的数据（Map / Iterable / 数组 / POJO）
-    * @return 二维字符串行；空数据返回空列表
-    */
+     * 将数据统一提取为二维行集合，第一行为表头。
+     *
+     * @param data 待渲染的数据（Map / Iterable / 数组 / POJO）
+     * @return 二维字符串行；空数据返回空列表
+     */
     public static List<String[]> extractRows(Object data) {
         if (data == null) {
             return List.of();
@@ -89,11 +89,11 @@ public final class ViewFormatter {
     }
 
     /**
-    * 将各种数据形态（Iterable / 数组 / 标量）统一转为 {@link List}。
-    *
-    * @param data 待转换的数据
-    * @return 元素列表（标量会被包装为单元素列表）
-    */
+     * 将各种数据形态（Iterable / 数组 / 标量）统一转为 {@link List}。
+     *
+     * @param data 待转换的数据
+     * @return 元素列表（标量会被包装为单元素列表）
+     */
     public static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
             List<Object> result = new ArrayList<>();
@@ -107,11 +107,11 @@ public final class ViewFormatter {
     }
 
     /**
-    * 从 {@link Map} 中提取两列（Key / Value）表格。
-    *
-    * @param map 数据源
-    * @return 两列表格行集合
-    */
+     * 从 {@link Map} 中提取两列（Key / Value）表格。
+     *
+     * @param map 数据源
+     * @return 两列表格行集合
+     */
     public static List<String[]> extractFromMap(Map<Object, Object> map) {
         List<String[]> rows = new ArrayList<>();
         rows.add(new String[]{KEY_COLUMN, VALUE_COLUMN});
@@ -122,11 +122,11 @@ public final class ViewFormatter {
     }
 
     /**
-    * 从 {@code List<Map>} 提取列名（所有 key 的并集），逐行取值。
-    *
-    * @param items Map 列表
-    * @return 多列表格行集合
-    */
+     * 从 {@code List<Map>} 提取列名（所有 key 的并集），逐行取值。
+     *
+     * @param items Map 列表
+     * @return 多列表格行集合
+     */
     public static List<String[]> extractFromMapList(List<Object> items) {
         Set<String> keys = new LinkedHashSet<>();
         for (Object item : items) {
@@ -150,11 +150,11 @@ public final class ViewFormatter {
     }
 
     /**
-    * 从简单类型列表中提取单列（#）表格。
-    *
-    * @param items 简单类型元素列表
-    * @return 单列表格行集合
-    */
+     * 从简单类型列表中提取单列（#）表格。
+     *
+     * @param items 简单类型元素列表
+     * @return 单列表格行集合
+     */
     public static List<String[]> extractFromSimpleList(List<Object> items) {
         List<String[]> rows = new ArrayList<>();
         rows.add(new String[]{INDEX_COLUMN});
@@ -165,11 +165,11 @@ public final class ViewFormatter {
     }
 
     /**
-    * 从 Bean 列表中通过反射提取字段为列，逐行取值。
-    *
-    * @param items Bean 列表
-    * @return 反射得到的多列表格行集合
-    */
+     * 从 Bean 列表中通过反射提取字段为列，逐行取值。
+     *
+     * @param items Bean 列表
+     * @return 反射得到的多列表格行集合
+     */
     public static List<String[]> extractFromBeanList(List<Object> items) {
         List<Field> fields = extractFields(items.getFirst().getClass());
         List<String> cols = fields.stream().map(Field::getName).collect(Collectors.toList());
@@ -199,11 +199,11 @@ public final class ViewFormatter {
     // -------------------------------------------------------------------------
 
     /**
-    * 判断对象是否为简单类型（数字、字符串、布尔等基础类型）。
-    *
-    * @param obj 待判断对象
-    * @return 简单类型返回 true
-    */
+     * 判断对象是否为简单类型（数字、字符串、布尔等基础类型）。
+     *
+     * @param obj 待判断对象
+     * @return 简单类型返回 true
+     */
     public static boolean isSimpleType(Object obj) {
         if (obj == null) {
             return false;
@@ -223,11 +223,11 @@ public final class ViewFormatter {
     // -------------------------------------------------------------------------
 
     /**
-    * 递归提取类及其父类的全部声明字段。
-    *
-    * @param type 起始类型
-    * @return 字段列表（按继承顺序：子类在前）
-    */
+     * 递归提取类及其父类的全部声明字段。
+     *
+     * @param type 起始类型
+     * @return 字段列表（按继承顺序：子类在前）
+     */
     public static List<Field> extractFields(Class<?> type) {
         List<Field> result = new ArrayList<>();
         while (type != null && type != Object.class) {
@@ -246,11 +246,11 @@ public final class ViewFormatter {
     // -------------------------------------------------------------------------
 
     /**
-    * 计算每列最大宽度。
-    *
-    * @param rows 二维行集合
-    * @return 各列宽度数组
-    */
+     * 计算每列最大宽度。
+     *
+     * @param rows 二维行集合
+     * @return 各列宽度数组
+     */
     public static int[] calcColumnWidths(List<String[]> rows) {
         if (rows.isEmpty()) {
             return new int[0];
@@ -269,12 +269,12 @@ public final class ViewFormatter {
     }
 
     /**
-    * 补齐行到指定列数，右侧填充空字符串。
-    *
-    * @param row      原行
-    * @param colCount 目标列数
-    * @return 补齐后的行
-    */
+     * 补齐行到指定列数，右侧填充空字符串。
+     *
+     * @param row      原行
+     * @param colCount 目标列数
+     * @return 补齐后的行
+     */
     public static String[] padRow(String[] row, int colCount) {
         if (row.length >= colCount) {
             return row;
@@ -290,12 +290,12 @@ public final class ViewFormatter {
     // -------------------------------------------------------------------------
 
     /**
-    * 绘制 ASCII 框线表格（含顶线、表头、分隔线、数据行、底线）。
-    *
-    * @param rows  二维行集合（第一行是表头）
-    * @param pad   单元格左右内边距（各 pad 个空格）
-    * @return 框线表格字符串
-    */
+     * 绘制 ASCII 框线表格（含顶线、表头、分隔线、数据行、底线）。
+     *
+     * @param rows  二维行集合（第一行是表头）
+     * @param pad   单元格左右内边距（各 pad 个空格）
+     * @return 框线表格字符串
+     */
     public static String drawBoxedTable(List<String[]> rows, int pad) {
         if (rows.isEmpty()) {
             return EMPTY_PLACEHOLDER;
@@ -316,12 +316,12 @@ public final class ViewFormatter {
     }
 
     /**
-    * 以无边框模式渲染表格：仅按列宽空格对齐。
-    *
-    * @param rows  二维行集合（第一行是表头）
-    * @param pad   单元格左右内边距
-    * @return 无边框表格字符串，行尾无多余空白
-    */
+     * 以无边框模式渲染表格：仅按列宽空格对齐。
+     *
+     * @param rows  二维行集合（第一行是表头）
+     * @param pad   单元格左右内边距
+     * @return 无边框表格字符串，行尾无多余空白
+     */
     public static String drawBorderlessTable(List<String[]> rows, int pad) {
         if (rows.isEmpty()) {
             return EMPTY_PLACEHOLDER;
@@ -339,12 +339,12 @@ public final class ViewFormatter {
     }
 
     /**
-    * 绘制 Markdown 表格。
-    *
-    * @param rows 二维行集合（第一行是表头）
-    * @param pad  单元格左右内边距（最少 1）
-    * @return Markdown 表格字符串
-    */
+     * 绘制 Markdown 表格。
+     *
+     * @param rows 二维行集合（第一行是表头）
+     * @param pad  单元格左右内边距（最少 1）
+     * @return Markdown 表格字符串
+     */
     public static String drawMarkdownTable(List<String[]> rows, int pad) {
         if (rows.isEmpty()) {
             return EMPTY_PLACEHOLDER;
@@ -365,14 +365,14 @@ public final class ViewFormatter {
     }
 
     /**
-    * 绘制水平分隔线。
-    *
-    * @param widths 各列宽度
-    * @param left   左端点字符
-    * @param cross  交叉点字符
-    * @param right  右端点字符
-    * @return 水平线字符串
-    */
+     * 绘制水平分隔线。
+     *
+     * @param widths 各列宽度
+     * @param left   左端点字符
+     * @param cross  交叉点字符
+     * @param right  右端点字符
+     * @return 水平线字符串
+     */
     public static String hLine(int[] widths, char left, char cross, char right) {
         StringBuilder sb = new StringBuilder();
         sb.append(left);
@@ -387,13 +387,13 @@ public final class ViewFormatter {
     }
 
     /**
-    * 追加一行 ASCII 框线表格行。
-    *
-    * @param sb    输出缓冲区
-    * @param row   当前行单元格数组
-    * @param widths 各列宽度（已含内边距）
-    * @param sep   单元格分隔符
-    */
+     * 追加一行 ASCII 框线表格行。
+     *
+     * @param sb    输出缓冲区
+     * @param row   当前行单元格数组
+     * @param widths 各列宽度（已含内边距）
+     * @param sep   单元格分隔符
+     */
     public static void appendRow(StringBuilder sb, String[] row, int[] widths, char sep) {
         sb.append(sep);
         for (int i = 0; i < widths.length; i++) {
@@ -406,12 +406,12 @@ public final class ViewFormatter {
     }
 
     /**
-    * 拼接无边框模式的单行文本：单元格左对齐补齐列宽。
-    *
-    * @param row    当前行单元格数组
-    * @param widths 各列宽度（已含内边距）
-    * @return 行文本，已去除行尾空白
-    */
+     * 拼接无边框模式的单行文本：单元格左对齐补齐列宽。
+     *
+     * @param row    当前行单元格数组
+     * @param widths 各列宽度（已含内边距）
+     * @return 行文本，已去除行尾空白
+     */
     public static String plainRow(String[] row, int[] widths) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < widths.length; i++) {
@@ -426,13 +426,13 @@ public final class ViewFormatter {
     }
 
     /**
-    * 追加一行 Markdown 表格行（带单元格内边距）。
-    *
-    * @param sb   输出缓冲区
-    * @param row  当前行单元格数组
-    * @param widths 各列内容宽度
-    * @param pad  单元格左右内边距
-    */
+     * 追加一行 Markdown 表格行（带单元格内边距）。
+     *
+     * @param sb   输出缓冲区
+     * @param row  当前行单元格数组
+     * @param widths 各列内容宽度
+     * @param pad  单元格左右内边距
+     */
     public static void appendMdRow(StringBuilder sb, String[] row, int[] widths, int pad) {
         sb.append('|');
         for (int i = 0; i < widths.length; i++) {

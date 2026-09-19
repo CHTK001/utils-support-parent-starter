@@ -15,89 +15,89 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 日志拦截器 — 劫持 SLF4J/Jul/APCL 日志框架和 系统.出/err。
-*
-* <p>字节码插桩实现：</p>
-* <p>对目标日志类（如 org/slf4j/Logger）的 info/debug/warn/error 方法，
-* 在方法入口插入 runtimespy.onintercept()，方法出口也插入调用。</p>
-*
-* <p>ASM 插入的字节码：</p>
-* <pre>
-* 入口：
-*   LDC "org/slf4j/Logger"
-*   LDC "info"
-*   LDC "(Ljava/lang/String;)V"
-*   LDC "log_pre"
-*   INVOKESTATIC RuntimeSpy.onIntercept
-*   // 原始方法体...
-*   LDC "org/slf4j/Logger"
-*   LDC "info"
-*   LDC "(Ljava/lang/String;)V"
-*   LDC "log_post"
-*   INVOKESTATIC RuntimeSpy.onIntercept
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 日志拦截器 — 劫持 SLF4J/Jul/APCL 日志框架和 系统.出/err。
+ *
+ * <p>字节码插桩实现：</p>
+ * <p>对目标日志类（如 org/slf4j/Logger）的 info/debug/warn/error 方法，
+ * 在方法入口插入 runtimespy.onintercept()，方法出口也插入调用。</p>
+ *
+ * <p>ASM 插入的字节码：</p>
+ * <pre>
+ * 入口：
+ *   LDC "org/slf4j/Logger"
+ *   LDC "info"
+ *   LDC "(Ljava/lang/String;)V"
+ *   LDC "log_pre"
+ *   INVOKESTATIC RuntimeSpy.onIntercept
+ *   // 原始方法体...
+ *   LDC "org/slf4j/Logger"
+ *   LDC "info"
+ *   LDC "(Ljava/lang/String;)V"
+ *   LDC "log_post"
+ *   INVOKESTATIC RuntimeSpy.onIntercept
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(LogHandler.class.getName());
 
     /**
-    * 插件名称
+     * 插件名称
      */
     private static final String HANDLER_NAME = "log-handler";
 
     /**
-    * 插件版本
+     * 插件版本
      */
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-    * 启用配置属性 键
+     * 启用配置属性 键
      */
     private static final String PROP_LOG_ENABLED = "log.enabled";
 
     /**
-    * 默认启用值
+     * 默认启用值
      */
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-    * SLF4J 日志记录器 类名（内部名格式）
+     * SLF4J 日志记录器 类名（内部名格式）
      */
     private static final String SLF4J_LOGGER = "org/slf4j/Logger";
 
     /**
-    * SLF4J 日志记录器工厂 类名
+     * SLF4J 日志记录器工厂 类名
      */
     private static final String SLF4J_FACTORY = "org/slf4j/LoggerFactory";
 
     /**
-    * Java.util.日志 日志记录器 类名
+     * Java.util.日志 日志记录器 类名
      */
     private static final String JUL_LOGGER = "java/util/logging/Logger";
 
     /**
-    * Apache Commons 日志 日志 类名
+     * Apache Commons 日志 日志 类名
      */
     private static final String APCL_LOG = "org/apache/commons/logging/Log";
 
     /**
-    * 日志4j2 日志记录器 类名
+     * 日志4j2 日志记录器 类名
      */
     private static final String LOG4J2_LOGGER = "org/apache/logging/log4j/Logger";
 
     /**
-    * 日志方法名
+     * 日志方法名
      */
     private static final String[] LOG_METHODS = {"info", "debug", "warn", "error", "trace"};
 
     /**
-    * 日志方法描述符
+     * 日志方法描述符
      */
     private static final String[] LOG_METHOD_DESCS = {
             "(Ljava/lang/String;)V",
@@ -109,37 +109,37 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     };
 
     /**
-    * 收集的日志记录
+     * 收集的日志记录
      */
     private final BoundedRecordList<LogEntry> logEntries;
 
     /**
-    * 最大日志数量
+     * 最大日志数量
      */
     private static final int MAX_LOGS = 10000;
 
     /**
-    * 是否启用
+     * 是否启用
      */
     private boolean enabled;
 
     /**
-    * 是否已劫持 系统.出/err
+     * 是否已劫持 系统.出/err
      */
     private final AtomicBoolean streamsHijacked;
 
     /**
-    * 原始 系统.出
+     * 原始 系统.出
      */
     private PrintStream originalOut;
 
     /**
-    * 原始 系统.err
+     * 原始 系统.err
      */
     private PrintStream originalErr;
 
     /**
-    * 插件上下文
+     * 插件上下文
      */
     private PluginContext context;
 
@@ -223,9 +223,9 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 接收插桩事件 — 由 runtimespy 路由调用。
-    *
-    * @param context 插桩上下文
+     * 接收插桩事件 — 由 runtimespy 路由调用。
+     *
+     * @param context 插桩上下文
      */
     @Override
     public void onIntercept(InterceptContext context) {
@@ -263,7 +263,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册 SLF4J 日志拦截。
+     * 注册 SLF4J 日志拦截。
      */
     private void registerSlf4jIntercepts() {
         for (String method : LOG_METHODS) {
@@ -280,7 +280,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册 Java.util.日志 拦截。
+     * 注册 Java.util.日志 拦截。
      */
     private void registerJulIntercepts() {
         String[] julMethods = {"log", "fine", "warning", "severe", "config", "info"};
@@ -301,7 +301,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册 Apache Commons 日志 拦截。
+     * 注册 Apache Commons 日志 拦截。
      */
     private void registerApclIntercepts() {
         for (String method : LOG_METHODS) {
@@ -315,7 +315,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册 日志4j2 拦截。
+     * 注册 日志4j2 拦截。
      */
     private void registerLog4j2Intercepts() {
         for (String method : LOG_METHODS) {
@@ -329,7 +329,7 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 劫持 系统.出 和 系统.err。
+     * 劫持 系统.出 和 系统.err。
      */
     private void hijackSystemStreams() {
         if (!streamsHijacked.compareAndSet(false, true)) {
@@ -346,10 +346,10 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 方法名映射到日志级别。
-    *
-    * @param methodName 方法名
-    * @return 日志级别
+     * 方法名映射到日志级别。
+     *
+     * @param methodName 方法名
+     * @return 日志级别
      */
     private String mapMethodToLevel(String methodName) {
         return switch (methodName.toLowerCase()) {
@@ -365,11 +365,11 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 从 日志记录器 实例反射获取业务类名。
-    *
-    * @param loggerInstance 日志记录器 实例（SLF4J/JUL/APCL/日志4j2）
-    * @param className 类内部名（兜底用）
-    * @return 业务类名（如 com.example.demo.demo控制器）
+     * 从 日志记录器 实例反射获取业务类名。
+     *
+     * @param loggerInstance 日志记录器 实例（SLF4J/JUL/APCL/日志4j2）
+     * @param className 类内部名（兜底用）
+     * @return 业务类名（如 com.example.demo.demo控制器）
      */
     private String extractLoggerName(Object loggerInstance, String className) {
         if (loggerInstance == null) {
@@ -388,9 +388,9 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 添加日志记录。
-    *
-    * @param entry 日志条目
+     * 添加日志记录。
+     *
+     * @param entry 日志条目
      */
     public void addLogEntry(LogEntry entry) {
         logEntries.add(entry);
@@ -412,29 +412,29 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 获取所有日志记录。
-    *
-    * @return 日志记录列表
+     * 获取所有日志记录。
+     *
+     * @return 日志记录列表
      */
     public List<LogEntry> getLogEntries() {
         return logEntries.snapshot();
     }
 
     /**
-    * 获取最近 N 条日志。
-    *
-    * @param n 条数
-    * @return 日志记录列表
+     * 获取最近 N 条日志。
+     *
+     * @param n 条数
+     * @return 日志记录列表
      */
     public List<LogEntry> tail(int n) {
         return logEntries.tail(n);
     }
 
     /**
-    * 按关键词搜索日志。
-    *
-    * @param keyword 关键词
-    * @return 匹配的记录
+     * 按关键词搜索日志。
+     *
+     * @param keyword 关键词
+     * @return 匹配的记录
      */
     public List<LogEntry> search(String keyword) {
         List<LogEntry> result = new ArrayList<>();
@@ -448,10 +448,10 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 按级别过滤。
-    *
-    * @param level 日志级别
-    * @return 匹配的记录
+     * 按级别过滤。
+     *
+     * @param level 日志级别
+     * @return 匹配的记录
      */
     public List<LogEntry> filterByLevel(String level) {
         List<LogEntry> result = new ArrayList<>();
@@ -465,21 +465,21 @@ public class LogHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 清空日志记录。
+     * 清空日志记录。
      */
     public void clear() {
         logEntries.clear();
     }
 
     /**
-    * 日志输出流包装器。
-    * @author CH
-    * @since 4.0.0
+     * 日志输出流包装器。
+     * @author CH
+     * @since 4.0.0
      */
     private static class LoggingPrintStream extends PrintStream {
 
         /**
-        * 流标识
+         * 流标识
          */
         private final String streamId;
 

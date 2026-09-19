@@ -1,13 +1,13 @@
 package com.chua.mysql.support.vector;
 
 /**
-* MySQL 向量存储配置属性。
-*
-* @param tableName    向量表名称，默认 {@code vector_store}
-* @param idColumn     标识 列名，默认 {@code id}
-* @param vectorColumn 向量列名，默认 {@code vec}
-* @author CH
-* @since 4.0.0.42
+ * MySQL 向量存储配置属性。
+ *
+ * @param tableName    向量表名称，默认 {@code vector_store}
+ * @param idColumn     标识 列名，默认 {@code id}
+ * @param vectorColumn 向量列名，默认 {@code vec}
+ * @author CH
+ * @since 4.0.0.42
  */
 public record MysqlVectorStorageProperties(
         /** 向量表名称，默认 向量_存储 */
@@ -25,19 +25,19 @@ public record MysqlVectorStorageProperties(
     private static final String DEFAULT_VECTOR_COLUMN = "vec";
 
     /**
-        * 无参构造，使用默认列名和表名。
-        * @return mysql向量storage属性的结果
-        */
+     * 无参构造，使用默认列名和表名。
+     * @return mysql向量storage属性的结果
+     */
     public MysqlVectorStorageProperties() {
         this(DEFAULT_TABLE, DEFAULT_ID_COLUMN, DEFAULT_VECTOR_COLUMN);
     }
 
     /**
-    * 将对象转为配置属性，若为 空 则返回默认实例。
-    *
-    * @param obj 配置对象
-    * @return 配置属性，为 空 时返回默认实例
-    */
+     * 将对象转为配置属性，若为 空 则返回默认实例。
+     *
+     * @param obj 配置对象
+     * @return 配置属性，为 空 时返回默认实例
+     */
     public static MysqlVectorStorageProperties of(Object obj) {
         if (obj instanceof MysqlVectorStorageProperties props) {
             return props;

@@ -21,47 +21,47 @@ import java.util.Objects;
  * @since 4.0.0.42
  * @see jdk.incubator.vector.FloatVector
  * @see com.chua.common.support.vector.VectorCompareAlgorithm
-*/
+ */
 public final class VectorMath {
 
     /**
-    * 余弦相似度为零向量时的兜底返回值，表示"无差异"（1f 对应距离 0）
-    */
+     * 余弦相似度为零向量时的兜底返回值，表示"无差异"（1f 对应距离 0）
+     */
     private static final float COSINE_ZERO_FALLBACK = 1f;
 
     /**
-    * 运行时探测到的最大可用 向量species；为 空 表示 向量 API 不可用，走标量回退
-    */
+     * 运行时探测到的最大可用 向量species；为 空 表示 向量 API 不可用，走标量回退
+     */
     private static final VectorSpecies<Float> SPECIES = chooseSpecies();
 
     /**
-    * 是否启用向量化路径（SPECIES 非 空 时为 true）
-    */
+     * 是否启用向量化路径（SPECIES 非 空 时为 true）
+     */
     private static final boolean VECTORIZED = SPECIES != null;
 
     /**
-    * 每轮循环处理的元素个数（向量species 的 lane 数），标量回退时为 1
-    */
+     * 每轮循环处理的元素个数（向量species 的 lane 数），标量回退时为 1
+     */
     private static final int LANES = VECTORIZED ? SPECIES.length() : 1;
 
     /**
-    * 向量化下单个向量占用的字节数，标量回退时为 0
-    */
+     * 向量化下单个向量占用的字节数，标量回退时为 0
+     */
     private static final int BYTE_SIZE = VECTORIZED ? SPECIES.vectorByteSize() : 0;
 
     /**
-    * 私有构造函数，禁止实例化
-    */
+     * 私有构造函数，禁止实例化
+     */
     private VectorMath() {
     }
 
     /**
-    * 计算两个向量点积。
-    *
-    * @param a 向量 a，不能为 空，长度决定循环上限
-    * @param b 向量 b，不能为 空，长度必须与 a 一致
-    * @return 点积之和，标量与向量化路径结果一致
-    */
+     * 计算两个向量点积。
+     *
+     * @param a 向量 a，不能为 空，长度决定循环上限
+     * @param b 向量 b，不能为 空，长度必须与 a 一致
+     * @return 点积之和，标量与向量化路径结果一致
+     */
     public static float dot(float[] a, float[] b) {
         Objects.requireNonNull(a, "a must not be null");
         Objects.requireNonNull(b, "b must not be null");
@@ -76,12 +76,12 @@ public final class VectorMath {
     }
 
     /**
-    * 计算两个向量的欧氏距离（L2 距离）。
-    *
-    * @param a 向量 a，不能为 空，长度决定循环上限
-    * @param b 向量 b，不能为 空，长度必须与 a 一致
-    * @return 欧氏距离，标量与向量化路径结果一致
-    */
+     * 计算两个向量的欧氏距离（L2 距离）。
+     *
+     * @param a 向量 a，不能为 空，长度决定循环上限
+     * @param b 向量 b，不能为 空，长度必须与 a 一致
+     * @return 欧氏距离，标量与向量化路径结果一致
+     */
     public static float euclidean(float[] a, float[] b) {
         Objects.requireNonNull(a, "a must not be null");
         Objects.requireNonNull(b, "b must not be null");
@@ -97,12 +97,12 @@ public final class VectorMath {
     }
 
     /**
-    * 计算两个向量的余弦距离（1 - 余弦相似度）。
-    *
-    * @param a 向量 a，不能为 空，长度决定循环上限
-    * @param b 向量 b，不能为 空，长度必须与 a 一致
-    * @return 余弦距离；当任一向量为零向量时返回 {@link #COSINE_ZERO_FALLBACK}
-    */
+     * 计算两个向量的余弦距离（1 - 余弦相似度）。
+     *
+     * @param a 向量 a，不能为 空，长度决定循环上限
+     * @param b 向量 b，不能为 空，长度必须与 a 一致
+     * @return 余弦距离；当任一向量为零向量时返回 {@link #COSINE_ZERO_FALLBACK}
+     */
     public static float cosine(float[] a, float[] b) {
         Objects.requireNonNull(a, "a must not be null");
         Objects.requireNonNull(b, "b must not be null");
@@ -128,12 +128,12 @@ public final class VectorMath {
     // ==================== 向量化路径 ====================
 
     /**
-    * 点积的向量化实现：按 lane 累加 SIMD 乘积，循环尾（不足一个 lane）走标量补齐。
-    *
-    * @param a 向量 a，长度至少为 1
-    * @param b 向量 b，长度必须与 a 一致
-    * @return 点积之和
-    */
+     * 点积的向量化实现：按 lane 累加 SIMD 乘积，循环尾（不足一个 lane）走标量补齐。
+     *
+     * @param a 向量 a，长度至少为 1
+     * @param b 向量 b，长度必须与 a 一致
+     * @return 点积之和
+     */
     private static float dotVec(float[] a, float[] b) {
         int n = SPECIES.loopBound(a.length);
         FloatVector acc = FloatVector.zero(SPECIES);
@@ -150,12 +150,12 @@ public final class VectorMath {
     }
 
     /**
-    * 欧氏距离的向量化实现：SIMD 逐 lane 求平方差累加，循环尾标量补齐。
-    *
-    * @param a 向量 a，长度至少为 1
-    * @param b 向量 b，长度必须与 a 一致
-    * @return 欧氏距离
-    */
+     * 欧氏距离的向量化实现：SIMD 逐 lane 求平方差累加，循环尾标量补齐。
+     *
+     * @param a 向量 a，长度至少为 1
+     * @param b 向量 b，长度必须与 a 一致
+     * @return 欧氏距离
+     */
     private static float euclideanVec(float[] a, float[] b) {
         int n = SPECIES.loopBound(a.length);
         FloatVector acc = FloatVector.zero(SPECIES);
@@ -174,12 +174,12 @@ public final class VectorMath {
     }
 
     /**
-    * 余弦距离的向量化实现：SIMD 并行累加点积与两个模长平方，循环尾标量补齐。
-    *
-    * @param a 向量 a，长度至少为 1
-    * @param b 向量 b，长度必须与 a 一致
-    * @return 余弦距离；当任一向量为零向量时返回 {@link #COSINE_ZERO_FALLBACK}
-    */
+     * 余弦距离的向量化实现：SIMD 并行累加点积与两个模长平方，循环尾标量补齐。
+     *
+     * @param a 向量 a，长度至少为 1
+     * @param b 向量 b，长度必须与 a 一致
+     * @return 余弦距离；当任一向量为零向量时返回 {@link #COSINE_ZERO_FALLBACK}
+     */
     private static float cosineVec(float[] a, float[] b) {
         int n = SPECIES.loopBound(a.length);
         FloatVector accDot = FloatVector.zero(SPECIES);
@@ -211,13 +211,13 @@ public final class VectorMath {
     // ==================== VectorSpecies 探测 ====================
 
     /**
-    * 探测当前 JVM 可用的最大 向量species：按 512 → 256 → 128 位依次尝试。
-    *
-    * <p>优先更大的向量宽度（lane 数更多、吞吐更高）；全部失败（如不支持 Vector API）
-    * 时返回 空，调用方走标量回退。</p>
-    *
-    * @return 可用的 向量species，全部不可用时为 空
-    */
+     * 探测当前 JVM 可用的最大 向量species：按 512 → 256 → 128 位依次尝试。
+     *
+     * <p>优先更大的向量宽度（lane 数更多、吞吐更高）；全部失败（如不支持 Vector API）
+     * 时返回 空，调用方走标量回退。</p>
+     *
+     * @return 可用的 向量species，全部不可用时为 空
+     */
     private static VectorSpecies<Float> chooseSpecies() {
         for (VectorShape shape : new VectorShape[]{
                 VectorShape.S_512_BIT, VectorShape.S_256_BIT, VectorShape.S_128_BIT}) {
@@ -234,28 +234,28 @@ public final class VectorMath {
     }
 
     /**
-    * 是否启用向量化路径。
-    *
-    * @return Vector API 可用且探测到有效 向量species 时为 true，否则为 false
-    */
+     * 是否启用向量化路径。
+     *
+     * @return Vector API 可用且探测到有效 向量species 时为 true，否则为 false
+     */
     public static boolean isVectorized() {
         return VECTORIZED;
     }
 
     /**
-    * 向量化下单个向量占用的字节数。
-    *
-    * @return 向量化路径下的向量字节大小，标量回退时为 0
-    */
+     * 向量化下单个向量占用的字节数。
+     *
+     * @return 向量化路径下的向量字节大小，标量回退时为 0
+     */
     public static int vectorByteSize() {
         return BYTE_SIZE;
     }
 
     /**
-    * 向量化路径每轮循环处理的元素个数（lane 数）。
-    *
-    * @return VectorSpecies 的 lane 数，标量回退时为 1
-    */
+     * 向量化路径每轮循环处理的元素个数（lane 数）。
+     *
+     * @return VectorSpecies 的 lane 数，标量回退时为 1
+     */
     public static int lanes() {
         return LANES;
     }

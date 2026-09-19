@@ -4,44 +4,44 @@ import java.util.Arrays;
 
 
 /**
-* Base32 编码与解码工具类
-* 使用 RFC 4648 标准定义的 Base32 字符集进行数据转换
-* @author CH
-* @since 2024/12/3
+ * Base32 编码与解码工具类
+ * 使用 RFC 4648 标准定义的 Base32 字符集进行数据转换
+ * @author CH
+ * @since 2024/12/3
  */
 public class Base32 {
  /**
- * 默认使用的 Base32 字母表 (RFC 4648)
- */
+  * 默认使用的 Base32 字母表 (RFC 4648)
+  */
  private static final String DEFAULT_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
  /**
- * 十六进制风格的 Base32 字母表 (未在当前实现中使用，保留备用)
- */
+  * 十六进制风格的 Base32 字母表 (未在当前实现中使用，保留备用)
+  */
  private static final String HEX_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
  /**
- * 默认填充字符
- */
+  * 默认填充字符
+  */
  private static final Character DEFAULT_PAD = '=';
  /**
- * 用于计算编码后长度的填充偏移量数组
- * 索引对应原始字节数 mod 5 的结果：0->-1, 1->4, 2->1, 3->6, 4->3
- */
+  * 用于计算编码后长度的填充偏移量数组
+  * 索引对应原始字节数 mod 5 的结果：0->-1, 1->4, 2->1, 3->6, 4->3
+  */
  private static final int[] BASE32_FILL = {-1, 4, 1, 6, 3};
  /**
- * 用于查找表的基准字符 ('0')
- */
+  * 用于查找表的基准字符 ('0')
+  */
  private static final char BASE_CHAR = '0';
  /**
- * 运行时生成的字母表字符数组
- */
+  * 运行时生成的字母表字符数组
+  */
  private static final char[] alphabet;
  /**
- * 运行时生成的填充字符
- */
+  * 运行时生成的填充字符
+  */
  private static final Character pad;
  /**
- * 反向查找表，将字符映射回其对应的数值 (0-31)
- */
+  * 反向查找表，将字符映射回其对应的数值 (0-31)
+  */
  private static final byte[] lookupTable;
 
  static {
@@ -67,10 +67,10 @@ public class Base32 {
  }
 
  /**
- * 将字节数组编码为 Base32 字符串
- * @param data 待编码的原始字节数据
- * @return Base32 编码后的字符串
- */
+  * 将字节数组编码为 Base32 字符串
+  * @param data 待编码的原始字节数据
+  * @return Base32 编码后的字符串
+  */
  public static String encode(byte[] data) {
  // 当前处理的字节索引
  int i = 0;
@@ -144,10 +144,10 @@ public class Base32 {
  }
 
  /**
- * 将 Base32 字符串解码为字节数组
- * @param encoded Base32 编码后的字符串
- * @return 解码后的原始字节数组
- */
+  * 将 Base32 字符串解码为字节数组
+  * @param encoded Base32 编码后的字符串
+  * @return 解码后的原始字节数组
+  */
  public static byte[] decode(CharSequence encoded) {
  if (encoded == null) {
  return new byte[0];

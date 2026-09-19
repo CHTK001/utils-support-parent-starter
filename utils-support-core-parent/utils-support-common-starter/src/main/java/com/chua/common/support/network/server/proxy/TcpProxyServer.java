@@ -42,33 +42,33 @@ import java.net.Socket;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi({"tcp-proxy"})
 public class TcpProxyServer extends AbstractProxyServer {
 
     /**
-    * 后端连接超时（毫秒）。
-    */
+     * 后端连接超时（毫秒）。
+     */
     protected final int connectTimeoutMs;
 
     /**
-    * IO 读取超时（毫秒）。
-    */
+     * IO 读取超时（毫秒）。
+     */
     protected final int readTimeoutMs;
 
     /**
-    * 后端目标解析器。
-    */
+     * 后端目标解析器。
+     */
     protected final ProxyTargetResolver<InetSocketAddress> targetResolver;
 
     /**
-    * 构造 TCP 代理服务器（SPI 工厂使用）。
-    * <p>注意：通过 SPI 加载时 {@link ProxyTargetResolver} 未提供，
-    * 会拒绝所有连接（{@code resolve} 返回 null），调用方需自行注入。</p>
-    *
-    * @param setting 服务器配置
-    */
+     * 构造 TCP 代理服务器（SPI 工厂使用）。
+     * <p>注意：通过 SPI 加载时 {@link ProxyTargetResolver} 未提供，
+     * 会拒绝所有连接（{@code resolve} 返回 null），调用方需自行注入。</p>
+     *
+     * @param setting 服务器配置
+     */
     public TcpProxyServer(ServerSetting setting) {
         super(setting);
         initProxy();
@@ -78,11 +78,11 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * 构造 TCP 代理服务器。
-    *
-    * @param setting        服务器配置
-    * @param targetResolver 后端目标解析器
-    */
+     * 构造 TCP 代理服务器。
+     *
+     * @param setting        服务器配置
+     * @param targetResolver 后端目标解析器
+     */
     public TcpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         initProxy();
@@ -92,13 +92,13 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * 构造 TCP 代理服务器（完整参数）。
-    *
-    * @param setting          服务器配置
-    * @param targetResolver   后端目标解析器
-    * @param connectTimeoutMs 后端连接超时（毫秒）
-    * @param readTimeoutMs    IO 读取超时（毫秒）
-    */
+     * 构造 TCP 代理服务器（完整参数）。
+     *
+     * @param setting          服务器配置
+     * @param targetResolver   后端目标解析器
+     * @param connectTimeoutMs 后端连接超时（毫秒）
+     * @param readTimeoutMs    IO 读取超时（毫秒）
+     */
     public TcpProxyServer(ServerSetting setting,
                           ProxyTargetResolver<InetSocketAddress> targetResolver,
                           int connectTimeoutMs,
@@ -111,20 +111,20 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * 构造 TCP 代理服务器（固定后端地址）。
-    *
-    * @param setting 服务器配置
-    * @param backend 固定后端地址
-    */
+     * 构造 TCP 代理服务器（固定后端地址）。
+     *
+     * @param setting 服务器配置
+     * @param backend 固定后端地址
+     */
     public TcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         this(setting, remote -> backend);
     }
 
     /**
-    * 启用非阻塞事件循环批量 accept（父类支持，默认关闭）。
-    * <p>tcp-proxy 明确选择该模式：Selector 每轮循环 accept 全部就绪连接，
-    * 瞬时接纳吞吐显著高于阻塞 accept 一次一个。</p>
-    */
+     * 启用非阻塞事件循环批量 accept（父类支持，默认关闭）。
+     * <p>tcp-proxy 明确选择该模式：Selector 每轮循环 accept 全部就绪连接，
+     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个。</p>
+     */
     private void initProxy() {
         this.preferNonBlockingAccept = true;
     }
@@ -143,12 +143,12 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * 处理单个客户端连接：解析后端地址 → 建立后端连接 → 双向转发。
-    * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向数据传输，
-    * 自动获得 TCP_NODELAY、64KB 转发缓冲、CompletableFuture 并发转发。</p>
-    *
-    * @param clientSocket 客户端Socket
-    */
+     * 处理单个客户端连接：解析后端地址 → 建立后端连接 → 双向转发。
+     * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向数据传输，
+     * 自动获得 TCP_NODELAY、64KB 转发缓冲、CompletableFuture 并发转发。</p>
+     *
+     * @param clientSocket 客户端Socket
+     */
     @Override
     protected void handleConnection(Socket clientSocket) {
         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();

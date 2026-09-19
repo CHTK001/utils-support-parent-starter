@@ -20,68 +20,68 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 智谱 cogview 图片生成客户端
-*
-* <p>基于智谱 CogView API 的 {@link ImageClient} 实现，通过 HTTP 协议
-* 调用 cogview 系列模型的图片生成接口，兼容 打开AI 格式。
-*
-* @author CH
-* @since 4.0.0.42
+ * 智谱 cogview 图片生成客户端
+ *
+ * <p>基于智谱 CogView API 的 {@link ImageClient} 实现，通过 HTTP 协议
+ * 调用 cogview 系列模型的图片生成接口，兼容 打开AI 格式。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zhipu", "glm"})
 public class ZhipuImageClient implements ImageClient {
 
     /**
-    * 智谱 cogview 默认 API 地址
-    */
+     * 智谱 cogview 默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final HttpClient httpClient;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ImageClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前图片宽度
-    */
+     * 当前图片宽度
+     */
     private Integer width;
 
     /**
-    * 当前图片高度
-    */
+     * 当前图片高度
+     */
     private Integer height;
 
     /**
-    * 当前提示词
-    */
+     * 当前提示词
+     */
     private String prompt;
 
     /**
-    * 当前质量等级
-    */
+     * 当前质量等级
+     */
     private String quality;
 
     /**
-    * 当前风格
-    */
+     * 当前风格
+     */
     private String style;
 
     /**
-    * 构造智谱 cogview 图片生成客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造智谱 cogview 图片生成客户端
+     *
+     * @param setting 客户端配置
+     */
     public ZhipuImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -198,12 +198,12 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-    * 解析响应并下载图片
-    *
-    * @param json 智谱返回的 JSON 响应
-    * @return BufferedImage 对象
-    * @throws IOException 下载或解析失败
-    */
+     * 解析响应并下载图片
+     *
+     * @param json 智谱返回的 JSON 响应
+     * @return BufferedImage 对象
+     * @throws IOException 下载或解析失败
+     */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
@@ -259,10 +259,10 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -275,11 +275,11 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-    * 转义 JSON 字符串中的特殊字符
-    *
-    * @param input 原始字符串
-    * @return 转义后的字符串
-    */
+     * 转义 JSON 字符串中的特殊字符
+     *
+     * @param input 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

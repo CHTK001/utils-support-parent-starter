@@ -25,13 +25,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 
 /**
-* 文件存储服务器过滤器（抽象基类）。
-*
-* <p>聚合 FileStorage 实例，提供预览、下载、图片滤镜、闪图等功能。
-* 支持热重载（upgrade）更新 文件setting / 过滤器setting / 镜像operation。</p>
-*
-* @author CH
-* @since 2024/12/28
+ * 文件存储服务器过滤器（抽象基类）。
+ *
+ * <p>聚合 FileStorage 实例，提供预览、下载、图片滤镜、闪图等功能。
+ * 支持热重载（upgrade）更新 文件setting / 过滤器setting / 镜像operation。</p>
+ *
+ * @author CH
+ * @since 2024/12/28
  */
 @Slf4j
 public abstract class AbstractFileStorageServerFilter implements ServerFilter {
@@ -66,11 +66,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 创建 抽象文件storage服务端过滤器 实例
-    * @param setting setting
-    * @param pdfCache previewpdf缓存
-    * @param pdfCache pdf缓存
-    */
+     * 创建 抽象文件storage服务端过滤器 实例
+     * @param setting setting
+     * @param pdfCache previewpdf缓存
+     * @param pdfCache pdf缓存
+     */
     public AbstractFileStorageServerFilter(FileStorageSetting setting, PreviewPdfCache pdfCache) {
         this.setting = setting;
         if (pdfCache != null) {
@@ -91,9 +91,9 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 注册全局共享的 JVM 关闭 hook，确保所有 previewpdf缓存 实例的后台清理线程被释放。
-    * 使用 double-检查 锁 确保只注册一次。
-    */
+     * 注册全局共享的 JVM 关闭 hook，确保所有 previewpdf缓存 实例的后台清理线程被释放。
+     * 使用 double-检查 锁 确保只注册一次。
+     */
     private static void registerShutdownHook() {
         if (shutdownHook == null) {
             synchronized (AbstractFileStorageServerFilter.class) {
@@ -136,11 +136,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 获取文件storage
-    *
-    * @param name 名称
-    * @return 获取文件storage的结果
-    */
+     * 获取文件storage
+     *
+     * @param name 名称
+     * @return 获取文件storage的结果
+     */
     public FileStorage getFileStorage(String name) {
         FileStorage storage = storageMap.get(name);
         if (storage != null) {
@@ -162,11 +162,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 热重载配置（更新 文件setting 和 过滤器setting）。
-    *
-    * @param fileSetting 新的 文件storage文件setting 实例（传 空 保留原值）
-    * @param filterSetting 新的 文件storage过滤器setting 实例（传 空 保留原值）
-    */
+     * 热重载配置（更新 文件setting 和 过滤器setting）。
+     *
+     * @param fileSetting 新的 文件storage文件setting 实例（传 空 保留原值）
+     * @param filterSetting 新的 文件storage过滤器setting 实例（传 空 保留原值）
+     */
     public void upgrade(FileStorageFileSetting fileSetting, FileStorageFilterSetting filterSetting) {
         if (fileSetting != null) {
             this.fileSetting = fileSetting;
@@ -180,14 +180,14 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 应用镜像过滤
-    *
-    * @param imageBytes 镜像bytes
-    * @param ops ops
-    * @param path 路径
-    * @param ext ext
-    * @return apply镜像过滤器的结果
-    */
+     * 应用镜像过滤
+     *
+     * @param imageBytes 镜像bytes
+     * @param ops ops
+     * @param path 路径
+     * @param ext ext
+     * @return apply镜像过滤器的结果
+     */
     protected byte[] applyImageFilter(byte[] imageBytes, FileOperationSetting ops, String path, String ext) throws Exception {
         if (imageOperation == null) {
             log.warn("[FileStorageFilter] 未找到 ImageOperation SPI，跳过滤镜");
@@ -225,11 +225,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * Guess格式化
-    *
-    * @param ext ext
-    * @return guess格式化的结果
-    */
+     * Guess格式化
+     *
+     * @param ext ext
+     * @return guess格式化的结果
+     */
     private String guessFormat(String ext) {
         if (ext == null) {
             return "jpg";
@@ -244,11 +244,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 解析Int
-    *
-    * @param s s
-    * @return 解析int的结果
-    */
+     * 解析Int
+     *
+     * @param s s
+     * @return 解析int的结果
+     */
     private Integer parseInt(String s) {
         try {
             return Integer.valueOf(s);
@@ -258,10 +258,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 获取flash服务
-    *
-    * @return 获取flash服务的结果
-    */
+     * 获取flash服务
+     *
+     * @return 获取flash服务的结果
+     */
     protected FlashTokenService getFlashService() {
         if (flashService == null) {
             Path flashDir = Path.of(setting.getCache().getFlashDir());
@@ -283,10 +283,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 设置storage映射
-    *
-    * @param map 映射
-    */
+     * 设置storage映射
+     *
+     * @param map 映射
+     */
     public void setStorageMap(Map<String, FileStorage> map) {
         if (map == null || map.isEmpty()) {
             throw new IllegalArgumentException("FileStorageMap must not be empty");
@@ -295,12 +295,12 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 从请求路径中解析文件路径（不含 bucket）。
-    * 格式：/{bucket}/{filepath}
-    *
-    * @param request 服务端请求
-    * @return filepath 部分，若无法解析返回 空
-    */
+     * 从请求路径中解析文件路径（不含 bucket）。
+     * 格式：/{bucket}/{filepath}
+     *
+     * @param request 服务端请求
+     * @return filepath 部分，若无法解析返回 空
+     */
     protected static String resolveFilepath(ServerRequest request) {
         String path = request.getPath();
         if (path == null || path.isEmpty() || "/".equals(path)) {
@@ -315,12 +315,12 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 从请求路径中解析 bucket 名称。
-    * 格式：/{bucket}/{filepath}
-    *
-    * @param request 服务端请求
-    * @return bucket 名称，若无法解析返回 "默认"
-    */
+     * 从请求路径中解析 bucket 名称。
+     * 格式：/{bucket}/{filepath}
+     *
+     * @param request 服务端请求
+     * @return bucket 名称，若无法解析返回 "默认"
+     */
     protected static String resolveBucket(ServerRequest request) {
         String path = request.getPath();
         if (path == null || path.isEmpty() || "/".equals(path)) {
@@ -336,10 +336,10 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 关闭过滤器，释放后台资源（PDF 缓存调度线程等）。
-    *
-    * <p>由 JVM shutdown hook 自动调用，也可手动调用。</p>
-    */
+     * 关闭过滤器，释放后台资源（PDF 缓存调度线程等）。
+     *
+     * <p>由 JVM shutdown hook 自动调用，也可手动调用。</p>
+     */
     public void close() {
         if (pdfCache != null) {
             ALL_CACHES.remove(pdfCache);

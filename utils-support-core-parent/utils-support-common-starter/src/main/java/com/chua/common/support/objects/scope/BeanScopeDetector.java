@@ -13,15 +13,15 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi
 public interface BeanScopeDetector {
 
     /**
-    * 检测 Bean 作用域。
-    *
-    * @param beanClass Bean 类
-    * @return 检测结果，null 表示不匹配
-    */
+     * 检测 Bean 作用域。
+     *
+     * @param beanClass Bean 类
+     * @return 检测结果，null 表示不匹配
+     */
     BeanScope detect(Class<?> beanClass);
 }

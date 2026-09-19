@@ -4,27 +4,27 @@ import com.chua.common.support.utils.CommandLine;
 import com.chua.oshi.support.cli.command.*;
 
 /**
-* oshc — OSHI CLI 工具入口。
-* <p>
-* 用法:
-* <pre>
-*   oshc status   — 全局仪表盘
-*   oshc cpu      — CPU 明细
-*   oshc mem      — 内存明细
-*   oshc disk     — 磁盘明细
-*   oshc net      — 网络接口
-*   oshc sys      — 系统信息
-*   oshc help     — 帮助
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * oshc — OSHI CLI 工具入口。
+ * <p>
+ * 用法:
+ * <pre>
+ *   oshc status   — 全局仪表盘
+ *   oshc cpu      — CPU 明细
+ *   oshc mem      — 内存明细
+ *   oshc disk     — 磁盘明细
+ *   oshc net      — 网络接口
+ *   oshc sys      — 系统信息
+ *   oshc help     — 帮助
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class OshiCli {
 
     /**
-    * oshicli。
-    */
+     * oshicli。
+     */
     private OshiCli() {
     }
 
@@ -83,8 +83,8 @@ public final class OshiCli {
     }
 
     /**
-    * printusage。
-    */
+     * printusage。
+     */
     private static void printUsage() {
         System.out.println(PROGRAM + " — OSHI CLI dashboard (v" + VERSION + ")\n");
         System.out.printf("  %-10s  %s%n", "command", "description");

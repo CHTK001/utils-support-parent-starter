@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Cargo 软件包管理器提供器。
-*
-* <p>通过 cargo CLI 搜索、安装和卸载 Rust crate。
-* 支持 <code>Cargo 搜索</code>、<code>Cargo install</code>、<code>Cargo uninstall</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * Cargo 软件包管理器提供器。
+ *
+ * <p>通过 cargo CLI 搜索、安装和卸载 Rust crate。
+ * 支持 <code>Cargo 搜索</code>、<code>Cargo install</code>、<code>Cargo uninstall</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("cargo")
 public class CargoSoftwareProvider implements SoftwareProvider {

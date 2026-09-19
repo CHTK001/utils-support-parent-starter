@@ -18,27 +18,27 @@ import javax.annotation.Nullable;
 
 
 /**
-* Object[] 类型转换器。
-* <p>将各种类型的值转换为 {@code Object[]}，支持以下输入类型：</p>
-* <ul>
-*   <li>各种包装类型数组（String[]、Integer[]、Boolean[] 等）— 直接返回</li>
-*   <li>{@link String} — 支持 JSON 数组格式和逗号分隔字符串</li>
-*   <li>{@link java.util.Collection} — 通过 toArray() 转换</li>
-*   <li>其他类型 — 包装为单元素数组</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/5
+ * Object[] 类型转换器。
+ * <p>将各种类型的值转换为 {@code Object[]}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>各种包装类型数组（String[]、Integer[]、Boolean[] 等）— 直接返回</li>
+ *   <li>{@link String} — 支持 JSON 数组格式和逗号分隔字符串</li>
+ *   <li>{@link java.util.Collection} — 通过 toArray() 转换</li>
+ *   <li>其他类型 — 包装为单元素数组</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/5
  */
 public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
 
     /**
-    * 将给定值转换为 Object[]。
-    *
-    * @param value 源值
-    * @return Object[] 值，如果为 null 则返回空数组
-    */
+     * 将给定值转换为 Object[]。
+     *
+     * @param value 源值
+     * @return Object[] 值，如果为 null 则返回空数组
+     */
     @Override
     public Object[] convert(Object value) {
         if (null == value) {
@@ -87,24 +87,24 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return Object[].class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return Object[].class
+     */
     @Override
     public Class<Object[]> getType() {
         return Object[].class;
     }
 
     /**
-    * 将值转换为指定元素类型的目标数组（支持泛型）。
-    * <p>从 Collection / Map（取 values）/ 数组中逐个元素进行类型转换后再组装为目标数组。</p>
-    *
-    * @param value   源值
-    * @param newType 目标数组的元素类型
-    * @param <T>     目标元素泛型类型
-    * @return 转换后的目标类型数组
-    */
+     * 将值转换为指定元素类型的目标数组（支持泛型）。
+     * <p>从 Collection / Map（取 values）/ 数组中逐个元素进行类型转换后再组装为目标数组。</p>
+     *
+     * @param value   源值
+     * @param newType 目标数组的元素类型
+     * @param <T>     目标元素泛型类型
+     * @return 转换后的目标类型数组
+     */
     @SuppressWarnings("ALL")
     public <T> T convertFor(Object value, Class<T> newType) {
         if (null == value) {

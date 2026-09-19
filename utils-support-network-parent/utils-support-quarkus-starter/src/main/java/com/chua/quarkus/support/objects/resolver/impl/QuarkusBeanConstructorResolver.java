@@ -11,27 +11,27 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 /**
-* Quarkus (CDI) 构造器参数解析器。
-*
-* <p>直接使用 Jakarta {@link Inject} / {@link Named} 注解，
-* 从容器按 名称 名称或参数类型查找 Bean。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Quarkus (CDI) 构造器参数解析器。
+ *
+ * <p>直接使用 Jakarta {@link Inject} / {@link Named} 注解，
+ * 从容器按 名称 名称或参数类型查找 Bean。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("quarkus")
 public class QuarkusBeanConstructorResolver implements BeanConstructorResolver {
 
     @Override
     /**
-    * 解析
-    * @param paramType 参数类型
-    * @param paramName 参数名称
-    * @param annotations 注解
-    * @param typeProvider 类型提供者
-    * @param nameProvider 名称提供者
-    * @param beanDefinition Beandefinition
-    */
+     * 解析
+     * @param paramType 参数类型
+     * @param paramName 参数名称
+     * @param annotations 注解
+     * @param typeProvider 类型提供者
+     * @param nameProvider 名称提供者
+     * @param beanDefinition Beandefinition
+     */
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,
                           Function<String, Object> nameProvider,

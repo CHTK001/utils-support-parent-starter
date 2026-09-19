@@ -18,21 +18,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* Wespeaker Rnet34 说话人嵌入提取翻译器（纯 ONNX Runtime 实现）。
-*
-* <h2>模型说明</h2>
-* <p>wespeaker-resnet34 是专用于说话人验证的 ResNet34+LM 架构：
-* <ul>
-*   <li><b>输入</b>：16kHz 单声道 PCM float 音频，先经 Kaldi-style 80 维 fbank 特征提取（预加重 0.97 / 去直流 /
-* Povey 窗^0.85 / 512 点功率谱 / HTK-mel 0~8khz / 日志）。</li>
-*   <li><b>ONNX 期望</b>：rank=3 张量 [1, num_frames, 80]。</li>
-*   <li><b>输出</b>：512 维 L2 归一化嵌入向量（x-vector）。</li>
-*   <li><b>用途</b>：说话人验证、声纹识别、说话人分离。</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.44
+ * Wespeaker Rnet34 说话人嵌入提取翻译器（纯 ONNX Runtime 实现）。
+ *
+ * <h2>模型说明</h2>
+ * <p>wespeaker-resnet34 是专用于说话人验证的 ResNet34+LM 架构：
+ * <ul>
+ *   <li><b>输入</b>：16kHz 单声道 PCM float 音频，先经 Kaldi-style 80 维 fbank 特征提取（预加重 0.97 / 去直流 /
+ * Povey 窗^0.85 / 512 点功率谱 / HTK-mel 0~8khz / 日志）。</li>
+ *   <li><b>ONNX 期望</b>：rank=3 张量 [1, num_frames, 80]。</li>
+ *   <li><b>输出</b>：512 维 L2 归一化嵌入向量（x-vector）。</li>
+ *   <li><b>用途</b>：说话人验证、声纹识别、说话人分离。</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.44
  */
 @Slf4j
 public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]> {
@@ -51,9 +51,9 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     private static final int FEATURE_DIM = 80; // 特征dim
 
     /**
-    * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
-    * @param modelPath 模型路径
-    */
+     * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
+     * @param modelPath 模型路径
+     */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
@@ -119,8 +119,8 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * ensureprepared。
-    */
+     * ensureprepared。
+     */
     private void ensurePrepared() throws Exception {
         if (prepared) {
             return;
@@ -144,10 +144,10 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * resolve模型路径。
-    * @param pathStr 路径str
-    * @return resolve模型路径的结果
-    */
+     * resolve模型路径。
+     * @param pathStr 路径str
+     * @return resolve模型路径的结果
+     */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
             return null;
@@ -171,10 +171,10 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * decode转为pcm。
-    * @param audioData 音频数据
-    * @return decode转为pcm的结果
-    */
+     * decode转为pcm。
+     * @param audioData 音频数据
+     * @return decode转为pcm的结果
+     */
     private float[] decodeToPcm(byte[] audioData) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(
@@ -205,11 +205,11 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * Kaldi-style fbank 80 维特征提取
-    *
-    * @param samples 样本
-    * @return computeFbank80的结果
-    */
+     * Kaldi-style fbank 80 维特征提取
+     *
+     * @param samples 样本
+     * @return computeFbank80的结果
+     */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -261,10 +261,10 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * 构建kaldimel过滤器。
-    * @param nFreq nfreq
-    * @return 构建kaldimel过滤器的结果
-    */
+     * 构建kaldimel过滤器。
+     * @param nFreq nfreq
+     * @return 构建kaldimel过滤器的结果
+     */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
 
@@ -304,29 +304,29 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     }
 
     /**
-    * hz转为mel。
-    * @param hz hz
-    * @return hz转为mel的结果
-    */
+     * hz转为mel。
+     * @param hz hz
+     * @return hz转为mel的结果
+     */
     private static double hzToMel(double hz) {
         return 2595.0 * Math.log10(1.0 + hz / 700.0);
     }
 
     /**
-    * mel转为hertz。
-    * @param mel mel
-    * @return mel转为hertz的结果
-    */
+     * mel转为hertz。
+     * @param mel mel
+     * @return mel转为hertz的结果
+     */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
     }
 
     /**
-    * fftradix2。
-    * @param inRe 入re
-    * @param outRe 出re
-    * @param outIm 出im
-    */
+     * fftradix2。
+     * @param inRe 入re
+     * @param outRe 出re
+     * @param outIm 出im
+     */
     private static void fftRadix2(double[] inRe, double[] outRe, double[] outIm) {
         int n = inRe.length;
         for (int i = 0; i < n; i++) {

@@ -16,21 +16,21 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 统一门户注解的 Bean ↔ Map 桥接转换器。
-*
-* <p>为无法原生识别自定义注解的 {@code JsonProvider} 实现（如 fory-json）提供统一注解适配能力：
-* 将普通 Bean 对象转换为 {@code Map} 时按 {@link JsonName} 重命名、{@link JsonIgnore} 跳过字段、
-* {@link JsonFormat} 格式化日期；反向转换时按注解还原字段值。</p>
-*
-* <p>适配规则（与 {@code JsonProvider} 契约一致）：</p>
-* <ul>
-*     <li>{@link JsonName} — 字段序列化 / 反序列化的键名</li>
-*     <li>{@link JsonIgnore} — 双向忽略字段</li>
-*     <li>{@link JsonFormat} — 日期时间字段的格式化 pattern</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * 统一门户注解的 Bean ↔ Map 桥接转换器。
+ *
+ * <p>为无法原生识别自定义注解的 {@code JsonProvider} 实现（如 fory-json）提供统一注解适配能力：
+ * 将普通 Bean 对象转换为 {@code Map} 时按 {@link JsonName} 重命名、{@link JsonIgnore} 跳过字段、
+ * {@link JsonFormat} 格式化日期；反向转换时按注解还原字段值。</p>
+ *
+ * <p>适配规则（与 {@code JsonProvider} 契约一致）：</p>
+ * <ul>
+ *     <li>{@link JsonName} — 字段序列化 / 反序列化的键名</li>
+ *     <li>{@link JsonIgnore} — 双向忽略字段</li>
+ *     <li>{@link JsonFormat} — 日期时间字段的格式化 pattern</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class JsonBeanMapper {
 
@@ -94,13 +94,13 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 将 Map 反向填充为 Bean 对象，应用统一门户注解规则。
-    *
-    * @param source Map 数据
-    * @param target 目标类型
-    * @param <T>    目标类型泛型
-    * @return 填充后的 Bean 对象
-    */
+     * 将 Map 反向填充为 Bean 对象，应用统一门户注解规则。
+     *
+     * @param source Map 数据
+     * @param target 目标类型
+     * @param <T>    目标类型泛型
+     * @return 填充后的 Bean 对象
+     */
     public static <T> T fromMap(Map<String, Object> source, Class<T> target) {
         if (source == null) {
             return null;
@@ -133,11 +133,11 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 判断类型是否为基本类型 / 包装类型 / 字符串 / 枚举。
-    *
-    * @param type 类型
-    * @return true 表示为基本类型
-    */
+     * 判断类型是否为基本类型 / 包装类型 / 字符串 / 枚举。
+     *
+     * @param type 类型
+     * @return true 表示为基本类型
+     */
     private static boolean isBasic(Class<?> type) {
         return type.isPrimitive() || type.isEnum()
                 || CharSequence.class.isAssignableFrom(type)
@@ -151,11 +151,11 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 判断是否为日期时间类型。
-    *
-    * @param type 类型
-    * @return true 表示为日期时间类型
-    */
+     * 判断是否为日期时间类型。
+     *
+     * @param type 类型
+     * @return true 表示为日期时间类型
+     */
     private static boolean isDateType(Class<?> type) {
         return Date.class.isAssignableFrom(type)
                 || LocalDateTime.class.isAssignableFrom(type)
@@ -164,12 +164,12 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 按 pattern 格式化日期时间值。
-    *
-    * @param value   日期时间值
-    * @param pattern 格式 pattern
-    * @return 格式化后的字符串
-    */
+     * 按 pattern 格式化日期时间值。
+     *
+     * @param value   日期时间值
+     * @param pattern 格式 pattern
+     * @return 格式化后的字符串
+     */
     private static String formatDate(Object value, String pattern) {
         if (value instanceof Date) {
             return new java.text.SimpleDateFormat(pattern).format((Date) value);
@@ -188,13 +188,13 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 将值解析为指定日期时间类型。
-    *
-    * @param value   字符串或日期值
-    * @param type    目标日期类型
-    * @param pattern 格式 pattern
-    * @return 解析后的日期值
-    */
+     * 将值解析为指定日期时间类型。
+     *
+     * @param value   字符串或日期值
+     * @param type    目标日期类型
+     * @param pattern 格式 pattern
+     * @return 解析后的日期值
+     */
     private static Object parseDate(Object value, Class<?> type, String pattern) {
         if (Date.class.isAssignableFrom(type)) {
             if (value instanceof Date) {
@@ -224,12 +224,12 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 读取字段值（优先 getter，否则反射直接读）。
-    *
-    * @param field 字段
-    * @param bean  目标对象
-    * @return 字段值
-    */
+     * 读取字段值（优先 getter，否则反射直接读）。
+     *
+     * @param field 字段
+     * @param bean  目标对象
+     * @return 字段值
+     */
     private static Object readField(Field field, Object bean) {
         String getter = findGetterName(field);
         if (getter != null) {
@@ -247,12 +247,12 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
     }
 
     /**
-    * 写入字段值（优先 setter，否则反射直接写）。
-    *
-    * @param field 字段
-    * @param bean  目标对象
-    * @param value 值
-    */
+     * 写入字段值（优先 setter，否则反射直接写）。
+     *
+     * @param field 字段
+     * @param bean  目标对象
+     * @param value 值
+     */
     private static void writeField(Field field, Object bean, Object value) {
         String setter = findSetterName(field);
         if (setter != null) {
@@ -270,11 +270,11 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
     }
 
     /**
-    * 查找字段的 getter 方法名（未找到返回 null）。
-    *
-    * @param field 字段
-    * @return getter 方法名，不存在返回 null
-    */
+     * 查找字段的 getter 方法名（未找到返回 null）。
+     *
+     * @param field 字段
+     * @return getter 方法名，不存在返回 null
+     */
     private static String findGetterName(Field field) {
         String name = capitalize(field.getName());
         for (String prefix : new String[]{"get", "is"}) {
@@ -292,11 +292,11 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
     }
 
     /**
-    * 查找字段的 setter 方法名（未找到返回 null）。
-    *
-    * @param field 字段
-    * @return setter 方法名，不存在返回 null
-    */
+     * 查找字段的 setter 方法名（未找到返回 null）。
+     *
+     * @param field 字段
+     * @return setter 方法名，不存在返回 null
+     */
     private static String findSetterName(Field field) {
         String name = capitalize(field.getName());
         try {
@@ -310,11 +310,11 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
     }
 
     /**
-    * 将字段名首字母大写。
-    *
-    * @param name 字段名
-    * @return 首字母大写后的名称
-    */
+     * 将字段名首字母大写。
+     *
+     * @param name 字段名
+     * @return 首字母大写后的名称
+     */
     private static String capitalize(String name) {
         if (name == null || name.isEmpty()) {
             return name;

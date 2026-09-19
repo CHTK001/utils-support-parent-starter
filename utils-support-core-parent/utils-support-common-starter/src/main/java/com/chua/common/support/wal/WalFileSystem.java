@@ -22,7 +22,7 @@ package com.chua.common.support.wal;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /** 魔数字节 */
@@ -35,20 +35,20 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     // ==================== WAL 核心操作 ====================
 
     /**
-    * 追加一条 WAL 记录。
-    *
-    * @param op      操作类型（0x01~0x04 或 0x80 tombstone）
-    * @param payload 业务字节流
-    * @return 分配的 LSN（单调递增，从 1 开始）
-    */
+     * 追加一条 WAL 记录。
+     *
+     * @param op      操作类型（0x01~0x04 或 0x80 tombstone）
+     * @param payload 业务字节流
+     * @return 分配的 LSN（单调递增，从 1 开始）
+     */
     long append(byte op, byte[] payload) throws java.io.IOException;
 
     /**
-    * 批量追加（原子提交，内部攒批后一次性 fsync）。
-    *
-    * @param entries 条目列表，每项为 (op, payload)
-    * @return 最后一条的 LSN
-    */
+     * 批量追加（原子提交，内部攒批后一次性 fsync）。
+     *
+     * @param entries 条目列表，每项为 (op, payload)
+     * @return 最后一条的 LSN
+     */
     default long appendBatch(java.util.List<WalBatchEntry> entries) throws java.io.IOException {
         if (entries == null || entries.isEmpty()) {
             return 0L;
@@ -61,89 +61,89 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     }
 
     /**
-    * 按 LSN 精确读取单条记录。
-    *
-    * @param lsn 目标 LSN
-    * @return 记录（不存在返回 空）
-    */
+     * 按 LSN 精确读取单条记录。
+     *
+     * @param lsn 目标 LSN
+     * @return 记录（不存在返回 空）
+     */
     java.util.Optional<WalRecord> readByLsn(long lsn) throws java.io.IOException;
 
     /**
-    * 按文件内偏移读取（用于 B+树 索引跳转）。
-    *
-    * @param segmentNo 分片序号
-    * @param offset    文件内字节偏移
-    * @param length    读取字节数
-    * @return 字节数组
-    */
+     * 按文件内偏移读取（用于 B+树 索引跳转）。
+     *
+     * @param segmentNo 分片序号
+     * @param offset    文件内字节偏移
+     * @param length    读取字节数
+     * @return 字节数组
+     */
     byte[] readAt(int segmentNo, long offset, int length) throws java.io.IOException;
 
     /**
-    * 同步刷盘。
-    */
+     * 同步刷盘。
+     */
     void sync() throws java.io.IOException;
 
     /**
-    * 获取当前最大 LSN。
-    * @return 结果数值
-    */
+     * 获取当前最大 LSN。
+     * @return 结果数值
+     */
     long currentLsn();
 
     // ==================== 分片管理 ====================
 
     /**
-    * 列出所有分片元信息。
-    * @return 结果值
-    */
+     * 列出所有分片元信息。
+     * @return 结果值
+     */
     java.util.List<WalSegmentInfo> listSegments() throws java.io.IOException;
 
     /**
-    * 获取当前活跃分片。
-    * @return Wal分段Info 对象
-    */
+     * 获取当前活跃分片。
+     * @return Wal分段Info 对象
+     */
     WalSegmentInfo currentSegment();
 
     /**
-    * Compaction：合并旧分片，消除 tombstone 和过期记录，重建索引。
-    *
-    * <p>实现类应在内部完成：扫描所有分片 → 过滤有效记录 → 写入新分片 → 原子替换旧分片。</p>
-    */
+     * Compaction：合并旧分片，消除 tombstone 和过期记录，重建索引。
+     *
+     * <p>实现类应在内部完成：扫描所有分片 → 过滤有效记录 → 写入新分片 → 原子替换旧分片。</p>
+     */
     void compact() throws java.io.IOException;
 
     // ==================== Checkpoint ====================
 
     /**
-    * 加载 checkpoint 元信息。
-    * @return CheckpointMeta 对象
-    */
+     * 加载 checkpoint 元信息。
+     * @return CheckpointMeta 对象
+     */
     CheckpointMeta loadCheckpoint() throws java.io.IOException;
 
     /**
-    * 推进 checkpoint。
-    * @param lsn 方法入参 lsn
-    */
+     * 推进 checkpoint。
+     * @param lsn 方法入参 lsn
+     */
     void markCheckpoint(long lsn) throws java.io.IOException;
 
     // ==================== 生命周期 ====================
 
     /**
-    * 关闭 WAL 文件系统，释放资源（不删除文件）。
-    */
+     * 关闭 WAL 文件系统，释放资源（不删除文件）。
+     */
     void close() throws java.io.IOException;
 
     /**
-    * 批量条目（用于 追加批量）。
-    * @param op 操作，不允许为 null
-    * @param payload 方法入参 payload
-    * @return 结果值
-    */
+     * 批量条目（用于 追加批量）。
+     * @param op 操作，不允许为 null
+     * @param payload 方法入参 payload
+     * @return 结果值
+     */
     record WalBatchEntry(byte op, byte[] payload) {
         /**
-        * 的。
-        * @param op op
-        * @param payload payload
-        * @return 的的结果
-        */
+         * 的。
+         * @param op op
+         * @param payload payload
+         * @return 的的结果
+         */
         public static WalBatchEntry of(byte op, byte[] payload) {
             return new WalBatchEntry(op, payload == null ? new byte[0] : payload.clone());
         }

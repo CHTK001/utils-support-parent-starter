@@ -16,26 +16,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* BART Seq2Seq ONNX                 
-* <p>
-* BART (Bidirectional 和 Auto-Regressive Transformers)
-* 文本 summarization、machine 翻译、抽象 QA、释义
-* </p>
-* <p>
-*      : Xenova/bart-large-cnn
-* : 输入_标识 + attention_mask -> logits [批量, seq_len, vocab_大小]
-* </p>
-* <p>
-*      :       
-* <ol>
-*   <li>Tokenizer      input_ids / attention_mask</li>
-*   <li>ONNX      logits</li>
-*   <li>argmax(vocab)     token IDs</li>
-*   <li>Tokenizer decode      </li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0.42
+ * BART Seq2Seq ONNX                 
+ * <p>
+ * BART (Bidirectional 和 Auto-Regressive Transformers)
+ * 文本 summarization、machine 翻译、抽象 QA、释义
+ * </p>
+ * <p>
+ *      : Xenova/bart-large-cnn
+ * : 输入_标识 + attention_mask -> logits [批量, seq_len, vocab_大小]
+ * </p>
+ * <p>
+ *      :       
+ * <ol>
+ *   <li>Tokenizer      input_ids / attention_mask</li>
+ *   <li>ONNX      logits</li>
+ *   <li>argmax(vocab)     token IDs</li>
+ *   <li>Tokenizer decode      </li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class BartSeq2SeqTranslator implements Translator<String, String> {

@@ -11,28 +11,28 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
-* 通义千问浏览器会话。
-*
-* <p>基于 Playwright 注入 Cookie，保持持久页面，在同一会话中连续对话，
-* 让 通义千问 云端自动维护上下文历史。
-*
-* @author CH
-* @since 2026/08/12
+ * 通义千问浏览器会话。
+ *
+ * <p>基于 Playwright 注入 Cookie，保持持久页面，在同一会话中连续对话，
+ * 让 通义千问 云端自动维护上下文历史。
+ *
+ * @author CH
+ * @since 2026/08/12
  */
 @Slf4j
 public class QwenBrowserSession implements AutoCloseable {
 
     /**
-    * 页面 加载 超时时间 毫秒
-    */
+     * 页面 加载 超时时间 毫秒
+     */
     private static final long PAGE_LOAD_TIMEOUT_MS = 60000;
     /**
-    * 响应 超时时间 毫秒
-    */
+     * 响应 超时时间 毫秒
+     */
     private static final long RESPONSE_TIMEOUT_MS = 120000;
     /**
-    * 隐身 参数
-    */
+     * 隐身 参数
+     */
     private static final String[] STEALTH_ARGS = {
             "--disable-blink-features=AutomationControlled", "--no-sandbox",
             "--disable-web-security", "--disable-features=IsolateOrigins,site-per-process",
@@ -41,32 +41,32 @@ public class QwenBrowserSession implements AutoCloseable {
     };
 
     /**
-    * Playwright 实例
-    */
+     * Playwright 实例
+     */
     private final Playwright playwright;
     /**
-    * 浏览器实例
-    */
+     * 浏览器实例
+     */
     private final Browser browser;
     /**
-    * 浏览器上下文
-    */
+     * 浏览器上下文
+     */
     private final BrowserContext context;
     /**
-    * 页面实例
-    */
+     * 页面实例
+     */
     private Page page;
     /**
-    * 页面是否就绪
-    */
+     * 页面是否就绪
+     */
     private boolean pageReady;
 
     /**
-    * 创建 通义千问browser会话 实例
-    * @param cookieString Cookie字符串
-    * @param cookieString 字符串
-    * @param userDataDir 用户数据dir
-    */
+     * 创建 通义千问browser会话 实例
+     * @param cookieString Cookie字符串
+     * @param cookieString 字符串
+     * @param userDataDir 用户数据dir
+     */
     public QwenBrowserSession(String cookieString, String userDataDir) {
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
@@ -80,8 +80,8 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 初始化页面并加载通义千问。
-    */
+     * 初始化页面并加载通义千问。
+     */
     public void init() {
         page = context.newPage();
         page.navigate("https://chat.qwen.ai");
@@ -92,8 +92,8 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 开始新会话：导航到千问首页，创建新会话。
-    */
+     * 开始新会话：导航到千问首页，创建新会话。
+     */
     public void newChat() {
         if (page != null) {
             try {
@@ -107,14 +107,14 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 发送聊天消息并等待回答。
-    * 在持久页面中连续输入，保持 通义千问 云端会话上下文。
-    *
-    * @param body     JSON 请求体字符串
-    * @param model    模型名称
-    * @param listener 流式事件监听器，可为空
-    * @return 解析后的聊天结果
-    */
+     * 发送聊天消息并等待回答。
+     * 在持久页面中连续输入，保持 通义千问 云端会话上下文。
+     *
+     * @param body     JSON 请求体字符串
+     * @param model    模型名称
+     * @param listener 流式事件监听器，可为空
+     * @return 解析后的聊天结果
+     */
     public QwenChatResult chat(String body, String model, BiConsumer<String, String> listener) {
         if (!pageReady || page == null) {
             return QwenChatResult.error("页面未初始化");
@@ -242,11 +242,11 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 解析Cookie
-    *
-    * @param cookieString Cookie字符串
-    * @return 解析Cookie的结果
-    */
+     * 解析Cookie
+     *
+     * @param cookieString Cookie字符串
+     * @return 解析Cookie的结果
+     */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = new LinkedHashMap<>();
         if (cookieString == null || cookieString.isBlank()) {
@@ -264,11 +264,11 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * extract提示符
-    *
-    * @param body 主体
-    * @return extract提示符的结果
-    */
+     * extract提示符
+     *
+     * @param body 主体
+     * @return extract提示符的结果
+     */
     private static String extractPrompt(String body) {
         try {
             JsonObject obj = JsonObject.parse(body);

@@ -5,10 +5,10 @@ import lombok.Builder;
 import java.util.Map;
 
 /**
-* Bot 用户信息。
-*
-* @author CH
-* @since 2026/07/18
+ * Bot 用户信息。
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Builder
 public record BotUserInfo(

@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Jetty 处理器 — intercepts 请求 处理 入 Eclipse Jetty.
-*
-* @author CH
-* @since 4.0.0.42
+ * Jetty 处理器 — intercepts 请求 处理 入 Eclipse Jetty.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JettyHandler extends AbstractAppHandler {
 
     /**
-    * 服务端
+     * 服务端
      */
     private static final String SERVER = "org/eclipse/jetty/server/Server";
     /**
-    * 处理 方法
+     * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 

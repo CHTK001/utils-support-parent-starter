@@ -33,49 +33,49 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class ServiceDefinitionFinder {
 
 
     /**
-    * 默认空服务定义
-    */
+     * 默认空服务定义
+     */
     public static final ServiceDefinition DEFAULT_DEFINITION = new ServiceDefinition();
 
     /**
-    * 服务定义映射
-    */
+     * 服务定义映射
+     */
     private final Map<String, SortedList<ServiceDefinition>> definitions;
 
     /**
-    * 自动装配器
-    */
+     * 自动装配器
+     */
     private final ServiceAutowire serviceAutowire;
 
     /**
-    * 是否启用动态解析
-    */
+     * 是否启用动态解析
+     */
     private boolean dynamic = false;
     /**
-    * 动态解析器列表
-    */
+     * 动态解析器列表
+     */
     private List<ServiceResolver> dynamicResolvers;
     /**
-    * 动态解析类型
-    */
+     * 动态解析类型
+     */
     private Class<?> dynamicType;
     /**
-    * 动态解析类加载器
-    */
+     * 动态解析类加载器
+     */
     private ClassLoader dynamicClassLoader;
 
     /**
-    * 构造服务定义查找器
-    *
-    * @param definitions 服务定义映射
-    * @param serviceAutowire 自动装配器
-    */
+     * 构造服务定义查找器
+     *
+     * @param definitions 服务定义映射
+     * @param serviceAutowire 自动装配器
+     */
     public ServiceDefinitionFinder(Map<String, SortedList<ServiceDefinition>> definitions, 
                                    ServiceAutowire serviceAutowire) {
         this.definitions = definitions;
@@ -83,12 +83,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 设置动态解析器（仅保留 {@link ServiceResolver#isDynamic()} 返回 true 的解析器）。
-    *
-    * @param resolvers 解析器列表
-    * @param type 服务类型
-    * @param classLoader 类加载器
-    */
+     * 设置动态解析器（仅保留 {@link ServiceResolver#isDynamic()} 返回 true 的解析器）。
+     *
+     * @param resolvers 解析器列表
+     * @param type 服务类型
+     * @param classLoader 类加载器
+     */
     public void setDynamicResolvers(List<ServiceResolver> resolvers, Class<?> type, ClassLoader classLoader) {
         List<ServiceResolver> dynamic = new ArrayList<>();
         for (ServiceResolver resolver : resolvers) {
@@ -103,12 +103,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 根据名称获取服务定义
-    *
-    * @param name 名称
-    * @param args 构造参数
-    * @return 服务定义
-    */
+     * 根据名称获取服务定义
+     *
+     * @param name 名称
+     * @param args 构造参数
+     * @return 服务定义
+     */
     public ServiceDefinition getServiceDefinition(String name, Object... args) {
         String type = null;
         String name1 = name;
@@ -173,12 +173,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 根据类型获取服务定义
-    *
-    * @param type 类型
-    * @param args 构造参数
-    * @return 服务定义
-    */
+     * 根据类型获取服务定义
+     *
+     * @param type 类型
+     * @param args 构造参数
+     * @return 服务定义
+     */
     public ServiceDefinition getServiceDefinition(Class<?> type, Object[] args) {
         String name = type.getTypeName();
         for (SortedList<ServiceDefinition> value : definitions.values()) {
@@ -229,12 +229,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 根据名称获取服务定义列表
-    *
-    * @param name 名称
-    * @param args 构造参数
-    * @return 服务定义列表
-    */
+     * 根据名称获取服务定义列表
+     *
+     * @param name 名称
+     * @param args 构造参数
+     * @return 服务定义列表
+     */
     public SortedList<ServiceDefinition> getDefinitions(String name, Object... args) {
         if(null == name && definitions.size() == 1) {
             return definitions.values().iterator().next();
@@ -280,12 +280,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 判断列表中是否已包含指定服务定义
-    *
-    * @param list 服务定义列表
-    * @param target 目标服务定义
-    * @return true 表示已包含
-    */
+     * 判断列表中是否已包含指定服务定义
+     *
+     * @param list 服务定义列表
+     * @param target 目标服务定义
+     * @return true 表示已包含
+     */
     private boolean containsDefinition(SortedList<ServiceDefinition> list, ServiceDefinition target) {
         for (ServiceDefinition sd : list) {
             if (null != sd.getName() && sd.getName().equalsIgnoreCase(target.getName())) {
@@ -300,13 +300,13 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 创建 名称aware 匹配的服务定义集合
-    *
-    * @param name 名称
-    * @param definitions 服务定义列表
-    * @param args 构造参数
-    * @return 匹配的服务定义集合
-    */
+     * 创建 名称aware 匹配的服务定义集合
+     *
+     * @param name 名称
+     * @param definitions 服务定义列表
+     * @param args 构造参数
+     * @return 匹配的服务定义集合
+     */
     private <T> Collection<? extends ServiceDefinition> createNameAware(String name, 
                                                                         SortedList<ServiceDefinition> definitions, 
                                                                         Object[] args) {
@@ -331,12 +331,12 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-    * 检查名称是否匹配
-    *
-    * @param named 名称数组
-    * @param name 待匹配名称
-    * @return true 表示匹配
-    */
+     * 检查名称是否匹配
+     *
+     * @param named 名称数组
+     * @param name 待匹配名称
+     * @return true 表示匹配
+     */
     private boolean containsName(String[] named, String name) {
         for (String s : named) {
             if (s.equalsIgnoreCase(name)) {

@@ -12,38 +12,38 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Hermes Agent 用量解析器。
-*
-* <p>Hermes（Hugging Face 出品）是一款智能体式编码助手，它把每个会话的
-* token 与费用统计持久化到 sqlite 数据库：Linux/macOS 下位于
-* {@code ~/.hermes/state.db}，Windows 下位于
-* {@code %LOCALAPPDATA%\hermes\state.db}。
-* {@code sessions} 表每个会话一行，记录累计 token 计数与逐次调用明细：</p>
-*
-* <pre>{@code
-* 创建 TABLE 会话 (
-* 标识 文本 PRIMARY 键,
-* 模型 文本,
-* 启动_at INTEGER,   -- 轮次 seconds
-* 结束_at INTEGER,     -- 空 When.js 入-进步
-* 输入_令牌 INTEGER,
-* 输出_令牌 INTEGER,
-* 缓存_读取_令牌 INTEGER,
-* 缓存_写入_令牌 INTEGER,
-* ReasonML_令牌 INTEGER,
-* 消息_数量 INTEGER,
-*   cost REAL,
-*   ...
-* );
-* }</pre>
-*
-* <p>Token counts are per-session aggregates (not per-request), so
-* this parser emits one {@link AiUsage} record per 会话 with the
-* cumulative breakdown. 时间戳 are 轮次 seconds; cost 是否 USD
-* When.js.js present.</p>
-*
-* @author CH
-* @since 4.0.0.44
+ * Hermes Agent 用量解析器。
+ *
+ * <p>Hermes（Hugging Face 出品）是一款智能体式编码助手，它把每个会话的
+ * token 与费用统计持久化到 sqlite 数据库：Linux/macOS 下位于
+ * {@code ~/.hermes/state.db}，Windows 下位于
+ * {@code %LOCALAPPDATA%\hermes\state.db}。
+ * {@code sessions} 表每个会话一行，记录累计 token 计数与逐次调用明细：</p>
+ *
+ * <pre>{@code
+ * 创建 TABLE 会话 (
+ * 标识 文本 PRIMARY 键,
+ * 模型 文本,
+ * 启动_at INTEGER,   -- 轮次 seconds
+ * 结束_at INTEGER,     -- 空 When.js 入-进步
+ * 输入_令牌 INTEGER,
+ * 输出_令牌 INTEGER,
+ * 缓存_读取_令牌 INTEGER,
+ * 缓存_写入_令牌 INTEGER,
+ * ReasonML_令牌 INTEGER,
+ * 消息_数量 INTEGER,
+ *   cost REAL,
+ *   ...
+ * );
+ * }</pre>
+ *
+ * <p>Token counts are per-session aggregates (not per-request), so
+ * this parser emits one {@link AiUsage} record per 会话 with the
+ * cumulative breakdown. 时间戳 are 轮次 seconds; cost 是否 USD
+ * When.js.js present.</p>
+ *
+ * @author CH
+ * @since 4.0.0.44
  */
 @Spi("hermes")
 public class HermesUsageParser extends BaseUsageParser {
@@ -53,9 +53,9 @@ public class HermesUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath(); // db路径
 
     /**
-    * resolvedb路径。
-    * @return resolvedb路径的结果
-    */
+     * resolvedb路径。
+     * @return resolvedb路径的结果
+     */
     private static Path resolveDbPath() {
         String localAppData = System.getenv("LOCALAPPDATA");
         if (localAppData != null && !localAppData.isBlank()) {
@@ -73,18 +73,18 @@ public class HermesUsageParser extends BaseUsageParser {
                     + "ORDER BY started_at ASC";
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "hermes"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "hermes"}
+     */
     @Override
     public String name() {
         return PROVIDER;
     }
 
     /**
-    * 流式解析全部会话用量记录。
-    */
+     * 流式解析全部会话用量记录。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -99,11 +99,11 @@ public class HermesUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 sqlite 行映射为 {@link AiUsage}。
-    *
-    * @param row 数据库行
-    * @return 用量记录
-    */
+     * 将 sqlite 行映射为 {@link AiUsage}。
+     *
+     * @param row 数据库行
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int inputTokens = asInt(row.get("input_tokens"));
         int outputTokens = asInt(row.get("output_tokens"));

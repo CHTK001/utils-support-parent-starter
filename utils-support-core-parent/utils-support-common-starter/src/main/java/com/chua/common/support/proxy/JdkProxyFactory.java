@@ -39,31 +39,31 @@ import java.lang.reflect.Method;
  * @since 2025/7/20
  * @see java.lang.reflect.Proxy
  * @see java.lang.reflect.InvocationHandler
-*/
+ */
 @SuppressWarnings("all")
 @Spi("jdk")
 public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFactory<T> {
 
     /**
-    * 单例实例，全局共享。
-    *
-    * <p>由于 JDK 动态代理工厂是无状态的，使用单例模式避免重复创建实例。</p>
-    */
+     * 单例实例，全局共享。
+     *
+     * <p>由于 JDK 动态代理工厂是无状态的，使用单例模式避免重复创建实例。</p>
+     */
     public static final com.chua.common.support.proxy.ProxyFactory INSTANCE = new JdkProxyFactory();
 
     /**
-    * 使用 JDK 动态代理创建代理对象。
-    *
-    * <p>将指定的目标接口和额外接口合并去重后，通过
-    * {@link Proxy#newProxyInstance(ClassLoader, Class[], InvocationHandler)}
-    * 创建代理实例。所有方法调用都会转发给 {@link JdkInvocationHandler}。</p>
-    *
-    * @param target      目标接口类型
-    * @param interfaces  要代理的额外接口数组
-    * @param classLoader 类加载器
-    * @param intercept   方法拦截器
-    * @return 代理对象实例
-    */
+     * 使用 JDK 动态代理创建代理对象。
+     *
+     * <p>将指定的目标接口和额外接口合并去重后，通过
+     * {@link Proxy#newProxyInstance(ClassLoader, Class[], InvocationHandler)}
+     * 创建代理实例。所有方法调用都会转发给 {@link JdkInvocationHandler}。</p>
+     *
+     * @param target      目标接口类型
+     * @param interfaces  要代理的额外接口数组
+     * @param classLoader 类加载器
+     * @param intercept   方法拦截器
+     * @return 代理对象实例
+     */
     @Override
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
             MethodIntercept<T> intercept) {
@@ -73,52 +73,52 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
     }
 
     /**
-    * JDK 动态代理调用处理器。
-    *
-    * <p>实现了 {@link InvocationHandler} 接口，在代理方法被调用时执行完整的拦截生命周期：
-    * 前置处理 → 方法调用 → 异常处理（可选） → 后置处理。
-    * 如果 {@link MethodIntercept#handleException(Object, Method, Object[], Object, Throwable)}
-    * 返回非 空 值，则该值作为方法调用结果返回，异常不再传播。</p>
-    *
-    * @param <T> 代理接口类型
-    * @author CH
-    * @since 4.0.0
-    */
+     * JDK 动态代理调用处理器。
+     *
+     * <p>实现了 {@link InvocationHandler} 接口，在代理方法被调用时执行完整的拦截生命周期：
+     * 前置处理 → 方法调用 → 异常处理（可选） → 后置处理。
+     * 如果 {@link MethodIntercept#handleException(Object, Method, Object[], Object, Throwable)}
+     * 返回非 空 值，则该值作为方法调用结果返回，异常不再传播。</p>
+     *
+     * @param <T> 代理接口类型
+     * @author CH
+     * @since 4.0.0
+     */
     public static class JdkInvocationHandler<T> implements InvocationHandler {
 
         /**
-        * 方法拦截器。
-        *
-        * <p>定义了代理方法调用的拦截逻辑，包括 before/invoke/after/handleException 四个扩展点。</p>
-        */
+         * 方法拦截器。
+         *
+         * <p>定义了代理方法调用的拦截逻辑，包括 before/invoke/after/handleException 四个扩展点。</p>
+         */
         final MethodIntercept<T> intercept;
 
         /**
-        * 创建 JDK 调用处理器。
-        *
-        * @param intercept 方法拦截器，定义拦截逻辑
-        */
+         * 创建 JDK 调用处理器。
+         *
+         * @param intercept 方法拦截器，定义拦截逻辑
+         */
         public JdkInvocationHandler(MethodIntercept<T> intercept) {
             this.intercept = intercept;
         }
 
         /**
-        * 处理代理方法调用。
-        *
-        * <p>当代理对象的任何方法被调用时，此方法被触发。它执行完整的拦截链：</p>
-        * <ol>
-        *   <li>{@link MethodIntercept#before(Object, Method, Object[], Object)} — 前置处理</li>
-        *   <li>{@link MethodIntercept#invoke(Object, Method, Object[], Object)} — 拦截调用</li>
-        *   <li>{@link MethodIntercept#handleException(Object, Method, Object[], Object, Throwable)} — 异常处理</li>
-        *   <li>{@link MethodIntercept#after(Object, Method, Object[], Object)} — 后置处理（finally 中保证执行）</li>
-        * </ol>
-        *
-        * @param proxy  代理实例
-        * @param method 被调用的方法
-        * @param args   方法参数
-        * @return 方法调用结果
-        * @throws Throwable 如果执行过程中发生异常
-        */
+         * 处理代理方法调用。
+         *
+         * <p>当代理对象的任何方法被调用时，此方法被触发。它执行完整的拦截链：</p>
+         * <ol>
+         *   <li>{@link MethodIntercept#before(Object, Method, Object[], Object)} — 前置处理</li>
+         *   <li>{@link MethodIntercept#invoke(Object, Method, Object[], Object)} — 拦截调用</li>
+         *   <li>{@link MethodIntercept#handleException(Object, Method, Object[], Object, Throwable)} — 异常处理</li>
+         *   <li>{@link MethodIntercept#after(Object, Method, Object[], Object)} — 后置处理（finally 中保证执行）</li>
+         * </ol>
+         *
+         * @param proxy  代理实例
+         * @param method 被调用的方法
+         * @param args   方法参数
+         * @return 方法调用结果
+         * @throws Throwable 如果执行过程中发生异常
+         */
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             // 执行前置处理

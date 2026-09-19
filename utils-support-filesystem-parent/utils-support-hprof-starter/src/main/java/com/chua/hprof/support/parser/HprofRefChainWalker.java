@@ -41,18 +41,18 @@ import java.util.List;
 public final class HprofRefChainWalker {
 
     /**
-    * 每个持有者实例最多排序保留的子引用数量上限。
-    */
+     * 每个持有者实例最多排序保留的子引用数量上限。
+     */
     private static final int CHILD_LIMIT = 5;
 
     /**
-    * 最多遍历的类数量上限。
-    */
+     * 最多遍历的类数量上限。
+     */
     private static final int CLASS_LIMIT = 10;
 
     /**
-    * 定位保留量最大实例时，每个类最多扫描的实例数。
-    */
+     * 定位保留量最大实例时，每个类最多扫描的实例数。
+     */
     private static final int SCAN_LIMIT = 5000;
 
     /**
@@ -62,29 +62,29 @@ public final class HprofRefChainWalker {
     }
 
     /**
-    * 引用链中的一个子引用。
-    *
-    * @param className  目标类
-    * @param retained   目标实例的保留字节数
-    * @param instanceId 目标实例 id
-    * @author CH
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 引用链中的一个子引用。
+     *
+     * @param className  目标类
+     * @param retained   目标实例的保留字节数
+     * @param instanceId 目标实例 id
+     * @author CH
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     public record ChildRef(String className, long retained, long instanceId) {
     }
 
     /**
-    * 一条遍历出的引用链：持有者实例 + 排序后的子引用。
-    *
-    * @param holderClass    正在遍历的类名
-    * @param holderId       保留量最大实例的 id
-    * @param holderRetained 持有者实例的保留字节数
-    * @param fields         持有者自身的字段值（名称/类型/可读值）
-    * @param children       排序后的出边引用
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 一条遍历出的引用链：持有者实例 + 排序后的子引用。
+     *
+     * @param holderClass    正在遍历的类名
+     * @param holderId       保留量最大实例的 id
+     * @param holderRetained 持有者实例的保留字节数
+     * @param fields         持有者自身的字段值（名称/类型/可读值）
+     * @param children       排序后的出边引用
+     * @author CH
+     * @since 4.0.0.42
+     */
     public record RefChain(String holderClass,
                            long holderId,
                            long holderRetained,
@@ -93,12 +93,12 @@ public final class HprofRefChainWalker {
     }
 
     /**
-    * 遍历保留量 Top 类的引用链。
-    *
-    * @param heap    已打开的 GridKit 堆
-    * @param objects 按类聚合的记录（用于排序）
-    * @return 每个存在保留量最大实例的类对应一条 {@link RefChain}
-    */
+     * 遍历保留量 Top 类的引用链。
+     *
+     * @param heap    已打开的 GridKit 堆
+     * @param objects 按类聚合的记录（用于排序）
+     * @return 每个存在保留量最大实例的类对应一条 {@link RefChain}
+     */
     public static List<RefChain> walk(Heap heap, List<HprofParseContext.HprofRecord> objects) {
         List<RefChain> chains = new ArrayList<>();
         List<HprofParseContext.HprofRecord> top = new ArrayList<>(objects);
@@ -121,12 +121,12 @@ public final class HprofRefChainWalker {
     }
 
     /**
-    * 遍历单个类：定位其保留量最大的实例，并对子引用排序。
-    *
-    * @param heap   已打开的 GridKit 堆
-    * @param record 该类的按类记录
-    * @return 引用链；没有可用实例时为 null
-    */
+     * 遍历单个类：定位其保留量最大的实例，并对子引用排序。
+     *
+     * @param heap   已打开的 GridKit 堆
+     * @param record 该类的按类记录
+     * @return 引用链；没有可用实例时为 null
+     */
     private static RefChain walkOne(Heap heap, HprofParseContext.HprofRecord record) {
         JavaClass cls = heap.getJavaClassByID(record.objectId());
         if (cls == null) {
@@ -159,11 +159,11 @@ public final class HprofRefChainWalker {
     }
 
     /**
-    * 按子实例保留量对某个实例的出边引用排序。
-    *
-    * @param inst 持有者实例
-    * @return 排序后的子引用（无对象引用时为空）
-    */
+     * 按子实例保留量对某个实例的出边引用排序。
+     *
+     * @param inst 持有者实例
+     * @return 排序后的子引用（无对象引用时为空）
+     */
     private static List<ChildRef> rankChildren(Instance inst) {
         List<ChildRef> children = new ArrayList<>();
         for (Value value : inst.getReferences()) {

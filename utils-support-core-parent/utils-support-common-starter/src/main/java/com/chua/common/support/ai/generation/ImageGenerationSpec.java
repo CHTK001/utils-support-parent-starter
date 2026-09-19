@@ -3,19 +3,19 @@ package com.chua.common.support.ai.generation;
 import com.chua.common.support.ai.chat.ChatClient;
 
 /**
-* 图像生成参数构建器（链式调用）。
-*
-* <p>用法：
-* <pre>{@code
-* ImageGenerationResult result = client.generateImage()
-*     .prompt("一只柴犬在樱花树下")
-*     .ratio("16:9")
-*     .n(3)
-*     .generate();
-* }</pre>
-*
-* @author CH
-* @since 2026/08/11
+ * 图像生成参数构建器（链式调用）。
+ *
+ * <p>用法：
+ * <pre>{@code
+ * ImageGenerationResult result = client.generateImage()
+ *     .prompt("一只柴犬在樱花树下")
+ *     .ratio("16:9")
+ *     .n(3)
+ *     .generate();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/08/11
  */
 public class ImageGenerationSpec {
 
@@ -44,9 +44,9 @@ public class ImageGenerationSpec {
     private String refImageKey;
 
     /**
-    * 创建 ImageGenerationSpec 实例
-    * @param client client
-    */
+     * 创建 ImageGenerationSpec 实例
+     * @param client client
+     */
     public ImageGenerationSpec(ChatClient client) {
         this.client = client;
     }

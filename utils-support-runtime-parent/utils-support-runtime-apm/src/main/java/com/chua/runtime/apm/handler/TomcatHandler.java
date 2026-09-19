@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Tomcat 处理器 — intercepts 请求 处理 入 Apache Tomcat.
-*
-* @author CH
-* @since 4.0.0.42
+ * Tomcat 处理器 — intercepts 请求 处理 入 Apache Tomcat.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TomcatHandler extends AbstractAppHandler {
 
     /**
-    * 标准 包装器 valve
+     * 标准 包装器 valve
      */
     private static final String STANDARD_WRAPPER_VALVE = "org/apache/catalina/core/StandardWrapperValve";
     /**
-    * invoke 方法
+     * invoke 方法
      */
     private static final String[] INVOKE_METHODS = {"invoke"};
 

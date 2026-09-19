@@ -42,37 +42,37 @@ import java.util.*;
  * @author CH
  * @since 4.0.0.42
  * @see com.chua.common.support.task.pipeline.node.SubPipelineNode
-*/
+ */
 public class SubPipelineResult {
 
     /**
-    * 子流水线节点 标识
-    */
+     * 子流水线节点 标识
+     */
     private final String nodeId;
 
     /**
-    * 子流水线的最终输出数据（子上下文的 当前数据）
-    */
+     * 子流水线的最终输出数据（子上下文的 当前数据）
+     */
     private final Object output;
 
     /**
-    * 子流水线的执行历史（子上下文的 历史）
-    */
+     * 子流水线的执行历史（子上下文的 历史）
+     */
     private final List<String> history;
 
     /**
-    * 子流水线 标识
-    */
+     * 子流水线 标识
+     */
     private final String pipelineId;
 
     /**
-    * 构造子流水线结果。
-    *
-    * @param nodeId     子流水线节点 标识
-    * @param output     子流水线的最终输出数据
-    * @param history    子流水线的执行历史
-    * @param pipelineId 子流水线 标识
-    */
+     * 构造子流水线结果。
+     *
+     * @param nodeId     子流水线节点 标识
+     * @param output     子流水线的最终输出数据
+     * @param history    子流水线的执行历史
+     * @param pipelineId 子流水线 标识
+     */
     public SubPipelineResult(String nodeId, Object output, List<String> history, String pipelineId) {
         this.nodeId = nodeId;
         this.output = output;
@@ -81,51 +81,51 @@ public class SubPipelineResult {
     }
 
     /**
-    * 获取子流水线节点 标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取子流水线节点 标识。
+     *
+     * @return 节点 标识
+     */
     public String getNodeId() {
         return nodeId;
     }
 
     /**
-    * 获取子流水线的最终输出数据。
-    *
-    * @param <V> 数据值类型
-    * @return 输出数据
-    */
+     * 获取子流水线的最终输出数据。
+     *
+     * @param <V> 数据值类型
+     * @return 输出数据
+     */
     @SuppressWarnings("unchecked")
     public <V> V getOutput() {
         return (V) output;
     }
 
     /**
-    * 获取子流水线的最终输出数据（带类型转换）。
-    *
-    * @param type 期望的数据类型
-    * @param <V>  数据值类型
-    * @return 输出数据，不存在时返回 空
-    */
+     * 获取子流水线的最终输出数据（带类型转换）。
+     *
+     * @param type 期望的数据类型
+     * @param <V>  数据值类型
+     * @return 输出数据，不存在时返回 空
+     */
     @SuppressWarnings("unchecked")
     public <V> V getOutput(Class<V> type) {
         return output != null ? (V) type.cast(output) : null;
     }
 
     /**
-    * 获取子流水线的执行历史。
-    *
-    * @return 执行历史节点ID列表的不可变视图
-    */
+     * 获取子流水线的执行历史。
+     *
+     * @return 执行历史节点ID列表的不可变视图
+     */
     public List<String> getHistory() {
         return Collections.unmodifiableList(history);
     }
 
     /**
-    * 获取子流水线 标识。
-    *
-    * @return 子流水线 标识
-    */
+     * 获取子流水线 标识。
+     *
+     * @return 子流水线 标识
+     */
     public String getPipelineId() {
         return pipelineId;
     }

@@ -22,12 +22,12 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* sqlite 数据库 (SQLITE / DB / SQLITE3) 预览提供器。
-* <p>SPI 类型：{@code preview-sqlite}。以只读方式连接数据库，
-* 展示表清单与各表前 100 行数据。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * sqlite 数据库 (SQLITE / DB / SQLITE3) 预览提供器。
+ * <p>SPI 类型：{@code preview-sqlite}。以只读方式连接数据库，
+ * 展示表清单与各表前 100 行数据。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-sqlite")
 @Slf4j
@@ -68,12 +68,12 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 执行数据库预览。
-    *
-    * @param content 数据库文件字节
-    * @return 预览 HTML
-    * @throws IOException 数据库不可读时抛出
-    */
+     * 执行数据库预览。
+     *
+     * @param content 数据库文件字节
+     * @return 预览 HTML
+     * @throws IOException 数据库不可读时抛出
+     */
     private String previewDatabase(byte[] content) throws IOException {
         Path tmp = Files.createTempFile("preview-sqlite-", ".db");
         try {
@@ -102,12 +102,12 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 打开只读数据库连接。
-    *
-    * @param path 数据库文件路径
-    * @return 数据库连接
-    * @throws SQLException 连接失败时抛出
-    */
+     * 打开只读数据库连接。
+     *
+     * @param path 数据库文件路径
+     * @return 数据库连接
+     * @throws SQLException 连接失败时抛出
+     */
     private Connection openConnection(Path path) throws SQLException {
         String url = "jdbc:sqlite:file:" + path.toAbsolutePath() + "?mode=ro";
         Connection conn = DriverManager.getConnection(url);
@@ -116,12 +116,12 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 列出数据库全部用户表。
-    *
-    * @param conn 数据库连接
-    * @return 表名列表
-    * @throws SQLException 查询失败时抛出
-    */
+     * 列出数据库全部用户表。
+     *
+     * @param conn 数据库连接
+     * @return 表名列表
+     * @throws SQLException 查询失败时抛出
+     */
     private List<String> listTables(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
         String sql = "SELECT name FROM sqlite_master WHERE type IN ('table','view') "
@@ -139,12 +139,12 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 渲染单张表的前 100 行。
-    *
-    * @param sb    输出缓冲区
-    * @param conn  数据库连接
-    * @param table 表名
-    */
+     * 渲染单张表的前 100 行。
+     *
+     * @param sb    输出缓冲区
+     * @param conn  数据库连接
+     * @param table 表名
+     */
     private void renderTable(StringBuilder sb, Connection conn, String table) {
         sb.append("<div class=\"table-block\"><div class=\"table-head\">")
                 .append(escape(table)).append("</div>");
@@ -180,11 +180,11 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建完整预览页面。
-    *
-    * @param body 页面主体片段
-    * @return 完整 HTML
-    */
+     * 构建完整预览页面。
+     *
+     * @param body 页面主体片段
+     * @return 完整 HTML
+     */
     private String wrapHtml(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
@@ -207,22 +207,22 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建空结果页面。
-    *
-    * @param message 提示信息
-    * @return 完整 HTML
-    */
+     * 构建空结果页面。
+     *
+     * @param message 提示信息
+     * @return 完整 HTML
+     */
     private String emptyHtml(String message) {
         return wrapHtml("<div class=\"header\"><h1>SQLite 数据库预览</h1></div>"
                 + "<div class=\"empty\">" + escape(message) + "</div>");
     }
 
     /**
-    * HTML 转义。
-    *
-    * @param text 原始文本
-    * @return 转义后的文本
-    */
+     * HTML 转义。
+     *
+     * @param text 原始文本
+     * @return 转义后的文本
+     */
     private String escape(String text) {
         return StringUtils.escapeHtml(text);
     }

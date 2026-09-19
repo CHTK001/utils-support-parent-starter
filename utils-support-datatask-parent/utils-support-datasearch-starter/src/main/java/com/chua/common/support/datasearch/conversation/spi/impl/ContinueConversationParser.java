@@ -18,27 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 继续 conversation parser.
-*
-* <p>Continue CLI stores each session at
-* {@code ~/.continue/sessions/<uuid>.json} with a {@code history} array:</p>
-*
-* <pre>{@code
-* {
-*   "sessionId": "...",
-*   "history": [
-*     { "message": { "role": "user", "content": "Say ok" } },
-*     { "message": { "role": "assistant", "content": "ok",
-*                    "usage": { "model": "gemini-3.6-flash", ... } } }
-*   ]
-* }
-* }</pre>} }
-*   ]
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 继续 conversation parser.
+ *
+ * <p>Continue CLI stores each session at
+ * {@code ~/.continue/sessions/<uuid>.json} with a {@code history} array:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "sessionId": "...",
+ *   "history": [
+ *     { "message": { "role": "user", "content": "Say ok" } },
+ *     { "message": { "role": "assistant", "content": "ok",
+ *                    "usage": { "model": "gemini-3.6-flash", ... } } }
+ *   ]
+ * }
+ * }</pre>} }
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("continue")
 public class ContinueConversationParser implements ConversationParser {
@@ -51,19 +51,19 @@ public class ContinueConversationParser implements ConversationParser {
     private static final String INDEX_FILE = "sessions.json"; // 索引文件
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "continue"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "continue"}
+     */
     @Override
     public String name() {
         return "continue";
     }
 
     /**
-    * 流式解析全部会话消息：每个会话文件一个惰性任务。
-    * @param entry entry
-    * @param sessionId 会话标识
+     * 流式解析全部会话消息：每个会话文件一个惰性任务。
+     * @param entry entry
+     * @param sessionId 会话标识
      /**
     * 流消息。
     * @return 流消息的结果
@@ -82,9 +82,9 @@ public class ContinueConversationParser implements ConversationParser {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMapMany(Flux::fromIterable),
                         /**
-                        * 列表会话文件。
-                        * @return 列表会话文件的结果
-                        */
+                         * 列表会话文件。
+                         * @return 列表会话文件的结果
+                         */
                         4);
     }
 
@@ -106,12 +106,12 @@ public class ContinueConversationParser implements ConversationParser {
             log.warn("[continue] list failed: {}", e.getMessage(), e);
             return List.of();
         /**
-        * 解析文件。
-        * @param file 文件
-        * @return 解析文件的结果
-        * @param entry entry
-        * @param sessionId 会话id
-        */
+         * 解析文件。
+         * @param file 文件
+         * @return 解析文件的结果
+         * @param entry entry
+         * @param sessionId 会话id
+         */
         }
     }
 

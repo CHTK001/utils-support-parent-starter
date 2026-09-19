@@ -69,13 +69,13 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
 
     @Override
     /**
-    * 搜索Subtitles。
-    * <p>主链路调用 subhd.tv API（若 API 响应含 data 数组则解析）；
-    * 否则自动降级为 subhd.tv HTML 搜索页抓取。</p>
-    *
-    * @param request 搜索请求，keyword 不能为空，为 null 时返回错误结果
-    * @return 搜索Subtitles的结果；API 与 HTML 均不可用时返回带错误信息的结果
-    */
+     * 搜索Subtitles。
+     * <p>主链路调用 subhd.tv API（若 API 响应含 data 数组则解析）；
+     * 否则自动降级为 subhd.tv HTML 搜索页抓取。</p>
+     *
+     * @param request 搜索请求，keyword 不能为空，为 null 时返回错误结果
+     * @return 搜索Subtitles的结果；API 与 HTML 均不可用时返回带错误信息的结果
+     */
     public ReturnPageResult<SubtitleSearchResult> searchSubtitles(SubtitleSearchRequest request) {
         String keyword = request.getKeyword();
         if (!StringUtils.hasText(keyword)) {
@@ -109,12 +109,12 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-    * 解析subhd响应。
-    *
-    * @param body    响应体 JSON 文本，不能为 null
-    * @param request 搜索请求，language 非 null 时按语言过滤
-    * @return subhd响应的解析结果；JSON 结构异常时返回错误结果
-    */
+     * 解析subhd响应。
+     *
+     * @param body    响应体 JSON 文本，不能为 null
+     * @param request 搜索请求，language 非 null 时按语言过滤
+     * @return subhd响应的解析结果；JSON 结构异常时返回错误结果
+     */
     private ReturnPageResult<SubtitleSearchResult> parseSubHdResponse(String body,
                                                                       SubtitleSearchRequest request) {
         try {
@@ -147,13 +147,13 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-    * 降级: 通过 subhd HTML 搜索页面抓取字幕。
-    * <p>仅扫描 "的搜索结果" 标题之后的结果区域，避免命中侧栏推荐列表。</p>
-    *
-    * @param keyword 关键词，用于拼接搜索页 URL 与回填视频名
-    * @param request 搜索请求
-    * @return 降级检索结果；页面不可达或为空时返回错误结果
-    */
+     * 降级: 通过 subhd HTML 搜索页面抓取字幕。
+     * <p>仅扫描 "的搜索结果" 标题之后的结果区域，避免命中侧栏推荐列表。</p>
+     *
+     * @param keyword 关键词，用于拼接搜索页 URL 与回填视频名
+     * @param request 搜索请求
+     * @return 降级检索结果；页面不可达或为空时返回错误结果
+     */
     private ReturnPageResult<SubtitleSearchResult> fallbackSearch(String keyword,
                                                                   SubtitleSearchRequest request) {
         try {
@@ -176,14 +176,14 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-    * 解析html降级。
-    * <p>定位结果区域后，按结果卡片逐个提取 详情页链接 + 条目语言/正文。</p>
-    *
-    * @param html    HTML 文本，不能为 null
-    * @param keyword 关键词，用于回填字幕条目的视频名
-    * @param request 搜索请求，language 非 null 时按语言过滤，pageSize 限制抓取条数
-    * @return 解析结果；无匹配卡片时返回空结果
-    */
+     * 解析html降级。
+     * <p>定位结果区域后，按结果卡片逐个提取 详情页链接 + 条目语言/正文。</p>
+     *
+     * @param html    HTML 文本，不能为 null
+     * @param keyword 关键词，用于回填字幕条目的视频名
+     * @param request 搜索请求，language 非 null 时按语言过滤，pageSize 限制抓取条数
+     * @return 解析结果；无匹配卡片时返回空结果
+     */
     private ReturnPageResult<SubtitleSearchResult> parseHtmlFallback(String html,
                                                                      String keyword,
                                                                      SubtitleSearchRequest request) {
@@ -235,12 +235,12 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-    * 构建分页结果。
-    *
-    * @param items   条目列表，不能为 null（可为空）
-    * @param request 搜索请求，page/pageSize 决定分页窗口
-    * @return 分页结果
-    */
+     * 构建分页结果。
+     *
+     * @param items   条目列表，不能为 null（可为空）
+     * @param request 搜索请求，page/pageSize 决定分页窗口
+     * @return 分页结果
+     */
     private ReturnPageResult<SubtitleSearchResult> buildPageResult(List<SubtitleSearchResult> items,
                                                                    SubtitleSearchRequest request) {
         int total = items.size();

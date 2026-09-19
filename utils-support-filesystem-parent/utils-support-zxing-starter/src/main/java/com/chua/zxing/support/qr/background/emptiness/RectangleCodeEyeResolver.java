@@ -8,11 +8,11 @@ import javax.annotation.Nullable;
 
 
 /**
-* 码眼解析器
-*
-* @author CH
-* @版本 1.0.0
-* @since 4.0.0.42
+ * 码眼解析器
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 4.0.0.42
  */
 public class RectangleCodeEyeResolver implements CodeEyeResolver{
 
@@ -24,9 +24,9 @@ public class RectangleCodeEyeResolver implements CodeEyeResolver{
     }
 
     /**
-    * 创建 rectangle编码eye解析器 实例
-    * @param unitWidth unitwidth
-    */
+     * 创建 rectangle编码eye解析器 实例
+     * @param unitWidth unitwidth
+     */
     public RectangleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;
     }

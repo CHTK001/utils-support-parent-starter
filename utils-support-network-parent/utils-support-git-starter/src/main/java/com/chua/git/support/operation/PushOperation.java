@@ -49,45 +49,45 @@ import java.util.concurrent.CompletableFuture;
 public class PushOperation {
 
     /**
-    * 所属 GitClient。
-    */
+     * 所属 GitClient。
+     */
     private final GitClient client;
 
     /**
-    * 异步标记。
-    */
+     * 异步标记。
+     */
     private boolean asyncMode;
 
     /**
-    * 远端名称，默认 origin。
-    */
+     * 远端名称，默认 origin。
+     */
     private String remote = "origin";
 
     /**
-    * 待推送的分支名称，null 表示使用默认推送策略。
-    */
+     * 待推送的分支名称，null 表示使用默认推送策略。
+     */
     private String branch;
 
     /**
-    * 是否强制推送。
-    */
+     * 是否强制推送。
+     */
     private boolean force;
 
     /**
-    * 是否推送标签。
-    */
+     * 是否推送标签。
+     */
     private boolean pushTags;
 
     /**
-    * 进度监听器。
-    */
+     * 进度监听器。
+     */
     private GitProgressListener progressListener;
 
     /**
-    * 构建操作实例（仅框架内部调用）。
-    *
-    * @param client 所属 GitClient
-    */
+     * 构建操作实例（仅框架内部调用）。
+     *
+     * @param client 所属 GitClient
+     */
     public PushOperation(GitClient client) {
         this.client = client;
     }
@@ -95,79 +95,79 @@ public class PushOperation {
     // ==================== 链式配置方法 ====================
 
     /**
-    * 标记为异步模式。
-    *
-    * @return 当前操作实例
-    */
+     * 标记为异步模式。
+     *
+     * @return 当前操作实例
+     */
     public PushOperation async() {
         this.asyncMode = true;
         return this;
     }
 
     /**
-    * 设置推送远端名称。
-    *
-    * @param remote 远端名称，默认 "origin"
-    * @return 当前操作实例
-    */
+     * 设置推送远端名称。
+     *
+     * @param remote 远端名称，默认 "origin"
+     * @return 当前操作实例
+     */
     public PushOperation remote(String remote) {
         this.remote = remote;
         return this;
     }
 
     /**
-    * 指定推送分支。
-    *
-    * @param branch 分支名称，如 "main"、"develop"
-    * @return 当前操作实例
-    */
+     * 指定推送分支。
+     *
+     * @param branch 分支名称，如 "main"、"develop"
+     * @return 当前操作实例
+     */
     public PushOperation branch(String branch) {
         this.branch = branch;
         return this;
     }
 
     /**
-    * 设置强制推送（等同于 --force）。
-    *
-    * <p>内部使用 RefSpec 前缀 '+' 实现。注意：这会覆盖远程分支历史，慎用。</p>
-    *
-    * @return 当前操作实例
-    */
+     * 设置强制推送（等同于 --force）。
+     *
+     * <p>内部使用 RefSpec 前缀 '+' 实现。注意：这会覆盖远程分支历史，慎用。</p>
+     *
+     * @return 当前操作实例
+     */
     public PushOperation force() {
         this.force = true;
         return this;
     }
 
     /**
-    * 推送标签（git push --tags）。
-    *
-    * @return 当前操作实例
-    */
+     * 推送标签（git push --tags）。
+     *
+     * @return 当前操作实例
+     */
     public PushOperation tags() {
         this.pushTags = true;
         return this;
     }
 
     /**
-    * 设置提交备注 (prompt)，记录在操作日志中。
-    *
-    * <p>JGit 原生 push 本身不传输 commit message，此 prompt 仅作为
-    * 业务语义补充，便于日志追踪。</p>
-    *
-    * @param prompt 备注内容
-    * @return 当前操作实例
-    */
+     * 设置提交备注 (prompt)，记录在操作日志中。
+     *
+     * <p>JGit 原生 push 本身不传输 commit message，此 prompt 仅作为
+     * 业务语义补充，便于日志追踪。</p>
+     *
+     * @param prompt 备注内容
+     * @return 当前操作实例
+     */
     public PushOperation prompt(String prompt) {
         log.info("Git push prompt: {}", prompt);
         return this;
     }
 
     /**
-    * 设置进度监听器。
-    *
-    * @param listener 进度监听器
-    * @return 当前操作实例
-    */
+     * 设置进度监听器。
+     *
+     * @param listener 进度监听器
+     * @return 当前操作实例
+     */
     public PushOperation progressListener(GitProgressListener listener) {
         this.progressListener = listener;
         return this;
@@ -176,10 +176,10 @@ public class PushOperation {
     // ==================== 执行方法 ====================
 
     /**
-    * 执行推送。
-    *
-    * @return 同步模式返回 {@link PushResult}，异步模式返回 {@link CompletableFuture<PushResult>}
-    */
+     * 执行推送。
+     *
+     * @return 同步模式返回 {@link PushResult}，异步模式返回 {@link CompletableFuture<PushResult>}
+     */
     @SuppressWarnings("unchecked")
     public Object execute() {
         if (asyncMode) {
@@ -189,13 +189,13 @@ public class PushOperation {
     }
 
     /**
-    * 执行实际推送逻辑。
-    *
-    * <p>构造 JGit PushCommand，设远端、refspec、进度监视器，然后执行 push。
-    * 最后统计所有返回的 RemoteRefUpdate 数量，形成 PushResult。</p>
-    *
-    * @return 推送结果
-    */
+     * 执行实际推送逻辑。
+     *
+     * <p>构造 JGit PushCommand，设远端、refspec、进度监视器，然后执行 push。
+     * 最后统计所有返回的 RemoteRefUpdate 数量，形成 PushResult。</p>
+     *
+     * @return 推送结果
+     */
     private PushResult doPush() {
         try {
             // 确保仓库已打开

@@ -19,113 +19,113 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/12
-*/
+ */
 public interface VectorStorage extends AutoCloseable {
 
     /**
-    * 获取向量维度。
-    *
-    * @return 向量维度
-    */
+     * 获取向量维度。
+     *
+     * @return 向量维度
+     */
     int dimension();
 
     /**
-    * 添加向量到存储。
-    *
-    * @param id     向量标识
-    * @param vector 向量数据
-    * @return 是否成功
-    */
+     * 添加向量到存储。
+     *
+     * @param id     向量标识
+     * @param vector 向量数据
+     * @return 是否成功
+     */
     boolean add(String id, float[] vector);
 
     /**
-    * 添加向量对象到存储。
-    *
-    * @param vector 向量对象
-    * @return 是否成功
-    */
+     * 添加向量对象到存储。
+     *
+     * @param vector 向量对象
+     * @return 是否成功
+     */
     default boolean add(Vector vector) {
         return add(vector.id(), vector.data());
     }
 
     /**
-    * 搜索与查询向量最相似的 Top-K 个向量。
-    *
-    * @param query 查询向量
-    * @param topK  返回结果数量
-    * @return 按相似度排序的向量列表
-    */
+     * 搜索与查询向量最相似的 Top-K 个向量。
+     *
+     * @param query 查询向量
+     * @param topK  返回结果数量
+     * @return 按相似度排序的向量列表
+     */
     List<Vector> search(float[] query, int topK);
 
     /**
-    * 搜索与查询向量最相似的 Top-K 个向量。
-    *
-    * @param query 查询向量对象
-    * @param topK  返回结果数量
-    * @return 按相似度排序的向量列表
-    */
+     * 搜索与查询向量最相似的 Top-K 个向量。
+     *
+     * @param query 查询向量对象
+     * @param topK  返回结果数量
+     * @return 按相似度排序的向量列表
+     */
     default List<Vector> search(Vector query, int topK) {
         return search(query.data(), topK);
     }
 
     /**
-    * 获取存储中的向量总数。
-    *
-    * @return 向量数量
-    */
+     * 获取存储中的向量总数。
+     *
+     * @return 向量数量
+     */
     int size();
 
     /**
-    * 删除指定 标识 前缀的所有向量。
-    * <p>
-    * 默认实现抛出 {@link UnsupportedOperationException}，
-    * 子类（如 {@link MemoryVectorStorage}）应覆写以支持批量删除。
-    * </p>
-    *
-    * @param idPrefix 标识 前缀
-    * @return 删除的向量数量
-    */
+     * 删除指定 标识 前缀的所有向量。
+     * <p>
+     * 默认实现抛出 {@link UnsupportedOperationException}，
+     * 子类（如 {@link MemoryVectorStorage}）应覆写以支持批量删除。
+     * </p>
+     *
+     * @param idPrefix 标识 前缀
+     * @return 删除的向量数量
+     */
     default int removeByIdPrefix(String idPrefix) {
         throw new UnsupportedOperationException("当前实现不支持按前缀删除向量");
     }
 
     /**
-    * 删除指定 标识 的向量。
-    *
-    * @param id 向量标识
-    * @return 是否删除成功（id 不存在时返回 false）
-    */
+     * 删除指定 标识 的向量。
+     *
+     * @param id 向量标识
+     * @return 是否删除成功（id 不存在时返回 false）
+     */
     boolean remove(String id);
 
     /**
-    * 更新指定 标识 的向量数据。
-    *
-    * @param id     向量标识
-    * @param vector 新的向量数据
-    * @return 是否更新成功（id 不存在时返回 false）
-    */
+     * 更新指定 标识 的向量数据。
+     *
+     * @param id     向量标识
+     * @param vector 新的向量数据
+     * @return 是否更新成功（id 不存在时返回 false）
+     */
     default boolean update(String id, float[] vector) {
         throw new UnsupportedOperationException("当前实现不支持 update");
     }
 
     /**
-    * 清空所有向量。
-    */
+     * 清空所有向量。
+     */
     void clear();
 
     /**
-    * 重建索引（将内存中的图/量化状态持久化到磁盘）。
-    * <p>
-    * 默认实现为空；具体存储实现可选择支持。
-    * </p>
-    */
+     * 重建索引（将内存中的图/量化状态持久化到磁盘）。
+     * <p>
+     * 默认实现为空；具体存储实现可选择支持。
+     * </p>
+     */
     default void rebuild() {
         // 默认无操作
     }
 
     /**
-    * 关闭存储，释放资源。
-    */
+     * 关闭存储，释放资源。
+     */
     @Override
     void close();
 }

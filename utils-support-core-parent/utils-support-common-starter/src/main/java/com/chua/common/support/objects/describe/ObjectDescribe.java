@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Getter
 public class ObjectDescribe {
 
@@ -31,21 +31,21 @@ public class ObjectDescribe {
     }
 
     /**
-    * 的
-    *
-    * @param object 对象
-    * @return 的的结果
-    */
+     * 的
+     *
+     * @param object 对象
+     * @return 的的结果
+     */
     public static ObjectDescribe of(Object object) {
         return new ObjectDescribe(object);
     }
 
     /**
-    * 获取方法描述
-    *
-    * @param methodName 方法名称
-    * @return 获取方法describe的结果
-    */
+     * 获取方法描述
+     *
+     * @param methodName 方法名称
+     * @return 获取方法describe的结果
+     */
     public MethodDescribe getMethodDescribe(String methodName) {
         if (objectClass == null || methodName == null) { return null; }
         Method method = findMethod(methodName);
@@ -53,10 +53,10 @@ public class ObjectDescribe {
     }
 
     /**
-    * 获取所有方法描述
-    *
-    * @return 获取方法describes的结果
-    */
+     * 获取所有方法描述
+     *
+     * @return 获取方法describes的结果
+     */
     public List<MethodDescribe> getMethodDescribes() {
         if (objectClass == null) { return Collections.emptyList(); }
         List<Method> methods = ClassUtils.getLocalMethods(objectClass);
@@ -68,11 +68,11 @@ public class ObjectDescribe {
     }
 
     /**
-    * 按名称查找方法
-    *
-    * @param methodName 方法名称
-    * @return find方法的结果
-    */
+     * 按名称查找方法
+     *
+     * @param methodName 方法名称
+     * @return find方法的结果
+     */
     private Method findMethod(String methodName) {
         if (objectClass == null || methodName == null) { return null; }
         for (Method method : ClassUtils.getLocalMethods(objectClass)) {

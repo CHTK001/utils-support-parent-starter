@@ -24,98 +24,98 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-* 钉钉 AI 大模型对话客户端
-*
-* <p>基于钉钉 AI API 的 {@link ChatClient} 实现，通过钉钉开放平台的 AI 对话接口
-* 调用钉钉 AI 助理能力。
-*
-* @author CH
-* @since 4.0.0.42
+ * 钉钉 AI 大模型对话客户端
+ *
+ * <p>基于钉钉 AI API 的 {@link ChatClient} 实现，通过钉钉开放平台的 AI 对话接口
+ * 调用钉钉 AI 助理能力。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"dingding"})
 public class DingdingChatClient implements ChatClient {
 
     /**
-    * 钉钉 AI 默认 API 地址
-    */
+     * 钉钉 AI 默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://api.dingtalk.com/v1.0/ai/conversations";
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final HttpClient httpClient;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ChatClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前温度参数
-    */
+     * 当前温度参数
+     */
     private Double temperature;
 
     /**
-    * 当前最大 令牌 数
-    */
+     * 当前最大 令牌 数
+     */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词
-    */
+     * 当前系统提示词
+     */
     private String system;
 
     /**
-    * 当前会话 标识
-    */
+     * 当前会话 标识
+     */
     private String sessionId;
 
     /**
-    * 对话历史消息列表
-    */
+     * 对话历史消息列表
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录
-    */
+     * 外部传入的完整历史记录
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 图片附件 URL 列表
-    */
+     * 图片附件 URL 列表
+     */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-    * 是否启用深度思考
-    */
+     * 是否启用深度思考
+     */
     private boolean thinking;
 
     /**
-    * 深度思考力度
-    */
+     * 深度思考力度
+     */
     private String thinkingEffort;
 
     /**
-    * 是否启用智能搜索
-    */
+     * 是否启用智能搜索
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器
-    */
+     * 技能管理器
+     */
     private SkillManager skillManager;
 
     /**
-    * 构造钉钉 AI 对话客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造钉钉 AI 对话客户端
+     *
+     * @param setting 客户端配置
+     */
     public DingdingChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -264,12 +264,12 @@ public ChatClient newChat() {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();
@@ -363,12 +363,12 @@ public ChatClient newChat() {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * <p>若未配置地址则使用默认的钉钉 AI API 地址。
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * <p>若未配置地址则使用默认的钉钉 AI API 地址。
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -381,11 +381,11 @@ public ChatClient newChat() {
     }
 
     /**
-    * 转义 JSON 字符串中的特殊字符
-    *
-    * @param input 原始字符串
-    * @return 转义后的字符串
-    */
+     * 转义 JSON 字符串中的特殊字符
+     *
+     * @param input 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
@@ -395,22 +395,22 @@ public ChatClient newChat() {
     }
 
     /**
-    * 转为int
-    *
-    * @param val val
-    * @return 转为int的结果
-    */
+     * 转为int
+     *
+     * @param val val
+     * @return 转为int的结果
+     */
     private static Integer toInt(Object val) {
         if (val instanceof Number n) { return n.intValue(); }
         return null;
     }
 
     /**
-    * 代理selector
-    *
-    * @param proxyStr 代理str
-    * @return 代理selector的结果
-    */
+     * 代理selector
+     *
+     * @param proxyStr 代理str
+     * @return 代理selector的结果
+     */
     private static ProxySelector proxySelector(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;

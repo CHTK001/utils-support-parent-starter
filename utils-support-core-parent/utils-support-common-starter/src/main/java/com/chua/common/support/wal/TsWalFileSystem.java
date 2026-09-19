@@ -16,14 +16,14 @@ import java.util.Optional;
  * @param now now
  * @return 是否expired的结果
  * @param config 配置
-*/
+ */
 @Spi("wal-ts")
 public class TsWalFileSystem extends AbstractWalFileSystem {
 
     /**
-    * tswal文件系统。
-    * @param config 配置
-    */
+     * tswal文件系统。
+     * @param config 配置
+     */
     public TsWalFileSystem(WalStoreConfig config) throws IOException {
         super(config);
     }
@@ -34,7 +34,7 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
  * decode键。
  * @param payload payload
  * @return decode键的结果
-*/
+ */
 
     @Override
     protected String decodeKey(byte[] payload) {
@@ -47,12 +47,12 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         }
         return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
     /**
-    * encode。
-    * @param measure 测量
-    * @param ts ts
-    * @param value 值
-    * @return encode的结果
-    */
+     * encode。
+     * @param measure 测量
+     * @param ts ts
+     * @param value 值
+     * @return encode的结果
+     */
     }
 
     /**
@@ -72,13 +72,13 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         bb.putDouble(value);
         return bb.array();
     /**
-    * encodewithttl。
-    * @param measure 测量
-    * @param ts ts
-    * @param value 值
-    * @param ttlSec ttlsec
-    * @return encodeWithTtl的结果
-    */
+     * encodewithttl。
+     * @param measure 测量
+     * @param ts ts
+     * @param value 值
+     * @param ttlSec ttlsec
+     * @return encodeWithTtl的结果
+     */
     }
 
     /**
@@ -100,10 +100,10 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         bb.putInt(ttlSec);
         return bb.array();
     /**
-    * decode。
-    * @param payload payload
-    * @return decode的结果
-    */
+     * decode。
+     * @param payload payload
+     * @return decode的结果
+     */
     }
 
     /**
@@ -134,14 +134,14 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
         Integer ttlSec = pos + 4 <= payload.length ? ByteBuffer.wrap(payload, pos, 4).getInt() : null;
         return Optional.of(new TsRecord(measure, ts, value, ttlSec));
     /**
-    * tsrecord。
-    * @param measure 测量
-    * @param ts ts
-    * @param value 值
-    * @param ttlSec ttlsec
-    * @return TsRecord的结果
-    * @param now now
-    */
+     * tsrecord。
+     * @param measure 测量
+     * @param ts ts
+     * @param value 值
+     * @param ttlSec ttlsec
+     * @return TsRecord的结果
+     * @param now now
+     */
     }
 
     /**
@@ -155,9 +155,9 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
      */
     public record TsRecord(String measure, long ts, double value, Integer ttlSec) {
         /**
-        * expireAt。
-        * @return expireAt的结果
-        */
+         * expireAt。
+         * @return expireAt的结果
+         */
         public long expireAt() {
             return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
         }

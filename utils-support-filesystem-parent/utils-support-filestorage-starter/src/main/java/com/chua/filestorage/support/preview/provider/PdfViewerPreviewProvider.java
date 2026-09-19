@@ -10,38 +10,38 @@ import java.util.Base64;
 import java.util.Locale;
 
 /**
-* PDF 预览提供者：返回内嵌 PDF.js 的 HTML+JS 页面，浏览器无需插件即可渲染 PDF。
-*
-* <p>PDF 字节以 base64 嵌入 HTML，适合中小文件（&lt;10MB）。
-* 大文件场景建议配合分块加载。</p>
-*
-* <p>PDF.js 主库与 Worker 由宿主服务从同源路径 {@code /preview-vendor/pdf/}
-* 提供，不依赖公网 CDN，保证内网部署可用。</p>
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * PDF 预览提供者：返回内嵌 PDF.js 的 HTML+JS 页面，浏览器无需插件即可渲染 PDF。
+ *
+ * <p>PDF 字节以 base64 嵌入 HTML，适合中小文件（&lt;10MB）。
+ * 大文件场景建议配合分块加载。</p>
+ *
+ * <p>PDF.js 主库与 Worker 由宿主服务从同源路径 {@code /preview-vendor/pdf/}
+ * 提供，不依赖公网 CDN，保证内网部署可用。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Spi("preview-pdf")
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-    * 本地预览资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供，避免依赖公网 CDN）
-    */
+     * 本地预览资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供，避免依赖公网 CDN）
+     */
     private static final String VENDOR_BASE = "/preview-vendor/pdf/";
 
     /**
-    * PDF.js 主库（UMD）
-    */
+     * PDF.js 主库（UMD）
+     */
     private static final String PDF_JS = VENDOR_BASE + "pdf.min.js";
 
     /**
-    * PDF.js  Worker 脚本（UMD）
-    */
+     * PDF.js  Worker 脚本（UMD）
+     */
     private static final String PDF_WORKER_JS = VENDOR_BASE + "pdf.worker.min.js";
 
     /**
-    * Base64 内嵌 PDF 预览允许的最大字节数（约 10 MB，避免生成超大 HTML 页面拖垮浏览器）
-    */
+     * Base64 内嵌 PDF 预览允许的最大字节数（约 10 MB，避免生成超大 HTML 页面拖垮浏览器）
+     */
     private static final long MAX_PDF_PREVIEW_BYTES = 10L * 1024 * 1024;
 
     @Override

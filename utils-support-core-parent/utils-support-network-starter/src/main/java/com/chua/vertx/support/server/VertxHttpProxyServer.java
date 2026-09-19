@@ -22,22 +22,22 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Vert.x 事件循环的 HTTP 反向代理服务器，与
-* {@link com.chua.common.support.network.server.proxy.TcpProxyServer} 对齐。
-*
-* <p>接收前端 HTTP 请求 → 按 {@link ProxyTargetResolver} 解析后端地址 →
-* 经 HTTP客户端 转发后端 → 回传响应。全链路事件循环异步，天然高吞吐。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Vert.x 事件循环的 HTTP 反向代理服务器，与
+ * {@link com.chua.common.support.network.server.proxy.TcpProxyServer} 对齐。
+ *
+ * <p>接收前端 HTTP 请求 → 按 {@link ProxyTargetResolver} 解析后端地址 →
+ * 经 HTTP客户端 转发后端 → 回传响应。全链路事件循环异步，天然高吞吐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("vertx-http-proxy")
 public class VertxHttpProxyServer extends AbstractServer {
 
     /**
-    * 后端地址解析器
-    */
+     * 后端地址解析器
+     */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
 
     /** Vertx */
@@ -58,22 +58,22 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     /**
-    * 创建 vertxhttp代理服务端 实例
-    * @param setting setting
-    * @param targetResolver 代理Target解析器
-    * @param targetResolver Target解析器
-    */
+     * 创建 vertxhttp代理服务端 实例
+     * @param setting setting
+     * @param targetResolver 代理Target解析器
+     * @param targetResolver Target解析器
+     */
     public VertxHttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         this.targetResolver = targetResolver;
     }
 
     /**
-    * 创建 vertxhttp代理服务端 实例
-    * @param setting setting
-    * @param backend inetSocket地址
-    * @param backend backend
-    */
+     * 创建 vertxhttp代理服务端 实例
+     * @param setting setting
+     * @param backend inetSocket地址
+     * @param backend backend
+     */
     public VertxHttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
         this.targetResolver = remote -> backend;
@@ -135,10 +135,10 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     /**
-    * 代理处理：解析后端 → HTTP客户端 转发 → 回传响应。
-    *
-    * @param front 前端请求
-    */
+     * 代理处理：解析后端 → HTTP客户端 转发 → 回传响应。
+     *
+     * @param front 前端请求
+     */
     private void handleProxy(HttpServerRequest front) {
         InetSocketAddress backend;
         try {
@@ -176,11 +176,11 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     /**
-    * 回传后端响应。
-    *
-    * @param resp      前端响应
-    * @param backResp  后端响应
-    */
+     * 回传后端响应。
+     *
+     * @param resp      前端响应
+     * @param backResp  后端响应
+     */
     private void forwardResponse(HttpServerResponse resp,
                                  io.vertx.core.http.HttpClientResponse backResp) {
         resp.setStatusCode(backResp.statusCode());

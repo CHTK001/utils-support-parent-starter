@@ -34,60 +34,60 @@ import java.util.stream.Stream;
  * @param <T> 值类型
  * @author CH
  * @since 2020/12/19
-*/
+ */
 public interface Value<T> extends Serializable {
 
     /**
-    * 创建 值 实例。
-    * <p>值为 null 时返回 {@link NullValue} 单例，否则返回 {@link DefaultValue} 实例。</p>
-    *
-    * @param value 值
-    * @param <T> 值类型
-    * @return Value 实例
-    */
+     * 创建 值 实例。
+     * <p>值为 null 时返回 {@link NullValue} 单例，否则返回 {@link DefaultValue} 实例。</p>
+     *
+     * @param value 值
+     * @param <T> 值类型
+     * @return Value 实例
+     */
 @SuppressWarnings("ALL")
     static <T> Value<T> of(T value) {
         return null == value ? (Value<T>) NullValue.INSTANCE : new DefaultValue<>(value);
     }
 
     /**
-    * 从 {@link Optional} 创建 值 实例。
-    * <p>Optional 为空（或本身为 null）时返回 {@link NullValue} 单例，否则包装其中的值。</p>
-    *
-    * @param optional 期权，可为 空
-    * @param <T> 值类型
-    * @return Value 实例
-    */
+     * 从 {@link Optional} 创建 值 实例。
+     * <p>Optional 为空（或本身为 null）时返回 {@link NullValue} 单例，否则包装其中的值。</p>
+     *
+     * @param optional 期权，可为 空
+     * @param <T> 值类型
+     * @return Value 实例
+     */
     @SuppressWarnings("ALL")
     static <T> Value<T> ofOptional(Optional<? extends T> optional) {
         return of(optional == null ? null : optional.orElse(null));
     }
 
     /**
-    * 获取原始值。
-    *
-    * @return 原始值，可能为 空
-    */
+     * 获取原始值。
+     *
+     * @return 原始值，可能为 空
+     */
     T getValue();
 
     /**
-    * 获取值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 值或默认值
-    */
+     * 获取值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 值或默认值
+     */
     default T getDefaultValue(Object defaultValue) {
         return Optional.ofNullable(getValue()).orElse((T) defaultValue);
     }
 
     /**
-    * 获取指定类型的值。
-    * <p>通过 {@link com.chua.common.support.converter.Converter} 将原始值转换为目标类型。</p>
-    *
-    * @param target 目标类型
-    * @param <E> 目标类型
-    * @return 转换后的值
-    */
+     * 获取指定类型的值。
+     * <p>通过 {@link com.chua.common.support.converter.Converter} 将原始值转换为目标类型。</p>
+     *
+     * @param target 目标类型
+     * @param <E> 目标类型
+     * @return 转换后的值
+     */
     default <E> E getValue(Class<E> target) {
         if (target == null || target == Object.class) {
             return (E) getValue();
@@ -96,233 +96,233 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 获取转换过程中产生的异常。
-    *
-    * @return 异常，可能为 空
-    */
+     * 获取转换过程中产生的异常。
+     *
+     * @return 异常，可能为 空
+     */
     Throwable getThrowable();
 
     /**
-    * 判断当前值是否为 空。
-    *
-    * @return true 表示为 空
-    */
+     * 判断当前值是否为 空。
+     *
+     * @return true 表示为 空
+     */
     boolean isNull();
 
     /**
-    * 判断当前值是否等于指定值。
-    *
-    * @param value 指定值
-    * @return true 表示相等
-    */
+     * 判断当前值是否等于指定值。
+     *
+     * @param value 指定值
+     * @return true 表示相等
+     */
     boolean is(T value);
 
     /**
-    * 获取字符串值（通过类型转换）。
-    *
-    * @return 字符串值
-    */
+     * 获取字符串值（通过类型转换）。
+     *
+     * @return 字符串值
+     */
     default String getStringValue() {
         return getValue(String.class);
     }
 
     /**
-    * 获取字符串值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 字符串值或默认值
-    */
+     * 获取字符串值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 字符串值或默认值
+     */
     default String asString(String defaultValue) {
         return ObjectUtils.defaultIfNull(asString(), defaultValue);
     }
 
     /**
-    * 获取字符串值（同 {@link #getStringValue()}）。
-    *
-    * @return 字符串值
-    */
+     * 获取字符串值（同 {@link #getStringValue()}）。
+     *
+     * @return 字符串值
+     */
     default String asString() {
         return getStringValue();
     }
 
     /**
-    * 获取 Integer 值（通过类型转换）。
-    *
-    * @return 整数值
-    */
+     * 获取 Integer 值（通过类型转换）。
+     *
+     * @return 整数值
+     */
     default Integer asInteger() {
         return getValue(Integer.class);
     }
 
     /**
-    * 获取 Integer 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 整数值或默认值
-    */
+     * 获取 Integer 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 整数值或默认值
+     */
     default Integer asInteger(Integer defaultValue) {
         return ObjectUtils.defaultIfNull(asInteger(), defaultValue);
     }
 
     /**
-    * 获取 布尔值 值（通过类型转换）。
-    *
-    * @return 布尔值
-    */
+     * 获取 布尔值 值（通过类型转换）。
+     *
+     * @return 布尔值
+     */
     default Boolean asBoolean() {
         return getValue(Boolean.class);
     }
 
     /**
-    * 获取 布尔值 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 布尔值或默认值
-    */
+     * 获取 布尔值 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 布尔值或默认值
+     */
     default Boolean asBoolean(Boolean defaultValue) {
         return ObjectUtils.defaultIfNull(asBoolean(), defaultValue);
     }
 
     /**
-    * 获取 Long 值（通过类型转换）。
-    *
-    * @return 长整数值
-    */
+     * 获取 Long 值（通过类型转换）。
+     *
+     * @return 长整数值
+     */
     default Long asLong() {
         return getValue(Long.class);
     }
 
     /**
-    * 获取 Long 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 长整数值或默认值
-    */
+     * 获取 Long 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 长整数值或默认值
+     */
     default Long asLong(Long defaultValue) {
         return ObjectUtils.defaultIfNull(asLong(), defaultValue);
     }
 
     /**
-    * 获取 Float 值（通过类型转换）。
-    *
-    * @return 浮点值
-    */
+     * 获取 Float 值（通过类型转换）。
+     *
+     * @return 浮点值
+     */
     default Float asFloat() {
         return getValue(Float.class);
     }
 
     /**
-    * 获取 Float 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 浮点值或默认值
-    */
+     * 获取 Float 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 浮点值或默认值
+     */
     default Float asFloat(Float defaultValue) {
         return ObjectUtils.defaultIfNull(asFloat(), defaultValue);
     }
 
     /**
-    * 获取 Double 值（通过类型转换）。
-    *
-    * @return 双精度值
-    */
+     * 获取 Double 值（通过类型转换）。
+     *
+     * @return 双精度值
+     */
     default Double asDouble() {
         return getValue(Double.class);
     }
 
     /**
-    * 获取 Double 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 双精度值或默认值
-    */
+     * 获取 Double 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 双精度值或默认值
+     */
     default Double asDouble(Double defaultValue) {
         return ObjectUtils.defaultIfNull(asDouble(), defaultValue);
     }
 
     /**
-    * 获取 Byte 值（通过类型转换）。
-    *
-    * @return 字节值
-    */
+     * 获取 Byte 值（通过类型转换）。
+     *
+     * @return 字节值
+     */
     default Byte asByte() {
         return getValue(Byte.class);
     }
 
     /**
-    * 获取 Byte 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return 字节值或默认值
-    */
+     * 获取 Byte 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return 字节值或默认值
+     */
     default Byte asByte(Byte defaultValue) {
         return ObjectUtils.defaultIfNull(asByte(), defaultValue);
     }
 
     /**
-    * 获取 bigdecimal 值（通过类型转换）。
-    *
-    * @return BigDecimal 值
-    */
+     * 获取 bigdecimal 值（通过类型转换）。
+     *
+     * @return BigDecimal 值
+     */
     default BigDecimal asBigDecimal() {
         return getValue(BigDecimal.class);
     }
 
     /**
-    * 获取 bigdecimal 值，如果为 空 则返回默认值。
-    *
-    * @param defaultValue 默认值
-    * @return BigDecimal 值或默认值
-    */
+     * 获取 bigdecimal 值，如果为 空 则返回默认值。
+     *
+     * @param defaultValue 默认值
+     * @return BigDecimal 值或默认值
+     */
     default BigDecimal asBigDecimal(BigDecimal defaultValue) {
         return ObjectUtils.defaultIfNull(asBigDecimal(), defaultValue);
     }
 
     /**
-    * 获取 bigdecimal 值，如果为 空 则返回 {@link BigDecimal#ZERO}。
-    *
-    * @return BigDecimal 值或 0
-    */
+     * 获取 bigdecimal 值，如果为 空 则返回 {@link BigDecimal#ZERO}。
+     *
+     * @return BigDecimal 值或 0
+     */
     default BigDecimal asBigDecimalOrZero() {
         return asBigDecimal(BigDecimal.ZERO);
     }
 
     /**
-    * 获取单元素列表；值为 空 时返回空列表（而非 空）。
-    *
-    * @return 只含该值的不可变列表，或空列表
-    */
+     * 获取单元素列表；值为 空 时返回空列表（而非 空）。
+     *
+     * @return 只含该值的不可变列表，或空列表
+     */
     default List<T> asList() {
         T value = getValue();
         return value == null ? List.of() : List.of(value);
     }
 
     /**
-    * 获取单元素集合；值为 空 时返回空集合（而非 空）。
-    *
-    * @return 只含该值的不可变 设置，或空集合
-    */
+     * 获取单元素集合；值为 空 时返回空集合（而非 空）。
+     *
+     * @return 只含该值的不可变 设置，或空集合
+     */
     default Set<T> asSet() {
         T value = getValue();
         return value == null ? Set.of() : Set.of(value);
     }
 
     /**
-    * 如果当前值不为 空，则返回该值；否则返回 {@code other}。
-    *
-    * @param other 备用值
-    * @return 值或备用值
-    */
+     * 如果当前值不为 空，则返回该值；否则返回 {@code other}。
+     *
+     * @param other 备用值
+     * @return 值或备用值
+     */
     default T orElse(T other) {
         return getValue() != null ? getValue() : other;
     }
 
     /**
-    * 如果当前值不为 空，则返回该值；否则返回 {@code other} 提供的值。
-    *
-    * @param other 备用值提供者
-    * @return 值或备用值
-    */
+     * 如果当前值不为 空，则返回该值；否则返回 {@code other} 提供的值。
+     *
+     * @param other 备用值提供者
+     * @return 值或备用值
+     */
     @SuppressWarnings("NullAway")
     default T orElseGet(Supplier<? extends T> other) {
         T value = getValue();
@@ -333,13 +333,13 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 如果当前值不为 空，则返回该值；否则抛出指定异常。
-    *
-    * @param exceptionSupplier 异常提供者
-    * @param <X>             异常类型
-    * @return 值
-    * @throws X 如果值为 空
-    */
+     * 如果当前值不为 空，则返回该值；否则抛出指定异常。
+     *
+     * @param exceptionSupplier 异常提供者
+     * @param <X>             异常类型
+     * @return 值
+     * @throws X 如果值为 空
+     */
     default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         T value = getValue();
         if (value != null) {
@@ -352,12 +352,12 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 如果当前值不为 空，则将其转换为新的 {@link Value}。
-    *
-    * @param mapper 转换函数
-    * @param <R>    转换后的值类型
-    * @return 转换后的 值
-    */
+     * 如果当前值不为 空，则将其转换为新的 {@link Value}。
+     *
+     * @param mapper 转换函数
+     * @param <R>    转换后的值类型
+     * @return 转换后的 值
+     */
     @SuppressWarnings({"unchecked", "NullAway"})
     default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
         T v = getValue();
@@ -368,12 +368,12 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 如果当前值不为 空，则将其转换为新的 {@link Value}。
-    *
-    * @param mapper 转换函数，返回一个新的 值
-    * @param <R>    转换后的值类型
-    * @return 转换后的 值
-    */
+     * 如果当前值不为 空，则将其转换为新的 {@link Value}。
+     *
+     * @param mapper 转换函数，返回一个新的 值
+     * @param <R>    转换后的值类型
+     * @return 转换后的 值
+     */
     @SuppressWarnings({"all", "unchecked", "NullAway"})
     default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
         T v = getValue();
@@ -388,10 +388,10 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 如果当前值不为 空，则执行指定的消费行为。
-    *
-    * @param consumer 消费行为
-    */
+     * 如果当前值不为 空，则执行指定的消费行为。
+     *
+     * @param consumer 消费行为
+     */
     default void ifPresent(Consumer<? super T> consumer) {
         T value = getValue();
         if (value != null && consumer != null) {
@@ -400,11 +400,11 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 如果当前值不为 空 且满足谓词，则返回当前 值；否则返回 {@link NullValue}。
-    *
-    * @param predicate 谓词，不能为 空
-    * @return 过滤后的 值
-    */
+     * 如果当前值不为 空 且满足谓词，则返回当前 值；否则返回 {@link NullValue}。
+     *
+     * @param predicate 谓词，不能为 空
+     * @return 过滤后的 值
+     */
     @SuppressWarnings({"all", "unchecked"})
     default Value<T> filter(Predicate<? super T> predicate) {
         T value = getValue();
@@ -418,29 +418,29 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 获取值的 流；值为 空 时返回空流（而非 空）。
-    *
-    * @return 含该值的单元素流，或空流
-    */
+     * 获取值的 流；值为 空 时返回空流（而非 空）。
+     *
+     * @return 含该值的单元素流，或空流
+     */
     default Stream<T> stream() {
         return Stream.ofNullable(getValue());
     }
 
     /**
-    * 转换为 JDK {@link Optional}；值为 空 时得到空 期权。
-    *
-    * @return 包装该值的 Optional
-    */
+     * 转换为 JDK {@link Optional}；值为 空 时得到空 期权。
+     *
+     * @return 包装该值的 Optional
+     */
     default Optional<T> toOptional() {
         return Optional.ofNullable(getValue());
     }
 
     /**
-    * 如果当前值不为 空，执行副作用后返回当前 值（链式窥视，不改变值）。
-    *
-    * @param action 副作用行为，不能为 空
-    * @return 当前 值
-    */
+     * 如果当前值不为 空，执行副作用后返回当前 值（链式窥视，不改变值）。
+     *
+     * @param action 副作用行为，不能为 空
+     * @return 当前 值
+     */
     default Value<T> peek(Consumer<? super T> action) {
         T value = getValue();
         if (value != null && action != null) {
@@ -450,10 +450,10 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-    * 判断当前值是否为空（空）。
-    *
-    * @return true 表示为空值
-    */
+     * 判断当前值是否为空（空）。
+     *
+     * @return true 表示为空值
+     */
     default boolean isEmpty() {
         return isNull();
     }

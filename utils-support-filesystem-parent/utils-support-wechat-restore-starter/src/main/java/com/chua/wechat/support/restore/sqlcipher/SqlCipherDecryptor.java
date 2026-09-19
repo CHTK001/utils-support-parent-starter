@@ -54,53 +54,53 @@ import java.util.Objects;
 public final class SqlCipherDecryptor {
 
     /**
-    * 明文 SQLite 文件头魔数
-    */
+     * 明文 SQLite 文件头魔数
+     */
     private static final byte[] SQLITE_MAGIC = "SQLite format 3\u0000".getBytes(StandardCharsets.US_ASCII);
 
     /**
-    * AES-CBC 无填充变换名
-    */
+     * AES-CBC 无填充变换名
+     */
     private static final String AES_CBC_NO_PADDING = "AES/CBC/NoPadding";
 
     /**
-    * HMAC 密钥派生时的 PBKDF2 迭代次数（SQLCipher 固定为 2）
-    */
+     * HMAC 密钥派生时的 PBKDF2 迭代次数（SQLCipher 固定为 2）
+     */
     private static final int HMAC_KEY_ITERATIONS = 2;
 
     /**
-    * HMAC salt 与文件 salt 的异或掩码
-    */
+     * HMAC salt 与文件 salt 的异或掩码
+     */
     private static final byte HMAC_SALT_XOR = 0x3A;
 
     /**
-    * 文件头中「页大小」字段的偏移
-    */
+     * 文件头中「页大小」字段的偏移
+     */
     private static final int OFFSET_PAGE_SIZE = 16;
 
     /**
-    * 文件头中「保留区字节数」字段的偏移
-    */
+     * 文件头中「保留区字节数」字段的偏移
+     */
     private static final int OFFSET_RESERVED = 20;
 
     /**
-    * 文件头读取长度（覆盖到保留区字段）
-    */
+     * 文件头读取长度（覆盖到保留区字段）
+     */
     private static final int HEADER_PROBE_LENGTH = 32;
 
     /**
-    * 页大小字段为 1 时表示 65536
-    */
+     * 页大小字段为 1 时表示 65536
+     */
     private static final int PAGE_SIZE_64K = 65536;
 
     /**
-    * 写缓冲大小
-    */
+     * 写缓冲大小
+     */
     private static final int BUFFER_SIZE = 1 << 20;
 
     /**
-    * 工具类禁止实例化。
-    */
+     * 工具类禁止实例化。
+     */
     private SqlCipherDecryptor() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
@@ -108,11 +108,11 @@ public final class SqlCipherDecryptor {
     // ==================== 探测与校验 ====================
 
     /**
-    * 判断文件是否已是明文 SQLite（无需解密）。
-    *
-    * @param source 待判断文件
-    * @return 以 SQLite 文件头开头返回 true
-    */
+     * 判断文件是否已是明文 SQLite（无需解密）。
+     *
+     * @param source 待判断文件
+     * @return 以 SQLite 文件头开头返回 true
+     */
     public static boolean isPlainSqlite(File source) {
         if (source == null || !source.isFile() || source.length() < SqlCipherProfile.SALT_SIZE) {
             return false;
@@ -126,24 +126,24 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 建立密钥探针，用于批量试密钥时避免重复读取页面。
-    *
-    * @param source 加密数据库文件
-    * @return 密钥探针
-    * @throws IOException 读取文件失败
-    */
+     * 建立密钥探针，用于批量试密钥时避免重复读取页面。
+     *
+     * @param source 加密数据库文件
+     * @return 密钥探针
+     * @throws IOException 读取文件失败
+     */
     public static KeyProbe keyProbe(File source) throws IOException {
         return keyProbe(source, SqlCipherProfile.candidates().getFirst());
     }
 
     /**
-    * 建立密钥探针（指定参数档案）。
-    *
-    * @param source  加密数据库文件
-    * @param profile SQLCipher 参数档案
-    * @return 密钥探针
-    * @throws IOException 读取文件失败或文件不足一页
-    */
+     * 建立密钥探针（指定参数档案）。
+     *
+     * @param source  加密数据库文件
+     * @param profile SQLCipher 参数档案
+     * @return 密钥探针
+     * @throws IOException 读取文件失败或文件不足一页
+     */
     public static KeyProbe keyProbe(File source, SqlCipherProfile profile) throws IOException {
         requireReadable(source);
         Objects.requireNonNull(profile, "SQLCipher 参数档案不能为空");
@@ -155,12 +155,12 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 校验密钥是否可解密该数据库（明文 SQLite 视为通过）。
-    *
-    * @param source 数据库文件
-    * @param encKey 32 字节加密密钥，可为 null
-    * @return 密钥可用返回 true
-    */
+     * 校验密钥是否可解密该数据库（明文 SQLite 视为通过）。
+     *
+     * @param source 数据库文件
+     * @param encKey 32 字节加密密钥，可为 null
+     * @return 密钥可用返回 true
+     */
     public static boolean isKeyValid(File source, byte[] encKey) {
         if (source == null || !source.isFile()) {
             return false;
@@ -172,13 +172,13 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 探测数据库的加密形态与密钥有效性。
-    *
-    * @param source 数据库文件
-    * @param encKey 32 字节加密密钥，为 null 时仅判断是否明文
-    * @return 探测结果
-    * @throws IOException 读取文件失败
-    */
+     * 探测数据库的加密形态与密钥有效性。
+     *
+     * @param source 数据库文件
+     * @param encKey 32 字节加密密钥，为 null 时仅判断是否明文
+     * @return 探测结果
+     * @throws IOException 读取文件失败
+     */
     public static Detection detect(File source, byte[] encKey) throws IOException {
         if (source == null || !source.isFile()) {
             throw new IllegalArgumentException("数据库文件不存在: "
@@ -201,15 +201,15 @@ public final class SqlCipherDecryptor {
     // ==================== 密钥解析 ====================
 
     /**
-    * 解析十六进制密钥文本为 32 字节加密密钥。
-    *
-    * <p>兼容 {@code x'...'} 包裹、{@code 0x} 前缀、空白字符，以及携带 salt 的
-    * 96 位十六进制形态（取前 64 位）。</p>
-    *
-    * @param raw 密钥文本
-    * @return 32 字节加密密钥
-    * @throws IllegalArgumentException 密钥为空、含非十六进制字符或长度不合法
-    */
+     * 解析十六进制密钥文本为 32 字节加密密钥。
+     *
+     * <p>兼容 {@code x'...'} 包裹、{@code 0x} 前缀、空白字符，以及携带 salt 的
+     * 96 位十六进制形态（取前 64 位）。</p>
+     *
+     * @param raw 密钥文本
+     * @return 32 字节加密密钥
+     * @throws IllegalArgumentException 密钥为空、含非十六进制字符或长度不合法
+     */
     public static byte[] parseHexKey(String raw) {
         if (raw == null) {
             throw new IllegalArgumentException("数据库密钥不能为空");
@@ -249,15 +249,15 @@ public final class SqlCipherDecryptor {
     // ==================== 解密 ====================
 
     /**
-    * 解密数据库到指定文件（自动探测参数档案并校验密钥）。
-    *
-    * @param source 加密数据库文件
-    * @param encKey 32 字节加密密钥
-    * @param target 解密输出文件
-    * @return 解密输出文件
-    * @throws IOException              读写失败
-    * @throws GeneralSecurityException 密码学操作失败
-    */
+     * 解密数据库到指定文件（自动探测参数档案并校验密钥）。
+     *
+     * @param source 加密数据库文件
+     * @param encKey 32 字节加密密钥
+     * @param target 解密输出文件
+     * @return 解密输出文件
+     * @throws IOException              读写失败
+     * @throws GeneralSecurityException 密码学操作失败
+     */
     public static File decrypt(File source, byte[] encKey, File target)
             throws IOException, GeneralSecurityException {
         if (isPlainSqlite(source)) {
@@ -274,17 +274,17 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 解密数据库到指定文件（显式指定参数档案）。
-    *
-    * @param source  加密数据库文件
-    * @param encKey  32 字节加密密钥
-    * @param profile SQLCipher 参数档案
-    * @param verify  是否在写出前校验首页结构
-    * @param target  解密输出文件
-    * @return 解密输出文件
-    * @throws IOException              读写失败
-    * @throws GeneralSecurityException 密码学操作失败
-    */
+     * 解密数据库到指定文件（显式指定参数档案）。
+     *
+     * @param source  加密数据库文件
+     * @param encKey  32 字节加密密钥
+     * @param profile SQLCipher 参数档案
+     * @param verify  是否在写出前校验首页结构
+     * @param target  解密输出文件
+     * @return 解密输出文件
+     * @throws IOException              读写失败
+     * @throws GeneralSecurityException 密码学操作失败
+     */
     public static File decrypt(File source, byte[] encKey, SqlCipherProfile profile, boolean verify, File target)
             throws IOException, GeneralSecurityException {
         Objects.requireNonNull(source, "数据库文件不能为空");
@@ -339,14 +339,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 解密到系统临时目录下的临时文件（自动探测档案）。
-    *
-    * @param source 加密数据库文件
-    * @param encKey 32 字节加密密钥
-    * @return 临时明文数据库文件
-    * @throws IOException              读写失败
-    * @throws GeneralSecurityException 密码学操作失败
-    */
+     * 解密到系统临时目录下的临时文件（自动探测档案）。
+     *
+     * @param source 加密数据库文件
+     * @param encKey 32 字节加密密钥
+     * @return 临时明文数据库文件
+     * @throws IOException              读写失败
+     * @throws GeneralSecurityException 密码学操作失败
+     */
     public static File decryptToTemp(File source, byte[] encKey) throws IOException, GeneralSecurityException {
         File temp = Files.createTempFile("wechat-sqlcipher-", "-" + source.getName()).toFile();
         try {
@@ -360,16 +360,16 @@ public final class SqlCipherDecryptor {
     // ==================== 密钥派生与页面解密 ====================
 
     /**
-    * PBKDF2 密钥派生（RFC 2898，手动实现以避免 JDK 内部实现差异）。
-    *
-    * @param macAlgorithm HMAC 算法名，如 {@code HmacSHA512}
-    * @param password     口令字节
-    * @param salt         盐字节
-    * @param iterations   迭代次数
-    * @param length       派生密钥长度（字节）
-    * @return 派生密钥
-    * @throws GeneralSecurityException 算法不可用
-    */
+     * PBKDF2 密钥派生（RFC 2898，手动实现以避免 JDK 内部实现差异）。
+     *
+     * @param macAlgorithm HMAC 算法名，如 {@code HmacSHA512}
+     * @param password     口令字节
+     * @param salt         盐字节
+     * @param iterations   迭代次数
+     * @param length       派生密钥长度（字节）
+     * @return 派生密钥
+     * @throws GeneralSecurityException 算法不可用
+     */
     static byte[] pbkdf2(String macAlgorithm, byte[] password, byte[] salt, int iterations, int length)
             throws GeneralSecurityException {
         if (iterations < 1) {
@@ -401,14 +401,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 派生页面 HMAC 密钥。
-    *
-    * @param encKey  32 字节加密密钥
-    * @param salt    文件头 16 字节 salt
-    * @param profile 参数档案
-    * @return HMAC 密钥
-    * @throws GeneralSecurityException 算法不可用
-    */
+     * 派生页面 HMAC 密钥。
+     *
+     * @param encKey  32 字节加密密钥
+     * @param salt    文件头 16 字节 salt
+     * @param profile 参数档案
+     * @return HMAC 密钥
+     * @throws GeneralSecurityException 算法不可用
+     */
     private static byte[] deriveHmacKey(byte[] encKey, byte[] salt, SqlCipherProfile profile)
             throws GeneralSecurityException {
         byte[] macSalt = new byte[salt.length];
@@ -420,13 +420,13 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 初始化 HMAC。
-    *
-    * @param algorithm HMAC 算法名
-    * @param key       密钥字节
-    * @return 已初始化的 Mac 实例
-    * @throws GeneralSecurityException 算法不可用
-    */
+     * 初始化 HMAC。
+     *
+     * @param algorithm HMAC 算法名
+     * @param key       密钥字节
+     * @return 已初始化的 Mac 实例
+     * @throws GeneralSecurityException 算法不可用
+     */
     private static Mac initMac(String algorithm, byte[] key) throws GeneralSecurityException {
         Mac mac = Mac.getInstance(algorithm);
         mac.init(new SecretKeySpec(key, algorithm));
@@ -434,14 +434,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 解密首页：跳过明文 salt，补回 SQLite 文件头。
-    *
-    * @param page    原始加密页
-    * @param encKey  加密密钥
-    * @param profile 参数档案
-    * @return 明文页
-    * @throws GeneralSecurityException 解密失败
-    */
+     * 解密首页：跳过明文 salt，补回 SQLite 文件头。
+     *
+     * @param page    原始加密页
+     * @param encKey  加密密钥
+     * @param profile 参数档案
+     * @return 明文页
+     * @throws GeneralSecurityException 解密失败
+     */
     private static byte[] decryptFirstPage(byte[] page, byte[] encKey, SqlCipherProfile profile)
             throws GeneralSecurityException {
         byte[] plain = aesDecrypt(encKey, ivOf(page, profile),
@@ -453,14 +453,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 解密非首页。
-    *
-    * @param page    原始加密页
-    * @param encKey  加密密钥
-    * @param profile 参数档案
-    * @return 明文页
-    * @throws GeneralSecurityException 解密失败
-    */
+     * 解密非首页。
+     *
+     * @param page    原始加密页
+     * @param encKey  加密密钥
+     * @param profile 参数档案
+     * @return 明文页
+     * @throws GeneralSecurityException 解密失败
+     */
     private static byte[] decryptPage(byte[] page, byte[] encKey, SqlCipherProfile profile)
             throws GeneralSecurityException {
         byte[] plain = aesDecrypt(encKey, ivOf(page, profile),
@@ -471,14 +471,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * AES-256-CBC 解密。
-    *
-    * @param encKey     密钥
-    * @param iv         初始化向量
-    * @param cipherText 密文
-    * @return 明文
-    * @throws GeneralSecurityException 解密失败
-    */
+     * AES-256-CBC 解密。
+     *
+     * @param encKey     密钥
+     * @param iv         初始化向量
+     * @param cipherText 密文
+     * @return 明文
+     * @throws GeneralSecurityException 解密失败
+     */
     private static byte[] aesDecrypt(byte[] encKey, byte[] iv, byte[] cipherText) throws GeneralSecurityException {
         Cipher cipher = Cipher.getInstance(AES_CBC_NO_PADDING);
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(encKey, "AES"), new IvParameterSpec(iv));
@@ -486,43 +486,43 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 取页面 IV（位于密文区之后、HMAC 之前）。
-    *
-    * @param page    页面字节
-    * @param profile 参数档案
-    * @return 16 字节 IV
-    */
+     * 取页面 IV（位于密文区之后、HMAC 之前）。
+     *
+     * @param page    页面字节
+     * @param profile 参数档案
+     * @return 16 字节 IV
+     */
     private static byte[] ivOf(byte[] page, SqlCipherProfile profile) {
         int offset = profile.pageSize() - profile.reserveSize();
         return Arrays.copyOfRange(page, offset, offset + SqlCipherProfile.IV_SIZE);
     }
 
     /**
-    * 校验页面 HMAC。
-    *
-    * @param page       页面字节
-    * @param macKey     HMAC 密钥
-    * @param profile    参数档案
-    * @param firstPage  是否首页
-    * @param pageNumber 页号（从 1 开始）
-    * @return 校验通过返回 true
-    * @throws GeneralSecurityException HMAC 初始化失败
-    */
+     * 校验页面 HMAC。
+     *
+     * @param page       页面字节
+     * @param macKey     HMAC 密钥
+     * @param profile    参数档案
+     * @param firstPage  是否首页
+     * @param pageNumber 页号（从 1 开始）
+     * @return 校验通过返回 true
+     * @throws GeneralSecurityException HMAC 初始化失败
+     */
     private static boolean hmacMatches(byte[] page, byte[] macKey, SqlCipherProfile profile,
                                       boolean firstPage, int pageNumber) throws GeneralSecurityException {
         return hmacMatches(page, initMac(profile.hmacAlgorithm(), macKey), profile, firstPage, pageNumber);
     }
 
     /**
-    * 校验页面 HMAC（复用已初始化的 Mac）。
-    *
-    * @param page       页面字节
-    * @param mac        已初始化的 Mac
-    * @param profile    参数档案
-    * @param firstPage  是否首页
-    * @param pageNumber 页号
-    * @return 校验通过返回 true
-    */
+     * 校验页面 HMAC（复用已初始化的 Mac）。
+     *
+     * @param page       页面字节
+     * @param mac        已初始化的 Mac
+     * @param profile    参数档案
+     * @param firstPage  是否首页
+     * @param pageNumber 页号
+     * @return 校验通过返回 true
+     */
     private static boolean hmacMatches(byte[] page, Mac mac, SqlCipherProfile profile,
                                       boolean firstPage, int pageNumber) {
         int offset = firstPage ? SqlCipherProfile.SALT_SIZE : 0;
@@ -538,12 +538,12 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 按候选档案探测参数与密钥是否匹配。
-    *
-    * @param source 数据库文件
-    * @param encKey 32 字节密钥，为 null 时返回 null
-    * @return 命中的参数档案，未命中返回 null
-    */
+     * 按候选档案探测参数与密钥是否匹配。
+     *
+     * @param source 数据库文件
+     * @param encKey 32 字节密钥，为 null 时返回 null
+     * @return 命中的参数档案，未命中返回 null
+     */
     private static SqlCipherProfile detectProfile(File source, byte[] encKey) {
         if (source == null || encKey == null || encKey.length != SqlCipherProfile.KEY_SIZE) {
             return null;
@@ -571,12 +571,12 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 校验解密后的首页结构是否符合参数档案。
-    *
-    * @param plainPage 解密后的首页
-    * @param profile   参数档案
-    * @return 结构一致返回 true
-    */
+     * 校验解密后的首页结构是否符合参数档案。
+     *
+     * @param plainPage 解密后的首页
+     * @param profile   参数档案
+     * @return 结构一致返回 true
+     */
     private static boolean structureMatches(byte[] plainPage, SqlCipherProfile profile) {
         if (plainPage.length <= OFFSET_RESERVED || !startsWithMagic(plainPage)) {
             return false;
@@ -594,11 +594,11 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 判断字节数组是否以 SQLite 文件头开头。
-    *
-    * @param bytes 字节数组
-    * @return 是明文 SQLite 返回 true
-    */
+     * 判断字节数组是否以 SQLite 文件头开头。
+     *
+     * @param bytes 字节数组
+     * @return 是明文 SQLite 返回 true
+     */
     private static boolean startsWithMagic(byte[] bytes) {
         if (bytes == null || bytes.length < SQLITE_MAGIC.length) {
             return false;
@@ -612,11 +612,11 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 读取明文 SQLite 的页大小。
-    *
-    * @param source 明文数据库文件
-    * @return 页大小，读取失败返回 0
-    */
+     * 读取明文 SQLite 的页大小。
+     *
+     * @param source 明文数据库文件
+     * @return 页大小，读取失败返回 0
+     */
     private static int readPlainPageSize(File source) {
         try {
             byte[] head = readPage(source, 0, HEADER_PROBE_LENGTH);
@@ -631,11 +631,11 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 页号的 4 字节小端表示。
-    *
-    * @param pageNumber 页号
-    * @return 小端字节数组
-    */
+     * 页号的 4 字节小端表示。
+     *
+     * @param pageNumber 页号
+     * @return 小端字节数组
+     */
     private static byte[] pageNumberLe(int pageNumber) {
         return new byte[]{
                 (byte) pageNumber,
@@ -646,10 +646,10 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 校验密钥长度。
-    *
-    * @param encKey 加密密钥
-    */
+     * 校验密钥长度。
+     *
+     * @param encKey 加密密钥
+     */
     private static void requireKey(byte[] encKey) {
         if (encKey == null || encKey.length != SqlCipherProfile.KEY_SIZE) {
             throw new IllegalArgumentException("加密密钥必须是 " + SqlCipherProfile.KEY_SIZE
@@ -658,10 +658,10 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 校验文件可读。
-    *
-    * @param source 文件
-    */
+     * 校验文件可读。
+     *
+     * @param source 文件
+     */
     private static void requireReadable(File source) {
         if (source == null || !source.isFile()) {
             throw new IllegalArgumentException("数据库文件不存在: "
@@ -670,12 +670,12 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 复制明文数据库。
-    *
-    * @param source 源文件
-    * @param target 目标文件
-    * @throws IOException 复制失败
-    */
+     * 复制明文数据库。
+     *
+     * @param source 源文件
+     * @param target 目标文件
+     * @throws IOException 复制失败
+     */
     private static void copyPlain(File source, File target) throws IOException {
         if (source.getCanonicalFile().equals(target.getCanonicalFile())) {
             return;
@@ -688,14 +688,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 从文件读取指定长度的页面（不足部分零填充）。
-    *
-    * @param source 文件
-    * @param offset 起始偏移
-    * @param length 读取长度
-    * @return 页面字节
-    * @throws IOException 读取失败
-    */
+     * 从文件读取指定长度的页面（不足部分零填充）。
+     *
+     * @param source 文件
+     * @param offset 起始偏移
+     * @param length 读取长度
+     * @return 页面字节
+     * @throws IOException 读取失败
+     */
     private static byte[] readPage(File source, long offset, int length) throws IOException {
         try (FileChannel channel = FileChannel.open(source.toPath(), StandardOpenOption.READ)) {
             return readPage(channel, offset, length);
@@ -703,14 +703,14 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 从通道读取指定长度的页面（不足部分零填充）。
-    *
-    * @param channel 文件通道
-    * @param offset  起始偏移
-    * @param length  读取长度
-    * @return 页面字节
-    * @throws IOException 读取失败
-    */
+     * 从通道读取指定长度的页面（不足部分零填充）。
+     *
+     * @param channel 文件通道
+     * @param offset  起始偏移
+     * @param length  读取长度
+     * @return 页面字节
+     * @throws IOException 读取失败
+     */
     private static byte[] readPage(FileChannel channel, long offset, int length) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(length);
         long position = offset;
@@ -725,13 +725,13 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 读满缓冲区（顺序读）。
-    *
-    * @param channel 文件通道
-    * @param buffer  目标缓冲区
-    * @return 实际读取字节数
-    * @throws IOException 读取失败
-    */
+     * 读满缓冲区（顺序读）。
+     *
+     * @param channel 文件通道
+     * @param buffer  目标缓冲区
+     * @return 实际读取字节数
+     * @throws IOException 读取失败
+     */
     private static int readFully(FileChannel channel, ByteBuffer buffer) throws IOException {
         int total = 0;
         while (buffer.hasRemaining()) {
@@ -745,34 +745,34 @@ public final class SqlCipherDecryptor {
     }
 
     /**
-    * 数据库加密形态探测结果。
-    *
-    * @param plaintext 是否已是明文 SQLite
-    * @param keyValid  密钥是否可用
-    * @param profile   命中的参数档案，明文或未命中时为 null
-    * @param pageSize  页大小
-    * @param pageCount 页数
-    */
+     * 数据库加密形态探测结果。
+     *
+     * @param plaintext 是否已是明文 SQLite
+     * @param keyValid  密钥是否可用
+     * @param profile   命中的参数档案，明文或未命中时为 null
+     * @param pageSize  页大小
+     * @param pageCount 页数
+     */
     public record Detection(boolean plaintext, boolean keyValid, SqlCipherProfile profile,
                             int pageSize, int pageCount) {
     }
 
     /**
-    * 密钥探针：缓存首页与 salt，用于批量校验候选密钥。
-    *
-    * @param salt    文件头 16 字节 salt
-    * @param page    首页原始字节
-    * @param profile 参数档案
-    * @return 结果值
-    */
+     * 密钥探针：缓存首页与 salt，用于批量校验候选密钥。
+     *
+     * @param salt    文件头 16 字节 salt
+     * @param page    首页原始字节
+     * @param profile 参数档案
+     * @return 结果值
+     */
     public record KeyProbe(byte[] salt, byte[] page, SqlCipherProfile profile) {
 
         /**
-        * 校验候选密钥是否通过首页 HMAC 校验。
-        *
-        * @param encKey 32 字节候选密钥
-        * @return 通过返回 true
-        */
+         * 校验候选密钥是否通过首页 HMAC 校验。
+         *
+         * @param encKey 32 字节候选密钥
+         * @return 通过返回 true
+         */
         public boolean accepts(byte[] encKey) {
             if (encKey == null || encKey.length != SqlCipherProfile.KEY_SIZE) {
                 return false;

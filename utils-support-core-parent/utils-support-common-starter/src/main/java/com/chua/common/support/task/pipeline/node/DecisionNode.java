@@ -42,51 +42,51 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class DecisionNode implements PipelineNode {
 
     /**
-    * 节点唯一标识
-    */
+     * 节点唯一标识
+     */
     private final String id;
 
     /**
-    * 路由处理器（统一回调），返回目标节点 标识
-    */
+     * 路由处理器（统一回调），返回目标节点 标识
+     */
     private final PipelineNode router;
 
     /**
-    * 分支映射（可选，用于树打印可视化）
-    * 键 为分支标签（如 "true"/"false" 或自定义名称），值 为目标节点 标识
-    */
+     * 分支映射（可选，用于树打印可视化）
+     * 键 为分支标签（如 "true"/"false" 或自定义名称），值 为目标节点 标识
+     */
     private Map<String, String> branches;
 
     /**
-    * 默认分支目标节点 标识（可选，当 处理器 返回值不匹配任何分支时使用）
-    */
+     * 默认分支目标节点 标识（可选，当 处理器 返回值不匹配任何分支时使用）
+     */
     private String defaultBranch;
 
     /**
-    * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.节点本地数据）
-    */
+     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.节点本地数据）
+     */
     private Map<String, Object> params;
 
     /**
-    * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
-    */
+     * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
+     */
     private Map<String, Object> env;
 
     /**
-    * 重试配置，空 表示不重试
-    */
+     * 重试配置，空 表示不重试
+     */
     private RetryConfig retryConfig;
 
     /**
-    * 构造判断节点。
-    *
-    * @param id     节点唯一标识
-    * @param router 路由处理器，返回目标节点 标识；返回 空 表示按默认顺序执行
-    */
+     * 构造判断节点。
+     *
+     * @param id     节点唯一标识
+     * @param router 路由处理器，返回目标节点 标识；返回 空 表示按默认顺序执行
+     */
     public DecisionNode(String id, PipelineNode router) {
         this.id = id;
         this.router = router;
@@ -94,54 +94,54 @@ public class DecisionNode implements PipelineNode {
     }
 
     /**
-    * 获取节点 标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取节点 标识。
+     *
+     * @return 节点 标识
+     */
     public String getId() {
         return id;
     }
 
     /**
-    * 获取分支映射（用于树打印可视化）。
-    *
-    * @return 分支标签 -> 目标节点 标识 的映射；未设置时返回空 映射
-    */
+     * 获取分支映射（用于树打印可视化）。
+     *
+     * @return 分支标签 -> 目标节点 标识 的映射；未设置时返回空 映射
+     */
     public Map<String, String> getBranches() {
         return branches != null ? branches : Collections.emptyMap();
     }
 
     /**
-    * 设置分支映射（用于树打印可视化）。
-    *
-    * <p>分支映射不影响路由逻辑（路由由 router 回调决定），
-    * 仅用于 {@link com.chua.common.support.task.pipeline.builder.DefaultPipeline#printTree} 等可视化场景。</p>
-    *
-    * @param branches 分支标签 -> 目标节点 标识 的映射
-    * @return this
-    */
+     * 设置分支映射（用于树打印可视化）。
+     *
+     * <p>分支映射不影响路由逻辑（路由由 router 回调决定），
+     * 仅用于 {@link com.chua.common.support.task.pipeline.builder.DefaultPipeline#printTree} 等可视化场景。</p>
+     *
+     * @param branches 分支标签 -> 目标节点 标识 的映射
+     * @return this
+     */
     public DecisionNode branches(Map<String, String> branches) {
         this.branches = branches != null ? new LinkedHashMap<>(branches) : null;
         return this;
     }
 
     /**
-    * 获取默认分支目标节点 标识。
-    *
-    * @return 默认分支目标节点 标识，未设置时返回 空
-    */
+     * 获取默认分支目标节点 标识。
+     *
+     * @return 默认分支目标节点 标识，未设置时返回 空
+     */
     public String getDefaultBranch() {
         return defaultBranch;
     }
 
     /**
-    * 设置默认分支目标节点 标识。
-    *
-    * <p>当 handler 返回值不匹配任何已配置的分支时，路由到默认节点。</p>
-    *
-    * @param defaultBranch 默认目标节点 标识
-    * @return this
-    */
+     * 设置默认分支目标节点 标识。
+     *
+     * <p>当 handler 返回值不匹配任何已配置的分支时，路由到默认节点。</p>
+     *
+     * @param defaultBranch 默认目标节点 标识
+     * @return this
+     */
     public DecisionNode defaultBranch(String defaultBranch) {
         this.defaultBranch = defaultBranch;
         return this;

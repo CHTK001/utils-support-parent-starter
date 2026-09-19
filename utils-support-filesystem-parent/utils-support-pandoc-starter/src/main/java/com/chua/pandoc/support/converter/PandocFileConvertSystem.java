@@ -18,22 +18,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Pandoc 通用文档格式转换器。
-*
-* <p>通过命令行调用 Pandoc 实现多种文档格式的相互转换。
-* 支持 markdown、HTML、docx、epub、乳胶、rst、org、textile、mediawiki 等格式的交叉转换，
-* 并支持输出为 PDF（需 乳胶 引擎）和多种幻灯片格式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Pandoc 通用文档格式转换器。
+ *
+ * <p>通过命令行调用 Pandoc 实现多种文档格式的相互转换。
+ * 支持 markdown、HTML、docx、epub、乳胶、rst、org、textile、mediawiki 等格式的交叉转换，
+ * 并支持输出为 PDF（需 乳胶 引擎）和多种幻灯片格式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("pandoc")
 public class PandocFileConvertSystem implements FileConvertSystem {
 
     /**
-    * 支持的源文件格式列表
-    */
+     * 支持的源文件格式列表
+     */
     private static final List<String> SOURCES = List.of(
         "md", "markdown", "html", "htm", "xhtml", "docx", "epub", "latex", "tex",
         "rst", "org", "textile", "mediawiki", "opml", "creole", "commonmark", "gfm",
@@ -41,8 +41,8 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     );
 
     /**
-    * 支持的目标文件格式列表
-    */
+     * 支持的目标文件格式列表
+     */
     private static final List<String> TARGETS = List.of(
         "md", "markdown", "html", "htm", "xhtml", "html5", "docx", "epub", "epub3",
         "latex", "tex", "pdf", "rst", "org", "textile", "mediawiki", "opml", "creole",
@@ -51,18 +51,18 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     );
 
     /**
-    * 源格式集合
-    */
+     * 源格式集合
+     */
     private static final Set<String> SOURCE_SET = Set.copyOf(SOURCES);
 
     /**
-    * 目标格式集合
-    */
+     * 目标格式集合
+     */
     private static final Set<String> TARGET_SET = Set.copyOf(TARGETS);
 
     /**
-    * 文件扩展名到 Pandoc 格式名的映射
-    */
+     * 文件扩展名到 Pandoc 格式名的映射
+     */
     private static final List<FormatMapping> FORMAT_MAPPINGS = List.of(
         new FormatMapping("md", "markdown"),
         new FormatMapping("markdown", "markdown"),
@@ -99,8 +99,8 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     );
 
     /**
-    * 超时时间（秒）
-    */
+     * 超时时间（秒）
+     */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
@@ -201,11 +201,11 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * 将文件扩展名转换为 Pandoc 格式名
-    *
-    * @param extension 文件扩展名
-    * @return Pandoc 格式名
-    */
+     * 将文件扩展名转换为 Pandoc 格式名
+     *
+     * @param extension 文件扩展名
+     * @return Pandoc 格式名
+     */
     private String toPandocFormat(String extension) {
         String ext = extension.toLowerCase();
         for (FormatMapping mapping : FORMAT_MAPPINGS) {
@@ -217,11 +217,11 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * 获取源文件的格式后缀
-    *
-    * @param source 文件源
-    * @return 格式后缀
-    */
+     * 获取源文件的格式后缀
+     *
+     * @param source 文件源
+     * @return 格式后缀
+     */
     private String getSourceFormat(FileSource source) {
         if (source.isPath()) {
             String name = source.getPath();
@@ -232,12 +232,12 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * 文件扩展名到 Pandoc 格式名的映射记录
-    *
-    * @param extension 文件扩展名
-    * @param format    Pandoc 格式名
-    * @return 格式化mapping的结果
-    */
+     * 文件扩展名到 Pandoc 格式名的映射记录
+     *
+     * @param extension 文件扩展名
+     * @param format    Pandoc 格式名
+     * @return 格式化mapping的结果
+     */
     private record FormatMapping(String extension, String format) {
     }
 }

@@ -40,29 +40,29 @@ import java.awt.image.BufferedImage;
 public class ImageClientImageFilter extends AbstractImageClientFilter {
 
     /**
-    * 提示词
-    */
+     * 提示词
+     */
     private String prompt = "";
 
     /**
-    * 参考图影响强度, 范围 0.0 ~ 1.0
-    */
+     * 参考图影响强度, 范围 0.0 ~ 1.0
+     */
     private double imageStrength = 0.6;
 
 
     /**
-    * 默认构造, 后续需要注入 镜像客户端 并设置 提示符
-    */
+     * 默认构造, 后续需要注入 镜像客户端 并设置 提示符
+     */
     public ImageClientImageFilter() {
     }
 
 
     /**
-    * 设置 AI 图像生成客户端 (覆盖父类以支持链式调用)
-    *
-    * @param imageClient AI 客户端实例
-    * @return 当前滤镜实例
-    */
+     * 设置 AI 图像生成客户端 (覆盖父类以支持链式调用)
+     *
+     * @param imageClient AI 客户端实例
+     * @return 当前滤镜实例
+     */
     @Override
     public ImageClientImageFilter imageClient(ImageClient imageClient) {
         super.imageClient(imageClient);
@@ -71,11 +71,11 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
 
     /**
-    * 设置提示词
-    *
-    * @param prompt 提示词
-    * @return 当前滤镜实例
-    */
+     * 设置提示词
+     *
+     * @param prompt 提示词
+     * @return 当前滤镜实例
+     */
     public ImageClientImageFilter prompt(String prompt) {
         this.prompt = prompt == null ? "" : prompt;
         return this;
@@ -83,11 +83,11 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
 
     /**
-    * 设置参考图影响强度
-    *
-    * @param imageStrength 强度, 范围 0.0 ~ 1.0
-    * @return 当前滤镜实例
-    */
+     * 设置参考图影响强度
+     *
+     * @param imageStrength 强度, 范围 0.0 ~ 1.0
+     * @return 当前滤镜实例
+     */
     public ImageClientImageFilter imageStrength(double imageStrength) {
         this.imageStrength = Math.max(0.0, Math.min(1.0, imageStrength));
         return this;
@@ -95,15 +95,15 @@ public class ImageClientImageFilter extends AbstractImageClientFilter {
 
 
     /**
-    * 应用 AI 图像转换
-    *
-    * <p>调用注入的 {@link ImageClient}, 将源图像作为参考图,
-    * 结合 提示词 和 imageStrength 调用 {@code referenceImage(src).prompt(...).imageStrength(...).generate()}。
-    *
-    * @param src 源图像
-    * @param dst 目标图像 (本滤镜忽略, 始终创建新图像)
-    * @return AI 生成的新图像
-    */
+     * 应用 AI 图像转换
+     *
+     * <p>调用注入的 {@link ImageClient}, 将源图像作为参考图,
+     * 结合 提示词 和 imageStrength 调用 {@code referenceImage(src).prompt(...).imageStrength(...).generate()}。
+     *
+     * @param src 源图像
+     * @param dst 目标图像 (本滤镜忽略, 始终创建新图像)
+     * @return AI 生成的新图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         ImageClient client = requireClient();

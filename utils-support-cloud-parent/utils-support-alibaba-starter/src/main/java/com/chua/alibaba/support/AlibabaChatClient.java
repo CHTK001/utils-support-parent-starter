@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
-* 阿里云通义千问大模型对话客户端
-*
-* <p>基于 DashScope SDK 的 {@link ChatClient} 实现，通过 Generation API
-* 调用阿里云模型服务灵积（百炼）的对话接口。
-*
-* @author CH
-* @since 4.0.0.42
+ * 阿里云通义千问大模型对话客户端
+ *
+ * <p>基于 DashScope SDK 的 {@link ChatClient} 实现，通过 Generation API
+ * 调用阿里云模型服务灵积（百炼）的对话接口。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"alibaba"})
@@ -78,9 +78,9 @@ public class AlibabaChatClient implements ChatClient {
     private SkillManager skillManager;
 
     /**
-    * 创建 alibaba对话客户端 实例
-    * @param setting setting
-    */
+     * 创建 alibaba对话客户端 实例
+     * @param setting setting
+     */
     public AlibabaChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -91,11 +91,11 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     /**
-    * 构建Generation
-    *
-    * @param setting setting
-    * @return 构建generation的结果
-    */
+     * 构建Generation
+     *
+     * @param setting setting
+     * @return 构建generation的结果
+     */
     private static Generation buildGeneration(ChatClientSetting setting) {
         var proxyStr = setting.getProxy();
         if (proxyStr == null || proxyStr.isBlank()) {
@@ -106,11 +106,11 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     /**
-    * 构建connection期权
-    *
-    * @param proxyStr 代理str
-    * @return 构建connection期权的结果
-    */
+     * 构建connection期权
+     *
+     * @param proxyStr 代理str
+     * @return 构建connection期权的结果
+     */
     private static ConnectionOptions buildConnectionOptions(String proxyStr) {
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
@@ -264,12 +264,12 @@ public class AlibabaChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -376,12 +376,12 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     /**
-    * 构建消息
-    *
-    * @param prompt 提示符
-    * @param actualSystem actual系统
-    * @return 构建消息的结果
-    */
+     * 构建消息
+     *
+     * @param prompt 提示符
+     * @param actualSystem actual系统
+     * @return 构建消息的结果
+     */
     private List<Message> buildMessages(String prompt, String actualSystem) {
         var messages = new ArrayList<Message>();
         if (actualSystem != null && !actualSystem.isEmpty()) {

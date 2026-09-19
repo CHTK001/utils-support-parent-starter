@@ -9,14 +9,14 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
-* 基于 bouncycastle 的 RSA 非对称加解密实现
-*
-* <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
-* 实现 RSA 密钥生成、加密、解密、签名和验签。
-* 支持 1024/2048/4096 位密钥长度，签名算法采用 SHA256withrsa。
-*
-* @author CH
-* @since 2026/07/16
+ * 基于 bouncycastle 的 RSA 非对称加解密实现
+ *
+ * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
+ * 实现 RSA 密钥生成、加密、解密、签名和验签。
+ * 支持 1024/2048/4096 位密钥长度，签名算法采用 SHA256withrsa。
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Spi({"bc", "bouncycastle"})
 public class BcRsaCipher implements RsaCipher {

@@ -8,40 +8,40 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
-* safetensor 通用翻译器，按 模型类型 派发到对应的输入构建/输出解析逻辑。
-* <p>
-* 支持的 模型类型：文档_ocr / 文本_嵌入 / face_detection / detection / 镜像_认可 /
-* llm / vlm / asr / tts / ocr / 镜像_gen / 镜像_增强 / matting / face_掉期 / tryon / music_gen。
-* 推理走 {@link SafeTensorServiceClient} HTTP 调用远端推理服务。
-* </p>
-*
-* @author CH
-* @since 4.0.0
+ * safetensor 通用翻译器，按 模型类型 派发到对应的输入构建/输出解析逻辑。
+ * <p>
+ * 支持的 模型类型：文档_ocr / 文本_嵌入 / face_detection / detection / 镜像_认可 /
+ * llm / vlm / asr / tts / ocr / 镜像_gen / 镜像_增强 / matting / face_掉期 / tryon / music_gen。
+ * 推理走 {@link SafeTensorServiceClient} HTTP 调用远端推理服务。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final SafeTensorServiceClient client;
 
     /**
-    * 模型名称
-    */
+     * 模型名称
+     */
     private final String modelName;
 
     /**
-    * 模型类型（如 face_detection / 文本_嵌入 / ocr）
-    */
+     * 模型类型（如 face_detection / 文本_嵌入 / ocr）
+     */
     private final String modelType;
 
     /**
-    * @param host      safetensor服务 主机
-    * @param port      safetensor服务 端口
-    * @param modelName 模型名称
-    * @param modelType 模型类型
-    */
+     * @param host      safetensor服务 主机
+     * @param port      safetensor服务 端口
+     * @param modelName 模型名称
+     * @param modelType 模型类型
+     */
     public SafeTensorModelTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
         this.modelName = modelName;
@@ -74,11 +74,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 构建输入
-    *
-    * @param input 输入
-    * @return 构建输入的结果
-    */
+     * 构建输入
+     *
+     * @param input 输入
+     * @return 构建输入的结果
+     */
     private Map<String, Object> buildInput(Object input) {
         if (input instanceof String text) {
             return Map.of("text", text);
@@ -108,10 +108,10 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 构建参数
-    *
-    * @return 构建参数的结果
-    */
+     * 构建参数
+     *
+     * @return 构建参数的结果
+     */
     private Map<String, Object> buildParams() {
         if ("document_ocr".equals(modelType)) {
             return Map.of("max_new_tokens", 2048);
@@ -120,11 +120,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * extract输出
-    *
-    * @param result 结果
-    * @return extract输出的结果
-    */
+     * extract输出
+     *
+     * @param result 结果
+     * @return extract输出的结果
+     */
     private Object extractOutput(Map<String, Object> result) {
         if (result == null) {
             return null;
@@ -149,11 +149,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 解析嵌入
-    *
-    * @param result 结果
-    * @return 解析嵌入的结果
-    */
+     * 解析嵌入
+     *
+     * @param result 结果
+     * @return 解析嵌入的结果
+     */
     private Object parseEmbedding(Map<String, Object> result) {
         Object emb = result.get("embedding");
         if (emb instanceof List<?> list) {
@@ -180,11 +180,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 解析facedetection
-    *
-    * @param result 结果
-    * @return 解析facedetection的结果
-    */
+     * 解析facedetection
+     *
+     * @param result 结果
+     * @return 解析facedetection的结果
+     */
     private Object parseFaceDetection(Map<String, Object> result) {
         Object faces = result.get("faces");
         if (faces instanceof List<?> list) {
@@ -197,11 +197,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 解析Detection
-    *
-    * @param result 结果
-    * @return 解析detection的结果
-    */
+     * 解析Detection
+     *
+     * @param result 结果
+     * @return 解析detection的结果
+     */
     private Object parseDetection(Map<String, Object> result) {
         Object items = result.get("items");
         if (items instanceof List<?> list) {
@@ -221,11 +221,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 解析镜像输出
-    *
-    * @param result 结果
-    * @return 解析镜像输出的结果
-    */
+     * 解析镜像输出
+     *
+     * @param result 结果
+     * @return 解析镜像输出的结果
+     */
     private Object parseImageOutput(Map<String, Object> result) {
         Object image = result.get("image");
         if (image instanceof String base64) {
@@ -238,11 +238,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 解析音频输出
-    *
-    * @param result 结果
-    * @return 解析音频输出的结果
-    */
+     * 解析音频输出
+     *
+     * @param result 结果
+     * @return 解析音频输出的结果
+     */
     private Object parseAudioOutput(Map<String, Object> result) {
         Object audio = result.get("audio");
         if (audio instanceof String base64) {
@@ -255,11 +255,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 转为predictrectangle
-    *
-    * @param faceMap face映射
-    * @return 转为predictrectangle的结果
-    */
+     * 转为predictrectangle
+     *
+     * @param faceMap face映射
+     * @return 转为predictrectangle的结果
+     */
     private PredictRectangle toPredictRectangle(Map<String, Object> faceMap) {
         float confidence = ((Number) faceMap.getOrDefault("confidence", 0f)).floatValue();
         float x = ((Number) faceMap.getOrDefault("x", 0f)).floatValue();
@@ -272,11 +272,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 转为detection信息
-    *
-    * @param itemMap item映射
-    * @return 转为detection信息的结果
-    */
+     * 转为detection信息
+     *
+     * @param itemMap item映射
+     * @return 转为detection信息的结果
+     */
     private DetectionInfo toDetectionInfo(Map<String, Object> itemMap) {
         String label = (String) itemMap.getOrDefault("label", "unknown");
         float confidence = ((Number) itemMap.getOrDefault("confidence", 0f)).floatValue();

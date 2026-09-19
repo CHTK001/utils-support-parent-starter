@@ -39,7 +39,7 @@ import java.util.Base64;
 /**
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi("jdk-websocket")
 public class JdkWebSocketServer extends AbstractServer {
@@ -484,12 +484,12 @@ public class JdkWebSocketServer extends AbstractServer {
     private static class SimpleServerRequest implements ServerRequest {
 
         /**
-    * 主题
-    */
+         * 主题
+         */
         private final String topic;
         /**
-        * 请求体
-        */
+         * 请求体
+         */
         private final String body;
         /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
@@ -615,8 +615,8 @@ public class JdkWebSocketServer extends AbstractServer {
         */
         private int status = 200;
         /**
-        * 结果
-        */
+         * 结果
+         */
         private Object result;
         /** Close消息 */
         private String closeMessage;

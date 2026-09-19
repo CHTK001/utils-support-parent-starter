@@ -34,18 +34,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
-* 默认爬虫实现。
-* <p>
-* 内置全部默认实现，开箱即用。支持：
-* <ul>
-*     <li><b>多线程并发</b> — 通过 {@link Spider.Builder#threads(int)} 设置并发数</li>
-*     <li><b>自动重试</b> — 通过 {@link SpiderSite#getRetryTimes()} 配置重试次数</li>
-*     <li><b>自动降级</b> — fetcher("auto") / parser("auto") 逐个尝试 SPI 实现</li>
-*     <li><b>Pipeline 回调</b> — 结果通过 Pipeline 回调输出</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认爬虫实现。
+ * <p>
+ * 内置全部默认实现，开箱即用。支持：
+ * <ul>
+ *     <li><b>多线程并发</b> — 通过 {@link Spider.Builder#threads(int)} 设置并发数</li>
+ *     <li><b>自动重试</b> — 通过 {@link SpiderSite#getRetryTimes()} 配置重试次数</li>
+ *     <li><b>自动降级</b> — fetcher("auto") / parser("auto") 逐个尝试 SPI 实现</li>
+ *     <li><b>Pipeline 回调</b> — 结果通过 Pipeline 回调输出</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiDefault
@@ -53,85 +53,85 @@ import java.util.function.Consumer;
 public class DefaultSpider implements Spider {
 
     /**
-    * 站点配置，包含超时、重试、深度限制等参数。
-    */
+     * 站点配置，包含超时、重试、深度限制等参数。
+     */
     private final SpiderSite site;
 
     /**
-    * 页面抓取器。
-    */
+     * 页面抓取器。
+     */
     private final SpiderFetcher fetcher;
 
     /**
-    * 页面解析器。
-    */
+     * 页面解析器。
+     */
     private final SpiderParser parser;
 
     /**
-    * 链接提取器，用于从页面中发现新链接。
-    */
+     * 链接提取器，用于从页面中发现新链接。
+     */
     private final SpiderLinkExtractor linkExtractor;
 
     /**
-    * URL 过滤链，用于拦截不允许抓取的链接。
-    */
+     * URL 过滤链，用于拦截不允许抓取的链接。
+     */
     private final List<SpiderUrlFilter> urlFilters;
 
     /**
-    * 请求调度器。
-    */
+     * 请求调度器。
+     */
     private final SpiderScheduler scheduler;
 
     /**
-    * URL 去重器。
-    */
+     * URL 去重器。
+     */
     private final Deduplicator deduplicator;
 
     /**
-    * AI 解析器，用于对结果进行二次增强。
-    */
+     * AI 解析器，用于对结果进行二次增强。
+     */
     private final SpiderAiParser aiParser;
 
     /**
-    * 结果处理管道列表。
-    */
+     * 结果处理管道列表。
+     */
     private final List<SpiderPipeline> pipelines;
 
     /**
-    * 种子 URL 列表。
-    */
+     * 种子 URL 列表。
+     */
     private final List<String> seedUrls;
 
     /**
-    * 工作线程数。
-    */
+     * 工作线程数。
+     */
     private final int threads;
 
     /**
-    * 单请求最大重试次数。
-    */
+     * 单请求最大重试次数。
+     */
     private final int retryTimes;
 
     /**
-    * 已成功抓取的结果列表。
-    */
+     * 已成功抓取的结果列表。
+     */
     private final List<SpiderResult> results;
 
     /**
-    * 爬虫运行状态标志，保证只启动一次。
-    */
+     * 爬虫运行状态标志，保证只启动一次。
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * 工作线程池。
-    */
+     * 工作线程池。
+     */
     private ExecutorService executor;
 
     /**
-    * 构造默认爬虫实例。
-    *
-    * @param builder 构建器
-    */
+     * 构造默认爬虫实例。
+     *
+     * @param builder 构建器
+     */
     public DefaultSpider(DefaultSpiderBuilder builder) {
         this.site = builder.site;
         this.fetcher = builder.fetcher;
@@ -202,10 +202,10 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 核心处理循环：从调度器取出请求并处理，直到队列为空或达到页数限制。
-    *
-    * @param maxPages 最大页面数，0 表示不限制
-    */
+     * 核心处理循环：从调度器取出请求并处理，直到队列为空或达到页数限制。
+     *
+     * @param maxPages 最大页面数，0 表示不限制
+     */
     private void processRequests(int maxPages) {
         while (running.get()) {
             SpiderRequest request = scheduler.dequeue();
@@ -223,8 +223,8 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 初始化所有 Pipeline。
-    */
+     * 初始化所有 Pipeline。
+     */
     private void initPipelines() {
         for (SpiderPipeline pipeline : pipelines) {
             try {
@@ -236,8 +236,8 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 将所有种子 URL 入队。
-    */
+     * 将所有种子 URL 入队。
+     */
     private void enqueueSeedUrls() {
         for (String url : seedUrls) {
             enqueueUrl(url, 0, null);
@@ -245,12 +245,12 @@ public class DefaultSpider implements Spider {
     }
 
 /**
-* 判断当前请求是否应继续处理。
-*
-* @param request  当前请求
-* @param maxPages 最大页面数
-* @return true 表示应继续处理
-     */
+ * 判断当前请求是否应继续处理。
+ *
+ * @param request  当前请求
+ * @param maxPages 最大页面数
+ * @return true 表示应继续处理
+ */
     private boolean shouldProcess(SpiderRequest request, int maxPages) {
         if (site != null && site.getMaxDepth() >= 0
                 && request.getDepth() > site.getMaxDepth()) {
@@ -266,8 +266,8 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 处理请求后的间隔休眠。
-    */
+     * 处理请求后的间隔休眠。
+     */
     private void handleRequestInterval() {
         if (site != null && scheduler.hasNext()) {
             try {
@@ -279,8 +279,8 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 销毁资源：执行 Pipeline 销毁 + 线程池关闭。
-    */
+     * 销毁资源：执行 Pipeline 销毁 + 线程池关闭。
+     */
     private void shutdown() {
         for (SpiderPipeline pipeline : pipelines) {
             try {
@@ -366,11 +366,11 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 处理单个请求，成功返回 true。
-    *
-    * @param request 待处理的爬虫请求
-    * @return 处理成功返回 true，否则返回 false
-    */
+     * 处理单个请求，成功返回 true。
+     *
+     * @param request 待处理的爬虫请求
+     * @return 处理成功返回 true，否则返回 false
+     */
     private boolean processRequest(SpiderRequest request) {
         try {
             SpiderResponse response = fetcher.fetch(request);
@@ -400,11 +400,11 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 使用 AI 解析器增强结果。
-    *
-    * @param result  解析结果
-    * @param request 原始请求
-    */
+     * 使用 AI 解析器增强结果。
+     *
+     * @param result  解析结果
+     * @param request 原始请求
+     */
     private void enrichWithAi(SpiderResult result, SpiderRequest request) {
         if (aiParser == null) {
             return;
@@ -421,11 +421,11 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 将结果传递给 Pipeline 处理。
-    *
-    * @param result  解析结果
-    * @param request 原始请求
-    */
+     * 将结果传递给 Pipeline 处理。
+     *
+     * @param result  解析结果
+     * @param request 原始请求
+     */
     private void processWithPipelines(SpiderResult result, SpiderRequest request) {
         for (SpiderPipeline pipeline : pipelines) {
             try {
@@ -437,12 +437,12 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 提取页面中的新链接并入队。
-    *
-    * @param response 抓取响应
-    * @param request  当前请求
-    * @return extract和enqueue链接的结果
-    */
+     * 提取页面中的新链接并入队。
+     *
+     * @param response 抓取响应
+     * @param request  当前请求
+     * @return extract和enqueue链接的结果
+     */
     private List<String> extractAndEnqueueLinks(SpiderResponse response, SpiderRequest request) {
         if (linkExtractor == null) {
             return java.util.Collections.emptyList();
@@ -456,12 +456,12 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 将 URL 入队，经过过滤和去重后提交到调度器。
-    *
-    * @param url     待入队的 URL
-    * @param depth   链接深度
-    * @param referUrl 来源 URL
-    */
+     * 将 URL 入队，经过过滤和去重后提交到调度器。
+     *
+     * @param url     待入队的 URL
+     * @param depth   链接深度
+     * @param referUrl 来源 URL
+     */
     private void enqueueUrl(String url, int depth, String referUrl) {
         SpiderRequest request = SpiderRequest.builder()
                 .url(url)
@@ -493,69 +493,69 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 默认爬虫构建器。
-    * <p>
-    * 内置所有组件的默认实现，开箱即用。
-    * 所有组件均可通过链式方法替换为自定义实现。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 默认爬虫构建器。
+     * <p>
+     * 内置所有组件的默认实现，开箱即用。
+     * 所有组件均可通过链式方法替换为自定义实现。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     public static class DefaultSpiderBuilder implements Spider.Builder {
 
         /**
-        * 站点配置。
-        */
+         * 站点配置。
+         */
         private SpiderSite site;
 
         /**
-        * 页面抓取器。
-        */
+         * 页面抓取器。
+         */
         private SpiderFetcher fetcher;
 
         /**
-        * 页面解析器。
-        */
+         * 页面解析器。
+         */
         private SpiderParser parser;
 
         /**
-        * 链接提取器。
-        */
+         * 链接提取器。
+         */
         private SpiderLinkExtractor linkExtractor;
 
         /**
-        * URL 过滤链。
-        */
+         * URL 过滤链。
+         */
         private final List<SpiderUrlFilter> urlFilters = new ArrayList<>();
 
         /**
-        * 请求调度器。
-        */
+         * 请求调度器。
+         */
         private SpiderScheduler scheduler;
 
         /**
-        * URL 去重器。
-        */
+         * URL 去重器。
+         */
         private Deduplicator deduplicator;
 
         /**
-        * AI 解析器。
-        */
+         * AI 解析器。
+         */
         private SpiderAiParser aiParser;
 
         /**
-        * 结果处理管道列表。
-        */
+         * 结果处理管道列表。
+         */
         private final List<SpiderPipeline> pipelines = new ArrayList<>();
 
         /**
-        * 种子 URL 列表。
-        */
+         * 种子 URL 列表。
+         */
         private final List<String> seedUrls = new ArrayList<>();
 
         /**
-        * 工作线程数。
-        */
+         * 工作线程数。
+         */
         private int threads = 1;
 
         @Override
@@ -685,12 +685,12 @@ public class DefaultSpider implements Spider {
 
         @Override
         /**
-        * As
-        * @param targetClass 目标类
-        * @param aiProvider AI提供者
-        * @param aiApiKey aiapi键
-        * @param consumer consumer
-        */
+         * As
+         * @param targetClass 目标类
+         * @param aiProvider AI提供者
+         * @param aiApiKey aiapi键
+         * @param consumer consumer
+         */
         public <T> Builder as(Class<T> targetClass, String aiProvider,
                                 String aiApiKey, Consumer<T> consumer) {
             if (targetClass != null && consumer != null) {
@@ -755,11 +755,11 @@ public class DefaultSpider implements Spider {
                         .getNewDefaultExtension();
  // SPI 加载失败时回退到 HTML链接extractor
         /**
-        * consumerpipeline类。
-        *
-        * @author CH
-        * @since 4.0.0
-        */
+         * consumerpipeline类。
+         *
+         * @author CH
+         * @since 4.0.0
+         */
                 if (linkExtractor == null) {
                     linkExtractor = new HtmlLinkExtractor();
                 }

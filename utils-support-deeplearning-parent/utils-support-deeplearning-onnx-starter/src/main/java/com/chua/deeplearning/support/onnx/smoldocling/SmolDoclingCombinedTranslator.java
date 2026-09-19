@@ -11,58 +11,58 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
-* smoldocling
-* <p>
-* smoldocling
-* </p>
-* <p>
-*                
-* 1.              -> Vision ->             
-* 2.              -> Embed ->             
-* 3.              +              -> 解码器 ->
-* </p>
-* <p>
-*                
-* -                          
-* -                          vision   embed   解码器
-* -                          
-* </p>
-* <p>
-*                                                                   
-* Translator           smoldocling
-* </p>
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/01/26
+ * smoldocling
+ * <p>
+ * smoldocling
+ * </p>
+ * <p>
+ *                
+ * 1.              -> Vision ->             
+ * 2.              -> Embed ->             
+ * 3.              +              -> 解码器 ->
+ * </p>
+ * <p>
+ *                
+ * -                          
+ * -                          vision   embed   解码器
+ * -                          
+ * </p>
+ * <p>
+ *                                                                   
+ * Translator           smoldocling
+ * </p>
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/01/26
  */
 @Slf4j
 public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingCombinedTranslator.CombinedInput, String> {
 
     /**
-    * Vision          
-    */
+     * Vision          
+     */
     private SmolDoclingVisionTranslator visionTranslator;
 
     /**
-    * Embed          
-    */
+     * Embed          
+     */
     private SmolDoclingEmbedTranslator embedTranslator;
 
     /**
-    * 解码器
-    */
+     * 解码器
+     */
     private SmolDoclingDecoderTranslator decoderTranslator;
 
     /**
-    *             
-    * <p>
-    *                                  
-    * </p>
-    *
-    * @param ctx                   
-    * @throws IOException IO      
-    */
+     *             
+     * <p>
+     *                                  
+     * </p>
+     *
+     * @param ctx                   
+     * @throws IOException IO      
+     */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         visionTranslator = new SmolDoclingVisionTranslator();
@@ -84,16 +84,16 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
-    *                   
-    * <p>
-    *                                   Vision                   
-    * </p>
-    *
-    * @param ctx                     
-    * @param input                                        
-    * @return Vision              nd列表
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     *                                   Vision                   
+     * </p>
+     *
+     * @param ctx                     
+     * @param input                                        
+     * @return Vision              nd列表
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, CombinedInput input) throws Exception {
         //        Vision                            
@@ -103,17 +103,17 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
-    *                   
-    * <p>
-    *                                                             
-    *                                                 
-    * </p>
-    *
-    * @param ctx                    
-    * @param list              nd列表          Vision
-    * @return                         
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     *                                                             
+     *                                                 
+     * </p>
+     *
+     * @param ctx                    
+     * @param list              nd列表          Vision
+     * @return                         
+     * @throws Exception             
+     */
     @Override
     public String processOutput(TranslatorContext ctx, NDList list) throws Exception {
         //                                           
@@ -159,38 +159,38 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     }
 
     /**
-    *                   
-    *
-    * @return null                        
-    */
+     *                   
+     *
+     * @return null                        
+     */
     @Override
     public Batchifier getBatchifier() {
         return null;
     }
 
     /**
-    *             
-    * @author CH
-    * @since 4.0.0
-    */
+     *             
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     public static class CombinedInput {
         /**
-        *             
-        */
+         *             
+         */
         private Image image;
 
         /**
-        * 令牌 ids
-        */
+         * 令牌 ids
+         */
         private long[] textTokens;
 
         /**
-        *             
-        *
-        * @param image                  
-        * @param textTokens        令牌 标识
-        */
+         *             
+         *
+         * @param image                  
+         * @param textTokens        令牌 标识
+         */
         public CombinedInput(Image image, long[] textTokens) {
             this.image = image;
             this.textTokens = textTokens;

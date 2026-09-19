@@ -12,23 +12,23 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* GZ/GZIP格式归档输入流提供者
-* <p>
-* 基于commons-compress实现，优先级高于通用模块的实现。
-* 注意：GZ是单文件压缩格式，不是归档格式，所以只包含一个条目。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * GZ/GZIP格式归档输入流提供者
+ * <p>
+ * 基于commons-compress实现，优先级高于通用模块的实现。
+ * 注意：GZ是单文件压缩格式，不是归档格式，所以只包含一个条目。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"gz", "gzip"})
 public class GzipCompressArchiveInputStream implements CompressArchiveInputStream {
 
     /**
-    * 判断是否支持
-    * @param file 文件
-    * @return isSupport
-    */
+     * 判断是否支持
+     * @param file 文件
+     * @return isSupport
+     */
     @Override
     public boolean isSupport(File file) {
         if (file == null) {
@@ -41,13 +41,13 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     /**
-    * 创建输入流
-    * @param inputStream 输入流
-    * @param file 文件
-    * @param char char
-    * @param password 密码
-    * @return createInputStream
-    */
+     * 创建输入流
+     * @param inputStream 输入流
+     * @param file 文件
+     * @param char char
+     * @param password 密码
+     * @return createInputStream
+     */
     @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         // GZ 格式不支持密码
@@ -60,60 +60,60 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     /**
-    * 获取格式化名称
-    * @return getFormatName
-    */
+     * 获取格式化名称
+     * @return getFormatName
+     */
     @Override
     public String getFormatName() {
         return "gz";
     }
 
     /**
-    * GZIP归档输入流适配器
-    * <p>
-    * 将commons-compress的gzipcompressor输入流适配为Arch Linux Linux输入流
-    * GZ格式是单文件压缩，所以只包含一个条目
-    * </p>
-    * @author CH
-    * @since 4.0.0
-    */
+     * GZIP归档输入流适配器
+     * <p>
+     * 将commons-compress的gzipcompressor输入流适配为Arch Linux Linux输入流
+     * GZ格式是单文件压缩，所以只包含一个条目
+     * </p>
+     * @author CH
+     * @since 4.0.0
+     */
     private static class GzipArchiveInputStreamAdapter implements ArchiveInputStream {
 
         /**
-        * 原始gzipcompressor输入流
-        */
+         * 原始gzipcompressor输入流
+         */
         private final GzipCompressorInputStream gzipInputStream;
 
         /**
-        * 文件对象（用于获取条目名称）
-        */
+         * 文件对象（用于获取条目名称）
+         */
         private final File file;
 
         /**
-        * 当前条目（GZ格式只有一个条目）
-        */
+         * 当前条目（GZ格式只有一个条目）
+         */
         private ArchiveEntry currentEntry;
 
         /**
-        * 是否已读取条目
-        */
+         * 是否已读取条目
+         */
         private boolean entryRead = false;
 
         /**
-        * 构造GZIP归档输入流适配器
-        *
-        * @param gzipInputStream commons-compress的gzipcompressor输入流
-        * @param file            压缩文件
-        */
+         * 构造GZIP归档输入流适配器
+         *
+         * @param gzipInputStream commons-compress的gzipcompressor输入流
+         * @param file            压缩文件
+         */
         GzipArchiveInputStreamAdapter(GzipCompressorInputStream gzipInputStream, File file) {
             this.gzipInputStream = gzipInputStream;
             this.file = file;
         }
 
         /**
-        * 获取下一个entry
-        * @return getNextEntry
-        */
+         * 获取下一个entry
+         * @return getNextEntry
+         */
         @Override
         @Nullable
         public ArchiveEntry getNextEntry() throws IOException {
@@ -134,84 +134,84 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-        * 读取
-        * @return read
-        */
+         * 读取
+         * @return read
+         */
         @Override
         public int read() throws IOException {
             return gzipInputStream.read();
         }
 
         /**
-        * 读取
-        * @param b b
-        * @return read
-        */
+         * 读取
+         * @param b b
+         * @return read
+         */
         @Override
         public int read(byte[] b) throws IOException {
             return gzipInputStream.read(b);
         }
 
         /**
-        * 读取
-        * @param b b
-        * @param off off
-        * @param len len
-        * @return read
-        */
+         * 读取
+         * @param b b
+         * @param off off
+         * @param len len
+         * @return read
+         */
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             return gzipInputStream.read(b, off, len);
         }
 
         /**
-        * 获取跳过
-        * @param n n
-        * @return skip
-        */
+         * 获取跳过
+         * @param n n
+         * @return skip
+         */
         @Override
         public long skip(long n) throws IOException {
             return gzipInputStream.skip(n);
         }
 
         /**
-        * 获取可用
-        * @return available
-        */
+         * 获取可用
+         * @return available
+         */
         @Override
         public int available() throws IOException {
             return gzipInputStream.available();
         }
 
         /**
-        * mark
-        * @param readlimit readlimit
-        */
+         * mark
+         * @param readlimit readlimit
+         */
         @Override
         public void mark(int readlimit) {
             gzipInputStream.mark(readlimit);
         }
 
         /**
-        * 重置
-        */
+         * 重置
+         */
         @Override
         public void reset() throws IOException {
             gzipInputStream.reset();
         }
 
         /**
-        * 获取mark支持
-        * @return markSupported
-        */
+         * 获取mark支持
+         * @return markSupported
+         */
         @Override
         public boolean markSupported() {
             return gzipInputStream.markSupported();
         }
 
         /**
-        * 关闭
-        */
+         * 关闭
+         */
         @Override
         public void close() throws IOException {
             gzipInputStream.close();
@@ -219,13 +219,13 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     }
 
     /**
-    * GZ条目适配器
-    * <p>
-    * GZ格式是单文件压缩，所以条目大小未知
-    * </p>
-    * @author CH
-    * @since 4.0.0
-    */
+     * GZ条目适配器
+     * <p>
+     * GZ格式是单文件压缩，所以条目大小未知
+     * </p>
+     * @author CH
+     * @since 4.0.0
+     */
     private static class GzipEntryAdapter implements ArchiveEntry {
 
         /** 名称 */
@@ -245,18 +245,18 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-        * 判断是否目录
-        * @return isDirectory
-        */
+         * 判断是否目录
+         * @return isDirectory
+         */
         @Override
         public boolean isDirectory() {
             return false;
         }
 
         /**
-        * 获取大小
-        * @return getSize
-        */
+         * 获取大小
+         * @return getSize
+         */
 @Override
         public long getSize() {
             return -1;

@@ -6,13 +6,13 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 单个台风详情实体。
-*
-* <p>对应浙江省水利厅 {@code /Api/TyphoonInfo/{tfid}} 响应，
-* 含生成/结束时间、当前中心、登陆记录、历史路径与多机构预报。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 单个台风详情实体。
+ *
+ * <p>对应浙江省水利厅 {@code /Api/TyphoonInfo/{tfid}} 响应，
+ * 含生成/结束时间、当前中心、登陆记录、历史路径与多机构预报。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

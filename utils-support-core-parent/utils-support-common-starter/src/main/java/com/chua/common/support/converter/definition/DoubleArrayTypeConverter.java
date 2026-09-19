@@ -5,26 +5,26 @@ import static com.chua.common.support.constant.CommonConstant.*;
 
 
 /**
-* Double[] 类型转换器。
-* <p>将各种类型的值转换为 {@code Double[]}，支持以下输入类型：</p>
-* <ul>
-*   <li>数组 / 集合 — 通过 {@link #transToArray(Object, Class)} 转换</li>
-*   <li>{@link String} — 支持 JSON 数组格式（[1.1,2.2]）和逗号分隔的字符串</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/5
+ * Double[] 类型转换器。
+ * <p>将各种类型的值转换为 {@code Double[]}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>数组 / 集合 — 通过 {@link #transToArray(Object, Class)} 转换</li>
+ *   <li>{@link String} — 支持 JSON 数组格式（[1.1,2.2]）和逗号分隔的字符串</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/5
  */
 public class DoubleArrayTypeConverter implements TypeConverter<Double[]> {
 
 
     /**
-    * 将给定值转换为 Double[]。
-    *
-    * @param value 源值
-    * @return Double[] 值，如果为 null 则返回空数组
-    */
+     * 将给定值转换为 Double[]。
+     *
+     * @param value 源值
+     * @return Double[] 值，如果为 null 则返回空数组
+     */
     @Override
     public Double[] convert(Object value) {
         if (null == value) {
@@ -48,10 +48,10 @@ public class DoubleArrayTypeConverter implements TypeConverter<Double[]> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return Double[].class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return Double[].class
+     */
     @Override
     public Class<Double[]> getType() {
         return Double[].class;

@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         implements ScatterServiceDiscovery, ScatterNodeHandler {
 
@@ -210,8 +210,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-    * 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。
-    */
+     * 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。
+     */
     @Override
     public byte[] handle(ScatterFrame frame) {
         try {
@@ -439,9 +439,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-    * 优雅关闭：等待当前一轮 discoveryRound 完成后再停止调度器，
-    * 确保正在执行的 healthCheck → removeFromCache 不会被中断。
-    */
+     * 优雅关闭：等待当前一轮 discoveryRound 完成后再停止调度器，
+     * 确保正在执行的 healthCheck → removeFromCache 不会被中断。
+     */
     public void gracefulClose() {
         started = false;
         if (discoveryExecutor != null) {

@@ -14,53 +14,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 通用 JDBC 表元数据操作，基于方言生成 DDL。
-*
-* <p>适用于 SQLite、DuckDB 等标准 SQL 兼容数据库，提供对象化建表 DSL：
-* {@code engine.meta().table("user").create("user").column("id", "INTEGER").primaryKey()...execute()}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用 JDBC 表元数据操作，基于方言生成 DDL。
+ *
+ * <p>适用于 SQLite、DuckDB 等标准 SQL 兼容数据库，提供对象化建表 DSL：
+ * {@code engine.meta().table("user").create("user").column("id", "INTEGER").primaryKey()...execute()}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JdbcMetaTable extends AbstractMetaTable {
 
     /**
-    * 构造方法（无表名上下文）。
-    *
-    * @param metaData 元数据入口
-    * @param engine   引擎实例
-    */
+     * 构造方法（无表名上下文）。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
+     */
     public JdbcMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-    * 构造方法（带表名上下文）。
-    *
-    * @param metaData  元数据入口
-    * @param engine    引擎实例
-    * @param tableName 表名
-    */
+     * 构造方法（带表名上下文）。
+     *
+     * @param metaData  元数据入口
+     * @param engine    引擎实例
+     * @param tableName 表名
+     */
     public JdbcMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
     }
 
     /**
-    * 创建建表构建器。
-    *
-    * @param tableName 表名
-    * @return 建表链式构建器
-    */
+     * 创建建表构建器。
+     *
+     * @param tableName 表名
+     * @return 建表链式构建器
+     */
     @Override
     public TableCreateBuilder create(String tableName) {
         return new JdbcTableCreateBuilder(this, tableName);
     }
 
     /**
-    * 删除当前表。
-    *
-    * @return 是否成功
-    */
+     * 删除当前表。
+     *
+     * @return 是否成功
+     */
     @Override
     public boolean drop() {
         if (tableName == null) {
@@ -70,11 +70,11 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 重命名当前表。
-    *
-    * @param newName 新表名
-    * @return 是否成功
-    */
+     * 重命名当前表。
+     *
+     * @param newName 新表名
+     * @return 是否成功
+     */
     @Override
     public boolean rename(String newName) {
         if (tableName == null) {
@@ -84,11 +84,11 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 执行更新语句。
-    *
-    * @param sql SQL 语句
-    * @return 是否成功
-    */
+     * 执行更新语句。
+     *
+     * @param sql SQL 语句
+     * @return 是否成功
+     */
     protected boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -100,12 +100,12 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 构建执行成功的表定义（供构建器回填）。
-    *
-    * @param tableName 表名
-    * @param columns   列定义
-    * @return 表定义
-    */
+     * 构建执行成功的表定义（供构建器回填）。
+     *
+     * @param tableName 表名
+     * @param columns   列定义
+     * @return 表定义
+     */
     protected TableDef buildTableDef(String tableName, List<ColumnDef> columns) {
         TableDef def = new TableDef();
         def.setName(tableName);
@@ -114,11 +114,11 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 引用标识符（使用方言引用符）。
-    *
-    * @param name 标识符
-    * @return 引用后的标识符
-    */
+     * 引用标识符（使用方言引用符）。
+     *
+     * @param name 标识符
+     * @return 引用后的标识符
+     */
     protected String quote(String name) {
         Dialect dialect = resolveDialect();
         if (dialect != null) {
@@ -128,10 +128,10 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 解析方言。
-    *
-    * @return 方言实例
-    */
+     * 解析方言。
+     *
+     * @return 方言实例
+     */
     protected Dialect resolveDialect() {
         String name = engine.getDefaultDataSourceName();
         if (name == null) {
@@ -142,11 +142,11 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 获取 JDBC 连接。
-    *
-    * @return 连接
-    * @throws SQLException 获取失败
-    */
+     * 获取 JDBC 连接。
+     *
+     * @return 连接
+     * @throws SQLException 获取失败
+     */
     protected Connection getConnection() throws SQLException {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -160,44 +160,44 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 通用建表链式构建器，基于方言生成 创建 TABLE。
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 通用建表链式构建器，基于方言生成 创建 TABLE。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public static class JdbcTableCreateBuilder implements TableCreateBuilder {
 
         /**
-        * 父表元数据
-        */
+         * 父表元数据
+         */
         private final JdbcMetaTable metaTable;
 
         /**
-        * 表名
-        */
+         * 表名
+         */
         private final String tableName;
 
         /**
-        * 列定义
-        */
+         * 列定义
+         */
         private final List<ColumnDef> columns = new ArrayList<>();
 
         /**
-        * 联合主键
-        */
+         * 联合主键
+         */
         private final List<String> primaryKeys = new ArrayList<>();
 
         /**
-        * 表注释
-        */
+         * 表注释
+         */
         private String tableComment;
 
         /**
-        * 构tablename 建表构建器。
-        *
-        * @param metaTable 父表元数据
-        * @param tableName 表名
-        */
+         * 构tablename 建表构建器。
+         *
+         * @param metaTable 父表元数据
+         * @param tableName 表名
+         */
         public JdbcTableCreateBuilder(JdbcMetaTable metaTable, String tableName) {
             this.metaTable = metaTable;
             this.tableName = tableName;

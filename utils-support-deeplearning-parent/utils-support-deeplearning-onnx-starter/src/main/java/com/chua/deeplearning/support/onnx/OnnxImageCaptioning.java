@@ -11,9 +11,9 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     private String modelName;
 
     /**
-    * 创建 onnx镜像captioning 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx镜像captioning 实例
+     * @param apiKey API密钥
+     */
     public OnnxImageCaptioning(String apiKey) {
     }
 

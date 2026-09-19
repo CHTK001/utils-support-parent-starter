@@ -14,92 +14,92 @@ package com.chua.common.support.network.sip;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface SipProtocol {
 
     /**
-    * 认证握手前缀（AUTH|clientId|host|port|signature）
-    */
+     * 认证握手前缀（AUTH|clientId|host|port|signature）
+     */
     String PREFIX_AUTH = "AUTH";
 
     /**
-    * 认证成功响应（TOKEN|token）
-    */
+     * 认证成功响应（TOKEN|token）
+     */
     String PREFIX_TOKEN = "TOKEN";
 
     /**
-    * 隧道服务注册（SERVICE|token|serviceName）
-    */
+     * 隧道服务注册（SERVICE|token|serviceName）
+     */
     String PREFIX_SERVICE = "SERVICE";
 
     /**
-    * 隧道服务注册成功（SERVICE_OK|serviceName）
-    */
+     * 隧道服务注册成功（SERVICE_OK|serviceName）
+     */
     String PREFIX_SERVICE_OK = "SERVICE_OK";
 
     /**
-    * 隧道开启请求（OPEN|token|requestId|serviceName）
-    */
+     * 隧道开启请求（OPEN|token|requestId|serviceName）
+     */
     String PREFIX_OPEN = "OPEN";
 
     /**
-    * 隧道开启成功（OPENED|requestId|channelId）
-    */
+     * 隧道开启成功（OPENED|requestId|channelId）
+     */
     String PREFIX_OPENED = "OPENED";
 
     /**
-    * 隧道开启通知（发给服务提供方：TUNNEL_OPEN|token|channelId|serviceName）
-    */
+     * 隧道开启通知（发给服务提供方：TUNNEL_OPEN|token|channelId|serviceName）
+     */
     String PREFIX_TUNNEL_OPEN = "TUNNEL_OPEN";
 
     /**
-    * 错误（ERROR|requestId|reason）
-    */
+     * 错误（ERROR|requestId|reason）
+     */
     String PREFIX_ERROR = "ERROR";
 
     /**
-    * 隧道关闭（CLOSE|token|channelId）
-    */
+     * 隧道关闭（CLOSE|token|channelId）
+     */
     String PREFIX_CLOSE = "CLOSE";
 
     /**
-    * 心跳请求（PING|token）
-    */
+     * 心跳请求（PING|token）
+     */
     String PREFIX_PING = "PING";
 
     /**
-    * 心跳响应（PONG|token）
-    */
+     * 心跳响应（PONG|token）
+     */
     String PREFIX_PONG = "PONG";
 
     /**
-    * 数据平面连接握手前缀（CONNECT|channelId|role|token）
-    */
+     * 数据平面连接握手前缀（CONNECT|channelId|role|token）
+     */
     String PREFIX_CONNECT = "CONNECT";
 
     /**
-    * 多路复用数据面握手前缀（MUXCONN|首个channelId|role|token），
-    * 单条连接承载同角色全部隧道：帧格式 [4B 长度][16B channelId][payload]，空 payload 为通道关闭标记
-    */
+     * 多路复用数据面握手前缀（MUXCONN|首个channelId|role|token），
+     * 单条连接承载同角色全部隧道：帧格式 [4B 长度][16B channelId][payload]，空 payload 为通道关闭标记
+     */
     String PREFIX_MUXCONN = "MUXCONN";
 
     /**
-    * 通配服务名：provider 以此注册时表示"动态目标中继"模式，
-    * visitor 请求的 serviceName 即为目标 host:port，由 provider 现场拨号
-    */
+     * 通配服务名：provider 以此注册时表示"动态目标中继"模式，
+     * visitor 请求的 serviceName 即为目标 host:port，由 provider 现场拨号
+     */
     String WILDCARD_SERVICE = "*";
 
     /**
-    * 字段分隔符
-    */
+     * 字段分隔符
+     */
     String SEPARATOR = "|";
 
     /**
-    * 拼接行。
-    *
-    * @param fields 字段
-    * @return 拼接结果
-    */
+     * 拼接行。
+     *
+     * @param fields 字段
+     * @return 拼接结果
+     */
     static String line(String... fields) {
         return String.join(SEPARATOR, fields);
     }

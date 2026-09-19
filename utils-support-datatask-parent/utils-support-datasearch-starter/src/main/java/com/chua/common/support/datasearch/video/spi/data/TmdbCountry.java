@@ -1,10 +1,10 @@
 package com.chua.common.support.datasearch.video.spi.data;
 
 /**
-* TMDB 国家数据
-*
-* @author CH
-* @since 4.0.0.42
+ * TMDB 国家数据
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TmdbCountry {
     /** 创建 tmdbcountry 实例 */
@@ -29,10 +29,10 @@ public class TmdbCountry {
     }
 
     /**
-    * 与国家代码һһ对Ӧ的ö举，按需ɾ减
-    * @author CH
-    * @since 4.0.0
-    */
+     * 与国家代码һһ对Ӧ的ö举，按需ɾ减
+     * @author CH
+     * @since 4.0.0
+     */
     public enum Code {
         AD("Andorra"),
         AE("United Arab Emirates"),

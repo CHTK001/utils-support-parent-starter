@@ -14,10 +14,10 @@ import org.redisson.config.Config;
 import java.util.*;
 
 /**
-* Redis 服务发现实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Redis 服务发现实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")
@@ -36,11 +36,11 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 创建 redis服务discovery 实例
-    * @param discoveryOption discovery期权
-    * @param clusterName 字符串
-    * @param clusterName cluster名称
-    */
+     * 创建 redis服务discovery 实例
+     * @param discoveryOption discovery期权
+     * @param clusterName 字符串
+     * @param clusterName cluster名称
+     */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }

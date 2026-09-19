@@ -9,12 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
-* 日志sink — 审计型 Sink，打印到日志。
-*
-* <p>实现 {@link AccessSink}，不需要存储 DataSource。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 日志sink — 审计型 Sink，打印到日志。
+ *
+ * <p>实现 {@link AccessSink}，不需要存储 DataSource。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("log")

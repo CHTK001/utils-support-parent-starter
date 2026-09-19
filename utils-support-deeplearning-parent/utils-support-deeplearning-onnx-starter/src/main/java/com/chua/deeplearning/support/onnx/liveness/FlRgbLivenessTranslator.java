@@ -14,20 +14,20 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
-* FLRGB 人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flrgb）。
-*
-* <p>ResNet 结构，输入 112×112 RGB（[0,1] 归一化），输出 {@code final_actions [1,2]}
-* = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数（0~1，越高越可能是活体）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * FLRGB 人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flrgb）。
+ *
+ * <p>ResNet 结构，输入 112×112 RGB（[0,1] 归一化），输出 {@code final_actions [1,2]}
+ * = [活体概率, 假体概率]。返回索引 0（活体概率）作为活体分数（0~1，越高越可能是活体）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FlRgbLivenessTranslator implements Translator<Image, Float> {
 
     /**
-    * 输入尺寸。
-    */
+     * 输入尺寸。
+     */
     private static final int INPUT_SIZE = 112;
 
     @Override

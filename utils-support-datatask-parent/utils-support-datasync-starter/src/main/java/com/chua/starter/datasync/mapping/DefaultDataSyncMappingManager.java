@@ -11,17 +11,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 默认数据同步映射管理器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认数据同步映射管理器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
 
     /**
-    * 映射注册表
-    */
+     * 映射注册表
+     */
     private final Map<String, DataSyncMapping> mappings = new ConcurrentHashMap<>();
 
     @Override

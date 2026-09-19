@@ -1,14 +1,14 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* SIP 协议还原器。
-*
-* <p>SIP（会话初始协议）请求/响应第一行：方法 + URI + SIP/2.0
-* 或响应行：SIP/2.0 + 状态码 + 状态文本。
-* 识别 INVITE/注册/BYE/CANCEL/ACK/期权/PRACK/信息/订阅/通知/REFER 等方法。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * SIP 协议还原器。
+ *
+ * <p>SIP（会话初始协议）请求/响应第一行：方法 + URI + SIP/2.0
+ * 或响应行：SIP/2.0 + 状态码 + 状态文本。
+ * 识别 INVITE/注册/BYE/CANCEL/ACK/期权/PRACK/信息/订阅/通知/REFER 等方法。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SipProtocolRestorer extends AbstractProtocolRestorer {
 

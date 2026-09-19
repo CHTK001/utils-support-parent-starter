@@ -10,23 +10,23 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
-* MD5 Mock 生成器
-*
-* <p>对随机内容计算 MD5，生成 32 位小写十六进制摘要，
-* 如 {@code d41d8cd98f00b204e9800998ecf8427e}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MD5 Mock 生成器
+ *
+ * <p>对随机内容计算 MD5，生成 32 位小写十六进制摘要，
+ * 如 {@code d41d8cd98f00b204e9800998ecf8427e}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"md5", "md5-hex", "digest"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class Md5MockString implements MockString {
 
     /**
-    * 随机内容长度
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 随机内容长度
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private static final int CONTENT_LENGTH = 16;
 
     @Override
@@ -43,11 +43,11 @@ public class Md5MockString implements MockString {
     }
 
     /**
-    * 将字节数组转为小写十六进制字符串。
-    *
-    * @param bytes 字节数组
-    * @return 十六进制字符串
-    */
+     * 将字节数组转为小写十六进制字符串。
+     *
+     * @param bytes 字节数组
+     * @return 十六进制字符串
+     */
     private static String hex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {

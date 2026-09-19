@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Solr 搜索引擎实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Solr 搜索引擎实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SolrSearchEngine implements SearchEngine {
 

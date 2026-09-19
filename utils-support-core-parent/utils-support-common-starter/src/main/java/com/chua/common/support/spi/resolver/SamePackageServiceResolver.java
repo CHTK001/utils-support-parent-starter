@@ -40,39 +40,39 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @since 4.0.0
-*/
+ */
 @Slf4j
 public class SamePackageServiceResolver implements ServiceResolver {
 
 
     /**
-    * 类缓存，用于加速重复加载
-    */
+     * 类缓存，用于加速重复加载
+     */
     private static final Map<String, Class<?>> CLASS_CACHE = new ConcurrentHashMap<>(512);
     
     /**
-    * 类锁缓存，用于并发安全加载
-    */
+     * 类锁缓存，用于并发安全加载
+     */
     private static final Map<String, Object> CLASS_LOCKS = new ConcurrentHashMap<>(512);
 
     /**
-    * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
-    * 避免一个线程 关闭 后其他线程访问已关闭的 jar文件 报 压缩 文件 关闭。
-    */
+     * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
+     * 避免一个线程 关闭 后其他线程访问已关闭的 jar文件 报 压缩 文件 关闭。
+     */
     private static final Map<String, Object> JAR_URL_LOCKS = new ConcurrentHashMap<>(64);
 
     /**
-    * 批量加载大小
-    */
+     * 批量加载大小
+     */
     private static final int BATCH_SIZE = 100;
 
     /**
-    * 解析指定服务接口在同包路径下的所有实现类，并转换为服务定义列表。
-    *
-    * @param service 服务接口类型
-    * @param classLoader 用于扫描和加载实现类的类加载器
-    * @return 解析得到的服务定义列表
-    */
+     * 解析指定服务接口在同包路径下的所有实现类，并转换为服务定义列表。
+     *
+     * @param service 服务接口类型
+     * @param classLoader 用于扫描和加载实现类的类加载器
+     * @return 解析得到的服务定义列表
+     */
     @Override
     public List<ServiceDefinition> resolve(Class<?> service, ClassLoader classLoader) {
         if (log.isTraceEnabled()) {
@@ -121,26 +121,26 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 从类型全名中提取包名。
-    *
-    * @param typeName 类型全名
-    * @return 包名，若不存在包名则返回空字符串
-    */
+     * 从类型全名中提取包名。
+     *
+     * @param typeName 类型全名
+     * @return 包名，若不存在包名则返回空字符串
+     */
     private String extractPackageName(String typeName) {
         int lastDot = typeName.lastIndexOf('.');
         return lastDot > 0 ? typeName.substring(0, lastDot) : "";
     }
 
     /**
-    * 查找指定包及其子包下的实现类列表。
-    * <p>
-    * 通过扫描包路径下的 {@code .class} 文件，发现符合条件的服务实现类。
-    *
-    * @param packageName 包名
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    * @return 子类型列表
-    */
+     * 查找指定包及其子包下的实现类列表。
+     * <p>
+     * 通过扫描包路径下的 {@code .class} 文件，发现符合条件的服务实现类。
+     *
+     * @param packageName 包名
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     * @return 子类型列表
+     */
     public List<Class<?>> findSubTypeByPackage(String packageName, Class<?> service, ClassLoader classLoader) {
         if (packageName == null || packageName.isEmpty()) {
             if (log.isTraceEnabled()) {
@@ -189,15 +189,15 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 根据资源 URL 的协议类型，分发到文件系统或 JAR 包扫描逻辑。
-    *
-    * @param result 结果集合
-    * @param url 资源 URL
-    * @param packageName 包名
-    * @param packageDirName 包目录名
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    */
+     * 根据资源 URL 的协议类型，分发到文件系统或 JAR 包扫描逻辑。
+     *
+     * @param result 结果集合
+     * @param url 资源 URL
+     * @param packageName 包名
+     * @param packageDirName 包目录名
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     */
     private void doAnalysisUrl(Collection<Class<?>> result,
                                URL url,
                                String packageName,
@@ -217,14 +217,14 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 扫描 JAR 包中的 {@code .class} 文件，并加载符合条件的实现类。
-    *
-    * @param result 结果集合
-    * @param url 资源 URL
-    * @param packageDirName 包目录名
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    */
+     * 扫描 JAR 包中的 {@code .class} 文件，并加载符合条件的实现类。
+     *
+     * @param result 结果集合
+     * @param url 资源 URL
+     * @param packageDirName 包目录名
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     */
     private void doAnalysisJarUrl(Collection<Class<?>> result,
                                   URL url,
                                   String packageDirName,
@@ -238,13 +238,13 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 执行analysisjarurl内部
-    * @param result 结果
-    * @param url url
-    * @param packageDirName 包dir名称
-    * @param service 服务
-    * @param classLoader 类加载
-    */
+     * 执行analysisjarurl内部
+     * @param result 结果
+     * @param url url
+     * @param packageDirName 包dir名称
+     * @param service 服务
+     * @param classLoader 类加载
+     */
     private void doAnalysisJarUrlInner(Collection<Class<?>> result,
                                        URL url,
                                        String packageDirName,
@@ -287,15 +287,15 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 扫描文件系统目录中的 {@code .class} 文件，使用 {@link Files#walk} 遍历以兼容较新的 Java 版本。
-    *
-    * @param result 结果集合
-    * @param url 资源 URL
-    * @param packageName 包名
-    * @param packageDirName 包目录名
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    */
+     * 扫描文件系统目录中的 {@code .class} 文件，使用 {@link Files#walk} 遍历以兼容较新的 Java 版本。
+     *
+     * @param result 结果集合
+     * @param url 资源 URL
+     * @param packageName 包名
+     * @param packageDirName 包目录名
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     */
     private void doAnalysisFileUrl(Collection<Class<?>> result,
                                   URL url,
                                   String packageName,
@@ -363,14 +363,14 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 文件系统扫描的兼容回退逻辑，用于处理 {@link Files#walk} 方式不兼容或失败的场景。
-    *
-    * @param result 结果集合
-    * @param packageDir 包目录
-    * @param packageName 包名
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    */
+     * 文件系统扫描的兼容回退逻辑，用于处理 {@link Files#walk} 方式不兼容或失败的场景。
+     *
+     * @param result 结果集合
+     * @param packageDir 包目录
+     * @param packageName 包名
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     */
     private void doAnalysisFileUrlLegacy(Collection<Class<?>> result,
                                          File packageDir,
                                          String packageName,
@@ -427,13 +427,13 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 按批次加载多个类名对应的类对象。
-    *
-    * @param classNames 类名列表
-    * @param service 服务接口
-    * @param classLoader 类加载器
-    * @param result 结果集合
-    */
+     * 按批次加载多个类名对应的类对象。
+     *
+     * @param classNames 类名列表
+     * @param service 服务接口
+     * @param classLoader 类加载器
+     * @param result 结果集合
+     */
     private void loadClassesInBatch(List<String> classNames, 
                                     Class<?> service, 
                                     ClassLoader classLoader,
@@ -462,12 +462,12 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 判断给定类是否为指定服务接口的有效实现类。
-    *
-    * @param aClass 待检查类
-    * @param service 服务接口
-    * @return 如果是有效实现类则返回 {@code true}
-    */
+     * 判断给定类是否为指定服务接口的有效实现类。
+     *
+     * @param aClass 待检查类
+     * @param service 服务接口
+     * @return 如果是有效实现类则返回 {@code true}
+     */
     private boolean isValidImplementation(Class<?> aClass, Class<?> service) {
         return service.isAssignableFrom(aClass)
                 && !aClass.isInterface()
@@ -475,14 +475,14 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-    * 使用缓存和双重检查锁定机制加载类，避免重复扫描与重复加载。
-    * <p>
-    * 加载失败的类也会被缓存为 {@code null}，后续可直接跳过，减少重复尝试。
-    *
-    * @param className 类名
-    * @param classLoader 类加载器
-    * @return 加载成功的类对象；若失败则返回 {@code null}
-    */
+     * 使用缓存和双重检查锁定机制加载类，避免重复扫描与重复加载。
+     * <p>
+     * 加载失败的类也会被缓存为 {@code null}，后续可直接跳过，减少重复尝试。
+     *
+     * @param className 类名
+     * @param classLoader 类加载器
+     * @return 加载成功的类对象；若失败则返回 {@code null}
+     */
     private Class<?> loadClassWithCache(String className, ClassLoader classLoader) {
         Class<?> cached = CLASS_CACHE.get(className);
         if (cached != null) {

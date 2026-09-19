@@ -10,28 +10,28 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
-* sqlite 更新_hook CDC 封装。
-*
-* <p>通过 Java FFM（Project Panama）绑定 native 库，
-* 提供同步 CDC 接口：{@link #exec(String)} 执行 SQL，
-* 变更事件通过 {@link Consumer} 回调推送。支持批量消费
-* {@link #drain()} 获取当前缓冲的全部事件。</p>
-*
-* <pre>{@code
-* try (SqliteHookConnection cdc = SqliteHookConnection.open("mydb.sqlite")) {
-*     cdc.onEvent(e -> System.out.println(e.getType() + " on " + e.getTable()));
-*     cdc.exec("INSERT INTO users(name) VALUES('Alice')");
-*
-*     // 批量消费缓冲事件
-*     List<SqliteChangeEvent> events = cdc.drain();
-* }
-* }</pre>ent> events = cdc.drain();
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
-* @param handle 处理
+ * sqlite 更新_hook CDC 封装。
+ *
+ * <p>通过 Java FFM（Project Panama）绑定 native 库，
+ * 提供同步 CDC 接口：{@link #exec(String)} 执行 SQL，
+ * 变更事件通过 {@link Consumer} 回调推送。支持批量消费
+ * {@link #drain()} 获取当前缓冲的全部事件。</p>
+ *
+ * <pre>{@code
+ * try (SqliteHookConnection cdc = SqliteHookConnection.open("mydb.sqlite")) {
+ *     cdc.onEvent(e -> System.out.println(e.getType() + " on " + e.getTable()));
+ *     cdc.exec("INSERT INTO users(name) VALUES('Alice')");
+ *
+ *     // 批量消费缓冲事件
+ *     List<SqliteChangeEvent> events = cdc.drain();
+ * }
+ * }</pre>ent> events = cdc.drain();
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param handle 处理
  */
 public final class SqliteHookConnection implements AutoCloseable {
 
@@ -50,10 +50,10 @@ public final class SqliteHookConnection implements AutoCloseable {
     private Consumer<SqliteChangeEvent> eventConsumer; // 事件consumer
     private final List<SqliteChangeEvent> eventBuffer = new ArrayList<>(); // 事件缓冲
 /**
-* 打开。
-* @param dbPath db路径
-* @return 打开的结果
-* @param handle 处理
+ * 打开。
+ * @param dbPath db路径
+ * @return 打开的结果
+ * @param handle 处理
  */
 
     public static SqliteHookConnection open(String dbPath) {
@@ -78,19 +78,19 @@ public final class SqliteHookConnection implements AutoCloseable {
     }
 
     /**
-    * 设置变更事件回调。每次 {@link #exec(String)} 后自动触发。
-    * @param consumer consumer
-    */
+     * 设置变更事件回调。每次 {@link #exec(String)} 后自动触发。
+     * @param consumer consumer
+     */
     public void onEvent(Consumer<SqliteChangeEvent> consumer) {
         this.eventConsumer = consumer;
     }
 
     /**
-    * 执行 SQL，变更事件通过回调推送并缓存。
-    *
-    * @return SQLite 返回 编码，0 表示成功
-    * @param sql SQL
-    */
+     * 执行 SQL，变更事件通过回调推送并缓存。
+     *
+     * @return SQLite 返回 编码，0 表示成功
+     * @param sql SQL
+     */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
             int rc = (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
@@ -102,11 +102,11 @@ public final class SqliteHookConnection implements AutoCloseable {
     }
 
     /**
-    * 同步排空事件缓冲区，返回所有已缓存但未消费的事件。
-    * 调用后缓冲区清空，事件已推送给回调。
-    *
-    * @return 本次排空的变更事件列表（缓冲区快照）
-    */
+     * 同步排空事件缓冲区，返回所有已缓存但未消费的事件。
+     * 调用后缓冲区清空，事件已推送给回调。
+     *
+     * @return 本次排空的变更事件列表（缓冲区快照）
+     */
     public List<SqliteChangeEvent> drain() {
         drainBufferSync();
         List<SqliteChangeEvent> snapshot = new ArrayList<>(eventBuffer);
@@ -117,9 +117,9 @@ public final class SqliteHookConnection implements AutoCloseable {
     @Override
     public void close() {
         /**
-        * 是否打开。
-        * @return 是否打开的结果
-        */
+         * 是否打开。
+         * @return 是否打开的结果
+         */
         try {
             HOOK_CLOSE_HANDLE.invoke(handle);
         } catch (Throwable ignored) {
@@ -133,8 +133,8 @@ public final class SqliteHookConnection implements AutoCloseable {
      */
     public boolean isOpen() {
         /**
-        * drain缓冲同步。
-        */
+         * drain缓冲同步。
+         */
         return handle != null && !handle.equals(MemorySegment.NULL);
     }
 
@@ -206,10 +206,10 @@ public final class SqliteHookConnection implements AutoCloseable {
         MemorySegment sym = SYM_LOOKUP.find(name)
                 .orElseThrow(() -> new UnsatisfiedLinkError("符号未找到: " + name));
         /**
-        * 解析事件。
-        * @param json json
-        * @return 解析事件的结果
-        */
+         * 解析事件。
+         * @param json json
+         * @return 解析事件的结果
+         */
         return LINKER.downcallHandle(sym, desc);
     }
 
@@ -243,11 +243,11 @@ public final class SqliteHookConnection implements AutoCloseable {
         } catch (Exception e) {
             return null;
         /**
-        * extract字符串。
-        * @param json json
-        * @param key 键
-        * @return extract字符串的结果
-        */
+         * extract字符串。
+         * @param json json
+         * @param key 键
+         * @return extract字符串的结果
+         */
         }
     }
 

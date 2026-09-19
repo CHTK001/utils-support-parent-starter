@@ -33,7 +33,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  * @see RuntimeDetector
-*/
+ */
 @Slf4j
 public class CudaRuntimeDetector implements RuntimeDetector {
 
@@ -91,11 +91,11 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     // ==================== 内部检测方法 ====================
 
     /**
-    * 自包含的 类路径 类检测（避免依赖 类工具 编译产物）。
-    *
-    * @param className 全限定类名
-    * @return true 表示类可加载
-    */
+     * 自包含的 类路径 类检测（避免依赖 类工具 编译产物）。
+     *
+     * @param className 全限定类名
+     * @return true 表示类可加载
+     */
     private static boolean isClassPresent(String className) {
         try {
             ReflectUtils.forName(className, CudaRuntimeDetector.class.getClassLoader());
@@ -106,12 +106,12 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-    * 检查 NVIDIA 驱动是否安装。
-    *
-    * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
-    * Linux：检查 /proc/driver/nvidia 是否存在。</p>
-    * @return 检查nvidiadriver的结果
-    */
+     * 检查 NVIDIA 驱动是否安装。
+     *
+     * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
+     * Linux：检查 /proc/driver/nvidia 是否存在。</p>
+     * @return 检查nvidiadriver的结果
+     */
     private boolean checkNvidiaDriver() {
         if (isWindows() && checkNvidiaRegistry()) {
             return true;
@@ -124,9 +124,9 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-    * 检测可用的 GPU 设备列表（通过 nvidia-smi）。
-    * @return detectGpus的结果
-    */
+     * 检测可用的 GPU 设备列表（通过 nvidia-smi）。
+     * @return detectGpus的结果
+     */
     private List<String> detectGpus() {
         List<String> gpus = new ArrayList<>();
         try {
@@ -155,12 +155,12 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-    * 检查 CUDA 运行库（cudart/cublas/cudnn）是否可从系统库路径加载。
-    *
-    * <p>不做完整加载（避免副作用），仅检查关键 DLL/.so 是否存在于
-    * 路径 可搜索目录（窗口）或常见库目录（Linux）。</p>
-    * @return 检查cudaruntime图书馆的结果
-    */
+     * 检查 CUDA 运行库（cudart/cublas/cudnn）是否可从系统库路径加载。
+     *
+     * <p>不做完整加载（避免副作用），仅检查关键 DLL/.so 是否存在于
+     * 路径 可搜索目录（窗口）或常见库目录（Linux）。</p>
+     * @return 检查cudaruntime图书馆的结果
+     */
     private boolean checkCudaRuntimeLibraries() {
         String cudaMajor = System.getProperty("cuda.major", "12");
         String[] libs;
@@ -215,9 +215,9 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-    * Windows 注册表检查 NVIDIA 驱动。
-    * @return 检查nvidiaregistry的结果
-    */
+     * Windows 注册表检查 NVIDIA 驱动。
+     * @return 检查nvidiaregistry的结果
+     */
     private boolean checkNvidiaRegistry() {
         try {
             ProcessBuilder pb = new ProcessBuilder(

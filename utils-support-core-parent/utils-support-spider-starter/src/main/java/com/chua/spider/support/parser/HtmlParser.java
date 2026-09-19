@@ -15,15 +15,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* HTML 内容解析器。
-*
-* <p>使用 JSoup 库解析 HTML 格式的爬取响应，提取页面标题、纯文本内容、
-* 结构化元数据（作者、发布时间、描述等）。
-*
-* <p>SPI 名称：{@code parser:html}
-*
-* @author CH
-* @since 4.0.0.42
+ * HTML 内容解析器。
+ *
+ * <p>使用 JSoup 库解析 HTML 格式的爬取响应，提取页面标题、纯文本内容、
+ * 结构化元数据（作者、发布时间、描述等）。
+ *
+ * <p>SPI 名称：{@code parser:html}
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("html")
@@ -31,8 +31,8 @@ import java.util.Map;
 public class HtmlParser implements SpiderParser {
 
     /**
-    * 支持的内容类型前缀
-    */
+     * 支持的内容类型前缀
+     */
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
     @Override
@@ -103,13 +103,13 @@ public class HtmlParser implements SpiderParser {
     }
 
     /**
-    * 从 HTML 的 &lt;meta&gt; 标签中提取结构化元数据。
-    *
-    * <p>支持提取的字段：description、keywords、author、publishedDate 等。
-    *
-    * @param doc HTML 文档
-    * @return 结构化元数据键值对
-    */
+     * 从 HTML 的 &lt;meta&gt; 标签中提取结构化元数据。
+     *
+     * <p>支持提取的字段：description、keywords、author、publishedDate 等。
+     *
+     * @param doc HTML 文档
+     * @return 结构化元数据键值对
+     */
     private Map<String, Object> extractMeta(Document doc) {
         Map<String, Object> meta = new LinkedHashMap<>();
 

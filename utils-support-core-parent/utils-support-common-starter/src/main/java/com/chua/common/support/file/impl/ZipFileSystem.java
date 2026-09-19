@@ -17,46 +17,46 @@ import java.util.zip.ZipOutputStream;
 import java.util.zip.ZipInputStream;
 
 /**
-* ZIP 压缩文件系统 SPI 实现。
-*
-* <p>通过 SPI 机制注册为 {@code "zip"} / {@code "archive"} 类型的文件系统实现。
-* 支持链式创建压缩包和读取/提取压缩包。</p>
-*
-* <p>写操作示例：</p>
-* <pre>{@code
-* FileSystem zip = FileSystem.create("zip");
-* zip.write(new File("output.zip"))
-*    .addFile("dir/a.txt", new File("a.txt"))
-*    .addStream("dir/b.txt", inputStream)
-*    .addBytes("dir/c.txt", bytes)
-*    .finish();
-* }</pre>
-*
-* <p>读操作示例：</p>
-* <pre>{@code
-* // 全部提取
-* zip.read(new File("input.zip")).extractAll(targetDir);
-*
-* // 指定文件提取
-* zip.read(new File("input.zip")).extract("a.txt", "b.txt", targetDir);
-*
-* // 列出所有条目
-* List<String> entries = zip.read(new File("input.zip")).listEntries();
-*
-* // 分卷压缩写入
-* zip.write(new File("output.zip"))
-*    .splitSize(1024 * 1024 * 100) // 100MB 分卷
-*    .addFile("large-file.bin", new File("large-file.bin"))
-*    .finish();
-*
-* // 分卷压缩读取（自动检测分卷文件）
-* zip.read(new File("output.zip"))
-*    .split() // 启用分卷读取模式
-*    .extractAll(targetDir);
-* }</pre>
-*
-* @author CH
-* @since 1.0.0
+ * ZIP 压缩文件系统 SPI 实现。
+ *
+ * <p>通过 SPI 机制注册为 {@code "zip"} / {@code "archive"} 类型的文件系统实现。
+ * 支持链式创建压缩包和读取/提取压缩包。</p>
+ *
+ * <p>写操作示例：</p>
+ * <pre>{@code
+ * FileSystem zip = FileSystem.create("zip");
+ * zip.write(new File("output.zip"))
+ *    .addFile("dir/a.txt", new File("a.txt"))
+ *    .addStream("dir/b.txt", inputStream)
+ *    .addBytes("dir/c.txt", bytes)
+ *    .finish();
+ * }</pre>
+ *
+ * <p>读操作示例：</p>
+ * <pre>{@code
+ * // 全部提取
+ * zip.read(new File("input.zip")).extractAll(targetDir);
+ *
+ * // 指定文件提取
+ * zip.read(new File("input.zip")).extract("a.txt", "b.txt", targetDir);
+ *
+ * // 列出所有条目
+ * List<String> entries = zip.read(new File("input.zip")).listEntries();
+ *
+ * // 分卷压缩写入
+ * zip.write(new File("output.zip"))
+ *    .splitSize(1024 * 1024 * 100) // 100MB 分卷
+ *    .addFile("large-file.bin", new File("large-file.bin"))
+ *    .finish();
+ *
+ * // 分卷压缩读取（自动检测分卷文件）
+ * zip.read(new File("output.zip"))
+ *    .split() // 启用分卷读取模式
+ *    .extractAll(targetDir);
+ * }</pre>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Spi({"zip"})
 public class ZipFileSystem implements FileSystem {
@@ -105,10 +105,10 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 列出压缩包中所有条目名称。
-        *
-        * @return 条目名称列表
-        */
+         * 列出压缩包中所有条目名称。
+         *
+         * @return 条目名称列表
+         */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
             if (splitMode) {
@@ -137,20 +137,20 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 将压缩包全部内容提取到目标目录。
-        *
-        * @param targetDir 目标目录
-        */
+         * 将压缩包全部内容提取到目标目录。
+         *
+         * @param targetDir 目标目录
+         */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
         /**
-        * 创建合并的输入流，用于分卷读取。
-        *
-        * @return 合并后的输入流
-        * @throws IOException IO 异常
-        */
+         * 创建合并的输入流，用于分卷读取。
+         *
+         * @return 合并后的输入流
+         * @throws IOException IO 异常
+         */
         private InputStream createMergedInputStream() throws IOException {
             List<File> splitFiles = findSplitFiles();
             if (splitFiles.isEmpty()) {
@@ -161,10 +161,10 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 查找同目录下的分卷文件。
-        *
-        * @return 分卷文件列表（按顺序排列）
-        */
+         * 查找同目录下的分卷文件。
+         *
+         * @return 分卷文件列表（按顺序排列）
+         */
         private List<File> findSplitFiles() {
             List<File> splitFiles = new ArrayList<>();
             File parentDir = file.getParentFile();
@@ -204,8 +204,8 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 合并多个分卷文件的输入流。
-        */
+         * 合并多个分卷文件的输入流。
+         */
         private static class MergedInputStream extends InputStream {
             private final List<File> files;
             private int currentIndex = 0;
@@ -267,21 +267,21 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 将压缩包中指定条目提取到目标目录。
-        *
-        * @param entryName 要提取的条目名称
-        * @param targetDir 目标目录
-        */
+         * 将压缩包中指定条目提取到目标目录。
+         *
+         * @param entryName 要提取的条目名称
+         * @param targetDir 目标目录
+         */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
         /**
-        * 将压缩包中指定一个或多个条目提取到目标目录。
-        *
-        * @param targetDir  目标目录
-        * @param entryNames 要提取的条目名称（不限数量）
-        */
+         * 将压缩包中指定一个或多个条目提取到目标目录。
+         *
+         * @param targetDir  目标目录
+         * @param entryNames 要提取的条目名称（不限数量）
+         */
         public void extract(File targetDir, String... entryNames) {
             if (splitMode) {
                 extractSplit(targetDir, entryNames);
@@ -291,11 +291,11 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 分卷模式下提取文件。
-        *
-        * @param targetDir  目标目录
-        * @param entryNames 要提取的条目名称
-        */
+         * 分卷模式下提取文件。
+         *
+         * @param targetDir  目标目录
+         * @param entryNames 要提取的条目名称
+         */
         private void extractSplit(File targetDir, String... entryNames) {
             try (InputStream mergedInputStream = createMergedInputStream();
                  ZipInputStream zis = new ZipInputStream(mergedInputStream)) {
@@ -343,11 +343,11 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 普通模式下提取文件。
-        *
-        * @param targetDir  目标目录
-        * @param entryNames 要提取的条目名称
-        */
+         * 普通模式下提取文件。
+         *
+         * @param targetDir  目标目录
+         * @param entryNames 要提取的条目名称
+         */
         private void extractNormal(File targetDir, String... entryNames) {
             try (ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8)) {
                 if (!targetDir.exists()) {
@@ -396,12 +396,12 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 读取压缩包中指定文件的内容为字符串。
-        *
-        * @param entryName 条目名称
-        * @return 文件内容字符串
-        * @throws UncheckedIOException 如果 IO 异常
-        */
+         * 读取压缩包中指定文件的内容为字符串。
+         *
+         * @param entryName 条目名称
+         * @return 文件内容字符串
+         * @throws UncheckedIOException 如果 IO 异常
+         */
         public String readEntry(String entryName) {
             if (splitMode) {
                 return readEntrySplit(entryName);
@@ -426,11 +426,11 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 分卷模式下读取指定条目的内容。
-        *
-        * @param entryName 条目名称
-        * @return 文件内容字符串
-        */
+         * 分卷模式下读取指定条目的内容。
+         *
+         * @param entryName 条目名称
+         * @return 文件内容字符串
+         */
         private String readEntrySplit(String entryName) {
             try (InputStream mergedInputStream = createMergedInputStream();
                  ZipInputStream zis = new ZipInputStream(mergedInputStream)) {
@@ -468,12 +468,12 @@ public class ZipFileSystem implements FileSystem {
     }
 
     /**
-        * ZIP 文件写入构建器。
-        *
-        * <p>支持链式调用添加文件、流、字节数组到压缩包。</p>
-        *
-        * @since 1.0.0
-        */
+     * ZIP 文件写入构建器。
+     *
+     * <p>支持链式调用添加文件、流、字节数组到压缩包。</p>
+     *
+     * @since 1.0.0
+     */
     public static class ZipWriteBuilder extends WriteBuilder {
 
         /** ZIP 条目列表 */
@@ -501,47 +501,47 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 设置分卷大小。
-        *
-        * @param size 每个分卷的最大字节数
-        * @return 当前构建器
-        */
+         * 设置分卷大小。
+         *
+         * @param size 每个分卷的最大字节数
+         * @return 当前构建器
+         */
         public ZipWriteBuilder splitSize(long size) {
             this.splitSize = size;
             return this;
         }
 
         /**
-        * 添加文件到压缩包。
-        *
-        * @param entryName 压缩包内的条目名称（路径）
-        * @param source    源文件
-        * @return 当前构建器
-        */
+         * 添加文件到压缩包。
+         *
+         * @param entryName 压缩包内的条目名称（路径）
+         * @param source    源文件
+         * @return 当前构建器
+         */
         public ZipWriteBuilder addFile(String entryName, File source) {
             entries.add(new ZipEntryData(entryName, source));
             return this;
         }
 
         /**
-        * 添加输入流到压缩包。
-        *
-        * @param entryName 压缩包内的条目名称（路径）
-        * @param in        输入流（读取后会自动关闭）
-        * @return 当前构建器
-        */
+         * 添加输入流到压缩包。
+         *
+         * @param entryName 压缩包内的条目名称（路径）
+         * @param in        输入流（读取后会自动关闭）
+         * @return 当前构建器
+         */
         public ZipWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new ZipEntryData(entryName, in));
             return this;
         }
 
         /**
-        * 添加字节数组到压缩包。
-        *
-        * @param entryName 压缩包内的条目名称（路径）
-        * @param bytes     字节数组内容
-        * @return 当前构建器
-        */
+         * 添加字节数组到压缩包。
+         *
+         * @param entryName 压缩包内的条目名称（路径）
+         * @param bytes     字节数组内容
+         * @return 当前构建器
+         */
         public ZipWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new ZipEntryData(entryName, bytes));
             return this;
@@ -591,9 +591,9 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 分卷模式完成写入。
-        * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
-        */
+         * 分卷模式完成写入。
+         * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
+         */
         private void finishSplit() {
             File tempFile = null;
             try {
@@ -633,21 +633,21 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 将文件分割成多个分卷。
-        * <p>分割后的文件命名规则：
-        * <ul>
-        *     <li>第一个分卷：.z01</li>
-        *     <li>第二个分卷：.z02</li>
-        *     <li>...</li>
-        *     <li>最后一个分卷（包含中央目录）：.zip</li>
-        * </ul>
-        *
-        *
-        * @param sourceFile 源文件（完整的 ZIP 文件）
-        * @param outputFile 目标文件名（.zip 结尾）
-        * @param maxSize    每个分卷的最大字节数
-        * @throws IOException IO 异常
-        */
+         * 将文件分割成多个分卷。
+         * <p>分割后的文件命名规则：
+         * <ul>
+         *     <li>第一个分卷：.z01</li>
+         *     <li>第二个分卷：.z02</li>
+         *     <li>...</li>
+         *     <li>最后一个分卷（包含中央目录）：.zip</li>
+         * </ul>
+         *
+         *
+         * @param sourceFile 源文件（完整的 ZIP 文件）
+         * @param outputFile 目标文件名（.zip 结尾）
+         * @param maxSize    每个分卷的最大字节数
+         * @throws IOException IO 异常
+         */
         private void splitFile(File sourceFile, File outputFile, long maxSize) throws IOException {
             String baseName = outputFile.getName();
             String baseNameWithoutExt = baseName;
@@ -711,12 +711,12 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 复制文件。
-        *
-        * @param source 源文件
-        * @param target 目标文件
-        * @throws IOException IO 异常
-        */
+         * 复制文件。
+         *
+         * @param source 源文件
+         * @param target 目标文件
+         * @throws IOException IO 异常
+         */
         private void copyFile(File source, File target) throws IOException {
             try (FileInputStream fis = new FileInputStream(source);
                  FileOutputStream fos = new FileOutputStream(target)) {
@@ -764,8 +764,8 @@ public class ZipFileSystem implements FileSystem {
             /** 条目名称 */
             private final String entryName;
             /**
-        * 数据源
-        */
+             * 数据源
+             */
             private final File source;
             /** 输入流 */
             private final InputStream inputStream;

@@ -54,8 +54,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("solr")
@@ -336,95 +336,95 @@ public class SolrEngine extends AbstractEngine {
         }
 
         /**
-        * 选择
-        *
-        * @param cols cols
-        * @return 选择的结果
-        */
+         * 选择
+         *
+         * @param cols cols
+         * @return 选择的结果
+         */
         public GroupByQueryWrapper<T> select(String... cols) {
             selectCols.addAll(List.of(cols));
             return this;
         }
 
         /**
-        * Eq
-        *
-        * @param col col
-        * @param val val
-        * @return eq的结果
-        */
+         * Eq
+         *
+         * @param col col
+         * @param val val
+         * @return eq的结果
+         */
         public GroupByQueryWrapper<T> eq(String col, Object val) {
             where.add(escape(col) + ":" + escapeValue(val));
             return this;
         }
 
         /**
-        * Ne
-        *
-        * @param col col
-        * @param val val
-        * @return ne的结果
-        */
+         * Ne
+         *
+         * @param col col
+         * @param val val
+         * @return ne的结果
+         */
         public GroupByQueryWrapper<T> ne(String col, Object val) {
             where.add("-" + escape(col) + ":" + escapeValue(val));
             return this;
         }
 
         /**
-        * Gt
-        *
-        * @param col col
-        * @param val val
-        * @return gt的结果
-        */
+         * Gt
+         *
+         * @param col col
+         * @param val val
+         * @return gt的结果
+         */
         public GroupByQueryWrapper<T> gt(String col, Object val) {
             where.add(escape(col) + ":{" + escapeValue(val) + " TO *}");
             return this;
         }
 
         /**
-        * Ge
-        *
-        * @param col col
-        * @param val val
-        * @return ge的结果
-        */
+         * Ge
+         *
+         * @param col col
+         * @param val val
+         * @return ge的结果
+         */
         public GroupByQueryWrapper<T> ge(String col, Object val) {
             where.add(escape(col) + ":[" + escapeValue(val) + " TO *]");
             return this;
         }
 
         /**
-        * Lt
-        *
-        * @param col col
-        * @param val val
-        * @return lt的结果
-        */
+         * Lt
+         *
+         * @param col col
+         * @param val val
+         * @return lt的结果
+         */
         public GroupByQueryWrapper<T> lt(String col, Object val) {
             where.add(escape(col) + ":{* TO " + escapeValue(val) + "}");
             return this;
         }
 
         /**
-        * Le
-        *
-        * @param col col
-        * @param val val
-        * @return le的结果
-        */
+         * Le
+         *
+         * @param col col
+         * @param val val
+         * @return le的结果
+         */
         public GroupByQueryWrapper<T> le(String col, Object val) {
             where.add(escape(col) + ":[* TO " + escapeValue(val) + "]");
             return this;
         }
 
         /**
-        * Like
-        *
-        * @param col col
-        * @param pattern 模式
-        * @return like的结果
-        */
+         * Like
+         *
+         * @param col col
+         * @param pattern 模式
+         * @return like的结果
+         */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
             String p = pattern;
             if (p.contains("%")) {
@@ -441,12 +441,12 @@ public class SolrEngine extends AbstractEngine {
         }
 
         /**
-        * 入
-        *
-        * @param col col
-        * @param vals vals
-        * @return 入的结果
-        */
+         * 入
+         *
+         * @param col col
+         * @param vals vals
+         * @return 入的结果
+         */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
             StringBuilder sb = new StringBuilder();
             sb.append(escape(col)).append(":(");
@@ -463,12 +463,12 @@ public class SolrEngine extends AbstractEngine {
         }
 
         /**
-        * 订单by
-        *
-        * @param col col
-        * @param asc asc
-        * @return 订单by的结果
-        */
+         * 订单by
+         *
+         * @param col col
+         * @param asc asc
+         * @return 订单by的结果
+         */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
@@ -476,43 +476,43 @@ public class SolrEngine extends AbstractEngine {
         }
 
         /**
-        * 限制
-        *
-        * @param limit 限制
-        * @return 限制的结果
-        */
+         * 限制
+         *
+         * @param limit 限制
+         * @return 限制的结果
+         */
         public GroupByQueryWrapper<T> limit(int limit) {
             this.limit = Math.max(1, limit);
             return this;
         }
 
         /**
-        * 偏移量
-        *
-        * @param offset 偏移量
-        * @return 偏移量的结果
-        */
+         * 偏移量
+         *
+         * @param offset 偏移量
+         * @return 偏移量的结果
+         */
         public GroupByQueryWrapper<T> offset(int offset) {
             this.offset = Math.max(0, offset);
             return this;
         }
 
         /**
-        * 列表
-        *
-        * @return 列表的结果
-        */
+         * 列表
+         *
+         * @return 列表的结果
+         */
         public List<Map<String, Object>> list() {
             return executeGroupBy();
         }
 
         /**
-        * Page
-        *
-        * @param pn pn
-        * @param ps ps
-        * @return page的结果
-        */
+         * Page
+         *
+         * @param pn pn
+         * @param ps ps
+         * @return page的结果
+         */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<Map<String, Object>> all = executeGroupBy();
             int from = (pn - 1) * ps;
@@ -525,10 +525,10 @@ public class SolrEngine extends AbstractEngine {
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         /**
-        * 执行分组By
-        *
-        * @return 执行群体by的结果
-        */
+         * 执行分组By
+         *
+         * @return 执行群体by的结果
+         */
         private List<Map<String, Object>> executeGroupBy() {
             SolrClient sc = engine.getClient();
             if (sc == null || groupByCols.isEmpty()) {
@@ -566,14 +566,14 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings("unchecked")
     /**
-    * 构建jsonfacet
-    *
-    * @param cols cols
-    * @param idx idx
-    * @param offset 偏移量
-    * @param limit 限制
-    * @return 构建jsonfacet的结果
-    */
+     * 构建jsonfacet
+     *
+     * @param cols cols
+     * @param idx idx
+     * @param offset 偏移量
+     * @param limit 限制
+     * @return 构建jsonfacet的结果
+     */
     private static String buildJsonFacet(List<String> cols, int idx, int offset, int limit) {
         if (idx >= cols.size()) {
             return "{\"count\":\"*\"}";
@@ -594,65 +594,65 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     /**
-    * 解析facet响应
-    * @param facets facets
-    * @param groupByCols 群体bycols
-    * @param depth 深度
-    * @param nf0 nf0
-    * @param nf nf
-    * @param groupByCols 群体bycols
-    * @param children children
-    * @param entityClass 实体类
-    * @param col col
-    * @param col col
-    * @param q q
-    * @param id 标识
-    * @param value 值
-    * @param newDoc 新doc
-    * @param e e
-    * @param e e
-    * @param entityClass 实体类
-    * @param col col
-    * @param col col
-    * @param query 查询
-    * @param e e
-    * @param e e
-    * @param entityClass 实体类
-    * @param conditions 条件
-    * @param conditions 条件
-    * @param 0 0
-    * @param 1000 1000
-    * @param list 列表
-    * @param total total
-    * @param entityClass 实体类
-    * @param conditions 条件
-    * @param start 启动
-    * @param rows rows
-    * @param 0 0
-    * @param collectionName 集合名称
-    * @param query 查询
-    * @param start 启动
-    * @param rows rows
-    * @param solrQuery Solr查询
-    * @param total total
-    * @param doc doc
-    * @param total total
-    * @param e e
-    * @param 0 0
-    * @param conditions 条件
-    * @param 0 0
-    * @param c c
-    * @param 0 0
-    * @param value 值
-    * @param value 值
-    * @param sc sc
-    * @param url url
-    * @param value 值
-    * @param targetType 目标类型
-    * @param num num
-    * @param str str
-    * @param ignored ignored
-    */
+     * 解析facet响应
+     * @param facets facets
+     * @param groupByCols 群体bycols
+     * @param depth 深度
+     * @param nf0 nf0
+     * @param nf nf
+     * @param groupByCols 群体bycols
+     * @param children children
+     * @param entityClass 实体类
+     * @param col col
+     * @param col col
+     * @param q q
+     * @param id 标识
+     * @param value 值
+     * @param newDoc 新doc
+     * @param e e
+     * @param e e
+     * @param entityClass 实体类
+     * @param col col
+     * @param col col
+     * @param query 查询
+     * @param e e
+     * @param e e
+     * @param entityClass 实体类
+     * @param conditions 条件
+     * @param conditions 条件
+     * @param 0 0
+     * @param 1000 1000
+     * @param list 列表
+     * @param total total
+     * @param entityClass 实体类
+     * @param conditions 条件
+     * @param start 启动
+     * @param rows rows
+     * @param 0 0
+     * @param collectionName 集合名称
+     * @param query 查询
+     * @param start 启动
+     * @param rows rows
+     * @param solrQuery Solr查询
+     * @param total total
+     * @param doc doc
+     * @param total total
+     * @param e e
+     * @param 0 0
+     * @param conditions 条件
+     * @param 0 0
+     * @param c c
+     * @param 0 0
+     * @param value 值
+     * @param value 值
+     * @param sc sc
+     * @param url url
+     * @param value 值
+     * @param targetType 目标类型
+     * @param num num
+     * @param str str
+     * @param ignored ignored
+     */
     private static List<Map<String, Object>> parseFacetResponse(
             Object facets, List<String> groupByCols, int depth) {
         /* solrj 对 /query 的响应中 facets 是普通 Map（非 NestableJsonFacet），
@@ -661,8 +661,8 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * 以裸 映射/名称列表 结构递归解析 json.facet 分组结果。
-    */
+     * 以裸 映射/名称列表 结构递归解析 json.facet 分组结果。
+     */
     private static List<Map<String, Object>> parseFacetsFromMap(
             Object facetsNode, List<String> groupByCols, int depth) {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -690,12 +690,12 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * 兼容 映射 与 名称列表 两种结构的取子节点
-    *
-    * @param node 节点
-    * @param key 键
-    * @return 子的结果
-    */
+     * 兼容 映射 与 名称列表 两种结构的取子节点
+     *
+     * @param node 节点
+     * @param key 键
+     * @return 子的结果
+     */
     private static Object child(Object node, String key) {
         if (node instanceof Map) {
             return ((Map<?, ?>) node).get(key);
@@ -835,12 +835,12 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings("unchecked")
     /**
-    * 搜索
-    *
-    * @param entityClass 实体类
-    * @param conditions 条件
-    * @return 搜索的结果
-    */
+     * 搜索
+     *
+     * @param entityClass 实体类
+     * @param conditions 条件
+     * @return 搜索的结果
+     */
     private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
         return search(entityClass, conditions, 0, 1000).list();
     }
@@ -850,14 +850,14 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings("unchecked")
     /**
-    * 搜索
-    *
-    * @param entityClass 实体类
-    * @param conditions 条件
-    * @param start 启动
-    * @param rows rows
-    * @return 搜索的结果
-    */
+     * 搜索
+     *
+     * @param entityClass 实体类
+     * @param conditions 条件
+     * @param start 启动
+     * @param rows rows
+     * @return 搜索的结果
+     */
     private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions, int start, int rows) {
         SolrClient sc = getClient();
         if (sc == null) {
@@ -903,11 +903,11 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * 构建Solr查询
-    *
-    * @param conditions 条件
-    * @return 构建Solr查询的结果
-    */
+     * 构建Solr查询
+     *
+     * @param conditions 条件
+     * @return 构建Solr查询的结果
+     */
     static String buildSolrQuery(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
             return "*:*";
@@ -924,11 +924,11 @@ public class SolrEngine extends AbstractEngine {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     /**
-    * 构建条件查询
-    *
-    * @param c c
-    * @return 构建条件查询的结果
-    */
+     * 构建条件查询
+     *
+     * @param c c
+     * @return 构建条件查询的结果
+     */
     static String buildConditionQuery(Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
@@ -1041,11 +1041,11 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * Escape
-    *
-    * @param value 值
-    * @return escape的结果
-    */
+     * Escape
+     *
+     * @param value 值
+     * @return escape的结果
+     */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -1081,11 +1081,11 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * escape值
-    *
-    * @param value 值
-    * @return escape值的结果
-    */
+     * escape值
+     *
+     * @param value 值
+     * @return escape值的结果
+     */
     private static String escapeValue(Object value) {
         if (value == null) {
             return "\\*";
@@ -1108,10 +1108,10 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * 获取客户端
-    *
-    * @return 获取客户端的结果
-    */
+     * 获取客户端
+     *
+     * @return 获取客户端的结果
+     */
     public SolrClient getClient() {
         if (client != null) {
             return client;
@@ -1134,12 +1134,12 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * 转换值
-    *
-    * @param value 值
-    * @param targetType 目标类型
-    * @return 转换值的结果
-    */
+     * 转换值
+     *
+     * @param value 值
+     * @param targetType 目标类型
+     * @return 转换值的结果
+     */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null) {
             return null;

@@ -9,14 +9,14 @@ import javax.annotation.Nullable;
 
 
 /**
-* PNG 元数据格式定义。
-*
-* <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
-* 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、trns、gama 等）以及
-* APNG 动画块（actl、fcTL、fdat）的元素和属性约束。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PNG 元数据格式定义。
+ *
+ * <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
+ * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、trns、gama 等）以及
+ * APNG 动画块（actl、fcTL、fdat）的元素和属性约束。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PNGMetadataFormat extends IIOMetadataFormatImpl {
 
@@ -565,20 +565,20 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     }
 
     /**
-    * 是否可以节点appear
-    * @param elementName element名称
-    * @param imageType 镜像类型
-    */
+     * 是否可以节点appear
+     * @param elementName element名称
+     * @param imageType 镜像类型
+     */
     public boolean canNodeAppear(String elementName,
                                  ImageTypeSpecifier imageType) {
         return true;
     }
 
     /**
-    * 获取Instance
-    *
-    * @return 获取instance的结果
-    */
+     * 获取Instance
+     *
+     * @return 获取instance的结果
+     */
     public static synchronized IIOMetadataFormat getInstance() {
         if (instance == null) {
             instance = new PNGMetadataFormat();

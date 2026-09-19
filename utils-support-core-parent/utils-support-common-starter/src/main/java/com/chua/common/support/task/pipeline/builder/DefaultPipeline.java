@@ -57,81 +57,81 @@ import java.util.stream.Collectors;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class DefaultPipeline implements Pipeline {
 
     /**
-    * 内部属性键 — Structured Streaming任务scope 实例，通过 pipeline上下文.attributes 传递给异步节点。
-    *
-    * <p>异步子流水线节点（{@link ParallelNode}）通过此键获取 Pipeline 级别的
-    * Structured Streaming任务scope，将异步任务 fork 进去，确保 Pipeline 返回前所有异步工作完成。</p>
-    *
-    * <p><strong>生命周期：</strong>
-    * 执行with() 创建 scope → 存入 attributes → 异步 节点 fork → 运行() 完成 → 连接 + 关闭</p>
-    */
+     * 内部属性键 — Structured Streaming任务scope 实例，通过 pipeline上下文.attributes 传递给异步节点。
+     *
+     * <p>异步子流水线节点（{@link ParallelNode}）通过此键获取 Pipeline 级别的
+     * Structured Streaming任务scope，将异步任务 fork 进去，确保 Pipeline 返回前所有异步工作完成。</p>
+     *
+     * <p><strong>生命周期：</strong>
+     * 执行with() 创建 scope → 存入 attributes → 异步 节点 fork → 运行() 完成 → 连接 + 关闭</p>
+     */
     static final String ATTR_PIPELINE_SCOPE = "__pipelineScope__";
 
     /**
-    * 流水线唯一标识
-    */
+     * 流水线唯一标识
+     */
     private final String id;
 
     /**
-    * 起始节点 标识
-    */
+     * 起始节点 标识
+     */
     private final String startNodeId;
 
     /**
-    * 终止节点 标识
-    */
+     * 终止节点 标识
+     */
     private final String endNodeId;
 
     /**
-    * 节点 标识 -&gt; 节点实例的映射
-    */
+     * 节点 标识 -&gt; 节点实例的映射
+     */
     private final Map<String, PipelineNode> nodeMap;
 
     /**
-    * 有序节点列表，用于确定默认执行顺序
-    */
+     * 有序节点列表，用于确定默认执行顺序
+     */
     private final List<PipelineNode> orderedNodes;
 
     /**
-    * 全局回调监听器列表
-    */
+     * 全局回调监听器列表
+     */
     private final List<PipelineListener> listeners;
 
     /**
-    * 节点拓扑边集合，用于 B+ 树打印
-    */
+     * 节点拓扑边集合，用于 B+ 树打印
+     */
     private final Map<String, List<Edge>> flowTree;
 
     /**
-    * 被判断节点分支指向的目标节点 标识 集合，构建树时跳过这些节点的默认边
-    */
+     * 被判断节点分支指向的目标节点 标识 集合，构建树时跳过这些节点的默认边
+     */
     private final Set<String> decisionTargets;
 
     /**
-    * 路由策略：当目标节点不存在时的处理方式
-    */
+     * 路由策略：当目标节点不存在时的处理方式
+     */
     private final RouteStrategy routeStrategy;
 
     /**
-    * WAL 持久化实例，空 表示未启用 WAL
-    */
+     * WAL 持久化实例，空 表示未启用 WAL
+     */
     private PipelineWal pipelineWal;
 
     /**
-    * 构造默认流水线。
-    *
-    * @param id            流水线 标识
-    * @param startNodeId   起始节点 标识
-    * @param endNodeId     终止节点 标识
-    * @param nodeMap       节点 标识 映射
-    * @param orderedNodes  有序节点列表
-    * @param listeners     全局回调监听器
-    * @param routeStrategy 路由策略：当目标节点不存在时的处理方式
-    */
+     * 构造默认流水线。
+     *
+     * @param id            流水线 标识
+     * @param startNodeId   起始节点 标识
+     * @param endNodeId     终止节点 标识
+     * @param nodeMap       节点 标识 映射
+     * @param orderedNodes  有序节点列表
+     * @param listeners     全局回调监听器
+     * @param routeStrategy 路由策略：当目标节点不存在时的处理方式
+     */
     public DefaultPipeline(String id, String startNodeId, String endNodeId,
                            Map<String, PipelineNode> nodeMap,
                            List<PipelineNode> orderedNodes,
@@ -141,17 +141,17 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 构造默认流水线（带 WAL 持久化）。
-    *
-    * @param id            流水线 标识
-    * @param startNodeId   起始节点 标识
-    * @param endNodeId     终止节点 标识
-    * @param nodeMap       节点 标识 映射
-    * @param orderedNodes  有序节点列表
-    * @param listeners     全局回调监听器
-    * @param routeStrategy 路由策略
-    * @param pipelineWal   WAL 持久化实例，空 表示不启用 WAL
-    */
+     * 构造默认流水线（带 WAL 持久化）。
+     *
+     * @param id            流水线 标识
+     * @param startNodeId   起始节点 标识
+     * @param endNodeId     终止节点 标识
+     * @param nodeMap       节点 标识 映射
+     * @param orderedNodes  有序节点列表
+     * @param listeners     全局回调监听器
+     * @param routeStrategy 路由策略
+     * @param pipelineWal   WAL 持久化实例，空 表示不启用 WAL
+     */
     public DefaultPipeline(String id, String startNodeId, String endNodeId,
                            Map<String, PipelineNode> nodeMap,
                            List<PipelineNode> orderedNodes,
@@ -196,15 +196,15 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 使用已有上下文执行流水线。
-    *
-    * <p>若上下文未指定起始节点（{@code nextNodeId == null}，如并行分支上下文），
-    * 自动设置为流水线的起始节点后执行。</p>
-    *
-    * @param existingContext 已存在的上下文实例
-    * @param <T>             数据类型
-    * @return 执行完成后的上下文
-    */
+     * 使用已有上下文执行流水线。
+     *
+     * <p>若上下文未指定起始节点（{@code nextNodeId == null}，如并行分支上下文），
+     * 自动设置为流水线的起始节点后执行。</p>
+     *
+     * @param existingContext 已存在的上下文实例
+     * @param <T>             数据类型
+     * @return 执行完成后的上下文
+     */
     @Override
     public <T> PipelineContext<T> execute(PipelineContext<T> existingContext) {
         // 若上下文未指定起始节点（如并行分支上下文），自动设置为流水线的起始节点
@@ -215,21 +215,21 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 恢复执行流水线。
-    *
-    * <p>与 {@link #execute(PipelineContext)} 语义一致：上下文未指定起始节点时
-    * （{@code nextNodeId == null}，如新建的上下文），自动设置为流水线起始节点后执行，避免空转。</p>
-    *
-    * <p><strong>典型场景：</strong></p>
-    * <ul>
-    *   <li>WAIT 挂起恢复 — 挂起前引擎已将 {@code nextNodeId} 推进到下一节点，从断点继续执行</li>
-    *   <li>新建上下文直接 resume — 自动回退到起始节点从头执行（与 {@link #execute(PipelineContext)} 等价）</li>
-    * </ul>
-    *
-    * @param ctx 上下文实例
-    * @param <T> 数据类型
-    * @return 执行完成后的上下文
-    */
+     * 恢复执行流水线。
+     *
+     * <p>与 {@link #execute(PipelineContext)} 语义一致：上下文未指定起始节点时
+     * （{@code nextNodeId == null}，如新建的上下文），自动设置为流水线起始节点后执行，避免空转。</p>
+     *
+     * <p><strong>典型场景：</strong></p>
+     * <ul>
+     *   <li>WAIT 挂起恢复 — 挂起前引擎已将 {@code nextNodeId} 推进到下一节点，从断点继续执行</li>
+     *   <li>新建上下文直接 resume — 自动回退到起始节点从头执行（与 {@link #execute(PipelineContext)} 等价）</li>
+     * </ul>
+     *
+     * @param ctx 上下文实例
+     * @param <T> 数据类型
+     * @return 执行完成后的上下文
+     */
     @Override
     public <T> PipelineContext<T> resume(PipelineContext<T> ctx) {
         // 与 execute(PipelineContext) 一致：上下文未指定起始节点时自动设置为流水线起始节点
@@ -273,20 +273,20 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 使用已有上下文执行流水线。
-    *
-    * <p>复用传入的上下文实例，不重建上下文对象，
-    * 首次执行时需由调用方设置起始节点 标识。</p>
-    *
-    * <p><strong>结构化并发保证：</strong>
-    * 创建 Pipeline 级别的 Structured Streaming任务scope，通过 {@code ctx.attributes} 传递给异步节点。
-    * 异步子流水线节点（{@link ParallelNode}）将异步任务 fork 进此 scope，
-    * Pipeline 返回前 连接 等待所有异步工作完成，确保结构化并发语义。</p>
-    *
-    * @param ctx 已存在的上下文实例
-    * @param <T> 数据类型
-    * @return 执行完成后的上下文
-    */
+     * 使用已有上下文执行流水线。
+     *
+     * <p>复用传入的上下文实例，不重建上下文对象，
+     * 首次执行时需由调用方设置起始节点 标识。</p>
+     *
+     * <p><strong>结构化并发保证：</strong>
+     * 创建 Pipeline 级别的 Structured Streaming任务scope，通过 {@code ctx.attributes} 传递给异步节点。
+     * 异步子流水线节点（{@link ParallelNode}）将异步任务 fork 进此 scope，
+     * Pipeline 返回前 连接 等待所有异步工作完成，确保结构化并发语义。</p>
+     *
+     * @param ctx 已存在的上下文实例
+     * @param <T> 数据类型
+     * @return 执行完成后的上下文
+     */
     public <T> PipelineContext<T> executeWith(PipelineContext<T> ctx) {
         ctx.setAction(Action.NEXT);
 
@@ -327,21 +327,21 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 单次 执行/resume 的最大节点执行次数，防止无限循环
-    */
+     * 单次 执行/resume 的最大节点执行次数，防止无限循环
+     */
     private static final int MAX_EXECUTION_DEPTH = 1000;
 
     /**
-    * 流水线核心执行循环。
-    *
-    * <p>每执行完一个节点，引擎自动将节点输出存入 {@code nodeOutputs}，
-    * 存储遵循类级 Javadoc 中定义的<strong>节点输出存储契约</strong>：
-    * {@code currentData} 为 null 时跳过存储；节点已自存结构化结果时不覆盖。</p>
-    *
-    * @param ctx 流水线上下文
-    * @param <T> 数据类型
-    * @return 运行的结果
-    */
+     * 流水线核心执行循环。
+     *
+     * <p>每执行完一个节点，引擎自动将节点输出存入 {@code nodeOutputs}，
+     * 存储遵循类级 Javadoc 中定义的<strong>节点输出存储契约</strong>：
+     * {@code currentData} 为 null 时跳过存储；节点已自存结构化结果时不覆盖。</p>
+     *
+     * @param ctx 流水线上下文
+     * @param <T> 数据类型
+     * @return 运行的结果
+     */
     @SuppressWarnings("unchecked")
     private <T> void run(PipelineContext<T> ctx) {
         int depth = 0;
@@ -573,11 +573,11 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 在有序节点列表中查找当前节点的下一个节点。
-    *
-    * @param currentNodeId 当前节点 标识
-    * @return 下一节点 标识，不存在时返回 空
-    */
+     * 在有序节点列表中查找当前节点的下一个节点。
+     *
+     * @param currentNodeId 当前节点 标识
+     * @return 下一节点 标识，不存在时返回 空
+     */
     private String getNextNodeIdInOrder(String currentNodeId) {
         if (orderedNodes == null) {
             return null;
@@ -650,11 +650,11 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 根据节点类型获取图标。
-    *
-    * @param node 节点实例
-    * @return 类型图标
-    */
+     * 根据节点类型获取图标。
+     *
+     * @param node 节点实例
+     * @return 类型图标
+     */
     private static String nodeIcon(PipelineNode node) {
         if (node instanceof DecisionNode) {
             return ICON_DECISION;
@@ -669,11 +669,11 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 根据节点类型获取 ANSI 颜色码。
-    *
-    * @param node 节点实例
-    * @return ANSI 颜色码
-    */
+     * 根据节点类型获取 ANSI 颜色码。
+     *
+     * @param node 节点实例
+     * @return ANSI 颜色码
+     */
     private static String nodeColor(PipelineNode node) {
         if (node instanceof DecisionNode) {
             return ANSI_YELLOW;
@@ -688,36 +688,36 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 获取节点 标识。
-    *
-    * @param node 节点实例
-    * @return 节点 标识
-    */
+     * 获取节点 标识。
+     *
+     * @param node 节点实例
+     * @return 节点 标识
+     */
     static String nodeId(PipelineNode node) {
         String id = node.getId();
         return id != null ? id : node.getClass().getSimpleName();
     }
 
     /**
-    * 拓扑边，表示节点间的连接关系。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 拓扑边，表示节点间的连接关系。
+     * @author CH
+     * @since 4.0.0
+     */
     static class Edge {
 
         /**
-        * 源节点 标识
-        */
+         * 源节点 标识
+         */
         final String from;
 
         /**
-        * 目标节点 标识
-        */
+         * 目标节点 标识
+         */
         final String to;
 
         /**
-        * 边标签，如 "true"、"false"、"sub"
-        */
+         * 边标签，如 "true"、"false"、"sub"
+         */
         final String label;
 
         Edge(String from, String to, String label) {
@@ -728,10 +728,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 构建节点拓扑边集合，用于 B+ 树打印。
-    *
-    * @return 节点 标识 -&gt; 出边列表的映射
-    */
+     * 构建节点拓扑边集合，用于 B+ 树打印。
+     *
+     * @return 节点 标识 -&gt; 出边列表的映射
+     */
     private Map<String, List<Edge>> buildFlowTree() {
         Map<String, List<Edge>> tree = new LinkedHashMap<>();
 
@@ -946,10 +946,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fire之后节点
-    *
-    * @param ctx ctx
-    */
+     * fire之后节点
+     *
+     * @param ctx ctx
+     */
     private void fireAfterNode(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.afterNode(ctx);
@@ -957,12 +957,12 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fireon记录错误
-    *
-    * @param ctx ctx
-    * @param e e
-    * @return fireon错误的结果
-    */
+     * fireon记录错误
+     *
+     * @param ctx ctx
+     * @param e e
+     * @return fireon错误的结果
+     */
     private String fireOnError(PipelineContext<?> ctx, Throwable e) {
         String recoveryNodeId = null;
         for (PipelineListener listener : listeners) {
@@ -975,10 +975,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fireon完成
-    *
-    * @param ctx ctx
-    */
+     * fireon完成
+     *
+     * @param ctx ctx
+     */
     private void fireOnComplete(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onComplete(ctx);
@@ -986,10 +986,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fireon开始
-    *
-    * @param ctx ctx
-    */
+     * fireon开始
+     *
+     * @param ctx ctx
+     */
     private void fireOnStart(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onStart(ctx);
@@ -997,10 +997,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fireondraw
-    *
-    * @param ctx ctx
-    */
+     * fireondraw
+     *
+     * @param ctx ctx
+     */
     private void fireOnDraw(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.onDraw(ctx);
@@ -1008,9 +1008,9 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 带行计数的 println — 仅在 draw树 模式下计数，print树 正常调用不受影响。
-    * @param line 线
-    */
+     * 带行计数的 println — 仅在 draw树 模式下计数，print树 正常调用不受影响。
+     * @param line 线
+     */
     private void treePrintln(String line) {
         System.out.println(line);
         if (countingTreeLines) {
@@ -1019,14 +1019,14 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 绘制流水线 B+ 树拓扑结构 — 原地刷新模式。
-    *
-    * <p>使用 ANSI 转义序列将光标上移到上次树的位置，清除后重绘，
-    * 视觉上始终只有一棵树在实时更新。</p>
-    *
-    * @param history      已执行节点 标识 列表
-    * @param colorEnabled 是否启用 ANSI 颜色输出
-    */
+     * 绘制流水线 B+ 树拓扑结构 — 原地刷新模式。
+     *
+     * <p>使用 ANSI 转义序列将光标上移到上次树的位置，清除后重绘，
+     * 视觉上始终只有一棵树在实时更新。</p>
+     *
+     * @param history      已执行节点 标识 列表
+     * @param colorEnabled 是否启用 ANSI 颜色输出
+     */
     @Override
     public void drawTree(List<String> history, boolean colorEnabled) {
         // 上移光标到上次树的位置，清除旧内容

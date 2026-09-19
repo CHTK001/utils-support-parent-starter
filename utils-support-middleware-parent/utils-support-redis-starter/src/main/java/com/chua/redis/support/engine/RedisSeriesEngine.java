@@ -141,12 +141,12 @@ public class RedisSeriesEngine implements SeriesEngine {
     }
 
     /**
-    * 构造 ZSET 键。
-    * @param target 目标，不允许为 null
-    * @param monitorId monitorID，不允许为 null
-    * @param metric 方法入参 metric
-    * @return 结果字符串
-    */
+     * 构造 ZSET 键。
+     * @param target 目标，不允许为 null
+     * @param monitorId monitorID，不允许为 null
+     * @param metric 方法入参 metric
+     * @return 结果字符串
+     */
     private String key(String target, Long monitorId, String metric) {
         return KEY_PREFIX + target + ":" + monitorId + ":" + metric;
     }

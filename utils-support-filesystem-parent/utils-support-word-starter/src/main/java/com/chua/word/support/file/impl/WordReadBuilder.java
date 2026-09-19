@@ -11,19 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Word 文件读取构建器。
-*
-* <p>基于 Apache POI 实现 .docx 文档的文本内容提取。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Word 文件读取构建器。
+ *
+ * <p>基于 Apache POI 实现 .docx 文档的文本内容提取。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WordReadBuilder extends ReadBuilder {
 
     /**
-    * 创建 word读取构建器 实例
-    * @param file 文件
-    */
+     * 创建 word读取构建器 实例
+     * @param file 文件
+     */
     public WordReadBuilder(File file) {
         super(file);
     }
@@ -55,9 +55,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 按段落读取
-    * @return paragraphs的结果
-    */
+     * 按段落读取
+     * @return paragraphs的结果
+     */
     public List<String> paragraphs() {
         List<String> result = new ArrayList<>();
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
@@ -76,9 +76,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 读取表格数据（Word 表格），每条为 映射
-    * @return tableRows的结果
-    */
+     * 读取表格数据（Word 表格），每条为 映射
+     * @return tableRows的结果
+     */
     public List<Map<String, String>> tableRows() {
         List<Map<String, String>> result = new ArrayList<>();
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {

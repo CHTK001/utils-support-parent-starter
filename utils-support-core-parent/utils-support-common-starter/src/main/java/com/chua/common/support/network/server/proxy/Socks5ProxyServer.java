@@ -35,7 +35,7 @@ import java.net.UnknownHostException;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi({"socks5-proxy"})
 public class Socks5ProxyServer extends AbstractProxyServer {
@@ -101,33 +101,33 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     // ==================== 构造函数 ====================
 
     /**
-    * 创建 Socks5ProxyServer 实例
-    * @param setting setting
-    */
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     */
     public Socks5ProxyServer(ServerSetting setting) {
         this(setting, null, null);
     }
 
     /**
-    * 创建 Socks5ProxyServer 实例
-    * @param setting setting
-    * @param String String
-    * @param String String
-    * @param username 用户名，不允许为 null
-    * @param password 密码，不允许为 null
-    */
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     * @param String String
+     * @param String String
+     * @param username 用户名，不允许为 null
+     * @param password 密码，不允许为 null
+     */
     public Socks5ProxyServer(ServerSetting setting, String username, String password) {
         this(setting, username, password, 5000, 30000);
     }
 
     /**
-    * 创建 Socks5ProxyServer 实例
-    * @param setting setting
-    * @param username username
-    * @param password password
-    * @param connectTimeoutMs connectTimeoutMs
-    * @param readTimeoutMs readTimeoutMs
-    */
+     * 创建 Socks5ProxyServer 实例
+     * @param setting setting
+     * @param username username
+     * @param password password
+     * @param connectTimeoutMs connectTimeoutMs
+     * @param readTimeoutMs readTimeoutMs
+     */
     public Socks5ProxyServer(ServerSetting setting, String username, String password,
                              int connectTimeoutMs, int readTimeoutMs) {
         super(setting);
@@ -153,9 +153,9 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     // ==================== 连接处理 ====================
 
     /**
-    * 处理单个客户端连接：SOCKS5 认证协商 → 读取请求 → 建立后端连接 → 双向转发。
-    * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向传输。</p>
-    */
+     * 处理单个客户端连接：SOCKS5 认证协商 → 读取请求 → 建立后端连接 → 双向转发。
+     * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向传输。</p>
+     */
     @Override
     protected void handleConnection(Socket clientSocket) {
         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
@@ -305,12 +305,12 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * 处理Command
-    * @param clientSocket clientSocket
-    * @param in in
-    * @param out out
-    * @param request request
-    */
+     * 处理Command
+     * @param clientSocket clientSocket
+     * @param in in
+     * @param out out
+     * @param request request
+     */
     protected void handleCommand(Socket clientSocket, InputStream in, OutputStream out,
                                  Socks5Request request) throws IOException {
         if (request.command == CMD_CONNECT) {
@@ -364,11 +364,11 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     }
 
     /**
-    * SOCKS5 客户端请求。
-    * @param command 方法入参 command
-    * @param target 目标，不允许为 null
-    * @return 结果值
-    */
+     * SOCKS5 客户端请求。
+     * @param command 方法入参 command
+     * @param target 目标，不允许为 null
+     * @return 结果值
+     */
     public record Socks5Request(byte command, InetSocketAddress target) {
     }
 }

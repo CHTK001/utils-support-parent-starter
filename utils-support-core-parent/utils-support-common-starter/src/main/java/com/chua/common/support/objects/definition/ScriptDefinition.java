@@ -23,12 +23,12 @@ import java.nio.file.Path;
  * @see BeanDefinition
  * @see ScriptMarker
  * @see Listener
-*/
+ */
 public interface ScriptDefinition extends BeanDefinition {
 
     /**
-    * 空的脚本定义实例。
-    */
+     * 空的脚本定义实例。
+     */
     ScriptDefinition EMPTY_SCRIPT_DEFINITION = new AbstractScriptDefinition() {
         @Override
         /** 获取名称 */
@@ -71,26 +71,26 @@ public interface ScriptDefinition extends BeanDefinition {
     ScriptMarker getScriptMarker();
 
     /**
-    * 获取脚本源码监听器。
-    *
-    * <p>监听器负责检测脚本源码是否发生变化，触发热重载。</p>
-    *
-    * @return 脚本源码监听器实例
-    */
+     * 获取脚本源码监听器。
+     *
+     * <p>监听器负责检测脚本源码是否发生变化，触发热重载。</p>
+     *
+     * @return 脚本源码监听器实例
+     */
     Listener getListener();
 
     /**
-    * 获取脚本编译使用的类加载器。
-    *
-    * <return>脚本类加载器，未编译时返回 null</return>
-    * @return ClassLoader 对象
-    */
+     * 获取脚本编译使用的类加载器。
+     *
+     * <return>脚本类加载器，未编译时返回 null</return>
+     * @return ClassLoader 对象
+     */
     ClassLoader getScriptClassLoader();
 
     /**
-    * 设置脚本编译使用的类加载器。
-    *
-    * @param classLoader 脚本类加载器
-    */
+     * 设置脚本编译使用的类加载器。
+     *
+     * @param classLoader 脚本类加载器
+     */
     void setScriptClassLoader(ClassLoader classLoader);
 }

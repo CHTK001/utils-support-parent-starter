@@ -20,17 +20,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
-* 基于 chinese-xinhua 语料库的成语提供器（在线 JSON + 内置兜底）。
-*
-* <p>在线数据源：<a href="https://github.com/pwxcoo/chinese-xinhua">chinese-xinhua</a>
-* 的 idiom.json（约 3 万词条），结构为 {@编码 {"word":..., "pinyin":..., "abbreviation":...,
-* "derivation":..., "解释":..., "example":...}}。
-*
-* <p>首次查询时惰性拉取并建立词形索引，后续查询复用内存索引；
-* 在线获取失败（离线 / 网络受限）时自动回退到内置常见成语，保证核心能力可用。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 chinese-xinhua 语料库的成语提供器（在线 JSON + 内置兜底）。
+ *
+ * <p>在线数据源：<a href="https://github.com/pwxcoo/chinese-xinhua">chinese-xinhua</a>
+ * 的 idiom.json（约 3 万词条），结构为 {@编码 {"word":..., "pinyin":..., "abbreviation":...,
+ * "derivation":..., "解释":..., "example":...}}。
+ *
+ * <p>首次查询时惰性拉取并建立词形索引，后续查询复用内存索引；
+ * 在线获取失败（离线 / 网络受限）时自动回退到内置常见成语，保证核心能力可用。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("chinese-xinhua")
 public class OnlineIdiomProvider implements IdiomProvider {
@@ -160,10 +160,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 加载索引（惰性 + 在线失败回退内置）
-    *
-    * @return 加载索引的结果
-    */
+     * 加载索引（惰性 + 在线失败回退内置）
+     *
+     * @return 加载索引的结果
+     */
     private Map<String, IdiomInfo> loadIndex() {
         Map<String, IdiomInfo> cached = index;
         if (!cached.isEmpty()) {
@@ -202,10 +202,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 加载首字索引（基于已加载的词形索引）
-    *
-    * @return 加载第一个char索引的结果
-    */
+     * 加载首字索引（基于已加载的词形索引）
+     *
+     * @return 加载第一个char索引的结果
+     */
     private Map<String, List<IdiomInfo>> loadFirstCharIndex() {
         Map<String, List<IdiomInfo>> cached = firstCharIndex;
         if (!cached.isEmpty()) {
@@ -231,11 +231,11 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 解析
-    *
-    * @param n n
-    * @return 解析的结果
-    */
+     * 解析
+     *
+     * @param n n
+     * @return 解析的结果
+     */
     private static IdiomInfo parse(JsonNode n) {
         if (n == null || !n.isObject()) {
             return null;
@@ -251,21 +251,21 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 文本
-    *
-    * @param n n
-    * @param k k
-    * @return 文本的结果
-    */
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
     }
 
     /**
-    * 内置常见成语兜底数据（在线不可用时的核心词条）。
-    * @return 构建降级的结果
-    */
+     * 内置常见成语兜底数据（在线不可用时的核心词条）。
+     * @return 构建降级的结果
+     */
     private static List<IdiomInfo> buildFallback() {
         List<IdiomInfo> list = new ArrayList<>();
         add(list, "守株待兔", "shǒu zhū dài tù", "szdt", "《韩非子·五蠹》", "比喻不主动努力，而存万一的侥幸心理，希望得到意外的收获。", "学习不能守株待兔，需要脚踏实地。");

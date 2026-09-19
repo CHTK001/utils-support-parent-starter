@@ -6,10 +6,10 @@ import lombok.Data;
 import java.nio.file.Path;
 
 /**
-* 下载结果。
-*
-* @author CH
-* @since 4.0.0.42
+ * 下载结果。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

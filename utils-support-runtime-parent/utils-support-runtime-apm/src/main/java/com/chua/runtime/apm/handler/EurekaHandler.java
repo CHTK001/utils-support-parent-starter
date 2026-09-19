@@ -7,33 +7,33 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Eureka 应用层 处理器 — 拦截 Netflix Eureka 客户端关键调用并生成应用语义传输记录。
-*
-* <p>拦截目标：</p>
-* <ul>
-*   <li>{@code com.netflix.discovery.DiscoveryClient} — register / fetchRegistry / getApplications</li>
-*   <li>{@code com.netflix.appinfo.InstanceInfo$Builder}（实例注册信息构造）</li>
-* </ul>
-*
-* <p>采用零编译期依赖策略：Eureka 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Eureka 应用层 处理器 — 拦截 Netflix Eureka 客户端关键调用并生成应用语义传输记录。
+ *
+ * <p>拦截目标：</p>
+ * <ul>
+ *   <li>{@code com.netflix.discovery.DiscoveryClient} — register / fetchRegistry / getApplications</li>
+ *   <li>{@code com.netflix.appinfo.InstanceInfo$Builder}（实例注册信息构造）</li>
+ * </ul>
+ *
+ * <p>采用零编译期依赖策略：Eureka 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EurekaHandler extends AbstractAppHandler {
 
     /**
-    * discovery客户端 类内部名
+     * discovery客户端 类内部名
      */
     private static final String DISCOVERY_CLIENT = "com/netflix/discovery/DiscoveryClient";
 
     /**
-    * eureka客户端 接口类内部名
+     * eureka客户端 接口类内部名
      */
     private static final String EUREKA_CLIENT = "com/netflix/discovery/shared/DiscoveryClient";
 
     /**
-    * discovery客户端 方法集合
+     * discovery客户端 方法集合
      */
     private static final String[] DISCOVERY_METHODS = {
             "register", "registerHealthCheck", "fetchRegistry", "getApplications",

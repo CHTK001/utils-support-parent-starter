@@ -30,54 +30,54 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 基于 Milvus 向量数据库的 {@link AbstractVectorStorage} 实现。
-*
-* <p>通过 MilvusClientV2 SDK 连接远程 Milvus 服务，使用 collection 存储向量。
-* 构造函数自动创建 集合，写入数据后需调用 {@link #release()} 刷新索引，
-* 搜索前需确保 集合 已加载。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Milvus 向量数据库的 {@link AbstractVectorStorage} 实现。
+ *
+ * <p>通过 MilvusClientV2 SDK 连接远程 Milvus 服务，使用 collection 存储向量。
+ * 构造函数自动创建 集合，写入数据后需调用 {@link #release()} 刷新索引，
+ * 搜索前需确保 集合 已加载。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
-    * Milvus 客户端
-    */
+     * Milvus 客户端
+     */
     private final MilvusClientV2 client;
 
     /**
-    * 集合 名称
-    */
+     * 集合 名称
+     */
     private final String collectionName;
 
     /**
-    * 距离度量类型
-    */
+     * 距离度量类型
+     */
     private final IndexParam.MetricType algorithmName;
 
     /**
-    * 认证令牌
-    */
+     * 认证令牌
+     */
     private final String token;
 
     /**
-    * 是否已释放资源
-    */
+     * 是否已释放资源
+     */
     private boolean released;
 
     /**
-    * 构造 Milvus 向量存储。
-    *
-    * <p>初始化连接、创建 collection、加载 collection。</p>
-    *
-    * @param dimension  向量维度
-    * @param algorithm  比较算法
-    * @param host       Milvus 服务地址（支持完整 URI，如 https://...）
-    * @param port       Milvus 服务端口（仅当 主机 不含协议时使用）
-    * @param collection 集合名称
-    * @param token      认证令牌（可选）
-    */
+     * 构造 Milvus 向量存储。
+     *
+     * <p>初始化连接、创建 collection、加载 collection。</p>
+     *
+     * @param dimension  向量维度
+     * @param algorithm  比较算法
+     * @param host       Milvus 服务地址（支持完整 URI，如 https://...）
+     * @param port       Milvus 服务端口（仅当 主机 不含协议时使用）
+     * @param collection 集合名称
+     * @param token      认证令牌（可选）
+     */
     public MilvusVectorStorage(int dimension, VectorCompareAlgorithm algorithm,
                                String host, int port, String collection, String token) {
         super(dimension, algorithm);
@@ -96,8 +96,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 初始化 Milvus 集合。
-    */
+     * 初始化 Milvus 集合。
+     */
     private void initCollection() {
         boolean exists = client.hasCollection(HasCollectionReq.builder()
                 .collectionName(collectionName)
@@ -122,10 +122,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将业务层算法名称映射为 Milvus {@link IndexParam.MetricType}。
-    * @param algo algo
-    * @return 转为milvus指标类型的结果
-    */
+     * 将业务层算法名称映射为 Milvus {@link IndexParam.MetricType}。
+     * @param algo algo
+     * @return 转为milvus指标类型的结果
+     */
     private static IndexParam.MetricType toMilvusMetricType(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return IndexParam.MetricType.COSINE;
@@ -138,8 +138,8 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 刷新索引，使新插入的向量可被搜索。
-    */
+     * 刷新索引，使新插入的向量可被搜索。
+     */
     public void release() {
         if (!released) {
             client.flush(FlushReq.builder()
@@ -188,15 +188,15 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 更新指定 标识 的向量数据。
-    *
-    * <p>先查询确认 id 存在，再通过 Milvus {@code upsert} 覆盖写入（主键相同即更新）。
-    * 维度不匹配时抛出 {@link IllegalArgumentException}，标识 不存在时返回 false。</p>
-    *
-    * @param id     向量标识
-    * @param vector 新的向量数据
-    * @return 是否更新成功（id 不存在时返回 false）
-    */
+     * 更新指定 标识 的向量数据。
+     *
+     * <p>先查询确认 id 存在，再通过 Milvus {@code upsert} 覆盖写入（主键相同即更新）。
+     * 维度不匹配时抛出 {@link IllegalArgumentException}，标识 不存在时返回 false。</p>
+     *
+     * @param id     向量标识
+     * @param vector 新的向量数据
+     * @return 是否更新成功（id 不存在时返回 false）
+     */
     @Override
     public synchronized boolean update(String id, float[] vector) {
         checkNotClosed();
@@ -252,10 +252,10 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 从 Milvus 返回的 实体 中提取向量数据。
-    * @param entity 实体
-    * @return extract向量的结果
-    */
+     * 从 Milvus 返回的 实体 中提取向量数据。
+     * @param entity 实体
+     * @return extract向量的结果
+     */
     private static float[] extractVector(Map<String, Object> entity) {
         if (entity == null) {
             return new float[0];

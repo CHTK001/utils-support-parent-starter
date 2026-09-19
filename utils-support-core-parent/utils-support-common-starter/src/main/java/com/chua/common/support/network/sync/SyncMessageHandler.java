@@ -6,15 +6,15 @@ package com.chua.common.support.network.sync;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @FunctionalInterface
 public interface SyncMessageHandler {
 
     /**
-    * 处理收到的同步消息。
-    *
-    * @param topic   消息主题
-    * @param message 消息内容
-    */
+     * 处理收到的同步消息。
+     *
+     * @param topic   消息主题
+     * @param message 消息内容
+     */
     void handle(String topic, Object message);
 }

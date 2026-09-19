@@ -17,47 +17,47 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* KV 缓存 版 ONNX 解码器 通用推理解码器。
-*
-* <p>适用于 transformers.js / optimum 导出的带 past/present 缓存的 decoder 模型
-* （如 gemma/通义千问/llama 系列的 ONNX 导出）。此类模型输入含
-* {@code past_key_values.N.key/value}（N = 层数），输出含 {@code present.N.key/value}，
-* 每步只需传入 1 个新 令牌 与上一步缓存，避免重复计算整个上下文。</p>
-*
-* <p>使用方式：
-* <pre>{@code
-* try (KvCacheDecoder decoder = KvCacheDecoder.of(env, session)) {
-*     // 首步：完整 prompt（含模板）
-*     float[] logits = decoder.step(promptIds, ones(promptIds.length));
-*     int next = argmax(logits);
-*     tokens.add(next);
-*     // 后续步：只需 1 个新 token，attention_mask 逐位加长
-*     while (...) {
-*         logits = decoder.step(new long[]{next}, ones(decoder.totalSeqLen()));
-*         next = argmax(logits);
-*         ...
-*     }
-* }
-* }</pre>len()));
-* 下一个 = argmax(logits);
-*         ...
-*     }
-* }
-* }</pre>
-* </p>
-*
-* <p>past 张量生命周期由本类管理：每步自动从 {@code present} 复制 fp16 数据
-* 并重建为下一步的 past，旧张量即时关闭；{@link #close()} 释放全部资源。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * KV 缓存 版 ONNX 解码器 通用推理解码器。
+ *
+ * <p>适用于 transformers.js / optimum 导出的带 past/present 缓存的 decoder 模型
+ * （如 gemma/通义千问/llama 系列的 ONNX 导出）。此类模型输入含
+ * {@code past_key_values.N.key/value}（N = 层数），输出含 {@code present.N.key/value}，
+ * 每步只需传入 1 个新 令牌 与上一步缓存，避免重复计算整个上下文。</p>
+ *
+ * <p>使用方式：
+ * <pre>{@code
+ * try (KvCacheDecoder decoder = KvCacheDecoder.of(env, session)) {
+ *     // 首步：完整 prompt（含模板）
+ *     float[] logits = decoder.step(promptIds, ones(promptIds.length));
+ *     int next = argmax(logits);
+ *     tokens.add(next);
+ *     // 后续步：只需 1 个新 token，attention_mask 逐位加长
+ *     while (...) {
+ *         logits = decoder.step(new long[]{next}, ones(decoder.totalSeqLen()));
+ *         next = argmax(logits);
+ *         ...
+ *     }
+ * }
+ * }</pre>len()));
+ * 下一个 = argmax(logits);
+ *         ...
+ *     }
+ * }
+ * }</pre>
+ * </p>
+ *
+ * <p>past 张量生命周期由本类管理：每步自动从 {@code present} 复制 fp16 数据
+ * 并重建为下一步的 past，旧张量即时关闭；{@link #close()} 释放全部资源。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public final class KvCacheDecoder implements AutoCloseable {
 
     /**
-    * 空 past 的 批量 / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256）
-    */
+     * 空 past 的 批量 / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256）
+     */
     private static final long BATCH = 1L;
 
     private final OrtEnvironment env; // env
@@ -67,8 +67,8 @@ public final class KvCacheDecoder implements AutoCloseable {
     private final long headDim; // headdim
 
     /**
-    * 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步
-    */
+     * 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步
+     */
     private List<OnnxTensor> past;
     /** 已缓存的 令牌 数（首步为 0） */
     private int pastSeqLen;
@@ -90,11 +90,11 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 判断 会话 是否为 KV 缓存 版模型（输入含 {@code past_key_values.0.key}）。
-    *
-    * @param session ORT 会话
-    * @return true 表示 KV 缓存 版
-    */
+     * 判断 会话 是否为 KV 缓存 版模型（输入含 {@code past_key_values.0.key}）。
+     *
+     * @param session ORT 会话
+     * @return true 表示 KV 缓存 版
+     */
     public static boolean isKvCacheModel(OrtSession session) {
         try {
             for (Map.Entry<String, ai.onnxruntime.NodeInfo> e : session.getInputInfo().entrySet()) {
@@ -109,13 +109,13 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 创建 KV 缓存 解码器（自动探测层数 / kv-heads / head_dim）。
-    *
-    * @param env     ORT 环境
-    * @param session ORT 会话（须为 KV 缓存 版，否则抛异常）
-    * @return 解码器实例
-    * @throws OrtException 非 KV 缓存 版或探测失败
-    */
+     * 创建 KV 缓存 解码器（自动探测层数 / kv-heads / head_dim）。
+     *
+     * @param env     ORT 环境
+     * @param session ORT 会话（须为 KV 缓存 版，否则抛异常）
+     * @return 解码器实例
+     * @throws OrtException 非 KV 缓存 版或探测失败
+     */
     public static KvCacheDecoder of(OrtEnvironment env, OrtSession session) throws OrtException {
         int layers = 0;
         long kvHeads = 0;
@@ -149,13 +149,13 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 执行一步推理。
-    *
-    * @param inputIds       本次输入 令牌（首步=完整 提示符；后续步=1 个新 令牌）
-    * @param attentionMask  注意力掩码（长度 = 输入标识.长度 + pastseqlen，全 1）
-    * @return 最后位置的 logits（词表大小）
-    * @throws OrtException 推理异常
-    */
+     * 执行一步推理。
+     *
+     * @param inputIds       本次输入 令牌（首步=完整 提示符；后续步=1 个新 令牌）
+     * @param attentionMask  注意力掩码（长度 = 输入标识.长度 + pastseqlen，全 1）
+     * @return 最后位置的 logits（词表大小）
+     * @throws OrtException 推理异常
+     */
     public float[] step(long[] inputIds, long[] attentionMask) throws OrtException {
         Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
         inputs.put("input_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), new long[]{BATCH, inputIds.length}));
@@ -214,10 +214,10 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 当前上下文总长度（pastseqlen + 本次输入长度）。
-    *
-    * @return 总 令牌 数
-    */
+     * 当前上下文总长度（pastseqlen + 本次输入长度）。
+     *
+     * @return 总 令牌 数
+     */
     public int totalSeqLen() {
         return pastSeqLen;
     }
@@ -236,24 +236,24 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 创建空 fp16 张量（首步 past 占位）。
-    * <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建
-    * （每元素 2 字节 = 1 个 short），传 byte缓冲 会在 ortutil.prepare缓冲
-    * 抛 heapbyte缓冲→short缓冲 强转异常。</p>
-    * @param shape shape
-    * @return 创建空fp16的结果
-    */
+     * 创建空 fp16 张量（首步 past 占位）。
+     * <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建
+     * （每元素 2 字节 = 1 个 short），传 byte缓冲 会在 ortutil.prepare缓冲
+     * 抛 heapbyte缓冲→short缓冲 强转异常。</p>
+     * @param shape shape
+     * @return 创建空fp16的结果
+     */
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
         int elems = (int) (shape[0] * shape[1] * shape[2] * shape[3]);
         return OnnxTensor.createTensor(env, ShortBuffer.allocate(elems), shape, OnnxJavaType.FLOAT16);
     }
 
     /**
-    * IEEE 754 half (fp16) 转 float。
-    *
-    * @param halfBits fp16 的 16 位原始值
-    * @return 转换后的 float
-    */
+     * IEEE 754 half (fp16) 转 float。
+     *
+     * @param halfBits fp16 的 16 位原始值
+     * @return 转换后的 float
+     */
     private static float halfToFloat(short halfBits) {
         int h = halfBits & 0xFFFF;
         int sign = (h >> 15) & 0x1;
@@ -277,13 +277,13 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * 复制 fp16 张量数据到新张量（避免 结果 关闭后数据失效）。
-    * <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组
-    * （自动转换），需转回 half 位模式后用 short缓冲 重建 FLOAT16 张量；
-    * 部分版本直接返回 short缓冲，也一并兼容。</p>
-    * @param src src
-    * @return 副本fp16的结果
-    */
+     * 复制 fp16 张量数据到新张量（避免 结果 关闭后数据失效）。
+     * <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组
+     * （自动转换），需转回 half 位模式后用 short缓冲 重建 FLOAT16 张量；
+     * 部分版本直接返回 short缓冲，也一并兼容。</p>
+     * @param src src
+     * @return 副本fp16的结果
+     */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
         int elems = 1;
@@ -313,11 +313,11 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-    * float 转 IEEE 754 half（fp16）位模式。
-    *
-    * @param f 32 位浮点值
-    * @return 16 位 half 原始值
-    */
+     * float 转 IEEE 754 half（fp16）位模式。
+     *
+     * @param f 32 位浮点值
+     * @return 16 位 half 原始值
+     */
     private static short floatToHalf(float f) {
         int bits = Float.floatToRawIntBits(f);
         int sign = (bits >>> 16) & 0x8000;

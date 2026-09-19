@@ -16,23 +16,23 @@ import java.util.Map;
 
 
 /**
-* String 类型转换器。
-* <p>将各种类型的值转换为 {@link String}，支持以下类型的转换：</p>
-* <ul>
-*   <li>{@link java.util.Collection} / {@link java.util.Map} — 直接调用 toString()</li>
-*   <li>{@link File} — 返回绝对路径</li>
-*   <li>{@link java.nio.file.Path} — 返回绝对路径</li>
-*   <li>{@link java.net.URI} / {@link URL} — 返回字符串表示</li>
-*   <li>{@code byte[]} — 按 UTF-8 编码转为字符串</li>
-*   <li>对象数组 — 逗号拼接各元素 toString()</li>
-*   <li>{@link java.io.InputStream} — 读取全部字节后转为 UTF-8 字符串</li>
-*   <li>{@link Class} — 返回类型全名</li>
-*   <li>其他类型 — 直接调用 toString()</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/5
+ * String 类型转换器。
+ * <p>将各种类型的值转换为 {@link String}，支持以下类型的转换：</p>
+ * <ul>
+ *   <li>{@link java.util.Collection} / {@link java.util.Map} — 直接调用 toString()</li>
+ *   <li>{@link File} — 返回绝对路径</li>
+ *   <li>{@link java.nio.file.Path} — 返回绝对路径</li>
+ *   <li>{@link java.net.URI} / {@link URL} — 返回字符串表示</li>
+ *   <li>{@code byte[]} — 按 UTF-8 编码转为字符串</li>
+ *   <li>对象数组 — 逗号拼接各元素 toString()</li>
+ *   <li>{@link java.io.InputStream} — 读取全部字节后转为 UTF-8 字符串</li>
+ *   <li>{@link Class} — 返回类型全名</li>
+ *   <li>其他类型 — 直接调用 toString()</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/5
  */
 public class StringTypeConverter implements TypeConverter<String> {
 
@@ -120,12 +120,12 @@ public class StringTypeConverter implements TypeConverter<String> {
     }
 
     /**
-    * 从 InputStream 中读取全部字节。
-    *
-    * @param is 输入流
-    * @return 字节数组
-    * @throws IOException 读取异常
-    */
+     * 从 InputStream 中读取全部字节。
+     *
+     * @param is 输入流
+     * @return 字节数组
+     * @throws IOException 读取异常
+     */
     private byte[] readBytes(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         byte[] buffer = new byte[8192];

@@ -8,15 +8,15 @@ import com.chua.spider.support.model.SpiderResult;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 控制台输出管道。
-*
-* <p>将爬取结果格式化后输出到控制台，主要用于调试和演示场景。
-* 展示 URL、标题、AI 总结和结构化字段等关键信息。
-*
-* <p>SPI 名称：{@code pipeline:console}
-*
-* @author CH
-* @since 4.0.0.42
+ * 控制台输出管道。
+ *
+ * <p>将爬取结果格式化后输出到控制台，主要用于调试和演示场景。
+ * 展示 URL、标题、AI 总结和结构化字段等关键信息。
+ *
+ * <p>SPI 名称：{@code pipeline:console}
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("console")

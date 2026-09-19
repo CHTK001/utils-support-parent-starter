@@ -44,10 +44,10 @@ public class GithubMcpProvider extends GithubSkillProvider implements McpProvide
     }
 
     /**
-    * 列出已安装项。
-    *
-    * @return 安装状态
-    */
+     * 列出已安装项。
+     *
+     * @return 安装状态
+     */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new HashMap<>();
         result.put(PREFIX + "discover", true);
@@ -60,11 +60,11 @@ public class GithubMcpProvider extends GithubSkillProvider implements McpProvide
     }
 
     /**
-    * GitHub 技能 MCP 客户端实现。
-    *
-    * @author CH
-    * @since 4.0.0.45
-    */
+     * GitHub 技能 MCP 客户端实现。
+     *
+     * @author CH
+     * @since 4.0.0.45
+     */
     protected class GithubMcpClient implements McpClient {
         /** initialized */
         private volatile boolean initialized = false;

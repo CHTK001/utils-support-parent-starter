@@ -11,38 +11,38 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
-* 压缩包文件系统
-*
-* <p>支持 ZIP 格式的压缩包读写操作，提供链式添加和指定提取功能。
-*
-* <h3>链式添加</h3>
-* <pre>{@code
-*   CompressedFileSystem zip = CompressedFileSystem.create(Path.of("archive.zip"));
-*   zip.addFile(source1, "dir/file1.txt")
-*      .addFile(source2, "dir/file2.json")
-*      .addBytes("config.yml", configBytes)
-*      .addString("readme.txt", "Hello World")
-*      .close();
-* }</pre>ing("readme.txt", "Hello World")
-*      .close();
-* }</pre>
-*
-* <h3>指定提取</h3>
-* <pre>{@code
-*   CompressedFileSystem zip = CompressedFileSystem.open(Path.of("archive.zip"));
-*   // 提取所有文件
-*   zip.extractAll(Path.of("/tmp/extracted"));
-*   // 提取指定文件
-*   zip.extract("dir/file1.txt", Path.of("/tmp/file1.txt"));
-*   // 列出所有文件
-*   List<String> files = zip.list();
-*   zip.close();
-* }</pre>ist();
-*   zip.close();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 压缩包文件系统
+ *
+ * <p>支持 ZIP 格式的压缩包读写操作，提供链式添加和指定提取功能。
+ *
+ * <h3>链式添加</h3>
+ * <pre>{@code
+ *   CompressedFileSystem zip = CompressedFileSystem.create(Path.of("archive.zip"));
+ *   zip.addFile(source1, "dir/file1.txt")
+ *      .addFile(source2, "dir/file2.json")
+ *      .addBytes("config.yml", configBytes)
+ *      .addString("readme.txt", "Hello World")
+ *      .close();
+ * }</pre>ing("readme.txt", "Hello World")
+ *      .close();
+ * }</pre>
+ *
+ * <h3>指定提取</h3>
+ * <pre>{@code
+ *   CompressedFileSystem zip = CompressedFileSystem.open(Path.of("archive.zip"));
+ *   // 提取所有文件
+ *   zip.extractAll(Path.of("/tmp/extracted"));
+ *   // 提取指定文件
+ *   zip.extract("dir/file1.txt", Path.of("/tmp/file1.txt"));
+ *   // 列出所有文件
+ *   List<String> files = zip.list();
+ *   zip.close();
+ * }</pre>ist();
+ *   zip.close();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class CompressedFileSystem implements AutoCloseable {
 
@@ -52,44 +52,44 @@ public class CompressedFileSystem implements AutoCloseable {
     private final boolean readOnly;
 
     /**
-    * 创建 compressed文件系统 实例
-    * @param zipPath 压缩路径
-    * @param readOnly 布尔值
-    * @param readOnly 读取only
-    */
+     * 创建 compressed文件系统 实例
+     * @param zipPath 压缩路径
+     * @param readOnly 布尔值
+     * @param readOnly 读取only
+     */
     private CompressedFileSystem(Path zipPath, boolean readOnly) {
         this.zipPath = zipPath;
         this.readOnly = readOnly;
     }
 
     /**
-    * 创建新的 压缩 文件（写模式）
-    *
-    * @param zipPath 压缩 文件路径
-    * @return CompressedFileSystem 实例
-    */
+     * 创建新的 压缩 文件（写模式）
+     *
+     * @param zipPath 压缩 文件路径
+     * @return CompressedFileSystem 实例
+     */
     public static CompressedFileSystem create(Path zipPath) {
         return new CompressedFileSystem(zipPath, false);
     }
 
     /**
-    * 打开已有的 压缩 文件（读模式）
-    *
-    * @param zipPath 压缩 文件路径
-    * @return CompressedFileSystem 实例
-    */
+     * 打开已有的 压缩 文件（读模式）
+     *
+     * @param zipPath 压缩 文件路径
+     * @return CompressedFileSystem 实例
+     */
     public static CompressedFileSystem open(Path zipPath) {
         return new CompressedFileSystem(zipPath, true);
     }
 
     /**
-    * 链式添加文件
-    *
-    * @param source      源文件路径
-    * @param entryName   压缩包内的路径
-    * @return 当前实例（支持链式调用）
-    * @throws IOException IO 异常
-    */
+     * 链式添加文件
+     *
+     * @param source      源文件路径
+     * @param entryName   压缩包内的路径
+     * @return 当前实例（支持链式调用）
+     * @throws IOException IO 异常
+     */
     public CompressedFileSystem addFile(Path source, String entryName) throws IOException {
         checkWritable();
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
@@ -101,13 +101,13 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 链式添加字节数组
-    *
-    * @param data      字节数据
-    * @param entryName 压缩包内的路径
-    * @return 当前实例
-    * @throws IOException IO 异常
-    */
+     * 链式添加字节数组
+     *
+     * @param data      字节数据
+     * @param entryName 压缩包内的路径
+     * @return 当前实例
+     * @throws IOException IO 异常
+     */
     public CompressedFileSystem addBytes(byte[] data, String entryName) throws IOException {
         checkWritable();
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
@@ -119,23 +119,23 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 链式添加字符串
-    *
-    * @param content   字符串内容
-    * @param entryName 压缩包内的路径
-    * @return 当前实例
-    * @throws IOException IO 异常
-    */
+     * 链式添加字符串
+     *
+     * @param content   字符串内容
+     * @param entryName 压缩包内的路径
+     * @return 当前实例
+     * @throws IOException IO 异常
+     */
     public CompressedFileSystem addString(String content, String entryName) throws IOException {
         return addBytes(content.getBytes(java.nio.charset.StandardCharsets.UTF_8), entryName);
     }
 
     /**
-    * 列出压缩包内的所有文件
-    *
-    * @return 文件名列表
-    * @throws IOException IO 异常
-    */
+     * 列出压缩包内的所有文件
+     *
+     * @return 文件名列表
+     * @throws IOException IO 异常
+     */
     public List<String> list() throws IOException {
         List<String> files = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
@@ -150,11 +150,11 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 提取所有文件到目标目录
-    *
-    * @param targetDir 目标目录
-    * @throws IOException IO 异常
-    */
+     * 提取所有文件到目标目录
+     *
+     * @param targetDir 目标目录
+     * @throws IOException IO 异常
+     */
     public void extractAll(Path targetDir) throws IOException {
         Files.createDirectories(targetDir);
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
@@ -172,12 +172,12 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 提取指定文件
-    *
-    * @param entryName 压缩包内的文件路径
-    * @param target    提取目标路径
-    * @throws IOException IO 异常
-    */
+     * 提取指定文件
+     *
+     * @param entryName 压缩包内的文件路径
+     * @param target    提取目标路径
+     * @throws IOException IO 异常
+     */
     public void extract(String entryName, Path target) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
             ZipEntry entry;
@@ -193,12 +193,12 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 读取指定文件的内容为字节数组
-    *
-    * @param entryName 压缩包内的文件路径
-    * @return 文件内容
-    * @throws IOException IO 异常
-    */
+     * 读取指定文件的内容为字节数组
+     *
+     * @param entryName 压缩包内的文件路径
+     * @return 文件内容
+     * @throws IOException IO 异常
+     */
     public byte[] readBytes(String entryName) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
             ZipEntry entry;
@@ -212,9 +212,9 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     /**
-    * 获取压缩包文件路径
-    * @return 获取路径的结果
-    */
+     * 获取压缩包文件路径
+     * @return 获取路径的结果
+     */
     public Path getPath() {
         return zipPath;
     }

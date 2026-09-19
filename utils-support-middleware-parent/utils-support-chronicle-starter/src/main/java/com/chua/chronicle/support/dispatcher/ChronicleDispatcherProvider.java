@@ -20,13 +20,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Chronicle 队列 分发器提供者，基于 Chronicle 队列 实现进程内的持久化发布订阅。
-*
-* <p>消息体使用 Jackson 进行 JSON 序列化，确保复杂对象（如 {@code List<Map<String,Object>>}）
-* 在发布-订阅链路中保持类型一致。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Chronicle 队列 分发器提供者，基于 Chronicle 队列 实现进程内的持久化发布订阅。
+ *
+ * <p>消息体使用 Jackson 进行 JSON 序列化，确保复杂对象（如 {@code List<Map<String,Object>>}）
+ * 在发布-订阅链路中保持类型一致。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("chronicle")
@@ -48,18 +48,18 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-    * 创建 chronicledispatcher提供者 实例
-    * @param config 配置
-    */
+     * 创建 chronicledispatcher提供者 实例
+     * @param config 配置
+     */
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     /**
-    * 内存队列消费循环（Chronicle 不可用时的降级路径）。
-    *
-    * @param topic 主题
-    */
+     * 内存队列消费循环（Chronicle 不可用时的降级路径）。
+     *
+     * @param topic 主题
+     */
     private void startMemoryConsumer(String topic) {
         var queue = memoryFallback.computeIfAbsent(topic, t -> new java.util.concurrent.ConcurrentLinkedQueue<>());
         executor.submit(() -> {
@@ -88,11 +88,11 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
         });
     }
     /**
-    * 获取或创建队列
-    *
-    * @param topic topic
-    * @return 获取或创建队列的结果
-    */
+     * 获取或创建队列
+     *
+     * @param topic topic
+     * @return 获取或创建队列的结果
+     */
     private ChronicleQueue getOrCreateQueue(String topic) {
         try {
             return queueMap.computeIfAbsent(topic, t -> {
@@ -203,11 +203,11 @@ executor.submit(() -> {
     }
 
     /**
-    * 根据订阅者的泛型类型还原反序列化 payload。
-    * @param text 文本
-    * @param definition definition
-    * @return deserialize的结果
-    */
+     * 根据订阅者的泛型类型还原反序列化 payload。
+     * @param text 文本
+     * @param definition definition
+     * @return deserialize的结果
+     */
     private Object deserialize(String text, DispatcherDefinition definition) {
         try {
             Class<?> type = inferType(definition);
@@ -225,14 +225,14 @@ executor.submit(() -> {
     }
 
     /**
-    * 通过反射拿到 consumerdispatcherdefinition 上的泛型类型 T。
-    * <p>
-    * 泛型 T 在普通实例化时会被擦除，优先使用定义上显式携带的 主体类型；
-    * 未携带时（匿名子类或继承）再退回反射推断。
-    * </p>
-    * @param definition definition
-    * @return infer类型的结果
-    */
+     * 通过反射拿到 consumerdispatcherdefinition 上的泛型类型 T。
+     * <p>
+     * 泛型 T 在普通实例化时会被擦除，优先使用定义上显式携带的 主体类型；
+     * 未携带时（匿名子类或继承）再退回反射推断。
+     * </p>
+     * @param definition definition
+     * @return infer类型的结果
+     */
     private Class<?> inferType(DispatcherDefinition definition) {
         try {
             // 优先使用显式指定的消息体类型，避免泛型擦除导致类型丢失
@@ -279,10 +279,10 @@ executor.submit(() -> {
     }
 
     /**
-    * extract第一个类型参数。
-    * @param type 类型
-    * @return extract第一个类型参数的结果
-    */
+     * extract第一个类型参数。
+     * @param type 类型
+     * @return extract第一个类型参数的结果
+     */
     private Class<?> extractFirstTypeArg(java.lang.reflect.Type type) {
         if (type instanceof java.lang.reflect.ParameterizedType pt) {
             java.lang.reflect.Type[] args = pt.getActualTypeArguments();
@@ -318,10 +318,10 @@ executor.submit(() -> {
     }
 
     /**
-    * 序列化工具：使用 Jackson（Fury 二进制与 Chronicle Wire bytes() 不兼容）
-    * @author CH
-    * @since 4.0.0
-    */
+     * 序列化工具：使用 Jackson（Fury 二进制与 Chronicle Wire bytes() 不兼容）
+     * @author CH
+     * @since 4.0.0
+     */
     static class ChronicleQueueSerializer {
         final com.fasterxml.jackson.databind.ObjectMapper mapper; // 映射器
 

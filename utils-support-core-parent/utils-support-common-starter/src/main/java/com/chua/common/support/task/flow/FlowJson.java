@@ -11,31 +11,31 @@ import com.chua.common.support.lang.json.Json;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class FlowJson {
 
     /**
-    * 私有构造方法，禁止实例化工具类。
-    */
+     * 私有构造方法，禁止实例化工具类。
+     */
     private FlowJson() {
     }
 
     /**
-    * 将流程定义序列化为 JSON 字符串。
-    *
-    * @param definition 流程定义
-    * @return JSON 字符串
-    */
+     * 将流程定义序列化为 JSON 字符串。
+     *
+     * @param definition 流程定义
+     * @return JSON 字符串
+     */
     public static String toJson(FlowDefinition definition) {
         return Json.toJson(definition);
     }
 
     /**
-    * 将 JSON 字符串反序列化为流程定义。
-    *
-    * @param json JSON 字符串
-    * @return 流程定义实例
-    */
+     * 将 JSON 字符串反序列化为流程定义。
+     *
+     * @param json JSON 字符串
+     * @return 流程定义实例
+     */
     public static FlowDefinition fromJson(String json) {
         return Json.fromJson(json, FlowDefinition.class);
     }

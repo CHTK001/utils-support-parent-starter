@@ -90,73 +90,73 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     private ImagePoint point = DEFAULT_POINT;
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param stream 流
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param stream 流
+     */
     public ImageWaterImageFilter(InputStream stream) throws IOException {
         this(IoUtils.toByteArray(stream), RIGHT_BOTTOM, DEFAULT_POINT);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param stream 流
-    * @param point point
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param stream 流
+     * @param point point
+     */
     public ImageWaterImageFilter(InputStream stream, ImagePoint point) throws IOException {
         this(IoUtils.toByteArray(stream), RIGHT_BOTTOM, point);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param file 文件
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param file 文件
+     */
     public ImageWaterImageFilter(File file) throws IOException {
         this(Files.newInputStream(file.toPath()), DEFAULT_POINT);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param file 文件
-    * @param point point
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param file 文件
+     * @param point point
+     */
     public ImageWaterImageFilter(File file, ImagePoint point) throws IOException {
         this(Files.newInputStream(file.toPath()), point);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param file 文件
-    * @param position 位置
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param file 文件
+     * @param position 位置
+     */
     public ImageWaterImageFilter(File file, Position position) throws IOException {
         this(IoUtils.toByteArray(Files.newInputStream(file.toPath())), position, DEFAULT_POINT);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param file 文件
-    * @param position 位置
-    * @param point point
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param file 文件
+     * @param position 位置
+     * @param point point
+     */
     public ImageWaterImageFilter(File file, Position position, ImagePoint point) throws IOException {
         this(IoUtils.toByteArray(Files.newInputStream(file.toPath())), position, point);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param bytes bytes
-    * @param position 位置
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param bytes bytes
+     * @param position 位置
+     */
     public ImageWaterImageFilter(byte[] bytes, Position position) {
         this(bytes, position, DEFAULT_POINT);
     }
 
     /**
-    * 创建 镜像水镜像过滤器 实例
-    * @param bytes bytes
-    * @param position 位置
-    * @param point point
-    */
+     * 创建 镜像水镜像过滤器 实例
+     * @param bytes bytes
+     * @param position 位置
+     * @param point point
+     */
     public ImageWaterImageFilter(byte[] bytes, Position position, ImagePoint point) {
         this.bytes = bytes;
         this.direction = position;
@@ -165,13 +165,13 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
 
 
     /***
-    * 图片位置定位计算
-    * @param g 图像
-    * @param image 文本
-    * @param w 宽
-    * @param h 高
-    * @param position 位置
-    */
+     * 图片位置定位计算
+     * @param g 图像
+     * @param image 文本
+     * @param w 宽
+     * @param h 高
+     * @param position 位置
+     */
     private static void imageCountProcess(Graphics2D g, BufferedImage image, int w, int h, Position position) {
  // 降低_RIGHT
         switch (position) {

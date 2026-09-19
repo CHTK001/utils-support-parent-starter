@@ -14,22 +14,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Artificial Analysis 统一模型指标提供者。
-*
-* <p>单一数据源覆盖绝大部分主流模型的多维指标：</p>
-* <ul>
-*   <li>价格：输入/输出分项价（USD / 百万 Token，标准档）</li>
-*   <li>智能：Artificial Analysis Intelligence Index</li>
-*   <li>速度：输出速度中位数（Token/秒）</li>
-*   <li>延迟：首 Token 中位耗时（秒）</li>
-*   <li>图标：厂商 logo 地址</li>
-* </ul>
-*
-* <p>数据来源为页面内嵌的 Next.js flight 数据（SSR），普通 HTTP 即可获取，
-* 无需登录。解析失败时返回空列表。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Artificial Analysis 统一模型指标提供者。
+ *
+ * <p>单一数据源覆盖绝大部分主流模型的多维指标：</p>
+ * <ul>
+ *   <li>价格：输入/输出分项价（USD / 百万 Token，标准档）</li>
+ *   <li>智能：Artificial Analysis Intelligence Index</li>
+ *   <li>速度：输出速度中位数（Token/秒）</li>
+ *   <li>延迟：首 Token 中位耗时（秒）</li>
+ *   <li>图标：厂商 logo 地址</li>
+ * </ul>
+ *
+ * <p>数据来源为页面内嵌的 Next.js flight 数据（SSR），普通 HTTP 即可获取，
+ * 无需登录。解析失败时返回空列表。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("artificialanalysis")
 public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetricsProvider {
@@ -48,8 +48,8 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
     /**
-    * 目录条目：{"slug":"x","名称":"y",...,"creator":{"标识":"...","名称":"z","logo":"/img/logos/x.SVG"}}
-    */
+     * 目录条目：{"slug":"x","名称":"y",...,"creator":{"标识":"...","名称":"z","logo":"/img/logos/x.SVG"}}
+     */
     private static final Pattern CATALOG_ENTRY = Pattern.compile(
             "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
                     + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
@@ -93,11 +93,11 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     }
 
     /**
-    * 解析 flight 数据中的模型目录与逐模型指标记录。
-    *
-    * @param html 页面原始 HTML（含转义）
-    * @return 按 slug 去重后的模型指标列表
-    */
+     * 解析 flight 数据中的模型目录与逐模型指标记录。
+     *
+     * @param html 页面原始 HTML（含转义）
+     * @return 按 slug 去重后的模型指标列表
+     */
     private List<ModelDefinition> parseFlightData(String html) {
         // 目录：slug -> [displayName, creatorName, logo]
         Map<String, String[]> catalog = new LinkedHashMap<>();
@@ -198,15 +198,15 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     }
 
     /**
-    * 从模型排行榜页解析活跃参数量（slug -> 十亿）。
-    *
-    * <p>providers 页不含参数量字段；models 页将活跃参数量放在结构化数据集
-    * {@code {"label":"...","activeParams":104,"passiveParams":2696,"detailsUrl":"/models/kimi-k3"}}
-    * 中（仅覆盖部分主流模型），slug 从 detailsurl 提取。</p>
-    *
-    * @param html 模型页原始 HTML（含转义）
-    * @return slug -> 活跃参数(十亿)
-    */
+     * 从模型排行榜页解析活跃参数量（slug -> 十亿）。
+     *
+     * <p>providers 页不含参数量字段；models 页将活跃参数量放在结构化数据集
+     * {@code {"label":"...","activeParams":104,"passiveParams":2696,"detailsUrl":"/models/kimi-k3"}}
+     * 中（仅覆盖部分主流模型），slug 从 detailsurl 提取。</p>
+     *
+     * @param html 模型页原始 HTML（含转义）
+     * @return slug -> 活跃参数(十亿)
+     */
     private Map<String, BigDecimal> parseActiveParams(String html) {
         Map<String, BigDecimal> result = new LinkedHashMap<>();
         String esc = html.replace("\\\"", "\"");
@@ -220,14 +220,14 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     }
 
     /**
-    * 从模型排行榜页解析思考等级（slug -> effort）。
-    *
-    * <p>models 页每个推理模型记录带 {@code "effort":{"slug":"max","label":"max","level":60}},
-    * 提取其档位 slug（最大 / high / medium / low）；非推理模型无此字段，不收录。</p>
-    *
-    * @param html 模型页原始 HTML（含转义）
-    * @return slug -> 思考等级
-    */
+     * 从模型排行榜页解析思考等级（slug -> effort）。
+     *
+     * <p>models 页每个推理模型记录带 {@code "effort":{"slug":"max","label":"max","level":60}},
+     * 提取其档位 slug（最大 / high / medium / low）；非推理模型无此字段，不收录。</p>
+     *
+     * @param html 模型页原始 HTML（含转义）
+     * @return slug -> 思考等级
+     */
     private Map<String, String> parseReasoningEfforts(String html) {
         Map<String, String> result = new LinkedHashMap<>();
         String esc = html.replace("\\\"", "\"");
@@ -241,12 +241,12 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     }
 
     /**
-    * 提取窗口内的数值字段。
-    *
-    * @param window 窗口文本
-    * @param key 字段键的转义正则片段
-    * @return 数值，缺失或为 空 字面量时返回 空
-    */
+     * 提取窗口内的数值字段。
+     *
+     * @param window 窗口文本
+     * @param key 字段键的转义正则片段
+     * @return 数值，缺失或为 空 字面量时返回 空
+     */
     private BigDecimal num(String window, String key) {
         Matcher m = Pattern.compile(key + "(-?[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)").matcher(window);
         if (!m.find()) { return null; }
@@ -258,12 +258,12 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     }
 
     /**
-    * 提取窗口内的第一个捕获组。
-    *
-    * @param s 窗口文本
-    * @param regex 正则
-    * @return 第一个捕获组，未匹配返回 空
-    */
+     * 提取窗口内的第一个捕获组。
+     *
+     * @param s 窗口文本
+     * @param regex 正则
+     * @return 第一个捕获组，未匹配返回 空
+     */
     private String group1(String s, String regex) {
         Matcher m = Pattern.compile(regex).matcher(s);
         return m.find() ? m.group(1) : null;

@@ -8,10 +8,10 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
-* 属性 配置文件解析器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 属性 配置文件解析器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PropertiesConfigFileParser implements ConfigFileParser {
 
@@ -39,11 +39,11 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
 
     @SuppressWarnings("unchecked")
     /**
-    * 构建嵌套映射
-    *
-    * @param flat flat
-    * @return 构建嵌套映射的结果
-    */
+     * 构建嵌套映射
+     *
+     * @param flat flat
+     * @return 构建嵌套映射的结果
+     */
     private static Map<String, Object> buildNestedMap(Map<String, Object> flat) {
         Map<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : flat.entrySet()) {

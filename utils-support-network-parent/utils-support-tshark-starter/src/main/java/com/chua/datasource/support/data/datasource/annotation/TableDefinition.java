@@ -3,10 +3,10 @@ package com.chua.datasource.support.data.datasource.annotation;
 import java.lang.annotation.*;
 
 /**
-* 表定义注解。
-*
-* @author CH
-* @since 4.0.0.42
+ * 表定义注解。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -14,8 +14,8 @@ import java.lang.annotation.*;
 public @interface TableDefinition {
 
     /**
-    * 表名。
-    * @return 结果字符串
-    */
+     * 表名。
+     * @return 结果字符串
+     */
     String value();
 }

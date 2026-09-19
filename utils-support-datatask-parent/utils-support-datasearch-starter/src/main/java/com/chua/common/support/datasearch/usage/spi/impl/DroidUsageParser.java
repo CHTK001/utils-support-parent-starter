@@ -42,24 +42,24 @@ public class DroidUsageParser extends BaseUsageParser {
     private static final Path SESSIONS_DIR = FACTORY_HOME.resolve("sessions");
 
     /**
-    * Droid model 名归一：去掉 custom: 前缀与 [Proxy] 括注。
-    */
+     * Droid model 名归一：去掉 custom: 前缀与 [Proxy] 括注。
+     */
     private static final Pattern PROXY_BRACKET =
             Pattern.compile("\\[[^\\]]*\\]");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "droid"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "droid"}
+     */
     @Override
     public String name() {
         return PROVIDER_DROID;
     }
 
     /**
-    * 流式解析全部 Droid 会话文件（settings.json 与 JSONL 事件流）。
-    */
+     * 流式解析全部 Droid 会话文件（settings.json 与 JSONL 事件流）。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listSessionFiles();
@@ -74,11 +74,11 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 枚举 {@code ~/.factory/sessions} 下的会话文件
-    * （*.settings.json 与事件 JSONL）。
-    *
-    * @return 会话文件列表
-    */
+     * 枚举 {@code ~/.factory/sessions} 下的会话文件
+     * （*.settings.json 与事件 JSONL）。
+     *
+     * @return 会话文件列表
+     */
     private List<Path> listSessionFiles() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             return List.of();
@@ -99,11 +99,11 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析单个会话文件：settings.json 取累计计数，JSONL 取逐回合用量。
-    *
-    * @param file 会话文件
-    * @return 用量记录列表
-    */
+     * 解析单个会话文件：settings.json 取累计计数，JSONL 取逐回合用量。
+     *
+     * @param file 会话文件
+     * @return 用量记录列表
+     */
     private List<AiUsage> parseFile(Path file) {
         List<AiUsage> result = new ArrayList<>();
         String fileName = file.getFileName().toString();
@@ -142,12 +142,12 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析一条 JSONL 事件行：接受 {@code tokenUsage} 或顶层 {@code usage} 块。
-    *
-    * @param line JSONL 行
-    * @param file 所属文件（用于 requestId 兜底）
-    * @return 用量记录或 empty
-    */
+     * 解析一条 JSONL 事件行：接受 {@code tokenUsage} 或顶层 {@code usage} 块。
+     *
+     * @param line JSONL 行
+     * @param file 所属文件（用于 requestId 兜底）
+     * @return 用量记录或 empty
+     */
     private Optional<AiUsage> parseLine(String line, Path file) {
         JsonNode node = Json.parse(line);
         JsonNode usage = node.get("tokenUsage");
@@ -196,11 +196,11 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析 settings.json 的累计计数块（会话级聚合）。
-    *
-    * @param file settings.json 文件
-    * @return 单条会话级用量记录或 empty
-    */
+     * 解析 settings.json 的累计计数块（会话级聚合）。
+     *
+     * @param file settings.json 文件
+     * @return 单条会话级用量记录或 empty
+     */
     private Optional<AiUsage> parseSettings(Path file) {
         try {
             JsonNode node = Json.parse(Files.readString(file));
@@ -229,12 +229,12 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 归一化 Droid 模型名：去掉 {@code custom:} 前缀与 {@code [Proxy]} 类括注，
-    * 空白/点/连字符折叠为单一连字符。
-    *
-    * @param raw 原始模型名
-    * @return 归一化模型名；空白返回空串
-    */
+     * 归一化 Droid 模型名：去掉 {@code custom:} 前缀与 {@code [Proxy]} 类括注，
+     * 空白/点/连字符折叠为单一连字符。
+     *
+     * @param raw 原始模型名
+     * @return 归一化模型名；空白返回空串
+     */
     private String normalizeDroidModel(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";

@@ -13,15 +13,15 @@ import java.util.concurrent.CompletionStage;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public interface ReactiveFilterChain {
 
     /**
-    * 执行响应式过滤器链。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    * @return 链执行完成的阶段
-    */
+     * 执行响应式过滤器链。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     * @return 链执行完成的阶段
+     */
     CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response);
 }

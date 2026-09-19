@@ -77,35 +77,35 @@ import javax.annotation.Nullable;
 public class ImageMosaicFilter extends AbstractImageFilter {
 
     /**
-    * 马赛克块的大小（像素），默认为8x8像素
-    */
+     * 马赛克块的大小（像素），默认为8x8像素
+     */
     private int size = 8;
 
     /**
-    * 默认构造函数，使用默认的马赛克块大小（8像素）
-    */
+     * 默认构造函数，使用默认的马赛克块大小（8像素）
+     */
     public ImageMosaicFilter() {
     }
 
     /**
-    * 构造函数，指定马赛克块大小
-    *
-    * @param size 马赛克块的大小（像素），必须大于0
-    */
+     * 构造函数，指定马赛克块大小
+     *
+     * @param size 马赛克块的大小（像素），必须大于0
+     */
     public ImageMosaicFilter(int size) {
         this.size = size;
     }
 
     /**
-    * 执行马赛克滤镜处理
-    *
-    * 将输入图像分割成规则的矩形网格，每个网格使用其中心像素的颜色
-    * 进行填充，从而产生马赛克效果。处理边界网格的特殊情况。
-    *
-    * @param src    源图像
-    * @param image1 目标图像（此参数未使用）
-    * @return 应用马赛克效果后的图像，如果参数无效则返回原图像
-    */
+     * 执行马赛克滤镜处理
+     *
+     * 将输入图像分割成规则的矩形网格，每个网格使用其中心像素的颜色
+     * 进行填充，从而产生马赛克效果。处理边界网格的特殊情况。
+     *
+     * @param src    源图像
+     * @param image1 目标图像（此参数未使用）
+     * @return 应用马赛克效果后的图像，如果参数无效则返回原图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage image1) {
         BufferedImage mosaicImage = new BufferedImage(src.getWidth(), src.getHeight(), TYPE_INT_RGB);

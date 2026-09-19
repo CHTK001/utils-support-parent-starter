@@ -3,12 +3,12 @@ package com.chua.common.support.lang.document;
 import lombok.Builder;
 
 /**
-* 表关系（外键）数据。
-*
-* <p>描述一张表到另一张表的引用关系，即外键约束。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 表关系（外键）数据。
+ *
+ * <p>描述一张表到另一张表的引用关系，即外键约束。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Builder
 public record RelationshipData(

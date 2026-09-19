@@ -10,10 +10,10 @@ import java.lang.reflect.Field;
 import java.util.function.Function;
 
 /**
-* Spring 字段注入器，处理 {@link Autowired} / {@link Qualifier} 注解。
-*
-* @author CH
-* @since 2024/12/20
+ * Spring 字段注入器，处理 {@link Autowired} / {@link Qualifier} 注解。
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @Spi("spring")
 public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {

@@ -22,143 +22,143 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* PDF 文件写入构建器。
-*
-* <p>基于 PDFBox 实现简单文本内容的 PDF 文件生成。
-* 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
-* 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PDF 文件写入构建器。
+ *
+ * <p>基于 PDFBox 实现简单文本内容的 PDF 文件生成。
+ * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
+ * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PdfWriteBuilder extends WriteBuilder {
 
     /**
-    * PDF 文档标题
-    */
+     * PDF 文档标题
+     */
     private String title;
 
     /**
-    * PDF 文档作者
-    */
+     * PDF 文档作者
+     */
     private String author;
 
     /**
-    * 模板文件流
-    */
+     * 模板文件流
+     */
     private InputStream templateStream;
 
     /**
-    * 字体大小，默认 12
-    */
+     * 字体大小，默认 12
+     */
     private float fontSize = 12;
 
     /**
-    * 左边距，默认 50
-    */
+     * 左边距，默认 50
+     */
     private float leftMargin = 50;
 
     /**
-    * 顶部起始位置，默认 750
-    */
+     * 顶部起始位置，默认 750
+     */
     private float topMargin = 750;
 
     /**
-    * 行间距，默认 16
-    */
+     * 行间距，默认 16
+     */
     private float lineSpacing = 16;
 
     /**
-    * 创建 pdf写入构建器 实例
-    * @param file 文件
-    */
+     * 创建 pdf写入构建器 实例
+     * @param file 文件
+     */
     public PdfWriteBuilder(File file) {
         super(file);
     }
 
     /**
-    * 设置 PDF 标题。
-    *
-    * @param title 文档标题
-    * @return 当前构建器
-    */
+     * 设置 PDF 标题。
+     *
+     * @param title 文档标题
+     * @return 当前构建器
+     */
     public PdfWriteBuilder title(String title) {
         this.title = title;
         return this;
     }
 
     /**
-    * 设置作者。
-    *
-    * @param author 文档作者
-    * @return 当前构建器
-    */
+     * 设置作者。
+     *
+     * @param author 文档作者
+     * @return 当前构建器
+     */
     public PdfWriteBuilder author(String author) {
         this.author = author;
         return this;
     }
 
     /**
-    * 设置字体大小。
-    *
-    * @param size 字体大小
-    * @return 当前构建器
-    */
+     * 设置字体大小。
+     *
+     * @param size 字体大小
+     * @return 当前构建器
+     */
     public PdfWriteBuilder fontSize(float size) {
         this.fontSize = size;
         return this;
     }
 
     /**
-    * 设置左边距。
-    *
-    * @param margin 左边距
-    * @return 当前构建器
-    */
+     * 设置左边距。
+     *
+     * @param margin 左边距
+     * @return 当前构建器
+     */
     public PdfWriteBuilder leftMargin(float margin) {
         this.leftMargin = margin;
         return this;
     }
 
     /**
-    * 设置顶部起始位置。
-    *
-    * @param margin 顶部起始位置
-    * @return 当前构建器
-    */
+     * 设置顶部起始位置。
+     *
+     * @param margin 顶部起始位置
+     * @return 当前构建器
+     */
     public PdfWriteBuilder topMargin(float margin) {
         this.topMargin = margin;
         return this;
     }
 
     /**
-    * 设置行间距。
-    *
-    * @param spacing 行间距
-    * @return 当前构建器
-    */
+     * 设置行间距。
+     *
+     * @param spacing 行间距
+     * @return 当前构建器
+     */
     public PdfWriteBuilder lineSpacing(float spacing) {
         this.lineSpacing = spacing;
         return this;
     }
 
     /**
-    * 设置模板文件流（设置后只走模板）。
-    *
-    * @param stream 模板文件流
-    * @return 当前构建器
-    */
+     * 设置模板文件流（设置后只走模板）。
+     *
+     * @param stream 模板文件流
+     * @return 当前构建器
+     */
     public PdfWriteBuilder withTemplate(InputStream stream) {
         this.templateStream = stream;
         return this;
     }
 
     /**
-    * 将文本行加入延迟写入队列。
-    *
-    * @param lines 文本行列表
-    * @return 写入的结果
-    */
+     * 将文本行加入延迟写入队列。
+     *
+     * @param lines 文本行列表
+     * @return 写入的结果
+     */
     public PdfWriteBuilder write(List<String> lines) {
         pending.add(lines);
         return this;
@@ -183,10 +183,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 实时写入文本行。
-    *
-    * @param lines 文本行列表
-    */
+     * 实时写入文本行。
+     *
+     * @param lines 文本行列表
+     */
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
@@ -200,10 +200,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 实时写入 映射 数据。
-    *
-    * @param rows 映射 数据列表
-    */
+     * 实时写入 映射 数据。
+     *
+     * @param rows 映射 数据列表
+     */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
@@ -288,10 +288,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 执行写入文本
-    *
-    * @param lines 线
-    */
+     * 执行写入文本
+     *
+     * @param lines 线
+     */
     private void doWriteText(List<String> lines) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -318,10 +318,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 执行写入映射
-    *
-    * @param rows rows
-    */
+     * 执行写入映射
+     *
+     * @param rows rows
+     */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);

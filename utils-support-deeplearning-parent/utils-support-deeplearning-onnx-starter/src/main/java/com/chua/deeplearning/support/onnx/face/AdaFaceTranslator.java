@@ -11,24 +11,24 @@ import ai.djl.translate.TranslatorContext;
 
 
 /**
-* adaface — 自适应人脸特征提取模型（Adaptive Face 认可）
-* <p>
-* 基于自适应 margin 策略，在低质量人脸上比 arcface 表现更优。
-* 典型变体：adaface IR101 (webface12M 训练)，输入 112x112 RGB 人脸图，输出 512 维归一化 嵌入。
-* <p>
-* 输入要求：
-* - 单张人脸图像（已裁剪对齐）
-* - 尺寸：112x112（自动 resize）
-* - 色彩：RGB
-* - 归一化：(pixel - 127.5) / 128.0
-* - 通道顺序：CHW
-* <p>
-* 输出说明：
-* - 512 维 float[] 嵌入
-* - 已做 L2 归一化
-*
-* @author CH
-* @since 2026-07-22
+ * adaface — 自适应人脸特征提取模型（Adaptive Face 认可）
+ * <p>
+ * 基于自适应 margin 策略，在低质量人脸上比 arcface 表现更优。
+ * 典型变体：adaface IR101 (webface12M 训练)，输入 112x112 RGB 人脸图，输出 512 维归一化 嵌入。
+ * <p>
+ * 输入要求：
+ * - 单张人脸图像（已裁剪对齐）
+ * - 尺寸：112x112（自动 resize）
+ * - 色彩：RGB
+ * - 归一化：(pixel - 127.5) / 128.0
+ * - 通道顺序：CHW
+ * <p>
+ * 输出说明：
+ * - 512 维 float[] 嵌入
+ * - 已做 L2 归一化
+ *
+ * @author CH
+ * @since 2026-07-22
  */
 public class AdaFaceTranslator implements Translator<Image, float[]> {
 

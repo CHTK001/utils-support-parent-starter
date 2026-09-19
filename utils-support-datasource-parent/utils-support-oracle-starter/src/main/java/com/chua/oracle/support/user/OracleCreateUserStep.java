@@ -5,14 +5,14 @@ import com.chua.datasource.support.user.UserManager;
 import javax.sql.DataSource;
 
 /**
-* Oracle 创建用户链式步骤实现。
-* <p>
-* Oracle 语法：{@code CREATE USER 用户名 IDENTIFIED BY "密码"}
-* 创建后自动授予 连接 角色。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Oracle 创建用户链式步骤实现。
+ * <p>
+ * Oracle 语法：{@code CREATE USER 用户名 IDENTIFIED BY "密码"}
+ * 创建后自动授予 连接 角色。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OracleCreateUserStep implements UserManager.CreateUserStep {
 
@@ -37,11 +37,11 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     }
 
     /**
-    * 设置用户密码。
-    *
-    * @param password 明文密码
-    * @return this
-    */
+     * 设置用户密码。
+     *
+     * @param password 明文密码
+     * @return this
+     */
     @Override
     public UserManager.CreateUserStep withPassword(String password) {
         this.password = password;
@@ -49,19 +49,19 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     }
 
     /**
-    * Oracle 不支持 主机 概念，忽略此参数。
-    *
-    * @param host 忽略
-    * @return this
-    */
+     * Oracle 不支持 主机 概念，忽略此参数。
+     *
+     * @param host 忽略
+     * @return this
+     */
     @Override
     public UserManager.CreateUserStep withHost(String host) {
         return this;
     }
 
     /**
-    * 执行 创建 用户 并授予 连接 权限。
-    */
+     * 执行 创建 用户 并授予 连接 权限。
+     */
     @Override
     public void execute() {
         try (var c = dataSource.getConnection();

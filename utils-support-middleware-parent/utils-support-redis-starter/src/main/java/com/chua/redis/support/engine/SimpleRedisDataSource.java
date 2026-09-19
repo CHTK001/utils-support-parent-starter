@@ -6,8 +6,8 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
 import redis.clients.jedis.JedisPool;
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 
 public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
@@ -44,11 +44,11 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
         @Override
         @SuppressWarnings("unchecked")
         /**
-        * 获取源
-        *
-        * @param type 类型
-        * @return 获取源的结果
-        */
+         * 获取源
+         *
+         * @param type 类型
+         * @return 获取源的结果
+         */
         public <T> T getSource(Class<T> type) {
             // 类型与底层源一致时直接返回
             if (type.isInstance(pool)) {

@@ -8,21 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 配置中心抽象基类。
-*
-* <p>提供配置中心的通用骨架实现，包括监听器管理、启动/关闭日志、
-* 默认的发布和移除操作实现。子类需实现具体的配置获取逻辑。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 配置中心抽象基类。
+ *
+ * <p>提供配置中心的通用骨架实现，包括监听器管理、启动/关闭日志、
+ * 默认的发布和移除操作实现。子类需实现具体的配置获取逻辑。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Slf4j
 public abstract class AbstractConfigCenter implements ConfigCenter {
 
     /**
-    * 配置中心连接设置。
-    */
+     * 配置中心连接设置。
+     */
     protected final ConfigCenterSetting configCenterSetting;
     /** 配置监听器列表 */
     protected List<ConfigListener> listeners;
@@ -38,15 +38,15 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     }
 
     /**
-    * 记录启动日志。
-    */
+     * 记录启动日志。
+     */
     protected void logStartup() {
         log.info("配置中心启动成功，地址: {}", configCenterSetting.getAddress());
     }
 
     /**
-    * 记录关闭日志。
-    */
+     * 记录关闭日志。
+     */
     protected void logShutdown() {
         log.info("配置中心已关闭，地址: {}", configCenterSetting.getAddress());
     }
@@ -118,12 +118,12 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     }
 
     /**
-    * 通知监听器 - 配置项已更新。
-    *
-    * @param key      更新的配置键
-    * @param newValue 更新后的新值
-    * @param oldValue 更新前的旧值
-    */
+     * 通知监听器 - 配置项已更新。
+     *
+     * @param key      更新的配置键
+     * @param newValue 更新后的新值
+     * @param oldValue 更新前的旧值
+     */
     public void notifyListenerUpdate(String key, String newValue, String oldValue) {
         for (ConfigListener listener : listeners) {
             listener.onChange(key, oldValue, newValue);

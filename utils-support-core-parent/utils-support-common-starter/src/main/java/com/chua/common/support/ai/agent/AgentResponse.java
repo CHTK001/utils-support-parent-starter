@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Agent 执行响应
-*
-* <p>封装Agent执行完成后的输出结果、执行元数据和用量统计。
-*
-* @author CH
-* @since 2026/07/15
+ * Agent 执行响应
+ *
+ * <p>封装Agent执行完成后的输出结果、执行元数据和用量统计。
+ *
+ * @author CH
+ * @since 2026/07/15
  */
 @Data
 @Builder

@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 分库分表sphere 表结构缓存。
-*
-* @author CH
-* @since 4.0.0.42
+ * 分库分表sphere 表结构缓存。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class TableCache {
@@ -36,11 +36,11 @@ public class TableCache {
     }
 
     /**
-    * 获取Tables
-    *
-    * @param prefix 前缀
-    * @return 获取tables的结果
-    */
+     * 获取Tables
+     *
+     * @param prefix 前缀
+     * @return 获取tables的结果
+     */
     public List<String> getTables(String prefix) {
         var now = System.currentTimeMillis();
         var entry = cache.get(prefix);

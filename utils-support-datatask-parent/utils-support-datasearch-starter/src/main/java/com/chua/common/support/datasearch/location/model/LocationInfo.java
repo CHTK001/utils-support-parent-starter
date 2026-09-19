@@ -3,13 +3,13 @@ package com.chua.common.support.datasearch.location.model;
 import lombok.Data;
 
 /**
-* IP 定位信息实体。
-*
-* <p>含 IP 对应的经纬度、行政地址与物理地址（由 GeocodeProvider 补充）。
-* 字段名与 ip-api.com 响应对齐。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * IP 定位信息实体。
+ *
+ * <p>含 IP 对应的经纬度、行政地址与物理地址（由 GeocodeProvider 补充）。
+ * 字段名与 ip-api.com 响应对齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class LocationInfo {

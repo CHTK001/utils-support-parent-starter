@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("spi")
 @SpiDescribe("SPI Bean 定义注册器（只读，由 ServiceProvider 自动发现服务）")

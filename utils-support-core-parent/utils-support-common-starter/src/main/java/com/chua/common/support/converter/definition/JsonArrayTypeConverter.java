@@ -12,18 +12,18 @@ import java.util.Map;
 
 
 /**
-* JsonArray 类型转换器（以 List 作为底层存储类型）。
-* <p>将各种类型的值转换为 {@link List}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link String} — 解析 JSON 数组格式的字符串（[...]），自动去除引号</li>
-*   <li>{@code byte[]} — 先转为 String 再解析</li>
-*   <li>{@link java.util.Collection} — 转为 ArrayList</li>
-*   <li>{@link Map} — 以单元素列表返回</li>
-*   <li>数组类型 — 通过 ArrayUtils.toList 转换</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * JsonArray 类型转换器（以 List 作为底层存储类型）。
+ * <p>将各种类型的值转换为 {@link List}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link String} — 解析 JSON 数组格式的字符串（[...]），自动去除引号</li>
+ *   <li>{@code byte[]} — 先转为 String 再解析</li>
+ *   <li>{@link java.util.Collection} — 转为 ArrayList</li>
+ *   <li>{@link Map} — 以单元素列表返回</li>
+ *   <li>数组类型 — 通过 ArrayUtils.toList 转换</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JsonArrayTypeConverter implements TypeConverter<List> {
     @Override

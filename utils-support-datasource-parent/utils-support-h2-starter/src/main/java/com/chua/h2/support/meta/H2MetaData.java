@@ -14,20 +14,20 @@ import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.JdbcMetaTable;
 
 /**
-* H2 元数据入口，提供对象化 DDL（建表/删表/重命名）。
-*
-* <p>通过 SPI 注册，H2Engine.meta() 自动加载。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * H2 元数据入口，提供对象化 DDL（建表/删表/重命名）。
+ *
+ * <p>通过 SPI 注册，H2Engine.meta() 自动加载。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class H2MetaData extends AbstractMetaData {
 
     /**
-    * 构造方法。
-    *
-    * @param engine 引擎实例
-    */
+     * 构造方法。
+     *
+     * @param engine 引擎实例
+     */
     public H2MetaData(Engine engine) {
         super(engine);
     }

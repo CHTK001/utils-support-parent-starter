@@ -18,7 +18,7 @@ import java.util.function.Function;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("jsr")
 public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
@@ -81,11 +81,11 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     }
 
     /**
-    * 解析参数
-    * @param method 方法
-    * @param beanProvider Bean提供者
-    * @param typeProvider 类型提供者
-    */
+     * 解析参数
+     * @param method 方法
+     * @param beanProvider Bean提供者
+     * @param typeProvider 类型提供者
+     */
     private Object[] resolveArgs(Method method,
                                  Function<String, Object> beanProvider,
                                  Function<Class<?>, Object> typeProvider) {
@@ -122,12 +122,12 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     }
 
     /**
-    * 解析名称
-    *
-    * @param method 方法
-    * @param paramType 参数类型
-    * @return resolve名称的结果
-    */
+     * 解析名称
+     *
+     * @param method 方法
+     * @param paramType 参数类型
+     * @return resolve名称的结果
+     */
     private String resolveName(Method method, Class<?> paramType) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

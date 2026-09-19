@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * @param <T> 被加载的对象类型
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
 
     /** 供应商 */
@@ -36,20 +36,20 @@ public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
     }
 
     /**
-    * 通过供应商创建实例。
-    */
+     * 通过供应商创建实例。
+     */
     @Override
     protected T create() {
         return supplier.get();
     }
 
     /**
-    * 创建单例懒加载器。
-    *
-    * @param <T>      被加载的对象类型
-    * @param supplier 实例创建供应商
-    * @return SingletonLoader 实例
-    */
+     * 创建单例懒加载器。
+     *
+     * @param <T>      被加载的对象类型
+     * @param supplier 实例创建供应商
+     * @return SingletonLoader 实例
+     */
     public static <T> SingletonLoader<T> of(Supplier<T> supplier) {
         return new SingletonLoader<>(supplier);
     }

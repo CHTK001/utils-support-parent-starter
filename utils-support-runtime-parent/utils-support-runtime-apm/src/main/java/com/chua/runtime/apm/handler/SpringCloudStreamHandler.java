@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Spring Cloud 流 处理器 — intercepts 消息 binding 和 发送.
-*
-* @author CH
-* @since 4.0.0.42
+ * Spring Cloud 流 处理器 — intercepts 消息 binding 和 发送.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SpringCloudStreamHandler extends AbstractAppHandler {
 
     /**
-    * 消息 通道
+     * 消息 通道
      */
     private static final String MESSAGE_CHANNEL = "org/springframework/messaging/MessageChannel";
     /**
-    * 发送 方法
+     * 发送 方法
      */
     private static final String[] SEND_METHODS = {"send"};
 

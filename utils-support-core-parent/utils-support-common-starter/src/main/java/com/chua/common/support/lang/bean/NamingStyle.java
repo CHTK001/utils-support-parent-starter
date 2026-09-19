@@ -1,39 +1,39 @@
 package com.chua.common.support.lang.bean;
 
 /**
-* 命名风格枚举，用于 BeanPath 属性匹配时的名称转换。
-*
-* @author CH
-* @since 4.0.0.42
+ * 命名风格枚举，用于 BeanPath 属性匹配时的名称转换。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public enum NamingStyle {
 
     /**
-    * 原样匹配，不转换
-    */
+     * 原样匹配，不转换
+     */
     RAW,
     /**
-    * 驼峰：userName
-    */
+     * 驼峰：userName
+     */
     CAMEL,
     /**
-    * 下划线（蛇形）：user_name
-    */
+     * 下划线（蛇形）：user_name
+     */
     UNDERSCORE,
     /**
-    * 连字符（罗马式）：user-name
-    */
+     * 连字符（罗马式）：user-name
+     */
     ROMAN,
     /**
-    * 大写下划线：USER_NAME
-    */
+     * 大写下划线：USER_NAME
+     */
     UPPER_UNDERSCORE;
 
     /**
-    * 将属性名按当前风格转换为驼峰格式。
-    * @param name 名称，不允许为 null
-    * @return 结果字符串
-    */
+     * 将属性名按当前风格转换为驼峰格式。
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     public String toCamel(String name) {
         return switch (this) {
             case RAW -> name;
@@ -44,10 +44,10 @@ public enum NamingStyle {
     }
 
     /**
-    * 将驼峰属性名按当前风格转换。
-    * @param camel 方法入参 camel
-    * @return 结果字符串
-    */
+     * 将驼峰属性名按当前风格转换。
+     * @param camel 方法入参 camel
+     * @return 结果字符串
+     */
     public String fromCamel(String camel) {
         return switch (this) {
             case RAW -> camel;

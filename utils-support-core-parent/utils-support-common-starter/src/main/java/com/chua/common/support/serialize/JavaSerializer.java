@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 @Spi("java")
 @SpiDefault
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {

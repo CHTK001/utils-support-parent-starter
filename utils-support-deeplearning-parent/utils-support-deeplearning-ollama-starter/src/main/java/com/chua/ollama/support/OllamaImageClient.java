@@ -45,34 +45,34 @@ import java.util.Map;
 public class OllamaImageClient implements ImageClient {
 
     /**
-    * 客户端 配置
-    */
+     * 客户端 配置
+     */
     private final ImageClientSetting setting;
 
     /**
-    * ollama4j 原生 客户端
-    */
+     * ollama4j 原生 客户端
+     */
     private final Ollama ollama;
 
     /**
-    * 当前 模型 名称
-    */
+     * 当前 模型 名称
+     */
     private String model;
 
     /**
-    * 图片 宽度
-    */
+     * 图片 宽度
+     */
     private Integer width;
 
     /**
-    * 图片 高度
-    */
+     * 图片 高度
+     */
     private Integer height;
 
     /**
-    * 异步 任务 缓存（Ollama 无 原生 异步，以 本地 记录 模拟 轮询 契约）。
-    * <p>使用 有界 缓存 防止 长时间 运行 下 内存 无界 增长；超出 容量 时 最老 任务 被 驱逐。</p>
-    */
+     * 异步 任务 缓存（Ollama 无 原生 异步，以 本地 记录 模拟 轮询 契约）。
+     * <p>使用 有界 缓存 防止 长时间 运行 下 内存 无界 增长；超出 容量 时 最老 任务 被 驱逐。</p>
+     */
     private final Map<String, ImageResponse> taskCache =
             java.util.Collections.synchronizedMap(
                     new java.util.LinkedHashMap<String, ImageResponse>(64, 0.75f, true) {
@@ -83,10 +83,10 @@ public class OllamaImageClient implements ImageClient {
                     });
 
     /**
-    * 创建 Ollama 图片 生成 客户端。
-    *
-    * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
-    */
+     * 创建 Ollama 图片 生成 客户端。
+     *
+     * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
+     */
     public OllamaImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.ollama = OllamaSupport.client(setting != null ? setting.getBaseUrl() : null);

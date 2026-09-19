@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* This 类 contains 工具 方法 that may be useful 转为 镜像读取
-* plugins.  Ideally these 方法 would be 入 the 镜像读取 基础 类
-* so that 全部 subclasses could 福利 从 them, but that would be an
-* addition 转为 the existing API, 和 it 是否 not yet clear whether these 方法
-* are universally useful, so for now we will 请假 them here.
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * This 类 contains 工具 方法 that may be useful 转为 镜像读取
+ * plugins.  Ideally these 方法 would be 入 the 镜像读取 基础 类
+ * so that 全部 subclasses could 福利 从 them, but that would be an
+ * addition 转为 the existing API, 和 it 是否 not yet clear whether these 方法
+ * are universally useful, so for now we will 请假 them here.
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 final class ReaderUtils {
 
  // 助手 for compute更新pixels 方法
@@ -112,34 +112,34 @@ final class ReaderUtils {
     }
 
     /**
-    * 一个工具方法，用于计算在特定解码过程中将被写入的
-    * 目标像素集合。其目的是简化读取器合并
-    * 源区域、源子采样和目标偏移量信息的操作，
-    * 这些信息从 {@code ImageReadParam} 中获得，并与
-    * 渐进式或隔行解码过程中每一步的偏移量和周期
-    * 相结合。
-    *
-    * @param sourceRegion 包含待读取源区域的 {@code Rectangle}，
-    * 按源子采样偏移，并针对源边界裁剪，由
-    * {@code getSourceRegion} 方法返回。
-    * @param destinationOffset 包含目标区域左上角像素坐标的
-    * {@code Point}。
-    * @param dstMinX 目标 {@code Raster} 的最小 X 坐标（含）。
-    * @param dstMinY 目标 {@code Raster} 的最小 Y 坐标（含）。
-    * @param dstMaxX 目标 {@code Raster} 的最大 X 坐标（含）。
-    * @param dstMaxY 目标 {@code Raster} 的最大 Y 坐标（含）。
-    * @param sourceXSubsampling X 方向子采样因子。
-    * @param sourceYSubsampling Y 方向子采样因子。
-    * @param passXStart 当前解码步骤中最小的源 X 坐标（含）。
-    * @param passYStart 当前解码步骤中最小的源 Y 坐标（含）。
-    * @param passWidth 当前解码步骤以像素为单位的宽度。
-    * @param passHeight 当前解码步骤以像素为单位的高度。
-    * @param passPeriodX 当前解码步骤的 X 周期（像素间水平间距）。
-    * @param passPeriodY 当前解码步骤的 Y 周期（像素间垂直间距）。
-    *
-    * @return 一个包含 6 个 {@code int} 的数组，表示将被更新区域的
-    * 目标最小 X、最小 Y、宽度、高度、X 周期和 Y 周期。
-    */
+     * 一个工具方法，用于计算在特定解码过程中将被写入的
+     * 目标像素集合。其目的是简化读取器合并
+     * 源区域、源子采样和目标偏移量信息的操作，
+     * 这些信息从 {@code ImageReadParam} 中获得，并与
+     * 渐进式或隔行解码过程中每一步的偏移量和周期
+     * 相结合。
+     *
+     * @param sourceRegion 包含待读取源区域的 {@code Rectangle}，
+     * 按源子采样偏移，并针对源边界裁剪，由
+     * {@code getSourceRegion} 方法返回。
+     * @param destinationOffset 包含目标区域左上角像素坐标的
+     * {@code Point}。
+     * @param dstMinX 目标 {@code Raster} 的最小 X 坐标（含）。
+     * @param dstMinY 目标 {@code Raster} 的最小 Y 坐标（含）。
+     * @param dstMaxX 目标 {@code Raster} 的最大 X 坐标（含）。
+     * @param dstMaxY 目标 {@code Raster} 的最大 Y 坐标（含）。
+     * @param sourceXSubsampling X 方向子采样因子。
+     * @param sourceYSubsampling Y 方向子采样因子。
+     * @param passXStart 当前解码步骤中最小的源 X 坐标（含）。
+     * @param passYStart 当前解码步骤中最小的源 Y 坐标（含）。
+     * @param passWidth 当前解码步骤以像素为单位的宽度。
+     * @param passHeight 当前解码步骤以像素为单位的高度。
+     * @param passPeriodX 当前解码步骤的 X 周期（像素间水平间距）。
+     * @param passPeriodY 当前解码步骤的 Y 周期（像素间垂直间距）。
+     *
+     * @return 一个包含 6 个 {@code int} 的数组，表示将被更新区域的
+     * 目标最小 X、最小 Y、宽度、高度、X 周期和 Y 周期。
+     */
     public static int[] computeUpdatedPixels(Rectangle sourceRegion,
                                              Point destinationOffset,
                                              int dstMinX,

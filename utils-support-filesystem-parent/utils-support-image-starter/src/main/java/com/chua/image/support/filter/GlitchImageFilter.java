@@ -60,42 +60,42 @@ import java.util.Random;
 public class GlitchImageFilter extends AbstractImageFilter {
 
     /**
-    * RGB 通道水平错位像素，默认 3
-    */
+     * RGB 通道水平错位像素，默认 3
+     */
     private int chromaticShift = 3;
 
     /**
-    * 块状错位条带数量，默认 8
-    */
+     * 块状错位条带数量，默认 8
+     */
     private int blockCount = 8;
 
     /**
-    * 块带最大水平位移（像素），默认 40
-    */
+     * 块带最大水平位移（像素），默认 40
+     */
     private int maxBlockOffset = 40;
 
     /**
-    * 随机交换的行数量，默认 2
-    */
+     * 随机交换的行数量，默认 2
+     */
     private int rowSwaps = 2;
 
     /**
-    * 数据损坏纯色条数量，默认 1
-    */
+     * 数据损坏纯色条数量，默认 1
+     */
     private int corruptBars = 1;
 
     /**
-    * 随机种子，默认 999
-    */
+     * 随机种子，默认 999
+     */
     private int seed = 999;
 
     /**
-    * 执行故障风滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 故障风图像
-    */
+     * 执行故障风滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 故障风图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

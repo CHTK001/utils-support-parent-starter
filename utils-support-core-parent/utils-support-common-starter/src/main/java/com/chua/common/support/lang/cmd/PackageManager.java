@@ -6,19 +6,19 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 包管理器工具类，用于检测系统包管理器并执行包安装操作。
-*
-* <p>支持主流包管理器的自动检测与安装操作，提供同步/异步安装以及实时输出回调。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 包管理器工具类，用于检测系统包管理器并执行包安装操作。
+ *
+ * <p>支持主流包管理器的自动检测与安装操作，提供同步/异步安装以及实时输出回调。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PackageManager {
 
  /**
- * 包管理器类型枚举
- */
+  * 包管理器类型枚举
+  */
  public enum Type {
  WINGET("winget", "winget install --id %s --silent --accept-package-agreements", true),
  CHOCO("choco", "choco install -y %s", true),
@@ -50,10 +50,10 @@ public class PackageManager {
  }
 
  /**
- * 检测当前系统上可用的包管理器
- *
- * @return 可用的包管理器列表
- */
+  * 检测当前系统上可用的包管理器
+  *
+  * @return 可用的包管理器列表
+  */
  public static List<Type> detect() {
  return List.of(Type.values()).stream()
  .filter(t -> isAvailable(t.getCommand()))
@@ -61,11 +61,11 @@ public class PackageManager {
  }
 
  /**
- * 检测指定的包管理器命令是否可用
- *
- * @param command 包管理器命令名
- * @return 可用返回 true
- */
+  * 检测指定的包管理器命令是否可用
+  *
+  * @param command 包管理器命令名
+  * @return 可用返回 true
+  */
  private static boolean isAvailable(String command) {
  try {
  String checkCmd = System.getProperty("os.name").toLowerCase().contains("win")
@@ -78,11 +78,11 @@ public class PackageManager {
  }
 
  /**
- * 使用检测到的第一个可用包管理器同步安装包
- *
- * @param packageId 包 ID（如 "Pandoc"、"python3"）
- * @return 安装结果
- */
+  * 使用检测到的第一个可用包管理器同步安装包
+  *
+  * @param packageId 包 ID（如 "Pandoc"、"python3"）
+  * @return 安装结果
+  */
  public static CmdResult install(String packageId) {
  Type pm = detect().stream().findFirst().orElse(null);
  if (pm == null) {
@@ -98,12 +98,12 @@ public class PackageManager {
  }
 
  /**
- * 使用指定包管理器同步安装包，支持实时输出
- *
- * @param packageId 包 ID
- * @param callback 实时输出回调
- * @return Cmd结果 对象
- */
+  * 使用指定包管理器同步安装包，支持实时输出
+  *
+  * @param packageId 包 ID
+  * @param callback 实时输出回调
+  * @return Cmd结果 对象
+  */
  public static CmdResult install(String packageId, LineCallback callback) {
  Type pm = detect().stream().findFirst().orElse(null);
  if (pm == null) {
@@ -122,11 +122,11 @@ public class PackageManager {
  }
 
  /**
- * 异步安装包
- *
- * @param packageId 包 ID
- * @param callback 结果回调
- */
+  * 异步安装包
+  *
+  * @param packageId 包 ID
+  * @param callback 结果回调
+  */
  public static void installAsync(String packageId, CmdCallback callback) {
  Type pm = detect().stream().findFirst().orElse(null);
  if (pm == null) {
@@ -138,12 +138,12 @@ public class PackageManager {
  }
 
  /**
- * 使用指定包管理器类型安装包（同步）
- *
- * @param type 包管理器类型
- * @param packageId 包 ID
- * @return 安装结果
- */
+  * 使用指定包管理器类型安装包（同步）
+  *
+  * @param type 包管理器类型
+  * @param packageId 包 ID
+  * @return 安装结果
+  */
  public static CmdResult installWith(Type type, String packageId) {
  String cmd = String.format(type.getInstallTemplate(), packageId);
  return CmdExecutors.execute(cmd, 300, TimeUnit.SECONDS);

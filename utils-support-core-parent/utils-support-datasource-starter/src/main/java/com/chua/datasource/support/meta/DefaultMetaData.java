@@ -13,22 +13,22 @@ import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.MetaView;
 
 /**
-* 默认元数据实现，所有操作抛出 unsupportedoperation异常。
-* <p>
-* 作为 {@link AbstractEngine#meta()} 的默认返回，非 SQL 引擎可使用此实现。
-* SQL 引擎应返回数据库特定的 {@link AbstractMetaData} 子类（如 {@link MysqlMetaData}）。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认元数据实现，所有操作抛出 unsupportedoperation异常。
+ * <p>
+ * 作为 {@link AbstractEngine#meta()} 的默认返回，非 SQL 引擎可使用此实现。
+ * SQL 引擎应返回数据库特定的 {@link AbstractMetaData} 子类（如 {@link MysqlMetaData}）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DefaultMetaData extends AbstractMetaData {
 
     /**
-    * 构造方法。
-    *
-    * @param engine 引擎实例
-    */
+     * 构造方法。
+     *
+     * @param engine 引擎实例
+     */
     public DefaultMetaData(Engine engine) {
         super(engine);
     }

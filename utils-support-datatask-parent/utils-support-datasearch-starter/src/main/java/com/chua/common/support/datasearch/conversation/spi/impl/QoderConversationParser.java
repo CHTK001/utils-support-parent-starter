@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Qoder conversation parser.
-*
-* <p>Qoder CLI persists sessions as Claude-Code-style JSONL transcripts under
-* {@code ~/.qoder/projects/<project>/<sessionId>.jsonl}: user content is a
-* plain 字符串 while assistant 内容 是否 an array 的 类型 blocks.</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Qoder conversation parser.
+ *
+ * <p>Qoder CLI persists sessions as Claude-Code-style JSONL transcripts under
+ * {@code ~/.qoder/projects/<project>/<sessionId>.jsonl}: user content is a
+ * plain 字符串 while assistant 内容 是否 an array 的 类型 blocks.</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("qoder")
 public class QoderConversationParser extends AbstractJsonlConversationParser {
@@ -28,39 +28,39 @@ public class QoderConversationParser extends AbstractJsonlConversationParser {
             System.getProperty("user.home"), ".qoder", "projects");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "qoder"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "qoder"}
+     */
     @Override
     public String name() {
         return "qoder";
     }
 
     /**
-    * 返回会话文件根目录。
-    *
-    * @return {@code ~/.qoder/projects}
-    */
+     * 返回会话文件根目录。
+     *
+     * @return {@code ~/.qoder/projects}
+     */
     @Override
     protected Path rootDir() {
         return PROJECTS_DIR;
     }
 
     /**
-    * 返回会话文件后缀。
-    *
-    * @return {@code ".jsonl"}
-    */
+     * 返回会话文件后缀。
+     *
+     * @return {@code ".jsonl"}
+     */
     @Override
     protected String fileSuffix() {
         return ".jsonl";
     }
 
     /**
-    * 解析单行事件为零或多条消息记录。
-    * @param ts ts
-    * @return 解析instant转为millis的结果
+     * 解析单行事件为零或多条消息记录。
+     * @param ts ts
+     * @return 解析instant转为millis的结果
      /**
     * 解析线。
     * @param line 线

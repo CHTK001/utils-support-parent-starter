@@ -2,20 +2,20 @@ package com.chua.common.support.file;
 
 
 /**
-* 文件类型枚举，按文件扩展名对文件进行分类。
-*
-* <p>用于快速判断文件所属类别，支持图片、文档、视频、音频、压缩包、代码等类型。</p>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* FileType type = FileType.detect("report.pdf");
-* System.out.println(type.getCategory()); // 输出: DOCUMENT
-*
-* boolean isImage = FileType.isImage("photo.jpg"); // true
-* }</pre>
-*
-* @author CH
-* @since 1.0
+ * 文件类型枚举，按文件扩展名对文件进行分类。
+ *
+ * <p>用于快速判断文件所属类别，支持图片、文档、视频、音频、压缩包、代码等类型。</p>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * FileType type = FileType.detect("report.pdf");
+ * System.out.println(type.getCategory()); // 输出: DOCUMENT
+ *
+ * boolean isImage = FileType.isImage("photo.jpg"); // true
+ * }</pre>
+ *
+ * @author CH
+ * @since 1.0
  */
 public enum FileType {
 
@@ -187,38 +187,38 @@ public enum FileType {
     }
 
     /**
-    * 获取文件类别。
-    *
-    * @return 文件类别（图片/文档/视频/音频/压缩包/代码/其他）
-    */
+     * 获取文件类别。
+     *
+     * @return 文件类别（图片/文档/视频/音频/压缩包/代码/其他）
+     */
     public Category getCategory() {
         return category;
     }
 
     /**
-    * 获取主扩展名（第一个注册的扩展名）。
-    *
-    * @return 扩展名（不含点）
-    */
+     * 获取主扩展名（第一个注册的扩展名）。
+     *
+     * @return 扩展名（不含点）
+     */
     public String getPrimaryExtension() {
         return extensions[0];
     }
 
     /**
-    * 获取所有支持的扩展名。
-    *
-    * @return 扩展名数组
-    */
+     * 获取所有支持的扩展名。
+     *
+     * @return 扩展名数组
+     */
     public String[] getExtensions() {
         return extensions;
     }
 
     /**
-    * 根据文件名/扩展名检测文件类型。
-    *
-    * @param filename 文件名（如 {@code "report.pdf"}）或扩展名（如 {@code "pdf"}）
-    * @return 文件类型枚举，未识别返回 {@link #UNKNOWN}
-    */
+     * 根据文件名/扩展名检测文件类型。
+     *
+     * @param filename 文件名（如 {@code "report.pdf"}）或扩展名（如 {@code "pdf"}）
+     * @return 文件类型枚举，未识别返回 {@link #UNKNOWN}
+     */
     public static FileType detect(String filename) {
         if (filename == null || filename.isEmpty()) {
             return UNKNOWN;
@@ -239,68 +239,68 @@ public enum FileType {
     }
 
     /**
-    * 判断文件名是否为图片类型。
-    *
-    * @param filename 文件名
-    * @return 如果是图片返回 {@code true}
-    */
+     * 判断文件名是否为图片类型。
+     *
+     * @param filename 文件名
+     * @return 如果是图片返回 {@code true}
+     */
     public static boolean isImage(String filename) {
         return detect(filename).category == Category.IMAGE;
     }
 
     /**
-    * 判断文件名是否为文档类型。
-    *
-    * @param filename 文件名
-    * @return 如果是文档返回 {@code true}
-    */
+     * 判断文件名是否为文档类型。
+     *
+     * @param filename 文件名
+     * @return 如果是文档返回 {@code true}
+     */
     public static boolean isDocument(String filename) {
         return detect(filename).category == Category.DOCUMENT;
     }
 
     /**
-    * 判断文件名是否为视频类型。
-    *
-    * @param filename 文件名
-    * @return 如果是视频返回 {@code true}
-    */
+     * 判断文件名是否为视频类型。
+     *
+     * @param filename 文件名
+     * @return 如果是视频返回 {@code true}
+     */
     public static boolean isVideo(String filename) {
         return detect(filename).category == Category.VIDEO;
     }
 
     /**
-    * 判断文件名是否为音频类型。
-    *
-    * @param filename 文件名
-    * @return 如果是音频返回 {@code true}
-    */
+     * 判断文件名是否为音频类型。
+     *
+     * @param filename 文件名
+     * @return 如果是音频返回 {@code true}
+     */
     public static boolean isAudio(String filename) {
         return detect(filename).category == Category.AUDIO;
     }
 
     /**
-    * 判断文件名是否为压缩包类型。
-    *
-    * @param filename 文件名
-    * @return 如果是压缩包返回 {@code true}
-    */
+     * 判断文件名是否为压缩包类型。
+     *
+     * @param filename 文件名
+     * @return 如果是压缩包返回 {@code true}
+     */
     public static boolean isArchive(String filename) {
         return detect(filename).category == Category.ARCHIVE;
     }
 
     /**
-    * 判断文件名是否为代码/配置文件类型。
-    *
-    * @param filename 文件名
-    * @return 如果是代码/配置文件返回 {@code true}
-    */
+     * 判断文件名是否为代码/配置文件类型。
+     *
+     * @param filename 文件名
+     * @return 如果是代码/配置文件返回 {@code true}
+     */
     public static boolean isCode(String filename) {
         return detect(filename).category == Category.CODE;
     }
 
     /**
-    * 文件类别枚举。
-    */
+     * 文件类别枚举。
+     */
     public enum Category {
         /** 图片 */
         IMAGE,

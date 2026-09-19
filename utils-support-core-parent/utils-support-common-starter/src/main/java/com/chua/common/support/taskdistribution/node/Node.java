@@ -13,50 +13,50 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface Node {
 
     /**
-    * 获取节点唯一标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取节点唯一标识。
+     *
+     * @return 节点 标识
+     */
     String nodeId();
 
     /**
-    * 获取节点能力标签。
-    *
-    * @return 标签映射，示例：{"cap": "cpu", "群体": "prod"}
-    */
+     * 获取节点能力标签。
+     *
+     * @return 标签映射，示例：{"cap": "cpu", "群体": "prod"}
+     */
     default Map<String, String> tags() {
         return Collections.emptyMap();
     }
 
     /**
-    * 接收到任务时回调（工作端实现）。
-    *
-    * @param task 任务
-    */
+     * 接收到任务时回调（工作端实现）。
+     *
+     * @param task 任务
+     */
     default void onTask(Task<?> task) {
     }
 
     /**
-    * 接收到结果时回调（发布端实现）。
-    *
-    * @param result 执行结果
-    */
+     * 接收到结果时回调（发布端实现）。
+     *
+     * @param result 执行结果
+     */
     default void onResult(TaskResult<?> result) {
     }
 
     /**
-    * 节点启动（初始化连接等）。
-    */
+     * 节点启动（初始化连接等）。
+     */
     default void start() throws Exception {
     }
 
     /**
-    * 节点关闭（释放资源）。
-    */
+     * 节点关闭（释放资源）。
+     */
     default void stop() throws Exception {
     }
 }

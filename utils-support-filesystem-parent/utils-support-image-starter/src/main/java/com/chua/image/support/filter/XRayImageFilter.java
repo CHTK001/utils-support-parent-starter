@@ -54,22 +54,22 @@ import java.awt.image.BufferedImage;
 public class XRayImageFilter extends AbstractImageFilter {
 
     /**
-    * 蓝色染色强度，默认 0.3
-    */
+     * 蓝色染色强度，默认 0.3
+     */
     private double blueTint = 0.3;
 
     /**
-    * 对比度增强系数，默认 1.6
-    */
+     * 对比度增强系数，默认 1.6
+     */
     private double contrast = 1.6;
 
     /**
-    * 执行 X 光滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return X 光效果图像
-    */
+     * 执行 X 光滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return X 光效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -100,10 +100,10 @@ public class XRayImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 红色通道衰减系数（蓝色调越浓，R 越弱）
-    *
-    * @return 0.0-1.0
-    */
+     * 红色通道衰减系数（蓝色调越浓，R 越弱）
+     *
+     * @return 0.0-1.0
+     */
     private double blueTone() {
         return blueTint * 0.5;
     }

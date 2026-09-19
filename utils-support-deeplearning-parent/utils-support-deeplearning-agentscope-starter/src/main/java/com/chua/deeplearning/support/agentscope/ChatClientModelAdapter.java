@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 /**
-* 对话客户端模型适配器类。
-*
-* @author CH
-* @since 4.0.0
+ * 对话客户端模型适配器类。
+ *
+ * @author CH
+ * @since 4.0.0
  */
 
 public class ChatClientModelAdapter implements Model {
@@ -46,16 +46,16 @@ public class ChatClientModelAdapter implements Model {
     private final ChatClient chatClient; // 对话客户端
     private final String modelName; // 模型名称
     /**
-    * 复用的 OpenAI 客户端实例。
-    * 懒加载并同步创建，避免每次调用模型时新建连接，降低网络开销。
-    */
+     * 复用的 OpenAI 客户端实例。
+     * 懒加载并同步创建，避免每次调用模型时新建连接，降低网络开销。
+     */
     private volatile OpenAIClient openAiClient;
 
     /**
-    * 对话客户端模型适配器。
-    * @param chatClient 对话客户端
-    * @param modelName 模型名称
-    */
+     * 对话客户端模型适配器。
+     * @param chatClient 对话客户端
+     * @param modelName 模型名称
+     */
     public ChatClientModelAdapter(ChatClient chatClient, String modelName) {
         this.chatClient = chatClient;
         this.modelName = modelName != null ? modelName : "chat-client";

@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* UDP 模式探针：通过广播探测发现对等节点。
-* <p>
-* 探测消息与响应统一使用 {@link MessageProtocol} 编码，向广播地址发送 TYPE_PROBE，
-* 接收对端回复的 TYPE_PONG（携带节点条目列表）。
-*
-* @author CH
-* @since 4.0.0.42
+ * UDP 模式探针：通过广播探测发现对等节点。
+ * <p>
+ * 探测消息与响应统一使用 {@link MessageProtocol} 编码，向广播地址发送 TYPE_PROBE，
+ * 接收对端回复的 TYPE_PONG（携带节点条目列表）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class UdpModeProbe implements ProbeStrategy {

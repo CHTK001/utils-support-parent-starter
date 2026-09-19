@@ -58,22 +58,22 @@ public class FilePushConfig {
     */
     public static final byte MSG_CLEANUP = 0x12;
     /**
-    * 消息类型：索取目标目录现有文件清单（客户端 → 服务端，用于增量同步）
-    */
+     * 消息类型：索取目标目录现有文件清单（客户端 → 服务端，用于增量同步）
+     */
     public static final byte MSG_MANIFEST = 0x13;
     /** 消息类型：目标目录文件清单响应（服务端 → 客户端） */
     public static final byte MSG_MANIFEST_RESP = 0x14;
     /** 文件总数，占 4 字节 */
     private int fileCount = -1;
     /**
-    * 每条 TCP 连接承载的文件数（连接复用）。
-    *
-    * <p>{@code 1}（默认）= 一文件一连接，保持既有行为；{@code >1} = 客户端把待推文件按
-    * 该数量分组，每组复用同一条连接（握手 {@code fileCount=N}），省掉每文件的
-    * 建连 + 握手 + 收尾往返。实测小文件场景可提升约 1.8×。</p>
-    *
-    * <p>服务端自协议 v1 起即支持 {@code fileCount>1}，无需任何服务端改动。</p>
-    */
+     * 每条 TCP 连接承载的文件数（连接复用）。
+     *
+     * <p>{@code 1}（默认）= 一文件一连接，保持既有行为；{@code >1} = 客户端把待推文件按
+     * 该数量分组，每组复用同一条连接（握手 {@code fileCount=N}），省掉每文件的
+     * 建连 + 握手 + 收尾往返。实测小文件场景可提升约 1.8×。</p>
+     *
+     * <p>服务端自协议 v1 起即支持 {@code fileCount>1}，无需任何服务端改动。</p>
+     */
     private int filesPerConnection = 1;
     /** 源目录（客户端推送目录） */
     private Path sourceDir;
@@ -100,15 +100,15 @@ public class FilePushConfig {
     /** 是否清理目标目录中本次未推送的旧文件 */
     private boolean cleanup;
     /**
-    * 是否启用增量同步。
-    *
-    * <p>开启后客户端先索取服务端目标目录清单，跳过 size 与 mtime 均未变化的文件。
-    * 依赖服务端在落盘后保留源文件的 mtime。</p>
-    */
+     * 是否启用增量同步。
+     *
+     * <p>开启后客户端先索取服务端目标目录清单，跳过 size 与 mtime 均未变化的文件。
+     * 依赖服务端在落盘后保留源文件的 mtime。</p>
+     */
     private boolean incremental;
     /**
-    * 排除模式列表（子串匹配，如 {@code log}、{@code tmp/}），空表示不排除
-    */
+     * 排除模式列表（子串匹配，如 {@code log}、{@code tmp/}），空表示不排除
+     */
     private List<String> excludes;
     /** 包含模式列表（子串匹配），空表示全部包含 */
     private List<String> includes;
@@ -121,26 +121,26 @@ public class FilePushConfig {
         return chunkSize > 0 ? chunkSize : DEFAULT_CHUNK_SIZE;
     }
     /**
-    * 归一化 IO 缓冲大小。
-    *
-    * @return 有效缓冲大小（字节）
-    */
+     * 归一化 IO 缓冲大小。
+     *
+     * @return 有效缓冲大小（字节）
+     */
     public int effectiveIoBufferSize() {
         return ioBufferSize > 0 ? ioBufferSize : 64 * 1024;
     }
     /**
-    * 归一化「每条连接承载的文件数」。
-    *
-    * @return 有效文件数，至少 1（即默认一文件一连接）
-    */
+     * 归一化「每条连接承载的文件数」。
+     *
+     * @return 有效文件数，至少 1（即默认一文件一连接）
+     */
     public int effectiveFilesPerConnection() {
         return filesPerConnection > 1 ? filesPerConnection : 1;
     }
     /**
-    * 归一化客户端并发文件数。
-    *
-    * @return 有效并发数
-    */
+     * 归一化客户端并发文件数。
+     *
+     * @return 有效并发数
+     */
     public int effectiveClientParallelism() {
         int p = clientFileParallelism;
         if (p <= 0) {
@@ -149,10 +149,10 @@ public class FilePushConfig {
         return p;
     }
     /**
-    * 归一化服务端并发连接数。
-    *
-    * @return 有效并发数
-    */
+     * 归一化服务端并发连接数。
+     *
+     * @return 有效并发数
+     */
     public int effectiveServerParallelism() {
         int p = serverConnectionParallelism;
         if (p <= 0) {
@@ -161,10 +161,10 @@ public class FilePushConfig {
         return p;
     }
     /**
-    * 归一化服务端写盘并发数。
-    *
-    * @return 有效并发数
-    */
+     * 归一化服务端写盘并发数。
+     *
+     * @return 有效并发数
+     */
     public int effectiveWriteParallelism() {
         int p = serverWriteParallelism;
         if (p <= 0) {
@@ -173,22 +173,22 @@ public class FilePushConfig {
         return p;
     }
     /**
-    * 从系统属性加载配置。
-    *
-    * <p>属性前缀 {@code filepush.}，支持：</p>
-    * <ul>
-    *   <li>{@code filepush.host} / {@code filepush.port}</li>
-    *   <li>{@code filepush.source-dir} / {@code filepush.target-dir}</li>
-    *   <li>{@code filepush.chunk-size} / {@code filepush.io-buffer-size}</li>
-    *   <li>{@code filepush.files-per-connection}（>1 启用连接复用）</li>
-    *   <li>{@code filepush.client-parallelism} / {@code filepush.server-parallelism}</li>
-    *   <li>{@code filepush.cleanup} / {@code filepush.incremental}</li>
-    *   <li>{@code filepush.excludes} / {@code filepush.includes}（逗号分隔的子串模式）</li>
-    * </ul>
-    *
-    * @param config 待填充的配置
-    * @return 传入的配置本身，便于继续链式装配
-    */
+     * 从系统属性加载配置。
+     *
+     * <p>属性前缀 {@code filepush.}，支持：</p>
+     * <ul>
+     *   <li>{@code filepush.host} / {@code filepush.port}</li>
+     *   <li>{@code filepush.source-dir} / {@code filepush.target-dir}</li>
+     *   <li>{@code filepush.chunk-size} / {@code filepush.io-buffer-size}</li>
+     *   <li>{@code filepush.files-per-connection}（>1 启用连接复用）</li>
+     *   <li>{@code filepush.client-parallelism} / {@code filepush.server-parallelism}</li>
+     *   <li>{@code filepush.cleanup} / {@code filepush.incremental}</li>
+     *   <li>{@code filepush.excludes} / {@code filepush.includes}（逗号分隔的子串模式）</li>
+     * </ul>
+     *
+     * @param config 待填充的配置
+     * @return 传入的配置本身，便于继续链式装配
+     */
     public static FilePushConfig loadFromSystemProperties(FilePushConfig config) {
         String sourceDir = System.getProperty("filepush.source-dir");
         if (sourceDir != null && !sourceDir.isBlank()) {
@@ -249,11 +249,11 @@ public class FilePushConfig {
         return config;
     }
     /**
-    * 解析逗号分隔的模式串。
-    *
-    * @param raw 原始属性值
-    * @return 去空白后的模式列表；入参为空或无有效项时返回 null
-    */
+     * 解析逗号分隔的模式串。
+     *
+     * @param raw 原始属性值
+     * @return 去空白后的模式列表；入参为空或无有效项时返回 null
+     */
     private static List<String> splitPatterns(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
@@ -263,249 +263,249 @@ public class FilePushConfig {
         return list.isEmpty() ? null : list;
     }
     /**
-    * 基于配置的默认值创建新的配置实例。
-    *
-    * @return 新配置
-    */
+     * 基于配置的默认值创建新的配置实例。
+     *
+     * @return 新配置
+     */
     public static FilePushConfig defaults() {
         return new FilePushConfig();
     }
     /**
-    * @return 文件总数
-    */
+     * @return 文件总数
+     */
     public int getFileCount() {
         return fileCount;
     }
     /**
-    * @param fileCount 文件总数
-    * @return this
-    */
+     * @param fileCount 文件总数
+     * @return this
+     */
     public FilePushConfig setFileCount(int fileCount) {
         this.fileCount = fileCount;
         return this;
     }
     /**
-    * @return 源目录
-    */
+     * @return 源目录
+     */
     public Path getSourceDir() {
         return sourceDir;
     }
     /**
-    * @param sourceDir 源目录
-    * @return this
-    */
+     * @param sourceDir 源目录
+     * @return this
+     */
     public FilePushConfig setSourceDir(Path sourceDir) {
         this.sourceDir = sourceDir;
         return this;
     }
     /**
-    * @return 目标目录
-    */
+     * @return 目标目录
+     */
     public Path getTargetDir() {
         return targetDir;
     }
     /**
-    * @param targetDir 目标目录
-    * @return this
-    */
+     * @param targetDir 目标目录
+     * @return this
+     */
     public FilePushConfig setTargetDir(Path targetDir) {
         this.targetDir = targetDir;
         return this;
     }
     /**
-    * @return 主机
-    */
+     * @return 主机
+     */
     public String getHost() {
         return host;
     }
     /**
-    * @param host 主机
-    * @return this
-    */
+     * @param host 主机
+     * @return this
+     */
     public FilePushConfig setHost(String host) {
         this.host = host;
         return this;
     }
     /**
-    * @return 端口
-    */
+     * @return 端口
+     */
     public int getPort() {
         return port;
     }
     /**
-    * @param port 端口
-    * @return this
-    */
+     * @param port 端口
+     * @return this
+     */
     public FilePushConfig setPort(int port) {
         this.port = port;
         return this;
     }
     /**
-    * @return 连接超时（毫秒）
-    */
+     * @return 连接超时（毫秒）
+     */
     public int getConnectTimeoutMs() {
         return connectTimeoutMs;
     }
     /**
-    * @param connectTimeoutMs 连接超时（毫秒）
-    * @return this
-    */
+     * @param connectTimeoutMs 连接超时（毫秒）
+     * @return this
+     */
     public FilePushConfig setConnectTimeoutMs(int connectTimeoutMs) {
         this.connectTimeoutMs = connectTimeoutMs;
         return this;
     }
     /**
-    * @return 读超时（毫秒）
-    */
+     * @return 读超时（毫秒）
+     */
     public int getReadTimeoutMs() {
         return readTimeoutMs;
     }
     /**
-    * @param readTimeoutMs 读超时（毫秒）
-    * @return this
-    */
+     * @param readTimeoutMs 读超时（毫秒）
+     * @return this
+     */
     public FilePushConfig setReadTimeoutMs(int readTimeoutMs) {
         this.readTimeoutMs = readTimeoutMs;
         return this;
     }
     /**
-    * @return 分片大小
-    */
+     * @return 分片大小
+     */
     public int getChunkSize() {
         return chunkSize;
     }
     /**
-    * @param chunkSize 分片大小
-    * @return this
-    */
+     * @param chunkSize 分片大小
+     * @return this
+     */
     public FilePushConfig setChunkSize(int chunkSize) {
         this.chunkSize = chunkSize;
         return this;
     }
     /**
-    * @return 客户端并发文件数
-    */
+     * @return 客户端并发文件数
+     */
     public int getClientFileParallelism() {
         return clientFileParallelism;
     }
     /**
-    * @param clientFileParallelism 客户端并发文件数
-    * @return this
-    */
+     * @param clientFileParallelism 客户端并发文件数
+     * @return this
+     */
     public FilePushConfig setClientFileParallelism(int clientFileParallelism) {
         this.clientFileParallelism = clientFileParallelism;
         return this;
     }
     /**
-    * @return 服务端并发连接数
-    */
+     * @return 服务端并发连接数
+     */
     public int getServerConnectionParallelism() {
         return serverConnectionParallelism;
     }
     /**
-    * @param serverConnectionParallelism 服务端并发连接数
-    * @return this
-    */
+     * @param serverConnectionParallelism 服务端并发连接数
+     * @return this
+     */
     public FilePushConfig setServerConnectionParallelism(int serverConnectionParallelism) {
         this.serverConnectionParallelism = serverConnectionParallelism;
         return this;
     }
     /**
-    * @return 服务端写盘并发数
-    */
+     * @return 服务端写盘并发数
+     */
     public int getServerWriteParallelism() {
         return serverWriteParallelism;
     }
     /**
-    * @param serverWriteParallelism 服务端写盘并发数
-    * @return this
-    */
+     * @param serverWriteParallelism 服务端写盘并发数
+     * @return this
+     */
     public FilePushConfig setServerWriteParallelism(int serverWriteParallelism) {
         this.serverWriteParallelism = serverWriteParallelism;
         return this;
     }
     /**
-    * @return 客户端 IO 缓冲大小
-    */
+     * @return 客户端 IO 缓冲大小
+     */
     public int getIoBufferSize() {
         return ioBufferSize;
     }
     /**
-    * @param ioBufferSize 客户端 IO 缓冲大小
-    * @return this
-    */
+     * @param ioBufferSize 客户端 IO 缓冲大小
+     * @return this
+     */
     public FilePushConfig setIoBufferSize(int ioBufferSize) {
         this.ioBufferSize = ioBufferSize;
         return this;
     }
     /**
-    * @return 每条连接承载的文件数（1 = 一文件一连接）
-    */
+     * @return 每条连接承载的文件数（1 = 一文件一连接）
+     */
     public int getFilesPerConnection() {
         return filesPerConnection;
     }
     /**
-    * 设置每条连接承载的文件数（连接复用）。
-    *
-    * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
-    * @return this
-    */
+     * 设置每条连接承载的文件数（连接复用）。
+     *
+     * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
+     * @return this
+     */
     public FilePushConfig setFilesPerConnection(int filesPerConnection) {
         this.filesPerConnection = filesPerConnection;
         return this;
     }
     /**
-    * @return 是否清理旧文件
-    */
+     * @return 是否清理旧文件
+     */
     public boolean isCleanup() {
         return cleanup;
     }
     /**
-    * @param cleanup 是否清理旧文件
-    * @return this
-    */
+     * @param cleanup 是否清理旧文件
+     * @return this
+     */
     public FilePushConfig setCleanup(boolean cleanup) {
         this.cleanup = cleanup;
         return this;
     }
     /**
-    * @return 是否启用增量同步
-    */
+     * @return 是否启用增量同步
+     */
     public boolean isIncremental() {
         return incremental;
     }
     /**
-    * @param incremental 是否启用增量同步
-    * @return this
-    */
+     * @param incremental 是否启用增量同步
+     * @return this
+     */
     public FilePushConfig setIncremental(boolean incremental) {
         this.incremental = incremental;
         return this;
     }
     /**
-    * @return 排除模式列表
-    */
+     * @return 排除模式列表
+     */
     public List<String> getExcludes() {
         return excludes;
     }
     /**
-    * @param excludes 排除模式列表
-    * @return this
-    */
+     * @param excludes 排除模式列表
+     * @return this
+     */
     public FilePushConfig setExcludes(List<String> excludes) {
         this.excludes = excludes;
         return this;
     }
     /**
-    * @return 包含模式列表
-    */
+     * @return 包含模式列表
+     */
     public List<String> getIncludes() {
         return includes;
     }
     /**
-    * @param includes 包含模式列表
-    * @return this
-    */
+     * @param includes 包含模式列表
+     * @return this
+     */
     public FilePushConfig setIncludes(List<String> includes) {
         this.includes = includes;
         return this;

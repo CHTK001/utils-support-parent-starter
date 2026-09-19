@@ -36,12 +36,12 @@ import java.awt.image.BufferedImage;
 public class MiganInpaintingTranslator implements Translator<Image, Image> {
 
     /**
-    * 处理输入：构造双 uint8 NCHW 输入（image + mask）。
-    *
-    * @param ctx   翻译上下文
-    * @param input 输入 RGBA 图像（RGB=图像，A=修复掩码）
-    * @return 双输入 NDList（顺序：image, mask）
-    */
+     * 处理输入：构造双 uint8 NCHW 输入（image + mask）。
+     *
+     * @param ctx   翻译上下文
+     * @param input 输入 RGBA 图像（RGB=图像，A=修复掩码）
+     * @return 双输入 NDList（顺序：image, mask）
+     */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         int width = input.getWidth();
@@ -86,12 +86,12 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 处理输出：uint8 NCHW [1,3,H,W] 转 RGB 图像。
-    *
-    * @param ctx  翻译上下文
-    * @param list 输出张量列表
-    * @return 修复结果 RGB 图像
-    */
+     * 处理输出：uint8 NCHW [1,3,H,W] 转 RGB 图像。
+     *
+     * @param ctx  翻译上下文
+     * @param list 输出张量列表
+     * @return 修复结果 RGB 图像
+     */
     @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.getFirst();
@@ -114,10 +114,10 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 获取Batchifier
-    *
-    * @return null
-    */
+     * 获取Batchifier
+     *
+     * @return null
+     */
     @Override
     public Batchifier getBatchifier() {
         return null;

@@ -26,27 +26,27 @@ import java.util.function.Predicate;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public interface RetryProvider {
 
     /**
-    * 执行带重试能力的任务
-    *
-    * @param <T>    返回值类型
-    * @param task   待执行的任务
-    * @param config 重试配置
-    * @return 任务执行结果
-    * @throws Exception 所有重试均失败后抛出最后一次异常
-    */
+     * 执行带重试能力的任务
+     *
+     * @param <T>    返回值类型
+     * @param task   待执行的任务
+     * @param config 重试配置
+     * @return 任务执行结果
+     * @throws Exception 所有重试均失败后抛出最后一次异常
+     */
     <T> T execute(Callable<T> task, RetryConfig config) throws Exception;
 
     /**
-    * 执行带重试能力的无返回值任务
-    *
-    * @param task   待执行的任务
-    * @param config 重试配置
-    * @throws Exception 所有重试均失败后抛出最后一次异常
-    */
+     * 执行带重试能力的无返回值任务
+     *
+     * @param task   待执行的任务
+     * @param config 重试配置
+     * @throws Exception 所有重试均失败后抛出最后一次异常
+     */
     void execute(Runnable task, RetryConfig config) throws Exception;
 
 }

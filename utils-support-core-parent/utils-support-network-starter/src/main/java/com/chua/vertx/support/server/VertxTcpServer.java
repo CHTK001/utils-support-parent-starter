@@ -29,16 +29,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
-* 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
-* <ul>
-*   <li><b>回显</b>(默认):NetSocket 收到数据后原样写回(事件循环驱动,非阻塞)</li>
-*   <li><b>Handler</b>:通过 {@link #registerHandler(String, TcpHandler)} 注册,
-*       兼容 {@link JdkTcpServer.TcpHandler} 流式接口(虚拟线程执行)</li>
-*   <li><b>keep-alive</b>:连接不主动关闭,可持续读写</li>
-* </ul>
-*
-* @author CH
-* @since 2026/08/16
+ * 基于 Vert.x {@link NetServer} 的 TCP 服务器实现,与 {@link JdkTcpServer} 能力对齐:
+ * <ul>
+ *   <li><b>回显</b>(默认):NetSocket 收到数据后原样写回(事件循环驱动,非阻塞)</li>
+ *   <li><b>Handler</b>:通过 {@link #registerHandler(String, TcpHandler)} 注册,
+ *       兼容 {@link JdkTcpServer.TcpHandler} 流式接口(虚拟线程执行)</li>
+ *   <li><b>keep-alive</b>:连接不主动关闭,可持续读写</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/08/16
  */
 @Slf4j
 @Spi("vertx-tcp")
@@ -149,10 +149,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 处理Socket
-    *
-    * @param socket Socket
-    */
+     * 处理Socket
+     *
+     * @param socket Socket
+     */
     private void handleSocket(NetSocket socket) {
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
         JdkTcpServer.TcpHandler handler = findHandler(clientKey);
@@ -208,9 +208,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 netSocket。
-    * @param socket Socket
-    */
+     * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 netSocket。
+     * @param socket Socket
+     */
     private void processViaFilterChain(NetSocket socket) {
         try {
             byte[] frame = readFrame(new NetSocketInputStream(socket));
@@ -246,13 +246,13 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 从输入流读取一帧数据。
-    * 帧协议与 jdktcp 客户端保持对称：前 4 字节为大端序长度头，随后为 scatter 帧主体。
-    *
-    * @param in 输入流，不能为空
-    * @return 完整帧字节；读取到 EOF 时返回 null
-    * @throws IOException 帧长度头不完整或帧长度越界时抛出
-    */
+     * 从输入流读取一帧数据。
+     * 帧协议与 jdktcp 客户端保持对称：前 4 字节为大端序长度头，随后为 scatter 帧主体。
+     *
+     * @param in 输入流，不能为空
+     * @return 完整帧字节；读取到 EOF 时返回 null
+     * @throws IOException 帧长度头不完整或帧长度越界时抛出
+     */
     private static byte[] readFrame(InputStream in) throws IOException {
         byte[] lenBytes = new byte[4];
         int n = readFully(in, lenBytes);
@@ -293,11 +293,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 查找处理器
-    *
-    * @param clientKey 客户端键
-    * @return find处理器的结果
-    */
+     * 查找处理器
+     *
+     * @param clientKey 客户端键
+     * @return find处理器的结果
+     */
     private JdkTcpServer.TcpHandler findHandler(String clientKey) {
         JdkTcpServer.TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {
@@ -313,12 +313,12 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 注册 TCP 处理器(兼容 {@link JdkTcpServer.TcpHandler})。
-    *
-    * @param name   连接标识(支持 "*" 通配与地址前缀匹配)
-    * @param handler 处理器
-    * @return 当前实例
-    */
+     * 注册 TCP 处理器(兼容 {@link JdkTcpServer.TcpHandler})。
+     *
+     * @param name   连接标识(支持 "*" 通配与地址前缀匹配)
+     * @param handler 处理器
+     * @return 当前实例
+     */
     public VertxTcpServer registerHandler(String name, JdkTcpServer.TcpHandler handler) {
         handlers.put(name, handler);
         return this;
@@ -339,8 +339,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         /** Socket */
         private final NetSocket socket;
         /**
-        * 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询)
-        */
+         * 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询)
+         */
         private final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
         /** Closed */
         private volatile boolean closed;

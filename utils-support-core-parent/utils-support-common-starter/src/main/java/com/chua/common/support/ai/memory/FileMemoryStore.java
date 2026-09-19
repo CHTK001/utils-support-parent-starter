@@ -15,24 +15,24 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
-* 基于工作间文件的记忆存储实现
-*
-* <p>将记忆条目以 JSON 文件形式存储在工作间目录下。
-* 每条记忆一个 JSON 文件，按 ID 命名，便于增删改查。
-*
-* <p>目录结构：
-* <pre>
-* {workspace}/
-* ├── memory/
-* │   ├── {id1}.json
-* │   ├── {id2}.json
-* │   └── ...
-* └── backup/
-*     └── memory-{timestamp}.json
-* </pre>
-*
-* @author CH
-* @since 2026/07/16
+ * 基于工作间文件的记忆存储实现
+ *
+ * <p>将记忆条目以 JSON 文件形式存储在工作间目录下。
+ * 每条记忆一个 JSON 文件，按 ID 命名，便于增删改查。
+ *
+ * <p>目录结构：
+ * <pre>
+ * {workspace}/
+ * ├── memory/
+ * │   ├── {id1}.json
+ * │   ├── {id2}.json
+ * │   └── ...
+ * └── backup/
+ *     └── memory-{timestamp}.json
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Slf4j
 public class FileMemoryStore implements MemoryStore {
@@ -43,9 +43,9 @@ public class FileMemoryStore implements MemoryStore {
     private final Path memoryDir;
 
     /**
-    * 创建 FileMemoryStore 实例
-    * @param config config
-    */
+     * 创建 FileMemoryStore 实例
+     * @param config config
+     */
     public FileMemoryStore(MemoryConfig config) {
         this.config = config;
         this.memoryDir = Paths.get(config.getWorkspace(), "memory");

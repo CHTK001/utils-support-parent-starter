@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
-* 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
-*
-* @author CH
-* @since 4.0.0.42
+ * 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("windows")
 @SpiDescribe(value = "windows-event-log", desc = "Windows 系统事件日志提供者", type = "log")
@@ -68,9 +68,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     private volatile MethodHandle getLastErrorHandle;
 
     /**
-    * 创建 窗口事件日志提供者 实例
-    * @param bridge bridge
-    */
+     * 创建 窗口事件日志提供者 实例
+     * @param bridge bridge
+     */
     public WindowsEventLogProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getWin32Registry();
@@ -282,13 +282,13 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * extract字符串
-    *
-    * @param buffer 缓冲
-    * @param recordOffset record偏移量
-    * @param stringOffset 字符串偏移量
-    * @return extract字符串的结果
-    */
+     * extract字符串
+     *
+     * @param buffer 缓冲
+     * @param recordOffset record偏移量
+     * @param stringOffset 字符串偏移量
+     * @return extract字符串的结果
+     */
     public static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
         if (stringsStart <= 0 || stringsStart >= (int) buffer.byteSize()) {
@@ -307,11 +307,11 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * 映射事件类型转为级别
-    *
-    * @param eventType 事件类型
-    * @return 映射事件类型转为级别的结果
-    */
+     * 映射事件类型转为级别
+     *
+     * @param eventType 事件类型
+     * @return 映射事件类型转为级别的结果
+     */
     public static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
             case 1  -> LogLevel.ERROR;
@@ -322,11 +322,11 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * compile模式
-    *
-    * @param glob glob
-    * @return compile模式的结果
-    */
+     * compile模式
+     *
+     * @param glob glob
+     * @return compile模式的结果
+     */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) {
             return null;
@@ -382,10 +382,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * 获取最后一个记录错误
-    *
-    * @return 获取最后一个错误的结果
-    */
+     * 获取最后一个记录错误
+     *
+     * @return 获取最后一个错误的结果
+     */
     private int getLastError() {
         if (getLastErrorHandle == null) {
             return 0;

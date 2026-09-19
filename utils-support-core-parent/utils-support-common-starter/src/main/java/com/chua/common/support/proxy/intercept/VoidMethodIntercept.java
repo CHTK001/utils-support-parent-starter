@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 public class VoidMethodIntercept<T> implements MethodIntercept<T>, InvocationHandler {
 
     @Override

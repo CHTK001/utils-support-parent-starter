@@ -7,35 +7,35 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-* 实时日志流 — 环形缓冲区 + 多消费者订阅。
-*
-* @author CH
-* @since 4.0.0.42
+ * 实时日志流 — 环形缓冲区 + 多消费者订阅。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class LogStream implements LineCallback, AutoCloseable {
 
     /**
-    * 默认缓冲区容量
+     * 默认缓冲区容量
      */
     private static final int DEFAULT_MAX_LINES = 1000;
 
     /**
-    * 最大行数
+     * 最大行数
      */
     private final int maxLines;
 
     /**
-    * 环形缓冲区
+     * 环形缓冲区
      */
     private final LinkedList<String> buffer;
 
     /**
-    * 订阅者
+     * 订阅者
      */
     private final List<LineCallback> subscribers;
 
     /**
-    * 是否已关闭
+     * 是否已关闭
      */
     private volatile boolean closed;
 
@@ -103,28 +103,28 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     /**
-    * 取消订阅
-    *
-    * @param callback callback
+     * 取消订阅
+     *
+     * @param callback callback
      */
     public void unsubscribe(LineCallback callback) {
         subscribers.remove(callback);
     }
 
     /**
-    * 获取缓冲
-    *
-    * @return 获取缓冲的结果
+     * 获取缓冲
+     *
+     * @return 获取缓冲的结果
      */
     public synchronized List<String> getBuffer() {
         return new LinkedList<>(buffer);
     }
 
     /**
-    * Tail
-    *
-    * @param n n
-    * @return tail的结果
+     * Tail
+     *
+     * @param n n
+     * @return tail的结果
      */
     public synchronized List<String> tail(int n) {
         int size = buffer.size();
@@ -148,9 +148,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     /**
-    * 是否Closed
-    *
-    * @return 是否关闭的结果
+     * 是否Closed
+     *
+     * @return 是否关闭的结果
      */
     public boolean isClosed() {
         return closed;

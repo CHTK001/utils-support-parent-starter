@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-* Solr 元数据操作实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Solr 元数据操作实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SolrMeta extends AbstractMetaSearch {
 

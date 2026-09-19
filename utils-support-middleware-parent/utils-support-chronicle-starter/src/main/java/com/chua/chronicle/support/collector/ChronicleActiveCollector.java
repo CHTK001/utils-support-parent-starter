@@ -15,41 +15,41 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 /**
-* Chronicle 队列 主动采集器。
-*
-* <p>监听 Chronicle Queue 中的消息，将数据推入 Pipeline 处理。
-* Chronicle 队列 是低延迟、持久化的消息队列，适合金融交易等高性能场景。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Chronicle 队列 主动采集器。
+ *
+ * <p>监听 Chronicle Queue 中的消息，将数据推入 Pipeline 处理。
+ * Chronicle 队列 是低延迟、持久化的消息队列，适合金融交易等高性能场景。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("chronicle")
 public class ChronicleActiveCollector implements ActiveCollector {
 
     /**
-    * 运行状态
-    */
+     * 运行状态
+     */
     private volatile boolean running;
 
     /**
-    * 数据处理器
-    */
+     * 数据处理器
+     */
     private DataHandler handler;
 
     /**
-    * Topic 与 Pipeline 标识 映射
-    */
+     * Topic 与 Pipeline 标识 映射
+     */
     protected final Map<String, String> topicToPipeline = new ConcurrentHashMap<>();
 
     /**
-    * 已订阅的 Topic
-    */
+     * 已订阅的 Topic
+     */
     protected final Set<String> subscribedTopics = new CopyOnWriteArraySet<>();
 
     /**
-    * 采集线程
-    */
+     * 采集线程
+     */
     private Thread collectorThread;
 
     @Override
@@ -165,12 +165,12 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     /**
-    * 模拟接收到 Chronicle 队列 消息。
-    * <p>用于测试或手动触发数据采集。</p>
-    *
-    * @param topic   主题
-    * @param payload 消息内容
-    */
+     * 模拟接收到 Chronicle 队列 消息。
+     * <p>用于测试或手动触发数据采集。</p>
+     *
+     * @param topic   主题
+     * @param payload 消息内容
+     */
     public void simulateMessage(String topic, String payload) {
         String pipelineId = topicToPipeline.get(topic);
         if (pipelineId == null) {

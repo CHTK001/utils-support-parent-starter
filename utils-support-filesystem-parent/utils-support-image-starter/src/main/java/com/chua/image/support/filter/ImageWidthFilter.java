@@ -68,10 +68,10 @@ public class ImageWidthFilter extends AbstractImageFilter {
     private int height = 100;
 
     /**
-    * 创建 镜像width过滤器 实例
-    * @param width width
-    * @param height height
-    */
+     * 创建 镜像width过滤器 实例
+     * @param width width
+     * @param height height
+     */
     public ImageWidthFilter(int width, int height) {
         this.width = width;
         this.height = height;
@@ -136,15 +136,15 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     /**
-    * 计算缩放比率
-    *
-    * 用 6 位小数精度计算 divisor ÷ dividend，
-    * 用于把"目标尺寸"换算成"等比缩放系数"。
-    *
-    * @param divisor  除数（目标尺寸）
-    * @param dividend 被除数（当前尺寸）
-    * @return 缩放比率
-    */
+     * 计算缩放比率
+     *
+     * 用 6 位小数精度计算 divisor ÷ dividend，
+     * 用于把"目标尺寸"换算成"等比缩放系数"。
+     *
+     * @param divisor  除数（目标尺寸）
+     * @param dividend 被除数（当前尺寸）
+     * @return 缩放比率
+     */
     public static double calculateZoomRatio(int divisor, int dividend) {
         return BigDecimal.valueOf(divisor).divide(BigDecimal.valueOf(dividend), 6, RoundingMode.HALF_UP).doubleValue();
     }

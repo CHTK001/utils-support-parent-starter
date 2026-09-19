@@ -11,31 +11,31 @@ import javax.tools.Diagnostic;
 import java.util.Set;
 
 /**
-* {@link AutoClose} 注解的 AST 处理器
-* <p>
-* 在编译期扫描标注了 {@code @AutoClose} 注解的方法参数，通过 javac 树 API
-* 在方法外部包裹 尝试-最终 块，在 最终 中实现 空 检查 + 关闭() 调用。
-* </p>
-* <p>
-* 转换示例：
-* <pre>{@code
-* // 转换前：public void process(@AutoClose InputStream is) { is.read(); }
-* // 转换后：
-* public void process(InputStream is) {
-*     try {
-*         is.read();
-*     } finally {
-*         if (is != null) {
-*             try { is.close(); } catch (Exception e) { /* suppressed *&#47; }
-*         }
-*     }
-* }
-* }</pre>* }
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0
+ * {@link AutoClose} 注解的 AST 处理器
+ * <p>
+ * 在编译期扫描标注了 {@code @AutoClose} 注解的方法参数，通过 javac 树 API
+ * 在方法外部包裹 尝试-最终 块，在 最终 中实现 空 检查 + 关闭() 调用。
+ * </p>
+ * <p>
+ * 转换示例：
+ * <pre>{@code
+ * // 转换前：public void process(@AutoClose InputStream is) { is.read(); }
+ * // 转换后：
+ * public void process(InputStream is) {
+ *     try {
+ *         is.read();
+ *     } finally {
+ *         if (is != null) {
+ *             try { is.close(); } catch (Exception e) { /* suppressed *&#47; }
+ *         }
+ *     }
+ * }
+ * }</pre>* }
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.AutoClose")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -109,11 +109,11 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-    * 判断 类型mirror 是否为 auto关闭 类型
-    *
-    * @param type 类型镜像
-    * @return 如果是 auto关闭 返回 true，否则返回 false
-    */
+     * 判断 类型mirror 是否为 auto关闭 类型
+     *
+     * @param type 类型镜像
+     * @return 如果是 auto关闭 返回 true，否则返回 false
+     */
     private boolean isAutoCloseable(TypeMirror type) {
         TypeElement autoCloseableElement = pe.getElementUtils()
                 .getTypeElement("java.lang.AutoCloseable");
@@ -126,19 +126,19 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-    * 应用 auto关闭 编译期转换，将方法体包裹进 尝试-最终 块
-    * <pre>{@code
-    * try {
-    *     // 原始方法体
-    * } finally {
-    *     if (param != null) {
-    *         try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
-    *     }
-    * }
-    * }</pre>     *
-    * @param methodTree 方法树节点
-    * @param paramName  参数名称
-    */
+     * 应用 auto关闭 编译期转换，将方法体包裹进 尝试-最终 块
+     * <pre>{@code
+     * try {
+     *     // 原始方法体
+     * } finally {
+     *     if (param != null) {
+     *         try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
+     *     }
+     * }
+     * }</pre>     *
+     * @param methodTree 方法树节点
+     * @param paramName  参数名称
+     */
     @SuppressWarnings("unchecked")
     private void applyAutoCloseTransform(com.sun.source.tree.MethodTree methodTree,
                                          String paramName) throws Exception {
@@ -168,19 +168,19 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-    * 构建 最终 块中的关闭逻辑
-    * <pre>{@code
-    * if (param != null) {
-    *     try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
-    * }
-    * }</pre>
-    * }</pre>
-    *
-    * @param maker     树maker 实例
-    * @param names     名称 实例
-    * @param paramName 参数名称
-    * @return finally 代码块
-    */
+     * 构建 最终 块中的关闭逻辑
+     * <pre>{@code
+     * if (param != null) {
+     *     try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
+     * }
+     * }</pre>
+     * }</pre>
+     *
+     * @param maker     树maker 实例
+     * @param names     名称 实例
+     * @param paramName 参数名称
+     * @return finally 代码块
+     */
     private com.sun.tools.javac.tree.JCTree.JCBlock buildFinallyBlock(com.sun.tools.javac.tree.TreeMaker maker,
                                                                       com.sun.tools.javac.util.Names names,
                                                                       String paramName) {

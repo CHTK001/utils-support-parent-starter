@@ -41,30 +41,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OllamaEmbeddingClient implements EmbeddingClient {
 
     /**
-    * 客户端 配置
-    */
+     * 客户端 配置
+     */
     private final EmbeddingClientSetting setting;
 
     /**
-    * ollama4j 原生 客户端
-    */
+     * ollama4j 原生 客户端
+     */
     private final Ollama ollama;
 
     /**
-    * 当前 模型 名称
-    */
+     * 当前 模型 名称
+     */
     private String model;
 
     /**
-    * 输出 向量 维度
-    */
+     * 输出 向量 维度
+     */
     private Integer dimensions;
 
     /**
-    * 创建 Ollama 嵌入 客户端。
-    *
-    * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
-    */
+     * 创建 Ollama 嵌入 客户端。
+     *
+     * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
+     */
     public OllamaEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
         this.ollama = OllamaSupport.client(setting != null ? setting.getBaseUrl() : null);
@@ -178,11 +178,11 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-    * 调用 ollama4j {@code /api/embed} 端点。
-    *
-    * @param texts 待 向量 化 文本 列表
-    * @return 嵌入 结果
-    */
+     * 调用 ollama4j {@code /api/embed} 端点。
+     *
+     * @param texts 待 向量 化 文本 列表
+     * @return 嵌入 结果
+     */
     private OllamaEmbedResult doEmbed(List<String> texts) {
         String resolvedModel = model != null && !model.isBlank() ? model : "nomic-embed-text";
         OllamaEmbedRequest request = new OllamaEmbedRequest(resolvedModel, texts);
@@ -197,11 +197,11 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-    * 转换 double 向量 为 float 向量。
-    *
-    * @param doubles 原始 向量
-    * @return float 向量
-    */
+     * 转换 double 向量 为 float 向量。
+     *
+     * @param doubles 原始 向量
+     * @return float 向量
+     */
     private float[] toFloats(List<Double> doubles) {
         if (doubles == null) {
             return new float[0];

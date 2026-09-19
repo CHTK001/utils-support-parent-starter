@@ -1,16 +1,16 @@
 package com.chua.common.support.status;
 
 /**
-* 服务器运行状态枚举，标记 启动 / RUNNING / STOPPING / STOPPED / PAUSED / 错误 六种生命周期阶段。
-*
-* @author CH
-* @since 4.0.0.42
+ * 服务器运行状态枚举，标记 启动 / RUNNING / STOPPING / STOPPED / PAUSED / 错误 六种生命周期阶段。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public enum ServerStatus {
 
     /**
-    * 启动中：尚未接受请求
-    */
+     * 启动中：尚未接受请求
+     */
     STARTING {
         @Override
         /** 是否可以acceptRequests */

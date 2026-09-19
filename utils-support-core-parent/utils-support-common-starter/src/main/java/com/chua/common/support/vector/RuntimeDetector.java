@@ -29,33 +29,33 @@ package com.chua.common.support.vector;
  * @author CH
  * @since 4.0.0.42
  * @see VectorStorageProvider
-*/
+ */
 public interface RuntimeDetector {
 
     /**
-    * 后端名称，与 SPI 名称保持一致。
-    *
-    * @return 后端名称
-    */
+     * 后端名称，与 SPI 名称保持一致。
+     *
+     * @return 后端名称
+     */
     String name();
 
     /**
-    * 检测当前运行环境是否满足该后端的要求。
-    *
-    * <p>示例：cuVS 需要 CUDA Driver + libcuvs native 库；
-    * jvector 纯 Java 实现，始终返回 true。</p>
-    *
-    * @return true 表示当前环境支持该后端
-    */
+     * 检测当前运行环境是否满足该后端的要求。
+     *
+     * <p>示例：cuVS 需要 CUDA Driver + libcuvs native 库；
+     * jvector 纯 Java 实现，始终返回 true。</p>
+     *
+     * @return true 表示当前环境支持该后端
+     */
     boolean isAvailable();
 
     /**
-    * 优先级，值越大越优先被选中。
-    *
-    * <p>用于多个后端同时可用时选择最优方案，例如 cuVS(100) > jvector(50) > memory(-100)。</p>
-    *
-    * @return 优先级值
-    */
+     * 优先级，值越大越优先被选中。
+     *
+     * <p>用于多个后端同时可用时选择最优方案，例如 cuVS(100) > jvector(50) > memory(-100)。</p>
+     *
+     * @return 优先级值
+     */
     default int priority() {
         return 0;
     }

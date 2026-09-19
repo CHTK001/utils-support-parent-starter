@@ -44,18 +44,18 @@ public class CcswitchUsageParser extends BaseUsageParser {
     private static final int HTTP_OK = 200;
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "ccswitch"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "ccswitch"}
+     */
     @Override
     public String name() {
         return "ccswitch";
     }
 
     /**
-    * 响应式流式入口：通过 SqliteReactorEngine 流出请求日志。
-    */
+     * 响应式流式入口：通过 SqliteReactorEngine 流出请求日志。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -70,11 +70,11 @@ public class CcswitchUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 proxy_request_logs 行映射为用量记录。
-    *
-    * @param row 数据库行
-    * @return 用量记录
-    */
+     * 将 proxy_request_logs 行映射为用量记录。
+     *
+     * @param row 数据库行
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int statusCode = asInt(row.get("status_code"));
         double costUsd = asDouble(row.get("total_cost_usd"));

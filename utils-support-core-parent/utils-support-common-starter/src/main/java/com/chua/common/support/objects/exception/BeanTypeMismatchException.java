@@ -9,13 +9,13 @@ package com.chua.common.support.objects.exception;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public class BeanTypeMismatchException extends RuntimeException {
 
     /**
-    * 创建 Bean类型mismatch异常 实例
-    * @param msg msg
-    */
+     * 创建 Bean类型mismatch异常 实例
+     * @param msg msg
+     */
     public BeanTypeMismatchException(String msg) {
         super(msg);
     }

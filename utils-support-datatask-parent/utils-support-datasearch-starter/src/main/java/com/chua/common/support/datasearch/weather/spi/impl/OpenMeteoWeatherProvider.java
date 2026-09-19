@@ -17,19 +17,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 打开-Meteo 天气数据源实现（逐小时 24 点）。
-*
-* <p>免费公开接口（无 key，无需经纬度由城市地理编码自动解析）：</p>
-* <ul>
-*   <li>城市 → 经纬度：{@code geocoding-api.open-meteo.com/v1/search?name={city}}</li>
-*   <li>逐小时预报：{@code api.open-meteo.com/v1/forecast}（3 天 × 24 点/天）</li>
-* </ul>
-*
-* <p>返回结构为日期列表（{@link DailyForecast}），每天子列表含 24 个
-* {@link HourlyWeather} 逐小时点。30 分钟内存缓存（惰性刷新）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 打开-Meteo 天气数据源实现（逐小时 24 点）。
+ *
+ * <p>免费公开接口（无 key，无需经纬度由城市地理编码自动解析）：</p>
+ * <ul>
+ *   <li>城市 → 经纬度：{@code geocoding-api.open-meteo.com/v1/search?name={city}}</li>
+ *   <li>逐小时预报：{@code api.open-meteo.com/v1/forecast}（3 天 × 24 点/天）</li>
+ * </ul>
+ *
+ * <p>返回结构为日期列表（{@link DailyForecast}），每天子列表含 24 个
+ * {@link HourlyWeather} 逐小时点。30 分钟内存缓存（惰性刷新）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("open-meteo")
 public class OpenMeteoWeatherProvider implements WeatherProvider {
@@ -172,11 +172,11 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     }
 
     /**
-    * URL 编码城市名。
-    *
-    * @param city 城市名
-    * @return 编码结果
-    */
+     * URL 编码城市名。
+     *
+     * @param city 城市名
+     * @return 编码结果
+     */
     private String encode(String city) {
         try {
             return java.net.URLEncoder.encode(city, java.nio.charset.StandardCharsets.UTF_8);
@@ -186,11 +186,11 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     }
 
     /**
-    * WMO 天气代码转中文描述。
-    *
-    * @param code WMO 代码
-    * @return 描述
-    */
+     * WMO 天气代码转中文描述。
+     *
+     * @param code WMO 代码
+     * @return 描述
+     */
     private String describeWmo(int code) {
         if (code == 0) {
             return "晴";
@@ -229,11 +229,11 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     }
 
     /**
-    * 读取数值节点。
-    *
-    * @param node 数值节点
-    * @return 数值；缺失/非数值返回 空
-    */
+     * 读取数值节点。
+     *
+     * @param node 数值节点
+     * @return 数值；缺失/非数值返回 空
+     */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -242,11 +242,11 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     }
 
     /**
-    * 读取整数节点。
-    *
-    * @param node 数值节点
-    * @return 整数；缺失/非数值返回 空
-    */
+     * 读取整数节点。
+     *
+     * @param node 数值节点
+     * @return 整数；缺失/非数值返回 空
+     */
     private Integer intVal(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

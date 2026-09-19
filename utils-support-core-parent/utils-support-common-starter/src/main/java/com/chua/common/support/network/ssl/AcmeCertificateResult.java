@@ -11,7 +11,7 @@ import java.util.List;
  * @author CH
  * @since 4.0.0.42
  * @version 1.0.0
-*/
+ */
 @Data
 public class AcmeCertificateResult {
 
@@ -46,8 +46,8 @@ public class AcmeCertificateResult {
     private List<AcmeValidationInfo> validationInfos;
 
     /**
-    * 创建成功结果
-    */
+     * 创建成功结果
+     */
     public static AcmeCertificateResult success(String certificatePem, String privateKeyPem,
                                                  String primaryDomain, String san,
                                                  LocalDateTime notBefore, LocalDateTime notAfter) {
@@ -63,10 +63,10 @@ public class AcmeCertificateResult {
     }
 
     /**
-    * 创建需要验证的结果
-    * @param validationInfos 方法入参 validationInfos
-    * @return AcmeCertificate结果 对象
-    */
+     * 创建需要验证的结果
+     * @param validationInfos 方法入参 validationInfos
+     * @return AcmeCertificate结果 对象
+     */
     public static AcmeCertificateResult needValidation(List<AcmeValidationInfo> validationInfos) {
         AcmeCertificateResult result = new AcmeCertificateResult();
         result.setSuccess(false);
@@ -76,10 +76,10 @@ public class AcmeCertificateResult {
     }
 
     /**
-    * 创建失败结果
-    * @param error 方法入参 error
-    * @return AcmeCertificate结果 对象
-    */
+     * 创建失败结果
+     * @param error 方法入参 error
+     * @return AcmeCertificate结果 对象
+     */
     public static AcmeCertificateResult fail(String error) {
         AcmeCertificateResult result = new AcmeCertificateResult();
         result.setSuccess(false);

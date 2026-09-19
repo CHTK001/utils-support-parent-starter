@@ -6,11 +6,11 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 音乐播放列表分类组
-* 
-* @author CH
-* @since 4.0.0.42
-*/
+ * 音乐播放列表分类组
+ * 
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Data
 @Builder
 public class MusicPlaylistCategoryGroup {

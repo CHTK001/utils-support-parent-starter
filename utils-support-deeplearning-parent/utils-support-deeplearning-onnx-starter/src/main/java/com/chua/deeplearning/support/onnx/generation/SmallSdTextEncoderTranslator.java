@@ -14,48 +14,48 @@ import java.nio.file.Paths;
 import javax.annotation.Nonnull;
 
 /**
-* Small Stable Diffusion v0                         
-* <p>
-*              Small Stable Diffusion v0                               
-*                                                       
-* </p>
-* <p>
-*                
-* -                       
-* -            CLIP                
-* -                       
-* </p>
-* <p>
-*                      
-* -                         
-* -                             nd列表   shape: [1, 77, 768]     [1, 768]
-* </p>
-*
-* @author CH
-* @since 2025-01-30
+ * Small Stable Diffusion v0                         
+ * <p>
+ *              Small Stable Diffusion v0                               
+ *                                                       
+ * </p>
+ * <p>
+ *                
+ * -                       
+ * -            CLIP                
+ * -                       
+ * </p>
+ * <p>
+ *                      
+ * -                         
+ * -                             nd列表   shape: [1, 77, 768]     [1, 768]
+ * </p>
+ *
+ * @author CH
+ * @since 2025-01-30
  */
 @Slf4j
 public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String, NDList> {
 
     /**
-    * CLIP                                  
-    */
+     * CLIP                                  
+     */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-    * huggingface
-    */
+     * huggingface
+     */
     private HuggingFaceTokenizer tokenizer;
 
     /**
-    *             
-    * <p>
-    *                             tokenizer.json
-    * </p>
-    *
-    * @param ctx                   
-    * @throws IOException IO      
-    */
+     *             
+     * <p>
+     *                             tokenizer.json
+     * </p>
+     *
+     * @param ctx                   
+     * @throws IOException IO      
+     */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         try {
@@ -93,17 +93,17 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     }
 
     /**
-    *                   
-    * <p>
-    * Small Stable Diffusion v0                               
-    * - 输入_标识: 令牌 标识          shape: [1, 77]
-    * </p>
-    *
-    * @param ctx                     
-    * @param input             
-    * @return                         
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     * Small Stable Diffusion v0                               
+     * - 输入_标识: 令牌 标识          shape: [1, 77]
+     * </p>
+     *
+     * @param ctx                     
+     * @param input             
+     * @return                         
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
         if (tokenizer == null) {
@@ -132,18 +132,18 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     }
 
     /**
-    *                   
-    * <p>
-    * Small Stable Diffusion v0                         
-    * - 最后一个_hidden_状态:                         shape: [1, 77, 768]
-    * -     游泳池_输出:                shape: [1, 768]
-    * </p>
-    *
-    * @param ctx                    
-    * @param list                   
-    * @return                 NDList
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     * Small Stable Diffusion v0                         
+     * - 最后一个_hidden_状态:                         shape: [1, 77, 768]
+     * -     游泳池_输出:                shape: [1, 768]
+     * </p>
+     *
+     * @param ctx                    
+     * @param list                   
+     * @return                 NDList
+     * @throws Exception             
+     */
     @Override
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) throws Exception {
         var encoderOutput = new NDList();

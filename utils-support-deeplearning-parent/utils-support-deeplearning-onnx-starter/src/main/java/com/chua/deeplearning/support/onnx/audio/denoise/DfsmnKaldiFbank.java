@@ -3,18 +3,18 @@ package com.chua.deeplearning.support.onnx.audio.denoise;
 import java.util.Random;
 
 /**
-* DFSMN ANS kaldi fbank 特征提取器（纯 Java，复刻 torchaudio.compliance.kaldi.fbank）。
-* <p>
-* 参数与 模型scope DFSMN 语音降噪 pipeline 一致：48khz、帧长 40ms(1920)、帧移 20ms(960)、
-* FFT 补零到 2048、120 维 mel 滤波器组（20 ~ 23600Hz，htk 公式）、dither=1.0、hamming 窗。
-* </p>
-* <p>
-* 处理链路：样本(±32768 级) → dither → DC 去除 → pre-emphasis 0.97 → hamming 窗 → FFT power 谱
-* → mel 滤波器组加权 → 日志 能量，输出 (num_帧, 120)。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DFSMN ANS kaldi fbank 特征提取器（纯 Java，复刻 torchaudio.compliance.kaldi.fbank）。
+ * <p>
+ * 参数与 模型scope DFSMN 语音降噪 pipeline 一致：48khz、帧长 40ms(1920)、帧移 20ms(960)、
+ * FFT 补零到 2048、120 维 mel 滤波器组（20 ~ 23600Hz，htk 公式）、dither=1.0、hamming 窗。
+ * </p>
+ * <p>
+ * 处理链路：样本(±32768 级) → dither → DC 去除 → pre-emphasis 0.97 → hamming 窗 → FFT power 谱
+ * → mel 滤波器组加权 → 日志 能量，输出 (num_帧, 120)。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class DfsmnKaldiFbank {
 
@@ -71,10 +71,10 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * 创建 dfsmnkaldifbank 实例。
-    *
-    * @param dither dither 系数
-    */
+     * 创建 dfsmnkaldifbank 实例。
+     *
+     * @param dither dither 系数
+     */
     DfsmnKaldiFbank(float dither) {
         this.window = buildHammingWindow();
         this.melBanks = buildMelBanks();
@@ -82,11 +82,11 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * 提取 fbank 特征。
-    *
-    * @param samples 48khz 单声道样本（幅值约 ±32768）
-    * @return (num_frames, 120) 扁平数组
-    */
+     * 提取 fbank 特征。
+     *
+     * @param samples 48khz 单声道样本（幅值约 ±32768）
+     * @return (num_frames, 120) 扁平数组
+     */
     float[] extract(float[] samples) {
         int numFrames = numFrames(samples.length);
         float[] features = new float[numFrames * N_MELS];
@@ -147,11 +147,11 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * 计算可提取帧数（snip_edges=true）。
-    *
-    * @param numSamples 样本总数
-    * @return 帧数
-    */
+     * 计算可提取帧数（snip_edges=true）。
+     *
+     * @param numSamples 样本总数
+     * @return 帧数
+     */
     static int numFrames(int numSamples) {
         if (numSamples < WINDOW_SIZE) {
             return 0;
@@ -160,10 +160,10 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * 构造非周期 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
-    *
-    * @return 窗口系数
-    */
+     * 构造非周期 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
+     *
+     * @return 窗口系数
+     */
     private static float[] buildHammingWindow() {
         float[] w = new float[WINDOW_SIZE];
         double a = 2.0 * Math.PI / (WINDOW_SIZE - 1);
@@ -174,10 +174,10 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * 构造 kaldi mel 滤波器组（120 bins，20 ~ 23600Hz，htk 公式）。
-    *
-    * @return [120][1025] 权重矩阵
-    */
+     * 构造 kaldi mel 滤波器组（120 bins，20 ~ 23600Hz，htk 公式）。
+     *
+     * @return [120][1025] 权重矩阵
+     */
     private static float[][] buildMelBanks() {
         float nyquist = 0.5f * SAMPLE_RATE;
         if (HIGH_FREQ <= 0) {
@@ -208,11 +208,11 @@ class DfsmnKaldiFbank {
     }
 
     /**
-    * htk mel 刻度换算：1127·ln(1 + freq/700)。
-    *
-    * @param freq 频率（Hz）
-    * @return mel 值
-    */
+     * htk mel 刻度换算：1127·ln(1 + freq/700)。
+     *
+     * @param freq 频率（Hz）
+     * @return mel 值
+     */
     private static float melScale(float freq) {
         return (float) (1127.0 * Math.log(1.0 + freq / 700.0));
     }

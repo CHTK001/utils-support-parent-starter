@@ -11,20 +11,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Span — 一次方法调用的执行单元。
-*
-* <p>OpenTelemetry Span 模型：</p>
-* <ul>
-*   <li>{@link SpanKind} 决定 Span 在依赖图中的位置</li>
-*   <li>traceId 同一根调用链共享；spanId 单 Span 唯一；parentSpanId 嵌套关系</li>
-*   <li>attributes 自定义标签（http.status_code、db.statement 等）</li>
-*   <li>events 生命周期事件（exception / message）</li>
-*   <li>links 跨 trace 关联（异步消息）</li>
-*   <li>message 标准信息（如 Tomcat 处理时渲染出 "HTTP GET /api/order 200 OK 12ms"）</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * Span — 一次方法调用的执行单元。
+ *
+ * <p>OpenTelemetry Span 模型：</p>
+ * <ul>
+ *   <li>{@link SpanKind} 决定 Span 在依赖图中的位置</li>
+ *   <li>traceId 同一根调用链共享；spanId 单 Span 唯一；parentSpanId 嵌套关系</li>
+ *   <li>attributes 自定义标签（http.status_code、db.statement 等）</li>
+ *   <li>events 生命周期事件（exception / message）</li>
+ *   <li>links 跨 trace 关联（异步消息）</li>
+ *   <li>message 标准信息（如 Tomcat 处理时渲染出 "HTTP GET /api/order 200 OK 12ms"）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -33,22 +33,22 @@ import java.util.Map;
 public class Span {
 
     /**
-    * 全局追踪 标识（同一根调用链共享）
+     * 全局追踪 标识（同一根调用链共享）
      */
     private String traceId;
 
     /**
-    * 当前 Span 标识
+     * 当前 Span 标识
      */
     private String spanId;
 
     /**
-    * 父 Span 标识（根调用为 空）
+     * 父 Span 标识（根调用为 空）
      */
     private String parentSpanId;
 
     /**
-    * Span 类型
+     * Span 类型
      */
     @Builder.Default
     /** 种类 */
@@ -60,37 +60,37 @@ public class Span {
     private String name;
 
     /**
-    * 类名（内部 时填）
+     * 类名（内部 时填）
      */
     private String className;
 
     /**
-    * 方法名（内部 时填）
+     * 方法名（内部 时填）
      */
     private String methodName;
 
     /**
-    * 方法描述符
+     * 方法描述符
      */
     private String descriptor;
 
     /**
-    * 开始时间（毫秒）
+     * 开始时间（毫秒）
      */
     private long startTime;
 
     /**
-    * 结束时间（毫秒）
+     * 结束时间（毫秒）
      */
     private long endTime;
 
     /**
-    * 耗时（毫秒）
+     * 耗时（毫秒）
      */
     private long duration;
 
     /**
-    * 状态
+     * 状态
      */
     @Builder.Default
     /** 状态 */
@@ -104,23 +104,23 @@ public class Span {
     private String message;
 
     /**
-    * 异常类名（状态=错误 时填）
+     * 异常类名（状态=错误 时填）
      */
     private String errorType;
 
     /**
-    * 异常消息
+     * 异常消息
      */
     private String errorMessage;
 
     /**
-    * 自定义属性
+     * 自定义属性
      */
     @Builder.Default
     private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
-    * 生命周期事件
+     * 生命周期事件
      */
     @Builder.Default
     /** 事件 */
@@ -146,10 +146,10 @@ public class Span {
     }
 
     /**
-    * 添加带属性的事件。
-    *
-    * @param eventName 事件名
-    * @param attributes 属性
+     * 添加带属性的事件。
+     *
+     * @param eventName 事件名
+     * @param attributes 属性
      */
     public void addEvent(String eventName, Map<String, String> attributes) {
         events.add(SpanEvent.builder()
@@ -160,10 +160,10 @@ public class Span {
     }
 
     /**
-    * 设置异常事件（打开telemetry semantic conventions）。
-    *
-    * @param errorType 异常类名
-    * @param errorMessage 异常消息
+     * 设置异常事件（打开telemetry semantic conventions）。
+     *
+     * @param errorType 异常类名
+     * @param errorMessage 异常消息
      */
     public void recordException(String errorType, String errorMessage) {
         this.status = StatusCode.ERROR;

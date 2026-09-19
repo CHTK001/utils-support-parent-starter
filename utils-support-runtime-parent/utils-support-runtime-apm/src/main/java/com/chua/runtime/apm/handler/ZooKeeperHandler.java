@@ -23,59 +23,59 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
-* ZooKeeper 应用层 处理器 — 拦截 ZK 客户端调用并生成应用语义传输记录。
-*
-* <p>拦截目标：</p>
-* <ul>
-*   <li>{@code org.apache.zookeeper.ZooKeeper}（主要 API 入口）</li>
-*   <li>{@code org.apache.curator.framework.CuratorFramework}（Curator 适配层）</li>
-* </ul>
-*
-* <p>采用零依赖策略：</p>
-* <ul>
-*   <li>不引入 zookeeper / curator 编译期依赖</li>
-*   <li>通过 {@link RuntimeSpy#registerInterceptor(String, String, String, InterceptPoint, RuntimeSpy.Interceptor)} 注册精确规则，
-* spy转换 会按需 retransform 已加载的 ZK 类（若 类路径 缺失则不生效）</li>
-*   <li>从 ctx 参数（反射调用现场）解析 path/znode/scheme</li>
-* </ul>
-*
-* <p>应用语义传输记录会同时写入 {@link TransmissionHandler#records} 与
-* {@link DependencyGraphHandler}（source = 调用方，target = ZK 集群）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ZooKeeper 应用层 处理器 — 拦截 ZK 客户端调用并生成应用语义传输记录。
+ *
+ * <p>拦截目标：</p>
+ * <ul>
+ *   <li>{@code org.apache.zookeeper.ZooKeeper}（主要 API 入口）</li>
+ *   <li>{@code org.apache.curator.framework.CuratorFramework}（Curator 适配层）</li>
+ * </ul>
+ *
+ * <p>采用零依赖策略：</p>
+ * <ul>
+ *   <li>不引入 zookeeper / curator 编译期依赖</li>
+ *   <li>通过 {@link RuntimeSpy#registerInterceptor(String, String, String, InterceptPoint, RuntimeSpy.Interceptor)} 注册精确规则，
+ * spy转换 会按需 retransform 已加载的 ZK 类（若 类路径 缺失则不生效）</li>
+ *   <li>从 ctx 参数（反射调用现场）解析 path/znode/scheme</li>
+ * </ul>
+ *
+ * <p>应用语义传输记录会同时写入 {@link TransmissionHandler#records} 与
+ * {@link DependencyGraphHandler}（source = 调用方，target = ZK 集群）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(ZooKeeperHandler.class.getName());
 
     /**
-    * org.Apache.ZooKeeper.ZooKeeper 类内部名
+     * org.Apache.ZooKeeper.ZooKeeper 类内部名
      */
     private static final String ZK_CLASS = "org/apache/zookeeper/ZooKeeper";
 
     /**
-    * curator框架 类内部名
+     * curator框架 类内部名
      */
     private static final String CURATOR_CLASS = "org/apache/curator/framework/CuratorFramework";
 
     /**
-    * 最大记录数
+     * 最大记录数
      */
     private static final int MAX_RECORDS = 5000;
 
     /**
-    * records
+     * records
      */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
     /**
-    * 已启用
+     * 已启用
      */
     private boolean enabled;
     /**
-    * 是否已启动
+     * 是否已启动
      */
     private final AtomicBoolean started;
 
@@ -140,7 +140,7 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册精确插桩规则：ZooKeeper 主 API 方法 + 关键构造器。
+     * 注册精确插桩规则：ZooKeeper 主 API 方法 + 关键构造器。
      */
     private void registerInterceptors() {
  // 构造器：暴露 连接字符串（ZK 集群地址）
@@ -196,14 +196,14 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * ZK 调用栈帧 — 用 ctx.用户数据 (this=ZooKeeper instance) + ctx.类名称 关联 entry/exit。
+     * ZK 调用栈帧 — 用 ctx.用户数据 (this=ZooKeeper instance) + ctx.类名称 关联 entry/exit。
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
     /**
-    * 处理Entry
-    *
-    * @param ctx ctx
+     * 处理Entry
+     *
+     * @param ctx ctx
      */
     private void handleEntry(InterceptContext ctx) {
         try {
@@ -249,9 +249,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 处理Exit
-    *
-    * @param ctx ctx
+     * 处理Exit
+     *
+     * @param ctx ctx
      */
     private void handleExit(InterceptContext ctx) {
         try {
@@ -270,9 +270,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 处理异常
-    *
-    * @param ctx ctx
+     * 处理异常
+     *
+     * @param ctx ctx
      */
     private void handleException(InterceptContext ctx) {
         try {
@@ -295,9 +295,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 记录 + 同步到依赖图。
-    * @param record record
-    * @param isError 是否错误
+     * 记录 + 同步到依赖图。
+     * @param record record
+     * @param isError 是否错误
      */
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
@@ -322,9 +322,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 从调用栈提取第一个 字符串 类型参数作为 路径（ZooKeeper API 第一个参数通常就是 路径）。
-    * @param ctx ctx
-    * @return extract路径从stack的结果
+     * 从调用栈提取第一个 字符串 类型参数作为 路径（ZooKeeper API 第一个参数通常就是 路径）。
+     * @param ctx ctx
+     * @return extract路径从stack的结果
      */
     private static String extractPathFromStack(InterceptContext ctx) {
  // 简化：通过 ctx.类名称 + 方法名称 兜底
@@ -333,9 +333,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 反射从 ZooKeeper 实例读取 连接字符串。
-    * @param zk zk
-    * @return extract连接字符串的结果
+     * 反射从 ZooKeeper 实例读取 连接字符串。
+     * @param zk zk
+     * @return extract连接字符串的结果
      */
     private static String extractConnectString(Object zk) {
         if (zk == null) {
@@ -353,19 +353,19 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * deriveoperation
-    *
-    * @param ctx ctx
-    * @return deriveOperation的结果
+     * deriveoperation
+     *
+     * @param ctx ctx
+     * @return deriveOperation的结果
      */
     private static String deriveOperation(InterceptContext ctx) {
         return ctx.getMethodName();
     }
 
     /**
-    * 本地主机
-    *
-    * @return 本地主机的结果
+     * 本地主机
+     *
+     * @return 本地主机的结果
      */
     private static String localHost() {
         try {
@@ -376,9 +376,9 @@ public class ZooKeeperHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 获取Records
-    *
-    * @return 获取records的结果
+     * 获取Records
+     *
+     * @return 获取records的结果
      */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();

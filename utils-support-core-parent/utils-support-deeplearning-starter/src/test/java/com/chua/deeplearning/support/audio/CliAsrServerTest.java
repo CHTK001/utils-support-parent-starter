@@ -43,8 +43,8 @@ class CliAsrServerTest {
     private final String idleBefore = System.getProperty(PROP_IDLE);
 
     /**
-    * 每个用例结束后恢复测试开始时保存的系统属性。
-    */
+     * 每个用例结束后恢复测试开始时保存的系统属性。
+     */
     @AfterEach
     void restoreProperties() {
         restore(PROP_SERVE, serveBefore);
@@ -52,11 +52,11 @@ class CliAsrServerTest {
     }
 
     /**
-    * 恢复单个系统属性：原值为空则清除，否则写回。
-    *
-    * @param key 属性名
-    * @param value 用例前的原值，可为 null
-    */
+     * 恢复单个系统属性：原值为空则清除，否则写回。
+     *
+     * @param key 属性名
+     * @param value 用例前的原值，可为 null
+     */
     private static void restore(String key, String value) {
         if (value == null) {
             System.clearProperty(key);
@@ -68,10 +68,10 @@ class CliAsrServerTest {
     // ── 开关与阈值 ────────────────────────────────────────────────────
 
     /**
-    * 测试：常驻服务开关缺省启用，仅 false（忽略大小写与空白）禁用。
-    *
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 测试：常驻服务开关缺省启用，仅 false（忽略大小写与空白）禁用。
+     *
+     * @throws Exception 反射调用失败时抛出
+     */
     @Test
     void serveEnabled_defaultOnAndOnlyFalseDisables() throws Exception {
         System.clearProperty(PROP_SERVE);
@@ -85,10 +85,10 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：空闲阈值解析秒数，非正夹到 1 秒，非法回落默认 600 秒。
-    *
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 测试：空闲阈值解析秒数，非正夹到 1 秒，非法回落默认 600 秒。
+     *
+     * @throws Exception 反射调用失败时抛出
+     */
     @Test
     void idleMillis_parsesPropertyAndClampsNonPositive() throws Exception {
         System.setProperty(PROP_IDLE, "30");
@@ -102,10 +102,10 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：freePort 返回一个当前可绑定的合法端口。
-    *
-    * @throws Exception 反射调用或端口探测失败时抛出
-    */
+     * 测试：freePort 返回一个当前可绑定的合法端口。
+     *
+     * @throws Exception 反射调用或端口探测失败时抛出
+     */
     @Test
     void freePort_returnsBindablePort() throws Exception {
         int port = (Integer) invokeStatic("freePort");
@@ -118,10 +118,10 @@ class CliAsrServerTest {
     // ── multipart 请求体字节布局 ──────────────────────────────────────
 
     /**
-    * 测试：multipart 文件段与字段段的字节布局符合表单编码。
-    *
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 测试：multipart 文件段与字段段的字节布局符合表单编码。
+     *
+     * @throws Exception 反射调用失败时抛出
+     */
     @Test
     void multipartParts_matchFormEncoding() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -144,10 +144,10 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：错误片段裁剪两端空白并把超长内容截断到 512 字符加省略号。
-    *
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 测试：错误片段裁剪两端空白并把超长内容截断到 512 字符加省略号。
+     *
+     * @throws Exception 反射调用失败时抛出
+     */
     @Test
     void snippet_trimsAndTruncates() throws Exception {
         assertEquals("", invokeStatic("snippet", new Class[]{String.class}, (Object) null));
@@ -162,8 +162,8 @@ class CliAsrServerTest {
     // ── 不适用场景必须回退，而不是抛异常 ──────────────────────────────
 
     /**
-    * 测试：开关禁用时 acquire 返回 null，交由单进程路径。
-    */
+     * 测试：开关禁用时 acquire 返回 null，交由单进程路径。
+     */
     @Test
     void acquire_returnsNullWhenDisabled() {
         System.setProperty(PROP_SERVE, "false");
@@ -171,10 +171,10 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：CLI 进程无法启动时 acquire 返回 null 而不是抛异常。
-    *
-    * @param dir 临时目录
-    */
+     * 测试：CLI 进程无法启动时 acquire 返回 null 而不是抛异常。
+     *
+     * @param dir 临时目录
+     */
     @Test
     void acquire_returnsNullWhenCliCannotStart(@TempDir Path dir) {
         System.clearProperty(PROP_SERVE);
@@ -184,11 +184,11 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：模型不是本地文件或缺失时服务端转写路径跳过并返回 null。
-    *
-    * @param dir 临时目录
-    * @throws Exception 反射调用或文件写入失败时抛出
-    */
+     * 测试：模型不是本地文件或缺失时服务端转写路径跳过并返回 null。
+     *
+     * @param dir 临时目录
+     * @throws Exception 反射调用或文件写入失败时抛出
+     */
     @Test
     void transcribeViaServer_skipsUnlessModelIsALocalFile(@TempDir Path dir) throws Exception {
         Path wav = Files.write(dir.resolve("a.wav"), new byte[]{82, 73, 70, 70});
@@ -203,8 +203,8 @@ class CliAsrServerTest {
     }
 
     /**
-    * 测试：空音频字节直接抛出非法参数异常。
-    */
+     * 测试：空音频字节直接抛出非法参数异常。
+     */
     @Test
     void translate_emptyBytes_throwsIllegalArgument() {
         ITranslator<byte[], String> translator =
@@ -217,15 +217,15 @@ class CliAsrServerTest {
     // ── reflection helpers ────────────────────────────────────────────
 
     /**
-    * 反射调用翻译器的服务端转写私有方法。
-    *
-    * @param translator 待测翻译器
-    * @param exe CLI 可执行文件路径
-    * @param wav 音频文件路径
-    * @param model 模型取值，可为 null
-    * @return 转写结果或 null（表示应回退单进程）
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 反射调用翻译器的服务端转写私有方法。
+     *
+     * @param translator 待测翻译器
+     * @param exe CLI 可执行文件路径
+     * @param wav 音频文件路径
+     * @param model 模型取值，可为 null
+     * @return 转写结果或 null（表示应回退单进程）
+     * @throws Exception 反射调用失败时抛出
+     */
     private static Object viaServer(CliAsrTranslator translator, Path exe, Path wav, String model)
             throws Exception {
         Method m = CliAsrTranslator.class.getDeclaredMethod(
@@ -235,15 +235,15 @@ class CliAsrServerTest {
     }
 
     /**
-    * 反射调用服务端写 multipart 文件段的私有方法。
-    *
-    * @param out 输出流
-    * @param boundary 分隔符
-    * @param name 表单字段名
-    * @param fileName 文件名
-    * @param content 文件内容字节
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 反射调用服务端写 multipart 文件段的私有方法。
+     *
+     * @param out 输出流
+     * @param boundary 分隔符
+     * @param name 表单字段名
+     * @param fileName 文件名
+     * @param content 文件内容字节
+     * @throws Exception 反射调用失败时抛出
+     */
     private static void invokeWriteMultipartFile(ByteArrayOutputStream out, String boundary, String name,
                                                  String fileName, byte[] content) throws Exception {
         method("writeMultipartFile", ByteArrayOutputStream.class, String.class, String.class, String.class,
@@ -251,14 +251,14 @@ class CliAsrServerTest {
     }
 
     /**
-    * 反射调用服务端写 multipart 普通字段段的私有方法。
-    *
-    * @param out 输出流
-    * @param boundary 分隔符
-    * @param name 表单字段名
-    * @param value 字段值
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 反射调用服务端写 multipart 普通字段段的私有方法。
+     *
+     * @param out 输出流
+     * @param boundary 分隔符
+     * @param name 表单字段名
+     * @param value 字段值
+     * @throws Exception 反射调用失败时抛出
+     */
     private static void invokeWriteMultipartField(ByteArrayOutputStream out, String boundary, String name,
                                                   String value) throws Exception {
         method("writeMultipartField", ByteArrayOutputStream.class, String.class, String.class, String.class)
@@ -266,13 +266,13 @@ class CliAsrServerTest {
     }
 
     /**
-    * 取 CliAsrServer 的声明方法（含私有）。
-    *
-    * @param name 方法名
-    * @param types 参数类型列表
-    * @return 反射方法句柄
-    * @throws Exception 方法不存在时抛出
-    */
+     * 取 CliAsrServer 的声明方法（含私有）。
+     *
+     * @param name 方法名
+     * @param types 参数类型列表
+     * @return 反射方法句柄
+     * @throws Exception 方法不存在时抛出
+     */
     private static Method method(String name, Class<?>... types) throws Exception {
         Method m = CliAsrServer.class.getDeclaredMethod(name, types);
         m.setAccessible(true);
@@ -280,25 +280,25 @@ class CliAsrServerTest {
     }
 
     /**
-    * 反射调用 CliAsrServer 的无参静态方法。
-    *
-    * @param name 方法名
-    * @return 方法返回值
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 反射调用 CliAsrServer 的无参静态方法。
+     *
+     * @param name 方法名
+     * @return 方法返回值
+     * @throws Exception 反射调用失败时抛出
+     */
     private static Object invokeStatic(String name) throws Exception {
         return method(name).invoke(null);
     }
 
     /**
-    * 反射调用 CliAsrServer 的带参静态方法。
-    *
-    * @param name 方法名
-    * @param types 参数类型列表
-    * @param args 实参列表
-    * @return 方法返回值
-    * @throws Exception 反射调用失败时抛出
-    */
+     * 反射调用 CliAsrServer 的带参静态方法。
+     *
+     * @param name 方法名
+     * @param types 参数类型列表
+     * @param args 实参列表
+     * @return 方法返回值
+     * @throws Exception 反射调用失败时抛出
+     */
     private static Object invokeStatic(String name, Class<?>[] types, Object... args) throws Exception {
         return method(name, types).invoke(null, args);
     }

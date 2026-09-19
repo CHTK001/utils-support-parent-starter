@@ -14,39 +14,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Socket.IO Agent 数据源
-* <p>Server 侧通过 SocketIO 事件与 Agent 交互，支持拉取和推送。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Socket.IO Agent 数据源
+ * <p>Server 侧通过 SocketIO 事件与 Agent 交互，支持拉取和推送。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SocketIOAgentDataSyncSource implements DataSyncSource {
 
     /**
-    * 客户端实例
-    */
+     * 客户端实例
+     */
     private final SocketIOClient client;
     /**
-    * 源 标识
-    */
+     * 源 标识
+     */
     private final String sourceId;
     /**
-    * Agent 标识
-    */
+     * Agent 标识
+     */
     private final String agentId;
     /**
-    * pending
-    */
+     * pending
+     */
     private final Map<String, CompletableFuture<Map<String, Object>>> pending = new ConcurrentHashMap<>();
 
     /**
-    * 创建 SocketioAgent数据同步源 实例
-    * @param client 客户端
-    * @param agentId 字符串
-    * @param agentId 字符串
-    * @param agentId Agent标识
-    * @param sourceId 源标识
-    */
+     * 创建 SocketioAgent数据同步源 实例
+     * @param client 客户端
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param agentId Agent标识
+     * @param sourceId 源标识
+     */
     public SocketIOAgentDataSyncSource(SocketIOClient client, String agentId, String sourceId) {
         this.client = client;
         this.agentId = agentId;

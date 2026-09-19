@@ -10,75 +10,75 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface SyncClient extends AutoCloseable {
 
     /**
-    * 连接到同步服务端。
-    */
+     * 连接到同步服务端。
+     */
     void connect();
 
     /**
-    * 断开与服务端的连接。
-    */
+     * 断开与服务端的连接。
+     */
     void disconnect();
 
     /**
-    * 判断客户端是否已连接。
-    *
-    * @return true 表示已连接
-    */
+     * 判断客户端是否已连接。
+     *
+     * @return true 表示已连接
+     */
     boolean isConnected();
 
     /**
-    * 获取客户端标识。
-    *
-    * @return 客户端标识
-    */
+     * 获取客户端标识。
+     *
+     * @return 客户端标识
+     */
     String getClientId();
 
     /**
-    * 向指定主题发送消息。
-    *
-    * @param topic   主题
-    * @param message 消息内容
-    */
+     * 向指定主题发送消息。
+     *
+     * @param topic   主题
+     * @param message 消息内容
+     */
     void send(String topic, Object message);
 
     /**
-    * 订阅指定主题的消息。
-    *
-    * @param topic   主题
-    * @param handler 消息处理器
-    */
+     * 订阅指定主题的消息。
+     *
+     * @param topic   主题
+     * @param handler 消息处理器
+     */
     void subscribe(String topic, SyncMessageHandler handler);
 
     /**
-    * 取消订阅指定主题。
-    *
-    * @param topic 主题
-    */
+     * 取消订阅指定主题。
+     *
+     * @param topic 主题
+     */
     void unsubscribe(String topic);
 
     /**
-    * 添加同步事件监听器。
-    *
-    * @param listener 监听器
-    */
+     * 添加同步事件监听器。
+     *
+     * @param listener 监听器
+     */
     void addListener(SyncFlowListener listener);
 
     /**
-    * 移除同步事件监听器。
-    *
-    * @param listener 监听器
-    */
+     * 移除同步事件监听器。
+     *
+     * @param listener 监听器
+     */
     void removeListener(SyncFlowListener listener);
 
     /**
-    * 获取客户端元数据。
-    *
-    * @return 元数据映射
-    */
+     * 获取客户端元数据。
+     *
+     * @return 元数据映射
+     */
     Map<String, Object> getMetadata();
 
     @Override

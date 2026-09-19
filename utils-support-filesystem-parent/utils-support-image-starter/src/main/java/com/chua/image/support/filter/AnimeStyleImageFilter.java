@@ -53,32 +53,32 @@ import java.awt.image.BufferedImage;
 public class AnimeStyleImageFilter extends AbstractImageFilter {
 
     /**
-    * 卡通着色色阶数，默认 4
-    */
+     * 卡通着色色阶数，默认 4
+     */
     private int toneLevels = 4;
 
     /**
-    * 描边强度，默认 0.5
-    */
+     * 描边强度，默认 0.5
+     */
     private double outlineStrength = 0.5;
 
     /**
-    * 描边检测阈值，默认 80
-    */
+     * 描边检测阈值，默认 80
+     */
     private int outlineThreshold = 80;
 
     /**
-    * 饱和度增强系数，默认 1.4
-    */
+     * 饱和度增强系数，默认 1.4
+     */
     private double saturationBoost = 1.4;
 
     /**
-    * 执行动漫风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 动漫风格图像
-    */
+     * 执行动漫风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 动漫风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -148,11 +148,11 @@ public class AnimeStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

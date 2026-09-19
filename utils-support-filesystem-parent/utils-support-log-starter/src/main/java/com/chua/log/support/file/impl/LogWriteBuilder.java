@@ -78,75 +78,75 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 链式配置 ====================
 
     /**
-    * 设置为追加模式（写入到文件末尾）。
-    *
-    * @return 当前构建器
-    */
+     * 设置为追加模式（写入到文件末尾）。
+     *
+     * @return 当前构建器
+     */
     public LogWriteBuilder append() {
         this.appendMode = true;
         return this;
     }
 
     /**
-    * 设置为覆盖模式（从头写入）。
-    *
-    * @return 当前构建器
-    */
+     * 设置为覆盖模式（从头写入）。
+     *
+     * @return 当前构建器
+     */
     public LogWriteBuilder overwrite() {
         this.appendMode = false;
         return this;
     }
 
     /**
-    * 设置是否自动添加时间戳前缀。
-    *
-    * @param enabled 是否启用
-    * @return 当前构建器
-    */
+     * 设置是否自动添加时间戳前缀。
+     *
+     * @param enabled 是否启用
+     * @return 当前构建器
+     */
     public LogWriteBuilder withTimestamp(boolean enabled) {
         this.withTimestamp = enabled;
         return this;
     }
 
     /**
-    * 设置自定义时间戳格式。
-    *
-    * @param pattern {@link DateTimeFormatter} 格式
-    * @return 当前构建器
-    */
+     * 设置自定义时间戳格式。
+     *
+     * @param pattern {@link DateTimeFormatter} 格式
+     * @return 当前构建器
+     */
     public LogWriteBuilder withTimestampFormat(String pattern) {
         this.timestampFormatter = DateTimeFormatter.ofPattern(pattern);
         return this;
     }
 
     /**
-    * 设置行前缀（时间戳之前）。
-    *
-    * @param prefix 前缀字符串
-    * @return 当前构建器
-    */
+     * 设置行前缀（时间戳之前）。
+     *
+     * @param prefix 前缀字符串
+     * @return 当前构建器
+     */
     public LogWriteBuilder withPrefix(String prefix) {
         this.prefix = prefix;
         return this;
     }
 
     /**
-    * 设置行后缀（追加在行尾）。
-    *
-    * @param suffix 后缀字符串
-    * @return 当前构建器
-    */
+     * 设置行后缀（追加在行尾）。
+     *
+     * @param suffix 后缀字符串
+     * @return 当前构建器
+     */
     public LogWriteBuilder withSuffix(String suffix) {
         this.suffix = suffix;
         return this;
     }
 
     /**
-    * 设置自定义换行符。
-    *
-    * @param lineSeparator 换行符
-    * @return 当前构建器
-    */
+     * 设置自定义换行符。
+     *
+     * @param lineSeparator 换行符
+     * @return 当前构建器
+     */
     public LogWriteBuilder withLineSeparator(String lineSeparator) {
         this.lineSeparator = lineSeparator;
         return this;
@@ -180,21 +180,21 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 追加写入多条文本。
-    *
-    * @param lines 文本行列表
-    * @return 当前构建器
-    */
+     * 追加写入多条文本。
+     *
+     * @param lines 文本行列表
+     * @return 当前构建器
+     */
     public LogWriteBuilder write(List<String> lines) {
         pending.addAll(lines);
         return this;
     }
 
     /**
-    * 立即写入单条文本（不入队列，直接写入文件）。
-    *
-    * @param line 文本行
-    */
+     * 立即写入单条文本（不入队列，直接写入文件）。
+     *
+     * @param line 文本行
+     */
     public void writeAndFlush(String line) {
         try (BufferedWriter writer = createWriter()) {
             writer.write(formatLine(line));
@@ -208,10 +208,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 立即写入多条文本（不入队列，直接写入文件）。
-    *
-    * @param lines 文本行列表
-    */
+     * 立即写入多条文本（不入队列，直接写入文件）。
+     *
+     * @param lines 文本行列表
+     */
     public void writeAndFlush(List<String> lines) {
         try (BufferedWriter writer = createWriter()) {
             for (String line : lines) {
@@ -257,9 +257,9 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 内部方法 ====================
 
     /**
-    * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
-    * @return BufferedWriter 对象
-    */
+     * 创建文件写入器（根据 appendMode 决定追加或覆盖）。
+     * @return BufferedWriter 对象
+     */
     private BufferedWriter createWriter() throws IOException {
         if (file.getParentFile() != null && !file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
@@ -270,10 +270,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 将 pending 中的条目解析为行列表。
-    * @param entry 条目，不允许为 null
-    * @return 结果列表，无数据时为空列表
-    */
+     * 将 pending 中的条目解析为行列表。
+     * @param entry 条目，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     @SuppressWarnings("unchecked")
     private List<String> resolveLines(Object entry) {
         List<String> result = new ArrayList<>();
@@ -296,10 +296,10 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
-    * @param line 方法入参 line
-    * @return 结果字符串
-    */
+     * 格式化单行：前缀 + 时间戳 + 内容 + 后缀。
+     * @param line 方法入参 line
+     * @return 结果字符串
+     */
     private String formatLine(String line) {
         StringBuilder sb = new StringBuilder();
         if (prefix != null) {

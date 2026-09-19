@@ -83,14 +83,14 @@ import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskE
 public class FilePushClient implements AutoCloseable {
 
     /**
-    * SLF4J 日志（手写，避免 Lombok 注解处理器缺失时编译失败）
-    */
+     * SLF4J 日志（手写，避免 Lombok 注解处理器缺失时编译失败）
+     */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(FilePushClient.class);
 
     /**
-    * 连接复用模式下，一条连接中途断开后最多重试几次（用尽后剩余文件降级为单文件连接）
-    */
+     * 连接复用模式下，一条连接中途断开后最多重试几次（用尽后剩余文件降级为单文件连接）
+     */
     private static final int MAX_BATCH_ATTEMPTS = 3;
 
     /** 客户端配置 */
@@ -100,8 +100,8 @@ public class FilePushClient implements AutoCloseable {
     private final ExecutorService executor;
 
     /**
-    * 文件并发限流（parallelism() 可在 push() 前按新并发数重建，故非 final）
-    */
+     * 文件并发限流（parallelism() 可在 push() 前按新并发数重建，故非 final）
+     */
     private volatile Semaphore fileLimiter;
 
     /** 统计：成功推送的文件数 */
@@ -111,8 +111,8 @@ public class FilePushClient implements AutoCloseable {
     private final AtomicLong bytesPushed = new AtomicLong();
 
     /**
-    * 单文件完成回调（onFile() 可在 push() 前设置，故非 final）
-    */
+     * 单文件完成回调（onFile() 可在 push() 前设置，故非 final）
+     */
     private volatile Consumer<FileTaskResult> progressListener;
 
     /** 运行标记 */
@@ -133,34 +133,34 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 从系统属性（{@code filepush.*}）加载配置并创建实例（便捷方法）。
-    *
-    * @return 客户端实例
-    */
+     * 从系统属性（{@code filepush.*}）加载配置并创建实例（便捷方法）。
+     *
+     * @return 客户端实例
+     */
     public static FilePushClient create() {
         return new FilePushClient(FilePushConfig.loadFromSystemProperties(FilePushConfig.defaults()));
     }
 
     /**
-    * 设置同步目录（客户端待推送的本地根目录），链式调用。
-    *
-    * <p>与服务端 {@code targetDir(Path)} 相对应：客户端从该目录扫描文件，
-    * 服务端按相同相对路径落盘。必须在 {@link #push()} 之前调用。</p>
-    *
-    * @param sourceDir 同步目录（源）
-    * @return this
-    */
+     * 设置同步目录（客户端待推送的本地根目录），链式调用。
+     *
+     * <p>与服务端 {@code targetDir(Path)} 相对应：客户端从该目录扫描文件，
+     * 服务端按相同相对路径落盘。必须在 {@link #push()} 之前调用。</p>
+     *
+     * @param sourceDir 同步目录（源）
+     * @return this
+     */
     public FilePushClient sourceDir(Path sourceDir) {
         config.setSourceDir(sourceDir);
         return this;
     }
 
     /**
-    * 设置待推送源目录（字符串路径重载），链式调用。
-    *
-    * @param sourceDir 源目录路径
-    * @return this
-    */
+     * 设置待推送源目录（字符串路径重载），链式调用。
+     *
+     * @param sourceDir 源目录路径
+     * @return this
+     */
     public FilePushClient sourceDir(String sourceDir) {
         if (sourceDir == null || sourceDir.isBlank()) {
             throw new IllegalArgumentException("sourceDir 不能为空");
@@ -169,66 +169,66 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 设置服务端地址，链式调用。
-    *
-    * @param host 服务端地址
-    * @return this
-    */
+     * 设置服务端地址，链式调用。
+     *
+     * @param host 服务端地址
+     * @return this
+     */
     public FilePushClient host(String host) {
         config.setHost(host);
         return this;
     }
 
     /**
-    * 设置服务端端口，链式调用。
-    *
-    * @param port 服务端端口
-    * @return this
-    */
+     * 设置服务端端口，链式调用。
+     *
+     * @param port 服务端端口
+     * @return this
+     */
     public FilePushClient port(int port) {
         config.setPort(port);
         return this;
     }
 
     /**
-    * 设置分片大小，链式调用；须与服务端一致。
-    *
-    * @param chunkSize 分片字节数
-    * @return this
-    */
+     * 设置分片大小，链式调用；须与服务端一致。
+     *
+     * @param chunkSize 分片字节数
+     * @return this
+     */
     public FilePushClient chunkSize(int chunkSize) {
         config.setChunkSize(chunkSize);
         return this;
     }
 
     /**
-    * 设置每条连接承载的文件数（连接复用），链式调用。
-    *
-    * <p>默认 1（一文件一连接）。设为 N&gt;1 后，待推文件按 N 个一组轮转分组，
-    * 每组复用同一条 TCP 连接（握手 {@code fileCount=N}），省掉每个文件的
-    * 建连、握手、收尾往返。服务端自协议 v1 起即支持，无需改动。</p>
-    *
-    * <p>连接数 = {@code min(ceil(文件数 / N), 并行度)}：连接内同一时刻只有一个文件在途，
-    * 故「在途文件数 = 连接数」，用连接数封顶并行度即可。N 取大只会让连接更少、
-    * 每连接承载更多文件，不会退化成串行。</p>
-    *
-    * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
-    * @return this
-    */
+     * 设置每条连接承载的文件数（连接复用），链式调用。
+     *
+     * <p>默认 1（一文件一连接）。设为 N&gt;1 后，待推文件按 N 个一组轮转分组，
+     * 每组复用同一条 TCP 连接（握手 {@code fileCount=N}），省掉每个文件的
+     * 建连、握手、收尾往返。服务端自协议 v1 起即支持，无需改动。</p>
+     *
+     * <p>连接数 = {@code min(ceil(文件数 / N), 并行度)}：连接内同一时刻只有一个文件在途，
+     * 故「在途文件数 = 连接数」，用连接数封顶并行度即可。N 取大只会让连接更少、
+     * 每连接承载更多文件，不会退化成串行。</p>
+     *
+     * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
+     * @return this
+     */
     public FilePushClient filesPerConnection(int filesPerConnection) {
         config.setFilesPerConnection(filesPerConnection);
         return this;
     }
 
     /**
-    * 设置并发推送文件数，链式调用。
-    *
-    * <p>构造时已按配置建好限流信号量，此处一并按新并发数重建，
-    * 否则构造后设置并发数不会生效。</p>
-    *
-    * @param parallelism 并发文件数，小于等于 0 回退默认（CPU × 4，上限 256）
-    * @return this
-    */
+     * 设置并发推送文件数，链式调用。
+     *
+     * <p>构造时已按配置建好限流信号量，此处一并按新并发数重建，
+     * 否则构造后设置并发数不会生效。</p>
+     *
+     * @param parallelism 并发文件数，小于等于 0 回退默认（CPU × 4，上限 256）
+     * @return this
+     */
     public FilePushClient parallelism(int parallelism) {
         config.setClientFileParallelism(parallelism);
         this.fileLimiter = new Semaphore(Math.max(1, config.effectiveClientParallelism()));
@@ -236,100 +236,100 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 设置是否增量推送，链式调用。
-    *
-    * @param incremental 是否跳过服务端 size 与 mtime 均未变化的文件
-    * @return this
-    */
+     * 设置是否增量推送，链式调用。
+     *
+     * @param incremental 是否跳过服务端 size 与 mtime 均未变化的文件
+     * @return this
+     */
     public FilePushClient incremental(boolean incremental) {
         config.setIncremental(incremental);
         return this;
     }
 
     /**
-    * 设置推送后是否请求服务端清理旧文件，链式调用。
-    *
-    * @param cleanup 是否清理
-    * @return this
-    */
+     * 设置推送后是否请求服务端清理旧文件，链式调用。
+     *
+     * @param cleanup 是否清理
+     * @return this
+     */
     public FilePushClient cleanup(boolean cleanup) {
         config.setCleanup(cleanup);
         return this;
     }
 
     /**
-    * 设置排除模式，链式调用。
-    *
-    * @param excludes 排除模式列表（子串匹配）
-    * @return this
-    */
+     * 设置排除模式，链式调用。
+     *
+     * @param excludes 排除模式列表（子串匹配）
+     * @return this
+     */
     public FilePushClient excludes(List<String> excludes) {
         config.setExcludes(excludes);
         return this;
     }
 
     /**
-    * 设置排除模式（可变参数重载），链式调用。
-    *
-    * @param excludes 排除模式（子串匹配）
-    * @return this
-    */
+     * 设置排除模式（可变参数重载），链式调用。
+     *
+     * @param excludes 排除模式（子串匹配）
+     * @return this
+     */
     public FilePushClient excludes(String... excludes) {
         return excludes(new ArrayList<>(Arrays.asList(excludes)));
     }
 
     /**
-    * 设置包含模式，链式调用。
-    *
-    * @param includes 包含模式列表（子串匹配）
-    * @return this
-    */
+     * 设置包含模式，链式调用。
+     *
+     * @param includes 包含模式列表（子串匹配）
+     * @return this
+     */
     public FilePushClient includes(List<String> includes) {
         config.setIncludes(includes);
         return this;
     }
 
     /**
-    * 设置包含模式（可变参数重载），链式调用。
-    *
-    * @param includes 包含模式（子串匹配）
-    * @return this
-    */
+     * 设置包含模式（可变参数重载），链式调用。
+     *
+     * @param includes 包含模式（子串匹配）
+     * @return this
+     */
     public FilePushClient includes(String... includes) {
         return includes(new ArrayList<>(Arrays.asList(includes)));
     }
 
     /**
-    * 设置单文件完成回调，链式调用。
-    *
-    * <p>每个文件推送结束（成功或失败）后在推送该文件的线程上回调一次，可用于打印实时进度。
-    * 增量模式下被跳过的文件不产生任务，因此不会回调。</p>
-    *
-    * <p>回调抛出的异常会被吞掉并记 warn，不影响整体推送。</p>
-    *
-    * @param listener 单文件结果回调，传 null 表示取消
-    * @return this
-    */
+     * 设置单文件完成回调，链式调用。
+     *
+     * <p>每个文件推送结束（成功或失败）后在推送该文件的线程上回调一次，可用于打印实时进度。
+     * 增量模式下被跳过的文件不产生任务，因此不会回调。</p>
+     *
+     * <p>回调抛出的异常会被吞掉并记 warn，不影响整体推送。</p>
+     *
+     * @param listener 单文件结果回调，传 null 表示取消
+     * @return this
+     */
     public FilePushClient onFile(Consumer<FileTaskResult> listener) {
         this.progressListener = listener;
         return this;
     }
 
     /**
-    * 获取底层配置，用于链式方法未覆盖的参数。
-    *
-    * @return 客户端配置
-    */
+     * 获取底层配置，用于链式方法未覆盖的参数。
+     *
+     * @return 客户端配置
+     */
     public FilePushConfig config() {
         return config;
     }
 
     /**
-    * 推送源目录到服务端。
-    *
-    * @return 推送结果（含成功/失败明细）
-    * @throws IOException 源目录不可读
-    */
+     * 推送源目录到服务端。
+     *
+     * @return 推送结果（含成功/失败明细）
+     * @throws IOException 源目录不可读
+     */
     public PushResult push() throws IOException {
         Path sourceDir = config.getSourceDir();
         if (sourceDir == null) {
@@ -430,10 +430,10 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 触发单文件完成回调。回调异常不得影响推送，故吞掉并记 warn。
-    *
-    * @param result 单文件任务结果
-    */
+     * 触发单文件完成回调。回调异常不得影响推送，故吞掉并记 warn。
+     *
+     * @param result 单文件任务结果
+     */
     private void notifyProgress(FileTaskResult result) {
         Consumer<FileTaskResult> listener = progressListener;
         if (listener == null) {
@@ -447,12 +447,12 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 计算相对路径清单（/ 分隔），用于 CLEANUP 指令。
-    *
-    * @param sourceDir 源目录
-    * @param files     文件列表
-    * @return 相对路径列表
-    */
+     * 计算相对路径清单（/ 分隔），用于 CLEANUP 指令。
+     *
+     * @param sourceDir 源目录
+     * @param files     文件列表
+     * @return 相对路径列表
+     */
     private List<String> relativePaths(Path sourceDir, List<Path> files) {
         List<String> paths = new ArrayList<>(files.size());
         for (Path file : files) {
@@ -462,13 +462,13 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 判断文件是否与服务端清单记录一致（size 与 mtime 均相同）。
-    *
-    * @param sourceDir 源目录
-    * @param file      待判断文件
-    * @param remote    服务端清单：相对路径 → {size, mtimeMillis}
-    * @return true 表示未变化，可跳过
-    */
+     * 判断文件是否与服务端清单记录一致（size 与 mtime 均相同）。
+     *
+     * @param sourceDir 源目录
+     * @param file      待判断文件
+     * @param remote    服务端清单：相对路径 → {size, mtimeMillis}
+     * @return true 表示未变化，可跳过
+     */
     private boolean isUnchanged(Path sourceDir, Path file, Map<String, long[]> remote) {
         String rel = sourceDir.relativize(file).toString().replace('\\', '/');
         long[] record = remote.get(rel);
@@ -486,11 +486,11 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 索取服务端目标目录的现有文件清单（控制连接，fileCount=0）。
-    *
-    * @return 相对路径 → {size, mtimeMillis}
-    * @throws IOException 连接或协议失败
-    */
+     * 索取服务端目标目录的现有文件清单（控制连接，fileCount=0）。
+     *
+     * @return 相对路径 → {size, mtimeMillis}
+     * @throws IOException 连接或协议失败
+     */
     private Map<String, long[]> fetchServerManifest() throws IOException {
         try (Socket socket = openSocket()) {
             DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -525,12 +525,12 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 扫描源目录下的全部文件（排除 excludes 模式）。
-    *
-    * @param sourceDir 源目录
-    * @return 文件路径列表
-    * @throws IOException 扫描失败
-    */
+     * 扫描源目录下的全部文件（排除 excludes 模式）。
+     *
+     * @param sourceDir 源目录
+     * @return 文件路径列表
+     * @throws IOException 扫描失败
+     */
     private List<Path> scanFiles(Path sourceDir) throws IOException {
         List<String> excludes = config.getExcludes();
         List<String> includes = config.getIncludes();
@@ -585,26 +585,26 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 计算相对路径（{@code /} 分隔），供协议上报使用。
-    *
-    * @param sourceDir 源目录
-    * @param file      文件绝对路径
-    * @return 相对路径
-    */
+     * 计算相对路径（{@code /} 分隔），供协议上报使用。
+     *
+     * @param sourceDir 源目录
+     * @param file      文件绝对路径
+     * @return 相对路径
+     */
     private static String relativeOf(Path sourceDir, Path file) {
         return sourceDir.relativize(file).toString().replace('\\', '/');
     }
 
     /**
-    * 按轮转（round-robin）把文件均分成 {@code groups} 组。
-    *
-    * <p>轮转而非连续切分：扫描结果大致按目录顺序排列，大文件容易连成一片；
-    * 轮转可把大文件摊到不同连接上，避免某条连接被大文件拖住而其他连接提前空转。</p>
-    *
-    * @param files  文件列表
-    * @param groups 目标组数（会收敛到 {@code [1, files.size()]}）
-    * @return 分组结果，组数不超过 {@code files.size()}
-    */
+     * 按轮转（round-robin）把文件均分成 {@code groups} 组。
+     *
+     * <p>轮转而非连续切分：扫描结果大致按目录顺序排列，大文件容易连成一片；
+     * 轮转可把大文件摊到不同连接上，避免某条连接被大文件拖住而其他连接提前空转。</p>
+     *
+     * @param files  文件列表
+     * @param groups 目标组数（会收敛到 {@code [1, files.size()]}）
+     * @return 分组结果，组数不超过 {@code files.size()}
+     */
     private static List<List<Path>> partitionRoundRobin(List<Path> files, int groups) {
         int g = Math.max(1, Math.min(groups, files.size()));
         List<List<Path>> batches = new ArrayList<>(g);
@@ -619,13 +619,13 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 在一条已握手的连接上发送握手帧。
-    *
-    * @param out       连接输出流
-    * @param in        连接输入流
-    * @param fileCount 该连接承载的文件数（0=控制连接，1=单文件，&gt;1=多文件）
-    * @throws IOException 握手失败
-    */
+     * 在一条已握手的连接上发送握手帧。
+     *
+     * @param out       连接输出流
+     * @param in        连接输入流
+     * @param fileCount 该连接承载的文件数（0=控制连接，1=单文件，&gt;1=多文件）
+     * @throws IOException 握手失败
+     */
     private void handshake(DataOutputStream out, DataInputStream in, int fileCount)
             throws IOException {
         out.writeInt(MAGIC);
@@ -639,12 +639,12 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 推送单个文件到服务端（独立连接）。
-    *
-    * @param sourceDir 源目录（用于计算相对路径）
-    * @param file 文件绝对路径
-    * @return 单文件任务结果
-    */
+     * 推送单个文件到服务端（独立连接）。
+     *
+     * @param sourceDir 源目录（用于计算相对路径）
+     * @param file 文件绝对路径
+     * @return 单文件任务结果
+     */
     private FileTaskResult pushFile(Path sourceDir, Path file) {
         String relativePath = relativeOf(sourceDir, file);
         boolean acquired = false;
@@ -674,17 +674,17 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 连接复用模式：一条连接承载一组文件（握手 {@code fileCount=N}）。
-    *
-    * <p>连接中途失败时，从<b>失败的那个文件</b>开始用新连接重试（已 ACK 的文件不重传），
-    * 重试 {@link #MAX_BATCH_ATTEMPTS} 次仍失败则把剩余文件降级为单文件连接逐个推送，
-    * 避免一个坏文件连累整批。</p>
-    *
-    * @param sourceDir 源目录
-    * @param files     该连接承载的文件（有序）
-    * @param limiter   并发批次限流信号量
-    * @return 与 {@code files} 等长、顺序一致的单文件结果列表
-    */
+     * 连接复用模式：一条连接承载一组文件（握手 {@code fileCount=N}）。
+     *
+     * <p>连接中途失败时，从<b>失败的那个文件</b>开始用新连接重试（已 ACK 的文件不重传），
+     * 重试 {@link #MAX_BATCH_ATTEMPTS} 次仍失败则把剩余文件降级为单文件连接逐个推送，
+     * 避免一个坏文件连累整批。</p>
+     *
+     * @param sourceDir 源目录
+     * @param files     该连接承载的文件（有序）
+     * @param limiter   并发批次限流信号量
+     * @return 与 {@code files} 等长、顺序一致的单文件结果列表
+     */
     private List<FileTaskResult> pushBatch(Path sourceDir, List<Path> files, Semaphore limiter) {
         FileTaskResult[] slot = new FileTaskResult[files.size()];
         // 连接内串行传输，分片缓冲跨文件复用
@@ -771,25 +771,25 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 连接内复用的分片读缓冲。
-    *
-    * <p>同一连接内文件是串行传输的，故一个连接共用一个分片缓冲即可。
-    * 原实现每读一个分片就 {@code new byte[chunkSize]}（默认 1 MB），
-    * 推 128 MB 文件会白白产生 128 MB 分配churn。</p>
-    */
+     * 连接内复用的分片读缓冲。
+     *
+     * <p>同一连接内文件是串行传输的，故一个连接共用一个分片缓冲即可。
+     * 原实现每读一个分片就 {@code new byte[chunkSize]}（默认 1 MB），
+     * 推 128 MB 文件会白白产生 128 MB 分配churn。</p>
+     */
     private static final class ChunkBuffer {
 
         /**
-        * 缓冲区，按需增长到「本次请求的字节数」，不会一次就按 chunkSize 顶格分配
-        */
+         * 缓冲区，按需增长到「本次请求的字节数」，不会一次就按 chunkSize 顶格分配
+         */
         private byte[] buf;
 
         /**
-        * 取一块至少 {@code size} 字节的缓冲。
-        *
-        * @param size 需要的字节数
-        * @return 缓冲数组（长度 &ge; size）
-        */
+         * 取一块至少 {@code size} 字节的缓冲。
+         *
+         * @param size 需要的字节数
+         * @return 缓冲数组（长度 &ge; size）
+         */
         byte[] get(int size) {
             byte[] cur = buf;
             if (cur == null || cur.length < size) {
@@ -801,17 +801,17 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 在已握手的连接上传输一个文件：BEGIN → CHUNK×N → END → 等 ACK。
-    *
-    * <p>失败时抛 {@link IOException}（连接流状态已不可信，由调用方决定重建连接）。</p>
-    *
-    * @param sourceDir 源目录（用于计算相对路径）
-    * @param file      文件绝对路径
-    * @param in        连接输入流
-    * @param out       连接输出流
-    * @return 单文件任务结果（成功）
-    * @throws IOException 读取源文件或协议失败
-    */
+     * 在已握手的连接上传输一个文件：BEGIN → CHUNK×N → END → 等 ACK。
+     *
+     * <p>失败时抛 {@link IOException}（连接流状态已不可信，由调用方决定重建连接）。</p>
+     *
+     * @param sourceDir 源目录（用于计算相对路径）
+     * @param file      文件绝对路径
+     * @param in        连接输入流
+     * @param out       连接输出流
+     * @return 单文件任务结果（成功）
+     * @throws IOException 读取源文件或协议失败
+     */
     private FileTaskResult transferOneFile(Path sourceDir, Path file,
                                            DataInputStream in, DataOutputStream out)
             throws IOException {
@@ -819,16 +819,16 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 在已握手的连接上传输一个文件（可复用分片缓冲）。
-    *
-    * @param sourceDir 源目录（用于计算相对路径）
-    * @param file      文件绝对路径
-    * @param in        连接输入流
-    * @param out       连接输出流
-    * @param buffer    连接内复用的分片缓冲
-    * @return 单文件任务结果（成功）
-    * @throws IOException 读取源文件或协议失败
-    */
+     * 在已握手的连接上传输一个文件（可复用分片缓冲）。
+     *
+     * @param sourceDir 源目录（用于计算相对路径）
+     * @param file      文件绝对路径
+     * @param in        连接输入流
+     * @param out       连接输出流
+     * @param buffer    连接内复用的分片缓冲
+     * @return 单文件任务结果（成功）
+     * @throws IOException 读取源文件或协议失败
+     */
     private FileTaskResult transferOneFile(Path sourceDir, Path file,
                                            DataInputStream in, DataOutputStream out,
                                            ChunkBuffer buffer) throws IOException {
@@ -924,14 +924,14 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 发送清理旧文件指令（控制连接，fileCount=0）。
-    *
-    * <p>帧格式：{@code [byte MSG_CLEANUP][int count]}，其后每条为
-    * {@code [int pathLen][bytes path(utf-8)]}。服务端删除清单之外的文件。</p>
-    *
-    * @param expected 本次扫描到的全部相对路径（含增量跳过的文件）
-    * @throws IOException 连接或协议失败
-    */
+     * 发送清理旧文件指令（控制连接，fileCount=0）。
+     *
+     * <p>帧格式：{@code [byte MSG_CLEANUP][int count]}，其后每条为
+     * {@code [int pathLen][bytes path(utf-8)]}。服务端删除清单之外的文件。</p>
+     *
+     * @param expected 本次扫描到的全部相对路径（含增量跳过的文件）
+     * @throws IOException 连接或协议失败
+     */
     private void sendCleanup(List<String> expected) throws IOException {
         try (Socket socket = openSocket()) {
             DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -968,8 +968,8 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 释放客户端资源（关闭线程池）。
-    */
+     * 释放客户端资源（关闭线程池）。
+     */
     @Override
     public void close() {
         if (closed) {
@@ -980,44 +980,44 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-    * 单个文件推送任务结果。
-    *
-    * @param relativePath 文件相对路径
-    * @param success 是否推送成功
-    * @param fileSize 文件字节数（成功时）
-    * @param error 失败原因（成功时为 null）
-    * @return 结果值
-    */
+     * 单个文件推送任务结果。
+     *
+     * @param relativePath 文件相对路径
+     * @param success 是否推送成功
+     * @param fileSize 文件字节数（成功时）
+     * @param error 失败原因（成功时为 null）
+     * @return 结果值
+     */
     public record FileTaskResult(String relativePath, boolean success, long fileSize, String error) {
     }
 
     /**
-    * 整体推送结果。
-    *
-    * @param tasks 每个文件的任务结果
-    * @param successCount 成功文件数
-    * @param failedCount 失败文件数
-    * @param skippedCount 增量同步跳过的未变更文件数（未开启增量时为 0）
-    * @param elapsedMs 总耗时（毫秒）
-    * @param throughputMbs 吞吐（MB/s）
-    */
+     * 整体推送结果。
+     *
+     * @param tasks 每个文件的任务结果
+     * @param successCount 成功文件数
+     * @param failedCount 失败文件数
+     * @param skippedCount 增量同步跳过的未变更文件数（未开启增量时为 0）
+     * @param elapsedMs 总耗时（毫秒）
+     * @param throughputMbs 吞吐（MB/s）
+     */
     public record PushResult(List<FileTaskResult> tasks, long successCount, long failedCount,
                              long skippedCount, long elapsedMs, double throughputMbs) {
 
         /**
-        * 是否有失败。
-        *
-        * @return true 表示存在失败文件
-        */
+         * 是否有失败。
+         *
+         * @return true 表示存在失败文件
+         */
         public boolean hasFailures() {
             return failedCount > 0;
         }
 
         /**
-        * 获取失败文件明细。
-        *
-        * @return 失败任务列表
-        */
+         * 获取失败文件明细。
+         *
+         * @return 失败任务列表
+         */
         public List<FileTaskResult> failures() {
             return tasks.stream().filter(t -> !t.success()).toList();
         }

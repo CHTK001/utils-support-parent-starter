@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 4.0.0.43
-*/
+ */
 @Slf4j
 @SpiDefault
 @Spi("pidfile")
@@ -152,11 +152,11 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
     }
 
     /**
-    * 检测进程 PID（跨平台兼容）。
-    * @param process 进程
-    * @param serviceName 服务名称
-    * @return 检测到的 PID
-    */
+     * 检测进程 PID（跨平台兼容）。
+     * @param process 进程
+     * @param serviceName 服务名称
+     * @return 检测到的 PID
+     */
     private long detectPid(Process process, String serviceName) {
         long pid = process.pid();
         if (pid > 0) {

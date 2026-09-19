@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("autoservice")
 @SpiDescribe("AutoService Bean 定义生成器")

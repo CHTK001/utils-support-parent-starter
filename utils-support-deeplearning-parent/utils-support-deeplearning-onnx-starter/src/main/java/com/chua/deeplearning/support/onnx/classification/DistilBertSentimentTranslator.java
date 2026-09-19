@@ -21,14 +21,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* distilbert SST-2              Translator
-* <p>
-*                         
-*          POSITIVE / NEGATIVE             
-* </p>
-*
-* @author CH
-* @since 2026-05-10
+ * distilbert SST-2              Translator
+ * <p>
+ *                         
+ *          POSITIVE / NEGATIVE             
+ * </p>
+ *
+ * @author CH
+ * @since 2026-05-10
  */
 @Slf4j
 public class DistilBertSentimentTranslator implements Translator<String, Classifications> {
@@ -95,12 +95,12 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     @Override
     @Nonnull
     /**
-    * 处理输出
-    *
-    * @param ctx ctx
-    * @param list 列表
-    * @return 处理输出的结果
-    */
+     * 处理输出
+     *
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -115,20 +115,20 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     @Override
     @Nullable
     /**
-    * 获取Batchifier
-    *
-    * @return 获取batchifier的结果
-    */
+     * 获取Batchifier
+     *
+     * @return 获取batchifier的结果
+     */
     public Batchifier getBatchifier() {
         return null;
     }
 
     /**
-    * 查找tokenizer路径
-    *
-    * @param modelPath 模型路径
-    * @return findtokenizer路径的结果
-    */
+     * 查找tokenizer路径
+     *
+     * @param modelPath 模型路径
+     * @return findtokenizer路径的结果
+     */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) { return null; }
@@ -142,11 +142,11 @@ public class DistilBertSentimentTranslator implements Translator<String, Classif
     }
 
     /**
-    * Softmax
-    *
-    * @param logits logits
-    * @return softmax的结果
-    */
+     * Softmax
+     *
+     * @param logits logits
+     * @return softmax的结果
+     */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float l : logits) { max = Math.max(max, l); }

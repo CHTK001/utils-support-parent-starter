@@ -7,18 +7,18 @@ import com.chua.filesystem.log.support.spi.impl.WindowsEventLogProvider;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 系统日志桥接器 - 统一管理各平台 FFM functionregistry
-* <p>
-* 负责：
-* <ul>
-*   <li>识别当前运行平台</li>
-*   <li>初始化对应平台的 FFM 绑定</li>
-*   <li>提供统一的原生函数注册表</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 系统日志桥接器 - 统一管理各平台 FFM functionregistry
+ * <p>
+ * 负责：
+ * <ul>
+ *   <li>识别当前运行平台</li>
+ *   <li>初始化对应平台的 FFM 绑定</li>
+ *   <li>提供统一的原生函数注册表</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public final class SystemLogBridge {
@@ -76,19 +76,19 @@ public final class SystemLogBridge {
     }
 
     /**
-    * 获取Linuxregistry
-    *
-    * @return 获取Linuxregistry的结果
-    */
+     * 获取Linuxregistry
+     *
+     * @return 获取Linuxregistry的结果
+     */
     public NativeFunctionRegistry getLinuxRegistry() {
         return linuxRegistry;
     }
 
     /**
-    * 创建提供者
-    *
-    * @return 创建提供者的结果
-    */
+     * 创建提供者
+     *
+     * @return 创建提供者的结果
+     */
     public SystemLogProvider createProvider() {
         if (PlatformSystems.isWindows()) {
             return new WindowsEventLogProvider(this);
@@ -103,10 +103,10 @@ public final class SystemLogBridge {
     }
 
     /**
-    * 初始化窗口
-    *
-    * @return 初始化窗口的结果
-    */
+     * 初始化窗口
+     *
+     * @return 初始化窗口的结果
+     */
     private NativeFunctionRegistry initializeWindows() {
         try {
             return NativeFunctionRegistry.ofLibrary("Advapi32");
@@ -117,10 +117,10 @@ public final class SystemLogBridge {
     }
 
     /**
-    * 初始化Linux
-    *
-    * @return 初始化Linux的结果
-    */
+     * 初始化Linux
+     *
+     * @return 初始化Linux的结果
+     */
     private NativeFunctionRegistry initializeLinux() {
         try {
             return NativeFunctionRegistry.ofLibrary("systemd");

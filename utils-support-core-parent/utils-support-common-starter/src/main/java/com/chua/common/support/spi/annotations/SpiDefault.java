@@ -73,7 +73,7 @@ import java.lang.annotation.*;
  * @since 2024-01-01
  * @版本 1.0.0
  * @see Spi
-*/
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})

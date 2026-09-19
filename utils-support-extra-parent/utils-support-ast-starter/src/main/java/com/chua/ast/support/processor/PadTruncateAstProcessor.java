@@ -16,10 +16,10 @@ import javax.lang.model.type.TypeKind;
 import java.util.Set;
 
 /**
-* {@link PadTruncate} 注解的 AST 处理器
-*
-* @author CH
-* @since 4.0.0.42
+ * {@link PadTruncate} 注解的 AST 处理器
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.PadTruncate")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -95,11 +95,11 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 是否字符串类型
-    *
-    * @param type 类型
-    * @return 是否字符串类型的结果
-    */
+     * 是否字符串类型
+     *
+     * @param type 类型
+     * @return 是否字符串类型的结果
+     */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) {
             return false;
@@ -109,13 +109,13 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 构建padtruncate对账单
-    * @param maker maker
-    * @param names 名称
-    * @param paramName 参数名称
-    * @param minLength 最小长度
-    * @param maxLength 最大长度
-    */
+     * 构建padtruncate对账单
+     * @param maker maker
+     * @param names 名称
+     * @param paramName 参数名称
+     * @param minLength 最小长度
+     * @param maxLength 最大长度
+     */
     private JCTree.JCStatement buildPadTruncateStatement(TreeMaker maker, Names names,
                                                           String paramName, int minLength, int maxLength) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
@@ -179,11 +179,11 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 前置对账单
-    *
-    * @param body 主体
-    * @param stmt stmt
-    */
+     * 前置对账单
+     *
+     * @param body 主体
+     * @param stmt stmt
+     */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

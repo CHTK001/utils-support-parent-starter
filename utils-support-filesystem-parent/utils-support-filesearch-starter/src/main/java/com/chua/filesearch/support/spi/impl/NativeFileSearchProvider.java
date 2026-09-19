@@ -9,10 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 /**
-* 基于 Rust 原生库的文件搜索提供器
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Rust 原生库的文件搜索提供器
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class NativeFileSearchProvider implements FileSearchProvider {

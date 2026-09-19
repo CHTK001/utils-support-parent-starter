@@ -66,8 +66,8 @@ public class RocksDbOrmStore {
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
-    * 表 级 锁：表名 → {@link Object}，串行化 同 表 的 序号 分配 与 读-改-写 循环
-    */
+     * 表 级 锁：表名 → {@link Object}，串行化 同 表 的 序号 分配 与 读-改-写 循环
+     */
     private final Map<String, Object> tableLocks;
 
     /** RocksDB 实例 */
@@ -83,36 +83,36 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 构造 ORM 存储（显式 传入 表 级 锁 映射，供 引擎 共享 锁 句柄 以 保证 同 表 串行）。
-    *
-    * @param db         RocksDB 实例
-    * @param tableLocks 表 级 锁 映射（表名 → 锁 句柄），必须 是 线程 安全 的
-    */
+     * 构造 ORM 存储（显式 传入 表 级 锁 映射，供 引擎 共享 锁 句柄 以 保证 同 表 串行）。
+     *
+     * @param db         RocksDB 实例
+     * @param tableLocks 表 级 锁 映射（表名 → 锁 句柄），必须 是 线程 安全 的
+     */
     public RocksDbOrmStore(RocksDB db, Map<String, Object> tableLocks) {
         this.db = db;
         this.tableLocks = tableLocks;
     }
 
     /**
-    * 获取 表 级 锁 句柄（同 表 共享 同一 锁 实例，跨 表 互不 影响）。
-    *
-    * @param table 表名
-    * @return 锁 句柄
-    */
+     * 获取 表 级 锁 句柄（同 表 共享 同一 锁 实例，跨 表 互不 影响）。
+     *
+     * @param table 表名
+     * @return 锁 句柄
+     */
     private Object tableLock(String table) {
         return tableLocks.computeIfAbsent(table, k -> new Object());
     }
 
     /**
-    * 解析 实体 类 的 ORM 表名。
-    * <p>优先 {@link TableName} 注解 值；未 标注 时 取 实体 类 简单 名 小写
-    * （不 做 驼峰 转 下划线，保证 {@code store(name, data)} 使用 类 简单 名
-    * 与 查询 前缀 一致）。</p>
-    *
-    * @param entityClass 实体 类 类型
-    * @param <T> 实体 类型
-    * @return 表名
-    */
+     * 解析 实体 类 的 ORM 表名。
+     * <p>优先 {@link TableName} 注解 值；未 标注 时 取 实体 类 简单 名 小写
+     * （不 做 驼峰 转 下划线，保证 {@code store(name, data)} 使用 类 简单 名
+     * 与 查询 前缀 一致）。</p>
+     *
+     * @param entityClass 实体 类 类型
+     * @param <T> 实体 类型
+     * @return 表名
+     */
     public static <T> String resolveEntityTableName(Class<T> entityClass) {
         TableName annotation = entityClass.getAnnotation(TableName.class);
         if (annotation != null && !annotation.value().isEmpty()) {
@@ -122,13 +122,13 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 持久化 实体 列表 到 RocksDB（按 实体 自身 id 或 自增 序号 分 键 写入）。
-    * <p>序号 分配 在 表 级 锁 内 完成，保证 并 发 写入 不 产生 重复 行 键。</p>
-    *
-    * @param table    表名
-    * @param entities 实体 列表
-    * @return 写入 行数
-    */
+     * 持久化 实体 列表 到 RocksDB（按 实体 自身 id 或 自增 序号 分 键 写入）。
+     * <p>序号 分配 在 表 级 锁 内 完成，保证 并 发 写入 不 产生 重复 行 键。</p>
+     *
+     * @param table    表名
+     * @param entities 实体 列表
+     * @return 写入 行数
+     */
     public <T> int store(String table, List<T> entities) {
         if (entities == null || entities.isEmpty()) {
             return 0;
@@ -139,12 +139,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 表 级 锁 内 的 存储 实现（调用 方 必须 持有 {@link #tableLock}）。
-    *
-    * @param table    表名
-    * @param entities 实体 列表
-    * @return 写入 行数
-    */
+     * 表 级 锁 内 的 存储 实现（调用 方 必须 持有 {@link #tableLock}）。
+     *
+     * @param table    表名
+     * @param entities 实体 列表
+     * @return 写入 行数
+     */
     @SuppressWarnings("unchecked")
     private <T> int storeLocked(String table, List<T> entities) {
         WriteBatch batch = new WriteBatch();
@@ -164,32 +164,32 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 按 实体 类 自身 表名 持久化 实体 列表。
-    *
-    * @param entities    实体 列表
-    * @param entityClass 实体 类 类型
-    * @param <T>         实体 类型
-    * @return 写入 行数
-    */
+     * 按 实体 类 自身 表名 持久化 实体 列表。
+     *
+     * @param entities    实体 列表
+     * @param entityClass 实体 类 类型
+     * @param <T>         实体 类型
+     * @return 写入 行数
+     */
     public <T> int store(List<T> entities, Class<T> entityClass) {
         return store(resolveEntityTableName(entityClass), entities);
     }
 
     /**
-    * 执行 实体 查询：前缀 扫描 + 可选 WHERE 内存 过滤（列 名 已 映射 回 实体 字段）。
-    * <p>limit/offset 由 基类 {@code processQueryResult} 统一 截取，本 方法
-    * 仅 负责 谓词 过滤；无 WHERE 时 仍 需 全 量 扫描（谓词 未 下推，无法
-    * 靠 RocksDB 键 范围 早 停——行 键 为 自增 序号 / 实体 id，与 逻辑 分页
-    * 无 序 关系）。</p>
-    *
-    * @param where       WHERE 子句（不含 WHERE 关键字），可为 空
-    * @param params      参数 列表
-    * @param entityClass 实体 类 类型
-    * @param limit       限制（仅 供 语义 参考，实际 截取 由 基类 完成）
-    * @param offset      偏移 量（仅 供 语义 参考，实际 截取 由 基类 完成）
-    * @param <T>         实体 类型
-    * @return 查询 结果
-    */
+     * 执行 实体 查询：前缀 扫描 + 可选 WHERE 内存 过滤（列 名 已 映射 回 实体 字段）。
+     * <p>limit/offset 由 基类 {@code processQueryResult} 统一 截取，本 方法
+     * 仅 负责 谓词 过滤；无 WHERE 时 仍 需 全 量 扫描（谓词 未 下推，无法
+     * 靠 RocksDB 键 范围 早 停——行 键 为 自增 序号 / 实体 id，与 逻辑 分页
+     * 无 序 关系）。</p>
+     *
+     * @param where       WHERE 子句（不含 WHERE 关键字），可为 空
+     * @param params      参数 列表
+     * @param entityClass 实体 类 类型
+     * @param limit       限制（仅 供 语义 参考，实际 截取 由 基类 完成）
+     * @param offset      偏移 量（仅 供 语义 参考，实际 截取 由 基类 完成）
+     * @param <T>         实体 类型
+     * @return 查询 结果
+     */
     public <T> List<T> query(String where, List<Object> params, Class<T> entityClass, int limit, int offset) {
         byte[] prefix = tablePrefix(entityClass);
         List<T> rows = scanTable(prefix, entityClass);
@@ -201,18 +201,18 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 执行 实体 更新：按 WHERE 过滤 命中 行，SET 列 名 映射 回 实体 字段 后
-    * 反射 写 入，原子 回写 RocksDB。
-    * <p>整个 读-改-写 循环 在 表 级 锁 内 完成，避免 并 发 删除 在 扫描 后
-    * 写 入 前 介入 导致 已 删除 行 被 复活（H3 修复）。</p>
-    *
-    * @param where       WHERE 子句
-    * @param params      参数 列表
-    * @param setValues   设置 字段 映射（下划线 列 名 为 目标 值）
-    * @param entityClass 实体 类 类型
-    * @param <T>         实体 类型
-    * @return 影响 行数
-    */
+     * 执行 实体 更新：按 WHERE 过滤 命中 行，SET 列 名 映射 回 实体 字段 后
+     * 反射 写 入，原子 回写 RocksDB。
+     * <p>整个 读-改-写 循环 在 表 级 锁 内 完成，避免 并 发 删除 在 扫描 后
+     * 写 入 前 介入 导致 已 删除 行 被 复活（H3 修复）。</p>
+     *
+     * @param where       WHERE 子句
+     * @param params      参数 列表
+     * @param setValues   设置 字段 映射（下划线 列 名 为 目标 值）
+     * @param entityClass 实体 类 类型
+     * @param <T>         实体 类型
+     * @return 影响 行数
+     */
     @SuppressWarnings("unchecked")
     public <T> int update(String where, List<Object> params, Map<String, Object> setValues, Class<T> entityClass) {
         String table = resolveEntityTableName(entityClass);
@@ -247,16 +247,16 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 执行 实体 删除：按 WHERE 过滤 命中 行，原子 移除 对应 键。
-    * <p>整个 读-删 循环 在 表 级 锁 内 完成，避免 并 发 更新 在 删除 后
-    * 写 回 已 删除 行（H3 修复）。</p>
-    *
-    * @param where       WHERE 子句
-    * @param params      参数 列表
-    * @param entityClass 实体 类 类型
-    * @param <T>         实体 类型
-    * @return 影响 行数
-    */
+     * 执行 实体 删除：按 WHERE 过滤 命中 行，原子 移除 对应 键。
+     * <p>整个 读-删 循环 在 表 级 锁 内 完成，避免 并 发 更新 在 删除 后
+     * 写 回 已 删除 行（H3 修复）。</p>
+     *
+     * @param where       WHERE 子句
+     * @param params      参数 列表
+     * @param entityClass 实体 类 类型
+     * @param <T>         实体 类型
+     * @return 影响 行数
+     */
     @SuppressWarnings("unchecked")
     public <T> int delete(String where, List<Object> params, Class<T> entityClass) {
         String table = resolveEntityTableName(entityClass);
@@ -285,14 +285,14 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 统计 实体 表 中 WHERE 命中 行数。
-    *
-    * @param where       WHERE 子句
-    * @param params      参数 列表
-    * @param entityClass 实体 类 类型
-    * @param <T>         实体 类型
-    * @return 命中 行数
-    */
+     * 统计 实体 表 中 WHERE 命中 行数。
+     *
+     * @param where       WHERE 子句
+     * @param params      参数 列表
+     * @param entityClass 实体 类 类型
+     * @param <T>         实体 类型
+     * @return 命中 行数
+     */
     public <T> long count(String where, List<Object> params, Class<T> entityClass) {
         byte[] prefix = tablePrefix(entityClass);
         return filterRows(prefix, where, params, entityClass, fieldMap(entityClass)).size();
@@ -301,15 +301,15 @@ public class RocksDbOrmStore {
     // ==================== 谓词 构建（列 名 → 字段 名 映射 后 反射 取 值） ====================
 
     /**
-    * 将 lambda 渲染 的 下划线 列 名 映射 回 实体 驼峰 字段（{@code dept_id → deptId}）。
-    * <p>WHERE/SET 子句 中 出现 的 列 名 先 查 映射；未 命中 时 原样 保留，
-    * 由 后续 反射 取 值 兜底 处理 单 词 字段（如 {@code id}、{@code name}）。</p>
-    *
-    * @param where WHERE 子句（可为 空）
-    * @param params 参数 列表
-    * @return 列 名 已 映射 为 字段 名 的 WHERE 子句
-    * @param fieldMap 字段映射，不允许为 null
-    */
+     * 将 lambda 渲染 的 下划线 列 名 映射 回 实体 驼峰 字段（{@code dept_id → deptId}）。
+     * <p>WHERE/SET 子句 中 出现 的 列 名 先 查 映射；未 命中 时 原样 保留，
+     * 由 后续 反射 取 值 兜底 处理 单 词 字段（如 {@code id}、{@code name}）。</p>
+     *
+     * @param where WHERE 子句（可为 空）
+     * @param params 参数 列表
+     * @return 列 名 已 映射 为 字段 名 的 WHERE 子句
+     * @param fieldMap 字段映射，不允许为 null
+     */
     private static String mapWhereColumns(String where, Map<String, String> fieldMap) {
         if (where == null || where.trim().isEmpty() || fieldMap.isEmpty()) {
             return where;
@@ -329,11 +329,11 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 从 WHERE 子句 提取 列 名（二元 比较 条件 的 左 操作 数 与 等值 字段）。
-    *
-    * @param where WHERE 子句
-    * @return 列 名 集合（保持 出现 顺序）
-    */
+     * 从 WHERE 子句 提取 列 名（二元 比较 条件 的 左 操作 数 与 等值 字段）。
+     *
+     * @param where WHERE 子句
+     * @return 列 名 集合（保持 出现 顺序）
+     */
     private static Set<String> extractColumns(String where) {
         Set<String> columns = new LinkedHashSet<>();
         for (String token : where.split("[\\s()=<>!]+")) {
@@ -352,11 +352,11 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 判断 是否 SQL 关键字（WHERE 渲染 中 的 非 列 标识 符）。
-    *
-    * @param token 标识 符
-    * @return true 表示 应 跳过
-    */
+     * 判断 是否 SQL 关键字（WHERE 渲染 中 的 非 列 标识 符）。
+     *
+     * @param token 标识 符
+     * @return true 表示 应 跳过
+     */
     private static boolean isSqlKeyword(String token) {
         switch (token.toUpperCase(Locale.ROOT)) {
             case "AND":
@@ -376,15 +376,15 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 实体 谓词：把 WHERE 列 名 映射 回 字段 后，反射 取 值 参与
-    * {@link MemoryWhereParser} 解析 的 条件 判断。
-    *
-    * @param entity  实体 实例
-    * @param fieldMap 列 名 → 字段 名 映射
-    * @param where   WHERE 子句
-    * @param params  参数 列表
-    * @return 是否 命中
-    */
+     * 实体 谓词：把 WHERE 列 名 映射 回 字段 后，反射 取 值 参与
+     * {@link MemoryWhereParser} 解析 的 条件 判断。
+     *
+     * @param entity  实体 实例
+     * @param fieldMap 列 名 → 字段 名 映射
+     * @param where   WHERE 子句
+     * @param params  参数 列表
+     * @return 是否 命中
+     */
     private static boolean entityPredicate(Object entity, Map<String, String> fieldMap, String where, List<Object> params) {
         String mapped = mapWhereColumns(where, fieldMap);
         MemoryWhereParser parser = new MemoryWhereParser();
@@ -396,11 +396,11 @@ public class RocksDbOrmStore {
     // ==================== 实体 字段 反射（Field 级，snake ↔ camel） ====================
 
     /**
-    * 构建 实体 类 的 下划线 列 名 → 驼峰 字段 名 映射（含 父 类 字段）。
-    *
-    * @param entityClass 实体 类 类型
-    * @return 列 名 → 字段 名 映射
-    */
+     * 构建 实体 类 的 下划线 列 名 → 驼峰 字段 名 映射（含 父 类 字段）。
+     *
+     * @param entityClass 实体 类 类型
+     * @return 列 名 → 字段 名 映射
+     */
     private static Map<String, String> fieldMap(Class<?> entityClass) {
         Map<String, String> map = new HashMap<>();
         Class<?> clazz = entityClass;
@@ -418,12 +418,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 取 实体 类 的 字段 反射 句柄（含 父 类 查找，已 {@code setAccessible}，带 缓存）。
-    *
-    * @param entityClass 实体 类 类型
-    * @param field       字段名（驼峰）
-    * @return 字段 句柄，未 找到 返回 空
-    */
+     * 取 实体 类 的 字段 反射 句柄（含 父 类 查找，已 {@code setAccessible}，带 缓存）。
+     *
+     * @param entityClass 实体 类 类型
+     * @param field       字段名（驼峰）
+     * @return 字段 句柄，未 找到 返回 空
+     */
     private static Field findField(Class<?> entityClass, String field) {
         Map<String, Field> cache = FIELD_CACHE.computeIfAbsent(entityClass, k -> new ConcurrentHashMap<>());
         return cache.computeIfAbsent(field, f -> {
@@ -437,11 +437,11 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 驼峰 转 下划线（{@code deptId → dept_id}）。
-    *
-    * @param name 驼峰 名
-    * @return 下划线 名
-    */
+     * 驼峰 转 下划线（{@code deptId → dept_id}）。
+     *
+     * @param name 驼峰 名
+     * @return 下划线 名
+     */
     private static String toSnakeCase(String name) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
@@ -459,12 +459,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 反射 设置 实体 字段 值（含 父 类 查找 与 类型 适配）。
-    *
-    * @param entity 实体 实例
-    * @param field  字段名（驼峰）
-    * @param value  字段 值
-    */
+     * 反射 设置 实体 字段 值（含 父 类 查找 与 类型 适配）。
+     *
+     * @param entity 实体 实例
+     * @param field  字段名（驼峰）
+     * @param value  字段 值
+     */
     private static void setFieldValue(Object entity, String field, Object value) {
         Field f = findField(entity.getClass(), field);
         if (f == null) {
@@ -480,12 +480,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 值 类型 适配：字符串 数字 互 转，保证 数字 字面 量 写 入 数字 字段 不 抛 类型 异常。
-    *
-    * @param targetType 目标 类型
-    * @param value 原始 值
-    * @return 适配 后 的 值
-    */
+     * 值 类型 适配：字符串 数字 互 转，保证 数字 字面 量 写 入 数字 字段 不 抛 类型 异常。
+     *
+     * @param targetType 目标 类型
+     * @param value 原始 值
+     * @return 适配 后 的 值
+     */
     private static Object coerceValue(Class<?> targetType, Object value) {
         if (value == null || targetType.isInstance(value) || targetType == Object.class) {
             return value;
@@ -518,35 +518,35 @@ public class RocksDbOrmStore {
     // ==================== 键 布局 与 扫描 ====================
 
     /**
-    * 构造 ORM 行 键。
-    *
-    * @param table 表名
-    * @param id    行 id
-    * @return 完整 键
-    */
+     * 构造 ORM 行 键。
+     *
+     * @param table 表名
+     * @param id    行 id
+     * @return 完整 键
+     */
     private static String ormKey(String table, Object id) {
         return ORM_PREFIX + table + ":" + id;
     }
 
     /**
-    * 构造 表 前缀 键。
-    *
-    * @param entityClass 实体 类 类型
-    * @param <T> 实体 类型
-    * @return 表 前缀
-    */
+     * 构造 表 前缀 键。
+     *
+     * @param entityClass 实体 类 类型
+     * @param <T> 实体 类型
+     * @return 表 前缀
+     */
     private static <T> byte[] tablePrefix(Class<T> entityClass) {
         return (ORM_PREFIX + resolveEntityTableName(entityClass) + ":").getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-    * 表 前缀 扫描 + 实体 反 序列化。
-    *
-    * @param prefix      表 前缀
-    * @param entityClass 实体 类 类型
-    * @param <T>         实体 类型
-    * @return 实体 列表（跳过 序号 键）
-    */
+     * 表 前缀 扫描 + 实体 反 序列化。
+     *
+     * @param prefix      表 前缀
+     * @param entityClass 实体 类 类型
+     * @param <T>         实体 类型
+     * @return 实体 列表（跳过 序号 键）
+     */
     private <T> List<T> scanTable(byte[] prefix, Class<T> entityClass) {
         List<T> rows = new ArrayList<>();
         try (RocksIterator iter = db.newIterator()) {
@@ -565,15 +565,15 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 表 前缀 扫描 + WHERE 过滤（列 名 映射 回 字段），返回 [键字符串, 实体] 行 对 列表。
-    *
-    * @param prefix   表 前缀
-    * @param where    WHERE 子句，可为 空
-    * @param params   参数 列表
-    * @param entityClass 实体 类 类型
-    * @param fieldMap 列 名 → 字段 名 映射
-    * @return 命中 行 列表
-    */
+     * 表 前缀 扫描 + WHERE 过滤（列 名 映射 回 字段），返回 [键字符串, 实体] 行 对 列表。
+     *
+     * @param prefix   表 前缀
+     * @param where    WHERE 子句，可为 空
+     * @param params   参数 列表
+     * @param entityClass 实体 类 类型
+     * @param fieldMap 列 名 → 字段 名 映射
+     * @return 命中 行 列表
+     */
     @SuppressWarnings("unchecked")
     private <T> List<Object> filterRows(byte[] prefix, String where, List<Object> params,
                                        Class<T> entityClass, Map<String, String> fieldMap) {
@@ -588,12 +588,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 表 前缀 扫描，返回 [键字符串, 实体] 行 对 列表（跳过 序号 键）。
-    *
-    * @param prefix      表 前缀
-    * @param entityClass 实体 类 类型
-    * @return 行 对 列表
-    */
+     * 表 前缀 扫描，返回 [键字符串, 实体] 行 对 列表（跳过 序号 键）。
+     *
+     * @param prefix      表 前缀
+     * @param entityClass 实体 类 类型
+     * @return 行 对 列表
+     */
     @SuppressWarnings("unchecked")
     private <T> List<Object> scanRowPairs(byte[] prefix, Class<T> entityClass) {
         List<Object> rows = new ArrayList<>();
@@ -616,14 +616,14 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 解析 实体 行 id：优先 {@code id} 属性，缺省 取 表 级 递增 序号（8 位 零 填充）。
-    * <p>调用 方 必须 已 持有 表 级 锁（{@link #tableLock}），序号 分配 才 原子。</p>
-    *
-    * @param table 表名
-    * @param entity 实体 实例
-    * @param entityClass 实体 类 类型
-    * @return id 字符串
-    */
+     * 解析 实体 行 id：优先 {@code id} 属性，缺省 取 表 级 递增 序号（8 位 零 填充）。
+     * <p>调用 方 必须 已 持有 表 级 锁（{@link #tableLock}），序号 分配 才 原子。</p>
+     *
+     * @param table 表名
+     * @param entity 实体 实例
+     * @param entityClass 实体 类 类型
+     * @return id 字符串
+     */
     private String resolveIdLocked(String table, Object entity, Class<?> entityClass) {
         Object idValue = readIdProperty(entity, entityClass);
         if (idValue != null) {
@@ -633,15 +633,15 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 取 表 级 递增 序号（键 级 读取 + 回写，调用 方 必须 持有 表 级 锁 才 原子）。
-    * <p>计数 器 存储 为 十 进制 数字 符 串（"下一 可用 值"），读 出 后 取 当前 值、
-    * 回写 当前 值 +1。序号 以 8 位 零 填充 十 进制 编 码 作 为 行 键 后缀
-    * （字典 序 = 数值 序，避免 "10" 排 在 "2" 前 的 字典 序 陷阱），
-    * 行 键 扫描 顺序 即 插入 顺序。</p>
-    *
-    * @param table 表名
-    * @return 新 序号
-    */
+     * 取 表 级 递增 序号（键 级 读取 + 回写，调用 方 必须 持有 表 级 锁 才 原子）。
+     * <p>计数 器 存储 为 十 进制 数字 符 串（"下一 可用 值"），读 出 后 取 当前 值、
+     * 回写 当前 值 +1。序号 以 8 位 零 填充 十 进制 编 码 作 为 行 键 后缀
+     * （字典 序 = 数值 序，避免 "10" 排 在 "2" 前 的 字典 序 陷阱），
+     * 行 键 扫描 顺序 即 插入 顺序。</p>
+     *
+     * @param table 表名
+     * @return 新 序号
+     */
     private long nextSeqLocked(String table) {
         byte[] seqKey = (ORM_PREFIX + table + ":" + SEQ_SUFFIX).getBytes(StandardCharsets.UTF_8);
         try {
@@ -655,22 +655,22 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 将 自增 序号 编码 为 8 位 零 填充 行 键 后缀（字典 序 = 数值 序）。
-    *
-    * @param seq 序号
-    * @return 8 位 零 填充 十 进制 字符 串
-    */
+     * 将 自增 序号 编码 为 8 位 零 填充 行 键 后缀（字典 序 = 数值 序）。
+     *
+     * @param seq 序号
+     * @return 8 位 零 填充 十 进制 字符 串
+     */
     private static String seqKeySuffix(long seq) {
         return String.format("%08d", seq);
     }
 
     /**
-    * 读取 实体 id 属性（按 {@code id} 字段 名 反射 取值，取 不到 返回 空）。
-    *
-    * @param entity 实体 实例
-    * @param entityClass 实体 类 类型
-    * @return id 属性 值，未 命中 返回 空
-    */
+     * 读取 实体 id 属性（按 {@code id} 字段 名 反射 取值，取 不到 返回 空）。
+     *
+     * @param entity 实体 实例
+     * @param entityClass 实体 类 类型
+     * @return id 属性 值，未 命中 返回 空
+     */
     private static Object readIdProperty(Object entity, Class<?> entityClass) {
         Field field = findField(entityClass, "id");
         if (field == null) {
@@ -684,11 +684,11 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 实体 序列 化 为 JSON 字节。
-    *
-    * @param entity 实体 实例
-    * @return JSON 字节
-    */
+     * 实体 序列 化 为 JSON 字节。
+     *
+     * @param entity 实体 实例
+     * @return JSON 字节
+     */
     private static byte[] toEntityJson(Object entity) {
         try {
             return MAPPER.writeValueAsBytes(entity);
@@ -698,15 +698,15 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * JSON 反 序列化 为 实体。
-    * <p>反 序列化 失败 时 记录 告警 日志（含 异常 信息），返回 空 让 调用 方
-    * 跳 过 该 行，避免 静默 丢 数据（M2 修复）。</p>
-    *
-    * @param json JSON 字符串
-    * @param entityClass 实体 类 类型
-    * @param <T> 实体 类型
-    * @return 实体 实例，反 序列化 失败 返回 空
-    */
+     * JSON 反 序列化 为 实体。
+     * <p>反 序列化 失败 时 记录 告警 日志（含 异常 信息），返回 空 让 调用 方
+     * 跳 过 该 行，避免 静默 丢 数据（M2 修复）。</p>
+     *
+     * @param json JSON 字符串
+     * @param entityClass 实体 类 类型
+     * @param <T> 实体 类型
+     * @return 实体 实例，反 序列化 失败 返回 空
+     */
     private static <T> T fromEntityJson(String json, Class<T> entityClass) {
         try {
             return MAPPER.readValue(json, entityClass);
@@ -717,12 +717,12 @@ public class RocksDbOrmStore {
     }
 
     /**
-    * 判断 字节 数组 是否 以 指定 前缀 开头。
-    *
-    * @param data 数据
-    * @param prefix 前缀
-    * @return true 表示 匹配
-    */
+     * 判断 字节 数组 是否 以 指定 前缀 开头。
+     *
+     * @param data 数据
+     * @param prefix 前缀
+     * @return true 表示 匹配
+     */
     private static boolean startsWith(byte[] data, byte[] prefix) {
         if (data.length < prefix.length) {
             return false;

@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Ignite 处理器 — intercepts Ignite 缓存 operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * Ignite 处理器 — intercepts Ignite 缓存 operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class IgniteHandler extends AbstractAppHandler {
 
     /**
-    * ignite 缓存
+     * ignite 缓存
      */
     private static final String IGNITE_CACHE = "org/apache/ignite/IgniteCache";
     /**
-    * 缓存 方法
+     * 缓存 方法
      */
     private static final String[] CACHE_METHODS = {"get", "put", "remove", "replace", "getAndPut", "getAndRemove", "query"};
 

@@ -3,19 +3,19 @@ package com.chua.common.support.ai.generation;
 import com.chua.common.support.ai.chat.ChatClient;
 
 /**
-* 视频生成参数构建器（链式调用）。
-*
-* <p>用法：
-* <pre>{@code
-* VideoGenerationResult result = client.generateVideo()
-*     .prompt("一只柴犬在雪地里奔跑")
-*     .ratio("16:9")
-*     .cameraMovement("推进")
-*     .generate();
-* }</pre>
-*
-* @author CH
-* @since 2026/08/11
+ * 视频生成参数构建器（链式调用）。
+ *
+ * <p>用法：
+ * <pre>{@code
+ * VideoGenerationResult result = client.generateVideo()
+ *     .prompt("一只柴犬在雪地里奔跑")
+ *     .ratio("16:9")
+ *     .cameraMovement("推进")
+ *     .generate();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/08/11
  */
 public class VideoGenerationSpec {
 
@@ -38,9 +38,9 @@ public class VideoGenerationSpec {
     private int timeoutSeconds = 300;
 
     /**
-    * 创建 VideoGenerationSpec 实例
-    * @param client client
-    */
+     * 创建 VideoGenerationSpec 实例
+     * @param client client
+     */
     public VideoGenerationSpec(ChatClient client) {
         this.client = client;
     }

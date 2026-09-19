@@ -17,10 +17,10 @@ import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
 /**
-* {@link Retry} 注解的 AST 处理器
-*
-* @author CH
-* @since 4.0.0.42
+ * {@link Retry} 注解的 AST 处理器
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Retry")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -97,15 +97,15 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 构建重试对账单
-    * @param maker maker
-    * @param names 名称
-    * @param originalBody 原始主体
-    * @param times 时间
-    * @param delay 延迟
-    * @param maxDelay 最大延迟
-    * @param strategy strategy
-    */
+     * 构建重试对账单
+     * @param maker maker
+     * @param names 名称
+     * @param originalBody 原始主体
+     * @param times 时间
+     * @param delay 延迟
+     * @param maxDelay 最大延迟
+     * @param strategy strategy
+     */
     private JCTree.JCStatement buildRetryStatement(TreeMaker maker, Names names,
                                                      JCTree.JCBlock originalBody, int times, long delay, long maxDelay,
                                                      Retry.RetryStrategy strategy) {
@@ -188,13 +188,13 @@ public final class RetryAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 构建threadsleep
-    *
-    * @param maker maker
-    * @param names 名称
-    * @param delayExpr 延迟expr
-    * @return 构建threadsleep的结果
-    */
+     * 构建threadsleep
+     *
+     * @param maker maker
+     * @param names 名称
+     * @param delayExpr 延迟expr
+     * @return 构建threadsleep的结果
+     */
     private JCTree.JCStatement buildThreadSleep(TreeMaker maker, Names names, JCTree.JCExpression delayExpr) {
         JCTree.JCExpression sleepCall = maker.Apply(
                 com.sun.tools.javac.util.List.nil(),

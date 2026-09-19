@@ -11,34 +11,34 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-* MiMo Code（小米）用量解析器。
-*
-* <p>MiMo Code（mimocode）是小米推出的 agentic CLI，是 OpenCode 的分支，
-* 会把助手轮次持久化到 {@code ~/.local/share/mimocode/mimocode.db} 的
-* {@code message} 表中（Windows 下为
-* {@code %APPDATA%\mimocode\mimocode.db}）。{@code data} JSON 列
-* 携带每次请求的 token：</p>
-*
-* <pre>{@code
-* {
-*   "role": "assistant",
-*   "modelID": "mimo-v2.5-pro",
-*   "providerID": "mimo",
-*   "time": { "created": 1787616871678 },
-*   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
-*               "cache": { "read": 0, "write": 0 } }
-* }
-* }</pre>
-*
-* <p>miMo code 会把用户的 Claude Code / claude-mem 历史镜像进自己的
-* {@code message} 表，其 {@code providerID="anthropic"}。这些行
-* <b>在此处被排除</b>（Claude 解析器已统计过它们）；
-* 只输出 {@code providerID} 为 {@code "mimo"} 或
-* {@code "xiaomi"}（miMo 自身的运行时/自动路由）的轮次，
-* 与 TokenTracker 的判别口径保持一致。
-*
-* @author CH
-* @since 4.0.0.44
+ * MiMo Code（小米）用量解析器。
+ *
+ * <p>MiMo Code（mimocode）是小米推出的 agentic CLI，是 OpenCode 的分支，
+ * 会把助手轮次持久化到 {@code ~/.local/share/mimocode/mimocode.db} 的
+ * {@code message} 表中（Windows 下为
+ * {@code %APPDATA%\mimocode\mimocode.db}）。{@code data} JSON 列
+ * 携带每次请求的 token：</p>
+ *
+ * <pre>{@code
+ * {
+ *   "role": "assistant",
+ *   "modelID": "mimo-v2.5-pro",
+ *   "providerID": "mimo",
+ *   "time": { "created": 1787616871678 },
+ *   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
+ *               "cache": { "read": 0, "write": 0 } }
+ * }
+ * }</pre>
+ *
+ * <p>miMo code 会把用户的 Claude Code / claude-mem 历史镜像进自己的
+ * {@code message} 表，其 {@code providerID="anthropic"}。这些行
+ * <b>在此处被排除</b>（Claude 解析器已统计过它们）；
+ * 只输出 {@code providerID} 为 {@code "mimo"} 或
+ * {@code "xiaomi"}（miMo 自身的运行时/自动路由）的轮次，
+ * 与 TokenTracker 的判别口径保持一致。
+ *
+ * @author CH
+ * @since 4.0.0.44
  */
 @Spi("mimo")
 public class MimoUsageParser extends BaseUsageParser {
@@ -48,11 +48,11 @@ public class MimoUsageParser extends BaseUsageParser {
     private static final String PROVIDER_MIMO = "mimo";
 
     /**
-    * resolvedb路径：Windows 走 APPDATA，其余走 XDG_DATA_HOME /
-    * ~/.local/share。
-    *
-    * @return MiMo 数据库路径
-    */
+     * resolvedb路径：Windows 走 APPDATA，其余走 XDG_DATA_HOME /
+     * ~/.local/share。
+     *
+     * @return MiMo 数据库路径
+     */
     private static Path resolveDbPath() {
         String appData = System.getenv("APPDATA");
         if (appData != null && !appData.isBlank()) {
@@ -67,10 +67,10 @@ public class MimoUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 仅统计 MiMo 自身轮次（providerID 为 mimo / xiaomi），排除镜像进来的
-    * anthropic/openai/google 行——那些已由各自的 Claude / Codex / Gemini
-    * 解析器计数，纳入本解析器会双计。
-    */
+     * 仅统计 MiMo 自身轮次（providerID 为 mimo / xiaomi），排除镜像进来的
+     * anthropic/openai/google 行——那些已由各自的 Claude / Codex / Gemini
+     * 解析器计数，纳入本解析器会双计。
+     */
     private static final String SQL_MESSAGES =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -84,18 +84,18 @@ public class MimoUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "mimo"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "mimo"}
+     */
     @Override
     public String name() {
         return PROVIDER_MIMO;
     }
 
     /**
-    * 流式解析 MiMo 自身轮次的用量记录。
-    */
+     * 流式解析 MiMo 自身轮次的用量记录。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -111,11 +111,11 @@ public class MimoUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 SQL 行映射为 {@link AiUsage}；零用量行返回 null 由上游过滤。
-    *
-    * @param row 数据库行
-    * @return 用量记录
-    */
+     * 将 SQL 行映射为 {@link AiUsage}；零用量行返回 null 由上游过滤。
+     *
+     * @param row 数据库行
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));
         int input = 0, output = 0, reasoning = 0, cacheRead = 0, cacheWrite = 0;

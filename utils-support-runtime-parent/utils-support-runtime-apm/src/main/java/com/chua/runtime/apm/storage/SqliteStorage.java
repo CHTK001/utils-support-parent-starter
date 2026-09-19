@@ -25,87 +25,87 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* sqlite 存储 — 嵌入式本地落盘实现。
-*
-* <p>通过 {@code apm.storage.type=sqlite} 启用，数据持久化到本地 SQLite 文件，
-* 重启后数据不丢失。默认路径为 {@code ./apm.db}，可通过
-* {@code apm.storage.path} 指定。</p>
-*
-* <p>表结构：</p>
-* <ul>
-*   <li>{@code transmissions} — 传输事件</li>
-*   <li>{@code dependencies} — 依赖图边（按 source→target 聚合）</li>
-*   <li>{@code leaks} — 句柄泄漏记录</li>
-*   <li>{@code logs} — 日志记录</li>
-* </ul>
-*
-* <p>线程安全：所有写操作使用 {@code synchronized} 串行化，避免 SQLite 单写者限制；
-* 读操作使用独立连接，互不阻塞。</p>
-*
-* <p>日志说明：本类使用 Lombok {@code @Log}（java.util.logging）而非 {@code @Slf4j}，
-* 这是刻意为之 —— 本类随 智能体.jar 通过 {@code -Xbootclasspath/a} 进入 bootstrap
-* classloader，该 classloader 无法解析 slf4j-api（由 智能体 shade relocation 到
-* {@code com.chua.runtime.shaded.slf4j}），故使用 JDK 自带 JUL；Log 记录相应采用
-* {@code String.format} 而非 SLF4J {@code {}} 占位符，为对 {@code @Log} 的合理适配。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * sqlite 存储 — 嵌入式本地落盘实现。
+ *
+ * <p>通过 {@code apm.storage.type=sqlite} 启用，数据持久化到本地 SQLite 文件，
+ * 重启后数据不丢失。默认路径为 {@code ./apm.db}，可通过
+ * {@code apm.storage.path} 指定。</p>
+ *
+ * <p>表结构：</p>
+ * <ul>
+ *   <li>{@code transmissions} — 传输事件</li>
+ *   <li>{@code dependencies} — 依赖图边（按 source→target 聚合）</li>
+ *   <li>{@code leaks} — 句柄泄漏记录</li>
+ *   <li>{@code logs} — 日志记录</li>
+ * </ul>
+ *
+ * <p>线程安全：所有写操作使用 {@code synchronized} 串行化，避免 SQLite 单写者限制；
+ * 读操作使用独立连接，互不阻塞。</p>
+ *
+ * <p>日志说明：本类使用 Lombok {@code @Log}（java.util.logging）而非 {@code @Slf4j}，
+ * 这是刻意为之 —— 本类随 智能体.jar 通过 {@code -Xbootclasspath/a} 进入 bootstrap
+ * classloader，该 classloader 无法解析 slf4j-api（由 智能体 shade relocation 到
+ * {@code com.chua.runtime.shaded.slf4j}），故使用 JDK 自带 JUL；Log 记录相应采用
+ * {@code String.format} 而非 SLF4J {@code {}} 占位符，为对 {@code @Log} 的合理适配。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Log
 public class SqliteStorage implements ApmStorage {
 
     /**
-    * 默认数据库文件路径
+     * 默认数据库文件路径
      */
     private static final String DEFAULT_DB_PATH = "./apm.db";
 
     /**
-    * 配置键：数据库文件路径
+     * 配置键：数据库文件路径
      */
     private static final String KEY_PATH = "apm.storage.path";
 
     /**
-    * 配置键：保留时长（毫秒）
+     * 配置键：保留时长（毫秒）
      */
     private static final String KEY_RETENTION_MS = "apm.storage.retention.ms";
 
     /**
-    * 配置键：单表最大行数
+     * 配置键：单表最大行数
      */
     private static final String KEY_CAPACITY = "apm.storage.capacity";
 
     /**
-    * 默认保留时长（7 天）
+     * 默认保留时长（7 天）
      */
     private static final long DEFAULT_RETENTION_MS = 7L * 24 * 60 * 60 * 1000;
 
     /**
-    * 默认单表最大行数
+     * 默认单表最大行数
      */
     private static final int DEFAULT_CAPACITY = 100_000;
 
     /**
-    * 数据库连接 URL 前缀
+     * 数据库连接 URL 前缀
      */
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
 
     /**
-    * 数据库文件路径
+     * 数据库文件路径
      */
     private String dbPath;
 
     /**
-    * 保留时长（毫秒）
+     * 保留时长（毫秒）
      */
     private long retentionMillis;
 
     /**
-    * 单表最大行数
+     * 单表最大行数
      */
     private int capacity;
 
     /**
-    * 写锁 — sqlite 单写者，串行化所有写操作
+     * 写锁 — sqlite 单写者，串行化所有写操作
      */
     private final Object writeLock = new Object();
 
@@ -463,9 +463,9 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 确保数据库文件父目录存在。
-    *
-    * @param path 数据库文件路径
+     * 确保数据库文件父目录存在。
+     *
+     * @param path 数据库文件路径
      */
     private void ensureParentDir(String path) {
         try {
@@ -479,10 +479,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 建表。
-    *
-    * @param conn 数据库连接
-    * @throws SQLException 建表失败
+     * 建表。
+     *
+     * @param conn 数据库连接
+     * @throws SQLException 建表失败
      */
     private void createTables(Connection conn) throws SQLException {
         try (Statement st = conn.createStatement()) {
@@ -518,12 +518,12 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 统计表行数。
-    *
-    * @param conn 数据库连接
-    * @param table 表名
-    * @return 行数
-    * @throws SQLException 查询失败
+     * 统计表行数。
+     *
+     * @param conn 数据库连接
+     * @param table 表名
+     * @return 行数
+     * @throws SQLException 查询失败
      */
     private long count(Connection conn, String table) throws SQLException {
         try (java.sql.PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM " + table)) {
@@ -534,14 +534,14 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 删除指定时间列早于 cutoff 的行。
-    *
-    * @param conn 数据库连接
-    * @param table 表名
-    * @param timeColumn 时间列名
-    * @param cutoff 截止时间
-    * @return 删除行数
-    * @throws SQLException 删除失败
+     * 删除指定时间列早于 cutoff 的行。
+     *
+     * @param conn 数据库连接
+     * @param table 表名
+     * @param timeColumn 时间列名
+     * @param cutoff 截止时间
+     * @return 删除行数
+     * @throws SQLException 删除失败
      */
     private long deleteOlder(Connection conn, String table, String timeColumn, long cutoff) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
@@ -552,12 +552,12 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 删除已关闭且过期的泄漏记录（活跃泄漏永远保留）。
-    *
-    * @param conn 数据库连接
-    * @param cutoff 截止时间
-    * @return 删除行数
-    * @throws SQLException 删除失败
+     * 删除已关闭且过期的泄漏记录（活跃泄漏永远保留）。
+     *
+     * @param conn 数据库连接
+     * @param cutoff 截止时间
+     * @return 删除行数
+     * @throws SQLException 删除失败
      */
     private long deleteClosedLeaks(Connection conn, long cutoff) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
@@ -568,12 +568,12 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 追加时间范围过滤条件。
-    *
-    * @param sql SQL 构建器
-    * @param params 参数列表
-    * @param column 时间列名
-    * @param query 查询条件
+     * 追加时间范围过滤条件。
+     *
+     * @param sql SQL 构建器
+     * @param params 参数列表
+     * @param column 时间列名
+     * @param query 查询条件
      */
     private void appendTimeFilter(StringBuilder sql, List<Object> params, String column, Query query) {
         if (query.getStartTime() != null) {
@@ -587,12 +587,12 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 追加字符串模糊过滤条件。
-    *
-    * @param sql SQL 构建器
-    * @param params 参数列表
-    * @param column 列名
-    * @param value 过滤值
+     * 追加字符串模糊过滤条件。
+     *
+     * @param sql SQL 构建器
+     * @param params 参数列表
+     * @param column 列名
+     * @param value 过滤值
      */
     private void appendStringFilter(StringBuilder sql, List<Object> params, String column, String value) {
         if (value == null || value.isEmpty()) {
@@ -603,11 +603,11 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 绑定参数。
-    *
-    * @param ps 预编译语句
-    * @param params 参数列表
-    * @throws SQLException 绑定失败
+     * 绑定参数。
+     *
+     * @param ps 预编译语句
+     * @param params 参数列表
+     * @throws SQLException 绑定失败
      */
     private void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
@@ -623,11 +623,11 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 将传输记录行映射为事件对象。
-    *
-    * @param rs 结果集
-    * @return 传输事件
-    * @throws SQLException 读取失败
+     * 将传输记录行映射为事件对象。
+     *
+     * @param rs 结果集
+     * @return 传输事件
+     * @throws SQLException 读取失败
      */
     private TransmissionEvent mapTransmission(ResultSet rs) throws SQLException {
         TransmissionEvent e = new TransmissionEvent();
@@ -662,11 +662,11 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 将依赖边行映射为边对象。
-    *
-    * @param rs 结果集
-    * @return 依赖边
-    * @throws SQLException 读取失败
+     * 将依赖边行映射为边对象。
+     *
+     * @param rs 结果集
+     * @return 依赖边
+     * @throws SQLException 读取失败
      */
     private DependencyEdge mapDependency(ResultSet rs) throws SQLException {
         DependencyEdge edge = new DependencyEdge();
@@ -683,10 +683,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 解析状态枚举。
-    *
-    * @param name 枚举名
-    * @return 状态枚举
+     * 解析状态枚举。
+     *
+     * @param name 枚举名
+     * @return 状态枚举
      */
     private StatusCode parseStatus(String name) {
         if (name == null) {
@@ -700,10 +700,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 解析协议枚举。
-    *
-    * @param name 枚举名
-    * @return 协议枚举
+     * 解析协议枚举。
+     *
+     * @param name 枚举名
+     * @return 协议枚举
      */
     private Protocol parseProtocol(String name) {
         if (name == null) {
@@ -717,10 +717,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 解析软件栈枚举。
-    *
-    * @param name 枚举名
-    * @return 软件栈枚举
+     * 解析软件栈枚举。
+     *
+     * @param name 枚举名
+     * @return 软件栈枚举
      */
     private Software parseSoftware(String name) {
         if (name == null) {
@@ -734,10 +734,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 序列化为 JSON 字符串。
-    *
-    * @param value 对象
-    * @return JSON 字符串
+     * 序列化为 JSON 字符串。
+     *
+     * @param value 对象
+     * @return JSON 字符串
      */
     private String toJson(Object value) {
         if (value == null) {
@@ -751,12 +751,12 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 反序列化 JSON 字符串为对象。
-    *
-    * @param json JSON 字符串
-    * @param type 目标类型
-    * @param <T> 泛型
-    * @return 对象
+     * 反序列化 JSON 字符串为对象。
+     *
+     * @param json JSON 字符串
+     * @param type 目标类型
+     * @param <T> 泛型
+     * @return 对象
      */
     private <T> T fromJson(String json, Class<T> type) {
         if (json == null || json.isEmpty()) {
@@ -770,10 +770,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 反序列化 JSON 字符串为 映射。
-    *
-    * @param json JSON 字符串
-    * @return Map
+     * 反序列化 JSON 字符串为 映射。
+     *
+     * @param json JSON 字符串
+     * @return Map
      */
     private Map<String, String> fromJsonMap(String json) {
         if (json == null || json.isEmpty()) {

@@ -18,7 +18,7 @@ import java.util.List;
  * @param schema   节点配置表单元信息列表，可为空
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record FlowNodeMetadata(
         String type,
         String name,
@@ -27,15 +27,15 @@ public record FlowNodeMetadata(
 ) {
 
     /**
-    * 以空配置字段构建节点元信息。
-    *
-    * <p>兼容未提供 {@link FlowNode#configSchema()} 的老节点类型。</p>
-    *
-    * @param type     节点类型标识
-    * @param name     节点类型名称
-    * @param describe 节点类型功能描述
-    * @return 节点元信息实例
-    */
+     * 以空配置字段构建节点元信息。
+     *
+     * <p>兼容未提供 {@link FlowNode#configSchema()} 的老节点类型。</p>
+     *
+     * @param type     节点类型标识
+     * @param name     节点类型名称
+     * @param describe 节点类型功能描述
+     * @return 节点元信息实例
+     */
     public FlowNodeMetadata(String type, String name, String describe) {
         this(type, name, describe, new ArrayList<>());
     }

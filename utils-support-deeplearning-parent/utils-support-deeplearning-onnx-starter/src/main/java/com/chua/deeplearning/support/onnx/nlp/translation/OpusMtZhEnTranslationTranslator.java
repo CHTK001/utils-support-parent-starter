@@ -19,82 +19,82 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* opus-mt-zh-en 中译英机器翻译（marianmt，ORT 原生 + huggingface Tokenizer）。
-*
-* <p>模型由 jar {@code utils-support-models-onnx-opus-mt-zh-en} 提供，资源在
-* {@code nlp/translation/opus_mt_zh_en/} 下。Marian 为 encoder-decoder 自回归架构：
-* <ol>
-*   <li>encoder_model：{@code input_ids + attention_mask} → {@code last_hidden_state}</li>
-*   <li>decoder_model（首步）：{@code encoder_hidden_states + decoder_start(65000)} → logits + present KV</li>
-*   <li>decoder_with_past_model（循环）：{@code input_ids + past_key_values} → logits + present KV</li>
-*   <li>贪心解码 + repetition penalty，遇 EOS(0)/候选分隔符(15) 停止，取第一个候选</li>
-* </ol>
-* tokenizer.json 的 Precompiled chars映射 为空导致 Rust tokenizers 崩溃，已替换为 NFKC。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * opus-mt-zh-en 中译英机器翻译（marianmt，ORT 原生 + huggingface Tokenizer）。
+ *
+ * <p>模型由 jar {@code utils-support-models-onnx-opus-mt-zh-en} 提供，资源在
+ * {@code nlp/translation/opus_mt_zh_en/} 下。Marian 为 encoder-decoder 自回归架构：
+ * <ol>
+ *   <li>encoder_model：{@code input_ids + attention_mask} → {@code last_hidden_state}</li>
+ *   <li>decoder_model（首步）：{@code encoder_hidden_states + decoder_start(65000)} → logits + present KV</li>
+ *   <li>decoder_with_past_model（循环）：{@code input_ids + past_key_values} → logits + present KV</li>
+ *   <li>贪心解码 + repetition penalty，遇 EOS(0)/候选分隔符(15) 停止，取第一个候选</li>
+ * </ol>
+ * tokenizer.json 的 Precompiled chars映射 为空导致 Rust tokenizers 崩溃，已替换为 NFKC。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OpusMtZhEnTranslationTranslator implements ITranslator<String, String>, AutoCloseable {
 
     /**
-    * 解码起始 令牌（= pad 标识），Marian 固定。
-    */
+     * 解码起始 令牌（= pad 标识），Marian 固定。
+     */
     private static final long DECODER_START_ID = 65000L;
 
     /**
-    * EOS 令牌 标识（Marian 固定为 0）。
-    */
+     * EOS 令牌 标识（Marian 固定为 0）。
+     */
     private static final long EOS_ID = 0L;
 
     /**
-    * 候选翻译分隔符 "-" 的 令牌 标识，生成到它即取第一个候选。
-    */
+     * 候选翻译分隔符 "-" 的 令牌 标识，生成到它即取第一个候选。
+     */
     private static final long SEPARATOR_ID = 15L;
 
     /**
-    * 解码器层数（marian-基础 固定 6）。
-    */
+     * 解码器层数（marian-基础 固定 6）。
+     */
     private static final int NUM_LAYERS = 6;
 
     /**
-    * 注意力头数（marian-基础 d_模型=512 / 64）。
-    */
+     * 注意力头数（marian-基础 d_模型=512 / 64）。
+     */
     private static final int NUM_HEADS = 8;
 
     /**
-    * 单头维度。
-    */
+     * 单头维度。
+     */
     private static final int HEAD_DIM = 64;
 
     /**
-    * 最大生成步数，防止死循环。
-    */
+     * 最大生成步数，防止死循环。
+     */
     private static final int MAX_GENERATE_STEPS = 80;
 
     /**
-    * 重复惩罚系数（贪心解码降重复）。
-    */
+     * 重复惩罚系数（贪心解码降重复）。
+     */
     private static final float REPETITION_PENALTY = 2.2f;
 
     /**
-    * jar 内资源根目录。
-    */
+     * jar 内资源根目录。
+     */
     private static final String RESOURCE_BASE = "nlp/translation/opus_mt_zh_en/";
 
     /**
-    * 编码器 模型文件名。
-    */
+     * 编码器 模型文件名。
+     */
     private static final String ENCODER_FILE = "encoder_model_quantized.onnx";
 
     /**
-    * 解码器（首步）模型文件名。
-    */
+     * 解码器（首步）模型文件名。
+     */
     private static final String DECODER_FILE = "decoder_model_quantized.onnx";
 
     /**
-    * 解码器（带缓存）模型文件名。
-    */
+     * 解码器（带缓存）模型文件名。
+     */
     private static final String DECODER_PAST_FILE = "decoder_with_past_model_quantized.onnx";
 
     /** ONNX 运行时环境 */
@@ -262,15 +262,15 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     /**
-    * 后处理：截取第一个完整翻译候选。
-    *
-    * <p>Marian 贪心解码会生成多个候选（以 " - " 分隔）或附加冗余尾巴
-    * （如 " (标志) ..."）。策略：优先取 " - " 前；否则取第一个句号/感叹号后的
-    * 完整句（保留标点），丢弃剩余尾巴。</p>
-    *
-    * @param decoded 原始解码文本
-    * @return 清洗后的译文
-    */
+     * 后处理：截取第一个完整翻译候选。
+     *
+     * <p>Marian 贪心解码会生成多个候选（以 " - " 分隔）或附加冗余尾巴
+     * （如 " (标志) ..."）。策略：优先取 " - " 前；否则取第一个句号/感叹号后的
+     * 完整句（保留标点），丢弃剩余尾巴。</p>
+     *
+     * @param decoded 原始解码文本
+     * @return 清洗后的译文
+     */
     private static String postProcess(String decoded) {
         if (decoded == null || decoded.isEmpty()) {
             return decoded;
@@ -293,12 +293,12 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     /**
-    * 从 logits 取 argmax（含重复惩罚 + 禁止 pad）。
-    *
-    * @param result ORT 推理结果
-    * @param gen    已生成 令牌
-    * @return 下一 令牌 标识
-    */
+     * 从 logits 取 argmax（含重复惩罚 + 禁止 pad）。
+     *
+     * @param result ORT 推理结果
+     * @param gen    已生成 令牌
+     * @return 下一 令牌 标识
+     */
     private static long argmax(OrtSession.Result result, List<Long> gen) throws Exception {
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();

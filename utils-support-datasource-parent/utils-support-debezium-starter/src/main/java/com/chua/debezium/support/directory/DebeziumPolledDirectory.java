@@ -26,45 +26,45 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Debezium CDC 目录轮询实现，基于 Debezium Engine。
-*
-* @author CH
-* @since 4.0.0.42
+ * Debezium CDC 目录轮询实现，基于 Debezium Engine。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DebeziumPolledDirectory implements PolledDirectory {
 
     /**
-    * 逻辑监听路径（数据库名或表名）
-    */
+     * 逻辑监听路径（数据库名或表名）
+     */
     private final String listenPath;
 
     /**
-    * 目录轮询环境
-    */
+     * 目录轮询环境
+     */
     private final DirectoryPollerEnvironment environment;
 
     /**
-    * 已注册的监听器列表
-    */
+     * 已注册的监听器列表
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * Debezium Engine 实例
-    */
+     * Debezium Engine 实例
+     */
     private DebeziumEngine<ChangeEvent<String, String>> engine;
 
     /**
-    * Debezium 执行线程池
-    */
+     * Debezium 执行线程池
+     */
     private ExecutorService executor;
 
     /**
-    * 构造 Debezium CDC 轮询器。
-    *
-    * @param listenPath  逻辑路径（数据库名或表名）
-    * @param environment 环境配置
-    */
+     * 构造 Debezium CDC 轮询器。
+     *
+     * @param listenPath  逻辑路径（数据库名或表名）
+     * @param environment 环境配置
+     */
     public DebeziumPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         this.listenPath = listenPath;
         this.environment = environment;
@@ -169,10 +169,10 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 分发
-    *
-    * @param value 值
-    */
+     * 分发
+     *
+     * @param value 值
+     */
     private void dispatch(String value) {
         String op = extractOp(value);
         String table = extractTable(value);
@@ -201,11 +201,11 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * extracttable
-    *
-    * @param value 值
-    * @return extractTable的结果
-    */
+     * extracttable
+     *
+     * @param value 值
+     * @return extractTable的结果
+     */
     private String extractTable(String value) {
         int idx = value.indexOf("\"table\":\"");
         if (idx < 0) {
@@ -217,11 +217,11 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * extractop
-    *
-    * @param value 值
-    * @return extractOp的结果
-    */
+     * extractop
+     *
+     * @param value 值
+     * @return extractOp的结果
+     */
     private String extractOp(String value) {
         int idx = value.indexOf("\"op\":\"");
         if (idx < 0) {

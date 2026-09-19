@@ -24,28 +24,28 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  * @see JdkProxyFactory
  * @see DefaultProxyProvider
  * @see com.chua.common.support.spi.ServiceProvider
-*/
+ */
 public interface ProxyFactory<T> {
 
     /**
-    * 创建代理对象。
-    *
-    * <p>根据指定的目标类型、接口数组、类加载器和方法拦截器创建代理实例。
-    * 代理对象的所有方法调用都会被 {@link MethodIntercept} 拦截并处理。</p>
-    *
-    * <p><b>参数说明：</b></p>
-    * <ul>
-    *   <li>{@code target} — 目标类型，决定了代理对象的类型签名</li>
-    *   <li>{@code interfaces} — 代理对象需要实现的额外接口数组，可与 target 不同</li>
-    *   <li>{@code classLoader} — 用于定义代理类的类加载器</li>
-    *   <li>{@code intercept} — 方法拦截器，定义方法调用的拦截逻辑</li>
-    * </ul>
-    *
-    * @param target      目标类型（接口或类），如 {@code Service.class}
-    * @param interfaces  要代理的额外接口数组，可为空数组
-    * @param classLoader 类加载器，用于定义代理类
-    * @param intercept   方法拦截器，代理方法调用时触发
-    * @return 代理对象实例，类型为 {@code T}
-    */
+     * 创建代理对象。
+     *
+     * <p>根据指定的目标类型、接口数组、类加载器和方法拦截器创建代理实例。
+     * 代理对象的所有方法调用都会被 {@link MethodIntercept} 拦截并处理。</p>
+     *
+     * <p><b>参数说明：</b></p>
+     * <ul>
+     *   <li>{@code target} — 目标类型，决定了代理对象的类型签名</li>
+     *   <li>{@code interfaces} — 代理对象需要实现的额外接口数组，可与 target 不同</li>
+     *   <li>{@code classLoader} — 用于定义代理类的类加载器</li>
+     *   <li>{@code intercept} — 方法拦截器，定义方法调用的拦截逻辑</li>
+     * </ul>
+     *
+     * @param target      目标类型（接口或类），如 {@code Service.class}
+     * @param interfaces  要代理的额外接口数组，可为空数组
+     * @param classLoader 类加载器，用于定义代理类
+     * @param intercept   方法拦截器，代理方法调用时触发
+     * @return 代理对象实例，类型为 {@code T}
+     */
     T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader, MethodIntercept<T> intercept);
 }

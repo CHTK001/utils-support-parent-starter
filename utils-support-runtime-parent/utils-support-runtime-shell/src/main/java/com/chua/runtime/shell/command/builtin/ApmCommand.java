@@ -19,90 +19,90 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* APM 命令 — 动态展示已加载的 APM 处理器及其数据。
-*
-* <p>子命令从 ApmBootstrap 实际加载的 Plugin 动态生成：
-* 主命令 {@code apm} 显示总览，{@code apm &lt;handler&gt;} 查看具体 处理器 数据。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * APM 命令 — 动态展示已加载的 APM 处理器及其数据。
+ *
+ * <p>子命令从 ApmBootstrap 实际加载的 Plugin 动态生成：
+ * 主命令 {@code apm} 显示总览，{@code apm &lt;handler&gt;} 查看具体 处理器 数据。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ApmCommand implements Command {
 
     /**
-    * 处理器 名称中的 "-处理器" 后缀
+     * 处理器 名称中的 "-处理器" 后缀
      */
     private static final String HANDLER_SUFFIX = "-handler";
 
     /**
-    * 主命令名
+     * 主命令名
      */
     private static final String CMD_NAME = "apm";
 
     /**
-    * "列表" 子命令
+     * "列表" 子命令
      */
     private static final String SUB_LIST = "list";
 
     /**
-    * "状态" 子命令
+     * "状态" 子命令
      */
     private static final String SUB_STATUS = "status";
 
     /**
-    * "help" 子命令
+     * "help" 子命令
      */
     private static final String SUB_HELP = "help";
 
     /**
-    * "日志" 子命令（向后兼容别名）
+     * "日志" 子命令（向后兼容别名）
      */
     private static final String SUB_LOGS = "logs";
 
     /**
-    * "net" 子命令（向后兼容别名）
+     * "net" 子命令（向后兼容别名）
      */
     private static final String SUB_NET = "net";
 
     /**
-    * "文件" 子命令（向后兼容别名）
+     * "文件" 子命令（向后兼容别名）
      */
     private static final String SUB_FILE = "file";
 
     /**
-    * "追踪" 子命令（向后兼容别名）
+     * "追踪" 子命令（向后兼容别名）
      */
     private static final String SUB_TRACE = "trace";
 
     /**
-    * 处理器 运行状态字符串
+     * 处理器 运行状态字符串
      */
     private static final String STATUS_RUNNING = "RUNNING";
 
     /**
-    * 处理器 停止状态字符串
+     * 处理器 停止状态字符串
      */
     private static final String STATUS_STOPPED = "STOPPED";
 
     /**
-    * 根 Span 标识（父spanid 为 空 时显示）
+     * 根 Span 标识（父spanid 为 空 时显示）
      */
     private static final String ROOT_SPAN = "(root)";
 
     /**
-    * 默认日志/记录显示条数
+     * 默认日志/记录显示条数
      */
     private static final int DEFAULT_DISPLAY_LIMIT = 20;
 
     /**
-    * APM 启动器
+     * APM 启动器
      */
     private final ApmBootstrap apm;
 
     /**
-    * 创建 APM 命令。
-    *
-    * @param apm APM 启动器
+     * 创建 APM 命令。
+     *
+     * @param apm APM 启动器
      */
     public ApmCommand(ApmBootstrap apm) {
         this.apm = apm;
@@ -208,9 +208,9 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示帮助。
-    *
-    * @param console 控制台
+     * 显示帮助。
+     *
+     * @param console 控制台
      */
     private void showHelp(Console console) {
         console.header("APM 命令帮助");
@@ -224,12 +224,12 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示具体 处理器 的数据。
-    *
-    * @param handler 处理器
-    * @param console 控制台
-    * @param args    参数
-    * @return 退出码
+     * 显示具体 处理器 的数据。
+     *
+     * @param handler 处理器
+     * @param console 控制台
+     * @param args    参数
+     * @return 退出码
      */
     private int showHandler(Plugin handler, Console console, String[] args) {
         int limit = DEFAULT_DISPLAY_LIMIT;
@@ -263,11 +263,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示日志条目。
-    *
-    * @param handler 日志处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示日志条目。
+     *
+     * @param handler 日志处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showLogs(LogHandler handler, Console console, int limit) {
         List<LogEntry> entries = handler.getLogEntries();
@@ -289,11 +289,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示网络记录。
-    *
-    * @param handler 网络处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示网络记录。
+     *
+     * @param handler 网络处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showNet(NetHandler handler, Console console, int limit) {
         List<NetHandler.NetRecord> records = handler.getRecords();
@@ -314,11 +314,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示文件记录。
-    *
-    * @param handler 文件处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示文件记录。
+     *
+     * @param handler 文件处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showFile(FileHandler handler, Console console, int limit) {
         List<FileHandler.FileRecord> records = handler.getRecords();
@@ -339,11 +339,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示链路追踪 Span。
-    *
-    * @param handler 追踪处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示链路追踪 Span。
+     *
+     * @param handler 追踪处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showTrace(TraceHandler handler, Console console, int limit) {
         List<TraceHandler.Span> spans = handler.getSpans();
@@ -366,11 +366,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示传输链路记录。
-    *
-    * @param handler 传输处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示传输链路记录。
+     *
+     * @param handler 传输处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showTransmission(TransmissionHandler handler, Console console, int limit) {
         List<TransmissionRecord> records = handler.getRecords();
@@ -393,11 +393,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示依赖图。
-    *
-    * @param handler 依赖图处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示依赖图。
+     *
+     * @param handler 依赖图处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showDependency(DependencyGraphHandler handler, Console console, int limit) {
         List<DependencyEdge> edges = handler.getEdges();
@@ -420,11 +420,11 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示句柄泄漏检测。
-    *
-    * @param handler 句柄泄漏处理器
-    * @param console 控制台
-    * @param limit   显示条数
+     * 显示句柄泄漏检测。
+     *
+     * @param handler 句柄泄漏处理器
+     * @param console 控制台
+     * @param limit   显示条数
      */
     private void showLeak(HandleLeakHandler handler, Console console, int limit) {
         List<HandleLeakHandler.HandleRecord> leaks = handler.detectLeaks();
@@ -446,10 +446,10 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 根据简称查找 处理器。
-    *
-    * @param shortName 简称
-    * @return 处理器实例，未找到返回 空
+     * 根据简称查找 处理器。
+     *
+     * @param shortName 简称
+     * @return 处理器实例，未找到返回 空
      */
     private Plugin findHandler(String shortName) {
         if (apm == null) {
@@ -467,9 +467,9 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 获取所有 处理器 的简称列表。
-    *
-    * @return 简称列表
+     * 获取所有 处理器 的简称列表。
+     *
+     * @return 简称列表
      */
     private List<String> handlerNames() {
         List<String> names = new ArrayList<>();
@@ -482,21 +482,21 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 去除 处理器 名称中的 "-处理器" 后缀得到简称。
-    *
-    * @param fullName 完整名称
-    * @return 简称
+     * 去除 处理器 名称中的 "-处理器" 后缀得到简称。
+     *
+     * @param fullName 完整名称
+     * @return 简称
      */
     private String shortName(String fullName) {
         return fullName.replace(HANDLER_SUFFIX, "");
     }
 
     /**
-    * 截断字符串到指定长度（省略号补齐）。
-    *
-    * @param s   原始字符串
-    * @param max 最大长度
-    * @return 截断结果
+     * 截断字符串到指定长度（省略号补齐）。
+     *
+     * @param s   原始字符串
+     * @param max 最大长度
+     * @return 截断结果
      */
     private String truncate(String s, int max) {
         if (s == null) {

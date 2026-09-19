@@ -3,31 +3,31 @@ package com.chua.common.support.ai.chat;
 import lombok.Builder;
 
 /**
-* AI 附件。
-* <p>
-* 表示对话中的附件，支持二进制数据或 URL 引用。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * AI 附件。
+ * <p>
+ * 表示对话中的附件，支持二进制数据或 URL 引用。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Builder
 public record Attachment(
         /**
-        * 附件名称
-        */
+         * 附件名称
+         */
         String name,
         /**
-        * 附件二进制数据
-        */
+         * 附件二进制数据
+         */
         byte[] data,
         /**
-        * MIME 类型
-        */
+         * MIME 类型
+         */
         String mimeType,
         /**
-        * 附件 URL
-        */
+         * 附件 URL
+         */
         String url
 ) {
 }

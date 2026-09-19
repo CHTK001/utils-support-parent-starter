@@ -121,52 +121,52 @@ import javax.annotation.Nullable;
 public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseable {
 
     /**
-    * lama配置
-    */
+     * lama配置
+     */
     private LaMaConfiguration config;
 
     /**
-    * ONNX推理器
-    */
+     * ONNX推理器
+     */
     private LaMaOnnxInfer inferEngine;
 
     /**
-    * 自定义mask图像
-    */
+     * 自定义mask图像
+     */
     private BufferedImage customMask;
 
     /**
-    * 默认构造函数
-    * 需要后续调用设置配置()方法设置配置
-    */
+     * 默认构造函数
+     * 需要后续调用设置配置()方法设置配置
+     */
     public LaMaImageFilter() {
         // 默认构造函数，需要后续设置配置
     }
 
     /**
-    * 构造函数
-    *
-    * @param modelPath ONNX模型文件路径
-    */
+     * 构造函数
+     *
+     * @param modelPath ONNX模型文件路径
+     */
     public LaMaImageFilter(String modelPath) {
         this(LaMaConfiguration.createDefault(modelPath));
     }
 
     /**
-    * 构造函数
-    *
-    * @param config lama配置
-    */
+     * 构造函数
+     *
+     * @param config lama配置
+     */
     public LaMaImageFilter(LaMaConfiguration config) {
         setConfig(config);
     }
 
     /**
-    * 设置配置
-    *
-    * @param config lama配置
-    * @return 当前实例
-    */
+     * 设置配置
+     *
+     * @param config lama配置
+     * @return 当前实例
+     */
     public LaMaImageFilter setConfig(LaMaConfiguration config) {
         this.config = config;
         
@@ -188,22 +188,22 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 设置自定义mask
-    *
-    * @param mask mask图像，白色区域将被修复
-    * @return 当前实例
-    */
+     * 设置自定义mask
+     *
+     * @param mask mask图像，白色区域将被修复
+     * @return 当前实例
+     */
     public LaMaImageFilter setCustomMask(BufferedImage mask) {
         this.customMask = mask;
         return this;
     }
 
     /**
-    * 设置模型路径
-    *
-    * @param modelPath ONNX模型文件路径
-    * @return 当前实例
-    */
+     * 设置模型路径
+     *
+     * @param modelPath ONNX模型文件路径
+     * @return 当前实例
+     */
     public LaMaImageFilter setModelPath(String modelPath) {
         if (config == null) {
             config = LaMaConfiguration.createDefault(modelPath);
@@ -214,11 +214,11 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 设置输入尺寸
-    *
-    * @param size 输入尺寸
-    * @return 当前实例
-    */
+     * 设置输入尺寸
+     *
+     * @param size 输入尺寸
+     * @return 当前实例
+     */
     public LaMaImageFilter setInputSize(int size) {
         ensureConfigExists();
         config.setInputSize(size);
@@ -226,12 +226,12 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 启用自动mask生成
-    *
-    * @param targetColor 目标颜色（RGB）
-    * @param tolerance   颜色容差
-    * @return 当前实例
-    */
+     * 启用自动mask生成
+     *
+     * @param targetColor 目标颜色（RGB）
+     * @param tolerance   颜色容差
+     * @return 当前实例
+     */
     public LaMaImageFilter enableAutoMask(int[] targetColor, int tolerance) {
         ensureConfigExists();
         config.setAutoGenerateMask(true)
@@ -241,10 +241,10 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 启用alpha通道作为mask
-    *
-    * @return 当前实例
-    */
+     * 启用alpha通道作为mask
+     *
+     * @return 当前实例
+     */
     public LaMaImageFilter enableAlphaMask() {
         ensureConfigExists();
         config.setUseAlphaAsMask(true);
@@ -252,10 +252,10 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 启用GPU加速
-    *
-    * @return 当前实例
-    */
+     * 启用GPU加速
+     *
+     * @return 当前实例
+     */
     public LaMaImageFilter enableGpu() {
         ensureConfigExists();
         config.setUseGpu(true);
@@ -263,12 +263,12 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 设置后处理选项
-    *
-    * @param enablePostProcessing 是否启用后处理
-    * @param featherRadius       羽化半径
-    * @return 当前实例
-    */
+     * 设置后处理选项
+     *
+     * @param enablePostProcessing 是否启用后处理
+     * @param featherRadius       羽化半径
+     * @return 当前实例
+     */
     public LaMaImageFilter setPostProcessing(boolean enablePostProcessing, int featherRadius) {
         ensureConfigExists();
         config.setEnablePostProcessing(enablePostProcessing)
@@ -335,10 +335,10 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 获取推理器信息
-    *
-    * @return 推理器信息
-    */
+     * 获取推理器信息
+     *
+     * @return 推理器信息
+     */
     public String getInferenceInfo() {
         if (inferEngine == null) {
             return "推理器未初始化";
@@ -347,18 +347,18 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 检查是否已准备就绪
-    *
-    * @return 是否可以使用
-    */
+     * 检查是否已准备就绪
+     *
+     * @return 是否可以使用
+     */
     public boolean isReady() {
         return inferEngine != null && inferEngine.isInitialized();
     }
 
     /**
-    * 预热模型
-    * 使用小图像进行一次推理以预热模型，提高后续推理速度
-    */
+     * 预热模型
+     * 使用小图像进行一次推理以预热模型，提高后续推理速度
+     */
     public void warmUp() {
         if (!isReady()) {
             throw new IllegalStateException("推理器未初始化");
@@ -381,8 +381,8 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 确保配置存在
-    */
+     * 确保配置存在
+     */
     private void ensureConfigExists() {
         if (config == null) {
             throw new IllegalStateException("配置未设置，请先调用setConfig()或setModelPath()");
@@ -390,8 +390,8 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 清理资源
-    */
+     * 清理资源
+     */
     public void cleanup() {
         if (inferEngine != null) {
             inferEngine.close();
@@ -418,42 +418,42 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 创建高质量lama滤镜
-    *
-    * @param modelPath 模型路径
-    * @return 高质量LaMa滤镜实例
-    */
+     * 创建高质量lama滤镜
+     *
+     * @param modelPath 模型路径
+     * @return 高质量LaMa滤镜实例
+     */
     public static LaMaImageFilter createHighQuality(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createHighQuality(modelPath));
     }
 
     /**
-    * 创建快速lama滤镜
-    *
-    * @param modelPath 模型路径
-    * @return 快速LaMa滤镜实例
-    */
+     * 创建快速lama滤镜
+     *
+     * @param modelPath 模型路径
+     * @return 快速LaMa滤镜实例
+     */
     public static LaMaImageFilter createFast(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createFast(modelPath));
     }
 
     /**
-    * 创建GPU加速lama滤镜
-    *
-    * @param modelPath 模型路径
-    * @return GPU加速LaMa滤镜实例
-    */
+     * 创建GPU加速lama滤镜
+     *
+     * @param modelPath 模型路径
+     * @return GPU加速LaMa滤镜实例
+     */
     public static LaMaImageFilter createGpu(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createGpu(modelPath));
     }
 
     /**
-    * 创建自动mask lama滤镜
-    *
-    * @param modelPath   模型路径
-    * @param targetColor 目标颜色
-    * @return 自动mask lama滤镜实例
-    */
+     * 创建自动mask lama滤镜
+     *
+     * @param modelPath   模型路径
+     * @param targetColor 目标颜色
+     * @return 自动mask lama滤镜实例
+     */
     public static LaMaImageFilter createAutoMask(String modelPath, int[] targetColor) {
         return new LaMaImageFilter(LaMaConfiguration.createAutoMask(modelPath, targetColor));
     }

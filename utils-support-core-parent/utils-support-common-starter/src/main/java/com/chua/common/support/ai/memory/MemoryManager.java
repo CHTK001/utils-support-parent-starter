@@ -10,35 +10,35 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
-* 记忆管理器
-*
-* <p>提供记忆体的高层操作 API，整合存储和 AI 总结能力。
-* Agent 通过此管理器保存、搜索和管理记忆条目。
-*
-* <h3>工作流程</h3>
-* <pre>
-*   Agent.run(input)
-*     → autoSaveMemory(input, output)
-*       → saveFromConversation("用户: ...\n助手: ...", sessionId, agentId)
-*         → [若配置 summarizerClient] AI 总结 → 结构化 MemoryEntry → 存储
-*         → [若未配置] 原始文本直接存储
-*
-*   下次对话
-*     → search("关键词", limit) → 返回相关记忆
-*     → 注入到 system prompt 或 context 中
-* </pre>
-*
-* <h3>存储实现</h3>
-* <pre>
-*   默认：FileMemoryStore（基于工作间 JSON 文件）
-*   可替换：通过 SPI MemoryStoreProvider 注册自定义实现
-*     → 数据库实现（MySQL/PostgreSQL）
-*     → 向量数据库实现（Milvus/Chroma/Pinecone）→ 支持语义搜索
-*     → Redis 实现（高速缓存）
-* </pre>
-*
-* @author CH
-* @since 2026/07/16
+ * 记忆管理器
+ *
+ * <p>提供记忆体的高层操作 API，整合存储和 AI 总结能力。
+ * Agent 通过此管理器保存、搜索和管理记忆条目。
+ *
+ * <h3>工作流程</h3>
+ * <pre>
+ *   Agent.run(input)
+ *     → autoSaveMemory(input, output)
+ *       → saveFromConversation("用户: ...\n助手: ...", sessionId, agentId)
+ *         → [若配置 summarizerClient] AI 总结 → 结构化 MemoryEntry → 存储
+ *         → [若未配置] 原始文本直接存储
+ *
+ *   下次对话
+ *     → search("关键词", limit) → 返回相关记忆
+ *     → 注入到 system prompt 或 context 中
+ * </pre>
+ *
+ * <h3>存储实现</h3>
+ * <pre>
+ *   默认：FileMemoryStore（基于工作间 JSON 文件）
+ *   可替换：通过 SPI MemoryStoreProvider 注册自定义实现
+ *     → 数据库实现（MySQL/PostgreSQL）
+ *     → 向量数据库实现（Milvus/Chroma/Pinecone）→ 支持语义搜索
+ *     → Redis 实现（高速缓存）
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Slf4j
 @SuppressWarnings("unchecked")
@@ -75,30 +75,30 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 使用指定存储实现创建管理器。
-    * @param config 配置，不允许为 null
-    * @param store 方法入参 store
-    */
+     * 使用指定存储实现创建管理器。
+     * @param config 配置，不允许为 null
+     * @param store 方法入参 store
+     */
     public MemoryManager(MemoryConfig config, MemoryStore store) {
         this.config = config != null ? config : MemoryConfig.builder().build();
         this.store = store != null ? store : createStore(this.config);
     }
 
     /**
-    * Engine 记忆快捷构造（{@link EngineMemoryStore}）。
-    * @param engine 引擎，不允许为 null
-    * @return MemoryManager 对象
-    */
+     * Engine 记忆快捷构造（{@link EngineMemoryStore}）。
+     * @param engine 引擎，不允许为 null
+     * @return MemoryManager 对象
+     */
     public static MemoryManager ofEngine(Engine engine) {
         return ofEngine(engine, MemoryConfig.builder().storeType("engine").engine(engine).build());
     }
 
     /**
-    * Engine 记忆快捷构造。
-    * @param engine 引擎，不允许为 null
-    * @param config 配置，不允许为 null
-    * @return MemoryManager 对象
-    */
+     * Engine 记忆快捷构造。
+     * @param engine 引擎，不允许为 null
+     * @param config 配置，不允许为 null
+     * @return MemoryManager 对象
+     */
     public static MemoryManager ofEngine(Engine engine, MemoryConfig config) {
         MemoryConfig cfg = config != null ? config : MemoryConfig.builder().build();
         cfg.setStoreType("engine");
@@ -129,15 +129,15 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 从对话内容保存记忆
-    *
-    * <p>自动调用 ChatClient 总结对话，生成高质量记忆条目。
-    * 若未配置 summarizerClient，则直接保存原始对话内容。
-    *
-    * @param conversation 对话内容
-    * @param sessionId    会话 ID
-    * @param agentId      Agent 标识
-    */
+     * 从对话内容保存记忆
+     *
+     * <p>自动调用 ChatClient 总结对话，生成高质量记忆条目。
+     * 若未配置 summarizerClient，则直接保存原始对话内容。
+     *
+     * @param conversation 对话内容
+     * @param sessionId    会话 ID
+     * @param agentId      Agent 标识
+     */
     public void saveFromConversation(String conversation, String sessionId, String agentId) {
         if (conversation == null || conversation.isBlank()) {
             return;
@@ -150,88 +150,88 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 直接保存一条记忆
-    *
-    * @param entry 记忆条目
-    */
+     * 直接保存一条记忆
+     *
+     * @param entry 记忆条目
+     */
     public void save(MemoryEntry entry) {
         store.save(entry);
     }
 
     /**
-    * 搜索记忆
-    *
-    * @param keyword 搜索关键词
-    * @param limit   最大返回数量
-    * @return 匹配的记忆列表
-    */
+     * 搜索记忆
+     *
+     * @param keyword 搜索关键词
+     * @param limit   最大返回数量
+     * @return 匹配的记忆列表
+     */
     public List<MemoryEntry> search(String keyword, int limit) {
         return store.search(keyword, limit);
     }
 
     /**
-    * 按类型检索
-    *
-    * @param type  记忆类型
-    * @param limit 最大返回数量
-    * @return 记忆列表
-    */
+     * 按类型检索
+     *
+     * @param type  记忆类型
+     * @param limit 最大返回数量
+     * @return 记忆列表
+     */
     public List<MemoryEntry> listByType(String type, int limit) {
         return store.listByType(type, limit);
     }
 
     /**
-    * 按会话 ID 检索
-    *
-    * @param sessionId 会话 ID
-    * @return 记忆列表
-    */
+     * 按会话 ID 检索
+     *
+     * @param sessionId 会话 ID
+     * @return 记忆列表
+     */
     public List<MemoryEntry> listBySession(String sessionId) {
         return store.listBySession(sessionId);
     }
 
     /**
-    * 删除记忆
-    *
-    * @param id 记忆 ID
-    * @return 是否成功
-    */
+     * 删除记忆
+     *
+     * @param id 记忆 ID
+     * @return 是否成功
+     */
     public boolean delete(String id) {
         return store.delete(id);
     }
 
     /**
-    * 获取记忆总数
-    *
-    * @return 记忆条数
-    */
+     * 获取记忆总数
+     *
+     * @return 记忆条数
+     */
     public int count() {
         return store.count();
     }
 
     /**
-    * 备份记忆
-    *
-    * @param path 备份文件路径
-    */
+     * 备份记忆
+     *
+     * @param path 备份文件路径
+     */
     public void backup(String path) {
         store.backup(path);
     }
 
     /**
-    * 恢复记忆
-    *
-    * @param path 备份文件路径
-    */
+     * 恢复记忆
+     *
+     * @param path 备份文件路径
+     */
     public void restore(String path) {
         store.restore(path);
     }
 
     /**
-    * 获取底层存储实例
-    *
-    * @return 记忆存储
-    */
+     * 获取底层存储实例
+     *
+     * @return 记忆存储
+     */
     public MemoryStore getStore() {
         return store;
     }
@@ -265,11 +265,11 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 原始保存（不做 AI 总结）
-    * @param content 内容，不允许为 null
-    * @param sessionId 会话ID，不允许为 null
-    * @param agentId agentID，不允许为 null
-    */
+     * 原始保存（不做 AI 总结）
+     * @param content 内容，不允许为 null
+     * @param sessionId 会话ID，不允许为 null
+     * @param agentId agentID，不允许为 null
+     */
     private void saveRaw(String content, String sessionId, String agentId) {
         MemoryEntry entry = MemoryEntry.builder()
                 .id(UUID.randomUUID().toString())
@@ -285,10 +285,10 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 构建总结 prompt
-    * @param content 内容，不允许为 null
-    * @return 结果字符串
-    */
+     * 构建总结 prompt
+     * @param content 内容，不允许为 null
+     * @return 结果字符串
+     */
     private String buildSummarizerPrompt(String content) {
         String template = config.getSummarizerPrompt() != null
                 ? config.getSummarizerPrompt() : DEFAULT_SUMMARIZER_PROMPT;
@@ -296,12 +296,12 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * 解析 AI 总结结果
-    * @param result 结果，不允许为 null
-    * @param sessionId 会话ID，不允许为 null
-    * @param agentId agentID，不允许为 null
-    * @return Memory条目 对象
-    */
+     * 解析 AI 总结结果
+     * @param result 结果，不允许为 null
+     * @param sessionId 会话ID，不允许为 null
+     * @param agentId agentID，不允许为 null
+     * @return Memory条目 对象
+     */
     private MemoryEntry parseSummaryResult(String result, String sessionId, String agentId) {
         try {
             // 尝试从 JSON 中提取

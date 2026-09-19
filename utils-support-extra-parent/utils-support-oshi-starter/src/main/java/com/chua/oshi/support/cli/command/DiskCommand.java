@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* oshc disk — 磁盘明细：物理磁盘 + 分区/挂载点。
-*
-* @author CH
-* @since 4.0.0.42
+ * oshc disk — 磁盘明细：物理磁盘 + 分区/挂载点。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class DiskCommand extends AbstractCommand {
 

@@ -10,19 +10,19 @@ import javax.annotation.Nullable;
 
 
 /**
-* URL 类型转换器。
-* <p>将各种类型的值转换为 {@link URL}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link URL} — 直接返回</li>
-*   <li>{@link File} — 通过 toURI().toURL() 转换</li>
-*   <li>{@link Path} — 通过 toUri().toURL() 转换</li>
-*   <li>{@link URI} — 通过 toURL() 转换</li>
-*   <li>{@link String} — 支持 http://、https://、file: 前缀的 URL 字符串，也支持本地文件路径</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/26
+ * URL 类型转换器。
+ * <p>将各种类型的值转换为 {@link URL}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link URL} — 直接返回</li>
+ *   <li>{@link File} — 通过 toURI().toURL() 转换</li>
+ *   <li>{@link Path} — 通过 toUri().toURL() 转换</li>
+ *   <li>{@link URI} — 通过 toURL() 转换</li>
+ *   <li>{@link String} — 支持 http://、https://、file: 前缀的 URL 字符串，也支持本地文件路径</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/26
  */
 public class UrlTypeConverter implements TypeConverter<URL> {
 
@@ -93,10 +93,10 @@ public class UrlTypeConverter implements TypeConverter<URL> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return URL.class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return URL.class
+     */
     @Override
     public Class<URL> getType() {
         return URL.class;

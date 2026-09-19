@@ -37,22 +37,22 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public class JdkSchedulerProvider extends AbstractSchedulerProvider {
 
     /**
-    * 定时任务调度器，用于按延迟时间触发任务
-    */
+     * 定时任务调度器，用于按延迟时间触发任务
+     */
     private final ScheduledExecutorService scheduler;
 
     /**
-    * 线程池执行器，用于异步执行每个触发点的任务逻辑
-    */
+     * 线程池执行器，用于异步执行每个触发点的任务逻辑
+     */
     private final ExecutorService virtualThreadExecutor;
 
     /**
-    * 调度 期货 注册表（任务 标识 → 调度 期货）
-    */
+     * 调度 期货 注册表（任务 标识 → 调度 期货）
+     */
     private final ConcurrentHashMap<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
     /** 锁 */
@@ -68,10 +68,10 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 创建指定核心线程数的 JDK 调度器提供者
-    *
-    * @param corePoolSize 定时调度器核心线程数
-    */
+     * 创建指定核心线程数的 JDK 调度器提供者
+     *
+     * @param corePoolSize 定时调度器核心线程数
+     */
     public JdkSchedulerProvider(int corePoolSize) {
         this.scheduler = new ScheduledThreadPoolExecutor(corePoolSize, new NamedThreadFactory("scheduler"));
         this.virtualThreadExecutor = new ThreadPoolExecutor(
@@ -82,16 +82,16 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 调度一个任务（指定任务 标识）
-    *
-    * <p>如果指定 ID 已存在调度任务，会先取消旧任务再注册新任务。
-    * 注册完成后立即计算第一次触发时间并开始调度。
-    *
-    * @param id      任务唯一标识
-    * @param task    待执行的任务逻辑
-    * @param trigger 触发策略
-    * @return 已调度的任务实例
-    */
+     * 调度一个任务（指定任务 标识）
+     *
+     * <p>如果指定 ID 已存在调度任务，会先取消旧任务再注册新任务。
+     * 注册完成后立即计算第一次触发时间并开始调度。
+     *
+     * @param id      任务唯一标识
+     * @param task    待执行的任务逻辑
+     * @param trigger 触发策略
+     * @return 已调度的任务实例
+     */
     @Override
     protected void doSchedule(String id, Runnable task, Trigger trigger) {
         lock.lock();
@@ -103,20 +103,20 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 调度任务的下一次执行
-    *
-    * <p>计算触发器的下一次执行时间，计算当前时间到触发时间的延迟毫秒数，
-    * 通过 {@link ScheduledExecutorService#schedule(Runnable, long, TimeUnit)} 在指定延迟后触发。
-    *
-    * <p>触发后执行流程：
-    * <ol>
-    *   <li>检查任务是否已被取消或调度器是否已关闭</li>
-    *   <li>通过虚拟线程执行器异步执行任务逻辑</li>
-    *   <li>执行完成后（通过 {@link CompletableFuture#whenComplete} 回调），执行链式调度</li>
-    * </ol>
-    *
-    * @param scheduledTask 需要调度下一次执行的调度任务
-    */
+     * 调度任务的下一次执行
+     *
+     * <p>计算触发器的下一次执行时间，计算当前时间到触发时间的延迟毫秒数，
+     * 通过 {@link ScheduledExecutorService#schedule(Runnable, long, TimeUnit)} 在指定延迟后触发。
+     *
+     * <p>触发后执行流程：
+     * <ol>
+     *   <li>检查任务是否已被取消或调度器是否已关闭</li>
+     *   <li>通过虚拟线程执行器异步执行任务逻辑</li>
+     *   <li>执行完成后（通过 {@link CompletableFuture#whenComplete} 回调），执行链式调度</li>
+     * </ol>
+     *
+     * @param scheduledTask 需要调度下一次执行的调度任务
+     */
     private void scheduleNext(ScheduledTask scheduledTask) {
         if (!running || scheduledTask.isCancelled()) {
             return;
@@ -156,14 +156,14 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 重新调度任务（实时变更触发策略）
-    *
-    * <p>取消当前未执行的 Future，更新任务的触发策略，并立即以新策略重新调度。
-    *
-    * @param id      任务唯一标识
-    * @param trigger 新的触发策略
-    * @return 重新调度后的任务实例，不存在返回 {@code null}
-    */
+     * 重新调度任务（实时变更触发策略）
+     *
+     * <p>取消当前未执行的 Future，更新任务的触发策略，并立即以新策略重新调度。
+     *
+     * @param id      任务唯一标识
+     * @param trigger 新的触发策略
+     * @return 重新调度后的任务实例，不存在返回 {@code null}
+     */
     @Override
     protected void doReschedule(String id, Trigger trigger) {
         lock.lock();
@@ -179,11 +179,11 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 取消指定 标识 的调度任务
-    *
-    * @param id 任务唯一标识
-    * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
-    */
+     * 取消指定 标识 的调度任务
+     *
+     * @param id 任务唯一标识
+     * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
+     */
     @Override
     protected void doCancel(String id) {
         ScheduledFuture<?> future = futures.remove(id);
@@ -193,17 +193,17 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-    * 关闭调度器
-    *
-    * <p>执行优雅关闭，操作顺序如下：
-    * <ol>
-    *   <li>标记运行状态为 {@code false}，阻止新的调度</li>
-    *   <li>取消所有已调度的 Future</li>
-    *   <li>清空任务注册表和 Future 注册表</li>
-    *   <li>关闭虚拟线程执行器</li>
-    *   <li>关闭定时调度器，等待 5 秒内完成正在执行的任务，超时则强制关闭</li>
-    * </ol>
-    */
+     * 关闭调度器
+     *
+     * <p>执行优雅关闭，操作顺序如下：
+     * <ol>
+     *   <li>标记运行状态为 {@code false}，阻止新的调度</li>
+     *   <li>取消所有已调度的 Future</li>
+     *   <li>清空任务注册表和 Future 注册表</li>
+     *   <li>关闭虚拟线程执行器</li>
+     *   <li>关闭定时调度器，等待 5 秒内完成正在执行的任务，超时则强制关闭</li>
+     * </ol>
+     */
     @Override
     protected void doShutdown() {
         lock.lock();

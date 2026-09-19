@@ -8,14 +8,14 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
-* safetensor 模型注册表。
-* <p>
-* 镜像 Python safetensor_模型.py 中 模型_REGISTRY 的完整模型清单。
-* 提供 Java 侧对 safetensor 托管模型的统一发现与查询能力。
-* </p>
-*
-* @since 4.0.0.42
-* @author CH
+ * safetensor 模型注册表。
+ * <p>
+ * 镜像 Python safetensor_模型.py 中 模型_REGISTRY 的完整模型清单。
+ * 提供 Java 侧对 safetensor 托管模型的统一发现与查询能力。
+ * </p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 public final class SafeTensorModelRegistry {
 
@@ -37,44 +37,44 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-    * 所有注册模型的不可变列表。
-    */
+     * 所有注册模型的不可变列表。
+     */
     private static final List<ModelEntry> ALL_MODELS = buildRegistry();
 
     /**
-    * 获取所有注册的模型。
-    *
-    * @return 模型列表
-    */
+     * 获取所有注册的模型。
+     *
+     * @return 模型列表
+     */
     public static List<ModelEntry> allModels() {
         return ALL_MODELS;
     }
 
     /**
-    * 按类型获取模型。
-    *
-    * @param type 模型类型
-    * @return 匹配的模型列表
-    */
+     * 按类型获取模型。
+     *
+     * @param type 模型类型
+     * @return 匹配的模型列表
+     */
     public static List<ModelEntry> byType(String type) {
         return ALL_MODELS.stream().filter(e -> e.type.equals(type)).toList();
     }
 
     /**
-    * 按 标识 查找模型。
-    *
-    * @param id 模型标识
-    * @return 匹配的模型条目
-    */
+     * 按 标识 查找模型。
+     *
+     * @param id 模型标识
+     * @return 匹配的模型条目
+     */
     public static Optional<ModelEntry> byId(String id) {
         return ALL_MODELS.stream().filter(e -> e.id.equals(id)).findFirst();
     }
 
     /**
-    * 获取所有不重复的模型类型。
-    *
-    * @return 类型集
-    */
+     * 获取所有不重复的模型类型。
+     *
+     * @return 类型集
+     */
     public static Set<String> allTypes() {
         Set<String> types = new LinkedHashSet<>();
         for (ModelEntry e : ALL_MODELS) {
@@ -84,11 +84,11 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-    * 根据模型 标识 解析对应的 类型。
-    *
-    * @param modelId 模型 标识
-    * @return 模型类型，未找到时返回 "llm"
-    */
+     * 根据模型 标识 解析对应的 类型。
+     *
+     * @param modelId 模型 标识
+     * @return 模型类型，未找到时返回 "llm"
+     */
     public static String resolveType(String modelId) {
         if (modelId == null) {
             return "llm";
@@ -97,11 +97,11 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-    * guess类型
-    *
-    * @param name 名称
-    * @return guess类型的结果
-    */
+     * guess类型
+     *
+     * @param name 名称
+     * @return guess类型的结果
+     */
     private static String guessType(String name) {
         if (name.contains("qwen") || name.contains("llama") || name.contains("minimind") || name.contains("phi")) {
             if (name.contains("minimind-3v")) {
@@ -164,10 +164,10 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-    * 构建Registry
-    *
-    * @return 构建registry的结果
-    */
+     * 构建Registry
+     *
+     * @return 构建registry的结果
+     */
     private static List<ModelEntry> buildRegistry() {
         List<ModelEntry> list = new ArrayList<>();
 

@@ -19,44 +19,44 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* SOFA-RPC 服务端实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * SOFA-RPC 服务端实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("sofa")
 @Slf4j
 public class SofaRpcServer implements RpcServer {
 
     /**
-    * registry 配置
-    */
+     * registry 配置
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-    * 服务器 配置
-    */
+     * 服务器 配置
+     */
     private final List<ServerConfig> serverConfigs = new ArrayList<>();
     /**
-    * 提供者 配置
-    */
+     * 提供者 配置
+     */
     private final List<ProviderConfig<?>> providerConfigs = new ArrayList<>();
     /**
-    * 状态
-    */
+     * 状态
+     */
     private final AtomicBoolean state = new AtomicBoolean(false);
     /**
-    * application 配置
-    */
+     * application 配置
+     */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
 
     /**
-    * 创建 sofarpc服务端 实例
-    * @param rpcRegistryConfigs rpcregistry配置
-    * @param protocolConfig rpc协议配置
-    * @param name 字符串
-    * @param protocolConfig 协议配置
-    * @param name 名称
-    */
+     * 创建 sofarpc服务端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param protocolConfig rpc协议配置
+     * @param name 字符串
+     * @param protocolConfig 协议配置
+     * @param name 名称
+     */
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
@@ -74,15 +74,15 @@ public class SofaRpcServer implements RpcServer {
     }
 
     /**
-    * 计算 本地 注册中心使用的本地注册文件路径（服务端 与 客户端 必须同名才能互相发现）。
-    *
-    * <p>目录选择优先级：系统属性 {@code sofa.rpc.registry.file.dir} → 用户目录
-    * {@code ~/.sofa-rpc} → 系统临时目录。避免固定落在 tmpdir 导致跨进程/容器重启后
-    * 注册文件被清理或不可见。</p>
-    *
-    * @param appName 应用名（{@code null} / 空串时退化为 {@code default}）
-    * @return 注册文件绝对路径
-    */
+     * 计算 本地 注册中心使用的本地注册文件路径（服务端 与 客户端 必须同名才能互相发现）。
+     *
+     * <p>目录选择优先级：系统属性 {@code sofa.rpc.registry.file.dir} → 用户目录
+     * {@code ~/.sofa-rpc} → 系统临时目录。避免固定落在 tmpdir 导致跨进程/容器重启后
+     * 注册文件被清理或不可见。</p>
+     *
+     * @param appName 应用名（{@code null} / 空串时退化为 {@code default}）
+     * @return 注册文件绝对路径
+     */
     static String localRegistryFile(String appName) {
         String safe = (appName == null || appName.isEmpty()) ? "default" : appName;
         String dir = System.getProperty("sofa.rpc.registry.file.dir");
@@ -96,10 +96,10 @@ public class SofaRpcServer implements RpcServer {
     }
 
     /**
-    * 初始化协议
-    *
-    * @param config 配置
-    */
+     * 初始化协议
+     *
+     * @param config 配置
+     */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) { return; }
         ServerConfig item = new ServerConfig();

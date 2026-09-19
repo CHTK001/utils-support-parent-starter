@@ -9,55 +9,55 @@ import com.chua.common.support.lang.datasource.meta.model.TriggerDef;
 import java.util.List;
 
 /**
-* 触发器元数据操作抽象基类。
-* <p>
-* 持有 {@link AbstractMetaData} 引用，提供触发器名和表名上下文。
-* 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 触发器元数据操作抽象基类。
+ * <p>
+ * 持有 {@link AbstractMetaData} 引用，提供触发器名和表名上下文。
+ * 子类只需实现具体的 JDBC 元数据读取和 DDL 生成逻辑。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractMetaTrigger implements MetaTrigger {
 
     /**
-    * 元数据入口
-    */
+     * 元数据入口
+     */
     protected final AbstractMetaData metaData;
 
     /**
-    * 引擎实例
-    */
+     * 引擎实例
+     */
     protected final Engine engine;
 
     /**
-    * 当前触发器名
-    */
+     * 当前触发器名
+     */
     protected String triggerName;
 
     /**
-    * 所属表名
-    */
+     * 所属表名
+     */
     protected String tableName;
 
     /**
-    * 构造方法（无触发器名上下文）。
-    *
-    * @param metaData 元数据入口
-    * @param engine   引擎实例
-    */
+     * 构造方法（无触发器名上下文）。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
+     */
     protected AbstractMetaTrigger(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;
     }
 
     /**
-    * 构造方法（带触发器名上下文）。
-    *
-    * @param metaData   元数据入口
-    * @param engine     引擎实例
-    * @param triggerName 触发器名
-    */
+     * 构造方法（带触发器名上下文）。
+     *
+     * @param metaData   元数据入口
+     * @param engine     引擎实例
+     * @param triggerName 触发器名
+     */
     protected AbstractMetaTrigger(AbstractMetaData metaData, Engine engine, String triggerName) {
         this.metaData = metaData;
         this.engine = engine;

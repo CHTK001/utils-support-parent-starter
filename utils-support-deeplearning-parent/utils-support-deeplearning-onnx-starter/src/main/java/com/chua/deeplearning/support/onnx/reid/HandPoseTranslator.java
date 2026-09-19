@@ -12,25 +12,25 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 打开cv media管道 handpose                       Translator
-*
-* <p>            : [1, 224, 224, 3] NHWC RGB       
-* <p>            :
-* - Identity: [1, 63]     21                       x,y,z                         
-* - Identity_1: [1, 1]                    
-* - Identity_2: [1, 1]                 0=      , 1=         
-* - Identity_3: [1, 63]                       
-*
-* <p>         :
-* -                       224x224
-* -              [0, 1]
-* -        HWC                    NHWC   
-*
-* <p>         :
-* -        float[65]: [63                   ,          ,          ]
-*
-* @author CH
-* @since 2026-05-10
+ * 打开cv media管道 handpose                       Translator
+ *
+ * <p>            : [1, 224, 224, 3] NHWC RGB       
+ * <p>            :
+ * - Identity: [1, 63]     21                       x,y,z                         
+ * - Identity_1: [1, 1]                    
+ * - Identity_2: [1, 1]                 0=      , 1=         
+ * - Identity_3: [1, 63]                       
+ *
+ * <p>         :
+ * -                       224x224
+ * -              [0, 1]
+ * -        HWC                    NHWC   
+ *
+ * <p>         :
+ * -        float[65]: [63                   ,          ,          ]
+ *
+ * @author CH
+ * @since 2026-05-10
  */
 @Slf4j
 public class HandPoseTranslator implements Translator<Image, float[]> {

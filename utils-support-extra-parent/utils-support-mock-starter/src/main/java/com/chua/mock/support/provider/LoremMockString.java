@@ -8,21 +8,21 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
-* Lorem Ipsum 假文 Mock 生成器
-*
-* <p>按环境指定的单词数量生成 lorem ipsum 英文假文，
-* 默认 10 个单词，如 {@code Lorem ipsum dolor sit amet}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Lorem Ipsum 假文 Mock 生成器
+ *
+ * <p>按环境指定的单词数量生成 lorem ipsum 英文假文，
+ * 默认 10 个单词，如 {@code Lorem ipsum dolor sit amet}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"lorem", "lorem-ipsum", "lipsum"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class LoremMockString implements MockString {
 
     /**
-    * lorem ipsum 单词池
-    */
+     * lorem ipsum 单词池
+     */
     private static final String[] WORDS = {
             "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
             "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
@@ -31,10 +31,10 @@ public class LoremMockString implements MockString {
             "consequat", "duis", "aute", "irure", "in", "reprehenderit", "voluptate", "velit"
     };
     /**
-    * 默认单词数量
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 默认单词数量
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private static final int DEFAULT_WORDS = 10;
 
     @Override

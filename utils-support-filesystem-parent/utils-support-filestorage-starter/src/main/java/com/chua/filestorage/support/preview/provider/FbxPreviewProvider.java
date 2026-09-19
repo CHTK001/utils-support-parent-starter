@@ -11,16 +11,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* FBX 3D 模型预览提供器。
-* <p>SPI 类型：{@code preview-fbx}。解析 FBX 文件头部信息，提取元数据和网格统计。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param data 数据
-* @return 解析fbx的结果
-* @param content 内容
-* @param ext ext
-* @param mime mime
+ * FBX 3D 模型预览提供器。
+ * <p>SPI 类型：{@code preview-fbx}。解析 FBX 文件头部信息，提取元数据和网格统计。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param data 数据
+ * @return 解析fbx的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-fbx")
 public class FbxPreviewProvider implements FileStoragePreviewProvider {
@@ -73,13 +73,13 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
         for (int i = 0; i < data.length - 13; i++) {
             // 寻找 "Objects\x00" 标记
     /**
-    * fbx信息类。
-    *
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    * @return human大小的结果
-    */
+     * fbx信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
             if (data[i] == 'O' && data[i + 1] == 'b' && data[i + 2] == 'j' &&
                 data[i + 3] == 'e' && data[i + 4] == 'c' && data[i + 5] == 't' &&
                 data[i + 6] == 's' && data[i + 7] == 0) {
@@ -92,11 +92,11 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
 
         return info;
     /**
-    * 构建html。
-    * @param info 信息
-    * @param fileSize 文件大小
-    * @return 构建html的结果
-    */
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     /**
@@ -137,13 +137,13 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
 
         return sb.toString();
     /**
-    * escapehtml。
-    * @param text 文本
-    * @return escapeHtml的结果
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    */
+     * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     /**

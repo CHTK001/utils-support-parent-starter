@@ -20,38 +20,38 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public class JdkRetryProvider extends AbstractRetryProvider {
 
     /**
-    * 默认重试配置
-    */
+     * 默认重试配置
+     */
     private final RetryConfig defaultConfig;
 
     /**
-    * 创建使用默认配置的 JDK 重试提供者
-    */
+     * 创建使用默认配置的 JDK 重试提供者
+     */
     public JdkRetryProvider() {
         this(new RetryConfig());
     }
 
     /**
-    * 创建使用指定默认配置的 JDK 重试提供者
-    *
-    * @param defaultConfig 默认重试配置
-    */
+     * 创建使用指定默认配置的 JDK 重试提供者
+     *
+     * @param defaultConfig 默认重试配置
+     */
     public JdkRetryProvider(RetryConfig defaultConfig) {
         this.defaultConfig = defaultConfig;
     }
 
     /**
-    * 使用默认配置执行带重试能力的任务
-    *
-    * @param <T>  返回值类型
-    * @param task 待执行的任务
-    * @return 任务执行结果
-    * @throws Exception 所有重试均失败后抛出最后一次异常
-    */
+     * 使用默认配置执行带重试能力的任务
+     *
+     * @param <T>  返回值类型
+     * @param task 待执行的任务
+     * @return 任务执行结果
+     * @throws Exception 所有重试均失败后抛出最后一次异常
+     */
     @Override
     protected <T> T doExecute(Callable<T> task, RetryConfig config) throws Exception {
         Exception lastException = null;
@@ -75,12 +75,12 @@ public class JdkRetryProvider extends AbstractRetryProvider {
     }
 
     /**
-    * 根据退避策略计算下次重试前的等待时间
-    *
-    * @param attempt 当前已重试次数
-    * @param config  重试配置
-    * @return 等待时间（毫秒）
-    */
+     * 根据退避策略计算下次重试前的等待时间
+     *
+     * @param attempt 当前已重试次数
+     * @param config  重试配置
+     * @return 等待时间（毫秒）
+     */
     private long computeDelay(int attempt, RetryConfig config) {
         switch (config.getBackoffStrategy()) {
             case EXPONENTIAL:
@@ -94,10 +94,10 @@ public class JdkRetryProvider extends AbstractRetryProvider {
     }
 
     /**
-    * 计算斐波那契数列第 n 项
-    * @param n n
-    * @return fib的结果
-    */
+     * 计算斐波那契数列第 n 项
+     * @param n n
+     * @return fib的结果
+     */
     private static long fib(int n) {
         if (n <= 1) {
             return n;

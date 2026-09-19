@@ -16,20 +16,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 浙江省水利厅台风数据源实现。
-*
-* <p>政府官方数据（完全免费，无 key）：</p>
-* <ul>
-*   <li>活跃台风列表 {@code /Api/TyhoonActivity}：HttpClient 实体请求
-* （httpinvoker 声明式代理不支持泛型 列表 返回，故用 类型引用 解析）</li>
-*   <li>单个台风详情 {@code /Api/TyphoonInfo/{tfid}}：HttpClient 动态路径请求，
-*       含历史路径与 4 家机构（中国/日本/美国等）预报</li>
-* </ul>
-*
-* <p>30 分钟内存缓存（惰性刷新，不内置定时任务）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 浙江省水利厅台风数据源实现。
+ *
+ * <p>政府官方数据（完全免费，无 key）：</p>
+ * <ul>
+ *   <li>活跃台风列表 {@code /Api/TyhoonActivity}：HttpClient 实体请求
+ * （httpinvoker 声明式代理不支持泛型 列表 返回，故用 类型引用 解析）</li>
+ *   <li>单个台风详情 {@code /Api/TyphoonInfo/{tfid}}：HttpClient 动态路径请求，
+ *       含历史路径与 4 家机构（中国/日本/美国等）预报</li>
+ * </ul>
+ *
+ * <p>30 分钟内存缓存（惰性刷新，不内置定时任务）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("zhejiang-typhoon")
 public class ZhejiangTyphoonProvider implements TyphoonProvider {

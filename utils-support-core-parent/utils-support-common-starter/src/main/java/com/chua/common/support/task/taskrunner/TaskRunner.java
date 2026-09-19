@@ -56,104 +56,104 @@ import java.util.function.Function;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class TaskRunner {
 
     /**
-    * 默认执行引擎 SPI 名称
-    */
+     * 默认执行引擎 SPI 名称
+     */
     private static final String DEFAULT_PROVIDER = "structured";
 
     /**
-    * 运行名称
-    */
+     * 运行名称
+     */
     private final String name;
 
     /**
-    * 注册顺序保持的节点定义表
-    */
+     * 注册顺序保持的节点定义表
+     */
     private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
 
     /**
-    * 全局默认单任务超时，空 表示不限时
-    */
+     * 全局默认单任务超时，空 表示不限时
+     */
     private Duration timeout;
 
     /**
-    * 全局默认重试次数
-    */
+     * 全局默认重试次数
+     */
     private int retryCount;
 
     /**
-    * 完成策略（必填）
-    */
+     * 完成策略（必填）
+     */
     private CompletionPolicy policy;
 
     /**
-    * 用户注册的事件监听器
-    */
+     * 用户注册的事件监听器
+     */
     private final List<RunnerListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 执行引擎 SPI 名称
-    */
+     * 执行引擎 SPI 名称
+     */
     private String providerName = DEFAULT_PROVIDER;
 
     /**
-    * 事件缓冲容量上限，超出后丢弃最旧事件
-    */
+     * 事件缓冲容量上限，超出后丢弃最旧事件
+     */
     private static final int EVENT_BUFFER_SIZE = 4096;
 
     /**
-    * 事件流：unicast 单播 + 有界缓冲（溢出丢最旧），watch() 订阅消费
-    */
+     * 事件流：unicast 单播 + 有界缓冲（溢出丢最旧），watch() 订阅消费
+     */
     private volatile Sinks.Many<RunnerEvent> eventSink = newSink();
 
     /**
-    * 事件流替换锁：clear事件 与 bridge事件 的互斥
-    */
+     * 事件流替换锁：clear事件 与 bridge事件 的互斥
+     */
     private final Object sinkLock = new Object();
 
     /**
-    * 拓扑结构版本号：任务() 注册时递增
-    */
+     * 拓扑结构版本号：任务() 注册时递增
+     */
     private volatile int structureVersion;
 
     /**
-    * 已缓存拓扑图对应的版本号
-    */
+     * 已缓存拓扑图对应的版本号
+     */
     private volatile int cachedGraphVersion = -1;
 
     /**
-    * 拓扑图缓存（定义不可变时避免重复构建校验）
-    */
+     * 拓扑图缓存（定义不可变时避免重复构建校验）
+     */
     private volatile TaskGraph cachedGraph;
 
     /**
-    * 创建新的事件 sink。
-    *
-    * @return 有界单播 sink
-    */
+     * 创建新的事件 sink。
+     *
+     * @return 有界单播 sink
+     */
     private static Sinks.Many<RunnerEvent> newSink() {
         return Sinks.many().unicast()
                 .onBackpressureBuffer(new ArrayBlockingQueue<RunnerEvent>(EVENT_BUFFER_SIZE));
     }
 
     /**
-    * 私有构造，统一经 {@link #of(String)} 创建。
-    *
-    * @param name 运行名称
-    */
+     * 私有构造，统一经 {@link #of(String)} 创建。
+     *
+     * @param name 运行名称
+     */
     private TaskRunner(String name) {
         this.name = name;
     }
 
     /**
-    * 创建任务运行器。
-    *
-    * @param name 运行名称，不为空
-    * @return 运行器实例
-    */
+     * 创建任务运行器。
+     *
+     * @param name 运行名称，不为空
+     * @return 运行器实例
+     */
     public static TaskRunner of(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("运行名称不能为空");
@@ -162,11 +162,11 @@ public class TaskRunner {
     }
 
     /**
-    * 设置全局默认单任务超时，可被节点级 超时 覆盖。
-    *
-    * @param d 超时时长，必须为正
-    * @return 当前运行器
-    */
+     * 设置全局默认单任务超时，可被节点级 超时 覆盖。
+     *
+     * @param d 超时时长，必须为正
+     * @return 当前运行器
+     */
     public TaskRunner timeout(Duration d) {
         Objects.requireNonNull(d, "timeout must not be null");
         if (d.isZero() || d.isNegative()) {
@@ -177,11 +177,11 @@ public class TaskRunner {
     }
 
     /**
-    * 设置全局默认重试次数，可被节点级 重试 覆盖。
-    *
-    * @param n 重试次数（不含首次执行），必须 ≥ 0
-    * @return 当前运行器
-    */
+     * 设置全局默认重试次数，可被节点级 重试 覆盖。
+     *
+     * @param n 重试次数（不含首次执行），必须 ≥ 0
+     * @return 当前运行器
+     */
     public TaskRunner retry(int n) {
         if (n < 0) {
             throw new IllegalArgumentException("retry 必须 >= 0, got: " + n);
@@ -191,33 +191,33 @@ public class TaskRunner {
     }
 
     /**
-    * 设置完成策略（必填项）。
-    *
-    * @param p 完成策略，不为 空
-    * @return 当前运行器
-    */
+     * 设置完成策略（必填项）。
+     *
+     * @param p 完成策略，不为 空
+     * @return 当前运行器
+     */
     public TaskRunner policy(CompletionPolicy p) {
         this.policy = Objects.requireNonNull(p, "policy must not be null");
         return this;
     }
 
     /**
-    * 注册事件监听器。
-    *
-    * @param l 监听器，不为 空
-    * @return 当前运行器
-    */
+     * 注册事件监听器。
+     *
+     * @param l 监听器，不为 空
+     * @return 当前运行器
+     */
     public TaskRunner listener(RunnerListener l) {
         listeners.add(Objects.requireNonNull(l, "listener must not be null"));
         return this;
     }
 
     /**
-    * 切换执行引擎 SPI 实现。
-    *
-    * @param providerName SPI 实现名，如 {@code "structured"}
-    * @return 当前运行器
-    */
+     * 切换执行引擎 SPI 实现。
+     *
+     * @param providerName SPI 实现名，如 {@code "structured"}
+     * @return 当前运行器
+     */
     public TaskRunner provider(String providerName) {
         if (providerName == null || providerName.isBlank()) {
             throw new IllegalArgumentException("providerName 不能为空");
@@ -227,13 +227,13 @@ public class TaskRunner {
     }
 
     /**
-    * 注册任务节点。
-    *
-    * @param id     节点 标识，运行内唯一且非空
-    * @param action 执行函数，接收上下文并返回结果值
-    * @return 任务定义，用于链式追加配置
-    * @throws IllegalStateException 当 标识 重复注册时
-    */
+     * 注册任务节点。
+     *
+     * @param id     节点 标识，运行内唯一且非空
+     * @param action 执行函数，接收上下文并返回结果值
+     * @return 任务定义，用于链式追加配置
+     * @throws IllegalStateException 当 标识 重复注册时
+     */
     public TaskDefinition task(String id, Function<RunnerContext, Object> action) {
         Objects.requireNonNull(action, "action must not be null");
         if (definitions.containsKey(id)) {
@@ -246,16 +246,16 @@ public class TaskRunner {
     }
 
     /**
-    * 异步执行整个拓扑图。
-    *
-    * <p>整个 DAG 在独立虚拟线程上运行，当前线程不阻塞。
-    * 调用 {@code future.cancel(true)} 会中断执行线程，
-    * 结构化并发作用域随之取消全部在途子任务。</p>
-    *
-    * @param input 初始输入，可为 空
-    * @return 整体结果 期货；cancel 后以 cancellation异常 结束
-    * @throws IllegalStateException 当未设置策略或未注册任务时
-    */
+     * 异步执行整个拓扑图。
+     *
+     * <p>整个 DAG 在独立虚拟线程上运行，当前线程不阻塞。
+     * 调用 {@code future.cancel(true)} 会中断执行线程，
+     * 结构化并发作用域随之取消全部在途子任务。</p>
+     *
+     * @param input 初始输入，可为 空
+     * @return 整体结果 期货；cancel 后以 cancellation异常 结束
+     * @throws IllegalStateException 当未设置策略或未注册任务时
+     */
     public CompletableFuture<RunResult> execute(Object input) {
         var prepared = prepare(input);
         var future = new CompletableFuture<RunResult>();
@@ -278,47 +278,47 @@ public class TaskRunner {
     }
 
     /**
-    * 同步执行整个拓扑图，在调用线程上阻塞完成。
-    *
-    * @param input 初始输入，可为 空
-    * @return 整体结果
-    * @throws IllegalStateException 当未设置策略或未注册任务时
-    */
+     * 同步执行整个拓扑图，在调用线程上阻塞完成。
+     *
+     * @param input 初始输入，可为 空
+     * @return 整体结果
+     * @throws IllegalStateException 当未设置策略或未注册任务时
+     */
     public RunResult executeSync(Object input) {
         var prepared = prepare(input);
         return resolveProvider().run(prepared.graph(), prepared.context(), prepared.options());
     }
 
     /**
-    * 响应式执行整个拓扑图。
-    *
-    * <p>完全惰性：参数校验与执行均推迟到订阅时刻。</p>
-    *
-    * @param input 初始输入，可为 空
-    * @return 整体结果 Mono（订阅时校验并触发执行）
-    */
+     * 响应式执行整个拓扑图。
+     *
+     * <p>完全惰性：参数校验与执行均推迟到订阅时刻。</p>
+     *
+     * @param input 初始输入，可为 空
+     * @return 整体结果 Mono（订阅时校验并触发执行）
+     */
     public Mono<RunResult> executeReactor(Object input) {
         return Mono.defer(() -> Mono.fromFuture(() -> execute(input)));
     }
 
     /**
-    * 订阅运行事件流。
-    *
-    * <p>unicast 单播语义：同一时刻仅支持一个活跃订阅者。缓冲容量 4096，
-    * 溢出时丢弃最旧事件；长期复用的 runner 可调用 {@link #clearEvents()}
-    * 释放历史事件并重置订阅窗口。</p>
-    *
-    * @return 当前事件 Flux
-    */
+     * 订阅运行事件流。
+     *
+     * <p>unicast 单播语义：同一时刻仅支持一个活跃订阅者。缓冲容量 4096，
+     * 溢出时丢弃最旧事件；长期复用的 runner 可调用 {@link #clearEvents()}
+     * 释放历史事件并重置订阅窗口。</p>
+     *
+     * @return 当前事件 Flux
+     */
     public Flux<RunnerEvent> watch() {
         return eventSink.asFlux();
     }
 
     /**
-    * 清空事件流：丢弃已缓冲事件并开启新的订阅窗口。
-    *
-    * <p>旧的 Flux 引用不再接收新事件；建议在两次 run 之间调用以防缓冲增长。</p>
-    */
+     * 清空事件流：丢弃已缓冲事件并开启新的订阅窗口。
+     *
+     * <p>旧的 Flux 引用不再接收新事件；建议在两次 run 之间调用以防缓冲增长。</p>
+     */
     public void clearEvents() {
         synchronized (sinkLock) {
             eventSink = newSink();
@@ -326,12 +326,12 @@ public class TaskRunner {
     }
 
     /**
-    * 执行前置准备：校验必填项、构建拓扑图、组装执行参数。
-    *
-    * @param input 初始输入
-    * @return 预备数据
-    * @throws IllegalStateException 当未设置策略或未注册任务时
-    */
+     * 执行前置准备：校验必填项、构建拓扑图、组装执行参数。
+     *
+     * @param input 初始输入
+     * @return 预备数据
+     * @throws IllegalStateException 当未设置策略或未注册任务时
+     */
     private Prepared prepare(Object input) {
         if (policy == null) {
             throw new IllegalStateException(
@@ -351,10 +351,10 @@ public class TaskRunner {
     }
 
     /**
-    * 解析拓扑图：结构未变化时复用缓存，避免重复校验与分层计算。
-    *
-    * @return 拓扑图实例
-    */
+     * 解析拓扑图：结构未变化时复用缓存，避免重复校验与分层计算。
+     *
+     * @return 拓扑图实例
+     */
     private TaskGraph resolveGraph() {
         var version = structureVersion;
         var cached = cachedGraph;
@@ -368,12 +368,12 @@ public class TaskRunner {
     }
 
     /**
-    * 将监听器事件桥接到响应式事件流。
-    *
-    * <p>缓冲满时静默丢弃（有界策略），不阻塞执行线程。</p>
-    *
-    * @param event 待发布事件
-    */
+     * 将监听器事件桥接到响应式事件流。
+     *
+     * <p>缓冲满时静默丢弃（有界策略），不阻塞执行线程。</p>
+     *
+     * @param event 待发布事件
+     */
     private void bridgeEvent(RunnerEvent event) {
         synchronized (sinkLock) {
             eventSink.tryEmitNext(event);
@@ -381,12 +381,12 @@ public class TaskRunner {
     }
 
     /**
-    * 解析执行引擎：默认实现名允许 SPI 缺失时兜底；
-    * 显式指定的其他名称找不到实现则立即报错，禁止静默降级。
-    *
-    * @return 执行引擎实例
-    * @throws IllegalArgumentException 当指定名称未注册且不是默认名时
-    */
+     * 解析执行引擎：默认实现名允许 SPI 缺失时兜底；
+     * 显式指定的其他名称找不到实现则立即报错，禁止静默降级。
+     *
+     * @return 执行引擎实例
+     * @throws IllegalArgumentException 当指定名称未注册且不是默认名时
+     */
     private RunnerProvider resolveProvider() {
         var resolved = ServiceProvider.of(RunnerProvider.class).getExtension(providerName);
         if (resolved != null) {
@@ -400,12 +400,12 @@ public class TaskRunner {
     }
 
     /**
-    * 预备数据内部载体。
-    *
-    * @param graph   拓扑图
-    * @param context 运行上下文
-    * @param options 执行参数
-    */
+     * 预备数据内部载体。
+     *
+     * @param graph   拓扑图
+     * @param context 运行上下文
+     * @param options 执行参数
+     */
     private record Prepared(TaskGraph graph, RunnerContext context,
                             RunnerProvider.ExecutionOptions options) {
     }

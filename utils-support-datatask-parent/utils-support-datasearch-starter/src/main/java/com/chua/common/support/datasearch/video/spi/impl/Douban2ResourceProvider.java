@@ -49,11 +49,11 @@ public class Douban2ResourceProvider extends AbstractResourceProvider {
 
     @Override
     /**
-    * 搜索resource。
-    *
-    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
-    * @return 搜索resource的结果；无匹配时返回空结果
-    */
+     * 搜索resource。
+     *
+     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+     * @return 搜索resource的结果；无匹配时返回空结果
+     */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {

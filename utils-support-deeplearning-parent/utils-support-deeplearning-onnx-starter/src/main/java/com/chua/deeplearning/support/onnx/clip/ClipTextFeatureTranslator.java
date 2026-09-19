@@ -19,58 +19,58 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* CLIP                      
-* <p>
-* CLIP                                     
-* CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
-* </p>
-* <p>
-*                  
-* 1.        huggingface Tokenizer
-* 2.     令牌 ids
-* 3.                                     77       
-* </p>
-* <p>
-*                            
-* -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=77)
-* -          文本_embeds (shape: [批量_大小, 512])
-* </p>
-* <p>
-* CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
-*    512                                                                   
-* </p>
-*
-* @author CH
-* @since 2025-01-22
+ * CLIP                      
+ * <p>
+ * CLIP                                     
+ * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
+ * </p>
+ * <p>
+ *                  
+ * 1.        huggingface Tokenizer
+ * 2.     令牌 ids
+ * 3.                                     77       
+ * </p>
+ * <p>
+ *                            
+ * -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=77)
+ * -          文本_embeds (shape: [批量_大小, 512])
+ * </p>
+ * <p>
+ * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
+ *    512                                                                   
+ * </p>
+ *
+ * @author CH
+ * @since 2025-01-22
  */
 @Slf4j
 public class ClipTextFeatureTranslator implements Translator<String, float[]> {
 
     /**
-    * CLIP                                  
-    *   CLIP Vision                               77
-    */
+     * CLIP                                  
+     *   CLIP Vision                               77
+     */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-    * 令牌 ids
-    */
+     * 令牌 ids
+     */
     private static final long DEFAULT_PAD_TOKEN_ID = 1L;
 
     /**
-    * huggingface
-    */
+     * huggingface
+     */
     private HuggingFaceTokenizer tokenizer;
 
     /**
-    *               
-    * <p>
-    *                             tokenizer.json
-    * </p>
-    *
-    * @param ctx                   
-    * @throws IOException              tokenizer       
-    */
+     *               
+     * <p>
+     *                             tokenizer.json
+     * </p>
+     *
+     * @param ctx                   
+     * @throws IOException              tokenizer       
+     */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         try {
@@ -108,19 +108,19 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-    *                   
-    * <p>
-    *                                                 
-    * 1.        Tokenizer                      
-    * 2.        令牌 ids
-    * 3.                                              
-    * </p>
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList                   [1, sequence_长度]     输入_标识
-    * @throws Exception                   
-    */
+     *                   
+     * <p>
+     *                                                 
+     * 1.        Tokenizer                      
+     * 2.        令牌 ids
+     * 3.                                              
+     * </p>
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList                   [1, sequence_长度]     输入_标识
+     * @throws Exception                   
+     */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
@@ -147,16 +147,16 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-    *                   
-    * <p>
-    *                                                       
-    * CLIP vit-B/16     vit-B/32                       512
-    * </p>
-    *
-    * @param ctx                    
-    * @param list                 nd列表          文本_embeds
-    * @return                            512       
-    */
+     *                   
+     * <p>
+     *                                                       
+     * CLIP vit-B/16     vit-B/32                       512
+     * </p>
+     *
+     * @param ctx                    
+     * @param list                 nd列表          文本_embeds
+     * @return                            512       
+     */
     @Override
     @Nonnull
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -171,15 +171,15 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-    *                                      
-    * <p>
-    * : 文本_embeds / 游泳池_输出 / sentence_嵌入
-    *                                     
-    * </p>
-    *
-    * @param list nd列表
-    * @return                               
-    */
+     *                                      
+     * <p>
+     * : 文本_embeds / 游泳池_输出 / sentence_嵌入
+     *                                     
+     * </p>
+     *
+     * @param list nd列表
+     * @return                               
+     */
     private NDArray selectEmbeddingOutput(NDList list) {
         if (list == null || list.isEmpty()) {
             throw new IllegalStateException("CLIP                         ");
@@ -203,10 +203,10 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-    *                   
-    *
-    * @return null                     
-    */
+     *                   
+     *
+     * @return null                     
+     */
     @Override
     @Nullable
     public Batchifier getBatchifier() {
@@ -214,11 +214,11 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-    * 令牌 ids
-    *
-    * @param tokenIds                  
-    * @return                            MAX_SEQUENCE_LENGTH       
-    */
+     * 令牌 ids
+     *
+     * @param tokenIds                  
+     * @return                            MAX_SEQUENCE_LENGTH       
+     */
     private long[] normalizeTokenIds(long[] tokenIds) {
         if (tokenIds == null || tokenIds.length == 0) {
             long[] padded = new long[MAX_SEQUENCE_LENGTH];

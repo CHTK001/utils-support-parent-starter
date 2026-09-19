@@ -6,12 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 咪咕音乐签名支持工具类
-* 为咪咕音乐API请求生成签名（标志）与设备标识（deviceid）等请求参数
-* 
-* @author CH
-* @since 4.0.0.42
-*/
+ * 咪咕音乐签名支持工具类
+ * 为咪咕音乐API请求生成签名（标志）与设备标识（deviceid）等请求参数
+ * 
+ * @author CH
+ * @since 4.0.0.42
+ */
 public final class MiguSignSupport {
 
     /** Device_标识 */
@@ -42,11 +42,11 @@ public final class MiguSignSupport {
     }
 
     /**
-    * Md
-    *
-    * @param text 文本
-    * @return md5的结果
-    */
+     * Md
+     *
+     * @param text 文本
+     * @return md5的结果
+     */
     private static String md5(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");

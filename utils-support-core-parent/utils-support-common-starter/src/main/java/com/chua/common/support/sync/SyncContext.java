@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author CH
  * @since 2026/07/28
-*/
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -27,24 +27,24 @@ public class SyncContext implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 输入源标识
-    */
+     * 输入源标识
+     */
     private String inputId;
 
     /**
-    * 数据行（字段名 → 字段值）
-    */
+     * 数据行（字段名 → 字段值）
+     */
     @Builder.Default
     private Map<String, Object> data = new LinkedHashMap<>(); // 数据
 
     /**
-    * 数据对应的位点
-    */
+     * 数据对应的位点
+     */
     private Position position;
 
     /**
-    * 事件类型（插入 / 更新 / 删除 / SNAPSHOT）
-    */
+     * 事件类型（插入 / 更新 / 删除 / SNAPSHOT）
+     */
     @Builder.Default
     /** 事件类型 */
     private String eventType = "SNAPSHOT";
@@ -63,12 +63,12 @@ public class SyncContext implements Serializable {
     private Map<String, Object> attributes = new LinkedHashMap<>(); // attributes
 
     /**
-    * 创建同步上下文
-    *
-    * @param inputId 输入源标识
-    * @param data    数据行
-    * @return 同步上下文实例
-    */
+     * 创建同步上下文
+     *
+     * @param inputId 输入源标识
+     * @param data    数据行
+     * @return 同步上下文实例
+     */
     public static SyncContext of(String inputId, Map<String, Object> data) {
         return SyncContext.builder()
                 .inputId(inputId)

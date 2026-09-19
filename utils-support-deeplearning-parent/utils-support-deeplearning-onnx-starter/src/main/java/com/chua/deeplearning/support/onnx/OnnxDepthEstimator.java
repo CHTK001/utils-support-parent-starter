@@ -11,9 +11,9 @@ public class OnnxDepthEstimator implements DepthEstimator {
     private String modelName;
 
     /**
-    * 创建 onnx深度estimator 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx深度estimator 实例
+     * @param apiKey API密钥
+     */
     public OnnxDepthEstimator(String apiKey) {
     }
 

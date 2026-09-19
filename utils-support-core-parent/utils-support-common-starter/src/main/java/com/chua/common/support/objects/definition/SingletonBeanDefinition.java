@@ -18,7 +18,7 @@ import com.chua.common.support.reflection.ReflectUtils;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public class SingletonBeanDefinition extends AbstractBeanDefinition {
 
     /** 单例实例，volatile 保证多线程可见性 */
@@ -35,14 +35,14 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 从已创建的实例构造单例 Bean 定义。
-    *
-    * <p>实例通过 {@link #setBean(Object)} 保存，不设置初始化标志 —
-    * 后续需显式调用 {@link #initializeBean()} 以完成注入和生命周期回调。</p>
-    *
-    * @param definition Bean 定义
-    * @param instance   Bean 实例
-    */
+     * 从已创建的实例构造单例 Bean 定义。
+     *
+     * <p>实例通过 {@link #setBean(Object)} 保存，不设置初始化标志 —
+     * 后续需显式调用 {@link #initializeBean()} 以完成注入和生命周期回调。</p>
+     *
+     * @param definition Bean 定义
+     * @param instance   Bean 实例
+     */
     public SingletonBeanDefinition(BeanDefinition definition, Object instance) {
         super(definition.getName(), definition.getBeanClass(), BeanScope.SINGLETON);
         setPriority(definition.getPriority());
@@ -50,42 +50,42 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 创建单例 Bean 定义。
-    *
-    * @param bean Bean 实例
-    * @return 单例 Bean 定义
-    */
+     * 创建单例 Bean 定义。
+     *
+     * @param bean Bean 实例
+     * @return 单例 Bean 定义
+     */
     public static SingletonBeanDefinition of(Object bean) {
         return new SingletonBeanDefinition(BeanDefinition.EMPTY_BEAN_DEFINITION, bean);
     }
 
     /**
-    * 获取已缓存的单例实例。
-    *
-    * @return 单例实例
-    */
+     * 获取已缓存的单例实例。
+     *
+     * @return 单例实例
+     */
     @Override
     protected Object doGetBean() {
         return singletonInstance;
     }
 
     /**
-    * 保存单例实例。
-    *
-    * @param bean 单例实例
-    */
+     * 保存单例实例。
+     *
+     * @param bean 单例实例
+     */
     @Override
     protected void setBean(Object bean) {
         this.singletonInstance = bean;
     }
 
     /**
-    * 创建 Bean 实例。
-    *
-    * <p>已存在实例时直接返回，否则反射新建。</p>
-    *
-    * @return Bean 实例
-    */
+     * 创建 Bean 实例。
+     *
+     * <p>已存在实例时直接返回，否则反射新建。</p>
+     *
+     * @return Bean 实例
+     */
     @Override
     public Object createInstance() {
         if (singletonInstance != null) {
@@ -99,13 +99,13 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 初始化 Bean。
-    *
-    * <p>已存在实例时不需要额外处理，父类 {@code initializeBean()} 会通过
-    * 覆盖的 {@link #createInstance()} 获取现有实例，依次执行注入和生命周期初始化。</p>
-    *
-    * @return 初始化后的 Bean 实例
-    */
+     * 初始化 Bean。
+     *
+     * <p>已存在实例时不需要额外处理，父类 {@code initializeBean()} 会通过
+     * 覆盖的 {@link #createInstance()} 获取现有实例，依次执行注入和生命周期初始化。</p>
+     *
+     * @return 初始化后的 Bean 实例
+     */
     @Override
     public Object initializeBean() {
         return super.initializeBean();

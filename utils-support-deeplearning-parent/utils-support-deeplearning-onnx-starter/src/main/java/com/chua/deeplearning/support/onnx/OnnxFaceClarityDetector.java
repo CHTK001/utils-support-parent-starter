@@ -4,46 +4,46 @@ import com.chua.deeplearning.support.face.FaceClarityDetector;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 
 /**
-* ONNX 人脸清晰度检测器（SPI 提供者="onnx"）。
-*
-* <p>注册表中无匹配的人脸清晰度模型，必须通过 {@code .model("模型ID")} 显式指定
-* 已注册模型，否则抛出异常。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ONNX 人脸清晰度检测器（SPI 提供者="onnx"）。
+ *
+ * <p>注册表中无匹配的人脸清晰度模型，必须通过 {@code .model("模型ID")} 显式指定
+ * 已注册模型，否则抛出异常。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OnnxFaceClarityDetector implements FaceClarityDetector {
 
     /**
-    * 清晰度检测模型名称
-    */
+     * 清晰度检测模型名称
+     */
     private String modelName;
 
     /**
-    * 模糊度阈值
-    */
+     * 模糊度阈值
+     */
     private double blurThreshold = 80.0;
 
     /**
-    * 最小人脸面积比
-    */
+     * 最小人脸面积比
+     */
     private float minFaceRatio = 0.05f;
 
     /**
-    * 模型路径
-    */
+     * 模型路径
+     */
     private String modelPath;
 
     /**
-    * 运行设备
-    */
+     * 运行设备
+     */
     private String device = "cpu";
 
     /**
-    * SPI 构造函数。
-    *
-    * @param apiKey API 密钥（本地引擎忽略）
-    */
+     * SPI 构造函数。
+     *
+     * @param apiKey API 密钥（本地引擎忽略）
+     */
     public OnnxFaceClarityDetector(String apiKey) {
     }
 

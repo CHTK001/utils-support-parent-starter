@@ -8,27 +8,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 钻头torrent Bencode 编解码器，基于 {@link Bencode} 三方库。
-*
-* @author CH
-* @since 4.0.0.42
+ * 钻头torrent Bencode 编解码器，基于 {@link Bencode} 三方库。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class BencodeCodec {
 
     /**
-    * 底层编解码实例，使用 ISO_8859_1 保证字节串无损往返。
-    */
+     * 底层编解码实例，使用 ISO_8859_1 保证字节串无损往返。
+     */
     private static final Bencode INSTANCE = new Bencode(StandardCharsets.ISO_8859_1);
 
     /**
-    * 将 Bencode 编码的字节数组解码为 Java 对象。
-    * <p>
-    * 根据首字节自动识别类型：字典、列表、整数或字符串。
-    * </p>
-    *
-    * @param data Bencode 编码的字节数组
-    * @return 解码后的对象
-    */
+     * 将 Bencode 编码的字节数组解码为 Java 对象。
+     * <p>
+     * 根据首字节自动识别类型：字典、列表、整数或字符串。
+     * </p>
+     *
+     * @param data Bencode 编码的字节数组
+     * @return 解码后的对象
+     */
     @SuppressWarnings("unchecked")
     public static Object decode(byte[] data) {
         if (data == null || data.length == 0) {
@@ -51,11 +51,11 @@ public class BencodeCodec {
     }
 
     /**
-    * 将 Java 对象编码为 Bencode 格式的字节数组。
-    *
-    * @param obj 要编码的对象
-    * @return Bencode 格式的字节数组
-    */
+     * 将 Java 对象编码为 Bencode 格式的字节数组。
+     *
+     * @param obj 要编码的对象
+     * @return Bencode 格式的字节数组
+     */
     public static byte[] encode(Object obj) {
         if (obj instanceof Map) {
             return INSTANCE.encode((Map<?, ?>) obj);
@@ -73,11 +73,11 @@ public class BencodeCodec {
     }
 
     /**
-    * 将长整型编码为 Bencode 整数。
-    *
-    * @param value 整数值
-    * @return Bencode 字节数组
-    */
+     * 将长整型编码为 Bencode 整数。
+     *
+     * @param value 整数值
+     * @return Bencode 字节数组
+     */
     public static byte[] encode(long value) {
         return INSTANCE.encode(value);
     }

@@ -12,44 +12,44 @@ package com.chua.common.support.shmqueue;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface ShmQueueProvider {
 
     /**
-    * 创建（或复用）一个共享内存队列。
-    *
-    * @param name      共享内存对象名
-    * @param capacity  槽位数
-    * @param slotSize  每槽字节数
-    * @param mode      等待模式
-    * @return ShmQueue 实例
-    * @throws ShmQueueException 创建失败
-    */
+     * 创建（或复用）一个共享内存队列。
+     *
+     * @param name      共享内存对象名
+     * @param capacity  槽位数
+     * @param slotSize  每槽字节数
+     * @param mode      等待模式
+     * @return ShmQueue 实例
+     * @throws ShmQueueException 创建失败
+     */
     ShmQueue create(String name, int capacity, int slotSize, ShmQueue.Mode mode);
 
     /**
-    * 仅附加到已存在的共享内存队列。
-    *
-    * @param name 共享内存对象名
-    * @return ShmQueue 实例
-    * @throws ShmQueueException attach 失败
-    */
+     * 仅附加到已存在的共享内存队列。
+     *
+     * @param name 共享内存对象名
+     * @return ShmQueue 实例
+     * @throws ShmQueueException attach 失败
+     */
     ShmQueue attach(String name);
 
     /**
-    * 提供者优先级（数值越小优先级越高）。当存在多个实现时，{@link ShmQueue} 默认取第一个。
-    *
-    * @return 优先级，默认 100
-    */
+     * 提供者优先级（数值越小优先级越高）。当存在多个实现时，{@link ShmQueue} 默认取第一个。
+     *
+     * @return 优先级，默认 100
+     */
     default int order() {
         return 100;
     }
 
     /**
-    * 提供者名称，便于诊断。
-    *
-    * @return 提供者名称
-    */
+     * 提供者名称，便于诊断。
+     *
+     * @return 提供者名称
+     */
     default String name() {
         return getClass().getSimpleName();
     }

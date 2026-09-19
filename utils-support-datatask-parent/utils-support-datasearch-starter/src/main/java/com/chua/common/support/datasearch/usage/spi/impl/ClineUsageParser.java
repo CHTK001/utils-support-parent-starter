@@ -49,17 +49,17 @@ public class ClineUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-    * 返回 Cline 的 SPI 名称。
-    *
-    * @return {@code "cline"}
-    */
+     * 返回 Cline 的 SPI 名称。
+     *
+     * @return {@code "cline"}
+     */
     public String name() {
         return "cline";
     }
 
     /**
-    * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-    */
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -67,10 +67,10 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析全部 Cline CLI 会话文件并提取 token 用量。
-    *
-    * @return AiUsage 记录列表，每个已完成的会话对应一条
-    */
+     * 解析全部 Cline CLI 会话文件并提取 token 用量。
+     *
+     * @return AiUsage 记录列表，每个已完成的会话对应一条
+     */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[cline] sessions dir not found: {}", SESSIONS_DIR);
@@ -90,11 +90,11 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将单个 Cline 会话文件解析为一条 AiUsage 记录。
-    *
-    * @param file 会话 JSON 文件路径
-    * @return 解析得到的 AiUsage；文件没有用量数据时返回空
-    */
+     * 将单个 Cline 会话文件解析为一条 AiUsage 记录。
+     *
+     * @param file 会话 JSON 文件路径
+     * @return 解析得到的 AiUsage；文件没有用量数据时返回空
+     */
     private java.util.Optional<AiUsage> parseSession(Path file) {
         try {
             JsonNode node = Json.parse(Files.readString(file));

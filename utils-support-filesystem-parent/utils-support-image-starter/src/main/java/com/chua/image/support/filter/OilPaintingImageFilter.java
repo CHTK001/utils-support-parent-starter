@@ -56,32 +56,32 @@ import java.awt.image.BufferedImage;
 public class OilPaintingImageFilter extends AbstractImageFilter {
 
     /**
-    * 笔触采样半径（像素），默认 4
-    */
+     * 笔触采样半径（像素），默认 4
+     */
     private int brushSize = 4;
 
     /**
-    * 每通道颜色量化级数，默认 8
-    */
+     * 每通道颜色量化级数，默认 8
+     */
     private int colorLevels = 8;
 
     /**
-    * 暖色调偏移强度 (0.0-1.0)，默认 0.2
-    */
+     * 暖色调偏移强度 (0.0-1.0)，默认 0.2
+     */
     private double warmTone = 0.2;
 
     /**
-    * 对比度增强系数 (0.5-3.0)，默认 1.2
-    */
+     * 对比度增强系数 (0.5-3.0)，默认 1.2
+     */
     private double contrast = 1.2;
 
     /**
-    * 执行油画风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 油画风格图像
-    */
+     * 执行油画风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 油画风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -146,22 +146,22 @@ public class OilPaintingImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 颜色量化
-    *
-    * @param value 原始通道值
-    * @param step  量化步长
-    * @return 量化后的值
-    */
+     * 颜色量化
+     *
+     * @param value 原始通道值
+     * @param step  量化步长
+     * @return 量化后的值
+     */
     private int quantize(int value, int step) {
         return (int) (Math.round(value / (double) step) * step);
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

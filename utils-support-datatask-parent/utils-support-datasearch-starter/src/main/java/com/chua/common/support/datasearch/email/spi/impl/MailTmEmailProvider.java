@@ -13,17 +13,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* mail.tm 免费临时邮箱服务实现。
-*
-* <p>无需注册，无需 API Key：</p>
-* <ul>
-*   <li>POST /api/accounts — 创建邮箱账号</li>
-*   <li>POST /api/token — 获取 JWT</li>
-*   <li>GET  /api/messages — 收取邮件</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * mail.tm 免费临时邮箱服务实现。
+ *
+ * <p>无需注册，无需 API Key：</p>
+ * <ul>
+ *   <li>POST /api/accounts — 创建邮箱账号</li>
+ *   <li>POST /api/token — 获取 JWT</li>
+ *   <li>GET  /api/messages — 收取邮件</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("mail-tm")
@@ -163,10 +163,10 @@ public class MailTmEmailProvider implements EmailProvider {
     }
 
     /**
-    * 随机前缀。
-    * @param length 长度
-    * @return 随机前缀的结果
-    */
+     * 随机前缀。
+     * @param length 长度
+     * @return 随机前缀的结果
+     */
     private static String randomPrefix(int length) {
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(length);

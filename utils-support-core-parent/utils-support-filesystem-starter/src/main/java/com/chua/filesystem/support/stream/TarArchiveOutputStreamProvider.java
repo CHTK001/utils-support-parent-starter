@@ -10,10 +10,10 @@ import java.io.OutputStream;
 import javax.annotation.Nullable;
 
 /**
-* 焦油格式归档输出流提供者
-*
-* @author CH
-* @since 4.0.0.42
+ * 焦油格式归档输出流提供者
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("tar")
 public class TarArchiveOutputStreamProvider implements CompressArchiveOutputStream {

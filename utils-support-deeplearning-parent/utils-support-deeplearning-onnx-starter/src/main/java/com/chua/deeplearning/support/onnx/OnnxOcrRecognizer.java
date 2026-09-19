@@ -48,20 +48,20 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     /**
-    * detector模型
-    *
-    * @return detector模型的结果
-    */
+     * detector模型
+     *
+     * @return detector模型的结果
+     */
     private String detectorModel() {
         String m = resolveModel();
         return m.contains("-det") ? m : m + "-det";
     }
 
     /**
-    * recognizer模型
-    *
-    * @return recognizer模型的结果
-    */
+     * recognizer模型
+     *
+     * @return recognizer模型的结果
+     */
     private String recognizerModel() {
         String m = resolveModel();
         if (m.contains("-rec")) {

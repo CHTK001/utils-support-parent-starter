@@ -12,16 +12,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* icalendar (ICS) 日历预览提供器。
-* <p>SPI 类型：{@code preview-calendar}。解析 ICS 文件中的事件信息。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param ics ics
-* @return 解析ics的结果
-* @param content 内容
-* @param ext ext
-* @param mime mime
+ * icalendar (ICS) 日历预览提供器。
+ * <p>SPI 类型：{@code preview-calendar}。解析 ICS 文件中的事件信息。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param ics ics
+ * @return 解析ics的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-calendar")
 public class CalendarPreviewProvider implements FileStoragePreviewProvider {
@@ -95,20 +95,20 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * extract日期时间。
-    * @param line 线
-    * @return extract日期时间的结果
-    */
+     * extract日期时间。
+     * @param line 线
+     * @return extract日期时间的结果
+     */
     private String extractDateTime(String line) {
         // 处理 DTSTART:20240101T120000Z 或 DTSTART;VALUE=DATE:20240101
     /**
-    * calendar事件类。
-    *
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    * @return human大小的结果
-    */
+     * calendar事件类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         int colonIdx = line.indexOf(':');
         if (colonIdx < 0) {
             return line;
@@ -131,11 +131,11 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         }
         return value;
     /**
-    * 构建html。
-    * @param events 事件
-    * @param fileSize 文件大小
-    * @return 构建html的结果
-    */
+     * 构建html。
+     * @param events 事件
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     /**
@@ -195,11 +195,11 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
         return sb.toString();
     /**
-    * truncate。
-    * @param text 文本
-    * @param maxLen 最大len
-    * @return truncate的结果
-    */
+     * truncate。
+     * @param text 文本
+     * @param maxLen 最大len
+     * @return truncate的结果
+     */
     }
 
     /**
@@ -215,13 +215,13 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
         }
         return text.substring(0, maxLen) + "...";
     /**
-    * escapehtml。
-    * @param text 文本
-    * @return escapeHtml的结果
-    * @author CH
-    * @since 4.0.0
-    * @param bytes bytes
-    */
+     * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     /**

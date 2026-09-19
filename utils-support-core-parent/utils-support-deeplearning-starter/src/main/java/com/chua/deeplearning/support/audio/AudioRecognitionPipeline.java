@@ -18,64 +18,64 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 音频识别管线，聚合说话人分离（Diarization）与语音识别（ASR）的完整流程。
-*
-* <h2>处理流水线</h2>
-* <pre>
-*   Step 1 [VAD 时间切分]
-*     Input:  原始音频字节 (byte[])
-*     Output: List&lt;SpeakerSegment&gt;  — 按能量阈值切分的语音片段
-*
-*   Step 2 [说话人嵌入提取]（可选）
-*     Input:  各语音片段的音频字节
-*     Model:  wespeaker-resnet34 / wav2vec2-zh-fingerprint
-*     Output: float[][] embeddings  — 每个片段一个 512 维向量
-*
-*   Step 3 [说话人聚类]（可选）
-*     Algorithm:  K-Means（基于余弦距离）
-*     Output:     String[] assignments  — 每个片段归属的说话人 ID（"speaker_0" ~ "speaker_K-1"）
-*
-*   Step 4 [ASR 转写]（可选）
-*     Model:  whisper-tiny / paraformer-zh-small
-*     Output: String[] transcripts  — 每个片段的转写文本
-*
-*   Step 5 [片段合并]
-*     合并连续同说话人的片段，生成最终 SpeakerSegment 列表
-* </pre>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-*   AudioRecognitionPipeline pipeline = AudioRecognitionPipeline.builder()
-*       .vadModel("energy-vad")
-*       .speakerEmbeddingModel("wespeaker-resnet34")
-*       .asrModel("whisper-tiny")
-*       .maxSpeakers(3)
-*       .build();
-*
-*   List<SpeakerSegment> result = pipeline.recognize(Path.of("meeting.wav"));
-*
-*   for (SpeakerSegment seg : result) {
-*       System.out.printf("%s  %.1fs-%.1fs  %s%n",
-*               seg.speakerId(),
-*               seg.startTimeMs() / 1000.0,
-*               seg.endTimeMs() / 1000.0,
-*               seg.transcript());
-*   }
-* }</pre>           seg.startTimeMs() / 1000.0,
-*               seg.endTimeMs() / 1000.0,
-*               seg.transcript());
-*   }
-* }</pre>
-*
-* <h2>可插拔设计</h2>
-* <ul>
-*   <li>所有步骤均可独立跳过（传入 {@code null}），管线会自动降级。</li>
-*   <li>Step 2/3 用于说话人分组，若仅需时间切分可仅配置 Step 1。</li>
-*   <li>Step 4 用于文字转录，若仅需说话人分段不配置 ASR 模型即可。</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.43
+ * 音频识别管线，聚合说话人分离（Diarization）与语音识别（ASR）的完整流程。
+ *
+ * <h2>处理流水线</h2>
+ * <pre>
+ *   Step 1 [VAD 时间切分]
+ *     Input:  原始音频字节 (byte[])
+ *     Output: List&lt;SpeakerSegment&gt;  — 按能量阈值切分的语音片段
+ *
+ *   Step 2 [说话人嵌入提取]（可选）
+ *     Input:  各语音片段的音频字节
+ *     Model:  wespeaker-resnet34 / wav2vec2-zh-fingerprint
+ *     Output: float[][] embeddings  — 每个片段一个 512 维向量
+ *
+ *   Step 3 [说话人聚类]（可选）
+ *     Algorithm:  K-Means（基于余弦距离）
+ *     Output:     String[] assignments  — 每个片段归属的说话人 ID（"speaker_0" ~ "speaker_K-1"）
+ *
+ *   Step 4 [ASR 转写]（可选）
+ *     Model:  whisper-tiny / paraformer-zh-small
+ *     Output: String[] transcripts  — 每个片段的转写文本
+ *
+ *   Step 5 [片段合并]
+ *     合并连续同说话人的片段，生成最终 SpeakerSegment 列表
+ * </pre>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ *   AudioRecognitionPipeline pipeline = AudioRecognitionPipeline.builder()
+ *       .vadModel("energy-vad")
+ *       .speakerEmbeddingModel("wespeaker-resnet34")
+ *       .asrModel("whisper-tiny")
+ *       .maxSpeakers(3)
+ *       .build();
+ *
+ *   List<SpeakerSegment> result = pipeline.recognize(Path.of("meeting.wav"));
+ *
+ *   for (SpeakerSegment seg : result) {
+ *       System.out.printf("%s  %.1fs-%.1fs  %s%n",
+ *               seg.speakerId(),
+ *               seg.startTimeMs() / 1000.0,
+ *               seg.endTimeMs() / 1000.0,
+ *               seg.transcript());
+ *   }
+ * }</pre>           seg.startTimeMs() / 1000.0,
+ *               seg.endTimeMs() / 1000.0,
+ *               seg.transcript());
+ *   }
+ * }</pre>
+ *
+ * <h2>可插拔设计</h2>
+ * <ul>
+ *   <li>所有步骤均可独立跳过（传入 {@code null}），管线会自动降级。</li>
+ *   <li>Step 2/3 用于说话人分组，若仅需时间切分可仅配置 Step 1。</li>
+ *   <li>Step 4 用于文字转录，若仅需说话人分段不配置 ASR 模型即可。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Slf4j
 public class AudioRecognitionPipeline {
@@ -94,9 +94,9 @@ public class AudioRecognitionPipeline {
     private AudioRecognitionPipelineCallback callback;
 
     /**
-    * 私有构造，通过 {@link Builder} 创建实例。
-    * @param builder 构建器
-    */
+     * 私有构造，通过 {@link Builder} 创建实例。
+     * @param builder 构建器
+     */
     private AudioRecognitionPipeline(Builder builder) {
         this.speakerEmbeddingModel = builder.speakerEmbeddingModel;
         this.asrModel = builder.asrModel;
@@ -106,23 +106,23 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 创建构建器。
-    *
-    * @return Builder
-    */
+     * 创建构建器。
+     *
+     * @return Builder
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 对音频字节执行完整的说话人分离 + 语音识别管线。
-    *
-    * <p>若配置了说话人嵌入模型，则额外执行 K-Means 聚类以区分不同说话人；
-    * 若配置了 ASR 模型，则对每个片段执行语音转写。</p>
-    *
-    * @param audioData 音频原始字节（WAV/PCM）
-    * @return 按时间排序的最终说话人片段列表
-    */
+     * 对音频字节执行完整的说话人分离 + 语音识别管线。
+     *
+     * <p>若配置了说话人嵌入模型，则额外执行 K-Means 聚类以区分不同说话人；
+     * 若配置了 ASR 模型，则对每个片段执行语音转写。</p>
+     *
+     * @param audioData 音频原始字节（WAV/PCM）
+     * @return 按时间排序的最终说话人片段列表
+     */
     public List<SpeakerSegment> recognize(byte[] audioData) {
         long t0 = System.currentTimeMillis();
         AudioRecognitionContext ctx = AudioRecognitionContext.builder()
@@ -197,11 +197,11 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 对音频文件执行完整管线。
-    *
-    * @param path 音频文件路径
-    * @return 最终说话人片段列表
-    */
+     * 对音频文件执行完整管线。
+     *
+     * @param path 音频文件路径
+     * @return 最终说话人片段列表
+     */
     public List<SpeakerSegment> recognize(java.nio.file.Path path) {
         try {
             byte[] data = java.nio.file.Files.readAllBytes(path);
@@ -212,19 +212,19 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 设置音频识别管线回调。
-    *
-    * @param callback 回调实例
-    */
+     * 设置音频识别管线回调。
+     *
+     * @param callback 回调实例
+     */
     public void setCallback(AudioRecognitionPipelineCallback callback) {
         this.callback = callback;
     }
 
     /**
-    * 获取音频识别管线回调。
-    *
-    * @return 回调实例，可能为 空
-    */
+     * 获取音频识别管线回调。
+     *
+     * @return 回调实例，可能为 空
+     */
     public AudioRecognitionPipelineCallback callback() {
         return this.callback;
     }
@@ -232,11 +232,11 @@ public class AudioRecognitionPipeline {
     // ==================== Step 1: VAD 时间切分 ====================
 
     /**
-    * 执行 VAD 时间切分。
-    *
-    * @param audioData 音频字节
-    * @return 初步语音片段列表
-    */
+     * 执行 VAD 时间切分。
+     *
+     * @param audioData 音频字节
+     * @return 初步语音片段列表
+     */
     private List<SpeakerSegment> performVad(byte[] audioData) {
         var diarizer = new DefaultSpeakerDiarizer(engine, "energy-vad",
                 com.chua.deeplearning.support.config.ModelSetting.builder().build());
@@ -249,14 +249,14 @@ public class AudioRecognitionPipeline {
     // ==================== Step 2: 说话人嵌入提取 ====================
 
     /**
-    * 对每个 VAD 片段提取说话人嵌入向量。
-    *
-    * <p>从原始音频中按片段时间戳裁剪出各段音频，调用嵌入模型提取特征向量。</p>
-    *
-    * @param audioData    原始音频字节
-    * @param vadSegments  VAD 切分结果
-    * @return 二维数组 嵌入[i] 对应 vadsegments.获取(i) 的嵌入向量
-    */
+     * 对每个 VAD 片段提取说话人嵌入向量。
+     *
+     * <p>从原始音频中按片段时间戳裁剪出各段音频，调用嵌入模型提取特征向量。</p>
+     *
+     * @param audioData    原始音频字节
+     * @param vadSegments  VAD 切分结果
+     * @return 二维数组 嵌入[i] 对应 vadsegments.获取(i) 的嵌入向量
+     */
     private float[][] extractSpeakerEmbeddings(byte[] audioData, List<SpeakerSegment> vadSegments) {
         float[] pcm = DefaultSpeakerDiarizer.decodePcmWav(audioData);
         if (pcm == null) {
@@ -305,14 +305,14 @@ public class AudioRecognitionPipeline {
     // ==================== Step 3: K-Means 聚类 ====================
 
     /**
-    * 对说话人嵌入向量执行 K-Means 聚类。
-    *
-    * <p>使用余弦距离作为相似度度量，迭代更新聚类中心直至收敛。</p>
-    *
-    * @param embeddings  嵌入向量数组
-    * @param segmentCount 片段总数（可能与 嵌入 行数不同，以 嵌入 为准）
-    * @return 每个片段归属的说话人 标识 数组
-    */
+     * 对说话人嵌入向量执行 K-Means 聚类。
+     *
+     * <p>使用余弦距离作为相似度度量，迭代更新聚类中心直至收敛。</p>
+     *
+     * @param embeddings  嵌入向量数组
+     * @param segmentCount 片段总数（可能与 嵌入 行数不同，以 嵌入 为准）
+     * @return 每个片段归属的说话人 标识 数组
+     */
     private String[] kMeansCluster(float[][] embeddings, int segmentCount) {
         int n = embeddings.length;
         if (n == 0) {
@@ -390,10 +390,10 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 返回出现过的不同说话人 标识 集合。
-    * @param assignments assignments
-    * @return 去重assignments的结果
-    */
+     * 返回出现过的不同说话人 标识 集合。
+     * @param assignments assignments
+     * @return 去重assignments的结果
+     */
     private java.util.Set<String> distinctAssignments(String[] assignments) {
         java.util.Set<String> set = new java.util.LinkedHashSet<>();
         for (String a : assignments) {
@@ -405,9 +405,9 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 对浮点向量做 L2 归一化（原地修改）。
-    * @param vec vec
-    */
+     * 对浮点向量做 L2 归一化（原地修改）。
+     * @param vec vec
+     */
     private static void l2NormalizeInPlace(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -423,11 +423,11 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 计算向量与各中心点的余弦相似度，返回最大相似度对应的索引。
-    * @param vec vec
-    * @param centers centers
-    * @return argmaxCosine的结果
-    */
+     * 计算向量与各中心点的余弦相似度，返回最大相似度对应的索引。
+     * @param vec vec
+     * @param centers centers
+     * @return argmaxCosine的结果
+     */
     private static int argmaxCosine(float[] vec, float[][] centers) {
         l2NormalizeInPlace(vec);
         int bestK = 0;
@@ -446,12 +446,12 @@ public class AudioRecognitionPipeline {
     // ==================== Step 4: ASR 转写 ====================
 
     /**
-    * 对各 VAD 片段执行 ASR 语音转写。
-    *
-    * @param audioData   原始音频字节
-    * @param vadSegments VAD 切分结果
-    * @return 各片段的转录文本数组（与 vadsegments 一一对应）
-    */
+     * 对各 VAD 片段执行 ASR 语音转写。
+     *
+     * @param audioData   原始音频字节
+     * @param vadSegments VAD 切分结果
+     * @return 各片段的转录文本数组（与 vadsegments 一一对应）
+     */
     private String[] transcribeSegments(byte[] audioData, List<SpeakerSegment> vadSegments) {
         ITranslator<byte[], String> asrTranslator =
                 (ITranslator<byte[], String>) engine.get(asrModel, ITranslator.class);
@@ -497,11 +497,11 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * transcribevia音频客户端。
-    * @param vadSegments vadsegments
-    * @param pcm pcm
-    * @return transcribevia音频客户端的结果
-    */
+     * transcribevia音频客户端。
+     * @param vadSegments vadsegments
+     * @param pcm pcm
+     * @return transcribevia音频客户端的结果
+     */
     private String[] transcribeViaAudioClient(List<SpeakerSegment> vadSegments, float[] pcm) {
         VirtualClient client;
         try {
@@ -559,18 +559,18 @@ public class AudioRecognitionPipeline {
     // ==================== Step 5: 片段合并 ====================
 
     /**
-    * 合并连续同说话人的 VAD 片段，回填 ASR 文本。
-    *
-    * <p>合并规则：
-    * <ul>
-    *   <li>相邻片段若说话人 ID 相同，且间隔不超过 {@code minSegmentMs}，则合并</li>
-    *   <li>合并后取首个片段的 speakerId，拼接所有子片段的 transcript</li>
-    * </ul>
-    * </p>
-    *
-    * @param ctx 音频识别上下文
-    * @return 合并后的最终片段列表
-    */
+     * 合并连续同说话人的 VAD 片段，回填 ASR 文本。
+     *
+     * <p>合并规则：
+     * <ul>
+     *   <li>相邻片段若说话人 ID 相同，且间隔不超过 {@code minSegmentMs}，则合并</li>
+     *   <li>合并后取首个片段的 speakerId，拼接所有子片段的 transcript</li>
+     * </ul>
+     * </p>
+     *
+     * @param ctx 音频识别上下文
+     * @return 合并后的最终片段列表
+     */
     private List<SpeakerSegment> mergeAdjacentSegments(AudioRecognitionContext ctx) {
         List<SpeakerSegment> vadSegs = ctx.getVadSegments();
         String[] assignments = ctx.getSpeakerAssignments();
@@ -619,12 +619,12 @@ public class AudioRecognitionPipeline {
     // ==================== PCM → WAV 字节转换 ====================
 
     /**
-    * 将 float 采样数组编码为 16-钻头 PCM WAV 字节数组，供翻译器消费。
-    *
-    * @param samples  float 采样数组
-    * @param sampleRate 采样率
-    * @return WAV 字节数组
-    */
+     * 将 float 采样数组编码为 16-钻头 PCM WAV 字节数组，供翻译器消费。
+     *
+     * @param samples  float 采样数组
+     * @param sampleRate 采样率
+     * @return WAV 字节数组
+     */
     private static byte[] pcmToWavBytes(float[] samples, int sampleRate) {
         int numChannels = 1;
         int bitsPerSample = 16;
@@ -660,21 +660,21 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 写入bytes。
-    * @param buf buf
-    * @param off off
-    * @param src src
-    */
+     * 写入bytes。
+     * @param buf buf
+     * @param off off
+     * @param src src
+     */
     private static void writeBytes(byte[] buf, int off, byte[] src) {
         System.arraycopy(src, 0, buf, off, src.length);
     }
 
     /**
-    * 写入int。
-    * @param buf buf
-    * @param off off
-    * @param val val
-    */
+     * 写入int。
+     * @param buf buf
+     * @param off off
+     * @param val val
+     */
     private static void writeInt(byte[] buf, int off, int val) {
         buf[off] = (byte) (val & 0xff);
         buf[off + 1] = (byte) ((val >> 8) & 0xff);
@@ -683,11 +683,11 @@ public class AudioRecognitionPipeline {
     }
 
     /**
-    * 写入short。
-    * @param buf buf
-    * @param off off
-    * @param val val
-    */
+     * 写入short。
+     * @param buf buf
+     * @param off off
+     * @param val val
+     */
     private static void writeShort(byte[] buf, int off, short val) {
         buf[off] = (byte) (val & 0xff);
         buf[off + 1] = (byte) ((val >> 8) & 0xff);
@@ -696,10 +696,10 @@ public class AudioRecognitionPipeline {
     // ==================== Builder ====================
 
     /**
-    * 链式构建器。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 链式构建器。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class Builder {
         /** 说话人嵌入模型 标识，空 则跳过嵌入/聚类步骤 */
         private String speakerEmbeddingModel;
@@ -711,53 +711,53 @@ public class AudioRecognitionPipeline {
         private int minSegmentMs = 500;
 
         /**
-        * 设置说话人嵌入模型 标识（如 "wespeaker-resnet34"）。
-        * 不设置则跳过说话人聚类，每个 VAD 片段单独分配一个 标识。
-        * @param speakerEmbeddingModel speaker嵌入模型
-        * @return speaker嵌入模型的结果
-        */
+         * 设置说话人嵌入模型 标识（如 "wespeaker-resnet34"）。
+         * 不设置则跳过说话人聚类，每个 VAD 片段单独分配一个 标识。
+         * @param speakerEmbeddingModel speaker嵌入模型
+         * @return speaker嵌入模型的结果
+         */
         public Builder speakerEmbeddingModel(String speakerEmbeddingModel) {
             this.speakerEmbeddingModel = speakerEmbeddingModel;
             return this;
         }
 
         /**
-        * 设置 ASR 语音识别模型 标识（如 "whisper-tiny"、"paraformer-zh-small"、"sensevoice"）。
-        * 支持 identificationengine 注册的 itranslator（旧路径）和 虚拟客户端 SPI（新路径）。
-        * 不设置则不执行转写，最终片段的 transcript 字段为空。
-        * @param asrModel asr模型
-        * @return asr模型的结果
-        */
+         * 设置 ASR 语音识别模型 标识（如 "whisper-tiny"、"paraformer-zh-small"、"sensevoice"）。
+         * 支持 identificationengine 注册的 itranslator（旧路径）和 虚拟客户端 SPI（新路径）。
+         * 不设置则不执行转写，最终片段的 transcript 字段为空。
+         * @param asrModel asr模型
+         * @return asr模型的结果
+         */
         public Builder asrModel(String asrModel) {
             this.asrModel = asrModel;
             return this;
         }
 
         /**
-        * 设置最大说话人数上限。
-        * @param maxSpeakers 最大speakers
-        * @return 最大speakers的结果
-        */
+         * 设置最大说话人数上限。
+         * @param maxSpeakers 最大speakers
+         * @return 最大speakers的结果
+         */
         public Builder maxSpeakers(Integer maxSpeakers) {
             this.maxSpeakers = maxSpeakers;
             return this;
         }
 
         /**
-        * 设置合并相邻同说话人片段的最大静音间隔（毫秒）。
-        * 默认 500ms，即两个同说话人片段之间若有 &lt;= 500ms 静音则合并。
-        * @param minSegmentMs 最小segmentms
-        * @return 最小segmentms的结果
-        */
+         * 设置合并相邻同说话人片段的最大静音间隔（毫秒）。
+         * 默认 500ms，即两个同说话人片段之间若有 &lt;= 500ms 静音则合并。
+         * @param minSegmentMs 最小segmentms
+         * @return 最小segmentms的结果
+         */
         public Builder minSegmentMs(int minSegmentMs) {
             this.minSegmentMs = minSegmentMs;
             return this;
         }
 
         /**
-        * 构建管线实例。
-        * @return 构建的结果
-        */
+         * 构建管线实例。
+         * @return 构建的结果
+         */
         public AudioRecognitionPipeline build() {
             return new AudioRecognitionPipeline(this);
         }

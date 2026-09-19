@@ -80,63 +80,63 @@ import javax.annotation.Nullable;
 public class GhibliStudioImageFilter extends AbstractImageFilter {
 
     /**
-    * 色彩分层强度 (0.0-1.0)
-    * 控制色彩分层的明显程度
-    */
+     * 色彩分层强度 (0.0-1.0)
+     * 控制色彩分层的明显程度
+     */
     private double colorLayeringStrength = 0.7;
 
     /**
-    * 手绘质感强度 (0.0-1.0)
-    * 模拟手绘纹理的强度
-    */
+     * 手绘质感强度 (0.0-1.0)
+     * 模拟手绘纹理的强度
+     */
     private double handDrawnTextureStrength = 0.4;
 
     /**
-    * 自然光影强度 (0.0-1.0)
-    * 模拟自然光线效果的强度
-    */
+     * 自然光影强度 (0.0-1.0)
+     * 模拟自然光线效果的强度
+     */
     private double naturalLightingStrength = 0.6;
 
     /**
-    * 暖色调增强 (0.0-2.0)
-    * 增强暖色调的程度
-    */
+     * 暖色调增强 (0.0-2.0)
+     * 增强暖色调的程度
+     */
     private double warmToneEnhancement = 1.4;
 
     /**
-    * 饱和度提升 (0.0-2.0)
-    * 提升色彩饱和度
-    */
+     * 饱和度提升 (0.0-2.0)
+     * 提升色彩饱和度
+     */
     private double saturationBoost = 1.3;
 
     /**
-    * 对比度柔化 (0.0-1.0)
-    * 柔化对比度的程度
-    */
+     * 对比度柔化 (0.0-1.0)
+     * 柔化对比度的程度
+     */
     private double contrastSoftening = 0.3;
 
     /**
-    * 边缘艺术化强度 (0.0-1.0)
-    * 边缘艺术化处理的强度
-    */
+     * 边缘艺术化强度 (0.0-1.0)
+     * 边缘艺术化处理的强度
+     */
     private double edgeArtisticStrength = 0.5;
 
     /**
-    * 梦幻氛围强度 (0.0-1.0)
-    * 梦幻氛围效果的强度
-    */
+     * 梦幻氛围强度 (0.0-1.0)
+     * 梦幻氛围效果的强度
+     */
     private double dreamyAtmosphereStrength = 0.3;
 
     /**
-    * 亮度微调 (-20 到 20)
-    * 整体亮度的微调
-    */
+     * 亮度微调 (-20 到 20)
+     * 整体亮度的微调
+     */
     private int brightnessAdjustment = 8;
 
     /**
-    * 色彩和谐度 (0.0-1.0)
-    * 色彩和谐处理的强度
-    */
+     * 色彩和谐度 (0.0-1.0)
+     * 色彩和谐处理的强度
+     */
     private double colorHarmonyStrength = 0.6;
 
     @Override
@@ -204,11 +204,11 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用色彩分层处理
-    * 模拟动画中的分层上色技术
-    * @param src src
-    * @return applyColorLayering的结果
-    */
+     * 应用色彩分层处理
+     * 模拟动画中的分层上色技术
+     * @param src src
+     * @return applyColorLayering的结果
+     */
     private BufferedImage applyColorLayering(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -246,10 +246,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 增强暖色调和饱和度
-    * @param src src
-    * @return 增强warmtone和saturation的结果
-    */
+     * 增强暖色调和饱和度
+     * @param src src
+     * @return 增强warmtone和saturation的结果
+     */
     private BufferedImage enhanceWarmToneAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -295,10 +295,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用自然光影效果
-    * @param src src
-    * @return applynatural照明的结果
-    */
+     * 应用自然光影效果
+     * @param src src
+     * @return applynatural照明的结果
+     */
     private BufferedImage applyNaturalLighting(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -337,10 +337,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用柔和对比度
-    * @param src src
-    * @return applySoftContrast的结果
-    */
+     * 应用柔和对比度
+     * @param src src
+     * @return applySoftContrast的结果
+     */
     private BufferedImage applySoftContrast(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -370,10 +370,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用艺术化边缘处理
-    * @param src src
-    * @return applyArtisticEdges的结果
-    */
+     * 应用艺术化边缘处理
+     * @param src src
+     * @return applyArtisticEdges的结果
+     */
     private BufferedImage applyArtisticEdges(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -421,12 +421,12 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 计算艺术化边缘强度
-    * @param src src
-    * @param x x
-    * @param y y
-    * @return calculateArtisticEdgeStrength的结果
-    */
+     * 计算艺术化边缘强度
+     * @param src src
+     * @param x x
+     * @param y y
+     * @return calculateArtisticEdgeStrength的结果
+     */
     private double calculateArtisticEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
         int centerGray = ImageProcessorUtils.luminance(centerRgb);
@@ -512,10 +512,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用色彩和谐处理
-    * @param src src
-    * @return applyColorHarmony的结果
-    */
+     * 应用色彩和谐处理
+     * @param src src
+     * @return applyColorHarmony的结果
+     */
     private BufferedImage applyColorHarmony(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -560,10 +560,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用梦幻氛围
-    * @param src src
-    * @return applyDreamyAtmosphere的结果
-    */
+     * 应用梦幻氛围
+     * @param src src
+     * @return applyDreamyAtmosphere的结果
+     */
     private BufferedImage applyDreamyAtmosphere(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -603,12 +603,12 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * RGB转HSV色彩空间
-    * @param r r
-    * @param g g
-    * @param b b
-    * @return rgb转为hsv的结果
-    */
+     * RGB转HSV色彩空间
+     * @param r r
+     * @param g g
+     * @param b b
+     * @return rgb转为hsv的结果
+     */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;
@@ -640,12 +640,12 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * HSV转RGB色彩空间
-    * @param h h
-    * @param s s
-    * @param v v
-    * @return hsv转为rgb的结果
-    */
+     * HSV转RGB色彩空间
+     * @param h h
+     * @param s s
+     * @param v v
+     * @return hsv转为rgb的结果
+     */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;
         int c = (int) (v * s * 255);

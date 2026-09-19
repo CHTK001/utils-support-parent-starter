@@ -9,17 +9,17 @@ import static com.chua.common.support.constant.CommonConstant.*;
 
 
 /**
-* Set 类型转换器。
-* <p>将各种类型的值转换为 {@link Set}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link Set} — 直接返回</li>
-*   <li>{@link java.util.Collection} — 转为 HashSet</li>
-*   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和逗号分隔字符串</li>
-* </ul>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/11/5
+ * Set 类型转换器。
+ * <p>将各种类型的值转换为 {@link Set}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link Set} — 直接返回</li>
+ *   <li>{@link java.util.Collection} — 转为 HashSet</li>
+ *   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和逗号分隔字符串</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/11/5
  */
 public class SetTypeConverter implements TypeConverter<Set> {
     /** 单例实例 */
@@ -70,10 +70,10 @@ public class SetTypeConverter implements TypeConverter<Set> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return Set.class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return Set.class
+     */
     @Override
     public Class<Set> getType() {
         return Set.class;

@@ -14,47 +14,47 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
-* 邮件客户端，支持 SMTP 发送 + POP3/IMAP 轮询监听。
-*
-* <p>初始化时检测 SMTP 是否可用，不可用时自动降级为轮询模式。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* EmailClient client = EmailClient.builder()
-*     .smtpHost("smtp.gmail.com").smtpPort(587)
-*     .username("user@gmail.com").password("pass")
-*     .imapHost("imap.gmail.com").imapPort(993)
-*     .build();
-*
-* // 发送邮件
-* client.send()
-*     .to("recipient@example.com")
-*     .subject("Hello")
-*     .body("World")
-*     .html(false)
-*     .exec();
-*
-* // 监听收件箱（自动降级：SMTP 可用→轮询）
-* client.watch()
-*     .folder("INBOX")
-*     .pollInterval(60)
-*     .onMessage(msg -> System.out.println("收到: " + msg.getSubject()))
-*     .start();
-*
-* // 获取邮件
-* List<Map<String, Object>> emails = client.fetch()
-*     .folder("INBOX")
-*     .limit(10)
-*     .exec();
-* }</pre>取邮件
-* List<Map<String, Object>> emails = client.fetch()
-*     .folder("INBOX")
-*     .limit(10)
-*     .exec();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 邮件客户端，支持 SMTP 发送 + POP3/IMAP 轮询监听。
+ *
+ * <p>初始化时检测 SMTP 是否可用，不可用时自动降级为轮询模式。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * EmailClient client = EmailClient.builder()
+ *     .smtpHost("smtp.gmail.com").smtpPort(587)
+ *     .username("user@gmail.com").password("pass")
+ *     .imapHost("imap.gmail.com").imapPort(993)
+ *     .build();
+ *
+ * // 发送邮件
+ * client.send()
+ *     .to("recipient@example.com")
+ *     .subject("Hello")
+ *     .body("World")
+ *     .html(false)
+ *     .exec();
+ *
+ * // 监听收件箱（自动降级：SMTP 可用→轮询）
+ * client.watch()
+ *     .folder("INBOX")
+ *     .pollInterval(60)
+ *     .onMessage(msg -> System.out.println("收到: " + msg.getSubject()))
+ *     .start();
+ *
+ * // 获取邮件
+ * List<Map<String, Object>> emails = client.fetch()
+ *     .folder("INBOX")
+ *     .limit(10)
+ *     .exec();
+ * }</pre>取邮件
+ * List<Map<String, Object>> emails = client.fetch()
+ *     .folder("INBOX")
+ *     .limit(10)
+ *     .exec();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Getter
@@ -104,20 +104,20 @@ public class EmailClient {
     // ==================== 工厂方法 ====================
 
     /**
-    * 构建器
-    *
-    * @return 构建器的结果
-    */
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() { return new Builder(); }
 
     /**
-    * 创建
-    *
-    * @param smtpHost smtp主机
-    * @param username 用户名
-    * @param password 密码
-    * @return 创建的结果
-    */
+     * 创建
+     *
+     * @param smtpHost smtp主机
+     * @param username 用户名
+     * @param password 密码
+     * @return 创建的结果
+     */
     public static EmailClient create(String smtpHost, String username, String password) {
         return builder().smtpHost(smtpHost).username(username).password(password).build();
     }
@@ -125,28 +125,28 @@ public class EmailClient {
     // ==================== 操作入口 ====================
 
     /**
-    * 发送邮件。
-    * @return 发送的结果
-    */
+     * 发送邮件。
+     * @return 发送的结果
+     */
     public SendOperation send() { return new SendOperation(this); }
 
     /**
-    * 获取邮件。
-    * @return 获取的结果
-    */
+     * 获取邮件。
+     * @return 获取的结果
+     */
     public FetchOperation fetch() { return new FetchOperation(this); }
 
     /**
-    * 监听收件箱。
-    * @return watch的结果
-    */
+     * 监听收件箱。
+     * @return watch的结果
+     */
     public WatchOperation watch() { return new WatchOperation(this); }
 
     /**
-    * 获取收件箱未读数。
-    * @param folder 文件夹
-    * @return 获取unread数量的结果
-    */
+     * 获取收件箱未读数。
+     * @param folder 文件夹
+     * @return 获取unread数量的结果
+     */
     public int getUnreadCount(String folder) {
         return fetch().folder(folder).unreadOnly(true).count();
     }
@@ -154,10 +154,10 @@ public class EmailClient {
     // ==================== SMTP 检测 ====================
 
     /**
-    * 校验smtp可用
-    *
-    * @return 检查smtp可用的结果
-    */
+     * 校验smtp可用
+     *
+     * @return 检查smtp可用的结果
+     */
     private boolean checkSmtpAvailable() {
         if (smtpHost == null || smtpHost.isEmpty()) {
             return false;
@@ -180,11 +180,11 @@ public class EmailClient {
 
     // ==================== SendOperation ====================
     /**
-    * 发送operation类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 发送operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     @Getter
     public static class SendOperation {
@@ -220,82 +220,82 @@ public class EmailClient {
             return this;
         }
         /**
-        * 主题
-        *
-        * @param s s
-        * @return 主题的结果
-        */
+         * 主题
+         *
+         * @param s s
+         * @return 主题的结果
+         */
         public SendOperation subject(String s) {
             this.subject = s;
             return this;
         }
         /**
-        * 主体
-        *
-        * @param b b
-        * @return 主体的结果
-        */
+         * 主体
+         *
+         * @param b b
+         * @return 主体的结果
+         */
         public SendOperation body(String b) {
             this.body = b;
             return this;
         }
         /**
-        * HTML
-        *
-        * @param h h
-        * @return html的结果
-        */
+         * HTML
+         *
+         * @param h h
+         * @return html的结果
+         */
         public SendOperation html(boolean h) {
             this.html = h;
             return this;
         }
         /**
-        * 从
-        *
-        * @param f f
-        * @return 从的结果
-        */
+         * 从
+         *
+         * @param f f
+         * @return 从的结果
+         */
         public SendOperation from(String f) {
             this.from = f;
             return this;
         }
         /**
-        * Cc
-        *
-        * @param c c
-        * @return cc的结果
-        */
+         * Cc
+         *
+         * @param c c
+         * @return cc的结果
+         */
         public SendOperation cc(String c) {
             this.cc.add(c);
             return this;
         }
         /**
-        * Bcc
-        *
-        * @param b b
-        * @return bcc的结果
-        */
+         * Bcc
+         *
+         * @param b b
+         * @return bcc的结果
+         */
         public SendOperation bcc(String b) {
             this.bcc.add(b);
             return this;
         }
         /**
-        * Attachment
-        *
-        * @param name 名称
-        * @param data 数据
-        * @return attachment的结果
-        */
+         * Attachment
+         *
+         * @param name 名称
+         * @param data 数据
+         * @return attachment的结果
+         */
         public SendOperation attachment(String name, byte[] data) {
             this.attachments.put(name, data);
             return this;
         }
 
         /**
-        * 执行发送。
-        *
-        * @return 发送结果
-        */
+         * 执行发送。
+         *
+         * @return 发送结果
+         */
         public SendResult exec() {
             if (client.smtpAvailable) {
                 return sendViaSmtp();
@@ -305,10 +305,10 @@ public class EmailClient {
         }
 
         /**
-        * 发送viasmtp
-        *
-        * @return 发送viasmtp的结果
-        */
+         * 发送viasmtp
+         *
+         * @return 发送viasmtp的结果
+         */
         private SendResult sendViaSmtp() {
             try {
                 Properties props = new Properties();
@@ -366,11 +366,11 @@ public class EmailClient {
 
     // ==================== FetchOperation ====================
     /**
-    * 获取operation类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 获取operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     @Getter
     public static class FetchOperation {
@@ -398,40 +398,40 @@ public class EmailClient {
             return this;
         }
         /**
-        * 限制
-        *
-        * @param l l
-        * @return 限制的结果
-        */
+         * 限制
+         *
+         * @param l l
+         * @return 限制的结果
+         */
         public FetchOperation limit(int l) {
             this.limit = l;
             return this;
         }
         /**
-        * unreadonly
-        *
-        * @param u u
-        * @return unreadOnly的结果
-        */
+         * unreadonly
+         *
+         * @param u u
+         * @return unreadOnly的结果
+         */
         public FetchOperation unreadOnly(boolean u) {
             this.unreadOnly = u;
             return this;
         }
         /**
-        * 搜索
-        *
-        * @param s s
-        * @return 搜索的结果
-        */
+         * 搜索
+         *
+         * @param s s
+         * @return 搜索的结果
+         */
         public FetchOperation search(String s) {
             this.searchTerm = s;
             return this;
         }
 
         /**
-        * 获取邮件列表。
-        * @return 执行的结果
-        */
+         * 获取邮件列表。
+         * @return 执行的结果
+         */
         public List<Map<String, Object>> exec() {
             try {
                 Properties props = new Properties();
@@ -472,9 +472,9 @@ public class EmailClient {
         }
 
         /**
-        * 获取未读数。
-        * @return 数量的结果
-        */
+         * 获取未读数。
+         * @return 数量的结果
+         */
         public int count() {
             try {
                 Properties props = new Properties();
@@ -501,11 +501,11 @@ public class EmailClient {
 
     // ==================== WatchOperation ====================
     /**
-    * WatchOperation类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * WatchOperation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     @Getter
     public static class WatchOperation {
@@ -525,39 +525,39 @@ public class EmailClient {
         WatchOperation(EmailClient client) { this.client = client; }
 
         /**
-        * 文件夹
-        *
-        * @param f f
-        * @return 文件夹的结果
-        */
+         * 文件夹
+         *
+         * @param f f
+         * @return 文件夹的结果
+         */
         public WatchOperation folder(String f) {
             this.folder = f;
             return this;
         }
         /**
-        * 取出间隔
-        *
-        * @param seconds seconds
-        * @return poll间隔的结果
-        */
+         * 取出间隔
+         *
+         * @param seconds seconds
+         * @return poll间隔的结果
+         */
         public WatchOperation pollInterval(int seconds) {
             this.pollInterval = seconds;
             return this;
         }
         /**
-        * on消息
-        *
-        * @param h h
-        * @return on消息的结果
-        */
+         * on消息
+         *
+         * @param h h
+         * @return on消息的结果
+         */
         public WatchOperation onMessage(Consumer<Map<String, Object>> h) {
             this.onMessage = h;
             return this;
         }
 
         /**
-        * 启动监听（自动降级：SMTP 不可用→轮询）。
-        */
+         * 启动监听（自动降级：SMTP 不可用→轮询）。
+         */
         public void start() {
             running = true;
             watchThread = new Thread(() -> {
@@ -595,8 +595,8 @@ public class EmailClient {
         }
 
         /**
-        * 停止监听。
-        */
+         * 停止监听。
+         */
         public void stop() {
             running = false;
             if (watchThread != null) {
@@ -608,22 +608,22 @@ public class EmailClient {
     // ==================== 结果类 ====================
 
     /**
-    * 发送结果
-    *
-    * @param success 成功
-    * @param messageId 消息标识
-    * @param message 消息
-    * @return 发送结果的结果
-    */
+     * 发送结果
+     *
+     * @param success 成功
+     * @param messageId 消息标识
+     * @param message 消息
+     * @return 发送结果的结果
+     */
     public record SendResult(boolean success, String messageId, String message) {}
 
     // ==================== Builder ====================
     /**
-    * 构建器类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class Builder {
         /** SMTP主机 */
@@ -644,91 +644,91 @@ public class EmailClient {
         private String password;
 
         /**
-        * smtp主机
-        *
-        * @param h h
-        * @return smtp主机的结果
-        */
+         * smtp主机
+         *
+         * @param h h
+         * @return smtp主机的结果
+         */
         public Builder smtpHost(String h) {
             this.smtpHost = h;
             return this;
         }
         /**
-        * smtp端口
-        *
-        * @param p p
-        * @return smtp端口的结果
-        */
+         * smtp端口
+         *
+         * @param p p
+         * @return smtp端口的结果
+         */
         public Builder smtpPort(int p) {
             this.smtpPort = p;
             return this;
         }
         /**
-        * imap主机
-        *
-        * @param h h
-        * @return imap主机的结果
-        */
+         * imap主机
+         *
+         * @param h h
+         * @return imap主机的结果
+         */
         public Builder imapHost(String h) {
             this.imapHost = h;
             return this;
         }
         /**
-        * imap端口
-        *
-        * @param p p
-        * @return imap端口的结果
-        */
+         * imap端口
+         *
+         * @param p p
+         * @return imap端口的结果
+         */
         public Builder imapPort(int p) {
             this.imapPort = p;
             return this;
         }
         /**
-        * pop主机
-        *
-        * @param h h
-        * @return pop3主机的结果
-        */
+         * pop主机
+         *
+         * @param h h
+         * @return pop3主机的结果
+         */
         public Builder pop3Host(String h) {
             this.pop3Host = h;
             return this;
         }
         /**
-        * pop端口
-        *
-        * @param p p
-        * @return pop3端口的结果
-        */
+         * pop端口
+         *
+         * @param p p
+         * @return pop3端口的结果
+         */
         public Builder pop3Port(int p) {
             this.pop3Port = p;
             return this;
         }
         /**
-        * 用户名
-        *
-        * @param u u
-        * @return 用户名的结果
-        */
+         * 用户名
+         *
+         * @param u u
+         * @return 用户名的结果
+         */
         public Builder username(String u) {
             this.username = u;
             return this;
         }
         /**
-        * 密码
-        *
-        * @param p p
-        * @return 密码的结果
-        */
+         * 密码
+         *
+         * @param p p
+         * @return 密码的结果
+         */
         public Builder password(String p) {
             this.password = p;
             return this;
         }
 
         /**
-        * 构建
-        *
-        * @return 构建的结果
-        */
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public EmailClient build() {
             // 自动推断 IMAP/POP3 主机
             if (imapHost == null && smtpHost != null) {

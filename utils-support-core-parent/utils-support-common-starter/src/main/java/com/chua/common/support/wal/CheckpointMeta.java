@@ -13,7 +13,7 @@ package com.chua.common.support.wal;
  * @param timestamp           checkpoint 时间戳（毫秒）
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record CheckpointMeta(
     long checkpointLsn,
     int checkpointSegmentNo,
@@ -22,19 +22,19 @@ public record CheckpointMeta(
 ) {
 
     /**
-    * 空 checkpoint（初始状态）。
-    *
-    * @return CheckpointMeta 实例
-    */
+     * 空 checkpoint（初始状态）。
+     *
+     * @return CheckpointMeta 实例
+     */
     public static CheckpointMeta empty() {
         return new CheckpointMeta(0L, 1, 0L, 0L);
     }
 
     /**
-    * 是否为初始空状态。
-    *
-    * @return true=空
-    */
+     * 是否为初始空状态。
+     *
+     * @return true=空
+     */
     public boolean isEmpty() {
         return checkpointLsn == 0L;
     }

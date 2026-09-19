@@ -49,22 +49,22 @@ import java.awt.image.BufferedImage;
 public class VignetteImageFilter extends AbstractImageFilter {
 
     /**
-    * 暗角强度，默认 0.5
-    */
+     * 暗角强度，默认 0.5
+     */
     private double strength = 0.5;
 
     /**
-    * 中心保护区半径占比，默认 0.6
-    */
+     * 中心保护区半径占比，默认 0.6
+     */
     private double innerRadius = 0.6;
 
     /**
-    * 执行暗角滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 暗角效果图像
-    */
+     * 执行暗角滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 暗角效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

@@ -6,13 +6,13 @@ import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
 
 /**
-* 请求日志过滤器，记录每个请求的方法、路径、状态码和耗时。
-*
-* <p>在请求进入时记录开始时间，过滤器链执行完毕后计算耗时并输出日志。
-* 默认使用 STDOUT 输出，可替换为 SLF4J 等日志框架。
-*
-* @author CH
-* @since 2026/07/16
+ * 请求日志过滤器，记录每个请求的方法、路径、状态码和耗时。
+ *
+ * <p>在请求进入时记录开始时间，过滤器链执行完毕后计算耗时并输出日志。
+ * 默认使用 STDOUT 输出，可替换为 SLF4J 等日志框架。
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 public class LoggingServerFilter implements ServerFilter {
 

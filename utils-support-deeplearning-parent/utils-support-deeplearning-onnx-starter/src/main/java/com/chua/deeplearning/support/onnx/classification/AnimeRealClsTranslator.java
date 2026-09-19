@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* deepghs anime/real                    translator
-*
-* @author CH
-* @since 2026-04-09
+ * deepghs anime/real                    translator
+ *
+ * @author CH
+ * @since 2026-04-09
  */
 public class AnimeRealClsTranslator implements Translator<Image, Classifications> {
 

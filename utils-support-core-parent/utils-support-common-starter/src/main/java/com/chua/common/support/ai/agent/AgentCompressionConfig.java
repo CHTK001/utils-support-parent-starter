@@ -7,31 +7,31 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* Agent 上下文压缩配置。
-*
-* <p>控制 Agent 在执行过程中如何对对话历史进行压缩和偏差纠正。
-* 压缩分为两个阶段：
-* <ol>
-*   <li><b>首次压缩</b> — 当消息数达到 {@link #contextCompressionThreshold} 时，
-*       在压缩前通过 Consumer 保存完整原始上下文作为基线快照</li>
-*   <li><b>偏差纠正</b> — 基线建立后每经过 {@link #contextDeviationThreshold} 轮，
-*       读取基线快照进行总结，与当前压缩上下文做偏差纠正，输出修复后的上下文</li>
-* </ol>
-*
-* <h3>使用示例</h3>
-* <pre>{@code
-*   Agent.create("agentscope")
-*       .chatClient(mainChatClient)
-*       .compressionConfig(AgentCompressionConfig.builder()
-*           .enabled(true)
-*           .contextCompressionThreshold(12)
-*           .contextDeviationThreshold(6)
-*           .build())
-*       .run("开始对话");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Agent 上下文压缩配置。
+ *
+ * <p>控制 Agent 在执行过程中如何对对话历史进行压缩和偏差纠正。
+ * 压缩分为两个阶段：
+ * <ol>
+ *   <li><b>首次压缩</b> — 当消息数达到 {@link #contextCompressionThreshold} 时，
+ *       在压缩前通过 Consumer 保存完整原始上下文作为基线快照</li>
+ *   <li><b>偏差纠正</b> — 基线建立后每经过 {@link #contextDeviationThreshold} 轮，
+ *       读取基线快照进行总结，与当前压缩上下文做偏差纠正，输出修复后的上下文</li>
+ * </ol>
+ *
+ * <h3>使用示例</h3>
+ * <pre>{@code
+ *   Agent.create("agentscope")
+ *       .chatClient(mainChatClient)
+ *       .compressionConfig(AgentCompressionConfig.builder()
+ *           .enabled(true)
+ *           .contextCompressionThreshold(12)
+ *           .contextDeviationThreshold(6)
+ *           .build())
+ *       .run("开始对话");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -40,10 +40,10 @@ import lombok.NoArgsConstructor;
 public class AgentCompressionConfig {
 
     /**
-    * 是否启用上下文压缩。
-    *
-    * <p>默认 false，关闭时所有压缩逻辑不生效。
-    */
+     * 是否启用上下文压缩。
+     *
+     * <p>默认 false，关闭时所有压缩逻辑不生效。
+     */
     @Builder.Default
     /** 是否启用 */
     private boolean enabled = false;

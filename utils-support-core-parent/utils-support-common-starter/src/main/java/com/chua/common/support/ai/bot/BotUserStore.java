@@ -4,28 +4,28 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* Bot 用户存储 SPI 接口
-* <p>
-* 支持持久化用户数据（SQLite/H2/DuckDB 等实现）。
-* </p>
-*
-* @author CH
-* @since 2026/07/18
+ * Bot 用户存储 SPI 接口
+ * <p>
+ * 支持持久化用户数据（SQLite/H2/DuckDB 等实现）。
+ * </p>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 public interface BotUserStore extends AutoCloseable {
 
     /**
-    * 新增或更新用户
-    *
-    * @param user 用户信息
-    */
+     * 新增或更新用户
+     *
+     * @param user 用户信息
+     */
     void upsert(BotUserInfo user);
 
     /**
-    * 更新用户（仅当用户存在时）
-    *
-    * @param user 用户信息
-    */
+     * 更新用户（仅当用户存在时）
+     *
+     * @param user 用户信息
+     */
     default void update(BotUserInfo user) {
         if (user != null && user.getUserId() != null) {
             Optional<BotUserInfo> existing = findByUserId(user.getUserId());
@@ -36,32 +36,32 @@ public interface BotUserStore extends AutoCloseable {
     }
 
     /**
-    * 根据 userId 查找用户
-    *
-    * @param userId 用户 ID
-    * @return 用户信息，不存在则 empty
-    */
+     * 根据 userId 查找用户
+     *
+     * @param userId 用户 ID
+     * @return 用户信息，不存在则 empty
+     */
     Optional<BotUserInfo> findByUserId(String userId);
 
     /**
-    * 查询所有用户
-    *
-    * @return 用户列表
-    */
+     * 查询所有用户
+     *
+     * @return 用户列表
+     */
     List<BotUserInfo> findAll();
 
     /**
-    * 删除用户
-    *
-    * @param userId 用户 ID
-    */
+     * 删除用户
+     *
+     * @param userId 用户 ID
+     */
     void delete(String userId);
 
     /**
-    * 统计用户数
-    *
-    * @return 用户总数
-    */
+     * 统计用户数
+     *
+     * @return 用户总数
+     */
     long count();
 
     @Override

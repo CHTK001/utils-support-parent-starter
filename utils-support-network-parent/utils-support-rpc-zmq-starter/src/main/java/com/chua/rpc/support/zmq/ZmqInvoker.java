@@ -15,25 +15,25 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 
 /**
-* 基于 zeromq RPC（jeromq）的 {@link Invoker} 实现。
-*
-* <p>通过 {@link RpcClient#createClient(String, java.util.List, RpcConsumerConfig, String)}
-* 以 {@code "zmq"} 协议创建 RPC 客户端代理，支持 {@code @RemoteService(protocol = "zmq")}
-* 注解接口的声明式远程调用。</p>
-*
-* <p>SPI 名称为 {@code "zmq"}，与 {@code RpcInvoker}（json）、RetrofitHttpInvoker（http）
-* 等平级，通过 {@code InvokerFactory.getInvoker("zmq")} 或接口标注
-* {@code @RemoteService(protocol = "zmq")} 自动路由。</p>
-*
-* <p><b>地址解析</b>：优先读取类级 {@code @RequestMapping} / {@code @RequestMethod} /
-* {@code @InvokerService} / {@code @RemoteService(url)} 注解中的端点地址；
-* 地址需为 ZMQ 端点格式（如 {@code tcp://127.0.0.1:5555}），或裸 {@code host:port}
-* 由 {@link ZmqRpcClient} 自动补全 {@code tcp://} 前缀。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see RpcClient
-* @see Invoker
+ * 基于 zeromq RPC（jeromq）的 {@link Invoker} 实现。
+ *
+ * <p>通过 {@link RpcClient#createClient(String, java.util.List, RpcConsumerConfig, String)}
+ * 以 {@code "zmq"} 协议创建 RPC 客户端代理，支持 {@code @RemoteService(protocol = "zmq")}
+ * 注解接口的声明式远程调用。</p>
+ *
+ * <p>SPI 名称为 {@code "zmq"}，与 {@code RpcInvoker}（json）、RetrofitHttpInvoker（http）
+ * 等平级，通过 {@code InvokerFactory.getInvoker("zmq")} 或接口标注
+ * {@code @RemoteService(protocol = "zmq")} 自动路由。</p>
+ *
+ * <p><b>地址解析</b>：优先读取类级 {@code @RequestMapping} / {@code @RequestMethod} /
+ * {@code @InvokerService} / {@code @RemoteService(url)} 注解中的端点地址；
+ * 地址需为 ZMQ 端点格式（如 {@code tcp://127.0.0.1:5555}），或裸 {@code host:port}
+ * 由 {@link ZmqRpcClient} 自动补全 {@code tcp://} 前缀。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see RpcClient
+ * @see Invoker
  */
 @Spi("zmq")
 public class ZmqInvoker implements Invoker {
@@ -94,12 +94,12 @@ public class ZmqInvoker implements Invoker {
     }
 
     /**
-    * 解析接口类级端点地址：按优先级读取 Spring MVC 请求mapping、
-    * {@link RequestMethod}、{@link InvokerService}、{@link RemoteService#url()}。
-    *
-    * @param clazz 接口类型
-    * @return 端点地址，未配置时返回空字符串
-    */
+     * 解析接口类级端点地址：按优先级读取 Spring MVC 请求mapping、
+     * {@link RequestMethod}、{@link InvokerService}、{@link RemoteService#url()}。
+     *
+     * @param clazz 接口类型
+     * @return 端点地址，未配置时返回空字符串
+     */
     private static String resolveBaseUrl(Class<?> clazz) {
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
@@ -131,11 +131,11 @@ public class ZmqInvoker implements Invoker {
     }
 
     /**
-    * 提取注解 {@code value} 属性值（支持 字符串 与 字符串[] 类型）。
-    *
-    * @param ann 注解实例
-    * @return 提取到的值，无法解析时返回空字符串
-    */
+     * 提取注解 {@code value} 属性值（支持 字符串 与 字符串[] 类型）。
+     *
+     * @param ann 注解实例
+     * @return 提取到的值，无法解析时返回空字符串
+     */
     private static String extractAnnotationValue(Annotation ann) {
         Object r = ReflectUtils.invoke(ann, "value", Object.class);
         if (r instanceof String s) {

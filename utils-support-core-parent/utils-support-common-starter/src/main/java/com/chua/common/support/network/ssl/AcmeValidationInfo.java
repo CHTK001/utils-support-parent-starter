@@ -8,13 +8,13 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  * @version 1.0.0
-*/
+ */
 @Data
 public class AcmeValidationInfo {
 
     /**
-    * ACME 订单地址（同一订单的全部验证信息均携带该地址，用于跨请求恢复订单）
-    */
+     * ACME 订单地址（同一订单的全部验证信息均携带该地址，用于跨请求恢复订单）
+     */
     private String orderUrl;
 
     /** 域名 */

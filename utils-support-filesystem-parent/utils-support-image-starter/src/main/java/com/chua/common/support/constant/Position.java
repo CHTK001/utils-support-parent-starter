@@ -1,7 +1,7 @@
 package com.chua.common.support.constant;
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 
 public enum Position {

@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 从 代理scrape API 获取免费代理。
-*
-* @author CH
-* @since 4.0.0.42
+ * 从 代理scrape API 获取免费代理。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("proxy-scrape")
 public class ProxyScrapeFetcher implements ProxyFetcher {
 
     /**
-    * 代理scrape API URL（HTTP Elite 代理）
-    */
+     * 代理scrape API URL（HTTP Elite 代理）
+     */
     private static final String URL = "https://api.proxyscrape.com/v4/free-proxy-list/get"
             + "?request=displayproxies&protocol=http&anonymity=elite&proxy_format=protocolipport&format=json";
 

@@ -27,63 +27,63 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 基于 JDK WatchService 的文件系统目录轮询实现。
-* <p>
-* 实现 {@link PolledDirectory} 接口，通过操作系统事件驱动监听，无需轮询。
-* </p>
-* <p>使用示例：</p>
-* <pre>{@code
-* FileSystemPolledDirectory polled = new FileSystemPolledDirectory("/data/logs");
-* polled.addListener(new SimplePolledListener());
-* polled.start(env);
-* }</pre>
-*
-* @author CH
-* @since 2024/12/12
+ * 基于 JDK WatchService 的文件系统目录轮询实现。
+ * <p>
+ * 实现 {@link PolledDirectory} 接口，通过操作系统事件驱动监听，无需轮询。
+ * </p>
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * FileSystemPolledDirectory polled = new FileSystemPolledDirectory("/data/logs");
+ * polled.addListener(new SimplePolledListener());
+ * polled.start(env);
+ * }</pre>
+ *
+ * @author CH
+ * @since 2024/12/12
  */
 @Slf4j
 public class FileSystemPolledDirectory implements PolledDirectory {
 
     /**
-    * 被监听的目录路径
-    */
+     * 被监听的目录路径
+     */
     private final String path;
 
     /**
-    * 事件监听器列表
-    */
+     * 事件监听器列表
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 运行状态
-    */
+     * 运行状态
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * JDK WatchService
-    */
+     * JDK WatchService
+     */
     private WatchService watchService;
 
     /**
-    * 事件监听线程
-    */
+     * 事件监听线程
+     */
     private Thread watchThread;
 
     /**
-    * WatchKey 与目录路径的映射
-    */
+     * WatchKey 与目录路径的映射
+     */
     private final Map<WatchKey, Path> watchKeys = new HashMap<>();
 
     /**
-    * 环境配置
-    */
+     * 环境配置
+     */
     private DirectoryPollerEnvironment environment;
 
     /**
-    * 构造文件系统目录轮询实现。
-    *
-    * @param path 被监听的目录路径
-    */
+     * 构造文件系统目录轮询实现。
+     *
+     * @param path 被监听的目录路径
+     */
     public FileSystemPolledDirectory(String path) {
         this.path = path;
     }
@@ -140,8 +140,8 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * WatchService 事件循环。
-    */
+     * WatchService 事件循环。
+     */
     private void watchLoop() {
         while (running.get()) {
             try {
@@ -189,12 +189,12 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 向所有监听器分发事件。
-    *
-    * @param event      事件类型
-    * @param currentPath 当前目录路径
-    * @param triggerFile 触发文件名
-    */
+     * 向所有监听器分发事件。
+     *
+     * @param event      事件类型
+     * @param currentPath 当前目录路径
+     * @param triggerFile 触发文件名
+     */
     private void fire(WatcherEvent event, String currentPath, String triggerFile) {
         var observer = com.chua.common.support.lang.directory.EventObserver.builder()
                 .currentPath(currentPath)

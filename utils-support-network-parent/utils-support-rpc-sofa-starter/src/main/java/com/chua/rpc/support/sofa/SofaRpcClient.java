@@ -15,40 +15,40 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* SOFA-RPC 客户端实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * SOFA-RPC 客户端实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("sofa")
 @Slf4j
 public class SofaRpcClient implements RpcClient {
 
     /**
-    * registry 配置
-    */
+     * registry 配置
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-    * rpc Consumer 配置
-    */
+     * rpc Consumer 配置
+     */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
-    * application 配置
-    */
+     * application 配置
+     */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
     /**
-    * consumer 缓存
-    */
+     * consumer 缓存
+     */
     private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
 
     /**
-    * 创建 sofarpc客户端 实例
-    * @param rpcRegistryConfigs rpcregistry配置
-    * @param consumerConfig rpcconsumer配置
-    * @param name 字符串
-    * @param consumerConfig consumer配置
-    * @param name 名称
-    */
+     * 创建 sofarpc客户端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param consumerConfig rpcconsumer配置
+     * @param name 字符串
+     * @param consumerConfig consumer配置
+     * @param name 名称
+     */
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.rpcConsumerConfig = consumerConfig;
         applicationConfig.setAppName(name);
@@ -70,11 +70,11 @@ public class SofaRpcClient implements RpcClient {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取
-    *
-    * @param targetType 目标类型
-    * @return 获取的结果
-    */
+     * 获取
+     *
+     * @param targetType 目标类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
             ConsumerConfig<T> c = new ConsumerConfig<>();

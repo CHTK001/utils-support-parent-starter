@@ -51,27 +51,27 @@ import java.awt.image.BufferedImage;
 public class SharpenImageFilter extends AbstractImageFilter {
 
     /**
-    * 锐化系数，默认 1.2
-    */
+     * 锐化系数，默认 1.2
+     */
     private double amount = 1.2;
 
     /**
-    * 模糊半径，默认 1
-    */
+     * 模糊半径，默认 1
+     */
     private int radius = 1;
 
     /**
-    * 噪声保护阈值，默认 4
-    */
+     * 噪声保护阈值，默认 4
+     */
     private int threshold = 4;
 
     /**
-    * 执行锐化滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 锐化后图像
-    */
+     * 执行锐化滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 锐化后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -116,14 +116,14 @@ public class SharpenImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * ARGB 像素盒模糊
-    *
-    * @param src 像素数组
-    * @param w   宽
-    * @param h   高
-    * @param r   半径
-    * @return 模糊后像素数组
-    */
+     * ARGB 像素盒模糊
+     *
+     * @param src 像素数组
+     * @param w   宽
+     * @param h   高
+     * @param r   半径
+     * @return 模糊后像素数组
+     */
     private int[] boxBlur(int[] src, int w, int h, int r) {
         int rr = Math.max(1, r);
         int[] out = new int[w * h];

@@ -53,27 +53,27 @@ import java.awt.image.BufferedImage;
 public class IceImageFilter extends AbstractImageFilter {
 
     /**
-    * 冷色调强度，默认 0.5
-    */
+     * 冷色调强度，默认 0.5
+     */
     private double coldTone = 0.5;
 
     /**
-    * 冰晶纹理强度，默认 0.3
-    */
+     * 冰晶纹理强度，默认 0.3
+     */
     private double iceCrystals = 0.3;
 
     /**
-    * 亮部高光强度，默认 0.4
-    */
+     * 亮部高光强度，默认 0.4
+     */
     private double highlight = 0.4;
 
     /**
-    * 执行冰冻风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 冰冻风格图像
-    */
+     * 执行冰冻风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 冰冻风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

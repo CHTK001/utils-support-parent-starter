@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Slf4j
 @Spi({"jdk", "jdk-http"})
 public class JdkHttpServer extends AbstractServer {
@@ -37,9 +37,9 @@ public class JdkHttpServer extends AbstractServer {
     private ExecutorService executor;
 
     /**
-    * 创建 JdkHttpServer 实例
-    * @param setting setting
-    */
+     * 创建 JdkHttpServer 实例
+     * @param setting setting
+     */
     public JdkHttpServer(ServerSetting setting) {
         super(setting);
     }

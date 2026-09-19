@@ -14,19 +14,19 @@ import java.io.InputStream;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Getter
 @Setter
 @SuperBuilder
 public class GetObjectResult extends ObjectResult {
 
     /**
-    * 文件内容的输入流。
-    */
+     * 文件内容的输入流。
+     */
     private InputStream inputStream;
 
     /**
-    * 文件元数据。
-    */
+     * 文件元数据。
+     */
     private Metadata metadata;
 }

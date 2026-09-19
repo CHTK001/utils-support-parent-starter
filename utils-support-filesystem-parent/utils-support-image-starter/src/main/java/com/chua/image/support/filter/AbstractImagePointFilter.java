@@ -54,35 +54,35 @@ import java.awt.image.WritableRaster;
 public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 
     /**
-    * 是否可以过滤索引颜色模型
-    */
+     * 是否可以过滤索引颜色模型
+     */
     protected boolean canFilterIndexColorModel = false;
 
     /**
-    * 常量：256，颜色值计算
-    */
+     * 常量：256，颜色值计算
+     */
     public static final int MAX_256 = NumberConstant.MAX_256;
 
     /**
-    * 常量：128，颜色值计算
-    */
+     * 常量：128，颜色值计算
+     */
     public static final int MAX_128 = NumberConstant.MAX_128;
 
     /**
-    * 常量：255，颜色值计算
-    */
+     * 常量：255，颜色值计算
+     */
     public static final int MAX_255 = NumberConstant.MAX_255;
 
     /**
-    * 执行点滤镜处理
-    *
-    * 逐行逐像素地处理图像，对每个像素调用过滤器rgb方法进行处理。
-    * 针对不同的图像类型进行了性能优化，避免不必要的格式转换。
-    *
-    * @param src 源图像
-    * @param dst 目标图像，可以为空
-    * @return 处理后的图像
-    */
+     * 执行点滤镜处理
+     *
+     * 逐行逐像素地处理图像，对每个像素调用过滤器rgb方法进行处理。
+     * 针对不同的图像类型进行了性能优化，避免不必要的格式转换。
+     *
+     * @param src 源图像
+     * @param dst 目标图像，可以为空
+     * @return 处理后的图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
@@ -120,26 +120,26 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     }
 
     /**
-    * 抽象的RGB像素滤镜方法
-    *
-    * 子类必须实现此方法来定义具体的滤镜效果。
-    * 此方法对单个像素进行处理，返回处理后的ARGB值。
-    *
-    * @param x   像素的X坐标
-    * @param y   像素的Y坐标
-    * @param rgb 原始ARGB像素值
-    * @return 处理后的ARGB像素值
-    */
+     * 抽象的RGB像素滤镜方法
+     *
+     * 子类必须实现此方法来定义具体的滤镜效果。
+     * 此方法对单个像素进行处理，返回处理后的ARGB值。
+     *
+     * @param x   像素的X坐标
+     * @param y   像素的Y坐标
+     * @param rgb 原始ARGB像素值
+     * @return 处理后的ARGB像素值
+     */
     public abstract int filterRgb(int x, int y, int rgb);
 
     /**
-    * 设置图像尺寸
-    *
-    * 在滤镜处理开始前调用，子类可以重写此方法来进行必要的初始化工作。
-    *
-    * @param width  图像宽度
-    * @param height 图像高度
-    */
+     * 设置图像尺寸
+     *
+     * 在滤镜处理开始前调用，子类可以重写此方法来进行必要的初始化工作。
+     *
+     * @param width  图像宽度
+     * @param height 图像高度
+     */
     public void setDimensions(int width, int height) {
         // 默认实现为空，子类可根据需要重写
     }

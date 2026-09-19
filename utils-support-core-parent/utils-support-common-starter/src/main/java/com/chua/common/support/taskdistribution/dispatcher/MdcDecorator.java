@@ -18,17 +18,17 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class MdcDecorator {
 
     /**
-    * 任务 标识 键。
-    */
+     * 任务 标识 键。
+     */
     public static final String KEY_TASK_ID = "taskId";
 
     /**
-    * 链路追踪 标识 键。
-    */
+     * 链路追踪 标识 键。
+     */
     public static final String KEY_TRACE_ID = "traceId";
 
     /** 创建 mdcdecorator 实例 */
@@ -63,13 +63,13 @@ public final class MdcDecorator {
     }
 
     /**
-    * 装饰 Runnable，向 MDC 注入一个键值对。
-    *
-    * @param runnable 原始 Runnable
-    * @param key      MDC 键
-    * @param value    MDC 值
-    * @return 装饰后的 Runnable
-    */
+     * 装饰 Runnable，向 MDC 注入一个键值对。
+     *
+     * @param runnable 原始 Runnable
+     * @param key      MDC 键
+     * @param value    MDC 值
+     * @return 装饰后的 Runnable
+     */
     public static Runnable decorate(Runnable runnable, String key, String value) {
         Map<String, String> contextSnapshot = MDC.getCopyOfContextMap();
         return () -> {
@@ -95,10 +95,10 @@ public final class MdcDecorator {
     }
 
     /**
-    * 从 MDC 移除指定键。
-    *
-    * @param key 键
-    */
+     * 从 MDC 移除指定键。
+     *
+     * @param key 键
+     */
     public static void remove(String key) {
         if (key != null) {
             MDC.remove(key);
@@ -106,8 +106,8 @@ public final class MdcDecorator {
     }
 
     /**
-    * 清除当前线程 MDC 上下文。
-    */
+     * 清除当前线程 MDC 上下文。
+     */
     public static void clear() {
         MDC.clear();
     }

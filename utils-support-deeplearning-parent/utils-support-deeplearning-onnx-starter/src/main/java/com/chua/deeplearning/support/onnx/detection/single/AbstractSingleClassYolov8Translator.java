@@ -24,40 +24,40 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* 单类 yolov8 通用目标检测 Translator 抽象基类。
-*
-* <p>用于表格检测、印章检测、单一物体检测等场景。
-* 子类提供 {@link #className()} 与 {@link #classNamesResourcePath()}。
-*
-* <h2>输入/输出</h2>
-* <ul>
-*   <li>输入：YOLOv8 标准 [1, 3, H, W]，H=W=inputSize，RGB /255.0 归一化，CHW</li>
-*   <li>输出：YOLOv8 标准 [1, 4+1, N]（NMS 前），内部 NMS 输出 DetectedObjects</li>
-* </ul>
-*
-* <h2>类别加载</h2>
-* <p>从 classpath {@link #classNamesResourcePath()} 加载（通常 1 行），缺失时回退
-* {@link #defaultClassName()}。
-*
-* @author CH
-* @since 4.0.0.42
+ * 单类 yolov8 通用目标检测 Translator 抽象基类。
+ *
+ * <p>用于表格检测、印章检测、单一物体检测等场景。
+ * 子类提供 {@link #className()} 与 {@link #classNamesResourcePath()}。
+ *
+ * <h2>输入/输出</h2>
+ * <ul>
+ *   <li>输入：YOLOv8 标准 [1, 3, H, W]，H=W=inputSize，RGB /255.0 归一化，CHW</li>
+ *   <li>输出：YOLOv8 标准 [1, 4+1, N]（NMS 前），内部 NMS 输出 DetectedObjects</li>
+ * </ul>
+ *
+ * <h2>类别加载</h2>
+ * <p>从 classpath {@link #classNamesResourcePath()} 加载（通常 1 行），缺失时回退
+ * {@link #defaultClassName()}。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractSingleClassYolov8Translator implements Translator<Image, DetectedObjects> {
 
     /**
-    * 默认输入尺寸：yolov8 @ 640。
-    */
+     * 默认输入尺寸：yolov8 @ 640。
+     */
     protected static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-    * 默认置信度阈值。
-    */
+     * 默认置信度阈值。
+     */
     protected static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
-    * 默认 NMS iou 阈值。
-    */
+     * 默认 NMS iou 阈值。
+     */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /** 输入尺寸 */
@@ -110,30 +110,30 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     /**
-    * 类路径 资源路径，例如 {@code vision/table/yolov8n/class.names.txt}。
-    * @return 类名称resource路径的结果
-    */
+     * 类路径 资源路径，例如 {@code vision/table/yolov8n/class.names.txt}。
+     * @return 类名称resource路径的结果
+     */
     protected abstract String classNamesResourcePath();
 
     /**
-    * 资源缺失或解析失败时回退的类别名。
-    * @return 默认类名称的结果
-    */
+     * 资源缺失或解析失败时回退的类别名。
+     * @return 默认类名称的结果
+     */
     protected abstract String defaultClassName();
 
     /**
-    * 单类名（子类可重写以支持多类别，但本基类约定单类）。
-    * @return 类名称的结果
-    */
+     * 单类名（子类可重写以支持多类别，但本基类约定单类）。
+     * @return 类名称的结果
+     */
     public String className() {
         return classes.getFirst();
     }
 
     /**
-    * 加载类名称
-    *
-    * @return 加载类名称的结果
-    */
+     * 加载类名称
+     *
+     * @return 加载类名称的结果
+     */
     private String loadClassName() {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
             if (is == null) {
@@ -294,30 +294,30 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     /**
-    * 默认输入尺寸。
-    * @return 获取输入大小的结果
-    */
+     * 默认输入尺寸。
+     * @return 获取输入大小的结果
+     */
     public int getInputSize() {
         return inputSize;
     }
 
     /**
-    * Sigmoid
-    *
-    * @param x x
-    * @return sigmoid的结果
-    */
+     * Sigmoid
+     *
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
     /**
-    * 转为normalizedchw
-    *
-    * @param ctx ctx
-    * @param array array
-    * @return 转为normalizedchw的结果
-    */
+     * 转为normalizedchw
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
+     */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

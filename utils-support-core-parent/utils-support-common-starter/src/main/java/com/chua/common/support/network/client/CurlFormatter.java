@@ -7,32 +7,32 @@ import java.util.Base64;
 import java.util.Map;
 
 /**
-* curl 命令格式化器。
-*
-* <p>将 {@link ClientRequest} 或 {@link HttpClientBuilder} 的请求状态转换为
-* 等价的可执行的 curl 命令字符串，便于调试、日志记录或跨平台复用。</p>
-*
-* <p><b>使用示例：</b></p>
-* <pre>{@code
-* // 从 HttpClientBuilder 生成 curl
-* String curl = HttpClientFactory.of("https://api.example.com")
-*     .path("/users")
-*     .json()
-*     .auth("xxx")
-*     .body("{\"name\":\"test\"}")
-*     .connectTimeout(5000)
-*     .toCurl();
-* System.out.println(curl);
-*
-* // 直接从 ClientRequest 生成
-* ClientRequest request = ClientRequest.of("https://api.example.com/users", HttpMethod.POST);
-* request.setHeader("Authorization", "Bearer xxx");
-* request.setBody("{\"name\":\"test\"}");
-* String curl = CurlFormatter.format(request);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * curl 命令格式化器。
+ *
+ * <p>将 {@link ClientRequest} 或 {@link HttpClientBuilder} 的请求状态转换为
+ * 等价的可执行的 curl 命令字符串，便于调试、日志记录或跨平台复用。</p>
+ *
+ * <p><b>使用示例：</b></p>
+ * <pre>{@code
+ * // 从 HttpClientBuilder 生成 curl
+ * String curl = HttpClientFactory.of("https://api.example.com")
+ *     .path("/users")
+ *     .json()
+ *     .auth("xxx")
+ *     .body("{\"name\":\"test\"}")
+ *     .connectTimeout(5000)
+ *     .toCurl();
+ * System.out.println(curl);
+ *
+ * // 直接从 ClientRequest 生成
+ * ClientRequest request = ClientRequest.of("https://api.example.com/users", HttpMethod.POST);
+ * request.setHeader("Authorization", "Bearer xxx");
+ * request.setBody("{\"name\":\"test\"}");
+ * String curl = CurlFormatter.format(request);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class CurlFormatter {
 
@@ -43,11 +43,11 @@ public final class CurlFormatter {
     }
 
     /**
-    * 将 {@link ClientRequest} 格式化为等价的 curl 命令字符串。
-    *
-    * @param request 请求对象
-    * @return curl 命令字符串
-    */
+     * 将 {@link ClientRequest} 格式化为等价的 curl 命令字符串。
+     *
+     * @param request 请求对象
+     * @return curl 命令字符串
+     */
     public static String format(ClientRequest request) {
         StringBuilder sb = new StringBuilder("curl");
         appendOptions(sb, request.getUrl(), request.getMethod(), request.getHeaders(),
@@ -57,12 +57,12 @@ public final class CurlFormatter {
     }
 
     /**
-    * 将 {@link HttpClientBuilder} 当前的构建状态格式化为等价的 curl 命令。
-    *
-    * @param builder HTTP 请求构建器
-    * @param url     已拼接的完整 URL（baseUrl + path）
-    * @return curl 命令字符串
-    */
+     * 将 {@link HttpClientBuilder} 当前的构建状态格式化为等价的 curl 命令。
+     *
+     * @param builder HTTP 请求构建器
+     * @param url     已拼接的完整 URL（baseUrl + path）
+     * @return curl 命令字符串
+     */
     static String formatFromBuilder(HttpClientBuilder builder, String url) {
         Object body = builder._body();
         com.chua.common.support.network.http.HttpHeader headers = builder._headers();
@@ -96,8 +96,8 @@ public final class CurlFormatter {
     }
 
     /**
-    * 将各参数直接格式化为等价的 curl 命令字符串。
-    */
+     * 将各参数直接格式化为等价的 curl 命令字符串。
+     */
     public static String format(String url, com.chua.common.support.network.http.HttpMethod method,
                                 com.chua.common.support.network.http.HttpHeader headers, Object body,
                                 long connectTimeout, long readTimeout,

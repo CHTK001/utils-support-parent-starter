@@ -147,33 +147,33 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 从系统属性（{@code filepush.*}）加载配置并创建实例（便捷方法）。
-    *
-    * @return 服务端实例
-    */
+     * 从系统属性（{@code filepush.*}）加载配置并创建实例（便捷方法）。
+     *
+     * @return 服务端实例
+     */
     public static FilePushServer create() {
         return new FilePushServer(FilePushConfig.loadFromSystemProperties(FilePushConfig.defaults()));
     }
 
     /**
-    * 设置同步目录（服务端接收并落盘的根目录），链式调用。
-    *
-    * <p>必须在 {@link #start()} 之前调用。</p>
-    *
-    * @param targetDir 同步目录
-    * @return this
-    */
+     * 设置同步目录（服务端接收并落盘的根目录），链式调用。
+     *
+     * <p>必须在 {@link #start()} 之前调用。</p>
+     *
+     * @param targetDir 同步目录
+     * @return this
+     */
     public FilePushServer targetDir(Path targetDir) {
         config.setTargetDir(targetDir);
         return this;
     }
 
     /**
-    * 设置同步目录（字符串路径重载），链式调用。
-    *
-    * @param targetDir 同步目录路径
-    * @return this
-    */
+     * 设置同步目录（字符串路径重载），链式调用。
+     *
+     * @param targetDir 同步目录路径
+     * @return this
+     */
     public FilePushServer targetDir(String targetDir) {
         if (targetDir == null || targetDir.isBlank()) {
             throw new IllegalArgumentException("targetDir 不能为空");
@@ -182,75 +182,75 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 设置监听地址，链式调用。
-    *
-    * @param host 监听地址
-    * @return this
-    */
+     * 设置监听地址，链式调用。
+     *
+     * @param host 监听地址
+     * @return this
+     */
     public FilePushServer host(String host) {
         config.setHost(host);
         return this;
     }
 
     /**
-    * 设置监听端口，链式调用；传 0 由系统分配空闲端口。
-    *
-    * @param port 监听端口
-    * @return this
-    */
+     * 设置监听端口，链式调用；传 0 由系统分配空闲端口。
+     *
+     * @param port 监听端口
+     * @return this
+     */
     public FilePushServer port(int port) {
         config.setPort(port);
         return this;
     }
 
     /**
-    * 设置分片大小，链式调用；须与客户端一致。
-    *
-    * @param chunkSize 分片字节数
-    * @return this
-    */
+     * 设置分片大小，链式调用；须与客户端一致。
+     *
+     * @param chunkSize 分片字节数
+     * @return this
+     */
     public FilePushServer chunkSize(int chunkSize) {
         config.setChunkSize(chunkSize);
         return this;
     }
 
     /**
-    * 设置并发连接数上限，链式调用。
-    *
-    * @param parallelism 并发连接数
-    * @return this
-    */
+     * 设置并发连接数上限，链式调用。
+     *
+     * @param parallelism 并发连接数
+     * @return this
+     */
     public FilePushServer connectionParallelism(int parallelism) {
         config.setServerConnectionParallelism(parallelism);
         return this;
     }
 
     /**
-    * 设置是否允许客户端请求清理同步目录中的旧文件，链式调用。
-    *
-    * @param cleanup 是否允许清理
-    * @return this
-    */
+     * 设置是否允许客户端请求清理同步目录中的旧文件，链式调用。
+     *
+     * @param cleanup 是否允许清理
+     * @return this
+     */
     public FilePushServer cleanup(boolean cleanup) {
         config.setCleanup(cleanup);
         return this;
     }
 
     /**
-    * 获取底层配置，用于链式方法未覆盖的参数。
-    *
-    * @return 服务端配置
-    */
+     * 获取底层配置，用于链式方法未覆盖的参数。
+     *
+     * @return 服务端配置
+     */
     public FilePushConfig config() {
         return config;
     }
 
     /**
-    * 启动服务端并开始监听。
-    *
-    * @return 实际监听端口（port=0 时由系统分配）
-    * @throws IOException 启动失败
-    */
+     * 启动服务端并开始监听。
+     *
+     * @return 实际监听端口（port=0 时由系统分配）
+     * @throws IOException 启动失败
+     */
     public int start() throws IOException {
         Path target = config.getTargetDir();
         if (target == null) {
@@ -274,8 +274,8 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 停止服务端并释放资源。
-    */
+     * 停止服务端并释放资源。
+     */
     @Override
     public void close() {
         running = false;
@@ -291,10 +291,10 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 获取统计信息（文件数、字节数、错误数）。
-    *
-    * @return 统计快照字符串
-    */
+     * 获取统计信息（文件数、字节数、错误数）。
+     *
+     * @return 统计快照字符串
+     */
     public String stats() {
         return String.format("files=%d bytes=%d errors=%d",
                 filesReceived.get(), bytesReceived.get(), errors.get());
@@ -338,11 +338,11 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 处理单个连接的完整消息循环。
-    *
-    * @param socket 已接受的 TCP 连接
-    * @throws Exception 处理失败
-    */
+     * 处理单个连接的完整消息循环。
+     *
+     * @param socket 已接受的 TCP 连接
+     * @throws Exception 处理失败
+     */
     private void handleConnection(Socket socket) throws Exception {
         socket.setTcpNoDelay(true);
         socket.setSoTimeout(config.getReadTimeoutMs());
@@ -405,13 +405,13 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 处理控制连接（握手 fileCount=0）：清单协商与旧文件清理。
-    *
-    * @param socket 连接（仅用于日志）
-    * @param in     连接输入流
-    * @param out    连接输出流
-    * @throws IOException 协议或 IO 失败
-    */
+     * 处理控制连接（握手 fileCount=0）：清单协商与旧文件清理。
+     *
+     * @param socket 连接（仅用于日志）
+     * @param in     连接输入流
+     * @param out    连接输出流
+     * @throws IOException 协议或 IO 失败
+     */
     private void handleControlConnection(Socket socket, DataInputStream in, DataOutputStream out)
             throws IOException {
         int msg = in.readUnsignedByte();
@@ -436,14 +436,14 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 扫描目标目录并回送文件清单，供客户端做增量比对。
-    *
-    * <p>帧格式：{@code [byte MSG_MANIFEST_RESP][int count]}，其后每条为
-    * {@code [int pathLen][bytes path(utf-8)][long size][long mtimeMillis]}。</p>
-    *
-    * @param out 连接输出流
-    * @throws IOException 扫描或写入失败
-    */
+     * 扫描目标目录并回送文件清单，供客户端做增量比对。
+     *
+     * <p>帧格式：{@code [byte MSG_MANIFEST_RESP][int count]}，其后每条为
+     * {@code [int pathLen][bytes path(utf-8)][long size][long mtimeMillis]}。</p>
+     *
+     * @param out 连接输出流
+     * @throws IOException 扫描或写入失败
+     */
     private void sendManifest(DataOutputStream out) throws IOException {
         Path targetRoot = config.getTargetDir().toAbsolutePath().normalize();
         List<Path> files;
@@ -470,12 +470,12 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 读取客户端上报的相对路径清单。
-    *
-    * @param in 连接输入流
-    * @return 相对路径集合
-    * @throws IOException 读取失败或条数/长度非法
-    */
+     * 读取客户端上报的相对路径清单。
+     *
+     * @param in 连接输入流
+     * @return 相对路径集合
+     * @throws IOException 读取失败或条数/长度非法
+     */
     private Set<String> readPathSet(DataInputStream in) throws IOException {
         int count = in.readInt();
         if (count < 0 || count > MAX_MANIFEST_ENTRIES) {
@@ -495,13 +495,13 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 处理一个文件的接收：读 BEGIN 元数据 → 循环读 CHUNK 分片 → 收 END → 落盘 → 回 ACK。
-    *
-    * @param in 连接输入流
-    * @param out 连接输出流
-    * @param debugSeq 文件序号（单文件连接传 -1）
-    * @throws Exception 处理失败
-    */
+     * 处理一个文件的接收：读 BEGIN 元数据 → 循环读 CHUNK 分片 → 收 END → 落盘 → 回 ACK。
+     *
+     * @param in 连接输入流
+     * @param out 连接输出流
+     * @param debugSeq 文件序号（单文件连接传 -1）
+     * @throws Exception 处理失败
+     */
     private void handleFile(DataInputStream in, DataOutputStream out, int debugSeq)
             throws Exception {
         int type = in.readUnsignedByte();
@@ -648,16 +648,16 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 定位写，循环直到缓冲区全部写完。
-    *
-    * <p>{@link FileChannel#write(ByteBuffer, long)} 允许部分写入，必须循环补齐，
-    * 否则磁盘繁忙时大分片会静默丢失尾部数据。</p>
-    *
-    * @param channel  目标文件通道
-    * @param buffer   待写数据
-    * @param position 起始偏移
-    * @throws IOException 写入失败
-    */
+     * 定位写，循环直到缓冲区全部写完。
+     *
+     * <p>{@link FileChannel#write(ByteBuffer, long)} 允许部分写入，必须循环补齐，
+     * 否则磁盘繁忙时大分片会静默丢失尾部数据。</p>
+     *
+     * @param channel  目标文件通道
+     * @param buffer   待写数据
+     * @param position 起始偏移
+     * @throws IOException 写入失败
+     */
     private static void writeFully(FileChannel channel, ByteBuffer buffer, long position)
             throws IOException {
         while (buffer.hasRemaining()) {
@@ -666,12 +666,12 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 解析相对路径到目标根目录（防路径穿越）。
-    *
-    * @param relativePath 客户端上报的相对路径（/ 分隔）
-    * @return 目标根下的安全路径
-    * @throws IOException 路径非法
-    */
+     * 解析相对路径到目标根目录（防路径穿越）。
+     *
+     * @param relativePath 客户端上报的相对路径（/ 分隔）
+     * @return 目标根下的安全路径
+     * @throws IOException 路径非法
+     */
     private Path resolveSafePath(String relativePath) throws IOException {
         Path targetRoot = config.getTargetDir().toAbsolutePath().normalize();
         Path resolved = targetRoot.resolve(relativePath).normalize();
@@ -682,15 +682,15 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 删除目标目录中不在客户端清单内的旧文件（仅 config.cleanup=true 时生效）。
-    *
-    * <p>清单由客户端携带本次扫描到的<b>全部</b>相对路径，而非服务端累积的"已推送"集合：
-    * 后者在增量同步下只包含变更文件，会导致未变更文件被误删。</p>
-    *
-    * @param expected 客户端清单（相对路径，/ 分隔）
-    * @return 实际删除的文件数
-    * @throws IOException 遍历或删除失败
-    */
+     * 删除目标目录中不在客户端清单内的旧文件（仅 config.cleanup=true 时生效）。
+     *
+     * <p>清单由客户端携带本次扫描到的<b>全部</b>相对路径，而非服务端累积的"已推送"集合：
+     * 后者在增量同步下只包含变更文件，会导致未变更文件被误删。</p>
+     *
+     * @param expected 客户端清单（相对路径，/ 分隔）
+     * @return 实际删除的文件数
+     * @throws IOException 遍历或删除失败
+     */
     private int cleanupStaleFiles(Set<String> expected) throws IOException {
         if (!config.isCleanup()) {
             log.debug("cleanup 未开启，跳过清理");
@@ -713,12 +713,12 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 发送错误帧并关闭连接。
-    *
-    * @param socket 目标连接
-    * @param message 错误消息（UTF-8）
-    * @throws IOException 写入失败
-    */
+     * 发送错误帧并关闭连接。
+     *
+     * @param socket 目标连接
+     * @param message 错误消息（UTF-8）
+     * @throws IOException 写入失败
+     */
     static void sendError(Socket socket, String message) throws IOException {
         DataOutputStream out = new DataOutputStream(
                 new BufferedOutputStream(socket.getOutputStream()));
@@ -730,10 +730,10 @@ public class FilePushServer implements AutoCloseable {
     }
 
     /**
-    * 统计信息监听器：供外部拉取运行期计数。
-    *
-    * @return 统计快照
-    */
+     * 统计信息监听器：供外部拉取运行期计数。
+     *
+     * @return 统计快照
+     */
     public Map<String, Long> snapshotStats() {
         return Map.of("files", filesReceived.get(), "bytes", bytesReceived.get(),
                 "errors", errors.get());

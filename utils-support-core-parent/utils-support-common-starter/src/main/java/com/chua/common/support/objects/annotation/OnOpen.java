@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnOpen {

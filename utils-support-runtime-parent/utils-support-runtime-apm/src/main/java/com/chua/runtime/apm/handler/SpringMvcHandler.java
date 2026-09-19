@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Spring MVC 处理器 — intercepts dispatcherservlet 请求 处理.
-*
-* @author CH
-* @since 4.0.0.42
+ * Spring MVC 处理器 — intercepts dispatcherservlet 请求 处理.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SpringMvcHandler extends AbstractAppHandler {
 
     /**
-    * dispatcher servlet
+     * dispatcher servlet
      */
     private static final String DISPATCHER_SERVLET = "org/springframework/web/servlet/DispatcherServlet";
     /**
-    * 执行 dispatch
+     * 执行 dispatch
      */
     private static final String[] DO_DISPATCH = {"doDispatch"};
 

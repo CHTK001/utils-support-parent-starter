@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 2026-07-25
-*/
+ */
 @Spi("http")
 public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
@@ -56,32 +56,32 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
 
     /**
-    * 消息队列（topic -> queue of message）
-    */
+     * 消息队列（topic -> queue of message）
+     */
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
 
     /**
-    * 监听器列表
-    */
+     * 监听器列表
+     */
     private final List<SyncServerListener> listeners = new ArrayList<>();
 
     /**
-    * HTTP 服务器
-    */
+     * HTTP 服务器
+     */
     private com.sun.net.httpserver.HttpServer server;
 
     /**
-    * 创建 HTTP 同步服务端 (默认配置)。
-    */
+     * 创建 HTTP 同步服务端 (默认配置)。
+     */
     public HttpSyncServer() {
         this(ServerSetting.defaults());
     }
 
     /**
-    * 创建 HTTP 同步服务端。
-    *
-    * @param setting 服务端配置
-    */
+     * 创建 HTTP 同步服务端。
+     *
+     * @param setting 服务端配置
+     */
     public HttpSyncServer(ServerSetting setting) {
         super(setting);
     }
@@ -225,11 +225,11 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     // ==================== 内部方法 ====================
 
     /**
-    * 拉取消息（阻塞直到有消息或超时）
-    * @param topics 方法入参 topics
-    * @param timeout 超时时间，不允许为 null
-    * @return 结果字符串
-    */
+     * 拉取消息（阻塞直到有消息或超时）
+     * @param topics 方法入参 topics
+     * @param timeout 超时时间，不允许为 null
+     * @return 结果字符串
+     */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
         while (System.currentTimeMillis() < deadline) {
@@ -246,11 +246,11 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-    * 发送响应
-    * @param exchange 方法入参 exchange
-    * @param code 编码，不允许为 null
-    * @param body 请求体，不允许为 null
-    */
+     * 发送响应
+     * @param exchange 方法入参 exchange
+     * @param code 编码，不允许为 null
+     * @param body 请求体，不允许为 null
+     */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -261,11 +261,11 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-    * 提取参数（支持 form-urlencoded 和 JSON 格式）
-    * @param body 请求体，不允许为 null
-    * @param key 键，不允许为 null
-    * @return 结果字符串
-    */
+     * 提取参数（支持 form-urlencoded 和 JSON 格式）
+     * @param body 请求体，不允许为 null
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     private String extractParam(String body, String key) {
         if (body == null || key == null) {
             return null;
@@ -314,10 +314,10 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-    * 解析查询参数
-    * @param query 查询，不允许为 null
-    * @return 结果映射，无数据时为空映射
-    */
+     * 解析查询参数
+     * @param query 查询，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -340,9 +340,9 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-    * 通知监听器
-    * @param action 方法入参 action
-    */
+     * 通知监听器
+     * @param action 方法入参 action
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

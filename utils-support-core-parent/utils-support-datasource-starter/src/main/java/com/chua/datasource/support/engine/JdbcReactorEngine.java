@@ -73,10 +73,10 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 伪响应式模式构造器，内部持有同步 {@link Engine}。
-    *
-    * @param delegate 同步委托引擎
-    */
+     * 伪响应式模式构造器，内部持有同步 {@link Engine}。
+     *
+     * @param delegate 同步委托引擎
+     */
     protected JdbcReactorEngine(Engine delegate) {
         this.delegate = delegate;
     }
@@ -144,24 +144,24 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 注册 JDBC 数据源到响应式路径（伪响应式模式，boundedElastic 上执行）。
-    *
-    * @param name     数据源名称
-    * @param jdbcUrl  JDBC URL（如 jdbc:mysql://localhost:3306/mydb）
-    * @param username 用户名
-    * @param password 密码
-    */
+     * 注册 JDBC 数据源到响应式路径（伪响应式模式，boundedElastic 上执行）。
+     *
+     * @param name     数据源名称
+     * @param jdbcUrl  JDBC URL（如 jdbc:mysql://localhost:3306/mydb）
+     * @param username 用户名
+     * @param password 密码
+     */
     protected void registerJdbcDataSource(String name, String jdbcUrl, String username, String password) {
         addDataSource(name, jdbcUrl, username, password);
     }
 
     /**
-    * 添加 R2DBC 数据源（直接传入 R2DBC URL）。
-    *
-    * @param name     数据源名称
-    * @param r2dbcUrl R2DBC URL（如 r2dbc:h2:mem://testdb）
-    * @return this
-    */
+     * 添加 R2DBC 数据源（直接传入 R2DBC URL）。
+     *
+     * @param name     数据源名称
+     * @param r2dbcUrl R2DBC URL（如 r2dbc:h2:mem://testdb）
+     * @return this
+     */
     public JdbcReactorEngine addDataSource(String name, String r2dbcUrl) {
         // 兼容传入 JDBC URL 的情况，自动转换为 R2DBC URL
         String url = r2dbcUrl;
@@ -180,13 +180,13 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 添加 R2DBC 连接工厂。
-    *
-    * @param name     数据源名称
-    * @param factory  R2DBC 连接工厂
-    * @param dialect  方言
-    * @return this
-    */
+     * 添加 R2DBC 连接工厂。
+     *
+     * @param name     数据源名称
+     * @param factory  R2DBC 连接工厂
+     * @param dialect  方言
+     * @return this
+     */
     public JdbcReactorEngine addDataSource(String name, ConnectionFactory factory, Dialect dialect) {
         r2dbcFactories.put(name, factory);
         dialects.put(name, dialect);
@@ -200,8 +200,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 构建统一数据源（多数据源联邦）。
-    */
+     * 构建统一数据源（多数据源联邦）。
+     */
     private void buildUnifiedDataSource() {
         if (jdbcDataSources.isEmpty()) {
             // 只有 R2DBC 工厂，无法直接联邦，退回单数据源模式
@@ -218,8 +218,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 构建 R2DBC ConnectionFactory，正确处理用户名密码。
-    */
+     * 构建 R2DBC ConnectionFactory，正确处理用户名密码。
+     */
     @SuppressWarnings("unchecked")
     private static ConnectionFactory buildConnectionFactory(String url, String username, String password) {
         ConnectionFactoryOptions parsed = ConnectionFactoryOptions.parse(url);
@@ -259,13 +259,13 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 将 JDBC URL 转换为 R2DBC URL。
-    * <ul>
-    *   <li>jdbc:h2:mem:testdb → r2dbc:h2:mem://testdb</li>
-    *   <li>jdbc:h2:file:./testdb → r2dbc:h2:file:///./testdb</li>
-    *   <li>jdbc:mysql://host:3306/db → r2dbc:mysql://host:3306/db</li>
-    * </ul>
-    */
+     * 将 JDBC URL 转换为 R2DBC URL。
+     * <ul>
+     *   <li>jdbc:h2:mem:testdb → r2dbc:h2:mem://testdb</li>
+     *   <li>jdbc:h2:file:./testdb → r2dbc:h2:file:///./testdb</li>
+     *   <li>jdbc:mysql://host:3306/db → r2dbc:mysql://host:3306/db</li>
+     * </ul>
+     */
     private static String convertJdbcToR2dbc(String jdbcUrl) {
         if (jdbcUrl == null) {
             throw new IllegalArgumentException("JDBC URL cannot be null");
@@ -286,8 +286,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 根据 JDBC URL 检测方言。
-    */
+     * 根据 JDBC URL 检测方言。
+     */
     private Dialect detectDialect(String jdbcUrl) {
         if (jdbcUrl == null) {
             return null;
@@ -308,8 +308,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 根据 R2DBC URL 检测方言。
-    */
+     * 根据 R2DBC URL 检测方言。
+     */
     private Dialect detectR2dbcDialect(String r2dbcUrl) {
         if (r2dbcUrl == null) {
             return null;
@@ -330,8 +330,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 创建 JDBC DataSource（用于多数据源联邦）。
-    */
+     * 创建 JDBC DataSource（用于多数据源联邦）。
+     */
     private static DataSource createJdbcDataSource(String jdbcUrl, String username, String password) {
         // 使用 DriverManager 创建简单 DataSource
         final String finalUrl = jdbcUrl;
@@ -382,29 +382,29 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 获取默认数据源名称。
-    */
+     * 获取默认数据源名称。
+     */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     /**
-    * 获取指定数据源的 R2DBC 连接工厂。
-    */
+     * 获取指定数据源的 R2DBC 连接工厂。
+     */
     public ConnectionFactory getR2dbcFactory(String name) {
         return r2dbcFactories.get(name);
     }
 
     /**
-    * 获取指定数据源的方言。
-    */
+     * 获取指定数据源的方言。
+     */
     public Dialect getDialect(String name) {
         return dialects.get(name);
     }
 
     /**
-    * 是否多数据源模式。
-    */
+     * 是否多数据源模式。
+     */
     public boolean isMultiDataSource() {
         return r2dbcFactories.size() > 1 || jdbcDataSources.size() > 1;
     }
@@ -552,9 +552,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL 驱动的
-    * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容，统一 catch 返回 empty。
-    */
+     * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL 驱动的
+     * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容，统一 catch 返回 empty。
+     */
     private static Flux<Long> safeGetRowsUpdated(io.r2dbc.spi.Result result) {
         try {
             return Flux.from(result.getRowsUpdated())
@@ -762,8 +762,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     // ==================== 内部适配器 ====================
 
     /**
-    * 获取指定数据源的 EngineDataSource。
-    */
+     * 获取指定数据源的 EngineDataSource。
+     */
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
         ConnectionFactory factory = r2dbcFactories.get(name);
@@ -791,8 +791,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 关闭引擎，释放所有资源。
-    */
+     * 关闭引擎，释放所有资源。
+     */
     public void close() {
         for (ConnectionFactory f : r2dbcFactories.values()) {
             if (f instanceof AutoCloseable ac) {

@@ -32,18 +32,18 @@ import java.util.List;
 public final class CrashContext {
 
     /**
-    * 推断出的崩溃信号。
-    */
+     * 推断出的崩溃信号。
+     */
     public record CrashSignal(String kind,
                               String detail,
                               String evidence,
                               boolean oomLikely) {
 
         /**
-        * OOM 信号的简写。
-        *
-        * @return kind 文本
-        */
+         * OOM 信号的简写。
+         *
+         * @return kind 文本
+         */
         public String label() {
             return oomLikely ? "疑似 OOM" : kind;
         }
@@ -56,13 +56,13 @@ public final class CrashContext {
     }
 
     /**
-    * 对一个 hprof 文件做崩溃语境分析。
-    *
-    * @param hprofFile       hprof 文件
-    * @param totalRetained   堆中存活总保留字节
-    * @param totalLiveCount  存活对象数
-    * @return 全部推断出的信号列表（可能为空）
-    */
+     * 对一个 hprof 文件做崩溃语境分析。
+     *
+     * @param hprofFile       hprof 文件
+     * @param totalRetained   堆中存活总保留字节
+     * @param totalLiveCount  存活对象数
+     * @return 全部推断出的信号列表（可能为空）
+     */
     public static List<CrashSignal> detect(File hprofFile,
                                            long totalRetained,
                                            long totalLiveCount) {
@@ -103,11 +103,11 @@ public final class CrashContext {
     }
 
     /**
-    * 文件名约定推断。
-    *
-    * @param file hprof 文件
-    * @return 命中的信号（0..1 条）
-    */
+     * 文件名约定推断。
+     *
+     * @param file hprof 文件
+     * @return 命中的信号（0..1 条）
+     */
     private static List<CrashSignal> detectFromName(File file) {
         List<CrashSignal> out = new ArrayList<>();
         String name = file.getName().toLowerCase(java.util.Locale.ROOT);
@@ -126,11 +126,11 @@ public final class CrashContext {
     }
 
     /**
-    * 在 hprof 所在目录寻找 hs_err / 同前缀日志并提取崩溃签名。
-    *
-    * @param file hprof 文件
-    * @return 命中的信号（0..2 条）
-    */
+     * 在 hprof 所在目录寻找 hs_err / 同前缀日志并提取崩溃签名。
+     *
+     * @param file hprof 文件
+     * @return 命中的信号（0..2 条）
+     */
     private static List<CrashSignal> detectCompanionLogs(File file) {
         List<CrashSignal> out = new ArrayList<>();
         File dir = file.getParentFile();
@@ -146,11 +146,11 @@ public final class CrashContext {
     }
 
     /**
-    * 扫描目录中的 hs_err_pid*.log，提取第一处异常 / 信号签名。
-    *
-    * @param dir 目录
-    * @return {@code [签名, 证据]}，未命中返回 null
-    */
+     * 扫描目录中的 hs_err_pid*.log，提取第一处异常 / 信号签名。
+     *
+     * @param dir 目录
+     * @return {@code [签名, 证据]}，未命中返回 null
+     */
     private static String[] scanHsErr(File dir) {
         File[] logs = dir.listFiles((d, n) ->
                 n.toLowerCase(java.util.Locale.ROOT).contains("hs_err")
@@ -193,12 +193,12 @@ public final class CrashContext {
     }
 
     /**
-    * 堆水位推断：总保留量相对常见 Xmx 的占比。
-    *
-    * @param totalRetained 总保留字节
-    * @param totalLiveCount 存活对象数
-    * @return 水位信号
-    */
+     * 堆水位推断：总保留量相对常见 Xmx 的占比。
+     *
+     * @param totalRetained 总保留字节
+     * @param totalLiveCount 存活对象数
+     * @return 水位信号
+     */
     private static CrashSignal heapWaterLevel(long totalRetained, long totalLiveCount) {
         long bytes = totalRetained;
         String sizeText = HprofObject.formatSize(bytes);

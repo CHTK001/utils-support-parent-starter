@@ -13,45 +13,45 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
-* 插件类加载器 — 每个插件独立 类加载，支持 lib 目录下的传递依赖。
-*
-* @author CH
-* @since 4.0.0.42
+ * 插件类加载器 — 每个插件独立 类加载，支持 lib 目录下的传递依赖。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PluginClassLoader extends URLClassLoader {
 
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginClassLoader.class.getName());
     /**
-    * 插件名称
+     * 插件名称
      */
     private final String pluginName;
 
     /**
-    * 插件根目录
+     * 插件根目录
      */
     private final Path pluginDir;
 
     /**
-    * 已加载的类名集合
+     * 已加载的类名集合
      */
     private final Set<String> loadedClasses;
 
     /**
-    * 父类加载器
+     * 父类加载器
      */
     private final ClassLoader parent;
 
     /**
-    * 创建插件类加载器。
-    *
-    * @param pluginName 插件名称
-    * @param pluginDir  插件根目录
-    * @param parent     父类加载器
-    * @throws IOException 目录不存在
+     * 创建插件类加载器。
+     *
+     * @param pluginName 插件名称
+     * @param pluginDir  插件根目录
+     * @param parent     父类加载器
+     * @throws IOException 目录不存在
      */
     public PluginClassLoader(String pluginName, Path pluginDir, ClassLoader parent) throws IOException {
         super(toUrls(pluginDir), parent);
@@ -94,10 +94,10 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-    * 是否是需要 Bootstrap 类加载 加载的类。
-    *
-    * @param name 类名
-    * @return 是返回 true
+     * 是否是需要 Bootstrap 类加载 加载的类。
+     *
+     * @param name 类名
+     * @return 是返回 true
      */
     private boolean isBootstrapClass(String name) {
         return name.startsWith("java.")
@@ -109,10 +109,10 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-    * 扫描目录下所有 JAR 文件，包括 lib 子目录。
-    *
-    * @param pluginDir 插件根目录
-    * @return JAR URL 列表
+     * 扫描目录下所有 JAR 文件，包括 lib 子目录。
+     *
+     * @param pluginDir 插件根目录
+     * @return JAR URL 列表
      */
     private static URL[] toUrls(Path pluginDir) {
         List<URL> urls = new ArrayList<>();
@@ -140,11 +140,11 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-    * 加载插件实现类。
-    *
-    * @param className 插件实现类全名
-    * @return Plugin 实例
-    * @throws Exception 加载或创建失败
+     * 加载插件实现类。
+     *
+     * @param className 插件实现类全名
+     * @return Plugin 实例
+     * @throws Exception 加载或创建失败
      */
     public Plugin loadPlugin(String className) throws Exception {
         Class<?> clazz = loadClass(className);
@@ -152,9 +152,9 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-    * 扫描插件目录下的 SPI 配置。
-    *
-    * @return Plugin 实现类名列表
+     * 扫描插件目录下的 SPI 配置。
+     *
+     * @return Plugin 实现类名列表
      */
     public List<String> scanPlugins() {
         List<String> plugins = new ArrayList<>();
@@ -170,27 +170,27 @@ public class PluginClassLoader extends URLClassLoader {
     }
 
     /**
-    * 获取plugin名称
-    *
-    * @return 获取plugin名称的结果
+     * 获取plugin名称
+     *
+     * @return 获取plugin名称的结果
      */
     public String getPluginName() {
         return pluginName;
     }
 
     /**
-    * 获取plugindir
-    *
-    * @return 获取plugindir的结果
+     * 获取plugindir
+     *
+     * @return 获取plugindir的结果
      */
     public Path getPluginDir() {
         return pluginDir;
     }
 
     /**
-    * 获取加载类
-    *
-    * @return 获取加载类的结果
+     * 获取加载类
+     *
+     * @return 获取加载类的结果
      */
     public Set<String> getLoadedClasses() {
         return Collections.unmodifiableSet(loadedClasses);

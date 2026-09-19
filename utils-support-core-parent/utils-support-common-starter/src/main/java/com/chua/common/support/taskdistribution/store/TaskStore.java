@@ -14,72 +14,72 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface TaskStore extends AutoCloseable {
 
     /**
-    * 存储任务。
-    *
-    * @param task   任务
-    * @param status 状态
-    */
+     * 存储任务。
+     *
+     * @param task   任务
+     * @param status 状态
+     */
     void saveTask(Task<?> task, TaskStatus status);
 
     /**
-    * 更新任务状态。
-    *
-    * @param taskId 任务 标识
-    * @param status 新状态
-    */
+     * 更新任务状态。
+     *
+     * @param taskId 任务 标识
+     * @param status 新状态
+     */
     void updateStatus(String taskId, TaskStatus status);
 
     /**
-    * 存储任务结果。
-    *
-    * @param result 执行结果
-    */
+     * 存储任务结果。
+     *
+     * @param result 执行结果
+     */
     void saveResult(TaskResult<?> result);
 
     /**
-    * 获取任务。
-    *
-    * @param taskId 任务 标识
-    * @return 任务，不存在返回 空
-    */
+     * 获取任务。
+     *
+     * @param taskId 任务 标识
+     * @return 任务，不存在返回 空
+     */
     Task<?> getTask(String taskId);
 
     /**
-    * 获取任务状态。
-    *
-    * @param taskId 任务 标识
-    * @return 状态，不存在返回 空
-    */
+     * 获取任务状态。
+     *
+     * @param taskId 任务 标识
+     * @return 状态，不存在返回 空
+     */
     TaskStatus getStatus(String taskId);
 
     /**
-    * 获取任务结果。
-    *
-    * @param taskId 任务 标识
-    * @return 结果，不存在返回 空
-    */
+     * 获取任务结果。
+     *
+     * @param taskId 任务 标识
+     * @return 结果，不存在返回 空
+     */
     TaskResult<?> getResult(String taskId);
 
     /**
-    * 获取所有待恢复任务（PENDING / RUNNING 状态）。
-    *
-    * @return 待恢复任务列表
-    */
+     * 获取所有待恢复任务（PENDING / RUNNING 状态）。
+     *
+     * @return 待恢复任务列表
+     */
     List<Task<?>> getRecoverableTasks();
 
     /**
-    * 移除任务。
-    *
-    * @param taskId 任务 标识
-    */
+     * 移除任务。
+     *
+     * @param taskId 任务 标识
+     */
     void removeTask(String taskId);
 
     /**
-    * 清空所有数据。
-    */
+     * 清空所有数据。
+     */
     void clear();
 }

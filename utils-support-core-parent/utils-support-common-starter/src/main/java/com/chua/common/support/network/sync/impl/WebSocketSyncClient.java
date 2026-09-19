@@ -22,84 +22,84 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author CH
  * @since 2026-07-25
-*/
+ */
 public class WebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
     /**
-    * 客户端标识
-    */
+     * 客户端标识
+     */
     private final String clientId;
 
     /**
-    * 服务端地址
-    */
+     * 服务端地址
+     */
     private final String serverUrl;
 
     /**
-    * WebSocket 连接
-    */
+     * WebSocket 连接
+     */
     private Socket socket;
 
     /**
-    * 输出流
-    */
+     * 输出流
+     */
     private OutputStream output;
 
     /**
-    * 输入流
-    */
+     * 输入流
+     */
     private BufferedReader input;
 
     /**
-    * 是否已连接
-    */
+     * 是否已连接
+     */
     private volatile boolean connected;
 
     /**
-    * 订阅的主题映射（topic -> handler）
-    */
+     * 订阅的主题映射（topic -> handler）
+     */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
 
     /**
-    * 监听器列表
-    */
+     * 监听器列表
+     */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-    * 接收线程
-    */
+     * 接收线程
+     */
     private Thread receiveThread;
 
     /**
-    * 重连次数
-    */
+     * 重连次数
+     */
     private final AtomicInteger reconnectCount = new AtomicInteger(0);
 
     /**
-    * 最大重连次数（0 表示无限重连）
-    */
+     * 最大重连次数（0 表示无限重连）
+     */
     private static final int MAX_RECONNECT = 0;
 
     /**
-    * 重连间隔（毫秒）
-    */
+     * 重连间隔（毫秒）
+     */
     private static final long RECONNECT_INTERVAL = 3000;
 
     /**
-    * 创建 WebSocket 同步客户端。
-    *
-    * @param serverUrl 服务端地址，如 ws://localhost:8080
-    */
+     * 创建 WebSocket 同步客户端。
+     *
+     * @param serverUrl 服务端地址，如 ws://localhost:8080
+     */
     public WebSocketSyncClient(String serverUrl) {
         this(java.util.UUID.randomUUID().toString(), serverUrl);
     }
 
     /**
-    * 创建 WebSocket 同步客户端。
-    *
-    * @param clientId  客户端标识
-    * @param serverUrl 服务端地址
-    */
+     * 创建 WebSocket 同步客户端。
+     *
+     * @param clientId  客户端标识
+     * @param serverUrl 服务端地址
+     */
     public WebSocketSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;

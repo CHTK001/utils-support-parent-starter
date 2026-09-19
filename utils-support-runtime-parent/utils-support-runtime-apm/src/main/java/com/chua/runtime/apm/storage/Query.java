@@ -4,12 +4,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
-* 查询条件 — 用于 {@link ApmStorage#queryTransmissions(Query)} 等方法。
-*
-* <p>所有字段为可选；空条件表示全量查询。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 查询条件 — 用于 {@link ApmStorage#queryTransmissions(Query)} 等方法。
+ *
+ * <p>所有字段为可选；空条件表示全量查询。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Accessors(chain = true)

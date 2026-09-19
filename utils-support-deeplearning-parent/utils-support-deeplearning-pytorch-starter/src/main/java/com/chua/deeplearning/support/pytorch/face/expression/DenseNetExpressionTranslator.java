@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* densenet 表情识别 Translator。
-* <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * densenet 表情识别 Translator。
+ * <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 

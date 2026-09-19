@@ -3,34 +3,34 @@ package com.chua.common.support.lang.algorithm.boundary;
 import java.util.List;
 
 /**
-* 边界距离算法抽象基类，提供 {@link #boundary(List)}、{@link #furthestPair(List)} 和 {@link #extent(List)}
-* 三个方法的通用实现，子类只需实现具体的距离度量公式 {@link #distance(double[], double[])}。
-*
-* <p>公共逻辑：</p>
-* <ul>
-*   <li>{@code boundary} — 双重循环遍历所有点对，返回最大距离</li>
-*   <li>{@code furthestPair} — 双重循环遍历所有点对，返回距离最远的一对</li>
-*   <li>{@code extent} — 先计算几何中心（各维度均值），再返回距离中心最远的点的距离</li>
-* </ul>
-*
-* <p>子类需要实现：</p>
-* <ul>
-*   <li>{@link #distance(double[], double[])} — 具体的距离度量公式</li>
-* </ul>
-*
-* @author CH
-* @since 1.0.0
+ * 边界距离算法抽象基类，提供 {@link #boundary(List)}、{@link #furthestPair(List)} 和 {@link #extent(List)}
+ * 三个方法的通用实现，子类只需实现具体的距离度量公式 {@link #distance(double[], double[])}。
+ *
+ * <p>公共逻辑：</p>
+ * <ul>
+ *   <li>{@code boundary} — 双重循环遍历所有点对，返回最大距离</li>
+ *   <li>{@code furthestPair} — 双重循环遍历所有点对，返回距离最远的一对</li>
+ *   <li>{@code extent} — 先计算几何中心（各维度均值），再返回距离中心最远的点的距离</li>
+ * </ul>
+ *
+ * <p>子类需要实现：</p>
+ * <ul>
+ *   <li>{@link #distance(double[], double[])} — 具体的距离度量公式</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgorithm {
 
     /**
-    * 数据点最小数量
-    */
+     * 数据点最小数量
+     */
     private static final int MIN_POINTS_FOR_BOUNDARY = 2;
 
     /**
-    * 数据点最小数量（用于扩展范围计算）
-    */
+     * 数据点最小数量（用于扩展范围计算）
+     */
     private static final int MIN_POINTS_FOR_EXTENT = 1;
 
     @Override
@@ -117,12 +117,12 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
     }
 
     /**
-    * 参数校验
-    *
-    * @param points   数据点列表
-    * @param minSize  最小数量要求
-    * @throws IllegalArgumentException 如果 points 为 null 或数量不足
-    */
+     * 参数校验
+     *
+     * @param points   数据点列表
+     * @param minSize  最小数量要求
+     * @throws IllegalArgumentException 如果 points 为 null 或数量不足
+     */
     private void validatePoints(List<double[]> points, int minSize) {
         if (points == null) {
             throw new IllegalArgumentException("数据点列表不能为 null");

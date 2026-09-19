@@ -9,22 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Web 容器配置，用于控制嵌入式 Servlet 容器的启动参数。
-*
-* <p>支持 Tomcat、Undertow 等主流嵌入式 Web 容器的通用配置，
-* 以及各容器特有的扩展配置。
-*
-* @author CH
-* @since 1.0.0
+ * Web 容器配置，用于控制嵌入式 Servlet 容器的启动参数。
+ *
+ * <p>支持 Tomcat、Undertow 等主流嵌入式 Web 容器的通用配置，
+ * 以及各容器特有的扩展配置。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class WebContainerSetting {
 
     /**
-    * 创建一份默认的 Web 容器配置。
-    *
-    * @return 新的默认配置实例
-    */
+     * 创建一份默认的 Web 容器配置。
+     *
+     * @return 新的默认配置实例
+     */
     public static WebContainerSetting defaults() {
         return new WebContainerSetting();
     }
@@ -86,8 +86,8 @@ public class WebContainerSetting {
     }
 
     /**
-    * 部署单元定义，描述一个待部署的归档文件。
-    */
+     * 部署单元定义，描述一个待部署的归档文件。
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -111,8 +111,8 @@ public class WebContainerSetting {
     }
 
     /**
-        * SSL/TLS 配置。
-        */
+     * SSL/TLS 配置。
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

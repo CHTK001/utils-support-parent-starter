@@ -9,8 +9,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Accessors(chain = true)
@@ -25,8 +25,8 @@ public class NetAddress implements Serializable {
     */
     private String host;
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     private Integer port;
     /** 地址 */
     private String address;
@@ -39,20 +39,20 @@ public class NetAddress implements Serializable {
     /** Fragment */
     private String fragment;
     /**
-    * 用户名
-    */
+     * 用户名
+     */
     private String username;
     /**
-    * 密码
-    */
+     * 密码
+     */
     private String password;
     /**
-    * 数据库名（R2DBC 专用，如 h2:mem://dbname 中的 dbname）
-    */
+     * 数据库名（R2DBC 专用，如 h2:mem://dbname 中的 dbname）
+     */
     private String database;
     /**
-    * 是否为 R2DBC URL
-    */
+     * 是否为 R2DBC URL
+     */
     private boolean r2dbc;
 
     /** 创建 NetAddress 实例 */
@@ -127,11 +127,11 @@ public class NetAddress implements Serializable {
     }
 
     /**
-    * 解析 R2DBC URL。
-    * 格式：r2dbc:{driver}:[mem|file|...]://[{host}[:port]][/database]
-    * 例如：r2dbc:h2:mem://testdb、r2dbc:mysql://localhost:3306/mydb
-    * @param url URL，不允许为 null
-    */
+     * 解析 R2DBC URL。
+     * 格式：r2dbc:{driver}:[mem|file|...]://[{host}[:port]][/database]
+     * 例如：r2dbc:h2:mem://testdb、r2dbc:mysql://localhost:3306/mydb
+     * @param url URL，不允许为 null
+     */
     private void parseR2dbcUrl(String url) {
         this.r2dbc = true;
         // 去掉 r2dbc: 前缀

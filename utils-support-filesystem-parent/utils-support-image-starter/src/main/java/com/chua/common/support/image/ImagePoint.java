@@ -9,10 +9,10 @@ import javax.annotation.Nullable;
 
 
 /**
-* 图像
-*
-* @author CH
-* @since 4.0.0.42
+ * 图像
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,29 +28,29 @@ public class ImagePoint extends Point {
     private int height;
 
     /**
-    * 创建 镜像point 实例
-    * @param rate rate
-    */
+     * 创建 镜像point 实例
+     * @param rate rate
+     */
     public ImagePoint(double rate) {
         this.rate = rate;
     }
 
     /**
-    * 创建 镜像point 实例
-    * @param width width
-    * @param height height
-    */
+     * 创建 镜像point 实例
+     * @param width width
+     * @param height height
+     */
     public ImagePoint(int width, int height) {
         this.width = width;
         this.height = height;
     }
 
     /**
-    * 创建 镜像point 实例
-    * @param p p
-    * @param width width
-    * @param height height
-    */
+     * 创建 镜像point 实例
+     * @param p p
+     * @param width width
+     * @param height height
+     */
     public ImagePoint(Point p, int width, int height) {
         super(p);
         this.width = width;
@@ -58,12 +58,12 @@ public class ImagePoint extends Point {
     }
 
     /**
-    * 创建 镜像point 实例
-    * @param x x
-    * @param y y
-    * @param width width
-    * @param height height
-    */
+     * 创建 镜像point 实例
+     * @param x x
+     * @param y y
+     * @param width width
+     * @param height height
+     */
     public ImagePoint(int x, int y, int width, int height) {
         super(x, y);
         this.width = width;

@@ -19,20 +19,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* YOLO26-深度 单目深度估计翻译器（纯 ONNX Runtime 实现）。
-*
-* <h2>模型说明</h2>
-* <p>基于 Ultralytics YOLO26 的 monocular depth estimation 模型：
-* <ul>
-*   <li><b>输入</b>：letterbox 768x768 RGB float32（除以 255 归一化到 [0,1]），NCHW [1,3,768,768]。</li>
-*   <li><b>输出</b>：深度图 [1,1,768,768]，原始值为 metric depth（值越大越远），展示时转为 disparity（近处亮）。</li>
-*   <li><b>尺寸</b>：n/s/m/l/x 五档，同一 translator 通过 {@code setModelPath} 注入对应模型文件。</li>
-*   <li><b>用途</b>：单目深度估计、背景虚化、3D 场景理解。</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.45
+ * YOLO26-深度 单目深度估计翻译器（纯 ONNX Runtime 实现）。
+ *
+ * <h2>模型说明</h2>
+ * <p>基于 Ultralytics YOLO26 的 monocular depth estimation 模型：
+ * <ul>
+ *   <li><b>输入</b>：letterbox 768x768 RGB float32（除以 255 归一化到 [0,1]），NCHW [1,3,768,768]。</li>
+ *   <li><b>输出</b>：深度图 [1,1,768,768]，原始值为 metric depth（值越大越远），展示时转为 disparity（近处亮）。</li>
+ *   <li><b>尺寸</b>：n/s/m/l/x 五档，同一 translator 通过 {@code setModelPath} 注入对应模型文件。</li>
+ *   <li><b>用途</b>：单目深度估计、背景虚化、3D 场景理解。</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.45
  */
 @Slf4j
 public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoCloseable {
@@ -48,10 +48,10 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     private volatile boolean prepared = false; // prepared
 
     /**
-    * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
-    *
-    * @param modelPath 模型文件绝对路径
-    */
+     * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
+     *
+     * @param modelPath 模型文件绝对路径
+     */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
@@ -67,11 +67,11 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     }
 
     /**
-    * 估计深度并返回完整结果（深度图 + 距离矩阵 + 统计）。
-    *
-    * @param imageBytes 输入图像字节数组
-    * @return 深度估计结果（距离单位：米）
-    */
+     * 估计深度并返回完整结果（深度图 + 距离矩阵 + 统计）。
+     *
+     * @param imageBytes 输入图像字节数组
+     * @return 深度估计结果（距离单位：米）
+     */
     public DepthResult estimateDepth(byte[] imageBytes) {
         try {
             ensurePrepared();
@@ -233,14 +233,14 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     }
 
     /**
-    * 双线性采样距离矩阵中的像素值。
-    * @param depth 深度
-    * @param h h
-    * @param w w
-    * @param y y
-    * @param x x
-    * @return 样本深度的结果
-    */
+     * 双线性采样距离矩阵中的像素值。
+     * @param depth 深度
+     * @param h h
+     * @param w w
+     * @param y y
+     * @param x x
+     * @return 样本深度的结果
+     */
     private static float sampleDepth(float[][] depth, int h, int w, float y, float x) {
         int y0 = Math.min(h - 1, Math.max(0, (int) Math.floor(y)));
         int x0 = Math.min(w - 1, Math.max(0, (int) Math.floor(x)));

@@ -20,18 +20,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 目录映射扫描器，负责启动扫描目录下所有映射配置，
-* 并监听目录变化进行热加载。
-*
-* @author CH
-* @since 4.0.0.42
+ * 目录映射扫描器，负责启动扫描目录下所有映射配置，
+ * 并监听目录变化进行热加载。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DirectoryDataSyncMappingScanner {
 
     /**
-    * 轮询间隔（毫秒）
-    */
+     * 轮询间隔（毫秒）
+     */
     private static final long POLL_INTERVAL_MS = 2000;
 
     /** 映射管理器 */
@@ -65,8 +65,8 @@ public class DirectoryDataSyncMappingScanner {
     }
 
     /**
-    * 启动扫描并监听目录变化。
-    */
+     * 启动扫描并监听目录变化。
+     */
     public void start() {
         Path dir = Path.of(config.directoryPath());
         if (!Files.isDirectory(dir)) {
@@ -78,8 +78,8 @@ public class DirectoryDataSyncMappingScanner {
     }
 
     /**
-    * 停止扫描并关闭监听。
-    */
+     * 停止扫描并关闭监听。
+     */
     public void stop() {
         executor.shutdown();
         try {
@@ -92,10 +92,10 @@ public class DirectoryDataSyncMappingScanner {
     }
 
     /**
-    * 扫描全部
-    *
-    * @param dir dir
-    */
+     * 扫描全部
+     *
+     * @param dir dir
+     */
     private void scanAll(Path dir) {
         try {
             Files.walk(dir).filter(Files::isRegularFile).forEach(file -> {
@@ -126,10 +126,10 @@ public class DirectoryDataSyncMappingScanner {
     }
 
     /**
-    * Watch
-    *
-    * @param dir dir
-    */
+     * Watch
+     *
+     * @param dir dir
+     */
     private void watch(Path dir) {
         try {
             watchService = FileSystems.getDefault().newWatchService();

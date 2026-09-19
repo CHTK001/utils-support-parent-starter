@@ -6,23 +6,23 @@ package com.chua.common.support.objects.exception;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public class BeanDefinitionException extends RuntimeException {
 
     /**
-    * 创建 Beandefinition异常 实例
-    * @param message 消息
-    */
+     * 创建 Beandefinition异常 实例
+     * @param message 消息
+     */
     public BeanDefinitionException(String message) {
         super(message);
     }
 
     /**
-    * 创建 Beandefinition异常 实例
-    * @param message 消息
-    * @param cause Throwable
-    * @param cause cause
-    */
+     * 创建 Beandefinition异常 实例
+     * @param message 消息
+     * @param cause Throwable
+     * @param cause cause
+     */
     public BeanDefinitionException(String message, Throwable cause) {
         super(message, cause);
     }

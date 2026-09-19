@@ -28,43 +28,43 @@ import java.util.Set;
 public final class WechatExportUtils {
 
     /**
-    * 数据文件扩展名集合（收集导出结果时优先匹配）
-    */
+     * 数据文件扩展名集合（收集导出结果时优先匹配）
+     */
     private static final Set<String> DATA_FILE_EXTENSIONS = Set.of("csv", "xlsx", "json");
 
     /**
-    * 导出结果收集的时间容差（毫秒），避免文件时间戳精度问题漏收
-    */
+     * 导出结果收集的时间容差（毫秒），避免文件时间戳精度问题漏收
+     */
     private static final long COLLECT_TIME_TOLERANCE_MILLIS = 1000L;
 
     /**
-    * 会话数据库文件名（微信 4.x）
-    */
+     * 会话数据库文件名（微信 4.x）
+     */
     private static final String SESSION_DB_NAME = "session.db";
 
     /**
-    * 账号目录前缀
-    */
+     * 账号目录前缀
+     */
     private static final String ACCOUNT_DIR_PREFIX = "wxid_";
 
     /**
-    * 微信账号标识目录前缀（群聊判定之外的账号识别）
-    */
+     * 微信账号标识目录前缀（群聊判定之外的账号识别）
+     */
     private static final String GROUP_SUFFIX = "@chatroom";
 
     /**
-    * 工具类禁止实例化。
-    */
+     * 工具类禁止实例化。
+     */
     private WechatExportUtils() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
 
     /**
-    * 清洗 Windows 非法文件名字符。
-    *
-    * @param name 原始名称
-    * @return 可安全用作文件名的名称（最长 50 字符）
-    */
+     * 清洗 Windows 非法文件名字符。
+     *
+     * @param name 原始名称
+     * @return 可安全用作文件名的名称（最长 50 字符）
+     */
     public static String sanitizeFileName(String name) {
         if (name == null || name.isBlank()) {
             return "unknown";
@@ -81,21 +81,21 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 判断会话标识是否为群聊。
-    *
-    * @param username 会话标识
-    * @return 群聊返回 true
-    */
+     * 判断会话标识是否为群聊。
+     *
+     * @param username 会话标识
+     * @return 群聊返回 true
+     */
     public static boolean isGroupChat(String username) {
         return username != null && username.endsWith(GROUP_SUFFIX);
     }
 
     /**
-    * 递归查找微信会话数据库 session.db（排除 WAL 临时文件）。
-    *
-    * @param root 搜索根目录（微信数据目录）
-    * @return session.db 文件，未找到返回 null
-    */
+     * 递归查找微信会话数据库 session.db（排除 WAL 临时文件）。
+     *
+     * @param root 搜索根目录（微信数据目录）
+     * @return session.db 文件，未找到返回 null
+     */
     public static File findSessionDb(File root) {
         if (root == null || !root.isDirectory()) {
             return null;
@@ -121,11 +121,11 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 从 session.db 路径向上推导账号目录（wxid_ 开头的目录）。
-    *
-    * @param sessionDb session.db 文件
-    * @return 账号目录，未找到返回 null
-    */
+     * 从 session.db 路径向上推导账号目录（wxid_ 开头的目录）。
+     *
+     * @param sessionDb session.db 文件
+     * @return 账号目录，未找到返回 null
+     */
     public static File deriveAccountDir(File sessionDb) {
         if (sessionDb == null) {
             return null;
@@ -141,11 +141,11 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 转义 CSV 字段（含逗号、引号、换行时用双引号包裹）。
-    *
-    * @param value 原始值
-    * @return 转义后的字段文本
-    */
+     * 转义 CSV 字段（含逗号、引号、换行时用双引号包裹）。
+     *
+     * @param value 原始值
+     * @return 转义后的字段文本
+     */
     public static String escapeCsvField(Object value) {
         if (value == null) {
             return "";
@@ -159,14 +159,14 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 将行数据写入 CSV 文件。
-    *
-    * @param csvFile  目标 CSV 文件
-    * @param headers  表头列名
-    * @param rows     行数据
-    * @param charset  字符集
-    * @throws IOException 写入异常
-    */
+     * 将行数据写入 CSV 文件。
+     *
+     * @param csvFile  目标 CSV 文件
+     * @param headers  表头列名
+     * @param rows     行数据
+     * @param charset  字符集
+     * @throws IOException 写入异常
+     */
     public static void writeCsv(File csvFile, List<String> headers, List<Map<String, Object>> rows,
                                 Charset charset) throws IOException {
         try (Writer writer = Files.newBufferedWriter(csvFile.toPath(), charset)) {
@@ -184,15 +184,15 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 收集输出目录中指定时间戳之后生成的数据文件。
-    *
-    * <p>优先收集 csv / xlsx / json 数据文件；若一个都没有则收集全部新生成文件。</p>
-    *
-    * @param outputDir  输出目录
-    * @param startStamp 起始时间戳（毫秒）
-    * @return 生成的文件列表
-    * @throws IOException 遍历异常
-    */
+     * 收集输出目录中指定时间戳之后生成的数据文件。
+     *
+     * <p>优先收集 csv / xlsx / json 数据文件；若一个都没有则收集全部新生成文件。</p>
+     *
+     * @param outputDir  输出目录
+     * @param startStamp 起始时间戳（毫秒）
+     * @return 生成的文件列表
+     * @throws IOException 遍历异常
+     */
     public static List<File> collectGeneratedFiles(File outputDir, long startStamp) throws IOException {
         List<File> dataFiles = new ArrayList<>(16);
         List<File> allFiles = new ArrayList<>(16);
@@ -202,13 +202,13 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 递归遍历目录并按时间戳筛选文件。
-    *
-    * @param dir        当前目录
-    * @param startStamp 起始时间戳（毫秒）
-    * @param dataFiles  数据文件收集器
-    * @param allFiles   全部文件收集器
-    */
+     * 递归遍历目录并按时间戳筛选文件。
+     *
+     * @param dir        当前目录
+     * @param startStamp 起始时间戳（毫秒）
+     * @param dataFiles  数据文件收集器
+     * @param allFiles   全部文件收集器
+     */
     private static void collectFilesRecursively(File dir, long startStamp, List<File> dataFiles,
                                                 List<File> allFiles) throws IOException {
         File[] children = dir.listFiles();
@@ -233,14 +233,14 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 解析 Wechat-Export 导出的 JSON 文件为消息行数据。
-    *
-    * <p>兼容三种结构：顶层数组、包含 messages/rows/data/items 键的对象、单个消息对象。</p>
-    *
-    * @param jsonFiles JSON 文件列表
-    * @return 消息行数据列表
-    * @throws IOException 读取异常
-    */
+     * 解析 Wechat-Export 导出的 JSON 文件为消息行数据。
+     *
+     * <p>兼容三种结构：顶层数组、包含 messages/rows/data/items 键的对象、单个消息对象。</p>
+     *
+     * @param jsonFiles JSON 文件列表
+     * @return 消息行数据列表
+     * @throws IOException 读取异常
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static List<Map<String, Object>> parseJsonToRows(List<File> jsonFiles) throws IOException {
         List<Map<String, Object>> rows = new ArrayList<>(256);
@@ -272,11 +272,11 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 从 JSON 对象中提取嵌套的消息数组。
-    *
-    * @param map JSON 对象
-    * @return 消息数组，未找到返回 null
-    */
+     * 从 JSON 对象中提取嵌套的消息数组。
+     *
+     * @param map JSON 对象
+     * @return 消息数组，未找到返回 null
+     */
     @SuppressWarnings("unchecked")
     private static List<Object> extractNestedArray(Map<?, ?> map) {
         for (String key : new String[]{"messages", "rows", "data", "items"}) {
@@ -289,14 +289,14 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 将消息行数据转换为 SQL 脚本（CREATE TABLE + INSERT）。
-    *
-    * @param rows        消息行数据
-    * @param tableName   目标表名
-    * @param targetSchema 目标库名，可为 null
-    * @param includeStructure 是否包含建表语句
-    * @return SQL 脚本文本
-    */
+     * 将消息行数据转换为 SQL 脚本（CREATE TABLE + INSERT）。
+     *
+     * @param rows        消息行数据
+     * @param tableName   目标表名
+     * @param targetSchema 目标库名，可为 null
+     * @param includeStructure 是否包含建表语句
+     * @return SQL 脚本文本
+     */
     public static String buildSqlScript(List<Map<String, Object>> rows, String tableName,
                                         String targetSchema, boolean includeStructure) {
         Set<String> columns = inferColumns(rows);
@@ -350,11 +350,11 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 推断所有消息行的列名并集（保持首次出现顺序）。
-    *
-    * @param rows 消息行数据
-    * @return 列名集合
-    */
+     * 推断所有消息行的列名并集（保持首次出现顺序）。
+     *
+     * @param rows 消息行数据
+     * @return 列名集合
+     */
     public static Set<String> inferColumns(List<Map<String, Object>> rows) {
         Set<String> columns = new LinkedHashSet<>(32);
         for (Map<String, Object> row : rows) {
@@ -364,14 +364,14 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 判断列名集合里是否已有某一列（不区分大小写）。
-    *
-    * <p>用来避免「源表自带 {@code id} 时又补一个代理主键」导致 DDL 出现重复列。</p>
-    *
-    * @param columns 列名集合
-    * @param name    待查列名
-    * @return 存在返回 {@code true}
-    */
+     * 判断列名集合里是否已有某一列（不区分大小写）。
+     *
+     * <p>用来避免「源表自带 {@code id} 时又补一个代理主键」导致 DDL 出现重复列。</p>
+     *
+     * @param columns 列名集合
+     * @param name    待查列名
+     * @return 存在返回 {@code true}
+     */
     static boolean hasColumn(Collection<String> columns, String name) {
         if (columns == null || name == null) {
             return false;
@@ -385,12 +385,12 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 根据列值样本推断 SQL 列类型。
-    *
-    * @param rows   消息行数据
-    * @param column 列名
-    * @return SQL 类型名
-    */
+     * 根据列值样本推断 SQL 列类型。
+     *
+     * @param rows   消息行数据
+     * @param column 列名
+     * @return SQL 类型名
+     */
     private static String inferSqlType(List<Map<String, Object>> rows, String column) {
         for (Map<String, Object> row : rows) {
             Object value = row.get(column);
@@ -402,11 +402,11 @@ public final class WechatExportUtils {
     }
 
     /**
-    * 将 Java 值转换为 SQL 字面量。
-    *
-    * @param value 原始值
-    * @return SQL 字面量
-    */
+     * 将 Java 值转换为 SQL 字面量。
+     *
+     * @param value 原始值
+     * @return SQL 字面量
+     */
     public static String toSqlValue(Object value) {
         if (value == null) {
             return "NULL";

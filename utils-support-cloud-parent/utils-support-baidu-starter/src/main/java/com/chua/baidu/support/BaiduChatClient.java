@@ -19,93 +19,93 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
-* 百度文心一言大模型对话客户端
-*
-* <p>基于百度千帆大模型平台 SDK 的 {@link ChatClient} 实现，通过千帆 SDK
-* 调用文心一言（ERNIE-机器人）的对话接口。
-*
-* @author CH
-* @since 4.0.0.42
+ * 百度文心一言大模型对话客户端
+ *
+ * <p>基于百度千帆大模型平台 SDK 的 {@link ChatClient} 实现，通过千帆 SDK
+ * 调用文心一言（ERNIE-机器人）的对话接口。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"baidu"})
 public class BaiduChatClient implements ChatClient {
 
     /**
-    * 千帆 SDK 客户端
-    */
+     * 千帆 SDK 客户端
+     */
     private final Qianfan qianfan;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ChatClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前温度参数
-    */
+     * 当前温度参数
+     */
     private Double temperature;
 
     /**
-    * 当前最大 令牌 数
-    */
+     * 当前最大 令牌 数
+     */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词
-    */
+     * 当前系统提示词
+     */
     private String system;
 
     /**
-    * 当前会话 标识
-    */
+     * 当前会话 标识
+     */
     private String sessionId;
 
     /**
-    * 对话历史消息列表
-    */
+     * 对话历史消息列表
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录
-    */
+     * 外部传入的完整历史记录
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 图片附件 URL 列表
-    */
+     * 图片附件 URL 列表
+     */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-    * 是否启用深度思考
-    */
+     * 是否启用深度思考
+     */
     private boolean thinking;
 
     /**
-    * 深度思考力度
-    */
+     * 深度思考力度
+     */
     private String thinkingEffort;
 
     /**
-    * 是否启用智能搜索
-    */
+     * 是否启用智能搜索
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器
-    */
+     * 技能管理器
+     */
     private SkillManager skillManager;
 
     /**
-    * 构造百度文心一言对话客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造百度文心一言对话客户端
+     *
+     * @param setting 客户端配置
+     */
     public BaiduChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -253,12 +253,12 @@ public class BaiduChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<com.chua.common.support.ai.chat.ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -335,12 +335,12 @@ public class BaiduChatClient implements ChatClient {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * <p>若未配置地址则使用默认的文心一言 API 地址。
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * <p>若未配置地址则使用默认的文心一言 API 地址。
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -353,12 +353,12 @@ public class BaiduChatClient implements ChatClient {
     }
 
     /**
-    * 配置代理
-    *
-    * <p>设置 JVM 系统属性以启用代理，千帆 SDK 内部 HttpClient 会读取这些属性。
-    *
-    * @param proxyStr 代理地址字符串，如 http://127.0.0.1:8080 或 socks5://127.0.0.1:1080
-    */
+     * 配置代理
+     *
+     * <p>设置 JVM 系统属性以启用代理，千帆 SDK 内部 HttpClient 会读取这些属性。
+     *
+     * @param proxyStr 代理地址字符串，如 http://127.0.0.1:8080 或 socks5://127.0.0.1:1080
+     */
     private static void configureProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return;

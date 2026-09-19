@@ -5,15 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 集群服务元数据（壳类）：仅记录路径/地址/协议信息，不承载任何网络 IO。
-*
-* <p>用途：通过 {@link ClusterManager#addServer(ServerEntry)} 声明本节点需要 Scatter 在集群内
-* 发现并路由到的目标服务；scatter 会自动在 seed/gateway 模式下对等扩散此元数据。</p>
-*
-* <p>同一路径下只允许注册同一种协议（http 或 tcp），混用会抛出 {@link IllegalArgumentException}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 集群服务元数据（壳类）：仅记录路径/地址/协议信息，不承载任何网络 IO。
+ *
+ * <p>用途：通过 {@link ClusterManager#addServer(ServerEntry)} 声明本节点需要 Scatter 在集群内
+ * 发现并路由到的目标服务；scatter 会自动在 seed/gateway 模式下对等扩散此元数据。</p>
+ *
+ * <p>同一路径下只允许注册同一种协议（http 或 tcp），混用会抛出 {@link IllegalArgumentException}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -47,21 +47,21 @@ public class ServerEntry {
     }
 
     /**
-    * 便捷构造：TCP 服务。
-    * @param servicePath 服务路径
-    * @param host 主机
-    * @param port 端口
-    * @return tcp的结果
-    */
+     * 便捷构造：TCP 服务。
+     * @param servicePath 服务路径
+     * @param host 主机
+     * @param port 端口
+     * @return tcp的结果
+     */
     public static ServerEntry tcp(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "tcp", null);
     }
 
     /**
-    * 校验参数合法性。
-    *
-    * @throws IllegalArgumentException 参数非法时抛出
-    */
+     * 校验参数合法性。
+     *
+     * @throws IllegalArgumentException 参数非法时抛出
+     */
     public void validate() {
         if (servicePath == null || servicePath.isBlank()) {
             throw new IllegalArgumentException("servicePath 不能为空");
@@ -79,9 +79,9 @@ public class ServerEntry {
     }
 
     /**
-    * 获取规范化协议名。
-    * @return normalized协议的结果
-    */
+     * 获取规范化协议名。
+     * @return normalized协议的结果
+     */
     public String normalizedProtocol() {
         return protocol == null || protocol.isBlank() ? "http" : protocol.toLowerCase();
     }

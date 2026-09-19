@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* JOIN 策略 SPI 接口。
-*
-* <p>默认启用 {@code none}（单表模式），通过配置切换到 {@code inner} / {@code outer}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * JOIN 策略 SPI 接口。
+ *
+ * <p>默认启用 {@code none}（单表模式），通过配置切换到 {@code inner} / {@code outer}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public interface JoinStrategy {
 

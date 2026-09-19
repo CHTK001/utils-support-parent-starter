@@ -54,37 +54,37 @@ import java.awt.image.BufferedImage;
 public class WaterDropletImageFilter extends AbstractImageFilter {
 
     /**
-    * 水滴数量，默认 30
-    */
+     * 水滴数量，默认 30
+     */
     private int dropCount = 30;
 
     /**
-    * 水滴半径（像素），默认 24
-    */
+     * 水滴半径（像素），默认 24
+     */
     private int dropRadius = 24;
 
     /**
-    * 水滴内放大倍数，默认 1.6
-    */
+     * 水滴内放大倍数，默认 1.6
+     */
     private double zoomFactor = 1.6;
 
     /**
-    * 高光强度，默认 0.6
-    */
+     * 高光强度，默认 0.6
+     */
     private double highlight = 0.6;
 
     /**
-    * 随机种子，默认 777
-    */
+     * 随机种子，默认 777
+     */
     private int seed = 777;
 
     /**
-    * 执行水滴透镜滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 水滴效果图像
-    */
+     * 执行水滴透镜滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 水滴效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -175,11 +175,11 @@ public class WaterDropletImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

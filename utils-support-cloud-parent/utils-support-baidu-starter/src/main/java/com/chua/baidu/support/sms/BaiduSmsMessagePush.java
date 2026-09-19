@@ -28,19 +28,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 百度云短信推送实现
-*
-* <p>基于百度云 SMS HTTP API 的短信发送实现。
-*
-* <h3>环境配置</h3>
-* <pre>
-*   sms.accessKey   百度云 AccessKey（必填）
-*   sms.secretKey   百度云 SecretKey（必填）
-*   sms.signName    短信签名
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 百度云短信推送实现
+ *
+ * <p>基于百度云 SMS HTTP API 的短信发送实现。
+ *
+ * <h3>环境配置</h3>
+ * <pre>
+ *   sms.accessKey   百度云 AccessKey（必填）
+ *   sms.secretKey   百度云 SecretKey（必填）
+ *   sms.signName    短信签名
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("baidu-sms")
 @SpiDescribe(
@@ -54,17 +54,17 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
-* 公共 类 baidusms消息push implements 消息push {
-*
-* @author CH
-* @since 4.0.0.42
+ * 公共 类 baidusms消息push implements 消息push {
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class BaiduSmsMessagePush implements MessagePush {
 
     /**
-    * 百度云 SMS API 地址
-    */
+     * 百度云 SMS API 地址
+     */
     private static final String SMS_API_URL = "https://sms.bce.baidu.com/api/v2/sms";
 
     /** 消息环境 */
@@ -165,20 +165,20 @@ public class BaiduSmsMessagePush implements MessagePush {
     }
 
     /**
-    * 注册Template
-    * @param template template
-    */
+     * 注册Template
+     * @param template template
+     */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
     }
 
     @Override
     /**
-    * 发送Template
-    * @param templateId templateid
-    * @param to 转为
-    * @param params 参数
-    */
+     * 发送Template
+     * @param templateId templateid
+     * @param to 转为
+     * @param params 参数
+     */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)
@@ -189,13 +189,13 @@ public class BaiduSmsMessagePush implements MessagePush {
     }
 
     /**
-    * 生成百度云 AK/SK 认证头
-    *
-    * @param accessKey 百度云 访问密钥
-    * @param secretKey 百度云 密钥
-    * @param timestamp 时间戳
-    * @return Authorization 头值
-    */
+     * 生成百度云 AK/SK 认证头
+     *
+     * @param accessKey 百度云 访问密钥
+     * @param secretKey 百度云 密钥
+     * @param timestamp 时间戳
+     * @return Authorization 头值
+     */
     private String generateAuthorization(String accessKey, String secretKey, String timestamp) throws Exception {
         String method = "POST";
         String path = "/api/v2/sms";

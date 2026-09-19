@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 全局设置工厂。
-* <p>
-* 核心机制：维护一个 group → Bean 列表的内存映射。数据库写入时，通过 {@link #set(String, String, Object)}
-* 将 sys_setting 表的 (group, name, value) 三元组反射映射到 Bean 字段上，
-* 从而实现“一次写入、全局共享”，消费者只需 {@link #get(String, Class)} 获取 Bean 实例即可读取配置。
-* <p>
-* 字段映射规则：Bean 字段名 = sys_setting_name 的 camelCase 形式。
-* 例如 {@code sys_setting_name="CheckCodeOpen"} → Bean 字段 {@code checkCodeOpen}。
-*
-* @author CH
-* @since 2024/8/6
+ * 全局设置工厂。
+ * <p>
+ * 核心机制：维护一个 group → Bean 列表的内存映射。数据库写入时，通过 {@link #set(String, String, Object)}
+ * 将 sys_setting 表的 (group, name, value) 三元组反射映射到 Bean 字段上，
+ * 从而实现“一次写入、全局共享”，消费者只需 {@link #get(String, Class)} 获取 Bean 实例即可读取配置。
+ * <p>
+ * 字段映射规则：Bean 字段名 = sys_setting_name 的 camelCase 形式。
+ * 例如 {@code sys_setting_name="CheckCodeOpen"} → Bean 字段 {@code checkCodeOpen}。
+ *
+ * @author CH
+ * @since 2024/8/6
  */
 public class GlobalSettingFactory {
 

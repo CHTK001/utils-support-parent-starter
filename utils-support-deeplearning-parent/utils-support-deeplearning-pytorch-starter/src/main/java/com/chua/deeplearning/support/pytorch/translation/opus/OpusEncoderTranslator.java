@@ -10,10 +10,10 @@ import ai.djl.translate.TranslatorContext;
 import java.util.Arrays;
 
 /**
-* Opus-MT 编码器 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * Opus-MT 编码器 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OpusEncoderTranslator implements NoBatchifyTranslator<int[], NDArray> {
 

@@ -8,24 +8,24 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
-* Agent 模型定义 — 将 Agent 包装为 ChatClient。
-*
-* <p>默认名称 {@code "router-auto"}，调用时内部走 Agent 的 ROUTER/AUTO 路由。
-* 用户需预先配置 Agent（子 Agent、MCP、技能等），然后通过 ChatClient 接口调用。
-*
-* <p>使用示例：
-* <pre>{@code
-* Agent agent = Agent.create("agentscope")
-*     .chatClient(openAiClient)
-*     .subAgent(devAgent)
-*     .subAgent(searchAgent);
-*
-* ChatClient client = new AgentModelDefinition(agent);
-* String answer = client.chatSync("帮我查天气");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.41
+ * Agent 模型定义 — 将 Agent 包装为 ChatClient。
+ *
+ * <p>默认名称 {@code "router-auto"}，调用时内部走 Agent 的 ROUTER/AUTO 路由。
+ * 用户需预先配置 Agent（子 Agent、MCP、技能等），然后通过 ChatClient 接口调用。
+ *
+ * <p>使用示例：
+ * <pre>{@code
+ * Agent agent = Agent.create("agentscope")
+ *     .chatClient(openAiClient)
+ *     .subAgent(devAgent)
+ *     .subAgent(searchAgent);
+ *
+ * ChatClient client = new AgentModelDefinition(agent);
+ * String answer = client.chatSync("帮我查天气");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.41
  */
 @Slf4j
 public class AgentModelDefinition implements ChatClient {
@@ -43,18 +43,18 @@ public class AgentModelDefinition implements ChatClient {
     private AgentResponse lastResponse;
 
     /**
-    * 创建 AgentModelDefinition 实例
-    * @param agent agent
-    */
+     * 创建 AgentModelDefinition 实例
+     * @param agent agent
+     */
     public AgentModelDefinition(Agent agent) {
         this.agent = agent;
     }
 
     /**
-    * 获取内部 Agent 实例。
-    *
-    * @return Agent 实例
-    */
+     * 获取内部 Agent 实例。
+     *
+     * @return Agent 实例
+     */
     public Agent getAgent() {
         return agent;
     }

@@ -19,26 +19,26 @@ import com.chua.common.support.network.tcp.callback.TcpServerHandler;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface TcpServer extends Server {
 
     /**
-    * 注册帧处理器：服务端每收到一帧完整请求即回调一次，处理器返回响应帧字节。
-    *
-    * @param handler 帧处理器
-    * @return 当前实例自身（支持链式调用）
-    */
+     * 注册帧处理器：服务端每收到一帧完整请求即回调一次，处理器返回响应帧字节。
+     *
+     * @param handler 帧处理器
+     * @return 当前实例自身（支持链式调用）
+     */
     TcpServer setHandler(TcpServerHandler handler);
 
     /**
-    * 启动 TCP 服务，开始监听端口并接收连接。
-    */
+     * 启动 TCP 服务，开始监听端口并接收连接。
+     */
     void start();
 
     /**
-    * 获取实际监听端口（端口为 0 时由系统分配，启动后可查询实际值）。
-    *
-    * @return 监听端口号
-    */
+     * 获取实际监听端口（端口为 0 时由系统分配，启动后可查询实际值）。
+     *
+     * @return 监听端口号
+     */
     int getPort();
 }

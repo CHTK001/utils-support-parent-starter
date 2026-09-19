@@ -7,23 +7,23 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* NATS 处理器 — intercepts NATS 发布/订阅 operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * NATS 处理器 — intercepts NATS 发布/订阅 operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NatsHandler extends AbstractAppHandler {
 
     /**
-    * NATS 连接
+     * NATS 连接
      */
     private static final String NATS_CONNECTION = "io/nats/client/Connection";
     /**
-    * 发布 方法
+     * 发布 方法
      */
     private static final String[] PUBLISH_METHODS = {"publish"};
     /**
-    * 订阅 方法
+     * 订阅 方法
      */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
 

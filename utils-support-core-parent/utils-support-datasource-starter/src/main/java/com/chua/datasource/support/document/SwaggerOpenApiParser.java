@@ -13,18 +13,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
-* Swagger / 打开api 文档解析器。
-*
-* <p>支持两种输入模式：</p>
-* <ul>
-*   <li>{@code type=swagger}：从 classpath 资源路径加载 OpenAPI JSON（如 {@code openapi/orders-api.json}）</li>
-*   <li>{@code type=openapi}：从 HTTP URL 拉取 OpenAPI 规范</li>
-* </ul>
-*
-* <p>输出 {@link OpenApiDocumentData}，由 {@link OpenApiHtmlProvider} 渲染为单页 HTML。</p>
-*
-* @author CH
-* @since 4.0.0.43
+ * Swagger / 打开api 文档解析器。
+ *
+ * <p>支持两种输入模式：</p>
+ * <ul>
+ *   <li>{@code type=swagger}：从 classpath 资源路径加载 OpenAPI JSON（如 {@code openapi/orders-api.json}）</li>
+ *   <li>{@code type=openapi}：从 HTTP URL 拉取 OpenAPI 规范</li>
+ * </ul>
+ *
+ * <p>输出 {@link OpenApiDocumentData}，由 {@link OpenApiHtmlProvider} 渲染为单页 HTML。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Slf4j
 @Spi({"swagger", "openapi"})
@@ -59,11 +59,11 @@ public class SwaggerOpenApiParser implements DocumentParser {
  // ── 公共 静态 entry points ─────────────────────────
 
     /**
-    * 从 打开api JSON 字符串解析为文档数据。
-    * @param json json
-    * @param overrides overrides
-    * @return 解析的结果
-    */
+     * 从 打开api JSON 字符串解析为文档数据。
+     * @param json json
+     * @param overrides overrides
+     * @return 解析的结果
+     */
     public static OpenApiDocumentData parse(String json, Map<String, String> overrides) {
         OpenApiDocumentData data = new OpenApiDocumentData();
         if (json == null || json.isBlank()) {
@@ -208,11 +208,11 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * 解析从类路径。
-    * @param resourcePath resource路径
-    * @param overrides overrides
-    * @return 解析从类路径的结果
-    */
+     * 解析从类路径。
+     * @param resourcePath resource路径
+     * @param overrides overrides
+     * @return 解析从类路径的结果
+     */
     public static OpenApiDocumentData parseFromClasspath(String resourcePath, Map<String, String> overrides) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -232,11 +232,11 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * 解析从url。
-    * @param url url
-    * @param overrides overrides
-    * @return 解析从url的结果
-    */
+     * 解析从url。
+     * @param url url
+     * @param overrides overrides
+     * @return 解析从url的结果
+     */
     public static OpenApiDocumentData parseFromUrl(String url, Map<String, String> overrides) {
         try {
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new URL(url).openConnection();
@@ -261,10 +261,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
  // ── 助手 ──────────────────────────────────────────────
 
     /**
-    * 是否http方法。
-    * @param m m
-    * @return 是否http方法的结果
-    */
+     * 是否http方法。
+     * @param m m
+     * @return 是否http方法的结果
+     */
     private static boolean isHttpMethod(String m) {
         return "GET".equals(m) || "POST".equals(m) || "PUT".equals(m)
                 || "DELETE".equals(m) || "PATCH".equals(m) || "HEAD".equals(m)
@@ -298,10 +298,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * applyoverrides。
-    * @param data 数据
-    * @param overrides overrides
-    */
+     * applyoverrides。
+     * @param data 数据
+     * @param overrides overrides
+     */
     private static void applyOverrides(OpenApiDocumentData data, Map<String, String> overrides) {
         if (overrides == null) {
             return;
@@ -318,10 +318,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * collect参数。
-    * @param op op
-    * @param params 参数
-    */
+     * collect参数。
+     * @param op op
+     * @param params 参数
+     */
     private static void collectParams(JsonObject op, List<OpenApiParam> params) {
  // Operation-级别 参数
         JsonArray paramsArr = op.getJsonArray("parameters");
@@ -336,10 +336,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * 解析参数。
-    * @param node 节点
-    * @return 解析参数的结果
-    */
+     * 解析参数。
+     * @param node 节点
+     * @return 解析参数的结果
+     */
     private static OpenApiParam parseParam(JsonObject node) {
         OpenApiParam p = new OpenApiParam();
         p.setName(node.getType("name", "", String.class));
@@ -354,10 +354,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * 解析请求主体。
-    * @param node 节点
-    * @return 解析请求主体的结果
-    */
+     * 解析请求主体。
+     * @param node 节点
+     * @return 解析请求主体的结果
+     */
     private static OpenApiRequestBody parseRequestBody(JsonObject node) {
         OpenApiRequestBody body = new OpenApiRequestBody();
         body.setRequired(Boolean.TRUE.equals(node.getType("required", false, Boolean.class)));
@@ -387,10 +387,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * 解析响应。
-    * @param responsesNode 响应节点
-    * @param responses 响应
-    */
+     * 解析响应。
+     * @param responsesNode 响应节点
+     * @param responses 响应
+     */
     private static void parseResponses(JsonObject responsesNode, List<OpenApiResponse> responses) {
         responsesNode.forEach((codeStr, respNode) -> {
             if (!(respNode instanceof JsonObject respObj)) {
@@ -437,10 +437,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * resolve默认标签。
-    * @param path 路径
-    * @return resolve默认标签的结果
-    */
+     * resolve默认标签。
+     * @param path 路径
+     * @return resolve默认标签的结果
+     */
     private static String resolveDefaultTag(String path) {
         String[] parts = path.stripLeading().split("/");
         if (parts.length > 1 && !parts[1].startsWith("{")) {
@@ -450,10 +450,10 @@ public class SwaggerOpenApiParser implements DocumentParser {
     }
 
     /**
-    * render安全性section。
-    * @param schemes schemes
-    * @return render安全性section的结果
-    */
+     * render安全性section。
+     * @param schemes schemes
+     * @return render安全性section的结果
+     */
     private static String renderSecuritySection(JsonObject schemes) {
         StringBuilder sb = new StringBuilder();
         schemes.forEach((name, scheme) -> {

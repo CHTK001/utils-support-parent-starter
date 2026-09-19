@@ -22,76 +22,76 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 基于 JDK {@link WatchService} 的本地文件系统目录监听器。
-* <p>
-* 简化设计，无需 Builder / Environment / Executor 等中间层，
-* 直接链式添加监听器后调用 {@link #start()} 即可。
-* </p>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* new DirectoryWatcher("/path/to/watch")
-*     .addListener(new SimplePolledListener())
-*     .addListener((event, observer) ->
-*         System.out.println("收到事件: " + event + " -> " + observer.getFullPath()))
-*     .start();
-* }</pre>
-*
-* @author CH
-* @since 2024/12/12
+ * 基于 JDK {@link WatchService} 的本地文件系统目录监听器。
+ * <p>
+ * 简化设计，无需 Builder / Environment / Executor 等中间层，
+ * 直接链式添加监听器后调用 {@link #start()} 即可。
+ * </p>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * new DirectoryWatcher("/path/to/watch")
+ *     .addListener(new SimplePolledListener())
+ *     .addListener((event, observer) ->
+ *         System.out.println("收到事件: " + event + " -> " + observer.getFullPath()))
+ *     .start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2024/12/12
  */
 @Slf4j
 public class DirectoryWatcher {
 
     /**
-    * 被监听的目录路径
-    */
+     * 被监听的目录路径
+     */
     private final String path;
 
     /**
-    * 事件监听器列表，使用 CopyOnWriteArrayList 支持动态增删
-    */
+     * 事件监听器列表，使用 CopyOnWriteArrayList 支持动态增删
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 运行状态标志
-    */
+     * 运行状态标志
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * JDK WatchService 实例
-    */
+     * JDK WatchService 实例
+     */
     private WatchService watchService;
 
     /**
-    * 事件监听线程
-    */
+     * 事件监听线程
+     */
     private Thread watchThread;
 
     /**
-    * 构造一个目录监听器。
-    *
-    * @param path 要监听的目录路径
-    */
+     * 构造一个目录监听器。
+     *
+     * @param path 要监听的目录路径
+     */
     public DirectoryWatcher(String path) {
         this.path = path;
     }
 
     /**
-    * 注册事件监听器。
-    *
-    * @param listener 监听器
-    * @return this，支持链式调用
-    */
+     * 注册事件监听器。
+     *
+     * @param listener 监听器
+     * @return this，支持链式调用
+     */
     public DirectoryWatcher addListener(PolledListener listener) {
         listeners.add(listener);
         return this;
     }
 
     /**
-    * 启动目录监听。
-    * <p>注册 JDK WatchService 并启动守护线程监听文件创建、修改、删除事件。</p>
-    */
+     * 启动目录监听。
+     * <p>注册 JDK WatchService 并启动守护线程监听文件创建、修改、删除事件。</p>
+     */
     public void start() {
         if (!running.compareAndSet(false, true)) {
             log.warn("目录监听器已在运行: {}", path);
@@ -119,8 +119,8 @@ public class DirectoryWatcher {
     }
 
     /**
-    * WatchService 事件循环，阻塞等待文件系统事件并分发。
-    */
+     * WatchService 事件循环，阻塞等待文件系统事件并分发。
+     */
     private void watchLoop() {
         while (running.get()) {
             try {
@@ -164,11 +164,11 @@ public class DirectoryWatcher {
     }
 
     /**
-    * 向所有注册的监听器分发事件。
-    *
-    * @param evt      事件类型
-    * @param observer 事件上下文
-    */
+     * 向所有注册的监听器分发事件。
+     *
+     * @param evt      事件类型
+     * @param observer 事件上下文
+     */
     private void dispatch(WatcherEvent evt, EventObserver observer) {
         for (PolledListener l : listeners) {
             try {
@@ -184,9 +184,9 @@ public class DirectoryWatcher {
     }
 
     /**
-    * 停止目录监听。
-    * <p>关闭 WatchService 并中断监听线程。</p>
-    */
+     * 停止目录监听。
+     * <p>关闭 WatchService 并中断监听线程。</p>
+     */
     public void stop() {
         running.set(false);
         if (watchService != null) {

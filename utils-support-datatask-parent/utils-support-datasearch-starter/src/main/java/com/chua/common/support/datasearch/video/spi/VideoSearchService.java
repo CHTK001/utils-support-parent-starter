@@ -13,26 +13,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 视频聚合检索服务。
-*
-* <p>遍历全部 {@link ResourceProvider}（跳过 {@link VideoProviderRegistry} 已封禁的源），
-* 将各数据源的搜索结果聚合为一份分页结果。单个数据源失败自动跳过，不影响整体。</p>
-*
-* <p>用法：{@code new VideoSearchService().search(new VideoSearch("keyword"))}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 视频聚合检索服务。
+ *
+ * <p>遍历全部 {@link ResourceProvider}（跳过 {@link VideoProviderRegistry} 已封禁的源），
+ * 将各数据源的搜索结果聚合为一份分页结果。单个数据源失败自动跳过，不影响整体。</p>
+ *
+ * <p>用法：{@code new VideoSearchService().search(new VideoSearch("keyword"))}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class VideoSearchService {
 
     private static final Logger log = LoggerFactory.getLogger(VideoSearchService.class); // 日志
 
     /**
-    * 聚合搜索全部可用视频数据源。
-    *
-    * @param search 搜索参数
-    * @return 聚合分页结果（各源结果合并，total 为各源之和）
-    */
+     * 聚合搜索全部可用视频数据源。
+     *
+     * @param search 搜索参数
+     * @return 聚合分页结果（各源结果合并，total 为各源之和）
+     */
     public ReturnPageResult<VideoInfoResult> search(VideoSearch search) {
         List<VideoInfoResult> all = new ArrayList<>();
         long total = 0;

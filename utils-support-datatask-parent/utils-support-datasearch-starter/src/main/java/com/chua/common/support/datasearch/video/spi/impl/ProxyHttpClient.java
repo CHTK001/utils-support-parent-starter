@@ -8,18 +8,18 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 
 /**
-* 带代理的 HTTP客户端 工具
-* @author CH
-* @since 4.0.0
+ * 带代理的 HTTP客户端 工具
+ * @author CH
+ * @since 4.0.0
  */
 public class ProxyHttpClient {
 
     private static volatile HttpClient client; // 客户端
 
     /**
-    * 获取。
-    * @return 获取的结果
-    */
+     * 获取。
+     * @return 获取的结果
+     */
     public static HttpClient get() {
         if (client == null) {
             synchronized (ProxyHttpClient.class) {

@@ -1,16 +1,16 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* PostgreSQL 协议还原器。
-*
-* <p>PostgreSQL 前端/后端协议：消息格式 = 首字节 type + 4 字节 length + payload。
-* 类型: 'Q'=查询, 'P'=解析, 'B'=Bind, 'E'=执行, 'D'=Describe, 'S'=同步,
-* 'X'=Terminate, 'C'=命令完成, 'T'=rowdescription, 'D'=数据row, 'I'=命令id,
-* 'R'=认证, 'K'=backend键数据, 'Z'=就绪for查询, 'E'=错误响应,
-* 'N'=notice响应, 'S'=参数状态。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PostgreSQL 协议还原器。
+ *
+ * <p>PostgreSQL 前端/后端协议：消息格式 = 首字节 type + 4 字节 length + payload。
+ * 类型: 'Q'=查询, 'P'=解析, 'B'=Bind, 'E'=执行, 'D'=Describe, 'S'=同步,
+ * 'X'=Terminate, 'C'=命令完成, 'T'=rowdescription, 'D'=数据row, 'I'=命令id,
+ * 'R'=认证, 'K'=backend键数据, 'Z'=就绪for查询, 'E'=错误响应,
+ * 'N'=notice响应, 'S'=参数状态。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PostgreSqlProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -81,11 +81,11 @@ public class PostgreSqlProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为类型名称
-    *
-    * @param type 类型
-    * @return 转为类型名称的结果
-    */
+     * 转为类型名称
+     *
+     * @param type 类型
+     * @return 转为类型名称的结果
+     */
     private static String toTypeName(char type) {
         return switch (type) {
             case 'Q' -> "Query";

@@ -15,19 +15,19 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* Webhook 入站适配器：HTTP POST → JSON → 数据envelope → pipelineengine。
-*
-* <p>暴露 HTTP 端点接收外部系统推送的 JSON 数据，自动解析并交给 PipelineEngine 处理。</p>
-*
-* <p>端点：</p>
-* <ul>
-*   <li>{@code POST /api/datalake/webhook/{pipelineId}} — 推送单条数据</li>
-*   <li>{@code POST /api/datalake/webhook/{pipelineId}/batch} — 推送批量数据</li>
-*   <li>{@code GET /api/datalake/webhook/health} — 健康检查</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * Webhook 入站适配器：HTTP POST → JSON → 数据envelope → pipelineengine。
+ *
+ * <p>暴露 HTTP 端点接收外部系统推送的 JSON 数据，自动解析并交给 PipelineEngine 处理。</p>
+ *
+ * <p>端点：</p>
+ * <ul>
+ *   <li>{@code POST /api/datalake/webhook/{pipelineId}} — 推送单条数据</li>
+ *   <li>{@code POST /api/datalake/webhook/{pipelineId}/batch} — 推送批量数据</li>
+ *   <li>{@code GET /api/datalake/webhook/health} — 健康检查</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class WebhookInboundAdapter {
@@ -63,17 +63,17 @@ public class WebhookInboundAdapter {
     }
 
     /**
-    * 创建构建器。
-    *
-    * @return 新构建器
-    */
+     * 创建构建器。
+     *
+     * @return 新构建器
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 启动 Webhook 服务。
-    */
+     * 启动 Webhook 服务。
+     */
     public void start() {
         if (running) {
             return;
@@ -95,8 +95,8 @@ public class WebhookInboundAdapter {
     }
 
     /**
-    * 停止 Webhook 服务。
-    */
+     * 停止 Webhook 服务。
+     */
     public void stop() {
         if (!running || server == null) {
             return;
@@ -107,10 +107,10 @@ public class WebhookInboundAdapter {
     }
 
     /**
-    * 处理 HTTP 请求。
-    *
-    * @param exchange 交换对象
-    */
+     * 处理 HTTP 请求。
+     *
+     * @param exchange 交换对象
+     */
     @SuppressWarnings("unchecked")
     private void handleRequest(HttpExchange exchange) {
         try {
@@ -182,12 +182,12 @@ public class WebhookInboundAdapter {
     }
 
     /**
-    * 发送 HTTP 响应。
-    *
-    * @param exchange 交换对象
-    * @param status   状态码
-    * @param body     响应体
-    */
+     * 发送 HTTP 响应。
+     *
+     * @param exchange 交换对象
+     * @param status   状态码
+     * @param body     响应体
+     */
     private void sendResponse(HttpExchange exchange, int status, String body) throws Exception {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
@@ -198,28 +198,28 @@ public class WebhookInboundAdapter {
     }
 
     /**
-    * 返回实际监听的端口（启动后有效，端口=0 时为系统分配端口）。
-    *
-    * @return 实际端口号
-    */
+     * 返回实际监听的端口（启动后有效，端口=0 时为系统分配端口）。
+     *
+     * @return 实际端口号
+     */
     public int getServerPort() {
         return actualPort;
     }
 
     /**
-    * 返回已处理消息数。
-    *
-    * @return 消息计数
-    */
+     * 返回已处理消息数。
+     *
+     * @return 消息计数
+     */
     public long getMessageCount() {
         return messageCount.get();
     }
 
     /**
-    * 是否运行中。
-    *
-    * @return true 表示已启动
-    */
+     * 是否运行中。
+     *
+     * @return true 表示已启动
+     */
     public boolean isRunning() {
         return running;
     }
@@ -227,37 +227,37 @@ public class WebhookInboundAdapter {
  // ━━━━━━━━━━━━━━ 构建器 ━━━━━━━━━━━━━━
 
     /**
-    * Webhook 入站适配器构建器。
-    * @author CH
-    * @since 4.0.0
-    */
+     * Webhook 入站适配器构建器。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class Builder {
         private int port = 8700; // 端口
         private PipelineEngine pipelineEngine; // pipelineengine
 
         /**
-        * 端口。
-        * @param port 端口
-        * @return 端口的结果
-        */
+         * 端口。
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) {
             this.port = port;
             return this;
         }
         /**
-        * pipelineengine。
-        * @param engine engine
-        * @return pipelineEngine的结果
-        */
+         * pipelineengine。
+         * @param engine engine
+         * @return pipelineEngine的结果
+         */
         public Builder pipelineEngine(PipelineEngine engine) {
             this.pipelineEngine = engine;
             return this;
         }
 
         /**
-        * 构建。
-        * @return 构建的结果
-        */
+         * 构建。
+         * @return 构建的结果
+         */
         public WebhookInboundAdapter build() {
             if (pipelineEngine == null) {
                 throw new IllegalArgumentException("pipelineEngine 不能为空");

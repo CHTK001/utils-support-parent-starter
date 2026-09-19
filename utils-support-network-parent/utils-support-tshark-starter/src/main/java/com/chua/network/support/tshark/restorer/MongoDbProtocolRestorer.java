@@ -1,14 +1,14 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* MongoDB Wire 协议 还原器。
-*
-* <p>MongoDB OP_MSG 报文：MessageHeader(16) + flagBits(4) + SectionKind(1) + Body。
-* 头部: 消息长度(4) + 请求id(4) + 响应转为(4) + op编码(4)。
-* op编码=2013 表示 OP_MSG。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MongoDB Wire 协议 还原器。
+ *
+ * <p>MongoDB OP_MSG 报文：MessageHeader(16) + flagBits(4) + SectionKind(1) + Body。
+ * 头部: 消息长度(4) + 请求id(4) + 响应转为(4) + op编码(4)。
+ * op编码=2013 表示 OP_MSG。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -64,11 +64,11 @@ public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为op编码名称
-    *
-    * @param op op
-    * @return 转为op编码名称的结果
-    */
+     * 转为op编码名称
+     *
+     * @param op op
+     * @return 转为op编码名称的结果
+     */
     private static String toOpCodeName(int op) {
         return switch (op) {
             case 2004 -> "OP_QUERY";

@@ -66,10 +66,10 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     protected abstract String defaultModel();
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return 提供者名称
-    */
+     * 返回 SPI 名称。
+     *
+     * @return 提供者名称
+     */
     @Override
     public String name() {
         return providerName();
@@ -94,11 +94,11 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     }
 
     /**
-    * 解析单个 rollout 文件为用量记录。
-    *
-    * @param file 文件
-    * @return 用量记录
-    */
+     * 解析单个 rollout 文件为用量记录。
+     *
+     * @param file 文件
+     * @return 用量记录
+     */
     private List<AiUsage> parseFile(Path file) {
         List<AiUsage> result = new ArrayList<>();
         String fileModel = null;
@@ -138,11 +138,11 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     }
 
     /**
-    * 从 payload 中提取 token_count 的 info 节点。
-    *
-    * @param payload payload 节点
-    * @return info 节点；不存在返回 null
-    */
+     * 从 payload 中提取 token_count 的 info 节点。
+     *
+     * @param payload payload 节点
+     * @return info 节点；不存在返回 null
+     */
     private JsonNode tokenInfo(JsonNode payload) {
         JsonNode type = payload.get("type");
         if (!type.isMissingValue() && "token_count".equals(type.toStringValue())) {
@@ -156,13 +156,13 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     }
 
     /**
-    * 将 token_count 事件转为用量记录（以 total_token_usage 全量为口径）。
-    *
-    * @param node        行节点
-    * @param info        info 节点
-    * @param fallbackModel 默认模型
-    * @return 用量记录；全零或无时间戳返回 null
-    */
+     * 将 token_count 事件转为用量记录（以 total_token_usage 全量为口径）。
+     *
+     * @param node        行节点
+     * @param info        info 节点
+     * @param fallbackModel 默认模型
+     * @return 用量记录；全零或无时间戳返回 null
+     */
     private AiUsage toUsage(JsonNode node, JsonNode info, String fallbackModel) {
         JsonNode total = info.get("total_token_usage");
         if (total == null || total.isMissingValue()) {
@@ -205,10 +205,10 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     }
 
     /**
-    * 枚举 sessions/archived_sessions 下全部 rollout JSONL。
-    *
-    * @return 文件列表
-    */
+     * 枚举 sessions/archived_sessions 下全部 rollout JSONL。
+     *
+     * @return 文件列表
+     */
     private List<Path> listRolloutFiles() {
         List<Path> files = new ArrayList<>();
         for (String sub : new String[]{"sessions", "archived_sessions"}) {

@@ -16,60 +16,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* CI 流水线操作（GitHub Actions / Gitee Go）。
-*
-* <p>通过远程平台 REST API 对仓库的 CI 流水线进行操作，不依赖本地仓库即可运行。
-* 支持 GitHub Actions 与 Gitee Go 两类平台，平台、仓库与令牌可通过链式方法配置，
-* 未配置时自动从 GitClient 的远程地址与访问令牌中推断。</p>
-*
-* <p>支持的平台能力如下：</p>
-* <ul>
-*   <li><b>GitHub Actions</b>：查询工作流、查询运行列表、查询运行详情、触发工作流、取消运行、下载日志</li>
-*   <li><b>Gitee Go</b>：触发流水线（需在 Gitee Go 中开启 API 触发）；其余能力受限于 Gitee 开放接口暂不支持</li>
-* </ul>
-*
-* <pre>示例：
-* {@code
-* // 1. 查询仓库所有 CI 工作流
-* List<WorkflowInfo> workflows = client.actions().listWorkflows();
-*
-* // 2. 查询最近运行记录
-* List<WorkflowRun> runs = client.actions().listRuns();
-*
-* // 3. 触发指定工作流（GitHub 按工作流文件路径或 ID）
-* client.actions().trigger(".github/workflows/ci.yml", "main");
-*
-* // 4. 取消一次运行
-* client.actions().cancel(12345678L);
-*
-* // 5. 下载一次运行的日志（原始字节，GitHub 返回 zip 压缩包）
-* byte[] logs = client.actions().logs(12345678L);
-*
-* // 6. 覆盖默认平台与仓库
-* client.actions().platform(ActionsOperation.CiPlatform.GITEE)
-*         .owner("user").repo("repo").token("gitee-token")
-*         .trigger(null, "main");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * CI 流水线操作（GitHub Actions / Gitee Go）。
+ *
+ * <p>通过远程平台 REST API 对仓库的 CI 流水线进行操作，不依赖本地仓库即可运行。
+ * 支持 GitHub Actions 与 Gitee Go 两类平台，平台、仓库与令牌可通过链式方法配置，
+ * 未配置时自动从 GitClient 的远程地址与访问令牌中推断。</p>
+ *
+ * <p>支持的平台能力如下：</p>
+ * <ul>
+ *   <li><b>GitHub Actions</b>：查询工作流、查询运行列表、查询运行详情、触发工作流、取消运行、下载日志</li>
+ *   <li><b>Gitee Go</b>：触发流水线（需在 Gitee Go 中开启 API 触发）；其余能力受限于 Gitee 开放接口暂不支持</li>
+ * </ul>
+ *
+ * <pre>示例：
+ * {@code
+ * // 1. 查询仓库所有 CI 工作流
+ * List<WorkflowInfo> workflows = client.actions().listWorkflows();
+ *
+ * // 2. 查询最近运行记录
+ * List<WorkflowRun> runs = client.actions().listRuns();
+ *
+ * // 3. 触发指定工作流（GitHub 按工作流文件路径或 ID）
+ * client.actions().trigger(".github/workflows/ci.yml", "main");
+ *
+ * // 4. 取消一次运行
+ * client.actions().cancel(12345678L);
+ *
+ * // 5. 下载一次运行的日志（原始字节，GitHub 返回 zip 压缩包）
+ * byte[] logs = client.actions().logs(12345678L);
+ *
+ * // 6. 覆盖默认平台与仓库
+ * client.actions().platform(ActionsOperation.CiPlatform.GITEE)
+ *         .owner("user").repo("repo").token("gitee-token")
+ *         .trigger(null, "main");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ActionsOperation {
 
     /**
-    * GitHub Actions REST API 基础地址。
-    */
+     * GitHub Actions REST API 基础地址。
+     */
     private static final String GITHUB_API_BASE = "https://api.github.com";
 
     /**
-    * Gitee API v5 基础地址。
-    */
+     * Gitee API v5 基础地址。
+     */
     private static final String GITEE_API_BASE = "https://gitee.com/api/v5";
 
     /**
-    * CI 平台类型。
-    */
+     * CI 平台类型。
+     */
     public enum CiPlatform {
 
         /** GitHub Actions 平台 */
@@ -80,38 +80,38 @@ public class ActionsOperation {
     }
 
     /**
-        * 所属 git客户端。
-        */
+     * 所属 git客户端。
+     */
     private final GitClient client;
 
     /**
-    * 仓库所属者（用户或组织），未配置时从远程地址推断。
-    */
+     * 仓库所属者（用户或组织），未配置时从远程地址推断。
+     */
     private String owner;
 
     /**
-    * 仓库名称，未配置时从远程地址推断。
-    */
+     * 仓库名称，未配置时从远程地址推断。
+     */
     private String repo;
 
     /**
-    * CI 平台访问令牌，未配置时取 git客户端 的访问令牌。
-    */
+     * CI 平台访问令牌，未配置时取 git客户端 的访问令牌。
+     */
     private String token;
 
     /**
-    * CI 平台类型，未配置时根据远程地址自动识别。
-    */
+     * CI 平台类型，未配置时根据远程地址自动识别。
+     */
     private CiPlatform platform;
 
     /**
-    * 构建操作实例（仅框架内部调用）。
-    *
-    * <p>构造时尝试从 {@code GitClient} 的远程地址解析仓库所属者、仓库名与平台，
-    * 并继承访问令牌，后续可通过链式方法覆盖。</p>
-    *
-    * @param client 所属 Git客户端
-    */
+     * 构建操作实例（仅框架内部调用）。
+     *
+     * <p>构造时尝试从 {@code GitClient} 的远程地址解析仓库所属者、仓库名与平台，
+     * 并继承访问令牌，后续可通过链式方法覆盖。</p>
+     *
+     * @param client 所属 Git客户端
+     */
     public ActionsOperation(GitClient client) {
         this.client = client;
         String remoteUrl = client.getRemoteUrl();
@@ -127,46 +127,46 @@ public class ActionsOperation {
     // ==================== 配置方法 ====================
 
     /**
-    * 设置仓库所属者（用户或组织）。
-    *
-    * @param owner 所属者名称，如 "chua"
-    * @return 当前操作实例
-    */
+     * 设置仓库所属者（用户或组织）。
+     *
+     * @param owner 所属者名称，如 "chua"
+     * @return 当前操作实例
+     */
     public ActionsOperation owner(String owner) {
         this.owner = owner;
         return this;
     }
 
     /**
-    * 设置仓库名称。
-    *
-    * @param repo 仓库名称，如 "utils-support-parent-starter"
-    * @return 当前操作实例
-    */
+     * 设置仓库名称。
+     *
+     * @param repo 仓库名称，如 "utils-support-parent-starter"
+     * @return 当前操作实例
+     */
     public ActionsOperation repo(String repo) {
         this.repo = repo;
         return this;
     }
 
     /**
-    * 设置 CI 平台访问令牌。
-    *
-    * <p>GitHub 使用 Personal Access Token，Gitee 使用私人令牌。</p>
-    *
-    * @param token 平台访问令牌
-    * @return 当前操作实例
-    */
+     * 设置 CI 平台访问令牌。
+     *
+     * <p>GitHub 使用 Personal Access Token，Gitee 使用私人令牌。</p>
+     *
+     * @param token 平台访问令牌
+     * @return 当前操作实例
+     */
     public ActionsOperation token(String token) {
         this.token = token;
         return this;
     }
 
     /**
-    * 设置 CI 平台类型，覆盖自动识别结果。
-    *
-    * @param platform 平台类型
-    * @return 当前操作实例
-    */
+     * 设置 CI 平台类型，覆盖自动识别结果。
+     *
+     * @param platform 平台类型
+     * @return 当前操作实例
+     */
     public ActionsOperation platform(CiPlatform platform) {
         this.platform = platform;
         return this;
@@ -175,12 +175,12 @@ public class ActionsOperation {
     // ==================== 查询方法 ====================
 
     /**
-    * 查询仓库全部 CI 工作流。
-    *
-    * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
-    *
-    * @return 工作流信息列表
-    */
+     * 查询仓库全部 CI 工作流。
+     *
+     * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
+     *
+     * @return 工作流信息列表
+     */
     public List<WorkflowInfo> listWorkflows() {
         requirePlatform(CiPlatform.GITHUB, "listWorkflows");
         ClientResponse response = newRequest()
@@ -200,12 +200,12 @@ public class ActionsOperation {
     }
 
     /**
-    * 查询仓库最近的工作流运行记录。
-    *
-    * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
-    *
-    * @return 工作流运行列表
-    */
+     * 查询仓库最近的工作流运行记录。
+     *
+     * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
+     *
+     * @return 工作流运行列表
+     */
     public List<WorkflowRun> listRuns() {
         requirePlatform(CiPlatform.GITHUB, "listRuns");
         ClientResponse response = newRequest()
@@ -225,13 +225,13 @@ public class ActionsOperation {
     }
 
     /**
-    * 查询一次工作流运行的详情。
-    *
-    * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
-    *
-    * @param runId 运行唯一标识
-    * @return 运行详情，不存在时返回 null
-    */
+     * 查询一次工作流运行的详情。
+     *
+     * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
+     *
+     * @param runId 运行唯一标识
+     * @return 运行详情，不存在时返回 null
+     */
     public WorkflowRun getRun(long runId) {
         requirePlatform(CiPlatform.GITHUB, "getRun");
         ClientResponse response = newRequest()
@@ -244,18 +244,18 @@ public class ActionsOperation {
     // ==================== 触发与取消 ====================
 
     /**
-    * 触发一次 CI 运行。
-    *
-    * <p><b>GitHub Actions</b>：{@code workflowId} 为工作流文件路径（如
-    * {@code .github/workflows/ci.yml}）或工作流数字 ID，向指定分支发起 dispatch 事件。</p>
-    *
-    * <p><b>Gitee Go</b>：{@code workflowId} 被忽略，按仓库维度触发流水线
-    * （需在 Gitee Go 中开启「API 触发」）。</p>
-    *
-    * @param workflowId 工作流文件路径或 ID，Gitee 平台可传 null
-    * @param ref        目标分支或 tag，如 "main"
-    * @return 触发成功返回 true
-    */
+     * 触发一次 CI 运行。
+     *
+     * <p><b>GitHub Actions</b>：{@code workflowId} 为工作流文件路径（如
+     * {@code .github/workflows/ci.yml}）或工作流数字 ID，向指定分支发起 dispatch 事件。</p>
+     *
+     * <p><b>Gitee Go</b>：{@code workflowId} 被忽略，按仓库维度触发流水线
+     * （需在 Gitee Go 中开启「API 触发」）。</p>
+     *
+     * @param workflowId 工作流文件路径或 ID，Gitee 平台可传 null
+     * @param ref        目标分支或 tag，如 "main"
+     * @return 触发成功返回 true
+     */
     public boolean trigger(String workflowId, String ref) {
         String path;
         if (platform == CiPlatform.GITEE) {
@@ -283,13 +283,13 @@ public class ActionsOperation {
     }
 
     /**
-    * 取消一次进行中的运行。
-    *
-    * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
-    *
-    * @param runId 运行唯一标识
-    * @return 取消成功返回 true
-    */
+     * 取消一次进行中的运行。
+     *
+     * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。</p>
+     *
+     * @param runId 运行唯一标识
+     * @return 取消成功返回 true
+     */
     public boolean cancel(long runId) {
         requirePlatform(CiPlatform.GITHUB, "cancel");
         ClientResponse response = newRequest()
@@ -303,14 +303,14 @@ public class ActionsOperation {
     // ==================== 日志 ====================
 
     /**
-    * 下载一次运行的日志原始字节。
-    *
-    * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。
-    * GitHub 返回的日志为 zip 压缩包字节，可由调用方按需解压或保存。</p>
-    *
-    * @param runId 运行唯一标识
-    * @return 日志原始字节，无内容时返回空数组
-    */
+     * 下载一次运行的日志原始字节。
+     *
+     * <p>仅 GitHub Actions 支持；Gitee Go 因开放接口限制不支持该操作。
+     * GitHub 返回的日志为 zip 压缩包字节，可由调用方按需解压或保存。</p>
+     *
+     * @param runId 运行唯一标识
+     * @return 日志原始字节，无内容时返回空数组
+     */
     public byte[] logs(long runId) {
         requirePlatform(CiPlatform.GITHUB, "logs");
         ClientResponse response = newRequest()
@@ -324,11 +324,11 @@ public class ActionsOperation {
     // ==================== 内部方法 ====================
 
     /**
-    * 校验当前平台是否支持指定操作，不支持时抛出异常。
-    *
-    * @param expected 期望的平台
-    * @param action   操作名称
-    */
+     * 校验当前平台是否支持指定操作，不支持时抛出异常。
+     *
+     * @param expected 期望的平台
+     * @param action   操作名称
+     */
     private void requirePlatform(CiPlatform expected, String action) {
         if (platform != expected) {
             throw new GitClientException(action + " 操作暂不支持 " + platform + " 平台");
@@ -336,11 +336,11 @@ public class ActionsOperation {
     }
 
     /**
-    * 校验响应状态码，非 2xx 时抛出异常。
-    *
-    * @param response 响应对象
-    * @param action   操作描述
-    */
+     * 校验响应状态码，非 2xx 时抛出异常。
+     *
+     * @param response 响应对象
+     * @param action   操作描述
+     */
     private void checkResponse(ClientResponse response, String action) {
         if (!response.isSuccess()) {
             throw new GitClientException(action + "失败: HTTP " + response.getStatusCode()
@@ -349,13 +349,13 @@ public class ActionsOperation {
     }
 
     /**
-    * 构建带平台鉴权的基础请求构建器。
-    *
-    * <p>GitHub 使用 {@code Authorization: Bearer token} 头鉴权；
-    * Gitee 使用 {@code access_token} 查询参数鉴权。</p>
-    *
-    * @return 请求构建器
-    */
+     * 构建带平台鉴权的基础请求构建器。
+     *
+     * <p>GitHub 使用 {@code Authorization: Bearer token} 头鉴权；
+     * Gitee 使用 {@code access_token} 查询参数鉴权。</p>
+     *
+     * @return 请求构建器
+     */
     private HttpClientBuilder newRequest() {
         String baseUrl = platform == CiPlatform.GITEE ? GITEE_API_BASE : GITHUB_API_BASE;
         HttpClientBuilder builder = HttpClientFactory.of(baseUrl);
@@ -370,11 +370,11 @@ public class ActionsOperation {
     }
 
     /**
-    * 将 JSON 节点转换为工作流信息记录。
-    *
-    * @param node 工作流 JSON 节点
-    * @return 工作流信息记录
-    */
+     * 将 JSON 节点转换为工作流信息记录。
+     *
+     * @param node 工作流 JSON 节点
+     * @return 工作流信息记录
+     */
     private WorkflowInfo toWorkflowInfo(JsonNode node) {
         return new WorkflowInfo(
                 node.get("id").toLongValue(),
@@ -386,11 +386,11 @@ public class ActionsOperation {
     }
 
     /**
-    * 将 JSON 节点转换为运行记录。
-    *
-    * @param node 运行 JSON 节点
-    * @return 运行记录
-    */
+     * 将 JSON 节点转换为运行记录。
+     *
+     * @param node 运行 JSON 节点
+     * @return 运行记录
+     */
     private WorkflowRun toWorkflowRun(JsonNode node) {
         return new WorkflowRun(
                 node.get("id").toLongValue(),
@@ -407,14 +407,14 @@ public class ActionsOperation {
     }
 
     /**
-    * 从远程地址解析所属者与仓库名。
-    *
-    * <p>支持形如 {@code https://gitee.com/user/repo.git} 的地址，返回
-    * {@code ["user", "repo"]}；解析失败返回 null。</p>
-    *
-    * @param remoteUrl 远程仓库地址，可为 null
-    * @return 长度为 2 的数组（所属者、仓库名），失败返回 null
-    */
+     * 从远程地址解析所属者与仓库名。
+     *
+     * <p>支持形如 {@code https://gitee.com/user/repo.git} 的地址，返回
+     * {@code ["user", "repo"]}；解析失败返回 null。</p>
+     *
+     * @param remoteUrl 远程仓库地址，可为 null
+     * @return 长度为 2 的数组（所属者、仓库名），失败返回 null
+     */
     private String[] resolveOwnerAndRepo(String remoteUrl) {
         if (remoteUrl == null || remoteUrl.isBlank()) {
             return null;
@@ -443,11 +443,11 @@ public class ActionsOperation {
     }
 
     /**
-    * 根据远程地址自动识别 CI 平台。
-    *
-    * @param remoteUrl 远程仓库地址，可为 null
-    * @return 平台类型，默认 GitHub
-    */
+     * 根据远程地址自动识别 CI 平台。
+     *
+     * @param remoteUrl 远程仓库地址，可为 null
+     * @return 平台类型，默认 GitHub
+     */
     private CiPlatform resolvePlatform(String remoteUrl) {
         if (remoteUrl != null) {
             String url = remoteUrl.toLowerCase();

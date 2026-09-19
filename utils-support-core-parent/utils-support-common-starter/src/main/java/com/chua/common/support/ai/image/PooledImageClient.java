@@ -6,66 +6,66 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
-* 池化的 {@link ImageClient} 包装器
-*
-* <p>持有一个底层 {@link ImageClient} 工厂, 通过对象池复用底层实例。
-* 适合将任意 SPI 加载的 {@link ImageClient} (如 AlibabaImageClient, OpenAiImageClient 等)
-* 包装为池化客户端, 提升并发吞吐量。
-*
-* <p>使用示例:
-* <pre>{@code
-*   // 单例 (默认)
-*   ImageClient client = new PooledImageClient("openai", "sk-xxx", c -> c.model("dall-e-3"));
-*
-*   // 启用 4 个实例的对象池
-*   client.pool(4);
-*
-*   // 调用方法, 内部会 borrow / return
-*   BufferedImage img = client.generate("a cat");
-* }</pre>
-*
-* <p>所有方法会从池中借出底层客户端执行, 执行完毕自动归还。
-* 单例模式下 borrowClient 始终返回同一实例。
-*
-* @author CH
-* @since 4.0.0.42
+ * 池化的 {@link ImageClient} 包装器
+ *
+ * <p>持有一个底层 {@link ImageClient} 工厂, 通过对象池复用底层实例。
+ * 适合将任意 SPI 加载的 {@link ImageClient} (如 AlibabaImageClient, OpenAiImageClient 等)
+ * 包装为池化客户端, 提升并发吞吐量。
+ *
+ * <p>使用示例:
+ * <pre>{@code
+ *   // 单例 (默认)
+ *   ImageClient client = new PooledImageClient("openai", "sk-xxx", c -> c.model("dall-e-3"));
+ *
+ *   // 启用 4 个实例的对象池
+ *   client.pool(4);
+ *
+ *   // 调用方法, 内部会 borrow / return
+ *   BufferedImage img = client.generate("a cat");
+ * }</pre>
+ *
+ * <p>所有方法会从池中借出底层客户端执行, 执行完毕自动归还。
+ * 单例模式下 borrowClient 始终返回同一实例。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PooledImageClient extends AbstractPooledClient<ImageClient> implements ImageClient {
 
     /**
-    * 服务商名称
-    */
+     * 服务商名称
+     */
     private final String provider;
 
     /**
-    * 供应商配置 (创建底层客户端时使用)
-    */
+     * 供应商配置 (创建底层客户端时使用)
+     */
     private final ImageClientSetting setting;
 
     /**
-    * 链式配置回调 (可选, 每次 borrow 后应用最新配置)
-    */
+     * 链式配置回调 (可选, 每次 borrow 后应用最新配置)
+     */
     private final java.util.function.Function<ImageClient, ImageClient> chainConfigurer;
 
 
     /**
-    * 构造方法 (使用 setting 复用 ImageClient.create)
-    *
-    * @param provider 服务商
-    * @param setting  配置
-    */
+     * 构造方法 (使用 setting 复用 ImageClient.create)
+     *
+     * @param provider 服务商
+     * @param setting  配置
+     */
     public PooledImageClient(String provider, ImageClientSetting setting) {
         this(provider, setting, null);
     }
 
 
     /**
-    * 构造方法 (链式配置)
-    *
-    * @param provider        服务商
-    * @param setting         配置
-    * @param chainConfigurer 链式配置回调, 在 borrow 后应用, 可为 null
-    */
+     * 构造方法 (链式配置)
+     *
+     * @param provider        服务商
+     * @param setting         配置
+     * @param chainConfigurer 链式配置回调, 在 borrow 后应用, 可为 null
+     */
     public PooledImageClient(String provider, ImageClientSetting setting,
                              java.util.function.Function<ImageClient, ImageClient> chainConfigurer) {
         super(() -> ImageClient.create(setting), null);
@@ -76,10 +76,10 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
 
     /**
-    * 构造方法 (自定义工厂)
-    *
-    * @param factory 创建底层 ImageClient 的工厂
-    */
+     * 构造方法 (自定义工厂)
+     *
+     * @param factory 创建底层 ImageClient 的工厂
+     */
     public PooledImageClient(Supplier<ImageClient> factory) {
         super(factory, null);
         this.provider = null;
@@ -89,11 +89,11 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
 
     /**
-    * 构造方法 (自定义工厂 + 链式配置)
-    *
-    * @param factory         创建底层 ImageClient 的工厂
-    * @param chainConfigurer 链式配置回调
-    */
+     * 构造方法 (自定义工厂 + 链式配置)
+     *
+     * @param factory         创建底层 ImageClient 的工厂
+     * @param chainConfigurer 链式配置回调
+     */
     public PooledImageClient(Supplier<ImageClient> factory,
                              java.util.function.Function<ImageClient, ImageClient> chainConfigurer) {
         super(factory, chainConfigurer);
@@ -278,20 +278,20 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
 
     /**
-    * 获取服务商名称
-    *
-    * @return provider
-    */
+     * 获取服务商名称
+     *
+     * @return provider
+     */
     public String getProvider() {
         return provider;
     }
 
 
     /**
-    * 获取客户端配置
-    *
-    * @return setting
-    */
+     * 获取客户端配置
+     *
+     * @return setting
+     */
     public ImageClientSetting getSetting() {
         return setting;
     }

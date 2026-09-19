@@ -40,46 +40,46 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
             System.getProperty("user.home"), ".codebuddycn", "projects");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "codebuddy"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "codebuddy"}
+     */
     @Override
     public String name() {
         return "codebuddy";
     }
 
     /**
-    * 返回会话文件根目录（国际版）。
-    *
-    * @return {@code ~/.codebuddy/projects}
-    */
+     * 返回会话文件根目录（国际版）。
+     *
+     * @return {@code ~/.codebuddy/projects}
+     */
     @Override
     protected Path rootDir() {
         return PROJECTS_DIR_INTL;
     }
 
     /**
-    * 扫描国际版与国内版两个目录。
-    */
+     * 扫描国际版与国内版两个目录。
+     */
     @Override
     protected List<Path> rootDirs() {
         return List.of(PROJECTS_DIR_INTL, PROJECTS_DIR_CN);
     }
 
     /**
-    * 返回会话文件后缀。
-    *
-    * @return {@code ".jsonl"}
-    */
+     * 返回会话文件后缀。
+     *
+     * @return {@code ".jsonl"}
+     */
     @Override
     protected String fileSuffix() {
         return ".jsonl";
     }
 
     /**
-    * 解析单行事件为零或多条消息记录。
-    */
+     * 解析单行事件为零或多条消息记录。
+     */
     @Override
     protected List<ConversationMessage> parseLine(String line) {
         if (line.isBlank()) {

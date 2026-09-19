@@ -32,35 +32,35 @@ import java.time.ZoneId;
 public final class IbdTypeDecoder {
 
     /**
-    * 十进制「每 9 位一组」对应的字节数表。
-    */
+     * 十进制「每 9 位一组」对应的字节数表。
+     */
     private static final int[] DIG2BYTES = {0, 1, 1, 2, 2, 3, 3, 4, 4, 4};
 
     /**
-    * 工具类，禁止实例化。
-    */
+     * 工具类，禁止实例化。
+     */
     private IbdTypeDecoder() {
     }
 
     /**
-    * 解码一个字段（时间类按本机时区渲染）。
-    *
-    * @param column 字段定义
-    * @param raw    字段原始字节
-    * @return 可读值；{@code null} 表示 SQL NULL
-    */
+     * 解码一个字段（时间类按本机时区渲染）。
+     *
+     * @param column 字段定义
+     * @param raw    字段原始字节
+     * @return 可读值；{@code null} 表示 SQL NULL
+     */
     public static Object decode(IbdColumn column, byte[] raw) {
         return decode(column, raw, ZoneId.systemDefault());
     }
 
     /**
-    * 解码一个字段。
-    *
-    * @param column 字段定义
-    * @param raw    字段原始字节
-    * @param zone   渲染 {@code TIMESTAMP} 用的时区
-    * @return 可读值；{@code null} 表示 SQL NULL
-    */
+     * 解码一个字段。
+     *
+     * @param column 字段定义
+     * @param raw    字段原始字节
+     * @param zone   渲染 {@code TIMESTAMP} 用的时区
+     * @return 可读值；{@code null} 表示 SQL NULL
+     */
     public static Object decode(IbdColumn column, byte[] raw, ZoneId zone) {
         if (raw == null) {
             return null;
@@ -121,11 +121,11 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 去掉尾部空格（仅用于 {@code CHAR}，且二进制字符集不处理）。
-    *
-    * @param value 原始文本
-    * @return 去尾空格后的文本
-    */
+     * 去掉尾部空格（仅用于 {@code CHAR}，且二进制字符集不处理）。
+     *
+     * @param value 原始文本
+     * @return 去尾空格后的文本
+     */
     private static String stripTrailingSpaces(String value) {
         if (value == null || value.isEmpty()) {
             return value;
@@ -138,12 +138,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码整数。
-    *
-    * @param raw      原始字节
-    * @param unsigned 是否无符号
-    * @return {@code Long}；超出 {@code long} 范围（{@code BIGINT UNSIGNED} 高位段）时返回 {@link BigInteger}
-    */
+     * 解码整数。
+     *
+     * @param raw      原始字节
+     * @param unsigned 是否无符号
+     * @return {@code Long}；超出 {@code long} 范围（{@code BIGINT UNSIGNED} 高位段）时返回 {@link BigInteger}
+     */
     public static Number integer(byte[] raw, boolean unsigned) {
         if (raw.length == 0) {
             return 0L;
@@ -159,11 +159,11 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code DATE}（3 字节：年 15 位、月 4 位、日 5 位）。
-    *
-    * @param raw 原始字节
-    * @return {@code yyyy-MM-dd}
-    */
+     * 解码 {@code DATE}（3 字节：年 15 位、月 4 位、日 5 位）。
+     *
+     * @param raw 原始字节
+     * @return {@code yyyy-MM-dd}
+     */
     public static String date(byte[] raw) {
         if (raw.length < 3) {
             return "0000-00-00";
@@ -173,11 +173,11 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码旧版 {@code TIME}（3 字节有符号整数，十进制位就是 {@code hhmmss}）。
-    *
-    * @param raw 原始字节
-    * @return {@code hh:mm:ss}
-    */
+     * 解码旧版 {@code TIME}（3 字节有符号整数，十进制位就是 {@code hhmmss}）。
+     *
+     * @param raw 原始字节
+     * @return {@code hh:mm:ss}
+     */
     public static String legacyTime(byte[] raw) {
         long value = signedInt(raw, 0, 3);
         String sign = value < 0 ? "-" : "";
@@ -190,11 +190,11 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码旧版 {@code DATETIME}（8 字节，十进制位就是 {@code YYYYMMDDhhmmss}）。
-    *
-    * @param raw 原始字节
-    * @return {@code yyyy-MM-dd HH:mm:ss}
-    */
+     * 解码旧版 {@code DATETIME}（8 字节，十进制位就是 {@code YYYYMMDDhhmmss}）。
+     *
+     * @param raw 原始字节
+     * @return {@code yyyy-MM-dd HH:mm:ss}
+     */
     public static String legacyDateTime(byte[] raw) {
         if (raw.length < 8) {
             return "0000-00-00 00:00:00";
@@ -213,13 +213,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code TIMESTAMP}（4 字节 UTC 秒 + 小数秒）。
-    *
-    * @param raw    原始字节
-    * @param column 字段定义（取小数秒精度）
-    * @param zone   渲染时区
-    * @return {@code yyyy-MM-dd HH:mm:ss[.fff]}
-    */
+     * 解码 {@code TIMESTAMP}（4 字节 UTC 秒 + 小数秒）。
+     *
+     * @param raw    原始字节
+     * @param column 字段定义（取小数秒精度）
+     * @param zone   渲染时区
+     * @return {@code yyyy-MM-dd HH:mm:ss[.fff]}
+     */
     public static String timestamp(byte[] raw, IbdColumn column, ZoneId zone) {
         if (raw.length < 4) {
             return "1970-01-01 00:00:00";
@@ -233,12 +233,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code DATETIME}（5 字节：1 位符号 + 17 位「年*13+月」+ 5 位日 + 5 位时 + 6 位分 + 6 位秒）。
-    *
-    * @param raw    原始字节
-    * @param column 字段定义（取小数秒精度）
-    * @return {@code yyyy-MM-dd HH:mm:ss[.fff]}
-    */
+     * 解码 {@code DATETIME}（5 字节：1 位符号 + 17 位「年*13+月」+ 5 位日 + 5 位时 + 6 位分 + 6 位秒）。
+     *
+     * @param raw    原始字节
+     * @param column 字段定义（取小数秒精度）
+     * @return {@code yyyy-MM-dd HH:mm:ss[.fff]}
+     */
     public static String dateTime2(byte[] raw, IbdColumn column) {
         if (raw.length < 5) {
             return "0000-00-00 00:00:00";
@@ -252,12 +252,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code TIME}（3 字节：1 位符号 + 1 位保留 + 10 位时 + 6 位分 + 6 位秒）。
-    *
-    * @param raw    原始字节
-    * @param column 字段定义（取小数秒精度）
-    * @return {@code hh:mm:ss[.fff]}
-    */
+     * 解码 {@code TIME}（3 字节：1 位符号 + 1 位保留 + 10 位时 + 6 位分 + 6 位秒）。
+     *
+     * @param raw    原始字节
+     * @param column 字段定义（取小数秒精度）
+     * @return {@code hh:mm:ss[.fff]}
+     */
     public static String time2(byte[] raw, IbdColumn column) {
         if (raw.length < 3) {
             return "00:00:00";
@@ -270,13 +270,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 拼小数秒。
-    *
-    * @param raw       原始字节
-    * @param fromIndex 小数秒起始下标
-    * @param precision 精度
-    * @return 形如 {@code .123}；精度为 0 时返回空串
-    */
+     * 拼小数秒。
+     *
+     * @param raw       原始字节
+     * @param fromIndex 小数秒起始下标
+     * @param precision 精度
+     * @return 形如 {@code .123}；精度为 0 时返回空串
+     */
     private static String fractional(byte[] raw, int fromIndex, int precision) {
         if (precision <= 0 || raw.length <= fromIndex) {
             return "";
@@ -292,13 +292,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code DECIMAL}。
-    *
-    * @param raw       原始字节
-    * @param precision 精度
-    * @param scale     标度
-    * @return {@link BigDecimal}
-    */
+     * 解码 {@code DECIMAL}。
+     *
+     * @param raw       原始字节
+     * @param precision 精度
+     * @param scale     标度
+     * @return {@link BigDecimal}
+     */
     public static BigDecimal decimal(byte[] raw, int precision, int scale) {
         byte[] buffer = raw.clone();
         boolean negative;
@@ -353,12 +353,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 把整数左侧补零到固定位数。
-    *
-    * @param value  数值
-    * @param digits 目标位数
-    * @return 补零后的字符串
-    */
+     * 把整数左侧补零到固定位数。
+     *
+     * @param value  数值
+     * @param digits 目标位数
+     * @return 补零后的字符串
+     */
     private static String pad(long value, int digits) {
         String text = Long.toString(value);
         StringBuilder sb = new StringBuilder();
@@ -369,17 +369,17 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code ENUM}。
-    *
-    * <p><b>踩过的坑</b>：这里曾经用 {@code unsignedInt(raw, 0)} 取序号，而这个方法会把不足
-    * 4 字节的数组<b>左侧补零</b>成 4 字节 —— 于是 1 字节的 {@code 0x02}（{@code PG}）被读成
-    * {@code 0x02000000} = 33554432，{@code film.rating} 整列输出成数字。ENUM 的宽度是
-    * 1 或 2 字节，必须<b>按实际字节数</b>解释。</p>
-    *
-    * @param raw    原始字节
-    * @param column 字段定义
-    * @return 枚举文本；序号为 0（非法值）返回 {@code null}
-    */
+     * 解码 {@code ENUM}。
+     *
+     * <p><b>踩过的坑</b>：这里曾经用 {@code unsignedInt(raw, 0)} 取序号，而这个方法会把不足
+     * 4 字节的数组<b>左侧补零</b>成 4 字节 —— 于是 1 字节的 {@code 0x02}（{@code PG}）被读成
+     * {@code 0x02000000} = 33554432，{@code film.rating} 整列输出成数字。ENUM 的宽度是
+     * 1 或 2 字节，必须<b>按实际字节数</b>解释。</p>
+     *
+     * @param raw    原始字节
+     * @param column 字段定义
+     * @return 枚举文本；序号为 0（非法值）返回 {@code null}
+     */
     public static String enumeration(byte[] raw, IbdColumn column) {
         long index = bytesValue(raw);
         if (index <= 0) {
@@ -392,12 +392,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码 {@code SET}。
-    *
-    * @param raw    原始字节
-    * @param column 字段定义
-    * @return 逗号分隔的成员；空集合返回空串
-    */
+     * 解码 {@code SET}。
+     *
+     * @param raw    原始字节
+     * @param column 字段定义
+     * @return 逗号分隔的成员；空集合返回空串
+     */
     public static String set(byte[] raw, IbdColumn column) {
         long mask = bytesValue(raw);
         StringBuilder sb = new StringBuilder();
@@ -413,12 +413,12 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 解码文本类字段。
-    *
-    * @param column 字段定义
-    * @param raw    原始字节
-    * @return 文本；二进制字符集（{@code collation_id = 63}）返回 {@code 0x...} 十六进制
-    */
+     * 解码文本类字段。
+     *
+     * @param column 字段定义
+     * @param raw    原始字节
+     * @return 文本；二进制字符集（{@code collation_id = 63}）返回 {@code 0x...} 十六进制
+     */
     public static String text(IbdColumn column, byte[] raw) {
         Charset charset = column.charset();
         if (charset == null) {
@@ -438,14 +438,14 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 把整个数组当作大端无符号整数读取（长度即宽度，最多 8 字节）。
-    *
-    * <p>与 {@link #unsignedInt} 的区别：<b>不做左侧补零</b>。{@code ENUM} / {@code SET}
-    * 这类「宽度由元素个数决定」的定长整数必须用它，否则 1 字节的值会被左移 24 位。</p>
-    *
-    * @param raw 原始字节
-    * @return 无符号值
-    */
+     * 把整个数组当作大端无符号整数读取（长度即宽度，最多 8 字节）。
+     *
+     * <p>与 {@link #unsignedInt} 的区别：<b>不做左侧补零</b>。{@code ENUM} / {@code SET}
+     * 这类「宽度由元素个数决定」的定长整数必须用它，否则 1 字节的值会被左移 24 位。</p>
+     *
+     * @param raw 原始字节
+     * @return 无符号值
+     */
     private static long bytesValue(byte[] raw) {
         long value = 0;
         for (int i = 0; i < raw.length && i < 8; i++) {
@@ -455,13 +455,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 读任意字节数的大端无符号整数（最多 8 字节）。
-    *
-    * @param raw   原始字节
-    * @param index 起始下标
-    * @param size  字节数
-    * @return 无符号值
-    */
+     * 读任意字节数的大端无符号整数（最多 8 字节）。
+     *
+     * @param raw   原始字节
+     * @param index 起始下标
+     * @param size  字节数
+     * @return 无符号值
+     */
     private static long unsignedLong(byte[] raw, int index, int size) {
         long value = 0;
         for (int i = 0; i < size && i < 8; i++) {
@@ -472,29 +472,29 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 读 4 字节无符号整数（大端）。
-    *
-    * <p><b>注意</b>：它按「4 字节定宽」解释，数组不够长时补的是<b>低位</b>零字节
-    * （{@code 0F AC 4F} 会变成 {@code 0F AC 4F 00}），不是左侧补零。
-    * 只适用于宽度确定就是 4 字节的场合（{@code TIMESTAMP} / {@code FLOAT}）。
-    * 宽度由数据决定的（{@code ENUM} / {@code SET} / {@code DATE} / {@code TIME2}）
-    * 必须用 {@link #bytesValue}。</p>
-    *
-    * @param raw   原始字节
-    * @param index 起始下标
-    * @return 无符号值
-    */
+     * 读 4 字节无符号整数（大端）。
+     *
+     * <p><b>注意</b>：它按「4 字节定宽」解释，数组不够长时补的是<b>低位</b>零字节
+     * （{@code 0F AC 4F} 会变成 {@code 0F AC 4F 00}），不是左侧补零。
+     * 只适用于宽度确定就是 4 字节的场合（{@code TIMESTAMP} / {@code FLOAT}）。
+     * 宽度由数据决定的（{@code ENUM} / {@code SET} / {@code DATE} / {@code TIME2}）
+     * 必须用 {@link #bytesValue}。</p>
+     *
+     * @param raw   原始字节
+     * @param index 起始下标
+     * @return 无符号值
+     */
     private static long unsignedInt(byte[] raw, int index) {
         return unsignedLong(raw, index, 4);
     }
 
     /**
-    * 读 8 字节（大端）。
-    *
-    * @param raw   原始字节
-    * @param index 起始下标
-    * @return 值
-    */
+     * 读 8 字节（大端）。
+     *
+     * @param raw   原始字节
+     * @param index 起始下标
+     * @return 值
+     */
     private static long longValue(byte[] raw, int index) {
         long value = 0;
         for (int i = 0; i < 8; i++) {
@@ -505,13 +505,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 读定长有符号整数（大端）。
-    *
-    * @param raw   原始字节
-    * @param index 起始下标
-    * @param size  字节数
-    * @return 有符号值
-    */
+     * 读定长有符号整数（大端）。
+     *
+     * @param raw   原始字节
+     * @param index 起始下标
+     * @param size  字节数
+     * @return 有符号值
+     */
     private static long signedInt(byte[] raw, int index, int size) {
         long value = 0;
         for (int i = 0; i < size; i++) {
@@ -523,13 +523,13 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 读大端无符号整数（最多 4 字节）。
-    *
-    * @param raw   原始字节
-    * @param index 起始下标
-    * @param size  字节数
-    * @return 无符号值
-    */
+     * 读大端无符号整数（最多 4 字节）。
+     *
+     * @param raw   原始字节
+     * @param index 起始下标
+     * @param size  字节数
+     * @return 无符号值
+     */
     private static long beValue(byte[] raw, int index, int size) {
         long value = 0;
         for (int i = 0; i < size; i++) {
@@ -540,11 +540,11 @@ public final class IbdTypeDecoder {
     }
 
     /**
-    * 转十六进制串。
-    *
-    * @param raw 原始字节
-    * @return 小写十六进制
-    */
+     * 转十六进制串。
+     *
+     * @param raw 原始字节
+     * @return 小写十六进制
+     */
     public static String hex(byte[] raw) {
         StringBuilder sb = new StringBuilder(raw.length * 2);
         for (byte b : raw) {

@@ -9,36 +9,36 @@ import java.security.SecureRandom;
 import static java.util.Base64.*;
 
 /**
-* AES 对称加解密实现
-*
-* <p>基于 JDK 内置 {@link Cipher} 实现，支持 AES/CBC/PKCS5Padding 模式的加密与解密。
-* 密钥长度支持 128 位、192 位和 256 位。
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* // 创建实例
-* AesCipher aes = new AesCipher();
-*
-* // 加密
-* byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8); // 16 字节 = 128 位
-* byte[] ciphertext = aes.encrypt(key, plaintext);
-*
-* // 解密
-* byte[] decrypted = aes.decrypt(key, ciphertext);
-*
-* // 字符串模式
-* String encryptedStr = aes.encryptToString(key, "明文数据");
-* String decryptedStr = aes.decryptToString(key, encryptedStr);
-* }</pre>
-*
-* @author CH
-* @since 2026/07/16
+ * AES 对称加解密实现
+ *
+ * <p>基于 JDK 内置 {@link Cipher} 实现，支持 AES/CBC/PKCS5Padding 模式的加密与解密。
+ * 密钥长度支持 128 位、192 位和 256 位。
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * // 创建实例
+ * AesCipher aes = new AesCipher();
+ *
+ * // 加密
+ * byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8); // 16 字节 = 128 位
+ * byte[] ciphertext = aes.encrypt(key, plaintext);
+ *
+ * // 解密
+ * byte[] decrypted = aes.decrypt(key, ciphertext);
+ *
+ * // 字符串模式
+ * String encryptedStr = aes.encryptToString(key, "明文数据");
+ * String decryptedStr = aes.decryptToString(key, encryptedStr);
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
 
     /**
-    * 算法名称
-    */
+     * 算法名称
+     */
     private static final String ALGORITHM = "AES";
     /** 加密转换算法 */
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
@@ -70,24 +70,24 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     }
 
     /**
-    * AES 加密（字符串模式）
-    *
-    * @param key  加密密钥
-    * @param data 待加密的明文字符串
-    * @return Base64 编码的密文字符串
-    */
+     * AES 加密（字符串模式）
+     *
+     * @param key  加密密钥
+     * @param data 待加密的明文字符串
+     * @return Base64 编码的密文字符串
+     */
     public String encryptToString(byte[] key, String data) {
         return getEncoder().encodeToString(
                 encrypt(key, data.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
-    * AES 解密
-    *
-    * @param key        解密密钥，必须与加密时使用的密钥一致
-    * @param ciphertext 待解密的密文数据（前 16 字节为随机 IV）
-    * @return 解密后的明文数据
-    */
+     * AES 解密
+     *
+     * @param key        解密密钥，必须与加密时使用的密钥一致
+     * @param ciphertext 待解密的密文数据（前 16 字节为随机 IV）
+     * @return 解密后的明文数据
+     */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[16];
@@ -103,12 +103,12 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     }
 
     /**
-    * AES 解密（字符串模式）
-    *
-    * @param key          解密密钥，必须与加密时使用的密钥一致
-    * @param ciphertext64 Base64 编码的密文字符串
-    * @return 解密后的明文字符串
-    */
+     * AES 解密（字符串模式）
+     *
+     * @param key          解密密钥，必须与加密时使用的密钥一致
+     * @param ciphertext64 Base64 编码的密文字符串
+     * @return 解密后的明文字符串
+     */
     public String decryptToString(byte[] key, String ciphertext64) {
         return new String(
                 decrypt(key, getDecoder().decode(ciphertext64)),

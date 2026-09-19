@@ -25,45 +25,45 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
-* 加密配置文件启动期装载器（SpringBoot 环境透明解密）
-*
-* <p>在 SpringBoot 配置文件装载完成后执行：
-* <ol>
-*   <li><b>整文件加密</b> — 遍历 {@code chua.crypto.config-files}，凡首行为
-*       {@code #!CHKF-CONFIG:1} 标记的配置文件，解密内容解析为属性并置于最高优先级</li>
-*   <li><b>单值加密</b> — 将既有 PropertySource 包装为 {@link EncryptedPropertySource}，
-*       读取时对 {@code ENC(...)} 值自动解密</li>
-* </ol>
-*
-* <p>密文配置文件在磁盘上保持加密形态，仅在内存中解密使用；解析失败仅告警不阻断启动。
-*
-* @author CH
-* @since 2026-08-26
+ * 加密配置文件启动期装载器（SpringBoot 环境透明解密）
+ *
+ * <p>在 SpringBoot 配置文件装载完成后执行：
+ * <ol>
+ *   <li><b>整文件加密</b> — 遍历 {@code chua.crypto.config-files}，凡首行为
+ *       {@code #!CHKF-CONFIG:1} 标记的配置文件，解密内容解析为属性并置于最高优先级</li>
+ *   <li><b>单值加密</b> — 将既有 PropertySource 包装为 {@link EncryptedPropertySource}，
+ *       读取时对 {@code ENC(...)} 值自动解密</li>
+ * </ol>
+ *
+ * <p>密文配置文件在磁盘上保持加密形态，仅在内存中解密使用；解析失败仅告警不阻断启动。
+ *
+ * @author CH
+ * @since 2026-08-26
  */
 @Slf4j
 public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
     /**
-    * 解密属性源名称
-    */
+     * 解密属性源名称
+     */
     public static final String DECRYPTED_SOURCE_NAME = "chuaCryptoDecryptedConfig";
 
     /**
-    * 排序：晚于 配置数据 装载，保证配置文件已就绪
-    */
+     * 排序：晚于 配置数据 装载，保证配置文件已就绪
+     */
     public static final int ORDER = ConfigDataEnvironmentPostProcessor.ORDER + 1;
 
     /**
-    * snakeyaml 是否可用
-    */
+     * snakeyaml 是否可用
+     */
     private static final boolean YAML_PRESENT = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");
 
     /**
-    * 处理环境：解密整文件加密的配置 + 包装 ENC(...) 单值解密
-    *
-    * @param environment  环境
-    * @param application  应用
-    */
+     * 处理环境：解密整文件加密的配置 + 包装 ENC(...) 单值解密
+     *
+     * @param environment  环境
+     * @param application  应用
+     */
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         try {
@@ -87,11 +87,11 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 绑定 chua.加密货币.* 配置
-    *
-    * @param environment 环境
-    * @return 属性对象
-    */
+     * 绑定 chua.加密货币.* 配置
+     *
+     * @param environment 环境
+     * @return 属性对象
+     */
     private CryptoProperties bindProperties(ConfigurableEnvironment environment) {
         return org.springframework.boot.context.properties.bind.Binder
                 .get(environment)
@@ -100,13 +100,13 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 解密全部整文件加密的配置文件并展平为属性键值
-    *
-    * @param crypto        加密门面
-    * @param files         配置文件列表
-    * @param decryptedFile 计数器（出 参数，记录实际解密文件数）
-    * @return 属性键值
-    */
+     * 解密全部整文件加密的配置文件并展平为属性键值
+     *
+     * @param crypto        加密门面
+     * @param files         配置文件列表
+     * @param decryptedFile 计数器（出 参数，记录实际解密文件数）
+     * @return 属性键值
+     */
     private Map<String, Object> decryptWholeFileConfigs(Crypto crypto, List<String> files, int[] decryptedFile) {
         Map<String, Object> flat = new LinkedHashMap<>();
         for (String name : files) {
@@ -122,12 +122,12 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 按扩展名解析配置内容为扁平属性表（a.b.c 形式）
-    *
-    * @param content   配置明文
-    * @param fileName  文件名（决定解析器）
-    * @return 扁平属性表
-    */
+     * 按扩展名解析配置内容为扁平属性表（a.b.c 形式）
+     *
+     * @param content   配置明文
+     * @param fileName  文件名（决定解析器）
+     * @return 扁平属性表
+     */
     private Map<String, Object> parse(String content, String fileName) {
         String lower = fileName.toLowerCase();
         if (lower.endsWith(".properties")) {
@@ -141,11 +141,11 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 解析 属性 内容
-    *
-    * @param content 配置明文
-    * @return 扁平属性表
-    */
+     * 解析 属性 内容
+     *
+     * @param content 配置明文
+     * @return 扁平属性表
+     */
     private Map<String, Object> parseProperties(String content) {
         Properties properties = new Properties();
         try {
@@ -161,11 +161,11 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 解析 yaml 内容为扁平属性表
-    *
-    * @param content 配置明文
-    * @return 扁平属性表
-    */
+     * 解析 yaml 内容为扁平属性表
+     *
+     * @param content 配置明文
+     * @return 扁平属性表
+     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseYaml(String content) {
         try {
@@ -181,12 +181,12 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 递归展平嵌套 映射 为点号分隔键
-    *
-    * @param prefix 键前缀
-    * @param source 嵌套结构
-    * @param target 输出
-    */
+     * 递归展平嵌套 映射 为点号分隔键
+     *
+     * @param prefix 键前缀
+     * @param source 嵌套结构
+     * @param target 输出
+     */
     private void flatten(String prefix, Map<String, Object> source, Map<String, Object> target) {
         for (Map.Entry<String, Object> entry : source.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
@@ -202,11 +202,11 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 用 ENC(...) 解密装饰器替换既有枚举型属性源（跳过自身与已装饰项）
-    *
-    * @param sources 属性源集合
-    * @param crypto  加密门面
-    */
+     * 用 ENC(...) 解密装饰器替换既有枚举型属性源（跳过自身与已装饰项）
+     *
+     * @param sources 属性源集合
+     * @param crypto  加密门面
+     */
     private void wrapValueDecryption(MutablePropertySources sources, Crypto crypto) {
         List<PropertySource<?>> snapshot = new ArrayList<>();
         for (PropertySource<?> source : sources) {
@@ -225,10 +225,10 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-    * 获取排序值
-    *
-    * @return 排序值
-    */
+     * 获取排序值
+     *
+     * @return 排序值
+     */
     @Override
     public int getOrder() {
         return ORDER;

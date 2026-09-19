@@ -15,60 +15,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 通用 打开cv Haar/LBP 级联检测翻译器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用 打开cv Haar/LBP 级联检测翻译器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OpencvCascadeDetector extends OpencvModelTranslator {
 
     /**
-    * 级联模型路径。
-    */
+     * 级联模型路径。
+     */
     private final String modelPath;
 
     /**
-    * 类别标签。
-    */
+     * 类别标签。
+     */
     private final String label;
 
     /**
-    * 级联分类器。
-    */
+     * 级联分类器。
+     */
     private final CascadeClassifier classifier;
 
     /**
-    * 默认置信度。
-    */
+     * 默认置信度。
+     */
     private static final float DEFAULT_CONFIDENCE = 1.0f;
 
     /**
-    * 缩放因子。
-    */
+     * 缩放因子。
+     */
     private final double scaleFactor;
 
     /**
-    * 最小邻域数。
-    */
+     * 最小邻域数。
+     */
     private final int minNeighbors;
 
     /**
-    * 最小目标尺寸。
-    */
+     * 最小目标尺寸。
+     */
     private final Size minSize;
 
     /**
-    * 构造级联检测器。
-    *
-    * @param modelName   模型名称
-    * @param modelPath   模型路径
-    * @param label       类别标签
-    * @param scaleFactor 缩放因子
-    * @param minNeighbors 最小邻域
-    * @param minWidth    最小宽
-    * @param minHeight   最小高
-    */
+     * 构造级联检测器。
+     *
+     * @param modelName   模型名称
+     * @param modelPath   模型路径
+     * @param label       类别标签
+     * @param scaleFactor 缩放因子
+     * @param minNeighbors 最小邻域
+     * @param minWidth    最小宽
+     * @param minHeight   最小高
+     */
     public OpencvCascadeDetector(String modelName,
                                  String modelPath,
                                  String label,

@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* TS 时序存储引擎。
+ * TS 时序存储引擎。
  */
 public class TsWalStoreSystem implements WalStoreSystem<String> {
 

@@ -14,7 +14,7 @@ import java.awt.*;
  * @param alpha 透明度（0-1，0 完全透明，1 完全不透明）
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record TextWatermarkOptions(
         java.awt.image.BufferedImage image,
         String text,

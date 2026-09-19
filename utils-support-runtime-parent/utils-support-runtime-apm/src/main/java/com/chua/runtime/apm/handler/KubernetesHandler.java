@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Kubernetes 处理器 — intercepts Kubernetes API calls.
-*
-* @author CH
-* @since 4.0.0.42
+ * Kubernetes 处理器 — intercepts Kubernetes API calls.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class KubernetesHandler extends AbstractAppHandler {
 
     /**
-    * api 客户端
+     * api 客户端
      */
     private static final String API_CLIENT = "io/kubernetes/client/openapi/ApiClient";
     /**
-    * api 方法
+     * api 方法
      */
     private static final String[] API_METHODS = {"execute", "call"};
 

@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Gem 软件包管理器提供器。
-*
-* <p>通过 gem CLI 搜索、安装和卸载 Ruby gem。
-* 支持 <code>gem 搜索</code>、<code>gem install</code>、<code>gem uninstall</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * Gem 软件包管理器提供器。
+ *
+ * <p>通过 gem CLI 搜索、安装和卸载 Ruby gem。
+ * 支持 <code>gem 搜索</code>、<code>gem install</code>、<code>gem uninstall</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("gem")
 public class GemSoftwareProvider implements SoftwareProvider {

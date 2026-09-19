@@ -9,18 +9,18 @@ import java.util.Map;
 import com.chua.datasource.support.engine.MemorySqlLex.RowAccessor;
 
 /**
-* SQL AST 节点与执行计划定义。
-* <p>表达式以二叉树组织：逻辑节点（AND/OR/NOT）为分支，
-* 比较节点（=/LIKE/入/BETWEEN 等）为叶子谓词，求值自顶向下递归。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * SQL AST 节点与执行计划定义。
+ * <p>表达式以二叉树组织：逻辑节点（AND/OR/NOT）为分支，
+ * 比较节点（=/LIKE/入/BETWEEN 等）为叶子谓词，求值自顶向下递归。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 final class MemorySqlAst {
 
     /**
-    * 内存sqlast。
-    */
+     * 内存sqlast。
+     */
     private MemorySqlAst() {
     }
 
@@ -37,12 +37,12 @@ final class MemorySqlAst {
     * @return 布真
     */
         /**
-        * 对行求值。
-        *
-        * @param row 行对象（映射 或 Bean）
-        * @param p   参数游标
-        * @return 布真结果
-        */
+         * 对行求值。
+         *
+         * @param row 行对象（映射 或 Bean）
+         * @param p   参数游标
+         * @return 布真结果
+         */
         abstract boolean eval(Object row, ParamProvider p);
     }
 
@@ -133,10 +133,10 @@ final class MemorySqlAst {
         }
 
         /**
-        * 获取列名。
-        *
-        * @return 列名
-        */
+         * 获取列名。
+         *
+         * @return 列名
+         */
         String name() {
             return name;
         }
@@ -166,21 +166,21 @@ final class MemorySqlAst {
         }
 
         /**
-        * 获取内部原始值。
-        *
-        * @return 原始值（可能为 参数记号笔）
-        */
+         * 获取内部原始值。
+         *
+         * @return 原始值（可能为 参数记号笔）
+         */
         Object value() {
             return value;
         }
 
         /**
-        * 解析字面量或参数占位为实际值。
-        *
-        * @param v 待解析对象（字面量节点 / 参数记号笔 / 原始值）
-        * @param p 参数游标，空 时占位返回 空
-        * @return 解析后的值
-        */
+         * 解析字面量或参数占位为实际值。
+         *
+         * @param v 待解析对象（字面量节点 / 参数记号笔 / 原始值）
+         * @param p 参数游标，空 时占位返回 空
+         * @return 解析后的值
+         */
     static Object unwrap(Object v, ParamProvider p) {
             if (v instanceof ParamMarker) {
                 return p == null ? null : p.next();
@@ -345,10 +345,10 @@ final class MemorySqlAst {
     interface ParamProvider {
 
         /**
-    * 消费下一个绑定参数。
-    *
-    * @return 参数值，耗尽返回 空
-    */
+         * 消费下一个绑定参数。
+         *
+         * @return 参数值，耗尽返回 空
+         */
         Object next();
     }
 
@@ -383,19 +383,19 @@ final class MemorySqlAst {
         private List<Object> boundParams;
 
         /**
-    * 绑定 ? 参数列表。
-    *
-    * @param params 参数值集合，空 视为空集
-    */
+         * 绑定 ? 参数列表。
+         *
+         * @param params 参数值集合，空 视为空集
+         */
         void bind(List<Object> params) {
             this.boundParams = params == null ? List.of() : params;
         }
 
         /**
-        * 创建独立的按序参数游标（每行求值需新建以保证绑定值一致）。
-        *
-        * @return 游标提供器
-        */
+         * 创建独立的按序参数游标（每行求值需新建以保证绑定值一致）。
+         *
+         * @return 游标提供器
+         */
         ParamProvider provider() {
             return new ParamProvider() {
                 private int idx;
@@ -408,11 +408,11 @@ final class MemorySqlAst {
         }
 
         /**
-        * 在行引用列表上执行管道。
-        *
-        * @param rows 行引用
-        * @return 结果行
-        */
+         * 在行引用列表上执行管道。
+         *
+         * @param rows 行引用
+         * @return 结果行
+         */
         public List<Map<String, Object>> evaluate(List<?> rows) {
             List<?> filtered = rows;
             if (where != null) {
@@ -446,10 +446,10 @@ final class MemorySqlAst {
         }
 
         /**
-        * 依据 订单bys 构建多列比较器（空 值排最前）。
-        *
-        * @return 行比较器
-        */
+         * 依据 订单bys 构建多列比较器（空 值排最前）。
+         *
+         * @return 行比较器
+         */
         private Comparator<Object> buildComparator() {
             return (a, b) -> {
                 for (OrderItem ob : orderBys) {
@@ -474,11 +474,11 @@ final class MemorySqlAst {
         }
 
         /**
-        * 对单行执行列投影。
-        *
-        * @param row 行对象
-        * @return 投影后的有序映射
-        */
+         * 对单行执行列投影。
+         *
+         * @param row 行对象
+         * @return 投影后的有序映射
+         */
         private Map<String, Object> project(Object row) {
             Map<String, Object> out = new LinkedHashMap<>();
             if (selectAll) {
@@ -511,10 +511,10 @@ final class MemorySqlAst {
         }
 
         /**
-        * 匹配谓词。
-        *
-        * @return WHERE 树或 空
-        */
+         * 匹配谓词。
+         *
+         * @return WHERE 树或 空
+         */
         public Node where() {
             return where;
         }
@@ -539,10 +539,10 @@ final class MemorySqlAst {
         }
 
         /**
-        * 待插入值行。
-        *
-        * @return 值行集合
-        */
+         * 待插入值行。
+         *
+         * @return 值行集合
+         */
         public List<List<Object>> rows() {
             return rows;
         }
@@ -555,10 +555,10 @@ final class MemorySqlAst {
         final Map<String, Object> sets = new LinkedHashMap<>();
 
         /**
-    * 设置 赋值。
-    *
-    * @return 列到值的映射
-    */
+         * 设置 赋值。
+         *
+         * @return 列到值的映射
+         */
         public Map<String, Object> sets() {
             return sets;
         }
@@ -571,13 +571,13 @@ final class MemorySqlAst {
     /* ==================== 共享 DML 执行器 ==================== */
 
     /**
-    * DML 统一执行入口：绑定参数后对目标表行引用应用变更。
-    *
-    * @param plan          解析得到的 DML 计划
-    * @param params        ? 绑定参数
-    * @param tableResolver 表行引用解析器（惰性调用一次；内存引擎可在此建空表）
-    * @return 影响行数
-    */
+     * DML 统一执行入口：绑定参数后对目标表行引用应用变更。
+     *
+     * @param plan          解析得到的 DML 计划
+     * @param params        ? 绑定参数
+     * @param tableResolver 表行引用解析器（惰性调用一次；内存引擎可在此建空表）
+     * @return 影响行数
+     */
     public static int executeDml(DmlPlan plan, List<Object> params, java.util.function.Supplier<List<Object>> tableResolver) {
         java.util.Objects.requireNonNull(plan, "plan must not be null");
         List<Object> safeParams = params == null ? List.of() : params;
@@ -605,11 +605,11 @@ final class MemorySqlAst {
 
 
     /**
-    * 将解析期收集的 插入 / 更新 设置 参数占位按序绑定。
-    *
-    * @param plan     DML 计划
-    * @param provider 共享参数游标
-    */
+     * 将解析期收集的 插入 / 更新 设置 参数占位按序绑定。
+     *
+     * @param plan     DML 计划
+     * @param provider 共享参数游标
+     */
     public static void bindPlanParams(DmlPlan plan, ParamProvider provider) {
         if (plan instanceof InsertPlan ins) {
             for (List<Object> row : ins.rows()) {
@@ -621,23 +621,23 @@ final class MemorySqlAst {
     }
 
     /**
-    * 构造独立的按序参数游标（供单行 WHERE 求值使用）。
-    *
-    * @param params 绑定参数
-    * @return 游标提供器
-    */
+     * 构造独立的按序参数游标（供单行 WHERE 求值使用）。
+     *
+     * @param params 绑定参数
+     * @return 游标提供器
+     */
     public static ParamProvider rowProvider(List<Object> params) {
         java.util.concurrent.atomic.AtomicInteger idx = new java.util.concurrent.atomic.AtomicInteger();
         return () -> idx.get() < params.size() ? params.get(idx.getAndIncrement()) : null;
     }
 
     /**
-    * 对行引用列表应用 插入 计划。
-    *
-    * @param plan 插入计划
-    * @param rows 目标行引用
-    * @return 影响行数
-    */
+     * 对行引用列表应用 插入 计划。
+     *
+     * @param plan 插入计划
+     * @param rows 目标行引用
+     * @return 影响行数
+     */
     public static int applyInsert(InsertPlan plan, List<Object> rows) {
         for (List<Object> values : plan.rows()) {
             LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
@@ -661,13 +661,13 @@ final class MemorySqlAst {
     }
 
     /**
-    * 对行引用列表应用 更新 计划。
-    *
-    * @param plan   更新计划
-    * @param rows   目标行引用
-    * @param params 绑定参数（WHERE 占位逐行重置消费）
-    * @return 影响行数
-    */
+     * 对行引用列表应用 更新 计划。
+     *
+     * @param plan   更新计划
+     * @param rows   目标行引用
+     * @param params 绑定参数（WHERE 占位逐行重置消费）
+     * @return 影响行数
+     */
     public static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
         int affected = 0;
         for (Object row : rows) {
@@ -687,13 +687,13 @@ final class MemorySqlAst {
     }
 
     /**
-    * 对行引用列表应用 删除 计划。
-    *
-    * @param plan   删除计划
-    * @param rows   目标行引用
-    * @param params 绑定参数
-    * @return 影响行数
-    */
+     * 对行引用列表应用 删除 计划。
+     *
+     * @param plan   删除计划
+     * @param rows   目标行引用
+     * @param params 绑定参数
+     * @return 影响行数
+     */
     public static int applyDelete(DeletePlan plan, List<Object> rows, List<Object> params) {
         int before = rows.size();
         rows.removeIf(row -> plan.where() == null || plan.where().eval(row, rowProvider(params)));
@@ -703,13 +703,13 @@ final class MemorySqlAst {
     /* ==================== 工具 ==================== */
 
     /**
-    * 将表达式节点作为值求值（列引用取行值，字面量解析占位）。
-    *
-    * @param n   表达式节点
-    * @param row 行对象
-    * @param p   参数游标
-    * @return 求值结果
-    */
+     * 将表达式节点作为值求值（列引用取行值，字面量解析占位）。
+     *
+     * @param n   表达式节点
+     * @param row 行对象
+     * @param p   参数游标
+     * @return 求值结果
+     */
     static Object value(Node n, Object row, ParamProvider p) {
         if (n instanceof ColumnNode) {
             return RowAccessor.value(row, ((ColumnNode) n).name());
@@ -722,12 +722,12 @@ final class MemorySqlAst {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     /**
-    * 通用比较：数值按 double 比较，可比对象直接比较，否则退化字符串比较。
-    *
-    * @param a 左值
-    * @param b 右值
-    * @return 比较结果
-    */
+     * 通用比较：数值按 double 比较，可比对象直接比较，否则退化字符串比较。
+     *
+     * @param a 左值
+     * @param b 右值
+     * @return 比较结果
+     */
     static int compare(Object a, Object b) {
         if (a instanceof Number && b instanceof Number) {
             double da = ((Number) a).doubleValue();

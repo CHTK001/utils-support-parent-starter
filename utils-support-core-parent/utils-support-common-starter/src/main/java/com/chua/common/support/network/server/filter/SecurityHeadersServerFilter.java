@@ -17,47 +17,47 @@ import java.util.concurrent.CompletionStage;
  *
  * @author CH
  * @since 2026/08/24
-*/
+ */
 public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
-    * 防 MIME 嗅探
-    */
+     * 防 MIME 嗅探
+     */
     private static final String HEADER_NOSNIFF = "X-Content-Type-Options";
 
     /**
-    * 防 MIME 嗅探取值
-    */
+     * 防 MIME 嗅探取值
+     */
     private static final String VALUE_NOSNIFF = "nosniff";
 
     /**
-    * 防点击劫持(禁止 iframe 嵌入)
-    */
+     * 防点击劫持(禁止 iframe 嵌入)
+     */
     private static final String HEADER_FRAME_OPTIONS = "X-Frame-Options";
 
     /**
-    * 禁止 iframe 嵌入取值
-    */
+     * 禁止 iframe 嵌入取值
+     */
     private static final String VALUE_FRAME_DENY = "DENY";
 
     /**
-    * Referrer 泄漏控制
-    */
+     * Referrer 泄漏控制
+     */
     private static final String HEADER_REFERRER_POLICY = "Referrer-Policy";
 
     /**
-    * 跨源仅发送 origin,降源不发送
-    */
+     * 跨源仅发送 origin,降源不发送
+     */
     private static final String VALUE_REFERRER = "strict-origin-when-cross-origin";
 
     /**
-    * HSTS 头(强制 HTTPS)
-    */
+     * HSTS 头(强制 HTTPS)
+     */
     private static final String HEADER_HSTS = "Strict-Transport-Security";
 
     /**
-    * HSTS 一年 + 包含子域
-    */
+     * HSTS 一年 + 包含子域
+     */
     private static final String VALUE_HSTS = "max-age=31536000; includeSubDomains";
 
     /** 是否附加 HSTS 头(TLS 部署时开启) */
@@ -71,10 +71,10 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     }
 
     /**
-    * 创建安全响应头过滤器。
-    *
-    * @param hstsEnabled true 表示附加 Strict-Transport-Security 头(TLS 部署)
-    */
+     * 创建安全响应头过滤器。
+     *
+     * @param hstsEnabled true 表示附加 Strict-Transport-Security 头(TLS 部署)
+     */
     public SecurityHeadersServerFilter(boolean hstsEnabled) {
         this.hstsEnabled = hstsEnabled;
     }
@@ -115,12 +115,12 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
 
     @Override
     /**
-    * 响应式Do过滤
-    *
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * 响应式Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         // 先置响应头再放行:后续 handler 仍可覆盖同名头
@@ -129,10 +129,10 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     }
 
     /**
-    * 向响应附加安全头集合。
-    *
-    * @param response 响应对象
-    */
+     * 向响应附加安全头集合。
+     *
+     * @param response 响应对象
+     */
     private void applyHeaders(ServerResponse response) {
         response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
         response.setHeader(HEADER_FRAME_OPTIONS, VALUE_FRAME_DENY);

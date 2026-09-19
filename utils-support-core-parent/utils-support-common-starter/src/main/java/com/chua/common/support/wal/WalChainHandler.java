@@ -9,15 +9,15 @@ package com.chua.common.support.wal;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @FunctionalInterface
 public interface WalChainHandler {
 
     /**
-    * 在回调中追加链式操作。
-    *
-    * @param chain 链式写入接口
-    * @throws Exception 业务异常，写入会中止
-    */
+     * 在回调中追加链式操作。
+     *
+     * @param chain 链式写入接口
+     * @throws Exception 业务异常，写入会中止
+     */
     void apply(WalChain chain) throws Exception;
 }

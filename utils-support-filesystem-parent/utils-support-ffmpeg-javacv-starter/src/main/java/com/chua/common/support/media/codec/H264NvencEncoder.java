@@ -24,133 +24,133 @@ import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
  * 基于 NVENC (h264_nvenc) 的硬件 H.264 编码器。
  * <p>使用 FFmpegFrameRecorder 封装，通过 {@code setVideoCodecName(h264_nvenc)} 强制指定硬件加速。</p>
  * <p>仅接受 YUV420P 格式的 Frame，输入分辨率超过 1080p 时自动缩放到 1080p。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = {"h264", "nvenc", "javacv-ffmpeg"}, order = 10)
 public class H264NvencEncoder implements VideoEncoder {
 
     /**
-    */
+     */
     private static final int MAX_WIDTH = 1920;
 
     /**
-    */
+     */
     private static final int MAX_HEIGHT = 1080;
 
     /**
-    */
+     */
     private static final int GOP_SIZE = 150;
 
     /**
-    */
+     */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
-    * ffmpeg 帧录制器
-    */
+     * ffmpeg 帧录制器
+     */
     private FFmpegFrameRecorder recorder;
 
     /**
-    */
+     */
     private ByteArrayOutputStream memoryStream;
 
     /**
-    */
+     */
     private DrainableByteArrayOutputStream memoryStreamHolder;
 
     /**
-    * 色彩空间转换上下文（缩放用）
-    */
+     * 色彩空间转换上下文（缩放用）
+     */
     private SwsContext swsCtx;
 
     /**
-    * 缩放输出帧缓冲区
-    */
+     * 缩放输出帧缓冲区
+     */
     private java.nio.ByteBuffer scaledBuf;
 
     /**
-    */
+     */
     private int encWidth;
 
     /**
-    */
+     */
     private int encHeight;
 
     /**
-    * 目标帧率
-    */
+     * 目标帧率
+     */
     private int fps;
 
     /**
-    * 帧时间戳
-    */
+     * 帧时间戳
+     */
     private long pts;
 
     /**
-    * 是否请求了关键帧
-    */
+     * 是否请求了关键帧
+     */
     private boolean keyFrameRequested;
 
     /**
-    */
+     */
     private boolean started;
 
     /**
-    * 帧计数器
-    */
+     * 帧计数器
+     */
     private long frameIndex;
 
     /**
-    * 上一个关键帧索引
-    */
+     * 上一个关键帧索引
+     */
     private long lastKeyFrameIndex = -1;
 
     /**
-    */
+     */
     private int prevFirstNalType = -1;
 
     /**
-    */
+     */
     private boolean pendingForceIdr;
 
     /**
-    * 累积的 NAL 缓冲区，用于缓存当前 GOP 内所有 NAL
-    */
+     * 累积的 NAL 缓冲区，用于缓存当前 GOP 内所有 NAL
+     */
     private final java.io.ByteArrayOutputStream gopBuffer = new java.io.ByteArrayOutputStream(256 * 1024);
 
     /**
-    */
+     */
     private int lastGopSize = 0;
 
     /**
-    * 上次 flush 时是否包含 IDR
-    */
+     * 上次 flush 时是否包含 IDR
+     */
     private boolean lastGopHasIdr = false;
 
     /**
-    */
+     */
     private String codecName;
 
     /**
-    * 反射获取的 av格式化上下文 字段
-    */
+     * 反射获取的 av格式化上下文 字段
+     */
     private Field ocField;
 
     /**
-    * 反射获取的 avcodec上下文 字段
-    */
+     * 反射获取的 avcodec上下文 字段
+     */
     private Field videoCField;
 
     /**
-    * 从编码器 extradata 提取的 SPS/PPS（Annex B 格式），用于拼接到关键帧头部
-    */
+     * 从编码器 extradata 提取的 SPS/PPS（Annex B 格式），用于拼接到关键帧头部
+     */
     private byte[] spsPpsAnnexB;
 
     /**
-    */
+     */
     public H264NvencEncoder() {
         ocField = ReflectUtils.findField(FFmpegFrameRecorder.class, "oc");
         videoCField = ReflectUtils.findField(FFmpegFrameRecorder.class, "video_c");
@@ -160,12 +160,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 初始化 NVENC 编码器。
-    *
-    * @param width  输入宽度
-    * @param height 输入高度
-    * @param fps    目标帧率
-    */
+     * 初始化 NVENC 编码器。
+     *
+     * @param width  输入宽度
+     * @param height 输入高度
+     * @param fps    目标帧率
+     */
     private void init(int width, int height, int fps) {
         close();
         this.encWidth = Math.min(ensureEven(width), MAX_WIDTH);
@@ -192,11 +192,11 @@ public class H264NvencEncoder implements VideoEncoder {
          log.warn("[H264NvencEncoder] 所有硬件编码器均不可用");
     }
     /**
-    * 尝试初始化指定编码器。
-    *
-    * @param codecName 编码器名称
-    * @return 初始化成功返回 true
-    */
+     * 尝试初始化指定编码器。
+     *
+     * @param codecName 编码器名称
+     * @return 初始化成功返回 true
+     */
     private boolean tryInitCodec(String codecName) {
         try {
             FFmpegFrameRecorder r = new FFmpegFrameRecorder(
@@ -397,12 +397,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 检查帧数据中是否包含指定类型的 NAL。
-    *
-    * @param data H264 数据（Annex B 格式）
-    * @param nalType NAL 类型（1-31）
-    * @return true 表示包含
-    */
+     * 检查帧数据中是否包含指定类型的 NAL。
+     *
+     * @param data H264 数据（Annex B 格式）
+     * @param nalType NAL 类型（1-31）
+     * @return true 表示包含
+     */
     private static boolean containsNalType(byte[] data, int nalType) {
         if (data == null || data.length < 5) {
             return false;
@@ -424,10 +424,10 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 从帧数据中扫描 NAL 提取 SPS（0x67）和 PPS（0x68）。
-    *
-    * @param data 帧原始 H264 数据（Annex B 格式，含 00 00 00 01 起始码）
-    */
+     * 从帧数据中扫描 NAL 提取 SPS（0x67）和 PPS（0x68）。
+     *
+     * @param data 帧原始 H264 数据（Annex B 格式，含 00 00 00 01 起始码）
+     */
     private void extractSpsPpsFromFrame(byte[] data) {
         if (data == null || data.length < 8) {
             return;
@@ -484,12 +484,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * bytes转为hex
-    *
-    * @param data 数据
-    * @param n 长度
-    * @return bytes转为hex的结果
-    */
+     * bytes转为hex
+     *
+     * @param data 数据
+     * @param n 长度
+     * @return bytes转为hex的结果
+     */
     private static String bytesToHex(byte[] data, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
@@ -499,8 +499,8 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 清除 AV_CODEC_FLAG_全局_头部 标志，强制编码器在每帧中写入 SPS/PPS。
-    */
+     * 清除 AV_CODEC_FLAG_全局_头部 标志，强制编码器在每帧中写入 SPS/PPS。
+     */
     private void clearGlobalHeader() {
         if (videoCField == null || recorder == null) {
             return;
@@ -517,8 +517,8 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 从编码器 extradata 中提取 SPS/PPS 并转换为 Annex B 格式。
-    */
+     * 从编码器 extradata 中提取 SPS/PPS 并转换为 Annex B 格式。
+     */
     private void loadSpsPpsFromExtradata() {
         if (videoCField == null || recorder == null) {
             return;
@@ -591,8 +591,8 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 刷新 AVIO 输出缓冲区，确保编码数据写入 内存流。
-    */
+     * 刷新 AVIO 输出缓冲区，确保编码数据写入 内存流。
+     */
     private void flushOutput() {
         if (ocField == null || recorder == null) {
             return;
@@ -608,13 +608,13 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 缩放 YUV420P 帧到目标尺寸。
-    *
-    * @param frame 输入帧
-    * @param inW   输入宽度
-    * @param inH   输入高度
-    * @return 缩放后的 帧
-    */
+     * 缩放 YUV420P 帧到目标尺寸。
+     *
+     * @param frame 输入帧
+     * @param inW   输入宽度
+     * @param inH   输入高度
+     * @return 缩放后的 帧
+     */
     private Frame scaleFrame(Frame frame, int inW, int inH) {
         BytePointer srcData;
         if (frame.image[0] instanceof java.nio.ByteBuffer buf) {
@@ -718,20 +718,20 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 内存输出流适配器。
-    */
+     * 内存输出流适配器。
+     */
     private static final class MemoryOutputStream extends OutputStream {
 
         /**
-        * 底层字节数组输出流
-        */
+         * 底层字节数组输出流
+         */
         private final ByteArrayOutputStream backing;
 
         /**
-        * 构造内存输出流。
-        *
-        * @param backing 底层字节数组输出流
-        */
+         * 构造内存输出流。
+         *
+         * @param backing 底层字节数组输出流
+         */
         MemoryOutputStream(ByteArrayOutputStream backing) {
             this.backing = backing;
         }
@@ -772,12 +772,12 @@ public class H264NvencEncoder implements VideoEncoder {
         }
 
         /**
-        * 读取 [偏移量, 偏移量+长度) 区间的字节并 reset() 清空整个累计区。
-        *
-        * @param offset 偏移量
-        * @param length 长度
-        * @return drain 的字节数组
-        */
+         * 读取 [偏移量, 偏移量+长度) 区间的字节并 reset() 清空整个累计区。
+         *
+         * @param offset 偏移量
+         * @param length 长度
+         * @return drain 的字节数组
+         */
         synchronized byte[] drain(int offset, int length) {
             byte[] out = new byte[length];
             System.arraycopy(this.buf, offset, out, 0, length);

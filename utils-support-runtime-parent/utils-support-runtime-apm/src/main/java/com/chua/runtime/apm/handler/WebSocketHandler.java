@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* WebSocket 处理器 — intercepts WebSocket connections 和 消息.
-*
-* @author CH
-* @since 4.0.0.42
+ * WebSocket 处理器 — intercepts WebSocket connections 和 消息.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WebSocketHandler extends AbstractAppHandler {
 
     /**
-    * WebSocket 会话
+     * WebSocket 会话
      */
     private static final String WEBSOCKET_SESSION = "javax/websocket/Session";
     /**
-    * 会话 方法
+     * 会话 方法
      */
     private static final String[] SESSION_METHODS = {"getBasicRemote", "getAsyncRemote", "close"};
     /**
-    * 远程 端点
+     * 远程 端点
      */
     private static final String REMOTE_ENDPOINT = "javax/websocket/RemoteEndpoint";
     /**
-    * 远程 方法
+     * 远程 方法
      */
     private static final String[] REMOTE_METHODS = {"sendText", "sendBinary", "sendObject"};
 

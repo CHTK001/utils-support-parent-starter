@@ -17,7 +17,7 @@ import java.util.UUID;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public class RequestIdFilter implements ServerFilter {
 
     @Override
@@ -35,11 +35,11 @@ public class RequestIdFilter implements ServerFilter {
 
     @Override
     /**
-    * Do过滤
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 优先使用客户端传入的 X-Request-Id
@@ -55,11 +55,11 @@ public class RequestIdFilter implements ServerFilter {
     }
 
     /**
-    * 从请求中获取 requestId。
-    *
-    * @param request 请求对象
-    * @return requestId，不存在返回 null
-    */
+     * 从请求中获取 requestId。
+     *
+     * @param request 请求对象
+     * @return requestId，不存在返回 null
+     */
     public static String getRequestId(ServerRequest request) {
         Object value = request.getAttribute("_requestId");
         return value instanceof String ? (String) value : null;

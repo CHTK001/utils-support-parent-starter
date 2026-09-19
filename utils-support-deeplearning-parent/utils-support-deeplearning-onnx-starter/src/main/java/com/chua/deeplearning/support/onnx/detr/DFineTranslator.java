@@ -20,14 +20,14 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-* D-罚金 实时目标检测 Translator（COCO 80 类）。
-*
-* <p>对应嵌入式权重 vision/detection/dfine_l_obj2coco/model_quantized.onnx
-* （int8 动态量化，约 31MB）。输入 pixel_值[N,3,640,640]（仅 /255 缩放），
-* 输出 logits[N,300,80] 与 pred_boxes[N,300,4](cxcywh, 归一化到输入图)。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * D-罚金 实时目标检测 Translator（COCO 80 类）。
+ *
+ * <p>对应嵌入式权重 vision/detection/dfine_l_obj2coco/model_quantized.onnx
+ * （int8 动态量化，约 31MB）。输入 pixel_值[N,3,640,640]（仅 /255 缩放），
+ * 输出 logits[N,300,80] 与 pred_boxes[N,300,4](cxcywh, 归一化到输入图)。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DFineTranslator implements Translator<Image, DetectedObjects> {
@@ -56,11 +56,11 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     private float thresholdOverride = -1f;
 
     /**
-    * 取生效阈值。
-    *
-    * @param def def
-    * @return eff阈值的结果
-    */
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -163,10 +163,10 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * sigmoid。
-    * @param x x
-    * @return sigmoid的结果
-    */
+     * sigmoid。
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
@@ -176,10 +176,10 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
         return null;
     }
     /**
-    * 创建 Translator（支持外部阈值覆盖）。
-    *
-    * @param configuration 检测配置（可空）
-    */
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
     public DFineTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {
             float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);

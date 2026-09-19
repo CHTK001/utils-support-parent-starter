@@ -11,13 +11,13 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* 7Z格式归档输入流提供者
-* <p>
-* 注意：7Z格式需要随机访问，因此需要文件对象而不是输入流
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 7Z格式归档输入流提供者
+ * <p>
+ * 注意：7Z格式需要随机访问，因此需要文件对象而不是输入流
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("7z")
 public class SevenZCompressArchiveInputStream implements CompressArchiveInputStream {

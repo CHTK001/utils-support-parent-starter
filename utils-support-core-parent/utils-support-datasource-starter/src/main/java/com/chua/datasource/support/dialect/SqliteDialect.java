@@ -8,8 +8,8 @@ public class SqliteDialect extends SqlDialect {
     */
     public SqliteDialect() { super("sqlite"); }
     /**
-    * sqlitedialect。
-    * @param properties 属性
-    */
+     * sqlitedialect。
+     * @param properties 属性
+     */
     public SqliteDialect(Properties properties) { super("sqlite", properties); }
 }

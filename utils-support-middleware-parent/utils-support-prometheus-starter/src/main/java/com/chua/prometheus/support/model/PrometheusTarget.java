@@ -6,13 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* Prometheus 抓取目标
-* <p>
-* 对应 {@code /api/v1/targets} 返回的 活跃Target 元素。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Prometheus 抓取目标
+ * <p>
+ * 对应 {@code /api/v1/targets} 返回的 活跃Target 元素。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -21,37 +21,37 @@ import lombok.NoArgsConstructor;
 public class PrometheusTarget {
 
     /**
-    * 抓取目标地址
-    */
+     * 抓取目标地址
+     */
     private String scrapeUrl;
 
     /**
-    * 所属 作业
-    */
+     * 所属 作业
+     */
     private String job;
 
     /**
-    * 目标实例
-    */
+     * 目标实例
+     */
     private String instance;
 
     /**
-    * 健康状态: up / down / unknown
-    */
+     * 健康状态: up / down / unknown
+     */
     private String health;
 
     /**
-    * 最近一次抓取错误
-    */
+     * 最近一次抓取错误
+     */
     private String lastError;
 
     /**
-    * 最近抓取时间(毫秒)
-    */
+     * 最近抓取时间(毫秒)
+     */
     private long lastScrape;
 
     /**
-    * 抓取时长(毫秒)
-    */
+     * 抓取时长(毫秒)
+     */
     private double scrapeDuration;
 }

@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* JDK httpurlconnection 处理器 — intercepts HTTP Requests via Java.net.httpurlconnection.
-*
-* @author CH
-* @since 4.0.0.42
+ * JDK httpurlconnection 处理器 — intercepts HTTP Requests via Java.net.httpurlconnection.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JdkHttpClientHandler extends AbstractAppHandler {
 
     /**
-    * HTTP URL 连接
+     * HTTP URL 连接
      */
     private static final String HTTP_URL_CONNECTION = "java/net/HttpURLConnection";
     /**
-    * 连接 方法
+     * 连接 方法
      */
     private static final String[] CONNECT_METHODS = {"connect", "getInputStream", "getOutputStream", "getResponseCode"};
 

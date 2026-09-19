@@ -16,14 +16,14 @@ import java.util.List;
 
 
 /**
-* CRNN              Translator
-* <p>
-* smartjavaAI     crnn铭牌rectranslator
-*                                                          
-* </p>
-*
-* @author CH
-* @since 2025-01-20
+ * CRNN              Translator
+ * <p>
+ * smartjavaAI     crnn铭牌rectranslator
+ *                                                          
+ * </p>
+ *
+ * @author CH
+ * @since 2025-01-20
  */
 public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
 
@@ -99,11 +99,11 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     /**
-    * 解码铭牌
-    *
-    * @param preds preds
-    * @return decode铭牌的结果
-    */
+     * 解码铭牌
+     *
+     * @param preds preds
+     * @return decode铭牌的结果
+     */
     private String decodePlate(int[] preds) {
         int pre = 0;
         List<Integer> newPreds = new ArrayList<>();
@@ -124,11 +124,11 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     /**
-    * normalize铭牌文本
-    *
-    * @param raw raw
-    * @return normalize铭牌文本的结果
-    */
+     * normalize铭牌文本
+     *
+     * @param raw raw
+     * @return normalize铭牌文本的结果
+     */
     private String normalizePlateText(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
@@ -172,11 +172,11 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     /**
-    * 查找province索引
-    *
-    * @param text 文本
-    * @return findprovince索引的结果
-    */
+     * 查找province索引
+     *
+     * @param text 文本
+     * @return findprovince索引的结果
+     */
     private int findProvinceIndex(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (isProvince(text.charAt(i))) {
@@ -187,11 +187,11 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     /**
-    * 是否Province
-    *
-    * @param c c
-    * @return 是否province的结果
-    */
+     * 是否Province
+     *
+     * @param c c
+     * @return 是否province的结果
+     */
     private boolean isProvince(char c) {
         return PROVINCES.indexOf(c) >= 0;
     }

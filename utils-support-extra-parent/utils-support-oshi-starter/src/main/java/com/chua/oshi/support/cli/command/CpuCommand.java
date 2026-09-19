@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* oshc cpu — CPU 明细：每核使用率、频率、上下文切换、进程 top。
-*
-* @author CH
-* @since 4.0.0.42
+ * oshc cpu — CPU 明细：每核使用率、频率、上下文切换、进程 top。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class CpuCommand extends AbstractCommand {
 
@@ -118,10 +118,10 @@ public final class CpuCommand extends AbstractCommand {
     }
 
     /**
-    * 当前freq。
-    * @param processor 处理器
-    * @return 当前freq的结果
-    */
+     * 当前freq。
+     * @param processor 处理器
+     * @return 当前freq的结果
+     */
     private static long currentFreq(CentralProcessor processor) {
         long[] freqs = processor.getCurrentFreq();
         if (freqs == null || freqs.length == 0) {
@@ -135,10 +135,10 @@ public final class CpuCommand extends AbstractCommand {
     }
 
     /**
-    * 格式化hz。
-    * @param hz hz
-    * @return 格式化hz的结果
-    */
+     * 格式化hz。
+     * @param hz hz
+     * @return 格式化hz的结果
+     */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
             return String.format("%.2f GHz", hz / 1_000_000_000.0);
@@ -150,11 +150,11 @@ public final class CpuCommand extends AbstractCommand {
     }
 
     /**
-    * truncate。
-    * @param s s
-    * @param max 最大
-    * @return truncate的结果
-    */
+     * truncate。
+     * @param s s
+     * @param max 最大
+     * @return truncate的结果
+     */
     private static String truncate(String s, int max) {
         if (s == null) {
             return "";

@@ -20,29 +20,29 @@ package com.chua.common.support.task.loader;
  * @param <T> 被加载的对象类型
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public interface Loader<T> {
 
     /**
-    * 获取加载的实例（懒加载，单例）。
-    *
-    * <p>首次调用时创建并缓存实例，后续调用直接返回缓存。</p>
-    *
-    * @return 加载的实例
-    */
+     * 获取加载的实例（懒加载，单例）。
+     *
+     * <p>首次调用时创建并缓存实例，后续调用直接返回缓存。</p>
+     *
+     * @return 加载的实例
+     */
     T get();
 
     /**
-    * 重置加载器，清除缓存的实例。
-    *
-    * <p>下次调用 {@link #get()} 时会重新创建。</p>
-    */
+     * 重置加载器，清除缓存的实例。
+     *
+     * <p>下次调用 {@link #get()} 时会重新创建。</p>
+     */
     void reset();
 
     /**
-    * 判断是否已加载（缓存中是否有实例）。
-    *
-    * @return true 表示已加载，false 表示尚未加载
-    */
+     * 判断是否已加载（缓存中是否有实例）。
+     *
+     * @return true 表示已加载，false 表示尚未加载
+     */
     boolean isLoaded();
 }

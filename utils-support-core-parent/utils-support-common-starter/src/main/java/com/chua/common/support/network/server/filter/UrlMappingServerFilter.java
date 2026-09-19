@@ -36,46 +36,46 @@ import java.util.concurrent.CompletionStage;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Spi("url-mapping")
 @SpiDescribe("URL 路径到处理器映射过滤器")
 public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFilter {
 
     /**
-    * 处理器工厂，管理路由注册与匹配
-    */
+     * 处理器工厂，管理路由注册与匹配
+     */
     private final ServerHandlerFactory<ServerHandlerAnnotationParser> factory;
 
     /**
-    * 获取处理器工厂
-    * @return 工厂实例
-    */
+     * 获取处理器工厂
+     * @return 工厂实例
+     */
     public ServerHandlerFactory<ServerHandlerAnnotationParser> getFactory() {
         return factory;
     }
 
     /**
-    * 默认排序值
-    */
+     * 默认排序值
+     */
     private static final int FILTER_ORDER = Integer.MAX_VALUE - 100;
 
     /**
-    * 过滤器标识
-    */
+     * 过滤器标识
+     */
     private static final String FILTER_ID = "UrlMappingServerFilter";
 
     /**
-    * 无参构造器，使用默认对象上下文。
-    */
+     * 无参构造器，使用默认对象上下文。
+     */
     public UrlMappingServerFilter() {
         this(new DefaultObjectContext());
     }
 
     /**
-    * 构造并传入 {@link ObjectContext}，自动扫描所有注解解析器注册路由。
-    *
-    * @param objectContext 对象上下文
-    */
+     * 构造并传入 {@link ObjectContext}，自动扫描所有注解解析器注册路由。
+     *
+     * @param objectContext 对象上下文
+     */
     public UrlMappingServerFilter(ObjectContext objectContext) {
         this.factory = new ServerHandlerFactory<>(objectContext);
         this.factory.initialize(ServerHandlerAnnotationParser.class, this);
@@ -129,44 +129,44 @@ public class UrlMappingServerFilter implements EndServerFilter, ReactiveServerFi
     }
 
     /**
-    * 注册不区分 HTTP 方法的路由。
-    *
-    * @param path    请求路径
-    * @param handler 处理器
-    * @return 当前过滤器实例
-    */
+     * 注册不区分 HTTP 方法的路由。
+     *
+     * @param path    请求路径
+     * @param handler 处理器
+     * @return 当前过滤器实例
+     */
     public UrlMappingServerFilter route(String path, ServerHandler handler) {
         factory.route(path, handler);
         return this;
     }
 
     /**
-    * 批量注册路由。
-    *
-    * @param routes 路由映射表
-    * @return 当前过滤器实例
-    */
+     * 批量注册路由。
+     *
+     * @param routes 路由映射表
+     * @return 当前过滤器实例
+     */
     public UrlMappingServerFilter routes(LinkedHashMap<String, ServerHandler> routes) {
         factory.routes(routes);
         return this;
     }
 
     /**
-    * 移除指定路径的路由。
-    *
-    * @param path 请求路径
-    * @return 当前过滤器实例
-    */
+     * 移除指定路径的路由。
+     *
+     * @param path 请求路径
+     * @return 当前过滤器实例
+     */
     public UrlMappingServerFilter removeRoute(String path) {
         factory.removeRoute(path);
         return this;
     }
 
     /**
-    * 获取路由总数。
-    *
-    * @return 路由总数
-    */
+     * 获取路由总数。
+     *
+     * @return 路由总数
+     */
     public int routeCount() {
         return factory.routeCount();
     }

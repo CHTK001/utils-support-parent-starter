@@ -16,38 +16,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* VSCode Copilot usage parser.
-*
-* <p>GitHub Copilot CLI stores per-request usage in a local SQLite database at
-* {@code ~/.copilot/session-store.db}, table {@code assistant_usage_events}:</p>
-*
-* <pre>{@code
-* CREATE TABLE assistant_usage_events (
-*   id, session_id, turn_index, agent_id, model,
-*   input_tokens, output_tokens, cache_read_tokens,
-*   cache_write_tokens, reasoning_tokens, total_nano_aiu,
-*   duration_ms, time_to_first_token_ms, finish_reason, ...
-* )
-* }</pre>
-*
-* <p>Cost is reported as {@code total_nano_aiu} — integer nano-AIU where
-* 10_000_000_000 ticks equals one US dollar. This parser converts it to USD
-* and also reads {@code token_details_json} to surface cache read/write
-* breakdown and per-token-type unit prices.</p>
-*
-* <p>Rows only appear after successful GitHub authentication
-* (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
-* extension itself keeps usage server-side; only the CLI persists locally.</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * VSCode Copilot usage parser.
+ *
+ * <p>GitHub Copilot CLI stores per-request usage in a local SQLite database at
+ * {@code ~/.copilot/session-store.db}, table {@code assistant_usage_events}:</p>
+ *
+ * <pre>{@code
+ * CREATE TABLE assistant_usage_events (
+ *   id, session_id, turn_index, agent_id, model,
+ *   input_tokens, output_tokens, cache_read_tokens,
+ *   cache_write_tokens, reasoning_tokens, total_nano_aiu,
+ *   duration_ms, time_to_first_token_ms, finish_reason, ...
+ * )
+ * }</pre>
+ *
+ * <p>Cost is reported as {@code total_nano_aiu} — integer nano-AIU where
+ * 10_000_000_000 ticks equals one US dollar. This parser converts it to USD
+ * and also reads {@code token_details_json} to surface cache read/write
+ * breakdown and per-token-type unit prices.</p>
+ *
+ * <p>Rows only appear after successful GitHub authentication
+ * (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
+ * extension itself keeps usage server-side; only the CLI persists locally.</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("vscode")
 public class VscodeUsageParser extends BaseUsageParser {
 
     /**
-    * Nano-AIU ticks per US dollar (GitHub's reported cost unit).
-    */
+     * Nano-AIU ticks per US dollar (GitHub's reported cost unit).
+     */
     private static final long NANO_AIU_PER_USD = 10_000_000_000L;
 
     private static final Path DB_PATH = Path.of(
@@ -63,18 +63,18 @@ public class VscodeUsageParser extends BaseUsageParser {
                     + "ORDER BY created_at ASC";
 
     /**
-    * 返回 SPI 名称（for VSCode Copilot）。
-    *
-    * @return {@code "vscode"}
-    */
+     * 返回 SPI 名称（for VSCode Copilot）。
+     *
+     * @return {@code "vscode"}
+     */
     @Override
     public String name() {
         return "vscode";
     }
 
     /**
-    * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-    */
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+     */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -82,10 +82,10 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析全部用量事件（from the Copilot CLI session store）。
-    *
-    * @return list of AiUsage records, one per billed API request
-    */
+     * 解析全部用量事件（from the Copilot CLI session store）。
+     *
+     * @return list of AiUsage records, one per billed API request
+     */
     @Override
     protected List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
@@ -107,12 +107,12 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 转换一条 assistant_usage_events 行为 AiUsage 记录。
-    *
-    * @param rs 结果集（current row）
-    * @return populated AiUsage record
-    * @throws SQLException if column access fails
-    */
+     * 转换一条 assistant_usage_events 行为 AiUsage 记录。
+     *
+     * @param rs 结果集（current row）
+     * @return populated AiUsage record
+     * @throws SQLException if column access fails
+     */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         long startTime = parseInstantToMillis(rs.getString(1));
         String model = rs.getString(2);
@@ -150,11 +150,11 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 nano-AIU 计数转换为 USD。
-    *
-    * @param nanoAiu GitHub reported 整数 nano-AIU
-    * @return USD 金额（0 或负数返回 null）
-    */
+     * 将 nano-AIU 计数转换为 USD。
+     *
+     * @param nanoAiu GitHub reported 整数 nano-AIU
+     * @return USD 金额（0 或负数返回 null）
+     */
     private BigDecimal convertNanoAiuToUsd(long nanoAiu) {
         if (nanoAiu <= 0) {
             return null;

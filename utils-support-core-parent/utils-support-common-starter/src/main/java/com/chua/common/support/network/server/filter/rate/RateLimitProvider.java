@@ -29,68 +29,68 @@ import com.chua.common.support.network.server.request.ServerRequest;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public interface RateLimitProvider {
 
     /**
-    * 创建限流器。
-    *
-    * @param qps 每秒最大请求数
-    * @return 限流器实例
-    */
+     * 创建限流器。
+     *
+     * @param qps 每秒最大请求数
+     * @return 限流器实例
+     */
     RateLimiter create(double qps);
 
     /**
-    * 创建按 key 分组的限流器。
-    *
-    * @param qps 每秒最大请求数
-    * @return 限流器实例
-    */
+     * 创建按 key 分组的限流器。
+     *
+     * @param qps 每秒最大请求数
+     * @return 限流器实例
+     */
     default RateLimiter createPerKey(double qps) {
         return create(qps);
     }
 
     /**
-    * 获取实现名称。
-    *
-    * @return 实现名称
-    */
+     * 获取实现名称。
+     *
+     * @return 实现名称
+     */
     String getName();
 
     /**
-    * 限流器接口。
-    */
+     * 限流器接口。
+     */
     interface RateLimiter {
         /**
-        * 尝试获取许可（非阻塞）。
-        *
-        * @param key 限流 key（如 IP、路径）
-        * @return 是否获取成功
-        */
+         * 尝试获取许可（非阻塞）。
+         *
+         * @param key 限流 key（如 IP、路径）
+         * @return 是否获取成功
+         */
         boolean tryAcquire(String key);
 
         /**
-        * 尝试获取许可（带超时）。
-        *
-        * @param key     限流 key
-        * @param timeout 超时毫秒数
-        * @return 是否获取成功
-        */
+         * 尝试获取许可（带超时）。
+         *
+         * @param key     限流 key
+         * @param timeout 超时毫秒数
+         * @return 是否获取成功
+         */
         boolean tryAcquire(String key, long timeout);
 
         /**
-        * 获取当前剩余配额。
-        *
-        * @param key 限流 key
-        * @return 剩余请求数
-        */
+         * 获取当前剩余配额。
+         *
+         * @param key 限流 key
+         * @return 剩余请求数
+         */
         long getRemaining(String key);
 
         /**
-        * 获取限流器容量。
-        *
-        * @return QPS
-        */
+         * 获取限流器容量。
+         *
+         * @return QPS
+         */
         double getCapacity();
     }
 }

@@ -8,10 +8,10 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 
 /**
-* 状态命令 — 显示系统与 JVM 概览。
-*
-* @author CH
-* @since 4.0.0.42
+ * 状态命令 — 显示系统与 JVM 概览。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class StatusCommand implements Command {
 
@@ -52,20 +52,20 @@ public class StatusCommand implements Command {
     }
 
     /**
-    * 字节数转换为 MB。
-    *
-    * @param bytes 字节数
-    * @return MB 值
+     * 字节数转换为 MB。
+     *
+     * @param bytes 字节数
+     * @return MB 值
      */
     private long toMb(long bytes) {
         return bytes / (1024 * 1024);
     }
 
     /**
-    * 时长格式化。
-    *
-    * @param millis 毫秒
-    * @return 格式化字符串
+     * 时长格式化。
+     *
+     * @param millis 毫秒
+     * @return 格式化字符串
      */
     private String formatDuration(long millis) {
         long seconds = millis / 1000;

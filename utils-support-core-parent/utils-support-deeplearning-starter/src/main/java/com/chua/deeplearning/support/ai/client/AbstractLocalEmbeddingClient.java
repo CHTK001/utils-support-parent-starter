@@ -14,44 +14,44 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 本地引擎文本嵌入客户端抽象基类。
-* <p>
-* 统一实现 {@link EmbeddingClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
-* 已注册的 字符串→float[] 翻译器执行文本向量化，并提供该引擎的模型列表。
-* 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 本地引擎文本嵌入客户端抽象基类。
+ * <p>
+ * 统一实现 {@link EmbeddingClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
+ * 已注册的 字符串→float[] 翻译器执行文本向量化，并提供该引擎的模型列表。
+ * 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
 
     /**
-    * 引擎名称（提供者）
-    */
+     * 引擎名称（提供者）
+     */
     protected final String engine;
 
     /**
-    * 识别引擎实例
-    */
+     * 识别引擎实例
+     */
     protected final IdentificationEngine identificationEngine;
 
     /**
-    * 当前模型名称
-    */
+     * 当前模型名称
+     */
     protected String model;
 
     /**
-    * 输出向量维度
-    */
+     * 输出向量维度
+     */
     protected Integer dimensions;
 
     /**
-    * 构造本地嵌入客户端。
-    *
-    * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
-    * @param setting 客户端配置
-    */
+     * 构造本地嵌入客户端。
+     *
+     * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
+     * @param setting 客户端配置
+     */
     protected AbstractLocalEmbeddingClient(String engine, EmbeddingClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();

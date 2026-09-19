@@ -26,41 +26,41 @@ import java.util.List;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public interface BackupRestore {
 
     /**
-    * 恢复备份
-    *
-    * <p>根据配置恢复数据。若指定了日期则恢复该日期的备份，否则恢复最新。
-    *
-    * @param config 恢复配置
-    * @return 恢复结果
-    */
+     * 恢复备份
+     *
+     * <p>根据配置恢复数据。若指定了日期则恢复该日期的备份，否则恢复最新。
+     *
+     * @param config 恢复配置
+     * @return 恢复结果
+     */
     RestoreResult restore(RestoreConfig config);
 
     /**
-    * 恢复最新备份
-    *
-    * @param config 恢复配置
-    * @return 恢复结果
-    */
+     * 恢复最新备份
+     *
+     * @param config 恢复配置
+     * @return 恢复结果
+     */
     RestoreResult restoreLatest(RestoreConfig config);
 
     /**
-    * 按日期恢复
-    *
-    * @param config 恢复配置
-    * @param date   恢复日期
-    * @return 恢复结果
-    */
+     * 按日期恢复
+     *
+     * @param config 恢复配置
+     * @param date   恢复日期
+     * @return 恢复结果
+     */
     RestoreResult restoreByDate(RestoreConfig config, LocalDate date);
 
     /**
-    * 获取可恢复的备份日期列表
-    *
-    * @param backupDir 备份根目录
-    * @return 日期列表（降序）
-    */
+     * 获取可恢复的备份日期列表
+     *
+     * @param backupDir 备份根目录
+     * @return 日期列表（降序）
+     */
     List<LocalDate> listAvailableDates(Path backupDir);
 }

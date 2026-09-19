@@ -8,8 +8,8 @@ public class MariaDb103Dialect extends SqlDialect {
     */
     public MariaDb103Dialect() { super("mariadb103"); }
     /**
-    * mariadb103Dialect。
-    * @param properties 属性
-    */
+     * mariadb103Dialect。
+     * @param properties 属性
+     */
     public MariaDb103Dialect(Properties properties) { super("mariadb103", properties); }
 }

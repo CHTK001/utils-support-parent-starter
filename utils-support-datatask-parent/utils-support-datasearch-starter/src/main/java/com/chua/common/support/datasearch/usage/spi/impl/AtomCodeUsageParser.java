@@ -21,40 +21,40 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 /**
-* Atom编码 usage parser - 解析 令牌 usage 从 本地 会话 turn transcripts.
-*
-* <p>Data source is {@code ~/.atomcode/sessions/<session-dir>/<session-id>.jsonl}.
-* Each 线 records one turn 的 a 会话; every turn carries a top-级别
-* {@code usage} block with real per-turn token counts:</p>
-*
-* <pre>{@code
-* {
-*   "v": 1,
-*   "ts": 1787964681603,
-*   "iso": "2026-08-29T00:51:21.603+00:00",
-*   "session_id": "a5947423-8deb-412c-9246-4683628d72c7",
-*   "turn_id": 1,
-*   "undone": false,
-*   "user": "...",
-*   "assistant": "...",
-*   "reasoning": "...",
-*   "tools": [...],
-*   "usage": { "prompt": 46135, "completion": 9507, "cached": 45824 }
-* }
-* }</pre>
-*
-* <p>AtomCode 的轮次行不含 {@code model}/{@code provider}/{@code costUsd}
-* 字段。实际服务模型从同级的 {@code <session-id>.meta}
-* 文件解析（{@code turn_stats[].model_usage[]} 以 {@code turn_id} 为键，取 token
-* 占比最大的条目的 {@code model_id}）；若 meta 文件缺失
-* 或该轮次未记录其中，则回退到 {@code ~/.atomcode/config.toml} 声明的
-* {@code default_model}（再通过其 {@code [models."..."]} 段映射为真实模型名）。
-* {@code prompt} 计数已包含命中缓存的输入，因此 {@code inputTokens}
-* 存放非缓存部分（{@code prompt - cached}），缓存量单独通过
-* {@code cacheTokens} 上报，避免重复计数。此处只提取 token 计数，因此不做费用估算。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Atom编码 usage parser - 解析 令牌 usage 从 本地 会话 turn transcripts.
+ *
+ * <p>Data source is {@code ~/.atomcode/sessions/<session-dir>/<session-id>.jsonl}.
+ * Each 线 records one turn 的 a 会话; every turn carries a top-级别
+ * {@code usage} block with real per-turn token counts:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "v": 1,
+ *   "ts": 1787964681603,
+ *   "iso": "2026-08-29T00:51:21.603+00:00",
+ *   "session_id": "a5947423-8deb-412c-9246-4683628d72c7",
+ *   "turn_id": 1,
+ *   "undone": false,
+ *   "user": "...",
+ *   "assistant": "...",
+ *   "reasoning": "...",
+ *   "tools": [...],
+ *   "usage": { "prompt": 46135, "completion": 9507, "cached": 45824 }
+ * }
+ * }</pre>
+ *
+ * <p>AtomCode 的轮次行不含 {@code model}/{@code provider}/{@code costUsd}
+ * 字段。实际服务模型从同级的 {@code <session-id>.meta}
+ * 文件解析（{@code turn_stats[].model_usage[]} 以 {@code turn_id} 为键，取 token
+ * 占比最大的条目的 {@code model_id}）；若 meta 文件缺失
+ * 或该轮次未记录其中，则回退到 {@code ~/.atomcode/config.toml} 声明的
+ * {@code default_model}（再通过其 {@code [models."..."]} 段映射为真实模型名）。
+ * {@code prompt} 计数已包含命中缓存的输入，因此 {@code inputTokens}
+ * 存放非缓存部分（{@code prompt - cached}），缓存量单独通过
+ * {@code cacheTokens} 上报，避免重复计数。此处只提取 token 计数，因此不做费用估算。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("atomcode")
 public class AtomCodeUsageParser extends BaseUsageParser {
@@ -62,9 +62,9 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     private static final Logger log = LoggerFactory.getLogger(AtomCodeUsageParser.class); // 日志
 
     /**
-    * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
-    * 默认为 ~/.atomcode
-    */
+     * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
+     * 默认为 ~/.atomcode
+     */
     private static final Path ATOMCODE_HOME;
 
     /** 会话 transcripts 根: $ATOMCODE_Home/会话 */
@@ -85,9 +85,9 @@ public class AtomCodeUsageParser extends BaseUsageParser {
             Pattern.compile("^\\s*model\\s*=\\s*\"([^\"]+)\"");
 
     /**
-    * config.toml 的兜底模型名（已映射为真实 model 名）。
-    * 空串表示解析过但无结果，避免重复读盘。
-    */
+     * config.toml 的兜底模型名（已映射为真实 model 名）。
+     * 空串表示解析过但无结果，避免重复读盘。
+     */
     private static volatile String CONFIG_DEFAULT_MODEL;
 
     static {
@@ -106,8 +106,8 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
-    */
+     * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
@@ -131,12 +131,12 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 单个 JSONL 文件的行流（惰性 + 背压）。
-    * 模型名取自同目录同名 {@code .meta} 的 turn_stats.model_usage，
-    * meta 缺失或该 turn 无记录时回退 config.toml 的 default_model。
-    * @param file 文件
-    * @return 流jsonl文件的结果
-    */
+     * 单个 JSONL 文件的行流（惰性 + 背压）。
+     * 模型名取自同目录同名 {@code .meta} 的 turn_stats.model_usage，
+     * meta 缺失或该 turn 无记录时回退 config.toml 的 default_model。
+     * @param file 文件
+     * @return 流jsonl文件的结果
+     */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         Map<Integer, String> turnModels = loadTurnModels(metaFileOf(file));
         String fallbackModel = configDefaultModel();
@@ -148,21 +148,21 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 由 JSONL 文件路径推导同目录同名 .meta 文件路径。
-    * @param file 会话 JSONL 文件
-    * @return 对应的 .meta 文件
-    */
+     * 由 JSONL 文件路径推导同目录同名 .meta 文件路径。
+     * @param file 会话 JSONL 文件
+     * @return 对应的 .meta 文件
+     */
     private Path metaFileOf(Path file) {
         String name = file.getFileName().toString();
         return file.resolveSibling(name.substring(0, name.length() - ".jsonl".length()) + ".meta");
     }
 
     /**
-    * 读取会话 meta 文件，建立 turn_id 到模型名的映射。
-    * 每个 turn 的 model_usage 可能含多个模型条目，取 token 总量最大者。
-    * @param metaFile meta 文件
-    * @return turn_id 到模型名的映射；文件缺失或解析失败时为空映射
-    */
+     * 读取会话 meta 文件，建立 turn_id 到模型名的映射。
+     * 每个 turn 的 model_usage 可能含多个模型条目，取 token 总量最大者。
+     * @param metaFile meta 文件
+     * @return turn_id 到模型名的映射；文件缺失或解析失败时为空映射
+     */
     private Map<Integer, String> loadTurnModels(Path metaFile) {
         if (!Files.isRegularFile(metaFile)) {
             return Map.of();
@@ -193,10 +193,10 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从一个 turn 的 model_usage 数组中选出 token 占比最大的模型。
-    * @param modelUsage model_usage 数组节点
-    * @return 模型名（model_id 优先，provider_id 兜底）；无有效条目时返回 null
-    */
+     * 从一个 turn 的 model_usage 数组中选出 token 占比最大的模型。
+     * @param modelUsage model_usage 数组节点
+     * @return 模型名（model_id 优先，provider_id 兜底）；无有效条目时返回 null
+     */
     private String pickDominantModel(JsonNode modelUsage) {
         if (modelUsage.isMissingValue() || !modelUsage.isArray()) {
             return null;
@@ -227,9 +227,9 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * config.toml 的 default_model 兜底值（懒加载，结果缓存）。
-    * @return 真实模型名；无法解析时返回 null
-    */
+     * config.toml 的 default_model 兜底值（懒加载，结果缓存）。
+     * @return 真实模型名；无法解析时返回 null
+     */
     private String configDefaultModel() {
         String cached = CONFIG_DEFAULT_MODEL;
         if (cached == null) {
@@ -244,10 +244,10 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析 config.toml：先取 default_model 声明，再映射到
-    * 对应 [models."xxx"] 小节内的真实 model 名。
-    * @return 真实模型名；声明缺失或映射不到时返回声明原值，读盘失败返回空串
-    */
+     * 解析 config.toml：先取 default_model 声明，再映射到
+     * 对应 [models."xxx"] 小节内的真实 model 名。
+     * @return 真实模型名；声明缺失或映射不到时返回声明原值，读盘失败返回空串
+     */
     private String resolveConfigDefaultModel() {
         Path config = ATOMCODE_HOME.resolve("config.toml");
         if (!Files.isRegularFile(config)) {
@@ -288,12 +288,12 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 安全解析单行，失败返回 空。
-    * @param line 线
-    * @param turnModels turn_id 到模型名的映射
-    * @param fallbackModel 兜底模型名
-    * @return 解析线safe的结果
-    */
+     * 安全解析单行，失败返回 空。
+     * @param line 线
+     * @param turnModels turn_id 到模型名的映射
+     * @param fallbackModel 兜底模型名
+     * @return 解析线safe的结果
+     */
     private Optional<AiUsage> parseLineSafe(String line, Map<Integer, String> turnModels, String fallbackModel) {
         try {
             return parseNode(Json.parse(line), turnModels, fallbackModel);
@@ -304,15 +304,15 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将一条转录行转换为 AIusage 记录。
-    *
-    * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。
-    * 模型名按 turn_id 查 meta 映射，查不到用 config 兜底值。</p>
-    * @param node 节点
-    * @param turnModels turn_id 到模型名的映射
-    * @param fallbackModel 兜底模型名
-    * @return 解析节点的结果
-    */
+     * 将一条转录行转换为 AIusage 记录。
+     *
+     * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。
+     * 模型名按 turn_id 查 meta 映射，查不到用 config 兜底值。</p>
+     * @param node 节点
+     * @param turnModels turn_id 到模型名的映射
+     * @param fallbackModel 兜底模型名
+     * @return 解析节点的结果
+     */
     private Optional<AiUsage> parseNode(JsonNode node, Map<Integer, String> turnModels, String fallbackModel) {
         JsonNode usage = node.get("usage");
         if (usage.isMissingValue()) {

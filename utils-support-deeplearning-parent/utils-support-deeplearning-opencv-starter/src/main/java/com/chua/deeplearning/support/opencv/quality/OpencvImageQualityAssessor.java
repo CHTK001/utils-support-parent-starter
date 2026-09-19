@@ -10,44 +10,44 @@ import org.opencv.core.MatOfDouble;
 import org.opencv.imgproc.Imgproc;
 
 /**
-* 纯 打开cv 图像质量评估翻译器。
-* <p>基于 Laplacian 方差评估清晰度，基于灰度均值/标准差评估亮度与对比度。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 纯 打开cv 图像质量评估翻译器。
+ * <p>基于 Laplacian 方差评估清晰度，基于灰度均值/标准差评估亮度与对比度。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OpencvImageQualityAssessor extends OpencvModelTranslator {
 
     /**
-    * 模糊阈值，低于该值视为模糊。
-    */
+     * 模糊阈值，低于该值视为模糊。
+     */
     private final double blurThreshold;
 
     /**
-    * 最低亮度。
-    */
+     * 最低亮度。
+     */
     private final double minBrightness;
 
     /**
-    * 最高亮度。
-    */
+     * 最高亮度。
+     */
     private final double maxBrightness;
 
     /**
-    * 构造评估器。
-    */
+     * 构造评估器。
+     */
     public OpencvImageQualityAssessor() {
         this(100.0, 40.0, 220.0);
     }
 
     /**
-    * 构造评估器。
-    *
-    * @param blurThreshold  模糊阈值
-    * @param minBrightness  最低亮度
-    * @param maxBrightness  最高亮度
-    */
+     * 构造评估器。
+     *
+     * @param blurThreshold  模糊阈值
+     * @param minBrightness  最低亮度
+     * @param maxBrightness  最高亮度
+     */
     public OpencvImageQualityAssessor(double blurThreshold, double minBrightness, double maxBrightness) {
         super("opencv-image-quality");
         this.blurThreshold = blurThreshold;

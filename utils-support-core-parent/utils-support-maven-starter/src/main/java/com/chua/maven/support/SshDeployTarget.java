@@ -4,30 +4,30 @@ import com.chua.common.support.reflection.ReflectUtils;
 import java.util.List;
 
 /**
-* SSH/SFTP 远程部署目标。
-* <p>
-* 基于 ssh-启动 的 sftp客户端 实现远程服务器部署。
-* 需要类路径中存在 sftp客户端（ssh-启动 依赖需手动提供）。
-* </p>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* SshDeployTarget target = new SshDeployTarget("192.168.1.100", 22, "root", "password", "/opt/app");
-* target.connect();
-* target.upload("target/myapp.jar", "myapp.jar");
-* target.disconnect();
-*
-* // 或通过传输客户端
-* MavenClient.create()
-*     .projectPath("pom.xml")
-*     .goal("clean", "package")
-*     .compileAndDeploy()
-*     .deployTo(new SshDeployTarget(host, port, user, pass, "/opt/app"));
-* }</pre>(host, port, user, pass, "/opt/app"));
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * SSH/SFTP 远程部署目标。
+ * <p>
+ * 基于 ssh-启动 的 sftp客户端 实现远程服务器部署。
+ * 需要类路径中存在 sftp客户端（ssh-启动 依赖需手动提供）。
+ * </p>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * SshDeployTarget target = new SshDeployTarget("192.168.1.100", 22, "root", "password", "/opt/app");
+ * target.connect();
+ * target.upload("target/myapp.jar", "myapp.jar");
+ * target.disconnect();
+ *
+ * // 或通过传输客户端
+ * MavenClient.create()
+ *     .projectPath("pom.xml")
+ *     .goal("clean", "package")
+ *     .compileAndDeploy()
+ *     .deployTo(new SshDeployTarget(host, port, user, pass, "/opt/app"));
+ * }</pre>(host, port, user, pass, "/opt/app"));
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SshDeployTarget implements MavenDeployTarget {
 
@@ -40,49 +40,49 @@ public class SshDeployTarget implements MavenDeployTarget {
     private final String host;
 
     /**
-    * SSH 端口
-    */
+     * SSH 端口
+     */
     private final int port;
 
     /**
-    * 用户名
-    */
+     * 用户名
+     */
     private final String username;
 
     /**
-    * 密码
-    */
+     * 密码
+     */
     private final String password;
 
     /**
-    * 远程部署根目录
-    */
+     * 远程部署根目录
+     */
     private final String remoteRoot;
 
     /**
-    * SFTP 客户端
-    */
+     * SFTP 客户端
+     */
     private Object sftpClient;
 
     /**
-    * 是否已连接
-    */
+     * 是否已连接
+     */
     private boolean ready;
 
     /**
-    * 部署回调
-    */
+     * 部署回调
+     */
     private MavenDeployCallback callback;
 
     /**
-    * 构造 SSH 部署目标。
-    *
-    * @param host       主机地址
-    * @param port       端口
-    * @param username   用户名
-    * @param password   密码
-    * @param remoteRoot 远程根目录
-    */
+     * 构造 SSH 部署目标。
+     *
+     * @param host       主机地址
+     * @param port       端口
+     * @param username   用户名
+     * @param password   密码
+     * @param remoteRoot 远程根目录
+     */
     public SshDeployTarget(String host, int port, String username, String password, String remoteRoot) {
         this.host = host;
         this.port = port;
@@ -92,13 +92,13 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     /**
-    * 构造 SSH 部署目标（默认 22 端口）。
-    *
-    * @param host       主机地址
-    * @param username   用户名
-    * @param password   密码
-    * @param remoteRoot 远程根目录
-    */
+     * 构造 SSH 部署目标（默认 22 端口）。
+     *
+     * @param host       主机地址
+     * @param username   用户名
+     * @param password   密码
+     * @param remoteRoot 远程根目录
+     */
     public SshDeployTarget(String host, String username, String password, String remoteRoot) {
         this(host, 22, username, password, remoteRoot);
     }
@@ -254,8 +254,8 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     /**
-    * 确保已连接
-    */
+     * 确保已连接
+     */
     private void ensureReady() {
         if (!ready) {
             throw new MavenDeployException("SSH 部署目标未连接，请先调用 connect()");

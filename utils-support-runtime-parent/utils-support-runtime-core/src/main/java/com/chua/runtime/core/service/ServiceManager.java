@@ -4,10 +4,10 @@ import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.runtime.core.model.ManagedService;
 
 /**
-* 系统服务管理器接口。
-*
-* @author CH
-* @since 4.0.0.42
+ * 系统服务管理器接口。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public interface ServiceManager extends AutoCloseable {
 

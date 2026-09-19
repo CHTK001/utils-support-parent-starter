@@ -28,20 +28,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Kimi 网页版逆向代理对话客户端。
-*
-* <p>基于 Kimi Web 的 connect-rpc 协议直接调用，无需浏览器：
-* <ol>
-*   <li>appKey 为 access token（JWT）或 refresh token，refresh token 会按需自动换取</li>
-*   <li>请求体编码为 {@code 5 字节 connect 帧头 + JSON}，POST 到 {@code /apiv2/kimi.gateway.chat.v1.ChatService/Chat}</li>
-*   <li>响应为连续 gRPC 帧流，解析 delta 得到回答/思考内容</li>
-*   <li>通过 {@code chat_id} + {@code parent_id} 保持多轮上下文</li>
-* </ol>
-*
-* <p>SPI 名称：{@code kimi-proxy}，appKey 为 token 串。
-*
-* @author CH
-* @since 4.0.0.42
+ * Kimi 网页版逆向代理对话客户端。
+ *
+ * <p>基于 Kimi Web 的 connect-rpc 协议直接调用，无需浏览器：
+ * <ol>
+ *   <li>appKey 为 access token（JWT）或 refresh token，refresh token 会按需自动换取</li>
+ *   <li>请求体编码为 {@code 5 字节 connect 帧头 + JSON}，POST 到 {@code /apiv2/kimi.gateway.chat.v1.ChatService/Chat}</li>
+ *   <li>响应为连续 gRPC 帧流，解析 delta 得到回答/思考内容</li>
+ *   <li>通过 {@code chat_id} + {@code parent_id} 保持多轮上下文</li>
+ * </ol>
+ *
+ * <p>SPI 名称：{@code kimi-proxy}，appKey 为 token 串。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("kimi-proxy")
@@ -49,145 +49,145 @@ import java.util.regex.Pattern;
 public class KimiChatClient implements ChatClient {
 
     /**
-    * 默认模型。
-    */
+     * 默认模型。
+     */
     private static final String DEFAULT_MODEL = "kimi-k2.6";
 
     /**
-    * 默认场景标识。
-    */
+     * 默认场景标识。
+     */
     private static final String DEFAULT_SCENARIO = "SCENARIO_K2D5";
 
     /**
-    * 思考阶段标识。
-    */
+     * 思考阶段标识。
+     */
     private static final String STAGE_NAME_THINKING = "STAGE_NAME_THINKING";
 
     /**
-    * 会话客户端。
-    */
+     * 会话客户端。
+     */
     private final KimiSession session;
 
     /**
-    * 远程 对话 标识（多轮上下文）。
-    */
+     * 远程 对话 标识（多轮上下文）。
+     */
     private String remoteChatId;
 
     /**
-    * 最后一条 assistant 消息 标识（多轮上下文）。
-    */
+     * 最后一条 assistant 消息 标识（多轮上下文）。
+     */
     private String lastAssistantMessageId;
 
     /**
-    * 临时会话 标识。
-    */
+     * 临时会话 标识。
+     */
     private String requestConversationId;
 
     /**
-    * 客户端配置。
-    */
+     * 客户端配置。
+     */
     private final ChatClientSetting setting;
 
     /**
-    * 当前模型。
-    */
+     * 当前模型。
+     */
     private String model;
 
     /**
-    * 当前温度。
-    */
+     * 当前温度。
+     */
     private Double temperature;
 
     /**
-    * 当前最大 令牌 数。
-    */
+     * 当前最大 令牌 数。
+     */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词。
-    */
+     * 当前系统提示词。
+     */
     private String system;
 
     /**
-    * 会话字符串 标识。
-    */
+     * 会话字符串 标识。
+     */
     private String conversationId;
 
     /**
-    * 额外请求体参数。
-    */
+     * 额外请求体参数。
+     */
     private Map<String, Object> extraBody;
 
     /**
-    * topp 参数。
-    */
+     * topp 参数。
+     */
     private Double topP;
 
     /**
-    * 停止 参数。
-    */
+     * 停止 参数。
+     */
     private List<String> stop;
 
     /**
-    * seed 参数。
-    */
+     * seed 参数。
+     */
     private Long seed;
 
     /**
-    * 响应格式化 参数。
-    */
+     * 响应格式化 参数。
+     */
     private String responseFormat;
 
     /**
-    * 图片 URL 列表。
-    */
+     * 图片 URL 列表。
+     */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-    * 附件列表。
-    */
+     * 附件列表。
+     */
     private final List<Attachment> attachments = new ArrayList<>();
 
     /**
-    * 工具列表。
-    */
+     * 工具列表。
+     */
     private final List<ChatTool> tools = new ArrayList<>();
 
     /**
-    * toolchoice 参数。
-    */
+     * toolchoice 参数。
+     */
     private String toolChoice;
 
     /**
-    * 是否启用思考。
-    */
+     * 是否启用思考。
+     */
     private boolean thinking;
 
     /**
-    * 是否启用智能搜索。
-    */
+     * 是否启用智能搜索。
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器。
-    */
+     * 技能管理器。
+     */
     private SkillManager skillManager;
 
     /**
-    * 对话历史消息列表。
-    */
+     * 对话历史消息列表。
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录。
-    */
+     * 外部传入的完整历史记录。
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 构造 Kimi 逆向代理对话客户端。
-    *
-    * @param setting 客户端配置，其中 app键 为 令牌 串
-    */
+     * 构造 Kimi 逆向代理对话客户端。
+     *
+     * @param setting 客户端配置，其中 app键 为 令牌 串
+     */
     public KimiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel() != null ? setting.getModel() : DEFAULT_MODEL;
@@ -501,15 +501,15 @@ public class KimiChatClient implements ChatClient {
 
     @Override
     /**
-    * generate镜像
-    * @param prompt 提示符
-    * @param ratio ratio
-    * @param n n
-    * @param width width
-    * @param height height
-    * @param quality quality
-    * @param refImageKey ref镜像键
-    */
+     * generate镜像
+     * @param prompt 提示符
+     * @param ratio ratio
+     * @param n n
+     * @param width width
+     * @param height height
+     * @param quality quality
+     * @param refImageKey ref镜像键
+     */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -526,13 +526,13 @@ public class KimiChatClient implements ChatClient {
 
     @Override
     /**
-    * generate视频
-    * @param prompt 提示符
-    * @param ratio ratio
-    * @param cameraMovement 摄像头移动
-    * @param refImageKey ref镜像键
-    * @param timeoutSeconds 超时seconds
-    */
+     * generate视频
+     * @param prompt 提示符
+     * @param ratio ratio
+     * @param cameraMovement 摄像头移动
+     * @param refImageKey ref镜像键
+     * @param timeoutSeconds 超时seconds
+     */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -625,11 +625,11 @@ try {
     }
 
     /**
-    * 从事件中提取阶段标识。
-    *
-    * @param event 事件 JSON
-    * @return thinking / answer / 空
-    */
+     * 从事件中提取阶段标识。
+     *
+     * @param event 事件 JSON
+     * @return thinking / answer / 空
+     */
     private static String extractPhase(JsonObject event) {
         JsonObject block = event.getJsonObject("block");
         Object stagesObj = block.getObject("multiStage");
@@ -657,12 +657,12 @@ try {
     }
 
     /**
-    * 从事件中提取文本内容。
-    *
-    * @param event 事件 JSON
-    * @param phase 阶段
-    * @return 内容，无则返回 空
-    */
+     * 从事件中提取文本内容。
+     *
+     * @param event 事件 JSON
+     * @param phase 阶段
+     * @return 内容，无则返回 空
+     */
     private static String extractContent(JsonObject event, String phase) {
         JsonObject block = event.getJsonObject("block");
         JsonObject textObj = block.getJsonObject("text");
@@ -677,11 +677,11 @@ try {
     }
 
     /**
-    * 从 think 块提取思考内容。
-    *
-    * @param event 事件 JSON
-    * @return 思考内容
-    */
+     * 从 think 块提取思考内容。
+     *
+     * @param event 事件 JSON
+     * @return 思考内容
+     */
     private static String extractThink(JsonObject event) {
         JsonObject block = event.getJsonObject("block");
         Object thinkObj = block.getObject("think");
@@ -693,13 +693,13 @@ try {
     }
 
     /**
-    * 格式化消息为 Kimi 文本协议（系统: / 角色: 逐行）。
-    *
-    * @param msgs   历史消息
-    * @param prompt 当前问题
-    * @param system 系统提示词
-    * @return 组装后的文本
-    */
+     * 格式化消息为 Kimi 文本协议（系统: / 角色: 逐行）。
+     *
+     * @param msgs   历史消息
+     * @param prompt 当前问题
+     * @param system 系统提示词
+     * @return 组装后的文本
+     */
     private String formatMessages(List<ChatMessage> msgs, String prompt, String system) {
         StringBuilder body = new StringBuilder();
         if (system != null && !system.isBlank()) {
@@ -733,12 +733,12 @@ try {
     }
 
     /**
-    * 从回答文本中提取图片 URL。
-    *
-    * @param text   回答文本
-    * @param prompt 提示词
-    * @return 图片列表
-    */
+     * 从回答文本中提取图片 URL。
+     *
+     * @param text   回答文本
+     * @param prompt 提示词
+     * @return 图片列表
+     */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
         if (text == null || text.isEmpty()) {

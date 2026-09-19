@@ -17,22 +17,22 @@ import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* Jaffree 实现的 ffmpeg 处理器。
-*
-* <p>基于 jaffree 库封装 FFmpeg 命令行调用，提供完整的音视频处理功能。
-* SPI 名称 {@code "jaffree"}，优先级高于其他实现。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Jaffree 实现的 ffmpeg 处理器。
+ *
+ * <p>基于 jaffree 库封装 FFmpeg 命令行调用，提供完整的音视频处理功能。
+ * SPI 名称 {@code "jaffree"}，优先级高于其他实现。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("jaffree")
 public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     /**
-    * 获取bindir
-    *
-    * @return 获取bindir的结果
-    */
+     * 获取bindir
+     *
+     * @return 获取bindir的结果
+     */
     private Path getBinDir() {
         return ffmpegFile.getParentFile().toPath();
     }
@@ -59,12 +59,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 转换视频
-    * @param inputStream 输入流
-    * @param outputStream 输出流
-    * @param inputFormat 输入格式化
-    * @param outputFormat 输出格式化
-    */
+     * 转换视频
+     * @param inputStream 输入流
+     * @param outputStream 输出流
+     * @param inputFormat 输入格式化
+     * @param outputFormat 输出格式化
+     */
     public void convertVideo(InputStream inputStream, OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         if (!available) {
@@ -292,12 +292,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 推送流式输出
-    * @param input 输入
-    * @param streamUrl 流url
-    * @param options 期权
-    * @param callback callback
-    */
+     * 推送流式输出
+     * @param input 输入
+     * @param streamUrl 流url
+     * @param options 期权
+     * @param callback callback
+     */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -327,12 +327,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 推送流式输出设置帧
-    * @param input 输入
-    * @param streamUrl 流url
-    * @param options 期权
-    * @param callback callback
-    */
+     * 推送流式输出设置帧
+     * @param input 输入
+     * @param streamUrl 流url
+     * @param options 期权
+     * @param callback callback
+     */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
  // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 进步监听器 提供帧号和时间戳
@@ -390,12 +390,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 拉取流式输出设置帧
-    * @param streamUrl 流url
-    * @param output 输出
-    * @param duration 持续时间
-    * @param callback callback
-    */
+     * 拉取流式输出设置帧
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
+     * @param callback callback
+     */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
  // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 进步监听器 提供帧号和时间戳
@@ -480,13 +480,13 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     /**
-    * 构建输出
-    *
-    * @param path 路径
-    * @param format 格式化
-    * @param extra extra
-    * @return 构建输出的结果
-    */
+     * 构建输出
+     *
+     * @param path 路径
+     * @param format 格式化
+     * @param extra extra
+     * @return 构建输出的结果
+     */
     private UrlOutput buildOutput(java.nio.file.Path path, String format, String... extra) {
         UrlOutput out = UrlOutput.toPath(path);
         if (format != null) {
@@ -499,11 +499,11 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     /**
-    * Resolv格式化
-    *
-    * @param output 输出
-    * @return resolv格式化的结果
-    */
+     * Resolv格式化
+     *
+     * @param output 输出
+     * @return resolv格式化的结果
+     */
     private String resolvFormat(File output) {
         String n = output.getName();
         int d = n.lastIndexOf('.');
@@ -511,12 +511,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     /**
-    * Resolv格式化
-    *
-    * @param targetFormat Target格式化
-    * @param opts opts
-    * @return resolv格式化的结果
-    */
+     * Resolv格式化
+     *
+     * @param targetFormat Target格式化
+     * @param opts opts
+     * @return resolv格式化的结果
+     */
     private String resolvFormat(String targetFormat, FFmpegOptions opts) {
         return targetFormat != null ? targetFormat : "mp3";
     }

@@ -58,42 +58,42 @@ import java.util.Random;
 public class RetroTVImageFilter extends AbstractImageFilter {
 
     /**
-    * 褪色强度，默认 0.3
-    */
+     * 褪色强度，默认 0.3
+     */
     private double fading = 0.3;
 
     /**
-    * 扫描线间隔（像素），默认 2
-    */
+     * 扫描线间隔（像素），默认 2
+     */
     private int scanlineInterval = 2;
 
     /**
-    * 扫描线压暗程度，默认 0.25
-    */
+     * 扫描线压暗程度，默认 0.25
+     */
     private double scanlineDark = 0.25;
 
     /**
-    * RGB 色差像素数，默认 1
-    */
+     * RGB 色差像素数，默认 1
+     */
     private int chromatic = 1;
 
     /**
-    * 是否叠加雪花噪点，默认 false
-    */
+     * 是否叠加雪花噪点，默认 false
+     */
     private boolean staticNoise = false;
 
     /**
-    * 随机种子，默认 2026
-    */
+     * 随机种子，默认 2026
+     */
     private int seed = 2026;
 
     /**
-    * 执行老电视效果滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 老电视效果图像
-    */
+     * 执行老电视效果滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 老电视效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

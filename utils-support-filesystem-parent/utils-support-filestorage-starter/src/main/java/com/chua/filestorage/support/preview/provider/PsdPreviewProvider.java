@@ -15,12 +15,12 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* Photoshop (PSD) 图片预览提供器。
-* <p>SPI 类型：{@code preview-psd}。通过 TwelveMonkeys ImageIO 插件解码 PSD，
-* 转为 PNG 并以 数据 URI 内嵌展示。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Photoshop (PSD) 图片预览提供器。
+ * <p>SPI 类型：{@code preview-psd}。通过 TwelveMonkeys ImageIO 插件解码 PSD，
+ * 转为 PNG 并以 数据 URI 内嵌展示。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-psd")
 public class PsdPreviewProvider implements FileStoragePreviewProvider {
@@ -71,12 +71,12 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 将 缓冲镜像 编码为 PNG 字节。
-    *
-    * @param image 源图像
-    * @return PNG 字节
-    * @throws IOException 编码失败时抛出
-    */
+     * 将 缓冲镜像 编码为 PNG 字节。
+     *
+     * @param image 源图像
+     * @return PNG 字节
+     * @throws IOException 编码失败时抛出
+     */
     private byte[] toPng(BufferedImage image) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             if (!ImageIO.write(image, "png", out)) {
@@ -87,11 +87,11 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建空结果页面。
-    *
-    * @param message 提示信息
-    * @return 完整 HTML
-    */
+     * 构建空结果页面。
+     *
+     * @param message 提示信息
+     * @return 完整 HTML
+     */
     private String emptyHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
                 + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
@@ -100,21 +100,21 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 格式化字节大小。
-    *
-    * @param bytes 字节数
-    * @return 可读大小
-    */
+     * 格式化字节大小。
+     *
+     * @param bytes 字节数
+     * @return 可读大小
+     */
     private String formatSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
 
     /**
-    * HTML 最小转义。
-    *
-    * @param text 原始文本
-    * @return 转义后文本
-    */
+     * HTML 最小转义。
+     *
+     * @param text 原始文本
+     * @return 转义后文本
+     */
     private String escape(String text) {
         return text == null ? "" : text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

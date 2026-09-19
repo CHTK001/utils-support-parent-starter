@@ -13,7 +13,7 @@ package com.chua.common.support.task.flow;
  * @param timestamp 执行时间戳（毫秒）
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record FlowTrace(
         String nodeId,
         Object input,
@@ -22,13 +22,13 @@ public record FlowTrace(
 ) {
 
     /**
-    * 创建执行轨迹记录。
-    *
-    * @param nodeId 节点唯一标识
-    * @param input  节点执行前当前数据
-    * @param output 节点执行后当前数据
-    * @return 执行轨迹记录实例
-    */
+     * 创建执行轨迹记录。
+     *
+     * @param nodeId 节点唯一标识
+     * @param input  节点执行前当前数据
+     * @param output 节点执行后当前数据
+     * @return 执行轨迹记录实例
+     */
     public static FlowTrace of(String nodeId, Object input, Object output) {
         return new FlowTrace(nodeId, input, output, System.currentTimeMillis());
     }

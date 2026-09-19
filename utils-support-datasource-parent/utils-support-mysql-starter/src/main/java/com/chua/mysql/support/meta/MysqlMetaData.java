@@ -8,22 +8,22 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.meta.JdbcMetaData;
 
 /**
-* MySQL 元数据入口。
-* <p>
-* 继承自 {@link JdbcMetaData}，复用方言提供的触发器/存储过程查询 SQL。
-* 提供表、视图、索引、用户、权限的元数据操作能力。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MySQL 元数据入口。
+ * <p>
+ * 继承自 {@link JdbcMetaData}，复用方言提供的触发器/存储过程查询 SQL。
+ * 提供表、视图、索引、用户、权限的元数据操作能力。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("mysql")
 public class MysqlMetaData extends JdbcMetaData {
 
     /**
-    * mysqlmeta数据。
-    * @param engine engine
-    */
+     * mysqlmeta数据。
+     * @param engine engine
+     */
     public MysqlMetaData(Engine engine) {
         super(engine);
     }

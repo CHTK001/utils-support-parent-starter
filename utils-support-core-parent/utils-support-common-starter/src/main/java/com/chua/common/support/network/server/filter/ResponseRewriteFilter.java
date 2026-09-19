@@ -50,42 +50,42 @@ import java.util.function.Predicate;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public class ResponseRewriteFilter implements ServerFilter {
 
     /**
-    * 响应改写规则列表
-    */
+     * 响应改写规则列表
+     */
     private final java.util.List<RewriteRule> rules = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     /**
-    * 无条件注入的响应头
-    */
+     * 无条件注入的响应头
+     */
     private final Map<String, BiConsumer<ServerRequest, ServerResponse>> globalHeaders = new ConcurrentHashMap<>();
 
     /**
-    * 无条件注入的响应头（静态值）
-    */
+     * 无条件注入的响应头（静态值）
+     */
     private final Map<String, String> staticHeaders = new ConcurrentHashMap<>();
 
     // ==================== 响应头注入 ====================
 
     /**
-    * 添加静态响应头（所有响应都会注入）。
-    *
-    * @param name  响应头名
-    * @param value 响应头值
-    */
+     * 添加静态响应头（所有响应都会注入）。
+     *
+     * @param name  响应头名
+     * @param value 响应头值
+     */
     public void addHeader(String name, String value) {
         staticHeaders.put(name, value);
     }
 
     /**
-    * 添加动态响应头（值由函数计算）。
-    *
-    * @param name      响应头名
-    * @param valueFunc 值计算函数，接收请求，返回头值
-    */
+     * 添加动态响应头（值由函数计算）。
+     *
+     * @param name      响应头名
+     * @param valueFunc 值计算函数，接收请求，返回头值
+     */
     public void addHeader(String name, BiConsumer<ServerRequest, ServerResponse> valueFunc) {
         globalHeaders.put(name, valueFunc);
     }
@@ -93,10 +93,10 @@ public class ResponseRewriteFilter implements ServerFilter {
     // ==================== 改写规则 ====================
 
     /**
-    * 添加改写规则。
-    *
-    * @param rule 改写规则
-    */
+     * 添加改写规则。
+     *
+     * @param rule 改写规则
+     */
     public void addRule(RewriteRule rule) {
         rules.add(rule);
     }
@@ -104,8 +104,8 @@ public class ResponseRewriteFilter implements ServerFilter {
     // ==================== ServerFilter 实现 ====================
 
     /**
-    * 最小 order，确保在链首执行（wrapping 模式）。
-    */
+     * 最小 order，确保在链首执行（wrapping 模式）。
+     */
     @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 10;
@@ -134,11 +134,11 @@ public class ResponseRewriteFilter implements ServerFilter {
     }
 
     /**
-    * 执行所有改写逻辑。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    */
+     * 执行所有改写逻辑。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     */
     private void applyRewrites(ServerRequest request, ServerResponse response) {
         // 1. 注入全局响应头
         for (Map.Entry<String, String> entry : staticHeaders.entrySet()) {
@@ -164,32 +164,32 @@ public class ResponseRewriteFilter implements ServerFilter {
     // ==================== 改写规则定义 ====================
 
     /**
-    * 响应改写规则。
-    */
+     * 响应改写规则。
+     */
     public static class RewriteRule {
         /**
-        * 匹配条件：请求是否命中此规则
-        */
+         * 匹配条件：请求是否命中此规则
+         */
         private Predicate<ServerRequest> condition;
 
         /**
-        * 状态码改写函数：原状态码 → 新状态码
-        */
+         * 状态码改写函数：原状态码 → 新状态码
+         */
         private java.util.function.IntUnaryOperator statusRewrite;
 
         /**
-        * 响应体改写函数：(请求, 原体) → 新体
-        */
+         * 响应体改写函数：(请求, 原体) → 新体
+         */
         private java.util.function.BiFunction<ServerRequest, String, String> bodyRewrite;
 
         /**
-        * 响应体改写函数（字节数组版本）
-        */
+         * 响应体改写函数（字节数组版本）
+         */
         private java.util.function.BiFunction<ServerRequest, byte[], byte[]> bodyRewriteBytes;
 
         /**
-        * 是否立即结束响应（跳过后续链）
-        */
+         * 是否立即结束响应（跳过后续链）
+         */
         private boolean endImmediately;
 
         /** 创建 RewriteRule 实例 */

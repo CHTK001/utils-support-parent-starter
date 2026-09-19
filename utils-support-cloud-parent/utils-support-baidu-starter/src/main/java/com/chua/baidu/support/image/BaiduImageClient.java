@@ -22,64 +22,64 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 百度文心一格图片生成客户端
-*
-* <p>基于百度文心一格 API 的 {@link ImageClient} 实现，通过 HTTP 协议
-* 调用文心一格（ERNIE-vilg）系列模型的图片生成接口。
-* 需要先通过 OAuth 2.0 获取 access_令牌 后再发起图片生成请求。
-*
-* @author CH
-* @since 4.0.0.42
+ * 百度文心一格图片生成客户端
+ *
+ * <p>基于百度文心一格 API 的 {@link ImageClient} 实现，通过 HTTP 协议
+ * 调用文心一格（ERNIE-vilg）系列模型的图片生成接口。
+ * 需要先通过 OAuth 2.0 获取 access_令牌 后再发起图片生成请求。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"baidu"})
 public class BaiduImageClient implements ImageClient {
 
     /**
-    * 百度文心一格默认 API 地址
-    */
+     * 百度文心一格默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://aip.baidubce.com";
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final HttpClient httpClient;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ImageClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前图片宽度
-    */
+     * 当前图片宽度
+     */
     private Integer width;
 
     /**
-    * 当前图片高度
-    */
+     * 当前图片高度
+     */
     private Integer height;
 
     /**
-    * 当前提示词
-    */
+     * 当前提示词
+     */
     private String prompt;
 
     /**
-    * 当前风格
-    */
+     * 当前风格
+     */
     private String style;
 
     /**
-    * 构造百度文心一格图片生成客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造百度文心一格图片生成客户端
+     *
+     * @param setting 客户端配置
+     */
     public BaiduImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -207,12 +207,12 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-    * 解析响应并下载图片
-    *
-    * @param json 百度返回的 JSON 响应
-    * @return BufferedImage 对象
-    * @throws IOException 下载或解析失败
-    */
+     * 解析响应并下载图片
+     *
+     * @param json 百度返回的 JSON 响应
+     * @return BufferedImage 对象
+     * @throws IOException 下载或解析失败
+     */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
@@ -268,10 +268,10 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -284,11 +284,11 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-    * 转义 JSON 字符串中的特殊字符
-    *
-    * @param input 原始字符串
-    * @return 转义后的字符串
-    */
+     * 转义 JSON 字符串中的特殊字符
+     *
+     * @param input 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

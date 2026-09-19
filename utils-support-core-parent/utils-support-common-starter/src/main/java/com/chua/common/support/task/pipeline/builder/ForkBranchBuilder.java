@@ -60,7 +60,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  * @since 4.0.0.42
  * @see TaskForkDefinition#startFork(String)
  * @see TaskForkDefinition#endFork()
-*/
+ */
 public class ForkBranchBuilder {
 
     /** 分支名称 */
@@ -87,67 +87,67 @@ public class ForkBranchBuilder {
     // ========== 便捷方法（返回 this，链式流畅） ==========
 
     /**
-    * 添加任务步骤到当前分支（便捷方法，与 {@link #task} 等价）。
-    *
-    * <p>每个步骤是一个任务节点，分支内按添加顺序依次执行。</p>
-    *
-    * @param id      步骤节点唯一标识
-    * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
-    * @return this
-    */
+     * 添加任务步骤到当前分支（便捷方法，与 {@link #task} 等价）。
+     *
+     * <p>每个步骤是一个任务节点，分支内按添加顺序依次执行。</p>
+     *
+     * @param id      步骤节点唯一标识
+     * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
+     * @return this
+     */
     public ForkBranchBuilder step(String id, PipelineNode handler) {
         innerBuilder.task(id, handler).taskEnd();
         return this;
     }
 
     /**
-    * 添加任务步骤到当前分支（与 {@link #step} 等价，语义化命名）。
-    *
-    * @param id      步骤节点唯一标识
-    * @param handler 业务逻辑处理器
-    * @return this
-    */
+     * 添加任务步骤到当前分支（与 {@link #step} 等价，语义化命名）。
+     *
+     * @param id      步骤节点唯一标识
+     * @param handler 业务逻辑处理器
+     * @return this
+     */
     public ForkBranchBuilder task(String id, PipelineNode handler) {
         innerBuilder.task(id, handler).taskEnd();
         return this;
     }
 
     /**
-    * 添加判断节点到当前分支。
-    *
-    * <p>判断节点根据路由回调返回的目标节点 ID 进行跳转。</p>
-    *
-    * @param id     节点唯一标识
-    * @param router 路由处理器，返回目标节点 标识
-    * @return this
-    */
+     * 添加判断节点到当前分支。
+     *
+     * <p>判断节点根据路由回调返回的目标节点 ID 进行跳转。</p>
+     *
+     * @param id     节点唯一标识
+     * @param router 路由处理器，返回目标节点 标识
+     * @return this
+     */
     public ForkBranchBuilder decision(String id, PipelineNode router) {
         innerBuilder.decision(id, router);
         return this;
     }
 
     /**
-    * 添加子流水线节点到当前分支。
-    *
-    * @param id          节点唯一标识
-    * @param subPipeline 子流水线实例
-    * @return this
-    */
+     * 添加子流水线节点到当前分支。
+     *
+     * @param id          节点唯一标识
+     * @param subPipeline 子流水线实例
+     * @return this
+     */
     public ForkBranchBuilder pipeline(String id, Pipeline subPipeline) {
         innerBuilder.pipeline(id, subPipeline);
         return this;
     }
 
     /**
-    * 添加分叉节点到当前分支（分支内嵌套分叉）。
-    *
-    * <p>返回 {@link TaskForkDefinition}，支持分支内嵌套分叉编排。
-    * 完成嵌套分叉定义后（调用 任务结束），需通过 {@link #builder()} 继续添加节点，
-    * 或直接调用 {@link #endFork()} 结束当前分支。</p>
-    *
-    * @param id 分叉节点唯一标识
-    * @return TaskForkDefinition 嵌套分叉定义
-    */
+     * 添加分叉节点到当前分支（分支内嵌套分叉）。
+     *
+     * <p>返回 {@link TaskForkDefinition}，支持分支内嵌套分叉编排。
+     * 完成嵌套分叉定义后（调用 任务结束），需通过 {@link #builder()} 继续添加节点，
+     * 或直接调用 {@link #endFork()} 结束当前分支。</p>
+     *
+     * @param id 分叉节点唯一标识
+     * @return TaskForkDefinition 嵌套分叉定义
+     */
     public TaskForkDefinition fork(String id) {
         return innerBuilder.fork(id);
     }
@@ -155,38 +155,38 @@ public class ForkBranchBuilder {
     // ========== 完整编排能力 ==========
 
     /**
-    * 获取内部 pipeline构建器，支持完整编排能力。
-    *
-    * <p><strong>设计原则：主干管外层，分支自己嵌套自己处理。</strong></p>
-    * <p>通过 builder() 可以做任何 PipelineBuilder 支持的操作：</p>
-    * <ul>
-    *   <li>{@code .builder().taskStart(id).onStep(...).exit().taskEnd()} — Definition API</li>
-    *   <li>{@code .builder().fork(id).startFork(...)...} — 嵌套分叉</li>
-    *   <li>{@code .builder().addListener(...)} — 添加监听器</li>
-    *   <li>{@code .builder().routeStrategy(...)} — 配置路由策略</li>
-    * </ul>
-    *
-    * <p>完成内部编排后，调用 {@link #endFork()} 结束当前分支。</p>
-    *
-    * <p>用法示例：</p>
-    * <pre>{@code
-    * .startFork("a")
-    *     .step("a1", ctx -> { doA1(ctx); return null; })
-    *     .builder()                              // 获取内部 builder
-    *         .taskStart("a2")
-    *             .onStep(ctx -> init(ctx))
-    *             .exit()
-    *         .taskEnd()
-    *         .fork("inner-fork")                 // 嵌套分叉
-    *             .startFork("a3a")
-    *                 .step("a3a1", ctx -> { ...; return null; })
-    *             .endFork()
-    *         .taskEnd()
-    * .endFork()                                  // 结束分支 "a"
-    * }</pre>   * }</pre>
-    *
-    * @return 内部 pipeline构建器
-    */
+     * 获取内部 pipeline构建器，支持完整编排能力。
+     *
+     * <p><strong>设计原则：主干管外层，分支自己嵌套自己处理。</strong></p>
+     * <p>通过 builder() 可以做任何 PipelineBuilder 支持的操作：</p>
+     * <ul>
+     *   <li>{@code .builder().taskStart(id).onStep(...).exit().taskEnd()} — Definition API</li>
+     *   <li>{@code .builder().fork(id).startFork(...)...} — 嵌套分叉</li>
+     *   <li>{@code .builder().addListener(...)} — 添加监听器</li>
+     *   <li>{@code .builder().routeStrategy(...)} — 配置路由策略</li>
+     * </ul>
+     *
+     * <p>完成内部编排后，调用 {@link #endFork()} 结束当前分支。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * .startFork("a")
+     *     .step("a1", ctx -> { doA1(ctx); return null; })
+     *     .builder()                              // 获取内部 builder
+     *         .taskStart("a2")
+     *             .onStep(ctx -> init(ctx))
+     *             .exit()
+     *         .taskEnd()
+     *         .fork("inner-fork")                 // 嵌套分叉
+     *             .startFork("a3a")
+     *                 .step("a3a1", ctx -> { ...; return null; })
+     *             .endFork()
+     *         .taskEnd()
+     * .endFork()                                  // 结束分支 "a"
+     * }</pre>   * }</pre>
+     *
+     * @return 内部 pipeline构建器
+     */
     public PipelineBuilder builder() {
         return innerBuilder;
     }
@@ -194,13 +194,13 @@ public class ForkBranchBuilder {
     // ========== 结束分支 ==========
 
     /**
-    * 结束分支定义，将构建的分支流水线添加到分叉定义，返回父分叉定义。
-    *
-    * <p>等价于手动构建 Pipeline 并调用
-    * {@link TaskForkDefinition#branch(String, Pipeline)}。</p>
-    *
-    * @return TaskForkDefinition 父分叉定义
-    */
+     * 结束分支定义，将构建的分支流水线添加到分叉定义，返回父分叉定义。
+     *
+     * <p>等价于手动构建 Pipeline 并调用
+     * {@link TaskForkDefinition#branch(String, Pipeline)}。</p>
+     *
+     * @return TaskForkDefinition 父分叉定义
+     */
     public TaskForkDefinition endFork() {
         Pipeline branchPipeline = innerBuilder.build();
         parent.branch(branchName, branchPipeline);

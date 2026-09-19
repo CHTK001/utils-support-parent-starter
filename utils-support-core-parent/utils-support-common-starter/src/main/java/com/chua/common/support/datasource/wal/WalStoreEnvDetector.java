@@ -8,23 +8,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* WAL 存储系统环境检测器，实现 {@link RuntimeDetector} SPI。
-*
-* <p>根据可用内存、CPU 核数、磁盘类型自动计算最优配置参数，
-* 适用于亿级数据存储场景。</p>
-*
-* <pre>{@code
-* // 自动检测并生成配置
-* WalStoreEnvDetector detector = new WalStoreEnvDetector();
-* WalStoreConfig config = detector.detect(baseDir);
-*
-* // 或通过 SPI 获取
-* WalStoreConfig config = ServiceProvider.of(RuntimeDetector.class)
-*     .getNewExtension("wal-store-detector");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * WAL 存储系统环境检测器，实现 {@link RuntimeDetector} SPI。
+ *
+ * <p>根据可用内存、CPU 核数、磁盘类型自动计算最优配置参数，
+ * 适用于亿级数据存储场景。</p>
+ *
+ * <pre>{@code
+ * // 自动检测并生成配置
+ * WalStoreEnvDetector detector = new WalStoreEnvDetector();
+ * WalStoreConfig config = detector.detect(baseDir);
+ *
+ * // 或通过 SPI 获取
+ * WalStoreConfig config = ServiceProvider.of(RuntimeDetector.class)
+ *     .getNewExtension("wal-store-detector");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "wal-store-detector", order = 0)
@@ -60,11 +60,11 @@ public class WalStoreEnvDetector implements RuntimeDetector {
     // ==================== 自动检测 ====================
 
     /**
-    * 根据当前运行环境生成最优配置。
-    *
-    * @param baseDir 数据存储根目录
-    * @return 自动检测后的配置
-    */
+     * 根据当前运行环境生成最优配置。
+     *
+     * @param baseDir 数据存储根目录
+     * @return 自动检测后的配置
+     */
     public WalStoreConfig detect(Path baseDir) {
         long maxMemory = Runtime.getRuntime().maxMemory();
         int cores = Runtime.getRuntime().availableProcessors();
@@ -100,11 +100,11 @@ public class WalStoreEnvDetector implements RuntimeDetector {
     }
 
     /**
-    * 带命名空间的检测。
-    * @param baseDir base目录，不允许为 null
-    * @param namespace 方法入参 namespace
-    * @return WalStore配置 对象
-    */
+     * 带命名空间的检测。
+     * @param baseDir base目录，不允许为 null
+     * @param namespace 方法入参 namespace
+     * @return WalStore配置 对象
+     */
     public WalStoreConfig detect(Path baseDir, String namespace) {
         WalStoreConfig cfg = detect(baseDir);
         return WalStoreConfig.builder()

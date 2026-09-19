@@ -17,65 +17,65 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 依赖图 处理器 — 聚合传输事件生成节点-边图。
-*
-* <p>节点 = Endpoint（host:port + protocol + software）；
-* 边 = dependencyedge（源 → Target + call数量 + avg持续时间）。
-* 数据来源：</p>
-* <ul>
-*   <li>订阅 TransmissionHandler 的 TransmissionRecord（Socket 层）</li>
-*   <li>未来订阅 ZkClientHandler / RedisClientHandler（应用语义层）</li>
-* </ul>
-*
-* <p>调用方可通过 {@link #getEdges()} 获取当前依赖图谱。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 依赖图 处理器 — 聚合传输事件生成节点-边图。
+ *
+ * <p>节点 = Endpoint（host:port + protocol + software）；
+ * 边 = dependencyedge（源 → Target + call数量 + avg持续时间）。
+ * 数据来源：</p>
+ * <ul>
+ *   <li>订阅 TransmissionHandler 的 TransmissionRecord（Socket 层）</li>
+ *   <li>未来订阅 ZkClientHandler / RedisClientHandler（应用语义层）</li>
+ * </ul>
+ *
+ * <p>调用方可通过 {@link #getEdges()} 获取当前依赖图谱。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DependencyGraphHandler implements Plugin {
 
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(DependencyGraphHandler.class.getName());
     /**
-    * 插件名称
+     * 插件名称
      */
     private static final String HANDLER_NAME = "dependency-graph-handler";
 
     /**
-    * 插件版本
+     * 插件版本
      */
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-    * 启用配置属性 键
+     * 启用配置属性 键
      */
     private static final String PROP_DEP_ENABLED = "dependency.enabled";
 
     /**
-    * 默认启用值
+     * 默认启用值
      */
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-    * 边集合（edgeid → dependencyedge）
+     * 边集合（edgeid → dependencyedge）
      */
     private final Map<String, DependencyEdge> edges;
 
     /**
-    * 节点集合（节点id → 端点）
+     * 节点集合（节点id → 端点）
      */
     private final Map<String, Endpoint> nodes;
 
     /**
-    * 是否启用
+     * 是否启用
      */
     private boolean enabled;
 
     /**
-    * 是否已启动
+     * 是否已启动
      */
     private final AtomicBoolean started;
 
@@ -137,15 +137,15 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     /**
-    * 记录一次传输，更新依赖图。
-    *
-    * @param source   源端点
-    * @param target   目标端点
-    * @param protocol 协议
-    * @param software 软件栈
-    * @param duration 本次耗时（毫秒）
-    * @param isError  是否错误
-    * @param error    错误信息（可空）
+     * 记录一次传输，更新依赖图。
+     *
+     * @param source   源端点
+     * @param target   目标端点
+     * @param protocol 协议
+     * @param software 软件栈
+     * @param duration 本次耗时（毫秒）
+     * @param isError  是否错误
+     * @param error    错误信息（可空）
      */
     public void record(Endpoint source, Endpoint target, Protocol protocol, Software software,
                        long duration, boolean isError, String error) {
@@ -183,25 +183,25 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     /**
-    * 获取所有依赖边。
-    *
-    * @return 不可修改的边列表
+     * 获取所有依赖边。
+     *
+     * @return 不可修改的边列表
      */
     public List<DependencyEdge> getEdges() {
         return Collections.unmodifiableList(new ArrayList<>(edges.values()));
     }
 
     /**
-    * 获取所有节点。
-    *
-    * @return 不可修改的节点列表
+     * 获取所有节点。
+     *
+     * @return 不可修改的节点列表
      */
     public List<Endpoint> getNodes() {
         return Collections.unmodifiableList(new ArrayList<>(nodes.values()));
     }
 
     /**
-    * 清空依赖图。
+     * 清空依赖图。
      */
     public void clear() {
         edges.clear();

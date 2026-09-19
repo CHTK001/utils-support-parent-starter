@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Spring 批量 处理器 — intercepts 批量 step 执行.
-*
-* @author CH
-* @since 4.0.0.42
+ * Spring 批量 处理器 — intercepts 批量 step 执行.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SpringBatchHandler extends AbstractAppHandler {
 
     /**
-    * STEP
+     * STEP
      */
     private static final String STEP = "org/springframework/batch/core/step/Step";
     /**
-    * 执行 方法
+     * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
 

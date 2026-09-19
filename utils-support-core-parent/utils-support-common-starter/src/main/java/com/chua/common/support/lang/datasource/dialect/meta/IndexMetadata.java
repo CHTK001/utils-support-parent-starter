@@ -5,11 +5,11 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
-* 索引元数据，描述表上的一个索引信息。
-* <p>用于方言的索引 DDL 生成，如 CREATE INDEX、DROP INDEX 等操作。</p>
-*
-* @author CH
-* @since 2024/12/12
+ * 索引元数据，描述表上的一个索引信息。
+ * <p>用于方言的索引 DDL 生成，如 CREATE INDEX、DROP INDEX 等操作。</p>
+ *
+ * @author CH
+ * @since 2024/12/12
  */
 @Data
 @Accessors(chain = true)
@@ -24,8 +24,8 @@ public class IndexMetadata {
     private String tableName;
     /** 索引类型（BTREE / HASH / FULLTEXT） */
     /**
-    * 类型
-    */
+     * 类型
+     */
     private String type;
     /** 是否唯一索引 */
     /**

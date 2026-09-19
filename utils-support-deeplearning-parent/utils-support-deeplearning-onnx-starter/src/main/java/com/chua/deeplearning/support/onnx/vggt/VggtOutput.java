@@ -3,52 +3,52 @@ package com.chua.deeplearning.support.onnx.vggt;
 import lombok.Data;
 
 /**
-* VGGT             
-* <p>
-*        VGGT                                      3D                      
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2024/11/08
+ * VGGT             
+ * <p>
+ *        VGGT                                      3D                      
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2024/11/08
  */
 @Data
 public class VggtOutput {
 
     /**
-    * 3D                   
-    * <p>
-    *                                                    
-    * -        (xyz)
-    * -        (scale)
-    * -        (rotation quaternion)
-    * -              (opacity)
-    * -              (SH coefficients)             
-    */
+     * 3D                   
+     * <p>
+     *                                                    
+     * -        (xyz)
+     * -        (scale)
+     * -        (rotation quaternion)
+     * -              (opacity)
+     * -              (SH coefficients)             
+     */
     private float[] gaussianData;
 
     /**
-    *             
-    * <p>
-    * [num_gaussians, 特征_dim]
-    */
+     *             
+     * <p>
+     * [num_gaussians, 特征_dim]
+     */
     private long[] shape;
 
     /**
-    * 3D                  
-    */
+     * 3D                  
+     */
     private int numGaussians;
 
     /**
-    *                            
-    */
+     *                            
+     */
     private int featureDimension;
 
     /**
-    *             
-    *
-    * @param gaussianData                   
-    * @param shape             
-    */
+     *             
+     *
+     * @param gaussianData                   
+     * @param shape             
+     */
     public VggtOutput(float[] gaussianData, long[] shape) {
         this.gaussianData = gaussianData;
         this.shape = shape;
@@ -69,19 +69,19 @@ public class VggtOutput {
     }
 
     /**
-    *             
-    *
-    * @return true                       3D       
-    */
+     *             
+     *
+     * @return true                       3D       
+     */
     public boolean isValid() {
         return gaussianData != null && gaussianData.length > 0 && numGaussians > 0;
     }
 
     /**
-    *                               
-    *
-    * @return             
-    */
+     *                               
+     *
+     * @return             
+     */
     public long getDataSizeBytes() {
         return gaussianData != null ? (long) gaussianData.length * Float.BYTES : 0;
     }

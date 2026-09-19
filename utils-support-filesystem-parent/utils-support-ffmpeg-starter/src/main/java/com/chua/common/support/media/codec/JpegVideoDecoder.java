@@ -9,12 +9,12 @@ import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 
 /**
-* JPEG 解码器 — 基于 Java 镜像io 实现。
-*
-* <p>使用 {@link javax.imageio.ImageIO#read(ByteArrayInputStream)} 解码 JPEG 数据，输出 ARGB 格式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * JPEG 解码器 — 基于 Java 镜像io 实现。
+ *
+ * <p>使用 {@link javax.imageio.ImageIO#read(ByteArrayInputStream)} 解码 JPEG 数据，输出 ARGB 格式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("jpeg")
@@ -26,8 +26,8 @@ public class JpegVideoDecoder implements VideoDecoder {
     private int height;
 
     /**
-    * 默认构造器（SPI 使用）。
-    */
+     * 默认构造器（SPI 使用）。
+     */
     public JpegVideoDecoder() {
     }
 

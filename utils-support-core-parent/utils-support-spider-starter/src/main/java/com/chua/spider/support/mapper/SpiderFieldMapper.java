@@ -19,14 +19,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 爬虫字段映射器。
-*
-* <p>将 {@link SpiderResult} 中的 HTML 或文本内容，
-* 根据 {@link SpiderField} 和 {@link SpiderAi} 注解的配置，
-* 自动映射到 POJO 对象的字段上。
-*
-* @author CH
-* @since 4.0.0.42
+ * 爬虫字段映射器。
+ *
+ * <p>将 {@link SpiderResult} 中的 HTML 或文本内容，
+ * 根据 {@link SpiderField} 和 {@link SpiderAi} 注解的配置，
+ * 自动映射到 POJO 对象的字段上。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @ConditionalOnClass({"org.jsoup.Jsoup", "com.fasterxml.jackson.databind.ObjectMapper"})
@@ -48,11 +48,11 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 构造器（使用 AI 提取）。
-    *
-    * @param aiProvider AI 服务商名称，如 "openai"、"deepseek"
-    * @param aiApiKey   API 键
-    */
+     * 构造器（使用 AI 提取）。
+     *
+     * @param aiProvider AI 服务商名称，如 "openai"、"deepseek"
+     * @param aiApiKey   API 键
+     */
     public SpiderFieldMapper(String aiProvider, String aiApiKey) {
         if (aiProvider != null && aiApiKey != null) {
             this.chatClient = ChatClient.create(
@@ -66,11 +66,11 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 将 蜘蛛结果 映射到指定类型的 POJO。
-    * @param result 结果
-    * @param clazz clazz
-    * @return 映射的结果
-    */
+     * 将 蜘蛛结果 映射到指定类型的 POJO。
+     * @param result 结果
+     * @param clazz clazz
+     * @return 映射的结果
+     */
     @SuppressWarnings("unchecked")
     public <T> T map(SpiderResult result, Class<T> clazz) {
         try {
@@ -122,11 +122,11 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 通过 CSS 选择器从 HTML 中提取值。
-    * @param html HTML
-    * @param annotation 注解
-    * @return extractBySelector的结果
-    */
+     * 通过 CSS 选择器从 HTML 中提取值。
+     * @param html HTML
+     * @param annotation 注解
+     * @return extractBySelector的结果
+     */
     private String extractBySelector(String html, SpiderField annotation) {
         if (StringUtils.isEmpty(html)) {
             return null;
@@ -150,8 +150,8 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 通过 AI 批量提取字段值。
-    */
+     * 通过 AI 批量提取字段值。
+     */
     private Map<String, String> extractByAi(SpiderResult result, Class<?> clazz,
                                              Map<String, String> aiFields) {
         Map<String, String> results = new LinkedHashMap<>();
@@ -195,10 +195,10 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 解析 JSON 响应，优先使用 Jackson，失败时回退到手动解析。
-    * @param json json
-    * @param results 结果
-    */
+     * 解析 JSON 响应，优先使用 Jackson，失败时回退到手动解析。
+     * @param json json
+     * @param results 结果
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void parseJsonResponse(String json, Map<String, String> results) {
         // 清理 JSON 包裹
@@ -247,11 +247,11 @@ public class SpiderFieldMapper {
     }
 
     /**
-    * 设置字段值（支持 字符串 + 基本类型转换）。
-    * @param instance instance
-    * @param field 字段
-    * @param value 值
-    */
+     * 设置字段值（支持 字符串 + 基本类型转换）。
+     * @param instance instance
+     * @param field 字段
+     * @param value 值
+     */
     private void setFieldValue(Object instance, Field field, String value) {
         try {
             Class<?> type = field.getType();

@@ -12,12 +12,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* 基于 韧性4j 的熔断器实现。
-*
-* <p>SPI 名称为 {@code "default"}，order=100 优先级高于内存实现。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 韧性4j 的熔断器实现。
+ *
+ * <p>SPI 名称为 {@code "default"}，order=100 优先级高于内存实现。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi(value = "default", order = 100)
 @ConditionalOnClass("io.github.resilience4j.circuitbreaker.CircuitBreaker")
@@ -32,15 +32,15 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     private final AtomicLong callStartNs = new AtomicLong(-1);
 
     /**
-    * 创建 韧性4j熔断中断提供者 实例
-    * @param name 名称
-    * @param failureThreshold int
-    * @param failureThreshold int
-    * @param waitDuration long
-    * @param failureThreshold 失败阈值
-    * @param successThreshold 成功阈值
-    * @param waitDuration wait持续时间
-    */
+     * 创建 韧性4j熔断中断提供者 实例
+     * @param name 名称
+     * @param failureThreshold int
+     * @param failureThreshold int
+     * @param waitDuration long
+     * @param failureThreshold 失败阈值
+     * @param successThreshold 成功阈值
+     * @param waitDuration wait持续时间
+     */
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold((float) failureThreshold / 100)

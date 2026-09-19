@@ -14,16 +14,16 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
-* 特征提取器。
-* <p>
-* 负责将原始流量事件窗口转换为模型输入：auto编码器 所需的 IP 聚合特征向量，
-* 以及 LSTM/GRU 所需的行为序列（类别 标识 序列 + 数值序列）。所有原始指标的计算
-* 集中在本类（{@link #rawIpFeature}），规则评分 {@code RuleBasedScorer} 复用同一
-* 入口，避免重复实现。特征顺序严格遵循配置中 {@code features} 的定义。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 特征提取器。
+ * <p>
+ * 负责将原始流量事件窗口转换为模型输入：auto编码器 所需的 IP 聚合特征向量，
+ * 以及 LSTM/GRU 所需的行为序列（类别 标识 序列 + 数值序列）。所有原始指标的计算
+ * 集中在本类（{@link #rawIpFeature}），规则评分 {@code RuleBasedScorer} 复用同一
+ * 入口，避免重复实现。特征顺序严格遵循配置中 {@code features} 的定义。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FeatureExtractor {
@@ -43,16 +43,16 @@ public class FeatureExtractor {
     private final UebaConfig config;
 
     /**
-    * 特征定义列表（配置顺序即维度顺序）
-    */
+     * 特征定义列表（配置顺序即维度顺序）
+     */
     private final List<FeatureDefinition> features;
 
     /**
-    * 构造特征提取器。
-    *
-    * @param config UEBA 配置，不能为 空，且 特征 不能为空
-    * @throws IllegalArgumentException 当 配置 为 空 或 特征 为空时
-    */
+     * 构造特征提取器。
+     *
+     * @param config UEBA 配置，不能为 空，且 特征 不能为空
+     * @throws IllegalArgumentException 当 配置 为 空 或 特征 为空时
+     */
     public FeatureExtractor(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
         if (config.getFeatures() == null || config.getFeatures().isEmpty()) {
@@ -63,20 +63,20 @@ public class FeatureExtractor {
     }
 
     /**
-    * 返回当前配置，供规则评分等协作组件读取模型参数。
-    *
-    * @return UEBA 配置对象，绝不为 空
-    */
+     * 返回当前配置，供规则评分等协作组件读取模型参数。
+     *
+     * @return UEBA 配置对象，绝不为 空
+     */
     public UebaConfig config() {
         return config;
     }
 
     /**
-    * 提取 IP 聚合特征向量（auto编码器 输入）。
-    *
-    * @param window 窗口内流量事件列表，允许为空
-    * @return 特征向量，长度等于配置 特征 数量，顺序与配置一致
-    */
+     * 提取 IP 聚合特征向量（auto编码器 输入）。
+     *
+     * @param window 窗口内流量事件列表，允许为空
+     * @return 特征向量，长度等于配置 特征 数量，顺序与配置一致
+     */
     public float[] extractIpFeatures(List<TrafficEvent> window) {
         float[] vector = new float[features.size()];
         for (int i = 0; i < features.size(); i++) {
@@ -88,13 +88,13 @@ public class FeatureExtractor {
     }
 
     /**
-    * 提取行为序列的类别 标识 序列（LSTM/GRU 输入之一）。
-    *
-    * @param window 窗口内流量事件列表，允许为空
-    * @param seqLen 序列长度，必须大于 0
-    * @return 长度等于 seqlen 的 标识 数组，不足 seqlen 时左端补 0
-    * @throws IllegalArgumentException 当 seqlen 小于等于 0 时
-    */
+     * 提取行为序列的类别 标识 序列（LSTM/GRU 输入之一）。
+     *
+     * @param window 窗口内流量事件列表，允许为空
+     * @param seqLen 序列长度，必须大于 0
+     * @return 长度等于 seqlen 的 标识 数组，不足 seqlen 时左端补 0
+     * @throws IllegalArgumentException 当 seqlen 小于等于 0 时
+     */
     public int[] extractSequenceIds(List<TrafficEvent> window, int seqLen) {
         if (seqLen <= 0) {
             throw new IllegalArgumentException("seqLen 必须大于 0, 实际: " + seqLen);
@@ -113,19 +113,19 @@ public class FeatureExtractor {
     }
 
     /**
-    * 提取行为序列的数值特征序列（LSTM/GRU 输入之二）。
-    * <p>
-    * 每个时间步的数值特征顺序固定为：
-    * 是否错误(0/1) → 小时相位(0~1) → 响应耗时(归一化) → 方法编码(归一化)，
-    * 不足 seqlen 时左端补 0。与训练端特征顺序必须一致。
-    * </p>
-    *
-    * @param window     窗口内流量事件列表，允许为空
-    * @param seqLen     序列长度，必须大于 0
-    * @param numNumeric 每步数值特征数量，必须大于 0
-    * @return 长度等于 seqlen 的数值特征数组
-    * @throws IllegalArgumentException 当 seqlen 或 numnumeric 小于等于 0 时
-    */
+     * 提取行为序列的数值特征序列（LSTM/GRU 输入之二）。
+     * <p>
+     * 每个时间步的数值特征顺序固定为：
+     * 是否错误(0/1) → 小时相位(0~1) → 响应耗时(归一化) → 方法编码(归一化)，
+     * 不足 seqlen 时左端补 0。与训练端特征顺序必须一致。
+     * </p>
+     *
+     * @param window     窗口内流量事件列表，允许为空
+     * @param seqLen     序列长度，必须大于 0
+     * @param numNumeric 每步数值特征数量，必须大于 0
+     * @return 长度等于 seqlen 的数值特征数组
+     * @throws IllegalArgumentException 当 seqlen 或 numnumeric 小于等于 0 时
+     */
     public float[][] extractSequenceNumeric(List<TrafficEvent> window, int seqLen, int numNumeric) {
         if (seqLen <= 0) {
             throw new IllegalArgumentException("seqLen 必须大于 0, 实际: " + seqLen);
@@ -164,12 +164,12 @@ public class FeatureExtractor {
     private static final float METHOD_CODE_MAX = 4.0f;
 
     /**
-    * 计算单个原始 IP 指标（未归一化）。
-    *
-    * @param def    特征定义，不能为 空
-    * @param window 窗口内流量事件列表，允许为空
-    * @return 原始指标值
-    */
+     * 计算单个原始 IP 指标（未归一化）。
+     *
+     * @param def    特征定义，不能为 空
+     * @param window 窗口内流量事件列表，允许为空
+     * @return 原始指标值
+     */
     public double rawIpFeature(FeatureDefinition def, List<TrafficEvent> window) {
         Objects.requireNonNull(def, "def must not be null");
         return switch (def.getName()) {
@@ -191,12 +191,12 @@ public class FeatureExtractor {
     }
 
     /**
-    * 请求频率：窗口事件数 / 窗口秒数。
-    *
-    * @param window 事件列表
-    * @param windowSeconds 聚合窗口（秒）
-    * @return 每秒请求数，窗口为空时返回 0
-    */
+     * 请求频率：窗口事件数 / 窗口秒数。
+     *
+     * @param window 事件列表
+     * @param windowSeconds 聚合窗口（秒）
+     * @return 每秒请求数，窗口为空时返回 0
+     */
     private double requestRate(List<TrafficEvent> window, long windowSeconds) {
         if (window == null || window.isEmpty() || windowSeconds <= 0L) {
             return 0.0d;
@@ -205,11 +205,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 路径熵：访问路径分布的 Shannon 熵。
-    *
-    * @param window 事件列表
-    * @return 熵值（比特），范围 [0, 日志2(不同路径数)]，窗口为空时返回 0
-    */
+     * 路径熵：访问路径分布的 Shannon 熵。
+     *
+     * @param window 事件列表
+     * @return 熵值（比特），范围 [0, 日志2(不同路径数)]，窗口为空时返回 0
+     */
     private double pathEntropy(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -229,11 +229,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 不同访问路径的数量。
-    *
-    * @param window 事件列表
-    * @return 去重路径数，窗口为空时返回 0
-    */
+     * 不同访问路径的数量。
+     *
+     * @param window 事件列表
+     * @return 去重路径数，窗口为空时返回 0
+     */
     private double uniquePathsCount(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -247,11 +247,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 错误率：4xx/5xx 请求占比。
-    *
-    * @param window 事件列表
-    * @return 错误率，范围 [0, 1]，窗口为空时返回 0
-    */
+     * 错误率：4xx/5xx 请求占比。
+     *
+     * @param window 事件列表
+     * @return 错误率，范围 [0, 1]，窗口为空时返回 0
+     */
     private double errorRate(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -266,11 +266,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 方法多样性：不同 HTTP 方法数占比。
-    *
-    * @param window 事件列表
-    * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
-    */
+     * 方法多样性：不同 HTTP 方法数占比。
+     *
+     * @param window 事件列表
+     * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
+     */
     private double methodDiversity(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -283,11 +283,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * UA 多样性：不同 用户-Agent 数占比。
-    *
-    * @param window 事件列表
-    * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
-    */
+     * UA 多样性：不同 用户-Agent 数占比。
+     *
+     * @param window 事件列表
+     * @return 多样性值，范围 [0, 1]，窗口为空时返回 0
+     */
     private double uaDiversity(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -301,11 +301,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 平均响应耗时（毫秒）。
-    *
-    * @param window 事件列表
-    * @return 平均响应耗时，窗口为空时返回 0
-    */
+     * 平均响应耗时（毫秒）。
+     *
+     * @param window 事件列表
+     * @return 平均响应耗时，窗口为空时返回 0
+     */
     private double avgResponseTime(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -318,11 +318,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 最大响应耗时（毫秒）。
-    *
-    * @param window 事件列表
-    * @return 最大响应耗时，窗口为空时返回 0
-    */
+     * 最大响应耗时（毫秒）。
+     *
+     * @param window 事件列表
+     * @return 最大响应耗时，窗口为空时返回 0
+     */
     private double maxResponseTime(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -335,11 +335,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 平均响应体大小（字节）。
-    *
-    * @param window 事件列表
-    * @return 平均响应体大小，窗口为空时返回 0
-    */
+     * 平均响应体大小（字节）。
+     *
+     * @param window 事件列表
+     * @return 平均响应体大小，窗口为空时返回 0
+     */
     private double avgBodySize(List<TrafficEvent> window) {
         if (window == null || window.isEmpty()) {
             return 0.0d;
@@ -352,22 +352,22 @@ public class FeatureExtractor {
     }
 
     /**
-    * 时间戳对应的小时相位。
-    *
-    * @param timestamp 毫秒时间戳
-    * @return 小时相位，范围 [0, 1)
-    */
+     * 时间戳对应的小时相位。
+     *
+     * @param timestamp 毫秒时间戳
+     * @return 小时相位，范围 [0, 1)
+     */
     private static double hourPhase(long timestamp) {
         LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZONE);
         return dt.getHour() / HOURS_PER_DAY;
     }
 
     /**
-    * HTTP 方法编码。
-    *
-    * @param method 方法字符串，允许为 空
-    * @return 方法编码
-    */
+     * HTTP 方法编码。
+     *
+     * @param method 方法字符串，允许为 空
+     * @return 方法编码
+     */
     private static int methodCode(String method) {
         if (method == null) {
             return METHOD_CODE_OTHER;
@@ -382,13 +382,13 @@ public class FeatureExtractor {
     }
 
     /**
-    * 路径到类别 标识 的编码，优先查配置词表，未命中时退化为稳定哈希。
-    * <p>哈希回退的上界取自训练回写的词表（preprocessing.vocab 最大 ID + 1），
-    * 确保索引不超出 ONNX 嵌入 表大小；词表为空时才用配置的类别特征 vocab大小。</p>
-    *
-    * @param event 流量事件，不能为 空
-    * @return 类别 标识，范围 [1, vocabbound)，0 保留给填充位
-    */
+     * 路径到类别 标识 的编码，优先查配置词表，未命中时退化为稳定哈希。
+     * <p>哈希回退的上界取自训练回写的词表（preprocessing.vocab 最大 ID + 1），
+     * 确保索引不超出 ONNX 嵌入 表大小；词表为空时才用配置的类别特征 vocab大小。</p>
+     *
+     * @param event 流量事件，不能为 空
+     * @return 类别 标识，范围 [1, vocabbound)，0 保留给填充位
+     */
     private int encodePath(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         String path = event.getPath() == null ? "" : event.getPath();
@@ -403,11 +403,11 @@ public class FeatureExtractor {
     }
 
     /**
-    * 计算类别 标识 的取值上界。
-    *
-    * @param vocab 配置词表，允许为 空 或空
-    * @return 上界，至少为 2
-    */
+     * 计算类别 标识 的取值上界。
+     *
+     * @param vocab 配置词表，允许为 空 或空
+     * @return 上界，至少为 2
+     */
     private int vocabBound(Map<String, Integer> vocab) {
         if (vocab != null && !vocab.isEmpty()) {
             int maxId = 1;
@@ -425,12 +425,12 @@ public class FeatureExtractor {
     }
 
     /**
-    * 按特征配置归一化原始值。
-    *
-    * @param def 特征定义，不能为 空
-    * @param raw 原始值
-    * @return 归一化后的值
-    */
+     * 按特征配置归一化原始值。
+     *
+     * @param def 特征定义，不能为 空
+     * @param raw 原始值
+     * @return 归一化后的值
+     */
     private double normalize(FeatureDefinition def, double raw) {
         Objects.requireNonNull(def, "def must not be null");
         if (def.getType() == FeatureDefinition.FeatureType.CATEGORICAL) {
@@ -440,12 +440,12 @@ public class FeatureExtractor {
     }
 
     /**
-    * 按特征名从配置 scaler 归一化原始值。
-    *
-    * @param featureName 特征名，不能为 空
-    * @param raw         原始值
-    * @return 归一化后的值
-    */
+     * 按特征名从配置 scaler 归一化原始值。
+     *
+     * @param featureName 特征名，不能为 空
+     * @param raw         原始值
+     * @return 归一化后的值
+     */
     private double normalizeByName(String featureName, double raw) {
         Objects.requireNonNull(featureName, "featureName must not be null");
         UebaConfig.Preprocessing preprocessing = config.getPreprocessing();

@@ -5,92 +5,92 @@ import lombok.Getter;
 import java.util.*;
 
 /**
-* SQL高亮配置类，用于定义关键词的颜色和样式。
-*
-* @author CH
-* @since 1.0.0
+ * SQL高亮配置类，用于定义关键词的颜色和样式。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class HighlightConfig {
 
     /**
-    * 高亮类型枚举
-    */
+     * 高亮类型枚举
+     */
     public enum HighlightType {
         /**
-        * 控制台ANSI颜色
-        */
+         * 控制台ANSI颜色
+         */
         ANSI,
         /**
-        * HTML标签
-        */
+         * HTML标签
+         */
         HTML,
         /**
-        * 无高亮（纯文本）
-        */
+         * 无高亮（纯文本）
+         */
         NONE
     }
 
     /**
-    * 关键词类别枚举
-    */
+     * 关键词类别枚举
+     */
     public enum KeywordCategory {
         /**
-        * DDL关键词（CREATE, ALTER, DROP等）
-        */
+         * DDL关键词（CREATE, ALTER, DROP等）
+         */
         DDL,
         /**
-        * DML关键词（SELECT, INSERT, UPDATE, DELETE等）
-        */
+         * DML关键词（SELECT, INSERT, UPDATE, DELETE等）
+         */
         DML,
         /**
-        * 查询子句（FROM, WHERE, JOIN等）
-        */
+         * 查询子句（FROM, WHERE, JOIN等）
+         */
         CLAUSE,
         /**
-        * 函数（SUM, COUNT, MAX等）
-        */
+         * 函数（SUM, COUNT, MAX等）
+         */
         FUNCTION,
         /**
-        * 数据类型（INT, VARCHAR, DATE等）
-        */
+         * 数据类型（INT, VARCHAR, DATE等）
+         */
         DATA_TYPE,
         /**
-        * 逻辑运算符（AND, OR, NOT等）
-        */
+         * 逻辑运算符（AND, OR, NOT等）
+         */
         OPERATOR,
         /**
-        * 字符串/数字
-        */
+         * 字符串/数字
+         */
         LITERAL,
         /**
-        * 注释
-        */
+         * 注释
+         */
         COMMENT
     }
 
     @Getter
     /**
-    * 类型
-    */
+     * 类型
+     */
     private HighlightType type = HighlightType.ANSI;
 
     /**
-    * 关键词颜色映射（ANSI）
-    */
+     * 关键词颜色映射（ANSI）
+     */
     private Map<KeywordCategory, String> ansiColors = new HashMap<>();
 
     /**
-    * 关键词颜色映射（HTML）
-    */
+     * 关键词颜色映射（HTML）
+     */
     private Map<KeywordCategory, String> htmlColors = new HashMap<>();
 
     /**
-    * 是否启用高亮
-    */
+     * 是否启用高亮
+     */
     @Getter
     /**
-    * 是否启用
-    */
+     * 是否启用
+     */
     private boolean enabled = true;
 
     // ==================== 默认ANSI颜色配置 ====================
@@ -136,8 +136,8 @@ public class HighlightConfig {
     private static final String HTML_END = "</span>";
 
     /**
-    * 默认构造函数
-    */
+     * 默认构造函数
+     */
     public HighlightConfig() {
         // 初始化ANSI颜色
         ansiColors.put(KeywordCategory.DDL, ANSI_BOLD + ANSI_BLUE);
@@ -183,57 +183,57 @@ public class HighlightConfig {
     }
 
     /**
-    * 获取关键词的ANSI颜色
-    * @param category 方法入参 category
-    * @return 结果字符串
-    */
+     * 获取关键词的ANSI颜色
+     * @param category 方法入参 category
+     * @return 结果字符串
+     */
     public String getAnsiColor(KeywordCategory category) {
         return ansiColors.getOrDefault(category, ANSI_RESET);
     }
 
     /**
-    * 获取关键词的HTML颜色
-    * @param category 方法入参 category
-    * @return 结果字符串
-    */
+     * 获取关键词的HTML颜色
+     * @param category 方法入参 category
+     * @return 结果字符串
+     */
     public String getHtmlColor(KeywordCategory category) {
         return htmlColors.getOrDefault(category, HTML_END);
     }
 
     /**
-    * 自定义ANSI颜色
-    * @param category 方法入参 category
-    * @param color 方法入参 color
-    * @return Highlight配置 对象
-    */
+     * 自定义ANSI颜色
+     * @param category 方法入参 category
+     * @param color 方法入参 color
+     * @return Highlight配置 对象
+     */
     public HighlightConfig setAnsiColor(KeywordCategory category, String color) {
         ansiColors.put(category, color);
         return this;
     }
 
     /**
-    * 自定义HTML颜色
-    * @param category 方法入参 category
-    * @param color 方法入参 color
-    * @return Highlight配置 对象
-    */
+     * 自定义HTML颜色
+     * @param category 方法入参 category
+     * @param color 方法入参 color
+     * @return Highlight配置 对象
+     */
     public HighlightConfig setHtmlColor(KeywordCategory category, String color) {
         htmlColors.put(category, color);
         return this;
     }
 
     /**
-    * 获取ANSI重置码
-    * @return 结果字符串
-    */
+     * 获取ANSI重置码
+     * @return 结果字符串
+     */
     public String getAnsiReset() {
         return ANSI_RESET;
     }
 
     /**
-    * 获取HTML结束标签
-    * @return 结果字符串
-    */
+     * 获取HTML结束标签
+     * @return 结果字符串
+     */
     public String getHtmlEnd() {
         return HTML_END;
     }

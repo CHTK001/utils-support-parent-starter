@@ -41,21 +41,21 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 阻塞式全量装载（可选覆写）：供未直接实现 streamAll 的存量子类使用。
-    *
-    * @return 原始 AiUsage 记录列表
-    */
+     * 阻塞式全量装载（可选覆写）：供未直接实现 streamAll 的存量子类使用。
+     *
+     * @return 原始 AiUsage 记录列表
+     */
     protected List<AiUsage> parseAll() {
         throw new UnsupportedOperationException(
                 getClass().getSimpleName() + " 必须实现 parseAll() 或 streamAll()");
     }
 
     /**
-    * 按行惰性读取文本文件（内存占用与总量无关）。
-    *
-    * @param file 文本文件
-    * @return 行内容流；文件由 Flux.using 负责关闭
-    */
+     * 按行惰性读取文本文件（内存占用与总量无关）。
+     *
+     * @param file 文本文件
+     * @return 行内容流；文件由 Flux.using 负责关闭
+     */
     protected static Flux<String> streamLines(java.nio.file.Path file) {
         return Flux.using(
                 () -> java.nio.file.Files.newBufferedReader(file),
@@ -70,14 +70,14 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
-    *
-    * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
-    * 解析失败返回 0L。</p>
-    *
-    * @param isoTimestamp ISO-8601 时间字符串
-    * @return epoch 毫秒；入参为空或非法时返回 0L
-    */
+     * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
+     *
+     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
+     * 解析失败返回 0L。</p>
+     *
+     * @param isoTimestamp ISO-8601 时间字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
     protected static long parseInstantToMillis(String isoTimestamp) {
         if (isoTimestamp == null || isoTimestamp.isBlank()) {
             return 0L;
@@ -90,11 +90,11 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
-    *
-    * @param dateStr 日期字符串
-    * @return epoch 毫秒；入参为空或非法时返回 0L
-    */
+     * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
+     *
+     * @param dateStr 日期字符串
+     * @return epoch 毫秒；入参为空或非法时返回 0L
+     */
     protected static long parseDayStartToMillis(String dateStr) {
         if (dateStr == null || dateStr.isBlank()) {
             return 0L;
@@ -109,12 +109,12 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 返回第一个非空白字符串（子类通用工具）。
-    *
-    * @param value    待检查的值
-    * @param fallback 兜底值
-    * @return value 非空白时返回 value，否则返回 fallback
-    */
+     * 返回第一个非空白字符串（子类通用工具）。
+     *
+     * @param value    待检查的值
+     * @param fallback 兜底值
+     * @return value 非空白时返回 value，否则返回 fallback
+     */
     protected static String firstNonBlank(String value, String fallback) {
         if (value != null && !value.isBlank()) {
             return value;
@@ -123,13 +123,13 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 将数据库列值转换为 int（子类通用工具）。
-    *
-    * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
-    *
-    * @param value 原始列值
-    * @return int 值
-    */
+     * 将数据库列值转换为 int（子类通用工具）。
+     *
+     * <p>兼容 Number、可解析的字符串；无法转换时返回 0。</p>
+     *
+     * @param value 原始列值
+     * @return int 值
+     */
     protected static int asInt(Object value) {
         if (value instanceof Number n) {
             return n.intValue();
@@ -145,11 +145,11 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 将数据库列值转换为 long（子类通用工具）。
-    *
-    * @param value 原始列值
-    * @return long 值
-    */
+     * 将数据库列值转换为 long（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return long 值
+     */
     protected static long asLong(Object value) {
         if (value instanceof Number n) {
             return n.longValue();
@@ -165,11 +165,11 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 将数据库列值转换为 double（子类通用工具）。
-    *
-    * @param value 原始列值
-    * @return double 值
-    */
+     * 将数据库列值转换为 double（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return double 值
+     */
     protected static double asDouble(Object value) {
         if (value instanceof Number n) {
             return n.doubleValue();
@@ -185,21 +185,21 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
-    * 将数据库列值转换为非空字符串（子类通用工具）。
-    *
-    * @param value 原始列值
-    * @return 字符串形式；null 转为空串
-    */
+     * 将数据库列值转换为非空字符串（子类通用工具）。
+     *
+     * @param value 原始列值
+     * @return 字符串形式；null 转为空串
+     */
     protected static String asStr(Object value) {
         return value == null ? "" : value.toString();
     }
 
     /**
-    * 将原始记录按天聚合，每天一条 AiUsage 记录。
-    *
-    * @param records 原始用量记录列表
-    * @return 按天聚合后的记录列表
-    */
+     * 将原始记录按天聚合，每天一条 AiUsage 记录。
+     *
+     * @param records 原始用量记录列表
+     * @return 按天聚合后的记录列表
+     */
     protected List<AiUsage> aggregateByDay(List<AiUsage> records) {
         Map<String, DayAggregator> dayMap = new LinkedHashMap<>();
         for (AiUsage usage : records) {

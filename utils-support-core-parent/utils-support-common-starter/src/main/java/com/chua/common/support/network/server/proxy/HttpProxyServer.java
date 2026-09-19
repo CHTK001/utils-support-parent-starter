@@ -22,7 +22,7 @@ import java.net.Socket;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi({"http-proxy"})
 public class HttpProxyServer extends AbstractProxyServer {
@@ -32,8 +32,8 @@ public class HttpProxyServer extends AbstractProxyServer {
     protected final int readTimeoutMs;
 
     /**
-    * 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈）
-    */
+     * 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈）
+     */
     private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
     /** 连接池容量上限 */
     private static final int BACKEND_POOL_MAX = 8;
@@ -261,10 +261,10 @@ OutputStream backOut = backendSocket.getOutputStream();
     }
 
     /**
-    * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
-    * @param in 方法入参 in
-    * @return 结果值
-    */
+     * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
+     * @param in 方法入参 in
+     * @return 结果值
+     */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         int prevPrev = -1;
@@ -286,11 +286,11 @@ OutputStream backOut = backendSocket.getOutputStream();
     }
 
     /**
-    * 读取请求体（按 Content-Length 或 chunked）。
-    * @param in 方法入参 in
-    * @param headText 头部文本，不允许为 null
-    * @return 结果值
-    */
+     * 读取请求体（按 Content-Length 或 chunked）。
+     * @param in 方法入参 in
+     * @param headText 头部文本，不允许为 null
+     * @return 结果值
+     */
     private byte[] readBody(InputStream in, String headText) throws IOException {
         int len = contentLength(headText);
         if (len > 0) {
@@ -339,10 +339,10 @@ OutputStream backOut = backendSocket.getOutputStream();
     }
 
     /**
-    * 响应头中的 Content-Length（用于判断是否转发 body）。
-    * @param header 请求头，不允许为 null
-    * @return 结果数值
-    */
+     * 响应头中的 Content-Length（用于判断是否转发 body）。
+     * @param header 请求头，不允许为 null
+     * @return 结果数值
+     */
     private int contentLength(byte[] header) {
         return contentLength(new String(header, java.nio.charset.StandardCharsets.ISO_8859_1));
     }
@@ -362,11 +362,11 @@ OutputStream backOut = backendSocket.getOutputStream();
     }
 
     /**
-    * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
-    * @param in 方法入参 in
-    * @param out 方法入参 out
-    * @param length 长度，不允许为 null
-    */
+     * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
+     * @param in 方法入参 in
+     * @param out 方法入参 out
+     * @param length 长度，不允许为 null
+     */
     private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
         byte[] buffer = new byte[8192];
         int remaining = length;
@@ -382,10 +382,10 @@ OutputStream backOut = backendSocket.getOutputStream();
     }
 
     /**
-    * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
-    * @param in 方法入参 in
-    * @param out 方法入参 out
-    */
+     * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
+     * @param in 方法入参 in
+     * @param out 方法入参 out
+     */
     private void pipeChunked(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         while (true) {

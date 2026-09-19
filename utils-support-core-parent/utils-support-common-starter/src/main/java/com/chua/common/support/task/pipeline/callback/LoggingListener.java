@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class LoggingListener implements PipelineListener {
 
     /** 日志记录器 */
@@ -34,20 +34,20 @@ public class LoggingListener implements PipelineListener {
     private final Level errorLevel;
 
     /**
-    * 构造默认日志监听器。
-    * <p>节点执行前/后使用 FINE 级别，完成使用 INFO 级别，异常使用 SEVERE 级别。</p>
-    */
+     * 构造默认日志监听器。
+     * <p>节点执行前/后使用 FINE 级别，完成使用 INFO 级别，异常使用 SEVERE 级别。</p>
+     */
     public LoggingListener() {
         this(Level.FINE, Level.INFO, Level.SEVERE);
     }
 
     /**
-    * 构造日志监听器，自定义日志级别。
-    *
-    * @param nodeLevel    节点执行前/后的日志级别
-    * @param completeLevel 流水线完成的日志级别
-    * @param errorLevel   异常的日志级别
-    */
+     * 构造日志监听器，自定义日志级别。
+     *
+     * @param nodeLevel    节点执行前/后的日志级别
+     * @param completeLevel 流水线完成的日志级别
+     * @param errorLevel   异常的日志级别
+     */
     public LoggingListener(Level nodeLevel, Level completeLevel, Level errorLevel) {
         this.nodeLevel = nodeLevel;
         this.completeLevel = completeLevel;
@@ -73,8 +73,8 @@ public class LoggingListener implements PipelineListener {
     }
 
     /**
-    * 节点异常时按错误级别输出日志；默认返回 空 终止流水线（可覆写定制恢复路径）。
-    */
+     * 节点异常时按错误级别输出日志；默认返回 空 终止流水线（可覆写定制恢复路径）。
+     */
     @Override
     public String onError(PipelineContext<?> context, Throwable e) {
         LOGGER.log(errorLevel, "[Pipeline:" + context.getPipelineId()

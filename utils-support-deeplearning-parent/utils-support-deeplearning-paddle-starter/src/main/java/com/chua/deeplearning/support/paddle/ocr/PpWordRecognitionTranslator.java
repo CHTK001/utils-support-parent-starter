@@ -19,21 +19,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* PaddleOCR 文字识别 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * PaddleOCR 文字识别 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PpWordRecognitionTranslator implements Translator<Image, String> {
 
     /**
-    * 是否使用空格字符。
-    */
+     * 是否使用空格字符。
+     */
     private final boolean useSpaceChar;
 
     /**
-    * 字符表。
-    */
+     * 字符表。
+     */
     private List<String> table;
 
     /** 创建 ppword认可translator 实例 */

@@ -10,19 +10,19 @@ package com.chua.common.support.sync.executor;
  *
  * @author CH
  * @since 2026/07/28
-*/
+ */
 public interface SinkExecutor {
 
     /**
-    * 唤醒消费线程
-    * <p>当 Sink 中有新数据到达时调用，通知消费端立即拉取。</p>
-    */
+     * 唤醒消费线程
+     * <p>当 Sink 中有新数据到达时调用，通知消费端立即拉取。</p>
+     */
     void wakeup();
 
     /**
-    * 是否正在运行
-    *
-    * @return true 表示同步流处于运行状态
-    */
+     * 是否正在运行
+     *
+     * @return true 表示同步流处于运行状态
+     */
     boolean isRunning();
 }

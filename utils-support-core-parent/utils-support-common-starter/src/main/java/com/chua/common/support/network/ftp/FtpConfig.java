@@ -6,12 +6,12 @@ import java.io.File;
 import java.util.List;
 
 /**
-* FTP 服务器配置。
-*
-* <p>包含控制端口、数据端口范围、认证、匿名访问、SSL/TLS 等配置。</p>
-*
-* @author CH
-* @since 4.0.0.43
+ * FTP 服务器配置。
+ *
+ * <p>包含控制端口、数据端口范围、认证、匿名访问、SSL/TLS 等配置。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Spi("ftp-config")
 public class FtpConfig {
@@ -94,16 +94,16 @@ public class FtpConfig {
     }
 
     /**
-    * 创建配置构建器。
-    * @return Builder 对象
-    */
+     * 创建配置构建器。
+     * @return Builder 对象
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 配置构建器。
-    */
+     * 配置构建器。
+     */
     public static class Builder {
         private final FtpConfig config = new FtpConfig();
 

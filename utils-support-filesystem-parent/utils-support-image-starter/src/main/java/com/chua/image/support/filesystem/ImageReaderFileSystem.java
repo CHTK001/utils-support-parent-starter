@@ -24,48 +24,48 @@ import java.util.Set;
 
 
 /**
-* 图片读取文件系统
-* <p>
-* 支持图片文件的读取和操作：
-* - 读取图片信息（宽度、高度、格式、颜色模式等）
-* - 图片缩放（链式操作）
-* - 图片裁剪（链式操作）
-* - 图片旋转（链式操作）
-* - 图片滤镜（灰度、模糊、亮度等，链式操作）
-* - 图片压缩（链式操作）
-* </p>
-* <p>
-* 支持的图片格式：
-* - JPEG (.jpg, .jpeg)
-* - PNG (.png)
-* - BMP (.bmp)
-* - GIF (.gif)
-* - WEBP (.webp)
-* - TIFF (.tiff, .tif)
-* - ICO (.ico)
-* </p>
-* <p>
-* 使用示例：
-* <pre>
-* ImageReaderFileSystem imageFs = new ImageReaderFileSystem("image.jpg");
-* // 链式操作：缩放 -> 旋转 -> 压缩
-* imageFs.resize(800, 600)
-*        .rotate(90)
-*        .compress(0.8f, "jpg", new File("output.jpg"));
-* </pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 图片读取文件系统
+ * <p>
+ * 支持图片文件的读取和操作：
+ * - 读取图片信息（宽度、高度、格式、颜色模式等）
+ * - 图片缩放（链式操作）
+ * - 图片裁剪（链式操作）
+ * - 图片旋转（链式操作）
+ * - 图片滤镜（灰度、模糊、亮度等，链式操作）
+ * - 图片压缩（链式操作）
+ * </p>
+ * <p>
+ * 支持的图片格式：
+ * - JPEG (.jpg, .jpeg)
+ * - PNG (.png)
+ * - BMP (.bmp)
+ * - GIF (.gif)
+ * - WEBP (.webp)
+ * - TIFF (.tiff, .tif)
+ * - ICO (.ico)
+ * </p>
+ * <p>
+ * 使用示例：
+ * <pre>
+ * ImageReaderFileSystem imageFs = new ImageReaderFileSystem("image.jpg");
+ * // 链式操作：缩放 -> 旋转 -> 压缩
+ * imageFs.resize(800, 600)
+ *        .rotate(90)
+ *        .compress(0.8f, "jpg", new File("output.jpg"));
+ * </pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"jpg", "jpeg", "png", "bmp", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
 public class ImageReaderFileSystem extends AbstractReader {
 
     /**
-    * 支持的图片格式扩展名（动态获取）
-    * @return 获取支持延伸的结果
-    */
+     * 支持的图片格式扩展名（动态获取）
+     * @return 获取支持延伸的结果
+     */
     private static Set<String> getSupportedExtensions() {
         var extensions = new HashSet<String>();
         extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic", ".heif"));
@@ -75,51 +75,51 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 默认类型
-    */
+     * 默认类型
+     */
     private static final String DEFAULT_TYPE = "image";
 
     /**
-    * 图片操作实现（通过SPI加载）
-    */
+     * 图片操作实现（通过SPI加载）
+     */
     private ImageOperation imageOperation;
 
     /**
-    * 当前处理的图片（链式操作）
-    */
+     * 当前处理的图片（链式操作）
+     */
     private BufferedImage currentImage;
 
     /**
-    * 默认构造函数
-    */
+     * 默认构造函数
+     */
     public ImageReaderFileSystem() {
         super();
         initImageOperation();
     }
 
     /**
-    * 构造函数
-    *
-    * @param file 文件对象
-    */
+     * 构造函数
+     *
+     * @param file 文件对象
+     */
     public ImageReaderFileSystem(File file) {
         super(file);
         initImageOperation();
     }
 
     /**
-    * 构造函数
-    *
-    * @param filePath 文件路径
-    */
+     * 构造函数
+     *
+     * @param filePath 文件路径
+     */
     public ImageReaderFileSystem(String filePath) {
         super(filePath);
         initImageOperation();
     }
 
     /**
-    * 初始化图片操作实现
-    */
+     * 初始化图片操作实现
+     */
     private void initImageOperation() {
         if (imageOperation == null) {
             imageOperation = ServiceProvider.of(ImageOperation.class).getExtension();
@@ -239,10 +239,10 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 获取图片格式
-    *
-    * @return 图片格式
-    */
+     * 获取图片格式
+     *
+     * @return 图片格式
+     */
     private String getImageFormat() {
         if (file == null) {
             return "unknown";
@@ -256,11 +256,11 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 获取当前图片（如果未加载则从文件加载）
-    *
-    * @return 当前图片
-    * @throws IOException IO异常
-    */
+     * 获取当前图片（如果未加载则从文件加载）
+     *
+     * @return 当前图片
+     * @throws IOException IO异常
+     */
     private BufferedImage getCurrentImage() throws IOException {
         if (currentImage == null) {
             if (file == null || !file.exists()) {
@@ -272,13 +272,13 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 缩放图片（链式操作）
-    *
-    * @param width  目标宽度（空表示保持比例）
-    * @param height 目标高度（空表示保持比例）
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 缩放图片（链式操作）
+     *
+     * @param width  目标宽度（空表示保持比例）
+     * @param height 目标高度（空表示保持比例）
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem resize(Integer width, Integer height) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -289,12 +289,12 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 按比例缩放图片（链式操作）
-    *
-    * @param scale 缩放比例（大于1放大，小于1缩小）
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 按比例缩放图片（链式操作）
+     *
+     * @param scale 缩放比例（大于1放大，小于1缩小）
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem resize(double scale) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -305,15 +305,15 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 裁剪图片（链式操作）
-    *
-    * @param x      裁剪起始X坐标
-    * @param y      裁剪起始Y坐标
-    * @param width  裁剪宽度
-    * @param height 裁剪高度
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 裁剪图片（链式操作）
+     *
+     * @param x      裁剪起始X坐标
+     * @param y      裁剪起始Y坐标
+     * @param width  裁剪宽度
+     * @param height 裁剪高度
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem crop(int x, int y, int width, int height) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -324,12 +324,12 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 旋转图片（链式操作）
-    *
-    * @param angle 旋转角度（度数，正数顺时针，负数逆时针）
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 旋转图片（链式操作）
+     *
+     * @param angle 旋转角度（度数，正数顺时针，负数逆时针）
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem rotate(int angle) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -340,14 +340,14 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 压缩并保存图片（链式操作的终点）
-    *
-    * @param quality 压缩质量（0.0-1.0）
-    * @param format  输出格式
-    * @param output  输出文件
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 压缩并保存图片（链式操作的终点）
+     *
+     * @param quality 压缩质量（0.0-1.0）
+     * @param format  输出格式
+     * @param output  输出文件
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem compress(float quality, String format, File output) throws IOException {
         var image = getCurrentImage();
         var inputFormat = getImageFormat();
@@ -359,12 +359,12 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 保存图片（链式操作的终点）
-    *
-    * @param output 输出文件
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 保存图片（链式操作的终点）
+     *
+     * @param output 输出文件
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem save(File output) throws IOException {
         var format = getImageFormat();
         BufferedImageUtils.writeToFile(getCurrentImage(), format, output);
@@ -374,12 +374,12 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 保存图片（链式操作的终点）
-    *
-    * @param outputPath 输出文件路径
-    * @return this
-    * @throws IOException IO异常
-    */
+     * 保存图片（链式操作的终点）
+     *
+     * @param outputPath 输出文件路径
+     * @return this
+     * @throws IOException IO异常
+     */
     public ImageReaderFileSystem save(String outputPath) throws IOException {
         return save(new File(outputPath));
     }

@@ -10,55 +10,55 @@ import lombok.Data;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 @Builder
 public class TaskResult<T> {
 
     /**
-    * 任务 标识（与 任务.任务id 一致）
-    */
+     * 任务 标识（与 任务.任务id 一致）
+     */
     private String taskId;
 
     /**
-    * 链路追踪 标识
-    */
+     * 链路追踪 标识
+     */
     private String traceId;
 
     /**
-    * 是否执行成功
-    */
+     * 是否执行成功
+     */
     private boolean success;
 
     /**
-    * 结果数据
-    */
+     * 结果数据
+     */
     private T data;
 
     /**
-    * 错误信息（成功 为 false 时填充）
-    */
+     * 错误信息（成功 为 false 时填充）
+     */
     private String errorMessage;
 
     /**
-    * 执行节点 标识
-    */
+     * 执行节点 标识
+     */
     private String workerNodeId;
 
     /**
-    * 执行耗时（毫秒）
-    */
+     * 执行耗时（毫秒）
+     */
     private long durationMs;
 
     /**
-    * 创建成功结果。
-    *
-    * @param taskId      任务 标识
-    * @param data        结果数据
-    * @param workerNodeId 执行节点 标识
-    * @param <T>         数据类型
-    * @return 成功结果
-    */
+     * 创建成功结果。
+     *
+     * @param taskId      任务 标识
+     * @param data        结果数据
+     * @param workerNodeId 执行节点 标识
+     * @param <T>         数据类型
+     * @return 成功结果
+     */
     public static <T> TaskResult<T> success(String taskId, T data, String workerNodeId) {
         return TaskResult.<T>builder()
                 .taskId(taskId)
@@ -69,14 +69,14 @@ public class TaskResult<T> {
     }
 
     /**
-    * 创建失败结果。
-    *
-    * @param taskId       任务 标识
-    * @param errorMessage 错误信息
-    * @param workerNodeId 执行节点 标识
-    * @param <T>          数据类型
-    * @return 失败结果
-    */
+     * 创建失败结果。
+     *
+     * @param taskId       任务 标识
+     * @param errorMessage 错误信息
+     * @param workerNodeId 执行节点 标识
+     * @param <T>          数据类型
+     * @return 失败结果
+     */
     public static <T> TaskResult<T> failure(String taskId, String errorMessage, String workerNodeId) {
         return TaskResult.<T>builder()
                 .taskId(taskId)

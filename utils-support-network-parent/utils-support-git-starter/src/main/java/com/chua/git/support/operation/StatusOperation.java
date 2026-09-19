@@ -31,24 +31,24 @@ import java.util.Set;
 public class StatusOperation {
 
     /**
-    * 所属 GitClient。
-    */
+     * 所属 GitClient。
+     */
     private final GitClient client;
 
     /**
-    * 构建操作实例（仅框架内部调用）。
-    *
-    * @param client 所属 GitClient
-    */
+     * 构建操作实例（仅框架内部调用）。
+     *
+     * @param client 所属 GitClient
+     */
     public StatusOperation(GitClient client) {
         this.client = client;
     }
 
     /**
-    * 执行状态查询。
-    *
-    * @return 工作区状态
-    */
+     * 执行状态查询。
+     *
+     * @return 工作区状态
+     */
     public StatusResult execute() {
         try {
             client.open();

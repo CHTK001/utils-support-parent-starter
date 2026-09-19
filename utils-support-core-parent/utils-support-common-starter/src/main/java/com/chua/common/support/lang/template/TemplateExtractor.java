@@ -19,45 +19,45 @@ import java.util.Map;
  * @since 4.0.0.42
  * @see TemplateExtractResult
  * @see TemplateVar
-*/
+ */
 public interface TemplateExtractor {
 
     /**
-    * 便捷提取：基于模板与输入，返回变量名到值的映射。
-    *
-    * @param template 模板文本，其中值可包含 {@code {变量名}} 占位符
-    * @param input    输入文本，字段顺序/格式可与模板不同
-    * @return 已提取的变量名到值的映射，值保留原始类型
-    */
+     * 便捷提取：基于模板与输入，返回变量名到值的映射。
+     *
+     * @param template 模板文本，其中值可包含 {@code {变量名}} 占位符
+     * @param input    输入文本，字段顺序/格式可与模板不同
+     * @return 已提取的变量名到值的映射，值保留原始类型
+     */
     Map<String, Object> extract(String template, String input);
 
     /**
-    * 提取为结果对象，区分“已成功提取的变量”与“模板声明但输入中缺失的变量”。
-    *
-    * @param template 模板文本
-    * @param input    输入文本
-    * @return 提取结果，可查询 {@link TemplateExtractResult#isSuccess()} 与 {@link TemplateExtractResult#missing()}
-    */
+     * 提取为结果对象，区分“已成功提取的变量”与“模板声明但输入中缺失的变量”。
+     *
+     * @param template 模板文本
+     * @param input    输入文本
+     * @return 提取结果，可查询 {@link TemplateExtractResult#isSuccess()} 与 {@link TemplateExtractResult#missing()}
+     */
     TemplateExtractResult extractResult(String template, String input);
 
     /**
-    * 提取为有序的变量列表，每个变量携带变量名、值及在输入中的路径。
-    *
-    * <p>顺序与模板中占位符出现顺序一致，适合需要顺序或溯源的消费场景；
-    * 缺失变量不会出现在列表中。</p>
-    *
-    * @param template 模板文本
-    * @param input    输入文本
-    * @return 已成功提取的 TemplateVar 有序列表
-    */
+     * 提取为有序的变量列表，每个变量携带变量名、值及在输入中的路径。
+     *
+     * <p>顺序与模板中占位符出现顺序一致，适合需要顺序或溯源的消费场景；
+     * 缺失变量不会出现在列表中。</p>
+     *
+     * @param template 模板文本
+     * @param input    输入文本
+     * @return 已成功提取的 TemplateVar 有序列表
+     */
     List<TemplateVar> extractVars(String template, String input);
 
     /**
-    * 判断输入是否完整匹配模板（即所有占位符变量均能在输入中定位）。
-    *
-    * @param template 模板文本
-    * @param input    输入文本
-    * @return 无缺失变量返回 true，存在缺失返回 false
-    */
+     * 判断输入是否完整匹配模板（即所有占位符变量均能在输入中定位）。
+     *
+     * @param template 模板文本
+     * @param input    输入文本
+     * @return 无缺失变量返回 true，存在缺失返回 false
+     */
     boolean matches(String template, String input);
 }

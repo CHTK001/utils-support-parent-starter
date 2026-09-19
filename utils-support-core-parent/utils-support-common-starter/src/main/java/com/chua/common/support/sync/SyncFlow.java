@@ -43,64 +43,64 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author CH
  * @since 2026/07/28
-*/
+ */
 @Slf4j
 public class SyncFlow implements AutoCloseable {
 
     /**
-    * 同步流名称
-    */
+     * 同步流名称
+     */
     private final String name;
 
     /**
-    * 输入端列表
-    */
+     * 输入端列表
+     */
     private final List<Input> inputs;
 
     /**
-    * 输出端列表
-    */
+     * 输出端列表
+     */
     private final List<Output> outputs;
 
     /**
-    * 数据中心
-    */
+     * 数据中心
+     */
     private final Sink sink;
 
     /**
-    * 批处理大小
-    */
+     * 批处理大小
+     */
     private final int batchSize;
 
     /**
-    * 写出失败重试次数
-    */
+     * 写出失败重试次数
+     */
     private final int retryCount;
 
     /**
-    * 重试间隔（毫秒）
-    */
+     * 重试间隔（毫秒）
+     */
     private final long retryInterval;
 
     /**
-    * 运行状态标记
-    */
+     * 运行状态标记
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * 已同步数据条数
-    */
+     * 已同步数据条数
+     */
     private final AtomicLong syncedCount = new AtomicLong(0);
 
     /**
-    * 生产线程池
-    */
+     * 生产线程池
+     */
     private ExecutorService producerExecutor;
 
     /**
-    * 创建 同步流 实例
-    * @param builder 构建器
-    */
+     * 创建 同步流 实例
+     * @param builder 构建器
+     */
     private SyncFlow(Builder builder) {
         this.name = builder.name;
         this.inputs = builder.inputs;
@@ -112,19 +112,19 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 创建构建器
-    *
-    * @param name 同步流名称
-    * @return 构建器实例
-    */
+     * 创建构建器
+     *
+     * @param name 同步流名称
+     * @return 构建器实例
+     */
     public static Builder builder(String name) {
         return new Builder(name);
     }
 
     /**
-    * 启动同步流（阻塞直到同步完成或被停止）
-    * <p>依次初始化 Sink、Input、Output，然后启动生产线程和消费循环。</p>
-    */
+     * 启动同步流（阻塞直到同步完成或被停止）
+     * <p>依次初始化 Sink、Input、Output，然后启动生产线程和消费循环。</p>
+     */
     public void start() {
         if (!running.compareAndSet(false, true)) {
             log.warn("同步流 [{}] 已在运行中, 忽略重复启动", name);
@@ -159,9 +159,9 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 停止同步流
-    * <p>置停止标记并中断生产线程，消费循环会在处理完当前批次后退出。</p>
-    */
+     * 停止同步流
+     * <p>置停止标记并中断生产线程，消费循环会在处理完当前批次后退出。</p>
+     */
     public void stop() {
         if (!running.compareAndSet(true, false)) {
             return;
@@ -173,28 +173,28 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 是否正在运行
-    *
-    * @return true 表示同步流运行中
-    */
+     * 是否正在运行
+     *
+     * @return true 表示同步流运行中
+     */
     public boolean isRunning() {
         return running.get();
     }
 
     /**
-    * 获取同步流名称
-    *
-    * @return 同步流名称
-    */
+     * 获取同步流名称
+     *
+     * @return 同步流名称
+     */
     public String getName() {
         return name;
     }
 
     /**
-    * 获取已同步数据条数
-    *
-    * @return 已同步条数
-    */
+     * 获取已同步数据条数
+     *
+     * @return 已同步条数
+     */
     public long getSyncedCount() {
         return syncedCount.get();
     }
@@ -257,11 +257,11 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 单输入端生产逻辑
-    *
-    * @param input 输入端
-    * @throws InterruptedException 线程被中断时抛出
-    */
+     * 单输入端生产逻辑
+     *
+     * @param input 输入端
+     * @throws InterruptedException 线程被中断时抛出
+     */
     private void produce(Input input) throws InterruptedException {
         while (running.get() && input.hasNext()) {
             if (sink.isBackpressure()) {
@@ -281,11 +281,11 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 消费循环
-    * <p>从数据中心批量拉取并写出，直到生产结束且缓冲清空。</p>
-    *
-    * @param producerLatch 生产完成计数器
-    */
+     * 消费循环
+     * <p>从数据中心批量拉取并写出，直到生产结束且缓冲清空。</p>
+     *
+     * @param producerLatch 生产完成计数器
+     */
     private void consumeLoop(CountDownLatch producerLatch) {
         while (running.get()) {
             List<SyncContext> batch = sink.consumeBatch(batchSize);
@@ -308,11 +308,11 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 将批次分发到所有输出端
-    * <p>失败按 retryCount 重试，仍失败则逐条投递死信。</p>
-    *
-    * @param batch 数据批次
-    */
+     * 将批次分发到所有输出端
+     * <p>失败按 retryCount 重试，仍失败则逐条投递死信。</p>
+     *
+     * @param batch 数据批次
+     */
     private void dispatchBatch(List<SyncContext> batch) {
         for (Output output : outputs) {
             boolean success = false;
@@ -343,8 +343,8 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 刷新所有输出端缓冲
-    */
+     * 刷新所有输出端缓冲
+     */
     private void flushOutputs() {
         for (Output output : outputs) {
             try {
@@ -356,8 +356,8 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 释放所有资源
-    */
+     * 释放所有资源
+     */
     private void releaseResources() {
         if (producerExecutor != null) {
             producerExecutor.shutdownNow();
@@ -385,62 +385,62 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 同步流构建器
-    *
-    * @since 2026/07/28
-    * @author CH
-    */
+     * 同步流构建器
+     *
+     * @since 2026/07/28
+     * @author CH
+     */
     public static class Builder {
 
         /**
-        * 同步流名称
-        */
+         * 同步流名称
+         */
         private final String name;
 
         /**
-        * 输入端列表
-        */
+         * 输入端列表
+         */
         private final List<Input> inputs = new ArrayList<>();
 
         /**
-        * 输出端列表
-        */
+         * 输出端列表
+         */
         private final List<Output> outputs = new ArrayList<>();
 
         /**
-        * 数据中心
-        */
+         * 数据中心
+         */
         private Sink sink;
 
         /**
-        * 批处理大小（默认 100）
-        */
+         * 批处理大小（默认 100）
+         */
         private int batchSize = 100;
 
         /**
-        * 写出失败重试次数（默认 3）
-        */
+         * 写出失败重试次数（默认 3）
+         */
         private int retryCount = 3;
 
         /**
-        * 重试间隔毫秒数（默认 1000）
-        */
+         * 重试间隔毫秒数（默认 1000）
+         */
         private long retryInterval = 1000;
 
         /**
-        * 创建 构建器 实例
-        * @param name 名称
-        */
+         * 创建 构建器 实例
+         * @param name 名称
+         */
         private Builder(String name) {
             this.name = name;
         }
 
         /**
-        * 添加输入端
-        *
-        * @param input 输入端
-        * @return 构建器自身
-        */
+         * 添加输入端
+         *
+         * @param input 输入端
+         * @return 构建器自身
+         */
         public Builder addInput(Input input) {
             if (input != null) {
                 this.inputs.add(input);
@@ -449,11 +449,11 @@ public class SyncFlow implements AutoCloseable {
         }
 
         /**
-        * 添加输出端
-        *
-        * @param output 输出端
-        * @return 构建器自身
-        */
+         * 添加输出端
+         *
+         * @param output 输出端
+         * @return 构建器自身
+         */
         public Builder addOutput(Output output) {
             if (output != null) {
                 this.outputs.add(output);
@@ -462,22 +462,22 @@ public class SyncFlow implements AutoCloseable {
         }
 
         /**
-        * 设置数据中心
-        *
-        * @param sink 数据中心
-        * @return 构建器自身
-        */
+         * 设置数据中心
+         *
+         * @param sink 数据中心
+         * @return 构建器自身
+         */
         public Builder sink(Sink sink) {
             this.sink = sink;
             return this;
         }
 
         /**
-        * 设置批处理大小
-        *
-        * @param batchSize 批处理大小
-        * @return 构建器自身
-        */
+         * 设置批处理大小
+         *
+         * @param batchSize 批处理大小
+         * @return 构建器自身
+         */
         public Builder batchSize(int batchSize) {
             if (batchSize > 0) {
                 this.batchSize = batchSize;
@@ -486,11 +486,11 @@ public class SyncFlow implements AutoCloseable {
         }
 
         /**
-        * 设置重试次数
-        *
-        * @param retryCount 重试次数
-        * @return 构建器自身
-        */
+         * 设置重试次数
+         *
+         * @param retryCount 重试次数
+         * @return 构建器自身
+         */
         public Builder retryCount(int retryCount) {
             if (retryCount >= 0) {
                 this.retryCount = retryCount;
@@ -499,11 +499,11 @@ public class SyncFlow implements AutoCloseable {
         }
 
         /**
-        * 设置重试间隔
-        *
-        * @param retryInterval 重试间隔（毫秒）
-        * @return 构建器自身
-        */
+         * 设置重试间隔
+         *
+         * @param retryInterval 重试间隔（毫秒）
+         * @return 构建器自身
+         */
         public Builder retryInterval(long retryInterval) {
             if (retryInterval >= 0) {
                 this.retryInterval = retryInterval;
@@ -512,10 +512,10 @@ public class SyncFlow implements AutoCloseable {
         }
 
         /**
-        * 构建同步流实例
-        *
-        * @return 同步流
-        */
+         * 构建同步流实例
+         *
+         * @return 同步流
+         */
         public SyncFlow build() {
             return new SyncFlow(this);
         }

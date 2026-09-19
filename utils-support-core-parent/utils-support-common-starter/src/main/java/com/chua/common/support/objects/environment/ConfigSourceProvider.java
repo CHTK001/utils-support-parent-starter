@@ -14,14 +14,14 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Spi
 public interface ConfigSourceProvider {
 
     /**
-    * 获取配置源列表。
-    *
-    * @return 配置源列表，不会为 空
-    */
+     * 获取配置源列表。
+     *
+     * @return 配置源列表，不会为 空
+     */
     List<PropertySource> getPropertySources();
 }

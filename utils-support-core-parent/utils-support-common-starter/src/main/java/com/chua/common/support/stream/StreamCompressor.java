@@ -25,32 +25,32 @@ import java.io.OutputStream;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi("stream-compressor")
 public interface StreamCompressor {
 
     /**
-    * 包装输出流：将明文写入输出流前进行压缩。
-    *
-    * @param out 目标输出流
-    * @return 包装后的输出流
-    * @throws IOException IO 异常
-    */
+     * 包装输出流：将明文写入输出流前进行压缩。
+     *
+     * @param out 目标输出流
+     * @return 包装后的输出流
+     * @throws IOException IO 异常
+     */
     OutputStream wrap(OutputStream out) throws IOException;
 
     /**
-    * 解压输入流：从输入流读取压缩帧并解压为明文。
-    *
-    * @param in 来源输入流
-    * @return 解压后的输入流
-    * @throws IOException IO 异常
-    */
+     * 解压输入流：从输入流读取压缩帧并解压为明文。
+     *
+     * @param in 来源输入流
+     * @return 解压后的输入流
+     * @throws IOException IO 异常
+     */
     InputStream unwrap(InputStream in) throws IOException;
 
     /**
-    * SPI 名称，用于 服务提供者 发现。
-    *
-    * @return 压缩器名称
-    */
+     * SPI 名称，用于 服务提供者 发现。
+     *
+     * @return 压缩器名称
+     */
     String name();
 }

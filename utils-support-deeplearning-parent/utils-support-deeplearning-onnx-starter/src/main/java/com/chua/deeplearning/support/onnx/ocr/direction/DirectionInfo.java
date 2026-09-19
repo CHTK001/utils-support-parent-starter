@@ -1,10 +1,10 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
 
 /**
-* OCR         
-*
-* @author CH
-* @since 4.0.0.42
+ * OCR         
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DirectionInfo {
 
@@ -26,19 +26,19 @@ public class DirectionInfo {
     }
 
     /**
-    * 获取名称
-    *
-    * @return 获取名称的结果
-    */
+     * 获取名称
+     *
+     * @return 获取名称的结果
+     */
     public String getName() {
         return name;
     }
 
     /**
-    * 获取Probability
-    *
-    * @return 获取probability的结果
-    */
+     * 获取Probability
+     *
+     * @return 获取probability的结果
+     */
     public double getProbability() {
         return probability;
     }

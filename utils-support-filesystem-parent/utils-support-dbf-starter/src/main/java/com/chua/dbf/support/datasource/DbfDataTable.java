@@ -15,31 +15,31 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* DBF 数据表实现，支持 dbase 格式文件的读写和 CRUD 操作。
-* <p>
-* 基于 javadbf 库实现。数据在内存中维护，
-* 通过 {@link #save()} 写出到文件。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DBF 数据表实现，支持 dbase 格式文件的读写和 CRUD 操作。
+ * <p>
+ * 基于 javadbf 库实现。数据在内存中维护，
+ * 通过 {@link #save()} 写出到文件。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DbfDataTable extends MutableDataTable {
 
     /**
-    * DBF 文件路径
-    */
+     * DBF 文件路径
+     */
     private final String filePath;
 
     /**
-    * 列类型列表
-    */
+     * 列类型列表
+     */
     private final List<Class<?>> columnTypes;
 
     /**
-    * DBF 字段元数据（写回时需要）
-    */
+     * DBF 字段元数据（写回时需要）
+     */
     private final List<DBFField> dbfFields;
 
     // ---------------------------------------------------------------
@@ -47,11 +47,11 @@ public class DbfDataTable extends MutableDataTable {
     // ---------------------------------------------------------------
 
     /**
-    * 创建 DBF 数据table。
-    *
-    * @param name 表名
-    * @param file DBF 文件
-    */
+     * 创建 DBF 数据table。
+     *
+     * @param name 表名
+     * @param file DBF 文件
+     */
     public DbfDataTable(String name, File file) {
         super(name);
         this.filePath = file.getAbsolutePath();
@@ -76,17 +76,17 @@ public class DbfDataTable extends MutableDataTable {
     // ---------------------------------------------------------------
 
     /**
-    * 获取列类型列表。
-    *
-    * @return 列类型列表
-    */
+     * 获取列类型列表。
+     *
+     * @return 列类型列表
+     */
     public List<Class<?>> columnTypes() {
         return Collections.unmodifiableList(columnTypes);
     }
 
     /**
-    * 保存变更到 DBF 文件。
-    */
+     * 保存变更到 DBF 文件。
+     */
     public void save() {
         writeDbf();
     }
@@ -96,10 +96,10 @@ public class DbfDataTable extends MutableDataTable {
     // ---------------------------------------------------------------
 
     /**
-    * 解析结果。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 解析结果。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class DbfParseResult {
         final List<String> columnNames; // column名称
         final List<Class<?>> columnTypes; // column类型
@@ -116,10 +116,10 @@ public class DbfDataTable extends MutableDataTable {
     }
 
     /**
-    * 解析 DBF 文件。
-    * @param file 文件
-    * @return 解析dbf的结果
-    */
+     * 解析 DBF 文件。
+     * @param file 文件
+     * @return 解析dbf的结果
+     */
     private DbfParseResult parseDbf(File file) {
         List<String> names = new ArrayList<>();
         List<Class<?>> types = new ArrayList<>();
@@ -152,10 +152,10 @@ public class DbfDataTable extends MutableDataTable {
     }
 
     /**
-    * DBF 字段类型 → Java 类型映射。
-    * @param type 类型
-    * @return dbf类型转为java类的结果
-    */
+     * DBF 字段类型 → Java 类型映射。
+     * @param type 类型
+     * @return dbf类型转为java类的结果
+     */
     private Class<?> dbfTypeToJavaClass(DBFDataType type) {
         return switch (type) {
             case CHARACTER -> String.class;
@@ -174,8 +174,8 @@ public class DbfDataTable extends MutableDataTable {
     // ---------------------------------------------------------------
 
     /**
-    * 将内存数据写出到 DBF 文件。
-    */
+     * 将内存数据写出到 DBF 文件。
+     */
     private void writeDbf() {
         Path path = Paths.get(filePath);
         if (path.getParent() != null) {

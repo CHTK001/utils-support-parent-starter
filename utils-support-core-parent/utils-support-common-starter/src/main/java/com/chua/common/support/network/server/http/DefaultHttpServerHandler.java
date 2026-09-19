@@ -24,36 +24,36 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
     /**
-    * 目标 Bean 对象，其中包含需要调用的处理方法。
-    */
+     * 目标 Bean 对象，其中包含需要调用的处理方法。
+     */
     protected final Object bean;
 
     /**
-    * 待调用的具体方法对象。
-    */
+     * 待调用的具体方法对象。
+     */
     protected final Method method;
 
     /**
-    * 该处理器所映射的 URL 路径。
-    */
+     * 该处理器所映射的 URL 路径。
+     */
     private final String path;
 
     /**
-    * 该处理器所支持的 HTTP 请求方法（如 GET, POST 等）。
-    */
+     * 该处理器所支持的 HTTP 请求方法（如 GET, POST 等）。
+     */
     private final HttpMethod httpMethod;
 
     /**
-    * 构造函数，初始化处理器所需的各个组件。
-    *
-    * @param bean        目标 Bean 对象实例。
-    * @param method      待调用的反射方法。
-    * @param path        绑定的 URL 路径。
-    * @param httpMethod  绑定的 HTTP 方法类型。
-    */
+     * 构造函数，初始化处理器所需的各个组件。
+     *
+     * @param bean        目标 Bean 对象实例。
+     * @param method      待调用的反射方法。
+     * @param path        绑定的 URL 路径。
+     * @param httpMethod  绑定的 HTTP 方法类型。
+     */
     public DefaultHttpServerHandler(Object bean, Method method, String path, HttpMethod httpMethod) {
         this.bean = bean;
         this.method = method;
@@ -61,16 +61,16 @@ public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
         this.httpMethod = httpMethod;
     }
     /**
-    * 处理同步请求。
-    * <p>
-    * 通过反射调用目标 Bean 上的指定方法，并将请求和响应对象作为参数传递。
-    * 如果方法抛出异常，则向上抛出。
-    * </p>
-    *
-    * @param request  入站请求对象。
-    * @param response 出站响应对象。
-    * @throws Exception 如果反射调用过程中发生任何异常。
-    */
+     * 处理同步请求。
+     * <p>
+     * 通过反射调用目标 Bean 上的指定方法，并将请求和响应对象作为参数传递。
+     * 如果方法抛出异常，则向上抛出。
+     * </p>
+     *
+     * @param request  入站请求对象。
+     * @param response 出站响应对象。
+     * @throws Exception 如果反射调用过程中发生任何异常。
+     */
     @Override
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         if (method == null || bean == null) {

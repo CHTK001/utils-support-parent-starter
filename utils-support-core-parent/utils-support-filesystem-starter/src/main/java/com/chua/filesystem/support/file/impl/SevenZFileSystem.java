@@ -21,13 +21,13 @@ import java.util.List;
 import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
 
 /**
-* 7z 压缩文件系统 SPI 实现。
-*
-* <p>通过 SPI 机制注册为 {@code "7z"} 类型的文件系统实现。
-* 基于 Apache Commons Compress 提供 7z 格式的读写支持。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 7z 压缩文件系统 SPI 实现。
+ *
+ * <p>通过 SPI 机制注册为 {@code "7z"} 类型的文件系统实现。
+ * 基于 Apache Commons Compress 提供 7z 格式的读写支持。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("7z")
 public class SevenZFileSystem implements FileSystem {
@@ -46,13 +46,13 @@ public class SevenZFileSystem implements FileSystem {
 
     @Override
     /**
-    * 写入
-    *
-    * @param file 文件
-    * @return 写入的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 写入
+     *
+     * @param file 文件
+     * @return 写入的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public WriteBuilder write(File file) {
         return new SevenZWriteBuilder(file);
     }
@@ -78,10 +78,10 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 查找同目录下的分卷文件。
-        *
-        * @return 分卷文件列表（按顺序排列）
-        */
+         * 查找同目录下的分卷文件。
+         *
+         * @return 分卷文件列表（按顺序排列）
+         */
         private List<File> findSplitFiles() {
             List<File> splitFiles = new ArrayList<>();
             File parentDir = file.getParentFile();
@@ -130,11 +130,11 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 创建 sevenz文件，自动处理分卷模式。
-        *
-        * @return SevenZFile 实例
-        * @throws IOException IO 异常
-        */
+         * 创建 sevenz文件，自动处理分卷模式。
+         *
+         * @return SevenZFile 实例
+         * @throws IOException IO 异常
+         */
         private SevenZFile openSevenZFile() throws IOException {
             if (!splitMode) {
                 return new SevenZFile(file);
@@ -156,10 +156,10 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 列表entries
-        *
-        * @return 列表entries的结果
-        */
+         * 列表entries
+         *
+         * @return 列表entries的结果
+         */
         public List<String> listEntries() {
             List<String> entries = new ArrayList<>();
             try (SevenZFile szFile = openSevenZFile()) {
@@ -174,30 +174,30 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * extract全部
-        *
-        * @param targetDir Targetdir
-        */
+         * extract全部
+         *
+         * @param targetDir Targetdir
+         */
         public void extractAll(File targetDir) {
             extract(targetDir);
         }
 
         /**
-        * Extract
-        *
-        * @param entryName entry名称
-        * @param targetDir Targetdir
-        */
+         * Extract
+         *
+         * @param entryName entry名称
+         * @param targetDir Targetdir
+         */
         public void extract(String entryName, File targetDir) {
             extract(targetDir, entryName);
         }
 
         /**
-        * Extract
-        *
-        * @param targetDir Targetdir
-        * @param entryNames entry名称
-        */
+         * Extract
+         *
+         * @param targetDir Targetdir
+         * @param entryNames entry名称
+         */
         public void extract(File targetDir, String... entryNames) {
             try (SevenZFile szFile = openSevenZFile()) {
                 if (!targetDir.exists()) {
@@ -277,12 +277,12 @@ public class SevenZFileSystem implements FileSystem {
 
         @Override
         /**
-        * as字符串
-        *
-        * @return as字符串的结果
-        * @author CH
-        * @since 4.0.0
-        */
+         * as字符串
+         *
+         * @return as字符串的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -307,69 +307,69 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 设置分卷大小。
-        *
-        * @param size 每个分卷的最大字节数
-        * @return 当前构建器
-        */
+         * 设置分卷大小。
+         *
+         * @param size 每个分卷的最大字节数
+         * @return 当前构建器
+         */
         public SevenZWriteBuilder splitSize(long size) {
             this.splitSize = size;
             return this;
         }
 
         /**
-        * 设置压缩方法。
-        *
-        * @param method 压缩方法（LZMA2、副本、DEFLATE、BZIP2 等）
-        * @return 当前构建器
-        */
+         * 设置压缩方法。
+         *
+         * @param method 压缩方法（LZMA2、副本、DEFLATE、BZIP2 等）
+         * @return 当前构建器
+         */
         public SevenZWriteBuilder compressionMethod(SevenZMethod method) {
             this.compressionMethod = method;
             return this;
         }
 
         /**
-        * 设置压缩级别。
-        *
-        * @param level 压缩级别（LZMA2: 0~9, DEFLATE: 0~9, -1 表示方法默认值）
-        * @return 当前构建器
-        */
+         * 设置压缩级别。
+         *
+         * @param level 压缩级别（LZMA2: 0~9, DEFLATE: 0~9, -1 表示方法默认值）
+         * @return 当前构建器
+         */
         public SevenZWriteBuilder compressionLevel(int level) {
             this.compressionLevel = level;
             return this;
         }
 
         /**
-        * 添加文件
-        *
-        * @param entryName entry名称
-        * @param source 源
-        * @return 添加文件的结果
-        */
+         * 添加文件
+         *
+         * @param entryName entry名称
+         * @param source 源
+         * @return 添加文件的结果
+         */
         public SevenZWriteBuilder addFile(String entryName, File source) {
             entries.add(new EntryData(entryName, source));
             return this;
         }
 
         /**
-        * 添加流
-        *
-        * @param entryName entry名称
-        * @param in 入
-        * @return 添加流的结果
-        */
+         * 添加流
+         *
+         * @param entryName entry名称
+         * @param in 入
+         * @return 添加流的结果
+         */
         public SevenZWriteBuilder addStream(String entryName, InputStream in) {
             entries.add(new EntryData(entryName, in));
             return this;
         }
 
         /**
-        * 添加Bytes
-        *
-        * @param entryName entry名称
-        * @param bytes bytes
-        * @return 添加bytes的结果
-        */
+         * 添加Bytes
+         *
+         * @param entryName entry名称
+         * @param bytes bytes
+         * @return 添加bytes的结果
+         */
         public SevenZWriteBuilder addBytes(String entryName, byte[] bytes) {
             entries.add(new EntryData(entryName, bytes));
             return this;
@@ -418,9 +418,9 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 分卷模式完成写入。
-        * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
-        */
+         * 分卷模式完成写入。
+         * <p>先写入临时文件，然后根据 splitSize 分割成多个分卷文件。</p>
+         */
         private void finishSplit() {
             File tempFile = null;
             try {
@@ -458,13 +458,13 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 将文件分割成多个分卷。
-        *
-        * @param sourceFile 源文件
-        * @param outputFile 输出文件名
-        * @param maxSize    每个分卷的最大字节数
-        * @throws IOException IO 异常
-        */
+         * 将文件分割成多个分卷。
+         *
+         * @param sourceFile 源文件
+         * @param outputFile 输出文件名
+         * @param maxSize    每个分卷的最大字节数
+         * @throws IOException IO 异常
+         */
         private void splitFile(File sourceFile, File outputFile, long maxSize) throws IOException {
             String baseName = outputFile.getName();
             String baseNameWithoutExt = baseName;
@@ -523,12 +523,12 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 复制文件。
-        *
-        * @param source 源文件
-        * @param target 目标文件
-        * @throws IOException IO 异常
-        */
+         * 复制文件。
+         *
+         * @param source 源文件
+         * @param target 目标文件
+         * @throws IOException IO 异常
+         */
         private void copyFile(File source, File target) throws IOException {
             try (FileInputStream fis = new FileInputStream(source);
                  FileOutputStream fos = new FileOutputStream(target)) {
@@ -541,20 +541,20 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 根据配置的压缩方法和级别创建 sevenz输出文件。
-        * @return 创建输出文件的结果
-        */
+         * 根据配置的压缩方法和级别创建 sevenz输出文件。
+         * @return 创建输出文件的结果
+         */
         private SevenZOutputFile createOutputFile() throws IOException {
             return createOutputFile(file);
         }
 
         /**
-        * 根据配置的压缩方法和级别创建 sevenz输出文件。
-        *
-        * @param outputFile 输出文件
-        * @return SevenZOutputFile 实例
-        * @throws IOException IO 异常
-        */
+         * 根据配置的压缩方法和级别创建 sevenz输出文件。
+         *
+         * @param outputFile 输出文件
+         * @return SevenZOutputFile 实例
+         * @throws IOException IO 异常
+         */
         private SevenZOutputFile createOutputFile(File outputFile) throws IOException {
             SevenZOutputFile szOut = new SevenZOutputFile(outputFile);
             if (compressionMethod != null) {
@@ -568,11 +568,11 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 写入文件
-        *
-        * @param out 出
-        * @param file 文件
-        */
+         * 写入文件
+         *
+         * @param out 出
+         * @param file 文件
+         */
         private void writeFile(SevenZOutputFile out, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(out, fis);
@@ -580,11 +580,11 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 写入流
-        *
-        * @param out 出
-        * @param in 入
-        */
+         * 写入流
+         *
+         * @param out 出
+         * @param in 入
+         */
         private void writeStream(SevenZOutputFile out, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -596,13 +596,13 @@ public class SevenZFileSystem implements FileSystem {
 
         @Override
         /**
-        * 写入
-        *
-        * @param data 数据
-        * @return 写入的结果
-        * @author CH
-        * @since 4.0.0
-        */
+         * 写入
+         *
+         * @param data 数据
+         * @return 写入的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public SevenZWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);

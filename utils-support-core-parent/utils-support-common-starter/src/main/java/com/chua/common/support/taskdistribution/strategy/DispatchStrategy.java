@@ -7,30 +7,30 @@ package com.chua.common.support.taskdistribution.strategy;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public enum DispatchStrategy {
     /**
-    * 取第一个匹配的工作端
-    */
+     * 取第一个匹配的工作端
+     */
     FIRST,
 
     /**
-    * 取最后一个匹配的工作端
-    */
+     * 取最后一个匹配的工作端
+     */
     LAST,
 
     /**
-    * 随机选择一个工作端
-    */
+     * 随机选择一个工作端
+     */
     RANDOM,
 
     /**
-    * 轮询选择工作端
-    */
+     * 轮询选择工作端
+     */
     ROUND,
 
     /**
-    * 按权重加权随机选择工作端
-    */
+     * 按权重加权随机选择工作端
+     */
     WEIGHT
 }

@@ -11,19 +11,19 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
-* 多分片 B+Tree 索引管理器。
-*
-* <p>每个分片独立维护一棵 {@link BPlusTree}，key 为 String，
-* value 为 {@link EntryLoc}（WAL 分片文件路径 + 字节偏移 + 记录长度）。</p>
-*
-* <pre>
-* 写入: hash(key) % N → shard_N.put(key, EntryLoc)
-* 点查: hash(key) % N → shard_N.get(key) → EntryLoc → mmap精确读
-* 范围: 并行遍历所有 shard_N.range(from, to)，merge 排序
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 多分片 B+Tree 索引管理器。
+ *
+ * <p>每个分片独立维护一棵 {@link BPlusTree}，key 为 String，
+ * value 为 {@link EntryLoc}（WAL 分片文件路径 + 字节偏移 + 记录长度）。</p>
+ *
+ * <pre>
+ * 写入: hash(key) % N → shard_N.put(key, EntryLoc)
+ * 点查: hash(key) % N → shard_N.get(key) → EntryLoc → mmap精确读
+ * 范围: 并行遍历所有 shard_N.range(from, to)，merge 排序
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ShardedIndex {
 
@@ -56,10 +56,10 @@ public class ShardedIndex {
     // ==================== 点查 ====================
 
     /**
-    * 按 key 精确查找，返回 EntryLoc。
-    * @param key 键，不允许为 null
-    * @return 可选结果，不存在时为 Optional.empty()
-    */
+     * 按 key 精确查找，返回 EntryLoc。
+     * @param key 键，不允许为 null
+     * @return 可选结果，不存在时为 Optional.empty()
+     */
     public Optional<EntryLoc> get(String key) {
         rwLock.readLock().lock();
         try {
@@ -71,10 +71,10 @@ public class ShardedIndex {
     }
 
     /**
-    * 判断 key 是否存在。
-    * @param key 键，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断 key 是否存在。
+     * @param key 键，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean contains(String key) {
         rwLock.readLock().lock();
         try {
@@ -88,10 +88,10 @@ public class ShardedIndex {
     // ==================== 写入索引 ====================
 
     /**
-    * 写入索引（点查时调用，update 场景覆盖旧值）。
-    * @param key 键，不允许为 null
-    * @param loc 方法入参 loc
-    */
+     * 写入索引（点查时调用，update 场景覆盖旧值）。
+     * @param key 键，不允许为 null
+     * @param loc 方法入参 loc
+     */
     public void put(String key, EntryLoc loc) {
         rwLock.writeLock().lock();
         try {
@@ -103,9 +103,9 @@ public class ShardedIndex {
     }
 
     /**
-    * 删除索引条目（tombstone 时调用）。
-    * @param key 键，不允许为 null
-    */
+     * 删除索引条目（tombstone 时调用）。
+     * @param key 键，不允许为 null
+     */
     public void remove(String key) {
         rwLock.writeLock().lock();
         try {
@@ -119,11 +119,11 @@ public class ShardedIndex {
     // ==================== 范围查 ====================
 
     /**
-    * 范围查询 [from, to)，合并所有分片结果并按 key 排序。
-    * @param from 来自，不允许为 null
-    * @param to 转为，不允许为 null
-    * @return 结果列表，无数据时为空列表
-    */
+     * 范围查询 [from, to)，合并所有分片结果并按 key 排序。
+     * @param from 来自，不允许为 null
+     * @param to 转为，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to) {
         rwLock.readLock().lock();
         try {
@@ -139,13 +139,13 @@ public class ShardedIndex {
     }
 
     /**
-    * 带分页的范围查询。
-    * @param from 来自，不允许为 null
-    * @param to 转为，不允许为 null
-    * @param offset 偏移量，不允许为 null
-    * @param limit 上限，不允许为 null
-    * @return 结果列表，无数据时为空列表
-    */
+     * 带分页的范围查询。
+     * @param from 来自，不允许为 null
+     * @param to 转为，不允许为 null
+     * @param offset 偏移量，不允许为 null
+     * @param limit 上限，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to, int offset, int limit) {
         List<Map.Entry<String, EntryLoc>> all = range(from, to);
         int fromIdx = Math.min(offset, all.size());
@@ -156,9 +156,9 @@ public class ShardedIndex {
     // ==================== 批量重建 ====================
 
     /**
-    * 批量写入索引（compaction 后重建时使用）。
-    * @param entries 方法入参 entries
-    */
+     * 批量写入索引（compaction 后重建时使用）。
+     * @param entries 方法入参 entries
+     */
     public void putAll(List<IndexEntry> entries) {
         rwLock.writeLock().lock();
         try {
@@ -172,8 +172,8 @@ public class ShardedIndex {
     }
 
     /**
-    * 清空所有分片。
-    */
+     * 清空所有分片。
+     */
     public void clear() {
         rwLock.writeLock().lock();
         try {
@@ -188,9 +188,9 @@ public class ShardedIndex {
     // ==================== 统计 ====================
 
     /**
-    * 总索引条目数。
-    * @return 结果数值
-    */
+     * 总索引条目数。
+     * @return 结果数值
+     */
     public int size() {
         rwLock.readLock().lock();
         try {
@@ -205,9 +205,9 @@ public class ShardedIndex {
     }
 
     /**
-    * 分片数量。
-    * @return 结果数值
-    */
+     * 分片数量。
+     * @return 结果数值
+     */
     public int shardCount() {
         return shardCount;
     }

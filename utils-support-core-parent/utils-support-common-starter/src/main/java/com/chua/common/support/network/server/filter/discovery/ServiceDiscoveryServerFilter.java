@@ -26,7 +26,7 @@ import java.util.function.BiConsumer;
  * @author CH
  * @since 2026/07/18
  * @see ReverseProxyServerFilter
-*/
+ */
 @Slf4j
 public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServerFilter {
 
@@ -119,19 +119,19 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     }
 
     /**
-    * 获取发现源名称
-    *
-    * @return 发现源名称（按名称创建时为 SPI 名，直接传入 ServiceDiscovery 时为 null）
-    */
+     * 获取发现源名称
+     *
+     * @return 发现源名称（按名称创建时为 SPI 名，直接传入 ServiceDiscovery 时为 null）
+     */
     public String getDiscoveryName() {
         return discoveryName;
     }
 
     /**
-    * 获取当前持有的 ServiceDiscovery 实例（可能尚未 init 而为 null）
-    *
-    * @return ServiceDiscovery 实例或 null
-    */
+     * 获取当前持有的 ServiceDiscovery 实例（可能尚未 init 而为 null）
+     *
+     * @return ServiceDiscovery 实例或 null
+     */
     public ServiceDiscovery getServiceDiscovery() {
         return serviceDiscovery;
     }
@@ -252,12 +252,12 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     }
 
     /**
-    * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
-    * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
-    * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
-    * @param serverId 服务端ID，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
+     * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
+     * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
+     * @param serverId 服务端ID，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isExcluded(String serverId) {
         if (serverId == null) {
             return false;

@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Composer 软件包管理器提供器。
-*
-* <p>通过 composer CLI 搜索、安装和卸载 PHP 依赖包。
-* 支持 <code>Composer 搜索</code>、<code>Composer 全局 require</code>、
-* <code>composer global remove</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * Composer 软件包管理器提供器。
+ *
+ * <p>通过 composer CLI 搜索、安装和卸载 PHP 依赖包。
+ * 支持 <code>Composer 搜索</code>、<code>Composer 全局 require</code>、
+ * <code>composer global remove</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("composer")
 public class ComposerSoftwareProvider implements SoftwareProvider {

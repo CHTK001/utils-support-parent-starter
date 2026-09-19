@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public class DefaultSerializerProvider implements SerializerProvider {
 
     @Override

@@ -21,18 +21,18 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Apache HTTP客户端5 的 HTTP 客户端执行器
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * 基于 Apache HTTP客户端5 的 HTTP 客户端执行器
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Spi("httpclient5")
 @ConditionalOnClass("org.apache.hc.client5.http.classic.methods.HttpGet")
 public class HttpClient5Executor implements HttpClientExecutor {
 
     /**
-    * Apache HTTP客户端5 客户端实例
-    */
+     * Apache HTTP客户端5 客户端实例
+     */
     private CloseableHttpClient client;
 
     /** 创建 HTTP客户端5执行器 实例 */

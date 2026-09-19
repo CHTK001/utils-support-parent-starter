@@ -39,7 +39,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0
  * @see SseEvent
-*/
+ */
 public class SseProtocolParser {
 
     /** {@code data} 字段名 */
@@ -72,11 +72,11 @@ public class SseProtocolParser {
     private final Consumer<String> commentHandler;
 
     /**
-    * 创建 SSE 协议解析器
-    *
-    * @param eventHandler   事件分发回调（空行触发），不能为 null
-    * @param commentHandler 注释行回调（{@code :} 前缀触发），可为 null
-    */
+     * 创建 SSE 协议解析器
+     *
+     * @param eventHandler   事件分发回调（空行触发），不能为 null
+     * @param commentHandler 注释行回调（{@code :} 前缀触发），可为 null
+     */
     public SseProtocolParser(Consumer<SseEvent> eventHandler, Consumer<String> commentHandler) {
         this.eventHandler = eventHandler;
         this.commentHandler = commentHandler;
@@ -84,28 +84,28 @@ public class SseProtocolParser {
     }
 
     /**
-    * 创建 SSE 协议解析器（无注释回调）
-    *
-    * @param eventHandler 事件分发回调
-    */
+     * 创建 SSE 协议解析器（无注释回调）
+     *
+     * @param eventHandler 事件分发回调
+     */
     public SseProtocolParser(Consumer<SseEvent> eventHandler) {
         this(eventHandler, null);
     }
 
     /**
-    * 解析单行输入
-    *
-    * <p>按照 SSE 规范逐行处理：</p>
-    * <ul>
-    *   <li>空行 → 分发当前缓冲的事件</li>
-    *   <li>{@code :} 开头 → 注释行</li>
-    *   <li>{@code field: value} → 解析字段</li>
-    *   <li>{@code field:value}（无空格）→ 解析字段</li>
-    *   <li>{@code field:}（无值）→ 字段值为空字符串</li>
-    * </ul>
-    *
-    * @param line 从流中读取的一行文本（不含换行符）
-    */
+     * 解析单行输入
+     *
+     * <p>按照 SSE 规范逐行处理：</p>
+     * <ul>
+     *   <li>空行 → 分发当前缓冲的事件</li>
+     *   <li>{@code :} 开头 → 注释行</li>
+     *   <li>{@code field: value} → 解析字段</li>
+     *   <li>{@code field:value}（无空格）→ 解析字段</li>
+     *   <li>{@code field:}（无值）→ 字段值为空字符串</li>
+     * </ul>
+     *
+     * @param line 从流中读取的一行文本（不含换行符）
+     */
     public void parseLine(String line) {
         // 空行 → 分发事件
         if (line.isEmpty()) {
@@ -170,10 +170,10 @@ public class SseProtocolParser {
     }
 
     /**
-    * 刷新缓冲区，分发尚未以空行结尾的最后一个事件
-    *
-    * <p>在流结束时调用，确保最后一条不以空行结尾的事件也能被分发。</p>
-    */
+     * 刷新缓冲区，分发尚未以空行结尾的最后一个事件
+     *
+     * <p>在流结束时调用，确保最后一条不以空行结尾的事件也能被分发。</p>
+     */
     public void flush() {
         if (hasData || eventType != null) {
             dispatchEvent();
@@ -183,9 +183,9 @@ public class SseProtocolParser {
     // ==================== 内部方法 ====================
 
     /**
-    * 追加 data 行内容
-    * @param value 值，不允许为 null
-    */
+     * 追加 data 行内容
+     * @param value 值，不允许为 null
+     */
     private void appendData(String value) {
         if (dataBuffer == null) {
             dataBuffer = new StringBuilder();
@@ -197,8 +197,8 @@ public class SseProtocolParser {
     }
 
     /**
-    * 分发当前缓冲的事件并重置缓冲区
-    */
+     * 分发当前缓冲的事件并重置缓冲区
+     */
     private void dispatchEvent() {
         if (!hasData) {
             // 空事件（无任何 data 行）不分发
@@ -218,8 +218,8 @@ public class SseProtocolParser {
     }
 
     /**
-    * 重置事件缓冲区
-    */
+     * 重置事件缓冲区
+     */
     private void resetBuffer() {
         dataBuffer = null;
         eventType = null;

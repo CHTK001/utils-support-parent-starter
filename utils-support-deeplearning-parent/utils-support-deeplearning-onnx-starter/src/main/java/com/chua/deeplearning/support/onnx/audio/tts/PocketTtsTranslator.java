@@ -20,58 +20,58 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Kyutai Pocket-TTS（100M 流匹配 TTS）嵌入式语音合成器。
-*
-* <p>流水线：文本 → BPE tokenizer（tokenizer.json）→ text_encoder.onnx（文本编码）
-* → 流.onnx（流匹配一致性采样，默认 4 步 Euler）→ mimi_解码器.onnx（Mimi 解码）→ 24khz WAV。</p>
-*
-* <p>零样本声音克隆：提供参考音频 WAV（{@link #synthesize(String, byte[])}），
-* 经 mimi_编码器.onnx 编码为说话人潜变量，作为 流 模型的参考音频输入参与条件生成。
-* mimi_编码器 缺省时回退默认音色（{@link #synthesize(String)}）。</p>
-*
-* <p>模型与张量名通过模型目录下 {@code config.json} 配置（兼容 sherpa-onnx / KevinAHM 等
-* 不同导出包的命名差异），未配置项按 dtype/shape 自动推断。模型约 225MB（int8），
-* 由 NAT加载 从 {@code audio/tts/pocket-tts/} 解压到缓存目录后加载。</p>
-*
-* <p>用法（由 OnnxTextToAudioClient 调度）：
-* <pre>{@code
-*   byte[] wav = new PocketTtsTranslator().synthesize("Hello world");
-*   byte[] wav2 = new PocketTtsTranslator().synthesize("Hello", referenceWavBytes); // 声音克隆
-* }</pre>vBytes); // 声音克隆
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Kyutai Pocket-TTS（100M 流匹配 TTS）嵌入式语音合成器。
+ *
+ * <p>流水线：文本 → BPE tokenizer（tokenizer.json）→ text_encoder.onnx（文本编码）
+ * → 流.onnx（流匹配一致性采样，默认 4 步 Euler）→ mimi_解码器.onnx（Mimi 解码）→ 24khz WAV。</p>
+ *
+ * <p>零样本声音克隆：提供参考音频 WAV（{@link #synthesize(String, byte[])}），
+ * 经 mimi_编码器.onnx 编码为说话人潜变量，作为 流 模型的参考音频输入参与条件生成。
+ * mimi_编码器 缺省时回退默认音色（{@link #synthesize(String)}）。</p>
+ *
+ * <p>模型与张量名通过模型目录下 {@code config.json} 配置（兼容 sherpa-onnx / KevinAHM 等
+ * 不同导出包的命名差异），未配置项按 dtype/shape 自动推断。模型约 225MB（int8），
+ * 由 NAT加载 从 {@code audio/tts/pocket-tts/} 解压到缓存目录后加载。</p>
+ *
+ * <p>用法（由 OnnxTextToAudioClient 调度）：
+ * <pre>{@code
+ *   byte[] wav = new PocketTtsTranslator().synthesize("Hello world");
+ *   byte[] wav2 = new PocketTtsTranslator().synthesize("Hello", referenceWavBytes); // 声音克隆
+ * }</pre>vBytes); // 声音克隆
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PocketTtsTranslator {
 
     /**
-    * 输出采样率（Pocket-TTS 固定 24khz）
-    */
+     * 输出采样率（Pocket-TTS 固定 24khz）
+     */
     private static final int SAMPLE_RATE = 24000;
 
     /**
-    * 流 LM sequence 输入的第三维大小（令牌 嵌入 维度）。
-    * <p>Pocket-TTS 的 flow_lm_main.onnx 期望 sequence 形状为 [1, seqLen, 32]，
-    * 不同于 latent_dim(8)，此为模型固定超参。</p>
-    */
+     * 流 LM sequence 输入的第三维大小（令牌 嵌入 维度）。
+     * <p>Pocket-TTS 的 flow_lm_main.onnx 期望 sequence 形状为 [1, seqLen, 32]，
+     * 不同于 latent_dim(8)，此为模型固定超参。</p>
+     */
     private static final int SEQUENCE_EMBED_DIM = 32;
 
     /**
-    * 默认最大输入 令牌 数
-    */
+     * 默认最大输入 令牌 数
+     */
     private static final int MAX_TEXT_LENGTH = 512;
 
     /**
-    * 类路径 资源根路径
-    */
+     * 类路径 资源根路径
+     */
     private static final String RESOURCE_BASE = "audio/tts/pocket-tts/";
 
     /**
-    * 模型缓存根目录（音频/tts/）
-    */
+     * 模型缓存根目录（音频/tts/）
+     */
     private static final String CACHE_ROOT = "audio/tts/";
 
     /** ONNX 运行时环境 */
@@ -88,8 +88,8 @@ public class PocketTtsTranslator {
     private PocketTtsTokenizer tokenizer;
 
     /**
-    * 各模型解析后的输入/输出张量名（prepare 时解析一次，推理复用）
-    */
+     * 各模型解析后的输入/输出张量名（prepare 时解析一次，推理复用）
+     */
     private String textEncoderInputName;
     /** 文本编码器输出节点名称 */
     private String textEncoderOutputName;
@@ -120,13 +120,13 @@ public class PocketTtsTranslator {
     private int flowSteps = 4;
 
     /**
-    * 潜变量维度（Mimi 为 8）
-    */
+     * 潜变量维度（Mimi 为 8）
+     */
     private int latentDim = 8;
 
     /**
-    * 每 令牌 估算帧数（时长启发式，按真实模型校准）
-    */
+     * 每 令牌 估算帧数（时长启发式，按真实模型校准）
+     */
     private double framesPerToken = 4.0;
 
     /** 文本 编码器 条件向量维度 */
@@ -156,10 +156,10 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 准备模型（懒加载）。
-    *
-    * @throws Exception 准备异常
-    */
+     * 准备模型（懒加载）。
+     *
+     * @throws Exception 准备异常
+     */
     private synchronized void prepare() throws Exception {
         if (prepared) {
             return;
@@ -198,21 +198,21 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-    * 未配置时回落 {@code %TEMP%}。
-    *
-    * @return 缓存根目录
-    */
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
-    * 是否拥有模型文件
-    * @param modelDir 模型dir
-    * @return 是否包含模型文件的结果
-    */
+     * 是否拥有模型文件
+     * @param modelDir 模型dir
+     * @return 是否包含模型文件的结果
+     */
     private boolean hasModelFiles(Path modelDir) {
         return Files.exists(modelDir.resolve(textEncoderFile()))
                 && Files.exists(modelDir.resolve(flowFile()))
@@ -220,8 +220,8 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 解析各模型的输入/输出张量名（prepare 时一次解析，推理阶段复用，避免每次查原生元数据）。
-    */
+     * 解析各模型的输入/输出张量名（prepare 时一次解析，推理阶段复用，避免每次查原生元数据）。
+     */
     private void resolveTensorNames() {
         textEncoderInputName = tensorName("text_encoder_input", "tokens", textEncoderSession, true, false);
         textEncoderOutputName = tensorName("text_encoder_output", "text_embeddings", textEncoderSession, false, true);
@@ -243,13 +243,13 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 解析可选的参考音频输入名：配置名存在则用之；否则在 流 输入中
-    * 找非 x/t/文本_嵌入/mask 的剩余 float 张量（克隆模式导出特有）。
-    *
-    * @return 参考音频输入名；不存在返回 空（表示无克隆条件输入）
-    * @param configKey 配置键
-    * @param def def
-    */
+     * 解析可选的参考音频输入名：配置名存在则用之；否则在 流 输入中
+     * 找非 x/t/文本_嵌入/mask 的剩余 float 张量（克隆模式导出特有）。
+     *
+     * @return 参考音频输入名；不存在返回 空（表示无克隆条件输入）
+     * @param configKey 配置键
+     * @param def def
+     */
     private String resolveOptionalFloatInput(String configKey, String def) {
         String configured = configCache.get(configKey);
         try {
@@ -284,37 +284,37 @@ public class PocketTtsTranslator {
     // ==================== config.json 解析 ====================
 
     /**
-    * 获取 文本 编码器 文件路径
-    *
-    * @return 文本编码器文件的结果
-    */
+     * 获取 文本 编码器 文件路径
+     *
+     * @return 文本编码器文件的结果
+     */
     private String textEncoderFile() {
         return configStr("model_files.text_encoder", "text_encoder.onnx");
     }
 
     /**
-    * 获取 流 LM 文件路径
-    *
-    * @return 流文件的结果
-    */
+     * 获取 流 LM 文件路径
+     *
+     * @return 流文件的结果
+     */
     private String flowFile() {
         return configStr("model_files.flow", "flow.onnx");
     }
 
     /**
-    * 获取 mimi 解码器 文件路径
-    *
-    * @return mimi解码器文件的结果
-    */
+     * 获取 mimi 解码器 文件路径
+     *
+     * @return mimi解码器文件的结果
+     */
     private String mimiDecoderFile() {
         return configStr("model_files.mimi_decoder", "mimi_decoder.onnx");
     }
 
     /**
-    * 获取 mimi 编码器 文件路径
-    *
-    * @return mimi编码器文件的结果
-    */
+     * 获取 mimi 编码器 文件路径
+     *
+     * @return mimi编码器文件的结果
+     */
     private String mimiEncoderFile() {
         return configStr("model_files.mimi_encoder", "mimi_encoder.onnx");
     }
@@ -334,12 +334,12 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 从 配置.json 读取整型（点路径），未配置或格式错误时返回默认值。
-    *
-    * @param dotPath 点路径键
-    * @param def     默认值
-    * @return 配置整数值或默认值
-    */
+     * 从 配置.json 读取整型（点路径），未配置或格式错误时返回默认值。
+     *
+     * @param dotPath 点路径键
+     * @param def     默认值
+     * @return 配置整数值或默认值
+     */
     private int configInt(String dotPath, int def) {
         String v = configCache.get(dotPath);
         if (v == null) {
@@ -353,12 +353,12 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 从 配置.json 读取浮点值（点路径），未配置或格式错误时返回默认值。
-    *
-    * @param dotPath 点路径键
-    * @param def     默认值
-    * @return 配置浮点值或默认值
-    */
+     * 从 配置.json 读取浮点值（点路径），未配置或格式错误时返回默认值。
+     *
+     * @param dotPath 点路径键
+     * @param def     默认值
+     * @return 配置浮点值或默认值
+     */
     private double configDouble(String dotPath, double def) {
         String v = configCache.get(dotPath);
         if (v == null) {
@@ -372,9 +372,9 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 加载并扁平化 配置.json（支持 a.b 点路径）。
-    * @param configPath 配置路径
-    */
+     * 加载并扁平化 配置.json（支持 a.b 点路径）。
+     * @param configPath 配置路径
+     */
     private void loadConfig(Path configPath) throws Exception {
         if (configPath == null || !Files.exists(configPath)) {
             log.warn("[Pocket-TTS] config.json 不存在，使用默认配置");
@@ -390,12 +390,12 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 简易 JSON 扁平化：把嵌套对象转为 {@code parent.key=value} 的点路径映射。
-    * 仅支持对象/字符串/数字（配置.json 足够）。
-    * @param prefix 前缀
-    * @param json json
-    * @param out 出
-    */
+     * 简易 JSON 扁平化：把嵌套对象转为 {@code parent.key=value} 的点路径映射。
+     * 仅支持对象/字符串/数字（配置.json 足够）。
+     * @param prefix 前缀
+     * @param json json
+     * @param out 出
+     */
     private static void flattenJson(String prefix, String json, Map<String, String> out) {
         // 逐层解析 { "key": value, "nested": { ... } }
         String body = json.trim();
@@ -428,11 +428,11 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * find值结束。
-    * @param s s
-    * @param start 启动
-    * @return find值结束的结果
-    */
+     * find值结束。
+     * @param s s
+     * @param start 启动
+     * @return find值结束的结果
+     */
     private static int findValueEnd(String s, int start) {
         if (start >= s.length()) {
             return -1;
@@ -485,10 +485,10 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * unquote。
-    * @param s s
-    * @return unquote的结果
-    */
+     * unquote。
+     * @param s s
+     * @return unquote的结果
+     */
     private static String unquote(String s) {
         String t = s.trim();
         if (t.length() >= 2 && t.startsWith("\"") && t.endsWith("\"")) {
@@ -500,9 +500,9 @@ public class PocketTtsTranslator {
     // ==================== tokenizer ====================
 
     /**
-    * 加载Tokenizer
-    * @param tokenizerPath tokenizer路径
-    */
+     * 加载Tokenizer
+     * @param tokenizerPath tokenizer路径
+     */
     private void loadTokenizer(Path tokenizerPath) throws Exception {
  // 优先尝试 vocab.json（词表格式），兼容 sentencepiece .模型
         Path vocabPath = tokenizerPath.getParent().resolve("vocab.json");
@@ -525,10 +525,10 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 文本转 令牌 ids（BPE）。
-    * @param text 文本
-    * @return encode的结果
-    */
+     * 文本转 令牌 ids（BPE）。
+     * @param text 文本
+     * @return encode的结果
+     */
     private long[] encode(String text) {
         return tokenizer.encode(text);
     }
@@ -536,46 +536,46 @@ public class PocketTtsTranslator {
     // ==================== 推理 ====================
 
     /**
-    * 文本转 WAV 字节（默认音色）。
-    *
-    * @param text 输入文本
-    * @return WAV 音频字节
-    */
+     * 文本转 WAV 字节（默认音色）。
+     *
+     * @param text 输入文本
+     * @return WAV 音频字节
+     */
     public byte[] synthesize(String text) {
         return synthesize(text, null);
     }
 
     /**
-    * 文本转 WAV 字节（声音克隆：参考音频字节作为音色源）。
-    *
-    * @param text        输入文本
-    * @param refAudioWav 参考音频 WAV 字节（用于零样本声音克隆）
-    * @return WAV 音频字节
-    */
+     * 文本转 WAV 字节（声音克隆：参考音频字节作为音色源）。
+     *
+     * @param text        输入文本
+     * @param refAudioWav 参考音频 WAV 字节（用于零样本声音克隆）
+     * @return WAV 音频字节
+     */
     public byte[] voice(String text, byte[] refAudioWav) {
         return synthesize(text, refAudioWav);
     }
 
     /**
-    * 获取当前是否支持声音克隆（mimi_编码器 已加载）。
-    *
-    * @return true 表示可用参考音频进行声音克隆
-    */
+     * 获取当前是否支持声音克隆（mimi_编码器 已加载）。
+     *
+     * @return true 表示可用参考音频进行声音克隆
+     */
     public boolean supportsVoiceClone() {
         return mimiEncoderSession != null && flowRefName != null;
     }
 
     /**
-    * 文本转 WAV 字节（支持零样本声音克隆）。
-    *
-    * <p>参考音频为 24kHz 单声道 WAV 字节（或任意采样率，自动重采样）；
-    * 经 mimi_编码器 编码为说话人潜变量后参与 流 条件生成。
-    * 参考音频为空或 mimi_编码器 缺失时使用默认音色。</p>
-    *
-    * @param text      输入文本
-    * @param refAudioWav 参考音频 WAV 字节（可空，克隆音色）
-    * @return WAV 音频字节
-    */
+     * 文本转 WAV 字节（支持零样本声音克隆）。
+     *
+     * <p>参考音频为 24kHz 单声道 WAV 字节（或任意采样率，自动重采样）；
+     * 经 mimi_编码器 编码为说话人潜变量后参与 流 条件生成。
+     * 参考音频为空或 mimi_编码器 缺失时使用默认音色。</p>
+     *
+     * @param text      输入文本
+     * @param refAudioWav 参考音频 WAV 字节（可空，克隆音色）
+     * @return WAV 音频字节
+     */
     public byte[] synthesize(String text, byte[] refAudioWav) {
         try {
             if (text == null || text.isBlank()) {
@@ -604,13 +604,13 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 运行 lm_main（状态 流 LM）获取文本条件向量。
-    * <p>将 token ids（或参考音频投影特征）转为 float sequence [1, seqLen, 32]，
-    * 传入 流 LM 获取 空调 [1, 1024] + 初始 状态。</p>
-    *
-    * @param seqFloat 序列输入（令牌 标识 转 float 或参考音频投影特征）
-    * @return conditioning 向量 [1024]
-    */
+     * 运行 lm_main（状态 流 LM）获取文本条件向量。
+     * <p>将 token ids（或参考音频投影特征）转为 float sequence [1, seqLen, 32]，
+     * 传入 流 LM 获取 空调 [1, 1024] + 初始 状态。</p>
+     *
+     * @param seqFloat 序列输入（令牌 标识 转 float 或参考音频投影特征）
+     * @return conditioning 向量 [1024]
+     */
     private float[] runTextConditioner(float[] seqFloat) throws Exception {
         int seqLen = seqFloat.length / SEQUENCE_EMBED_DIM;
         long[] seqShape = new long[]{1, seqLen, SEQUENCE_EMBED_DIM};
@@ -657,10 +657,10 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 将 令牌 标识 转为 float sequence [1, seqlen, 32]。
-    * @param ids 标识
-    * @return encode转为sequence的结果
-    */
+     * 将 令牌 标识 转为 float sequence [1, seqlen, 32]。
+     * @param ids 标识
+     * @return encode转为sequence的结果
+     */
     private float[] encodeToSequence(long[] ids) {
         int seqLen = ids.length;
         float[] seqFloat = new float[seqLen * SEQUENCE_EMBED_DIM];
@@ -674,12 +674,12 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 构建零初始化 状态 张量。
-    * <p>根据模型元数据中的实际 dtype（float32 / int64）创建对应类型的零张量，
-    * 形状严格遵循模型定义（包含 0 维的空张量）。</p>
-    * @param index 索引
-    * @return 构建zero状态tensor的结果
-    */
+     * 构建零初始化 状态 张量。
+     * <p>根据模型元数据中的实际 dtype（float32 / int64）创建对应类型的零张量，
+     * 形状严格遵循模型定义（包含 0 维的空张量）。</p>
+     * @param index 索引
+     * @return 构建zero状态tensor的结果
+     */
     private ai.onnxruntime.OnnxTensor buildZeroStateTensor(int index) throws Exception {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();
@@ -740,13 +740,13 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 编码参考音频为说话人潜变量（零样本声音克隆）。
-    *
-    * <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 1024维特征 → 投影到32维 → 供 decoder 使用。</p>
-    *
-    * @param refAudioWav 参考音频 WAV 字节；为空或 mimi_编码器 缺失时返回 空（默认音色）
-    * @return 32维潜变量（扁平数组，长度 = seqlen * 32）；空 表示使用默认音色
-    */
+     * 编码参考音频为说话人潜变量（零样本声音克隆）。
+     *
+     * <p>WAV 字节 → 24kHz 单声道 float 波形 → mimi_encoder.onnx → 1024维特征 → 投影到32维 → 供 decoder 使用。</p>
+     *
+     * @param refAudioWav 参考音频 WAV 字节；为空或 mimi_编码器 缺失时返回 空（默认音色）
+     * @return 32维潜变量（扁平数组，长度 = seqlen * 32）；空 表示使用默认音色
+     */
     private float[] encodeRefAudio(byte[] refAudioWav) throws Exception {
         if (refAudioWav == null || refAudioWav.length == 0) {
             return null;
@@ -801,15 +801,15 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 流匹配一致性采样：逐帧运行 流 LM，Euler 积分生成潜变量。
-    *
-    * <p>flow_lm_flow.onnx 接受单帧输入 x [1, 32]，
-    * 需逐帧迭代。每步：x += v / 流steps，其中 v 来自 流 模型。</p>
-    * @param conditioning 空调
-    * @param textLen 文本len
-    * @param refLatents reflatents
-    * @return 运行流匹配的结果
-    */
+     * 流匹配一致性采样：逐帧运行 流 LM，Euler 积分生成潜变量。
+     *
+     * <p>flow_lm_flow.onnx 接受单帧输入 x [1, 32]，
+     * 需逐帧迭代。每步：x += v / 流steps，其中 v 来自 流 模型。</p>
+     * @param conditioning 空调
+     * @param textLen 文本len
+     * @param refLatents reflatents
+     * @return 运行流匹配的结果
+     */
     private float[] runFlowMatching(float[] conditioning, int textLen, float[] refLatents) throws Exception {
         int frames = (int) Math.max(1, Math.round(textLen * framesPerToken));
         frames = Math.min(frames, maxFrames);
@@ -840,9 +840,9 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 运行 流 LM 单帧：返回速度场 v [1, 32]。
-    * <p>使用 lm_flow.onnx：输入 c(cond)[1,1024], s(step_idx)[1,1], t(time)[1,1], x(noise)[1,32] → flow_dir[1,32]。</p>
-    */
+     * 运行 流 LM 单帧：返回速度场 v [1, 32]。
+     * <p>使用 lm_flow.onnx：输入 c(cond)[1,1024], s(step_idx)[1,1], t(time)[1,1], x(noise)[1,32] → flow_dir[1,32]。</p>
+     */
     private float[] runFlowStep(float[] x, float s, float t, float[] conditioning,
                                 float[] refLatents) throws Exception {
         long[] xShape = new long[]{1, SEQUENCE_EMBED_DIM};
@@ -870,16 +870,16 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 最近一次参考音频潜变量长度（由 encoderef音频 记录）。
-    */
+     * 最近一次参考音频潜变量长度（由 encoderef音频 记录）。
+     */
     private int refLatentsLen = 0;
 
     /**
-    * 运行 mimi_解码器.onnx：latents [1, seq_len, 32] → waveform。
-    * <p>同时传入零初始化 state 张量，decoder 为自回归模型。</p>
-    * @param latents latents
-    * @return 运行mimi解码器的结果
-    */
+     * 运行 mimi_解码器.onnx：latents [1, seq_len, 32] → waveform。
+     * <p>同时传入零初始化 state 张量，decoder 为自回归模型。</p>
+     * @param latents latents
+     * @return 运行mimi解码器的结果
+     */
     private float[] runMimiDecoder(float[] latents) throws Exception {
         int latentSize = SEQUENCE_EMBED_DIM;
         int frames = latents.length / latentSize;
@@ -929,15 +929,15 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 解析张量名：优先 配置.json 中的配置名；若会话中不存在该名称，则按
-    * dtype（int64 优先 / float 优先）从输入或输出元数据中推断。
-    *
-    * @param configKey  配置.json 点路径键
-    * @param def        默认张量名
-    * @param session    ORT 会话
-    * @param inputSide  true 查输入 / false 查输出
-    * @param preferFloat true 优先 float 张量（文本_嵌入 等）/ false 优先 int64（令牌/mask）
-    */
+     * 解析张量名：优先 配置.json 中的配置名；若会话中不存在该名称，则按
+     * dtype（int64 优先 / float 优先）从输入或输出元数据中推断。
+     *
+     * @param configKey  配置.json 点路径键
+     * @param def        默认张量名
+     * @param session    ORT 会话
+     * @param inputSide  true 查输入 / false 查输出
+     * @param preferFloat true 优先 float 张量（文本_嵌入 等）/ false 优先 int64（令牌/mask）
+     */
     private String tensorName(String configKey, String def, ai.onnxruntime.OrtSession session,
                               boolean inputSide, boolean preferFloat) {
         String configured = configCache.get(configKey);
@@ -974,12 +974,12 @@ public class PocketTtsTranslator {
     // ==================== WAV 解码 ====================
 
     /**
-    * WAV 字节解码为 float 波形（-1.0~1.0）：支持任意采样率/声道数，自动重采样到 24khz 单声道。
-    *
-    * @param wavBytes WAV 字节
-    * @return float 波形（单声道 24khz）
-    * @throws Exception 解码异常
-    */
+     * WAV 字节解码为 float 波形（-1.0~1.0）：支持任意采样率/声道数，自动重采样到 24khz 单声道。
+     *
+     * @param wavBytes WAV 字节
+     * @return float 波形（单声道 24khz）
+     * @throws Exception 解码异常
+     */
     private static float[] decodeWavToFloat(byte[] wavBytes) throws Exception {
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wavBytes))) {
             AudioFormat srcFmt = ais.getFormat();
@@ -1057,13 +1057,13 @@ public class PocketTtsTranslator {
     // ==================== WAV 输出 ====================
 
     /**
-    * float 波形转 WAV 字节。
-    *
-    * @param samples 波形数据
-    * @param rate    采样率
-    * @return WAV 字节
-    * @throws Exception 转换异常
-    */
+     * float 波形转 WAV 字节。
+     *
+     * @param samples 波形数据
+     * @param rate    采样率
+     * @return WAV 字节
+     * @throws Exception 转换异常
+     */
     private static byte[] toWav(float[] samples, int rate) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {
@@ -1080,9 +1080,9 @@ public class PocketTtsTranslator {
     }
 
     /**
-    * 关闭资源。
-    * @param s s
-    */
+     * 关闭资源。
+     * @param s s
+     */
     public void close() {
         closeQuietly(textEncoderSession);
         closeQuietly(flowSession);

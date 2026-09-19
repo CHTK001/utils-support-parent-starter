@@ -13,10 +13,10 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
-* Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
-*
-* @author CH
-* @since 4.0.0.42
+ * Quarkus (CDI) 方法注入器，处理 {@link Inject} / {@link Named} 注解的 setter 方法。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")

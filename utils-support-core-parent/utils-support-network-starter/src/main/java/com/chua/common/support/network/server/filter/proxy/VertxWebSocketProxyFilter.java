@@ -23,22 +23,22 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
-* WebSocket 反向代理过滤器，实现客户端与后端之间真正的双向帧转发。
-*
-* <p>基于 Vert.x {@link WebSocketClient} 实现：</p>
-* <ol>
-*   <li>检测 {@code Upgrade: websocket} 请求头并确认存在后端 Discovery（由负载均衡链注入）；</li>
-*   <li>通过请求中的 {@link ServerAttribute#VERTX_ROUTING_CONTEXT} 拿到底层 Vert.x
-*       {@link HttpServerRequest}，调用 {@code toWebSocket()} 完成服务端升级；</li>
-*   <li>用 {@link WebSocketClient#connect(int, String, String)} 连接后端；</li>
-*   <li>双向帧转发（文本/二进制/控制帧）+ 关闭联动。</li>
-* </ol>
-*
-* <p>非 WebSocket 请求或缺少 Vert.x 上下文时放行至过滤器链（可安全运行在 JDK Server 之上）。</p>
-*
-* @author CH
-* @since 2026/08/15
-* @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
+ * WebSocket 反向代理过滤器，实现客户端与后端之间真正的双向帧转发。
+ *
+ * <p>基于 Vert.x {@link WebSocketClient} 实现：</p>
+ * <ol>
+ *   <li>检测 {@code Upgrade: websocket} 请求头并确认存在后端 Discovery（由负载均衡链注入）；</li>
+ *   <li>通过请求中的 {@link ServerAttribute#VERTX_ROUTING_CONTEXT} 拿到底层 Vert.x
+ *       {@link HttpServerRequest}，调用 {@code toWebSocket()} 完成服务端升级；</li>
+ *   <li>用 {@link WebSocketClient#connect(int, String, String)} 连接后端；</li>
+ *   <li>双向帧转发（文本/二进制/控制帧）+ 关闭联动。</li>
+ * </ol>
+ *
+ * <p>非 WebSocket 请求或缺少 Vert.x 上下文时放行至过滤器链（可安全运行在 JDK Server 之上）。</p>
+ *
+ * @author CH
+ * @since 2026/08/15
+ * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
 public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFilter {
@@ -109,11 +109,11 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
 
     @Override
     /**
-    * 执行过滤
-    * @param request 请求
-    * @param response 响应
-    * @param chain chain
-    */
+     * 执行过滤
+     * @param request 请求
+     * @param response 响应
+     * @param chain chain
+     */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (tryProxyWebSocket(request, response)) {
@@ -123,11 +123,11 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     /**
-    * 尝试 WebSocket 反向代理。成功返回 true（请求已被接管），否则返回 false。
-    * @param request 请求
-    * @param response 响应
-    * @return 尝试代理webSocket的结果
-    */
+     * 尝试 WebSocket 反向代理。成功返回 true（请求已被接管），否则返回 false。
+     * @param request 请求
+     * @param response 响应
+     * @return 尝试代理webSocket的结果
+     */
     private boolean tryProxyWebSocket(ServerRequest request, ServerResponse response) {
         String upgrade = request.getHeader("Upgrade");
         if (upgrade == null || !upgrade.equalsIgnoreCase("websocket")) {
@@ -174,10 +174,10 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     /**
-    * 建立客户端与后端之间的双向帧管道。
-    * @param clientWs 客户端ws
-    * @param backendWs backendws
-    */
+     * 建立客户端与后端之间的双向帧管道。
+     * @param clientWs 客户端ws
+     * @param backendWs backendws
+     */
     private void pipe(ServerWebSocket clientWs, WebSocket backendWs) {
         clientWs.frameHandler(frame -> {
             if (!backendWs.isClosed()) {
@@ -204,12 +204,12 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     /**
-    * 发送记录错误
-    *
-    * @param response 响应
-    * @param code 编码
-    * @param msg msg
-    */
+     * 发送记录错误
+     *
+     * @param response 响应
+     * @param code 编码
+     * @param msg msg
+     */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);

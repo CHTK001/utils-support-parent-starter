@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 数据恢复设置
-* <p>
-* 定义恢复操作的各种配置参数
-* </p>
-*
-* @author CH
-* @版本 1.0.0
-* @since 4.0.0.42
+ * 数据恢复设置
+ * <p>
+ * 定义恢复操作的各种配置参数
+ * </p>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 public class RestoreSetting {
 
     /**
-    * 恢复类型
-    */
+     * 恢复类型
+     */
     @Builder.Default
     /** Restore类型 */
     private RestoreType restoreType = RestoreType.ALL;
@@ -34,13 +34,13 @@ public class RestoreSetting {
     private String targetSchema;
 
     /**
-    * 目标表名（可选）
-    */
+     * 目标表名（可选）
+     */
     private String targetTable;
 
     /**
-    * 是否在恢复前删除已存在的表
-    */
+     * 是否在恢复前删除已存在的表
+     */
     @Builder.Default
     /** 掉落ifexists */
     private boolean dropIfExists = false;
@@ -86,8 +86,8 @@ public class RestoreSetting {
     private String tempDirectory;
 
     /**
-    * 超时时间（秒）
-    */
+     * 超时时间（秒）
+     */
     @Builder.Default
     /** 超时 */
     private int timeout = 3600;
@@ -105,8 +105,8 @@ public class RestoreSetting {
     private String keyringFile;
 
     /**
-    * 是否强制解析（忽略错误页）
-    */
+     * 是否强制解析（忽略错误页）
+     */
     @Builder.Default
     /** Force */
     private boolean force = false;
@@ -125,18 +125,18 @@ public class RestoreSetting {
     */
     public enum RestoreType {
         /**
-        * 仅恢复表结构（DDL）
-        */
+         * 仅恢复表结构（DDL）
+         */
         STRUCTURE,
 
         /**
-        * 仅恢复数据
-        */
+         * 仅恢复数据
+         */
         DATA,
 
         /**
-        * 恢复表结构和数据
-        */
+         * 恢复表结构和数据
+         */
         ALL
     }
 }

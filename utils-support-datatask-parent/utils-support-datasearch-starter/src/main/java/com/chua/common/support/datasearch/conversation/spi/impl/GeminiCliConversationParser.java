@@ -12,24 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Gemini CLI conversation parser.
-*
-* <p>Gemini CLI persists transcripts under
-* {@code ~/.gemini/tmp/<project>/chats/session-<date>-<id>.jsonl}:</p>
-*
-* <pre>{@code
-* {"sessionId": "...", ...}                                    ← first line
-* {"type": "user", "id": "...", "timestamp": "...ISO...",
-*  "content": [ { "text": "Say ok" } ]}
-* {"type": "gemini", "id": "...", "timestamp": "...ISO...",
-*  "content": "ok", "model": "gemini-3.5-flash"}
-* }</pre>re>
-*
-* <p>User content is an array of text blocks while assistant content is a
-* plain 字符串 — both normalised 转为 {@code contentType="text"}.</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Gemini CLI conversation parser.
+ *
+ * <p>Gemini CLI persists transcripts under
+ * {@code ~/.gemini/tmp/<project>/chats/session-<date>-<id>.jsonl}:</p>
+ *
+ * <pre>{@code
+ * {"sessionId": "...", ...}                                    ← first line
+ * {"type": "user", "id": "...", "timestamp": "...ISO...",
+ *  "content": [ { "text": "Say ok" } ]}
+ * {"type": "gemini", "id": "...", "timestamp": "...ISO...",
+ *  "content": "ok", "model": "gemini-3.5-flash"}
+ * }</pre>re>
+ *
+ * <p>User content is an array of text blocks while assistant content is a
+ * plain 字符串 — both normalised 转为 {@code contentType="text"}.</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("gemini-cli")
 public class GeminiCliConversationParser extends AbstractJsonlConversationParser {
@@ -38,39 +38,39 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
             System.getProperty("user.home"), ".gemini", "tmp");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "gemini-cli"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "gemini-cli"}
+     */
     @Override
     public String name() {
         return "gemini-cli";
     }
 
     /**
-    * 返回会话文件根目录。
-    *
-    * @return {@code ~/.gemini/tmp}
-    */
+     * 返回会话文件根目录。
+     *
+     * @return {@code ~/.gemini/tmp}
+     */
     @Override
     protected Path rootDir() {
         return GEMINI_TMP;
     }
 
     /**
-    * 返回会话文件后缀。
-    *
-    * @return {@code ".jsonl"}
-    */
+     * 返回会话文件后缀。
+     *
+     * @return {@code ".jsonl"}
+     */
     @Override
     protected String fileSuffix() {
         return ".jsonl";
     }
 
     /**
-    * 解析单行事件为零或多条消息记录。
-    * @param ts ts
-    * @return 解析instant转为millis的结果
+     * 解析单行事件为零或多条消息记录。
+     * @param ts ts
+     * @return 解析instant转为millis的结果
      /**
     * 解析线。
     * @param line 线

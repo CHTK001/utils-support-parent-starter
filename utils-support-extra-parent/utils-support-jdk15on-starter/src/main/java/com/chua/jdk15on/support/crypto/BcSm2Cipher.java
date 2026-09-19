@@ -13,13 +13,13 @@ import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
 /**
-* 基于 bouncycastle 的 SM2 非对称加解密实现
-*
-* <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
-* 实现 SM2 密钥生成、加密、解密、签名和验签。
-*
-* @author CH
-* @since 2026/07/15
+ * 基于 bouncycastle 的 SM2 非对称加解密实现
+ *
+ * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
+ * 实现 SM2 密钥生成、加密、解密、签名和验签。
+ *
+ * @author CH
+ * @since 2026/07/15
  */
 @Spi({"bc", "bouncycastle"})
 public class BcSm2Cipher implements Sm2Cipher {

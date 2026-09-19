@@ -11,7 +11,7 @@ import com.chua.common.support.scatter.ScatterNode;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class TcpClientHolder {
 
     /**
@@ -21,13 +21,13 @@ public final class TcpClientHolder {
     }
 
     /**
-    * 向节点发送帧（短连接）。
-    *
-    * @param node    目标节点
-    * @param payload 帧字节
-    * @return 响应字节（可能为 null）
-    * @throws Exception 调用异常
-    */
+     * 向节点发送帧（短连接）。
+     *
+     * @param node    目标节点
+     * @param payload 帧字节
+     * @return 响应字节（可能为 null）
+     * @throws Exception 调用异常
+     */
     public static byte[] call(ScatterNode node, byte[] payload) throws Exception {
         try (TcpClient client = new JdkTcpClient(4, 5000, 10000)) {
             return client.call(node.getHost(), node.getPort(), payload);

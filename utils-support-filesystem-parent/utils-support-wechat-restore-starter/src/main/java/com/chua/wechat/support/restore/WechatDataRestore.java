@@ -100,157 +100,157 @@ import java.util.regex.Pattern;
 public class WechatDataRestore extends AbstractDataRestore {
 
     /**
-    * 微信还原器 SPI 类型名
-    */
+     * 微信还原器 SPI 类型名
+     */
     private static final String SPI_TYPE = "wechat";
 
     /**
-    * 执行模式：自动（native 优先，失败回退 tool）
-    */
+     * 执行模式：自动（native 优先，失败回退 tool）
+     */
     public static final String MODE_AUTO = "auto";
 
     /**
-    * 执行模式：仅 FFM 原生路径
-    */
+     * 执行模式：仅 FFM 原生路径
+     */
     public static final String MODE_NATIVE = "native";
 
     /**
-    * 执行模式：仅 SQLCipher 直解路径（需要数据库密钥）
-    */
+     * 执行模式：仅 SQLCipher 直解路径（需要数据库密钥）
+     */
     public static final String MODE_SQLCIPHER = "sqlcipher";
 
     /**
-    * 执行模式：仅 Python 工具编排路径
-    */
+     * 执行模式：仅 Python 工具编排路径
+     */
     public static final String MODE_TOOL = "tool";
 
     /**
-    * 执行模式：内存明文页提取路径（不需要数据库密钥）
-    */
+     * 执行模式：内存明文页提取路径（不需要数据库密钥）
+     */
     public static final String MODE_MEMORY = "memory";
 
     /**
-    * options 键：执行模式
-    */
+     * options 键：执行模式
+     */
     public static final String OPTION_MODE = "mode";
 
     /**
-    * options 键：原生库目录
-    */
+     * options 键：原生库目录
+     */
     public static final String OPTION_RUNTIME_DIR = "runtime.dir";
 
     /**
-    * options 键：数据库密钥
-    */
+     * options 键：数据库密钥
+     */
     public static final String OPTION_KEY = "key";
 
     /**
-    * options 键：密钥文件路径
-    */
+     * options 键：密钥文件路径
+     */
     public static final String OPTION_KEY_FILE = "key.file";
 
     /**
-    * options 键：是否自动捕获密钥
-    */
+     * options 键：是否自动捕获密钥
+     */
     public static final String OPTION_AUTO_KEY = "auto.key";
 
     /**
-    * options 键：Wechat-Export 的 export.py 脚本路径
-    */
+     * options 键：Wechat-Export 的 export.py 脚本路径
+     */
     public static final String OPTION_TOOL_PATH = "tool.path";
 
     /**
-    * options 键：微信数据目录
-    */
+     * options 键：微信数据目录
+     */
     public static final String OPTION_DATA_DIR = "data.dir";
 
     /**
-    * options 键：SQLCipher 解密后的明文库保留目录
-    */
+     * options 键：SQLCipher 解密后的明文库保留目录
+     */
     public static final String OPTION_DECRYPT_DIR = "decrypt.dir";
 
     /**
-    * options 键：每个会话最多导出条数
-    */
+     * options 键：每个会话最多导出条数
+     */
     public static final String OPTION_LIMIT = "limit";
 
     /**
-    * options 键：会话白名单
-    */
+     * options 键：会话白名单
+     */
     public static final String OPTION_WHITELIST = "whitelist";
 
     /**
-    * options 键：会话黑名单
-    */
+     * options 键：会话黑名单
+     */
     public static final String OPTION_BLACKLIST = "blacklist";
 
     /**
-    * options 键：是否跳过群聊
-    */
+     * options 键：是否跳过群聊
+     */
     public static final String OPTION_SKIP_GROUPS = "skip.groups";
 
     /**
-    * options 键：内存路径是否解压 zstd 压缩的消息体，默认 true
-    */
+     * options 键：内存路径是否解压 zstd 压缩的消息体，默认 true
+     */
     public static final String OPTION_DECODE_BLOB = "decode.blob";
 
     /**
-    * options 键：auto 模式是否允许降级到内存明文页路径，默认 true
-    */
+     * options 键：auto 模式是否允许降级到内存明文页路径，默认 true
+     */
     public static final String OPTION_MEMORY_ENABLED = "memory.enabled";
 
     /**
-    * options 键：内存路径是否把本次扫描结果合并进累积文件（默认 true）。
-    *
-    * <p>内存路线只能看到微信当前缓存过的页，反复扫描 + 累积才能逼近全量；
-    * 设为 false 则每次都是干净的单次快照。</p>
-    */
+     * options 键：内存路径是否把本次扫描结果合并进累积文件（默认 true）。
+     *
+     * <p>内存路线只能看到微信当前缓存过的页，反复扫描 + 累积才能逼近全量；
+     * 设为 false 则每次都是干净的单次快照。</p>
+     */
     public static final String OPTION_MEMORY_ACCUMULATE = "memory.accumulate";
 
     /**
-    * 内存路径重建出的明文库文件名
-    */
+     * 内存路径重建出的明文库文件名
+     */
     private static final String MEMORY_DB_NAME = "wechat_memory.db";
 
     /**
-    * 目录源缺省输出目录名（{@code <数据源目录>/wechat-restore-out}）。
-    *
-    * <p>该目录位于数据源内部，收集数据库文件时必须排除，否则会把上一次的产物当数据源。</p>
-    */
+     * 目录源缺省输出目录名（{@code <数据源目录>/wechat-restore-out}）。
+     *
+     * <p>该目录位于数据源内部，收集数据库文件时必须排除，否则会把上一次的产物当数据源。</p>
+     */
     public static final String DIRECTORY_OUTPUT_NAME = "wechat-restore-out";
 
     /**
-    * 递归查找数据库文件的最大深度
-    */
+     * 递归查找数据库文件的最大深度
+     */
     private static final int MAX_SCAN_DEPTH = 8;
 
     /**
-    * 合法密钥文件名
-    */
+     * 合法密钥文件名
+     */
     private static final String KEY_FILE_NAME = "key.txt";
 
     /**
-    * 原生库核心文件名（完整性校验用）
-    */
+     * 原生库核心文件名（完整性校验用）
+     */
     private static final String NATIVE_API_DLL = "wcdb_api.dll";
 
     /**
-    * 64 位十六进制密钥校验正则
-    */
+     * 64 位十六进制密钥校验正则
+     */
     private static final Pattern KEY_PATTERN = Pattern.compile("^[0-9a-fA-F]{64}$");
 
     /**
-    * 使用默认配置创建。
-    */
+     * 使用默认配置创建。
+     */
     public WechatDataRestore() {
         super(SPI_TYPE);
     }
 
     /**
-    * 使用指定配置创建。
-    *
-    * @param config 还原配置
-    */
+     * 使用指定配置创建。
+     *
+     * @param config 还原配置
+     */
     public WechatDataRestore(DataRestoreConfig config) {
         super(SPI_TYPE, config);
     }
@@ -274,34 +274,34 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 还原数据源（<b>文件或目录</b>）。
-    *
-    * <p>与其它还原器不同，微信的数据源<b>天然是目录</b> —— 账号目录、
-    * {@code db_storage}、甚至 {@code xwechat_files} 根目录都可以直接传进来，
-    * 由还原器自己去里面找库。而 {@link AbstractDataRestore} 的 SPI 契约是
-    * 「源必须是单个文件」（会以「还原源文件不存在或不是文件」直接拒绝目录），
-    * 所以这里为目录源另开一条等价入口。</p>
-    *
-    * <p>目录源相比文件源更贴近真实用法：微信的数据分散在 {@code db_storage} 下的
-    * 二十来个库里，逐个传文件既繁琐又容易漏。传目录时按 {@code mode} 一次性处理整个数据源：</p>
-    * <ul>
-    *   <li>{@code memory} —— 扫进程内存，与数据源内容无关，一次拿全部库；</li>
-    *   <li>{@code sqlcipher} —— 递归找出目录下全部库，逐个解密导出；</li>
-    *   <li>{@code native} / {@code tool} —— 递归定位 {@code session.db}；</li>
-    *   <li>{@code auto}（默认）—— 按 native → sqlcipher → memory → tool 依次降级。</li>
-    * </ul>
-    *
-    * <p>一键还原：</p>
-    * <pre>{@code
-    * // 源是目录，输出目录缺省为 <源目录>/wechat-restore-out
-    * DataRestore.create("wechat").restore(new File("E:/微信/xwechat_files"));
-    * }</pre>
-    *
-    * @param source 数据源文件或目录
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 还原异常
-    */
+     * 还原数据源（<b>文件或目录</b>）。
+     *
+     * <p>与其它还原器不同，微信的数据源<b>天然是目录</b> —— 账号目录、
+     * {@code db_storage}、甚至 {@code xwechat_files} 根目录都可以直接传进来，
+     * 由还原器自己去里面找库。而 {@link AbstractDataRestore} 的 SPI 契约是
+     * 「源必须是单个文件」（会以「还原源文件不存在或不是文件」直接拒绝目录），
+     * 所以这里为目录源另开一条等价入口。</p>
+     *
+     * <p>目录源相比文件源更贴近真实用法：微信的数据分散在 {@code db_storage} 下的
+     * 二十来个库里，逐个传文件既繁琐又容易漏。传目录时按 {@code mode} 一次性处理整个数据源：</p>
+     * <ul>
+     *   <li>{@code memory} —— 扫进程内存，与数据源内容无关，一次拿全部库；</li>
+     *   <li>{@code sqlcipher} —— 递归找出目录下全部库，逐个解密导出；</li>
+     *   <li>{@code native} / {@code tool} —— 递归定位 {@code session.db}；</li>
+     *   <li>{@code auto}（默认）—— 按 native → sqlcipher → memory → tool 依次降级。</li>
+     * </ul>
+     *
+     * <p>一键还原：</p>
+     * <pre>{@code
+     * // 源是目录，输出目录缺省为 <源目录>/wechat-restore-out
+     * DataRestore.create("wechat").restore(new File("E:/微信/xwechat_files"));
+     * }</pre>
+     *
+     * @param source 数据源文件或目录
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 还原异常
+     */
     @Override
     public DataRestoreResult restore(File source, DataRestoreConfig config) throws Exception {
         if (source == null || !source.isDirectory()) {
@@ -329,24 +329,24 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 为目录源补齐缺省配置。
-    *
-    * <p>两件事：</p>
-    * <ol>
-    *   <li><b>输出目录</b>缺省为 {@code <源目录>/wechat-restore-out}。
-    *       不能沿用基类的「源文件所在目录」—— 目录源的父目录不是它的输出位置，
-    *       落到数据目录外面反而不好找；</li>
-    *   <li><b>{@code data.dir}</b> 缺省为源目录本身。
-    *       native / tool 路径靠它定位 {@code session.db}，不补上就会退化成
-    *       「源目录的父目录」而找错地方。</li>
-    * </ol>
-    *
-    * <p>包级可见，便于单测直接校验缺省值。</p>
-    *
-    * @param source 源目录
-    * @param config 原始配置（可为 null）
-    * @return 补齐后的配置
-    */
+     * 为目录源补齐缺省配置。
+     *
+     * <p>两件事：</p>
+     * <ol>
+     *   <li><b>输出目录</b>缺省为 {@code <源目录>/wechat-restore-out}。
+     *       不能沿用基类的「源文件所在目录」—— 目录源的父目录不是它的输出位置，
+     *       落到数据目录外面反而不好找；</li>
+     *   <li><b>{@code data.dir}</b> 缺省为源目录本身。
+     *       native / tool 路径靠它定位 {@code session.db}，不补上就会退化成
+     *       「源目录的父目录」而找错地方。</li>
+     * </ol>
+     *
+     * <p>包级可见，便于单测直接校验缺省值。</p>
+     *
+     * @param source 源目录
+     * @param config 原始配置（可为 null）
+     * @return 补齐后的配置
+     */
     DataRestoreConfig withDirectoryDefaults(File source, DataRestoreConfig config) {
         DataRestoreConfig base = config != null ? config : DataRestoreConfig.builder().build();
         Map<String, Object> options = new HashMap<>(base.getOptions());
@@ -370,23 +370,23 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 自动模式：原生路径优先，其次内存明文页路径，最后回退 Python 工具路径。
-    *
-    * <p>三条路径的适用性差异很大，这里按「对本机环境的依赖从低到高」排序：</p>
-    * <ul>
-    *   <li><b>native</b> 需要微信安装目录带 {@code wcdb_api.dll}。微信 4.1.13.x 已把
-    *       WCDB 静态链接进 {@code Weixin.dll}，该路径在这些版本上不可用；</li>
-    *   <li><b>memory</b> 只需要微信正在运行（且本进程有读其它进程内存的权限），
-    *       不需要密钥 —— 拿不到密钥时的主路径；</li>
-    *   <li><b>tool</b> 需要额外安装 Wechat-Export 的 Python 工具链。</li>
-    * </ul>
-    *
-    * @param source 源文件
-    * @param config 还原配置
-    * @param mode   原始模式值（异常提示用）
-    * @return 还原结果
-    * @throws Exception 三条路径均不可用时抛出
-    */
+     * 自动模式：原生路径优先，其次内存明文页路径，最后回退 Python 工具路径。
+     *
+     * <p>三条路径的适用性差异很大，这里按「对本机环境的依赖从低到高」排序：</p>
+     * <ul>
+     *   <li><b>native</b> 需要微信安装目录带 {@code wcdb_api.dll}。微信 4.1.13.x 已把
+     *       WCDB 静态链接进 {@code Weixin.dll}，该路径在这些版本上不可用；</li>
+     *   <li><b>memory</b> 只需要微信正在运行（且本进程有读其它进程内存的权限），
+     *       不需要密钥 —— 拿不到密钥时的主路径；</li>
+     *   <li><b>tool</b> 需要额外安装 Wechat-Export 的 Python 工具链。</li>
+     * </ul>
+     *
+     * @param source 源文件
+     * @param config 还原配置
+     * @param mode   原始模式值（异常提示用）
+     * @return 还原结果
+     * @throws Exception 三条路径均不可用时抛出
+     */
     private DataRestoreResult runAuto(File source, DataRestoreConfig config, String mode) throws Exception {
         if (!MODE_AUTO.equals(mode)) {
             log.warn("未知微信还原模式 '{}'，按 auto 处理", mode);
@@ -433,21 +433,21 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 执行内存明文页提取路径。
-    *
-    * <p>微信运行时，SQLCipher 会把解密后的明文页留在 SQLite 的 pager cache 里，
-    * 因此<b>不需要数据库密钥</b>即可读出聊天记录。代价是只能看到微信<b>已经缓存过</b>的页 ——
-    * 要让更多记录进入缓存，需在微信里打开/滚动对应聊天后重新扫描。</p>
-    *
-    * <p>注意本路径会枚举<b>全部</b> {@code Weixin.exe} 进程：微信是多进程架构，
-    * 消息数据可能落在任意一个进程里，且与内存大小无关（实测 700MB 的进程只有 54 条消息，
-    * 366MB 的进程有 398 条）。</p>
-    *
-    * @param source 源文件
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 提取失败
-    */
+     * 执行内存明文页提取路径。
+     *
+     * <p>微信运行时，SQLCipher 会把解密后的明文页留在 SQLite 的 pager cache 里，
+     * 因此<b>不需要数据库密钥</b>即可读出聊天记录。代价是只能看到微信<b>已经缓存过</b>的页 ——
+     * 要让更多记录进入缓存，需在微信里打开/滚动对应聊天后重新扫描。</p>
+     *
+     * <p>注意本路径会枚举<b>全部</b> {@code Weixin.exe} 进程：微信是多进程架构，
+     * 消息数据可能落在任意一个进程里，且与内存大小无关（实测 700MB 的进程只有 54 条消息，
+     * 366MB 的进程有 398 条）。</p>
+     *
+     * @param source 源文件
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 提取失败
+     */
     private DataRestoreResult runMemory(File source, DataRestoreConfig config) throws Exception {
         if (!WechatMemoryAccess.isSupported()) {
             throw new IllegalStateException("内存明文页提取仅支持 Windows 平台，请改用 mode=" + MODE_TOOL);
@@ -533,13 +533,13 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 是否启用跨次扫描累积（默认启用）。
-    *
-    * <p>关掉（{@code options['memory.accumulate']=false}）时每次都是干净的单次快照。</p>
-    *
-    * @param config 还原配置
-    * @return 启用返回 true
-    */
+     * 是否启用跨次扫描累积（默认启用）。
+     *
+     * <p>关掉（{@code options['memory.accumulate']=false}）时每次都是干净的单次快照。</p>
+     *
+     * @param config 还原配置
+     * @return 启用返回 true
+     */
     private static boolean isAccumulateEnabled(DataRestoreConfig config) {
         Object value = config.getOptions().get(OPTION_MEMORY_ACCUMULATE);
         if (value == null) {
@@ -549,12 +549,12 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 把附加产物并入还原结果。
-    *
-    * @param result 原始结果
-    * @param extras 附加文件（不存在的会被忽略）
-    * @return 合并后的结果
-    */
+     * 把附加产物并入还原结果。
+     *
+     * @param result 原始结果
+     * @param extras 附加文件（不存在的会被忽略）
+     * @return 合并后的结果
+     */
     private static DataRestoreResult appendOutputs(DataRestoreResult result, List<File> extras) {
         if (result == null || !result.isSuccess()) {
             return result;
@@ -581,17 +581,17 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 执行 SQLCipher 直解路径。
-    *
-    * <p>用数据库密钥把加密库解密成明文 SQLite，再交给 JDBC 导出器输出 CSV / SQL / Excel。
-    * 配置了 {@code decrypt.dir} 时明文副本会被保留下来，否则写到输出目录的
-    * {@code decrypted} 子目录。</p>
-    *
-    * @param source 源文件或源目录
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 解密或导出异常
-    */
+     * 执行 SQLCipher 直解路径。
+     *
+     * <p>用数据库密钥把加密库解密成明文 SQLite，再交给 JDBC 导出器输出 CSV / SQL / Excel。
+     * 配置了 {@code decrypt.dir} 时明文副本会被保留下来，否则写到输出目录的
+     * {@code decrypted} 子目录。</p>
+     *
+     * @param source 源文件或源目录
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 解密或导出异常
+     */
     private DataRestoreResult runSqlCipher(File source, DataRestoreConfig config) throws Exception {
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
         if (outputDir == null) {
@@ -640,12 +640,12 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 解析明文库保留目录。
-    *
-    * @param config    还原配置
-    * @param outputDir 输出目录
-    * @return 明文库目录
-    */
+     * 解析明文库保留目录。
+     *
+     * @param config    还原配置
+     * @param outputDir 输出目录
+     * @return 明文库目录
+     */
     private File resolveDecryptDir(DataRestoreConfig config, File outputDir) {
         Object option = config.getOptions().get(OPTION_DECRYPT_DIR);
         File plainDir = option != null && !String.valueOf(option).isBlank()
@@ -658,29 +658,29 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 收集数据源下的数据库文件（源本身是文件时直接返回它）。
-    *
-    * @param source 源文件或源目录
-    * @return 数据库文件列表
-    */
+     * 收集数据源下的数据库文件（源本身是文件时直接返回它）。
+     *
+     * @param source 源文件或源目录
+     * @return 数据库文件列表
+     */
     private List<File> collectDatabases(File source) {
         return collectDatabases(source, null);
     }
 
     /**
-    * 收集数据源下的数据库文件，并排除还原器自己生成的目录。
-    *
-    * <p>缺省输出目录 {@code <源目录>/wechat-restore-out} <b>位于数据源内部</b>，
-    * 而 SQLCipher 路径会在它的 {@code decrypted} 子目录里留下解出的明文库。
-    * 若不排除，第二次还原会把上一次的产物当成数据源，把同一个库重复导出一遍
-    * （实测：本该 2 个文件却出了 4 个，且库里还混进了自己生成的
-    * {@code wechat_memory.db}）。所以这里按「目录名 = 缺省输出目录名」或
-    * 「目录 = 显式输出目录」两种口径剪枝。</p>
-    *
-    * @param source  源文件或源目录
-    * @param exclude 需要排除的输出目录，可为 null
-    * @return 数据库文件列表
-    */
+     * 收集数据源下的数据库文件，并排除还原器自己生成的目录。
+     *
+     * <p>缺省输出目录 {@code <源目录>/wechat-restore-out} <b>位于数据源内部</b>，
+     * 而 SQLCipher 路径会在它的 {@code decrypted} 子目录里留下解出的明文库。
+     * 若不排除，第二次还原会把上一次的产物当成数据源，把同一个库重复导出一遍
+     * （实测：本该 2 个文件却出了 4 个，且库里还混进了自己生成的
+     * {@code wechat_memory.db}）。所以这里按「目录名 = 缺省输出目录名」或
+     * 「目录 = 显式输出目录」两种口径剪枝。</p>
+     *
+     * @param source  源文件或源目录
+     * @param exclude 需要排除的输出目录，可为 null
+     * @return 数据库文件列表
+     */
     private List<File> collectDatabases(File source, File exclude) {
         List<File> out = new ArrayList<>(16);
         if (source.isFile()) {
@@ -699,13 +699,13 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 递归收集数据库文件。
-    *
-    * @param dir      目录
-    * @param out      输出列表
-    * @param depth    当前深度
-    * @param excluded 需排除的目录（规范化绝对路径）
-    */
+     * 递归收集数据库文件。
+     *
+     * @param dir      目录
+     * @param out      输出列表
+     * @param depth    当前深度
+     * @param excluded 需排除的目录（规范化绝对路径）
+     */
     private void collectDatabases(File dir, List<File> out, int depth, Set<String> excluded) {
         if (depth > MAX_SCAN_DEPTH) {
             return;
@@ -727,22 +727,22 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 判断目录是否为还原器自己生成的产物目录。
-    *
-    * @param dir      目录
-    * @param excluded 需排除的目录（规范化绝对路径）
-    * @return 是产物目录返回 true
-    */
+     * 判断目录是否为还原器自己生成的产物目录。
+     *
+     * @param dir      目录
+     * @param excluded 需排除的目录（规范化绝对路径）
+     * @return 是产物目录返回 true
+     */
     private static boolean isGeneratedDir(File dir, Set<String> excluded) {
         return DIRECTORY_OUTPUT_NAME.equals(dir.getName()) || excluded.contains(normalizePath(dir));
     }
 
     /**
-    * 规范化路径（用于目录比较）。
-    *
-    * @param file 文件或目录
-    * @return 规范化绝对路径
-    */
+     * 规范化路径（用于目录比较）。
+     *
+     * @param file 文件或目录
+     * @return 规范化绝对路径
+     */
     private static String normalizePath(File file) {
         try {
             return file.getCanonicalPath();
@@ -752,38 +752,38 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 判断文件是否为数据库文件。
-    *
-    * @param file 文件
-    * @return 是数据库返回 true
-    */
+     * 判断文件是否为数据库文件。
+     *
+     * @param file 文件
+     * @return 是数据库返回 true
+     */
     private boolean isDatabase(File file) {
         String name = file.getName().toLowerCase(java.util.Locale.ROOT);
         return name.endsWith(".db") || name.endsWith(".sqlite") || name.endsWith(".sqlite3");
     }
 
     /**
-    * 执行 FFM 原生路径。
-    *
-    * @param source 源文件
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 执行异常
-    */
+     * 执行 FFM 原生路径。
+     *
+     * @param source 源文件
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 执行异常
+     */
     private DataRestoreResult runNative(File source, DataRestoreConfig config) throws Exception {
         File runtimeDir = resolveRuntimeDir(config, true);
         return runNative(source, config, runtimeDir);
     }
 
     /**
-    * 执行 FFM 原生路径（运行时目录已解析）。
-    *
-    * @param source     源文件
-    * @param config     还原配置
-    * @param runtimeDir 原生库目录
-    * @return 还原结果
-    * @throws Exception 执行异常
-    */
+     * 执行 FFM 原生路径（运行时目录已解析）。
+     *
+     * @param source     源文件
+     * @param config     还原配置
+     * @param runtimeDir 原生库目录
+     * @return 还原结果
+     * @throws Exception 执行异常
+     */
     private DataRestoreResult runNative(File source, DataRestoreConfig config, File runtimeDir) throws Exception {
         if (!WcdbNativeBridge.isSupported()) {
             throw new IllegalStateException("FFM 原生路径仅支持 Windows 平台，请改用 mode=" + MODE_TOOL);
@@ -805,14 +805,14 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 解析数据库密钥：显式配置 → key.file → 可选的自动捕获。
-    *
-    * @param config     还原配置
-    * @param runtimeDir 原生库目录
-    * @param outputDir  输出目录
-    * @return 64 位十六进制密钥
-    * @throws Exception 密钥捕获异常
-    */
+     * 解析数据库密钥：显式配置 → key.file → 可选的自动捕获。
+     *
+     * @param config     还原配置
+     * @param runtimeDir 原生库目录
+     * @param outputDir  输出目录
+     * @return 64 位十六进制密钥
+     * @throws Exception 密钥捕获异常
+     */
     private String resolveKey(DataRestoreConfig config, File runtimeDir, File outputDir) throws Exception {
         // 1. 显式密钥
         Object explicitKey = config.getOptions().get(OPTION_KEY);
@@ -845,12 +845,12 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 定位 session.db：源文件本身即会话库时直接使用，否则在数据目录下递归查找。
-    *
-    * @param source  源文件
-    * @param dataDir 微信数据目录
-    * @return session.db 文件
-    */
+     * 定位 session.db：源文件本身即会话库时直接使用，否则在数据目录下递归查找。
+     *
+     * @param source  源文件
+     * @param dataDir 微信数据目录
+     * @return session.db 文件
+     */
     private File resolveSessionDb(File source, File dataDir) {
         if ("session.db".equals(source.getName()) && source.isFile()) {
             return source;
@@ -863,15 +863,15 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 解析原生库目录。
-    *
-    * <p>显式配置 {@code runtime.dir} 优先；未配置时根据 tool.path 按
-    * runtime / dll / ../runtime / ../dll 的相邻布局推导（对齐 Wechat-Export 目录结构）。</p>
-    *
-    * @param config     还原配置
-    * @param strictMode 严格模式（native）下找不到时抛出异常
-    * @return 原生库目录，自动模式下找不到返回 null
-    */
+     * 解析原生库目录。
+     *
+     * <p>显式配置 {@code runtime.dir} 优先；未配置时根据 tool.path 按
+     * runtime / dll / ../runtime / ../dll 的相邻布局推导（对齐 Wechat-Export 目录结构）。</p>
+     *
+     * @param config     还原配置
+     * @param strictMode 严格模式（native）下找不到时抛出异常
+     * @return 原生库目录，自动模式下找不到返回 null
+     */
     private File resolveRuntimeDir(DataRestoreConfig config, boolean strictMode) {
         Object explicit = config.getOptions().get(OPTION_RUNTIME_DIR);
         if (explicit != null && !String.valueOf(explicit).isBlank()) {
@@ -916,46 +916,46 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 校验目录是否包含 WCDB C 接口库。
-    *
-    * @param dir 待校验目录
-    * @return 有效返回 true
-    */
+     * 校验目录是否包含 WCDB C 接口库。
+     *
+     * @param dir 待校验目录
+     * @return 有效返回 true
+     */
     private boolean isValidRuntimeDir(File dir) {
         return dir != null && dir.isDirectory() && new File(dir, NATIVE_API_DLL).isFile();
     }
 
     /**
-    * 判断是否配置了 Python 工具路径。
-    *
-    * @param config 还原配置
-    * @return 已配置返回 true
-    */
+     * 判断是否配置了 Python 工具路径。
+     *
+     * @param config 还原配置
+     * @return 已配置返回 true
+     */
     private boolean hasToolPath(DataRestoreConfig config) {
         Object toolPath = config.getOptions().get(OPTION_TOOL_PATH);
         return toolPath != null && !String.valueOf(toolPath).isBlank();
     }
 
     /**
-    * 判断 auto 模式是否允许降级到内存明文页路径。
-    *
-    * <p>默认允许。显式设为 {@code false} 可以强制 auto 只走 native / sqlcipher / tool，
-    * 便于在「已确认密钥可用」的场景下验证密钥路径。</p>
-    *
-    * @param config 还原配置
-    * @return 允许返回 true
-    */
+     * 判断 auto 模式是否允许降级到内存明文页路径。
+     *
+     * <p>默认允许。显式设为 {@code false} 可以强制 auto 只走 native / sqlcipher / tool，
+     * 便于在「已确认密钥可用」的场景下验证密钥路径。</p>
+     *
+     * @param config 还原配置
+     * @return 允许返回 true
+     */
     private boolean isMemoryEnabled(DataRestoreConfig config) {
         return !Boolean.FALSE.toString().equalsIgnoreCase(
                 String.valueOf(config.getOptions().getOrDefault(OPTION_MEMORY_ENABLED, Boolean.TRUE)));
     }
 
     /**
-    * 取配置里的合法密钥。
-    *
-    * @param config 还原配置
-    * @return 64 位十六进制密钥；未配置或格式非法返回 null
-    */
+     * 取配置里的合法密钥。
+     *
+     * @param config 还原配置
+     * @return 64 位十六进制密钥；未配置或格式非法返回 null
+     */
     private String resolveKeyHex(DataRestoreConfig config) {
         Object keyOption = config.getOptions().get(OPTION_KEY);
         if (keyOption == null) {
@@ -966,15 +966,15 @@ public class WechatDataRestore extends AbstractDataRestore {
     }
 
     /**
-    * 解析微信数据目录。
-    *
-    * <p>options 中的 {@code data.dir} 优先；缺省时源是目录就取它本身，
-    * 源是文件才退到它所在目录。</p>
-    *
-    * @param source 源文件或源目录
-    * @param config 还原配置
-    * @return 微信数据目录
-    */
+     * 解析微信数据目录。
+     *
+     * <p>options 中的 {@code data.dir} 优先；缺省时源是目录就取它本身，
+     * 源是文件才退到它所在目录。</p>
+     *
+     * @param source 源文件或源目录
+     * @param config 还原配置
+     * @return 微信数据目录
+     */
     private File resolveDataDir(File source, DataRestoreConfig config) {
         Object dataDirOption = config.getOptions().get(OPTION_DATA_DIR);
         if (dataDirOption != null && !String.valueOf(dataDirOption).isBlank()) {

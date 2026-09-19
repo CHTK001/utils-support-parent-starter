@@ -72,46 +72,46 @@ import javax.imageio.ImageIO;
 public class LogoWaterImageFilter extends AbstractImageFilter {
 
     /**
-    * 水印图片
-    */
+     * 水印图片
+     */
     private final BufferedImage watermark;
 
     /**
-    * 水印透明度，默认 0.3
-    */
+     * 水印透明度，默认 0.3
+     */
     private double alpha = 0.3;
 
     /**
-    * 水印占画布宽度比例，默认 0.3
-    */
+     * 水印占画布宽度比例，默认 0.3
+     */
     private double scale = 0.3;
 
     /**
-    * 平铺网格旋转角度，默认 0
-    */
+     * 平铺网格旋转角度，默认 0
+     */
     private int rotation = 0;
 
     /**
-    * 间距倍率，默认 0.5
-    */
+     * 间距倍率，默认 0.5
+     */
     private double gap = 0.5;
 
     /**
-    * 是否随机排布，默认 false
-    */
+     * 是否随机排布，默认 false
+     */
     private boolean randomize = false;
 
     /**
-    * 随机种子，默认 42
-    */
+     * 随机种子，默认 42
+     */
     private int seed = 42;
 
     /**
-    * 构造器：从字节数组加载水印
-    *
-    * @param bytes 水印图片字节（PNG/JPEG 等）
-    * @throws IOException 解析失败
-    */
+     * 构造器：从字节数组加载水印
+     *
+     * @param bytes 水印图片字节（PNG/JPEG 等）
+     * @throws IOException 解析失败
+     */
     public LogoWaterImageFilter(byte[] bytes) throws IOException {
         this.watermark = ImageIO.read(new ByteArrayInputStream(bytes));
         if (this.watermark == null) {
@@ -120,11 +120,11 @@ public class LogoWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构造器：从文件加载水印
-    *
-    * @param file 水印图片文件
-    * @throws IOException 读取失败
-    */
+     * 构造器：从文件加载水印
+     *
+     * @param file 水印图片文件
+     * @throws IOException 读取失败
+     */
     public LogoWaterImageFilter(File file) throws IOException {
         this.watermark = ImageIO.read(file);
         if (this.watermark == null) {
@@ -133,21 +133,21 @@ public class LogoWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构造器：直接传 BufferedImage
-    *
-    * @param watermark 水印图片
-    */
+     * 构造器：直接传 BufferedImage
+     *
+     * @param watermark 水印图片
+     */
     public LogoWaterImageFilter(BufferedImage watermark) {
         this.watermark = watermark;
     }
 
     /**
-    * 执行 Logo 平铺水印
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 平铺水印后图像
-    */
+     * 执行 Logo 平铺水印
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 平铺水印后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

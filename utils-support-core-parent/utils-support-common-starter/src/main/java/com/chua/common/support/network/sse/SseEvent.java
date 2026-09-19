@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
  * @since 4.0
  * @see SseListener
  * @see SseProtocolParser
-*/
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,18 +31,18 @@ import lombok.NoArgsConstructor;
 public class SseEvent {
 
     /**
-    * 事件数据内容
-    *
-    * <p>多条连续 {@code data:} 行合并后的字符串，以 {@code \n} 分隔。
-    * 空事件（无 data 行）时为 {@code null}。
-    */
+     * 事件数据内容
+     *
+     * <p>多条连续 {@code data:} 行合并后的字符串，以 {@code \n} 分隔。
+     * 空事件（无 data 行）时为 {@code null}。
+     */
     private String data;
 
     /**
-    * 事件类型
-    *
-    * <p>来自 {@code event:} 行。如果服务端未指定，默认为 {@code "message"}。
-    */
+     * 事件类型
+     *
+     * <p>来自 {@code event:} 行。如果服务端未指定，默认为 {@code "message"}。
+     */
     @Builder.Default
     /** 事件 */
     private String event = "message";
@@ -55,18 +55,18 @@ public class SseEvent {
     private String id;
 
     /**
-    * 重试间隔（毫秒）
-    *
-    * <p>来自 {@code retry:} 行。服务端建议客户端在断线后等待多久再重连。
-    * {@code null} 表示服务端未指定。
-    */
+     * 重试间隔（毫秒）
+     *
+     * <p>来自 {@code retry:} 行。服务端建议客户端在断线后等待多久再重连。
+     * {@code null} 表示服务端未指定。
+     */
     private Long retry;
 
     /**
-    * 判断是否有数据内容
-    *
-    * @return true 表示 data 非空且非 null
-    */
+     * 判断是否有数据内容
+     *
+     * @return true 表示 data 非空且非 null
+     */
     public boolean hasData() {
         return data != null && !data.isEmpty();
     }

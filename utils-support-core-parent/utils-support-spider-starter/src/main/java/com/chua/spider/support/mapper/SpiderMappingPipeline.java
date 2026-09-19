@@ -8,33 +8,33 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.function.Consumer;
 
 /**
-* 爬虫映射管道。
-*
-* <p>将 {@link SpiderResult} 自动映射为类型化的 POJO，
-* 再交给用户回调处理。支持两种提取方式：
-* <ul>
-*   <li>{@code @SpiderField(selector = "...")} — CSS 选择器提取</li>
-*   <li>{@code @SpiderField(ai = "...")} — AI 提取（需提供 AI API Key）</li>
-* </ul>
-*
-* <p>使用示例：
-* <pre>{@code
-* @SpiderField(selector = "h1.title")
-* private String title;
-*
-* Spider.create()
-*     .addUrl("https://example.com")
-*     .as(Article.class, article -> {
-*         System.out.println(article.getTitle());
-*     })
-*     .run();
-* }</pre>le());
-*     })
-* .运行();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 爬虫映射管道。
+ *
+ * <p>将 {@link SpiderResult} 自动映射为类型化的 POJO，
+ * 再交给用户回调处理。支持两种提取方式：
+ * <ul>
+ *   <li>{@code @SpiderField(selector = "...")} — CSS 选择器提取</li>
+ *   <li>{@code @SpiderField(ai = "...")} — AI 提取（需提供 AI API Key）</li>
+ * </ul>
+ *
+ * <p>使用示例：
+ * <pre>{@code
+ * @SpiderField(selector = "h1.title")
+ * private String title;
+ *
+ * Spider.create()
+ *     .addUrl("https://example.com")
+ *     .as(Article.class, article -> {
+ *         System.out.println(article.getTitle());
+ *     })
+ *     .run();
+ * }</pre>le());
+ *     })
+ * .运行();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @ConditionalOnClass("org.jsoup.Jsoup")
@@ -60,23 +60,23 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     }
 
     /**
-    * 创建映射管道（使用 AI 提取）。
-    *
-    * @param targetClass 目标 POJO 类型
-    * @param consumer    类型化回调
-    * @param aiProvider  AI 服务商
-    * @param aiApiKey    API 键
-    * @param <T>         POJO 类型
-    * @return 映射管道实例
-    */
+     * 创建映射管道（使用 AI 提取）。
+     *
+     * @param targetClass 目标 POJO 类型
+     * @param consumer    类型化回调
+     * @param aiProvider  AI 服务商
+     * @param aiApiKey    API 键
+     * @param <T>         POJO 类型
+     * @return 映射管道实例
+     */
     public static <T> SpiderMappingPipeline<T> of(Class<T> targetClass, Consumer<T> consumer,
                                                   String aiProvider, String aiApiKey) {
         return new SpiderMappingPipeline<>(targetClass, consumer, aiProvider, aiApiKey);
     }
 
     /**
-    * 构造器。
-    */
+     * 构造器。
+     */
     private SpiderMappingPipeline(Class<T> targetClass, Consumer<T> consumer,
                                   String aiProvider, String aiApiKey) {
         this.targetClass = targetClass;

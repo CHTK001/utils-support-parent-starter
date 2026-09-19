@@ -18,43 +18,43 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 系统指标推送 Agent，按固定间隔读取 指标服务 快照并写入已注册的 sink。
-* <p>
-* 内部通过 指标Agent源 将 CPU / 内存 / 掉期 / 磁盘 / 网络 / 加载 各项指标转换为统一行结构。
-* 使用单线程守护线程调度（{@code metrics-push-{agentId}}）。
-* </p>
-*
-* @author CH
-* @since 4.0.0
+ * 系统指标推送 Agent，按固定间隔读取 指标服务 快照并写入已注册的 sink。
+ * <p>
+ * 内部通过 指标Agent源 将 CPU / 内存 / 掉期 / 磁盘 / 网络 / 加载 各项指标转换为统一行结构。
+ * 使用单线程守护线程调度（{@code metrics-push-{agentId}}）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
 
     /**
-    * 系统指标服务
-    */
+     * 系统指标服务
+     */
     private final MetricsService metricsService;
 
     /**
-    * 推送间隔（毫秒）
-    */
+     * 推送间隔（毫秒）
+     */
     private final long intervalMs;
 
     /**
-    * 调度执行器（单线程守护）
-    */
+     * 调度执行器（单线程守护）
+     */
     private ScheduledExecutorService scheduler;
 
     /**
-    * 运行状态标志（CAS 控制 启动/停止 幂等）
-    */
+     * 运行状态标志（CAS 控制 启动/停止 幂等）
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * @param agentId       Agent 标识
-    * @param metricsService 系统指标服务
-    * @param intervalMs    推送间隔（小于等于 0 视为 1000）
-    */
+     * @param agentId       Agent 标识
+     * @param metricsService 系统指标服务
+     * @param intervalMs    推送间隔（小于等于 0 视为 1000）
+     */
     public MetricsDataSyncAgent(String agentId, MetricsService metricsService, long intervalMs) {
         super(agentId);
         this.metricsService = metricsService;
@@ -65,8 +65,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     }
 
     /**
-    * 启动 Agent：创建守护线程并按 间隔ms 周期推送。
-    */
+     * 启动 Agent：创建守护线程并按 间隔ms 周期推送。
+     */
     @Override
     public void start() {
         if (!running.compareAndSet(false, true)) {
@@ -87,8 +87,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     }
 
     /**
-    * 停止 Agent：关闭调度器，等待 入-flight 任务最多 2 秒。
-    */
+     * 停止 Agent：关闭调度器，等待 入-flight 任务最多 2 秒。
+     */
     @Override
     public void stop() {
         if (!running.compareAndSet(true, false)) {
@@ -112,8 +112,8 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     }
 
     /**
-    * 周期任务：将 源 数据写入所有 sink，异常时 warn 而不抛出。
-    */
+     * 周期任务：将 源 数据写入所有 sink，异常时 warn 而不抛出。
+     */
     private void pushMetrics() {
         if (!running.get()) {
             return;
@@ -140,48 +140,48 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
     }
 
     /**
-    * @return true 表示 Agent 正在运行
-    */
+     * @return true 表示 Agent 正在运行
+     */
     @Override
     public boolean isRunning() {
         return running.get();
     }
 
     /**
-    * 注册 sink。
-    *
-    * @param sink 待注册的 sink
-    */
+     * 注册 sink。
+     *
+     * @param sink 待注册的 sink
+     */
     public void addSink(DataSyncAgentSink sink) {
         super.addSink(sink);
     }
 
     /**
-    * 内部 源，将 指标服务 的快照转为结构化行数据。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 内部 源，将 指标服务 的快照转为结构化行数据。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class MetricsAgentSource implements DataSyncAgentSource, Directional {
 
         /**
-        * 源 标识
-        */
+         * 源 标识
+         */
         private final String sourceId;
 
         /**
-        * 关联的指标服务
-        */
+         * 关联的指标服务
+         */
         private final MetricsService metricsService;
 
         /**
-        * 源 是否已关闭
-        */
+         * 源 是否已关闭
+         */
         private volatile boolean closed;
 
         /**
-        * @param sourceId       源 标识
-        * @param metricsService 系统指标服务
-        */
+         * @param sourceId       源 标识
+         * @param metricsService 系统指标服务
+         */
         public MetricsAgentSource(String sourceId, MetricsService metricsService) {
             this.sourceId = sourceId;
             this.metricsService = metricsService;
@@ -273,14 +273,14 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         /**
-        * Row
-        *
-        * @param ts ts
-        * @param type 类型
-        * @param name 名称
-        * @param kv kv
-        * @return row的结果
-        */
+         * Row
+         *
+         * @param ts ts
+         * @param type 类型
+         * @param name 名称
+         * @param kv kv
+         * @return row的结果
+         */
         private static Map<String, Object> row(long ts, String type, String name, Object... kv) {
             Map<String, Object> r = new HashMap<>();
             r.put("timestamp", ts);

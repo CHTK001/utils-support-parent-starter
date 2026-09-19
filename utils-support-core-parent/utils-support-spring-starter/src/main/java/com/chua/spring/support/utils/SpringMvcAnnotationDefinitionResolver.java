@@ -9,36 +9,36 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 /**
-* Spring MVC 注解族别名解析器，通过 SPI 注册到 {@link com.chua.common.support.utils.AnnotationUtils}。
-*
-* <h3>别名发现原理</h3>
-* <pre>
-* Spring 注解在源码中以元注解方式声明继承关系：
-*
-*   &#064;RequestMapping(value = {}, method = {})
-*   public &#064;interface GetMapping { ... }
-*
-*   &#064;RequestMapping(value = {}, method = {})
-*   public &#064;interface PostMapping { ... }
-*
-* 运行时通过反射扫描：
-*   1. 定位 org.springframework.web.bind.annotation.RequestMapping 类
-*   2. 扫描同包下所有 public 注解类（.class 文件）
-*   3. 对每个注解检查：annClass.getAnnotation(RequestMapping.class) != null
-*   4. 满足条件的即为其窄注解，建立 narrow → wide 映射
-*
-* 缓存使用 WeakHashMap，key 为窄注解 Class 引用：
-*   窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
-* </pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * Spring MVC 注解族别名解析器，通过 SPI 注册到 {@link com.chua.common.support.utils.AnnotationUtils}。
+ *
+ * <h3>别名发现原理</h3>
+ * <pre>
+ * Spring 注解在源码中以元注解方式声明继承关系：
+ *
+ *   &#064;RequestMapping(value = {}, method = {})
+ *   public &#064;interface GetMapping { ... }
+ *
+ *   &#064;RequestMapping(value = {}, method = {})
+ *   public &#064;interface PostMapping { ... }
+ *
+ * 运行时通过反射扫描：
+ *   1. 定位 org.springframework.web.bind.annotation.RequestMapping 类
+ *   2. 扫描同包下所有 public 注解类（.class 文件）
+ *   3. 对每个注解检查：annClass.getAnnotation(RequestMapping.class) != null
+ *   4. 满足条件的即为其窄注解，建立 narrow → wide 映射
+ *
+ * 缓存使用 WeakHashMap，key 为窄注解 Class 引用：
+ *   窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefinitionResolver {
 
     /**
-    * 窄注解 类 → 宽注解全限定名，weak哈希映射 键 随类加载器回收自动清理。
-    */
+     * 窄注解 类 → 宽注解全限定名，weak哈希映射 键 随类加载器回收自动清理。
+     */
     private final java.util.Map<Class<? extends Annotation>, String> aliasCache = new WeakHashMap<>();
 
     @Override
@@ -52,19 +52,19 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     }
 
     /**
-    * 通过反射动态发现 Spring MVC 注解族别名。
-    *
-    * <p>扫描策略：
-    * <ol>
-    *   <li>定位 {@code RequestMapping} 类，获取其所在包路径</li>
-    *   <li>扫描包目录下的所有 {@code .class} 文件（排除内部类）</li>
-    *   <li>对每个注解检查其元注解中是否包含 {@code @RequestMapping}</li>
-    *   <li>满足条件的建立 narrow → wide 映射</li>
-    * </ol>
-    *
-    * <p>Fallback：若包目录不可直接访问，使用已知候选全限定名列表，
-    * 同样通过反射检查元注解关系，不硬编码映射内容。</p>
-    */
+     * 通过反射动态发现 Spring MVC 注解族别名。
+     *
+     * <p>扫描策略：
+     * <ol>
+     *   <li>定位 {@code RequestMapping} 类，获取其所在包路径</li>
+     *   <li>扫描包目录下的所有 {@code .class} 文件（排除内部类）</li>
+     *   <li>对每个注解检查其元注解中是否包含 {@code @RequestMapping}</li>
+     *   <li>满足条件的建立 narrow → wide 映射</li>
+     * </ol>
+     *
+     * <p>Fallback：若包目录不可直接访问，使用已知候选全限定名列表，
+     * 同样通过反射检查元注解关系，不硬编码映射内容。</p>
+     */
     @SuppressWarnings("unchecked")
     private void discoverAliases() {
         if (!aliasCache.isEmpty()) {
@@ -107,10 +107,10 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     }
 
     /**
-    * 尝试加载单个候选注解：通过反射检查是否被 @请求mapping 元注解标注。
-    * @param className 类名称
-    * @param requestMappingClass 请求mapping类
-    */
+     * 尝试加载单个候选注解：通过反射检查是否被 @请求mapping 元注解标注。
+     * @param className 类名称
+     * @param requestMappingClass 请求mapping类
+     */
     @SuppressWarnings("unchecked")
     private void loadIfMappingAlias(String className, Class<?> requestMappingClass) {
         try {

@@ -8,26 +8,26 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* 人脸管线磁盘回调：自动将各阶段中间图片落盘，供人工/脚本查看真实流程效果。
-*
-* <p>各阶段图片输出到指定目录：对齐人脸、修复人脸。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 人脸管线磁盘回调：自动将各阶段中间图片落盘，供人工/脚本查看真实流程效果。
+ *
+ * <p>各阶段图片输出到指定目录：对齐人脸、修复人脸。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FacePipelineDiskCallback implements FacePipelineCallback {
 
     /**
-    * 输出目录。
-    */
+     * 输出目录。
+     */
     private final Path outputDir;
 
     /**
-    * 构造磁盘回调。
-    *
-    * @param outputDir 输出目录
-    */
+     * 构造磁盘回调。
+     *
+     * @param outputDir 输出目录
+     */
     public FacePipelineDiskCallback(Path outputDir) {
         this.outputDir = outputDir;
         try {
@@ -53,11 +53,11 @@ public class FacePipelineDiskCallback implements FacePipelineCallback {
     }
 
     /**
-    * 写图片到输出目录。
-    *
-    * @param data 图片字节
-    * @param name 文件名
-    */
+     * 写图片到输出目录。
+     *
+     * @param data 图片字节
+     * @param name 文件名
+     */
     private void write(byte[] data, String name) {
         try {
             Path path = outputDir.resolve(name);

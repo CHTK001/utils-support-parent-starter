@@ -58,65 +58,65 @@ import java.util.Set;
 public final class WechatJdbcExporter {
 
     /**
-    * SQLite JDBC 连接前缀
-    */
+     * SQLite JDBC 连接前缀
+     */
     private static final String JDBC_URL_PREFIX = "jdbc:sqlite:";
 
     /**
-    * SQLite 内部表名前缀
-    */
+     * SQLite 内部表名前缀
+     */
     private static final String SQLITE_INTERNAL_PREFIX = "sqlite_";
 
     /**
-    * 枚举用户表
-    */
+     * 枚举用户表
+     */
     private static final String LIST_TABLES_SQL =
             "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name";
 
     /**
-    * options 键：表名白名单
-    */
+     * options 键：表名白名单
+     */
     public static final String OPTION_TABLE_WHITELIST = "table.whitelist";
 
     /**
-    * options 键：表名黑名单
-    */
+     * options 键：表名黑名单
+     */
     public static final String OPTION_TABLE_BLACKLIST = "table.blacklist";
 
     /**
-    * 二进制列转十六进制输出的字节上限
-    */
+     * 二进制列转十六进制输出的字节上限
+     */
     private static final int MAX_HEX_BYTES = 4096;
 
     /**
-    * 工具类禁止实例化。
-    */
+     * 工具类禁止实例化。
+     */
     private WechatJdbcExporter() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
 
     /**
-    * 导出明文数据库（输出目录取配置或源文件所在目录）。
-    *
-    * @param dbFile 已解密的明文 SQLite 文件
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 导出异常
-    */
+     * 导出明文数据库（输出目录取配置或源文件所在目录）。
+     *
+     * @param dbFile 已解密的明文 SQLite 文件
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 导出异常
+     */
     public static DataRestoreResult export(File dbFile, DataRestoreConfig config) throws Exception {
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : dbFile.getParentFile();
         return export(dbFile, config, outputDir);
     }
 
     /**
-    * 导出明文数据库到指定目录。
-    *
-    * @param dbFile    已解密的明文 SQLite 文件
-    * @param config    还原配置
-    * @param outputDir 输出目录
-    * @return 还原结果
-    * @throws Exception 导出异常
-    */
+     * 导出明文数据库到指定目录。
+     *
+     * @param dbFile    已解密的明文 SQLite 文件
+     * @param config    还原配置
+     * @param outputDir 输出目录
+     * @return 还原结果
+     * @throws Exception 导出异常
+     */
     public static DataRestoreResult export(File dbFile, DataRestoreConfig config, File outputDir) throws Exception {
         ExportFormat format = config.getFormat() != null ? config.getFormat() : ExportFormat.CSV;
         if (format == ExportFormat.JSON) {
@@ -164,17 +164,17 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 打开 SQLite 连接。
-    *
-    * <p>默认以<b>只读</b>模式打开：导出只需读，而微信正在运行时会持续持有
-    * {@code -wal} / {@code -shm}，若以读写方式打开，SQLite 在关闭时可能触发 WAL
-    * 检查点并尝试截断文件，从而抛出 {@code SQLITE_IOERR_TRUNCATE}（实机复现）。
-    * 只读打开失败（例如需要 WAL 恢复的库）时回退为默认读写模式。</p>
-    *
-    * @param dbFile 明文数据库文件
-    * @return JDBC 连接
-    * @throws SQLException 连接失败
-    */
+     * 打开 SQLite 连接。
+     *
+     * <p>默认以<b>只读</b>模式打开：导出只需读，而微信正在运行时会持续持有
+     * {@code -wal} / {@code -shm}，若以读写方式打开，SQLite 在关闭时可能触发 WAL
+     * 检查点并尝试截断文件，从而抛出 {@code SQLITE_IOERR_TRUNCATE}（实机复现）。
+     * 只读打开失败（例如需要 WAL 恢复的库）时回退为默认读写模式。</p>
+     *
+     * @param dbFile 明文数据库文件
+     * @return JDBC 连接
+     * @throws SQLException 连接失败
+     */
     private static Connection open(File dbFile) throws SQLException {
         SQLiteConfig readOnly = new SQLiteConfig();
         readOnly.setReadOnly(true);
@@ -188,13 +188,13 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 解析待导出的表名列表（过滤内部表并按白/黑名单筛选）。
-    *
-    * @param connection JDBC 连接
-    * @param config     还原配置
-    * @return 表名列表
-    * @throws SQLException 查询失败
-    */
+     * 解析待导出的表名列表（过滤内部表并按白/黑名单筛选）。
+     *
+     * @param connection JDBC 连接
+     * @param config     还原配置
+     * @return 表名列表
+     * @throws SQLException 查询失败
+     */
     private static List<String> resolveTables(Connection connection, DataRestoreConfig config) throws SQLException {
         Set<String> whitelist = parseNameSet(config.getOptions().get(OPTION_TABLE_WHITELIST));
         Set<String> blacklist = parseNameSet(config.getOptions().get(OPTION_TABLE_BLACKLIST));
@@ -219,19 +219,19 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 导出单张表。
-    *
-    * @param connection JDBC 连接
-    * @param outputDir  输出目录
-    * @param usedNames  已占用文件名集合（去重用）
-    * @param dbBase     库名（文件名前缀）
-    * @param table      表名
-    * @param format     输出格式
-    * @param config     还原配置
-    * @param charset    字符集
-    * @return 输出文件；表无列或无数据时返回 null
-    * @throws Exception 读写异常
-    */
+     * 导出单张表。
+     *
+     * @param connection JDBC 连接
+     * @param outputDir  输出目录
+     * @param usedNames  已占用文件名集合（去重用）
+     * @param dbBase     库名（文件名前缀）
+     * @param table      表名
+     * @param format     输出格式
+     * @param config     还原配置
+     * @param charset    字符集
+     * @return 输出文件；表无列或无数据时返回 null
+     * @throws Exception 读写异常
+     */
     private static File exportTable(Connection connection, File outputDir, Set<String> usedNames,
                                     String dbBase, String table, ExportFormat format,
                                     DataRestoreConfig config, Charset charset) throws Exception {
@@ -278,15 +278,15 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 读取整表数据。
-    *
-    * @param connection JDBC 连接
-    * @param table      表名
-    * @param config     还原配置
-    * @param columnsOut 出参：列名列表
-    * @return 行数据
-    * @throws SQLException 查询失败
-    */
+     * 读取整表数据。
+     *
+     * @param connection JDBC 连接
+     * @param table      表名
+     * @param config     还原配置
+     * @param columnsOut 出参：列名列表
+     * @return 行数据
+     * @throws SQLException 查询失败
+     */
     private static List<Map<String, Object>> readRows(Connection connection, String table,
                                                      DataRestoreConfig config,
                                                      List<String> columnsOut) throws SQLException {
@@ -312,11 +312,11 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 转换列值：BLOB 依次尝试 ZSTD 解压、UTF-8 文本、十六进制。
-    *
-    * @param value 原始列值
-    * @return 转换后的值
-    */
+     * 转换列值：BLOB 依次尝试 ZSTD 解压、UTF-8 文本、十六进制。
+     *
+     * @param value 原始列值
+     * @return 转换后的值
+     */
     private static Object convert(Object value) {
         if (!(value instanceof byte[] bytes) || bytes.length == 0) {
             return value;
@@ -334,11 +334,11 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 尝试按 UTF-8 文本解码（含控制字符或替换符时判定为非文本）。
-    *
-    * @param bytes 字节数组
-    * @return 解码后的文本，非文本返回 null
-    */
+     * 尝试按 UTF-8 文本解码（含控制字符或替换符时判定为非文本）。
+     *
+     * @param bytes 字节数组
+     * @return 解码后的文本，非文本返回 null
+     */
     private static String decodeUtf8(byte[] bytes) {
         String text = new String(bytes, StandardCharsets.UTF_8);
         if (text.indexOf('\uFFFD') >= 0) {
@@ -358,11 +358,11 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 字节数组转小写十六进制。
-    *
-    * @param bytes 字节数组
-    * @return 十六进制文本
-    */
+     * 字节数组转小写十六进制。
+     *
+     * @param bytes 字节数组
+     * @return 十六进制文本
+     */
     private static String toHex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
@@ -373,21 +373,21 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 引用 SQLite 标识符。
-    *
-    * @param name 标识符
-    * @return 双引号包裹的标识符
-    */
+     * 引用 SQLite 标识符。
+     *
+     * @param name 标识符
+     * @return 双引号包裹的标识符
+     */
     private static String quoteIdentifier(String name) {
         return "\"" + name.replace("\"", "\"\"") + "\"";
     }
 
     /**
-    * 解析逗号分隔名单。
-    *
-    * @param value options 原始值
-    * @return 名单集合
-    */
+     * 解析逗号分隔名单。
+     *
+     * @param value options 原始值
+     * @return 名单集合
+     */
     private static Set<String> parseNameSet(Object value) {
         if (value == null) {
             return Set.of();
@@ -403,12 +403,12 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 解析 long 类型 options 值。
-    *
-    * @param value        原始值
-    * @param defaultValue 解析失败时的默认值
-    * @return long 值
-    */
+     * 解析 long 类型 options 值。
+     *
+     * @param value        原始值
+     * @param defaultValue 解析失败时的默认值
+     * @return long 值
+     */
     private static long parseLong(Object value, long defaultValue) {
         if (value instanceof Number number) {
             return number.longValue();
@@ -424,11 +424,11 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 取输出格式对应扩展名。
-    *
-    * @param format 输出格式
-    * @return 扩展名（含点）
-    */
+     * 取输出格式对应扩展名。
+     *
+     * @param format 输出格式
+     * @return 扩展名（含点）
+     */
     private static String extensionOf(ExportFormat format) {
         switch (format) {
             case SQL:
@@ -442,24 +442,24 @@ public final class WechatJdbcExporter {
     }
 
     /**
-    * 去除文件名扩展名。
-    *
-    * @param fileName 文件名
-    * @return 不含扩展名的文件名
-    */
+     * 去除文件名扩展名。
+     *
+     * @param fileName 文件名
+     * @return 不含扩展名的文件名
+     */
     private static String stripExtension(String fileName) {
         int dot = fileName.lastIndexOf('.');
         return dot > 0 ? fileName.substring(0, dot) : fileName;
     }
 
     /**
-    * 生成不重复的输出文件名。
-    *
-    * @param usedNames 已占用文件名集合
-    * @param baseName  基础文件名
-    * @param extension 扩展名（含点）
-    * @return 唯一文件名
-    */
+     * 生成不重复的输出文件名。
+     *
+     * @param usedNames 已占用文件名集合
+     * @param baseName  基础文件名
+     * @param extension 扩展名（含点）
+     * @return 唯一文件名
+     */
     private static String uniqueFileName(Set<String> usedNames, String baseName, String extension) {
         String candidate = baseName + extension;
         int suffix = 1;

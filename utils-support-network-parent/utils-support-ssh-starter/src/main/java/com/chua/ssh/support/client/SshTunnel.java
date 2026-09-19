@@ -9,51 +9,51 @@ import com.chua.common.support.network.tunnel.TunnelException;
 import java.util.function.Consumer;
 
 /**
-* SSH 隧道实现，支持正反向隧道和动态 SOCKS5 隧道。
-*
-* @author CH
-* @since 4.0.0.42
+ * SSH 隧道实现，支持正反向隧道和动态 SOCKS5 隧道。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SshTunnel implements Tunnel {
 
     /**
-    * ssh 客户端
-    */
+     * ssh 客户端
+     */
     private final SshClient sshClient;
     /**
-    * definition
-    */
+     * definition
+     */
     private final SshClient.TunnelDefinition definition;
     /**
-    * bind 地址
-    */
+     * bind 地址
+     */
     private final String bindAddress;
 
     /**
-    * tracker
-    */
+     * tracker
+     */
     private AutoCloseable tracker;
     /**
-    * 打开
-    */
+     * 打开
+     */
     private volatile boolean open;
     /**
-    * callback
-    */
+     * callback
+     */
     private Consumer<TunnelInfo> callback;
     /**
-    * actual 端口
-    */
+     * actual 端口
+     */
     private int actualPort = -1;
 
     /**
-    * 创建 sshtunnel 实例
-    * @param sshClient ssh客户端
-    * @param sshClient ssh客户端
-    * @param definition definition
-    * @param bindAddress 字符串
-    * @param bindAddress bind地址
-    */
+     * 创建 sshtunnel 实例
+     * @param sshClient ssh客户端
+     * @param sshClient ssh客户端
+     * @param definition definition
+     * @param bindAddress 字符串
+     * @param bindAddress bind地址
+     */
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
         this.sshClient = sshClient;
         this.definition = definition;

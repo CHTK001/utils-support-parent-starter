@@ -8,17 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Roo Code VS Code 扩展用量解析器。
-*
-* <p>Roo Code（rooveterinaryinc.roo-cline，Cline 派生）将任务持久化到
-* {@code <IDE>/User/globalStorage/rooveterinaryinc.roo-cline/tasks/<task>/ui_messages.json}。
-* Roo 的 per-turn 载荷不含模型名（模型记录在兄弟文件
-* {@code api_conversation_history.json} 的 {@code <environment_details>} 块中，
-* 且任务中途可能换模型），因此模型名取该历史文件中<b>最后一次</b>出现的
-* {@code <model>} 标签；缺失时退化为 {@code protocol:<apiProtocol>}。</p>
-*
-* @author CH
-* @since 4.0.0.43
+ * Roo Code VS Code 扩展用量解析器。
+ *
+ * <p>Roo Code（rooveterinaryinc.roo-cline，Cline 派生）将任务持久化到
+ * {@code <IDE>/User/globalStorage/rooveterinaryinc.roo-cline/tasks/<task>/ui_messages.json}。
+ * Roo 的 per-turn 载荷不含模型名（模型记录在兄弟文件
+ * {@code api_conversation_history.json} 的 {@code <environment_details>} 块中，
+ * 且任务中途可能换模型），因此模型名取该历史文件中<b>最后一次</b>出现的
+ * {@code <model>} 标签；缺失时退化为 {@code protocol:<apiProtocol>}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Spi("roo-code")
 public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser {
@@ -39,9 +39,9 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     }
 
     /**
-    * Roo 的模型名在 {@code api_conversation_history.json} 中，不在 per-turn 载荷里。
-    * 取历史文件中最后一次出现的 {@code <model>} 标签作为模型归属。
-    */
+     * Roo 的模型名在 {@code api_conversation_history.json} 中，不在 per-turn 载荷里。
+     * 取历史文件中最后一次出现的 {@code <model>} 标签作为模型归属。
+     */
     @Override
     protected com.chua.common.support.ai.AiUsage toAiUsage(Map<String, Object> msg, String taskId, long fallbackTime) {
         com.chua.common.support.ai.AiUsage usage = super.toAiUsage(msg, taskId, fallbackTime);
@@ -75,10 +75,10 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     }
 
     /**
-    * 扁平化所有已收集的任务文件批次（用于按 taskId 查找对应任务目录）。
-    *
-    * @return 任务文件 -> 任务 id 的全局映射（跨全部 IDE 安装）
-    */
+     * 扁平化所有已收集的任务文件批次（用于按 taskId 查找对应任务目录）。
+     *
+     * @return 任务文件 -> 任务 id 的全局映射（跨全部 IDE 安装）
+     */
     private java.util.Map<Path, String> resolveTaskFilesOnDisk() {
         java.util.Map<Path, String> merged = new java.util.LinkedHashMap<>();
         for (Map<Path, String> batch : collectTaskFiles()) {
@@ -88,11 +88,11 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     }
 
     /**
-    * 从历史文件提取最后一次出现的 {@code <model>} 标签值。
-    *
-    * @param historyFile 历史 JSONL 文件
-    * @return 模型名；文件缺失或无标签时返回 null
-    */
+     * 从历史文件提取最后一次出现的 {@code <model>} 标签值。
+     *
+     * @param historyFile 历史 JSONL 文件
+     * @return 模型名；文件缺失或无标签时返回 null
+     */
     private String extractLastModelFromHistory(Path historyFile) {
         if (!java.nio.file.Files.isRegularFile(historyFile)) {
             return null;

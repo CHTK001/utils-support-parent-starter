@@ -2,12 +2,12 @@ package com.chua.common.support.ai.mcp;
 
 
 /**
-* MCP 工具调用结果
-*
-* <p>封装一次 MCP 工具调用的执行结果。
-*
-* @author CH
-* @since 2026/07/15
+ * MCP 工具调用结果
+ *
+ * <p>封装一次 MCP 工具调用的执行结果。
+ *
+ * @author CH
+ * @since 2026/07/15
  */
 public class McpToolResult {
 

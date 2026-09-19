@@ -10,42 +10,42 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface BundleContext {
 
     /**
-    * 注册服务到 OSGI 容器。
-    *
-    * @param type    服务接口类型
-    * @param service 服务实例
-    * @param <T>     服务类型
-    */
+     * 注册服务到 OSGI 容器。
+     *
+     * @param type    服务接口类型
+     * @param service 服务实例
+     * @param <T>     服务类型
+     */
     <T> void registerService(Class<T> type, T service);
 
     /**
-    * 注销服务。
-    *
-    * @param type    服务接口类型
-    * @param service 服务实例
-    * @param <T>     服务类型
-    */
+     * 注销服务。
+     *
+     * @param type    服务接口类型
+     * @param service 服务实例
+     * @param <T>     服务类型
+     */
     <T> void unregisterService(Class<T> type, T service);
 
     /**
-    * 根据类型获取已注册的服务。
-    *
-    * @param type 服务接口类型
-    * @param <T>  服务类型
-    * @return 服务实例列表
-    */
+     * 根据类型获取已注册的服务。
+     *
+     * @param type 服务接口类型
+     * @param <T>  服务类型
+     * @return 服务实例列表
+     */
     <T> List<T> getServices(Class<T> type);
 
     /**
-    * 根据类型获取单个已注册的服务。
-    *
-    * @param type 服务接口类型
-    * @param <T>  服务类型
-    * @return 服务实例，未找到返回 空
-    */
+     * 根据类型获取单个已注册的服务。
+     *
+     * @param type 服务接口类型
+     * @param <T>  服务类型
+     * @return 服务实例，未找到返回 空
+     */
     <T> T getService(Class<T> type);
 }

@@ -32,36 +32,36 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class BufferedImageUtils {
 
     /**
-    * 缓冲镜像工具。
-    */
+     * 缓冲镜像工具。
+     */
     private BufferedImageUtils() {}
 
     /**
-    * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 类型_习俗(0) 替换为 类型_INT_RGB，
-    * 避免 新 缓冲镜像(w, h, 0) 抛出 IllegalArgumentException。
-    * @param src src
-    * @return safe类型的结果
-    */
+     * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 类型_习俗(0) 替换为 类型_INT_RGB，
+     * 避免 新 缓冲镜像(w, h, 0) 抛出 IllegalArgumentException。
+     * @param src src
+     * @return safe类型的结果
+     */
     public static int safeType(BufferedImage src) {
         int t = src.getType();
         return t == BufferedImage.TYPE_CUSTOM ? BufferedImage.TYPE_INT_RGB : t;
     }
 
     /**
-    * 默认 ASCII 字符集（从左到右由暗到亮，共 10 级）
-    */
+     * 默认 ASCII 字符集（从左到右由暗到亮，共 10 级）
+     */
     private static final String DEFAULT_ASCII_CHARS = "@%#*+=-:. ";
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param obj obj
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param obj obj
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(Object obj) {
         if (obj instanceof BufferedImage) {
             return (BufferedImage) obj;
@@ -85,11 +85,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param file 文件
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param file 文件
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(File file) {
         try {
             return ImageIO.read(file);
@@ -99,11 +99,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param inputStream 输入流
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param inputStream 输入流
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(InputStream inputStream) {
         try {
             return ImageIO.read(inputStream);
@@ -113,11 +113,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param bytes bytes
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param bytes bytes
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(byte[] bytes) {
         try {
             return ImageIO.read(new ByteArrayInputStream(bytes));
@@ -127,11 +127,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param path 路径
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param path 路径
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(String path) {
         try {
             File file = new File(path);
@@ -145,11 +145,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像
-    *
-    * @param url url
-    * @return 转为缓冲镜像的结果
-    */
+     * 转为缓冲镜像
+     *
+     * @param url url
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(URL url) {
         try {
             return ImageIO.read(url);
@@ -159,13 +159,13 @@ public class BufferedImageUtils {
     }
 
     /**
-    * scale镜像
-    *
-    * @param image 镜像
-    * @param width width
-    * @param height height
-    * @return scale镜像的结果
-    */
+     * scale镜像
+     *
+     * @param image 镜像
+     * @param width width
+     * @param height height
+     * @return scale镜像的结果
+     */
     public static BufferedImage scaleImage(BufferedImage image, int width, int height) {
         BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = scaled.createGraphics();
@@ -176,12 +176,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * scale镜像
-    *
-    * @param image 镜像
-    * @param scale scale
-    * @return scale镜像的结果
-    */
+     * scale镜像
+     *
+     * @param image 镜像
+     * @param scale scale
+     * @return scale镜像的结果
+     */
     public static BufferedImage scaleImage(BufferedImage image, float scale) {
         int width = Math.round(image.getWidth() * scale);
         int height = Math.round(image.getHeight() * scale);
@@ -189,34 +189,34 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将图片转换为ASCII字符画
-    *
-    * @param image 源图片
-    * @return ASCII字符画字符串
-    */
+     * 将图片转换为ASCII字符画
+     *
+     * @param image 源图片
+     * @return ASCII字符画字符串
+     */
     public static String toAscii(BufferedImage image) {
         return toAscii(image, 100, DEFAULT_ASCII_CHARS);
     }
 
     /**
-    * 将图片转换为指定宽度的ASCII字符画
-    *
-    * @param image 源图片
-    * @param width 输出字符宽度
-    * @return ASCII字符画字符串
-    */
+     * 将图片转换为指定宽度的ASCII字符画
+     *
+     * @param image 源图片
+     * @param width 输出字符宽度
+     * @return ASCII字符画字符串
+     */
     public static String toAscii(BufferedImage image, int width) {
         return toAscii(image, width, DEFAULT_ASCII_CHARS);
     }
 
     /**
-    * 将图片转换为指定宽度和字符集的ASCII字符画
-    *
-    * @param image      源图片
-    * @param width      输出字符宽度
-    * @param asciiChars ASCII字符集（从左到右由暗到亮）
-    * @return ASCII字符画字符串
-    */
+     * 将图片转换为指定宽度和字符集的ASCII字符画
+     *
+     * @param image      源图片
+     * @param width      输出字符宽度
+     * @param asciiChars ASCII字符集（从左到右由暗到亮）
+     * @return ASCII字符画字符串
+     */
     public static String toAscii(BufferedImage image, int width, String asciiChars) {
         if (image == null) {
             throw new IllegalArgumentException("Image must not be null");
@@ -266,46 +266,46 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 16 级字符集（从暗到亮），用于字符画渲染。
-    *
-    * <p>每个字符代表的密度级别：</p>
-    * <table border="1">
-    *   <tr><th>索引</th><th>字符</th><th>灰度区间</th><th>描述</th></tr>
-    *   <tr><td>0</td><td>@</td><td>0-15</td><td>最暗，高密度填充区域</td></tr>
-    *   <tr><td>1</td><td>#</td><td>16-31</td><td>次暗，紧密填充区域</td></tr>
-    *   <tr><td>2</td><td>8</td><td>32-47</td><td>数字密集填充</td></tr>
-    *   <tr><td>3</td><td>&amp;</td><td>48-63</td><td>符号密集填充</td></tr>
-    *   <tr><td>4</td><td>O</td><td>64-79</td><td>大写字母中密度</td></tr>
-    *   <tr><td>5</td><td>o</td><td>80-95</td><td>小写字母中密度</td></tr>
-    *   <tr><td>6</td><td>*</td><td>96-111</td><td>星号中低密度</td></tr>
-    *   <tr><td>7</td><td>+</td><td>112-127</td><td>加号中低密度</td></tr>
-    *   <tr><td>8</td><td>=</td><td>128-143</td><td>等号中等密度</td></tr>
-    *   <tr><td>9</td><td>-</td><td>144-159</td><td>减号低密度</td></tr>
-    *   <tr><td>10</td><td>:</td><td>160-175</td><td>冒号较低密度</td></tr>
-    *   <tr><td>11</td><td>;</td><td>176-191</td><td>分号稀疏区域</td></tr>
-    *   <tr><td>12</td><td>.</td><td>192-207</td><td>句点稀疏区域</td></tr>
-    *   <tr><td>13</td><td>,</td><td>208-223</td><td>逗号更稀疏区域</td></tr>
-    *   <tr><td>14</td><td>空格</td><td>224-239</td><td>接近空白</td></tr>
-    *   <tr><td>15</td><td>空格</td><td>240-255</td><td>最亮，纯空白区域</td></tr>
-    * </table>
-    */
+     * 16 级字符集（从暗到亮），用于字符画渲染。
+     *
+     * <p>每个字符代表的密度级别：</p>
+     * <table border="1">
+     *   <tr><th>索引</th><th>字符</th><th>灰度区间</th><th>描述</th></tr>
+     *   <tr><td>0</td><td>@</td><td>0-15</td><td>最暗，高密度填充区域</td></tr>
+     *   <tr><td>1</td><td>#</td><td>16-31</td><td>次暗，紧密填充区域</td></tr>
+     *   <tr><td>2</td><td>8</td><td>32-47</td><td>数字密集填充</td></tr>
+     *   <tr><td>3</td><td>&amp;</td><td>48-63</td><td>符号密集填充</td></tr>
+     *   <tr><td>4</td><td>O</td><td>64-79</td><td>大写字母中密度</td></tr>
+     *   <tr><td>5</td><td>o</td><td>80-95</td><td>小写字母中密度</td></tr>
+     *   <tr><td>6</td><td>*</td><td>96-111</td><td>星号中低密度</td></tr>
+     *   <tr><td>7</td><td>+</td><td>112-127</td><td>加号中低密度</td></tr>
+     *   <tr><td>8</td><td>=</td><td>128-143</td><td>等号中等密度</td></tr>
+     *   <tr><td>9</td><td>-</td><td>144-159</td><td>减号低密度</td></tr>
+     *   <tr><td>10</td><td>:</td><td>160-175</td><td>冒号较低密度</td></tr>
+     *   <tr><td>11</td><td>;</td><td>176-191</td><td>分号稀疏区域</td></tr>
+     *   <tr><td>12</td><td>.</td><td>192-207</td><td>句点稀疏区域</td></tr>
+     *   <tr><td>13</td><td>,</td><td>208-223</td><td>逗号更稀疏区域</td></tr>
+     *   <tr><td>14</td><td>空格</td><td>224-239</td><td>接近空白</td></tr>
+     *   <tr><td>15</td><td>空格</td><td>240-255</td><td>最亮，纯空白区域</td></tr>
+     * </table>
+     */
     private static final char[] CHARS_16 = {'@', '#', '8', '&', 'O', 'o', '*', '+', '=', '-', ':', ';', '.', ',', ' ', ' '};
 
     /**
-    * 将图片转为字符画（16 级灰度映射），自动缩放并灰度化。
-    *
-    * <p>处理流程：</p>
-    * <ol>
-    *   <li>按指定宽度保持宽高比缩放（高度 x0.5 校正字符非正方形差异）</li>
-    *   <li>将缩放后的图片转为灰度图</li>
-    *   <li>遍历每个像素，按灰度值 0-255 映射到 16 级字符集 {@link #CHARS_16}</li>
-    *   <li>每行末尾追加系统换行符</li>
-    * </ol>
-    *
-    * @param image 源图片，不可为空
-    * @param width 输出字符画宽度（字符列数），必须 &gt;= 1
-    * @return 字符画字符串，每行以换行符结尾
-    */
+     * 将图片转为字符画（16 级灰度映射），自动缩放并灰度化。
+     *
+     * <p>处理流程：</p>
+     * <ol>
+     *   <li>按指定宽度保持宽高比缩放（高度 x0.5 校正字符非正方形差异）</li>
+     *   <li>将缩放后的图片转为灰度图</li>
+     *   <li>遍历每个像素，按灰度值 0-255 映射到 16 级字符集 {@link #CHARS_16}</li>
+     *   <li>每行末尾追加系统换行符</li>
+     * </ol>
+     *
+     * @param image 源图片，不可为空
+     * @param width 输出字符画宽度（字符列数），必须 &gt;= 1
+     * @return 字符画字符串，每行以换行符结尾
+     */
     public static String toCharacterArt(BufferedImage image, int width) {
         if (image == null) {
             throw new IllegalArgumentException("Image must not be null");
@@ -338,21 +338,21 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将图片转为字符画（16 级灰度映射），默认输出宽度为 100 字符。
-    *
-    * @param image 源图片，不可为空
-    * @return 字符画字符串
-    */
+     * 将图片转为字符画（16 级灰度映射），默认输出宽度为 100 字符。
+     *
+     * @param image 源图片，不可为空
+     * @return 字符画字符串
+     */
     public static String toCharacterArt(BufferedImage image) {
         return toCharacterArt(image, 100);
     }
 
     /**
-    * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
-    *
-    * @param file GIF 文件
-    * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
-    */
+     * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
+     *
+     * @param file GIF 文件
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
+     */
     public static BufferedImage[] readGifFrames(File file) {
         if (file == null || !file.exists()) {
             return new BufferedImage[0];
@@ -366,11 +366,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
-    *
-    * @param inputStream GIF 输入流
-    * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
-    */
+     * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
+     *
+     * @param inputStream GIF 输入流
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
+     */
     public static BufferedImage[] readGifFrames(InputStream inputStream) {
         if (inputStream == null) {
             return new BufferedImage[0];
@@ -384,11 +384,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
-    *
-    * @param bytes GIF 字节数组
-    * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
-    */
+     * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
+     *
+     * @param bytes GIF 字节数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
+     */
     public static BufferedImage[] readGifFrames(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return new BufferedImage[0];
@@ -397,11 +397,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
-    *
-    * @param path GIF 文件路径
-    * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
-    */
+     * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
+     *
+     * @param path GIF 文件路径
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
+     */
     public static BufferedImage[] readGifFrames(String path) {
         if (path == null || path.isEmpty()) {
             return new BufferedImage[0];
@@ -418,11 +418,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
-    *
-    * @param url GIF URL
-    * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
-    */
+     * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
+     *
+     * @param url GIF URL
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
+     */
     public static BufferedImage[] readGifFrames(URL url) {
         if (url == null) {
             return new BufferedImage[0];
@@ -435,12 +435,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 通过 镜像输入流 读取 GIF 帧。
-    *
-    * @param iis GIF 图片输入流
-    * @return 每帧一张 缓冲镜像
-    * @throws IOException 读取失败时抛出
-    */
+     * 通过 镜像输入流 读取 GIF 帧。
+     *
+     * @param iis GIF 图片输入流
+     * @return 每帧一张 缓冲镜像
+     * @throws IOException 读取失败时抛出
+     */
     private static BufferedImage[] readGifFrames(ImageInputStream iis) throws IOException {
         ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
         try {
@@ -457,12 +457,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将多帧图片生成为 GIF 文件。
-    *
-    * @param frames  帧图片数组
-    * @param delayMs 每帧延迟时间（毫秒）
-    * @param output  输出 GIF 文件
-    */
+     * 将多帧图片生成为 GIF 文件。
+     *
+     * @param frames  帧图片数组
+     * @param delayMs 每帧延迟时间（毫秒）
+     * @param output  输出 GIF 文件
+     */
     public static void writeGif(BufferedImage[] frames, int delayMs, File output) {
         if (frames == null || frames.length == 0) {
             throw new IllegalArgumentException("Frames must not be empty");
@@ -502,12 +502,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 将多个图片文件生成为 GIF 文件。
-    *
-    * @param images  图片文件数组
-    * @param delayMs 每帧延迟时间（毫秒）
-    * @param output  输出 GIF 文件
-    */
+     * 将多个图片文件生成为 GIF 文件。
+     *
+     * @param images  图片文件数组
+     * @param delayMs 每帧延迟时间（毫秒）
+     * @param output  输出 GIF 文件
+     */
     public static void writeGif(File[] images, int delayMs, File output) {
         if (images == null || images.length == 0) {
             throw new IllegalArgumentException("Images must not be empty");
@@ -520,12 +520,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取或创建 XML 子节点。
-    *
-    * @param root    父节点
-    * @param nodeName 子节点名
-    * @return 子节点
-    */
+     * 获取或创建 XML 子节点。
+     *
+     * @param root    父节点
+     * @param nodeName 子节点名
+     * @return 子节点
+     */
     private static IIOMetadataNode getOrCreateNode(IIOMetadataNode root, String nodeName) {
         int len = root.getLength();
         for (int i = 0; i < len; i++) {
@@ -539,11 +539,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 裁剪图片。
-    *
-    * @param options 裁剪选项，包含源图片、起始坐标和尺寸
-    * @return 裁剪后的图片
-    */
+     * 裁剪图片。
+     *
+     * @param options 裁剪选项，包含源图片、起始坐标和尺寸
+     * @return 裁剪后的图片
+     */
     public static BufferedImage cropImage(CropImageOptions options) {
         if (options == null || options.image() == null) {
             return null;
@@ -554,12 +554,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 水平或垂直合并多张图片。
-    *
-    * @param images    图片数组
-    * @param direction 合并方向，true 水平，false 垂直
-    * @return 合并后的图片
-    */
+     * 水平或垂直合并多张图片。
+     *
+     * @param images    图片数组
+     * @param direction 合并方向，true 水平，false 垂直
+     * @return 合并后的图片
+     */
     public static BufferedImage mergeImage(BufferedImage[] images, boolean direction) {
         if (images == null || images.length == 0) {
             return null;
@@ -596,32 +596,32 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 水平合并多张图片。
-    *
-    * @param images 图片数组
-    * @return 合并后的图片
-    */
+     * 水平合并多张图片。
+     *
+     * @param images 图片数组
+     * @return 合并后的图片
+     */
     public static BufferedImage mergeHorizontal(BufferedImage... images) {
         return mergeImage(images, true);
     }
 
     /**
-    * 垂直合并多张图片。
-    *
-    * @param images 图片数组
-    * @return 合并后的图片
-    */
+     * 垂直合并多张图片。
+     *
+     * @param images 图片数组
+     * @return 合并后的图片
+     */
     public static BufferedImage mergeVertical(BufferedImage... images) {
         return mergeImage(images, false);
     }
 
     /**
-    * 将图片转为 基础64 字符串。
-    *
-    * @param image  图片
-    * @param format 图片格式（png、jpg、gif 等）
-    * @return data:image/xxx;base64, 开头的 基础64 字符串
-    */
+     * 将图片转为 基础64 字符串。
+     *
+     * @param image  图片
+     * @param format 图片格式（png、jpg、gif 等）
+     * @return data:image/xxx;base64, 开头的 基础64 字符串
+     */
     public static String toBase64(BufferedImage image, String format) {
         if (image == null) {
             return null;
@@ -635,13 +635,13 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 翻转图片。
-    *
-    * @param image    源图片
-    * @param flipHorizontal 是否水平翻转
-    * @param flipVertical   是否垂直翻转
-    * @return 翻转后的图片
-    */
+     * 翻转图片。
+     *
+     * @param image    源图片
+     * @param flipHorizontal 是否水平翻转
+     * @param flipVertical   是否垂直翻转
+     * @return 翻转后的图片
+     */
     public static BufferedImage flipImage(BufferedImage image, boolean flipHorizontal, boolean flipVertical) {
         if (image == null) {
             return null;
@@ -666,31 +666,31 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 水平翻转图片。
-    *
-    * @param image 源图片
-    * @return 翻转后的图片
-    */
+     * 水平翻转图片。
+     *
+     * @param image 源图片
+     * @return 翻转后的图片
+     */
     public static BufferedImage flipHorizontal(BufferedImage image) {
         return flipImage(image, true, false);
     }
 
     /**
-    * 垂直翻转图片。
-    *
-    * @param image 源图片
-    * @return 翻转后的图片
-    */
+     * 垂直翻转图片。
+     *
+     * @param image 源图片
+     * @return 翻转后的图片
+     */
     public static BufferedImage flipVertical(BufferedImage image) {
         return flipImage(image, false, true);
     }
 
     /**
-    * 为图片添加文字水印。
-    *
-    * @param options 水印选项，包含源图片、文字、颜色、字体、坐标和透明度
-    * @return 添加水印后的图片
-    */
+     * 为图片添加文字水印。
+     *
+     * @param options 水印选项，包含源图片、文字、颜色、字体、坐标和透明度
+     * @return 添加水印后的图片
+     */
     public static BufferedImage addTextWatermark(TextWatermarkOptions options) {
         if (options == null || options.image() == null || options.text() == null || options.text().isEmpty()) {
             return options != null ? options.image() : null;
@@ -709,12 +709,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 为图片添加文字水印（默认灰色半透明，底部居中）。
-    *
-    * @param image 源图片
-    * @param text  水印文字
-    * @return 添加水印后的图片
-    */
+     * 为图片添加文字水印（默认灰色半透明，底部居中）。
+     *
+     * @param image 源图片
+     * @param text  水印文字
+     * @return 添加水印后的图片
+     */
     public static BufferedImage addTextWatermark(BufferedImage image, String text) {
         if (image == null || text == null || text.isEmpty()) {
             return image;
@@ -728,13 +728,13 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 创建缩略图，按最大宽高等比缩放，多余部分透明填充。
-    *
-    * @param image   源图片
-    * @param maxWidth  最大宽度
-    * @param maxHeight 最大高度
-    * @return 缩略图
-    */
+     * 创建缩略图，按最大宽高等比缩放，多余部分透明填充。
+     *
+     * @param image   源图片
+     * @param maxWidth  最大宽度
+     * @param maxHeight 最大高度
+     * @return 缩略图
+     */
     public static BufferedImage thumbnail(BufferedImage image, int maxWidth, int maxHeight) {
         if (image == null) {
             return null;
@@ -754,12 +754,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 写入转为流
-    *
-    * @param image 镜像
-    * @param format 格式化
-    * @param outputStream 输出流
-    */
+     * 写入转为流
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param outputStream 输出流
+     */
     public static void writeToStream(BufferedImage image, String format, OutputStream outputStream) {
         try {
             ImageIO.write(image, format, outputStream);
@@ -769,16 +769,16 @@ public class BufferedImageUtils {
     }
 
     /**
-    * fillshape
-    *
-    * @param g g
-    * @param style style
-    * @param unitWidth unitwidth
-    * @param arg2 参数2
-    * @param arg3 参数3
-    * @param i i
-    * @param j j
-    */
+     * fillshape
+     *
+     * @param g g
+     * @param style style
+     * @param unitWidth unitwidth
+     * @param arg2 参数2
+     * @param arg3 参数3
+     * @param i i
+     * @param j j
+     */
     public static void fillShape(Graphics2D g, CodePointStyle style, int unitWidth, int arg2, int arg3, int i, int j) {
         int x = unitWidth + i * unitWidth;
         int y = unitWidth + j * unitWidth;
@@ -796,11 +796,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 改变color
-    *
-    * @param image 镜像
-    * @param newColor 新color
-    */
+     * 改变color
+     *
+     * @param image 镜像
+     * @param newColor 新color
+     */
     public static void changeColor(BufferedImage image, Color newColor) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -817,13 +817,13 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取梯度color
-    *
-    * @param from 从
-    * @param to 转为
-    * @param steps steps
-    * @return 获取梯度color的结果
-    */
+     * 获取梯度color
+     *
+     * @param from 从
+     * @param to 转为
+     * @param steps steps
+     * @return 获取梯度color的结果
+     */
     public static Color[] getGradientColor(Color from, Color to, int steps) {
         Color[] gradient = new Color[steps];
         float[] fromComponents = from.getRGBColorComponents(null);
@@ -839,12 +839,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 处理梯度qr编码oblique
-    *
-    * @param image 镜像
-    * @param gradient 梯度
-    * @return 处理梯度qr编码oblique的结果
-    */
+     * 处理梯度qr编码oblique
+     *
+     * @param image 镜像
+     * @param gradient 梯度
+     * @return 处理梯度qr编码oblique的结果
+     */
     public static BufferedImage handleGradientQRCodeOblique(BufferedImage image, Color[] gradient) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -861,11 +861,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取缓冲镜像
-    *
-    * @param bytes bytes
-    * @return 获取缓冲镜像的结果
-    */
+     * 获取缓冲镜像
+     *
+     * @param bytes bytes
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(byte[] bytes) throws IOException {
         if (bytes == null) {
             return null;
@@ -874,11 +874,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取缓冲镜像
-    *
-    * @param file 文件
-    * @return 获取缓冲镜像的结果
-    */
+     * 获取缓冲镜像
+     *
+     * @param file 文件
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(File file) throws IOException {
         if (file == null) {
             return null;
@@ -887,11 +887,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取缓冲镜像
-    *
-    * @param inputStream 输入流
-    * @return 获取缓冲镜像的结果
-    */
+     * 获取缓冲镜像
+     *
+     * @param inputStream 输入流
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
@@ -900,22 +900,22 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 转为缓冲镜像array
-    *
-    * @param bufferedImage 缓冲镜像
-    * @return 转为缓冲镜像array的结果
-    */
+     * 转为缓冲镜像array
+     *
+     * @param bufferedImage 缓冲镜像
+     * @return 转为缓冲镜像array的结果
+     */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage) throws IOException {
         return toBufferedImageArray(bufferedImage, "png");
     }
 
     /**
-    * 转为缓冲镜像array
-    *
-    * @param bufferedImage 缓冲镜像
-    * @param format 格式化
-    * @return 转为缓冲镜像array的结果
-    */
+     * 转为缓冲镜像array
+     *
+     * @param bufferedImage 缓冲镜像
+     * @param format 格式化
+     * @return 转为缓冲镜像array的结果
+     */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage, String format) throws IOException {
         if (bufferedImage == null || format == null) {
             return new byte[0];
@@ -927,23 +927,23 @@ public class BufferedImageUtils {
     }
 
     /**
-    * zoom镜像
-    *
-    * @param src src
-    * @param width width
-    * @param height height
-    * @return zoom镜像的结果
-    */
+     * zoom镜像
+     *
+     * @param src src
+     * @param width width
+     * @param height height
+     * @return zoom镜像的结果
+     */
     public static BufferedImage zoomImage(BufferedImage src, int width, int height) {
         return scaleImage(src, width, height);
     }
 
     /**
-    * 获取sub镜像
-    *
-    * @param options 期权
-    * @return 获取sub镜像的结果
-    */
+     * 获取sub镜像
+     *
+     * @param options 期权
+     * @return 获取sub镜像的结果
+     */
     public static BufferedImage getSubImage(SubImageOptions options) {
         if (options == null || options.bufferedImage() == null) {
             return null;
@@ -952,12 +952,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * Rotate
-    *
-    * @param src src
-    * @param angle angle
-    * @return rotate的结果
-    */
+     * Rotate
+     *
+     * @param src src
+     * @param angle angle
+     * @return rotate的结果
+     */
     public static BufferedImage rotate(BufferedImage src, int angle) {
         if (src == null) {
             return null;
@@ -977,11 +977,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * gray镜像
-    *
-    * @param src src
-    * @return gray镜像的结果
-    */
+     * gray镜像
+     *
+     * @param src src
+     * @return gray镜像的结果
+     */
     public static BufferedImage grayImage(BufferedImage src) {
         if (src == null) {
             return null;
@@ -994,12 +994,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * brightness镜像
-    *
-    * @param src src
-    * @param brightness brightness
-    * @return brightness镜像的结果
-    */
+     * brightness镜像
+     *
+     * @param src src
+     * @param brightness brightness
+     * @return brightness镜像的结果
+     */
     public static BufferedImage brightnessImage(BufferedImage src, float brightness) {
         if (src == null || brightness == 1.0f) {
             return src;
@@ -1021,12 +1021,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * blur镜像
-    *
-    * @param src src
-    * @param radius radius
-    * @return blur镜像的结果
-    */
+     * blur镜像
+     *
+     * @param src src
+     * @param radius radius
+     * @return blur镜像的结果
+     */
     public static BufferedImage blurImage(BufferedImage src, float radius) {
         if (src == null || radius <= 0) {
             return src;
@@ -1042,37 +1042,37 @@ public class BufferedImageUtils {
     }
 
     /**
-    * Clamp
-    *
-    * @param value 值
-    * @return clamp的结果
-    */
+     * Clamp
+     *
+     * @param value 值
+     * @return clamp的结果
+     */
     public static int clamp(float value) {
         return Math.min(255, Math.max(0, (int) value));
     }
 
     /**
-    * 将整数值钳制到 [0, 255] 范围
-    *
-    * <p>常用于图像像素分量（R/G/B/A）的溢出保护。
-    * 与 {@link #clamp(float)} 互补，本方法接受 int 参数，避免调用处额外的类型转换。</p>
-    *
-    * @param value 原始值，可能超出 [0, 255]
-    * @return 钳制后的值，保证在 [0, 255] 范围内
-    */
+     * 将整数值钳制到 [0, 255] 范围
+     *
+     * <p>常用于图像像素分量（R/G/B/A）的溢出保护。
+     * 与 {@link #clamp(float)} 互补，本方法接受 int 参数，避免调用处额外的类型转换。</p>
+     *
+     * @param value 原始值，可能超出 [0, 255]
+     * @return 钳制后的值，保证在 [0, 255] 范围内
+     */
     public static int clamp(int value) {
         return Math.max(0, Math.min(255, value));
     }
 
     /**
-    * 计算 ARGB 像素的亮度（灰度值）
-    *
-    * <p>使用 ITU-R BT.601 标准权重系数：
-    * <pre>Y = 0.299 × R + 0.587 × G + 0.114 × B</pre>
-    *
-    * @param rgb ARGB 像素值（格式：0xaarrggbb）
-    * @return 亮度值，范围 [0, 255]
-    */
+     * 计算 ARGB 像素的亮度（灰度值）
+     *
+     * <p>使用 ITU-R BT.601 标准权重系数：
+     * <pre>Y = 0.299 × R + 0.587 × G + 0.114 × B</pre>
+     *
+     * @param rgb ARGB 像素值（格式：0xaarrggbb）
+     * @return 亮度值，范围 [0, 255]
+     */
     public static int luminance(int rgb) {
         return (int) (0.299 * ((rgb >> 16) & 0xFF)
                 + 0.587 * ((rgb >> 8) & 0xFF)
@@ -1080,11 +1080,11 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 获取Rgb
-    *
-    * @param options 期权
-    * @return 获取rgb的结果
-    */
+     * 获取Rgb
+     *
+     * @param options 期权
+     * @return 获取rgb的结果
+     */
     public static int[] getRgb(RgbOptions options) {
         if (options == null || options.image() == null) {
             return null;
@@ -1098,12 +1098,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 写入转为文件
-    *
-    * @param image 镜像
-    * @param format 格式化
-    * @param file 文件
-    */
+     * 写入转为文件
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param file 文件
+     */
     public static void writeToFile(BufferedImage image, String format, File file) {
         try {
             ImageIO.write(image, format, file);
@@ -1113,12 +1113,12 @@ public class BufferedImageUtils {
     }
 
     /**
-    * 保存转为流
-    *
-    * @param image 镜像
-    * @param format 格式化
-    * @param outputStream 输出流
-    */
+     * 保存转为流
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param outputStream 输出流
+     */
     public static void saveToStream(BufferedImage image, String format, OutputStream outputStream) {
         writeToStream(image, format, outputStream);
     }

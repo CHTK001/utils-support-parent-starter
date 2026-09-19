@@ -5,14 +5,14 @@ import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.ImageClassifier;
 
 /**
-* mxnet 模块模型集中注册器。
-* <p>
-* 通过 SPI 被主框架加载；relative路径 相对 模型 根目录，统一 mxnet/ 前缀。
-* 支持 mxnet 模型符号文件与参数文件。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * mxnet 模块模型集中注册器。
+ * <p>
+ * 通过 SPI 被主框架加载；relative路径 相对 模型 根目录，统一 mxnet/ 前缀。
+ * 支持 mxnet 模型符号文件与参数文件。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MxnetModelRegistrar implements ModelRegistrar {
 
@@ -42,14 +42,14 @@ public class MxnetModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

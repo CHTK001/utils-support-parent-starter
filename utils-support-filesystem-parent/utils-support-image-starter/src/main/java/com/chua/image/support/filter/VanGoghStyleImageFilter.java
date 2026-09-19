@@ -56,27 +56,27 @@ import java.util.Random;
 public class VanGoghStyleImageFilter extends AbstractImageFilter {
 
     /**
-    * 笔触长度（像素），默认 8
-    */
+     * 笔触长度（像素），默认 8
+     */
     private int strokeLength = 8;
 
     /**
-    * 颜色平滑强度 (0.0-1.0)，默认 0.6
-    */
+     * 颜色平滑强度 (0.0-1.0)，默认 0.6
+     */
     private double smoothing = 0.6;
 
     /**
-    * 旋涡强度 (0.0-1.0)，默认 0.5
-    */
+     * 旋涡强度 (0.0-1.0)，默认 0.5
+     */
     private double vortexStrength = 0.5;
 
     /**
-    * 执行梵高风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 梵高风格图像
-    */
+     * 执行梵高风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 梵高风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -149,11 +149,11 @@ public class VanGoghStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 计算像素亮度（NTSC 公式）
-    *
-    * @param rgb ARGB 像素值
-    * @return 亮度 (0-255)
-    */
+     * 计算像素亮度（NTSC 公式）
+     *
+     * @param rgb ARGB 像素值
+     * @return 亮度 (0-255)
+     */
     private float lum(int rgb) {
         int r = (rgb >> 16) & 0xff;
         int g = (rgb >> 8) & 0xff;
@@ -162,11 +162,11 @@ public class VanGoghStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

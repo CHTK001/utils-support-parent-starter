@@ -20,9 +20,9 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     private String device = "cpu";
 
     /**
-    * 创建 onnxfacerecognizer 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnxfacerecognizer 实例
+     * @param apiKey API密钥
+     */
     public OnnxFaceRecognizer(String apiKey) {
     }
 

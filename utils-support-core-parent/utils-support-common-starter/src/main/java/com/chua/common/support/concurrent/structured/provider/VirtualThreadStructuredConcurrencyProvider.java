@@ -9,36 +9,36 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 基于虚拟线程的结构化并发实现。
-*
-* <p>使用 JDK 21 虚拟线程执行器，提供轻量级并发任务管理。</p>
-*
-* @author CH
-* @since 2026/07/24
+ * 基于虚拟线程的结构化并发实现。
+ *
+ * <p>使用 JDK 21 虚拟线程执行器，提供轻量级并发任务管理。</p>
+ *
+ * @author CH
+ * @since 2026/07/24
  */
 public class VirtualThreadStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
     /**
-    * 虚拟线程执行器
-    */
+     * 虚拟线程执行器
+     */
     private final ExecutorService executor;
 
     /**
-    * 是否已关闭
-    */
+     * 是否已关闭
+     */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-    * 创建默认虚拟线程结构化并发器。
-    */
+     * 创建默认虚拟线程结构化并发器。
+     */
     public VirtualThreadStructuredConcurrencyProvider() {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
 
     /**
-    * 创建 VirtualThreadStructuredConcurrencyProvider 实例
-    * @param executor executor
-    */
+     * 创建 VirtualThreadStructuredConcurrencyProvider 实例
+     * @param executor executor
+     */
     public VirtualThreadStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }

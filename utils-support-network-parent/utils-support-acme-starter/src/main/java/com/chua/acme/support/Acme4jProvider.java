@@ -58,69 +58,69 @@ import java.util.regex.Pattern;
 public class Acme4jProvider implements AcmeProvider {
 
     /**
-    * 对外暴露的 HTTP-01 挑战类型名称
-    */
+     * 对外暴露的 HTTP-01 挑战类型名称
+     */
     private static final String CHALLENGE_NAME_HTTP_01 = "HTTP-01";
 
     /**
-    * 对外暴露的 DNS-01 挑战类型名称
-    */
+     * 对外暴露的 DNS-01 挑战类型名称
+     */
     private static final String CHALLENGE_NAME_DNS_01 = "DNS-01";
 
     /**
-    * 账户 RSA 密钥长度
-    */
+     * 账户 RSA 密钥长度
+     */
     private static final int ACCOUNT_KEY_SIZE = 2048;
 
     /**
-    * 等待 CA 域名验证与订单签发的超时时长（秒）
-    */
+     * 等待 CA 域名验证与订单签发的超时时长（秒）
+     */
     private static final long POLL_TIMEOUT_SECONDS = 90L;
 
     /**
-    * PEM 内容识别标识
-    */
+     * PEM 内容识别标识
+     */
     private static final String PEM_BEGIN_MARKER = "-----BEGIN";
 
     /**
-    * PEM 证书块匹配模式，证书链时捕获首个叶子证书块
-    */
+     * PEM 证书块匹配模式，证书链时捕获首个叶子证书块
+     */
     private static final Pattern PEM_CERT_PATTERN =
             Pattern.compile("-----BEGIN CERTIFICATE-----\\s*(.*?)\\s*-----END CERTIFICATE-----", Pattern.DOTALL);
 
     /**
-    * ACME 会话
-    */
+     * ACME 会话
+     */
     private Session session;
 
     /**
-    * ACME 登录态（订单恢复、证书吊销均依赖该对象）
-    */
+     * ACME 登录态（订单恢复、证书吊销均依赖该对象）
+     */
     private Login login;
 
     /**
-    * ACME 账户
-    */
+     * ACME 账户
+     */
     private Account account;
 
     /**
-    * 账户密钥对
-    */
+     * 账户密钥对
+     */
     private KeyPair accountKeyPair;
 
     /**
-    * 当前订单，由 getValidationInfo 创建、requestCertificate 复用，避免重复下单
-    */
+     * 当前订单，由 getValidationInfo 创建、requestCertificate 复用，避免重复下单
+     */
     private Order currentOrder;
 
     /**
-    * 当前订单对应的域名密钥对，CSR 使用该密钥，签发后作为证书私钥返回
-    */
+     * 当前订单对应的域名密钥对，CSR 使用该密钥，签发后作为证书私钥返回
+     */
     private KeyPair domainKeyPair;
 
     /**
-    * 账户私钥 PEM 内容
-    */
+     * 账户私钥 PEM 内容
+     */
     private String accountPrivateKeyPem;
 
     @Override
@@ -280,11 +280,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 创建 ACME 订单并生成域名密钥对。
-    *
-    * @param domains 域名列表（主域名在前，SAN 在后）
-    * @throws AcmeException 下单失败时抛出
-    */
+     * 创建 ACME 订单并生成域名密钥对。
+     *
+     * @param domains 域名列表（主域名在前，SAN 在后）
+     * @throws AcmeException 下单失败时抛出
+     */
     private void prepareOrder(List<String> domains) throws AcmeException {
         currentOrder = account.newOrder()
                 .domains(domains.toArray(new String[0]))
@@ -293,13 +293,13 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 完成订单收尾：触发并等待域名验证、提交 CSR、等待签发、下载完整证书链。
-    *
-    * @param domains              域名列表
-    * @param acme4jChallengeType  acme4j 规范的挑战类型（http-01/dns-01）
-    * @return 证书申请结果
-    * @throws Exception 验证或签发过程中发生异常时抛出
-    */
+     * 完成订单收尾：触发并等待域名验证、提交 CSR、等待签发、下载完整证书链。
+     *
+     * @param domains              域名列表
+     * @param acme4jChallengeType  acme4j 规范的挑战类型（http-01/dns-01）
+     * @return 证书申请结果
+     * @throws Exception 验证或签发过程中发生异常时抛出
+     */
     private AcmeCertificateResult finalizeOrder(List<String> domains, String acme4jChallengeType) throws Exception {
         Duration timeout = Duration.ofSeconds(POLL_TIMEOUT_SECONDS);
 
@@ -337,13 +337,13 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 组装签发成功结果，证书链与私钥均输出标准 PEM。
-    *
-    * @param certificate acme4j 证书资源（含完整链）
-    * @param domains     域名列表
-    * @return 成功结果
-    * @throws IOException 私钥序列化失败时抛出
-    */
+     * 组装签发成功结果，证书链与私钥均输出标准 PEM。
+     *
+     * @param certificate acme4j 证书资源（含完整链）
+     * @param domains     域名列表
+     * @return 成功结果
+     * @throws IOException 私钥序列化失败时抛出
+     */
     private AcmeCertificateResult buildSuccessResult(Certificate certificate, List<String> domains) throws IOException {
         // writeCertificate 输出叶子证书及中间证书组成的完整 PEM 链
         StringWriter chainWriter = new StringWriter(2048);
@@ -368,12 +368,12 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 加载已持久化的账户私钥；为空、历史占位值或解析失败时重新生成。
-    *
-    * @param privateKeyPem 账户私钥 PEM
-    * @return 可用的账户密钥对
-    * @throws IOException 新密钥对生成失败时抛出
-    */
+     * 加载已持久化的账户私钥；为空、历史占位值或解析失败时重新生成。
+     *
+     * @param privateKeyPem 账户私钥 PEM
+     * @return 可用的账户密钥对
+     * @throws IOException 新密钥对生成失败时抛出
+     */
     private KeyPair loadOrCreateAccountKeyPair(String privateKeyPem) throws IOException {
         if (privateKeyPem != null && privateKeyPem.contains(PEM_BEGIN_MARKER)) {
             try (StringReader reader = new StringReader(privateKeyPem)) {
@@ -386,12 +386,12 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 将密钥对序列化为标准 PEM 文本。
-    *
-    * @param keyPair 密钥对
-    * @return PEM 文本
-    * @throws IOException 序列化失败时抛出
-    */
+     * 将密钥对序列化为标准 PEM 文本。
+     *
+     * @param keyPair 密钥对
+     * @return PEM 文本
+     * @throws IOException 序列化失败时抛出
+     */
     private String writeKeyPair(KeyPair keyPair) throws IOException {
         StringWriter writer = new StringWriter(1024);
         KeyPairUtils.writeKeyPair(keyPair, writer);
@@ -399,12 +399,12 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 解析 PEM 格式证书（证书链时取首个叶子证书块）。
-    *
-    * @param certificatePem 证书 PEM
-    * @return X509 证书
-    * @throws CertificateException 解析失败或未找到证书块时抛出
-    */
+     * 解析 PEM 格式证书（证书链时取首个叶子证书块）。
+     *
+     * @param certificatePem 证书 PEM
+     * @return X509 证书
+     * @throws CertificateException 解析失败或未找到证书块时抛出
+     */
     private X509Certificate parseCertificate(String certificatePem) throws CertificateException {
         Matcher matcher = PEM_CERT_PATTERN.matcher(certificatePem);
         if (!matcher.find()) {
@@ -417,11 +417,11 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 将外部挑战类型名称归一化为 acme4j 挑战类型常量。
-    *
-    * @param challengeType 挑战类型（HTTP-01/DNS-01，大小写不敏感）
-    * @return acme4j 挑战类型常量
-    */
+     * 将外部挑战类型名称归一化为 acme4j 挑战类型常量。
+     *
+     * @param challengeType 挑战类型（HTTP-01/DNS-01，大小写不敏感）
+     * @return acme4j 挑战类型常量
+     */
     private String normalizeChallengeType(String challengeType) {
         if (CHALLENGE_NAME_DNS_01.equalsIgnoreCase(challengeType)) {
             return Dns01Challenge.TYPE;
@@ -430,10 +430,10 @@ public class Acme4jProvider implements AcmeProvider {
     }
 
     /**
-    * 异常为中断异常时恢复线程中断标记。
-    *
-    * @param e 异常
-    */
+     * 异常为中断异常时恢复线程中断标记。
+     *
+     * @param e 异常
+     */
     private void restoreInterruptFlag(Exception e) {
         if (e instanceof InterruptedException) {
             Thread.currentThread().interrupt();

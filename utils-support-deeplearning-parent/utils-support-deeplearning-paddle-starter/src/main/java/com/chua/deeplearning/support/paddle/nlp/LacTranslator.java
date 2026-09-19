@@ -19,37 +19,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 飞桨 LAC 中文分词/词性标注 Translator。
-* <p>输出 [token, label] 二维数组。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 飞桨 LAC 中文分词/词性标注 Translator。
+ * <p>输出 [token, label] 二维数组。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class LacTranslator implements Translator<String, String[][]> {
 
     /**
-    * 词 → 标识。
-    */
+     * 词 → 标识。
+     */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
-    * 标识 → 标签。
-    */
+     * 标识 → 标签。
+     */
     private final Map<String, String> id2LabelDict = new HashMap<>();
 
     /**
-    * 全角半角替换。
-    */
+     * 全角半角替换。
+     */
     private final Map<String, String> wordReplaceDict = new HashMap<>();
 
     /**
-    * OOV 标识。
-    */
+     * OOV 标识。
+     */
     private String oovId;
 
     /**
-    * 原始输入。
-    */
+     * 原始输入。
+     */
     private String input;
 
     @Override
@@ -84,10 +84,10 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     /**
-    * 加载标签dic
-    *
-    * @param model 模型
-    */
+     * 加载标签dic
+     *
+     * @param model 模型
+     */
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -103,10 +103,10 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     /**
-    * 加载b
-    *
-    * @param model 模型
-    */
+     * 加载b
+     *
+     * @param model 模型
+     */
     private void loadQ2b(Model model) {
         try (InputStream is = open(model, "lac/q2b.dic", "q2b.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -126,12 +126,12 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     /**
-    * 打开
-    *
-    * @param model 模型
-    * @param names 名称
-    * @return 打开的结果
-    */
+     * 打开
+     *
+     * @param model 模型
+     * @param names 名称
+     * @return 打开的结果
+     */
     private InputStream open(Model model, String... names) throws IOException {
         for (String name : names) {
             try {

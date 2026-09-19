@@ -11,21 +11,21 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 闪图（一次性预览/下载）令牌 服务。
-*
-* <p>使用 0 字节 marker 文件存储 Token。
-* 文件路径 = {@code <flashDir>/<token>}。</p>
-*
-* <p>生命周期：
-* <ol>
-*   <li>创建：生成 UUID 并写 0 字节文件到 flashDir</li>
-*   <li>使用：消费时校验文件存在，读取 token 后删除 marker 文件</li>
-*   <li>过期：后台线程定期清理超过 {@code flashExpireSeconds} 的 marker 文件</li>
-* </ol>
-* </p>
-*
-* @author CH
-* @since 2024/12/28
+ * 闪图（一次性预览/下载）令牌 服务。
+ *
+ * <p>使用 0 字节 marker 文件存储 Token。
+ * 文件路径 = {@code <flashDir>/<token>}。</p>
+ *
+ * <p>生命周期：
+ * <ol>
+ *   <li>创建：生成 UUID 并写 0 字节文件到 flashDir</li>
+ *   <li>使用：消费时校验文件存在，读取 token 后删除 marker 文件</li>
+ *   <li>过期：后台线程定期清理超过 {@code flashExpireSeconds} 的 marker 文件</li>
+ * </ol>
+ * </p>
+ *
+ * @author CH
+ * @since 2024/12/28
  */
 @Slf4j
 public class FlashTokenService {
@@ -36,11 +36,11 @@ public class FlashTokenService {
     private final long expireSeconds;
 
     /**
-    * 创建 flash令牌服务 实例
-    * @param flashDir flashdir
-    * @param expireSeconds long
-    * @param expireSeconds expireseconds
-    */
+     * 创建 flash令牌服务 实例
+     * @param flashDir flashdir
+     * @param expireSeconds long
+     * @param expireSeconds expireseconds
+     */
     public FlashTokenService(Path flashDir, long expireSeconds) {
         this.flashDir = flashDir;
         this.expireSeconds = expireSeconds > 0 ? expireSeconds : 600;
@@ -52,10 +52,10 @@ public class FlashTokenService {
     }
 
     /**
-    * 创建一个闪图 令牌，返回生成的 令牌 字符串。
-    *
-    * @return token
-    */
+     * 创建一个闪图 令牌，返回生成的 令牌 字符串。
+     *
+     * @return token
+     */
     public String createToken() throws IOException {
         String token = UUID.randomUUID().toString().replace("-", "");
         Path marker = flashDir.resolve(token);
@@ -65,11 +65,11 @@ public class FlashTokenService {
     }
 
     /**
-    * 验证 令牌 是否存在且未过期。
-    *
-    * @param token 令牌 字符串
-    * @return true 表示有效
-    */
+     * 验证 令牌 是否存在且未过期。
+     *
+     * @param token 令牌 字符串
+     * @return true 表示有效
+     */
     public boolean validateToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return false;
@@ -87,11 +87,11 @@ public class FlashTokenService {
     }
 
     /**
-    * 消费 令牌：验证并删除 记号笔 文件。
-    *
-    * @param token 令牌 字符串
-    * @return true 表示消费成功（删除成功）
-    */
+     * 消费 令牌：验证并删除 记号笔 文件。
+     *
+     * @param token 令牌 字符串
+     * @return true 表示消费成功（删除成功）
+     */
     public boolean consumeToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return false;
@@ -109,8 +109,8 @@ public class FlashTokenService {
     }
 
     /**
-    * 清理所有过期的 记号笔 文件。
-    */
+     * 清理所有过期的 记号笔 文件。
+     */
     public void cleanExpired() {
         long cutoff = System.currentTimeMillis() - expireSeconds * 1000;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(flashDir)) {

@@ -36,43 +36,43 @@ import java.util.function.Consumer;
  *
  * @author CH
  * @since 2026/07/31
-*/
+ */
 public interface Tunnel extends Closeable {
 
     /**
-    * 开启隧道。
-    * <p>如果指定本地端口为 0，系统自动分配可用端口，并返回实际分配的端口号。</p>
-    *
-    * @return 实际绑定的本地端口号
-    * @throws TunnelException 隧道开启失败
-    */
+     * 开启隧道。
+     * <p>如果指定本地端口为 0，系统自动分配可用端口，并返回实际分配的端口号。</p>
+     *
+     * @return 实际绑定的本地端口号
+     * @throws TunnelException 隧道开启失败
+     */
     int open();
 
     /**
-    * 关闭隧道，释放所有资源。
-    */
+     * 关闭隧道，释放所有资源。
+     */
     @Override
     void close();
 
     /**
-    * 获取隧道实时信息。
-    *
-    * @return 隧道信息快照
-    */
+     * 获取隧道实时信息。
+     *
+     * @return 隧道信息快照
+     */
     TunnelInfo getInfo();
 
     /**
-    * 设置实时信息回调。
-    * <p>当隧道状态发生变化时触发回调，例如：开启成功、关闭、错误等。</p>
-    *
-    * @param callback 回调函数，接收隧道信息
-    */
+     * 设置实时信息回调。
+     * <p>当隧道状态发生变化时触发回调，例如：开启成功、关闭、错误等。</p>
+     *
+     * @param callback 回调函数，接收隧道信息
+     */
     void onInfo(Consumer<TunnelInfo> callback);
 
     /**
-    * 隧道是否处于开启状态。
-    *
-    * @return true 表示已开启
-    */
+     * 隧道是否处于开启状态。
+     *
+     * @return true 表示已开启
+     */
     boolean isOpen();
 }

@@ -12,10 +12,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* 通用人脸特征 Translator（160x160，facenet 风格）。
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用人脸特征 Translator（160x160，facenet 风格）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class FaceFeatureTranslator implements Translator<Image, float[]> {
 

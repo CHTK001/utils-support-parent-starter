@@ -76,47 +76,47 @@ import java.lang.annotation.Annotation;
  * @see ProxyMethod
  * @see MethodInvocation
  * @see Spi
-*/
+ */
 public interface MethodAnnotationIntercept<A extends Annotation> {
 
     /**
-    * 获取要拦截的注解类型。
-    *
-    * <p>必须与 {@link Spi @Spi} 中 {@code value} 所指定的注解全名对应的 {@code Class} 完全一致，
-    * 框架会在运行时检查二者一致性，不一致则跳过该拦截器。</p>
-    *
-    * @return 注解类型 类 对象，不可为 空
-    */
+     * 获取要拦截的注解类型。
+     *
+     * <p>必须与 {@link Spi @Spi} 中 {@code value} 所指定的注解全名对应的 {@code Class} 完全一致，
+     * 框架会在运行时检查二者一致性，不一致则跳过该拦截器。</p>
+     *
+     * @return 注解类型 类 对象，不可为 空
+     */
     Class<A> annotationType();
 
     /**
-    * 获取拦截器的执行顺序。
-    *
-    * <p>数值越小，执行优先级越高（外层执行）。默认值为 1000。
-    * 当同一注解上挂载多个拦截器时，按 {@code order} 升序组成洋葱调用链。</p>
-    *
-    * @return 执行顺序值
-    */
+     * 获取拦截器的执行顺序。
+     *
+     * <p>数值越小，执行优先级越高（外层执行）。默认值为 1000。
+     * 当同一注解上挂载多个拦截器时，按 {@code order} 升序组成洋葱调用链。</p>
+     *
+     * @return 执行顺序值
+     */
     default int order() {
         return 1000;
     }
 
     /**
-    * 拦截带有指定注解的方法调用（Around 模式）。
-    *
-    * <p>实现方可以：</p>
-    * <ul>
-    *   <li>在 {@code invocation.proceed()} 之前执行前置逻辑（如缓存命中直接返回）</li>
-    *   <li>调用 {@code invocation.proceed()} 放行到下一层拦截器或目标方法</li>
-    *   <li>在 {@code invocation.proceed()} 之后执行后置逻辑（如缓存写入）</li>
-    *   <li>不调用 {@code invocation.proceed()} 即可短路返回，阻止目标方法执行</li>
-    * </ul>
-    *
-    * @param annotation 方法上的注解实例，携带注解的配置参数
-    * @param proxyMethod 代理方法信息（包含目标对象、方法、参数、对象上下文等）
-    * @param invocation 方法调用链，用于继续执行目标方法
-    * @return 方法执行结果
-    * @throws Throwable 如果拦截过程中发生异常
-    */
+     * 拦截带有指定注解的方法调用（Around 模式）。
+     *
+     * <p>实现方可以：</p>
+     * <ul>
+     *   <li>在 {@code invocation.proceed()} 之前执行前置逻辑（如缓存命中直接返回）</li>
+     *   <li>调用 {@code invocation.proceed()} 放行到下一层拦截器或目标方法</li>
+     *   <li>在 {@code invocation.proceed()} 之后执行后置逻辑（如缓存写入）</li>
+     *   <li>不调用 {@code invocation.proceed()} 即可短路返回，阻止目标方法执行</li>
+     * </ul>
+     *
+     * @param annotation 方法上的注解实例，携带注解的配置参数
+     * @param proxyMethod 代理方法信息（包含目标对象、方法、参数、对象上下文等）
+     * @param invocation 方法调用链，用于继续执行目标方法
+     * @return 方法执行结果
+     * @throws Throwable 如果拦截过程中发生异常
+     */
     Object intercept(A annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable;
 }

@@ -10,44 +10,44 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 
 /**
-* VGGT                   
-* <p>
-* VGGT                                                        3D                   
-* </p>
-* <p>
-*                
-* 1.              -> VGGT       -> 3D            
-* </p>
-* <p>
-*                
-* -               3D       
-* -               3D                   
-* </p>
-* <p>
-*          VGGT                          Translator                               
-* </p>
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/01/26
+ * VGGT                   
+ * <p>
+ * VGGT                                                        3D                   
+ * </p>
+ * <p>
+ *                
+ * 1.              -> VGGT       -> 3D            
+ * </p>
+ * <p>
+ *                
+ * -               3D       
+ * -               3D                   
+ * </p>
+ * <p>
+ *          VGGT                          Translator                               
+ * </p>
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/01/26
  */
 @Slf4j
 public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
     /**
-    *                                        
-    */
+     *                                        
+     */
     private VggtOutputTranslator outputTranslator;
 
     /**
-    *             
-    * <p>
-    *                         
-    * </p>
-    *
-    * @param ctx                   
-    * @throws IOException IO      
-    */
+     *             
+     * <p>
+     *                         
+     * </p>
+     *
+     * @param ctx                   
+     * @throws IOException IO      
+     */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         outputTranslator = new VggtOutputTranslator();
@@ -63,42 +63,42 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     }
 
     /**
-    *                   
-    * <p>
-    *                                           
-    * </p>
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     *                                           
+     * </p>
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         return outputTranslator.processInput(ctx, input);
     }
 
     /**
-    *                   
-    * <p>
-    * vggt输出
-    * </p>
-    *
-    * @param ctx                    
-    * @param list              nd列表
-    * @return VggtOutput       
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     * vggt输出
+     * </p>
+     *
+     * @param ctx                    
+     * @param list              nd列表
+     * @return VggtOutput       
+     * @throws Exception             
+     */
     @Override
     public VggtOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         return outputTranslator.processOutput(ctx, list);
     }
 
     /**
-    *                   
-    *
-    * @return null                        
-    */
+     *                   
+     *
+     * @return null                        
+     */
     @Override
     public Batchifier getBatchifier() {
         return null;

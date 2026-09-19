@@ -3,13 +3,13 @@ package com.chua.common.support.datasource.wal;
 import java.nio.file.Path;
 
 /**
-* WAL 存储系统自动检测配置。
-*
-* <p>由 {@link WalStoreEnvDetector} 根据运行时环境自动计算，
-* 包含分片数、段大小、刷盘策略等关键参数。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * WAL 存储系统自动检测配置。
+ *
+ * <p>由 {@link WalStoreEnvDetector} 根据运行时环境自动计算，
+ * 包含分片数、段大小、刷盘策略等关键参数。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WalStoreConfig {
 

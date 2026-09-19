@@ -22,29 +22,29 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 
 public class MysqlMetaTable extends AbstractMetaTable {
 
     /**
-    * 创建 mysqlmetatable 实例
-    * @param metaData meta数据
-    * @param engine Engine
-    * @param engine engine
-    */
+     * 创建 mysqlmetatable 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param engine engine
+     */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-    * 创建 mysqlmetatable 实例
-    *
-    * @param metaData  meta数据
-    * @param engine    Engine
-    * @param tableName table名称
-    */
+     * 创建 mysqlmetatable 实例
+     *
+     * @param metaData  meta数据
+     * @param engine    Engine
+     * @param tableName table名称
+     */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
     }
@@ -151,14 +151,14 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     /**
-        * 读取Columns
-        *
-        * @param dbMeta dbmeta
-        * @param catalog catalog
-        * @param schema 模式
-        * @param tableName table名称
-        * @return 读取columns的结果
-        */
+     * 读取Columns
+     *
+     * @param dbMeta dbmeta
+     * @param catalog catalog
+     * @param schema 模式
+     * @param tableName table名称
+     * @return 读取columns的结果
+     */
     protected List<ColumnDef> readColumns(DatabaseMetaData dbMeta, String catalog, String schema, String tableName) throws SQLException {
         List<ColumnDef> columns = new ArrayList<>();
         try (ResultSet rs = dbMeta.getColumns(catalog, schema, tableName, "%")) {
@@ -178,10 +178,10 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 获取Connection
-    *
-    * @return 获取connection的结果
-    */
+     * 获取Connection
+     *
+     * @return 获取connection的结果
+     */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -236,11 +236,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     // ==================== MySQL 建表构建器 ====================
     /**
-    * mysqltable创建构建器类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * mysqltable创建构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class MysqlTableCreateBuilder implements TableCreateBuilder {
 
@@ -442,11 +442,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
 
     // ==================== MySQL 改表构建器 ====================
     /**
-        * mysqltablealter构建器类。
-        *
-        * @author CH
-        * @since 4.0.0
-        */
+     * mysqltablealter构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class MysqlTableAlterBuilder implements TableAlterBuilder {
 
@@ -694,11 +694,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         /**
-        * 评论
-        *
-        * @param comment 评论
-        * @return 评论的结果
-        */
+         * 评论
+         *
+         * @param comment 评论
+         * @return 评论的结果
+         */
         public AlterIndexBuilder comment(String comment) {
             this.comment = comment;
             return this;
@@ -748,11 +748,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
 
         /**
-                * Column
-                *
-                * @param columnName column名称
-                * @return column的结果
-                */
+         * Column
+         *
+         * @param columnName column名称
+         * @return column的结果
+         */
         public AlterForeignKeyBuilder column(String columnName) {
             this.columnName = columnName;
             return this;
@@ -798,11 +798,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     /**
-                * escapesql
-                *
-                * @param value 值
-                * @return escapeSql的结果
-                */
+     * escapesql
+     *
+     * @param value 值
+     * @return escapeSql的结果
+     */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

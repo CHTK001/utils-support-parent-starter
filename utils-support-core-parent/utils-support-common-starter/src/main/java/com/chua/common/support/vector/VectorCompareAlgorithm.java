@@ -11,34 +11,34 @@ package com.chua.common.support.vector;
  * @since 4.0.0.42
  * @see VectorMath
  * @see VectorStorageBuilder
-*/
+ */
 public interface VectorCompareAlgorithm {
 
     /**
-    * 获取算法名称。
-    *
-    * @return 算法名称
-    */
+     * 获取算法名称。
+     *
+     * @return 算法名称
+     */
     String name();
 
     /**
-    * 比较两个向量的相似度。
-    *
-    * <p>返回值越大表示越相似（符合人类直觉）。</p>
-    *
-    * @param a 向量 a，不能为 空
-    * @param b 向量 b，不能为 空，长度必须与 a 一致
-    * @return 相似度，越大越相似
-    */
+     * 比较两个向量的相似度。
+     *
+     * <p>返回值越大表示越相似（符合人类直觉）。</p>
+     *
+     * @param a 向量 a，不能为 空
+     * @param b 向量 b，不能为 空，长度必须与 a 一致
+     * @return 相似度，越大越相似
+     */
     float compare(float[] a, float[] b);
 
     /**
-    * 创建欧氏距离算法。
-    *
-    * <p>返回相似度 = 负欧氏距离，越大越相似；完全相同时为 0。</p>
-    *
-    * @return 欧氏距离算法实例
-    */
+     * 创建欧氏距离算法。
+     *
+     * <p>返回相似度 = 负欧氏距离，越大越相似；完全相同时为 0。</p>
+     *
+     * @return 欧氏距离算法实例
+     */
     static VectorCompareAlgorithm euclidean() {
         return new VectorCompareAlgorithm() {
             @Override
@@ -54,13 +54,13 @@ public interface VectorCompareAlgorithm {
     }
 
     /**
-    * 创建余弦距离算法。
-    *
-    * <p>返回余弦相似度（1 - 余弦距离）∈ [-1, 1]，越大越相似；
-    * 完全相同时为 1，方向相反时为 -1。</p>
-    *
-    * @return 余弦距离算法实例
-    */
+     * 创建余弦距离算法。
+     *
+     * <p>返回余弦相似度（1 - 余弦距离）∈ [-1, 1]，越大越相似；
+     * 完全相同时为 1，方向相反时为 -1。</p>
+     *
+     * @return 余弦距离算法实例
+     */
     static VectorCompareAlgorithm cosine() {
         return new VectorCompareAlgorithm() {
             @Override
@@ -76,12 +76,12 @@ public interface VectorCompareAlgorithm {
     }
 
     /**
-    * 创建点积算法。
-    *
-    * <p>返回点积值，越大越相似（假设向量已归一化时等价于余弦相似度）。</p>
-    *
-    * @return 点积算法实例
-    */
+     * 创建点积算法。
+     *
+     * <p>返回点积值，越大越相似（假设向量已归一化时等价于余弦相似度）。</p>
+     *
+     * @return 点积算法实例
+     */
     static VectorCompareAlgorithm dotProduct() {
         return new VectorCompareAlgorithm() {
             @Override

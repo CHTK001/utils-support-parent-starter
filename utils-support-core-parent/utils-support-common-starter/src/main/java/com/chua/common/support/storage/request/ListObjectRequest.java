@@ -10,27 +10,27 @@ import lombok.Data;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Data
 @Builder
 public class ListObjectRequest {
 
     /**
-    * 文件路径（目录路径）。
-    */
+     * 文件路径（目录路径）。
+     */
     private String filePath;
 
     /**
-    * 分页标记（请求id），用于翻页。
-    */
+     * 分页标记（请求id），用于翻页。
+     */
     private String marker;
 
     /**
-    * 每页返回的最大数量，默认 10。
-    */
+     * 每页返回的最大数量，默认 10。
+     */
     @Builder.Default
     /**
-    * 限制
-    */
+     * 限制
+     */
     private int limit = 10;
 }

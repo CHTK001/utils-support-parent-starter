@@ -11,55 +11,55 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* SSH 命令响应，{@link ServerResponse} 实现。
-* <p>将命令输出写入 SSH 客户端的输出流。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * SSH 命令响应，{@link ServerResponse} 实现。
+ * <p>将命令输出写入 SSH 客户端的输出流。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SshCommandResponse implements ServerResponse {
 
     /**
-    * SSH 客户端输出流
-    */
+     * SSH 客户端输出流
+     */
     private final OutputStream outputStream;
 
     /**
-    * 响应体缓冲区
-    */
+     * 响应体缓冲区
+     */
     private final ByteArrayOutputStream bodyBuffer = new ByteArrayOutputStream();
 
     /**
-    * 响应是否已结束标记
-    */
+     * 响应是否已结束标记
+     */
     private final AtomicBoolean ended = new AtomicBoolean(false);
 
     /**
-    * 状态码
-    */
+     * 状态码
+     */
     private int statusCode = 200;
 
     /**
-    * 内容类型
-    */
+     * 内容类型
+     */
     private String contentType = "text/plain";
 
     /**
-    * 响应头映射
-    */
+     * 响应头映射
+     */
     private final LinkedHashMap<String, String> headers = new LinkedHashMap<>();
 
     /**
-    * 原始结果对象
-    */
+     * 原始结果对象
+     */
     private volatile Object result;
 
     /**
-    * 构造 SSH 命令响应。
-    *
-    * @param outputStream 客户端输出流
-    */
+     * 构造 SSH 命令响应。
+     *
+     * @param outputStream 客户端输出流
+     */
     public SshCommandResponse(OutputStream outputStream) {
         this.outputStream = outputStream;
     }

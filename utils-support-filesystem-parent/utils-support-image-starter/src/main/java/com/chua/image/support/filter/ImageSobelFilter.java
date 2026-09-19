@@ -84,36 +84,36 @@ import javax.annotation.Nullable;
 public class ImageSobelFilter extends AbstractImageFilter {
 
     /**
-    * Sobel Y方向（垂直边缘检测）卷积核
-    *
-    * @see ImageProcessorUtils#SOBEL_Y
-    */
+     * Sobel Y方向（垂直边缘检测）卷积核
+     *
+     * @see ImageProcessorUtils#SOBEL_Y
+     */
     public static int[] sobelY = ImageProcessorUtils.SOBEL_Y;
 
     /**
-    * Sobel X方向（水平边缘检测）卷积核
-    *
-    * @see ImageProcessorUtils#SOBEL_X
-    */
+     * Sobel X方向（水平边缘检测）卷积核
+     *
+     * @see ImageProcessorUtils#SOBEL_X
+     */
     public static int[] sobelX = ImageProcessorUtils.SOBEL_X;
 
     /**
-    * 是否检测X方向边缘，true表示水平边缘检测（垂直方向算子），
-    * false表示垂直边缘检测（水平方向算子）
-    */
+     * 是否检测X方向边缘，true表示水平边缘检测（垂直方向算子），
+     * false表示垂直边缘检测（水平方向算子）
+     */
     private boolean xdirect = true;
 
     /**
-    * 执行 Sobel 边缘检测滤镜处理
-    *
-    * 使用 Sobel 算子对图像进行边缘检测，通过 xdirect 参数控制检测方向：
-    * - true：X 方向卷积核（垂直方向算子）
-    * - false：Y 方向卷积核（水平方向算子）
-    *
-    * @param src 源图像
-    * @param dst 目标图像（可选，若为空则自动创建）
-    * @return 边缘检测处理后的图像
-    */
+     * 执行 Sobel 边缘检测滤镜处理
+     *
+     * 使用 Sobel 算子对图像进行边缘检测，通过 xdirect 参数控制检测方向：
+     * - true：X 方向卷积核（垂直方向算子）
+     * - false：Y 方向卷积核（水平方向算子）
+     *
+     * @param src 源图像
+     * @param dst 目标图像（可选，若为空则自动创建）
+     * @return 边缘检测处理后的图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int total = width * height;

@@ -1,263 +1,263 @@
 package com.chua.runtime.protocol;
 
 /**
-* 网络协议枚举 — 用于标识传输层 / 应用层协议。
-*
-* <p>Socket 层通过端口号映射推断协议；应用层 Handler
-* （如 Jedis/ZK/HTTP客户端）显式声明协议。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 网络协议枚举 — 用于标识传输层 / 应用层协议。
+ *
+ * <p>Socket 层通过端口号映射推断协议；应用层 Handler
+ * （如 Jedis/ZK/HTTP客户端）显式声明协议。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public enum Protocol {
 
     /**
-    * 传输控制协议
+     * 传输控制协议
      */
     TCP("TCP", 0, true),
 
     /**
-    * 用户数据报协议
+     * 用户数据报协议
      */
     UDP("UDP", 0, false),
 
     /**
-    * HTTP（明文）
+     * HTTP（明文）
      */
     HTTP("HTTP", 80, true),
 
     /**
-    * HTTPS（TLS）
+     * HTTPS（TLS）
      */
     HTTPS("HTTPS", 443, true),
 
     /**
-    * gRPC（基于 HTTP/2）
+     * gRPC（基于 HTTP/2）
      */
     GRPC("gRPC", 0, true),
 
     /**
-    * Apache ZooKeeper
+     * Apache ZooKeeper
      */
     ZOOKEEPER("ZooKeeper", 2181, false),
 
     /**
-    * Redis
+     * Redis
      */
     REDIS("Redis", 6379, false),
 
     /**
-    * MySQL
+     * MySQL
      */
     MYSQL("MySQL", 3306, false),
 
     /**
-    * PostgreSQL
+     * PostgreSQL
      */
     POSTGRESQL("PostgreSQL", 5432, false),
 
     /**
-    * Apache Kafka
+     * Apache Kafka
      */
     KAFKA("Kafka", 9092, false),
 
     /**
-    * Apache RocketMQ
+     * Apache RocketMQ
      */
     ROCKETMQ("RocketMQ", 9876, false),
 
     /**
-    * Dubbo RPC（基于 TCP 的自定义协议）
+     * Dubbo RPC（基于 TCP 的自定义协议）
      */
     DUBBO("Dubbo", 20880, false),
 
     /**
-    * Alibaba Nacos（注册/配置中心）
+     * Alibaba Nacos（注册/配置中心）
      */
     NACOS("Nacos", 8848, false),
 
     /**
-    * Netflix Eureka（注册中心，HTTP 协议）
+     * Netflix Eureka（注册中心，HTTP 协议）
      */
     EUREKA("Eureka", 8761, false),
 
     /**
-    * hashicorp Consul（注册/配置中心，HTTP 协议）
+     * hashicorp Consul（注册/配置中心，HTTP 协议）
      */
     CONSUL("Consul", 8500, false),
 
     /**
-    * Elasticsearch
+     * Elasticsearch
      */
     ELASTICSEARCH("Elasticsearch", 9200, false),
 
     /**
-    * Memcached
+     * Memcached
      */
     MEMCACHED("Memcached", 11211, false),
 
     /**
-    * RabbitMQ
+     * RabbitMQ
      */
     RABBITMQ("RabbitMQ", 5672, false),
 
     /**
-    * MQTT（消息队列遥测传输）
+     * MQTT（消息队列遥测传输）
      */
     MQTT("MQTT", 1883, false),
 
     /**
-    * MongoDB
+     * MongoDB
      */
     MONGODB("MongoDB", 27017, false),
 
     /**
-    * Oracle Database
+     * Oracle Database
      */
     ORACLE("Oracle", 1521, false),
 
     /**
-    * Microsoft SQL 服务端
+     * Microsoft SQL 服务端
      */
     SQLSERVER("SQL Server", 1433, false),
 
     /**
-    * IBM DB2
+     * IBM DB2
      */
     DB2("DB2", 50000, false),
 
     /**
-    * click房子（OLAP 列式数据库）
+     * click房子（OLAP 列式数据库）
      */
     CLICKHOUSE("ClickHouse", 8123, false),
 
     /**
-    * 达梦数据库（DM，国产关系型数据库）
+     * 达梦数据库（DM，国产关系型数据库）
      */
     DAMENG("达梦", 5236, false),
 
     /**
-    * kingbasees（金仓，国产关系型数据库）
+     * kingbasees（金仓，国产关系型数据库）
      */
     KINGBASE("金仓", 54321, false),
 
     /**
-    * Apache Cassandra
+     * Apache Cassandra
      */
     CASSANDRA("Cassandra", 9042, false),
 
     /**
-    * Apache HBase
+     * Apache HBase
      */
     HBASE("HBase", 16020, false),
 
     /**
-    * Apache Pulsar
+     * Apache Pulsar
      */
     PULSAR("Pulsar", 6650, false),
 
     /**
-    * Apache Thrift RPC
+     * Apache Thrift RPC
      */
     THRIFT("Thrift", 9090, false),
 
     /**
-    * Apache 分库分表sphere（分库分表）
+     * Apache 分库分表sphere（分库分表）
      */
     SHARDING_SPHERE("ShardingSphere", 0, false),
 
     /**
-    * Neo4j 图数据库
+     * Neo4j 图数据库
      */
     NEO4J("Neo4j", 7687, false),
 
     /**
-    * Hazelcast 分布式缓存
+     * Hazelcast 分布式缓存
      */
     HAZELCAST("Hazelcast", 5701, false),
 
     /**
-    * Apache Solr 搜索引擎
+     * Apache Solr 搜索引擎
      */
     SOLR("Solr", 8983, false),
 
     /**
-    * JMS (ActiveMQ/Artemis etc.)
+     * JMS (ActiveMQ/Artemis etc.)
      */
     JMS("JMS", 61616, false),
 
     /**
-    * Couchbase
+     * Couchbase
      */
     COUCHBASE("Couchbase", 8091, false),
 
     /**
-    * Etcd
+     * Etcd
      */
     ETCD("Etcd", 2379, false),
 
     /**
-    * Apache Ignite
+     * Apache Ignite
      */
     IGNITE("Ignite", 10800, false),
 
 /**
-* r套接字
-     */
+ * r套接字
+ */
     RSOCKET("RSocket", 7000, false),
 
     /**
-    * NATS
+     * NATS
      */
     NATS("NATS", 4222, false),
 
     /**
-    * influxdb
+     * influxdb
      */
     INFLUXDB("InfluxDB", 8086, false),
 
     /**
-    * H2 Database（嵌入式，TCP 服务默认 8082）
+     * H2 Database（嵌入式，TCP 服务默认 8082）
      */
     H2("H2", 8082, false),
 
     /**
-    * 进程内调用（无网络）
+     * 进程内调用（无网络）
      */
     INTERNAL("Internal", 0, false),
 
 /**
-* SQL (generic database 协议)
-     */
+ * SQL (generic database 协议)
+ */
     SQL("SQL", 0, false),
 
     /**
-    * WebSocket
+     * WebSocket
      */
     WEBSOCKET("WebSocket", 80, false),
 
     /**
-    * 通用消息（Spring Cloud 流 等跨协议消息通道）
+     * 通用消息（Spring Cloud 流 等跨协议消息通道）
      */
     MESSAGE("Message", 0, false),
 
     /**
-    * UNKNOWN
-    * @param 0 方法入参 0
-    * @param false 方法入参 false
+     * UNKNOWN
+     * @param 0 方法入参 0
+     * @param false 方法入参 false
      */
     UNKNOWN("Unknown", 0, false);
 
     /**
-    * display 名称
+     * display 名称
      */
     private final String displayName;
     /**
-    * 默认 端口
+     * 默认 端口
      */
     private final int defaultPort;
     /**
-    * 文本
+     * 文本
      */
     private final boolean text;
 
@@ -275,37 +275,37 @@ public enum Protocol {
     }
 
     /**
-    * 获取协议显示名。
-    *
-    * @return 显示名
+     * 获取协议显示名。
+     *
+     * @return 显示名
      */
     public String displayName() {
         return displayName;
     }
 
     /**
-    * 获取协议默认端口。
-    *
-    * @return 默认端口（无固定端口返回 0）
+     * 获取协议默认端口。
+     *
+     * @return 默认端口（无固定端口返回 0）
      */
     public int defaultPort() {
         return defaultPort;
     }
 
     /**
-    * 是否文本协议（HTTP/1.1 是文本，gRPC/Kafka 是二进制）。
-    *
-    * @return 文本协议返回 true
+     * 是否文本协议（HTTP/1.1 是文本，gRPC/Kafka 是二进制）。
+     *
+     * @return 文本协议返回 true
      */
     public boolean isText() {
         return text;
     }
 
     /**
-    * 根据端口号推断协议（套接字 层 处理器 用）。
-    *
-    * @param port 端口
-    * @return 推断的协议
+     * 根据端口号推断协议（套接字 层 处理器 用）。
+     *
+     * @param port 端口
+     * @return 推断的协议
      */
     public static Protocol inferByPort(int port) {
         if (port <= 0) {

@@ -1,13 +1,13 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* RTSP 协议还原器。
-*
-* <p>RTSP（实时流协议）请求/响应第一行：方法行（如 DESCRIBE/PLAY/SETUP）+ URI + RTSP/1.0
-* 或响应行：RTSP/1.0 + 状态码 + 状态文本。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * RTSP 协议还原器。
+ *
+ * <p>RTSP（实时流协议）请求/响应第一行：方法行（如 DESCRIBE/PLAY/SETUP）+ URI + RTSP/1.0
+ * 或响应行：RTSP/1.0 + 状态码 + 状态文本。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RtspProtocolRestorer extends AbstractProtocolRestorer {
 

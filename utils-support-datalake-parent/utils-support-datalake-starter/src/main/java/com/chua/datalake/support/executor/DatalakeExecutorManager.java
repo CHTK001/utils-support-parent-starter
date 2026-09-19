@@ -10,24 +10,24 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
-* 数据湖 侧的 执行器管理器 实现。每次返回同一个 数据湖reactor执行器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 数据湖 侧的 执行器管理器 实现。每次返回同一个 数据湖reactor执行器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DatalakeExecutorManager implements ExecutorManager {
 
     /**
-    * 内部的唯一执行器实例
-    */
+     * 内部的唯一执行器实例
+     */
     private final DatalakeReactorExecutor executor;
 
     /**
-    * 注入 dispatcher提供者，使 执行器 能共享 Chronicle 队列。
-    *
-    * @param dispatcherProvider dispatcher提供者 实例
-    */
+     * 注入 dispatcher提供者，使 执行器 能共享 Chronicle 队列。
+     *
+     * @param dispatcherProvider dispatcher提供者 实例
+     */
     public void setDispatcherProvider(DispatcherProvider dispatcherProvider) {
         executor.setDispatcherProvider(dispatcherProvider);
     }
@@ -52,11 +52,11 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     /**
-    * 仅注入管线引擎。
-    *
-    * @param unused 兼容参数
-    * @param engine 管线引擎
-    */
+     * 仅注入管线引擎。
+     *
+     * @param unused 兼容参数
+     * @param engine 管线引擎
+     */
     public void setPipelineEngine(ReactorDataSyncExecutor unused, PipelineEngine engine) {
         executor.setPipelineEngine(engine);
     }

@@ -11,39 +11,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 基于 PostgreSQL pgvector 扩展的向量存储实现。
-* <p>
-* pgvector 是 PostgreSQL 的开源向量相似性搜索扩展，支持：
-* <ul>
-*   <li>COSINE_SIMILARITY / cosine distance（余弦相似度）</li>
-*   <li>L2_DISTANCE（欧氏距离）</li>
-*   <li>MAX_INNER_PRODUCT / inner product（点积）</li>
-* </ul>
-* </p>
-* <p>
-* 首次 添加 时自动：
-* <ol>
-*   <li>创建 {@code vector} 扩展（如未存在）</li>
-*   <li>创建向量表（JSON 存储向量，兼容无 pgvector 环境）</li>
-*   <li>若启用 pgvector，使用 HNSW/IVFFlat 索引加速搜索</li>
-* </ol>
-* </p>
-* <p>
-* 使用示例：
-* <pre>{@code
-* VectorStorage storage = VectorStorageProvider.of("postgresql")
-*         .dimension(768)
-*         .algorithm("cosine")
-*         .properties(new MysqlVectorStorageProvider.MysqlVectorStorageProps(dataSource))
-*         .build();
-* }</pre>r.MysqlVectorStorageProps(dataSource))
-*         .build();
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see <a href="https://github.com/pgvector/pgvector">pgvector GitHub</a>
+ * 基于 PostgreSQL pgvector 扩展的向量存储实现。
+ * <p>
+ * pgvector 是 PostgreSQL 的开源向量相似性搜索扩展，支持：
+ * <ul>
+ *   <li>COSINE_SIMILARITY / cosine distance（余弦相似度）</li>
+ *   <li>L2_DISTANCE（欧氏距离）</li>
+ *   <li>MAX_INNER_PRODUCT / inner product（点积）</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 首次 添加 时自动：
+ * <ol>
+ *   <li>创建 {@code vector} 扩展（如未存在）</li>
+ *   <li>创建向量表（JSON 存储向量，兼容无 pgvector 环境）</li>
+ *   <li>若启用 pgvector，使用 HNSW/IVFFlat 索引加速搜索</li>
+ * </ol>
+ * </p>
+ * <p>
+ * 使用示例：
+ * <pre>{@code
+ * VectorStorage storage = VectorStorageProvider.of("postgresql")
+ *         .dimension(768)
+ *         .algorithm("cosine")
+ *         .properties(new MysqlVectorStorageProvider.MysqlVectorStorageProps(dataSource))
+ *         .build();
+ * }</pre>r.MysqlVectorStorageProps(dataSource))
+ *         .build();
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see <a href="https://github.com/pgvector/pgvector">pgvector GitHub</a>
  */
 public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
@@ -123,8 +123,8 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     // ==================== 内部实现 ====================
 
     /**
-    * ensure模式。
-    */
+     * ensure模式。
+     */
     private synchronized void ensureSchema() {
         if (schemaInitialized) {
             return;
@@ -161,12 +161,12 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
-    * 若初始化时原生向量能力不可用并降级为内存存储，则返回内存存储实例；
-    * 否则确保向量表结构就绪后返回当前实例。
-    *
-    * @return 实际可用的向量存储实例
-    */
+     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     * 若初始化时原生向量能力不可用并降级为内存存储，则返回内存存储实例；
+     * 否则确保向量表结构就绪后返回当前实例。
+     *
+     * @return 实际可用的向量存储实例
+     */
     private com.chua.common.support.vector.VectorStorage resolved() {
         if (fallback != null) {
             return fallback;
@@ -191,11 +191,11 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将 float[] 转为 PostgreSQL 向量字面量，如 {@code '[0.1,0.2,0.3]'}。
-    *
-    * @param arr 向量数组，可为 null（返回空向量字面量）
-    * @return PostgreSQL 向量字面量字符串
-    */
+     * 将 float[] 转为 PostgreSQL 向量字面量，如 {@code '[0.1,0.2,0.3]'}。
+     *
+     * @param arr 向量数组，可为 null（返回空向量字面量）
+     * @return PostgreSQL 向量字面量字符串
+     */
     private static String floatArrayToPgVectorLiteral(float[] arr) {
         if (arr == null || arr.length == 0) {
             return "[]";
@@ -213,12 +213,12 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将 PostgreSQL 向量对象转为 float[]。
-    * 兼容 float[]、double[] 以及 JSON 数组字面量三种形态。
-    *
-    * @param obj PostgreSQL 返回的向量对象，可为 null
-    * @return 转换后的浮点数组；无法解析时返回 null
-    */
+     * 将 PostgreSQL 向量对象转为 float[]。
+     * 兼容 float[]、double[] 以及 JSON 数组字面量三种形态。
+     *
+     * @param obj PostgreSQL 返回的向量对象，可为 null
+     * @return 转换后的浮点数组；无法解析时返回 null
+     */
     private static float[] pgVectorToObject(Object obj) {
         if (obj == null) {
             return null;

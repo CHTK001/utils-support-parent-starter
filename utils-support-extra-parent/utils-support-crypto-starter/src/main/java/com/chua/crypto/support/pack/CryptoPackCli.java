@@ -7,42 +7,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 程序包加密命令行工具
-*
-* <p>用法：
-* <pre>
-* java -cp &lt;classpath&gt; com.chua.crypto.support.pack.CryptoPackCli
-*      --source app.jar                  必填：待加密的可执行 jar
-*      --output app-secure.jar           必填：输出路径
-*      --policy SERVER_BOUND             密钥策略：SERVER_BOUND(默认) / CUSTOM
-*      --pin xxx                         口令：CUSTOM 必填；SERVER_BOUND 可作 pepper
-*      --server-id node1                 固定服务器指纹（可选）
-*      --encrypt-config                  配置文件随包加密（默认开启）
-*      --no-encrypt-config               关闭配置文件加密
-*      --obfuscate                       剥离调试信息（默认开启）
-*      --rename-privates                 私有成员重命名（默认关闭，反射框架敏感）
-* </pre>
-*
-* <p>classpath 需包含：本模块 jar、utils-support-common-starter、asm、asm-commons、
-* guava、javassist、slf4j-api。
-*
-* @author CH
-* @since 2026-08-26
+ * 程序包加密命令行工具
+ *
+ * <p>用法：
+ * <pre>
+ * java -cp &lt;classpath&gt; com.chua.crypto.support.pack.CryptoPackCli
+ *      --source app.jar                  必填：待加密的可执行 jar
+ *      --output app-secure.jar           必填：输出路径
+ *      --policy SERVER_BOUND             密钥策略：SERVER_BOUND(默认) / CUSTOM
+ *      --pin xxx                         口令：CUSTOM 必填；SERVER_BOUND 可作 pepper
+ *      --server-id node1                 固定服务器指纹（可选）
+ *      --encrypt-config                  配置文件随包加密（默认开启）
+ *      --no-encrypt-config               关闭配置文件加密
+ *      --obfuscate                       剥离调试信息（默认开启）
+ *      --rename-privates                 私有成员重命名（默认关闭，反射框架敏感）
+ * </pre>
+ *
+ * <p>classpath 需包含：本模块 jar、utils-support-common-starter、asm、asm-commons、
+ * guava、javassist、slf4j-api。
+ *
+ * @author CH
+ * @since 2026-08-26
  */
 public final class CryptoPackCli {
 
     /**
-    * 私有构造
-    */
+     * 私有构造
+     */
     private CryptoPackCli() {
     }
 
     /**
-    * CLI 入口
-    *
-    * @param args 参数
-    * @throws Exception 打包失败
-    */
+     * CLI 入口
+     *
+     * @param args 参数
+     * @throws Exception 打包失败
+     */
     public static void main(String[] args) throws Exception {
         Map<String, String> opts = parse(args);
 
@@ -87,11 +87,11 @@ public final class CryptoPackCli {
     }
 
     /**
-    * 解析 "--键 值" 与布尔开关参数
-    *
-    * @param args 原始参数
-    * @return 键值表（布尔开关值为 "true"）
-    */
+     * 解析 "--键 值" 与布尔开关参数
+     *
+     * @param args 原始参数
+     * @return 键值表（布尔开关值为 "true"）
+     */
     private static Map<String, String> parse(String[] args) {
         Map<String, String> opts = new HashMap<>();
         for (int i = 0; i < args.length; i++) {

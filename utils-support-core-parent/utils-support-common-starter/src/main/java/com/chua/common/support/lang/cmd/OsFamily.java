@@ -1,21 +1,21 @@
 package com.chua.common.support.lang.cmd;
 
 /**
-* 操作系统族，用于收敛分散在各模块中的 {@code System.getProperty("os.name").contains("win")} 判断。
-*
-* <p>不同模块此前各自用字符串匹配判断平台，规则不一致（有的判断 {@code "windows"}，
-* 有的判断 {@code "win"}，有的判断 {@code "mac"}），这里统一为单一事实来源。</p>
-*
-* <h3>使用示例</h3>
-* <pre>{@code
-* if (OsFamily.current().isWindows()) {
-*     // Windows 专有逻辑
-* }
-* String exe = "tool" + OsFamily.current().executableSuffix();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 操作系统族，用于收敛分散在各模块中的 {@code System.getProperty("os.name").contains("win")} 判断。
+ *
+ * <p>不同模块此前各自用字符串匹配判断平台，规则不一致（有的判断 {@code "windows"}，
+ * 有的判断 {@code "win"}，有的判断 {@code "mac"}），这里统一为单一事实来源。</p>
+ *
+ * <h3>使用示例</h3>
+ * <pre>{@code
+ * if (OsFamily.current().isWindows()) {
+ *     // Windows 专有逻辑
+ * }
+ * String exe = "tool" + OsFamily.current().executableSuffix();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public enum OsFamily {
 
@@ -56,61 +56,61 @@ public enum OsFamily {
     }
 
     /**
-    * 获取当前操作系统族。
-    *
-    * @return 当前操作系统族
-    */
+     * 获取当前操作系统族。
+     *
+     * @return 当前操作系统族
+     */
     public static OsFamily current() {
         return CURRENT;
     }
 
     /**
-    * 判断是否为 Windows。
-    *
-    * @return 是 Windows 返回 true
-    */
+     * 判断是否为 Windows。
+     *
+     * @return 是 Windows 返回 true
+     */
     public boolean isWindows() {
         return this == WINDOWS;
     }
 
     /**
-    * 判断是否为 macOS。
-    *
-    * @return 是 macOS 返回 true
-    */
+     * 判断是否为 macOS。
+     *
+     * @return 是 macOS 返回 true
+     */
     public boolean isMacOs() {
         return this == MACOS;
     }
 
     /**
-    * 判断是否为 Linux 或无法识别的系统（按类 Unix 处理）。
-    *
-    * @return 是类 Unix 系统返回 true
-    */
+     * 判断是否为 Linux 或无法识别的系统（按类 Unix 处理）。
+     *
+     * @return 是类 Unix 系统返回 true
+     */
     public boolean isUnixLike() {
         return this == LINUX || this == UNKNOWN;
     }
 
     /**
-    * 获取该平台下可执行文件的扩展名。
-    *
-    * <p>Windows 返回 {@code ".exe"}，其余平台返回空字符串。
-    * 该后缀只用于拼装候选文件名，若可执行文件本身已带扩展名则调用方无需追加。</p>
-    *
-    * @return 可执行文件扩展名，非 Windows 返回空字符串
-    */
+     * 获取该平台下可执行文件的扩展名。
+     *
+     * <p>Windows 返回 {@code ".exe"}，其余平台返回空字符串。
+     * 该后缀只用于拼装候选文件名，若可执行文件本身已带扩展名则调用方无需追加。</p>
+     *
+     * @return 可执行文件扩展名，非 Windows 返回空字符串
+     */
     public String executableSuffix() {
         return this == WINDOWS ? ".exe" : "";
     }
 
     /**
-    * 获取该平台下搜索可执行文件时需要考虑的候选扩展名。
-    *
-    * <p>Windows 依次为 {@code .exe}、{@code .bat}、{@code .cmd}（顺序与 PATHEXT 惯例一致），
-    * 其余平台只包含空后缀，表示只匹配无扩展名的可执行文件。</p>
-    *
-    * @return 候选扩展名数组
-    */
+     * 获取该平台下搜索可执行文件时需要考虑的候选扩展名。
+     *
+     * <p>Windows 依次为 {@code .exe}、{@code .bat}、{@code .cmd}（顺序与 PATHEXT 惯例一致），
+     * 其余平台只包含空后缀，表示只匹配无扩展名的可执行文件。</p>
+     *
+     * @return 候选扩展名数组
+     */
     public String[] executableSuffixes() {
         if (this == WINDOWS) {
             return new String[]{".exe", ".bat", ".cmd", ""};

@@ -19,65 +19,65 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
-* MMS-TTS（VITS）语音合成器。
-*
-* <p>基于 modelscope {@code Xenova/mms-tts-eng} 的量化 ONNX 模型（model_quantized.onnx）。
-* 输入文本 → 字符级 tokenizer 分词 → ONNX 推理 → waveform 波形 → WAV 字节数组。</p>
-*
-* <p>模型输入：{@code input_ids} [batch, seq] int64 + {@code attention_mask} [batch, seq] int64；
-* 输出：{@code waveform} [批量, n_样本] float32。</p>
-*
-* <p>资源在 jar 内路径：{@code audio/tts/mms-tts-eng/} 下，由 {@link NativeLoader} 解压后加载。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MMS-TTS（VITS）语音合成器。
+ *
+ * <p>基于 modelscope {@code Xenova/mms-tts-eng} 的量化 ONNX 模型（model_quantized.onnx）。
+ * 输入文本 → 字符级 tokenizer 分词 → ONNX 推理 → waveform 波形 → WAV 字节数组。</p>
+ *
+ * <p>模型输入：{@code input_ids} [batch, seq] int64 + {@code attention_mask} [batch, seq] int64；
+ * 输出：{@code waveform} [批量, n_样本] float32。</p>
+ *
+ * <p>资源在 jar 内路径：{@code audio/tts/mms-tts-eng/} 下，由 {@link NativeLoader} 解压后加载。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class MmsTtsTranslator {
 
     /**
-    * 输出采样率（MMS-TTS 固定 16000Hz）
-    */
+     * 输出采样率（MMS-TTS 固定 16000Hz）
+     */
     private static final int SAMPLE_RATE = 16000;
 
     /**
-    * 默认最大输入长度
-    */
+     * 默认最大输入长度
+     */
     private static final int MAX_INPUT_LENGTH = 512;
 
     /**
-    * 类路径 资源根路径
-    */
+     * 类路径 资源根路径
+     */
     private static final String RESOURCE_BASE = "audio/tts/mms-tts-eng/";
 
     /**
-    * 模型文件名
-    */
+     * 模型文件名
+     */
     private static final String MODEL_FILE = "model_quantized.onnx";
 
     /**
-    * tokenizer 词表文件名
-    */
+     * tokenizer 词表文件名
+     */
     private static final String VOCAB_FILE = "tokenizer.json";
 
     /**
-    * 未知 令牌 标识
-    */
+     * 未知 令牌 标识
+     */
     private static final int UNK_ID = 38;
 
     /**
-    * 空格在词表中的 令牌（VITS 用 "_" 表示空格）
-    */
+     * 空格在词表中的 令牌（VITS 用 "_" 表示空格）
+     */
     private static final String SPACE_TOKEN = "_";
 
     /**
-    * 模型缓存根目录
-    */
+     * 模型缓存根目录
+     */
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
-    * 字符 → 令牌 标识 映射
-    */
+     * 字符 → 令牌 标识 映射
+     */
     private Map<Character, Integer> charToId;
 
     /** ONNX 运行时环境 */
@@ -89,16 +89,16 @@ public class MmsTtsTranslator {
     private volatile boolean prepared;
 
     /**
-    * 构造合成器。
-    */
+     * 构造合成器。
+     */
     public MmsTtsTranslator() {
     }
 
     /**
-    * 准备模型（懒加载）。
-    *
-    * @throws Exception 准备异常
-    */
+     * 准备模型（懒加载）。
+     *
+     * @throws Exception 准备异常
+     */
     private synchronized void prepare() throws Exception {
         if (prepared) {
             return;
@@ -128,22 +128,22 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-    * 未配置时回落 {@code %TEMP%}。
-    *
-    * @return 缓存根目录
-    */
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
-    * 加载字符级词表。
-    *
-    * @param vocabPath tokenizer.json 路径
-    * @throws Exception 加载异常
-    */
+     * 加载字符级词表。
+     *
+     * @param vocabPath tokenizer.json 路径
+     * @throws Exception 加载异常
+     */
     private void loadVocab(Path vocabPath) throws Exception {
         charToId = new LinkedHashMap<>();
         try (InputStream in = Files.newInputStream(vocabPath)) {
@@ -174,11 +174,11 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 查找匹配的大括号位置。
-    *
-    * @param s 从 "vocab" 后的字符串
-    * @return 匹配大括号的下标（相对于 s）
-    */
+     * 查找匹配的大括号位置。
+     *
+     * @param s 从 "vocab" 后的字符串
+     * @return 匹配大括号的下标（相对于 s）
+     */
     private static int findMatchingBrace(String s) {
         int depth = 0;
         boolean inStr = false;
@@ -209,11 +209,11 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 反转义 JSON 字符串。
-    *
-    * @param s 原始字符串
-    * @return 反转义后
-    */
+     * 反转义 JSON 字符串。
+     *
+     * @param s 原始字符串
+     * @return 反转义后
+     */
     private static String unescape(String s) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
@@ -240,14 +240,14 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 文本转 令牌 ids（字符级）。
-    *
-    * <p>未知字符跳过（不使用 &lt;unk&gt;，因其 id 超出 embedding 范围）；
-    * 空格映射为 {@code _} 令牌。</p>
-    *
-    * @param text 文本
-    * @return token 标识
-    */
+     * 文本转 令牌 ids（字符级）。
+     *
+     * <p>未知字符跳过（不使用 &lt;unk&gt;，因其 id 超出 embedding 范围）；
+     * 空格映射为 {@code _} 令牌。</p>
+     *
+     * @param text 文本
+     * @return token 标识
+     */
     private long[] encode(String text) {
         java.util.ArrayList<Long> ids = new java.util.ArrayList<>();
         for (int i = 0; i < text.length(); i++) {
@@ -275,11 +275,11 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 文本转 WAV 字节。
-    *
-    * @param text 输入文本
-    * @return WAV 音频字节
-    */
+     * 文本转 WAV 字节。
+     *
+     * @param text 输入文本
+     * @return WAV 音频字节
+     */
     public byte[] synthesize(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -297,13 +297,13 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * ORT 推理获取波形。
-    *
-    * @param ids  令牌 标识
-    * @param mask attention mask
-    * @return 波形数据
-    * @throws Exception 推理异常
-    */
+     * ORT 推理获取波形。
+     *
+     * @param ids  令牌 标识
+     * @param mask attention mask
+     * @return 波形数据
+     * @throws Exception 推理异常
+     */
     private float[] inferWaveform(long[] ids, long[] mask) throws Exception {
         long[] shape = new long[]{1, ids.length};
         try (ai.onnxruntime.OnnxTensor tIds = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape);
@@ -324,13 +324,13 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * float 波形转 WAV 字节。
-    *
-    * @param samples 波形数据
-    * @param rate    采样率
-    * @return WAV 字节
-    * @throws Exception 转换异常
-    */
+     * float 波形转 WAV 字节。
+     *
+     * @param samples 波形数据
+     * @param rate    采样率
+     * @return WAV 字节
+     * @throws Exception 转换异常
+     */
     private static byte[] toWav(float[] samples, int rate) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {
@@ -347,8 +347,8 @@ public class MmsTtsTranslator {
     }
 
     /**
-    * 关闭资源。
-    */
+     * 关闭资源。
+     */
     public void close() {
         if (session != null) {
             try {

@@ -13,21 +13,21 @@ import com.chua.deeplearning.support.feature.FeatureExtractor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* SAM vit-H 编码器
-* <p>
-* : vietanhdev/segment-anything-onnx-模型
-* sam_vit_h_4b8939.压缩  编码器.onnx
-* </p>
-* <p>
-* : 1024x1024 BGR  镜像net normalize
-* : float[256]  镜像 嵌入 (全局 avg 游泳池 从 [256,64,64])
-* </p>
-* <p>
-* : SAM 解码器
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * SAM vit-H 编码器
+ * <p>
+ * : vietanhdev/segment-anything-onnx-模型
+ * sam_vit_h_4b8939.压缩  编码器.onnx
+ * </p>
+ * <p>
+ * : 1024x1024 BGR  镜像net normalize
+ * : float[256]  镜像 嵌入 (全局 avg 游泳池 从 [256,64,64])
+ * </p>
+ * <p>
+ * : SAM 解码器
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SamImageEncoderTranslator implements Translator<Image, float[]> {

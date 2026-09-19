@@ -11,29 +11,29 @@ import java.lang.reflect.Type;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 @Spi("json")
 public class JsonSerializer<T extends Serializable> implements Serializer<T> {
 
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 类型
-    */
+     * 类型
+     */
     private final Type type;
 
     /**
-    * 创建 json序列化器 实例
-    * @param clazz clazz
-    */
+     * 创建 json序列化器 实例
+     * @param clazz clazz
+     */
     public JsonSerializer(Class<T> clazz) {
         this.type = clazz;
     }
 
     /**
-    * 创建 json序列化器 实例
-    * @param type 类型
-    */
+     * 创建 json序列化器 实例
+     * @param type 类型
+     */
     public JsonSerializer(Type type) {
         this.type = type;
     }

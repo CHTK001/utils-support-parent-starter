@@ -42,126 +42,126 @@ import java.util.regex.Pattern;
 public final class WxKeyNativeBridge implements AutoCloseable {
 
     /**
-    * 密钥捕获动态库
-    */
+     * 密钥捕获动态库
+     */
     private static final String DLL_WX_KEY = "wx_key.dll";
 
     /**
-    * 密钥缓冲区大小（字节）
-    */
+     * 密钥缓冲区大小（字节）
+     */
     private static final int KEY_BUFFER_SIZE = 128;
 
     /**
-    * 状态消息缓冲区大小（字节）
-    */
+     * 状态消息缓冲区大小（字节）
+     */
     private static final int STATUS_BUFFER_SIZE = 512;
 
     /**
-    * 图片密钥缓冲区大小（字节）
-    */
+     * 图片密钥缓冲区大小（字节）
+     */
     private static final int IMAGE_KEY_BUFFER_SIZE = 8192;
 
     /**
-    * 合法密钥长度（64 位十六进制字符）
-    */
+     * 合法密钥长度（64 位十六进制字符）
+     */
     private static final int KEY_LENGTH = 64;
 
     /**
-    * 等待微信退出的最大次数（40 × 500ms = 20 秒）
-    */
+     * 等待微信退出的最大次数（40 × 500ms = 20 秒）
+     */
     private static final int WAIT_EXIT_ROUNDS = 40;
 
     /**
-    * 等待微信启动的最大次数（120 × 500ms = 60 秒）
-    */
+     * 等待微信启动的最大次数（120 × 500ms = 60 秒）
+     */
     private static final int WAIT_START_ROUNDS = 120;
 
     /**
-    * 轮询密钥的最大次数（600 × 200ms = 120 秒）
-    */
+     * 轮询密钥的最大次数（600 × 200ms = 120 秒）
+     */
     private static final int POLL_KEY_ROUNDS = 600;
 
     /**
-    * 轮询间隔（毫秒）
-    */
+     * 轮询间隔（毫秒）
+     */
     private static final long POLL_INTERVAL_MILLIS = 200L;
 
     /**
-    * 进程探测命令超时（秒）
-    */
+     * 进程探测命令超时（秒）
+     */
     private static final int PID_CMD_TIMEOUT_SECONDS = 5;
 
     /**
-    * 64 位十六进制密钥校验正则
-    */
+     * 64 位十六进制密钥校验正则
+     */
     private static final Pattern KEY_PATTERN = Pattern.compile("^[0-9a-fA-F]{64}$");
 
     /**
-    * 微信 4.x 进程名
-    */
+     * 微信 4.x 进程名
+     */
     private static final String[] WECHAT_PROCESS_NAMES = {"Weixin.exe", "WeChat.exe"};
 
     /**
-    * 原生下行调用链接器
-    */
+     * 原生下行调用链接器
+     */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-    * 桥接器持有的共享内存会话
-    */
+     * 桥接器持有的共享内存会话
+     */
     private final Arena arena;
 
     /**
-    * InitializeHook 函数句柄
-    */
+     * InitializeHook 函数句柄
+     */
     private final MethodHandle initializeHookHandle;
 
     /**
-    * PollKeyData 函数句柄
-    */
+     * PollKeyData 函数句柄
+     */
     private final MethodHandle pollKeyDataHandle;
 
     /**
-    * GetStatusMessage 函数句柄
-    */
+     * GetStatusMessage 函数句柄
+     */
     private final MethodHandle getStatusMessageHandle;
 
     /**
-    * CleanupHook 函数句柄
-    */
+     * CleanupHook 函数句柄
+     */
     private final MethodHandle cleanupHookHandle;
 
     /**
-    * GetLastErrorMsg 函数句柄
-    */
+     * GetLastErrorMsg 函数句柄
+     */
     private final MethodHandle getLastErrorMsgHandle;
 
     /**
-    * GetImageKey 函数句柄
-    */
+     * GetImageKey 函数句柄
+     */
     private final MethodHandle getImageKeyHandle;
 
     /**
-    * 判断当前平台是否支持密钥捕获（仅 Windows）。
-    *
-    * @return 支持返回 true
-    */
+     * 判断当前平台是否支持密钥捕获（仅 Windows）。
+     *
+     * @return 支持返回 true
+     */
     public static boolean isSupported() {
         String osName = System.getProperty("os.name").toLowerCase();
         return osName.contains("win");
     }
 
     /**
-    * 加载 wx_key.dll 并执行完整密钥捕获流程。
-    *
-    * <p>该方法会引导用户重启微信：若检测到微信正在运行，将等待其退出（最多 20 秒），
-    * 随后等待微信重新启动（最多 60 秒），注入 Hook 后在用户登录过程中捕获密钥。</p>
-    *
-    * @param runtimeDir 原生库目录（包含 wx_key.dll）
-    * @param outputDir  密钥与状态文件输出目录
-    * @return 64 位十六进制密钥
-    * @throws IllegalStateException 库缺失、注入失败或捕获超时时抛出
-    */
+     * 加载 wx_key.dll 并执行完整密钥捕获流程。
+     *
+     * <p>该方法会引导用户重启微信：若检测到微信正在运行，将等待其退出（最多 20 秒），
+     * 随后等待微信重新启动（最多 60 秒），注入 Hook 后在用户登录过程中捕获密钥。</p>
+     *
+     * @param runtimeDir 原生库目录（包含 wx_key.dll）
+     * @param outputDir  密钥与状态文件输出目录
+     * @return 64 位十六进制密钥
+     * @throws IllegalStateException 库缺失、注入失败或捕获超时时抛出
+     */
     public static String captureKey(File runtimeDir, File outputDir) {
         if (!isSupported()) {
             throw new IllegalStateException("密钥捕获仅支持 Windows 平台");
@@ -184,10 +184,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 私有构造器，加载动态库并绑定函数句柄。
-    *
-    * @param dllFile wx_key.dll 文件
-    */
+     * 私有构造器，加载动态库并绑定函数句柄。
+     *
+     * @param dllFile wx_key.dll 文件
+     */
     private WxKeyNativeBridge(File dllFile) {
         this.arena = Arena.ofShared();
         SymbolLookup lookup = SymbolLookup.libraryLookup(dllFile.toPath(), arena);
@@ -204,12 +204,12 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 执行完整捕获流程。
-    *
-    * @param outputDir 密钥输出目录
-    * @return 64 位十六进制密钥
-    * @throws Throwable 原生调用异常
-    */
+     * 执行完整捕获流程。
+     *
+     * @param outputDir 密钥输出目录
+     * @return 64 位十六进制密钥
+     * @throws Throwable 原生调用异常
+     */
     private String doCapture(File outputDir) throws Throwable {
         // 阶段 1：等待微信退出
         Integer existingPid = findWeChatPid();
@@ -274,13 +274,13 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 持久化密钥文件与图片密钥文件。
-    *
-    * @param outputDir 输出目录
-    * @param key       数据库密钥
-    * @param confined  受限内存会话
-    * @throws Throwable 原生调用异常
-    */
+     * 持久化密钥文件与图片密钥文件。
+     *
+     * @param outputDir 输出目录
+     * @param key       数据库密钥
+     * @param confined  受限内存会话
+     * @throws Throwable 原生调用异常
+     */
     private void persistKey(File outputDir, String key, Arena confined) throws Throwable {
         if (outputDir == null) {
             return;
@@ -308,12 +308,12 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 排空原生层缓冲的状态消息并输出到日志。
-    *
-    * @param statusBuffer 状态消息缓冲区
-    * @param levelOut     消息级别出参
-    * @throws Throwable 原生调用异常
-    */
+     * 排空原生层缓冲的状态消息并输出到日志。
+     *
+     * @param statusBuffer 状态消息缓冲区
+     * @param levelOut     消息级别出参
+     * @throws Throwable 原生调用异常
+     */
     private void drainStatusMessages(MemorySegment statusBuffer, MemorySegment levelOut) throws Throwable {
         // 与 get_key.js 一致：循环读取直到原生层返回 false
         for (int i = 0; i < 16; i++) {
@@ -332,10 +332,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 读取原生层最后一条错误信息。
-    *
-    * @return 错误文本，读取失败返回 null
-    */
+     * 读取原生层最后一条错误信息。
+     *
+     * @return 错误文本，读取失败返回 null
+     */
     private String readLastError() {
         try {
             MemorySegment pointer = (MemorySegment) getLastErrorMsgHandle.invokeExact();
@@ -349,8 +349,8 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 静默执行 Hook 清理。
-    */
+     * 静默执行 Hook 清理。
+     */
     private void cleanupQuietly() {
         try {
             cleanupHookHandle.invokeExact();
@@ -360,10 +360,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 等待微信进程退出。
-    *
-    * @return 已退出返回 true，超时返回 false
-    */
+     * 等待微信进程退出。
+     *
+     * @return 已退出返回 true，超时返回 false
+     */
     private boolean waitWeChatExit() {
         for (int i = 0; i < WAIT_EXIT_ROUNDS; i++) {
             if (findWeChatPid() == null) {
@@ -375,10 +375,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 等待微信进程启动。
-    *
-    * @return 微信进程 PID，超时返回 null
-    */
+     * 等待微信进程启动。
+     *
+     * @return 微信进程 PID，超时返回 null
+     */
     private Integer waitWeChatStart() {
         for (int i = 0; i < WAIT_START_ROUNDS; i++) {
             Integer pid = findWeChatPid();
@@ -391,10 +391,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 通过 tasklist 查找微信进程 PID。
-    *
-    * @return PID，未找到返回 null
-    */
+     * 通过 tasklist 查找微信进程 PID。
+     *
+     * @return PID，未找到返回 null
+     */
     private static Integer findWeChatPid() {
         for (String processName : WECHAT_PROCESS_NAMES) {
             try {
@@ -415,12 +415,12 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 解析 tasklist CSV 输出中的 PID。
-    *
-    * @param output      tasklist 输出文本
-    * @param processName 进程名（匹配用）
-    * @return PID，未匹配返回 null
-    */
+     * 解析 tasklist CSV 输出中的 PID。
+     *
+     * @param output      tasklist 输出文本
+     * @param processName 进程名（匹配用）
+     * @return PID，未匹配返回 null
+     */
     private static Integer parseTasklistPid(String output, String processName) {
         for (String line : output.split("\n")) {
             String lowerLine = line.toLowerCase();
@@ -441,10 +441,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 线程休眠（中断时恢复中断标志）。
-    *
-    * @param millis 休眠毫秒数
-    */
+     * 线程休眠（中断时恢复中断标志）。
+     *
+     * @param millis 休眠毫秒数
+     */
     private static void sleepQuietly(long millis) {
         try {
             Thread.sleep(millis);
@@ -454,11 +454,11 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 截取 C 字符串（首个 NUL 之前的内容）并去除首尾空白。
-    *
-    * @param raw 原始文本
-    * @return 截取后的文本
-    */
+     * 截取 C 字符串（首个 NUL 之前的内容）并去除首尾空白。
+     *
+     * @param raw 原始文本
+     * @return 截取后的文本
+     */
     private static String trimCString(String raw) {
         int nulIndex = raw.indexOf('\0');
         String text = nulIndex >= 0 ? raw.substring(0, nulIndex) : raw;
@@ -471,14 +471,14 @@ public final class WxKeyNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 绑定原生函数句柄。
-    *
-    * @param lookup       符号查找表
-    * @param name         函数符号名
-    * @param returnLayout 返回值布局
-    * @param argLayouts   参数布局
-    * @return 下行调用句柄
-    */
+     * 绑定原生函数句柄。
+     *
+     * @param lookup       符号查找表
+     * @param name         函数符号名
+     * @param returnLayout 返回值布局
+     * @param argLayouts   参数布局
+     * @return 下行调用句柄
+     */
     private static MethodHandle bind(SymbolLookup lookup, String name,
                                      ValueLayout returnLayout, ValueLayout... argLayouts) {
         MemorySegment symbol = lookup.find(name)

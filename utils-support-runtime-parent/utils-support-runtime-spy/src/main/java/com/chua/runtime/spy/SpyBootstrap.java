@@ -17,45 +17,45 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
-* Spy 启动器 — 通过 Instrumentation 注册字节码转换器。
-*
-* <p>典型调用链：</p>
-* <pre>
-* RuntimeAgent.agentmain(Inst)
-*   -> SpyBootstrap.init(agentArgs, Inst)
-*       -> 创建 SpyTransformer
-*       -> 注册 ClassFileTransformer
-*       -> 扫描插件并加载
-*       -> 对已加载类执行 retransform
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Spy 启动器 — 通过 Instrumentation 注册字节码转换器。
+ *
+ * <p>典型调用链：</p>
+ * <pre>
+ * RuntimeAgent.agentmain(Inst)
+ *   -> SpyBootstrap.init(agentArgs, Inst)
+ *       -> 创建 SpyTransformer
+ *       -> 注册 ClassFileTransformer
+ *       -> 扫描插件并加载
+ *       -> 对已加载类执行 retransform
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SpyBootstrap {
 
     /**
-    * JUL 日志记录器 — 不依赖 slf4j，避免与外部 日志记录器 框架冲突
+     * JUL 日志记录器 — 不依赖 slf4j，避免与外部 日志记录器 框架冲突
      */
     private static final Logger LOG = Logger.getLogger(SpyBootstrap.class.getName());
 
     /**
-    * 字节码转换器
+     * 字节码转换器
      */
     private static volatile SpyTransformer transformer;
 
     /**
-    * Instrumentation 实例
+     * Instrumentation 实例
      */
     private static volatile Instrumentation instrumentation;
 
     /**
-    * 插件管理器
+     * 插件管理器
      */
     private static volatile PluginManager pluginManager;
 
     /**
-    * 是否已初始化
+     * 是否已初始化
      */
     private static volatile boolean initialized;
 
@@ -90,7 +90,7 @@ public class SpyBootstrap {
     }
 
     /**
-    * 关闭 Spy 引擎。
+     * 关闭 Spy 引擎。
      */
     public static void destroy() {
         if (!initialized) {
@@ -111,9 +111,9 @@ public class SpyBootstrap {
     }
 
     /**
-    * 解析 智能体 参数。
-    *
-    * @param args 智能体 参数字符串
+     * 解析 智能体 参数。
+     *
+     * @param args 智能体 参数字符串
      */
     private static void parseAgentArgs(String args) {
         if (args == null || args.isBlank()) {
@@ -130,15 +130,15 @@ public class SpyBootstrap {
     }
 
     /**
-    * 初始化字节码转换器。
-    *
-    * <p><b>不做全量 retransform</b>：实测对运行中 JVM（Tomcat 已承载流量）逐类
-    * retransform 会触发 {@code InternalError: invalid class} 或长时间挂起，
-    * 导致 agentmain 整体失败。这里只注册 retransformable transformer ——
-    * 对<b>未来加载</b>的类生效（应用请求处理会持续懒加载新类，覆盖足够）。
-    * handler 的拦截规则注册后，新类加载时即被织入。</p>
-    *
-    * @param inst Instrumentation 实例
+     * 初始化字节码转换器。
+     *
+     * <p><b>不做全量 retransform</b>：实测对运行中 JVM（Tomcat 已承载流量）逐类
+     * retransform 会触发 {@code InternalError: invalid class} 或长时间挂起，
+     * 导致 agentmain 整体失败。这里只注册 retransformable transformer ——
+     * 对<b>未来加载</b>的类生效（应用请求处理会持续懒加载新类，覆盖足够）。
+     * handler 的拦截规则注册后，新类加载时即被织入。</p>
+     *
+     * @param inst Instrumentation 实例
      */
     private static void initTransformer(Instrumentation inst) throws Exception {
         List<Pattern> includes = Arrays.asList(
@@ -159,9 +159,9 @@ public class SpyBootstrap {
     }
 
     /**
-    * 初始化插件管理器。
-    *
-    * @param inst Instrumentation 实例
+     * 初始化插件管理器。
+     *
+     * @param inst Instrumentation 实例
      */
     private static void initPluginManager(Instrumentation inst) {
         String pluginDir = System.getProperty("runtime.plugin.dir",
@@ -172,55 +172,55 @@ public class SpyBootstrap {
     }
 
     /**
-    * 注册插桩点。
-    *
-    * @param point       插桩点
-    * @param descriptor  方法描述符
+     * 注册插桩点。
+     *
+     * @param point       插桩点
+     * @param descriptor  方法描述符
      */
     public static void registerInterceptPoint(InterceptPoint point, String descriptor) {
         LOG.fine("注册插桩点（旧式，已迁移至精确规则）: " + point.getKey());
     }
 
     /**
-    * 获取当前 Instrumentation 实例。
-    *
-    * @return Instrumentation 实例
+     * 获取当前 Instrumentation 实例。
+     *
+     * @return Instrumentation 实例
      */
     public static Instrumentation getInstrumentation() {
         return instrumentation;
     }
 
     /**
-    * 获取字节码转换器。
-    *
-    * @return SpyTransformer 实例
+     * 获取字节码转换器。
+     *
+     * @return SpyTransformer 实例
      */
     public static SpyTransformer getTransformer() {
         return transformer;
     }
 
     /**
-    * 获取插件管理器。
-    *
-    * @return PluginManager 实例
+     * 获取插件管理器。
+     *
+     * @return PluginManager 实例
      */
     public static PluginManager getPluginManager() {
         return pluginManager;
     }
 
     /**
-    * 是否已初始化。
-    *
-    * @return 已初始化返回 true
+     * 是否已初始化。
+     *
+     * @return 已初始化返回 true
      */
     public static boolean isInitialized() {
         return initialized;
     }
 
     /**
-    * 获取已插桩的类数量。
-    *
-    * @return 数量
+     * 获取已插桩的类数量。
+     *
+     * @return 数量
      */
     public static int getTransformedClassCount() {
         if (transformer != null) {

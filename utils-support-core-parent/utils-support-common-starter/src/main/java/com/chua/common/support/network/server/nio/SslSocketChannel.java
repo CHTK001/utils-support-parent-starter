@@ -28,51 +28,51 @@ import java.util.Set;
  *
  * @author CH
  * @since 2026/08/15
-*/
+ */
 public class SslSocketChannel extends SocketChannel {
 
     /**
-    * 底层原始通道（密文通道）。
-    */
+     * 底层原始通道（密文通道）。
+     */
     private final SocketChannel delegate;
 
     /**
-    * TLS 引擎，负责握手与加解密。
-    */
+     * TLS 引擎，负责握手与加解密。
+     */
     private final SSLEngine engine;
 
     /**
-    * 网络密文输入缓冲（从 socket 读入的密文，flip 状态，等待 unwrap）。
-    */
+     * 网络密文输入缓冲（从 socket 读入的密文，flip 状态，等待 unwrap）。
+     */
     private final ByteBuffer netIn;
 
     /**
-    * 网络密文输出缓冲（wrap 产生的密文，等待写入 socket）。
-    */
+     * 网络密文输出缓冲（wrap 产生的密文，等待写入 socket）。
+     */
     private final ByteBuffer netOut;
 
     /**
-    * 应用明文缓冲（unwrap 产生的明文，等待上层读取）。
-    */
+     * 应用明文缓冲（unwrap 产生的明文，等待上层读取）。
+     */
     private final ByteBuffer appOut;
 
     /**
-    * 握手是否已完成。
-    */
+     * 握手是否已完成。
+     */
     private boolean handshakeDone;
 
     /**
-    * 通道是否已关闭。
-    */
+     * 通道是否已关闭。
+     */
     private boolean closed;
 
     /**
-    * 构造 SSL 通道并立即执行阻塞式 TLS 握手。
-    *
-    * @param delegate 底层已连接的原生通道
-    * @param engine   TLS 引擎（需已配置服务端模式）
-    * @throws IOException 握手失败或底层 IO 异常
-    */
+     * 构造 SSL 通道并立即执行阻塞式 TLS 握手。
+     *
+     * @param delegate 底层已连接的原生通道
+     * @param engine   TLS 引擎（需已配置服务端模式）
+     * @throws IOException 握手失败或底层 IO 异常
+     */
     public SslSocketChannel(SocketChannel delegate, SSLEngine engine) throws IOException {
         super(delegate.provider());
         this.delegate = delegate;
@@ -98,8 +98,8 @@ public class SslSocketChannel extends SocketChannel {
     // ==================== TLS 握手 ====================
 
     /**
-    * 阻塞式 TLS 握手，直至 {@link SSLEngineResult.HandshakeStatus#FINISHED}。
-    */
+     * 阻塞式 TLS 握手，直至 {@link SSLEngineResult.HandshakeStatus#FINISHED}。
+     */
     private void handshake() throws IOException {
         engine.beginHandshake();
         while (true) {
@@ -244,10 +244,10 @@ public class SslSocketChannel extends SocketChannel {
     // ==================== 内部工具 ====================
 
     /**
-    * 从底层通道读取密文到 {@link #netIn}。
-    *
-    * @return true 表示读取成功（含 0 字节重试后的数据）；false 表示对端关闭（EOF）
-    */
+     * 从底层通道读取密文到 {@link #netIn}。
+     *
+     * @return true 表示读取成功（含 0 字节重试后的数据）；false 表示对端关闭（EOF）
+     */
     private boolean readNet() throws IOException {
         netIn.clear();
         int n;
@@ -262,8 +262,8 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     /**
-    * 将 {@link #netOut} 中的密文全部写入底层通道。
-    */
+     * 将 {@link #netOut} 中的密文全部写入底层通道。
+     */
     private void flushNetOut() throws IOException {
         netOut.flip();
         while (netOut.hasRemaining()) {
@@ -275,8 +275,8 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     /**
-    * 执行引擎委托的任务（如 RSA 解密），阻塞当前线程。
-    */
+     * 执行引擎委托的任务（如 RSA 解密），阻塞当前线程。
+     */
     private void runTasks() {
         Runnable task;
         while ((task = engine.getDelegatedTask()) != null) {
@@ -285,10 +285,10 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     /**
-    * 校验 wrap/unwrap 结果，非 OK 状态抛出异常。
-    * @param result 结果，不允许为 null
-    * @param phase 方法入参 phase
-    */
+     * 校验 wrap/unwrap 结果，非 OK 状态抛出异常。
+     * @param result 结果，不允许为 null
+     * @param phase 方法入参 phase
+     */
     private static void check(SSLEngineResult result, String phase) throws SSLException {
         if (result.getStatus() != SSLEngineResult.Status.OK
                 && result.getStatus() != SSLEngineResult.Status.CLOSED) {
@@ -297,12 +297,12 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     /**
-    * 将 src 中尽可能多的字节拷贝到 dst。
-    *
-    * @return 实际拷贝字节数
-    * @param src 方法入参 src
-    * @param dst 方法入参 dst
-    */
+     * 将 src 中尽可能多的字节拷贝到 dst。
+     *
+     * @return 实际拷贝字节数
+     * @param src 方法入参 src
+     * @param dst 方法入参 dst
+     */
     private static int copy(ByteBuffer src, ByteBuffer dst) {
         int n = Math.min(src.remaining(), dst.remaining());
         if (n == 0) {

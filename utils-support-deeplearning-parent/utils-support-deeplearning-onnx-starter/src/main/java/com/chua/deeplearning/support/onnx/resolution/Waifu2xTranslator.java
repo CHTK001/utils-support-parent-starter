@@ -14,28 +14,28 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
-* waifu2x ONNX                   /                        
-*
-* <p>         : HWC     CHW                       [0, 1]
-*
-* <p>         :           [0, 1]                   [0, 255] uint8             Image
-*
-* <p>      : <a href="https://github.com/nagadomi/waifu2x">waifu2x</a>
-*
-* @author CH
-* @since 2026-05-09
+ * waifu2x ONNX                   /                        
+ *
+ * <p>         : HWC     CHW                       [0, 1]
+ *
+ * <p>         :           [0, 1]                   [0, 255] uint8             Image
+ *
+ * <p>      : <a href="https://github.com/nagadomi/waifu2x">waifu2x</a>
+ *
+ * @author CH
+ * @since 2026-05-09
  */
 @Slf4j
 public class Waifu2xTranslator implements Translator<Image, Image> {
 
     /**
-    * waifu2x ONNX nd管理器
-    */
+     * waifu2x ONNX nd管理器
+     */
     private NDManager manager;
 
     /**
-    * 最近一次输入的 padding（输出侧裁剪用）
-    */
+     * 最近一次输入的 padding（输出侧裁剪用）
+     */
     private int lastPadH;
     private int lastPadW; // 最后一个padw
 
@@ -118,11 +118,11 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
-    *
-    * @param v 浮点像素值
-    * @return 0-255 整数
-    */
+     * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
+     *
+     * @param v 浮点像素值
+     * @return 0-255 整数
+     */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);

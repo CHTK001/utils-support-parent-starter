@@ -8,28 +8,28 @@ import com.chua.common.support.scatter.node.ScatterNodeHandler;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface ScatterServiceDiscovery extends ServiceDiscovery, ScatterNodeHandler {
 
     /**
-    * 设置远程客户端（未启动前）。
-    *
-    * @param remoteClient 远程客户端
-    * @return 当前实例
-    */
+     * 设置远程客户端（未启动前）。
+     *
+     * @param remoteClient 远程客户端
+     * @return 当前实例
+     */
     ScatterServiceDiscovery remoteClient(ScatterRemoteClient remoteClient);
 
     /**
-    * 获取分组。
-    *
-    * @return 分组
-    */
+     * 获取分组。
+     *
+     * @return 分组
+     */
     String getGroupId();
 
     /**
-    * 获取配置。
-    *
-    * @return 配置
-    */
+     * 获取配置。
+     *
+     * @return 配置
+     */
     ScatterSetting getSetting();
 }

@@ -17,12 +17,12 @@ import java.util.Map;
 public class VipParseService {
 
     /**
-    * 解析视频播放地址。
-    *
-    * @param source 视频来源编码
-    * @param url    视频播放页 URL
-    * @return 解析结果
-    */
+     * 解析视频播放地址。
+     *
+     * @param source 视频来源编码
+     * @param url    视频播放页 URL
+     * @return 解析结果
+     */
     public com.chua.common.support.datasearch.video.model.VipParseResult parse(String source, String url) {
         Map<String, VipParser> parsers = ServiceProvider.of(VipParser.class).list();
         if (parsers == null || parsers.isEmpty()) {

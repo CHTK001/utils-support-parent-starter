@@ -9,14 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 文档生成结果数据。
-* <p>
-* 包含文档元信息（数据库名称、产品名、版本等）和所有表结构的集合。
-* 通过建造者模式创建，最终可渲染为 Markdown、HTML 等格式。
-* </p>
-*
-* @author CH
-* @since 4.0.0.41
+ * 文档生成结果数据。
+ * <p>
+ * 包含文档元信息（数据库名称、产品名、版本等）和所有表结构的集合。
+ * 通过建造者模式创建，最终可渲染为 Markdown、HTML 等格式。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.41
  */
 @Data
 @Builder
@@ -35,8 +35,8 @@ public class DocumentData {
 
     /** JDBC 连接 URL */
     /**
-    * 地址
-    */
+     * 地址
+     */
     private String url;
 
     /** 文档标题，默认值为 "数据库设计文档" */

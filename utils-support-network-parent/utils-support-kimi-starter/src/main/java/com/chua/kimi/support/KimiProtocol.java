@@ -5,49 +5,49 @@ import com.chua.common.support.lang.json.JsonObject;
 import java.nio.charset.StandardCharsets;
 
 /**
-* Kimi 网页版协议常量与编解码工具。
-*
-* <p>核心调用基于 connect-rpc over HTTP：请求体为 <b>5 字节帧头 + JSON</b>（首字节标志位，
-* 后 4 字节大端长度），响应体为连续的 gRPC 帧流（同样 5 字节帧头，首字节最高位为 1 表示压缩/跳过）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Kimi 网页版协议常量与编解码工具。
+ *
+ * <p>核心调用基于 connect-rpc over HTTP：请求体为 <b>5 字节帧头 + JSON</b>（首字节标志位，
+ * 后 4 字节大端长度），响应体为连续的 gRPC 帧流（同样 5 字节帧头，首字节最高位为 1 表示压缩/跳过）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class KimiProtocol {
 
     /**
-    * Kimi 网页版基础地址。
-    */
+     * Kimi 网页版基础地址。
+     */
     public static final String BASE_URL = "https://www.kimi.com";
 
     /**
-    * 对话接口路径（连接-rpc）。
-    */
+     * 对话接口路径（连接-rpc）。
+     */
     public static final String CHAT_PATH = "/apiv2/kimi.gateway.chat.v1.ChatService/Chat";
 
     /**
-    * refresh 令牌 换取 access 令牌 接口路径。
-    */
+     * refresh 令牌 换取 access 令牌 接口路径。
+     */
     public static final String REFRESH_PATH = "/api/auth/token/refresh";
 
     /**
-    * subscribers 接口路径。
-    */
+     * subscribers 接口路径。
+     */
     public static final String SUBSCRIPTION_PATH = "/apiv2/kimi.gateway.order.v1.SubscriptionService/GetSubscription";
 
     /**
-    * 默认场景标识。
-    */
+     * 默认场景标识。
+     */
     public static final String SCENARIO = "SCENARIO_K2D5";
 
     /**
-    * 帧头长度：1 字节标志 + 4 字节长度。
-    */
+     * 帧头长度：1 字节标志 + 4 字节长度。
+     */
     public static final int FRAME_HEADER_LENGTH = 5;
 
     /**
-    * 保持类型标志（非压缩帧）。
-    */
+     * 保持类型标志（非压缩帧）。
+     */
     public static final int FLAG_TYPE_KEEP = 0x00;
 
     /** 创建 kimi协议 实例 */
@@ -65,21 +65,21 @@ public final class KimiProtocol {
     }
 
     /**
-    * 生成 会话 标识（16 位纯数字）。
-    *
-    * @return 随机 16 位数字字符串
-    */
+     * 生成 会话 标识（16 位纯数字）。
+     *
+     * @return 随机 16 位数字字符串
+     */
     public static String generateSessionId() {
         long base = 1700000000000000000L + (long) (Math.random() * 99999999999999999L);
         return Long.toString(base);
     }
 
     /**
-    * 解析 JWT 的 payload（基础64URL 解码）。
-    *
-    * @param token JWT 字符串
-    * @return payload JSON 对象，解析失败返回 空
-    */
+     * 解析 JWT 的 payload（基础64URL 解码）。
+     *
+     * @param token JWT 字符串
+     * @return payload JSON 对象，解析失败返回 空
+     */
     public static JsonObject parseJwt(String token) {
         if (token == null) {
             return null;
@@ -103,11 +103,11 @@ public final class KimiProtocol {
     }
 
     /**
-    * 检测 令牌 类型：JWT access 令牌 或 refresh 令牌。
-    *
-    * @param token 原始 令牌
-    * @return true 表示为 JWT access 令牌
-    */
+     * 检测 令牌 类型：JWT access 令牌 或 refresh 令牌。
+     *
+     * @param token 原始 令牌
+     * @return true 表示为 JWT access 令牌
+     */
     public static boolean isJwt(String token) {
         if (token == null || !token.startsWith("eyJ")) {
             return false;
@@ -122,13 +122,13 @@ public final class KimiProtocol {
     }
 
     /**
-    * 对请求体做 连接 帧编码：5 字节帧头 + JSON 字节。
-    *
-    * <p>帧首字节：保留类型（0x00）；后 4 字节：大端无符号长度。</p>
-    *
-    * @param payload 请求参数
-    * @return 编码后的完整请求字节
-    */
+     * 对请求体做 连接 帧编码：5 字节帧头 + JSON 字节。
+     *
+     * <p>帧首字节：保留类型（0x00）；后 4 字节：大端无符号长度。</p>
+     *
+     * @param payload 请求参数
+     * @return 编码后的完整请求字节
+     */
     public static byte[] encodeConnectRequest(JsonObject payload) {
         byte[] body = payload.toJSONString().getBytes(StandardCharsets.UTF_8);
         byte[] frame = new byte[FRAME_HEADER_LENGTH + body.length];

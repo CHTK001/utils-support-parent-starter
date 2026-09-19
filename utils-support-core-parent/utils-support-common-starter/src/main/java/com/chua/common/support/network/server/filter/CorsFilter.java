@@ -6,13 +6,13 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 /**
-* CORS 跨域过滤器。
-*
-* <p>根据 {@link ServerSetting} 中的 CORS 配置自动添加跨域响应头。
-* 仅在 {@link ServerSetting.CorsConfig#isAllowOrigin()} 为 true 时生效。</p>
-*
-* @author CH
-* @since 2024/12/20
+ * CORS 跨域过滤器。
+ *
+ * <p>根据 {@link ServerSetting} 中的 CORS 配置自动添加跨域响应头。
+ * 仅在 {@link ServerSetting.CorsConfig#isAllowOrigin()} 为 true 时生效。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 public class CorsFilter implements ServerFilter {
 

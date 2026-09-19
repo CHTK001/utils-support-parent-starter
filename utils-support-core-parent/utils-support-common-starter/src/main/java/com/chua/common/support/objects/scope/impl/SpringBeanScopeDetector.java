@@ -21,7 +21,7 @@ import java.lang.annotation.Annotation;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi("spring")
 @SpiDescribe("Spring 作用域检测器")
 public class SpringBeanScopeDetector implements BeanScopeDetector {

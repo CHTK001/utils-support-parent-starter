@@ -1,33 +1,33 @@
 package com.chua.common.support.image.png;
 
 /**
-* 类row过滤器用于对PNG图像的行数据进行过滤处理，以优化压缩效率
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * 类row过滤器用于对PNG图像的行数据进行过滤处理，以优化压缩效率
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 final class RowFilter {
 
     /**
-    * 计算整数的绝对值
-    *
-    * @param x 输入整数
-    * @return 输入整数的绝对值
-    */
+     * 计算整数的绝对值
+     *
+     * @param x 输入整数
+     * @return 输入整数的绝对值
+     */
     private static int abs(int x) {
         return (x < 0) ? -x : x;
     }
 
     /**
-    * 使用sub过滤器处理行数据
-    * sub过滤器将当前像素值与前一个像素值的差值存储到目标行
-    *
-    * @param currRow 当前行数据
-    * @param subFilteredRow 存储过滤结果的目标行
-    * @param bytesPerPixel 每个像素的字节数
-    * @param bytesPerRow 每行的字节数
-    * @return 返回绝对差值的总和
-    */
+     * 使用sub过滤器处理行数据
+     * sub过滤器将当前像素值与前一个像素值的差值存储到目标行
+     *
+     * @param currRow 当前行数据
+     * @param subFilteredRow 存储过滤结果的目标行
+     * @param bytesPerPixel 每个像素的字节数
+     * @param bytesPerRow 每行的字节数
+     * @return 返回绝对差值的总和
+     */
     private static int subFilter(byte[] currRow,
                                  byte[] subFilteredRow,
                                  int bytesPerPixel,
@@ -46,16 +46,16 @@ final class RowFilter {
     }
 
     /**
-    * 使用up过滤器处理行数据
-    * up过滤器将当前像素值与上一行相同位置像素值的差值存储到目标行
-    *
-    * @param currRow 当前行数据
-    * @param prevRow 上一行数据
-    * @param upFilteredRow 存储过滤结果的目标行
-    * @param bytesPerPixel 每个像素的字节数
-    * @param bytesPerRow 每行的字节数
-    * @return 返回绝对差值的总和
-    */
+     * 使用up过滤器处理行数据
+     * up过滤器将当前像素值与上一行相同位置像素值的差值存储到目标行
+     *
+     * @param currRow 当前行数据
+     * @param prevRow 上一行数据
+     * @param upFilteredRow 存储过滤结果的目标行
+     * @param bytesPerPixel 每个像素的字节数
+     * @param bytesPerRow 每行的字节数
+     * @return 返回绝对差值的总和
+     */
     private static int upFilter(byte[] currRow,
                                 byte[] prevRow,
                                 byte[] upFilteredRow,
@@ -75,13 +75,13 @@ final class RowFilter {
     }
 
     /**
-    * 使用Paeth预测器算法预测像素值
-    *
-    * @param a 左边像素值
-    * @param b 上边像素值
-    * @param c 左上角像素值
-    * @return 预测的像素值
-    */
+     * 使用Paeth预测器算法预测像素值
+     *
+     * @param a 左边像素值
+     * @param b 上边像素值
+     * @param c 左上角像素值
+     * @return 预测的像素值
+     */
     private int paethPredictor(int a, int b, int c) {
         int p = a + b - c;
         int pa = abs(p - a);
@@ -98,17 +98,17 @@ final class RowFilter {
     }
 
     /**
-    * 选择最优的行过滤方法
-    * 根据每种过滤方法计算的“差值总和”来决定使用哪种过滤方法
-    *
-    * @param colorType 颜色类型
-    * @param currRow 当前行数据
-    * @param prevRow 上一行数据
-    * @param scratchRows 用于存储临时过滤结果的数组
-    * @param bytesPerRow 每行的字节数
-    * @param bytesPerPixel 每个像素的字节数
-    * @return 返回最优的过滤方法类型
-    */
+     * 选择最优的行过滤方法
+     * 根据每种过滤方法计算的“差值总和”来决定使用哪种过滤方法
+     *
+     * @param colorType 颜色类型
+     * @param currRow 当前行数据
+     * @param prevRow 上一行数据
+     * @param scratchRows 用于存储临时过滤结果的数组
+     * @param bytesPerRow 每行的字节数
+     * @param bytesPerPixel 每个像素的字节数
+     * @return 返回最优的过滤方法类型
+     */
     public int filterRow(int colorType,
                          byte[] currRow,
                          byte[] prevRow,

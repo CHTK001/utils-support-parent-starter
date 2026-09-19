@@ -11,9 +11,9 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     private String modelName;
 
     /**
-    * 创建 onnx镜像enhancer 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx镜像enhancer 实例
+     * @param apiKey API密钥
+     */
     public OnnxImageEnhancer(String apiKey) {
     }
 

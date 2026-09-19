@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Prometheus 指标点
-* <p>
-* 描述一条 promql 查询返回的序列, 包含标签维度与采样值。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Prometheus 指标点
+ * <p>
+ * 描述一条 promql 查询返回的序列, 包含标签维度与采样值。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -26,19 +26,19 @@ import java.util.Map;
 public class PrometheusMetric {
 
     /**
-    * 标签维度(包含 __名称__)
-    */
+     * 标签维度(包含 __名称__)
+     */
     @Builder.Default
     private Map<String, String> metric = new LinkedHashMap<>(); // 指标
 
     /**
-    * 即时值(向量)
-    */
+     * 即时值(向量)
+     */
     private Double value;
 
     /**
-    * 序列值(matrix, 有序时间戳+值)
-    */
+     * 序列值(matrix, 有序时间戳+值)
+     */
     @Builder.Default
     /** 值 */
     private List<Sample> values = new ArrayList<>();
@@ -53,14 +53,14 @@ public class PrometheusMetric {
     }
 
     /**
-    * 采样点
-    *
-    * @param timestamp 时间戳(秒)
-    * @param value     值
-    * @author CH
-    * @since 4.0.0.42
-    * @return 样本的结果
-    */
+     * 采样点
+     *
+     * @param timestamp 时间戳(秒)
+     * @param value     值
+     * @author CH
+     * @since 4.0.0.42
+     * @return 样本的结果
+     */
     public record Sample(long timestamp, double value) {
     }
 }

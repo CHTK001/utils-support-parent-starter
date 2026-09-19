@@ -18,22 +18,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 飞桨 simnet BOW 文本相似度 Translator。
-* <p>输入 [query tokens, title tokens]，输出相似度分数。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 飞桨 simnet BOW 文本相似度 Translator。
+ * <p>输入 [query tokens, title tokens]，输出相似度分数。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SimnetBowTranslator implements Translator<String[][], float[]> {
 
     /**
-    * 词表。
-    */
+     * 词表。
+     */
     private final Map<String, Long> word2Id = new HashMap<>();
 
     /**
-    * unk。
-    */
+     * unk。
+     */
     private long unkId;
 
     @Override

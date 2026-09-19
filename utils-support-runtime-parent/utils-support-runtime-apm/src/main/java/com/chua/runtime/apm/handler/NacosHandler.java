@@ -7,33 +7,33 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Nacos 应用层 处理器 — 拦截 Nacos 注册中心客户端关键调用并生成应用语义传输记录。
-*
-* <p>拦截目标：</p>
-* <ul>
-*   <li>{@code com.alibaba.nacos.client.naming.NacosNamingService} — registerInstance / deregisterInstance / getAllInstances</li>
-*   <li>{@code com.alibaba.nacos.client.config.NacosConfigService} — getConfig / publishConfig</li>
-* </ul>
-*
-* <p>采用零编译期依赖策略：Nacos 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Nacos 应用层 处理器 — 拦截 Nacos 注册中心客户端关键调用并生成应用语义传输记录。
+ *
+ * <p>拦截目标：</p>
+ * <ul>
+ *   <li>{@code com.alibaba.nacos.client.naming.NacosNamingService} — registerInstance / deregisterInstance / getAllInstances</li>
+ *   <li>{@code com.alibaba.nacos.client.config.NacosConfigService} — getConfig / publishConfig</li>
+ * </ul>
+ *
+ * <p>采用零编译期依赖策略：Nacos 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NacosHandler extends AbstractAppHandler {
 
     /**
-    * nacos名称服务 类内部名
+     * nacos名称服务 类内部名
      */
     private static final String NAMING_SERVICE = "com/alibaba/nacos/client/naming/NacosNamingService";
 
     /**
-    * nacos配置服务 类内部名
+     * nacos配置服务 类内部名
      */
     private static final String CONFIG_SERVICE = "com/alibaba/nacos/client/config/NacosConfigService";
 
     /**
-    * 注册中心方法集合
+     * 注册中心方法集合
      */
     private static final String[] NAMING_METHODS = {
             "registerInstance", "deregisterInstance", "getAllInstances", "selectInstances",
@@ -41,7 +41,7 @@ public class NacosHandler extends AbstractAppHandler {
     };
 
     /**
-    * 配置中心方法集合
+     * 配置中心方法集合
      */
     private static final String[] CONFIG_METHODS = {"getConfig", "publishConfig", "removeConfig"};
 

@@ -17,39 +17,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* yolov11n Face ONNX Translator（嵌入 jar，纯 Java 预处理，兼容 onnxruntime engine）。
-*
-* <p>真人/动物卡通人脸检测：YOLOv11n-face（AdamCodd）。输入 640×640 RGB 归一化 [0,1]，
-* 输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
-*
-* <p>onnxruntime engine 不支持 NDArray resize/squeeze/transpose，letterbox 与 NMS 均纯 Java。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * yolov11n Face ONNX Translator（嵌入 jar，纯 Java 预处理，兼容 onnxruntime engine）。
+ *
+ * <p>真人/动物卡通人脸检测：YOLOv11n-face（AdamCodd）。输入 640×640 RGB 归一化 [0,1]，
+ * 输出 [1,5,8400]（cx,cy,w,h,face_conf）。</p>
+ *
+ * <p>onnxruntime engine 不支持 NDArray resize/squeeze/transpose，letterbox 与 NMS 均纯 Java。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    * 标签名。
-    */
+     * 标签名。
+     */
     private static final String FACE_LABEL = "face";
 
     /**
-    * 输入尺寸。
-    */
+     * 输入尺寸。
+     */
     private static final int INPUT_SIZE = 640;
 
     /**
-    * 置信度阈值（默认 0.45），可经 detection配置 覆盖。
-    */
+     * 置信度阈值（默认 0.45），可经 detection配置 覆盖。
+     */
     private float confThreshold = 0.45f;
 
     /**
-    * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
-    *
-    * @param configuration 检测配置（可空）
-    */
+     * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+     *
+     * @param configuration 检测配置（可空）
+     */
     public YoloFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (configuration != null) {
             this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
@@ -57,50 +57,50 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 无参构造：使用默认阈值（SPI/反射实例化要求）。
-    */
+     * 无参构造：使用默认阈值（SPI/反射实例化要求）。
+     */
     public YoloFaceTranslator() {
         this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
     }
 
     /**
-    * NMS IOU 阈值。
-    */
+     * NMS IOU 阈值。
+     */
     private static final float IOU_THRESHOLD = 0.45f;
 
     /**
-    * Top-K。
-    */
+     * Top-K。
+     */
     private static final int TOP_K = 20;
 
     /**
-    * 最小人脸尺寸比例，过滤边缘假阳性。
-    */
+     * 最小人脸尺寸比例，过滤边缘假阳性。
+     */
     private static final float MIN_FACE_RATIO = 0.08f;
 
     /**
-    * letterbox 缩放比例。
-    */
+     * letterbox 缩放比例。
+     */
     private float scaleR = 1f;
 
     /**
-    * 左侧填充。
-    */
+     * 左侧填充。
+     */
     private int padLeft;
 
     /**
-    * 顶部填充。
-    */
+     * 顶部填充。
+     */
     private int padTop;
 
     /**
-    * 原图宽。
-    */
+     * 原图宽。
+     */
     private int imageWidth;
 
     /**
-    * 原图高。
-    */
+     * 原图高。
+     */
     private int imageHeight;
 
     @Override
@@ -311,12 +311,12 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 纯 Java NMS（分数降序，抑制 IOU 重叠框）。
-    *
-    * @param boxes  候选框 [x1,y1,x2,y2]
-    * @param scores 分数
-    * @return 保留框索引
-    */
+     * 纯 Java NMS（分数降序，抑制 IOU 重叠框）。
+     *
+     * @param boxes  候选框 [x1,y1,x2,y2]
+     * @param scores 分数
+     * @return 保留框索引
+     */
     private static int[] nms(List<float[]> boxes, List<Float> scores) {
         int n = boxes.size();
         Integer[] idx = new Integer[n];

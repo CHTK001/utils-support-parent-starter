@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 基于 Netty 的 HTTP 同步服务端实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Netty 的 HTTP 同步服务端实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("netty-http")
 public class NettyHttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
@@ -31,9 +31,9 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     private com.sun.net.httpserver.HttpServer server;
 
     /**
-    * 创建 nettyhttp同步服务端 实例
-    * @param setting setting
-    */
+     * 创建 nettyhttp同步服务端 实例
+     * @param setting setting
+     */
     public NettyHttpSyncServer(ServerSetting setting) {
         super(setting);
     }
@@ -178,12 +178,12 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * 发送响应
-    *
-    * @param exchange exchange
-    * @param code 编码
-    * @param body 主体
-    */
+     * 发送响应
+     *
+     * @param exchange exchange
+     * @param code 编码
+     * @param body 主体
+     */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -194,12 +194,12 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * extract参数
-    *
-    * @param body 主体
-    * @param key 键
-    * @return extract参数的结果
-    */
+     * extract参数
+     *
+     * @param body 主体
+     * @param key 键
+     * @return extract参数的结果
+     */
     private String extractParam(String body, String key) {
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
@@ -219,11 +219,11 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * 解析查询
-    *
-    * @param query 查询
-    * @return 解析查询的结果
-    */
+     * 解析查询
+     *
+     * @param query 查询
+     * @return 解析查询的结果
+     */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -246,10 +246,10 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

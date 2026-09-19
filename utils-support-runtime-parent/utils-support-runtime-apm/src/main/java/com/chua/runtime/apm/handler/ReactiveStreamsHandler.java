@@ -7,35 +7,35 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* 响应式 流 处理器 — intercepts 发布/Subscriber operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * 响应式 流 处理器 — intercepts 发布/Subscriber operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ReactiveStreamsHandler extends AbstractAppHandler {
 
     /**
-    * PUBLISHER
+     * PUBLISHER
      */
     private static final String PUBLISHER = "org/reactivestreams/Publisher";
     /**
-    * SUBSCRIBER
+     * SUBSCRIBER
      */
     private static final String SUBSCRIBER = "org/reactivestreams/Subscriber";
     /**
-    * SUBSCRIPTION
+     * SUBSCRIPTION
      */
     private static final String SUBSCRIPTION = "org/reactivestreams/Subscription";
     /**
-    * 订阅 方法
+     * 订阅 方法
      */
     private static final String[] SUBSCRIBE_METHODS = {"subscribe"};
     /**
-    * on 方法
+     * on 方法
      */
     private static final String[] ON_METHODS = {"onNext", "onError", "onComplete"};
     /**
-    * 请求 方法
+     * 请求 方法
      */
     private static final String[] REQUEST_METHODS = {"request", "cancel"};
 

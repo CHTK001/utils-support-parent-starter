@@ -8,26 +8,26 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
-* QQ 号 Mock 生成器
-*
-* <p>生成 5-11 位 QQ 号（首位非零），如 {@code 123456789}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * QQ 号 Mock 生成器
+ *
+ * <p>生成 5-11 位 QQ 号（首位非零），如 {@code 123456789}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"qq", "qq-no", "qq-number"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class QqMockString implements MockString {
 
     /**
-    * 长度下界（包含）
-    */
+     * 长度下界（包含）
+     */
     private static final int LENGTH_MIN = 5;
     /**
-    * 长度上界（包含）
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 长度上界（包含）
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private static final int LENGTH_MAX = 11;
 
     @Override

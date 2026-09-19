@@ -41,89 +41,89 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi("tcp")
 public class TcpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
     /**
-    * 读取缓冲大小
-    */
+     * 读取缓冲大小
+     */
     private static final int READ_BUFFER_SIZE = 16384;
 
     /**
-    * IO 缓冲线程本地实例（worker 复用一个，避免每事件 new 导致 GC 压力）
-    */
+     * IO 缓冲线程本地实例（worker 复用一个，避免每事件 new 导致 GC 压力）
+     */
     private static final ThreadLocal<ByteBuffer> IO_BUFFER = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(READ_BUFFER_SIZE));
 
     /**
-    * 客户端连接表（clientId -> connection）
-    */
+     * 客户端连接表（clientId -> connection）
+     */
     private final Map<String, ClientConnection> clients = new ConcurrentHashMap<>();
 
     /**
-    * 同步监听器
-    */
+     * 同步监听器
+     */
     private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 服务端通道
-    */
+     * 服务端通道
+     */
     private ServerSocketChannel serverChannel;
 
     /**
-    * Boss Selector（仅负责 accept）
-    */
+     * Boss Selector（仅负责 accept）
+     */
     private Selector bossSelector;
 
     /**
-    * Boss 事件循环线程
-    */
+     * Boss 事件循环线程
+     */
     private Thread bossThread;
 
     /**
-    * Worker Selector 数组（每个 worker 一个事件循环，负责 read/write）
-    */
+     * Worker Selector 数组（每个 worker 一个事件循环，负责 read/write）
+     */
     private Selector[] workerSelectors;
 
     /**
-    * Worker 事件循环线程数组
-    */
+     * Worker 事件循环线程数组
+     */
     private Thread[] workerThreads;
 
     /**
-    * Worker 待注册连接队列(accept 后按轮询分发)
-    */
+     * Worker 待注册连接队列(accept 后按轮询分发)
+     */
     private final List<java.util.concurrent.ConcurrentLinkedQueue<SocketChannel>> pendingRegistrations =
             new CopyOnWriteArrayList<>();
 
     /**
-    * Worker 数量
-    */
+     * Worker 数量
+     */
     private int workerCount = 1;
 
     /**
-    * Worker 轮询索引
-    */
+     * Worker 轮询索引
+     */
     private final java.util.concurrent.atomic.AtomicInteger workerIndex = new java.util.concurrent.atomic.AtomicInteger();
 
     /**
-    * 运行状态
-    */
+     * 运行状态
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * 空闲构造。
-    */
+     * 空闲构造。
+     */
     public TcpSyncServer() {
         super(null);
     }
 
     /**
-    * 配置构造。
-    *
-    * @param setting 服务器配置
-    */
+     * 配置构造。
+     *
+     * @param setting 服务器配置
+     */
     public TcpSyncServer(ServerSetting setting) {
         super(setting);
     }
@@ -343,11 +343,11 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * Worker 事件循环: 处理各自注册连接的 read/write。
-    *
-    * @param idx worker 序号
-    * @param worker 对应 Selector
-    */
+     * Worker 事件循环: 处理各自注册连接的 read/write。
+     *
+     * @param idx worker 序号
+     * @param worker 对应 Selector
+     */
     private void workerLoop(int idx, Selector worker) {
         var pending = pendingRegistrations.get(idx);
         while (running.get() && worker.isOpen()) {
@@ -389,10 +389,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 处理 accept 事件: 从 boss accept 后轮询分发到 worker 待注册队列。
-    *
-    * @param key 选择键
-    */
+     * 处理 accept 事件: 从 boss accept 后轮询分发到 worker 待注册队列。
+     *
+     * @param key 选择键
+     */
     private void handleAccept(SelectionKey key) throws IOException {
         ServerSocketChannel channel = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel;
@@ -409,10 +409,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 处理 read 事件：非阻塞读入缓冲，按行切分后交虚拟线程处理。
-    *
-    * @param key 选择键
-    */
+     * 处理 read 事件：非阻塞读入缓冲，按行切分后交虚拟线程处理。
+     *
+     * @param key 选择键
+     */
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();
@@ -438,10 +438,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 处理 write 事件：冲刷连接发送队列。
-    *
-    * @param key 选择键
-    */
+     * 处理 write 事件：冲刷连接发送队列。
+     *
+     * @param key 选择键
+     */
     private void handleWrite(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
         ClientConnection connection = (ClientConnection) key.attachment();
@@ -449,11 +449,11 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 通道异常：通知监听器并关闭连接。
-    *
-    * @param key 选择键
-    * @param e   异常
-    */
+     * 通道异常：通知监听器并关闭连接。
+     *
+     * @param key 选择键
+     * @param e   异常
+     */
     private void handleChannelError(SelectionKey key, IOException e) {
         ClientConnection connection = (ClientConnection) key.attachment();
         if (connection != null) {
@@ -465,10 +465,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 通知监听器。
-    *
-    * @param action 动作
-    */
+     * 通知监听器。
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -479,57 +479,57 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * 客户端连接封装（NIO 非阻塞）。
-    *
-    */
+     * 客户端连接封装（NIO 非阻塞）。
+     *
+     */
     private final class ClientConnection {
 
         /**
-        * 底层通道
-        */
+         * 底层通道
+         */
         private final SocketChannel channel;
 
         /**
-        * 所属 Worker Selector(连接固定由该 worker 处理 read/write)
-        */
+         * 所属 Worker Selector(连接固定由该 worker 处理 read/write)
+         */
         private final Selector worker;
 
         /**
-        * 待续写的数据(非阻塞 write 一次写不完时保留,随 OP_WRITE 再续)
-        */
+         * 待续写的数据(非阻塞 write 一次写不完时保留,随 OP_WRITE 再续)
+         */
         private ByteBuffer pendingWrite;
 
         /**
-        * 客户端标识
-        */
+         * 客户端标识
+         */
         private volatile String clientId;
 
         /**
-        * 客户端元数据
-        */
+         * 客户端元数据
+         */
         private final Map<String, Object> metadata = new HashMap<>();
 
         /**
-        * 读取缓冲（按行切分前的原始字节）
-        */
+         * 读取缓冲（按行切分前的原始字节）
+         */
         private final ByteBuffer readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE * 2);
 
         /**
-        * 发送队列（写事件就绪时冲刷）
-        */
+         * 发送队列（写事件就绪时冲刷）
+         */
         private final LinkedBlockingQueue<String> writeQueue = new LinkedBlockingQueue<>();
 
         /**
-        * 是否已注册写事件
-        */
+         * 是否已注册写事件
+         */
         private final AtomicBoolean writePending = new AtomicBoolean(false);
 
         /**
-        * 创建客户端连接。
-        *
-        * @param channel 底层通道
-        * @param worker  所属 Worker Selector
-        */
+         * 创建客户端连接。
+         *
+         * @param channel 底层通道
+         * @param worker  所属 Worker Selector
+         */
         private ClientConnection(SocketChannel channel, Selector worker) {
             this.channel = channel;
             this.worker = worker;
@@ -538,10 +538,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 追加读取字节。调用前 readBuffer 处于读模式（position=0, limit=数据末尾）。
-        *
-        * @param buffer 数据
-        */
+         * 追加读取字节。调用前 readBuffer 处于读模式（position=0, limit=数据末尾）。
+         *
+         * @param buffer 数据
+         */
         void appendBuffer(ByteBuffer buffer) {
             synchronized (readBuffer) {
                 readBuffer.compact();
@@ -553,10 +553,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 切分完整行（按 \n），未完成行保留在缓冲头部。
-        *
-        * @return 完整行列表
-        */
+         * 切分完整行（按 \n），未完成行保留在缓冲头部。
+         *
+         * @return 完整行列表
+         */
         List<String> drainLines() {
             List<String> lines = new ArrayList<>();
             synchronized (readBuffer) {
@@ -591,10 +591,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 处理一行消息（虚拟线程中执行）。
-        *
-        * @param line 消息行
-        */
+         * 处理一行消息（虚拟线程中执行）。
+         *
+         * @param line 消息行
+         */
         void handleLine(String line) {
             String message = line.trim();
             if (message.isEmpty()) {
@@ -615,10 +615,10 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 写入一行消息（入队，写事件就绪时冲刷）。
-        *
-        * @param payload 消息内容
-        */
+         * 写入一行消息（入队，写事件就绪时冲刷）。
+         *
+         * @param payload 消息内容
+         */
         void write(String payload) {
             writeQueue.offer(payload);
             if (writePending.compareAndSet(false, true)) {
@@ -633,13 +633,13 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 冲刷发送队列。
-        * <p>非阻塞写一次可能写不完，剩余数据保留在 {@code pendingWrite}，随 OP_WRITE 再续写，
-        * 避免数据丢失。</p>
-        *
-        * @param ch  通道
-        * @param key 选择键
-        */
+         * 冲刷发送队列。
+         * <p>非阻塞写一次可能写不完，剩余数据保留在 {@code pendingWrite}，随 OP_WRITE 再续写，
+         * 避免数据丢失。</p>
+         *
+         * @param ch  通道
+         * @param key 选择键
+         */
         void flushQueue(SocketChannel ch, SelectionKey key) throws IOException {
             ByteBuffer buffer = pendingWrite;
             while (true) {
@@ -663,17 +663,17 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 获取客户端标识。
-        *
-        * @return 客户端标识
-        */
+         * 获取客户端标识。
+         *
+         * @return 客户端标识
+         */
         String getClientId() {
             return clientId;
         }
 
         /**
-        * 注销连接。
-        */
+         * 注销连接。
+         */
         void unregister() {
             if (clientId != null) {
                 clients.remove(clientId);
@@ -683,8 +683,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
         }
 
         /**
-        * 关闭连接。
-        */
+         * 关闭连接。
+         */
         void close() {
             try {
                 SelectionKey key = channel.keyFor(worker);

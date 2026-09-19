@@ -14,10 +14,10 @@ import com.chua.datalake.support.model.DataEnvelope;
 public interface DataHandler {
 
     /**
-    * 处理一个数据信封。
-    *
-    * @param pipelineId 管道标识
-    * @param envelope   数据信封，不能为 null
-    */
+     * 处理一个数据信封。
+     *
+     * @param pipelineId 管道标识
+     * @param envelope   数据信封，不能为 null
+     */
     void handle(String pipelineId, DataEnvelope envelope);
 }

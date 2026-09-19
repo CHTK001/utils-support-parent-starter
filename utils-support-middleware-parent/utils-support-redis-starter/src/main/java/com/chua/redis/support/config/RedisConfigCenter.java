@@ -22,25 +22,25 @@ import java.util.Properties;
 
 
 /**
-* Redis 配置中心实现。
-* <p>
-* 基于 Jedis 连接 Redis 服务器，将 Redis 的 字符串 类型键值对作为配置存储。
-* 数据id 对应 Redis 的 键，配置值支持 JSON、属性 和纯文本三种格式。
-* 通过 配置文件 参数指定 Redis 数据库索引（0-15），实现多环境配置隔离。
-* </p>
-* <p>
-* <b>功能特性：</b>
-* <ul>
-*   <li>通过 JedisPool 连接池管理 Redis 连接</li>
-*   <li>支持 Redis 密码认证</li>
-*   <li>profile 参数映射为 Redis 数据库索引（默认 0）</li>
-*   <li>自动识别 JSON、Properties 格式并解析为键值映射</li>
-*   <li>内置连接健康检测（PING）</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Redis 配置中心实现。
+ * <p>
+ * 基于 Jedis 连接 Redis 服务器，将 Redis 的 字符串 类型键值对作为配置存储。
+ * 数据id 对应 Redis 的 键，配置值支持 JSON、属性 和纯文本三种格式。
+ * 通过 配置文件 参数指定 Redis 数据库索引（0-15），实现多环境配置隔离。
+ * </p>
+ * <p>
+ * <b>功能特性：</b>
+ * <ul>
+ *   <li>通过 JedisPool 连接池管理 Redis 连接</li>
+ *   <li>支持 Redis 密码认证</li>
+ *   <li>profile 参数映射为 Redis 数据库索引（默认 0）</li>
+ *   <li>自动识别 JSON、Properties 格式并解析为键值映射</li>
+ *   <li>内置连接健康检测（PING）</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("redis")
 @Slf4j
@@ -48,16 +48,16 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
     /**
 
-    * * Jedis 连接池实例
+     * * Jedis 连接池实例
 
-    */
+     */
     private JedisPool jedisPool;
 
     /**
-    * 构造 Redis 配置中心。
-    *
-    * @param configCenterSetting 配置中心连接设置（地址、密码、超时等）
-    */
+     * 构造 Redis 配置中心。
+     *
+     * @param configCenterSetting 配置中心连接设置（地址、密码、超时等）
+     */
     public RedisConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -167,12 +167,12 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析 配置文件 参数为 Redis 数据库索引。
-    * <p>profile 可作为 Redis 数据库索引（0-15），用于多环境配置隔离。</p>
-    *
-    * @param profile 环境标识，为数字时作为数据库索引
-    * @return Redis 数据库索引，默认 0
-    */
+     * 解析 配置文件 参数为 Redis 数据库索引。
+     * <p>profile 可作为 Redis 数据库索引（0-15），用于多环境配置隔离。</p>
+     *
+     * @param profile 环境标识，为数字时作为数据库索引
+     * @return Redis 数据库索引，默认 0
+     */
     private int parseDatabase(String profile) {
         if (StringUtils.isBlank(profile)) {
             return 0;
@@ -186,10 +186,10 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 创建 Jedis 连接池配置。
-    *
-    * @return 连接池配置
-    */
+     * 创建 Jedis 连接池配置。
+     *
+     * @return 连接池配置
+     */
     private JedisPoolConfig createPoolConfig() {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
 
@@ -213,12 +213,12 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
     /**
 
-    * * 测试 Redis 连接是否正常。
+     * * 测试 Redis 连接是否正常。
 
-    */
+     */
     /**
-    * 测试connection。
-    */
+     * 测试connection。
+     */
     private void testConnection() {
         try (Jedis jedis = jedisPool.getResource()) {
             String pong = jedis.ping();
@@ -231,20 +231,20 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析配置内容字符串为键值映射。
-    * <p>
-    * 自动识别配置格式：
-    * <ul>
-    *   <li>JSON 格式（以 { 开头）— 简单解析键值对</li>
-    *   <li>Properties 格式（包含等号和换行）— 使用 java.util.Properties 解析</li>
-    *   <li>其他格式 — 作为单个 value 返回</li>
-    * </ul>
-    * </p>
-    *
-    * @param configContent 配置内容字符串
-    * @param dataId        配置标识（用于日志）
-    * @return 解析后的键值映射
-    */
+     * 解析配置内容字符串为键值映射。
+     * <p>
+     * 自动识别配置格式：
+     * <ul>
+     *   <li>JSON 格式（以 { 开头）— 简单解析键值对</li>
+     *   <li>Properties 格式（包含等号和换行）— 使用 java.util.Properties 解析</li>
+     *   <li>其他格式 — 作为单个 value 返回</li>
+     * </ul>
+     * </p>
+     *
+     * @param configContent 配置内容字符串
+     * @param dataId        配置标识（用于日志）
+     * @return 解析后的键值映射
+     */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 尝试 JSON 格式解析
@@ -266,12 +266,12 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 判断是否为 JSON 格式内容。
-    * <p>JSON 格式特征：以 { 或 [ 开头，以 } 或 ] 结尾。</p>
-    *
-    * @param content 配置内容
-    * @return true-是 JSON 格式
-    */
+     * 判断是否为 JSON 格式内容。
+     * <p>JSON 格式特征：以 { 或 [ 开头，以 } 或 ] 结尾。</p>
+     *
+     * @param content 配置内容
+     * @return true-是 JSON 格式
+     */
     private boolean isJsonContent(String content) {
         String trimmed = content.trim();
         return (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
@@ -279,23 +279,23 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 判断是否为 属性 格式内容。
-    * <p>Properties 格式特征：包含等号和换行符。</p>
-    *
-    * @param content 配置内容
-    * @return true-是 属性 格式
-    */
+     * 判断是否为 属性 格式内容。
+     * <p>Properties 格式特征：包含等号和换行符。</p>
+     *
+     * @param content 配置内容
+     * @return true-是 属性 格式
+     */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
     }
 
     /**
-    * 解析 JSON 格式的配置内容。
-    * <p>使用简单的字符串解析方式提取键值对，避免引入 Jackson/Gson 等重依赖。</p>
-    *
-    * @param content JSON 格式的字符串
-    * @return 键值映射
-    */
+     * 解析 JSON 格式的配置内容。
+     * <p>使用简单的字符串解析方式提取键值对，避免引入 Jackson/Gson 等重依赖。</p>
+     *
+     * @param content JSON 格式的字符串
+     * @return 键值映射
+     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJsonContent(String content) {
         try {
@@ -324,11 +324,11 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析 属性 格式的配置内容。
-    *
-    * @param content 属性 格式的字符串
-    * @return 键值映射
-    */
+     * 解析 属性 格式的配置内容。
+     *
+     * @param content 属性 格式的字符串
+     * @return 键值映射
+     */
     private Map<String, Object> parsePropertiesContent(String content) {
         Map<String, Object> result = new HashMap<>();
         Properties properties = new Properties();

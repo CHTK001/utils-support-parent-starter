@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* DHCP 协议还原器。
-*
-* <p>解析 DHCP 报文类型与 option 53（Message Type）、option 55（Parameter Request List）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DHCP 协议还原器。
+ *
+ * <p>解析 DHCP 报文类型与 option 53（Message Type）、option 55（Parameter Request List）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -114,11 +114,11 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为消息类型名称
-    *
-    * @param type 类型
-    * @return 转为消息类型名称的结果
-    */
+     * 转为消息类型名称
+     *
+     * @param type 类型
+     * @return 转为消息类型名称的结果
+     */
     private static String toMessageTypeName(int type) {
         return switch (type) {
             case 1 -> "DISCOVER";
@@ -134,11 +134,11 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * ip转为字符串
-    *
-    * @param ip ip
-    * @return ip转为字符串的结果
-    */
+     * ip转为字符串
+     *
+     * @param ip ip
+     * @return ip转为字符串的结果
+     */
     private static String ipToString(int ip) {
         return ((ip >> 24) & 0xff) + "."
                 + ((ip >> 16) & 0xff) + "."

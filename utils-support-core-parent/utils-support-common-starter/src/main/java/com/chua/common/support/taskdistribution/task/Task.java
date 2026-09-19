@@ -13,45 +13,45 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 @Builder
 public class Task<T> {
 
     /**
-    * 全局唯一任务 标识（由 任务id生成器 自动生成）
-    */
+     * 全局唯一任务 标识（由 任务id生成器 自动生成）
+     */
     private String taskId;
 
     /**
-    * 链路追踪 标识（贯穿整个任务链，子任务继承父任务的 追踪id）
-    */
+     * 链路追踪 标识（贯穿整个任务链，子任务继承父任务的 追踪id）
+     */
     private String traceId;
 
     /**
-    * 父任务 标识（子任务链时记录来源，根任务为 空）
-    */
+     * 父任务 标识（子任务链时记录来源，根任务为 空）
+     */
     private String parentTaskId;
 
     /**
-    * 任务类型（用于匹配 任务执行器）
-    */
+     * 任务类型（用于匹配 任务执行器）
+     */
     private String taskType;
 
     /**
-    * 任务负载数据
-    */
+     * 任务负载数据
+     */
     private T payload;
 
     /**
-    * 任务标签（用于能力匹配和路由）
-    */
+     * 任务标签（用于能力匹配和路由）
+     */
     @Builder.Default
     private Map<String, String> tags = new HashMap<>(); // 标签
 
     /**
-    * 分片数量（>1 表示需要分片执行）
-    */
+     * 分片数量（>1 表示需要分片执行）
+     */
     @Builder.Default
     /** Shard数量 */
     private int shardCount = 1;
@@ -62,8 +62,8 @@ public class Task<T> {
     private String shardKey;
 
     /**
-    * 当前分片索引（分片执行时标记，-1 表示未分片）
-    */
+     * 当前分片索引（分片执行时标记，-1 表示未分片）
+     */
     @Builder.Default
     /** Shard索引 */
     private int shardIndex = -1;

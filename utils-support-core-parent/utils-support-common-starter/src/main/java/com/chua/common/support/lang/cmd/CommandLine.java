@@ -9,74 +9,74 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
-* 命令行参数解析器，支持 POSIX 风格和 GNU 风格参数解析与组装。
-*
-* <p>不需要任何第三方依赖（如 commons-cli），纯 JDK 实现。</p>
-*
-* <h3>支持的特性</h3>
-* <ul>
-*   <li>{@code --long-name value} 长选项</li>
-*   <li>{@code -s value} 短选项</li>
-*   <li>{@code --long-name=value} 等号语法</li>
-*   <li>{@code --flag} 和 {@code -f} 布尔标志</li>
-*   <li>{@code --no-flag} 布尔标志否定</li>
-*   <li>位置参数（非选项参数）</li>
-*   <li>自动类型转换（String、Integer、Long、Double、Boolean）</li>
-*   <li>必需选项校验</li>
-*   <li>自动生成帮助信息</li>
-*   <li>终止标记 {@code --}（之后的参数视为位置参数）</li>
-*   <li>默认内置 {@code --help} / {@code -h} 选项</li>
-*   <li><strong>组装（Compose）</strong> — 反向将选项值生成为命令行参数数组</li>
-* </ul>
-*
-* <h3>解析示例</h3>
-* <pre>{@code
-* CommandLine cli = CommandLine.builder()
-*         .programName("myapp")
-*         .description("一个示例应用")
-*         .option(CliOption.builder()
-*                 .longName("port").shortName("p")
-*                 .description("监听端口").type(Integer.class)
-*                 .defaultValue(8080).build())
-*         .option(CliOption.builder()
-*                 .longName("verbose").shortName("v")
-*                 .description("启用详细输出").flag(true).build())
-*         .option(CliOption.builder()
-*                 .longName("config").shortName("c")
-*                 .description("配置文件路径").required().build())
-*         .build();
-*
-* CommandLine.Result result = cli.parse(args);
-*
-* if (result.has("help")) {
-*     cli.printHelp();
-*     return;
-* }
-* int port = result.getInt("port");
-* String config = result.getString("config");
-* </pre>
-*
-* <h3>组装示例</h3>
-* <pre>{@code
-* // 方式一：Lambda 风格
-* String[] args = cli.compose(c -> {
-*     c.option("port", 9090);
-*     c.option("v", true);
-*     c.option("config", "/etc/app.yml");
-*     c.arg("input.txt");
-* });
-*
-* // 方式二：Builder 风格
-* CommandLine.Composer composer = cli.composer();
-* composer.set("port", 9090);
-* composer.set("verbose", true);
-* composer.set("config", "/etc/app.yml");
-* composer.arg("input.txt");
-* String[] args2 = composer.build();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 命令行参数解析器，支持 POSIX 风格和 GNU 风格参数解析与组装。
+ *
+ * <p>不需要任何第三方依赖（如 commons-cli），纯 JDK 实现。</p>
+ *
+ * <h3>支持的特性</h3>
+ * <ul>
+ *   <li>{@code --long-name value} 长选项</li>
+ *   <li>{@code -s value} 短选项</li>
+ *   <li>{@code --long-name=value} 等号语法</li>
+ *   <li>{@code --flag} 和 {@code -f} 布尔标志</li>
+ *   <li>{@code --no-flag} 布尔标志否定</li>
+ *   <li>位置参数（非选项参数）</li>
+ *   <li>自动类型转换（String、Integer、Long、Double、Boolean）</li>
+ *   <li>必需选项校验</li>
+ *   <li>自动生成帮助信息</li>
+ *   <li>终止标记 {@code --}（之后的参数视为位置参数）</li>
+ *   <li>默认内置 {@code --help} / {@code -h} 选项</li>
+ *   <li><strong>组装（Compose）</strong> — 反向将选项值生成为命令行参数数组</li>
+ * </ul>
+ *
+ * <h3>解析示例</h3>
+ * <pre>{@code
+ * CommandLine cli = CommandLine.builder()
+ *         .programName("myapp")
+ *         .description("一个示例应用")
+ *         .option(CliOption.builder()
+ *                 .longName("port").shortName("p")
+ *                 .description("监听端口").type(Integer.class)
+ *                 .defaultValue(8080).build())
+ *         .option(CliOption.builder()
+ *                 .longName("verbose").shortName("v")
+ *                 .description("启用详细输出").flag(true).build())
+ *         .option(CliOption.builder()
+ *                 .longName("config").shortName("c")
+ *                 .description("配置文件路径").required().build())
+ *         .build();
+ *
+ * CommandLine.Result result = cli.parse(args);
+ *
+ * if (result.has("help")) {
+ *     cli.printHelp();
+ *     return;
+ * }
+ * int port = result.getInt("port");
+ * String config = result.getString("config");
+ * </pre>
+ *
+ * <h3>组装示例</h3>
+ * <pre>{@code
+ * // 方式一：Lambda 风格
+ * String[] args = cli.compose(c -> {
+ *     c.option("port", 9090);
+ *     c.option("v", true);
+ *     c.option("config", "/etc/app.yml");
+ *     c.arg("input.txt");
+ * });
+ *
+ * // 方式二：Builder 风格
+ * CommandLine.Composer composer = cli.composer();
+ * composer.set("port", 9090);
+ * composer.set("verbose", true);
+ * composer.set("config", "/etc/app.yml");
+ * composer.arg("input.txt");
+ * String[] args2 = composer.build();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class CommandLine {
 
@@ -128,30 +128,30 @@ public final class CommandLine {
     }
 
     /**
-    * 创建新的 {@link Builder} 实例。
-    *
-    * @return Builder
-    */
+     * 创建新的 {@link Builder} 实例。
+     *
+     * @return Builder
+     */
     @Nonnull
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 获取已定义的所有选项。
-    *
-    * @return 不可修改的选项列表
-    */
+     * 获取已定义的所有选项。
+     *
+     * @return 不可修改的选项列表
+     */
     @Nonnull
     public List<CliOption> options() {
         return options;
     }
 
     /**
-    * 判断是否启用了内置的帮助选项。
-    *
-    * @return 如果启用了返回 true
-    */
+     * 判断是否启用了内置的帮助选项。
+     *
+     * @return 如果启用了返回 true
+     */
     public boolean isHelpOptionEnabled() {
         return helpOptionEnabled;
     }
@@ -159,12 +159,12 @@ public final class CommandLine {
     // ==================== 解析 ====================
 
     /**
-    * 解析命令行参数。
-    *
-    * @param args 命令行参数数组（通常来自 {@code main(String[] args)}）
-    * @return 解析结果
-    * @throws IllegalArgumentException 如果遇到未知选项或缺少必需选项的值
-    */
+     * 解析命令行参数。
+     *
+     * @param args 命令行参数数组（通常来自 {@code main(String[] args)}）
+     * @return 解析结果
+     * @throws IllegalArgumentException 如果遇到未知选项或缺少必需选项的值
+     */
     @Nonnull
     public Result parse(@Nullable String[] args) {
         Map<String, Object> values = new LinkedHashMap<>();
@@ -328,20 +328,20 @@ public final class CommandLine {
     // ==================== 组装 ====================
 
     /**
-    * 创建一个组装器，通过 Lambda 快捷设置选项值并生成命令行参数。
-    *
-    * <pre>{@code
-    * String[] args = cli.compose(c -> {
-    *     c.option("port", 8080);
-    *     c.option("verbose", true);
-    *     c.arg("file.txt");
-    * });
-    * }</pre>
-    *
-    * @param consumer 组装器消费回调
-    * @return 生成命令行参数字符串数组
-    * @throws IllegalArgumentException 如果设置了未定义的选项或值类型不匹配
-    */
+     * 创建一个组装器，通过 Lambda 快捷设置选项值并生成命令行参数。
+     *
+     * <pre>{@code
+     * String[] args = cli.compose(c -> {
+     *     c.option("port", 8080);
+     *     c.option("verbose", true);
+     *     c.arg("file.txt");
+     * });
+     * }</pre>
+     *
+     * @param consumer 组装器消费回调
+     * @return 生成命令行参数字符串数组
+     * @throws IllegalArgumentException 如果设置了未定义的选项或值类型不匹配
+     */
     @Nonnull
     public String[] compose(@Nonnull Consumer<Composer> consumer) {
         Composer composer = new Composer(this);
@@ -350,18 +350,18 @@ public final class CommandLine {
     }
 
     /**
-    * 创建一个组装器，用于构建命令行参数字符串数组。
-    *
-    * <pre>{@code
-    * CommandLine.Composer composer = cli.composer();
-    * composer.set("port", 8080);
-    * composer.set("verbose", true);
-    * composer.arg("file.txt");
-    * String[] args = composer.build();
-    * }</pre>
-    *
-    * @return Composer 实例
-    */
+     * 创建一个组装器，用于构建命令行参数字符串数组。
+     *
+     * <pre>{@code
+     * CommandLine.Composer composer = cli.composer();
+     * composer.set("port", 8080);
+     * composer.set("verbose", true);
+     * composer.arg("file.txt");
+     * String[] args = composer.build();
+     * }</pre>
+     *
+     * @return Composer 实例
+     */
     @Nonnull
     public Composer composer() {
         return new Composer(this);
@@ -370,10 +370,10 @@ public final class CommandLine {
     // ==================== 帮助信息 ====================
 
     /**
-    * 将帮助信息打印到指定输出流。
-    *
-    * @param out 输出流（如 {@link System#out}）
-    */
+     * 将帮助信息打印到指定输出流。
+     *
+     * @param out 输出流（如 {@link System#out}）
+     */
     public void printHelp(@Nonnull PrintStream out) {
         out.println("用法: " + (programName != null ? programName : "<program>") + " [选项]");
         if (StringUtils.isNotBlank(programDescription)) {
@@ -448,8 +448,8 @@ public final class CommandLine {
     }
 
     /**
-    * 将帮助信息打印到标准输出。
-    */
+     * 将帮助信息打印到标准输出。
+     */
     public void printHelp() {
         printHelp(System.out);
     }
@@ -457,10 +457,10 @@ public final class CommandLine {
     // ========== 内部方法 ==========
 
     /**
-    * 格式化选项名称（如 "-p, --port"）。
-    * @param opt 方法入参 opt
-    * @return 结果字符串
-    */
+     * 格式化选项名称（如 "-p, --port"）。
+     * @param opt 方法入参 opt
+     * @return 结果字符串
+     */
     private static String formatOptionName(CliOption opt) {
         StringBuilder sb = new StringBuilder();
         if (opt.shortName() != null) {
@@ -480,10 +480,10 @@ public final class CommandLine {
     }
 
     /**
-    * 返回类型的友好提示字符串。
-    * @param opt 方法入参 opt
-    * @return 结果字符串
-    */
+     * 返回类型的友好提示字符串。
+     * @param opt 方法入参 opt
+     * @return 结果字符串
+     */
     private static String typeHint(CliOption opt) {
         switch (opt.type()) {
             case INTEGER: return "<int>";
@@ -501,19 +501,19 @@ public final class CommandLine {
     }
 
     /**
-    * 检查指定长名称是否在已定义的选项中。
-    * @param longName long名称，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 检查指定长名称是否在已定义的选项中。
+     * @param longName long名称，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean isOptionDefined(String longName) {
         return findOption(longName) != null;
     }
 
     /**
-    * 按长名称查找选项。
-    * @param longName long名称，不允许为 null
-    * @return CliOption 对象
-    */
+     * 按长名称查找选项。
+     * @param longName long名称，不允许为 null
+     * @return CliOption 对象
+     */
     @Nullable
     private CliOption findOption(String longName) {
         for (CliOption opt : options) {
@@ -525,10 +525,10 @@ public final class CommandLine {
     }
 
     /**
-    * 按短名称查找选项。
-    * @param shortName short名称，不允许为 null
-    * @return CliOption 对象
-    */
+     * 按短名称查找选项。
+     * @param shortName short名称，不允许为 null
+     * @return CliOption 对象
+     */
     @Nullable
     private CliOption findOptionByShortName(String shortName) {
         for (CliOption opt : options) {
@@ -540,10 +540,10 @@ public final class CommandLine {
     }
 
     /**
-    * 通过长名称或短名称查找选项。
-    * @param name 名称，不允许为 null
-    * @return CliOption 对象
-    */
+     * 通过长名称或短名称查找选项。
+     * @param name 名称，不允许为 null
+     * @return CliOption 对象
+     */
     @Nullable
     private CliOption resolveOption(String name) {
         CliOption opt = findOption(name);
@@ -554,11 +554,11 @@ public final class CommandLine {
     }
 
     /**
-    * 将选项值转为字符串（组装时使用）。
-    * @param opt 方法入参 opt
-    * @param value 值，不允许为 null
-    * @return 结果字符串
-    */
+     * 将选项值转为字符串（组装时使用）。
+     * @param opt 方法入参 opt
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String valueToString(CliOption opt, Object value) {
         if (value == null) {
             return "";
@@ -576,11 +576,11 @@ public final class CommandLine {
     }
 
     /**
-    * 将字符串值转换为选项对应的类型。
-    * @param opt 方法入参 opt
-    * @param value 值，不允许为 null
-    * @return 对象 对象
-    */
+     * 将字符串值转换为选项对应的类型。
+     * @param opt 方法入参 opt
+     * @param value 值，不允许为 null
+     * @return 对象 对象
+     */
 @SuppressWarnings("unchecked")
     private static Object convertValue(CliOption opt, String value) {
         if (value == null) {
@@ -646,22 +646,22 @@ public final class CommandLine {
     }
 
     /**
-    * 获取控制台宽度（用于帮助文本自动换行）。
-    *
-    * <p>默认返回 80 列，适用于大多数终端环境。</p>
-    * @return 结果数值
-    */
+     * 获取控制台宽度（用于帮助文本自动换行）。
+     *
+     * <p>默认返回 80 列，适用于大多数终端环境。</p>
+     * @return 结果数值
+     */
     private static int getConsoleWidth() {
         return 80;
     }
 
     /**
-    * 将文本按指定宽度换行。
-    *
-    * @param text  文本
-    * @param width 每行最大宽度
-    * @return 换行后的行列表
-    */
+     * 将文本按指定宽度换行。
+     *
+     * @param text  文本
+     * @param width 每行最大宽度
+     * @return 换行后的行列表
+     */
     private static List<String> wordWrap(String text, int width) {
         List<String> lines = new ArrayList<>();
         if (StringUtils.isEmpty(text)) {
@@ -693,10 +693,10 @@ public final class CommandLine {
     // ==================== Builder ====================
 
     /**
-    * {@link CommandLine} 构建器。
-    *
-    * <p>默认会自动添加 {@code --help} / {@code -h} 选项，可通过 {@link #disableHelpOption()} 禁用。</p>
-    */
+     * {@link CommandLine} 构建器。
+     *
+     * <p>默认会自动添加 {@code --help} / {@code -h} 选项，可通过 {@link #disableHelpOption()} 禁用。</p>
+     */
     public static final class Builder {
         /** 选项列表 */
         private final List<CliOption> options = new ArrayList<>();
@@ -734,11 +734,11 @@ public final class CommandLine {
         }
 
         /**
-        * 设置程序名称（用于帮助信息）。
-        *
-        * @param programName 程序名称
-        * @return this
-        */
+         * 设置程序名称（用于帮助信息）。
+         *
+         * @param programName 程序名称
+         * @return this
+         */
         @Nonnull
         public Builder programName(@Nullable String programName) {
             this.programName = programName;
@@ -746,11 +746,11 @@ public final class CommandLine {
         }
 
         /**
-        * 设置程序描述（用于帮助信息）。
-        *
-        * @param description 程序描述
-        * @return this
-        */
+         * 设置程序描述（用于帮助信息）。
+         *
+         * @param description 程序描述
+         * @return this
+         */
         @Nonnull
         public Builder description(@Nullable String description) {
             this.programDescription = description;
@@ -758,13 +758,13 @@ public final class CommandLine {
         }
 
         /**
-        * 禁用内置的 {@code --help} / {@code -h} 选项。
-        *
-        * <p>默认情况下，所有 {@link CommandLine} 实例都自动包含帮助选项。
-        * 如果用户自定义了名为 "help" 的选项，也会自动覆盖默认的帮助选项。</p>
-        *
-        * @return this
-        */
+         * 禁用内置的 {@code --help} / {@code -h} 选项。
+         *
+         * <p>默认情况下，所有 {@link CommandLine} 实例都自动包含帮助选项。
+         * 如果用户自定义了名为 "help" 的选项，也会自动覆盖默认的帮助选项。</p>
+         *
+         * @return this
+         */
         @Nonnull
         public Builder disableHelpOption() {
             this.helpOptionEnabled = false;
@@ -772,14 +772,14 @@ public final class CommandLine {
         }
 
         /**
-        * 构建 {@link CommandLine} 实例。
-        *
-        * <p>如果启用了帮助选项且没有名为 "help" 的选项，会自动添加一个默认的
-        * {@code --help} / {@code -h} 布尔标志选项。</p>
-        *
-        * @return CommandLine 实例
-        * @throws IllegalStateException 如果选项定义中存在冲突
-        */
+         * 构建 {@link CommandLine} 实例。
+         *
+         * <p>如果启用了帮助选项且没有名为 "help" 的选项，会自动添加一个默认的
+         * {@code --help} / {@code -h} 布尔标志选项。</p>
+         *
+         * @return CommandLine 实例
+         * @throws IllegalStateException 如果选项定义中存在冲突
+         */
         @Nonnull
         public CommandLine build() {
             // 自动添加 --help / -h 选项
@@ -809,8 +809,8 @@ public final class CommandLine {
         }
 
         /**
-        * 检查是否已存在指定长名称的选项。
-        */
+         * 检查是否已存在指定长名称的选项。
+         */
         private boolean hasOption(String longName) {
             for (CliOption opt : options) {
                 if (opt.longName().equals(longName)) {
@@ -821,8 +821,8 @@ public final class CommandLine {
         }
 
         /**
-        * 按短名称查找已添加的选项。
-        */
+         * 按短名称查找已添加的选项。
+         */
         @Nullable
         private CliOption findOptionByShortName(String shortName) {
             for (CliOption opt : options) {
@@ -837,10 +837,10 @@ public final class CommandLine {
     // ==================== Result ====================
 
     /**
-    * 命令行参数解析结果。
-    *
-    * <p>提供类型安全的方法获取选项值，以及获取位置参数列表。</p>
-    */
+     * 命令行参数解析结果。
+     *
+     * <p>提供类型安全的方法获取选项值，以及获取位置参数列表。</p>
+     */
     public static final class Result {
 
         /** 选项列表 */
@@ -853,12 +853,12 @@ public final class CommandLine {
         private final Set<String> seenOptions;
 
         /**
-        * 创建 Result 实例
-        * @param options options
-        * @param values values
-        * @param positionalArgs positionalArgs
-        * @param seenOptions seenOptions
-        */
+         * 创建 Result 实例
+         * @param options options
+         * @param values values
+         * @param positionalArgs positionalArgs
+         * @param seenOptions seenOptions
+         */
         private Result(List<CliOption> options, Map<String, Object> values,
                        List<String> positionalArgs, Set<String> seenOptions) {
             this.options = options;
@@ -870,11 +870,11 @@ public final class CommandLine {
         // ========== 存在性检查 ==========
 
         /**
-        * 检查是否指定了某个选项（通过长名称或短名称）。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 如果指定了该选项返回 true
-        */
+         * 检查是否指定了某个选项（通过长名称或短名称）。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 如果指定了该选项返回 true
+         */
         public boolean has(@Nonnull String name) {
             CliOption opt = resolveOption(name);
             if (opt == null) {
@@ -888,11 +888,11 @@ public final class CommandLine {
         }
 
         /**
-        * 检查某个选项是否在命令行中被显式指定（而不是使用默认值）。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 如果用户在命令行中指定了该选项返回 true
-        */
+         * 检查某个选项是否在命令行中被显式指定（而不是使用默认值）。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 如果用户在命令行中指定了该选项返回 true
+         */
         public boolean isExplicitlySet(@Nonnull String name) {
             CliOption opt = resolveOption(name);
             return opt != null && seenOptions.contains(opt.longName());
@@ -901,12 +901,12 @@ public final class CommandLine {
         // ========== 取值方法 ==========
 
         /**
-        * 获取选项的原始值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @param <T>  值类型
-        * @return 选项值，未指定时返回 null
-        */
+         * 获取选项的原始值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @param <T>  值类型
+         * @return 选项值，未指定时返回 null
+         */
         @Nullable
         public <T> T get(@Nonnull String name) {
             CliOption opt = resolveOption(name);
@@ -917,68 +917,68 @@ public final class CommandLine {
         }
 
         /**
-        * 获取选项的字符串值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 字符串值，未指定时返回 null
-        */
+         * 获取选项的字符串值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 字符串值，未指定时返回 null
+         */
         @Nullable
         public String getString(@Nonnull String name) {
             return get(name);
         }
 
         /**
-        * 获取选项的整数值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 整数值，未指定或无法转换时返回 0
-        */
+         * 获取选项的整数值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 整数值，未指定或无法转换时返回 0
+         */
         public int getInt(@Nonnull String name) {
             Number value = get(name);
             return value != null ? value.intValue() : 0;
         }
 
         /**
-        * 获取选项的长整数值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 长整数值，未指定或无法转换时返回 0L
-        */
+         * 获取选项的长整数值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 长整数值，未指定或无法转换时返回 0L
+         */
         public long getLong(@Nonnull String name) {
             Number value = get(name);
             return value != null ? value.longValue() : 0L;
         }
 
         /**
-        * 获取选项的双精度浮点数值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 双精度浮点数值，未指定或无法转换时返回 0.0
-        */
+         * 获取选项的双精度浮点数值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 双精度浮点数值，未指定或无法转换时返回 0.0
+         */
         public double getDouble(@Nonnull String name) {
             Number value = get(name);
             return value != null ? value.doubleValue() : 0.0;
         }
 
         /**
-        * 获取选项的布尔值。
-        *
-        * @param name 长选项名称或短选项名称
-        * @return 布尔值，未指定时返回 false
-        */
+         * 获取选项的布尔值。
+         *
+         * @param name 长选项名称或短选项名称
+         * @return 布尔值，未指定时返回 false
+         */
         public boolean getBoolean(@Nonnull String name) {
             Boolean value = get(name);
             return value != null && value;
         }
 
         /**
-        * 获取选项值，如果未指定则返回默认值。
-        *
-        * @param name         长选项名称或短选项名称
-        * @param defaultValue 默认值
-        * @param <T>          值类型
-        * @return 选项值或默认值
-        */
+         * 获取选项值，如果未指定则返回默认值。
+         *
+         * @param name         长选项名称或短选项名称
+         * @param defaultValue 默认值
+         * @param <T>          值类型
+         * @return 选项值或默认值
+         */
         @Nullable
         public <T> T getOrDefault(@Nonnull String name, @Nullable T defaultValue) {
             CliOption opt = resolveOption(name);
@@ -992,41 +992,41 @@ public final class CommandLine {
         // ========== 位置参数 ==========
 
         /**
-        * 获取位置参数列表（非选项参数）。
-        *
-        * @return 不可修改的位置参数列表
-        */
+         * 获取位置参数列表（非选项参数）。
+         *
+         * @return 不可修改的位置参数列表
+         */
         @Nonnull
         public List<String> positionalArgs() {
             return positionalArgs;
         }
 
         /**
-        * 获取第一个位置参数。
-        *
-        * @return 第一个位置参数，没有时返回 null
-        */
+         * 获取第一个位置参数。
+         *
+         * @return 第一个位置参数，没有时返回 null
+         */
         @Nullable
         public String firstPositional() {
             return positionalArgs.isEmpty() ? null : positionalArgs.getFirst();
         }
 
         /**
-        * 获取指定索引的位置参数。
-        *
-        * @param index 索引
-        * @return 位置参数，不存在时返回 null
-        */
+         * 获取指定索引的位置参数。
+         *
+         * @param index 索引
+         * @return 位置参数，不存在时返回 null
+         */
         @Nullable
         public String positionalAt(int index) {
             return index >= 0 && index < positionalArgs.size() ? positionalArgs.get(index) : null;
         }
 
         /**
-        * 获取所有选项的概要信息（用于调试）。
-        *
-        * @return 选项概要字符串
-        */
+         * 获取所有选项的概要信息（用于调试）。
+         *
+         * @return 选项概要字符串
+         */
         @Nonnull
         public String dump() {
             StringBuilder sb = new StringBuilder();
@@ -1053,8 +1053,8 @@ public final class CommandLine {
         // ========== 内部方法 ==========
 
         /**
-        * 通过长名称或短名称解析对应的选项定义。
-        */
+         * 通过长名称或短名称解析对应的选项定义。
+         */
         @Nullable
         private CliOption resolveOption(String name) {
             // 先按长名称查找
@@ -1076,28 +1076,28 @@ public final class CommandLine {
     // ==================== Composer ====================
 
     /**
-    * 命令行参数组装器 — 将选项值反向生成为 {@code String[]} 命令行参数。
-    *
-    * <p>用于程序化的参数构建场景，如生成要传递给外部进程的命令行。</p>
-    *
-    * <h3>用法</h3>
-    * <pre>{@code
-    * // Builder 风格
-    * String[] args = cli.composer()
-    *         .set("port", 8080)
-    *         .set("verbose", true)
-    *         .set("config", "/etc/app.yml")
-    *         .arg("input.txt")
-    *         .build();
-    *
-    * // Lambda 风格（更简洁）
-    * String[] args = cli.compose(c -> {
-    *     c.option("port", 8080);
-    *     c.option("v", true);
-    *     c.arg("input.txt");
-    * });
-    * }</pre>
-    */
+     * 命令行参数组装器 — 将选项值反向生成为 {@code String[]} 命令行参数。
+     *
+     * <p>用于程序化的参数构建场景，如生成要传递给外部进程的命令行。</p>
+     *
+     * <h3>用法</h3>
+     * <pre>{@code
+     * // Builder 风格
+     * String[] args = cli.composer()
+     *         .set("port", 8080)
+     *         .set("verbose", true)
+     *         .set("config", "/etc/app.yml")
+     *         .arg("input.txt")
+     *         .build();
+     *
+     * // Lambda 风格（更简洁）
+     * String[] args = cli.compose(c -> {
+     *     c.option("port", 8080);
+     *     c.option("v", true);
+     *     c.arg("input.txt");
+     * });
+     * }</pre>
+     */
     public static final class Composer {
 
         /** 命令行实例 */
@@ -1120,13 +1120,13 @@ public final class CommandLine {
         }
 
         /**
-        * 设置选项值（通过长名称或短名称）。
-        *
-        * @param name  长选项名称或短选项名称
-        * @param value 选项值
-        * @return this
-        * @throws IllegalArgumentException 如果名称为对应的选项定义，或值类型不匹配
-        */
+         * 设置选项值（通过长名称或短名称）。
+         *
+         * @param name  长选项名称或短选项名称
+         * @param value 选项值
+         * @return this
+         * @throws IllegalArgumentException 如果名称为对应的选项定义，或值类型不匹配
+         */
         @Nonnull
         public Composer set(@Nonnull String name, @Nullable Object value) {
             CliOption opt = commandLine.resolveOption(name);
@@ -1183,24 +1183,24 @@ public final class CommandLine {
         }
 
         /**
-        * 设置选项值（仅字符串形式）。
-        * <p>这是 Lambda 风格 {@link #compose(Composer)} 中的命名方法。</p>
-        *
-        * @param name  长选项名称或短选项名称
-        * @param value 选项值
-        * @return this
-        */
+         * 设置选项值（仅字符串形式）。
+         * <p>这是 Lambda 风格 {@link #compose(Composer)} 中的命名方法。</p>
+         *
+         * @param name  长选项名称或短选项名称
+         * @param value 选项值
+         * @return this
+         */
         @Nonnull
         public Composer option(@Nonnull String name, @Nullable Object value) {
             return set(name, value);
         }
 
         /**
-        * 添加一个位置参数。
-        *
-        * @param arg 位置参数值
-        * @return this
-        */
+         * 添加一个位置参数。
+         *
+         * @param arg 位置参数值
+         * @return this
+         */
         @Nonnull
         public Composer arg(@Nullable String arg) {
             if (arg != null) {
@@ -1210,11 +1210,11 @@ public final class CommandLine {
         }
 
         /**
-        * 添加多个位置参数。
-        *
-        * @param args 位置参数值数组
-        * @return this
-        */
+         * 添加多个位置参数。
+         *
+         * @param args 位置参数值数组
+         * @return this
+         */
         @Nonnull
         public Composer args(@Nonnull String... args) {
             for (String arg : args) {
@@ -1224,15 +1224,15 @@ public final class CommandLine {
         }
 
         /**
-        * 设置是否使用长选项名称（默认 true）。
-        * <ul>
-        *   <li>true=使用 {@code --port}（长名称）</li>
-        *   <li>false=使用 {@code -p}（短名称，优先使用；若无短名称则回退到长名称）</li>
-        * </ul>
-        *
-        * @param useLongNames 是否使用长名称
-        * @return this
-        */
+         * 设置是否使用长选项名称（默认 true）。
+         * <ul>
+         *   <li>true=使用 {@code --port}（长名称）</li>
+         *   <li>false=使用 {@code -p}（短名称，优先使用；若无短名称则回退到长名称）</li>
+         * </ul>
+         *
+         * @param useLongNames 是否使用长名称
+         * @return this
+         */
         @Nonnull
         public Composer useLongNames(boolean useLongNames) {
             this.useLongNames = useLongNames;
@@ -1240,15 +1240,15 @@ public final class CommandLine {
         }
 
         /**
-        * 设置是否使用 {@code --name=value} 等号格式（默认 false）。
-        * <ul>
-        *   <li>true=输出 {@code --port=8080}</li>
-        *   <li>false=输出 {@code --port 8080}（空格分隔）</li>
-        * </ul>
-        *
-        * @param useEquals 是否使用等号格式
-        * @return this
-        */
+         * 设置是否使用 {@code --name=value} 等号格式（默认 false）。
+         * <ul>
+         *   <li>true=输出 {@code --port=8080}</li>
+         *   <li>false=输出 {@code --port 8080}（空格分隔）</li>
+         * </ul>
+         *
+         * @param useEquals 是否使用等号格式
+         * @return this
+         */
         @Nonnull
         public Composer useEqualsFormat(boolean useEquals) {
             this.useEqualsFormat = useEquals;
@@ -1256,10 +1256,10 @@ public final class CommandLine {
         }
 
         /**
-        * 构建命令行参数字符串数组。
-        *
-        * @return 命令行参数数组（适用于 {@link ProcessBuilder} 等）
-        */
+         * 构建命令行参数字符串数组。
+         *
+         * @return 命令行参数数组（适用于 {@link ProcessBuilder} 等）
+         */
         @Nonnull
         public String[] build() {
             List<String> result = new ArrayList<>();
@@ -1313,10 +1313,10 @@ public final class CommandLine {
         }
 
         /**
-        * 构建命令行字符串。
-        *
-        * @return 命令行字符串（每个参数用空格连接）
-        */
+         * 构建命令行字符串。
+         *
+         * @return 命令行字符串（每个参数用空格连接）
+         */
         @Nonnull
         public String buildString() {
             return String.join(" ", build());
@@ -1326,9 +1326,9 @@ public final class CommandLine {
     // ========== 辅助方法 ==========
 
     /**
-    * 获取所有选项的长名称列表（用于错误提示）。
-    * @return 结果字符串
-    */
+     * 获取所有选项的长名称列表（用于错误提示）。
+     * @return 结果字符串
+     */
     private String optionNames() {
         StringBuilder sb = new StringBuilder();
         for (CliOption opt : options) {

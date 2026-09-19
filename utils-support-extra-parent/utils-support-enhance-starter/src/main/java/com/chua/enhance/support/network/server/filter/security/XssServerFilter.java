@@ -9,35 +9,35 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 /**
-* XSS 防护过滤器，对请求参数和请求体进行 XSS 特殊字符转义。
-*
-* <p>将 HTML 特殊字符（{@code < > " ' &}）转义为 HTML 实体，
-* 防止跨站脚本攻击。仅对文本类型的请求体进行处理。
-*
-* <h2>转义规则</h2>
-* <ul>
-*   <li>{@code <} → {@code &lt;}</li>
-*   <li>{@code >} → {@code &gt;}</li>
-*   <li>{@code "} → {@code &quot;}</li>
-*   <li>{@code '} → {@code &#x27;}</li>
-*   <li>{@code &} → {@code &amp;}</li>
-* </ul>
-*
-* @author CH
-* @since 2026/07/16
+ * XSS 防护过滤器，对请求参数和请求体进行 XSS 特殊字符转义。
+ *
+ * <p>将 HTML 特殊字符（{@code < > " ' &}）转义为 HTML 实体，
+ * 防止跨站脚本攻击。仅对文本类型的请求体进行处理。
+ *
+ * <h2>转义规则</h2>
+ * <ul>
+ *   <li>{@code <} → {@code &lt;}</li>
+ *   <li>{@code >} → {@code &gt;}</li>
+ *   <li>{@code "} → {@code &quot;}</li>
+ *   <li>{@code '} → {@code &#x27;}</li>
+ *   <li>{@code &} → {@code &amp;}</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 public class XssServerFilter implements ServerFilter {
 
     /**
-    * XSS 脚本标签正则
-    */
+     * XSS 脚本标签正则
+     */
     private static final Pattern SCRIPT_PATTERN = Pattern.compile(
             "<\\s*script[^>]*>.*?<\\s*/\\s*script[^>]*>",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
-    * XSS 事件属性正则
-    */
+     * XSS 事件属性正则
+     */
     private static final Pattern EVENT_PATTERN = Pattern.compile(
             "\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']",
             Pattern.CASE_INSENSITIVE);
@@ -87,11 +87,11 @@ public class XssServerFilter implements ServerFilter {
     }
 
     /**
-    * Sanitize
-    *
-    * @param input 输入
-    * @return sanitize的结果
-    */
+     * Sanitize
+     *
+     * @param input 输入
+     * @return sanitize的结果
+     */
     private String sanitize(String input) {
         if (input == null) {
             return null;

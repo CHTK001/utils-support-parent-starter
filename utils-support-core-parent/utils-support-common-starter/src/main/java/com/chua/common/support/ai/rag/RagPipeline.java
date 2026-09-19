@@ -133,11 +133,11 @@ public class RagPipeline implements RagClient {
     private final Pipeline queryPipeline;
 
     /**
-    * 构造 RAG 管道并初始化文件目录与两条管线。
-    *
-    * @param setting RAG 客户端配置，不能为 null，必须包含嵌入客户端、分块器、向量存储与上传目录
-    * @throws RuntimeException 当创建上传目录失败时抛出
-    */
+     * 构造 RAG 管道并初始化文件目录与两条管线。
+     *
+     * @param setting RAG 客户端配置，不能为 null，必须包含嵌入客户端、分块器、向量存储与上传目录
+     * @throws RuntimeException 当创建上传目录失败时抛出
+     */
     public RagPipeline(RagClientSetting setting) {
         this.setting = setting;
         this.vectorStorage = setting.getVectorStorage();
@@ -161,19 +161,19 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 创建 RAG 管道构建器。
-    *
-    * @return Builder 实例，不为 null
-    */
+     * 创建 RAG 管道构建器。
+     *
+     * @return Builder 实例，不为 null
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 构建入库管线（保存→抽取→分块→嵌入→收集→结束）。
-    *
-    * @return 入库 Pipeline 实例，不为 null
-    */
+     * 构建入库管线（保存→抽取→分块→嵌入→收集→结束）。
+     *
+     * @return 入库 Pipeline 实例，不为 null
+     */
     private Pipeline buildIngestPipeline() {
         return PipelineBuilder.newBuilder("rag-ingest")
                 .task(NODE_SAVE, ctx -> {
@@ -260,10 +260,10 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 构建查询管线（嵌入→检索→过滤→生成→收集→结束）。
-    *
-    * @return 查询 Pipeline 实例，不为 null
-    */
+     * 构建查询管线（嵌入→检索→过滤→生成→收集→结束）。
+     *
+     * @return 查询 Pipeline 实例，不为 null
+     */
     private Pipeline buildQueryPipeline() {
         return PipelineBuilder.newBuilder("rag-query")
                 .task(NODE_EMBED_QUERY, ctx -> {
@@ -308,22 +308,22 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 从 Pipeline 上下文取出 RAG 上下文。
-    *
-    * @param ctx Pipeline 上下文，不能为 null
-    * @return RAG 上下文，不为 null
-    */
+     * 从 Pipeline 上下文取出 RAG 上下文。
+     *
+     * @param ctx Pipeline 上下文，不能为 null
+     * @return RAG 上下文，不为 null
+     */
     private static RagContext current(PipelineContext<?> ctx) {
         return ctx.getAttribute(RAG_CTX_KEY);
     }
 
     /**
-    * 将分块文本批量向量化并存入向量存储。
-    * <p>批量嵌入失败时降级为逐个嵌入；单个分块嵌入失败时以空向量占位并跳过存储。</p>
-    *
-    * @param rc RAG 上下文，须已设置 docId/fileName/fileType/currentChunks
-    * @return 实际入向量存储的分块数量
-    */
+     * 将分块文本批量向量化并存入向量存储。
+     * <p>批量嵌入失败时降级为逐个嵌入；单个分块嵌入失败时以空向量占位并跳过存储。</p>
+     *
+     * @param rc RAG 上下文，须已设置 docId/fileName/fileType/currentChunks
+     * @return 实际入向量存储的分块数量
+     */
     private int embedAndStore(RagContext rc) {
         List<TextChunk> chunks = rc.currentChunks();
         String[] texts = chunks.stream().map(TextChunk::text).toArray(String[]::new);
@@ -367,15 +367,15 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 过滤检索结果，按相似度阈值筛选并回读分块原文。
-    * <p>向量库不返回 metadata.content 时（jvector ON_DISK 等），从 {@link #chunkContentCache}
-    * 以 chunkId 回读分块原文；metadata 缺失时内容回退为空字符串。
-    * 同时把 docId / fileName / fileType 透传到 {@link RagResponse.Source#metadata()}，
-    * 供下游（如前端渲染来源图片、RagController 回读原图）使用。</p>
-    *
-    * @param rc RAG 上下文，须已设置 queryVector/threshold/currentResults
-    * @return 过滤后的来源列表（非 null），无命中时返回空列表
-    */
+     * 过滤检索结果，按相似度阈值筛选并回读分块原文。
+     * <p>向量库不返回 metadata.content 时（jvector ON_DISK 等），从 {@link #chunkContentCache}
+     * 以 chunkId 回读分块原文；metadata 缺失时内容回退为空字符串。
+     * 同时把 docId / fileName / fileType 透传到 {@link RagResponse.Source#metadata()}，
+     * 供下游（如前端渲染来源图片、RagController 回读原图）使用。</p>
+     *
+     * @param rc RAG 上下文，须已设置 queryVector/threshold/currentResults
+     * @return 过滤后的来源列表（非 null），无命中时返回空列表
+     */
     private List<RagResponse.Source> filterSources(RagContext rc) {
         List<RagResponse.Source> sources = CollectionUtils.newArrayList();
         for (Vector v : rc.currentResults()) {
@@ -419,11 +419,11 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 构建发送给模型的生成提示词（系统提示 + 带引用编号的来源 + 问题 + 引用格式说明）。
-    *
-    * @param rc RAG 上下文，须已设置 query/currentSources
-    * @return 完整提示词字符串，不为 null
-    */
+     * 构建发送给模型的生成提示词（系统提示 + 带引用编号的来源 + 问题 + 引用格式说明）。
+     *
+     * @param rc RAG 上下文，须已设置 query/currentSources
+     * @return 完整提示词字符串，不为 null
+     */
     private String buildPrompt(RagContext rc) {
         StringBuilder context = new StringBuilder();
         int n = 0;
@@ -442,14 +442,14 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 从文件字节抽取纯文本。
-    * <p>图片文件走配置的 OCR 提取器；非图片文件按扩展名经 {@link TextExtractor#auto}
-    * 自动分发；均无匹配提取器时降级为 UTF-8 直读，超过 1MB 的无提取器文件跳过解码避免 OOM。</p>
-    *
-    * @param data   文件字节，null 时返回空字符串
-    * @param fileName 文件名，null 时按非图片处理
-    * @return 抽取出的纯文本，无法抽取时返回空字符串（不返回 null）
-    */
+     * 从文件字节抽取纯文本。
+     * <p>图片文件走配置的 OCR 提取器；非图片文件按扩展名经 {@link TextExtractor#auto}
+     * 自动分发；均无匹配提取器时降级为 UTF-8 直读，超过 1MB 的无提取器文件跳过解码避免 OOM。</p>
+     *
+     * @param data   文件字节，null 时返回空字符串
+     * @param fileName 文件名，null 时按非图片处理
+     * @return 抽取出的纯文本，无法抽取时返回空字符串（不返回 null）
+     */
     private String extractText(byte[] data, String fileName) {
         if (data == null) {
             return EMPTY;
@@ -489,42 +489,42 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 判断是否为图片文件。
-    *
-    * @param name 文件名（小写），不能为 null
-    * @return true 表示为受支持的图片格式（jpg/jpeg/png/bmp/webp/gif）
-    */
+     * 判断是否为图片文件。
+     *
+     * @param name 文件名（小写），不能为 null
+     * @return true 表示为受支持的图片格式（jpg/jpeg/png/bmp/webp/gif）
+     */
     private static boolean isImage(String name) {
         return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png")
                 || name.endsWith(".bmp") || name.endsWith(".webp") || name.endsWith(".gif");
     }
 
     /**
-    * 使用 1MB 上限判断无提取器时是否跳过 UTF-8 解码，避免二进制乱码产生海量无效分块导致 OOM。
-    *
-    * @param data 文件字节，不能为 null
-    * @return true 表示文件超过 1MB，应跳过 UTF-8 解码
-    */
+     * 使用 1MB 上限判断无提取器时是否跳过 UTF-8 解码，避免二进制乱码产生海量无效分块导致 OOM。
+     *
+     * @param data 文件字节，不能为 null
+     * @return true 表示文件超过 1MB，应跳过 UTF-8 解码
+     */
     private boolean exceedsExtractLimit(byte[] data) {
         return data.length > MAX_TEXT_EXTRACT_BYTES;
     }
 
     /**
-    * 生成临时文件路径用于扩展名识别（文件内容不实际写入，仅借用扩展名）。
-    *
-    * @param data     文件字节，本方法不使用，仅保留签名对称
-    * @param fileName 文件名，决定扩展名
-    * @return 临时文件路径（filesDir/_temp_<fileName>）
-    */
+     * 生成临时文件路径用于扩展名识别（文件内容不实际写入，仅借用扩展名）。
+     *
+     * @param data     文件字节，本方法不使用，仅保留签名对称
+     * @param fileName 文件名，决定扩展名
+     * @return 临时文件路径（filesDir/_temp_<fileName>）
+     */
     private java.io.File tempFileOf(byte[] data, String fileName) {
         return filesDir.resolve("_temp_" + fileName).toFile();
     }
 
     /**
-    * 执行入库管线。
-    *
-    * @param rc RAG 上下文，须已设置 docId/fileName/fileType/data
-    */
+     * 执行入库管线。
+     *
+     * @param rc RAG 上下文，须已设置 docId/fileName/fileType/data
+     */
     private void runIngest(RagContext rc) {
         PipelineContext<?> ctx = new PipelineContext<>(ingestPipeline.getId(), (Object) null);
         ctx.setAttribute(RAG_CTX_KEY, rc);
@@ -533,10 +533,10 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 执行查询管线。
-    *
-    * @param rc RAG 上下文，须已设置 query/topK/threshold
-    */
+     * 执行查询管线。
+     *
+     * @param rc RAG 上下文，须已设置 query/topK/threshold
+     */
     private void runQuery(RagContext rc) {
         PipelineContext<?> ctx = new PipelineContext<>(queryPipeline.getId(), (Object) null);
         ctx.setAttribute(RAG_CTX_KEY, rc);
@@ -545,19 +545,19 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 获取入库管线（供外部观测或测试）。
-    *
-    * @return 入库 Pipeline 实例，不为 null
-    */
+     * 获取入库管线（供外部观测或测试）。
+     *
+     * @return 入库 Pipeline 实例，不为 null
+     */
     public Pipeline ingestPipeline() {
         return ingestPipeline;
     }
 
     /**
-    * 获取查询管线（供外部观测或测试）。
-    *
-    * @return 查询 Pipeline 实例，不为 null
-    */
+     * 获取查询管线（供外部观测或测试）。
+     *
+     * @return 查询 Pipeline 实例，不为 null
+     */
     public Pipeline queryPipeline() {
         return queryPipeline;
     }
@@ -575,33 +575,33 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 设置系统提示词（管线实现暂不使用，保留接口一致性）。
-    *
-    * @param system 系统提示词
-    * @return 当前客户端
-    */
+     * 设置系统提示词（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param system 系统提示词
+     * @return 当前客户端
+     */
     @Override
     public RagClient system(String system) {
         return this;
     }
 
     /**
-    * 设置温度（管线实现暂不使用，保留接口一致性）。
-    *
-    * @param temperature 温度值
-    * @return 当前客户端
-    */
+     * 设置温度（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param temperature 温度值
+     * @return 当前客户端
+     */
     @Override
     public RagClient temperature(double temperature) {
         return this;
     }
 
     /**
-    * 设置最大输出 Token 数（管线实现暂不使用，保留接口一致性）。
-    *
-    * @param maxTokens 最大 Token 数
-    * @return 当前客户端
-    */
+     * 设置最大输出 Token 数（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param maxTokens 最大 Token 数
+     * @return 当前客户端
+     */
     @Override
     public RagClient maxTokens(int maxTokens) {
         return this;
@@ -698,18 +698,18 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * 重新索引所有 READY 状态的文档。
-    * <p>先快照再清空文档列表，逐个重新走入库管线，避免迭代期间追加导致
-    * ConcurrentModificationException；单个文档失败仅记录日志不中断整体。</p>
-    *
-    * @return 成功重新索引的文档数量
-    */
+     * 重新索引所有 READY 状态的文档。
+     * <p>先快照再清空文档列表，逐个重新走入库管线，避免迭代期间追加导致
+     * ConcurrentModificationException；单个文档失败仅记录日志不中断整体。</p>
+     *
+     * @return 成功重新索引的文档数量
+     */
     /**
-    * 快照迭代前的文档列表，避免入库管线的 collect 节点向 documents 追加导致
-    * ConcurrentModificationException。
-    *
-    * @return 文档快照列表（新建 ArrayList，不含原引用），不为 null
-    */
+     * 快照迭代前的文档列表，避免入库管线的 collect 节点向 documents 追加导致
+     * ConcurrentModificationException。
+     *
+     * @return 文档快照列表（新建 ArrayList，不含原引用），不为 null
+     */
     private List<RagDocument> snapshotDocuments() {
         return new java.util.ArrayList<>(documents);
     }
@@ -793,14 +793,14 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * RAG 管道构建器，链式配置各组件后 {@link #build()} 生成 {@link RagPipeline}。
-    *
-    * <p>未显式设置的字段采用默认值：uploadDir 为 {@code ./rag-uploads}，
-    * topK 为 5，similarityThreshold 为 0.7。</p>
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * RAG 管道构建器，链式配置各组件后 {@link #build()} 生成 {@link RagPipeline}。
+     *
+     * <p>未显式设置的字段采用默认值：uploadDir 为 {@code ./rag-uploads}，
+     * topK 为 5，similarityThreshold 为 0.7。</p>
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public static class Builder {
         /** 对话生成模型客户端 */
         private ChatClient chatClient;
@@ -833,98 +833,98 @@ public class RagPipeline implements RagClient {
         }
 
         /**
-        * 设置嵌入向量模型客户端。
-        *
-        * @param embeddingClient 客户端实例
-        * @return 当前构建器
-        */
+         * 设置嵌入向量模型客户端。
+         *
+         * @param embeddingClient 客户端实例
+         * @return 当前构建器
+         */
         public Builder embeddingClient(EmbeddingClient embeddingClient) {
             this.embeddingClient = embeddingClient;
             return this;
         }
 
         /**
-        * 设置图片 OCR 文本提取器（仅图片文件使用）。
-        *
-        * @param textExtractor 提取器实例，可为 null（非图片场景）
-        * @return 当前构建器
-        */
+         * 设置图片 OCR 文本提取器（仅图片文件使用）。
+         *
+         * @param textExtractor 提取器实例，可为 null（非图片场景）
+         * @return 当前构建器
+         */
         public Builder textExtractor(TextExtractor textExtractor) {
             this.textExtractor = textExtractor;
             return this;
         }
 
         /**
-        * 设置文本分块器。
-        *
-        * @param textSplitter 分块器实例
-        * @return 当前构建器
-        */
+         * 设置文本分块器。
+         *
+         * @param textSplitter 分块器实例
+         * @return 当前构建器
+         */
         public Builder textSplitter(TextSplitter textSplitter) {
             this.textSplitter = textSplitter;
             return this;
         }
 
         /**
-        * 设置向量存储。
-        *
-        * @param vectorStorage 存储实例
-        * @return 当前构建器
-        */
+         * 设置向量存储。
+         *
+         * @param vectorStorage 存储实例
+         * @return 当前构建器
+         */
         public Builder vectorStorage(VectorStorage vectorStorage) {
             this.vectorStorage = vectorStorage;
             return this;
         }
 
         /**
-        * 设置上传文件根目录。
-        *
-        * @param uploadDir 目录路径
-        * @return 当前构建器
-        */
+         * 设置上传文件根目录。
+         *
+         * @param uploadDir 目录路径
+         * @return 当前构建器
+         */
         public Builder uploadDir(String uploadDir) {
             this.uploadDir = uploadDir;
             return this;
         }
 
         /**
-        * 设置查询 TopK。
-        *
-        * @param topK 返回的最大来源数量，最小 1
-        * @return 当前构建器
-        */
+         * 设置查询 TopK。
+         *
+         * @param topK 返回的最大来源数量，最小 1
+         * @return 当前构建器
+         */
         public Builder topK(int topK) {
             this.topK = topK;
             return this;
         }
 
         /**
-        * 设置查询相似度阈值。
-        *
-        * @param similarityThreshold 阈值 0~1，低于该值的检索结果被过滤
-        * @return 当前构建器
-        */
+         * 设置查询相似度阈值。
+         *
+         * @param similarityThreshold 阈值 0~1，低于该值的检索结果被过滤
+         * @return 当前构建器
+         */
         public Builder similarityThreshold(double similarityThreshold) {
             this.similarityThreshold = similarityThreshold;
             return this;
         }
 
         /**
-        * 设置系统提示词（可选）。
-        *
-        * @param systemPrompt 系统提示词，null 表示不附加
-        * @return 当前构建器
-        */
+         * 设置系统提示词（可选）。
+         *
+         * @param systemPrompt 系统提示词，null 表示不附加
+         * @return 当前构建器
+         */
         public Builder systemPrompt(String systemPrompt) {
             this.systemPrompt = systemPrompt;
             return this;
         }
 
         /**
-        * 构建 RAG 管道实例。
-        *
-        * @return 配置完成的 {@link RagPipeline} 实例，不为 null
-        */
+         * 构建 RAG 管道实例。
+         *
+         * @return 配置完成的 {@link RagPipeline} 实例，不为 null
+         */
         public RagPipeline build() {
             RagClientSetting setting = RagClientSetting.builder()
                     .chatClient(chatClient)
@@ -942,12 +942,12 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-    * RAG 管线内部上下文：贯穿入库/查询各节点的临时数据载体。
-    * <p>字段均为「当前节点写入、后续节点读取」的流水线状态，方法名即字段名（JavaBean 风格）。</p>
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * RAG 管线内部上下文：贯穿入库/查询各节点的临时数据载体。
+     * <p>字段均为「当前节点写入、后续节点读取」的流水线状态，方法名即字段名（JavaBean 风格）。</p>
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     private static class RagContext {
         /** 文档 ID（入库节点写入） */
         private String docId;

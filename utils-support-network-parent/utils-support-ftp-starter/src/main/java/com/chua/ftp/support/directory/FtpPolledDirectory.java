@@ -12,60 +12,60 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* FTP 目录轮询实现，基于 Apache Commons Net。
-* <p>
-* 通过 {@link DiffPolledDirectory} 快照对比机制，定时对比远程 FTP 目录文件变更。
-* </p>
-* <p>
-* 配合 {@link DirectoryPollerEnvironment} 配置连接参数，由虚拟线程执行器驱动轮询。
-* </p>
-* 环境配置属性：
-* <ul>
-*   <li>{@code host} — FTP 服务器地址</li>
-*   <li>{@code port} — FTP 端口（默认 21）</li>
-*   <li>{@code username} — 登录用户名（默认 anonymous）</li>
-*   <li>{@code password} — 登录密码（默认空）</li>
-*   <li>{@code passiveMode} — 是否使用被动模式（默认 true）</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * FTP 目录轮询实现，基于 Apache Commons Net。
+ * <p>
+ * 通过 {@link DiffPolledDirectory} 快照对比机制，定时对比远程 FTP 目录文件变更。
+ * </p>
+ * <p>
+ * 配合 {@link DirectoryPollerEnvironment} 配置连接参数，由虚拟线程执行器驱动轮询。
+ * </p>
+ * 环境配置属性：
+ * <ul>
+ *   <li>{@code host} — FTP 服务器地址</li>
+ *   <li>{@code port} — FTP 端口（默认 21）</li>
+ *   <li>{@code username} — 登录用户名（默认 anonymous）</li>
+ *   <li>{@code password} — 登录密码（默认空）</li>
+ *   <li>{@code passiveMode} — 是否使用被动模式（默认 true）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
 
     /**
-    * FTP 服务器主机地址
-    */
+     * FTP 服务器主机地址
+     */
     private final String host;
     /**
-    * FTP 服务器端口号
-    */
+     * FTP 服务器端口号
+     */
     private final int port;
     /**
-    * 登录用户名
-    */
+     * 登录用户名
+     */
     private final String username;
     /**
-    * 登录密码
-    */
+     * 登录密码
+     */
     private final String password;
     /**
-    * 是否使用被动模式
-    */
+     * 是否使用被动模式
+     */
     private final boolean passiveMode;
 
     /**
-    * Apache Commons Net FTP 客户端实例
-    */
+     * Apache Commons Net FTP 客户端实例
+     */
     private FTPClient client;
 
     /**
-    * 构造 FTP 目录轮询器。
-    *
-    * @param listenPath  FTP 远程目录路径
-    * @param environment 环境配置（需包含 主机、端口 等）
-    */
+     * 构造 FTP 目录轮询器。
+     *
+     * @param listenPath  FTP 远程目录路径
+     * @param environment 环境配置（需包含 主机、端口 等）
+     */
     public FtpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
         this.host = environment.getProperty("host");
@@ -77,10 +77,10 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
 
     @Override
     /**
-    * 开始
-    * @param environment 环境
-    * @param executor 执行器
-    */
+     * 开始
+     * @param environment 环境
+     * @param executor 执行器
+     */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         client = new FTPClient();

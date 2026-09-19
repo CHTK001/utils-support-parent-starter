@@ -9,11 +9,11 @@ import java.nio.file.Path;
 import java.util.Random;
 
 /**
-* 向量存储性能基准测试（精简版）。
-* @author CH
-* @since 4.0.0
-* @param name 名称
-* @param factory 工厂
+ * 向量存储性能基准测试（精简版）。
+ * @author CH
+ * @since 4.0.0
+ * @param name 名称
+ * @param factory 工厂
  */
 public class VectorPerfBench {
 
@@ -26,15 +26,15 @@ public class VectorPerfBench {
 
     private static final Random RND = new Random(20260829); // RND
     /**
-    * main。
-    * @param args 参数
-    */
+     * main。
+     * @param args 参数
+     */
     private static Path benchDir;
 
     /**
-    * main。
-    * @param args 参数
-    */
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         benchDir = Files.createTempDirectory("vector-perf-bench-");
         System.out.println("============================================================");
@@ -45,10 +45,10 @@ public class VectorPerfBench {
         deleteRecursively(benchDir);
         System.out.println("\n测试目录已清理: " + benchDir);
     /**
-    * 运行全部。
-    * @param name 名称
-    * @param factory 工厂
-    */
+     * 运行全部。
+     * @param name 名称
+     * @param factory 工厂
+     */
     }
 
     /**
@@ -120,14 +120,14 @@ public class VectorPerfBench {
                 double writeWps = COUNT * 1_000_000.0 / avgWriteNs;
                 // 搜索
     /**
-    * storage工厂接口。
-    *
-    * @author CH
-    * @since 4.0.0
-    * @param fmt fmt
-    * @param args 参数
-    * @param s s
-    */
+     * storage工厂接口。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param fmt fmt
+     * @param args 参数
+     * @param s s
+     */
                 long searchNs = 0;
                 for (int round = 0; round < MEASURE_ROUNDS; round++) {
                     VectorStorage s = factory.create();
@@ -166,10 +166,10 @@ public class VectorPerfBench {
             }
         } catch (Exception ignored) {}
     /**
-    * 随机向量。
-    * @param dim dim
-    * @return 随机向量的结果
-    */
+     * 随机向量。
+     * @param dim dim
+     * @return 随机向量的结果
+     */
     }
 
     /**
@@ -185,10 +185,10 @@ public class VectorPerfBench {
         }
         return v;
     /**
-    * resolve。
-    * @param name 名称
-    * @return resolve的结果
-    */
+     * resolve。
+     * @param name 名称
+     * @return resolve的结果
+     */
     }
 
     /**
@@ -203,13 +203,13 @@ public class VectorPerfBench {
         Files.createDirectories(p);
         return p;
     /**
-    * 删除recursively。
-    * @param dir dir
-    * @author CH
-    * @since 4.0.0
-    * @param fmt fmt
-    * @param args 参数
-    */
+     * 删除recursively。
+     * @param dir dir
+     * @author CH
+     * @since 4.0.0
+     * @param fmt fmt
+     * @param args 参数
+     */
     }
 
     /**

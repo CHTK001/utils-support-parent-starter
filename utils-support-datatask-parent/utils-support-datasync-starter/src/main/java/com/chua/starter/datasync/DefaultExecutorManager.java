@@ -8,18 +8,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 默认执行器管理器，按 topic 池化管理 reactor数据同步执行器 实例。
-*
-* <p>特性：
-* <ul>
-*   <li>懒启动：第一次获取时初始化，而非提前创建</li>
-*   <li>池化：同 topic 复用同一实例，避免频繁创建</li>
-*   <li>统一生命周期：start()/stop() 统一管理所有执行器</li>
-*   <li>线程安全：ConcurrentHashMap 存储，无锁并发访问</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认执行器管理器，按 topic 池化管理 reactor数据同步执行器 实例。
+ *
+ * <p>特性：
+ * <ul>
+ *   <li>懒启动：第一次获取时初始化，而非提前创建</li>
+ *   <li>池化：同 topic 复用同一实例，避免频繁创建</li>
+ *   <li>统一生命周期：start()/stop() 统一管理所有执行器</li>
+ *   <li>线程安全：ConcurrentHashMap 存储，无锁并发访问</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultExecutorManager implements ExecutorManager {
@@ -34,19 +34,19 @@ public class DefaultExecutorManager implements ExecutorManager {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
-    * 创建 默认执行器管理器 实例
-    * @param serverId 服务端标识
-    */
+     * 创建 默认执行器管理器 实例
+     * @param serverId 服务端标识
+     */
     public DefaultExecutorManager(String serverId) {
         this(serverId, false);
     }
 
     /**
-    * 创建 默认执行器管理器 实例
-    * @param serverId 服务端标识
-    * @param directDispatch 布尔值
-    * @param directDispatch directdispatch
-    */
+     * 创建 默认执行器管理器 实例
+     * @param serverId 服务端标识
+     * @param directDispatch 布尔值
+     * @param directDispatch directdispatch
+     */
     public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
         this.directDispatch = directDispatch;

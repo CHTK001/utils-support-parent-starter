@@ -12,17 +12,17 @@ import com.chua.datasource.support.meta.DefaultMetaData;
 import com.chua.solr.support.engine.SolrEngine;
 
 /**
-* Solr 元数据入口。
-*
-* @author CH
-* @since 4.0.0.42
+ * Solr 元数据入口。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SolrMetaData extends DefaultMetaData {
 
     /**
-    * 创建 Solrmeta数据 实例
-    * @param engine engine
-    */
+     * 创建 Solrmeta数据 实例
+     * @param engine engine
+     */
     public SolrMetaData(SolrEngine engine) {
         super(engine);
     }

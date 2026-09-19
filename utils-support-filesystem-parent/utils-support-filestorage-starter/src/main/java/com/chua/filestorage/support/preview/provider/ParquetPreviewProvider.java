@@ -59,13 +59,13 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 使用 DuckDB JDBC 解析 Parquet 文件并构建预览 HTML。
-    *
-    * @param path      临时 Parquet 文件路径（正斜杠）
-    * @param fileSize  文件字节数
-    * @return 完整 HTML
-    * @throws SQLException 解析失败时抛出
-    */
+     * 使用 DuckDB JDBC 解析 Parquet 文件并构建预览 HTML。
+     *
+     * @param path      临时 Parquet 文件路径（正斜杠）
+     * @param fileSize  文件字节数
+     * @return 完整 HTML
+     * @throws SQLException 解析失败时抛出
+     */
     private String previewParquet(String path, long fileSize) throws SQLException {
         String sqlPath = "'" + path + "'";
         try (Connection conn = DriverManager.getConnection("jdbc:duckdb:");
@@ -100,14 +100,14 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建预览 HTML。
-    *
-    * @param size      文件字节
-    * @param fields    字段名列表
-    * @param rows      数据行
-    * @param totalRows 总行数
-    * @return 完整 HTML
-    */
+     * 构建预览 HTML。
+     *
+     * @param size      文件字节
+     * @param fields    字段名列表
+     * @param rows      数据行
+     * @param totalRows 总行数
+     * @return 完整 HTML
+     */
     private String buildHtml(long size, List<String> fields, List<List<String>> rows, long totalRows) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">")
@@ -148,11 +148,11 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建不可预览页面。
-    *
-    * @param message 提示信息
-    * @return 完整 HTML
-    */
+     * 构建不可预览页面。
+     *
+     * @param message 提示信息
+     * @return 完整 HTML
+     */
     private String unavailableHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
                 + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
@@ -161,21 +161,21 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 可读文件大小。
-    *
-    * @param bytes 字节数
-    * @return 可读大小文本
-    */
+     * 可读文件大小。
+     *
+     * @param bytes 字节数
+     * @return 可读大小文本
+     */
     private String readableSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
 
     /**
-    * HTML 转义。
-    *
-    * @param text 原始文本
-    * @return 转义后文本
-    */
+     * HTML 转义。
+     *
+     * @param text 原始文本
+     * @return 转义后文本
+     */
     private String escape(String text) {
         return text == null ? "" : StringUtils.escapeHtml(text);
     }

@@ -13,12 +13,12 @@ import javax.annotation.Nullable;
 
 
 /**
-* PNG 图像写入器服务提供者接口（SPI）。
-*
-* <p>Image I/O 框架的 SPI 实现，用于发现和实例化 PNGImageWriter。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PNG 图像写入器服务提供者接口（SPI）。
+ *
+ * <p>Image I/O 框架的 SPI 实现，用于发现和实例化 PNGImageWriter。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PNGImageWriterSpi extends ImageWriterSpi {
     // 定义厂商名称
@@ -75,11 +75,11 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     }
 
     /**
-    * 检查该写入器是否可以编码给定类型的图像。
-    *
-    * @param type 图像类型说明
-    * @return 如果可以编码，则返回 true；否则返回 false
-    */
+     * 检查该写入器是否可以编码给定类型的图像。
+     *
+     * @param type 图像类型说明
+     * @return 如果可以编码，则返回 true；否则返回 false
+     */
     public boolean canEncodeImage(ImageTypeSpecifier type) {
         SampleModel sampleModel = type.getSampleModel();
         ColorModel colorModel = type.getColorModel();
@@ -118,21 +118,21 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     }
 
     /**
-    * 获取该服务提供者的描述信息。
-    *
-    * @param locale 本地化信息，返回相应语言的描述
-    * @return 服务提供者的描述信息
-    */
+     * 获取该服务提供者的描述信息。
+     *
+     * @param locale 本地化信息，返回相应语言的描述
+     * @return 服务提供者的描述信息
+     */
     public String getDescription(Locale locale) {
         return "PNG/APNG image writer";
     }
 
     /**
-    * 创建该服务提供者的写入器实例。
-    *
-    * @param extension 扩展对象，创建特定的写入器实例
-    * @return 创建的写入器实例
-    */
+     * 创建该服务提供者的写入器实例。
+     *
+     * @param extension 扩展对象，创建特定的写入器实例
+     * @return 创建的写入器实例
+     */
     public ImageWriter createWriterInstance(Object extension) {
         return new PNGImageWriter(this);
     }

@@ -44,10 +44,10 @@ public class UnslothUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-    * 解析 studio.db 路径。
-    *
-    * @return 数据库路径
-    */
+     * 解析 studio.db 路径。
+     *
+     * @return 数据库路径
+     */
     private static Path resolveDbPath() {
         String studioHome = System.getenv("UNSLOTH_STUDIO_HOME");
         if (studioHome != null && !studioHome.isBlank()) {
@@ -57,8 +57,8 @@ public class UnslothUsageParser extends BaseUsageParser {
     }
 
     /**
-    * chat_messages 用量投影：contextUsage 计数 + 三级模型回退。
-    */
+     * chat_messages 用量投影：contextUsage 计数 + 三级模型回退。
+     */
     private static final String SQL_CHAT_MESSAGES =
             "SELECT 'chat' AS usage_kind, m.id, m.created_at, "
                     + "json_valid(m.metadata_json) AS meta_ok, "
@@ -104,19 +104,19 @@ public class UnslothUsageParser extends BaseUsageParser {
                     + "FROM api_usage_events";
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "unsloth"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "unsloth"}
+     */
     @Override
     public String name() {
         return PROVIDER_UNSLOTH;
     }
 
     /**
-    * 响应式流式入口：优先 chat_messages（含 thread join），逐级降级到
-    * 无 join 投影与 api_usage_events。
-    */
+     * 响应式流式入口：优先 chat_messages（含 thread join），逐级降级到
+     * 无 join 投影与 api_usage_events。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -134,11 +134,11 @@ public class UnslothUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将用量行映射为记录；全零行返回 null。
-    *
-    * @param row 数据库行
-    * @return 用量记录或 null
-    */
+     * 将用量行映射为记录；全零行返回 null。
+     *
+     * @param row 数据库行
+     * @return 用量记录或 null
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         Tokens t = normalizeTokens(row);
         if (t == null) {
@@ -168,12 +168,12 @@ public class UnslothUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 模型名解析：response_model → requested_model → fallback_model；
-    * providerType 存在且模型未带前缀时补 {@code providerType/model}。
-    *
-    * @param row 数据库行
-    * @return 模型名
-    */
+     * 模型名解析：response_model → requested_model → fallback_model；
+     * providerType 存在且模型未带前缀时补 {@code providerType/model}。
+     *
+     * @param row 数据库行
+     * @return 模型名
+     */
     private String resolveModel(Map<String, Object> row) {
         String model = firstNonBlank(asStr(row.get("response_model")),
                 firstNonBlank(asStr(row.get("requested_model")),
@@ -187,11 +187,11 @@ public class UnslothUsageParser extends BaseUsageParser {
     }
 
     /**
-    * TokenTracker normalizeLocalStudioTokens 口径的令牌归一。
-    *
-    * @param row 数据库行
-    * @return 归一后的令牌计数；总量为 0 返回 null
-    */
+     * TokenTracker normalizeLocalStudioTokens 口径的令牌归一。
+     *
+     * @param row 数据库行
+     * @return 归一后的令牌计数；总量为 0 返回 null
+     */
     private Tokens normalizeTokens(Map<String, Object> row) {
         int prompt = asInt(row.get("prompt_tokens"));
         int completion = asInt(row.get("completion_tokens"));

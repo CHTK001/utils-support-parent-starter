@@ -1,14 +1,14 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* HTTP/2 协议还原器。
-*
-* <p>HTTP/2 连接前言：客户端发送 PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n (24 bytes)。
-* 服务端发送 24 字节 魔法 + SETTINGS 帧。
-* 帧格式: 长度(3) + 类型(1) + flags(1) + 流id(4) + payload。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * HTTP/2 协议还原器。
+ *
+ * <p>HTTP/2 连接前言：客户端发送 PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n (24 bytes)。
+ * 服务端发送 24 字节 魔法 + SETTINGS 帧。
+ * 帧格式: 长度(3) + 类型(1) + flags(1) + 流id(4) + payload。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
 

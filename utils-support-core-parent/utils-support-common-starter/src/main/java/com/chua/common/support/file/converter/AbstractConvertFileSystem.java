@@ -6,11 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* 文件转换器抽象基类 — 简化 ConvertFileSystem 实现。
-* <p>子类只需实现 {@link #doConvert(InputStream, OutputStream, File, File)} 和 {@link #type()}。</p>
-*
-* @author CH
-* @since 2026-07-16
+ * 文件转换器抽象基类 — 简化 ConvertFileSystem 实现。
+ * <p>子类只需实现 {@link #doConvert(InputStream, OutputStream, File, File)} 和 {@link #type()}。</p>
+ *
+ * @author CH
+ * @since 2026-07-16
  */
 public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
 
@@ -59,14 +59,14 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
     }
 
     /**
-    * 子类实现此方法完成实际转换。
-    *
-    * @param inputStream  源文件输入流
-    * @param outputStream 目标文件输出流
-    * @param sourceFile   源文件（可用于获取文件名、后缀等，URL 转换时可能为 null）
-    * @param targetFile   目标文件
-    * @throws Exception 转换失败
-    */
+     * 子类实现此方法完成实际转换。
+     *
+     * @param inputStream  源文件输入流
+     * @param outputStream 目标文件输出流
+     * @param sourceFile   源文件（可用于获取文件名、后缀等，URL 转换时可能为 null）
+     * @param targetFile   目标文件
+     * @throws Exception 转换失败
+     */
     protected abstract void doConvert(InputStream inputStream, OutputStream outputStream,
                                       File sourceFile, File targetFile) throws Exception;
 
@@ -82,9 +82,9 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
     }
 
     /**
-    * 创建 AbstractConvertFileSystem 实例
-    * @param filePath filePath
-    */
+     * 创建 AbstractConvertFileSystem 实例
+     * @param filePath filePath
+     */
     protected AbstractConvertFileSystem(String filePath) {
     }
 }

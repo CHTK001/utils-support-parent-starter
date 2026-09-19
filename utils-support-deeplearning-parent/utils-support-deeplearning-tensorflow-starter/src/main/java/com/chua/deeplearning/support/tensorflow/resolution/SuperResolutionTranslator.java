@@ -10,11 +10,11 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* tensor流 超分辨率 Translator。
-* <p>输入 FLOAT32 HWC；输出 clip 到 [0,255] 后还原 Image。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * tensor流 超分辨率 Translator。
+ * <p>输入 FLOAT32 HWC；输出 clip 到 [0,255] 后还原 Image。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SuperResolutionTranslator implements Translator<Image, Image> {
 

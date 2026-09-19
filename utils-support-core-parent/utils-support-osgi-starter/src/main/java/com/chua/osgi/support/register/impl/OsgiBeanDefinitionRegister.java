@@ -14,15 +14,15 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
-* osgi Bean 定义注册器（只读）。
-*
-* <p>委托注入的 {@link OsgiLauncher} 获取 OSGi 框架，所有查询直接委派
-* osgi 服务注册表。Bean 实例由 Felix osgi 容器管理，本注册器仅做桥接。</p>
-*
-* <p>标记为 {@link SpiIgnore}，不参与 SPI 自动注册。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * osgi Bean 定义注册器（只读）。
+ *
+ * <p>委托注入的 {@link OsgiLauncher} 获取 OSGi 框架，所有查询直接委派
+ * osgi 服务注册表。Bean 实例由 Felix osgi 容器管理，本注册器仅做桥接。</p>
+ *
+ * <p>标记为 {@link SpiIgnore}，不参与 SPI 自动注册。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @SpiIgnore
@@ -35,10 +35,10 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     private volatile OsgiLauncher osgiLauncher;
 
     /**
-    * 设置 osgi 启动器（由 Spring 注入，替代静态持有）。
-    *
-    * @param osgiLauncher osgi 启动器
-    */
+     * 设置 osgi 启动器（由 Spring 注入，替代静态持有）。
+     *
+     * @param osgiLauncher osgi 启动器
+     */
     public void setOsgiLauncher(OsgiLauncher osgiLauncher) {
         this.osgiLauncher = osgiLauncher;
     }

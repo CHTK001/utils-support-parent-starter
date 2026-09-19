@@ -7,54 +7,54 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.ByteBuffer;
 
 /**
-* 基于 Rust 后端的 H.264 / H.265 / H.266 解码器。
-*
-* <p>通过 {@link #init(int, int, int)} 的第一个参数 codecId 选择编解码器。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Rust 后端的 H.264 / H.265 / H.266 解码器。
+ *
+ * <p>通过 {@link #init(int, int, int)} 的第一个参数 codecId 选择编解码器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RustVideoDecoder implements VideoDecoder {
 
     /**
-    * 解码器原生句柄
-    */
+     * 解码器原生句柄
+     */
     private long decoderHandle;
 
     /**
-    * 当前编解码器标识
-    */
+     * 当前编解码器标识
+     */
     private int codecId;
 
     /**
-    * 视频宽度
-    */
+     * 视频宽度
+     */
     private int width;
 
     /**
-    * 视频高度
-    */
+     * 视频高度
+     */
     private int height;
 
     /**
-    * 解码器是否已初始化
-    */
+     * 解码器是否已初始化
+     */
     private boolean initialized;
 
     /**
-    * ffmpeg AV_CODEC_标识_H264
-    */
+     * ffmpeg AV_CODEC_标识_H264
+     */
     private static final int AV_CODEC_ID_H264 = 27;
 
     /**
-    * ffmpeg AV_CODEC_标识_H265
-    */
+     * ffmpeg AV_CODEC_标识_H265
+     */
     private static final int AV_CODEC_ID_H265 = 173;
 
     /**
-    * ffmpeg AV_CODEC_标识_H266
-    */
+     * ffmpeg AV_CODEC_标识_H266
+     */
     private static final int AV_CODEC_ID_H266 = 276;
 
     @Override

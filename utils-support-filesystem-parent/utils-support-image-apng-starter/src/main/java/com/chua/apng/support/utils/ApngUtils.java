@@ -21,27 +21,27 @@ import javax.annotation.Nullable;
 
 
 /**
-* APNG 工具类
-* <p>
-* 提供 APNG 图像处理的通用工具方法，包括：
-* 1. APNG 文件读取和写入
-* 2. 动画帧提取和合并
-* 3. 元数据处理
-* 4. 格式检测和验证
-* 5. 图像质量优化
-*
-* @author CH
-* @since 4.0.0.42
+ * APNG 工具类
+ * <p>
+ * 提供 APNG 图像处理的通用工具方法，包括：
+ * 1. APNG 文件读取和写入
+ * 2. 动画帧提取和合并
+ * 3. 元数据处理
+ * 4. 格式检测和验证
+ * 5. 图像质量优化
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ApngUtils {
 
     /**
-    * 检查输入流是否为 APNG 格式
-    *
-    * @param inputStream 输入流
-    * @return 是否为 APNG 格式
-    */
+     * 检查输入流是否为 APNG 格式
+     *
+     * @param inputStream 输入流
+     * @return 是否为 APNG 格式
+     */
     public static boolean isApngFormat(InputStream inputStream) {
         try {
             // 读取文件头部分字节
@@ -71,10 +71,10 @@ public class ApngUtils {
     }
 
     /**
-    * 检查是否为 PNG 文件签名
-    * @param header 头部
-    * @return 是否png签名的结果
-    */
+     * 检查是否为 PNG 文件签名
+     * @param header 头部
+     * @return 是否png签名的结果
+     */
     private static boolean isPngSignature(byte[] header) {
         if (header.length < 8) {
             return false;
@@ -92,10 +92,10 @@ public class ApngUtils {
     }
 
     /**
-    * 检查是否包含 actl 块
-    * @param data 数据
-    * @return containsActlChunk的结果
-    */
+     * 检查是否包含 actl 块
+     * @param data 数据
+     * @return containsActlChunk的结果
+     */
     private static boolean containsActlChunk(byte[] data) {
         // 简单检查是否包含 "acTL" 字符串
         String dataStr = new String(data);
@@ -103,11 +103,11 @@ public class ApngUtils {
     }
 
     /**
-    * 获取 APNG 动画信息
-    *
-    * @param inputStream 输入流
-    * @return 动画信息
-    */
+     * 获取 APNG 动画信息
+     *
+     * @param inputStream 输入流
+     * @return 动画信息
+     */
     public static ApngInfo getApngInfo(InputStream inputStream) {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("APNG");
@@ -139,11 +139,11 @@ public class ApngUtils {
     }
 
     /**
-    * 提取 APNG 的所有帧
-    *
-    * @param inputStream 输入流
-    * @return 帧列表
-    */
+     * 提取 APNG 的所有帧
+     *
+     * @param inputStream 输入流
+     * @return 帧列表
+     */
     public static List<BufferedImage> extractFrames(InputStream inputStream) {
         List<BufferedImage> frames = new ArrayList<>();
         
@@ -179,12 +179,12 @@ public class ApngUtils {
     }
 
     /**
-    * 创建 APNG 动画
-    *
-    * @param frames 帧列表
-    * @param delays 延迟时间列表（毫秒）
-    * @return APNG 字节数组
-    */
+     * 创建 APNG 动画
+     *
+     * @param frames 帧列表
+     * @param delays 延迟时间列表（毫秒）
+     * @return APNG 字节数组
+     */
     public static byte[] createApng(List<BufferedImage> frames, List<Integer> delays) {
         if (frames.isEmpty()) {
             return new byte[0];
@@ -239,11 +239,11 @@ public class ApngUtils {
     }
 
     /**
-    * 优化图像质量
-    *
-    * @param image 原始图像
-    * @return 优化后的图像
-    */
+     * 优化图像质量
+     *
+     * @param image 原始图像
+     * @return 优化后的图像
+     */
     public static BufferedImage optimizeImage(BufferedImage image) {
         if (image == null) {
             return null;
@@ -263,13 +263,13 @@ public class ApngUtils {
     }
 
     /**
-    * 调整图像大小
-    *
-    * @param image 原始图像
-    * @param width 目标宽度
-    * @param height 目标高度
-    * @return 调整后的图像
-    */
+     * 调整图像大小
+     *
+     * @param image 原始图像
+     * @param width 目标宽度
+     * @param height 目标高度
+     * @return 调整后的图像
+     */
     public static BufferedImage resizeImage(BufferedImage image, int width, int height) {
         if (image == null || width <= 0 || height <= 0) {
             return image;
@@ -283,11 +283,11 @@ public class ApngUtils {
     }
 
     /**
-    * 验证 APNG 文件
-    *
-    * @param data APNG 数据
-    * @return 是否有效
-    */
+     * 验证 APNG 文件
+     *
+     * @param data APNG 数据
+     * @return 是否有效
+     */
     public static boolean validateApng(byte[] data) {
         if (data == null || data.length < 8) {
             return false;
@@ -301,10 +301,10 @@ public class ApngUtils {
     }
 
     /**
-    * APNG 信息类
-    * @author CH
-    * @since 4.0.0
-    */
+     * APNG 信息类
+     * @author CH
+     * @since 4.0.0
+     */
     public static class ApngInfo {
         /** 帧数量 */
         private final int frameCount;
@@ -328,37 +328,37 @@ public class ApngUtils {
         }
 
         /**
-        * 获取帧计算数量
-        *
-        * @return 获取帧数量的结果
-        */
+         * 获取帧计算数量
+         *
+         * @return 获取帧数量的结果
+         */
         public int getFrameCount() {
             return frameCount;
         }
 
         /**
-        * 获取Width
-        *
-        * @return 获取width的结果
-        */
+         * 获取Width
+         *
+         * @return 获取width的结果
+         */
         public int getWidth() {
             return width;
         }
 
         /**
-        * 获取Height
-        *
-        * @return 获取height的结果
-        */
+         * 获取Height
+         *
+         * @return 获取height的结果
+         */
         public int getHeight() {
             return height;
         }
 
         /**
-        * 是否Animated
-        *
-        * @return 是否animated的结果
-        */
+         * 是否Animated
+         *
+         * @return 是否animated的结果
+         */
         public boolean isAnimated() {
             return frameCount > 1;
         }

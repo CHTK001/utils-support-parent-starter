@@ -31,41 +31,41 @@ import java.nio.file.Path;
 public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
 
     /**
-    * Source file format identifier.
-    */
+     * Source file format identifier.
+     */
     private static final String SOURCE_TYPE = "hprof";
 
     /**
-    * Target file format identifier.
-    */
+     * Target file format identifier.
+     */
     private static final String TARGET_TYPE = "html";
 
     /**
-    * 可选的 AI 摘要器。为 null 时，HTML 报告省略 AI 区块。
-    */
+     * 可选的 AI 摘要器。为 null 时，HTML 报告省略 AI 区块。
+     */
     private volatile HprofAiSummarizer aiSummarizer;
 
     /**
-    * Default no-arg constructor (no AI summary).
-    */
+     * Default no-arg constructor (no AI summary).
+     */
     public HprofToHtmlFileConvertSystem() {
     }
 
     /**
-    * 创建一个会内嵌 AI 摘要区块的转换器。
-    *
-    * @param aiSummarizer summarizer, null disables the AI block
-    */
+     * 创建一个会内嵌 AI 摘要区块的转换器。
+     *
+     * @param aiSummarizer summarizer, null disables the AI block
+     */
     public HprofToHtmlFileConvertSystem(HprofAiSummarizer aiSummarizer) {
         this.aiSummarizer = aiSummarizer;
     }
 
     /**
-    * 设置要内嵌到 HTML 报告中的 AI 摘要器。
-    *
-    * @param aiSummarizer summarizer, null clears
-    * @return this converter for chaining
-    */
+     * 设置要内嵌到 HTML 报告中的 AI 摘要器。
+     *
+     * @param aiSummarizer summarizer, null clears
+     * @return this converter for chaining
+     */
     public HprofToHtmlFileConvertSystem withAiSummarizer(HprofAiSummarizer aiSummarizer) {
         this.aiSummarizer = aiSummarizer;
         return this;
@@ -93,12 +93,12 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Resolve the source to an input stream.
-    *
-    * @param source source file descriptor
-    * @return input stream
-    * @throws IOException 无法读取源文件时
-    */
+     * Resolve the source to an input stream.
+     *
+     * @param source source file descriptor
+     * @return input stream
+     * @throws IOException 无法读取源文件时
+     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
             return Files.newInputStream(Path.of(source.getPath()));
@@ -113,13 +113,13 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Write the generated HTML to the target.
-    *
-    * @param target  target file descriptor
-    * @param content HTML text
-    * @param setting conversion settings
-    * @throws IOException 无法写入目标文件时
-    */
+     * Write the generated HTML to the target.
+     *
+     * @param target  target file descriptor
+     * @param content HTML text
+     * @param setting conversion settings
+     * @throws IOException 无法写入目标文件时
+     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {
             File file = new File(target.getPath());

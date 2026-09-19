@@ -9,10 +9,10 @@ import com.chua.common.support.network.server.SyncServerListener;
 import java.util.*;
 
 /**
-* Netty HTTP 同步流程管理器。
-*
-* @author CH
-* @since 4.0.0.42
+ * Netty HTTP 同步流程管理器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NettyHttpSyncFlow implements SyncFlow {
 
@@ -26,29 +26,29 @@ public class NettyHttpSyncFlow implements SyncFlow {
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-    * 创建 nettyhttp同步流 实例
-    * @param setting setting
-    * @param serverUrl 字符串
-    * @param serverUrl 服务端url
-    */
+     * 创建 nettyhttp同步流 实例
+     * @param setting setting
+     * @param serverUrl 字符串
+     * @param serverUrl 服务端url
+     */
     public NettyHttpSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new NettyHttpSyncServer(setting);
         this.client = new NettyHttpSyncClient(serverUrl);
     }
 
     /**
-    * 创建 nettyhttp同步流 实例
-    * @param serverUrl 服务端url
-    */
+     * 创建 nettyhttp同步流 实例
+     * @param serverUrl 服务端url
+     */
     public NettyHttpSyncFlow(String serverUrl) {
         this.server = null;
         this.client = new NettyHttpSyncClient(serverUrl);
     }
 
     /**
-    * 创建 nettyhttp同步流 实例
-    * @param setting setting
-    */
+     * 创建 nettyhttp同步流 实例
+     * @param setting setting
+     */
     public NettyHttpSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
         this.server = new NettyHttpSyncServer(setting);
         this.client = null;
@@ -156,10 +156,10 @@ public class NettyHttpSyncFlow implements SyncFlow {
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

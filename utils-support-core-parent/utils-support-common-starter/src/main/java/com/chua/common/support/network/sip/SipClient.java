@@ -38,125 +38,125 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class SipClient {
 
     /**
-    * 默认超时时间（毫秒）
-    */
+     * 默认超时时间（毫秒）
+     */
     public static final long DEFAULT_TIMEOUT_MS = 5000L;
 
     /**
-    * 连接 ID
-    */
+     * 连接 ID
+     */
     private final String clientId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 
     /**
-    * 服务器地址
-    */
+     * 服务器地址
+     */
     private final String serverHost;
 
     /**
-    * 服务器端口
-    */
+     * 服务器端口
+     */
     private final int serverPort;
 
     /**
-    * 认证令牌（初始共享密钥，与 SipServer 相同）
-    */
+     * 认证令牌（初始共享密钥，与 SipServer 相同）
+     */
     private volatile String token = "";
 
     /**
-    * 会话令牌（认证成功后由服务端颁发）
-    */
+     * 会话令牌（认证成功后由服务端颁发）
+     */
     private volatile String sessionToken;
 
     /**
-    * 数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生，两侧需一致）
-    */
+     * 数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生，两侧需一致）
+     */
     private volatile boolean encryptData;
 
     /**
-    * 数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）
-    */
+     * 数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）
+     */
     private volatile boolean muxData;
 
     /**
-    * visitor 角色复用连接
-    */
+     * visitor 角色复用连接
+     */
     private volatile SipMuxConnection muxVisitorConn;
 
     /**
-    * provider 角色复用连接
-    */
+     * provider 角色复用连接
+     */
     private volatile SipMuxConnection muxProviderConn;
 
     /**
-    * 信令连接
-    */
+     * 信令连接
+     */
     private volatile Socket signalSocket;
 
     /**
-    * 信令输出
-    */
+     * 信令输出
+     */
     private volatile PrintWriter signalWriter;
 
     /**
-    * 待处理的隧道开启请求映射（requestId -> Future）
-    */
+     * 待处理的隧道开启请求映射（requestId -> Future）
+     */
     private final Map<String, CompletableFuture<SipTunnelSession>> pendingTunnels = new ConcurrentHashMap<>();
 
     /**
-    * 活动隧道会话集合（channelId -> 会话）
-    */
+     * 活动隧道会话集合（channelId -> 会话）
+     */
     private final Map<String, SipTunnelSession> openTunnels = new ConcurrentHashMap<>();
 
     /**
-    * 隧道开启请求监听器列表（作为服务提供方接收：channelId, serviceName）
-    */
+     * 隧道开启请求监听器列表（作为服务提供方接收：channelId, serviceName）
+     */
     private final List<BiConsumer<String, String>> tunnelOpenListeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 是否已连接
-    */
+     * 是否已连接
+     */
     private volatile boolean connected;
 
     /**
-    * 是否主动关闭（关闭后不再自动重连）
-    */
+     * 是否主动关闭（关闭后不再自动重连）
+     */
     private volatile boolean manualClosed;
 
     /**
-    * 重连间隔（毫秒）
-    */
+     * 重连间隔（毫秒）
+     */
     private static final long RECONNECT_INTERVAL_MS = 3000L;
 
     /**
-    * 心跳间隔（毫秒）
-    */
+     * 心跳间隔（毫秒）
+     */
     private static final long HEARTBEAT_INTERVAL_MS = 15000L;
 
     /**
-    * 心跳定时器
-    */
+     * 心跳定时器
+     */
     private volatile java.util.concurrent.ScheduledExecutorService heartbeatScheduler;
 
     /**
-    * 已声明注册的隧道服务名（重连后自动重放 SERVICE，保证服务端路由不丢）
-    */
+     * 已声明注册的隧道服务名（重连后自动重放 SERVICE，保证服务端路由不丢）
+     */
     private final java.util.Set<String> registeredServices = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /**
-    * 重连成功回调列表（服务/端口代理可在重连后重新绑定本地资源）
-    */
+     * 重连成功回调列表（服务/端口代理可在重连后重新绑定本地资源）
+     */
     private final List<Runnable> reconnectListeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 创建 SIP 客户端。
-    *
-    * @param url 服务器地址，如 tcp://127.0.0.1:19460
-    */
+     * 创建 SIP 客户端。
+     *
+     * @param url 服务器地址，如 tcp://127.0.0.1:19460
+     */
     public SipClient(String url) {
         String addr = url.replaceFirst("^\\w+://", "");
         int colon = addr.lastIndexOf(':');
@@ -165,71 +165,71 @@ public class SipClient {
     }
 
     /**
-    * 创建基于 TCP 传输的 SIP 客户端。
-    *
-    * @param url 服务端地址，如 tcp://127.0.0.1:19460
-    * @return SIP 客户端
-    */
+     * 创建基于 TCP 传输的 SIP 客户端。
+     *
+     * @param url 服务端地址，如 tcp://127.0.0.1:19460
+     * @return SIP 客户端
+     */
     public static SipClient tcp(String url) {
         return new SipClient(url);
     }
 
     /**
-    * 设置认证令牌（初始共享密钥，注册与数据平面握手签名共用）。
-    *
-    * @param token 认证令牌
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 设置认证令牌（初始共享密钥，注册与数据平面握手签名共用）。
+     *
+     * @param token 认证令牌
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient token(String token) {
         this.token = token != null ? token : "";
         return this;
     }
 
     /**
-    * 设置数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生）。
-    *
-    * <p>开启后 visitor 与 provider 之间的数据在客户端侧加密、服务端仅桥接密文；
-    * 要求隧道两侧客户端同时开启，默认关闭。</p>
-    *
-    * @param encryptData true 开启加密
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 设置数据面端到端加密开关（AES-256-GCM，密钥由共享 token 派生）。
+     *
+     * <p>开启后 visitor 与 provider 之间的数据在客户端侧加密、服务端仅桥接密文；
+     * 要求隧道两侧客户端同时开启，默认关闭。</p>
+     *
+     * @param encryptData true 开启加密
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient encrypt(boolean encryptData) {
         this.encryptData = encryptData;
         return this;
     }
 
     /**
-    * 设置数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）。
-    *
-    * <p>开启后每条隧道不再独立拨号，而是复用同角色的共享数据连接（帧式按 channelId 分发），
-    * 显著降低隧道建立延迟与连接数。默认关闭。</p>
-    *
-    * @param muxData true 开启多路复用
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 设置数据面多路复用开关（单条连接承载同角色全部隧道，两侧需一致）。
+     *
+     * <p>开启后每条隧道不再独立拨号，而是复用同角色的共享数据连接（帧式按 channelId 分发），
+     * 显著降低隧道建立延迟与连接数。默认关闭。</p>
+     *
+     * @param muxData true 开启多路复用
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient mux(boolean muxData) {
         this.muxData = muxData;
         return this;
     }
 
     /**
-    * 设置认证令牌（初始共享密钥，与 {@link #token(String)} 等价）。
-    *
-    * @param token 认证令牌
-    * @return 当前客户端实例，支持链式调用
-    * @deprecated 请使用 {@link #token(String)}
-    */
+     * 设置认证令牌（初始共享密钥，与 {@link #token(String)} 等价）。
+     *
+     * @param token 认证令牌
+     * @return 当前客户端实例，支持链式调用
+     * @deprecated 请使用 {@link #token(String)}
+     */
     @Deprecated
     public SipClient setToken(String token) {
         return token(token);
     }
 
     /**
-    * 连接服务器并完成认证换 token。
-    *
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 连接服务器并完成认证换 token。
+     *
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient connect() {
         if (connected) {
             return this;
@@ -284,10 +284,10 @@ public class SipClient {
     }
 
     /**
-    * 启动信令读取线程。
-    *
-    * @param reader 输入
-    */
+     * 启动信令读取线程。
+     *
+     * @param reader 输入
+     */
     private void startSignalReader(BufferedReader reader) {
         ThreadUtils.newThread(() -> {
             try {
@@ -311,8 +311,8 @@ public class SipClient {
     }
 
     /**
-    * 信令连接被动断开后自动重连（网络抖动/服务端重启自愈）。
-    */
+     * 信令连接被动断开后自动重连（网络抖动/服务端重启自愈）。
+     */
     private void scheduleReconnect() {
         ThreadUtils.startVirtualThread("sip-reconnect-" + clientId, () -> {
             while (!manualClosed && !connected) {
@@ -332,8 +332,8 @@ public class SipClient {
     }
 
     /**
-    * 启动心跳定时器，定期发送 PING 保持 NAT 通道存活并检测连接。
-    */
+     * 启动心跳定时器，定期发送 PING 保持 NAT 通道存活并检测连接。
+     */
     private void startHeartbeat() {
         stopHeartbeat();
         java.util.concurrent.ScheduledExecutorService scheduler =
@@ -347,8 +347,8 @@ public class SipClient {
     }
 
     /**
-    * 停止心跳定时器。
-    */
+     * 停止心跳定时器。
+     */
     private void stopHeartbeat() {
         java.util.concurrent.ScheduledExecutorService scheduler = heartbeatScheduler;
         if (scheduler != null) {
@@ -358,10 +358,10 @@ public class SipClient {
     }
 
     /**
-    * 处理服务端下发的信令行。
-    *
-    * @param line 信令行
-    */
+     * 处理服务端下发的信令行。
+     *
+     * @param line 信令行
+     */
     private void handleSignal(String line) {
         try {
             log.info("SIP RECV: {}", line);
@@ -392,10 +392,10 @@ public class SipClient {
     }
 
     /**
-    * 处理隧道开启成功（作为访问方收到通道标识）。
-    *
-    * @param line 报文内容（OPENED|requestId|channelId）
-    */
+     * 处理隧道开启成功（作为访问方收到通道标识）。
+     *
+     * @param line 报文内容（OPENED|requestId|channelId）
+     */
     private void handleOpened(String line) {
         String[] parts = line.split("\\|", 3);
         String requestId = parts.length > 1 ? parts[1] : "";
@@ -412,10 +412,10 @@ public class SipClient {
     }
 
     /**
-    * 处理隧道开启请求（作为服务提供方收到访问方的隧道请求）。
-    *
-    * @param line 报文内容（TUNNEL_OPEN|channelId|serviceName）
-    */
+     * 处理隧道开启请求（作为服务提供方收到访问方的隧道请求）。
+     *
+     * @param line 报文内容（TUNNEL_OPEN|channelId|serviceName）
+     */
     private void handleTunnelOpenRequest(String line) {
         String[] parts = line.split("\\|", 4);
         String token = parts.length > 1 ? parts[1] : "";
@@ -434,10 +434,10 @@ public class SipClient {
     }
 
     /**
-    * 处理隧道错误。
-    *
-    * @param line 报文内容（ERROR|requestId|reason）
-    */
+     * 处理隧道错误。
+     *
+     * @param line 报文内容（ERROR|requestId|reason）
+     */
     private void handleError(String line) {
         String[] parts = line.split("\\|", 3);
         String requestId = parts.length > 1 ? parts[1] : "";
@@ -449,10 +449,10 @@ public class SipClient {
     }
 
     /**
-    * 处理隧道关闭。
-    *
-    * @param line 报文内容（CLOSE|channelId）
-    */
+     * 处理隧道关闭。
+     *
+     * @param line 报文内容（CLOSE|channelId）
+     */
     private void handleClose(String line) {
         String[] parts = line.split("\\|", 3);
         String channelId = parts.length > 2 ? parts[2].trim() : "";
@@ -464,11 +464,11 @@ public class SipClient {
     }
 
     /**
-    * 建立数据平面连接并绑定到会话（携带会话 token）。
-    *
-    * @param session 隧道会话
-    * @param role    连接角色（visitor / provider）
-    */
+     * 建立数据平面连接并绑定到会话（携带会话 token）。
+     *
+     * @param session 隧道会话
+     * @param role    连接角色（visitor / provider）
+     */
     private void connectDataStream(SipTunnelSession session, String role) {
         try {
             if (muxData) {
@@ -492,13 +492,13 @@ public class SipClient {
     }
 
     /**
-    * 获取（或建立）指定角色的多路复用连接。
-    *
-    * @param role           角色
-    * @param firstChannelId 首个通道标识（用于握手）
-    * @return 复用连接
-    * @throws IOException 建立失败
-    */
+     * 获取（或建立）指定角色的多路复用连接。
+     *
+     * @param role           角色
+     * @param firstChannelId 首个通道标识（用于握手）
+     * @return 复用连接
+     * @throws IOException 建立失败
+     */
     private SipMuxConnection muxConnection(String role, String firstChannelId) throws IOException {
         SipMuxConnection existing = "visitor".equals(role) ? muxVisitorConn : muxProviderConn;
         if (existing != null && !existing.isClosed()) {
@@ -517,29 +517,29 @@ public class SipClient {
     }
 
     /**
-    * 获取客户端标识。
-    *
-    * @return 客户端标识
-    */
+     * 获取客户端标识。
+     *
+     * @return 客户端标识
+     */
     public String getClientId() {
         return clientId;
     }
 
     /**
-    * 判断客户端是否已连接。
-    *
-    * @return true 表示已连接
-    */
+     * 判断客户端是否已连接。
+     *
+     * @return true 表示已连接
+     */
     public boolean isConnected() {
         return connected;
     }
 
     /**
-    * 注册隧道服务，声明本客户端对外暴露的服务（provider 角色）。
-    *
-    * @param serviceName 服务名称
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 注册隧道服务，声明本客户端对外暴露的服务（provider 角色）。
+     *
+     * @param serviceName 服务名称
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient registerTunnel(String serviceName) {
         registeredServices.add(serviceName);
         sendSignal(SipProtocol.line(SipProtocol.PREFIX_SERVICE, sessionToken, serviceName));
@@ -547,55 +547,55 @@ public class SipClient {
     }
 
     /**
-    * 注册重连成功回调（自动重连建立新信令连接后触发，用于重新绑定本地资源）。
-    *
-    * @param listener 回调
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 注册重连成功回调（自动重连建立新信令连接后触发，用于重新绑定本地资源）。
+     *
+     * @param listener 回调
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient onReconnect(Runnable listener) {
         reconnectListeners.add(listener);
         return this;
     }
 
     /**
-    * 以服务提供方（provider）角色暴露本机 TCP 服务，链式声明服务名与本地地址。
-    *
-    * <p>等价于 {@code new SipTunnelService(this, name, host, port).start()}，
-    * 但以链式 DSL 形式提供，便于串接在客户端链上：</p>
-    * <pre>{@code
-    * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460")
-    *         .token("xxx")
-    *         .service("mariadb").to("127.0.0.1", 3306);
-    * }</pre>
-    *
-    * @param serviceName 服务名称
-    * @return 服务 DSL，调用 {@link SipClient.ServiceDsl#to(String, int)} 完成暴露
-    */
+     * 以服务提供方（provider）角色暴露本机 TCP 服务，链式声明服务名与本地地址。
+     *
+     * <p>等价于 {@code new SipTunnelService(this, name, host, port).start()}，
+     * 但以链式 DSL 形式提供，便于串接在客户端链上：</p>
+     * <pre>{@code
+     * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460")
+     *         .token("xxx")
+     *         .service("mariadb").to("127.0.0.1", 3306);
+     * }</pre>
+     *
+     * @param serviceName 服务名称
+     * @return 服务 DSL，调用 {@link SipClient.ServiceDsl#to(String, int)} 完成暴露
+     */
     public ServiceDsl service(String serviceName) {
         return new ServiceDsl(serviceName);
     }
 
     /**
-    * 以访问方（visitor）角色监听本地端口并转发到对端服务，链式声明服务名与本地端口。
-    *
-    * <p>等价于 {@code new SipTunnelPort(this, name, port).start()}，
-    * 但以链式 DSL 形式提供，便于串接在客户端链上：</p>
-    * <pre>{@code
-    * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460")
-    *         .token("xxx")
-    *         .tunnel("mariadb").listen(14306);
-    * }</pre>
-    *
-    * @param serviceName 目标隧道服务名称
-    * @return 隧道 DSL，调用 {@link SipClient.TunnelDsl#listen(int)} 完成映射
-    */
+     * 以访问方（visitor）角色监听本地端口并转发到对端服务，链式声明服务名与本地端口。
+     *
+     * <p>等价于 {@code new SipTunnelPort(this, name, port).start()}，
+     * 但以链式 DSL 形式提供，便于串接在客户端链上：</p>
+     * <pre>{@code
+     * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460")
+     *         .token("xxx")
+     *         .tunnel("mariadb").listen(14306);
+     * }</pre>
+     *
+     * @param serviceName 目标隧道服务名称
+     * @return 隧道 DSL，调用 {@link SipClient.TunnelDsl#listen(int)} 完成映射
+     */
     public TunnelDsl tunnel(String serviceName) {
         return new TunnelDsl(serviceName);
     }
 
     /**
-    * 服务提供方 DSL：{@code client.service(name).to(host, port)} 暴露本地服务。
-    */
+     * 服务提供方 DSL：{@code client.service(name).to(host, port)} 暴露本地服务。
+     */
     public class ServiceDsl {
 
         private final String serviceName;
@@ -605,30 +605,30 @@ public class SipClient {
         }
 
         /**
-        * 将 {@code localHost:localPort} 暴露为 SIP 隧道服务。
-        *
-        * @param localHost 本地服务地址
-        * @param localPort 本地服务端口
-        * @return 服务侧隧道代理
-        */
+         * 将 {@code localHost:localPort} 暴露为 SIP 隧道服务。
+         *
+         * @param localHost 本地服务地址
+         * @param localPort 本地服务端口
+         * @return 服务侧隧道代理
+         */
         public SipTunnelService to(String localHost, int localPort) {
             return new SipTunnelService(SipClient.this, serviceName, localHost, localPort).start();
         }
 
         /**
-        * 将本机 {@code localPort} 暴露为 SIP 隧道服务。
-        *
-        * @param localPort 本地服务端口
-        * @return 服务侧隧道代理
-        */
+         * 将本机 {@code localPort} 暴露为 SIP 隧道服务。
+         *
+         * @param localPort 本地服务端口
+         * @return 服务侧隧道代理
+         */
         public SipTunnelService to(int localPort) {
             return to("127.0.0.1", localPort);
         }
     }
 
     /**
-    * 访问方 DSL：{@code client.tunnel(name).listen(port)} 映射本地端口到对端服务。
-    */
+     * 访问方 DSL：{@code client.tunnel(name).listen(port)} 映射本地端口到对端服务。
+     */
     public class TunnelDsl {
 
         private final String serviceName;
@@ -638,65 +638,65 @@ public class SipClient {
         }
 
         /**
-        * 监听 {@code localHost:localPort}，将连接转发到对端隧道服务。
-        *
-        * @param localHost 本地监听地址
-        * @param localPort 本地监听端口
-        * @return 端口侧隧道代理
-        */
+         * 监听 {@code localHost:localPort}，将连接转发到对端隧道服务。
+         *
+         * @param localHost 本地监听地址
+         * @param localPort 本地监听端口
+         * @return 端口侧隧道代理
+         */
         public SipTunnelPort listen(String localHost, int localPort) {
             return new SipTunnelPort(SipClient.this, serviceName, localHost, localPort).start();
         }
 
         /**
-        * 监听本机 {@code localPort}，将连接转发到对端隧道服务。
-        *
-        * @param localPort 本地监听端口
-        * @return 端口侧隧道代理
-        */
+         * 监听本机 {@code localPort}，将连接转发到对端隧道服务。
+         *
+         * @param localPort 本地监听端口
+         * @return 端口侧隧道代理
+         */
         public SipTunnelPort listen(int localPort) {
             return listen("127.0.0.1", localPort);
         }
     }
 
     /**
-    * 注册隧道开启请求监听器（作为服务提供方接收访问方的隧道请求）。
-    *
-    * @param listener 监听器，参数为通道标识与服务名称
-    * @return 当前客户端实例，支持链式调用
-    */
+     * 注册隧道开启请求监听器（作为服务提供方接收访问方的隧道请求）。
+     *
+     * @param listener 监听器，参数为通道标识与服务名称
+     * @return 当前客户端实例，支持链式调用
+     */
     public SipClient onTunnelOpen(BiConsumer<String, String> listener) {
         tunnelOpenListeners.add(listener);
         return this;
     }
 
     /**
-    * 获取指定通道标识的隧道会话（服务提供方在 {@code onTunnelOpen} 回调中获取会话）。
-    *
-    * @param channelId 通道标识
-    * @return 隧道会话，通道不存在时返回 null
-    */
+     * 获取指定通道标识的隧道会话（服务提供方在 {@code onTunnelOpen} 回调中获取会话）。
+     *
+     * @param channelId 通道标识
+     * @return 隧道会话，通道不存在时返回 null
+     */
     public SipTunnelSession tunnelSession(String channelId) {
         return openTunnels.get(channelId);
     }
 
     /**
-    * 同步开启到指定服务的隧道。
-    *
-    * @param serviceName 服务名称
-    * @return 隧道会话
-    */
+     * 同步开启到指定服务的隧道。
+     *
+     * @param serviceName 服务名称
+     * @return 隧道会话
+     */
     public SipTunnelSession openTunnel(String serviceName) {
         return openTunnel(serviceName, DEFAULT_TIMEOUT_MS);
     }
 
     /**
-    * 同步开启到指定服务的隧道，指定超时时间。
-    *
-    * @param serviceName 服务名称
-    * @param timeoutMs   超时时间（毫秒）
-    * @return 隧道会话
-    */
+     * 同步开启到指定服务的隧道，指定超时时间。
+     *
+     * @param serviceName 服务名称
+     * @param timeoutMs   超时时间（毫秒）
+     * @return 隧道会话
+     */
     public SipTunnelSession openTunnel(String serviceName, long timeoutMs) {
         CompletableFuture<SipTunnelSession> future = openTunnelAsync(serviceName);
         try {
@@ -707,11 +707,11 @@ public class SipClient {
     }
 
     /**
-    * 异步开启到指定服务的隧道。
-    *
-    * @param serviceName 服务名称
-    * @return 异步任务，完成时包含隧道会话
-    */
+     * 异步开启到指定服务的隧道。
+     *
+     * @param serviceName 服务名称
+     * @return 异步任务，完成时包含隧道会话
+     */
     public CompletableFuture<SipTunnelSession> openTunnelAsync(String serviceName) {
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<SipTunnelSession> future = new CompletableFuture<>();
@@ -722,20 +722,20 @@ public class SipClient {
     }
 
     /**
-    * 关闭指定隧道通道。
-    *
-    * @param channelId 通道标识
-    */
+     * 关闭指定隧道通道。
+     *
+     * @param channelId 通道标识
+     */
     public void closeTunnel(String channelId) {
         sendSignal(SipProtocol.line(SipProtocol.PREFIX_CLOSE, sessionToken, channelId));
         openTunnels.remove(channelId);
     }
 
     /**
-    * 发送信令行。
-    *
-    * @param line 信令行
-    */
+     * 发送信令行。
+     *
+     * @param line 信令行
+     */
     private void sendSignal(String line) {
         PrintWriter writer = signalWriter;
         if (writer != null) {
@@ -747,8 +747,8 @@ public class SipClient {
     }
 
     /**
-    * 断开与服务器的连接。
-    */
+     * 断开与服务器的连接。
+     */
     public void disconnect() {
         if (!connected && manualClosed) {
             return;
@@ -778,8 +778,8 @@ public class SipClient {
     }
 
     /**
-    * 关闭客户端，释放资源。
-    */
+     * 关闭客户端，释放资源。
+     */
     public void close() {
         disconnect();
     }

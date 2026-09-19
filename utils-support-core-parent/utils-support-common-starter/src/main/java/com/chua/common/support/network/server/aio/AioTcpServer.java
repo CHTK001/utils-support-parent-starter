@@ -28,17 +28,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 基于 {@link AsynchronousSocketChannel} 的 TCP 服务器(Proactor/IOCP)。
-*
-* <p>两种处理模式:
-* <ul>
-*   <li>帧模式(默认):{@code setFrameHandler(bytes -> bytes)} — 每个读取块作为一个
-*       请求帧,处理器返回响应字节回写(请求-响应语义)</li>
-*   <li>管道模式:{@code setRawPipeHandler((in,out) -> {...})} — 连接建立后回调
-*       阻塞流,由业务自行读写(长连接/自定义协议);运行于每连接虚拟线程</li>
-* </ul>
-* @author CH
-* @since 2026/08/24
+ * 基于 {@link AsynchronousSocketChannel} 的 TCP 服务器(Proactor/IOCP)。
+ *
+ * <p>两种处理模式:
+ * <ul>
+ *   <li>帧模式(默认):{@code setFrameHandler(bytes -> bytes)} — 每个读取块作为一个
+ *       请求帧,处理器返回响应字节回写(请求-响应语义)</li>
+ *   <li>管道模式:{@code setRawPipeHandler((in,out) -> {...})} — 连接建立后回调
+ *       阻塞流,由业务自行读写(长连接/自定义协议);运行于每连接虚拟线程</li>
+ * </ul>
+ * @author CH
+ * @since 2026/08/24
  */
 @Slf4j
 @Spi({"aio-tcp", "tcp-aio"})
@@ -60,20 +60,20 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
-    * 异步连接句柄(纯非阻塞):同一时刻至多一个挂起读/写。
-    */
+     * 异步连接句柄(纯非阻塞):同一时刻至多一个挂起读/写。
+     */
     public interface AsyncConn {
         /**
-        * 发起一次异步读;收到数据回调 onData(需再次 read 续读),
-        * 对端关闭回调 onEof,异常回调 onError。
-        */
+         * 发起一次异步读;收到数据回调 onData(需再次 read 续读),
+         * 对端关闭回调 onEof,异常回调 onError。
+         */
         void read(java.util.function.BiConsumer<byte[], Integer> onData,
                   Runnable onEof,
                   java.util.function.Consumer<Throwable> onError);
 
         /**
-        * 异步写整段字节,写完回调 onDone。
-        */
+         * 异步写整段字节,写完回调 onDone。
+         */
         void write(byte[] data, Runnable onDone,
                    java.util.function.Consumer<Throwable> onError);
 
@@ -87,52 +87,52 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     @FunctionalInterface
     public interface RawPipeHandler {
         /**
-        * 连接建立后回调一次。
-        *
-        * @param conn 异步连接句柄
-        */
+         * 连接建立后回调一次。
+         *
+         * @param conn 异步连接句柄
+         */
         void handle(AsyncConn conn) throws Exception;
     }
 
     /**
-    * 创建 AIO TCP 服务器。
-    *
-    * @param setting 配置
-    */
+     * 创建 AIO TCP 服务器。
+     *
+     * @param setting 配置
+     */
     public AioTcpServer(ServerSetting setting) {
         super(setting);
     }
 
     /**
-    * 设置帧模式处理器(请求字节 → 响应字节)。
-    *
-    * @param handler 处理器
-    * @return 当前实例
-    */
+     * 设置帧模式处理器(请求字节 → 响应字节)。
+     *
+     * @param handler 处理器
+     * @return 当前实例
+     */
     public AioTcpServer setFrameHandler(TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
     /**
-    * 注册帧模式处理器（默认模式）。
-    *
-    * <p>满足 {@link TcpServer} 接口约定：等价于 {@link #setFrameHandler(TcpServerHandler)}。</p>
-    *
-    * @param handler 处理器
-    * @return 当前实例
-    */
+     * 注册帧模式处理器（默认模式）。
+     *
+     * <p>满足 {@link TcpServer} 接口约定：等价于 {@link #setFrameHandler(TcpServerHandler)}。</p>
+     *
+     * @param handler 处理器
+     * @return 当前实例
+     */
     @Override
     public TcpServer setHandler(TcpServerHandler handler) {
         return setFrameHandler(handler);
     }
 
     /**
-    * 设置管道模式处理器(阻塞流直通业务)。
-    *
-    * @param handler 处理器
-    * @return 当前实例
-    */
+     * 设置管道模式处理器(阻塞流直通业务)。
+     *
+     * @param handler 处理器
+     * @return 当前实例
+     */
     public AioTcpServer setRawPipeHandler(RawPipeHandler handler) {
         this.rawPipeHandler = handler;
         return this;
@@ -171,8 +171,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 挂起一次重叠 accept。
-    */
+     * 挂起一次重叠 accept。
+     */
     private void issueAccept() {
         // 不检查 running:start() 模板在 doStart 返回后才置位,首挂 accept 会因此永不发生
         if (serverChannel == null || !serverChannel.isOpen()) {
@@ -195,10 +195,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 新连接初始化并派发到虚拟线程。
-    *
-    * @param channel 已接入通道
-    */
+     * 新连接初始化并派发到虚拟线程。
+     *
+     * @param channel 已接入通道
+     */
     private void handleAccepted(AsynchronousSocketChannel channel) {
         activeConnections.incrementAndGet();
         executor.submit(() -> {
@@ -231,11 +231,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         });
     }
     /**
-    * 发起一帧的异步读(读完成 → 处理器 → 异步写 → 续读,全程无阻塞)。
-    *
-    * @param channel 通道
-    * @param buf     读缓冲(连接生命周期内复用)
-    */
+     * 发起一帧的异步读(读完成 → 处理器 → 异步写 → 续读,全程无阻塞)。
+     *
+     * @param channel 通道
+     * @param buf     读缓冲(连接生命周期内复用)
+     */
     private void issueFrameRead(AsynchronousSocketChannel channel, ByteBuffer buf) {
         if (!running || !channel.isOpen()) {
             closeQuietly(channel);
@@ -287,10 +287,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回通道。
-    * @param channel 方法入参 channel
-    * @param reqData 请求数据，不允许为 null
-    */
+     * 通过 Filter Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回通道。
+     * @param channel 方法入参 channel
+     * @param reqData 请求数据，不允许为 null
+     */
     private void processViaFilterChain(AsynchronousSocketChannel channel, byte[] reqData) {
         InetSocketAddress remoteAddr = null;
         try {
@@ -323,10 +323,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 写出长度帧：4 字节大端长度头 + body。
-    * @param channel 方法入参 channel
-    * @param data 数据，不允许为 null
-    */
+     * 写出长度帧：4 字节大端长度头 + body。
+     * @param channel 方法入参 channel
+     * @param data 数据，不允许为 null
+     */
     private void writeFrame(AsynchronousSocketChannel channel, byte[] data) {
         if (data.length > 8 * 1024 * 1024) {
             log.warn("响应过大: {} bytes", data.length);
@@ -352,17 +352,17 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 写出空响应帧（200 OK + Content-Length: 0）。
-    * @param channel 方法入参 channel
-    */
+     * 写出空响应帧（200 OK + Content-Length: 0）。
+     * @param channel 方法入参 channel
+     */
     private void writeEmptyFrame(AsynchronousSocketChannel channel) {
         byte[] empty = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n".getBytes(StandardCharsets.US_ASCII);
         writeFrame(channel, empty);
     }
 
     /**
-    * 异步连接句柄实现:复用一块 direct 读缓冲,单挂起读/写。
-    */
+     * 异步连接句柄实现:复用一块 direct 读缓冲,单挂起读/写。
+     */
     private final class AsyncConnImpl implements AsyncConn {
 
         /** 通道 */
@@ -492,11 +492,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 阻塞式 Future 写适配器。
-    *
-    * @param channel 通道
-    * @return 输出流
-    */
+     * 阻塞式 Future 写适配器。
+     *
+     * @param channel 通道
+     * @return 输出流
+     */
     public static OutputStream newBlockingWriter(AsynchronousSocketChannel channel) {
         return new OutputStream() {
             @Override
@@ -529,12 +529,12 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 至少读到 1 字节或 EOF。
-    *
-    * @param channel 通道
-    * @param dst     目标缓冲
-    * @return 读取字节数,-1 表示 EOF
-    */
+     * 至少读到 1 字节或 EOF。
+     *
+     * @param channel 通道
+     * @param dst     目标缓冲
+     * @return 读取字节数,-1 表示 EOF
+     */
     static int readFully(AsynchronousSocketChannel channel, ByteBuffer dst) throws Exception {
         while (true) {
             Integer n = channel.read(dst).get();
@@ -548,10 +548,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 静默关闭通道。
-    *
-    * @param channel 通道
-    */
+     * 静默关闭通道。
+     *
+     * @param channel 通道
+     */
     static void closeQuietly(AsynchronousSocketChannel channel) {
         try {
             channel.close();

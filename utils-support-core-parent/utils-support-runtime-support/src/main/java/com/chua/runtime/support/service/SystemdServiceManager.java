@@ -12,27 +12,27 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Linux systemd 系统服务管理器 — 通过 {@code systemctl} 命令管理 systemd 服务。
-*
-* <p>在 Linux 系统上使用 systemd 的 service 文件注册和管理服务。
-* 服务 文件生成到 {@code /etc/systemd/system/} 目录。</p>
-*
-* <p>SPI 名称：{@code "systemd"}</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Linux systemd 系统服务管理器 — 通过 {@code systemctl} 命令管理 systemd 服务。
+ *
+ * <p>在 Linux 系统上使用 systemd 的 service 文件注册和管理服务。
+ * 服务 文件生成到 {@code /etc/systemd/system/} 目录。</p>
+ *
+ * <p>SPI 名称：{@code "systemd"}</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("systemd")
 public class SystemdServiceManager implements ServiceManager {
 
     /**
-    * systemd 服务 文件目录
+     * systemd 服务 文件目录
      */
     private static final String SYSTEMD_SERVICE_DIR = "/etc/systemd/system";
 
     /**
-    * 命令执行超时（秒）
+     * 命令执行超时（秒）
      */
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
@@ -211,10 +211,10 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     /**
-    * 生成 systemd 服务 文件内容。
-    *
-    * @param service 服务配置
-    * @return service 文件内容
+     * 生成 systemd 服务 文件内容。
+     *
+     * @param service 服务配置
+     * @return service 文件内容
      */
     private String generateServiceFile(ManagedService service) {
         StringBuilder sb = new StringBuilder();

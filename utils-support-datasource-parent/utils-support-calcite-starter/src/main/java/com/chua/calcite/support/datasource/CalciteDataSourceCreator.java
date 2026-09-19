@@ -21,42 +21,42 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
-* Calcite 数据源创建器，使用 Calcite 将多个数据源聚合为一个统一的 {@link DataSource}。
-* <p>
-* 支持聚合以下类型的数据源：
-* <ul>
-*   <li><b>JDBC 数据源</b> — 通过 {@link #addDataSource(String, DataSource)} 注册，内部转换为 {@link JdbcSchema}</li>
-*   <li><b>DataScheme 虚拟库</b> — 通过 {@link #addScheme(DataScheme)} 注册，包含多个 {@link DataTable}</li>
-*   <li><b>DataTable 虚拟表</b> — 通过 {@link #addTable(String, DataTable)} 注册，自动归入指定 Scheme</li>
-* </ul>
-* </p>
-* <p>
-* 使用示例：
-* <pre>{@code
-* // 创建聚合数据源
-* DataSource unified = new CalciteDataSourceCreator()
-*     .addDataSource("mydb", myDataSource)
-*     .addScheme(new CalciteDataScheme("sales")
-*         .addTable(new CalciteDataTable("orders", ...).addRow(...)))
-*     .create();
-*
-* // 通过 SQL 跨源查询
-* try (Connection conn = unified.getConnection()) {
-*     try (ResultSet rs = conn.createStatement()
-*             .executeQuery("SELECT * FROM sales.orders")) {
-*         ...
-*     }
-* }
-* }</pre>eStatement()
-*             .executeQuery("SELECT * FROM sales.orders")) {
-*         ...
-*     }
-* }
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Calcite 数据源创建器，使用 Calcite 将多个数据源聚合为一个统一的 {@link DataSource}。
+ * <p>
+ * 支持聚合以下类型的数据源：
+ * <ul>
+ *   <li><b>JDBC 数据源</b> — 通过 {@link #addDataSource(String, DataSource)} 注册，内部转换为 {@link JdbcSchema}</li>
+ *   <li><b>DataScheme 虚拟库</b> — 通过 {@link #addScheme(DataScheme)} 注册，包含多个 {@link DataTable}</li>
+ *   <li><b>DataTable 虚拟表</b> — 通过 {@link #addTable(String, DataTable)} 注册，自动归入指定 Scheme</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 使用示例：
+ * <pre>{@code
+ * // 创建聚合数据源
+ * DataSource unified = new CalciteDataSourceCreator()
+ *     .addDataSource("mydb", myDataSource)
+ *     .addScheme(new CalciteDataScheme("sales")
+ *         .addTable(new CalciteDataTable("orders", ...).addRow(...)))
+ *     .create();
+ *
+ * // 通过 SQL 跨源查询
+ * try (Connection conn = unified.getConnection()) {
+ *     try (ResultSet rs = conn.createStatement()
+ *             .executeQuery("SELECT * FROM sales.orders")) {
+ *         ...
+ *     }
+ * }
+ * }</pre>eStatement()
+ *             .executeQuery("SELECT * FROM sales.orders")) {
+ *         ...
+ *     }
+ * }
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @SpiDefault
 @Spi("calcite")
@@ -64,18 +64,18 @@ import java.util.logging.Logger;
 public class CalciteDataSourceCreator implements DataSourceCreator {
 
     /**
-    * 已注册的 JDBC 数据源（名称 -> 数据源）
-    */
+     * 已注册的 JDBC 数据源（名称 -> 数据源）
+     */
     private final Map<String, DataSource> dataSources = new LinkedHashMap<>();
 
     /**
-    * 已注册的 数据scheme 虚拟库列表
-    */
+     * 已注册的 数据scheme 虚拟库列表
+     */
     private final List<DataScheme> schemes = new ArrayList<>();
 
     /**
-    * Calcite 连接属性
-    */
+     * Calcite 连接属性
+     */
     private final Properties calciteProps = new Properties();
 
     {
@@ -88,10 +88,10 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     /**
-    * 创建一个新的 {@code CalciteDataSourceCreator} 实例。
-    *
-    * @return 新的创建器实例
-    */
+     * 创建一个新的 {@code CalciteDataSourceCreator} 实例。
+     *
+     * @return 新的创建器实例
+     */
     public static CalciteDataSourceCreator newCreator() {
         return new CalciteDataSourceCreator();
     }
@@ -157,10 +157,10 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     /**
-    * 创建
-    *
-    * @return 创建的结果
-    */
+     * 创建
+     *
+     * @return 创建的结果
+     */
     public DataSource create() {
         return new UnifiedCalciteDataSource(
                 new LinkedHashMap<>(this.dataSources),
@@ -174,10 +174,10 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     /**
-    * 统一的 Calcite 数据源，内部封装了 JDBC 数据源和虚拟表的聚合逻辑。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 统一的 Calcite 数据源，内部封装了 JDBC 数据源和虚拟表的聚合逻辑。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class UnifiedCalciteDataSource implements DataSource {
 
         /** 数据源 */
@@ -310,10 +310,10 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     /**
-        * 将 数据scheme 映射为 Calcite 模式，为每个 数据table 提供 scannabletable。
-        * @author CH
-        * @since 4.0.0
-        */
+     * 将 数据scheme 映射为 Calcite 模式，为每个 数据table 提供 scannabletable。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class DataSchemeSchema extends AbstractSchema {
 
         /** table映射 */

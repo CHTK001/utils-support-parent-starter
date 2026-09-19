@@ -11,57 +11,57 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 
 /**
-* Small Stable Diffusion v0 VAE                   
-* <p>
-*              Small Stable Diffusion v0           VAE                
-*                                     
-* </p>
-* <p>
-*                
-* -                       
-* -                                
-* -                       
-* </p>
-* <p>
-*                      
-* -                               shape: [1, 4, H/8, W/8]   
-* -                               shape: [1, 3, H, W]   
-* </p>
-*
-* @author CH
-* @since 2025-01-30
+ * Small Stable Diffusion v0 VAE                   
+ * <p>
+ *              Small Stable Diffusion v0           VAE                
+ *                                     
+ * </p>
+ * <p>
+ *                
+ * -                       
+ * -                                
+ * -                       
+ * </p>
+ * <p>
+ *                      
+ * -                               shape: [1, 4, H/8, W/8]   
+ * -                               shape: [1, 3, H, W]   
+ * </p>
+ *
+ * @author CH
+ * @since 2025-01-30
  */
 @Slf4j
 public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList, Image> {
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int width;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int height;
 
     /**
-    * VAE                Stable Diffusion        0.18215   
-    */
+     * VAE                Stable Diffusion        0.18215   
+     */
     private static final float VAE_SCALE_FACTOR = 0.18215f;
 
     /**
-    *              -                   
-    */
+     *              -                   
+     */
     public SmallSdVaeDecoderTranslator() {
         this(512, 512);
     }
 
     /**
-    *              -                
-    *
-    * @param width                    
-    * @param height                   
-    */
+     *              -                
+     *
+     * @param width                    
+     * @param height                   
+     */
     public SmallSdVaeDecoderTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -71,10 +71,10 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     }
 
     /**
-    *             
-    *
-    * @param ctx                   
-    */
+     *             
+     *
+     * @param ctx                   
+     */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         if (log.isDebugEnabled()) {
@@ -83,16 +83,16 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     }
 
     /**
-    *                   
-    * <p>
-    * VAE                         
-    * - latent:                   
-    * </p>
-    *
-    * @param ctx                     
-    * @param input        nd列表
-    * @return                         
-    */
+     *                   
+     * <p>
+     * VAE                         
+     * - latent:                   
+     * </p>
+     *
+     * @param ctx                     
+     * @param input        nd列表
+     * @return                         
+     */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull NDList input) {
         var modelInput = new NDList();
@@ -116,16 +116,16 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     }
 
     /**
-    *                   
-    * <p>
-    * VAE                   
-    * - 样本:                            shape: [1, 3, H, W]
-    * </p>
-    *
-    * @param ctx                    
-    * @param list              nd列表
-    * @return                   
-    */
+     *                   
+     * <p>
+     * VAE                   
+     * - 样本:                            shape: [1, 3, H, W]
+     * </p>
+     *
+     * @param ctx                    
+     * @param list              nd列表
+     * @return                   
+     */
     @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         var manager = ctx.getNDManager();

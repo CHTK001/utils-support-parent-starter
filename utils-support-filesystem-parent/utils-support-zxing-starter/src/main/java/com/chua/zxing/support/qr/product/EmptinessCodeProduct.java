@@ -12,9 +12,9 @@ import javax.annotation.Nullable;
 
 
 /**
-* 默认二维码生成器
-* @author CH
-* @since 4.0.0.42
+ * 默认二维码生成器
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EmptinessCodeProduct implements CodeProduct{
 

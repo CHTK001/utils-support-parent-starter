@@ -10,19 +10,19 @@ import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
 import java.lang.reflect.Method;
 
 /**
-* {@link Bulkhead} 注解的 Spring AOP Advisor。
-*
-* @author CH
-* @since 4.0.0.42
+ * {@link Bulkhead} 注解的 Spring AOP Advisor。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class BulkheadAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
-    * 隔离advisor。
-    * @param intercept intercept
-    * @author CH
-    * @since 4.0.0
-    */
+     * 隔离advisor。
+     * @param intercept intercept
+     * @author CH
+     * @since 4.0.0
+     */
     public BulkheadAdvisor(BulkheadIntercept intercept) {
         super(new BulkheadAdvice(intercept));
     }

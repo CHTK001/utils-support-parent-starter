@@ -24,14 +24,14 @@ import com.chua.common.support.utils.SubImageOptions;
 
 
 /**
-* JDK实现的图片操作
-* <p>
-* 使用Java标准库实现图片操作功能
-* 采用响应式设计，在IO线程池中执行图片处理操作
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * JDK实现的图片操作
+ * <p>
+ * 使用Java标准库实现图片操作功能
+ * 采用响应式设计，在IO线程池中执行图片处理操作
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("jdk")
@@ -318,13 +318,13 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     /**
-    * 计算水印位置
-    *
-    * @param image          原始图片
-    * @param params         水印参数
-    * @param watermarkImage 水印图片（可为空）
-    * @return 水印位置坐标
-    */
+     * 计算水印位置
+     *
+     * @param image          原始图片
+     * @param params         水印参数
+     * @param watermarkImage 水印图片（可为空）
+     * @return 水印位置坐标
+     */
     private Point calculateWatermarkPosition(BufferedImage image, ImageOperation.WatermarkParams params, BufferedImage watermarkImage) {
         var width = image.getWidth();
         var height = image.getHeight();
@@ -395,13 +395,13 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     /**
-    * 添加文本水印
-    *
-    * @param graphics 图形对象
-    * @param params   水印参数
-    * @param x        X坐标
-    * @param y        Y坐标
-    */
+     * 添加文本水印
+     *
+     * @param graphics 图形对象
+     * @param params   水印参数
+     * @param x        X坐标
+     * @param y        Y坐标
+     */
     private void addTextWatermark(Graphics2D graphics, ImageOperation.WatermarkParams params, int x, int y) {
         var fontSize = params.getFontSize() != null ? params.getFontSize() : 24;
         var font = new Font(Font.SANS_SERIF, Font.BOLD, fontSize);
@@ -420,13 +420,13 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     /**
-    * 添加图片水印
-    *
-    * @param graphics       图形对象
-    * @param watermarkImage 水印图片
-    * @param x             X坐标
-    * @param y             Y坐标
-    */
+     * 添加图片水印
+     *
+     * @param graphics       图形对象
+     * @param watermarkImage 水印图片
+     * @param x             X坐标
+     * @param y             Y坐标
+     */
     private void addImageWatermark(Graphics2D graphics, BufferedImage watermarkImage, int x, int y) {
         graphics.drawImage(watermarkImage, x, y, null);
     }

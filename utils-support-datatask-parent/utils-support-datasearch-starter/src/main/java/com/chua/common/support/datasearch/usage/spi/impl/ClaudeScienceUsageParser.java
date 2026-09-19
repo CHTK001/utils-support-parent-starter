@@ -48,9 +48,9 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
     };
 
     /**
-    * 解析 DB 文件路径。
-    * @return 数据库文件路径；未找到返回 null
-    */
+     * 解析 DB 文件路径。
+     * @return 数据库文件路径；未找到返回 null
+     */
     private static Path resolveDbPath() {
         String explicit = System.getenv("CLAUDE_SCIENCE_DB_PATH");
         if (explicit != null && !explicit.isBlank()) {

@@ -9,18 +9,18 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* faceplugin face landmark detection Translator (mobilefacenet).
-*
-* <p>Model: MobileFaceNet
-* 输入:  1x1x64x64 grayscale, normalized by /256
-* 输出: 136-dim (68 landmarks * 2 coordinates), 值 入 [0, 1] relative 转为 cropped face
-*
-* <p>调用方必须先根据检测到的人脸框从图像中裁剪出人脸区域，
-* 再将其传入本解析器。136 个输出值是裁剪区域内的
-* 相对坐标。
-*
-* @author CH
-* @since 2026-08-08
+ * faceplugin face landmark detection Translator (mobilefacenet).
+ *
+ * <p>Model: MobileFaceNet
+ * 输入:  1x1x64x64 grayscale, normalized by /256
+ * 输出: 136-dim (68 landmarks * 2 coordinates), 值 入 [0, 1] relative 转为 cropped face
+ *
+ * <p>调用方必须先根据检测到的人脸框从图像中裁剪出人脸区域，
+ * 再将其传入本解析器。136 个输出值是裁剪区域内的
+ * 相对坐标。
+ *
+ * @author CH
+ * @since 2026-08-08
  */
 public class FacePluginLandmarkTranslator implements Translator<Image, float[]> {
 

@@ -13,25 +13,25 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 @Builder
 public class NodeMeta {
 
     /**
-    * 节点唯一标识
-    */
+     * 节点唯一标识
+     */
     private String nodeId;
 
     /**
-    * 能力标签（{"cap": "cpu", "群体": "prod"}）
-    */
+     * 能力标签（{"cap": "cpu", "群体": "prod"}）
+     */
     @Builder.Default
     private Map<String, String> tags = new HashMap<>(); // 标签
 
     /**
-    * 节点权重（负载均衡 权重 策略使用）
-    */
+     * 节点权重（负载均衡 权重 策略使用）
+     */
     @Builder.Default
     /** 权重 */
     private int weight = 1;
@@ -42,23 +42,23 @@ public class NodeMeta {
     private String host;
 
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     private int port;
 
     /**
-    * 归属中间件节点 标识（Home 节点独享派发）
-    */
+     * 归属中间件节点 标识（Home 节点独享派发）
+     */
     private String homeMiddlewareId;
 
     /**
-    * 最后心跳时间（毫秒时间戳）
-    */
+     * 最后心跳时间（毫秒时间戳）
+     */
     private long lastHeartbeat;
 
     /**
-    * 是否在线
-    */
+     * 是否在线
+     */
     @Builder.Default
     /** Online */
     private boolean online = true;

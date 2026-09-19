@@ -18,17 +18,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 基于阿里云 数据v geoAtlas 的行政区划提供器（在线 API）。
-*
-* <p>数据源：<a href="https://geo.datav.aliyun.com/areas_v3/bound/{code}_full.json">
-* 数据v geoAtlas</a>，覆盖省 / 市 / 区 / 街道四级，每年随民政部调整同步更新。
-*
-* <p>支持「构造设置几级数据」：通过 {@code new AlibabaRegionProvider(level)} 设定默认层级，
-* 亦可调用 {@link #getRegions(int)} / {@link #getTree(int)} 显式指定。
-* 节点按 adcode 在会话内缓存，重复查询不重复请求。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于阿里云 数据v geoAtlas 的行政区划提供器（在线 API）。
+ *
+ * <p>数据源：<a href="https://geo.datav.aliyun.com/areas_v3/bound/{code}_full.json">
+ * 数据v geoAtlas</a>，覆盖省 / 市 / 区 / 街道四级，每年随民政部调整同步更新。
+ *
+ * <p>支持「构造设置几级数据」：通过 {@code new AlibabaRegionProvider(level)} 设定默认层级，
+ * 亦可调用 {@link #getRegions(int)} / {@link #getTree(int)} 显式指定。
+ * 节点按 adcode 在会话内缓存，重复查询不重复请求。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("alibaba")
 public class AlibabaRegionProvider implements RegionProvider {
@@ -48,8 +48,8 @@ public class AlibabaRegionProvider implements RegionProvider {
     private static final Map<String, List<RegionInfo>> CACHE = new ConcurrentHashMap<>();
 
     /**
-    * 默认层级（由构造决定）
-    */
+     * 默认层级（由构造决定）
+     */
     private final int defaultLevel;
 
     /** HTTP客户端 */
@@ -61,10 +61,10 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 构造一个指定默认层级的提供器。
-    *
-    * @param defaultLevel 默认最大层级（1~4），建议 2（省+市）以保证响应速度
-    */
+     * 构造一个指定默认层级的提供器。
+     *
+     * @param defaultLevel 默认最大层级（1~4），建议 2（省+市）以保证响应速度
+     */
     public AlibabaRegionProvider(int defaultLevel) {
         this.defaultLevel = defaultLevel;
         this.httpClient = HttpClientFactory.getClient();
@@ -126,11 +126,11 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 扁平化
-    *
-    * @param node 节点
-    * @param out 出
-    */
+     * 扁平化
+     *
+     * @param node 节点
+     * @param out 出
+     */
     private void flatten(RegionInfo node, List<RegionInfo> out) {
         if (node.getAdcode() != null && !"100000".equals(node.getAdcode()) && node.getLevel() > 0) {
             out.add(node);
@@ -143,11 +143,11 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 获取children
-    *
-    * @param adcode adcode
-    * @return 获取children的结果
-    */
+     * 获取children
+     *
+     * @param adcode adcode
+     * @return 获取children的结果
+     */
     private List<RegionInfo> fetchChildren(String adcode) {
         List<RegionInfo> cached = CACHE.get(adcode);
         if (cached != null) {
@@ -170,11 +170,11 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 解析
-    *
-    * @param json json
-    * @return 解析的结果
-    */
+     * 解析
+     *
+     * @param json json
+     * @return 解析的结果
+     */
     private List<RegionInfo> parse(String json) {
         List<RegionInfo> list = new ArrayList<>();
         try {
@@ -201,11 +201,11 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 映射级别
-    *
-    * @param lv lv
-    * @return 映射级别的结果
-    */
+     * 映射级别
+     *
+     * @param lv lv
+     * @return 映射级别的结果
+     */
     private static int mapLevel(String lv) {
         if (lv == null) {
             return 0;
@@ -225,23 +225,23 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 文本
-    *
-    * @param n n
-    * @param k k
-    * @return 文本的结果
-    */
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
     }
 
     /**
-    * 解析Center
-    *
-    * @param c c
-    * @return 解析center的结果
-    */
+     * 解析Center
+     *
+     * @param c c
+     * @return 解析center的结果
+     */
     private static double[] parseCenter(JsonNode c) {
         if (c == null || !c.isArray() || c.size() < 2) {
             return new double[]{0, 0};

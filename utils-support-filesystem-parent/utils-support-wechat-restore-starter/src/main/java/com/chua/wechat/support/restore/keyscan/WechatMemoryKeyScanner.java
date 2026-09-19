@@ -82,53 +82,53 @@ import java.util.regex.Pattern;
 public final class WechatMemoryKeyScanner {
 
     /**
-    * 微信进程名候选
-    */
+     * 微信进程名候选
+     */
     private static final String[] PROCESS_NAMES = {"Weixin.exe", "WeChat.exe"};
 
     /**
-    * 页大小
-    */
+     * 页大小
+     */
     private static final int PAGE = 4096;
 
     /**
-    * 首页密文起始偏移（前 16 字节为明文 salt）
-    */
+     * 首页密文起始偏移（前 16 字节为明文 salt）
+     */
     private static final int C0_OFFSET = 16;
 
     /**
-    * IV 偏移（页尾保留区首部）
-    */
+     * IV 偏移（页尾保留区首部）
+     */
     private static final int IV_OFFSET = PAGE - 80;
 
     /**
-    * HMAC 偏移（页尾 64 字节）
-    */
+     * HMAC 偏移（页尾 64 字节）
+     */
     private static final int HMAC_OFFSET = PAGE - 64;
 
     /**
-    * 单次读取的内存块大小
-    */
+     * 单次读取的内存块大小
+     */
     private static final int CHUNK = 8 << 20;
 
     /**
-    * HMAC 密钥派生迭代次数（SQLCipher 固定为 2）
-    */
+     * HMAC 密钥派生迭代次数（SQLCipher 固定为 2）
+     */
     private static final int HMAC_KEY_ITERATIONS = 2;
 
     /**
-    * HMAC salt 与文件 salt 的异或掩码
-    */
+     * HMAC salt 与文件 salt 的异或掩码
+     */
     private static final byte HMAC_SALT_XOR = 0x3A;
 
     /**
-    * 密钥形态正则
-    */
+     * 密钥形态正则
+     */
     private static final Pattern KEY_PATTERN = Pattern.compile("^[0-9a-fA-F]{64}$");
 
     /**
-    * 进程查询超时（秒）
-    */
+     * 进程查询超时（秒）
+     */
     private static final long PID_CMD_TIMEOUT_SECONDS = 15L;
 
     private static final int PROCESS_QUERY_INFORMATION = 0x0400;
@@ -140,14 +140,14 @@ public final class WechatMemoryKeyScanner {
     private static final int PAGE_READONLY = 0x02;
 
     /**
-    * 允许临时放开保护的最大区域大小。
-    * <p>放开保护会真实修改目标进程的页属性，区域过大会显著提高目标进程崩溃概率，因此设上限。</p>
-    */
+     * 允许临时放开保护的最大区域大小。
+     * <p>放开保护会真实修改目标进程的页属性，区域过大会显著提高目标进程崩溃概率，因此设上限。</p>
+     */
     private static final long MAX_UNLOCK_BYTES = 32L * 1024 * 1024;
 
     /**
-    * 进程/内存块可读性统计
-    */
+     * 进程/内存块可读性统计
+     */
     private static volatile MethodHandle openProcessHandle;
     private static volatile MethodHandle virtualQueryExHandle;
     private static volatile MethodHandle readProcessMemoryHandle;
@@ -156,8 +156,8 @@ public final class WechatMemoryKeyScanner {
     private static volatile Arena kernelArena;
 
     /**
-    * 工具类禁止实例化。
-    */
+     * 工具类禁止实例化。
+     */
     private WechatMemoryKeyScanner() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
@@ -165,19 +165,19 @@ public final class WechatMemoryKeyScanner {
     // ==================== 公开 API ====================
 
     /**
-    * 是否支持内存扫描（仅 Windows）。
-    *
-    * @return Windows 平台返回 true
-    */
+     * 是否支持内存扫描（仅 Windows）。
+     *
+     * @return Windows 平台返回 true
+     */
     public static boolean isSupported() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     }
 
     /**
-    * 列出所有微信进程（按工作集降序）。
-    *
-    * @return 进程列表，探测失败返回空列表
-    */
+     * 列出所有微信进程（按工作集降序）。
+     *
+     * @return 进程列表，探测失败返回空列表
+     */
     public static List<PidInfo> weixinProcesses() {
         List<PidInfo> result = new ArrayList<>(4);
         for (String processName : PROCESS_NAMES) {
@@ -202,11 +202,11 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 自动挑选工作集最大的微信进程并扫描。
-    *
-    * @param database 目标加密数据库
-    * @return 扫描结果
-    */
+     * 自动挑选工作集最大的微信进程并扫描。
+     *
+     * @param database 目标加密数据库
+     * @return 扫描结果
+     */
     public static ScanResult scan(File database) {
         List<PidInfo> processes = weixinProcesses();
         if (processes.isEmpty()) {
@@ -229,25 +229,25 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 扫描指定进程。
-    *
-    * @param database 目标加密数据库
-    * @param pid      微信进程号
-    * @return 扫描结果
-    */
+     * 扫描指定进程。
+     *
+     * @param database 目标加密数据库
+     * @param pid      微信进程号
+     * @return 扫描结果
+     */
     public static ScanResult scan(File database, int pid) {
         return scan(database, pid, 1, Long.MAX_VALUE);
     }
 
     /**
-    * 扫描指定进程（可调步长与上限）。
-    *
-    * @param database 目标加密数据库
-    * @param pid      微信进程号
-    * @param stride   候选窗口步长（1 表示逐字节）
-    * @param maxBytes 最多扫描的字节数上限
-    * @return 扫描结果
-    */
+     * 扫描指定进程（可调步长与上限）。
+     *
+     * @param database 目标加密数据库
+     * @param pid      微信进程号
+     * @param stride   候选窗口步长（1 表示逐字节）
+     * @param maxBytes 最多扫描的字节数上限
+     * @return 扫描结果
+     */
     public static ScanResult scan(File database, int pid, int stride, long maxBytes) {
         long started = System.currentTimeMillis();
         if (!isSupported()) {
@@ -389,12 +389,12 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 链路自检：用随机密钥合成一页 SQLCipher 4 首页，验证「廉价过滤 + HMAC 确认」能命中它。
-    *
-    * <p><b>调用方应先确认本方法返回 true，再相信扫描的未命中结论。</b></p>
-    *
-    * @return 正样本命中且负样本不命中时返回 true
-    */
+     * 链路自检：用随机密钥合成一页 SQLCipher 4 首页，验证「廉价过滤 + HMAC 确认」能命中它。
+     *
+     * <p><b>调用方应先确认本方法返回 true，再相信扫描的未命中结论。</b></p>
+     *
+     * @return 正样本命中且负样本不命中时返回 true
+     */
     public static boolean selfTest() {
         try {
             SecureRandom random = new SecureRandom();
@@ -433,15 +433,15 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 合成一页 SQLCipher 4 首页（salt || 密文 || IV || HMAC）。
-    *
-    * @param key     32 字节密钥
-    * @param salt    16 字节 salt
-    * @param ivBytes 16 字节 IV
-    * @param random  随机源（填充明文载荷）
-    * @return 4096 字节页面
-    * @throws Exception 密码学操作失败
-    */
+     * 合成一页 SQLCipher 4 首页（salt || 密文 || IV || HMAC）。
+     *
+     * @param key     32 字节密钥
+     * @param salt    16 字节 salt
+     * @param ivBytes 16 字节 IV
+     * @param random  随机源（填充明文载荷）
+     * @return 4096 字节页面
+     * @throws Exception 密码学操作失败
+     */
     private static byte[] buildSyntheticPage(byte[] key, byte[] salt, byte[] ivBytes, SecureRandom random)
             throws Exception {
         byte[] plain = new byte[PAGE];
@@ -477,15 +477,15 @@ public final class WechatMemoryKeyScanner {
     // ==================== 扫描核心 ====================
 
     /**
-    * 扫描一个内存块：逐窗口试密钥 + 扫 ASCII 十六进制串。
-    *
-    * @param ctx       扫描上下文
-    * @param data      内存块
-    * @param base      块起始地址
-    * @param stride    步长
-    * @param slots     并发闸门
-    * @return 通过廉价过滤的候选数
-    */
+     * 扫描一个内存块：逐窗口试密钥 + 扫 ASCII 十六进制串。
+     *
+     * @param ctx       扫描上下文
+     * @param data      内存块
+     * @param base      块起始地址
+     * @param stride    步长
+     * @param slots     并发闸门
+     * @return 通过廉价过滤的候选数
+     */
     private static Callable<Long> scanTask(Ctx ctx, byte[] data, long base, int stride, Semaphore slots) {
         return () -> {
             long candidates = 0;
@@ -521,15 +521,15 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 廉价过滤：AES 解首页首块 + 异或 IV，比对明文特征 {@code 10 00 0x 0x}。
-    *
-    * @param ctx    上下文
-    * @param cipher 复用的 AES 实例
-    * @param out    输出缓冲
-    * @param key    候选密钥
-    * @return 通过返回 true
-    * @throws Exception AES 初始化失败
-    */
+     * 廉价过滤：AES 解首页首块 + 异或 IV，比对明文特征 {@code 10 00 0x 0x}。
+     *
+     * @param ctx    上下文
+     * @param cipher 复用的 AES 实例
+     * @param out    输出缓冲
+     * @param key    候选密钥
+     * @return 通过返回 true
+     * @throws Exception AES 初始化失败
+     */
     private static boolean passesFilter(Ctx ctx, Cipher cipher, byte[] out, byte[] key) throws Exception {
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"));
         cipher.doFinal(ctx.c0, 0, 16, out);
@@ -542,13 +542,13 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 扫描内存块中的 ASCII 十六进制串（长度 ≥ 64），取前 64 字符解码为候选密钥。
-    *
-    * @param ctx  上下文
-    * @param data 内存块
-    * @param base 块起始地址
-    * @return 通过确认的候选数（0 或 1）
-    */
+     * 扫描内存块中的 ASCII 十六进制串（长度 ≥ 64），取前 64 字符解码为候选密钥。
+     *
+     * @param ctx  上下文
+     * @param data 内存块
+     * @param base 块起始地址
+     * @return 通过确认的候选数（0 或 1）
+     */
     private static long scanHexText(Ctx ctx, byte[] data, long base) {
         int runStart = -1;
         for (int i = 0; i <= data.length; i++) {
@@ -576,23 +576,23 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 判断是否为十六进制字符。
-    *
-    * @param value 字节
-    * @return 是返回 true
-    */
+     * 判断是否为十六进制字符。
+     *
+     * @param value 字节
+     * @return 是返回 true
+     */
     private static boolean isHexChar(byte value) {
         return (value >= '0' && value <= '9') || (value >= 'a' && value <= 'f') || (value >= 'A' && value <= 'F');
     }
 
     /**
-    * 解码指定位置的十六进制串。
-    *
-    * @param data   数据
-    * @param offset 起始位置
-    * @param length 字符数（偶数）
-    * @return 解码结果，含非法字符时返回 null
-    */
+     * 解码指定位置的十六进制串。
+     *
+     * @param data   数据
+     * @param offset 起始位置
+     * @param length 字符数（偶数）
+     * @return 解码结果，含非法字符时返回 null
+     */
     private static byte[] decodeHex(byte[] data, int offset, int length) {
         byte[] result = new byte[length / 2];
         for (int i = 0; i < result.length; i++) {
@@ -607,16 +607,16 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * PBKDF2 密钥派生（RFC 2898）。
-    *
-    * @param macAlgorithm HMAC 算法名
-    * @param password     口令
-    * @param salt         盐
-    * @param iterations   迭代次数
-    * @param length       输出长度
-    * @return 派生密钥
-    * @throws Exception 算法不可用
-    */
+     * PBKDF2 密钥派生（RFC 2898）。
+     *
+     * @param macAlgorithm HMAC 算法名
+     * @param password     口令
+     * @param salt         盐
+     * @param iterations   迭代次数
+     * @param length       输出长度
+     * @return 派生密钥
+     * @throws Exception 算法不可用
+     */
     static byte[] pbkdf2(String macAlgorithm, byte[] password, byte[] salt, int iterations, int length)
             throws Exception {
         if (iterations < 1) {
@@ -651,53 +651,53 @@ public final class WechatMemoryKeyScanner {
     // ==================== 扫描上下文 ====================
 
     /**
-    * 单次扫描的只读上下文（页面样本 + 派生参数 + 结果槽）。
-    */
+     * 单次扫描的只读上下文（页面样本 + 派生参数 + 结果槽）。
+     */
     private static final class Ctx {
 
         /**
-        * 目标库首页
-        */
+         * 目标库首页
+         */
         final byte[] page;
 
         /**
-        * 首页首个密文块
-        */
+         * 首页首个密文块
+         */
         final byte[] c0;
 
         /**
-        * 首页 IV
-        */
+         * 首页 IV
+         */
         final byte[] iv;
 
         /**
-        * 首页页尾 64 字节 HMAC
-        */
+         * 首页页尾 64 字节 HMAC
+         */
         final byte[] storedHmac;
 
         /**
-        * 文件 salt
-        */
+         * 文件 salt
+         */
         final byte[] salt;
 
         /**
-        * HMAC salt（salt ^ 0x3A）
-        */
+         * HMAC salt（salt ^ 0x3A）
+         */
         final byte[] macSalt;
 
         /**
-        * 是否明文库
-        */
+         * 是否明文库
+         */
         final boolean plaintext;
 
         /**
-        * 命中密钥
-        */
+         * 命中密钥
+         */
         final AtomicReference<String> key = new AtomicReference<>();
 
         /**
-        * 命中地址
-        */
+         * 命中地址
+         */
         final AtomicLong address = new AtomicLong();
 
         Ctx(File database) throws Exception {
@@ -741,11 +741,11 @@ public final class WechatMemoryKeyScanner {
         }
 
         /**
-        * 权威校验候选密钥。
-        *
-        * @param encKey 32 字节候选密钥
-        * @return 首页 HMAC 校验通过返回 true
-        */
+         * 权威校验候选密钥。
+         *
+         * @param encKey 32 字节候选密钥
+         * @return 首页 HMAC 校验通过返回 true
+         */
         boolean confirm(byte[] encKey) {
             try {
                 byte[] macKey = pbkdf2("HmacSHA512", encKey, macSalt, HMAC_KEY_ITERATIONS, 32);
@@ -763,8 +763,8 @@ public final class WechatMemoryKeyScanner {
     // ==================== 本地内存访问 ====================
 
     /**
-    * 内存区域描述。
-    */
+     * 内存区域描述。
+     */
     private static final class Region {
         final long base;
         final long size;
@@ -778,10 +778,10 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 初始化本地调用句柄（幂等）。
-    *
-    * @throws Throwable 初始化失败
-    */
+     * 初始化本地调用句柄（幂等）。
+     *
+     * @throws Throwable 初始化失败
+     */
     private static synchronized void initNative() throws Throwable {
         if (openProcessHandle != null) {
             return;
@@ -806,12 +806,12 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 打开进程。
-    *
-    * @param pid 进程号
-    * @return 句柄，失败返回 0
-    * @throws Throwable 本地调用失败
-    */
+     * 打开进程。
+     *
+     * @param pid 进程号
+     * @return 句柄，失败返回 0
+     * @throws Throwable 本地调用失败
+     */
     private static long openProcess(int pid) throws Throwable {
         MemorySegment handle = (MemorySegment) openProcessHandle.invokeWithArguments(
                 PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_OPERATION, 0, pid);
@@ -819,10 +819,10 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 关闭句柄。
-    *
-    * @param handle 句柄
-    */
+     * 关闭句柄。
+     *
+     * @param handle 句柄
+     */
     private static void closeProcess(long handle) {
         try {
             closeHandleHandle.invokeWithArguments(MemorySegment.ofAddress(handle));
@@ -832,12 +832,12 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 枚举已提交的内存区域。
-    *
-    * @param handle 进程句柄
-    * @return 区域列表
-    * @throws Throwable 本地调用失败
-    */
+     * 枚举已提交的内存区域。
+     *
+     * @param handle 进程句柄
+     * @return 区域列表
+     * @throws Throwable 本地调用失败
+     */
     private static List<Region> enumRegions(long handle) throws Throwable {
         List<Region> regions = new ArrayList<>(4096);
         try (Arena arena = Arena.ofConfined()) {
@@ -867,14 +867,14 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 读取内存；返回 null 表示读取失败。
-    * <p>本方法只读，不修改目标进程的任何页属性（修改页属性由调用方在必要时显式进行）。</p>
-    *
-    * @param handle  句柄
-    * @param address 地址
-    * @param length  长度
-    * @return 读到的字节，失败返回 null
-    */
+     * 读取内存；返回 null 表示读取失败。
+     * <p>本方法只读，不修改目标进程的任何页属性（修改页属性由调用方在必要时显式进行）。</p>
+     *
+     * @param handle  句柄
+     * @param address 地址
+     * @param length  长度
+     * @return 读到的字节，失败返回 null
+     */
     private static byte[] readMemory(long handle, long address, int length) {
         byte[] buffer = new byte[length];
         int read = rawRead(handle, address, buffer, length);
@@ -885,14 +885,14 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 原始读取。
-    *
-    * @param handle  句柄
-    * @param address 地址
-    * @param target  目标数组
-    * @param length  长度
-    * @return 实际读到的字节数
-    */
+     * 原始读取。
+     *
+     * @param handle  句柄
+     * @param address 地址
+     * @param target  目标数组
+     * @param length  长度
+     * @return 实际读到的字节数
+     */
     private static int rawRead(long handle, long address, byte[] target, int length) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment buffer = arena.allocate(length);
@@ -915,17 +915,17 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 判断某区域是否「可以安全地临时放开保护」。
-    * <p>两条硬性红线：</p>
-    * <ul>
-    *   <li>带 {@code PAGE_GUARD} 的区域一律不碰——那是线程栈的守卫页，去掉守卫会破坏目标进程的栈溢出保护，
-    *       且读取本身会在目标进程内触发 {@code STATUS_GUARD_PAGE_VIOLATION}，极易把它搞崩。</li>
-    *   <li>区域过大不碰——放开保护是真实改写目标进程的页属性，范围越大越容易撞上它正在写的内存。</li>
-    * </ul>
-    *
-    * @param region 区域
-    * @return 可安全放开返回 true
-    */
+     * 判断某区域是否「可以安全地临时放开保护」。
+     * <p>两条硬性红线：</p>
+     * <ul>
+     *   <li>带 {@code PAGE_GUARD} 的区域一律不碰——那是线程栈的守卫页，去掉守卫会破坏目标进程的栈溢出保护，
+     *       且读取本身会在目标进程内触发 {@code STATUS_GUARD_PAGE_VIOLATION}，极易把它搞崩。</li>
+     *   <li>区域过大不碰——放开保护是真实改写目标进程的页属性，范围越大越容易撞上它正在写的内存。</li>
+     * </ul>
+     *
+     * @param region 区域
+     * @return 可安全放开返回 true
+     */
     private static boolean canUnlock(Region region) {
         if ((region.protect & PAGE_GUARD) != 0) {
             return false;
@@ -937,14 +937,14 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 临时修改区域保护属性。
-    *
-    * @param handle     句柄
-    * @param address    地址
-    * @param size       长度
-    * @param newProtect 新保护属性
-    * @return 成功返回 true
-    */
+     * 临时修改区域保护属性。
+     *
+     * @param handle     句柄
+     * @param address    地址
+     * @param size       长度
+     * @param newProtect 新保护属性
+     * @return 成功返回 true
+     */
     private static boolean virtualProtect(long handle, long address, long size, int newProtect) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment oldProtect = arena.allocate(4);
@@ -960,12 +960,12 @@ public final class WechatMemoryKeyScanner {
     // ==================== 小工具 ====================
 
     /**
-    * 解析 tasklist CSV 行。
-    *
-    * @param line        行
-    * @param processName 进程名
-    * @return 进程信息，解析失败返回 null
-    */
+     * 解析 tasklist CSV 行。
+     *
+     * @param line        行
+     * @param processName 进程名
+     * @return 进程信息，解析失败返回 null
+     */
     private static PidInfo parseTasklistLine(String line, String processName) {
         if (line == null || !line.startsWith("\"")) {
             return null;
@@ -992,11 +992,11 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 判断是否以 SQLite 文件头开头。
-    *
-    * @param bytes 字节
-    * @return 是返回 true
-    */
+     * 判断是否以 SQLite 文件头开头。
+     *
+     * @param bytes 字节
+     * @return 是返回 true
+     */
     private static boolean startsWithSqliteMagic(byte[] bytes) {
         byte[] magic = "SQLite format 3\u0000".getBytes(StandardCharsets.US_ASCII);
         if (bytes.length < magic.length) {
@@ -1011,12 +1011,12 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 子串查找。
-    *
-    * @param haystack 主串
-    * @param needle   子串
-    * @return 首次出现位置，未找到返回 -1
-    */
+     * 子串查找。
+     *
+     * @param haystack 主串
+     * @param needle   子串
+     * @return 首次出现位置，未找到返回 -1
+     */
     private static int indexOf(byte[] haystack, byte[] needle) {
         outer:
         for (int i = 0; i + needle.length <= haystack.length; i++) {
@@ -1031,11 +1031,11 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 字节转十六进制。
-    *
-    * @param bytes 字节
-    * @return 十六进制串
-    */
+     * 字节转十六进制。
+     *
+     * @param bytes 字节
+     * @return 十六进制串
+     */
     static String hex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte value : bytes) {
@@ -1046,75 +1046,75 @@ public final class WechatMemoryKeyScanner {
     }
 
     /**
-    * 计算耗时。
-    *
-    * @param started 起始时间
-    * @return 耗时毫秒
-    */
+     * 计算耗时。
+     *
+     * @param started 起始时间
+     * @return 耗时毫秒
+     */
     private static long elapsed(long started) {
         return System.currentTimeMillis() - started;
     }
 
     /**
-    * 微信进程信息。
-    *
-    * @param pid              进程号
-    * @param workingSetBytes  工作集字节数
-    * @return 结果值
-    */
+     * 微信进程信息。
+     *
+     * @param pid              进程号
+     * @param workingSetBytes  工作集字节数
+     * @return 结果值
+     */
     public record PidInfo(int pid, long workingSetBytes) {
     }
 
     /**
-    * 扫描结果。
-    *
-    * @param found         是否找到密钥
-    * @param keyHex        密钥（64 位十六进制），未找到为 null
-    * @param address       命中内存地址，未找到为 0
-    * @param pid           扫描的进程号
-    * @param scannedBytes  已扫描字节数
-    * @param failedBytes   不可读字节数
-    * @param elapsedMillis 耗时毫秒
-    * @param message       说明信息
-    */
+     * 扫描结果。
+     *
+     * @param found         是否找到密钥
+     * @param keyHex        密钥（64 位十六进制），未找到为 null
+     * @param address       命中内存地址，未找到为 0
+     * @param pid           扫描的进程号
+     * @param scannedBytes  已扫描字节数
+     * @param failedBytes   不可读字节数
+     * @param elapsedMillis 耗时毫秒
+     * @param message       说明信息
+     */
     public record ScanResult(boolean found, String keyHex, long address, int pid,
                              long scannedBytes, long failedBytes, long elapsedMillis, String message) {
 
         /**
-        * 构造未命中结果。
-        *
-        * @param pid       进程号
-        * @param scanned   已扫描字节
-        * @param failed    不可读字节
-        * @param elapsed   耗时毫秒
-        * @param message   说明
-        * @return 结果
-        */
+         * 构造未命中结果。
+         *
+         * @param pid       进程号
+         * @param scanned   已扫描字节
+         * @param failed    不可读字节
+         * @param elapsed   耗时毫秒
+         * @param message   说明
+         * @return 结果
+         */
         static ScanResult miss(int pid, long scanned, long failed, long elapsed, String message) {
             return new ScanResult(false, null, 0L, pid, scanned, failed, elapsed, message);
         }
 
         /**
-        * 构造命中结果。
-        *
-        * @param keyHex    密钥
-        * @param address   地址
-        * @param pid       进程号
-        * @param scanned   已扫描字节
-        * @param failed    不可读字节
-        * @param elapsed   耗时毫秒
-        * @return 结果
-        */
+         * 构造命中结果。
+         *
+         * @param keyHex    密钥
+         * @param address   地址
+         * @param pid       进程号
+         * @param scanned   已扫描字节
+         * @param failed    不可读字节
+         * @param elapsed   耗时毫秒
+         * @return 结果
+         */
         static ScanResult hit(String keyHex, long address, int pid, long scanned, long failed, long elapsed) {
             return new ScanResult(true, keyHex, address, pid, scanned, failed, elapsed,
                     "命中地址 0x" + Long.toHexString(address));
         }
 
         /**
-        * 密钥形态是否合法。
-        *
-        * @return 合法返回 true
-        */
+         * 密钥形态是否合法。
+         *
+         * @return 合法返回 true
+         */
         public boolean keyValid() {
             return keyHex != null && KEY_PATTERN.matcher(keyHex).matches();
         }

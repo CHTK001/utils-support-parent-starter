@@ -9,46 +9,46 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
-* HTML 文件渲染预览提供者将 HTML 内容在安全沙箱 iframe 中渲染展示，而非代码高亮
-*
-* <p>通过 srcdoc 属性实现内联渲染，自动移除危险脚本标签以保障安全</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * HTML 文件渲染预览提供者将 HTML 内容在安全沙箱 iframe 中渲染展示，而非代码高亮
+ *
+ * <p>通过 srcdoc 属性实现内联渲染，自动移除危险脚本标签以保障安全</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-html")
 public class HtmlPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-    * 支持的 HTML 扩展名（小写）
-    */
+     * 支持的 HTML 扩展名（小写）
+     */
     private static final Set<String> SUPPORTED_EXTS = Set.of("html", "htm");
 
     /**
-    * 注入到 srcdoc 中的沙箱样式
-    */
+     * 注入到 srcdoc 中的沙箱样式
+     */
     private static final String SANDBOX_STYLE = "<style>" +
             "html,body{margin:0;padding:12px;height:100%;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif}" +
             "</style>";
 
     /**
-    * @param ext  文件扩展名
-    * @param mime MIME 类型（当前忽略）
-    * @return true 表示支持预览
-    */
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());
     }
 
     /**
-    * 把 HTML 内容通过 iframe srcdoc 渲染。移除 script/on-事件/JavaScript:/iframe/对象/embed 等危险内容。
-    *
-    * @param content 原始字节
-    * @param ext     扩展名
-    * @param mime    MIME 类型（当前忽略）
-    * @return PreviewResult 含 HTML内容 + embeddedcss
-    */
+     * 把 HTML 内容通过 iframe srcdoc 渲染。移除 script/on-事件/JavaScript:/iframe/对象/embed 等危险内容。
+     *
+     * @param content 原始字节
+     * @param ext     扩展名
+     * @param mime    MIME 类型（当前忽略）
+     * @return PreviewResult 含 HTML内容 + embeddedcss
+     */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String rawHtml = new String(content, StandardCharsets.UTF_8);
@@ -66,10 +66,10 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 移除危险标签和属性，保留安全 HTML 内容
-    * @param html HTML
-    * @return sanitize的结果
-    */
+     * 移除危险标签和属性，保留安全 HTML 内容
+     * @param html HTML
+     * @return sanitize的结果
+     */
     private String sanitize(String html) {
         if (html == null || html.isEmpty()) {
             return "";
@@ -90,10 +90,10 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建包含预览容器的 HTML 包装
-    * @param sanitizedHtml sanitizedhtml
-    * @return 构建包装器html的结果
-    */
+     * 构建包含预览容器的 HTML 包装
+     * @param sanitizedHtml sanitizedhtml
+     * @return 构建包装器html的结果
+     */
     private String buildWrapperHtml(String sanitizedHtml) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>HTML Preview</title></head><body>");
@@ -111,10 +111,10 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 转义 HTML 用于 srcdoc 属性值
-    * @param html HTML
-    * @return escapeHtmlForSrcdoc的结果
-    */
+     * 转义 HTML 用于 srcdoc 属性值
+     * @param html HTML
+     * @return escapeHtmlForSrcdoc的结果
+     */
     private String escapeHtmlForSrcdoc(String html) {
         return html
                 .replace("&", "&amp;")

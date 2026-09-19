@@ -64,7 +64,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 @Slf4j
 @Spi({"jdk-telnet"})
 public class JdkTelnetServer extends AbstractServer {
@@ -97,9 +97,9 @@ public class JdkTelnetServer extends AbstractServer {
     private final Map<String, TelnetSession> sessions = new ConcurrentHashMap<>();
 
     /**
-    * 创建 JdkTelnetServer 实例
-    * @param setting setting
-    */
+     * 创建 JdkTelnetServer 实例
+     * @param setting setting
+     */
     public JdkTelnetServer(ServerSetting setting) {
         super(setting);
     }
@@ -175,9 +175,9 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     /**
-    * 处理Connection
-    * @param socket socket
-    */
+     * 处理Connection
+     * @param socket socket
+     */
     private void handleConnection(Socket socket) {
         String clientId = socket.getRemoteSocketAddress().toString();
         log.info("Telnet 连接: {}", clientId);
@@ -286,27 +286,27 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     /**
-    * 获取所有活跃会话。
-    *
-    * @return 会话 ID → 会话对象
-    */
+     * 获取所有活跃会话。
+     *
+     * @return 会话 ID → 会话对象
+     */
     public Map<String, TelnetSession> getSessions() {
         return Map.copyOf(sessions);
     }
 
     /**
-    * 获取会话数量。
-    * @return 结果数值
-    */
+     * 获取会话数量。
+     * @return 结果数值
+     */
     public int getSessionCount() {
         return sessions.size();
     }
 
     /**
-    * 广播消息到所有会话。
-    *
-    * @param message 消息内容
-    */
+     * 广播消息到所有会话。
+     *
+     * @param message 消息内容
+     */
     public void broadcast(String message) {
         for (TelnetSession session : sessions.values()) {
             try {
@@ -318,26 +318,26 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     /**
-    * Telnet 命令接口。
-    */
+     * Telnet 命令接口。
+     */
     @FunctionalInterface
     public interface TelnetCommand {
         /**
-        * 执行命令。
-        *
-        * @param session 当前会话
-        * @param args    命令参数
-        */
+         * 执行命令。
+         *
+         * @param session 当前会话
+         * @param args    命令参数
+         */
         void execute(TelnetSession session, String[] args) throws Exception;
     }
 
     /**
-    * Telnet 会话，封装客户端 Socket 和读写操作。
-    */
+     * Telnet 会话，封装客户端 Socket 和读写操作。
+     */
     public static class TelnetSession {
         /**
-        * 客户端 ID
-        */
+         * 客户端 ID
+         */
         private final String clientId;
         /** Socket */
         private final Socket socket;
@@ -363,8 +363,8 @@ public class JdkTelnetServer extends AbstractServer {
         }
 
         /**
-        * 读取一行（过滤 Telnet 控制序列，保留 UTF-8 文本）。
-        */
+         * 读取一行（过滤 Telnet 控制序列，保留 UTF-8 文本）。
+         */
         String readLine() throws IOException {
             StringBuilder sb = new StringBuilder();
             while (true) {
@@ -403,31 +403,31 @@ public class JdkTelnetServer extends AbstractServer {
         }
 
         /**
-        * 输出文本（UTF-8 编码）。
-        */
+         * 输出文本（UTF-8 编码）。
+         */
         public void print(String text) throws IOException {
             writer.write(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
         }
 
         /**
-        * 输出文本并换行（UTF-8 编码）。
-        */
+         * 输出文本并换行（UTF-8 编码）。
+         */
         public void println(String text) throws IOException {
             writer.write((text + "\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
         }
 
         /**
-        * 获取客户端 ID。
-        */
+         * 获取客户端 ID。
+         */
         public String getClientId() {
             return clientId;
         }
 
         /**
-        * 关闭会话。
-        */
+         * 关闭会话。
+         */
         public void close() {
             try {
                 socket.close();
@@ -437,8 +437,8 @@ public class JdkTelnetServer extends AbstractServer {
         }
 
         /**
-        * 判断会话是否活跃。
-        */
+         * 判断会话是否活跃。
+         */
         public boolean isActive() {
             return socket != null && !socket.isClosed() && socket.isConnected();
         }

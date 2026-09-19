@@ -49,113 +49,113 @@ import java.util.function.Consumer;
 public class QwenProxyChatClient implements ChatClient {
 
     /**
-    * 默认通义千问基础地址。
-    */
+     * 默认通义千问基础地址。
+     */
     private static final String DEFAULT_BASE_URL = "https://chat.qwen.ai";
 
     /**
-    * 浏览器会话。
-    */
+     * 浏览器会话。
+     */
     private final QwenBrowserSession session;
 
     /**
-    * 客户端配置。
-    */
+     * 客户端配置。
+     */
     private final ChatClientSetting setting;
 
     /**
-    * 当前模型名称。
-    */
+     * 当前模型名称。
+     */
     private String model;
 
     /**
-    * 当前温度参数。
-    */
+     * 当前温度参数。
+     */
     private Double temperature;
 
     /**
-    * 当前最大 Token 数。
-    */
+     * 当前最大 Token 数。
+     */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词。
-    */
+     * 当前系统提示词。
+     */
     private String system;
 
     /**
-    * 当前会话 ID。
-    */
+     * 当前会话 ID。
+     */
     private String conversationId;
 
     /**
-    * 额外请求体参数。
-    */
+     * 额外请求体参数。
+     */
     private Map<String, Object> extraBody;
 
     /**
-    * top P
-    */
+     * top P
+     */
     private Double topP;
     /**
-    * stop
-    */
+     * stop
+     */
     private List<String> stop;
     /**
-    * seed
-    */
+     * seed
+     */
     private Long seed;
     /**
-    * response Format
-    */
+     * response Format
+     */
     private String responseFormat;
     /**
-    * image Urls
-    */
+     * image Urls
+     */
     private final List<String> imageUrls = new ArrayList<>();
     /**
-    * attachments
-    */
+     * attachments
+     */
     private final List<Attachment> attachments = new ArrayList<>();
     /**
-    * tools
-    */
+     * tools
+     */
     private final List<ChatTool> tools = new ArrayList<>();
     /**
-    * tool Choice
-    */
+     * tool Choice
+     */
     private String toolChoice;
 
     /**
-    * 是否启用深度思考。
-    */
+     * 是否启用深度思考。
+     */
     private boolean thinking;
 
     /**
-    * 是否启用智能搜索。
-    */
+     * 是否启用智能搜索。
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器（用于 prompt 注入）。
-    */
+     * 技能管理器（用于 prompt 注入）。
+     */
     private SkillManager skillManager;
 
     /**
-    * 对话历史消息列表。
-    */
+     * 对话历史消息列表。
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录。
-    */
+     * 外部传入的完整历史记录。
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 构造通义千问逆向代理对话客户端。
-    *
-    * @param setting 客户端配置，其中 appKey 为 Cookie 串
-    */
+     * 构造通义千问逆向代理对话客户端。
+     *
+     * @param setting 客户端配置，其中 appKey 为 Cookie 串
+     */
     public QwenProxyChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -434,15 +434,15 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * GenerateImage
-    * @param prompt prompt
-    * @param ratio ratio
-    * @param n n
-    * @param width width
-    * @param height height
-    * @param quality quality
-    * @param refImageKey refImageKey
-    */
+     * GenerateImage
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param n n
+     * @param width width
+     * @param height height
+     * @param quality quality
+     * @param refImageKey refImageKey
+     */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -501,13 +501,13 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * GenerateVideo
-    * @param prompt prompt
-    * @param ratio ratio
-    * @param cameraMovement cameraMovement
-    * @param refImageKey refImageKey
-    * @param timeoutSeconds timeoutSeconds
-    */
+     * GenerateVideo
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param cameraMovement cameraMovement
+     * @param refImageKey refImageKey
+     * @param timeoutSeconds timeoutSeconds
+     */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -535,11 +535,11 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     /**
-    * 从回答文本中提取图片 URL。
-    * @param text 文本，不允许为 null
-    * @param prompt 提示词，不允许为 null
-    * @return 结果列表，无数据时为空列表
-    */
+     * 从回答文本中提取图片 URL。
+     * @param text 文本，不允许为 null
+     * @param prompt 提示词，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
         if (text == null || text.isEmpty()) {

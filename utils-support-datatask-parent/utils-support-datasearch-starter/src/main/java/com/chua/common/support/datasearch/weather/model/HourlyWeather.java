@@ -3,13 +3,13 @@ package com.chua.common.support.datasearch.weather.model;
 import lombok.Data;
 
 /**
-* 逐小时天气实体。
-*
-* <p>对应 wttr.in j1 响应的 weather[].hourly 单点，
-* 时间 为 3 小时间隔的采样点（0/300/600/…/2100，即 00:00-21:00）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 逐小时天气实体。
+ *
+ * <p>对应 wttr.in j1 响应的 weather[].hourly 单点，
+ * 时间 为 3 小时间隔的采样点（0/300/600/…/2100，即 00:00-21:00）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class HourlyWeather {

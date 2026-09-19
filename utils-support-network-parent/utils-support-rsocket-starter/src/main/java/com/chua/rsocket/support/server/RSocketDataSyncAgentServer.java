@@ -16,24 +16,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* rSocket 数据同步 Agent 服务端
-* <p>运行在 DataSyncServer 侧，通过 RSocket 管理 Agent 连接，支持 request-stream 拉取数据。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * rSocket 数据同步 Agent 服务端
+ * <p>运行在 DataSyncServer 侧，通过 RSocket 管理 Agent 连接，支持 request-stream 拉取数据。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.DefaultDataSyncAgentServer {
 
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     private final int port;
 
     /**
-    * 创建 rSocket数据同步Agent服务端 实例
-    * @param port 端口
-    */
+     * 创建 rSocket数据同步Agent服务端 实例
+     * @param port 端口
+     */
     public RSocketDataSyncAgentServer(int port) {
         super("rsocket");
         this.port = port;
@@ -96,11 +96,11 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     /**
-    * 处理请求
-    *
-    * @param payload payload
-    * @return 处理请求的结果
-    */
+     * 处理请求
+     *
+     * @param payload payload
+     * @return 处理请求的结果
+     */
     private Mono<io.rsocket.Payload> handleRequest(io.rsocket.Payload payload) {
         try {
             String data = payload.getDataUtf8();
@@ -130,11 +130,11 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     /**
-    * 处理请求流
-    *
-    * @param payload payload
-    * @return 处理请求流的结果
-    */
+     * 处理请求流
+     *
+     * @param payload payload
+     * @return 处理请求流的结果
+     */
     private Flux<io.rsocket.Payload> handleRequestStream(io.rsocket.Payload payload) {
         try {
             String data = payload.getDataUtf8();
@@ -153,10 +153,10 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     /**
-    * 处理fire和forget
-    *
-    * @param payload payload
-    */
+     * 处理fire和forget
+     *
+     * @param payload payload
+     */
     private void handleFireAndForget(io.rsocket.Payload payload) {
         try {
             String data = payload.getDataUtf8();
@@ -178,14 +178,14 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     /**
-    * 查找源
-    *
-    * @param agentId Agent标识
-    * @param sourceId 源标识
-    * @return find源的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 查找源
+     *
+     * @param agentId Agent标识
+     * @param sourceId 源标识
+     * @return find源的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private DataSyncSource findSource(String agentId, String sourceId) {
         DataSyncAgent agent = getConnectedAgents().stream()
                 .filter(a -> agentId.equals(a.agentId()))
@@ -203,8 +203,8 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
         /**
-        * Agent 标识
-        */
+         * Agent 标识
+         */
         private final String agentId;
         SimpleDataSyncAgent(String agentId) { this.agentId = agentId; }
         @Override public String agentId() { return agentId; }

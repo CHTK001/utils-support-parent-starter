@@ -18,9 +18,9 @@ public class OnnxLivenessDetector implements LivenessDetector {
     private String device = "cpu";
 
     /**
-    * 创建 onnxlivenessdetector 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnxlivenessdetector 实例
+     * @param apiKey API密钥
+     */
     public OnnxLivenessDetector(String apiKey) {
     }
 

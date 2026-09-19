@@ -19,14 +19,14 @@ package com.chua.common.support.task.taskrunner;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @FunctionalInterface
 public interface RunnerListener {
 
     /**
-    * 接收运行事件。
-    *
-    * @param event 运行事件，不为 空
-    */
+     * 接收运行事件。
+     *
+     * @param event 运行事件，不为 空
+     */
     void onEvent(RunnerEvent event);
 }

@@ -51,68 +51,68 @@ import java.util.concurrent.Executors;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServer {
 
     /**
-    * 默认头部窥探字节上限
-    */
+     * 默认头部窥探字节上限
+     */
     private static final int DEFAULT_PEEK_SIZE = 64;
 
     /**
-    * 默认协议识别超时（毫秒）
-    */
+     * 默认协议识别超时（毫秒）
+     */
     private static final int DEFAULT_DETECT_TIMEOUT_MS = 3000;
 
     /**
-    * 已注册的协议嗅探处理器（按注册顺序匹配，先注册者优先）
-    */
+     * 已注册的协议嗅探处理器（按注册顺序匹配，先注册者优先）
+     */
     private final List<ProtocolSniffHandler> handlers = new CopyOnWriteArrayList<>();
 
     /**
-    * 底层监听 Socket
-    */
+     * 底层监听 Socket
+     */
     private ServerSocket serverSocket;
 
     /**
-    * 接受连接线程
-    */
+     * 接受连接线程
+     */
     private Thread acceptThread;
 
     /**
-    * 连接处理虚拟线程池
-    */
+     * 连接处理虚拟线程池
+     */
     private ExecutorService virtualPool;
 
     /**
-    * 头部窥探字节上限
-    */
+     * 头部窥探字节上限
+     */
     private int peekSize = DEFAULT_PEEK_SIZE;
 
     /**
-    * 协议识别超时（毫秒）
-    */
+     * 协议识别超时（毫秒）
+     */
     private int detectTimeoutMs = DEFAULT_DETECT_TIMEOUT_MS;
 
     /**
-    * 未识别协议时的兜底处理器（为 null 时直接关闭连接）
-    */
+     * 未识别协议时的兜底处理器（为 null 时直接关闭连接）
+     */
     private ProtocolSniffHandler fallbackHandler;
 
     /**
-    * 使用默认配置创建协议嗅探 TCP 服务器。
-    */
+     * 使用默认配置创建协议嗅探 TCP 服务器。
+     */
     public ProtocolSniffingTcpServer() {
         this(ServerSetting.defaults());
     }
 
     /**
-    * 使用指定监听地址创建协议嗅探 TCP 服务器。
-    *
-    * @param host 监听主机
-    * @param port 监听端口
-    */
+     * 使用指定监听地址创建协议嗅探 TCP 服务器。
+     *
+     * @param host 监听主机
+     * @param port 监听端口
+     */
     public ProtocolSniffingTcpServer(String host, int port) {
         ServerSetting setting = ServerSetting.defaults();
         setting.setHost(host);
@@ -122,20 +122,20 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 使用指定配置创建协议嗅探 TCP 服务器。
-    *
-    * @param setting 服务器配置
-    */
+     * 使用指定配置创建协议嗅探 TCP 服务器。
+     *
+     * @param setting 服务器配置
+     */
     public ProtocolSniffingTcpServer(ServerSetting setting) {
         super(setting);
     }
 
     /**
-    * 注册协议嗅探处理器，按注册顺序匹配（先注册者优先）。
-    *
-    * @param handler 协议处理处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册协议嗅探处理器，按注册顺序匹配（先注册者优先）。
+     *
+     * @param handler 协议处理处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     public ProtocolSniffingTcpServer register(ProtocolSniffHandler handler) {
         if (handler != null) {
             handlers.add(handler);
@@ -144,41 +144,41 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 设置头部窥探字节上限。
-    *
-    * @param peekSize 头部窥探字节上限，应不小于各协议识别前缀长度
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置头部窥探字节上限。
+     *
+     * @param peekSize 头部窥探字节上限，应不小于各协议识别前缀长度
+     * @return 当前服务器实例，支持链式调用
+     */
     public ProtocolSniffingTcpServer setPeekSize(int peekSize) {
         this.peekSize = Math.max(1, peekSize);
         return this;
     }
 
     /**
-    * 设置协议识别超时（毫秒）。
-    *
-    * @param detectTimeoutMs 超时毫秒数，连接超时未发数据则关闭
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置协议识别超时（毫秒）。
+     *
+     * @param detectTimeoutMs 超时毫秒数，连接超时未发数据则关闭
+     * @return 当前服务器实例，支持链式调用
+     */
     public ProtocolSniffingTcpServer setDetectTimeoutMs(int detectTimeoutMs) {
         this.detectTimeoutMs = detectTimeoutMs;
         return this;
     }
 
     /**
-    * 设置未识别协议时的兜底处理器。
-    *
-    * @param handler 兜底处理处理器，为 null 时直接关闭未识别连接
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置未识别协议时的兜底处理器。
+     *
+     * @param handler 兜底处理处理器，为 null 时直接关闭未识别连接
+     * @return 当前服务器实例，支持链式调用
+     */
     public ProtocolSniffingTcpServer setFallbackHandler(ProtocolSniffHandler handler) {
         this.fallbackHandler = handler;
         return this;
     }
 
     /**
-    * 启动服务器的具体逻辑：绑定监听端口并启动接受线程。
-    */
+     * 启动服务器的具体逻辑：绑定监听端口并启动接受线程。
+     */
     @Override
     protected void doStart() {
         try {
@@ -199,8 +199,8 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 停止服务器的具体逻辑：关闭监听与连接处理线程池。
-    */
+     * 停止服务器的具体逻辑：关闭监听与连接处理线程池。
+     */
     @Override
     protected void doStop() {
         if (serverSocket != null) {
@@ -214,29 +214,29 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 帧处理器注册（TcpServer 接口，协议嗅探服务器使用流式协议，此处无操作）。
-    *
-    * @param handler 帧处理器
-    * @return 当前实例
-    */
+     * 帧处理器注册（TcpServer 接口，协议嗅探服务器使用流式协议，此处无操作）。
+     *
+     * @param handler 帧处理器
+     * @return 当前实例
+     */
     @Override
     public ProtocolSniffingTcpServer setHandler(TcpServerHandler handler) {
         return this;
     }
 
     /**
-    * 获取协议类型。
-    *
-    * @return 协议类型
-    */
+     * 获取协议类型。
+     *
+     * @return 协议类型
+     */
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
     /**
-    * 接受连接循环：每个连接交给虚拟线程执行协议嗅探与分流。
-    */
+     * 接受连接循环：每个连接交给虚拟线程执行协议嗅探与分流。
+     */
     private void acceptLoop() {
         while (running) {
             try {
@@ -252,10 +252,10 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 处理一条连接：窥探头部、识别协议、回推字节后交给目标处理器独占处理。
-    *
-    * @param socket 连接
-    */
+     * 处理一条连接：窥探头部、识别协议、回推字节后交给目标处理器独占处理。
+     *
+     * @param socket 连接
+     */
     private void handleConnection(Socket socket) {
         try (InputStream rawIn = socket.getInputStream();
              OutputStream out = socket.getOutputStream()) {
@@ -288,13 +288,13 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 读取并识别协议头部：持续读取直到命中某个处理器或判定未知，避免 TCP 分段导致误判。
-    *
-    * @param in   输入流（含识别超时）
-    * @param head 头部缓冲
-    * @return 已读取的头部字节数
-    * @throws IOException IO 异常
-    */
+     * 读取并识别协议头部：持续读取直到命中某个处理器或判定未知，避免 TCP 分段导致误判。
+     *
+     * @param in   输入流（含识别超时）
+     * @param head 头部缓冲
+     * @return 已读取的头部字节数
+     * @throws IOException IO 异常
+     */
     private int readHeader(PushbackInputStream in, byte[] head) throws IOException {
         int headLen = 0;
         while (headLen < peekSize) {
@@ -315,14 +315,14 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 处理未识别协议：有兜底处理器则转交，否则关闭连接。
-    *
-    * @param socket  连接
-    * @param in      输入流（含已窥探头部）
-    * @param out     输出流
-    * @param head    已窥探头部字节
-    * @param headLen 已窥探头部长度
-    */
+     * 处理未识别协议：有兜底处理器则转交，否则关闭连接。
+     *
+     * @param socket  连接
+     * @param in      输入流（含已窥探头部）
+     * @param out     输出流
+     * @param head    已窥探头部字节
+     * @param headLen 已窥探头部长度
+     */
     private void handleUnknown(Socket socket, InputStream in, OutputStream out, byte[] head, int headLen) {
         if (fallbackHandler != null) {
             try {
@@ -338,11 +338,11 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 按注册顺序查找首个匹配的协议嗅探处理器。
-    *
-    * @param head 已窥探的头部字节
-    * @return 匹配的处理器，未匹配返回 null
-    */
+     * 按注册顺序查找首个匹配的协议嗅探处理器。
+     *
+     * @param head 已窥探的头部字节
+     * @return 匹配的处理器，未匹配返回 null
+     */
     private ProtocolSniffHandler match(byte[] head) {
         for (ProtocolSniffHandler handler : handlers) {
             if (handler.matches(head)) {
@@ -353,11 +353,11 @@ public class ProtocolSniffingTcpServer extends AbstractServer implements TcpServ
     }
 
     /**
-    * 判断当前头部字节是否为某个已注册协议前缀的前缀（数据不足，仍需继续读取）。
-    *
-    * @param head 已窥探的头部字节
-    * @return true 表示仍可能是某个协议的前缀，可继续读取
-    */
+     * 判断当前头部字节是否为某个已注册协议前缀的前缀（数据不足，仍需继续读取）。
+     *
+     * @param head 已窥探的头部字节
+     * @return true 表示仍可能是某个协议的前缀，可继续读取
+     */
     private boolean hasPendingPrefix(byte[] head) {
         for (ProtocolSniffHandler handler : handlers) {
             if (handler.isPrefix(head)) {

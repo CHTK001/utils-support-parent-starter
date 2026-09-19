@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Data
 @Builder
 public class RestoreResult {
@@ -64,11 +64,11 @@ public class RestoreResult {
     }
 
     /**
-    * 创建失败结果。
-    *
-    * @param errorMessage 失败原因
-    * @return 失败结果
-    */
+     * 创建失败结果。
+     *
+     * @param errorMessage 失败原因
+     * @return 失败结果
+     */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
                 .success(false)

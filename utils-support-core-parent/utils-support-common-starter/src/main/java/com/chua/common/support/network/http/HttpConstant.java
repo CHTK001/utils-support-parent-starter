@@ -2,10 +2,10 @@ package com.chua.common.support.network.http;
 
 
 /**
-* HTTP 相关常量。
-*
-* @author CH
-* @since 4.0.0.42
+ * HTTP 相关常量。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HttpConstant {
 
@@ -35,8 +35,8 @@ public class HttpConstant {
     */
     public static final String OCTET_STREAM = "application/octet-stream";
     /**
-    * Content-Type：text/event-stream（SSE）
-    */
+     * Content-Type：text/event-stream（SSE）
+     */
     public static final String TEXT_EVENT_STREAM = "text/event-stream";
     /** Content-Type：application/xml */
     public static final String APPLICATION_XML = "application/xml";

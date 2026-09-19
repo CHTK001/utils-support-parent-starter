@@ -7,12 +7,12 @@ import com.chua.common.support.datasearch.software.spi.SoftwareProvider;
 import java.util.List;
 
 /**
-* 包管理器软件搜索提供器。
-*
-* <p>通过系统包管理器（winget/brew/apt 等）搜索、安装和卸载软件包。
-*
-* @author CH
-* @since 4.0.0.42
+ * 包管理器软件搜索提供器。
+ *
+ * <p>通过系统包管理器（winget/brew/apt 等）搜索、安装和卸载软件包。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("package-manager")
 public class PackageManagerSoftwareProvider extends PackageManagerProvider implements SoftwareProvider {

@@ -17,33 +17,33 @@ import javax.annotation.Nullable;
 
 
 /**
-* ASM 代理工厂，基于 ASM 字节码框架直接生成代理类。
-*
-* <p>与 JDK 动态代理和 Javassist 不同，ASM 直接在字节码层面操作，
-* 性能最优但代码复杂度最高。适用于对代理性能有极致要求的场景。</p>
-*
-* @param <T> 代理类型
-* @author CH
-* @since 2025/7/20
+ * ASM 代理工厂，基于 ASM 字节码框架直接生成代理类。
+ *
+ * <p>与 JDK 动态代理和 Javassist 不同，ASM 直接在字节码层面操作，
+ * 性能最优但代码复杂度最高。适用于对代理性能有极致要求的场景。</p>
+ *
+ * @param <T> 代理类型
+ * @author CH
+ * @since 2025/7/20
  */
 @Spi("asm")
 @SuppressWarnings("ALL")
 public class AsmProxyFactory<T> implements ProxyFactory<T> {
 
     /**
-    * 单例实例
-    */
+     * 单例实例
+     */
     public static final ProxyFactory INSTANCE = new AsmProxyFactory();
 
     @Override
     @SneakyThrows
     /**
-    * 创建代理
-    * @param target Target
-    * @param interfaces 接口
-    * @param classLoader 类加载
-    * @param intercept intercept
-    */
+     * 创建代理
+     * @param target Target
+     * @param interfaces 接口
+     * @param classLoader 类加载
+     * @param intercept intercept
+     */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
         // 使用 JDK 动态代理作为 ASM 实现的回退

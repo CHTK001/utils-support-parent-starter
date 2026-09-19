@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* B站资源提供者实现
-*
-* @author CH
-* @since 4.0.0.42
+ * B站资源提供者实现
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("bilibili")
 public class BilibiliResourceProvider extends AbstractResourceProvider {
@@ -162,11 +162,11 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 获取搜索类型
-    *
-    * @param videoSearch 视频搜索
-    * @return 获取搜索类型的结果
-    */
+     * 获取搜索类型
+     *
+     * @param videoSearch 视频搜索
+     * @return 获取搜索类型的结果
+     */
     private String getSearchType(VideoSearch videoSearch) {
         //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
         String category = videoSearch.getVideoType();

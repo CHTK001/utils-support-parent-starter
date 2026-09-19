@@ -99,42 +99,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* APM 启动器 — 程序化启动所有 APM 处理器。
-*
-* <p>用途：</p>
-* <ul>
-*   <li>由 runtime-starter 调用，为指定应用注入插桩能力</li>
-*   <li>由 SpyBootstrap 的插件机制间接使用（SPI 注册）</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * APM 启动器 — 程序化启动所有 APM 处理器。
+ *
+ * <p>用途：</p>
+ * <ul>
+ *   <li>由 runtime-starter 调用，为指定应用注入插桩能力</li>
+ *   <li>由 SpyBootstrap 的插件机制间接使用（SPI 注册）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ApmBootstrap {
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(ApmBootstrap.class.getName());
     /**
-    * 全局唯一实例（runtime智能体.premain 启动时设置）
+     * 全局唯一实例（runtime智能体.premain 启动时设置）
      */
     private static volatile ApmBootstrap globalInstance;
 
     /**
-    * 处理器列表 — 副本on写入array列表 保证并发读(处理器 列表)与启动期注册/启动写不冲突。
+     * 处理器列表 — 副本on写入array列表 保证并发读(处理器 列表)与启动期注册/启动写不冲突。
      */
     private final List<Plugin> handlers;
 
     /**
-    * 是否已启动
+     * 是否已启动
      */
     private volatile boolean started;
 
     /**
-    * 创建 APM 启动器。
-    *
-    * @param pluginDir 插件目录
+     * 创建 APM 启动器。
+     *
+     * @param pluginDir 插件目录
      */
     public ApmBootstrap(Path pluginDir) {
         this.handlers = new CopyOnWriteArrayList<>();
@@ -144,9 +144,9 @@ public class ApmBootstrap {
     }
 
     /**
-    * 注册默认的处理器。
-    *
-    * @param pluginDir 插件目录
+     * 注册默认的处理器。
+     *
+     * @param pluginDir 插件目录
      */
     private void registerDefaults(Path pluginDir) {
         PluginContext context = new PluginContext(pluginDir);
@@ -246,12 +246,12 @@ public class ApmBootstrap {
     }
 
     /**
-    * 注册自定义处理器。
-    *
-    * <p>同时使用默认 {@link PluginContext} 调用 {@link Plugin#init(PluginContext)}，
-    * 否则处理器中需要初始化的字段（如 已启用）将保持默认值，启动() 会被短路。</p>
-    *
-    * @param handler 插件处理器
+     * 注册自定义处理器。
+     *
+     * <p>同时使用默认 {@link PluginContext} 调用 {@link Plugin#init(PluginContext)}，
+     * 否则处理器中需要初始化的字段（如 已启用）将保持默认值，启动() 会被短路。</p>
+     *
+     * @param handler 插件处理器
      */
     public synchronized void addHandler(Plugin handler) {
         if (handler == null) {
@@ -267,7 +267,7 @@ public class ApmBootstrap {
     }
 
     /**
-    * 启动所有处理器。
+     * 启动所有处理器。
      */
     public synchronized void start() {
         if (started) {
@@ -309,14 +309,14 @@ public class ApmBootstrap {
     }
 
     /**
-    * 停止所有处理器。
-    *
-    * <p>正确顺序:</p>
-    * <ol>
-    *   <li>每个 handler.stop() — 注销 SpyTransformer 拦截规则(防止新事件入队)</li>
-    *   <li>短暂等待(让 in-flight 事件完成落盘)</li>
-    *   <li>StorageManager.shutdown() — 关闭存储</li>
-    * </ol>
+     * 停止所有处理器。
+     *
+     * <p>正确顺序:</p>
+     * <ol>
+     *   <li>每个 handler.stop() — 注销 SpyTransformer 拦截规则(防止新事件入队)</li>
+     *   <li>短暂等待(让 in-flight 事件完成落盘)</li>
+     *   <li>StorageManager.shutdown() — 关闭存储</li>
+     * </ol>
      */
     public synchronized void stop() {
         if (!started) {
@@ -348,9 +348,9 @@ public class ApmBootstrap {
     }
 
     /**
-    * 所有处理器状态。
-    *
-    * @return 状态字符串
+     * 所有处理器状态。
+     *
+     * @return 状态字符串
      */
     public String status() {
         StringBuilder sb = new StringBuilder();
@@ -361,11 +361,11 @@ public class ApmBootstrap {
     }
 
     /**
-    * 获取指定类型的处理器。
-    *
-    * @param type 处理器类型
-    * @param <T>  处理器泛型
-    * @return 处理器实例，不存在返回 空
+     * 获取指定类型的处理器。
+     *
+     * @param type 处理器类型
+     * @param <T>  处理器泛型
+     * @return 处理器实例，不存在返回 空
      */
     public <T extends Plugin> T getHandler(Class<T> type) {
         for (Plugin handler : handlers) {
@@ -377,20 +377,20 @@ public class ApmBootstrap {
     }
 
     /**
-    * 获取全局 apmbootstrap 实例。
-    *
-    * @return 全局实例，未启动时返回 空
+     * 获取全局 apmbootstrap 实例。
+     *
+     * @return 全局实例，未启动时返回 空
      */
     public static ApmBootstrap getGlobal() {
         return globalInstance;
     }
 
     /**
-    * 获取全局指定类型的处理器。
-    *
-    * @param type 处理器类型
-    * @param <T>  处理器泛型
-    * @return 处理器实例，全局未启动或类型不存在时返回 空
+     * 获取全局指定类型的处理器。
+     *
+     * @param type 处理器类型
+     * @param <T>  处理器泛型
+     * @return 处理器实例，全局未启动或类型不存在时返回 空
      */
     public static <T extends Plugin> T getGlobalHandler(Class<T> type) {
         ApmBootstrap global = globalInstance;
@@ -401,18 +401,18 @@ public class ApmBootstrap {
     }
 
     /**
-    * 获取所有已注册的处理器。
-    *
-    * @return 不可修改的处理器列表
+     * 获取所有已注册的处理器。
+     *
+     * @return 不可修改的处理器列表
      */
     public List<Plugin> getHandlers() {
         return java.util.Collections.unmodifiableList(handlers);
     }
 
     /**
-    * 是否已启动。
-    *
-    * @return 已启动返回 true
+     * 是否已启动。
+     *
+     * @return 已启动返回 true
      */
     public boolean isStarted() {
         return started;

@@ -18,7 +18,7 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2026/07/20
-*/
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnError {

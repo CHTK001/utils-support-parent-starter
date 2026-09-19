@@ -12,13 +12,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* Socket.IO 同步服务端实现。
-* <p>
-* 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 Socket.IO 通信。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Socket.IO 同步服务端实现。
+ * <p>
+ * 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 Socket.IO 通信。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("socketio")
 public class SocketIOSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
@@ -47,18 +47,18 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
-    * 监听器列表
-    */
+     * 监听器列表
+     */
     private final List<SyncServerListener> listeners = new ArrayList<>();
     /**
-    * 委托对象
-    */
+     * 委托对象
+     */
     private final com.chua.socketio.support.server.SocketIOServer delegate;
 
     /**
-    * 创建 Socketio同步服务端 实例
-    * @param setting setting
-    */
+     * 创建 Socketio同步服务端 实例
+     * @param setting setting
+     */
     public SocketIOSyncServer(ServerSetting setting) {
         super(setting);
         this.delegate = new com.chua.socketio.support.server.SocketIOServer(setting);

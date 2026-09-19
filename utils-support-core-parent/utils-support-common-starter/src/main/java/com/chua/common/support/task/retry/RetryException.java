@@ -9,25 +9,25 @@ package com.chua.common.support.task.retry;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public class RetryException extends Exception {
 
     /**
-    * 已执行的重试次数
-    */
+     * 已执行的重试次数
+     */
     private final int attemptCount;
 
     /**
-    * 最后一次异常
-    */
+     * 最后一次异常
+     */
     private final Throwable lastCause;
 
     /**
-    * 构造重试异常
-    *
-    * @param attemptCount 已执行的重试次数
-    * @param lastCause    最后一次异常
-    */
+     * 构造重试异常
+     *
+     * @param attemptCount 已执行的重试次数
+     * @param lastCause    最后一次异常
+     */
     public RetryException(int attemptCount, Throwable lastCause) {
         super("Retry failed after " + attemptCount + " attempts", lastCause);
         this.attemptCount = attemptCount;
@@ -35,16 +35,16 @@ public class RetryException extends Exception {
     }
 
     /**
-    * 获取已执行的重试次数
-    *
-    * @return 重试次数
-    */
+     * 获取已执行的重试次数
+     *
+     * @return 重试次数
+     */
     public int getAttemptCount() { return attemptCount; }
 
     /**
-    * 获取最后一次异常
-    *
-    * @return 最后一次异常
-    */
+     * 获取最后一次异常
+     *
+     * @return 最后一次异常
+     */
     public Throwable getLastCause() { return lastCause; }
 }

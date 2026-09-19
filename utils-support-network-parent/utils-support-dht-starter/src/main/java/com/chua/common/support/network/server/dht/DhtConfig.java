@@ -9,14 +9,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
-* DHT 节点配置。
-* <p>
-* 包含 DHT 协议运行所需的所有配置参数，如端口、K 值、Alpha 并行度、超时时间等。
-* 可通过 {@link #from(DiscoveryOption)} 从通用服务发现配置创建。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DHT 节点配置。
+ * <p>
+ * 包含 DHT 协议运行所需的所有配置参数，如端口、K 值、Alpha 并行度、超时时间等。
+ * 可通过 {@link #from(DiscoveryOption)} 从通用服务发现配置创建。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder(toBuilder = true)
@@ -24,8 +24,8 @@ import java.util.Set;
 public class DhtConfig {
 
     /**
-    * UDP 监听端口，默认 6881
-    */
+     * UDP 监听端口，默认 6881
+     */
     @Builder.Default
     /** 端口 */
     private int port = 6881;
@@ -78,31 +78,31 @@ public class DhtConfig {
     private String nodeId;
 
     /**
-    * 绑定主机地址
-    */
+     * 绑定主机地址
+     */
     private String host;
 
     /**
-    * 对外宣告的主机地址（用于 NAT 穿透）
-    */
+     * 对外宣告的主机地址（用于 NAT 穿透）
+     */
     private String advertisedHost;
 
     /**
-    * 对外宣告的端口号（用于 NAT 穿透）
-    */
+     * 对外宣告的端口号（用于 NAT 穿透）
+     */
     private int advertisedPort;
 
     /**
-    * 种子节点地址集合，格式 主机:端口
-    */
+     * 种子节点地址集合，格式 主机:端口
+     */
     private Set<String> seeds;
 
     /**
-    * 从通用服务发现配置创建 DHT 配置。
-    *
-    * @param discoveryOption 服务发现配置
-    * @return DhtConfig 实例
-    */
+     * 从通用服务发现配置创建 DHT 配置。
+     *
+     * @param discoveryOption 服务发现配置
+     * @return DhtConfig 实例
+     */
     public static DhtConfig from(DiscoveryOption discoveryOption) {
         DhtConfigBuilder builder = DhtConfig.builder();
         if (discoveryOption == null) {
@@ -155,10 +155,10 @@ public class DhtConfig {
     }
 
     /**
-    * 判断是否配置了对外宣告地址（用于 NAT 穿透）。
-    *
-    * @return 如果 advertised主机 和 advertised端口 都有效返回 true
-    */
+     * 判断是否配置了对外宣告地址（用于 NAT 穿透）。
+     *
+     * @return 如果 advertised主机 和 advertised端口 都有效返回 true
+     */
     public boolean hasAdvertisedAddress() {
         return advertisedHost != null && !advertisedHost.isEmpty() && advertisedPort > 0;
     }

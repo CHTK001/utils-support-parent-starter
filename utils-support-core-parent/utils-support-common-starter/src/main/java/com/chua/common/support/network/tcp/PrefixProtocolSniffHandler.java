@@ -13,19 +13,19 @@ import java.nio.charset.StandardCharsets;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public abstract class PrefixProtocolSniffHandler implements ProtocolSniffHandler {
 
     /**
-    * 识别前缀字节表（按构造顺序保持注册语义）
-    */
+     * 识别前缀字节表（按构造顺序保持注册语义）
+     */
     private final byte[][] prefixes;
 
     /**
-    * 创建基于前缀识别的处理器。
-    *
-    * @param prefixes 协议前缀（UTF-8 文本），如 AUTH|、CONNECT|
-    */
+     * 创建基于前缀识别的处理器。
+     *
+     * @param prefixes 协议前缀（UTF-8 文本），如 AUTH|、CONNECT|
+     */
     protected PrefixProtocolSniffHandler(String... prefixes) {
         this.prefixes = new byte[prefixes.length][];
         for (int i = 0; i < prefixes.length; i++) {
@@ -54,12 +54,12 @@ public abstract class PrefixProtocolSniffHandler implements ProtocolSniffHandler
     }
 
     /**
-    * 判断数据是否以指定前缀开头。
-    *
-    * @param data   数据字节
-    * @param prefix 前缀字节
-    * @return true 表示数据以该前缀开头
-    */
+     * 判断数据是否以指定前缀开头。
+     *
+     * @param data   数据字节
+     * @param prefix 前缀字节
+     * @return true 表示数据以该前缀开头
+     */
     private static boolean startsWith(byte[] data, byte[] prefix) {
         if (prefix.length > data.length) {
             return false;

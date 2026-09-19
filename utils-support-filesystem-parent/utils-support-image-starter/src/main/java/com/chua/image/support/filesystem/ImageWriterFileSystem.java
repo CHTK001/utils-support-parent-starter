@@ -14,17 +14,17 @@ import java.util.Base64;
 import java.util.Map;
 
 /**
-* 图片写入文件系统
-* <p>
-* - bytes 写入：直接覆盖写入文件；
-* - 映射 写入：支持以下字段（优先级从高到低）：
-*   - bytes: byte[]
-* - 基础64: 字符串（基础64）
-* - 镜像: 缓冲镜像
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 图片写入文件系统
+ * <p>
+ * - bytes 写入：直接覆盖写入文件；
+ * - 映射 写入：支持以下字段（优先级从高到低）：
+ *   - bytes: byte[]
+ * - 基础64: 字符串（基础64）
+ * - 镜像: 缓冲镜像
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
@@ -43,17 +43,17 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     /**
-    * 创建 镜像writer文件系统 实例
-    * @param file 文件
-    */
+     * 创建 镜像writer文件系统 实例
+     * @param file 文件
+     */
     public ImageWriterFileSystem(File file) {
         super(file);
     }
 
     /**
-    * 创建 镜像writer文件系统 实例
-    * @param filePath 文件路径
-    */
+     * 创建 镜像writer文件系统 实例
+     * @param filePath 文件路径
+     */
     public ImageWriterFileSystem(String filePath) {
         super(filePath);
     }
@@ -182,10 +182,10 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     /**
-    * 解析格式化
-    *
-    * @return resolve格式化的结果
-    */
+     * 解析格式化
+     *
+     * @return resolve格式化的结果
+     */
     private String resolveFormat() {
         if (file == null) {
             return "png";

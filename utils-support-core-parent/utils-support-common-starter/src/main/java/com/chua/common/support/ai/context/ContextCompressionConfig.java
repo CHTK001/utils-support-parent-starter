@@ -8,13 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 上下文压缩配置（轻量，可脱离 Agent 使用）。
-* <p>
-* 与 {@link AgentCompressionConfig} 字段对齐，可互转。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 上下文压缩配置（轻量，可脱离 Agent 使用）。
+ * <p>
+ * 与 {@link AgentCompressionConfig} 字段对齐，可互转。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -24,8 +24,8 @@ public class ContextCompressionConfig {
 
     @Builder.Default
     /**
-    * 是否启用
-    */
+     * 是否启用
+     */
     private boolean enabled = false;
 
     /** 消息数达到此值触发首次压缩并保存基线 */
