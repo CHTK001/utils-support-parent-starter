@@ -25,22 +25,22 @@ import java.lang.annotation.Target;
  *
  * @author CH
  * @since 2024/8/13
-*/
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GlobalSettingGroup {
 
     /**
-    * 配置分组名，对应 sys_setting.sys_setting_群体 字段。
-    *
-    * @return 分组名
-    */
+     * 配置分组名，对应 sys_setting.sys_setting_群体 字段。
+     *
+     * @return 分组名
+     */
     String value();
 
     /**
-    * 分组是否启用（默认 true）。
-    *
-    * @return true=启用, false=禁用
-    */
+     * 分组是否启用（默认 true）。
+     *
+     * @return true=启用, false=禁用
+     */
     boolean enabled() default true;
 }

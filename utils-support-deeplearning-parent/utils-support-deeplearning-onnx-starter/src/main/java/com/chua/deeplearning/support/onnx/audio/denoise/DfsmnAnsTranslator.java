@@ -16,19 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* DFSMN 语音降噪（单麦 48k 实时近场，PSM）。
-* <p>
-* 复刻 模型scope {@code speech_dfsmn_ans_psm_48k_causal} pipeline：输入带噪 48khz 单声道
-* wav/pcm 字节，输出降噪后音频字节（与输入封装格式一致）。处理链路：kaldi fbank(120 维)
-* → ONNX mask(961 维) → STFT 谱乘 mask → librosa ISTFT 重建。
-* </p>
-* <p>
-* 模型 {@code audio/denoise/dfsmn_ans/model.onnx} 由 jar
-* {@code utils-support-models-onnx-dfsmn-ans} 提供（ONNX 由 ModelScope PyTorch 权重导出）。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DFSMN 语音降噪（单麦 48k 实时近场，PSM）。
+ * <p>
+ * 复刻 模型scope {@code speech_dfsmn_ans_psm_48k_causal} pipeline：输入带噪 48khz 单声道
+ * wav/pcm 字节，输出降噪后音频字节（与输入封装格式一致）。处理链路：kaldi fbank(120 维)
+ * → ONNX mask(961 维) → STFT 谱乘 mask → librosa ISTFT 重建。
+ * </p>
+ * <p>
+ * 模型 {@code audio/denoise/dfsmn_ans/model.onnx} 由 jar
+ * {@code utils-support-models-onnx-dfsmn-ans} 提供（ONNX 由 ModelScope PyTorch 权重导出）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
@@ -71,17 +71,17 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-    * 构造 dfsmnanstranslator 实例（dither=1.0，模型scope 默认）。
-    */
+     * 构造 dfsmnanstranslator 实例（dither=1.0，模型scope 默认）。
+     */
     public DfsmnAnsTranslator() {
         this.fbank = new DfsmnKaldiFbank();
     }
 
     /**
-    * 构造 dfsmnanstranslator 实例。
-    *
-    * @param dither fbank dither 系数（0 关闭，供确定性测试）
-    */
+     * 构造 dfsmnanstranslator 实例。
+     *
+     * @param dither fbank dither 系数（0 关闭，供确定性测试）
+     */
     DfsmnAnsTranslator(float dither) {
         this.fbank = new DfsmnKaldiFbank(dither);
     }
@@ -158,13 +158,13 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-    * 执行 fbank → ONNX mask → STFT → mask 应用 → ISTFT 的完整推理。
-    *
-    * @param samples      48k 时域样本（±32768 级）
-    * @param fbankFeatures fbank 特征
-    * @param frames       帧数
-    * @return 增强后时域信号
-    */
+     * 执行 fbank → ONNX mask → STFT → mask 应用 → ISTFT 的完整推理。
+     *
+     * @param samples      48k 时域样本（±32768 级）
+     * @param fbankFeatures fbank 特征
+     * @param frames       帧数
+     * @return 增强后时域信号
+     */
     private float[] runInference(float[] samples, float[] fbankFeatures, int frames) {
         try {
             long[] shape = {1, frames, N_MELS};
@@ -190,11 +190,11 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-    * 读取 (1, 帧, 961) mask 张量为 [帧][961]。
-    * @param tensor tensor
-    * @param frames 帧
-    * @return 读取masks的结果
-    */
+     * 读取 (1, 帧, 961) mask 张量为 [帧][961]。
+     * @param tensor tensor
+     * @param frames 帧
+     * @return 读取masks的结果
+     */
     private float[][] readMasks(OnnxTensor tensor, int frames) throws Exception {
         float[] flat = tensor.getFloatBuffer().array();
         int total = frames * N_MASK;
@@ -209,11 +209,11 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-    * 判断是否为 RIFF WAV 音频。
-    *
-    * @param data 音频字节
-    * @return true 表示 wav
-    */
+     * 判断是否为 RIFF WAV 音频。
+     *
+     * @param data 音频字节
+     * @return true 表示 wav
+     */
     static boolean isWav(byte[] data) {
         return data.length > 12
                 && data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F'
@@ -221,11 +221,11 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     }
 
     /**
-    * int16 数组转小端字节。
-    *
-    * @param pcm pcm 样本
-    * @return 字节数组
-    */
+     * int16 数组转小端字节。
+     *
+     * @param pcm pcm 样本
+     * @return 字节数组
+     */
     private static byte[] toLeBytes(short[] pcm) {
         byte[] out = new byte[pcm.length * 2];
         ByteBuffer bb = ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN);

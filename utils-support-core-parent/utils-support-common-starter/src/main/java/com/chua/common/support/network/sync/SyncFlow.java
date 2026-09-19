@@ -10,52 +10,52 @@ import com.chua.common.support.network.server.SyncServer;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface SyncFlow extends AutoCloseable {
 
     /**
-    * 启动同步流程。
-    */
+     * 启动同步流程。
+     */
     void start();
 
     /**
-    * 停止同步流程。
-    */
+     * 停止同步流程。
+     */
     void stop();
 
     /**
-    * 判断同步流程是否正在运行。
-    *
-    * @return true 表示正在运行
-    */
+     * 判断同步流程是否正在运行。
+     *
+     * @return true 表示正在运行
+     */
     boolean isRunning();
 
     /**
-    * 获取当前关联的同步服务端。
-    *
-    * @return SyncServer 实例，可能为 null
-    */
+     * 获取当前关联的同步服务端。
+     *
+     * @return SyncServer 实例，可能为 null
+     */
     SyncServer getServer();
 
     /**
-    * 获取当前关联的同步客户端。
-    *
-    * @return SyncClient 实例，可能为 null
-    */
+     * 获取当前关联的同步客户端。
+     *
+     * @return SyncClient 实例，可能为 null
+     */
     SyncClient getClient();
 
     /**
-    * 注册同步事件监听器。
-    *
-    * @param listener 监听器
-    */
+     * 注册同步事件监听器。
+     *
+     * @param listener 监听器
+     */
     void addListener(SyncFlowListener listener);
 
     /**
-    * 移除同步事件监听器。
-    *
-    * @param listener 监听器
-    */
+     * 移除同步事件监听器。
+     *
+     * @param listener 监听器
+     */
     void removeListener(SyncFlowListener listener);
 
     @Override

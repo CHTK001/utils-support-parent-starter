@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Florence-2 视觉理解翻译器，支持多种图像理解任务。
-*
-* <p>使用 ONNX Runtime 加载 Florence-2 模型，
-* 支持 caption、detailed caption、OCR、目标检测等任务类型。
-*
-* @author CH
-* @since 4.0.0.42
-* @param tokens 令牌
-* @return 连接令牌的结果
-* @param encoderHidden 编码器hidden
-* @param taskPrompt 任务提示符
-* @param pixels pixels
+ * Florence-2 视觉理解翻译器，支持多种图像理解任务。
+ *
+ * <p>使用 ONNX Runtime 加载 Florence-2 模型，
+ * 支持 caption、detailed caption、OCR、目标检测等任务类型。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param tokens 令牌
+ * @return 连接令牌的结果
+ * @param encoderHidden 编码器hidden
+ * @param taskPrompt 任务提示符
+ * @param pixels pixels
  */
 public class Florence2Translator implements ITranslator<Object[], String> {
     private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class); // 日志
@@ -50,8 +50,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private HuggingFaceTokenizer tokenizer; // tokenizer
     private OrtEnvironment ortEnv; // ortenv
     /**
-    * prepare。
-    */
+     * prepare。
+     */
     private OrtSession visionSession;
     private OrtSession embedSession; // embed会话
     private OrtSession decoderSession; // 解码器会话
@@ -80,9 +80,9 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         opts.setInterOpNumThreads(2);
         visionSession = ortEnv.createSession(visionPath.toString(), opts);
         /**
-        * download模型。
-        * @param modelDir 模型dir
-        */
+         * download模型。
+         * @param modelDir 模型dir
+         */
         embedSession = ortEnv.createSession(embedPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
@@ -125,20 +125,20 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             }
             prepare();
             /**
-            * preprocess镜像。
-            * @param imageData 镜像数据
-            * @return preprocess镜像的结果
-            * @param tokens 令牌
-            * @param encoderHidden 编码器hidden
-            * @param taskPrompt 任务提示符
-            */
+             * preprocess镜像。
+             * @param imageData 镜像数据
+             * @return preprocess镜像的结果
+             * @param tokens 令牌
+             * @param encoderHidden 编码器hidden
+             * @param taskPrompt 任务提示符
+             */
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);
             /**
-            * preprocess镜像。
-            * @param imageData 镜像数据
-            * @return preprocess镜像的结果
-            */
+             * preprocess镜像。
+             * @param imageData 镜像数据
+             * @return preprocess镜像的结果
+             */
             return generate(encoderHidden, taskPrompt).trim();
         } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
@@ -174,10 +174,10 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             }
             resized.release();
             /**
-            * inferVision。
-            * @param pixels pixels
-            * @return inferVision的结果
-            */
+             * inferVision。
+             * @param pixels pixels
+             * @return inferVision的结果
+             */
             return pixels;
         } finally { src.release(); }
     }

@@ -10,98 +10,98 @@ import java.nio.file.Paths;
  *
  * @since 4.0.0.42
  * @author CH
-*/
+ */
 public final class WalConfig {
 
     /**
-    * 默认文件魔数 "WAL1"
-    */
+     * 默认文件魔数 "WAL1"
+     */
     public static final byte[] DEFAULT_MAGIC = new byte[]{'W', 'A', 'L', '1'};
 
     /**
-    * 默认单条记录头 CRC32 长度
-    */
+     * 默认单条记录头 CRC32 长度
+     */
     public static final int CRC32_BYTES = 4;
 
     /**
-    * 默认单条记录 LSN 字节数
-    */
+     * 默认单条记录 LSN 字节数
+     */
     public static final int LSN_BYTES = 8;
 
     /**
-    * 默认操作类型字节数
-    */
+     * 默认操作类型字节数
+     */
     public static final int OP_BYTES = 1;
 
     /**
-    * 默认 payload 长度字段字节数
-    */
+     * 默认 payload 长度字段字节数
+     */
     public static final int LEN_BYTES = 4;
 
     /**
-    * 单条记录固定头大小（crc + lsn + op + len）
-    */
+     * 单条记录固定头大小（crc + lsn + op + len）
+     */
     public static final int RECORD_HEADER_BYTES = CRC32_BYTES + LSN_BYTES + OP_BYTES + LEN_BYTES;
 
     /**
-    * WAL 目录或单文件目录
-    */
+     * WAL 目录或单文件目录
+     */
     private final Path walDir;
 
     /**
-    * 命名空间（同一目录下多业务隔离文件名前缀）
-    */
+     * 命名空间（同一目录下多业务隔离文件名前缀）
+     */
     private final String namespace;
 
     /**
-    * WAL 实现类型
-    */
+     * WAL 实现类型
+     */
     private final WalImpl impl;
 
     /**
-    * 是否每次写入后 fsync
-    */
+     * 是否每次写入后 fsync
+     */
     private final boolean syncOnWrite;
 
     /**
-    * fsync 批量大小（每 N 条 flush 后 force 一次，<=1 表示每次都 fsync）
-    */
+     * fsync 批量大小（每 N 条 flush 后 force 一次，<=1 表示每次都 fsync）
+     */
     private final int fsyncBatchSize;
 
     /**
-    * fsync 批量间隔（毫秒，后台线程定时强制刷盘）
-    */
+     * fsync 批量间隔（毫秒，后台线程定时强制刷盘）
+     */
     private final long fsyncBatchIntervalMs;
 
     /**
-    * 是否使用 mmap（内存_映射 模式，写入走 随机accesswriter；读取走 mappedbyte缓冲）
-    */
+     * 是否使用 mmap（内存_映射 模式，写入走 随机accesswriter；读取走 mappedbyte缓冲）
+     */
     private final boolean useMemoryMap;
 
     /**
-    * 分片最大字节数（仅 SEGMENT 生效）
-    */
+     * 分片最大字节数（仅 SEGMENT 生效）
+     */
     private final long maxSegmentBytes;
 
     /**
-    * 分片最大记录数（仅 SEGMENT 生效）
-    */
+     * 分片最大记录数（仅 SEGMENT 生效）
+     */
     private final int maxRecordsPerSegment;
 
     /**
-    * 保留多少个已 checkpoint 分片
-    */
+     * 保留多少个已 checkpoint 分片
+     */
     private final int keepCheckpointedSegments;
 
     /**
-    * 文件魔数（用于识别 WAL 文件）
-    */
+     * 文件魔数（用于识别 WAL 文件）
+     */
     private final byte[] magic;
 
     /**
-    * 创建 wal配置 实例
-    * @param b b
-    */
+     * 创建 wal配置 实例
+     * @param b b
+     */
     private WalConfig(Builder b) {
         this.walDir = b.walDir;
         this.namespace = b.namespace;
@@ -117,319 +117,319 @@ public final class WalConfig {
     }
 
     /**
-    * WAL 目录路径。
-    *
-    * @return 目录路径
-    */
+     * WAL 目录路径。
+     *
+     * @return 目录路径
+     */
     public Path walDir() {
         return walDir;
     }
 
     /**
-    * 命名空间。
-    *
-    * @return 命名空间字符串
-    */
+     * 命名空间。
+     *
+     * @return 命名空间字符串
+     */
     public String namespace() {
         return namespace;
     }
 
     /**
-    * WAL 实现类型。
-    *
-    * @return 实现枚举
-    */
+     * WAL 实现类型。
+     *
+     * @return 实现枚举
+     */
     public WalImpl impl() {
         return impl;
     }
 
     /**
-    * 是否每次写入后强制 fsync。
-    *
-    * @return true=fsync
-    */
+     * 是否每次写入后强制 fsync。
+     *
+     * @return true=fsync
+     */
     public boolean syncOnWrite() {
         return syncOnWrite;
     }
 
     /**
-    * fsync 批量大小。
-    *
-    * @return 批大小
-    */
+     * fsync 批量大小。
+     *
+     * @return 批大小
+     */
     public int fsyncBatchSize() {
         return fsyncBatchSize;
     }
 
     /**
-    * fsync 批量间隔（毫秒）。
-    *
-    * @return 间隔毫秒
-    */
+     * fsync 批量间隔（毫秒）。
+     *
+     * @return 间隔毫秒
+     */
     public long fsyncBatchIntervalMs() {
         return fsyncBatchIntervalMs;
     }
 
     /**
-    * 是否使用 mmap 读写。
-    *
-    * @return true=mmap
-    */
+     * 是否使用 mmap 读写。
+     *
+     * @return true=mmap
+     */
     public boolean useMemoryMap() {
         return useMemoryMap;
     }
 
     /**
-    * 分片最大字节数（仅 SEGMENT 生效）。
-    *
-    * @return 字节数
-    */
+     * 分片最大字节数（仅 SEGMENT 生效）。
+     *
+     * @return 字节数
+     */
     public long maxSegmentBytes() {
         return maxSegmentBytes;
     }
 
     /**
-    * 分片最大记录数（仅 SEGMENT 生效）。
-    *
-    * @return 记录数
-    */
+     * 分片最大记录数（仅 SEGMENT 生效）。
+     *
+     * @return 记录数
+     */
     public int maxRecordsPerSegment() {
         return maxRecordsPerSegment;
     }
 
     /**
-    * 保留多少个已 checkpoint 分片。
-    *
-    * @return 保留数量
-    */
+     * 保留多少个已 checkpoint 分片。
+     *
+     * @return 保留数量
+     */
     public int keepCheckpointedSegments() {
         return keepCheckpointedSegments;
     }
 
     /**
-    * 文件魔数。
-    *
-    * @return 魔数字节副本
-    */
+     * 文件魔数。
+     *
+     * @return 魔数字节副本
+     */
     public byte[] magic() {
         return magic.clone();
     }
 
     /**
-    * 创建 构建器。
-    *
-    * @return Builder 实例
-    */
+     * 创建 构建器。
+     *
+     * @return Builder 实例
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * WAL 实现类型枚举。
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * WAL 实现类型枚举。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public enum WalImpl {
 
         /**
-        * 单文件实现，不分片
-        */
+         * 单文件实现，不分片
+         */
         SIMPLE,
 
         /**
-        * 分片 + 索引实现
-        */
+         * 分片 + 索引实现
+         */
         SEGMENT,
 
         /**
-        * 基于 Chronicle 队列 的实现（由 utils-support-chronicle-starter 提供）
-        */
+         * 基于 Chronicle 队列 的实现（由 utils-support-chronicle-starter 提供）
+         */
         CHRONICLE,
 
         /**
-        * 基于 Kafka 的实现（由 utils-support-kafka-starter 提供）
-        */
+         * 基于 Kafka 的实现（由 utils-support-kafka-starter 提供）
+         */
         KAFKA
     }
 
     /**
-    * WAL 配置 构建器。
-    *
-    * @since 4.0.0.42
-    */
+     * WAL 配置 构建器。
+     *
+     * @since 4.0.0.42
+     */
     public static final class Builder {
 
     /**
-    * WAL 目录
-    */
+     * WAL 目录
+     */
     private Path walDir = Paths.get("./wal");
 
     /**
-    * 命名空间（默认 "默认"）
-    */
+     * 命名空间（默认 "默认"）
+     */
     private String namespace = "default";
 
     /**
-    * 实现类型（默认 SEGMENT）
-    */
+     * 实现类型（默认 SEGMENT）
+     */
     private WalImpl impl = WalImpl.SEGMENT;
 
     /**
-    * 是否 fsync（默认 true）
-    */
+     * 是否 fsync（默认 true）
+     */
     private boolean syncOnWrite = true;
 
     /**
-    * fsync 批量大小（默认 100）
-    */
+     * fsync 批量大小（默认 100）
+     */
     private int fsyncBatchSize = 100;
 
     /**
-    * fsync 批量间隔毫秒（默认 50ms）
-    */
+     * fsync 批量间隔毫秒（默认 50ms）
+     */
     private long fsyncBatchIntervalMs = 50L;
 
     /**
-    * 是否使用 mmap（默认 false，简单 模式下生效）
-    */
+     * 是否使用 mmap（默认 false，简单 模式下生效）
+     */
     private boolean useMemoryMap = false;
 
     /**
-    * 分片最大字节数（默认 64MB）
-    */
+     * 分片最大字节数（默认 64MB）
+     */
     private long maxSegmentBytes = 64L * 1024L * 1024L;
 
     /**
-    * 分片最大记录数（默认 100000）
-    */
+     * 分片最大记录数（默认 100000）
+     */
     private int maxRecordsPerSegment = 100_000;
 
     /**
-    * 保留 checkpoint 分片数（默认 1）
-    */
+     * 保留 checkpoint 分片数（默认 1）
+     */
     private int keepCheckpointedSegments = 1;
 
     /**
-    * 文件魔数（默认 "WAL1"）
-    */
+     * 文件魔数（默认 "WAL1"）
+     */
     private byte[] magic = DEFAULT_MAGIC.clone();
 
     /**
-    * 设置 WAL 目录。
-    * @param walDir waldir
-    * @return walDir的结果
-    */
+     * 设置 WAL 目录。
+     * @param walDir waldir
+     * @return walDir的结果
+     */
     public Builder walDir(Path walDir) {
         this.walDir = walDir;
         return this;
     }
 
     /**
-    * 设置命名空间。
-    * @param namespace namespace
-    * @return namespace的结果
-    */
+     * 设置命名空间。
+     * @param namespace namespace
+     * @return namespace的结果
+     */
     public Builder namespace(String namespace) {
         this.namespace = namespace == null ? "default" : namespace;
         return this;
     }
 
     /**
-    * 设置实现类型。
-    * @param impl impl
-    * @return impl的结果
-    */
+     * 设置实现类型。
+     * @param impl impl
+     * @return impl的结果
+     */
     public Builder impl(WalImpl impl) {
         this.impl = impl;
         return this;
     }
 
     /**
-    * 设置是否 fsync。
-    * @param syncOnWrite 同步on写入
-    * @return 同步on写入的结果
-    */
+     * 设置是否 fsync。
+     * @param syncOnWrite 同步on写入
+     * @return 同步on写入的结果
+     */
     public Builder syncOnWrite(boolean syncOnWrite) {
         this.syncOnWrite = syncOnWrite;
         return this;
     }
 
     /**
-    * 设置 fsync 批量大小。
-    * @param fsyncBatchSize fsyncbatch大小
-    * @return fsyncbatch大小的结果
-    */
+     * 设置 fsync 批量大小。
+     * @param fsyncBatchSize fsyncbatch大小
+     * @return fsyncbatch大小的结果
+     */
     public Builder fsyncBatchSize(int fsyncBatchSize) {
         this.fsyncBatchSize = Math.max(1, fsyncBatchSize);
         return this;
     }
 
     /**
-    * 设置 fsync 批量间隔毫秒。
-    * @param fsyncBatchIntervalMs fsyncbatch间隔ms
-    * @return fsyncbatch间隔ms的结果
-    */
+     * 设置 fsync 批量间隔毫秒。
+     * @param fsyncBatchIntervalMs fsyncbatch间隔ms
+     * @return fsyncbatch间隔ms的结果
+     */
     public Builder fsyncBatchIntervalMs(long fsyncBatchIntervalMs) {
         this.fsyncBatchIntervalMs = Math.max(0L, fsyncBatchIntervalMs);
         return this;
     }
 
     /**
-    * 设置是否使用 mmap。
-    * @param useMemoryMap use内存映射
-    * @return use内存映射的结果
-    */
+     * 设置是否使用 mmap。
+     * @param useMemoryMap use内存映射
+     * @return use内存映射的结果
+     */
     public Builder useMemoryMap(boolean useMemoryMap) {
         this.useMemoryMap = useMemoryMap;
         return this;
     }
 
         /**
-        * 设置分片最大字节数。
-        * @param maxSegmentBytes 最大segmentbytes
-        * @return 最大segmentbytes的结果
-        */
+         * 设置分片最大字节数。
+         * @param maxSegmentBytes 最大segmentbytes
+         * @return 最大segmentbytes的结果
+         */
         public Builder maxSegmentBytes(long maxSegmentBytes) {
             this.maxSegmentBytes = maxSegmentBytes;
             return this;
         }
 
         /**
-        * 设置分片最大记录数。
-        * @param maxRecordsPerSegment 最大recordspersegment
-        * @return 最大recordspersegment的结果
-        */
+         * 设置分片最大记录数。
+         * @param maxRecordsPerSegment 最大recordspersegment
+         * @return 最大recordspersegment的结果
+         */
         public Builder maxRecordsPerSegment(int maxRecordsPerSegment) {
             this.maxRecordsPerSegment = maxRecordsPerSegment;
             return this;
         }
 
         /**
-        * 设置保留 checkpoint 分片数。
-        * @param keepCheckpointedSegments keepcheckpointedsegments
-        * @return keepCheckpointedSegments的结果
-        */
+         * 设置保留 checkpoint 分片数。
+         * @param keepCheckpointedSegments keepcheckpointedsegments
+         * @return keepCheckpointedSegments的结果
+         */
         public Builder keepCheckpointedSegments(int keepCheckpointedSegments) {
             this.keepCheckpointedSegments = keepCheckpointedSegments;
             return this;
         }
 
         /**
-        * 设置文件魔数。
-        * @param magic 魔法
-        * @return 魔法的结果
-        */
+         * 设置文件魔数。
+         * @param magic 魔法
+         * @return 魔法的结果
+         */
         public Builder magic(byte[] magic) {
             this.magic = magic == null ? DEFAULT_MAGIC.clone() : magic.clone();
             return this;
         }
 
         /**
-        * 构建 wal配置 实例。
-        *
-        * @return WalConfig
-        */
+         * 构建 wal配置 实例。
+         *
+         * @return WalConfig
+         */
         public WalConfig build() {
             return new WalConfig(this);
         }

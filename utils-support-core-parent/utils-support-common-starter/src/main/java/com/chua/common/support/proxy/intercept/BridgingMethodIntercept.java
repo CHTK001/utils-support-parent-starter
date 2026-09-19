@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * @param <T> 代理接口类型
  * @author CH
  * @since 2025/7/20
-*/
+ */
 @AllArgsConstructor
 public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 

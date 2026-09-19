@@ -30,8 +30,8 @@ import java.util.Objects;
 public final class HprofParser {
 
     /**
-    * Parsed result holder, immutable.
-    */
+     * Parsed result holder, immutable.
+     */
     public record Result(List<HprofObject> objects,
                           List<HprofHistogramRow> histogram,
                           List<HprofObject> topRetained,
@@ -50,12 +50,12 @@ public final class HprofParser {
     }
 
     /**
-    * Parse an hprof file from disk.
-    *
-    * @param file hprof binary file
-    * @return parsed result
-    * @throws IOException 无法读取该文件时
-    */
+     * Parse an hprof file from disk.
+     *
+     * @param file hprof binary file
+     * @return parsed result
+     * @throws IOException 无法读取该文件时
+     */
     public static Result parse(File file) throws IOException {
         Objects.requireNonNull(file, "file");
         if (!file.exists()) {
@@ -66,12 +66,12 @@ public final class HprofParser {
     }
 
     /**
-    * Parse an hprof stream.
-    *
-    * @param is hprof binary stream
-    * @return parsed result
-    * @throws IOException 无法读取该流时
-    */
+     * Parse an hprof stream.
+     *
+     * @param is hprof binary stream
+     * @return parsed result
+     * @throws IOException 无法读取该流时
+     */
     public static Result parse(InputStream is) throws IOException {
         Objects.requireNonNull(is, "input stream");
         byte[] data = is.readAllBytes();
@@ -80,13 +80,13 @@ public final class HprofParser {
     }
 
     /**
-    * 解析 hprof 流，可额外传入用于报告的文件名。
-    *
-    * @param is       hprof binary stream
-    * @param fileName file name (nullable), used in markdown headers
-    * @return parsed result
-    * @throws IOException 无法读取该流时
-    */
+     * 解析 hprof 流，可额外传入用于报告的文件名。
+     *
+     * @param is       hprof binary stream
+     * @param fileName file name (nullable), used in markdown headers
+     * @return parsed result
+     * @throws IOException 无法读取该流时
+     */
     public static Result parse(InputStream is, String fileName) throws IOException {
         Objects.requireNonNull(is, "input stream");
         byte[] data = is.readAllBytes();
@@ -95,12 +95,12 @@ public final class HprofParser {
     }
 
     /**
-    * Parse raw hprof bytes.
-    *
-    * @param data raw hprof bytes
-    * @return parsed result
-    * @throws IOException 无法解析这些字节时
-    */
+     * Parse raw hprof bytes.
+     *
+     * @param data raw hprof bytes
+     * @return parsed result
+     * @throws IOException 无法解析这些字节时
+     */
     public static Result parseBytes(byte[] data) throws IOException {
         Objects.requireNonNull(data, "data");
         HprofParseContext.ParsedContext ctx = HprofParseContext.parse(data);
@@ -108,11 +108,11 @@ public final class HprofParser {
     }
 
     /**
-    * Build a Result from a parsed context.
-    *
-    * @param ctx parsed context
-    * @return the result
-    */
+     * Build a Result from a parsed context.
+     *
+     * @param ctx parsed context
+     * @return the result
+     */
     private static Result fromContext(HprofParseContext.ParsedContext ctx) {
         List<HprofObject> objects = new ArrayList<>(ctx.objects().size());
         for (HprofParseContext.HprofRecord record : ctx.objects()) {
@@ -133,11 +133,11 @@ public final class HprofParser {
     }
 
     /**
-    * Convert a parsed record to the model object.
-    *
-    * @param record parsed record
-    * @return model object
-    */
+     * Convert a parsed record to the model object.
+     *
+     * @param record parsed record
+     * @return model object
+     */
     private static HprofObject toObject(HprofParseContext.HprofRecord record) {
         HprofObject obj = new HprofObject(
                 record.className(),
@@ -151,15 +151,15 @@ public final class HprofParser {
     }
 
     /**
-    * 基于解析上下文构建按类直方图行。
-    *
-    * <p>上下文中已带有按类统计的浅堆大小（按
-    * {@code instanceSize * instances} 计算），因此直方图
-    * 可一次遍历组装完成，无需再扫描对象列表。</p>
-    *
-    * @param ctx parsed context
-    * @return histogram rows sorted by retained size descending
-    */
+     * 基于解析上下文构建按类直方图行。
+     *
+     * <p>上下文中已带有按类统计的浅堆大小（按
+     * {@code instanceSize * instances} 计算），因此直方图
+     * 可一次遍历组装完成，无需再扫描对象列表。</p>
+     *
+     * @param ctx parsed context
+     * @return histogram rows sorted by retained size descending
+     */
     private static List<HprofHistogramRow> buildHistogram(HprofParseContext.ParsedContext ctx) {
         Map<String, long[]> aggregate = new HashMap<>();
         for (Map.Entry<String, Long> e : ctx.retainedByClass().entrySet()) {

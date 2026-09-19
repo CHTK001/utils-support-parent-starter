@@ -27,8 +27,8 @@ public class PluginDefinition {
     /** 插件落盘位置（本地）或市场主页（在线）。 */
     private final String location;
     /**
-    * 来源标识（如 claude / trae-cn / open-vsx / clawhub）。
-    */
+     * 来源标识（如 claude / trae-cn / open-vsx / clawhub）。
+     */
     private final String source;
     /** 插件清单路径（如 plugin.json / package.json）。 */
     private final String manifestPath;
@@ -36,18 +36,18 @@ public class PluginDefinition {
     private final Map<String, Object> extra;
 
     /**
-    * 全参构造器。
-    *
-    * @param id           插件唯一标识
-    * @param name         插件名称
-    * @param description  插件描述
-    * @param author       作者
-    * @param version      版本
-    * @param location     落盘位置或市场主页
-    * @param source       来源标识
-    * @param manifestPath 插件清单路径
-    * @param extra        额外元信息
-    */
+     * 全参构造器。
+     *
+     * @param id           插件唯一标识
+     * @param name         插件名称
+     * @param description  插件描述
+     * @param author       作者
+     * @param version      版本
+     * @param location     落盘位置或市场主页
+     * @param source       来源标识
+     * @param manifestPath 插件清单路径
+     * @param extra        额外元信息
+     */
     public PluginDefinition(String id, String name, String description, String author,
                             String version, String location, String source,
                             String manifestPath, Map<String, Object> extra) {
@@ -63,115 +63,115 @@ public class PluginDefinition {
     }
 
     /**
-    * 含清单路径构造器。
-    *
-    * @param id           插件唯一标识
-    * @param name         插件名称
-    * @param description  插件描述
-    * @param author       作者
-    * @param version      版本
-    * @param location     落盘位置或市场主页
-    * @param source       来源标识
-    * @param manifestPath 插件清单路径
-    */
+     * 含清单路径构造器。
+     *
+     * @param id           插件唯一标识
+     * @param name         插件名称
+     * @param description  插件描述
+     * @param author       作者
+     * @param version      版本
+     * @param location     落盘位置或市场主页
+     * @param source       来源标识
+     * @param manifestPath 插件清单路径
+     */
     public PluginDefinition(String id, String name, String description, String author,
                             String version, String location, String source, String manifestPath) {
         this(id, name, description, author, version, location, source, manifestPath, Collections.emptyMap());
     }
 
     /**
-    * 简配构造器。
-    *
-    * @param id          插件唯一标识
-    * @param name        插件名称
-    * @param description 插件描述
-    * @param author      作者
-    * @param version     版本
-    * @param location    落盘位置或市场主页
-    * @param source      来源标识
-    */
+     * 简配构造器。
+     *
+     * @param id          插件唯一标识
+     * @param name        插件名称
+     * @param description 插件描述
+     * @param author      作者
+     * @param version     版本
+     * @param location    落盘位置或市场主页
+     * @param source      来源标识
+     */
     public PluginDefinition(String id, String name, String description, String author,
                             String version, String location, String source) {
         this(id, name, description, author, version, location, source, null, Collections.emptyMap());
     }
 
     /**
-    * 获取插件唯一标识。
-    *
-    * @return 插件标识
-    */
+     * 获取插件唯一标识。
+     *
+     * @return 插件标识
+     */
     public String getId() {
         return id;
     }
 
     /**
-    * 获取插件名称。
-    *
-    * @return 插件名称
-    */
+     * 获取插件名称。
+     *
+     * @return 插件名称
+     */
     public String getName() {
         return name;
     }
 
     /**
-    * 获取插件描述。
-    *
-    * @return 插件描述
-    */
+     * 获取插件描述。
+     *
+     * @return 插件描述
+     */
     public String getDescription() {
         return description;
     }
 
     /**
-    * 获取作者。
-    *
-    * @return 作者
-    */
+     * 获取作者。
+     *
+     * @return 作者
+     */
     public String getAuthor() {
         return author;
     }
 
     /**
-    * 获取版本。
-    *
-    * @return 版本
-    */
+     * 获取版本。
+     *
+     * @return 版本
+     */
     public String getVersion() {
         return version;
     }
 
     /**
-    * 获取落盘位置或市场主页。
-    *
-    * @return 位置
-    */
+     * 获取落盘位置或市场主页。
+     *
+     * @return 位置
+     */
     public String getLocation() {
         return location;
     }
 
     /**
-    * 获取来源标识。
-    *
-    * @return 来源
-    */
+     * 获取来源标识。
+     *
+     * @return 来源
+     */
     public String getSource() {
         return source;
     }
 
     /**
-    * 获取插件清单路径。
-    *
-    * @return 清单路径，可为 null
-    */
+     * 获取插件清单路径。
+     *
+     * @return 清单路径，可为 null
+     */
     public String getManifestPath() {
         return manifestPath;
     }
 
     /**
-    * 获取额外元信息。
-    *
-    * @return 额外元信息
-    */
+     * 获取额外元信息。
+     *
+     * @return 额外元信息
+     */
     public Map<String, Object> getExtra() {
         return extra;
     }

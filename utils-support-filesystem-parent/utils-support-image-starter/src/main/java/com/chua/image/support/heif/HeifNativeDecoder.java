@@ -5,25 +5,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
-* HEIF 原生解码器 — 解析 box 结构，提取 JPEG 数据后由 JDK 解码。
-*
-* @author CH
-* @since 4.0.0.42
+ * HEIF 原生解码器 — 解析 box 结构，提取 JPEG 数据后由 JDK 解码。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HeifNativeDecoder {
 
     private static int width = 0, height = 0; // width
 
     /**
-    * heifNAT解码器。
-    */
+     * heifNAT解码器。
+     */
     private HeifNativeDecoder() {}
 
     /**
-    * 解码 HEIC/HEIF 数据为 RGBA 字节数组。
-    * @param input 输入
-    * @return decode的结果
-    */
+     * 解码 HEIC/HEIF 数据为 RGBA 字节数组。
+     * @param input 输入
+     * @return decode的结果
+     */
     public static byte[] decode(ImageInputStream input) throws IOException {
         // 读取并验证文件头
         byte[] header = new byte[16];
@@ -57,20 +57,20 @@ public class HeifNativeDecoder {
     }
 
     /**
-    * 获取width。
-    * @return 获取width的结果
-    */
+     * 获取width。
+     * @return 获取width的结果
+     */
     public static int getWidth() { return width; }
     /**
-    * 获取height。
-    * @return 获取height的结果
-    */
+     * 获取height。
+     * @return 获取height的结果
+     */
     public static int getHeight() { return height; }
 
     /**
-    * 解析boxes。
-    * @param input 输入
-    */
+     * 解析boxes。
+     * @param input 输入
+     */
     private static void parseBoxes(ImageInputStream input) throws IOException {
         long end = input.length();
         long pos = 0;
@@ -94,11 +94,11 @@ public class HeifNativeDecoder {
     }
 
     /**
-    * extractjpeg从heif。
-    * @param input 输入
-    * @param start 启动
-    * @return extractjpeg从heif的结果
-    */
+     * extractjpeg从heif。
+     * @param input 输入
+     * @param start 启动
+     * @return extractjpeg从heif的结果
+     */
     private static byte[] extractJpegFromHeif(ImageInputStream input, long start) throws IOException {
         long end = input.length();
         long pos = start;
@@ -149,10 +149,10 @@ public class HeifNativeDecoder {
     }
 
     /**
-    * decodejpeg转为rgba。
-    * @param jpegData jpeg数据
-    * @return decodejpeg转为rgba的结果
-    */
+     * decodejpeg转为rgba。
+     * @param jpegData jpeg数据
+     * @return decodejpeg转为rgba的结果
+     */
     private static byte[] decodeJpegToRgba(byte[] jpegData) throws IOException {
         java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(jpegData);
         java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(bis);

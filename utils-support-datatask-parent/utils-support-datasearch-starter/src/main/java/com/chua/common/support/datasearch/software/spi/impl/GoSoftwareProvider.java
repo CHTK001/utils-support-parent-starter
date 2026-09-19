@@ -14,15 +14,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Go 软件包管理器提供器。
-*
-* <p>通过 go CLI 查询、安装 Go 模块与命令。
-* 搜索使用 <code>Go 列表 -m -版本</code>（按模块路径查询可用版本），
-* 安装使用 <code>Go install &lt;module&gt;@latest</code>，
-* 卸载为尽力而为（清除已安装的命令二进制）。
-*
-* @author CH
-* @since 4.0.0.42
+ * Go 软件包管理器提供器。
+ *
+ * <p>通过 go CLI 查询、安装 Go 模块与命令。
+ * 搜索使用 <code>Go 列表 -m -版本</code>（按模块路径查询可用版本），
+ * 安装使用 <code>Go install &lt;module&gt;@latest</code>，
+ * 卸载为尽力而为（清除已安装的命令二进制）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("go")
 public class GoSoftwareProvider implements SoftwareProvider {
@@ -92,13 +92,13 @@ public class GoSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * 执行命令
-    *
-    * @param cmd CMD
-    * @param action 动作
-    * @param packageId 包标识
-    * @return 执行命令的结果
-    */
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override

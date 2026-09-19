@@ -8,7 +8,7 @@ import lombok.Data;
  * @author CH
  * @since 4.0.0.42
  * @version 1.0.0
-*/
+ */
 @Data
 public class AcmeConnectionResult {
 
@@ -25,11 +25,11 @@ public class AcmeConnectionResult {
     private String error;
 
     /**
-    * 创建成功结果
-    * @param accountUrl accountURL，不允许为 null
-    * @param privateKeyPem private键Pem，不允许为 null
-    * @return Acme连接结果 对象
-    */
+     * 创建成功结果
+     * @param accountUrl accountURL，不允许为 null
+     * @param privateKeyPem private键Pem，不允许为 null
+     * @return Acme连接结果 对象
+     */
     public static AcmeConnectionResult success(String accountUrl, String privateKeyPem) {
         AcmeConnectionResult result = new AcmeConnectionResult();
         result.setSuccess(true);
@@ -39,10 +39,10 @@ public class AcmeConnectionResult {
     }
 
     /**
-    * 创建失败结果
-    * @param error 方法入参 error
-    * @return Acme连接结果 对象
-    */
+     * 创建失败结果
+     * @param error 方法入参 error
+     * @return Acme连接结果 对象
+     */
     public static AcmeConnectionResult fail(String error) {
         AcmeConnectionResult result = new AcmeConnectionResult();
         result.setSuccess(false);

@@ -11,19 +11,19 @@ import lombok.experimental.SuperBuilder;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Getter
 @Setter
 @SuperBuilder
 public class PutObjectResult extends ObjectResult {
 
     /**
-    * 文件的访问 URL。
-    */
+     * 文件的访问 URL。
+     */
     private String url;
 
     /**
-    * 文件的唯一 键。
-    */
+     * 文件的唯一 键。
+     */
     private String key;
 }

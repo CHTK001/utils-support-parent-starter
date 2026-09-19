@@ -11,27 +11,27 @@ import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
 
 /**
-* ONNX 引擎 ndarray 预处理工具。
-*
-* <p>性能设计要点：
-* <ul>
-*   <li>不经过 {@code Image.toNDArray(...)} 创建 OrtNDArray（避免不支持的算子回退失败 + 开销）；</li>
-*   <li>直接通过 {@link Image#getWrappedImage()} 拿到 {@link BufferedImage}，
-*       使用其底层 {@link java.awt.image.Raster#getDataBuffer()} 直接读取字节数组，
-*       比 {@code BufferedImage.getRGB(...)}（逐像素 int 转换 + 装箱）快 5-10x；</li>
-*   <li>使用 {@code Graphics2D.drawImage(...)} 完成 resize（JDK 内置快速路径，
-* 比 镜像io + bilinear 采样快）；</li>
-*   <li>CHW 转换与归一化使用单层嵌套循环，避免 NDArray.transpose/sub/div 等不支持的 ONNX 算子；</li>
-*   <li>最终用 {@code NDManager.create(FloatBuffer, Shape, FLOAT32)} 一次性建好输入。</li>
-* </ul>
-* </p>
-*
-* <p>ONNX Runtime 引擎的 NDArray 仅支持有限的算子（transpose / resize 等会 fallback 到
-* numpy 引擎并抛 unsupportedoperation异常），且 Java 像素处理已经足够快 —
-* 这里刻意避开所有高级 ndarray 算子。</p>
-*
-* @author CH
-* @since 2026-08-08
+ * ONNX 引擎 ndarray 预处理工具。
+ *
+ * <p>性能设计要点：
+ * <ul>
+ *   <li>不经过 {@code Image.toNDArray(...)} 创建 OrtNDArray（避免不支持的算子回退失败 + 开销）；</li>
+ *   <li>直接通过 {@link Image#getWrappedImage()} 拿到 {@link BufferedImage}，
+ *       使用其底层 {@link java.awt.image.Raster#getDataBuffer()} 直接读取字节数组，
+ *       比 {@code BufferedImage.getRGB(...)}（逐像素 int 转换 + 装箱）快 5-10x；</li>
+ *   <li>使用 {@code Graphics2D.drawImage(...)} 完成 resize（JDK 内置快速路径，
+ * 比 镜像io + bilinear 采样快）；</li>
+ *   <li>CHW 转换与归一化使用单层嵌套循环，避免 NDArray.transpose/sub/div 等不支持的 ONNX 算子；</li>
+ *   <li>最终用 {@code NDManager.create(FloatBuffer, Shape, FLOAT32)} 一次性建好输入。</li>
+ * </ul>
+ * </p>
+ *
+ * <p>ONNX Runtime 引擎的 NDArray 仅支持有限的算子（transpose / resize 等会 fallback 到
+ * numpy 引擎并抛 unsupportedoperation异常），且 Java 像素处理已经足够快 —
+ * 这里刻意避开所有高级 ndarray 算子。</p>
+ *
+ * @author CH
+ * @since 2026-08-08
  */
 public final class OnnxImageProcessor {
 
@@ -72,8 +72,8 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 仅做 HWC float 数组提取（不创建 nd列表）。
-    */
+     * 仅做 HWC float 数组提取（不创建 nd列表）。
+     */
     public static float[] toChwFloat(Image image, int width, int height, int channels,
                                       boolean grayscale, float scale) {
         BufferedImage src = unwrap(image);
@@ -86,11 +86,11 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 从 镜像 取底层 缓冲镜像。DJL 默认 {@code BufferedImageFactory} 返回
-    * 缓冲镜像 包装，其他实现如有不同可由调用方重写。
-    * @param image 镜像
-    * @return unwrap的结果
-    */
+     * 从 镜像 取底层 缓冲镜像。DJL 默认 {@code BufferedImageFactory} 返回
+     * 缓冲镜像 包装，其他实现如有不同可由调用方重写。
+     * @param image 镜像
+     * @return unwrap的结果
+     */
     private static BufferedImage unwrap(Image image) {
         Object wrapped = image.getWrappedImage();
         if (wrapped instanceof BufferedImage bi) {
@@ -102,14 +102,14 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 快速 resize：基于 {@code Graphics2D.drawImage}，对 RGB/灰度图像启用
-    * {@code RenderingHints.VALUE_INTERPOLATION_BILINEAR}。比
-    * {@code BufferedImage.getScaledInstance} 更可控、避免额外的 image buffer 分配。
-    * @param src src
-    * @param w w
-    * @param h h
-    * @return resizeFast的结果
-    */
+     * 快速 resize：基于 {@code Graphics2D.drawImage}，对 RGB/灰度图像启用
+     * {@code RenderingHints.VALUE_INTERPOLATION_BILINEAR}。比
+     * {@code BufferedImage.getScaledInstance} 更可控、避免额外的 image buffer 分配。
+     * @param src src
+     * @param w w
+     * @param h h
+     * @return resizeFast的结果
+     */
     private static BufferedImage resizeFast(BufferedImage src, int w, int h) {
         int type = src.getType() == BufferedImage.TYPE_CUSTOM
                 ? BufferedImage.TYPE_INT_RGB : src.getType();
@@ -128,10 +128,10 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 直接读取 缓冲镜像 像素并填充到 CHW float 数组。
-    * 对常见类型（3BYTE_BGR / INT_RGB / INT_ARGB / BYTE_GRAY）走快速路径，
-    * 其他类型回退到 {@code getRGB()}。
-    */
+     * 直接读取 缓冲镜像 像素并填充到 CHW float 数组。
+     * 对常见类型（3BYTE_BGR / INT_RGB / INT_ARGB / BYTE_GRAY）走快速路径，
+     * 其他类型回退到 {@code getRGB()}。
+     */
     private static void fillChw(BufferedImage img, float[] chw,
                                  int channels, boolean grayscale,
                                  float mean, float scale) {
@@ -158,8 +158,8 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 类型_3BYTE_BGR：数据缓冲byte，每个像素 3 字节 (B, G, R)。
-    */
+     * 类型_3BYTE_BGR：数据缓冲byte，每个像素 3 字节 (B, G, R)。
+     */
     private static void fillChwBgr(BufferedImage img, float[] chw,
                                     int w, int h, float mean, float scale) {
         byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
@@ -179,8 +179,8 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 类型_INT_RGB / 类型_INT_ARGB：数据缓冲int，每个像素 4 字节 (R, G, B, A/PAD)。
-    */
+     * 类型_INT_RGB / 类型_INT_ARGB：数据缓冲int，每个像素 4 字节 (R, G, B, A/PAD)。
+     */
     private static void fillChwArgb(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale,
                                      boolean hasAlpha) {
@@ -201,8 +201,8 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 类型_BYTE_GRAY：数据缓冲byte，每像素 1 字节。
-    */
+     * 类型_BYTE_GRAY：数据缓冲byte，每像素 1 字节。
+     */
     private static void fillChwGray(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale) {
         byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
@@ -212,8 +212,8 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 回退路径：调用 获取rgb 逐像素（慢但兼容所有 缓冲镜像 类型）。
-    */
+     * 回退路径：调用 获取rgb 逐像素（慢但兼容所有 缓冲镜像 类型）。
+     */
     private static void fillChwGeneric(BufferedImage img, float[] chw,
                                         int w, int h, int channels,
                                         boolean grayscale, float mean, float scale) {

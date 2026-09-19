@@ -22,17 +22,17 @@ import java.util.concurrent.StructuredTaskScope;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public abstract class AbstractRunnerProvider {
 
     /**
-    * 组装并执行单个节点：校验数据依赖 → 执行链包装 → 结果写入上下文。
-    *
-    * @param def     节点定义
-    * @param context 运行上下文
-    * @param options 执行参数
-    * @return 节点结果
-    */
+     * 组装并执行单个节点：校验数据依赖 → 执行链包装 → 结果写入上下文。
+     *
+     * @param def     节点定义
+     * @param context 运行上下文
+     * @param options 执行参数
+     * @return 节点结果
+     */
     protected TaskResult executeNode(TaskDefinition def, RunnerContext context,
                                      RunnerProvider.ExecutionOptions options) {
         var started = System.currentTimeMillis();
@@ -48,13 +48,13 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 组装节点执行链：熔断(可选) → 超时(可选) → 重试 → 数据依赖校验 → 业务函数。
-    *
-    * @param def     节点定义
-    * @param context 运行上下文
-    * @param options 执行参数
-    * @return 可调用执行链
-    */
+     * 组装节点执行链：熔断(可选) → 超时(可选) → 重试 → 数据依赖校验 → 业务函数。
+     *
+     * @param def     节点定义
+     * @param context 运行上下文
+     * @param options 执行参数
+     * @return 可调用执行链
+     */
     protected Callable<Object> buildChain(TaskDefinition def, RunnerContext context,
                                           RunnerProvider.ExecutionOptions options) {
         Callable<Object> core = () -> {
@@ -84,16 +84,16 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 为未启用熔断的节点追加统一的降级兜底：执行异常且定义了 降级 时，
-    * 以降级返回值作为成功结果。
-    *
-    * <p>Error 及其包装因果链上的 Error 不走降级，原样向上传播。</p>
-    *
-    * @param def     节点定义
-    * @param context 运行上下文
-    * @param inner   内层执行链
-    * @return 包装后的执行链
-    */
+     * 为未启用熔断的节点追加统一的降级兜底：执行异常且定义了 降级 时，
+     * 以降级返回值作为成功结果。
+     *
+     * <p>Error 及其包装因果链上的 Error 不走降级，原样向上传播。</p>
+     *
+     * @param def     节点定义
+     * @param context 运行上下文
+     * @param inner   内层执行链
+     * @return 包装后的执行链
+     */
     private Callable<Object> applyFallbackOnFailure(TaskDefinition def, RunnerContext context,
                                                     Callable<Object> inner) {
         if (!def.hasFallback()) {
@@ -112,11 +112,11 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 判断异常因果链上是否携带 错误。
-    *
-    * @param t 待检查异常
-    * @return true 表示链上存在 错误（如 OOM/stackoverflow）
-    */
+     * 判断异常因果链上是否携带 错误。
+     *
+     * @param t 待检查异常
+     * @return true 表示链上存在 错误（如 OOM/stackoverflow）
+     */
     private static boolean containsError(Throwable t) {
         var current = t;
         while (current != null) {
@@ -129,17 +129,17 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 重试包装：共 尝试 次尝试，失败间隔按指数退避。
-    *
-    * <p>预算感知：配置了 timeout 时维护整体截止时间，
-    * 剩余预算不足以容纳"下一次退避 + 最小执行窗"时提前放弃重试，
-    * 避免注定超时的无效尝试。</p>
-    *
-    * @param core     核心逻辑
-    * @param attempts 总尝试次数，必须 ≥ 1
-    * @param timeout  整体时限，空 表示不限时
-    * @return 包装后的执行链
-    */
+     * 重试包装：共 尝试 次尝试，失败间隔按指数退避。
+     *
+     * <p>预算感知：配置了 timeout 时维护整体截止时间，
+     * 剩余预算不足以容纳"下一次退避 + 最小执行窗"时提前放弃重试，
+     * 避免注定超时的无效尝试。</p>
+     *
+     * @param core     核心逻辑
+     * @param attempts 总尝试次数，必须 ≥ 1
+     * @param timeout  整体时限，空 表示不限时
+     * @return 包装后的执行链
+     */
     private Callable<Object> wrapResilience(Callable<Object> core, int attempts, java.time.Duration timeout) {
         var times = Math.max(attempts, 1);
         return () -> {
@@ -169,21 +169,21 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 判定放弃重试的最小剩余执行窗毫秒数。
-    */
+     * 判定放弃重试的最小剩余执行窗毫秒数。
+     */
     private static final long MIN_EXECUTE_WINDOW_MS = 50L;
 
     /**
-    * 超时包装：嵌套结构化并发作用域施加整体时限。
-    *
-    * <p>子任务失败以 {@code FailedException} 呈现，此处解包还原原始异常；
-    * 超时以 {@link TimeoutException} 抛出。</p>
-    *
-    * @param inner    内层执行链
-    * @param duration 时限
-    * @return 包装后的执行链
-    * @throws Exception 执行失败或超时
-    */
+     * 超时包装：嵌套结构化并发作用域施加整体时限。
+     *
+     * <p>子任务失败以 {@code FailedException} 呈现，此处解包还原原始异常；
+     * 超时以 {@link TimeoutException} 抛出。</p>
+     *
+     * @param inner    内层执行链
+     * @param duration 时限
+     * @return 包装后的执行链
+     * @throws Exception 执行失败或超时
+     */
     private Callable<Object> wrapTimeout(Callable<Object> inner, Duration duration) {
         return () -> {
             try (var scope = StructuredTaskScope.open(
@@ -203,12 +203,12 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 校验数据依赖的前置节点均已有非 空 结果。
-    *
-    * @param def     节点定义
-    * @param context 运行上下文
-    * @throws IllegalStateException 当任一前置节点无有效结果时
-    */
+     * 校验数据依赖的前置节点均已有非 空 结果。
+     *
+     * @param def     节点定义
+     * @param context 运行上下文
+     * @throws IllegalStateException 当任一前置节点无有效结果时
+     */
     protected void verifyDataDependencies(TaskDefinition def, RunnerContext context) {
         for (var dep : def.getDataDependencies()) {
             if (!context.hasResult(dep)) {
@@ -219,14 +219,14 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 解包运行时包装异常，尽量还原业务原始异常。
-    *
-    * <p>仅对"裸 RuntimeException 且携带原因"的包装（如熔断器抛出的
-    * {@code new RuntimeException(msg, cause)}）逐层解包，其余原样返回。</p>
-    *
-    * @param t 待解包异常
-    * @return 解包后的异常
-    */
+     * 解包运行时包装异常，尽量还原业务原始异常。
+     *
+     * <p>仅对"裸 RuntimeException 且携带原因"的包装（如熔断器抛出的
+     * {@code new RuntimeException(msg, cause)}）逐层解包，其余原样返回。</p>
+     *
+     * @param t 待解包异常
+     * @return 解包后的异常
+     */
     protected Throwable unwrap(Throwable t) {
         if (t.getClass() == RuntimeException.class && t.getCause() != null) {
             return unwrap(t.getCause());
@@ -235,11 +235,11 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-    * 向全部监听器发布事件。
-    *
-    * @param options 执行参数
-    * @param event   事件
-    */
+     * 向全部监听器发布事件。
+     *
+     * @param options 执行参数
+     * @param event   事件
+     */
     protected void emit(RunnerProvider.ExecutionOptions options, RunnerEvent event) {
         for (var listener : options.listeners()) {
             listener.onEvent(event);

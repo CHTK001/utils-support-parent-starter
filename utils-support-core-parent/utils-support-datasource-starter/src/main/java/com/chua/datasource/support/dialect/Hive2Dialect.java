@@ -8,8 +8,8 @@ public class Hive2Dialect extends SqlDialect {
     */
     public Hive2Dialect() { super("hive2"); }
     /**
-    * Hive2Dialect。
-    * @param properties 属性
-    */
+     * Hive2Dialect。
+     * @param properties 属性
+     */
     public Hive2Dialect(Properties properties) { super("hive2", properties); }
 }

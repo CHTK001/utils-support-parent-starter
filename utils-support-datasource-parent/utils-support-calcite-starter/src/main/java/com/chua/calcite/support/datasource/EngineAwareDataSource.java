@@ -16,29 +16,29 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
-* 包装统一 Calcite {@link DataSource}：拦截简单 更新 并路由到 Engine。
-*
-* @author CH
-* @since 4.0.0.42
+ * 包装统一 Calcite {@link DataSource}：拦截简单 更新 并路由到 Engine。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class EngineAwareDataSource implements DataSource {
 
     /**
-    * 委托的真实数据源
-    */
+     * 委托的真实数据源
+     */
     private final DataSource delegate;
 
     /**
-    * 更新 路由执行器
-    */
+     * 更新 路由执行器
+     */
     private final EngineUpdateSqlExecutor updateExecutor;
 
     /**
-    * 构造引擎感知数据源。
-    *
-    * @param delegate 真实数据源
-    * @param schemes  引擎方案列表
-    */
+     * 构造引擎感知数据源。
+     *
+     * @param delegate 真实数据源
+     * @param schemes  引擎方案列表
+     */
     public EngineAwareDataSource(DataSource delegate, List<DataScheme> schemes) {
         this.delegate = delegate;
         this.updateExecutor = new EngineUpdateSqlExecutor(schemes);
@@ -57,11 +57,11 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     /**
-    * wrapconnection
-    *
-    * @param conn conn
-    * @return wrapConnection的结果
-    */
+     * wrapconnection
+     *
+     * @param conn conn
+     * @return wrapConnection的结果
+     */
     private Connection wrapConnection(Connection conn) {
         return (Connection) ReflectUtils.newProxy(
                 Connection.class.getClassLoader(),
@@ -106,11 +106,11 @@ public final class EngineAwareDataSource implements DataSource {
         }
 
         /**
-        * wrap对账单
-        *
-        * @param st st
-        * @return wrap对账单的结果
-        */
+         * wrap对账单
+         *
+         * @param st st
+         * @return wrap对账单的结果
+         */
         private Statement wrapStatement(Statement st) {
             return (Statement) ReflectUtils.newProxy(
                     Statement.class.getClassLoader(),
@@ -142,11 +142,11 @@ public final class EngineAwareDataSource implements DataSource {
         }
 
         /**
-        * Fixed更新prepared对账单
-        *
-        * @param rows rows
-        * @return fixed更新prepared对账单的结果
-        */
+         * Fixed更新prepared对账单
+         *
+         * @param rows rows
+         * @return fixed更新prepared对账单的结果
+         */
         private Object fixedUpdatePreparedStatement(int rows) {
             return ReflectUtils.newProxy(
                     java.sql.PreparedStatement.class.getClassLoader(),

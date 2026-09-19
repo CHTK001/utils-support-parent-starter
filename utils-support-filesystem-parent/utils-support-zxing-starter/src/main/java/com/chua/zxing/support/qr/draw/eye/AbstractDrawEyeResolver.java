@@ -10,9 +10,9 @@ import java.awt.*;
 import static com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.inOuterDetectCornerArea;
 
 /**
-* draweye解析器接口定义了绘制眼睛图形的方法。
-* @author CH
-* @since 4.0.0.42
+ * draweye解析器接口定义了绘制眼睛图形的方法。
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     QrCodeOptions qrCodeConfig; // qr编码配置
@@ -29,20 +29,20 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     CodeEyeSetting codeEyeSetting; // 编码eyesetting
 
     /**
-    * 创建 抽象draweye解析器 实例
-    * @param qrCodeConfig qr编码配置
-    * @param g2 g2
-    * @param bitMatrix 钻头matrix
-    * @param matrixW matrixw
-    * @param matrixH matrixh
-    * @param leftPadding leftpadding
-    * @param topPadding toppadding
-    * @param infoSize 信息大小
-    * @param detectCornerSize detectcorner大小
-    * @param detectOutColor detect出color
-    * @param detectInnerColor detect内部color
-    * @param codeEyeSetting 编码eyesetting
-    */
+     * 创建 抽象draweye解析器 实例
+     * @param qrCodeConfig qr编码配置
+     * @param g2 g2
+     * @param bitMatrix 钻头matrix
+     * @param matrixW matrixw
+     * @param matrixH matrixh
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
+     * @param detectCornerSize detectcorner大小
+     * @param detectOutColor detect出color
+     * @param detectInnerColor detect内部color
+     * @param codeEyeSetting 编码eyesetting
+     */
     public AbstractDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                    Graphics2D g2,
                                    BitMatrixEx bitMatrix,
@@ -84,14 +84,14 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     }
 
     /**
-    * 为抽象方法，绘制一个矩形区域。
-    * @param g2 绘图上下文
-    * @param x 矩形的左上角 x 坐标
-    * @param y 矩形的左上角 y 坐标
-    * @param w 矩形的宽度
-    * @param h 矩形的高度
-    * 不返回任何内容。
-    */
+     * 为抽象方法，绘制一个矩形区域。
+     * @param g2 绘图上下文
+     * @param x 矩形的左上角 x 坐标
+     * @param y 矩形的左上角 y 坐标
+     * @param w 矩形的宽度
+     * @param h 矩形的高度
+     * 不返回任何内容。
+     */
     abstract void draw(Graphics2D g2, int x, int y, int w, int h);
 
 }

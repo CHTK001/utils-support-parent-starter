@@ -8,17 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 键值对视图解析器，将 {@link Map} 渲染为按列对齐的 {@code key   value} 格式。
-* <p>也支持 POJO — 反射提取所有字段展示。</p>
-*
-* <pre>{@code
-* name    foo
-* size    1024
-* isDir   true
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 键值对视图解析器，将 {@link Map} 渲染为按列对齐的 {@code key   value} 格式。
+ * <p>也支持 POJO — 反射提取所有字段展示。</p>
+ *
+ * <pre>{@code
+ * name    foo
+ * size    1024
+ * isDir   true
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("kv")
 public class KeyValueViewParser implements ViewParser {
@@ -84,11 +84,11 @@ public class KeyValueViewParser implements ViewParser {
     }
 
     /**
-    * 判断是否为 POJO（非简单类型、非集合/数组/Map）。
-    *
-    * @param data 待判断对象
-    * @return POJO 返回 true
-    */
+     * 判断是否为 POJO（非简单类型、非集合/数组/Map）。
+     *
+     * @param data 待判断对象
+     * @return POJO 返回 true
+     */
     private static boolean isPojo(Object data) {
         if (data == null) {
             return false;

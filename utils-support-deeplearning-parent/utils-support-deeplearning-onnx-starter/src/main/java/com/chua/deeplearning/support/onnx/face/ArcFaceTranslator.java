@@ -9,19 +9,19 @@ import ai.djl.translate.TranslatorContext;
 
 
 /**
-* arcface (洞见face w600k_R50) 特征提取 Translator。
-*
-* <p>输入: [1, 3, 112, 112] RGB，归一化 (pixel - 127.5) / 128.0</p>
-* <p>输出: [1, 512] 512 维人脸特征</p>
-*
-* <p>预处理注意：ONNX Runtime 引擎的 NDArray 不支持 transpose/resize 等算子，
-* 因此统一走 {@link OnnxImageProcessor#toModelInput}（Java 侧像素处理 + 一次性建张量），
-* 归一化公式 (pixel - 127.5) / 128.0 对应 mean=127.5、scale=1/128。</p>
-*
-* <p>输出为 512 维原始特征，调用方可按需做 L2 归一化。</p>
-*
-* @author CH
-* @since 2025-01-20
+ * arcface (洞见face w600k_R50) 特征提取 Translator。
+ *
+ * <p>输入: [1, 3, 112, 112] RGB，归一化 (pixel - 127.5) / 128.0</p>
+ * <p>输出: [1, 512] 512 维人脸特征</p>
+ *
+ * <p>预处理注意：ONNX Runtime 引擎的 NDArray 不支持 transpose/resize 等算子，
+ * 因此统一走 {@link OnnxImageProcessor#toModelInput}（Java 侧像素处理 + 一次性建张量），
+ * 归一化公式 (pixel - 127.5) / 128.0 对应 mean=127.5、scale=1/128。</p>
+ *
+ * <p>输出为 512 维原始特征，调用方可按需做 L2 归一化。</p>
+ *
+ * @author CH
+ * @since 2025-01-20
  */
 public class ArcFaceTranslator implements Translator<Image, float[]> {
 

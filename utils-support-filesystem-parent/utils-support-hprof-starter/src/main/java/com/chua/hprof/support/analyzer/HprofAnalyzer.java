@@ -50,13 +50,13 @@ import java.util.Objects;
 public final class HprofAnalyzer {
 
     /**
-    * 集中度规则统计的 Top N 类数量。
-    */
+     * 集中度规则统计的 Top N 类数量。
+     */
     private static final int CONCENTRATION_TOP_N = 10;
 
     /**
-    * JDK 自带类的包前缀（用于区分"非 JDK"）。
-    */
+     * JDK 自带类的包前缀（用于区分"非 JDK"）。
+     */
     private static final String[] JDK_PREFIXES = {
             "java.", "javax.", "jdk.", "com.sun.", "sun.",
             "org.w3c.", "org.xml.", "org.omg."
@@ -69,22 +69,22 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 分析一个已解析的 hprof 结果。
-    *
-    * @param result 解析结果
-    * @return 分析报告
-    */
+     * 分析一个已解析的 hprof 结果。
+     *
+     * @param result 解析结果
+     * @return 分析报告
+     */
     public static HprofAnalysis analyze(HprofParser.Result result) {
         return analyze(result, null);
     }
 
     /**
-    * 分析一个已解析的 hprof 结果，并叠加崩溃语境。
-    *
-    * @param result    解析结果
-    * @param hprofFile hprof 源文件（用于崩溃信号探测，可为 null）
-    * @return 分析报告
-    */
+     * 分析一个已解析的 hprof 结果，并叠加崩溃语境。
+     *
+     * @param result    解析结果
+     * @param hprofFile hprof 源文件（用于崩溃信号探测，可为 null）
+     * @return 分析报告
+     */
     public static HprofAnalysis analyze(HprofParser.Result result, java.io.File hprofFile) {
         Objects.requireNonNull(result, "result");
         HprofAnalysis analysis = new HprofAnalysis();
@@ -189,13 +189,13 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 按包前缀分组统计保留量。
-    *
-    * @param rows        直方图行
-    * @param jdkOnly     true 只统计 JDK 类，false 只统计非 JDK 类
-    * @param limit       分组数量上限
-    * @return 包分组列表（按保留量降序）
-    */
+     * 按包前缀分组统计保留量。
+     *
+     * @param rows        直方图行
+     * @param jdkOnly     true 只统计 JDK 类，false 只统计非 JDK 类
+     * @param limit       分组数量上限
+     * @return 包分组列表（按保留量降序）
+     */
     private static List<PackageGroup> groupByPackage(List<HprofHistogramRow> rows,
                                                       boolean jdkOnly, int limit) {
         Map<String, long[]> groups = new java.util.LinkedHashMap<>();
@@ -221,11 +221,11 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 提取类的包名前缀（到第二个点为止）。
-    *
-    * @param className 类全名
-    * @return 包前缀，无包时返回 "(default)"
-    */
+     * 提取类的包名前缀（到第二个点为止）。
+     *
+     * @param className 类全名
+     * @return 包前缀，无包时返回 "(default)"
+     */
     private static String packageOf(String className) {
         if (className == null) {
             return "(未知)";
@@ -245,11 +245,11 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 是否为 JDK 自带类。
-    *
-    * @param className 类全名
-    * @return true 为 JDK 类
-    */
+     * 是否为 JDK 自带类。
+     *
+     * @param className 类全名
+     * @return true 为 JDK 类
+     */
     private static boolean isJdkClass(String className) {
         if (className == null) {
             return false;
@@ -267,12 +267,12 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 按保留大小排行（降序），跳过零保留行。
-    *
-    * @param rows  源行
-    * @param limit 上限
-    * @return 排行行
-    */
+     * 按保留大小排行（降序），跳过零保留行。
+     *
+     * @param rows  源行
+     * @param limit 上限
+     * @return 排行行
+     */
     private static List<HprofHistogramRow> topRows(List<HprofHistogramRow> rows, int limit) {
         List<HprofHistogramRow> out = new ArrayList<>(Math.min(limit, rows.size()));
         for (HprofHistogramRow row : rows) {
@@ -289,12 +289,12 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 按实例数排行（降序）。
-    *
-    * @param rows  源行
-    * @param limit 上限
-    * @return 排行行
-    */
+     * 按实例数排行（降序）。
+     *
+     * @param rows  源行
+     * @param limit 上限
+     * @return 排行行
+     */
     private static List<HprofHistogramRow> topInstances(List<HprofHistogramRow> rows, int limit) {
         List<HprofHistogramRow> copy = new ArrayList<>(rows);
         copy.sort(Comparator.comparingLong(HprofHistogramRow::getInstanceCount).reversed());
@@ -302,11 +302,11 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 类名是否属于 JDK 集合 / 数组族。
-    *
-    * @param className 类全名
-    * @return java.util 集合、Object[] 与原始数组为 true
-    */
+     * 类名是否属于 JDK 集合 / 数组族。
+     *
+     * @param className 类全名
+     * @return java.util 集合、Object[] 与原始数组为 true
+     */
     private static boolean isCollectionOrArray(String className) {
         if (className == null) {
             return false;
@@ -323,12 +323,12 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 构建结构化 findings 列表。
-    *
-    * @param analysis 进行中的分析
-    * @param result   解析结果
-    * @return finding 列表，严重程度降序
-    */
+     * 构建结构化 findings 列表。
+     *
+     * @param analysis 进行中的分析
+     * @param result   解析结果
+     * @return finding 列表，严重程度降序
+     */
     private static List<HprofFinding> buildFindings(HprofAnalysis analysis, HprofParser.Result result) {
         List<HprofFinding> findings = new ArrayList<>();
         long total = Math.max(analysis.totalRetainedBytes, 1L);
@@ -419,12 +419,12 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 综合用户可见的结论句。
-    *
-    * @param analysis 进行中的分析
-    * @param result   解析结果
-    * @return 结论字符串列表，每段一条
-    */
+     * 综合用户可见的结论句。
+     *
+     * @param analysis 进行中的分析
+     * @param result   解析结果
+     * @return 结论字符串列表，每段一条
+     */
     private static List<String> buildConclusions(HprofAnalysis analysis, HprofParser.Result result) {
         List<String> conclusions = new ArrayList<>();
         conclusions.add("存活堆共 " + result.totalObjectCount()
@@ -462,16 +462,16 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 综合根因判定，并填充结构化字段（供 HTML 报告 / MCP 诊断卡直接消费）。
-    *
-    * <p>产出三部分：一句话结论 {@code rootCauseHeadline}、分节明细
-    * {@code rootCauseSections}（崩溃判定 / 主要根因 / 具体机制 / 对象来源 /
-    * 优先处置），并把分节拼成向后兼容的纯文本 {@code rootCause}。命中
-    * 的具体机制单独存入 {@code rootCauseMechanisms}。</p>
-    *
-    * @param analysis 进行中的分析（crashSignals / oomLikely 已在前序步骤填好）
-    * @param result   解析结果
-    */
+     * 综合根因判定，并填充结构化字段（供 HTML 报告 / MCP 诊断卡直接消费）。
+     *
+     * <p>产出三部分：一句话结论 {@code rootCauseHeadline}、分节明细
+     * {@code rootCauseSections}（崩溃判定 / 主要根因 / 具体机制 / 对象来源 /
+     * 优先处置），并把分节拼成向后兼容的纯文本 {@code rootCause}。命中
+     * 的具体机制单独存入 {@code rootCauseMechanisms}。</p>
+     *
+     * @param analysis 进行中的分析（crashSignals / oomLikely 已在前序步骤填好）
+     * @param result   解析结果
+     */
     private static void buildRootCause(HprofAnalysis analysis, HprofParser.Result result) {
         List<CrashSignal> crashSignals = analysis.crashSignals;
         List<RootCauseSection> sections = new ArrayList<>();
@@ -569,11 +569,11 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 说明"这么多对象"的来源。
-    *
-    * @param analysis 分析
-    * @return 来源说明
-    */
+     * 说明"这么多对象"的来源。
+     *
+     * @param analysis 分析
+     * @return 来源说明
+     */
     private static String objectOrigin(HprofAnalysis analysis) {
         if (analysis.collectionInstances > 1_000_000L) {
             return "无界集合 / 缓存不断累积小对象（" + analysis.collectionInstances
@@ -586,12 +586,12 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 给出第一条最优先处置建议。
-    *
-    * @param analysis 分析
-    * @param result   解析结果
-    * @return 建议文本
-    */
+     * 给出第一条最优先处置建议。
+     *
+     * @param analysis 分析
+     * @param result   解析结果
+     * @return 建议文本
+     */
     private static String firstAction(HprofAnalysis analysis, HprofParser.Result result) {
         if (!analysis.nonJdkPackageGroups.isEmpty()
                 && analysis.nonJdkRetainedBytes > analysis.totalRetainedBytes * 0.2) {
@@ -612,61 +612,61 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * 将比例格式化为百分数字符串。
-    *
-    * @param ratio 0..1
-    * @return 百分比字符串
-    */
+     * 将比例格式化为百分数字符串。
+     *
+     * @param ratio 0..1
+     * @return 百分比字符串
+     */
     private static String percent(double ratio) {
         return String.format(Locale.ROOT, "%.1f%%", ratio * 100.0);
     }
 
     /**
-    * 包分组统计行。
-    *
-    * @param name    包前缀
-    * @param instances 实例总数
-    * @param retained 保留字节总数
-    * @author CH
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 包分组统计行。
+     *
+     * @param name    包前缀
+     * @param instances 实例总数
+     * @param retained 保留字节总数
+     * @author CH
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     public record PackageGroup(String name, long instances, long retained) {
     }
 
     /**
-    * 根因判定的一个分节（如"崩溃判定""主要根因"）。
-    *
-    * <p>结构化暴露，供 HTML 报告、MCP 诊断卡按节渲染，避免各自再解析
-    * 一整段自由文本。</p>
-    *
-    * @param label 分节标题（人类可读）
-    * @param text  分节正文
-    * @author CH
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 根因判定的一个分节（如"崩溃判定""主要根因"）。
+     *
+     * <p>结构化暴露，供 HTML 报告、MCP 诊断卡按节渲染，避免各自再解析
+     * 一整段自由文本。</p>
+     *
+     * @param label 分节标题（人类可读）
+     * @param text  分节正文
+     * @author CH
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     public record RootCauseSection(String label, String text) {
     }
 
     /**
-    * 单个分析 finding。
-    *
-    * @param key      稳定机器 key
-    * @param severity "high" / "medium" / "low" / "info"
-    * @param title    简短人类标题
-    * @param detail   "为什么"说明
-    * @author CH
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 单个分析 finding。
+     *
+     * @param key      稳定机器 key
+     * @param severity "high" / "medium" / "low" / "info"
+     * @param title    简短人类标题
+     * @param detail   "为什么"说明
+     * @author CH
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     public record HprofFinding(String key, String severity, String title, String detail) {
 
         /**
-        * 用于排序的数值严重度（越大越严重）。
-        *
-        * @return 3 high，2 medium，1 low，0 info
-        */
+         * 用于排序的数值严重度（越大越严重）。
+         *
+         * @return 3 high，2 medium，1 low，0 info
+         */
         public int getSeverity() {
             return switch (severity) {
                 case "high" -> 3;
@@ -678,139 +678,139 @@ public final class HprofAnalyzer {
     }
 
     /**
-    * {@link #analyze(HprofParser.Result)} 返回的完整分析报告。
-    *
-    * <p>所有字段一次计算完成；HTML / Markdown / JSON 渲染器直接读取，
-    * 无需重新遍历直方图。</p>
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * {@link #analyze(HprofParser.Result)} 返回的完整分析报告。
+     *
+     * <p>所有字段一次计算完成；HTML / Markdown / JSON 渲染器直接读取，
+     * 无需重新遍历直方图。</p>
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public static final class HprofAnalysis {
 
         /**
-        * 转储中的总保留字节。
-        */
+         * 转储中的总保留字节。
+         */
         public long totalRetainedBytes;
 
         /**
-        * 总存活实例数。
-        */
+         * 总存活实例数。
+         */
         public long totalObjectCount;
 
         /**
-        * 图表用的 Top 保留行。
-        */
+         * 图表用的 Top 保留行。
+         */
         public List<HprofHistogramRow> topByRetained;
 
         /**
-        * 图表用的 Top 实例数行。
-        */
+         * 图表用的 Top 实例数行。
+         */
         public List<HprofHistogramRow> topByInstances;
 
         /**
-        * Top-N 类持有的保留字节。
-        */
+         * Top-N 类持有的保留字节。
+         */
         public long topNRetainedBytes;
 
         /**
-        * Top-N 类占总保留的比例（0..1）。
-        */
+         * Top-N 类占总保留的比例（0..1）。
+         */
         public double topNRetainedRatio;
 
         /**
-        * 集合 + 数组类持有的保留字节。
-        */
+         * 集合 + 数组类持有的保留字节。
+         */
         public long collectionRetainedBytes;
 
         /**
-        * 集合 + 数组类的实例总数。
-        */
+         * 集合 + 数组类的实例总数。
+         */
         public long collectionInstances;
 
         /**
-        * 不同的类加载器类数量。
-        */
+         * 不同的类加载器类数量。
+         */
         public long classLoaderClassCount;
 
         /**
-        * 类加载器类保留字节。
-        */
+         * 类加载器类保留字节。
+         */
         public long classLoaderRetainedBytes;
 
         /**
-        * Top 类加载器行。
-        */
+         * Top 类加载器行。
+         */
         public List<HprofHistogramRow> topClassLoaders;
 
         /**
-        * String / byte[] / char[] 族保留字节。
-        */
+         * String / byte[] / char[] 族保留字节。
+         */
         public long stringAndBinaryRetainedBytes;
 
         /**
-        * GC 根按类型计数。
-        */
+         * GC 根按类型计数。
+         */
         public Map<String, Long> gcRootsByKind;
 
         /**
-        * JDK 类保留字节。
-        */
+         * JDK 类保留字节。
+         */
         public long jdkRetainedBytes;
 
         /**
-        * 非 JDK 类保留字节。
-        */
+         * 非 JDK 类保留字节。
+         */
         public long nonJdkRetainedBytes;
 
         /**
-        * 非 JDK 包分组排行。
-        */
+         * 非 JDK 包分组排行。
+         */
         public List<PackageGroup> nonJdkPackageGroups;
 
         /**
-        * JDK 包分组排行。
-        */
+         * JDK 包分组排行。
+         */
         public List<PackageGroup> jdkPackageGroups;
 
         /**
-        * 结构化 findings，严重程度降序。
-        */
+         * 结构化 findings，严重程度降序。
+         */
         public List<HprofFinding> findingDetails;
 
         /**
-        * 白话结论段落。
-        */
+         * 白话结论段落。
+         */
         public List<String> conclusions;
 
         /**
-        * 根因判定（回答"为什么这么多对象"）。
-        */
+         * 根因判定（回答"为什么这么多对象"）。
+         */
         public String rootCause;
 
         /**
-        * 一句话根因结论（疑似 OOM 判定 + 主要内存来源）。
-        */
+         * 一句话根因结论（疑似 OOM 判定 + 主要内存来源）。
+         */
         public String rootCauseHeadline;
 
         /**
-        * 结构化根因分节（崩溃判定 / 主要根因 / 具体机制 / 对象来源 / 优先处置）。
-        */
+         * 结构化根因分节（崩溃判定 / 主要根因 / 具体机制 / 对象来源 / 优先处置）。
+         */
         public List<RootCauseSection> rootCauseSections;
 
         /**
-        * 命中的具体泄漏机制列表（类加载器 / 无界集合 / 字符串缓存 / 线程池 / JNI）。
-        */
+         * 命中的具体泄漏机制列表（类加载器 / 无界集合 / 字符串缓存 / 线程池 / JNI）。
+         */
         public List<String> rootCauseMechanisms;
 
         /**
-        * 崩溃语境信号（OOM 推断 / hs_err / 堆水位）。
-        */
+         * 崩溃语境信号（OOM 推断 / hs_err / 堆水位）。
+         */
         public List<CrashSignal> crashSignals;
 
         /**
-        * 是否强烈疑似 OOM 崩溃。
-        */
+         * 是否强烈疑似 OOM 崩溃。
+         */
         public boolean oomLikely;
     }
 }

@@ -10,24 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* MySQL 搜索引擎实现，基于 FULLTEXT 索引。
-* <p>
-* MySQL 8.0+ 支持 {@code CREATE FULLTEXT INDEX}，查询使用
-* {@code MATCH(col) AGAINST('keyword' IN NATURAL LANGUAGE MODE)}。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MySQL 搜索引擎实现，基于 FULLTEXT 索引。
+ * <p>
+ * MySQL 8.0+ 支持 {@code CREATE FULLTEXT INDEX}，查询使用
+ * {@code MATCH(col) AGAINST('keyword' IN NATURAL LANGUAGE MODE)}。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MysqlSearchEngineImpl implements SearchEngine {
 
     private final DataSource dataSource; // 数据源
 
     /**
-    * mysql搜索engineimpl。
-    *
-    * @param dataSource 数据源
-    */
+     * mysql搜索engineimpl。
+     *
+     * @param dataSource 数据源
+     */
     public MysqlSearchEngineImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -135,12 +135,12 @@ public class MysqlSearchEngineImpl implements SearchEngine {
     }
 
     /**
-    * 构建 匹配...AGAINST 查询片段。
-    *
-    * @param columns  要搜索的列名列表
-    * @param keyword  搜索关键词
-    * @return SQL 片段，如 {@code MATCH(col1, col2) AGAINST ('keyword' IN NATURAL LANGUAGE MODE)}
-    */
+     * 构建 匹配...AGAINST 查询片段。
+     *
+     * @param columns  要搜索的列名列表
+     * @param keyword  搜索关键词
+     * @return SQL 片段，如 {@code MATCH(col1, col2) AGAINST ('keyword' IN NATURAL LANGUAGE MODE)}
+     */
     public static String matchAgainstSql(List<String> columns, String keyword) {
         if (columns == null || columns.isEmpty()) {
             return "1=0";

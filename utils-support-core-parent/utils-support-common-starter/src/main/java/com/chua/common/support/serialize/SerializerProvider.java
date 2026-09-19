@@ -7,14 +7,14 @@ import java.io.Serializable;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public interface SerializerProvider {
 
     /**
-    * 根据类型获取序列化器。
-    *
-    * @param type 目标类型
-    * @return 序列化器
-    */
+     * 根据类型获取序列化器。
+     *
+     * @param type 目标类型
+     * @return 序列化器
+     */
     <T extends Serializable> Serializer<T> getSerializer(Class<T> type);
 }

@@ -11,32 +11,32 @@ import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
 import java.lang.reflect.Method;
 
 /**
-* {@link CircuitBreaker} 注解的 Spring AOP Advisor。
-*
-* @author CH
-* @since 4.0.0.42
+ * {@link CircuitBreaker} 注解的 Spring AOP Advisor。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @RequiredArgsConstructor
 public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
-    * 创建 熔断中断advisor 实例
-    * @param intercept intercept
-    */
+     * 创建 熔断中断advisor 实例
+     * @param intercept intercept
+     */
     public CircuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         super(new CircuitBreakerAdvice(intercept));
     }
 
     @Override
     /**
-    * Matches
-    *
-    * @param method 方法
-    * @param targetClass 目标类
-    * @return 匹配的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * Matches
+     *
+     * @param method 方法
+     * @param targetClass 目标类
+     * @return 匹配的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(CircuitBreaker.class);
     }

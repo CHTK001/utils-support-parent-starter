@@ -16,18 +16,18 @@ package com.chua.common.support.objects.environment;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public interface EnvironmentChangeListener {
 
     /**
-    * 配置变更回调。
-    *
-    * <p>当配置属性发生变化时被调用。key、oldValue、newValue 都可能为 null。
-    * 例如 {@link Environment#refresh} 会触发 键 为 空 的变更通知，表示批量刷新。</p>
-    *
-    * @param key      变更的配置键，空 表示批量刷新
-    * @param oldValue 变更前的值
-    * @param newValue 变更后的值
-    */
+     * 配置变更回调。
+     *
+     * <p>当配置属性发生变化时被调用。key、oldValue、newValue 都可能为 null。
+     * 例如 {@link Environment#refresh} 会触发 键 为 空 的变更通知，表示批量刷新。</p>
+     *
+     * @param key      变更的配置键，空 表示批量刷新
+     * @param oldValue 变更前的值
+     * @param newValue 变更后的值
+     */
     void onChange(String key, Object oldValue, Object newValue);
 }

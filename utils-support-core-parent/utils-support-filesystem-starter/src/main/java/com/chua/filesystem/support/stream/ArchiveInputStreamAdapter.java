@@ -7,26 +7,26 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 /**
-* Arch Linux Linux输入流适配器
-* <p>
-* 将commons-compress的Arch Linux Linux输入流适配为项目接口
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Arch Linux Linux输入流适配器
+ * <p>
+ * 将commons-compress的Arch Linux Linux输入流适配为项目接口
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
-    * 原始Arch Linux Linux输入流（commons-compress）
-    */
+     * 原始Arch Linux Linux输入流（commons-compress）
+     */
     private final org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate;
 
     /**
-    * 构造函数
-    *
-    * @param delegate commons-compress的Arch Linux Linux Linux输入流
-    */
+     * 构造函数
+     *
+     * @param delegate commons-compress的Arch Linux Linux Linux输入流
+     */
     public ArchiveInputStreamAdapter(org.apache.commons.compress.archivers.ArchiveInputStream<? extends org.apache.commons.compress.archivers.ArchiveEntry> delegate) {
         this.delegate = delegate;
     }
@@ -34,10 +34,10 @@ public class ArchiveInputStreamAdapter implements ArchiveInputStream {
     @Override
     @Nullable
     /**
-    * 获取下一个entry
-    *
-    * @return 获取下一个entry的结果
-    */
+     * 获取下一个entry
+     *
+     * @return 获取下一个entry的结果
+     */
     public ArchiveEntry getNextEntry() throws IOException {
         var entry = delegate.getNextEntry();
         if (entry == null) {

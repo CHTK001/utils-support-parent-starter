@@ -17,77 +17,77 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* minimind 因果语言模型 Translator。
-* <p>
-* minimind 是一个基于 通义千问3 架构的小型中文语言模型（~64M 参数），
-* 使用 rmsnorm + rope + swiglu + GQA（8 attention heads / 4 KV heads）。
-* 模型通过 pytorch 2.13 + minimind/模型/模型_minimind.py 导出为 ONNX
-* （opset 14, fp32, dynamic 批量 + sequence, 单文件 inline 权重）。
-* </p>
-* <p>
-* 本 Translator 实现 字符串 → 字符串 的文本生成：
-* <ol>
-*   <li>使用纯 Java BPE tokenizer（{@link MiniMindTokenizer}）分词，绕过 DJL
-*       自带的 Rust tokenizers（与 minimind 新版 tokenizer.json 兼容性差）</li>
-*   <li>通过 DJL {@code ctx.getModel().getBlock().forward(...)} 走标准 ONNX 推理，
-* 每次一步（自回归生成），直到遇到 EOS（{@code <|im_end|>}, 标识=2）或达到最大长度</li>
-*   <li>将生成的 token 解码为文本返回</li>
-* </ol>
-* </p>
-* <p>
-* 模型输入：{@code input_ids} [批量, seq] int64 + （可选）{@code attention_mask}<br>
-* 模型输出：{@code logits} [批量, seq, 6400] float32
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * minimind 因果语言模型 Translator。
+ * <p>
+ * minimind 是一个基于 通义千问3 架构的小型中文语言模型（~64M 参数），
+ * 使用 rmsnorm + rope + swiglu + GQA（8 attention heads / 4 KV heads）。
+ * 模型通过 pytorch 2.13 + minimind/模型/模型_minimind.py 导出为 ONNX
+ * （opset 14, fp32, dynamic 批量 + sequence, 单文件 inline 权重）。
+ * </p>
+ * <p>
+ * 本 Translator 实现 字符串 → 字符串 的文本生成：
+ * <ol>
+ *   <li>使用纯 Java BPE tokenizer（{@link MiniMindTokenizer}）分词，绕过 DJL
+ *       自带的 Rust tokenizers（与 minimind 新版 tokenizer.json 兼容性差）</li>
+ *   <li>通过 DJL {@code ctx.getModel().getBlock().forward(...)} 走标准 ONNX 推理，
+ * 每次一步（自回归生成），直到遇到 EOS（{@code <|im_end|>}, 标识=2）或达到最大长度</li>
+ *   <li>将生成的 token 解码为文本返回</li>
+ * </ol>
+ * </p>
+ * <p>
+ * 模型输入：{@code input_ids} [批量, seq] int64 + （可选）{@code attention_mask}<br>
+ * 模型输出：{@code logits} [批量, seq, 6400] float32
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class MiniMindTranslator implements Translator<String, String> {
 
     /**
-    * 最大输入长度
-    */
+     * 最大输入长度
+     */
     private static final int MAX_INPUT_LENGTH = 256;
 
     /**
-    * 最大生成 令牌 数
-    */
+     * 最大生成 令牌 数
+     */
     private static final int MAX_NEW_TOKENS = 64;
 
     /**
-    * EOS 令牌 标识（{@code <|im_end|>}，minimind 的对话结束符）
-    */
+     * EOS 令牌 标识（{@code <|im_end|>}，minimind 的对话结束符）
+     */
     private static final long EOS_TOKEN_ID = 2L;
 
     /**
-    * BOS 令牌 标识（{@code <|im_start|>}）
-    */
+     * BOS 令牌 标识（{@code <|im_start|>}）
+     */
     private static final long BOS_TOKEN_ID = 1L;
 
     /**
-    * 纯 Java BPE tokenizer
-    */
+     * 纯 Java BPE tokenizer
+     */
     private MiniMindTokenizer tokenizer;
 
     /**
-    * 当前输入文本
-    */
+     * 当前输入文本
+     */
     private String currentInput;
 
     /**
-    * 缓存分词结果
-    */
+     * 缓存分词结果
+     */
     private int[] cachedIds;
 
     /**
-    * DJL 参数存储（用于 block.远期）
-    */
+     * DJL 参数存储（用于 block.远期）
+     */
     private final ParameterStore parameterStore = new ParameterStore();
 
     /**
-    * 模型是否需要 attention_mask 输入
-    */
+     * 模型是否需要 attention_mask 输入
+     */
     private boolean hasAttentionMask;
 
     @Override
@@ -185,13 +185,13 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     /**
-    * 贪婪解码生成文本。
-    * <p>
-    * 使用 DJL block.远期 多次自回归调用。
-    * </p>
-    * @param ctx ctx
-    * @return generateGreedy的结果
-    */
+     * 贪婪解码生成文本。
+     * <p>
+     * 使用 DJL block.远期 多次自回归调用。
+     * </p>
+     * @param ctx ctx
+     * @return generateGreedy的结果
+     */
     private String generateGreedy(TranslatorContext ctx) {
         long startTime = System.currentTimeMillis();
         int generatedCount = 0;
@@ -283,10 +283,10 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     /**
-    * argmax
-    * @param logits logits
-    * @return argmax的结果
-    */
+     * argmax
+     * @param logits logits
+     * @return argmax的结果
+     */
     private static int argmax(float[] logits) {
         int maxIdx = 0;
         float maxVal = logits[0];
@@ -300,10 +300,10 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     /**
-    * 解析模型根目录
-    * @param modelPath 模型路径
-    * @return resolve模型根的结果
-    */
+     * 解析模型根目录
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -315,11 +315,11 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     /**
-    * 在模型目录中查找指定文件
-    * @param root 根
-    * @param name 名称
-    * @return find文件的结果
-    */
+     * 在模型目录中查找指定文件
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         if (root == null) {
             return null;
@@ -338,10 +338,10 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     /**
-    * 查找 ONNX 模型文件
-    * @param modelRoot 模型根
-    * @return findonnx文件的结果
-    */
+     * 查找 ONNX 模型文件
+     * @param modelRoot 模型根
+     * @return findonnx文件的结果
+     */
     private static Path findOnnxFile(Path modelRoot) {
         Path onnxPath = modelRoot.resolve("model.onnx");
         if (Files.exists(onnxPath)) {

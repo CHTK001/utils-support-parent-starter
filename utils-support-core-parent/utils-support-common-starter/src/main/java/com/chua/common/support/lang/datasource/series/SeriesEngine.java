@@ -42,38 +42,38 @@ import java.util.Map;
 public interface SeriesEngine {
 
     /**
-    * 引擎标识（与配置 {@code monitor.timeseries.engine} 对应）
-    *
-    * @return 引擎名，如 datasource / redis / influxdb
-    */
+     * 引擎标识（与配置 {@code monitor.timeseries.engine} 对应）
+     *
+     * @return 引擎名，如 datasource / redis / influxdb
+     */
     String engine();
 
     /**
-    * 是否可用（依赖装配成功且服务可达）
-    *
-    * @return true 表示可写入/可查询
-    */
+     * 是否可用（依赖装配成功且服务可达）
+     *
+     * @return true 表示可写入/可查询
+     */
     boolean isAvailable();
 
     /**
-    * 写入单个指标点。
-    *
-    * @param target    目标表/测量名，如 ms_monitor_metric_cpu
-    * @param monitorId 监控目标标识
-    * @param metricName 指标名，如 cpu_usage
-    * @param value     指标值
-    * @param timestamp 时间戳（毫秒）
-    */
+     * 写入单个指标点。
+     *
+     * @param target    目标表/测量名，如 ms_monitor_metric_cpu
+     * @param monitorId 监控目标标识
+     * @param metricName 指标名，如 cpu_usage
+     * @param value     指标值
+     * @param timestamp 时间戳（毫秒）
+     */
     void writePoint(String target, Long monitorId, String metricName, double value, long timestamp);
 
     /**
-    * 批量写入指标点。
-    *
-    * @param target    目标表/测量名
-    * @param monitorId 监控目标标识
-    * @param metrics   指标名 → 指标值
-    * @param timestamp 时间戳（毫秒）
-    */
+     * 批量写入指标点。
+     *
+     * @param target    目标表/测量名
+     * @param monitorId 监控目标标识
+     * @param metrics   指标名 → 指标值
+     * @param timestamp 时间戳（毫秒）
+     */
     default void writeBatch(String target, Long monitorId, Map<String, Double> metrics, long timestamp) {
         if (metrics == null || metrics.isEmpty()) {
             return;
@@ -84,13 +84,13 @@ public interface SeriesEngine {
     }
 
     /**
-    * 均值曲线查询（前端折线图）。
-    *
-    * @param target    目标表/测量名，如 ms_monitor_metric_cpu
-    * @param monitorId  监控目标标识
-    * @param hours     回溯小时数
-    * @param window    聚合窗口，如 1m/5m/1h
-    * @return [[ts, value], ...] 升序
-    */
+     * 均值曲线查询（前端折线图）。
+     *
+     * @param target    目标表/测量名，如 ms_monitor_metric_cpu
+     * @param monitorId  监控目标标识
+     * @param hours     回溯小时数
+     * @param window    聚合窗口，如 1m/5m/1h
+     * @return [[ts, value], ...] 升序
+     */
     List<List<Object>> series(String target, Long monitorId, int hours, String window);
 }

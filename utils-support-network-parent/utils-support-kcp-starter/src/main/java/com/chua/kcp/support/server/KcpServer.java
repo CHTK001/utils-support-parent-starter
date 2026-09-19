@@ -42,166 +42,166 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
-* 基于 kcp-基础 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
-*
-* <p>KCP 是基于 UDP 的可靠传输协议，本服务器在 KCP 之上提供主题发布、订阅、
-* 会话管理和消息下行推送能力，实现方式与 {@code TcpServer} 保持一致。</p>
-*
-* <p>通过 SPI 以 {@code "kcp"} 类型注册，可通过
-* {@code ServerBuilder.type("kcp")} 创建，消息协议采用 {@code topic:payload} 文本格式，
-* 客户端以 {@code register:clientId} 完成注册。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 kcp-基础 的 KCP 消息服务器实现（消息型，协议分类与 MQTT 一致）。
+ *
+ * <p>KCP 是基于 UDP 的可靠传输协议，本服务器在 KCP 之上提供主题发布、订阅、
+ * 会话管理和消息下行推送能力，实现方式与 {@code TcpServer} 保持一致。</p>
+ *
+ * <p>通过 SPI 以 {@code "kcp"} 类型注册，可通过
+ * {@code ServerBuilder.type("kcp")} 创建，消息协议采用 {@code topic:payload} 文本格式，
+ * 客户端以 {@code register:clientId} 完成注册。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("kcp")
 @Slf4j
 public class KcpServer extends AbstractServer {
 
     /**
-    * KCP 会话标识（conv），两端保持一致
-    */
+     * KCP 会话标识（conv），两端保持一致
+     */
     public static final int KCP_CONV = 0x4b4350;
 
     /**
-    * KCP 最大传输单元（字节）
-    */
+     * KCP 最大传输单元（字节）
+     */
     /**
-    * KCP MTU（最大传输单元）
-    * <p>KCP 按 MTU 分包发送：MTU 越小单条消息分包越多、ACK 次数越多、吞吐越低。
-    * 512 → 1400（udp 承载上限内）减少分包与确认开销，是 tcp/udp 吞吐差距的重要来源之一。</p>
-    */
+     * KCP MTU（最大传输单元）
+     * <p>KCP 按 MTU 分包发送：MTU 越小单条消息分包越多、ACK 次数越多、吞吐越低。
+     * 512 → 1400（udp 承载上限内）减少分包与确认开销，是 tcp/udp 吞吐差距的重要来源之一。</p>
+     */
     private static final int KCP_MTU = 1400;
 
     /**
-    * KCP 更新间隔（毫秒）
-    * <p>KCP interval 决定发送 flush 频率：interval 越大每批数据等待越久、吞吐越低。
-    * 默认 20ms 严重限制下行吞吐（实测约 1.3k ops/s vs tcp 5万+），
-    * 降为 1ms 最大化发送频率（20→5ms +63%，5→2ms +18%，2→1ms 再提升）；
-    * 配合 nodelay 快速模式（关拥塞控制+快速重传）接近 udp/tcp 量级。</p>
-    */
+     * KCP 更新间隔（毫秒）
+     * <p>KCP interval 决定发送 flush 频率：interval 越大每批数据等待越久、吞吐越低。
+     * 默认 20ms 严重限制下行吞吐（实测约 1.3k ops/s vs tcp 5万+），
+     * 降为 1ms 最大化发送频率（20→5ms +63%，5→2ms +18%，2→1ms 再提升）；
+     * 配合 nodelay 快速模式（关拥塞控制+快速重传）接近 udp/tcp 量级。</p>
+     */
     private static final int KCP_INTERVAL = 1;
 
     /**
-    * KCP 快速重传阈值
-    */
+     * KCP 快速重传阈值
+     */
     private static final int KCP_FAST_RESEND = 2;
 
     /**
-    * 客户端注册指令前缀
-    */
+     * 客户端注册指令前缀
+     */
     private static final String CMD_REGISTER = "register";
 
     /**
-    * 注册确认指令前缀
-    */
+     * 注册确认指令前缀
+     */
     private static final String CMD_REGISTERED = "registered:";
 
     /**
-    * 通配订阅主题
-    */
+     * 通配订阅主题
+     */
     private static final String TOPIC_WILDCARD = "#";
 
     /**
-    * 客户端连接表（客户端id -> ukcp）
-    */
+     * 客户端连接表（客户端id -> ukcp）
+     */
     private final Map<String, Ukcp> sessions = new HashMap<>();
 
     /**
-    * 批量发送队列（连接 -> 待发送消息字节，无锁队列）
-    * <p>publish/send 只入队，由批量 flusher 合并多条消息为一个 KCP 包写出，
-    * 显著减少逐条 写入 与 ACK 确认次数（KCP 可靠确认是下行吞吐主瓶颈）。</p>
-    */
+     * 批量发送队列（连接 -> 待发送消息字节，无锁队列）
+     * <p>publish/send 只入队，由批量 flusher 合并多条消息为一个 KCP 包写出，
+     * 显著减少逐条 写入 与 ACK 确认次数（KCP 可靠确认是下行吞吐主瓶颈）。</p>
+     */
     private final Map<Ukcp, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> batchQueues =
             new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
-    * 批量 flusher 列表（虚拟线程，按连接 哈希 分片并发冲刷）。
-    */
+     * 批量 flusher 列表（虚拟线程，按连接 哈希 分片并发冲刷）。
+     */
     private volatile List<Thread> batchFlushers = new ArrayList<>();
 
     /**
-    * 批量 flusher 生命周期标志。
-    * <p>不能复用 {@code running}（AbstractServer.start() 先 doStart 后置 running=true，
-    * 执行启动 内启动的 flusher 会因 running=false 立即退出导致批量队列永不冲刷）。</p>
-    */
+     * 批量 flusher 生命周期标志。
+     * <p>不能复用 {@code running}（AbstractServer.start() 先 doStart 后置 running=true，
+     * 执行启动 内启动的 flusher 会因 running=false 立即退出导致批量队列永不冲刷）。</p>
+     */
     private final java.util.concurrent.atomic.AtomicBoolean batchRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     /**
-    * 客户端元数据集合（客户端id -> 映射）
-    */
+     * 客户端元数据集合（客户端id -> 映射）
+     */
     private final Map<String, Map<String, Object>> sessionMetadata = new HashMap<>();
 
     /**
-    * 同步事件监听器列表
-    */
+     * 同步事件监听器列表
+     */
     private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 主题订阅处理器集合（topic -> 处理器 列表）
-    */
+     * 主题订阅处理器集合（topic -> 处理器 列表）
+     */
     private final Map<String, List<BiConsumer<String, String>>> topicSubscribers = new ConcurrentHashMapAliasMap();
 
     /**
-    * 连接事件处理器列表
-    */
+     * 连接事件处理器列表
+     */
     private final List<Consumer<String>> connectListeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 断开事件处理器列表
-    */
+     * 断开事件处理器列表
+     */
     private final List<Consumer<String>> disconnectListeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 错误事件处理器列表
-    */
+     * 错误事件处理器列表
+     */
     private final List<Consumer<Throwable>> errorListeners = new CopyOnWriteArrayList<>();
 
     /**
-    * on打开 注解方法列表
-    */
+     * on打开 注解方法列表
+     */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
 
     /**
-    * on关闭 注解方法列表
-    */
+     * on关闭 注解方法列表
+     */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
 
     /**
-    * on消息 注解方法列表
-    */
+     * on消息 注解方法列表
+     */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
 
     /**
-    * on错误 注解方法列表
-    */
+     * on错误 注解方法列表
+     */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     /**
-    * Netty 事件循环组（kcp-基础 复用）
-    */
+     * Netty 事件循环组（kcp-基础 复用）
+     */
     private EventLoopGroup eventLoopGroup;
 
     /**
-    * 虚拟线程执行器（响应式 IO 回调）
-    */
+     * 虚拟线程执行器（响应式 IO 回调）
+     */
     private java.util.concurrent.ExecutorService virtualExecutor;
 
     /**
-    * kcp-基础 服务器实例
-    */
+     * kcp-基础 服务器实例
+     */
     private kcp.KcpServer kcpBaseServer;
 
     /**
-    * KCP 配置（绑定到 kcp-基础 通道配置）
-    */
+     * KCP 配置（绑定到 kcp-基础 通道配置）
+     */
     private ChannelConfig channelConfig;
 
     /**
-    * 创建 KCP 消息服务器。
-    *
-    * @param setting 服务器配置
-    */
+     * 创建 KCP 消息服务器。
+     *
+     * @param setting 服务器配置
+     */
     public KcpServer(ServerSetting setting) {
         super(setting);
     }
@@ -262,13 +262,13 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 批量冲刷（分片）：只处理本分片内的连接，多个 flusher 并发执行。
-    * <p>合并多条消息为一次 {@code ukcp.write}，减少 KCP 包数 → 减少 ACK 确认次数，
-    * 直击"可靠确认是下行吞吐主瓶颈"。</p>
-    *
-    * @param shard 当前分片号
-    * @param total 分片总数
-    */
+     * 批量冲刷（分片）：只处理本分片内的连接，多个 flusher 并发执行。
+     * <p>合并多条消息为一次 {@code ukcp.write}，减少 KCP 包数 → 减少 ACK 确认次数，
+     * 直击"可靠确认是下行吞吐主瓶颈"。</p>
+     *
+     * @param shard 当前分片号
+     * @param total 分片总数
+     */
     private void flushBatches(int shard, int total) {
         int idx = 0;
         for (Map.Entry<Ukcp, java.util.concurrent.ConcurrentLinkedQueue<byte[]>> entry : batchQueues.entrySet()) {
@@ -336,22 +336,22 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 批量发送：消息入队（无锁），由批量 flusher 合并为一个 KCP 包写出。
-    *
-    * @param ukcp  连接
-    * @param bytes 消息字节
-    */
+     * 批量发送：消息入队（无锁），由批量 flusher 合并为一个 KCP 包写出。
+     *
+     * @param ukcp  连接
+     * @param bytes 消息字节
+     */
     private void sendTo(Ukcp ukcp, byte[] bytes) {
         batchQueues.computeIfAbsent(ukcp, k -> new java.util.concurrent.ConcurrentLinkedQueue<>()).offer(bytes);
     }
 
     /**
-    * 向指定客户端发送消息。
-    *
-    * @param clientId 客户端标识
-    * @param topic    主题
-    * @param message  消息内容
-    */
+     * 向指定客户端发送消息。
+     *
+     * @param clientId 客户端标识
+     * @param topic    主题
+     * @param message  消息内容
+     */
     public void send(String clientId, String topic, Object message) {
         Ukcp ukcp = sessions.get(clientId);
         if (ukcp == null) {
@@ -360,11 +360,11 @@ public class KcpServer extends AbstractServer {
         sendTo(ukcp, topic + ":" + message);
     }
     /**
-    * 发送转为
-    *
-    * @param ukcp ukcp
-    * @param text 文本
-    */
+     * 发送转为
+     *
+     * @param ukcp ukcp
+     * @param text 文本
+     */
     private void sendTo(Ukcp ukcp, String text) {
         // 统一以 \n 结尾：客户端按行切分（批量聚合后跨包缓冲依赖 \n 边界），
  // 注册确认 注册:xxx 也必须带 \n，否则客户端永远等不到 注册
@@ -377,75 +377,75 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 获取当前所有已连接的客户端标识列表。
-    * @return 获取连接客户端的结果
-    */
+     * 获取当前所有已连接的客户端标识列表。
+     * @return 获取连接客户端的结果
+     */
     public List<String> getConnectedClients() {
         return new ArrayList<>(sessions.keySet());
     }
 
     /**
-    * 获取指定客户端的元数据。
-    * @param clientId 客户端标识
-    * @return 获取客户端metadata的结果
-    */
+     * 获取指定客户端的元数据。
+     * @param clientId 客户端标识
+     * @return 获取客户端metadata的结果
+     */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = sessionMetadata.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     /**
-    * 注册主题订阅处理器。
-    * @param topic topic
-    * @param handler 处理器
-    * @return on订阅的结果
-    */
+     * 注册主题订阅处理器。
+     * @param topic topic
+     * @param handler 处理器
+     * @return on订阅的结果
+     */
     public KcpServer onSubscribe(String topic, BiConsumer<String, String> handler) {
         topicSubscribers.computeIfAbsent(topic, key -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
     /**
-    * 添加监听器
-    *
-    * @param listener 监听器
-    */
+     * 添加监听器
+     *
+     * @param listener 监听器
+     */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     /**
-    * 移除监听器
-    *
-    * @param listener 监听器
-    */
+     * 移除监听器
+     *
+     * @param listener 监听器
+     */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     /**
-    * On连接
-    *
-    * @param listener 监听器
-    */
+     * On连接
+     *
+     * @param listener 监听器
+     */
     public void onConnect(Consumer<String> listener) {
         connectListeners.add(listener);
     }
 
     /**
-    * On断开
-    *
-    * @param listener 监听器
-    */
+     * On断开
+     *
+     * @param listener 监听器
+     */
     public void onDisconnect(Consumer<String> listener) {
         disconnectListeners.add(listener);
     }
 
     /**
-    * On记录错误
-    *
-    * @param listener 监听器
-    */
+     * On记录错误
+     *
+     * @param listener 监听器
+     */
     public void onError(Consumer<Throwable> listener) {
         errorListeners.add(listener);
     }
@@ -496,10 +496,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 通知连接监听器
-    *
-    * @param clientId 客户端标识
-    */
+     * 通知连接监听器
+     *
+     * @param clientId 客户端标识
+     */
     private void notifyConnectListeners(String clientId) {
         for (Consumer<String> listener : connectListeners) {
             try {
@@ -511,10 +511,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 通知断开监听器
-    *
-    * @param clientId 客户端标识
-    */
+     * 通知断开监听器
+     *
+     * @param clientId 客户端标识
+     */
     private void notifyDisconnectListeners(String clientId) {
         for (Consumer<String> listener : disconnectListeners) {
             try {
@@ -526,10 +526,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 通知记录错误监听器
-    *
-    * @param cause cause
-    */
+     * 通知记录错误监听器
+     *
+     * @param cause cause
+     */
     private void notifyErrorListeners(Throwable cause) {
         for (Consumer<Throwable> listener : errorListeners) {
             try {
@@ -541,10 +541,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 分发annotated方法
-    *
-    * @param methods 方法
-    */
+     * 分发annotated方法
+     *
+     * @param methods 方法
+     */
     private void dispatchAnnotatedMethods(List<AnnotatedMethod> methods) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -559,11 +559,11 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 分发Annotated发布
-    *
-    * @param topic topic
-    * @param payload payload
-    */
+     * 分发Annotated发布
+     *
+     * @param topic topic
+     * @param payload payload
+     */
     private void dispatchAnnotatedPublish(String topic, String payload) {
         ObjectContext context = getObjectContext();
         if (context == null) {
@@ -580,12 +580,12 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * Safe调用
-    *
-    * @param bean Bean
-    * @param method 方法
-    * @param args 参数
-    */
+     * Safe调用
+     *
+     * @param bean Bean
+     * @param method 方法
+     * @param args 参数
+     */
     private void safeInvoke(Object bean, Method method, Object... args) {
         try {
             ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
@@ -596,12 +596,12 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 匹配topic
-    *
-    * @param pattern 模式
-    * @param topic topic
-    * @return 匹配topic的结果
-    */
+     * 匹配topic
+     *
+     * @param pattern 模式
+     * @param topic topic
+     * @return 匹配topic的结果
+     */
     private static boolean matchTopic(String pattern, String topic) {
         if (TOPIC_WILDCARD.equals(pattern)) {
             return true;
@@ -628,10 +628,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * kcp-基础 的 kcp监听器 实现，把会话与 OAuth 业务绑定。
-    * @author CH
-    * @since 4.0.0
-    */
+     * kcp-基础 的 kcp监听器 实现，把会话与 OAuth 业务绑定。
+     * @author CH
+     * @since 4.0.0
+     */
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
@@ -692,11 +692,11 @@ public class KcpServer extends AbstractServer {
         }
 
         /**
-        * 处理线
-        *
-        * @param ukcp ukcp
-        * @param line 线
-        */
+         * 处理线
+         *
+         * @param ukcp ukcp
+         * @param line 线
+         */
         private void handleLine(Ukcp ukcp, String line) {
             if (line.isEmpty()) {
                 return;
@@ -730,11 +730,11 @@ public class KcpServer extends AbstractServer {
         }
 
         /**
-        * 处理注册
-        *
-        * @param ukcp ukcp
-        * @param clientId 客户端标识
-        */
+         * 处理注册
+         *
+         * @param ukcp ukcp
+         * @param clientId 客户端标识
+         */
         private void handleRegister(Ukcp ukcp, String clientId) {
             kcp.User user = ukcp.user();
             String oldId = user != null && user.getCache() instanceof String
@@ -762,12 +762,12 @@ public class KcpServer extends AbstractServer {
         }
 
         /**
-        * 分发消息
-        *
-        * @param clientId 客户端标识
-        * @param topic topic
-        * @param payload payload
-        */
+         * 分发消息
+         *
+         * @param clientId 客户端标识
+         * @param topic topic
+         * @param payload payload
+         */
         private void dispatchMessage(String clientId, String topic, String payload) {
  // 消息链路接入 服务端过滤器 体系：构造协议无关的 请求/响应，走统一过滤器链，
             // 链尾执行订阅分发/注解分发/监听器通知
@@ -789,11 +789,11 @@ public class KcpServer extends AbstractServer {
         }
 
         /**
-        * 分发消息到订阅者、注解方法与监听器（过滤器 链尾业务逻辑）。
-        * @param clientId 客户端标识
-        * @param topic topic
-        * @param payload payload
-        */
+         * 分发消息到订阅者、注解方法与监听器（过滤器 链尾业务逻辑）。
+         * @param clientId 客户端标识
+         * @param topic topic
+         * @param payload payload
+         */
         private void dispatchToHandlers(String clientId, String topic, String payload) {
             for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicSubscribers.entrySet()) {
                 if (matchTopic(entry.getKey(), topic)) {
@@ -813,21 +813,21 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * KCP 消息的协议无关请求视图（topic → 路径，payload → 主体，客户端id → 远程）。
-    */
+     * KCP 消息的协议无关请求视图（topic → 路径，payload → 主体，客户端id → 远程）。
+     */
     private static final class KcpServerRequest extends AbstractServerRequest {
 
         /**
-        * 客户端标识
-        */
+         * 客户端标识
+         */
         private final String clientId;
         /**
-        * 消息主题
-        */
+         * 消息主题
+         */
         private final String topic;
         /**
-        * 消息载荷字节数组
-        */
+         * 消息载荷字节数组
+         */
         private final byte[] payload;
 
         KcpServerRequest(String clientId, String topic, String payload) {
@@ -886,8 +886,8 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-        * KCP 消息的协议无关响应视图（KCP 无 HTTP 响应体，仅用于 过滤器 链语义）。
-        */
+     * KCP 消息的协议无关响应视图（KCP 无 HTTP 响应体，仅用于 过滤器 链语义）。
+     */
     private static final class KcpServerResponse extends AbstractServerResponse {
 
         @Override
@@ -904,29 +904,29 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-        * annotated方法
-        *
-        * @param beanClass Bean类
-        * @param method 方法
-        * @return annotated方法的结果
-        */
+     * annotated方法
+     *
+     * @param beanClass Bean类
+     * @param method 方法
+     * @return annotated方法的结果
+     */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {
     }
 
     /**
-    * annotated消息
-    *
-    * @param beanClass Bean类
-    * @param method 方法
-    * @param topic topic
-    * @return annotated消息的结果
-    */
+     * annotated消息
+     *
+     * @param beanClass Bean类
+     * @param method 方法
+     * @param topic topic
+     * @return annotated消息的结果
+     */
     private record AnnotatedMessage(Class<?> beanClass, Method method, String topic) {
     }
 
     /**
-    * 用 并发哈希映射 包装 topic->处理器（避免再写一个类）。
-    */
+     * 用 并发哈希映射 包装 topic->处理器（避免再写一个类）。
+     */
     private static final class ConcurrentHashMapAliasMap extends java.util.concurrent.ConcurrentHashMap<String, List<BiConsumer<String, String>>> {
     }
 }

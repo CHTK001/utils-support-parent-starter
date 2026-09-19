@@ -9,7 +9,7 @@ import java.nio.file.Path;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class WalFactory {
 
     /** 创建 wal工厂 实例 */

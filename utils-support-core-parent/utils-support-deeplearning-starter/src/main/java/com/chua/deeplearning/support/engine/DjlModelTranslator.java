@@ -16,62 +16,62 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* DJL 翻译器包装。
-* <p>将 DJL Translator 适配为框架 {@link ITranslator}，并按路径选择引擎。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * DJL 翻译器包装。
+ * <p>将 DJL Translator 适配为框架 {@link ITranslator}，并按路径选择引擎。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DjlModelTranslator implements ITranslator<Object, Object>, AutoCloseable {
 
     /**
-    * 模型名称。
-    */
+     * 模型名称。
+     */
     private final String modelName;
 
     /**
-    * 模型工厂。
-    */
+     * 模型工厂。
+     */
     private final DjlModelFactory factory;
 
     /**
-    * DJL Translator 输入是否为图像（处理输入 第一参数为 {@link Image}）。
-    */
+     * DJL Translator 输入是否为图像（处理输入 第一参数为 {@link Image}）。
+     */
     private final boolean imageInput;
 
     /**
-    * 构造翻译器（自动推断引擎）。
-    *
-    * @param modelName     模型名称
-    * @param modelPath     模型路径
-    * @param djlTranslator DJL Translator
-    */
+     * 构造翻译器（自动推断引擎）。
+     *
+     * @param modelName     模型名称
+     * @param modelPath     模型路径
+     * @param djlTranslator DJL Translator
+     */
     public DjlModelTranslator(String modelName, Path modelPath, Translator<?, ?> djlTranslator) {
         this(modelName, modelPath, null, djlTranslator);
     }
 
     /**
-    * 构造翻译器（设备跟随全局设置）。
-    *
-    * @param modelName     模型名称
-    * @param modelPath     模型路径
-    * @param engineName    引擎名称
-    * @param djlTranslator DJL Translator
-    */
+     * 构造翻译器（设备跟随全局设置）。
+     *
+     * @param modelName     模型名称
+     * @param modelPath     模型路径
+     * @param engineName    引擎名称
+     * @param djlTranslator DJL Translator
+     */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName, Translator<?, ?> djlTranslator) {
         this(modelName, modelPath, engineName, null, djlTranslator);
     }
 
     /**
-    * 构造翻译器（指定设备设置）。
-    *
-    * @param modelName      模型名称
-    * @param modelPath      模型路径
-    * @param engineName     引擎名称
-    * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 空
-    * @param djlTranslator  DJL Translator
-    */
+     * 构造翻译器（指定设备设置）。
+     *
+     * @param modelName      模型名称
+     * @param modelPath      模型路径
+     * @param engineName     引擎名称
+     * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 空
+     * @param djlTranslator  DJL Translator
+     */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName,
                               String deviceSetting, Translator<?, ?> djlTranslator) {
         this.modelName = modelName;
@@ -83,11 +83,11 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     /**
-    * 判断 DJL Translator 的 处理输入 是否接收 {@link Image}。
-    *
-    * @param djlTranslator DJL Translator
-    * @return true 表示图像输入
-    */
+     * 判断 DJL Translator 的 处理输入 是否接收 {@link Image}。
+     *
+     * @param djlTranslator DJL Translator
+     * @return true 表示图像输入
+     */
     private static boolean isImageInput(Translator<?, ?> djlTranslator) {
         if (djlTranslator == null) {
             return false;
@@ -151,17 +151,17 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     }
 
     /**
-    * 将 DJL 推理输出适配为框架类型。
-    * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，适配为
-    * {@code List<PredictRectangle>}（归一化坐标×图像尺寸转像素）；
-    * 分类模型返回 {@link Classifications}，适配为最可能类别名（字符串）。
-    * 非这两种输出原样返回。</p>
-    *
-    * @param result DJL 推理输出
-    * @param imgW   输入图像宽（0 表示未知，按原样返回归一化值）
-    * @param imgH   输入图像高
-    * @return 适配后的输出
-    */
+     * 将 DJL 推理输出适配为框架类型。
+     * <p>DJL 检测模型（如 SCRFD/YOLO）返回 {@link DetectedObjects}，适配为
+     * {@code List<PredictRectangle>}（归一化坐标×图像尺寸转像素）；
+     * 分类模型返回 {@link Classifications}，适配为最可能类别名（字符串）。
+     * 非这两种输出原样返回。</p>
+     *
+     * @param result DJL 推理输出
+     * @param imgW   输入图像宽（0 表示未知，按原样返回归一化值）
+     * @param imgH   输入图像高
+     * @return 适配后的输出
+     */
     private Object adaptOutput(Object result, int imgW, int imgH) {
         if (result instanceof ai.djl.modality.cv.Image image) {
             // 图像输出模型（人脸修复/超分/抠图等）：转 byte[]（PNG，保留 alpha）

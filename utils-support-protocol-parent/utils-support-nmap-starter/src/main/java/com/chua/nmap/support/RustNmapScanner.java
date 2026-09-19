@@ -13,11 +13,11 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
-* Rust实现的Nmap扫描器
-* 使用Rust本地库实现高性能网络扫描
-*
-* @author CH
-* @since 4.0.0.34
+ * Rust实现的Nmap扫描器
+ * 使用Rust本地库实现高性能网络扫描
+ *
+ * @author CH
+ * @since 4.0.0.34
  */
 @Slf4j
 @Spi(order = 100)
@@ -346,12 +346,12 @@ public class RustNmapScanner implements NmapScanner {
     }
 
     /**
-    * 解析端口状态结果 (int状态码)
-    * @param port 端口号
-    * @param stateCode 状态码 (0=open, 1=closed, 2=filtered, -1=error)
-    * @param protocol 协议
-    * @return 端口信息
-    */
+     * 解析端口状态结果 (int状态码)
+     * @param port 端口号
+     * @param stateCode 状态码 (0=open, 1=closed, 2=filtered, -1=error)
+     * @param protocol 协议
+     * @return 端口信息
+     */
     private PortInfo parsePortStateResult(int port, int stateCode, String protocol) {
         PortInfo portInfo = new PortInfo();
         portInfo.setPort(port);
@@ -400,10 +400,10 @@ public class RustNmapScanner implements NmapScanner {
     }
     
     /**
-    * 从JSON结果解析主机信息
-    * @param hostInfo 主机Info，不允许为 null
-    * @param json 方法入参 json
-    */
+     * 从JSON结果解析主机信息
+     * @param hostInfo 主机Info，不允许为 null
+     * @param json 方法入参 json
+     */
     private void parseHostInfoFromJson(HostInfo hostInfo, String json) {
         // Simple JSON parsing - in production use a proper JSON library
         if (json.contains("hostname")) {

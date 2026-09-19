@@ -18,17 +18,17 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnEvent {
 
     /**
-    * 要监听的事件类型。
-    *
-    * <p>只有发布的事件是该类型或其子类型时，回调方法才会被触发。</p>
-    *
-    * @return 事件类型
-    */
+     * 要监听的事件类型。
+     *
+     * <p>只有发布的事件是该类型或其子类型时，回调方法才会被触发。</p>
+     *
+     * @return 事件类型
+     */
     Class<?> value();
 }

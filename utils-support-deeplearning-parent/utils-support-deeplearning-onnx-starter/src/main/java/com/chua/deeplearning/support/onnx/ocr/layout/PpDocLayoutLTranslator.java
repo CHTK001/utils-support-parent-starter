@@ -22,41 +22,41 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* PP-doclayout-L / PP-doclayout_plus-L  ONNX Translator
-*
-* <p>文档版面分析（Layout Detection），RT-DETR-L 架构，DETR 输出格式
-* {@code [class_id, score, x1, y1, x2, y2]} 行 + count 输出。
-* 根据模型路径自动识别模型规格：</p>
-* <ul>
-*     <li>{@code pp_doc_layout_l}      ：PP-DocLayout-L，输入 640×640，23 类，mAP 90.4%</li>
-*     <li>{@code pp_doc_layout_plus_l} ：PP-DocLayout_plus-L，输入 800×800，21 类，mAP 83.2%</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * PP-doclayout-L / PP-doclayout_plus-L  ONNX Translator
+ *
+ * <p>文档版面分析（Layout Detection），RT-DETR-L 架构，DETR 输出格式
+ * {@code [class_id, score, x1, y1, x2, y2]} 行 + count 输出。
+ * 根据模型路径自动识别模型规格：</p>
+ * <ul>
+ *     <li>{@code pp_doc_layout_l}      ：PP-DocLayout-L，输入 640×640，23 类，mAP 90.4%</li>
+ *     <li>{@code pp_doc_layout_plus_l} ：PP-DocLayout_plus-L，输入 800×800，21 类，mAP 83.2%</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects>,
         com.chua.deeplearning.support.engine.DetectionConfigurable {
 
     /**
-    * 默认输入尺寸（640）。
-    */
+     * 默认输入尺寸（640）。
+     */
     private static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-    * PP-doclayout-L 输入尺寸。
-    */
+     * PP-doclayout-L 输入尺寸。
+     */
     private static final int INPUT_SIZE_L = 640;
 
     /**
-    * PP-doclayout_plus-L 输入尺寸。
-    */
+     * PP-doclayout_plus-L 输入尺寸。
+     */
     private static final int INPUT_SIZE_PLUS_L = 800;
 
     /**
-    * PP-doclayout-L 标签（23 类，与 PaddleOCR 推理.yml 一致）。
-    */
+     * PP-doclayout-L 标签（23 类，与 PaddleOCR 推理.yml 一致）。
+     */
     private static final List<String> LABELS_L = List.of(
             "paragraph_title",
             "image",
@@ -84,8 +84,8 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     );
 
     /**
-    * PP-doclayout_plus-L 标签（21 类，与 PaddleOCR 推理.yml 一致）。
-    */
+     * PP-doclayout_plus-L 标签（21 类，与 PaddleOCR 推理.yml 一致）。
+     */
     private static final List<String> LABELS_PLUS_L = List.of(
             "paragraph_title",
             "image",
@@ -111,70 +111,70 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     );
 
     /**
-    * 配置的分值阈值（构造参数或 configure 注入）。
-    */
+     * 配置的分值阈值（构造参数或 configure 注入）。
+     */
     private Float configuredScoreThreshold;
 
     /**
-    * 动态分值阈值。
-    */
+     * 动态分值阈值。
+     */
     private float scoreThreshold;
 
     /**
-    * 输入尺寸。
-    */
+     * 输入尺寸。
+     */
     private int inputSize;
 
     /**
-    * 类别标签列表。
-    */
+     * 类别标签列表。
+     */
     private List<String> labels;
 
     /**
-    * 原图宽度。
-    */
+     * 原图宽度。
+     */
     private int width;
 
     /**
-    * 原图高度。
-    */
+     * 原图高度。
+     */
     private int height;
 
     /**
-    * AWT 缩放类型。
-    */
+     * AWT 缩放类型。
+     */
     private int scale;
 
     /**
-    * 是否为低信息量输入。
-    */
+     * 是否为低信息量输入。
+     */
     private boolean lowInformationInput;
 
     /**
-    * 构造器。
-    */
+     * 构造器。
+     */
     public PpDocLayoutLTranslator() {
         this(Collections.emptyMap());
     }
 
     /**
-    * 构造器。
-    *
-    * @param arguments 配置参数
-    */
+     * 构造器。
+     *
+     * @param arguments 配置参数
+     */
     public PpDocLayoutLTranslator(Map<String, ?> arguments) {
         this.configuredScoreThreshold = extractThreshold(arguments);
         this.scoreThreshold = 0.5f;
     }
 
     /**
-    * 注入运行参数（阈值 等）。
-    *
-    * <p>由 {@link com.chua.deeplearning.support.engine.AbstractIdentificationEngine#get(String, Class, Map)}
-    * 在门面调用时注入，覆盖模型默认阈值。</p>
-    *
-    * @param options 运行参数（阈值 / score阈值 等）
-    */
+     * 注入运行参数（阈值 等）。
+     *
+     * <p>由 {@link com.chua.deeplearning.support.engine.AbstractIdentificationEngine#get(String, Class, Map)}
+     * 在门面调用时注入，覆盖模型默认阈值。</p>
+     *
+     * @param options 运行参数（阈值 / score阈值 等）
+     */
     @Override
     public void configure(Map<String, Object> options) {
         if (options == null || options.isEmpty()) {
@@ -189,12 +189,12 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 将 缓冲镜像 处理为模型输入 nd列表。
-    *
-    * @param ctx   translator上下文
-    * @param input 输入图像
-    * @return NDList
-    */
+     * 将 缓冲镜像 处理为模型输入 nd列表。
+     *
+     * @param ctx   translator上下文
+     * @param input 输入图像
+     * @return NDList
+     */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
@@ -230,12 +230,12 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 解析模型输出为 detected对象。
-    *
-    * @param ctx  translator上下文
-    * @param list nd列表
-    * @return DetectedObjects
-    */
+     * 解析模型输出为 detected对象。
+     *
+     * @param ctx  translator上下文
+     * @param list nd列表
+     * @return DetectedObjects
+     */
     @Override
     @Nonnull
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -300,10 +300,10 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 获取 Batchifier。
-    *
-    * @return Batchifier
-    */
+     * 获取 Batchifier。
+     *
+     * @return Batchifier
+     */
     @Override
     @Nullable
     public Batchifier getBatchifier() {
@@ -311,10 +311,10 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 根据模型路径解析输入尺寸与标签列表。
-    *
-    * @param modelPath 模型路径
-    */
+     * 根据模型路径解析输入尺寸与标签列表。
+     *
+     * @param modelPath 模型路径
+     */
     private void resolveModelConfig(Path modelPath) {
         String path = modelPath == null ? "" : modelPath.toString().replace('\\', '/').toLowerCase();
         if (path.contains("pp_doc_layout_plus_l") || path.contains("pp-doclayout-plus-l")) {
@@ -327,12 +327,12 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 确定检测数量。
-    *
-    * @param list nd列表
-    * @param rows 检测行
-    * @return 检测数量
-    */
+     * 确定检测数量。
+     *
+     * @param list nd列表
+     * @param rows 检测行
+     * @return 检测数量
+     */
     private int determineCount(NDList list, NDArray rows) {
         int maxCount = (int) rows.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         if (list.size() < 2 || list.get(1) == null || list.get(1).isEmpty()) {
@@ -358,11 +358,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 从参数中提取阈值。
-    *
-    * @param arguments 参数
-    * @return 阈值或 空
-    */
+     * 从参数中提取阈值。
+     *
+     * @param arguments 参数
+     * @return 阈值或 空
+     */
     private Float extractThreshold(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -381,11 +381,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 解析默认阈值。
-    *
-    * @param modelPath 模型路径
-    * @return 阈值
-    */
+     * 解析默认阈值。
+     *
+     * @param modelPath 模型路径
+     * @return 阈值
+     */
     private float resolveDefaultThreshold(Path modelPath) {
         String path = modelPath == null ? "" : modelPath.toString().replace('\\', '/').toLowerCase();
         if (path.contains("pp_doc_layout_plus_l") || path.contains("pp-doclayout-plus-l")) {
@@ -395,11 +395,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 判断是否为低信息量图像。
-    *
-    * @param buf 图像
-    * @return 是否为低信息量
-    */
+     * 判断是否为低信息量图像。
+     *
+     * @param buf 图像
+     * @return 是否为低信息量
+     */
     private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -426,15 +426,15 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 将 缓冲镜像 经 打开cv 缩放并转为 CHW 归一化 float 数组。
-    *
-    * <p>直接走 OpenCV Mat 缩放（INTER_CUBIC）并在 float 域提取像素，
-    * 避免 缓冲镜像 往返的 8-钻头 量化损失，与 Python cv2.resize 路径一致。</p>
-    *
-    * @param buf  缓冲镜像
-    * @param size 目标尺寸
-    * @return CHW 数组，长度 3 * 大小 * 大小
-    */
+     * 将 缓冲镜像 经 打开cv 缩放并转为 CHW 归一化 float 数组。
+     *
+     * <p>直接走 OpenCV Mat 缩放（INTER_CUBIC）并在 float 域提取像素，
+     * 避免 缓冲镜像 往返的 8-钻头 量化损失，与 Python cv2.resize 路径一致。</p>
+     *
+     * @param buf  缓冲镜像
+     * @param size 目标尺寸
+     * @return CHW 数组，长度 3 * 大小 * 大小
+     */
     private float[] toChwFloatsOpenCv(java.awt.image.BufferedImage buf, int size) {
         org.opencv.core.Mat src = ImageUtils.toMat(buf);
         try {
@@ -466,11 +466,11 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 将 缓冲镜像 转换为 CHW 归一化 float 数组（RGB，除以 255）。
-    *
-    * @param buf 缓冲镜像
-    * @return CHW 数组，长度 3 * H * W
-    */
+     * 将 缓冲镜像 转换为 CHW 归一化 float 数组（RGB，除以 255）。
+     *
+     * @param buf 缓冲镜像
+     * @return CHW 数组，长度 3 * H * W
+     */
     private float[] toChwFloats(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -491,13 +491,13 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-    * 裁剪值到区间。
-    *
-    * @param value 值
-    * @param min   最小值
-    * @param max   最大值
-    * @return 裁剪后的值
-    */
+     * 裁剪值到区间。
+     *
+     * @param value 值
+     * @param min   最小值
+     * @param max   最大值
+     * @return 裁剪后的值
+     */
     private float clip(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }

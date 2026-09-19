@@ -12,18 +12,18 @@ import com.chua.common.support.network.server.response.ServerResponse;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @FunctionalInterface
 public interface ServerFilterChain {
 
     /**
-    * 执行过滤器链。
-    *
-    * <p>Filter 放行时调用，本方法内部检查 committed 状态决定是否继续。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    * @throws Exception 处理异常
-    */
+     * 执行过滤器链。
+     *
+     * <p>Filter 放行时调用，本方法内部检查 committed 状态决定是否继续。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     * @throws Exception 处理异常
+     */
     void doFilter(ServerRequest request, ServerResponse response) throws Exception;
 }

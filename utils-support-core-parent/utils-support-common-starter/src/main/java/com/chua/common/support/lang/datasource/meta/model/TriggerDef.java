@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 触发器定义，描述数据库中的一个触发器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 触发器定义，描述数据库中的一个触发器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -18,47 +18,47 @@ import lombok.NoArgsConstructor;
 public class TriggerDef {
 
     /**
-    * 触发器名
-    */
+     * 触发器名
+     */
     private String name;
 
     /**
-    * catalog 名称
-    */
+     * catalog 名称
+     */
     private String catalog;
 
     /**
-    * schema 名称
-    */
+     * schema 名称
+     */
     private String schema;
 
     /**
-    * 所属表名
-    */
+     * 所属表名
+     */
     private String tableName;
 
     /**
-    * 触发时机（BEFORE / AFTER / INSTEAD OF）
-    */
+     * 触发时机（BEFORE / AFTER / INSTEAD OF）
+     */
     private String timing;
 
     /**
-    * 触发事件（INSERT / UPDATE / DELETE）
-    */
+     * 触发事件（INSERT / UPDATE / DELETE）
+     */
     private String event;
 
     /**
-    * 是否逐行触发
-    */
+     * 是否逐行触发
+     */
     private boolean forEachRow;
 
     /**
-    * 触发器体 SQL
-    */
+     * 触发器体 SQL
+     */
     private String body;
 
     /**
-    * 触发器状态（ENABLED / DISABLED）
-    */
+     * 触发器状态（ENABLED / DISABLED）
+     */
     private String status;
 }

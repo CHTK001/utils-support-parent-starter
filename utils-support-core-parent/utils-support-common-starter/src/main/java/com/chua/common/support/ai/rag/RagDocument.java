@@ -3,19 +3,19 @@ package com.chua.common.support.ai.rag;
 import java.util.Map;
 
 /**
-* RAG 文档元数据。
-*
-* @param id            文档唯一标识
-* @param fileName      文件名
-* @param fileType      文件扩展名（pdf/docx/xlsx/txt 等）
-* @param fileSize      文件大小（字节）
-* @param chunkCount    分块数量
-* @param status        处理状态：PROCESSING / READY / FAILED
-* @param errorMessage  处理失败时的错误信息
-* @param createTime    创建时间（Unix 毫秒时间戳）
-* @param metadata      扩展元数据
-* @author CH
-* @since 4.0.0.42
+ * RAG 文档元数据。
+ *
+ * @param id            文档唯一标识
+ * @param fileName      文件名
+ * @param fileType      文件扩展名（pdf/docx/xlsx/txt 等）
+ * @param fileSize      文件大小（字节）
+ * @param chunkCount    分块数量
+ * @param status        处理状态：PROCESSING / READY / FAILED
+ * @param errorMessage  处理失败时的错误信息
+ * @param createTime    创建时间（Unix 毫秒时间戳）
+ * @param metadata      扩展元数据
+ * @author CH
+ * @since 4.0.0.42
  */
 public record RagDocument(
         String id,
@@ -29,40 +29,40 @@ public record RagDocument(
         Map<String, Object> metadata
 ) {
     /**
-    * 创建处理中的文档记录。
-    * @param id ID，不允许为 null
-    * @param fileName 文件名称，不允许为 null
-    * @param fileType 文件类型，不允许为 null
-    * @param fileSize 文件大小，不允许为 null
-    * @return RagDocument 对象
-    */
+     * 创建处理中的文档记录。
+     * @param id ID，不允许为 null
+     * @param fileName 文件名称，不允许为 null
+     * @param fileType 文件类型，不允许为 null
+     * @param fileSize 文件大小，不允许为 null
+     * @return RagDocument 对象
+     */
     public static RagDocument processing(String id, String fileName, String fileType, long fileSize) {
         return new RagDocument(id, fileName, fileType, fileSize, 0, "PROCESSING", null, System.currentTimeMillis(), Map.of());
     }
 
     /**
-    * 返回带错误状态的文档记录。
-    * @param errorMessage error消息，不允许为 null
-    * @return RagDocument 对象
-    */
+     * 返回带错误状态的文档记录。
+     * @param errorMessage error消息，不允许为 null
+     * @return RagDocument 对象
+     */
     public RagDocument withError(String errorMessage) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "FAILED", errorMessage, createTime, metadata);
     }
 
     /**
-    * 返回带分块数的文档记录（状态置为 READY）。
-    * @param chunkCount 分块数量，不允许为 null
-    * @return RagDocument 对象
-    */
+     * 返回带分块数的文档记录（状态置为 READY）。
+     * @param chunkCount 分块数量，不允许为 null
+     * @return RagDocument 对象
+     */
     public RagDocument withChunkCount(int chunkCount) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "READY", null, createTime, metadata);
     }
 
     /**
-    * 返回带指定状态的文档记录。
-    * @param status 状态，不允许为 null
-    * @return RagDocument 对象
-    */
+     * 返回带指定状态的文档记录。
+     * @param status 状态，不允许为 null
+     * @return RagDocument 对象
+     */
     public RagDocument withStatus(String status) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, status, errorMessage, createTime, metadata);
     }

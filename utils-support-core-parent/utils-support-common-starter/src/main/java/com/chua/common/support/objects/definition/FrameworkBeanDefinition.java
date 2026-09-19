@@ -11,7 +11,7 @@ package com.chua.common.support.objects.definition;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public class FrameworkBeanDefinition extends AbstractBeanDefinition {
 
     /** instance */

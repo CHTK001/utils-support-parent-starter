@@ -34,51 +34,51 @@ import java.util.function.Function;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Spi
 public interface BeanDefinitionServiceInjector {
 
     /**
-    * 是否支持注入该字段。
-    *
-    * <p>根据字段的注解类型、类型特征等判断是否能够处理该字段的注入。
-    * 例如：
-    * <ul>
-    *   <li>字段标注了 @AutoInject → 返回 true</li>
-    *   <li>字段标注了 @Resource → 返回 true</li>
-    *   <li>其他情况 → 返回 false</li>
-    * </ul></p>
-    *
-    * <p>该方法应当轻量且无副作用，因为容器会对每个 Bean 的每个字段
-    * 调用此方法进行判断。</p>
-    *
-    * @param field          目标字段（可能为 空）
-    * @param beanDefinition Bean 定义（提供上下文信息）
-    * @return true 表示支持注入该字段
-    */
+     * 是否支持注入该字段。
+     *
+     * <p>根据字段的注解类型、类型特征等判断是否能够处理该字段的注入。
+     * 例如：
+     * <ul>
+     *   <li>字段标注了 @AutoInject → 返回 true</li>
+     *   <li>字段标注了 @Resource → 返回 true</li>
+     *   <li>其他情况 → 返回 false</li>
+     * </ul></p>
+     *
+     * <p>该方法应当轻量且无副作用，因为容器会对每个 Bean 的每个字段
+     * 调用此方法进行判断。</p>
+     *
+     * @param field          目标字段（可能为 空）
+     * @param beanDefinition Bean 定义（提供上下文信息）
+     * @return true 表示支持注入该字段
+     */
     boolean isSupport(Field field, BeanDefinition beanDefinition);
 
     /**
-    * 执行注入。
-    *
-    * <p>从容器中查找匹配的 Bean 并返回。容器负责将返回值
-    * 通过反射设置到目标字段上。注入器本身不直接操作字段，仅返回注入值。</p>
-    *
-    * <p>查找策略：
-    * <ul>
-    *   <li>如果注解指定了 Bean 名称，优先使用 {@code beanProvider} 按名称查找</li>
-    *   <li>如果未指定名称，使用 {@code typeProvider} 按字段类型查找</li>
-    *   <li>如果两个 Provider 都返回 null，根据注解的 required 属性处理</li>
-    * </ul></p>
-    *
-    * @param field          目标字段
-    * @param bean           目标 Bean 实例（用于日志和异常信息）
-    * @param beanDefinition Bean 定义（提供上下文信息）
-    * @param beanProvider   按名称查找 Bean 的函数（可能为 空）
-    * @param typeProvider   按类型查找 Bean 的函数（可能为 空）
-    * @return 注入的值，null 表示未找到匹配的 Bean（且非必须注入）
-    * @throws IllegalStateException 如果必须注入但找不到匹配的 Bean
-    */
+     * 执行注入。
+     *
+     * <p>从容器中查找匹配的 Bean 并返回。容器负责将返回值
+     * 通过反射设置到目标字段上。注入器本身不直接操作字段，仅返回注入值。</p>
+     *
+     * <p>查找策略：
+     * <ul>
+     *   <li>如果注解指定了 Bean 名称，优先使用 {@code beanProvider} 按名称查找</li>
+     *   <li>如果未指定名称，使用 {@code typeProvider} 按字段类型查找</li>
+     *   <li>如果两个 Provider 都返回 null，根据注解的 required 属性处理</li>
+     * </ul></p>
+     *
+     * @param field          目标字段
+     * @param bean           目标 Bean 实例（用于日志和异常信息）
+     * @param beanDefinition Bean 定义（提供上下文信息）
+     * @param beanProvider   按名称查找 Bean 的函数（可能为 空）
+     * @param typeProvider   按类型查找 Bean 的函数（可能为 空）
+     * @return 注入的值，null 表示未找到匹配的 Bean（且非必须注入）
+     * @throws IllegalStateException 如果必须注入但找不到匹配的 Bean
+     */
     Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                   Function<String, Object> beanProvider,
                   Function<Class<?>, Object> typeProvider);

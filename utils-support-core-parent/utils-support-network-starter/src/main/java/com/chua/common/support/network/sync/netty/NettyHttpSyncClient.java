@@ -13,10 +13,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 基于 Netty 的 HTTP 同步客户端实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Netty 的 HTTP 同步客户端实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NettyHttpSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
@@ -204,10 +204,10 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

@@ -61,20 +61,20 @@ import java.lang.annotation.*;
  * @author CH
  * @since 2025/01/22
  * @see Spi
-*/
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 public @interface SpiOrder {
 
     /**
-    * 指定 SPI 实现的优先级顺序
-    * <p>
-    * 数值越大优先级越高，越先被加载。
-    * 默认值为 0，表示默认优先级。
-    *
-    * @return 优先级数值，默认为 0
-    */
+     * 指定 SPI 实现的优先级顺序
+     * <p>
+     * 数值越大优先级越高，越先被加载。
+     * 默认值为 0，表示默认优先级。
+     *
+     * @return 优先级数值，默认为 0
+     */
     int value() default 0;
 }
 

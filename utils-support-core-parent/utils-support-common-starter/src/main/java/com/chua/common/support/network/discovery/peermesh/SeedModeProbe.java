@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* SEED 模式探针：连接种子节点列表。
-*
-* @author CH
-* @since 4.0.0.42
+ * SEED 模式探针：连接种子节点列表。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SeedModeProbe implements ProbeStrategy {

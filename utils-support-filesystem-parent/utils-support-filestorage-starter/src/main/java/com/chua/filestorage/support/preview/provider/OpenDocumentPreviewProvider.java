@@ -8,19 +8,19 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
-* 打开文档 格式预览提供者支持 odt (文本), ods (表格), odp (演示文稿)
-*
-* <p>实现思路：将 OpenDocument 文件转换为 PDF 后使用浏览器 PDF 预览能力展示</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 打开文档 格式预览提供者支持 odt (文本), ods (表格), odp (演示文稿)
+ *
+ * <p>实现思路：将 OpenDocument 文件转换为 PDF 后使用浏览器 PDF 预览能力展示</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-opendocument")
 public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-    * 支持的 打开文档 扩展名（小写）
-    */
+     * 支持的 打开文档 扩展名（小写）
+     */
     private static final Set<String> SUPPORTED_EXTS = Set.of("odt", "ods", "odp");
 
     /** Base64 内嵌 打开文档 预览允许的最大字节数（约 20 MB） */
@@ -62,12 +62,12 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建previewhtml
-    *
-    * @param b64 b64
-    * @param type 类型
-    * @return 构建previewhtml的结果
-    */
+     * 构建previewhtml
+     *
+     * @param b64 b64
+     * @param type 类型
+     * @return 构建previewhtml的结果
+     */
     private String buildPreviewHtml(String b64, String type) {
         String fileName = "uploaded." + type;
         String mimeType = getMimeType(type);
@@ -105,11 +105,11 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 获取mime类型
-    *
-    * @param type 类型
-    * @return 获取mime类型的结果
-    */
+     * 获取mime类型
+     *
+     * @param type 类型
+     * @return 获取mime类型的结果
+     */
     private String getMimeType(String type) {
         return switch (type) {
             case "odt" -> "application/vnd.oasis.opendocument.text";

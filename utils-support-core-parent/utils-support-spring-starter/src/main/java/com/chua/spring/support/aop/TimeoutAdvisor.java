@@ -10,19 +10,19 @@ import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
 import java.lang.reflect.Method;
 
 /**
-* {@link Timeout} 注解的 Spring AOP Advisor。
-*
-* @author CH
-* @since 4.0.0.42
+ * {@link Timeout} 注解的 Spring AOP Advisor。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TimeoutAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
-    * 超时advisor。
-    * @param intercept intercept
-    * @author CH
-    * @since 4.0.0
-    */
+     * 超时advisor。
+     * @param intercept intercept
+     * @author CH
+     * @since 4.0.0
+     */
     public TimeoutAdvisor(TimeoutIntercept intercept) {
         super(new TimeoutAdvice(intercept));
     }

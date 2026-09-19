@@ -10,29 +10,29 @@ import com.chua.common.support.network.server.SyncServer;
  *
  * @author CH
  * @since 4.0.0.41
-*/
+ */
 public interface SyncProtocol {
 
     /**
-    * 获取协议类型标识。
-    *
-    * @return 协议类型，如 websocket、rsocket、socketio
-    */
+     * 获取协议类型标识。
+     *
+     * @return 协议类型，如 websocket、rsocket、socketio
+     */
     String getProtocol();
 
     /**
-    * 创建同步服务端。
-    *
-    * @param setting 服务端配置
-    * @return 同步服务端实例
-    */
+     * 创建同步服务端。
+     *
+     * @param setting 服务端配置
+     * @return 同步服务端实例
+     */
     SyncServer createServer(ServerSetting setting);
 
     /**
-    * 创建同步客户端。
-    *
-    * @param setting 客户端配置
-    * @return 同步客户端实例
-    */
+     * 创建同步客户端。
+     *
+     * @param setting 客户端配置
+     * @return 同步客户端实例
+     */
     SyncClient createClient(Object setting);
 }

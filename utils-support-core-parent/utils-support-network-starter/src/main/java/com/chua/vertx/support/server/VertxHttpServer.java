@@ -35,13 +35,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
-*
-* <p>同步模式（默认）：过滤器链在 Vert.x Worker 线程池中执行。</p>
-* <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
-*
-* @author CH
-* @since 2026/07/16
+ * 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
+ *
+ * <p>同步模式（默认）：过滤器链在 Vert.x Worker 线程池中执行。</p>
+ * <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Slf4j
 @Spi({"vertx-http", "http"})
@@ -61,9 +61,9 @@ public class VertxHttpServer extends AbstractServer {
     private boolean reactive;
 
     /**
-    * 创建 vertxhttp服务端 实例
-    * @param setting setting
-    */
+     * 创建 vertxhttp服务端 实例
+     * @param setting setting
+     */
     public VertxHttpServer(ServerSetting setting) {
         super(setting);
     }
@@ -295,11 +295,11 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-    * 执行处理
-    *
-    * @param request 请求
-    * @param response 响应
-    */
+     * 执行处理
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void doHandle(VertxServerRequest request, VertxServerResponse response) {
         // WebSocket 升级检测
         String upgrade = request.getHeader("Upgrade");
@@ -318,11 +318,11 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-    * WebSocket 升级处理：切换到 Vert.x 原生 WebSocket，
-    * 按 "topic\nbody" 约定路由消息到已注册的主题处理器。
-    * @param request 请求
-    * @param response 响应
-    */
+     * WebSocket 升级处理：切换到 Vert.x 原生 WebSocket，
+     * 按 "topic\nbody" 约定路由消息到已注册的主题处理器。
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleWebSocketUpgrade(VertxServerRequest request, VertxServerResponse response) {
         var routingCtx = request.getAttribute(com.chua.common.support.network.server.ServerAttribute.VERTX_ROUTING_CONTEXT);
         if (routingCtx instanceof io.vertx.ext.web.RoutingContext rc) {
@@ -340,11 +340,11 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-    * 按 topic\nbody 分发 WS 消息。
-    *
-    * @param ws ws
-    * @param text 文本
-    */
+     * 按 topic\nbody 分发 WS 消息。
+     *
+     * @param ws ws
+     * @param text 文本
+     */
     private void dispatchWsMessage(io.vertx.core.http.ServerWebSocket ws, String text) {
         String topic = "default";
         String body = text;
@@ -375,20 +375,20 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-    * 订阅 WebSocket 主题。
-    *
-    * @param topic topic
-    * @param handler 处理器
-    * @return on订阅的结果
-    */
+     * 订阅 WebSocket 主题。
+     *
+     * @param topic topic
+     * @param handler 处理器
+     * @return on订阅的结果
+     */
     public VertxHttpServer onSubscribe(String topic, com.chua.common.support.network.server.handler.ServerHandler handler) {
         wsTopicHandlers.computeIfAbsent(topic, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
     /**
-    * WebSocket 消息请求（与 niohttp服务端.ws服务端请求 行为一致）。
-    */
+     * WebSocket 消息请求（与 niohttp服务端.ws服务端请求 行为一致）。
+     */
     private static final class VertxWsRequest implements com.chua.common.support.network.server.request.ServerRequest {
         /** Topic */
         private final String topic;

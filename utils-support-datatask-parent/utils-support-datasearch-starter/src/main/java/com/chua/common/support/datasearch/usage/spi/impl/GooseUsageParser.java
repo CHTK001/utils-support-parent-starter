@@ -12,26 +12,26 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-* Goose usage parser.
-*
-* <p>Goose (github.com/block/goose) stores sessions in a SQLite database at
-* {@code %APPDATA%\Block\goose\data\sessions\sessions.db} on Windows. The
-* {@code usage_ledger} table records one row per LLM call with exact token,
-* 缓存 和 cost 归因:</p>
-*
-* <pre>{@code
-* CREATE TABLE usage_ledger (
-*   id, session_id, created_timestamp,   -- epoch seconds
-*   model TEXT, input_tokens INTEGER, output_tokens INTEGER,
-*   total_tokens INTEGER, cache_read_tokens INTEGER,
-*   cache_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
-* )
-* }</pre>_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
-* )
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Goose usage parser.
+ *
+ * <p>Goose (github.com/block/goose) stores sessions in a SQLite database at
+ * {@code %APPDATA%\Block\goose\data\sessions\sessions.db} on Windows. The
+ * {@code usage_ledger} table records one row per LLM call with exact token,
+ * 缓存 和 cost 归因:</p>
+ *
+ * <pre>{@code
+ * CREATE TABLE usage_ledger (
+ *   id, session_id, created_timestamp,   -- epoch seconds
+ *   model TEXT, input_tokens INTEGER, output_tokens INTEGER,
+ *   total_tokens INTEGER, cache_read_tokens INTEGER,
+ *   cache_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
+ * )
+ * }</pre>_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
+ * )
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("goose")
 public class GooseUsageParser extends BaseUsageParser {
@@ -50,17 +50,17 @@ public class GooseUsageParser extends BaseUsageParser {
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "goose"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "goose"}
+     */
     public String name() {
         return "goose";
     }
 
     /**
-    * 流式解析全部用量台账记录。
-    */
+     * 流式解析全部用量台账记录。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {

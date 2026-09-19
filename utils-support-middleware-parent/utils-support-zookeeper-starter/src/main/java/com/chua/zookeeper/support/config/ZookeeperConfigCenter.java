@@ -18,39 +18,39 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
-* ZooKeeper 配置中心实现。
-* <p>
-* 基于 Apache Curator 框架连接 ZooKeeper，将 z节点 节点作为配置存储载体。
-* 支持 YAML、属性 两种配置格式的自动解析。
-* 配置路径规则：/{@code dataId} 或 /{@code group}/{@code dataId}。
-* </p>
-* <p>
-* <b>功能特性：</b>
-* <ul>
-*   <li>通过 Curator Framework 管理 ZooKeeper 连接和会话</li>
-*   <li>支持配置命名空间隔离（通过 ConfigCenterSetting.profile）</li>
-*   <li>支持 Digest 认证（通过 ConfigCenterSetting.username/password）</li>
-*   <li>自动解析 YAML 格式和 Properties 格式的配置内容</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ZooKeeper 配置中心实现。
+ * <p>
+ * 基于 Apache Curator 框架连接 ZooKeeper，将 z节点 节点作为配置存储载体。
+ * 支持 YAML、属性 两种配置格式的自动解析。
+ * 配置路径规则：/{@code dataId} 或 /{@code group}/{@code dataId}。
+ * </p>
+ * <p>
+ * <b>功能特性：</b>
+ * <ul>
+ *   <li>通过 Curator Framework 管理 ZooKeeper 连接和会话</li>
+ *   <li>支持配置命名空间隔离（通过 ConfigCenterSetting.profile）</li>
+ *   <li>支持 Digest 认证（通过 ConfigCenterSetting.username/password）</li>
+ *   <li>自动解析 YAML 格式和 Properties 格式的配置内容</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("zookeeper")
 @Slf4j
 public class ZookeeperConfigCenter extends AbstractConfigCenter {
 
     /**
-    * Curator ZooKeeper 客户端框架实例
-    */
+     * Curator ZooKeeper 客户端框架实例
+     */
     private CuratorFramework curatorFramework;
 
     /**
-    * 构造 ZooKeeper 配置中心。
-    *
-    * @param configCenterSetting 配置中心连接设置（地址、认证、超时等）
-    */
+     * 构造 ZooKeeper 配置中心。
+     *
+     * @param configCenterSetting 配置中心连接设置（地址、认证、超时等）
+     */
     public ZookeeperConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -205,33 +205,33 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 判断是否为 YAML 格式内容。
-    * <p>YAML 格式特征：包含冒号且包含换行符或缩进。</p>
-    *
-    * @param content 配置内容
-    * @return true-是 YAML 格式
-    */
+     * 判断是否为 YAML 格式内容。
+     * <p>YAML 格式特征：包含冒号且包含换行符或缩进。</p>
+     *
+     * @param content 配置内容
+     * @return true-是 YAML 格式
+     */
     private boolean isYamlContent(String content) {
         return content.contains(":") && (content.contains("\n") || content.contains("  "));
     }
 
     /**
-    * 判断是否为 属性 格式内容。
-    * <p>Properties 格式特征：包含等号和换行符。</p>
-    *
-    * @param content 配置内容
-    * @return true-是 属性 格式
-    */
+     * 判断是否为 属性 格式内容。
+     * <p>Properties 格式特征：包含等号和换行符。</p>
+     *
+     * @param content 配置内容
+     * @return true-是 属性 格式
+     */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
     }
 
     /**
-    * 解析 属性 格式的配置内容。
-    *
-    * @param content 属性 格式的字符串
-    * @return 键值映射
-    */
+     * 解析 属性 格式的配置内容。
+     *
+     * @param content 属性 格式的字符串
+     * @return 键值映射
+     */
     private Map<String, Object> parsePropertiesContent(String content) {
         Map<String, Object> result = new HashMap<>();
         String[] lines = content.split("\n");

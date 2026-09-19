@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* JDK http服务端 处理器 — intercepts 收入 HTTP Requests 处理 by com.sun.net.httpserver.
-*
-* @author CH
-* @since 4.0.0.42
+ * JDK http服务端 处理器 — intercepts 收入 HTTP Requests 处理 by com.sun.net.httpserver.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class JdkHttpServerHandler extends AbstractAppHandler {
 
     /**
-    * HTTP 处理器
+     * HTTP 处理器
      */
     private static final String HTTP_HANDLER = "com/sun/net/httpserver/HttpHandler";
     /**
-    * 处理 方法
+     * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 

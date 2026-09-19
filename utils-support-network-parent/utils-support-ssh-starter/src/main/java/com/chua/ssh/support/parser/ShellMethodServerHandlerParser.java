@@ -13,15 +13,15 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
-* 解析 {@link ShellMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
-*
-* <p>从 {@link ObjectContext} 中查找标注了 {@link ShellMethod} 的 Bean，
-* 生成 Shell 命令路由处理器。类级注解作为命令前缀，方法级注解定义具体命令名。</p>
-*
-* <p>命令名拼接规则：类级前缀与方法级名用 {@code .} 连接，如 {@code @ShellMethod("/api")} + {@code @ShellMethod("user")} → {@code api.user}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 解析 {@link ShellMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
+ *
+ * <p>从 {@link ObjectContext} 中查找标注了 {@link ShellMethod} 的 Bean，
+ * 生成 Shell 命令路由处理器。类级注解作为命令前缀，方法级注解定义具体命令名。</p>
+ *
+ * <p>命令名拼接规则：类级前缀与方法级名用 {@code .} 连接，如 {@code @ShellMethod("/api")} + {@code @ShellMethod("user")} → {@code api.user}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("shell-method")
 public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationParser {
@@ -89,13 +89,13 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
     }
 
     /**
-    * 解析类中所有方法级 {@link ShellMethod} 注解。
-    *
-    * @param objectContext 对象上下文
-    * @param clazz         类类型
-    * @param classPrefix   类级前缀（点号分隔）
-    * @param result        处理器列表
-    */
+     * 解析类中所有方法级 {@link ShellMethod} 注解。
+     *
+     * @param objectContext 对象上下文
+     * @param clazz         类类型
+     * @param classPrefix   类级前缀（点号分隔）
+     * @param result        处理器列表
+     */
     private static void parseClassMethods(ObjectContext objectContext, Class<?> clazz,
                                           String classPrefix, List<ServerHandler> result) {
         for (Method method : clazz.getDeclaredMethods()) {
@@ -120,11 +120,11 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
     }
 
     /**
-    * 从类级别 {@link ShellMethod} 注解提取命令前缀。
-    *
-    * @param clazz 类
-    * @return 点号分隔的前缀，无注解返回空字符串
-    */
+     * 从类级别 {@link ShellMethod} 注解提取命令前缀。
+     *
+     * @param clazz 类
+     * @return 点号分隔的前缀，无注解返回空字符串
+     */
     private static String extractClassPrefix(Class<?> clazz) {
         ShellMethod classAnn = clazz.getAnnotation(ShellMethod.class);
         if (classAnn == null) {

@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi("quarkus")
 @SpiDescribe("Quarkus/CDI Bean 定义生成器")

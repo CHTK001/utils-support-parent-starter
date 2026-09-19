@@ -46,54 +46,54 @@ import java.lang.annotation.*;
  * @版本 1.0.0
  * @see SpiCondition.Condition
  * @author CH
-*/
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface SpiCondition {
     /**
-    * 指定的类名
-    * <p>
-    * 当指定的类存在于 类路径 中时，该 SPI 实现才会被加载。
-    *     可以指定多个类，通常要求全部存在才会生效。
-    * </p>
-    *
-    * @return 类名数组
-    */
+     * 指定的类名
+     * <p>
+     * 当指定的类存在于 类路径 中时，该 SPI 实现才会被加载。
+     *     可以指定多个类，通常要求全部存在才会生效。
+     * </p>
+     *
+     * @return 类名数组
+     */
     String[] value() default {};
 
     /**
-    * 自定义条件类
-    * <p>
-    *     指定实现了 {@link SpiCondition.Condition} 接口的类。
-    *     当 {@link SpiCondition.Condition#isCondition()} 返回 true 时，
-    *     该 SPI 实现才会被加载。
-    * </p>
-    *
-    * @return 条件类数组
-    */
+     * 自定义条件类
+     * <p>
+     *     指定实现了 {@link SpiCondition.Condition} 接口的类。
+     *     当 {@link SpiCondition.Condition#isCondition()} 返回 true 时，
+     *     该 SPI 实现才会被加载。
+     * </p>
+     *
+     * @return 条件类数组
+     */
     Class<? extends SpiCondition.Condition>[] onCondition() default {};
 
     /**
-    * SPI 条件接口
-    * <p>
-    *     用于自定义 SPI 加载的条件逻辑。
-    *     实现该接口并配合 {@link SpiCondition#onCondition()} 使用。
-    * </p>
-    *
-    * @author CH
-    * @since 2024-01-01
-    */
+     * SPI 条件接口
+     * <p>
+     *     用于自定义 SPI 加载的条件逻辑。
+     *     实现该接口并配合 {@link SpiCondition#onCondition()} 使用。
+     * </p>
+     *
+     * @author CH
+     * @since 2024-01-01
+     */
     interface Condition {
         /**
-        * 判断条件是否满足
-        * <p>
-        *     返回 true 表示条件满足，加载该 SPI 实现；
-        *     返回 false 表示条件不满足，不加载该 SPI 实现。
-        * </p>
-        *
-        * @return 条件是否满足，true 表示满足，false 表示不满足
-        */
+         * 判断条件是否满足
+         * <p>
+         *     返回 true 表示条件满足，加载该 SPI 实现；
+         *     返回 false 表示条件不满足，不加载该 SPI 实现。
+         * </p>
+         *
+         * @return 条件是否满足，true 表示满足，false 表示不满足
+         */
         boolean isCondition();
     }
 }

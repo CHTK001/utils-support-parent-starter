@@ -25,10 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
-* 基于 IPC 协议的调用器实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 IPC 协议的调用器实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi(value = "ipc", order = 40)
 public class IpcInvoker implements Invoker {
@@ -133,10 +133,10 @@ public class IpcInvoker implements Invoker {
 
     @Override
     /**
-    * 添加Inject
-    * @param target target
-    * @param callback callback
-    */
+     * 添加Inject
+     * @param target target
+     * @param callback callback
+     */
     public Invoker addInject(String target, InjectCallback callback) {
         globalInjectRules.add(new SharedInvocationContext.InjectRule(target, callback));
         return this;
@@ -235,11 +235,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         }
 
         /**
-        * 处理RemoteHeaders
-        * @param ctx ctx
-        * @param method method
-        * @param args args
-        */
+         * 处理RemoteHeaders
+         * @param ctx ctx
+         * @param method method
+         * @param args args
+         */
         private void processRemoteHeaders(InvocationContext ctx, Method method, Object[] args) {
             RemoteHeader[] headers = method.getAnnotationsByType(RemoteHeader.class);
             for (RemoteHeader rh : headers) {
@@ -258,11 +258,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         }
 
         /**
-        * 处理RemoteInject
-        * @param ctx ctx
-        * @param method method
-        * @param args args
-        */
+         * 处理RemoteInject
+         * @param ctx ctx
+         * @param method method
+         * @param args args
+         */
         private void processRemoteInject(InvocationContext ctx, Method method, Object[] args) {
             RemoteInject[] injects = method.getAnnotationsByType(RemoteInject.class);
             if (injects.length == 0) {
@@ -312,11 +312,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         }
 
         /**
-        * 应用Target
-        * @param target target
-        * @param value value
-        * @param beanPath beanPath
-        */
+         * 应用Target
+         * @param target target
+         * @param value value
+         * @param beanPath beanPath
+         */
         private void applyTarget(String target, String value, BeanPath beanPath) {
             if (target.startsWith("headers.")) {
                 sharedContext.addDefaultHeader(target.substring(8), value);
@@ -326,9 +326,9 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
         }
 
         /**
-        * 解析Placeholders
-        * @param text text
-        */
+         * 解析Placeholders
+         * @param text text
+         */
         private String resolvePlaceholders(String text) {
             if (StringUtils.isEmpty(text) || !text.contains("${")) {
                 return text;

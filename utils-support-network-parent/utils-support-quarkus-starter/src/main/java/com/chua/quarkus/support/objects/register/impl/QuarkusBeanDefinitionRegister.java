@@ -14,13 +14,13 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
-* Quarkus (CDI) Bean 定义注册器（只读）。
-*
-* <p>委托 Jakarta CDI {@code jakarta.enterprise.inject.spi.CDI} 查询 Bean 信息，
-* 所有查询直接委派 CDI 容器。Bean 实例由 CDI 容器管理，本注册器仅做桥接。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Quarkus (CDI) Bean 定义注册器（只读）。
+ *
+ * <p>委托 Jakarta CDI {@code jakarta.enterprise.inject.spi.CDI} 查询 Bean 信息，
+ * 所有查询直接委派 CDI 容器。Bean 实例由 CDI 容器管理，本注册器仅做桥接。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")
@@ -28,13 +28,13 @@ import java.util.*;
 public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
     /**
-    * cdi 类
-    */
+     * cdi 类
+     */
     private static final String CDI_CLASS = "jakarta.enterprise.inject.spi.CDI";
 
     /**
-    * closed
-    */
+     * closed
+     */
     private volatile boolean closed;
 
     @Override

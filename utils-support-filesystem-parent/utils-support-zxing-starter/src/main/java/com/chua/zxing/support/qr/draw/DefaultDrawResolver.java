@@ -18,25 +18,25 @@ import javax.annotation.Nullable;
 
 
 /**
-* 默认draw解析器 类提供了一个默认的绘图解析解决方案。
-* 它继承自 抽象draw解析器，通过实现特定的接口和注解配置，来支持不同的绘图形状解析。
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认draw解析器 类提供了一个默认的绘图解析解决方案。
+ * 它继承自 抽象draw解析器，通过实现特定的接口和注解配置，来支持不同的绘图形状解析。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({ "MINI_RECT", "RECT" })
 public class DefaultDrawResolver extends AbstractDrawResolver {
 
     /**
-    * 创建 默认draw解析器 实例
-    * @param g2 g2
-    * @param detectInnerColor detect内部color
-    * @param detectOutColor detect出color
-    * @param qrCodeConfig qr编码配置
-    * @param bitMatrix 钻头matrix
-    * @param drawOptions draw期权
-    * @param setting setting
-    */
+     * 创建 默认draw解析器 实例
+     * @param g2 g2
+     * @param detectInnerColor detect内部color
+     * @param detectOutColor detect出color
+     * @param qrCodeConfig qr编码配置
+     * @param bitMatrix 钻头matrix
+     * @param drawOptions draw期权
+     * @param setting setting
+     */
     public DefaultDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig,
             BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);

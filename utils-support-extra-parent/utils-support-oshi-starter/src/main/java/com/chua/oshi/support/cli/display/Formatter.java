@@ -5,25 +5,25 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* 终端面板/表格渲染工具，输出风格与 ocgc 一致。
-*
-* @author CH
-* @since 4.0.0.42
+ * 终端面板/表格渲染工具，输出风格与 ocgc 一致。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class Formatter {
 
     /**
-    * Formatter。
-    */
+     * Formatter。
+     */
     private Formatter() {
     }
 
     /**
-    * 格式化字节数（B/KB/MB/GB）。
-    *
-    * @param n 字节数
-    * @return 格式化字符串
-    */
+     * 格式化字节数（B/KB/MB/GB）。
+     *
+     * @param n 字节数
+     * @return 格式化字符串
+     */
     public static String formatBytes(long n) {
         if (n >= 1_073_741_824L) {
             return String.format("%.1f GB", n / 1_073_741_824.0);
@@ -38,12 +38,12 @@ public final class Formatter {
     }
 
     /**
-    * 渲染键值面板（顶部带标题）。
-    *
-    * @param title 面板标题
-    * @param rows  交替的 键,值
-    * @return 面板字符串
-    */
+     * 渲染键值面板（顶部带标题）。
+     *
+     * @param title 面板标题
+     * @param rows  交替的 键,值
+     * @return 面板字符串
+     */
     public static String panel(String title, String... rows) {
         List<String> keys = new ArrayList<>();
         List<String> values = new ArrayList<>();
@@ -70,26 +70,26 @@ public final class Formatter {
     }
 
     /**
-    * 渲染表格。
-    *
-    * @param title   表格标题（空串则不显示标题栏）
-    * @param headers 表头
-    * @param rows    数据行（每行长度与表头一致）
-    * @return 表格字符串
-    */
+     * 渲染表格。
+     *
+     * @param title   表格标题（空串则不显示标题栏）
+     * @param headers 表头
+     * @param rows    数据行（每行长度与表头一致）
+     * @return 表格字符串
+     */
     public static String table(String title, String[] headers, List<String[]> rows) {
         return table(title, headers, rows, null);
     }
 
     /**
-    * 渲染表格（可带汇总行）。
-    *
-    * @param title   表格标题（空串则不显示标题栏）
-    * @param headers 表头
-    * @param rows    数据行
-    * @param summary 汇总行（可空）
-    * @return 表格字符串
-    */
+     * 渲染表格（可带汇总行）。
+     *
+     * @param title   表格标题（空串则不显示标题栏）
+     * @param headers 表头
+     * @param rows    数据行
+     * @param summary 汇总行（可空）
+     * @return 表格字符串
+     */
     public static String table(String title, String[] headers, List<String[]> rows, String[] summary) {
         int cols = headers.length;
         int[] widths = new int[cols];
@@ -134,13 +134,13 @@ public final class Formatter {
     }
 
     /**
-    * 构建百分比进度条。
-    * 实心块填充已用比例，空心块填充剩余部分，结果总长度固定为 length。
-    *
-    * @param pct    百分比，取值 0-100
-    * @param length 进度条总长度
-    * @return 进度条字符串
-    */
+     * 构建百分比进度条。
+     * 实心块填充已用比例，空心块填充剩余部分，结果总长度固定为 length。
+     *
+     * @param pct    百分比，取值 0-100
+     * @param length 进度条总长度
+     * @return 进度条字符串
+     */
     public static String bar(double pct, int length) {
         int filled = (int) Math.round(pct / 100.0 * length);
         filled = Math.max(0, Math.min(length, filled));

@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 /**
-* GZip 压缩文件提取器
-* <p>
-* 支持 .gz 格式的解压。使用 Java 原生 GZIPInputStream 解压后输出到指定目录，文件名去除 .gz 后缀。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * GZip 压缩文件提取器
+ * <p>
+ * 支持 .gz 格式的解压。使用 Java 原生 GZIPInputStream 解压后输出到指定目录，文件名去除 .gz 后缀。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("gz")

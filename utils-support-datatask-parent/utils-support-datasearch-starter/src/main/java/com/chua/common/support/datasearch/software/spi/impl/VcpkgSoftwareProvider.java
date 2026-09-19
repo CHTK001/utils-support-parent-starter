@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* vcpkg 软件包管理器提供器。
-*
-* <p>通过 vcpkg CLI 搜索、安装和卸载 C/C++ 库。
-* 支持 <code>vcpkg 搜索</code>、<code>vcpkg install</code>、
-* <code>vcpkg remove</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * vcpkg 软件包管理器提供器。
+ *
+ * <p>通过 vcpkg CLI 搜索、安装和卸载 C/C++ 库。
+ * 支持 <code>vcpkg 搜索</code>、<code>vcpkg install</code>、
+ * <code>vcpkg remove</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("vcpkg")
 public class VcpkgSoftwareProvider implements SoftwareProvider {
@@ -167,11 +167,11 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * lookslike版本
-    *
-    * @param s s
-    * @return lookslike版本的结果
-    */
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");
     }

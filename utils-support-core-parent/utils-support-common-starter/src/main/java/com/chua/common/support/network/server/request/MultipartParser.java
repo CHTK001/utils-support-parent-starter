@@ -13,32 +13,32 @@ import java.util.Map;
  *
  * @author CH
  * @since 2026/07/17
-*/
+ */
 @Spi
 public interface MultipartParser {
 
     /**
-    * 解析 multipart/form-data 请求体中的文件上传。
-    * @param body 请求体，不允许为 null
-    * @param contentType 内容类型，不允许为 null
-    * @return 结果列表，无数据时为空列表
-    */
+     * 解析 multipart/form-data 请求体中的文件上传。
+     * @param body 请求体，不允许为 null
+     * @param contentType 内容类型，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<FormFile> parse(byte[] body, String contentType);
 
     /**
-    * 判断此解析器是否支持指定的 Content-Type。
-    * @param contentType 内容类型，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断此解析器是否支持指定的 Content-Type。
+     * @param contentType 内容类型，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     boolean support(String contentType);
 
     /**
-    * 解析 multipart/form-data 请求体中的表单字段。
-    *
-    * @param body        完整请求体字节数组
-    * @param contentType Content-Type 头（含 boundary）
-    * @return 表单字段名到值的映射，无字段或解析失败时返回空 Map
-    */
+     * 解析 multipart/form-data 请求体中的表单字段。
+     *
+     * @param body        完整请求体字节数组
+     * @param contentType Content-Type 头（含 boundary）
+     * @return 表单字段名到值的映射，无字段或解析失败时返回空 Map
+     */
     default Map<String, String> parseFormFields(byte[] body, String contentType) {
         return java.util.Collections.emptyMap();
     }

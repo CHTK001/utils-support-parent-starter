@@ -40,35 +40,35 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Slf4j
 public class ServerFilterManager {
 
     /**
-    * 关联的服务器协议类型，只匹配该协议的 Filter。
-    */
+     * 关联的服务器协议类型，只匹配该协议的 Filter。
+     */
     private final ProtocolType protocolType;
 
     /**
-    * 静态过滤器列表，通过 addFilter/removeFilter 手动管理。
-    */
+     * 静态过滤器列表，通过 addFilter/removeFilter 手动管理。
+     */
     private final List<ServerFilter> staticFilters = new CopyOnWriteArrayList<>();
 
     /**
-    * 合并后的过滤器列表缓存。
-    */
+     * 合并后的过滤器列表缓存。
+     */
     private volatile List<ServerFilter> mergedCache;
     private volatile List<ReactiveServerFilter> mergedReactiveCache;
 
     /**
-    * 缓存失效标记。
-    */
+     * 缓存失效标记。
+     */
     private volatile boolean dirty = true;
 
     /**
-    * 创建 ServerFilterManager 实例
-    * @param protocolType protocolType
-    */
+     * 创建 ServerFilterManager 实例
+     * @param protocolType protocolType
+     */
     public ServerFilterManager(ProtocolType protocolType) {
         this.protocolType = protocolType;
     }
@@ -76,10 +76,10 @@ public class ServerFilterManager {
     // ==================== 静态过滤器管理 ====================
 
     /**
-    * 添加静态过滤器。
-    *
-    * @param filter 过滤器
-    */
+     * 添加静态过滤器。
+     *
+     * @param filter 过滤器
+     */
     public void addFilter(ServerFilter filter) {
         if (filter != null && filter.supportProtocol(protocolType)) {
             staticFilters.add(filter);
@@ -88,10 +88,10 @@ public class ServerFilterManager {
     }
 
     /**
-    * 移除静态过滤器。
-    *
-    * @param filter 过滤器
-    */
+     * 移除静态过滤器。
+     *
+     * @param filter 过滤器
+     */
     public void removeFilter(ServerFilter filter) {
         if (filter != null) {
             staticFilters.remove(filter);
@@ -100,10 +100,10 @@ public class ServerFilterManager {
     }
 
     /**
-    * 获取静态过滤器列表的副本。
-    *
-    * @return 静态过滤器列表
-    */
+     * 获取静态过滤器列表的副本。
+     *
+     * @return 静态过滤器列表
+     */
     public List<ServerFilter> getStaticFilters() {
         return new ArrayList<>(staticFilters);
     }
@@ -111,10 +111,10 @@ public class ServerFilterManager {
     // ==================== SPI 动态过滤器 ====================
 
     /**
-    * 从 SPI 发现并添加动态过滤器。
-    *
-    * <p>与 staticFilters 合并，去重。通常由 OSGI reload 触发。
-    */
+     * 从 SPI 发现并添加动态过滤器。
+     *
+     * <p>与 staticFilters 合并，去重。通常由 OSGI reload 触发。
+     */
     public void refreshSpiFilters() {
         ServiceProvider.of(ServerFilter.class).forEach((name, filter) -> {
             if (filter.isEnabled() && filter.supportProtocol(protocolType) && !staticFilters.contains(filter)) {
@@ -127,10 +127,10 @@ public class ServerFilterManager {
     // ==================== IOC 过滤器 ====================
 
     /**
-    * 从 IOC 容器注入过滤器。
-    *
-    * @param filters IOC 中的过滤器 Map
-    */
+     * 从 IOC 容器注入过滤器。
+     *
+     * @param filters IOC 中的过滤器 Map
+     */
     public void addIocFilters(Map<String, ServerFilter> filters) {
         if (filters != null) {
             for (ServerFilter filter : filters.values()) {
@@ -145,12 +145,12 @@ public class ServerFilterManager {
     // ==================== 合并与链构建 ====================
 
     /**
-    * 获取合并后的过滤器列表（静态 + SPI + IOC），按 order 升序排列。
-    *
-    * <p>结果缓存，仅在 dirty 时重新计算。
-    *
-    * @return 合并并排序后的过滤器列表
-    */
+     * 获取合并后的过滤器列表（静态 + SPI + IOC），按 order 升序排列。
+     *
+     * <p>结果缓存，仅在 dirty 时重新计算。
+     *
+     * @return 合并并排序后的过滤器列表
+     */
     public List<ServerFilter> getMergedFilters() {
         if (!dirty && mergedCache != null) {
             return mergedCache;
@@ -163,31 +163,31 @@ public class ServerFilterManager {
     }
 
     /**
-    * 构建过滤器链。
-    *
-    * @param handler   最终处理器，链结束时调用
-    * @param listeners 过滤器链监听器列表，可为 null
-    * @return 过滤器链
-    */
+     * 构建过滤器链。
+     *
+     * @param handler   最终处理器，链结束时调用
+     * @param listeners 过滤器链监听器列表，可为 null
+     * @return 过滤器链
+     */
     public ServerFilterChain buildChain(ServerHandler handler, List<FilterChainListener> listeners) {
         return new DefaultServerFilterChain(getMergedFilters(), handler, listeners);
     }
 
     /**
-    * 构建过滤器链。
-    *
-    * @param handler 最终处理器，链结束时调用
-    * @return 过滤器链
-    */
+     * 构建过滤器链。
+     *
+     * @param handler 最终处理器，链结束时调用
+     * @return 过滤器链
+     */
     public ServerFilterChain buildChain(ServerHandler handler) {
         return new DefaultServerFilterChain(getMergedFilters(), handler, null);
     }
 
     /**
-    * 构建过滤器链（无最终处理器）。
-    *
-    * @return 过滤器链
-    */
+     * 构建过滤器链（无最终处理器）。
+     *
+     * @return 过滤器链
+     */
     public ServerFilterChain buildChain() {
         return new DefaultServerFilterChain(getMergedFilters(), null, null);
     }
@@ -195,10 +195,10 @@ public class ServerFilterManager {
     // ==================== 生命周期 ====================
 
     /**
-    * 初始化所有静态过滤器。
-    *
-    * @param config 初始化配置
-    */
+     * 初始化所有静态过滤器。
+     *
+     * @param config 初始化配置
+     */
     public void initFilters(ServerFilterConfig config) {
         List<ServerFilter> initialized = new ArrayList<>();
         for (ServerFilter filter : staticFilters) {
@@ -219,8 +219,8 @@ public class ServerFilterManager {
     }
 
     /**
-    * 销毁所有静态过滤器。
-    */
+     * 销毁所有静态过滤器。
+     */
     public void destroyFilters() {
         for (ServerFilter filter : staticFilters) {
             try {
@@ -234,15 +234,15 @@ public class ServerFilterManager {
     // ==================== 响应式过滤器 ====================
 
     /**
-    * 响应式过滤器列表。
-    */
+     * 响应式过滤器列表。
+     */
     private final List<ReactiveServerFilter> reactiveFilters = new CopyOnWriteArrayList<>();
 
     /**
-    * 添加响应式过滤器。
-    *
-    * @param filter 响应式过滤器
-    */
+     * 添加响应式过滤器。
+     *
+     * @param filter 响应式过滤器
+     */
     public void addReactiveFilter(ReactiveServerFilter filter) {
         if (filter != null && !reactiveFilters.contains(filter)) {
             reactiveFilters.add(filter);
@@ -251,10 +251,10 @@ public class ServerFilterManager {
     }
 
     /**
-    * 移除响应式过滤器。
-    *
-    * @param filter 响应式过滤器
-    */
+     * 移除响应式过滤器。
+     *
+     * @param filter 响应式过滤器
+     */
     public void removeReactiveFilter(ReactiveServerFilter filter) {
         if (filter != null) {
             reactiveFilters.remove(filter);
@@ -263,16 +263,16 @@ public class ServerFilterManager {
     }
 
     /**
-    * 获取合并后（静态 + 响应式）的过滤器列表，按 order 升序排列。
-    *
-    * <p>静态 {@link ServerFilter} 会通过 {@link #wrapStatic(ServerFilter)} 适配为
-    * 响应式过滤器后一并参与链路，保证 {@code addFilter} 注册的同步过滤器生效。</p>
-    *
-    * <p>结果按 {@code dirty} 标记缓存：{@link #addFilter}/{@link #removeFilter}
-    * 以及动态过滤器增删都会置 dirty 为 {@code true}；下次读取后重新构建并复位。</p>
-    *
-    * @return 合并后的响应式过滤器列表
-    */
+     * 获取合并后（静态 + 响应式）的过滤器列表，按 order 升序排列。
+     *
+     * <p>静态 {@link ServerFilter} 会通过 {@link #wrapStatic(ServerFilter)} 适配为
+     * 响应式过滤器后一并参与链路，保证 {@code addFilter} 注册的同步过滤器生效。</p>
+     *
+     * <p>结果按 {@code dirty} 标记缓存：{@link #addFilter}/{@link #removeFilter}
+     * 以及动态过滤器增删都会置 dirty 为 {@code true}；下次读取后重新构建并复位。</p>
+     *
+     * @return 合并后的响应式过滤器列表
+     */
     public List<ReactiveServerFilter> getMergedReactiveFilters() {
         List<ReactiveServerFilter> cached = mergedReactiveCache;
         if (!dirty && cached != null) {
@@ -292,15 +292,15 @@ public class ServerFilterManager {
     }
 
     /**
-    * 将同步过滤器包装为响应式过滤器。
-    *
-    * <p>包装后在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)}，
-    * 并将完成信号包装为 {@link CompletableFuture#completedStage(Object)}；
-    * 同步过滤器抛出的异常经失败阶段向上传播。</p>
-    *
-    * @param filter 待包装的同步过滤器
-    * @return 响应式过滤器实例
-    */
+     * 将同步过滤器包装为响应式过滤器。
+     *
+     * <p>包装后在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)}，
+     * 并将完成信号包装为 {@link CompletableFuture#completedStage(Object)}；
+     * 同步过滤器抛出的异常经失败阶段向上传播。</p>
+     *
+     * @param filter 待包装的同步过滤器
+     * @return 响应式过滤器实例
+     */
     private static ReactiveServerFilter wrapStatic(ServerFilter filter) {
         return new ReactiveServerFilter() {
             @Override
@@ -325,8 +325,8 @@ public class ServerFilterManager {
     // ==================== 清空与替换 ====================
 
     /**
-    * 清空所有过滤器。
-    */
+     * 清空所有过滤器。
+     */
     public void clear() {
         staticFilters.clear();
         reactiveFilters.clear();
@@ -335,12 +335,12 @@ public class ServerFilterManager {
     }
 
     /**
-    * 替换全部过滤器列表。
-    *
-    * <p>用于动态更新全部过滤器（如 OSGI 模块安装/卸载后整体替换）。
-    *
-    * @param filters 新的过滤器列表
-    */
+     * 替换全部过滤器列表。
+     *
+     * <p>用于动态更新全部过滤器（如 OSGI 模块安装/卸载后整体替换）。
+     *
+     * @param filters 新的过滤器列表
+     */
     public void setFilters(List<ServerFilter> filters) {
         staticFilters.clear();
         if (filters != null) {

@@ -15,15 +15,15 @@ import java.util.Map;
  * @author CH
  * @since 2026/07/17
  * @return template信息的结果
-*/
+ */
 public record TemplateInfo(String id, String name, String content, String type, Map<String, String> paramDefs) {
 
     /**
-    * 使用参数填充模板内容
-    *
-    * @param params 参数映射
-    * @return 填充后的模板内容
-    */
+     * 使用参数填充模板内容
+     *
+     * @param params 参数映射
+     * @return 填充后的模板内容
+     */
     public String render(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return content;

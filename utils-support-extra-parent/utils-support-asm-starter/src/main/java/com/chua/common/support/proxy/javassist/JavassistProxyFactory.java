@@ -14,33 +14,33 @@ import javax.annotation.Nullable;
 
 
 /**
-* Javassist 代理工厂，基于 Javassist 字节码增强技术创建类代理。
-*
-* <p>与 JDK 动态代理不同，Javassist 可以代理具体类（非接口），通过生成子类实现代理。
-* 适用于需要代理 POJO、服务 实现类等非接口类型的场景。</p>
-*
-* @param <T> 代理类型
-* @author CH
-* @since 2025/7/20
+ * Javassist 代理工厂，基于 Javassist 字节码增强技术创建类代理。
+ *
+ * <p>与 JDK 动态代理不同，Javassist 可以代理具体类（非接口），通过生成子类实现代理。
+ * 适用于需要代理 POJO、服务 实现类等非接口类型的场景。</p>
+ *
+ * @param <T> 代理类型
+ * @author CH
+ * @since 2025/7/20
  */
 @Spi("javassist")
 @SuppressWarnings("ALL")
 public class JavassistProxyFactory<T> implements ProxyFactory<T> {
 
     /**
-    * 单例实例
-    */
+     * 单例实例
+     */
     public static final ProxyFactory INSTANCE = new JavassistProxyFactory();
 
     @Override
     @SneakyThrows
     /**
-    * 创建代理
-    * @param target Target
-    * @param interfaces 接口
-    * @param classLoader 类加载
-    * @param intercept intercept
-    */
+     * 创建代理
+     * @param target Target
+     * @param interfaces 接口
+     * @param classLoader 类加载
+     * @param intercept intercept
+     */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
         javassist.util.proxy.ProxyFactory proxyFactory = new javassist.util.proxy.ProxyFactory();

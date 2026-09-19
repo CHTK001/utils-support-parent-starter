@@ -13,35 +13,35 @@ import java.io.IOException;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public abstract class AbstractDataRestore implements DataRestore {
 
     /**
-    * 数据源类型名称
-    */
+     * 数据源类型名称
+     */
     private final String type;
 
     /**
-    * 默认还原配置
-    */
+     * 默认还原配置
+     */
     private final DataRestoreConfig defaultConfig;
 
     /**
-    * 构造器。
-    *
-    * @param type 数据源类型名称
-    */
+     * 构造器。
+     *
+     * @param type 数据源类型名称
+     */
     protected AbstractDataRestore(String type) {
         this(type, DataRestoreConfig.builder().build());
     }
 
     /**
-    * 构造器。
-    *
-    * @param type   数据源类型名称
-    * @param config 默认还原配置
-    */
+     * 构造器。
+     *
+     * @param type   数据源类型名称
+     * @param config 默认还原配置
+     */
     protected AbstractDataRestore(String type, DataRestoreConfig config) {
         this.type = type;
         this.defaultConfig = config != null ? config : DataRestoreConfig.builder().build();
@@ -58,16 +58,16 @@ public abstract class AbstractDataRestore implements DataRestore {
     }
 
     /**
-    * 执行还原：校验源、兜底输出目录、统计耗时并包装异常。
-    *
-    * <p>本实现要求源是<b>单个文件</b>。数据天然是目录的子类（如微信）可重写本方法，
-    * 自行处理目录源后再调用 {@link #doRestore(File, DataRestoreConfig)}。</p>
-    *
-    * @param source 数据源文件
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 源校验失败或创建输出目录失败
-    */
+     * 执行还原：校验源、兜底输出目录、统计耗时并包装异常。
+     *
+     * <p>本实现要求源是<b>单个文件</b>。数据天然是目录的子类（如微信）可重写本方法，
+     * 自行处理目录源后再调用 {@link #doRestore(File, DataRestoreConfig)}。</p>
+     *
+     * @param source 数据源文件
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 源校验失败或创建输出目录失败
+     */
     @Override
     public DataRestoreResult restore(File source, DataRestoreConfig config) throws Exception {
         // 校验源文件
@@ -104,12 +104,12 @@ public abstract class AbstractDataRestore implements DataRestore {
     }
 
     /**
-    * 执行具体的数据还原逻辑。
-    *
-    * @param source 数据源文件
-    * @param config 还原配置
-    * @return 还原结果，不能返回 null
-    * @throws Exception 还原过程中可能抛出的异常
-    */
+     * 执行具体的数据还原逻辑。
+     *
+     * @param source 数据源文件
+     * @param config 还原配置
+     * @return 还原结果，不能返回 null
+     * @throws Exception 还原过程中可能抛出的异常
+     */
     protected abstract DataRestoreResult doRestore(File source, DataRestoreConfig config) throws Exception;
 }

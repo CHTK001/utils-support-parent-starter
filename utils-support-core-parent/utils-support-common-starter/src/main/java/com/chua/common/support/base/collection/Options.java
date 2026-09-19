@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 字符串选项集合包装，提供静态工厂 {@link #of(String...)} 与下标访问回调。
-*
-* @author CH
-* @since 4.0.0.42
+ * 字符串选项集合包装，提供静态工厂 {@link #of(String...)} 与下标访问回调。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class Options {
 
@@ -29,17 +29,17 @@ public class Options {
     }
 
     /**
-    * @return 内部字符串列表
-    */
+     * @return 内部字符串列表
+     */
     public List<String> getOptions() {
         return options;
     }
 
     /**
-    * 按 (index, value) 形式遍历所有选项。
-    *
-    * @param consumer 下标 + 字符串消费者
-    */
+     * 按 (index, value) 形式遍历所有选项。
+     *
+     * @param consumer 下标 + 字符串消费者
+     */
     public void forEach(java.util.function.BiConsumer<Integer, String> consumer) {
         int i = 0;
         for (String opt : options) {

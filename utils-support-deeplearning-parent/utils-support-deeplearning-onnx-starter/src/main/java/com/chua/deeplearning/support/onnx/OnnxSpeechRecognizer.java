@@ -4,46 +4,46 @@ import com.chua.deeplearning.support.speech.SpeechRecognizer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* ONNX 语音识别引擎（SPI 提供者="onnx"）。
-*
-* <p>注册表中无可用语音识别模型，必须通过 {@code .model("模型ID")} 显式指定
-* 已注册模型，否则抛出异常。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ONNX 语音识别引擎（SPI 提供者="onnx"）。
+ *
+ * <p>注册表中无可用语音识别模型，必须通过 {@code .model("模型ID")} 显式指定
+ * 已注册模型，否则抛出异常。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OnnxSpeechRecognizer implements SpeechRecognizer {
 
     /**
-    * 模型名称
-    */
+     * 模型名称
+     */
     private String modelName;
 
     /**
-    * 语言
-    */
+     * 语言
+     */
     private String lang = "zh";
 
     /**
-    * 模型路径
-    */
+     * 模型路径
+     */
     private String modelPath;
 
     /**
-    * 采样率
-    */
+     * 采样率
+     */
     private int sampleRate = 16000;
 
     /**
-    * 运行设备
-    */
+     * 运行设备
+     */
     private String device = "cpu";
 
     /**
-    * 创建 onnx语音recognizer 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx语音recognizer 实例
+     * @param apiKey API密钥
+     */
     public OnnxSpeechRecognizer(String apiKey) {
     }
 

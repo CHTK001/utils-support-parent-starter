@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认生命周期处理器")
@@ -57,11 +57,11 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     /**
-    * 调用annotated方法
-    *
-    * @param bean Bean
-    * @param annotationType 注解类型
-    */
+     * 调用annotated方法
+     *
+     * @param bean Bean
+     * @param annotationType 注解类型
+     */
     private void invokeAnnotatedMethods(Object bean, Class<? extends java.lang.annotation.Annotation> annotationType) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.isAnnotationPresent(annotationType) && method.getParameterCount() == 0) {

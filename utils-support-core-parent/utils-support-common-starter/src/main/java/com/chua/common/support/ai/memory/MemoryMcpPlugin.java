@@ -11,38 +11,38 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
-* 记忆体 MCP 插件
-*
-* <p>将记忆体操作暴露为 MCP 工具，LLM 可通过标准 MCP 协议主动管理记忆。
-* Agent 在 {@code initMemoryIfNeeded()} 时自动注册此插件，无需手动配置。
-*
-* <h3>注册的 MCP 工具</h3>
-* <pre>
-*   memory_save    — 保存一条记忆（LLM 可主动存储重要信息）
-*   memory_search  — 按关键词搜索记忆（LLM 可主动检索相关背景）
-*   memory_list    — 按类型列出记忆
-*   memory_delete  — 删除指定记忆
-*   memory_count   — 获取记忆总数
-* </pre>
-*
-* <h3>LLM 调用链</h3>
-* <pre>
-*   用户: "记住我喜欢用 Java"
-*     → LLM 判断需要保存记忆
-*     → LLM 输出: 调用 memory_save 工具
-*     → 框架检测到 MCP 工具调用
-*     → MemoryMcpPlugin.handleSave() → MemoryManager.save()
-*     → MemoryEntry 存储到工作间文件
-*
-*   用户: "我之前说过什么关于数据库的？"
-*     → LLM 判断需要检索记忆
-*     → LLM 输出: 调用 memory_search 工具
-*     → MemoryMcpPlugin.handleSearch() → MemoryManager.search("数据库")
-*     → 返回相关记忆 → LLM 基于记忆生成回复
-* </pre>
-*
-* @author CH
-* @since 2026/07/16
+ * 记忆体 MCP 插件
+ *
+ * <p>将记忆体操作暴露为 MCP 工具，LLM 可通过标准 MCP 协议主动管理记忆。
+ * Agent 在 {@code initMemoryIfNeeded()} 时自动注册此插件，无需手动配置。
+ *
+ * <h3>注册的 MCP 工具</h3>
+ * <pre>
+ *   memory_save    — 保存一条记忆（LLM 可主动存储重要信息）
+ *   memory_search  — 按关键词搜索记忆（LLM 可主动检索相关背景）
+ *   memory_list    — 按类型列出记忆
+ *   memory_delete  — 删除指定记忆
+ *   memory_count   — 获取记忆总数
+ * </pre>
+ *
+ * <h3>LLM 调用链</h3>
+ * <pre>
+ *   用户: "记住我喜欢用 Java"
+ *     → LLM 判断需要保存记忆
+ *     → LLM 输出: 调用 memory_save 工具
+ *     → 框架检测到 MCP 工具调用
+ *     → MemoryMcpPlugin.handleSave() → MemoryManager.save()
+ *     → MemoryEntry 存储到工作间文件
+ *
+ *   用户: "我之前说过什么关于数据库的？"
+ *     → LLM 判断需要检索记忆
+ *     → LLM 输出: 调用 memory_search 工具
+ *     → MemoryMcpPlugin.handleSearch() → MemoryManager.search("数据库")
+ *     → 返回相关记忆 → LLM 基于记忆生成回复
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @SuppressWarnings("unchecked")
 public class MemoryMcpPlugin {
@@ -54,20 +54,20 @@ public class MemoryMcpPlugin {
     private final MemoryManager manager;
 
     /**
-    * 创建 MemoryMcpPlugin 实例
-    * @param manager manager
-    */
+     * 创建 MemoryMcpPlugin 实例
+     * @param manager manager
+     */
     public MemoryMcpPlugin(MemoryManager manager) {
         this.manager = manager;
     }
 
     /**
-    * 注册记忆体工具到 MCP 管理器
-    *
-    * <p>将 5 个记忆操作注册为 MCP 工具，使 Agent 可通过工具调用管理记忆。
-    *
-    * @param mcpManager MCP 管理器
-    */
+     * 注册记忆体工具到 MCP 管理器
+     *
+     * <p>将 5 个记忆操作注册为 MCP 工具，使 Agent 可通过工具调用管理记忆。
+     *
+     * @param mcpManager MCP 管理器
+     */
     public void registerTo(McpManager mcpManager) {
         // memory_save
         mcpManager.register("memory", new com.chua.common.support.ai.mcp.McpClient() {

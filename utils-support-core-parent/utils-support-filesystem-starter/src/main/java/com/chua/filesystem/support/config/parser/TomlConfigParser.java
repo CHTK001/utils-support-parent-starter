@@ -14,13 +14,13 @@ import java.util.Map;
 
 
 /**
-* TOML 配置解析器
-* <p>
-* 基于 Jackson 的 jackson-dataformat-toml 实现，支持 TOML 格式的配置文件解析。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * TOML 配置解析器
+ * <p>
+ * 基于 Jackson 的 jackson-dataformat-toml 实现，支持 TOML 格式的配置文件解析。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"toml"})
@@ -51,12 +51,12 @@ public class TomlConfigParser implements ConfigParser {
     }
 
     /**
-    * 扁平化嵌套映射
-    *
-    * @param map    原始映射
-    * @param prefix 前缀
-    * @return 扁平化后的Map
-    */
+     * 扁平化嵌套映射
+     *
+     * @param map    原始映射
+     * @param prefix 前缀
+     * @return 扁平化后的Map
+     */
     @SuppressWarnings("unchecked")
     private Map<String, Object> flattenMap(Map<String, Object> map, String prefix) {
         Map<String, Object> result = new LinkedHashMap<>();

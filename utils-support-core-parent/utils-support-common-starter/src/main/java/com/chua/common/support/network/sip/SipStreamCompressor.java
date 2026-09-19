@@ -19,38 +19,38 @@ import java.io.OutputStream;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi(value = "sip-stream-compressor")
 public interface SipStreamCompressor {
 
     /**
-    * 把原始输出流包装为压缩输出流：写入明文 → 压缩 → 写到原始流。
-    *
-    * @param out 原始输出流（通常是 socket.getOutputStream()）
-    * @return 压缩输出流
-    * @throws IOException IO 异常
-    */
+     * 把原始输出流包装为压缩输出流：写入明文 → 压缩 → 写到原始流。
+     *
+     * @param out 原始输出流（通常是 socket.getOutputStream()）
+     * @return 压缩输出流
+     * @throws IOException IO 异常
+     */
     OutputStream wrap(OutputStream out) throws IOException;
 
     /**
-    * 把原始输入流包装为解压输入流：读取压缩帧 → 解压 → 交给上层。
-    *
-    * @param in 原始输入流
-    * @return 解压输入流
-    * @throws IOException IO 异常
-    */
+     * 把原始输入流包装为解压输入流：读取压缩帧 → 解压 → 交给上层。
+     *
+     * @param in 原始输入流
+     * @return 解压输入流
+     * @throws IOException IO 异常
+     */
     InputStream unwrap(InputStream in) throws IOException;
 
     /**
-    * SPI 名称（用于日志/诊断）。
-    * @return 结果字符串
-    */
+     * SPI 名称（用于日志/诊断）。
+     * @return 结果字符串
+     */
     String name();
 
     /**
-    * 默认实现：基于 JDK {@link java.util.zip.GZIPOutputStream}/{@link java.util.zip.GZIPInputStream}。
-    * GZIP 帧自带 10B 头/8B 尾；压缩级别 {@link java.util.zip.Deflater#BEST_SPEED}（低延迟优先）。
-    */
+     * 默认实现：基于 JDK {@link java.util.zip.GZIPOutputStream}/{@link java.util.zip.GZIPInputStream}。
+     * GZIP 帧自带 10B 头/8B 尾；压缩级别 {@link java.util.zip.Deflater#BEST_SPEED}（低延迟优先）。
+     */
     @SpiDefault
     class Gzip implements SipStreamCompressor {
 

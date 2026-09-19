@@ -28,28 +28,28 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Kafka 分发器提供者，基于 Kafka 实现跨进程的发布订阅。
-*
-* @author CH
-* @since 4.0.0.42
+ * Kafka 分发器提供者，基于 Kafka 实现跨进程的发布订阅。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("kafka")
 public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-    * Kafka 生产者
-    */
+     * Kafka 生产者
+     */
     private KafkaProducer<String, String> producer;
 
     /**
-    * 主题与订阅定义列表的映射
-    */
+     * 主题与订阅定义列表的映射
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-    * 消费者线程池
-    */
+     * 消费者线程池
+     */
     private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             /**
              * Thread工厂Builder。
@@ -59,14 +59,14 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
             new ThreadFactoryBuilder().setNameFormat("kafka-dispatcher-%d").setDaemon(true).build());
 
     /**
-    * 是否已关闭
-    */
+     * 是否已关闭
+     */
     private volatile boolean closed = false;
 
     /**
-    * 创建 kafkadispatcher提供者 实例
-    * @param config 配置
-    */
+     * 创建 kafkadispatcher提供者 实例
+     * @param config 配置
+     */
     public KafkaDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
@@ -107,10 +107,10 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 启动 Kafka 消费者监听指定主题。
-    *
-    * @param topic 主题
-    */
+     * 启动 Kafka 消费者监听指定主题。
+     *
+     * @param topic 主题
+     */
     private void startConsumer(String topic) {
         executor.submit(() -> {
             var consumer = createConsumer(topic);
@@ -135,11 +135,11 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 创建 Kafka 消费者。
-    *
-    * @param topic 主题
-    * @return KafkaConsumer
-    */
+     * 创建 Kafka 消费者。
+     *
+     * @param topic 主题
+     * @return KafkaConsumer
+     */
     private KafkaConsumer<Object, Object> createConsumer(String topic) {
         var props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getUrl());

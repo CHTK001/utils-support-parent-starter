@@ -5,39 +5,39 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.prometheus.support.client.PrometheusClient;
 
 /**
-* Prometheus 数据源封装
-* <p>
-* 底层持有 {@link PrometheusClient}, 供 {@link com.chua.prometheus.support.engine.PrometheusEngine}
-* 按名称管理多个 Prometheus 实例。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Prometheus 数据源封装
+ * <p>
+ * 底层持有 {@link PrometheusClient}, 供 {@link com.chua.prometheus.support.engine.PrometheusEngine}
+ * 按名称管理多个 Prometheus 实例。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PrometheusDataSource implements EngineDataSource<PrometheusClient> {
 
     /**
-    * 数据源名称
-    */
+     * 数据源名称
+     */
     private final String name;
 
     /**
-    * 底层客户端
-    */
+     * 底层客户端
+     */
     private PrometheusClient client;
 
     /**
-    * 连接 URL
-    */
+     * 连接 URL
+     */
     private final String url;
 
     /**
-    * 构造方法
-    *
-    * @param name   数据源名称
-    * @param url    Prometheus 地址
-    * @param client 客户端
-    */
+     * 构造方法
+     *
+     * @param name   数据源名称
+     * @param url    Prometheus 地址
+     * @param client 客户端
+     */
     public PrometheusDataSource(String name, String url, PrometheusClient client) {
         this.name = name;
         this.url = url;

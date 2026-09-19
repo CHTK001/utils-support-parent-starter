@@ -15,15 +15,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* 规则评分器。
-* <p>
-* 当 ONNX 模型不可用时，UEBA 引擎回退到基于安全规则的经验评分，
-* 保证分析流程不中断。所有原始指标复用 {@link FeatureExtractor} 计算，
-* 避免与特征提取逻辑重复。规则阈值以常量形式集中定义，便于调优。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 规则评分器。
+ * <p>
+ * 当 ONNX 模型不可用时，UEBA 引擎回退到基于安全规则的经验评分，
+ * 保证分析流程不中断。所有原始指标复用 {@link FeatureExtractor} 计算，
+ * 避免与特征提取逻辑重复。规则阈值以常量形式集中定义，便于调优。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RuleBasedScorer {
@@ -110,18 +110,18 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 基于规则的 IP 异常评分。
-    * <p>
-    * 约定：{@code reconstructionError} 字段承载规则分数（范围 [0,1]），
-    * {@code threshold} 恒为 {@code RULE_THRESHOLD}，使引擎的风险加权逻辑对
-    * 模型模式与规则模式完全一致。
-    * </p>
-    *
-    * @param entityId 实体标识，不能为 空 或空白
-    * @param window   窗口事件列表，允许为空
-    * @return IP 异常评分结果
-    * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
-    */
+     * 基于规则的 IP 异常评分。
+     * <p>
+     * 约定：{@code reconstructionError} 字段承载规则分数（范围 [0,1]），
+     * {@code threshold} 恒为 {@code RULE_THRESHOLD}，使引擎的风险加权逻辑对
+     * 模型模式与规则模式完全一致。
+     * </p>
+     *
+     * @param entityId 实体标识，不能为 空 或空白
+     * @param window   窗口事件列表，允许为空
+     * @return IP 异常评分结果
+     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
+     */
     public IpAnomalyResult scoreIp(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
@@ -167,17 +167,17 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 基于规则的行为画像评分。
-    * <p>
-    * 综合敏感路径访问、高错误率、高请求频率与夜间访问四个信号，
-    * 输出类别标签（normal / suspicious / attack）与规则风险分数。
-    * </p>
-    *
-    * @param entityId 实体标识，不能为 空 或空白
-    * @param window   窗口事件列表，允许为空
-    * @return 行为画像结果
-    * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
-    */
+     * 基于规则的行为画像评分。
+     * <p>
+     * 综合敏感路径访问、高错误率、高请求频率与夜间访问四个信号，
+     * 输出类别标签（normal / suspicious / attack）与规则风险分数。
+     * </p>
+     *
+     * @param entityId 实体标识，不能为 空 或空白
+     * @param window   窗口事件列表，允许为空
+     * @return 行为画像结果
+     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
+     */
     public BehaviorProfile scoreBehavior(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
@@ -233,11 +233,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 将分数映射为异常等级。
-    *
-    * @param score 规则分数，范围 [0, 1]
-    * @return 异常等级
-    */
+     * 将分数映射为异常等级。
+     *
+     * @param score 规则分数，范围 [0, 1]
+     * @return 异常等级
+     */
     private static IpAnomalyResult.AnomalyLevel mapLevel(double score) {
         if (score >= IP_HIGH_THRESHOLD) {
             return IpAnomalyResult.AnomalyLevel.HIGH;
@@ -252,11 +252,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 将行为分数映射为类别标签。
-    *
-    * @param score 行为分数，范围 [0, 1]
-    * @return 类别标签
-    */
+     * 将行为分数映射为类别标签。
+     *
+     * @param score 行为分数，范围 [0, 1]
+     * @return 类别标签
+     */
     private static String labelOf(double score) {
         if (score >= BEHAVIOR_ATTACK_THRESHOLD) {
             return "attack";
@@ -268,11 +268,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 获取类别标签对应的下标。
-    *
-    * @param label 类别标签
-    * @return 类别下标，未命中时返回默认值
-    */
+     * 获取类别标签对应的下标。
+     *
+     * @param label 类别标签
+     * @return 类别下标，未命中时返回默认值
+     */
     private int classIndexOf(String label) {
         List<String> labels = configClassLabels();
         int idx = labels.indexOf(label);
@@ -280,10 +280,10 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 获取配置或默认类别标签。
-    *
-    * @return 类别标签列表
-    */
+     * 获取配置或默认类别标签。
+     *
+     * @return 类别标签列表
+     */
     private List<String> configClassLabels() {
         UebaConfig.Lstm lstmConfig = featureExtractor.config().getLstm();
         if (lstmConfig != null && lstmConfig.getClassLabels() != null && !lstmConfig.getClassLabels().isEmpty()) {
@@ -293,11 +293,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 获取窗口内最近访问路径，供引擎与规则评分共用。
-    *
-    * @param events 事件列表
-    * @return 路径列表（最多 5 条），绝不为 空
-    */
+     * 获取窗口内最近访问路径，供引擎与规则评分共用。
+     *
+     * @param events 事件列表
+     * @return 路径列表（最多 5 条），绝不为 空
+     */
     static List<String> recentPaths(List<TrafficEvent> events) {
         List<String> paths = new ArrayList<>(5);
         int size = events.size();
@@ -311,11 +311,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 判断路径是否命中敏感关键字。
-    *
-    * @param event 流量事件，不能为 空
-    * @return true 表示命中敏感路径
-    */
+     * 判断路径是否命中敏感关键字。
+     *
+     * @param event 流量事件，不能为 空
+     * @return true 表示命中敏感路径
+     */
     private static boolean isSensitivePath(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         String path = event.getPath();
@@ -332,11 +332,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 判断事件是否发生在夜间时段（22:00 至次日 06:00）。
-    *
-    * @param event 流量事件，不能为 空
-    * @return true 表示夜间访问
-    */
+     * 判断事件是否发生在夜间时段（22:00 至次日 06:00）。
+     *
+     * @param event 流量事件，不能为 空
+     * @return true 表示夜间访问
+     */
     private static boolean isNightAccess(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getTimestamp()), ZONE);
@@ -345,11 +345,11 @@ public class RuleBasedScorer {
     }
 
     /**
-    * 按名称构造一个最小特征定义（复用特征提取器的原始指标计算）。
-    *
-    * @param name 特征名
-    * @return 特征定义，窗口与归一化均不生效
-    */
+     * 按名称构造一个最小特征定义（复用特征提取器的原始指标计算）。
+     *
+     * @param name 特征名
+     * @return 特征定义，窗口与归一化均不生效
+     */
     private com.chua.ueba.support.config.FeatureDefinition featureOf(String name) {
         return com.chua.ueba.support.config.FeatureDefinition.builder()
                 .name(name)

@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 文件存储缓存配置。
-*
-* <p>控制 PDF 转换缓存、闪图缓存、内存缓存等行为。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 文件存储缓存配置。
+ *
+ * <p>控制 PDF 转换缓存、闪图缓存、内存缓存等行为。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -20,9 +20,9 @@ import lombok.NoArgsConstructor;
 public class FileStorageCacheSetting {
 
     /**
-    * PDF 转换缓存目录。
-    * <p>默认为 {@code ${java.io.tmpdir}/filestorage-pdf-cache}</p>
-    */
+     * PDF 转换缓存目录。
+     * <p>默认为 {@code ${java.io.tmpdir}/filestorage-pdf-cache}</p>
+     */
     @Builder.Default
     /** PDF缓存目录 */
     private String pdfCacheDir = System.getProperty("java.io.tmpdir") + "/filestorage-pdf-cache";

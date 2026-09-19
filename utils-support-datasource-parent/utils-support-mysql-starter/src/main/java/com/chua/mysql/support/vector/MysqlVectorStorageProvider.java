@@ -8,33 +8,33 @@ import com.chua.common.support.vector.VectorStorageProvider;
 import javax.sql.DataSource;
 
 /**
-* MySQL 向量存储 SPI 实现，基于 MySQL 8.0.31+ 原生 向量 类型。
-* <p>
-* 通过 {@code properties} 参数传入 {@link DataSource}：
-* <pre>{@code
-* // 链式方式（推荐）
-* VectorStorage storage = VectorStorageProvider.of("mysql")
-*         .dimension(128)
-*         .algorithm("cosine")
-*         .properties(new MysqlVectorStorageProps(dataSource))
-*         .build();
-*
-* // 指定自定义表名
-* var props = new MysqlVectorStorageProperties("my_vectors", "vid", "embedding");
-* VectorStorage storage = VectorStorageProvider.of("mysql")
-*         .dimension(768)
-*         .algorithm("cosine")
-*         .properties(new MysqlVectorStorageProps(dataSource, props))
-*         .build();
-* }</pre>ension(768)
-*         .algorithm("cosine")
-*         .properties(new MysqlVectorStorageProps(dataSource, props))
-*         .build();
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MySQL 向量存储 SPI 实现，基于 MySQL 8.0.31+ 原生 向量 类型。
+ * <p>
+ * 通过 {@code properties} 参数传入 {@link DataSource}：
+ * <pre>{@code
+ * // 链式方式（推荐）
+ * VectorStorage storage = VectorStorageProvider.of("mysql")
+ *         .dimension(128)
+ *         .algorithm("cosine")
+ *         .properties(new MysqlVectorStorageProps(dataSource))
+ *         .build();
+ *
+ * // 指定自定义表名
+ * var props = new MysqlVectorStorageProperties("my_vectors", "vid", "embedding");
+ * VectorStorage storage = VectorStorageProvider.of("mysql")
+ *         .dimension(768)
+ *         .algorithm("cosine")
+ *         .properties(new MysqlVectorStorageProps(dataSource, props))
+ *         .build();
+ * }</pre>ension(768)
+ *         .algorithm("cosine")
+ *         .properties(new MysqlVectorStorageProps(dataSource, props))
+ *         .build();
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi(value = "mysql", order = 50)
 public class MysqlVectorStorageProvider implements VectorStorageProvider {
@@ -55,18 +55,18 @@ public class MysqlVectorStorageProvider implements VectorStorageProvider {
     }
 
     /**
-    * 包装属性，持有 数据源 和向量存储配置。
-    *
-    * @param dataSource  JDBC 数据源
-    * @param properties  向量存储配置
-    * @return mysql向量storageprops的结果
-    */
+     * 包装属性，持有 数据源 和向量存储配置。
+     *
+     * @param dataSource  JDBC 数据源
+     * @param properties  向量存储配置
+     * @return mysql向量storageprops的结果
+     */
     public record MysqlVectorStorageProps(DataSource dataSource, MysqlVectorStorageProperties properties) {
         /**
-        * 便捷构造。
-        * @param dataSource 数据源
-        * @return mysql向量storageprops的结果
-        */
+         * 便捷构造。
+         * @param dataSource 数据源
+         * @return mysql向量storageprops的结果
+         */
         public MysqlVectorStorageProps(DataSource dataSource) {
             this(dataSource, new MysqlVectorStorageProperties());
         }

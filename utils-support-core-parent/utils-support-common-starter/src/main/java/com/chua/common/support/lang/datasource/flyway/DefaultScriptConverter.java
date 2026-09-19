@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @SpiDefault
 @Spi(value = ScriptConverter.SPI_NAME, order = 0)
 public class DefaultScriptConverter implements ScriptConverter {
@@ -67,7 +67,7 @@ public class DefaultScriptConverter implements ScriptConverter {
                     + "(?:\\s+COMMENT\\s+'(?:[^']|'')*')?\\s*,?\\s*$",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     /** PRIMARY KEY 行带 USING BTREE（SHOW CREATE TABLE 导出风格：{@code PRIMARY KEY (`id`) USING BTREE}）。
-    *  仅剥离 USING 子句，保留 PRIMARY KEY 声明本身 */
+     *  仅剥离 USING 子句，保留 PRIMARY KEY 声明本身 */
     private static final Pattern PK_USING = Pattern.compile(
             "(?i)\\s+USING\\s+\\S+\\s*,?\\s*$");
     /** 列级 CHARACTER SET / COLLATE 子句（SHOW CREATE TABLE 导出风格：
@@ -76,10 +76,10 @@ public class DefaultScriptConverter implements ScriptConverter {
     private static final Pattern COLUMN_CHARSET_COLLATE = Pattern.compile(
             "(?i)\\s*(?:CHARACTER\\s+SET\\s*=?\\s*\\w+|COLLATE\\s*=?\\s*\\w+)");
     /** 列内联注释（{@code TINYINT(1) DEFAULT 1 COMMENT 'x'} 中尾随的 COMMENT 段）。
-    *  只删除尾随的 {@code COMMENT 'xxx'} 文本本身，保留其前面所有内容（类型、DEFAULT、NOT NULL 等）
-    *  以及列定义尾部的逗号（列分隔符，由捕获组 $1 保留，避免误删导致后续列粘连）。
-    *  行尾锚定 + 可选尾随逗号；避免误伤 {@code COMMENT ON} 独立语句
-    *  与字符串内出现的 "comment" 字样（{@code [^']} 不允许单引号嵌套） */
+     *  只删除尾随的 {@code COMMENT 'xxx'} 文本本身，保留其前面所有内容（类型、DEFAULT、NOT NULL 等）
+     *  以及列定义尾部的逗号（列分隔符，由捕获组 $1 保留，避免误删导致后续列粘连）。
+     *  行尾锚定 + 可选尾随逗号；避免误伤 {@code COMMENT ON} 独立语句
+     *  与字符串内出现的 "comment" 字样（{@code [^']} 不允许单引号嵌套） */
     private static final Pattern COLUMN_COMMENT = Pattern.compile(
             "(?i)\\s+COMMENT\\s+'(?:[^']|'')*'(,?)\\s*$");
     /**
@@ -138,12 +138,12 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
-    * CREATE TABLE 方言转换：剥离 MySQL 专属行内索引、尾属性、列内联注释。
-    * <p>注意：剥离列内联注释时保留列类型（正则锚定在类型名上），
-    * 仅删除尾随的 {@code COMMENT 'xxx'} 段。</p>
-    * @param sql SQL，不允许为 null
-    * @return 结果字符串
-    */
+     * CREATE TABLE 方言转换：剥离 MySQL 专属行内索引、尾属性、列内联注释。
+     * <p>注意：剥离列内联注释时保留列类型（正则锚定在类型名上），
+     * 仅删除尾随的 {@code COMMENT 'xxx'} 段。</p>
+     * @param sql SQL，不允许为 null
+     * @return 结果字符串
+     */
     private String convertCreateTable(String sql) {
         int lastParen = sql.lastIndexOf(')');
         String body = lastParen > 0 ? sql.substring(0, lastParen) : sql;
@@ -203,11 +203,11 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
-    * ALTER TABLE 方言转换：剥离 MySQL 专属 AFTER 定位子句、列内联注释。
-    * <p>ALTER 语句的 COMMENT 段可能不在行尾（如多列 ADD 子句），使用无行尾锚定的宽松剥离。</p>
-    * @param sql SQL，不允许为 null
-    * @return 结果字符串
-    */
+     * ALTER TABLE 方言转换：剥离 MySQL 专属 AFTER 定位子句、列内联注释。
+     * <p>ALTER 语句的 COMMENT 段可能不在行尾（如多列 ADD 子句），使用无行尾锚定的宽松剥离。</p>
+     * @param sql SQL，不允许为 null
+     * @return 结果字符串
+     */
     private String convertAlterTable(String sql) {
         // 剥离内联注释（宽松模式：COMMENT 'xxx' 段后允许跟随逗号/空白）
         sql = sql.replaceAll("(?i)\\s+COMMENT\\s+'(?:[^']|'')*'", "");
@@ -220,11 +220,11 @@ public class DefaultScriptConverter implements ScriptConverter {
     }
 
     /**
-    * 类型与函数方言映射（保守策略：只替换可安全替换的独立类型/函数关键字）。
-    * @param sql SQL，不允许为 null
-    * @param protocol 方法入参 protocol
-    * @return 结果字符串
-    */
+     * 类型与函数方言映射（保守策略：只替换可安全替换的独立类型/函数关键字）。
+     * @param sql SQL，不允许为 null
+     * @param protocol 方法入参 protocol
+     * @return 结果字符串
+     */
     private String applyTypeAndFunctionMapping(String sql, String protocol) {
         switch (protocol) {
             case "postgresql" -> {

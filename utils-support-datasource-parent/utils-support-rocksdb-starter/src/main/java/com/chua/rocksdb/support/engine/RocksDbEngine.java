@@ -73,21 +73,21 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     */
     private final ConcurrentHashMap<String, Object> kvKeyLocks = new ConcurrentHashMap<>();
     /**
-    * FTS 集合 级 锁：集合名 → {@link Object}（倒排 条目 读-改-写 串行化）
-    */
+     * FTS 集合 级 锁：集合名 → {@link Object}（倒排 条目 读-改-写 串行化）
+     */
     private final ConcurrentHashMap<String, Object> ftsCollectionLocks = new ConcurrentHashMap<>();
     /**
-    * ORM 表 级 锁：表名 → {@link Object}（序号 分配 与 读-改-写 串行化，跨 引擎 内 所有 ORM 操作 共享）
-    */
+     * ORM 表 级 锁：表名 → {@link Object}（序号 分配 与 读-改-写 串行化，跨 引擎 内 所有 ORM 操作 共享）
+     */
     private final ConcurrentHashMap<String, Object> ormTableLocks = new ConcurrentHashMap<>();
 
     /**
-    * 添加一个 RocksDB 数据源。
-    *
-    * @param name 数据源名称
-    * @param path 数据库目录路径
-    * @return this
-    */
+     * 添加一个 RocksDB 数据源。
+     *
+     * @param name 数据源名称
+     * @param path 数据库目录路径
+     * @return this
+     */
     public RocksDbEngine addDataSource(String name, String path) {
         RocksDB db;
         try {
@@ -100,26 +100,26 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 添加一个已打开的 RocksDB 数据源。
-    *
-    * @param name 数据源名称
-    * @param db   RocksDB 实例
-    * @param path 数据库目录路径
-    * @return this
-    */
+     * 添加一个已打开的 RocksDB 数据源。
+     *
+     * @param name 数据源名称
+     * @param db   RocksDB 实例
+     * @param path 数据库目录路径
+     * @return this
+     */
     public RocksDbEngine addDataSource(String name, RocksDB db, String path) {
         register(name, db, path);
         return this;
     }
 
     /**
-    * 注册数据源到引擎内部映射。
-    *
-    * @param name 数据源名称
-    * @param db   RocksDB 实例
-    * @param path 数据库目录路径
-    * @return this
-    */
+     * 注册数据源到引擎内部映射。
+     *
+     * @param name 数据源名称
+     * @param db   RocksDB 实例
+     * @param path 数据库目录路径
+     * @return this
+     */
     private RocksDbEngine register(String name, RocksDB db, String path) {
         databases.put(name, db);
         super.addDataSource(name, new RocksDbEngineDataSource(name, path, db));
@@ -127,12 +127,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 以默认选项打开 RocksDB 数据库。
-    *
-    * @param path 数据库目录路径
-    * @return 打开的数据库实例
-    * @throws RocksDBException 打开失败
-    */
+     * 以默认选项打开 RocksDB 数据库。
+     *
+     * @param path 数据库目录路径
+     * @return 打开的数据库实例
+     * @throws RocksDBException 打开失败
+     */
     private static RocksDB openDatabase(String path) throws RocksDBException {
         RocksDB.loadLibrary();
         try (Options options = new Options()) {
@@ -142,20 +142,20 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 获取 RocksDB 实例。
-    *
-    * @param name 数据源名称
-    * @return 数据库实例
-    */
+     * 获取 RocksDB 实例。
+     *
+     * @param name 数据源名称
+     * @return 数据库实例
+     */
     public RocksDB getDB(String name) {
         return databases.get(name);
     }
 
     /**
-    * 获取当前默认数据源对应的 RocksDB 实例。
-    *
-    * @return 数据库实例
-    */
+     * 获取当前默认数据源对应的 RocksDB 实例。
+     *
+     * @return 数据库实例
+     */
     private RocksDB currentDB() {
         if (defaultDataSourceName == null) {
             if (databases.isEmpty()) {
@@ -169,13 +169,13 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== 字节 KV 领域 API ====================
 
     /**
-    * 字节写入（真实 放入）。
-    *
-    * @param name  数据源名称
-    * @param key   键（字节）
-    * @param value 值（字节）
-    * @return this
-    */
+     * 字节写入（真实 放入）。
+     *
+     * @param name  数据源名称
+     * @param key   键（字节）
+     * @param value 值（字节）
+     * @return this
+     */
     public RocksDbEngine putBytes(String name, byte[] key, byte[] value) {
         RocksDB db = requireDB(name);
         try {
@@ -187,12 +187,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 字节读取（真实 获取）。
-    *
-    * @param name 数据源名称
-    * @param key  键（字节）
-    * @return 值字节，不存在返回 空
-    */
+     * 字节读取（真实 获取）。
+     *
+     * @param name 数据源名称
+     * @param key  键（字节）
+     * @return 值字节，不存在返回 空
+     */
     public byte[] getBytes(String name, byte[] key) {
         RocksDB db = requireDB(name);
         try {
@@ -203,12 +203,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 字节删除（真实 删除）。
-    *
-    * @param name 数据源名称
-    * @param key  键（字节）
-    * @return this
-    */
+     * 字节删除（真实 删除）。
+     *
+     * @param name 数据源名称
+     * @param key  键（字节）
+     * @return this
+     */
     public RocksDbEngine deleteBytes(String name, byte[] key) {
         RocksDB db = requireDB(name);
         try {
@@ -220,11 +220,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 字节全量扫描（真实 扫描）。
-    *
-    * @param name 数据源名称
-    * @return 键值对列表
-    */
+     * 字节全量扫描（真实 扫描）。
+     *
+     * @param name 数据源名称
+     * @return 键值对列表
+     */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name) {
         RocksDB db = requireDB(name);
         List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
@@ -237,12 +237,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 字节前缀扫描。
-    *
-    * @param name   数据源名称
-    * @param prefix 键前缀（字节）
-    * @return 匹配前缀的键值对列表
-    */
+     * 字节前缀扫描。
+     *
+     * @param name   数据源名称
+     * @param prefix 键前缀（字节）
+     * @return 匹配前缀的键值对列表
+     */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name, byte[] prefix) {
         RocksDB db = requireDB(name);
         List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
@@ -255,12 +255,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 原子批量写入。
-    *
-    * @param name 数据源名称
-    * @param ops  批量操作列表，每项为 [op, key, value]（op: 0=put, 1=delete）
-    * @return this
-    */
+     * 原子批量写入。
+     *
+     * @param name 数据源名称
+     * @param ops  批量操作列表，每项为 [op, key, value]（op: 0=put, 1=delete）
+     * @return this
+     */
     public RocksDbEngine writeBatch(String name, List<byte[][]> ops) {
         RocksDB db = requireDB(name);
         WriteBatch batch = new WriteBatch();
@@ -284,11 +284,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 获取指定数据源的 RocksDB 实例（必须存在）。
-    *
-    * @param name 数据源名称
-    * @return 数据库实例
-    */
+     * 获取指定数据源的 RocksDB 实例（必须存在）。
+     *
+     * @param name 数据源名称
+     * @return 数据库实例
+     */
     private RocksDB requireDB(String name) {
         RocksDB db = databases.get(name);
         if (db == null) {
@@ -298,12 +298,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 判断字节数组是否以指定前缀开头。
-    *
-    * @param data   数据
-    * @param prefix 前缀
-    * @return true 表示匹配
-    */
+     * 判断字节数组是否以指定前缀开头。
+     *
+     * @param data   数据
+     * @param prefix 前缀
+     * @return true 表示匹配
+     */
     private static boolean startsWith(byte[] data, byte[] prefix) {
         if (data.length < prefix.length) {
             return false;
@@ -319,8 +319,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== KvEngine 字符串 KV 实现（RocksDB 真实 存储） ====================
 
     /**
-    * 字符串 KV 键 前缀（与 字节/文档/ORM/FTS 键 空间 隔离，避免 跨 能力 键 冲突）。
-    */
+     * 字符串 KV 键 前缀（与 字节/文档/ORM/FTS 键 空间 隔离，避免 跨 能力 键 冲突）。
+     */
     private static final String STR_KV_PREFIX = "SKV:";
 
     @Override
@@ -379,11 +379,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 递增（键 级 锁 串行化 读-改-写，并 发 下 计数 不 丢失；RocksDB 真实 存储）。
-    *
-    * @param key 键
-    * @return 递增 后 的 最新 值
-    */
+     * 递增（键 级 锁 串行化 读-改-写，并 发 下 计数 不 丢失；RocksDB 真实 存储）。
+     *
+     * @param key 键
+     * @return 递增 后 的 最新 值
+     */
     public long incr(String key) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -410,8 +410,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 查找 前缀（RocksDB 前缀 扫描，仅 返回 字符串 KV 键 空间 内 键）
-    */
+     * 查找 前缀（RocksDB 前缀 扫描，仅 返回 字符串 KV 键 空间 内 键）
+     */
     public Map<String, String> findAllByPrefix(String prefix) {
         RocksDB db = currentDB();
         Map<String, String> result = new LinkedHashMap<>();
@@ -431,21 +431,21 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 构造 字符串 KV 完整 键（业务 键 加 前缀 以 隔离 键 空间）。
-    *
-    * @param key 业务 键
-    * @return 完整 键 字节
-    */
+     * 构造 字符串 KV 完整 键（业务 键 加 前缀 以 隔离 键 空间）。
+     *
+     * @param key 业务 键
+     * @return 完整 键 字节
+     */
     private static byte[] kvKey(String key) {
         return (STR_KV_PREFIX + key).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-    * 获取 键 级 锁 句柄（同 键 共享 同一 锁，跨 键 互不 影响）。
-    *
-    * @param key 业务 键
-    * @return 锁 句柄
-    */
+     * 获取 键 级 锁 句柄（同 键 共享 同一 锁，跨 键 互不 影响）。
+     *
+     * @param key 业务 键
+     * @return 锁 句柄
+     */
     private Object kvKeyLock(String key) {
         return kvKeyLocks.computeIfAbsent(key, k -> new Object());
     }
@@ -454,8 +454,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 插入（文档 与 FTS 索引 条目 同 批 原子 写 入，集合 级 锁 串行化，崩溃 不 产生 孤 文档）
-    */
+     * 插入（文档 与 FTS 索引 条目 同 批 原子 写 入，集合 级 锁 串行化，崩溃 不 产生 孤 文档）
+     */
     public <T> T insert(String collection, T document) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -572,8 +572,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 创建全文索引（索引 在 insert/update 时 自动 维护，此 方法 为空 操作）
-    */
+     * 创建全文索引（索引 在 insert/update 时 自动 维护，此 方法 为空 操作）
+     */
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         // no-op
     }
@@ -682,18 +682,18 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== 全文索引辅助方法（单 值 键 布局 + 同 批 原子 写 入） ====================
 
     /**
-    * 为 文档 构建 全文 倒排 索引。
-    * <p>FTS 键 布局：{@code FTS_<collection>:<token>:<docId>}，值 为 文档 键 字节
-    * （单 值 键，无 多 值 逗号 拼接 的 竞态 与 键 冲突 问题）。
-    * 新 索引 条目 与 文档 写 入 共 用 同一 {@link WriteBatch}（{@code newDocJson} 非 空 时
-    * 合并 写 入），保证 崩溃 一致 性（C1/C2/L3 修复）。</p>
-    *
-    * @param db         数据库 实例
-    * @param collection 集合名
-    * @param docMap     文档 映射
-    * @param docKey     文档 键
-    * @param newDocJson 新 文档 JSON 字节（非 空 时 同 批 写 入 文档），插入 场景 传 非 空
-    */
+     * 为 文档 构建 全文 倒排 索引。
+     * <p>FTS 键 布局：{@code FTS_<collection>:<token>:<docId>}，值 为 文档 键 字节
+     * （单 值 键，无 多 值 逗号 拼接 的 竞态 与 键 冲突 问题）。
+     * 新 索引 条目 与 文档 写 入 共 用 同一 {@link WriteBatch}（{@code newDocJson} 非 空 时
+     * 合并 写 入），保证 崩溃 一致 性（C1/C2/L3 修复）。</p>
+     *
+     * @param db         数据库 实例
+     * @param collection 集合名
+     * @param docMap     文档 映射
+     * @param docKey     文档 键
+     * @param newDocJson 新 文档 JSON 字节（非 空 时 同 批 写 入 文档），插入 场景 传 非 空
+     */
     private void buildFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey,
                                byte[] newDocJson) {
         Set<String> ftsKeys = new LinkedHashSet<>();
@@ -726,17 +726,17 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 移除 文档 的 全文 倒排 索引。
-    * <p>FTS 单 值 键 直接 删除（无 多 值 拼接 竞态）。
-    * 与 文档 操作 共 用 同一 {@link WriteBatch}：{@code newDocJson} 非 空 时 同 批 更新 文档，
-    * 否则 同 批 删除 文档 键（删除 场景）。</p>
-    *
-    * @param db         数据库 实例
-    * @param collection 集合名
-    * @param docMap     旧 文档 映射
-    * @param docKey     文档 键
-    * @param newDocJson 新 文档 JSON 字节（更新 场景 非 空；删除 场景 传 空 → 同 批 删 文档 键）
-    */
+     * 移除 文档 的 全文 倒排 索引。
+     * <p>FTS 单 值 键 直接 删除（无 多 值 拼接 竞态）。
+     * 与 文档 操作 共 用 同一 {@link WriteBatch}：{@code newDocJson} 非 空 时 同 批 更新 文档，
+     * 否则 同 批 删除 文档 键（删除 场景）。</p>
+     *
+     * @param db         数据库 实例
+     * @param collection 集合名
+     * @param docMap     旧 文档 映射
+     * @param docKey     文档 键
+     * @param newDocJson 新 文档 JSON 字节（更新 场景 非 空；删除 场景 传 空 → 同 批 删 文档 键）
+     */
     private void removeFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey,
                                 byte[] newDocJson) {
         Set<String> ftsKeys = new LinkedHashSet<>();
@@ -772,22 +772,22 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 从 文档 键 提取 文档 id（{@code DOC:<collection>:<id>} → {@code <id>}）。
-    *
-    * @param docKey 文档 键
-    * @return 文档 id
-    */
+     * 从 文档 键 提取 文档 id（{@code DOC:<collection>:<id>} → {@code <id>}）。
+     *
+     * @param docKey 文档 键
+     * @return 文档 id
+     */
     private static String docIdOf(String docKey) {
         int lastColon = docKey.lastIndexOf(':');
         return lastColon > 0 ? docKey.substring(lastColon + 1) : docKey;
     }
 
     /**
-    * 分词（简单 按 空格/标点 切 分，转 小 写）。
-    *
-    * @param text 文本
-    * @return 分 词 结果 列表
-    */
+     * 分词（简单 按 空格/标点 切 分，转 小 写）。
+     *
+     * @param text 文本
+     * @return 分 词 结果 列表
+     */
     private static List<String> tokenize(String text) {
         List<String> tokens = new ArrayList<>();
         for (String part : text.toLowerCase().split("[^\\p{L}\\p{N}]+")) {
@@ -799,33 +799,33 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 规范 化 检索 词（小 写）。
-    *
-    * @param token 检索 词
-    * @return 规范 化 结果
-    */
+     * 规范 化 检索 词（小 写）。
+     *
+     * @param token 检索 词
+     * @return 规范 化 结果
+     */
     private static String normalizeToken(String token) {
         return token.toLowerCase();
     }
 
     /**
-    * 解析 实体 类 对应 的 集合 名（委托 {@link #resolveTableName}）。
-    *
-    * @param entityClass 实体 类
-    * @param <T> 实体 类型
-    * @return 集合 名
-    */
+     * 解析 实体 类 对应 的 集合 名（委托 {@link #resolveTableName}）。
+     *
+     * @param entityClass 实体 类
+     * @param <T> 实体 类型
+     * @return 集合 名
+     */
     private static <T> String resolveCollection(Class<T> entityClass) {
         return AbstractEngine.resolveTableName(entityClass);
     }
 
     /**
-    * 解析 实体 类 对应 的 表 名（委托 基 类 静态 方法，供 ORM 存储 复用）。
-    *
-    * @param entityClass 实体 类
-    * @param <T> 实体 类型
-    * @return 表 名
-    */
+     * 解析 实体 类 对应 的 表 名（委托 基 类 静态 方法，供 ORM 存储 复用）。
+     *
+     * @param entityClass 实体 类
+     * @param <T> 实体 类型
+     * @return 表 名
+     */
     public static <T> String resolveTableName(Class<T> entityClass) {
         return AbstractEngine.resolveTableName(entityClass);
     }
@@ -833,11 +833,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== 文档 序列化 辅助 方法 ====================
 
     /**
-    * 将 通用 对象 转换 为 文档 映射。
-    *
-    * @param source 源 对象
-    * @return 文档 映射
-    */
+     * 将 通用 对象 转换 为 文档 映射。
+     *
+     * @param source 源 对象
+     * @return 文档 映射
+     */
     @SuppressWarnings("unchecked")
     private static Map<String, Object> toDocumentMap(Object source) {
         if (source instanceof Map<?, ?> map) {
@@ -851,11 +851,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 将 文档 映射 序列化 为 JSON。
-    *
-    * @param docMap 文档 映射
-    * @return JSON 字符串
-    */
+     * 将 文档 映射 序列化 为 JSON。
+     *
+     * @param docMap 文档 映射
+     * @return JSON 字符串
+     */
     private static String toJson(Map<String, Object> docMap) {
         try {
             return MAPPER.writeValueAsString(docMap);
@@ -865,14 +865,14 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 将 JSON 反 序列化 为 目标 类型。
-    * <p>反 序列化 失败 时 记录 告警 日志（M2 修复），返回 空 让 调用 方 决定 跳 过 策略。</p>
-    *
-    * @param json          JSON 字符串
-    * @param documentClass 目标 类型
-    * @param <T>           目标 泛 型
-    * @return 目标 类型 实例
-    */
+     * 将 JSON 反 序列化 为 目标 类型。
+     * <p>反 序列化 失败 时 记录 告警 日志（M2 修复），返回 空 让 调用 方 决定 跳 过 策略。</p>
+     *
+     * @param json          JSON 字符串
+     * @param documentClass 目标 类型
+     * @param <T>           目标 泛 型
+     * @return 目标 类型 实例
+     */
     @SuppressWarnings("unchecked")
     private static <T> T fromJson(String json, Class<T> documentClass) {
         try {
@@ -889,38 +889,38 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== Lambda ORM 支持 ====================
 
     /**
-    * 当前 引擎 是否 支持 数据库 物理 分页。
-    * <p>RocksDB ORM 走 内存 分页（前缀 扫描 后 截取），不支持 物理 计数。</p>
-    *
-    * @param entityClass 实体 类 类型
-    * @return false
-    */
+     * 当前 引擎 是否 支持 数据库 物理 分页。
+     * <p>RocksDB ORM 走 内存 分页（前缀 扫描 后 截取），不支持 物理 计数。</p>
+     *
+     * @param entityClass 实体 类 类型
+     * @return false
+     */
     @Override
     protected boolean supportsNativePaging(Class<?> entityClass) {
         return false;
     }
 
     /**
-    * 获取 当前 默认 数据源 对应 的 ORM 存储（与 引擎 共享 表 级 锁 映射，保证 跨 调用 串行）。
-    *
-    * @return ORM 存储 实例，未 连接 时 返回 空
-    */
+     * 获取 当前 默认 数据源 对应 的 ORM 存储（与 引擎 共享 表 级 锁 映射，保证 跨 调用 串行）。
+     *
+     * @return ORM 存储 实例，未 连接 时 返回 空
+     */
     private RocksDbOrmStore ormStore() {
         RocksDB db = currentDB();
         return db == null ? null : new RocksDbOrmStore(db, ormTableLocks);
     }
 
     /**
-    * 持久化 实体 列表 到 RocksDB。
-    * <p>表 名 取 {@code name}（尊重 调用 者 传入 值，M1 修复——不再 静默 改 写 为
-    * 实体 推导 表名）。行 键 按 实体 id 或 自增 序号 分配（序号 分配 在 表 级 锁 内
-    * 原子 完成）。</p>
-    *
-    * @param name 表名
-    * @param data 实体 列表
-    * @param <T>  实体 类型
-    * @return this
-    */
+     * 持久化 实体 列表 到 RocksDB。
+     * <p>表 名 取 {@code name}（尊重 调用 者 传入 值，M1 修复——不再 静默 改 写 为
+     * 实体 推导 表名）。行 键 按 实体 id 或 自增 序号 分配（序号 分配 在 表 级 锁 内
+     * 原子 完成）。</p>
+     *
+     * @param name 表名
+     * @param data 实体 列表
+     * @param <T>  实体 类型
+     * @return this
+     */
     @Override
     public <T> Engine store(String name, List<T> data) {
         RocksDbOrmStore store = ormStore();
@@ -935,16 +935,16 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 执行 实体 查询：RocksDB 前缀 扫描 + 可选 WHERE 内存 过滤。
-    *
-    * @param where       WHERE 子句
-    * @param params      参数 数组
-    * @param entityClass 实体 类 类型
-    * @param limit       限制
-    * @param offset      偏移 量
-    * @param <T>         实体 类型
-    * @return 查询 结果
-    */
+     * 执行 实体 查询：RocksDB 前缀 扫描 + 可选 WHERE 内存 过滤。
+     *
+     * @param where       WHERE 子句
+     * @param params      参数 数组
+     * @param entityClass 实体 类 类型
+     * @param limit       限制
+     * @param offset      偏移 量
+     * @param <T>         实体 类型
+     * @return 查询 结果
+     */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         RocksDbOrmStore store = ormStore();
@@ -956,15 +956,15 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 执行 实体 更新：WHERE 过滤 命中 行，应用 SET 字段 后 原子 回写 RocksDB。
-    * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
-    * {@code beforeUpdate / afterUpdate / onError}。读-改-写 循环 在 表 级 锁 内
-    * 串行化（H3 修复）。</p>
-    *
-    * @param sql 更新 SQL 信息
-    * @param <T> 实体 类型
-    * @return 影响 行数
-    */
+     * 执行 实体 更新：WHERE 过滤 命中 行，应用 SET 字段 后 原子 回写 RocksDB。
+     * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
+     * {@code beforeUpdate / afterUpdate / onError}。读-改-写 循环 在 表 级 锁 内
+     * 串行化（H3 修复）。</p>
+     *
+     * @param sql 更新 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
@@ -988,12 +988,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * RocksDB ORM 更新 核心 逻辑（解析 SET 子句 + WHERE 参数，回写 命中 行）。
-    *
-    * @param sql 更新 SQL 信息
-    * @param <T> 实体 类型
-    * @return 影响 行数
-    */
+     * RocksDB ORM 更新 核心 逻辑（解析 SET 子句 + WHERE 参数，回写 命中 行）。
+     *
+     * @param sql 更新 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
     private <T> int executeUpdateInRocks(UpdateSql<T> sql) {
         RocksDbOrmStore store = ormStore();
         if (store == null) {
@@ -1025,15 +1025,15 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 执行 实体 删除：WHERE 过滤 命中 行，原子 移除 RocksDB 对应 键。
-    * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
-    * {@code beforeUpdate / afterUpdate / onError}。读-删 循环 在 表 级 锁 内
-    * 串行化（H3 修复）。</p>
-    *
-    * @param sql 删除 SQL 信息
-    * @param <T> 实体 类型
-    * @return 影响 行数
-    */
+     * 执行 实体 删除：WHERE 过滤 命中 行，原子 移除 RocksDB 对应 键。
+     * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
+     * {@code beforeUpdate / afterUpdate / onError}。读-删 循环 在 表 级 锁 内
+     * 串行化（H3 修复）。</p>
+     *
+     * @param sql 删除 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
@@ -1057,12 +1057,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * RocksDB ORM 删除 核心 逻辑（WHERE 过滤 命中 行，原子 移除 键）。
-    *
-    * @param sql 删除 SQL 信息
-    * @param <T> 实体 类型
-    * @return 影响 行数
-    */
+     * RocksDB ORM 删除 核心 逻辑（WHERE 过滤 命中 行，原子 移除 键）。
+     *
+     * @param sql 删除 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
     private <T> int executeDeleteInRocks(DeleteSql<T> sql) {
         RocksDbOrmStore store = ormStore();
         if (store == null) {

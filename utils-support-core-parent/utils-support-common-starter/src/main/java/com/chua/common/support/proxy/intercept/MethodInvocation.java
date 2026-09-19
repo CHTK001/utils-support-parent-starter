@@ -10,15 +10,15 @@ package com.chua.common.support.proxy.intercept;
  * @author CH
  * @since 2025/11/26
  * @see MethodArroundIntercept
-*/
+ */
 @FunctionalInterface
 public interface MethodInvocation {
 
     /**
-    * 继续执行目标方法或下一个拦截器
-    *
-    * @return 方法执行结果
-    * @throws Throwable 如果执行过程中发生异常
-    */
+     * 继续执行目标方法或下一个拦截器
+     *
+     * @return 方法执行结果
+     * @throws Throwable 如果执行过程中发生异常
+     */
     Object proceed() throws Throwable;
 }

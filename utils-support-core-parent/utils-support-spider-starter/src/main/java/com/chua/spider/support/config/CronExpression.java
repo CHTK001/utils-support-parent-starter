@@ -9,50 +9,50 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 /**
-* Cron 表达式解析器（石英石 兼容）。
-*
-* <p>支持 5 字段或 6 字段（Quartz 格式，含秒）：
-* <pre>
-*   6 字段: seconds  minutes  hours  day-of-month  month  day-of-week
-*   5 字段:            minutes  hours  day-of-month  month  day-of-week
-* </pre>
-* 各字段支持：
-* <ul>
-*   <li>{@code *} - 任意值</li>
-*   <li>{@code ?} - 不指定（Quartz 用法，仅 DOM/DOW 有效）</li>
-*   <li>{@code N} - 固定值</li>
-*   <li>{@code a,b,c} - 列表</li>
-*   <li>{@code a/b} - 步进（{@code 0/5} 表示从 0 开始每 5 单位）</li>
-*   <li>{@code STAR/b} - 步进（从 min 开始每 b 单位，等价于 {@code min/b}）</li>
-* </ul>
-*
-* <p>DOM 与 DOW 遵循 Quartz OR 语义：
-* 两者都不是 {@code *} 时任一匹配即触发；
-* 其中一个是 {@code *} 时只看另一个。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Cron 表达式解析器（石英石 兼容）。
+ *
+ * <p>支持 5 字段或 6 字段（Quartz 格式，含秒）：
+ * <pre>
+ *   6 字段: seconds  minutes  hours  day-of-month  month  day-of-week
+ *   5 字段:            minutes  hours  day-of-month  month  day-of-week
+ * </pre>
+ * 各字段支持：
+ * <ul>
+ *   <li>{@code *} - 任意值</li>
+ *   <li>{@code ?} - 不指定（Quartz 用法，仅 DOM/DOW 有效）</li>
+ *   <li>{@code N} - 固定值</li>
+ *   <li>{@code a,b,c} - 列表</li>
+ *   <li>{@code a/b} - 步进（{@code 0/5} 表示从 0 开始每 5 单位）</li>
+ *   <li>{@code STAR/b} - 步进（从 min 开始每 b 单位，等价于 {@code min/b}）</li>
+ * </ul>
+ *
+ * <p>DOM 与 DOW 遵循 Quartz OR 语义：
+ * 两者都不是 {@code *} 时任一匹配即触发；
+ * 其中一个是 {@code *} 时只看另一个。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class CronExpression {
 
     /**
-    * 字段分隔符正则。
-    */
+     * 字段分隔符正则。
+     */
     private static final String FIELD_DELIMITER = "\\s+";
 
     /**
-    * 列表分隔符。
-    */
+     * 列表分隔符。
+     */
     private static final String LIST_DELIMITER = ",";
 
     /**
-    * 是否使用 6 字段 石英石 格式（含秒）。
-    */
+     * 是否使用 6 字段 石英石 格式（含秒）。
+     */
     private final boolean hasSeconds;
 
     /**
-    * Cron 表达式原文。
-    */
+     * Cron 表达式原文。
+     */
     private final String expression;
 
     /** 秒 */
@@ -69,8 +69,8 @@ public class CronExpression {
     private final Field daysOfWeek;
 
     /**
-    * DOM / DOW 是否为通配（影响 或 / 和 语义判定）。
-    */
+     * DOM / DOW 是否为通配（影响 或 / 和 语义判定）。
+     */
     private final boolean domIsAny;
     /** DOWISANY */
     private final boolean dowIsAny;
@@ -112,10 +112,10 @@ public class CronExpression {
     }
 
     /**
-    * 判定字段是否为通配（{@code *} 或 {@code ?}）。
-    * @param field 字段
-    * @return 是否wildcard的结果
-    */
+     * 判定字段是否为通配（{@code *} 或 {@code ?}）。
+     * @param field 字段
+     * @return 是否wildcard的结果
+     */
     private static boolean isWildcard(String field) {
         if (StringUtils.isEmpty(field)) {
             return true;
@@ -124,14 +124,14 @@ public class CronExpression {
     }
 
     /**
-    * 计算从基准时间之后的下一次触发时间。
-    *
-    * <p>6 字段 Quartz 模式按秒步进，5 字段模式按分钟步进。
-    * 最坏情况扫描一年（5 字段 31.5 万分钟，6 字段扫描过大会更慢，调用方应控制）。</p>
-    *
-    * @param base 基准时间（不含本次）
-    * @return 下次触发时间；找不到返回 空
-    */
+     * 计算从基准时间之后的下一次触发时间。
+     *
+     * <p>6 字段 Quartz 模式按秒步进，5 字段模式按分钟步进。
+     * 最坏情况扫描一年（5 字段 31.5 万分钟，6 字段扫描过大会更慢，调用方应控制）。</p>
+     *
+     * @param base 基准时间（不含本次）
+     * @return 下次触发时间；找不到返回 空
+     */
     public LocalDateTime nextAfter(LocalDateTime base) {
         ZonedDateTime cursor = base.atZone(ZoneId.systemDefault());
         if (hasSeconds) {
@@ -151,13 +151,13 @@ public class CronExpression {
     }
 
     /**
-    * 判断给定时间是否匹配 cron 表达式。
-    *
-    * <p>DOM / DOW 遵循 Quartz OR 语义。</p>
-    *
-    * @param zdt 待测试时间
-    * @return 是否匹配
-    */
+     * 判断给定时间是否匹配 cron 表达式。
+     *
+     * <p>DOM / DOW 遵循 Quartz OR 语义。</p>
+     *
+     * @param zdt 待测试时间
+     * @return 是否匹配
+     */
     public boolean matches(ZonedDateTime zdt) {
         if (!months.contains(zdt.getMonthValue())) {
             return false;
@@ -189,12 +189,12 @@ public class CronExpression {
     }
 
     /**
-    * 解析单个 cron 字段。
-    * @param expr expr
-    * @param min 最小
-    * @param max 最大
-    * @return 解析字段的结果
-    */
+     * 解析单个 cron 字段。
+     * @param expr expr
+     * @param min 最小
+     * @param max 最大
+     * @return 解析字段的结果
+     */
     private Field parseField(String expr, int min, int max) {
         if ("*".equals(expr) || "?".equals(expr)) {
             return Field.any(min, max);
@@ -262,12 +262,12 @@ public class CronExpression {
         }
 
         /**
-        * 任意
-        *
-        * @param min 最小
-        * @param max 最大
-        * @return 任意的结果
-        */
+         * 任意
+         *
+         * @param min 最小
+         * @param max 最大
+         * @return 任意的结果
+         */
         static Field any(int min, int max) {
             Field f = new Field(min, max);
             Arrays.fill(f.bits, true);
@@ -275,13 +275,13 @@ public class CronExpression {
         }
 
         /**
-        * Step
-        *
-        * @param start 启动
-        * @param max 最大
-        * @param step step
-        * @return step的结果
-        */
+         * Step
+         *
+         * @param start 启动
+         * @param max 最大
+         * @param step step
+         * @return step的结果
+         */
         static Field step(int start, int max, int step) {
             Field f = new Field(0, max);
             for (int v = start; v <= max; v += step) {
@@ -291,13 +291,13 @@ public class CronExpression {
         }
 
         /**
-        * 列表
-        *
-        * @param min 最小
-        * @param max 最大
-        * @param values 值
-        * @return 列表的结果
-        */
+         * 列表
+         *
+         * @param min 最小
+         * @param max 最大
+         * @param values 值
+         * @return 列表的结果
+         */
         static Field list(int min, int max, int[] values) {
             Field f = new Field(min, max);
             for (int v : values) {
@@ -310,13 +310,13 @@ public class CronExpression {
         }
 
         /**
-        * Fixed
-        *
-        * @param min 最小
-        * @param max 最大
-        * @param value 值
-        * @return fixed的结果
-        */
+         * Fixed
+         *
+         * @param min 最小
+         * @param max 最大
+         * @param value 值
+         * @return fixed的结果
+         */
         static Field fixed(int min, int max, int value) {
             Field f = new Field(min, max);
             f.bits[value - min] = true;

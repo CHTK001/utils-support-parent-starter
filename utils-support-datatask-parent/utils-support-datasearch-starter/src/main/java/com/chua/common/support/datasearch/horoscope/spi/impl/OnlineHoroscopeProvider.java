@@ -15,17 +15,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 基于在线接口的星座运势提供器（在线 API + 内置兜底）。
-*
-* <p>在线数据源使用 vvhan 星座运势接口（无需 key）：
-* {@code https://api.vvhan.com/api/horoscope?type=today&astro=白羊座}，
-* 返回结构 {@code {"success":true,"data":{"all":..., "love":..., ...}}}。
-*
-* <p>在线请求失败或接口不可达时，自动回退到内置的十二星座运势库，
-* 保证核心能力可用。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于在线接口的星座运势提供器（在线 API + 内置兜底）。
+ *
+ * <p>在线数据源使用 vvhan 星座运势接口（无需 key）：
+ * {@code https://api.vvhan.com/api/horoscope?type=today&astro=白羊座}，
+ * 返回结构 {@code {"success":true,"data":{"all":..., "love":..., ...}}}。
+ *
+ * <p>在线请求失败或接口不可达时，自动回退到内置的十二星座运势库，
+ * 保证核心能力可用。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("vvhan")
 public class OnlineHoroscopeProvider implements HoroscopeProvider {
@@ -61,11 +61,11 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     /**
-    * 构造一个指定接口地址模板的提供器。
-    *
-    * @param urlTemplate 含 {@code %s}（类型）与 {@code %s}（标志）占位符的地址，
-    *                    如 {@code https://host/api?type=%s&astro=%s}
-    */
+     * 构造一个指定接口地址模板的提供器。
+     *
+     * @param urlTemplate 含 {@code %s}（类型）与 {@code %s}（标志）占位符的地址，
+     *                    如 {@code https://host/api?type=%s&astro=%s}
+     */
     public OnlineHoroscopeProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
         this.httpClient = HttpClientFactory.getClient();
@@ -96,12 +96,12 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     /**
-    * 在线查询
-    *
-    * @param sign 标志
-    * @param type 类型
-    * @return 获取online的结果
-    */
+     * 在线查询
+     *
+     * @param sign 标志
+     * @param type 类型
+     * @return 获取online的结果
+     */
     private HoroscopeInfo fetchOnline(String sign, String type) {
         try {
             ClientResponse resp = httpClient.get(String.format(urlTemplate, type, sign));
@@ -129,11 +129,11 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     /**
-    * 归一化周期
-    *
-    * @param type 类型
-    * @return normalize类型的结果
-    */
+     * 归一化周期
+     *
+     * @param type 类型
+     * @return normalize类型的结果
+     */
     private static String normalizeType(String type) {
         switch (type.trim().toLowerCase()) {
             case "week":
@@ -151,12 +151,12 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     /**
-    * 读取数值指数
-    *
-    * @param n n
-    * @param k k
-    * @return num的结果
-    */
+     * 读取数值指数
+     *
+     * @param n n
+     * @param k k
+     * @return num的结果
+     */
     private static int num(JsonNode n, String k) {
         JsonNode v = n.get(k);
         if (v == null || v.isNull()) {
@@ -170,21 +170,21 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     /**
-    * 文本
-    *
-    * @param n n
-    * @param k k
-    * @return 文本的结果
-    */
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
     }
 
     /**
-    * 内置十二星座运势兜底库（在线不可用时的核心数据）。
-    * @return 构建降级的结果
-    */
+     * 内置十二星座运势兜底库（在线不可用时的核心数据）。
+     * @return 构建降级的结果
+     */
     private static Map<String, Map<String, HoroscopeInfo>> buildFallback() {
         Map<String, Map<String, HoroscopeInfo>> map = new HashMap<>();
         put(map, "白羊座", 88, 85, 90, 80, 86, "3", "红色", "今天精力充沛，适合开启新计划，主动出击会有不错收获。");

@@ -12,7 +12,7 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * @author CH
  * @since 4.0.0.43
-*/
+ */
  @Spi("sip-config")
 public class SipConfig {
 
@@ -48,8 +48,8 @@ public class SipConfig {
     private String compressor;
 
     /**
-    * 加密器 SPI 名称，对应 {@link com.chua.common.support.network.sip.cipher.SipCipher} 的 SPI 标识
-    */
+     * 加密器 SPI 名称，对应 {@link com.chua.common.support.network.sip.cipher.SipCipher} 的 SPI 标识
+     */
     private String cipher;
 
     /** 认证令牌 */
@@ -82,53 +82,53 @@ public class SipConfig {
     public static final int DEFAULT_KCP_PORT = 19461;
 
     /**
-    * 默认数据平面监听端口
-    */
+     * 默认数据平面监听端口
+     */
     public static final int DEFAULT_DATA_PORT = 19462;
 
     /**
-    * 是否启用 TCP 传输
-    */
+     * 是否启用 TCP 传输
+     */
     private boolean tcpEnabled;
 
     /**
-    * TCP 监听端口
-    */
+     * TCP 监听端口
+     */
     private int tcpPort;
 
     /**
-    * 是否启用 KCP 传输
-    */
+     * 是否启用 KCP 传输
+     */
     private boolean kcpEnabled;
 
     /**
-    * KCP 监听端口
-    */
+     * KCP 监听端口
+     */
     private int kcpPort;
 
     /**
-    * 是否启用 frp 数据平面
-    */
+     * 是否启用 frp 数据平面
+     */
     private boolean dataPlaneEnabled;
 
     /**
-    * 数据平面监听端口
-    */
+     * 数据平面监听端口
+     */
     private int dataPort;
 
     /**
-    * 创建一份独立的默认配置。
-    *
-    * @return 新的默认配置实例
-    */
+     * 创建一份独立的默认配置。
+     *
+     * @return 新的默认配置实例
+     */
     public static SipConfig defaults() {
         return builder().build();
     }
 
     /**
-    * 创建配置构建器。
-    * @return Builder 对象
-    */
+     * 创建配置构建器。
+     * @return Builder 对象
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -332,8 +332,8 @@ public class SipConfig {
     }
 
     /**
-    * 配置构建器。
-    */
+     * 配置构建器。
+     */
     public static class Builder {
         private final SipConfig config = new SipConfig();
 

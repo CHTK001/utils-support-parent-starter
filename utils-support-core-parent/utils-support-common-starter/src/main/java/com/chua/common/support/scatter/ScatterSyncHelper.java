@@ -97,13 +97,13 @@ public final class ScatterSyncHelper {
     }
 
     /**
-    * 向节点推送数据（带超时，无响应值场景）。
-    *
-    * @param node          目标节点
-    * @param frame         帧
-    * @param timeoutMillis 超时毫秒
-    * @return true=收到 ACK
-    */
+     * 向节点推送数据（带超时，无响应值场景）。
+     *
+     * @param node          目标节点
+     * @param frame         帧
+     * @param timeoutMillis 超时毫秒
+     * @return true=收到 ACK
+     */
     public static boolean push(ScatterNode node, ScatterFrame frame, long timeoutMillis) {
         try {
             byte[] response;
@@ -124,12 +124,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-    * 批量广播帧（逐个节点，失败不中断）。
-    *
-    * @param nodes         目标节点列表
-    * @param frame         帧
-    * @param timeoutMillis 超时毫秒
-    */
+     * 批量广播帧（逐个节点，失败不中断）。
+     *
+     * @param nodes         目标节点列表
+     * @param frame         帧
+     * @param timeoutMillis 超时毫秒
+     */
     public static void broadcast(List<ScatterNode> nodes, ScatterFrame frame, long timeoutMillis) {
         if (nodes == null || nodes.isEmpty()) {
             return;

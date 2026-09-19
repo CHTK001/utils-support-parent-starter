@@ -4,13 +4,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 字段映射上下文 — 封装转换时的配置参数与上下文数据。
-*
-* <p>在 {@link FieldConverter#convert(Object, FieldMappingContext)} 中被传入，
-* 提供格式化模式、上下文变量、默认值等信息。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 字段映射上下文 — 封装转换时的配置参数与上下文数据。
+ *
+ * <p>在 {@link FieldConverter#convert(Object, FieldMappingContext)} 中被传入，
+ * 提供格式化模式、上下文变量、默认值等信息。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class FieldMappingContext {
 
@@ -43,10 +43,10 @@ public class FieldMappingContext {
     }
 
     /**
-    * 创建 FieldMappingContext 构建器。
-    *
-    * @return 构建器
-    */
+     * 创建 FieldMappingContext 构建器。
+     *
+     * @return 构建器
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -100,8 +100,8 @@ public class FieldMappingContext {
     }
 
     /**
-    * 构建器。
-    */
+     * 构建器。
+     */
     public static class Builder {
         /** 字段名称 */
         private String fieldName;

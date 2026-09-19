@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zhipu", "glm"})
@@ -46,9 +46,9 @@ public class ZhipuVideoClient implements VideoClient {
     private Double imageStrength;
 
     /**
-    * 创建 zhipu视频客户端 实例
-    * @param setting setting
-    */
+     * 创建 zhipu视频客户端 实例
+     * @param setting setting
+     */
     public ZhipuVideoClient(VideoClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -102,11 +102,11 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     /**
-    * 引用镜像
-    *
-    * @param image 镜像
-    * @return 引用镜像的结果
-    */
+     * 引用镜像
+     *
+     * @param image 镜像
+     * @return 引用镜像的结果
+     */
     public VideoClient referenceImage(BufferedImage image) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -221,11 +221,11 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     /**
-    * 映射状态
-    *
-    * @param taskStatus 任务状态
-    * @return 映射状态的结果
-    */
+     * 映射状态
+     *
+     * @param taskStatus 任务状态
+     * @return 映射状态的结果
+     */
     private VideoResponse.Status mapStatus(String taskStatus) {
         if (taskStatus == null) {
             return VideoResponse.Status.PENDING;

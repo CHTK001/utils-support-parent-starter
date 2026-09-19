@@ -14,39 +14,39 @@ import java.util.List;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 public interface MultipartStorage {
 
     /**
-    * 初始化分片上传任务。
-    *
-    * @param request 上传请求
-    * @return 初始化结果，包含 uploadid
-    */
+     * 初始化分片上传任务。
+     *
+     * @param request 上传请求
+     * @return 初始化结果，包含 uploadid
+     */
     com.chua.common.support.storage.result.MultipartPartResult initiate(PutObjectRequest request);
 
     /**
-    * 上传分片。
-    *
-    * @param request 分片上传请求
-    * @return 上传结果，包含 part数字、etag
-    */
+     * 上传分片。
+     *
+     * @param request 分片上传请求
+     * @return 上传结果，包含 part数字、etag
+     */
     com.chua.common.support.storage.result.MultipartPartResult uploadPart(MultipartUploadPartRequest request);
 
     /**
-    * 完成分片上传，合并所有分片。
-    *
-    * @param uploadId 上传任务 标识
-    * @param parts 分片标签列表
-    * @return 上传结果
-    */
+     * 完成分片上传，合并所有分片。
+     *
+     * @param uploadId 上传任务 标识
+     * @param parts 分片标签列表
+     * @return 上传结果
+     */
     PutObjectResult complete(String uploadId, List<PartETag> parts);
 
     /**
-    * 取消分片上传，清理临时数据。
-    *
-    * @param uploadId 上传任务 标识
-    * @return 取消结果
-    */
+     * 取消分片上传，清理临时数据。
+     *
+     * @param uploadId 上传任务 标识
+     * @return 取消结果
+     */
     DeleteObjectResult abort(String uploadId);
 }

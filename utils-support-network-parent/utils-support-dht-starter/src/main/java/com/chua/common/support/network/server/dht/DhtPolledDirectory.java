@@ -25,73 +25,73 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Kademlia DHT 协议的轮询目录实现。
-* <p>
-* 通过 DHT 定时查询指定键的值，检测变更后将 创建/删除 事件分发给监听器。
-* 支持通过 URL 格式配置 DHT 节点地址、监听键、种子节点等参数。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Kademlia DHT 协议的轮询目录实现。
+ * <p>
+ * 通过 DHT 定时查询指定键的值，检测变更后将 创建/删除 事件分发给监听器。
+ * 支持通过 URL 格式配置 DHT 节点地址、监听键、种子节点等参数。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DhtPolledDirectory implements PolledDirectory {
 
     /**
-    * 配置键：DHT 节点 URL，格式 {@code dht://host:port/?watch=key1&seed=host2:port2}
-    */
+     * 配置键：DHT 节点 URL，格式 {@code dht://host:port/?watch=key1&seed=host2:port2}
+     */
     public static final String KEY_DHT_URL = "dht.url";
 
     /**
-    * DHT URL（包含主机、端口、监听键等参数）
-    */
+     * DHT URL（包含主机、端口、监听键等参数）
+     */
     private final String dhtUrl;
 
     /**
-    * DHT 协议引擎
-    */
+     * DHT 协议引擎
+     */
     private DhtProtocol protocol;
 
     /**
-    * 运行状态标志
-    */
+     * 运行状态标志
+     */
     private volatile boolean running;
 
     /**
-    * 注册的事件监听器列表
-    */
+     * 注册的事件监听器列表
+     */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 轮询环境配置
-    */
+     * 轮询环境配置
+     */
     private DirectoryPollerEnvironment environment;
 
     /**
-    * 定时轮询调度器
-    */
+     * 定时轮询调度器
+     */
     private ScheduledExecutorService scheduler;
 
     /**
-    * 定时轮询任务的 期货
-    */
+     * 定时轮询任务的 期货
+     */
     private ScheduledFuture<?> pollingTask;
 
     /**
-    * 上一次轮询的快照（键 -> Discovery 集合）
-    */
+     * 上一次轮询的快照（键 -> Discovery 集合）
+     */
     private final java.util.Map<String, Set<Discovery>> previousSnapshot = new ConcurrentHashMap<>();
 
     /**
-    * 需要监听变更的键集合
-    */
+     * 需要监听变更的键集合
+     */
     private final Set<String> watchKeys = ConcurrentHashMap.newKeySet();
 
     /**
-    * 构造 DHT 轮询目录。
-    *
-    * @param env 轮询环境配置（必须包含 {@link #KEY_DHT_URL}）
-    */
+     * 构造 DHT 轮询目录。
+     *
+     * @param env 轮询环境配置（必须包含 {@link #KEY_DHT_URL}）
+     */
     public DhtPolledDirectory(DirectoryPollerEnvironment env) {
         this.dhtUrl = env.getString(KEY_DHT_URL);
         if (dhtUrl == null || dhtUrl.isEmpty()) {
@@ -191,10 +191,10 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 轮询单个 DHT 键，检测变更并分发事件。
-    *
-    * @param key DHT 键
-    */
+     * 轮询单个 DHT 键，检测变更并分发事件。
+     *
+     * @param key DHT 键
+     */
     private void pollDirectory(String key) {
         String value = protocol.findValue(key);
         Set<Discovery> current = new HashSet<>();
@@ -215,12 +215,12 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 对比前后快照，检测新增和删除的 Discovery 并分发事件。
-    *
-    * @param key      DHT 键
-    * @param previous 上一次的快照
-    * @param current  当前的快照
-    */
+     * 对比前后快照，检测新增和删除的 Discovery 并分发事件。
+     *
+     * @param key      DHT 键
+     * @param previous 上一次的快照
+     * @param current  当前的快照
+     */
     private void detectChanges(String key, Set<Discovery> previous, Set<Discovery> current) {
         Set<String> prevIds = new HashSet<>();
         for (Discovery d : previous) {
@@ -244,12 +244,12 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 向所有注册的监听器分发事件。
-    *
-    * @param eventType 事件类型
-    * @param key       DHT 键
-    * @param discovery 触发事件的 Discovery
-    */
+     * 向所有注册的监听器分发事件。
+     *
+     * @param eventType 事件类型
+     * @param key       DHT 键
+     * @param discovery 触发事件的 Discovery
+     */
     private void notifyEvent(WatcherEvent eventType, String key, Discovery discovery) {
         if (listeners.isEmpty()) {
             return;
@@ -285,10 +285,10 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 从 URL 中解析需要监听的键（watch 参数）。
-    *
-    * @param url DHT URL
-    */
+     * 从 URL 中解析需要监听的键（watch 参数）。
+     *
+     * @param url DHT URL
+     */
     private void parseWatchKeys(String url) {
         if (url.contains("?")) {
             String query = url.substring(url.indexOf('?') + 1);
@@ -302,14 +302,14 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 从 URL 解析 DHT 配置。
-    * <p>
-    * URL 格式：{@code dht://host:port/?watch=key1&seed=host2:port2&k=8&port=6881}
-    * </p>
-    *
-    * @param url DHT URL
-    * @return DhtConfig 实例
-    */
+     * 从 URL 解析 DHT 配置。
+     * <p>
+     * URL 格式：{@code dht://host:port/?watch=key1&seed=host2:port2&k=8&port=6881}
+     * </p>
+     *
+     * @param url DHT URL
+     * @return DhtConfig 实例
+     */
     private DhtConfig parseDhtUrl(String url) {
         DhtConfig.DhtConfigBuilder builder = DhtConfig.builder();
         try {
@@ -362,8 +362,8 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 清理所有资源。
-    */
+     * 清理所有资源。
+     */
     private void cleanup() {
         if (pollingTask != null && !pollingTask.isCancelled()) {
             pollingTask.cancel(true);

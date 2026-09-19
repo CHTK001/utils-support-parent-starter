@@ -7,12 +7,12 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
-* Agent Hook 事件
-*
-* <p>统一封装调试 / 规划等 Hook 回调载荷。
-*
-* @author CH
-* @since 4.0.0.42
+ * Agent Hook 事件
+ *
+ * <p>统一封装调试 / 规划等 Hook 回调载荷。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -60,13 +60,13 @@ public class AgentHookEvent implements Serializable {
     private Long elapsedMillis;
 
     /**
-    * 创建简单事件
-    *
-    * @param type    事件类型
-    * @param agentId Agent 标识
-    * @param message 事件描述
-    * @return 事件实例
-    */
+     * 创建简单事件
+     *
+     * @param type    事件类型
+     * @param agentId Agent 标识
+     * @param message 事件描述
+     * @return 事件实例
+     */
     public static AgentHookEvent of(String type, String agentId, String message) {
         return AgentHookEvent.builder()
                 .type(type)
@@ -77,14 +77,14 @@ public class AgentHookEvent implements Serializable {
     }
 
     /**
-    * 创建简单事件（含执行轮次）
-    *
-    * @param type      事件类型
-    * @param agentId   Agent 标识
-    * @param message   事件描述
-    * @param iteration 当前执行轮次（从 1 开始）
-    * @return 事件实例
-    */
+     * 创建简单事件（含执行轮次）
+     *
+     * @param type      事件类型
+     * @param agentId   Agent 标识
+     * @param message   事件描述
+     * @param iteration 当前执行轮次（从 1 开始）
+     * @return 事件实例
+     */
     public static AgentHookEvent of(String type, String agentId, String message, int iteration) {
         return AgentHookEvent.builder()
                 .type(type)

@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Google Cloud Storage 文件存储实现。
-*
-* <p>基于 Google Cloud Storage SDK 实现 {@link FileStorage} SPI 接口。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Google Cloud Storage 文件存储实现。
+ *
+ * <p>基于 Google Cloud Storage SDK 实现 {@link FileStorage} SPI 接口。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"gcs", "google"})
 public class GoogleCloudFileStorage extends AbstractFileStorage {
@@ -53,24 +53,24 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     /**
-    * 解析 GCS 凭据。
-    *
-    * <p>解析优先级：
-    * <ol>
-    *   <li>将 {@code secret} 作为服务账号 JSON 密钥内容解析</li>
-    *   <li>若解析失败，降级为 {@link GoogleCredentials#getApplicationDefault()}（ADC 凭据链）</li>
-    * </ol>
-    *
-    * <p>ADC 凭据链包括：
-    * <ul>
-    *   <li>{@code GOOGLE_APPLICATION_CREDENTIALS} 环境变量指向的 JSON 文件</li>
-    *   <li>Google Cloud SDK 默认凭据（{@code gcloud auth application-default login}）</li>
-    *   <li>GCE/GKE 元数据服务（运行在 Google Cloud 上时自动获取）</li>
-    * </ul>
-    *
-    * @param secret 密钥内容（JSON 字符串或任意字符串）
-    * @return 解析后的凭据，不会为 空
-    */
+     * 解析 GCS 凭据。
+     *
+     * <p>解析优先级：
+     * <ol>
+     *   <li>将 {@code secret} 作为服务账号 JSON 密钥内容解析</li>
+     *   <li>若解析失败，降级为 {@link GoogleCredentials#getApplicationDefault()}（ADC 凭据链）</li>
+     * </ol>
+     *
+     * <p>ADC 凭据链包括：
+     * <ul>
+     *   <li>{@code GOOGLE_APPLICATION_CREDENTIALS} 环境变量指向的 JSON 文件</li>
+     *   <li>Google Cloud SDK 默认凭据（{@code gcloud auth application-default login}）</li>
+     *   <li>GCE/GKE 元数据服务（运行在 Google Cloud 上时自动获取）</li>
+     * </ul>
+     *
+     * @param secret 密钥内容（JSON 字符串或任意字符串）
+     * @return 解析后的凭据，不会为 空
+     */
     private static Credentials resolveCredentials(String secret) {
         // 尝试将 secret 作为服务账号 JSON 密钥解析
         if (secret != null && !secret.isEmpty()) {
@@ -98,9 +98,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * 放入对象
-    * @param request 请求
-    */
+     * 放入对象
+     * @param request 请求
+     */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -124,9 +124,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * 获取对象
-    * @param request 请求
-    */
+     * 获取对象
+     * @param request 请求
+     */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -158,9 +158,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * 获取对象
-    * @param key 键
-    */
+     * 获取对象
+     * @param key 键
+     */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -169,9 +169,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * 删除对象
-    * @param key 键
-    */
+     * 删除对象
+     * @param key 键
+     */
     public DeleteObjectResult deleteObject(String key) {
         try {
             storage.delete(BlobId.of(bucket, key));
@@ -188,9 +188,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * exist对象
-    * @param request 请求
-    */
+     * exist对象
+     * @param request 请求
+     */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             Blob blob = storage.get(BlobId.of(bucket, request.getKey()));
@@ -208,9 +208,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-    * 列表对象
-    * @param request 请求
-    */
+     * 列表对象
+     * @param request 请求
+     */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             // 构建 GCS 列表选项：前缀 + 页大小

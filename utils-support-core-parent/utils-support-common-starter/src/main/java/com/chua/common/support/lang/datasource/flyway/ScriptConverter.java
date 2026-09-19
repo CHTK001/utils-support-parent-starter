@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi(ScriptConverter.SPI_NAME)
 public interface ScriptConverter {
 
@@ -54,25 +54,25 @@ public interface ScriptConverter {
     boolean supports(String protocol);
 
     /**
-    * 对单条语句做方言转换。
-    *
-    * <p>返回 {@code null} 表示该语句在目标库不可执行且无等价转换，应整条跳过
-    * （典型场景：MySQL 动态 SQL 段 {@code PREPARE ... FROM @var} 在 H2/PG 下无法执行，
-    * 而其前置的 {@code ALTER TABLE} 已在全量建表中覆盖）。</p>
-    *
-    * @param statement 单条语句（已按分号拆分，不含分隔符）
-    * @param protocol  目标数据库协议名
-    * @return 转换后的语句；null 表示跳过
-    */
+     * 对单条语句做方言转换。
+     *
+     * <p>返回 {@code null} 表示该语句在目标库不可执行且无等价转换，应整条跳过
+     * （典型场景：MySQL 动态 SQL 段 {@code PREPARE ... FROM @var} 在 H2/PG 下无法执行，
+     * 而其前置的 {@code ALTER TABLE} 已在全量建表中覆盖）。</p>
+     *
+     * @param statement 单条语句（已按分号拆分，不含分隔符）
+     * @param protocol  目标数据库协议名
+     * @return 转换后的语句；null 表示跳过
+     */
     String convert(String statement, String protocol);
     /**
-    * 对语句列表做批量方言转换。
-    * <p>默认实现逐条调用 {@link #convert(String, String)}，过滤 null 后返回。</p>
-    *
-    * @param statements 拆分后的语句列表
-    * @param protocol   目标数据库协议名
-    * @return 转换后的可执行语句列表（null 条目已过滤）
-    */
+     * 对语句列表做批量方言转换。
+     * <p>默认实现逐条调用 {@link #convert(String, String)}，过滤 null 后返回。</p>
+     *
+     * @param statements 拆分后的语句列表
+     * @param protocol   目标数据库协议名
+     * @return 转换后的可执行语句列表（null 条目已过滤）
+     */
     default List<String> convertAll(List<String> statements, String protocol) {
         return statements.stream()
                 .filter(s -> s != null && !s.isBlank())
@@ -82,13 +82,13 @@ public interface ScriptConverter {
     }
 
     /**
-    * 通过 SPI 获取支持指定协议的转换器。
-    * <p>按 SPI 注册顺序遍历扩展，匹配 {@link #supports(String)} 返回的第一项；
-    * 全部不支持时返回默认兜底实现（{@code @SpiDefault}，支持全部协议）。</p>
-    *
-    * @param protocol 目标数据库协议名
-    * @return 转换器实例，无法获取时返回 null
-    */
+     * 通过 SPI 获取支持指定协议的转换器。
+     * <p>按 SPI 注册顺序遍历扩展，匹配 {@link #supports(String)} 返回的第一项；
+     * 全部不支持时返回默认兜底实现（{@code @SpiDefault}，支持全部协议）。</p>
+     *
+     * @param protocol 目标数据库协议名
+     * @return 转换器实例，无法获取时返回 null
+     */
     static ScriptConverter getExtension(String protocol) {
         var provider = ServiceProvider.of(ScriptConverter.class);
         for (ScriptConverter c : provider.collect()) {

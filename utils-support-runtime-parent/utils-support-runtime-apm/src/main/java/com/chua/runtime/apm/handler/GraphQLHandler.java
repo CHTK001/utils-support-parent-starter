@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* 图计算ql 处理器 — intercepts 图计算ql 执行.
-*
-* @author CH
-* @since 4.0.0.42
+ * 图计算ql 处理器 — intercepts 图计算ql 执行.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class GraphQLHandler extends AbstractAppHandler {
 
     /**
-    * GRAPHQL
+     * GRAPHQL
      */
     private static final String GRAPHQL = "graphql/GraphQL";
     /**
-    * 执行 方法
+     * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute", "executeAsync"};
 

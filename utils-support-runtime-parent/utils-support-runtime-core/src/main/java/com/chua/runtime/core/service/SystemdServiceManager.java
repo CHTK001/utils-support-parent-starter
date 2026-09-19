@@ -13,25 +13,25 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Linux systemd 系统服务管理器。
-*
-* @author CH
-* @since 4.0.0.42
+ * Linux systemd 系统服务管理器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SystemdServiceManager implements ServiceManager {
 
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(SystemdServiceManager.class.getName());
     /**
-    * systemd 服务目录
+     * systemd 服务目录
      */
     private static final String SYSTEMD_DIR = "/etc/systemd/system";
 
     /**
-    * 命令超时（秒）
+     * 命令超时（秒）
      */
     private static final int CMD_TIMEOUT = 30;
 
@@ -162,10 +162,10 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     /**
-    * generate服务文件
-    *
-    * @param service 服务
-    * @return generate服务文件的结果
+     * generate服务文件
+     *
+     * @param service 服务
+     * @return generate服务文件的结果
      */
     private String generateServiceFile(ManagedService service) {
         StringBuilder sb = new StringBuilder();

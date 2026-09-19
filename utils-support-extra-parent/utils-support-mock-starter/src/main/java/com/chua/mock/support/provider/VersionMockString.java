@@ -8,14 +8,14 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
-* 版本号 Mock 生成器
-*
-* <p>生成语义化版本号 {@code 主.次.修订}，如 {@code 3.14.2}。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param environment 环境
-* @return 获取字符串的结果
+ * 版本号 Mock 生成器
+ *
+ * <p>生成语义化版本号 {@code 主.次.修订}，如 {@code 3.14.2}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param environment 环境
+ * @return 获取字符串的结果
  */
 @Spi({"version", "version-no", "semver"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")

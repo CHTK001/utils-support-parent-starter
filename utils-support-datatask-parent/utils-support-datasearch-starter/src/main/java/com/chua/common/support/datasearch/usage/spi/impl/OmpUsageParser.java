@@ -70,18 +70,18 @@ public class OmpUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "omp"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "omp"}
+     */
     @Override
     public String name() {
         return PROVIDER_OMP;
     }
 
     /**
-    * 响应式流式入口：惰性扫描全部会话 JSONL（含子代理转录）。
-    */
+     * 响应式流式入口：惰性扫描全部会话 JSONL（含子代理转录）。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listSessionFiles();
@@ -100,10 +100,10 @@ public class OmpUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 枚举 sessions 目录下全部 JSONL 文件。
-    *
-    * @return 会话文件列表
-    */
+     * 枚举 sessions 目录下全部 JSONL 文件。
+     *
+     * @return 会话文件列表
+     */
     private List<Path> listSessionFiles() {
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();
@@ -120,12 +120,12 @@ public class OmpUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 流式解析单个会话文件。
-    *
-    * @param file    会话文件
-    * @param seenIds 已处理的记录 id 集合
-    * @return 用量记录流
-    */
+     * 流式解析单个会话文件。
+     *
+     * @param file    会话文件
+     * @param seenIds 已处理的记录 id 集合
+     * @return 用量记录流
+     */
     private Flux<AiUsage> streamSessionFile(Path file, Set<String> seenIds) {
         return streamLines(file)
                 .map(line -> parseLine(line, seenIds))
@@ -133,12 +133,12 @@ public class OmpUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析单行；非 assistant 用量行、重复 id 返回 null。
-    *
-    * @param line    单行 JSON
-    * @param seenIds 已处理的记录 id 集合
-    * @return 用量记录或 null
-    */
+     * 解析单行；非 assistant 用量行、重复 id 返回 null。
+     *
+     * @param line    单行 JSON
+     * @param seenIds 已处理的记录 id 集合
+     * @return 用量记录或 null
+     */
     private AiUsage parseLine(String line, Set<String> seenIds) {
         if (line.isBlank()) {
             return null;

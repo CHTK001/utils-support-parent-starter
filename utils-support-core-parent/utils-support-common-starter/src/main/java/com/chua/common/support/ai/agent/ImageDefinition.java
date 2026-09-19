@@ -8,19 +8,19 @@ import com.chua.common.support.ai.skill.SkillManager;
 import java.util.List;
 
 /**
-* ImageDefinition 扩展 AgentDefinition，增加图像生成能力。
-*
-* <p>子 Agent 使用此类时，会自动携带图像生成客户端和模型信息，
-* AgentScopeAgent 内部会将其注册为支持生图的 Model，而不是普通 ChatClient。
-*
-* @author CH
-* @since 4.0.0.42
+ * ImageDefinition 扩展 AgentDefinition，增加图像生成能力。
+ *
+ * <p>子 Agent 使用此类时，会自动携带图像生成客户端和模型信息，
+ * AgentScopeAgent 内部会将其注册为支持生图的 Model，而不是普通 ChatClient。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ImageDefinition extends AgentDefinition {
 
     /**
-    * 图像生成模型名称，如 dall-e-3、agnes-image-2.0-flash
-    */
+     * 图像生成模型名称，如 dall-e-3、agnes-image-2.0-flash
+     */
     private final String imageModel;
 
     /** 图像生成客户端 */

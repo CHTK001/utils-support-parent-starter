@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
-* 台风登陆记录实体。
-*
-* @author CH
-* @since 4.0.0.42
+ * 台风登陆记录实体。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

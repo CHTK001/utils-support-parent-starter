@@ -18,33 +18,33 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
-* 动漫风格迁移图像滤镜（animeganv2）
-* <p>
-* 基于 animeganv2 ONNX 模型的动漫风格迁移滤镜，
-* 支持以下 4 种动漫风格：
-* <ul>
-*   <li>hayao - 宫崎骏风格</li>
-*   <li>shinkai - 新海诚风格</li>
-*   <li>paprika - 今敏/红辣椒风格</li>
-*   <li>face-portrait - 人像动漫化风格（Face Portrait V2）</li>
-* </ul>
-* <p>
-* 使用方式：
-* <pre>
-* // 通过 SPI 创建
-* ImageFilter filter = ServiceProvider.of(ImageFilter.class).getExtension("anime-gan-v2-hayao");
-* BufferedImage result = filter.converter(inputImage);
-*
-* // 直接创建
-* AnimeGanImageFilter filter = new AnimeGanImageFilter("anime-gan-v2-hayao");
-* BufferedImage result = filter.converter(inputImage);
-* </pre>
-* <p>
-* 依赖：需要引入对应的 模型-父 模块（如 utils-support-onnx-animegan-hayao）
-*
-* @author CH
-* @版本 4.0.0.42
-* @since 2026/8/15
+ * 动漫风格迁移图像滤镜（animeganv2）
+ * <p>
+ * 基于 animeganv2 ONNX 模型的动漫风格迁移滤镜，
+ * 支持以下 4 种动漫风格：
+ * <ul>
+ *   <li>hayao - 宫崎骏风格</li>
+ *   <li>shinkai - 新海诚风格</li>
+ *   <li>paprika - 今敏/红辣椒风格</li>
+ *   <li>face-portrait - 人像动漫化风格（Face Portrait V2）</li>
+ * </ul>
+ * <p>
+ * 使用方式：
+ * <pre>
+ * // 通过 SPI 创建
+ * ImageFilter filter = ServiceProvider.of(ImageFilter.class).getExtension("anime-gan-v2-hayao");
+ * BufferedImage result = filter.converter(inputImage);
+ *
+ * // 直接创建
+ * AnimeGanImageFilter filter = new AnimeGanImageFilter("anime-gan-v2-hayao");
+ * BufferedImage result = filter.converter(inputImage);
+ * </pre>
+ * <p>
+ * 依赖：需要引入对应的 模型-父 模块（如 utils-support-onnx-animegan-hayao）
+ *
+ * @author CH
+ * @版本 4.0.0.42
+ * @since 2026/8/15
  */
 @Slf4j
 @Spi({"anime-gan-v2-hayao", "anime-gan-v2-shinkai", "anime-gan-v2-paprika", "anime-gan-v2-face-portrait"})
@@ -52,34 +52,34 @@ import java.io.OutputStream;
 public class AnimeGanImageFilter implements ImageFilter {
 
     /**
-    * 支持的动漫风格模型名称
-    */
+     * 支持的动漫风格模型名称
+     */
     private static final String[] ANIME_STYLE_NAMES = {
             "anime-gan-v2-hayao", "anime-gan-v2-shinkai", "anime-gan-v2-paprika", "anime-gan-v2-face-portrait"
     };
 
     /**
-    * 识别引擎
-    */
+     * 识别引擎
+     */
     private final IdentificationEngine engine;
 
     /**
-    * 模型名称
-    */
+     * 模型名称
+     */
     private final String modelName;
 
     /**
-    * 默认构造函数（SPI 加载用，默认使用宫崎骏风格）
-    */
+     * 默认构造函数（SPI 加载用，默认使用宫崎骏风格）
+     */
     public AnimeGanImageFilter() {
         this("anime-gan-v2-hayao");
     }
 
     /**
-    * 构造函数
-    *
-    * @param modelName 模型名称（如 anime-gan-v2-hayao, anime-gan-v2-shinkai 等）
-    */
+     * 构造函数
+     *
+     * @param modelName 模型名称（如 anime-gan-v2-hayao, anime-gan-v2-shinkai 等）
+     */
     public AnimeGanImageFilter(String modelName) {
         this.modelName = modelName;
         this.engine = AbstractIdentificationEngine.getInstance();
@@ -87,19 +87,19 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     /**
-    * 获取当前使用的模型名称
-    *
-    * @return 模型名称
-    */
+     * 获取当前使用的模型名称
+     *
+     * @return 模型名称
+     */
     public String getModelName() {
         return modelName;
     }
 
     /**
-    * 获取所有支持的动漫风格名称
-    *
-    * @return 风格名称数组
-    */
+     * 获取所有支持的动漫风格名称
+     *
+     * @return 风格名称数组
+     */
     public static String[] getSupportedStyles() {
         return ANIME_STYLE_NAMES.clone();
     }
@@ -189,11 +189,11 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     /**
-    * 将 DJL 镜像 转换为 缓冲镜像
-    *
-    * @param djlImage DJL 镜像 对象
-    * @return BufferedImage
-    */
+     * 将 DJL 镜像 转换为 缓冲镜像
+     *
+     * @param djlImage DJL 镜像 对象
+     * @return BufferedImage
+     */
     private static BufferedImage djlImageToBufferedImage(Image djlImage) {
         // DJL Image 的 getWrappedImage() 返回底层 OpenCV/BufferedImage 对象
  // 或通过 转为ndarray → 缓冲镜像 转换

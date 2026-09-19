@@ -12,40 +12,40 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 远程数据同步 Agent 抽象基类，封装与 数据同步 服务端 的注册、心跳、收发协议。
-* <p>
-* 启动后通过 {@link SyncClient} 连接远端、注册 Agentid 并按 {@code source:agentId} / {@code sink:agentId} 两个 topic 订阅。
-* 子类提供 {@link com.chua.datasync.agent.support.DataSyncAgentSource} 与 {@link com.chua.datasync.agent.support.DataSyncAgentSink} 实现。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 远程数据同步 Agent 抽象基类，封装与 数据同步 服务端 的注册、心跳、收发协议。
+ * <p>
+ * 启动后通过 {@link SyncClient} 连接远端、注册 Agentid 并按 {@code source:agentId} / {@code sink:agentId} 两个 topic 订阅。
+ * 子类提供 {@link com.chua.datasync.agent.support.DataSyncAgentSource} 与 {@link com.chua.datasync.agent.support.DataSyncAgentSink} 实现。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent {
 
     /**
-    * 同步协议客户端（rSocket / Socket.IO / 自定义）
-    */
+     * 同步协议客户端（rSocket / Socket.IO / 自定义）
+     */
     protected final SyncClient syncClient;
 
     /**
-    * 响应式数据分发执行器
-    */
+     * 响应式数据分发执行器
+     */
     protected ReactorDataSyncExecutor executor;
 
     /**
-    * @param agentId    Agent 标识
-    * @param syncClient 同步协议客户端
-    */
+     * @param agentId    Agent 标识
+     * @param syncClient 同步协议客户端
+     */
     protected AbstractRemoteDataSyncAgent(String agentId, SyncClient syncClient) {
         super(agentId);
         this.syncClient = syncClient;
     }
 
     /**
-    * 启动远端 Agent：建立连接、注册、按 源/sink topic 订阅。
-    */
+     * 启动远端 Agent：建立连接、注册、按 源/sink topic 订阅。
+     */
     @Override
     public void start() {
         super.start();
@@ -70,8 +70,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 停止远端 Agent：先关 执行器，再断开 同步客户端。
-    */
+     * 停止远端 Agent：先关 执行器，再断开 同步客户端。
+     */
     @Override
     public void stop() {
         if (executor != null) {
@@ -88,8 +88,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 向远端服务注册当前 Agent 及其 源 / sinks。
-    */
+     * 向远端服务注册当前 Agent 及其 源 / sinks。
+     */
     private void sendRegister() {
         try {
             String body = "{\"agentId\":\"" + agentId() + "\",\"sources\":" + getSourceIds() + ",\"sinks\":" + getSinkIds() + "}";
@@ -101,11 +101,11 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 处理服务端拉取请求：读 源 数据并推送回服务端。
-    *
-    * @param topic   主题
-    * @param message 源标识
-    */
+     * 处理服务端拉取请求：读 源 数据并推送回服务端。
+     *
+     * @param topic   主题
+     * @param message 源标识
+     */
     private void handleSourceRequest(String topic, Object message) {
         String sourceId = message.toString();
         log.info("收到 Source 拉取请求: sourceId={}", sourceId);
@@ -133,11 +133,11 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 处理服务端 sink 推送：解析消息格式并由本地 执行器 分发。
-    *
-    * @param topic   主题
-    * @param message 消息内容（映射 含 sinkid 与 数据）
-    */
+     * 处理服务端 sink 推送：解析消息格式并由本地 执行器 分发。
+     *
+     * @param topic   主题
+     * @param message 消息内容（映射 含 sinkid 与 数据）
+     */
     private void handleSinkPush(String topic, Object message) {
         log.info("收到 Sink 推送");
 
@@ -170,11 +170,11 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 按 源id 查找已注册的 数据同步Agent源。
-    *
-    * @param sourceId 源 标识
-    * @return 命中的 源，未命中返回 空
-    */
+     * 按 源id 查找已注册的 数据同步Agent源。
+     *
+     * @param sourceId 源 标识
+     * @return 命中的 源，未命中返回 空
+     */
     private DataSyncAgentSource findSource(String sourceId) {
         for (DataSyncAgentSource source : sources()) {
             if (source.sourceId().equals(sourceId)) {
@@ -185,11 +185,11 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * 按 sinkid 查找已注册的 数据同步Agentsink。
-    *
-    * @param sinkId sink 标识
-    * @return 命中的 sink，未命中返回 空
-    */
+     * 按 sinkid 查找已注册的 数据同步Agentsink。
+     *
+     * @param sinkId sink 标识
+     * @return 命中的 sink，未命中返回 空
+     */
     private DataSyncAgentSink findSink(String sinkId) {
         for (DataSyncAgentSink sink : sinks()) {
             if (sink.sinkId().equals(sinkId)) {
@@ -200,8 +200,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * @return 所有已注册 源 的 标识 列表
-    */
+     * @return 所有已注册 源 的 标识 列表
+     */
     private List<String> getSourceIds() {
         List<String> ids = new ArrayList<>();
         for (DataSyncAgentSource source : sources()) {
@@ -211,8 +211,8 @@ public abstract class AbstractRemoteDataSyncAgent extends AbstractDataSyncAgent 
     }
 
     /**
-    * @return 所有已注册 sink 的 标识 列表
-    */
+     * @return 所有已注册 sink 的 标识 列表
+     */
     private List<String> getSinkIds() {
         List<String> ids = new ArrayList<>();
         for (DataSyncAgentSink sink : sinks()) {

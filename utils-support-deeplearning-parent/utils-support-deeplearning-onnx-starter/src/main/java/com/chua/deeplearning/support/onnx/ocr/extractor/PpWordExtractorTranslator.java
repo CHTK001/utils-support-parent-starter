@@ -19,17 +19,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* PP-ocrv6 文字识别（ORT 原生 + 打开cv）。
-*
-* <p>替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。模型 + dict 由 jar
-* {@code utils-support-models-onnx-paddleocrv6-tiny} 提供，NativeLoader 解压。
-* 字符表从 {@code inference.yml} 的 {@code character_dict} 提取（与模型 6906 类对齐，
-* 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（打开cv resize 高 48、
-* 按宽高比缩放、归一化；宽度动态，上限 1920），输出 {@code fetch_name_0 [1,seq,classes]}，
-* CTC 解码 → 识别文本。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PP-ocrv6 文字识别（ORT 原生 + 打开cv）。
+ *
+ * <p>替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。模型 + dict 由 jar
+ * {@code utils-support-models-onnx-paddleocrv6-tiny} 提供，NativeLoader 解压。
+ * 字符表从 {@code inference.yml} 的 {@code character_dict} 提取（与模型 6906 类对齐，
+ * 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（打开cv resize 高 48、
+ * 按宽高比缩放、归一化；宽度动态，上限 1920），输出 {@code fetch_name_0 [1,seq,classes]}，
+ * CTC 解码 → 识别文本。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
@@ -55,13 +55,13 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private static final String CONFIG_FILE = "inference.yml";
 
     /**
-    * 模型资源目录（tiny / medium 通用）。
-    */
+     * 模型资源目录（tiny / medium 通用）。
+     */
     private final String resourceBase;
 
     /**
-    * 模型名称（用于 NAT加载 缓存隔离）。
-    */
+     * 模型名称（用于 NAT加载 缓存隔离）。
+     */
     private final String modelName;
 
     /** ONNX 运行时环境 */
@@ -81,11 +81,11 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 指定资源目录构造。
-    *
-    * @param resourceBase 模型资源目录（jar 内路径）
-    * @param modelName    模型名称
-    */
+     * 指定资源目录构造。
+     *
+     * @param resourceBase 模型资源目录（jar 内路径）
+     * @param modelName    模型名称
+     */
     public PpWordExtractorTranslator(String resourceBase, String modelName) {
         this.resourceBase = resourceBase;
         this.modelName = modelName;
@@ -177,11 +177,11 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * Recognize
-    *
-    * @param imageData 镜像数据
-    * @return recognize的结果
-    */
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     private String recognize(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -239,10 +239,10 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * CTC 解码：每步取 argmax，去掉连续重复和 blank（索引 0）。
-    * @param seqProbs seqprobs
-    * @return decode的结果
-    */
+     * CTC 解码：每步取 argmax，去掉连续重复和 blank（索引 0）。
+     * @param seqProbs seqprobs
+     * @return decode的结果
+     */
     private String decode(float[][] seqProbs) {
         StringBuilder sb = new StringBuilder();
         int prevIdx = -1;
@@ -260,11 +260,11 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 参数最大值
-    *
-    * @param arr arr
-    * @return 参数最大的结果
-    */
+     * 参数最大值
+     *
+     * @param arr arr
+     * @return 参数最大的结果
+     */
     private int argMax(float[] arr) {
         int idx = 0;
         float best = arr[0];
@@ -278,8 +278,8 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 关闭底层 ONNX 会话。
-    */
+     * 关闭底层 ONNX 会话。
+     */
     public synchronized void close() {
         try {
             if (session != null) {

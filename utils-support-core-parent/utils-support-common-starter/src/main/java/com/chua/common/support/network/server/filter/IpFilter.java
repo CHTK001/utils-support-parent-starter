@@ -8,16 +8,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* IP 黑白名单过滤器。
-*
-* <p>支持两种模式：</p>
-* <ul>
-*   <li>白名单模式 — 仅允许列表中的 IP 访问</li>
-*   <li>黑名单模式 — 拒绝列表中的 IP 访问</li>
-* </ul>
-*
-* @author CH
-* @since 2026/07/18
+ * IP 黑白名单过滤器。
+ *
+ * <p>支持两种模式：</p>
+ * <ul>
+ *   <li>白名单模式 — 仅允许列表中的 IP 访问</li>
+ *   <li>黑名单模式 — 拒绝列表中的 IP 访问</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 public class IpFilter implements ServerFilter {
 
@@ -37,17 +37,17 @@ public class IpFilter implements ServerFilter {
     }
 
     /**
-    * 创建白名单模式过滤器。
-    * @return IP过滤 对象
-    */
+     * 创建白名单模式过滤器。
+     * @return IP过滤 对象
+     */
     public static IpFilter whitelist() {
         return new IpFilter(true);
     }
 
     /**
-    * 创建 IpFilter 实例
-    * @param whitelistMode whitelistMode
-    */
+     * 创建 IpFilter 实例
+     * @param whitelistMode whitelistMode
+     */
     private IpFilter(boolean whitelistMode) {
         this.whitelistMode = whitelistMode;
     }
@@ -75,11 +75,11 @@ public class IpFilter implements ServerFilter {
 
     @Override
     /**
-    * Do过滤
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         String clientIp = extractIp(request.getRemoteAddress());
@@ -111,10 +111,10 @@ public class IpFilter implements ServerFilter {
     }
 
     /**
-    * 从 remoteAddress 提取 IP（去除端口）。
-    * @param remoteAddress remote地址，不允许为 null
-    * @return 结果字符串
-    */
+     * 从 remoteAddress 提取 IP（去除端口）。
+     * @param remoteAddress remote地址，不允许为 null
+     * @return 结果字符串
+     */
     private String extractIp(String remoteAddress) {
         if (remoteAddress == null) {
             return "";

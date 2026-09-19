@@ -13,18 +13,18 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* Tomcat 运行时启动器 — 通过 {@link WebContainer} SPI 内嵌部署 WAR。
-*
-* <p>artifact 约定：
-* <ul>
-*   <li>{@code executable} — WAR 文件路径</li>
-*   <li>{@code args[0]} — 部署路径（默认 "/"）</li>
-*   <li>{@code args[1]} — 端口（默认 8080）</li>
-*   <li>{@code args[2]} — 容器 SPI 名称（默认 "tomcat"，可选 "undertow"）</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * Tomcat 运行时启动器 — 通过 {@link WebContainer} SPI 内嵌部署 WAR。
+ *
+ * <p>artifact 约定：
+ * <ul>
+ *   <li>{@code executable} — WAR 文件路径</li>
+ *   <li>{@code args[0]} — 部署路径（默认 "/"）</li>
+ *   <li>{@code args[1]} — 端口（默认 8080）</li>
+ *   <li>{@code args[2]} — 容器 SPI 名称（默认 "tomcat"，可选 "undertow"）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("TOMCAT")

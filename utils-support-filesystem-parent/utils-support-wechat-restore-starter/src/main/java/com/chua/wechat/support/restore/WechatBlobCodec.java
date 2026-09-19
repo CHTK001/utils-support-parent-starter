@@ -25,23 +25,23 @@ import java.util.zip.Inflater;
 public final class WechatBlobCodec {
 
     /**
-    * ZSTD 魔数（小端存储，对应字节序列 28 B5 2F FD）
-    */
+     * ZSTD 魔数（小端存储，对应字节序列 28 B5 2F FD）
+     */
     private static final int ZSTD_MAGIC = 0xFD2FB528;
 
     /**
-    * zlib 头（CMF/FLG，低 4 位为 8 表示 deflate）
-    */
+     * zlib 头（CMF/FLG，低 4 位为 8 表示 deflate）
+     */
     private static final int ZLIB_METHOD_MASK = 0x0F;
 
     /**
-    * 单次解压的最大输出字节数（4MB），防止被损坏数据撑爆内存
-    */
+     * 单次解压的最大输出字节数（4MB），防止被损坏数据撑爆内存
+     */
     private static final int MAX_DECOMPRESS = 4 << 20;
 
     /**
-    * 判定为文本的可打印字符占比阈值
-    */
+     * 判定为文本的可打印字符占比阈值
+     */
     private static final double TEXT_RATIO = 0.9;
 
     /**
@@ -52,11 +52,11 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 把 blob 描述成可读文本。
-    *
-    * @param blob 原始字节
-    * @return 解压成功且是文本时返回文本；否则返回 {@code blob[N...]} 形式的占位描述
-    */
+     * 把 blob 描述成可读文本。
+     *
+     * @param blob 原始字节
+     * @return 解压成功且是文本时返回文本；否则返回 {@code blob[N...]} 形式的占位描述
+     */
     public static String describe(byte[] blob) {
         if (blob == null || blob.length == 0) {
             return "blob[0]";
@@ -75,14 +75,14 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 尝试把 blob 解压成文本。
-    *
-    * <p>与 {@link #describe(byte[])} 的区别：本方法在「解压失败」或「解压结果是二进制」时
-    * 返回 {@code null}，让调用方自行决定如何降级（例如回退成十六进制）。</p>
-    *
-    * @param blob 原始字节
-    * @return 文本；解压失败或非文本返回 null
-    */
+     * 尝试把 blob 解压成文本。
+     *
+     * <p>与 {@link #describe(byte[])} 的区别：本方法在「解压失败」或「解压结果是二进制」时
+     * 返回 {@code null}，让调用方自行决定如何降级（例如回退成十六进制）。</p>
+     *
+     * @param blob 原始字节
+     * @return 文本；解压失败或非文本返回 null
+     */
     public static String tryDecompressText(byte[] blob) {
         if (blob == null || blob.length == 0) {
             return null;
@@ -107,11 +107,11 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 是否为 ZSTD 压缩数据。
-    *
-    * @param data 字节
-    * @return 是 ZSTD 返回 true
-    */
+     * 是否为 ZSTD 压缩数据。
+     *
+     * @param data 字节
+     * @return 是 ZSTD 返回 true
+     */
     public static boolean isZstd(byte[] data) {
         return data != null && data.length >= 4
                 && (data[0] & 0xFF) == (ZSTD_MAGIC & 0xFF)
@@ -121,11 +121,11 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * ZSTD 解压。
-    *
-    * @param src 压缩数据
-    * @return 解压结果；失败返回 null
-    */
+     * ZSTD 解压。
+     *
+     * @param src 压缩数据
+     * @return 解压结果；失败返回 null
+     */
     private static byte[] zstdDecompress(byte[] src) {
         try {
             long size = Zstd.decompressedSize(src);
@@ -150,11 +150,11 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * zlib / gzip 解压。
-    *
-    * @param src 压缩数据
-    * @return 解压结果；失败返回 null
-    */
+     * zlib / gzip 解压。
+     *
+     * @param src 压缩数据
+     * @return 解压结果；失败返回 null
+     */
     private static byte[] inflate(byte[] src) {
         if (src.length < 2 || (src[0] & ZLIB_METHOD_MASK) != 8) {
             return null;
@@ -185,13 +185,13 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 把解压结果渲染成文本或占位描述。
-    *
-    * @param out    解压结果
-    * @param how    解压方式名
-    * @param srcLen 原始长度
-    * @return 文本或占位描述
-    */
+     * 把解压结果渲染成文本或占位描述。
+     *
+     * @param out    解压结果
+     * @param how    解压方式名
+     * @param srcLen 原始长度
+     * @return 文本或占位描述
+     */
     private static String render(byte[] out, String how, int srcLen) {
         String text = new String(out, StandardCharsets.UTF_8);
         if (isMostlyText(text)) {
@@ -201,11 +201,11 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 判定字符串是否以可打印字符为主。
-    *
-    * @param s 字符串
-    * @return 可打印字符占比 ≥ 90% 返回 true
-    */
+     * 判定字符串是否以可打印字符为主。
+     *
+     * @param s 字符串
+     * @return 可打印字符占比 ≥ 90% 返回 true
+     */
     private static boolean isMostlyText(String s) {
         if (s.isEmpty()) {
             return false;
@@ -226,14 +226,14 @@ public final class WechatBlobCodec {
     }
 
     /**
-    * 清理文本中的控制字符。
-    *
-    * <p>字段分隔符用的是 SOH（{@code \u0001}），这里把所有 {@code < 0x20} 的控制字符
-    * 统一替换成空格，保证值里不可能再出现分隔符。</p>
-    *
-    * @param s 原文本
-    * @return 清理后的文本
-    */
+     * 清理文本中的控制字符。
+     *
+     * <p>字段分隔符用的是 SOH（{@code \u0001}），这里把所有 {@code < 0x20} 的控制字符
+     * 统一替换成空格，保证值里不可能再出现分隔符。</p>
+     *
+     * @param s 原文本
+     * @return 清理后的文本
+     */
     public static String sanitize(String s) {
         if (s == null || s.isEmpty()) {
             return "";

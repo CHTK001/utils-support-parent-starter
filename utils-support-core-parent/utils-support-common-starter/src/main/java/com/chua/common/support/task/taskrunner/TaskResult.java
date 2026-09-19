@@ -15,34 +15,34 @@ import java.util.Objects;
  * @author CH
  * @since 4.0.0.42
  * @return 任务结果的结果
-*/
+ */
 public record TaskResult(String id, Status status, Object data, Throwable error, long duration) {
 
     /**
-    * 节点执行状态枚举。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 节点执行状态枚举。
+     * @author CH
+     * @since 4.0.0
+     */
     public enum Status {
         /**
-        * 执行成功（含降级兜底成功的场景）。
-        */
+         * 执行成功（含降级兜底成功的场景）。
+         */
         SUCCESS,
 
         /**
-        * 执行失败，重试耗尽且无降级结果。
-        */
+         * 执行失败，重试耗尽且无降级结果。
+         */
         FAILED,
 
         /**
-        * 被跳过：前置节点失败/被跳过导致依赖不满足，或因快速失败策略被取消。
-        */
+         * 被跳过：前置节点失败/被跳过导致依赖不满足，或因快速失败策略被取消。
+         */
         SKIPPED
     }
 
     /**
-    * 构造校验：标识 与 状态 必填。
-    */
+     * 构造校验：标识 与 状态 必填。
+     */
     public TaskResult {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(status, "status must not be null");
@@ -55,47 +55,47 @@ public record TaskResult(String id, Status status, Object data, Throwable error,
     }
 
     /**
-    * 创建成功结果。
-    *
-    * @param id       节点 标识
-    * @param data     返回值
-    * @param duration 耗时毫秒
-    * @return 成功结果
-    */
+     * 创建成功结果。
+     *
+     * @param id       节点 标识
+     * @param data     返回值
+     * @param duration 耗时毫秒
+     * @return 成功结果
+     */
     public static TaskResult success(String id, Object data, long duration) {
         return new TaskResult(id, Status.SUCCESS, data, null, duration);
     }
 
     /**
-    * 创建失败结果。
-    *
-    * @param id       节点 标识
-    * @param error    失败原因
-    * @param duration 耗时毫秒
-    * @return 失败结果
-    */
+     * 创建失败结果。
+     *
+     * @param id       节点 标识
+     * @param error    失败原因
+     * @param duration 耗时毫秒
+     * @return 失败结果
+     */
     public static TaskResult failed(String id, Throwable error, long duration) {
         return new TaskResult(id, Status.FAILED, null, Objects.requireNonNull(error), duration);
     }
 
     /**
-    * 创建跳过结果。
-    *
-    * @param id 节点 标识
-    * @return 跳过结果
-    */
+     * 创建跳过结果。
+     *
+     * @param id 节点 标识
+     * @return 跳过结果
+     */
     public static TaskResult skipped(String id) {
         return new TaskResult(id, Status.SKIPPED, null, null, 0);
     }
 
     /**
-    * 按类型取回任务数据。
-    *
-    * @param <T>  期望类型
-    * @param type 期望的数据类型
-    * @return 类型化后的数据，data 为 空 时返回 空
-    * @throws IllegalStateException 当数据类型与期望不一致时
-    */
+     * 按类型取回任务数据。
+     *
+     * @param <T>  期望类型
+     * @param type 期望的数据类型
+     * @return 类型化后的数据，data 为 空 时返回 空
+     * @throws IllegalStateException 当数据类型与期望不一致时
+     */
     @SuppressWarnings("unchecked")
     public <T> T getAs(Class<T> type) {
         Objects.requireNonNull(type, "type must not be null");

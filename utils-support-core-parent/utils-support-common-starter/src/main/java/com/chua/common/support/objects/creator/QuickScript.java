@@ -18,16 +18,16 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  * @see Quick#execute(String)
-*/
+ */
 @FunctionalInterface
 public interface QuickScript {
 
     /**
-    * 执行脚本。
-    *
-    * @param quick     当前 Quick 实例，可访问已绑定的常量/变量/Bean
-    * @param variables 绑定变量快照（常量 + 变量）
-    * @return 执行结果，可为 空
-    */
+     * 执行脚本。
+     *
+     * @param quick     当前 Quick 实例，可访问已绑定的常量/变量/Bean
+     * @param variables 绑定变量快照（常量 + 变量）
+     * @return 执行结果，可为 空
+     */
     Object run(Quick quick, Map<String, Object> variables);
 }

@@ -1,51 +1,51 @@
 package com.chua.common.support.lang.process;
 /**
-* 进度更新动作，负责定时刷新进度条显示。
-* <p>
-* 定期调用渲染器和消费者，将进度状态渲染并输出到终端。
-*
-* @author CH
-* @since 2024-01-01
-* @version 1.0.0
+ * 进度更新动作，负责定时刷新进度条显示。
+ * <p>
+ * 定期调用渲染器和消费者，将进度状态渲染并输出到终端。
+ *
+ * @author CH
+ * @since 2024-01-01
+ * @version 1.0.0
  */
 class ProgressUpdateAction implements Runnable {
     /**
-    * 进度状态
-    */
+     * 进度状态
+     */
     ProgressState progress;
     /**
-    * 进度条渲染器
-    */
+     * 进度条渲染器
+     */
     private final ProgressBarRenderer renderer;
     /**
-    * 进度条消费者
-    */
+     * 进度条消费者
+     */
     private final ProgressBarConsumer consumer;
     /**
-    * 是否持续更新（不跳过重复值）
-    */
+     * 是否持续更新（不跳过重复值）
+     */
     private final boolean continuousUpdate;
     /**
-    * 完成后是否清除显示
-    */
+     * 完成后是否清除显示
+     */
     private final boolean clearDisplayOnFinish;
     /**
-    * 上次刷新的进度值
-    */
+     * 上次刷新的进度值
+     */
     volatile private long last;
     /**
-    * 是否为首次刷新
-    */
+     * 是否为首次刷新
+     */
     volatile private boolean first;
     /**
-    *             
-    *
-    * @param progress                      
-    * @param renderer                   
-    * @param consumer                   
-    * @param continuousUpdate                   
-    * @param clearDisplayOnFinish                            
-    */
+     *             
+     *
+     * @param progress                      
+     * @param renderer                   
+     * @param consumer                   
+     * @param continuousUpdate                   
+     * @param clearDisplayOnFinish                            
+     */
     ProgressUpdateAction(
             ProgressState progress,
             ProgressBarRenderer renderer,
@@ -62,9 +62,9 @@ class ProgressUpdateAction implements Runnable {
         this.first = true;
     }
     /**
-    * <p>
-    *                                                                                     
-    */
+     * <p>
+     *                                                                                     
+     */
     void refresh() {
         if (continuousUpdate || (progress.current > last)) {
             forceRefresh();
@@ -72,19 +72,19 @@ class ProgressUpdateAction implements Runnable {
         //                                                                               #91   
     }
     /**
-    * <p>
-    *                                                                
-    */
+     * <p>
+     *                                                                
+     */
     public void forceRefresh() {
         String rendered = renderer.render(progress, consumer.getMaxRenderedLength());
         consumer.accept(rendered);
         last = progress.current;
     }
     /**
-    * <p>
-    *                                                                                        
-    *                                                                   
-    */
+     * <p>
+     *                                                                                        
+     *                                                                   
+     */
     @Override
     public void run() {
         if (first) {

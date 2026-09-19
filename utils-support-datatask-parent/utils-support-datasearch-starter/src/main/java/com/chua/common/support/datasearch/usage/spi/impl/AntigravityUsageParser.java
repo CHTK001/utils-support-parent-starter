@@ -20,31 +20,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Antigravity（Google 出品的智能体式 IDE/CLI）用量解析器。
-*
-* <p>Antigravity 将会话 transcript 持久化在
-* {@code <geminiHome>/antigravity/brain/<uuid>/.system_generated/logs/
-* transcript.jsonl}（{@code geminiHome} 取 {@code GEMINI_HOME} 或
-* {@code ~/.gemini}）。transcript 中只记录模型切换与 planner/thinking 事件，
-* <b>不含 token 计数</b>；解析器沿用 TokenTracker 的启发式算法推算每轮用量：</p>
-*
-* <pre>
-*   input  = max(0, contextTokensDelta)      // CJK 1 token/char, other 1/4 chars
-*   output = content + tool_calls tokens
-*   reasoning = thinking tokens
-* </pre>
-*
-* <p>上下文 token 在整份 transcript 上累积；每次遇到
-* {@code PLANNER_RESPONSE}，就把相对上一次计费 planner 的增量
-* （若发生过模型切换，则从上下文重置点起算）作为 input 输出。
-* 模型从 {@code USER_INPUT} 的 "Model Selection" 行
-* 以及变体根目录的 {@code settings.json} 中还原；无法识别时取
-* {@code "antigravity-unknown"}。</p>
-*
-* <p>由于 Antigravity 不在本地持久化 token 计数，所有记录均标记 {@code estimated = true}。</p>
-*
-* @author CH
-* @since 4.0.0.44
+ * Antigravity（Google 出品的智能体式 IDE/CLI）用量解析器。
+ *
+ * <p>Antigravity 将会话 transcript 持久化在
+ * {@code <geminiHome>/antigravity/brain/<uuid>/.system_generated/logs/
+ * transcript.jsonl}（{@code geminiHome} 取 {@code GEMINI_HOME} 或
+ * {@code ~/.gemini}）。transcript 中只记录模型切换与 planner/thinking 事件，
+ * <b>不含 token 计数</b>；解析器沿用 TokenTracker 的启发式算法推算每轮用量：</p>
+ *
+ * <pre>
+ *   input  = max(0, contextTokensDelta)      // CJK 1 token/char, other 1/4 chars
+ *   output = content + tool_calls tokens
+ *   reasoning = thinking tokens
+ * </pre>
+ *
+ * <p>上下文 token 在整份 transcript 上累积；每次遇到
+ * {@code PLANNER_RESPONSE}，就把相对上一次计费 planner 的增量
+ * （若发生过模型切换，则从上下文重置点起算）作为 input 输出。
+ * 模型从 {@code USER_INPUT} 的 "Model Selection" 行
+ * 以及变体根目录的 {@code settings.json} 中还原；无法识别时取
+ * {@code "antigravity-unknown"}。</p>
+ *
+ * <p>由于 Antigravity 不在本地持久化 token 计数，所有记录均标记 {@code estimated = true}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.44
  */
 @Spi("antigravity")
 public class AntigravityUsageParser extends BaseUsageParser {
@@ -72,18 +72,18 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "antigravity"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "antigravity"}
+     */
     @Override
     public String name() {
         return PROVIDER_ANTIGRAVITY;
     }
 
     /**
-    * 流式解析全部 Antigravity 转录文件。
-    */
+     * 流式解析全部 Antigravity 转录文件。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> transcripts = listTranscripts();
@@ -101,10 +101,10 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 枚举三个变体目录下的全部 transcript.jsonl。
-    *
-    * @return 转录文件列表
-    */
+     * 枚举三个变体目录下的全部 transcript.jsonl。
+     *
+     * @return 转录文件列表
+     */
     private List<Path> listTranscripts() {
         List<Path> files = new ArrayList<>();
         for (String variant : VARIANT_SUBDIRS) {
@@ -130,12 +130,12 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析单个转录文件：逐行累积 context tokens，在每个 PLANNER_RESPONSE
-    * 处发出一条（估算）用量记录。
-    *
-    * @param file 转录文件
-    * @return 估算用量记录流
-    */
+     * 解析单个转录文件：逐行累积 context tokens，在每个 PLANNER_RESPONSE
+     * 处发出一条（估算）用量记录。
+     *
+     * @param file 转录文件
+     * @return 估算用量记录流
+     */
     private Flux<AiUsage> streamTranscript(Path file) {
         return Flux.defer(() -> {
             List<AiUsage> records = new ArrayList<>();
@@ -205,11 +205,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从 settings.json（变体根目录）读取默认模型。
-    *
-    * @param transcript 转录文件路径
-    * @return 归一化模型名；无则 null
-    */
+     * 从 settings.json（变体根目录）读取默认模型。
+     *
+     * @param transcript 转录文件路径
+     * @return 归一化模型名；无则 null
+     */
     private String readDefaultModel(Path transcript) {
         try {
             Path dir = transcript;
@@ -238,11 +238,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从 USER_INPUT 内容里提取 "Model Selection" 变更后的模型名。
-    *
-    * @param content 用户输入内容
-    * @return 归一化模型名；无则 null
-    */
+     * 从 USER_INPUT 内容里提取 "Model Selection" 变更后的模型名。
+     *
+     * @param content 用户输入内容
+     * @return 归一化模型名；无则 null
+     */
     private String extractModelSelection(String content) {
         if (content == null || content.isBlank()) {
             return null;
@@ -255,11 +255,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 归一化模型名（对齐 TokenTracker normalizeAntigravityTranscriptModel）。
-    *
-    * @param modelName 原始模型名
-    * @return 归一化结果；空则 null
-    */
+     * 归一化模型名（对齐 TokenTracker normalizeAntigravityTranscriptModel）。
+     *
+     * @param modelName 原始模型名
+     * @return 归一化结果；空则 null
+     */
     private static String normalizeAntigravityModel(String modelName) {
         if (modelName == null || modelName.isBlank()) {
             return null;
@@ -288,11 +288,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 事件上下文 token 量：内容 + （PLANNER_RESPONSE 时）tool_calls。
-    *
-    * @param event 事件节点
-    * @return 估算 token 数
-    */
+     * 事件上下文 token 量：内容 + （PLANNER_RESPONSE 时）tool_calls。
+     *
+     * @param event 事件节点
+     * @return 估算 token 数
+     */
     private long contextTokensOf(JsonNode event) {
         long tokens = estimateTokens(event.get("content").toStringValue());
         if ("PLANNER_RESPONSE".equals(event.get("type").toStringValue())) {
@@ -302,11 +302,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 序列化 tool_calls 节点（缺失/null 时返回空串）。
-    *
-    * @param node 工具调用节点
-    * @return 字符串形式
-    */
+     * 序列化 tool_calls 节点（缺失/null 时返回空串）。
+     *
+     * @param node 工具调用节点
+     * @return 字符串形式
+     */
     private String serialize(JsonNode node) {
         if (node == null || node.isMissingValue() || !node.isValueNode()) {
             return "";
@@ -319,11 +319,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * CJK 字符 1 token/字，其余 1/4 字符 1 token（向上取整）。
-    *
-    * @param text 文本
-    * @return 估算 token 数
-    */
+     * CJK 字符 1 token/字，其余 1/4 字符 1 token（向上取整）。
+     *
+     * @param text 文本
+     * @return 估算 token 数
+     */
     private long estimateTokens(String text) {
         if (text == null || text.isEmpty()) {
             return 0L;
@@ -342,11 +342,11 @@ public class AntigravityUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 判断字符是否 CJK。
-    *
-    * @param c 字符
-    * @return 是否 CJK
-    */
+     * 判断字符是否 CJK。
+     *
+     * @param c 字符
+     * @return 是否 CJK
+     */
     private static boolean isCjk(char c) {
         int code = c;
         return (code >= 0x3400 && code <= 0x4DBF)

@@ -3,12 +3,12 @@ package com.chua.common.support.ai.mcp;
 import java.util.Map;
 
 /**
-* MCP 工具调用请求
-*
-* <p>封装一次 MCP 工具调用的参数，包含工具名称和参数字典。
-*
-* @author CH
-* @since 2026/07/15
+ * MCP 工具调用请求
+ *
+ * <p>封装一次 MCP 工具调用的参数，包含工具名称和参数字典。
+ *
+ * @author CH
+ * @since 2026/07/15
  */
 public class McpToolCall {
 
@@ -19,12 +19,12 @@ public class McpToolCall {
     private final Map<String, Object> arguments;
 
     /**
-    * 创建 McpToolCall 实例
-    * @param toolName toolName
-    * @param arguments Map
-    * @param Object Object
-    * @param arguments arguments
-    */
+     * 创建 McpToolCall 实例
+     * @param toolName toolName
+     * @param arguments Map
+     * @param Object Object
+     * @param arguments arguments
+     */
     public McpToolCall(String toolName, Map<String, Object> arguments) {
         this.toolName = toolName;
         this.arguments = arguments;

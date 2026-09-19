@@ -25,53 +25,53 @@ import javax.imageio.ImageIO;
 public interface ImageInpainter {
 
     /**
-    * 通过 SPI 创建实例（提供者="onnx" 等）。
-    *
-    * @param provider 提供者 名称
-    * @param apiKey   API 密钥（本地引擎可空）
-    * @return 实例
-    */
+     * 通过 SPI 创建实例（提供者="onnx" 等）。
+     *
+     * @param provider 提供者 名称
+     * @param apiKey   API 密钥（本地引擎可空）
+     * @return 实例
+     */
     static ImageInpainter create(String provider, String apiKey) {
         return ServiceProvider.of(ImageInpainter.class)
                 .getNewExtension(provider, apiKey);
     }
 
     /**
-    * 创建
-    *
-    * @param name 名称
-    * @return 创建的结果
-    */
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageInpainter create(String name) {
         return new DefaultImageInpainter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
 
     /**
-    * 创建图像修复器。
-    *
-    * @param name    模型名称
-    * @param setting 模型配置
-    * @return 修复器
-    */
+     * 创建图像修复器。
+     *
+     * @param name    模型名称
+     * @param setting 模型配置
+     * @return 修复器
+     */
     static ImageInpainter create(String name, ModelSetting setting) {
         return new DefaultImageInpainter(AbstractIdentificationEngine.getInstance(), name, setting);
     }
 
     /**
-    * 查询该能力下全部可用模型。
-    *
-    * @return 模型 标识 列表
-    */
+     * 查询该能力下全部可用模型。
+     *
+     * @return 模型 标识 列表
+     */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageInpainter.class);
     }
 
     /**
-    * 修复图像。
-    *
-    * @param imageData 输入图像字节数组（RGBA，alpha 通道为修复掩码，255=需修复）
-    * @return 修复后图像字节数组
-    */
+     * 修复图像。
+     *
+     * @param imageData 输入图像字节数组（RGBA，alpha 通道为修复掩码，255=需修复）
+     * @return 修复后图像字节数组
+     */
     byte[] inpaint(byte[] imageData);
 }
 
@@ -84,18 +84,18 @@ public interface ImageInpainter {
 class DefaultImageInpainter implements ImageInpainter {
 
     /**
-    * 识别引擎。
-    */
+     * 识别引擎。
+     */
     private final IdentificationEngine engine;
 
     /**
-    * 模型名称。
-    */
+     * 模型名称。
+     */
     private final String modelName;
 
     /**
-    * 模型配置。
-    */
+     * 模型配置。
+     */
     @SuppressWarnings("unused")
     private final ModelSetting setting;
 
@@ -115,11 +115,11 @@ class DefaultImageInpainter implements ImageInpainter {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 修复
-    *
-    * @param imageData 镜像数据
-    * @return 修复的结果
-    */
+     * 修复
+     *
+     * @param imageData 镜像数据
+     * @return 修复的结果
+     */
     public byte[] inpaint(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class);

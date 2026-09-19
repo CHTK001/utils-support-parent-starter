@@ -13,23 +13,23 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 /**
-* 基于 ONNX Runtime 的本地 Paraformer 中文 ASR 客户端。
-* <p>
-* 通过 {@link ParaformerTranslator} 在本地 CPU 端进行语音转写（Paraformer 非自回归，
-* 单次前向即可输出全帧结果），不依赖云服务，适合离线 / 隐私 / 嵌入式场景。
-* </p>
-* <p>
-* 用法：
-* <pre>{@code
-*   String text = VirtualClient.create("paraformer", "")
-*       .model("paraformer-zh-small")
-*       .transcribe(Path.of("audio.wav"));
-* }</pre>(Path.of("audio.wav"));
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 ONNX Runtime 的本地 Paraformer 中文 ASR 客户端。
+ * <p>
+ * 通过 {@link ParaformerTranslator} 在本地 CPU 端进行语音转写（Paraformer 非自回归，
+ * 单次前向即可输出全帧结果），不依赖云服务，适合离线 / 隐私 / 嵌入式场景。
+ * </p>
+ * <p>
+ * 用法：
+ * <pre>{@code
+ *   String text = VirtualClient.create("paraformer", "")
+ *       .model("paraformer-zh-small")
+ *       .transcribe(Path.of("audio.wav"));
+ * }</pre>(Path.of("audio.wav"));
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"paraformer", "paraformer-zh-small", "paraformer-onnx", "sherpa-onnx-paraformer"})
@@ -44,8 +44,8 @@ public class ParaformerAudioClient implements VirtualClient {
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
-    * 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%）
-    */
+     * 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%）
+     */
     /** 缓存_根 */
     private static final String CACHE_ROOT = "audio/asr/";
 
@@ -276,21 +276,21 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     /**
-    * 模型缓存根目录：优先读系统属性 deeplearning.模型.缓存-dir，
-    * 未配置时回落 %TEMP%。
-    *
-    * @return 缓存根目录
-    */
+     * 模型缓存根目录：优先读系统属性 deeplearning.模型.缓存-dir，
+     * 未配置时回落 %TEMP%。
+     *
+     * @return 缓存根目录
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
     /**
-    * 解析待转写音频路径。
-    *
-    * @return 音频文件路径
-    */
+     * 解析待转写音频路径。
+     *
+     * @return 音频文件路径
+     */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

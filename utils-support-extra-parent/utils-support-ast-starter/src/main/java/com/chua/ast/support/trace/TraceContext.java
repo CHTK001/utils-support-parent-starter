@@ -14,19 +14,19 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* 链路追踪上下文 —— 线程级别的 追踪id 生命周期管理器
-*
-* <p>核心设计：push 时记录节点，pop 时计算耗时，栈空时一次性输出整棵树。</p>
-*
-* <h3>输出示例</h3>
-* <pre>
-* └── UserService.getUser(name="john") 15ms
-*     └── UserRepository.findById() 5ms
-*     └── UserRepository.findById() 5ms
-* </pre>
-*
-* @author CH
-* @since 4.0.0
+ * 链路追踪上下文 —— 线程级别的 追踪id 生命周期管理器
+ *
+ * <p>核心设计：push 时记录节点，pop 时计算耗时，栈空时一次性输出整棵树。</p>
+ *
+ * <h3>输出示例</h3>
+ * <pre>
+ * └── UserService.getUser(name="john") 15ms
+ *     └── UserRepository.findById() 5ms
+ *     └── UserRepository.findById() 5ms
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public final class TraceContext {
 
@@ -92,13 +92,13 @@ public final class TraceContext {
     // ==================== 核心 API ====================
 
     /**
-    * 方法入口入栈
-    *
-    * @param className   类简单名
-    * @param packageName 包名
-    * @param methodName  方法名
-    * @return traceId
-    */
+     * 方法入口入栈
+     *
+     * @param className   类简单名
+     * @param packageName 包名
+     * @param methodName  方法名
+     * @return traceId
+     */
     public static String push(String className, String packageName, String methodName) {
         if (!ENABLED) { return ""; }
 
@@ -136,12 +136,12 @@ public final class TraceContext {
     }
 
     /**
-    * push。
-    * @param traceId 追踪标识
-    * @param className 类名称
-    * @param packageName 包名称
-    * @param methodName 方法名称
-    */
+     * push。
+     * @param traceId 追踪标识
+     * @param className 类名称
+     * @param packageName 包名称
+     * @param methodName 方法名称
+     */
     public static void push(String traceId, String className, String packageName, String methodName) {
         if (!ENABLED) { return; }
 
@@ -167,13 +167,13 @@ public final class TraceContext {
     }
 
     /**
-    * pushwith参数。
-    * @param className 类名称
-    * @param packageName 包名称
-    * @param methodName 方法名称
-    * @param args 参数
-    * @return pushwith参数的结果
-    */
+     * pushwith参数。
+     * @param className 类名称
+     * @param packageName 包名称
+     * @param methodName 方法名称
+     * @param args 参数
+     * @return pushwith参数的结果
+     */
     public static String pushWithArgs(String className, String packageName, String methodName, String args) {
         if (!ENABLED) { return ""; }
 
@@ -210,13 +210,13 @@ public final class TraceContext {
     }
 
     /**
-    * 方法出口出栈 —— 栈空时一次性输出整棵树
-    */
+     * 方法出口出栈 —— 栈空时一次性输出整棵树
+     */
     /**
-    * 记录当前方法的异常信息
-    *
-    * @param t 捕获的异常
-    */
+     * 记录当前方法的异常信息
+     *
+     * @param t 捕获的异常
+     */
     public static void catchException(Throwable t) {
         if (!ENABLED) { return; }
         Deque<TraceNode> stack = STACK.get();
@@ -250,8 +250,8 @@ public final class TraceContext {
     }
 
     /**
-    * 强制退出 —— 清空并输出所有已收集节点
-    */
+     * 强制退出 —— 清空并输出所有已收集节点
+     */
     public static void exit() {
         Deque<TraceNode> stack = STACK.get();
         String traceId = null;
@@ -272,9 +272,9 @@ public final class TraceContext {
     }
 
     /**
-    * 设置最大深度。
-    * @param depth 深度
-    */
+     * 设置最大深度。
+     * @param depth 深度
+     */
     public static void setMaxDepth(int depth) {
         MAX_DEPTH.set(depth);
     }
@@ -292,9 +292,9 @@ public final class TraceContext {
     public static boolean isEnabled() { return ENABLED; }
 
     /**
-    * 获取深度。
-    * @return 获取深度的结果
-    */
+     * 获取深度。
+     * @return 获取深度的结果
+     */
     public static int getDepth() {
         Deque<TraceNode> stack = STACK.get();
         return stack.isEmpty() ? 0 : stack.peek().depth;
@@ -303,10 +303,10 @@ public final class TraceContext {
     // ==================== 线程传递 ====================
 
     /**
-    * wrap。
-    * @param task 任务
-    * @return wrap的结果
-    */
+     * wrap。
+     * @param task 任务
+     * @return wrap的结果
+     */
     public static Runnable wrap(Runnable task) {
         if (!ENABLED) { return task; }
         String traceId = getTraceId();
@@ -334,10 +334,10 @@ public final class TraceContext {
     }
 
     /**
-    * wrap。
-    * @param task 任务
-    * @return wrap的结果
-    */
+     * wrap。
+     * @param task 任务
+     * @return wrap的结果
+     */
     public static <T> Callable<T> wrap(Callable<T> task) {
         if (!ENABLED) { return task; }
         String traceId = getTraceId();
@@ -364,12 +364,12 @@ public final class TraceContext {
     }
 
     /**
-    * pushwith深度。
-    * @param traceId 追踪标识
-    * @param className 类名称
-    * @param methodName 方法名称
-    * @param parentDepth 父深度
-    */
+     * pushwith深度。
+     * @param traceId 追踪标识
+     * @param className 类名称
+     * @param methodName 方法名称
+     * @param parentDepth 父深度
+     */
     private static void pushWithDepth(String traceId, String className, String methodName, int parentDepth) {
         if (!ENABLED) { return; }
         Deque<TraceNode> stack = STACK.get();
@@ -494,10 +494,10 @@ public final class TraceContext {
     }
 
     /**
-    * 格式化elapsed。
-    * @param sb sb
-    * @param nanos nano
-    */
+     * 格式化elapsed。
+     * @param sb sb
+     * @param nanos nano
+     */
     private static void formatElapsed(StringBuilder sb, long nanos) {
         if (nanos >= 1_000_000) {
             long ms = nanos / 1_000_000;
@@ -513,10 +513,10 @@ public final class TraceContext {
     }
 
     /**
-    * 获取indent。
-    * @param depth 深度
-    * @return 获取indent的结果
-    */
+     * 获取indent。
+     * @param depth 深度
+     * @return 获取indent的结果
+     */
     private static String getIndent(int depth) {
         if (depth < INDENTS.length) { return INDENTS[depth]; }
         StringBuilder sb = new StringBuilder(depth * 4);
@@ -525,9 +525,9 @@ public final class TraceContext {
     }
 
     /**
-    * 输出。
-    * @param sb sb
-    */
+     * 输出。
+     * @param sb sb
+     */
     private static void output(StringBuilder sb) {
         if (slf4jAvailable) {
             try {
@@ -544,17 +544,17 @@ public final class TraceContext {
     // ==================== ID / MDC / slf4j ====================
 
     /**
-    * 下一个id。
-    * @return 下一个id的结果
-    */
+     * 下一个id。
+     * @return 下一个id的结果
+     */
     private static String nextId() {
         return Long.toHexString(ID_SEQ.incrementAndGet()) + Long.toHexString(ThreadLocalRandom.current().nextLong());
     }
 
     /**
-    * 放入mdc。
-    * @param traceId 追踪标识
-    */
+     * 放入mdc。
+     * @param traceId 追踪标识
+     */
     private static void putMdc(String traceId) {
         if (!mdcAvailable || mdcPutHandle == null) {
             return;
@@ -567,8 +567,8 @@ public final class TraceContext {
     }
 
     /**
-    * 移除mdc。
-    */
+     * 移除mdc。
+     */
     private static void removeMdc() {
         if (!mdcAvailable || mdcRemoveHandle == null) {
             return;
@@ -581,11 +581,11 @@ public final class TraceContext {
     }
 
     /**
-    * 初始化mdc处理。
-    *
-    * <p>豁免说明：SLF4J 为可选依赖，此处按软探测方式加载并取方法句柄，
-    * 本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用。</p>
-    */
+     * 初始化mdc处理。
+     *
+     * <p>豁免说明：SLF4J 为可选依赖，此处按软探测方式加载并取方法句柄，
+     * 本模块未依赖 utils-support-common-starter，无 ReflectUtils 可用。</p>
+     */
     private static void initMdcHandles() {
         try {
             Class<?> c = Class.forName("org.slf4j.MDC"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用（未依赖 utils-support-common-starter）
@@ -596,12 +596,12 @@ public final class TraceContext {
     }
 
     /**
-    * 获取日志记录器。
-    * @return 获取日志记录器的结果
-    *
-    * <p>豁免说明：SLF4J 为可选依赖，按需软探测加载；本模块未依赖
-    * utils-support-common-starter，无 ReflectUtils 可用。</p>
-    */
+     * 获取日志记录器。
+     * @return 获取日志记录器的结果
+     *
+     * <p>豁免说明：SLF4J 为可选依赖，按需软探测加载；本模块未依赖
+     * utils-support-common-starter，无 ReflectUtils 可用。</p>
+     */
     private static Object getLogger() throws Throwable {
         if (logger == null && slf4jAvailable) {
             Class<?> fc = Class.forName("org.slf4j.LoggerFactory"); // [P3C 1.10 豁免] 可选依赖 SLF4J 软探测加载，本模块无 ReflectUtils 可用
@@ -615,8 +615,8 @@ public final class TraceContext {
     }
 
     /**
-    * 初始化slf4j处理。
-    */
+     * 初始化slf4j处理。
+     */
     private static void initSlf4jHandle() {
         try { Class.forName("org.slf4j.LoggerFactory"); } // [P3C 1.10 豁免] 仅探测 SLF4J 是否在classpath 上（可选依赖），本模块无 ReflectUtils 可用
         catch (Exception ignored) { slf4jAvailable = false; }
@@ -624,11 +624,11 @@ public final class TraceContext {
 
     // ==================== 内部类 ====================
     /**
-    * 静态 类 追踪节点 {
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 静态 类 追踪节点 {
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
 
     static class TraceNode {
         final String traceId, className, methodName;

@@ -52,27 +52,27 @@ import java.awt.image.BufferedImage;
 public class FaceEnhanceImageFilter extends AbstractImageFilter {
 
     /**
-    * 磨皮强度，默认 0.4
-    */
+     * 磨皮强度，默认 0.4
+     */
     private double strength = 0.4;
 
     /**
-    * 平滑邻域半径，默认 2
-    */
+     * 平滑邻域半径，默认 2
+     */
     private int radius = 2;
 
     /**
-    * 边缘判定阈值，默认 30
-    */
+     * 边缘判定阈值，默认 30
+     */
     private int edgeThreshold = 30;
 
     /**
-    * 执行磨皮滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 磨皮后图像
-    */
+     * 执行磨皮滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 磨皮后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -118,14 +118,14 @@ public class FaceEnhanceImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * ARGB 像素盒模糊
-    *
-    * @param src  像素数组
-    * @param w    宽
-    * @param h    高
-    * @param r    半径
-    * @return 模糊后的像素数组
-    */
+     * ARGB 像素盒模糊
+     *
+     * @param src  像素数组
+     * @param w    宽
+     * @param h    高
+     * @param r    半径
+     * @return 模糊后的像素数组
+     */
     private int[] boxBlur(int[] src, int w, int h, int r) {
         int rr = Math.max(1, r);
         int[] out = new int[w * h];

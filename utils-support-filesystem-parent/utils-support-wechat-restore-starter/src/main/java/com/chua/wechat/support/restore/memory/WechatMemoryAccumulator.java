@@ -47,38 +47,38 @@ import java.util.Set;
 public final class WechatMemoryAccumulator implements AutoCloseable {
 
     /**
-    * 累积文件名
-    */
+     * 累积文件名
+     */
     public static final String FILE_NAME = "memory_accumulated.tsv";
 
     /**
-    * 字段分隔符。绝不能用 {@code |} 或制表符 —— 解压出来的 XML 正文里满是竖线
-    */
+     * 字段分隔符。绝不能用 {@code |} 或制表符 —— 解压出来的 XML 正文里满是竖线
+     */
     private static final char SEP = '\u0001';
 
     /**
-    * 记录行标记
-    */
+     * 记录行标记
+     */
     private static final String TAG_RECORD = "rec";
 
     /**
-    * 消息行标记
-    */
+     * 消息行标记
+     */
     private static final String TAG_MESSAGE = "msg";
 
     /**
-    * 累积文件
-    */
+     * 累积文件
+     */
     private final File store;
 
     /**
-    * 是否落盘
-    */
+     * 是否落盘
+     */
     private final boolean persist;
 
     /**
-    * 已累积的内容
-    */
+     * 已累积的内容
+     */
     private final Store state;
 
     /**
@@ -95,42 +95,42 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 打开一个累积会话。
-    *
-    * @param store      累积文件
-    * @param accumulate 是否累积；false 时既不读也不写累积文件
-    * @return 累积会话
-    * @throws Exception 读文件失败
-    */
+     * 打开一个累积会话。
+     *
+     * @param store      累积文件
+     * @param accumulate 是否累积；false 时既不读也不写累积文件
+     * @return 累积会话
+     * @throws Exception 读文件失败
+     */
     public static WechatMemoryAccumulator open(File store, boolean accumulate) throws Exception {
         Store state = accumulate && store != null && store.isFile() ? load(store) : new Store();
         return new WechatMemoryAccumulator(store, accumulate, state);
     }
 
     /**
-    * 一次累积后的完整快照。
-    *
-    * @param merged   合并后的提取结果（用于重建库与各表导出）
-    * @param messages 合并后的可读消息（按时间升序）
-    * @param addedRecords  本次新增的记录数
-    * @param addedMessages 本次新增的消息数
-    */
+     * 一次累积后的完整快照。
+     *
+     * @param merged   合并后的提取结果（用于重建库与各表导出）
+     * @param messages 合并后的可读消息（按时间升序）
+     * @param addedRecords  本次新增的记录数
+     * @param addedMessages 本次新增的消息数
+     */
     public record Snapshot(WechatMemoryExtractor.ExtractResult merged,
                            List<WechatMemoryMessages.Message> messages,
                            int addedRecords, int addedMessages) {
     }
 
     /**
-    * 合并一批结果并<b>立即落盘</b>。
-    *
-    * <p>以「进程」为单位调用。内存扫描随时可能被外部打断 —— 本机实测约 1/3 的运行会在
-    * 任意时刻被静默杀掉（没有异常、没有 hs_err、连导出后的最后一行日志都可能丢）。
-    * 每扫完一个进程就落盘一次，被打断最多损失当前这一个进程，重跑即可接着累积。</p>
-    *
-    * @param one 一个进程的扫描结果
-    * @return 合并后的快照
-    * @throws Exception 读写失败
-    */
+     * 合并一批结果并<b>立即落盘</b>。
+     *
+     * <p>以「进程」为单位调用。内存扫描随时可能被外部打断 —— 本机实测约 1/3 的运行会在
+     * 任意时刻被静默杀掉（没有异常、没有 hs_err、连导出后的最后一行日志都可能丢）。
+     * 每扫完一个进程就落盘一次，被打断最多损失当前这一个进程，重跑即可接着累积。</p>
+     *
+     * @param one 一个进程的扫描结果
+     * @return 合并后的快照
+     * @throws Exception 读写失败
+     */
     public Snapshot add(WechatMemoryExtractor.ExtractResult one) throws Exception {
         List<WechatMemoryMessages.Message> resolved = WechatMemoryMessages.resolve(one);
         int addedRecords = 0;
@@ -169,17 +169,17 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 判断新消息是否比已累积的那条信息更全。
-    *
-    * <p>发送者名字是靠「页 → 库簇」的覆盖度在<b>扫描当时</b>解析的。先扫到的进程可能还没有
-    * 覆盖这条消息的库簇（库簇的页在别的进程里），于是解析不出名字；等扫到持有该库簇的进程时
-    * 才解析得出来。这时必须用新版本<b>原地覆盖</b>，否则会被指纹去重挡掉，
-    * 留下一条永远没有发送者的记录。</p>
-    *
-    * @param candidate 新消息
-    * @param existing  已累积的消息
-    * @return 新消息更全返回 true
-    */
+     * 判断新消息是否比已累积的那条信息更全。
+     *
+     * <p>发送者名字是靠「页 → 库簇」的覆盖度在<b>扫描当时</b>解析的。先扫到的进程可能还没有
+     * 覆盖这条消息的库簇（库簇的页在别的进程里），于是解析不出名字；等扫到持有该库簇的进程时
+     * 才解析得出来。这时必须用新版本<b>原地覆盖</b>，否则会被指纹去重挡掉，
+     * 留下一条永远没有发送者的记录。</p>
+     *
+     * @param candidate 新消息
+     * @param existing  已累积的消息
+     * @return 新消息更全返回 true
+     */
     private static boolean isRicher(WechatMemoryMessages.Message candidate,
                                     WechatMemoryMessages.Message existing) {
         if (existing == null) {
@@ -192,31 +192,31 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 判断文本是否为空。
-    *
-    * @param value 文本
-    * @return 空返回 true
-    */
+     * 判断文本是否为空。
+     *
+     * @param value 文本
+     * @return 空返回 true
+     */
     private static boolean isBlank(String value) {
         return value == null || value.isEmpty();
     }
 
     /**
-    * 当前累计快照。
-    *
-    * @return 快照
-    */
+     * 当前累计快照。
+     *
+     * @return 快照
+     */
     public Snapshot snapshot() {
         return snapshot(0, 0);
     }
 
     /**
-    * 构造快照。
-    *
-    * @param addedRecords  本次新增记录数
-    * @param addedMessages 本次新增消息数
-    * @return 快照
-    */
+     * 构造快照。
+     *
+     * @param addedRecords  本次新增记录数
+     * @param addedMessages 本次新增消息数
+     * @return 快照
+     */
     private Snapshot snapshot(int addedRecords, int addedMessages) {
         WechatMemoryExtractor.ExtractResult merged = new WechatMemoryExtractor.ExtractResult(
                 state.processes, state.records, WechatMemoryExtractor.rebuildSchema(state.records),
@@ -228,14 +228,14 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 便利方法：合并一次扫描结果。
-    *
-    * @param current    本次扫描结果
-    * @param store      累积文件
-    * @param accumulate 是否累积
-    * @return 合并后的快照
-    * @throws Exception 读写失败
-    */
+     * 便利方法：合并一次扫描结果。
+     *
+     * @param current    本次扫描结果
+     * @param store      累积文件
+     * @param accumulate 是否累积
+     * @return 合并后的快照
+     * @throws Exception 读写失败
+     */
     public static Snapshot merge(WechatMemoryExtractor.ExtractResult current, File store,
                                  boolean accumulate) throws Exception {
         try (WechatMemoryAccumulator accumulator = open(store, accumulate)) {
@@ -244,23 +244,23 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 关闭会话。
-    *
-    * <p>每次 {@link #add} 都已经落盘，这里不再写文件；保留 {@code AutoCloseable}
-    * 是为了让调用方用 try-with-resources 表达「会话」语义。</p>
-    */
+     * 关闭会话。
+     *
+     * <p>每次 {@link #add} 都已经落盘，这里不再写文件；保留 {@code AutoCloseable}
+     * 是为了让调用方用 try-with-resources 表达「会话」语义。</p>
+     */
     @Override
     public void close() {
         // 无需释放资源：落盘已在 add 里完成
     }
 
     /**
-    * 把快照写回累积文件。
-    *
-    * @param snapshot 快照
-    * @param store    累积文件
-    * @throws Exception 写文件失败
-    */
+     * 把快照写回累积文件。
+     *
+     * @param snapshot 快照
+     * @param store    累积文件
+     * @throws Exception 写文件失败
+     */
     public static void save(Snapshot snapshot, File store) throws Exception {
         File parent = store.getParentFile();
         if (parent != null) {
@@ -299,12 +299,12 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 读取累积文件。
-    *
-    * @param store 累积文件
-    * @return 已累积的内容
-    * @throws Exception 读文件失败
-    */
+     * 读取累积文件。
+     *
+     * @param store 累积文件
+     * @return 已累积的内容
+     * @throws Exception 读文件失败
+     */
     private static Store load(File store) throws Exception {
         Store result = new Store();
         for (String line : Files.readAllLines(store.toPath(), StandardCharsets.UTF_8)) {
@@ -350,47 +350,47 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 已累积的内容。
-    */
+     * 已累积的内容。
+     */
     private static final class Store {
         /**
-        * 全部记录
-        */
+         * 全部记录
+         */
         private final List<WechatMemoryExtractor.ExtractedRecord> records = new ArrayList<>();
 
         /**
-        * 记录指纹（表名 + rowid + 各列值）
-        */
+         * 记录指纹（表名 + rowid + 各列值）
+         */
         private final Set<String> fingerprints = new HashSet<>();
 
         /**
-        * 全部消息：指纹 → 消息。
-        *
-        * <p><b>必须用映射而不是「列表 + 下标」</b>。列表方案需要按下标回写以支持
-        * 「解析出更全发送者时原地升级」，但每次 {@code add} 后都要按时间重排，
-        * 排序会让所有已存下标<b>整体失效</b>，后续的升级就会覆盖到别的消息上，
-        * 并把消息写重（实测：359 行里只有 256 个唯一指纹）。</p>
-        */
+         * 全部消息：指纹 → 消息。
+         *
+         * <p><b>必须用映射而不是「列表 + 下标」</b>。列表方案需要按下标回写以支持
+         * 「解析出更全发送者时原地升级」，但每次 {@code add} 后都要按时间重排，
+         * 排序会让所有已存下标<b>整体失效</b>，后续的升级就会覆盖到别的消息上，
+         * 并把消息写重（实测：359 行里只有 256 个唯一指纹）。</p>
+         */
         private final Map<String, WechatMemoryMessages.Message> messageByFingerprint =
                 new LinkedHashMap<>();
 
         /**
-        * 本次运行的进程扫描统计（以最后一次为准，始终是完整视图）
-        */
+         * 本次运行的进程扫描统计（以最后一次为准，始终是完整视图）
+         */
         private List<WechatMemoryExtractor.ProcessScan> processes = new ArrayList<>();
 
         /**
-        * 本次运行的 Name2Id 库簇（以最后一次为准）
-        */
+         * 本次运行的 Name2Id 库簇（以最后一次为准）
+         */
         private List<WechatMemoryExtractor.IdCluster> clusters = new ArrayList<>();
     }
 
     /**
-    * 计算记录指纹。
-    *
-    * @param record 记录
-    * @return 指纹
-    */
+     * 计算记录指纹。
+     *
+     * @param record 记录
+     * @return 指纹
+     */
     static String fingerprintOf(WechatMemoryExtractor.ExtractedRecord record) {
         StringBuilder sb = new StringBuilder(64)
                 .append(record.table() == null ? "" : record.table()).append(SEP)
@@ -406,11 +406,11 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 按分隔符切分（不丢弃空字段）。
-    *
-    * @param line 行
-    * @return 字段数组
-    */
+     * 按分隔符切分（不丢弃空字段）。
+     *
+     * @param line 行
+     * @return 字段数组
+     */
     private static String[] split(String line) {
         List<String> parts = new ArrayList<>(16);
         int start = 0;
@@ -425,15 +425,15 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 转义字段值。
-    *
-    * <p>两件事必须做对：换行要转义（否则会破坏「一行一条」的结构）；
-    * <b>分隔符本身也要转义</b> —— 消息指纹就是用 SOH 拼出来的，
-    * 直接把它替换成空格会让指纹在写回后对不上，累积去重整个失效（实测踩过）。</p>
-    *
-    * @param value 原值
-    * @return 转义后的值
-    */
+     * 转义字段值。
+     *
+     * <p>两件事必须做对：换行要转义（否则会破坏「一行一条」的结构）；
+     * <b>分隔符本身也要转义</b> —— 消息指纹就是用 SOH 拼出来的，
+     * 直接把它替换成空格会让指纹在写回后对不上，累积去重整个失效（实测踩过）。</p>
+     *
+     * @param value 原值
+     * @return 转义后的值
+     */
     private static String esc(String value) {
         if (value == null) {
             return "";
@@ -463,11 +463,11 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 反转义。
-    *
-    * @param value 转义后的值
-    * @return 原值
-    */
+     * 反转义。
+     *
+     * @param value 转义后的值
+     * @return 原值
+     */
     private static String unesc(String value) {
         if (value == null || value.isEmpty()) {
             return "";
@@ -502,12 +502,12 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 解析长整型。
-    *
-    * @param value        文本
-    * @param defaultValue 缺省值
-    * @return 解析结果
-    */
+     * 解析长整型。
+     *
+     * @param value        文本
+     * @param defaultValue 缺省值
+     * @return 解析结果
+     */
     private static long parseLong(String value, long defaultValue) {
         if (value == null || value.isEmpty()) {
             return defaultValue;
@@ -520,12 +520,12 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     }
 
     /**
-    * 累积文件里记录数与消息数的摘要（供日志与报告使用）。
-    *
-    * @param store 累积文件
-    * @return 摘要文本
-    * @throws Exception 读文件失败
-    */
+     * 累积文件里记录数与消息数的摘要（供日志与报告使用）。
+     *
+     * @param store 累积文件
+     * @return 摘要文本
+     * @throws Exception 读文件失败
+     */
     public static String describe(File store) throws Exception {
         if (store == null || !store.isFile()) {
             return "（无累积文件）";

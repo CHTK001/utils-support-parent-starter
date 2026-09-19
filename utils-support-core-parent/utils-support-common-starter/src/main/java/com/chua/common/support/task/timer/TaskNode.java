@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 @NoArgsConstructor
 public class TaskNode {
@@ -23,13 +23,13 @@ public class TaskNode {
     private int slotIndex;
 
     /**
-    * 创建节点。
-    *
-    * @param prev       前驱节点
-    * @param next       后继节点
-    * @param task       定时器任务
-    * @param slotIndex  槽位索引
-    */
+     * 创建节点。
+     *
+     * @param prev       前驱节点
+     * @param next       后继节点
+     * @param task       定时器任务
+     * @param slotIndex  槽位索引
+     */
     public TaskNode(TaskNode prev, TaskNode next, TimerTask task, int slotIndex) {
         this.prev = prev;
         this.next = next;

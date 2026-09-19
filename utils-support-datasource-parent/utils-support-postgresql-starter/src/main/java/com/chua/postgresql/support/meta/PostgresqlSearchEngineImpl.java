@@ -10,24 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* PostgreSQL 搜索引擎实现，基于 pg_trgm + GIN 索引。
-* <p>
-* 使用 {@code pg_trgm} 扩展提供模糊文本匹配，通过 GIN 索引加速查询。
-* 搜索语法：{@code column % 'keyword'}（相似度 > 0.3）或
-* {@code to_tsvector('simple', column) @@ to_tsquery('simple', 'keyword')}。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
-* @return 列表索引的结果
+ * PostgreSQL 搜索引擎实现，基于 pg_trgm + GIN 索引。
+ * <p>
+ * 使用 {@code pg_trgm} 扩展提供模糊文本匹配，通过 GIN 索引加速查询。
+ * 搜索语法：{@code column % 'keyword'}（相似度 > 0.3）或
+ * {@code to_tsvector('simple', column) @@ to_tsquery('simple', 'keyword')}。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @return 列表索引的结果
  */
 public class PostgresqlSearchEngineImpl implements SearchEngine {
 
     private final DataSource dataSource; // 数据源
 /**
-* postgresql搜索engineimpl。
-* @param dataSource 数据源
-* @return 列表索引的结果
+ * postgresql搜索engineimpl。
+ * @param dataSource 数据源
+ * @return 列表索引的结果
  */
 
     public PostgresqlSearchEngineImpl(DataSource dataSource) {
@@ -138,12 +138,12 @@ public class PostgresqlSearchEngineImpl implements SearchEngine {
     }
 
     /**
-    * 构建 tsvector @@ tsquery 搜索条件。
-    *
-    * @param columns 搜索列列表
-    * @param keyword 关键词
-    * @return SQL 条件片段
-    */
+     * 构建 tsvector @@ tsquery 搜索条件。
+     *
+     * @param columns 搜索列列表
+     * @param keyword 关键词
+     * @return SQL 条件片段
+     */
     public static String tsQueryCondition(List<String> columns, String keyword) {
         if (columns == null || columns.isEmpty()) {
             return "1=0";

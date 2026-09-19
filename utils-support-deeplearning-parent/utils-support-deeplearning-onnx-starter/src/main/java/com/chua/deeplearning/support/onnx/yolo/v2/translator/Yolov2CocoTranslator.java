@@ -16,73 +16,73 @@ import java.util.List;
 
 
 /**
-* yolov2-COCO
-* <p>
-* ONNX Runtime     yolov2 COCO
-* <p>
-*                
-* -                                  80 COCO          
-* -          yolov2-COCO
-* -                416x416     608x608
-* -                                        
-* <p>
-*                
-* -                416x416                608x608   
-* -                                                    
-* -             COCO   80             
-* - 锚栓 Boxes          5                 锚栓 boxes
-* <p>
-*                
-* -                [1, 3, 416, 416] - NCHW   RGB   [0, 1]          
-* -                [1, 125, 13, 13] - (5 * (5 + 80))
-* -                80
-* - 锚栓          5
-* <p>
-*                
-* -                YOLO9000: Better, Faster, Stronger
-* - ONNX          https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/yolov2-coco
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2024/11/08
+ * yolov2-COCO
+ * <p>
+ * ONNX Runtime     yolov2 COCO
+ * <p>
+ *                
+ * -                                  80 COCO          
+ * -          yolov2-COCO
+ * -                416x416     608x608
+ * -                                        
+ * <p>
+ *                
+ * -                416x416                608x608   
+ * -                                                    
+ * -             COCO   80             
+ * - 锚栓 Boxes          5                 锚栓 boxes
+ * <p>
+ *                
+ * -                [1, 3, 416, 416] - NCHW   RGB   [0, 1]          
+ * -                [1, 125, 13, 13] - (5 * (5 + 80))
+ * -                80
+ * - 锚栓          5
+ * <p>
+ *                
+ * -                YOLO9000: Better, Faster, Stronger
+ * - ONNX          https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/yolov2-coco
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2024/11/08
  */
 @Slf4j
 public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    *                                        
-    */
+     *                                        
+     */
     private final int inputSize;
 
     /**
-    *                
-    */
+     *                
+     */
     private final float threshold;
 
     /**
-    * NMS (Non-Maximum Suppression)       
-    */
+     * NMS (Non-Maximum Suppression)       
+     */
     private final float nmsThreshold;
 
     /**
-    * COCO                      
-    */
+     * COCO                      
+     */
     private static final int NUM_CLASSES = 80;
 
     /**
-    * 锚栓 boxes
-    */
+     * 锚栓 boxes
+     */
     private static final int NUM_ANCHORS = 5;
 
     /**
-    *                      13x13   
-    */
+     *                      13x13   
+     */
     private static final int GRID_SIZE = 13;
 
     /**
-    * yolov2     锚栓 boxes         ,
-    * COCO                                   锚栓
-    */
+     * yolov2     锚栓 boxes         ,
+     * COCO                                   锚栓
+     */
 private static final float[][] ANCHORS = {
         {1.3221f, 1.73145f}, // 锚栓 0
         {3.19275f, 4.00944f}, // 锚栓 1
@@ -92,32 +92,32 @@ private static final float[][] ANCHORS = {
 };
 
     /**
-    * COCO                      
-    */
+     * COCO                      
+     */
     private final List<String> classes;
 
     /**
-    *                                     
-    */
+     *                                     
+     */
     private int imageWidth;
     /** 图像高度 */
     /** 图片高度 */
     private int imageHeight;
 
     /**
-    *                                     
-    */
+     *                                     
+     */
     public Yolov2CocoTranslator() {
         this(416, 0.3f, 0.45f);
     }
 
     /**
-    *             
-    *
-    * @param inputSize                      
-    * @param threshold                   
-    * @param nmsThreshold NMS       
-    */
+     *             
+     *
+     * @param inputSize                      
+     * @param threshold                   
+     * @param nmsThreshold NMS       
+     */
     public Yolov2CocoTranslator(int inputSize, float threshold, float nmsThreshold) {
         this.inputSize = inputSize;
         this.threshold = threshold;
@@ -271,25 +271,25 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-    * Sigmoid             
-    *
-    * @param x          
-    * @return sigmoid(x)
-    */
+     * Sigmoid             
+     *
+     * @param x          
+     * @return sigmoid(x)
+     */
     private float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
     /**
-    * Non-Maximum Suppression (NMS)
-    * <p>
-    *                                                 
-    *
-    * @param boxes                       
-    * @param probabilities             
-    * @param nmsThreshold  NMS       
-    * @return                      
-    */
+     * Non-Maximum Suppression (NMS)
+     * <p>
+     *                                                 
+     *
+     * @param boxes                       
+     * @param probabilities             
+     * @param nmsThreshold  NMS       
+     * @return                      
+     */
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
         List<Integer> indices = new ArrayList<>();
         if (boxes.isEmpty()) {
@@ -332,12 +332,12 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-    * iou (Intersection over Union)
-    *
-    * @param box1           1
-    * @param box2           2
-    * @return IoU    
-    */
+     * iou (Intersection over Union)
+     *
+     * @param box1           1
+     * @param box2           2
+     * @return IoU    
+     */
     private double calculateIoU(BoundingBox box1, BoundingBox box2) {
         Rectangle rect1 = box1.getBounds();
         Rectangle rect2 = box2.getBounds();
@@ -356,10 +356,10 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-    *        COCO                      
-    *
-    * @return                   
-    */
+     *        COCO                      
+     *
+     * @return                   
+     */
     private List<String> loadCocoClasses() {
         // COCO           80          
         String[] cocoClasses = {
@@ -388,14 +388,14 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-    *                   
-    * <p>
-    * STACK                    批量
-    * 处理输入        [C, H, W] = [3, 416, 416]
-    * Batchifier.STACK                    [1, C, H, W] = [1, 3, 416, 416]
-    *
-    * @return STACK             
-    */
+     *                   
+     * <p>
+     * STACK                    批量
+     * 处理输入        [C, H, W] = [3, 416, 416]
+     * Batchifier.STACK                    [1, C, H, W] = [1, 3, 416, 416]
+     *
+     * @return STACK             
+     */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

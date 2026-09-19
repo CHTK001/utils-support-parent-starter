@@ -18,26 +18,26 @@ import javax.annotation.Nullable;
 
 
 /**
-* byte[] 类型转换器（替代实现，支持数组格式字符串解析）。
-* <p>将各种类型的值转换为 {@code byte[]}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link String} — 支持 JSON 数组格式（[1,2,3]）和文件路径读取</li>
-*   <li>数组 / 集合类型 — 通过 ArrayUtils.transToByteArray 转换</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
-* @version 1.0.0
+ * byte[] 类型转换器（替代实现，支持数组格式字符串解析）。
+ * <p>将各种类型的值转换为 {@code byte[]}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link String} — 支持 JSON 数组格式（[1,2,3]）和文件路径读取</li>
+ *   <li>数组 / 集合类型 — 通过 ArrayUtils.transToByteArray 转换</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @version 1.0.0
  */
 public class BytesTypeConverter implements TypeConverter<byte[]> {
 
 
     /**
-    * 将给定值转换为 byte[]。
-    *
-    * @param value 源值
-    * @return byte[] 值，如果为 null 则返回空数组
-    */
+     * 将给定值转换为 byte[]。
+     *
+     * @param value 源值
+     * @return byte[] 值，如果为 null 则返回空数组
+     */
     @Override
     public byte[] convert(Object value) {
         if (null == value) {
@@ -78,12 +78,12 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
     }
 
     /**
-    * 从 InputStream 中读取全部字节。
-    *
-    * @param is 输入流
-    * @return 字节数组
-    * @throws IOException 读取异常
-    */
+     * 从 InputStream 中读取全部字节。
+     *
+     * @param is 输入流
+     * @return 字节数组
+     * @throws IOException 读取异常
+     */
     private byte[] readBytes(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[8192];
@@ -95,10 +95,10 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
     }
 
     /**
-    * 获取当前转换器支持的目标类型。
-    *
-    * @return byte[].class
-    */
+     * 获取当前转换器支持的目标类型。
+     *
+     * @return byte[].class
+     */
     @Override
     public Class<byte[]> getType() {
         return byte[].class;

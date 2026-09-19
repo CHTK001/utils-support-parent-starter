@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Undertow 处理器 — intercepts 请求 处理 入 Undertow.
-*
-* @author CH
-* @since 4.0.0.42
+ * Undertow 处理器 — intercepts 请求 处理 入 Undertow.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class UndertowHandler extends AbstractAppHandler {
 
     /**
-    * HTTP 处理器
+     * HTTP 处理器
      */
     private static final String HTTP_HANDLER = "io/undertow/server/HttpHandler";
     /**
-    * 处理 请求
+     * 处理 请求
      */
     private static final String[] HANDLE_REQUEST = {"handleRequest"};
 

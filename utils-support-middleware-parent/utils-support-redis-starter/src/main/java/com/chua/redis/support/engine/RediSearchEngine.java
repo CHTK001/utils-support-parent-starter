@@ -24,14 +24,14 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
-* Redis redi搜索 引擎实现。
-* <p>
-* 继承 {@link RedisEngine}，基于 FT.搜索 实现实体查询、更新、删除，
-* 并支持全量扫描回退机制。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Redis redi搜索 引擎实现。
+ * <p>
+ * 继承 {@link RedisEngine}，基于 FT.搜索 实现实体查询、更新、删除，
+ * 并支持全量扫描回退机制。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")
@@ -302,84 +302,84 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         }
 
         /**
-        * Eq
-        *
-        * @param col col
-        * @param val val
-        * @return eq的结果
-        */
+         * Eq
+         *
+         * @param col col
+         * @param val val
+         * @return eq的结果
+         */
         public GroupByQueryWrapper<T> eq(String col, Object val) {
             where.add("@" + escape(col) + ":[" + escapeValue(val) + " " + escapeValue(val) + "]");
             return this;
         }
 
         /**
-        * Ne
-        *
-        * @param col col
-        * @param val val
-        * @return ne的结果
-        */
+         * Ne
+         *
+         * @param col col
+         * @param val val
+         * @return ne的结果
+         */
         public GroupByQueryWrapper<T> ne(String col, Object val) {
             where.add("-@" + escape(col) + ":[" + escapeValue(val) + " " + escapeValue(val) + "]");
             return this;
         }
 
         /**
-        * Gt
-        *
-        * @param col col
-        * @param val val
-        * @return gt的结果
-        */
+         * Gt
+         *
+         * @param col col
+         * @param val val
+         * @return gt的结果
+         */
         public GroupByQueryWrapper<T> gt(String col, Object val) {
             where.add("@" + escape(col) + ":[(" + escapeValue(val) + " +inf]");
             return this;
         }
 
         /**
-        * Ge
-        *
-        * @param col col
-        * @param val val
-        * @return ge的结果
-        */
+         * Ge
+         *
+         * @param col col
+         * @param val val
+         * @return ge的结果
+         */
         public GroupByQueryWrapper<T> ge(String col, Object val) {
             where.add("@" + escape(col) + ":[" + escapeValue(val) + " +inf]");
             return this;
         }
 
         /**
-        * Lt
-        *
-        * @param col col
-        * @param val val
-        * @return lt的结果
-        */
+         * Lt
+         *
+         * @param col col
+         * @param val val
+         * @return lt的结果
+         */
         public GroupByQueryWrapper<T> lt(String col, Object val) {
             where.add("@" + escape(col) + ":[-inf (" + escapeValue(val) + "]");
             return this;
         }
 
         /**
-        * Le
-        *
-        * @param col col
-        * @param val val
-        * @return le的结果
-        */
+         * Le
+         *
+         * @param col col
+         * @param val val
+         * @return le的结果
+         */
         public GroupByQueryWrapper<T> le(String col, Object val) {
             where.add("@" + escape(col) + ":[-inf " + escapeValue(val) + "]");
             return this;
         }
 
         /**
-        * Like
-        *
-        * @param col col
-        * @param pattern 模式
-        * @return like的结果
-        */
+         * Like
+         *
+         * @param col col
+         * @param pattern 模式
+         * @return like的结果
+         */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
             String p = pattern;
             if (p.contains("%")) {
@@ -396,12 +396,12 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         }
 
         /**
-        * 入
-        *
-        * @param col col
-        * @param vals vals
-        * @return 入的结果
-        */
+         * 入
+         *
+         * @param col col
+         * @param vals vals
+         * @return 入的结果
+         */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
             StringBuilder sb = new StringBuilder();
             sb.append("@").append(escape(col)).append(":(");
@@ -418,12 +418,12 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         }
 
         /**
-        * 订单by
-        *
-        * @param col col
-        * @param asc asc
-        * @return 订单by的结果
-        */
+         * 订单by
+         *
+         * @param col col
+         * @param asc asc
+         * @return 订单by的结果
+         */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
@@ -431,43 +431,43 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         }
 
         /**
-        * 限制
-        *
-        * @param limit 限制
-        * @return 限制的结果
-        */
+         * 限制
+         *
+         * @param limit 限制
+         * @return 限制的结果
+         */
         public GroupByQueryWrapper<T> limit(int limit) {
             this.limit = Math.max(1, limit);
             return this;
         }
 
         /**
-        * 偏移量
-        *
-        * @param offset 偏移量
-        * @return 偏移量的结果
-        */
+         * 偏移量
+         *
+         * @param offset 偏移量
+         * @return 偏移量的结果
+         */
         public GroupByQueryWrapper<T> offset(int offset) {
             this.offset = Math.max(0, offset);
             return this;
         }
 
         /**
-        * 列表
-        *
-        * @return 列表的结果
-        */
+         * 列表
+         *
+         * @return 列表的结果
+         */
         public List<Map<String, Object>> list() {
             return executeGroupBy();
         }
 
         /**
-        * Page
-        *
-        * @param pn pn
-        * @param ps ps
-        * @return page的结果
-        */
+         * Page
+         *
+         * @param pn pn
+         * @param ps ps
+         * @return page的结果
+         */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<Map<String, Object>> all = executeGroupBy();
             int from = (pn - 1) * ps;
@@ -480,10 +480,10 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         /**
-        * 执行分组By
-        *
-        * @return 执行群体by的结果
-        */
+         * 执行分组By
+         *
+         * @return 执行群体by的结果
+         */
         private List<Map<String, Object>> executeGroupBy() {
             try (Jedis jedis = engine.getPool(engine.getDefaultDataSourceName()).getResource()) {
                 String indexName = "idx:" + engine.getKeyPrefix(entityClass);
@@ -529,63 +529,63 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     // ==================== 新版 Wrapper ====================
 
     /**
-    * 查询新
-    *
-    * @param entityClass 实体类
-    * @return 查询新的结果
-    */
+     * 查询新
+     *
+     * @param entityClass 实体类
+     * @return 查询新的结果
+     */
     public <T> LambdaQueryWrapper<T> queryNew(Class<T> entityClass) {
         return new LambdaQueryWrapper<>(entityClass);
     }
 
     /**
-    * 更新新
-    *
-    * @param entityClass 实体类
-    * @return 更新新的结果
-    */
+     * 更新新
+     *
+     * @param entityClass 实体类
+     * @return 更新新的结果
+     */
     public <T> LambdaUpdateWrapper<T> updateNew(Class<T> entityClass) {
         return new LambdaUpdateWrapper<>(entityClass);
     }
 
     /**
-    * 删除新
-    *
-    * @param entityClass 实体类
-    * @return 删除新的结果
-    */
+     * 删除新
+     *
+     * @param entityClass 实体类
+     * @return 删除新的结果
+     */
     public <T> LambdaDeleteWrapper<T> deleteNew(Class<T> entityClass) {
         return new LambdaDeleteWrapper<>(entityClass);
     }
 
     /**
-    * 执行
-    *
-    * @param wrapper 包装器
-    * @return 执行的结果
-    */
+     * 执行
+     *
+     * @param wrapper 包装器
+     * @return 执行的结果
+     */
     public <T> List<T> execute(LambdaQueryWrapper<T> wrapper) {
         QuerySql<T> sql = wrapper.buildSql();
         return executeNewQuery(sql.whereClause(), sql.params().toArray(), wrapper.getEntityClass());
     }
 
     /**
-    * 执行
-    *
-    * @param wrapper 包装器
-    * @return 执行的结果
-    */
+     * 执行
+     *
+     * @param wrapper 包装器
+     * @return 执行的结果
+     */
     public int execute(LambdaUpdateWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<?> sql = wrapper.buildSql();
         return executeNewUpdate(sql.whereClause(), sql.params().toArray());
     }
 
     /**
-    * 执行
-    *
-    * @param wrapper 包装器
-    * @return 执行的结果
-    */
+     * 执行
+     *
+     * @param wrapper 包装器
+     * @return 执行的结果
+     */
     public int execute(LambdaDeleteWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<?> sql = wrapper.buildSql();
         return executeNewDelete(sql.whereClause(), sql.params().toArray());
@@ -594,25 +594,25 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     // ==================== 旧版执行 ====================
 
     /**
-    * 执行查询
-    *
-    * @param wrapper 包装器
-    * @param entityClass 实体类
-    * @return 执行查询的结果
-    */
+     * 执行查询
+     *
+     * @param wrapper 包装器
+     * @param entityClass 实体类
+     * @return 执行查询的结果
+     */
     private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         QuerySql<T> sql = wrapper.buildSql();
         return executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
     }
 
     /**
-    * 执行新查询
-    *
-    * @param whereClause whereclause
-    * @param params 参数
-    * @param entityClass 实体类
-    * @return 执行新查询的结果
-    */
+     * 执行新查询
+     *
+     * @param whereClause whereclause
+     * @param params 参数
+     * @param entityClass 实体类
+     * @return 执行新查询的结果
+     */
     private <T> List<T> executeNewQuery(String whereClause, Object[] params, Class<T> entityClass) {
         String keyPrefix = getKeyPrefix(entityClass);
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
@@ -631,43 +631,43 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     /**
-    * 执行Page
-    * @param wrapper 包装器
-    * @param entityClass 实体类
-    * @param pageNum pagenum
-    * @param pageSize page大小
-    * @param entityClass 实体类
-    * @param total total
-    * @param to 转为
-    * @param pageSize page大小
-    * @param total total
-    * @param records records
-    * @param wrapper 包装器
-    * @param wrapper 包装器
-    * @param sql SQL
-    * @param params 参数
-    * @param sql SQL
-    * @param params 参数
-    * @param index 索引
-    * @param query 查询
-    * @param response 响应
-    * @param entityClass 实体类
-    * @param jedis jedis
-    * @param entityClass 实体类
-    * @param index 索引
-    * @param query 查询
-    * @param groupByCols 群体bycols
-    * @param sortCol 排序col
-    * @param sortAsc 排序asc
-    * @param offset 偏移量
-    * @param limit 限制
-    * @param response 响应
-    * @param list 列表
-    * @param listRow 列表row
-    * @param val val
-    * @param value 值
-    * @param value 值
-    */
+     * 执行Page
+     * @param wrapper 包装器
+     * @param entityClass 实体类
+     * @param pageNum pagenum
+     * @param pageSize page大小
+     * @param entityClass 实体类
+     * @param total total
+     * @param to 转为
+     * @param pageSize page大小
+     * @param total total
+     * @param records records
+     * @param wrapper 包装器
+     * @param wrapper 包装器
+     * @param sql SQL
+     * @param params 参数
+     * @param sql SQL
+     * @param params 参数
+     * @param index 索引
+     * @param query 查询
+     * @param response 响应
+     * @param entityClass 实体类
+     * @param jedis jedis
+     * @param entityClass 实体类
+     * @param index 索引
+     * @param query 查询
+     * @param groupByCols 群体bycols
+     * @param sortCol 排序col
+     * @param sortAsc 排序asc
+     * @param offset 偏移量
+     * @param limit 限制
+     * @param response 响应
+     * @param list 列表
+     * @param listRow 列表row
+     * @param val val
+     * @param value 值
+     * @param value 值
+     */
     private <T> Page<T> executePage(
             LambdaQueryWrapper<T> wrapper,
             Class<T> entityClass, int pageNum, int pageSize) {
@@ -680,43 +680,43 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     /**
-    * 执行更新
-    *
-    * @param wrapper 包装器
-    * @return 执行更新的结果
-    */
+     * 执行更新
+     *
+     * @param wrapper 包装器
+     * @return 执行更新的结果
+     */
     private <T> int executeUpdate(LambdaUpdateWrapper<T> wrapper) {
         return 0;
     }
 
     /**
-    * 执行删除
-    *
-    * @param wrapper 包装器
-    * @return 执行删除的结果
-    */
+     * 执行删除
+     *
+     * @param wrapper 包装器
+     * @return 执行删除的结果
+     */
     private <T> int executeDelete(LambdaDeleteWrapper<T> wrapper) {
         return 0;
     }
 
     /**
-    * 执行新更新
-    *
-    * @param sql SQL
-    * @param params 参数
-    * @return 执行新更新的结果
-    */
+     * 执行新更新
+     *
+     * @param sql SQL
+     * @param params 参数
+     * @return 执行新更新的结果
+     */
     private int executeNewUpdate(String sql, Object[] params) {
         return 0;
     }
 
     /**
-    * 执行新删除
-    *
-    * @param sql SQL
-    * @param params 参数
-    * @return 执行新删除的结果
-    */
+     * 执行新删除
+     *
+     * @param sql SQL
+     * @param params 参数
+     * @return 执行新删除的结果
+     */
     private int executeNewDelete(String sql, Object[] params) {
         return 0;
     }
@@ -743,13 +743,13 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     @SuppressWarnings("unchecked")
     /**
-    * 映射ft搜索响应
-    *
-    * @param response 响应
-    * @param entityClass 实体类
-    * @param jedis jedis
-    * @return 映射ft搜索响应的结果
-    */
+     * 映射ft搜索响应
+     *
+     * @param response 响应
+     * @param entityClass 实体类
+     * @param jedis jedis
+     * @return 映射ft搜索响应的结果
+     */
     private <T> List<T> mapFtSearchResponse(Object response, Class<T> entityClass, Jedis jedis) {
         List<T> result = new ArrayList<>();
         if (response == null) {
@@ -814,11 +814,11 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     /**
-    * 解析aggregate响应
-    *
-    * @param response 响应
-    * @return 解析aggregate响应的结果
-    */
+     * 解析aggregate响应
+     *
+     * @param response 响应
+     * @return 解析aggregate响应的结果
+     */
     private static List<Map<String, Object>> parseAggregateResponse(Object response) {
         List<Map<String, Object>> result = new ArrayList<>();
         if (response == null) {
@@ -858,11 +858,11 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     /**
-    * Escape
-    *
-    * @param value 值
-    * @return escape的结果
-    */
+     * Escape
+     *
+     * @param value 值
+     * @return escape的结果
+     */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -875,11 +875,11 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     /**
-    * escape值
-    *
-    * @param value 值
-    * @return escape值的结果
-    */
+     * escape值
+     *
+     * @param value 值
+     * @return escape值的结果
+     */
     private static String escapeValue(Object value) {
         if (value == null) {
             return "";

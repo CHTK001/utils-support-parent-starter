@@ -30,19 +30,19 @@ import java.util.Set;
 public final class IbdSqlWriter {
 
     /**
-    * 工具类，禁止实例化。
-    */
+     * 工具类，禁止实例化。
+     */
     private IbdSqlWriter() {
     }
 
     /**
-    * 生成建表语句。
-    *
-    * @param definition 表定义
-    * @param schema     目标库名；为空表示不加库名限定
-    * @param table      目标表名；为空表示沿用原名
-    * @return 建表 SQL（以分号结尾，不含换行结尾）
-    */
+     * 生成建表语句。
+     *
+     * @param definition 表定义
+     * @param schema     目标库名；为空表示不加库名限定
+     * @param table      目标表名；为空表示沿用原名
+     * @return 建表 SQL（以分号结尾，不含换行结尾）
+     */
     public static String createTable(IbdTableDefinition definition, String schema, String table) {
         String target = table == null || table.isBlank() ? definition.name() : table;
         StringBuilder sql = new StringBuilder(512);
@@ -69,12 +69,12 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 生成单列的列定义片段。
-    *
-    * @param column     列
-    * @param definition 表定义（取表默认字符集用于判断是否需要显式声明列字符集）
-    * @return 列定义片段
-    */
+     * 生成单列的列定义片段。
+     *
+     * @param column     列
+     * @param definition 表定义（取表默认字符集用于判断是否需要显式声明列字符集）
+     * @return 列定义片段
+     */
     private static String columnDefinition(IbdColumn column, IbdTableDefinition definition) {
         StringBuilder sb = new StringBuilder(96);
         sb.append(quote(column.name())).append(' ').append(column.typeText());
@@ -96,11 +96,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 生成列的默认值片段。
-    *
-    * @param column 列
-    * @return 片段；无需默认值时返回空串
-    */
+     * 生成列的默认值片段。
+     *
+     * @param column 列
+     * @return 片段；无需默认值时返回空串
+     */
     private static String defaultClause(IbdColumn column) {
         if (!column.hasDefault()) {
             return column.nullable() ? "DEFAULT NULL" : "";
@@ -119,22 +119,22 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 判断默认值是否为 SQL 表达式（如 {@code CURRENT_TIMESTAMP}），而不是字面量。
-    *
-    * @param value 默认值文本
-    * @return 是表达式返回 true
-    */
+     * 判断默认值是否为 SQL 表达式（如 {@code CURRENT_TIMESTAMP}），而不是字面量。
+     *
+     * @param value 默认值文本
+     * @return 是表达式返回 true
+     */
     private static boolean isExpression(String value) {
         String upper = value.toUpperCase(java.util.Locale.ROOT);
         return upper.contains("CURRENT_TIMESTAMP") || upper.startsWith("(") || upper.contains("()");
     }
 
     /**
-    * 判断列是否为数值/位类型（这类默认值不加引号）。
-    *
-    * @param column 列
-    * @return 是返回 true
-    */
+     * 判断列是否为数值/位类型（这类默认值不加引号）。
+     *
+     * @param column 列
+     * @return 是返回 true
+     */
     private static boolean isNumeric(IbdColumn column) {
         switch (column.type()) {
             case TINY:
@@ -155,11 +155,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 判断列是否为文本/二进制类（需要声明字符集）。
-    *
-    * @param column 列
-    * @return 是返回 true
-    */
+     * 判断列是否为文本/二进制类（需要声明字符集）。
+     *
+     * @param column 列
+     * @return 是返回 true
+     */
     private static boolean isTextual(IbdColumn column) {
         switch (column.type()) {
             case VARCHAR:
@@ -176,11 +176,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 生成索引定义片段。
-    *
-    * @param index 索引
-    * @return 片段；该索引不该出现在 DDL 里时返回 {@code null}
-    */
+     * 生成索引定义片段。
+     *
+     * @param index 索引
+     * @return 片段；该索引不该出现在 DDL 里时返回 {@code null}
+     */
     private static String keyDefinition(IbdIndex index) {
         if (index.hidden() && !index.primary()) {
             return null;
@@ -207,12 +207,12 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 生成索引列的前缀长度（仅大对象类型需要，其余返回空串）。
-    *
-    * @param index  索引
-    * @param column 列
-    * @return 形如 {@code (191)}；不需要前缀时返回空串
-    */
+     * 生成索引列的前缀长度（仅大对象类型需要，其余返回空串）。
+     *
+     * @param index  索引
+     * @param column 列
+     * @return 形如 {@code (191)}；不需要前缀时返回空串
+     */
     private static String prefixOf(IbdIndex index, IbdColumn column) {
         switch (column.type()) {
             case TINY_BLOB:
@@ -230,11 +230,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 按字符集名估计单字符最大字节数。
-    *
-    * @param charsetName 字符集名
-    * @return 字节数
-    */
+     * 按字符集名估计单字符最大字节数。
+     *
+     * @param charsetName 字符集名
+     * @return 字节数
+     */
     private static int bytesPerChar(String charsetName) {
         switch (charsetName) {
             case "utf8mb4":
@@ -252,15 +252,15 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 生成 {@code INSERT INTO ... VALUES (...);} 语句。
-    *
-    * @param definition 表定义（取列顺序）
-    * @param rows       行数据（列名 → 值）
-    * @param schema     目标库名；为空表示不加库名限定
-    * @param table      目标表名；为空表示沿用原名
-    * @param columns    输出列名（通常等于 {@code definition.userColumns()} 的名字）
-    * @return INSERT 语句列表
-    */
+     * 生成 {@code INSERT INTO ... VALUES (...);} 语句。
+     *
+     * @param definition 表定义（取列顺序）
+     * @param rows       行数据（列名 → 值）
+     * @param schema     目标库名；为空表示不加库名限定
+     * @param table      目标表名；为空表示沿用原名
+     * @param columns    输出列名（通常等于 {@code definition.userColumns()} 的名字）
+     * @return INSERT 语句列表
+     */
     public static java.util.List<String> insertStatements(IbdTableDefinition definition,
                                                          List<Map<String, Object>> rows,
                                                          String schema, String table,
@@ -285,11 +285,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 把值转成 SQL 字面量。
-    *
-    * @param value 值
-    * @return 字面量文本
-    */
+     * 把值转成 SQL 字面量。
+     *
+     * @param value 值
+     * @return 字面量文本
+     */
     public static String literal(Object value) {
         if (value == null) {
             return "NULL";
@@ -311,11 +311,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 判断字符串是否为纯十六进制。
-    *
-    * @param text 文本
-    * @return 是返回 true
-    */
+     * 判断字符串是否为纯十六进制。
+     *
+     * @param text 文本
+     * @return 是返回 true
+     */
     private static boolean isHex(String text) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
@@ -328,11 +328,11 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 转义并加单引号。
-    *
-    * @param text 原始文本
-    * @return SQL 字符串字面量
-    */
+     * 转义并加单引号。
+     *
+     * @param text 原始文本
+     * @return SQL 字符串字面量
+     */
     public static String stringLiteral(String text) {
         StringBuilder sb = new StringBuilder(text.length() + 8);
         sb.append('\'');
@@ -366,32 +366,32 @@ public final class IbdSqlWriter {
     }
 
     /**
-    * 拼「库名.表名」，库名为空时只给表名。
-    *
-    * @param schema 库名
-    * @param table  表名
-    * @return 限定名
-    */
+     * 拼「库名.表名」，库名为空时只给表名。
+     *
+     * @param schema 库名
+     * @param table  表名
+     * @return 限定名
+     */
     public static String qualified(String schema, String table) {
         return schema == null || schema.isBlank() ? quote(table) : quote(schema) + "." + quote(table);
     }
 
     /**
-    * 给标识符加反引号，并把内部的反引号翻倍。
-    *
-    * @param name 标识符
-    * @return 加引号后的标识符
-    */
+     * 给标识符加反引号，并把内部的反引号翻倍。
+     *
+     * @param name 标识符
+     * @return 加引号后的标识符
+     */
     public static String quote(String name) {
         return "`" + name.replace("`", "``") + "`";
     }
 
     /**
-    * 拼接并加引号的列名列表。
-    *
-    * @param columns 列名
-    * @return 形如 {@code `a`,`b`}
-    */
+     * 拼接并加引号的列名列表。
+     *
+     * @param columns 列名
+     * @return 形如 {@code `a`,`b`}
+     */
     private static String joinQuoted(List<String> columns) {
         StringBuilder sb = new StringBuilder();
         for (String column : columns) {

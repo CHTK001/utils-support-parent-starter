@@ -6,30 +6,30 @@ import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 
 /**
-* Engine 更新包装器。
-*
-* @param <T> 实体类型
-* @author CH
-* @since 4.0.0.42
+ * Engine 更新包装器。
+ *
+ * @param <T> 实体类型
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EngineUpdateWrapper<T> extends LambdaUpdateWrapper<T> {
 
     /**
-    * 引擎实例。
-    */
+     * 引擎实例。
+     */
     private final AbstractEngine engine;
 
     /**
-    * 实体类类型。
-    */
+     * 实体类类型。
+     */
     private final Class<T> entityClass;
 
     /**
-    * 构造函数。
-    *
-    * @param engine      引擎实例
-    * @param entityClass 实体类类型
-    */
+     * 构造函数。
+     *
+     * @param engine      引擎实例
+     * @param entityClass 实体类类型
+     */
     public EngineUpdateWrapper(AbstractEngine engine, Class<T> entityClass) {
         super(entityClass);
         this.engine = engine;

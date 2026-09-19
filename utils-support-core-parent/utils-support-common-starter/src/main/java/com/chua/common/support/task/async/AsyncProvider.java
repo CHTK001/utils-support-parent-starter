@@ -19,42 +19,42 @@ import java.util.function.Supplier;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public interface AsyncProvider {
 
     /**
-    * 异步执行带返回值的任务
-    *
-    * @param <T>      返回值类型
-    * @param supplier 任务提供者
-    * @return 异步计算结果
-    */
+     * 异步执行带返回值的任务
+     *
+     * @param <T>      返回值类型
+     * @param supplier 任务提供者
+     * @return 异步计算结果
+     */
     <T> CompletableFuture<T> supply(Supplier<T> supplier);
 
     /**
-    * 异步执行无返回值的任务
-    *
-    * @param runnable 待执行的任务
-    * @return 异步计算标志
-    */
+     * 异步执行无返回值的任务
+     *
+     * @param runnable 待执行的任务
+     * @return 异步计算标志
+     */
     CompletableFuture<Void> run(Runnable runnable);
 
     /**
-    * 批量异步执行多个任务并汇总结果
-    *
-    * @param <T>       返回值类型
-    * @param suppliers 任务提供者数组
-    * @return 所有任务结果的异步列表
-    */
+     * 批量异步执行多个任务并汇总结果
+     *
+     * @param <T>       返回值类型
+     * @param suppliers 任务提供者数组
+     * @return 所有任务结果的异步列表
+     */
     @SuppressWarnings("unchecked")
     <T> CompletableFuture<List<T>> supplyAll(Supplier<T>... suppliers);
 
     /**
-    * 批量异步执行多个任务并汇总结果
-    *
-    * @param <T>       返回值类型
-    * @param suppliers 任务提供者列表
-    * @return 所有任务结果的异步列表
-    */
+     * 批量异步执行多个任务并汇总结果
+     *
+     * @param <T>       返回值类型
+     * @param suppliers 任务提供者列表
+     * @return 所有任务结果的异步列表
+     */
     <T> CompletableFuture<List<T>> supplyAll(List<Supplier<T>> suppliers);
 }

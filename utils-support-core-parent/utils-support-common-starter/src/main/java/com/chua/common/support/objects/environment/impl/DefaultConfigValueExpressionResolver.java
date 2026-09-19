@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("default")
 public class DefaultConfigValueExpressionResolver implements ConfigValueExpressionResolver {
@@ -40,13 +40,13 @@ public class DefaultConfigValueExpressionResolver implements ConfigValueExpressi
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 解析
-    *
-    * @param expression expression
-    * @param targetType 目标类型
-    * @param environment 环境
-    * @return resolve的结果
-    */
+     * 解析
+     *
+     * @param expression expression
+     * @param targetType 目标类型
+     * @param environment 环境
+     * @return resolve的结果
+     */
     public <T> T resolve(String expression, Class<T> targetType, Environment environment) {
         if (expression == null || environment == null) {
             return null;

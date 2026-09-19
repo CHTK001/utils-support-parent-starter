@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 public final class ConfigValueResolvers {
 
@@ -32,16 +32,16 @@ public final class ConfigValueResolvers {
     }
 
     /**
-    * 解析配置值表达式。
-    *
-    * <p>按 SPI 链遍历，首个 {@link ConfigValueExpressionResolver#isSupport} 返回 true 的解析器负责处理。</p>
-    *
-    * @param expression  原始表达式
-    * @param targetType  目标类型
-    * @param environment 环境配置
-    * @param <T>         泛型类型
-    * @return 解析后的值，不支持或无法解析返回 空
-    */
+     * 解析配置值表达式。
+     *
+     * <p>按 SPI 链遍历，首个 {@link ConfigValueExpressionResolver#isSupport} 返回 true 的解析器负责处理。</p>
+     *
+     * @param expression  原始表达式
+     * @param targetType  目标类型
+     * @param environment 环境配置
+     * @param <T>         泛型类型
+     * @return 解析后的值，不支持或无法解析返回 空
+     */
     public static <T> T resolve(String expression, Class<T> targetType, Environment environment) {
         if (expression == null || environment == null) {
             return null;

@@ -13,17 +13,17 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* CI 流水线操作（GitHub Actions）测试。
-*
-* <p>运行方式：直接执行 {@code main}，分三部分验证：</p>
-* <ol>
-*   <li>owner/repo 与平台自动解析（本地，无网络）</li>
-*   <li>工作流/运行 JSON 响应解析（本地构造样本，无网络）</li>
-*   <li>真实 GitHub 公开 API 冒烟测试（仓库 nodejs/node，无需 token）</li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0.42
+ * CI 流水线操作（GitHub Actions）测试。
+ *
+ * <p>运行方式：直接执行 {@code main}，分三部分验证：</p>
+ * <ol>
+ *   <li>owner/repo 与平台自动解析（本地，无网络）</li>
+ *   <li>工作流/运行 JSON 响应解析（本地构造样本，无网络）</li>
+ *   <li>真实 GitHub 公开 API 冒烟测试（仓库 nodejs/node，无需 token）</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ActionsOperationTest {
 
@@ -31,8 +31,8 @@ public class ActionsOperationTest {
     static int failed = 0; // 失败
 
     /**
-    * main。
-    * @param args 参数
+     * main。
+     * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         // 1. owner/repo 与平台解析
@@ -52,10 +52,10 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 测试远程地址解析与平台识别。
-    *
-    * <p>通过反射调用私有方法 {@code resolveOwnerAndRepo} 与 {@code resolvePlatform}，
-    * 并校验构造器对 owner/repo/platform 字段的自动推断。</p>
+     * 测试远程地址解析与平台识别。
+     *
+     * <p>通过反射调用私有方法 {@code resolveOwnerAndRepo} 与 {@code resolvePlatform}，
+     * 并校验构造器对 owner/repo/platform 字段的自动推断。</p>
      */
     static void testResolve() throws Exception {
         Path localPath = Path.of("target", "actions-test-resolve");
@@ -103,10 +103,10 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 测试工作流与运行记录的 JSON 响应解析。
-    *
-    * <p>通过反射调用私有方法 {@code toWorkflowInfo} 与 {@code toWorkflowRun}，
-    * 使用本地构造的样本 JSON 验证字段映射。</p>
+     * 测试工作流与运行记录的 JSON 响应解析。
+     *
+     * <p>通过反射调用私有方法 {@code toWorkflowInfo} 与 {@code toWorkflowRun}，
+     * 使用本地构造的样本 JSON 验证字段映射。</p>
      */
     static void testParse() throws Exception {
         Path localPath = Path.of("target", "actions-test-parse");
@@ -148,12 +148,12 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 测试真实 GitHub 公开 API（无需 token）。
-    *
-    * <p>对 nodejs/node 仓库查询运行列表、运行详情与工作流列表，验证 HTTP 链路与响应解析。
-    * 公开仓库未鉴权访问受 GitHub 限流（每小时 60 次）约束。</p>
-    * <p>若本机 JVM 因 TLS 证书链校验失败（如中间人代理剥落证书链）无法访问 GitHub，
-    * 该部分标记为跳过（SKIP），不计入失败，避免环境问题误报代码缺陷。</p>
+     * 测试真实 GitHub 公开 API（无需 token）。
+     *
+     * <p>对 nodejs/node 仓库查询运行列表、运行详情与工作流列表，验证 HTTP 链路与响应解析。
+     * 公开仓库未鉴权访问受 GitHub 限流（每小时 60 次）约束。</p>
+     * <p>若本机 JVM 因 TLS 证书链校验失败（如中间人代理剥落证书链）无法访问 GitHub，
+     * 该部分标记为跳过（SKIP），不计入失败，避免环境问题误报代码缺陷。</p>
      */
     static void testPublicApi() throws Exception {
         Path tempDir = Files.createTempDirectory("actions-api-test");
@@ -190,14 +190,14 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 判断异常是否为 TLS 证书环境问题。
-    *
-    * <p>遍历异常原因链，若存在 {@code SSLHandshakeException} 或消息包含
-    * {@code PKIX} / {@code certificate_unknown}，则视为本机 TLS 证书校验失败，
-    * 属于环境问题而非代码缺陷。</p>
-    *
-    * @param t 待判断异常
-    * @return 是否 TLS 证书环境问题
+     * 判断异常是否为 TLS 证书环境问题。
+     *
+     * <p>遍历异常原因链，若存在 {@code SSLHandshakeException} 或消息包含
+     * {@code PKIX} / {@code certificate_unknown}，则视为本机 TLS 证书校验失败，
+     * 属于环境问题而非代码缺陷。</p>
+     *
+     * @param t 待判断异常
+     * @return 是否 TLS 证书环境问题
      */
     static boolean isTlsEnvIssue(Throwable t) {
         Throwable cur = t;
@@ -215,9 +215,9 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 断言ok。
-    * @param name 名称
-    * @param condition 条件
+     * 断言ok。
+     * @param name 名称
+     * @param condition 条件
      */
     static void assertOk(String name, boolean condition) {
         if (condition) {
@@ -230,8 +230,8 @@ public class ActionsOperationTest {
     }
 
     /**
-    * 删除recursively。
-    * @param dir dir
+     * 删除recursively。
+     * @param dir dir
      */
     static void deleteRecursively(Path dir) throws Exception {
         if (dir == null || !Files.exists(dir)) {

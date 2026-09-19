@@ -17,49 +17,49 @@ import java.util.List;
 public interface PluginOnlineProvider {
 
     /**
-    * 获取提供者名称（市场源标识，如 open-vsx / clawhub）。
-    *
-    * @return 提供者名称
-    */
+     * 获取提供者名称（市场源标识，如 open-vsx / clawhub）。
+     *
+     * @return 提供者名称
+     */
     String name();
 
     /**
-    * 获取该市场源当前展示的插件列表。
-    *
-    * @return 插件定义列表
-    */
+     * 获取该市场源当前展示的插件列表。
+     *
+     * @return 插件定义列表
+     */
     default List<PluginDefinition> getPlugins() {
         return Collections.emptyList();
     }
 
     /**
-    * 按关键词搜索在线插件。
-    *
-    * @param keyword 搜索关键词
-    * @return 搜索结果插件定义列表
-    */
+     * 按关键词搜索在线插件。
+     *
+     * @param keyword 搜索关键词
+     * @return 搜索结果插件定义列表
+     */
     default List<PluginDefinition> search(String keyword) {
         return Collections.emptyList();
     }
 
     /**
-    * 安装插件。
-    *
-    * @param clientId 客户端标识
-    * @param pluginId 插件标识
-    * @return 是否安装成功
-    */
+     * 安装插件。
+     *
+     * @param clientId 客户端标识
+     * @param pluginId 插件标识
+     * @return 是否安装成功
+     */
     default boolean install(String clientId, String pluginId) {
         return false;
     }
 
     /**
-    * 卸载插件。
-    *
-    * @param clientId 客户端标识
-    * @param pluginId 插件标识
-    * @return 是否卸载成功
-    */
+     * 卸载插件。
+     *
+     * @param clientId 客户端标识
+     * @param pluginId 插件标识
+     * @return 是否卸载成功
+     */
     default boolean uninstall(String clientId, String pluginId) {
         return false;
     }

@@ -14,31 +14,31 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
-* 法线贴图条件图 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * 法线贴图条件图 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NetNormalTranslator implements Translator<Image, Image> {
 
     /**
-    * 输出分辨率。
-    */
+     * 输出分辨率。
+     */
     private final int imageResolution;
 
     /**
-    * 检测分辨率。
-    */
+     * 检测分辨率。
+     */
     private final int detectResolution;
 
     /**
-    * 原图宽。
-    */
+     * 原图宽。
+     */
     private int width;
 
     /**
-    * 原图高。
-    */
+     * 原图高。
+     */
     private int height;
 
     /** 创建 netnormaltranslator 实例 */

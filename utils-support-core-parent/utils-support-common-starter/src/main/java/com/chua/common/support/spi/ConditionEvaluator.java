@@ -37,7 +37,7 @@ import javax.annotation.Nullable;
  * @see ConditionalOnProperty
  * @see ConditionalOnClass
  * @see ConditionalOnMissingClass
-*/
+ */
 @Slf4j
 public class ConditionEvaluator {
 
@@ -75,11 +75,11 @@ public class ConditionEvaluator {
     }
 
     /**
-    * 评估属性条件
-    *
-    * @param implClass 实现类
-    * @return true 表示满足条件
-    */
+     * 评估属性条件
+     *
+     * @param implClass 实现类
+     * @return true 表示满足条件
+     */
     private boolean evaluatePropertyCondition(Class<?> implClass) {
         ConditionalOnProperty condition = implClass.getAnnotation(ConditionalOnProperty.class);
         if (condition == null) {
@@ -123,11 +123,11 @@ public class ConditionEvaluator {
     }
 
     /**
-    * 评估类存在条件
-    *
-    * @param implClass 实现类
-    * @return true 表示满足条件
-    */
+     * 评估类存在条件
+     *
+     * @param implClass 实现类
+     * @return true 表示满足条件
+     */
     private boolean evaluateClassCondition(Class<?> implClass) {
         ConditionalOnClass condition = implClass.getAnnotation(ConditionalOnClass.class);
         if (condition == null) {
@@ -156,11 +156,11 @@ public class ConditionEvaluator {
     }
 
     /**
-    * 评估类缺失条件
-    *
-    * @param implClass 实现类
-    * @return true 表示满足条件
-    */
+     * 评估类缺失条件
+     *
+     * @param implClass 实现类
+     * @return true 表示满足条件
+     */
     private boolean evaluateMissingClassCondition(Class<?> implClass) {
         ConditionalOnMissingClass condition = implClass.getAnnotation(ConditionalOnMissingClass.class);
         if (condition == null) {

@@ -7,54 +7,54 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* SQL关键词高亮工具类。
-*
-* <p><b>功能：</b>
-* <ul>
-*   <li>将SQL中的关键词替换为带颜色标签的版本</li>
-*   <li>支持ANSI控制台颜色和HTML颜色两种模式</li>
-*   <li>自动识别关键词类别并分配不同颜色</li>
-* </ul>
-*
-* <p><b>使用示例：</b>
-* <pre>
-* // ANSI高亮（控制台）
-* HighlightConfig config = new HighlightConfig();
-* config.setType(HighlightConfig.HighlightType.ANSI);
-* String highlighted = SqlHighlighter.highlight("SELECT * FROM users", config);
-* System.out.println(highlighted); // 控制台输出带颜色的SQL
-*
-* // HTML高亮（网页）
-* config.setType(HighlightConfig.HighlightType.HTML);
-* String html = SqlHighlighter.highlight("SELECT * FROM users", config);
-* // 输出: <span style="color:#42b983;">SELECT</span> * FROM users
-* </pre>
-*
-* @author CH
-* @since 1.0.0
+ * SQL关键词高亮工具类。
+ *
+ * <p><b>功能：</b>
+ * <ul>
+ *   <li>将SQL中的关键词替换为带颜色标签的版本</li>
+ *   <li>支持ANSI控制台颜色和HTML颜色两种模式</li>
+ *   <li>自动识别关键词类别并分配不同颜色</li>
+ * </ul>
+ *
+ * <p><b>使用示例：</b>
+ * <pre>
+ * // ANSI高亮（控制台）
+ * HighlightConfig config = new HighlightConfig();
+ * config.setType(HighlightConfig.HighlightType.ANSI);
+ * String highlighted = SqlHighlighter.highlight("SELECT * FROM users", config);
+ * System.out.println(highlighted); // 控制台输出带颜色的SQL
+ *
+ * // HTML高亮（网页）
+ * config.setType(HighlightConfig.HighlightType.HTML);
+ * String html = SqlHighlighter.highlight("SELECT * FROM users", config);
+ * // 输出: <span style="color:#42b983;">SELECT</span> * FROM users
+ * </pre>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class SqlHighlighter {
 
     // ==================== 关键词分类 ====================
 
     /**
-    * DDL关键词（数据定义语言）
-    */
+     * DDL关键词（数据定义语言）
+     */
     private static final Set<String> DDL_KEYWORDS = new HashSet<>(Arrays.asList(
             "CREATE", "ALTER", "DROP", "TRUNCATE", "RENAME",
             "TABLE", "VIEW", "INDEX", "SEQUENCE", "DATABASE", "SCHEMA"
     ));
 
     /**
-    * DML关键词（数据操作语言）
-    */
+     * DML关键词（数据操作语言）
+     */
     private static final Set<String> DML_KEYWORDS = new HashSet<>(Arrays.asList(
             "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE"
     ));
 
     /**
-    * 查询子句关键词
-    */
+     * 查询子句关键词
+     */
     private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
             "FROM", "WHERE", "AND", "OR", "NOT", "NULL",
             "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET",
@@ -65,8 +65,8 @@ public class SqlHighlighter {
     ));
 
     /**
-    * 数据类型关键词
-    */
+     * 数据类型关键词
+     */
     private static final Set<String> DATA_TYPE_KEYWORDS = new HashSet<>(Arrays.asList(
             "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT",
             "VARCHAR", "CHAR", "TEXT", "CLOB", "BLOB",
@@ -77,8 +77,8 @@ public class SqlHighlighter {
     ));
 
     /**
-    * 函数关键词
-    */
+     * 函数关键词
+     */
     private static final Set<String> FUNCTION_KEYWORDS = new HashSet<>(Arrays.asList(
             "COUNT", "SUM", "AVG", "MAX", "MIN",
             "LENGTH", "UPPER", "LOWER", "TRIM", "SUBSTR", "SUBSTRING",
@@ -88,16 +88,16 @@ public class SqlHighlighter {
     ));
 
     /**
-    * 操作符关键词
-    */
+     * 操作符关键词
+     */
     private static final Set<String> OPERATOR_KEYWORDS = new HashSet<>(Arrays.asList(
             "IN", "EXISTS", "BETWEEN", "LIKE", "ESCAPE",
             "IS", "DISTINCT", "ALL", "ANY", "SOME"
     ));
 
     /**
-    * 约束关键词
-    */
+     * 约束关键词
+     */
     private static final Set<String> CONSTRAINT_KEYWORDS = new HashSet<>(Arrays.asList(
             "PRIMARY", "KEY", "FOREIGN", "REFERENCES",
             "UNIQUE", "CHECK", "DEFAULT", "CONSTRAINT",
@@ -149,21 +149,21 @@ public class SqlHighlighter {
     // ==================== 核心方法 ====================
 
     /**
-    * 高亮SQL语句。
-    *
-    * <p><b>处理流程：</b>
-    * <ol>
-    *   <li>如果高亮未启用，直接返回原SQL</li>
-    *   <li>分割SQL为单词和分隔符</li>
-    *   <li>对每个单词判断是否为关键词</li>
-    *   <li>如果是关键词，根据类型添加颜色标签</li>
-    *   <li>重新组装SQL</li>
-    * </ol>
-    *
-    * @param sql SQL语句
-    * @param config 高亮配置
-    * @return 高亮后的SQL字符串
-    */
+     * 高亮SQL语句。
+     *
+     * <p><b>处理流程：</b>
+     * <ol>
+     *   <li>如果高亮未启用，直接返回原SQL</li>
+     *   <li>分割SQL为单词和分隔符</li>
+     *   <li>对每个单词判断是否为关键词</li>
+     *   <li>如果是关键词，根据类型添加颜色标签</li>
+     *   <li>重新组装SQL</li>
+     * </ol>
+     *
+     * @param sql SQL语句
+     * @param config 高亮配置
+     * @return 高亮后的SQL字符串
+     */
     public static String highlight(String sql, HighlightConfig config) {
         // 空值检查
         if (sql == null || sql.isEmpty()) {
@@ -188,32 +188,32 @@ public class SqlHighlighter {
     }
 
     /**
-    * 使用ANSI颜色高亮（控制台）
-    * @param sql SQL，不允许为 null
-    * @param config 配置，不允许为 null
-    * @return 结果字符串
-    */
+     * 使用ANSI颜色高亮（控制台）
+     * @param sql SQL，不允许为 null
+     * @param config 配置，不允许为 null
+     * @return 结果字符串
+     */
     private static String highlightAnsi(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, false);
     }
 
     /**
-    * 使用HTML颜色高亮（网页）
-    * @param sql SQL，不允许为 null
-    * @param config 配置，不允许为 null
-    * @return 结果字符串
-    */
+     * 使用HTML颜色高亮（网页）
+     * @param sql SQL，不允许为 null
+     * @param config 配置，不允许为 null
+     * @return 结果字符串
+     */
     private static String highlightHtml(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, true);
     }
 
     /**
-    * 内部高亮实现
-    * @param sql SQL，不允许为 null
-    * @param config 配置，不允许为 null
-    * @param isHtml 是否Html（布尔开关）
-    * @return 结果字符串
-    */
+     * 内部高亮实现
+     * @param sql SQL，不允许为 null
+     * @param config 配置，不允许为 null
+     * @param isHtml 是否Html（布尔开关）
+     * @return 结果字符串
+     */
     private static String highlightInternal(String sql, HighlightConfig config, boolean isHtml) {
         StringBuilder result = new StringBuilder();
         StringBuilder currentToken = new StringBuilder();
@@ -373,10 +373,10 @@ public class SqlHighlighter {
     }
 
     /**
-    * 判断是否为分隔符（括号、逗号、分号等）
-    * @param c 方法入参 c
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断是否为分隔符（括号、逗号、分号等）
+     * @param c 方法入参 c
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isDelimiter(char c) {
         return c == '(' || c == ')' || c == ',' || c == ';' ||
                 c == '=' || c == '<' || c == '>' || c == '+' ||
@@ -384,12 +384,12 @@ public class SqlHighlighter {
     }
 
     /**
-    * 对单个Token应用高亮
-    * @param token 令牌，不允许为 null
-    * @param config 配置，不允许为 null
-    * @param isHtml 是否Html（布尔开关）
-    * @return 结果字符串
-    */
+     * 对单个Token应用高亮
+     * @param token 令牌，不允许为 null
+     * @param config 配置，不允许为 null
+     * @param isHtml 是否Html（布尔开关）
+     * @return 结果字符串
+     */
     private static String applyHighlight(String token, HighlightConfig config, boolean isHtml) {
         if (token == null || token.isEmpty()) {
             return token;
@@ -425,10 +425,10 @@ public class SqlHighlighter {
     }
 
     /**
-    * 判断是否为数字（整数或小数）
-    * @param str 字符串，不允许为 null
-    * @return 是否成功（true 表示成功）
-    */
+     * 判断是否为数字（整数或小数）
+     * @param str 字符串，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private static boolean isNumeric(String str) {
         if (str == null || str.isEmpty()) {
             return false;
@@ -442,10 +442,10 @@ public class SqlHighlighter {
     }
 
     /**
-    * HTML转义
-    * @param text 文本，不允许为 null
-    * @return 结果字符串
-    */
+     * HTML转义
+     * @param text 文本，不允许为 null
+     * @return 结果字符串
+     */
     private static String escapeHtml(String text) {
         if (text == null) {
             return null;

@@ -15,22 +15,22 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-* Zipformer 纯中文流式 ASR 客户端。
-*
-* <p>基于 sherpa-onnx-streaming-zipformer-zh-14M，支持 chunk-by-chunk 实时转写。
-* 模型首次使用时自动从 类路径 解压到缓存目录（嵌入于 utils-support-onnx-zipformer-zh），
-* 或从 HF 下载（需配置 {@code speech.loop.zipformer-zh.dir} 指定本地目录）。
-*
-* <p>Provider 名称：{@code zipformer-zh} / {@code zipformer-zh-streaming}
-*
-* <pre>{@code
-* VirtualClient client = VirtualClient.create("zipformer-zh", "");
-* String text = client.transcribe(Path.of("audio.wav"));
-* }</pre>Path.of("audio.wav"));
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * Zipformer 纯中文流式 ASR 客户端。
+ *
+ * <p>基于 sherpa-onnx-streaming-zipformer-zh-14M，支持 chunk-by-chunk 实时转写。
+ * 模型首次使用时自动从 类路径 解压到缓存目录（嵌入于 utils-support-onnx-zipformer-zh），
+ * 或从 HF 下载（需配置 {@code speech.loop.zipformer-zh.dir} 指定本地目录）。
+ *
+ * <p>Provider 名称：{@code zipformer-zh} / {@code zipformer-zh-streaming}
+ *
+ * <pre>{@code
+ * VirtualClient client = VirtualClient.create("zipformer-zh", "");
+ * String text = client.transcribe(Path.of("audio.wav"));
+ * }</pre>Path.of("audio.wav"));
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Slf4j
 @Spi({"zipformer-zh", "zipformer-zh-streaming"})
@@ -253,9 +253,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     /**
-    * 模型dir。
-    * @return 模型dir的结果
-    */
+     * 模型dir。
+     * @return 模型dir的结果
+     */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
         if (prop != null && !prop.isBlank()) {
@@ -267,9 +267,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     /**
-    * resolve音频路径。
-    * @return resolve音频路径的结果
-    */
+     * resolve音频路径。
+     * @return resolve音频路径的结果
+     */
     private Path resolveAudioPath() {
         if (setting.getAudioPath() != null) {
             return setting.getAudioPath();
@@ -296,9 +296,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     /**
-    * 缓存根。
-    * @return 缓存根的结果
-    */
+     * 缓存根。
+     * @return 缓存根的结果
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

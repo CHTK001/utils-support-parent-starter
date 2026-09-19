@@ -4,24 +4,24 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
-* 对象池配置
-*
-* <p>控制对象池的核心行为参数，包括容量、超时、空闲检测等。
-*
-* @author CH
-* @since 2026/07/16
+ * 对象池配置
+ *
+ * <p>控制对象池的核心行为参数，包括容量、超时、空闲检测等。
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Data
 @Builder
 public class ObjectPoolConfig {
 
     /**
-    * 池最大容量
-    *
-    * <p>对象池中允许存在的最大对象数量（含空闲+借出）。
-    * 达到上限时 borrow() 将阻塞等待归还或超时失败。
-    * 默认 10。
-    */
+     * 池最大容量
+     *
+     * <p>对象池中允许存在的最大对象数量（含空闲+借出）。
+     * 达到上限时 borrow() 将阻塞等待归还或超时失败。
+     * 默认 10。
+     */
     @Builder.Default
     /** 最大值总数 */
     private int maxTotal = 10;
@@ -35,11 +35,11 @@ public class ObjectPoolConfig {
     private int maxIdle;
 
     /**
-    * 最小空闲数
-    *
-    * <p>池中至少保持的空闲对象数量。不足时自动创建补充。
-    * 默认 0（不预热）。
-    */
+     * 最小空闲数
+     *
+     * <p>池中至少保持的空闲对象数量。不足时自动创建补充。
+     * 默认 0（不预热）。
+     */
     @Builder.Default
     /** 最小值idle */
     private int minIdle = 0;

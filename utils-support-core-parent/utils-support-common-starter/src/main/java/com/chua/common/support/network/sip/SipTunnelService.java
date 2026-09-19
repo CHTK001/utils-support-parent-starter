@@ -37,61 +37,61 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class SipTunnelService {
 
     /**
-    * 底层 SIP 客户端
-    */
+     * 底层 SIP 客户端
+     */
     private final SipClient client;
 
     /**
-    * 服务名称（"*" 表示动态目标中继模式）
-    */
+     * 服务名称（"*" 表示动态目标中继模式）
+     */
     private final String serviceName;
 
     /**
-    * 本地服务地址（通配模式下忽略）
-    */
+     * 本地服务地址（通配模式下忽略）
+     */
     private final String localHost;
 
     /**
-    * 本地服务端口（通配模式下忽略）
-    */
+     * 本地服务端口（通配模式下忽略）
+     */
     private final int localPort;
 
     /**
-    * 通配模式目标白名单（对目标 host 做前缀匹配）；null 或空表示不限制
-    */
+     * 通配模式目标白名单（对目标 host 做前缀匹配）；null 或空表示不限制
+     */
     private final List<String> allowPrefixes;
 
     /**
-    * 是否已启动
-    */
+     * 是否已启动
+     */
     private volatile boolean started;
 
     /**
-    * 创建服务侧隧道代理。
-    *
-    * @param client      底层 SIP 客户端
-    * @param serviceName 服务名称（"*" 表示动态目标中继）
-    * @param localHost   本地服务地址
-    * @param localPort   本地服务端口
-    */
+     * 创建服务侧隧道代理。
+     *
+     * @param client      底层 SIP 客户端
+     * @param serviceName 服务名称（"*" 表示动态目标中继）
+     * @param localHost   本地服务地址
+     * @param localPort   本地服务端口
+     */
     public SipTunnelService(SipClient client, String serviceName, String localHost, int localPort) {
         this(client, serviceName, localHost, localPort, null);
     }
 
     /**
-    * 创建服务侧隧道代理（通配模式可指定目标白名单）。
-    *
-    * @param client        底层 SIP 客户端
-    * @param serviceName   服务名称（"*" 表示动态目标中继）
-    * @param localHost     本地服务地址
-    * @param localPort     本地服务端口
-    * @param allowPrefixes 通配模式目标白名单（host 前缀匹配），null/空表示不限制
-    */
+     * 创建服务侧隧道代理（通配模式可指定目标白名单）。
+     *
+     * @param client        底层 SIP 客户端
+     * @param serviceName   服务名称（"*" 表示动态目标中继）
+     * @param localHost     本地服务地址
+     * @param localPort     本地服务端口
+     * @param allowPrefixes 通配模式目标白名单（host 前缀匹配），null/空表示不限制
+     */
     public SipTunnelService(SipClient client, String serviceName, String localHost, int localPort,
                             List<String> allowPrefixes) {
         this.client = client;
@@ -102,10 +102,10 @@ public class SipTunnelService {
     }
 
     /**
-    * 启动服务侧隧道代理：注册服务并监听隧道开启请求。
-    *
-    * @return 当前代理实例，支持链式调用
-    */
+     * 启动服务侧隧道代理：注册服务并监听隧道开启请求。
+     *
+     * @return 当前代理实例，支持链式调用
+     */
     public SipTunnelService start() {
         if (started) {
             return this;
@@ -144,8 +144,8 @@ public class SipTunnelService {
     }
 
     /**
-    * 关闭服务侧隧道代理。
-    */
+     * 关闭服务侧隧道代理。
+     */
     public void stop() {
         if (!started) {
             return;
@@ -155,20 +155,20 @@ public class SipTunnelService {
     }
 
     /**
-    * 是否通配（动态目标中继）模式。
-    *
-    * @return true 表示通配模式
-    */
+     * 是否通配（动态目标中继）模式。
+     *
+     * @return true 表示通配模式
+     */
     private boolean isWildcard() {
         return SipProtocol.WILDCARD_SERVICE.equals(serviceName);
     }
 
     /**
-    * 通配模式下的目标白名单校验（对目标 host 做前缀匹配）。
-    *
-    * @param targetName visitor 请求的目标（host:port 或固定服务名）
-    * @return true 表示允许拨号
-    */
+     * 通配模式下的目标白名单校验（对目标 host 做前缀匹配）。
+     *
+     * @param targetName visitor 请求的目标（host:port 或固定服务名）
+     * @return true 表示允许拨号
+     */
     private boolean allowTarget(String targetName) {
         if (allowPrefixes == null || allowPrefixes.isEmpty()) {
             return true;
@@ -184,11 +184,11 @@ public class SipTunnelService {
     }
 
     /**
-    * 从目标描述中提取 host 部分（host:port → host）。
-    *
-    * @param targetName 目标描述
-    * @return host 部分
-    */
+     * 从目标描述中提取 host 部分（host:port → host）。
+     *
+     * @param targetName 目标描述
+     * @return host 部分
+     */
     private static String hostPart(String targetName) {
         if (targetName == null) {
             return "";
@@ -198,11 +198,11 @@ public class SipTunnelService {
     }
 
     /**
-    * 将隧道会话桥接到本地服务。
-    *
-    * @param session    隧道会话
-    * @param targetName visitor 请求的服务名/目标（通配模式下为 host:port）
-    */
+     * 将隧道会话桥接到本地服务。
+     *
+     * @param session    隧道会话
+     * @param targetName visitor 请求的服务名/目标（通配模式下为 host:port）
+     */
     private void bridgeToLocal(SipTunnelSession session, String targetName) {
         String host = localHost;
         int port = localPort;
@@ -236,11 +236,11 @@ public class SipTunnelService {
     }
 
     /**
-    * 读取本地服务数据并写入隧道。
-    *
-    * @param socket  本地服务连接
-    * @param session 隧道会话
-    */
+     * 读取本地服务数据并写入隧道。
+     *
+     * @param socket  本地服务连接
+     * @param session 隧道会话
+     */
     private void readSocket(Socket socket, SipTunnelSession session) {
         ThreadUtils.startVirtualThread("sip-tunnel-service-" + serviceName, () -> {
             try (InputStream in = socket.getInputStream()) {
@@ -260,11 +260,11 @@ public class SipTunnelService {
     }
 
     /**
-    * 将隧道数据写入本地服务。
-    *
-    * @param socket 本地服务连接
-    * @param data   字节数据
-    */
+     * 将隧道数据写入本地服务。
+     *
+     * @param socket 本地服务连接
+     * @param data   字节数据
+     */
     private void writeSocket(Socket socket, byte[] data) {
         try {
             OutputStream out = socket.getOutputStream();
@@ -275,10 +275,10 @@ public class SipTunnelService {
     }
 
     /**
-    * 静默关闭连接。
-    *
-    * @param socket 连接
-    */
+     * 静默关闭连接。
+     *
+     * @param socket 连接
+     */
     private void closeQuietly(Socket socket) {
         try {
             socket.close();

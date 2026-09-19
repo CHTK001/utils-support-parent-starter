@@ -8,26 +8,26 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
-* 颜色 Mock 生成器
-*
-* <p>生成十六进制颜色值，如 {@code #3fb57a}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 颜色 Mock 生成器
+ *
+ * <p>生成十六进制颜色值，如 {@code #3fb57a}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"color", "colour", "hex-color"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class ColorMockString implements MockString {
 
     /**
-    * 十六进制字符池
-    */
+     * 十六进制字符池
+     */
     private static final char[] HEX = "0123456789abcdef".toCharArray();
     /**
-    * 颜色值长度（# + 6 位）
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 颜色值长度（# + 6 位）
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private static final int LENGTH = 7;
 
     @Override

@@ -10,19 +10,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 真实 IO 运行器，调用 Trae 后端打印原始请求体与 SSE 事件流。
-*
-* @author CH
-* @since 4.0.0.42
+ * 真实 IO 运行器，调用 Trae 后端打印原始请求体与 SSE 事件流。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RealIoRunner {
 
     /**
-    * 主入口，执行真实聊天请求并打印输入输出。
-    *
-    * @param args 运行参数
-    * @throws Exception 当认证失败或网络异常时
-    */
+     * 主入口，执行真实聊天请求并打印输入输出。
+     *
+     * @param args 运行参数
+     * @throws Exception 当认证失败或网络异常时
+     */
     public static void main(String[] args) throws Exception {
         String model = "glm-5.2";
         for (String arg : args) {

@@ -53,22 +53,22 @@ import java.awt.image.WritableRenderedImage;
 public class HistogramEqualizeImageFilter extends AbstractImageFilter {
 
     /**
-    * 是否均衡为灰度，默认 false
-    */
+     * 是否均衡为灰度，默认 false
+     */
     private boolean grayscale = false;
 
     /**
-    * 百分位裁剪 (0-50)，默认 0
-    */
+     * 百分位裁剪 (0-50)，默认 0
+     */
     private int clipPercent = 0;
 
     /**
-    * 执行直方图均衡化滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 均衡化后图像
-    */
+     * 执行直方图均衡化滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 均衡化后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -107,12 +107,12 @@ public class HistogramEqualizeImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 根据直方图构建查找表（支持百分位裁剪）
-    *
-    * @param hist  直方图（256 项）
-    * @param total 像素总数
-    * @return LUT
-    */
+     * 根据直方图构建查找表（支持百分位裁剪）
+     *
+     * @param hist  直方图（256 项）
+     * @param total 像素总数
+     * @return LUT
+     */
     private int[] buildLut(int[] hist, int total) {
         int[] lut = new int[256];
         int clipCount = (total * clipPercent) / 100;
@@ -166,13 +166,13 @@ public class HistogramEqualizeImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构建单通道 LUT
-    *
-    * @param argb  像素数组
-    * @param shift 通道左移位数（16=R, 8=G, 0=B）
-    * @param total 像素总数
-    * @return LUT
-    */
+     * 构建单通道 LUT
+     *
+     * @param argb  像素数组
+     * @param shift 通道左移位数（16=R, 8=G, 0=B）
+     * @param total 像素总数
+     * @return LUT
+     */
     private int[] buildChannelLut(int[] argb, int shift, int total) {
         int[] hist = new int[256];
         for (int p : argb) {

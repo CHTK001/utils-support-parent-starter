@@ -9,24 +9,24 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Alibaba Sentinel 的限流提供者实现。
-*
-* <p>使用 Sentinel {@link SphU} 提供企业级流量控制能力。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Alibaba Sentinel 的限流提供者实现。
+ *
+ * <p>使用 Sentinel {@link SphU} 提供企业级流量控制能力。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("sentinel")
 public class SentinelRateLimiterProvider implements RateLimiterProvider {
 
     /**
-    * 限流器名称
-    */
+     * 限流器名称
+     */
     private final String name;
 
     /**
-    * Sentinel 资源名称
-    */
+     * Sentinel 资源名称
+     */
     private final String resourceName;
 
     /** 创建 sentinelrate限制提供者 实例 */

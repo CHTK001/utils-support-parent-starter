@@ -11,39 +11,39 @@ import lombok.Data;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Data
 @Builder
 public class BucketSetting {
 
     /**
-    * Bucket 名称（存储空间名）。
-    */
+     * Bucket 名称（存储空间名）。
+     */
     private String bucket;
 
     /**
-    * 区域（region），如 "cn-hangzhou"、"us-east-1" 等。
-    */
+     * 区域（region），如 "cn-hangzhou"、"us-east-1" 等。
+     */
     private String region;
 
     /**
-    * Access 键 标识（访问密钥 标识）。
-    */
+     * Access 键 标识（访问密钥 标识）。
+     */
     private String accessKeyId;
 
     /**
-    * Access 键 Secret（访问密钥密钥）。
-    */
+     * Access 键 Secret（访问密钥密钥）。
+     */
     private String accessKeySecret;
 
     /**
-    * 端点 地址，如 "https://oss-cn-hangzhou.aliyuncs.com"。
-    */
+     * 端点 地址，如 "https://oss-cn-hangzhou.aliyuncs.com"。
+     */
     private String endpoint;
 
     /**
-    * 连接超时时间（毫秒），默认 10 秒。
-    */
+     * 连接超时时间（毫秒），默认 10 秒。
+     */
     @Builder.Default
     /** Connection超时mills */
     private long connectionTimeoutMills = 10 * 1000;

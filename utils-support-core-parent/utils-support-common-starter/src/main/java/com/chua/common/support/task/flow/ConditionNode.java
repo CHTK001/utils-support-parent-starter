@@ -19,7 +19,7 @@ package com.chua.common.support.task.flow;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface ConditionNode extends FlowNode {
 
     @Override
@@ -28,19 +28,19 @@ public interface ConditionNode extends FlowNode {
     }
 
     /**
-    * 求值条件判断结果。
-    *
-    * <p>引擎在调度到该节点时调用，返回 true 走 true 分支，
-    * 返回 false 走 false 分支。</p>
-    *
-    * @param context 当前流程上下文
-    * @return 条件判断结果
-    */
+     * 求值条件判断结果。
+     *
+     * <p>引擎在调度到该节点时调用，返回 true 走 true 分支，
+     * 返回 false 走 false 分支。</p>
+     *
+     * @param context 当前流程上下文
+     * @return 条件判断结果
+     */
     boolean test(FlowContext context);
 
     /**
-    * 条件节点无默认执行动作：判断逻辑由引擎按 {@link #test(FlowContext)} 结果路由。
-    */
+     * 条件节点无默认执行动作：判断逻辑由引擎按 {@link #test(FlowContext)} 结果路由。
+     */
     @Override
     default void execute(FlowContext context) {
  // 条件节点不做默认执行，判断逻辑按 测试 契约处理

@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* NuGet 软件包管理器提供器。
-*
-* <p>通过 dotnet / nuget CLI 搜索、安装和卸载 .NET 全局工具与包。
-* 搜索使用 <code>dotnet NuGet 搜索</code>，安装/卸载使用
-* <code>dotnet tool install/uninstall --global</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * NuGet 软件包管理器提供器。
+ *
+ * <p>通过 dotnet / nuget CLI 搜索、安装和卸载 .NET 全局工具与包。
+ * 搜索使用 <code>dotnet NuGet 搜索</code>，安装/卸载使用
+ * <code>dotnet tool install/uninstall --global</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("nuget")
 public class NuGetSoftwareProvider implements SoftwareProvider {
@@ -159,11 +159,11 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * lookslike版本
-    *
-    * @param s s
-    * @return lookslike版本的结果
-    */
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         if (s == null || s.isEmpty()) {
             return false;

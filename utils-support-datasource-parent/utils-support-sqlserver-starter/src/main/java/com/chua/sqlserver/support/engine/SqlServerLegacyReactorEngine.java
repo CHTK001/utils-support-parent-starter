@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
-* SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
-* 伪响应式实现，jtds 无 R2DBC 驱动。
-*
-* @author CH
-* @since 4.0.0.43
+ * SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
+ * 伪响应式实现，jtds 无 R2DBC 驱动。
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
@@ -55,12 +55,12 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     public Flux<Map<String, Object>> queryAll(String table) {
         return query("SELECT * FROM " + safeIdentifier(table));
     /**
-    * 查询where。
-    * @param table table
-    * @param where where
-    * @param params 参数
-    * @return 查询where的结果
-    */
+     * 查询where。
+     * @param table table
+     * @param where where
+     * @param params 参数
+     * @return 查询where的结果
+     */
     }
 
     /**
@@ -101,12 +101,12 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     }
 
     /**
-    * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
-    *
-    * @param id 待校验标识符
-    * @return 去除首尾空白后的标识符
-    * @throws IllegalArgumentException 标识符非法时抛出
-    */
+     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     *
+     * @param id 待校验标识符
+     * @return 去除首尾空白后的标识符
+     * @throws IllegalArgumentException 标识符非法时抛出
+     */
     private String safeIdentifier(String id) {
         if (id == null) {
             throw new IllegalArgumentException("SQL 标识符不能为空");

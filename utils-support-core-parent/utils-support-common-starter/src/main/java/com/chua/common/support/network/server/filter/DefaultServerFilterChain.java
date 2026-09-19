@@ -7,20 +7,20 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.util.List;
 
 /**
-* 默认过滤器链实现。
-*
-* <p>按顺序执行所有匹配的过滤器。支持 {@link FilterChainListener}，
-* 在每次 filter 执行前后触发回调。</p>
-*
-* <p>过滤器类型区分：</p>
-* <ul>
-*   <li><b>Access Filter</b>（{@code supportPath() == null}）— 每次请求都触发</li>
-*   <li><b>Endpoint Filter</b>（{@code supportPath() != null}）— 仅匹配路径时触发</li>
-*   <li><b>EndServerFilter</b> — 执行后终止链</li>
-* </ul>
-*
-* @author CH
-* @since 1.0.0
+ * 默认过滤器链实现。
+ *
+ * <p>按顺序执行所有匹配的过滤器。支持 {@link FilterChainListener}，
+ * 在每次 filter 执行前后触发回调。</p>
+ *
+ * <p>过滤器类型区分：</p>
+ * <ul>
+ *   <li><b>Access Filter</b>（{@code supportPath() == null}）— 每次请求都触发</li>
+ *   <li><b>Endpoint Filter</b>（{@code supportPath() != null}）— 仅匹配路径时触发</li>
+ *   <li><b>EndServerFilter</b> — 执行后终止链</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class DefaultServerFilterChain implements ServerFilterChain {
 
@@ -36,23 +36,23 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     private int index;
 
     /**
-    * 创建 DefaultServerFilterChain 实例
-    * @param filters filters
-    * @param ServerHandler ServerHandler
-    * @param handler 处理器，不允许为 null
-    */
+     * 创建 DefaultServerFilterChain 实例
+     * @param filters filters
+     * @param ServerHandler ServerHandler
+     * @param handler 处理器，不允许为 null
+     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler) {
         this(filters, handler, null);
     }
 
     /**
-    * 创建 DefaultServerFilterChain 实例
-    * @param filters filters
-    * @param ServerHandler ServerHandler
-    * @param List List
-    * @param listeners listeners
-    * @param handler 处理器，不允许为 null
-    */
+     * 创建 DefaultServerFilterChain 实例
+     * @param filters filters
+     * @param ServerHandler ServerHandler
+     * @param List List
+     * @param listeners listeners
+     * @param handler 处理器，不允许为 null
+     */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler, List<FilterChainListener> listeners) {
         this.filters = filters;
         this.handler = handler;
@@ -91,12 +91,12 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     }
 
     /**
-    * 路径匹配。
-    *
-    * @param pattern   过滤器绑定的路径模式
-    * @param requestPath 请求路径
-    * @return 匹配返回 true
-    */
+     * 路径匹配。
+     *
+     * @param pattern   过滤器绑定的路径模式
+     * @param requestPath 请求路径
+     * @return 匹配返回 true
+     */
     private boolean matchPath(String pattern, String requestPath) {
         if (requestPath == null) {
             return false;

@@ -21,59 +21,59 @@ import lombok.Setter;
 public class HprofObject {
 
     /**
-    * Java class name, e.g. {@code java.util.HashMap}
-    */
+     * Java class name, e.g. {@code java.util.HashMap}
+     */
     private String className;
 
     /**
-    * 该类在堆中的实例数量
-    */
+     * 该类在堆中的实例数量
+     */
     private long instanceCount;
 
     /**
-    * Shallow (direct) size in bytes
-    */
+     * Shallow (direct) size in bytes
+     */
     private long shallowSize;
 
     /**
-    * Retained size in bytes
-    */
+     * Retained size in bytes
+     */
     private long retainedSize;
 
     /**
-    * Object identifier in the heap dump
-    */
+     * Object identifier in the heap dump
+     */
     private long objectId;
 
     /**
-    * 该对象属于 GC root 时的根描述
-    */
+     * 该对象属于 GC root 时的根描述
+     */
     private String gcRoot;
 
     /**
-    * Reference chain to a GC root, e.g. {@code static OrderCache.cache}
-    */
+     * Reference chain to a GC root, e.g. {@code static OrderCache.cache}
+     */
     private String refChain;
 
     /**
-    * Human-readable retained size string, e.g. {@code 1.2GB}
-    */
+     * Human-readable retained size string, e.g. {@code 1.2GB}
+     */
     private String retainedSizeText;
 
     /**
-    * Default constructor
-    */
+     * Default constructor
+     */
     public HprofObject() {
     }
 
     /**
-    * Create an HprofObject instance.
-    *
-    * @param className class name
-    * @param instanceCount instance count
-    * @param shallowSize shallow size in bytes
-    * @param retainedSize retained size in bytes
-    */
+     * Create an HprofObject instance.
+     *
+     * @param className class name
+     * @param instanceCount instance count
+     * @param shallowSize shallow size in bytes
+     * @param retainedSize retained size in bytes
+     */
     public HprofObject(String className, long instanceCount, long shallowSize, long retainedSize) {
         this.className = className;
         this.instanceCount = instanceCount;
@@ -83,11 +83,11 @@ public class HprofObject {
     }
 
     /**
-    * Format a byte count as a human readable size string.
-    *
-    * @param bytes byte count
-    * @return formatted string like {@code 1.2GB}, {@code 340MB}, {@code 512KB}, {@code 128B}
-    */
+     * Format a byte count as a human readable size string.
+     *
+     * @param bytes byte count
+     * @return formatted string like {@code 1.2GB}, {@code 340MB}, {@code 512KB}, {@code 128B}
+     */
     public static String formatSize(long bytes) {
         if (bytes <= 0L) {
             return "0B";

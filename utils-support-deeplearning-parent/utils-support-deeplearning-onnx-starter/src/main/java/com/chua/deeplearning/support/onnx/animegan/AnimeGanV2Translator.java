@@ -14,42 +14,42 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* animeganv2 Translator
-* <p>
-* animeganv2 动漫风格迁移，支持以下风格：
-* <ul>
-*   <li>Hayao - 宫崎骏风格（来自 AnimeGANv2 原始权重）</li>
-*   <li>Shinkai - 新海诚风格（来自 AnimeGANv2 原始权重）</li>
-*   <li>Paprika - 今敏/红辣椒风格（来自 AnimeGANv2 原始权重）</li>
-*   <li>Face Portrait V2 - 人像动漫化风格（来自 bryandlee/animegan2-pytorch）</li>
-* </ul>
-* <p>
-* 模型输入: NHWC [1, 512, 512, 3] float32，RGB 归一化到 [-1, 1]
-* 模型输出: NHWC [1, 512, 512, 3] float32，RGB 归一化到 [-1, 1]
-* <p>
-* 参考: https://github.com/bryandlee/animegan2-pytorch
-* 参考: https://github.com/TachibanaYoshino/AnimeGANv2
-*
-* @author CH
-* @版本 4.0.0.42
-* @since 2026/8/15
+ * animeganv2 Translator
+ * <p>
+ * animeganv2 动漫风格迁移，支持以下风格：
+ * <ul>
+ *   <li>Hayao - 宫崎骏风格（来自 AnimeGANv2 原始权重）</li>
+ *   <li>Shinkai - 新海诚风格（来自 AnimeGANv2 原始权重）</li>
+ *   <li>Paprika - 今敏/红辣椒风格（来自 AnimeGANv2 原始权重）</li>
+ *   <li>Face Portrait V2 - 人像动漫化风格（来自 bryandlee/animegan2-pytorch）</li>
+ * </ul>
+ * <p>
+ * 模型输入: NHWC [1, 512, 512, 3] float32，RGB 归一化到 [-1, 1]
+ * 模型输出: NHWC [1, 512, 512, 3] float32，RGB 归一化到 [-1, 1]
+ * <p>
+ * 参考: https://github.com/bryandlee/animegan2-pytorch
+ * 参考: https://github.com/TachibanaYoshino/AnimeGANv2
+ *
+ * @author CH
+ * @版本 4.0.0.42
+ * @since 2026/8/15
  */
 @Slf4j
 public class AnimeGanV2Translator implements Translator<Image, Image> {
 
     /**
-    * 输入尺寸（animeganv2 固定 512x512）
-    */
+     * 输入尺寸（animeganv2 固定 512x512）
+     */
     private static final int INPUT_SIZE = 512;
 
     /**
-    * 原始图像宽度
-    */
+     * 原始图像宽度
+     */
     private int originalWidth;
 
     /**
-    * 原始图像高度
-    */
+     * 原始图像高度
+     */
     private int originalHeight;
 
     @Override
@@ -116,21 +116,21 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-    * clip 到 [0,255]。
-    *
-    * @param v 值
-    * @return 0~255
-    */
+     * clip 到 [0,255]。
+     *
+     * @param v 值
+     * @return 0~255
+     */
     private static int clip(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
 
     /**
-    * 提取 HWC RGB [0,255]。
-    *
-    * @param input DJL 图像
-    * @return HWC
-    */
+     * 提取 HWC RGB [0,255]。
+     *
+     * @param input DJL 图像
+     * @return HWC
+     */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof java.awt.image.BufferedImage bi) {
@@ -149,15 +149,15 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-    * HWC 双线性缩放。
-    *
-    * @param src 源
-    * @param sw  源宽
-    * @param sh  源高
-    * @param dw  目标宽
-    * @param dh  目标高
-    * @return 目标
-    */
+     * HWC 双线性缩放。
+     *
+     * @param src 源
+     * @param sw  源宽
+     * @param sh  源高
+     * @param dw  目标宽
+     * @param dh  目标高
+     * @return 目标
+     */
     private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
         float[] out = new float[dw * dh * 3];
         float xs = (float) sw / dw;
@@ -177,13 +177,13 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-    * 缓冲镜像 缩放。
-    *
-    * @param src 源图
-    * @param dw  目标宽
-    * @param dh  目标高
-    * @return 目标图
-    */
+     * 缓冲镜像 缩放。
+     *
+     * @param src 源图
+     * @param dw  目标宽
+     * @param dh  目标高
+     * @return 目标图
+     */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
         return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }
@@ -204,10 +204,10 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-    * 获取原始图像尺寸
-    *
-    * @return [width, height]
-    */
+     * 获取原始图像尺寸
+     *
+     * @return [width, height]
+     */
     public int[] getOriginalSize() {
         return new int[]{originalWidth, originalHeight};
     }

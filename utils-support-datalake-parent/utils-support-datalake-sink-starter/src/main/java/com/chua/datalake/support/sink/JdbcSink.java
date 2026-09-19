@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
-* JDBC Sink — 落盘到关系型数据库。
-*
-* <p>通过 {@link #getDataSource()} 返回存储连接，
-* 被 calcite 聚合查询引擎统一管理。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * JDBC Sink — 落盘到关系型数据库。
+ *
+ * <p>通过 {@link #getDataSource()} 返回存储连接，
+ * 被 calcite 聚合查询引擎统一管理。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("jdbc")

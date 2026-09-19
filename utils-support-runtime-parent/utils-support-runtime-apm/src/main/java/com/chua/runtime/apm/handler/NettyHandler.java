@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Netty 处理器 — intercepts Netty 通道 operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * Netty 处理器 — intercepts Netty 通道 operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NettyHandler extends AbstractAppHandler {
 
     /**
-    * 通道
+     * 通道
      */
     private static final String CHANNEL = "io/netty/channel/Channel";
     /**
-    * 通道 处理器 上下文
+     * 通道 处理器 上下文
      */
     private static final String CHANNEL_HANDLER_CONTEXT = "io/netty/channel/ChannelHandlerContext";
     /**
-    * 通道 方法
+     * 通道 方法
      */
     private static final String[] CHANNEL_METHODS = {"write", "writeAndFlush", "read"};
     /**
-    * 上下文 方法
+     * 上下文 方法
      */
     private static final String[] CONTEXT_METHODS = {"fireChannelRead", "fireChannelActive", "fireChannelInactive"};
 

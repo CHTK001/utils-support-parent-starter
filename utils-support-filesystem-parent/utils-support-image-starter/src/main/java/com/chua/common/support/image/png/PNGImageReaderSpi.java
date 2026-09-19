@@ -9,12 +9,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* PNG 图像阅读器服务提供者类
-* 该类继承自 镜像读取spi，描述 PNG 图像格式的读取支持
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * PNG 图像阅读器服务提供者类
+ * 该类继承自 镜像读取spi，描述 PNG 图像格式的读取支持
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGImageReaderSpi extends ImageReaderSpi {
     // 定义厂商名称
     /** 厂商名称 */
@@ -71,22 +71,22 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     }
 
     /**
-    * 获取描述信息
-    *
-    * @param locale 本地化设置，返回相应语言的描述信息
-    * @return 返回描述信息字符串
-    */
+     * 获取描述信息
+     *
+     * @param locale 本地化设置，返回相应语言的描述信息
+     * @return 返回描述信息字符串
+     */
     public String getDescription(Locale locale) {
         return "PNG/APNG image reader";
     }
 
     /**
-    * 检查输入对象是否可以解码
-    *
-    * @param input 输入对象，通常是一个 镜像输入流 对象
-    * @return 如果可以解码，则返回 true；否则返回 false
-    * @throws IOException 如果发生 I/O 错误
-    */
+     * 检查输入对象是否可以解码
+     *
+     * @param input 输入对象，通常是一个 镜像输入流 对象
+     * @return 如果可以解码，则返回 true；否则返回 false
+     * @throws IOException 如果发生 I/O 错误
+     */
     public boolean canDecodeInput(Object input) throws IOException {
  // 检查输入对象是否为 镜像输入流 类型
         if (!(input instanceof ImageInputStream stream)) {
@@ -119,11 +119,11 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     }
 
     /**
-    * 创建图像阅读器实例
-    *
-    * @param extension 扩展对象，可以为空
-    * @return 返回新PNGImageReader 实例
-    */
+     * 创建图像阅读器实例
+     *
+     * @param extension 扩展对象，可以为空
+     * @return 返回新PNGImageReader 实例
+     */
     public ImageReader createReaderInstance(Object extension) {
         return new PNGImageReader(this);
     }

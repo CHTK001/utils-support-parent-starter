@@ -43,91 +43,91 @@ import java.util.Map;
  * @author CH
  * @version 2.0
  * @since 2026/07/16
-*/
+ */
 public interface ConfigServer extends Server {
 
     // ==================== 路由注册 ====================
 
     /**
-    * 注册指定 HTTP 方法的路径映射。
-    *
-    * @param path    请求路径，如 "/api/users"
-    * @param method  HTTP 方法
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册指定 HTTP 方法的路径映射。
+     *
+     * @param path    请求路径，如 "/api/users"
+     * @param method  HTTP 方法
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     Server registerMapping(String path, HttpMethod method, ServerHandler handler);
 
     /**
-    * 注册不区分 HTTP 方法的路径映射（匹配所有方法）。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册不区分 HTTP 方法的路径映射（匹配所有方法）。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     Server registerMapping(String path, ServerHandler handler);
 
     /**
-    * 移除指定路径的路由映射。
-    *
-    * @param path 请求路径
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 移除指定路径的路由映射。
+     *
+     * @param path 请求路径
+     * @return 当前服务器实例，支持链式调用
+     */
     Server removeMapping(String path);
 
     // ==================== HTTP 方法快捷注册 ====================
 
     /**
-    * 注册 GET 方法路径映射。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 GET 方法路径映射。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server get(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.GET, handler);
     }
 
     /**
-    * 注册 POST 方法路径映射。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 POST 方法路径映射。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server post(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.POST, handler);
     }
 
     /**
-    * 注册 PUT 方法路径映射。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 PUT 方法路径映射。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server put(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.PUT, handler);
     }
 
     /**
-    * 注册 DELETE 方法路径映射。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 DELETE 方法路径映射。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server delete(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.DELETE, handler);
     }
 
     /**
-    * 注册 PATCH 方法路径映射。
-    *
-    * @param path    请求路径
-    * @param handler 请求处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 PATCH 方法路径映射。
+     *
+     * @param path    请求路径
+     * @param handler 请求处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server patch(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.PATCH, handler);
     }
@@ -135,23 +135,23 @@ public interface ConfigServer extends Server {
     // ==================== 对象注册与路由映射 ====================
 
     /**
-    * 注册一个普通对象，通过注解解析自动生成路由映射。
-    *
-    * <p>将对象注册到 IOC 容器后，扫描类级和方法级的 {@link RequestMethod} 注解，
-    * 生成 {@link com.chua.common.support.network.server.filter.UrlMappingServerFilter} 能够识别的路由条目。
-    * 当请求匹配时，通过反射执行对应方法并自动转换返回值。</p>
-    *
-    * <p>方法参数支持以下注入：
-    * <ul>
-    *   <li>{@link ServerRequest} — 请求对象</li>
-    *   <li>{@link ServerResponse} — 响应对象</li>
-    *   <li>{@code String} / {@code int} / {@code long} — 自动从路径变量或查询参数解析</li>
-    *   <li>其他类型 — 尝试从 ObjectContext 注入</li>
-    * </ul>
-    *
-    * @param handler 要注册的对象
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册一个普通对象，通过注解解析自动生成路由映射。
+     *
+     * <p>将对象注册到 IOC 容器后，扫描类级和方法级的 {@link RequestMethod} 注解，
+     * 生成 {@link com.chua.common.support.network.server.filter.UrlMappingServerFilter} 能够识别的路由条目。
+     * 当请求匹配时，通过反射执行对应方法并自动转换返回值。</p>
+     *
+     * <p>方法参数支持以下注入：
+     * <ul>
+     *   <li>{@link ServerRequest} — 请求对象</li>
+     *   <li>{@link ServerResponse} — 响应对象</li>
+     *   <li>{@code String} / {@code int} / {@code long} — 自动从路径变量或查询参数解析</li>
+     *   <li>其他类型 — 尝试从 ObjectContext 注入</li>
+     * </ul>
+     *
+     * @param handler 要注册的对象
+     * @return 当前服务器实例，支持链式调用
+     */
     default Server registerMapper(Object handler) {
         if (handler == null) {
             return this;
@@ -276,12 +276,12 @@ public interface ConfigServer extends Server {
     }
 
     /**
-    * 获取 SPI 发现的所有 {@link ResponseConverter}。
-    *
-    * <p>用于将 handler 返回对象转换为不同格式（JSON/XML/HTML）。</p>
-    *
-    * @return 名称到 ResponseConverter 的映射
-    */
+     * 获取 SPI 发现的所有 {@link ResponseConverter}。
+     *
+     * <p>用于将 handler 返回对象转换为不同格式（JSON/XML/HTML）。</p>
+     *
+     * @return 名称到 ResponseConverter 的映射
+     */
     default Map<String, ResponseConverter> getResponseConverters() {
         return ServiceProvider.of(ResponseConverter.class).list();
     }

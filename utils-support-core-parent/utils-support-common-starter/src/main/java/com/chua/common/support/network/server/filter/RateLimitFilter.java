@@ -8,29 +8,29 @@ import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 限流过滤器，通过 SPI 加载 {@link RateLimitProvider} 实现。
-*
-* <p>统一入口，具体限流算法由 SPI 实现决定：</p>
-* <ul>
-*   <li>{@code guava} — 令牌桶算法（默认）</li>
-*   <li>{@code sliding-window} — 滑动窗口</li>
-*   <li>{@code redis} — 分布式限流</li>
-* </ul>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* // 全局限流：每秒 100 次，使用 guava 实现
-* RateLimitFilter filter = new RateLimitFilter("guava", 100);
-*
-* // 按 IP 限流
-* RateLimitFilter filter = RateLimitFilter.byIp("guava", 10);
-*
-* // 按路径限流
-* RateLimitFilter filter = RateLimitFilter.byPath("guava", 50, "/api/**");
-* }</pre>
-*
-* @author CH
-* @since 2026/07/18
+ * 限流过滤器，通过 SPI 加载 {@link RateLimitProvider} 实现。
+ *
+ * <p>统一入口，具体限流算法由 SPI 实现决定：</p>
+ * <ul>
+ *   <li>{@code guava} — 令牌桶算法（默认）</li>
+ *   <li>{@code sliding-window} — 滑动窗口</li>
+ *   <li>{@code redis} — 分布式限流</li>
+ * </ul>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * // 全局限流：每秒 100 次，使用 guava 实现
+ * RateLimitFilter filter = new RateLimitFilter("guava", 100);
+ *
+ * // 按 IP 限流
+ * RateLimitFilter filter = RateLimitFilter.byIp("guava", 10);
+ *
+ * // 按路径限流
+ * RateLimitFilter filter = RateLimitFilter.byPath("guava", 50, "/api/**");
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Slf4j
 public class RateLimitFilter implements ServerFilter {
@@ -70,15 +70,15 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     /**
-    * 创建 RateLimitFilter 实例
-    * @param providerName providerName
-    * @param double double
-    * @param KeyStrategy KeyStrategy
-    * @param String String
-    * @param qps 方法入参 qps
-    * @param keyStrategy 键Strategy，不允许为 null
-    * @param pathPrefix 路径前缀，不允许为 null
-    */
+     * 创建 RateLimitFilter 实例
+     * @param providerName providerName
+     * @param double double
+     * @param KeyStrategy KeyStrategy
+     * @param String String
+     * @param qps 方法入参 qps
+     * @param keyStrategy 键Strategy，不允许为 null
+     * @param pathPrefix 路径前缀，不允许为 null
+     */
     private RateLimitFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
         this.providerName = providerName;
         this.qps = qps;
@@ -87,22 +87,22 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     /**
-    * 按 IP 限流。
-    * @param providerName 提供者名称，不允许为 null
-    * @param qps 方法入参 qps
-    * @return 速率上限过滤 对象
-    */
+     * 按 IP 限流。
+     * @param providerName 提供者名称，不允许为 null
+     * @param qps 方法入参 qps
+     * @return 速率上限过滤 对象
+     */
     public static RateLimitFilter byIp(String providerName, double qps) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_IP, null);
     }
 
     /**
-    * 按路径限流。
-    * @param providerName 提供者名称，不允许为 null
-    * @param qps 方法入参 qps
-    * @param pathPrefix 路径前缀，不允许为 null
-    * @return 速率上限过滤 对象
-    */
+     * 按路径限流。
+     * @param providerName 提供者名称，不允许为 null
+     * @param qps 方法入参 qps
+     * @param pathPrefix 路径前缀，不允许为 null
+     * @return 速率上限过滤 对象
+     */
     public static RateLimitFilter byPath(String providerName, double qps, String pathPrefix) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
     }

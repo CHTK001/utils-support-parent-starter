@@ -40,34 +40,34 @@ package com.chua.common.support.task.pipeline.core;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public enum RouteStrategy {
 
     /**
-    * 抛出异常（默认策略）。
-    *
-    * <p>当目标节点不存在时，抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}，
-    * 携带节点 标识 和可用节点列表等上下文信息。</p>
-    *
-    * <p>适用于大多数场景，确保流水线配置的正确性。</p>
-    */
+     * 抛出异常（默认策略）。
+     *
+     * <p>当目标节点不存在时，抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}，
+     * 携带节点 标识 和可用节点列表等上下文信息。</p>
+     *
+     * <p>适用于大多数场景，确保流水线配置的正确性。</p>
+     */
     THROW,
 
     /**
-    * 优雅退出。
-    *
-    * <p>当目标节点不存在时，设置动作为 EXIT，流水线正常终止并触发 onComplete 回调。</p>
-    *
-    * <p>适用于容错场景，不希望因路由错误而中断整个流程。</p>
-    */
+     * 优雅退出。
+     *
+     * <p>当目标节点不存在时，设置动作为 EXIT，流水线正常终止并触发 onComplete 回调。</p>
+     *
+     * <p>适用于容错场景，不希望因路由错误而中断整个流程。</p>
+     */
     EXIT,
 
     /**
-    * 跳过并继续下一个。
-    *
-    * <p>当目标节点不存在时，跳过该节点，按定义顺序执行当前节点之后的下一个节点。</p>
-    *
-    * <p>适用于动态路由场景，某些分支可能不存在但不应影响主流程。</p>
-    */
+     * 跳过并继续下一个。
+     *
+     * <p>当目标节点不存在时，跳过该节点，按定义顺序执行当前节点之后的下一个节点。</p>
+     *
+     * <p>适用于动态路由场景，某些分支可能不存在但不应影响主流程。</p>
+     */
     NEXT
 }

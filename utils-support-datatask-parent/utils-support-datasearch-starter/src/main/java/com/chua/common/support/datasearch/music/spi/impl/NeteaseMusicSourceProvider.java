@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 网易云音乐数据源实现。
-*
-* <p>通过 weapi 加密请求 {@code https://music.163.com/weapi/cloudsearch/get/web}
-* 搜索歌曲（类型=1）与歌单（类型=1000），加密由 {@link NeteaseCryptoSupport} 完成。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 网易云音乐数据源实现。
+ *
+ * <p>通过 weapi 加密请求 {@code https://music.163.com/weapi/cloudsearch/get/web}
+ * 搜索歌曲（类型=1）与歌单（类型=1000），加密由 {@link NeteaseCryptoSupport} 完成。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("netease")
 public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider {
@@ -129,11 +129,11 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     /**
-    * 歌曲节点转摘要。
-    *
-    * @param item 歌曲节点
-    * @return 摘要；缺 标识 时返回 空
-    */
+     * 歌曲节点转摘要。
+     *
+     * @param item 歌曲节点
+     * @return 摘要；缺 标识 时返回 空
+     */
     private MusicTrackSummary toTrackSummary(JsonNode item) {
         String trackId = text(item, "id");
         if (trackId.isEmpty()) {
@@ -151,11 +151,11 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     /**
-    * 歌单节点转摘要。
-    *
-    * @param item 歌单节点
-    * @return 摘要
-    */
+     * 歌单节点转摘要。
+     *
+     * @param item 歌单节点
+     * @return 摘要
+     */
     private MusicPlaylistSummary toPlaylistSummary(JsonNode item) {
         return MusicPlaylistSummary.builder()
                 .playlistId(text(item, "id"))
@@ -170,12 +170,12 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     /**
-    * 拼接数组字段（如歌手名）。
-    *
-    * @param array 数组节点
-    * @param field 字段名
-    * @return 逗号分隔字符串
-    */
+     * 拼接数组字段（如歌手名）。
+     *
+     * @param array 数组节点
+     * @param field 字段名
+     * @return 逗号分隔字符串
+     */
     private String joinNames(JsonNode array, String field) {
         List<String> values = new ArrayList<>();
         for (JsonNode item : elements(array)) {

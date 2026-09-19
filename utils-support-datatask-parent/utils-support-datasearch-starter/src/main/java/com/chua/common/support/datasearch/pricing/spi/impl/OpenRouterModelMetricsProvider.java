@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 打开router 统一模型指标提供者。
-*
-* <p>补充 Artificial Analysis 缺失的维度，数据来自官方 JSON API
-* {@code https://openrouter.ai/api/v1/models}（公开、无需 key）：</p>
-* <ul>
-*   <li>价格：输入/输出（USD / 百万 Token）、缓存读/写、图片（USD / 张）、网络检索（USD / 次）</li>
-*   <li>能力：图片输入（input_modalities）、网络检索（web_search 定价）、上下文窗口</li>
-*   <li>智能：benchmarks.artificial_analysis.intelligence_index（部分模型）</li>
-* </ul>
-*
-* <p>价格口径统一为 USD / 百万 Token（与 Artificial Analysis 一致），图片与检索按次计费。
-* 模型 标识 取 {@code provider/model} 的尾段，与 Artificial Analysis 的 slug 对齐，便于
-* {@code DataSearchModelPricingProvider} 多源合并。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 打开router 统一模型指标提供者。
+ *
+ * <p>补充 Artificial Analysis 缺失的维度，数据来自官方 JSON API
+ * {@code https://openrouter.ai/api/v1/models}（公开、无需 key）：</p>
+ * <ul>
+ *   <li>价格：输入/输出（USD / 百万 Token）、缓存读/写、图片（USD / 张）、网络检索（USD / 次）</li>
+ *   <li>能力：图片输入（input_modalities）、网络检索（web_search 定价）、上下文窗口</li>
+ *   <li>智能：benchmarks.artificial_analysis.intelligence_index（部分模型）</li>
+ * </ul>
+ *
+ * <p>价格口径统一为 USD / 百万 Token（与 Artificial Analysis 一致），图片与检索按次计费。
+ * 模型 标识 取 {@code provider/model} 的尾段，与 Artificial Analysis 的 slug 对齐，便于
+ * {@code DataSearchModelPricingProvider} 多源合并。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("openrouter")
 public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider {
@@ -57,12 +57,12 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 解析 打开router 模型列表 JSON。
-    *
-    * @param json API 响应
-    * @return 模型指标列表
-    * @throws Exception JSON 解析失败时抛出
-    */
+     * 解析 打开router 模型列表 JSON。
+     *
+     * @param json API 响应
+     * @return 模型指标列表
+     * @throws Exception JSON 解析失败时抛出
+     */
     private List<ModelDefinition> parseOpenRouter(String json) throws Exception {
         JsonNode root = MAPPER.readTree(json);
         JsonNode data = root.path("data");
@@ -120,11 +120,11 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 将每 令牌 价格换算为 USD / 百万 令牌。
-    *
-    * @param node 价格节点
-    * @return 每百万 令牌 价格；缺失/非数值/零时返回 空
-    */
+     * 将每 令牌 价格换算为 USD / 百万 令牌。
+     *
+     * @param node 价格节点
+     * @return 每百万 令牌 价格；缺失/非数值/零时返回 空
+     */
     private BigDecimal perMillion(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -141,11 +141,11 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 读取按次计费的价格（图片/检索）。
-    *
-    * @param node 价格节点
-    * @return 单次价格；缺失/非数值/零时返回 空
-    */
+     * 读取按次计费的价格（图片/检索）。
+     *
+     * @param node 价格节点
+     * @return 单次价格；缺失/非数值/零时返回 空
+     */
     private BigDecimal perImage(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -162,11 +162,11 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 读取模态数组为字符串列表。
-    *
-    * @param node 模态数组节点
-    * @return 模态列表；非数组时返回空列表
-    */
+     * 读取模态数组为字符串列表。
+     *
+     * @param node 模态数组节点
+     * @return 模态列表；非数组时返回空列表
+     */
     private List<String> modalities(JsonNode node) {
         List<String> result = new ArrayList<>();
         if (node == null || !node.isArray()) {
@@ -179,12 +179,12 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 判断输入模态是否包含指定类型。
-    *
-    * @param architecture 架构节点
-    * @param modality     模态名（如 镜像）
-    * @return 包含返回 true
-    */
+     * 判断输入模态是否包含指定类型。
+     *
+     * @param architecture 架构节点
+     * @param modality     模态名（如 镜像）
+     * @return 包含返回 true
+     */
     private boolean containsModality(JsonNode architecture, String modality) {
         JsonNode mods = architecture.path("input_modalities");
         if (!mods.isArray()) {
@@ -199,11 +199,11 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     }
 
     /**
-    * 读取数值节点。
-    *
-    * @param node 数值节点
-    * @return 数值；缺失/非数值返回 空
-    */
+     * 读取数值节点。
+     *
+     * @param node 数值节点
+     * @return 数值；缺失/非数值返回 空
+     */
     private BigDecimal number(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

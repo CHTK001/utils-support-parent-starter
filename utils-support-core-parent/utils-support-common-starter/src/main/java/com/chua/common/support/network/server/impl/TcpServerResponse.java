@@ -29,7 +29,7 @@ import java.util.TreeMap;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class TcpServerResponse implements ServerResponse {
 
     /** 状态码，默认 200 */
@@ -218,12 +218,12 @@ public class TcpServerResponse implements ServerResponse {
     }
 
     /**
-    * 构造并返回完整的 HTTP 响应报文字节（含状态行、所有头、空行和响应体）。
-    *
-    * <p>调用方应将该返回值直接作为 TCP 帧体，由上层加上 4 字节长度头写出。</p>
-    *
-    * @return 完整的 HTTP 响应报文字节
-    */
+     * 构造并返回完整的 HTTP 响应报文字节（含状态行、所有头、空行和响应体）。
+     *
+     * <p>调用方应将该返回值直接作为 TCP 帧体，由上层加上 4 字节长度头写出。</p>
+     *
+     * @return 完整的 HTTP 响应报文字节
+     */
     public byte[] getReadyBytes() {
         if (!ended) {
             end();
@@ -259,11 +259,11 @@ public class TcpServerResponse implements ServerResponse {
     }
 
     /**
-    * 获取 HTTP 标准状态码对应的标准原因短语。
-    *
-    * @param code 状态码
-    * @return 原因短语
-    */
+     * 获取 HTTP 标准状态码对应的标准原因短语。
+     *
+     * @param code 状态码
+     * @return 原因短语
+     */
     private static String getReasonPhrase(int code) {
         switch (code) {
             case 200: return "OK";

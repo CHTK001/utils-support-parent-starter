@@ -3,10 +3,10 @@ package com.chua.datasync.agent.support.model;
 import java.io.Serializable;
 
 /**
-* 数据偏移量记录。
-*
-* @author CH
-* @since 4.0.0.42
+ * 数据偏移量记录。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SyncDataOffset implements Serializable {
 
@@ -40,37 +40,37 @@ public class SyncDataOffset implements Serializable {
     }
 
     /**
-    * 源id
-    *
-    * @return 源id的结果
-    */
+     * 源id
+     *
+     * @return 源id的结果
+     */
     public String sourceId() {
         return sourceId;
     }
 
     /**
-    * 偏移量值
-    *
-    * @return 偏移量值的结果
-    */
+     * 偏移量值
+     *
+     * @return 偏移量值的结果
+     */
     public Object offsetValue() {
         return offsetValue;
     }
 
     /**
-    * 时间戳
-    *
-    * @return 时间戳的结果
-    */
+     * 时间戳
+     *
+     * @return 时间戳的结果
+     */
     public long timestamp() {
         return timestamp;
     }
 
     /**
-    * mappingid
-    *
-    * @return mappingId的结果
-    */
+     * mappingid
+     *
+     * @return mappingId的结果
+     */
     public String mappingId() {
         return mappingId;
     }

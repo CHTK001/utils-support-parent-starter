@@ -10,7 +10,7 @@ package com.chua.common.support.utils;
  * @param height        子图高度
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record SubImageOptions(
         java.awt.image.BufferedImage bufferedImage,
         int x,

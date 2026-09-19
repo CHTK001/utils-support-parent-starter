@@ -24,14 +24,14 @@ import java.util.List;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Getter
 @Builder
 public class ObjectContextConfig {
 
     /**
-    * 是否启用 SPI 作为 Beandefinition注册 的发现器，默认 true
-    */
+     * 是否启用 SPI 作为 Beandefinition注册 的发现器，默认 true
+     */
     @Builder.Default
     /** SPI是否启用 */
     private boolean spiEnabled = true;
@@ -60,19 +60,19 @@ public class ObjectContextConfig {
     }
 
     /**
-    * 不读取 yml，仅使用代码内置默认值。
-    *
-    * @return 内置默认配置
-    */
+     * 不读取 yml，仅使用代码内置默认值。
+     *
+     * @return 内置默认配置
+     */
     public static ObjectContextConfig empty() {
         return ObjectContextConfig.builder().build();
     }
 
     /**
-    * 是否应在 初始化 时执行包扫描。
-    *
-    * @return true 表示需要扫描
-    */
+     * 是否应在 初始化 时执行包扫描。
+     *
+     * @return true 表示需要扫描
+     */
     public boolean shouldScan() {
         return (annotationScanEnabled || (scanPackages != null && !scanPackages.isEmpty()))
                 && scanPackages != null

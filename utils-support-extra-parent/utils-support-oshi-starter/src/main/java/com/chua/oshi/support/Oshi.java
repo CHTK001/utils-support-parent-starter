@@ -18,10 +18,10 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
-* Oshi 系统信息工具类
-*
-* @author CH
-* @since 4.0.0
+ * Oshi 系统信息工具类
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class Oshi {
@@ -38,10 +38,10 @@ public final class Oshi {
     }
 
     /**
-    * 获取 CPU 信息。
-    * @param tickMillis tickmillis
-    * @return 新cpu的结果
-    */
+     * 获取 CPU 信息。
+     * @param tickMillis tickmillis
+     * @return 新cpu的结果
+     */
     public static Cpu newCpu(long tickMillis) {
         Cpu cpu = new Cpu();
         try {
@@ -77,9 +77,9 @@ public final class Oshi {
     }
 
     /**
-    * 获取内存信息。
-    * @return 新mem的结果
-    */
+     * 获取内存信息。
+     * @return 新mem的结果
+     */
     public static Mem newMem() {
         Mem mem = new Mem();
         try {
@@ -97,9 +97,9 @@ public final class Oshi {
     }
 
     /**
-    * 获取系统信息。
-    * @return 新sys的结果
-    */
+     * 获取系统信息。
+     * @return 新sys的结果
+     */
     public static Sys newSys() {
         Sys sys = new Sys();
         try {
@@ -113,9 +113,9 @@ public final class Oshi {
     }
 
     /**
-    * 获取文件系统（分区/挂载点）信息列表。
-    * @return 新sys文件的结果
-    */
+     * 获取文件系统（分区/挂载点）信息列表。
+     * @return 新sys文件的结果
+     */
     public static List<SysFile> newSysFile() {
         List<SysFile> list = new ArrayList<>();
         try {
@@ -140,9 +140,9 @@ public final class Oshi {
     }
 
     /**
-    * 获取网络接口信息列表。
-    * @return 新network的结果
-    */
+     * 获取网络接口信息列表。
+     * @return 新network的结果
+     */
     public static List<Network> newNetwork() {
         List<Network> list = new ArrayList<>();
         try {
@@ -166,10 +166,10 @@ public final class Oshi {
     }
 
     /**
-    * 获取本地ip
-    *
-    * @return 获取本地ip的结果
-    */
+     * 获取本地ip
+     *
+     * @return 获取本地ip的结果
+     */
     private static String getLocalIp() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -193,10 +193,10 @@ public final class Oshi {
     }
 
     /**
-    * Sleep
-    *
-    * @param millis millis
-    */
+     * Sleep
+     *
+     * @param millis millis
+     */
     private static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -206,28 +206,28 @@ public final class Oshi {
     }
 
     /**
-    * 获取系统信息
-    *
-    * @return 获取系统信息的结果
-    */
+     * 获取系统信息
+     *
+     * @return 获取系统信息的结果
+     */
     public static SystemInfo getSystemInfo() {
         return SYSTEM_INFO;
     }
 
     /**
-    * 获取Hardware
-    *
-    * @return 获取hardware的结果
-    */
+     * 获取Hardware
+     *
+     * @return 获取hardware的结果
+     */
     public static HardwareAbstractionLayer getHardware() {
         return HARDWARE;
     }
 
     /**
-    * 获取operating系统
-    *
-    * @return 获取operating系统的结果
-    */
+     * 获取operating系统
+     *
+     * @return 获取operating系统的结果
+     */
     public static OperatingSystem getOperatingSystem() {
         return OPERATING_SYSTEM;
     }

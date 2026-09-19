@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 方法处理 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
-* <p>
-* 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
-* {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 方法处理 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
+ * <p>
+ * 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
+ * {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 final class MethodCache {
 
@@ -23,16 +23,16 @@ final class MethodCache {
     private static final Map<Class<?>, Map<String, MethodHandle>> SETTERS = new ConcurrentHashMap<>(); // SETTERS
 
     /**
-    * 哨兵 值：缓存 未 命中 的 方法（{@code computeIfAbsent} 不 允许 存 null，
-    * 用 此 哨兵 标记 负 缓存，避免 缺失 字段 每 次 都 重 做 全 量 反射 扫描）。
-    */
+     * 哨兵 值：缓存 未 命中 的 方法（{@code computeIfAbsent} 不 允许 存 null，
+     * 用 此 哨兵 标记 负 缓存，避免 缺失 字段 每 次 都 重 做 全 量 反射 扫描）。
+     */
     private static final MethodHandle MISSING = buildMissingSentinel();
 
     /**
-    * 构造 哨兵 句柄（一 个 永远 不 会 被 调 用 的 合法 句柄，仅 用 于 负 缓存 标记）。
-    *
-    * @return 哨兵 句柄
-    */
+     * 构造 哨兵 句柄（一 个 永远 不 会 被 调 用 的 合法 句柄，仅 用 于 负 缓存 标记）。
+     *
+     * @return 哨兵 句柄
+     */
     private static MethodHandle buildMissingSentinel() {
         try {
             // 用 Object.hashCode 的 实例 句柄 作为 占位（合法 句柄，但 永 不 会 被
@@ -80,12 +80,12 @@ final class MethodCache {
     }
 
     /**
-    * 设置值
-    *
-    * @param obj obj
-    * @param field 字段
-    * @param value 值
-    */
+     * 设置值
+     *
+     * @param obj obj
+     * @param field 字段
+     * @param value 值
+     */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
         if (mh != null) {
@@ -108,12 +108,12 @@ final class MethodCache {
     }
 
     /**
-    * Getter
-    *
-    * @param clazz clazz
-    * @param field 字段
-    * @return getter的结果
-    */
+     * Getter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return getter的结果
+     */
     private static MethodHandle getter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = GETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         MethodHandle cached = classCache.computeIfAbsent(field, k -> {
@@ -124,12 +124,12 @@ final class MethodCache {
     }
 
     /**
-    * Setter
-    *
-    * @param clazz clazz
-    * @param field 字段
-    * @return setter的结果
-    */
+     * Setter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return setter的结果
+     */
     private static MethodHandle setter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = SETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
         MethodHandle cached = classCache.computeIfAbsent(field, k -> {
@@ -140,12 +140,12 @@ final class MethodCache {
     }
 
     /**
-    * 查找Getter
-    *
-    * @param clazz clazz
-    * @param field 字段
-    * @return findGetter的结果
-    */
+     * 查找Getter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return findGetter的结果
+     */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
         String camel = toCamelCase(field);
         MethodType mt = MethodType.methodType(Object.class, Object.class);
@@ -168,12 +168,12 @@ final class MethodCache {
     }
 
     /**
-    * 查找Setter
-    *
-    * @param clazz clazz
-    * @param field 字段
-    * @return findSetter的结果
-    */
+     * 查找Setter
+     *
+     * @param clazz clazz
+     * @param field 字段
+     * @return findSetter的结果
+     */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
         String camel = toCamelCase(field);
         String setter = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
@@ -188,11 +188,11 @@ final class MethodCache {
     }
 
     /**
-    * 转为camel大小写
-    *
-    * @param name 名称
-    * @return 转为camel大小写的结果
-    */
+     * 转为camel大小写
+     *
+     * @param name 名称
+     * @return 转为camel大小写的结果
+     */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;

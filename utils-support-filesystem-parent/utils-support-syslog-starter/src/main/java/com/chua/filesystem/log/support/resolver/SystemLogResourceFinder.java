@@ -19,40 +19,40 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
-* 系统 日志 resource查找 implementation - 注册 "syslog:" 协议
-* <p>
-* Integrates 系统 日志 retrieval into the resource提供者 框架,
-* 查询 系统 日志 on each platform via the unified syslog: 协议.
-* </p>
-*
-* <h3>Ant-style glob syntax:</h3>
-* <pre>
-* syslog:*error*              - messages containing "error" (case-insensitive)
-* syslog:*error*&amp;maxResults=10  - same, limit to 10 results
-* syslog:disk                  - exact match "disk"
-* syslog:?error               - "error" with any single leading char
-* </pre>
-*
-* <h3>Legacy ?key=value syntax (still supported):</h3>
-* <pre>
-* syslog:?pattern=*error*&amp;maxResults=50
-* syslog:?pattern=*disk*&amp;level=ERROR
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 系统 日志 resource查找 implementation - 注册 "syslog:" 协议
+ * <p>
+ * Integrates 系统 日志 retrieval into the resource提供者 框架,
+ * 查询 系统 日志 on each platform via the unified syslog: 协议.
+ * </p>
+ *
+ * <h3>Ant-style glob syntax:</h3>
+ * <pre>
+ * syslog:*error*              - messages containing "error" (case-insensitive)
+ * syslog:*error*&amp;maxResults=10  - same, limit to 10 results
+ * syslog:disk                  - exact match "disk"
+ * syslog:?error               - "error" with any single leading char
+ * </pre>
+ *
+ * <h3>Legacy ?key=value syntax (still supported):</h3>
+ * <pre>
+ * syslog:?pattern=*error*&amp;maxResults=50
+ * syslog:?pattern=*disk*&amp;level=ERROR
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SystemLogResourceFinder implements ResourceFinder {
 
     /**
-    * 协议 名称
-    */
+     * 协议 名称
+     */
     public static final String PROTOCOL = "syslog";
 
     /**
-    * 提供者, lazily 初始化
-    */
+     * 提供者, lazily 初始化
+     */
     private volatile SystemLogProvider provider;
 
     @Override
@@ -105,11 +105,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 解析globstyle
-    *
-    * @param s s
-    * @return 解析globstyle的结果
-    */
+     * 解析globstyle
+     *
+     * @param s s
+     * @return 解析globstyle的结果
+     */
     private LogQuery parseGlobStyle(String s) {
         int maxResults = 100;
         String order = LogQuery.ORDER_DESC;
@@ -149,11 +149,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 解析查询参数style
-    *
-    * @param withGlob withglob
-    * @return 解析查询参数style的结果
-    */
+     * 解析查询参数style
+     *
+     * @param withGlob withglob
+     * @return 解析查询参数style的结果
+     */
     private LogQuery parseQueryParamStyle(String withGlob) {
         String queryString;
         int qmarkIdx = withGlob.indexOf('?');
@@ -209,10 +209,10 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 获取或创建提供者
-    *
-    * @return 获取或创建提供者的结果
-    */
+     * 获取或创建提供者
+     *
+     * @return 获取或创建提供者的结果
+     */
     private SystemLogProvider getOrCreateProvider() {
         if (provider != null) {
             return provider;
@@ -240,11 +240,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 转为resource
-    *
-    * @param entry entry
-    * @return 转为resource的结果
-    */
+     * 转为resource
+     *
+     * @param entry entry
+     * @return 转为resource的结果
+     */
     private Resource toResource(LogEntry entry) {
         String content = String.format("[%s] [%s] [%s] %s",
                 entry.timestamp(),
@@ -257,12 +257,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 虚拟resourceimpl
-    *
-    * @param entry entry
-    * @param content 内容
-    * @return 虚拟resourceimpl的结果
-    */
+     * 虚拟resourceimpl
+     *
+     * @param entry entry
+     * @param content 内容
+     * @return 虚拟resourceimpl的结果
+     */
     private record VirtualResourceImpl(LogEntry entry, byte[] content) implements Resource {
 
         @Override

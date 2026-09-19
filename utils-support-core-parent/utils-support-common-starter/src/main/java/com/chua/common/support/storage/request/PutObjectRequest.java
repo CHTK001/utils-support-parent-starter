@@ -48,50 +48,50 @@ import static com.chua.common.support.utils.UrlUtils.*;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Data
 @Builder
 public class PutObjectRequest {
 
     /**
-    * 文件内容（字节数组）。
-    */
+     * 文件内容（字节数组）。
+     */
     private byte[] content;
 
     /**
-    * 本地文件（运行时自动读取为字节数组）。
-    */
+     * 本地文件（运行时自动读取为字节数组）。
+     */
     private File file;
 
     /**
-    * 输入流（运行时自动读取为字节数组）。
-    */
+     * 输入流（运行时自动读取为字节数组）。
+     */
     private InputStream inputStream;
 
     /**
-    * 文件名（含扩展名，如 "report.pdf"）。
-    * <p>当使用 {@link #file} 时，若未设置则自动取文件名。</p>
-    */
+     * 文件名（含扩展名，如 "report.pdf"）。
+     * <p>当使用 {@link #file} 时，若未设置则自动取文件名。</p>
+     */
     private String fileName;
 
     /**
-    * 文件路径（不含文件名，如 "/docs/2024/"）。
-    */
+     * 文件路径（不含文件名，如 "/docs/2024/"）。
+     */
     private String filePath;
 
     /**
-    * 文件元数据（如 内容-类型、内容-长度 等）。
-    */
+     * 文件元数据（如 内容-类型、内容-长度 等）。
+     */
     private Metadata metadata;
 
     /**
-    * 获取文件内容的字节数组。
-    *
-    * <p>按优先级读取：content → file → inputStream</p>
-    *
-    * @return 文件内容
-    * @throws IOException 读取失败时抛出
-    */
+     * 获取文件内容的字节数组。
+     *
+     * <p>按优先级读取：content → file → inputStream</p>
+     *
+     * @return 文件内容
+     * @throws IOException 读取失败时抛出
+     */
     public byte[] getContentBytes() throws IOException {
         if (content != null) {
             return content;
@@ -111,12 +111,12 @@ public class PutObjectRequest {
     }
 
     /**
-    * 获取文件名。
-    *
-    * <p>若显式设置了 fileName 则返回它，否则尝试从 file 中获取。</p>
-    *
-    * @return 文件名
-    */
+     * 获取文件名。
+     *
+     * <p>若显式设置了 fileName 则返回它，否则尝试从 file 中获取。</p>
+     *
+     * @return 文件名
+     */
     public String getFileName() {
         if (fileName != null) {
             return fileName;
@@ -128,12 +128,12 @@ public class PutObjectRequest {
     }
 
     /**
-    * 获取完整的对象 键。
-    *
-    * <p>自动规范化：去除多余斜杠、反斜杠，防止路径穿越（../）。</p>
-    *
-    * @return 规范化后的 键（路径 + 文件名）
-    */
+     * 获取完整的对象 键。
+     *
+     * <p>自动规范化：去除多余斜杠、反斜杠，防止路径穿越（../）。</p>
+     *
+     * @return 规范化后的 键（路径 + 文件名）
+     */
     public String getKey() {
         String name = getFileName();
         if (name == null) {
@@ -146,11 +146,11 @@ public class PutObjectRequest {
     }
 
     /**
-    * 从本地文件创建上传请求（自动读取内容和文件名）。
-    *
-    * @param file 本地文件
-    * @return 上传请求
-    */
+     * 从本地文件创建上传请求（自动读取内容和文件名）。
+     *
+     * @param file 本地文件
+     * @return 上传请求
+     */
     public static PutObjectRequest of(File file) {
         return PutObjectRequest.builder()
                 .fileName(file.getName())
@@ -159,12 +159,12 @@ public class PutObjectRequest {
     }
 
     /**
-    * 从本地文件创建上传请求，指定远程路径。
-    *
-    * @param file     本地文件
-    * @param filePath 远程路径
-    * @return 上传请求
-    */
+     * 从本地文件创建上传请求，指定远程路径。
+     *
+     * @param file     本地文件
+     * @param filePath 远程路径
+     * @return 上传请求
+     */
     public static PutObjectRequest of(File file, String filePath) {
         return PutObjectRequest.builder()
                 .fileName(file.getName())
@@ -174,12 +174,12 @@ public class PutObjectRequest {
     }
 
     /**
-    * 从输入流创建上传请求。
-    *
-    * @param inputStream 文件输入流
-    * @param fileName    文件名
-    * @return 上传请求
-    */
+     * 从输入流创建上传请求。
+     *
+     * @param inputStream 文件输入流
+     * @param fileName    文件名
+     * @return 上传请求
+     */
     public static PutObjectRequest of(InputStream inputStream, String fileName) {
         try {
             return PutObjectRequest.builder()
@@ -192,11 +192,11 @@ public class PutObjectRequest {
     }
 
     /**
-    * 读取Bytes
-    *
-    * @param file 文件
-    * @return 读取bytes的结果
-    */
+     * 读取Bytes
+     *
+     * @param file 文件
+     * @return 读取bytes的结果
+     */
     private static byte[] readBytes(File file) {
         try (var fis = new java.io.FileInputStream(file)) {
             return fis.readAllBytes();

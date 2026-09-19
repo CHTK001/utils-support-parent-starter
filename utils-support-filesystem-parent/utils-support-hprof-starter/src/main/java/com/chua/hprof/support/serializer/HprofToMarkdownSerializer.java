@@ -31,12 +31,12 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 将解析结果序列化为 Markdown 字符串。
-    *
-    * @param result   解析结果
-    * @param fileName 报告头使用的源文件名
-    * @return Markdown 文档
-    */
+     * 将解析结果序列化为 Markdown 字符串。
+     *
+     * @param result   解析结果
+     * @param fileName 报告头使用的源文件名
+     * @return Markdown 文档
+     */
     public static String serialize(HprofParser.Result result, String fileName) {
         HprofAnalysis analysis = HprofAnalyzer.analyze(result,
                 fileName == null ? null : new java.io.File(fileName));
@@ -57,11 +57,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加"问题 + 处理步骤"段落。
-    *
-    * @param sb   输出缓冲
-    * @param plan 处置计划
-    */
+     * 追加"问题 + 处理步骤"段落。
+     *
+     * @param sb   输出缓冲
+     * @param plan 处置计划
+     */
     private static void appendProblemAndPlan(StringBuilder sb,
                                              com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
         sb.append("## 问题是什么 · 怎么处理\n\n");
@@ -79,11 +79,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加引用链段落。
-    *
-    * @param sb     输出缓冲
-    * @param result 解析结果
-    */
+     * 追加引用链段落。
+     *
+     * @param sb     输出缓冲
+     * @param result 解析结果
+     */
     private static void appendRefChains(StringBuilder sb, HprofParser.Result result) {
         if (result.refChains() == null || result.refChains().isEmpty()) {
             return;
@@ -124,11 +124,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加可勾选处置清单（Markdown 用 - [ ] 复选框）。
-    *
-    * @param sb   输出缓冲
-    * @param plan 处置计划
-    */
+     * 追加可勾选处置清单（Markdown 用 - [ ] 复选框）。
+     *
+     * @param sb   输出缓冲
+     * @param plan 处置计划
+     */
     private static void appendChecklist(StringBuilder sb,
                                         com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
         sb.append("## 处置清单（处理一项勾一项）\n\n");
@@ -140,12 +140,12 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加报告头。
-    *
-    * @param sb       输出缓冲
-    * @param result   解析结果
-    * @param fileName 源文件名
-    */
+     * 追加报告头。
+     *
+     * @param sb       输出缓冲
+     * @param result   解析结果
+     * @param fileName 源文件名
+     */
     private static void appendHeader(StringBuilder sb, HprofParser.Result result, String fileName) {
         sb.append("# HPROF 堆内存分析\n\n");
         sb.append("- **源文件**：`").append(fileName == null ? "stream" : fileName).append("`\n");
@@ -155,11 +155,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加崩溃语境段落（OOM 判定 / 堆水位 / hs_err 证据）。
-    *
-    * @param sb       输出缓冲
-    * @param analysis 分析结果
-    */
+     * 追加崩溃语境段落（OOM 判定 / 堆水位 / hs_err 证据）。
+     *
+     * @param sb       输出缓冲
+     * @param analysis 分析结果
+     */
     private static void appendCrashContext(StringBuilder sb, HprofAnalysis analysis) {
         if (analysis.crashSignals == null || analysis.crashSignals.isEmpty()) {
             return;
@@ -175,11 +175,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加根因判定段落。
-    *
-    * @param sb       输出缓冲
-    * @param analysis 分析
-    */
+     * 追加根因判定段落。
+     *
+     * @param sb       输出缓冲
+     * @param analysis 分析
+     */
     private static void appendRootCause(StringBuilder sb, HprofAnalysis analysis) {
         if (analysis.rootCause == null || analysis.rootCause.isBlank()) {
             return;
@@ -189,11 +189,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加类直方表。
-    *
-    * @param sb   输出缓冲
-    * @param rows 直方行
-    */
+     * 追加类直方表。
+     *
+     * @param sb   输出缓冲
+     * @param rows 直方行
+     */
     private static void appendClassHistogram(StringBuilder sb, List<HprofHistogramRow> rows) {
         sb.append("## 类直方图\n\n");
         sb.append("| 类名 | 实例数 | 浅层大小 | 保留大小 |\n");
@@ -209,11 +209,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加非 JDK 包排行段落。
-    *
-    * @param sb       输出缓冲
-    * @param analysis 分析
-    */
+     * 追加非 JDK 包排行段落。
+     *
+     * @param sb       输出缓冲
+     * @param analysis 分析
+     */
     private static void appendNonJdk(StringBuilder sb, HprofAnalysis analysis) {
         if (analysis.nonJdkPackageGroups == null || analysis.nonJdkPackageGroups.isEmpty()) {
             return;
@@ -240,11 +240,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加泄漏嫌疑表。
-    *
-    * @param sb       输出缓冲
-    * @param suspects  Top 保留对象
-    */
+     * 追加泄漏嫌疑表。
+     *
+     * @param sb       输出缓冲
+     * @param suspects  Top 保留对象
+     */
     private static void appendLeakSuspects(StringBuilder sb, List<HprofObject> suspects) {
         sb.append("## 泄漏嫌疑（Top 保留）\n\n");
         sb.append("| 类名 | 保留大小 | GC 根 / 引用链 |\n");
@@ -261,11 +261,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 追加结论段落。
-    *
-    * @param sb       输出缓冲
-    * @param analysis 分析
-    */
+     * 追加结论段落。
+     *
+     * @param sb       输出缓冲
+     * @param analysis 分析
+     */
     private static void appendConclusions(StringBuilder sb, HprofAnalysis analysis) {
         sb.append("## 结论\n\n");
         for (String c : analysis.conclusions) {
@@ -275,11 +275,11 @@ public final class HprofToMarkdownSerializer {
     }
 
     /**
-    * 提取类简单名。
-    *
-    * @param className 类全名
-    * @return 简单名部分
-    */
+     * 提取类简单名。
+     *
+     * @param className 类全名
+     * @return 简单名部分
+     */
     private static String simpleName(String className) {
         if (className == null || className.isEmpty()) {
             return "unknown";

@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
-* rustnmapscanner 测试
-* 动态库未加载时验证降级行为，加载时跑真实扫描
-* @author CH
-* @since 4.0.0
+ * rustnmapscanner 测试
+ * 动态库未加载时验证降级行为，加载时跑真实扫描
+ * @author CH
+ * @since 4.0.0
  */
 class RustNmapScannerTest {
 

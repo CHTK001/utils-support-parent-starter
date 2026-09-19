@@ -24,138 +24,138 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 数据湖服务端 构建器。
-*
-* <p>对外提供链式构建入口，统一注入依赖项。一旦 {@link #dataSyncServer(DataSyncServer)}
-* 被调用，构建时会自动把 数据同步 调度器的 执行器管理器 替换为 数据湖执行器管理器。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 数据湖服务端 构建器。
+ *
+ * <p>对外提供链式构建入口，统一注入依赖项。一旦 {@link #dataSyncServer(DataSyncServer)}
+ * 被调用，构建时会自动把 数据同步 调度器的 执行器管理器 替换为 数据湖执行器管理器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DatalakeServerBuilder {
 
     /**
-    * 管线配置管理器
-    */
+     * 管线配置管理器
+     */
     private PipelineManager pipelineManager;
 
     /**
-    * sink 注册表
-    */
+     * sink 注册表
+     */
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
-    * 外部注入的 数据同步服务端
-    */
+     * 外部注入的 数据同步服务端
+     */
     private DataSyncServer dataSyncServer;
 
     /**
-    * dispatcher提供者 实例
-    */
+     * dispatcher提供者 实例
+     */
     private DispatcherProvider dispatcher;
 
     /**
-    * Chronicle 共享目录（用于跨进程通信）
-    */
+     * Chronicle 共享目录（用于跨进程通信）
+     */
     private String dataPath;
 
     /**
-    * 偏移量 门面
-    */
+     * 偏移量 门面
+     */
     private OffsetFlow offsetFlow;
 
     /**
-    * 启动期注入的 API 服务端
-    */
+     * 启动期注入的 API 服务端
+     */
     private Server apiServer;
 
     /**
-    * 私有构造，强制使用 {@link #builder()} 创建。
-    */
+     * 私有构造，强制使用 {@link #builder()} 创建。
+     */
     private DatalakeServerBuilder() {
     }
 
     /**
-    * 创建构建器实例
-    *
-    * @return 新构建器
-    */
+     * 创建构建器实例
+     *
+     * @return 新构建器
+     */
     public static DatalakeServerBuilder builder() {
         return new DatalakeServerBuilder();
     }
 
     /**
-    * 设置管线管理器
-    *
-    * @param pipelineManager 管线管理器实例
-    * @return 当前构建器
-    */
+     * 设置管线管理器
+     *
+     * @param pipelineManager 管线管理器实例
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder pipelineManager(PipelineManager pipelineManager) {
         this.pipelineManager = pipelineManager;
         return this;
     }
 
     /**
-    * 注册单个 sink
-    *
-    * @param sink 待注册的 sink
-    * @return 当前构建器
-    */
+     * 注册单个 sink
+     *
+     * @param sink 待注册的 sink
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder registerSink(DataSink sink) {
         this.sinkRegistry.put(sink.type(), sink);
         return this;
     }
 
     /**
-    * 批量注册 sink
-    *
-    * @param sinks sink 集合
-    * @return 当前构建器
-    */
+     * 批量注册 sink
+     *
+     * @param sinks sink 集合
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder sinks(Map<String, DataSink> sinks) {
         this.sinkRegistry.putAll(sinks);
         return this;
     }
 
     /**
-    * 注入 数据同步服务端
-    *
-    * @param dataSyncServer 数据同步服务端 实例
-    * @return 当前构建器
-    */
+     * 注入 数据同步服务端
+     *
+     * @param dataSyncServer 数据同步服务端 实例
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder dataSyncServer(DataSyncServer dataSyncServer) {
         this.dataSyncServer = dataSyncServer;
         return this;
     }
 
     /**
-    * 设置 Chronicle 共享目录
-    *
-    * @param dataPath 数据路径
-    * @return 当前构建器
-    */
+     * 设置 Chronicle 共享目录
+     *
+     * @param dataPath 数据路径
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder dataPath(String dataPath) {
         this.dataPath = dataPath;
         return this;
     }
 
     /**
-    * 注入自定义 API 服务端
-    *
-    * @param apiServer API 服务端 实例
-    * @return 当前构建器
-    */
+     * 注入自定义 API 服务端
+     *
+     * @param apiServer API 服务端 实例
+     * @return 当前构建器
+     */
     public DatalakeServerBuilder apiServer(Server apiServer) {
         this.apiServer = apiServer;
         return this;
     }
 
     /**
-    * 构建 数据湖服务端 实例
-    *
-    * @return 已配置的服务器
-    */
+     * 构建 数据湖服务端 实例
+     *
+     * @return 已配置的服务器
+     */
     public DatalakeServer build() {
         if (pipelineManager == null) {
             pipelineManager = new DefaultPipelineManager();

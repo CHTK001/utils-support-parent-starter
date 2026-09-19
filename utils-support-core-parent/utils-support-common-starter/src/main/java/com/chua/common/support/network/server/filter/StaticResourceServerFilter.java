@@ -40,32 +40,32 @@ import java.util.concurrent.CompletionStage;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class StaticResourceServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
-    * URL 前缀（如 /fs）
-    */
+     * URL 前缀（如 /fs）
+     */
     private volatile String urlPrefix = "/static";
 
     /**
-    * classpath 资源根目录（如 static）
-    */
+     * classpath 资源根目录（如 static）
+     */
     private volatile String resourcePath = "static";
 
     /**
-    * 文件系统根目录（可选，非空时优先读取磁盘文件）
-    */
+     * 文件系统根目录（可选，非空时优先读取磁盘文件）
+     */
     private volatile Path fsRoot;
 
     /**
-    * 索引文件名（SPA 壳）
-    */
+     * 索引文件名（SPA 壳）
+     */
     private volatile String indexFile = "index.html";
 
     /**
-    * 默认首页重定向（可选，如 /fs → /fs/）
-    */
+     * 默认首页重定向（可选，如 /fs → /fs/）
+     */
     private volatile boolean redirectToIndex = true;
 
     /**
@@ -76,11 +76,11 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 创建过滤器。
-    *
-    * @param urlPrefix    URL 前缀（如 /fs）
-    * @param resourcePath classpath 资源根目录（如 static）
-    */
+     * 创建过滤器。
+     *
+     * @param urlPrefix    URL 前缀（如 /fs）
+     * @param resourcePath classpath 资源根目录（如 static）
+     */
     public StaticResourceServerFilter(String urlPrefix, String resourcePath) {
         this.urlPrefix = normalizePrefix(urlPrefix);
         this.resourcePath = resourcePath == null || resourcePath.isEmpty() ? "static" : resourcePath;
@@ -152,12 +152,12 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 执行过滤逻辑。
-    * @param request 请求，不允许为 null
-    * @param response 响应，不允许为 null
-    * @param chain 方法入参 chain
-    * @return CompletionStage 对象
-    */
+     * 执行过滤逻辑。
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     * @param chain 方法入参 chain
+     * @return CompletionStage 对象
+     */
     private CompletionStage<Void> doReactiveFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         String path = request.getPath();
         if (path == null || !path.startsWith(urlPrefix)) {
@@ -202,11 +202,11 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 加载资源：优先文件系统，其次 classpath。
-    *
-    * @param resourceKey 资源相对路径
-    * @return 内容字节，不存在返回 null
-    */
+     * 加载资源：优先文件系统，其次 classpath。
+     *
+     * @param resourceKey 资源相对路径
+     * @return 内容字节，不存在返回 null
+     */
     private byte[] loadResource(String resourceKey) {
         if (fsRoot != null) {
             try {
@@ -230,10 +230,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 推断静态资源 Content-Type。
-    * @param name 名称，不允许为 null
-    * @return 结果字符串
-    */
+     * 推断静态资源 Content-Type。
+     * @param name 名称，不允许为 null
+     * @return 结果字符串
+     */
     private String guessContentType(String name) {
         String lower = name.toLowerCase();
         if (lower.endsWith(".html") || lower.endsWith(".htm")) {
@@ -291,10 +291,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 规范化 URL 前缀（确保以 / 开头、不以 / 结尾）。
-    * @param prefix 前缀，不允许为 null
-    * @return 结果字符串
-    */
+     * 规范化 URL 前缀（确保以 / 开头、不以 / 结尾）。
+     * @param prefix 前缀，不允许为 null
+     * @return 结果字符串
+     */
     private static String normalizePrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
             return "/static";
@@ -307,12 +307,12 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-    * 放行到后续过滤器链。
-    * @param request 请求，不允许为 null
-    * @param response 响应，不允许为 null
-    * @param chain 方法入参 chain
-    * @return CompletionStage 对象
-    */
+     * 放行到后续过滤器链。
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     * @param chain 方法入参 chain
+     * @return CompletionStage 对象
+     */
     private static CompletionStage<Void> passthrough(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         try {
             return chain.doFilter(request, response);

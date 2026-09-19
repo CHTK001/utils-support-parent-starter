@@ -47,10 +47,10 @@ public class DataSourceSeriesEngine implements SeriesEngine {
     private final boolean available;
 
     /**
-    * 构造 JDBC 时序引擎。
-    *
-    * @param engine 数据源引擎（已注册 DataSource）
-    */
+     * 构造 JDBC 时序引擎。
+     *
+     * @param engine 数据源引擎（已注册 DataSource）
+     */
     public DataSourceSeriesEngine(Engine engine) {
         this.executor = engine != null ? engine.getExecutor() : null;
         this.available = this.executor != null;
@@ -147,11 +147,11 @@ public class DataSourceSeriesEngine implements SeriesEngine {
     }
 
     /**
-    * 根据表名推断指标列名。
-    *
-    * @param target 表名
-    * @return 指标列名
-    */
+     * 根据表名推断指标列名。
+     *
+     * @param target 表名
+     * @return 指标列名
+     */
     private String resolveMetricColumn(String target) {
         if (target.contains("cpu")) {
             return "cpu_usage";
@@ -164,11 +164,11 @@ public class DataSourceSeriesEngine implements SeriesEngine {
     }
 
     /**
-    * 解析时间窗口为分钟数。
-    *
-    * @param window 窗口字符串，如 1m/5m/1h
-    * @return 分钟数
-    */
+     * 解析时间窗口为分钟数。
+     *
+     * @param window 窗口字符串，如 1m/5m/1h
+     * @return 分钟数
+     */
     private int parseWindow(String window) {
         if (window == null || window.isEmpty()) {
             return 5;

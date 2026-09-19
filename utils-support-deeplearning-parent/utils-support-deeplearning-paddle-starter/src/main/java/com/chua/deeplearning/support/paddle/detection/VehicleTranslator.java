@@ -21,26 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 飞桨 车辆检测 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * 飞桨 车辆检测 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class VehicleTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    * 原图宽。
-    */
+     * 原图宽。
+     */
     private int width;
 
     /**
-    * 原图高。
-    */
+     * 原图高。
+     */
     private int height;
 
     /**
-    * 类别名。
-    */
+     * 类别名。
+     */
     private List<String> className;
 
     @Override

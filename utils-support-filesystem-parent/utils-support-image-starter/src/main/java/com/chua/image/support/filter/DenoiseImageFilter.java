@@ -53,8 +53,8 @@ import java.util.Arrays;
 public class DenoiseImageFilter extends AbstractImageFilter {
 
     /**
-    * 降噪模式
-    */
+     * 降噪模式
+     */
     public enum Mode {
         /** 中值滤波 */
         MEDIAN,
@@ -63,27 +63,27 @@ public class DenoiseImageFilter extends AbstractImageFilter {
     }
 
     /**
-        * 降噪模式，默认 MEDIAN
-        */
+     * 降噪模式，默认 MEDIAN
+     */
     private Mode mode = Mode.MEDIAN;
 
     /**
-    * 邻域半径，默认 1
-    */
+     * 邻域半径，默认 1
+     */
     private int radius = 1;
 
     /**
-    * 颜色域标准差（双边模式），默认 25
-    */
+     * 颜色域标准差（双边模式），默认 25
+     */
     private int sigmaColor = 25;
 
     /**
-    * 执行降噪滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 降噪后图像
-    */
+     * 执行降噪滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 降噪后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

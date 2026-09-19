@@ -17,27 +17,27 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* 句向量 Translator（sentence-transformers 风格）。
-* <p>需要模型产物中附带 vocab.txt。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 句向量 Translator（sentence-transformers 风格）。
+ * <p>需要模型产物中附带 vocab.txt。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SentenceTransTranslator implements Translator<String, float[]> {
 
     /**
-    * 最大序列长度。
-    */
+     * 最大序列长度。
+     */
     private final int maxSequenceLength = 128;
 
     /**
-    * 词表。
-    */
+     * 词表。
+     */
     private DefaultVocabulary vocabulary;
 
     /**
-    * BERT 分词器。
-    */
+     * BERT 分词器。
+     */
     private BertFullTokenizer tokenizer;
 
     @Override

@@ -20,50 +20,50 @@ import java.util.Random;
 import weka.classifiers.evaluation.Evaluation;
 
 /**
-* 随机森林分类场景。
-*
-* <p>输入：带标签数据（{@link WekaInstanceData#classification}），输出：模型、分类预测结果、评估报告。
-* 同时实现 {@link ClassifierTask} SPI（扩展名 {@code weka-random-forest}），
-* 调用方可通过接口 + 自动特征类型推断使用，无需手工声明特征列。</p>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* // 1. 构建训练数据：特征列 + 行数据（列名 -> 值）+ 标签列
-* List<FeatureColumn> features = List.of(
-*         FeatureColumn.numeric("age"),
-*         FeatureColumn.categorical("city"));
-* List<Map<String, Object>> rows = List.of(
-*         Map.of("age", 35, "city", "北京", "label", "high"),
-*         Map.of("age", 22, "city", "上海", "label", "low"));
-* WekaInstanceData data = WekaInstanceData.classification(features, "label", rows);
-*
-* // 2. 训练（options 可传 null 使用默认参数）
-* WekaRandomForestClassifier classifier = new WekaRandomForestClassifier();
-* RandomForestModel model = classifier.train(data, RandomForestOptions.defaults());
-*
-* // 3. 单条 / 批量预测
-* ClassificationResult one = classifier.predict(model, Map.of("age", 41, "city", "广州"));
-* one.label();                 // 预测标签
-* one.probabilities();        // 各类别概率
-*
-* // 4. 评估（K 折交叉验证，默认 10 折）
-* EvaluationReport report = classifier.evaluate(model, data);
-* report.accuracyPct();       // 准确率（%）
-* report.kappa();            // Kappa 一致性
-*
-* // 5. 模型落盘 / 恢复
-* model.save(Path.of("rf-model.ser"));
-* RandomForestModel loaded = RandomForestModel.load(Path.of("rf-model.ser"));
-* }</pre>      // Kappa 一致性
-*
-* // 5. 模型落盘 / 恢复
-* model.save(Path.of("rf-model.ser"));
-* RandomForestModel loaded = RandomForestModel.load(Path.of("rf-model.ser"));
-* }</pre>
-*
-* @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
-* @author CH
-* @since 4.0.0.42
+ * 随机森林分类场景。
+ *
+ * <p>输入：带标签数据（{@link WekaInstanceData#classification}），输出：模型、分类预测结果、评估报告。
+ * 同时实现 {@link ClassifierTask} SPI（扩展名 {@code weka-random-forest}），
+ * 调用方可通过接口 + 自动特征类型推断使用，无需手工声明特征列。</p>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * // 1. 构建训练数据：特征列 + 行数据（列名 -> 值）+ 标签列
+ * List<FeatureColumn> features = List.of(
+ *         FeatureColumn.numeric("age"),
+ *         FeatureColumn.categorical("city"));
+ * List<Map<String, Object>> rows = List.of(
+ *         Map.of("age", 35, "city", "北京", "label", "high"),
+ *         Map.of("age", 22, "city", "上海", "label", "low"));
+ * WekaInstanceData data = WekaInstanceData.classification(features, "label", rows);
+ *
+ * // 2. 训练（options 可传 null 使用默认参数）
+ * WekaRandomForestClassifier classifier = new WekaRandomForestClassifier();
+ * RandomForestModel model = classifier.train(data, RandomForestOptions.defaults());
+ *
+ * // 3. 单条 / 批量预测
+ * ClassificationResult one = classifier.predict(model, Map.of("age", 41, "city", "广州"));
+ * one.label();                 // 预测标签
+ * one.probabilities();        // 各类别概率
+ *
+ * // 4. 评估（K 折交叉验证，默认 10 折）
+ * EvaluationReport report = classifier.evaluate(model, data);
+ * report.accuracyPct();       // 准确率（%）
+ * report.kappa();            // Kappa 一致性
+ *
+ * // 5. 模型落盘 / 恢复
+ * model.save(Path.of("rf-model.ser"));
+ * RandomForestModel loaded = RandomForestModel.load(Path.of("rf-model.ser"));
+ * }</pre>      // Kappa 一致性
+ *
+ * // 5. 模型落盘 / 恢复
+ * model.save(Path.of("rf-model.ser"));
+ * RandomForestModel loaded = RandomForestModel.load(Path.of("rf-model.ser"));
+ * }</pre>
+ *
+ * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("weka-random-forest")
 public class WekaRandomForestClassifier implements ClassifierTask, Serializable {
@@ -71,13 +71,13 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 训练分类模型。
-    *
-    * @param data    带标签的数据，不能为 空
-    * @param options 随机森林参数，传 {@code null} 使用默认值
-    * @return 训练完成的模型
-    * @throws WekaException 数据缺少标签列、数据行不足或训练失败
-    */
+     * 训练分类模型。
+     *
+     * @param data    带标签的数据，不能为 空
+     * @param options 随机森林参数，传 {@code null} 使用默认值
+     * @return 训练完成的模型
+     * @throws WekaException 数据缺少标签列、数据行不足或训练失败
+     */
     public RandomForestModel train(WekaInstanceData data, RandomForestOptions options) {
         Objects.requireNonNull(data, "data must not be null");
         if (!data.hasLabel()) {
@@ -90,13 +90,13 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 预测单条数据。
-    *
-    * @param model 已训练模型，不能为 空
-    * @param row   预测数据行（列名 -> 值，可缺省标签列），不能为 空
-    * @return 分类结果（标签 + 概率分布）
-    * @throws WekaException 模型未训练或预测失败
-    */
+     * 预测单条数据。
+     *
+     * @param model 已训练模型，不能为 空
+     * @param row   预测数据行（列名 -> 值，可缺省标签列），不能为 空
+     * @return 分类结果（标签 + 概率分布）
+     * @throws WekaException 模型未训练或预测失败
+     */
     public ClassificationResult predict(RandomForestModel model, Map<String, Object> row) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(row, "row must not be null");
@@ -123,13 +123,13 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 批量预测（单次构建实例，逐条取分布）。
-    *
-    * @param model 已训练模型，不能为 空
-    * @param rows  预测数据行，不能为 空
-    * @return 分类结果列表（与输入顺序一致）
-    * @throws WekaException 模型未训练或预测失败
-    */
+     * 批量预测（单次构建实例，逐条取分布）。
+     *
+     * @param model 已训练模型，不能为 空
+     * @param rows  预测数据行，不能为 空
+     * @return 分类结果列表（与输入顺序一致）
+     * @throws WekaException 模型未训练或预测失败
+     */
     public List<ClassificationResult> predictBatch(RandomForestModel model, List<Map<String, Object>> rows) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(rows, "rows must not be null");
@@ -165,26 +165,26 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 评估模型（K 折交叉验证，默认 10 折）。
-    *
-    * @param model 已训练模型，不能为 空
-    * @param data  评估数据，不能为 空
-    * @return 评估报告（准确率 + Kappa）
-    * @throws WekaException 评估失败
-    */
+     * 评估模型（K 折交叉验证，默认 10 折）。
+     *
+     * @param model 已训练模型，不能为 空
+     * @param data  评估数据，不能为 空
+     * @return 评估报告（准确率 + Kappa）
+     * @throws WekaException 评估失败
+     */
     public EvaluationReport evaluate(RandomForestModel model, WekaInstanceData data) {
         return evaluate(model, data, 10);
     }
 
     /**
-    * 评估模型（K 折交叉验证）。
-    *
-    * @param model    已训练模型，不能为 空
-    * @param data     评估数据，不能为 空
-    * @param numFolds 折数（至少 2，推荐 10），取值小于 2 时按 2 处理
-    * @return 评估报告
-    * @throws WekaException 数据量不足或评估失败
-    */
+     * 评估模型（K 折交叉验证）。
+     *
+     * @param model    已训练模型，不能为 空
+     * @param data     评估数据，不能为 空
+     * @param numFolds 折数（至少 2，推荐 10），取值小于 2 时按 2 处理
+     * @return 评估报告
+     * @throws WekaException 数据量不足或评估失败
+     */
     public EvaluationReport evaluate(RandomForestModel model, WekaInstanceData data, int numFolds) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(data, "data must not be null");
@@ -206,16 +206,16 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 通过 {@link ClassifierTask} SPI 训练（自动推断特征列类型）。
-    *
-    * <p>特征类型推断规则：某列全部非空值均为 {@link Number}（或可解析为数值的字符串）时为数值列，
-    * 否则为类别列；行数据中的动态列结构属运行时 模式，故以 映射 承载（P3C 动态场景豁免）。</p>
-    *
-    * @param labelColumn 标签列名，不能为 空 / 空白
-    * @param samples    样本行（列名 -> 值），至少 2 行，不能为 空
-    * @return SPI 模型（可对预测行做预测 / 评估 / 保存）
-    * @throws WekaException 参数非法或训练失败
-    */
+     * 通过 {@link ClassifierTask} SPI 训练（自动推断特征列类型）。
+     *
+     * <p>特征类型推断规则：某列全部非空值均为 {@link Number}（或可解析为数值的字符串）时为数值列，
+     * 否则为类别列；行数据中的动态列结构属运行时 模式，故以 映射 承载（P3C 动态场景豁免）。</p>
+     *
+     * @param labelColumn 标签列名，不能为 空 / 空白
+     * @param samples    样本行（列名 -> 值），至少 2 行，不能为 空
+     * @return SPI 模型（可对预测行做预测 / 评估 / 保存）
+     * @throws WekaException 参数非法或训练失败
+     */
     @Override
     public Model train(String labelColumn, List<Map<String, Object>> samples) {
         Objects.requireNonNull(labelColumn, "labelColumn must not be null");
@@ -233,13 +233,13 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 从样本行推断特征列定义（排除标签列，保持首次出现顺序）。
-    *
-    * @param samples     样本行，不能为 空
-    * @param labelColumn 标签列名（排除项），不能为 空 / 空白
-    * @return 特征列定义列表（至少 1 列）
-    * @throws WekaException 样本行不包含任何特征列
-    */
+     * 从样本行推断特征列定义（排除标签列，保持首次出现顺序）。
+     *
+     * @param samples     样本行，不能为 空
+     * @param labelColumn 标签列名（排除项），不能为 空 / 空白
+     * @return 特征列定义列表（至少 1 列）
+     * @throws WekaException 样本行不包含任何特征列
+     */
     private static List<FeatureColumn> inferFeatures(List<Map<String, Object>> samples, String labelColumn) {
         var names = new LinkedHashSet<String>();
         for (var row : samples) {
@@ -262,11 +262,11 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * 判断单个值是否可作为数值列内容（数字 或可解析的字符串）。
-    *
-    * @param value 原始值
-    * @return true 表示数值语义
-    */
+     * 判断单个值是否可作为数值列内容（数字 或可解析的字符串）。
+     *
+     * @param value 原始值
+     * @return true 表示数值语义
+     */
     private static boolean isNumericValue(Object value) {
         if (value instanceof Number) {
             return true;
@@ -283,13 +283,13 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     }
 
     /**
-    * {@link ClassifierTask.Model} 适配器：将 {@link RandomForestModel} 能力透出为 SPI 模型。
-    *
-    * <p>仅持有无状态任务实例与可序列化模型，整体可随 SPI 契约 {@link Serializable}。</p>
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * {@link ClassifierTask.Model} 适配器：将 {@link RandomForestModel} 能力透出为 SPI 模型。
+     *
+     * <p>仅持有无状态任务实例与可序列化模型，整体可随 SPI 契约 {@link Serializable}。</p>
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     private static final class TaskModel implements Model, Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -301,11 +301,11 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
         private final RandomForestModel model;
 
         /**
-        * 任务模型。
-        * @param task 任务
-        * @param model 模型
-        * @return 任务模型的结果
-        */
+         * 任务模型。
+         * @param task 任务
+         * @param model 模型
+         * @return 任务模型的结果
+         */
         private TaskModel(WekaRandomForestClassifier task, RandomForestModel model) {
             this.task = task;
             this.model = model;

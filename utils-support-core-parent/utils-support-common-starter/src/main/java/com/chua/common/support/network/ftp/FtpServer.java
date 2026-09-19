@@ -20,99 +20,99 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
-* FTP 服务器，基于 AbstractServer 生命周期管理与 TcpServer 接口契约实现。
-*
-* <p>FTP 协议采用双通道架构：控制连接（默认端口 21）用于命令/响应交互，
-* 数据连接用于实际的文件传输（被动模式 PASV 或主动模式 PORT）。</p>
-*
-* <p>架构设计说明：FTP 与帧式/纯流式协议不同，需要直接访问底层 Socket 对象
-* （PASV 模式需获取服务器本地 IP、主动模式需连接客户端指定地址），
-* 因此本服务器在 {@code doStart()} 中自管理 {@link ServerSocket}，而非委托 JdkTcpServer。
-* 仍继承 {@link AbstractServer} 获得统一生命周期、过滤器与指标能力，
-* 并实现 {@link TcpServer} 接口满足协议无关服务器契约。</p>
-*
-* <h2>用法</h2>
-* <pre>{@code
-* // 默认配置（端口 21，匿名只读）
-* FtpServer server = new FtpServer();
-* server.start();
-*
-* // 自定义配置
-* FtpConfig config = FtpConfig.builder()
-*         .controlPort(2121)
-*         .homeDirectory("/data/ftp")
-*         .anonymousEnabled(true)
-*         .anonymousWriteEnabled(false)
-*         .build();
-* FtpServer server = new FtpServer(config);
-* server.start();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * FTP 服务器，基于 AbstractServer 生命周期管理与 TcpServer 接口契约实现。
+ *
+ * <p>FTP 协议采用双通道架构：控制连接（默认端口 21）用于命令/响应交互，
+ * 数据连接用于实际的文件传输（被动模式 PASV 或主动模式 PORT）。</p>
+ *
+ * <p>架构设计说明：FTP 与帧式/纯流式协议不同，需要直接访问底层 Socket 对象
+ * （PASV 模式需获取服务器本地 IP、主动模式需连接客户端指定地址），
+ * 因此本服务器在 {@code doStart()} 中自管理 {@link ServerSocket}，而非委托 JdkTcpServer。
+ * 仍继承 {@link AbstractServer} 获得统一生命周期、过滤器与指标能力，
+ * 并实现 {@link TcpServer} 接口满足协议无关服务器契约。</p>
+ *
+ * <h2>用法</h2>
+ * <pre>{@code
+ * // 默认配置（端口 21，匿名只读）
+ * FtpServer server = new FtpServer();
+ * server.start();
+ *
+ * // 自定义配置
+ * FtpConfig config = FtpConfig.builder()
+ *         .controlPort(2121)
+ *         .homeDirectory("/data/ftp")
+ *         .anonymousEnabled(true)
+ *         .anonymousWriteEnabled(false)
+ *         .build();
+ * FtpServer server = new FtpServer(config);
+ * server.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Slf4j
 @Getter
 public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
-    * FTP 默认控制端口
-    */
+     * FTP 默认控制端口
+     */
     private static final int DEFAULT_CONTROL_PORT = 21;
 
     /**
-    * 控制连接接受线程名称前缀
-    */
+     * 控制连接接受线程名称前缀
+     */
     private static final String ACCEPT_THREAD_NAME = "ftp-accept";
 
     /**
-    * FTP 配置
-    */
+     * FTP 配置
+     */
     private final FtpConfig ftpConfig;
 
     /**
-    * 底层控制连接监听 Socket
-    */
+     * 底层控制连接监听 Socket
+     */
     private volatile ServerSocket controlServerSocket;
 
     /**
-    * 命令处理器（无状态，可复用）
-    */
+     * 命令处理器（无状态，可复用）
+     */
     private final FtpCommandHandler commandHandler = new FtpCommandHandler();
 
     /**
-    * 活跃会话表（clientId -> 会话）
-    */
+     * 活跃会话表（clientId -> 会话）
+     */
     private final Map<String, FtpSession> sessions = new ConcurrentHashMap<>();
 
     /**
-    * 虚拟线程执行器（每连接一虚拟线程，承载控制连接生命周期）
-    */
+     * 虚拟线程执行器（每连接一虚拟线程，承载控制连接生命周期）
+     */
     private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
-    * 接受连接线程
-    */
+     * 接受连接线程
+     */
     private volatile Thread acceptThread;
 
     /**
-    * 是否正在运行
-    */
+     * 是否正在运行
+     */
     @Getter
     private volatile boolean running;
 
     /**
-    * 创建使用默认配置的 FTP 服务器。
-    */
+     * 创建使用默认配置的 FTP 服务器。
+     */
     public FtpServer() {
         this(FtpConfig.defaults());
     }
 
     /**
-    * 创建使用指定配置的 FTP 服务器。
-    *
-    * @param config FTP 配置
-    */
+     * 创建使用指定配置的 FTP 服务器。
+     *
+     * @param config FTP 配置
+     */
     public FtpServer(FtpConfig config) {
         super(buildServerSetting(config));
         this.ftpConfig = config;
@@ -120,11 +120,11 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 构建服务器配置（供 AbstractServer 初始化生命周期/过滤器/指标）。
-    *
-    * @param config FTP 配置
-    * @return 服务器配置
-    */
+     * 构建服务器配置（供 AbstractServer 初始化生命周期/过滤器/指标）。
+     *
+     * @param config FTP 配置
+     * @return 服务器配置
+     */
     private static ServerSetting buildServerSetting(FtpConfig config) {
         var setting = ServerSetting.defaults();
         setting.setHost(config.getHost());
@@ -136,8 +136,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 确保根目录存在，不存在则创建。
-    */
+     * 确保根目录存在，不存在则创建。
+     */
     private void ensureHomeDirectory() {
         var homeDir = ftpConfig.getHomeDirectory();
         if (!homeDir.exists() && !homeDir.mkdirs()) {
@@ -146,8 +146,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 启动 FTP 服务器：绑定控制端口并开始接受连接。
-    */
+     * 启动 FTP 服务器：绑定控制端口并开始接受连接。
+     */
     @Override
     protected void doStart() {
         try {
@@ -164,8 +164,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 接受连接主循环：每个控制连接派发到独立虚拟线程处理。
-    */
+     * 接受连接主循环：每个控制连接派发到独立虚拟线程处理。
+     */
     private void acceptLoop() {
         while (running && !controlServerSocket.isClosed()) {
             try {
@@ -181,10 +181,10 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 处理控制连接：读取 FTP 命令、执行命令处理器、维护会话生命周期。
-    *
-    * @param socket 控制连接 Socket
-    */
+     * 处理控制连接：读取 FTP 命令、执行命令处理器、维护会话生命周期。
+     *
+     * @param socket 控制连接 Socket
+     */
     private void handleControlConnection(Socket socket) {
         FtpSession session = null;
         try {
@@ -218,8 +218,8 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 停止 FTP 服务器：关闭所有会话与监听端口。
-    */
+     * 停止 FTP 服务器：关闭所有会话与监听端口。
+     */
     @Override
     protected void doStop() {
         running = false;
@@ -236,41 +236,41 @@ public class FtpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 获取协议类型。
-    *
-    * @return TCP 协议类型
-    */
+     * 获取协议类型。
+     *
+     * @return TCP 协议类型
+     */
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
     /**
-    * 获取监听端口。
-    *
-    * @return 控制端口
-    */
+     * 获取监听端口。
+     *
+     * @return 控制端口
+     */
     @Override
     public int getPort() {
         return setting.getPort();
     }
 
     /**
-    * 注册帧处理器（TcpServer 接口方法，FTP 为流式文本协议，此方法为空实现）。
-    *
-    * @param handler 帧处理器
-    * @return 当前实例
-    */
+     * 注册帧处理器（TcpServer 接口方法，FTP 为流式文本协议，此方法为空实现）。
+     *
+     * @param handler 帧处理器
+     * @return 当前实例
+     */
     @Override
     public FtpServer setHandler(TcpServerHandler handler) {
         return this;
     }
 
     /**
-    * 获取活跃会话数量。
-    *
-    * @return 会话数
-    */
+     * 获取活跃会话数量。
+     *
+     * @return 会话数
+     */
     public int getActiveSessionCount() {
         return sessions.size();
     }
@@ -278,42 +278,42 @@ public class FtpServer extends AbstractServer implements TcpServer {
     // ==================== 供子类 FtpsServer 访问 ====================
 
     /**
-    * 获取活跃会话表（供子类访问）。
-    *
-    * @return 会话表
-    */
+     * 获取活跃会话表（供子类访问）。
+     *
+     * @return 会话表
+     */
     protected Map<String, FtpSession> getSessionMap() {
         return sessions;
     }
 
     /**
-    * 获取命令处理器（供子类访问）。
-    *
-    * @return 命令处理器
-    */
+     * 获取命令处理器（供子类访问）。
+     *
+     * @return 命令处理器
+     */
     protected FtpCommandHandler getCommandHandler() {
         return commandHandler;
     }
 
     /**
-    * 获取虚拟线程执行器（供子类访问）。
-    *
-    * @return 执行器
-    */
+     * 获取虚拟线程执行器（供子类访问）。
+     *
+     * @return 执行器
+     */
     protected ExecutorService getVirtualExecutor() {
         return virtualExecutor;
     }
 
     /**
-    * 设置服务器运行标志（供子类控制生命周期）。
-    */
+     * 设置服务器运行标志（供子类控制生命周期）。
+     */
     protected void markRunning() {
         this.running = true;
     }
 
     /**
-    * 标记服务器停止（供子类控制生命周期）。
-    */
+     * 标记服务器停止（供子类控制生命周期）。
+     */
     protected void markStopped() {
         this.running = false;
     }

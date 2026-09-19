@@ -9,21 +9,21 @@ import javax.annotation.Nullable;
 
 
 /**
-* 进度单位类型枚举，定义不同格式的进度数值显示。
-* <p>
-* 支持无单位、字节单位、原始数值、大小单位等多种格式。
-*
-* @author CH
-* @since 2024-01-01
-* @version 1.0.0
+ * 进度单位类型枚举，定义不同格式的进度数值显示。
+ * <p>
+ * 支持无单位、字节单位、原始数值、大小单位等多种格式。
+ *
+ * @author CH
+ * @since 2024-01-01
+ * @version 1.0.0
  */
 public enum ProgressUnitType implements ProgressUnit {
 
     /**
-    * 无单位
-    * <p>
-    * 返回空字符串，不显示任何数值。
-    */
+     * 无单位
+     * <p>
+     * 返回空字符串，不显示任何数值。
+     */
     NONE() {
         @Override
         /** 格式化 */

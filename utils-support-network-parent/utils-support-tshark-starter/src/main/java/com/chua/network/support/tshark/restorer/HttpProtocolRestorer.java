@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* HTTP 协议还原器。
-*
-* <p>将 HTTP 请求/响应字节还原为可读文本，包含请求行、headers、body。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * HTTP 协议还原器。
+ *
+ * <p>将 HTTP 请求/响应字节还原为可读文本，包含请求行、headers、body。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HttpProtocolRestorer extends AbstractProtocolRestorer {
 

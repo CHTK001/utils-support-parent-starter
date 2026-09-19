@@ -12,20 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Oracle 用户管理器 SPI 实现。
-* <p>
-* Oracle 的用户管理语法与 MySQL 不同：
-* <ul>
-*   <li>用户即 Schema（一个用户对应一个同名 Schema）</li>
-*   <li>没有 MySQL 的 host 概念（@'%' 等）</li>
-*   <li>创建用户使用 CREATE USER，自动授予 CONNECT 角色</li>
-*   <li>删除用户需使用 CASCADE 以级联删除其 Schema 对象</li>
-*   <li>用户列表查询 dba_users 视图需要 DBA 权限</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Oracle 用户管理器 SPI 实现。
+ * <p>
+ * Oracle 的用户管理语法与 MySQL 不同：
+ * <ul>
+ *   <li>用户即 Schema（一个用户对应一个同名 Schema）</li>
+ *   <li>没有 MySQL 的 host 概念（@'%' 等）</li>
+ *   <li>创建用户使用 CREATE USER，自动授予 CONNECT 角色</li>
+ *   <li>删除用户需使用 CASCADE 以级联删除其 Schema 对象</li>
+ *   <li>用户列表查询 dba_users 视图需要 DBA 权限</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OracleUserManager implements UserManager, DataSourceAware {
 
@@ -43,20 +43,20 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-    * 设置 JDBC 数据源，由 SPI 工厂自动调用。
-    *
-    * @param dataSource 数据源
-    */
+     * 设置 JDBC 数据源，由 SPI 工厂自动调用。
+     *
+     * @param dataSource 数据源
+     */
     @Override
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     /**
-    * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_用户 视图）。
-    *
-    * @return 用户信息列表
-    */
+     * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_用户 视图）。
+     *
+     * @return 用户信息列表
+     */
     @Override
     public List<UserInfo> listUsers() {
         List<UserInfo> list = new ArrayList<>();
@@ -76,22 +76,22 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-    * 创建一个 Oracle 用户的链式构建器。
-    *
-    * @param username 用户名
-    * @return 创建用户的链式步骤对象
-    */
+     * 创建一个 Oracle 用户的链式构建器。
+     *
+     * @param username 用户名
+     * @return 创建用户的链式步骤对象
+     */
     @Override
     public CreateUserStep createUser(String username) {
         return new OracleCreateUserStep(dataSource, username);
     }
 
     /**
-    * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 模式 对象）。
-    *
-    * @param username 用户名
-    * @return 执行步骤对象
-    */
+     * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 模式 对象）。
+     *
+     * @param username 用户名
+     * @return 执行步骤对象
+     */
     @Override
     public DropUserStep dropUser(String username) {
         return () -> {
@@ -105,11 +105,11 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-    * 修改 Oracle 用户属性的链式构建器。
-    *
-    * @param username 用户名
-    * @return 修改用户的链式步骤对象
-    */
+     * 修改 Oracle 用户属性的链式构建器。
+     *
+     * @param username 用户名
+     * @return 修改用户的链式步骤对象
+     */
     @Override
     public AlterUserStep alterUser(String username) {
         return new OracleAlterUserStep(dataSource, username);

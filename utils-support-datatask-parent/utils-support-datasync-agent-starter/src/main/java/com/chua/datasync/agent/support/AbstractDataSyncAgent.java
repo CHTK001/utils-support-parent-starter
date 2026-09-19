@@ -8,32 +8,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 数据同步 Agent 抽象基类，统一管理 源、Sink 与生命周期。
-*
-* @author CH
-* @since 4.0.0.42
+ * 数据同步 Agent 抽象基类，统一管理 源、Sink 与生命周期。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractDataSyncAgent implements DataSyncAgent {
 
     /**
-    * Agent 唯一标识
-    */
+     * Agent 唯一标识
+     */
     private final String agentId;
     /**
-    * 源 实例列表
-    */
+     * 源 实例列表
+     */
     private final List<DataSyncAgentSource> sources;
     /**
-    * Sink 实例列表
-    */
+     * Sink 实例列表
+     */
     private final List<DataSyncAgentSink> sinks;
 
     /**
-    * 构造 Agent。
-    *
-    * @param agentId Agent 唯一标识
-    */
+     * 构造 Agent。
+     *
+     * @param agentId Agent 唯一标识
+     */
     protected AbstractDataSyncAgent(String agentId) {
         this.agentId = agentId;
         this.sources = new ArrayList<>();
@@ -41,19 +41,19 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     /**
-    * 添加 源 实例。
-    *
-    * @param source 源 实例
-    */
+     * 添加 源 实例。
+     *
+     * @param source 源 实例
+     */
     protected void addSource(DataSyncAgentSource source) {
         this.sources.add(source);
     }
 
     /**
-    * 添加 Sink 实例。
-    *
-    * @param sink Sink 实例
-    */
+     * 添加 Sink 实例。
+     *
+     * @param sink Sink 实例
+     */
     protected void addSink(DataSyncAgentSink sink) {
         this.sinks.add(sink);
     }

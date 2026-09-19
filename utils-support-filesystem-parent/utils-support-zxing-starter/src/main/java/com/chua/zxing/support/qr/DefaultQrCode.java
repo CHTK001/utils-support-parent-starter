@@ -35,10 +35,10 @@ import javax.annotation.Nullable;
 
 
 /**
-* zxing qr码
-*
-* @author CH
-* @since 4.0.0.42
+ * zxing qr码
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"zxing", DEFAULT})
@@ -103,12 +103,12 @@ public class DefaultQrCode extends AbstractQrCode {
 
 
     /**
-    * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
-    * <p/>
-    * 源码参考 {@link com.google.zxing.qrcode.QRCodeWriter#encode(String, BarcodeFormat, int, int, Map)}
-    * @param qrCodeConfig qr编码配置，不允许为 null
-    * @return QR编码 对象
-    */
+     * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
+     * <p/>
+     * 源码参考 {@link com.google.zxing.qrcode.QRCodeWriter#encode(String, BarcodeFormat, int, int, Map)}
+     * @param qrCodeConfig qr编码配置，不允许为 null
+     * @return QR编码 对象
+     */
     QRCode code(QrCodeOptions qrCodeConfig) throws WriterException {
         ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.L;
         if (qrCodeConfig.getHints() != null) {
@@ -120,13 +120,13 @@ public class DefaultQrCode extends AbstractQrCode {
         return Encoder.encode(qrCodeConfig.getMsg(), errorCorrectionLevel, qrCodeConfig.getHints());
     }
     /**
-    * 将 QR 码编码为 钻头matrixex 对象，支持自定义大小和边框。
-    *
-    * @param code qr编码对象，包含编码内容
-    * @param codeOptions qr编码期权对象，包含QR码的自定义选项如大小、边框和Logo
-    * @return BitMatrixEx对象，包含编码后的QR码图像
-    * @throws WriterException 如果编码过程中发生错误。
-    */
+     * 将 QR 码编码为 钻头matrixex 对象，支持自定义大小和边框。
+     *
+     * @param code qr编码对象，包含编码内容
+     * @param codeOptions qr编码期权对象，包含QR码的自定义选项如大小、边框和Logo
+     * @return BitMatrixEx对象，包含编码后的QR码图像
+     * @throws WriterException 如果编码过程中发生错误。
+     */
     BitMatrixEx encode(QRCode code, QrCodeOptions codeOptions) throws WriterException {
         int quietZone = 1;
         // 检查是否提供了自定义的安静区大小
@@ -148,11 +148,11 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     /**
-    * 清除Logo区域，避免渲染时被覆盖。
-    *
-    * @param bitMatrixEx 钻头matrixex对象，包含QR码图像
-    * @param logoOptions Logo选项，如果存在，则清除相应区域
-    */
+     * 清除Logo区域，避免渲染时被覆盖。
+     *
+     * @param bitMatrixEx 钻头matrixex对象，包含QR码图像
+     * @param logoOptions Logo选项，如果存在，则清除相应区域
+     */
     private static void clearLogo(BitMatrixEx bitMatrixEx, QrCodeOptions.LogoOptions logoOptions) {
         if (logoOptions == null) {
             return;
@@ -173,15 +173,15 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     /**
-    * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
-    * <p/>
-    *
-    * @param code qr编码对象，包含编码内容
-    * @param width 目标宽度
-    * @param height 目标高度
-    * @param quietZone 安静区大小，取值范围 [0, 4]
-    * @return BitMatrixEx对象，包含调整后的QR码图像
-    */
+     * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
+     * <p/>
+     *
+     * @param code qr编码对象，包含编码内容
+     * @param width 目标宽度
+     * @param height 目标高度
+     * @param quietZone 安静区大小，取值范围 [0, 4]
+     * @return BitMatrixEx对象，包含调整后的QR码图像
+     */
     private static BitMatrixEx renderResult(QRCode code, int width, int height, int quietZone) {
         ByteMatrix input = code.getMatrix();
         if (input == null) {
@@ -237,13 +237,13 @@ public class DefaultQrCode extends AbstractQrCode {
 
 
     /**
-    * 如果留白超过15% , 则需要缩放
-    * (15% 可以根据实际需要进行修改)
-    *
-    * @param qrCodeSize 二维码大小
-    * @param expectSize 期望输出大小
-    * @return 返回缩放比例, <= 0 则表示不缩放, 否则指定缩放参数
-    */
+     * 如果留白超过15% , 则需要缩放
+     * (15% 可以根据实际需要进行修改)
+     *
+     * @param qrCodeSize 二维码大小
+     * @param expectSize 期望输出大小
+     * @return 返回缩放比例, <= 0 则表示不缩放, 否则指定缩放参数
+     */
     private static int calculateScale(int qrCodeSize, int expectSize) {
         if (qrCodeSize >= expectSize) {
             return 0;

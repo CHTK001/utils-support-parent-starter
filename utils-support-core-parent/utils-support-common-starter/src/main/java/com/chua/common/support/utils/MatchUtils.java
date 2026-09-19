@@ -14,20 +14,20 @@ import javax.annotation.Nullable;
  *
  * @author CH
  * @since 2025-01-15
-*/
+ */
 @Slf4j
 public class MatchUtils {
 
     /**
-    * 匹配工具。
-    */
+     * 匹配工具。
+     */
     private MatchUtils() {}
 
     /**
-    * 匹配类型枚举
-    * @author CH
-    * @since 4.0.0
-    */
+     * 匹配类型枚举
+     * @author CH
+     * @since 4.0.0
+     */
     @Getter
     public enum MatchType {
         /** 通配符匹配：* 匹配任意字符，? 匹配单个字符 */
@@ -40,8 +40,8 @@ public class MatchUtils {
         AUTO("自动匹配");
 
         /**
-        * 描述
-        */
+         * 描述
+         */
         private final String description;
 
         MatchType(String description) {
@@ -50,13 +50,13 @@ public class MatchUtils {
     }
 
     /**
-    * 执行匹配
-    *
-    * @param matchValue 待匹配的值
-    * @param matchedValue 被匹配的值
-    * @param matchType 匹配类型
-    * @return true 如果匹配成功
-    */
+     * 执行匹配
+     *
+     * @param matchValue 待匹配的值
+     * @param matchedValue 被匹配的值
+     * @param matchType 匹配类型
+     * @return true 如果匹配成功
+     */
     public static boolean isMatch(String matchValue, String matchedValue, MatchType matchType) {
         if (StringUtils.isEmpty(matchValue) || StringUtils.isEmpty(matchedValue)) {
             return StringUtils.equals(matchValue, matchedValue);
@@ -81,21 +81,21 @@ public class MatchUtils {
     }
 
     /**
-    * 通配符匹配
-    * @param pattern 模式
-    * @param text 文本
-    * @return 匹配wildcard的结果
-    */
+     * 通配符匹配
+     * @param pattern 模式
+     * @param text 文本
+     * @return 匹配wildcard的结果
+     */
     private static boolean matchWildcard(String pattern, String text) {
         return PathMatcher.INSTANCE.match(pattern, text);
     }
 
     /**
-    * 正则匹配
-    * @param regex regex
-    * @param text 文本
-    * @return 匹配regex的结果
-    */
+     * 正则匹配
+     * @param regex regex
+     * @param text 文本
+     * @return 匹配regex的结果
+     */
     private static boolean matchRegex(String regex, String text) {
         try {
             return Pattern.matches(regex, text);
@@ -106,11 +106,11 @@ public class MatchUtils {
     }
 
     /**
-    * 自动匹配：先精确匹配，再通配符，再正则
-    * @param pattern 模式
-    * @param text 文本
-    * @return 匹配auto的结果
-    */
+     * 自动匹配：先精确匹配，再通配符，再正则
+     * @param pattern 模式
+     * @param text 文本
+     * @return 匹配auto的结果
+     */
     private static boolean matchAuto(String pattern, String text) {
         if (pattern.equals(text)) {
             return true;
@@ -127,34 +127,34 @@ public class MatchUtils {
     }
 
     /**
-    * 通配符匹配（便捷方法）
-    *
-    * @param pattern 通配符模式
-    * @param text 待匹配文本
-    * @return true 如果匹配成功
-    */
+     * 通配符匹配（便捷方法）
+     *
+     * @param pattern 通配符模式
+     * @param text 待匹配文本
+     * @return true 如果匹配成功
+     */
     public static boolean isWildcardMatch(String pattern, String text) {
         return isMatch(pattern, text, MatchType.WILDCARD);
     }
 
     /**
-    * 正则匹配（便捷方法）
-    *
-    * @param regex 正则表达式
-    * @param text 待匹配文本
-    * @return true 如果匹配成功
-    */
+     * 正则匹配（便捷方法）
+     *
+     * @param regex 正则表达式
+     * @param text 待匹配文本
+     * @return true 如果匹配成功
+     */
     public static boolean isRegexMatch(String regex, String text) {
         return isMatch(regex, text, MatchType.REGEX);
     }
 
     /**
-    * 自动匹配（便捷方法）
-    *
-    * @param pattern 匹配模式
-    * @param text 待匹配文本
-    * @return true 如果匹配成功
-    */
+     * 自动匹配（便捷方法）
+     *
+     * @param pattern 匹配模式
+     * @param text 待匹配文本
+     * @return true 如果匹配成功
+     */
     public static boolean isAutoMatch(String pattern, String text) {
         return isMatch(pattern, text, MatchType.AUTO);
     }

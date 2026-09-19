@@ -92,11 +92,11 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-    * 创建 文本img水镜像过滤器 实例
-    * @param text 文本
-    * @param stream 流
-    * @param position 位置
-    */
+     * 创建 文本img水镜像过滤器 实例
+     * @param text 文本
+     * @param stream 流
+     * @param position 位置
+     */
     public TextImgWaterImageFilter(String text, InputStream stream, Position position) throws IOException {
         this.text = text;
         this.position = position;
@@ -104,11 +104,11 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 创建 文本img水镜像过滤器 实例
-    * @param text 文本
-    * @param imageBytes 镜像bytes
-    * @param position 位置
-    */
+     * 创建 文本img水镜像过滤器 实例
+     * @param text 文本
+     * @param imageBytes 镜像bytes
+     * @param position 位置
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position) {
         this.text = text;
         this.position = position;
@@ -116,11 +116,11 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 创建 文本img水镜像过滤器 实例
-    * @param text 文本
-    * @param stream 流
-    * @param imagePoint 镜像point
-    */
+     * 创建 文本img水镜像过滤器 实例
+     * @param text 文本
+     * @param stream 流
+     * @param imagePoint 镜像point
+     */
     public TextImgWaterImageFilter(String text, InputStream stream, ImagePoint imagePoint) throws IOException {
         this.text = text;
         this.imagePoint = imagePoint;
@@ -128,11 +128,11 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 创建 文本img水镜像过滤器 实例
-    * @param text 文本
-    * @param imageBytes 镜像bytes
-    * @param imagePoint 镜像point
-    */
+     * 创建 文本img水镜像过滤器 实例
+     * @param text 文本
+     * @param imageBytes 镜像bytes
+     * @param imagePoint 镜像point
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, ImagePoint imagePoint) {
         this.text = text;
         this.imagePoint = imagePoint;
@@ -140,15 +140,15 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 创建 文本img水镜像过滤器 实例
-    * @param text 文本
-    * @param imageBytes 镜像bytes
-    * @param position 位置
-    * @param fontSize font大小
-    * @param color color
-    * @param font font
-    * @param imagePoint 镜像point
-    */
+     * 创建 文本img水镜像过滤器 实例
+     * @param text 文本
+     * @param imageBytes 镜像bytes
+     * @param position 位置
+     * @param fontSize font大小
+     * @param color color
+     * @param font font
+     * @param imagePoint 镜像point
+     */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position, int fontSize, Color color, Font font, ImagePoint imagePoint) {
         this.text = text;
         this.imageBytes = imageBytes;
@@ -160,14 +160,14 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 获取字符串占用的宽度
-    * <br>
-    *
-    * @param str      字符串
-    * @param fontSize 文字大小
-    * @return 字符串占用的宽度
-    * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
-    */
+     * 获取字符串占用的宽度
+     * <br>
+     *
+     * @param str      字符串
+     * @param fontSize 文字大小
+     * @return 字符串占用的宽度
+     * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
+     */
     public static int getStrWidth(String str, int fontSize) {
         char[] chars = str.toCharArray();
         int fontSize2 = fontSize / 2;
@@ -224,13 +224,13 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-    * 图片位置定位计算图片位置
-    * @param g 图像
-    * @param imageBytes 图片
-    * @param imagePoint 位置
-    * @param width width
-    * @param height height
-    */
+     * 图片位置定位计算图片位置
+     * @param g 图像
+     * @param imageBytes 图片
+     * @param imagePoint 位置
+     * @param width width
+     * @param height height
+     */
     private void imageImageCountProcess(Graphics2D g, byte[] imageBytes, int width, int height, ImagePoint imagePoint) {
         BufferedImage image;
         try (ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes)) {
@@ -267,13 +267,13 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     /***
-    * 图片位置定位计算
-    * @param g 图像
-    * @param text 文本
-    * @param width 宽
-    * @param height 高
-    * @param direction 位置
-    */
+     * 图片位置定位计算
+     * @param g 图像
+     * @param text 文本
+     * @param width 宽
+     * @param height 高
+     * @param direction 位置
+     */
     private void imageCountProcess(Graphics2D g, String text, int width, int height, Position direction) {
  // 降低_RIGHT
         switch (direction) {

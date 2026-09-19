@@ -7,22 +7,22 @@ import com.chua.runtime.shell.output.Console;
 import java.util.Map;
 
 /**
-* 帮助命令 — 列出所有可用命令。
-*
-* @author CH
-* @since 4.0.0.42
+ * 帮助命令 — 列出所有可用命令。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HelpCommand implements Command {
 
     /**
-    * 命令注册表
+     * 命令注册表
      */
     private final CommandRegistry registry;
 
     /**
-    * 创建帮助命令。
-    *
-    * @param registry 命令注册表
+     * 创建帮助命令。
+     *
+     * @param registry 命令注册表
      */
     public HelpCommand(CommandRegistry registry) {
         this.registry = registry;

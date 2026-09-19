@@ -13,32 +13,32 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* GFPGAN 人脸修复/超分 Translator。
-* <p>输入归一化到 [-1,1]，输出还原到 [0,255]。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * GFPGAN 人脸修复/超分 Translator。
+ * <p>输入归一化到 [-1,1]，输出还原到 [0,255]。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class GfpganTranslator implements Translator<Image, Image> {
 
     /**
-    * 输出裁剪范围。
-    */
+     * 输出裁剪范围。
+     */
     private static final int[] MIN_MAX = new int[]{-1, 1};
 
     /**
-    * 均值。
-    */
+     * 均值。
+     */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 标准差。
-    */
+     * 标准差。
+     */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 输入尺寸。
-    */
+     * 输入尺寸。
+     */
     private static final int INPUT_SIZE = 512;
 
     @Override

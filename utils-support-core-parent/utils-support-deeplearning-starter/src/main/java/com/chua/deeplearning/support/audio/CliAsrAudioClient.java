@@ -60,10 +60,10 @@ public class CliAsrAudioClient implements VirtualClient {
             });
 
     /**
-    * 创建 CLI ASR 客户端
-    *
-    * @param setting 配置
-    */
+     * 创建 CLI ASR 客户端
+     *
+     * @param setting 配置
+     */
     public CliAsrAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting != null ? setting.getModel() : null;
@@ -144,22 +144,22 @@ public class CliAsrAudioClient implements VirtualClient {
     }
 
     /**
-    * 字节 转写
-    *
-    * @param audio 音频
-    * @return 文本
-    * @throws Exception 失败
-    */
+     * 字节 转写
+     *
+     * @param audio 音频
+     * @return 文本
+     * @throws Exception 失败
+     */
     public String transcribeBytes(byte[] audio) throws Exception {
         CliAsrTranslator t = translator();
         return t.transcribe(audio);
     }
 
     /**
-    * 构建/复用 CLI 翻译器
-    *
-    * @return 翻译器
-    */
+     * 构建/复用 CLI 翻译器
+     *
+     * @return 翻译器
+     */
     private CliAsrTranslator translator() {
         String m = model != null && !model.isBlank() ? model : DEFAULT_MODEL;
         CliAsrTranslator t = new CliAsrTranslator(CliModelRunner.nemoSpeech(), m);
@@ -213,10 +213,10 @@ public class CliAsrAudioClient implements VirtualClient {
     }
 
     /**
-    * 解析 音频 路径
-    *
-    * @return 路径
-    */
+     * 解析 音频 路径
+     *
+     * @return 路径
+     */
     private Path resolveAudioPath() {
         if (setting != null) {
             if (setting.getAudioPath() != null) {

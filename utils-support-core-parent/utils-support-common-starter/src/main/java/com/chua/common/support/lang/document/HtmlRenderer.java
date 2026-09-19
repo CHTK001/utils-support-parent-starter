@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
-* HTML 文档导出器。
-*
-* <p>通过 {@link DocumentTemplate} SPI 加载模板文件渲染，不在代码中拼接 HTML 结构。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * HTML 文档导出器。
+ *
+ * <p>通过 {@link DocumentTemplate} SPI 加载模板文件渲染，不在代码中拼接 HTML 结构。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("html")
 public class HtmlRenderer implements DocumentProvider {

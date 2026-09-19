@@ -6,13 +6,13 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 钉钉 机器人 客户端工厂（SPI 实现）。
-* <p>通过 SPI 机制注册到
-* {@code META-INF/extensions/com.chua.common.support.ai.bot.BotClient$Factory}，
-* 平台名称为 {@code dingtalk}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 钉钉 机器人 客户端工厂（SPI 实现）。
+ * <p>通过 SPI 机制注册到
+ * {@code META-INF/extensions/com.chua.common.support.ai.bot.BotClient$Factory}，
+ * 平台名称为 {@code dingtalk}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DingTalkBotClientFactory implements BotClient.Factory {
@@ -32,41 +32,41 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
     }
 
     /**
-    * 钉钉 构建器 内部类
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 钉钉 构建器 内部类
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     static class DingTalkBuilder implements BotClient.Builder {
 
         /**
-        * 平台凭证 令牌
-        */
+         * 平台凭证 令牌
+         */
         private String token;
 
         /**
-        * 密钥
-        */
+         * 密钥
+         */
         private String secret;
 
         /**
-        * 基础 URL
-        */
+         * 基础 URL
+         */
         private String baseUrl;
 
         /**
-        * 连接超时时间（毫秒）
-        */
+         * 连接超时时间（毫秒）
+         */
         private long connectTimeoutMillis = 10_000;
 
         /**
-        * 读取超时时间（毫秒）
-        */
+         * 读取超时时间（毫秒）
+         */
         private long readTimeoutMillis = 30_000;
 
         /**
-        * 配置加载器
-        */
+         * 配置加载器
+         */
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
@@ -85,15 +85,15 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 编码aes键
-        * @param encodingAesKey 编码aes键
-        * @param baseUrl baseurl
-        * @param connectTimeoutMillis 连接超时millis
-        * @param readTimeoutMillis 读取超时millis
-        * @param configSaveOrLoader 配置保存或加载
-        * @param token 令牌
-        * @param baseUrl baseurl
-        */
+         * 编码aes键
+         * @param encodingAesKey 编码aes键
+         * @param baseUrl baseurl
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             return this;
@@ -123,12 +123,12 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 读取超时millis
-        * @param readTimeoutMillis 读取超时millis
-        * @param configSaveOrLoader 配置保存或加载
-        * @param token 令牌
-        * @param baseUrl baseurl
-        */
+         * 读取超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -137,11 +137,11 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 配置保存或加载
-        * @param configSaveOrLoader 配置保存或加载
-        * @param token 令牌
-        * @param baseUrl baseurl
-        */
+         * 配置保存或加载
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;

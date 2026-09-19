@@ -7,40 +7,40 @@ import java.util.Enumeration;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
-* MAC 地址自增序列算法 ID 生成器，基于机器 MAC 地址自动生成分布式全局唯一 ID。
-*
-* <p>64 位 Long 型 ID 的位分配如下：</p>
-* <pre>
-* 1 bit sign | 28 bits timestamp | 24 bits macId | 11 bits sequence
-* (始终为 0) | (秒级时间戳) | (MAC 地址哈希) | (自增序号)
-* </pre>
-*
-* <ul>
-* <li>28 位秒级时间戳：相对于纪元起始，可使用约 8.7 年</li>
-* <li>24 位 MAC 地址标识：由机器网卡 MAC 地址经 XOR 折叠得到，最多支持 1600 万节点</li>
-* <li>11 位序列号：每秒最多生成 2048 个 ID</li>
-* <li>无需手动配置节点 ID，自动识别机器唯一标识</li>
-* </ul>
-*
-* <p>MAC 地址获取策略：</p>
-* <ul>
-* <li>优先使用非回环、非虚拟网卡的硬件 MAC 地址</li>
-* <li>自动过滤虚拟机和容器网卡（如 docker、veth 等）</li>
-* <li>若获取失败则退化为随机数 + 主机名哈希的组合</li>
-* </ul>
-*
-* <p>使用方法：</p>
-* <pre>{@code
-* // 创建生成器（自动读取本机 MAC 地址）
-* MacSequenceGenerator generator = new MacSequenceGenerator();
-*
-* // 生成 ID
-* long id = generator.nextId();
-* String idStr = generator.nextIdString();
-* }</pre>
-*
-* @author CH
-* @since 1.0.0
+ * MAC 地址自增序列算法 ID 生成器，基于机器 MAC 地址自动生成分布式全局唯一 ID。
+ *
+ * <p>64 位 Long 型 ID 的位分配如下：</p>
+ * <pre>
+ * 1 bit sign | 28 bits timestamp | 24 bits macId | 11 bits sequence
+ * (始终为 0) | (秒级时间戳) | (MAC 地址哈希) | (自增序号)
+ * </pre>
+ *
+ * <ul>
+ * <li>28 位秒级时间戳：相对于纪元起始，可使用约 8.7 年</li>
+ * <li>24 位 MAC 地址标识：由机器网卡 MAC 地址经 XOR 折叠得到，最多支持 1600 万节点</li>
+ * <li>11 位序列号：每秒最多生成 2048 个 ID</li>
+ * <li>无需手动配置节点 ID，自动识别机器唯一标识</li>
+ * </ul>
+ *
+ * <p>MAC 地址获取策略：</p>
+ * <ul>
+ * <li>优先使用非回环、非虚拟网卡的硬件 MAC 地址</li>
+ * <li>自动过滤虚拟机和容器网卡（如 docker、veth 等）</li>
+ * <li>若获取失败则退化为随机数 + 主机名哈希的组合</li>
+ * </ul>
+ *
+ * <p>使用方法：</p>
+ * <pre>{@code
+ * // 创建生成器（自动读取本机 MAC 地址）
+ * MacSequenceGenerator generator = new MacSequenceGenerator();
+ *
+ * // 生成 ID
+ * long id = generator.nextId();
+ * String idStr = generator.nextIdString();
+ * }</pre>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class MacSequenceGenerator {
 
@@ -80,8 +80,8 @@ public class MacSequenceGenerator {
  // ==================== 默认值 ====================
 
  /**
- * 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位秒）
- */
+  * 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位秒）
+  */
  private static final long DEFAULT_EPOCH = 1577836800L;
 
  // ==================== 实例状态 ====================
@@ -104,23 +104,23 @@ public class MacSequenceGenerator {
  // ==================== 构造方法 ====================
 
  /**
- * 使用默认配置创建 MAC 地址自增序列 ID 生成器
- *
- * <p>自动读取本机 MAC 地址，纪元起始时间为 2020-01-01。</p>
- */
+  * 使用默认配置创建 MAC 地址自增序列 ID 生成器
+  *
+  * <p>自动读取本机 MAC 地址，纪元起始时间为 2020-01-01。</p>
+  */
  public MacSequenceGenerator() {
  this(DEFAULT_EPOCH, DEFAULT_MAC_ID_BITS, DEFAULT_TIMESTAMP_BITS, DEFAULT_SEQUENCE_BITS);
  }
 
  /**
- * 使用自定义位分配创建 MAC 地址自增序列 ID 生成器
- *
- * @param epoch 纪元起始时间（秒）
- * @param macIdBits MAC 地址标识占用位数
- * @param timestampBits 时间戳占用位数
- * @param sequenceBits 序列号占用位数
- * @throws IllegalArgumentException 当参数超出范围时
- */
+  * 使用自定义位分配创建 MAC 地址自增序列 ID 生成器
+  *
+  * @param epoch 纪元起始时间（秒）
+  * @param macIdBits MAC 地址标识占用位数
+  * @param timestampBits 时间戳占用位数
+  * @param sequenceBits 序列号占用位数
+  * @throws IllegalArgumentException 当参数超出范围时
+  */
  public MacSequenceGenerator(long epoch, long macIdBits, long timestampBits, long sequenceBits) {
  // 计算掩码
  this.macIdMask = ~(-1L << macIdBits);
@@ -140,11 +140,11 @@ public class MacSequenceGenerator {
  // ==================== ID 生成方法 ====================
 
  /**
- * 生成下一个唯一 ID
- *
- * @return 64 位 Long 型唯一 ID
- * @throws IllegalStateException 如果系统时钟回拨（时钟倒退）
- */
+  * 生成下一个唯一 ID
+  *
+  * @return 64 位 Long 型唯一 ID
+  * @throws IllegalStateException 如果系统时钟回拨（时钟倒退）
+  */
  public long nextId() {
  synchronized (lock) {
  long currentTimestamp = timestamp();
@@ -173,20 +173,20 @@ public class MacSequenceGenerator {
  }
 
  /**
- * 生成下一个唯一 ID 的字符串形式
- *
- * @return 十进制字符串表示的 ID
- */
+  * 生成下一个唯一 ID 的字符串形式
+  *
+  * @return 十进制字符串表示的 ID
+  */
  public String nextIdString() {
  return String.valueOf(nextId());
  }
 
  /**
- * 解析 MAC 序列 ID，返回其组成部件信息
- *
- * @param id MAC 序列 ID
- * @return 包含时间戳、MAC 地址标识、序列号的数组 [timestamp, macId, sequence]
- */
+  * 解析 MAC 序列 ID，返回其组成部件信息
+  *
+  * @param id MAC 序列 ID
+  * @return 包含时间戳、MAC 地址标识、序列号的数组 [timestamp, macId, sequence]
+  */
  public long[] parse(long id) {
  long sequence = id & sequenceMask;
  long macId = (id >>> macIdShift) & macIdMask;
@@ -196,10 +196,10 @@ public class MacSequenceGenerator {
  }
 
  /**
- * 获取当前机器的 MAC 地址标识值
- *
- * @return MAC 地址标识
- */
+  * 获取当前机器的 MAC 地址标识值
+  *
+  * @return MAC 地址标识
+  */
  public long getMacId() {
  return macId;
  }
@@ -207,11 +207,11 @@ public class MacSequenceGenerator {
  // ==================== 内部方法 ====================
 
  /**
- * 组装 64 位 ID
- *
- * @param currentTimestamp 当前时间戳（秒）
- * @return 组装后的 64 位 ID
- */
+  * 组装 64 位 ID
+  *
+  * @param currentTimestamp 当前时间戳（秒）
+  * @return 组装后的 64 位 ID
+  */
  private long buildId(long currentTimestamp) {
  long relativeTimestamp = currentTimestamp - epoch;
 
@@ -233,20 +233,20 @@ public class MacSequenceGenerator {
  }
 
  /**
- * 获取当前系统时间戳（秒）
- *
- * @return 当前时间戳（秒）
- */
+  * 获取当前系统时间戳（秒）
+  *
+  * @return 当前时间戳（秒）
+  */
  private long timestamp() {
  return System.currentTimeMillis() / 1000;
  }
 
  /**
- * 自旋等待直到下一秒
- *
- * @param lastTimestamp 上次生成 ID 的时间戳（秒）
- * @return 下一秒的时间戳（秒）
- */
+  * 自旋等待直到下一秒
+  *
+  * @param lastTimestamp 上次生成 ID 的时间戳（秒）
+  * @return 下一秒的时间戳（秒）
+  */
  private long waitNextSecond(long lastTimestamp) {
  long currentTimestamp = timestamp();
  while (currentTimestamp <= lastTimestamp) {
@@ -258,17 +258,17 @@ public class MacSequenceGenerator {
  // ==================== MAC 地址解析 ====================
 
  /**
- * 解析本机 MAC 地址并折叠到指定掩码范围内
- *
- * <p>依次尝试以下策略：</p>
- * <ol>
- * <li>遍历所有网卡，优先选择第一个非回环、非虚拟网卡的硬件 MAC 地址</li>
- * <li>若获取失败，退化为 {@code hostName.hashCode() ^ randomLong()}</li>
- * </ol>
- *
- * @param mask MAC 标识掩码
- * @return 折叠后的 MAC 地址标识
- */
+  * 解析本机 MAC 地址并折叠到指定掩码范围内
+  *
+  * <p>依次尝试以下策略：</p>
+  * <ol>
+  * <li>遍历所有网卡，优先选择第一个非回环、非虚拟网卡的硬件 MAC 地址</li>
+  * <li>若获取失败，退化为 {@code hostName.hashCode() ^ randomLong()}</li>
+  * </ol>
+  *
+  * @param mask MAC 标识掩码
+  * @return 折叠后的 MAC 地址标识
+  */
  private static long resolveMacId(long mask) {
  try {
  Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -291,19 +291,19 @@ public class MacSequenceGenerator {
  }
 
  /**
- * 判断网卡是否为有效的物理网卡
- *
- * <p>过滤规则：</p>
- * <ul>
- * <li>排除回环接口（loopback）</li>
- * <li>排除虚拟网卡（名称包含 docker、veth、vmnet、vbox、bridger 等关键词）</li>
- * <li>要求网卡必须启用且具有硬件地址</li>
- * </ul>
- *
- * @param ni 网卡接口
- * @return 如果是有效的物理网卡返回 true
- * @throws SocketException 如果访问网卡信息失败
- */
+  * 判断网卡是否为有效的物理网卡
+  *
+  * <p>过滤规则：</p>
+  * <ul>
+  * <li>排除回环接口（loopback）</li>
+  * <li>排除虚拟网卡（名称包含 docker、veth、vmnet、vbox、bridger 等关键词）</li>
+  * <li>要求网卡必须启用且具有硬件地址</li>
+  * </ul>
+  *
+  * @param ni 网卡接口
+  * @return 如果是有效的物理网卡返回 true
+  * @throws SocketException 如果访问网卡信息失败
+  */
  private static boolean isValidInterface(NetworkInterface ni) throws SocketException {
  if (ni.isLoopback() || !ni.isUp()) {
  return false;
@@ -331,18 +331,18 @@ public class MacSequenceGenerator {
  }
 
  /**
- * XOR 折叠 48 位 MAC 地址到指定宽度
- *
- * <p>将 6 字节 MAC 地址通过 XOR 操作折叠：</p>
- * <pre>
- * macLong = (byte[0] << 40) | (byte[1] << 32) | (byte[2] << 24) |
- * (byte[3] << 16) | (byte[4] << 8) | byte[5]
- * result = (macLong >>> 24) ^ (macLong & 0xFFFFFF)
- * </pre>
- *
- * @param mac MAC 地址字节数组（6 字节）
- * @return 折叠后的 24 位 MAC 标识
- */
+  * XOR 折叠 48 位 MAC 地址到指定宽度
+  *
+  * <p>将 6 字节 MAC 地址通过 XOR 操作折叠：</p>
+  * <pre>
+  * macLong = (byte[0] << 40) | (byte[1] << 32) | (byte[2] << 24) |
+  * (byte[3] << 16) | (byte[4] << 8) | byte[5]
+  * result = (macLong >>> 24) ^ (macLong & 0xFFFFFF)
+  * </pre>
+  *
+  * @param mac MAC 地址字节数组（6 字节）
+  * @return 折叠后的 24 位 MAC 标识
+  */
  private static long foldMacAddress(byte[] mac) {
  long macLong = ((long) (mac[0] & 0xFF) << 40)
  | ((long) (mac[1] & 0xFF) << 32)
@@ -356,13 +356,13 @@ public class MacSequenceGenerator {
  }
 
  /**
- * 备用 MAC 标识生成策略
- *
- * <p>当无法获取硬件 MAC 地址时，使用主机名哈希与随机数的组合。</p>
- *
- * @param mask MAC 标识掩码
- * @return 生成的 MAC 标识
- */
+  * 备用 MAC 标识生成策略
+  *
+  * <p>当无法获取硬件 MAC 地址时，使用主机名哈希与随机数的组合。</p>
+  *
+  * @param mask MAC 标识掩码
+  * @return 生成的 MAC 标识
+  */
  private static long fallbackMacId(long mask) {
  String hostName = System.getProperty("user.name", "unknown");
  int hostHash = hostName.hashCode();

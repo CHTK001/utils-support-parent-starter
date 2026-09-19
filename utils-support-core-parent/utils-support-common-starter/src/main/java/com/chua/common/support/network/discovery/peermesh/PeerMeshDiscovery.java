@@ -36,14 +36,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* PeerMesh 服务发现实现。
-* <p>
-* 基于 TCP 的 P2P 服务发现，支持 C / SEED / C-SEED 三种启动发现模式，
-* 并定期进行成员心跳和超时剔除。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * PeerMesh 服务发现实现。
+ * <p>
+ * 基于 TCP 的 P2P 服务发现，支持 C / SEED / C-SEED 三种启动发现模式，
+ * 并定期进行成员心跳和超时剔除。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("peerMesh")
@@ -51,94 +51,94 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
-    * 内存成员表
-    */
+     * 内存成员表
+     */
     private final NodeTable nodeTable = new NodeTable();
 
     /**
-    * 磁盘持久化
-    */
+     * 磁盘持久化
+     */
     private DiskStore diskStore;
 
     /**
-    * 本地 serverId
-    */
+     * 本地 serverId
+     */
     private final String serverId = UUID.randomUUID().toString();
 
     /**
-    * Mesh 配置
-    */
+     * Mesh 配置
+     */
     private MeshConfig config = new MeshConfig();
 
     /**
-    * 本地绑定 IP
-    */
+     * 本地绑定 IP
+     */
     private String localIp;
 
     /**
-    * 本地监听端口
-    */
+     * 本地监听端口
+     */
     private int localPort;
 
     /**
-    * 本地节点信息
-    */
+     * 本地节点信息
+     */
     private Discovery self;
 
     /**
-    * 服务器 Socket
-    */
+     * 服务器 Socket
+     */
     private ServerSocket serverSocket;
 
     /**
-    * 连接处理线程池
-    */
+     * 连接处理线程池
+     */
     private ExecutorService executor;
 
     /**
-    * 定时任务线程池
-    */
+     * 定时任务线程池
+     */
     private ScheduledExecutorService scheduler;
 
     /**
-    * 心跳传播组件
-    */
+     * 心跳传播组件
+     */
     private MembershipPropagation membershipPropagation;
 
     /**
-    * 超时剔除组件
-    */
+     * 超时剔除组件
+     */
     private EvictionManager evictionManager;
 
     /**
-    * 运行状态标志
-    */
+     * 运行状态标志
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * UDP 服务器 Socket（仅 mode=udp 时使用）
-    */
+     * UDP 服务器 Socket（仅 mode=udp 时使用）
+     */
     private java.net.DatagramSocket udpSocket;
 
     /**
-    * UDP 服务器执行器
-    */
+     * UDP 服务器执行器
+     */
     private ExecutorService udpExecutor;
 
     // ======================== 构造方法 ========================
 
     /**
-    * 默认构造函数。
-    */
+     * 默认构造函数。
+     */
     public PeerMeshDiscovery() {
         this(new DiscoveryOption());
     }
 
     /**
-    * 带选项的构造函数。
-    *
-    * @param discoveryOption 发现选项
-    */
+     * 带选项的构造函数。
+     *
+     * @param discoveryOption 发现选项
+     */
     public PeerMeshDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
         this.diskStore = new DiskStore(config.getPeersFile());
@@ -218,8 +218,8 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 启动连接接受线程。
-    */
+     * 启动连接接受线程。
+     */
     private void startAcceptor() {
         executor = Executors.newThreadPerTaskExecutor(ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"));
         executor.submit(() -> {
@@ -237,8 +237,8 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 启动调度器（心跳 + 剔除）。
-    */
+     * 启动调度器（心跳 + 剔除）。
+     */
     private void startScheduler() {
         scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("peer-mesh-scheduler");
 
@@ -266,10 +266,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== UDP 服务器（mode=udp） ========================
 
     /**
-    * 启动 UDP 服务器，监听发现消息。
-    *
-    * @throws IOException IO 异常
-    */
+     * 启动 UDP 服务器，监听发现消息。
+     *
+     * @throws IOException IO 异常
+     */
     private void startUdpServer() throws IOException {
         udpSocket = new DatagramSocket(null);
         udpSocket.setReuseAddress(true);
@@ -296,10 +296,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理收到的 UDP 数据包。
-    *
-    * @param packet 数据包
-    */
+     * 处理收到的 UDP 数据包。
+     *
+     * @param packet 数据包
+     */
     private void handleUdpPacket(DatagramPacket packet) {
         try {
             ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
@@ -351,12 +351,12 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 通过 UDP 发送响应。
-    *
-    * @param addr 目标地址
-    * @param port 目标端口
-    * @param msg  消息体
-    */
+     * 通过 UDP 发送响应。
+     *
+     * @param addr 目标地址
+     * @param port 目标端口
+     * @param msg  消息体
+     */
     private void sendUdpResponse(java.net.InetAddress addr, int port,
                                  MessageProtocol.PeerMeshMessage msg) {
         try {
@@ -369,12 +369,12 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 通过 UDP 向目标节点发送一条消息（UDP 模式下心跳/成员传播使用）。
-    * 响应由 UDP 服务器线程统一接收处理。
-    *
-    * @param target 目标节点
-    * @param msg    消息体
-    */
+     * 通过 UDP 向目标节点发送一条消息（UDP 模式下心跳/成员传播使用）。
+     * 响应由 UDP 服务器线程统一接收处理。
+     *
+     * @param target 目标节点
+     * @param msg    消息体
+     */
     public void sendUdpMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
         if (udpSocket == null || udpSocket.isClosed() || target == null) {
             return;
@@ -392,13 +392,13 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== 配置扩展 ========================
 
     /**
-    * 替换当前配置并重建磁盘存储。
-    * <p>
-    * 必须在 {@link #start()} 之前调用。
-    * </p>
-    *
-    * @param config 新的配置
-    */
+     * 替换当前配置并重建磁盘存储。
+     * <p>
+     * 必须在 {@link #start()} 之前调用。
+     * </p>
+     *
+     * @param config 新的配置
+     */
     public void setConfig(MeshConfig config) {
         this.config = config;
         this.diskStore = new DiskStore(config.getPeersFile());
@@ -444,10 +444,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== 连接处理 ========================
 
     /**
-    * 处理入站连接。
-    *
-    * @param socket 已接受的 Socket
-    */
+     * 处理入站连接。
+     *
+     * @param socket 已接受的 Socket
+     */
     private void handleConnection(Socket socket) {
         try (socket;
              DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -483,12 +483,12 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理消息。
-    *
-    * @param in  输入流
-    * @param out 输出流
-    * @param msg 消息体
-    */
+     * 处理消息。
+     *
+     * @param in  输入流
+     * @param out 输出流
+     * @param msg 消息体
+     */
     private void processMessage(DataInputStream in, DataOutputStream out,
                                 MessageProtocol.PeerMeshMessage msg) throws IOException {
         switch (msg.type()) {
@@ -503,11 +503,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理心跳消息。
-    *
-    * @param msg 消息
-    * @param out 输出流
-    */
+     * 处理心跳消息。
+     *
+     * @param msg 消息
+     * @param out 输出流
+     */
     private void handleHeartbeat(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
         if (entries != null) {
@@ -523,10 +523,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理 PONG 消息。
-    *
-    * @param msg 消息
-    */
+     * 处理 PONG 消息。
+     *
+     * @param msg 消息
+     */
     private void handlePong(MessageProtocol.PeerMeshMessage msg) {
         List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
         if (entries != null) {
@@ -538,11 +538,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理新节点通知。
-    *
-    * @param msg 消息
-    * @param out 输出流
-    */
+     * 处理新节点通知。
+     *
+     * @param msg 消息
+     * @param out 输出流
+     */
     private void handleNewPeer(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {
@@ -553,11 +553,11 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 将远程节点条目合并到本地状态。
-    *
-    * @param entry 远程节点条目
-    * @param nowMs 当前时间戳
-    */
+     * 将远程节点条目合并到本地状态。
+     *
+     * @param entry 远程节点条目
+     * @param nowMs 当前时间戳
+     */
     private void mergeNodeEntry(NodeTable.NodeEntry entry, long nowMs) {
         if (entry == null) {
             return;
@@ -588,14 +588,14 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 将远程节点的 discovery 解析为服务实例：若条目通过 metadata 携带了
-    * 服务真实地址（svcHost/svcPort），则用其构造服务实例，保证各节点
-    * 看到的服务实例地址与注册节点本地一致；否则回退使用条目自身地址。
-    *
-    * @param sid 节点 serverId
-    * @param d   远程节点条目
-    * @return 服务实例 discovery
-    */
+     * 将远程节点的 discovery 解析为服务实例：若条目通过 metadata 携带了
+     * 服务真实地址（svcHost/svcPort），则用其构造服务实例，保证各节点
+     * 看到的服务实例地址与注册节点本地一致；否则回退使用条目自身地址。
+     *
+     * @param sid 节点 serverId
+     * @param d   远程节点条目
+     * @return 服务实例 discovery
+     */
     private Discovery resolveServiceInstance(String sid, Discovery d) {
         Map<String, String> meta = d.getMetadata();
         if (meta != null && meta.containsKey("svcHost") && meta.containsKey("svcPort")) {
@@ -622,22 +622,22 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== 对外发送 ========================
 
     /**
-    * 向目标节点发送一条消息。
-    *
-    * @param target 目标发现信息
-    * @param msg    消息体
-    */
+     * 向目标节点发送一条消息。
+     *
+     * @param target 目标发现信息
+     * @param msg    消息体
+     */
     public void sendMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
         sendMessage(target, msg, false);
     }
 
     /**
-    * 向目标节点发送一条消息（可选读取响应）。
-    *
-    * @param target 目标发现信息
-    * @param msg 消息体
-    * @param readResponse 是否读取响应（PONG/ACK/NEW_PEER），读取后由本类内部处理
-    */
+     * 向目标节点发送一条消息（可选读取响应）。
+     *
+     * @param target 目标发现信息
+     * @param msg 消息体
+     * @param readResponse 是否读取响应（PONG/ACK/NEW_PEER），读取后由本类内部处理
+     */
     public void sendMessage(Discovery target, MessageProtocol.PeerMeshMessage msg, boolean readResponse) {
         if (target == null) {
             return;
@@ -681,10 +681,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 处理 NEW_PEER 响应（从出站连接读到的 NEW_PEER）。
-    *
-    * @param msg 消息
-    */
+     * 处理 NEW_PEER 响应（从出站连接读到的 NEW_PEER）。
+     *
+     * @param msg 消息
+     */
     private void handleNewPeerResponse(MessageProtocol.PeerMeshMessage msg) {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {
@@ -695,15 +695,15 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     // ======================== ServiceDiscovery 扩展 ========================
 
     /**
-    * 注册本地服务。
-    * <p>
-    * 自动填充 serverId、host、port 等字段，并同步到节点表。
-    * </p>
-    *
-    * @param path      服务路径
-    * @param discovery 服务发现信息
-    * @return 当前实例
-    */
+     * 注册本地服务。
+     * <p>
+     * 自动填充 serverId、host、port 等字段，并同步到节点表。
+     * </p>
+     *
+     * @param path      服务路径
+     * @param discovery 服务发现信息
+     * @return 当前实例
+     */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         if (discovery.getServerId() == null) {
@@ -754,10 +754,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 根据 serverId 移除该节点注册的所有服务。
-    *
-    * @param sid 节点唯一标识
-    */
+     * 根据 serverId 移除该节点注册的所有服务。
+     *
+     * @param sid 节点唯一标识
+     */
     public void removeServicesByServerId(String sid) {
         for (List<Discovery> list : localCache.values()) {
             list.removeIf(d -> sid.equals(d.getServerId()));
@@ -774,10 +774,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 获取内部节点表（仅用于测试和监控）。
-    *
-    * @return 节点表
-    */
+     * 获取内部节点表（仅用于测试和监控）。
+     *
+     * @return 节点表
+     */
     public NodeTable getNodeTable() {
         return nodeTable;
     }

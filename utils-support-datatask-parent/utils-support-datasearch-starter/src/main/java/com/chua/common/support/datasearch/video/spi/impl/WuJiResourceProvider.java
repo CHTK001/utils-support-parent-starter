@@ -45,26 +45,26 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
     private static final String DETAIL_URL_PREFIX = "https://xcili.net";
 
     /**
-    * 创建 wuji资源提供器 实例（无参构造，使用默认数据源）。
-    */
+     * 创建 wuji资源提供器 实例（无参构造，使用默认数据源）。
+     */
     public WuJiResourceProvider() {
         super();
     }
 
     /**
-    * 创建 wuji资源提供器 实例。
-    *
-    * @param videoSource 视频数据源，不能为 null；videoSourceUrl 非空时覆盖默认资源站
-    */
+     * 创建 wuji资源提供器 实例。
+     *
+     * @param videoSource 视频数据源，不能为 null；videoSourceUrl 非空时覆盖默认资源站
+     */
     public WuJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
     /**
-    * 获取资源站搜索地址。
-    *
-    * @return 数据源自定义地址优先，未配置时返回默认搜索地址
-    */
+     * 获取资源站搜索地址。
+     *
+     * @return 数据源自定义地址优先，未配置时返回默认搜索地址
+     */
     protected String getUrl() {
         if (videoSource != null && StringUtils.hasText(videoSource.getVideoSourceUrl())) {
             return videoSource.getVideoSourceUrl();
@@ -74,13 +74,13 @@ public class WuJiResourceProvider extends AbstractResourceProvider {
 
     @Override
     /**
-    * 搜索resource。
-    * <p>抓取资源站搜索页，按 result-title 标记分段提取 标题/大小/详情页 链接；
-    * 已封禁站点（见 {@link VideoProviderRegistry}）直接跳过。</p>
-    *
-    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时抛出异常
-    * @return 搜索resource的结果；无匹配时返回错误结果，检索异常时返回错误结果
-    */
+     * 搜索resource。
+     * <p>抓取资源站搜索页，按 result-title 标记分段提取 标题/大小/详情页 链接；
+     * 已封禁站点（见 {@link VideoProviderRegistry}）直接跳过。</p>
+     *
+     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时抛出异常
+     * @return 搜索resource的结果；无匹配时返回错误结果，检索异常时返回错误结果
+     */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         // 已封禁站点直接跳过，避免无效请求
         ReturnPageResult<VideoInfoResult> blocked = checkBlocked("wuji");

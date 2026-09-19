@@ -18,113 +18,113 @@ import java.util.stream.IntStream;
 
 
 /**
-* yolov11 OBB
-* <p>
-* yolov11                               OBB - Oriented Bounding Box
-*                                                                                              
-* <p>
-*                
-* -                                       +        +          
-* -            probiou                 NMS
-* -                          
-* -                                
-* -     letterbox
-* <p>
-*                
-* [cx, cy, w, h, 类_scores..., angle]
-* - cx, cy:                
-* - w, h:                
-* - 类_scores:
-* - angle:                         
-* <p>
-*                
-* ```Java
-* //                   
-* 列表<String> 类 = Arrays.as列表("文本", "vehicle");
-* Yolo11oddtranslator translator = 新 Yolo11oddtranslator(类);
-*
-* //                
-* Yolo11oddtranslator translator = 新 Yolo11oddtranslator(640, 0.25f, 0.45f, 类);
-* ```
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025-01-22
+ * yolov11 OBB
+ * <p>
+ * yolov11                               OBB - Oriented Bounding Box
+ *                                                                                              
+ * <p>
+ *                
+ * -                                       +        +          
+ * -            probiou                 NMS
+ * -                          
+ * -                                
+ * -     letterbox
+ * <p>
+ *                
+ * [cx, cy, w, h, 类_scores..., angle]
+ * - cx, cy:                
+ * - w, h:                
+ * - 类_scores:
+ * - angle:                         
+ * <p>
+ *                
+ * ```Java
+ * //                   
+ * 列表<String> 类 = Arrays.as列表("文本", "vehicle");
+ * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(类);
+ *
+ * //                
+ * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(640, 0.25f, 0.45f, 类);
+ * ```
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025-01-22
  */
 @Slf4j
 @Spi("yolo11_obb")
 public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
 
     /**
-    *                      
-    */
+     *                      
+     */
     private final int maxBoxes;
 
     /**
-    *                
-    */
+     *                
+     */
     private final float threshold;
 
     /**
-    * NMS       
-    */
+     * NMS       
+     */
     private final float nmsThreshold;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final List<String> classes;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int width;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int height;
 
     /**
-    *              -                   
-    *
-    * @param classes                   
-    */
+     *              -                   
+     *
+     * @param classes                   
+     */
     public Yolo11OddTranslator() {
         this(defaultClasses(1024));
     }
 
     /**
-    * 创建 Yolo11oddtranslator 实例
-    * @param classes classes
-    */
+     * 创建 Yolo11oddtranslator 实例
+     * @param classes classes
+     */
     public Yolo11OddTranslator(List<String> classes) {
         this(1024, 1024, 0.25f, 0.45f, classes, 8400);
     }
 
     /**
-    *              -                
-    *
-    * @param width                          
-    * @param height                         
-    * @param threshold                   
-    * @param nmsThreshold NMS       
-    * @param classes                        
-    */
+     *              -                
+     *
+     * @param width                          
+     * @param height                         
+     * @param threshold                   
+     * @param nmsThreshold NMS       
+     * @param classes                        
+     */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes) {
         this(width, height, threshold, nmsThreshold, classes, 8400);
     }
 
     /**
-    *                   
-    *
-    * @param width                          
-    * @param height                         
-    * @param threshold                   
-    * @param nmsThreshold NMS       
-    * @param classes                        
-    * @param maxBoxes                          
-    */
+     *                   
+     *
+     * @param width                          
+     * @param height                         
+     * @param threshold                   
+     * @param nmsThreshold NMS       
+     * @param classes                        
+     * @param maxBoxes                          
+     */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold,
                                 List<String> classes, int maxBoxes) {
         this.width = width;
@@ -138,12 +138,12 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-    *                   
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList
-    */
+     *                   
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
@@ -176,12 +176,12 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-    *                   
-    *
-    * @param ctx                    
-    * @param list              nd列表
-    * @return OBB             
-    */
+     *                   
+     *
+     * @param ctx                    
+     * @param list              nd列表
+     * @return OBB             
+     */
     @Override
     public ObbResult processOutput(TranslatorContext ctx, NDList list) {
         var imageWidth = (Integer) ctx.getAttachment("width");
@@ -196,18 +196,18 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-    *     Box                         
-    *
-    * @param imageWidth                        
-    * @param imageHeight                       
-    * @param processedWidth                          
-    * @param processedHeight                         
-    * @param scale                      
-    * @param left                  padding
-    * @param top                   padding
-    * @param list                       
-    * @return OBB             
-    */
+     *     Box                         
+     *
+     * @param imageWidth                        
+     * @param imageHeight                       
+     * @param processedWidth                          
+     * @param processedHeight                         
+     * @param scale                      
+     * @param left                  padding
+     * @param top                   padding
+     * @param list                       
+     * @return OBB             
+     */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                            float scale, int left, int top, NDList list) {
  // [cx, cy, w, h, 类_scores..., angle]
@@ -263,12 +263,12 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-    * NMS          probiou
-    *
-    * @param boxes                       
-    * @param iouThreshold iou
-    * @return                         
-    */
+     * NMS          probiou
+     *
+     * @param boxes                       
+     * @param iouThreshold iou
+     * @return                         
+     */
     private List<YoloRotatedBox> rotatedNMS(List<YoloRotatedBox> boxes, double iouThreshold) {
         var keep = new ArrayList<YoloRotatedBox>();
         var removed = new boolean[boxes.size()];
@@ -311,11 +311,11 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-    *                   
-    *
-    * @return STACK             
-    * @param size 大小
-    */
+     *                   
+     *
+     * @return STACK             
+     * @param size 大小
+     */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

@@ -12,20 +12,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 默认 Java 智能体 管理器。
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认 Java 智能体 管理器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DefaultJavaAgentManager implements JavaAgentManager {
 
 
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(DefaultJavaAgentManager.class.getName());
     /**
-    * 命令超时（秒）
+     * 命令超时（秒）
      */
     private static final int CMD_TIMEOUT = 30;
 

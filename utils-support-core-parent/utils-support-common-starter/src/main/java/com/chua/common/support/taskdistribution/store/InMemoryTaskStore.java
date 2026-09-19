@@ -16,19 +16,19 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class InMemoryTaskStore implements TaskStore {
 
     /**
-    * 任务状态映射：任务id -> 任务entry
-    */
+     * 任务状态映射：任务id -> 任务entry
+     */
     private final Map<String, TaskEntry> tasks = new ConcurrentHashMap<>();
 
     /**
-    * 任务条目。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 任务条目。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class TaskEntry {
         Task<?> task; // 任务
         TaskStatus status; // 状态

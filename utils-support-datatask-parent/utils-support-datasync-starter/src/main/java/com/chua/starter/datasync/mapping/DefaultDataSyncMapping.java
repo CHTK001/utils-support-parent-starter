@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 默认数据同步映射。
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认数据同步映射。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public record DefaultDataSyncMapping(
@@ -32,11 +32,11 @@ public record DefaultDataSyncMapping(
 ) implements DataSyncMapping {
 
     /**
-    * 从配置定义构造映射。
-    * @param mappingId mappingid
-    * @param config 配置
-    * @return 默认数据同步mapping的结果
-    */
+     * 从配置定义构造映射。
+     * @param mappingId mappingid
+     * @param config 配置
+     * @return 默认数据同步mapping的结果
+     */
     public DefaultDataSyncMapping(String mappingId, DataSyncConfigDefinition config) {
         this(
                 mappingId,

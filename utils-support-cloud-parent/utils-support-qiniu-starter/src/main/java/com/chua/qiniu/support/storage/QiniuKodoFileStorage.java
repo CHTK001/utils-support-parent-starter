@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 七牛云 Kodo 文件存储实现。
-*
-* <p>基于七牛云 Java SDK 实现 {@link FileStorage} SPI 接口。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 七牛云 Kodo 文件存储实现。
+ *
+ * <p>基于七牛云 Java SDK 实现 {@link FileStorage} SPI 接口。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"kodo", "qiniu"})
 public class QiniuKodoFileStorage extends AbstractFileStorage {

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认 Bean 定义注册器")

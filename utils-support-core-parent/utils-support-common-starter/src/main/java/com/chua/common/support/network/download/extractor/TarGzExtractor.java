@@ -7,26 +7,26 @@ import java.io.*;
 import java.util.zip.GZIPInputStream;
 
 /**
-* TAR.GZ 解压器
-* <p>
-* 使用 Java GZIPInputStream 解压缩后解析 TAR 格式
-*
-* @author CH
-* @version 1.0.0
-* @since 2025/11/29
+ * TAR.GZ 解压器
+ * <p>
+ * 使用 Java GZIPInputStream 解压缩后解析 TAR 格式
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2025/11/29
  */
 @Slf4j
 @Spi({"tar.gz", "tgz"})
 public class TarGzExtractor implements Extractor {
 
     /**
-    * TAR 标准块大小
-    */
+     * TAR 标准块大小
+     */
     private static final int TAR_BLOCK_SIZE = 512;
 
     /**
-    * TAR 文件头大小
-    */
+     * TAR 文件头大小
+     */
     private static final int TAR_HEADER_SIZE = 512;
 
     @Override
@@ -58,12 +58,12 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 解压 TAR 格式数据
-    *
-    * @param inputStream TAR 流输入源
-    * @param targetDir   目标解压目录
-    * @throws IOException IO 异常
-    */
+     * 解压 TAR 格式数据
+     *
+     * @param inputStream TAR 流输入源
+     * @param targetDir   目标解压目录
+     * @throws IOException IO 异常
+     */
     protected void extractTar(InputStream inputStream, File targetDir) throws IOException {
         byte[] header = new byte[TAR_HEADER_SIZE];
 
@@ -112,11 +112,11 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 解析 TAR 文件头信息
-    *
-    * @param header 文件头字节数组
-    * @return TAR 头部信息对象
-    */
+     * 解析 TAR 文件头信息
+     *
+     * @param header 文件头字节数组
+     * @return TAR 头部信息对象
+     */
     private TarHeader parseTarHeader(byte[] header) {
         String name = extractString(header, 0, 100);
         String sizeStr = extractString(header, 124, 12).trim();
@@ -143,13 +143,13 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 从字节数组中提取字符串
-    *
-    * @param data   源字节数组
-    * @param offset 起始偏移量
-    * @param length 提取长度
-    * @return 提取后的字符串
-    */
+     * 从字节数组中提取字符串
+     *
+     * @param data   源字节数组
+     * @param offset 起始偏移量
+     * @param length 提取长度
+     * @return 提取后的字符串
+     */
     private String extractString(byte[] data, int offset, int length) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length && (offset + i) < data.length; i++) {
@@ -163,11 +163,11 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 检查字节块是否全为零（空块）
-    *
-    * @param block 待检查的字节块
-    * @return 是否为空块
-    */
+     * 检查字节块是否全为零（空块）
+     *
+     * @param block 待检查的字节块
+     * @return 是否为空块
+     */
     private boolean isEmptyBlock(byte[] block) {
         for (byte b : block) {
             if (b != 0) {
@@ -178,13 +178,13 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 完整读取指定长度的字节到缓冲区
-    *
-    * @param inputStream 输入流
-    * @param buffer      目标缓冲区
-    * @return 实际读取的字节数
-    * @throws IOException IO 异常
-    */
+     * 完整读取指定长度的字节到缓冲区
+     *
+     * @param inputStream 输入流
+     * @param buffer      目标缓冲区
+     * @return 实际读取的字节数
+     * @throws IOException IO 异常
+     */
     private int readFully(InputStream inputStream, byte[] buffer) throws IOException {
         int totalRead = 0;
         while (totalRead < buffer.length) {
@@ -198,12 +198,12 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 跳过指定数量的字节
-    *
-    * @param inputStream 输入流
-    * @param bytes       要跳过的字节数
-    * @throws IOException IO 异常
-    */
+     * 跳过指定数量的字节
+     *
+     * @param inputStream 输入流
+     * @param bytes       要跳过的字节数
+     * @throws IOException IO 异常
+     */
     private void skipBytes(InputStream inputStream, long bytes) throws IOException {
         long remaining = bytes;
         while (remaining > 0) {
@@ -223,13 +223,13 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * 复制指定数量的字节从输入流到输出流
-    *
-    * @param inputStream  输入流
-    * @param outputStream 输出流
-    * @param bytes        要复制的字节数
-    * @throws IOException IO 异常
-    */
+     * 复制指定数量的字节从输入流到输出流
+     *
+     * @param inputStream  输入流
+     * @param outputStream 输出流
+     * @param bytes        要复制的字节数
+     * @throws IOException IO 异常
+     */
     private void copyBytes(InputStream inputStream, OutputStream outputStream, long bytes) throws IOException {
         byte[] buffer = new byte[8192];
         long remaining = bytes;
@@ -245,8 +245,8 @@ public class TarGzExtractor implements Extractor {
     }
 
     /**
-    * TAR 文件头部信息类
-    */
+     * TAR 文件头部信息类
+     */
     private static class TarHeader {
         String name = "";
         long size = 0;

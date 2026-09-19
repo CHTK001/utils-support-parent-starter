@@ -7,29 +7,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
-* Beta 纯校准器
-* <p>
-* 【用途】 用Beta累积分布函数(CDF)将原始分数映射到0~100分。
-* 适合分数集中在0~1两端、中间稀疏的分布，能提供不对称的拉伸效果。
-* <p>
-* 【公式】 score' = 100 · I_x(α, β)，其中 I_x 为正则化不完全Beta函数
-* <p>
-* 【参数】
-* alpha – Beta分布形状参数α（>0，建议1~5）
-* beta  – Beta分布形状参数β（>0，建议1~5）
-* <p>
-* 【场景】
-* - 分数分布偏斜严重，两端密集中间稀疏
-* - 需要不对称的拉伸（如低分压得更低，高分拉得更高）
-* - 比Sigmoid更灵活，能拟合多种分布形态
-* <p>
-* 【示例】
-* PureCalibrator cal = BetaPureCalibrator.builder().alpha(2.0).beta(3.0).build();
-* double score = cal.calibrate(0.85); // 约92分
-* <p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Beta 纯校准器
+ * <p>
+ * 【用途】 用Beta累积分布函数(CDF)将原始分数映射到0~100分。
+ * 适合分数集中在0~1两端、中间稀疏的分布，能提供不对称的拉伸效果。
+ * <p>
+ * 【公式】 score' = 100 · I_x(α, β)，其中 I_x 为正则化不完全Beta函数
+ * <p>
+ * 【参数】
+ * alpha – Beta分布形状参数α（>0，建议1~5）
+ * beta  – Beta分布形状参数β（>0，建议1~5）
+ * <p>
+ * 【场景】
+ * - 分数分布偏斜严重，两端密集中间稀疏
+ * - 需要不对称的拉伸（如低分压得更低，高分拉得更高）
+ * - 比Sigmoid更灵活，能拟合多种分布形态
+ * <p>
+ * 【示例】
+ * PureCalibrator cal = BetaPureCalibrator.builder().alpha(2.0).beta(3.0).build();
+ * double score = cal.calibrate(0.85); // 约92分
+ * <p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter
@@ -39,8 +39,8 @@ import lombok.Setter;
 public class BetaPureCalibrator implements PureCalibrator {
 
     /**
-    * Beta分布形状参数α，默认2.0
-    */
+     * Beta分布形状参数α，默认2.0
+     */
     @Builder.Default
     /** 透明度 */
     private double alpha = 2.0;
@@ -60,13 +60,13 @@ public class BetaPureCalibrator implements PureCalibrator {
     }
 
     /**
-    * 正则化不完全Beta函数（使用连分数近似）
-    *
-    * @param x 自变量（0~1）
-    * @param a 形状参数α
-    * @param b 形状参数β
-    * @return 累积概率值
-    */
+     * 正则化不完全Beta函数（使用连分数近似）
+     *
+     * @param x 自变量（0~1）
+     * @param a 形状参数α
+     * @param b 形状参数β
+     * @return 累积概率值
+     */
     private double regularizedIncompleteBeta(double x, double a, double b) {
         if (x < 0 || x > 1) {
             return x;
@@ -85,12 +85,12 @@ public class BetaPureCalibrator implements PureCalibrator {
     }
 
     /**
-    * 连分数展开计算
-    * @param x 方法入参 x
-    * @param a 方法入参 a
-    * @param b 方法入参 b
-    * @return 结果数值
-    */
+     * 连分数展开计算
+     * @param x 方法入参 x
+     * @param a 方法入参 a
+     * @param b 方法入参 b
+     * @return 结果数值
+     */
     private double continuedFraction(double x, double a, double b) {
         double qab = a + b;
         double qap = a + 1;
@@ -137,10 +137,10 @@ public class BetaPureCalibrator implements PureCalibrator {
     }
 
     /**
-    * 对数Gamma函数（Lanczos近似）
-    * @param x 方法入参 x
-    * @return 结果数值
-    */
+     * 对数Gamma函数（Lanczos近似）
+     * @param x 方法入参 x
+     * @return 结果数值
+     */
     private double logGamma(double x) {
         double[] coef = {76.18009172947146, -86.50532032941677,
                 24.01409824083091, -1.231739572450155,

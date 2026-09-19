@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi({"http-proxy"})
 public class JdkHttpProxyServer extends TcpProxyServer {
 

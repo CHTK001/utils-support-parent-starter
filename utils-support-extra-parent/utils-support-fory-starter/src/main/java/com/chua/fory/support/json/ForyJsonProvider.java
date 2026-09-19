@@ -33,29 +33,29 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
-* 基于 Apache Fory（Fury）官方 fory-json 模块的 JSON 实现。
-*
-* <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
-* 通过 {@code Json.setImplementation(new ForyJsonProvider())} 全局切换。</p>
-*
-* <p>统一门户注解适配：fory-json 基于代码生成、只读取自身注解模型（{@code org.apache.fory.json.annotation}），
-* 无法原生识别 common-starter 的门户注解。因此本实现通过 {@link JsonBeanMapper} 桥接：
-* 目标类型携带 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解时，
-* 先转换为普通 映射 再交给 fory-json 编解码，保证门户注解在三套实现间行为一致。</p>
-*
-* <p>通过 {@code @Spi("fory")} 注册为 {@link JsonProvider} 的 SPI 实现，
-* 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Apache Fory（Fury）官方 fory-json 模块的 JSON 实现。
+ *
+ * <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
+ * 通过 {@code Json.setImplementation(new ForyJsonProvider())} 全局切换。</p>
+ *
+ * <p>统一门户注解适配：fory-json 基于代码生成、只读取自身注解模型（{@code org.apache.fory.json.annotation}），
+ * 无法原生识别 common-starter 的门户注解。因此本实现通过 {@link JsonBeanMapper} 桥接：
+ * 目标类型携带 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解时，
+ * 先转换为普通 映射 再交给 fory-json 编解码，保证门户注解在三套实现间行为一致。</p>
+ *
+ * <p>通过 {@code @Spi("fory")} 注册为 {@link JsonProvider} 的 SPI 实现，
+ * 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("fory")
 @AutoSpi(value = "com.chua.common.support.lang.json.JsonProvider")
 public class ForyJsonProvider implements JsonProvider {
 
     /**
-    * foryjson 实例（线程安全，配置后不可变）
-    */
+     * foryjson 实例（线程安全，配置后不可变）
+     */
     private static final ForyJson FORY_JSON = ForyJson.builder().build();
 
     @Override
@@ -406,11 +406,11 @@ public class ForyJsonProvider implements JsonProvider {
     }
 
     /**
-    * 判断类型是否携带统一门户注解（{@link JsonName} / {@link JsonIgnore} / {@link JsonFormat}）。
-    *
-    * @param type 目标类型
-    * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
-    */
+     * 判断类型是否携带统一门户注解（{@link JsonName} / {@link JsonIgnore} / {@link JsonFormat}）。
+     *
+     * @param type 目标类型
+     * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
+     */
     private static boolean hasUnifiedAnnotations(Class<?> type) {
         for (Field field : ClassUtils.getFields(type)) {
             if (field.isAnnotationPresent(JsonName.class)
@@ -423,11 +423,11 @@ public class ForyJsonProvider implements JsonProvider {
     }
 
     /**
-    * 构造 列表&lt;T&gt; 的 parameterized类型。
-    *
-    * @param elementType 元素类型
-    * @return ParameterizedType
-    */
+     * 构造 列表&lt;T&gt; 的 parameterized类型。
+     *
+     * @param elementType 元素类型
+     * @return ParameterizedType
+     */
     private static Type parameterizedListType(Class<?> elementType) {
         return new ParameterizedType() {
             @Override
@@ -471,11 +471,11 @@ public class ForyJsonProvider implements JsonProvider {
     }
 
     /**
-    * 读取输入流为字符串。
-    *
-    * @param stream 输入流
-    * @return 字符串内容
-    */
+     * 读取输入流为字符串。
+     *
+     * @param stream 输入流
+     * @return 字符串内容
+     */
     private String readString(InputStream stream) {
         return readString(new InputStreamReader(stream, UTF_8));
     }

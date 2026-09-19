@@ -14,30 +14,30 @@ import java.lang.reflect.Method;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class MethodDefinition extends AbstractBeanDefinition {
 
     /**
-    * 父 Bean 定义（工厂方法所属的 Bean）。
-    */
+     * 父 Bean 定义（工厂方法所属的 Bean）。
+     */
     private final BeanDefinition parentBeanDefinition;
 
     /**
-    * Java 反射方法。
-    */
+     * Java 反射方法。
+     */
     private final Method method;
 
     /**
-    * 缓存的方法返回实例。
-    */
+     * 缓存的方法返回实例。
+     */
     private volatile Object result;
 
     /**
-    * 创建方法定义。
-    *
-    * @param parentBeanDefinition 所属 Bean 定义
-    * @param method               Java 反射方法
-    */
+     * 创建方法定义。
+     *
+     * @param parentBeanDefinition 所属 Bean 定义
+     * @param method               Java 反射方法
+     */
     public MethodDefinition(BeanDefinition parentBeanDefinition, Method method) {
         super(buildName(parentBeanDefinition, method), method.getReturnType(), BeanScope.SINGLETON);
         this.parentBeanDefinition = parentBeanDefinition;
@@ -46,43 +46,43 @@ public class MethodDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 构建名称
-    *
-    * @param parentBeanDefinition 父Beandefinition
-    * @param method 方法
-    * @return 构建名称的结果
-    */
+     * 构建名称
+     *
+     * @param parentBeanDefinition 父Beandefinition
+     * @param method 方法
+     * @return 构建名称的结果
+     */
     private static String buildName(BeanDefinition parentBeanDefinition, Method method) {
         return parentBeanDefinition.getName() + "." + method.getName();
     }
 
     /**
-    * 获取父 Bean 定义（工厂方法所属的 Bean）。
-    *
-    * @return 父 Bean 定义
-    */
+     * 获取父 Bean 定义（工厂方法所属的 Bean）。
+     *
+     * @return 父 Bean 定义
+     */
     public BeanDefinition getParentBeanDefinition() {
         return parentBeanDefinition;
     }
 
     /**
-    * 获取 Java 方法。
-    *
-    * @return Java 方法
-    */
+     * 获取 Java 方法。
+     *
+     * @return Java 方法
+     */
     public Method getMethod() {
         return method;
     }
 
     /**
-    * 反射调用当前 Bean 实例上的方法。
-    *
-    * @param target 调用目标实例
-    * @param args   调用参数
-    * @return 方法返回值
-    * @throws InvocationTargetException 业务方法抛出异常时抛出
-    * @throws IllegalAccessException    方法不可访问时抛出
-    */
+     * 反射调用当前 Bean 实例上的方法。
+     *
+     * @param target 调用目标实例
+     * @param args   调用参数
+     * @return 方法返回值
+     * @throws InvocationTargetException 业务方法抛出异常时抛出
+     * @throws IllegalAccessException    方法不可访问时抛出
+     */
     public Object invoke(Object target, Object... args) throws InvocationTargetException, IllegalAccessException {
         if (target == null) {
             throw new IllegalStateException("Bean 实例不存在: " + getName());

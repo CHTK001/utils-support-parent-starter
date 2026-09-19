@@ -32,10 +32,10 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 /**
-* Linux 系统日志提供者 - libsystemd FFM + /var/日志 文件回退
-*
-* @author CH
-* @since 4.0.0.42
+ * Linux 系统日志提供者 - libsystemd FFM + /var/日志 文件回退
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("linux")
 @SpiDescribe(value = "linux-journald", desc = "Linux 系统日志提供者(journald + /var/log)", type = "log")
@@ -86,9 +86,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     private volatile MethodHandle sdJournalSeekCursor;
 
     /**
-    * 创建 Linuxjournald提供者 实例
-    * @param bridge bridge
-    */
+     * 创建 Linuxjournald提供者 实例
+     * @param bridge bridge
+     */
     public LinuxJournaldProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getLinuxRegistry();
@@ -146,11 +146,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 搜索viajournald
-    *
-    * @param query 查询
-    * @return 搜索viajournald的结果
-    */
+     * 搜索viajournald
+     *
+     * @param query 查询
+     * @return 搜索viajournald的结果
+     */
     private List<LogEntry> searchViaJournald(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         MemorySegment journal = null;
@@ -245,13 +245,13 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 获取journal字段
-    *
-    * @param journal journal
-    * @param arena arena
-    * @param field 字段
-    * @return 获取journal字段的结果
-    */
+     * 获取journal字段
+     *
+     * @param journal journal
+     * @param arena arena
+     * @param field 字段
+     * @return 获取journal字段的结果
+     */
     private String getJournalField(MemorySegment journal, Arena arena, String field) {
         try {
             MemorySegment dataPtr = arena.allocate(ValueLayout.ADDRESS);
@@ -287,11 +287,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 解析journalpriority
-    *
-    * @param priorityStr prioritystr
-    * @return 解析journalpriority的结果
-    */
+     * 解析journalpriority
+     *
+     * @param priorityStr prioritystr
+     * @return 解析journalpriority的结果
+     */
     private LogLevel parseJournalPriority(String priorityStr) {
         if (priorityStr == null) {
             return LogLevel.INFO;
@@ -313,11 +313,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 格式化时间戳
-    *
-    * @param tsStr tsstr
-    * @return 格式化时间戳的结果
-    */
+     * 格式化时间戳
+     *
+     * @param tsStr tsstr
+     * @return 格式化时间戳的结果
+     */
     private String formatTimestamp(String tsStr) {
         if (tsStr == null) {
             return "unknown";
@@ -331,11 +331,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 搜索viavar记录日志
-    *
-    * @param query 查询
-    * @return 搜索viavar日志的结果
-    */
+     * 搜索viavar记录日志
+     *
+     * @param query 查询
+     * @return 搜索viavar日志的结果
+     */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         log.debug("Searching /var/log files with pattern={}", query.pattern());
         List<LogEntry> results = new ArrayList<>();
@@ -376,12 +376,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 解析记录日志线
-    *
-    * @param line 线
-    * @param source 源
-    * @return 解析日志线的结果
-    */
+     * 解析记录日志线
+     *
+     * @param line 线
+     * @param source 源
+     * @return 解析日志线的结果
+     */
     private LogEntry parseLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -402,11 +402,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * detect级别从消息
-    *
-    * @param line 线
-    * @return detect级别从消息的结果
-    */
+     * detect级别从消息
+     *
+     * @param line 线
+     * @return detect级别从消息的结果
+     */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -425,11 +425,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * compile模式
-    *
-    * @param glob glob
-    * @return compile模式的结果
-    */
+     * compile模式
+     *
+     * @param glob glob
+     * @return compile模式的结果
+     */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {

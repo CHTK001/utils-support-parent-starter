@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-* 将压缩专用 {@link ChatClient} 适配为 Agentscope 的 {@link Model} 接口。
-*
-* <p>供 {@link com.chua.common.support.ai.agent.AgentContextCompressionService}
-* 在偏差矫正阶段调用，使用独立的高阶模型进行基线总结和上下文矫正。
-*
-* @author CH
-* @since 4.0.0.42
+ * 将压缩专用 {@link ChatClient} 适配为 Agentscope 的 {@link Model} 接口。
+ *
+ * <p>供 {@link com.chua.common.support.ai.agent.AgentContextCompressionService}
+ * 在偏差矫正阶段调用，使用独立的高阶模型进行基线总结和上下文矫正。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class CompressionChatClientModelAdapter implements Model {
 
@@ -78,11 +78,11 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     /**
-    * extract最后一个用户提示符
-    *
-    * @param messages 消息
-    * @return extract最后一个用户提示符的结果
-    */
+     * extract最后一个用户提示符
+     *
+     * @param messages 消息
+     * @return extract最后一个用户提示符的结果
+     */
     private static String extractLastUserPrompt(List<Msg> messages) {
         if (messages == null || messages.isEmpty()) {
             return "";

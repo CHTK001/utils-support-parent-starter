@@ -1,14 +1,14 @@
 package com.chua.deeplearning.support.onnx.audio.paraformer;
 
 /**
-* 基 2 迭代 FFT（实数输入，复数输出），长度必须为 2 的幂。
-* <p>
-* 采用位反转重排 + 蝶形迭代的经典 radix-2 Cooley-Tukey 算法，
-* 供 kaldi fbank power 谱计算使用。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基 2 迭代 FFT（实数输入，复数输出），长度必须为 2 的幂。
+ * <p>
+ * 采用位反转重排 + 蝶形迭代的经典 radix-2 Cooley-Tukey 算法，
+ * 供 kaldi fbank power 谱计算使用。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class FftRadix2 {
 
@@ -29,10 +29,10 @@ class FftRadix2 {
     private final float[] wi;
 
     /**
-    * 构造指定长度的 FFT。
-    *
-    * @param n 长度，必须为 2 的幂
-    */
+     * 构造指定长度的 FFT。
+     *
+     * @param n 长度，必须为 2 的幂
+     */
     FftRadix2(int n) {
         if ((n & (n - 1)) != 0) {
             throw new IllegalArgumentException("n must be a power of two: " + n);
@@ -53,11 +53,11 @@ class FftRadix2 {
     }
 
     /**
-    * 就地执行 FFT。
-    *
-    * @param real 输入实部（长度 n），返回实部
-    * @param imag 输出虚部（长度 n）
-    */
+     * 就地执行 FFT。
+     *
+     * @param real 输入实部（长度 n），返回实部
+     * @param imag 输出虚部（长度 n）
+     */
     void transform(float[] real, float[] imag) {
         for (int i = 0; i < n; i++) {
             int j = rev[i];

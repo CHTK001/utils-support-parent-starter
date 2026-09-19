@@ -24,46 +24,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* MacCMS 标准资源站提供者实现。
-* <p>
-* 对接 MacCMS v10 采集接口（<code>?ac=videolist&wd=关键词</code>），
-* 这是资源站领域最通用的 JSON 协议，视频源 URL 可通过
-* {@link VideoSource#getVideoSourceUrl()} 注入，从而支持任意 MacCMS 资源站。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MacCMS 标准资源站提供者实现。
+ * <p>
+ * 对接 MacCMS v10 采集接口（<code>?ac=videolist&wd=关键词</code>），
+ * 这是资源站领域最通用的 JSON 协议，视频源 URL 可通过
+ * {@link VideoSource#getVideoSourceUrl()} 注入，从而支持任意 MacCMS 资源站。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("maccms")
 public class MacCmsResourceProvider extends AbstractResourceProvider {
 
     /**
-    * 日志对象。
-    */
+     * 日志对象。
+     */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(MacCmsResourceProvider.class);
 
     /**
-    * 默认资源站接口（MacCMS v1 标准采集地址示例）。
-    */
+     * 默认资源站接口（MacCMS v1 标准采集地址示例）。
+     */
     private static final String DEFAULT_URL = "https://cj.lziapi.com/api.php/provide/vod/?";
 
     /**
-    * JSON 解析器。
-    */
+     * JSON 解析器。
+     */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
-    * HTTP 客户端（复用，重定向跟随）。
-    */
+     * HTTP 客户端（复用，重定向跟随）。
+     */
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
     /**
-    * 请求超时时间，单位秒。
-    */
+     * 请求超时时间，单位秒。
+     */
     private static final int TIMEOUT_SECONDS = 20;
 
     /**
@@ -83,9 +83,9 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 获取资源站接口地址（支持 VideoSource 注入覆盖）。
-    * @return 接口地址
-    */
+     * 获取资源站接口地址（支持 VideoSource 注入覆盖）。
+     * @return 接口地址
+     */
     protected String getUrl() {
         if (videoSource != null && StringUtils.hasText(videoSource.getVideoSourceUrl())) {
             return videoSource.getVideoSourceUrl();
@@ -170,11 +170,11 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 从 vod_play_url 提取第一个播放地址。
-    * 格式："第01集$https://...m3u8#第02集$https://..."
-    * @param playUrl 原始播放串
-    * @return 第一个地址，无则空串
-    */
+     * 从 vod_play_url 提取第一个播放地址。
+     * 格式："第01集$https://...m3u8#第02集$https://..."
+     * @param playUrl 原始播放串
+     * @return 第一个地址，无则空串
+     */
     private String extractFirstUrl(String playUrl) {
         if (!StringUtils.hasText(playUrl)) {
             return "";
@@ -189,10 +189,10 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 分类名映射为标准 videoCategory。
-    * @param typeName 资源站原始分类
-    * @return 标准分类（movie/tv/anime/variety/documentary）
-    */
+     * 分类名映射为标准 videoCategory。
+     * @param typeName 资源站原始分类
+     * @return 标准分类（movie/tv/anime/variety/documentary）
+     */
     private String mapCategory(String typeName) {
         if (!StringUtils.hasText(typeName)) {
             return "movie";
@@ -213,10 +213,10 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 解析年份文本为 Integer。
-    * @param text 年份文本
-    * @return 年份，解析失败返回 null
-    */
+     * 解析年份文本为 Integer。
+     * @param text 年份文本
+     * @return 年份，解析失败返回 null
+     */
     private Integer parseYear(String text) {
         if (!StringUtils.hasText(text)) {
             return null;
@@ -233,10 +233,10 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 解析评分文本为 BigDecimal。
-    * @param text 评分文本
-    * @return 评分，解析失败返回 null
-    */
+     * 解析评分文本为 BigDecimal。
+     * @param text 评分文本
+     * @return 评分，解析失败返回 null
+     */
     private java.math.BigDecimal parseScore(String text) {
         if (!StringUtils.hasText(text)) {
             return null;
@@ -249,10 +249,10 @@ public class MacCmsResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 解析资源站时间戳（秒）为 LocalDateTime。
-    * @param text 时间戳文本
-    * @return 时间，解析失败返回 null
-    */
+     * 解析资源站时间戳（秒）为 LocalDateTime。
+     * @param text 时间戳文本
+     * @return 时间，解析失败返回 null
+     */
     private LocalDateTime parseTime(String text) {
         if (!StringUtils.hasText(text)) {
             return null;

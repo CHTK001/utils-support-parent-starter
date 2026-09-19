@@ -12,37 +12,37 @@ package com.chua.common.support.spi.definition;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class SpiOption {
 
     /**
-    * 选项名称
-    */
+     * 选项名称
+     */
     private String name;
 
     /**
-    * 选项描述
-    */
+     * 选项描述
+     */
     private String describe;
 
     /**
-    * 选项支持的类型列表
-    */
+     * 选项支持的类型列表
+     */
     private String[] supportedTypes;
 
     /**
-    * 默认构造方法。
-    */
+     * 默认构造方法。
+     */
     public SpiOption() {
     }
 
     /**
-    * 全参构造方法。
-    *
-    * @param name           选项名称
-    * @param describe       选项描述
-    * @param supportedTypes 选项支持的类型列表
-    */
+     * 全参构造方法。
+     *
+     * @param name           选项名称
+     * @param describe       选项描述
+     * @param supportedTypes 选项支持的类型列表
+     */
     public SpiOption(String name, String describe, String[] supportedTypes) {
         this.name = name;
         this.describe = describe;
@@ -50,94 +50,94 @@ public class SpiOption {
     }
 
     /**
-    * 工厂方法，快速创建 spi期权 实例。
-    *
-    * @param name           选项名称
-    * @param describe       选项描述
-    * @param supportedTypes 选项支持的类型列表
-    * @return SpiOption 实例
-    */
+     * 工厂方法，快速创建 spi期权 实例。
+     *
+     * @param name           选项名称
+     * @param describe       选项描述
+     * @param supportedTypes 选项支持的类型列表
+     * @return SpiOption 实例
+     */
     public static SpiOption of(String name, String describe, String[] supportedTypes) {
         return new SpiOption(name, describe, supportedTypes);
     }
 
     /**
-    * 获取选项名称（链式风格）。
-    *
-    * @return 选项名称
-    */
+     * 获取选项名称（链式风格）。
+     *
+     * @return 选项名称
+     */
     public String name() {
         return name;
     }
 
     /**
-    * 获取选项名称。
-    *
-    * @return 选项名称
-    */
+     * 获取选项名称。
+     *
+     * @return 选项名称
+     */
     public String getName() {
         return name;
     }
 
     /**
-    * 设置选项名称。
-    *
-    * @param name 选项名称
-    */
+     * 设置选项名称。
+     *
+     * @param name 选项名称
+     */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-    * 获取选项描述（链式风格）。
-    *
-    * @return 选项描述
-    */
+     * 获取选项描述（链式风格）。
+     *
+     * @return 选项描述
+     */
     public String describe() {
         return describe;
     }
 
     /**
-    * 获取选项描述。
-    *
-    * @return 选项描述
-    */
+     * 获取选项描述。
+     *
+     * @return 选项描述
+     */
     public String getDescribe() {
         return describe;
     }
 
     /**
-    * 设置选项描述。
-    *
-    * @param describe 选项描述
-    */
+     * 设置选项描述。
+     *
+     * @param describe 选项描述
+     */
     public void setDescribe(String describe) {
         this.describe = describe;
     }
 
     /**
-    * 获取选项支持的类型列表（链式风格）。
-    *
-    * @return 选项支持的类型列表
-    */
+     * 获取选项支持的类型列表（链式风格）。
+     *
+     * @return 选项支持的类型列表
+     */
     public String[] supportedTypes() {
         return supportedTypes;
     }
 
     /**
-    * 获取选项支持的类型列表。
-    *
-    * @return 选项支持的类型列表
-    */
+     * 获取选项支持的类型列表。
+     *
+     * @return 选项支持的类型列表
+     */
     public String[] getSupportedTypes() {
         return supportedTypes;
     }
 
     /**
-    * 设置选项支持的类型列表。
-    *
-    * @param supportedTypes 选项支持的类型列表
-    */
+     * 设置选项支持的类型列表。
+     *
+     * @param supportedTypes 选项支持的类型列表
+     */
     public void setSupportedTypes(String[] supportedTypes) {
         this.supportedTypes = supportedTypes;
     }

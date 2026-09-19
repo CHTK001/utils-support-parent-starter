@@ -10,25 +10,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
-* 流程编排自动配置。
-*
-* <p>当类路径存在 Spring Web 时自动注册流程编排组件：
-* 流程定义存储、实例注册中心与 REST 控制器。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 流程编排自动配置。
+ *
+ * <p>当类路径存在 Spring Web 时自动注册流程编排组件：
+ * 流程定义存储、实例注册中心与 REST 控制器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Configuration
 @ConditionalOnClass(RestController.class)
 public class FlowAutoConfiguration {
 
     /**
-    * 注册流程定义存储。
-    *
-    * <p>默认使用内存实现，可通过自定义 {@link FlowDefinitionStore} Bean 覆盖。</p>
-    *
-    * @return 流程定义存储
-    */
+     * 注册流程定义存储。
+     *
+     * <p>默认使用内存实现，可通过自定义 {@link FlowDefinitionStore} Bean 覆盖。</p>
+     *
+     * @return 流程定义存储
+     */
     @Bean
     @ConditionalOnMissingBean
     public FlowDefinitionStore flowDefinitionStore() {
@@ -36,10 +36,10 @@ public class FlowAutoConfiguration {
     }
 
     /**
-    * 注册流程实例注册中心。
-    *
-    * @return 流程实例注册中心
-    */
+     * 注册流程实例注册中心。
+     *
+     * @return 流程实例注册中心
+     */
     @Bean
     @ConditionalOnMissingBean
     public FlowInstanceRegistry flowInstanceRegistry() {
@@ -47,12 +47,12 @@ public class FlowAutoConfiguration {
     }
 
     /**
-    * 注册流程 REST 控制器。
-    *
-    * @param definitionStore  流程定义存储
-    * @param instanceRegistry 流程实例注册中心
-    * @return 流程控制器
-    */
+     * 注册流程 REST 控制器。
+     *
+     * @param definitionStore  流程定义存储
+     * @param instanceRegistry 流程实例注册中心
+     * @return 流程控制器
+     */
     @Bean
     @ConditionalOnMissingBean
     public FlowController flowController(FlowDefinitionStore definitionStore,

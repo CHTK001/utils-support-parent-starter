@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* pip 软件包管理器提供器。
-*
-* <p>通过 pip CLI 搜索、安装和卸载 Python 软件包。
-* 支持 <code>pip 搜索</code>（已废弃，使用 pip install 试探）、
-* <code>pip install</code>、<code>pip uninstall</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * pip 软件包管理器提供器。
+ *
+ * <p>通过 pip CLI 搜索、安装和卸载 Python 软件包。
+ * 支持 <code>pip 搜索</code>（已废弃，使用 pip install 试探）、
+ * <code>pip install</code>、<code>pip uninstall</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("pip")
 public class PipSoftwareProvider implements SoftwareProvider {

@@ -17,7 +17,7 @@ import java.util.Objects;
  * @param <V> 值类型
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class TreeNode<K, V> {
 
     /** 键，可为 空（空节点占位） */
@@ -29,13 +29,13 @@ public class TreeNode<K, V> {
     /** 右兄弟节点或右斜链的下一个节点 */
     TreeNode<K, V> right;
     /**
-    * 子节点列表，用于 B+ 树内部节点的多叉表示
-    */
+     * 子节点列表，用于 B+ 树内部节点的多叉表示
+     */
     List<TreeNode<K, V>> children;
 
     /**
-    * 树节点。
-    */
+     * 树节点。
+     */
     public TreeNode() {
         this.children = new ArrayList<>();
     }

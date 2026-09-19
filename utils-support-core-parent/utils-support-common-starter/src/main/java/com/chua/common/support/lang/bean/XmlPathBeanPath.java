@@ -5,14 +5,14 @@ import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
-* 基于 {@link XmlPath} 的 BeanPath 实现，将 XML 字符串视为数据源。
-*
-* <p>当目标对象为 XML 字符串时，使用 XPath 表达式进行查询。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see XmlPath
-* @see BeanPath
+ * 基于 {@link XmlPath} 的 BeanPath 实现，将 XML 字符串视为数据源。
+ *
+ * <p>当目标对象为 XML 字符串时，使用 XPath 表达式进行查询。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see XmlPath
+ * @see BeanPath
  */
 @Spi("xml")
 @ConditionalOnClass("javax.xml.xpath.XPathFactory")

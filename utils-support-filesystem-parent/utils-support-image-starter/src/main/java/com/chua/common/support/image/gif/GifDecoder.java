@@ -12,59 +12,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* GIF 图像解码器。
-* <p>
-* 用于对 GIF 格式的图像流进行解码，支持：
-* <ul>
-*     <li>逐帧读取动画的每一帧画面；</li>
-*     <li>提取每一帧的播放延迟时间（单位：百分之一秒）；</li>
-*     <li>解析 Netscape 扩展中的循环播放次数。</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * GIF 图像解码器。
+ * <p>
+ * 用于对 GIF 格式的图像流进行解码，支持：
+ * <ul>
+ *     <li>逐帧读取动画的每一帧画面；</li>
+ *     <li>提取每一帧的播放延迟时间（单位：百分之一秒）；</li>
+ *     <li>解析 Netscape 扩展中的循环播放次数。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class GifDecoder {
 
     /**
-    * 已解码的帧画面列表。
-    */
+     * 已解码的帧画面列表。
+     */
     protected List<BufferedImage> frames = new ArrayList<>();
 
     /**
-    * 每一帧对应的延迟时间列表，单位为百分之一秒，默认 10（即 100 毫秒）。
-    */
+     * 每一帧对应的延迟时间列表，单位为百分之一秒，默认 10（即 100 毫秒）。
+     */
     protected List<Integer> delays = new ArrayList<>();
 
     /**
-    * 循环播放次数，0 表示无限循环。
-    */
+     * 循环播放次数，0 表示无限循环。
+     */
     protected int loopCount = 0;
 
     /**
-    * 整个 GIF 图像的最大宽度。
-    */
+     * 整个 GIF 图像的最大宽度。
+     */
     protected int width = 0;
 
     /**
-    * 整个 GIF 图像的最大高度。
-    */
+     * 整个 GIF 图像的最大高度。
+     */
     protected int height = 0;
 
     /**
-    * 标记是否已成功完成读取。
-    */
+     * 标记是否已成功完成读取。
+     */
     protected boolean read = false;
 
     /**
-    * 从输入流中读取并解析 GIF 图像。
-    * <p>
-    * 解析完成后可通过 {@link #getFrame(int)}、{@link #getDelay(int)} 等方法获取帧画面与延迟信息。
-    * </p>
-    *
-    * @param is 待读取的 GIF 输入流，不能为空
-    * @throws IOException 当输入流读取失败时抛出
-    */
+     * 从输入流中读取并解析 GIF 图像。
+     * <p>
+     * 解析完成后可通过 {@link #getFrame(int)}、{@link #getDelay(int)} 等方法获取帧画面与延迟信息。
+     * </p>
+     *
+     * @param is 待读取的 GIF 输入流，不能为空
+     * @throws IOException 当输入流读取失败时抛出
+     */
     public void read(InputStream is) throws IOException {
         try (ImageInputStream iis = ImageIO.createImageInputStream(is)) {
             if (iis == null) {
@@ -91,11 +91,11 @@ public class GifDecoder {
     }
 
     /**
-    * 读取并解析指定索引的单帧画面，同时记录该帧的延迟时间。
-    *
-    * @param reader     图像读取器
-    * @param frameIndex 帧索引，从 0 开始
-    */
+     * 读取并解析指定索引的单帧画面，同时记录该帧的延迟时间。
+     *
+     * @param reader     图像读取器
+     * @param frameIndex 帧索引，从 0 开始
+     */
     private void readFrame(ImageReader reader, int frameIndex) throws IOException {
         BufferedImage frame = reader.read(frameIndex);
         frames.add(frame);
@@ -107,15 +107,15 @@ public class GifDecoder {
     }
 
     /**
-    * 提取指定帧的延迟时间（百分之一秒）。
-    * <p>
-    * 当元数据缺失或解析失败时，默认返回 10（即 100 毫秒）。
-    * </p>
-    *
-    * @param reader     图像读取器
-    * @param frameIndex 帧索引
-    * @return 延迟时间，单位为百分之一秒
-    */
+     * 提取指定帧的延迟时间（百分之一秒）。
+     * <p>
+     * 当元数据缺失或解析失败时，默认返回 10（即 100 毫秒）。
+     * </p>
+     *
+     * @param reader     图像读取器
+     * @param frameIndex 帧索引
+     * @return 延迟时间，单位为百分之一秒
+     */
     private int readFrameDelay(ImageReader reader, int frameIndex) {
         try {
             var metadata = reader.getImageMetadata(frameIndex);
@@ -155,14 +155,14 @@ public class GifDecoder {
     }
 
     /**
-    * 从 GIF 全局元数据中解析循环播放次数。
-    * <p>
-    * 循环次数来源于 Netscape 扩展（NETSCAPE2.0）中 application延伸 节点的 数据 字段，
-    * 字节序列为 {@code [0x01, low, high]}，其中第 3 个字节表示循环次数。
-    * </p>
-    *
-    * @param reader 图像读取器
-    */
+     * 从 GIF 全局元数据中解析循环播放次数。
+     * <p>
+     * 循环次数来源于 Netscape 扩展（NETSCAPE2.0）中 application延伸 节点的 数据 字段，
+     * 字节序列为 {@code [0x01, low, high]}，其中第 3 个字节表示循环次数。
+     * </p>
+     *
+     * @param reader 图像读取器
+     */
     private void readLoopCount(ImageReader reader) {
         try {
             Object node = reader.getImageMetadata(0).getAsTree("javax_imageio_gif_image_1.0");
@@ -199,12 +199,12 @@ public class GifDecoder {
     }
 
     /**
-    * 在元数据树中递归查找指定节点名称的节点。
-    *
-    * @param node     当前遍历节点
-    * @param nodeName 目标节点名称
-    * @return 匹配到的节点，未找到时返回 空
-    */
+     * 在元数据树中递归查找指定节点名称的节点。
+     *
+     * @param node     当前遍历节点
+     * @param nodeName 目标节点名称
+     * @return 匹配到的节点，未找到时返回 空
+     */
     private IIOMetadataNode findNodeByName(IIOMetadataNode node, String nodeName) {
         if (nodeName.equals(node.getNodeName())) {
             return node;
@@ -225,11 +225,11 @@ public class GifDecoder {
     }
 
     /**
-    * 将十六进制字符串转换为字节数组。
-    *
-    * @param hex 十六进制字符串
-    * @return 转换后的字节数组
-    */
+     * 将十六进制字符串转换为字节数组。
+     *
+     * @param hex 十六进制字符串
+     * @return 转换后的字节数组
+     */
     private byte[] hexStringToBytes(String hex) {
         int len = hex.length();
         byte[] data = new byte[len / 2];
@@ -241,20 +241,20 @@ public class GifDecoder {
     }
 
     /**
-    * 获取 GIF 总帧数。
-    *
-    * @return 帧数
-    */
+     * 获取 GIF 总帧数。
+     *
+     * @return 帧数
+     */
     public int getFrameCount() {
         return frames.size();
     }
 
     /**
-    * 根据索引获取指定帧画面。
-    *
-    * @param index 帧索引，越界时返回 空
-    * @return 帧画面，越界时返回 空
-    */
+     * 根据索引获取指定帧画面。
+     *
+     * @param index 帧索引，越界时返回 空
+     * @return 帧画面，越界时返回 空
+     */
     public BufferedImage getFrame(int index) {
         if (index < 0 || index >= frames.size()) {
             return null;
@@ -263,20 +263,20 @@ public class GifDecoder {
     }
 
     /**
-    * 获取循环播放次数。
-    *
-    * @return 循环次数，0 表示无限循环
-    */
+     * 获取循环播放次数。
+     *
+     * @return 循环次数，0 表示无限循环
+     */
     public int getLoopCount() {
         return loopCount;
     }
 
     /**
-    * 根据索引获取指定帧的延迟时间。
-    *
-    * @param index 帧索引，越界时返回 10（100 毫秒）
-    * @return 延迟时间，单位为百分之一秒
-    */
+     * 根据索引获取指定帧的延迟时间。
+     *
+     * @param index 帧索引，越界时返回 10（100 毫秒）
+     * @return 延迟时间，单位为百分之一秒
+     */
     public int getDelay(int index) {
         if (index < 0 || index >= delays.size()) {
             return 10;
@@ -285,19 +285,19 @@ public class GifDecoder {
     }
 
     /**
-    * 获取 GIF 宽度。
-    *
-    * @return 宽度
-    */
+     * 获取 GIF 宽度。
+     *
+     * @return 宽度
+     */
     public int getWidth() {
         return width;
     }
 
     /**
-    * 获取 GIF 高度。
-    *
-    * @return 高度
-    */
+     * 获取 GIF 高度。
+     *
+     * @return 高度
+     */
     public int getHeight() {
         return height;
     }

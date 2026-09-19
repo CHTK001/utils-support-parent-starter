@@ -1,10 +1,10 @@
 package com.chua.protocol.support.network.net;
 
 /**
-* 用户-Agent 解析值对象。
-*
-* @author CH
-* @since 4.0.0.42
+ * 用户-Agent 解析值对象。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class UserAgent {
 
@@ -20,56 +20,56 @@ public class UserAgent {
     }
 
     /**
-    * 构造 用户-Agent。
-    *
-    * @param raw 原始字符串
-    */
+     * 构造 用户-Agent。
+     *
+     * @param raw 原始字符串
+     */
     public UserAgent(String raw) {
         this.raw = raw;
     }
 
     /**
-    * 获取原始字符串
-    *
-    * @return 获取raw的结果
-    */
+     * 获取原始字符串
+     *
+     * @return 获取raw的结果
+     */
     public String getRaw() {
         return raw;
     }
 
     /**
-    * 设置原始字符串
-    *
-    * @param raw raw
-    */
+     * 设置原始字符串
+     *
+     * @param raw raw
+     */
     public void setRaw(String raw) {
         this.raw = raw;
     }
 
     /**
-    * 获取浏览器名称
-    *
-    * @return 获取browser的结果
-    */
+     * 获取浏览器名称
+     *
+     * @return 获取browser的结果
+     */
     public String getBrowser() {
         return browser;
     }
 
     /**
-    * 获取操作系统名称
-    *
-    * @return 获取operating系统的结果
-    */
+     * 获取操作系统名称
+     *
+     * @return 获取operating系统的结果
+     */
     public String getOperatingSystem() {
         return operatingSystem;
     }
 
     /**
-    * 从原始字符串解析 用户-Agent。
-    *
-    * @param uaString 用户-Agent 原始字符串
-    * @return 解析后的 用户Agent 实例
-    */
+     * 从原始字符串解析 用户-Agent。
+     *
+     * @param uaString 用户-Agent 原始字符串
+     * @return 解析后的 用户Agent 实例
+     */
     public static UserAgent parseUserAgentString(String uaString) {
         UserAgent ua = new UserAgent(uaString);
         if (uaString == null || uaString.isBlank()) {

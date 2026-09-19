@@ -10,43 +10,43 @@ import java.util.stream.Collectors;
 
 
 /**
-* INI 文件解析工具类
-* <p>
-* 提供通用的 INI 格式文件解析功能
-* 支持 Section 和 key=value 对的解析
-* 支持注释处理（;和#）
-*
-* @author CH
-* @版本 1.0.0
-* @since 4.0.0.42
+ * INI 文件解析工具类
+ * <p>
+ * 提供通用的 INI 格式文件解析功能
+ * 支持 Section 和 key=value 对的解析
+ * 支持注释处理（;和#）
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 4.0.0.42
  */
 @Slf4j
 public class IniParser {
 
     /**
-    * 私有构造方法，防止实例化
-    */
+     * 私有构造方法，防止实例化
+     */
     private IniParser() {
     }
 
     /**
-    * 从输入流中解析 INI 内容
-    *
-    * @param inputStream INI 输入流
-    * @return 解析后的属性映射
-    * @throws IOException IO 异常
-    */
+     * 从输入流中解析 INI 内容
+     *
+     * @param inputStream INI 输入流
+     * @return 解析后的属性映射
+     * @throws IOException IO 异常
+     */
     public static Properties parseInputStream(InputStream inputStream) throws IOException {
         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         return parseContent(content);
     }
 
     /**
-    * 解析 INI 内容字符串
-    *
-    * @param content INI 内容
-    * @return 解析后的属性映射
-    */
+     * 解析 INI 内容字符串
+     *
+     * @param content INI 内容
+     * @return 解析后的属性映射
+     */
     public static Properties parseContent(String content) {
         Properties properties = new Properties();
         parseToMap(content, properties, "");
@@ -54,11 +54,11 @@ public class IniParser {
     }
 
     /**
-    * 解析 INI 内容为嵌套 映射 结构
-    *
-    * @param content INI 内容
-    * @return 解析后的 映射（Section -> 属性映射）
-    */
+     * 解析 INI 内容为嵌套 映射 结构
+     *
+     * @param content INI 内容
+     * @return 解析后的 映射（Section -> 属性映射）
+     */
     public static Map<String, Map<String, String>> parseToNestedMap(String content) {
         Map<String, Map<String, String>> result = new LinkedHashMap<>();
         String[] lines = content.split("\n");
@@ -96,12 +96,12 @@ public class IniParser {
     }
 
     /**
-    * 解析 INI 内容为列表格式
-    * 每个 Section 作为一个 映射 项
-    *
-    * @param content INI 内容
-    * @return Section 列表
-    */
+     * 解析 INI 内容为列表格式
+     * 每个 Section 作为一个 映射 项
+     *
+     * @param content INI 内容
+     * @return Section 列表
+     */
     public static List<Map<String, String>> parseToList(String content) {
         List<Map<String, String>> result = new ArrayList<>();
         Map<String, Map<String, String>> nestedMap = parseToNestedMap(content);
@@ -116,22 +116,22 @@ public class IniParser {
     }
 
     /**
-    * 检查行是否为注释
-    *
-    * @param line 行内容
-    * @return 是否为注释
-    */
+     * 检查行是否为注释
+     *
+     * @param line 行内容
+     * @return 是否为注释
+     */
     private static boolean isComment(String line) {
         return line.startsWith(";") || line.startsWith("#");
     }
 
     /**
-    * 解析内容到 属性 对象，支持 Section 前缀
-    *
-    * @param content    INI 内容
-    * @param properties 属性 对象
-    * @param prefix     前缀
-    */
+     * 解析内容到 属性 对象，支持 Section 前缀
+     *
+     * @param content    INI 内容
+     * @param properties 属性 对象
+     * @param prefix     前缀
+     */
     private static void parseToMap(String content, Properties properties, String prefix) {
         String[] lines = content.split("\n");
         String currentSection = "";
@@ -177,11 +177,11 @@ public class IniParser {
     }
 
     /**
-    * 获取 INI 的所有 Section 名称
-    *
-    * @param content INI 内容
-    * @return Section 名称集合
-    */
+     * 获取 INI 的所有 Section 名称
+     *
+     * @param content INI 内容
+     * @return Section 名称集合
+     */
     public static Set<String> getSections(String content) {
         Set<String> sections = new LinkedHashSet<>();
         String[] lines = content.split("\n");
@@ -200,11 +200,11 @@ public class IniParser {
     }
 
     /**
-    * 从 属性 对象转换回 INI 格式字符串
-    *
-    * @param properties 属性 对象
-    * @return INI 格式字符串
-    */
+     * 从 属性 对象转换回 INI 格式字符串
+     *
+     * @param properties 属性 对象
+     * @return INI 格式字符串
+     */
     public static String propertiesToIni(Properties properties) {
         StringBuilder sb = new StringBuilder();
         Map<String, Map<String, String>> sections = new LinkedHashMap<>();

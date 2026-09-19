@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Spark 处理器 — intercepts Spark 数据集/数据帧 Actions.
-*
-* @author CH
-* @since 4.0.0.42
+ * Spark 处理器 — intercepts Spark 数据集/数据帧 Actions.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SparkHandler extends AbstractAppHandler {
 
     /**
-    * 数据集
+     * 数据集
      */
     private static final String DATASET = "org/apache/spark/sql/Dataset";
     /**
-    * 动作 方法
+     * 动作 方法
      */
     private static final String[] ACTION_METHODS = {"collect", "show", "count", "head", "first", "take", "foreach", "write"};
 

@@ -15,24 +15,24 @@ import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 
 /**
-* APNG（Animated PNG）编码器：将多帧图像合成为 APNG 文件。
-*
-* <p>对齐 {@code GifEncoder} 的调用风格：
-* <pre>{@code
-* ApngEncoder encoder = new ApngEncoder(outputStream);
-* encoder.setLoopCount(0);                    // 无限循环
-* encoder.addFrame(frame1, 100);              // 每帧 100ms
-* encoder.addFrame(frame2, 100);
-* encoder.finish();
-* }</pre>er.addFrame(frame2, 100);
-* encoder.finish();
-* }</pre>
-*
-* <p>输出格式：8-bit RGBA（颜色类型 6），首帧数据写入 IDAT，后续帧写入 fdAT，
-* 帧控制信息写入 fcTL（整帧绘制：x/y=0，dispose=无，blend=源）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * APNG（Animated PNG）编码器：将多帧图像合成为 APNG 文件。
+ *
+ * <p>对齐 {@code GifEncoder} 的调用风格：
+ * <pre>{@code
+ * ApngEncoder encoder = new ApngEncoder(outputStream);
+ * encoder.setLoopCount(0);                    // 无限循环
+ * encoder.addFrame(frame1, 100);              // 每帧 100ms
+ * encoder.addFrame(frame2, 100);
+ * encoder.finish();
+ * }</pre>er.addFrame(frame2, 100);
+ * encoder.finish();
+ * }</pre>
+ *
+ * <p>输出格式：8-bit RGBA（颜色类型 6），首帧数据写入 IDAT，后续帧写入 fdAT，
+ * 帧控制信息写入 fcTL（整帧绘制：x/y=0，dispose=无，blend=源）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ApngEncoder {
 
@@ -60,22 +60,22 @@ public class ApngEncoder {
     }
 
     /**
-    * 创建编码器并绑定输出流。
-    *
-    * @param output 输出流
-    * @throws IOException IO 异常
-    */
+     * 创建编码器并绑定输出流。
+     *
+     * @param output 输出流
+     * @throws IOException IO 异常
+     */
     public ApngEncoder(@Nonnull OutputStream output) throws IOException {
         this.out = new DataOutputStream(output);
     }
 
     /**
-    * 绑定输出流（未使用构造器绑定时调用）。
-    *
-    * @param output 输出流
-    * @return this
-    * @throws IOException IO 异常
-    */
+     * 绑定输出流（未使用构造器绑定时调用）。
+     *
+     * @param output 输出流
+     * @return this
+     * @throws IOException IO 异常
+     */
     @Nonnull
     public ApngEncoder start(@Nonnull OutputStream output) throws IOException {
         this.out = new DataOutputStream(output);
@@ -83,12 +83,12 @@ public class ApngEncoder {
     }
 
     /**
-    * 添加一帧。
-    *
-    * @param frame       帧图像（RGBA）
-    * @param delayMillis 帧延迟（毫秒），负值按 0 处理
-    * @return this
-    */
+     * 添加一帧。
+     *
+     * @param frame       帧图像（RGBA）
+     * @param delayMillis 帧延迟（毫秒），负值按 0 处理
+     * @return this
+     */
     @Nonnull
     public ApngEncoder addFrame(@Nonnull BufferedImage frame, int delayMillis) {
         frames.add(frame);
@@ -97,11 +97,11 @@ public class ApngEncoder {
     }
 
     /**
-    * 设置循环次数。
-    *
-    * @param loopCount 循环次数，0 表示无限循环
-    * @return this
-    */
+     * 设置循环次数。
+     *
+     * @param loopCount 循环次数，0 表示无限循环
+     * @return this
+     */
     @Nonnull
     public ApngEncoder setLoopCount(int loopCount) {
         this.loopCount = Math.max(0, loopCount);
@@ -109,10 +109,10 @@ public class ApngEncoder {
     }
 
     /**
-    * 完成编码：写出全部 APNG 块并刷新输出流。
-    *
-    * @throws IOException IO 异常
-    */
+     * 完成编码：写出全部 APNG 块并刷新输出流。
+     *
+     * @throws IOException IO 异常
+     */
     public void finish() throws IOException {
         if (out == null) {
             throw new IOException("未绑定输出流，请使用构造器或 start(OutputStream)");
@@ -161,10 +161,10 @@ public class ApngEncoder {
     // ==================== 块写入 ====================
 
     /**
-    * 写入 IHDR 块：8 位 RGBA（颜色类型 6），无隔行。
-    * @param width width
-    * @param height height
-    */
+     * 写入 IHDR 块：8 位 RGBA（颜色类型 6），无隔行。
+     * @param width width
+     * @param height height
+     */
     private void writeIHDR(int width, int height) throws IOException {
         byte[] ihdr = new byte[13];
         putIntBE(ihdr, 0, width);
@@ -178,14 +178,14 @@ public class ApngEncoder {
     }
 
     /**
-    * 构建 fcTL 块数据（30 字节）：sequence(4) + width/height/x/y/延迟(20) + dispose/blend(2)。
-    * 整帧绘制（x/y=0），dispose=无，blend=源。
-    * @param sequence sequence
-    * @param width width
-    * @param height height
-    * @param delayMillis 延迟millis
-    * @return 构建 fcTL 的结果
-    */
+     * 构建 fcTL 块数据（30 字节）：sequence(4) + width/height/x/y/延迟(20) + dispose/blend(2)。
+     * 整帧绘制（x/y=0），dispose=无，blend=源。
+     * @param sequence sequence
+     * @param width width
+     * @param height height
+     * @param delayMillis 延迟millis
+     * @return 构建 fcTL 的结果
+     */
     private static byte[] buildFcTL(int sequence, int width, int height, int delayMillis) {
         byte[] fcTL = new byte[30];
         putIntBE(fcTL, 0, sequence);
@@ -202,10 +202,10 @@ public class ApngEncoder {
     }
 
     /**
-    * 写入一个 PNG 块：长度 + 类型 + 数据 + CRC。
-    * @param type 类型
-    * @param data 数据
-    */
+     * 写入一个 PNG 块：长度 + 类型 + 数据 + CRC。
+     * @param type 类型
+     * @param data 数据
+     */
     private void writeChunk(String type, byte[] data) throws IOException {
         out.writeInt(data.length);
         byte[] typeBytes = type.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
@@ -219,12 +219,12 @@ public class ApngEncoder {
     }
 
     /**
-    * 压缩一帧为 PNG 扫描线数据：每行 过滤器=0 + RGBA 像素，zlib 压缩。
-    * @param frame 帧
-    * @param canvasW Canvasw
-    * @param canvasH Canvash
-    * @return compress帧的结果
-    */
+     * 压缩一帧为 PNG 扫描线数据：每行 过滤器=0 + RGBA 像素，zlib 压缩。
+     * @param frame 帧
+     * @param canvasW Canvasw
+     * @param canvasH Canvash
+     * @return compress帧的结果
+     */
     private static byte[] compressFrame(BufferedImage frame, int canvasW, int canvasH) throws IOException {
         int w = frame.getWidth();
         int h = frame.getHeight();

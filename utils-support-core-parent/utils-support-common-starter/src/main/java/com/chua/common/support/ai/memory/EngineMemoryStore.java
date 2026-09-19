@@ -14,28 +14,28 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
-* 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
-* <p>
-* 通过 {@link Engine#store(String, List)} / {@link Engine#query(Class)} 解耦。
-* 主副本在本类列表；同步写入 Engine 表名 {@link #TABLE}（与实体类名驼峰转下划线一致）。
-* 换模型时用 sessionId 读写，与具体 ChatClient 无关。
-* </p>
-*
-* <pre>{@code
-* MemoryManager mm = MemoryManager.ofEngine(engine);
-* mm.saveFromConversation(dialog, sessionId, "chat");
-* List&lt;MemoryEntry&gt; ctx = mm.listBySession(sessionId);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 {@link Engine} 接口的记忆存储（无反射、不依赖 datasource 实现包）。
+ * <p>
+ * 通过 {@link Engine#store(String, List)} / {@link Engine#query(Class)} 解耦。
+ * 主副本在本类列表；同步写入 Engine 表名 {@link #TABLE}（与实体类名驼峰转下划线一致）。
+ * 换模型时用 sessionId 读写，与具体 ChatClient 无关。
+ * </p>
+ *
+ * <pre>{@code
+ * MemoryManager mm = MemoryManager.ofEngine(engine);
+ * mm.saveFromConversation(dialog, sessionId, "chat");
+ * List&lt;MemoryEntry&gt; ctx = mm.listBySession(sessionId);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class EngineMemoryStore implements MemoryStore {
 
     /**
-    * 与 {@link MemoryEntryEntity} 简单类名驼峰转下划线一致，供 Engine 表定位。
-    */
+     * 与 {@link MemoryEntryEntity} 简单类名驼峰转下划线一致，供 Engine 表定位。
+     */
     public static final String TABLE = "memory_entry_entity";
 
     /** 引擎实例 */

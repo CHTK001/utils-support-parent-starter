@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
-* 公共故障转移模板 — 包装任意 {@link RouterStrategy}，自动处理重试和用量记录。
-*
-* <p>所有扁平策略（failover / round_robin / weighted / cost）共享此模板，
-* 无需各自实现 try-catch 循环。
-*
-* @author CH
-* @since 4.0.0.42
+ * 公共故障转移模板 — 包装任意 {@link RouterStrategy}，自动处理重试和用量记录。
+ *
+ * <p>所有扁平策略（failover / round_robin / weighted / cost）共享此模板，
+ * 无需各自实现 try-catch 循环。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public final class FailoverTemplate {
@@ -92,14 +92,14 @@ public final class FailoverTemplate {
     }
 
     /**
-    * 执行带故障转移的流式对话
-    *
-    * @param selector  客户端选择器
-    * @param clients   候选客户端列表
-    * @param prompt    用户输入
-    * @param consumer  流式响应回调
-    * @throws Exception 全部客户端失败时抛出
-    */
+     * 执行带故障转移的流式对话
+     *
+     * @param selector  客户端选择器
+     * @param clients   候选客户端列表
+     * @param prompt    用户输入
+     * @param consumer  流式响应回调
+     * @throws Exception 全部客户端失败时抛出
+     */
     public static void executeStream(
             RouterStrategy selector,
             List<RouterStrategy.WeightedClient> clients,

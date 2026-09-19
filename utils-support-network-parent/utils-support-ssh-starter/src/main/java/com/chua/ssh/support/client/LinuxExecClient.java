@@ -5,28 +5,28 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
-* Linux 命令执行客户端，兼容 服务端指标服务impl 调用方式
-*
-* @author CH
-* @since 4.0.0.42
+ * Linux 命令执行客户端，兼容 服务端指标服务impl 调用方式
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Getter
 @Setter
 public class LinuxExecClient implements AutoCloseable {
 
     /**
-    * 配置对象
-    */
+     * 配置对象
+     */
     private final ClientSetting setting;
     /**
-    * ssh 客户端
-    */
+     * ssh 客户端
+     */
     private SshClient sshClient;
 
     /**
-    * 创建 Linux执行客户端 实例
-    * @param setting setting
-    */
+     * 创建 Linux执行客户端 实例
+     * @param setting setting
+     */
     public LinuxExecClient(ClientSetting setting) {
         this.setting = setting;
     }
@@ -65,11 +65,11 @@ public class LinuxExecClient implements AutoCloseable {
     }
 
     /**
-    * 执行命令
-    *
-    * @param command 命令
-    * @return 执行命令的结果
-    */
+     * 执行命令
+     *
+     * @param command 命令
+     * @return 执行命令的结果
+     */
     public SshClient.ExecResult executeCommand(String command) {
         return executeCommand(command, 30_000);
     }

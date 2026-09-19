@@ -3,11 +3,11 @@ package com.chua.enhance.support.emoji;
 import java.util.regex.Pattern;
 
 /**
-* Emoji 抽象基类，提供 short编码 和 HTML 实体的正则模式以及 HTML 转换辅助方法。
-*
-* @author CH
-* @since 1.0.0
-*/
+ * Emoji 抽象基类，提供 short编码 和 HTML 实体的正则模式以及 HTML 转换辅助方法。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public abstract class AbstractEmoji {
 
     /** Short_编码_模式 */

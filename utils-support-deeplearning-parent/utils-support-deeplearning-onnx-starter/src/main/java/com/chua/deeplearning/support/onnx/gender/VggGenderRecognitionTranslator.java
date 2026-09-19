@@ -15,66 +15,66 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-* VGG-16              Translator       
-*
-*          https://github.com/onnx/models/tree/main/validated/vision/body_analysis/age_gender
-*
-*                                                                                                    
-*
-*              (vgg_ilsvrc_16_gender_imdb_wiki):
-* -       : [批量_大小=1, 通道=3, height=224, width=224] float32
-* -       : [批量_大小, 2] float32 (2                              )
-*
-*                   :
-* - 0: "Female"
-* - 1: "Male"
-*
-* @author CH
-* @版本 1.0.0
-* @since 2025/11/06
+ * VGG-16              Translator       
+ *
+ *          https://github.com/onnx/models/tree/main/validated/vision/body_analysis/age_gender
+ *
+ *                                                                                                    
+ *
+ *              (vgg_ilsvrc_16_gender_imdb_wiki):
+ * -       : [批量_大小=1, 通道=3, height=224, width=224] float32
+ * -       : [批量_大小, 2] float32 (2                              )
+ *
+ *                   :
+ * - 0: "Female"
+ * - 1: "Male"
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2025/11/06
  */
 @Slf4j
 public class VggGenderRecognitionTranslator implements Translator<Image, PredictResult> {
 
     /**
-    *                   
-    */
+     *                   
+     */
     private static final int IMAGE_SIZE = 224;
 
     /**
-    *                
-    */
+     *                
+     */
     private static final int CHANNELS = 3;
 
     /**
-    *             
-    */
+     *             
+     */
     private static final String[] GENDER_LABELS = {"Female", "Male"};
 
     /**
-    *                 -                
-    *
-    * @param ctx                   
-    */
+     *                 -                
+     *
+     * @param ctx                   
+     */
     @Override
     public void prepare(TranslatorContext ctx) {
         log.info("VggGenderRecognitionTranslator                ");
     }
 
     /**
-    * -     镜像                          ndarray
-    *
-    *             :
-    * 1.     镜像           ndarray
-    * 2.           224  224
-    * 3.           CHW       
-    * 4.           float32
-    * 5.                          127,           128   
-    *
-    * @param ctx                   
-    * @param input             
-    * @return NDList                   
-    */
+     * -     镜像                          ndarray
+     *
+     *             :
+     * 1.     镜像           ndarray
+     * 2.           224  224
+     * 3.           CHW       
+     * 4.           float32
+     * 5.                          127,           128   
+     *
+     * @param ctx                   
+     * @param input             
+     * @return NDList                   
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         try {
@@ -125,18 +125,18 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     }
 
     /**
-    * -                 nd列表
-    *
-    *             :
-    * 1.     nd列表
-    * 2.                      
-    * 3.                                  
-    * 4.                            
-    *
-    * @param ctx                   
-    * @param list                 nd列表
-    * @return                             "Male"   
-    */
+     * -                 nd列表
+     *
+     *             :
+     * 1.     nd列表
+     * 2.                      
+     * 3.                                  
+     * 4.                            
+     *
+     * @param ctx                   
+     * @param list                 nd列表
+     * @return                             "Male"   
+     */
     @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         try {
@@ -193,11 +193,11 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     }
 
     /**
-    *                                  
-    *
-    * @param array             
-    * @return                   
-    */
+     *                                  
+     *
+     * @param array             
+     * @return                   
+     */
     private int argMax(float[] array) {
         if (array.length == 0) {
             return -1;
@@ -217,10 +217,10 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     }
 
     /**
-    *        Batchifier
-    *
-    * @return Batchifier.STACK
-    */
+     *        Batchifier
+     *
+     * @return Batchifier.STACK
+     */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

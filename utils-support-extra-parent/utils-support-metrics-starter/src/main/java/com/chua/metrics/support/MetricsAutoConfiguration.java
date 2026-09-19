@@ -12,10 +12,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 指标 自动配置类。
-*
-* @author CH
-* @since 4.0.0.42
+ * 指标 自动配置类。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @AutoConfiguration
@@ -23,11 +23,11 @@ import java.util.concurrent.TimeUnit;
 public class MetricsAutoConfiguration {
 
     /**
-    * 创建 指标服务 实例。
-    *
-    * @param properties 配置属性
-    * @return MetricsService 实例
-    */
+     * 创建 指标服务 实例。
+     *
+     * @param properties 配置属性
+     * @return MetricsService 实例
+     */
     @Bean(destroyMethod = "close")
     public MetricsService metricsService(MetricsProperties properties) {
         if (!properties.isEnabled()) {

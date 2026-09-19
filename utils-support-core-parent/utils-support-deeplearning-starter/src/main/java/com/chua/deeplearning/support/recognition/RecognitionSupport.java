@@ -6,13 +6,13 @@ import com.chua.deeplearning.support.utils.ImageCropUtils;
 import java.util.List;
 
 /**
-* 识别管线公共工具。
-*
-* <p>提供检测结果 → {@link PredictRectangle} 列表的转换，以及按检测框裁剪图像等公共能力，
-* 供各识别管线复用。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 识别管线公共工具。
+ *
+ * <p>提供检测结果 → {@link PredictRectangle} 列表的转换，以及按检测框裁剪图像等公共能力，
+ * 供各识别管线复用。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 final class RecognitionSupport {
 
@@ -40,18 +40,18 @@ final class RecognitionSupport {
     }
 
     /**
-    * 将检测器输出转换为 {@link PredictRectangle} 列表。
-    *
-    * <p>支持以下输出形态：</p>
-    * <ul>
-    *   <li>{@code List<PredictRectangle>} 直接返回</li>
-    *   <li>DJL {@code DetectedObjects}（经 DjlModelTranslator 已适配为 List）</li>
-    *   <li>其它可迭代对象，尽力转换</li>
-    * </ul>
-    *
-    * @param boxes 检测器输出
-    * @return 矩形列表
-    */
+     * 将检测器输出转换为 {@link PredictRectangle} 列表。
+     *
+     * <p>支持以下输出形态：</p>
+     * <ul>
+     *   <li>{@code List<PredictRectangle>} 直接返回</li>
+     *   <li>DJL {@code DetectedObjects}（经 DjlModelTranslator 已适配为 List）</li>
+     *   <li>其它可迭代对象，尽力转换</li>
+     * </ul>
+     *
+     * @param boxes 检测器输出
+     * @return 矩形列表
+     */
     @SuppressWarnings("unchecked")
     static List<PredictRectangle> toRectangles(Object boxes) {
         if (boxes == null) {
@@ -66,12 +66,12 @@ final class RecognitionSupport {
     }
 
     /**
-    * 按检测框裁剪图像。
-    *
-    * @param imageData 原始图像
-    * @param rect      检测框
-    * @return 裁剪后图像
-    */
+     * 按检测框裁剪图像。
+     *
+     * @param imageData 原始图像
+     * @param rect      检测框
+     * @return 裁剪后图像
+     */
     static byte[] crop(byte[] imageData, PredictRectangle rect) {
         return ImageCropUtils.crop(imageData, rect);
     }

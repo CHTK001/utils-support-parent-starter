@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 解析 Spring MVC 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
-*
-* <p>从 {@link ObjectContext} 中查找 {@link Controller} 或 {@link RestController} Bean，
-* 解析方法级的 {@link RequestMapping}、{@link GetMapping}、{@link PostMapping}、
-* {@link PutMapping}、{@link DeleteMapping}、{@link PatchMapping} 注解并生成路由。</p>
-*
-* @author CH
-* @since 2024/12/20
+ * 解析 Spring MVC 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
+ *
+ * <p>从 {@link ObjectContext} 中查找 {@link Controller} 或 {@link RestController} Bean，
+ * 解析方法级的 {@link RequestMapping}、{@link GetMapping}、{@link PostMapping}、
+ * {@link PutMapping}、{@link DeleteMapping}、{@link PatchMapping} 注解并生成路由。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @Spi("spring")
 @ConditionalOnClass("org.springframework.web.bind.annotation.RequestMapping")
@@ -72,11 +72,11 @@ public class SpringServerHandlerAnnotationParser
     }
 
     /**
-    * 解析控制器类中所有方法级映射注解。
-    *
-    * @param bean   Bean 实例
-    * @param result 处理器列表
-    */
+     * 解析控制器类中所有方法级映射注解。
+     *
+     * @param bean   Bean 实例
+     * @param result 处理器列表
+     */
     private void parseController(Object bean, List<ServerHandler> result) {
         Class<?> clazz = bean.getClass();
         String classPath = resolveClassPath(clazz);
@@ -104,11 +104,11 @@ public class SpringServerHandlerAnnotationParser
     }
 
     /**
-    * 解析类级 {@link RequestMapping} 路径前缀。
-    *
-    * @param clazz 控制器类型
-    * @return 路径前缀
-    */
+     * 解析类级 {@link RequestMapping} 路径前缀。
+     *
+     * @param clazz 控制器类型
+     * @return 路径前缀
+     */
     private String resolveClassPath(Class<?> clazz) {
         RequestMapping rm = clazz.getAnnotation(RequestMapping.class);
         if (rm != null && rm.value().length > 0) {
@@ -118,14 +118,14 @@ public class SpringServerHandlerAnnotationParser
     }
 
     /**
-    * 解析方法级映射注解的路径列表。
-    *
-    * <p>优先判断具体注解（{@link GetMapping}、{@link PostMapping} 等），
-    * 最后回退到通用 {@link RequestMapping}。支持一个方法映射多个路径。</p>
-    *
-    * @param method 目标方法
-    * @return 路径列表，无映射注解返回空列表
-    */
+     * 解析方法级映射注解的路径列表。
+     *
+     * <p>优先判断具体注解（{@link GetMapping}、{@link PostMapping} 等），
+     * 最后回退到通用 {@link RequestMapping}。支持一个方法映射多个路径。</p>
+     *
+     * @param method 目标方法
+     * @return 路径列表，无映射注解返回空列表
+     */
     private List<String> resolveMethodPaths(Method method) {
         if (method.isAnnotationPresent(GetMapping.class)) {
             GetMapping gm = method.getAnnotation(GetMapping.class);
@@ -167,14 +167,14 @@ public class SpringServerHandlerAnnotationParser
     }
 
     /**
-    * 解析方法对应的 HTTP 方法集合。
-    *
-    * <p>具体注解（{@link GetMapping} 等）返回单元素集合；
-    * {@link RequestMapping} 按 {@code method} 属性返回对应集合，未指定时返回空集合（匹配所有方法）。</p>
-    *
-    * @param method 目标方法
-    * @return HTTP 方法集合，空集合表示匹配所有方法
-    */
+     * 解析方法对应的 HTTP 方法集合。
+     *
+     * <p>具体注解（{@link GetMapping} 等）返回单元素集合；
+     * {@link RequestMapping} 按 {@code method} 属性返回对应集合，未指定时返回空集合（匹配所有方法）。</p>
+     *
+     * @param method 目标方法
+     * @return HTTP 方法集合，空集合表示匹配所有方法
+     */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
         if (method.isAnnotationPresent(GetMapping.class)) {
             return Set.of(HttpMethod.GET);
@@ -211,12 +211,12 @@ public class SpringServerHandlerAnnotationParser
     }
 
     /**
-    * 拼接类级路径前缀和方法级路径。
-    *
-    * @param prefix 类级路径
-    * @param suffix 方法级路径
-    * @return 拼接后的完整路径
-    */
+     * 拼接类级路径前缀和方法级路径。
+     *
+     * @param prefix 类级路径
+     * @param suffix 方法级路径
+     * @return 拼接后的完整路径
+     */
     private static String joinPath(String prefix, String suffix) {
         if (prefix.isEmpty()) {
             return suffix.startsWith("/") ? suffix : "/" + suffix;

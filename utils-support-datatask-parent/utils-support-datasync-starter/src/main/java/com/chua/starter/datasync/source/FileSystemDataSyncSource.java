@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 文件系统数据同步 源，从本地文件读取数据。
-*
-* <p>支持 JSON、YAML 格式文件，每行/每项解析为一个 Map 记录。
-*
-* @author CH
-* @since 4.0.0.42
+ * 文件系统数据同步 源，从本地文件读取数据。
+ *
+ * <p>支持 JSON、YAML 格式文件，每行/每项解析为一个 Map 记录。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class FileSystemDataSyncSource implements DataSyncAgentSource {
 
@@ -78,10 +78,10 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     }
 
     /**
-    * 解析 JSON 内容，支持数组或单对象。
-    * @param content 内容
-    * @return 解析json的结果
-    */
+     * 解析 JSON 内容，支持数组或单对象。
+     * @param content 内容
+     * @return 解析json的结果
+     */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJson(String content) {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -119,10 +119,10 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     }
 
     /**
-    * 解析 YAML 内容，支持文档列表或单对象。
-    * @param content 内容
-    * @return 解析yaml的结果
-    */
+     * 解析 YAML 内容，支持文档列表或单对象。
+     * @param content 内容
+     * @return 解析yaml的结果
+     */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseYaml(String content) {
         List<Map<String, Object>> rows = new ArrayList<>();

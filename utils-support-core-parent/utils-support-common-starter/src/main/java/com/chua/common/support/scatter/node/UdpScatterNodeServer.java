@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class UdpScatterNodeServer extends AbstractServer {
 

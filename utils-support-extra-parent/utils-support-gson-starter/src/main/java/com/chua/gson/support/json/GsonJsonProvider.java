@@ -47,38 +47,38 @@ import static com.chua.common.support.constant.DateFormatConstant.YYYY_MM_DD_HH_
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
-* 基于 Gson 的 JSON 实现。
-*
-* <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
-* 通过 {@code Json.setImplementation(new GsonJsonProvider())} 全局切换。</p>
-*
-* <p>统一门户注解适配：本实现通过 Gson 的 {@link FieldNamingStrategy} / {@link ExclusionStrategy}
-* 识别 common-starter 的 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解，
-* 业务代码无需依赖 Gson 专属注解（{@code @SerializedName} 等）。</p>
-*
-* <p>通过 {@code @Spi("gson")} 注册为 {@link JsonProvider} 的 SPI 实现，
-* 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Gson 的 JSON 实现。
+ *
+ * <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
+ * 通过 {@code Json.setImplementation(new GsonJsonProvider())} 全局切换。</p>
+ *
+ * <p>统一门户注解适配：本实现通过 Gson 的 {@link FieldNamingStrategy} / {@link ExclusionStrategy}
+ * 识别 common-starter 的 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解，
+ * 业务代码无需依赖 Gson 专属注解（{@code @SerializedName} 等）。</p>
+ *
+ * <p>通过 {@code @Spi("gson")} 注册为 {@link JsonProvider} 的 SPI 实现，
+ * 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("gson")
 @AutoSpi(value = "com.chua.common.support.lang.json.JsonProvider")
 public class GsonJsonProvider implements JsonProvider {
 
     /**
-    * Gson 实例（线程安全，配置后不可变）
-    */
+     * Gson 实例（线程安全，配置后不可变）
+     */
     private final Gson gson;
 
     /**
-    * 美化输出 Gson 实例
-    */
+     * 美化输出 Gson 实例
+     */
     private final Gson prettyGson;
 
     /**
-    * 构造 gsonjson提供者，注册统一门户注解适配策略与日期格式。
-    */
+     * 构造 gsonjson提供者，注册统一门户注解适配策略与日期格式。
+     */
     public GsonJsonProvider() {
  // 统一注解 @json名称 → Gson 字段名；@jsonignore → 双向忽略；
  // 注册 Java.时间 / 日期 类型适配器（Gson 默认不支持 Java.时间，需显式注册）
@@ -104,12 +104,12 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-    * 创建 Java.时间 类型的 Gson 序列化 / 反序列化适配器。
-    *
-    * @param formatter 日期时间格式化器
-    * @param <T>       Java.时间 类型
-    * @return Gson 类型适配器
-    */
+     * 创建 Java.时间 类型的 Gson 序列化 / 反序列化适配器。
+     *
+     * @param formatter 日期时间格式化器
+     * @param <T>       Java.时间 类型
+     * @return Gson 类型适配器
+     */
     @SuppressWarnings("unchecked")
     private static <T> TypeAdapter<T> dateTimeAdapter(DateTimeFormatter formatter) {
         return new TypeAdapter<T>() {
@@ -140,10 +140,10 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-            * 统一注解 {@link JsonName} 的 Gson 字段命名策略适配器。
-            * @author CH
-            * @since 4.0.0
-            */
+     * 统一注解 {@link JsonName} 的 Gson 字段命名策略适配器。
+     * @author CH
+     * @since 4.0.0
+     */
     static class JsonNameFieldNamingStrategy implements FieldNamingStrategy {
 
         @Override

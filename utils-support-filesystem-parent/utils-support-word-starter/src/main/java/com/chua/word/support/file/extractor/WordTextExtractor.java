@@ -14,21 +14,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Word 文本提取器 SPI 实现，从 Word 文档中提取纯文本内容。
-* <p>
-* 基于 Apache POI 实现，支持 .docx 格式的段落文本提取。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Word 文本提取器 SPI 实现，从 Word 文档中提取纯文本内容。
+ * <p>
+ * 基于 Apache POI 实现，支持 .docx 格式的段落文本提取。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"docx", "doc"})
 public class WordTextExtractor implements TextExtractor {
 
     /**
-    * 标题样式前缀（Word 内置标题样式）。
-    */
+     * 标题样式前缀（Word 内置标题样式）。
+     */
     private static final String[] HEADING_STYLES = {"Heading1", "Heading2", "Heading3",
             "Heading4", "Heading5", "Heading6", "heading1", "heading2", "heading3"};
 
@@ -94,10 +94,10 @@ public class WordTextExtractor implements TextExtractor {
     }
 
     /**
-    * 判断段落是否为标题。
-    * @param p p
-    * @return 是否heading的结果
-    */
+     * 判断段落是否为标题。
+     * @param p p
+     * @return 是否heading的结果
+     */
     private boolean isHeading(XWPFParagraph p) {
         String style = p.getStyle();
         if (style == null || style.isEmpty()) {

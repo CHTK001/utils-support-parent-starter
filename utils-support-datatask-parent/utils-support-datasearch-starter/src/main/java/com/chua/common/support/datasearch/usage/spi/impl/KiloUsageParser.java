@@ -16,36 +16,36 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Kilo CLI 用量解析器。
-*
-* <p>Kilo CLI（kilo.ai）是 OpenCode 的分支，它把助手回复写入
-* {@code ~/.local/share/kilo/kilo.db}（或
-* {@code $XDG_DATA_HOME/kilo/kilo.db}）的 {@code message} 表。每条助手记录的 {@code data}
-* JSON 列携带逐次请求的 token 明细：</p>
-*
-* <pre>{@code
-* {
-*   "role": "assistant",
-*   "modelID": "google/gemini-3-pro-image",
-*   "providerID": "kilo",
-*   "time": { "created": 1787616871678, "completed": 1787616888000 },
-*   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
-*               "cache": { "read": 0, "write": 0 } },
-*   "cost": 0.0012
-* }
-* }</pre>
-*
-* <p>token 语义：{@code tokens.input} 本身就是<b>非缓存</b>
-* 输入；{@code cache.read} / {@code cache.write} 单独统计，
-* <i>不</i>计入总量。{@code session} 表同样存在，保存按会话累计的计数，
-* 但用于计费的逐次请求用量记录在本表；若把会话累计值也取过来会与本源重复计数，
-* 因此只读取 {@code message} 行。</p>
-*
-* <p>新版 Kilo CLI 可能写入 OpenCode v2 结构
-* （{@code session_message}）；两张表都会被探测并合并。</p>
-*
-* @author CH
-* @since 4.0.0.44
+ * Kilo CLI 用量解析器。
+ *
+ * <p>Kilo CLI（kilo.ai）是 OpenCode 的分支，它把助手回复写入
+ * {@code ~/.local/share/kilo/kilo.db}（或
+ * {@code $XDG_DATA_HOME/kilo/kilo.db}）的 {@code message} 表。每条助手记录的 {@code data}
+ * JSON 列携带逐次请求的 token 明细：</p>
+ *
+ * <pre>{@code
+ * {
+ *   "role": "assistant",
+ *   "modelID": "google/gemini-3-pro-image",
+ *   "providerID": "kilo",
+ *   "time": { "created": 1787616871678, "completed": 1787616888000 },
+ *   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
+ *               "cache": { "read": 0, "write": 0 } },
+ *   "cost": 0.0012
+ * }
+ * }</pre>
+ *
+ * <p>token 语义：{@code tokens.input} 本身就是<b>非缓存</b>
+ * 输入；{@code cache.read} / {@code cache.write} 单独统计，
+ * <i>不</i>计入总量。{@code session} 表同样存在，保存按会话累计的计数，
+ * 但用于计费的逐次请求用量记录在本表；若把会话累计值也取过来会与本源重复计数，
+ * 因此只读取 {@code message} 行。</p>
+ *
+ * <p>新版 Kilo CLI 可能写入 OpenCode v2 结构
+ * （{@code session_message}）；两张表都会被探测并合并。</p>
+ *
+ * @author CH
+ * @since 4.0.0.44
  */
 @Spi("kilo")
 public class KiloUsageParser extends BaseUsageParser {
@@ -55,9 +55,9 @@ public class KiloUsageParser extends BaseUsageParser {
     private static final String PROVIDER_KILO = "kilo";
 
     /**
-    * resolvedb路径。
-    * @return resolvedb路径的结果
-    */
+     * resolvedb路径。
+     * @return resolvedb路径的结果
+     */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -67,8 +67,8 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-    * v1 schema：助手行携带 data JSON，按 token 量筛选。
-    */
+     * v1 schema：助手行携带 data JSON，按 token 量筛选。
+     */
     private static final String SQL_V1 =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -82,8 +82,8 @@ public class KiloUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-    * v2 schema（session_message 表，type 列而非 role）。
-    */
+     * v2 schema（session_message 表，type 列而非 role）。
+     */
     private static final String SQL_V2 =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -97,20 +97,20 @@ public class KiloUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "kilo"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "kilo"}
+     */
     @Override
     public String name() {
         return PROVIDER_KILO;
     }
 
     /**
-    * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
-    * {@code session_message} 表合并，两表并存时由下游按 (session, message)
-    * 去重，避免过渡期双计。
-    */
+     * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
+     * {@code session_message} 表合并，两表并存时由下游按 (session, message)
+     * 去重，避免过渡期双计。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -133,11 +133,11 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 将 SQL 行映射为 {@link AiUsage}。
-    *
-    * @param row 数据库行
-    * @return 用量记录
-    */
+     * 将 SQL 行映射为 {@link AiUsage}。
+     *
+     * @param row 数据库行
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));
         JsonNode tokens = parseJsonOrEmpty(rawTokens);
@@ -176,11 +176,11 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析可能为 null / 空字符串的 JSON 字符串字段。
-    *
-    * @param raw 原始字符串
-    * @return 解析结果；失败返回缺失值节点
-    */
+     * 解析可能为 null / 空字符串的 JSON 字符串字段。
+     *
+     * @param raw 原始字符串
+     * @return 解析结果；失败返回缺失值节点
+     */
     private JsonNode parseJsonOrEmpty(String raw) {
         if (raw == null || raw.isBlank()) {
             return JsonNode.valueOf(null);

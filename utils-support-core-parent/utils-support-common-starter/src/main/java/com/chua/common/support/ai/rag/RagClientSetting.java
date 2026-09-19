@@ -11,22 +11,22 @@ import lombok.Data;
 import javax.annotation.Nonnull;
 
 /**
-* RAG 客户端配置。
-* <p>
-* 封装 RAG 客户端所需的全部依赖，通过 Builder 模式构建。
-* 所有必填参数在构建时注入，可选参数提供默认值。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * RAG 客户端配置。
+ * <p>
+ * 封装 RAG 客户端所需的全部依赖，通过 Builder 模式构建。
+ * 所有必填参数在构建时注入，可选参数提供默认值。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
 public class RagClientSetting {
 
     /**
-    * LLM 对话客户端，用于生成回答。
-    */
+     * LLM 对话客户端，用于生成回答。
+     */
     @Nonnull
     /** Chat客户端 */
     private ChatClient chatClient;
@@ -44,8 +44,8 @@ public class RagClientSetting {
     private TextExtractor textExtractor;
 
     /**
-    * 文本分块器，将长文本拆分为适合向量化的小片段。
-    */
+     * 文本分块器，将长文本拆分为适合向量化的小片段。
+     */
     @Nonnull
     /** 文本splitter */
     private TextSplitter textSplitter;

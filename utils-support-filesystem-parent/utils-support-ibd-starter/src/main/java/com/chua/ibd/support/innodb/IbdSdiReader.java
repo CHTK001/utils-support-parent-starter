@@ -40,63 +40,63 @@ import java.util.zip.Inflater;
 public final class IbdSdiReader {
 
     /**
-    * SDI 记录类型：表定义。
-    */
+     * SDI 记录类型：表定义。
+     */
     public static final int SDI_TYPE_TABLE = 1;
 
     /**
-    * SDI 记录类型：表空间定义。
-    */
+     * SDI 记录类型：表空间定义。
+     */
     public static final int SDI_TYPE_TABLESPACE = 2;
 
     /**
-    * SDI 记录里压缩数据之前的固定头长度：{@code sdi_type(4) + sdi_id(8) + 事务信息(13)}。
-    */
+     * SDI 记录里压缩数据之前的固定头长度：{@code sdi_type(4) + sdi_id(8) + 事务信息(13)}。
+     */
     private static final int SDI_RECORD_PREFIX = 12 + 13;
 
     /**
-    * 列隐藏类型的「可见」取值。
-    */
+     * 列隐藏类型的「可见」取值。
+     */
     private static final int HIDDEN_VISIBLE = 1;
 
     /**
-    * JSON 解析器。
-    */
+     * JSON 解析器。
+     */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-    * 工具类，禁止实例化。
-    */
+     * 工具类，禁止实例化。
+     */
     private IbdSdiReader() {
     }
 
     /**
-    * 一条 SDI 记录。
-    *
-    * @param type 记录类型（1 表 / 2 表空间）
-    * @param id   对象 id
-    * @param json 解压后的 JSON 字节
-    * @return 结果值
-    */
+     * 一条 SDI 记录。
+     *
+     * @param type 记录类型（1 表 / 2 表空间）
+     * @param id   对象 id
+     * @param json 解压后的 JSON 字节
+     * @return 结果值
+     */
     public record SdiRecord(int type, long id, byte[] json) {
 
         /**
-        * 取 JSON 文本。
-        *
-        * @return JSON 文本
-        */
+         * 取 JSON 文本。
+         *
+         * @return JSON 文本
+         */
         public String text() {
             return new String(json, StandardCharsets.UTF_8);
         }
     }
 
     /**
-    * 读出表空间里所有 SDI 记录。
-    *
-    * @param tablespace 表空间
-    * @return SDI 记录列表
-    * @throws IOException 读取或解压失败
-    */
+     * 读出表空间里所有 SDI 记录。
+     *
+     * @param tablespace 表空间
+     * @return SDI 记录列表
+     * @throws IOException 读取或解压失败
+     */
     public static List<SdiRecord> readRecords(IbdTablespace tablespace) throws IOException {
         List<SdiRecord> records = new ArrayList<>();
         int pageSize = tablespace.pageSize();
@@ -116,14 +116,14 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 读出表定义。
-    *
-    * <p>一个 {@code .ibd} 里只会有一张表（分区表除外），所以取第一条表类型的 SDI 记录。</p>
-    *
-    * @param tablespace 表空间
-    * @return 表定义
-    * @throws IOException 读取或解析失败
-    */
+     * 读出表定义。
+     *
+     * <p>一个 {@code .ibd} 里只会有一张表（分区表除外），所以取第一条表类型的 SDI 记录。</p>
+     *
+     * @param tablespace 表空间
+     * @return 表定义
+     * @throws IOException 读取或解析失败
+     */
     public static IbdTableDefinition readTableDefinition(IbdTablespace tablespace) throws IOException {
         for (SdiRecord record : readRecords(tablespace)) {
             if (record.type() == SDI_TYPE_TABLE) {
@@ -135,13 +135,13 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 解析一条 SDI 记录的定长头与 zlib 数据。
-    *
-    * @param page   所在页
-    * @param origin 记录数据起点
-    * @return SDI 记录；数据不完整时返回 {@code null}
-    * @throws IOException 解压失败
-    */
+     * 解析一条 SDI 记录的定长头与 zlib 数据。
+     *
+     * @param page   所在页
+     * @param origin 记录数据起点
+     * @return SDI 记录；数据不完整时返回 {@code null}
+     * @throws IOException 解压失败
+     */
     private static SdiRecord parseRecord(byte[] page, int origin) throws IOException {
         int needed = origin + SDI_RECORD_PREFIX + 8;
         if (origin < 0 || needed > page.length) {
@@ -162,13 +162,13 @@ public final class IbdSdiReader {
     }
 
     /**
-    * zlib 解压。
-    *
-    * @param data               压缩数据
-    * @param uncompressedLength 期望的解压后长度
-    * @return 解压结果
-    * @throws IOException 解压失败
-    */
+     * zlib 解压。
+     *
+     * @param data               压缩数据
+     * @param uncompressedLength 期望的解压后长度
+     * @return 解压结果
+     * @throws IOException 解压失败
+     */
     static byte[] inflate(byte[] data, int uncompressedLength) throws IOException {
         Inflater inflater = new Inflater();
         try {
@@ -198,12 +198,12 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 把 SDI 的 JSON 转成表定义。
-    *
-    * @param json SDI JSON 字节
-    * @return 表定义
-    * @throws IOException JSON 结构不符合预期
-    */
+     * 把 SDI 的 JSON 转成表定义。
+     *
+     * @param json SDI JSON 字节
+     * @return 表定义
+     * @throws IOException JSON 结构不符合预期
+     */
     public static IbdTableDefinition parseTableDefinition(byte[] json) throws IOException {
         JsonNode root = MAPPER.readTree(json);
         JsonNode dd = root.get("dd_object");
@@ -229,11 +229,11 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 解析列定义。
-    *
-    * @param node {@code columns[]} 里的一个元素
-    * @return 列定义
-    */
+     * 解析列定义。
+     *
+     * @param node {@code columns[]} 里的一个元素
+     * @return 列定义
+     */
     private static IbdColumn parseColumn(JsonNode node) {
         int hidden = intValue(node, "hidden", HIDDEN_VISIBLE);
         boolean hasDefault = !boolValue(node, "default_value_utf8_null", true);
@@ -263,12 +263,12 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 解析索引定义。
-    *
-    * @param node    {@code indexes[]} 里的一个元素
-    * @param columns 表的全部列（按 {@code ordinal_position} 排列，供 {@code column_opx} 定位）
-    * @return 索引定义
-    */
+     * 解析索引定义。
+     *
+     * @param node    {@code indexes[]} 里的一个元素
+     * @param columns 表的全部列（按 {@code ordinal_position} 排列，供 {@code column_opx} 定位）
+     * @return 索引定义
+     */
     private static IbdIndex parseIndex(JsonNode node, List<IbdColumn> columns) {
         List<IbdColumn> indexColumns = new ArrayList<>();
         for (JsonNode element : arrayOf(node, "elements")) {
@@ -291,11 +291,11 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 解析 {@code se_private_data} 这种 {@code k=v;k=v;} 形式的字符串。
-    *
-    * @param raw 原始字符串
-    * @return 键值对
-    */
+     * 解析 {@code se_private_data} 这种 {@code k=v;k=v;} 形式的字符串。
+     *
+     * @param raw 原始字符串
+     * @return 键值对
+     */
     private static JsonNode parsePrivate(String raw) {
         var object = MAPPER.createObjectNode();
         if (raw == null || raw.isEmpty()) {
@@ -315,11 +315,11 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 把行格式编号转成名字。
-    *
-    * @param code {@code dd::Table::enum_row_format}
-    * @return {@code FIXED} / {@code DYNAMIC} / {@code COMPRESSED} / {@code REDUNDANT} / {@code PAGED}
-    */
+     * 把行格式编号转成名字。
+     *
+     * @param code {@code dd::Table::enum_row_format}
+     * @return {@code FIXED} / {@code DYNAMIC} / {@code COMPRESSED} / {@code REDUNDANT} / {@code PAGED}
+     */
     private static String rowFormatName(int code) {
         switch (code) {
             case 1:
@@ -336,11 +336,11 @@ public final class IbdSdiReader {
     }
 
     /**
-    * base64 解码（SDI 里 ENUM / SET 候选值的编码方式）。
-    *
-    * @param value 原始字符串
-    * @return 解码后的文本；解码失败时原样返回
-    */
+     * base64 解码（SDI 里 ENUM / SET 候选值的编码方式）。
+     *
+     * @param value 原始字符串
+     * @return 解码后的文本；解码失败时原样返回
+     */
     static String base64Decode(String value) {
         if (value == null || value.isEmpty()) {
             return "";
@@ -353,63 +353,63 @@ public final class IbdSdiReader {
     }
 
     /**
-    * 取数组节点。
-    *
-    * @param parent 父节点
-    * @param field  字段名
-    * @return 数组元素；缺失时返回空列表
-    */
+     * 取数组节点。
+     *
+     * @param parent 父节点
+     * @param field  字段名
+     * @return 数组元素；缺失时返回空列表
+     */
     private static Iterable<JsonNode> arrayOf(JsonNode parent, String field) {
         JsonNode node = parent.get(field);
         return node != null && node.isArray() ? node : List.of();
     }
 
     /**
-    * 取字符串字段。
-    *
-    * @param parent 父节点
-    * @param field  字段名
-    * @return 文本；缺失时返回空串
-    */
+     * 取字符串字段。
+     *
+     * @param parent 父节点
+     * @param field  字段名
+     * @return 文本；缺失时返回空串
+     */
     private static String text(JsonNode parent, String field) {
         JsonNode node = parent.get(field);
         return node == null || node.isNull() ? "" : node.asText("");
     }
 
     /**
-    * 取整数字段。
-    *
-    * @param parent       父节点
-    * @param field        字段名
-    * @param defaultValue 缺省值
-    * @return 数值
-    */
+     * 取整数字段。
+     *
+     * @param parent       父节点
+     * @param field        字段名
+     * @param defaultValue 缺省值
+     * @return 数值
+     */
     private static int intValue(JsonNode parent, String field, int defaultValue) {
         JsonNode node = parent.get(field);
         return node == null || !node.isNumber() ? defaultValue : node.asInt(defaultValue);
     }
 
     /**
-    * 取长整数字段。
-    *
-    * @param parent       父节点
-    * @param field        字段名
-    * @param defaultValue 缺省值
-    * @return 数值
-    */
+     * 取长整数字段。
+     *
+     * @param parent       父节点
+     * @param field        字段名
+     * @param defaultValue 缺省值
+     * @return 数值
+     */
     private static long longValue(JsonNode parent, String field, long defaultValue) {
         JsonNode node = parent.get(field);
         return node == null || !node.isNumber() ? defaultValue : node.asLong(defaultValue);
     }
 
     /**
-    * 取布尔字段。
-    *
-    * @param parent       父节点
-    * @param field        字段名
-    * @param defaultValue 缺省值
-    * @return 布尔值
-    */
+     * 取布尔字段。
+     *
+     * @param parent       父节点
+     * @param field        字段名
+     * @param defaultValue 缺省值
+     * @return 布尔值
+     */
     private static boolean boolValue(JsonNode parent, String field, boolean defaultValue) {
         JsonNode node = parent.get(field);
         return node == null || node.isNull() ? defaultValue : node.asBoolean(defaultValue);

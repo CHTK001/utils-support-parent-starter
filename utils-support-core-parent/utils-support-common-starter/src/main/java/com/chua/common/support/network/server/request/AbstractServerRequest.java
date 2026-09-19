@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public abstract class AbstractServerRequest implements ServerRequest {
 
     /** 请求属性，用于 Filter 间传递数据 */
@@ -110,59 +110,59 @@ public abstract class AbstractServerRequest implements ServerRequest {
     }
 
     /**
-    * 子类实现：获取请求头集合。
-    *
-    * @return 请求头集合
-    */
+     * 子类实现：获取请求头集合。
+     *
+     * @return 请求头集合
+     */
     @Override
     public abstract HttpHeader getHeaders();
 
     /**
-    * 子类实现：获取指定请求头值。
-    *
-    * @param name 请求头名称
-    * @return 请求头值，不存在返回 null
-    */
+     * 子类实现：获取指定请求头值。
+     *
+     * @param name 请求头名称
+     * @return 请求头值，不存在返回 null
+     */
     @Override
     public abstract String getHeader(String name);
 
     /**
-    * 子类实现：获取完整 URI。
-    *
-    * @return 完整 URI
-    */
+     * 子类实现：获取完整 URI。
+     *
+     * @return 完整 URI
+     */
     @Override
     public abstract String getUri();
 
     /**
-    * 子类实现：获取请求路径。
-    *
-    * @return 请求路径
-    */
+     * 子类实现：获取请求路径。
+     *
+     * @return 请求路径
+     */
     @Override
     public abstract String getPath();
 
     /**
-    * 子类实现：获取 HTTP 请求方法。
-    *
-    * @return HTTP 方法
-    */
+     * 子类实现：获取 HTTP 请求方法。
+     *
+     * @return HTTP 方法
+     */
     @Override
     public abstract HttpMethod getMethod();
 
     /**
-    * 子类实现：获取客户端地址。
-    *
-    * @return 客户端地址
-    */
+     * 子类实现：获取客户端地址。
+     *
+     * @return 客户端地址
+     */
     @Override
     public abstract String getRemoteAddress();
 
     /**
-    * 子类实现：获取客户端端口。
-    *
-    * @return 客户端端口
-    */
+     * 子类实现：获取客户端端口。
+     *
+     * @return 客户端端口
+     */
     @Override
     public abstract int getRemotePort();
 }

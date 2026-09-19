@@ -12,44 +12,44 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
-* 基于文件存储的验证码任务持久化实现
-* <p>
-* 使用纯文本文件存储任务结果，每行一条记录。
-* 格式为：任务id|成功|令牌|消息|错误编码
-* 内存中维护缓存以减少文件 IO，每次变更后全量写回文件。
-* </p>
-*
-* @author CH
-* @since 2026-03-16
+ * 基于文件存储的验证码任务持久化实现
+ * <p>
+ * 使用纯文本文件存储任务结果，每行一条记录。
+ * 格式为：任务id|成功|令牌|消息|错误编码
+ * 内存中维护缓存以减少文件 IO，每次变更后全量写回文件。
+ * </p>
+ *
+ * @author CH
+ * @since 2026-03-16
  */
 @Slf4j
 public class FileTaskPersistence implements TaskPersistence {
 
     /**
-    * 字段分隔符
-    */
+     * 字段分隔符
+     */
     private static final String SEPARATOR = "|";
 
     /**
-    * 持久化文件路径
-    */
+     * 持久化文件路径
+     */
     private final Path filePath;
 
     /**
-    * 内存缓存（保持写入顺序）
-    */
+     * 内存缓存（保持写入顺序）
+     */
     private final Map<String, CaptchaResponse> cache = new LinkedHashMap<>();
 
     /**
-    * 是否已从文件加载到缓存
-    */
+     * 是否已从文件加载到缓存
+     */
     private boolean loaded = false;
 
     /**
-    * 构造文件持久化实例
-    *
-    * @param filePath 持久化文件路径
-    */
+     * 构造文件持久化实例
+     *
+     * @param filePath 持久化文件路径
+     */
     public FileTaskPersistence(String filePath) {
         this.filePath = Paths.get(filePath);
     }
@@ -115,8 +115,8 @@ public class FileTaskPersistence implements TaskPersistence {
     }
 
     /**
-    * 将缓存全量写回文件
-    */
+     * 将缓存全量写回文件
+     */
     private void persist() {
         try {
             Path parent = filePath.getParent();

@@ -15,13 +15,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* TXT 文本提取器 SPI 实现，从纯文本文件中提取文本内容。
-* <p>
-* 纯 JDK 实现，无外部依赖。支持 UTF-8 BOM 自动检测与跳过。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * TXT 文本提取器 SPI 实现，从纯文本文件中提取文本内容。
+ * <p>
+ * 纯 JDK 实现，无外部依赖。支持 UTF-8 BOM 自动检测与跳过。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("txt")
@@ -54,10 +54,10 @@ public class TxtTextExtractor implements TextExtractor {
     }
 
     /**
-    * 跳过 UTF-8 BOM 字节 (EF BB BF)。
-    * @param in 方法入参 in
-    * @return Input流 对象
-    */
+     * 跳过 UTF-8 BOM 字节 (EF BB BF)。
+     * @param in 方法入参 in
+     * @return Input流 对象
+     */
     private InputStream skipBom(InputStream in) throws IOException {
         in.mark(3);
         int b1 = in.read();

@@ -4,10 +4,10 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 
 /**
-* 人脸特征向量后处理工具。
-*
-* @author CH
-* @since 4.0.0.42
+ * 人脸特征向量后处理工具。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 final class FaceEmbeddingHelper {
 

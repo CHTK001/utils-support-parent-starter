@@ -3,8 +3,8 @@ package com.chua.datarecovery.support;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 
 public class DataRecovery {
@@ -25,21 +25,21 @@ public class DataRecovery {
     }
 
     /**
-    * 的
-    *
-    * @param devicePath device路径
-    * @return 的的结果
-    */
+     * 的
+     *
+     * @param devicePath device路径
+     * @return 的的结果
+     */
     public static DataRecovery of(String devicePath) {
         return new DataRecovery(normalizeDevicePath(devicePath));
     }
 
     /**
-    * normalizedevice路径
-    *
-    * @param path 路径
-    * @return normalizedevice路径的结果
-    */
+     * normalizedevice路径
+     *
+     * @param path 路径
+     * @return normalizedevice路径的结果
+     */
     private static String normalizeDevicePath(String path) {
         if (path == null || path.isEmpty()) {
             return path;
@@ -57,11 +57,11 @@ public class DataRecovery {
     }
 
     /**
-    * Callback
-    *
-    * @param callback callback
-    * @return callback的结果
-    */
+     * Callback
+     *
+     * @param callback callback
+     * @return callback的结果
+     */
     public DataRecovery callback(RecoveryCallback callback) {
         this.callback = callback;
         return this;
@@ -148,121 +148,121 @@ public class DataRecovery {
     }
 
     /**
-    * 扫描和recover
-    *
-    * @param scanMode 扫描mode
-    * @param outputDir 输出dir
-    * @return 扫描和recover的结果
-    */
+     * 扫描和recover
+     *
+     * @param scanMode 扫描mode
+     * @param outputDir 输出dir
+     * @return 扫描和recover的结果
+     */
     public ScanResult scanAndRecover(int scanMode, String outputDir) {
         String json = nativeScanAndRecover(devicePath, scanMode, outputDir);
         return parse(json, ScanResult.class);
     }
 
     /**
-    * Recover
-    *
-    * @param filePaths 文件路径
-    * @param outputDir 输出dir
-    * @param preserveStructure preserve结构
-    * @return recover的结果
-    */
+     * Recover
+     *
+     * @param filePaths 文件路径
+     * @param outputDir 输出dir
+     * @param preserveStructure preserve结构
+     * @return recover的结果
+     */
     public RecoverResult recover(String[] filePaths, String outputDir, boolean preserveStructure) {
         String json = nativeRecover(devicePath, filePaths, outputDir, preserveStructure);
         return parse(json, RecoverResult.class);
     }
 
     /**
-    * Permanent删除
-    *
-    * @param filePath 文件路径
-    * @param method 方法
-    * @return permanent删除的结果
-    */
+     * Permanent删除
+     *
+     * @param filePath 文件路径
+     * @param method 方法
+     * @return permanent删除的结果
+     */
     public DeleteResult permanentDelete(String filePath, String method) {
         String json = nativeDelete(devicePath, filePath, method);
         return parse(json, DeleteResult.class);
     }
 
     /**
-    * 扫描异步
-    *
-    * @param scanMode 扫描mode
-    * @return 扫描异步的结果
-    */
+     * 扫描异步
+     *
+     * @param scanMode 扫描mode
+     * @return 扫描异步的结果
+     */
     public CompletableFuture<ScanResult> scanAsync(int scanMode) {
         return CompletableFuture.supplyAsync(() -> scan(scanMode));
     }
 
     /**
-    * recover异步
-    *
-    * @param filePaths 文件路径
-    * @param outputDir 输出dir
-    * @param preserveStructure preserve结构
-    * @return recover异步的结果
-    */
+     * recover异步
+     *
+     * @param filePaths 文件路径
+     * @param outputDir 输出dir
+     * @param preserveStructure preserve结构
+     * @return recover异步的结果
+     */
     public CompletableFuture<RecoverResult> recoverAsync(String[] filePaths, String outputDir, boolean preserveStructure) {
         return CompletableFuture.supplyAsync(() -> recover(filePaths, outputDir, preserveStructure));
     }
 
     /**
-    * 删除异步
-    *
-    * @param filePath 文件路径
-    * @param method 方法
-    * @return 删除异步的结果
-    */
+     * 删除异步
+     *
+     * @param filePath 文件路径
+     * @param method 方法
+     * @return 删除异步的结果
+     */
     public CompletableFuture<DeleteResult> deleteAsync(String filePath, String method) {
         return CompletableFuture.supplyAsync(() -> permanentDelete(filePath, method));
     }
 
     /**
-    * Native扫描
-    *
-    * @param devicePath device路径
-    * @param scanMode 扫描mode
-    * @return NAT扫描的结果
-    */
+     * Native扫描
+     *
+     * @param devicePath device路径
+     * @param scanMode 扫描mode
+     * @return NAT扫描的结果
+     */
     private native String nativeScan(String devicePath, int scanMode);
     /**
-    * NAT扫描和recover
-    *
-    * @param devicePath device路径
-    * @param scanMode 扫描mode
-    * @param outputDir 输出dir
-    * @return NAT扫描和recover的结果
-    */
+     * NAT扫描和recover
+     *
+     * @param devicePath device路径
+     * @param scanMode 扫描mode
+     * @param outputDir 输出dir
+     * @return NAT扫描和recover的结果
+     */
     private native String nativeScanAndRecover(String devicePath, int scanMode, String outputDir);
     /**
-    * natrecover
-    *
-    * @param devicePath device路径
-    * @param filePaths 文件路径
-    * @param outputDir 输出dir
-    * @param preserveStructure preserve结构
-    * @return NATrecover的结果
-    */
+     * natrecover
+     *
+     * @param devicePath device路径
+     * @param filePaths 文件路径
+     * @param outputDir 输出dir
+     * @param preserveStructure preserve结构
+     * @return NATrecover的结果
+     */
     private native String nativeRecover(String devicePath, String[] filePaths, String outputDir, boolean preserveStructure);
     /**
-    * Native删除
-    *
-    * @param devicePath device路径
-    * @param filePath 文件路径
-    * @param method 方法
-    * @return NAT删除的结果
-    */
+     * Native删除
+     *
+     * @param devicePath device路径
+     * @param filePath 文件路径
+     * @param method 方法
+     * @return NAT删除的结果
+     */
     private native String nativeDelete(String devicePath, String filePath, String method);
 
     /**
-    * 解析
-    *
-    * @param json json
-    * @param clazz clazz
-    * @return 解析的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 解析
+     *
+     * @param json json
+     * @param clazz clazz
+     * @return 解析的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private static <T> T parse(String json, Class<T> clazz) {
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -275,11 +275,11 @@ public class DataRecovery {
 
     public static class RecoveryException extends RuntimeException {
         /**
-        * 创建 recovery异常 实例
-        * @param message 消息
-        * @param cause Throwable
-        * @param cause cause
-        */
+         * 创建 recovery异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
+         */
         public RecoveryException(String message, Throwable cause) { super(message, cause); }
     }
 }

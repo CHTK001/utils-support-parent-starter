@@ -7,10 +7,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* 启动时立即执行一次全量巡检。
-*
-* @author CH
-* @since 4.0.0.42
+ * 启动时立即执行一次全量巡检。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class BootstrapProbe {
@@ -53,8 +53,8 @@ public class BootstrapProbe {
     }
 
     /**
-    * 执行启动巡检。
-    */
+     * 执行启动巡检。
+     */
     public void run() throws Exception {
         ProbeStrategy strategy = createStrategy();
         if (strategy == null) {
@@ -74,10 +74,10 @@ public class BootstrapProbe {
     }
 
     /**
-    * 根据配置创建对应的探针策略。
-    *
-    * @return ProbeStrategy 实例
-    */
+     * 根据配置创建对应的探针策略。
+     *
+     * @return ProbeStrategy 实例
+     */
     private ProbeStrategy createStrategy() {
         // UDP 模式统一使用 UDP 广播探针
         if ("udp".equalsIgnoreCase(config.getMode())) {

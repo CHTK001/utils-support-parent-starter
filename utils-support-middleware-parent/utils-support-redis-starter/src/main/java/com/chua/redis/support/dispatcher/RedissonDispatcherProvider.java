@@ -18,10 +18,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
-* 基于 Redisson rtopic 的 Redis 发布订阅分发器提供者
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Redisson rtopic 的 Redis 发布订阅分发器提供者
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis")
@@ -52,11 +52,11 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 创建 redissondispatcher提供者 实例
-    * @param config 配置
-    * @param redissonClient redisson客户端
-    * @param redissonClient redisson客户端
-    */
+     * 创建 redissondispatcher提供者 实例
+     * @param config 配置
+     * @param redissonClient redisson客户端
+     * @param redissonClient redisson客户端
+     */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);
         this.redissonClient = redissonClient;

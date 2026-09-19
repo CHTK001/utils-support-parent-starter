@@ -5,18 +5,18 @@ import com.chua.common.support.ai.agent.AgentSystemPromptBuilder;
 import java.util.Map;
 
 /**
-* 技能描述注入 system 的轻量工具（不依赖 Agent 执行环）。
-* <p>
-* 只负责把 {@link SkillManager} 中的技能写成 Markdown，拼进 system prompt。
-* 不执行工具调用、不跑规划 —— ChatClient / Aggregate 均可使用。
-* </p>
-*
-* <pre>{@code
-* String system = SkillPrompt.inject(baseSystem, skillManager);
-* client.system(system).chatSync(prompt);
-* }</pre>
-*
-* @author CH
+ * 技能描述注入 system 的轻量工具（不依赖 Agent 执行环）。
+ * <p>
+ * 只负责把 {@link SkillManager} 中的技能写成 Markdown，拼进 system prompt。
+ * 不执行工具调用、不跑规划 —— ChatClient / Aggregate 均可使用。
+ * </p>
+ *
+ * <pre>{@code
+ * String system = SkillPrompt.inject(baseSystem, skillManager);
+ * client.system(system).chatSync(prompt);
+ * }</pre>
+ *
+ * @author CH
  */
 public final class SkillPrompt {
 
@@ -34,10 +34,10 @@ public final class SkillPrompt {
     }
 
     /**
-    * 生成技能 Markdown 段。
-    * @param skillManager 方法入参 skillManager
-    * @return 结果字符串
-    */
+     * 生成技能 Markdown 段。
+     * @param skillManager 方法入参 skillManager
+     * @return 结果字符串
+     */
     public static String section(SkillManager skillManager) {
         if (skillManager == null) {
             return "";
@@ -46,11 +46,11 @@ public final class SkillPrompt {
     }
 
     /**
-    * 将技能说明追加到已有 system（空 skills 则原样返回）。
-    * @param baseSystem 方法入参 baseSystem
-    * @param skillManager 方法入参 skillManager
-    * @return 结果字符串
-    */
+     * 将技能说明追加到已有 system（空 skills 则原样返回）。
+     * @param baseSystem 方法入参 baseSystem
+     * @param skillManager 方法入参 skillManager
+     * @return 结果字符串
+     */
     public static String inject(String baseSystem, SkillManager skillManager) {
         String sec = section(skillManager);
         if (sec == null || sec.isBlank()) {
@@ -63,11 +63,11 @@ public final class SkillPrompt {
     }
 
     /**
-    * 将技能说明追加到已有 system。
-    * @param baseSystem 方法入参 baseSystem
-    * @param skills 方法入参 skills
-    * @return 结果字符串
-    */
+     * 将技能说明追加到已有 system。
+     * @param baseSystem 方法入参 baseSystem
+     * @param skills 方法入参 skills
+     * @return 结果字符串
+     */
     public static String inject(String baseSystem, Map<String, SkillDefinition> skills) {
         String sec = section(skills);
         if (sec == null || sec.isBlank()) {

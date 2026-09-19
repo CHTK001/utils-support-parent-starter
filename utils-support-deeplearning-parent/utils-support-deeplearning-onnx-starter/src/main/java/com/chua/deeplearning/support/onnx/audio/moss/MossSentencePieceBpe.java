@@ -11,19 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* sentencepiece BPE 分词器的纯 Java 最小实现。
-*
-* <p>针对 MOSS-TTS-Nano 的 {@code tokenizer.model}（ModelProto 格式）设计，
-* 算法与 sentencepiece 官方 {@code bpe_model.cc} 一致：
-* <ol>
-*   <li>空白替换为 ▁ 并添加 dummy 前缀</li>
-*   <li>用户自定义 token（如 &lt;|audio_start|&gt;）优先按字面切分</li>
-*   <li>词内 BPE 合并：每轮选取合并后得分最高的相邻符号对</li>
-*   <li>未知字符回退为 UTF-8 字节 token（&lt;0xXX&gt;）</li>
-* </ol>
-*
-* @author chua
-* @since 4.0.0.42
+ * sentencepiece BPE 分词器的纯 Java 最小实现。
+ *
+ * <p>针对 MOSS-TTS-Nano 的 {@code tokenizer.model}（ModelProto 格式）设计，
+ * 算法与 sentencepiece 官方 {@code bpe_model.cc} 一致：
+ * <ol>
+ *   <li>空白替换为 ▁ 并添加 dummy 前缀</li>
+ *   <li>用户自定义 token（如 &lt;|audio_start|&gt;）优先按字面切分</li>
+ *   <li>词内 BPE 合并：每轮选取合并后得分最高的相邻符号对</li>
+ *   <li>未知字符回退为 UTF-8 字节 token（&lt;0xXX&gt;）</li>
+ * </ol>
+ *
+ * @author chua
+ * @since 4.0.0.42
  */
 public class MossSentencePieceBpe implements AutoCloseable {
 
@@ -53,10 +53,10 @@ public class MossSentencePieceBpe implements AutoCloseable {
     }
 
     /**
-    * 从字节数组加载词表。
-    *
-    * @param proto 模型Proto.io 原始字节
-    */
+     * 从字节数组加载词表。
+     *
+     * @param proto 模型Proto.io 原始字节
+     */
     public void load(byte[] proto) {
         int offset = 0;
         while (offset < proto.length) {
@@ -90,11 +90,11 @@ public class MossSentencePieceBpe implements AutoCloseable {
     }
 
     /**
-    * 编码文本为 令牌 标识 序列。
-    *
-    * @param text 输入文本
-    * @return token 标识 数组
-    */
+     * 编码文本为 令牌 标识 序列。
+     *
+     * @param text 输入文本
+     * @return token 标识 数组
+     */
     public int[] encode(String text) {
         List<String> segments = splitUserDefined(text);
         List<Integer> ids = new ArrayList<>();
@@ -122,15 +122,15 @@ public class MossSentencePieceBpe implements AutoCloseable {
     }
 
     /**
-    * 查询词表大小。
-    *
-    * @return 词表大小
-    * @param data 数据
-    * @param offset 偏移量
-    * @param text 文本
-    * @param symbol symbol
-    * @param out 出
-    */
+     * 查询词表大小。
+     *
+     * @return 词表大小
+     * @param data 数据
+     * @param offset 偏移量
+     * @param text 文本
+     * @param symbol symbol
+     * @param out 出
+     */
     public int size() {
         return idToPiece.size();
     }
@@ -260,10 +260,10 @@ public class MossSentencePieceBpe implements AutoCloseable {
         }
         return segments;
     /**
-    * 是否用户defined。
-    * @param segment segment
-    * @return 是否用户defined的结果
-    */
+     * 是否用户defined。
+     * @param segment segment
+     * @return 是否用户defined的结果
+     */
     }
 
     /**
@@ -276,12 +276,12 @@ public class MossSentencePieceBpe implements AutoCloseable {
         Integer id = pieceToId.get(segment);
         return id != null && userDefinedIds.contains(id);
     /**
-    * 解析piece。
-    * @param data 数据
-    * @param offset 偏移量
-    * @param length 长度
-    * @return 读取intle的结果
-    */
+     * 解析piece。
+     * @param data 数据
+     * @param offset 偏移量
+     * @param length 长度
+     * @return 读取intle的结果
+     */
     }
 
     /**

@@ -18,60 +18,60 @@ import java.util.List;
 
 
 /**
-* doclayout-YOLO                               docstructbench
-* <p>
-* yolov10
-*                https://github.com/opendatalab/DocLayout-YOLO
-*                https://github.com/RapidAI/RapidLayout
-* docstructbench
-* <p>
-* doclayout-YOLO                                                                    yolov10
-*                                                                                     
-* <p>
-* yolov10
-* -        shape: [1, num_boxes, 6]        [1, 300, 6]
-* -                : [x1, y1, x2, y2, 信心, 类_标识]
-* -                                              
-* - yolov10        NMS
-* <p>
-*                         10         
-* - title:       
-* - plain 文本:       /
-* - abandon:             /      
-* - figure:       
-* - figure_caption:             
-* - table:       
-* - table_caption:             
-* - table_footnote:             
-* - isolate_formula:             
-* - formula_caption:             
-* <p>
-*                
-* -                                   1024x1024   
-* -        docstructbench
-* -                                                                                     
-* -        NMS                  
-* <p>
-*                
-* - PDF             
-* -                      
-* -                   
-* -        OCR          
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/11/28
+ * doclayout-YOLO                               docstructbench
+ * <p>
+ * yolov10
+ *                https://github.com/opendatalab/DocLayout-YOLO
+ *                https://github.com/RapidAI/RapidLayout
+ * docstructbench
+ * <p>
+ * doclayout-YOLO                                                                    yolov10
+ *                                                                                     
+ * <p>
+ * yolov10
+ * -        shape: [1, num_boxes, 6]        [1, 300, 6]
+ * -                : [x1, y1, x2, y2, 信心, 类_标识]
+ * -                                              
+ * - yolov10        NMS
+ * <p>
+ *                         10         
+ * - title:       
+ * - plain 文本:       /
+ * - abandon:             /      
+ * - figure:       
+ * - figure_caption:             
+ * - table:       
+ * - table_caption:             
+ * - table_footnote:             
+ * - isolate_formula:             
+ * - formula_caption:             
+ * <p>
+ *                
+ * -                                   1024x1024   
+ * -        docstructbench
+ * -                                                                                     
+ * -        NMS                  
+ * <p>
+ *                
+ * - PDF             
+ * -                      
+ * -                   
+ * -        OCR          
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/11/28
  */
 @Slf4j
 public class DocLayoutYoloTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    * docstructbench
-    *          https://github.com/RapidAI/RapidLayout
-    *          https://github.com/opendatalab/DocLayout-YOLO
-    * <p>
-    * 10                            
-    */
+     * docstructbench
+     *          https://github.com/RapidAI/RapidLayout
+     *          https://github.com/opendatalab/DocLayout-YOLO
+     * <p>
+     * 10                            
+     */
 public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             "title", // 0 -
             "plain_text", // 1 -
@@ -86,48 +86,48 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     );
 
     /**
-    * doclayout-YOLO        1024
-    */
+     * doclayout-YOLO        1024
+     */
     private static final int DEFAULT_INPUT_SIZE = 1280;
 
     /**
-    *                      
-    */
+     *                      
+     */
     private static final float DEFAULT_THRESHOLD = 0.2f;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int inputSize;
 
     /**
-    *                
-    */
+     *                
+     */
     private final float threshold;
 
     /**
-    *             
-    */
+     *             
+     */
     private final List<String> classes;
 
     /**
-    *                      
-    */
+     *                      
+     */
     private final boolean normalizeCoordinates;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private int imageWidth;
     /** 图像高度 */
     /** 图片高度 */
     private int imageHeight;
 
         /**
-    * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
-    *
-    * @param configuration 检测配置（可空）
-    */
+         * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
+         *
+         * @param configuration 检测配置（可空）
+         */
     public DocLayoutYoloTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this(DEFAULT_INPUT_SIZE,
                 configuration == null ? DEFAULT_THRESHOLD
@@ -136,38 +136,38 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
 /**
-*                    -                   
-     */
+ *                    -                   
+ */
     public DocLayoutYoloTranslator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-    *              -                      
-    *
-    * @param inputSize                                  
-    */
+     *              -                      
+     *
+     * @param inputSize                                  
+     */
     public DocLayoutYoloTranslator(int inputSize) {
         this(inputSize, DEFAULT_THRESHOLD, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-    *              -                
-    *
-    * @param inputSize                   
-    * @param threshold                
-    */
+     *              -                
+     *
+     * @param inputSize                   
+     * @param threshold                
+     */
     public DocLayoutYoloTranslator(int inputSize, float threshold) {
         this(inputSize, threshold, DOCSTRUCTBENCH_CLASSES);
     }
 
     /**
-    *                    -                         
-    *
-    * @param inputSize                   
-    * @param threshold                
-    * @param classes               
-    */
+     *                    -                         
+     *
+     * @param inputSize                   
+     * @param threshold                
+     * @param classes               
+     */
     public DocLayoutYoloTranslator(int inputSize, float threshold, List<String> classes) {
         this.inputSize = inputSize;
         this.threshold = threshold;
@@ -178,13 +178,13 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-    *                   
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList
-    * @throws Exception             
-    */
+     *                   
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
@@ -222,18 +222,18 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-    *                   
-    * <p>
-    * yolov10                       NMS
-    * -        shape: [1, num_boxes, 6]        [1, 300, 6]
-    * -                : [x1, y1, x2, y2, 信心, 类_标识]
-    * -                                              
-    *
-    * @param ctx                    
-    * @param list              nd列表
-    * @return             
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     * yolov10                       NMS
+     * -        shape: [1, num_boxes, 6]        [1, 300, 6]
+     * -                : [x1, y1, x2, y2, 信心, 类_标识]
+     * -                                              
+     *
+     * @param ctx                    
+     * @param list              nd列表
+     * @return             
+     * @throws Exception             
+     */
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
@@ -371,10 +371,10 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-    *                   
-    *
-    * @return                   
-    */
+     *                   
+     *
+     * @return                   
+     */
     public String getModelDescription() {
         return "DocLayout-YOLO Document Layout Detection (DocStructBench) - " +
                 "Supports 10 document element types: " +
@@ -382,19 +382,19 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-    *                            
-    *
-    * @return                   
-    */
+     *                            
+     *
+     * @return                   
+     */
     public static int[] getRecommendedSizes() {
         return new int[]{640, 800, 1024, 1280};
     }
 
     /**
-    *                            
-    *
-    * @return DocStructBench                         
-    */
+     *                            
+     *
+     * @return DocStructBench                         
+     */
     public static List<String> getSupportedClasses() {
         return DOCSTRUCTBENCH_CLASSES;
     }

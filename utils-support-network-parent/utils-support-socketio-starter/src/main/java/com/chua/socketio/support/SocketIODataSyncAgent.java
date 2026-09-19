@@ -28,45 +28,45 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class SocketIODataSyncAgent implements DataSyncAgent {
 
     /**
-    * agent Id
-    */
+     * agent Id
+     */
     private final String agentId;
     /**
-    * source Id
-    */
+     * source Id
+     */
     private final String sourceId;
     /**
-    * 服务器地址
-    */
+     * 服务器地址
+     */
     private final String serverUrl;
     /**
-    * source
-    */
+     * source
+     */
     private final DataSyncSource source;
 
     /**
-    * socket
-    */
+     * socket
+     */
     private io.socket.client.Socket socket;
     /**
-    * running
-    */
+     * running
+     */
     private volatile boolean running = false;
     /**
-    * 消息 Queue
-    */
+     * 消息 Queue
+     */
     private final BlockingQueue<Map<String, Object>> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-    * 创建 SocketIODataSyncAgent 实例
-    * @param agentId agentId
-    * @param String String
-    * @param String String
-    * @param DataSyncSource DataSyncSource
-    * @param sourceId 来源ID，不允许为 null
-    * @param serverUrl 服务端URL，不允许为 null
-    * @param source 来源，不允许为 null
-    */
+     * 创建 SocketIODataSyncAgent 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param DataSyncSource DataSyncSource
+     * @param sourceId 来源ID，不允许为 null
+     * @param serverUrl 服务端URL，不允许为 null
+     * @param source 来源，不允许为 null
+     */
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;

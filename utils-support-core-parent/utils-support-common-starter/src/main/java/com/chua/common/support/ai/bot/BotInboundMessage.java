@@ -8,13 +8,13 @@ import lombok.Data;
 import lombok.Singular;
 
 /**
-* Bot 入站消息
-* <p>
-* 封装从平台接收到的用户消息，支持文本、图片、语音、视频、文件等类型。
-* </p>
-*
-* @author CH
-* @since 2026/07/18
+ * Bot 入站消息
+ * <p>
+ * 封装从平台接收到的用户消息，支持文本、图片、语音、视频、文件等类型。
+ * </p>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Data
 @Builder
@@ -59,21 +59,21 @@ public class BotInboundMessage {
     private Type type;
 
     /**
-    * 消息内容
-    * <p>TEXT 类型时包含文本</p>
-    */
+     * 消息内容
+     * <p>TEXT 类型时包含文本</p>
+     */
     private String content;
 
     /**
-    * 发送者 ID
-    * <p>openid / uid / open_id</p>
-    */
+     * 发送者 ID
+     * <p>openid / uid / open_id</p>
+     */
     private String fromUser;
 
     /**
-    * 发送者名称
-    * <p>username / name</p>
-    */
+     * 发送者名称
+     * <p>username / name</p>
+     */
     private String fromUserName;
 
     /** 目标用户 ID（Bot 回复对象）*/
@@ -83,21 +83,21 @@ public class BotInboundMessage {
     private long createTime;
 
     /**
-    * 媒体文件 URL
-    * <p>IMAGE/VOICE/VIDEO/FILE 类型时</p>
-    */
+     * 媒体文件 URL
+     * <p>IMAGE/VOICE/VIDEO/FILE 类型时</p>
+     */
     private String mediaUrl;
 
     /**
-    * 媒体 ID
-    * <p>平台返回的 MediaId</p>
-    */
+     * 媒体 ID
+     * <p>平台返回的 MediaId</p>
+     */
     private String mediaId;
 
     /**
-    * 事件类型
-    * <p>EVENT 类型时为 "subscribe"、"unsubscribe"、"click" 等</p>
-    */
+     * 事件类型
+     * <p>EVENT 类型时为 "subscribe"、"unsubscribe"、"click" 等</p>
+     */
     private String eventType;
 
     /** 事件 Key */
@@ -124,18 +124,18 @@ public class BotInboundMessage {
     private Boolean mentionedBot;
 
     /**
-    * 原始字段
-    * <p>支持扩展</p>
-    */
+     * 原始字段
+     * <p>支持扩展</p>
+     */
     @Singular("rawField")
     private Map<String, Object> rawFields;
 
     /**
-    * 获取原始字段值
-    *
-    * @param key 字段名
-    * @return 字段值，不存在则 null
-    */
+     * 获取原始字段值
+     *
+     * @param key 字段名
+     * @return 字段值，不存在则 null
+     */
     public <T> T rawField(String key) {
         if (rawFields == null) {
             return null;

@@ -10,14 +10,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
-* Prometheus 自动配置
-* <p>
-* 默认注册 {@link PrometheusClient} 与 {@link PrometheusEngine},
-* 可通过 {@code prometheus.enabled=false} 关闭。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Prometheus 自动配置
+ * <p>
+ * 默认注册 {@link PrometheusClient} 与 {@link PrometheusEngine},
+ * 可通过 {@code prometheus.enabled=false} 关闭。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @AutoConfiguration
@@ -26,11 +26,11 @@ import org.springframework.context.annotation.Bean;
 public class PrometheusAutoConfiguration {
 
     /**
-    * 创建默认 prometheus客户端
-    *
-    * @param properties 配置
-    * @return 客户端
-    */
+     * 创建默认 prometheus客户端
+     *
+     * @param properties 配置
+     * @return 客户端
+     */
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public PrometheusClient prometheusClient(PrometheusProperties properties) {
@@ -46,11 +46,11 @@ public class PrometheusAutoConfiguration {
     }
 
     /**
-    * 创建默认 prometheusengine
-    *
-    * @param client 默认客户端
-    * @return 引擎
-    */
+     * 创建默认 prometheusengine
+     *
+     * @param client 默认客户端
+     * @return 引擎
+     */
     @Bean
     @ConditionalOnMissingBean
     public PrometheusEngine prometheusEngine(PrometheusClient client) {

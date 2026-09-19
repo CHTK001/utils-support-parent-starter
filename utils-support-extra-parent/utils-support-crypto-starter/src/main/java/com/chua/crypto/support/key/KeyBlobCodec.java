@@ -8,76 +8,76 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
-* 密钥封装体编解码器（统一二进制格式）
-*
-* <p>所有密钥载体（密钥文件、打包内嵌密钥块）共用同一封装格式：
-* <pre>
-* [魔数4B][版本1B][策略标志1B][密钥ID8B][盐16B][IV12B][封装主密钥N字节][HMAC-SHA256 32B]
-* </pre>
-*
-* <p>主密钥以 KEK(AES-256-GCM) 封装，明文永不落盘；尾部 HMAC 覆盖除自身外全部字节防篡改。
-* 文件载体与本模块打包器({@code pack.JarEncryptor})均委托本类完成编解码。
-*
-* @author CH
-* @since 2026-08-26
+ * 密钥封装体编解码器（统一二进制格式）
+ *
+ * <p>所有密钥载体（密钥文件、打包内嵌密钥块）共用同一封装格式：
+ * <pre>
+ * [魔数4B][版本1B][策略标志1B][密钥ID8B][盐16B][IV12B][封装主密钥N字节][HMAC-SHA256 32B]
+ * </pre>
+ *
+ * <p>主密钥以 KEK(AES-256-GCM) 封装，明文永不落盘；尾部 HMAC 覆盖除自身外全部字节防篡改。
+ * 文件载体与本模块打包器({@code pack.JarEncryptor})均委托本类完成编解码。
+ *
+ * @author CH
+ * @since 2026-08-26
  */
 public final class KeyBlobCodec {
 
     /**
-    * 载体格式版本号
-    */
+     * 载体格式版本号
+     */
     public static final byte VERSION = 1;
 
     /**
-    * 策略标志位：服务器绑定
-    */
+     * 策略标志位：服务器绑定
+     */
     public static final byte FLAG_SERVER_BOUND = 0x01;
 
     /**
-    * 头部长度：魔数(4)+版本(1)+标志(1)
-    */
+     * 头部长度：魔数(4)+版本(1)+标志(1)
+     */
     public static final int PREFIX_BYTES = 6;
 
     /**
-    * 密钥 标识 长度（字节）
-    */
+     * 密钥 标识 长度（字节）
+     */
     public static final int KEY_ID_BYTES = SecretKeyMaterial.KEY_ID_LENGTH_BYTES;
 
     /**
-    * 固定段长度：头部(6)+密钥标识(8)+盐(16)+IV(12)
-    */
+     * 固定段长度：头部(6)+密钥标识(8)+盐(16)+IV(12)
+     */
     public static final int FIXED_HEADER_BYTES = PREFIX_BYTES + KEY_ID_BYTES
             + KeyProtector.SALT_BYTES + KeyProtector.GCM_IV_BYTES;
 
     /**
-    * 尾部 HMAC 长度（字节）
-    */
+     * 尾部 HMAC 长度（字节）
+     */
     public static final int TRAILING_MAC_BYTES = KeyProtector.MAC_BYTES;
 
     /**
-    * 最小合法长度：固定段 + HMAC
-    */
+     * 最小合法长度：固定段 + HMAC
+     */
     public static final int MIN_LENGTH = FIXED_HEADER_BYTES + TRAILING_MAC_BYTES;
 
     /**
-    * 随机源
-    */
+     * 随机源
+     */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-    * 私有构造
-    */
+     * 私有构造
+     */
     private KeyBlobCodec() {
     }
 
     /**
-    * 将主密钥材料按当前策略封装为二进制密文块
-    *
-    * @param magic    4 字节魔数（如 CHKF）
-    * @param material 主密钥材料
-    * @param setting  加密配置（策略/口令/服务器标识）
-    * @return 封装后的完整二进制块
-    */
+     * 将主密钥材料按当前策略封装为二进制密文块
+     *
+     * @param magic    4 字节魔数（如 CHKF）
+     * @param material 主密钥材料
+     * @param setting  加密配置（策略/口令/服务器标识）
+     * @return 封装后的完整二进制块
+     */
     public static byte[] encode(byte[] magic, SecretKeyMaterial material, CryptoSetting setting) {
         byte[] salt = new byte[KeyProtector.SALT_BYTES];
         RANDOM.nextBytes(salt);
@@ -107,13 +107,13 @@ public final class KeyBlobCodec {
     }
 
     /**
-    * 校验并解封二进制密钥块
-    *
-    * @param magic   期望魔数
-    * @param blob    二进制密钥块
-    * @param setting 加密配置（提供口令/服务器标识；策略以块内标志为准）
-    * @return 解封出的主密钥材料
-    */
+     * 校验并解封二进制密钥块
+     *
+     * @param magic   期望魔数
+     * @param blob    二进制密钥块
+     * @param setting 加密配置（提供口令/服务器标识；策略以块内标志为准）
+     * @return 解封出的主密钥材料
+     */
     public static SecretKeyMaterial decode(byte[] magic, byte[] blob, CryptoSetting setting) {
         if (blob == null || blob.length < MIN_LENGTH) {
             throw new CryptoException("密钥块已损坏（长度不足）");
@@ -141,12 +141,12 @@ public final class KeyBlobCodec {
     }
 
     /**
-    * 判断数据是否以指定魔数开头
-    *
-    * @param data  数据
-    * @param magic 魔数
-    * @return true 表示匹配
-    */
+     * 判断数据是否以指定魔数开头
+     *
+     * @param data  数据
+     * @param magic 魔数
+     * @return true 表示匹配
+     */
     public static boolean startsWithMagic(byte[] data, byte[] magic) {
         if (data == null || data.length < magic.length) {
             return false;
@@ -160,11 +160,11 @@ public final class KeyBlobCodec {
     }
 
     /**
-    * 校验魔数与版本
-    *
-    * @param magic 期望魔数
-    * @param blob  密钥块
-    */
+     * 校验魔数与版本
+     *
+     * @param magic 期望魔数
+     * @param blob  密钥块
+     */
     private static void verifyHeader(byte[] magic, byte[] blob) {
         for (int i = 0; i < Math.min(magic.length, 4); i++) {
             if (blob[i] != magic[i]) {
@@ -177,26 +177,26 @@ public final class KeyBlobCodec {
     }
 
     /**
-    * 追加字节数组到目标缓冲区
-    *
-    * @param target 目标缓冲区
-    * @param offset 起始偏移
-    * @param data   数据
-    * @return 新偏移
-    */
+     * 追加字节数组到目标缓冲区
+     *
+     * @param target 目标缓冲区
+     * @param offset 起始偏移
+     * @param data   数据
+     * @return 新偏移
+     */
     private static int append(byte[] target, int offset, byte[] data) {
         System.arraycopy(data, 0, target, offset, data.length);
         return offset + data.length;
     }
 
     /**
-    * 截取字节区间副本
-    *
-    * @param source 源数组
-    * @param from   起始下标
-    * @param length 长度
-    * @return 副本
-    */
+     * 截取字节区间副本
+     *
+     * @param source 源数组
+     * @param from   起始下标
+     * @param length 长度
+     * @return 副本
+     */
     private static byte[] slice(byte[] source, int from, int length) {
         return Arrays.copyOfRange(source, from, from + length);
     }

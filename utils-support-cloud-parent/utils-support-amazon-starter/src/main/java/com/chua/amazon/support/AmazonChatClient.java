@@ -24,98 +24,98 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-* AWS Bedrock 大模型对话客户端
-*
-* <p>基于 Amazon Bedrock Runtime API 的 {@link ChatClient} 实现，通过 HTTP 协议
-* 调用 AWS Bedrock 的 Converse 接口，支持 Claude、Llama 等 Bedrock 托管的模型。
-*
-* @author CH
-* @since 4.0.0.42
+ * AWS Bedrock 大模型对话客户端
+ *
+ * <p>基于 Amazon Bedrock Runtime API 的 {@link ChatClient} 实现，通过 HTTP 协议
+ * 调用 AWS Bedrock 的 Converse 接口，支持 Claude、Llama 等 Bedrock 托管的模型。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"amazon"})
 public class AmazonChatClient implements ChatClient {
 
     /**
-    * AWS Bedrock 默认 API 地址
-    */
+     * AWS Bedrock 默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://bedrock-runtime.us-east-1.amazonaws.com";
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final HttpClient httpClient;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ChatClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前温度参数
-    */
+     * 当前温度参数
+     */
     private Double temperature;
 
     /**
-    * 当前最大 令牌 数
-    */
+     * 当前最大 令牌 数
+     */
     private Integer maxTokens;
 
     /**
-    * 当前系统提示词
-    */
+     * 当前系统提示词
+     */
     private String system;
 
     /**
-    * 当前会话 标识
-    */
+     * 当前会话 标识
+     */
     private String sessionId;
 
     /**
-    * 对话历史消息列表
-    */
+     * 对话历史消息列表
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部传入的完整历史记录
-    */
+     * 外部传入的完整历史记录
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 图片附件 URL 列表
-    */
+     * 图片附件 URL 列表
+     */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-    * 是否启用深度思考
-    */
+     * 是否启用深度思考
+     */
     private boolean thinking;
 
     /**
-    * 深度思考力度
-    */
+     * 深度思考力度
+     */
     private String thinkingEffort;
 
     /**
-    * 是否启用智能搜索
-    */
+     * 是否启用智能搜索
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器
-    */
+     * 技能管理器
+     */
     private SkillManager skillManager;
 
     /**
-    * 构造 AWS Bedrock 对话客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造 AWS Bedrock 对话客户端
+     *
+     * @param setting 客户端配置
+     */
     public AmazonChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -264,12 +264,12 @@ public ChatClient newChat() {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();
@@ -368,12 +368,12 @@ public ChatClient newChat() {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * <p>若未配置地址则使用默认的 Bedrock Runtime 地址。
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * <p>若未配置地址则使用默认的 Bedrock Runtime 地址。
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -386,11 +386,11 @@ public ChatClient newChat() {
     }
 
     /**
-    * 转义 JSON 字符串中的特殊字符
-    *
-    * @param input 原始字符串
-    * @return 转义后的字符串
-    */
+     * 转义 JSON 字符串中的特殊字符
+     *
+     * @param input 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
@@ -400,22 +400,22 @@ public ChatClient newChat() {
     }
 
     /**
-    * 转为int
-    *
-    * @param val val
-    * @return 转为int的结果
-    */
+     * 转为int
+     *
+     * @param val val
+     * @return 转为int的结果
+     */
     private static Integer toInt(Object val) {
         if (val instanceof Number n) { return n.intValue(); }
         return null;
     }
 
     /**
-    * 代理selector
-    *
-    * @param proxyStr 代理str
-    * @return 代理selector的结果
-    */
+     * 代理selector
+     *
+     * @param proxyStr 代理str
+     * @return 代理selector的结果
+     */
     private static ProxySelector proxySelector(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;

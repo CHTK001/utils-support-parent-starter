@@ -9,24 +9,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
-* 轮询负载均衡器。
-* <p>按顺序依次分配请求到各节点，基于原子计数器实现无锁轮询；适用于节点权重相同的场景。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 轮询负载均衡器。
+ * <p>按顺序依次分配请求到各节点，基于原子计数器实现无锁轮询；适用于节点权重相同的场景。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @SpiDefault
 @Spi({"round", "polling"})
 public class RoundLoadBalance implements LoadBalance {
 
  /**
- * 轮询计数器
- */
+  * 轮询计数器
+  */
  final AtomicInteger count = new AtomicInteger(0);
 
  /**
- * 节点列表
- */
+  * 节点列表
+  */
  private final List<Node> nodes = new ArrayList<>();
 
  @Override

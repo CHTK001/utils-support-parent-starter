@@ -12,13 +12,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* rSocket 同步服务端实现。
-* <p>
-* 委托给 {@link com.chua.rsocket.support.server.RSocketServer} 处理底层 rSocket 通信。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * rSocket 同步服务端实现。
+ * <p>
+ * 委托给 {@link com.chua.rsocket.support.server.RSocketServer} 处理底层 rSocket 通信。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("rsocket")
 public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
@@ -47,18 +47,18 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
-    * 监听器列表
-    */
+     * 监听器列表
+     */
     private final List<SyncServerListener> listeners = new ArrayList<>();
     /**
-    * 委托对象
-    */
+     * 委托对象
+     */
     private final com.chua.rsocket.support.server.RSocketServer delegate;
 
     /**
-    * 创建 rSocket同步服务端 实例
-    * @param setting setting
-    */
+     * 创建 rSocket同步服务端 实例
+     * @param setting setting
+     */
     public RSocketSyncServer(ServerSetting setting) {
         super(setting);
         this.delegate = new com.chua.rsocket.support.server.RSocketServer(setting);

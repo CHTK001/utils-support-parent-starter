@@ -37,12 +37,12 @@ public final class HprofToJsonSerializer {
     }
 
     /**
-    * 将解析后的 hprof 结果序列化为 JSON 字符串。
-    *
-    * @param result   解析后的 hprof 结果，不允许为 null
-    * @param fileName 用于元信息块的源文件名
-    * @return JSON 文档字符串
-    */
+     * 将解析后的 hprof 结果序列化为 JSON 字符串。
+     *
+     * @param result   解析后的 hprof 结果，不允许为 null
+     * @param fileName 用于元信息块的源文件名
+     * @return JSON 文档字符串
+     */
     public static String serialize(HprofParser.Result result, String fileName) {
         try {
             return MAPPER.writeValueAsString(buildDocument(result, fileName));
@@ -52,12 +52,12 @@ public final class HprofToJsonSerializer {
     }
 
     /**
-    * 构建 JSON 文档根节点。
-    *
-    * @param result   解析后的 hprof 结果，不允许为 null
-    * @param fileName 源文件名
-    * @return 文档根节点
-    */
+     * 构建 JSON 文档根节点。
+     *
+     * @param result   解析后的 hprof 结果，不允许为 null
+     * @param fileName 源文件名
+     * @return 文档根节点
+     */
     private static JsonNode buildDocument(HprofParser.Result result, String fileName) {
         ObjectNode root = MAPPER.createObjectNode();
         ObjectNode meta = root.putObject("meta");
@@ -234,11 +234,11 @@ public final class HprofToJsonSerializer {
     }
 
     /**
-    * Whether the given bytes form a valid hprof document.
-    *
-    * @param json json candidate
-    * @return true when parseable
-    */
+     * Whether the given bytes form a valid hprof document.
+     *
+     * @param json json candidate
+     * @return true when parseable
+     */
     public static boolean isValidJson(String json) {
         try {
             MAPPER.readTree(json);

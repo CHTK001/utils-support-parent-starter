@@ -20,16 +20,16 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-* SCRFD 2.5G BNKPS              Translator   
-*
-* <p>                            stride   8/16/32       score + bbox + kps   
-* SCRFD        距离2bbox                          score/bbox   </p>
-*
-* <p>模型输出 9 个 tensor：score×3 + bbox×3 + kps×3（每点 10 维 = 5 关键点 × 2 坐标），
-* 关键点用于 5 点仿射对齐（修复/超分/识别前处理）。</p>
-*
-* @author CH
-* @since 2026-04-23
+ * SCRFD 2.5G BNKPS              Translator   
+ *
+ * <p>                            stride   8/16/32       score + bbox + kps   
+ * SCRFD        距离2bbox                          score/bbox   </p>
+ *
+ * <p>模型输出 9 个 tensor：score×3 + bbox×3 + kps×3（每点 10 维 = 5 关键点 × 2 坐标），
+ * 关键点用于 5 点仿射对齐（修复/超分/识别前处理）。</p>
+ *
+ * @author CH
+ * @since 2026-04-23
  */
 public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
@@ -115,14 +115,14 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-    * 解码Stride
-    *
-    * @param candidates candidates
-    * @param scoreArray scorearray
-    * @param bboxArray bboxarray
-    * @param kpsArray kpsarray
-    * @param stride stride
-    */
+     * 解码Stride
+     *
+     * @param candidates candidates
+     * @param scoreArray scorearray
+     * @param bboxArray bboxarray
+     * @param kpsArray kpsarray
+     * @param stride stride
+     */
     private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride) {
         float[] scores = scoreArray.toFloatArray();
         float[] boxes = bboxArray.toFloatArray();
@@ -163,32 +163,32 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-    * squeezebatch
-    *
-    * @param array array
-    * @return squeezeBatch的结果
-    */
+     * squeezebatch
+     *
+     * @param array array
+     * @return squeezeBatch的结果
+     */
     private NDArray squeezeBatch(NDArray array) {
         return array;
     }
 
     /**
-    * Clamp
-    *
-    * @param value 值
-    * @param min 最小
-    * @param max 最大
-    * @return clamp的结果
-    */
+     * Clamp
+     *
+     * @param value 值
+     * @param min 最小
+     * @param max 最大
+     * @return clamp的结果
+     */
     private float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }
 
     /**
-    * 空
-    *
-    * @return 空的结果
-    */
+     * 空
+     *
+     * @return 空的结果
+     */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
@@ -206,9 +206,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     */
     private record Candidate(Landmark landmark, double score) {
         /**
-        * rectangle。
-        * @return rectangle的结果
-        */
+         * rectangle。
+         * @return rectangle的结果
+         */
         private Rectangle rectangle() { return landmark; }
     }
         /** 默认构造。 */

@@ -7,14 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* safetensor 模型下载管理器。
-* <p>
-* 自动从 模型scope / huggingface 等来源下载模型 safetensor 文件。
-* 优先通过 Python 推理服务下载，失败时回退到本地 Java 直接下载。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * safetensor 模型下载管理器。
+ * <p>
+ * 自动从 模型scope / huggingface 等来源下载模型 safetensor 文件。
+ * 优先通过 Python 推理服务下载，失败时回退到本地 Java 直接下载。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SafeTensorModelDownloadManager {
@@ -37,24 +37,24 @@ public class SafeTensorModelDownloadManager {
     }
 
     /**
-    * 创建 safetensor模型download管理器 实例
-    * @param client 客户端
-    * @param modelRoot 路径
-    * @param modelRoot 模型根
-    */
+     * 创建 safetensor模型download管理器 实例
+     * @param client 客户端
+     * @param modelRoot 路径
+     * @param modelRoot 模型根
+     */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client, Path modelRoot) {
         this.modelRoot = modelRoot;
         this.client = client;
     }
 
     /**
-    * 确保模型已下载，如果不存在则自动下载。
-    *
-    * @param modelName 模型名称
-    * @param source 来源（modelscope / huggingface）
-    * @param revision 版本（可选）
-    * @return 模型本地路径
-    */
+     * 确保模型已下载，如果不存在则自动下载。
+     *
+     * @param modelName 模型名称
+     * @param source 来源（modelscope / huggingface）
+     * @param revision 版本（可选）
+     * @return 模型本地路径
+     */
     public String ensureModel(String modelName, String source, String revision) {
         String localName = modelName.replace("/", "_");
         Path modelPath = modelRoot.resolve(localName);
@@ -76,13 +76,13 @@ public class SafeTensorModelDownloadManager {
     }
 
     /**
-    * 通过 Python 命令行直接下载模型。
-    * @param modelName 模型名称
-    * @param source 源
-    * @param revision revision
-    * @param targetPath Target路径
-    * @return downloadDirect的结果
-    */
+     * 通过 Python 命令行直接下载模型。
+     * @param modelName 模型名称
+     * @param source 源
+     * @param revision revision
+     * @param targetPath Target路径
+     * @return downloadDirect的结果
+     */
     private String downloadDirect(String modelName, String source, String revision, Path targetPath) {
         try {
             Files.createDirectories(targetPath);

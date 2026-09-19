@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
-* 基于 JDK AWT 的默认图像处理器
-*
-* <p>无需任何原生依赖，作为 {@link ImageProcessor} 的兜底实现。
-* 性能弱于 OpenCV / Rust 原生实现，但保证任何环境均可运行。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 JDK AWT 的默认图像处理器
+ *
+ * <p>无需任何原生依赖，作为 {@link ImageProcessor} 的兜底实现。
+ * 性能弱于 OpenCV / Rust 原生实现，但保证任何环境均可运行。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("image-processor")
 @SpiOrder(-100)
@@ -78,11 +78,11 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 转为灰度图像
-    *
-    * @param image 源图像
-    * @return 灰度图像
-    */
+     * 转为灰度图像
+     *
+     * @param image 源图像
+     * @return 灰度图像
+     */
     private BufferedImage grayscale(BufferedImage image) {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g = result.createGraphics();
@@ -92,12 +92,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 旋转图像
-    *
-    * @param image  源图像
-    * @param params 参数：angle（度，支持 90 的整数倍）
-    * @return 旋转后的图像
-    */
+     * 旋转图像
+     *
+     * @param image  源图像
+     * @param params 参数：angle（度，支持 90 的整数倍）
+     * @return 旋转后的图像
+     */
     private BufferedImage rotate(BufferedImage image, Map<String, Object> params) {
         int angle = ImageProcessorUtils.toInt(params.get("angle"), 90) % 360;
         if (angle < 0) {
@@ -141,11 +141,11 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 旋转 180 度
-    *
-    * @param image 源图像
-    * @return 旋转后的图像
-    */
+     * 旋转 180 度
+     *
+     * @param image 源图像
+     * @return 旋转后的图像
+     */
     private BufferedImage rotate180(BufferedImage image) {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -159,12 +159,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 裁剪图像
-    *
-    * @param image  源图像
-    * @param params 参数：x / y / width / height
-    * @return 裁剪后的图像
-    */
+     * 裁剪图像
+     *
+     * @param image  源图像
+     * @param params 参数：x / y / width / height
+     * @return 裁剪后的图像
+     */
     private BufferedImage crop(BufferedImage image, Map<String, Object> params) {
         int x = ImageProcessorUtils.toInt(params.get("x"), 0);
         int y = ImageProcessorUtils.toInt(params.get("y"), 0);
@@ -183,12 +183,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 高斯模糊
-    *
-    * @param image  源图像
-    * @param params 参数：sigma（模糊半径）
-    * @return 模糊后的图像
-    */
+     * 高斯模糊
+     *
+     * @param image  源图像
+     * @param params 参数：sigma（模糊半径）
+     * @return 模糊后的图像
+     */
     private BufferedImage blur(BufferedImage image, Map<String, Object> params) {
         int sigma = ImageProcessorUtils.toInt(params.get("sigma"), 3);
         int radius = Math.max(1, sigma);
@@ -206,12 +206,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 翻转图像
-    *
-    * @param image  源图像
-    * @param params 参数：axis（h 水平 / v 垂直，默认 h）
-    * @return 翻转后的图像
-    */
+     * 翻转图像
+     *
+     * @param image  源图像
+     * @param params 参数：axis（h 水平 / v 垂直，默认 h）
+     * @return 翻转后的图像
+     */
     private BufferedImage flip(BufferedImage image, Map<String, Object> params) {
         String axis = params.get("axis") != null ? params.get("axis").toString() : "h";
         int w = image.getWidth();
@@ -228,12 +228,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 调整亮度
-    *
-    * @param image  源图像
-    * @param params 参数：value（[-255, 255]，正数变亮）
-    * @return 调整后的图像
-    */
+     * 调整亮度
+     *
+     * @param image  源图像
+     * @param params 参数：value（[-255, 255]，正数变亮）
+     * @return 调整后的图像
+     */
     private BufferedImage brightness(BufferedImage image, Map<String, Object> params) {
         int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -251,12 +251,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 调整对比度
-    *
-    * @param image  源图像
-    * @param params 参数：value（[-100, 100]，正数增强）
-    * @return 调整后的图像
-    */
+     * 调整对比度
+     *
+     * @param image  源图像
+     * @param params 参数：value（[-100, 100]，正数增强）
+     * @return 调整后的图像
+     */
     private BufferedImage contrast(BufferedImage image, Map<String, Object> params) {
         int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         double factor = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
@@ -275,12 +275,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 绘制边框
-    *
-    * @param image  源图像
-    * @param params 参数：width（边框宽度）/ color（#RRGGBB 或 r,g,b）
-    * @return 带边框的图像
-    */
+     * 绘制边框
+     *
+     * @param image  源图像
+     * @param params 参数：width（边框宽度）/ color（#RRGGBB 或 r,g,b）
+     * @return 带边框的图像
+     */
     private BufferedImage border(BufferedImage image, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
@@ -298,15 +298,15 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 二值化（阈值化）
-    *
-    * <p>将图像转为灰度后按阈值二值化，大于阈值取白（255），否则取黑（0）。
-    * 支持反向阈值（threshold 为负表示取反）。</p>
-    *
-    * @param image  源图像
-    * @param params 参数：threshold（0~255，默认 128）
-    * @return 二值化后的灰度图像
-    */
+     * 二值化（阈值化）
+     *
+     * <p>将图像转为灰度后按阈值二值化，大于阈值取白（255），否则取黑（0）。
+     * 支持反向阈值（threshold 为负表示取反）。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：threshold（0~255，默认 128）
+     * @return 二值化后的灰度图像
+     */
     private BufferedImage binarize(BufferedImage image, Map<String, Object> params) {
         int threshold = ImageProcessorUtils.toInt(params.get("threshold"), 128);
         int w = image.getWidth();
@@ -325,15 +325,15 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 降噪（中值滤波）
-    *
-    * <p>对每个像素取邻域中值作为输出，可有效去除椒盐噪声。
-    * 邻域半径越大去噪越强、细节损失越多。</p>
-    *
-    * @param image  源图像
-    * @param params 参数：radius（邻域半径，默认 1）
-    * @return 降噪后的图像
-    */
+     * 降噪（中值滤波）
+     *
+     * <p>对每个像素取邻域中值作为输出，可有效去除椒盐噪声。
+     * 邻域半径越大去噪越强、细节损失越多。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：radius（邻域半径，默认 1）
+     * @return 降噪后的图像
+     */
     private BufferedImage denoise(BufferedImage image, Map<String, Object> params) {
         int radius = Math.max(1, ImageProcessorUtils.toInt(params.get("radius"), 1));
         int w = image.getWidth();
@@ -357,41 +357,41 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 腐蚀（形态学操作）
-    *
-    * <p>对灰度图取邻域最小值，亮区收缩、暗区扩张，用于去除细小白噪点。
-    * 该操作在灰度/二值图上等价于 Morphology Erode。</p>
-    *
-    * @param image  源图像
-    * @param params 参数：kernel（核尺寸，默认 3，奇数）
-    * @return 腐蚀后的灰度图像
-    */
+     * 腐蚀（形态学操作）
+     *
+     * <p>对灰度图取邻域最小值，亮区收缩、暗区扩张，用于去除细小白噪点。
+     * 该操作在灰度/二值图上等价于 Morphology Erode。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：kernel（核尺寸，默认 3，奇数）
+     * @return 腐蚀后的灰度图像
+     */
     private BufferedImage erode(BufferedImage image, Map<String, Object> params) {
         return morphology(image, params, true);
     }
 
     /**
-    * 膨胀（形态学操作）
-    *
-    * <p>对灰度图取邻域最大值，亮区扩张、暗区收缩，用于填补细小空洞。
-    * 该操作在灰度/二值图上等价于 Morphology Dilate。</p>
-    *
-    * @param image  源图像
-    * @param params 参数：kernel（核尺寸，默认 3，奇数）
-    * @return 膨胀后的灰度图像
-    */
+     * 膨胀（形态学操作）
+     *
+     * <p>对灰度图取邻域最大值，亮区扩张、暗区收缩，用于填补细小空洞。
+     * 该操作在灰度/二值图上等价于 Morphology Dilate。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：kernel（核尺寸，默认 3，奇数）
+     * @return 膨胀后的灰度图像
+     */
     private BufferedImage dilate(BufferedImage image, Map<String, Object> params) {
         return morphology(image, params, false);
     }
 
     /**
-    * 形态学基础操作（腐蚀/膨胀）
-    *
-    * @param image  源图像
-    * @param params 参数：kernel（核尺寸，默认 3，奇数）
-    * @param erode  true 腐蚀取最小值，false 膨胀取最大值
-    * @return 处理后的灰度图像
-    */
+     * 形态学基础操作（腐蚀/膨胀）
+     *
+     * @param image  源图像
+     * @param params 参数：kernel（核尺寸，默认 3，奇数）
+     * @param erode  true 腐蚀取最小值，false 膨胀取最大值
+     * @return 处理后的灰度图像
+     */
     private BufferedImage morphology(BufferedImage image, Map<String, Object> params, boolean erode) {
         int kernel = Math.max(3, ImageProcessorUtils.toInt(params.get("kernel"), 3));
         if (kernel % 2 == 0) {
@@ -425,16 +425,16 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 边缘检测（Sobel 算子）
-    *
-    * <p>使用 Sobel 算子检测图像边缘，支持水平和垂直方向。
-    * 先将图像转为灰度，然后分别应用水平和垂直 Sobel 算子，
-    * 最后通过梯度幅值合成边缘图像。</p>
-    *
-    * @param image  源图像
-    * @param params 参数：direction（h 水平 / v 垂直 / both 双向，默认 both）
-    * @return 边缘检测后的灰度图像
-    */
+     * 边缘检测（Sobel 算子）
+     *
+     * <p>使用 Sobel 算子检测图像边缘，支持水平和垂直方向。
+     * 先将图像转为灰度，然后分别应用水平和垂直 Sobel 算子，
+     * 最后通过梯度幅值合成边缘图像。</p>
+     *
+     * @param image  源图像
+     * @param params 参数：direction（h 水平 / v 垂直 / both 双向，默认 both）
+     * @return 边缘检测后的灰度图像
+     */
     private BufferedImage edge(BufferedImage image, Map<String, Object> params) {
         String direction = params.get("direction") != null ? params.get("direction").toString() : "both";
         int w = image.getWidth();
@@ -481,12 +481,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 计算数组的中值（就地排序）
-    *
-    * @param values 数组
-    * @param length 有效长度
-    * @return 中值像素
-    */
+     * 计算数组的中值（就地排序）
+     *
+     * @param values 数组
+     * @param length 有效长度
+     * @return 中值像素
+     */
     private int median(int[] values, int length) {
         int[] copy = new int[length];
         System.arraycopy(values, 0, copy, 0, length);
@@ -495,12 +495,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 编码输出
-    *
-    * @param image  处理后的图像
-    * @param params 参数：format（png / jpeg，默认 png）
-    * @return 编码后的字节
-    */
+     * 编码输出
+     *
+     * @param image  处理后的图像
+     * @param params 参数：format（png / jpeg，默认 png）
+     * @return 编码后的字节
+     */
     private byte[] encode(BufferedImage image, Map<String, Object> params) throws IOException {
         String format = params.get("format") != null ? params.get("format").toString() : "png";
         if ("jpeg".equalsIgnoreCase(format)) {

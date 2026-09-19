@@ -9,51 +9,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Maven 构建后的部署客户端。
-* <p>
-* 基于编译结果中的产物文件，将产物部署到 {@link MavenDeployTarget} 目标。
-* 内置代理创建本地部署目标，同时支持各种自定义实现（如 SSH）。
-* </p>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* // 方式一：本地部署（快捷方式）
-* MavenClient.create()
-*     .projectPath("pom.xml")
-*     .goal("clean", "package")
-*     .compileAndDeploy()
-*     .deployTo("/opt/app/");
-*
-* // 方式二：指定部署目标
-* LocalDeployTarget target = new LocalDeployTarget("/opt/app");
-* MavenClient.create()
-*     .projectPath("pom.xml")
-*     .goal("clean", "package")
-*     .compileAndDeploy()
-*     .deployTo(target);
-*
-* // 方式三：已有编译结果
-* MavenCompileResult result = MavenClient.create()
-*     .projectPath("pom.xml")
-*     .goal("package")
-*     .execute();
-*
-* MavenDeployClient.from(result)
-*     .onDeploy(new MavenDeployCallback() {
-*         public void onDeploySuccess(List&lt;String&gt; paths) {
-*             System.out.println("部署到: " + paths);
-*         }
-*     })
-*     .deployTo(new LocalDeployTarget("/opt/app"));
-* }</pre>
-*             System.out.println("部署到: " + paths);
-*         }
-*     })
-* .deploy转为(新 本地deployTarget("/opt/app"));
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Maven 构建后的部署客户端。
+ * <p>
+ * 基于编译结果中的产物文件，将产物部署到 {@link MavenDeployTarget} 目标。
+ * 内置代理创建本地部署目标，同时支持各种自定义实现（如 SSH）。
+ * </p>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * // 方式一：本地部署（快捷方式）
+ * MavenClient.create()
+ *     .projectPath("pom.xml")
+ *     .goal("clean", "package")
+ *     .compileAndDeploy()
+ *     .deployTo("/opt/app/");
+ *
+ * // 方式二：指定部署目标
+ * LocalDeployTarget target = new LocalDeployTarget("/opt/app");
+ * MavenClient.create()
+ *     .projectPath("pom.xml")
+ *     .goal("clean", "package")
+ *     .compileAndDeploy()
+ *     .deployTo(target);
+ *
+ * // 方式三：已有编译结果
+ * MavenCompileResult result = MavenClient.create()
+ *     .projectPath("pom.xml")
+ *     .goal("package")
+ *     .execute();
+ *
+ * MavenDeployClient.from(result)
+ *     .onDeploy(new MavenDeployCallback() {
+ *         public void onDeploySuccess(List&lt;String&gt; paths) {
+ *             System.out.println("部署到: " + paths);
+ *         }
+ *     })
+ *     .deployTo(new LocalDeployTarget("/opt/app"));
+ * }</pre>
+ *             System.out.println("部署到: " + paths);
+ *         }
+ *     })
+ * .deploy转为(新 本地deployTarget("/opt/app"));
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MavenDeployClient {
 
@@ -66,53 +66,53 @@ public class MavenDeployClient {
     private final MavenCompileResult result;
 
     /**
-    * 部署回调
-    */
+     * 部署回调
+     */
     private MavenDeployCallback deployCallback;
 
     /**
-    * 创建 mavendeploy客户端 实例
-    * @param result 结果
-    */
+     * 创建 mavendeploy客户端 实例
+     * @param result 结果
+     */
     public MavenDeployClient(MavenCompileResult result) {
         this.result = result;
     }
 
     /**
-    * 从编译结果创建
-    *
-    * @param result 编译结果
-    * @return 部署客户端
-    */
+     * 从编译结果创建
+     *
+     * @param result 编译结果
+     * @return 部署客户端
+     */
     public static MavenDeployClient from(MavenCompileResult result) {
         return new MavenDeployClient(result);
     }
 
     /**
-    * 设置部署回调
-    *
-    * @param callback 回调
-    * @return this
-    */
+     * 设置部署回调
+     *
+     * @param callback 回调
+     * @return this
+     */
     public MavenDeployClient onDeploy(MavenDeployCallback callback) {
         this.deployCallback = callback;
         return this;
     }
 
     /**
-    * 获取编译结果
-    *
-    * @return 编译结果
-    */
+     * 获取编译结果
+     *
+     * @return 编译结果
+     */
     public MavenCompileResult getResult() {
         return result;
     }
 
     /**
-    * 是否可以部署
-    *
-    * @return true 编译成功且有产物
-    */
+     * 是否可以部署
+     *
+     * @return true 编译成功且有产物
+     */
     public boolean canDeploy() {
         return result.isSuccess() && result.hasArtifacts();
     }
@@ -120,11 +120,11 @@ public class MavenDeployClient {
     // ==================== 核心部署方法 ====================
 
     /**
-    * 部署到指定目标
-    *
-    * @param target 部署目标（如 本地deployTarget、sshdeployTarget）
-    * @return 部署后的文件列表（目标路径）
-    */
+     * 部署到指定目标
+     *
+     * @param target 部署目标（如 本地deployTarget、sshdeployTarget）
+     * @return 部署后的文件列表（目标路径）
+     */
     public List<String> deployTo(MavenDeployTarget target) {
         if (!canDeploy()) {
             throw new MavenDeployException("无法部署: 编译失败或无产物");
@@ -178,21 +178,21 @@ public class MavenDeployClient {
     // ==================== 快捷部署方法 ====================
 
     /**
-    * 部署到本地目录（快捷方式，每次创建新 本地deployTarget）
-    *
-    * @param targetDir 目标目录
-    * @return 部署后的文件列表
-    */
+     * 部署到本地目录（快捷方式，每次创建新 本地deployTarget）
+     *
+     * @param targetDir 目标目录
+     * @return 部署后的文件列表
+     */
     public List<String> deployTo(String targetDir) {
         return deployTo(new LocalDeployTarget(targetDir));
     }
 
     /**
-    * 部署到文件（复制到本地指定文件路径）
-    *
-    * @param targetFilePath 目标文件完整路径
-    * @return 目标文件路径
-    */
+     * 部署到文件（复制到本地指定文件路径）
+     *
+     * @param targetFilePath 目标文件完整路径
+     * @return 目标文件路径
+     */
     public String deployToFile(String targetFilePath) {
         if (!canDeploy()) {
             throw new MavenDeployException("无法部署: 编译失败或无产物");
@@ -225,11 +225,11 @@ public class MavenDeployClient {
     // ==================== 原产物操作 ====================
 
     /**
-    * 重命名产物
-    *
-    * @param newName 新文件名
-    * @return 重命名后的文件路径
-    */
+     * 重命名产物
+     *
+     * @param newName 新文件名
+     * @return 重命名后的文件路径
+     */
     public String rename(String newName) {
         String sourcePath = result.getMainArtifact();
         if (sourcePath == null) {
@@ -250,10 +250,10 @@ public class MavenDeployClient {
     // ==================== 回调通知 ====================
 
     /**
-    * 通知开始
-    *
-    * @param info 信息
-    */
+     * 通知开始
+     *
+     * @param info 信息
+     */
     private void notifyStart(String info) {
         if (deployCallback != null) {
             try {
@@ -265,11 +265,11 @@ public class MavenDeployClient {
     }
 
     /**
-    * 通知进步
-    *
-    * @param message 消息
-    * @param percent percent
-    */
+     * 通知进步
+     *
+     * @param message 消息
+     * @param percent percent
+     */
     private void notifyProgress(String message, int percent) {
         if (deployCallback != null) {
             try {
@@ -281,10 +281,10 @@ public class MavenDeployClient {
     }
 
     /**
-    * 通知成功
-    *
-    * @param deployedPaths deployed路径
-    */
+     * 通知成功
+     *
+     * @param deployedPaths deployed路径
+     */
     private void notifySuccess(List<String> deployedPaths) {
         if (deployCallback != null) {
             try {
@@ -296,10 +296,10 @@ public class MavenDeployClient {
     }
 
     /**
-    * 通知失败
-    *
-    * @param exception 异常
-    */
+     * 通知失败
+     *
+     * @param exception 异常
+     */
     private void notifyFailure(Exception exception) {
         if (deployCallback != null) {
             try {

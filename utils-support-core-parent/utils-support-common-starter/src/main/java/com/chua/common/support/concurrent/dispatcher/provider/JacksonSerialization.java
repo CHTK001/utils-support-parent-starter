@@ -5,13 +5,13 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
-* 基于 Jackson 的默认 {@link Serialization} 实现。
-*
-* <p>common-starter 内置依赖 jackson-databind，故作为 {@link WalDispatcherProvider}
-* 的默认序列化器（不依赖外部 Fury/Kryo 等库）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Jackson 的默认 {@link Serialization} 实现。
+ *
+ * <p>common-starter 内置依赖 jackson-databind，故作为 {@link WalDispatcherProvider}
+ * 的默认序列化器（不依赖外部 Fury/Kryo 等库）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"jackson"})
 public class JacksonSerialization implements Serialization {

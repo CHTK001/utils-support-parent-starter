@@ -30,48 +30,48 @@ import java.lang.reflect.Type;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 public class SerializerFlow {
 
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 底层序列化提供者
-    */
+     * 底层序列化提供者
+     */
     private final SerializerProvider provider;
 
     /**
-    * 当前使用的序列化器
-    */
+     * 当前使用的序列化器
+     */
     private volatile Serializer<? extends Serializable> currentSerializer;
 
     /**
-    * 创建默认的序列化流管理器
-    *
-    * <p>使用 {@link DefaultSerializerProvider} 作为默认序列化提供者，
-    * 默认使用 {@link JsonSerializer} 进行序列化和反序列化。
-    */
+     * 创建默认的序列化流管理器
+     *
+     * <p>使用 {@link DefaultSerializerProvider} 作为默认序列化提供者，
+     * 默认使用 {@link JsonSerializer} 进行序列化和反序列化。
+     */
     public SerializerFlow() {
         this(new DefaultSerializerProvider(), new JsonSerializer<>(Object.class));
     }
 
     /**
-    * 创建指定提供者和序列化器的序列化流管理器
-    *
-    * @param provider       序列化提供者
-    * @param serializer 默认序列化器
-    */
+     * 创建指定提供者和序列化器的序列化流管理器
+     *
+     * @param provider       序列化提供者
+     * @param serializer 默认序列化器
+     */
     public SerializerFlow(SerializerProvider provider, Serializer<? extends Serializable> serializer) {
         this.provider = provider;
         this.currentSerializer = serializer;
     }
 
     /**
-    * 序列化对象为字节数组
-    *
-    * @param object 待序列化的对象
-    * @return 字节数组
-    */
+     * 序列化对象为字节数组
+     *
+     * @param object 待序列化的对象
+     * @return 字节数组
+     */
     public byte[] serialize(Object object) {
         if (object == null) {
             return new byte[0];
@@ -82,12 +82,12 @@ public class SerializerFlow {
     }
 
     /**
-    * 将字节数组反序列化为指定类型的对象
-    *
-    * @param bytes 字节数组
-    * @param clazz 目标类型
-    * @return 反序列化后的对象
-    */
+     * 将字节数组反序列化为指定类型的对象
+     *
+     * @param bytes 字节数组
+     * @param clazz 目标类型
+     * @return 反序列化后的对象
+     */
     public <T extends Serializable> T deserialize(byte[] bytes, Class<T> clazz) {
         if (bytes == null || bytes.length == 0) {
             return null;
@@ -97,11 +97,11 @@ public class SerializerFlow {
     }
 
     /**
-    * 将字节数组反序列化为指定类型的对象（使用当前序列化器）
-    *
-    * @param bytes 字节数组
-    * @return 反序列化后的对象
-    */
+     * 将字节数组反序列化为指定类型的对象（使用当前序列化器）
+     *
+     * @param bytes 字节数组
+     * @return 反序列化后的对象
+     */
     public <T extends Serializable> T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;
@@ -110,79 +110,79 @@ public class SerializerFlow {
     }
 
     /**
-    * 切换序列化器
-    *
-    * @param serializer 新的序列化器
-    * @return 当前序列化流管理器（支持链式调用）
-    */
+     * 切换序列化器
+     *
+     * @param serializer 新的序列化器
+     * @return 当前序列化流管理器（支持链式调用）
+     */
     public SerializerFlow use(Serializer<? extends Serializable> serializer) {
         this.currentSerializer = serializer;
         return this;
     }
 
     /**
-    * 获取当前使用的序列化器
-    *
-    * @return 当前序列化器
-    */
+     * 获取当前使用的序列化器
+     *
+     * @return 当前序列化器
+     */
     public Serializer<? extends Serializable> getSerializer() {
         return currentSerializer;
     }
 
     /**
-    * 获取底层序列化提供者
-    *
-    * @return 序列化提供者
-    */
+     * 获取底层序列化提供者
+     *
+     * @return 序列化提供者
+     */
     public SerializerProvider getProvider() {
         return provider;
     }
 
     /**
-    * 配置构建器
-    *
-    * <p>支持链式调用风格的序列化器配置，通过 {@link #done()} 返回上一级管理器。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 配置构建器
+     *
+     * <p>支持链式调用风格的序列化器配置，通过 {@link #done()} 返回上一级管理器。
+     * @author CH
+     * @since 4.0.0
+     */
     public class SerializerConfigBuilder {
         private Serializer<? extends Serializable> serializer; // 序列化器
 
         /**
-        * Json
-        *
-        * @return json的结果
-        */
+         * Json
+         *
+         * @return json的结果
+         */
         public SerializerConfigBuilder json() {
             this.serializer = new JsonSerializer<>(Object.class);
             return this;
         }
 
         /**
-        * Java
-        *
-        * @return java的结果
-        */
+         * Java
+         *
+         * @return java的结果
+         */
         public SerializerConfigBuilder java() {
             this.serializer = new JavaSerializer<>();
             return this;
         }
 
         /**
-        * 完成配置构建，返回上一级管理器
-        *
-        * @return 序列化流管理器
-        */
+         * 完成配置构建，返回上一级管理器
+         *
+         * @return 序列化流管理器
+         */
         public SerializerFlow done() {
             return new SerializerFlow(provider, serializer);
         }
     }
 
     /**
-    * 获取配置构建器（链式调用入口）
-    *
-    * @return 配置构建器
-    */
+     * 获取配置构建器（链式调用入口）
+     *
+     * @return 配置构建器
+     */
     public SerializerConfigBuilder config() {
         return new SerializerConfigBuilder();
     }

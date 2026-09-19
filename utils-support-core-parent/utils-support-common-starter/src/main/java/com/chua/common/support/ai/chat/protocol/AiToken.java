@@ -6,13 +6,13 @@ import lombok.Data;
 import java.util.Date;
 
 /**
-* AI 访问令牌数据模型。
-*
-* <p>包含令牌值、分组、过期时间等元信息。
-* token 分组用于控制不同令牌可访问的模型分组。
-*
-* @author CH
-* @since 4.0.0.42
+ * AI 访问令牌数据模型。
+ *
+ * <p>包含令牌值、分组、过期时间等元信息。
+ * token 分组用于控制不同令牌可访问的模型分组。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -25,11 +25,11 @@ public class AiToken {
     private String token;
 
     /**
-    * 令牌分组（如 default、vip、admin），用于路由到对应的模型组
-    */
+     * 令牌分组（如 default、vip、admin），用于路由到对应的模型组
+     */
     /**
-    * 用户组
-    */
+     * 用户组
+     */
     private String group;
 
     /** 过期时间，null 表示永不过期 */
@@ -38,8 +38,8 @@ public class AiToken {
     /** 是否启用 */
     @Builder.Default
     /**
-    * 是否启用
-    */
+     * 是否启用
+     */
     private boolean enabled = true;
 
     /** 备注 */

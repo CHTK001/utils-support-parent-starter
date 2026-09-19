@@ -56,33 +56,33 @@ import java.awt.image.BufferedImage;
 public class PopArtImageFilter extends AbstractImageFilter {
 
     /**
-    * 调色板大小，默认 4
-    */
+     * 调色板大小，默认 4
+     */
     private int paletteSize = 4;
 
     /**
-    * 饱和度增强系数，默认 1.8
-    */
+     * 饱和度增强系数，默认 1.8
+     */
     private double saturationBoost = 1.8;
 
     /**
-    * 对比度增强系数，默认 1.4
-    */
+     * 对比度增强系数，默认 1.4
+     */
     private double contrast = 1.4;
 
     /**
-    * 是否叠加网点纹理，默认 false
-    */
+     * 是否叠加网点纹理，默认 false
+     */
     private boolean halftone = false;
 
     /**
-    * 网点间距（像素），默认 4
-    */
+     * 网点间距（像素），默认 4
+     */
     private int halftoneSize = 4;
 
     /**
-    * 经典波普调色板（RGB）
-    */
+     * 经典波普调色板（RGB）
+     */
     private static final int[][] PALETTE_4 = {
             {230, 30, 90},    // 粉红
             {50, 130, 220},   // 蓝
@@ -91,12 +91,12 @@ public class PopArtImageFilter extends AbstractImageFilter {
     };
 
     /**
-    * 执行波普艺术滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 波普风格图像
-    */
+     * 执行波普艺术滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 波普风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -154,10 +154,10 @@ public class PopArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 根据 paletteSize 选择调色板
-    *
-    * @return 调色板
-    */
+     * 根据 paletteSize 选择调色板
+     *
+     * @return 调色板
+     */
     private int[][] pickPalette() {
         if (paletteSize <= 4) {
             return PALETTE_4;
@@ -178,14 +178,14 @@ public class PopArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 找调色板中最近的颜色
-    *
-    * @param palette 调色板
-    * @param r       红
-    * @param g       绿
-    * @param b       蓝
-    * @return [r, g, b]
-    */
+     * 找调色板中最近的颜色
+     *
+     * @param palette 调色板
+     * @param r       红
+     * @param g       绿
+     * @param b       蓝
+     * @return [r, g, b]
+     */
     private int[] nearestColor(int[][] palette, int r, int g, int b) {
         int best = 0;
         int bestDist = Integer.MAX_VALUE;
@@ -203,11 +203,11 @@ public class PopArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

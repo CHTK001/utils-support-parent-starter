@@ -8,8 +8,8 @@ public class H2V1Dialect extends SqlDialect {
     */
     public H2V1Dialect() { super("h2v1"); }
     /**
-    * H2V1Dialect。
-    * @param properties 属性
-    */
+     * H2V1Dialect。
+     * @param properties 属性
+     */
     public H2V1Dialect(Properties properties) { super("h2v1", properties); }
 }

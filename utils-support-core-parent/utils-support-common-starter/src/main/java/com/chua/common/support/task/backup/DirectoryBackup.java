@@ -13,12 +13,12 @@ import java.util.List;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public class DirectoryBackup implements BackupStrategy {
 
     /**
-    * 类型
-    */
+     * 类型
+     */
     private static final String TYPE = "directory";
     /** 全量备份委托实现 */
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
@@ -32,16 +32,16 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-    * 执行全量备份，委托给 {@link DefaultDailyBackupStrategy}。
-    */
+     * 执行全量备份，委托给 {@link DefaultDailyBackupStrategy}。
+     */
     @Override
     public BackupResult execute(BackupConfig config) {
         return delegate.execute(config);
     }
 
     /**
-    * 执行增量备份：仅拷贝修改时间晚于 最后一个backup时间 的文件。
-    */
+     * 执行增量备份：仅拷贝修改时间晚于 最后一个backup时间 的文件。
+     */
     @Override
     public BackupResult executeIncremental(BackupConfig config, long lastBackupTime) {
         long start = System.currentTimeMillis();
@@ -78,13 +78,13 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-    * 仅拷贝变更的文件
-    * @param source 源
-    * @param target Target
-    * @param config 配置
-    * @param since 自
-    * @return 副本改变文件的结果
-    */
+     * 仅拷贝变更的文件
+     * @param source 源
+     * @param target Target
+     * @param config 配置
+     * @param since 自
+     * @return 副本改变文件的结果
+     */
     private List<Path> copyChangedFiles(Path source, Path target, BackupConfig config, long since) throws IOException {
         List<Path> changed = new ArrayList<>();
         if (!Files.exists(source)) {

@@ -8,10 +8,10 @@ import com.chua.common.support.vector.VectorStorageProvider;
 import javax.sql.DataSource;
 
 /**
-* PostgreSQL pgvector 向量存储 SPI 实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * PostgreSQL pgvector 向量存储 SPI 实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi(value = "postgresql", order = 60)
 public class PostgresqlVectorStorageProvider implements VectorStorageProvider {
@@ -32,10 +32,10 @@ public class PostgresqlVectorStorageProvider implements VectorStorageProvider {
     }
 
     /**
-    * 包装属性，持有 数据源 和向量存储配置。
-    * @param dataSource 数据源
-    * @return pg向量storageprops的结果
-    */
+     * 包装属性，持有 数据源 和向量存储配置。
+     * @param dataSource 数据源
+     * @return pg向量storageprops的结果
+     */
     public record PgVectorStorageProps(
             DataSource dataSource,
             PostgresqlVectorStorageProperties properties

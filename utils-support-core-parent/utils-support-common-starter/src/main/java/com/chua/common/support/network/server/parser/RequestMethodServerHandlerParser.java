@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Spi("request-method")
 @Slf4j
 public class RequestMethodServerHandlerParser implements ServerHandlerAnnotationParser {
@@ -99,13 +99,13 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
     }
 
     /**
-    * 添加ReflectiveHandlers
-    * @param result result
-    * @param bean bean
-    * @param method method
-    * @param paths paths
-    * @param httpMethods httpMethods
-    */
+     * 添加ReflectiveHandlers
+     * @param result result
+     * @param bean bean
+     * @param method method
+     * @param paths paths
+     * @param httpMethods httpMethods
+     */
     private static void addReflectiveHandlers(List<ServerHandler> result, Object bean, Method method,
                                               String[] paths, HttpMethod[] httpMethods) {
         for (String path : paths) {

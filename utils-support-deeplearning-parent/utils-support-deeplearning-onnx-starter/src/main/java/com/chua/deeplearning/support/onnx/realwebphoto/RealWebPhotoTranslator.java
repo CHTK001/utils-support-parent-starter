@@ -16,33 +16,33 @@ import java.awt.image.BufferedImage;
 
 
 /**
-* 4xrealwebphoto_v4
-* <p>
-* realwebphoto
-*                                                                                     
-* <p>
-*                
-* -           float32       
-* -              [0, 1]
-* -           CHW          通道, Height, Width
-* -        批量          [1, C, H, W]
-* <p>
-*                
-* -        批量          [1, C, H, W]     [C, H, W]
-* -           [0, 1]       
-* -           [0, 255]
-* -           UINT8       
-* -           镜像
-* <p>
-*                
-* -        ESRGAN       
-* -                                     
-* -     JPEG                                              
-* -                                        
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2024/11/08
+ * 4xrealwebphoto_v4
+ * <p>
+ * realwebphoto
+ *                                                                                     
+ * <p>
+ *                
+ * -           float32       
+ * -              [0, 1]
+ * -           CHW          通道, Height, Width
+ * -        批量          [1, C, H, W]
+ * <p>
+ *                
+ * -        批量          [1, C, H, W]     [C, H, W]
+ * -           [0, 1]       
+ * -           [0, 255]
+ * -           UINT8       
+ * -           镜像
+ * <p>
+ *                
+ * -        ESRGAN       
+ * -                                     
+ * -     JPEG                                              
+ * -                                        
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2024/11/08
  */
 @Slf4j
 public class RealWebPhotoTranslator implements Translator<Image, Image> {
@@ -117,11 +117,11 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
-    *
-    * @param v 浮点像素值
-    * @return 0-255 整数
-    */
+     * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
+     *
+     * @param v 浮点像素值
+     * @return 0-255 整数
+     */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);

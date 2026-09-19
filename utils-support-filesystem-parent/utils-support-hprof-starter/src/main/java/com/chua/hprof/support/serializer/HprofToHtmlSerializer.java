@@ -42,8 +42,8 @@ import java.util.Objects;
 public final class HprofToHtmlSerializer {
 
     /**
-    * ECharts CDN, shared with {@code BenchmarkHtmlProvider}.
-    */
+     * ECharts CDN, shared with {@code BenchmarkHtmlProvider}.
+     */
     private static final String ECHARTS_CDN =
             "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js";
 
@@ -56,24 +56,24 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 将解析结果序列化为不含 AI 摘要的 HTML 文档。
-    *
-    * @param result   parsed hprof result
-    * @param fileName 报告页头显示的源文件名
-    * @return HTML document
-    */
+     * 将解析结果序列化为不含 AI 摘要的 HTML 文档。
+     *
+     * @param result   parsed hprof result
+     * @param fileName 报告页头显示的源文件名
+     * @return HTML document
+     */
     public static String serialize(HprofParser.Result result, String fileName) {
         return serialize(result, fileName, null);
     }
 
     /**
-    * 将解析结果序列化为带 AI 摘要区块的 HTML 文档。
-    *
-    * @param result   parsed hprof result
-    * @param fileName 报告页头显示的源文件名
-    * @param aiSummary 可选的 AI 摘要文本，为 null 或空白时省略该区块
-    * @return HTML document
-    */
+     * 将解析结果序列化为带 AI 摘要区块的 HTML 文档。
+     *
+     * @param result   parsed hprof result
+     * @param fileName 报告页头显示的源文件名
+     * @param aiSummary 可选的 AI 摘要文本，为 null 或空白时省略该区块
+     * @return HTML document
+     */
     public static String serialize(HprofParser.Result result, String fileName, String aiSummary) {
         Objects.requireNonNull(result, "result");
         HprofAnalysis analysis = HprofAnalyzer.analyze(result,
@@ -101,11 +101,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加顶层"问题 + 处理步骤"行动卡片（非开发人员可直接读）。
-    *
-    * @param sb   输出缓冲
-    * @param plan 处置计划
-    */
+     * 追加顶层"问题 + 处理步骤"行动卡片（非开发人员可直接读）。
+     *
+     * @param sb   输出缓冲
+     * @param plan 处置计划
+     */
     private static void appendProblemAndPlan(StringBuilder sb,
                                              com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
         sb.append("<div class=\"action-card card\">\n")
@@ -124,11 +124,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加引用链可视化区块（top 持有类的 3 层：持有实例 → 字段 → 子引用）。
-    *
-    * @param sb     输出缓冲
-    * @param result 解析结果
-    */
+     * 追加引用链可视化区块（top 持有类的 3 层：持有实例 → 字段 → 子引用）。
+     *
+     * @param sb     输出缓冲
+     * @param result 解析结果
+     */
     private static void appendRefChains(StringBuilder sb, HprofParser.Result result) {
         if (result.refChains() == null || result.refChains().isEmpty()) {
             return;
@@ -175,11 +175,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加可勾选处置清单（localStorage 记忆勾选状态）。
-    *
-    * @param sb   输出缓冲
-    * @param plan 处置计划
-    */
+     * 追加可勾选处置清单（localStorage 记忆勾选状态）。
+     *
+     * @param sb   输出缓冲
+     * @param plan 处置计划
+     */
     private static void appendChecklist(StringBuilder sb,
                                         com.chua.hprof.support.action.HprofActionPlanner.ActionPlan plan) {
         sb.append("<h2>处置清单（处理一项勾一项）</h2>\n<div class=\"card checklist\">\n");
@@ -199,11 +199,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加崩溃语境区块（OOM 判定 / 堆水位 / hs_err 证据）。
-    *
-    * @param sb       输出缓冲
-    * @param analysis 分析结果
-    */
+     * 追加崩溃语境区块（OOM 判定 / 堆水位 / hs_err 证据）。
+     *
+     * @param sb       输出缓冲
+     * @param analysis 分析结果
+     */
     private static void appendCrashContext(StringBuilder sb, HprofAnalysis analysis) {
         if (analysis.crashSignals == null || analysis.crashSignals.isEmpty()) {
             return;
@@ -226,11 +226,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the root-cause block that answers "why so many objects".
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    */
+     * Append the root-cause block that answers "why so many objects".
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     */
     private static void appendRootCause(StringBuilder sb, HprofAnalysis analysis) {
         if (analysis.rootCause == null || analysis.rootCause.isBlank()) {
             return;
@@ -242,12 +242,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加带内联 CSS 的 HTML 头部。
-    *
-    * @param sb       output buffer
-    * @param fileName source file name
-    * @param result   parsed result
-    */
+     * 追加带内联 CSS 的 HTML 头部。
+     *
+     * @param sb       output buffer
+     * @param fileName source file name
+     * @param result   parsed result
+     */
     private static void appendHtmlHead(StringBuilder sb, String fileName, HprofParser.Result result) {
         sb.append("<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\">\n")
                 .append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
@@ -362,12 +362,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the KPI card row.
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    * @param result   parsed result
-    */
+     * Append the KPI card row.
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     * @param result   parsed result
+     */
     private static void appendKpiCards(StringBuilder sb, HprofAnalysis analysis, HprofParser.Result result) {
         sb.append("<div class=\"kpi-row\">\n")
                 .append(kpi(HprofObject.formatSize(result.totalRetainedBytes()), "总保留内存"))
@@ -380,22 +380,22 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * One KPI card.
-    *
-    * @param value value text
-    * @param label label text
-    * @return card html
-    */
+     * One KPI card.
+     *
+     * @param value value text
+     * @param label label text
+     * @return card html
+     */
     private static String kpi(String value, String label) {
         return "<div class=\"kpi\"><div class=\"v\">" + escape(value)
                 + "</div><div class=\"l\">" + escape(label) + "</div></div>\n";
     }
 
     /**
-    * Append the chart containers (filled by JS).
-    *
-    * @param sb output buffer
-    */
+     * Append the chart containers (filled by JS).
+     *
+     * @param sb output buffer
+     */
     private static void appendCharts(StringBuilder sb) {
         sb.append("<h2>内存占用排行</h2>\n")
                 .append("<div class=\"chart-grid\">\n")
@@ -407,12 +407,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the findings section.
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    * @param result   parsed result (for details linkage)
-    */
+     * Append the findings section.
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     * @param result   parsed result (for details linkage)
+     */
     private static void appendFindings(StringBuilder sb, HprofAnalysis analysis,
                                        HprofParser.Result result) {
         sb.append("<h2>算法分析结论（为什么内存高）</h2>\n");
@@ -428,12 +428,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the non-JDK package ranking section.
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    * @param result   parsed result (details linkage for future per-package expand)
-    */
+     * Append the non-JDK package ranking section.
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     * @param result   parsed result (details linkage for future per-package expand)
+     */
     private static void appendNonJdk(StringBuilder sb, HprofAnalysis analysis,
                                      HprofParser.Result result) {
         if (analysis.nonJdkPackageGroups == null || analysis.nonJdkPackageGroups.isEmpty()) {
@@ -467,11 +467,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the plain-language conclusions.
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    */
+     * Append the plain-language conclusions.
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     */
     private static void appendConclusions(StringBuilder sb, HprofAnalysis analysis) {
         sb.append("<h2>结论</h2>\n<div class=\"concl\"><ol>\n");
         for (String c : analysis.conclusions) {
@@ -481,11 +481,11 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加 AI 摘要区块；摘要为空白时整块省略。
-    *
-    * @param sb        output buffer
-    * @param aiSummary AI summary text, may be null/blank
-    */
+     * 追加 AI 摘要区块；摘要为空白时整块省略。
+     *
+     * @param sb        output buffer
+     * @param aiSummary AI summary text, may be null/blank
+     */
     private static void appendAiSummary(StringBuilder sb, String aiSummary) {
         if (aiSummary == null || aiSummary.isBlank()) {
             return;
@@ -497,14 +497,14 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加"点开看详情"区块：对每个已采集的热点类，用
-    * 可折叠的 {@code <details>} 展示其 retained 最大的实例
-    * 及字段取值（哪个字段持有大集合 / 数组 /
-    * 字符串），并列出静态字段持有者。用于回答"谁存了什么"。
-    *
-    * @param sb     output buffer
-    * @param result parsed result with classDetails
-    */
+     * 追加"点开看详情"区块：对每个已采集的热点类，用
+     * 可折叠的 {@code <details>} 展示其 retained 最大的实例
+     * 及字段取值（哪个字段持有大集合 / 数组 /
+     * 字符串），并列出静态字段持有者。用于回答"谁存了什么"。
+     *
+     * @param sb     output buffer
+     * @param result parsed result with classDetails
+     */
     private static void appendDetails(StringBuilder sb, HprofParser.Result result) {
         Map<String, HprofClassDetail> details = result.classDetails();
         if (details == null || details.isEmpty()) {
@@ -540,12 +540,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * One field row inside a details block.
-    *
-    * @param sb      output buffer
-    * @param fv      field value detail
-    * @param isStatic whether in the static-field section
-    */
+     * One field row inside a details block.
+     *
+     * @param sb      output buffer
+     * @param fv      field value detail
+     * @param isStatic whether in the static-field section
+     */
     private static void appendField(StringBuilder sb,
                                     HprofClassDetail.FieldValueDetail fv,
                                     boolean isStatic) {
@@ -557,12 +557,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the detailed ranking tables.
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    * @param result   parsed result (class details)
-    */
+     * Append the detailed ranking tables.
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     * @param result   parsed result (class details)
+     */
     private static void appendTables(StringBuilder sb, HprofAnalysis analysis,
                                      HprofParser.Result result) {
         sb.append("<h2>类排行明细</h2>\n<div class=\"card\">\n")
@@ -576,13 +576,13 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 表格中的一行。若该类已采集到实例明细，则该行
-    * 通过 {@code <details>} 展开以展示字段取值。
-    *
-    * @param sb    output buffer
-    * @param row   histogram row
-    * @param result parsed result (for classDetails)
-    */
+     * 表格中的一行。若该类已采集到实例明细，则该行
+     * 通过 {@code <details>} 展开以展示字段取值。
+     *
+     * @param sb    output buffer
+     * @param row   histogram row
+     * @param result parsed result (for classDetails)
+     */
     private static void appendRow(StringBuilder sb, HprofHistogramRow row,
                                   HprofParser.Result result) {
         sb.append("<tr><td>").append(escape(row.getClassName()))
@@ -607,12 +607,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 追加驱动 ECharts 的内联脚本。
-    *
-    * @param sb       output buffer
-    * @param analysis analysis
-    * @param fileName source file name
-    */
+     * 追加驱动 ECharts 的内联脚本。
+     *
+     * @param sb       output buffer
+     * @param analysis analysis
+     * @param fileName source file name
+     */
     private static void appendScript(StringBuilder sb, HprofAnalysis analysis, String fileName) {
         sb.append("<script src=\"").append(ECHARTS_CDN).append("\"></script>\n")
                 .append("<script>\n")
@@ -675,12 +675,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * 构造图表使用的内嵌 JSON 数据对象。
-    *
-    * @param analysis analysis
-    * @param fileName source file name
-    * @return JSON string
-    */
+     * 构造图表使用的内嵌 JSON 数据对象。
+     *
+     * @param analysis analysis
+     * @param fileName source file name
+     * @return JSON string
+     */
     private static String analysisJson(HprofAnalysis analysis, String fileName) {
         try {
             java.util.Map<String, Object> data = new java.util.LinkedHashMap<>();
@@ -728,12 +728,12 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * One chart data row.
-    *
-    * @param row histogram row
-    * @param mode retained / instances
-    * @return the row map
-    */
+     * One chart data row.
+     *
+     * @param row histogram row
+     * @param mode retained / instances
+     * @return the row map
+     */
     private static Map<String, Object> rowJson(HprofHistogramRow row, String mode) {
         Map<String, Object> m = new java.util.LinkedHashMap<>();
         m.put("name", row.getSimpleName().isEmpty() ? row.getClassName() : row.getSimpleName());
@@ -746,20 +746,20 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
-    * Append the HTML closing tags.
-    *
-    * @param sb output buffer
-    */
+     * Append the HTML closing tags.
+     *
+     * @param sb output buffer
+     */
     private static void appendHtmlTail(StringBuilder sb) {
         sb.append("</div>\n</body>\n</html>\n");
     }
 
     /**
-    * Escape a string for safe HTML insertion.
-    *
-    * @param value value
-    * @return escaped value
-    */
+     * Escape a string for safe HTML insertion.
+     *
+     * @param value value
+     * @return escaped value
+     */
     private static String escape(String value) {
         if (value == null) {
             return "";

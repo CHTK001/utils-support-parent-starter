@@ -15,37 +15,37 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 /**
-* 折叠 HTTP 客户端（装饰器）。
-*
-* <p>对底层 {@link HttpClient} 的请求执行做请求折叠：并发窗口内<b>方法为 GET 且 URL 相同</b>
-* 的请求合并为一次真实网络调用，并将响应（{@link ClientResponse}）广播给全部请求方，
-* 降低下游连接数与 I/O 次数。</p>
-*
-* <p><b>约定与限制：</b></p>
-* <ul>
-*   <li>仅折叠 GET（幂等）请求，POST/PUT/DELETE 等直接透传底层执行；</li>
-*   <li>折叠 key 为请求 URL（查询参数排序规范化后，参数顺序不同的等价 URL 也会被合并）；
-*       携带不同请求头的同 URL 请求也会被合并，
-*       因此仅适用于幂等且不依赖调用方私有头语义的场景；</li>
-*   <li>{@link ClientResponse} 的响应体为已物化的字节数组（{@code byte[]}），
-*       广播共享安全，可被多个请求方重复读取；</li>
-*   <li>未引入折叠实现模块时经 {@link CollapseFlow} 自动降级为直接执行，语义不变。</li>
-* </ul>
-*
-* @author CH
-* @since 2026/09/03
-* @see HttpClientFactory#collapse(HttpClient)
+ * 折叠 HTTP 客户端（装饰器）。
+ *
+ * <p>对底层 {@link HttpClient} 的请求执行做请求折叠：并发窗口内<b>方法为 GET 且 URL 相同</b>
+ * 的请求合并为一次真实网络调用，并将响应（{@link ClientResponse}）广播给全部请求方，
+ * 降低下游连接数与 I/O 次数。</p>
+ *
+ * <p><b>约定与限制：</b></p>
+ * <ul>
+ *   <li>仅折叠 GET（幂等）请求，POST/PUT/DELETE 等直接透传底层执行；</li>
+ *   <li>折叠 key 为请求 URL（查询参数排序规范化后，参数顺序不同的等价 URL 也会被合并）；
+ *       携带不同请求头的同 URL 请求也会被合并，
+ *       因此仅适用于幂等且不依赖调用方私有头语义的场景；</li>
+ *   <li>{@link ClientResponse} 的响应体为已物化的字节数组（{@code byte[]}），
+ *       广播共享安全，可被多个请求方重复读取；</li>
+ *   <li>未引入折叠实现模块时经 {@link CollapseFlow} 自动降级为直接执行，语义不变。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/09/03
+ * @see HttpClientFactory#collapse(HttpClient)
  */
 public class CollapseHttpClient implements HttpClient {
 
     /**
-    * 折叠执行器默认名称
-    */
+     * 折叠执行器默认名称
+     */
     private static final String DEFAULT_FLOW_NAME = "collapse-http";
 
     /**
-    * 异步折叠执行线程（虚拟线程承载，避免阻塞平台线程）
-    */
+     * 异步折叠执行线程（虚拟线程承载，避免阻塞平台线程）
+     */
     private static final ExecutorService ASYNC_EXECUTOR;
 
     static {
@@ -54,50 +54,50 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 底层 HTTP 客户端
-    */
+     * 底层 HTTP 客户端
+     */
     private final HttpClient delegate;
 
     /**
-    * 折叠门面
-    */
+     * 折叠门面
+     */
     private final CollapseFlow<HttpCollapseTask, ClientResponse> flow;
 
     /**
-    * 关闭时是否级联关闭底层客户端（默认 true）
-    */
+     * 关闭时是否级联关闭底层客户端（默认 true）
+     */
     private final boolean closeDelegate;
 
     /**
-    * 构造折叠 HTTP 客户端。
-    *
-    * @param delegate 底层 HTTP 客户端，不可为空
-    */
+     * 构造折叠 HTTP 客户端。
+     *
+     * @param delegate 底层 HTTP 客户端，不可为空
+     */
     public CollapseHttpClient(HttpClient delegate) {
         this(delegate, null, true);
     }
 
     /**
-    * 构造折叠 HTTP 客户端。
-    *
-    * @param delegate 底层 HTTP 客户端，不可为空
-    * @param config   折叠配置，可为空（使用默认配置）
-    */
+     * 构造折叠 HTTP 客户端。
+     *
+     * @param delegate 底层 HTTP 客户端，不可为空
+     * @param config   折叠配置，可为空（使用默认配置）
+     */
     public CollapseHttpClient(HttpClient delegate, CollapseConfig config) {
         this(delegate, config, true);
     }
 
     /**
-    * 构造折叠 HTTP 客户端。
-    *
-    * <p>当包装的底层客户端为共享实例（如 {@link HttpClientFactory#getClient()} 全局单例）时，
-    * 建议将 {@code closeDelegate} 设为 {@code false}，避免关闭折叠客户端误关底层共享实例；
-    * 需要完全级联关闭时保持 {@code true}。</p>
-    *
-    * @param delegate      底层 HTTP 客户端，不可为空
-    * @param config        折叠配置，可为空（使用默认配置）
-    * @param closeDelegate 关闭时是否级联关闭底层客户端
-    */
+     * 构造折叠 HTTP 客户端。
+     *
+     * <p>当包装的底层客户端为共享实例（如 {@link HttpClientFactory#getClient()} 全局单例）时，
+     * 建议将 {@code closeDelegate} 设为 {@code false}，避免关闭折叠客户端误关底层共享实例；
+     * 需要完全级联关闭时保持 {@code true}。</p>
+     *
+     * @param delegate      底层 HTTP 客户端，不可为空
+     * @param config        折叠配置，可为空（使用默认配置）
+     * @param closeDelegate 关闭时是否级联关闭底层客户端
+     */
     public CollapseHttpClient(HttpClient delegate, CollapseConfig config, boolean closeDelegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate must not be null.");
         this.closeDelegate = closeDelegate;
@@ -129,14 +129,14 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 规范化 URL 折叠 key：查询参数按键排序后重组，使参数顺序不同的等价 URL 可合并。
-    *
-    * <p>如 {@code http://a/x?b=1&a=2} 与 {@code http://a/x?a=2&b=1} 归并为同一折叠 key；
-    * 无查询串的 URL 原样返回；片段（{@code #frag}）保留在查询串之后。</p>
-    *
-    * @param url 原始 URL
-    * @return 规范化后的 URL
-    */
+     * 规范化 URL 折叠 key：查询参数按键排序后重组，使参数顺序不同的等价 URL 可合并。
+     *
+     * <p>如 {@code http://a/x?b=1&a=2} 与 {@code http://a/x?a=2&b=1} 归并为同一折叠 key；
+     * 无查询串的 URL 原样返回；片段（{@code #frag}）保留在查询串之后。</p>
+     *
+     * @param url 原始 URL
+     * @return 规范化后的 URL
+     */
     private static String normalizeUrl(String url) {
         if (url == null) {
             return null;
@@ -172,11 +172,11 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 注册应用层拦截器（委托给底层客户端）。
-    *
-    * @param interceptor 应用层拦截器
-    * @return 当前折叠客户端实例（链式调用）
-    */
+     * 注册应用层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 应用层拦截器
+     * @return 当前折叠客户端实例（链式调用）
+     */
     @Override
     public CollapseHttpClient addInterceptor(HttpInterceptor interceptor) {
         delegate.addInterceptor(interceptor);
@@ -184,11 +184,11 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 注册网络层拦截器（委托给底层客户端）。
-    *
-    * @param interceptor 网络层拦截器
-    * @return 当前折叠客户端实例（链式调用）
-    */
+     * 注册网络层拦截器（委托给底层客户端）。
+     *
+     * @param interceptor 网络层拦截器
+     * @return 当前折叠客户端实例（链式调用）
+     */
     @Override
     public CollapseHttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         delegate.addNetworkInterceptor(interceptor);
@@ -196,28 +196,28 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 获取底层客户端的应用层拦截器列表。
-    *
-    * @return 应用层拦截器列表
-    */
+     * 获取底层客户端的应用层拦截器列表。
+     *
+     * @return 应用层拦截器列表
+     */
     @Override
     public java.util.List<HttpInterceptor> getInterceptors() {
         return delegate.getInterceptors();
     }
 
     /**
-    * 获取底层客户端的网络层拦截器列表。
-    *
-    * @return 网络层拦截器列表
-    */
+     * 获取底层客户端的网络层拦截器列表。
+     *
+     * @return 网络层拦截器列表
+     */
     @Override
     public java.util.List<HttpInterceptor> getNetworkInterceptors() {
         return delegate.getNetworkInterceptors();
     }
 
     /**
-    * 关闭折叠客户端：始终关闭折叠执行器；是否级联关闭底层客户端由 {@code closeDelegate} 决定。
-    */
+     * 关闭折叠客户端：始终关闭折叠执行器；是否级联关闭底层客户端由 {@code closeDelegate} 决定。
+     */
     @Override
     public void close() {
         flow.close();
@@ -227,18 +227,18 @@ public class CollapseHttpClient implements HttpClient {
     }
 
     /**
-    * 折叠请求任务：以 URL 为折叠 key（equals/hashCode），携带真实请求用于执行。
-    */
+     * 折叠请求任务：以 URL 为折叠 key（equals/hashCode），携带真实请求用于执行。
+     */
     private static final class HttpCollapseTask {
 
         /**
-        * 请求 URL（折叠 key）
-        */
+         * 请求 URL（折叠 key）
+         */
         private final String url;
 
         /**
-        * 真实请求对象
-        */
+         * 真实请求对象
+         */
         private final ClientRequest request;
 
         private HttpCollapseTask(String url, ClientRequest request) {

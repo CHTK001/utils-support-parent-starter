@@ -1,10 +1,10 @@
 package com.chua.solr.support.engine;
 
 /**
-* Solr 字段名常量。
-*
-* @author CH
-* @since 4.0.0.42
+ * Solr 字段名常量。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SolrFields {
 

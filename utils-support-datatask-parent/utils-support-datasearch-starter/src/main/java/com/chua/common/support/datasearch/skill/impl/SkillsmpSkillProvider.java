@@ -7,12 +7,12 @@ import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
 import java.util.List;
 
 /**
-* skillsmp 技能市场在线提供器。
-*
-* <p>通过 SkillsMP 公开 API 搜索技能市场，以 Skill 形式暴露给 AI 技能系统。
-*
-* @author CH
-* @since 4.0.0.42
+ * skillsmp 技能市场在线提供器。
+ *
+ * <p>通过 SkillsMP 公开 API 搜索技能市场，以 Skill 形式暴露给 AI 技能系统。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("skillsmp")
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnlineProvider {

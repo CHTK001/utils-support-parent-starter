@@ -17,16 +17,16 @@ import java.util.concurrent.CompletionStage;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @FunctionalInterface
 public interface ReactiveServerHandler {
 
     /**
-    * 异步处理请求。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    * @return 完成时表示请求处理结束；失败时触发链的错误传播
-    */
+     * 异步处理请求。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     * @return 完成时表示请求处理结束；失败时触发链的错误传播
+     */
     CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response);
 }

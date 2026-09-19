@@ -11,11 +11,11 @@ import javax.annotation.Nullable;
 
 
 /**
-* 终端工具类，提供跨平台的终端宽度检测和光标移动支持。
-*
-* @author Martin Vehovsky
-* @author CH
-* @since 0.9.0
+ * 终端工具类，提供跨平台的终端宽度检测和光标移动支持。
+ *
+ * @author Martin Vehovsky
+ * @author CH
+ * @since 0.9.0
  */
 public class TerminalUtils {
 
@@ -45,25 +45,25 @@ public class TerminalUtils {
 
 
     /**
-    * 检测是否在 IDEA 中运行
-    *
-    * @return true 表示在 IDEA 中运行，false 表示不是
-    */
+     * 检测是否在 IDEA 中运行
+     *
+     * @return true 表示在 IDEA 中运行，false 表示不是
+     */
     public static boolean isIdea() {
         return System.getenv("IDEA_INITIAL_DIRECTORY") != null ||
             System.getProperty("java.class.path", "").contains("idea_rt.jar");
     }
 
     /**
-    * 跨平台获取终端宽度
-    * <p>
-    * 检测策略：
-    * - Windows（优先使用 COLUMNS 环境变量，其次使用 CMD 命令）
-    * - Linux（使用 stty 命令或 COLUMNS 环境变量）
-    * - macOS（使用 stty 命令或 COLUMNS 环境变量）
-    *
-    * @return 终端宽度，无法检测时返回默认值
-    */
+     * 跨平台获取终端宽度
+     * <p>
+     * 检测策略：
+     * - Windows（优先使用 COLUMNS 环境变量，其次使用 CMD 命令）
+     * - Linux（使用 stty 命令或 COLUMNS 环境变量）
+     * - macOS（使用 stty 命令或 COLUMNS 环境变量）
+     *
+     * @return 终端宽度，无法检测时返回默认值
+     */
     private static int getTerminalWidthCrossPlatform() {
         // 优先从环境变量获取
         int widthFromEnv = getTerminalWidthFromEnv();
@@ -108,8 +108,8 @@ public class TerminalUtils {
     }
 
     /**
-    * @return 终端宽度，无法获取时返回 -1
-    */
+     * @return 终端宽度，无法获取时返回 -1
+     */
     private static int getTerminalWidthFromEnv() {
         try {
             String columns = System.getenv("COLUMNS");
@@ -123,10 +123,10 @@ public class TerminalUtils {
     }
 
     /**
-    *     Windows                            
-    *
-    * @return             
-    */
+     *     Windows                            
+     *
+     * @return             
+     */
     private static int getTerminalWidthWindows() {
         try {
             //              Windows CMD                            
@@ -153,10 +153,10 @@ public class TerminalUtils {
     }
 
     /**
-    *     Unix/Linux/Mac                            
-    *
-    * @return             
-    */
+     *     Unix/Linux/Mac                            
+     *
+     * @return             
+     */
     private static int getTerminalWidthUnix() {
         try {
             //        stty                         

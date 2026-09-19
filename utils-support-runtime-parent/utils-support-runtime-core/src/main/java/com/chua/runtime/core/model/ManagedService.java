@@ -7,47 +7,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 系统服务描述 — 将 runtimeartifact 注册为操作系统级服务时的配置。
-*
-* @author CH
-* @since 4.0.0.42
+ * 系统服务描述 — 将 runtimeartifact 注册为操作系统级服务时的配置。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
 public class ManagedService {
 
     /**
-    * 服务类型
+     * 服务类型
      */
     private ServiceType serviceType;
 
     /**
-    * 服务名称
+     * 服务名称
      */
     private String serviceName;
 
     /**
-    * 服务显示名
+     * 服务显示名
      */
     private String displayName;
 
     /**
-    * 服务描述
+     * 服务描述
      */
     private String description;
 
     /**
-    * 关联的工件 标识
+     * 关联的工件 标识
      */
     private String artifactId;
 
     /**
-    * 可执行文件路径
+     * 可执行文件路径
      */
     private String executable;
 
     /**
-    * 启动参数
+     * 启动参数
      */
     @Builder.Default
     /** 参数 */
@@ -59,12 +59,12 @@ public class ManagedService {
     private String workDir;
 
     /**
-    * 环境变量
+     * 环境变量
      */
     private java.util.Map<String, String> env;
 
     /**
-    * 启动类型
+     * 启动类型
      */
     @Builder.Default
     /** Startup类型 */
@@ -76,7 +76,7 @@ public class ManagedService {
     private String runAsUser;
 
     /**
-    * 服务依赖
+     * 服务依赖
      */
     @Builder.Default
     /** Dependencies */

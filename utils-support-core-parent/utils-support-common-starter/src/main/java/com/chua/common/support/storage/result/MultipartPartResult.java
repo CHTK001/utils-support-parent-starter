@@ -10,29 +10,29 @@ import lombok.experimental.SuperBuilder;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Getter
 @Setter
 @SuperBuilder
 public class MultipartPartResult extends ObjectResult {
 
     /**
-    * 上传任务 标识
-    */
+     * 上传任务 标识
+     */
     private String uploadId;
 
     /**
-    * 分片序号（1-based）
-    */
+     * 分片序号（1-based）
+     */
     private Integer partNumber;
 
     /**
-    * 分片 e标签
-    */
+     * 分片 e标签
+     */
     private String etag;
 
     /**
-    * 分片大小（字节）
-    */
+     * 分片大小（字节）
+     */
     private Long partSize;
 }

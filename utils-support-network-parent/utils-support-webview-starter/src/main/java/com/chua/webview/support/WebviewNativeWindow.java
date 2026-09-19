@@ -8,22 +8,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 基于 webview_Java 的 webview 实现。
-* <p>
-* 使用 JNA 技术封装原生 webview：
-* <ul>
-*   <li>Windows: WebView2 (Edge Chromium)</li>
-*   <li>macOS: WKWebView</li>
-*   <li>Linux: WebKitGTK</li>
-* </ul>
-* </p>
-* <p>
-* 通过 {@link ConditionalOnClass} 注解，仅在 类路径 中存在
-* {@code dev.webview.Webview} 类时生效，支持 SPI 自动装配。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 webview_Java 的 webview 实现。
+ * <p>
+ * 使用 JNA 技术封装原生 webview：
+ * <ul>
+ *   <li>Windows: WebView2 (Edge Chromium)</li>
+ *   <li>macOS: WKWebView</li>
+ *   <li>Linux: WebKitGTK</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 通过 {@link ConditionalOnClass} 注解，仅在 类路径 中存在
+ * {@code dev.webview.Webview} 类时生效，支持 SPI 自动装配。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @ConditionalOnClass("dev.webview.Webview")
 @RequiredArgsConstructor
@@ -31,23 +31,23 @@ import lombok.extern.slf4j.Slf4j;
 public class WebviewNativeWindow implements WebViewWindow {
 
     /**
-    * 底层 Webview 实例。
-    */
+     * 底层 Webview 实例。
+     */
     private Webview webview;
 
     /**
-    * 运行事件循环的线程。
-    */
+     * 运行事件循环的线程。
+     */
     private Thread runThread;
 
     /**
-    * 打开 webview 窗口并加载指定 URL。
-    *
-    * @param url    要加载的 URL 地址
-    * @param title  窗口标题
-    * @param width  窗口宽度
-    * @param height 窗口高度
-    */
+     * 打开 webview 窗口并加载指定 URL。
+     *
+     * @param url    要加载的 URL 地址
+     * @param title  窗口标题
+     * @param width  窗口宽度
+     * @param height 窗口高度
+     */
     @Override
     public void open(String url, String title, int width, int height) {
         try {
@@ -67,8 +67,8 @@ public class WebviewNativeWindow implements WebViewWindow {
     }
 
     /**
-    * 关闭 webview 窗口并释放资源。
-    */
+     * 关闭 webview 窗口并释放资源。
+     */
     @Override
     public void close() {
         if (this.webview != null) {

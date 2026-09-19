@@ -6,7 +6,7 @@ package com.chua.common.support.network.server.request;
  *
  * @author CH
  * @since 2026/07/17
-*/
+ */
 public class FormFile {
 
     /** 表单字段名 */
@@ -20,20 +20,20 @@ public class FormFile {
 
     /** 文件字节数据 */
     /**
-    * 数据
-    */
+     * 数据
+     */
     private final byte[] data;
 
     /**
-    * 创建 FormFile 实例
-    * @param fieldName fieldName
-    * @param String String
-    * @param String String
-    * @param byte byte
-    * @param data data
-    * @param fileName 文件名称，不允许为 null
-    * @param contentType 内容类型，不允许为 null
-    */
+     * 创建 FormFile 实例
+     * @param fieldName fieldName
+     * @param String String
+     * @param String String
+     * @param byte byte
+     * @param data data
+     * @param fileName 文件名称，不允许为 null
+     * @param contentType 内容类型，不允许为 null
+     */
     public FormFile(String fieldName, String fileName, String contentType, byte[] data) {
         this.fieldName = fieldName;
         this.fileName = fileName;

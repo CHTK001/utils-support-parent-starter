@@ -44,16 +44,16 @@ public final class HprofDiffer {
     }
 
     /**
-    * 单个类的增长明细。
-    *
-    * @param className      类全名
-    * @param beforeCount    前一份的实例数（无该类为 0）
-    * @param afterCount     后一份的实例数（无该类为 0）
-    * @param beforeRetained 前一份的保留字节
-    * @param afterRetained  后一份的保留字节
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 单个类的增长明细。
+     *
+     * @param className      类全名
+     * @param beforeCount    前一份的实例数（无该类为 0）
+     * @param afterCount     后一份的实例数（无该类为 0）
+     * @param beforeRetained 前一份的保留字节
+     * @param afterRetained  后一份的保留字节
+     * @author CH
+     * @since 4.0.0.42
+     */
     public record ClassGrowth(String className,
                               long beforeCount,
                               long afterCount,
@@ -61,30 +61,30 @@ public final class HprofDiffer {
                               long afterRetained) {
 
         /**
-        * 实例数增量。
-        *
-        * @return afterCount - beforeCount
-        */
+         * 实例数增量。
+         *
+         * @return afterCount - beforeCount
+         */
         public long instanceDelta() {
             return afterCount - beforeCount;
         }
 
         /**
-        * 保留字节增量。
-        *
-        * @return afterRetained - beforeRetained
-        */
+         * 保留字节增量。
+         *
+         * @return afterRetained - beforeRetained
+         */
         public long retainedDelta() {
             return afterRetained - beforeRetained;
         }
     }
 
     /**
-    * 两份转储的对比结果。
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 两份转储的对比结果。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public record Diff(List<ClassGrowth> byRetainedDelta,
                        List<ClassGrowth> byInstanceDelta,
                        long beforeRetainedTotal,
@@ -93,23 +93,23 @@ public final class HprofDiffer {
                        long afterObjectCount) {
 
         /**
-        * 按保留增量取 Top N。
-        *
-        * @param n 数量
-        * @return 增长最多的前 N 个类
-        */
+         * 按保留增量取 Top N。
+         *
+         * @param n 数量
+         * @return 增长最多的前 N 个类
+         */
         public List<ClassGrowth> topGrowths(int n) {
             return byRetainedDelta.subList(0, Math.min(n, byRetainedDelta.size()));
         }
     }
 
     /**
-    * 对比两份解析结果。
-    *
-    * @param before 早一份（实例较少 / 时间较早）
-    * @param after  晚一份
-    * @return 对比结果
-    */
+     * 对比两份解析结果。
+     *
+     * @param before 早一份（实例较少 / 时间较早）
+     * @param after  晚一份
+     * @return 对比结果
+     */
     public static Diff compare(HprofParser.Result before, HprofParser.Result after) {
         Objects.requireNonNull(before, "before");
         Objects.requireNonNull(after, "after");
@@ -144,23 +144,23 @@ public final class HprofDiffer {
     }
 
     /**
-    * 对比两个 hprof 文件（内部各自解析一次）。
-    *
-    * @param before 早一份文件
-    * @param after  晚一份文件
-    * @return 对比结果
-    * @throws IOException 任一文件无法解析
-    */
+     * 对比两个 hprof 文件（内部各自解析一次）。
+     *
+     * @param before 早一份文件
+     * @param after  晚一份文件
+     * @return 对比结果
+     * @throws IOException 任一文件无法解析
+     */
     public static Diff compareFiles(File before, File after) throws IOException {
         return compare(HprofParser.parse(before), HprofParser.parse(after));
     }
 
     /**
-    * 把直方图索引为 类名 -> 行。
-    *
-    * @param rows 直方图行
-    * @return 索引
-    */
+     * 把直方图索引为 类名 -> 行。
+     *
+     * @param rows 直方图行
+     * @return 索引
+     */
     private static Map<String, HprofHistogramRow> index(List<HprofHistogramRow> rows) {
         Map<String, HprofHistogramRow> map = new java.util.HashMap<>();
         for (HprofHistogramRow row : rows) {

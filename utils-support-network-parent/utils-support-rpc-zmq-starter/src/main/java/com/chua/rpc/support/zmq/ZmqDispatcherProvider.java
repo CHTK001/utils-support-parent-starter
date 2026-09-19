@@ -21,94 +21,94 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.nio.charset.StandardCharsets;
 
 /**
-* zeromq 消息分发器提供者（jeromq，纯 Java 无需原生依赖）。
-*
-* <p><b>模型</b>：基于 <strong>PUB/SUB</strong> 发布订阅模型，单实例同时承担
-* 发布者与订阅者两种角色：</p>
-* <ul>
-*   <li><b>发布</b>：内部维护一个 PUB Socket，绑定到配置地址，消息以
-*       {@code [topic][separator][serializedBody]} 多帧报文发送</li>
-*   <li><b>订阅</b>：内部维护一个 SUB Socket，连接到同一地址，并按主题
-*       {@code sub.subscribe(topic)} 过滤；后台线程循环收包并回调
-*       {@link DispatcherDefinition#dispatch(Object)}</li>
-* </ul>
-*
-* <p><b>报文格式</b>（PUB/SUB）：
-* <pre>
-*   第一帧: 主题名（UTF-8 字节）
-*   第二帧: 序列化后的消息体（JSON/SPI 序列化）
-* </pre>
-* SUB Socket按主题过滤由 zeromq 内核完成，同一主题只投递匹配的报文。</p>
-*
-* <p><b>序列化</b>：优先使用 {@link DispatcherConfig#getSerializer()} 指定的
-* SPI 序列化器（如 {@code fury}/{@code fory}/{@code jackson}），未配置时回退
-* {@link JacksonSerialization}。</p>
-*
-* <p><b>线程模型</b>：PUB Socket线程安全（内部队列），可在任意线程调用
-* {@link #publish(String, Object)}；SUB Socket由单一后台线程独占收发。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * zeromq 消息分发器提供者（jeromq，纯 Java 无需原生依赖）。
+ *
+ * <p><b>模型</b>：基于 <strong>PUB/SUB</strong> 发布订阅模型，单实例同时承担
+ * 发布者与订阅者两种角色：</p>
+ * <ul>
+ *   <li><b>发布</b>：内部维护一个 PUB Socket，绑定到配置地址，消息以
+ *       {@code [topic][separator][serializedBody]} 多帧报文发送</li>
+ *   <li><b>订阅</b>：内部维护一个 SUB Socket，连接到同一地址，并按主题
+ *       {@code sub.subscribe(topic)} 过滤；后台线程循环收包并回调
+ *       {@link DispatcherDefinition#dispatch(Object)}</li>
+ * </ul>
+ *
+ * <p><b>报文格式</b>（PUB/SUB）：
+ * <pre>
+ *   第一帧: 主题名（UTF-8 字节）
+ *   第二帧: 序列化后的消息体（JSON/SPI 序列化）
+ * </pre>
+ * SUB Socket按主题过滤由 zeromq 内核完成，同一主题只投递匹配的报文。</p>
+ *
+ * <p><b>序列化</b>：优先使用 {@link DispatcherConfig#getSerializer()} 指定的
+ * SPI 序列化器（如 {@code fury}/{@code fory}/{@code jackson}），未配置时回退
+ * {@link JacksonSerialization}。</p>
+ *
+ * <p><b>线程模型</b>：PUB Socket线程安全（内部队列），可在任意线程调用
+ * {@link #publish(String, Object)}；SUB Socket由单一后台线程独占收发。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("zmq")
 public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-    * 未配置连接地址时的默认端点
-    */
+     * 未配置连接地址时的默认端点
+     */
     private static final String DEFAULT_ADDRESS = "tcp://127.0.0.1:5556";
 
     /**
-    * 单次 {@code recv} 阻塞等待的最长时间（毫秒），用于终止循环检测
-    */
+     * 单次 {@code recv} 阻塞等待的最长时间（毫秒），用于终止循环检测
+     */
     private static final int RECV_TIMEOUT = 100;
 
     /**
-    * ZMQ 上下文（线程安全，复用）
-    */
+     * ZMQ 上下文（线程安全，复用）
+     */
     private final ZContext zContext;
 
     /**
-    * PUB 发布Socket
-    */
+     * PUB 发布Socket
+     */
     private final ZMQ.Socket pubSocket;
 
     /**
-    * SUB 订阅Socket
-    */
+     * SUB 订阅Socket
+     */
     private final ZMQ.Socket subSocket;
 
     /**
-    * 订阅端点地址
-    */
+     * 订阅端点地址
+     */
     private final String address;
 
     /**
-    * 消息体序列化器
-    */
+     * 消息体序列化器
+     */
     private final Serialization serializer;
 
     /**
-    * 主题 → 订阅定义列表映射
-    */
+     * 主题 → 订阅定义列表映射
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-    * 收包线程
-    */
+     * 收包线程
+     */
     private Thread recvThread;
 
     /**
-    * 关闭标志（收包线程退出条件）
-    */
+     * 关闭标志（收包线程退出条件）
+     */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-    * 创建 zmqdispatcher提供者 实例。
-    *
-    * @param config 分发器配置（url 指定 PUB/SUB 端点地址，序列化器 指定序列化器）
-    */
+     * 创建 zmqdispatcher提供者 实例。
+     *
+     * @param config 分发器配置（url 指定 PUB/SUB 端点地址，序列化器 指定序列化器）
+     */
     public ZmqDispatcherProvider(DispatcherConfig config) {
         super(config);
         this.address = config != null && config.getUrl() != null && !config.getUrl().isBlank()
@@ -127,11 +127,11 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 按 SPI 名称解析消息体序列化器。
-    *
-    * @param name 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），为空时使用 Jackson
-    * @return 序列化器实例，加载失败时回退 Jackson
-    */
+     * 按 SPI 名称解析消息体序列化器。
+     *
+     * @param name 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），为空时使用 Jackson
+     * @return 序列化器实例，加载失败时回退 Jackson
+     */
     private static Serialization resolveSerializer(String name) {
         if (name == null || name.isBlank()) {
             return JacksonSerialization.INSTANCE;
@@ -186,11 +186,11 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 将主题 + 消息体分派给所有匹配的订阅定义。
-    *
-    * @param topicBytes 主题字节
-    * @param bodyBytes  序列化后的消息体字节
-    */
+     * 将主题 + 消息体分派给所有匹配的订阅定义。
+     *
+     * @param topicBytes 主题字节
+     * @param bodyBytes  序列化后的消息体字节
+     */
     private void dispatch(byte[] topicBytes, byte[] bodyBytes) {
         String topic = new String(topicBytes, StandardCharsets.UTF_8);
         List<DispatcherDefinition> definitions = definitionMap.get(topic);
@@ -278,11 +278,11 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 反序列化消息体。
-    *
-    * @param data 字节数组
-    * @return 消息对象，反序列化失败时返回 {@code null}
-    */
+     * 反序列化消息体。
+     *
+     * @param data 字节数组
+     * @return 消息对象，反序列化失败时返回 {@code null}
+     */
     private Object readBody(byte[] data) {
         try {
             if (serializer == null) {

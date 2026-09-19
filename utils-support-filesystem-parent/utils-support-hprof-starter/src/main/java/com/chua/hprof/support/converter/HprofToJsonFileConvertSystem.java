@@ -28,13 +28,13 @@ import java.nio.file.Path;
 public class HprofToJsonFileConvertSystem implements FileConvertSystem {
 
     /**
-    * 源文件格式标识。
-    */
+     * 源文件格式标识。
+     */
     private static final String SOURCE_TYPE = "hprof";
 
     /**
-    * 目标文件格式标识。
-    */
+     * 目标文件格式标识。
+     */
     private static final String TARGET_TYPE = "json";
 
     @Override
@@ -58,12 +58,12 @@ public class HprofToJsonFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * 将源解析为输入流。
-    *
-    * @param source 源文件描述
-    * @return 输入流
-    * @throws IOException 源不可读时抛出
-    */
+     * 将源解析为输入流。
+     *
+     * @param source 源文件描述
+     * @return 输入流
+     * @throws IOException 源不可读时抛出
+     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
             return Files.newInputStream(Path.of(source.getPath()));
@@ -78,13 +78,13 @@ public class HprofToJsonFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * 把生成的内容写入目标。
-    *
-    * @param target  目标文件描述
-    * @param content 内容字节
-    * @param setting 转换设置
-    * @throws IOException 目标不可写时抛出
-    */
+     * 把生成的内容写入目标。
+     *
+     * @param target  目标文件描述
+     * @param content 内容字节
+     * @param setting 转换设置
+     * @throws IOException 目标不可写时抛出
+     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {
             File file = new File(target.getPath());

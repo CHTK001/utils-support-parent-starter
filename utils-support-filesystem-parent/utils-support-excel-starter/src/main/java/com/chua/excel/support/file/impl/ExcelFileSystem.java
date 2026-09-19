@@ -17,72 +17,72 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
-* Excel 文件系统 SPI 实现（基于 Apache POI）。
-*
-* <p>支持 .xlsx / .xls 格式，提供丰富的读写能力：</p>
-*
-* <h2>写入特性</h2>
-* <ul>
-*     <li><b>样式</b> — 通过 {@link CellStyleConfig} 自定义字体、颜色、边框、对齐等</li>
-*     <li><b>固定表头</b> — {@code freezeHeader()} 冻结首行，滚动时不消失</li>
-*     <li><b>自动过滤</b> — {@code withFilter()} 启用 Excel 筛选器</li>
-*     <li><b>列配置</b> — 通过 {@link ColumnConfig} 设置列宽、显示名、样式</li>
-*     <li><b>多 Sheet</b> — {@code sheetName()} 自定义工作表名</li>
-* </ul>
-*
-* <h2>读取特性</h2>
-* <ul>
-*     <li><b>列投影</b> — {@code selectColumns("id","name")} 仅读取指定列</li>
-*     <li><b>行过滤</b> — {@code filterRows(row -> ...)} 按条件过滤行</li>
-*     <li><b>合并单元格</b> — 自动解析合并区域</li>
-* </ul>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* // ===== 写入：样式 + 固定表头 + 自动过滤 =====
-* CellStyleConfig headerStyle = CellStyleConfig.create()
-*     .bold().fontSize(12).backgroundColor("4472C4").fontColor("FFFFFF")
-*     .horizontalCenter().verticalCenter().border(BorderStyle.THIN);
-*
-* CellStyleConfig bodyStyle = CellStyleConfig.create()
-*     .border(BorderStyle.THIN).horizontalCenter();
-*
-* FileSystem fs = FileSystem.create("excel");
-* fs.write(new File("report.xlsx"))
-*    .withHeaders(List.of("id", "name", "score"))
-*    .headerStyle(headerStyle)
-*    .style(bodyStyle)
-*    .columnConfig("score", ColumnConfig.of("score").width(10))
-*    .freezeHeader()
-*    .withFilter()
-*    .write(rows)
-*    .finish();
-*
-* // ===== 多 Sheet 写入 =====
-* fs.write(new File("multi.xlsx"))
-*    .writeSheet("汇总", summaryRows)        // Sheet 1
-*    .freezeHeader().withFilter()
-*
-*    .writeSheet("明细")                       // Sheet 2
-*    .withHeaders(List.of("id", "name"))
-*    .headerStyle(headerStyle)
-*    .style(bodyStyle)
-*    .write(detailRows)
-*    .finish();
-*
-* // ===== 读取：列投影 + 行过滤 =====
-* List<Map<String, Object>> result = fs.read(new File("report.xlsx"))
-*    .selectColumns("id", "name")
-*    .filterRows(row -> row.get("score") != null)
-*    .rows();
-* }</pre> * List<Map<String, Object>> result = fs.read(new File("report.xlsx"))
-*    .selectColumns("id", "name")
-*    .filterRows(row -> row.get("score") != null)
-*    .rows();
-* }</pre>
-*
-* @author CH
-* @since 2026-07-20
+ * Excel 文件系统 SPI 实现（基于 Apache POI）。
+ *
+ * <p>支持 .xlsx / .xls 格式，提供丰富的读写能力：</p>
+ *
+ * <h2>写入特性</h2>
+ * <ul>
+ *     <li><b>样式</b> — 通过 {@link CellStyleConfig} 自定义字体、颜色、边框、对齐等</li>
+ *     <li><b>固定表头</b> — {@code freezeHeader()} 冻结首行，滚动时不消失</li>
+ *     <li><b>自动过滤</b> — {@code withFilter()} 启用 Excel 筛选器</li>
+ *     <li><b>列配置</b> — 通过 {@link ColumnConfig} 设置列宽、显示名、样式</li>
+ *     <li><b>多 Sheet</b> — {@code sheetName()} 自定义工作表名</li>
+ * </ul>
+ *
+ * <h2>读取特性</h2>
+ * <ul>
+ *     <li><b>列投影</b> — {@code selectColumns("id","name")} 仅读取指定列</li>
+ *     <li><b>行过滤</b> — {@code filterRows(row -> ...)} 按条件过滤行</li>
+ *     <li><b>合并单元格</b> — 自动解析合并区域</li>
+ * </ul>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * // ===== 写入：样式 + 固定表头 + 自动过滤 =====
+ * CellStyleConfig headerStyle = CellStyleConfig.create()
+ *     .bold().fontSize(12).backgroundColor("4472C4").fontColor("FFFFFF")
+ *     .horizontalCenter().verticalCenter().border(BorderStyle.THIN);
+ *
+ * CellStyleConfig bodyStyle = CellStyleConfig.create()
+ *     .border(BorderStyle.THIN).horizontalCenter();
+ *
+ * FileSystem fs = FileSystem.create("excel");
+ * fs.write(new File("report.xlsx"))
+ *    .withHeaders(List.of("id", "name", "score"))
+ *    .headerStyle(headerStyle)
+ *    .style(bodyStyle)
+ *    .columnConfig("score", ColumnConfig.of("score").width(10))
+ *    .freezeHeader()
+ *    .withFilter()
+ *    .write(rows)
+ *    .finish();
+ *
+ * // ===== 多 Sheet 写入 =====
+ * fs.write(new File("multi.xlsx"))
+ *    .writeSheet("汇总", summaryRows)        // Sheet 1
+ *    .freezeHeader().withFilter()
+ *
+ *    .writeSheet("明细")                       // Sheet 2
+ *    .withHeaders(List.of("id", "name"))
+ *    .headerStyle(headerStyle)
+ *    .style(bodyStyle)
+ *    .write(detailRows)
+ *    .finish();
+ *
+ * // ===== 读取：列投影 + 行过滤 =====
+ * List<Map<String, Object>> result = fs.read(new File("report.xlsx"))
+ *    .selectColumns("id", "name")
+ *    .filterRows(row -> row.get("score") != null)
+ *    .rows();
+ * }</pre> * List<Map<String, Object>> result = fs.read(new File("report.xlsx"))
+ *    .selectColumns("id", "name")
+ *    .filterRows(row -> row.get("score") != null)
+ *    .rows();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026-07-20
  */
 @Spi("excel")
 public class ExcelFileSystem implements FileSystem {
@@ -107,11 +107,11 @@ public class ExcelFileSystem implements FileSystem {
 
     // ==================== Read ====================
     /**
-    * excel读取构建器类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * excel读取构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class ExcelReadBuilder extends ReadBuilder {
 
@@ -129,22 +129,22 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 链式配置 ====================
 
         /**
-        * withsheet名称
-        *
-        * @param sheetName sheet名称
-        * @return withsheet名称的结果
-        */
+         * withsheet名称
+         *
+         * @param sheetName sheet名称
+         * @return withsheet名称的结果
+         */
         public ExcelReadBuilder withSheetName(String sheetName) {
             this.sheetName = sheetName;
             return this;
         }
 
         /**
-        * withsheet索引
-        *
-        * @param sheetIndex sheet索引
-        * @return withsheet索引的结果
-        */
+         * withsheet索引
+         *
+         * @param sheetIndex sheet索引
+         * @return withsheet索引的结果
+         */
         public ExcelReadBuilder withSheetIndex(int sheetIndex) {
             this.sheetIndex = sheetIndex;
             return this;
@@ -171,11 +171,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置列投影。
-        *
-        * @param columns 要读取的列名列表
-        * @return 当前构建器
-        */
+         * 设置列投影。
+         *
+         * @param columns 要读取的列名列表
+         * @return 当前构建器
+         */
         public ExcelReadBuilder selectColumns(Collection<String> columns) {
             this.selectedColumns = columns != null
                     ? new LinkedHashSet<>(columns)
@@ -193,9 +193,9 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 读取方法 ====================
 
         /**
-        * 读取全部行为 映射 列表。
-        * @return rows的结果
-        */
+         * 读取全部行为 映射 列表。
+         * @return rows的结果
+         */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             try (FileInputStream fis = new FileInputStream(file);
@@ -283,9 +283,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 获取工作表名称列表。
-        * @return sheet名称的结果
-        */
+         * 获取工作表名称列表。
+         * @return sheet名称的结果
+         */
         public List<String> sheetNames() {
             try (FileInputStream fis = new FileInputStream(file);
                  Workbook wb = WorkbookFactory.create(fis)) {
@@ -308,11 +308,11 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 内部方法 ====================
 
         /**
-        * 解析Sheet
-        *
-        * @param wb wb
-        * @return resolveSheet的结果
-        */
+         * 解析Sheet
+         *
+         * @param wb wb
+         * @return resolveSheet的结果
+         */
         private Sheet resolveSheet(Workbook wb) {
             if (sheetName != null && !sheetName.isEmpty()) {
                 Sheet sheet = wb.getSheet(sheetName);
@@ -329,11 +329,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 构建合并缓存
-        *
-        * @param sheet sheet
-        * @return 构建合并缓存的结果
-        */
+         * 构建合并缓存
+         *
+         * @param sheet sheet
+         * @return 构建合并缓存的结果
+         */
         private java.util.Map<String, Object> buildMergedCache(Sheet sheet) {
             java.util.Map<String, Object> cache = new java.util.HashMap<>();
             for (CellRangeAddress region : sheet.getMergedRegions()) {
@@ -353,11 +353,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 获取cell值
-        *
-        * @param cell cell
-        * @return 获取cell值的结果
-        */
+         * 获取cell值
+         *
+         * @param cell cell
+         * @return 获取cell值的结果
+         */
         private Object getCellValue(Cell cell) {
             return switch (cell.getCellType()) {
                 case STRING -> cell.getStringCellValue();
@@ -377,11 +377,11 @@ public class ExcelFileSystem implements FileSystem {
 
     // ==================== Write ====================
     /**
-    * excel写入构建器类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * excel写入构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class ExcelWriteBuilder extends WriteBuilder {
 
@@ -396,16 +396,16 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== Sheet 上下文管理 ====================
 
         /**
-        * 单 Sheet 上下文 — 保存每个工作表的独立配置与数据。
-        * @author CH
-        * @since 4.0.0
-        */
+         * 单 Sheet 上下文 — 保存每个工作表的独立配置与数据。
+         * @author CH
+         * @since 4.0.0
+         */
         private static class SheetContext {
             final String name; // 名称
             final List<Map<String, Object>> rows = new ArrayList<>(); // rows
             /**
-            * 表头列，为 空 则自动推断
-            */
+             * 表头列，为 空 则自动推断
+             */
             List<String> headerColumns;
             boolean withHeader = true; // with头部
             CellStyleConfig defaultStyle; // 默认style
@@ -444,11 +444,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-            * 获取或创建指定名称的 Sheet 上下文
-            *
-            * @param name 名称
-            * @return 获取或创建sheet的结果
-            */
+         * 获取或创建指定名称的 Sheet 上下文
+         *
+         * @param name 名称
+         * @return 获取或创建sheet的结果
+         */
         private SheetContext getOrCreateSheet(String name) {
             return sheets.computeIfAbsent(name, SheetContext::new);
         }
@@ -456,25 +456,25 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== Sheet 切换与数据写入 ====================
 
         /**
-        * 切换到指定工作表（不存在则创建）。
-        * 后续的 {@link #withHeader}, {@link #style}, {@link #freezeHeader},
-        * {@link #write(Object)} 等配置/数据均写入此工作表。
-        *
-        * @param name 工作表名
-        * @return 当前构建器
-        */
+         * 切换到指定工作表（不存在则创建）。
+         * 后续的 {@link #withHeader}, {@link #style}, {@link #freezeHeader},
+         * {@link #write(Object)} 等配置/数据均写入此工作表。
+         *
+         * @param name 工作表名
+         * @return 当前构建器
+         */
         public ExcelWriteBuilder writeSheet(String name) {
             this.activeSheet = getOrCreateSheet(name);
             return this;
         }
 
         /**
-        * 写入数据到指定工作表并切换到该工作表。
-        *
-        * @param name 工作表名
-        * @param rows 数据行（列表 的 映射）
-        * @return 当前构建器
-        */
+         * 写入数据到指定工作表并切换到该工作表。
+         *
+         * @param name 工作表名
+         * @param rows 数据行（列表 的 映射）
+         * @return 当前构建器
+         */
         public ExcelWriteBuilder writeSheet(String name, List<Map<String, Object>> rows) {
             this.activeSheet = getOrCreateSheet(name);
             this.activeSheet.rows.addAll(rows);
@@ -482,11 +482,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置当前活跃的工作表名称（同 {@link #writeSheet(String)}）。
-        *
-        * @param sheetName 工作表名
-        * @return 当前构建器
-        */
+         * 设置当前活跃的工作表名称（同 {@link #writeSheet(String)}）。
+         *
+         * @param sheetName 工作表名
+         * @return 当前构建器
+         */
         public ExcelWriteBuilder sheetName(String sheetName) {
             this.activeSheet = getOrCreateSheet(sheetName);
             return this;
@@ -532,41 +532,41 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置当前 Sheet 的默认单元格样式。
-        * @param style style
-        * @return style的结果
-        */
+         * 设置当前 Sheet 的默认单元格样式。
+         * @param style style
+         * @return style的结果
+         */
         public ExcelWriteBuilder style(CellStyleConfig style) {
             activeSheet.defaultStyle = style;
             return this;
         }
 
         /**
-        * 设置当前 Sheet 的表头行样式。
-        * @param style style
-        * @return 头部style的结果
-        */
+         * 设置当前 Sheet 的表头行样式。
+         * @param style style
+         * @return 头部style的结果
+         */
         public ExcelWriteBuilder headerStyle(CellStyleConfig style) {
             activeSheet.headerStyle = style;
             return this;
         }
 
         /**
-        * 设置当前 Sheet 指定列的配置。
-        * @param fieldName 字段名称
-        * @param config 配置
-        * @return column配置的结果
-        */
+         * 设置当前 Sheet 指定列的配置。
+         * @param fieldName 字段名称
+         * @param config 配置
+         * @return column配置的结果
+         */
         public ExcelWriteBuilder columnConfig(String fieldName, ColumnConfig config) {
             activeSheet.columnConfigs.put(fieldName, config);
             return this;
         }
 
         /**
-        * 批量设置当前 Sheet 的列配置。
-        * @param configs 配置
-        * @return column配置的结果
-        */
+         * 批量设置当前 Sheet 的列配置。
+         * @param configs 配置
+         * @return column配置的结果
+         */
         public ExcelWriteBuilder columnConfigs(java.util.Map<String, ColumnConfig> configs) {
             if (configs != null) {
                 activeSheet.columnConfigs.putAll(configs);
@@ -575,11 +575,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置当前 Sheet 指定列的宽度。
-        * @param fieldName 字段名称
-        * @param width width
-        * @return columnWidth的结果
-        */
+         * 设置当前 Sheet 指定列的宽度。
+         * @param fieldName 字段名称
+         * @param width width
+         * @return columnWidth的结果
+         */
         public ExcelWriteBuilder columnWidth(String fieldName, int width) {
             ColumnConfig existing = activeSheet.columnConfigs.get(fieldName);
             if (existing != null) {
@@ -594,39 +594,39 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置当前 Sheet 的默认列宽。
-        * @param width width
-        * @return 默认columnwidth的结果
-        */
+         * 设置当前 Sheet 的默认列宽。
+         * @param width width
+         * @return 默认columnwidth的结果
+         */
         public ExcelWriteBuilder defaultColumnWidth(int width) {
             activeSheet.defaultColumnWidth = width;
             return this;
         }
 
         /**
-        * 冻结当前 Sheet 的表头行。
-        * @return freeze头部的结果
-        */
+         * 冻结当前 Sheet 的表头行。
+         * @return freeze头部的结果
+         */
         public ExcelWriteBuilder freezeHeader() {
             activeSheet.freezeHeader = true;
             return this;
         }
 
         /**
-        * 启用当前 Sheet 的自动过滤。
-        * @return with过滤器的结果
-        */
+         * 启用当前 Sheet 的自动过滤。
+         * @return with过滤器的结果
+         */
         public ExcelWriteBuilder withFilter() {
             activeSheet.autoFilter = true;
             return this;
         }
 
         /**
-        * 设置当前 Sheet 是否写入表头行。
-        *
-        * @param rows 数据行
-        * @return 当前构建器
-        */
+         * 设置当前 Sheet 是否写入表头行。
+         *
+         * @param rows 数据行
+         * @return 当前构建器
+         */
         public ExcelWriteBuilder writeRows(List<Map<String, Object>> rows) {
             activeSheet.rows.addAll(rows);
             return this;
@@ -635,10 +635,10 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 全局配置 ====================
 
         /**
-        * 设置是否创建新工作簿（默认 true）。
-        * @param newWorkbook 新workbook
-        * @return 新workbook的结果
-        */
+         * 设置是否创建新工作簿（默认 true）。
+         * @param newWorkbook 新workbook
+         * @return 新workbook的结果
+         */
         public ExcelWriteBuilder newWorkbook(boolean newWorkbook) {
             this.newWorkbook = newWorkbook;
             return this;
@@ -654,10 +654,10 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 写入执行 ====================
 
         /**
-        * 立即写入单一 Sheet（不入队列）。
-        *
-        * @param rows 数据行
-        */
+         * 立即写入单一 Sheet（不入队列）。
+         *
+         * @param rows 数据行
+         */
         public void writeAndFlush(List<Map<String, Object>> rows) {
             callback.onStart();
             callback.onBeginWrite();
@@ -711,19 +711,19 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 内部方法 ====================
 
         /**
-        * 创建工作簿
-        *
-        * @return 创建workbook的结果
-        */
+         * 创建工作簿
+         *
+         * @return 创建workbook的结果
+         */
         private Workbook createWorkbook() {
             return new org.apache.poi.xssf.usermodel.XSSFWorkbook();
         }
 
         /**
-        * 将单个 sheet上下文 写入 Workbook。
-        * @param wb wb
-        * @param ctx ctx
-        */
+         * 将单个 sheet上下文 写入 Workbook。
+         * @param wb wb
+         * @param ctx ctx
+         */
         private void writeSingleSheet(Workbook wb, SheetContext ctx) {
             Sheet sheet = wb.createSheet(ctx.name);
             List<String> headers = ctx.resolveHeaders();
@@ -756,24 +756,24 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 解析显示名（优先取 column配置）
-        *
-        * @param fieldName 字段名称
-        * @param ctx ctx
-        * @return resolvedisplay名称的结果
-        */
+         * 解析显示名（优先取 column配置）
+         *
+         * @param fieldName 字段名称
+         * @param ctx ctx
+         * @return resolvedisplay名称的结果
+         */
         private String resolveDisplayName(String fieldName, SheetContext ctx) {
             ColumnConfig cc = ctx.columnConfigs.get(fieldName);
             return cc != null ? cc.getDisplayName() : fieldName;
         }
 
         /**
-        * 应用 Sheet 级别设置
-        *
-        * @param sheet sheet
-        * @param headers 头部
-        * @param ctx ctx
-        */
+         * 应用 Sheet 级别设置
+         *
+         * @param sheet sheet
+         * @param headers 头部
+         * @param ctx ctx
+         */
         private void applySheetSettings(Sheet sheet, List<String> headers, SheetContext ctx) {
             int headerRowIndex = ctx.withHeader ? 0 : -1;
 
@@ -803,13 +803,13 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 应用表头单元格样式
-        *
-        * @param wb wb
-        * @param cell cell
-        * @param fieldName 字段名称
-        * @param ctx ctx
-        */
+         * 应用表头单元格样式
+         *
+         * @param wb wb
+         * @param cell cell
+         * @param fieldName 字段名称
+         * @param ctx ctx
+         */
         private void applyHeaderCellStyle(Workbook wb, Cell cell, String fieldName, SheetContext ctx) {
             ColumnConfig cc = ctx.columnConfigs.get(fieldName);
             CellStyleConfig styleConfig = null;
@@ -828,13 +828,13 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 应用数据单元格样式
-        *
-        * @param wb wb
-        * @param cell cell
-        * @param fieldName 字段名称
-        * @param ctx ctx
-        */
+         * 应用数据单元格样式
+         *
+         * @param wb wb
+         * @param cell cell
+         * @param fieldName 字段名称
+         * @param ctx ctx
+         */
         private void applyCellStyle(Workbook wb, Cell cell, String fieldName, SheetContext ctx) {
             ColumnConfig cc = ctx.columnConfigs.get(fieldName);
             CellStyleConfig styleConfig = null;
@@ -853,11 +853,11 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         /**
-        * 设置单元格值
-        *
-        * @param cell cell
-        * @param val val
-        */
+         * 设置单元格值
+         *
+         * @param cell cell
+         * @param val val
+         */
         private void setCellValue(Cell cell, Object val) {
             if (val == null) {
                 cell.setBlank();

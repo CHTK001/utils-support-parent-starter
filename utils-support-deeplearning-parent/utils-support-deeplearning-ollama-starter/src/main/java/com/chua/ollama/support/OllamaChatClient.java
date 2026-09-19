@@ -53,55 +53,55 @@ import java.util.Map;
 public class OllamaChatClient implements ChatClient {
 
     /**
-    * 客户端 配置
-    */
+     * 客户端 配置
+     */
     private final ChatClientSetting setting;
 
     /**
-    * ollama4j 原生 客户端
-    */
+     * ollama4j 原生 客户端
+     */
     private final Ollama ollama;
 
     /**
-    * 当前 模型 名称
-    */
+     * 当前 模型 名称
+     */
     private String model;
 
     /**
-    * 系统 提示词
-    */
+     * 系统 提示词
+     */
     private String system;
 
     /**
-    * 采样 温度
-    */
+     * 采样 温度
+     */
     private Double temperature;
 
     /**
-    * 最大 输出 令牌 数
-    */
+     * 最大 输出 令牌 数
+     */
     private Integer maxTokens;
 
     /**
-    * Top-P 采样
-    */
+     * Top-P 采样
+     */
     private Double topP;
 
     /**
-    * 增量 历史（按 时间 正序）
-    */
+     * 增量 历史（按 时间 正序）
+     */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-    * 外部 一次性 历史（覆盖 增量 历史）
-    */
+     * 外部 一次性 历史（覆盖 增量 历史）
+     */
     private List<ChatMessage> externalHistory;
 
     /**
-    * 创建 Ollama 对话 客户端。
-    *
-    * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
-    */
+     * 创建 Ollama 对话 客户端。
+     *
+     * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
+     */
     public OllamaChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.ollama = OllamaSupport.client(setting != null ? setting.getBaseUrl() : null);
@@ -264,11 +264,11 @@ public class OllamaChatClient implements ChatClient {
     }
 
     /**
-    * 构建 ollama4j 聊天 请求（模型、历史、当前 输入、采样 参数）。
-    *
-    * @param prompt 用户 输入
-    * @return 聊天 请求
-    */
+     * 构建 ollama4j 聊天 请求（模型、历史、当前 输入、采样 参数）。
+     *
+     * @param prompt 用户 输入
+     * @return 聊天 请求
+     */
     private OllamaChatRequest buildRequest(String prompt) {
         OllamaChatRequest request = OllamaChatRequest.builder()
                 .withModel(model != null && !model.isBlank() ? model : "llama3.2:3b")
@@ -279,11 +279,11 @@ public class OllamaChatClient implements ChatClient {
     }
 
     /**
-    * 构建 ollama4j 消息 列表（系统 提示 + 历史 + 当前 输入）。
-    *
-    * @param prompt 用户 输入
-    * @return 消息 列表
-    */
+     * 构建 ollama4j 消息 列表（系统 提示 + 历史 + 当前 输入）。
+     *
+     * @param prompt 用户 输入
+     * @return 消息 列表
+     */
     private List<OllamaChatMessage> buildOllamaMessages(String prompt) {
         List<OllamaChatMessage> messages = new ArrayList<>();
         if (system != null && !system.isBlank()) {
@@ -304,10 +304,10 @@ public class OllamaChatClient implements ChatClient {
     }
 
     /**
-    * 构建采样 选项（temperature / num_predict / top_p）。
-    *
-    * @return 选项 构建器 结果
-    */
+     * 构建采样 选项（temperature / num_predict / top_p）。
+     *
+     * @return 选项 构建器 结果
+     */
     private Options buildOptions() {
         Map<String, Object> map = new java.util.LinkedHashMap<>();
         if (temperature != null) {
@@ -323,12 +323,12 @@ public class OllamaChatClient implements ChatClient {
     }
 
     /**
-    * 解析 令牌 用量（基于 ollama4j 响应 模型 的 评估 统计）。
-    *
-    * @param responseModel 响应 模型
-    * @param history       聊天 历史（保留参数，便于 后续 扩展）
-    * @return 用量 对象；无 用量 信息 时 返回 空
-    */
+     * 解析 令牌 用量（基于 ollama4j 响应 模型 的 评估 统计）。
+     *
+     * @param responseModel 响应 模型
+     * @param history       聊天 历史（保留参数，便于 后续 扩展）
+     * @return 用量 对象；无 用量 信息 时 返回 空
+     */
     private AiUsage parseUsage(io.github.ollama4j.models.chat.OllamaChatResponseModel responseModel,
                                List<OllamaChatMessage> history) {
         if (responseModel == null) {

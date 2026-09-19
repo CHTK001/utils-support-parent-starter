@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 从 Databay API 获取免费代理。
-*
-* @author CH
-* @since 4.0.0.42
+ * 从 Databay API 获取免费代理。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("databay")
 public class DatabayFetcher implements ProxyFetcher {
 
     /**
-    * Databay API URL
-    */
+     * Databay API URL
+     */
     private static final String URL = "https://databay.com/api/v1/proxy-list"
             + "?protocol=http&anonymity=elite&format=json&limit=20";
 

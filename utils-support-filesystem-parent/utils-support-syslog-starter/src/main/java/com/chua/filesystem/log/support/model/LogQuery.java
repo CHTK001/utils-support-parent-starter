@@ -3,18 +3,18 @@ package com.chua.filesystem.log.support.model;
 import javax.annotation.Nullable;
 
 /**
-* 系统日志查询条件
-*
-* @param source     日志源 (如 系统, Application, 安全性, journald)，空 表示所有源
-* @param pattern    通配符搜索模式 (如 "*disk*")，空 表示不过滤
-* @param minLevel   最低日志级别，空 表示所有级别
-* @param maxResults 最大返回条数，默认 100
-* @param after      分页游标 (上一页最后一条的游标值)，空 表示第一页
-* @param tail       是否持续监听新日志 (类似 tail -f)，默认 false
-* @param order      排序方向: "desc" (默认, 最新在前) / "asc" (最早在前)
-*
-* @author CH
-* @since 4.0.0.42
+ * 系统日志查询条件
+ *
+ * @param source     日志源 (如 系统, Application, 安全性, journald)，空 表示所有源
+ * @param pattern    通配符搜索模式 (如 "*disk*")，空 表示不过滤
+ * @param minLevel   最低日志级别，空 表示所有级别
+ * @param maxResults 最大返回条数，默认 100
+ * @param after      分页游标 (上一页最后一条的游标值)，空 表示第一页
+ * @param tail       是否持续监听新日志 (类似 tail -f)，默认 false
+ * @param order      排序方向: "desc" (默认, 最新在前) / "asc" (最早在前)
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public record LogQuery(
         @Nullable String source,
@@ -27,17 +27,17 @@ public record LogQuery(
 ) {
 
     /**
-    * 降序 (最新在前)
-    */
+     * 降序 (最新在前)
+     */
     public static final String ORDER_DESC = "desc";
     /**
-    * 升序 (最早在前)
-    */
+     * 升序 (最早在前)
+     */
     public static final String ORDER_ASC = "asc";
 
     /**
-    * 默认最大结果数
-    */
+     * 默认最大结果数
+     */
     public static final int DEFAULT_MAX_RESULTS = 100;
 
     public LogQuery {
@@ -50,31 +50,31 @@ public record LogQuery(
     }
 
     /**
-    * 的
-    *
-    * @param pattern 模式
-    * @return 的的结果
-    */
+     * 的
+     *
+     * @param pattern 模式
+     * @return 的的结果
+     */
     public static LogQuery of(String pattern) {
         return new LogQuery(null, pattern, null, DEFAULT_MAX_RESULTS, null, false, ORDER_DESC);
     }
 
     /**
-    * 的
-    *
-    * @param pattern 模式
-    * @param minLevel 最小级别
-    * @return 的的结果
-    */
+     * 的
+     *
+     * @param pattern 模式
+     * @param minLevel 最小级别
+     * @return 的的结果
+     */
     public static LogQuery of(String pattern, LogLevel minLevel) {
         return new LogQuery(null, pattern, minLevel, DEFAULT_MAX_RESULTS, null, false, ORDER_DESC);
     }
 
     /**
-    * 构建器
-    *
-    * @return 构建器的结果
-    */
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -107,76 +107,76 @@ public record LogQuery(
         }
 
         /**
-        * 模式
-        *
-        * @param pattern 模式
-        * @return 模式的结果
-        */
+         * 模式
+         *
+         * @param pattern 模式
+         * @return 模式的结果
+         */
         public Builder pattern(String pattern) {
             this.pattern = pattern;
             return this;
         }
 
         /**
-        * 最小值级别
-        *
-        * @param minLevel 最小级别
-        * @return 最小级别的结果
-        */
+         * 最小值级别
+         *
+         * @param minLevel 最小级别
+         * @return 最小级别的结果
+         */
         public Builder minLevel(LogLevel minLevel) {
             this.minLevel = minLevel;
             return this;
         }
 
         /**
-        * 最大值结果
-        *
-        * @param maxResults 最大结果
-        * @return 最大结果的结果
-        */
+         * 最大值结果
+         *
+         * @param maxResults 最大结果
+         * @return 最大结果的结果
+         */
         public Builder maxResults(int maxResults) {
             this.maxResults = maxResults;
             return this;
         }
 
         /**
-        * 之后
-        *
-        * @param after 之后
-        * @return 之后的结果
-        */
+         * 之后
+         *
+         * @param after 之后
+         * @return 之后的结果
+         */
         public Builder after(String after) {
             this.after = after;
             return this;
         }
 
         /**
-        * Tail
-        *
-        * @param tail tail
-        * @return tail的结果
-        */
+         * Tail
+         *
+         * @param tail tail
+         * @return tail的结果
+         */
         public Builder tail(boolean tail) {
             this.tail = tail;
             return this;
         }
 
         /**
-        * 订单
-        *
-        * @param order 订单
-        * @return 订单的结果
-        */
+         * 订单
+         *
+         * @param order 订单
+         * @return 订单的结果
+         */
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
         /**
-        * 构建
-        *
-        * @return 构建的结果
-        */
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public LogQuery build() {
             return new LogQuery(source, pattern, minLevel, maxResults, after, tail, order);
         }

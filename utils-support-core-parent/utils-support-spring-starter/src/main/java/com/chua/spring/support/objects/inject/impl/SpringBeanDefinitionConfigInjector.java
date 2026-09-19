@@ -18,14 +18,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
-* Spring 配置注入器，处理 {@link Value} 注解。
-*
-* <p>通过 {@link SpringEnvironmentAdapter} 将框架 {@link Environment} 包装为 Spring
-* {@link org.springframework.core.env.Environment}，使 {@code ${...}} 占位符和
-* {@code #{...}} SpEL 均委托 Spring 原生机制解析，配置源来自框架已聚合的配置。</p>
-*
-* @author CH
-* @since 2024/12/20
+ * Spring 配置注入器，处理 {@link Value} 注解。
+ *
+ * <p>通过 {@link SpringEnvironmentAdapter} 将框架 {@link Environment} 包装为 Spring
+ * {@link org.springframework.core.env.Environment}，使 {@code ${...}} 占位符和
+ * {@code #{...}} SpEL 均委托 Spring 原生机制解析，配置源来自框架已聚合的配置。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @Slf4j
 @Spi("spring")
@@ -39,22 +39,22 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @Override
     /**
-    * 是否支持
-    * @param field 字段
-    * @param beanDefinition Beandefinition
-    */
+     * 是否支持
+     * @param field 字段
+     * @param beanDefinition Beandefinition
+     */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Value.class);
     }
 
     @Override
     /**
-    * Inject
-    * @param field 字段
-    * @param bean Bean
-    * @param beanDefinition Beandefinition
-    * @param environment 环境
-    */
+     * Inject
+     * @param field 字段
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param environment 环境
+     */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null) {
             return null;
@@ -68,10 +68,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @Override
     /**
-    * 是否支持
-    * @param method 方法
-    * @param beanDefinition Beandefinition
-    */
+     * 是否支持
+     * @param method 方法
+     * @param beanDefinition Beandefinition
+     */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -86,12 +86,12 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @Override
     /**
-    * Inject
-    * @param method 方法
-    * @param bean Bean
-    * @param beanDefinition Beandefinition
-    * @param environment 环境
-    */
+     * Inject
+     * @param method 方法
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param environment 环境
+     */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null) {
             return null;
@@ -114,10 +114,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     }
 
     /**
-    * 获取springenv
-    * @param frameworkEnv 框架env
-    * @return 获取springenv的结果
-    */
+     * 获取springenv
+     * @param frameworkEnv 框架env
+     * @return 获取springenv的结果
+     */
     private org.springframework.core.env.Environment getSpringEnv(Environment frameworkEnv) {
         org.springframework.core.env.Environment env = this.springEnv;
         if (env instanceof SpringEnvironmentAdapter adapter && adapter.getDelegate() == frameworkEnv) {
@@ -130,12 +130,12 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @SuppressWarnings("unchecked")
     /**
-    * 解析值
-    * @param expression expression
-    * @param targetType 目标类型
-    * @param frameworkEnv 框架env
-    * @return resolve值的结果
-    */
+     * 解析值
+     * @param expression expression
+     * @param targetType 目标类型
+     * @param frameworkEnv 框架env
+     * @return resolve值的结果
+     */
     private Object resolveValue(String expression, Class<?> targetType, Environment frameworkEnv) {
         if (expression == null) {
             return null;

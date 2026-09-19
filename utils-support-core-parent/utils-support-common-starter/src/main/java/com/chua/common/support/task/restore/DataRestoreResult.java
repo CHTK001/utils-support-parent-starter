@@ -13,50 +13,50 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 @Builder
 public class DataRestoreResult {
 
     /**
-    * 是否成功
-    */
+     * 是否成功
+     */
     private boolean success;
 
     /**
-    * 输出文件列表
-    */
+     * 输出文件列表
+     */
     @Builder.Default
     private List<File> outputFiles = List.of();
 
     /**
-    * 输出文件总数
-    */
+     * 输出文件总数
+     */
     private int fileCount;
 
     /**
-    * 输出总大小（字节）
-    */
+     * 输出总大小（字节）
+     */
     private long totalSize;
 
     /**
-    * 耗时（毫秒）
-    */
+     * 耗时（毫秒）
+     */
     private long durationMillis;
 
     /**
-    * 错误信息
-    */
+     * 错误信息
+     */
     private String errorMessage;
 
     /**
-    * 创建成功结果。
-    *
-    * @param outputFiles 输出文件列表
-    * @param totalSize   输出总大小（字节）
-    * @param duration    耗时（毫秒）
-    * @return 成功结果
-    */
+     * 创建成功结果。
+     *
+     * @param outputFiles 输出文件列表
+     * @param totalSize   输出总大小（字节）
+     * @param duration    耗时（毫秒）
+     * @return 成功结果
+     */
     public static DataRestoreResult success(List<File> outputFiles, long totalSize, long duration) {
         if (outputFiles == null) {
             throw new IllegalArgumentException("输出文件列表不能为空");
@@ -71,11 +71,11 @@ public class DataRestoreResult {
     }
 
     /**
-    * 创建失败结果。
-    *
-    * @param errorMessage 失败原因
-    * @return 失败结果
-    */
+     * 创建失败结果。
+     *
+     * @param errorMessage 失败原因
+     * @return 失败结果
+     */
     public static DataRestoreResult failure(String errorMessage) {
         return DataRestoreResult.builder()
                 .success(false)

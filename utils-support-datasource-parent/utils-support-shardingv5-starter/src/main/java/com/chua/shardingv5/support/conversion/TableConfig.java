@@ -1,7 +1,7 @@
 package com.chua.shardingv5.support.conversion;
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 
 public class TableConfig {

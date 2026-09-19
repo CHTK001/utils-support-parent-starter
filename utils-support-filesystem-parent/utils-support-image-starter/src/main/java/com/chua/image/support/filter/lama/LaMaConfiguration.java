@@ -74,125 +74,125 @@ import javax.annotation.Nullable;
 public class LaMaConfiguration {
 
     /**
-    * ONNX模型文件路径
-    * 支持本地文件路径或资源路径
-    */
+     * ONNX模型文件路径
+     * 支持本地文件路径或资源路径
+     */
     private String modelPath;
 
     /**
-    * 输入图像尺寸
-    * lama模型通常使用512x512的输入尺寸
-    * 较大的尺寸可能提供更好的效果但需要更多内存
-    */
+     * 输入图像尺寸
+     * lama模型通常使用512x512的输入尺寸
+     * 较大的尺寸可能提供更好的效果但需要更多内存
+     */
     private int inputSize = 512;
 
     /**
-    * 推理线程数
-    * 控制ONNX Runtime使用的线程数量
-    */
+     * 推理线程数
+     * 控制ONNX Runtime使用的线程数量
+     */
     private int threads = 4;
 
     /**
-    * 是否使用GPU加速
-    * 需要安装GPU版本的ONNX Runtime
-    */
+     * 是否使用GPU加速
+     * 需要安装GPU版本的ONNX Runtime
+     */
     private boolean useGpu = false;
 
     /**
-    * GPU设备标识
-    * 当使用GPU时指定设备标识，默认为0
-    */
+     * GPU设备标识
+     * 当使用GPU时指定设备标识，默认为0
+     */
     private int gpuDeviceId = 0;
 
     /**
-    * 输入图像的均值
-    * 用于图像标准化，RGB三个通道的均值
-    */
+     * 输入图像的均值
+     * 用于图像标准化，RGB三个通道的均值
+     */
     private float[] meanValues = {0.485f, 0.456f, 0.406f};
 
     /**
-    * 输入图像的标准差
-    * 用于图像标准化，RGB三个通道的标准差
-    */
+     * 输入图像的标准差
+     * 用于图像标准化，RGB三个通道的标准差
+     */
     private float[] stdValues = {0.229f, 0.224f, 0.225f};
 
     /**
-    * mask阈值
-    * 用于二值化mask，像素值大于此阈值的区域将被视为需要修复的区域
-    */
+     * mask阈值
+     * 用于二值化mask，像素值大于此阈值的区域将被视为需要修复的区域
+     */
     private float maskThreshold = 0.5f;
 
     /**
-    * 是否使用alpha通道作为mask
-    * 如果为true，将使用输入图像的alpha通道作为修复mask
-    */
+     * 是否使用alpha通道作为mask
+     * 如果为true，将使用输入图像的alpha通道作为修复mask
+     */
     private boolean useAlphaAsMask = false;
 
     /**
-    * 是否自动生成mask
-    * 如果为true且没有提供mask，将尝试自动检测需要修复的区域
-    */
+     * 是否自动生成mask
+     * 如果为true且没有提供mask，将尝试自动检测需要修复的区域
+     */
     private boolean autoGenerateMask = false;
 
     /**
-    * 自动mask生成的颜色容差
-    * 用于自动检测需要修复的区域，值越大检测范围越宽
-    */
+     * 自动mask生成的颜色容差
+     * 用于自动检测需要修复的区域，值越大检测范围越宽
+     */
     private int colorTolerance = 30;
 
     /**
-    * 目标颜色（自动mask生成）
-    * 指定需要移除的颜色，格式为RGB，默认白色 {255, 255, 255}
-    */
+     * 目标颜色（自动mask生成）
+     * 指定需要移除的颜色，格式为RGB，默认白色 {255, 255, 255}
+     */
     private int[] targetColor = {255, 255, 255};
 
     /**
-    * 输出图像质量
-    * 范围0.0-1.0，仅对JPEG格式有效
-    */
+     * 输出图像质量
+     * 范围0.0-1.0，仅对JPEG格式有效
+     */
     private float outputQuality = 0.95f;
 
     /**
-    * 是否保持原始图像尺寸
-    * 如果为true，输出图像将调整回原始尺寸
-    */
+     * 是否保持原始图像尺寸
+     * 如果为true，输出图像将调整回原始尺寸
+     */
     private boolean keepOriginalSize = true;
 
     /**
-    * 边缘羽化半径
-    * 用于平滑修复区域的边缘，减少明显的修复痕迹
-    */
+     * 边缘羽化半径
+     * 用于平滑修复区域的边缘，减少明显的修复痕迹
+     */
     private int featherRadius = 2;
 
     /**
-    * 是否启用后处理优化
-    * 包括边缘平滑、颜色校正等
-    */
+     * 是否启用后处理优化
+     * 包括边缘平滑、颜色校正等
+     */
     private boolean enablePostProcessing = true;
 
     /**
-    * CPU线程数（GPU模式下使用的CPU线程数）
-    */
+     * CPU线程数（GPU模式下使用的CPU线程数）
+     */
     private int cpuThreads = 4;
 
     /**
-    * 创建默认配置
-    *
-    * @param modelPath ONNX模型文件路径
-    * @return 配置实例
-    */
+     * 创建默认配置
+     *
+     * @param modelPath ONNX模型文件路径
+     * @return 配置实例
+     */
     public static LaMaConfiguration createDefault(String modelPath) {
         return new LaMaConfiguration()
                 .setModelPath(modelPath);
     }
 
     /**
-    * 创建高质量配置
-    * 使用更大的输入尺寸和更多的后处理选项
-    *
-    * @param modelPath ONNX模型文件路径
-    * @return 高质量配置实例
-    */
+     * 创建高质量配置
+     * 使用更大的输入尺寸和更多的后处理选项
+     *
+     * @param modelPath ONNX模型文件路径
+     * @return 高质量配置实例
+     */
     public static LaMaConfiguration createHighQuality(String modelPath) {
         return new LaMaConfiguration()
                 .setModelPath(modelPath)
@@ -204,12 +204,12 @@ public class LaMaConfiguration {
     }
 
     /**
-    * 创建快速配置
-    * 使用较小的输入尺寸以提高处理速度
-    *
-    * @param modelPath ONNX模型文件路径
-    * @return 快速配置实例
-    */
+     * 创建快速配置
+     * 使用较小的输入尺寸以提高处理速度
+     *
+     * @param modelPath ONNX模型文件路径
+     * @return 快速配置实例
+     */
     public static LaMaConfiguration createFast(String modelPath) {
         return new LaMaConfiguration()
                 .setModelPath(modelPath)
@@ -220,12 +220,12 @@ public class LaMaConfiguration {
     }
 
     /**
-    * 创建GPU配置
-    * 启用GPU加速以提高处理速度
-    *
-    * @param modelPath ONNX模型文件路径
-    * @return GPU配置实例
-    */
+     * 创建GPU配置
+     * 启用GPU加速以提高处理速度
+     *
+     * @param modelPath ONNX模型文件路径
+     * @return GPU配置实例
+     */
     public static LaMaConfiguration createGpu(String modelPath) {
         // GPU模式下通常使用较少的CPU线程
         return new LaMaConfiguration()
@@ -236,13 +236,13 @@ public class LaMaConfiguration {
     }
 
     /**
-    * 创建自动mask配置
-    * 启用自动mask生成功能
-    *
-    * @param modelPath ONNX模型文件路径
-    * @param targetColor 需要移除的目标颜色
-    * @return 自动mask配置实例
-    */
+     * 创建自动mask配置
+     * 启用自动mask生成功能
+     *
+     * @param modelPath ONNX模型文件路径
+     * @param targetColor 需要移除的目标颜色
+     * @return 自动mask配置实例
+     */
     public static LaMaConfiguration createAutoMask(String modelPath, int[] targetColor) {
         return new LaMaConfiguration()
                 .setModelPath(modelPath)
@@ -252,10 +252,10 @@ public class LaMaConfiguration {
     }
 
     /**
-    * 验证配置的有效性
-    *
-    * @throws IllegalArgumentException 如果配置无效
-    */
+     * 验证配置的有效性
+     *
+     * @throws IllegalArgumentException 如果配置无效
+     */
     public void validate() {
         if (modelPath == null || modelPath.trim().isEmpty()) {
             throw new IllegalArgumentException("模型路径不能为空");
@@ -297,28 +297,28 @@ public class LaMaConfiguration {
     }
 
     /**
-    * 获取输入张量的形状
-    *
-    * @return 张量形状 [批量, 通道, height, width]
-    */
+     * 获取输入张量的形状
+     *
+     * @return 张量形状 [批量, 通道, height, width]
+     */
     public long[] getInputShape() {
         return new long[]{1, 3, inputSize, inputSize};
     }
 
     /**
-    * 获取mask张量的形状
-    *
-    * @return mask张量形状 [批量, 通道, height, width]
-    */
+     * 获取mask张量的形状
+     *
+     * @return mask张量形状 [批量, 通道, height, width]
+     */
     public long[] getMaskShape() {
         return new long[]{1, 1, inputSize, inputSize};
     }
 
     /**
-    * 克隆配置
-    *
-    * @return 配置的副本
-    */
+     * 克隆配置
+     *
+     * @return 配置的副本
+     */
     public LaMaConfiguration clone() {
         LaMaConfiguration config = new LaMaConfiguration();
         config.modelPath = this.modelPath;

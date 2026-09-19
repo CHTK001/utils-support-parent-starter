@@ -16,64 +16,64 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* rSocket 数据同步 Agent
-* <p>通过 RSocket 与 DataSyncServer 建立双向流式连接。</p>
-*
-* <pre>{@code
-* RSocketDataSyncAgent agent = new RSocketDataSyncAgent(
-*         "agent-1", "source-1", "localhost", 8080);
-* agent.start();
-* }</pre> 8080);
-* agent.start();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * rSocket 数据同步 Agent
+ * <p>通过 RSocket 与 DataSyncServer 建立双向流式连接。</p>
+ *
+ * <pre>{@code
+ * RSocketDataSyncAgent agent = new RSocketDataSyncAgent(
+ *         "agent-1", "source-1", "localhost", 8080);
+ * agent.start();
+ * }</pre> 8080);
+ * agent.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RSocketDataSyncAgent implements DataSyncAgent {
 
     /**
-    * Agent 标识
-    */
+     * Agent 标识
+     */
     private final String agentId;
     /**
-    * 源 标识
-    */
+     * 源 标识
+     */
     private final String sourceId;
     /**
-    * 主机地址
-    */
+     * 主机地址
+     */
     private final String host;
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     private final int port;
     /**
-    * 源
-    */
+     * 源
+     */
     private final DataSyncSource source;
 
     /**
-    * R Socket
-    */
+     * R Socket
+     */
     private RSocket rSocket;
     /**
-    * running
-    */
+     * running
+     */
     private volatile boolean running = false;
 
     /**
-    * 创建 rSocket数据同步Agent 实例
-    * @param agentId Agent标识
-    * @param agentId 字符串
-    * @param agentId 字符串
-    * @param port int
-    * @param source 数据同步源
-    * @param sourceId 源标识
-    * @param host 主机
-    * @param port 端口
-    * @param source 源
-    */
+     * 创建 rSocket数据同步Agent 实例
+     * @param agentId Agent标识
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param port int
+     * @param source 数据同步源
+     * @param sourceId 源标识
+     * @param host 主机
+     * @param port 端口
+     * @param source 源
+     */
     public RSocketDataSyncAgent(String agentId, String sourceId, String host, int port, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -131,10 +131,10 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     /**
-    * 获取rSocket
-    *
-    * @return 获取rSocket的结果
-    */
+     * 获取rSocket
+     *
+     * @return 获取rSocket的结果
+     */
     public RSocket getRSocket() {
         return rSocket;
     }

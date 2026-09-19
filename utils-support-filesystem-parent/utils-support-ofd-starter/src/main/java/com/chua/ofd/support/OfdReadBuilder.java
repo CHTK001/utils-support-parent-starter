@@ -7,26 +7,26 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
-* OFD 文件读取构建器。
-*
-* <p>OFD 文件本质上是 ZIP 包，内含 XML 描述的版式内容。
-* 本实现提取其中文档内容 XML 的纯文本部分。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * OFD 文件读取构建器。
+ *
+ * <p>OFD 文件本质上是 ZIP 包，内含 XML 描述的版式内容。
+ * 本实现提取其中文档内容 XML 的纯文本部分。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OfdReadBuilder extends ReadBuilder {
 
     /**
-    * 创建 ofd读取构建器 实例
-    * @param file 文件
-    */
+     * 创建 ofd读取构建器 实例
+     * @param file 文件
+     */
     public OfdReadBuilder(File file) { super(file); }
 
     /**
-    * 提取 OFD 文档的纯文本内容。
-    * @return 文本的结果
-    */
+     * 提取 OFD 文档的纯文本内容。
+     * @return 文本的结果
+     */
     public String text() {
         StringBuilder sb = new StringBuilder();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {

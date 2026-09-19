@@ -4,61 +4,61 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
-* 基于数组的环状数组实现，固定容量，支持环状旋转。
-* <p>
-* 内部使用数组存储元素，通过头部索引（{@code head}）实现环状访问。
-* 当元素数量达到容量上限后，继续添加元素会覆盖最旧的元素。
-* </p>
-*
-* <h3>适用场景</h3>
-* <ul>
-*   <li><strong>日志/事件环形缓冲区</strong> — 固定保留最近 N 条日志，自动丢弃最旧记录，适合嵌入服务本地缓存</li>
-*   <li><strong>滑动窗口</strong> — 统计最近 N 次操作/请求的聚合指标，新进旧出</li>
-*   <li><strong>轮询/负载均衡</strong> — 结合 {@link #rotate()} / {@link #rotate(int)} 轮流取出元素，实现简单轮询</li>
-*   <li><strong>固定长度轨迹</strong> — 记录最近操作轨迹、最近 N 个输入参数</li>
-* </ul>
-*
-* <p>
-* 线程不安全，多线程环境请自行加锁或使用 {@link Collections#synchronizedList(List)} 包装。
-* </p>
-*
-* @param <E> 元素类型
-* @author CH
-* @since 4.0.0.42
-* @version 1.0.0
-* @see CircularArray
+ * 基于数组的环状数组实现，固定容量，支持环状旋转。
+ * <p>
+ * 内部使用数组存储元素，通过头部索引（{@code head}）实现环状访问。
+ * 当元素数量达到容量上限后，继续添加元素会覆盖最旧的元素。
+ * </p>
+ *
+ * <h3>适用场景</h3>
+ * <ul>
+ *   <li><strong>日志/事件环形缓冲区</strong> — 固定保留最近 N 条日志，自动丢弃最旧记录，适合嵌入服务本地缓存</li>
+ *   <li><strong>滑动窗口</strong> — 统计最近 N 次操作/请求的聚合指标，新进旧出</li>
+ *   <li><strong>轮询/负载均衡</strong> — 结合 {@link #rotate()} / {@link #rotate(int)} 轮流取出元素，实现简单轮询</li>
+ *   <li><strong>固定长度轨迹</strong> — 记录最近操作轨迹、最近 N 个输入参数</li>
+ * </ul>
+ *
+ * <p>
+ * 线程不安全，多线程环境请自行加锁或使用 {@link Collections#synchronizedList(List)} 包装。
+ * </p>
+ *
+ * @param <E> 元素类型
+ * @author CH
+ * @since 4.0.0.42
+ * @version 1.0.0
+ * @see CircularArray
  */
 @SuppressWarnings("unchecked")
 public class CircularArrayList<E> implements CircularArray<E> {
 
     /**
-    * 内部存储数组
-    */
+     * 内部存储数组
+     */
     private Object[] elements;
 
     /**
-    * 头部索引，指向逻辑上的第一个元素
-    */
+     * 头部索引，指向逻辑上的第一个元素
+     */
     private int head;
 
     /**
-    * 当前元素数量
-    */
+     * 当前元素数量
+     */
     private int size;
 
     /**
-    * 数组固定容量
-    */
+     * 数组固定容量
+     */
     private int capacity;
 
     /**
-    * 使用默认容量创建环状数组。
-    *
-    * @param <E>       元素类型
-    * @param capacity  数组容量，必须大于 0
-    * @return 环状数组实例
-    * @throws IllegalArgumentException 如果 capacity 小于等于 0
-    */
+     * 使用默认容量创建环状数组。
+     *
+     * @param <E>       元素类型
+     * @param capacity  数组容量，必须大于 0
+     * @return 环状数组实例
+     * @throws IllegalArgumentException 如果 capacity 小于等于 0
+     */
     public static <E> CircularArrayList<E> of(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -67,17 +67,17 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     /**
-    * 使用指定容量和初始集合创建环状数组。
-    * <p>
-    * 如果集合大小超过容量，只有最后 {@code capacity} 个元素会被保留。
-    * </p>
-    *
-    * @param capacity  数组容量，必须大于 0
-    * @param c         初始集合
-    * @param <E>       元素类型
-    * @return 环状数组实例
-    * @throws IllegalArgumentException 如果 capacity 小于等于 0
-    */
+     * 使用指定容量和初始集合创建环状数组。
+     * <p>
+     * 如果集合大小超过容量，只有最后 {@code capacity} 个元素会被保留。
+     * </p>
+     *
+     * @param capacity  数组容量，必须大于 0
+     * @param c         初始集合
+     * @param <E>       元素类型
+     * @return 环状数组实例
+     * @throws IllegalArgumentException 如果 capacity 小于等于 0
+     */
     public static <E> CircularArrayList<E> of(int capacity, Collection<? extends E> c) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -92,10 +92,10 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     /**
-    * 构造方法。
-    *
-    * @param capacity 数组容量
-    */
+     * 构造方法。
+     *
+     * @param capacity 数组容量
+     */
     public CircularArrayList(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -529,20 +529,20 @@ public class CircularArrayList<E> implements CircularArray<E> {
     // ==================== 内部工具方法 ====================
 
     /**
-    * 将逻辑索引转换为实际数组索引。
-    *
-    * @param index 逻辑索引
-    * @return 实际数组索引
-    */
+     * 将逻辑索引转换为实际数组索引。
+     *
+     * @param index 逻辑索引
+     * @return 实际数组索引
+     */
     private int actualIndex(int index) {
         return (head + index) % capacity;
     }
 
     /**
-    * 检查元素索引是否合法。
-    *
-    * @param index 索引
-    */
+     * 检查元素索引是否合法。
+     *
+     * @param index 索引
+     */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);
@@ -550,10 +550,10 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     /**
-    * 检查位置索引是否合法。
-    *
-    * @param index 索引
-    */
+     * 检查位置索引是否合法。
+     *
+     * @param index 索引
+     */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);

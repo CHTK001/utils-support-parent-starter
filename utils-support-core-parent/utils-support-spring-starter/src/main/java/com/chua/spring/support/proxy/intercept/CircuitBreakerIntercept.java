@@ -13,16 +13,16 @@ import com.chua.common.support.reflection.ReflectUtils;
 import java.lang.reflect.Method;
 
 /**
-* 熔断拦截器，处理带有 {@link CircuitBreaker} 注解的方法。
-*
-* <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
-* 方法上标注 {@code @CircuitBreaker} 时，读取注解属性，构建 {@link CircuitBreakerFlow}
-* 门面，并在熔断保护下执行目标方法。熔断打开时调用回退方法降级。</p>
-*
-* <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 熔断拦截器，处理带有 {@link CircuitBreaker} 注解的方法。
+ *
+ * <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
+ * 方法上标注 {@code @CircuitBreaker} 时，读取注解属性，构建 {@link CircuitBreakerFlow}
+ * 门面，并在熔断保护下执行目标方法。熔断打开时调用回退方法降级。</p>
+ *
+ * <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("com.chua.common.support.concurrent.circuitbreaker.annotation.CircuitBreaker")
 public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<CircuitBreaker> {
@@ -72,15 +72,15 @@ public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept i
     }
 
     /**
-    * 调用注解指定的回退方法。
-    *
-    * <p>回退方法必须与目标方法位于同一类中，且参数签名完全一致。
-    * 通过反射定位回退方法并执行，返回降级结果。</p>
-    *
-    * @param annotation  熔断注解
-    * @param proxyMethod 被拦截的方法信息
-    * @return 回退方法的返回值，找不到回退方法时返回 空
-    */
+     * 调用注解指定的回退方法。
+     *
+     * <p>回退方法必须与目标方法位于同一类中，且参数签名完全一致。
+     * 通过反射定位回退方法并执行，返回降级结果。</p>
+     *
+     * @param annotation  熔断注解
+     * @param proxyMethod 被拦截的方法信息
+     * @return 回退方法的返回值，找不到回退方法时返回 空
+     */
     private Object resolveFallback(CircuitBreaker annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);
     }

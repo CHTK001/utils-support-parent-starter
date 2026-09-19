@@ -10,7 +10,7 @@ package com.chua.common.support.utils;
  * @param height  裁剪高度
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record CropImageOptions(
         java.awt.image.BufferedImage image,
         int x,

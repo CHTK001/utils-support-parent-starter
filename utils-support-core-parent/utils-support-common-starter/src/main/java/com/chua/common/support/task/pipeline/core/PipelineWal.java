@@ -57,58 +57,58 @@ import java.util.*;
  * @see WalLog
  * @see WalFactory
  * @see WalConfig
-*/
+ */
 @Slf4j
 public class PipelineWal implements AutoCloseable {
 
     /**
-    * WAL 操作类型：流水线启动
-    */
+     * WAL 操作类型：流水线启动
+     */
     public static final byte OP_START = 1;
 
     /**
-    * WAL 操作类型：节点完成
-    */
+     * WAL 操作类型：节点完成
+     */
     public static final byte OP_NODE_COMPLETE = 2;
 
     /**
-    * WAL 操作类型：检查点
-    */
+     * WAL 操作类型：检查点
+     */
     public static final byte OP_CHECKPOINT = 3;
 
     /**
-    * 流水线 标识（用作 WAL namespace）
-    */
+     * 流水线 标识（用作 WAL namespace）
+     */
     private final String pipelineId;
 
     /**
-    * WAL 日志实例
-    */
+     * WAL 日志实例
+     */
     private WalLog walLog;
 
     /**
-    * WAL 配置
-    */
+     * WAL 配置
+     */
     private final WalConfig walConfig;
 
     /**
-    * JSON 序列化使用的 对象映射器 — 直接复用 {@link JacksonJsonProvider#getMapper()} 的全局配置
-    * （含 Java.时间 支持、日期格式、统一门户注解适配），线程安全单例。
-    */
+     * JSON 序列化使用的 对象映射器 — 直接复用 {@link JacksonJsonProvider#getMapper()} 的全局配置
+     * （含 Java.时间 支持、日期格式、统一门户注解适配），线程安全单例。
+     */
     private static final ObjectMapper MAPPER = JacksonJsonProvider.getMapper();
 
     /**
-    * 是否已打开
-    */
+     * 是否已打开
+     */
     private boolean opened;
 
     /**
-    * 上下文快照 — 用于 WAL 回放时恢复上下文状态
-    *
-    * <p>记录每个节点完成后的上下文关键状态，用于崩溃恢复。</p>
-    * @author CH
-    * @since 4.0.0
-    */
+     * 上下文快照 — 用于 WAL 回放时恢复上下文状态
+     *
+     * <p>记录每个节点完成后的上下文关键状态，用于崩溃恢复。</p>
+     * @author CH
+     * @since 4.0.0
+     */
     public static class ContextSnapshot {
         /** 当前节点 标识 */
         public String currentNodeId;
@@ -129,10 +129,10 @@ public class PipelineWal implements AutoCloseable {
         public ContextSnapshot() {}
 
         /**
-        * 从上下文创建快照
-        *
-        * @param ctx ctx
-        */
+         * 从上下文创建快照
+         *
+         * @param ctx ctx
+         */
         public ContextSnapshot(PipelineContext<?> ctx) {
             this.currentNodeId = ctx.getCurrentNodeId();
             this.nextNodeId = ctx.getNextNodeId();
@@ -145,12 +145,12 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 创建 pipelinewal 实例。
-    *
-    * @param pipelineId 流水线 标识
-    * @param walDir     WAL 存储目录
-    * @return PipelineWal的结果
-    */
+     * 创建 pipelinewal 实例。
+     *
+     * @param pipelineId 流水线 标识
+     * @param walDir     WAL 存储目录
+     * @return PipelineWal的结果
+     */
     public PipelineWal(String pipelineId, String walDir) {
         this.pipelineId = pipelineId;
         this.walConfig = WalConfig.builder()
@@ -162,12 +162,12 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 创建 pipelinewal 实例（使用自定义 wal配置）。
-    *
-    * @param pipelineId 流水线 标识
-    * @param walConfig  WAL 配置
-    * @return PipelineWal的结果
-    */
+     * 创建 pipelinewal 实例（使用自定义 wal配置）。
+     *
+     * @param pipelineId 流水线 标识
+     * @param walConfig  WAL 配置
+     * @return PipelineWal的结果
+     */
     public PipelineWal(String pipelineId, WalConfig walConfig) {
         this.pipelineId = pipelineId;
         this.walConfig = WalConfig.builder()
@@ -186,10 +186,10 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 打开 WAL 日志。
-    *
-    * @throws IOException IO 异常
-    */
+     * 打开 WAL 日志。
+     *
+     * @throws IOException IO 异常
+     */
     public void open() throws IOException {
         if (!opened) {
             this.walLog = WalFactory.open(walConfig);
@@ -198,13 +198,13 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 记录流水线启动事件。
-    *
-    * @param input 输入数据
-    * @param <T>   数据类型
-    * @throws IOException IO 异常
-    * @return 追加启动的结果
-    */
+     * 记录流水线启动事件。
+     *
+     * @param input 输入数据
+     * @param <T>   数据类型
+     * @throws IOException IO 异常
+     * @return 追加启动的结果
+     */
     public <T> void appendStart(T input) throws IOException {
         ensureOpen();
         byte[] payload = serializeObject(input);
@@ -212,11 +212,11 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 记录节点完成事件 — 持久化当前上下文快照。
-    *
-    * @param ctx 流水线上下文
-    * @throws IOException IO 异常
-    */
+     * 记录节点完成事件 — 持久化当前上下文快照。
+     *
+     * @param ctx 流水线上下文
+     * @throws IOException IO 异常
+     */
     public void appendNodeComplete(PipelineContext<?> ctx) throws IOException {
         ensureOpen();
         ContextSnapshot snapshot = new ContextSnapshot(ctx);
@@ -225,12 +225,12 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 标记检查点 — 表示当前上下文已成功持久化到某个节点。
-    *
-    * <p>检查点之后的 WAL 记录在回放时会被跳过（已持久化完成）。</p>
-    *
-    * @throws IOException IO 异常
-    */
+     * 标记检查点 — 表示当前上下文已成功持久化到某个节点。
+     *
+     * <p>检查点之后的 WAL 记录在回放时会被跳过（已持久化完成）。</p>
+     *
+     * @throws IOException IO 异常
+     */
     public void markCheckpoint() throws IOException {
         ensureOpen();
         walLog.append(OP_CHECKPOINT, new byte[0]);
@@ -238,20 +238,20 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 从 WAL 回放恢复上下文状态。
-    *
-    * <p>回放流程：</p>
-    * <ol>
-    *   <li>加载检查点元信息</li>
-    *   <li>从检查点之后回放所有记录</li>
-    *   <li>重建最后一个 NODE_COMPLETE 记录对应的上下文状态</li>
-    * </ol>
-    *
-    * @param input 原始输入数据（用于创建新上下文）
-    * @param <T>   数据类型
-    * @return 恢复的上下文，无 WAL 数据时返回 空
-    * @throws IOException IO 异常
-    */
+     * 从 WAL 回放恢复上下文状态。
+     *
+     * <p>回放流程：</p>
+     * <ol>
+     *   <li>加载检查点元信息</li>
+     *   <li>从检查点之后回放所有记录</li>
+     *   <li>重建最后一个 NODE_COMPLETE 记录对应的上下文状态</li>
+     * </ol>
+     *
+     * @param input 原始输入数据（用于创建新上下文）
+     * @param <T>   数据类型
+     * @return 恢复的上下文，无 WAL 数据时返回 空
+     * @throws IOException IO 异常
+     */
     public <T> PipelineContext<T> replay(T input) throws IOException {
         ensureOpen();
 
@@ -317,10 +317,10 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 检查是否存在 WAL 数据（可用于判断是否需要恢复）。
-    *
-    * @return true 表示存在 WAL 数据
-    */
+     * 检查是否存在 WAL 数据（可用于判断是否需要恢复）。
+     *
+     * @return true 表示存在 WAL 数据
+     */
     public boolean hasWalData() {
         if (!opened || walLog == null) {
             return false;
@@ -335,8 +335,8 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 关闭 WAL 日志（正常完成时调用，保留 WAL 文件）。
-    */
+     * 关闭 WAL 日志（正常完成时调用，保留 WAL 文件）。
+     */
     @Override
     public void close() {
         if (opened && walLog != null) {
@@ -351,10 +351,10 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 销毁 WAL — 关闭日志并删除所有 WAL 文件。
-    *
-    * <p>用于 stop 场景：流水线被强制终止时，清理所有持久化数据。</p>
-    */
+     * 销毁 WAL — 关闭日志并删除所有 WAL 文件。
+     *
+     * <p>用于 stop 场景：流水线被强制终止时，清理所有持久化数据。</p>
+     */
     public void destroy() {
         close();
         // 删除 WAL 目录下的 namespace 相关文件
@@ -377,28 +377,28 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 获取 WAL 存储目录。
-    *
-    * @return WAL 目录路径
-    */
+     * 获取 WAL 存储目录。
+     *
+     * @return WAL 目录路径
+     */
     public Path getWalDir() {
         return walConfig.walDir();
     }
 
     /**
-    * 获取流水线 标识。
-    *
-    * @return 流水线 标识
-    */
+     * 获取流水线 标识。
+     *
+     * @return 流水线 标识
+     */
     public String getPipelineId() {
         return pipelineId;
     }
 
     /**
-    * 是否已打开。
-    *
-    * @return true 表示已打开
-    */
+     * 是否已打开。
+     *
+     * @return true 表示已打开
+     */
     public boolean isOpened() {
         return opened;
     }
@@ -406,10 +406,10 @@ public class PipelineWal implements AutoCloseable {
     // ==================== 内部方法 ====================
 
     /**
-    * 确保 WAL 已打开，未打开时执行懒加载打开。
-    *
-    * @throws IOException 打开失败
-    */
+     * 确保 WAL 已打开，未打开时执行懒加载打开。
+     *
+     * @throws IOException 打开失败
+     */
     private void ensureOpen() throws IOException {
         if (!opened) {
             open();
@@ -417,13 +417,13 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 序列化对象为字节数组。
-    *
-    * <p>序列化失败会记录警告并返回空数组——调用方写入的将是无效记录，
-    * 恢复侧需容忍空 payload（见 {@link #deserializeObject}）。</p>
-    * @param obj obj
-    * @return serialize对象的结果
-    */
+     * 序列化对象为字节数组。
+     *
+     * <p>序列化失败会记录警告并返回空数组——调用方写入的将是无效记录，
+     * 恢复侧需容忍空 payload（见 {@link #deserializeObject}）。</p>
+     * @param obj obj
+     * @return serialize对象的结果
+     */
     private byte[] serializeObject(Object obj) {
         if (obj == null) {
             return new byte[0];
@@ -439,12 +439,12 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 从字节数组反序列化对象。
-    *
-    * <p>反序列化失败记录警告并返回 null，由调用方决定降级策略。</p>
-    * @param payload payload
-    * @return deserialize对象的结果
-    */
+     * 从字节数组反序列化对象。
+     *
+     * <p>反序列化失败记录警告并返回 null，由调用方决定降级策略。</p>
+     * @param payload payload
+     * @return deserialize对象的结果
+     */
     private Object deserializeObject(byte[] payload) {
         if (payload == null || payload.length == 0) {
             return null;
@@ -459,12 +459,12 @@ public class PipelineWal implements AutoCloseable {
     }
 
     /**
-    * 反序列化上下文快照。
-    *
-    * <p>快照损坏时记录警告并返回 null——恢复流程将回退到最近的有效检查点。</p>
-    * @param payload payload
-    * @return deserializeSnapshot的结果
-    */
+     * 反序列化上下文快照。
+     *
+     * <p>快照损坏时记录警告并返回 null——恢复流程将回退到最近的有效检查点。</p>
+     * @param payload payload
+     * @return deserializeSnapshot的结果
+     */
     private ContextSnapshot deserializeSnapshot(byte[] payload) {
         if (payload == null || payload.length == 0) {
             return null;

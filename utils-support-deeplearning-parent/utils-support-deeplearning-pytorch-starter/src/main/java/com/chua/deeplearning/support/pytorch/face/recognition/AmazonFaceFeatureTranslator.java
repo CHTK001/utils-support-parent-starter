@@ -12,10 +12,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* 亚马逊 Rekognition 风格人脸特征 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * 亚马逊 Rekognition 风格人脸特征 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class AmazonFaceFeatureTranslator implements Translator<Image, float[]> {
 

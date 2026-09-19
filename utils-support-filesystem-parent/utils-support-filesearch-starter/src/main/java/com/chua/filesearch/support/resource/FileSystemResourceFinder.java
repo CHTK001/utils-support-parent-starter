@@ -15,31 +15,31 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* {@code filesystem:} / {@code filesystem*:} 协议资源查找器。
-*
-* <p>直接调用 Rust 原生库进行文件系统遍历与路径模式过滤。
-* 支持 Ant 风格通配符：{@code *}（单层任意）、{@code **}（多层任意）、{@code ?}（单字符）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * {@code filesystem:} / {@code filesystem*:} 协议资源查找器。
+ *
+ * <p>直接调用 Rust 原生库进行文件系统遍历与路径模式过滤。
+ * 支持 Ant 风格通配符：{@code *}（单层任意）、{@code **}（多层任意）、{@code ?}（单字符）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class FileSystemResourceFinder extends AbstractResourceFinder {
 
     /**
-    * 文件系统协议前缀 {@value}。
-    */
+     * 文件系统协议前缀 {@value}。
+     */
     private static final String FILESYSTEM_URL_PREFIX = "filesystem:";
     /**
-    * 文件系统全量协议前缀 {@value}。
-    */
+     * 文件系统全量协议前缀 {@value}。
+     */
     private static final String FILESYSTEM_URL_ALL_PREFIX = "filesystem*:";
 
     /**
-    * 使用指定配置构造查找器。
-    *
-    * @param configuration 查找配置
-    */
+     * 使用指定配置构造查找器。
+     *
+     * @param configuration 查找配置
+     */
     public FileSystemResourceFinder(ResourceConfiguration configuration) {
         super(configuration);
     }

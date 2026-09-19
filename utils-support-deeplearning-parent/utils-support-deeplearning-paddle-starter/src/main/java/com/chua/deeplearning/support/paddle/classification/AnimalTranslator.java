@@ -18,16 +18,16 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
-* 飞桨 动物分类 Translator。
-*
-* @author CH
-* @since 4.0.0.42
+ * 飞桨 动物分类 Translator。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class AnimalTranslator implements Translator<Image, Classifications> {
 
     /**
-    * 类别列表。
-    */
+     * 类别列表。
+     */
     private List<String> classes;
 
     @Override

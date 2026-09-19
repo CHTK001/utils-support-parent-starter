@@ -21,43 +21,43 @@ import java.util.List;
 
 
 /**
-* APNG 转 GIF 转换器
-* <p>
-* 将 APNG（Animated PNG）格式转换为 GIF 格式，支持：
-* 1. 动画帧提取和转换
-* 2. 帧延迟时间处理
-* 3. 透明度处理
-* 4. 循环次数设置
-* 5. 颜色优化
-*
-* @author CH
-* @since 4.0.0.42
+ * APNG 转 GIF 转换器
+ * <p>
+ * 将 APNG（Animated PNG）格式转换为 GIF 格式，支持：
+ * 1. 动画帧提取和转换
+ * 2. 帧延迟时间处理
+ * 3. 透明度处理
+ * 4. 循环次数设置
+ * 5. 颜色优化
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("apng2gif")
 public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
-    * 默认构造函数
-    */
+     * 默认构造函数
+     */
     public ApngToGifConvertFileSystem() {
         super();
     }
 
     /**
-    * 构造函数
-    *
-    * @param file 文件对象
-    */
+     * 构造函数
+     *
+     * @param file 文件对象
+     */
     public ApngToGifConvertFileSystem(File file) {
         super(file);
     }
 
     /**
-    * 构造函数
-    *
-    * @param filePath 文件路径
-    */
+     * 构造函数
+     *
+     * @param filePath 文件路径
+     */
     public ApngToGifConvertFileSystem(String filePath) {
         super(filePath);
     }
@@ -85,12 +85,12 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-    * 读取 APNG 动画帧
-    *
-    * @param inputStream 输入流
-    * @return 动画帧列表
-    * @throws Exception 读取异常
-    */
+     * 读取 APNG 动画帧
+     *
+     * @param inputStream 输入流
+     * @return 动画帧列表
+     * @throws Exception 读取异常
+     */
     private List<AnimationFrame> readApngFrames(InputStream inputStream) throws Exception {
         List<AnimationFrame> frames = new ArrayList<>();
 
@@ -132,12 +132,12 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-    * 获取帧延迟时间
-    *
-    * @param reader 图像读取器
-    * @param frameIndex 帧索引
-    * @return 延迟时间（毫秒）
-    */
+     * 获取帧延迟时间
+     *
+     * @param reader 图像读取器
+     * @param frameIndex 帧索引
+     * @return 延迟时间（毫秒）
+     */
     private int getFrameDelay(ImageReader reader, int frameIndex) {
         try {
             // 尝试从元数据中获取延迟时间
@@ -159,12 +159,12 @@ if (metadata != null) {
     }
 
     /**
-    * 写入 GIF 动画
-    *
-    * @param frames 动画帧列表
-    * @param outputStream 输出流
-    * @throws Exception 写入异常
-    */
+     * 写入 GIF 动画
+     *
+     * @param frames 动画帧列表
+     * @param outputStream 输出流
+     * @throws Exception 写入异常
+     */
     private void writeGifAnimation(List<AnimationFrame> frames, OutputStream outputStream) throws Exception {
 
         try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
@@ -211,11 +211,11 @@ if (metadata != null) {
     }
 
     /**
-    * 转换为 GIF 兼容的图像格式
-    *
-    * @param image 原始图像
-    * @return GIF 兼容的图像
-    */
+     * 转换为 GIF 兼容的图像格式
+     *
+     * @param image 原始图像
+     * @return GIF 兼容的图像
+     */
     private BufferedImage convertToGifCompatible(BufferedImage image) {
         // GIF 支持最多 256 色，这里进行简单的颜色转换
         if (image.getType() == BufferedImage.TYPE_INT_RGB ||
@@ -232,12 +232,12 @@ if (metadata != null) {
     }
 
     /**
-    * 配置 GIF 元数据
-    *
-    * @param metadata 元数据
-    * @param delay 延迟时间（毫秒）
-    * @param isLast 是否为最后一帧
-    */
+     * 配置 GIF 元数据
+     *
+     * @param metadata 元数据
+     * @param delay 延迟时间（毫秒）
+     * @param isLast 是否为最后一帧
+     */
     private void configureGifMetadata(javax.imageio.metadata.IIOMetadata metadata,
                                     int delay, boolean isLast) {
         try {
@@ -277,11 +277,11 @@ if (metadata != null) {
     }
 
     /**
-    * 查找或创建节点
-    * @param parent 父
-    * @param nodeName 节点名称
-    * @return find或创建节点的结果
-    */
+     * 查找或创建节点
+     * @param parent 父
+     * @param nodeName 节点名称
+     * @return find或创建节点的结果
+     */
     private org.w3c.dom.Node findOrCreateNode(org.w3c.dom.Node parent, String nodeName) {
         org.w3c.dom.NodeList children = parent.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -297,11 +297,11 @@ if (metadata != null) {
     }
 
     /**
-    * 设置节点属性
-    * @param node 节点
-    * @param attributeName attribute名称
-    * @param value 值
-    */
+     * 设置节点属性
+     * @param node 节点
+     * @param attributeName attribute名称
+     * @param value 值
+     */
     private void setNodeAttribute(org.w3c.dom.Node node, String attributeName, String value) {
         org.w3c.dom.NamedNodeMap attributes = node.getAttributes();
         org.w3c.dom.Attr attr = node.getOwnerDocument().createAttribute(attributeName);
@@ -350,30 +350,30 @@ if (metadata != null) {
         private final int delay;
 
         /**
-        * 创建 animation帧 实例
-        * @param image 镜像
-        * @param delay int
-        * @param delay 延迟
-        */
+         * 创建 animation帧 实例
+         * @param image 镜像
+         * @param delay int
+         * @param delay 延迟
+         */
         public AnimationFrame(BufferedImage image, int delay) {
             this.image = image;
             this.delay = delay;
         }
 
         /**
-        * 获取镜像
-        *
-        * @return 获取镜像的结果
-        */
+         * 获取镜像
+         *
+         * @return 获取镜像的结果
+         */
         public BufferedImage getImage() {
             return image;
         }
 
         /**
-        * 获取延迟
-        *
-        * @return 获取延迟的结果
-        */
+         * 获取延迟
+         *
+         * @return 获取延迟的结果
+         */
         public int getDelay() {
             return delay;
         }

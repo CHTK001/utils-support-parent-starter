@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* r套接字 处理器 — intercepts r套接字 请求/responder operations.
-*
-* @author CH
-* @since 4.0.0.42
+ * r套接字 处理器 — intercepts r套接字 请求/responder operations.
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RSocketHandler extends AbstractAppHandler {
 
     /**
-    * rsocket Requests
+     * rsocket Requests
      */
     private static final String RSOCKET_REQUESTS = "io/rsocket/RSocket";
     /**
-    * rsocket 方法
+     * rsocket 方法
      */
     private static final String[] RSOCKET_METHODS = {"requestResponse", "requestStream", "requestChannel", "requestFireAndForget"};
 

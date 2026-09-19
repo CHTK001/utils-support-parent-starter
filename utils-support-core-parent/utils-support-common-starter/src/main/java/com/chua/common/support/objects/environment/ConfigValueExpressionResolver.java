@@ -10,26 +10,26 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Spi
 public interface ConfigValueExpressionResolver {
 
     /**
-    * 是否支持该表达式格式。
-    *
-    * @param expression 原始表达式，如 {@code ${server.port:8080}}
-    * @return true 表示支持
-    */
+     * 是否支持该表达式格式。
+     *
+     * @param expression 原始表达式，如 {@code ${server.port:8080}}
+     * @return true 表示支持
+     */
     boolean isSupport(String expression);
 
     /**
-    * 解析表达式为配置值。
-    *
-    * @param expression  原始表达式
-    * @param targetType  目标类型
-    * @param environment 环境配置
-    * @param <T>         泛型类型
-    * @return 解析后的值，无法解析返回 空
-    */
+     * 解析表达式为配置值。
+     *
+     * @param expression  原始表达式
+     * @param targetType  目标类型
+     * @param environment 环境配置
+     * @param <T>         泛型类型
+     * @return 解析后的值，无法解析返回 空
+     */
     <T> T resolve(String expression, Class<T> targetType, Environment environment);
 }

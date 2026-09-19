@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder

@@ -13,14 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-* 内存式分发器提供者工具类，基于 Reactor 实现进程内的发布订阅。
-* <p>
-* 使用 Sinks.many 作为事件总线，支持背压控制，
-* 适用于单进程内不同模块之间的消息解耦。
-* </p>
-*
-* @author CH
-* @since 2025-11-26
+ * 内存式分发器提供者工具类，基于 Reactor 实现进程内的发布订阅。
+ * <p>
+ * 使用 Sinks.many 作为事件总线，支持背压控制，
+ * 适用于单进程内不同模块之间的消息解耦。
+ * </p>
+ *
+ * @author CH
+ * @since 2025-11-26
  */
 @Slf4j
 @SpiDefault
@@ -28,29 +28,29 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MemoryDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-    * 主题与 Sink 的映射，每个主题对应一个多播 Sink
-    */
+     * 主题与 Sink 的映射，每个主题对应一个多播 Sink
+     */
     private final Map<String, Sinks.Many<Object>> sinkMap = new ConcurrentHashMap<>();
 
     /**
-    * 主题与订阅定义列表的映射
-    */
+     * 主题与订阅定义列表的映射
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-    * 创建 MemoryDispatcherProvider 实例
-    * @param config config
-    */
+     * 创建 MemoryDispatcherProvider 实例
+     * @param config config
+     */
     public MemoryDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     /**
-    * 向指定主题发布消息，若存在订阅者则尝试将消息投递给对应 Sink。
-    *
-    * @param topic 目标主题
-    * @param body 消息体内容
-    */
+     * 向指定主题发布消息，若存在订阅者则尝试将消息投递给对应 Sink。
+     *
+     * @param topic 目标主题
+     * @param body 消息体内容
+     */
     @Override
     public void publish(String topic, Object body) {
         var definitions = definitionMap.get(topic);
@@ -68,10 +68,10 @@ public class MemoryDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 为指定订阅定义注册主题订阅，并创建对应的内存 Sink 与消息转发链路。
-    *
-    * @param definition 订阅定义对象
-    */
+     * 为指定订阅定义注册主题订阅，并创建对应的内存 Sink 与消息转发链路。
+     *
+     * @param definition 订阅定义对象
+     */
     @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -94,10 +94,10 @@ public class MemoryDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 取消指定订阅定义在目标主题上的注册关系。
-    *
-    * @param definition 待取消的订阅定义对象
-    */
+     * 取消指定订阅定义在目标主题上的注册关系。
+     *
+     * @param definition 待取消的订阅定义对象
+     */
     @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -113,8 +113,8 @@ public class MemoryDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 关闭内存分发器，完成所有 Sink 的结束信号发送并清空注册状态。
-    */
+     * 关闭内存分发器，完成所有 Sink 的结束信号发送并清空注册状态。
+     */
     @Override
     public void close() {
         sinkMap.values().forEach(sink -> sink.tryEmitComplete());

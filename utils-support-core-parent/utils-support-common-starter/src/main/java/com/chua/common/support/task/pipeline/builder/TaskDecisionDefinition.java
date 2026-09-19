@@ -87,7 +87,7 @@ import java.util.function.Consumer;
  * @author CH
  * @since 4.0.0.42
  * @see TaskDefinition#decision()
-*/
+ */
 public class TaskDecisionDefinition {
 
     /** 标识 */
@@ -112,12 +112,12 @@ public class TaskDecisionDefinition {
     private RetryConfig retryConfig;
 
     /**
-    * 构造判断节点定义。
-    *
-    * @param id      节点唯一标识
-    * @param handler 路由逻辑处理器（返回目标节点 标识）
-    * @param builder 流水线构建器
-    */
+     * 构造判断节点定义。
+     *
+     * @param id      节点唯一标识
+     * @param handler 路由逻辑处理器（返回目标节点 标识）
+     * @param builder 流水线构建器
+     */
     TaskDecisionDefinition(String id, PipelineNode handler, PipelineBuilder builder) {
         this.id = id;
         this.handler = handler;
@@ -125,13 +125,13 @@ public class TaskDecisionDefinition {
     }
 
     /**
-    * 完成定义，将判断节点添加到流水线，返回构建器继续链式配置。
-    *
-    * <p>与 {@link TaskDefinition#decision()} 配对使用，
-    * 构成完整的判断定义：任务 → decision → ... → 任务结束。</p>
-    *
-    * @return PipelineBuilder
-    */
+     * 完成定义，将判断节点添加到流水线，返回构建器继续链式配置。
+     *
+     * <p>与 {@link TaskDefinition#decision()} 配对使用，
+     * 构成完整的判断定义：任务 → decision → ... → 任务结束。</p>
+     *
+     * @return PipelineBuilder
+     */
     public PipelineBuilder taskEnd() {
         PipelineNode effectiveHandler = endAfterExecute ? wrapWithEnd(handler) : handler;
         DecisionNode node = new DecisionNode(id, effectiveHandler);
@@ -158,19 +158,19 @@ public class TaskDecisionDefinition {
     }
 
     /**
-    * 结束当前节点定义并完成整个流水线构建。
-    *
-    * <p>等价于 {@code .taskEnd().end(id).build()}，一步完成三件事：</p>
-    * <ol>
-    *   <li>调用 {@link #taskEnd()} 完成当前判断节点定义</li>
-    *   <li>将当前节点标记为流水线终止节点</li>
-    *   <li>构建并返回 {@link Pipeline} 实例</li>
-    * </ol>
-    *
-    * <p>适用于流水线最后一个节点是判断节点的场景。</p>
-    *
-    * @return 构建完成的 Pipeline 实例
-    */
+     * 结束当前节点定义并完成整个流水线构建。
+     *
+     * <p>等价于 {@code .taskEnd().end(id).build()}，一步完成三件事：</p>
+     * <ol>
+     *   <li>调用 {@link #taskEnd()} 完成当前判断节点定义</li>
+     *   <li>将当前节点标记为流水线终止节点</li>
+     *   <li>构建并返回 {@link Pipeline} 实例</li>
+     * </ol>
+     *
+     * <p>适用于流水线最后一个节点是判断节点的场景。</p>
+     *
+     * @return 构建完成的 Pipeline 实例
+     */
     public Pipeline pipelineEnd() {
         taskEnd();
         builder.end(id);
@@ -178,91 +178,91 @@ public class TaskDecisionDefinition {
     }
 
     /**
-    * 添加分支映射。
-    *
-    * <p>当 handler 返回值匹配 key 时，路由到 value 指定的节点。</p>
-    *
-    * @param key      处理器 返回值
-    * @param nodeType 目标节点 标识
-    * @return this
-    */
+     * 添加分支映射。
+     *
+     * <p>当 handler 返回值匹配 key 时，路由到 value 指定的节点。</p>
+     *
+     * @param key      处理器 返回值
+     * @param nodeType 目标节点 标识
+     * @return this
+     */
     public TaskDecisionDefinition branch(String key, String nodeType) {
         branches.put(key, nodeType);
         return this;
     }
 
     /**
-    * 添加分支映射（链式风格）。
-    *
-    * <p>返回 {@link BranchDefinition}，支持语义化的目标节点配置：</p>
-    * <pre>{@code
-    * .branch("yes").toTask("processNode")       // 目标是执行节点
-    * .branch("no").toDecision("errorCheck")     // 目标是判断节点
-    * .branch("retry").toSubPipeline("retryFlow") // 目标是子流水线
-    * .branch("fallback").toNode("defaultNode")  // 通用写法
-    * }</pre>ack").toNode("defaultNode")  // 通用写法
-    * }</pre>
-    *
-    * <p>与 {@link #branch(String, String)} 功能等价，但链式风格语义更清晰。</p>
-    *
-    * @param key 处理器 返回值
-    * @return BranchDefinition 分支定义
-    */
+     * 添加分支映射（链式风格）。
+     *
+     * <p>返回 {@link BranchDefinition}，支持语义化的目标节点配置：</p>
+     * <pre>{@code
+     * .branch("yes").toTask("processNode")       // 目标是执行节点
+     * .branch("no").toDecision("errorCheck")     // 目标是判断节点
+     * .branch("retry").toSubPipeline("retryFlow") // 目标是子流水线
+     * .branch("fallback").toNode("defaultNode")  // 通用写法
+     * }</pre>ack").toNode("defaultNode")  // 通用写法
+     * }</pre>
+     *
+     * <p>与 {@link #branch(String, String)} 功能等价，但链式风格语义更清晰。</p>
+     *
+     * @param key 处理器 返回值
+     * @return BranchDefinition 分支定义
+     */
     public BranchDefinition branch(String key) {
         return new BranchDefinition(key, this);
     }
 
     /**
-    * 设置默认分支。
-    *
-    * <p>当 handler 返回值不匹配任何已配置的分支时，路由到默认节点。</p>
-    *
-    * @param nodeType 默认目标节点 标识
-    * @return this
-    */
+     * 设置默认分支。
+     *
+     * <p>当 handler 返回值不匹配任何已配置的分支时，路由到默认节点。</p>
+     *
+     * @param nodeType 默认目标节点 标识
+     * @return this
+     */
     public TaskDecisionDefinition defaultBranch(String nodeType) {
         this.defaultBranch = nodeType;
         return this;
     }
 
     /**
-    * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.节点本地数据）。
-    *
-    * @param params 节点参数映射
-    * @return this
-    */
+     * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.节点本地数据）。
+     *
+     * @param params 节点参数映射
+     * @return this
+     */
     public TaskDecisionDefinition params(Map<String, Object> params) {
         this.params = params;
         return this;
     }
 
     /**
-    * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
-    *
-    * <p>环境参数与 {@link #params(Map)} 的区别：</p>
-    * <ul>
-    *   <li><strong>params</strong> — 静态参数，注入到 nodeLocalData 根级</li>
-    *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
-    *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
-    * </ul>
-    *
-    * @param env 环境参数映射
-    * @return this
-    */
+     * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
+     *
+     * <p>环境参数与 {@link #params(Map)} 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — 静态参数，注入到 nodeLocalData 根级</li>
+     *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
+     *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
+     * </ul>
+     *
+     * @param env 环境参数映射
+     * @return this
+     */
     public TaskDecisionDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;
     }
 
     /**
-    * 设置节点环境参数（单个键值对）。
-    *
-    * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
-    *
-    * @param key   参数键
-    * @param value 参数值
-    * @return this
-    */
+     * 设置节点环境参数（单个键值对）。
+     *
+     * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
+     *
+     * @param key   参数键
+     * @param value 参数值
+     * @return this
+     */
     public TaskDecisionDefinition env(String key, Object value) {
         if (this.env == null) {
             this.env = new LinkedHashMap<>();
@@ -272,25 +272,25 @@ public class TaskDecisionDefinition {
     }
 
     /**
-    * 便捷方法：标记当前节点为起始节点。
-    *
-    * <p>等价于在 PipelineBuilder 上调用 {@code .start(id)}。</p>
-    *
-    * @return this
-    */
+     * 便捷方法：标记当前节点为起始节点。
+     *
+     * <p>等价于在 PipelineBuilder 上调用 {@code .start(id)}。</p>
+     *
+     * @return this
+     */
     public TaskDecisionDefinition start() {
         this.startNode = true;
         return this;
     }
 
     /**
-    * 设置无返回值的步骤处理器（Consumer 模式）。
-    *
-    * <p>适用于判断前需要执行副作用的场景。自动将 Consumer 包装为返回 null 的 PipelineNode。</p>
-    *
-    * @param action Consumer 回调
-    * @return this
-    */
+     * 设置无返回值的步骤处理器（Consumer 模式）。
+     *
+     * <p>适用于判断前需要执行副作用的场景。自动将 Consumer 包装为返回 null 的 PipelineNode。</p>
+     *
+     * @param action Consumer 回调
+     * @return this
+     */
     public TaskDecisionDefinition onStep(Consumer<PipelineContext<?>> action) {
         PipelineNode original = this.handler;
         this.handler = ctx -> {
@@ -304,72 +304,72 @@ public class TaskDecisionDefinition {
     }
 
     /**
-    * 设置有返回值的步骤处理器（Function 模式）。
-    *
-    * <p>适用于需要根据执行结果路由到其他节点的场景。</p>
-    *
-    * @param handler pipeline节点 处理器
-    * @return this
-    */
+     * 设置有返回值的步骤处理器（Function 模式）。
+     *
+     * <p>适用于需要根据执行结果路由到其他节点的场景。</p>
+     *
+     * @param handler pipeline节点 处理器
+     * @return this
+     */
     public TaskDecisionDefinition step(PipelineNode handler) {
         this.handler = handler;
         return this;
     }
 
     /**
-    * 便捷方法：执行后自动终止流水线（等价于 动作=EXIT）。
-    *
-    * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
-    *
-    * @return this
-    */
+     * 便捷方法：执行后自动终止流水线（等价于 动作=EXIT）。
+     *
+     * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
+     *
+     * @return this
+     */
     public TaskDecisionDefinition exit() {
         this.endAfterExecute = true;
         return this;
     }
 
     /**
-    * 设置重试配置。
-    *
-    * <p>当判断节点执行抛出异常时，引擎根据重试配置自动重试，而非直接触发错误恢复或终止。</p>
-    *
-    * <p>用法示例：</p>
-    * <pre>{@code
-    * .taskStart("checkRoute", ctx -> condition ? "yes" : "no")
-    *     .decision()
-    *     .retry(new RetryConfig().setMaxRetries(3).setDelay(500))
-    *     .branch("yes", "processNode")
-    *     .taskEnd()
-    * }</pre>h("yes", "processNode")
-    *     .taskEnd()
-    * }</pre>
-    *
-    * @param retryConfig 重试配置，空 表示不重试
-    * @return this
-    * @see com.chua.common.support.task.retry.RetryConfig
-    */
+     * 设置重试配置。
+     *
+     * <p>当判断节点执行抛出异常时，引擎根据重试配置自动重试，而非直接触发错误恢复或终止。</p>
+     *
+     * <p>用法示例：</p>
+     * <pre>{@code
+     * .taskStart("checkRoute", ctx -> condition ? "yes" : "no")
+     *     .decision()
+     *     .retry(new RetryConfig().setMaxRetries(3).setDelay(500))
+     *     .branch("yes", "processNode")
+     *     .taskEnd()
+     * }</pre>h("yes", "processNode")
+     *     .taskEnd()
+     * }</pre>
+     *
+     * @param retryConfig 重试配置，空 表示不重试
+     * @return this
+     * @see com.chua.common.support.task.retry.RetryConfig
+     */
     public TaskDecisionDefinition retry(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
         return this;
     }
 
     /**
-    * 便捷方法：执行后自动终止流水线。
-    *
-    * <p>与 {@link #exit()} 完全等价。</p>
-    *
-    * @return this
-    */
+     * 便捷方法：执行后自动终止流水线。
+     *
+     * <p>与 {@link #exit()} 完全等价。</p>
+     *
+     * @return this
+     */
     public TaskDecisionDefinition end() {
         this.endAfterExecute = true;
         return this;
     }
 
     /**
-    * 包装 处理器：执行后设置 EXIT 动作。
-    * @param original 原始
-    * @return wrapwith结束的结果
-    */
+     * 包装 处理器：执行后设置 EXIT 动作。
+     * @param original 原始
+     * @return wrapwith结束的结果
+     */
     private static PipelineNode wrapWithEnd(PipelineNode original) {
         return ctx -> {
             String result = original.execute(ctx);

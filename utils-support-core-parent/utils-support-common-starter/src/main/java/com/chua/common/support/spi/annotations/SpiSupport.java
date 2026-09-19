@@ -7,16 +7,16 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SpiSupport {
 
     /**
-    * 支持的类型名称数组
-    *
-    * @return 类型名称数组
-    */
+     * 支持的类型名称数组
+     *
+     * @return 类型名称数组
+     */
     String[] value() default {};
 }

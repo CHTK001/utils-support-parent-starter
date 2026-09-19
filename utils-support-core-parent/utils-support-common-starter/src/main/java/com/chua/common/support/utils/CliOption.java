@@ -9,7 +9,7 @@ package com.chua.common.support.utils;
  * @since 4.0.0.42
  * @deprecated 已迁移到 {@code com.chua.common.support.lang.cmd} 包
  * @see com.chua.common.support.lang.cmd.CliOption
-*/
+ */
 @Deprecated
 public final class CliOption {
     /** 创建 cli期权 实例 */

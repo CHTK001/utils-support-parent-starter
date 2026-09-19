@@ -9,7 +9,7 @@ package com.chua.common.support.wal;
  * @param payload 业务序列化字节流，长度由调用方决定
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record WalRecord(
     long lsn,
     byte op,
@@ -17,17 +17,17 @@ public record WalRecord(
 ) {
 
     /**
-    * 复制 payload 防止外部修改影响记录内部状态。
-    */
+     * 复制 payload 防止外部修改影响记录内部状态。
+     */
     public WalRecord {
         payload = payload == null ? new byte[0] : payload.clone();
     }
 
     /**
-    * 返回 payload 副本，调用方可以安全修改。
-    *
-    * @return payload 字节数组副本
-    */
+     * 返回 payload 副本，调用方可以安全修改。
+     *
+     * @return payload 字节数组副本
+     */
     public byte[] payloadCopy() {
         return payload.clone();
     }

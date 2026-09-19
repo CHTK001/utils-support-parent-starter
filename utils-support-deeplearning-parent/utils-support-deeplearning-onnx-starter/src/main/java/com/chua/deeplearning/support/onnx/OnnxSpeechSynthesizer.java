@@ -5,12 +5,12 @@ import com.chua.deeplearning.support.speech.SpeechSynthesizer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* ONNX 本地语音合成器实现。
-* <p>调度 {@link TextToAudioClient} 完成实际合成，
-* 支持 mms-tts-eng / pocket-tts / vits-icefall-zh 三个模型。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ONNX 本地语音合成器实现。
+ * <p>调度 {@link TextToAudioClient} 完成实际合成，
+ * 支持 mms-tts-eng / pocket-tts / vits-icefall-zh 三个模型。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OnnxSpeechSynthesizer implements SpeechSynthesizer {

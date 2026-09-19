@@ -15,10 +15,10 @@ import oshi.hardware.Sensors;
 import java.util.List;
 
 /**
-* oshc 状态 — 全局仪表盘：系统概况、CPU、内存、磁盘、网络一览。
-*
-* @author CH
-* @since 4.0.0.42
+ * oshc 状态 — 全局仪表盘：系统概况、CPU、内存、磁盘、网络一览。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class StatusCommand extends AbstractCommand {
 
@@ -165,11 +165,11 @@ public final class StatusCommand extends AbstractCommand {
     }
 
     /**
-    * pad。
-    * @param label 标签
-    * @param val val
-    * @return pad的结果
-    */
+     * pad。
+     * @param label 标签
+     * @param val val
+     * @return pad的结果
+     */
     private static String pad(String label, double val) {
         return String.format("%-5s %6.1f%%  ", label, val);
     }

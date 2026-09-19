@@ -24,40 +24,40 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* 多类 yolov8 通用目标检测 Translator 抽象基类。
-*
-* <p>用于条形码检测、PPE 检测、火灾烟雾检测等多类目标检测场景。
-* 子类提供 {@link #classNamesResourcePath()} 与 {@link #defaultClassNames()}。
-*
-* <h2>输入/输出</h2>
-* <ul>
-*   <li>输入：YOLOv8 标准 [1, 3, H, W]，H=W=inputSize，RGB /255.0 归一化，CHW</li>
-*   <li>输出：YOLOv8 标准 [1, 4+nc, N]（NMS 前），内部 NMS 输出 DetectedObjects</li>
-* </ul>
-*
-* <h2>类别加载</h2>
-* <p>从 classpath {@link #classNamesResourcePath()} 按行加载，缺失或行数不匹配时回退
-* {@link #defaultClassNames()}。
-*
-* @author CH
-* @since 4.0.0.42
+ * 多类 yolov8 通用目标检测 Translator 抽象基类。
+ *
+ * <p>用于条形码检测、PPE 检测、火灾烟雾检测等多类目标检测场景。
+ * 子类提供 {@link #classNamesResourcePath()} 与 {@link #defaultClassNames()}。
+ *
+ * <h2>输入/输出</h2>
+ * <ul>
+ *   <li>输入：YOLOv8 标准 [1, 3, H, W]，H=W=inputSize，RGB /255.0 归一化，CHW</li>
+ *   <li>输出：YOLOv8 标准 [1, 4+nc, N]（NMS 前），内部 NMS 输出 DetectedObjects</li>
+ * </ul>
+ *
+ * <h2>类别加载</h2>
+ * <p>从 classpath {@link #classNamesResourcePath()} 按行加载，缺失或行数不匹配时回退
+ * {@link #defaultClassNames()}。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractMultiClassYolov8Translator implements Translator<Image, DetectedObjects> {
 
     /**
-    * 默认输入尺寸：yolov8 @ 640。
-    */
+     * 默认输入尺寸：yolov8 @ 640。
+     */
     protected static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-    * 默认置信度阈值。
-    */
+     * 默认置信度阈值。
+     */
     protected static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
-    * 默认 NMS iou 阈值。
-    */
+     * 默认 NMS iou 阈值。
+     */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /** 输入尺寸 */
@@ -110,30 +110,30 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     /**
-    * 类路径 资源路径。
-    * @return 类名称resource路径的结果
-    */
+     * 类路径 资源路径。
+     * @return 类名称resource路径的结果
+     */
     protected abstract String classNamesResourcePath();
 
     /**
-    * 资源缺失时回退的类别列表。
-    * @return 默认类名称的结果
-    */
+     * 资源缺失时回退的类别列表。
+     * @return 默认类名称的结果
+     */
     protected abstract List<String> defaultClassNames();
 
     /**
-    * 当前 Translator 实际加载的类别列表（不可变）。
-    * @return actual类名称的结果
-    */
+     * 当前 Translator 实际加载的类别列表（不可变）。
+     * @return actual类名称的结果
+     */
     public List<String> actualClassNames() {
         return classes;
     }
 
     /**
-    * 加载类名称
-    *
-    * @return 加载类名称的结果
-    */
+     * 加载类名称
+     *
+     * @return 加载类名称的结果
+     */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
@@ -302,22 +302,22 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     /**
-    * Sigmoid
-    *
-    * @param x x
-    * @return sigmoid的结果
-    */
+     * Sigmoid
+     *
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
     /**
-    * 转为normalizedchw
-    *
-    * @param ctx ctx
-    * @param array array
-    * @return 转为normalizedchw的结果
-    */
+     * 转为normalizedchw
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
+     */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

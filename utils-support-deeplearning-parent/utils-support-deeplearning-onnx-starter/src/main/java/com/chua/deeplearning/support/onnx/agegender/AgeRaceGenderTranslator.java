@@ -14,29 +14,29 @@ import org.slf4j.LoggerFactory;
 
 
 /**
-* age竞争gendernet
-* <p>
-* age竞争gendernet
-*                                                          
-* -                            0-116      117            
-* -                            
-* -                            
-* <p>
-*                
-* -                       256x256
-* -              [0, 1]
-* - 镜像net             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-* -           NCHW       
-* <p>
-*                
-* -                                                 
-* -          softmax                         0-116   
-* -          softmax                   Male/Female   
-* -          softmax                   White/Black/Asian/Indian/Others   
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2024/11/08
+ * age竞争gendernet
+ * <p>
+ * age竞争gendernet
+ *                                                          
+ * -                            0-116      117            
+ * -                            
+ * -                            
+ * <p>
+ *                
+ * -                       256x256
+ * -              [0, 1]
+ * - 镜像net             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+ * -           NCHW       
+ * <p>
+ *                
+ * -                                                 
+ * -          softmax                         0-116   
+ * -          softmax                   Male/Female   
+ * -          softmax                   White/Black/Asian/Indian/Others   
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2024/11/08
  */
 public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictResult> {
 
@@ -45,28 +45,28 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 
     /**
-    *                   
-    */
+     *                   
+     */
     private static final int INPUT_SIZE = 256;
 
     /**
-    * 镜像net
-    */
+     * 镜像net
+     */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-    * 镜像net
-    */
+     * 镜像net
+     */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
-    *             
-    */
+     *             
+     */
     private static final String[] GENDER_CLASSES = {"Male", "Female"};
 
     /**
-    *             
-    */
+     *             
+     */
     private static final String[] RACE_CLASSES = {
             // White",   //
            
@@ -258,13 +258,13 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     /**
-    *                      
-    * <p>
-    *                                              
-    *
-    * @param age                
-    * @return           [0.0, 1.0]
-    */
+     *                      
+     * <p>
+     *                                              
+     *
+     * @param age                
+     * @return           [0.0, 1.0]
+     */
     private float calculateAgeConfidence(int age) {
         //                      0-116                               
         if (age < 0 || age > 116) {

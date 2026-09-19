@@ -11,37 +11,37 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* biggan 图像生成 Translator。
-* <p>输入类别 ID（Long），输出生成图像。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * biggan 图像生成 Translator。
+ * <p>输入类别 ID（Long），输出生成图像。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class BigGANTranslator implements Translator<Long, Image> {
 
     /**
-    * 截断系数，控制生成多样性。
-    */
+     * 截断系数，控制生成多样性。
+     */
     private final float truncation;
 
     /**
-    * 噪声向量维度。
-    */
+     * 噪声向量维度。
+     */
     private final int noiseSize;
 
     /**
-    * 默认 128 分辨率。
-    */
+     * 默认 128 分辨率。
+     */
     public BigGANTranslator() {
         this(128, 0.4f);
     }
 
     /**
-    * 构造 biggan Translator。
-    *
-    * @param size       输出分辨率 128/256/512
-    * @param truncation 截断系数
-    */
+     * 构造 biggan Translator。
+     *
+     * @param size       输出分辨率 128/256/512
+     * @param truncation 截断系数
+     */
     public BigGANTranslator(int size, float truncation) {
         if (size == 128) {
             this.noiseSize = 120;

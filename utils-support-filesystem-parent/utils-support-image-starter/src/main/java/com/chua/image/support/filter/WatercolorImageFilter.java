@@ -57,32 +57,32 @@ import java.util.Random;
 public class WatercolorImageFilter extends AbstractImageFilter {
 
     /**
-    * 颜色扩散半径（像素），默认 6
-    */
+     * 颜色扩散半径（像素），默认 6
+     */
     private int diffusionRadius = 6;
 
     /**
-    * 纸张纹理强度 (0.0-1.0)，默认 0.2
-    */
+     * 纸张纹理强度 (0.0-1.0)，默认 0.2
+     */
     private double paperTexture = 0.2;
 
     /**
-    * 柔化强度 (0.0-1.0)，默认 0.5
-    */
+     * 柔化强度 (0.0-1.0)，默认 0.5
+     */
     private double softness = 0.5;
 
     /**
-    * 随机种子，默认 12345
-    */
+     * 随机种子，默认 12345
+     */
     private int seed = 12345;
 
     /**
-    * 执行水彩风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 水彩风格图像
-    */
+     * 执行水彩风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 水彩风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -156,11 +156,11 @@ public class WatercolorImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

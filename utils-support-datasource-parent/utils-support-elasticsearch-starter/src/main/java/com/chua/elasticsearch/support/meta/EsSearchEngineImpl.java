@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Elasticsearch 搜索引擎实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Elasticsearch 搜索引擎实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EsSearchEngineImpl implements SearchEngine {
 
@@ -136,11 +136,11 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     /**
-    * 构建财产
-    *
-    * @param type 类型
-    * @return 构建财产的结果
-    */
+     * 构建财产
+     *
+     * @param type 类型
+     * @return 构建财产的结果
+     */
     private Property buildProperty(String type) {
         if (type == null) {
             return PropertyBuilders.text(b -> b);

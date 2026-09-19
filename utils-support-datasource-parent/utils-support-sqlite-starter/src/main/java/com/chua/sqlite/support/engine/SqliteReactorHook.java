@@ -72,10 +72,10 @@ public final class SqliteReactorHook implements AutoCloseable {
     private volatile boolean closed = false;
 
     /**
-    * 创建真响应式 SQLite Hook。
-    *
-    * @param dbPath SQLite 数据库文件路径
-    */
+     * 创建真响应式 SQLite Hook。
+     *
+     * @param dbPath SQLite 数据库文件路径
+     */
     public SqliteReactorHook(String dbPath) {
         if (!loadLibrary()) {
             throw new UnsatisfiedLinkError("Failed to load sqlite3_hook native library");
@@ -120,21 +120,21 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     /**
-    * 获取变更事件流。
-    * <p>完全非阻塞，事件由 OS 异步 I/O 完成时直接推送。</p>
-    *
-    * @return 变更事件 Flux，支持背压（LATEST 策略）
-    */
+     * 获取变更事件流。
+     * <p>完全非阻塞，事件由 OS 异步 I/O 完成时直接推送。</p>
+     *
+     * @return 变更事件 Flux，支持背压（LATEST 策略）
+     */
     public Flux<SqliteChangeEvent> events() {
         return flux;
     }
 
     /**
-    * 执行 SQL（非阻塞）。
-    *
-    * @param sql UTF-8 编码的 SQL 语句
-    * @return SQLite 返回码（0 = 成功），Mono 包装
-    */
+     * 执行 SQL（非阻塞）。
+     *
+     * @param sql UTF-8 编码的 SQL 语句
+     * @return SQLite 返回码（0 = 成功），Mono 包装
+     */
     public Mono<Integer> exec(String sql) {
         return Mono.fromCallable(() -> execSync(sql))
                   .subscribeOn(Schedulers.boundedElastic());
@@ -158,12 +158,12 @@ public final class SqliteReactorHook implements AutoCloseable {
     }
 
     /**
-    * C 回调入口（被 OS 异步 I/O 完成时调用）。
-    * <p>此方法在 native 线程调用，直接推送事件到 Reactor 流。</p>
-    *
-    * @param jsonPtr   事件 JSON 字符串指针
-    * @param userIdPtr 用户 ID 指针（存储 instanceId）
-    */
+     * C 回调入口（被 OS 异步 I/O 完成时调用）。
+     * <p>此方法在 native 线程调用，直接推送事件到 Reactor 流。</p>
+     *
+     * @param jsonPtr   事件 JSON 字符串指针
+     * @param userIdPtr 用户 ID 指针（存储 instanceId）
+     */
     @SuppressWarnings("unused")
     private static void onNativeEvent(MemorySegment jsonPtr, MemorySegment userIdPtr) {
         if (jsonPtr == null || jsonPtr.equals(MemorySegment.NULL)) {
@@ -227,10 +227,10 @@ public final class SqliteReactorHook implements AutoCloseable {
      * ═══════════════════════════════════════════════════════════════ */
 
     /**
-    * 创建 onNativeEvent 的 MethodHandle（用于 FFM upcall）。
-    * <p>注意：这是一个 static 方法，通过 user_data 分发到实例。</p>
-    * @return 方法处理 对象
-    */
+     * 创建 onNativeEvent 的 MethodHandle（用于 FFM upcall）。
+     * <p>注意：这是一个 static 方法，通过 user_data 分发到实例。</p>
+     * @return 方法处理 对象
+     */
     private static MethodHandle onEventHandle() {
         try {
             return MethodHandles.lookup().findStatic(

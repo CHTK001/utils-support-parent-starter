@@ -11,66 +11,66 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 差异对比轮询目录抽象基类，实现 {@link PolledDirectory} 接口。
-* <p>
-* 适用于无法使用操作系统事件机制的数据源（如 FTP、SFTP、数据库 CDC），
-* 通过快照对比（diff）发现新增、修改、删除的条目。
-* </p>
-* <p>
-* 子类需实现三个抽象方法：
-* <ul>
-*   <li>{@link #listAndModified(String)} — 获取当前所有条目及修改时间</li>
-*   <li>{@link #getFileName(Object)} — 提取条目名称</li>
-*   <li>{@link #getModified(Object)} — 提取条目修改时间戳</li>
-* </ul>
-* </p>
-* <pre>{@code
-* // FTP 示例
-* DiffPolledDirectory<FtpFile> poller = new DiffPolledDirectory<>("/remote") {
-*     protected List<FtpFile> listAndModified(String path) { return ftpClient.listFiles(path); }
-*     protected String getFileName(FtpFile f) { return f.getName(); }
-*     protected Long getModified(FtpFile f) { return f.getTimestamp(); }
-* };
-* poller.addListener(new SimplePolledListener());
-*
-* DirectoryPollerEnvironment env = new DirectoryPollerEnvironment(
-*     Set.of(CREATE, MODIFY, DELETE), 5, TimeUnit.SECONDS);
-* VirtualThreadPollerExecutor executor = new VirtualThreadPollerExecutor(poller, env);
-* poller.start(env, executor);
-* }</pre>
-*
-* @param <T> 条目类型
-* @author CH
-* @since 2024/12/12
+ * 差异对比轮询目录抽象基类，实现 {@link PolledDirectory} 接口。
+ * <p>
+ * 适用于无法使用操作系统事件机制的数据源（如 FTP、SFTP、数据库 CDC），
+ * 通过快照对比（diff）发现新增、修改、删除的条目。
+ * </p>
+ * <p>
+ * 子类需实现三个抽象方法：
+ * <ul>
+ *   <li>{@link #listAndModified(String)} — 获取当前所有条目及修改时间</li>
+ *   <li>{@link #getFileName(Object)} — 提取条目名称</li>
+ *   <li>{@link #getModified(Object)} — 提取条目修改时间戳</li>
+ * </ul>
+ * </p>
+ * <pre>{@code
+ * // FTP 示例
+ * DiffPolledDirectory<FtpFile> poller = new DiffPolledDirectory<>("/remote") {
+ *     protected List<FtpFile> listAndModified(String path) { return ftpClient.listFiles(path); }
+ *     protected String getFileName(FtpFile f) { return f.getName(); }
+ *     protected Long getModified(FtpFile f) { return f.getTimestamp(); }
+ * };
+ * poller.addListener(new SimplePolledListener());
+ *
+ * DirectoryPollerEnvironment env = new DirectoryPollerEnvironment(
+ *     Set.of(CREATE, MODIFY, DELETE), 5, TimeUnit.SECONDS);
+ * VirtualThreadPollerExecutor executor = new VirtualThreadPollerExecutor(poller, env);
+ * poller.start(env, executor);
+ * }</pre>
+ *
+ * @param <T> 条目类型
+ * @author CH
+ * @since 2024/12/12
  */
 @Slf4j
 public abstract class DiffPolledDirectory<T> implements PolledDirectory {
 
     /**
-    * 条目名称 -> 修改时间戳 的缓存映射
-    */
+     * 条目名称 -> 修改时间戳 的缓存映射
+     */
     protected final Map<String, Long> cache = new ConcurrentHashMap<>();
 
     /**
-    * 被监听的路径
-    */
+     * 被监听的路径
+     */
     protected final String listenPath;
 
     /**
-    * 事件监听器列表
-    */
+     * 事件监听器列表
+     */
     private final List<PolledListener> listeners = new ArrayList<>();
 
     /**
-    * 环境配置
-    */
+     * 环境配置
+     */
     protected DirectoryPollerEnvironment environment;
 
     /**
-    * 构造差异对比轮询器。
-    *
-    * @param listenPath 被监听的路径
-    */
+     * 构造差异对比轮询器。
+     *
+     * @param listenPath 被监听的路径
+     */
     public DiffPolledDirectory(String listenPath) {
         this.listenPath = listenPath;
     }
@@ -175,18 +175,18 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     protected abstract List<T> listAndModified(String path);
 
     /**
-    * 从条目中提取名称。
-    *
-    * @param item 条目
-    * @return 条目名称
-    */
+     * 从条目中提取名称。
+     *
+     * @param item 条目
+     * @return 条目名称
+     */
     protected abstract String getFileName(T item);
 
     /**
-    * 从条目中提取最后修改时间戳（毫秒）。
-    *
-    * @param item 条目
-    * @return 修改时间戳
-    */
+     * 从条目中提取最后修改时间戳（毫秒）。
+     *
+     * @param item 条目
+     * @return 修改时间戳
+     */
     protected abstract Long getModified(T item);
 }

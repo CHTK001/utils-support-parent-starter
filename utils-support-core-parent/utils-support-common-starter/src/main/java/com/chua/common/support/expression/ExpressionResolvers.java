@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 表达式解析器链，按优先级依次尝试所有 SPI 实现。
-*
-* <p>遍历 {@code ExpressionResolver} SPI 实现，首个 {@code isSupport} 返回 true 的解析器负责解析。
-* 解析失败返回 null，由调用方回退到占位符或字面量。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 表达式解析器链，按优先级依次尝试所有 SPI 实现。
+ *
+ * <p>遍历 {@code ExpressionResolver} SPI 实现，首个 {@code isSupport} 返回 true 的解析器负责解析。
+ * 解析失败返回 null，由调用方回退到占位符或字面量。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class ExpressionResolvers {
 
     /**
-    * 解析器列表，按优先级排序（值大优先）
-    */
+     * 解析器列表，按优先级排序（值大优先）
+     */
     private static final List<ExpressionResolver> RESOLVERS;
 
     static {

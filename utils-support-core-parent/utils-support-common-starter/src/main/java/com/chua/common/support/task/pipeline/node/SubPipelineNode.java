@@ -56,55 +56,55 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class SubPipelineNode implements PipelineNode {
 
     /**
-    * 节点唯一标识
-    */
+     * 节点唯一标识
+     */
     private final String id;
 
     /**
-    * 子流水线实例
-    */
+     * 子流水线实例
+     */
     private final Pipeline subPipeline;
 
     /**
-    * 前置处理器（在子流水线执行前调用，可选）
-    */
+     * 前置处理器（在子流水线执行前调用，可选）
+     */
     private PipelineNode preHandler;
 
     /**
-    * 子流水线起始节点 标识（覆盖默认起始节点，可选）
-    */
+     * 子流水线起始节点 标识（覆盖默认起始节点，可选）
+     */
     private String startNode;
 
     /**
-    * 子流水线参数（注入到子上下文的 节点本地数据，可选）
-    */
+     * 子流水线参数（注入到子上下文的 节点本地数据，可选）
+     */
     private Map<String, Object> params;
 
     /**
-    * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
-    */
+     * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
+     */
     private Map<String, Object> env;
 
     /**
-    * 构造子流水线节点。
-    *
-    * @param id          节点唯一标识
-    * @param subPipeline 子流水线实例
-    */
+     * 构造子流水线节点。
+     *
+     * @param id          节点唯一标识
+     * @param subPipeline 子流水线实例
+     */
     public SubPipelineNode(String id, Pipeline subPipeline) {
         this.id = id;
         this.subPipeline = subPipeline;
     }
 
     /**
-    * 获取节点 标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取节点 标识。
+     *
+     * @return 节点 标识
+     */
     public String getId() {
         return id;
     }
@@ -125,97 +125,97 @@ public class SubPipelineNode implements PipelineNode {
     }
 
     /**
-    * 获取子流水线实例。
-    *
-    * @return 子流水线 Pipeline 实例
-    */
+     * 获取子流水线实例。
+     *
+     * @return 子流水线 Pipeline 实例
+     */
     public Pipeline getSubPipeline() {
         return subPipeline;
     }
 
     /**
-    * 获取子流水线起始节点虚拟 标识（用于树打印）。
-    *
-    * @return 起始节点 标识
-    */
+     * 获取子流水线起始节点虚拟 标识（用于树打印）。
+     *
+     * @return 起始节点 标识
+     */
     public String getSubPipelineStartId() {
         return "sub:" + subPipeline.getId() + ":start";
     }
 
     /**
-    * 获取子流水线终止节点虚拟 标识（用于树打印）。
-    *
-    * @return 终止节点 标识
-    */
+     * 获取子流水线终止节点虚拟 标识（用于树打印）。
+     *
+     * @return 终止节点 标识
+     */
     public String getSubPipelineEndId() {
         return "sub:" + subPipeline.getId() + ":end";
     }
 
     /**
-    * 设置前置处理器。
-    *
-    * @param preHandler 前置处理器
-    * @return this
-    */
+     * 设置前置处理器。
+     *
+     * @param preHandler 前置处理器
+     * @return this
+     */
     public SubPipelineNode preHandler(PipelineNode preHandler) {
         this.preHandler = preHandler;
         return this;
     }
 
     /**
-    * 获取前置处理器。
-    *
-    * @return 前置处理器，未设置时返回 空
-    */
+     * 获取前置处理器。
+     *
+     * @return 前置处理器，未设置时返回 空
+     */
     public PipelineNode getPreHandler() {
         return preHandler;
     }
 
     /**
-    * 设置子流水线起始节点 标识。
-    *
-    * @param startNode 起始节点 标识
-    * @return this
-    */
+     * 设置子流水线起始节点 标识。
+     *
+     * @param startNode 起始节点 标识
+     * @return this
+     */
     public SubPipelineNode start(String startNode) {
         this.startNode = startNode;
         return this;
     }
 
     /**
-    * 获取子流水线起始节点 标识。
-    *
-    * @return 起始节点 标识，未设置时返回 空
-    */
+     * 获取子流水线起始节点 标识。
+     *
+     * @return 起始节点 标识，未设置时返回 空
+     */
     public String getStartNode() {
         return startNode;
     }
 
     /**
-    * 设置子流水线参数。
-    *
-    * @param params 参数映射
-    * @return this
-    */
+     * 设置子流水线参数。
+     *
+     * @param params 参数映射
+     * @return this
+     */
     public SubPipelineNode params(Map<String, Object> params) {
         this.params = params != null ? new LinkedHashMap<>(params) : null;
         return this;
     }
 
     /**
-    * 获取子流水线参数。
-    *
-    * @return 参数映射，未设置时返回空 映射
-    */
+     * 获取子流水线参数。
+     *
+     * @return 参数映射，未设置时返回空 映射
+     */
     public Map<String, Object> getParams() {
         return params != null ? params : Collections.emptyMap();
     }
 
     /**
-    * 设置节点环境参数（定义时调用）。
-    *
-    * @param env 环境参数映射
-    */
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
     public void setEnv(Map<String, Object> env) {
         this.env = env != null ? env : Collections.emptyMap();
     }

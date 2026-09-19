@@ -36,21 +36,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
-* 折叠拦截器，处理 {@link Collapsible} 注解标注的方法。
-*
-* <p><b>v2 语义（按返回类型自适应）</b>：</p>
-* <ul>
-*   <li>入参契约为"恰好一个 Collection"，不满足时抛出 {@link IllegalStateException}；</li>
-*   <li>返回 {@code Map}（key = 入参元素）：{@code mergeAll} 整批合并——窗口内全部调用的
-* 集合实参取并集，调用一次核心方法，再按"元素归属"将结果拆分为子 映射 回填各调用者；</li>
-*   <li>返回非 {@code Map}：降级为同参折叠（相同实参合并执行一次并广播结果）；</li>
-*   <li>空集合实参 / 无 SPI 实现：直接执行不折叠。</li>
-* </ul>
-*
-* <p>合并执行核心方法时以 {@link ThreadLocal} 标记防重入，避免代理链递归再次进入折叠。</p>
-*
-* @author CH
-* @since 2026/09/03
+ * 折叠拦截器，处理 {@link Collapsible} 注解标注的方法。
+ *
+ * <p><b>v2 语义（按返回类型自适应）</b>：</p>
+ * <ul>
+ *   <li>入参契约为"恰好一个 Collection"，不满足时抛出 {@link IllegalStateException}；</li>
+ *   <li>返回 {@code Map}（key = 入参元素）：{@code mergeAll} 整批合并——窗口内全部调用的
+ * 集合实参取并集，调用一次核心方法，再按"元素归属"将结果拆分为子 映射 回填各调用者；</li>
+ *   <li>返回非 {@code Map}：降级为同参折叠（相同实参合并执行一次并广播结果）；</li>
+ *   <li>空集合实参 / 无 SPI 实现：直接执行不折叠。</li>
+ * </ul>
+ *
+ * <p>合并执行核心方法时以 {@link ThreadLocal} 标记防重入，避免代理链递归再次进入折叠。</p>
+ *
+ * @author CH
+ * @since 2026/09/03
  */
 @Slf4j
 @Spi("com.chua.spring.support.annotation.Collapsible")
@@ -58,18 +58,18 @@ public class CollapsibleIntercept
         implements MethodAnnotationIntercept<Collapsible>, DisposableBean, ApplicationContextAware {
 
     /**
-    * 折叠执行器工厂的 SPI 名称
-    */
+     * 折叠执行器工厂的 SPI 名称
+     */
     private static final String DEFAULT_FACTORY_NAME = "collapse";
 
     /**
-    * 按执行器名称缓存折叠执行器
-    */
+     * 按执行器名称缓存折叠执行器
+     */
     private final Map<String, CollapseExecutor<InvocationKey, Object>> executors = new ConcurrentHashMap<>(16);
 
     /**
-    * 正在合并执行核心方法的方法集合（防递归重入）
-    */
+     * 正在合并执行核心方法的方法集合（防递归重入）
+     */
     private final ThreadLocal<Set<Method>> collapsingMethods = ThreadLocal.withInitial(HashSet::new);
 
     @Override
@@ -114,16 +114,16 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 折叠执行失败时的降级：注解 降级 非空时调用降级方法（支持 Bean#方法 与同类方法名）。
-    *
-    * <p>降级方法返回值非 null 视为降级成功；降级不可用（无 fallback 配置/Bean 或方法不存在/
-    * 降级方法返回 空）时抛出原始异常（错误 不包装直接抛出）。</p>
-    *
-    * @param annotation  折叠注解
-    * @param proxyMethod 被拦截方法信息
-    * @param cause       折叠执行异常
-    * @return 降级结果
-    */
+     * 折叠执行失败时的降级：注解 降级 非空时调用降级方法（支持 Bean#方法 与同类方法名）。
+     *
+     * <p>降级方法返回值非 null 视为降级成功；降级不可用（无 fallback 配置/Bean 或方法不存在/
+     * 降级方法返回 空）时抛出原始异常（错误 不包装直接抛出）。</p>
+     *
+     * @param annotation  折叠注解
+     * @param proxyMethod 被拦截方法信息
+     * @param cause       折叠执行异常
+     * @return 降级结果
+     */
     private Object resolveFallback(Collapsible annotation, ProxyMethod proxyMethod, Throwable cause) {
         String fallback = annotation.fallback();
         if (fallback == null || fallback.isBlank()) {
@@ -138,11 +138,11 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 将折叠执行异常包装为可抛出形态（错误 原样抛出，异常包装为 runtime异常）。
-    *
-    * @param cause 原始异常
-    * @return 可抛出的运行时异常
-    */
+     * 将折叠执行异常包装为可抛出形态（错误 原样抛出，异常包装为 runtime异常）。
+     *
+     * @param cause 原始异常
+     * @return 可抛出的运行时异常
+     */
     private static RuntimeException collapseException(Throwable cause) {
         if (cause instanceof RuntimeException) {
             return (RuntimeException) cause;
@@ -154,42 +154,42 @@ public class CollapsibleIntercept
     }
 
     /**
-    * Spring 容器装配回调：注册全局降级容器（线程无关），供并发线程解析 Bean#方法 降级。
-    *
-    * @param applicationContext Spring 容器
-    */
+     * Spring 容器装配回调：注册全局降级容器（线程无关），供并发线程解析 Bean#方法 降级。
+     *
+     * @param applicationContext Spring 容器
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         FallbackResolver.registerApplicationContext(applicationContext);
     }
 
     /**
-    * 全局默认折叠配置（可空）：注解属性未显式指定时生效（Spring Boot 自动装配注入）。
-    */
+     * 全局默认折叠配置（可空）：注解属性未显式指定时生效（Spring Boot 自动装配注入）。
+     */
     private final CollapseConfig globalDefaults;
 
     /**
-    * 创建折叠拦截器（无全局默认配置）。
-    */
+     * 创建折叠拦截器（无全局默认配置）。
+     */
     public CollapsibleIntercept() {
         this(null);
     }
 
     /**
-    * 创建折叠拦截器。
-    *
-    * @param globalDefaults 全局默认折叠配置（可空；注解属性未显式指定时生效）
-    */
+     * 创建折叠拦截器。
+     *
+     * @param globalDefaults 全局默认折叠配置（可空；注解属性未显式指定时生效）
+     */
     public CollapsibleIntercept(CollapseConfig globalDefaults) {
         this.globalDefaults = globalDefaults;
     }
 
     /**
-    * 解析批量收集阈值：注解显式值优先；未指定时取全局默认，再取内置默认 10。
-    *
-    * @param annotation 折叠注解
-    * @return 批量收集阈值
-    */
+     * 解析批量收集阈值：注解显式值优先；未指定时取全局默认，再取内置默认 10。
+     *
+     * @param annotation 折叠注解
+     * @return 批量收集阈值
+     */
     private int resolveWaitThreshold(Collapsible annotation) {
         int threshold = annotation.waitThreshold();
         if (threshold >= 0) {
@@ -202,11 +202,11 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 解析补收等待时间：注解显式值（含 -1 立即执行）优先；未指定（-2）时取全局默认，再取内置默认 0。
-    *
-    * @param annotation 折叠注解
-    * @return 补收等待时间（毫秒）
-    */
+     * 解析补收等待时间：注解显式值（含 -1 立即执行）优先；未指定（-2）时取全局默认，再取内置默认 0。
+     *
+     * @param annotation 折叠注解
+     * @return 补收等待时间（毫秒）
+     */
     private long resolveCollectingWaitTime(Collapsible annotation) {
         long waitTime = annotation.collectingWaitTime();
         if (waitTime != -2) {
@@ -219,15 +219,15 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 解析执行器名称：未显式声明时使用 目标用户类全限定名.方法名。
-    *
-    * <p>目标对象为 AOP 代理时经 {@link ClassUtils#getUserClass(Class)} 还原为用户类，
-    * 避免 CGLIB 代理类名（含 {@code $$SpringCGLIB$$} 后缀）污染执行器名称。</p>
-    *
-    * @param annotation  折叠注解
-    * @param proxyMethod 被拦截方法信息
-    * @return 执行器名称
-    */
+     * 解析执行器名称：未显式声明时使用 目标用户类全限定名.方法名。
+     *
+     * <p>目标对象为 AOP 代理时经 {@link ClassUtils#getUserClass(Class)} 还原为用户类，
+     * 避免 CGLIB 代理类名（含 {@code $$SpringCGLIB$$} 后缀）污染执行器名称。</p>
+     *
+     * @param annotation  折叠注解
+     * @param proxyMethod 被拦截方法信息
+     * @return 执行器名称
+     */
     private String resolveName(Collapsible annotation, ProxyMethod proxyMethod) {
         String name = annotation.name();
         if (name == null || name.isBlank()) {
@@ -250,14 +250,14 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 创建折叠执行器：返回 映射 走合并拆分模式，其余走同参折叠（降级）模式。
-    *
-    * @param name        执行器名称
-    * @param annotation  折叠注解
-    * @param proxyMethod 被拦截方法信息
-    * @param factory     折叠执行器工厂
-    * @return 折叠执行器实例
-    */
+     * 创建折叠执行器：返回 映射 走合并拆分模式，其余走同参折叠（降级）模式。
+     *
+     * @param name        执行器名称
+     * @param annotation  折叠注解
+     * @param proxyMethod 被拦截方法信息
+     * @param factory     折叠执行器工厂
+     * @return 折叠执行器实例
+     */
     private CollapseExecutor<InvocationKey, Object> createExecutor(String name,
                                                                    Collapsible annotation,
                                                                    ProxyMethod proxyMethod,
@@ -277,12 +277,12 @@ public class CollapsibleIntercept
     }
 
     /**
-    * v2 合并拆分：并集调用一次核心方法，按"元素归属"拆分子结果回填各调用者。
-    *
-    * @param inputs 整批调用者
-    * @return 调用者到其子结果的映射
-    * @throws Throwable 合并执行异常
-    */
+     * v2 合并拆分：并集调用一次核心方法，按"元素归属"拆分子结果回填各调用者。
+     *
+     * @param inputs 整批调用者
+     * @return 调用者到其子结果的映射
+     * @throws Throwable 合并执行异常
+     */
     private Map<InvocationKey, Object> mergeAndSplit(Collection<InvocationKey> inputs) throws Throwable {
         InvocationKey first = inputs.iterator().next();
         Method method = first.method;
@@ -329,12 +329,12 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 按方法入参声明类型实例化合并后的集合实参（设置 参数使用 链接哈希设置，其余使用 array列表）。
-    *
-    * @param parameterType 方法入参类型
-    * @param union         元素并集
-    * @return 合并后的集合实参
-    */
+     * 按方法入参声明类型实例化合并后的集合实参（设置 参数使用 链接哈希设置，其余使用 array列表）。
+     *
+     * @param parameterType 方法入参类型
+     * @param union         元素并集
+     * @return 合并后的集合实参
+     */
     private static Object newCollectionArg(Class<?> parameterType, Collection<?> union) {
         if (Set.class.isAssignableFrom(parameterType)) {
             return new LinkedHashSet<>(union);
@@ -343,13 +343,13 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 执行一次核心方法（带防重入标记）。
-    *
-    * @param key       调用载体（目标对象与方法）
-    * @param mergedArg 合并后的实参
-    * @return 核心方法返回的全量结果
-    * @throws Throwable 核心方法异常（解除包装）
-    */
+     * 执行一次核心方法（带防重入标记）。
+     *
+     * @param key       调用载体（目标对象与方法）
+     * @param mergedArg 合并后的实参
+     * @return 核心方法返回的全量结果
+     * @throws Throwable 核心方法异常（解除包装）
+     */
     private Object invokeCore(InvocationKey key, Object mergedArg) throws Throwable {
         Method method = key.method;
         // 合并批核心调用在目标对象上统一经 ReflectUtils.invoke（MethodHandle 私有查找）执行，
@@ -365,22 +365,22 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 当前线程是否正在合并执行该方法（防代理链递归）。
-    *
-    * @param method 目标方法
-    * @return 正在执行返回 true
-    */
+     * 当前线程是否正在合并执行该方法（防代理链递归）。
+     *
+     * @param method 目标方法
+     * @return 正在执行返回 true
+     */
     private boolean isCollapsing(Method method) {
         return collapsingMethods.get().contains(method);
     }
 
     /**
-    * 同参折叠（降级模式）：组内实参相同，执行一次并广播结果。
-    *
-    * @param inputs 同参调用组
-    * @return 执行结果
-    * @throws Throwable 执行异常
-    */
+     * 同参折叠（降级模式）：组内实参相同，执行一次并广播结果。
+     *
+     * @param inputs 同参调用组
+     * @return 执行结果
+     * @throws Throwable 执行异常
+     */
     private Object collapseSame(Collection<InvocationKey> inputs) throws Throwable {
         InvocationKey first = inputs.iterator().next();
         return first.invocation.proceed();
@@ -400,21 +400,21 @@ public class CollapsibleIntercept
     }
 
     /**
-    * spel 表达式解析器（线程安全可复用）
-    */
+     * spel 表达式解析器（线程安全可复用）
+     */
     private static final SpelExpressionParser SPEL_PARSER = new SpelExpressionParser();
 
     /**
-    * 键() spel 表达式缓存（表达式字符串 -> 编译后表达式）
-    */
+     * 键() spel 表达式缓存（表达式字符串 -> 编译后表达式）
+     */
     private static final Map<String, Expression> SPEL_CACHE = new ConcurrentHashMap<>();
 
     /**
-    * 解析元素归约键提取器：注解 键() 非空时按 spel 从元素求值，否则元素自身即键。
-    *
-    * @param annotation 折叠注解
-    * @return 元素 -> 归约键 提取函数
-    */
+     * 解析元素归约键提取器：注解 键() 非空时按 spel 从元素求值，否则元素自身即键。
+     *
+     * @param annotation 折叠注解
+     * @return 元素 -> 归约键 提取函数
+     */
     private static Function<Object, Object> resolveKeyExtractor(Collapsible annotation) {
         String key = annotation.key();
         if (key == null || key.isBlank()) {
@@ -428,35 +428,35 @@ public class CollapsibleIntercept
     }
 
     /**
-    * 折叠调用标识：方法 + 实参集合，equals/哈希编码 不包含调用上下文。
-    *
-    * <p>同参折叠模式下 equals 决定合并分组；合并拆分模式下整批执行不依赖 equals。</p>
-    */
+     * 折叠调用标识：方法 + 实参集合，equals/哈希编码 不包含调用上下文。
+     *
+     * <p>同参折叠模式下 equals 决定合并分组；合并拆分模式下整批执行不依赖 equals。</p>
+     */
     private static final class InvocationKey {
 
         /**
-        * 目标方法
-        */
+         * 目标方法
+         */
         private final Method method;
 
         /**
-        * 调用者的集合实参（原对象）
-        */
+         * 调用者的集合实参（原对象）
+         */
         private final Collection<?> collectionArgs;
 
         /**
-        * 调用上下文载体（目标对象/方法/实参）
-        */
+         * 调用上下文载体（目标对象/方法/实参）
+         */
         private final ProxyMethod proxyMethod;
 
         /**
-        * 调用上下文（proceed 载体，不参与相等比较）
-        */
+         * 调用上下文（proceed 载体，不参与相等比较）
+         */
         private final MethodInvocation invocation;
 
         /**
-        * 元素归约键提取器（键() spel；缺省为元素自身，不参与相等比较）
-        */
+         * 元素归约键提取器（键() spel；缺省为元素自身，不参与相等比较）
+         */
         private final Function<Object, Object> keyExtractor;
 
         private InvocationKey(Method method,

@@ -12,7 +12,7 @@ package com.chua.common.support.objects.definition;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public enum BeanScope {
 
     /** 单例，整个容器生命周期内只有一个实例 */
@@ -37,22 +37,22 @@ public enum BeanScope {
     }
 
     /**
-    * 获取作用域名称。
-    *
-    * @return 作用域名称，如 "单例"、"原型"
-    */
+     * 获取作用域名称。
+     *
+     * @return 作用域名称，如 "单例"、"原型"
+     */
     public String getName() {
         return name;
     }
 
     /**
-    * 根据名称获取作用域枚举。
-    *
-    * <p>名称匹配不区分大小写。如果传入 null 或空字符串，默认返回 {@link #SINGLETON}。</p>
-    *
-    * @param name 作用域名称
-    * @return 对应的作用域枚举，未匹配时返回 单例
-    */
+     * 根据名称获取作用域枚举。
+     *
+     * <p>名称匹配不区分大小写。如果传入 null 或空字符串，默认返回 {@link #SINGLETON}。</p>
+     *
+     * @param name 作用域名称
+     * @return 对应的作用域枚举，未匹配时返回 单例
+     */
     public static BeanScope fromName(String name) {
         if (name == null || name.isEmpty()) {
             return SINGLETON;

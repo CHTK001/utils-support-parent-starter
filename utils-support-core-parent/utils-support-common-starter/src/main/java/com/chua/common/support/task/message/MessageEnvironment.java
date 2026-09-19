@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 2026/07/17
-*/
+ */
 public class MessageEnvironment {
 
     /** 属性 */
@@ -63,31 +63,31 @@ public class MessageEnvironment {
     }
 
     /**
-    * 获取配置值
-    *
-    * @param key 配置键
-    * @return 配置值，不存在返回 空
-    */
+     * 获取配置值
+     *
+     * @param key 配置键
+     * @return 配置值，不存在返回 空
+     */
     public String get(String key) {
         return properties.get(key);
     }
 
     /**
-    * 获取配置值（带默认值）
-    *
-    * @param key      配置键
-    * @param defValue 默认值
-    * @return 配置值或默认值
-    */
+     * 获取配置值（带默认值）
+     *
+     * @param key      配置键
+     * @param defValue 默认值
+     * @return 配置值或默认值
+     */
     public String get(String key, String defValue) {
         return properties.getOrDefault(key, defValue);
     }
 
     /**
-    * 获取所有配置
-    *
-    * @return 配置映射
-    */
+     * 获取所有配置
+     *
+     * @return 配置映射
+     */
     public Map<String, String> getAll() {
         return properties;
     }

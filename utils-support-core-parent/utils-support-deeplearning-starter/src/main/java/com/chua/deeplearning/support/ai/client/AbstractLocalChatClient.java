@@ -15,44 +15,44 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 本地引擎文本对话客户端抽象基类。
-* <p>
-* 统一实现 {@link ChatClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
-* 已注册的 字符串→字符串 翻译器执行文本生成，并提供该引擎的模型列表。
-* 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 本地引擎文本对话客户端抽象基类。
+ * <p>
+ * 统一实现 {@link ChatClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
+ * 已注册的 字符串→字符串 翻译器执行文本生成，并提供该引擎的模型列表。
+ * 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractLocalChatClient implements ChatClient {
 
     /**
-    * 引擎名称（提供者）
-    */
+     * 引擎名称（提供者）
+     */
     protected final String engine;
 
     /**
-    * 识别引擎实例
-    */
+     * 识别引擎实例
+     */
     protected final IdentificationEngine identificationEngine;
 
     /**
-    * 当前模型名称
-    */
+     * 当前模型名称
+     */
     protected String model;
 
     /**
-    * 客户端配置（用于在 对话同步 时向 translator 注入 device / usegpu / gpulayers 等参数）
-    */
+     * 客户端配置（用于在 对话同步 时向 translator 注入 device / usegpu / gpulayers 等参数）
+     */
     protected final ChatClientSetting setting;
 
     /**
-    * 构造本地对话客户端。
-    *
-    * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
-    * @param setting 客户端配置
-    */
+     * 构造本地对话客户端。
+     *
+     * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
+     * @param setting 客户端配置
+     */
     protected AbstractLocalChatClient(String engine, ChatClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -112,16 +112,16 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     }
 
     /**
-    * 解析运行时参数（device / usegpu / gpulayers / ctx大小 / topk / temperature / topp /
-    * 最大令牌 / threads / npredict）注入到 translator。
-    *
-    * <p>来源：{@link ChatClientSetting} 显式字段 + {@code deeplearning.device} 系统属性 + 硬编码默认。</p>
-    *
-    * <p>device 解析走 {@link DeviceSelector#resolve(String)}：auto/cpu/gpu/cuda → 归一化 cpu/gpu。
-    * usegpu 走设置或系统属性；其他字段为 空 时由 translator 用自己的默认值。</p>
-    *
-    * @return 配置 映射，可为空
-    */
+     * 解析运行时参数（device / usegpu / gpulayers / ctx大小 / topk / temperature / topp /
+     * 最大令牌 / threads / npredict）注入到 translator。
+     *
+     * <p>来源：{@link ChatClientSetting} 显式字段 + {@code deeplearning.device} 系统属性 + 硬编码默认。</p>
+     *
+     * <p>device 解析走 {@link DeviceSelector#resolve(String)}：auto/cpu/gpu/cuda → 归一化 cpu/gpu。
+     * usegpu 走设置或系统属性；其他字段为 空 时由 translator 用自己的默认值。</p>
+     *
+     * @return 配置 映射，可为空
+     */
     protected Map<String, Object> resolveOptions() {
         ChatClientSetting setting = this.setting;
         Map<String, Object> opts = new LinkedHashMap<>();

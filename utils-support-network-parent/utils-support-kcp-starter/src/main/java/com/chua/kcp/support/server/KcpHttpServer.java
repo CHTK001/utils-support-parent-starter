@@ -8,33 +8,33 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
-* 基于 kcp-基础 的 KCP HTTP 服务器（简化版）。
-*
-* <p>在 KCP 之上提供 HTTP 风格请求-响应，使用 {@code topic=path} 映射 HTTP path，
-* payload 为 JSON 字符串。响应通过 {@code resp/path} 主题回传。</p>
-*
-* <p>注意：这是简化实现，不处理完整 HTTP 语义，仅作 KCP 作为传输层的示例。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 kcp-基础 的 KCP HTTP 服务器（简化版）。
+ *
+ * <p>在 KCP 之上提供 HTTP 风格请求-响应，使用 {@code topic=path} 映射 HTTP path，
+ * payload 为 JSON 字符串。响应通过 {@code resp/path} 主题回传。</p>
+ *
+ * <p>注意：这是简化实现，不处理完整 HTTP 语义，仅作 KCP 作为传输层的示例。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class KcpHttpServer extends AbstractServer {
 
     /**
-    * KCP 会话标识（conv），两端保持一致
-    */
+     * KCP 会话标识（conv），两端保持一致
+     */
     public static final int KCP_CONV = 0x48455054;
 
     /**
-    * 底层 KCP 服务器实例
-    */
+     * 底层 KCP 服务器实例
+     */
     private KcpServer kcpServer;
 
     /**
-    * 创建 kcphttp服务端 实例
-    * @param setting setting
-    */
+     * 创建 kcphttp服务端 实例
+     * @param setting setting
+     */
     public KcpHttpServer(ServerSetting setting) {
         super(setting);
     }

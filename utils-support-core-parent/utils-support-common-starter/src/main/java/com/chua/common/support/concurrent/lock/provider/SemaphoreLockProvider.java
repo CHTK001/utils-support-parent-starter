@@ -7,15 +7,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
-* @author CH
-* @since 4.0.0.42
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("semaphore")
 public class SemaphoreLockProvider extends AbstractLockProvider {
 
     /**
-    * 名称
-    */
+     * 名称
+     */
     private final String name;
     /** 信号量 */
     private final Semaphore semaphore;
@@ -26,45 +26,45 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 创建 SemaphoreLockProvider 实例
-    * @param fair fair
-    */
+     * 创建 SemaphoreLockProvider 实例
+     * @param fair fair
+     */
     public SemaphoreLockProvider(boolean fair) {
         this("default", 1, fair);
     }
 
     /**
-    * 创建 SemaphoreLockProvider 实例
-    * @param name name
-    */
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     */
     public SemaphoreLockProvider(String name) {
         this(name, 1);
     }
 
     /**
-    * 创建 SemaphoreLockProvider 实例
-    * @param name name
-    * @param fair boolean
-    */
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param fair boolean
+     */
     public SemaphoreLockProvider(String name, boolean fair) {
         this(name, 1, fair);
     }
 
     /**
-    * 创建 SemaphoreLockProvider 实例
-    * @param name name
-    * @param permits int
-    */
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param permits int
+     */
     public SemaphoreLockProvider(String name, int permits) {
         this(name, permits, false);
     }
 
     /**
-    * 创建 SemaphoreLockProvider 实例
-    * @param name name
-    * @param permits int
-    * @param fair boolean
-    */
+     * 创建 SemaphoreLockProvider 实例
+     * @param name name
+     * @param permits int
+     * @param fair boolean
+     */
     public SemaphoreLockProvider(String name, int permits, boolean fair) {
         this.name = name;
         this.semaphore = new Semaphore(permits, fair);

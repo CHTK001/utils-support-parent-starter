@@ -3,13 +3,13 @@ package com.chua.common.support.ai.bot;
 import lombok.Data;
 
 /**
-* Bot 发送结果
-* <p>
-* 封装 Bot API 调用结果，包含消息 ID 或错误信息。
-* </p>
-*
-* @author CH
-* @since 2026/07/18
+ * Bot 发送结果
+ * <p>
+ * 封装 Bot API 调用结果，包含消息 ID 或错误信息。
+ * </p>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Data
 public class BotSendResult {
@@ -33,11 +33,11 @@ public class BotSendResult {
     private String rawResponse;
 
     /**
-    * 创建成功结果
-    *
-    * @param msgId 消息 ID
-    * @return 发送结果
-    */
+     * 创建成功结果
+     *
+     * @param msgId 消息 ID
+     * @return 发送结果
+     */
     public static BotSendResult ok(String msgId) {
         BotSendResult result = new BotSendResult();
         result.success = true;
@@ -46,12 +46,12 @@ public class BotSendResult {
     }
 
     /**
-    * 创建失败结果
-    *
-    * @param errorCode    错误码
-    * @param errorMessage 错误信息
-    * @return 发送结果
-    */
+     * 创建失败结果
+     *
+     * @param errorCode    错误码
+     * @param errorMessage 错误信息
+     * @return 发送结果
+     */
     public static BotSendResult fail(int errorCode, String errorMessage) {
         BotSendResult result = new BotSendResult();
         result.success = false;

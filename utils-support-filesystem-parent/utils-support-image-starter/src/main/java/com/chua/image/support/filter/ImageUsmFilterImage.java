@@ -69,33 +69,33 @@ import javax.annotation.Nullable;
 public class ImageUsmFilterImage extends ImageGaussianBlurFilter {
 
     /**
-    * USM 锐化权重，控制锐化强度（默认 0.6）
-    * <ul>
-    *   <li>0.1-0.5：轻微锐化，适合人像</li>
-    *   <li>0.5-1.0：中等锐化，适合一般照片</li>
-    *   <li>1.0-2.0：强烈锐化，适合风景或突出细节</li>
-    * </ul>
-    */
+     * USM 锐化权重，控制锐化强度（默认 0.6）
+     * <ul>
+     *   <li>0.1-0.5：轻微锐化，适合人像</li>
+     *   <li>0.5-1.0：中等锐化，适合一般照片</li>
+     *   <li>1.0-2.0：强烈锐化，适合风景或突出细节</li>
+     * </ul>
+     */
     private double weight;
 
 
     /**
-    * 默认构造函数
-    *
-    * 使用默认的锐化权重 0.6，适合大多数图像的中等强度锐化。
-    */
+     * 默认构造函数
+     *
+     * 使用默认的锐化权重 0.6，适合大多数图像的中等强度锐化。
+     */
     public ImageUsmFilterImage() {
         this.weight = 0.6;
     }
 
     /**
-    * 带权重参数的构造函数
-    *
-    * @param weight 锐化权重，建议范围 0.1-2.0
-    *               - 0.1-0.5: 轻微锐化
-    *               - 0.5-1.0: 中等锐化
-    *               - 1.0-2.0: 强烈锐化
-    */
+     * 带权重参数的构造函数
+     *
+     * @param weight 锐化权重，建议范围 0.1-2.0
+     *               - 0.1-0.5: 轻微锐化
+     *               - 0.5-1.0: 中等锐化
+     *               - 1.0-2.0: 强烈锐化
+     */
     public ImageUsmFilterImage(double weight) {
         this.weight = weight;
     }

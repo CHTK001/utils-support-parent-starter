@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 文件存储全局配置。
-*
-* <p>包含开关、缓存配置、水印配置，以及各 SPI 的实现选择。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 文件存储全局配置。
+ *
+ * <p>包含开关、缓存配置、水印配置，以及各 SPI 的实现选择。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 public class FileStorageSetting {
 
     /**
-    * 是否启用预览功能（总开关）。
-    */
+     * 是否启用预览功能（总开关）。
+     */
     @Builder.Default
     /** Openpreview */
     private boolean openPreview = true;
@@ -83,22 +83,22 @@ public class FileStorageSetting {
     private String fileSettingKey;
 
     /**
-    * 文件storage过滤器setting SPI 实现名称。
-    * <p>默认为空（使用 JDK 默认实现）。
-    * 可设置为 {@code "native"} 使用 Rust 实现。</p>
-    */
+     * 文件storage过滤器setting SPI 实现名称。
+     * <p>默认为空（使用 JDK 默认实现）。
+     * 可设置为 {@code "native"} 使用 Rust 实现。</p>
+     */
     private String filterSettingKey;
 
     /**
-    * 镜像过滤器 SPI 实现名称。
-    * <p>默认为空（按 SPI 加载顺序）。
-    * 建议设置为 {@code "native"} 使用 Rust 高性能实现。</p>
-    */
+     * 镜像过滤器 SPI 实现名称。
+     * <p>默认为空（按 SPI 加载顺序）。
+     * 建议设置为 {@code "native"} 使用 Rust 高性能实现。</p>
+     */
     private String imageFilterKey;
 
     /**
-    * 是否启用全局图片滤镜（基于 文件storage过滤器setting）。
-    */
+     * 是否启用全局图片滤镜（基于 文件storage过滤器setting）。
+     */
     @Builder.Default
     /** 图片过滤器是否启用 */
     private boolean imageFilterEnabled = false;

@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 百度云 BOS 文件存储实现。
-*
-* <p>基于百度云 BOS SDK 实现 {@link FileStorage} SPI 接口。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 百度云 BOS 文件存储实现。
+ *
+ * <p>基于百度云 BOS SDK 实现 {@link FileStorage} SPI 接口。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"bos", "baidu"})
 public class BaiduBosFileStorage extends AbstractFileStorage {

@@ -20,16 +20,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Vert.x 事件循环的 TCP 代理服务器,与 {@link com.chua.common.support.network.server.proxy.TcpProxyServer}
-* 能力对齐,但转发完全走事件循环(netSocket.管道转为 双向泵送),无每连接虚拟线程开销:
-* <ul>
-*   <li>前端连接接入后,通过 {@link ProxyTargetResolver} 解析后端地址</li>
-*   <li>{@link NetClient} 建立后端连接,双向 {@code pipeTo} 转发(背压自动处理)</li>
-*   <li>任一方关闭,另一方随之关闭</li>
-* </ul>
-*
-* @author CH
-* @since 2026/08/16
+ * 基于 Vert.x 事件循环的 TCP 代理服务器,与 {@link com.chua.common.support.network.server.proxy.TcpProxyServer}
+ * 能力对齐,但转发完全走事件循环(netSocket.管道转为 双向泵送),无每连接虚拟线程开销:
+ * <ul>
+ *   <li>前端连接接入后,通过 {@link ProxyTargetResolver} 解析后端地址</li>
+ *   <li>{@link NetClient} 建立后端连接,双向 {@code pipeTo} 转发(背压自动处理)</li>
+ *   <li>任一方关闭,另一方随之关闭</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/08/16
  */
 @Slf4j
 @Spi("vertx-tcp-proxy")
@@ -45,9 +45,9 @@ public class VertxTcpProxyServer extends AbstractServer {
     private NetClient netClient;
 
     /**
-    * 创建 vertxtcp代理服务端 实例
-    * @param setting setting
-    */
+     * 创建 vertxtcp代理服务端 实例
+     * @param setting setting
+     */
     public VertxTcpProxyServer(ServerSetting setting) {
         super(setting);
  // 与 tcp代理服务端 一致:SPI 加载时 解析器 未提供,拒绝所有连接,调用方自行注入
@@ -55,22 +55,22 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     /**
-    * 创建 vertxtcp代理服务端 实例
-    * @param setting setting
-    * @param targetResolver 代理Target解析器
-    * @param targetResolver Target解析器
-    */
+     * 创建 vertxtcp代理服务端 实例
+     * @param setting setting
+     * @param targetResolver 代理Target解析器
+     * @param targetResolver Target解析器
+     */
     public VertxTcpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         this.targetResolver = targetResolver;
     }
 
     /**
-    * 创建 vertxtcp代理服务端 实例
-    * @param setting setting
-    * @param backend inetSocket地址
-    * @param backend backend
-    */
+     * 创建 vertxtcp代理服务端 实例
+     * @param setting setting
+     * @param backend inetSocket地址
+     * @param backend backend
+     */
     public VertxTcpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
         this.targetResolver = remote -> backend;
@@ -160,10 +160,10 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     /**
-    * 处理代理
-    *
-    * @param front front
-    */
+     * 处理代理
+     *
+     * @param front front
+     */
     private void handleProxy(NetSocket front) {
         InetSocketAddress backend;
         try {

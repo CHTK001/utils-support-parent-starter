@@ -6,11 +6,11 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
-* 表元数据，描述一个数据库表的完整结构信息。
-* <p>用于方言的 DDL 生成，如 CREATE TABLE、分区定义等操作。</p>
-*
-* @author CH
-* @since 2024/12/12
+ * 表元数据，描述一个数据库表的完整结构信息。
+ * <p>用于方言的 DDL 生成，如 CREATE TABLE、分区定义等操作。</p>
+ *
+ * @author CH
+ * @since 2024/12/12
  */
 @Data
 @Accessors(chain = true)

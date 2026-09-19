@@ -54,27 +54,27 @@ import java.awt.image.BufferedImage;
 public class HDREnhanceImageFilter extends AbstractImageFilter {
 
     /**
-    * 局部对比度增强系数，默认 1.2
-    */
+     * 局部对比度增强系数，默认 1.2
+     */
     private double localStrength = 1.2;
 
     /**
-    * 暗部提亮强度，默认 0.2
-    */
+     * 暗部提亮强度，默认 0.2
+     */
     private double shadowLift = 0.2;
 
     /**
-    * 局部背景模糊半径（像素），默认 24
-    */
+     * 局部背景模糊半径（像素），默认 24
+     */
     private int radius = 24;
 
     /**
-    * 执行 HDR 增强滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return HDR 增强后图像
-    */
+     * 执行 HDR 增强滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return HDR 增强后图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -121,14 +121,14 @@ public class HDREnhanceImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 盒模糊（水平 + 垂直两次 1D）
-    *
-    * @param src   亮度图
-    * @param w     宽
-    * @param h     高
-    * @param radius 半径
-    * @return 模糊后的亮度图
-    */
+     * 盒模糊（水平 + 垂直两次 1D）
+     *
+     * @param src   亮度图
+     * @param w     宽
+     * @param h     高
+     * @param radius 半径
+     * @return 模糊后的亮度图
+     */
     private int[] boxBlur(int[] src, int w, int h, int radius) {
         int r = Math.max(1, radius);
         int[] tmp = new int[w * h];

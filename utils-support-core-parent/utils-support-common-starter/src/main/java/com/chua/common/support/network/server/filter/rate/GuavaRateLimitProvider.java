@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 @Spi("guava")
 public class GuavaRateLimitProvider implements RateLimitProvider {
 
@@ -76,8 +76,8 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     }
 
     /**
-        * 按 key 分组的 Guava 限流器。
-        */
+     * 按 key 分组的 Guava 限流器。
+     */
     private static class PerKeyGuavaRateLimiter implements RateLimiter {
         /** QPS */
         private final double qps;

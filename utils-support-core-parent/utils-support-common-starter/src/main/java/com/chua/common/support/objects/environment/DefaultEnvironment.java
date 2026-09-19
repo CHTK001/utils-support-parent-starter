@@ -38,58 +38,58 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 public class DefaultEnvironment implements Environment {
 
     /**
-    * 占位符解析的最大递归深度，防止因循环引用导致无限递归。
-    */
+     * 占位符解析的最大递归深度，防止因循环引用导致无限递归。
+     */
     private static final int MAX_PLACEHOLDER_ITERATIONS = 100;
 
     /**
-    * 手动设置的属性（最高优先级）。
-    *
-    * <p>使用 {@link ConcurrentHashMap} 保证线程安全，
-    * 支持高并发场景下的读写操作。</p>
-    */
+     * 手动设置的属性（最高优先级）。
+     *
+     * <p>使用 {@link ConcurrentHashMap} 保证线程安全，
+     * 支持高并发场景下的读写操作。</p>
+     */
     private final Map<String, Object> manualProperties = new ConcurrentHashMap<>();
 
     /**
-    * 配置源列表，按优先级降序排列。
-    *
-    * <p>使用 {@link SortedArrayList} 实现，添加元素时自动按优先级从高到低排序。
-    * 配置查找时按此顺序遍历，找到即返回（快速返回策略）。</p>
-    */
+     * 配置源列表，按优先级降序排列。
+     *
+     * <p>使用 {@link SortedArrayList} 实现，添加元素时自动按优先级从高到低排序。
+     * 配置查找时按此顺序遍历，找到即返回（快速返回策略）。</p>
+     */
     private final List<PropertySource> propertySources = new SortedArrayList<>(
             Comparator.comparingInt(PropertySource::getPriority).reversed());
 
     /**
-    * 配置变更监听器列表。
-    *
-    * <p>使用 {@link CopyOnWriteArrayList} 保证遍历时线程安全，
-    * 避免在通知监听器过程中因并发修改而抛出异常。</p>
-    */
+     * 配置变更监听器列表。
+     *
+     * <p>使用 {@link CopyOnWriteArrayList} 保证遍历时线程安全，
+     * 避免在通知监听器过程中因并发修改而抛出异常。</p>
+     */
     private final List<EnvironmentChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-    * 创建空环境配置。
-    *
-    * <p>构造后不包含任何配置属性，需要手动调用
-    * {@link #setProperty} 或 {@link #addConfigSource} 来添加配置数据。</p>
-    */
+     * 创建空环境配置。
+     *
+     * <p>构造后不包含任何配置属性，需要手动调用
+     * {@link #setProperty} 或 {@link #addConfigSource} 来添加配置数据。</p>
+     */
     public DefaultEnvironment() {
         loadConfigSourceProviders();
     }
 
     /**
-    * 创建带初始属性的环境配置。
-    *
-    * <p>初始属性作为手动设置的属性存入，具有最高优先级。
-    * 如果初始属性为 null，则等同于调用无参构造函数。</p>
-    *
-    * @param initialProperties 初始属性映射表，可为 null
-    */
+     * 创建带初始属性的环境配置。
+     *
+     * <p>初始属性作为手动设置的属性存入，具有最高优先级。
+     * 如果初始属性为 null，则等同于调用无参构造函数。</p>
+     *
+     * @param initialProperties 初始属性映射表，可为 null
+     */
     public DefaultEnvironment(Map<String, Object> initialProperties) {
         if (initialProperties != null) {
             manualProperties.putAll(initialProperties);
@@ -98,8 +98,8 @@ public class DefaultEnvironment implements Environment {
     }
 
     /**
-    * 通过 SPI 加载 {@link ConfigSourceProvider}，自动注册配置源。
-    */
+     * 通过 SPI 加载 {@link ConfigSourceProvider}，自动注册配置源。
+     */
     private void loadConfigSourceProviders() {
         try {
             var providers = ServiceProvider.of(ConfigSourceProvider.class).collect();
@@ -118,19 +118,19 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 获取Property
-    * @param key key
-    */
+     * 获取Property
+     * @param key key
+     */
     public String getProperty(String key) {
         return getProperty(key, String.class, null);
     }
 
     @Override
     /**
-    * 获取Property
-    * @param key key
-    * @param defaultValue defaultValue
-    */
+     * 获取Property
+     * @param key key
+     * @param defaultValue defaultValue
+     */
     public String getProperty(String key, String defaultValue) {
         String value = getProperty(key, String.class, null);
         if (value != null) {
@@ -186,10 +186,10 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 设置Property
-    * @param key key
-    * @param value value
-    */
+     * 设置Property
+     * @param key key
+     * @param value value
+     */
     public void setProperty(String key, Object value) {
         // 参数校验：key 不可为 null
         if (key == null) {
@@ -205,9 +205,9 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * ContainsProperty
-    * @param key key
-    */
+     * ContainsProperty
+     * @param key key
+     */
     public boolean containsProperty(String key) {
         // 参数校验：key 不可为 null
         if (key == null) {
@@ -230,9 +230,9 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 添加ChangeListener
-    * @param listener listener
-    */
+     * 添加ChangeListener
+     * @param listener listener
+     */
     public void addChangeListener(EnvironmentChangeListener listener) {
         // 参数校验：listener 不可为 null
         if (listener != null) {
@@ -242,9 +242,9 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 移除ChangeListener
-    * @param listener listener
-    */
+     * 移除ChangeListener
+     * @param listener listener
+     */
     public void removeChangeListener(EnvironmentChangeListener listener) {
         // 参数校验：listener 不可为 null
         if (listener != null) {
@@ -254,9 +254,9 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 添加ConfigSource
-    * @param propertySource propertySource
-    */
+     * 添加ConfigSource
+     * @param propertySource propertySource
+     */
     public void addConfigSource(PropertySource propertySource) {
         if (propertySource == null) {
             return;
@@ -269,9 +269,9 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     /**
-    * 移除ConfigSource
-    * @param propertySource propertySource
-    */
+     * 移除ConfigSource
+     * @param propertySource propertySource
+     */
     public void removeConfigSource(PropertySource propertySource) {
         if (propertySource == null) {
             return;
@@ -308,14 +308,14 @@ public class DefaultEnvironment implements Environment {
     }
 
     /**
-    * 批量设置属性。
-    *
-    * <p>遍历传入的 Map，依次调用 {@link #setProperty} 设置每个属性。
-    * 每次设置都会触发配置变更监听器通知。
-    * 如果传入的 Map 为 null 或空，则此方法不做任何事情。</p>
-    *
-    * @param props 属性映射表，可为 null
-    */
+     * 批量设置属性。
+     *
+     * <p>遍历传入的 Map，依次调用 {@link #setProperty} 设置每个属性。
+     * 每次设置都会触发配置变更监听器通知。
+     * 如果传入的 Map 为 null 或空，则此方法不做任何事情。</p>
+     *
+     * @param props 属性映射表，可为 null
+     */
     public void putAll(Map<String, Object> props) {
         if (props == null) {
             return;
@@ -326,16 +326,16 @@ public class DefaultEnvironment implements Environment {
     }
 
     /**
-    * 解析 ${key} 占位符。
-    *
-    * <p>递归解析字符串中的 ${...} 占位符，替换为对应的配置值。
-    * 占位符查找顺序：先查手动属性，再按优先级查配置源。
-    * 如果找不到对应的配置值，则将占位符替换为空字符串。
-    * 递归深度受 {@link #MAX_PLACEHOLDER_ITERATIONS} 限制，防止无限循环。</p>
-    *
-    * @param value 包含占位符的字符串
-    * @return 解析后的字符串
-    */
+     * 解析 ${key} 占位符。
+     *
+     * <p>递归解析字符串中的 ${...} 占位符，替换为对应的配置值。
+     * 占位符查找顺序：先查手动属性，再按优先级查配置源。
+     * 如果找不到对应的配置值，则将占位符替换为空字符串。
+     * 递归深度受 {@link #MAX_PLACEHOLDER_ITERATIONS} 限制，防止无限循环。</p>
+     *
+     * @param value 包含占位符的字符串
+     * @return 解析后的字符串
+     */
     private String resolvePlaceholders(String value) {
         // 参数校验：value 不可为 null
         if (value == null) {
@@ -366,18 +366,18 @@ public class DefaultEnvironment implements Environment {
     }
 
     /**
-    * 查找占位符对应的配置值。
-    *
-    * <p>查找顺序：
-    * <ol>
-    *   <li>手动设置的属性</li>
-    *   <li>各 ConfigSource 中的属性（按优先级从高到低）</li>
-    * </ol>
-    * 如果所有来源均未找到，则返回 null。</p>
-    *
-    * @param placeholder 占位符 key（不含 ${} 包裹）
-    * @return 配置值，未找到时返回 null
-    */
+     * 查找占位符对应的配置值。
+     *
+     * <p>查找顺序：
+     * <ol>
+     *   <li>手动设置的属性</li>
+     *   <li>各 ConfigSource 中的属性（按优先级从高到低）</li>
+     * </ol>
+     * 如果所有来源均未找到，则返回 null。</p>
+     *
+     * @param placeholder 占位符 key（不含 ${} 包裹）
+     * @return 配置值，未找到时返回 null
+     */
     private String resolvePlaceholderValue(String placeholder) {
         // 步骤一：从手动设置的属性中查找
         Object manualValue = manualProperties.get(placeholder);
@@ -395,16 +395,16 @@ public class DefaultEnvironment implements Environment {
     }
 
     /**
-    * 通知所有配置变更监听器。
-    *
-    * <p>遍历所有已注册的监听器，依次调用 {@link EnvironmentChangeListener#onChange} 方法。
-    * 单个监听器抛出异常不会影响其他监听器的通知。
-    * 如果 key 为 null，表示批量刷新通知。</p>
-    *
-    * @param key      变更的配置键
-    * @param oldValue 旧值
-    * @param newValue 新值
-    */
+     * 通知所有配置变更监听器。
+     *
+     * <p>遍历所有已注册的监听器，依次调用 {@link EnvironmentChangeListener#onChange} 方法。
+     * 单个监听器抛出异常不会影响其他监听器的通知。
+     * 如果 key 为 null，表示批量刷新通知。</p>
+     *
+     * @param key      变更的配置键
+     * @param oldValue 旧值
+     * @param newValue 新值
+     */
     private void notifyListeners(String key, Object oldValue, Object newValue) {
         for (EnvironmentChangeListener listener : listeners) {
             try {

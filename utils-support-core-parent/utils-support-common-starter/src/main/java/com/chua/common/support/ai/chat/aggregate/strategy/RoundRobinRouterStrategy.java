@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 轮转策略 — 按顺序轮流选择客户端。
-*
-* <p>适用于多 API Key 负载均衡。使用原子计数器保证线程安全。
-* 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
-*
-* @author CH
-* @since 4.0.0.42
+ * 轮转策略 — 按顺序轮流选择客户端。
+ *
+ * <p>适用于多 API Key 负载均衡。使用原子计数器保证线程安全。
+ * 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("round_robin")
 public class RoundRobinRouterStrategy implements RouterStrategy {

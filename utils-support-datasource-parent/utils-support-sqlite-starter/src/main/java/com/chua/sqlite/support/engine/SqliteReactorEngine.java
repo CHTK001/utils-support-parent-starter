@@ -20,12 +20,12 @@ import com.chua.common.support.spi.annotations.Spi;
 public class SqliteReactorEngine extends com.chua.datasource.support.engine.JdbcReactorEngine {
 
     /**
-    * 添加一个 SQLite 数据源。
-    *
-    * @param name     数据源名称
-    * @param filePath SQLite 数据库文件路径
-    * @return 当前引擎实例（支持链式调用）
-    */
+     * 添加一个 SQLite 数据源。
+     *
+     * @param name     数据源名称
+     * @param filePath SQLite 数据库文件路径
+     * @return 当前引擎实例（支持链式调用）
+     */
     public SqliteReactorEngine addDataSource(String name, String filePath) {
         registerJdbcDataSource(name, "jdbc:sqlite:" + filePath, null, null);
         return this;

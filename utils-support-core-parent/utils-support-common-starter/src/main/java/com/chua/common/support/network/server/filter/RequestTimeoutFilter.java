@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public class RequestTimeoutFilter implements ServerFilter {
 
     /** 超时毫秒 */
@@ -35,10 +35,10 @@ public class RequestTimeoutFilter implements ServerFilter {
     }
 
     /**
-    * 创建超时过滤器（秒）。
-    * @param seconds 方法入参 seconds
-    * @return 请求超时时间过滤 对象
-    */
+     * 创建超时过滤器（秒）。
+     * @param seconds 方法入参 seconds
+     * @return 请求超时时间过滤 对象
+     */
     public static RequestTimeoutFilter ofSeconds(int seconds) {
         return new RequestTimeoutFilter(seconds * 1000L);
     }
@@ -57,11 +57,11 @@ public class RequestTimeoutFilter implements ServerFilter {
 
     @Override
     /**
-    * Do过滤
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         ExecutorService executor = ThreadUtils.newSingleThreadExecutor();

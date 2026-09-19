@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
  *
  * @author CH
  * @since 2026/08/16
-*/
+ */
 public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSocketAddress> {
 
     /** 服务discovery */
@@ -27,34 +27,34 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     private final String balance;
 
     /**
-    * 创建 DiscoveryProxyTargetResolver 实例
-    * @param serviceDiscovery serviceDiscovery
-    * @param String String
-    * @param servicePath 服务路径，不允许为 null
-    */
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param String String
+     * @param servicePath 服务路径，不允许为 null
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath) {
         this(serviceDiscovery, servicePath, null, "weight");
     }
 
     /**
-    * 创建 DiscoveryProxyTargetResolver 实例
-    * @param serviceDiscovery serviceDiscovery
-    * @param String String
-    * @param String String
-    * @param servicePath 服务路径，不允许为 null
-    * @param scatterId scatterID，不允许为 null
-    */
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param String String
+     * @param String String
+     * @param servicePath 服务路径，不允许为 null
+     * @param scatterId scatterID，不允许为 null
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath, String scatterId) {
         this(serviceDiscovery, servicePath, scatterId, "weight");
     }
 
     /**
-    * 创建 DiscoveryProxyTargetResolver 实例
-    * @param serviceDiscovery serviceDiscovery
-    * @param servicePath servicePath
-    * @param scatterId scatterId
-    * @param balance balance
-    */
+     * 创建 DiscoveryProxyTargetResolver 实例
+     * @param serviceDiscovery serviceDiscovery
+     * @param servicePath servicePath
+     * @param scatterId scatterId
+     * @param balance balance
+     */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath,
                                         String scatterId, String balance) {
         this.serviceDiscovery = serviceDiscovery;

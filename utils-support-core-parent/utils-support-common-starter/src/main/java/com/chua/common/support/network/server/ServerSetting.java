@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
-* 服务器配置，协议无关。
-*
-* <p>包含网络绑定、线程池、超时、并发、连接、协议帧大小、Gzip 压缩、SSL/TLS、HTTP 等配置项。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 服务器配置，协议无关。
+ *
+ * <p>包含网络绑定、线程池、超时、并发、连接、协议帧大小、Gzip 压缩、SSL/TLS、HTTP 等配置项。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -22,33 +22,33 @@ import java.util.List;
 public class ServerSetting {
 
     /**
-    * 创建一份独立的默认服务器配置。
-    *
-    * @return 新的默认配置实例
-    */
+     * 创建一份独立的默认服务器配置。
+     *
+     * @return 新的默认配置实例
+     */
     public static ServerSetting defaults() {
         return new ServerSetting();
     }
 
     /**
-    * 创建一份按当前系统自动配置最优参数的服务器配置。
-    *
-    * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
-    * 等待队列长度、缓冲区等关键性能参数（等效于 {@code autoConfig()}）。</p>
-    *
-    * @return 自动配置实例
-    */
+     * 创建一份按当前系统自动配置最优参数的服务器配置。
+     *
+     * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
+     * 等待队列长度、缓冲区等关键性能参数（等效于 {@code autoConfig()}）。</p>
+     *
+     * @return 自动配置实例
+     */
     public static ServerSetting auto() {
         return new ServerSetting().autoConfig();
     }
 
     /**
-    * 是否启用按当前系统自动配置最优参数。
-    *
-    * <p>开启后，{@link AbstractServer} 启动前会基于 CPU 核数、JVM 可用堆内存与
-    * 操作系统类型自动调整线程数、连接数、等待队列、缓冲区等性能参数，
-    * 使服务器在各环境中都能获得较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
-    */
+     * 是否启用按当前系统自动配置最优参数。
+     *
+     * <p>开启后，{@link AbstractServer} 启动前会基于 CPU 核数、JVM 可用堆内存与
+     * 操作系统类型自动调整线程数、连接数、等待队列、缓冲区等性能参数，
+     * 使服务器在各环境中都能获得较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
+     */
     @Builder.Default
     /** Auto */
     private boolean auto = true;
@@ -119,8 +119,8 @@ public class ServerSetting {
     }
 
     /**
-    * 主机名
-    */
+     * 主机名
+     */
     @Builder.Default
     /** 主机 */
     private String host = "0.0.0.0";
@@ -219,45 +219,45 @@ public class ServerSetting {
     private int maxConcurrency = 0;
 
     /**
-    * 是否显式设置过 maxConcurrency(autoConfig 内部标记;默认 false,由 autoConfig 设置时置默认)
-    */
+     * 是否显式设置过 maxConcurrency(autoConfig 内部标记;默认 false,由 autoConfig 设置时置默认)
+     */
     @Builder.Default
     private boolean maxConcurrencyExplicit = false;
 
     /**
-    * 设置最大并发请求数,并标记为显式配置。
-    *
-    * @param maxConcurrency 最大并发数,0 表示不限制
-    */
+     * 设置最大并发请求数,并标记为显式配置。
+     *
+     * @param maxConcurrency 最大并发数,0 表示不限制
+     */
     public void setMaxConcurrency(int maxConcurrency) {
         this.maxConcurrency = maxConcurrency;
         this.maxConcurrencyExplicit = true;
     }
 
     /**
-    * NIO 事件循环(Selector)数量，0 表示自动按 CPU 核数。
-    *
-    * <p>控制 {@code nio} 实现的事件循环线程数，影响读写 CPU 并行度与吞吐上限。
-    * 自动模式：Windows 默认 2（{@code WindowsSelectorImpl} 多 Selector 并发稳定性限制），
-    * Linux/macOS 默认 = CPU 核数（epoll/kqueue 可安全扩展）。</p>
-    */
+     * NIO 事件循环(Selector)数量，0 表示自动按 CPU 核数。
+     *
+     * <p>控制 {@code nio} 实现的事件循环线程数，影响读写 CPU 并行度与吞吐上限。
+     * 自动模式：Windows 默认 2（{@code WindowsSelectorImpl} 多 Selector 并发稳定性限制），
+     * Linux/macOS 默认 = CPU 核数（epoll/kqueue 可安全扩展）。</p>
+     */
     @Builder.Default
     private int eventLoops = 0;
 
     /**
-    * 是否在事件循环线程内联执行 handler（跳过虚拟线程提交与 Selector 唤醒往返）。
-    *
-    * <p>默认关闭：handler 提交到虚拟线程池异步执行，事件循环专注 I/O，
-    * 2 核及以上场景下吞吐显著高于内联模式。
-    * 仅当 handler 是微秒级纯计算（如 echo）且连接数较少时，
-    * 才建议开启 {@code setting.setInlineDispatch(true)} 以省去线程调度开销。</p>
-    */
+     * 是否在事件循环线程内联执行 handler（跳过虚拟线程提交与 Selector 唤醒往返）。
+     *
+     * <p>默认关闭：handler 提交到虚拟线程池异步执行，事件循环专注 I/O，
+     * 2 核及以上场景下吞吐显著高于内联模式。
+     * 仅当 handler 是微秒级纯计算（如 echo）且连接数较少时，
+     * 才建议开启 {@code setting.setInlineDispatch(true)} 以省去线程调度开销。</p>
+     */
     @Builder.Default
     private boolean inlineDispatch = false;
 
     /**
-    * 响应超时时间（毫秒）
-    */
+     * 响应超时时间（毫秒）
+     */
     @Builder.Default
     /** 响应超时 */
     private long responseTimeout = 60000;
@@ -391,8 +391,8 @@ public class ServerSetting {
     public static class CorsConfig {
 
         /**
-        * CORS 开关
-        */
+         * CORS 开关
+         */
         @Builder.Default
         /** Alloworigin */
         private boolean allowOrigin = false;
@@ -431,8 +431,8 @@ public class ServerSetting {
     public static class SslConfig {
 
         /**
-        * 是否启用
-        */
+         * 是否启用
+         */
         @Builder.Default
         /** 是否启用 */
         private boolean enabled = false;
@@ -443,28 +443,28 @@ public class ServerSetting {
         private String keyStorePath;
 
         /**
-        * SSL KeyStore 密码
-        */
+         * SSL KeyStore 密码
+         */
         private String keyStorePassword;
 
         /**
-        * SSL 证书文件路径（PEM 格式）
-        */
+         * SSL 证书文件路径（PEM 格式）
+         */
         private String certPath;
 
         /**
-        * SSL 私钥文件路径（PEM 格式）
-        */
+         * SSL 私钥文件路径（PEM 格式）
+         */
         private String keyPath;
 
         /**
-        * SSL 私钥密码
-        */
+         * SSL 私钥密码
+         */
         private String keyPassword;
 
         /**
-        * 是否信任所有证书（开发环境）
-        */
+         * 是否信任所有证书（开发环境）
+         */
         @Builder.Default
         /** TrustALL */
         private boolean trustAll = false;
@@ -535,8 +535,8 @@ public class ServerSetting {
     public static class HttpConfig {
 
         /**
-        * 是否启用 WebSocket 升级
-        */
+         * 是否启用 WebSocket 升级
+         */
         @Builder.Default
         /** Websocket是否启用 */
         private boolean websocketEnabled = false;

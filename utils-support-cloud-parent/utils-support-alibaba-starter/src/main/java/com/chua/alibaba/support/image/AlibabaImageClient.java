@@ -19,22 +19,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 阿里云通义万相图片生成客户端
-*
-* <p>基于 DashScope 通义万相 API 的 {@link ImageClient} 实现，通过 HTTP 协议
-* 调用通义万相（Wanx）系列模型的图片生成接口。该 API 采用异步任务模式，
-* 提交任务后需轮询任务状态直至完成。
-*
-* @author CH
-* @since 4.0.0.42
+ * 阿里云通义万相图片生成客户端
+ *
+ * <p>基于 DashScope 通义万相 API 的 {@link ImageClient} 实现，通过 HTTP 协议
+ * 调用通义万相（Wanx）系列模型的图片生成接口。该 API 采用异步任务模式，
+ * 提交任务后需轮询任务状态直至完成。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"alibaba"})
 public class AlibabaImageClient implements ImageClient {
 
     /**
-    * 通义万相默认 API 地址
-    */
+     * 通义万相默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://dashscope.aliyuncs.com";
 
     /** 默认模型 */
@@ -62,65 +62,65 @@ public class AlibabaImageClient implements ImageClient {
     private static final long POLL_INTERVAL_MS = 2000;
 
     /**
-    * 最大轮询次数
-    */
+     * 最大轮询次数
+     */
     private static final int MAX_POLL_COUNT = 60;
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final HttpClient httpClient;
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ImageClientSetting setting;
 
     /**
-    * 当前使用的模型名称
-    */
+     * 当前使用的模型名称
+     */
     private String model;
 
     /**
-    * 当前图片宽度
-    */
+     * 当前图片宽度
+     */
     private Integer width;
 
     /**
-    * 当前图片高度
-    */
+     * 当前图片高度
+     */
     private Integer height;
 
     /**
-    * 当前提示词
-    */
+     * 当前提示词
+     */
     private String prompt;
 
     /**
-    * 当前质量等级
-    */
+     * 当前质量等级
+     */
     private String quality;
 
     /**
-    * 当前风格
-    */
+     * 当前风格
+     */
     private String style;
 
     /**
-    * 当前随机种子
-    */
+     * 当前随机种子
+     */
     private Long seed;
 
     /**
-    * 当前推理步数
-    */
+     * 当前推理步数
+     */
     private Integer steps;
 
     /**
-    * 构造阿里云通义万相图片生成客户端
-    *
-    * @param setting 客户端配置
-    */
+     * 构造阿里云通义万相图片生成客户端
+     *
+     * @param setting 客户端配置
+     */
     public AlibabaImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -357,11 +357,11 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     /**
-    * 轮询任务直至完成
-    *
-    * @param taskId 任务 标识
-    * @return 任务最终响应
-    */
+     * 轮询任务直至完成
+     *
+     * @param taskId 任务 标识
+     * @return 任务最终响应
+     */
     private ImageResponse pollTask(String taskId) {
         for (int i = 0; i < MAX_POLL_COUNT; i++) {
             ImageResponse response = queryTask(taskId);
@@ -404,10 +404,10 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     /**
-    * 规范化 API 基础地址
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -420,11 +420,11 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     /**
-    * 转义 JSON 字符串中的特殊字符
-    *
-    * @param input 原始字符串
-    * @return 转义后的字符串
-    */
+     * 转义 JSON 字符串中的特殊字符
+     *
+     * @param input 原始字符串
+     * @return 转义后的字符串
+     */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

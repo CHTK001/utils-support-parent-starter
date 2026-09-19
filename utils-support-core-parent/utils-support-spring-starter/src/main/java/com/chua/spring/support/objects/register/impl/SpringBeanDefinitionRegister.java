@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Spring Bean 定义注册器（只读）。
-*
-* <p>委托 {@link SpringBeanUtils} 获取 Spring {@link ApplicationContext}，
-* 所有查询直接委派 Spring 上下文。
-* Bean 实例由 Spring 容器管理，本注册器仅做桥接，不执行框架 IOC 生命周期。</p>
-*
-* @author CH
-* @since 2024/12/20
+ * Spring Bean 定义注册器（只读）。
+ *
+ * <p>委托 {@link SpringBeanUtils} 获取 Spring {@link ApplicationContext}，
+ * 所有查询直接委派 Spring 上下文。
+ * Bean 实例由 Spring 容器管理，本注册器仅做桥接，不执行框架 IOC 生命周期。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @Slf4j
 @Spi("spring")

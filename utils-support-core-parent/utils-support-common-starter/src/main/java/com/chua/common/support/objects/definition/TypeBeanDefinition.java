@@ -36,13 +36,13 @@ import java.util.Objects;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     /**
-    * 类加载器
-    */
+     * 类加载器
+     */
     @Setter
     /** Classloader */
     private ClassLoader classLoader;
@@ -55,14 +55,14 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     // ==================== 工厂方法 ====================
 
     /**
-    * 从 类 创建 类型Beandefinition，自动检测作用域。
-    *
-    * <p>Bean 名称默认取类名首字母小写（如 UserService -> userService）。
-    * 如果类名为空字符串，则取全限定名。</p>
-    *
-    * @param beanClass Bean 类
-    * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-    */
+     * 从 类 创建 类型Beandefinition，自动检测作用域。
+     *
+     * <p>Bean 名称默认取类名首字母小写（如 UserService -> userService）。
+     * 如果类名为空字符串，则取全限定名。</p>
+     *
+     * @param beanClass Bean 类
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
+     */
     public static TypeBeanDefinition of(Class<?> beanClass) {
         if (beanClass == null) {
             return null;
@@ -86,12 +86,12 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 从 类 创建 类型Beandefinition，指定 Bean 名称。
-    *
-    * @param beanClass Bean 类
-    * @param beanName  Bean 名称
-    * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-    */
+     * 从 类 创建 类型Beandefinition，指定 Bean 名称。
+     *
+     * @param beanClass Bean 类
+     * @param beanName  Bean 名称
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
+     */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName) {
         if (beanClass == null) {
             return null;
@@ -106,13 +106,13 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 从 类 创建 类型Beandefinition，并附加注册器。
-    *
-    * @param beanClass Bean 类
-    * @param beanName  Bean 名称
-    * @param register  注册器
-    * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-    */
+     * 从 类 创建 类型Beandefinition，并附加注册器。
+     *
+     * @param beanClass Bean 类
+     * @param beanName  Bean 名称
+     * @param register  注册器
+     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
+     */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName, BeanDefinitionRegister register) {
         TypeBeanDefinition def = of(beanClass, beanName);
         if (def != null && register != null) {
@@ -122,11 +122,11 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 通过 SPI {@link BeanScopeDetector} 链检测 Bean 作用域，默认单例。
-    *
-    * @param beanClass Bean 类
-    * @return 检测到的作用域
-    */
+     * 通过 SPI {@link BeanScopeDetector} 链检测 Bean 作用域，默认单例。
+     *
+     * @param beanClass Bean 类
+     * @return 检测到的作用域
+     */
     private static BeanScope detectScope(Class<?> beanClass) {
         for (BeanScopeDetector detector : ServiceProvider.of(BeanScopeDetector.class).collect()) {
             try {
@@ -210,23 +210,23 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * SPI 解析器缓存（延迟加载）。
-    */
+     * SPI 解析器缓存（延迟加载）。
+     */
     private volatile List<BeanConstructorResolver> constructorResolvers;
 
     /**
-    * 解析构造器参数，通过 SPI 解析器链按类型/名称查找 Bean。
-    *
-    * <p>解析顺序：
-    * <ol>
-    *   <li>SPI 加载的 {@link BeanConstructorResolver}（按 order 降序，框架特异性解析器优先）</li>
-    *   <li>兜底的 DefaultBeanConstructorResolver（order=-1000，使用 typeProvider/nameProvider）</li>
-    * </ol></p>
-    *
-    * @param constructor 构造器
-    * @return 参数值数组
-    * @throws BeanDefinitionException 参数标记了 @Spi 但无法解析
-    */
+     * 解析构造器参数，通过 SPI 解析器链按类型/名称查找 Bean。
+     *
+     * <p>解析顺序：
+     * <ol>
+     *   <li>SPI 加载的 {@link BeanConstructorResolver}（按 order 降序，框架特异性解析器优先）</li>
+     *   <li>兜底的 DefaultBeanConstructorResolver（order=-1000，使用 typeProvider/nameProvider）</li>
+     * </ol></p>
+     *
+     * @param constructor 构造器
+     * @return 参数值数组
+     * @throws BeanDefinitionException 参数标记了 @Spi 但无法解析
+     */
     private Object[] resolveConstructorArgs(Constructor<?> constructor) {
         Class<?>[] paramTypes = constructor.getParameterTypes();
         if (paramTypes.length == 0) {
@@ -266,10 +266,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 获取constructor解析器
-    *
-    * @return 获取constructor解析器的结果
-    */
+     * 获取constructor解析器
+     *
+     * @return 获取constructor解析器的结果
+     */
     private List<BeanConstructorResolver> getConstructorResolvers() {
         if (constructorResolvers == null) {
             synchronized (this) {
@@ -282,12 +282,12 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 用动态代理包装实例，开启方法注解拦截能力。
-    *
-    * @param instance 原始实例
-    * @param beanClass Bean 类
-    * @return 代理实例
-    */
+     * 用动态代理包装实例，开启方法注解拦截能力。
+     *
+     * @param instance 原始实例
+     * @param beanClass Bean 类
+     * @return 代理实例
+     */
     @SuppressWarnings("unchecked")
     private Object wrapWithProxy(Object instance, Class<?> beanClass) {
         try {

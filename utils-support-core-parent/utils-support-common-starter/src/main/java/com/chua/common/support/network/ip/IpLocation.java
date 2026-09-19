@@ -3,10 +3,10 @@ package com.chua.common.support.network.ip;
 import lombok.Data;
 
 /**
-* IP 地理位置信息。
-*
-* @author CH
-* @since 1.0.0
+ * IP 地理位置信息。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class IpLocation {

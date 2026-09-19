@@ -56,32 +56,32 @@ import java.awt.image.BufferedImage;
 public class PencilSketchImageFilter extends AbstractImageFilter {
 
     /**
-    * 边缘线强度，默认 1.5
-    */
+     * 边缘线强度，默认 1.5
+     */
     private double edgeStrength = 1.5;
 
     /**
-    * 交叉排线强度，默认 0.3
-    */
+     * 交叉排线强度，默认 0.3
+     */
     private double hatchStrength = 0.3;
 
     /**
-    * 排线角度（度），默认 45
-    */
+     * 排线角度（度），默认 45
+     */
     private int hatchAngle = 45;
 
     /**
-    * 纸张底色亮度，默认 240
-    */
+     * 纸张底色亮度，默认 240
+     */
     private int paperTone = 240;
 
     /**
-    * 执行素描风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 素描风格图像
-    */
+     * 执行素描风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 素描风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -150,11 +150,11 @@ public class PencilSketchImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

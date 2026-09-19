@@ -19,35 +19,35 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 解析 {@link IpcMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
-* <p>
-* 从 {@link ObjectContext} 中查找类或方法上标注了 {@link IpcMethod} 的 Bean，
-* 生成 IPC 路由处理器。类级注解作为公共前缀，方法级注解定义具体路径。
-* </p>
-*
-* @author CH
-* @since 2026/07/18
+ * 解析 {@link IpcMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
+ * <p>
+ * 从 {@link ObjectContext} 中查找类或方法上标注了 {@link IpcMethod} 的 Bean，
+ * 生成 IPC 路由处理器。类级注解作为公共前缀，方法级注解定义具体路径。
+ * </p>
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Spi("ipc-method")
 public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 
     /**
-    * 获取解析器的优先级。
-    *
-    * @return 优先级值
-    */
+     * 获取解析器的优先级。
+     *
+     * @return 优先级值
+     */
     @Override
     public int getPriority() {
         return 0;
     }
 
     /**
-    * 解析并生成 IPC 路由处理器列表。
-    *
-    * @param objectContext   对象上下文，包含所有 Bean 和方法定义信息
-    * @param serverFilter    服务器过滤器，用于过滤特定类型的处理请求
-    * @return 生成的 {@link ServerHandler} 列表
-    */
+     * 解析并生成 IPC 路由处理器列表。
+     *
+     * @param objectContext   对象上下文，包含所有 Bean 和方法定义信息
+     * @param serverFilter    服务器过滤器，用于过滤特定类型的处理请求
+     * @return 生成的 {@link ServerHandler} 列表
+     */
     @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if (!(serverFilter instanceof IpcServerFilter)) {
@@ -101,11 +101,11 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     }
 
     /**
-    * 提取类上的路径前缀。
-    *
-    * @param clazz 需要提取路径的类
-    * @return 类上的路径值，若无则返回空字符串
-    */
+     * 提取类上的路径前缀。
+     *
+     * @param clazz 需要提取路径的类
+     * @return 类上的路径值，若无则返回空字符串
+     */
     private static String extractClassPath(Class<?> clazz) {
         IpcMethod ann = clazz.getAnnotation(IpcMethod.class);
         if (ann != null) {
@@ -115,12 +115,12 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     }
 
     /**
-    * 拼接基础路径和方法路径。
-    *
-    * @param basePath      基础路径
-    * @param methodName    方法路径
-    * @return 拼接后的完整路径
-    */
+     * 拼接基础路径和方法路径。
+     *
+     * @param basePath      基础路径
+     * @param methodName    方法路径
+     * @return 拼接后的完整路径
+     */
     private static String joinPath(String basePath, String methodName) {
         StringBuilder sb = new StringBuilder();
         if (basePath != null && !basePath.isEmpty()) {

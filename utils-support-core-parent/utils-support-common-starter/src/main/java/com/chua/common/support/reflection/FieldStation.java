@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class FieldStation {
 
     /** 实例 */
@@ -23,32 +23,32 @@ public final class FieldStation {
     private final Class<?> type;
 
     /**
-    * 私有构造。
-    *
-    * @param instance 实例
-    * @param type     类型
-    */
+     * 私有构造。
+     *
+     * @param instance 实例
+     * @param type     类型
+     */
     private FieldStation(Object instance, Class<?> type) {
         this.instance = instance;
         this.type = type;
     }
 
     /**
-    * 按类创建 字段状态。
-    *
-    * @param type 类型
-    * @return FieldStation 实例
-    */
+     * 按类创建 字段状态。
+     *
+     * @param type 类型
+     * @return FieldStation 实例
+     */
     public static FieldStation of(Class<?> type) {
         return new FieldStation(null, type);
     }
 
     /**
-    * 按实例创建 字段状态。
-    *
-    * @param instance 实例，允许为 空
-    * @return FieldStation 实例
-    */
+     * 按实例创建 字段状态。
+     *
+     * @param instance 实例，允许为 空
+     * @return FieldStation 实例
+     */
     public static FieldStation of(Object instance) {
         if (instance == null) {
             return new FieldStation(null, null);
@@ -57,11 +57,11 @@ public final class FieldStation {
     }
 
     /**
-    * 读取字段值。
-    *
-    * @param name 字段名（支持 pascal大小写，自动转 camel大小写）
-    * @return 字段值，不存在返回 空
-    */
+     * 读取字段值。
+     *
+     * @param name 字段名（支持 pascal大小写，自动转 camel大小写）
+     * @return 字段值，不存在返回 空
+     */
     public Object getValue(String name) {
         if (type == null) {
             return null;
@@ -70,11 +70,11 @@ public final class FieldStation {
     }
 
     /**
-    * 按名写入字段值。
-    *
-    * @param name  字段名
-    * @param value 值
-    */
+     * 按名写入字段值。
+     *
+     * @param name  字段名
+     * @param value 值
+     */
     public void setIgnoreNameValue(String name, Object value) {
         if (type == null) {
             return;
@@ -83,11 +83,11 @@ public final class FieldStation {
     }
 
     /**
-    * 将字段名首字母大写转小写（pascal大小写 → camel大小写）。
-    *
-    * @param name 字段名
-    * @return 转换后的字段名
-    */
+     * 将字段名首字母大写转小写（pascal大小写 → camel大小写）。
+     *
+     * @param name 字段名
+     * @return 转换后的字段名
+     */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -100,13 +100,13 @@ public final class FieldStation {
     }
 
     /**
-    * 查找字段（含继承链），结果缓存。
-    *
-    * @param type 目标类型
-    * @param name 字段名
-    * @return Field 对象
-    * @throws NoSuchFieldException 当字段不存在时
-    */
+     * 查找字段（含继承链），结果缓存。
+     *
+     * @param type 目标类型
+     * @param name 字段名
+     * @return Field 对象
+     * @throws NoSuchFieldException 当字段不存在时
+     */
     static Field findField(Class<?> type, String name) throws NoSuchFieldException {
         Field field = ReflectUtils.findField(type, name);
         if (field == null) {
@@ -116,12 +116,12 @@ public final class FieldStation {
     }
 
     /**
-    * 测试钩子：暴露包级访问以便单元测试验证缓存命中行为。
-    *
-    * @param type 目标类型
-    * @param name 字段名
-    * @return Field 对象
-    */
+     * 测试钩子：暴露包级访问以便单元测试验证缓存命中行为。
+     *
+     * @param type 目标类型
+     * @param name 字段名
+     * @return Field 对象
+     */
     static Field findFieldForTest(Class<?> type, String name) {
         try {
             return findField(type, name);

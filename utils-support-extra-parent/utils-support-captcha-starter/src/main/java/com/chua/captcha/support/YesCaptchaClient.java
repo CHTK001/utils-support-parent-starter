@@ -13,35 +13,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* yescaptcha 验证码解析服务客户端
-*
-* @author CH
-* @since 2026-09-07
-* @param map 映射
-* @param key 键
-* @param value 值
-* @param taskId 任务标识
-* @return 方法的结果
-* @param options 期权
-* @param imageData 镜像数据
-* @param setting setting
+ * yescaptcha 验证码解析服务客户端
+ *
+ * @author CH
+ * @since 2026-09-07
+ * @param map 映射
+ * @param key 键
+ * @param value 值
+ * @param taskId 任务标识
+ * @return 方法的结果
+ * @param options 期权
+ * @param imageData 镜像数据
+ * @param setting setting
  */
 @Slf4j
 @Spi("yescaptcha")
 public class YesCaptchaClient implements CaptchaParser {
 
     /**
-    * withpersistence。
-    * @param taskPersistence 任务persistence
-    * @return withPersistence的结果
-    */
+     * withpersistence。
+     * @param taskPersistence 任务persistence
+     * @return withPersistence的结果
+     */
     private final CaptchaSetting setting;
     private TaskPersistence taskPersistence; // 任务persistence
 
     /**
-    * yescaptcha客户端。
-    * @param setting setting
-    */
+     * yescaptcha客户端。
+     * @param setting setting
+     */
     public YesCaptchaClient(CaptchaSetting setting) {
         this.setting = setting;
     }
@@ -61,10 +61,10 @@ public class YesCaptchaClient implements CaptchaParser {
     public String submitCaptcha(byte[] imageData, Map<String, String> options) {
         Map<String, Object> body = new HashMap<>();
         /**
-        * 查询结果。
-        * @param taskId 任务标识
-        * @return 查询结果的结果
-        */
+         * 查询结果。
+         * @param taskId 任务标识
+         * @return 查询结果的结果
+         */
         body.put("clientKey", setting.getApiToken());
         body.put("task", buildTask(options));
         return createTask(body);
@@ -126,10 +126,10 @@ public class YesCaptchaClient implements CaptchaParser {
         putIfNotBlank(task, "websiteURL", options.get("url"));
         putIfNotBlank(task, "websiteKey", options.get("siteKey"));
         /**
-        * 映射转为yescaptcha类型。
-        * @param captchaType captcha类型
-        * @return 映射转为yescaptcha类型的结果
-        */
+         * 映射转为yescaptcha类型。
+         * @param captchaType captcha类型
+         * @return 映射转为yescaptcha类型的结果
+         */
         putIfNotBlank(task, "websiteAction", options.get("action"));
         putIfNotBlank(task, "proxy", options.get("proxy"));
         return task;
@@ -158,11 +158,11 @@ public class YesCaptchaClient implements CaptchaParser {
             case "TextCaptcha":
                 return "ImageToTextTask";
             /**
-            * 创建任务。
-            * @param body 主体
-            * @return 创建任务的结果
-            * @param taskId 任务id
-            */
+             * 创建任务。
+             * @param body 主体
+             * @return 创建任务的结果
+             * @param taskId 任务id
+             */
             default:
                 return "NoCaptchaTaskProxyless";
         }
@@ -255,14 +255,14 @@ public class YesCaptchaClient implements CaptchaParser {
                 .message("Exception")
                 .errorCode("EXCEPTION")
                 /**
-                * 执行post。
-                * @param url url
-                * @param body 主体
-                * @return 执行post的结果
-                * @param map 映射
-                * @param key 键
-                * @param value 值
-                */
+                 * 执行post。
+                 * @param url url
+                 * @param body 主体
+                 * @return 执行post的结果
+                 * @param map 映射
+                 * @param key 键
+                 * @param value 值
+                 */
                 .build();
     }
 

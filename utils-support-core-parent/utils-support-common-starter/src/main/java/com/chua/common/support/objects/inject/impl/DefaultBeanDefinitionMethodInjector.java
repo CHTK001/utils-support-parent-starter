@@ -16,7 +16,7 @@ import java.util.function.Function;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("default")
 public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {

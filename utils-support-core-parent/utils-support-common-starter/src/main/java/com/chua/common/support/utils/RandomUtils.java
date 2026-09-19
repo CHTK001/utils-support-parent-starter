@@ -20,24 +20,24 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public final class RandomUtils {
 
     /**
-    * 私有构造方法，防止实例化
-    */
+     * 私有构造方法，防止实例化
+     */
     private RandomUtils() {
     }
 
     /**
-    * 生成指定区间内的随机整数。
-    *
-    * <p>当 {@code bound <= origin} 时直接返回 {@code origin}，避免 {@link IllegalArgumentException}。</p>
-    *
-    * @param origin 区间下界（包含）
-    * @param bound  区间上界（不包含）
-    * @return [origin, bound) 之间的随机整数
-    */
+     * 生成指定区间内的随机整数。
+     *
+     * <p>当 {@code bound <= origin} 时直接返回 {@code origin}，避免 {@link IllegalArgumentException}。</p>
+     *
+     * @param origin 区间下界（包含）
+     * @param bound  区间上界（不包含）
+     * @return [origin, bound) 之间的随机整数
+     */
     public static int randomInt(int origin, int bound) {
         if (bound <= origin) {
             return origin;
@@ -46,12 +46,12 @@ public final class RandomUtils {
     }
 
     /**
-    * 从指定枚举类中随机选取一个常量。
-    *
-    * @param enumClass 枚举类对象
-    * @param <E>       枚举类型
-    * @return 随机选中的枚举常量；当枚举类为 空 或无常量时返回 空
-    */
+     * 从指定枚举类中随机选取一个常量。
+     *
+     * @param enumClass 枚举类对象
+     * @param <E>       枚举类型
+     * @return 随机选中的枚举常量；当枚举类为 空 或无常量时返回 空
+     */
     public static <E extends Enum<E>> E randomEnum(Class<E> enumClass) {
         if (enumClass == null) {
             return null;

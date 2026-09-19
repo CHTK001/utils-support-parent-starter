@@ -8,44 +8,44 @@ import java.io.OutputStream;
 import javax.annotation.Nonnull;
 
 /**
-* 一个包装输出流，用于在写入数据时更新进度条。
-*
-* @author CH
-* @since 4.0.0.42
+ * 一个包装输出流，用于在写入数据时更新进度条。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ProgressBarWrappedOutputStream extends FilterOutputStream {
 
     /**
-    * 关联的进度条实例。
-    */
+     * 关联的进度条实例。
+     */
     private final ProgressBar pb;
 
     /**
-    * 构造函数，初始化包装流和进度条。
-    *
-    * @param out 被包装的基础输出流
-    * @param pb  需要更新的进度条
-    */
+     * 构造函数，初始化包装流和进度条。
+     *
+     * @param out 被包装的基础输出流
+     * @param pb  需要更新的进度条
+     */
     public ProgressBarWrappedOutputStream(OutputStream out, ProgressBar pb) {
         super(out);
         this.pb = pb;
     }
 
     /**
-    * 获取当前关联的进度条。
-    *
-    * @return 进度条实例
-    */
+     * 获取当前关联的进度条。
+     *
+     * @return 进度条实例
+     */
     public ProgressBar getProgressBar() {
         return pb;
     }
 
     /**
-    * 写入单个字节并更新进度条。
-    *
-    * @param b 要写入的字节
-    * @throws IOException 如果发生I/O错误
-    */
+     * 写入单个字节并更新进度条。
+     *
+     * @param b 要写入的字节
+     * @throws IOException 如果发生I/O错误
+     */
     @Override
     public void write(int b) throws IOException {
         if (out != null) {
@@ -55,11 +55,11 @@ public class ProgressBarWrappedOutputStream extends FilterOutputStream {
     }
 
     /**
-    * 写入字节数组并更新进度条。
-    *
-    * @param b 要写入的字节数组
-    * @throws IOException 如果发生I/O错误
-    */
+     * 写入字节数组并更新进度条。
+     *
+     * @param b 要写入的字节数组
+     * @throws IOException 如果发生I/O错误
+     */
     @Override
     public void write(byte[] b) throws IOException {
         if (b == null || b.length == 0) {
@@ -70,13 +70,13 @@ public class ProgressBarWrappedOutputStream extends FilterOutputStream {
     }
 
     /**
-    * 写入字节数组的一部分并更新进度条。
-    *
-    * @param b  要写入的字节数组
-    * @param off 起始偏移量
-    * @param len 要写入的长度
-    * @throws IOException 如果发生I/O错误
-    */
+     * 写入字节数组的一部分并更新进度条。
+     *
+     * @param b  要写入的字节数组
+     * @param off 起始偏移量
+     * @param len 要写入的长度
+     * @throws IOException 如果发生I/O错误
+     */
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         if (b == null || off < 0 || len < 0 || off + len > b.length) {
@@ -90,10 +90,10 @@ public class ProgressBarWrappedOutputStream extends FilterOutputStream {
     }
 
     /**
-    * 刷新底层流并刷新进度条显示。
-    *
-    * @throws IOException 如果发生I/O错误
-    */
+     * 刷新底层流并刷新进度条显示。
+     *
+     * @throws IOException 如果发生I/O错误
+     */
     @Override
     public void flush() throws IOException {
         out.flush();
@@ -101,10 +101,10 @@ public class ProgressBarWrappedOutputStream extends FilterOutputStream {
     }
 
     /**
-    * 关闭底层流并关闭进度条。
-    *
-    * @throws IOException 如果发生I/O错误
-    */
+     * 关闭底层流并关闭进度条。
+     *
+     * @throws IOException 如果发生I/O错误
+     */
     @Override
     public void close() throws IOException {
         out.close();

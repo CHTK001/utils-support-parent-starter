@@ -38,21 +38,21 @@ public final class HprofAiSummarizer {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-    * 作为模型角色注入的系统提示词。
-    */
+     * 作为模型角色注入的系统提示词。
+     */
     private static final String SYSTEM_PROMPT =
             "你是一名 JVM 内存分析专家。根据给出的堆转储统计（算法判定 + 结论 + 排行 + GC 根），"
                     + "用中文写一段不超过 300 字的总结：指出最主要的内存占用来源、保留原因判断、"
                     + "以及一条最优先的处理建议。语言要直接、可执行，避免空泛套话。";
 
     /**
-    * 用于生成总结的 ChatClient（可能为 null）。
-    */
+     * 用于生成总结的 ChatClient（可能为 null）。
+     */
     private final ChatClient chatClient;
 
     /**
-    * 模型名覆盖（可选）。
-    */
+     * 模型名覆盖（可选）。
+     */
     private String model;
 
     /**
@@ -65,21 +65,21 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * 创建使用指定客户端的总结器。
-    *
-    * @param chatClient AI 客户端，为 null 时禁用总结
-    * @return 总结器
-    */
+     * 创建使用指定客户端的总结器。
+     *
+     * @param chatClient AI 客户端，为 null 时禁用总结
+     * @return 总结器
+     */
     public static HprofAiSummarizer of(ChatClient chatClient) {
         return new HprofAiSummarizer(chatClient);
     }
 
     /**
-    * 依据客户端配置创建总结器。
-    *
-    * @param setting 客户端配置
-    * @return 总结器；配置为 null 时返回禁用态的总结器
-    */
+     * 依据客户端配置创建总结器。
+     *
+     * @param setting 客户端配置
+     * @return 总结器；配置为 null 时返回禁用态的总结器
+     */
     public static HprofAiSummarizer of(ChatClientSetting setting) {
         if (setting == null) {
             return new HprofAiSummarizer(null);
@@ -88,31 +88,31 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * 设置总结调用使用的模型名。
-    *
-    * @param model 模型名，传 null 表示清除
-    * @return 当前实例
-    */
+     * 设置总结调用使用的模型名。
+     *
+     * @param model 模型名，传 null 表示清除
+     * @return 当前实例
+     */
     public HprofAiSummarizer model(String model) {
         this.model = model;
         return this;
     }
 
     /**
-    * 是否会真正产出 AI 总结。
-    *
-    * @return 已配置客户端时返回 true
-    */
+     * 是否会真正产出 AI 总结。
+     *
+     * @return 已配置客户端时返回 true
+     */
     public boolean isEnabled() {
         return chatClient != null;
     }
 
     /**
-    * 为一次解析结果生成 AI 总结。
-    *
-    * @param result 解析结果
-    * @return 总结文本；未配置客户端时返回 null
-    */
+     * 为一次解析结果生成 AI 总结。
+     *
+     * @param result 解析结果
+     * @return 总结文本；未配置客户端时返回 null
+     */
     public String summarize(HprofParser.Result result) {
         if (chatClient == null || result == null) {
             return null;
@@ -124,12 +124,12 @@ public final class HprofAiSummarizer {
     }
 
     /**
-    * 由分析结论 + 解析结果拼装出紧凑的提示词。
-    *
-    * @param analysis 分析结论
-    * @param result   解析结果
-    * @return 提示词字符串
-    */
+     * 由分析结论 + 解析结果拼装出紧凑的提示词。
+     *
+     * @param analysis 分析结论
+     * @param result   解析结果
+     * @return 提示词字符串
+     */
     private static String buildPrompt(HprofAnalysis analysis, HprofParser.Result result) {
         try {
             Map<String, Object> payload = new java.util.LinkedHashMap<>();

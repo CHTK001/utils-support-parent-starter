@@ -13,31 +13,31 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
-* 命令行软件的声明式描述，把"这个程序叫什么、装在哪、怎么问版本号"全部固化成元数据。
-*
-* <p>这是 CLI 软件封装通用化的核心：接入一个新的命令行程序时，
-* 只需要提供一份描述，无需编写任何子类，{@link CliTool} 即可提供定位、
-* 可用性探测、版本校验、执行与安装的完整能力。</p>
-*
-* <h3>使用示例</h3>
-* <pre>{@code
-* CliToolDescriptor descriptor = CliToolDescriptor.builder("tshark")
-*         .displayName("Wireshark 命令行抓包工具")
-*         .executable("tshark")
-*         .envKey("TSHARK_BIN")
-*         .candidateDirs("C:\\Program Files\\Wireshark", "/usr/bin", "/usr/local/bin")
-*         .versionArgs("--version")
-*         .versionPattern(Pattern.compile("TShark \\(Wireshark\\) ([\\d.]+)"))
-*         .minVersion(CliVersion.of(3, 0))
-*         .defaultTimeout(30, TimeUnit.SECONDS)
-*         .installPackage("wireshark")
-*         .build();
-*
-* CliTool tshark = new CliTool(descriptor);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 命令行软件的声明式描述，把"这个程序叫什么、装在哪、怎么问版本号"全部固化成元数据。
+ *
+ * <p>这是 CLI 软件封装通用化的核心：接入一个新的命令行程序时，
+ * 只需要提供一份描述，无需编写任何子类，{@link CliTool} 即可提供定位、
+ * 可用性探测、版本校验、执行与安装的完整能力。</p>
+ *
+ * <h3>使用示例</h3>
+ * <pre>{@code
+ * CliToolDescriptor descriptor = CliToolDescriptor.builder("tshark")
+ *         .displayName("Wireshark 命令行抓包工具")
+ *         .executable("tshark")
+ *         .envKey("TSHARK_BIN")
+ *         .candidateDirs("C:\\Program Files\\Wireshark", "/usr/bin", "/usr/local/bin")
+ *         .versionArgs("--version")
+ *         .versionPattern(Pattern.compile("TShark \\(Wireshark\\) ([\\d.]+)"))
+ *         .minVersion(CliVersion.of(3, 0))
+ *         .defaultTimeout(30, TimeUnit.SECONDS)
+ *         .installPackage("wireshark")
+ *         .build();
+ *
+ * CliTool tshark = new CliTool(descriptor);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class CliToolDescriptor {
 
@@ -98,141 +98,141 @@ public final class CliToolDescriptor {
     }
 
     /**
-    * 创建构建器。
-    *
-    * @param name 工具唯一标识，同时作为默认可执行文件名
-    * @return 构建器
-    */
+     * 创建构建器。
+     *
+     * @param name 工具唯一标识，同时作为默认可执行文件名
+     * @return 构建器
+     */
     @Nonnull
     public static Builder builder(@Nonnull String name) {
         return new Builder(name);
     }
 
     /**
-    * 获取工具唯一标识。
-    *
-    * @return 工具名称
-    */
+     * 获取工具唯一标识。
+     *
+     * @return 工具名称
+     */
     @Nonnull
     public String name() {
         return name;
     }
 
     /**
-    * 获取展示名称。
-    *
-    * @return 展示名称
-    */
+     * 获取展示名称。
+     *
+     * @return 展示名称
+     */
     @Nonnull
     public String displayName() {
         return displayName;
     }
 
     /**
-    * 获取当前平台下的可执行文件名。
-    *
-    * @return 可执行文件名
-    */
+     * 获取当前平台下的可执行文件名。
+     *
+     * @return 可执行文件名
+     */
     @Nonnull
     public String executableName() {
         return OsFamily.current().isWindows() ? windowsExecutable : unixExecutable;
     }
 
     /**
-    * 获取通用可执行文件名（不分平台）。
-    *
-    * @return 可执行文件名
-    */
+     * 获取通用可执行文件名（不分平台）。
+     *
+     * @return 可执行文件名
+     */
     @Nonnull
     public String executable() {
         return executable;
     }
 
     /**
-    * 获取用于覆盖定位结果的环境变量名。
-    *
-    * @return 环境变量名，未设置返回 null
-    */
+     * 获取用于覆盖定位结果的环境变量名。
+     *
+     * @return 环境变量名，未设置返回 null
+     */
     @Nullable
     public String envKey() {
         return envKey;
     }
 
     /**
-    * 获取候选安装目录。
-    *
-    * @return 候选目录列表
-    */
+     * 获取候选安装目录。
+     *
+     * @return 候选目录列表
+     */
     @Nonnull
     public List<String> candidateDirs() {
         return candidateDirs;
     }
 
     /**
-    * 获取版本探测参数。
-    *
-    * @return 参数列表，默认 {@code --version}
-    */
+     * 获取版本探测参数。
+     *
+     * @return 参数列表，默认 {@code --version}
+     */
     @Nonnull
     public List<String> versionArgs() {
         return versionArgs;
     }
 
     /**
-    * 获取版本提取正则。
-    *
-    * @return 正则对象，未设置返回 null
-    */
+     * 获取版本提取正则。
+     *
+     * @return 正则对象，未设置返回 null
+     */
     @Nullable
     public Pattern versionPattern() {
         return versionPattern;
     }
 
     /**
-    * 获取最低版本要求。
-    *
-    * @return 最低版本，未设置返回 null
-    */
+     * 获取最低版本要求。
+     *
+     * @return 最低版本，未设置返回 null
+     */
     @Nullable
     public CliVersion minVersion() {
         return minVersion;
     }
 
     /**
-    * 获取默认超时时间。
-    *
-    * @return 超时秒数
-    */
+     * 获取默认超时时间。
+     *
+     * @return 超时秒数
+     */
     public long defaultTimeoutSeconds() {
         return defaultTimeoutSeconds;
     }
 
     /**
-    * 获取包管理器安装用的包 ID。
-    *
-    * @return 包 ID，未设置返回 null
-    */
+     * 获取包管理器安装用的包 ID。
+     *
+     * @return 包 ID，未设置返回 null
+     */
     @Nullable
     public String installPackageId() {
         return installPackageId;
     }
 
     /**
-    * 获取选项契约。
-    *
-    * @return 选项定义列表
-    */
+     * 获取选项契约。
+     *
+     * @return 选项定义列表
+     */
     @Nonnull
     public List<CliOption> options() {
         return options;
     }
 
     /**
-    * 构造可执行文件查找请求。
-    *
-    * @param explicitPath 显式指定的路径，可为 null
-    * @return 查找请求
-    */
+     * 构造可执行文件查找请求。
+     *
+     * @param explicitPath 显式指定的路径，可为 null
+     * @return 查找请求
+     */
     @Nonnull
     public ExecutableLocator.LocateRequest locateRequest(@Nullable String explicitPath) {
         ExecutableLocator.LocateRequest.Builder builder =
@@ -253,8 +253,8 @@ public final class CliToolDescriptor {
     }
 
     /**
-    * {@link CliToolDescriptor} 构建器。
-    */
+     * {@link CliToolDescriptor} 构建器。
+     */
     public static final class Builder {
 
         /** 工具唯一标识 */
@@ -295,11 +295,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置展示名称，用于日志与错误信息。
-        *
-        * @param displayName 展示名称
-        * @return this
-        */
+         * 设置展示名称，用于日志与错误信息。
+         *
+         * @param displayName 展示名称
+         * @return this
+         */
         @Nonnull
         public Builder displayName(@Nonnull String displayName) {
             this.displayName = displayName;
@@ -307,11 +307,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置可执行文件名，Windows 与类 Unix 通用。
-        *
-        * @param executable 可执行文件名
-        * @return this
-        */
+         * 设置可执行文件名，Windows 与类 Unix 通用。
+         *
+         * @param executable 可执行文件名
+         * @return this
+         */
         @Nonnull
         public Builder executable(@Nonnull String executable) {
             this.executable = executable;
@@ -319,11 +319,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置 Windows 下的可执行文件名，覆盖 {@link #executable(String)}。
-        *
-        * @param windowsExecutable Windows 可执行名
-        * @return this
-        */
+         * 设置 Windows 下的可执行文件名，覆盖 {@link #executable(String)}。
+         *
+         * @param windowsExecutable Windows 可执行名
+         * @return this
+         */
         @Nonnull
         public Builder windowsExecutable(@Nonnull String windowsExecutable) {
             this.windowsExecutable = windowsExecutable;
@@ -331,11 +331,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置类 Unix 下的可执行文件名，覆盖 {@link #executable(String)}。
-        *
-        * @param unixExecutable Unix 可执行名
-        * @return this
-        */
+         * 设置类 Unix 下的可执行文件名，覆盖 {@link #executable(String)}。
+         *
+         * @param unixExecutable Unix 可执行名
+         * @return this
+         */
         @Nonnull
         public Builder unixExecutable(@Nonnull String unixExecutable) {
             this.unixExecutable = unixExecutable;
@@ -343,11 +343,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置用于覆盖定位结果的环境变量名，便于运维侧指定安装位置。
-        *
-        * @param envKey 环境变量名
-        * @return this
-        */
+         * 设置用于覆盖定位结果的环境变量名，便于运维侧指定安装位置。
+         *
+         * @param envKey 环境变量名
+         * @return this
+         */
         @Nonnull
         public Builder envKey(@Nullable String envKey) {
             this.envKey = envKey;
@@ -355,11 +355,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 追加候选安装目录，应对软件未加入 PATH 的情况，可多次调用。
-        *
-        * @param dirs 候选目录
-        * @return this
-        */
+         * 追加候选安装目录，应对软件未加入 PATH 的情况，可多次调用。
+         *
+         * @param dirs 候选目录
+         * @return this
+         */
         @Nonnull
         public Builder candidateDirs(@Nonnull String... dirs) {
             for (String dir : dirs) {
@@ -371,13 +371,13 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置版本探测参数，默认 {@code --version}。
-        *
-        * <p>部分老旧工具只认单横杠形式（如 {@code -version}），可通过此方法覆盖。</p>
-        *
-        * @param args 版本参数
-        * @return this
-        */
+         * 设置版本探测参数，默认 {@code --version}。
+         *
+         * <p>部分老旧工具只认单横杠形式（如 {@code -version}），可通过此方法覆盖。</p>
+         *
+         * @param args 版本参数
+         * @return this
+         */
         @Nonnull
         public Builder versionArgs(@Nonnull String... args) {
             this.versionArgs.clear();
@@ -386,11 +386,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置版本提取正则，需包含第一个捕获组。
-        *
-        * @param versionPattern 版本正则
-        * @return this
-        */
+         * 设置版本提取正则，需包含第一个捕获组。
+         *
+         * @param versionPattern 版本正则
+         * @return this
+         */
         @Nonnull
         public Builder versionPattern(@Nullable Pattern versionPattern) {
             this.versionPattern = versionPattern;
@@ -398,11 +398,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置最低版本要求，低于此版本时 {@link CliTool#isAvailable()} 返回 false。
-        *
-        * @param minVersion 最低版本
-        * @return this
-        */
+         * 设置最低版本要求，低于此版本时 {@link CliTool#isAvailable()} 返回 false。
+         *
+         * @param minVersion 最低版本
+         * @return this
+         */
         @Nonnull
         public Builder minVersion(@Nullable CliVersion minVersion) {
             this.minVersion = minVersion;
@@ -410,12 +410,12 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置默认超时时间，默认 60 秒。
-        *
-        * @param timeout 超时值
-        * @param unit    时间单位
-        * @return this
-        */
+         * 设置默认超时时间，默认 60 秒。
+         *
+         * @param timeout 超时值
+         * @param unit    时间单位
+         * @return this
+         */
         @Nonnull
         public Builder defaultTimeout(long timeout, @Nonnull TimeUnit unit) {
             this.defaultTimeoutSeconds = unit.toSeconds(timeout);
@@ -423,11 +423,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 设置包管理器安装时使用的包 ID。
-        *
-        * @param installPackageId 包 ID
-        * @return this
-        */
+         * 设置包管理器安装时使用的包 ID。
+         *
+         * @param installPackageId 包 ID
+         * @return this
+         */
         @Nonnull
         public Builder installPackage(@Nullable String installPackageId) {
             this.installPackageId = installPackageId;
@@ -435,11 +435,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 追加选项定义，用于强类型参数组装，可多次调用。
-        *
-        * @param options 选项定义
-        * @return this
-        */
+         * 追加选项定义，用于强类型参数组装，可多次调用。
+         *
+         * @param options 选项定义
+         * @return this
+         */
         @Nonnull
         public Builder options(@Nonnull CliOption... options) {
             Collections.addAll(this.options, options);
@@ -447,11 +447,11 @@ public final class CliToolDescriptor {
         }
 
         /**
-        * 构建描述实例。
-        *
-        * @return 描述实例
-        * @throws IllegalStateException 工具名称为空时抛出
-        */
+         * 构建描述实例。
+         *
+         * @return 描述实例
+         * @throws IllegalStateException 工具名称为空时抛出
+         */
         @Nonnull
         public CliToolDescriptor build() {
             if (StringUtils.isNullOrEmpty(name)) {

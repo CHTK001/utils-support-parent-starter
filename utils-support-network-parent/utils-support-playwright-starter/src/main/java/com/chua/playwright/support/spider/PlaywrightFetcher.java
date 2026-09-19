@@ -16,16 +16,16 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Duration;
 
 /**
-* Playwright 浏览器渲染抓取器。
-*
-* <p>基于 Playwright 实现支持 JavaScript 渲染的页面抓取。
-* 适用于需要执行 JS 才能获取完整内容的 水疗中心 或动态页面。
-* 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
-*
-* <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightParser} 使用。
-*
-* @author CH
-* @since 4.0.0.42
+ * Playwright 浏览器渲染抓取器。
+ *
+ * <p>基于 Playwright 实现支持 JavaScript 渲染的页面抓取。
+ * 适用于需要执行 JS 才能获取完整内容的 水疗中心 或动态页面。
+ * 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
+ *
+ * <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightParser} 使用。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("playwright")
@@ -33,27 +33,27 @@ import java.time.Duration;
 public class PlaywrightFetcher implements SpiderFetcher {
 
     /**
-    * nav 超时时间
-    */
+     * nav 超时时间
+     */
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
     /**
-    * 加载 超时时间
-    */
+     * 加载 超时时间
+     */
     private static final Duration LOAD_TIMEOUT = Duration.ofSeconds(30);
 
     /**
-    * Playwright 实例
-    */
+     * Playwright 实例
+     */
     private final Playwright playwright;
     /**
-    * 浏览器实例
-    */
+     * 浏览器实例
+     */
     private final Browser browser;
 
     /**
-    * 默认构造器，启动 铬 浏览器。
-    */
+     * 默认构造器，启动 铬 浏览器。
+     */
     public PlaywrightFetcher() {
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(
@@ -61,11 +61,11 @@ public class PlaywrightFetcher implements SpiderFetcher {
     }
 
     /**
-    * 构造器，使用已有 Playwright 和浏览器实例。
-    *
-    * @param playwright Playwright 实例
-    * @param browser    浏览器实例
-    */
+     * 构造器，使用已有 Playwright 和浏览器实例。
+     *
+     * @param playwright Playwright 实例
+     * @param browser    浏览器实例
+     */
     public PlaywrightFetcher(Playwright playwright, Browser browser) {
         this.playwright = playwright;
         this.browser = browser;
@@ -123,10 +123,10 @@ public class PlaywrightFetcher implements SpiderFetcher {
     }
 
     /**
-    * 释放浏览器资源。
-    *
-    * <p>爬虫结束后调用，释放 Playwright 和浏览器实例。
-    */
+     * 释放浏览器资源。
+     *
+     * <p>爬虫结束后调用，释放 Playwright 和浏览器实例。
+     */
     public void close() {
         Exception ex = null;
         try {

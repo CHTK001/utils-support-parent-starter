@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* Email 协议还原器。
-*
-* <p>还原 SMTP / POP3 / IMAP 协议命令与响应，包含典型命令字解析。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Email 协议还原器。
+ *
+ * <p>还原 SMTP / POP3 / IMAP 协议命令与响应，包含典型命令字解析。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EmailProtocolRestorer extends AbstractProtocolRestorer {
 

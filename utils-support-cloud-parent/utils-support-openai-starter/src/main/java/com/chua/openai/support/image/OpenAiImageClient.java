@@ -16,86 +16,86 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 打开AI 图片生成客户端。
-*
-* <p>基于 OpenAI DALL-E API 的 {@link ImageClient} 实现，支持 OpenAI 兼容接口的
-* 所有服务商（如 打开AI、silicon流、sense时间 等）。
-*
-* <p>通过 HTTP 协议直接调用 {@code /images/generations} 接口生成图片，
-* 返回的图片 URL 会被自动下载并解析为 {@link BufferedImage}。
-*
-* <p>通过 SPI 机制注册以下别名：
-* <ul>
-*   <li>openai — OpenAI 官方（DALL-E 系列）</li>
-*   <li>siliconflow — 硅基流动</li>
-*   <li>sensetime — 商汤科技</li>
-*   <li>github — GitHub Models</li>
-*   <li>gitee — Gitee AI</li>
-* </ul>
-*
-* <p>调用示例：
-* <pre>{@code
-*   BufferedImage image = ImageClient.create("openai", "sk-xxx")
-*       .model("dall-e-3")
-*       .prompt("一只可爱的猫")
-*       .size(1024, 1024)
-*       .generate();
-* }</pre>24, 1024)
-*       .generate();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 打开AI 图片生成客户端。
+ *
+ * <p>基于 OpenAI DALL-E API 的 {@link ImageClient} 实现，支持 OpenAI 兼容接口的
+ * 所有服务商（如 打开AI、silicon流、sense时间 等）。
+ *
+ * <p>通过 HTTP 协议直接调用 {@code /images/generations} 接口生成图片，
+ * 返回的图片 URL 会被自动下载并解析为 {@link BufferedImage}。
+ *
+ * <p>通过 SPI 机制注册以下别名：
+ * <ul>
+ *   <li>openai — OpenAI 官方（DALL-E 系列）</li>
+ *   <li>siliconflow — 硅基流动</li>
+ *   <li>sensetime — 商汤科技</li>
+ *   <li>github — GitHub Models</li>
+ *   <li>gitee — Gitee AI</li>
+ * </ul>
+ *
+ * <p>调用示例：
+ * <pre>{@code
+ *   BufferedImage image = ImageClient.create("openai", "sk-xxx")
+ *       .model("dall-e-3")
+ *       .prompt("一只可爱的猫")
+ *       .size(1024, 1024)
+ *       .generate();
+ * }</pre>24, 1024)
+ *       .generate();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"openai", "siliconflow", "sensetime", "github", "gitee"})
 public class OpenAiImageClient implements ImageClient {
 
     /**
-    * 打开AI 默认 API 地址
-    */
+     * 打开AI 默认 API 地址
+     */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     private final ImageClientSetting setting;
 
     /**
-    * 当前使用的模型名称（如 dall-e-3、dall-e-2）
-    */
+     * 当前使用的模型名称（如 dall-e-3、dall-e-2）
+     */
     private String model;
 
     /**
-    * 生成图片宽度（像素）
-    */
+     * 生成图片宽度（像素）
+     */
     private Integer width;
 
     /**
-    * 生成图片高度（像素）
-    */
+     * 生成图片高度（像素）
+     */
     private Integer height;
 
     /**
-    * 提示词（未通过方法参数传入时使用此值）
-    */
+     * 提示词（未通过方法参数传入时使用此值）
+     */
     private String prompt;
 
     /**
-    * 图片质量（如 "标准"、"hd"），仅 DALL-E 3 支持
-    */
+     * 图片质量（如 "标准"、"hd"），仅 DALL-E 3 支持
+     */
     private String quality;
 
     /**
-    * 图片风格（如 "vivid"、"natural"），仅 DALL-E 3 支持
-    */
+     * 图片风格（如 "vivid"、"natural"），仅 DALL-E 3 支持
+     */
     private String style;
 
     /**
-    * 构造 打开AI 图片生成客户端。
-    *
-    * @param setting 客户端配置
-    */
+     * 构造 打开AI 图片生成客户端。
+     *
+     * @param setting 客户端配置
+     */
     public OpenAiImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -179,15 +179,15 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     /**
-    * 解析 打开AI 图片生成响应并下载图片。
-    *
-    * <p>从 JSON 响应中提取图片 URL，然后通过 HTTP GET 下载图片数据，
-    * 最后解析为 {@link BufferedImage} 对象。
-    *
-    * @param json 打开AI 返回的 JSON 响应字符串
-    * @return 生成的图片
-    * @throws RuntimeException 图片数据为空、URL 为空、下载失败或解析失败时抛出
-    */
+     * 解析 打开AI 图片生成响应并下载图片。
+     *
+     * <p>从 JSON 响应中提取图片 URL，然后通过 HTTP GET 下载图片数据，
+     * 最后解析为 {@link BufferedImage} 对象。
+     *
+     * @param json 打开AI 返回的 JSON 响应字符串
+     * @return 生成的图片
+     * @throws RuntimeException 图片数据为空、URL 为空、下载失败或解析失败时抛出
+     */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) {
         // 解析 JSON 响应，提取图片 URL
@@ -236,13 +236,13 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     /**
-    * 构建图片尺寸参数。
-    *
-    * <p>将 width 和 height 拼接为 {@code "宽x高"} 格式的字符串，
-    * 如 {@code "1024x1024"}。未设置时默认返回 {@code "1024x1024"}。
-    *
-    * @return 尺寸字符串
-    */
+     * 构建图片尺寸参数。
+     *
+     * <p>将 width 和 height 拼接为 {@code "宽x高"} 格式的字符串，
+     * 如 {@code "1024x1024"}。未设置时默认返回 {@code "1024x1024"}。
+     *
+     * @return 尺寸字符串
+     */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
@@ -250,12 +250,12 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     /**
-    * 规范化 API 基础地址。
-    *
-    * <p>移除末尾多余的斜杠，若未配置则使用默认地址。
-    *
-    * @return 规范化后的 URL
-    */
+     * 规范化 API 基础地址。
+     *
+     * <p>移除末尾多余的斜杠，若未配置则使用默认地址。
+     *
+     * @return 规范化后的 URL
+     */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

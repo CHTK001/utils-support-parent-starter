@@ -15,63 +15,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* SFTP 目录轮询实现，基于 Apache MINA SSHD。
-* <p>
-* 通过 {@link DiffPolledDirectory} 快照对比机制，定时对比远程 SFTP 目录文件变更。
-* </p>
-* <p>
-* 配合 {@link DirectoryPollerEnvironment} 配置连接参数，{@link VirtualThreadPollerExecutor} 驱动虚拟线程轮询。
-* </p>
-* 环境配置属性：
-* <ul>
-*   <li>{@code host} — SFTP 服务器地址</li>
-*   <li>{@code port} — SFTP 端口（默认 22）</li>
-*   <li>{@code username} — 登录用户名</li>
-*   <li>{@code password} — 登录密码</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * SFTP 目录轮询实现，基于 Apache MINA SSHD。
+ * <p>
+ * 通过 {@link DiffPolledDirectory} 快照对比机制，定时对比远程 SFTP 目录文件变更。
+ * </p>
+ * <p>
+ * 配合 {@link DirectoryPollerEnvironment} 配置连接参数，{@link VirtualThreadPollerExecutor} 驱动虚拟线程轮询。
+ * </p>
+ * 环境配置属性：
+ * <ul>
+ *   <li>{@code host} — SFTP 服务器地址</li>
+ *   <li>{@code port} — SFTP 端口（默认 22）</li>
+ *   <li>{@code username} — 登录用户名</li>
+ *   <li>{@code password} — 登录密码</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry> {
 
     /**
-    * 主机地址
-    */
+     * 主机地址
+     */
     private final String host;
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     private final int port;
     /**
-    * 登录用户名
-    */
+     * 登录用户名
+     */
     private final String username;
     /**
-    * 登录密码
-    */
+     * 登录密码
+     */
     private final String password;
 
     /**
-    * 客户端实例
-    */
+     * 客户端实例
+     */
     private SshClient client;
     /**
-    * 会话对象
-    */
+     * 会话对象
+     */
     private ClientSession session;
     /**
-    * sftp
-    */
+     * sftp
+     */
     private SftpClient sftp;
 
     /**
-    * 构造 SFTP 目录轮询器。
-    *
-    * @param listenPath SFTP 远程目录路径
-    * @param environment 环境配置（需包含 主机、端口、用户名、密码）
-    */
+     * 构造 SFTP 目录轮询器。
+     *
+     * @param listenPath SFTP 远程目录路径
+     * @param environment 环境配置（需包含 主机、端口、用户名、密码）
+     */
     public SftpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
         this.host = environment.getProperty("host");
@@ -82,10 +82,10 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
 
     @Override
     /**
-    * 开始
-    * @param environment 环境
-    * @param executor 执行器
-    */
+     * 开始
+     * @param environment 环境
+     * @param executor 执行器
+     */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         try {

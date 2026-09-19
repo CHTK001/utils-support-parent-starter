@@ -12,43 +12,43 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* RTF 富文本预览提供器。
-* <p>SPI 类型：{@code preview-rtf}。提取 RTF 中的纯文本内容显示。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param rtf rtf
-* @return extract文本的结果
-* @param content 内容
-* @param ext ext
-* @param mime mime
+ * RTF 富文本预览提供器。
+ * <p>SPI 类型：{@code preview-rtf}。提取 RTF 中的纯文本内容显示。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param rtf rtf
+ * @return extract文本的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-rtf")
 public class RtfPreviewProvider implements FileStoragePreviewProvider {
 
     private static final Set<String> SUPPORTED_EXTS = Set.of("rtf"); // 支持exts
     /**
-    * 支持。
-    * @param ext ext
-    * @param mime mime
-    * @return 支持的结果
-    * @param rtf rtf
-    * @param content 内容
-    */
+     * 支持。
+     * @param ext ext
+     * @param mime mime
+     * @return 支持的结果
+     * @param rtf rtf
+     * @param content 内容
+     */
     private static final Pattern RTF_GROUP = Pattern.compile("\\\\[a-z]+\\d*\\s?");
     private static final Pattern RTF_SPECIAL = Pattern.compile("\\\\['{}\\\\~_-]");
     private static final Pattern RTF_CONTROL = Pattern.compile("\\\\[a-zA-Z]+\\d*\\s?");
 
     /**
-    * 不含正文的 RTF 目标组：字体表、颜色表、样式表、文档元信息、图片数据等
-    */
+     * 不含正文的 RTF 目标组：字体表、颜色表、样式表、文档元信息、图片数据等
+     */
     private static final Set<String> SKIP_GROUPS = Set.of(
             "fonttbl", "colortbl", "stylesheet", "info", "pict", "filetbl", "datastore");
 /**
-* 支持。
-* @param ext ext
-* @param mime mime
-* @return 支持的结果
+ * 支持。
+ * @param ext ext
+ * @param mime mime
+ * @return 支持的结果
  */
 
     @Override
@@ -118,14 +118,14 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 按花括号配对剔除 RTF 非正文目标组。
-    * <p>命中 {@code {\fonttbl...}}、{@code {\colortbl...}} 等目标组，
-    * 以及所有 {@code {\*\xxx}} 形式的忽略目标组时，跳过整组（含嵌套花括号）；
-    * 其余内容原样保留。</p>
-    *
-    * @param rtf 原始 RTF 文本
-    * @return 剔除目标组后的 RTF 文本
-    */
+     * 按花括号配对剔除 RTF 非正文目标组。
+     * <p>命中 {@code {\fonttbl...}}、{@code {\colortbl...}} 等目标组，
+     * 以及所有 {@code {\*\xxx}} 形式的忽略目标组时，跳过整组（含嵌套花括号）；
+     * 其余内容原样保留。</p>
+     *
+     * @param rtf 原始 RTF 文本
+     * @return 剔除目标组后的 RTF 文本
+     */
     private String stripDestinationGroups(String rtf) {
         StringBuilder out = new StringBuilder(rtf.length());
         int i = 0;
@@ -190,11 +190,11 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建html。
-    * @param text 文本
-    * @param fileSize 文件大小
-    * @return 构建html的结果
-    */
+     * 构建html。
+     * @param text 文本
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     private String buildHtml(String text, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -221,10 +221,10 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * escapehtml。
-    * @param text 文本
-    * @return escapeHtml的结果
-    */
+     * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -233,10 +233,10 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * human大小。
-    * @param bytes bytes
-    * @return human大小的结果
-    */
+     * human大小。
+     * @param bytes bytes
+     * @return human大小的结果
+     */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

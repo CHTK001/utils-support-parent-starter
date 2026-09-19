@@ -15,21 +15,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 阿里云语音电话实现（基于 dysmsapi Tea SDK）
-*
-* <p>通过阿里云 dysmsapi20170525 SDK 的 Tea-OpenAPI 框架调用语音服务。
-* 使用 单个callbytts 接口实现文本转语音外呼。
-*
-* <h3>环境配置</h3>
-* <pre>
-*   voice.accessKey           阿里云 AccessKey（必填）
-*   voice.secretKey           阿里云 SecretKey（必填）
-*   voice.ttsCode             语音模板 Code（必填）
-*   voice.calledShowNumber    主叫号码（必填）
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 阿里云语音电话实现（基于 dysmsapi Tea SDK）
+ *
+ * <p>通过阿里云 dysmsapi20170525 SDK 的 Tea-OpenAPI 框架调用语音服务。
+ * 使用 单个callbytts 接口实现文本转语音外呼。
+ *
+ * <h3>环境配置</h3>
+ * <pre>
+ *   voice.accessKey           阿里云 AccessKey（必填）
+ *   voice.secretKey           阿里云 SecretKey（必填）
+ *   voice.ttsCode             语音模板 Code（必填）
+ *   voice.calledShowNumber    主叫号码（必填）
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("alibaba-voice")
 public class AlibabaVoiceCall implements VoiceCall {
@@ -43,9 +43,9 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     /**
-    * 创建 alibabavoicecall 实例
-    * @param environment 环境
-    */
+     * 创建 alibabavoicecall 实例
+     * @param environment 环境
+     */
     public AlibabaVoiceCall(MessageEnvironment environment) {
         this.environment = environment;
     }

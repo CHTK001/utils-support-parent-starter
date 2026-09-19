@@ -66,137 +66,137 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author CH
  * @since 2026/07/26
-*/
+ */
 @Slf4j
 @Spi({"jdk-tcp", "tcp"})
 public class JdkTcpServer extends AbstractServer implements TcpServer {
 
     /**
-    * 长度头字节数
-    */
+     * 长度头字节数
+     */
     private static final int HEADER_SIZE = 4;
 
     /**
-    * 消息体长度上限（字节），默认 8MB
-    */
+     * 消息体长度上限（字节），默认 8MB
+     */
     private static final int MAX_BODY_SIZE = 8 * 1024 * 1024;
 
     /**
-    * 回显缓冲（ThreadLocal 复用，避免每连接分配 8KB）
-    */
+     * 回显缓冲（ThreadLocal 复用，避免每连接分配 8KB）
+     */
     private static final ThreadLocal<byte[]> THREAD_LOCAL_BUFFER =
             ThreadLocal.withInitial(() -> new byte[8192]);
 
     /**
-    * 服务器通道
-    */
+     * 服务器通道
+     */
     private ServerSocketChannel serverChannel;
 
     /**
-    * 接收连接用 Selector（专用线程）
-    */
+     * 接收连接用 Selector（专用线程）
+     */
     private Selector acceptSelector;
 
     /**
-    * IO Selector 数组（多线程分发读事件）
-    */
+     * IO Selector 数组（多线程分发读事件）
+     */
     private Selector[] ioSelectors;
 
     /**
-    * IO Selector 线程数组
-    */
+     * IO Selector 线程数组
+     */
     private Thread[] ioThreads;
 
     /**
-    * 下一个 IO Selector 分配游标（轮询注册新连接）
-    */
+     * 下一个 IO Selector 分配游标（轮询注册新连接）
+     */
     private final AtomicInteger ioCursor = new AtomicInteger();
 
     /**
-    * IO Selector 线程数
-    */
+     * IO Selector 线程数
+     */
     private int ioThreadsCount = 0;
 
     /**
-    * 接收连接专用线程
-    */
+     * 接收连接专用线程
+     */
     private Thread acceptThread;
 
     /**
-    * 流式处理虚拟线程池（流式协议模式）
-    */
+     * 流式处理虚拟线程池（流式协议模式）
+     */
     private ExecutorService virtualPool;
 
     /**
-    * 帧式处理器（{@link TcpServer} 接口）
-    */
+     * 帧式处理器（{@link TcpServer} 接口）
+     */
     private volatile TcpServerHandler frameHandler;
 
     /**
-    * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
-    */
+     * 流加密密钥（doStart 时由 encryptKey 派生缓存；null 表示未启用加密，连接路径零开销）
+     */
     private volatile SecretKeySpec encryptKeySpec;
 
     /**
-    * 流式处理器表（兼容既有 API）
-    */
+     * 流式处理器表（兼容既有 API）
+     */
     private final Map<String, TcpHandler> handlers = new ConcurrentHashMap<>();
 
     /**
-    * 粘包处理配置：是否启用固定长度帧解析
-    */
+     * 粘包处理配置：是否启用固定长度帧解析
+     */
     private boolean fixedLengthEnabled = false;
 
     /**
-    * 固定长度帧大小（字节）
-    */
+     * 固定长度帧大小（字节）
+     */
     private int fixedLength = 0;
 
     /**
-    * 长度字段偏移量（从 0 开始）
-    */
+     * 长度字段偏移量（从 0 开始）
+     */
     private int lengthFieldOffset = 0;
 
     /**
-    * 长度字段占用字节数（1, 2, 4, 8）
-    */
+     * 长度字段占用字节数（1, 2, 4, 8）
+     */
     private int lengthFieldLength = 4;
 
     /**
-    * 长度调整值（帧长度 = 读取的长度 + 此值）
-    */
+     * 长度调整值（帧长度 = 读取的长度 + 此值）
+     */
     private int lengthAdjustment = 0;
 
     /**
-    * 初始跳过字节数
-    */
+     * 初始跳过字节数
+     */
     private int lengthIncludesHeaderCount = 1;
 
     /**
-    * 创建 JdkTcpServer 实例
-    * @param setting setting
-    */
+     * 创建 JdkTcpServer 实例
+     * @param setting setting
+     */
     public JdkTcpServer(ServerSetting setting) {
         super(setting);
     }
 
     /**
-    * 设置 IO Selector 线程数。
-    *
-    * @param ioThreads IO Selector 线程数，小于等于 0 时使用默认 CPU 核数
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置 IO Selector 线程数。
+     *
+     * @param ioThreads IO Selector 线程数，小于等于 0 时使用默认 CPU 核数
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setIoThreads(int ioThreads) {
         this.ioThreadsCount = ioThreads;
         return this;
     }
 
     /**
-    * 设置固定长度帧解析。
-    *
-    * @param length 每条消息的固定字节数
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置固定长度帧解析。
+     *
+     * @param length 每条消息的固定字节数
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setPacketLength(int length) {
         this.fixedLengthEnabled = true;
         this.fixedLength = length;
@@ -204,44 +204,44 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 设置长度字段偏移量。
-    *
-    * @param offset 长度字段在帧中的起始位置（从 0 开始）
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置长度字段偏移量。
+     *
+     * @param offset 长度字段在帧中的起始位置（从 0 开始）
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setLengthFieldOffset(int offset) {
         this.lengthFieldOffset = offset;
         return this;
     }
 
     /**
-    * 设置长度字段占用字节数。
-    *
-    * @param length 长度字段字节数（1, 2, 4, 8）
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置长度字段占用字节数。
+     *
+     * @param length 长度字段字节数（1, 2, 4, 8）
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setLengthFieldLength(int length) {
         this.lengthFieldLength = length;
         return this;
     }
 
     /**
-    * 设置长度调整值。
-    *
-    * @param adjustment 帧长度 = 读取的长度 + 此值
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置长度调整值。
+     *
+     * @param adjustment 帧长度 = 读取的长度 + 此值
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setLengthAdjustment(int adjustment) {
         this.lengthAdjustment = adjustment;
         return this;
     }
 
     /**
-    * 设置初始跳过字节数。
-    *
-    * @param count 初始跳过的字节数
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 设置初始跳过字节数。
+     *
+     * @param count 初始跳过的字节数
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer setLengthIncludesHeaderCount(int count) {
         this.lengthIncludesHeaderCount = count;
         return this;
@@ -388,10 +388,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * IO Selector 线程：只负责读事件分发与拼帧，业务处理交给 Worker 线程池。
-    *
-    * @param ioSelector 该线程专属的 Selector
-    */
+     * IO Selector 线程：只负责读事件分发与拼帧，业务处理交给 Worker 线程池。
+     *
+     * @param ioSelector 该线程专属的 Selector
+     */
     private void ioEventLoop(Selector ioSelector) {
         while (running) {
             try {
@@ -557,9 +557,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 写回空响应（200 + Content-Length: 0）。
-    * @param sc 方法入参 sc
-    */
+     * 写回空响应（200 + Content-Length: 0）。
+     * @param sc 方法入参 sc
+     */
     private void writeEmptyResponse(SocketChannel sc) {
         try {
             String resp = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n";
@@ -580,11 +580,11 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 将响应帧完整写入通道。通道为非阻塞模式，必须循环写入直至缓冲区耗尽，避免粘包/半包。
-    *
-    * @param sc       目标通道
-    * @param respData 响应帧字节（不含长度头）
-    */
+     * 将响应帧完整写入通道。通道为非阻塞模式，必须循环写入直至缓冲区耗尽，避免粘包/半包。
+     *
+     * @param sc       目标通道
+     * @param respData 响应帧字节（不含长度头）
+     */
     private void writeResponse(SocketChannel sc, byte[] respData) {
         try {
             if (respData.length > MAX_BODY_SIZE) {
@@ -687,25 +687,25 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 注册 TCP 处理器。
-    *
-    * @param name    处理器名称（"*" 表示匹配所有连接）
-    * @param handler 处理器
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册 TCP 处理器。
+     *
+     * @param name    处理器名称（"*" 表示匹配所有连接）
+     * @param handler 处理器
+     * @return 当前服务器实例，支持链式调用
+     */
     public JdkTcpServer registerHandler(String name, TcpHandler handler) {
         handlers.put(name, handler);
         return this;
     }
 
     /**
-    * 接收固定长度的数据帧（处理粘包）。
-    *
-    * @param in   输入流
-    * @param size 期望的帧大小
-    * @return 完整的帧数据，如果流结束返回 null
-    * @throws IOException IO 异常
-    */
+     * 接收固定长度的数据帧（处理粘包）。
+     *
+     * @param in   输入流
+     * @param size 期望的帧大小
+     * @return 完整的帧数据，如果流结束返回 null
+     * @throws IOException IO 异常
+     */
     public static byte[] receiveFrame(InputStream in, int size) throws IOException {
         byte[] frame = new byte[size];
         int offset = 0;
@@ -720,16 +720,16 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 静态重载：使用显式配置参数接收带长度字段的帧（接口默认方法可用）。
-    *
-    * @param in                       输入流
-    * @param lengthFieldOffset        长度字段偏移
-    * @param lengthFieldLength        长度字段长度
-    * @param lengthAdjustment         长度调整
-    * @param lengthIncludesHeaderCount 是否包含头部长度（1/0）
-    * @return 完整的帧数据
-    * @throws IOException IO 异常
-    */
+     * 静态重载：使用显式配置参数接收带长度字段的帧（接口默认方法可用）。
+     *
+     * @param in                       输入流
+     * @param lengthFieldOffset        长度字段偏移
+     * @param lengthFieldLength        长度字段长度
+     * @param lengthAdjustment         长度调整
+     * @param lengthIncludesHeaderCount 是否包含头部长度（1/0）
+     * @return 完整的帧数据
+     * @throws IOException IO 异常
+     */
     public static byte[] receiveFrame(InputStream in, int lengthFieldOffset, int lengthFieldLength,
                                        int lengthAdjustment, int lengthIncludesHeaderCount) throws IOException {
         byte[] header = new byte[lengthFieldOffset + lengthFieldLength];
@@ -769,12 +769,12 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 接收带长度字段的帧（处理粘包）。
-    *
-    * @param in 输入流
-    * @return 完整的帧数据，如果流结束返回 null
-    * @throws IOException IO 异常
-    */
+     * 接收带长度字段的帧（处理粘包）。
+     *
+     * @param in 输入流
+     * @return 完整的帧数据，如果流结束返回 null
+     * @throws IOException IO 异常
+     */
     public byte[] receiveFrame(InputStream in) throws IOException {
         // 读取长度字段
         int headerSize = lengthIncludesHeaderCount;
@@ -816,13 +816,13 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 解析长度字段。
-    *
-    * @param bytes       包含长度字节的数组
-    * @param offset      长度字段偏移量
-    * @param fieldLength 长度字段字节数
-    * @return 解析出的长度值
-    */
+     * 解析长度字段。
+     *
+     * @param bytes       包含长度字节的数组
+     * @param offset      长度字段偏移量
+     * @param fieldLength 长度字段字节数
+     * @return 解析出的长度值
+     */
     private static int parseLength(byte[] bytes, int offset, int fieldLength) {
         switch (fieldLength) {
             case 1:
@@ -840,87 +840,87 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 注册 TCP 处理器（链式调用）。
-    *
-    * @param handler 处理器
-    * @return 当前服务器实例
-    */
+     * 注册 TCP 处理器（链式调用）。
+     *
+     * @param handler 处理器
+     * @return 当前服务器实例
+     */
     public JdkTcpServer handler(TcpHandler handler) {
         return registerHandler("*", handler);
     }
 
     /**
-    * TCP 处理器接口。
-    */
+     * TCP 处理器接口。
+     */
     @FunctionalInterface
     public interface TcpHandler {
         /**
-        * 处理 TCP 连接。
-        *
-        * @param in  输入流
-        * @param out 输出流
-        */
+         * 处理 TCP 连接。
+         *
+         * @param in  输入流
+         * @param out 输出流
+         */
         void handle(InputStream in, OutputStream out) throws Exception;
     }
 
     /**
-    * TCP 帧处理方法（支持粘包处理）。
-    *
-    * <p>当启用了粘包处理时，使用此接口代替 TcpHandler。
-    * 可以通过 {@link #receiveFrame} 或 {@link #receiveFrame(InputStream, int)} 方法获取完整的数据帧。</p>
-    *
-    * <h3>示例：固定长度协议</h3>
-    * <pre>{@code
-    * server.setPacketLength(10)
-    *       .handler(new TcpMethod() {
-    *           @Override
-    *           public void handle(InputStream in, OutputStream out) throws Exception {
-    *               byte[] msg;
-    *               while ((msg = receiveFrame(in, 10)) != null) {
-    *                   out.write(msg);
-    *                   out.flush();
-    *               }
-    *           }
-    *       });
-    * }</pre>
-    *
-    * <h3>示例：长度字段协议</h3>
-    * <pre>{@code
-    * server.setLengthFieldOffset(0)
-    *       .setLengthFieldLength(2)
-    *       .handler(new TcpMethod() {
-    *           @Override
-    *           public void handle(InputStream in, OutputStream out) throws Exception {
-    *               byte[] frame;
-    *               while ((frame = receiveFrame(in)) != null) {
-    *                   // frame 包含头部 + 数据
-    *                   out.write(frame);
-    *                   out.flush();
-    *               }
-    *           }
-    *       });
-    * }</pre>
-    */
+     * TCP 帧处理方法（支持粘包处理）。
+     *
+     * <p>当启用了粘包处理时，使用此接口代替 TcpHandler。
+     * 可以通过 {@link #receiveFrame} 或 {@link #receiveFrame(InputStream, int)} 方法获取完整的数据帧。</p>
+     *
+     * <h3>示例：固定长度协议</h3>
+     * <pre>{@code
+     * server.setPacketLength(10)
+     *       .handler(new TcpMethod() {
+     *           @Override
+     *           public void handle(InputStream in, OutputStream out) throws Exception {
+     *               byte[] msg;
+     *               while ((msg = receiveFrame(in, 10)) != null) {
+     *                   out.write(msg);
+     *                   out.flush();
+     *               }
+     *           }
+     *       });
+     * }</pre>
+     *
+     * <h3>示例：长度字段协议</h3>
+     * <pre>{@code
+     * server.setLengthFieldOffset(0)
+     *       .setLengthFieldLength(2)
+     *       .handler(new TcpMethod() {
+     *           @Override
+     *           public void handle(InputStream in, OutputStream out) throws Exception {
+     *               byte[] frame;
+     *               while ((frame = receiveFrame(in)) != null) {
+     *                   // frame 包含头部 + 数据
+     *                   out.write(frame);
+     *                   out.flush();
+     *               }
+     *           }
+     *       });
+     * }</pre>
+     */
     public interface TcpMethod extends TcpHandler {
         /**
-        * 接收固定长度的数据帧。
-        *
-        * @param in   输入流
-        * @param size 期望的帧大小
-        * @return 完整的帧数据
-        * @throws IOException IO 异常
-        */
+         * 接收固定长度的数据帧。
+         *
+         * @param in   输入流
+         * @param size 期望的帧大小
+         * @return 完整的帧数据
+         * @throws IOException IO 异常
+         */
         default byte[] receiveFrame(InputStream in, int size) throws IOException {
             return JdkTcpServer.receiveFrame(in, size);
         }
 
         /**
-        * 接收带长度字段的帧。
-        *
-        * @param in 输入流
-        * @return 完整的帧数据
-        * @throws IOException IO 异常
-        */
+         * 接收带长度字段的帧。
+         *
+         * @param in 输入流
+         * @return 完整的帧数据
+         * @throws IOException IO 异常
+         */
         default byte[] receiveFrame(InputStream in) throws IOException {
             return JdkTcpServer.receiveFrame(in, 0, 4, 0, 1);
         }
@@ -929,47 +929,47 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     private enum State { HEADER, BODY }
 
     /**
-    * 连接级粘包拼帧上下文。
-    */
+     * 连接级粘包拼帧上下文。
+     */
     private static class Attachment {
 
         /**
-        * 长度头缓冲区
-        */
+         * 长度头缓冲区
+         */
         final ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
 
         /**
-        * 归属的 IO Selector（用于 keyFor 关闭连接时定位注册表）
-        */
+         * 归属的 IO Selector（用于 keyFor 关闭连接时定位注册表）
+         */
         final Selector ioSelector;
 
         /**
-        * 当前拼帧阶段
-        */
+         * 当前拼帧阶段
+         */
         State state = State.HEADER;
 
         /**
-        * 消息体长度
-        */
+         * 消息体长度
+         */
         int bodyLen;
 
         /**
-        * 消息体缓冲区
-        */
+         * 消息体缓冲区
+         */
         ByteBuffer bodyBuf;
 
         /**
-        * 创建连接级拼帧上下文。
-        *
-        * @param ioSelector 归属的 IO Selector
-        */
+         * 创建连接级拼帧上下文。
+         *
+         * @param ioSelector 归属的 IO Selector
+         */
         Attachment(Selector ioSelector) {
             this.ioSelector = ioSelector;
         }
 
         /**
-        * 重置拼帧上下文，等待下一帧请求。
-        */
+         * 重置拼帧上下文，等待下一帧请求。
+         */
         void reset() {
             headerBuf.clear();
             state = State.HEADER;

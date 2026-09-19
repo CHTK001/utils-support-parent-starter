@@ -55,83 +55,83 @@ import java.awt.image.WritableRaster;
 public class PixelStyleImageFilter extends AbstractImageFilter {
 
     /**
-    * 像素块大小（网格边长，像素），默认 8
-    * 值越大像素颗粒越粗。建议 2 ~ 32。
-    */
+     * 像素块大小（网格边长，像素），默认 8
+     * 值越大像素颗粒越粗。建议 2 ~ 32。
+     */
     private int blockSize = 8;
 
     /**
-    * 每通道量化级数（2 ~ 8），默认 4
-    * 每通道 4 级 => 共 64 色，接近 GBA 级别。值越小色彩越复古。
-    */
+     * 每通道量化级数（2 ~ 8），默认 4
+     * 每通道 4 级 => 共 64 色，接近 GBA 级别。值越小色彩越复古。
+     */
     private int quantizationLevels = 4;
 
     /**
-    * 调色板模式，默认 NONE（纯量化）
-    * NES/GBA/PS1 模式下会把量化后的颜色吸附到对应复古调色板
-    */
+     * 调色板模式，默认 NONE（纯量化）
+     * NES/GBA/PS1 模式下会把量化后的颜色吸附到对应复古调色板
+     */
     private PaletteMode paletteMode = PaletteMode.NONE;
 
     /**
-    * 是否启用像素块边缘锐化，默认 true
-    */
+     * 是否启用像素块边缘锐化，默认 true
+     */
     private boolean edgeSharpening = true;
 
     /**
-    * 锐化强度 (0.0 - 2.0)，默认 0.5
-    */
+     * 锐化强度 (0.0 - 2.0)，默认 0.5
+     */
     private double sharpenStrength = 0.5;
 
     /**
-    * 是否启用块描边（在像素块边界压暗，强化颗粒边界），默认 false
-    */
+     * 是否启用块描边（在像素块边界压暗，强化颗粒边界），默认 false
+     */
     private boolean blockOutline = false;
 
     /**
-    * 块描边强度 (0.0 - 1.0)，默认 0.25
-    */
+     * 块描边强度 (0.0 - 1.0)，默认 0.25
+     */
     private double blockOutlineStrength = 0.25;
 
     /**
-    * 调色板模式
-    */
+     * 调色板模式
+     */
     public enum PaletteMode {
         /**
-        * 不吸附调色板，仅做阶梯量化
-        */
+         * 不吸附调色板，仅做阶梯量化
+         */
         NONE,
 
         /**
-        * NES 58 色调色板（经典 NES 配色）
-        */
+         * NES 58 色调色板（经典 NES 配色）
+         */
         NES,
 
         /**
-        * GBA 32 色调色板
-        */
+         * GBA 32 色调色板
+         */
         GBA,
 
         /**
-        * PS1 风格 64 色调色板
-        */
+         * PS1 风格 64 色调色板
+         */
         PS1
     }
 
     /**
-    * 执行像素游戏风格滤镜处理
-    *
-    * 处理流水线：
-    * 1. 像素块化（中心像素填充，硬边）
-    * 2. 颜色量化 + 可选调色板吸附
-    * 3. 可选边缘锐化
-    * 4. 可选块描边
-    *
-    * 输出保持与源图像相同的宽高。
-    *
-    * @param src 源图像
-    * @param dst 目标图像（可为空，为空时自动创建）
-    * @return 应用像素游戏风格后的图像
-    */
+     * 执行像素游戏风格滤镜处理
+     *
+     * 处理流水线：
+     * 1. 像素块化（中心像素填充，硬边）
+     * 2. 颜色量化 + 可选调色板吸附
+     * 3. 可选边缘锐化
+     * 4. 可选块描边
+     *
+     * 输出保持与源图像相同的宽高。
+     *
+     * @param src 源图像
+     * @param dst 目标图像（可为空，为空时自动创建）
+     * @return 应用像素游戏风格后的图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
@@ -166,15 +166,15 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用像素块化效果
-    *
-    * 按 blockSize 网格划分，每个块使用中心像素颜色填充整块（硬边，非平均，
-    * 更接近真实像素画"取整像素"的观感）。
-    *
-    * @param src  源图像
-    * @param block 块大小
-    * @return 像素块化后的图像
-    */
+     * 应用像素块化效果
+     *
+     * 按 blockSize 网格划分，每个块使用中心像素颜色填充整块（硬边，非平均，
+     * 更接近真实像素画"取整像素"的观感）。
+     *
+     * @param src  源图像
+     * @param block 块大小
+     * @return 像素块化后的图像
+     */
     private BufferedImage applyPixelation(BufferedImage src, int block) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -203,16 +203,16 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用颜色量化与调色板吸附
-    *
-    * 对 RGB 各通道做阶梯量化，模拟低色彩复古调色板。
-    * 若 paletteMode 不为 NONE，则进一步将量化后的颜色吸附到最接近的调色板颜色。
-    *
-    * @param src     源图像
-    * @param levels  每通道量化级数
-    * @param mode    调色板模式
-    * @return 量化后的图像
-    */
+     * 应用颜色量化与调色板吸附
+     *
+     * 对 RGB 各通道做阶梯量化，模拟低色彩复古调色板。
+     * 若 paletteMode 不为 NONE，则进一步将量化后的颜色吸附到最接近的调色板颜色。
+     *
+     * @param src     源图像
+     * @param levels  每通道量化级数
+     * @param mode    调色板模式
+     * @return 量化后的图像
+     */
     private BufferedImage applyColorQuantization(BufferedImage src, int levels, PaletteMode mode) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -253,12 +253,12 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 单通道阶梯量化
-    *
-    * @param value 原始通道值 (0-255)
-    * @param step  量化步长
-    * @return 量化后的通道值
-    */
+     * 单通道阶梯量化
+     *
+     * @param value 原始通道值 (0-255)
+     * @param step  量化步长
+     * @return 量化后的通道值
+     */
     private int quantize(int value, int step) {
         int q = (int) (Math.round(value / (double) step) * step);
         if (q > 255) {
@@ -268,14 +268,14 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 将颜色吸附到调色板中最接近的颜色（RGB 欧氏距离）
-    *
-    * @param palette 调色板
-    * @param r       红色分量
-    * @param g       绿色分量
-    * @param b       蓝色分量
-    * @return [r, g, b] 吸附后的分量
-    */
+     * 将颜色吸附到调色板中最接近的颜色（RGB 欧氏距离）
+     *
+     * @param palette 调色板
+     * @param r       红色分量
+     * @param g       绿色分量
+     * @param b       蓝色分量
+     * @return [r, g, b] 吸附后的分量
+     */
     private int[] snapToPalette(int[][] palette, int r, int g, int b) {
         int bestIndex = 0;
         int bestDistance = Integer.MAX_VALUE;
@@ -293,11 +293,11 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构建指定模式的复古调色板
-    *
-    * @param mode 调色板模式
-    * @return 调色板（int[colors][3]）
-    */
+     * 构建指定模式的复古调色板
+     *
+     * @param mode 调色板模式
+     * @return 调色板（int[colors][3]）
+     */
     private int[][] buildPalette(PaletteMode mode) {
         switch (mode) {
             case NES:
@@ -312,10 +312,10 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构建 NES 风格调色板（基于经典 58 色 NES 调色板中可合成的代表性子集）
-    *
-    * @return NES 调色板
-    */
+     * 构建 NES 风格调色板（基于经典 58 色 NES 调色板中可合成的代表性子集）
+     *
+     * @return NES 调色板
+     */
     private int[][] buildNesPalette() {
         int[][] palette = new int[58][3];
         // 经典 NES 调色板代表性颜色（RGB）
@@ -341,10 +341,10 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构建 GBA 风格调色板（32 色，1.5.5 色彩深度经典 GBA 调色板）
-    *
-    * @return GBA 调色板
-    */
+     * 构建 GBA 风格调色板（32 色，1.5.5 色彩深度经典 GBA 调色板）
+     *
+     * @return GBA 调色板
+     */
     private int[][] buildGbaPalette() {
         int[][] palette = new int[32][3];
         // GBA 经典 32 色调色板（RGB）
@@ -363,10 +363,10 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 构建 PS1 风格调色板（64 色，模拟 15-bit 色彩的 8-bit 近似）
-    *
-    * @return PS1 调色板
-    */
+     * 构建 PS1 风格调色板（64 色，模拟 15-bit 色彩的 8-bit 近似）
+     *
+     * @return PS1 调色板
+     */
     private int[][] buildPs1Palette() {
         int[][] palette = new int[64][3];
         // PS1 经典 8-bit 调色板（RGB）
@@ -391,13 +391,13 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用边缘锐化
-    *
-    * 使用 3x3 锐化卷积核增强像素块边界对比度。
-    *
-    * @param src 源图像
-    * @return 锐化后的图像
-    */
+     * 应用边缘锐化
+     *
+     * 使用 3x3 锐化卷积核增强像素块边界对比度。
+     *
+     * @param src 源图像
+     * @return 锐化后的图像
+     */
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -455,14 +455,14 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用块描边效果
-    *
-    * 在每个像素块的边界像素上压暗，强化像素颗粒边界。
-    *
-    * @param src   源图像
-    * @param block 块大小
-    * @return 描边后的图像
-    */
+     * 应用块描边效果
+     *
+     * 在每个像素块的边界像素上压暗，强化像素颗粒边界。
+     *
+     * @param src   源图像
+     * @param block 块大小
+     * @return 描边后的图像
+     */
     private BufferedImage applyBlockOutline(BufferedImage src, int block) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -501,11 +501,11 @@ public class PixelStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制到 0-255
-    *
-    * @param value 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制到 0-255
+     *
+     * @param value 原始值
+     * @return 钳制后的值
+     */
     private int clamp(int value) {
         if (value < 0) {
             return 0;

@@ -5,18 +5,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 /**
-* 信号量注册表，按名称缓存并发信号量实例。
-*
-* <p>相同名称的并发隔离共享同一个 {@link Semaphore}，确保并发计数全局一致。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 信号量注册表，按名称缓存并发信号量实例。
+ *
+ * <p>相同名称的并发隔离共享同一个 {@link Semaphore}，确保并发计数全局一致。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public final class SemaphoreRegistry {
 
     /**
-    * 信号量缓存，按名称索引
-    */
+     * 信号量缓存，按名称索引
+     */
     private static final Map<String, Semaphore> CACHE = new ConcurrentHashMap<>();
 
     /** 创建 SemaphoreRegistry 实例 */
@@ -36,8 +36,8 @@ public final class SemaphoreRegistry {
     }
 
     /**
-    * 清空信号量缓存。
-    */
+     * 清空信号量缓存。
+     */
     public static void clear() {
         CACHE.clear();
     }

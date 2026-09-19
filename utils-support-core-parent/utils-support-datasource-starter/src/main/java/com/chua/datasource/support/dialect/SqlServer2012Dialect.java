@@ -8,8 +8,8 @@ public class SqlServer2012Dialect extends SqlDialect {
     */
     public SqlServer2012Dialect() { super("sqlserver2012"); }
     /**
-    * sql服务端2012Dialect。
-    * @param properties 属性
-    */
+     * sql服务端2012Dialect。
+     * @param properties 属性
+     */
     public SqlServer2012Dialect(Properties properties) { super("sqlserver2012", properties); }
 }

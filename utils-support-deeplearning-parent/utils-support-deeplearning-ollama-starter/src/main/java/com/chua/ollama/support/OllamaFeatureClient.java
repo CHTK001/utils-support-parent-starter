@@ -36,30 +36,30 @@ import java.util.List;
 public class OllamaFeatureClient implements FeatureClient {
 
     /**
-    * 客户端 配置
-    */
+     * 客户端 配置
+     */
     private final FeatureClientSetting setting;
 
     /**
-    * ollama4j 原生 客户端
-    */
+     * ollama4j 原生 客户端
+     */
     private final Ollama ollama;
 
     /**
-    * 当前 模型 名称
-    */
+     * 当前 模型 名称
+     */
     private String model;
 
     /**
-    * 输出 向量 维度
-    */
+     * 输出 向量 维度
+     */
     private Integer dimensions;
 
     /**
-    * 创建 Ollama 特征 客户端。
-    *
-    * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
-    */
+     * 创建 Ollama 特征 客户端。
+     *
+     * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
+     */
     public OllamaFeatureClient(FeatureClientSetting setting) {
         this.setting = setting;
         this.ollama = OllamaSupport.client(setting != null ? setting.getBaseUrl() : null);

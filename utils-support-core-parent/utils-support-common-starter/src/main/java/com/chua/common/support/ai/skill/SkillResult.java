@@ -2,12 +2,12 @@ package com.chua.common.support.ai.skill;
 
 
 /**
-* 技能执行结果
-*
-* <p>封装技能执行后的返回结果。
-*
-* @author CH
-* @since 2026/07/15
+ * 技能执行结果
+ *
+ * <p>封装技能执行后的返回结果。
+ *
+ * @author CH
+ * @since 2026/07/15
  */
 public class SkillResult {
 

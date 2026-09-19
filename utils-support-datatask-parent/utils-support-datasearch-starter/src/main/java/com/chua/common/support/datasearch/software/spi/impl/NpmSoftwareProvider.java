@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* NPM 软件包管理器提供器。
-*
-* <p>通过 npm CLI 搜索、安装和卸载 Node.js 软件包。
-* 支持 <code>NPM 搜索</code>、<code>NPM install</code>、<code>NPM uninstall</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * NPM 软件包管理器提供器。
+ *
+ * <p>通过 npm CLI 搜索、安装和卸载 Node.js 软件包。
+ * 支持 <code>NPM 搜索</code>、<code>NPM install</code>、<code>NPM uninstall</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("npm")
 public class NpmSoftwareProvider implements SoftwareProvider {
@@ -153,12 +153,12 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * extractjson值
-    *
-    * @param json json
-    * @param key 键
-    * @return extractjson值的结果
-    */
+     * extractjson值
+     *
+     * @param json json
+     * @param key 键
+     * @return extractjson值的结果
+     */
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\"";
         int keyIndex = json.indexOf(searchKey);

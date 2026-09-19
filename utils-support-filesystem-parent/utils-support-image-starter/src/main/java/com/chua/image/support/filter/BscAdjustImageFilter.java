@@ -71,90 +71,90 @@ import javax.annotation.Nullable;
 public class BscAdjustImageFilter extends AbstractImageFilter {
 
     /**
-    * 亮度调整值，范围 -100 到 +100
-    */
+     * 亮度调整值，范围 -100 到 +100
+     */
     private double brightness;
 
     /**
-    * 对比度调整值，范围 -100 到 +100
-    */
+     * 对比度调整值，范围 -100 到 +100
+     */
     private double contrast;
 
     /**
-    * 饱和度调整值，范围 -100 到 +100
-    */
+     * 饱和度调整值，范围 -100 到 +100
+     */
     private double saturation;
 
     /**
-    * 获取亮度调整值
-    *
-    * @return 亮度调整值，范围 -100 到 +100
-    */
+     * 获取亮度调整值
+     *
+     * @return 亮度调整值，范围 -100 到 +100
+     */
     public double getBrightness() {
         return brightness;
     }
 
     /**
-    * 设置亮度调整值
-    *
-    * @param brightness 亮度调整值，范围 -100 到 +100，0表示不调整
-    * @return 当前滤镜实例，支持链式调用
-    */
+     * 设置亮度调整值
+     *
+     * @param brightness 亮度调整值，范围 -100 到 +100，0表示不调整
+     * @return 当前滤镜实例，支持链式调用
+     */
     public BscAdjustImageFilter setBrightness(double brightness) {
         this.brightness = brightness;
         return this;
     }
 
     /**
-    * 获取饱和度调整值
-    *
-    * @return 饱和度调整值，范围 -100 到 +100
-    */
+     * 获取饱和度调整值
+     *
+     * @return 饱和度调整值，范围 -100 到 +100
+     */
     public double getSaturation() {
         return saturation;
     }
 
     /**
-    * 设置饱和度调整值
-    *
-    * @param saturation 饱和度调整值，范围 -100 到 +100，0表示不调整
-    * @return 当前滤镜实例，支持链式调用
-    */
+     * 设置饱和度调整值
+     *
+     * @param saturation 饱和度调整值，范围 -100 到 +100，0表示不调整
+     * @return 当前滤镜实例，支持链式调用
+     */
     public BscAdjustImageFilter setSaturation(double saturation) {
         this.saturation = saturation;
         return this;
     }
 
     /**
-    * 获取对比度调整值
-    *
-    * @return 对比度调整值，范围 -100 到 +100
-    */
+     * 获取对比度调整值
+     *
+     * @return 对比度调整值，范围 -100 到 +100
+     */
     public double getContrast() {
         return contrast;
     }
 
     /**
-    * 设置对比度调整值
-    *
-    * @param contrast 对比度调整值，范围 -100 到 +100，0表示不调整
-    * @return 当前滤镜实例，支持链式调用
-    */
+     * 设置对比度调整值
+     *
+     * @param contrast 对比度调整值，范围 -100 到 +100，0表示不调整
+     * @return 当前滤镜实例，支持链式调用
+     */
     public BscAdjustImageFilter setContrast(double contrast) {
         this.contrast = contrast;
         return this;
     }
 
     /**
-    * 执行 BSC 调整滤镜处理
-    *
-    * 对图像进行亮度、饱和度和对比度的综合调整。
-    * 使用 HSL 颜色空间进行亮度和饱和度调整，RGB 空间进行对比度调整。
-    *
-    * @param src  源图像
-    * @param dest 目标图像，可以为 空
-    * @return 调整后的图像
-    */
+     * 执行 BSC 调整滤镜处理
+     *
+     * 对图像进行亮度、饱和度和对比度的综合调整。
+     * 使用 HSL 颜色空间进行亮度和饱和度调整，RGB 空间进行对比度调整。
+     *
+     * @param src  源图像
+     * @param dest 目标图像，可以为 空
+     * @return 调整后的图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dest) {
         // 处理参数，将百分比转换为乘法因子
@@ -234,11 +234,11 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 处理调整参数
-    *
-    * 将百分比形式的调整参数转换为乘法因子。
-    * 输入范围 -100 到 +100，转换为 0.0 到 2.0 的乘法因子。
-    */
+     * 处理调整参数
+     *
+     * 将百分比形式的调整参数转换为乘法因子。
+     * 输入范围 -100 到 +100，转换为 0.0 到 2.0 的乘法因子。
+     */
     public void handleParameters() {
         contrast = (1.0 + contrast / 100.0);
         brightness = (1.0 + brightness / 100.0);

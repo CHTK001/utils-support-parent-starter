@@ -10,7 +10,7 @@ package com.chua.common.support.value;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 final class NullValue implements Value<Object> {
 
     /** 全局单例实例 */
@@ -21,41 +21,41 @@ final class NullValue implements Value<Object> {
     }
 
     /**
-    * 始终返回 空。
-    *
-    * @return null
-    */
+     * 始终返回 空。
+     *
+     * @return null
+     */
     @Override
     public Object getValue() {
         return null;
     }
 
     /**
-    * 始终返回 空。
-    *
-    * @return null
-    */
+     * 始终返回 空。
+     *
+     * @return null
+     */
     @Override
     public Throwable getThrowable() {
         return null;
     }
 
     /**
-    * 始终返回 true，表示值为空。
-    *
-    * @return true
-    */
+     * 始终返回 true，表示值为空。
+     *
+     * @return true
+     */
     @Override
     public boolean isNull() {
         return true;
     }
 
     /**
-    * 判断指定值是否为 空。
-    *
-    * @param value 指定值
-    * @return true 表示指定值为 空
-    */
+     * 判断指定值是否为 空。
+     *
+     * @param value 指定值
+     * @return true 表示指定值为 空
+     */
     @Override
     public boolean is(Object value) {
         return value == null;

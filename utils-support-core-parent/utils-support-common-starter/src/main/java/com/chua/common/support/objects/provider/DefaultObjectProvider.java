@@ -11,7 +11,7 @@ import com.chua.common.support.objects.ObjectContext;
  * @param <T> 对象类型泛型
  * @author CH
  * @since 2024/12/20
-*/
+ */
 public class DefaultObjectProvider<T> implements ObjectProvider<T> {
 
     /** CTX */
@@ -22,11 +22,11 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
     private final Class<T> type;
 
     /**
-    * 创建 默认对象提供者 实例
-    * @param ctx ctx
-    * @param type 类
-    * @param type 类型
-    */
+     * 创建 默认对象提供者 实例
+     * @param ctx ctx
+     * @param type 类
+     * @param type 类型
+     */
     public DefaultObjectProvider(ObjectContext ctx, Class<T> type) {
         this.ctx = ctx;
         this.type = type;

@@ -20,86 +20,86 @@ import java.util.Map;
 
 
 /**
-* yolov8
-* <p>
-* yolov8 身份证检测
-*                                  
-* </p>
-* <p>
-*                
-* -                               Detection                           
-* -          yolov8-执照-铭牌                           /
-* -                640x640               
-* -                             [0, 1]
-* </p>
-* <p>
-*                
-* -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
-* -                [1, 6, 8400] - (x_center, y_center, w, h, 类1_conf, 类2_conf)
-* -                    NMS                           
-* </p>
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/01/22
+ * yolov8
+ * <p>
+ * yolov8 身份证检测
+ *                                  
+ * </p>
+ * <p>
+ *                
+ * -                               Detection                           
+ * -          yolov8-执照-铭牌                           /
+ * -                640x640               
+ * -                             [0, 1]
+ * </p>
+ * <p>
+ *                
+ * -                [1, 3, 640, 640] - NCHW   RGB          [0, 1]          
+ * -                [1, 6, 8400] - (x_center, y_center, w, h, 类1_conf, 类2_conf)
+ * -                    NMS                           
+ * </p>
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/01/22
  */
 @Slf4j
 public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    *                             640x640   
-    */
+     *                             640x640   
+     */
     private final int inputSize;
 
     /**
-    *                      
-    */
+     *                      
+     */
     private final float minConfThreshold;
 
     /**
-    * IOU       
-    */
+     * IOU       
+     */
     private final float iouThreshold;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private final int topK;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private int imageWidth;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private int imageHeight;
 
     /**
-    * letterbox
-    */
+     * letterbox
+     */
     private LetterBoxUtils.ResizeResult letterBoxResult;
 
     /**
-    *                                     
-    * <p>
-    *             
-    * - 输入大小: 640x640
-    * - 最小conf阈值: 0.3
-    * - iou阈值: 0.5
-    * - topk: 100
-    * </p>
-    */
+     *                                     
+     * <p>
+     *             
+     * - 输入大小: 640x640
+     * - 最小conf阈值: 0.3
+     * - iou阈值: 0.5
+     * - topk: 100
+     * </p>
+     */
     public Yolo8IdCardDetectTranslator() {
         this(640, 0.3f, 0.5f, 100);
     }
 
     /**
-    * 映射
-    *
-    * @param arguments             
-    */
+     * 映射
+     *
+     * @param arguments             
+     */
     public Yolo8IdCardDetectTranslator(Map<String, ?> arguments) {
         this.minConfThreshold = arguments.containsKey("confThreshold")
                 ? Float.parseFloat(arguments.get("confThreshold").toString())
@@ -119,13 +119,13 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-    *             
-    *
-    * @param inputSize                                            
-    * @param minConfThreshold                       [0.0, 1.0]
-    * @param iouThreshold     IOU        [0.0, 1.0]
-    * @param topK                                
-    */
+     *             
+     *
+     * @param inputSize                                            
+     * @param minConfThreshold                       [0.0, 1.0]
+     * @param iouThreshold     IOU        [0.0, 1.0]
+     * @param topK                                
+     */
     public Yolo8IdCardDetectTranslator(int inputSize, float minConfThreshold, float iouThreshold, int topK) {
         this.inputSize = inputSize;
         this.minConfThreshold = minConfThreshold;

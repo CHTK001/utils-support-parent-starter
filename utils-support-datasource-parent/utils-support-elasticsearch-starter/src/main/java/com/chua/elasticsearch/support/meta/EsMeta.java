@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-* Elasticsearch 元数据操作实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Elasticsearch 元数据操作实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EsMeta extends AbstractMetaSearch {
 

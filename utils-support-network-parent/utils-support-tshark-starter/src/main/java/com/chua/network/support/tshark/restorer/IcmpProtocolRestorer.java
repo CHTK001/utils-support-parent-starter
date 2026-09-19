@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* ICMP 协议还原器。
-*
-* <p>解析 ICMP type/code 并给出常见组合的可读描述。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ICMP 协议还原器。
+ *
+ * <p>解析 ICMP type/code 并给出常见组合的可读描述。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -59,11 +59,11 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为类型名称
-    *
-    * @param type 类型
-    * @return 转为类型名称的结果
-    */
+     * 转为类型名称
+     *
+     * @param type 类型
+     * @return 转为类型名称的结果
+     */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "EchoReply";
@@ -84,12 +84,12 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为编码名称
-    *
-    * @param type 类型
-    * @param code 编码
-    * @return 转为编码名称的结果
-    */
+     * 转为编码名称
+     *
+     * @param type 类型
+     * @param code 编码
+     * @return 转为编码名称的结果
+     */
     private static String toCodeName(int type, int code) {
         if (type == 3) {
             return switch (code) {

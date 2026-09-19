@@ -67,57 +67,57 @@ import java.util.stream.Collectors;
 public class MosaicArtCircularImageFilter extends AbstractImageFilter {
 
     /**
-    * 贴图目录
-    */
+     * 贴图目录
+     */
     private String tilesDir;
 
     /**
-    * 网格格子像素宽，默认 64
-    */
+     * 网格格子像素宽，默认 64
+     */
     private int tileSize = 64;
 
     /**
-    * 贴图绘制尺寸，默认 0（= tileSize）
-    */
+     * 贴图绘制尺寸，默认 0（= tileSize）
+     */
     private int tileDrawSize = 0;
 
     /**
-    * 贴图扩展名白名单
-    */
+     * 贴图扩展名白名单
+     */
     private String extensions = "jpg,jpeg,png,bmp";
 
     /**
-    * 圆形描边宽度（像素），默认 0
-    */
+     * 圆形描边宽度（像素），默认 0
+     */
     private int borderWidth = 0;
 
     /**
-    * 描边颜色，默认 #FFFFFF
-    */
+     * 描边颜色，默认 #FFFFFF
+     */
     private String borderColor = "#FFFFFF";
 
     /**
-    * 圆贴收缩比 (0.0-0.5)，默认 0.1
-    */
+     * 圆贴收缩比 (0.0-0.5)，默认 0.1
+     */
     private double gap = 0.1;
 
     /**
-    * 背景色（十六进制，null = 透明），默认 null
-    */
+     * 背景色（十六进制，null = 透明），默认 null
+     */
     private String background;
 
     /**
-    * 贴图缓存
-    */
+     * 贴图缓存
+     */
     private final Map<Path, BufferedImage> tileCache = new LinkedHashMap<>();
 
     /**
-    * 执行圆形贴图马赛克滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 圆贴马赛克图像
-    */
+     * 执行圆形贴图马赛克滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 圆贴马赛克图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -185,12 +185,12 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 把贴图缩放后裁剪成圆形（透明底 + 抗锯齿）
-    *
-    * @param tile 原贴图
-    * @param size 圆形直径（像素）
-    * @return 圆形贴图
-    */
+     * 把贴图缩放后裁剪成圆形（透明底 + 抗锯齿）
+     *
+     * @param tile 原贴图
+     * @param size 圆形直径（像素）
+     * @return 圆形贴图
+     */
     private BufferedImage makeCircle(BufferedImage tile, int size) {
         BufferedImage scaled = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = scaled.createGraphics();
@@ -211,8 +211,8 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 加载贴图目录
-    */
+     * 加载贴图目录
+     */
     private void loadTiles() {
         if (tilesDir == null || tilesDir.isEmpty()) {
             return;
@@ -239,21 +239,21 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 读取图片
-    * @param p 方法入参 p
-    * @return BufferedImage 对象
-    */
+     * 读取图片
+     * @param p 方法入参 p
+     * @return BufferedImage 对象
+     */
     private BufferedImage ImageIORead(Path p) throws IOException {
         return javax.imageio.ImageIO.read(p.toFile());
     }
 
     /**
-    * 颜色匹配选贴图
-    * @param r 方法入参 r
-    * @param g 方法入参 g
-    * @param b 方法入参 b
-    * @return BufferedImage 对象
-    */
+     * 颜色匹配选贴图
+     * @param r 方法入参 r
+     * @param g 方法入参 g
+     * @param b 方法入参 b
+     * @return BufferedImage 对象
+     */
     private BufferedImage pickTile(int r, int g, int b) {
         BufferedImage best = null;
         int bestDist = Integer.MAX_VALUE;
@@ -272,10 +272,10 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 贴图平均色（缓存）
-    * @param t 方法入参 t
-    * @return 结果值
-    */
+     * 贴图平均色（缓存）
+     * @param t 方法入参 t
+     * @return 结果值
+     */
     private int[] averageOf(BufferedImage t) {
         int[] px = t.getRGB(0, 0, t.getWidth(), t.getHeight(), null, 0, t.getWidth());
         long sr = 0, sg = 0, sb = 0;
@@ -289,15 +289,15 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 从源图采样格子平均色
-    * @param pixels 方法入参 pixels
-    * @param w 方法入参 w
-    * @param h 方法入参 h
-    * @param cx 方法入参 cx
-    * @param cy 方法入参 cy
-    * @param cs 方法入参 cs
-    * @return 结果值
-    */
+     * 从源图采样格子平均色
+     * @param pixels 方法入参 pixels
+     * @param w 方法入参 w
+     * @param h 方法入参 h
+     * @param cx 方法入参 cx
+     * @param cy 方法入参 cy
+     * @param cs 方法入参 cs
+     * @return 结果值
+     */
     private int[] averageColor(int[] pixels, int w, int h, int cx, int cy, int cs) {
         int x0 = Math.max(0, cx - cs / 2);
         int y0 = Math.max(0, cy - cs / 2);
@@ -321,10 +321,10 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 扩展名白名单切分
-    * @param exts 方法入参 exts
-    * @return 结果值
-    */
+     * 扩展名白名单切分
+     * @param exts 方法入参 exts
+     * @return 结果值
+     */
     private java.util.Set<String> splitExtensions(String exts) {
         if (exts == null || exts.isEmpty()) {
             return java.util.Set.of("jpg", "jpeg", "png", "bmp");
@@ -336,10 +336,10 @@ public class MosaicArtCircularImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 解析十六进制颜色
-    * @param hex 方法入参 hex
-    * @return 结果值
-    */
+     * 解析十六进制颜色
+     * @param hex 方法入参 hex
+     * @return 结果值
+     */
     private java.awt.Color parseColor(String hex) {
         try {
             return java.awt.Color.decode(hex);

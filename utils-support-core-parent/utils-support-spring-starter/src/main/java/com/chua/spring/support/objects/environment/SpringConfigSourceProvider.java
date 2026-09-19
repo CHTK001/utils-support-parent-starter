@@ -10,11 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
-* Spring 配置源提供者，将 Spring {@link org.springframework.core.env.Environment}
-* 中的 {@link org.springframework.core.env.PropertySource} 包装为框架配置源。
-*
-* @author CH
-* @since 2024/12/20
+ * Spring 配置源提供者，将 Spring {@link org.springframework.core.env.Environment}
+ * 中的 {@link org.springframework.core.env.PropertySource} 包装为框架配置源。
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @Slf4j
 @Spi("spring")

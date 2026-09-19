@@ -7,22 +7,22 @@ package com.chua.common.support.taskdistribution.task;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public enum TaskPriority {
     /**
-    * 低优先级
-    */
+     * 低优先级
+     */
     LOW(0),
 
     /**
-    * 中优先级（默认）
-    */
+     * 中优先级（默认）
+     */
     MEDIUM(5),
 
     /**
-    * 高优先级
-    * @param 10 方法入参 10
-    */
+     * 高优先级
+     * @param 10 方法入参 10
+     */
     HIGH(10);
 
     /** 级别 */
@@ -38,10 +38,10 @@ public enum TaskPriority {
     }
 
     /**
-    * 获取优先级等级数值。
-    *
-    * @return 等级值（越大优先级越高）
-    */
+     * 获取优先级等级数值。
+     *
+     * @return 等级值（越大优先级越高）
+     */
     public int getLevel() {
         return level;
     }

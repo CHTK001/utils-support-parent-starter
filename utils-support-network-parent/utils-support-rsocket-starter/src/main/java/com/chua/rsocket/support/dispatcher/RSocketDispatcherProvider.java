@@ -20,40 +20,40 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
-* rSocket 分发器提供者，基于 rSocket Java 客户端连接远程 rSocket 服务。
-* <p>
-* 作为客户端接入远程 rSocket 服务，通过 请求流 订阅 topic，
-* 服务端推送消息后本地逐条分发给对应订阅定义。
-* 本地不启动任何服务器，所有连接都指向外部已部署的 rSocket 服务。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * rSocket 分发器提供者，基于 rSocket Java 客户端连接远程 rSocket 服务。
+ * <p>
+ * 作为客户端接入远程 rSocket 服务，通过 请求流 订阅 topic，
+ * 服务端推送消息后本地逐条分发给对应订阅定义。
+ * 本地不启动任何服务器，所有连接都指向外部已部署的 rSocket 服务。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("rsocket")
 public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-    * rSocket 客户端连接
-    */
+     * rSocket 客户端连接
+     */
     private io.rsocket.RSocket rSocket;
 
     /**
-    * topic 到订阅定义的映射
-    */
+     * topic 到订阅定义的映射
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-    * topic 到远程订阅流的映射
-    */
+     * topic 到远程订阅流的映射
+     */
     private final Map<String, Disposable> topicSubscriptions = new ConcurrentHashMap<>();
 
     /**
-    * 构造 rSocket 分发器提供者。
-    *
-    * @param config 分发器配置
-    */
+     * 构造 rSocket 分发器提供者。
+     *
+     * @param config 分发器配置
+     */
     public RSocketDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
@@ -150,14 +150,14 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 在远程服务上注册 topic 订阅流。
-    * <p>
-    * 通过 请求流 向远端发送订阅请求，远端推送消息后逐条分发。
-    * 同一个 topic 只注册一次。
-    * </p>
-    *
-    * @param topic 主题名称
-    */
+     * 在远程服务上注册 topic 订阅流。
+     * <p>
+     * 通过 请求流 向远端发送订阅请求，远端推送消息后逐条分发。
+     * 同一个 topic 只注册一次。
+     * </p>
+     *
+     * @param topic 主题名称
+     */
     private void registerRemoteSubscription(String topic) {
         if (topicSubscriptions.containsKey(topic)) {
             return;
@@ -178,11 +178,11 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 将远端推送的消息分发给本地订阅定义。
-    *
-    * @param topic 主题名称
-    * @param data  消息内容
-    */
+     * 将远端推送的消息分发给本地订阅定义。
+     *
+     * @param topic 主题名称
+     * @param data  消息内容
+     */
     private void dispatchToLocal(String topic, String data) {
         List<DispatcherDefinition> defs = definitionMap.get(topic);
         if (defs == null) {
@@ -198,14 +198,14 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 从配置 URL 解析端口号。
-    * <p>
-    * 支持 rsocket://、http://、https:// 前缀。
-    * 未配置或解析失败时返回默认端口 7000。
-    * </p>
-    *
-    * @return 端口号
-    */
+     * 从配置 URL 解析端口号。
+     * <p>
+     * 支持 rsocket://、http://、https:// 前缀。
+     * 未配置或解析失败时返回默认端口 7000。
+     * </p>
+     *
+     * @return 端口号
+     */
     private int parsePort() {
         String url = config.getUrl();
         if (url == null || url.isEmpty()) {
@@ -231,14 +231,14 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 从配置 URL 解析主机地址。
-    * <p>
-    * 支持 rsocket://、http://、https:// 前缀。
-    * 未配置或解析失败时返回默认主机 localhost。
-    * </p>
-    *
-    * @return 主机地址
-    */
+     * 从配置 URL 解析主机地址。
+     * <p>
+     * 支持 rsocket://、http://、https:// 前缀。
+     * 未配置或解析失败时返回默认主机 localhost。
+     * </p>
+     *
+     * @return 主机地址
+     */
     private String parseHost() {
         String url = config.getUrl();
         if (url == null || url.isEmpty()) {

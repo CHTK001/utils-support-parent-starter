@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
     /**
-    * Agent调试 middleware 类。
-    * 拦截Agent推理/执行事件，统计迭代次数、工具调用次数与 token 用量，
-    * 并转发给调试钩子与计划钩子。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * Agent调试 middleware 类。
+     * 拦截Agent推理/执行事件，统计迭代次数、工具调用次数与 token 用量，
+     * 并转发给调试钩子与计划钩子。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
 public class AgentDebugMiddleware implements MiddlewareBase {
 
@@ -160,12 +160,12 @@ public class AgentDebugMiddleware implements MiddlewareBase {
     }
 
     /**
-    * 从事件中解析工具名称。
-    * 当前仅支持 ToolCallStartEvent；其他事件返回 null。
-    *
-    * @param event Agent事件
-    * @return 工具名称，无法解析时返回 null
-    */
+     * 从事件中解析工具名称。
+     * 当前仅支持 ToolCallStartEvent；其他事件返回 null。
+     *
+     * @param event Agent事件
+     * @return 工具名称，无法解析时返回 null
+     */
     private static String resolveToolName(AgentEvent event) {
         if (event instanceof ToolCallStartEvent start) {
             return start.getToolCallName();

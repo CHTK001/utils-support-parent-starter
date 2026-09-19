@@ -21,10 +21,10 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
-* 微信支付渠道实现
-*
-* @author CH
-* @since 4.0.0.42
+ * 微信支付渠道实现
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("tenpay")
@@ -90,11 +90,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * jsapi薪酬
-    *
-    * @param request 请求
-    * @return jsapi薪酬的结果
-    */
+     * jsapi薪酬
+     *
+     * @param request 请求
+     * @return jsapi薪酬的结果
+     */
     private PaymentResponse jsapiPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("JSAPI");
@@ -116,11 +116,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * app薪酬
-    *
-    * @param request 请求
-    * @return app薪酬的结果
-    */
+     * app薪酬
+     *
+     * @param request 请求
+     * @return app薪酬的结果
+     */
     private PaymentResponse appPay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("APP");
@@ -139,11 +139,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * h薪酬
-    *
-    * @param request 请求
-    * @return h5薪酬的结果
-    */
+     * h薪酬
+     *
+     * @param request 请求
+     * @return h5薪酬的结果
+     */
     private PaymentResponse h5Pay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("MWEB");
@@ -172,11 +172,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * NAT薪酬
-    *
-    * @param request 请求
-    * @return NAT薪酬的结果
-    */
+     * NAT薪酬
+     *
+     * @param request 请求
+     * @return NAT薪酬的结果
+     */
     private PaymentResponse nativePay(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = buildOrderRequest(request);
         orderRequest.setTradeType("NATIVE");
@@ -200,11 +200,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * bar编码薪酬
-    *
-    * @param request 请求
-    * @return bar编码薪酬的结果
-    */
+     * bar编码薪酬
+     *
+     * @param request 请求
+     * @return bar编码薪酬的结果
+     */
     private PaymentResponse barCodePay(PaymentRequest request) {
         WxPayMicropayRequest micropayRequest = new WxPayMicropayRequest();
         if (request.getExtParams() != null) {
@@ -231,11 +231,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * 构建订单请求
-    *
-    * @param request 请求
-    * @return 构建订单请求的结果
-    */
+     * 构建订单请求
+     *
+     * @param request 请求
+     * @return 构建订单请求的结果
+     */
     private WxPayUnifiedOrderRequest buildOrderRequest(PaymentRequest request) {
         WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setBody(request.getSubject());
@@ -255,10 +255,10 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * 校验结果
-    *
-    * @param result 结果
-    */
+     * 校验结果
+     *
+     * @param result 结果
+     */
     private void checkResult(BaseWxPayResult result) {
         if (!"SUCCESS".equals(result.getReturnCode())) {
             throw new PayException("WXPAY_ERROR", result.getReturnMsg());
@@ -269,11 +269,11 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * 转为json
-    *
-    * @param map 映射
-    * @return 转为json的结果
-    */
+     * 转为json
+     *
+     * @param map 映射
+     * @return 转为json的结果
+     */
     private static String toJson(Map<String, String> map) {
         if (map == null || map.isEmpty()) {
             return "{}";

@@ -11,10 +11,10 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* 压缩格式归档输入流提供者
-*
-* @author CH
-* @since 4.0.0.42
+ * 压缩格式归档输入流提供者
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("zip")
 public class ZipCompressArchiveInputStream implements CompressArchiveInputStream {

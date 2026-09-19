@@ -18,61 +18,61 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* YOLO                                  
-* <p>
-* yolov8, yolov10, yolov11, yolov12
-*                 ONNX             /                  
-* <p>
-*                
-* -                  ONNX                                        
-* -                                      
-* -                                                vs                   
-* -                                            
-* -               NMS                                 
-* <p>
-*           ONNX                
-* <p>
-* 1   [1, num_特征, num_boxes] -
-* -          [1, 5, 8400]     [1, 5+num_classes, num_boxes]
-* -                                                       640x640   
-* -                      2      
-* <p>
-* 2   [1, num_boxes, num_特征] -
-* -          [1, 8400, 5]     [1, num_boxes, 5+num_classes]
-* -                                              
-* -          (cx, cy, w, h, 信心, [类_scores...])
-* <p>
-*                      
-* <pre>{@code
-* // YOLOv10
-* public class Yolo10Translator extends YoloTranslator {
-*     public Yolo10Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
-*         super(inputSize, threshold, nmsThreshold, classes, true);
-*     }
-* }
-*
-* // YOLOv11
-* public class Yolo11Translator extends YoloTranslator {
-*     public Yolo11Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
-*         super(inputSize, threshold, nmsThreshold, classes, true);
-*     }
-* }
-*
-* // YOLOv12
-* public class Yolo12Translator extends YoloTranslator {
-*     public Yolo12Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
-*         super(inputSize, threshold, nmsThreshold, classes, true);
-*     }
-* }
-* }</pre><String> 类) {
-* 父(输入大小, 阈值, nms阈值, 类, true);
-*     }
-* }
-* }</pre>
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/11/17
+ * YOLO                                  
+ * <p>
+ * yolov8, yolov10, yolov11, yolov12
+ *                 ONNX             /                  
+ * <p>
+ *                
+ * -                  ONNX                                        
+ * -                                      
+ * -                                                vs                   
+ * -                                            
+ * -               NMS                                 
+ * <p>
+ *           ONNX                
+ * <p>
+ * 1   [1, num_特征, num_boxes] -
+ * -          [1, 5, 8400]     [1, 5+num_classes, num_boxes]
+ * -                                                       640x640   
+ * -                      2      
+ * <p>
+ * 2   [1, num_boxes, num_特征] -
+ * -          [1, 8400, 5]     [1, num_boxes, 5+num_classes]
+ * -                                              
+ * -          (cx, cy, w, h, 信心, [类_scores...])
+ * <p>
+ *                      
+ * <pre>{@code
+ * // YOLOv10
+ * public class Yolo10Translator extends YoloTranslator {
+ *     public Yolo10Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
+ *         super(inputSize, threshold, nmsThreshold, classes, true);
+ *     }
+ * }
+ *
+ * // YOLOv11
+ * public class Yolo11Translator extends YoloTranslator {
+ *     public Yolo11Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
+ *         super(inputSize, threshold, nmsThreshold, classes, true);
+ *     }
+ * }
+ *
+ * // YOLOv12
+ * public class Yolo12Translator extends YoloTranslator {
+ *     public Yolo12Translator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
+ *         super(inputSize, threshold, nmsThreshold, classes, true);
+ *     }
+ * }
+ * }</pre><String> 类) {
+ * 父(输入大小, 阈值, nms阈值, 类, true);
+ *     }
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/11/17
  */
 @Slf4j
 class YoloTranslator implements Translator<Image, DetectedObjects> {
@@ -95,51 +95,51 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     );
 
     /**
-    *                                        
-    */
+     *                                        
+     */
     protected final int inputSize;
 
     /**
-    *                
-    */
+     *                
+     */
     protected final float threshold;
 
     /**
-    * NMS (Non-Maximum Suppression)       
-    */
+     * NMS (Non-Maximum Suppression)       
+     */
     protected final float nmsThreshold;
 
     /**
-    *                   
-    */
+     *                   
+     */
     protected final List<String> classes;
 
     /**
-    *                             [0, 1]
-    * true:                       (0-1)                              
-    * false:                    (0-镜像width/镜像height)
-    */
+     *                             [0, 1]
+     * true:                       (0-1)                              
+     * false:                    (0-镜像width/镜像height)
+     */
     protected final boolean normalizeCoordinates;
 
     /**
-    *                                     
-    */
+     *                                     
+     */
     protected int imageWidth;
 
     /**
-    *                                     
-    */
+     *                                     
+     */
     protected int imageHeight;
 
     /**
-    *                               
-    *
-    * @param inputSize                               
-    * @param threshold                            
-    * @param nmsThreshold          NMS       
-    * @param classes                                 
-    * @param normalizeCoordinates                              [0, 1]
-    */
+     *                               
+     *
+     * @param inputSize                               
+     * @param threshold                            
+     * @param nmsThreshold          NMS       
+     * @param classes                                 
+     * @param normalizeCoordinates                              [0, 1]
+     */
     protected YoloTranslator(int inputSize, float threshold, float nmsThreshold, List<String> classes,
                             boolean normalizeCoordinates) {
         this.inputSize = inputSize;
@@ -160,22 +160,22 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    *        YOLO                                  
-    *
-    * @return                       "YOLOv8", "yolov10", "yolov11", "yolov12"
-    */
+     *        YOLO                                  
+     *
+     * @return                       "YOLOv8", "yolov10", "yolov11", "yolov12"
+     */
     protected String getYoloVersion() {
         return "YOLO";
     }
 
     /**
-    *                   
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList
-    * @throws Exception             
-    */
+     *                   
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
@@ -200,12 +200,12 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 转为normalizedchw
-    *
-    * @param ctx ctx
-    * @param array array
-    * @return 转为normalizedchw的结果
-    */
+     * 转为normalizedchw
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
+     */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {
@@ -233,24 +233,24 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    *                   
-    * <p>
-    *              ONNX                
-    * 1. [1, num_特征, num_boxes] = [1, 5, 8400] -
-    * 2. [1, num_boxes, num_特征] = [1, 8400, 5+num_类] -
-    * <p>
-    *                
-    * 1.                                                 
-    * 2.                                              
-    * 3.                                                    
-    * 4.                                [0, 1]
-    * 5.        NMS                      
-    *
-    * @param ctx                    
-    * @param list              nd列表
-    * @return             
-    * @throws Exception             
-    */
+     *                   
+     * <p>
+     *              ONNX                
+     * 1. [1, num_特征, num_boxes] = [1, 5, 8400] -
+     * 2. [1, num_boxes, num_特征] = [1, 8400, 5+num_类] -
+     * <p>
+     *                
+     * 1.                                                 
+     * 2.                                              
+     * 3.                                                    
+     * 4.                                [0, 1]
+     * 5.        NMS                      
+     *
+     * @param ctx                    
+     * @param list              nd列表
+     * @return             
+     * @throws Exception             
+     */
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
@@ -448,15 +448,15 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * Non-Maximum Suppression (NMS)
-    * <p>
-    *                                                 
-    *
-    * @param boxes                       
-    * @param probabilities             
-    * @param nmsThreshold  NMS       
-    * @return                      
-    */
+     * Non-Maximum Suppression (NMS)
+     * <p>
+     *                                                 
+     *
+     * @param boxes                       
+     * @param probabilities             
+     * @param nmsThreshold  NMS       
+     * @return                      
+     */
     protected List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
         List<Integer> indices = new ArrayList<>();
         if (boxes.isEmpty()) {
@@ -499,12 +499,12 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * iou (Intersection over Union)
-    *
-    * @param box1           1
-    * @param box2           2
-    * @return IoU    
-    */
+     * iou (Intersection over Union)
+     *
+     * @param box1           1
+     * @param box2           2
+     * @return IoU    
+     */
     protected double calculateIoU(BoundingBox box1, BoundingBox box2) {
         Rectangle rect1 = box1.getBounds();
         Rectangle rect2 = box2.getBounds();
@@ -523,33 +523,33 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    *                   
-    *
-    * @return STACK             
-    */
+     *                   
+     *
+     * @return STACK             
+     */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }
 
     /**
-    * materializearray
-    *
-    * @param ctx ctx
-    * @param array array
-    * @return materializeArray的结果
-    */
+     * materializearray
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return materializeArray的结果
+     */
     protected NDArray materializeArray(TranslatorContext ctx, NDArray array) {
         return ctx.getNDManager().create(array.toFloatArray(), array.getShape());
     }
 
     /**
-    * Transposed
-    *
-    * @param ctx ctx
-    * @param array array
-    * @return transpose2d的结果
-    */
+     * Transposed
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return transpose2d的结果
+     */
     protected NDArray transpose2d(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 2) {
@@ -572,16 +572,16 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 读取matrix值
-    *
-    * @param data 数据
-    * @param rows rows
-    * @param cols cols
-    * @param transposedView transposedview
-    * @param row row
-    * @param col col
-    * @return 读取matrix值的结果
-    */
+     * 读取matrix值
+     *
+     * @param data 数据
+     * @param rows rows
+     * @param cols cols
+     * @param transposedView transposedview
+     * @param row row
+     * @param col col
+     * @return 读取matrix值的结果
+     */
     protected float readMatrixValue(float[] data, int rows, int cols, boolean transposedView, long row, long col) {
         int rowIndex = Math.toIntExact(row);
         int colIndex = Math.toIntExact(col);
@@ -591,13 +591,13 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 解析类名称
-    *
-    * @param classId 类标识
-    * @param numFeatures num特征
-    * @param classStartIndex 类启动索引
-    * @return resolve类名称的结果
-    */
+     * 解析类名称
+     *
+     * @param classId 类标识
+     * @param numFeatures num特征
+     * @param classStartIndex 类启动索引
+     * @return resolve类名称的结果
+     */
     private String resolveClassName(int classId, long numFeatures, int classStartIndex) {
         if (classId >= 0 && classId < classes.size()) {
             return classes.get(classId);

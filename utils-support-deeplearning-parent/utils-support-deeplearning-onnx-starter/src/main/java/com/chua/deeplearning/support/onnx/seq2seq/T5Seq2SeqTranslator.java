@@ -20,20 +20,20 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
-* T5 Seq2Seq ONNX                 
-* <p>
-* T5 (文本-转为-文本 调动 转换)
-* 翻译、summarization、QA、文本 generation
-* 编码器_模型.onnx + 解码器_with_past_模型.onnx
-* </p>
-* <p>
-* : Xenova/t5-small / t5-基础
-* : 编码器_模型.onnx -> 编码器_hidden_状态
-* : 解码器_with_past_模型.onnx -> autoregressive -> logits -> 文本
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * T5 Seq2Seq ONNX                 
+ * <p>
+ * T5 (文本-转为-文本 调动 转换)
+ * 翻译、summarization、QA、文本 generation
+ * 编码器_模型.onnx + 解码器_with_past_模型.onnx
+ * </p>
+ * <p>
+ * : Xenova/t5-small / t5-基础
+ * : 编码器_模型.onnx -> 编码器_hidden_状态
+ * : 解码器_with_past_模型.onnx -> autoregressive -> logits -> 文本
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class T5Seq2SeqTranslator implements Translator<String, String> {
@@ -120,11 +120,11 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
     }
 
     /**
-    * 解析模型根
-    *
-    * @param modelPath 模型路径
-    * @return resolve模型根的结果
-    */
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -136,12 +136,12 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
     }
 
     /**
-    * 查找文件
-    *
-    * @param root 根
-    * @param name 名称
-    * @return find文件的结果
-    */
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

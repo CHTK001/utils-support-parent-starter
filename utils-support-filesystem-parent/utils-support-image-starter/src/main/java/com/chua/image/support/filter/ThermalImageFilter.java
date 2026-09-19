@@ -52,8 +52,8 @@ import java.awt.image.BufferedImage;
 public class ThermalImageFilter extends AbstractImageFilter {
 
     /**
-    * 伪彩色带
-    */
+     * 伪彩色带
+     */
     public enum Palette {
         /** 白热（黑→白） */
         WHITEHOT,
@@ -69,17 +69,17 @@ public class ThermalImageFilter extends AbstractImageFilter {
     private Palette palette = Palette.IRONBOW;
 
     /**
-    * 温度对比度，默认 1.3
-    */
+     * 温度对比度，默认 1.3
+     */
     private double contrast = 1.3;
 
     /**
-    * 执行热成像滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 热成像效果图像
-    */
+     * 执行热成像滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 热成像效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -102,11 +102,11 @@ public class ThermalImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 按色带映射温度(0-255)到 RGB
-    *
-    * @param t 温度 0-255
-    * @return [r, g, b]
-    */
+     * 按色带映射温度(0-255)到 RGB
+     *
+     * @param t 温度 0-255
+     * @return [r, g, b]
+     */
     private int[] mapPalette(int t) {
         double x = t / 255.0;
         int r, g, b;

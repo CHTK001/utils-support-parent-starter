@@ -24,12 +24,12 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* 老版 Microsoft 办公室 (.DOC / .XLS / .PPT) 预览提供器。
-* <p>SPI 类型：{@code preview-poi-old}。使用 Apache POI 解析旧版二进制格式：
-* Word 抽取段落文本，Excel 渲染工作表表格，powerpoint 抽取每页文本。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 老版 Microsoft 办公室 (.DOC / .XLS / .PPT) 预览提供器。
+ * <p>SPI 类型：{@code preview-poi-old}。使用 Apache POI 解析旧版二进制格式：
+ * Word 抽取段落文本，Excel 渲染工作表表格，powerpoint 抽取每页文本。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-poi-old")
 public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
@@ -66,12 +66,12 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 预览 Word 文档，抽取正文段落。
-    *
-    * @param content 文档字节
-    * @return 预览结果
-    * @throws IOException 解析失败时抛出
-    */
+     * 预览 Word 文档，抽取正文段落。
+     *
+     * @param content 文档字节
+     * @return 预览结果
+     * @throws IOException 解析失败时抛出
+     */
     private PreviewResult previewDoc(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("Word 文档预览"));
@@ -99,12 +99,12 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 预览 Excel 工作表，渲染各表前 200 行。
-    *
-    * @param content 工作簿字节
-    * @return 预览结果
-    * @throws IOException 解析失败时抛出
-    */
+     * 预览 Excel 工作表，渲染各表前 200 行。
+     *
+     * @param content 工作簿字节
+     * @return 预览结果
+     * @throws IOException 解析失败时抛出
+     */
     private PreviewResult previewXls(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("Excel 工作簿预览"));
@@ -123,11 +123,11 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 渲染单张工作表。
-    *
-    * @param body  输出缓冲区
-    * @param sheet 工作表
-    */
+     * 渲染单张工作表。
+     *
+     * @param body  输出缓冲区
+     * @param sheet 工作表
+     */
     private void renderSheet(StringBuilder body, HSSFSheet sheet) {
         String name = sheet.getSheetName();
         body.append("<div class=\"sheet\"><div class=\"sheet-head\">").append(escape(name)).append("</div>");
@@ -157,11 +157,11 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 格式化单元格值。
-    *
-    * @param cell 单元格
-    * @return 单元格文本
-    */
+     * 格式化单元格值。
+     *
+     * @param cell 单元格
+     * @return 单元格文本
+     */
     private String formatCell(HSSFCell cell) {
         switch (cell.getCellType()) {
             case STRING:
@@ -182,12 +182,12 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 预览 powerpoint 演示文稿，抽取每页文本。
-    *
-    * @param content 演示文稿字节
-    * @return 预览结果
-    * @throws IOException 解析失败时抛出
-    */
+     * 预览 powerpoint 演示文稿，抽取每页文本。
+     *
+     * @param content 演示文稿字节
+     * @return 预览结果
+     * @throws IOException 解析失败时抛出
+     */
     private PreviewResult previewPpt(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("PowerPoint 演示文稿预览"));
@@ -224,21 +224,21 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建页面头部。
-    *
-    * @param title 标题
-    * @return 头部 HTML
-    */
+     * 构建页面头部。
+     *
+     * @param title 标题
+     * @return 头部 HTML
+     */
     private String header(String title) {
         return "<div class=\"header\"><h1>" + escape(title) + "</h1></div>";
     }
 
     /**
-    * 包装完整页面。
-    *
-    * @param body 页面主体
-    * @return 完整 HTML
-    */
+     * 包装完整页面。
+     *
+     * @param body 页面主体
+     * @return 完整 HTML
+     */
     private String page(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
@@ -260,21 +260,21 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建不可预览提示。
-    *
-    * @param message 提示文本
-    * @return 提示 HTML（不含外边页面）
-    */
+     * 构建不可预览提示。
+     *
+     * @param message 提示文本
+     * @return 提示 HTML（不含外边页面）
+     */
     private String unavailableHtml(String message) {
         return header("文件预览") + "<div class=\"unavail\">" + escape(message) + "</div>";
     }
 
     /**
-    * HTML 转义。
-    *
-    * @param text 原始文本
-    * @return 转义后文本
-    */
+     * HTML 转义。
+     *
+     * @param text 原始文本
+     * @return 转义后文本
+     */
     private String escape(String text) {
         return text == null ? "" : StringUtils.escapeHtml(text);
     }

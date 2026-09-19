@@ -72,10 +72,10 @@ public final class CliModelRunner {
     private static final long DEFAULT_TIMEOUT_SECONDS = 300L;
 
     /**
-    * 下载单次阻塞读超时（毫秒），非总时长上限。
-    * <p>GitHub release 资产存在中途完全停摆的连接，取 60s 让哑火快速失败并由上层换镜像重试，
-    * 慢而活跃的传输（读间隔远小于此值）不受影响。</p>
-    */
+     * 下载单次阻塞读超时（毫秒），非总时长上限。
+     * <p>GitHub release 资产存在中途完全停摆的连接，取 60s 让哑火快速失败并由上层换镜像重试，
+     * 慢而活跃的传输（读间隔远小于此值）不受影响。</p>
+     */
     private static final int READ_TIMEOUT_MILLIS = 60_000;
 
     /** 单文件下载大小上限（1GB） */
@@ -91,32 +91,32 @@ public final class CliModelRunner {
     private static final Map<String, Object> DOWNLOAD_LOCKS = new ConcurrentHashMap<>();
 
     /**
-    * 工具类私有构造
-    */
+     * 工具类私有构造
+     */
     private CliModelRunner() {
     }
 
     /**
-    * CLI 描述
-    *
-    * @param cliId          标识（如 {@code nemo-speech}）
-    * @param binaryName     可执行文件名（Windows 下自动补 {@code .exe}）
-    * @param downloadUrls   按平台顺序的下载 URL 列表（前者优先）
-    * @param sha256FileName 可选：与下载同名的 {@code .sha256} 校验文件名（同源同目录）
-    * @param entryPathIn    压缩包内可执行文件相对路径（{@code null}=根目录同名）
-    */
+     * CLI 描述
+     *
+     * @param cliId          标识（如 {@code nemo-speech}）
+     * @param binaryName     可执行文件名（Windows 下自动补 {@code .exe}）
+     * @param downloadUrls   按平台顺序的下载 URL 列表（前者优先）
+     * @param sha256FileName 可选：与下载同名的 {@code .sha256} 校验文件名（同源同目录）
+     * @param entryPathIn    压缩包内可执行文件相对路径（{@code null}=根目录同名）
+     */
     public record CliDescriptor(String cliId, String binaryName, List<String> downloadUrls,
                                 String sha256FileName, String entryPathIn) {
     }
 
     /**
-    * 工厂：nemo-speech 0.1.0（按 OS/ARCH/BACKEND 选 artifact）
-    *
-    * <p>Windows 默认 cpu 版（4.7MB zip，无 CUDA 依赖）；设 {@code nemo-speech.backend=cuda}
-    * 拉 100MB cuda 版。mac aarch64 默认 metal。</p>
-    *
-    * @return 描述
-    */
+     * 工厂：nemo-speech 0.1.0（按 OS/ARCH/BACKEND 选 artifact）
+     *
+     * <p>Windows 默认 cpu 版（4.7MB zip，无 CUDA 依赖）；设 {@code nemo-speech.backend=cuda}
+     * 拉 100MB cuda 版。mac aarch64 默认 metal。</p>
+     *
+     * @return 描述
+     */
     public static CliDescriptor nemoSpeech() {
         String os = System.getProperty("os.name", "").toLowerCase();
         String arch = System.getProperty("os.arch", "").toLowerCase();
@@ -174,12 +174,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 定位可执行文件（按描述的策略），结果缓存
-    *
-    * @param d 描述
-    * @return 可执行文件路径
-    * @throws IllegalStateException 定位失败
-    */
+     * 定位可执行文件（按描述的策略），结果缓存
+     *
+     * @param d 描述
+     * @return 可执行文件路径
+     * @throws IllegalStateException 定位失败
+     */
     public static Path locate(CliDescriptor d) {
         Path cached = LOCATED.get(d.cliId());
         if (cached != null && Files.isRegularFile(cached)) {
@@ -202,11 +202,11 @@ public final class CliModelRunner {
     }
 
     /**
-    * 强制重定位（忽略缓存）
-    *
-    * @param d 描述
-    * @return 路径；失败返回 空
-    */
+     * 强制重定位（忽略缓存）
+     *
+     * @param d 描述
+     * @return 路径；失败返回 空
+     */
     public static Path rellocate(CliDescriptor d) {
         LOCATED.remove(d.cliId());
         try {
@@ -217,11 +217,11 @@ public final class CliModelRunner {
     }
 
     /**
-    * 定位实现
-    *
-    * @param d 描述
-    * @return 路径；全失败返回 空
-    */
+     * 定位实现
+     *
+     * @param d 描述
+     * @return 路径；全失败返回 空
+     */
     private static Path doLocate(CliDescriptor d) {
         // 1) 安装目标：显式 .bin / 自定义 .dir / 默认缓存；已存在则直接用
         Path target = installTarget(d);
@@ -241,11 +241,11 @@ public final class CliModelRunner {
     }
 
     /**
-    * 计算安装目标路径：显式 {@code .bin} 整路径 &gt; 自定义 {@code .dir} 目录 &gt; 默认缓存。
-    *
-    * @param d 描述
-    * @return 目标可执行文件路径（不保证存在）
-    */
+     * 计算安装目标路径：显式 {@code .bin} 整路径 &gt; 自定义 {@code .dir} 目录 &gt; 默认缓存。
+     *
+     * @param d 描述
+     * @return 目标可执行文件路径（不保证存在）
+     */
     private static Path installTarget(CliDescriptor d) {
         String bin = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".bin");
         if (bin != null && !bin.isBlank()) {
@@ -260,12 +260,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 下载与解压根目录：自定义 {@code .dir} 目录 &gt; 默认缓存 {@code <cacheRoot>/clis/<cliId>}。
-    * <p>压缩包按原始布局整树解到此目录，故 SDK 布局会形成 {@code root/bin/}、{@code root/share/}。</p>
-    *
-    * @param d 描述
-    * @return 安装根
-    */
+     * 下载与解压根目录：自定义 {@code .dir} 目录 &gt; 默认缓存 {@code <cacheRoot>/clis/<cliId>}。
+     * <p>压缩包按原始布局整树解到此目录，故 SDK 布局会形成 {@code root/bin/}、{@code root/share/}。</p>
+     *
+     * @param d 描述
+     * @return 安装根
+     */
     private static Path archiveRoot(CliDescriptor d) {
         String dir = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".dir");
         if (dir != null && !dir.isBlank()) {
@@ -275,23 +275,23 @@ public final class CliModelRunner {
     }
 
     /**
-    * 平台相关可执行文件名（Windows 补 {@code .exe}）
-    *
-    * @param d 描述
-    * @return 文件名
-    */
+     * 平台相关可执行文件名（Windows 补 {@code .exe}）
+     *
+     * @param d 描述
+     * @return 文件名
+     */
     private static String exeName(CliDescriptor d) {
         return d.binaryName() + (isWindows() ? ".exe" : "");
     }
 
     /**
-    * 在安装目录下探测可执行文件：entryPathIn 优先，其次 {@code bin/}，其次根目录，
-    * 最后浅层遍历（DLL 与二进制必须同级，故整树保留）。
-    *
-    * @param root 安装根
-    * @param d    描述
-    * @return 路径；未命中返回 空
-    */
+     * 在安装目录下探测可执行文件：entryPathIn 优先，其次 {@code bin/}，其次根目录，
+     * 最后浅层遍历（DLL 与二进制必须同级，故整树保留）。
+     *
+     * @param root 安装根
+     * @param d    描述
+     * @return 路径；未命中返回 空
+     */
     private static Path findBinary(Path root, CliDescriptor d) {
         if (root == null || !Files.isDirectory(root)) {
             return null;
@@ -320,10 +320,10 @@ public final class CliModelRunner {
     }
 
     /**
-    * 缓存根：优先读系统属性，否则 %TEMP%/chua-dl-models
-    *
-    * @return 根
-    */
+     * 缓存根：优先读系统属性，否则 %TEMP%/chua-dl-models
+     *
+     * @return 根
+     */
     public static Path cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         if (prop != null && !prop.isBlank()) {
@@ -333,20 +333,20 @@ public final class CliModelRunner {
     }
 
     /**
-    * 是否 Windows
-    *
-    * @return 是否
-    */
+     * 是否 Windows
+     *
+     * @return 是否
+     */
     public static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase().contains("win");
     }
 
     /**
-    * 在 PATH 中查找可执行文件（Windows 含 PATHEXT）
-    *
-    * @param d 描述
-    * @return 路径；未命中返回 空
-    */
+     * 在 PATH 中查找可执行文件（Windows 含 PATHEXT）
+     *
+     * @param d 描述
+     * @return 路径；未命中返回 空
+     */
     private static Path findInPath(CliDescriptor d) {
         String pathEnv = System.getenv("PATH");
         if (pathEnv == null || pathEnv.isBlank()) {
@@ -382,12 +382,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 下载并整树安装到安装根目录
-    *
-    * @param d       描述
-    * @param install 约定二进制落点（可能非实际布局位置）
-    * @return 可执行文件路径；全失败返回 空
-    */
+     * 下载并整树安装到安装根目录
+     *
+     * @param d       描述
+     * @param install 约定二进制落点（可能非实际布局位置）
+     * @return 可执行文件路径；全失败返回 空
+     */
     private static Path downloadAndInstall(CliDescriptor d, Path install) {
         Path root = extractRoot(d, install);
         for (String url : d.downloadUrls()) {
@@ -424,12 +424,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 解压根：安装根；显式 {@code .bin} 无安装根概念时退回其父目录
-    *
-    * @param d       描述
-    * @param install 约定二进制落点
-    * @return 解压根
-    */
+     * 解压根：安装根；显式 {@code .bin} 无安装根概念时退回其父目录
+     *
+     * @param d       描述
+     * @param install 约定二进制落点
+     * @return 解压根
+     */
     private static Path extractRoot(CliDescriptor d, Path install) {
         String bin = System.getProperty(PROP_CLI_BIN_PREFIX + d.cliId() + ".bin");
         if (bin != null && !bin.isBlank()) {
@@ -440,13 +440,13 @@ public final class CliModelRunner {
     }
 
     /**
-    * 校验 SHA-256（可选）；不匹配抛异常
-    *
-    * @param url  源
-    * @param d    描述
-    * @param file 下载文件
-    * @throws IOException 不匹配 / IO 失败
-    */
+     * 校验 SHA-256（可选）；不匹配抛异常
+     *
+     * @param url  源
+     * @param d    描述
+     * @param file 下载文件
+     * @throws IOException 不匹配 / IO 失败
+     */
     private static void verifySha256(String url, CliDescriptor d, Path file) throws IOException {
         if (d.sha256FileName() == null || d.sha256FileName().isBlank()) {
             return;
@@ -472,11 +472,11 @@ public final class CliModelRunner {
     }
 
     /**
-    * 取文本首行（用于错误消息展示）
-    *
-    * @param s 文本
-    * @return 首行
-    */
+     * 取文本首行（用于错误消息展示）
+     *
+     * @param s 文本
+     * @return 首行
+     */
     private static String firstLine(String s) {
         if (s == null) {
             return "";
@@ -486,13 +486,13 @@ public final class CliModelRunner {
     }
 
     /**
-    * 整树解压到安装根目录（保留压缩包内相对布局）
-    *
-    * @param d       描述
-    * @param archive 压缩文件
-    * @param outDir  解压根（= 安装根）
-    * @throws IOException 失败
-    */
+     * 整树解压到安装根目录（保留压缩包内相对布局）
+     *
+     * @param d       描述
+     * @param archive 压缩文件
+     * @param outDir  解压根（= 安装根）
+     * @throws IOException 失败
+     */
     private static void installArchive(CliDescriptor d, Path archive, Path outDir) throws IOException {
         String lower = archive.getFileName().toString().toLowerCase();
         if (lower.endsWith(".zip")) {
@@ -528,13 +528,13 @@ public final class CliModelRunner {
     }
 
     /**
-    * 计算 zip entry 在解压目录下的目标路径，拒绝逃逸出解压目录的 entry。
-    * <p>entry 名可能以反斜杠分隔（Windows 打包的 SDK 布局），统一归一化为 {@code /}。</p>
-    *
-    * @param outDir 解压目录
-    * @param name   entry 名
-    * @return 目标；不安全或越界返回 空
-    */
+     * 计算 zip entry 在解压目录下的目标路径，拒绝逃逸出解压目录的 entry。
+     * <p>entry 名可能以反斜杠分隔（Windows 打包的 SDK 布局），统一归一化为 {@code /}。</p>
+     *
+     * @param outDir 解压目录
+     * @param name   entry 名
+     * @return 目标；不安全或越界返回 空
+     */
     private static Path resolvedEntry(Path outDir, String name) {
         String norm = name.replace('\\', '/');
         if (norm.contains("..") || norm.startsWith("/") || norm.contains(":")) {
@@ -546,12 +546,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 从 tar.gz 安装（POSIX / Windows 10+ 系统 tar）
-    *
-    * @param archive 压缩
-    * @param outDir  目标目录
-    * @throws IOException 失败
-    */
+     * 从 tar.gz 安装（POSIX / Windows 10+ 系统 tar）
+     *
+     * @param archive 压缩
+     * @param outDir  目标目录
+     * @throws IOException 失败
+     */
     private static void installFromTarGz(Path archive, Path outDir) throws IOException {
         ProcessBuilder pb = new ProcessBuilder("tar", "-xzf", archive.toString(), "-C", outDir.toString());
         pb.redirectErrorStream(true);
@@ -573,12 +573,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * 单文件下载（支持 3xx 重定向、临时文件原子写、大小上限）
-    *
-    * @param url 源
-    * @param dir 目标目录
-    * @return 文件；失败返回 空
-    */
+     * 单文件下载（支持 3xx 重定向、临时文件原子写、大小上限）
+     *
+     * @param url 源
+     * @param dir 目标目录
+     * @return 文件；失败返回 空
+     */
     private static Path downloadSingle(String url, Path dir) throws IOException {
         URL u = new URL(url);
         int i = u.getPath().lastIndexOf('/');
@@ -623,17 +623,17 @@ public final class CliModelRunner {
     }
 
     /**
-    * 同步运行可执行文件
-    *
-    * @param exePath    可执行文件
-    * @param args       参数
-    * @param timeoutSec 超时（秒）
-    * @return stdout 文本
-    * @throws IOException 启动/IO 失败
-    * @throws InterruptedException 等待中断
-    * @throws TimeoutException 超时
-    * @throws IllegalStateException 退出码非 0
-    */
+     * 同步运行可执行文件
+     *
+     * @param exePath    可执行文件
+     * @param args       参数
+     * @param timeoutSec 超时（秒）
+     * @return stdout 文本
+     * @throws IOException 启动/IO 失败
+     * @throws InterruptedException 等待中断
+     * @throws TimeoutException 超时
+     * @throws IllegalStateException 退出码非 0
+     */
     public static String run(Path exePath, String[] args, long timeoutSec)
             throws IOException, InterruptedException, TimeoutException {
         List<String> cmd = new ArrayList<>();
@@ -695,32 +695,32 @@ public final class CliModelRunner {
     }
 
     /**
-    * 默认超时运行
-    *
-    * @param exePath 可执行
-    * @param args    参数
-    * @return stdout
-    * @throws Exception 失败
-    */
+     * 默认超时运行
+     *
+     * @param exePath 可执行
+     * @param args    参数
+     * @return stdout
+     * @throws Exception 失败
+     */
     public static String run(Path exePath, String[] args) throws Exception {
         return run(exePath, args, DEFAULT_TIMEOUT_SECONDS);
     }
 
     /**
-    * 流式运行可执行文件：进程存活期间按行读取 stdout，逐行回调 {@code onLine}。
-    *
-    * <p>用于 NDJSON 事件流（如 {@code opencode run --format json}），调用方每收到一行即可解析处理，
-    * 无需等待进程结束。{@code onLine} 抛出的运行时异常会强杀进程并向外传播。</p>
-    *
-    * @param exePath    可执行文件
-    * @param args       参数
-    * @param timeoutSec 总超时（秒），超时由看门狗强杀进程
-    * @param onLine     每行 stdout 回调（可为 null，仅等待进程结束）
-    * @throws IOException 启动/IO 失败
-    * @throws InterruptedException 等待中断
-    * @throws TimeoutException 超时被强杀
-    * @throws IllegalStateException 退出码非 0（携带 stderr 片段）
-    */
+     * 流式运行可执行文件：进程存活期间按行读取 stdout，逐行回调 {@code onLine}。
+     *
+     * <p>用于 NDJSON 事件流（如 {@code opencode run --format json}），调用方每收到一行即可解析处理，
+     * 无需等待进程结束。{@code onLine} 抛出的运行时异常会强杀进程并向外传播。</p>
+     *
+     * @param exePath    可执行文件
+     * @param args       参数
+     * @param timeoutSec 总超时（秒），超时由看门狗强杀进程
+     * @param onLine     每行 stdout 回调（可为 null，仅等待进程结束）
+     * @throws IOException 启动/IO 失败
+     * @throws InterruptedException 等待中断
+     * @throws TimeoutException 超时被强杀
+     * @throws IllegalStateException 退出码非 0（携带 stderr 片段）
+     */
     public static void runStream(Path exePath, String[] args, long timeoutSec, Consumer<String> onLine)
             throws IOException, InterruptedException, TimeoutException {
         List<String> cmd = new ArrayList<>();
@@ -807,11 +807,11 @@ public final class CliModelRunner {
     }
 
     /**
-    * 截取首尾片段
-    *
-    * @param s 文本
-    * @return 片段
-    */
+     * 截取首尾片段
+     *
+     * @param s 文本
+     * @return 片段
+     */
     private static String snippet(String s) {
         if (s == null) {
             return "";
@@ -824,12 +824,12 @@ public final class CliModelRunner {
     }
 
     /**
-    * SHA-256 hex
-    *
-    * @param file 文件
-    * @return hex
-    * @throws IOException 失败
-    */
+     * SHA-256 hex
+     *
+     * @param file 文件
+     * @return hex
+     * @throws IOException 失败
+     */
     private static String sha256Hex(Path file) throws IOException {
         try {
             var md = java.security.MessageDigest.getInstance("SHA-256");
@@ -851,8 +851,8 @@ public final class CliModelRunner {
     }
 
     /**
-    * 清空定位缓存
-    */
+     * 清空定位缓存
+     */
     public static void clearCache() {
         LOCATED.clear();
         DOWNLOAD_LOCKS.clear();

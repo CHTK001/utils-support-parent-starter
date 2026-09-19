@@ -7,24 +7,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
-* Emoji 管理器，负责 emoji 数据的注册、检索和管理。
-*
-* <p>核心职责：</p>
-* <ul>
-*   <li>维护全局 emoji 数据集 {@link #data()}</li>
-*   <li>维护别名到 Emoji 的快速索引 {@link #EMOJIS_BY_ALIAS}</li>
-*   <li>维护字典树 {@link #EMOJI_TRIE} 用于高效匹配</li>
-*   <li>提供 {@link #addEmoji(Emoji)} 动态注册新 emoji</li>
-* </ul>
-*
-* @author CH
-* @since 1.0.0
+ * Emoji 管理器，负责 emoji 数据的注册、检索和管理。
+ *
+ * <p>核心职责：</p>
+ * <ul>
+ *   <li>维护全局 emoji 数据集 {@link #data()}</li>
+ *   <li>维护别名到 Emoji 的快速索引 {@link #EMOJIS_BY_ALIAS}</li>
+ *   <li>维护字典树 {@link #EMOJI_TRIE} 用于高效匹配</li>
+ *   <li>提供 {@link #addEmoji(Emoji)} 动态注册新 emoji</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class EmojiManager {
 
     /**
-    * Emoji 字典树
-    */
+     * Emoji 字典树
+     */
     public static final EmojiTrie EMOJI_TRIE = new EmojiTrie(10);
 
     /** Emoji_数据 */
@@ -52,19 +52,19 @@ public class EmojiManager {
     }
 
     /**
-    * 获取表情符号正则
-    *
-    * @return Pattern
-    */
+     * 获取表情符号正则
+     *
+     * @return Pattern
+     */
     public static Pattern getEmoticonRegexPattern() {
         return Pattern.compile("");
     }
 
     /**
-    * 注册 emoji
-    *
-    * @param emoji Emoji 对象
-    */
+     * 注册 emoji
+     *
+     * @param emoji Emoji 对象
+     */
     public static void addEmoji(Emoji emoji) {
         if (emoji != null) {
             EMOJI_DATA.add(emoji);

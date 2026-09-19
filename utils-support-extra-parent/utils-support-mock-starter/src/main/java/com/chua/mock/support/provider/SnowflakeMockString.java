@@ -8,27 +8,27 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
-* 雪花 标识 Mock 生成器
-*
-* <p>模拟雪花算法生成 19 位长整型 ID 字符串：
-* 时间戳（41 位）+ 机器标识 + 序列号，单调递增且全局唯一。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 雪花 标识 Mock 生成器
+ *
+ * <p>模拟雪花算法生成 19 位长整型 ID 字符串：
+ * 时间戳（41 位）+ 机器标识 + 序列号，单调递增且全局唯一。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"snowflake", "snowflake-id"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class SnowflakeMockString implements MockString {
 
     /**
-    * 上次时间戳
-    */
+     * 上次时间戳
+     */
     private long lastTimestamp = -1L;
     /**
-    * 序列号
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 序列号
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private long sequence = 0L;
 
     @Override
@@ -50,11 +50,11 @@ public class SnowflakeMockString implements MockString {
     }
 
     /**
-    * 等待到下一毫秒。
-    *
-    * @param last 当前时间戳
-    * @return 下一毫秒时间戳
-    */
+     * 等待到下一毫秒。
+     *
+     * @param last 当前时间戳
+     * @return 下一毫秒时间戳
+     */
     private long waitNextMillis(long last) {
         long time = System.currentTimeMillis();
         while (time <= last) {

@@ -27,41 +27,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* 定价提供者抽象基类。
-*
-* <p>{@link #getPricing()} 只读本地文件，没有就返回空列表。本地文件需要通过 {@link #syncFromOnline()} 同步填入。</p>
-* <p>{@link #syncFromOnline()} 调用子类 {@link #fetchOnlinePricing()} 获取数据并写入本地文件。</p>
-*
-* <p>兜底机制：若子类需要，可通过 {@link #readClasspathPricing()} 读取 classpath 内置 JSON 作为兜底。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 定价提供者抽象基类。
+ *
+ * <p>{@link #getPricing()} 只读本地文件，没有就返回空列表。本地文件需要通过 {@link #syncFromOnline()} 同步填入。</p>
+ * <p>{@link #syncFromOnline()} 调用子类 {@link #fetchOnlinePricing()} 获取数据并写入本地文件。</p>
+ *
+ * <p>兜底机制：若子类需要，可通过 {@link #readClasspathPricing()} 读取 classpath 内置 JSON 作为兜底。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractModelMetricsProvider implements ModelMetricsProvider {
 
     /**
-    * 本地缓存键前缀
-    */
+     * 本地缓存键前缀
+     */
     protected static final String PRICING_KEY_PREFIX = "pricing/";
 
     /**
-    * 本地缓存键后缀
-    */
+     * 本地缓存键后缀
+     */
     protected static final String PRICING_KEY_SUFFIX = ".json";
 
     /**
-    * 类路径 资源根路径
-    */
+     * 类路径 资源根路径
+     */
     private static final String CLASSPATH_ROOT = "pricing/";
 
     /**
-    * 模型 标识 最大长度，超出视为无效行
-    */
+     * 模型 标识 最大长度，超出视为无效行
+     */
     private static final int MAX_MODEL_ID_LENGTH = 128;
 
     /**
-    * 默认浏览器 用户-Agent
-    */
+     * 默认浏览器 用户-Agent
+     */
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
@@ -144,10 +144,10 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 从 类路径 内置 JSON 文件读取定价列表（兜底）。
-    *
-    * @return classpath 中的定价列表
-    */
+     * 从 类路径 内置 JSON 文件读取定价列表（兜底）。
+     *
+     * @return classpath 中的定价列表
+     */
     protected List<ModelDefinition> readClasspathPricing() {
         String path = CLASSPATH_ROOT + name() + PRICING_KEY_SUFFIX;
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
@@ -164,18 +164,18 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 从指定定价页面的 HTML 表格抓取模型定价。
-    *
-    * <p>按表头语义自动识别列：模型名称列（模型/产品/名称/model 等）、输入单价列（输入/input）、
-    * 输出单价列（输出/输出）。多列匹配时优先选择"未命中缓存"的输入单价列。
-    * 价格合并在同一单元格内的布局（如"输入：0.5元输出：2元"）按标签提取；
-    * 单元格货币符号与目标币种矛盾的行（如同页混排的海外 $ 报价）自动过滤。
-    * 无法识别表头的表格跳过；页面不可达或无有效数据时回退到 {@link #readClasspathPricing()}。</p>
-    *
-    * @param url 定价页面地址
-    * @param currency 币种（如 CNY/USD）
-    * @return 模型定价列表
-    */
+     * 从指定定价页面的 HTML 表格抓取模型定价。
+     *
+     * <p>按表头语义自动识别列：模型名称列（模型/产品/名称/model 等）、输入单价列（输入/input）、
+     * 输出单价列（输出/输出）。多列匹配时优先选择"未命中缓存"的输入单价列。
+     * 价格合并在同一单元格内的布局（如"输入：0.5元输出：2元"）按标签提取；
+     * 单元格货币符号与目标币种矛盾的行（如同页混排的海外 $ 报价）自动过滤。
+     * 无法识别表头的表格跳过；页面不可达或无有效数据时回退到 {@link #readClasspathPricing()}。</p>
+     *
+     * @param url 定价页面地址
+     * @param currency 币种（如 CNY/USD）
+     * @return 模型定价列表
+     */
     protected List<ModelDefinition> scrapeTablePricing(String url, String currency) {
         String html = fetchUrl(url);
         Map<String, ModelDefinition> result = new LinkedHashMap<>();
@@ -189,12 +189,12 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 解析整页 HTML 中的全部定价表格并按模型 标识 去重收集。
-    *
-    * @param html 页面 HTML
-    * @param currency 币种
-    * @param result 收集结果
-    */
+     * 解析整页 HTML 中的全部定价表格并按模型 标识 去重收集。
+     *
+     * @param html 页面 HTML
+     * @param currency 币种
+     * @param result 收集结果
+     */
     private void collectPagePricing(String html, String currency, Map<String, ModelDefinition> result) {
         try {
             Document doc = Jsoup.parse(html);
@@ -207,12 +207,12 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 收集单个表格中的模型定价数据。
-    *
-    * @param table 表格元素
-    * @param currency 币种
-    * @param result 收集结果，按模型 标识 去重
-    */
+     * 收集单个表格中的模型定价数据。
+     *
+     * @param table 表格元素
+     * @param currency 币种
+     * @param result 收集结果，按模型 标识 去重
+     */
     private void collectTablePricing(Element table, String currency, Map<String, ModelDefinition> result) {
         Element headerRow = findHeaderRow(table);
         if (headerRow == null) {
@@ -234,15 +234,15 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 查找表格的表头行。
-    *
-    * <p>优先取 {@code thead} 内首行，其次取含 {@code th} 的首行；
-    * 均不存在时（部分文档站用纯 {@code td} 渲染表头）回退到首行，
-    * 是否有效由 {@link #detectColumns(List)} 的语义识别兜底校验。</p>
-    *
-    * @param table 表格元素
-    * @return 表头行元素，表格无行时返回 空
-    */
+     * 查找表格的表头行。
+     *
+     * <p>优先取 {@code thead} 内首行，其次取含 {@code th} 的首行；
+     * 均不存在时（部分文档站用纯 {@code td} 渲染表头）回退到首行，
+     * 是否有效由 {@link #detectColumns(List)} 的语义识别兜底校验。</p>
+     *
+     * @param table 表格元素
+     * @return 表头行元素，表格无行时返回 空
+     */
     private Element findHeaderRow(Element table) {
         Elements theadRows = table.select("thead > tr");
         if (!theadRows.isEmpty()) {
@@ -258,11 +258,11 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 获取表头行的单元格文本（转小写）。
-    *
-    * @param headerRow 表头行元素
-    * @return 表头文本列表
-    */
+     * 获取表头行的单元格文本（转小写）。
+     *
+     * @param headerRow 表头行元素
+     * @return 表头文本列表
+     */
     private List<String> headerCells(Element headerRow) {
         Elements cells = headerRow.select("th");
         if (cells.isEmpty()) {
@@ -276,12 +276,12 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 按表头语义识别模型名称、输入、输出单价所在列。
-    *
-    * @param headers 表头文本列表
-    * @return 列索引数组 [模型col, 输入col, 输出col]，输出col 可为 -1；
-    * 无法识别模型名称列时返回 空
-    */
+     * 按表头语义识别模型名称、输入、输出单价所在列。
+     *
+     * @param headers 表头文本列表
+     * @return 列索引数组 [模型col, 输入col, 输出col]，输出col 可为 -1；
+     * 无法识别模型名称列时返回 空
+     */
     private int[] detectColumns(List<String> headers) {
         int modelCol = -1;
         int inputCol = -1;
@@ -317,13 +317,13 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 解析定价表格中的单行数据。
-    *
-    * @param row 表格行元素
-    * @param cols 列索引数组 [模型col, 输入col, 输出col]
-    * @param currency 币种
-    * @return 模型定义，行无效时返回 空
-    */
+     * 解析定价表格中的单行数据。
+     *
+     * @param row 表格行元素
+     * @param cols 列索引数组 [模型col, 输入col, 输出col]
+     * @param currency 币种
+     * @return 模型定义，行无效时返回 空
+     */
     private ModelDefinition parseTableRow(Element row, int[] cols, String currency) {
         Elements cells = row.select("td");
         int modelCol = cols[0];
@@ -372,14 +372,14 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 判断单元格文本携带的货币符号是否与目标币种矛盾。
-    *
-    * <p>用于过滤同页混排的多币种报价（如中文页附带的 $ 海外价）。</p>
-    *
-    * @param text 单元格原始文本
-    * @param currency 目标币种（如 CNY/USD）
-    * @return true 表示符号与目标币种矛盾，应跳过该行
-    */
+     * 判断单元格文本携带的货币符号是否与目标币种矛盾。
+     *
+     * <p>用于过滤同页混排的多币种报价（如中文页附带的 $ 海外价）。</p>
+     *
+     * @param text 单元格原始文本
+     * @param currency 目标币种（如 CNY/USD）
+     * @return true 表示符号与目标币种矛盾，应跳过该行
+     */
     private boolean isContradictingCurrency(String text, String currency) {
         if (text == null || text.isEmpty()) {
             return false;
@@ -396,14 +396,14 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 解析单元格文本中的单价数值。
-    *
-    * <p>兼容"0.5元"、"$3 / MTok"、"￥3.00"等带单位/符号的写法，
-    * 提取首个数值；免费标记返回 0。</p>
-    *
-    * @param text 单元格文本
-    * @return 单价数值，无法解析时返回 空；免费标记返回 0
-    */
+     * 解析单元格文本中的单价数值。
+     *
+     * <p>兼容"0.5元"、"$3 / MTok"、"￥3.00"等带单位/符号的写法，
+     * 提取首个数值；免费标记返回 0。</p>
+     *
+     * @param text 单元格文本
+     * @return 单价数值，无法解析时返回 空；免费标记返回 0
+     */
     private BigDecimal parsePrice(String text) {
         if (text == null) {
             return null;
@@ -425,12 +425,12 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 从合并单元格文本中按标签提取价格数值。
-    *
-    * @param text 合并单元格文本
-    * @param label 价格标签正则（如"输入"）
-    * @return 价格数值，未匹配时返回 空
-    */
+     * 从合并单元格文本中按标签提取价格数值。
+     *
+     * @param text 合并单元格文本
+     * @param label 价格标签正则（如"输入"）
+     * @return 价格数值，未匹配时返回 空
+     */
     private BigDecimal extractLabelledPrice(String text, String label) {
         Matcher matcher = Pattern.compile(label + "[^0-9.$]{0,8}([$￥]?)([0-9]+(?:\\.[0-9]+)?)").matcher(text);
         return matcher.find() ? new BigDecimal(matcher.group(2)) : null;
@@ -439,13 +439,13 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     // ======================== HTTP 工具方法 ========================
 
     /**
-    * 获取 HTTP 页面内容。
-    *
-    * <p>携带浏览器 User-Agent 以规避部分站点的默认客户端拦截。</p>
-    *
-    * @param url 页面地址
-    * @return HTML 字符串，请求失败返回 空
-    */
+     * 获取 HTTP 页面内容。
+     *
+     * <p>携带浏览器 User-Agent 以规避部分站点的默认客户端拦截。</p>
+     *
+     * @param url 页面地址
+     * @return HTML 字符串，请求失败返回 空
+     */
     protected String fetchUrl(String url) {
         try {
             return HttpClientFactory.of(url)
@@ -458,11 +458,11 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 将 JSON 字符串解析为 模型definition 列表。
-    *
-    * @param json JSON 数组字符串
-    * @return 模型定价列表
-    */
+     * 将 JSON 字符串解析为 模型definition 列表。
+     *
+     * @param json JSON 数组字符串
+     * @return 模型定价列表
+     */
     protected List<ModelDefinition> parseJsonPricing(String json) {
         if (json == null || json.isEmpty()) {
             return Collections.emptyList();
@@ -481,10 +481,10 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 设置配置加载器。
-    *
-    * @param configSaveOrLoader 配置加载器
-    */
+     * 设置配置加载器。
+     *
+     * @param configSaveOrLoader 配置加载器
+     */
     public void setConfigSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }

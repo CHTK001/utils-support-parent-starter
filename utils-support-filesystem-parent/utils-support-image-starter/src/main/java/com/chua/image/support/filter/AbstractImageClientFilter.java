@@ -54,24 +54,24 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
     /**
-    * AI 图像生成客户端，用于在 filter() 内部调用 AI 能力
-    */
+     * AI 图像生成客户端，用于在 filter() 内部调用 AI 能力
+     */
     @Accessors(chain = true)
     @Setter
     private ImageClient imageClient;
 
 
     /**
-    * 设置 AI 图像生成客户端
-    *
-    * <p>支持链式调用，便于在创建后立即注入：
-    * <pre>{@code
-    *   new MyFilter().imageClient(client);
-    * }</pre>
-    *
-    * @param imageClient AI 客户端实例（传 null 表示移除引用）
-    * @return 当前滤镜实例
-    */
+     * 设置 AI 图像生成客户端
+     *
+     * <p>支持链式调用，便于在创建后立即注入：
+     * <pre>{@code
+     *   new MyFilter().imageClient(client);
+     * }</pre>
+     *
+     * @param imageClient AI 客户端实例（传 null 表示移除引用）
+     * @return 当前滤镜实例
+     */
     public AbstractImageClientFilter imageClient(ImageClient imageClient) {
         this.imageClient = imageClient;
         return this;
@@ -79,24 +79,24 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
 
     /**
-    * 获取当前持有的 AI 客户端
-    *
-    * @return imageClient，可能为空
-    */
+     * 获取当前持有的 AI 客户端
+     *
+     * @return imageClient，可能为空
+     */
     public ImageClient getImageClient() {
         return imageClient;
     }
 
 
     /**
-    * 获取当前持有的 AI 客户端，若为空则抛出异常
-    *
-    * <p>子类在 {@link #filter(BufferedImage, BufferedImage)} 内调用此方法可保证
-    * imageClient 已注入，避免 NullPointerException。</p>
-    *
-    * @return 非空的 imageClient
-    * @throws IllegalStateException 当镜像客户端未注入时
-    */
+     * 获取当前持有的 AI 客户端，若为空则抛出异常
+     *
+     * <p>子类在 {@link #filter(BufferedImage, BufferedImage)} 内调用此方法可保证
+     * imageClient 已注入，避免 NullPointerException。</p>
+     *
+     * @return 非空的 imageClient
+     * @throws IllegalStateException 当镜像客户端未注入时
+     */
     protected ImageClient requireClient() {
         if (imageClient == null) {
             throw new IllegalStateException(

@@ -12,58 +12,58 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* 通用特征检索管线（提取特征 → 向量检索）。
-*
-* <p>基于 {@link Pipeline} 通用管线框架编排，取代手写顺序调用。
-* {@link com.chua.deeplearning.support.face.FaceSearcher}、
-* {@link com.chua.deeplearning.support.image.ImagePipeline} 均委托本管线完成检索。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用特征检索管线（提取特征 → 向量检索）。
+ *
+ * <p>基于 {@link Pipeline} 通用管线框架编排，取代手写顺序调用。
+ * {@link com.chua.deeplearning.support.face.FaceSearcher}、
+ * {@link com.chua.deeplearning.support.image.ImagePipeline} 均委托本管线完成检索。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SearchPipeline {
 
     /**
-    * 节点：提取特征
-    */
+     * 节点：提取特征
+     */
     private static final String NODE_EXTRACT = "extract";
 
     /**
-    * 节点：检索
-    */
+     * 节点：检索
+     */
     private static final String NODE_SEARCH = "search";
 
     /**
-    * 节点：收集
-    */
+     * 节点：收集
+     */
     private static final String NODE_COLLECT = "collect";
 
     /**
-    * 节点：终止
-    */
+     * 节点：终止
+     */
     private static final String NODE_END = "end";
 
     /**
-    * 特征提取器。
-    */
+     * 特征提取器。
+     */
     private final FeatureExtractor featureExtractor;
 
     /**
-    * 向量库。
-    */
+     * 向量库。
+     */
     private final VectorStorage vectorStorage;
 
     /**
-    * 检索管线实例。
-    */
+     * 检索管线实例。
+     */
     private final Pipeline pipeline;
 
     /**
-    * 构造。
-    *
-    * @param featureExtractor 特征提取器
-    * @param vectorStorage    向量库
-    */
+     * 构造。
+     *
+     * @param featureExtractor 特征提取器
+     * @param vectorStorage    向量库
+     */
     public SearchPipeline(FeatureExtractor featureExtractor, VectorStorage vectorStorage) {
         this.featureExtractor = Objects.requireNonNull(featureExtractor, "featureExtractor");
         this.vectorStorage = Objects.requireNonNull(vectorStorage, "vectorStorage");
@@ -71,10 +71,10 @@ public class SearchPipeline {
     }
 
     /**
-    * 编排检索管线（提取 → 检索 → 收集）。
-    *
-    * @return 管线实例
-    */
+     * 编排检索管线（提取 → 检索 → 收集）。
+     *
+     * @return 管线实例
+     */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("feature-search")
                 .task(NODE_EXTRACT, ctx -> {
@@ -95,12 +95,12 @@ public class SearchPipeline {
     }
 
     /**
-    * 入库：提取图像特征并写入向量库。
-    *
-    * @param id 业务标识
-    * @param imageData 图像字节
-    * @throws IllegalStateException 特征为空或入库失败
-    */
+     * 入库：提取图像特征并写入向量库。
+     *
+     * @param id 业务标识
+     * @param imageData 图像字节
+     * @throws IllegalStateException 特征为空或入库失败
+     */
     public void enroll(String id, byte[] imageData) {
         float[] feature = featureExtractor.extract(imageData);
         if (feature == null) {
@@ -112,12 +112,12 @@ public class SearchPipeline {
     }
 
     /**
-    * 执行检索。
-    *
-    * @param imageData 查询图
-    * @param topK      返回条数
-    * @return 命中向量
-    */
+     * 执行检索。
+     *
+     * @param imageData 查询图
+     * @param topK      返回条数
+     * @return 命中向量
+     */
     public List<Vector> search(byte[] imageData, int topK) {
         SearchContext sc = new SearchContext(imageData, topK);
         PipelineContext<SearchContext> ctx = new PipelineContext<>(pipeline.getId(), sc);
@@ -128,21 +128,21 @@ public class SearchPipeline {
     }
 
     /**
-    * 从管线上下文提取检索上下文。
-    *
-    * @param ctx 管线上下文
-    * @return 检索上下文
-    */
+     * 从管线上下文提取检索上下文。
+     *
+     * @param ctx 管线上下文
+     * @return 检索上下文
+     */
     @SuppressWarnings("unchecked")
     private static SearchContext current(PipelineContext<?> ctx) {
         return (SearchContext) ctx.getAttribute("search");
     }
 
     /**
-    * 创建标注管线，支持一键绘制检测结果。
-    *
-    * @return DrawerPipeline 实例
-    */
+     * 创建标注管线，支持一键绘制检测结果。
+     *
+     * @return DrawerPipeline 实例
+     */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }

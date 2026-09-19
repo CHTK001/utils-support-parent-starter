@@ -16,44 +16,44 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* Dubbo RPC 客户端实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * Dubbo RPC 客户端实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("dubbo")
 @Slf4j
 public class DubboRpcClient implements RpcClient {
 
     /**
-    * registry 配置
-    */
+     * registry 配置
+     */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-    * application 配置
-    */
+     * application 配置
+     */
     private final ApplicationConfig applicationConfig;
     /**
-    * consumer 配置
-    */
+     * consumer 配置
+     */
     private final ConsumerConfig consumerConfig;
     /**
-    * rpc Consumer 配置
-    */
+     * rpc Consumer 配置
+     */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
-    * 引用 缓存
-    */
+     * 引用 缓存
+     */
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
     /**
-    * 创建 Dubborpc客户端 实例
-    * @param rpcRegistryConfigs rpcregistry配置
-    * @param consumerCfg rpcconsumer配置
-    * @param name 字符串
-    * @param consumerCfg consumercfg
-    * @param name 名称
-    */
+     * 创建 Dubborpc客户端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param consumerCfg rpcconsumer配置
+     * @param name 字符串
+     * @param consumerCfg consumercfg
+     * @param name 名称
+     */
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
         applicationConfig = DubboConfigs.get(name);
@@ -80,11 +80,11 @@ public class DubboRpcClient implements RpcClient {
     }
 
     /**
-    * 构建consumer配置
-    *
-    * @param cfg cfg
-    * @return 构建consumer配置的结果
-    */
+     * 构建consumer配置
+     *
+     * @param cfg cfg
+     * @return 构建consumer配置的结果
+     */
     private ConsumerConfig buildConsumerConfig(RpcConsumerConfig cfg) {
         if (cfg == null) {
             return null;
@@ -106,11 +106,11 @@ public class DubboRpcClient implements RpcClient {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取
-    *
-    * @param targetType 目标类型
-    * @return 获取的结果
-    */
+     * 获取
+     *
+     * @param targetType 目标类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         ReferenceConfig<T> reference = (ReferenceConfig<T>) referenceCache.computeIfAbsent(targetType, type -> {
             ReferenceConfig<T> ref = new ReferenceConfig<>();

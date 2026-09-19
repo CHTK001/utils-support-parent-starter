@@ -7,12 +7,12 @@ import com.chua.deeplearning.support.model.HardwareConfig;
 import java.util.List;
 
 /**
-* ONNX 模块模型集中注册器。
-* <p>通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
-* relative路径 支持文件系统路径，或 类路径: 前缀（JAR 内嵌）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * ONNX 模块模型集中注册器。
+ * <p>通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
+ * relative路径 支持文件系统路径，或 类路径: 前缀（JAR 内嵌）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OnnxModelRegistrar implements ModelRegistrar {
 
@@ -608,14 +608,14 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {
@@ -625,17 +625,17 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    * @param downloadUrl downloadurl
-    * @param compress compress
-    * @param downloadFileName download文件名称
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,
@@ -646,18 +646,18 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    * @param downloadUrl downloadurl
-    * @param downloadMirrors downloadmirrors
-    * @param compress compress
-    * @param downloadFileName download文件名称
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,
@@ -670,19 +670,19 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * Reg
-    * @param modelId 模型标识
-    * @param translatorClassName translator类名称
-    * @param inputType 输入类型
-    * @param outputType 输出类型
-    * @param capability capability
-    * @param relativePath relative路径
-    * @param downloadUrl downloadurl
-    * @param downloadMirrors downloadmirrors
-    * @param compress compress
-    * @param downloadFileName download文件名称
-    * @param hardwareConfig hardware配置
-    */
+     * Reg
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
+     * @param capability capability
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
+     * @param downloadMirrors downloadmirrors
+     * @param compress compress
+     * @param downloadFileName download文件名称
+     * @param hardwareConfig hardware配置
+     */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,

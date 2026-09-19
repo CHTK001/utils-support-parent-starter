@@ -21,161 +21,161 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* 链路追踪拦截器 — 劫持分布式链路追踪。
-*
-* <p>字节码插桩实现：</p>
-* <p>对目标应用类的 public 方法进行入口/出口/异常插桩，生成 Span 树。</p>
-*
-* <p>ASM 插入的字节码：</p>
-* <pre>
-* com.example.OrderService.create():
-*   LDC "com/example/OrderService"    // className
-*   LDC "create"                      // methodName
-*   LDC "()V"                         // descriptor
-*   LDC "entry"                       // pointKey
-*   INVOKESTATIC RuntimeSpy.onIntercept
-*   // 原始方法体...
-*   LDC "com/example/OrderService"    // className
-*   LDC "create"                      // methodName
-*   LDC "()V"                         // descriptor
-*   LDC "exit"                        // pointKey
-*   INVOKESTATIC RuntimeSpy.onIntercept
-* </pre>
-*
-* <p>HTTP 请求追踪（XRebel 风格）：</p>
-* <p>拦截 Tomcat CoyoteAdapter.service()，在请求入口捕获 HTTP 方法、路径、
-* 参数、头部、客户端 IP、响应状态码、响应耗时等信息，以 Span 形式纳入链路追踪。</p>
-*
-* <p>Tomcat 拦截流程：</p>
-* <pre>
-* org.apache.catalina.core.StandardEngineValve.invoke():
-*   LDC "org/apache/catalina/core/StandardEngineValve"
-*   LDC "invoke"
-*   LDC "()"
-*   LDC "entry"
-*   INVOKESTATIC RuntimeSpy.onIntercept
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 链路追踪拦截器 — 劫持分布式链路追踪。
+ *
+ * <p>字节码插桩实现：</p>
+ * <p>对目标应用类的 public 方法进行入口/出口/异常插桩，生成 Span 树。</p>
+ *
+ * <p>ASM 插入的字节码：</p>
+ * <pre>
+ * com.example.OrderService.create():
+ *   LDC "com/example/OrderService"    // className
+ *   LDC "create"                      // methodName
+ *   LDC "()V"                         // descriptor
+ *   LDC "entry"                       // pointKey
+ *   INVOKESTATIC RuntimeSpy.onIntercept
+ *   // 原始方法体...
+ *   LDC "com/example/OrderService"    // className
+ *   LDC "create"                      // methodName
+ *   LDC "()V"                         // descriptor
+ *   LDC "exit"                        // pointKey
+ *   INVOKESTATIC RuntimeSpy.onIntercept
+ * </pre>
+ *
+ * <p>HTTP 请求追踪（XRebel 风格）：</p>
+ * <p>拦截 Tomcat CoyoteAdapter.service()，在请求入口捕获 HTTP 方法、路径、
+ * 参数、头部、客户端 IP、响应状态码、响应耗时等信息，以 Span 形式纳入链路追踪。</p>
+ *
+ * <p>Tomcat 拦截流程：</p>
+ * <pre>
+ * org.apache.catalina.core.StandardEngineValve.invoke():
+ *   LDC "org/apache/catalina/core/StandardEngineValve"
+ *   LDC "invoke"
+ *   LDC "()"
+ *   LDC "entry"
+ *   INVOKESTATIC RuntimeSpy.onIntercept
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-    * 日志
+     * 日志
      */
     private static final Logger LOG = Logger.getLogger(TraceHandler.class.getName());
 
     /**
-    * 插件名称
+     * 插件名称
      */
     private static final String HANDLER_NAME = "trace-handler";
 
     /**
-    * 插件版本
+     * 插件版本
      */
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-    * 启用配置属性 键
+     * 启用配置属性 键
      */
     private static final String PROP_TRACE_ENABLED = "trace.enabled";
 
     /**
-    * 默认启用值
+     * 默认启用值
      */
     private static final String DEFAULT_TRACE_ENABLED = "true";
 
     /**
-    * 追踪类列表属性 键（逗号分隔）
+     * 追踪类列表属性 键（逗号分隔）
      */
     private static final String PROP_TRACE_CLASSES = "trace.classes";
 
     /**
-    * 追踪 标识 长度（UUID 去横线后取前 N 位）
+     * 追踪 标识 长度（UUID 去横线后取前 N 位）
      */
     private static final int ID_LENGTH = 16;
 
     /**
-    * 状态值：成功
+     * 状态值：成功
      */
     private static final String STATUS_OK = "OK";
 
     /**
-    * 状态值：异常
+     * 状态值：异常
      */
     private static final String STATUS_ERROR = "ERROR";
 
     /**
-    * 异常占位文本（抛出 为 空 时）
+     * 异常占位文本（抛出 为 空 时）
      */
     private static final String UNKNOWN_ERROR = "unknown";
 
     /**
-    * 追踪上下文
+     * 追踪上下文
      */
     private final TraceContext traceContext;
 
     /**
-    * 所有 Span 列表
+     * 所有 Span 列表
      */
     private final List<Span> spans;
 
     /**
-    * Span 标识 到 Span 映射
+     * Span 标识 到 Span 映射
      */
     private final Map<String, Span> spanMap;
 
     /**
-    * 最大 Span 数
+     * 最大 Span 数
      */
     private static final int MAX_SPANS = 10000;
 
     /**
-    * 是否启用
+     * 是否启用
      */
     private boolean enabled;
 
     /**
-    * 是否启用 HTTP 请求追踪
+     * 是否启用 HTTP 请求追踪
      */
     private boolean httpTracingEnabled;
 
     /**
-    * 插件上下文
+     * 插件上下文
      */
     private PluginContext context;
 
     /**
-    * 是否已启动
+     * 是否已启动
      */
     private final AtomicBoolean started;
 
     /**
-    * HTTP 请求上下文 — 用于在 Tomcat Valve 拦截中提取请求/响应信息。
+     * HTTP 请求上下文 — 用于在 Tomcat Valve 拦截中提取请求/响应信息。
      */
     private static final ThreadLocal<HttpRequestContext> HTTP_REQUEST_CONTEXT =
             new ThreadLocal<>();
 
     /**
-    * Tomcat 标准enginevalve 内部名
+     * Tomcat 标准enginevalve 内部名
      */
     private static final String STANDARD_ENGINE_VALVE = "org/apache/catalina/core/StandardEngineValve";
 
     /**
-    * Tomcat coyote适配器 内部名
+     * Tomcat coyote适配器 内部名
      */
     private static final String COYOTE_ADAPTER = "org/apache/catalina/core/CoyoteAdapter";
 
     /**
-    * 匹配 Servlet 路径正则
+     * 匹配 Servlet 路径正则
      */
     private static final Pattern URI_PATTERN = Pattern.compile("^(/.*?)(\\?.*)?$");
 
     /**
-    * 提取 Servlet 路径的辅助方法。
-    *
-    * @param requestObj httpservlet请求 实例
-    * @return 请求路径 + 方法，获取失败返回 "?"
+     * 提取 Servlet 路径的辅助方法。
+     *
+     * @param requestObj httpservlet请求 实例
+     * @return 请求路径 + 方法，获取失败返回 "?"
      */
     private String extractServletPath(Object requestObj) {
         try {
@@ -188,10 +188,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 提取 HTTP 状态码。
-    *
-    * @param responseObj httpservlet响应 实例
-    * @return 状态码，获取失败返回 0
+     * 提取 HTTP 状态码。
+     *
+     * @param responseObj httpservlet响应 实例
+     * @return 状态码，获取失败返回 0
      */
     private int extractStatus(Object responseObj) {
         try {
@@ -202,10 +202,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 提取 HTTP 参数数量。
-    *
-    * @param requestObj httpservlet请求 实例
-    * @return 参数数量，获取失败返回 0
+     * 提取 HTTP 参数数量。
+     *
+     * @param requestObj httpservlet请求 实例
+     * @return 参数数量，获取失败返回 0
      */
     private int extractParamCount(Object requestObj) {
         try {
@@ -217,10 +217,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 提取 客户端 IP。
-    *
-    * @param requestObj httpservlet请求 实例
-    * @return 客户端 IP，获取失败返回 "?"
+     * 提取 客户端 IP。
+     *
+     * @param requestObj httpservlet请求 实例
+     * @return 客户端 IP，获取失败返回 "?"
      */
     private String extractClientIp(Object requestObj) {
         try {
@@ -235,10 +235,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 提取 Accept 头部。
-    *
-    * @param requestObj httpservlet请求 实例
-    * @return Accept 值，获取失败返回 "?"
+     * 提取 Accept 头部。
+     *
+     * @param requestObj httpservlet请求 实例
+     * @return Accept 值，获取失败返回 "?"
      */
     private String extractAccept(Object requestObj) {
         try {
@@ -338,13 +338,13 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册 Tomcat HTTP 请求拦截器 — 类似 xrebel 的请求详情展示。
-    *
-    * <p>拦截点：</p>
-    * <ul>
-    *   <li>StandardEngineValve.invoke — Servlet 入口，捕获请求路径/参数/Header</li>
-    *   <li>CoyoteAdapter.service   — 请求结束，捕获状态码/耗时</li>
-    * </ul>
+     * 注册 Tomcat HTTP 请求拦截器 — 类似 xrebel 的请求详情展示。
+     *
+     * <p>拦截点：</p>
+     * <ul>
+     *   <li>StandardEngineValve.invoke — Servlet 入口，捕获请求路径/参数/Header</li>
+     *   <li>CoyoteAdapter.service   — 请求结束，捕获状态码/耗时</li>
+     * </ul>
      */
     private void registerTomcatHttpInterceptors() {
         RuntimeSpy.registerInterceptor(STANDARD_ENGINE_VALVE, "invoke",
@@ -355,9 +355,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 接收插桩事件。
-    *
-    * @param ctx 插桩上下文
+     * 接收插桩事件。
+     *
+     * @param ctx 插桩上下文
      */
     @Override
     public void onIntercept(InterceptContext ctx) {
@@ -394,12 +394,12 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * HTTP 请求入口拦截 — 类似 xrebel 显示请求路径/方法/参数/头部。
-    *
-    * <p>从 StandardEngineValve 的 request 对象反射提取：
-    * HTTP 方法、URI、参数、Accept 头部、客户端 IP、客户端 IP。</p>
-    *
-    * @param ctx 插桩上下文
+     * HTTP 请求入口拦截 — 类似 xrebel 显示请求路径/方法/参数/头部。
+     *
+     * <p>从 StandardEngineValve 的 request 对象反射提取：
+     * HTTP 方法、URI、参数、Accept 头部、客户端 IP、客户端 IP。</p>
+     *
+     * @param ctx 插桩上下文
      */
     private void handleHttpEntry(InterceptContext ctx) {
         try {
@@ -439,11 +439,11 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * HTTP 请求出口拦截 — 类似 xrebel 显示响应状态码和耗时。
-    *
-    * <p>从 CoyoteAdapter 或 ThreadLocal 中的 HttpRequestContext 补充响应状态码和耗时。</p>
-    *
-    * @param ctx 插桩上下文
+     * HTTP 请求出口拦截 — 类似 xrebel 显示响应状态码和耗时。
+     *
+     * <p>从 CoyoteAdapter 或 ThreadLocal 中的 HttpRequestContext 补充响应状态码和耗时。</p>
+     *
+     * @param ctx 插桩上下文
      */
     private void handleHttpExit(InterceptContext ctx) {
         try {
@@ -483,14 +483,14 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 方法入口插桩（带 追踪id/父spanid）。
-    *
-    * @param className    类名
-    * @param methodName   方法名
-    * @param descriptor   方法描述符
-    * @param traceId      全局追踪 标识（可为 空 表示由本方法生成）
-    * @param parentSpanId 父 Span 标识（嵌套调用时传入）
-    * @return Span 标识
+     * 方法入口插桩（带 追踪id/父spanid）。
+     *
+     * @param className    类名
+     * @param methodName   方法名
+     * @param descriptor   方法描述符
+     * @param traceId      全局追踪 标识（可为 空 表示由本方法生成）
+     * @param parentSpanId 父 Span 标识（嵌套调用时传入）
+     * @return Span 标识
      */
     public String begin(String className, String methodName, String descriptor,
                         String traceId, String parentSpanId) {
@@ -517,12 +517,12 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 方法入口插桩（兼容旧调用）。
-    *
-    * @param className  类名
-    * @param methodName 方法名
-    * @param descriptor 方法描述符
-    * @return Span 标识
+     * 方法入口插桩（兼容旧调用）。
+     *
+     * @param className  类名
+     * @param methodName 方法名
+     * @param descriptor 方法描述符
+     * @return Span 标识
      */
     public String begin(String className, String methodName, String descriptor) {
         Span parent = traceContext.currentSpan();
@@ -532,10 +532,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 方法出口插桩（正常返回）。
-    *
-    * @param className  类名
-    * @param methodName 方法名
+     * 方法出口插桩（正常返回）。
+     *
+     * @param className  类名
+     * @param methodName 方法名
      */
     public void end(String className, String methodName) {
         Span span = traceContext.setSpan(null);
@@ -548,11 +548,11 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 异常出口插桩。
-    *
-    * @param className  类名
-    * @param methodName 方法名
-    * @param throwable  异常
+     * 异常出口插桩。
+     *
+     * @param className  类名
+     * @param methodName 方法名
+     * @param throwable  异常
      */
     public void onError(String className, String methodName, Throwable throwable) {
         Span span = traceContext.setSpan(null);
@@ -567,53 +567,53 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 生成 追踪id。
-    *
-    * @return traceId（16 字符）
+     * 生成 追踪id。
+     *
+     * @return traceId（16 字符）
      */
     private String generateTraceId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
     }
 
     /**
-    * 生成 Span 标识。
-    *
-    * @return Span 标识（16 字符）
+     * 生成 Span 标识。
+     *
+     * @return Span 标识（16 字符）
      */
     private String generateSpanId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, ID_LENGTH);
     }
 
     /**
-    * 获取所有 Span。
-    *
-    * @return Span 列表
+     * 获取所有 Span。
+     *
+     * @return Span 列表
      */
     public List<Span> getSpans() {
         return Collections.unmodifiableList(spans);
     }
 
     /**
-    * 按 Span 标识 获取 Span。
-    *
-    * @param spanId Span 标识
-    * @return Span 实例
+     * 按 Span 标识 获取 Span。
+     *
+     * @param spanId Span 标识
+     * @return Span 实例
      */
     public Span getSpan(String spanId) {
         return spanMap.get(spanId);
     }
 
     /**
-    * 获取当前追踪上下文。
-    *
-    * @return TraceContext 实例
+     * 获取当前追踪上下文。
+     *
+     * @return TraceContext 实例
      */
     public TraceContext getTraceContext() {
         return traceContext;
     }
 
     /**
-    * 清空所有 Span。
+     * 清空所有 Span。
      */
     public void clear() {
         spans.clear();
@@ -622,156 +622,156 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 将内部类名转换为点分隔的 Java 类名。
-    *
-    * @param internalName 内部名（如 org/Apache/catalina/核心/标准enginevalve）
-    * @return 点分隔类名
+     * 将内部类名转换为点分隔的 Java 类名。
+     *
+     * @param internalName 内部名（如 org/Apache/catalina/核心/标准enginevalve）
+     * @return 点分隔类名
      */
     private String classNameToReadable(String internalName) {
         return internalName != null ? internalName.replace('/', '.') : "";
     }
 
     /**
-    * HTTP 请求上下文 — 线程局部存储，用于关联请求入口和出口的信息。
-    *
-    * @since 4.0.0.42
-    * @author CH
+     * HTTP 请求上下文 — 线程局部存储，用于关联请求入口和出口的信息。
+     *
+     * @since 4.0.0.42
+     * @author CH
      */
     private static class HttpRequestContext {
 
         /**
-        * HTTP 请求路径（含方法名，如 获取 /api/订单）
+         * HTTP 请求路径（含方法名，如 获取 /api/订单）
          */
         private String requestPath;
 
         /**
-        * 客户端 IP
+         * 客户端 IP
          */
         private String clientIp;
 
         /**
-        * Accept 头部
+         * Accept 头部
          */
         private String accept;
 
         /**
-        * 请求开始时间（毫秒）
+         * 请求开始时间（毫秒）
          */
         private long startTime;
 
         /**
-        * 关联的 Span 标识
+         * 关联的 Span 标识
          */
         private String spanId;
 
         /**
-        * 关联的 追踪 标识
+         * 关联的 追踪 标识
          */
         private String traceId;
 
         /**
-        * 获取请求路径
-        *
-        * @return 获取请求路径的结果
+         * 获取请求路径
+         *
+         * @return 获取请求路径的结果
          */
         public String getRequestPath() {
             return requestPath;
         }
 
         /**
-        * 设置请求路径
-        *
-        * @param requestPath 请求路径
+         * 设置请求路径
+         *
+         * @param requestPath 请求路径
          */
         public void setRequestPath(String requestPath) {
             this.requestPath = requestPath;
         }
 
         /**
-        * 获取客户端ip
-        *
-        * @return 获取客户端ip的结果
+         * 获取客户端ip
+         *
+         * @return 获取客户端ip的结果
          */
         public String getClientIp() {
             return clientIp;
         }
 
         /**
-        * 设置客户端ip
-        *
-        * @param clientIp 客户端ip
+         * 设置客户端ip
+         *
+         * @param clientIp 客户端ip
          */
         public void setClientIp(String clientIp) {
             this.clientIp = clientIp;
         }
 
         /**
-        * 获取Accept
-        *
-        * @return 获取accept的结果
+         * 获取Accept
+         *
+         * @return 获取accept的结果
          */
         public String getAccept() {
             return accept;
         }
 
         /**
-        * 设置Accept
-        *
-        * @param accept accept
+         * 设置Accept
+         *
+         * @param accept accept
          */
         public void setAccept(String accept) {
             this.accept = accept;
         }
 
         /**
-        * 获取开始时间
-        *
-        * @return 获取启动时间的结果
+         * 获取开始时间
+         *
+         * @return 获取启动时间的结果
          */
         public long getStartTime() {
             return startTime;
         }
 
         /**
-        * 设置开始时间
-        *
-        * @param startTime 启动时间
+         * 设置开始时间
+         *
+         * @param startTime 启动时间
          */
         public void setStartTime(long startTime) {
             this.startTime = startTime;
         }
 
         /**
-        * 获取spanid
-        *
-        * @return 获取spanid的结果
+         * 获取spanid
+         *
+         * @return 获取spanid的结果
          */
         public String getSpanId() {
             return spanId;
         }
 
         /**
-        * 设置spanid
-        *
-        * @param spanId spanid
+         * 设置spanid
+         *
+         * @param spanId spanid
          */
         public void setSpanId(String spanId) {
             this.spanId = spanId;
         }
 
         /**
-        * 获取追踪id
-        *
-        * @return 获取追踪id的结果
+         * 获取追踪id
+         *
+         * @return 获取追踪id的结果
          */
         public String getTraceId() {
             return traceId;
         }
 
         /**
-        * 设置追踪id
-        *
-        * @param traceId 追踪标识
+         * 设置追踪id
+         *
+         * @param traceId 追踪标识
          */
         public void setTraceId(String traceId) {
             this.traceId = traceId;
@@ -779,32 +779,32 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 追踪上下文 — 线程局部变量。
-    *
-    * @since 4.0.0.42
-    * @author CH
+     * 追踪上下文 — 线程局部变量。
+     *
+     * @since 4.0.0.42
+     * @author CH
      */
     public static class TraceContext {
 
         /**
-        * 当前 Span
+         * 当前 Span
          */
         private final ThreadLocal<Span> currentSpan = new ThreadLocal<>();
 
         /**
-        * 当前span
-        *
-        * @return 当前span的结果
+         * 当前span
+         *
+         * @return 当前span的结果
          */
         public Span currentSpan() {
             return currentSpan.get();
         }
 
         /**
-        * 设置Span
-        *
-        * @param span span
-        * @return 设置span的结果
+         * 设置Span
+         *
+         * @param span span
+         * @return 设置span的结果
          */
         public Span setSpan(Span span) {
             Span old = currentSpan.get();
@@ -828,82 +828,82 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     public static class Span {
 
         /**
-        * 全局追踪 标识（同一根调用链共享）
+         * 全局追踪 标识（同一根调用链共享）
          */
         private String traceId;
 
         /**
-        * Span 标识
+         * Span 标识
          */
         private String spanId;
 
         /**
-        * 父 Span 标识（根调用为 空）
+         * 父 Span 标识（根调用为 空）
          */
         private String parentSpanId;
 
         /**
-        * 类名
+         * 类名
          */
         private String className;
 
         /**
-        * 方法名
+         * 方法名
          */
         private String methodName;
 
         /**
-        * 方法描述符
+         * 方法描述符
          */
         private String descriptor;
 
         /**
-        * 开始时间（毫秒）
+         * 开始时间（毫秒）
          */
         private long startTime;
 
         /**
-        * 结束时间（毫秒）
+         * 结束时间（毫秒）
          */
         private long endTime;
 
         /**
-        * 耗时（毫秒）
+         * 耗时（毫秒）
          */
         private long duration;
 
         /**
-        * 状态（OK / 错误）
+         * 状态（OK / 错误）
          */
         private String status;
 
         /**
-        * 异常信息
+         * 异常信息
          */
         private String exception;
 
         /**
-        * HTTP 状态码
+         * HTTP 状态码
          */
         private int statusCode;
 
         /**
-        * 错误信息
+         * 错误信息
          */
         private String errorMessage;
 
         /**
-        * HTTP 请求路径
+         * HTTP 请求路径
          */
         private String requestPath;
 
         /**
-        * 客户端 IP
+         * 客户端 IP
          */
         private String clientIp;
 
         /**
-        * Accept 头部
+         * Accept 头部
          */
         private String accept;
     }

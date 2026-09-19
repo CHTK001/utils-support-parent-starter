@@ -14,19 +14,19 @@ import javax.annotation.Nullable;
 
 
 /**
-* BufferedImage 类型转换器。
-* <p>将各种类型的值转换为 {@link BufferedImage}，支持以下输入类型：</p>
-* <ul>
-*   <li>{@link File} / {@link Path} / {@link String}（文件路径）— 通过 ImageIO.read 读取</li>
-*   <li>{@link String}（类路径资源）— 通过 ClassUtils.getResourceUrl 获取后读取</li>
-*   <li>{@link InputStream} / {@link ImageInputStream} — 通过 ImageIO.read 读取</li>
-*   <li>{@link URL} — 通过 ImageIO.read 读取</li>
-*   <li>{@code byte[]} / {@link ByteArrayOutputStream} — 通过 ByteArrayInputStream 读取</li>
-*   <li>第三方 BufferedImage 包装类 — 通过反射调用 getBufferedImage()</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * BufferedImage 类型转换器。
+ * <p>将各种类型的值转换为 {@link BufferedImage}，支持以下输入类型：</p>
+ * <ul>
+ *   <li>{@link File} / {@link Path} / {@link String}（文件路径）— 通过 ImageIO.read 读取</li>
+ *   <li>{@link String}（类路径资源）— 通过 ClassUtils.getResourceUrl 获取后读取</li>
+ *   <li>{@link InputStream} / {@link ImageInputStream} — 通过 ImageIO.read 读取</li>
+ *   <li>{@link URL} — 通过 ImageIO.read 读取</li>
+ *   <li>{@code byte[]} / {@link ByteArrayOutputStream} — 通过 ByteArrayInputStream 读取</li>
+ *   <li>第三方 BufferedImage 包装类 — 通过反射调用 getBufferedImage()</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> {
     /** 图像预测结果类全限定名 */
@@ -39,11 +39,11 @@ public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> 
     }
 
     /**
-    * 将给定值转换为 BufferedImage。
-    *
-    * @param value 源值
-    * @return BufferedImage 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 BufferedImage。
+     *
+     * @param value 源值
+     * @return BufferedImage 值，如果无法转换则返回 null
+     */
     @Override
     public BufferedImage convert(Object value) {
         try {

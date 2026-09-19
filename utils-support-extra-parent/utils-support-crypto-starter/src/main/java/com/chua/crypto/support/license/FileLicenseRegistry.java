@@ -11,45 +11,45 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 基于文本文件的注册表实现（单机默认实现）
-*
-* <p>持久化格式（UTF-8，一行一条）：
-* <pre>fingerprintHex=base64(私钥封装块)</pre>
-*
-* <p>写入采用 临时文件 + 原子移动 防止写坏；进程内并发由 synchronized 保证，
-* 跨进程并发写同一文件需部署侧避免。多实例/DB 场景请自行实现 {@link LicenseRegistry}。
-*
-* @author CH
-* @since 2026-08-26
+ * 基于文本文件的注册表实现（单机默认实现）
+ *
+ * <p>持久化格式（UTF-8，一行一条）：
+ * <pre>fingerprintHex=base64(私钥封装块)</pre>
+ *
+ * <p>写入采用 临时文件 + 原子移动 防止写坏；进程内并发由 synchronized 保证，
+ * 跨进程并发写同一文件需部署侧避免。多实例/DB 场景请自行实现 {@link LicenseRegistry}。
+ *
+ * @author CH
+ * @since 2026-08-26
  */
 public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
-    * 内存注册表：指纹(hex) -> 基础64(封装块)
-    */
+     * 内存注册表：指纹(hex) -> 基础64(封装块)
+     */
     private final Map<String, String> store = new ConcurrentHashMap<>();
 
     /**
-    * 持久化文件
-    */
+     * 持久化文件
+     */
     private final Path file;
 
     /**
-    * 私有构造，经 {@link #load(Path)} 创建
-    *
-    * @param file 持久化文件
-    */
+     * 私有构造，经 {@link #load(Path)} 创建
+     *
+     * @param file 持久化文件
+     */
     private FileLicenseRegistry(Path file) {
         this.file = file;
     }
 
     /**
-    * 从文件加载注册表（不存在则为空表）
-    *
-    * @param file 注册表文件
-    * @return 注册表
-    * @throws IOException 读取失败
-    */
+     * 从文件加载注册表（不存在则为空表）
+     *
+     * @param file 注册表文件
+     * @return 注册表
+     * @throws IOException 读取失败
+     */
     public static FileLicenseRegistry load(Path file) throws IOException {
         FileLicenseRegistry registry = new FileLicenseRegistry(file);
         if (Files.exists(file)) {
@@ -67,8 +67,8 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-    * 注册/更新并原子落盘
-    */
+     * 注册/更新并原子落盘
+     */
     @Override
     public synchronized void register(String fingerprint, byte[] blob) {
         store.put(fingerprint, Base64.getMimeEncoder().encodeToString(blob));
@@ -76,8 +76,8 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-    * 吊销并落盘
-    */
+     * 吊销并落盘
+     */
     @Override
     public synchronized boolean revoke(String fingerprint) {
         boolean removed = store.remove(fingerprint) != null;
@@ -88,8 +88,8 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-    * 查询私钥封装块
-    */
+     * 查询私钥封装块
+     */
     @Override
     public byte[] lookup(String fingerprint) {
         String base64 = store.get(fingerprint);
@@ -97,24 +97,24 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-    * 是否已注册
-    */
+     * 是否已注册
+     */
     @Override
     public boolean contains(String fingerprint) {
         return store.containsKey(fingerprint);
     }
 
     /**
-    * 快照
-    */
+     * 快照
+     */
     @Override
     public Map<String, String> snapshot() {
         return new LinkedHashMap<>(store);
     }
 
     /**
-    * 原子持久化：临时文件 + 原子移动（失败回退普通移动），IO 失败转为运行时异常
-    */
+     * 原子持久化：临时文件 + 原子移动（失败回退普通移动），IO 失败转为运行时异常
+     */
     private void persist() {
         try {
             persistInternal();
@@ -124,10 +124,10 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     }
 
     /**
-    * 实际落盘
-    *
-    * @throws IOException 写入失败
-    */
+     * 实际落盘
+     *
+     * @throws IOException 写入失败
+     */
     private void persistInternal() throws IOException {
         StringBuilder sb = new StringBuilder();
         store.forEach((fp, blob) -> sb.append(fp).append('=').append(blob).append(System.lineSeparator()));

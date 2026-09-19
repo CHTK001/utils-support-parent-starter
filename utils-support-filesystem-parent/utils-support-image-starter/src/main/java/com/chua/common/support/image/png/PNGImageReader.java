@@ -36,10 +36,10 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     final boolean fdAT;
 
     /**
-    * 创建 PNGImageDataEnumeration 实例
-    * @param stream stream
-    * @param fdAT fdAT
-    */
+     * 创建 PNGImageDataEnumeration 实例
+     * @param stream stream
+     * @param fdAT fdAT
+     */
     public PNGImageDataEnumeration(ImageInputStream stream, boolean fdAT)
         throws IOException {
         this.stream = stream;
@@ -89,14 +89,14 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
 }
 
 /**
-    * PNG 图像读取器。
-    *
-    * <p>基于 JDK Image I/O 框架实现的 PNG 格式图像读取器，
-    * 支持标准 PNG 规范的各项特性，包括透明度、伽马校正、ICC 色彩配置等。</p>
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+ * PNG 图像读取器。
+ *
+ * <p>基于 JDK Image I/O 框架实现的 PNG 格式图像读取器，
+ * 支持标准 PNG 规范的各项特性，包括透明度、伽马校正、ICC 色彩配置等。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class PNGImageReader extends ImageReader {
 
     /*
@@ -199,20 +199,20 @@ public class PNGImageReader extends ImageReader {
     boolean animContainsIDAT = false;
 
     /**
-    * 创建 PNGImageReader 实例
-    * @param originatingProvider originatingProvider
-    */
+     * 创建 PNGImageReader 实例
+     * @param originatingProvider originatingProvider
+     */
     public PNGImageReader(ImageReaderSpi originatingProvider) {
         super(originatingProvider);
     }
 
     @Override
     /**
-    * 设置Input
-    * @param input input
-    * @param seekForwardOnly seekForwardOnly
-    * @param ignoreMetadata ignoreMetadata
-    */
+     * 设置Input
+     * @param input input
+     * @param seekForwardOnly seekForwardOnly
+     * @param ignoreMetadata ignoreMetadata
+     */
     public void setInput(Object input,
                          boolean seekForwardOnly,
                          boolean ignoreMetadata) {
@@ -224,10 +224,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 读取NullTerminatedString
-    * @param charset charset
-    * @param maxLen maxLen
-    */
+     * 读取NullTerminatedString
+     * @param charset charset
+     * @param maxLen maxLen
+     */
     private String readNullTerminatedString(String charset, int maxLen) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int b = 0;
@@ -388,9 +388,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析PLTchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析PLTchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_PLTE_chunk(int chunkLength) throws IOException {
         if (metadata.PLTE_present) {
             processWarningOccurred(
@@ -487,9 +487,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析h是否chunk
-    * @param chunkLength chunkLength
-    */
+     * 解析h是否chunk
+     * @param chunkLength chunkLength
+     */
     private void parse_hIST_chunk(int chunkLength) throws IOException {
         if (!metadata.PLTE_present) {
             throw new IIOException("hIST chunk without prior PLTE chunk!");
@@ -507,9 +507,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析iCCchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析iCCchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_iCCP_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int compressedProfileLength = chunkLength - keyword.length() - 2;
@@ -529,9 +529,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析iTXtchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析iTXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_iTXt_chunk(int chunkLength) throws IOException {
         long chunkStart = stream.getStreamPosition();
 
@@ -617,9 +617,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析sPLchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析sPLchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_sPLT_chunk(int chunkLength)
         throws IOException {
         metadata.sPLT_paletteName = readNullTerminatedString("ISO-8859-1", 80);
@@ -680,9 +680,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析tEXtchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析tEXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_tEXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 1;
@@ -787,9 +787,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析eXIfchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析eXIfchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_eXIf_chunk(int chunkLength) throws IOException {
         byte[] b = new byte[chunkLength];
         stream.readFully(b);
@@ -799,9 +799,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析zTXtchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析zTXtchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_zTXt_chunk(int chunkLength) throws IOException {
         String keyword = readNullTerminatedString("ISO-8859-1", 80);
         int textLength = chunkLength - keyword.length() - 2;
@@ -1196,13 +1196,13 @@ public class PNGImageReader extends ImageReader {
     };
 
     /**
-    * 创建Raster
-    * @param width width
-    * @param height height
-    * @param bands bands
-    * @param scanlineStride scanlineStride
-    * @param bitDepth bitDepth
-    */
+     * 创建Raster
+     * @param width width
+     * @param height height
+     * @param bands bands
+     * @param scanlineStride scanlineStride
+     * @param bitDepth bitDepth
+     */
     private WritableRaster createRaster(int width, int height, int bands,
                                         int scanlineStride,
                                         int bitDepth) {
@@ -1238,10 +1238,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * SkipPass
-    * @param passWidth passWidth
-    * @param passHeight passHeight
-    */
+     * SkipPass
+     * @param passWidth passWidth
+     * @param passHeight passHeight
+     */
     private void skipPass(int passWidth, int passHeight)
         throws IOException {
         if ((passWidth == 0) || (passHeight == 0)) {
@@ -1261,24 +1261,24 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 更新ImageProgress
-    * @param newPixels newPixels
-    */
+     * 更新ImageProgress
+     * @param newPixels newPixels
+     */
     private void updateImageProgress(int newPixels) {
         pixelsDone += newPixels;
         processImageProgress(100.0F*pixelsDone/totalPixels);
     }
 
     /**
-    * 解码Pass
-    * @param passNum passNum
-    * @param xStart xStart
-    * @param yStart yStart
-    * @param xStep xStep
-    * @param yStep yStep
-    * @param passWidth passWidth
-    * @param passHeight passHeight
-    */
+     * 解码Pass
+     * @param passNum passNum
+     * @param xStart xStart
+     * @param yStart yStart
+     * @param xStep xStep
+     * @param yStep yStep
+     * @param passWidth passWidth
+     * @param passHeight passHeight
+     */
     private void decodePass(int passNum,
                             int xStart, int yStart,
                             int xStep, int yStep,
@@ -1583,10 +1583,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解码Image
-    * @param width width
-    * @param height height
-    */
+     * 解码Image
+     * @param width width
+     * @param height height
+     */
     private void decodeImage(int width, int height)
         throws IOException {
 
@@ -1629,10 +1629,10 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 读取Image
-    * @param imageIndex imageIndex
-    * @param param param
-    */
+     * 读取Image
+     * @param imageIndex imageIndex
+     * @param param param
+     */
     private void readImage(int imageIndex, ImageReadParam param) throws IIOException {
         readMetadata();
 
@@ -1772,9 +1772,9 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 获取NumImages
-    * @param allowSearch allowSearch
-    */
+     * 获取NumImages
+     * @param allowSearch allowSearch
+     */
     public int getNumImages(boolean allowSearch) throws IIOException {
         if (stream == null) {
             throw new IllegalStateException("No input source set!");
@@ -1789,9 +1789,9 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 获取Width
-    * @param imageIndex imageIndex
-    */
+     * 获取Width
+     * @param imageIndex imageIndex
+     */
     public int getWidth(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1811,9 +1811,9 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 获取Height
-    * @param imageIndex imageIndex
-    */
+     * 获取Height
+     * @param imageIndex imageIndex
+     */
     public int getHeight(int imageIndex) throws IIOException {
 
         readMetadata();
@@ -1833,9 +1833,9 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 获取ImageTypes
-    * @param imageIndex imageIndex
-    */
+     * 获取ImageTypes
+     * @param imageIndex imageIndex
+     */
     public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex)
       throws IIOException
     {
@@ -2086,9 +2086,9 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 获取ImageMetadata
-    * @param imageIndex imageIndex
-    */
+     * 获取ImageMetadata
+     * @param imageIndex imageIndex
+     */
     public IIOMetadata getImageMetadata(int imageIndex) throws IIOException {
         readMetadata();
 
@@ -2107,10 +2107,10 @@ public class PNGImageReader extends ImageReader {
 
     @Override
     /**
-    * 读取
-    * @param imageIndex imageIndex
-    * @param param param
-    */
+     * 读取
+     * @param imageIndex imageIndex
+     * @param param param
+     */
     public BufferedImage read(int imageIndex, ImageReadParam param)
         throws IIOException {
 

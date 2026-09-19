@@ -11,35 +11,35 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* Seq2Seq 模型资源定位器。
-* <p>模型文件获取优先级：<b>嵌入式（classpath jar）优先</b> → 本地缓存 →
-* <b>modelscope downloadUrl 下载</b>。缓存根目录取系统属性
-* {@code deeplearning.model.cache-dir}，缺省为 {@code %TEMP%/chua-dl-models}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Seq2Seq 模型资源定位器。
+ * <p>模型文件获取优先级：<b>嵌入式（classpath jar）优先</b> → 本地缓存 →
+ * <b>modelscope downloadUrl 下载</b>。缓存根目录取系统属性
+ * {@code deeplearning.model.cache-dir}，缺省为 {@code %TEMP%/chua-dl-models}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public final class Seq2SeqModelResources {
 
     /**
-    * JVM 属性：深度学习模型缓存目录。
-    */
+     * JVM 属性：深度学习模型缓存目录。
+     */
     private static final String PROP_CACHE_DIR = "deeplearning.model.cache-dir";
 
     /**
-    * JVM 属性：临时目录。
-    */
+     * JVM 属性：临时目录。
+     */
     private static final String PROP_TMPDIR = "java.io.tmpdir";
 
     /**
-    * 默认缓存根目录名。
-    */
+     * 默认缓存根目录名。
+     */
     private static final String DEFAULT_CACHE_NAME = "chua-dl-models";
 
     /**
-    * modelscope 下载基础地址。
-    */
+     * modelscope 下载基础地址。
+     */
     private static final String MODEL_SCOPE_BASE = "https://www.modelscope.cn/models/%s/resolve/master/%s";
 
     /** 创建 Seq2seq模型resources 实例 */
@@ -66,12 +66,12 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 判断缓存目录是否已包含全部必需文件。
-    *
-    * @param def    模型定义
-    * @param target 目标目录
-    * @return true 表示文件齐全
-    */
+     * 判断缓存目录是否已包含全部必需文件。
+     *
+     * @param def    模型定义
+     * @param target 目标目录
+     * @return true 表示文件齐全
+     */
     private static boolean isComplete(Seq2SeqModelDefinition def, Path target) {
         if (!Files.isDirectory(target)) {
             return false;
@@ -93,12 +93,12 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 优先从嵌入式 类路径 jar 提取模型资源。
-    *
-    * @param def    模型定义
-    * @param target 目标目录
-    * @return true 表示提取成功且文件齐全
-    */
+     * 优先从嵌入式 类路径 jar 提取模型资源。
+     *
+     * @param def    模型定义
+     * @param target 目标目录
+     * @return true 表示提取成功且文件齐全
+     */
     private static boolean extractEmbedded(Seq2SeqModelDefinition def, Path target) {
         String base = def.classpathBase();
         if (base == null || base.isBlank()) {
@@ -133,11 +133,11 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 从 modelscope 补齐缺失的模型文件。
-    *
-    * @param def    模型定义
-    * @param target 目标目录
-    */
+     * 从 modelscope 补齐缺失的模型文件。
+     *
+     * @param def    模型定义
+     * @param target 目标目录
+     */
     private static void downloadMissing(Seq2SeqModelDefinition def, Path target) {
         if (def.modelscopeRepo() == null || def.modelscopeRepo().isBlank()) {
             throw new IllegalStateException("[seq2seq] 模型[" + def.modelId() + "]无 modelscope 仓库，且嵌入式资源缺失");
@@ -173,13 +173,13 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 下载单个文件到本地。
-    *
-    * @param client HTTP 客户端
-    * @param url    下载地址
-    * @param target 本地文件
-    * @throws Exception 下载异常
-    */
+     * 下载单个文件到本地。
+     *
+     * @param client HTTP 客户端
+     * @param url    下载地址
+     * @param target 本地文件
+     * @throws Exception 下载异常
+     */
     private static void download(HttpClient client, String url, Path target) throws Exception {
         ClientResponse response = client.get(url);
         if (response.getStatusCode() >= 400) {
@@ -189,10 +189,10 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 获取模型缓存根目录。
-    *
-    * @return 缓存根路径
-    */
+     * 获取模型缓存根目录。
+     *
+     * @return 缓存根路径
+     */
     public static Path cacheRoot() {
         String prop = System.getProperty(PROP_CACHE_DIR);
         if (prop == null || prop.isBlank()) {

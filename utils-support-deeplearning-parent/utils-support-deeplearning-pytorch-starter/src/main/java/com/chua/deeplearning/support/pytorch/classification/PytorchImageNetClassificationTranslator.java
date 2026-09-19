@@ -19,35 +19,35 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
-* pytorch 镜像net 分类 Translator。
-* <p>
-* 输入 224x224，镜像net 均值/方差归一化，输出 softmax 分类结果。
-* 适用于 Rnet / mobilenet / efficientnet 等 torchscript 模型。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * pytorch 镜像net 分类 Translator。
+ * <p>
+ * 输入 224x224，镜像net 均值/方差归一化，输出 softmax 分类结果。
+ * 适用于 Rnet / mobilenet / efficientnet 等 torchscript 模型。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PytorchImageNetClassificationTranslator implements Translator<Image, Classifications> {
 
     /**
-    * 输入边长。
-    */
+     * 输入边长。
+     */
     private static final int IMAGE_SIZE = 224;
 
     /**
-    * 镜像net 均值。
-    */
+     * 镜像net 均值。
+     */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-    * 镜像net 标准差。
-    */
+     * 镜像net 标准差。
+     */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
-    * 运行时标签。
-    */
+     * 运行时标签。
+     */
     private List<String> runtimeLabels = Collections.emptyList();
 
     @Override
@@ -100,11 +100,11 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     /**
-    * 从模型同目录加载 synset.txt / 标签.txt。
-    *
-    * @param modelPath 模型路径
-    * @return 标签列表
-    */
+     * 从模型同目录加载 synset.txt / 标签.txt。
+     *
+     * @param modelPath 模型路径
+     * @return 标签列表
+     */
     private static List<String> loadLabels(Path modelPath) {
         if (modelPath == null) {
             return Collections.emptyList();
@@ -126,11 +126,11 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     }
 
     /**
-    * 生成默认类别名。
-    *
-    * @param size 数量
-    * @return 标签
-    */
+     * 生成默认类别名。
+     *
+     * @param size 数量
+     * @return 标签
+     */
     private static List<String> defaultLabels(int size) {
         return IntStream.range(0, Math.max(size, 0))
                 .mapToObj(i -> "class_" + i)

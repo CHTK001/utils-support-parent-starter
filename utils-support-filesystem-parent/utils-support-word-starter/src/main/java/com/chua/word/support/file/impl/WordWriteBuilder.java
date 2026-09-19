@@ -18,46 +18,46 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Word 文件写入构建器。
-*
-* <p>基于 Apache POI 实现 .docx 文档的文本写入。
-* 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
-* 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Word 文件写入构建器。
+ *
+ * <p>基于 Apache POI 实现 .docx 文档的文本写入。
+ * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
+ * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class WordWriteBuilder extends WriteBuilder {
     /**
-    * 模板文件流
-    */
+     * 模板文件流
+     */
     private InputStream templateStream;
 
     /**
-    * 创建 word写入构建器 实例
-    * @param file 文件
-    */
+     * 创建 word写入构建器 实例
+     * @param file 文件
+     */
     public WordWriteBuilder(File file) {
         super(file);
     }
 
     /**
-    * 设置模板文件流（设置后只走模板）
-    *
-    * @param stream 模板文件流
-    * @return 当前构建器
-    */
+     * 设置模板文件流（设置后只走模板）
+     *
+     * @param stream 模板文件流
+     * @return 当前构建器
+     */
     public WordWriteBuilder withTemplate(InputStream stream) {
         this.templateStream = stream;
         return this;
     }
 
     /**
-    * 将文本行加入延迟写入队列。
-    *
-    * @param lines 文本行列表
-    * @return 写入的结果
-    */
+     * 将文本行加入延迟写入队列。
+     *
+     * @param lines 文本行列表
+     * @return 写入的结果
+     */
     public WordWriteBuilder write(List<String> lines) {
         pending.add(lines);
         return this;
@@ -82,10 +82,10 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 实时写入文本行。
-    *
-    * @param lines 文本行列表
-    */
+     * 实时写入文本行。
+     *
+     * @param lines 文本行列表
+     */
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
@@ -99,10 +99,10 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 实时写入 映射 数据。
-    *
-    * @param rows 映射 数据列表
-    */
+     * 实时写入 映射 数据。
+     *
+     * @param rows 映射 数据列表
+     */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
@@ -187,10 +187,10 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 执行写入映射
-    *
-    * @param rows rows
-    */
+     * 执行写入映射
+     *
+     * @param rows rows
+     */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;

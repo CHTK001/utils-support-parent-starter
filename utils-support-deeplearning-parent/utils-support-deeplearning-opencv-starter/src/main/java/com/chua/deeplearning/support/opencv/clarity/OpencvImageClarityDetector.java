@@ -4,41 +4,41 @@ import com.chua.deeplearning.support.image.ImageClarityDetector;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 
 /**
-* 打开cv 图片清晰度检测器（SPI 提供者="opencv"）。
-*
-* <p>默认使用 {@code opencv-image-quality} 引擎模型（Laplacian 方差），
-* 纯 打开cv 算法，无需下载模型文件，嵌入式友好。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 打开cv 图片清晰度检测器（SPI 提供者="opencv"）。
+ *
+ * <p>默认使用 {@code opencv-image-quality} 引擎模型（Laplacian 方差），
+ * 纯 打开cv 算法，无需下载模型文件，嵌入式友好。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OpencvImageClarityDetector implements ImageClarityDetector {
 
     /**
-    * 清晰度检测模型名称
-    */
+     * 清晰度检测模型名称
+     */
     private String modelName;
 
     /**
-    * 模糊度阈值
-    */
+     * 模糊度阈值
+     */
     private double blurThreshold = 100.0;
 
     /**
-    * 模型路径
-    */
+     * 模型路径
+     */
     private String modelPath;
 
     /**
-    * 运行设备
-    */
+     * 运行设备
+     */
     private String device = "cpu";
 
     /**
-    * SPI 构造函数。
-    *
-    * @param apiKey API 密钥（本地引擎忽略）
-    */
+     * SPI 构造函数。
+     *
+     * @param apiKey API 密钥（本地引擎忽略）
+     */
     public OpencvImageClarityDetector(String apiKey) {
     }
 

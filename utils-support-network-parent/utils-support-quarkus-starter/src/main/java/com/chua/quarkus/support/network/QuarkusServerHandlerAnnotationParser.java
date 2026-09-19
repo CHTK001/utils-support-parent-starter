@@ -24,14 +24,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 解析 Quarkus / JAX-R 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
-*
-* <p>从 {@link ObjectContext} 中查找标注了 {@link Path} 的 Bean，
-* 解析方法级的 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH}
-* 注解并生成 HTTP 路由处理器。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 解析 Quarkus / JAX-R 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
+ *
+ * <p>从 {@link ObjectContext} 中查找标注了 {@link Path} 的 Bean，
+ * 解析方法级的 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH}
+ * 注解并生成 HTTP 路由处理器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("quarkus")
 @ConditionalOnClass("jakarta.ws.rs.Path")
@@ -88,14 +88,14 @@ public class QuarkusServerHandlerAnnotationParser
     }
 
     /**
-    * 解析方法对应的 HTTP 方法集合。
-    *
-    * <p>JAX-RS 方法必须标注 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH} 之一，
-    * 未标注任何 HTTP 方法注解时返回 空（非法资源方法，跳过）。</p>
-    *
-    * @param method 目标方法
-    * @return HTTP 方法集合，空集合表示匹配所有方法，空 表示跳过
-    */
+     * 解析方法对应的 HTTP 方法集合。
+     *
+     * <p>JAX-RS 方法必须标注 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH} 之一，
+     * 未标注任何 HTTP 方法注解时返回 空（非法资源方法，跳过）。</p>
+     *
+     * @param method 目标方法
+     * @return HTTP 方法集合，空集合表示匹配所有方法，空 表示跳过
+     */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
         Set<HttpMethod> result = new HashSet<>();
         if (method.isAnnotationPresent(GET.class)) {
@@ -120,12 +120,12 @@ public class QuarkusServerHandlerAnnotationParser
     }
 
     /**
-    * 拼接类级路径和方法级路径。
-    *
-    * @param prefix 类级路径
-    * @param suffix 方法级路径
-    * @return 拼接后的完整路径
-    */
+     * 拼接类级路径和方法级路径。
+     *
+     * @param prefix 类级路径
+     * @param suffix 方法级路径
+     * @return 拼接后的完整路径
+     */
     private static String joinPath(String prefix, String suffix) {
         if (prefix.isEmpty()) {
             return suffix.startsWith("/") ? suffix : "/" + suffix;

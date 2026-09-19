@@ -9,14 +9,14 @@ import org.redisson.api.RedissonClient;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 Redisson 的 Redis 去重器，实现分布式幂等。
-* <p>
-* 使用 Redis SETNX + TTL 实现，支持跨进程/跨节点的去重判断。
-* 默认 TTL 5 分钟，可通过构造参数调整。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 Redisson 的 Redis 去重器，实现分布式幂等。
+ * <p>
+ * 使用 Redis SETNX + TTL 实现，支持跨进程/跨节点的去重判断。
+ * 默认 TTL 5 分钟，可通过构造参数调整。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("redis")
 @SpiDescribe("Redis 分布式去重器")
@@ -24,16 +24,16 @@ public class RedisDeduplicator implements Deduplicator {
 
     /**
 
-    * * 默认 TTL，5 分钟
+     * * 默认 TTL，5 分钟
 
-    */
+     */
     private static final long DEFAULT_TTL_MS = 5 * 60 * 1000L;
 
     /**
 
-    * * Redis 键 前缀
+     * * Redis 键 前缀
 
-    */
+     */
     private static final String KEY_PREFIX = "dedup:";
 
     /** Redisson */
@@ -42,19 +42,19 @@ public class RedisDeduplicator implements Deduplicator {
     private final long ttlMs;
 
     /**
-    * 创建 redisdeduplicator 实例
-    * @param redisson redisson
-    */
+     * 创建 redisdeduplicator 实例
+     * @param redisson redisson
+     */
     public RedisDeduplicator(RedissonClient redisson) {
         this(redisson, DEFAULT_TTL_MS);
     }
 
     /**
-    * 创建 redisdeduplicator 实例
-    * @param redisson redisson
-    * @param ttlMs long
-    * @param ttlMs ttlms
-    */
+     * 创建 redisdeduplicator 实例
+     * @param redisson redisson
+     * @param ttlMs long
+     * @param ttlMs ttlms
+     */
     public RedisDeduplicator(RedissonClient redisson, long ttlMs) {
         this.redisson = redisson;
         this.ttlMs = ttlMs;

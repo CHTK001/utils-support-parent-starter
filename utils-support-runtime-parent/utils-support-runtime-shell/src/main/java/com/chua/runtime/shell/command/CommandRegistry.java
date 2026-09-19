@@ -8,25 +8,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 命令注册表 — 管理命令名称与实例映射。
-*
-* @author CH
-* @since 4.0.0.42
+ * 命令注册表 — 管理命令名称与实例映射。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class CommandRegistry {
 
     /**
-    * 命令映射
+     * 命令映射
      */
     private final Map<String, Command> commands;
 
     /**
-    * 别名映射
+     * 别名映射
      */
     private final Map<String, Command> aliases;
 
     /**
-    * 创建命令注册表。
+     * 创建命令注册表。
      */
     public CommandRegistry() {
         this.commands = new LinkedHashMap<>();
@@ -34,9 +34,9 @@ public class CommandRegistry {
     }
 
     /**
-    * 注册命令。
-    *
-    * @param command 命令
+     * 注册命令。
+     *
+     * @param command 命令
      */
     public void register(Command command) {
         commands.put(command.name().toLowerCase(), command);
@@ -46,10 +46,10 @@ public class CommandRegistry {
     }
 
     /**
-    * 按名称或别名查找命令。
-    *
-    * @param name 命令名称
-    * @return 命令实例，不存在返回 空
+     * 按名称或别名查找命令。
+     *
+     * @param name 命令名称
+     * @return 命令实例，不存在返回 空
      */
     public Command find(String name) {
         if (StringUtils.isEmpty(name)) {
@@ -64,18 +64,18 @@ public class CommandRegistry {
     }
 
     /**
-    * 所有已注册命令。
-    *
-    * @return 命令映射
+     * 所有已注册命令。
+     *
+     * @return 命令映射
      */
     public Map<String, Command> all() {
         return Collections.unmodifiableMap(commands);
     }
 
     /**
-    * 所有命令名 + 别名的集合（用于 tab 补全顶层）。
-    *
-    * @return 名称列表
+     * 所有命令名 + 别名的集合（用于 tab 补全顶层）。
+     *
+     * @return 名称列表
      */
     public List<String> allNames() {
         List<String> names = new ArrayList<>();
@@ -85,10 +85,10 @@ public class CommandRegistry {
     }
 
     /**
-    * 获取指定前缀开头的补全建议。
-    *
-    * @param prefix 前缀
-    * @return 补全候选
+     * 获取指定前缀开头的补全建议。
+     *
+     * @param prefix 前缀
+     * @return 补全候选
      */
     public List<String> complete(String prefix) {
         if (StringUtils.isEmpty(prefix)) {
@@ -110,9 +110,9 @@ public class CommandRegistry {
     }
 
     /**
-    * 命令数量。
-    *
-    * @return 数量
+     * 命令数量。
+     *
+     * @return 数量
      */
     public int size() {
         return commands.size();

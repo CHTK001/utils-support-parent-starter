@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 地址 Mock 生成器
-*
-* <p>由省份、城市、街道、门牌号组合生成中国地址字符串，
-* 如「广东省广州市天河区人民路 128 号」。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 地址 Mock 生成器
+ *
+ * <p>由省份、城市、街道、门牌号组合生成中国地址字符串，
+ * 如「广东省广州市天河区人民路 128 号」。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("address")
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class AddressMockString implements MockString {
 
     /**
-    * 省份与下辖城市映射（保证生成的省市组合真实匹配）
-    */
+     * 省份与下辖城市映射（保证生成的省市组合真实匹配）
+     */
     private static final Map<String, List<String>> PROVINCE_CITIES = Map.ofEntries(
             Map.entry("北京市", List.of("东城区", "西城区", "朝阳区", "海淀区", "丰台区", "通州区")),
             Map.entry("上海市", List.of("黄浦区", "徐汇区", "静安区", "浦东新区", "杨浦区", "闵行区")),
@@ -40,10 +40,10 @@ public class AddressMockString implements MockString {
             Map.entry("河南省", List.of("郑州市", "洛阳市", "开封市", "南阳市", "信阳市", "新乡市"))
     );
     /**
-    * 街道名池
-    * @param environment 环境
-    * @return 获取字符串的结果
-    */
+     * 街道名池
+     * @param environment 环境
+     * @return 获取字符串的结果
+     */
     private static final String[] STREETS = {
             "人民路", "中山路", "解放路", "建设路", "和平路", "新华路", "青年路",
             "朝阳路", "长江路", "黄河路", "文化路", "体育路", "东湖路", "西湖路",

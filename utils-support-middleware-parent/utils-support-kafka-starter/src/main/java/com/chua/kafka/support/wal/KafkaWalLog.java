@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
-* Kafka 实现的无限制 WAL。
-*
-* @author CH
-* @since 4.0.0.42
+ * Kafka 实现的无限制 WAL。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("kafka")
 public class KafkaWalLog implements WalLog {
@@ -117,10 +117,10 @@ public class KafkaWalLog implements WalLog {
     }
 
     /**
-    * checkpoint路径
-    *
-    * @return checkpoint路径的结果
-    */
+     * checkpoint路径
+     *
+     * @return checkpoint路径的结果
+     */
     private Path checkpointPath() {
         Path dir = config.walDir() != null ? config.walDir() : Path.of(System.getProperty("java.io.tmpdir"), "wal");
         return dir.resolve(topic).resolve(CHECKPOINT_FILE);

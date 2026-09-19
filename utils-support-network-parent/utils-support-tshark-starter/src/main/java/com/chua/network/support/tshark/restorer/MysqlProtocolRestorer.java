@@ -1,14 +1,14 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* MySQL 协议还原器。
-*
-* <p>MySQL packet: payload_length(3 LE) + sequence_id(1) + payload。
-* 握手/响应首包含 服务端 Greeting 标识 "5.5.x-5.7.x" / "8.0.x"。
-* COM_查询 命令 数据包 payload 首字节为 0x03。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * MySQL 协议还原器。
+ *
+ * <p>MySQL packet: payload_length(3 LE) + sequence_id(1) + payload。
+ * 握手/响应首包含 服务端 Greeting 标识 "5.5.x-5.7.x" / "8.0.x"。
+ * COM_查询 命令 数据包 payload 首字节为 0x03。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -79,11 +79,11 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 解析服务端版本
-    *
-    * @param data 数据
-    * @return 解析服务端版本的结果
-    */
+     * 解析服务端版本
+     *
+     * @param data 数据
+     * @return 解析服务端版本的结果
+     */
     private static String parseServerVersion(byte[] data) {
         if (data.length < 5) {
             return "?";
@@ -98,11 +98,11 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为命令名称
-    *
-    * @param cmd CMD
-    * @return 转为命令名称的结果
-    */
+     * 转为命令名称
+     *
+     * @param cmd CMD
+     * @return 转为命令名称的结果
+     */
     private static String toCommandName(int cmd) {
         return switch (cmd) {
             case 0x00 -> "COM_SLEEP";

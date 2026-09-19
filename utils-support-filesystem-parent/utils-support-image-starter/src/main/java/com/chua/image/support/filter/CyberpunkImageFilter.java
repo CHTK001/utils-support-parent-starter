@@ -55,37 +55,37 @@ import java.awt.image.BufferedImage;
 public class CyberpunkImageFilter extends AbstractImageFilter {
 
     /**
-    * 霓虹色调强度，默认 0.6
-    */
+     * 霓虹色调强度，默认 0.6
+     */
     private double neonStrength = 0.6;
 
     /**
-    * 对比度系数，默认 1.5
-    */
+     * 对比度系数，默认 1.5
+     */
     private double contrast = 1.5;
 
     /**
-    * 是否叠加扫描线，默认 false
-    */
+     * 是否叠加扫描线，默认 false
+     */
     private boolean scanlines = false;
 
     /**
-    * 扫描线间隔（像素），默认 3
-    */
+     * 扫描线间隔（像素），默认 3
+     */
     private int scanlineInterval = 3;
 
     /**
-    * RGB 通道错位像素数，默认 1
-    */
+     * RGB 通道错位像素数，默认 1
+     */
     private int chromaticAberration = 1;
 
     /**
-    * 执行赛博朋克滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 赛博朋克风格图像
-    */
+     * 执行赛博朋克滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 赛博朋克风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();
@@ -156,11 +156,11 @@ public class CyberpunkImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 通道值钳制 0-255
-    *
-    * @param v 原始值
-    * @return 钳制后的值
-    */
+     * 通道值钳制 0-255
+     *
+     * @param v 原始值
+     * @return 钳制后的值
+     */
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
     }

@@ -15,67 +15,67 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 内置端点过滤器。
-*
-* <p>拦截 /health 和 /metrics 请求路径，返回 JSON 格式的服务器运行时信息。
-* 仅支持 HTTP 协议，非 HTTP 协议自动跳过。</p>
-*
-* <p>/health 返回：status、uptime、activeRequests、timestamp</p>
-* <p>/metrics 返回：totalRequests、activeRequests、errorCount、uptime、startTime、lastErrorTime</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 内置端点过滤器。
+ *
+ * <p>拦截 /health 和 /metrics 请求路径，返回 JSON 格式的服务器运行时信息。
+ * 仅支持 HTTP 协议，非 HTTP 协议自动跳过。</p>
+ *
+ * <p>/health 返回：status、uptime、activeRequests、timestamp</p>
+ * <p>/metrics 返回：totalRequests、activeRequests、errorCount、uptime、startTime、lastErrorTime</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class BuiltinEndpointFilter implements com.chua.common.support.network.server.filter.ServerFilter {
 
     /**
-    * 服务器指标收集器，用于获取运行时计数。
-    */
+     * 服务器指标收集器，用于获取运行时计数。
+     */
     private final ServerMetrics metrics;
 
     /**
-    * 健康检查端点路径。
-    */
+     * 健康检查端点路径。
+     */
     private final String healthPath;
 
     /**
-    * 指标查询端点路径。
-    */
+     * 指标查询端点路径。
+     */
     private final String metricsPath;
 
     /**
-    * 延迟直方图图表端点路径。
-    */
+     * 延迟直方图图表端点路径。
+     */
     private final String latencyHistogramPath;
 
     /**
-    * 构造内置端点过滤器，使用默认端点路径。
-    *
-    * @param metrics 服务器指标收集器
-    */
+     * 构造内置端点过滤器，使用默认端点路径。
+     *
+     * @param metrics 服务器指标收集器
+     */
     public BuiltinEndpointFilter(ServerMetrics metrics) {
         this(metrics, "/health", "/metrics", "/metrics/latency-histogram.svg");
     }
 
     /**
-    * 构造内置端点过滤器，自定义端点路径。
-    *
-    * @param metrics     服务器指标收集器
-    * @param healthPath  健康检查端点路径
-    * @param metricsPath 指标查询端点路径
-    */
+     * 构造内置端点过滤器，自定义端点路径。
+     *
+     * @param metrics     服务器指标收集器
+     * @param healthPath  健康检查端点路径
+     * @param metricsPath 指标查询端点路径
+     */
     public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath) {
         this(metrics, healthPath, metricsPath, "/metrics/latency-histogram.svg");
     }
 
     /**
-    * 构造内置端点过滤器，自定义全部端点路径。
-    *
-    * @param metrics              服务器指标收集器
-    * @param healthPath           健康检查端点路径
-    * @param metricsPath          指标查询端点路径
-    * @param latencyHistogramPath 延迟直方图端点路径
-    */
+     * 构造内置端点过滤器，自定义全部端点路径。
+     *
+     * @param metrics              服务器指标收集器
+     * @param healthPath           健康检查端点路径
+     * @param metricsPath          指标查询端点路径
+     * @param latencyHistogramPath 延迟直方图端点路径
+     */
     public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath,
                                  String latencyHistogramPath) {
         this.metrics = metrics;
@@ -141,10 +141,10 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     }
 
     /**
-    * 处理指标查询请求，返回运行时计数器。
-    *
-    * @param response 响应对象
-    */
+     * 处理指标查询请求，返回运行时计数器。
+     *
+     * @param response 响应对象
+     */
     private void handleMetrics(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
         Map<String, Object> body = new LinkedHashMap<>(12);
         BeanUtils.copyProperties(metrics, body);
@@ -160,13 +160,13 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     }
 
     /**
-    * 处理延迟直方图请求，按需生成 SVG 图像。
-    *
-    * <p>实时请求只更新 ServerMetrics 中的内存计数器；直方图数据与 SVG
-    * 均在访问本端点时临时创建，不会进入请求处理热路径。</p>
-    *
-    * @param response 响应对象
-    */
+     * 处理延迟直方图请求，按需生成 SVG 图像。
+     *
+     * <p>实时请求只更新 ServerMetrics 中的内存计数器；直方图数据与 SVG
+     * 均在访问本端点时临时创建，不会进入请求处理热路径。</p>
+     *
+     * @param response 响应对象
+     */
     private void handleLatencyHistogram(com.chua.common.support.network.server.response.ServerResponse response) {
         Map<String, Long> histogram = metrics.getLatencyHistogram();
         List<Map.Entry<String, Long>> entries = new ArrayList<>(histogram.entrySet());

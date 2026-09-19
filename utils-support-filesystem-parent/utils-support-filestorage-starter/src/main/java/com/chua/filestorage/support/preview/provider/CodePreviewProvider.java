@@ -10,13 +10,13 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-* 代码 / 文本预览提供者：js、CSS、xml、json、yaml、Java、py 等 → 语法高亮 HTML。
-*
-* <p>注意：html/htm 已由 HtmlPreviewProvider 接管，csv 已由 CsvPreviewProvider 接管，
-* md 已由 markdownpreview提供者 接管，SVG 已由 SVGpreview提供者 接管。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 代码 / 文本预览提供者：js、CSS、xml、json、yaml、Java、py 等 → 语法高亮 HTML。
+ *
+ * <p>注意：html/htm 已由 HtmlPreviewProvider 接管，csv 已由 CsvPreviewProvider 接管，
+ * md 已由 markdownpreview提供者 接管，SVG 已由 SVGpreview提供者 接管。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {
@@ -34,13 +34,13 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     /**
-    * highlight.js 主库路径（由宿主服务从同源 /preview-vendor/hljs 提供，避免依赖公网 CDN）
-    */
+     * highlight.js 主库路径（由宿主服务从同源 /preview-vendor/hljs 提供，避免依赖公网 CDN）
+     */
     private static final String HIGHLIGHT_JS = "/preview-vendor/hljs/highlight.min.js";
 
     /**
-    * atom-one-dark 主题样式表路径
-    */
+     * atom-one-dark 主题样式表路径
+     */
     private static final String HIGHLIGHT_CSS = "/preview-vendor/hljs/atom-one-dark.min.css";
 
     @Override

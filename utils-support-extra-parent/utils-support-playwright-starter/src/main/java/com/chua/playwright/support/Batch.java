@@ -5,42 +5,42 @@ import com.chua.playwright.support.spi.Engine;
 import java.util.*;
 
 /**
-* 批量命令构建器。逐条命令通过 {@link Engine} 顺序执行，模拟一次批量调用的语义。
-* @author CH
-* @since 4.0.0
-* @param handle 处理
-* @param selector selector
-* @param value 值
-* @param pageHandle page处理
-* @param url url
+ * 批量命令构建器。逐条命令通过 {@link Engine} 顺序执行，模拟一次批量调用的语义。
+ * @author CH
+ * @since 4.0.0
+ * @param handle 处理
+ * @param selector selector
+ * @param value 值
+ * @param pageHandle page处理
+ * @param url url
  */
 public class Batch {
 
     /**
-    * 批量。
-    */
+     * 批量。
+     */
     private final Engine engine;
     private final List<Map<String, Object>> commands = new ArrayList<>(); // 命令
     private final List<String> names = new ArrayList<>(); // 名称
     private boolean stopOnError = true; // 停止on错误
 /**
-* 停止on错误。
-* @param stop 停止
-* @return 停止on错误的结果
+ * 停止on错误。
+ * @param stop 停止
+ * @return 停止on错误的结果
  */
 
     /**
-    * 大小。
-    * @return 大小的结果
-    */
+     * 大小。
+     * @return 大小的结果
+     */
     public Batch() {
         this.engine = Playwright.getEngine();
     /**
-    * launch。
-    * @param headless headless
-    * @return launch的结果
-    * @param stop 停止
-    */
+     * launch。
+     * @param headless headless
+     * @return launch的结果
+     * @param stop 停止
+     */
     }
 
     /**
@@ -54,16 +54,16 @@ public class Batch {
         return this;
     }
     /**
-    * 大小。
-    * @return 大小的结果
-    */
+     * 大小。
+     * @return 大小的结果
+     */
     public int size() { return commands.size(); }
 
     /**
-    * launch。
-    * @param headless headless
-    * @return launch的结果
-    */
+     * launch。
+     * @param headless headless
+     * @return launch的结果
+     */
     public int launch(boolean headless) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("headless", headless);
@@ -73,19 +73,19 @@ public class Batch {
     public int newPage(int targetHandle) { return add("newPage", targetHandle, null); }
 
     /**
-    * gotoPage。
-    * @param pageHandle page处理
-    * @param url url
-    */
+     * gotoPage。
+     * @param pageHandle page处理
+     * @param url url
+     */
     public void gotoPage(int pageHandle, String url) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("url", url);
         /**
-        * click。
-        * @param handle 处理
-        * @param selector selector
-        * @param value 值
-        */
+         * click。
+         * @param handle 处理
+         * @param selector selector
+         * @param value 值
+         */
         add("goto", pageHandle, p);
     }
 
@@ -117,9 +117,9 @@ public class Batch {
 
     public void screenshot(int handle) { add("screenshot", handle, null); }
 /**
-* 评估。
-* @param handle 处理
-* @param expression expression
+ * 评估。
+ * @param handle 处理
+ * @param expression expression
  */
 
     public void evaluate(int handle, String expression) {
@@ -131,11 +131,11 @@ public class Batch {
     public void close(int handle) { add("close", handle, null); }
 
     /**
-    * raw。
-    * @param action 动作
-    * @param handle 处理
-    * @param params 参数
-    */
+     * raw。
+     * @param action 动作
+     * @param handle 处理
+     * @param params 参数
+     */
     public void raw(String action, Integer handle, Map<String, Object> params) {
         add(action, handle, params);
     }

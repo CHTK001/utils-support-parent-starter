@@ -7,20 +7,20 @@ import java.io.*;
 import java.util.Map;
 
 /**
-* YAML 文件读取构建器。
-*
-* <p>将 YAML 文件反序列化为 {@code Map<String, Object>} 格式，
-* 支持指定字符集编码。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * YAML 文件读取构建器。
+ *
+ * <p>将 YAML 文件反序列化为 {@code Map<String, Object>} 格式，
+ * 支持指定字符集编码。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class YamlReadBuilder extends ReadBuilder {
 
     /**
-    * 创建 yaml读取构建器 实例
-    * @param file 文件
-    */
+     * 创建 yaml读取构建器 实例
+     * @param file 文件
+     */
     public YamlReadBuilder(File file) {
         super(file);
     }

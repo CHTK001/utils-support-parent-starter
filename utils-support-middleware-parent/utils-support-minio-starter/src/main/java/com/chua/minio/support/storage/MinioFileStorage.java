@@ -19,41 +19,41 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* 最小io 文件存储实现。
-*
-* <p>基于 MinIO Java SDK（{@code io.minio:minio}）实现 {@link FileStorage} SPI 接口，<br>
-* 提供对 最小io 对象存储的完整操作支持。</p>
-*
-* <p>MinIO 是一个高性能的 S3 兼容对象存储服务器，可在本地通过 Docker 快速部署，<br>
-* 非常适合开发测试环境使用。</p>
-*
-* <p><b>本地快速启动（Docker）：</b></p>
-* <pre>{@code
-* docker run -d --name minio \
-*   -p 9000:9000 -p 9001:9001 \
-*   -e MINIO_ROOT_USER=minioadmin \
-*   -e MINIO_ROOT_PASSWORD=minioadmin \
-*   minio/minio server /data --console-address ":9001"
-* }</pre>le-address ":9001"
-* }</pre>
-*
-* <p>启动后访问 http://127.0.0.1:9001（控制台）或通过 9000 端口（API）进行操作。</p>
-*
-* <p>配置示例：</p>
-* <pre>{@code
-* BucketSetting setting = BucketSetting.builder()
-*     .endpoint("http://127.0.0.1:9000")
-*     .bucket("test-bucket")
-*     .accessKeyId("minioadmin")
-*     .accessKeySecret("minioadmin")
-*     .region("us-east-1")
-*     .build();
-* FileStorage storage = FileStorage.createStorage("minio", setting);
-* }</pre>age("minio", setting);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 最小io 文件存储实现。
+ *
+ * <p>基于 MinIO Java SDK（{@code io.minio:minio}）实现 {@link FileStorage} SPI 接口，<br>
+ * 提供对 最小io 对象存储的完整操作支持。</p>
+ *
+ * <p>MinIO 是一个高性能的 S3 兼容对象存储服务器，可在本地通过 Docker 快速部署，<br>
+ * 非常适合开发测试环境使用。</p>
+ *
+ * <p><b>本地快速启动（Docker）：</b></p>
+ * <pre>{@code
+ * docker run -d --name minio \
+ *   -p 9000:9000 -p 9001:9001 \
+ *   -e MINIO_ROOT_USER=minioadmin \
+ *   -e MINIO_ROOT_PASSWORD=minioadmin \
+ *   minio/minio server /data --console-address ":9001"
+ * }</pre>le-address ":9001"
+ * }</pre>
+ *
+ * <p>启动后访问 http://127.0.0.1:9001（控制台）或通过 9000 端口（API）进行操作。</p>
+ *
+ * <p>配置示例：</p>
+ * <pre>{@code
+ * BucketSetting setting = BucketSetting.builder()
+ *     .endpoint("http://127.0.0.1:9000")
+ *     .bucket("test-bucket")
+ *     .accessKeyId("minioadmin")
+ *     .accessKeySecret("minioadmin")
+ *     .region("us-east-1")
+ *     .build();
+ * FileStorage storage = FileStorage.createStorage("minio", setting);
+ * }</pre>age("minio", setting);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"minio", "minio-s3"})
 public class MinioFileStorage extends AbstractFileStorage {

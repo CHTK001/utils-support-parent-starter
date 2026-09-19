@@ -4,12 +4,12 @@ import javax.annotation.Nullable;
 
 
 /**
-* Number 类型转换器。
-* <p>将各种类型的值转换为 {@link Number}，通过 {@link #transToBigDecimal(Object)} 实现通用数值转换。</p>
-*
-* @author CH
-* @version 1.0.0
-* @since 2020/12/31
+ * Number 类型转换器。
+ * <p>将各种类型的值转换为 {@link Number}，通过 {@link #transToBigDecimal(Object)} 实现通用数值转换。</p>
+ *
+ * @author CH
+ * @version 1.0.0
+ * @since 2020/12/31
  */
 public class NumberTypeConverter implements TypeConverter<Number> {
 

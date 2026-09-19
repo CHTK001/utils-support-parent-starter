@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 基于 Apache Commons 文件upload2 的 multipart/form-数据 解析器。
-*
-* @author CH
-* @since 2026/07/17
+ * 基于 Apache Commons 文件upload2 的 multipart/form-数据 解析器。
+ *
+ * @author CH
+ * @since 2026/07/17
  */
 @Spi("fileupload")
 @SpiDescribe("Apache Commons FileUpload2 解析器")
@@ -127,11 +127,11 @@ public class ApacheMultipartParser implements MultipartParser {
     }
 
     /**
-    * 读取全部bytes
-    *
-    * @param in 入
-    * @return 读取全部bytes的结果
-    */
+     * 读取全部bytes
+     *
+     * @param in 入
+     * @return 读取全部bytes的结果
+     */
     private byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];

@@ -66,7 +66,7 @@ import java.util.function.Consumer;
  * @see TaskForkDefinition#parallel(Pipeline)
  * @see ParallelNode
  * @see AsyncResult
-*/
+ */
 public class TaskParallelDefinition {
 
     /** 标识 */
@@ -103,13 +103,13 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 完成定义，将并行子流水线节点添加到流水线，返回构建器继续链式配置。
-    *
-    * <p>与 {@link TaskDefinition#parallel(Pipeline)} 配对使用，
-    * 构成完整的并行子流水线定义：任务 → 并行 → ... → 任务结束。</p>
-    *
-    * @return PipelineBuilder
-    */
+     * 完成定义，将并行子流水线节点添加到流水线，返回构建器继续链式配置。
+     *
+     * <p>与 {@link TaskDefinition#parallel(Pipeline)} 配对使用，
+     * 构成完整的并行子流水线定义：任务 → 并行 → ... → 任务结束。</p>
+     *
+     * @return PipelineBuilder
+     */
     public PipelineBuilder taskEnd() {
         ParallelNode node = new ParallelNode(id, subPipeline);
         if (preHandler != null) {
@@ -142,17 +142,17 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 结束当前节点定义并完成整个流水线构建。
-    *
-    * <p>等价于 {@code .taskEnd().end(id).build()}，一步完成三件事：</p>
-    * <ol>
-    *   <li>调用 {@link #taskEnd()} 完成当前并行子流水线节点定义</li>
-    *   <li>将当前节点标记为流水线终止节点</li>
-    *   <li>构建并返回 {@link Pipeline} 实例</li>
-    * </ol>
-    *
-    * @return 构建完成的 Pipeline 实例
-    */
+     * 结束当前节点定义并完成整个流水线构建。
+     *
+     * <p>等价于 {@code .taskEnd().end(id).build()}，一步完成三件事：</p>
+     * <ol>
+     *   <li>调用 {@link #taskEnd()} 完成当前并行子流水线节点定义</li>
+     *   <li>将当前节点标记为流水线终止节点</li>
+     *   <li>构建并返回 {@link Pipeline} 实例</li>
+     * </ol>
+     *
+     * @return 构建完成的 Pipeline 实例
+     */
     public Pipeline pipelineEnd() {
         taskEnd();
         builder.end(id);
@@ -160,65 +160,65 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 设置前置处理器（在并行子流水线启动前调用）。
-    *
-    * @param handler 前置处理器
-    * @return this
-    */
+     * 设置前置处理器（在并行子流水线启动前调用）。
+     *
+     * @param handler 前置处理器
+     * @return this
+     */
     public TaskParallelDefinition preHandler(PipelineNode handler) {
         this.preHandler = handler;
         return this;
     }
 
     /**
-    * 设置子流水线起始节点 标识。
-    *
-    * @param startNodeId 子流水线中的起始节点 标识
-    * @return this
-    */
+     * 设置子流水线起始节点 标识。
+     *
+     * @param startNodeId 子流水线中的起始节点 标识
+     * @return this
+     */
     public TaskParallelDefinition start(String startNodeId) {
         this.startNode = startNodeId;
         return this;
     }
 
     /**
-    * 设置子流水线参数。
-    *
-    * @param params 参数映射
-    * @return this
-    */
+     * 设置子流水线参数。
+     *
+     * @param params 参数映射
+     * @return this
+     */
     public TaskParallelDefinition params(Map<String, Object> params) {
         this.params = params;
         return this;
     }
 
     /**
-    * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
-    *
-    * <p>环境参数与 {@link #params(Map)} 的区别：</p>
-    * <ul>
-    *   <li><strong>params</strong> — 静态参数，注入到子上下文的 nodeLocalData 根级</li>
-    *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
-    *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
-    * </ul>
-    *
-    * @param env 环境参数映射
-    * @return this
-    */
+     * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
+     *
+     * <p>环境参数与 {@link #params(Map)} 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — 静态参数，注入到子上下文的 nodeLocalData 根级</li>
+     *   <li><strong>env</strong> — 运行时环境参数，注入到 nodeLocalData 时以 {@code "env."} 前缀隔离，
+     *       通过 {@code ctx.getNodeLocalValue("env.modelPath")} 获取</li>
+     * </ul>
+     *
+     * @param env 环境参数映射
+     * @return this
+     */
     public TaskParallelDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;
     }
 
     /**
-    * 设置节点环境参数（单个键值对）。
-    *
-    * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
-    *
-    * @param key   参数键
-    * @param value 参数值
-    * @return this
-    */
+     * 设置节点环境参数（单个键值对）。
+     *
+     * <p>等价于先创建 Map 再调用 {@link #env(Map)}，适用于少量参数的场景。</p>
+     *
+     * @param key   参数键
+     * @param value 参数值
+     * @return this
+     */
     public TaskParallelDefinition env(String key, Object value) {
         if (this.env == null) {
             this.env = new LinkedHashMap<>();
@@ -228,33 +228,33 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 设置节点自有变量（节点级别的局部变量存储）。
-    *
-    * <p>environment 与 params/env 的区别：</p>
-    * <ul>
-    *   <li><strong>params</strong> — 静态参数，注入到 nodeLocalData 根级</li>
-    *   <li><strong>env</strong> — 运行时环境参数，以 {@code "env."} 前缀隔离</li>
-    *   <li><strong>environment</strong> — 节点自有变量，直接注入到 nodeLocalData 根级，
-    *       用于存储节点运行时产生的中间状态、计算结果等</li>
-    * </ul>
-    *
-    * @param environment 节点自有变量映射
-    * @return this
-    */
+     * 设置节点自有变量（节点级别的局部变量存储）。
+     *
+     * <p>environment 与 params/env 的区别：</p>
+     * <ul>
+     *   <li><strong>params</strong> — 静态参数，注入到 nodeLocalData 根级</li>
+     *   <li><strong>env</strong> — 运行时环境参数，以 {@code "env."} 前缀隔离</li>
+     *   <li><strong>environment</strong> — 节点自有变量，直接注入到 nodeLocalData 根级，
+     *       用于存储节点运行时产生的中间状态、计算结果等</li>
+     * </ul>
+     *
+     * @param environment 节点自有变量映射
+     * @return this
+     */
     public TaskParallelDefinition environment(Map<String, Object> environment) {
         this.environment = environment;
         return this;
     }
 
     /**
-    * 设置节点自有变量（单个键值对）。
-    *
-    * <p>等价于先创建 Map 再调用 {@link #environment(Map)}，适用于少量变量的场景。</p>
-    *
-    * @param key   变量键
-    * @param value 变量值
-    * @return this
-    */
+     * 设置节点自有变量（单个键值对）。
+     *
+     * <p>等价于先创建 Map 再调用 {@link #environment(Map)}，适用于少量变量的场景。</p>
+     *
+     * @param key   变量键
+     * @param value 变量值
+     * @return this
+     */
     public TaskParallelDefinition environment(String key, Object value) {
         if (this.environment == null) {
             this.environment = new LinkedHashMap<>();
@@ -264,42 +264,42 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 设置并行完成后是否将输出合并到父上下文的 当前数据。
-    *
-    * <p>默认 true。并行子流程的结果必须合并回主干，否则后续节点无法获取并行执行的结果。
-    * 默认启用合并，确保数据流完整性。</p>
-    *
-    * <p>注意：并行完成时主干可能已在其他节点，合并 currentData 可能覆盖当前节点的数据。
-    * 如需自定义合并逻辑，可通过 {@link #onComplete(BiConsumer)} 手动处理。</p>
-    *
-    * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 当前数据
-    * @return this
-    */
+     * 设置并行完成后是否将输出合并到父上下文的 当前数据。
+     *
+     * <p>默认 true。并行子流程的结果必须合并回主干，否则后续节点无法获取并行执行的结果。
+     * 默认启用合并，确保数据流完整性。</p>
+     *
+     * <p>注意：并行完成时主干可能已在其他节点，合并 currentData 可能覆盖当前节点的数据。
+     * 如需自定义合并逻辑，可通过 {@link #onComplete(BiConsumer)} 手动处理。</p>
+     *
+     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 当前数据
+     * @return this
+     */
     public TaskParallelDefinition mergeCurrentData(boolean mergeCurrentData) {
         this.mergeCurrentData = mergeCurrentData;
         return this;
     }
 
     /**
-    * 设置并行完成回调。
-    *
-    * <p>并行子流水线执行完毕后触发，参数为父上下文和异步结果。
-    * 可用于自定义结果合并逻辑、通知、日志等。</p>
-    *
-    * @param completionHandler 完成回调
-    * @return this
-    */
+     * 设置并行完成回调。
+     *
+     * <p>并行子流水线执行完毕后触发，参数为父上下文和异步结果。
+     * 可用于自定义结果合并逻辑、通知、日志等。</p>
+     *
+     * @param completionHandler 完成回调
+     * @return this
+     */
     public TaskParallelDefinition onComplete(BiConsumer<PipelineContext<?>, AsyncResult> completionHandler) {
         this.completionHandler = completionHandler;
         return this;
     }
 
     /**
-    * 设置无返回值的步骤处理器（Consumer 模式）。
-    *
-    * @param action Consumer 回调
-    * @return this
-    */
+     * 设置无返回值的步骤处理器（Consumer 模式）。
+     *
+     * @param action Consumer 回调
+     * @return this
+     */
     public TaskParallelDefinition onStep(Consumer<PipelineContext<?>> action) {
         PipelineNode original = this.preHandler;
         this.preHandler = ctx -> {
@@ -313,11 +313,11 @@ public class TaskParallelDefinition {
     }
 
     /**
-    * 设置有返回值的步骤处理器（Function 模式）。
-    *
-    * @param handler pipeline节点 处理器
-    * @return this
-    */
+     * 设置有返回值的步骤处理器（Function 模式）。
+     *
+     * @param handler pipeline节点 处理器
+     * @return this
+     */
     public TaskParallelDefinition step(PipelineNode handler) {
         this.preHandler = handler;
         return this;

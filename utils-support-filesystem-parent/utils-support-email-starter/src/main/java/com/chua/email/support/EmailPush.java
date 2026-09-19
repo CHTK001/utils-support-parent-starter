@@ -18,24 +18,24 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 邮件推送实现
-*
-* <p>基于 JavaMail SMTP 协议的邮件发送实现。
-* 支持纯文本和 HTML 格式邮件、附件、多收件人。
-*
-* <h3>环境配置</h3>
-* <pre>
-*   smtp.host       SMTP 服务器地址（必填）
-*   smtp.port       SMTP 端口（默认 587）
-*   smtp.username   SMTP 用户名
-*   smtp.password   SMTP 密码
-*   smtp.from       发件人地址
-*   smtp.auth       是否需要认证（默认 true）
-*   smtp.starttls   是否启用 STARTTLS（默认 true）
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 邮件推送实现
+ *
+ * <p>基于 JavaMail SMTP 协议的邮件发送实现。
+ * 支持纯文本和 HTML 格式邮件、附件、多收件人。
+ *
+ * <h3>环境配置</h3>
+ * <pre>
+ *   smtp.host       SMTP 服务器地址（必填）
+ *   smtp.port       SMTP 端口（默认 587）
+ *   smtp.username   SMTP 用户名
+ *   smtp.password   SMTP 密码
+ *   smtp.from       发件人地址
+ *   smtp.auth       是否需要认证（默认 true）
+ *   smtp.starttls   是否启用 STARTTLS（默认 true）
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("email")
 @SpiDescribe(
@@ -51,10 +51,10 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
-* 公共 类 emailpush implements 消息push {
-*
-* @author CH
-* @since 4.0.0.42
+ * 公共 类 emailpush implements 消息push {
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EmailPush implements MessagePush {
 
@@ -146,17 +146,17 @@ public class EmailPush implements MessagePush {
     }
 
     /**
-    * 注册模板
-    * @param template template
-    */
+     * 注册模板
+     * @param template template
+     */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
     }
 
     /**
-    * 构建 SMTP 属性
-    * @return 构建属性的结果
-    */
+     * 构建 SMTP 属性
+     * @return 构建属性的结果
+     */
     private Properties buildProperties() {
         Properties props = new Properties();
         String host = environment.get("smtp.host");

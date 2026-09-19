@@ -10,46 +10,46 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 默认 Java 智能体 管理器实现 — 基于 {@link AgentInjector} 和 JDK 虚拟machine API。
-*
-* <p>提供 Java Agent 的注入、卸载、进程列表和 JVM 检查功能。</p>
-*
-* <h3>核心能力</h3>
-* <ul>
-*   <li>{@link #listPids} — 列出本机所有 Java 进程</li>
-*   <li>{@link #attach} — 将 Agent JAR 注入到目标 JVM</li>
-*   <li>{@link #inspectJvm} — 检查目标 JVM 的运行时信息</li>
-*   <li>{@link #attachByPort} — 通过端口附加到远程 JVM</li>
-* </ul>
-*
-* <h3>使用示例</h3>
-* <pre>{@code
-* JavaAgentManager agentMgr = new DefaultJavaAgentManager();
-*
-* // 列出 Java 进程
-* Map<Integer, String> jvms = agentMgr.listPids();
-*
-* // 注入 Agent
-* agentMgr.attach(12345, Path.of("/opt/agent/runtime-starter.jar"), "log_level=DEBUG");
-*
-* // 检查 JVM
-* agentMgr.inspectJvm(12345);
-* }</pre> agentMgr.inspectJvm(12345);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认 Java 智能体 管理器实现 — 基于 {@link AgentInjector} 和 JDK 虚拟machine API。
+ *
+ * <p>提供 Java Agent 的注入、卸载、进程列表和 JVM 检查功能。</p>
+ *
+ * <h3>核心能力</h3>
+ * <ul>
+ *   <li>{@link #listPids} — 列出本机所有 Java 进程</li>
+ *   <li>{@link #attach} — 将 Agent JAR 注入到目标 JVM</li>
+ *   <li>{@link #inspectJvm} — 检查目标 JVM 的运行时信息</li>
+ *   <li>{@link #attachByPort} — 通过端口附加到远程 JVM</li>
+ * </ul>
+ *
+ * <h3>使用示例</h3>
+ * <pre>{@code
+ * JavaAgentManager agentMgr = new DefaultJavaAgentManager();
+ *
+ * // 列出 Java 进程
+ * Map<Integer, String> jvms = agentMgr.listPids();
+ *
+ * // 注入 Agent
+ * agentMgr.attach(12345, Path.of("/opt/agent/runtime-starter.jar"), "log_level=DEBUG");
+ *
+ * // 检查 JVM
+ * agentMgr.inspectJvm(12345);
+ * }</pre> agentMgr.inspectJvm(12345);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DefaultJavaAgentManager implements JavaAgentManager {
 
     /**
-    * 命令执行超时（秒）
+     * 命令执行超时（秒）
      */
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
     /**
-    * 默认 智能体 类名
+     * 默认 智能体 类名
      */
     private static final String DEFAULT_AGENT_CLASS = "com.chua.runtime.support.javaagent.RuntimeAgent";
 

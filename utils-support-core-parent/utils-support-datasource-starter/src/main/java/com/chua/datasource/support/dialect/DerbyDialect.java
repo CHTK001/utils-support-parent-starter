@@ -8,8 +8,8 @@ public class DerbyDialect extends SqlDialect {
     */
     public DerbyDialect() { super("derby"); }
     /**
-    * derbydialect。
-    * @param properties 属性
-    */
+     * derbydialect。
+     * @param properties 属性
+     */
     public DerbyDialect(Properties properties) { super("derby", properties); }
 }

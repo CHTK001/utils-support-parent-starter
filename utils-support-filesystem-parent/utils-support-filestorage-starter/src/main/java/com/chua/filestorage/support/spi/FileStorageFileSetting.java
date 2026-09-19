@@ -40,29 +40,29 @@ import java.util.List;
 public interface FileStorageFileSetting {
 
     /**
-    * 返回支持的能力列表。
-    * <p>对应 URL 参数名，如 {@code ["size", "format", "quality"]}。
-    * 返回空列表表示当前实现不支持任何 URL 参数。</p>
-    *
-    * @return 支持的能力名称列表
-    */
+     * 返回支持的能力列表。
+     * <p>对应 URL 参数名，如 {@code ["size", "format", "quality"]}。
+     * 返回空列表表示当前实现不支持任何 URL 参数。</p>
+     *
+     * @return 支持的能力名称列表
+     */
     default List<String> capabilities() {
         return Collections.emptyList();
     }
 
     /**
-    * 从 HTTP 请求中解析 URL 参数，生成操作配置。
-    *
-    * <p>参数来源：
-    * <ul>
-    *   <li>URL query 参数（如 {@code ?size=200x200&format=webp}）</li>
-    *   <li>请求头（如 {@code X-Size: 200x200}）</li>
-    *   <li>请求属性（由其他 Filter 设置）</li>
-    * </ul>
-    * </p>
-    *
-    * @param request HTTP 请求对象
-    * @return 解析后的文件操作配置，永不为 null
-    */
+     * 从 HTTP 请求中解析 URL 参数，生成操作配置。
+     *
+     * <p>参数来源：
+     * <ul>
+     *   <li>URL query 参数（如 {@code ?size=200x200&format=webp}）</li>
+     *   <li>请求头（如 {@code X-Size: 200x200}）</li>
+     *   <li>请求属性（由其他 Filter 设置）</li>
+     * </ul>
+     * </p>
+     *
+     * @param request HTTP 请求对象
+     * @return 解析后的文件操作配置，永不为 null
+     */
     FileOperationSetting parse(ServerRequest request);
 }

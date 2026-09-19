@@ -14,42 +14,42 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
-* SSH 命令请求，{@link ServerRequest} 实现。
-* <p>使用 {@link CommandLine} 将用户输入的 Shell 命令解析为路径（命令名）和参数。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * SSH 命令请求，{@link ServerRequest} 实现。
+ * <p>使用 {@link CommandLine} 将用户输入的 Shell 命令解析为路径（命令名）和参数。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class SshCommandRequest implements ServerRequest {
 
     /**
-    * 原始命令行字符串
-    */
+     * 原始命令行字符串
+     */
     private final String commandLine;
 
     /**
-    * 命令名称（第一个单词）
-    */
+     * 命令名称（第一个单词）
+     */
     private final String commandName;
 
     /**
-    * 命令参数数组（不含命令名）
-    */
+     * 命令参数数组（不含命令名）
+     */
     private final String[] args;
 
     /**
-    * 请求属性映射
-    */
+     * 请求属性映射
+     */
     private final Map<String, Object> attributes = new HashMap<>();
 
     /**
-    * 构造 SSH 命令请求。
-    * <p>先按空白符切分令牌，再通过 {@link CommandLine} 解析。
-    * 第一个位置参数作为命令名，其余位置参数作为命令参数。</p>
-    *
-    * @param commandLine 用户输入的完整命令行字符串
-    */
+     * 构造 SSH 命令请求。
+     * <p>先按空白符切分令牌，再通过 {@link CommandLine} 解析。
+     * 第一个位置参数作为命令名，其余位置参数作为命令参数。</p>
+     *
+     * @param commandLine 用户输入的完整命令行字符串
+     */
     public SshCommandRequest(String commandLine) {
         this.commandLine = commandLine != null ? commandLine.trim() : "";
         String[] parsed = parse(this.commandLine);
@@ -60,12 +60,12 @@ public class SshCommandRequest implements ServerRequest {
     }
 
     /**
-    * 解析命令行字符串，返回令牌数组。
-    * <p>优先使用 {@link CommandLine} 解析，失败时回退到空白符分割。</p>
-    *
-    * @param line 命令行字符串
-    * @return 令牌数组
-    */
+     * 解析命令行字符串，返回令牌数组。
+     * <p>优先使用 {@link CommandLine} 解析，失败时回退到空白符分割。</p>
+     *
+     * @param line 命令行字符串
+     * @return 令牌数组
+     */
     private static String[] parse(String line) {
         String[] tokens = StringUtils.tokenizeToStringArray(line, " \t");
         if (tokens.length == 0) {

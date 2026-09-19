@@ -15,25 +15,25 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
-* 增强版按天备份策略
-*
-* <p>通过 SPI 注册，扩展 {@link DefaultDailyBackupStrategy}，
-* 增加日志记录、备份校验和更灵活的目录结构支持。
-*
-* <h3>目录结构</h3>
-* <pre>
-*   {backupDir}/
-*   ├── {yyyy-MM-dd}/                  ← 当天备份
-*   │   ├── {sourceDirName}/
-*   │   │   ├── file1.txt
-*   │   │   └── file2.json
-*   │   └── manifest.json              ← 备份清单
-*   └── archive/
-*       └── {yyyy-MM-dd}.zip           ← 历史备份压缩包
-* </pre>
-*
-* @author CH
-* @since 2026/07/16
+ * 增强版按天备份策略
+ *
+ * <p>通过 SPI 注册，扩展 {@link DefaultDailyBackupStrategy}，
+ * 增加日志记录、备份校验和更灵活的目录结构支持。
+ *
+ * <h3>目录结构</h3>
+ * <pre>
+ *   {backupDir}/
+ *   ├── {yyyy-MM-dd}/                  ← 当天备份
+ *   │   ├── {sourceDirName}/
+ *   │   │   ├── file1.txt
+ *   │   │   └── file2.json
+ *   │   └── manifest.json              ← 备份清单
+ *   └── archive/
+ *       └── {yyyy-MM-dd}.zip           ← 历史备份压缩包
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Spi("daily")
 public class EnhanceBackupStrategyProvider implements BackupStrategy {

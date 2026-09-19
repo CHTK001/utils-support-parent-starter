@@ -15,14 +15,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
-* Trae HTTP 客户端，封装 OkHttp 实例、请求头构造与 HTTP 代理配置。
-* 负责向 Trae 后端发送带 Cloud-IDE-JWT 认证的请求。
-*
-* <p>通过 {@link Builder} 模式创建，必须提供 {@link AuthManager}。
-*
-* @see <a href="https://github.com/square/okhttp">OkHttp</a>
-* @author CH
-* @since 4.0.0.42
+ * Trae HTTP 客户端，封装 OkHttp 实例、请求头构造与 HTTP 代理配置。
+ * 负责向 Trae 后端发送带 Cloud-IDE-JWT 认证的请求。
+ *
+ * <p>通过 {@link Builder} 模式创建，必须提供 {@link AuthManager}。
+ *
+ * @see <a href="https://github.com/square/okhttp">OkHttp</a>
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TraeHttpClient {
 
@@ -50,9 +50,9 @@ public class TraeHttpClient {
     private final String ideVersionCode;
 
     /**
-    * Traehttp客户端。
-    * @param builder 构建器
-    */
+     * Traehttp客户端。
+     * @param builder 构建器
+     */
     private TraeHttpClient(Builder builder) {
         Objects.requireNonNull(builder.authManager, "authManager is required");
         this.authManager = builder.authManager;
@@ -76,10 +76,10 @@ public class TraeHttpClient {
     }
 
     /**
-    * HTTP 客户端 构建器。
-    * @author CH
-    * @since 4.0.0
-    */
+     * HTTP 客户端 构建器。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class Builder {
         /** 认证管理器，必填 */
         private AuthManager authManager;
@@ -108,56 +108,56 @@ public class TraeHttpClient {
         }
 
         /**
-        * 设置 API 主机。
-        *
-        * @param apiHost 主机地址，不可为 空
-        * @return 当前 构建器
-        */
+         * 设置 API 主机。
+         *
+         * @param apiHost 主机地址，不可为 空
+         * @return 当前 构建器
+         */
         public Builder apiHost(String apiHost) {
             this.apiHost = apiHost;
             return this;
         }
 
         /**
-        * 设置 App 标识。
-        *
-        * @param appId 应用标识
-        * @return 当前 构建器
-        */
+         * 设置 App 标识。
+         *
+         * @param appId 应用标识
+         * @return 当前 构建器
+         */
         public Builder appId(String appId) {
             this.appId = appId;
             return this;
         }
 
         /**
-        * 设置 IDE 版本。
-        *
-        * @param v 版本号
-        * @return 当前 构建器
-        */
+         * 设置 IDE 版本。
+         *
+         * @param v 版本号
+         * @return 当前 构建器
+         */
         public Builder ideVersion(String v) {
             this.ideVersion = v;
             return this;
         }
 
         /**
-        * 设置 IDE 版本码。
-        *
-        * @param v 版本码
-        * @return 当前 构建器
-        */
+         * 设置 IDE 版本码。
+         *
+         * @param v 版本码
+         * @return 当前 构建器
+         */
         public Builder ideVersionCode(String v) {
             this.ideVersionCode = v;
             return this;
         }
 
         /**
-        * 设置 HTTP 代理。
-        *
-        * @param host 代理主机
-        * @param port 代理端口
-        * @return 当前 构建器
-        */
+         * 设置 HTTP 代理。
+         *
+         * @param host 代理主机
+         * @param port 代理端口
+         * @return 当前 构建器
+         */
         public Builder httpProxy(String host, int port) {
             this.httpProxy = host;
             this.proxyPort = port;
@@ -165,11 +165,11 @@ public class TraeHttpClient {
         }
 
         /**
-        * 构建 HTTP 客户端。
-        *
-        * @return 配置完成的 Traehttp客户端
-        * @throws IllegalStateException 当 认证管理器 未设置时
-        */
+         * 构建 HTTP 客户端。
+         *
+         * @return 配置完成的 Traehttp客户端
+         * @throws IllegalStateException 当 认证管理器 未设置时
+         */
         public TraeHttpClient build() {
             if (authManager == null) {
                 throw new IllegalStateException("authManager is required");
@@ -179,12 +179,12 @@ public class TraeHttpClient {
     }
 
     /**
-    * 构造 Trae 后端请求头。
-    * 包含 Cloud-IDE-JWT 认证、设备标识、版本信息等。
-    *
-    * @param auth 认证快照，不可为 空
-    * @return 请求头 映射，有序
-    */
+     * 构造 Trae 后端请求头。
+     * 包含 Cloud-IDE-JWT 认证、设备标识、版本信息等。
+     *
+     * @param auth 认证快照，不可为 空
+     * @return 请求头 映射，有序
+     */
     public Map<String, String> buildHeaders(AuthManager.AuthSnapshot auth) {
         Objects.requireNonNull(auth, "auth must not be null");
         String traceId = UUID.randomUUID().toString().replace("-", "");
@@ -209,14 +209,14 @@ public class TraeHttpClient {
     }
 
     /**
-    * 构造 OkHttp 请求对象。
-    *
-    * @param url 目标 URL
-    * @param headers 请求头
-    * @param body JSON 请求体
-    * @param streaming 是否流式请求（true 时附加 Accept: 文本/事件-流）
-    * @return 构造好的 请求 对象
-    */
+     * 构造 OkHttp 请求对象。
+     *
+     * @param url 目标 URL
+     * @param headers 请求头
+     * @param body JSON 请求体
+     * @param streaming 是否流式请求（true 时附加 Accept: 文本/事件-流）
+     * @return 构造好的 请求 对象
+     */
     public Request buildRequest(String url, Map<String, String> headers, String body, boolean streaming) {
         Objects.requireNonNull(url, "url must not be null");
         Objects.requireNonNull(headers, "headers must not be null");
@@ -235,23 +235,23 @@ public class TraeHttpClient {
     }
 
     /**
-    * 获取底层 OkHttp 实例。
-    *
-    * @return 原始 OkHttp 客户端
-    */
+     * 获取底层 OkHttp 实例。
+     *
+     * @return 原始 OkHttp 客户端
+     */
     public OkHttpClient rawClient() { return client; }
 
     /**
-    * 获取 API 主机地址。
-    *
-    * @return 主机 URL
-    */
+     * 获取 API 主机地址。
+     *
+     * @return 主机 URL
+     */
     public String apiHost() { return apiHost; }
 
     /**
-    * 获取认证管理器。
-    *
-    * @return AuthManager 实例
-    */
+     * 获取认证管理器。
+     *
+     * @return AuthManager 实例
+     */
     public AuthManager authManager() { return authManager; }
 }

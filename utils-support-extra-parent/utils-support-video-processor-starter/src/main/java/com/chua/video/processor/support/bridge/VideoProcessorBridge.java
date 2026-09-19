@@ -4,8 +4,8 @@ import com.chua.common.support.utils.NativeLoader;
 import com.chua.common.support.utils.NativeUtils;
 import java.nio.file.Path;
 /**
-* @author CH
-* @since 4.0.0
+ * @author CH
+ * @since 4.0.0
  */
 
 public class VideoProcessorBridge {
@@ -42,10 +42,10 @@ public class VideoProcessorBridge {
     }
 
     /**
-    * 获取加载记录错误
-    *
-    * @return 获取加载错误的结果
-    */
+     * 获取加载记录错误
+     *
+     * @return 获取加载错误的结果
+     */
     public static Throwable getLoadError() {
         return loadError;
     }
@@ -69,9 +69,9 @@ public class VideoProcessorBridge {
     public static native boolean transcodeToHls(String inputPath, String outputDir);
 
     /**
-    * 获取版本
-    *
-    * @return 获取版本的结果
-    */
+     * 获取版本
+     *
+     * @return 获取版本的结果
+     */
     public static native String getVersion();
 }

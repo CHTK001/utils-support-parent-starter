@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-* Consul 应用层 处理器 — 拦截 Consul Java 客户端 关键调用并生成应用语义传输记录。
-*
-* <p>拦截目标：</p>
-* <ul>
-*   <li>{@code com.ecwid.consul.v1.ConsulClient} — setKVValue / getKVValue / registerService / agentServiceRegister</li>
-* </ul>
-*
-* <p>采用零编译期依赖策略：Consul 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Consul 应用层 处理器 — 拦截 Consul Java 客户端 关键调用并生成应用语义传输记录。
+ *
+ * <p>拦截目标：</p>
+ * <ul>
+ *   <li>{@code com.ecwid.consul.v1.ConsulClient} — setKVValue / getKVValue / registerService / agentServiceRegister</li>
+ * </ul>
+ *
+ * <p>采用零编译期依赖策略：Consul 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ConsulHandler extends AbstractAppHandler {
 
     /**
-    * consul客户端 类内部名
+     * consul客户端 类内部名
      */
     private static final String CONSUL_CLIENT = "com/ecwid/consul/v1/ConsulClient";
 
     /**
-    * Consul 方法集合（KV + 服务注册）
+     * Consul 方法集合（KV + 服务注册）
      */
     private static final String[] CLIENT_METHODS = {
             "setKVValue", "getKVValue", "getKVValues", "deleteKVValue",

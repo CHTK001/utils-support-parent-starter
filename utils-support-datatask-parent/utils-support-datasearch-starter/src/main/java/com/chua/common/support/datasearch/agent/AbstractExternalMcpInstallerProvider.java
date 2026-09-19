@@ -169,11 +169,11 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
     }
 
     /**
-    * 外部浏览器 MCP 客户端：在 JVM 内提供工具列表与调用占位。
-    *
-    * @author CH
-    * @since 4.0.0.45
-    */
+     * 外部浏览器 MCP 客户端：在 JVM 内提供工具列表与调用占位。
+     *
+     * @author CH
+     * @since 4.0.0.45
+     */
     protected class ExternalBrowserMcpClient implements McpClient {
         /** initialized */
         private volatile boolean initialized = false;

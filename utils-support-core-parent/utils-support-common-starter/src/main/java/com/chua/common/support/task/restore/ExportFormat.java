@@ -17,59 +17,59 @@ import java.util.Locale;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public enum ExportFormat {
 
     /**
-    * 逗号分隔值文本格式
-    */
+     * 逗号分隔值文本格式
+     */
     CSV("csv", ".csv"),
 
     /**
-    * 结构化查询语言脚本格式
-    */
+     * 结构化查询语言脚本格式
+     */
     SQL("sql", ".sql"),
 
     /**
-    * Excel 工作簿格式
-    */
+     * Excel 工作簿格式
+     */
     EXCEL("excel", ".xlsx"),
 
     /**
-    * JSON 文档格式
-    */
+     * JSON 文档格式
+     */
     JSON("json", ".json");
 
     /**
-    * 格式名称（SPI 注册名）
-    */
+     * 格式名称（SPI 注册名）
+     */
     private final String value;
 
     /**
-    * 默认文件后缀
-    */
+     * 默认文件后缀
+     */
     private final String extension;
 
     /**
-    * 构造器。
-    *
-    * @param value     格式名称
-    * @param extension 默认文件后缀
-    */
+     * 构造器。
+     *
+     * @param value     格式名称
+     * @param extension 默认文件后缀
+     */
     ExportFormat(String value, String extension) {
         this.value = value;
         this.extension = extension;
     }
 
     /**
-    * 解析格式名称。
-    *
-    * <p>忽略大小写与前后空白，兼容 ".csv" 形式的输入。</p>
-    *
-    * @param value 格式名称，如 "csv"、".SQL"、"Excel"
-    * @return 匹配的格式枚举
-    * @throws IllegalArgumentException 无法匹配时抛出
-    */
+     * 解析格式名称。
+     *
+     * <p>忽略大小写与前后空白，兼容 ".csv" 形式的输入。</p>
+     *
+     * @param value 格式名称，如 "csv"、".SQL"、"Excel"
+     * @return 匹配的格式枚举
+     * @throws IllegalArgumentException 无法匹配时抛出
+     */
     public static ExportFormat of(String value) {
         if (value == null) {
             throw new IllegalArgumentException("输出格式不能为空");
@@ -87,19 +87,19 @@ public enum ExportFormat {
     }
 
     /**
-    * 获取格式名称。
-    *
-    * @return 格式名称
-    */
+     * 获取格式名称。
+     *
+     * @return 格式名称
+     */
     public String value() {
         return value;
     }
 
     /**
-    * 获取默认文件后缀。
-    *
-    * @return 文件后缀（含前导点）
-    */
+     * 获取默认文件后缀。
+     *
+     * @return 文件后缀（含前导点）
+     */
     public String extension() {
         return extension;
     }

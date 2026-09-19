@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 权限信息，描述一个用户对数据库对象的访问权限。
-*
-* @author CH
-* @since 4.0.0.42
+ * 权限信息，描述一个用户对数据库对象的访问权限。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor

@@ -3,10 +3,10 @@ package com.chua.common.support.ai.bot;
 import lombok.Builder;
 
 /**
-* Bot 用户实体（数据库持久化用）。
-*
-* @author CH
-* @since 2026/07/18
+ * Bot 用户实体（数据库持久化用）。
+ *
+ * @author CH
+ * @since 2026/07/18
  */
 @Builder
 public record BotUserEntity(

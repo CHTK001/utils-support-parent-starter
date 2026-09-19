@@ -1,10 +1,10 @@
 package com.chua.common.support.network.server.impl;
 
 /**
-* tcp服务端请求 单元测试（无 junit 依赖，直接运行 main）。
-*
-* @author CH
-* @since 4.0.0.42
+ * tcp服务端请求 单元测试（无 junit 依赖，直接运行 main）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class TcpServerRequestTest {
 
@@ -12,8 +12,8 @@ public class TcpServerRequestTest {
             new java.net.InetSocketAddress("127.0.0.1", 54321);
 
     /**
-    * main。
-    * @param args 参数
+     * main。
+     * @param args 参数
      */
     public static void main(String[] args) {
         int passed = 0, total = 0;

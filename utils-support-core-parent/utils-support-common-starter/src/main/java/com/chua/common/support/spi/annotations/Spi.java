@@ -81,77 +81,77 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 1.0.0
-*/
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface Spi {
 
     /**
-    * SPI 的名称或别名数组
-    *
-    * <p>用于标识当前实现类或注入点所对应的服务名称。
-    * 支持多个名称，第一个名称通常作为主名称，其余作为别名。
-    *
-    * <p>名称的常见形式：
-    * <ul>
-    *   <li>简单的服务名称，如 "redis", "mysql"</li>
-    *   <li>带有版本号的名称，如 "redis-v2", "mysql-8.0"</li>
-    *   <li>MIME 类型，如 "application/json"</li>
-    *   <li>全限定类名，如 "com.mysql.cj.jdbc.Driver"</li>
-    * </ul>
-    *
-    * <p>使用示例：
-    * <pre>{@code
-    * // 单一名称
-    * @Spi("redis")
-    *
-    * // 多个别名
-    * @Spi({"json", "application/json", "text/json"})
-    *
-    * // 包含全限定类名
-    * @Spi({"mysql", "mysql-8.0", "com.mysql.cj.jdbc.Driver"})
-    * }</pre>
-    *
-    * @return SPI 的名称或别名数组
-    */
+     * SPI 的名称或别名数组
+     *
+     * <p>用于标识当前实现类或注入点所对应的服务名称。
+     * 支持多个名称，第一个名称通常作为主名称，其余作为别名。
+     *
+     * <p>名称的常见形式：
+     * <ul>
+     *   <li>简单的服务名称，如 "redis", "mysql"</li>
+     *   <li>带有版本号的名称，如 "redis-v2", "mysql-8.0"</li>
+     *   <li>MIME 类型，如 "application/json"</li>
+     *   <li>全限定类名，如 "com.mysql.cj.jdbc.Driver"</li>
+     * </ul>
+     *
+     * <p>使用示例：
+     * <pre>{@code
+     * // 单一名称
+     * @Spi("redis")
+     *
+     * // 多个别名
+     * @Spi({"json", "application/json", "text/json"})
+     *
+     * // 包含全限定类名
+     * @Spi({"mysql", "mysql-8.0", "com.mysql.cj.jdbc.Driver"})
+     * }</pre>
+     *
+     * @return SPI 的名称或别名数组
+     */
     String[] value() default {};
 
     /**
-    * 服务的优先级顺序
-    *
-    * <p>当存在多个相同名称的 SPI 实现时，用于决定它们的加载或使用顺序。
-    * 数值越大，优先级越高。
-    *
-    * <p>优先级规则说明：
-    * <ul>
-    *   <li>数值越大，优先级越高，越优先被加载或使用</li>
-    *   <li>相同优先级时，按照加载顺序或字母顺序决定</li>
-    *   <li>负数优先级通常用于兜底或默认实现</li>
-    * </ul>
-    *
-    * <p>常见优先级设定：
-    * <ul>
-    *   <li>高优先级实现：100, 50 等</li>
-    *   <li>默认优先级：0</li>
-    *   <li>低优先级/兜底实现：-50, -100 等</li>
-    * </ul>
-    *
-    * <p>使用示例：
-    * <pre>{@code
-    * @Spi(value = "redis", order = 100)   // 高优先级
-    * public class RedisCache implements Cache { }
-    *
-    * @Spi(value = "memory", order = 0)    // 默认优先级
-    * public class MemoryCache implements Cache { }
-    *
-    * @Spi(value = "file", order = -100)   // 低优先级，作为兜底
-    * public class FileCache implements Cache { }
-    * }</pre> { }
-    * }</pre>
-    *
-    * @return 优先级顺序，默认为 0
-    */
+     * 服务的优先级顺序
+     *
+     * <p>当存在多个相同名称的 SPI 实现时，用于决定它们的加载或使用顺序。
+     * 数值越大，优先级越高。
+     *
+     * <p>优先级规则说明：
+     * <ul>
+     *   <li>数值越大，优先级越高，越优先被加载或使用</li>
+     *   <li>相同优先级时，按照加载顺序或字母顺序决定</li>
+     *   <li>负数优先级通常用于兜底或默认实现</li>
+     * </ul>
+     *
+     * <p>常见优先级设定：
+     * <ul>
+     *   <li>高优先级实现：100, 50 等</li>
+     *   <li>默认优先级：0</li>
+     *   <li>低优先级/兜底实现：-50, -100 等</li>
+     * </ul>
+     *
+     * <p>使用示例：
+     * <pre>{@code
+     * @Spi(value = "redis", order = 100)   // 高优先级
+     * public class RedisCache implements Cache { }
+     *
+     * @Spi(value = "memory", order = 0)    // 默认优先级
+     * public class MemoryCache implements Cache { }
+     *
+     * @Spi(value = "file", order = -100)   // 低优先级，作为兜底
+     * public class FileCache implements Cache { }
+     * }</pre> { }
+     * }</pre>
+     *
+     * @return 优先级顺序，默认为 0
+     */
     int order() default 0;
 }
 

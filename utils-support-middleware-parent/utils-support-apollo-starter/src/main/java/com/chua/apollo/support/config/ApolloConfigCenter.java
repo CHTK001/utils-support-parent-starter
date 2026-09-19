@@ -17,53 +17,53 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* Apollo 配置中心实现。
-* <p>
-* 基于 Apollo Java SDK 连接 Apollo 配置中心，通过命名空间（Namespace）隔离配置。
-* Apollo 原生支持配置项的键值对管理，以及配置变更的实时推送监听。
-* </p>
-* <p>
-* <b>功能特性：</b>
-* <ul>
-*   <li>通过 {@link ConfigService} 获取 Apollo 配置对象</li>
-*   <li>dataId 对应 Apollo 的命名空间（Namespace），支持自定义命名空间</li>
-*   <li>默认使用 application 命名空间（通过 {@link ConfigCenterSetting#getProfile()} 可指定）</li>
-*   <li>支持配置变更实时推送监听</li>
-*   <li>支持 JSON 格式配置值的自动解析</li>
-* </ul>
-* </p>
-* <p>
-* <b>注意：</b>Apollo 配置中心通常作为只读源，发布和删除操作仅在本地缓存生效，
-* 不会实际写入 Apollo 服务器。如需写入请使用 Apollo 管理 API。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Apollo 配置中心实现。
+ * <p>
+ * 基于 Apollo Java SDK 连接 Apollo 配置中心，通过命名空间（Namespace）隔离配置。
+ * Apollo 原生支持配置项的键值对管理，以及配置变更的实时推送监听。
+ * </p>
+ * <p>
+ * <b>功能特性：</b>
+ * <ul>
+ *   <li>通过 {@link ConfigService} 获取 Apollo 配置对象</li>
+ *   <li>dataId 对应 Apollo 的命名空间（Namespace），支持自定义命名空间</li>
+ *   <li>默认使用 application 命名空间（通过 {@link ConfigCenterSetting#getProfile()} 可指定）</li>
+ *   <li>支持配置变更实时推送监听</li>
+ *   <li>支持 JSON 格式配置值的自动解析</li>
+ * </ul>
+ * </p>
+ * <p>
+ * <b>注意：</b>Apollo 配置中心通常作为只读源，发布和删除操作仅在本地缓存生效，
+ * 不会实际写入 Apollo 服务器。如需写入请使用 Apollo 管理 API。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("apollo")
 public class ApolloConfigCenter extends AbstractConfigCenter {
 
     /**
-    * 默认命名空间名称
-    */
+     * 默认命名空间名称
+     */
     private static final String DEFAULT_NAMESPACE = "application";
 
     /**
-    * Apollo 配置对象，用于获取和监听配置变更
-    */
+     * Apollo 配置对象，用于获取和监听配置变更
+     */
     private Config apolloConfig;
 
     /**
-    * 当前使用的命名空间
-    */
+     * 当前使用的命名空间
+     */
     private String namespace;
 
     /**
-    * 构造 Apollo 配置中心。
-    *
-    * @param configCenterSetting 配置中心连接设置（地址通过 Apollo 的 app.属性 或环境变量配置）
-    */
+     * 构造 Apollo 配置中心。
+     *
+     * @param configCenterSetting 配置中心连接设置（地址通过 Apollo 的 app.属性 或环境变量配置）
+     */
     public ApolloConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }

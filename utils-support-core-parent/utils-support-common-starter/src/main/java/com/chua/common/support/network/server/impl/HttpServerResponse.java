@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public class HttpServerResponse implements ServerResponse {
 
     /** Exchange */
@@ -29,8 +29,8 @@ public class HttpServerResponse implements ServerResponse {
     /** 状态代码 */
     private int statusCode = 200;
     /**
-    * 请求体
-    */
+     * 请求体
+     */
     private byte[] body;
     /** Ended */
     private boolean ended;

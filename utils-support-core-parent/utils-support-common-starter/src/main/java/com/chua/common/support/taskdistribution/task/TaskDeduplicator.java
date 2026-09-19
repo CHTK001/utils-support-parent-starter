@@ -16,42 +16,42 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class TaskDeduplicator {
 
     /**
-    * 已处理任务缓存
-    */
+     * 已处理任务缓存
+     */
     private final Map<String, Long> processed = new ConcurrentHashMap<>();
 
     /**
-    * TTL（毫秒），默认 5 分钟
-    */
+     * TTL（毫秒），默认 5 分钟
+     */
     private final long ttlMillis;
 
     /**
-    * 清理定时器
-    */
+     * 清理定时器
+     */
     private final ScheduledExecutorService cleanupScheduler;
 
     /**
-    * 默认 TTL：5 分钟
-    */
+     * 默认 TTL：5 分钟
+     */
     private static final long DEFAULT_TTL = 300000;
 
     /**
-    * 构造任务去重器。
-    */
+     * 构造任务去重器。
+     */
     public TaskDeduplicator() {
         this(DEFAULT_TTL);
     }
 
     /**
-    * 构造任务去重器。
-    *
-    * @param ttlMillis 去重记录 TTL（毫秒）
-    */
+     * 构造任务去重器。
+     *
+     * @param ttlMillis 去重记录 TTL（毫秒）
+     */
     public TaskDeduplicator(long ttlMillis) {
         this.ttlMillis = ttlMillis > 0 ? ttlMillis : DEFAULT_TTL;
         this.cleanupScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
@@ -60,11 +60,11 @@ public class TaskDeduplicator {
     }
 
     /**
-    * 检查是否为重复任务。
-    *
-    * @param taskId 任务 标识
-    * @return true 表示重复
-    */
+     * 检查是否为重复任务。
+     *
+     * @param taskId 任务 标识
+     * @return true 表示重复
+     */
     public boolean isDuplicate(String taskId) {
         if (taskId == null || taskId.isEmpty()) {
             return false;
@@ -82,10 +82,10 @@ public class TaskDeduplicator {
     }
 
     /**
-    * 标记任务已处理。
-    *
-    * @param taskId 任务 标识
-    */
+     * 标记任务已处理。
+     *
+     * @param taskId 任务 标识
+     */
     public void markProcessed(String taskId) {
         if (taskId != null && !taskId.isEmpty()) {
             processed.put(taskId, System.currentTimeMillis());
@@ -93,10 +93,10 @@ public class TaskDeduplicator {
     }
 
     /**
-    * 移除任务去重标记。
-    *
-    * @param taskId 任务 标识
-    */
+     * 移除任务去重标记。
+     *
+     * @param taskId 任务 标识
+     */
     public void remove(String taskId) {
         if (taskId != null) {
             processed.remove(taskId);
@@ -104,16 +104,16 @@ public class TaskDeduplicator {
     }
 
     /**
-    * 清理过期记录。
-    */
+     * 清理过期记录。
+     */
     private void cleanup() {
         long now = System.currentTimeMillis();
         processed.entrySet().removeIf(entry -> (now - entry.getValue()) >= ttlMillis);
     }
 
     /**
-    * 关闭去重器。
-    */
+     * 关闭去重器。
+     */
     public void close() {
         cleanupScheduler.shutdown();
         processed.clear();

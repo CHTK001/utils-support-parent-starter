@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* sqlite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
-* <p>
-* 使用 sqlite FTS5 扩展实现全文检索索引，索引名与 FTS5 虚拟表名对应。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * sqlite 搜索引擎实现，基于 FTS5 虚拟表提供索引管理。
+ * <p>
+ * 使用 sqlite FTS5 扩展实现全文检索索引，索引名与 FTS5 虚拟表名对应。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class SqliteSearchEngineImpl implements SearchEngine {
 
@@ -139,9 +139,9 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     }
 
     /**
-    * 获取默认数据源。
-    * @return 获取数据源的结果
-    */
+     * 获取默认数据源。
+     * @return 获取数据源的结果
+     */
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
         Engine engine = this.engine;
@@ -153,18 +153,18 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     }
 
     /**
-    * 获取 JDBC 连接。
-    * @return 获取jdbcconnection的结果
-    */
+     * 获取 JDBC 连接。
+     * @return 获取jdbcconnection的结果
+     */
     private Connection getJdbcConnection() throws SQLException {
         return getDataSource().getConnection();
     }
 
     /**
-    * 转义标识符（表名/列名），防止 SQL 注入。
-    * @param name 名称
-    * @return escapeIdentifier的结果
-    */
+     * 转义标识符（表名/列名），防止 SQL 注入。
+     * @param name 名称
+     * @return escapeIdentifier的结果
+     */
     private static String escapeIdentifier(String name) {
         if (name == null) {
             return "\"\"";

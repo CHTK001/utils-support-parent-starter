@@ -14,24 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* MySQL 用户元数据操作实现。
-*
-* @author CH
-* @since 4.0.0.42
-* @param ds ds
-* @param sql SQL
-* @param username 用户名
-* @return 方法的结果
-* @param dataSource 数据源
+ * MySQL 用户元数据操作实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param ds ds
+ * @param sql SQL
+ * @param username 用户名
+ * @return 方法的结果
+ * @param dataSource 数据源
  */
 public class MysqlMetaUser implements MetaUser {
 
     private final DataSource dataSource; // 数据源
 
     /**
-    * mysqlmeta用户。
-    * @param dataSource 数据源
-    */
+     * mysqlmeta用户。
+     * @param dataSource 数据源
+     */
     public MysqlMetaUser(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -91,11 +91,11 @@ public class MysqlMetaUser implements MetaUser {
 
     // ==================== Inner Steps ====================
     /**
-    * 创建step类。
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 创建step类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class CreateStep implements UserCreateBuilder {
         private final DataSource dataSource; // 数据源
@@ -130,8 +130,8 @@ public class MysqlMetaUser implements MetaUser {
     }
 
     /**
-    * AlterStep类。
-    */
+     * AlterStep类。
+     */
     private static class AlterStep implements UserAlterBuilder {
         private final DataSource dataSource; // 数据源
         private final String username; // 用户名

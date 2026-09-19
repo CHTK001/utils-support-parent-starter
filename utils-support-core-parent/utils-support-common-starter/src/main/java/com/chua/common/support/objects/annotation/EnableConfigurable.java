@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnableConfigurable {

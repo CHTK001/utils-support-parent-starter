@@ -115,20 +115,20 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
     }
 
     /**
-    * 从音频字节数据中提取指纹特征向量。
-    *
-    * <p>执行流程：
-    * <ol>
-    *   <li>从引擎中获取 {@code ITranslator<byte[], float[]>} 实例</li>
-    *   <li>调用翻译器执行推理，得到原始特征向量</li>
-    *   <li>若开启归一化，对向量做 L2 归一化处理</li>
-    * </ol>
-    * </p>
-    *
-    * @param audioData 音频原始字节（WAV/PCM）
-    * @return 特征向量（归一化后模长为 1）
-    * @throws IllegalStateException 若模型未在引擎中注册
-    */
+     * 从音频字节数据中提取指纹特征向量。
+     *
+     * <p>执行流程：
+     * <ol>
+     *   <li>从引擎中获取 {@code ITranslator<byte[], float[]>} 实例</li>
+     *   <li>调用翻译器执行推理，得到原始特征向量</li>
+     *   <li>若开启归一化，对向量做 L2 归一化处理</li>
+     * </ol>
+     * </p>
+     *
+     * @param audioData 音频原始字节（WAV/PCM）
+     * @return 特征向量（归一化后模长为 1）
+     * @throws IllegalStateException 若模型未在引擎中注册
+     */
     @Override
     @SuppressWarnings("unchecked")
     public float[] extract(byte[] audioData) {
@@ -151,14 +151,14 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
     }
 
     /**
-    * 从文件路径提取指纹特征向量。
-    *
-    * <p>内部先读取文件全部字节，再委托 {@link #extract(byte[])} 执行提取。</p>
-    *
-    * @param path 音频文件路径
-    * @return 特征向量
-    * @throws RuntimeException 若文件读取失败
-    */
+     * 从文件路径提取指纹特征向量。
+     *
+     * <p>内部先读取文件全部字节，再委托 {@link #extract(byte[])} 执行提取。</p>
+     *
+     * @param path 音频文件路径
+     * @return 特征向量
+     * @throws RuntimeException 若文件读取失败
+     */
     @Override
     public float[] extract(java.nio.file.Path path) {
         try {
@@ -170,16 +170,16 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
     }
 
     /**
-    * 对浮点向量执行 L2 归一化：将每个元素除以向量的欧氏范数。
-    *
-    * <p>公式：{@code result[i] = vec[i] / sqrt(sum(vec[j]^2))}</p>
-    *
-    * <p>若向量范数接近零（{@code < 1e-8}），说明输入为全零向量，直接原样返回，
-    * 避免除以零产生 NaN。</p>
-    *
-    * @param vec 原始特征向量
-    * @return L2 归一化后的向量，模长为 1
-    */
+     * 对浮点向量执行 L2 归一化：将每个元素除以向量的欧氏范数。
+     *
+     * <p>公式：{@code result[i] = vec[i] / sqrt(sum(vec[j]^2))}</p>
+     *
+     * <p>若向量范数接近零（{@code < 1e-8}），说明输入为全零向量，直接原样返回，
+     * 避免除以零产生 NaN。</p>
+     *
+     * @param vec 原始特征向量
+     * @return L2 归一化后的向量，模长为 1
+     */
     private static float[] l2Normalize(float[] vec) {
         // 第一步：计算向量的 L2 范数（各元素平方和的平方根）
         float norm = 0f;

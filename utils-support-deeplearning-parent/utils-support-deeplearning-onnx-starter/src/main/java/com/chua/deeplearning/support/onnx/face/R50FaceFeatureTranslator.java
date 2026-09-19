@@ -14,19 +14,19 @@ import java.awt.image.BufferedImage;
 
 
 /**
-* R50 人脸特征提取 Translator。
-*
-* <p>使用纯 Java 预处理（BufferedImage resize + RGB 归一化），
-* 避免部分 ndarray 实现（如 ONNX）不支持的 {@code NDImageUtils.resize} 图像操作。</p>
-*
-* @author CH
-* @since 4.0.0
-*/
+ * R50 人脸特征提取 Translator。
+ *
+ * <p>使用纯 Java 预处理（BufferedImage resize + RGB 归一化），
+ * 避免部分 ndarray 实现（如 ONNX）不支持的 {@code NDImageUtils.resize} 图像操作。</p>
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
 
     /**
-    * 模型输入尺寸（arcface 448x448x3 NHWC）
-    */
+     * 模型输入尺寸（arcface 448x448x3 NHWC）
+     */
     private static final int INPUT_SIZE = 448;
 
     @Override
@@ -71,10 +71,10 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-    * {@inheritDoc}
-    *
-    * <p>返回 {@code null}（单输入无需 batch，避免 OnnxRuntime NDArray 的 stack 不受支持）。</p>
-    */
+     * {@inheritDoc}
+     *
+     * <p>返回 {@code null}（单输入无需 batch，避免 OnnxRuntime NDArray 的 stack 不受支持）。</p>
+     */
     @Override
     public Batchifier getBatchifier() {
         return null;

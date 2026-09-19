@@ -9,30 +9,30 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* FIFO（先进先出）爬虫调度器。
-*
-* <p>基于 {@link ConcurrentLinkedQueue} 实现，保证线程安全。
-* 按入队顺序依次取出 URL，支持并发场景下的安全操作。
-*
-* <p>SPI 名称：{@code scheduler:fifo}
-*
-* <p>适用于广度优先爬取场景，先入队的 URL 先被处理。
-*
-* @author CH
-* @since 4.0.0.42
+ * FIFO（先进先出）爬虫调度器。
+ *
+ * <p>基于 {@link ConcurrentLinkedQueue} 实现，保证线程安全。
+ * 按入队顺序依次取出 URL，支持并发场景下的安全操作。
+ *
+ * <p>SPI 名称：{@code scheduler:fifo}
+ *
+ * <p>适用于广度优先爬取场景，先入队的 URL 先被处理。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("fifo")
 public class FifoScheduler implements SpiderScheduler {
 
     /**
-    * 待爬取队列
-    */
+     * 待爬取队列
+     */
     private final ConcurrentLinkedQueue<SpiderRequest> queue = new ConcurrentLinkedQueue<>();
 
     /**
-    * 队列中剩余请求数
-    */
+     * 队列中剩余请求数
+     */
     private final AtomicInteger count = new AtomicInteger(0);
 
     @Override

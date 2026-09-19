@@ -7,11 +7,11 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 飞书 机器人 客户端工厂（SPI 实现）。
-* <p>平台名称为 {@code feishu}。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 飞书 机器人 客户端工厂（SPI 实现）。
+ * <p>平台名称为 {@code feishu}。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("feishu")
@@ -32,36 +32,36 @@ public class FeishuBotClientFactory implements BotClient.Factory {
     }
 
     /**
-    * 飞书 构建器 内部类
-    *
-    * @author CH
-    * @since 4.0.0
-    */
+     * 飞书 构建器 内部类
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     static class FeishuBuilder implements BotClient.Builder {
 
         /**
-        * 应用 标识
-        */
+         * 应用 标识
+         */
         private String appId;
 
         /**
-        * 应用密钥
-        */
+         * 应用密钥
+         */
         private String appSecret;
 
         /**
-        * 基础 URL
-        */
+         * 基础 URL
+         */
         private String baseUrl;
 
         /**
-        * 连接超时时间（毫秒）
-        */
+         * 连接超时时间（毫秒）
+         */
         private long connectTimeoutMillis = 10_000;
 
         /**
-        * 读取超时时间（毫秒）
-        */
+         * 读取超时时间（毫秒）
+         */
         private long readTimeoutMillis = 30_000;
 
         @Override
@@ -80,15 +80,15 @@ public class FeishuBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 编码aes键
-        * @param encodingAesKey 编码aes键
-        * @param baseUrl baseurl
-        * @param connectTimeoutMillis 连接超时millis
-        * @param readTimeoutMillis 读取超时millis
-        * @param configSaveOrLoader 配置保存或加载
-        * @param appId appid
-        * @param baseUrl baseurl
-        */
+         * 编码aes键
+         * @param encodingAesKey 编码aes键
+         * @param baseUrl baseurl
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             return this;
@@ -118,12 +118,12 @@ public class FeishuBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 读取超时millis
-        * @param readTimeoutMillis 读取超时millis
-        * @param configSaveOrLoader 配置保存或加载
-        * @param appId appid
-        * @param baseUrl baseurl
-        */
+         * 读取超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -132,11 +132,11 @@ public class FeishuBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 配置保存或加载
-        * @param configSaveOrLoader 配置保存或加载
-        * @param appId appid
-        * @param baseUrl baseurl
-        */
+         * 配置保存或加载
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             return this;

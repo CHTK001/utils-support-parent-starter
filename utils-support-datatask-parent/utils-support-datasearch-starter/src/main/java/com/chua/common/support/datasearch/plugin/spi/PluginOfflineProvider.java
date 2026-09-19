@@ -18,26 +18,26 @@ import java.util.List;
 public interface PluginOfflineProvider {
 
     /**
-    * 获取提供者名称（来源标识，如 claude / trae-cn / vscode）。
-    *
-    * @return 提供者名称
-    */
+     * 获取提供者名称（来源标识，如 claude / trae-cn / vscode）。
+     *
+     * @return 提供者名称
+     */
     String name();
 
     /**
-    * 扫描本机该来源的插件/扩展，返回可导入的本地插件定义。
-    *
-    * @return 本地插件定义列表
-    */
+     * 扫描本机该来源的插件/扩展，返回可导入的本地插件定义。
+     *
+     * @return 本地插件定义列表
+     */
     default List<PluginDefinition> listPlugins() {
         return Collections.emptyList();
     }
 
     /**
-    * 该来源是否已安装（目录存在）。
-    *
-    * @return true 表示已安装
-    */
+     * 该来源是否已安装（目录存在）。
+     *
+     * @return true 表示已安装
+     */
     default boolean isInstalled() {
         return false;
     }

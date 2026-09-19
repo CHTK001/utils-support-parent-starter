@@ -19,25 +19,25 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* Rnet50 迁移学习训练器。
-*
-* <p>移植自 AIAS 2_training_platform 的 {@code TrainResNet50}，核心流程：</p>
-* <ol>
-*   <li>从本地 zip 加载预训练 ResNet50 模型</li>
-*   <li>替换 fc1000 输出层为新的分类数</li>
-*   <li>按 epoch 循环训练，每轮在测试集上评估 F1 值</li>
-*   <li>保存最优 F1 对应的模型文件</li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0.42
+ * Rnet50 迁移学习训练器。
+ *
+ * <p>移植自 AIAS 2_training_platform 的 {@code TrainResNet50}，核心流程：</p>
+ * <ol>
+ *   <li>从本地 zip 加载预训练 ResNet50 模型</li>
+ *   <li>替换 fc1000 输出层为新的分类数</li>
+ *   <li>按 epoch 循环训练，每轮在测试集上评估 F1 值</li>
+ *   <li>保存最优 F1 对应的模型文件</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ResNet50TransferTrainer implements Trainer {
 
     /**
-    * 默认保存模型文件名（保存路径 为目录时使用）。
-    */
+     * 默认保存模型文件名（保存路径 为目录时使用）。
+     */
     private static final String DEFAULT_MODEL_NAME = "NewResNet50.zip";
 
     @Override
@@ -170,11 +170,11 @@ public class ResNet50TransferTrainer implements Trainer {
     }
 
     /**
-    * 解析模型保存文件路径：若配置为目录则拼接默认文件名，否则原样使用。
-    *
-    * @param savePath 配置的保存路径（文件或目录）
-    * @return 保存用模型文件
-    */
+     * 解析模型保存文件路径：若配置为目录则拼接默认文件名，否则原样使用。
+     *
+     * @param savePath 配置的保存路径（文件或目录）
+     * @return 保存用模型文件
+     */
     private File resolveModelFile(String savePath) {
         File target = new File(savePath);
         if (target.isDirectory() || savePath.endsWith(File.separator)) {
@@ -192,12 +192,12 @@ public class ResNet50TransferTrainer implements Trainer {
     }
 
     /**
-    * 构造训练被取消的结果并通知监听器。
-    *
-    * @param progress 进度对象
-    * @param listener 监听器（可为空）
-    * @return 失败结果
-    */
+     * 构造训练被取消的结果并通知监听器。
+     *
+     * @param progress 进度对象
+     * @param listener 监听器（可为空）
+     * @return 失败结果
+     */
     private TrainResult cancelled(TrainProgress progress, TrainListener listener) {
         progress.setStatus(TrainStatus.CANCELLED);
         if (listener != null) {

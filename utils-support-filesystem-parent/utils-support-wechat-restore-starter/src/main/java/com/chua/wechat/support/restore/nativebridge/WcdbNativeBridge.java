@@ -43,106 +43,106 @@ import java.nio.charset.StandardCharsets;
 public final class WcdbNativeBridge implements AutoCloseable {
 
     /**
-    * 原生函数返回成功
-    */
+     * 原生函数返回成功
+     */
     public static final int RC_OK = 0;
 
     /**
-    * wcdb_init 在非 Electron 宿主下的典型拒绝码
-    */
+     * wcdb_init 在非 Electron 宿主下的典型拒绝码
+     */
     public static final int RC_INIT_FAIL = -1006;
 
     /**
-    * WCDB 核心引擎动态库
-    */
+     * WCDB 核心引擎动态库
+     */
     private static final String DLL_WCDB = "WCDB.dll";
 
     /**
-    * WCDB 依赖的 SDL2 运行库
-    */
+     * WCDB 依赖的 SDL2 运行库
+     */
     private static final String DLL_SDL2 = "SDL2.dll";
 
     /**
-    * WCDB 的 C 接口封装库
-    */
+     * WCDB 的 C 接口封装库
+     */
     private static final String DLL_WCDB_API = "wcdb_api.dll";
 
     /**
-    * 原生下行调用链接器
-    */
+     * 原生下行调用链接器
+     */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-    * 桥接器持有的共享内存会话（动态库生命周期）
-    */
+     * 桥接器持有的共享内存会话（动态库生命周期）
+     */
     private final Arena arena;
 
     /**
-    * InitProtection 函数句柄
-    */
+     * InitProtection 函数句柄
+     */
     private final MethodHandle initProtectionHandle;
 
     /**
-    * wcdb_init 函数句柄
-    */
+     * wcdb_init 函数句柄
+     */
     private final MethodHandle wcdbInitHandle;
 
     /**
-    * wcdb_open_account 函数句柄
-    */
+     * wcdb_open_account 函数句柄
+     */
     private final MethodHandle openAccountHandle;
 
     /**
-    * wcdb_close_account 函数句柄
-    */
+     * wcdb_close_account 函数句柄
+     */
     private final MethodHandle closeAccountHandle;
 
     /**
-    * wcdb_get_sessions 函数句柄
-    */
+     * wcdb_get_sessions 函数句柄
+     */
     private final MethodHandle getSessionsHandle;
 
     /**
-    * wcdb_get_messages 函数句柄
-    */
+     * wcdb_get_messages 函数句柄
+     */
     private final MethodHandle getMessagesHandle;
 
     /**
-    * wcdb_get_message_count 函数句柄
-    */
+     * wcdb_get_message_count 函数句柄
+     */
     private final MethodHandle getMessageCountHandle;
 
     /**
-    * wcdb_get_display_names 函数句柄
-    */
+     * wcdb_get_display_names 函数句柄
+     */
     private final MethodHandle getDisplayNamesHandle;
 
     /**
-    * wcdb_free_string 函数句柄
-    */
+     * wcdb_free_string 函数句柄
+     */
     private final MethodHandle freeStringHandle;
 
     /**
-    * 判断当前平台是否支持 FFM 原生路径（仅 Windows + 微信 4.x 动态库）。
-    *
-    * @return 支持返回 true
-    */
+     * 判断当前平台是否支持 FFM 原生路径（仅 Windows + 微信 4.x 动态库）。
+     *
+     * @return 支持返回 true
+     */
     public static boolean isSupported() {
         String osName = System.getProperty("os.name").toLowerCase();
         return osName.contains("win");
     }
 
     /**
-    * 加载原生库并完成 WCDB 引擎初始化。
-    *
-    * <p>必须严格按 {@code WCDB.dll → SDL2.dll → wcdb_api.dll} 顺序预加载，
-    * 保证 wcdb_api 的依赖库已驻留进程，加载完成后立即调用 {@code InitProtection}
-    * 与 {@code wcdb_init} 完成环境初始化。</p>
-    *
-    * @param runtimeDir 原生库目录（包含三个 DLL）
-    * @return 初始化完成的桥接器实例
-    * @throws IllegalStateException 库文件缺失或引擎初始化失败时抛出
-    */
+     * 加载原生库并完成 WCDB 引擎初始化。
+     *
+     * <p>必须严格按 {@code WCDB.dll → SDL2.dll → wcdb_api.dll} 顺序预加载，
+     * 保证 wcdb_api 的依赖库已驻留进程，加载完成后立即调用 {@code InitProtection}
+     * 与 {@code wcdb_init} 完成环境初始化。</p>
+     *
+     * @param runtimeDir 原生库目录（包含三个 DLL）
+     * @return 初始化完成的桥接器实例
+     * @throws IllegalStateException 库文件缺失或引擎初始化失败时抛出
+     */
     public static WcdbNativeBridge load(File runtimeDir) {
         if (!isSupported()) {
             throw new IllegalStateException("FFM 原生路径仅支持 Windows 平台");
@@ -176,11 +176,11 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 私有构造器，绑定全部原生函数句柄。
-    *
-    * @param arena     共享内存会话
-    * @param apiLookup wcdb_api.dll 符号查找表
-    */
+     * 私有构造器，绑定全部原生函数句柄。
+     *
+     * @param arena     共享内存会话
+     * @param apiLookup wcdb_api.dll 符号查找表
+     */
     private WcdbNativeBridge(Arena arena, SymbolLookup apiLookup) {
         this.arena = arena;
         this.initProtectionHandle = bind(apiLookup, "InitProtection",
@@ -203,10 +203,10 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 执行环境保护初始化与引擎初始化。
-    *
-    * @param runtimeDir 原生库目录
-    */
+     * 执行环境保护初始化与引擎初始化。
+     *
+     * @param runtimeDir 原生库目录
+     */
     private void initialize(File runtimeDir) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment pathSegment = confined.allocateFrom(runtimeDir.getAbsolutePath(), StandardCharsets.UTF_8);
@@ -231,13 +231,13 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 打开微信账号会话库。
-    *
-    * @param dbPath session.db 绝对路径
-    * @param key    64 位十六进制数据库密钥
-    * @return 原生账号库句柄
-    * @throws IllegalStateException 打开失败时抛出
-    */
+     * 打开微信账号会话库。
+     *
+     * @param dbPath session.db 绝对路径
+     * @param key    64 位十六进制数据库密钥
+     * @return 原生账号库句柄
+     * @throws IllegalStateException 打开失败时抛出
+     */
     public long openAccount(String dbPath, String key) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment dbSegment = confined.allocateFrom(dbPath, StandardCharsets.UTF_8);
@@ -257,10 +257,10 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 关闭账号库句柄。
-    *
-    * @param handle 账号库句柄
-    */
+     * 关闭账号库句柄。
+     *
+     * @param handle 账号库句柄
+     */
     public void closeAccount(long handle) {
         try {
             int rc = (int) closeAccountHandle.invokeExact(handle);
@@ -273,11 +273,11 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 获取全部会话列表 JSON。
-    *
-    * @param handle 账号库句柄
-    * @return 会话列表 JSON 字符串（数组结构）
-    */
+     * 获取全部会话列表 JSON。
+     *
+     * @param handle 账号库句柄
+     * @return 会话列表 JSON 字符串（数组结构）
+     */
     public String getSessions(long handle) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment outPointer = confined.allocate(ValueLayout.ADDRESS);
@@ -291,14 +291,14 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 分页获取指定会话的消息 JSON。
-    *
-    * @param handle   账号库句柄
-    * @param username 会话标识（wxid / 群 id）
-    * @param limit    单页条数（Wechat-Export 惯例 500）
-    * @param offset   偏移量
-    * @return 消息列表 JSON 字符串
-    */
+     * 分页获取指定会话的消息 JSON。
+     *
+     * @param handle   账号库句柄
+     * @param username 会话标识（wxid / 群 id）
+     * @param limit    单页条数（Wechat-Export 惯例 500）
+     * @param offset   偏移量
+     * @return 消息列表 JSON 字符串
+     */
     public String getMessages(long handle, String username, int limit, int offset) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment usernameSegment = confined.allocateFrom(username, StandardCharsets.UTF_8);
@@ -313,12 +313,12 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 获取指定会话的消息总数。
-    *
-    * @param handle   账号库句柄
-    * @param username 会话标识
-    * @return 消息总数
-    */
+     * 获取指定会话的消息总数。
+     *
+     * @param handle   账号库句柄
+     * @param username 会话标识
+     * @return 消息总数
+     */
     public int getMessageCount(long handle, String username) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment usernameSegment = confined.allocateFrom(username, StandardCharsets.UTF_8);
@@ -336,12 +336,12 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 批量解析发送者的显示名称。
-    *
-    * @param handle    账号库句柄
-    * @param wxidsJson 发送者标识 JSON 数组，如 {@code ["wxid_xxx"]}
-    * @return 标识到显示名的映射 JSON 字符串
-    */
+     * 批量解析发送者的显示名称。
+     *
+     * @param handle    账号库句柄
+     * @param wxidsJson 发送者标识 JSON 数组，如 {@code ["wxid_xxx"]}
+     * @return 标识到显示名的映射 JSON 字符串
+     */
     public String getDisplayNames(long handle, String wxidsJson) {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment jsonSegment = confined.allocateFrom(wxidsJson, StandardCharsets.UTF_8);
@@ -361,13 +361,13 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 读取原生出参指针指向的字符串并释放原生内存。
-    *
-    * @param rc         原生函数返回码
-    * @param outSlot    出参指针槽
-    * @param functionName 函数名（异常信息用）
-    * @return UTF-8 字符串；原生返回空指针时返回 null
-    */
+     * 读取原生出参指针指向的字符串并释放原生内存。
+     *
+     * @param rc         原生函数返回码
+     * @param outSlot    出参指针槽
+     * @param functionName 函数名（异常信息用）
+     * @return UTF-8 字符串；原生返回空指针时返回 null
+     */
     private String readOutString(int rc, MemorySegment outSlot, String functionName) {
         if (rc != RC_OK) {
             throw new IllegalStateException(functionName + " 失败, code=" + rc);
@@ -383,10 +383,10 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 释放原生层分配的字符串。
-    *
-    * @param pointer 原生字符串指针
-    */
+     * 释放原生层分配的字符串。
+     *
+     * @param pointer 原生字符串指针
+     */
     private void freeString(MemorySegment pointer) {
         try {
             freeStringHandle.invokeExact(pointer);
@@ -396,14 +396,14 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 绑定有返回值的原生函数。
-    *
-    * @param lookup     符号查找表
-    * @param name       函数符号名
-    * @param returnLayout 返回值布局
-    * @param argLayouts 参数布局
-    * @return 下行调用句柄
-    */
+     * 绑定有返回值的原生函数。
+     *
+     * @param lookup     符号查找表
+     * @param name       函数符号名
+     * @param returnLayout 返回值布局
+     * @param argLayouts 参数布局
+     * @return 下行调用句柄
+     */
     private static MethodHandle bind(SymbolLookup lookup, String name,
                                      ValueLayout returnLayout, ValueLayout... argLayouts) {
         MemorySegment symbol = lookup.find(name)
@@ -412,13 +412,13 @@ public final class WcdbNativeBridge implements AutoCloseable {
     }
 
     /**
-    * 绑定无返回值的原生函数。
-    *
-    * @param lookup     符号查找表
-    * @param name       函数符号名
-    * @param argLayouts 参数布局
-    * @return 下行调用句柄
-    */
+     * 绑定无返回值的原生函数。
+     *
+     * @param lookup     符号查找表
+     * @param name       函数符号名
+     * @param argLayouts 参数布局
+     * @return 下行调用句柄
+     */
     private static MethodHandle bindVoid(SymbolLookup lookup, String name, ValueLayout... argLayouts) {
         MemorySegment symbol = lookup.find(name)
                 .orElseThrow(() -> new IllegalStateException("wcdb_api.dll 缺少导出符号: " + name));

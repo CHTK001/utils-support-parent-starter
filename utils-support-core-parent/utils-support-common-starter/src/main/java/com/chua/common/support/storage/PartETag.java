@@ -9,19 +9,19 @@ import lombok.NoArgsConstructor;
  *
  * @author CH
  * @since 1.0
-*/
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PartETag {
 
     /**
-    * 分片序号（1-based）
-    */
+     * 分片序号（1-based）
+     */
     private Integer partNumber;
 
     /**
-    * 分片 e标签
-    */
+     * 分片 e标签
+     */
     private String etag;
 }

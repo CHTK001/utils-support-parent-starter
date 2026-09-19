@@ -15,35 +15,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* JSON 文件系统 SPI 实现。
-*
-* <p>通过 SPI 机制注册为 {@code "json"} 类型的文件系统实现。
-* 支持表格格式 {@code [[header,...],[val,...],...]}（首行为表头）及传统对象格式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * JSON 文件系统 SPI 实现。
+ *
+ * <p>通过 SPI 机制注册为 {@code "json"} 类型的文件系统实现。
+ * 支持表格格式 {@code [[header,...],[val,...],...]}（首行为表头）及传统对象格式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("json")
 public class JsonFileSystem implements FileSystem {
 
     /**
-    * JSON 文件类型标识
-    */
+     * JSON 文件类型标识
+     */
     private static final String TYPE_JSON = "json";
 
     /**
-    * 表头为空时的占位符
-    */
+     * 表头为空时的占位符
+     */
     private static final String EMPTY_HEADER_PLACEHOLDER = "";
 
     /**
-    * 写入完成行数（单对象写入）
-    */
+     * 写入完成行数（单对象写入）
+     */
     private static final int SINGLE_OBJECT_ROW_COUNT = 1;
 
     /**
-    * 表格行数（无数据）
-    */
+     * 表格行数（无数据）
+     */
     private static final int EMPTY_RESULT_ROW_COUNT = 0;
 
     @Override
@@ -157,10 +157,10 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 读取 JSON 文件并返回 Map 格式。
-        *
-        * @return Map 格式的数据
-        */
+         * 读取 JSON 文件并返回 Map 格式。
+         *
+         * @return Map 格式的数据
+         */
         public Map<String, Object> toMap() {
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
@@ -176,12 +176,12 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 反序列化为指定类型。
-        *
-        * @param clazz 目标类型
-        * @param <T>   泛型
-        * @return 对象实例
-        */
+         * 反序列化为指定类型。
+         *
+         * @param clazz 目标类型
+         * @param <T>   泛型
+         * @return 对象实例
+         */
         public <T> T toObject(Class<T> clazz) {
             try {
                 String content = new String(Files.readAllBytes(file.toPath()));
@@ -211,8 +211,8 @@ public class JsonFileSystem implements FileSystem {
     public static class JsonWriteBuilder extends WriteBuilder {
 
         /**
-        * 是否使用美化格式输出
-        */
+         * 是否使用美化格式输出
+         */
         private boolean pretty;
 
         JsonWriteBuilder(File file) {
@@ -220,10 +220,10 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 启用美化格式输出。
-        *
-        * @return 当前构建器
-        */
+         * 启用美化格式输出。
+         *
+         * @return 当前构建器
+         */
         public JsonWriteBuilder withPretty() {
             this.pretty = true;
             return this;
@@ -248,10 +248,10 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 立即写入数据并刷新。
-        *
-        * @param object 待写入对象
-        */
+         * 立即写入数据并刷新。
+         *
+         * @param object 待写入对象
+         */
         public void writeAndFlush(Object object) {
             callback.onStart();
             callback.onBeginWrite();
@@ -294,11 +294,11 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 将列表转为表格格式。
-        *
-        * @param list 待转换的列表
-        * @return 表格数据（二维列表）
-        */
+         * 将列表转为表格格式。
+         *
+         * @param list 待转换的列表
+         * @return 表格数据（二维列表）
+         */
         private Object toTableData(List<Object> list) {
             if (list.isEmpty()) {
                 return list;
@@ -335,11 +335,11 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 将对象转为 JSON 字符串。
-        *
-        * @param data 待序列化对象
-        * @return JSON 字符串
-        */
+         * 将对象转为 JSON 字符串。
+         *
+         * @param data 待序列化对象
+         * @return JSON 字符串
+         */
         private String toJsonString(Object data) {
             if (pretty) {
                 return Json.prettyFormat(data);

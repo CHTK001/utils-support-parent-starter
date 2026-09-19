@@ -12,10 +12,10 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
-* 焦油.XZ格式归档输入流提供者
-*
-* @author CH
-* @since 4.0.0.42
+ * 焦油.XZ格式归档输入流提供者
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi({"tar.xz", "txz"})
 public class TarXzCompressArchiveInputStream implements CompressArchiveInputStream {

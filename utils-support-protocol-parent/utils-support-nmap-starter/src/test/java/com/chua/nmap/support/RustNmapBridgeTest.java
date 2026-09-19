@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
-* rustnmapbridge 测试
-* 动态库存在时跑集成测试，不存在时只验证加载状态
-* @author CH
-* @since 4.0.0
+ * rustnmapbridge 测试
+ * 动态库存在时跑集成测试，不存在时只验证加载状态
+ * @author CH
+ * @since 4.0.0
  */
 class RustNmapBridgeTest {
 

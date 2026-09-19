@@ -25,22 +25,22 @@ import java.util.Map;
 
 
 /**
-* PP-doclayoutv2/V3        ONNX Translator
-*
-* @author CH
-* @since 4.0.0
+ * PP-doclayoutv2/V3        ONNX Translator
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-    *              
-    */
+     *              
+     */
     private static final int INPUT_SIZE = 800;
 
     /**
-    *                                      
-    */
+     *                                      
+     */
     private static final List<String> LABELS = List.of(
             "abstract",
             "algorithm",
@@ -70,59 +70,59 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     );
 
     /**
-    *                          
-    */
+     *                          
+     */
     private final Float configuredScoreThreshold;
 
     /**
-    *              
-    */
+     *              
+     */
     private float scoreThreshold;
 
     /**
-    *                              
-    */
+     *                              
+     */
     private int width;
 
     /**
-    *                              
-    */
+     *                              
+     */
     private int height;
 
     /**
-    * AWT 缩放类型。
-    */
+     * AWT 缩放类型。
+     */
     private int scale;
 
     /**
-    *                              
-    */
+     *                              
+     */
     private boolean lowInformationInput;
 
     /**
-    *              
-    */
+     *              
+     */
     public PpDocLayoutTranslator() {
         this(Collections.emptyMap());
     }
 
     /**
-    *              
-    *
-    * @param arguments                     
-    */
+     *              
+     *
+     * @param arguments                     
+     */
     public PpDocLayoutTranslator(Map<String, ?> arguments) {
         this.configuredScoreThreshold = extractThreshold(arguments);
         this.scoreThreshold = 0.5f;
     }
 
     /**
-    *                                                   {@link NDList}   
-    *
-    * @param ctx translator上下文
-    * @param input                       
-    * @return NDList               
-    */
+     *                                                   {@link NDList}   
+     *
+     * @param ctx translator上下文
+     * @param input                       
+     * @return NDList               
+     */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
@@ -157,12 +157,12 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    *                                                  {@link DetectedObjects}   
-    *
-    * @param ctx translator上下文
-    * @param list nd列表
-    * @return DetectedObjects          
-    */
+     *                                                  {@link DetectedObjects}   
+     *
+     * @param ctx translator上下文
+     * @param list nd列表
+     * @return DetectedObjects          
+     */
     @Override
     @Nonnull
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -227,10 +227,10 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    *                           
-    *
-    * @return Batchifier          
-    */
+     *                           
+     *
+     * @return Batchifier          
+     */
     @Override
     @Nullable
     public Batchifier getBatchifier() {
@@ -238,12 +238,12 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * Determine计算数量
-    *
-    * @param list 列表
-    * @param rows rows
-    * @return determine数量的结果
-    */
+     * Determine计算数量
+     *
+     * @param list 列表
+     * @param rows rows
+     * @return determine数量的结果
+     */
     private int determineCount(NDList list, NDArray rows) {
         int maxCount = (int) rows.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         if (list.size() < 2 || list.get(1) == null || list.get(1).isEmpty()) {
@@ -269,11 +269,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * extract阈值
-    *
-    * @param arguments 参数
-    * @return extract阈值的结果
-    */
+     * extract阈值
+     *
+     * @param arguments 参数
+     * @return extract阈值的结果
+     */
     private Float extractThreshold(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -292,11 +292,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * 解析默认阈值
-    *
-    * @param modelPath 模型路径
-    * @return resolve默认阈值的结果
-    */
+     * 解析默认阈值
+     *
+     * @param modelPath 模型路径
+     * @return resolve默认阈值的结果
+     */
     private float resolveDefaultThreshold(Path modelPath) {
         String path = modelPath == null ? "" : modelPath.toString().replace('\\', '/').toLowerCase();
         if (path.contains("pp-doclayoutv3")) {
@@ -306,11 +306,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * 是否low信息缓冲
-    *
-    * @param buf buf
-    * @return 是否low信息缓冲的结果
-    */
+     * 是否low信息缓冲
+     *
+     * @param buf buf
+     * @return 是否low信息缓冲的结果
+     */
     private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -337,11 +337,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * 将 缓冲镜像 转换为 CHW 归一化 float 数组（RGB，除以 255）。
-    *
-    * @param buf 缓冲镜像
-    * @return CHW 数组，长度 3 * H * W
-    */
+     * 将 缓冲镜像 转换为 CHW 归一化 float 数组（RGB，除以 255）。
+     *
+     * @param buf 缓冲镜像
+     * @return CHW 数组，长度 3 * H * W
+     */
     private float[] toChwFloats(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -362,13 +362,13 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * Clip
-    *
-    * @param value 值
-    * @param min 最小
-    * @param max 最大
-    * @return clip的结果
-    */
+     * Clip
+     *
+     * @param value 值
+     * @param min 最小
+     * @param max 最大
+     * @return clip的结果
+     */
     private float clip(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }

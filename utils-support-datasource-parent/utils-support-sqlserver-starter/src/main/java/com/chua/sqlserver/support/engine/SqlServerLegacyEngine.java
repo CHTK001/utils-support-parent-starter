@@ -13,29 +13,29 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.Map;
 
 /**
-* SQL 服务端 老版本兼容引擎（SQL 服务端 2000/2005）。
-*
-* <p>使用 jTDS 驱动替代微软官方 mssql-jdbc，
-* 后者最低仅支持 SQL 服务端 2008 R2。jtds 1.3.x 是社区维护最活跃的老版本兼容驱动。
-*
-* <p>jTDS URL 参数通过 {@link DataSourceOptions#jtdsUrlParams()} 传入，默认使用
-* {@code selectMethod=cursor}，不使用 NTLM 认证时 domain 不添加。
-*
-* <pre>{@code
-* // 默认配置（selectMethod=cursor，无 domain）
-* SqlServerLegacyEngine engine = new SqlServerLegacyEngine();
-* engine.addDataSource("default", "localhost", 1433, "master", "sa", "password");
-*
-* // NTLM 域认证
-* Map<String, String> params = Map.of("domain", "MYDOMAIN");
-* DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password", null, params);
-* engine.addDataSource(opts);
-* }</pre>"DOMAIN\\sa", "password", null, params);
-* engine.addDataSource(opts);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * SQL 服务端 老版本兼容引擎（SQL 服务端 2000/2005）。
+ *
+ * <p>使用 jTDS 驱动替代微软官方 mssql-jdbc，
+ * 后者最低仅支持 SQL 服务端 2008 R2。jtds 1.3.x 是社区维护最活跃的老版本兼容驱动。
+ *
+ * <p>jTDS URL 参数通过 {@link DataSourceOptions#jtdsUrlParams()} 传入，默认使用
+ * {@code selectMethod=cursor}，不使用 NTLM 认证时 domain 不添加。
+ *
+ * <pre>{@code
+ * // 默认配置（selectMethod=cursor，无 domain）
+ * SqlServerLegacyEngine engine = new SqlServerLegacyEngine();
+ * engine.addDataSource("default", "localhost", 1433, "master", "sa", "password");
+ *
+ * // NTLM 域认证
+ * Map<String, String> params = Map.of("domain", "MYDOMAIN");
+ * DataSourceOptions opts = new DataSourceOptions("default", "localhost", 1433, "master", "DOMAIN\\sa", "password", null, params);
+ * engine.addDataSource(opts);
+ * }</pre>"DOMAIN\\sa", "password", null, params);
+ * engine.addDataSource(opts);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyEngine extends JdbcEngine {

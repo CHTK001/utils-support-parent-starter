@@ -7,15 +7,15 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 
 /**
-* DDL 生成器默认实现，不支持任何方言协议。
-*
+ * DDL 生成器默认实现，不支持任何方言协议。
+ *
  * <p>作为 {@code ddl-provider} 扩展点的兜底注册项：{@link #supports(String)}
-* 恒返回 false，引擎查找不到匹配方言的扩展时将使用内置语法生成 DDL。
-* 各数据库 starter 可注册更高 order 的自定义实现（如 MySQL 的
-* {@code character set utf8mb4} 建库语法）来覆盖内置行为。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 恒返回 false，引擎查找不到匹配方言的扩展时将使用内置语法生成 DDL。
+ * 各数据库 starter 可注册更高 order 的自定义实现（如 MySQL 的
+ * {@code character set utf8mb4} 建库语法）来覆盖内置行为。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi(value = DdlProvider.SPI_NAME, order = -1)
 public class DefaultDdlProvider implements DdlProvider {

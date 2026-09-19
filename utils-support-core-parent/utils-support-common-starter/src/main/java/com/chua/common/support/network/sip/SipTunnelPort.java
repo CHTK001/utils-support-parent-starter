@@ -28,64 +28,64 @@ import java.util.Arrays;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public class SipTunnelPort {
 
     /**
-    * 底层 SIP 客户端
-    */
+     * 底层 SIP 客户端
+     */
     private final SipClient client;
 
     /**
-    * 目标隧道服务名称
-    */
+     * 目标隧道服务名称
+     */
     private final String serviceName;
 
     /**
-    * 本地监听端口
-    */
+     * 本地监听端口
+     */
     private final int localPort;
 
     /**
-    * 本地监听地址
-    */
+     * 本地监听地址
+     */
     private final String localHost;
 
     /**
-    * 本地监听 Socket
-    */
+     * 本地监听 Socket
+     */
     private ServerSocket serverSocket;
 
     /**
-    * 接受连接线程
-    */
+     * 接受连接线程
+     */
     private Thread acceptThread;
 
     /**
-    * 是否正在运行
-    */
+     * 是否正在运行
+     */
     private volatile boolean running;
 
     /**
-    * 创建端口侧隧道代理。
-    *
-    * @param client      底层 SIP 客户端
-    * @param serviceName 目标隧道服务名称
-    * @param localPort   本地监听端口
-    */
+     * 创建端口侧隧道代理。
+     *
+     * @param client      底层 SIP 客户端
+     * @param serviceName 目标隧道服务名称
+     * @param localPort   本地监听端口
+     */
     public SipTunnelPort(SipClient client, String serviceName, int localPort) {
         this(client, serviceName, "127.0.0.1", localPort);
     }
 
     /**
-    * 创建端口侧隧道代理，指定监听地址。
-    *
-    * @param client      底层 SIP 客户端
-    * @param serviceName 目标隧道服务名称
-    * @param localHost   本地监听地址
-    * @param localPort   本地监听端口
-    */
+     * 创建端口侧隧道代理，指定监听地址。
+     *
+     * @param client      底层 SIP 客户端
+     * @param serviceName 目标隧道服务名称
+     * @param localHost   本地监听地址
+     * @param localPort   本地监听端口
+     */
     public SipTunnelPort(SipClient client, String serviceName, String localHost, int localPort) {
         this.client = client;
         this.serviceName = serviceName;
@@ -94,10 +94,10 @@ public class SipTunnelPort {
     }
 
     /**
-    * 启动端口侧隧道代理：连接 SipServer 并在本地端口监听。
-    *
-    * @return 当前代理实例，支持链式调用
-    */
+     * 启动端口侧隧道代理：连接 SipServer 并在本地端口监听。
+     *
+     * @return 当前代理实例，支持链式调用
+     */
     public SipTunnelPort start() {
         if (running) {
             return this;
@@ -119,8 +119,8 @@ public class SipTunnelPort {
     }
 
     /**
-    * 停止端口侧隧道代理。
-    */
+     * 停止端口侧隧道代理。
+     */
     public void stop() {
         if (!running) {
             return;
@@ -136,10 +136,10 @@ public class SipTunnelPort {
     }
 
     /**
-    * 获取本机可达地址。
-    *
-    * @return 本机 IP 地址
-    */
+     * 获取本机可达地址。
+     *
+     * @return 本机 IP 地址
+     */
     private String localAddress() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
@@ -149,8 +149,8 @@ public class SipTunnelPort {
     }
 
     /**
-    * 接受连接循环。
-    */
+     * 接受连接循环。
+     */
     private void acceptLoop() {
         while (running) {
             try {
@@ -165,10 +165,10 @@ public class SipTunnelPort {
     }
 
     /**
-    * 将本地 TCP 连接转发到隧道服务。
-    *
-    * @param socket 本地连接
-    */
+     * 将本地 TCP 连接转发到隧道服务。
+     *
+     * @param socket 本地连接
+     */
     private void forward(Socket socket) {
         SipTunnelSession session;
         try {
@@ -185,11 +185,11 @@ public class SipTunnelPort {
     }
 
     /**
-    * 读取本地连接数据并写入隧道。
-    *
-    * @param socket  本地连接
-    * @param session 隧道会话
-    */
+     * 读取本地连接数据并写入隧道。
+     *
+     * @param socket  本地连接
+     * @param session 隧道会话
+     */
     private void readSocket(Socket socket, SipTunnelSession session) {
         try (InputStream in = socket.getInputStream()) {
             byte[] buffer = new byte[8192];
@@ -207,11 +207,11 @@ public class SipTunnelPort {
     }
 
     /**
-    * 将隧道数据写入本地连接。
-    *
-    * @param socket 本地连接
-    * @param data   字节数据
-    */
+     * 将隧道数据写入本地连接。
+     *
+     * @param socket 本地连接
+     * @param data   字节数据
+     */
     private void writeSocket(Socket socket, byte[] data) {
         try {
             OutputStream out = socket.getOutputStream();
@@ -222,10 +222,10 @@ public class SipTunnelPort {
     }
 
     /**
-    * 静默关闭连接。
-    *
-    * @param socket 连接
-    */
+     * 静默关闭连接。
+     *
+     * @param socket 连接
+     */
     private void closeQuietly(Socket socket) {
         try {
             socket.close();

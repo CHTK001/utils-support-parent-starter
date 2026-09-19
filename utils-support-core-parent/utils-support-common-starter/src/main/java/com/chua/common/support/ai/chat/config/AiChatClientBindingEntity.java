@@ -3,24 +3,24 @@ package com.chua.common.support.ai.chat.config;
 import lombok.Data;
 
 /**
-* AI 对话客户端绑定实体 — 将层次化配置扁平化为单行记录。
-*
-* <p>每个实体代表一个客户端在其所属组中的绑定关系，
-* 通过 Engine ORM 属性字段持久化，支持 Lambda 按任意字段查询：
-* <pre>{@code
-*   // 查询使用 OpenAI 的所有绑定
-*   List<AiChatClientBindingEntity> bindings = engine.query(AiChatClientBindingEntity.class)
-*       .eq("provider", "openai").list();
-*
-*   // 查询某个配置的所有绑定
-*   List<AiChatClientBindingEntity> bindings = engine.query(AiChatClientBindingEntity.class)
-*       .eq("configId", configId)
-*       .orderByAsc("groupOrder, clientOrder")
-*       .list();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * AI 对话客户端绑定实体 — 将层次化配置扁平化为单行记录。
+ *
+ * <p>每个实体代表一个客户端在其所属组中的绑定关系，
+ * 通过 Engine ORM 属性字段持久化，支持 Lambda 按任意字段查询：
+ * <pre>{@code
+ *   // 查询使用 OpenAI 的所有绑定
+ *   List<AiChatClientBindingEntity> bindings = engine.query(AiChatClientBindingEntity.class)
+ *       .eq("provider", "openai").list();
+ *
+ *   // 查询某个配置的所有绑定
+ *   List<AiChatClientBindingEntity> bindings = engine.query(AiChatClientBindingEntity.class)
+ *       .eq("configId", configId)
+ *       .orderByAsc("groupOrder, clientOrder")
+ *       .list();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class AiChatClientBindingEntity {
@@ -32,8 +32,8 @@ public class AiChatClientBindingEntity {
     private Long id;
 
     /**
-    * 所属配置 ID（关联 {@link AiChatConfigEntity}）
-    */
+     * 所属配置 ID（关联 {@link AiChatConfigEntity}）
+     */
     private Long configId;
 
     // ==================== 组上下文 ====================
@@ -71,8 +71,8 @@ public class AiChatClientBindingEntity {
 
     /** 模型名称（可选） */
     /**
-    * 模型名称
-    */
+     * 模型名称
+     */
     private String model;
 
     /** 温度参数（可选） */

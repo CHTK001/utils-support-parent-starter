@@ -15,41 +15,41 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
-* 豆包逆向浏览器会话。
-*
-* <p>基于 Playwright 启动 Chromium，将 Cookie 注入 {@code .doubao.com} /
-* {@code .bytedance.com} 域，加载豆包首页以触发站点 fetch hook 注入
-* {@code a_bogus} / {@code msToken} 签名，然后通过页面内 {@code fetch}
-* 发起聊天请求，并从 SSE 流中抽取回答文本与思考链。
-*
-* <p>核心思路（参考 doubao2api）：
-* 直接在页面上下文内用原生 {@code fetch} 调用聊天端点，字节跳动前端
-* JS hook 会自动拦截并注入签名，Java 端无需复刻 {@code a_bogus} 算法。
-*
-* @author CH
-* @since 2026/08/11
+ * 豆包逆向浏览器会话。
+ *
+ * <p>基于 Playwright 启动 Chromium，将 Cookie 注入 {@code .doubao.com} /
+ * {@code .bytedance.com} 域，加载豆包首页以触发站点 fetch hook 注入
+ * {@code a_bogus} / {@code msToken} 签名，然后通过页面内 {@code fetch}
+ * 发起聊天请求，并从 SSE 流中抽取回答文本与思考链。
+ *
+ * <p>核心思路（参考 doubao2api）：
+ * 直接在页面上下文内用原生 {@code fetch} 调用聊天端点，字节跳动前端
+ * JS hook 会自动拦截并注入签名，Java 端无需复刻 {@code a_bogus} 算法。
+ *
+ * @author CH
+ * @since 2026/08/11
  */
 @Slf4j
 public class DoubaoBrowserSession implements AutoCloseable {
 
     /**
-    * 铬 启动超时。
-    */
+     * 铬 启动超时。
+     */
     private static final Duration LAUNCH_TIMEOUT = Duration.ofSeconds(60);
 
     /**
-    * 页面加载超时。
-    */
+     * 页面加载超时。
+     */
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
     /**
-    * 默认浏览器数据目录。
-    */
+     * 默认浏览器数据目录。
+     */
     private static final String DEFAULT_USER_DATA_DIR = "./.doubao_browser_data";
 
     /**
-    * 反检测启动参数（降低无头浏览器指纹被识别概率）。
-    */
+     * 反检测启动参数（降低无头浏览器指纹被识别概率）。
+     */
     private static final String[] STEALTH_ARGS = {
             "--disable-blink-features=AutomationControlled",
             "--no-sandbox",
@@ -63,8 +63,8 @@ public class DoubaoBrowserSession implements AutoCloseable {
     };
 
     /**
-    * 聊天请求巨大的 获取 脚本（页面内执行，自动触发签名 hook）。
-    */
+     * 聊天请求巨大的 获取 脚本（页面内执行，自动触发签名 hook）。
+     */
     private static final String CHAT_SCRIPT = """
             async (args) => {
                 const extractMsg = (obj) => { try { return obj.content?.text || obj.text || JSON.stringify(obj); } catch(e) { return String(obj); } };
@@ -155,36 +155,36 @@ public class DoubaoBrowserSession implements AutoCloseable {
             """;
 
     /**
-    * Playwright 实例。
-    */
+     * Playwright 实例。
+     */
     private final Playwright playwright;
 
     /**
-    * 浏览器实例。
-    */
+     * 浏览器实例。
+     */
     private final Browser browser;
 
     /**
-    * 浏览器上下文。
-    */
+     * 浏览器上下文。
+     */
     private final BrowserContext context;
 
     /**
-    * 用户数据目录。
-    */
+     * 用户数据目录。
+     */
     private final String userDataDir;
 
     /**
-    * 会话 Cookie 解析结果。
-    */
+     * 会话 Cookie 解析结果。
+     */
     private final Map<String, String> cookies;
 
     /**
-    * 构造豆包浏览器会话。
-    *
-    * @param cookieString Cookie 串，形如 "sessionid=...; ttwid=...; 护照_CSRF_令牌=..."
-    * @param userDataDir  浏览器用户数据目录，可空使用默认目录
-    */
+     * 构造豆包浏览器会话。
+     *
+     * @param cookieString Cookie 串，形如 "sessionid=...; ttwid=...; 护照_CSRF_令牌=..."
+     * @param userDataDir  浏览器用户数据目录，可空使用默认目录
+     */
     public DoubaoBrowserSession(String cookieString, String userDataDir) {
         this.cookies = parseCookies(cookieString);
         this.userDataDir = userDataDir == null || userDataDir.isEmpty() ? DEFAULT_USER_DATA_DIR : userDataDir;
@@ -201,8 +201,8 @@ public class DoubaoBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 启动会话：注入 Cookie 并加载豆包首页以触发签名 hook。
-    */
+     * 启动会话：注入 Cookie 并加载豆包首页以触发签名 hook。
+     */
     public void init() {
         injectCookies();
         try (var page = context.newPage()) {
@@ -212,14 +212,14 @@ public class DoubaoBrowserSession implements AutoCloseable {
     }
 
     /**
-    * 发送一次聊天请求并返回解析结果。
-    *
-    * @param url            聊天端点完整 URL
-    * @param body           JSON 请求体字符串
-    * @param conversationId 会话 标识，可为空表示新会话
-    * @param listener       流式事件监听器，可为空
-    * @return 解析后的聊天结果
-    */
+     * 发送一次聊天请求并返回解析结果。
+     *
+     * @param url            聊天端点完整 URL
+     * @param body           JSON 请求体字符串
+     * @param conversationId 会话 标识，可为空表示新会话
+     * @param listener       流式事件监听器，可为空
+     * @return 解析后的聊天结果
+     */
     public DoubaoChatResult chat(String url, String body, String conversationId,
                                  BiConsumer<String, String> listener) {
         JsonObject args = JsonObject.create()
@@ -265,11 +265,11 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-    * 删除指定会话（清理豆包侧边栏）。
-    *
-    * @param conversationId 会话 标识
-    * @return true 表示删除成功
-    */
+     * 删除指定会话（清理豆包侧边栏）。
+     *
+     * @param conversationId 会话 标识
+     * @return true 表示删除成功
+     */
     public boolean deleteConversation(String conversationId) {
         if (conversationId == null || conversationId.isEmpty() || "0".equals(conversationId)) {
             return false;
@@ -335,11 +335,11 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-    * 解析 Cookie 串。
-    *
-    * @param cookieString Cookie 字符串
-    * @return 键值对映射
-    */
+     * 解析 Cookie 串。
+     *
+     * @param cookieString Cookie 字符串
+     * @return 键值对映射
+     */
     private static Map<String, String> parseCookies(String cookieString) {
         Map<String, String> map = new LinkedHashMap<>();
         if (cookieString == null || cookieString.isBlank()) {
@@ -357,11 +357,11 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-    * 从 映射 中安全获取字符串值。
-    * @param map 映射
-    * @param key 键
-    * @return 获取字符串的结果
-    */
+     * 从 映射 中安全获取字符串值。
+     * @param map 映射
+     * @param key 键
+     * @return 获取字符串的结果
+     */
     private static String getString(Map<?, ?> map, String key) {
         Object val = map.get(key);
         return val instanceof String s ? s : val != null ? String.valueOf(val) : null;

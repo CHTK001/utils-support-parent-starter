@@ -1,21 +1,21 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* CoAP 协议还原器。
-*
-* <p>CoAP（受限应用协议）头部：
-* <ul>
-*   <li>byte 0: Ver(2) + Type(2) + Token Length(4)</li>
-*   <li>byte 1: Code (class.detail)</li>
-*   <li>byte 2-3: MessageId</li>
-*   <li>Token (0-8 bytes)</li>
-*   <li>Options + Payload</li>
-* </ul>
-* 类型: 0=CON, 1=NON, 2=ACK, 3=RST。
-* 编码: 0.01=获取, 0.02=POST, 0.04=删除, 2.05=内容, 4.04=Not Found。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * CoAP 协议还原器。
+ *
+ * <p>CoAP（受限应用协议）头部：
+ * <ul>
+ *   <li>byte 0: Ver(2) + Type(2) + Token Length(4)</li>
+ *   <li>byte 1: Code (class.detail)</li>
+ *   <li>byte 2-3: MessageId</li>
+ *   <li>Token (0-8 bytes)</li>
+ *   <li>Options + Payload</li>
+ * </ul>
+ * 类型: 0=CON, 1=NON, 2=ACK, 3=RST。
+ * 编码: 0.01=获取, 0.02=POST, 0.04=删除, 2.05=内容, 4.04=Not Found。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class CoapProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -68,11 +68,11 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为类型名称
-    *
-    * @param type 类型
-    * @return 转为类型名称的结果
-    */
+     * 转为类型名称
+     *
+     * @param type 类型
+     * @return 转为类型名称的结果
+     */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "CON";
@@ -84,12 +84,12 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为编码名称
-    *
-    * @param cls cls
-    * @param detail detail
-    * @return 转为编码名称的结果
-    */
+     * 转为编码名称
+     *
+     * @param cls cls
+     * @param detail detail
+     * @return 转为编码名称的结果
+     */
     private static String toCodeName(int cls, int detail) {
         if (cls == 0) {
             return switch (detail) {

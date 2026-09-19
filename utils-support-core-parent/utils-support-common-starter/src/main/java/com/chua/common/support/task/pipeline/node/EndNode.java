@@ -12,28 +12,28 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class EndNode implements PipelineNode {
 
     /**
-    * 节点唯一标识
-    */
+     * 节点唯一标识
+     */
     private final String id;
 
     /**
-    * 构造终止节点。
-    *
-    * @param id 节点唯一标识
-    */
+     * 构造终止节点。
+     *
+     * @param id 节点唯一标识
+     */
     public EndNode(String id) {
         this.id = id;
     }
 
     /**
-    * 获取节点 标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取节点 标识。
+     *
+     * @return 节点 标识
+     */
     public String getId() {
         return id;
     }

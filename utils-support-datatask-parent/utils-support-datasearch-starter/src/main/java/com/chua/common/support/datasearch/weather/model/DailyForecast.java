@@ -5,13 +5,13 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 单日天气预报实体。
-*
-* <p>对应 wttr.in j1 响应的 weather[] 单天记录，
-* 含最高/最低/平均气温、紫外线指数、日照小时与逐小时采样。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 单日天气预报实体。
+ *
+ * <p>对应 wttr.in j1 响应的 weather[] 单天记录，
+ * 含最高/最低/平均气温、紫外线指数、日照小时与逐小时采样。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class DailyForecast {

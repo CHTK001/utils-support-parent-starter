@@ -107,76 +107,76 @@ import java.util.Random;
 public class MosaicArtImageFilter extends AbstractImageFilter {
 
     /**
-    * 贴图目录路径（必填）
-    */
+     * 贴图目录路径（必填）
+     */
     private String tileDirectory;
 
     /**
-    * 网格大小（像素），默认 32
-    */
+     * 网格大小（像素），默认 32
+     */
     private int tileSize = 32;
 
     /**
-    * 贴图绘制目标尺寸（宽=高，像素）。0 表示与网格大小一致（默认行为）。
-    * <p>
-    * 例如 tileSize=32、tileDrawSize=128 时，每个 32×32 的网格格子
-    * 会被一张 128×128 的贴图覆盖（贴图超出网格的部分裁剪，网格之外的部分
-    * 由相邻格子自然叠盖，形成"放大贴图"效果）。
-    */
+     * 贴图绘制目标尺寸（宽=高，像素）。0 表示与网格大小一致（默认行为）。
+     * <p>
+     * 例如 tileSize=32、tileDrawSize=128 时，每个 32×32 的网格格子
+     * 会被一张 128×128 的贴图覆盖（贴图超出网格的部分裁剪，网格之外的部分
+     * 由相邻格子自然叠盖，形成"放大贴图"效果）。
+     */
     private int tileDrawSize = 0;
 
     /**
-    * 贴图选择策略，默认颜色匹配
-    */
+     * 贴图选择策略，默认颜色匹配
+     */
     private SelectMode selectMode = SelectMode.COLOR_MATCH;
 
     /**
-    * 支持的贴图文件扩展名（不含点，小写），默认 png,jpg,jpeg,bmp,gif,webp
-    */
+     * 支持的贴图文件扩展名（不含点，小写），默认 png,jpg,jpeg,bmp,gif,webp
+     */
     private List<String> extensions = new ArrayList<>(
             Arrays.asList("png", "jpg", "jpeg", "bmp", "gif", "webp"));
 
     /**
-    * 输出图底色，默认白色
-    */
+     * 输出图底色，默认白色
+     */
     private Color background = Color.WHITE;
 
     /**
-    * 随机种子（null 表示每次运行随机不同），仅影响 RANDOM 模式
-    */
+     * 随机种子（null 表示每次运行随机不同），仅影响 RANDOM 模式
+     */
     private Long seed;
 
     /**
-    * 贴图缩放是否平滑，默认 false（最近邻，像素块风格）
-    */
+     * 贴图缩放是否平滑，默认 false（最近邻，像素块风格）
+     */
     private boolean smooth = false;
 
     /**
-    * 加载贴图时的最大边长（像素），默认 256；0 表示不限制
-    */
+     * 加载贴图时的最大边长（像素），默认 256；0 表示不限制
+     */
     private int maxTileDimension = 256;
 
     /**
-    * 贴图选择策略
-    */
+     * 贴图选择策略
+     */
     public enum SelectMode {
         /**
-        * 按颜色匹配：选择与原图该网格平均色最接近的贴图
-        */
+         * 按颜色匹配：选择与原图该网格平均色最接近的贴图
+         */
         COLOR_MATCH,
         /**
-        * 随机选择：从所有贴图中随机取一张
-        */
+         * 随机选择：从所有贴图中随机取一张
+         */
         RANDOM,
         /**
-        * 顺序循环：按文件加载顺序依次取贴图（可复现）
-        */
+         * 顺序循环：按文件加载顺序依次取贴图（可复现）
+         */
         SEQUENTIAL
     }
 
     /**
-    * 内部贴图记录：图片 + 平均色
-    */
+     * 内部贴图记录：图片 + 平均色
+     */
     private static final class TileRecord {
         private final BufferedImage image;
         private final int avgR;
@@ -192,20 +192,20 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 已加载的贴图列表（懒加载缓存）
-    */
+     * 已加载的贴图列表（懒加载缓存）
+     */
     private volatile List<TileRecord> loadedTiles;
 
     /**
-    * 执行贴图马赛克艺术滤镜
-    * <p>
-    * 流程：加载贴图 → 网格切分 → 每格选贴图 → 缩放绘制 → 输出
-    *
-    * @param src 源图像
-    * @param dst 目标图像（此参数未使用，内部创建新图）
-    * @return 贴图马赛克艺术图
-    * @throws IllegalStateException 贴图目录未设置、目录不存在或加载不到任何贴图时
-    */
+     * 执行贴图马赛克艺术滤镜
+     * <p>
+     * 流程：加载贴图 → 网格切分 → 每格选贴图 → 缩放绘制 → 输出
+     *
+     * @param src 源图像
+     * @param dst 目标图像（此参数未使用，内部创建新图）
+     * @return 贴图马赛克艺术图
+     * @throws IllegalStateException 贴图目录未设置、目录不存在或加载不到任何贴图时
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         List<TileRecord> tiles = loadTiles();
@@ -271,11 +271,11 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 懒加载并缓存贴图列表
-    *
-    * @return 贴图列表（至少 1 张）
-    * @throws IllegalStateException 目录不存在 / 无贴图文件 / 所有文件均读取失败时
-    */
+     * 懒加载并缓存贴图列表
+     *
+     * @return 贴图列表（至少 1 张）
+     * @throws IllegalStateException 目录不存在 / 无贴图文件 / 所有文件均读取失败时
+     */
     private List<TileRecord> loadTiles() {
         if (tileDirectory == null || tileDirectory.isEmpty()) {
             throw new IllegalStateException("tileDirectory 未设置，请调用 setTileDirectory(dir)");
@@ -349,17 +349,17 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 计算图像指定区域的平均色（RGB 分量）
-    * <p>
-    * 采样策略：区域过大时按 1/8 网格采样（最多 16x16 个采样点），控制性能。
-    *
-    * @param src  源图像
-    * @param x    区域左上角 x
-    * @param y    区域左上角 y
-    * @param w    区域宽
-    * @param h    区域高
-    * @return int[3] {r, g, b}，均为 0-255
-    */
+     * 计算图像指定区域的平均色（RGB 分量）
+     * <p>
+     * 采样策略：区域过大时按 1/8 网格采样（最多 16x16 个采样点），控制性能。
+     *
+     * @param src  源图像
+     * @param x    区域左上角 x
+     * @param y    区域左上角 y
+     * @param w    区域宽
+     * @param h    区域高
+     * @return int[3] {r, g, b}，均为 0-255
+     */
     private int[] averageColor(BufferedImage src, int x, int y, int w, int h) {
         // 采样步长：区域小于等于 16 像素时逐像素，否则 1/8 网格
         int stepX = Math.max(1, w / 8);
@@ -390,11 +390,11 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 计算整张图像的平均色（贴图加载时使用）
-    *
-    * @param img 图像
-    * @return int[3] {r, g, b}
-    */
+     * 计算整张图像的平均色（贴图加载时使用）
+     *
+     * @param img 图像
+     * @return int[3] {r, g, b}
+     */
     private int[] averageColorOfImage(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
@@ -418,14 +418,14 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 在贴图列表中找出平均色与目标色最接近的一张
-    *
-    * @param tiles 贴图列表
-    * @param r     目标红色分量
-    * @param g     目标绿色分量
-    * @param b     目标蓝色分量
-    * @return 最接近的贴图
-    */
+     * 在贴图列表中找出平均色与目标色最接近的一张
+     *
+     * @param tiles 贴图列表
+     * @param r     目标红色分量
+     * @param g     目标绿色分量
+     * @param b     目标蓝色分量
+     * @return 最接近的贴图
+     */
     private TileRecord closestByColor(List<TileRecord> tiles, int r, int g, int b) {
         TileRecord best = tiles.get(0);
         int bestDist = Integer.MAX_VALUE;
@@ -443,10 +443,10 @@ public class MosaicArtImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 清除贴图缓存（更换目录或扩展名后调用，强制下次重新加载）
-    *
-    * @return 当前实例（支持链式）
-    */
+     * 清除贴图缓存（更换目录或扩展名后调用，强制下次重新加载）
+     *
+     * @return 当前实例（支持链式）
+     */
     public MosaicArtImageFilter clearCache() {
         this.loadedTiles = null;
         return this;

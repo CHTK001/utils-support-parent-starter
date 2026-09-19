@@ -13,39 +13,39 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 通用文件下载器 — 链式 API，支持并发分片、断点续传、MD5 校验、限速、代理、自动解压。
-*
-* <h3>用法示例</h3>
-* <pre>
-* // 基础用法
-* Downloader.create()
-*     .url("https://example.com/file.zip")
-*     .target(Path.of("/tmp/downloads"))
-*     .expectedMd5("abc123")
-*     .autoExtract(true)
-*     .execute();
-*
-* // 高级用法：并发分片 + 限速 + 代理
-* Downloader.create()
-*     .url("https://example.com/large-file.tar.gz")
-*     .target(Path.of("/tmp/downloads"))
-*     .concurrency(4)
-*     .maxSpeed(1024 * 1024)
-*     .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy host", 8080)))
-*     .autoExtract(true)
-*     .extractTo(Path.of("/tmp/extracted"))
-*     .execute();
-*
-* // 使用 aria2c 协议
-* Downloader.create()
-*     .url("https://example.com/large-file.zip")
-*     .target(Path.of("/tmp/downloads"))
-*     .protocol(DownloadProtocol.ARIA2)
-*     .execute();
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用文件下载器 — 链式 API，支持并发分片、断点续传、MD5 校验、限速、代理、自动解压。
+ *
+ * <h3>用法示例</h3>
+ * <pre>
+ * // 基础用法
+ * Downloader.create()
+ *     .url("https://example.com/file.zip")
+ *     .target(Path.of("/tmp/downloads"))
+ *     .expectedMd5("abc123")
+ *     .autoExtract(true)
+ *     .execute();
+ *
+ * // 高级用法：并发分片 + 限速 + 代理
+ * Downloader.create()
+ *     .url("https://example.com/large-file.tar.gz")
+ *     .target(Path.of("/tmp/downloads"))
+ *     .concurrency(4)
+ *     .maxSpeed(1024 * 1024)
+ *     .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy host", 8080)))
+ *     .autoExtract(true)
+ *     .extractTo(Path.of("/tmp/extracted"))
+ *     .execute();
+ *
+ * // 使用 aria2c 协议
+ * Downloader.create()
+ *     .url("https://example.com/large-file.zip")
+ *     .target(Path.of("/tmp/downloads"))
+ *     .protocol(DownloadProtocol.ARIA2)
+ *     .execute();
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class Downloader {
@@ -92,10 +92,10 @@ public class Downloader {
     }
 
     /**
-    * 创建 Downloader 实例。
-    *
-    * @return 新的 Downloader 实例
-    */
+     * 创建 Downloader 实例。
+     *
+     * @return 新的 Downloader 实例
+     */
     public static Downloader create() {
         return new Downloader();
     }
@@ -103,182 +103,182 @@ public class Downloader {
     // ===== 链式配置方法 =====
 
     /**
-    * 设置下载地址。
-    *
-    * @param url 合法的 HTTP/HTTPS URL
-    * @return 当前实例
-    */
+     * 设置下载地址。
+     *
+     * @param url 合法的 HTTP/HTTPS URL
+     * @return 当前实例
+     */
     public Downloader url(String url) {
         this.url = url;
         return this;
     }
 
     /**
-    * 设置目标下载目录。
-    *
-    * @param targetDir 目标目录
-    * @return 当前实例
-    */
+     * 设置目标下载目录。
+     *
+     * @param targetDir 目标目录
+     * @return 当前实例
+     */
     public Downloader target(Path targetDir) {
         this.targetDir = targetDir;
         return this;
     }
 
     /**
-    * 设置显式文件名。
-    *
-    * @param filename 期望的文件名
-    * @return 当前实例
-    */
+     * 设置显式文件名。
+     *
+     * @param filename 期望的文件名
+     * @return 当前实例
+     */
     public Downloader filename(String filename) {
         this.filename = filename;
         return this;
     }
 
     /**
-    * 设置期望的 MD5 值（null 则跳过校验）。
-    *
-    * @param md5 小写十六进制 MD5 字符串
-    * @return 当前实例
-    */
+     * 设置期望的 MD5 值（null 则跳过校验）。
+     *
+     * @param md5 小写十六进制 MD5 字符串
+     * @return 当前实例
+     */
     public Downloader expectedMd5(String md5) {
         this.expectedMd5 = md5;
         return this;
     }
 
     /**
-    * 设置并发下载线程数（默认 1，大于 1 时自动分片）。
-    *
-    * @param threads 线程数，必须 >= 1
-    * @return 当前实例
-    */
+     * 设置并发下载线程数（默认 1，大于 1 时自动分片）。
+     *
+     * @param threads 线程数，必须 >= 1
+     * @return 当前实例
+     */
     public Downloader concurrency(int threads) {
         this.concurrency = Math.max(1, threads);
         return this;
     }
 
     /**
-    * 设置下载限速（bytes/sec，0 = 不限速）。
-    *
-    * @param bytesPerSecond 限速字节/秒
-    * @return 当前实例
-    */
+     * 设置下载限速（bytes/sec，0 = 不限速）。
+     *
+     * @param bytesPerSecond 限速字节/秒
+     * @return 当前实例
+     */
     public Downloader maxSpeed(long bytesPerSecond) {
         this.maxSpeed = bytesPerSecond;
         return this;
     }
 
     /**
-    * 设置 HTTP 代理。
-    *
-    * @param proxy 代理对象
-    * @return 当前实例
-    */
+     * 设置 HTTP 代理。
+     *
+     * @param proxy 代理对象
+     * @return 当前实例
+     */
     public Downloader proxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
     /**
-    * 下载完成后自动解压压缩包。
-    *
-    * @param autoExtract true 表示自动解压
-    * @return 当前实例
-    */
+     * 下载完成后自动解压压缩包。
+     *
+     * @param autoExtract true 表示自动解压
+     * @return 当前实例
+     */
     public Downloader autoExtract(boolean autoExtract) {
         this.autoExtract = autoExtract;
         return this;
     }
 
     /**
-    * 设置解压目标目录（默认与下载目录相同）。
-    *
-    * @param extractTo 解压目标目录
-    * @return 当前实例
-    */
+     * 设置解压目标目录（默认与下载目录相同）。
+     *
+     * @param extractTo 解压目标目录
+     * @return 当前实例
+     */
     public Downloader extractTo(Path extractTo) {
         this.extractTo = extractTo;
         return this;
     }
 
     /**
-    * 跳过 MD5 校验。
-    *
-    * @param skip true 表示跳过
-    * @return 当前实例
-    */
+     * 跳过 MD5 校验。
+     *
+     * @param skip true 表示跳过
+     * @return 当前实例
+     */
     public Downloader skipMd5Check(boolean skip) {
         this.skipMd5Check = skip;
         return this;
     }
 
     /**
-    * 强制重新下载（忽略本地缓存文件）。
-    *
-    * @param force true 表示强制
-    * @return 当前实例
-    */
+     * 强制重新下载（忽略本地缓存文件）。
+     *
+     * @param force true 表示强制
+     * @return 当前实例
+     */
     public Downloader forceDownload(boolean force) {
         this.forceDownload = force;
         return this;
     }
 
     /**
-    * 设置是否显示下载进度条（默认 true）。
-    *
-    * @param show true 显示进度条
-    * @return 当前实例
-    */
+     * 设置是否显示下载进度条（默认 true）。
+     *
+     * @param show true 显示进度条
+     * @return 当前实例
+     */
     public Downloader showProgress(boolean show) {
         this.showProgress = show;
         return this;
     }
 
     /**
-    * 设置连接超时（毫秒）。
-    *
-    * @param ms 超时毫秒数
-    * @return 当前实例
-    */
+     * 设置连接超时（毫秒）。
+     *
+     * @param ms 超时毫秒数
+     * @return 当前实例
+     */
     public Downloader connectTimeout(int ms) {
         this.connectTimeoutMs = ms;
         return this;
     }
 
     /**
-    * 设置读取超时（毫秒）。
-    *
-    * @param ms 超时毫秒数
-    * @return 当前实例
-    */
+     * 设置读取超时（毫秒）。
+     *
+     * @param ms 超时毫秒数
+     * @return 当前实例
+     */
     public Downloader readTimeout(int ms) {
         this.readTimeoutMs = ms;
         return this;
     }
 
     /**
-    * 添加自定义 HTTP 请求头。
-    *
-    * @param name  请求头名称
-    * @param value 请求头值
-    * @return 当前实例
-    */
+     * 添加自定义 HTTP 请求头。
+     *
+     * @param name  请求头名称
+     * @param value 请求头值
+     * @return 当前实例
+     */
     public Downloader header(String name, String value) {
         this.headers.put(name, value);
         return this;
     }
 
     /**
-    * 设置下载协议。
-    *
-    * <ul>
-    *   <li>{@link DownloadProtocol#DEFAULT} — 内置 HTTP/HTTPS（单线程/并发分片/断点续传）</li>
-    *   <li>{@link DownloadProtocol#ARIA2} — 委托本机 aria2c</li>
-    * </ul>
-    *
-    * @param protocol 下载协议
-    * @return 当前实例
-    */
+     * 设置下载协议。
+     *
+     * <ul>
+     *   <li>{@link DownloadProtocol#DEFAULT} — 内置 HTTP/HTTPS（单线程/并发分片/断点续传）</li>
+     *   <li>{@link DownloadProtocol#ARIA2} — 委托本机 aria2c</li>
+     * </ul>
+     *
+     * @param protocol 下载协议
+     * @return 当前实例
+     */
     public Downloader protocol(DownloadProtocol protocol) {
         this.protocol = protocol;
         return this;
@@ -287,12 +287,12 @@ public class Downloader {
     // ===== 执行下载 =====
 
     /**
-    * 执行下载任务。
-    *
-    * @return 下载结果
-    * @throws DownloadException 下载失败
-    * @throws IOException       文件系统操作失败
-    */
+     * 执行下载任务。
+     *
+     * @return 下载结果
+     * @throws DownloadException 下载失败
+     * @throws IOException       文件系统操作失败
+     */
     public DownloadResult execute() throws DownloadException, IOException {
         validate();
 
@@ -358,10 +358,10 @@ public class Downloader {
     // ======================== 内部方法 ========================
 
     /**
-    * 校验必填参数。
-    *
-    * @throws DownloadException 当 URL 为空时
-    */
+     * 校验必填参数。
+     *
+     * @throws DownloadException 当 URL 为空时
+     */
     private void validate() throws DownloadException {
         if (url == null || url.isBlank()) {
             throw new DownloadException("URL 不能为空");

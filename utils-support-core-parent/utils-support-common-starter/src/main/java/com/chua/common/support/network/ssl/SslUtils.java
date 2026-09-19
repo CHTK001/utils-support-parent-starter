@@ -44,7 +44,7 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 public final class SslUtils {
 
@@ -55,26 +55,26 @@ public final class SslUtils {
     // ==================== 一键 SSL ====================
 
     /**
-    * 一键 SSL：判断是否启用 → 预处理配置 → 创建 {@link SSLContext}。
-    *
-    * <p>将 {@link #isSslEnabled} + {@link #prepareSslConfig} + {@link #createSslContext}
-    * 合并为单次调用，适用于 JDK HttpsServer / NioHttpServer 等使用
-    * {@code javax.net.ssl.SSLContext} 的场景。</p>
-    *
-    * <h3>典型用法</h3>
-    * <pre>
-    *   SSLContext ctx = SslUtils.autoSsl(ssl);
-    *   if (ctx != null) {
-    *       // 启用 HTTPS
-    *   } else {
-    *       // 普通 HTTP
-    *   }
-    * </pre>
-    *
-    * @param ssl SSL 配置，可为 null
-    * @return 已初始化的 SSLContext；未启用 SSL 时返回 null
-    * @throws RuntimeException SSL 配置或证书加载失败
-    */
+     * 一键 SSL：判断是否启用 → 预处理配置 → 创建 {@link SSLContext}。
+     *
+     * <p>将 {@link #isSslEnabled} + {@link #prepareSslConfig} + {@link #createSslContext}
+     * 合并为单次调用，适用于 JDK HttpsServer / NioHttpServer 等使用
+     * {@code javax.net.ssl.SSLContext} 的场景。</p>
+     *
+     * <h3>典型用法</h3>
+     * <pre>
+     *   SSLContext ctx = SslUtils.autoSsl(ssl);
+     *   if (ctx != null) {
+     *       // 启用 HTTPS
+     *   } else {
+     *       // 普通 HTTP
+     *   }
+     * </pre>
+     *
+     * @param ssl SSL 配置，可为 null
+     * @return 已初始化的 SSLContext；未启用 SSL 时返回 null
+     * @throws RuntimeException SSL 配置或证书加载失败
+     */
     public static SSLContext autoSsl(ServerSetting.SslConfig ssl) {
         if (!isSslEnabled(ssl)) {
             return null;
@@ -88,15 +88,15 @@ public final class SslUtils {
     }
 
     /**
-    * 一键预处理：判断 SSL 是否启用 → 预处理配置。
-    *
-    * <p>适用于需要自行创建 SSL 上下文的场景（如 Netty 使用
-    * {@code io.netty.handler.ssl.SslContext}），仅需判断和预处理，
-    * 不负责创建最终的 SSL 上下文。</p>
-    *
-    * @param ssl SSL 配置，可为 null
-    * @return true 表示 SSL 已启用且配置已预处理完成
-    */
+     * 一键预处理：判断 SSL 是否启用 → 预处理配置。
+     *
+     * <p>适用于需要自行创建 SSL 上下文的场景（如 Netty 使用
+     * {@code io.netty.handler.ssl.SslContext}），仅需判断和预处理，
+     * 不负责创建最终的 SSL 上下文。</p>
+     *
+     * @param ssl SSL 配置，可为 null
+     * @return true 表示 SSL 已启用且配置已预处理完成
+     */
     public static boolean autoPrepare(ServerSetting.SslConfig ssl) {
         if (!isSslEnabled(ssl)) {
             return false;
@@ -108,23 +108,23 @@ public final class SslUtils {
     // ==================== 配置预处理 ====================
 
     /**
-    * 判断 SSL 是否需要启用（考虑 selfSignedAuto）。
-    *
-    * @param ssl SSL 配置，可为 null
-    * @return true 表示应启用 SSL
-    */
+     * 判断 SSL 是否需要启用（考虑 selfSignedAuto）。
+     *
+     * @param ssl SSL 配置，可为 null
+     * @return true 表示应启用 SSL
+     */
     public static boolean isSslEnabled(ServerSetting.SslConfig ssl) {
         return ssl != null && (ssl.isEnabled() || ssl.isSelfSignedAuto());
     }
 
     /**
-    * 预处理 SslConfig：当 {@code selfSignedAuto=true} 时自动设置
-    * {@code enabled=true} + {@code selfSigned=true}。
-    *
-    * <p>应在 SSL 初始化之前调用。</p>
-    *
-    * @param ssl SSL 配置，可为 null
-    */
+     * 预处理 SslConfig：当 {@code selfSignedAuto=true} 时自动设置
+     * {@code enabled=true} + {@code selfSigned=true}。
+     *
+     * <p>应在 SSL 初始化之前调用。</p>
+     *
+     * @param ssl SSL 配置，可为 null
+     */
     public static void prepareSslConfig(ServerSetting.SslConfig ssl) {
         if (ssl != null && ssl.isSelfSignedAuto()) {
             ssl.setEnabled(true);
@@ -135,13 +135,13 @@ public final class SslUtils {
     // ==================== KeyStore 加载 ====================
 
     /**
-    * 加载 KeyStore，按优先级尝试：KeyStore 文件 → PEM 证书 → 自签名证书自动生成。
-    *
-    * @param ssl SSL 配置
-    * @return 已加载的 KeyStore
-    * @throws Exception 加载失败
-    * @throws IllegalArgumentException SSL 已启用但未配置任何证书来源
-    */
+     * 加载 KeyStore，按优先级尝试：KeyStore 文件 → PEM 证书 → 自签名证书自动生成。
+     *
+     * @param ssl SSL 配置
+     * @return 已加载的 KeyStore
+     * @throws Exception 加载失败
+     * @throws IllegalArgumentException SSL 已启用但未配置任何证书来源
+     */
     public static KeyStore loadKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         if (ssl.getKeyStorePath() != null) {
             return loadKeyStoreFile(ssl);
@@ -156,10 +156,10 @@ public final class SslUtils {
     }
 
     /**
-    * 从 KeyStore 文件（JKS/PKCS12）加载。
-    * @param ssl 方法入参 ssl
-    * @return 键Store 对象
-    */
+     * 从 KeyStore 文件（JKS/PKCS12）加载。
+     * @param ssl 方法入参 ssl
+     * @return 键Store 对象
+     */
     private static KeyStore loadKeyStoreFile(ServerSetting.SslConfig ssl) throws Exception {
         String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
         KeyStore ks = KeyStore.getInstance(type);
@@ -171,10 +171,10 @@ public final class SslUtils {
     }
 
     /**
-    * 从 PEM 证书文件和私钥文件加载为 KeyStore。
-    * @param ssl 方法入参 ssl
-    * @return 键Store 对象
-    */
+     * 从 PEM 证书文件和私钥文件加载为 KeyStore。
+     * @param ssl 方法入参 ssl
+     * @return 键Store 对象
+     */
     private static KeyStore loadPemKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate cert;
@@ -199,10 +199,10 @@ public final class SslUtils {
     }
 
     /**
-    * 使用 {@link JdkCertificateProvider} 自动生成自签名证书并加载为 KeyStore。
-    * @param ssl 方法入参 ssl
-    * @return 键Store 对象
-    */
+     * 使用 {@link JdkCertificateProvider} 自动生成自签名证书并加载为 KeyStore。
+     * @param ssl 方法入参 ssl
+     * @return 键Store 对象
+     */
     private static KeyStore generateSelfSignedKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         JdkCertificateProvider provider = new JdkCertificateProvider();
         provider.setKeyAlg(ssl.getSelfSignedKeyAlg());
@@ -245,15 +245,15 @@ public final class SslUtils {
     // ==================== SSLContext / KeyManagerFactory ====================
 
     /**
-    * 创建 {@link SSLContext}（TLS 协议）。
-    *
-    * <p>内部调用 {@link #loadKeyStore} 和 {@link #createKeyManagerFactory}，
-    * 适用于 JDK HttpsServer / NioHttpServer 等场景。</p>
-    *
-    * @param ssl SSL 配置
-    * @return 已初始化的 SSLContext
-    * @throws Exception 创建失败
-    */
+     * 创建 {@link SSLContext}（TLS 协议）。
+     *
+     * <p>内部调用 {@link #loadKeyStore} 和 {@link #createKeyManagerFactory}，
+     * 适用于 JDK HttpsServer / NioHttpServer 等场景。</p>
+     *
+     * @param ssl SSL 配置
+     * @return 已初始化的 SSLContext
+     * @throws Exception 创建失败
+     */
     public static SSLContext createSslContext(ServerSetting.SslConfig ssl) throws Exception {
         KeyManagerFactory kmf = createKeyManagerFactory(ssl);
         SSLContext ctx = SSLContext.getInstance("TLS");
@@ -262,14 +262,14 @@ public final class SslUtils {
     }
 
     /**
-    * 创建 {@link KeyManagerFactory}，从 SslConfig 加载 KeyStore 后初始化。
-    *
-    * <p>适用于 Netty {@code SslContextBuilder.forServer(kmf).build()} 等场景。</p>
-    *
-    * @param ssl SSL 配置
-    * @return 已初始化的 KeyManagerFactory
-    * @throws Exception 创建失败
-    */
+     * 创建 {@link KeyManagerFactory}，从 SslConfig 加载 KeyStore 后初始化。
+     *
+     * <p>适用于 Netty {@code SslContextBuilder.forServer(kmf).build()} 等场景。</p>
+     *
+     * @param ssl SSL 配置
+     * @return 已初始化的 KeyManagerFactory
+     * @throws Exception 创建失败
+     */
     public static KeyManagerFactory createKeyManagerFactory(ServerSetting.SslConfig ssl) throws Exception {
         KeyStore ks = loadKeyStore(ssl);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -280,26 +280,26 @@ public final class SslUtils {
     // ==================== 密码工具 ====================
 
     /**
-    * 获取 KeyStore 密码字符数组。
-    *
-    * <p>未设置时返回默认密码 {@code "changeit"}，
-    * 与 {@link #generateSelfSignedKeyStore} 生成自签名 KeyStore 时使用的默认密码保持一致，
-    * 避免加载后 KeyManagerFactory 解密密钥条目失败（BadPaddingException）。</p>
-    *
-    * @return 密码字符数组
-    * @param ssl 方法入参 ssl
-    */
+     * 获取 KeyStore 密码字符数组。
+     *
+     * <p>未设置时返回默认密码 {@code "changeit"}，
+     * 与 {@link #generateSelfSignedKeyStore} 生成自签名 KeyStore 时使用的默认密码保持一致，
+     * 避免加载后 KeyManagerFactory 解密密钥条目失败（BadPaddingException）。</p>
+     *
+     * @return 密码字符数组
+     * @param ssl 方法入参 ssl
+     */
     public static char[] getKeyStorePassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyStorePassword() != null
                 ? ssl.getKeyStorePassword().toCharArray() : "changeit".toCharArray();
     }
 
     /**
-    * 获取私钥密码字符数组。
-    *
-    * @return 密码字符数组，未设置时返回空数组
-    * @param ssl 方法入参 ssl
-    */
+     * 获取私钥密码字符数组。
+     *
+     * @return 密码字符数组，未设置时返回空数组
+     * @param ssl 方法入参 ssl
+     */
     public static char[] getKeyPassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyPassword() != null
                 ? ssl.getKeyPassword().toCharArray() : new char[0];

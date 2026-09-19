@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* HTTP Agent 数据同步 源，从远程 Agent 拉取数据。
-*
-* <p>通过 HTTP GET 请求调用 Agent 接口获取数据，支持 JSON 响应解析。
-*
-* @author CH
-* @since 4.0.0.42
+ * HTTP Agent 数据同步 源，从远程 Agent 拉取数据。
+ *
+ * <p>通过 HTTP GET 请求调用 Agent 接口获取数据，支持 JSON 响应解析。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class HttpAgentDataSyncSource implements DataSyncAgentSource {
 
@@ -75,10 +75,10 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     }
 
     /**
-    * 解析 JSON 响应，支持数组或单对象。
-    * @return 获取http客户端的结果
-    * @param body 主体
-    */
+     * 解析 JSON 响应，支持数组或单对象。
+     * @return 获取http客户端的结果
+     * @param body 主体
+     */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJsonResponse(String body) {
         List<Map<String, Object>> rows = new java.util.ArrayList<>();

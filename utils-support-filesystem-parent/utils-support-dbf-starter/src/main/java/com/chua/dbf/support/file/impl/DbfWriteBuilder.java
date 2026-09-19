@@ -12,16 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /**
-* @author CH
-* @since 4.0.0
+ * @author CH
+ * @since 4.0.0
  */
 
 public class DbfWriteBuilder extends WriteBuilder {
 
     /**
-    * 创建 dbf写入构建器 实例
-    * @param file 文件
-    */
+     * 创建 dbf写入构建器 实例
+     * @param file 文件
+     */
     public DbfWriteBuilder(File file) {
         super(file);
     }
@@ -97,11 +97,11 @@ public class DbfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 解析Columns
-    *
-    * @param rows rows
-    * @return resolveColumns的结果
-    */
+     * 解析Columns
+     *
+     * @param rows rows
+     * @return resolveColumns的结果
+     */
     private List<String> resolveColumns(List<Map<String, Object>> rows) {
         if (headerColumns != null) {
             return headerColumns;

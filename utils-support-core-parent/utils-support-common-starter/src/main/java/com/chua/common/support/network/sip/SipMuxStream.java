@@ -10,38 +10,38 @@ import java.util.function.Consumer;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 class SipMuxStream {
 
     /**
-    * 通道标识
-    */
+     * 通道标识
+     */
     private final String channelId;
 
     /**
-    * 所属共享连接
-    */
+     * 所属共享连接
+     */
     private final SipMuxConnection connection;
 
     /**
-    * 数据消费者
-    */
+     * 数据消费者
+     */
     private volatile Consumer<byte[]> dataConsumer;
 
     /**
-    * 对端关闭回调
-    */
+     * 对端关闭回调
+     */
     private volatile Runnable peerCloseCallback;
 
     /**
-    * 消费者挂载前到达的数据缓冲
-    */
+     * 消费者挂载前到达的数据缓冲
+     */
     private final java.util.List<byte[]> pendingData = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
 
     /**
-    * 是否已关闭
-    */
+     * 是否已关闭
+     */
     private volatile boolean closed;
 
     /**
@@ -56,30 +56,30 @@ class SipMuxStream {
     }
 
     /**
-    * 获取通道标识。
-    *
-    * @return 通道标识
-    */
+     * 获取通道标识。
+     *
+     * @return 通道标识
+     */
     String channelId() {
         return channelId;
     }
 
     /**
-    * 挂载数据与关闭回调。
-    *
-    * @param data    数据消费者
-    * @param onClose 对端关闭/通道关闭回调
-    */
+     * 挂载数据与关闭回调。
+     *
+     * @param data    数据消费者
+     * @param onClose 对端关闭/通道关闭回调
+     */
     void attach(Consumer<byte[]> data, Runnable onClose) {
         this.dataConsumer = data;
         this.peerCloseCallback = onClose;
     }
 
     /**
-    * 发送数据。
-    *
-    * @param payload 负载
-    */
+     * 发送数据。
+     *
+     * @param payload 负载
+     */
     void send(byte[] payload) {
        
         if (!closed) {
@@ -93,10 +93,10 @@ class SipMuxStream {
     }
 
     /**
-    * 启动读取（挂载消费者并重放缓冲）。
-    *
-    * @param consumer 数据消费者
-    */
+     * 启动读取（挂载消费者并重放缓冲）。
+     *
+     * @param consumer 数据消费者
+     */
     void startRead(Consumer<byte[]> consumer) {
         this.dataConsumer = consumer;
         java.util.List<byte[]> early;
@@ -110,8 +110,8 @@ class SipMuxStream {
     }
 
     /**
-    * 关闭本通道。
-    */
+     * 关闭本通道。
+     */
     void close() {
         if (closed) {
             return;
@@ -121,19 +121,19 @@ class SipMuxStream {
     }
 
     /**
-    * 是否已关闭。
-    *
-    * @return true 表示已关闭
-    */
+     * 是否已关闭。
+     *
+     * @return true 表示已关闭
+     */
     boolean isClosed() {
         return closed;
     }
 
     /**
-    * 分发对端数据（由共享连接读循环调用；消费者未挂载时缓冲）。
-    *
-    * @param data 数据
-    */
+     * 分发对端数据（由共享连接读循环调用；消费者未挂载时缓冲）。
+     *
+     * @param data 数据
+     */
     void dispatch(byte[] data) {
        
         Consumer<byte[]> consumer = dataConsumer;
@@ -153,8 +153,8 @@ class SipMuxStream {
     }
 
     /**
-    * 对端/通道已关闭。
-    */
+     * 对端/通道已关闭。
+     */
     void peerClosed() {
         if (closed) {
             return;
@@ -170,8 +170,8 @@ class SipMuxStream {
     }
 
     /**
-    * 标记关闭（不发送帧，由 closeChannel 统一发送）。
-    */
+     * 标记关闭（不发送帧，由 closeChannel 统一发送）。
+     */
     void markClosed() {
         closed = true;
     }

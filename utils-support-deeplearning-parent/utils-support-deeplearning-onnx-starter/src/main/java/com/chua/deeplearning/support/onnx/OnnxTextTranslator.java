@@ -11,9 +11,9 @@ public class OnnxTextTranslator implements TextTranslator {
     private String modelName;
 
     /**
-    * 创建 onnx文本translator 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx文本translator 实例
+     * @param apiKey API密钥
+     */
     public OnnxTextTranslator(String apiKey) {
     }
 

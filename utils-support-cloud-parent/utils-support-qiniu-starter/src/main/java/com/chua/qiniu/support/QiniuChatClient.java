@@ -11,41 +11,41 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.function.Consumer;
 
 /**
-* 七牛云对话客户端（桩实现）
-*
-* <p>七牛云为对象存储服务商，暂未提供 AI 大模型对话能力。
-* 此实现为桩（Stub），调用时返回固定的提示信息。
-*
-* @author CH
-* @since 4.0.0.42
+ * 七牛云对话客户端（桩实现）
+ *
+ * <p>七牛云为对象存储服务商，暂未提供 AI 大模型对话能力。
+ * 此实现为桩（Stub），调用时返回固定的提示信息。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi({"qiniu"})
 public class QiniuChatClient implements ChatClient {
 
     /**
-    * 七牛云暂不支持 AI 对话的提示消息
-    */
+     * 七牛云暂不支持 AI 对话的提示消息
+     */
     private static final String NOT_SUPPORTED_MSG = "七牛云暂不支持 AI 对话";
 
     /**
-    * 是否启用深度思考
-    */
+     * 是否启用深度思考
+     */
     private boolean thinking;
 
     /**
-    * 深度思考力度
-    */
+     * 深度思考力度
+     */
     private String thinkingEffort;
 
     /**
-    * 是否启用智能搜索
-    */
+     * 是否启用智能搜索
+     */
     private boolean smartSearch;
 
     /**
-    * 技能管理器
-    */
+     * 技能管理器
+     */
     private SkillManager skillManager;
 
     @Override
@@ -117,12 +117,12 @@ public class QiniuChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

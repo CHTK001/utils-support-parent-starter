@@ -22,38 +22,38 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* Prometheus 引擎
-* <p>
-* 实现 {@link Engine} 接口, 以 SPI 方式注册为 {@code "prometheus"},
-* 提供多数据源管理与链式查询入口。Prometheus 为时序查询语义,
-* 不提供 JDBC 执行器与 Lambda 增删改。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Prometheus 引擎
+ * <p>
+ * 实现 {@link Engine} 接口, 以 SPI 方式注册为 {@code "prometheus"},
+ * 提供多数据源管理与链式查询入口。Prometheus 为时序查询语义,
+ * 不提供 JDBC 执行器与 Lambda 增删改。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("prometheus")
 public class PrometheusEngine implements Engine {
 
     /**
-    * 数据源映射
-    */
+     * 数据源映射
+     */
     private final Map<String, EngineDataSource<PrometheusClient>> dataSources = new ConcurrentHashMap<>();
 
     /**
-    * 默认数据源名
-    */
+     * 默认数据源名
+     */
     private String defaultDataSourceName;
 
     /**
-    * 添加数据源
-    *
-    * @param name       数据源名称
-    * @param dataSource 数据源封装
-    * @param <T>        底层类型
-    * @return this
-    */
+     * 添加数据源
+     *
+     * @param name       数据源名称
+     * @param dataSource 数据源封装
+     * @param <T>        底层类型
+     * @return this
+     */
     @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         Object source = dataSource.getSource();
@@ -72,12 +72,12 @@ public class PrometheusEngine implements Engine {
     }
 
     /**
-    * 便捷添加数据源(直接传客户端)
-    *
-    * @param name   数据源名称
-    * @param client Prometheus 客户端
-    * @return this
-    */
+     * 便捷添加数据源(直接传客户端)
+     *
+     * @param name   数据源名称
+     * @param client Prometheus 客户端
+     * @return this
+     */
     public PrometheusEngine addDataSource(String name, PrometheusClient client) {
         dataSources.put(name, new PrometheusDataSource(name, null, client));
         if (defaultDataSourceName == null) {
@@ -87,12 +87,12 @@ public class PrometheusEngine implements Engine {
     }
 
     /**
-    * 便捷添加数据源
-    *
-    * @param name    数据源名称
-    * @param baseUrl Prometheus 地址
-    * @return this
-    */
+     * 便捷添加数据源
+     *
+     * @param name    数据源名称
+     * @param baseUrl Prometheus 地址
+     * @return this
+     */
     public PrometheusEngine addDataSource(String name, String baseUrl) {
         PrometheusClient client = PrometheusClient.builder().baseUrl(baseUrl).build();
         dataSources.put(name, new PrometheusDataSource(name, baseUrl, client));
@@ -103,14 +103,14 @@ public class PrometheusEngine implements Engine {
     }
 
     /**
-    * 便捷添加数据源(带认证)
-    *
-    * @param name     数据源名称
-    * @param baseUrl  Prometheus 地址
-    * @param username 用户名
-    * @param password 密码
-    * @return this
-    */
+     * 便捷添加数据源(带认证)
+     *
+     * @param name     数据源名称
+     * @param baseUrl  Prometheus 地址
+     * @param username 用户名
+     * @param password 密码
+     * @return this
+     */
     public PrometheusEngine addDataSource(String name, String baseUrl, String username, String password) {
         PrometheusClient client = PrometheusClient.builder()
                 .baseUrl(baseUrl)
@@ -124,20 +124,20 @@ public class PrometheusEngine implements Engine {
     }
 
     /**
-    * 获取默认客户端
-    *
-    * @return PrometheusClient
-    */
+     * 获取默认客户端
+     *
+     * @return PrometheusClient
+     */
     public PrometheusClient client() {
         return client(defaultDataSourceName);
     }
 
     /**
-    * 获取指定数据源客户端
-    *
-    * @param name 数据源名称
-    * @return PrometheusClient
-    */
+     * 获取指定数据源客户端
+     *
+     * @param name 数据源名称
+     * @return PrometheusClient
+     */
     public PrometheusClient client(String name) {
         EngineDataSource<PrometheusClient> ds = dataSources.get(name);
         if (ds == null) {
@@ -147,38 +147,38 @@ public class PrometheusEngine implements Engine {
     }
 
     /**
-    * 即时查询
-    *
-    * @param promql promql
-    * @return 查询结果
-    */
+     * 即时查询
+     *
+     * @param promql promql
+     * @return 查询结果
+     */
     public QueryResult query(String promql) {
         return client().query(promql).execute();
     }
 
     /**
-    * 查询抓取目标
-    *
-    * @return 目标列表
-    */
+     * 查询抓取目标
+     *
+     * @return 目标列表
+     */
     public List<PrometheusTarget> targets() {
         return client().targets();
     }
 
     /**
-    * 查询规则
-    *
-    * @return 规则列表
-    */
+     * 查询规则
+     *
+     * @return 规则列表
+     */
     public List<PrometheusRule> rules() {
         return client().rules();
     }
 
     /**
-    * 查询告警
-    *
-    * @return 告警列表
-    */
+     * 查询告警
+     *
+     * @return 告警列表
+     */
     public List<PrometheusAlert> alerts() {
         return client().alerts();
     }
@@ -231,10 +231,10 @@ public class PrometheusEngine implements Engine {
 
     @Override
     /**
-    * 判断是否支持元数据操作。
-    *
-    * @return Prometheus 引擎不支持元数据操作，恒返回 false
-    */
+     * 判断是否支持元数据操作。
+     *
+     * @return Prometheus 引擎不支持元数据操作，恒返回 false
+     */
     public boolean supportsMeta() {
         return false;
     }
@@ -242,11 +242,11 @@ public class PrometheusEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取数据源
-    *
-    * @param name 名称
-    * @return 获取数据源的结果
-    */
+     * 获取数据源
+     *
+     * @param name 名称
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return (EngineDataSource<T>) dataSources.get(name);
     }
@@ -254,10 +254,10 @@ public class PrometheusEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取数据源
-    *
-    * @return 获取数据源的结果
-    */
+     * 获取数据源
+     *
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }

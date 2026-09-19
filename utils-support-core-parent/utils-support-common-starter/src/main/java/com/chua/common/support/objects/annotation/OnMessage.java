@@ -18,17 +18,17 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnMessage {
 
     /**
-    * 消息主题或通道名称。
-    *
-    * <p>指定要监听的消息来源，为空时根据方法参数自动推断。</p>
-    *
-    * @return 消息主题，默认为空字符串
-    */
+     * 消息主题或通道名称。
+     *
+     * <p>指定要监听的消息来源，为空时根据方法参数自动推断。</p>
+     *
+     * @return 消息主题，默认为空字符串
+     */
     String value() default "";
 }

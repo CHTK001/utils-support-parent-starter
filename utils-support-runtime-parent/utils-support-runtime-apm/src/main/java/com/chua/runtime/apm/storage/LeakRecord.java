@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 句柄泄漏事件 — 持久化用扁平 record。
-*
-* @author CH
-* @since 4.0.0.42
+ * 句柄泄漏事件 — 持久化用扁平 record。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -42,19 +42,19 @@ public class LeakRecord {
     private String stackTrace;
 
     /**
-    * 当前是否仍然泄漏
-    *
-    * @return 是否活跃的结果
+     * 当前是否仍然泄漏
+     *
+     * @return 是否活跃的结果
      */
     public boolean isActive() {
         return closedAt == 0L;
     }
 
     /**
-    * 持续时长（毫秒）
-    *
-    * @param now now
-    * @return 获取agemillis的结果
+     * 持续时长（毫秒）
+     *
+     * @param now now
+     * @return 获取agemillis的结果
      */
     public long getAgeMillis(long now) {
         return closedAt > 0 ? closedAt - createdAt : now - createdAt;

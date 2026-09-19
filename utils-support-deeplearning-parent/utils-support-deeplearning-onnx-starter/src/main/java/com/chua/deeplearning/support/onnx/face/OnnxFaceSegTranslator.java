@@ -17,41 +17,41 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 /**
-* 解析net 人脸分割 Translator（ONNX 版，AIAS 追踪 导出）。
-*
-* <p>模型输入 512×512 人脸图（RGB 归一化 mean/std=0.5），输出 [1,19,512,512] 分割 logits；
-* 内部 argmax + 二值化 + 高斯模糊，输出人脸软 mask 图像（0~255 灰度）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 解析net 人脸分割 Translator（ONNX 版，AIAS 追踪 导出）。
+ *
+ * <p>模型输入 512×512 人脸图（RGB 归一化 mean/std=0.5），输出 [1,19,512,512] 分割 logits；
+ * 内部 argmax + 二值化 + 高斯模糊，输出人脸软 mask 图像（0~255 灰度）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OnnxFaceSegTranslator implements Translator<Image, Image> {
 
     /**
-    * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
-    */
+     * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
+     */
     private static final int[] MASK_COLORMAP = {
             0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
     };
 
     /**
-    * 输入均值。
-    */
+     * 输入均值。
+     */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 输入标准差。
-    */
+     * 输入标准差。
+     */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 输入尺寸。
-    */
+     * 输入尺寸。
+     */
     private static final int INPUT_SIZE = 512;
 
     /**
-    * 黑边去除像素数。
-    */
+     * 黑边去除像素数。
+     */
     private static final int THRESHOLD = 10;
 
     @Override

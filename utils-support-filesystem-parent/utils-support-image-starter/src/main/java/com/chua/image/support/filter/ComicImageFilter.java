@@ -57,37 +57,37 @@ import java.awt.image.BufferedImage;
 public class ComicImageFilter extends AbstractImageFilter {
 
     /**
-    * 颜色色阶数，默认 4
-    */
+     * 颜色色阶数，默认 4
+     */
     private int toneLevels = 4;
 
     /**
-    * 是否叠加网点，默认 true
-    */
+     * 是否叠加网点，默认 true
+     */
     private boolean halftone = true;
 
     /**
-    * 网点间距（像素），默认 4
-    */
+     * 网点间距（像素），默认 4
+     */
     private int halftoneSize = 4;
 
     /**
-    * 描边检测阈值，默认 100
-    */
+     * 描边检测阈值，默认 100
+     */
     private int outlineThreshold = 100;
 
     /**
-    * 饱和度增强系数，默认 1.6
-    */
+     * 饱和度增强系数，默认 1.6
+     */
     private double saturationBoost = 1.6;
 
     /**
-    * 执行美漫风格滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 美漫风格图像
-    */
+     * 执行美漫风格滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 美漫风格图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

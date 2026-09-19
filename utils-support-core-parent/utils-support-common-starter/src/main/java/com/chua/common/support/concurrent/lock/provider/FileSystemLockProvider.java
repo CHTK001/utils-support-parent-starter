@@ -13,85 +13,85 @@ import java.nio.channels.FileLock;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于文件系统的锁提供者实现。
-* 该类利用操作系统的文件锁定机制来实现分布式或进程间的互斥锁。
-* 它通过创建和锁定一个特定的文件来确保同一时间只有一个线程或进程能够获取该锁。
-*
-* @author CH
-* @since 2022-05-27
+ * 基于文件系统的锁提供者实现。
+ * 该类利用操作系统的文件锁定机制来实现分布式或进程间的互斥锁。
+ * 它通过创建和锁定一个特定的文件来确保同一时间只有一个线程或进程能够获取该锁。
+ *
+ * @author CH
+ * @since 2022-05-27
  */
 @Spi("filesystem")
 public class FileSystemLockProvider extends AbstractLockProvider {
 
     /**
-    * 锁的名称，用于标识唯一的锁资源。
-    */
+     * 锁的名称，用于标识唯一的锁资源。
+     */
     private final String name;
 
     /**
-    * 用于存储锁状态的物理文件对象。
-    */
+     * 用于存储锁状态的物理文件对象。
+     */
     private final File file;
 
     /**
-    * 默认的文件路径，默认为当前用户的工作目录 (user.dir)。
-    */
+     * 默认的文件路径，默认为当前用户的工作目录 (user.dir)。
+     */
     private static final String DEFAULT_PATH = System.getProperty("user.dir");
 
     /**
-    * 用于读写文件的随机访问文件流。
-    * 在获取锁时打开，释放锁时关闭。
-    */
+     * 用于读写文件的随机访问文件流。
+     * 在获取锁时打开，释放锁时关闭。
+     */
     private RandomAccessFile randomAccessFile;
 
     /**
-    * 文件通道，用于执行非阻塞的锁操作。
-    */
+     * 文件通道，用于执行非阻塞的锁操作。
+     */
     private FileChannel fileChannel;
 
     /**
-    * 当前持有的文件锁对象。
-    * 如果为 null，表示未持有锁。
-    */
+     * 当前持有的文件锁对象。
+     * 如果为 null，表示未持有锁。
+     */
     private FileLock fileLock;
 
     /**
-    * 无参构造函数，使用默认的锁名称 "default"。
-    */
+     * 无参构造函数，使用默认的锁名称 "default"。
+     */
     public FileSystemLockProvider() {
         this("default");
     }
 
     /**
-    * 根据指定的名称创建锁提供者。
-    * 默认将锁文件创建在当前工作目录下，文件名为 "{name}.lock"。
-    *
-    * @param name 锁的唯一标识名称。
-    */
+     * 根据指定的名称创建锁提供者。
+     * 默认将锁文件创建在当前工作目录下，文件名为 "{name}.lock"。
+     *
+     * @param name 锁的唯一标识名称。
+     */
     public FileSystemLockProvider(String name) {
         this(name, new File(DEFAULT_PATH + "/" + name + ".lock"));
     }
 
     /**
-    * 根据指定的名称和文件路径创建锁提供者。
-    * 允许自定义锁文件的存储位置。
-    *
-    * @param name 锁的唯一标识名称。
-    * @param file 用于存储锁状态的目标文件。
-    */
+     * 根据指定的名称和文件路径创建锁提供者。
+     * 允许自定义锁文件的存储位置。
+     *
+     * @param name 锁的唯一标识名称。
+     * @param file 用于存储锁状态的目标文件。
+     */
     public FileSystemLockProvider(String name, File file) {
         this.name = name;
         this.file = file;
     }
 
     /**
-    * 尝试获取锁。
-    * 该方法会先尝试立即获取锁，如果失败则进入循环等待，直到达到超时时间。
-    *
-    * @param timeout 等待锁的最大时长。
-    * @param timeUnit 时间的单位（如毫秒、秒等）。
-    * @return 如果成功获取锁返回 true，否则在超时后返回 false。
-    */
+     * 尝试获取锁。
+     * 该方法会先尝试立即获取锁，如果失败则进入循环等待，直到达到超时时间。
+     *
+     * @param timeout 等待锁的最大时长。
+     * @param timeUnit 时间的单位（如毫秒、秒等）。
+     * @return 如果成功获取锁返回 true，否则在超时后返回 false。
+     */
     @Override
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {
@@ -130,9 +130,9 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 释放锁并清理相关资源。
-    * 依次执行释放文件锁、关闭文件通道和文件流、标记删除临时文件的操作。
-    */
+     * 释放锁并清理相关资源。
+     * 依次执行释放文件锁、关闭文件通道和文件流、标记删除临时文件的操作。
+     */
     @Override
     protected void doUnlock() {
         try {
@@ -145,10 +145,10 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 获取锁的名称。
-    *
-    * @return 锁的名称字符串。
-    */
+     * 获取锁的名称。
+     *
+     * @return 锁的名称字符串。
+     */
     @Override
     protected String doGetName() {
         return name;
@@ -172,11 +172,11 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 关闭已打开的文件资源。
-    * 安全地关闭 FileChannel 和 RandomAccessFile，防止空指针异常。
-    *
-    * @throws IOException 如果关闭文件失败。
-    */
+     * 关闭已打开的文件资源。
+     * 安全地关闭 FileChannel 和 RandomAccessFile，防止空指针异常。
+     *
+     * @throws IOException 如果关闭文件失败。
+     */
     private void closeResources() throws IOException {
         if (fileChannel != null && fileChannel.isOpen()) {
             fileChannel.close();
@@ -187,9 +187,9 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 标记锁文件在 JVM 退出时自动删除。
-    * 这是一种清理机制，防止产生多余的临时锁文件。
-    */
+     * 标记锁文件在 JVM 退出时自动删除。
+     * 这是一种清理机制，防止产生多余的临时锁文件。
+     */
     private void releaseFile() {
         try {
             file.deleteOnExit();
@@ -199,11 +199,11 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 释放当前持有的文件锁。
-    * 如果之前没有获取到锁（fileLock 为 null），则不执行任何操作。
-    *
-    * @throws IOException 如果释放锁失败。
-    */
+     * 释放当前持有的文件锁。
+     * 如果之前没有获取到锁（fileLock 为 null），则不执行任何操作。
+     *
+     * @throws IOException 如果释放锁失败。
+     */
     private void releaseLock() throws IOException {
         if (fileLock != null) {
             fileLock.release();
@@ -211,11 +211,11 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 处理 IO 或其他异常。
-    * 当前实现仅打印堆栈跟踪信息。
-    *
-    * @param e 捕获到的异常对象。
-    */
+     * 处理 IO 或其他异常。
+     * 当前实现仅打印堆栈跟踪信息。
+     *
+     * @param e 捕获到的异常对象。
+     */
     private void handleException(Exception e) {
         e.printStackTrace();
     }

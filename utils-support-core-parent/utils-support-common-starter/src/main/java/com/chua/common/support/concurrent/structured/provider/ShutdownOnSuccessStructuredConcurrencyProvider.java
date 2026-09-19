@@ -11,12 +11,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 基于虚拟线程的 ShutdownOnSuccess 结构化并发实现。
-*
-* <p>任一任务成功立即取消其余任务，返回第一个成功结果。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于虚拟线程的 ShutdownOnSuccess 结构化并发实现。
+ *
+ * <p>任一任务成功立即取消其余任务，返回第一个成功结果。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ShutdownOnSuccessStructuredConcurrencyProvider implements StructuredConcurrencyProvider {
 
@@ -26,16 +26,16 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-    * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
-    */
+     * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
+     */
     public ShutdownOnSuccessStructuredConcurrencyProvider() {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
 
     /**
-    * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
-    * @param executor executor
-    */
+     * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
+     * @param executor executor
+     */
     public ShutdownOnSuccessStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }

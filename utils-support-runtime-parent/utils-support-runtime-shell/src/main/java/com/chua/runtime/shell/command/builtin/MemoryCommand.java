@@ -9,10 +9,10 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
 
 /**
-* 内存信息命令 — 显示 JVM 内存使用详情。
-*
-* @author CH
-* @since 4.0.0.42
+ * 内存信息命令 — 显示 JVM 内存使用详情。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class MemoryCommand implements Command {
 
@@ -65,20 +65,20 @@ public class MemoryCommand implements Command {
     }
 
     /**
-    * 转为mb
-    *
-    * @param bytes bytes
-    * @return 转为mb的结果
+     * 转为mb
+     *
+     * @param bytes bytes
+     * @return 转为mb的结果
      */
     private String toMb(long bytes) {
         return String.valueOf(bytes / (1024L * 1024L));
     }
 
     /**
-    * 转为ms
-    *
-    * @param ms ms
-    * @return 转为ms的结果
+     * 转为ms
+     *
+     * @param ms ms
+     * @return 转为ms的结果
      */
     private String toMs(long ms) {
         return String.valueOf(ms);

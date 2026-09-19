@@ -11,9 +11,9 @@ public class OnnxMattingService implements MattingService {
     private String modelName;
 
     /**
-    * 创建 onnxmatting服务 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnxmatting服务 实例
+     * @param apiKey API密钥
+     */
     public OnnxMattingService(String apiKey) {
     }
 

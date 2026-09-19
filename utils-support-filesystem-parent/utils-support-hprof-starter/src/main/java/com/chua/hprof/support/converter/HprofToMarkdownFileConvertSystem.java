@@ -27,13 +27,13 @@ import java.nio.file.Path;
 public class HprofToMarkdownFileConvertSystem implements FileConvertSystem {
 
     /**
-    * Source file format identifier.
-    */
+     * Source file format identifier.
+     */
     private static final String SOURCE_TYPE = "hprof";
 
     /**
-    * Target file format identifier.
-    */
+     * Target file format identifier.
+     */
     private static final String TARGET_TYPE = "markdown";
 
     @Override
@@ -57,12 +57,12 @@ public class HprofToMarkdownFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Resolve the source to an input stream.
-    *
-    * @param source source file descriptor
-    * @return input stream
-    * @throws IOException 无法读取源文件时
-    */
+     * Resolve the source to an input stream.
+     *
+     * @param source source file descriptor
+     * @return input stream
+     * @throws IOException 无法读取源文件时
+     */
     private static java.io.InputStream toInputStream(FileSource source) throws IOException {
         if (source.isPath()) {
             return Files.newInputStream(Path.of(source.getPath()));
@@ -77,13 +77,13 @@ public class HprofToMarkdownFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-    * Write the generated content to the target.
-    *
-    * @param target  target file descriptor
-    * @param content content text
-    * @param setting conversion settings
-    * @throws IOException 无法写入目标文件时
-    */
+     * Write the generated content to the target.
+     *
+     * @param target  target file descriptor
+     * @param content content text
+     * @param setting conversion settings
+     * @throws IOException 无法写入目标文件时
+     */
     private static void write(FileSource target, String content, ConvertSetting setting) throws IOException {
         if (target.isPath()) {
             File file = new File(target.getPath());

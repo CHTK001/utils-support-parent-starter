@@ -8,54 +8,54 @@ import com.chua.common.support.network.server.SyncServer;
 import java.util.*;
 
 /**
-* rSocket 同步流程管理器。
-*
-* @author CH
-* @since 4.0.0.42
+ * rSocket 同步流程管理器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class RSocketSyncFlow implements SyncFlow {
 
     /**
-    * 客户端实例
-    */
+     * 客户端实例
+     */
     private final RSocketSyncClient client;
     /**
-    * 服务器实例
-    */
+     * 服务器实例
+     */
     private final RSocketSyncServer server;
     /**
-    * running
-    */
+     * running
+     */
     private volatile boolean running = false;
     /**
-    * 监听器列表
-    */
+     * 监听器列表
+     */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-    * 创建 rSocket同步流 实例
-    * @param setting setting
-    * @param serverUrl 字符串
-    * @param serverUrl 服务端url
-    */
+     * 创建 rSocket同步流 实例
+     * @param setting setting
+     * @param serverUrl 字符串
+     * @param serverUrl 服务端url
+     */
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new RSocketSyncServer(setting);
         this.client = new RSocketSyncClient(serverUrl);
     }
 
     /**
-    * 创建 rSocket同步流 实例
-    * @param serverUrl 服务端url
-    */
+     * 创建 rSocket同步流 实例
+     * @param serverUrl 服务端url
+     */
     public RSocketSyncFlow(String serverUrl) {
         this.server = null;
         this.client = new RSocketSyncClient(serverUrl);
     }
 
     /**
-    * 创建 rSocket同步流 实例
-    * @param setting setting
-    */
+     * 创建 rSocket同步流 实例
+     * @param setting setting
+     */
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
         this.server = new RSocketSyncServer(setting);
         this.client = null;
@@ -163,10 +163,10 @@ public class RSocketSyncFlow implements SyncFlow {
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

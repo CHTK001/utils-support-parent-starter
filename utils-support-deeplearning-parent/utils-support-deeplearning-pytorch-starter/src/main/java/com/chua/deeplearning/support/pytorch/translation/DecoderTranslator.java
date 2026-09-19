@@ -6,16 +6,16 @@ import ai.djl.translate.NoBatchifyTranslator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-* 通用解码器 Translator（含 past键值）。
-*
-* @author CH
-* @since 4.0.0.42
+ * 通用解码器 Translator（含 past键值）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class DecoderTranslator implements NoBatchifyTranslator<NDList, CausalLMOutput> {
 
     /**
-    * past_键_值 元组名。
-    */
+     * past_键_值 元组名。
+     */
     private final String tupleName;
 
     /** 创建 解码器translator 实例 */

@@ -34,31 +34,31 @@ import com.chua.common.support.spi.annotations.Spi;
  * @see ProxyMethod
  * @see Around
  * @see com.chua.common.support.proxy.annotation.MethodAnnotationIntercept
-*/
+ */
 public interface MethodArroundIntercept {
 
     /**
-    * 拦截方法调用并执行自定义逻辑（Around 模式）。
-    *
-    * <p>实现应调用 {@link MethodInvocation#proceed()} 执行目标方法（或下一层拦截器），
-    * 不调用即短路返回。可以在 {@code proceed()} 前后插入自定义逻辑，
-    * 也可以包装/替换/捕获 proceed() 抛出的异常。</p>
-    *
-    * @param proxyMethod 代理方法信息，包含目标对象、方法、参数、对象上下文等
-    * @param invocation 方法调用链，用于继续执行下一层 拦截器 或目标方法
-    * @return 方法执行结果
-    * @throws Throwable 如果执行过程中发生异常
-    */
+     * 拦截方法调用并执行自定义逻辑（Around 模式）。
+     *
+     * <p>实现应调用 {@link MethodInvocation#proceed()} 执行目标方法（或下一层拦截器），
+     * 不调用即短路返回。可以在 {@code proceed()} 前后插入自定义逻辑，
+     * 也可以包装/替换/捕获 proceed() 抛出的异常。</p>
+     *
+     * @param proxyMethod 代理方法信息，包含目标对象、方法、参数、对象上下文等
+     * @param invocation 方法调用链，用于继续执行下一层 拦截器 或目标方法
+     * @return 方法执行结果
+     * @throws Throwable 如果执行过程中发生异常
+     */
     Object invoke(ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable;
 
     /**
-    * 获取拦截器的执行顺序，数值越小优先级越高（越靠外层执行）。
-    *
-    * <p>默认值为 1000。当 {@link Around @Around} 上也声明了 {@code order} 时，
-    * 框架会取二者较小值（更靠外的生效）。</p>
-    *
-    * @return 执行顺序值
-    */
+     * 获取拦截器的执行顺序，数值越小优先级越高（越靠外层执行）。
+     *
+     * <p>默认值为 1000。当 {@link Around @Around} 上也声明了 {@code order} 时，
+     * 框架会取二者较小值（更靠外的生效）。</p>
+     *
+     * @return 执行顺序值
+     */
     default int order() {
         return 1000;
     }

@@ -22,38 +22,38 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* XLM-roberta                      Translator
-* <p>
-* XLM-roberta                        20
-*          178                               
-* </p>
-* <p>
-*                        
-* 1.        huggingface Tokenizer
-* 2.     令牌 ids
-* 3.                                     128       
-* </p>
-* <p>
-*                            
-* -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=128)
-* -          attention_mask (shape: [批量_大小, sequence_长度])
-* -                         logits -> softmax -> Classifications
-* </p>
-*
-* @author CH
-* @since 2026-05-10
+ * XLM-roberta                      Translator
+ * <p>
+ * XLM-roberta                        20
+ *          178                               
+ * </p>
+ * <p>
+ *                        
+ * 1.        huggingface Tokenizer
+ * 2.     令牌 ids
+ * 3.                                     128       
+ * </p>
+ * <p>
+ *                            
+ * -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=128)
+ * -          attention_mask (shape: [批量_大小, sequence_长度])
+ * -                         logits -> softmax -> Classifications
+ * </p>
+ *
+ * @author CH
+ * @since 2026-05-10
  */
 @Slf4j
 public class XlmRobertaLanguageDetectionTranslator implements Translator<String, Classifications> {
 
     /**
-    *                       128
-    */
+     *                       128
+     */
     private static final int MAX_LENGTH = 128;
 
     /**
-    * XLM-roberta                           20
-    */
+     * XLM-roberta                           20
+     */
     private static final List<String> LANGUAGES = List.of(
             "japanese", "dutch", "arabic", "polish", "german", "italian",
             "portuguese", "turkish", "spanish", "hindi", "greek", "urdu",
@@ -62,8 +62,8 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     );
 
     /**
-    * huggingface
-    */
+     * huggingface
+     */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
@@ -117,12 +117,12 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     @Override
     @Nonnull
     /**
-    * 处理输出
-    *
-    * @param ctx ctx
-    * @param list 列表
-    * @return 处理输出的结果
-    */
+     * 处理输出
+     *
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -137,20 +137,20 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     @Override
     @Nullable
     /**
-    * 获取Batchifier
-    *
-    * @return 获取batchifier的结果
-    */
+     * 获取Batchifier
+     *
+     * @return 获取batchifier的结果
+     */
     public Batchifier getBatchifier() {
         return null;
     }
 
     /**
-    *                        tokenizer.json
-    *
-    * @param modelPath             
-    * @return                        path，       空
-    */
+     *                        tokenizer.json
+     *
+     * @param modelPath             
+     * @return                        path，       空
+     */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) {
@@ -170,11 +170,11 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     }
 
     /**
-    * softmax                  
-    *
-    * @param logits                      
-    * @return softmax              
-    */
+     * softmax                  
+     *
+     * @param logits                      
+     * @return softmax              
+     */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float l : logits) {

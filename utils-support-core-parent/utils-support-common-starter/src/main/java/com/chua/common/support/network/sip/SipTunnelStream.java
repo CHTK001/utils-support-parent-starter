@@ -26,67 +26,67 @@ import java.util.function.Consumer;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 class SipTunnelStream {
 
     /**
-    * 角色：访问方
-    */
+     * 角色：访问方
+     */
     static final String ROLE_VISITOR = "visitor";
 
     /**
-    * 角色：提供方
-    */
+     * 角色：提供方
+     */
     static final String ROLE_PROVIDER = "provider";
 
     /**
-    * 通道标识
-    */
+     * 通道标识
+     */
     private final String channelId;
 
     /**
-    * 底层数据连接
-    */
+     * 底层数据连接
+     */
     private final Socket socket;
 
     /**
-    * 输出流（加密开启时为加密流）
-    */
+     * 输出流（加密开启时为加密流）
+     */
     private final OutputStream out;
 
     /**
-    * 输入流（加密开启时为解密流）
-    */
+     * 输入流（加密开启时为解密流）
+     */
     private final InputStream socketIn;
 
     /**
-    * 是否启用端到端加密（AES-256-GCM）
-    */
+     * 是否启用端到端加密（AES-256-GCM）
+     */
     private final boolean encrypt;
 
     /**
-    * 加密密钥（由共享 token 派生）
-    */
+     * 加密密钥（由共享 token 派生）
+     */
     private final SecretKeySpec aesKey;
 
     /**
-    * 是否已关闭
-    */
+     * 是否已关闭
+     */
     private volatile boolean closed;
 
     /**
-    * 建立数据平面连接（携带签名握手）。
-    *
-    * @param host        数据平面地址
-    * @param port        数据平面端口
-    * @param channelId   通道标识
-    * @param role        角色（visitor / provider）
-    * @param sharedToken 共享令牌（流加密密钥派生源，与服务端 encryptKey 一致）
-    * @param sessionToken 会话令牌（CONNECT 握手签名用）
-    * @param encrypt     是否启用流加密（两侧需一致）
-    * @throws IOException IO 异常
-    */
+     * 建立数据平面连接（携带签名握手）。
+     *
+     * @param host        数据平面地址
+     * @param port        数据平面端口
+     * @param channelId   通道标识
+     * @param role        角色（visitor / provider）
+     * @param sharedToken 共享令牌（流加密密钥派生源，与服务端 encryptKey 一致）
+     * @param sessionToken 会话令牌（CONNECT 握手签名用）
+     * @param encrypt     是否启用流加密（两侧需一致）
+     * @throws IOException IO 异常
+     */
     SipTunnelStream(String host, int port, String channelId, String role,
                     String sharedToken, String sessionToken, boolean encrypt) throws IOException {
         this.channelId = channelId;
@@ -112,20 +112,20 @@ class SipTunnelStream {
     }
 
     /**
-    * 获取通道标识。
-    *
-    * @return 通道标识
-    */
+     * 获取通道标识。
+     *
+     * @return 通道标识
+     */
     String getChannelId() {
         return channelId;
     }
 
     /**
-    * 发送字节流（加密开启时按 GCM 帧加密）。
-    *
-    * @param payload 负载字节
-    * @throws IOException IO 异常
-    */
+     * 发送字节流（加密开启时按 GCM 帧加密）。
+     *
+     * @param payload 负载字节
+     * @throws IOException IO 异常
+     */
     void send(byte[] payload) throws IOException {
         synchronized (out) {
             out.write(payload);
@@ -134,10 +134,10 @@ class SipTunnelStream {
     }
 
     /**
-    * 启动读循环，将收到的字节流（加密开启时先解密）回调给消费者。
-    *
-    * @param consumer 数据消费者
-    */
+     * 启动读循环，将收到的字节流（加密开启时先解密）回调给消费者。
+     *
+     * @param consumer 数据消费者
+     */
     void startRead(Consumer<byte[]> consumer) {
         ThreadUtils.startVirtualThread("sip-data-stream-" + channelId, () -> {
             try {
@@ -154,12 +154,12 @@ class SipTunnelStream {
     }
 
     /**
-    * 裸字节流读取。
-    *
-    * @param in       输入流
-    * @param consumer 数据消费者
-    * @throws IOException IO 异常
-    */
+     * 裸字节流读取。
+     *
+     * @param in       输入流
+     * @param consumer 数据消费者
+     * @throws IOException IO 异常
+     */
     private void readRaw(InputStream in, Consumer<byte[]> consumer) throws IOException {
         byte[] buf = new byte[64 * 1024];
         int n;
@@ -173,8 +173,8 @@ class SipTunnelStream {
     }
 
     /**
-    * 关闭数据连接。
-    */
+     * 关闭数据连接。
+     */
     void close() {
         if (closed) {
             return;
@@ -187,10 +187,10 @@ class SipTunnelStream {
     }
 
     /**
-    * 是否已关闭。
-    *
-    * @return true 表示已关闭
-    */
+     * 是否已关闭。
+     *
+     * @return true 表示已关闭
+     */
     boolean isClosed() {
         return closed;
     }

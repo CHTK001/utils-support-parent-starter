@@ -28,7 +28,7 @@ import java.util.zip.ZipInputStream;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 @Slf4j
 public class DefaultBackupRestore implements BackupRestore {
 
@@ -38,8 +38,8 @@ public class DefaultBackupRestore implements BackupRestore {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-    * 恢复入口：配置了日期则按日期恢复，否则恢复最新备份。
-    */
+     * 恢复入口：配置了日期则按日期恢复，否则恢复最新备份。
+     */
     @Override
     public RestoreResult restore(RestoreConfig config) {
         if (config.getDate() != null && !config.getDate().isBlank()) {
@@ -50,8 +50,8 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 恢复最新一次备份：取可用日期列表中最新的一天。
-    */
+     * 恢复最新一次备份：取可用日期列表中最新的一天。
+     */
     @Override
     public RestoreResult restoreLatest(RestoreConfig config) {
         List<LocalDate> dates = listAvailableDates(config.getBackupDir());
@@ -62,8 +62,8 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 按指定日期恢复：优先原始目录，回退 压缩 压缩包。
-    */
+     * 按指定日期恢复：优先原始目录，回退 压缩 压缩包。
+     */
     @Override
     public RestoreResult restoreByDate(RestoreConfig config, LocalDate date) {
         long start = System.currentTimeMillis();
@@ -95,8 +95,8 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 列出备份目录下全部可用日期（原始目录 + 压缩 压缩包，去重升序）。
-    */
+     * 列出备份目录下全部可用日期（原始目录 + 压缩 压缩包，去重升序）。
+     */
     @Override
     public List<LocalDate> listAvailableDates(Path backupDir) {
         List<LocalDate> dates = new ArrayList<>();
@@ -144,17 +144,17 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 从目录恢复文件
-    * @param source 源
-    * @param config 配置
-    * @return restore从目录的结果
-    */
+     * 从目录恢复文件
+     * @param source 源
+     * @param config 配置
+     * @return restore从目录的结果
+     */
     private List<Path> restoreFromDirectory(Path source, RestoreConfig config) throws IOException {
         List<Path> restored = new ArrayList<>();
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
             /**
-            * 恢复单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
-            */
+             * 恢复单个文件：命中过滤规则后复制到目标目录，失败仅告警并跳过。
+             */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
@@ -182,11 +182,11 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 从 压缩 恢复文件
-    * @param zipFile 压缩文件
-    * @param config 配置
-    * @return restore从压缩的结果
-    */
+     * 从 压缩 恢复文件
+     * @param zipFile 压缩文件
+     * @param config 配置
+     * @return restore从压缩的结果
+     */
     private List<Path> restoreFromZip(Path zipFile, RestoreConfig config) throws IOException {
         List<Path> restored = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
@@ -212,10 +212,10 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 计算文件列表的总大小（字节）；无法读取的文件按 0 计。
-    * @param files 文件
-    * @return calctotal大小的结果
-    */
+     * 计算文件列表的总大小（字节）；无法读取的文件按 0 计。
+     * @param files 文件
+     * @return calctotal大小的结果
+     */
     private long calcTotalSize(List<Path> files) {
         return files.stream()
                 .mapToLong(p -> {
@@ -229,9 +229,9 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 递归删除目录及其全部内容。
-    * @param dir dir
-    */
+     * 递归删除目录及其全部内容。
+     * @param dir dir
+     */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;
@@ -254,11 +254,11 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-            * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
-            * @param fileName 文件名称
-            * @param pattern 模式
-            * @return 匹配模式的结果
-            */
+     * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
+     * @param fileName 文件名称
+     * @param pattern 模式
+     * @return 匹配模式的结果
+     */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return true;

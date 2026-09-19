@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Set;
 
 /**
-* RPC 服务注册工具，通过 {@link RpcService} 注解信息向 {@link RpcServer} 注册服务实例。
-*
-* @author CH
-* @since 1.0.0
+ * RPC 服务注册工具，通过 {@link RpcService} 注解信息向 {@link RpcServer} 注册服务实例。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Slf4j
 public class RpcServiceScanner {

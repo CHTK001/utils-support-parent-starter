@@ -15,21 +15,21 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-* faceplugin SSD face detection Translator.
-*
-* <p>Model: MobileNet Tiny SSD (slim or RFB variant)
-* 输入:  1x3x320x240 RGB, normalized by (pixel - 127) / 128
-* 输出: 信心 [N, 2] (bg, face), 位置 [N, 4]
-*
-* <p>后处理：用先验框（prior anchors）从 SSD 原始输出中解码出人脸框，
-* 再按置信度阈值过滤并执行 NMS。
-*
-* <p>Prior anchors (image 320x240, computed like Python box_utils.generate_priors):
-* 特征 映射 大小 width  [40, 20, 10, 5], height [30, 15, 8, 4]
-* 最小 boxes: [[10, 16, 24], [32, 48], [64, 96], [128, 192, 256]]
-*
-* @author CH
-* @since 2026-08-08
+ * faceplugin SSD face detection Translator.
+ *
+ * <p>Model: MobileNet Tiny SSD (slim or RFB variant)
+ * 输入:  1x3x320x240 RGB, normalized by (pixel - 127) / 128
+ * 输出: 信心 [N, 2] (bg, face), 位置 [N, 4]
+ *
+ * <p>后处理：用先验框（prior anchors）从 SSD 原始输出中解码出人脸框，
+ * 再按置信度阈值过滤并执行 NMS。
+ *
+ * <p>Prior anchors (image 320x240, computed like Python box_utils.generate_priors):
+ * 特征 映射 大小 width  [40, 20, 10, 5], height [30, 15, 8, 4]
+ * 最小 boxes: [[10, 16, 24], [32, 48], [64, 96], [128, 192, 256]]
+ *
+ * @author CH
+ * @since 2026-08-08
  */
 public class FacePluginDetectTranslator implements Translator<Image, DetectedObjects> {
 
@@ -75,10 +75,10 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
         /**
-        * 创建 Translator（支持外部阈值覆盖）。
-        *
-        * @param configuration 检测配置（可空）
-        */
+         * 创建 Translator（支持外部阈值覆盖）。
+         *
+         * @param configuration 检测配置（可空）
+         */
     public FacePluginDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
@@ -184,20 +184,20 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
-    * Clip
-    *
-    * @param v v
-    * @return clip的结果
-    */
+     * Clip
+     *
+     * @param v v
+     * @return clip的结果
+     */
     private float clip(float v) {
         return Math.max(0f, Math.min(1f, v));
     }
 
     /**
-    * Generate 默认 SSD priors for 输入 320x240.
-    * Mirrors box_工具.generate_priors(特征_映射_w_h_列表, shrinkage_列表, 镜像_大小, 最小_boxes).
-    * @return generatePriors的结果
-    */
+     * Generate 默认 SSD priors for 输入 320x240.
+     * Mirrors box_工具.generate_priors(特征_映射_w_h_列表, shrinkage_列表, 镜像_大小, 最小_boxes).
+     * @return generatePriors的结果
+     */
     private float[] generatePriors() {
         int[] featureW = {40, 20, 10, 5};
         int[] featureH = {30, 15, 8, 4};
@@ -245,12 +245,12 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
-    * Candidate
-    *
-    * @param rect rect
-    * @param score score
-    * @return Candidate的结果
-    */
+     * Candidate
+     *
+     * @param rect rect
+     * @param score score
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rect, float score) {
     }
 }

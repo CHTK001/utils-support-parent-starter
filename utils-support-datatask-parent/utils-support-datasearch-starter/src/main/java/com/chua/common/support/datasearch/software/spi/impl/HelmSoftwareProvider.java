@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Helm 软件包管理器提供器。
-*
-* <p>通过 helm CLI 在 Artifact Hub 中搜索、安装和卸载 Kubernetes Helm Chart。
-* 搜索使用 <code>Helm 搜索 hub</code>，安装/卸载使用
-* <code>helm install/uninstall</code>（release 名称由包标识派生）。
-*
-* @author CH
-* @since 4.0.0.42
+ * Helm 软件包管理器提供器。
+ *
+ * <p>通过 helm CLI 在 Artifact Hub 中搜索、安装和卸载 Kubernetes Helm Chart。
+ * 搜索使用 <code>Helm 搜索 hub</code>，安装/卸载使用
+ * <code>helm install/uninstall</code>（release 名称由包标识派生）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("helm")
 public class HelmSoftwareProvider implements SoftwareProvider {
@@ -161,11 +161,11 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * extractchart名称
-    *
-    * @param url url
-    * @return extractchart名称的结果
-    */
+     * extractchart名称
+     *
+     * @param url url
+     * @return extractchart名称的结果
+     */
     private String extractChartName(String url) {
         if (url == null || url.isEmpty()) {
             return "";
@@ -182,21 +182,21 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * lookslike版本
-    *
-    * @param s s
-    * @return lookslike版本的结果
-    */
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.equalsIgnoreCase("true");
     }
 
     /**
-    * Sanitize
-    *
-    * @param packageId 包标识
-    * @return sanitize的结果
-    */
+     * Sanitize
+     *
+     * @param packageId 包标识
+     * @return sanitize的结果
+     */
     private String sanitize(String packageId) {
         if (packageId == null) {
             return "release";

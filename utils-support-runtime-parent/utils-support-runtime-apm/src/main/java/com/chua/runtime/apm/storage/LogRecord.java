@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 日志事件 — 持久化用扁平 record。
-*
-* @author CH
-* @since 4.0.0.42
+ * 日志事件 — 持久化用扁平 record。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @Builder
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class LogRecord {
 
     /**
-    * 标识
+     * 标识
      */
     private long id;
 

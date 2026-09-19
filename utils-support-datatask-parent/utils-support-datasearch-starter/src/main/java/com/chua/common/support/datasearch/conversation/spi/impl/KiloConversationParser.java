@@ -15,19 +15,19 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
-* Kilo conversation parser.
-*
-* <p>Kilo CLI stores chat text in the {@code part} table of
-* {@code ~/.local/share/kilo/kilo.db}; each text block joins to its parent
-* {@code message} row for role/model attribution:</p>
-*
-* <pre>{@code
-* part.data    = { "type": "text", "text": "Say ok" }
-* message.data = { "role": "user", "model": {...}, ... }
-* }</pre></pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Kilo conversation parser.
+ *
+ * <p>Kilo CLI stores chat text in the {@code part} table of
+ * {@code ~/.local/share/kilo/kilo.db}; each text block joins to its parent
+ * {@code message} row for role/model attribution:</p>
+ *
+ * <pre>{@code
+ * part.data    = { "type": "text", "text": "Say ok" }
+ * message.data = { "role": "user", "model": {...}, ... }
+ * }</pre></pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("kilo")
 public class KiloConversationParser implements ConversationParser {
@@ -37,9 +37,9 @@ public class KiloConversationParser implements ConversationParser {
     private static final Path DB_PATH = resolveDbPath(); // db路径
 
     /**
-    * resolvedb路径。
-    * @return resolvedb路径的结果
-    */
+     * resolvedb路径。
+     * @return resolvedb路径的结果
+     */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -55,19 +55,19 @@ public class KiloConversationParser implements ConversationParser {
                     + "ORDER BY p.rowid ASC";
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "kilo"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "kilo"}
+     */
     @Override
     public String name() {
         return "kilo";
     }
 
     /**
-    * 流式解析全部文本消息。
-    * @param value 值
-    * @return asStr的结果
+     * 流式解析全部文本消息。
+     * @param value 值
+     * @return asStr的结果
      /**
     * 流消息。
     * @return 流消息的结果
@@ -84,10 +84,10 @@ public class KiloConversationParser implements ConversationParser {
         return engine.query(SQL_TEXT_PARTS)
                 .map(this::toMessage)
                 /**
-                * 转为消息。
-                * @param row row
-                * @return 转为消息的结果
-                */
+                 * 转为消息。
+                 * @param row row
+                 * @return 转为消息的结果
+                 */
                 .doOnComplete(() -> log.info("[kilo] conversation stream complete"));
     }
 
@@ -122,11 +122,11 @@ public class KiloConversationParser implements ConversationParser {
                 .content(text)
                 .model(model)
                 /**
-                * extract模型id。
-                * @param raw raw
-                * @return extract模型id的结果
-                * @param value 值
-                */
+                 * extract模型id。
+                 * @param raw raw
+                 * @return extract模型id的结果
+                 * @param value 值
+                 */
                 .build();
     }
 

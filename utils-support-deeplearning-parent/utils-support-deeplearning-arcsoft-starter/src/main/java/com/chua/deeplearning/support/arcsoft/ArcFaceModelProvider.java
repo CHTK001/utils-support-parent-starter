@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* arcsoft 模型提供者
-* <p>
-* 实现 bulk模型提供者 接口，提供 arcsoft 翻译器定义。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * arcsoft 模型提供者
+ * <p>
+ * 实现 bulk模型提供者 接口，提供 arcsoft 翻译器定义。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class ArcFaceModelProvider implements BulkModelProvider {

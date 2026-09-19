@@ -48,17 +48,17 @@ public class QwenUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".qwen", "usage_record.jsonl");
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "qwen"}
-    */
+     * 返回 SPI 名称。
+     *
+     * @return {@code "qwen"}
+     */
     public String name() {
         return "qwen";
     }
 
     /**
-    * 流式解析全部会话用量记录，按模型展开。
-    */
+     * 流式解析全部会话用量记录，按模型展开。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(USAGE_FILE)) {

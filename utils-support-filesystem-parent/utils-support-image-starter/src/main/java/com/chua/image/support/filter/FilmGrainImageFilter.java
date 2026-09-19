@@ -55,37 +55,37 @@ import java.util.Random;
 public class FilmGrainImageFilter extends AbstractImageFilter {
 
     /**
-    * 颗粒强度，默认 0.15
-    */
+     * 颗粒强度，默认 0.15
+     */
     private double grainStrength = 0.15;
 
     /**
-    * 颗粒尺寸，默认 1
-    */
+     * 颗粒尺寸，默认 1
+     */
     private int grainSize = 1;
 
     /**
-    * 暖色调强度，默认 0.15
-    */
+     * 暖色调强度，默认 0.15
+     */
     private double warmTone = 0.15;
 
     /**
-    * 边缘暗角强度，默认 0.2
-    */
+     * 边缘暗角强度，默认 0.2
+     */
     private double vignette = 0.2;
 
     /**
-    * 随机种子，默认 555
-    */
+     * 随机种子，默认 555
+     */
     private int seed = 555;
 
     /**
-    * 执行胶片颗粒滤镜
-    *
-    * @param src 源图像
-    * @param dst 目标图像（未使用）
-    * @return 胶片颗粒效果图像
-    */
+     * 执行胶片颗粒滤镜
+     *
+     * @param src 源图像
+     * @param dst 目标图像（未使用）
+     * @return 胶片颗粒效果图像
+     */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth();

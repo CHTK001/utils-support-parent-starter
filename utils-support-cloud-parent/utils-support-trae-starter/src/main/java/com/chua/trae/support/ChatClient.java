@@ -36,23 +36,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
-* Trae 本地 API 聊天客户端，封装 SSE 流式调用、工具调用、模型分档降级、令牌 自动刷新与 HTTP 代理。
-* 本类为有状态客户端，持有 {@link ScheduledExecutorService}，使用完需调用 {@link #close()} 释放资源。
-*
-* <p>使用示例：
-* <pre>
-* 对话客户端 客户端 = 对话客户端.构建器()
-*     .edition("cn")
-* .数据dir(系统.获取财产("用户.Home") + "/app数据/Roaming/Trae CN")
-* .模型配置(配置)
-* .构建();
-* 对话响应 resp = 客户端.对话(请求).连接();
-* </pre>
-*
-* @see <a href="https://github.com/square/okhttp/tree/main/okhttp-sse">OkHttp SSE</a>
-* @see <a href="https://github.com/ZedeX/trae-local-api">Trae Local API</a>
-* @author CH
-* @since 4.0.0.42
+ * Trae 本地 API 聊天客户端，封装 SSE 流式调用、工具调用、模型分档降级、令牌 自动刷新与 HTTP 代理。
+ * 本类为有状态客户端，持有 {@link ScheduledExecutorService}，使用完需调用 {@link #close()} 释放资源。
+ *
+ * <p>使用示例：
+ * <pre>
+ * 对话客户端 客户端 = 对话客户端.构建器()
+ *     .edition("cn")
+ * .数据dir(系统.获取财产("用户.Home") + "/app数据/Roaming/Trae CN")
+ * .模型配置(配置)
+ * .构建();
+ * 对话响应 resp = 客户端.对话(请求).连接();
+ * </pre>
+ *
+ * @see <a href="https://github.com/square/okhttp/tree/main/okhttp-sse">OkHttp SSE</a>
+ * @see <a href="https://github.com/ZedeX/trae-local-api">Trae Local API</a>
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ChatClient implements AutoCloseable {
 
@@ -69,8 +69,8 @@ public class ChatClient implements AutoCloseable {
     /** 认证管理器，负责从 storage.json 读取 令牌 及过期检测，不可为 空 */
     private final AuthManager authManager;
     /**
-    * Trae HTTP 客户端，封装 OkHttp 实例、请求头构造与代理配置，不可为 空
-    */
+     * Trae HTTP 客户端，封装 OkHttp 实例、请求头构造与代理配置，不可为 空
+     */
     private final TraeHttpClient httpClient;
     /** 模型分档配置，可为 空（此时不启用分档降级） */
     private final ModelConfig modelConfig;
@@ -82,39 +82,39 @@ public class ChatClient implements AutoCloseable {
     private final ScheduledExecutorService retryScheduler;
 
     /**
-    * 创建客户端 构建器。
-    *
-    * @return 配置好的 构建器，可链式调用各配置方法后调用 {@link Builder#build()} 生成客户端
-    */
+     * 创建客户端 构建器。
+     *
+     * @return 配置好的 构建器，可链式调用各配置方法后调用 {@link Builder#build()} 生成客户端
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-    * 同步聊天，收集完整 SSE 流后返回响应。
-    *
-    * @param request 聊天请求，消息 不可为 空 或空
-    * @return 包含完整文本/推理/工具调用的响应 期货
-    * @throws NullPointerException 当 请求 为 空 时
-    * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
-    */
+     * 同步聊天，收集完整 SSE 流后返回响应。
+     *
+     * @param request 聊天请求，消息 不可为 空 或空
+     * @return 包含完整文本/推理/工具调用的响应 期货
+     * @throws NullPointerException 当 请求 为 空 时
+     * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
+     */
     public CompletableFuture<ChatResponse> chat(ChatRequest request) {
         validateRequest(request);
         return streamCollect(request, null, null);
     }
 
     /**
-    * 流式聊天，通过回调逐块接收文本/推理/工具调用内容。
-    * 本方法立即返回，SSE 流在后台线程中处理。
-    *
-    * @param request 聊天请求，消息 不可为 空 或空
-    * @param onTextChunk 文本块回调，每收到一段文本内容时触发，可为 空
-    * @param onReasoningChunk 推理块回调，每收到一段推理内容时触发，可为 空
-    * @param onComplete 完成回调，流正常结束时触发，可为 空
-    * @param onError 错误回调，流发生异常时触发，不可为 空
-    * @throws NullPointerException 当 请求 为 空 或 on错误 为 空 时
-    * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
-    */
+     * 流式聊天，通过回调逐块接收文本/推理/工具调用内容。
+     * 本方法立即返回，SSE 流在后台线程中处理。
+     *
+     * @param request 聊天请求，消息 不可为 空 或空
+     * @param onTextChunk 文本块回调，每收到一段文本内容时触发，可为 空
+     * @param onReasoningChunk 推理块回调，每收到一段推理内容时触发，可为 空
+     * @param onComplete 完成回调，流正常结束时触发，可为 空
+     * @param onError 错误回调，流发生异常时触发，不可为 空
+     * @throws NullPointerException 当 请求 为 空 或 on错误 为 空 时
+     * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
+     */
     public void chatStream(ChatRequest request,
                            Consumer<String> onTextChunk,
                            Consumer<String> onReasoningChunk,
@@ -133,35 +133,35 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 工具调用聊天，支持请求中携带 tools 定义，响应中解析 tool_calls。
-    * 与 {@link #chat(ChatRequest)} 使用同一 SSE 管线，但语义上用于携带工具定义的对话。
-    *
-    * @param request 聊天请求，消息 不可为 空 或空，tools 可为 空
-    * @return 包含工具调用结果的响应 期货
-    * @throws NullPointerException 当 请求 为 空 时
-    * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
-    */
+     * 工具调用聊天，支持请求中携带 tools 定义，响应中解析 tool_calls。
+     * 与 {@link #chat(ChatRequest)} 使用同一 SSE 管线，但语义上用于携带工具定义的对话。
+     *
+     * @param request 聊天请求，消息 不可为 空 或空，tools 可为 空
+     * @return 包含工具调用结果的响应 期货
+     * @throws NullPointerException 当 请求 为 空 时
+     * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
+     */
     public CompletableFuture<ChatResponse> chatWithTools(ChatRequest request) {
         validateRequest(request);
         return streamCollect(request, null, null);
     }
 
     /**
-    * 关闭客户端，释放重试调度器线程。
-    * 本方法幂等，多次调用无副作用。
-    */
+     * 关闭客户端，释放重试调度器线程。
+     * 本方法幂等，多次调用无副作用。
+     */
     @Override
     public void close() {
         retryScheduler.shutdownNow();
     }
 
     /**
-    * 校验请求参数合法性。
-    *
-    * @param request 待校验的聊天请求，不可为 空
-    * @throws NullPointerException 当 请求 为 空 时
-    * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
-    */
+     * 校验请求参数合法性。
+     *
+     * @param request 待校验的聊天请求，不可为 空
+     * @throws NullPointerException 当 请求 为 空 时
+     * @throws IllegalArgumentException 当 请求.消息 为 空 或空时
+     */
     private static void validateRequest(ChatRequest request) {
         Objects.requireNonNull(request, "request must not be null");
         if (request.messages() == null || request.messages().isEmpty()) {
@@ -186,10 +186,10 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 确保 令牌 有效，过期或即将过期时重新加载。
-    *
-    * @throws ChatException 当认证加载失败或 令牌 已过期时
-    */
+     * 确保 令牌 有效，过期或即将过期时重新加载。
+     *
+     * @throws ChatException 当认证加载失败或 令牌 已过期时
+     */
     private void ensureAuth() throws ChatException {
         try {
             AuthManager.AuthSnapshot auth = authManager.getAuth();
@@ -209,11 +209,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 判断 令牌 是否即将过期（剩余时间低于阈值）。
-    *
-    * @param auth 认证快照，不可为 空
-    * @return true 表示剩余时间低于 {@link #EXPIRY_THRESHOLD_SECONDS} 秒
-    */
+     * 判断 令牌 是否即将过期（剩余时间低于阈值）。
+     *
+     * @param auth 认证快照，不可为 空
+     * @return true 表示剩余时间低于 {@link #EXPIRY_THRESHOLD_SECONDS} 秒
+     */
     private static boolean isExpiringSoon(AuthManager.AuthSnapshot auth) {
         if (auth.expiredAt() == null) {
             return false;
@@ -228,11 +228,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 解析请求模型，优先级：请求.模型 > 模型配置.降级模型 > 默认_模型。
-    *
-    * @param request 聊天请求，不可为 空
-    * @return 解析后的模型标识，不可为 空
-    */
+     * 解析请求模型，优先级：请求.模型 > 模型配置.降级模型 > 默认_模型。
+     *
+     * @param request 聊天请求，不可为 空
+     * @return 解析后的模型标识，不可为 空
+     */
     private String resolveModel(ChatRequest request) {
         String model = request.model() != null ? request.model() : defaultModel;
         if (model != null) {
@@ -246,12 +246,12 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 克隆请求并注入指定模型，强制 流=true。
-    *
-    * @param request 原始请求，不可为 空
-    * @param model 目标模型标识，不可为 空
-    * @return 注入模型后的新请求对象
-    */
+     * 克隆请求并注入指定模型，强制 流=true。
+     *
+     * @param request 原始请求，不可为 空
+     * @param model 目标模型标识，不可为 空
+     * @return 注入模型后的新请求对象
+     */
     private ChatRequest withModel(ChatRequest request, String model) {
         ChatRequest effective = ChatRequest.builder()
             .model(model)
@@ -268,11 +268,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 打开 SSE 流，将 OkHttp 事件源 绑定到监听器。
-    *
-    * @param request 已注入模型的请求，不可为 空
-    * @param listener SSE 事件监听器，不可为 空
-    */
+     * 打开 SSE 流，将 OkHttp 事件源 绑定到监听器。
+     *
+     * @param request 已注入模型的请求，不可为 空
+     * @param listener SSE 事件监听器，不可为 空
+     */
     private void openSse(ChatRequest request, EventSourceListener listener) {
         try {
             AuthManager.AuthSnapshot auth = authManager.getAuth();
@@ -295,11 +295,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 构造 Trae 后端请求体，将 打开AI 风格请求转换为 Trae 协议。
-    *
-    * @param request 已注入模型的请求，不可为 空
-    * @return 请求体 映射，可直接 JSON 序列化
-    */
+     * 构造 Trae 后端请求体，将 打开AI 风格请求转换为 Trae 协议。
+     *
+     * @param request 已注入模型的请求，不可为 空
+     * @return 请求体 映射，可直接 JSON 序列化
+     */
     private Map<String, Object> buildRequestBody(ChatRequest request) {
         ObjectNode root = MAPPER.createObjectNode();
         ArrayNode messages = root.putArray("messages");
@@ -373,11 +373,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 向 JSON array节点 追加一个工具调用节点。
-    *
-    * @param array 目标数组节点，不可为 空
-    * @param call 工具调用对象，不可为 空
-    */
+     * 向 JSON array节点 追加一个工具调用节点。
+     *
+     * @param array 目标数组节点，不可为 空
+     * @param call 工具调用对象，不可为 空
+     */
     private void addToolCallNode(ArrayNode array, ToolCall call) {
         ObjectNode c = array.addObject();
         c.put("id", call.id());
@@ -390,12 +390,12 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 调度一次重试，延迟时间随次数指数增长。
-    *
-    * @param request 原始请求，不可为 空
-    * @param listener SSE 监听器，不可为 空
-    * @param attempt 当前重试次数，从 1 开始
-    */
+     * 调度一次重试，延迟时间随次数指数增长。
+     *
+     * @param request 原始请求，不可为 空
+     * @param listener SSE 监听器，不可为 空
+     * @param attempt 当前重试次数，从 1 开始
+     */
     private void scheduleRetry(ChatRequest request, EventSourceListener listener, int attempt) {
         long delay = Math.min(1 << attempt, 30) * 1000L;
         log.info("[retry] rate limited, retrying in {}ms (attempt {})", delay, attempt);
@@ -409,12 +409,12 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 解析指定模型的降级候选列表。
-    * 优先级：mappings 精确匹配 > 分档降级（同档/低档）> 降级模型。
-    *
-    * @param model 模型标识，不可为 空
-    * @return 候选模型列表，无候选时返回空列表
-    */
+     * 解析指定模型的降级候选列表。
+     * 优先级：mappings 精确匹配 > 分档降级（同档/低档）> 降级模型。
+     *
+     * @param model 模型标识，不可为 空
+     * @return 候选模型列表，无候选时返回空列表
+     */
     private List<String> fallbackModelsFor(String model) {
         if (modelConfig == null) {
             return List.of();
@@ -455,11 +455,11 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * SSE 事件收集器，逐事件解析文本/推理/工具调用/排队/错误，缓冲完整响应。
-    * 内部类，绑定到单次请求。
-    * @author CH
-    * @since 4.0.0
-    */
+     * SSE 事件收集器，逐事件解析文本/推理/工具调用/排队/错误，缓冲完整响应。
+     * 内部类，绑定到单次请求。
+     * @author CH
+     * @since 4.0.0
+     */
     private class StreamCollector extends EventSourceListener {
         /** 当前请求（已注入模型），不可为 空 */
         final ChatRequest request;
@@ -587,10 +587,10 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 处理 done 事件，解析 饰面_ReasonML 并触发完成。
-        *
-        * @param data SSE 数据 负载，可为 空 或空
-        */
+         * 处理 done 事件，解析 饰面_ReasonML 并触发完成。
+         *
+         * @param data SSE 数据 负载，可为 空 或空
+         */
         private void handleDone(String data) {
             try {
                 if (data != null && !data.isEmpty()) {
@@ -607,9 +607,9 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 将缓冲内容组装为响应并触发 完成。
-        * 幂等，期货 已完成时不重复触发。
-        */
+         * 将缓冲内容组装为响应并触发 完成。
+         * 幂等，期货 已完成时不重复触发。
+         */
         private void completeWithBuffered() {
             if (future != null && !future.isDone()) {
                 ChatResponse resp = buildResponse();
@@ -621,10 +621,10 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 构建完整响应对象。
-        *
-        * @return 包含缓冲文本/推理/工具调用/用量的 对话响应
-        */
+         * 构建完整响应对象。
+         *
+         * @return 包含缓冲文本/推理/工具调用/用量的 对话响应
+         */
         private ChatResponse buildResponse() {
             ChatResponse resp = new ChatResponse();
             resp.id("cmpl-" + System.currentTimeMillis());
@@ -652,10 +652,10 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 解析 输出 事件中的 tool_calls 数组，追加到工具调用列表。
-        *
-        * @param tcNode tool_calls JSON 数组节点，不可为 空
-        */
+         * 解析 输出 事件中的 tool_calls 数组，追加到工具调用列表。
+         *
+         * @param tcNode tool_calls JSON 数组节点，不可为 空
+         */
         private void parseToolCalls(JsonNode tcNode) {
             for (JsonNode tc : tcNode) {
                 ToolCall call = new ToolCall();
@@ -672,11 +672,11 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 处理 队列 事件，触发模型降级。
-        * 从降级候选中取第一个，重新打开 SSE。
-        *
-        * @param node 队列 事件 JSON 节点
-        */
+         * 处理 队列 事件，触发模型降级。
+         * 从降级候选中取第一个，重新打开 SSE。
+         *
+         * @param node 队列 事件 JSON 节点
+         */
         private void handleQueue(JsonNode node) {
             List<String> fallbacks = fallbackModelsFor(request.model());
             if (fallbacks.isEmpty() || future == null || future.isDone()) {
@@ -692,10 +692,10 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 处理 SSE 内 错误 事件，限流码触发重试，其他错误终止流。
-        *
-        * @param node 错误 事件 JSON 节点
-        */
+         * 处理 SSE 内 错误 事件，限流码触发重试，其他错误终止流。
+         *
+         * @param node 错误 事件 JSON 节点
+         */
         private void handleEventError(JsonNode node) {
             String code = node.path("code").asText("");
             if (("4011".equals(code) || "429".equals(code)) && retries.get() < maxRetries) {
@@ -716,19 +716,19 @@ public class ChatClient implements AutoCloseable {
     }
 
     /**
-    * 客户端 构建器，支持链式配置。
-    * 必须通过 {@link ChatClient#builder()} 获取实例。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 客户端 构建器，支持链式配置。
+     * 必须通过 {@link ChatClient#builder()} 获取实例。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class Builder {
         /** Trae API 主机地址，默认 CN 版 */
         private String apiHost = "https://trae-api-cn.mchost.guru";
         /** Trae 版本：cn（国内）或 sg（国际），默认 cn */
         private String edition = "cn";
         /**
-        * Trae 数据目录，storage.json 所在路径，可为 空（使用 manual令牌 时）
-        */
+         * Trae 数据目录，storage.json 所在路径，可为 空（使用 manual令牌 时）
+         */
         private String dataDir;
         /** 手动 令牌，JWT 格式，优先于 数据dir 读取 */
         private String manualToken;
@@ -761,56 +761,56 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 设置 Trae 版本。
-        *
-        * @param edition 版本标识：cn 或 sg，不可为 空
-        * @return 当前 构建器
-        */
+         * 设置 Trae 版本。
+         *
+         * @param edition 版本标识：cn 或 sg，不可为 空
+         * @return 当前 构建器
+         */
         public Builder edition(String edition) {
             this.edition = edition;
             return this;
         }
 
         /**
-        * 设置 Trae 数据目录。
-        *
-        * @param dataDir storage.json 所在目录，可为 空
-        * @return 当前 构建器
-        */
+         * 设置 Trae 数据目录。
+         *
+         * @param dataDir storage.json 所在目录，可为 空
+         * @return 当前 构建器
+         */
         public Builder dataDir(String dataDir) {
             this.dataDir = dataDir;
             return this;
         }
 
         /**
-        * 设置手动 令牌。
-        *
-        * @param manualToken JWT 格式 令牌，可为 空
-        * @return 当前 构建器
-        */
+         * 设置手动 令牌。
+         *
+         * @param manualToken JWT 格式 令牌，可为 空
+         * @return 当前 构建器
+         */
         public Builder manualToken(String manualToken) {
             this.manualToken = manualToken;
             return this;
         }
 
         /**
-        * 设置 App 标识。
-        *
-        * @param appId 应用标识，可为 空
-        * @return 当前 构建器
-        */
+         * 设置 App 标识。
+         *
+         * @param appId 应用标识，可为 空
+         * @return 当前 构建器
+         */
         public Builder appId(String appId) {
             this.appId = appId;
             return this;
         }
 
         /**
-        * 设置 HTTP 代理。
-        *
-        * @param host 代理主机
-        * @param port 代理端口
-        * @return 当前 构建器
-        */
+         * 设置 HTTP 代理。
+         *
+         * @param host 代理主机
+         * @param port 代理端口
+         * @return 当前 构建器
+         */
         public Builder httpProxy(String host, int port) {
             this.httpProxy = host;
             this.httpProxyPort = port;
@@ -818,66 +818,66 @@ public class ChatClient implements AutoCloseable {
         }
 
         /**
-        * 设置最大重试次数。
-        *
-        * @param maxRetries 重试上限，必须 >= 0
-        * @return 当前 构建器
-        */
+         * 设置最大重试次数。
+         *
+         * @param maxRetries 重试上限，必须 >= 0
+         * @return 当前 构建器
+         */
         public Builder maxRetries(int maxRetries) {
             this.maxRetries = maxRetries;
             return this;
         }
 
         /**
-        * 设置模型分档配置。
-        *
-        * @param modelConfig 配置对象，可为 空
-        * @return 当前 构建器
-        */
+         * 设置模型分档配置。
+         *
+         * @param modelConfig 配置对象，可为 空
+         * @return 当前 构建器
+         */
         public Builder modelConfig(ModelConfig modelConfig) {
             this.modelConfig = modelConfig;
             return this;
         }
 
         /**
-        * 设置默认模型。
-        *
-        * @param defaultModel 模型标识，不可为 空
-        * @return 当前 构建器
-        */
+         * 设置默认模型。
+         *
+         * @param defaultModel 模型标识，不可为 空
+         * @return 当前 构建器
+         */
         public Builder defaultModel(String defaultModel) {
             this.defaultModel = defaultModel;
             return this;
         }
 
         /**
-        * 注入已有认证管理器。
-        *
-        * @param authManager 认证实例，可为 空（使用默认构造）
-        * @return 当前 构建器
-        */
+         * 注入已有认证管理器。
+         *
+         * @param authManager 认证实例，可为 空（使用默认构造）
+         * @return 当前 构建器
+         */
         public Builder authManager(AuthManager authManager) {
             this.authManager = authManager;
             return this;
         }
 
         /**
-        * 注入已有 HTTP 客户端。
-        *
-        * @param httpClient HTTP 实例，可为 空（使用默认构造）
-        * @return 当前 构建器
-        */
+         * 注入已有 HTTP 客户端。
+         *
+         * @param httpClient HTTP 实例，可为 空（使用默认构造）
+         * @return 当前 构建器
+         */
         public Builder httpClient(TraeHttpClient httpClient) {
             this.httpClient = httpClient;
             return this;
         }
 
         /**
-        * 构建客户端实例。
-        *
-        * @return 配置完成的 对话客户端
-        * @throws IllegalStateException 当 数据dir 与 manual令牌 均为 空 时
-        */
+         * 构建客户端实例。
+         *
+         * @return 配置完成的 对话客户端
+         * @throws IllegalStateException 当 数据dir 与 manual令牌 均为 空 时
+         */
         public ChatClient build() {
             if (dataDir == null && manualToken == null) {
                 throw new IllegalStateException("either dataDir or manualToken must be provided");

@@ -10,21 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-* 生产黑白幻影坦克图片
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * 生产黑白幻影坦克图片
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @Slf4j
 public class WhiteAndBlackTankUtils {
 
     /**
-    * 生产黑白幻影坦克图片
-    *
-    * @param outsideImg 表
-    * @param insideImg  里
-    * @param path       生成路径
-    */
+     * 生产黑白幻影坦克图片
+     *
+     * @param outsideImg 表
+     * @param insideImg  里
+     * @param path       生成路径
+     */
     public static void run(File outsideImg, File insideImg, String path) {
         try {
             Color[][] outside = ImgRgbUtils.getPixels(ImageIO.read(outsideImg));
@@ -46,12 +46,12 @@ public class WhiteAndBlackTankUtils {
     }
 
     /**
-    * 生成黑白幻影坦克
-    *
-    * @param colorsF 表图
-    * @param colorsB 里图
-    * @return
-    */
+     * 生成黑白幻影坦克
+     *
+     * @param colorsF 表图
+     * @param colorsB 里图
+     * @return
+     */
     private static Color[][] GrayMerge(Color[][] colorsF, Color[][] colorsB) {
         int h = colorsF.length;
         int w = colorsF[0].length;
@@ -75,16 +75,16 @@ public class WhiteAndBlackTankUtils {
     }
 
     /**
-    * 图片转灰度图
-    *
-    * @param colors
-    * @param A      Alpha倍数
-    * @param R      R比重
-    * @param G      Green比重
-    * @param B      Blue比重
-    * @param Light  亮度
-    * @return
-    */
+     * 图片转灰度图
+     *
+     * @param colors
+     * @param A      Alpha倍数
+     * @param R      R比重
+     * @param G      Green比重
+     * @param B      Blue比重
+     * @param Light  亮度
+     * @return
+     */
     private static void GetGrayScale(Color[][] colors, float A, float R, float G, float B, float Light) {
         float r = R / (R + G + B);
         float g = G / (R + G + B);

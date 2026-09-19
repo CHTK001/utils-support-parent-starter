@@ -15,26 +15,26 @@ import com.chua.common.support.datasearch.video.model.VipParseResult;
 public interface VipParser {
 
     /**
-    * 获取提供者名称（如 bilibili）。
-    *
-    * @return 提供者名称
-    */
+     * 获取提供者名称（如 bilibili）。
+     *
+     * @return 提供者名称
+     */
     String name();
 
     /**
-    * 尝试解析并返回结果。
-    *
-    * @param request VIP 解析请求
-    * @return 解析结果
-    */
+     * 尝试解析并返回结果。
+     *
+     * @param request VIP 解析请求
+     * @return 解析结果
+     */
     VipParseResult parse(VipParseRequest request);
 
     /**
-    * 是否支持解析指定来源。
-    *
-    * @param source 来源编码
-    * @return 支持返回 true
-    */
+     * 是否支持解析指定来源。
+     *
+     * @param source 来源编码
+     * @return 支持返回 true
+     */
     default boolean supports(String source) {
         return name().equalsIgnoreCase(source);
     }

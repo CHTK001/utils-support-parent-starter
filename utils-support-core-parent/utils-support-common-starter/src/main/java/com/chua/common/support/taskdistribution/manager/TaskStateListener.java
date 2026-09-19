@@ -10,24 +10,24 @@ import com.chua.common.support.taskdistribution.task.TaskStatus;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public interface TaskStateListener {
 
     /**
-    * 任务状态变更回调。
-    *
-    * @param taskId   任务 标识
-    * @param oldState 旧状态
-    * @param newState 新状态
-    */
+     * 任务状态变更回调。
+     *
+     * @param taskId   任务 标识
+     * @param oldState 旧状态
+     * @param newState 新状态
+     */
     default void onStateChanged(String taskId, TaskStatus oldState, TaskStatus newState) {
     }
 
     /**
-    * 任务完成回调（成功 / 失败）。
-    *
-    * @param result 执行结果
-    */
+     * 任务完成回调（成功 / 失败）。
+     *
+     * @param result 执行结果
+     */
     default void onCompleted(TaskResult<?> result) {
     }
 }

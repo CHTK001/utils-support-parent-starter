@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Data
 public class ScatterSetting {
 
@@ -36,8 +36,8 @@ public class ScatterSetting {
     */
     private int port;
     /**
-    * scatter 通信端口（由 NodeServer 启动后自动填充）
-    */
+     * scatter 通信端口（由 NodeServer 启动后自动填充）
+     */
     private int scatterPort;
     /** 传输协议：tcp / udp */
     private String protocol = "tcp";
@@ -55,13 +55,13 @@ public class ScatterSetting {
     private List<String> seeds = new ArrayList<>();
 
     /**
-    * 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式
-    */
+     * 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式
+     */
     private String subnet;
 
     /**
-    * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk
-    */
+     * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk
+     */
     private String spiName;
     /** 直接注入服务端实现对象（未启动） */
     private TcpServer server;
@@ -77,8 +77,8 @@ public class ScatterSetting {
     /** 单次同步超时毫秒 */
     private long timeoutMillis = 2000L;
     /**
-    * 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度）
-    */
+     * 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度）
+     */
     private long heartbeatTimeoutMillis = 0L;
 
     /** 持久化开关 */

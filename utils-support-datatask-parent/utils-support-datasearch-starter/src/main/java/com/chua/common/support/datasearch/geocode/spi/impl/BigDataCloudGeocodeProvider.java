@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* big数据cloud 逆地理编码实现。
-*
-* <p>经纬度 → 行政地址：{@code https://api.bigdatacloud.net/data/reverse-geocode-client}
-* （免费、无需 键、支持中文，返回国家/省/市/区）。</p>
-*
-* <p>IP → 物理地址：先经 {@link IpApiLocationProvider} 定位到经纬度再逆编码，
-* 定位失败时回退为「城市 + 省份 + 国家」行政信息拼接。</p>
-*
-* <p>24 小时内存缓存（惰性刷新）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * big数据cloud 逆地理编码实现。
+ *
+ * <p>经纬度 → 行政地址：{@code https://api.bigdatacloud.net/data/reverse-geocode-client}
+ * （免费、无需 键、支持中文，返回国家/省/市/区）。</p>
+ *
+ * <p>IP → 物理地址：先经 {@link IpApiLocationProvider} 定位到经纬度再逆编码，
+ * 定位失败时回退为「城市 + 省份 + 国家」行政信息拼接。</p>
+ *
+ * <p>24 小时内存缓存（惰性刷新）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("bigdatacloud")
 public class BigDataCloudGeocodeProvider implements GeocodeProvider {
@@ -115,11 +115,11 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
     }
 
     /**
-    * 按「区/市/省/国家」顺序拼接行政地址。
-    *
-    * @param root 逆编码响应
-    * @return 地址；全部缺失时返回 空
-    */
+     * 按「区/市/省/国家」顺序拼接行政地址。
+     *
+     * @param root 逆编码响应
+     * @return 地址；全部缺失时返回 空
+     */
     private String buildAddress(JsonNode root) {
         StringBuilder sb = new StringBuilder();
         append(sb, root.path("locality").asText(null));
@@ -130,11 +130,11 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
     }
 
     /**
-    * 拼接非空地址段。
-    *
-    * @param sb   拼接器
-    * @param part 地址段
-    */
+     * 拼接非空地址段。
+     *
+     * @param sb   拼接器
+     * @param part 地址段
+     */
     private void append(StringBuilder sb, String part) {
         if (part == null || part.isBlank()) {
             return;

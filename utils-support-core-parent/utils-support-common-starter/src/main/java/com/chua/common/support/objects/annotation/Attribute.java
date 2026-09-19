@@ -19,18 +19,18 @@ import java.lang.annotation.Target;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Attribute {
 
     /**
-    * 属性键名。
-    *
-    * <p>对应配置中的 key，如 "server.port"、"app.name" 等。
-    * 支持点分隔的路径格式。</p>
-    *
-    * @return 属性键名，默认为空字符串
-    */
+     * 属性键名。
+     *
+     * <p>对应配置中的 key，如 "server.port"、"app.name" 等。
+     * 支持点分隔的路径格式。</p>
+     *
+     * @return 属性键名，默认为空字符串
+     */
     String value() default "";
 }

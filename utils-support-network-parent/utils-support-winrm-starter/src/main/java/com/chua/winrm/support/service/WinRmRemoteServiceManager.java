@@ -11,49 +11,49 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-* winrm 远程服务管理器。
-*
-* <p>直接基于 {@link WinRmExecClient} 与 {@link WinRmFileClient}（winrm4j）实现，
-* 用于在远程 窗口 主机上对 Java 服务进行 启停/重启/安装/卸载 管理。</p>
-*
-* <pre>{@code
-* WinRmRemoteServiceManager mgr = ServiceProvider.of(RemoteServiceManager.class)
-*         .getNewExtension("winrm");
-* mgr.connect(new SshConfig("192.168.1.10", 5985, "administrator", "pass", null));
-* mgr.installRemote("app", "C:/opt/app.jar", "java -jar C:/opt/app.jar");
-* }</pre>app", "C:/opt/app.jar", "java -jar C:/opt/app.jar");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
+ * winrm 远程服务管理器。
+ *
+ * <p>直接基于 {@link WinRmExecClient} 与 {@link WinRmFileClient}（winrm4j）实现，
+ * 用于在远程 窗口 主机上对 Java 服务进行 启停/重启/安装/卸载 管理。</p>
+ *
+ * <pre>{@code
+ * WinRmRemoteServiceManager mgr = ServiceProvider.of(RemoteServiceManager.class)
+ *         .getNewExtension("winrm");
+ * mgr.connect(new SshConfig("192.168.1.10", 5985, "administrator", "pass", null));
+ * mgr.installRemote("app", "C:/opt/app.jar", "java -jar C:/opt/app.jar");
+ * }</pre>app", "C:/opt/app.jar", "java -jar C:/opt/app.jar");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Slf4j
 @Spi("winrm")
 public class WinRmRemoteServiceManager implements RemoteServiceManager {
 
     /**
-    * 默认远程部署目录。
-    */
+     * 默认远程部署目录。
+     */
     private static final String DEFAULT_REMOTE_DIR = "C:/opt/sip-server";
 
     /**
-    * winrm 命令执行客户端。
-    */
+     * winrm 命令执行客户端。
+     */
     private WinRmExecClient execClient;
 
     /**
-    * winrm 文件客户端（上传 jar 用）。
-    */
+     * winrm 文件客户端（上传 jar 用）。
+     */
     private WinRmFileClient fileClient;
 
     /**
-    * 当前配置。
-    */
+     * 当前配置。
+     */
     private SshConfig config;
 
     /**
-    * 连接状态标志。
-    */
+     * 连接状态标志。
+     */
     private volatile boolean connected;
 
     @Override
@@ -188,8 +188,8 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     // ========== 私有方法 ==========
 
     /**
-    * 校验 winrm 连接是否已建立，未连接时抛出异常。
-    */
+     * 校验 winrm 连接是否已建立，未连接时抛出异常。
+     */
     private void requireConnected() {
         if (!connected || execClient == null) {
             throw new IllegalStateException("[service-remote] WinRM 未连接，请先调用 connect()");
@@ -197,11 +197,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 在远程 窗口 主机上同步执行 PowerShell 命令并返回输出。
-    *
-    * @param cmd 要执行的命令
-    * @return 命令输出（stdout 为空时回退 stderr）
-    */
+     * 在远程 窗口 主机上同步执行 PowerShell 命令并返回输出。
+     *
+     * @param cmd 要执行的命令
+     * @return 命令输出（stdout 为空时回退 stderr）
+     */
     private String execAndWait(String cmd) {
         requireConnected();
         try {
@@ -214,11 +214,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 在远程 窗口 主机后台启动 Java 进程并返回 PID。
-    *
-    * @param cmd 启动命令（Java -jar <path>）
-    * @return 进程 PID，解析失败返回 -1
-    */
+     * 在远程 窗口 主机后台启动 Java 进程并返回 PID。
+     *
+     * @param cmd 启动命令（Java -jar <path>）
+     * @return 进程 PID，解析失败返回 -1
+     */
     private long execDetach(String cmd) {
         requireConnected();
         try {
@@ -237,11 +237,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 从 {@code java -jar <path>} 命令中提取 jar 路径。
-    *
-    * @param cmd 启动命令
-    * @return jar 路径（含引号时自动去除）
-    */
+     * 从 {@code java -jar <path>} 命令中提取 jar 路径。
+     *
+     * @param cmd 启动命令
+     * @return jar 路径（含引号时自动去除）
+     */
     private static String extractJarArg(String cmd) {
         // 提取 java -jar <path> 中的 jar 路径
         int jarIdx = cmd.toLowerCase().indexOf("-jar");
@@ -258,11 +258,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 将本地 jar 上传到远程 窗口 路径。
-    *
-    * @param localPath  本地 jar 路径
-    * @param remotePath 远程目标路径（含文件名）
-    */
+     * 将本地 jar 上传到远程 窗口 路径。
+     *
+     * @param localPath  本地 jar 路径
+     * @param remotePath 远程目标路径（含文件名）
+     */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
         if (localPath == null || localPath.isBlank()) {
             return;
@@ -286,8 +286,8 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 懒加载 winrm 文件客户端，复用已连接的命令客户端。
-    */
+     * 懒加载 winrm 文件客户端，复用已连接的命令客户端。
+     */
     private void ensureFileClient() {
         if (fileClient != null) {
             return;
@@ -299,11 +299,11 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
-    *
-    * @param jarPath 原始 jar 路径
-    * @return 归一化远程路径（Windows 反斜杠分隔）
-    */
+     * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
+     *
+     * @param jarPath 原始 jar 路径
+     * @return 归一化远程路径（Windows 反斜杠分隔）
+     */
     private static String normalizeRemotePath(String jarPath) {
         if (jarPath == null) {
             return DEFAULT_REMOTE_DIR + "/app.jar";
@@ -316,13 +316,13 @@ public class WinRmRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-    * 替换模板中的占位符 令牌。
-    *
-    * @param template 模板字符串
-    * @param token    占位符（如 {jar}）
-    * @param value    替换值
-    * @return 替换后的字符串
-    */
+     * 替换模板中的占位符 令牌。
+     *
+     * @param template 模板字符串
+     * @param token    占位符（如 {jar}）
+     * @param value    替换值
+     * @return 替换后的字符串
+     */
     private static String replaceToken(String template, String token, String value) {
         return template == null ? value : template.replace(token, value);
     }

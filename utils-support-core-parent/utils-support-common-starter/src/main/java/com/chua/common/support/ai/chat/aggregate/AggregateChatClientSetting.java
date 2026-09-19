@@ -15,40 +15,40 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 聚合 ChatClient 配置（JSON 格式）
-*
-* <p>通过 {@link com.chua.common.support.lang.json.Json#fromJson(String, Class)} 反序列化。
-* 配置示例：
-* <pre>{@code
-* {
-*   "strategy": "hybrid",
-*   "tokens": [
-*     { "token": "sk-abc123", "group": "vip", "expireTime": "2026-12-31" },
-*     { "token": "sk-def456", "group": "default" }
-*   ],
-*   "groups": [
-*     {
-*       "name": "primary",
-*       "strategy": "weighted",
-*       "tokenGroups": ["vip"],
-*       "clients": [
-*         { "provider": "openai", "apiKey": "sk-xxx", "model": "gpt-4", "weight": 5 }
-*       ]
-*     },
-*     {
-*       "name": "secondary",
-*       "strategy": "failover",
-*       "tokenGroups": ["default"],
-*       "clients": [
-*         { "provider": "alibaba", "apiKey": "sk-zzz", "model": "qwen-max" }
-*       ]
-*     }
-*   ]
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 聚合 ChatClient 配置（JSON 格式）
+ *
+ * <p>通过 {@link com.chua.common.support.lang.json.Json#fromJson(String, Class)} 反序列化。
+ * 配置示例：
+ * <pre>{@code
+ * {
+ *   "strategy": "hybrid",
+ *   "tokens": [
+ *     { "token": "sk-abc123", "group": "vip", "expireTime": "2026-12-31" },
+ *     { "token": "sk-def456", "group": "default" }
+ *   ],
+ *   "groups": [
+ *     {
+ *       "name": "primary",
+ *       "strategy": "weighted",
+ *       "tokenGroups": ["vip"],
+ *       "clients": [
+ *         { "provider": "openai", "apiKey": "sk-xxx", "model": "gpt-4", "weight": 5 }
+ *       ]
+ *     },
+ *     {
+ *       "name": "secondary",
+ *       "strategy": "failover",
+ *       "tokenGroups": ["default"],
+ *       "clients": [
+ *         { "provider": "alibaba", "apiKey": "sk-zzz", "model": "qwen-max" }
+ *       ]
+ *     }
+ *   ]
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -56,8 +56,8 @@ import java.util.Map;
 public class AggregateChatClientSetting {
 
     /**
-    * 全局路由策略（hybrid | failover | round_robin | weighted | cost | latency）
-    */
+     * 全局路由策略（hybrid | failover | round_robin | weighted | cost | latency）
+     */
     private String strategy = "hybrid";
 
     /** 是否启用调用监控 */
@@ -75,38 +75,38 @@ public class AggregateChatClientSetting {
     private ContextCompressionConfig compression;
 
     /**
-    * 技能描述目录路径列表（可选，用于注入 system prompt）
-    */
+     * 技能描述目录路径列表（可选，用于注入 system prompt）
+     */
     private List<String> skillPaths;
 
     /**
-    * 访问令牌列表（可选，用于 RESTful 接口的 Bearer Token 认证）
-    */
+     * 访问令牌列表（可选，用于 RESTful 接口的 Bearer Token 认证）
+     */
     private List<TokenConfig> tokens;
 
     /**
-    * 是否启用模型健康检查（默认 false）
-    */
+     * 是否启用模型健康检查（默认 false）
+     */
     private boolean enableHealthCheck = false;
 
     /**
-    * 健康检查间隔（毫秒，默认 60000）
-    */
+     * 健康检查间隔（毫秒，默认 60000）
+     */
     private long healthCheckIntervalMs = 60000;
 
     /**
-    * 限流时是否自动切换到同名的其它模型（默认 false）
-    */
+     * 限流时是否自动切换到同名的其它模型（默认 false）
+     */
     private boolean autoSwitchOnRateLimit = false;
 
     /**
-    * 余额不足时是否自动切换到同名的其它模型（默认 false）
-    */
+     * 余额不足时是否自动切换到同名的其它模型（默认 false）
+     */
     private boolean autoSwitchOnQuotaExhausted = false;
 
     /**
-    * 同名模型最大重试次数（默认 3）
-    */
+     * 同名模型最大重试次数（默认 3）
+     */
     private int maxRetriesOnSameModel = 3;
 
     /**
@@ -152,10 +152,10 @@ public class AggregateChatClientSetting {
     // ======================== 便捷方法 ========================
 
     /**
-    * 将 tokens 配置转为 Map，便于 AiTokenServerFilter 校验。
-    *
-    * @return token → AiToken 映射，无 token 配置返回空 Map
-    */
+     * 将 tokens 配置转为 Map，便于 AiTokenServerFilter 校验。
+     *
+     * @return token → AiToken 映射，无 token 配置返回空 Map
+     */
     public Map<String, AiToken> toTokenMap() {
         if (tokens == null || tokens.isEmpty()) {
             return Map.of();
@@ -176,27 +176,27 @@ public class AggregateChatClientSetting {
     }
 
     /**
-    * 组配置
-    */
+     * 组配置
+     */
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class GroupConfig {
         /**
-        * 组名称
-        */
+         * 组名称
+         */
         private String name;
         /**
-        * 组内路由策略（failover | round_robin | weighted | cost | latency）
-        */
+         * 组内路由策略（failover | round_robin | weighted | cost | latency）
+         */
         private String strategy = "failover";
         /**
-        * 条件表达式（如 "prompt.length < 200"），为空则默认匹配
-        */
+         * 条件表达式（如 "prompt.length < 200"），为空则默认匹配
+         */
         private String condition;
         /**
-        * 允许访问该组的 token 分组列表（空表示所有 token 均可访问）
-        */
+         * 允许访问该组的 token 分组列表（空表示所有 token 均可访问）
+         */
         private List<String> tokenGroups;
         /** 该组的客户端列表 */
         private List<ClientConfig> clients;
@@ -227,11 +227,11 @@ public class AggregateChatClientSetting {
         }
 
         /**
-        * 判断指定的 token 分组是否允许访问该组。
-        *
-        * @param tokenGroup token 分组名称
-        * @return true 允许访问
-        */
+         * 判断指定的 token 分组是否允许访问该组。
+         *
+         * @param tokenGroup token 分组名称
+         * @return true 允许访问
+         */
         public boolean isTokenGroupAllowed(String tokenGroup) {
             if (tokenGroups == null || tokenGroups.isEmpty()) {
                 return true;
@@ -244,47 +244,47 @@ public class AggregateChatClientSetting {
     }
 
     /**
-    * 客户端配置
-    */
+     * 客户端配置
+     */
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ClientConfig {
         /**
-        * AI 服务商名称，如 "openai"、"alibaba"
-        */
+         * AI 服务商名称，如 "openai"、"alibaba"
+         */
         private String provider;
         /**
-        * API 密钥
-        */
+         * API 密钥
+         */
         private String apiKey;
         /**
-        * 自定义 API 地址（可选）
-        */
+         * 自定义 API 地址（可选）
+         */
         private String baseUrl;
         /**
-        * 模型名称（可选，覆盖 ChatClientSetting 中的默认值）
-        */
+         * 模型名称（可选，覆盖 ChatClientSetting 中的默认值）
+         */
         private String model;
         /**
-        * 温度参数（可选）
-        */
+         * 温度参数（可选）
+         */
         private Double temperature;
         /**
-        * 最大 Token 数（可选）
-        */
+         * 最大 Token 数（可选）
+         */
         private Integer maxTokens;
         /**
-        * 系统提示词（可选）
-        */
+         * 系统提示词（可选）
+         */
         private String system;
         /**
-        * HTTP 代理（可选）
-        */
+         * HTTP 代理（可选）
+         */
         private String proxy;
         /**
-        * 权重（weighted 策略使用，默认 1）
-        */
+         * 权重（weighted 策略使用，默认 1）
+         */
         private int weight = 1;
 
         /** 获取Provider */
@@ -332,23 +332,23 @@ public class AggregateChatClientSetting {
     }
 
     /**
-    * 令牌配置
-    */
+     * 令牌配置
+     */
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TokenConfig {
         /**
-        * 令牌值（如 sk-xxx）
-        */
+         * 令牌值（如 sk-xxx）
+         */
         private String token;
         /**
-        * 令牌分组（如 default、vip、admin）
-        */
+         * 令牌分组（如 default、vip、admin）
+         */
         private String group;
         /**
-        * 过期时间（yyyy-MM-dd 格式），为空表示永不过期
-        */
+         * 过期时间（yyyy-MM-dd 格式），为空表示永不过期
+         */
         private String expireTime;
 
         /** 获取Token */
@@ -362,10 +362,10 @@ public class AggregateChatClientSetting {
         }
 
         /**
-        * 解析过期时间。
-        *
-        * @return Date 对象，未设置返回 null
-        */
+         * 解析过期时间。
+         *
+         * @return Date 对象，未设置返回 null
+         */
         public Date getExpireTime() {
             if (expireTime == null || expireTime.isBlank()) {
                 return null;

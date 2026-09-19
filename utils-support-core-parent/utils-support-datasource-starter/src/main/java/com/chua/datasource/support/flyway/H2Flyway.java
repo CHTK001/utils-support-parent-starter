@@ -15,16 +15,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* H2 迁移执行器，在脚本执行前对 SQL 进行 H2 方言转换。
-* <p>
-* 处理 MySQL/PostgreSQL 特有语法，确保脚本在 H2 中可正常运行：
-* <ul>
-*   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * H2 迁移执行器，在脚本执行前对 SQL 进行 H2 方言转换。
+ * <p>
+ * 处理 MySQL/PostgreSQL 特有语法，确保脚本在 H2 中可正常运行：
+ * <ul>
+ *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class H2Flyway {
 
@@ -50,19 +50,19 @@ public class H2Flyway {
     private String separator = DEFAULT_SEP; // separator
 
     /**
-    * H2Flyway。
-    * @param dataSource 数据源
-    */
+     * H2Flyway。
+     * @param dataSource 数据源
+     */
     public H2Flyway(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     /**
-    * 添加迁移脚本位置，支持 类路径: 前缀与文件系统路径
-    *
-    * @param location 位置
-    * @return 位置的结果
-    */
+     * 添加迁移脚本位置，支持 类路径: 前缀与文件系统路径
+     *
+     * @param location 位置
+     * @return 位置的结果
+     */
     public H2Flyway location(String location) {
         if (location != null && !location.isBlank()) {
             locations.add(location.trim());
@@ -71,11 +71,11 @@ public class H2Flyway {
     }
 
     /**
-    * 设置版本描述分隔符，默认 __
-    *
-    * @param sep sep
-    * @return separator的结果
-    */
+     * 设置版本描述分隔符，默认 __
+     *
+     * @param sep sep
+     * @return separator的结果
+     */
     public H2Flyway separator(String sep) {
         if (sep != null && !sep.isEmpty()) {
             this.separator = sep;
@@ -84,10 +84,10 @@ public class H2Flyway {
     }
 
     /**
-    * 列出所有迁移脚本及已应用状态
-    *
-    * @return 信息的结果
-    */
+     * 列出所有迁移脚本及已应用状态
+     *
+     * @return 信息的结果
+     */
     public List<Map<String, Object>> info() {
         try (var conn = dataSource.getConnection()) {
             Set<Long> applied = loadAppliedVersions(conn);
@@ -108,10 +108,10 @@ public class H2Flyway {
     }
 
     /**
-    * 执行所有未应用的迁移脚本，返回执行数量
-    *
-    * @return migrate的结果
-    */
+     * 执行所有未应用的迁移脚本，返回执行数量
+     *
+     * @return migrate的结果
+     */
     public int migrate() {
         try (var conn = dataSource.getConnection()) {
             execute(conn, CREATE_HISTORY_SQL);
@@ -132,11 +132,11 @@ public class H2Flyway {
     }
 
     /**
-    * 执行单个 SQL 脚本文件（不纳入版本记录）
-    *
-    * @param script script
-    * @return 执行的结果
-    */
+     * 执行单个 SQL 脚本文件（不纳入版本记录）
+     *
+     * @param script script
+     * @return 执行的结果
+     */
     public int execute(Path script) {
         if (script == null) {
             throw new IllegalArgumentException("脚本路径不能为空");
@@ -151,11 +151,11 @@ public class H2Flyway {
     // ==================== 内部实现 ====================
 
     /**
-    * 执行。
-    * @param conn conn
-    * @param sql SQL
-    * @return 执行的结果
-    */
+     * 执行。
+     * @param conn conn
+     * @param sql SQL
+     * @return 执行的结果
+     */
     private int execute(java.sql.Connection conn, String sql) throws SQLException {
         String normalized = normalize(sql);
         if (normalized == null || normalized.isBlank()) {
@@ -181,13 +181,13 @@ public class H2Flyway {
     }
 
     /**
-    * 对单条语句做 H2 方言转换。
-    * <p>优先使用 {@link ScriptConverter} SPI（{@code DefaultScriptConverter} 剥离
-    * MySQL 专属语法），SPI 未注册时退化为本地 {@link #normalize}（仅 AUTO_INCREMENT → IDENTITY）。</p>
-    *
-    * @param statement 单条语句
-    * @return 转换后可在 H2 执行的语句；null 表示跳过
-    */
+     * 对单条语句做 H2 方言转换。
+     * <p>优先使用 {@link ScriptConverter} SPI（{@code DefaultScriptConverter} 剥离
+     * MySQL 专属语法），SPI 未注册时退化为本地 {@link #normalize}（仅 AUTO_INCREMENT → IDENTITY）。</p>
+     *
+     * @param statement 单条语句
+     * @return 转换后可在 H2 执行的语句；null 表示跳过
+     */
     private String convertForH2(String statement) {
         ScriptConverter converter = ScriptConverter.getExtension("h2");
         if (converter != null) {
@@ -208,10 +208,10 @@ public class H2Flyway {
     }
 
     /**
-    * 加载applied版本。
-    * @param conn conn
-    * @return 加载applied版本的结果
-    */
+     * 加载applied版本。
+     * @param conn conn
+     * @return 加载applied版本的结果
+     */
     private Set<Long> loadAppliedVersions(java.sql.Connection conn) throws SQLException {
         Set<Long> versions = new HashSet<>();
         try (var stmt = conn.createStatement();
@@ -224,9 +224,9 @@ public class H2Flyway {
     }
 
     /**
-    * 扫描script。
-    * @return 扫描script的结果
-    */
+     * 扫描script。
+     * @return 扫描script的结果
+     */
     private List<ScriptFile> scanScripts() {
         List<ScriptFile> scripts = new ArrayList<>();
         for (String loc : locations) {
@@ -241,10 +241,10 @@ public class H2Flyway {
     }
 
     /**
-    * 扫描dir。
-    * @param dirPath dir路径
-    * @param target Target
-    */
+     * 扫描dir。
+     * @param dirPath dir路径
+     * @param target Target
+     */
     private void scanDir(String dirPath, List<ScriptFile> target) {
         java.io.File dir = new java.io.File(dirPath);
         if (!dir.isDirectory()) {
@@ -260,10 +260,10 @@ public class H2Flyway {
     }
 
     /**
-    * 扫描类路径。
-    * @param resourcePath resource路径
-    * @param target Target
-    */
+     * 扫描类路径。
+     * @param resourcePath resource路径
+     * @param target Target
+     */
     private void scanClasspath(String resourcePath, List<ScriptFile> target) {
         try {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -283,11 +283,11 @@ public class H2Flyway {
     }
 
     /**
-    * 添加script。
-    * @param path 路径
-    * @param fileName 文件名称
-    * @param target Target
-    */
+     * 添加script。
+     * @param path 路径
+     * @param fileName 文件名称
+     * @param target Target
+     */
     private void addScript(Path path, String fileName, List<ScriptFile> target) {
         Matcher m = SCRIPT_PAT.matcher(fileName);
         if (!m.matches()) {
@@ -299,10 +299,10 @@ public class H2Flyway {
     }
 
     /**
-    * 分割对账单。
-    * @param sql SQL
-    * @return 分割对账单的结果
-    */
+     * 分割对账单。
+     * @param sql SQL
+     * @return 分割对账单的结果
+     */
     private List<String> splitStatements(String sql) {
         List<String> statements = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -329,23 +329,23 @@ public class H2Flyway {
     }
 
     /**
-    * 读取内容。
-    * @param path 路径
-    * @return 读取内容的结果
-    */
+     * 读取内容。
+     * @param path 路径
+     * @return 读取内容的结果
+     */
     private static String readContent(Path path) {
         try { return Files.readString(path, StandardCharsets.UTF_8); }
         catch (IOException e) { throw new RuntimeException("读取迁移脚本失败: " + path, e); }
     }
 
     /**
-    * 将 SQL 语句转换为 H2 兼容写法。
-    * <ul>
-    *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
-    * </ul>
-    * @param sql 原始 SQL 语句
-    * @return 转换后的 H2 兼容 SQL 语句
-    */
+     * 将 SQL 语句转换为 H2 兼容写法。
+     * <ul>
+     *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
+     * </ul>
+     * @param sql 原始 SQL 语句
+     * @return 转换后的 H2 兼容 SQL 语句
+     */
     public static String normalize(String sql) {
         if (sql == null) {
             return null;

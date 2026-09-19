@@ -18,23 +18,23 @@ import java.util.UUID;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 public class TracingFilter implements ServerFilter {
 
     /**
-    * traceId 的请求属性键名。
-    */
+     * traceId 的请求属性键名。
+     */
     private static final String TRACE_ID_KEY = "_traceId";
 
     /**
-    * 链监听器列表的请求属性键名。
-    */
+     * 链监听器列表的请求属性键名。
+     */
     private static final String LISTENERS_KEY = "_chainListeners";
 
     /**
-    * 链路日志列表的请求属性键名。
-    */
+     * 链路日志列表的请求属性键名。
+     */
     private static final String TRACE_LOG_KEY = "_traceLog";
 
     @Override
@@ -80,11 +80,11 @@ public class TracingFilter implements ServerFilter {
     }
 
     /**
-    * 从请求中获取 traceId。
-    *
-    * @param request 当前请求
-    * @return traceId，不存在时返回 null
-    */
+     * 从请求中获取 traceId。
+     *
+     * @param request 当前请求
+     * @return traceId，不存在时返回 null
+     */
     public static String getTraceId(ServerRequest request) {
         Object value = request.getAttribute(TRACE_ID_KEY);
         if (value instanceof String) {

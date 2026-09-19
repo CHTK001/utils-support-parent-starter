@@ -16,37 +16,37 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 /**
-* 解析net 人脸分割 Translator（AIAS face_restoration_sdk 同款）。
-*
-* <p>PyTorch TorchScript 模型（parsenet_traced_model.pt），输入 512×512 人脸图，
-* 输出人脸软 mask（0~255 灰度，含皮肤/五官/头发/耳朵，排除背景/颈部/眼镜/口罩/衣领），
-* 供修复后贴回原图使用。包含两次高斯模糊（101×101）+ 去除 10Px 黑边。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 解析net 人脸分割 Translator（AIAS face_restoration_sdk 同款）。
+ *
+ * <p>PyTorch TorchScript 模型（parsenet_traced_model.pt），输入 512×512 人脸图，
+ * 输出人脸软 mask（0~255 灰度，含皮肤/五官/头发/耳朵，排除背景/颈部/眼镜/口罩/衣领），
+ * 供修复后贴回原图使用。包含两次高斯模糊（101×101）+ 去除 10Px 黑边。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class FaceSegTranslator implements Translator<Image, Image> {
 
     /**
-    * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
-    */
+     * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
+     */
     private static final int[] MASK_COLORMAP = {
             0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
     };
 
     /**
-    * 输入均值。
-    */
+     * 输入均值。
+     */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 输入标准差。
-    */
+     * 输入标准差。
+     */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /**
-    * 黑边去除像素数。
-    */
+     * 黑边去除像素数。
+     */
     private static final int THRESHOLD = 10;
 
     @Override

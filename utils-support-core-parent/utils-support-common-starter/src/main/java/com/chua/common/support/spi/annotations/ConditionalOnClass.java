@@ -10,29 +10,29 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ConditionalOnClass {
 
     /**
-    * 指定需要检查的类的全限定名（字符串形式）。
-    * <p>
-    * 当类路径下存在这些类时，条件成立。使用字符串形式可以避免在编译时强依赖该类。
-    * </p>
-    *
-    * @return 类的全限定名数组
-    */
+     * 指定需要检查的类的全限定名（字符串形式）。
+     * <p>
+     * 当类路径下存在这些类时，条件成立。使用字符串形式可以避免在编译时强依赖该类。
+     * </p>
+     *
+     * @return 类的全限定名数组
+     */
     String[] value() default {};
 
     /**
-    * 指定需要检查的具体类对象。
-    * <p>
-    * 当类路径下存在这些类时，条件成立。
-    * </p>
-    *
-    * @return 类对象数组
-    */
+     * 指定需要检查的具体类对象。
+     * <p>
+     * 当类路径下存在这些类时，条件成立。
+     * </p>
+     *
+     * @return 类对象数组
+     */
     Class<?>[] classes() default {};
 }

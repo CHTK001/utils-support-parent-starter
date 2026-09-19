@@ -18,61 +18,61 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 文档导出器 SPI 接口。
-*
-* <p>将 {@link DocumentData} 导出为指定格式的文件。</p>
-*
-* <p>与 {@link DocumentParser} 的关系：</p>
-* <ul>
-*   <li>{@code DocumentParser} — 数据源 → {@code DocumentData}</li>
-*   <li>{@code DocumentProvider} — {@code DocumentData} → 文件（Word/PDF/MD/HTML）</li>
-* </ul>
-*
-* <p>推荐使用链式 API：</p>
-* <pre>{@code
-* DocumentExporter.of(data)
-*     .format("html")
-*     .template(DocumentTemplateType.SWAGGER)
-*     .output(new File("out/db.html"))
-*     .export();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 文档导出器 SPI 接口。
+ *
+ * <p>将 {@link DocumentData} 导出为指定格式的文件。</p>
+ *
+ * <p>与 {@link DocumentParser} 的关系：</p>
+ * <ul>
+ *   <li>{@code DocumentParser} — 数据源 → {@code DocumentData}</li>
+ *   <li>{@code DocumentProvider} — {@code DocumentData} → 文件（Word/PDF/MD/HTML）</li>
+ * </ul>
+ *
+ * <p>推荐使用链式 API：</p>
+ * <pre>{@code
+ * DocumentExporter.of(data)
+ *     .format("html")
+ *     .template(DocumentTemplateType.SWAGGER)
+ *     .output(new File("out/db.html"))
+ *     .export();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi
 public interface DocumentProvider {
 
     /**
-    * 通过 SPI 创建导出器实例。
-    *
-    * @param type 导出格式（"word"、"pdf"、"markdown"、"html"）
-    * @return DocumentProvider 实例
-    */
+     * 通过 SPI 创建导出器实例。
+     *
+     * @param type 导出格式（"word"、"pdf"、"markdown"、"html"）
+     * @return DocumentProvider 实例
+     */
     static DocumentProvider create(String type) {
         return ServiceProvider.of(DocumentProvider.class).getExtension(type);
     }
 
     /**
-    * 获取导出格式名称。
-    *
-    * @return 格式名称
-    */
+     * 获取导出格式名称。
+     *
+     * @return 格式名称
+     */
     String getType();
 
     /**
-    * 获取支持的文件扩展名。
-    *
-    * @return 扩展名数组
-    */
+     * 获取支持的文件扩展名。
+     *
+     * @return 扩展名数组
+     */
     String[] getExtensions();
 
     /**
-    * 导出文档数据到文件（默认模板）。
-    *
-    * @param data       文档数据
-    * @param outputFile 输出文件
-    */
+     * 导出文档数据到文件（默认模板）。
+     *
+     * @param data       文档数据
+     * @param outputFile 输出文件
+     */
     default void export(DocumentData data, File outputFile) {
         export(data, outputFile, DocumentExportConfig.builder()
                 .format(getType())
@@ -82,23 +82,23 @@ public interface DocumentProvider {
     }
 
     /**
-    * 按导出配置渲染文档。
-    *
-    * @param data       文档数据
-    * @param outputFile 输出文件
-    * @param config     导出配置（模板类型、自定义模板等）
-    */
+     * 按导出配置渲染文档。
+     *
+     * @param data       文档数据
+     * @param outputFile 输出文件
+     * @param config     导出配置（模板类型、自定义模板等）
+     */
     void export(DocumentData data, File outputFile, DocumentExportConfig config);
 
     /**
-    * 将表关系转换为关系图 JSON（节点 + 边）。
-    *
-    * <p>节点包含表名、备注、schema、类型、主键列、外键列；</p>
-    * <p>边包含来源表、目标表、来源列、目标列及更新/删除规则。</p>
-    *
-    * @param data 文档数据
-    * @return 关系图 JSON 字符串
-    */
+     * 将表关系转换为关系图 JSON（节点 + 边）。
+     *
+     * <p>节点包含表名、备注、schema、类型、主键列、外键列；</p>
+     * <p>边包含来源表、目标表、来源列、目标列及更新/删除规则。</p>
+     *
+     * @param data 文档数据
+     * @return 关系图 JSON 字符串
+     */
     static String toRelationshipJson(DocumentData data) {
         List<Map<String, Object>> nodes = new ArrayList<>();
         List<Map<String, Object>> edges = new ArrayList<>();

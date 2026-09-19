@@ -17,9 +17,9 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     private String device = "cpu";
 
     /**
-    * 创建 onnxpedestriandetector 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnxpedestriandetector 实例
+     * @param apiKey API密钥
+     */
     public OnnxPedestrianDetector(String apiKey) {
     }
 

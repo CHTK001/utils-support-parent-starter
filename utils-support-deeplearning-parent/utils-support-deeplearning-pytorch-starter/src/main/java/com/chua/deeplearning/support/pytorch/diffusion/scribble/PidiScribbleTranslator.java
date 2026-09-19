@@ -12,36 +12,36 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
-* pidinet 涂鸦/边缘条件图 Translator（简化版，无 打开cv NMS）。
-*
-* @author CH
-* @since 4.0.0.42
+ * pidinet 涂鸦/边缘条件图 Translator（简化版，无 打开cv NMS）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class PidiScribbleTranslator implements Translator<Image, Image> {
 
     /**
-    * 输出分辨率。
-    */
+     * 输出分辨率。
+     */
     private final int imageResolution;
 
     /**
-    * 检测分辨率。
-    */
+     * 检测分辨率。
+     */
     private final int detectResolution;
 
     /**
-    * 是否安全步进量化。
-    */
+     * 是否安全步进量化。
+     */
     private final boolean safe;
 
     /**
-    * 原图宽。
-    */
+     * 原图宽。
+     */
     private int width;
 
     /**
-    * 原图高。
-    */
+     * 原图高。
+     */
     private int height;
 
     /** 创建 pidiscribbletranslator 实例 */
@@ -99,12 +99,12 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * safestep
-    *
-    * @param edge edge
-    * @param step step
-    * @return safeStep的结果
-    */
+     * safestep
+     *
+     * @param edge edge
+     * @param step step
+     * @return safeStep的结果
+     */
     private NDArray safeStep(NDArray edge, int step) {
         edge = edge.toType(DataType.FLOAT32, false);
         edge = edge.mul((float) (step + 1));

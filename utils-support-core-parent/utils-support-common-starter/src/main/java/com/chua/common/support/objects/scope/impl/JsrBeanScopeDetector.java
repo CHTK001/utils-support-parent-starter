@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Spi("jsr")
 @SpiDescribe("JSR/CDI 作用域检测器")
 public class JsrBeanScopeDetector implements BeanScopeDetector {

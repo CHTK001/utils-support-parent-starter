@@ -37,19 +37,19 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
     protected abstract List<Path> pluginRoots();
 
     /**
-    * 清单文件名（如 plugin.json / package.json），子类可选覆写。
-    * @return 结果字符串
-    */
+     * 清单文件名（如 plugin.json / package.json），子类可选覆写。
+     * @return 结果字符串
+     */
     protected String manifestFile() {
         return "plugin.json";
     }
 
     /**
-    * 从清单 JSON 中读取 name / description / version（默认实现宽松解析）。
-    * @param json 方法入参 json
-    * @param key 键，不允许为 null
-    * @return 结果字符串
-    */
+     * 从清单 JSON 中读取 name / description / version（默认实现宽松解析）。
+     * @param json 方法入参 json
+     * @param key 键，不允许为 null
+     * @return 结果字符串
+     */
     protected String readManifestField(String json, String key) {
         if (json == null || json.isBlank()) {
             return "";
@@ -84,11 +84,11 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
     }
 
     /**
-    * 扫描单个插件根目录：{@code <owner>/<plugin>/<version>} 三层结构。
-    *
-    * @param root   插件根目录
-    * @param result 结果收集器
-    */
+     * 扫描单个插件根目录：{@code <owner>/<plugin>/<version>} 三层结构。
+     *
+     * @param root   插件根目录
+     * @param result 结果收集器
+     */
     private void scanRoot(Path root, List<PluginDefinition> result) {
         if (!Files.isDirectory(root)) {
             return;
@@ -132,11 +132,11 @@ public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflin
     }
 
     /**
-    * 取插件目录下最新版本子目录（按目录名字典序取最大）。
-    *
-    * @param pluginDir 插件目录
-    * @return 最新版本目录；不存在返回 null
-    */
+     * 取插件目录下最新版本子目录（按目录名字典序取最大）。
+     *
+     * @param pluginDir 插件目录
+     * @return 最新版本目录；不存在返回 null
+     */
     private Path latestVersionDir(Path pluginDir) {
         List<Path> versions;
         try (var stream = Files.list(pluginDir)) {

@@ -14,32 +14,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 查询 Engine — 通过 HTTP客户端 调用 数据湖-启动 的 api服务端，
-* 实现标准 {@link com.chua.common.support.lang.datasource.engine.Engine} 接口。
-*
-* <p>使用时注入 baseUrl 即可，运行时 HTTP 调用。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 查询 Engine — 通过 HTTP客户端 调用 数据湖-启动 的 api服务端，
+ * 实现标准 {@link com.chua.common.support.lang.datasource.engine.Engine} 接口。
+ *
+ * <p>使用时注入 baseUrl 即可，运行时 HTTP 调用。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.datasource.engine.Engine {
 
     /**
-    * HTTP 客户端
-    */
+     * HTTP 客户端
+     */
     private final DatalakeHttpClient client;
 
     /**
-    * 默认数据源名称
-    */
+     * 默认数据源名称
+     */
     private final String defaultName = "datalake";
 
     /**
-    * 构造。
-    *
-    * @param baseUrl 数据湖-启动 提供的 API 服务地址
-    */
+     * 构造。
+     *
+     * @param baseUrl 数据湖-启动 提供的 API 服务地址
+     */
     public HttpDatalakeQueryEngine(String baseUrl) {
         this.client = new DatalakeHttpClient(baseUrl);
     }
@@ -129,10 +129,10 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     }
 
     /**
-    * SQL 执行器：内部委托 HTTP 客户端。
-    * @author CH
-    * @since 4.0.0
-    */
+     * SQL 执行器：内部委托 HTTP 客户端。
+     * @author CH
+     * @since 4.0.0
+     */
     private class HttpSqlExecutor implements SqlExecutor {
 
         @Override

@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
  * 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
-*/
+ */
 public class SipMetrics {
 
     private static final SipMetrics INSTANCE = new SipMetrics();
@@ -43,8 +43,8 @@ public class SipMetrics {
     private final AtomicInteger activeClients = new AtomicInteger();
 
     /**
-    * 错误分类计数（key = 错误类别，例 "auth.bad_sig"/"mux.unknown_channel"）
-    */
+     * 错误分类计数（key = 错误类别，例 "auth.bad_sig"/"mux.unknown_channel"）
+     */
     private final Map<String, AtomicLong> errorsByCategory = new ConcurrentHashMap<>();
 
     public void onAuthAccept() { authAcceptTotal.incrementAndGet(); }
@@ -107,9 +107,9 @@ public class SipMetrics {
     }
 
     /**
-    * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
-    * @return 结果映射，无数据时为空映射
-    */
+     * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
+     * @return 结果映射，无数据时为空映射
+     */
     public Map<String, Object> snapshot() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("auth_accept_total", authAcceptTotal.get());
@@ -133,11 +133,11 @@ public class SipMetrics {
     }
 
     /**
-    * 将指标格式化为单行结构化日志条目（key=value 用空格分隔）。
-    *
-    * @param prefix 日志前缀（如 "sip-metrics"）
-    * @return 单行字符串
-    */
+     * 将指标格式化为单行结构化日志条目（key=value 用空格分隔）。
+     *
+     * @param prefix 日志前缀（如 "sip-metrics"）
+     * @return 单行字符串
+     */
     public String formatOneLine(String prefix) {
         Map<String, Object> s = snapshot();
         StringBuilder sb = new StringBuilder();

@@ -13,41 +13,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* 基于 类路径 模板文件的文档模板基类。
-*
-* <p>占位符格式：{@code #key#}。复杂结构通过 {@code #dataJson#} / {@code #tablesMarkdown#} 注入。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于 类路径 模板文件的文档模板基类。
+ *
+ * <p>占位符格式：{@code #key#}。复杂结构通过 {@code #dataJson#} / {@code #tablesMarkdown#} 注入。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public abstract class AbstractClasspathDocumentTemplate implements DocumentTemplate {
 
     /**
-    * 占位符正则
-    */
+     * 占位符正则
+     */
     private static final Pattern PLACEHOLDER = Pattern.compile("#([\\w.]+)#");
 
     /**
-    * HTML 模板资源路径
-    *
-    * @return classpath 路径
-    */
+     * HTML 模板资源路径
+     *
+     * @return classpath 路径
+     */
     protected abstract String htmlTemplatePath();
 
     /**
-    * Markdown 模板资源路径
-    *
-    * @return classpath 路径
-    */
+     * Markdown 模板资源路径
+     *
+     * @return classpath 路径
+     */
     protected abstract String markdownTemplatePath();
 
     /**
-    * 渲染 HTML 文档。
-    *
-    * @param data   文档数据
-    * @param config 导出配置
-    * @return HTML 文本
-    */
+     * 渲染 HTML 文档。
+     *
+     * @param data   文档数据
+     * @param config 导出配置
+     * @return HTML 文本
+     */
     @Override
     public String renderHtml(DocumentData data, DocumentExportConfig config) {
         if (config != null && config.getCustomHtmlTemplate() != null && !config.getCustomHtmlTemplate().isBlank()) {
@@ -57,24 +57,24 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 渲染 Markdown 文档。
-    *
-    * @param data   文档数据
-    * @param config 导出配置
-    * @return Markdown 文本
-    */
+     * 渲染 Markdown 文档。
+     *
+     * @param data   文档数据
+     * @param config 导出配置
+     * @return Markdown 文本
+     */
     @Override
     public String renderMarkdown(DocumentData data, DocumentExportConfig config) {
         return resolve(loadTemplate(markdownTemplatePath()), buildVariables(data, config));
     }
 
     /**
-    * 构建模板变量。
-    *
-    * @param data   文档数据
-    * @param config 导出配置
-    * @return 变量表
-    */
+     * 构建模板变量。
+     *
+     * @param data   文档数据
+     * @param config 导出配置
+     * @return 变量表
+     */
     protected Map<String, Object> buildVariables(DocumentData data, DocumentExportConfig config) {
         Map<String, Object> vars = new LinkedHashMap<>();
         vars.put("title", nullToEmpty(data.getTitle()));
@@ -94,11 +94,11 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 文档数据 → 前端 JSON（E10 / Swagger 壳共用）
-    *
-    * @param data 文档数据
-    * @return JSON
-    */
+     * 文档数据 → 前端 JSON（E10 / Swagger 壳共用）
+     *
+     * @param data 文档数据
+     * @return JSON
+     */
     protected String toDataJson(DocumentData data) {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("title", data.getTitle());
@@ -264,11 +264,11 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 表结构 Markdown 片段
-    *
-    * @param data 文档数据
-    * @return markdown
-    */
+     * 表结构 Markdown 片段
+     *
+     * @param data 文档数据
+     * @return markdown
+     */
     protected String toTablesMarkdown(DocumentData data) {
         StringBuilder sb = new StringBuilder();
         if (data.getTables() == null) {
@@ -302,11 +302,11 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 加载 类路径 模板
-    *
-    * @param path 资源路径
-    * @return 模板文本
-    */
+     * 加载 类路径 模板
+     *
+     * @param path 资源路径
+     * @return 模板文本
+     */
     protected String loadTemplate(String path) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -327,12 +327,12 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 替换 #键# 占位符
-    *
-    * @param template 模板
-    * @param vars     变量
-    * @return 结果
-    */
+     * 替换 #键# 占位符
+     *
+     * @param template 模板
+     * @param vars     变量
+     * @return 结果
+     */
     protected String resolve(String template, Map<String, Object> vars) {
         Matcher matcher = PLACEHOLDER.matcher(template);
         StringBuilder sb = new StringBuilder();
@@ -346,22 +346,22 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-    * 空转为空
-    *
-    * @param value 值
-    * @return 空转为空的结果
-    */
+     * 空转为空
+     *
+     * @param value 值
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
     /**
-    * 空转为空
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 空转为空的结果
-    */
+     * 空转为空
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String value, String defaultValue) {
         return (value == null || value.isBlank()) ? defaultValue : value;
     }

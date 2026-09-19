@@ -33,45 +33,45 @@ import java.util.concurrent.TimeUnit;
 public final class WechatToolExporter {
 
     /**
-    * 命令执行超时时间（秒），聊天记录导出可能耗时较长
-    */
+     * 命令执行超时时间（秒），聊天记录导出可能耗时较长
+     */
     private static final long COMMAND_TIMEOUT_SECONDS = 1800L;
 
     /**
-    * SQL 导出默认表名
-    */
+     * SQL 导出默认表名
+     */
     private static final String DEFAULT_TABLE_NAME = "wechat_message";
 
     /**
-    * Wechat-Export 导出格式名：CSV
-    */
+     * Wechat-Export 导出格式名：CSV
+     */
     private static final String EXPORT_FORMAT_CSV = "csv";
 
     /**
-    * Wechat-Export 导出格式名：XLSX
-    */
+     * Wechat-Export 导出格式名：XLSX
+     */
     private static final String EXPORT_FORMAT_XLSX = "xlsx";
 
     /**
-    * Wechat-Export 导出格式名：JSON（SQL 转换的中间格式）
-    */
+     * Wechat-Export 导出格式名：JSON（SQL 转换的中间格式）
+     */
     private static final String EXPORT_FORMAT_JSON = "json";
 
     /**
-    * 工具类禁止实例化。
-    */
+     * 工具类禁止实例化。
+     */
     private WechatToolExporter() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
 
     /**
-    * 执行 Python 工具编排导出。
-    *
-    * @param source 源文件（用于定位数据目录与默认输出位置）
-    * @param config 还原配置
-    * @return 还原结果
-    * @throws Exception 执行异常
-    */
+     * 执行 Python 工具编排导出。
+     *
+     * @param source 源文件（用于定位数据目录与默认输出位置）
+     * @param config 还原配置
+     * @return 还原结果
+     * @throws Exception 执行异常
+     */
     public static DataRestoreResult export(File source, DataRestoreConfig config) throws Exception {
         ExportFormat format = config.getFormat();
         if (format == null) {
@@ -103,17 +103,17 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 编排 Wechat-Export 原生导出（CSV / XLSX），收集生成的数据文件。
-    *
-    * @param config       还原配置
-    * @param toolScript   export.py 脚本文件
-    * @param toolDir      工具工作目录
-    * @param dataDir      微信数据目录
-    * @param outputDir    输出目录
-    * @param exportFormat Wechat-Export 导出格式（csv / xlsx）
-    * @return 还原结果
-    * @throws Exception 执行异常
-    */
+     * 编排 Wechat-Export 原生导出（CSV / XLSX），收集生成的数据文件。
+     *
+     * @param config       还原配置
+     * @param toolScript   export.py 脚本文件
+     * @param toolDir      工具工作目录
+     * @param dataDir      微信数据目录
+     * @param outputDir    输出目录
+     * @param exportFormat Wechat-Export 导出格式（csv / xlsx）
+     * @return 还原结果
+     * @throws Exception 执行异常
+     */
     private static DataRestoreResult doRestoreByExport(DataRestoreConfig config, File toolScript, File toolDir,
                                                        File dataDir, File outputDir,
                                                        String exportFormat) throws Exception {
@@ -140,16 +140,16 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 还原为 SQL 脚本：先导出 JSON，再将消息转换为 CREATE TABLE + INSERT 语句。
-    *
-    * @param config     还原配置
-    * @param toolScript export.py 脚本文件
-    * @param toolDir    工具工作目录
-    * @param dataDir    微信数据目录
-    * @param outputDir  输出目录
-    * @return 还原结果
-    * @throws Exception 执行异常
-    */
+     * 还原为 SQL 脚本：先导出 JSON，再将消息转换为 CREATE TABLE + INSERT 语句。
+     *
+     * @param config     还原配置
+     * @param toolScript export.py 脚本文件
+     * @param toolDir    工具工作目录
+     * @param dataDir    微信数据目录
+     * @param outputDir  输出目录
+     * @return 还原结果
+     * @throws Exception 执行异常
+     */
     private static DataRestoreResult doRestoreSql(DataRestoreConfig config, File toolScript, File toolDir,
                                                   File dataDir, File outputDir) throws Exception {
         long startStamp = System.currentTimeMillis();
@@ -188,14 +188,14 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 可选前置步骤：执行 Wechat-Export key 命令捕获数据库密钥。
-    *
-    * <p>密钥捕获通过 DLL 注入微信进程实现，需要管理员权限且微信处于登录状态。</p>
-    *
-    * @param toolScript export.py 脚本文件
-    * @param toolDir    工具工作目录
-    * @throws Exception 执行异常
-    */
+     * 可选前置步骤：执行 Wechat-Export key 命令捕获数据库密钥。
+     *
+     * <p>密钥捕获通过 DLL 注入微信进程实现，需要管理员权限且微信处于登录状态。</p>
+     *
+     * @param toolScript export.py 脚本文件
+     * @param toolDir    工具工作目录
+     * @throws Exception 执行异常
+     */
     private static void captureDatabaseKey(File toolScript, File toolDir) throws Exception {
         String[] command = {findPython(), toolScript.getAbsolutePath(), "key"};
         CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS, toolDir, null, null);
@@ -207,15 +207,15 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 构建 Wechat-Export 导出命令（数组形式，避免引号转义问题）。
-    *
-    * @param toolScript   export.py 脚本文件
-    * @param dataDir      微信数据目录
-    * @param outputDir    输出目录
-    * @param exportFormat 导出格式
-    * @param config       还原配置
-    * @return 命令参数数组
-    */
+     * 构建 Wechat-Export 导出命令（数组形式，避免引号转义问题）。
+     *
+     * @param toolScript   export.py 脚本文件
+     * @param dataDir      微信数据目录
+     * @param outputDir    输出目录
+     * @param exportFormat 导出格式
+     * @param config       还原配置
+     * @return 命令参数数组
+     */
     private static String[] buildExportCommand(File toolScript, File dataDir, File outputDir,
                                                String exportFormat, DataRestoreConfig config) {
         List<String> cmd = new ArrayList<>(16);
@@ -250,14 +250,14 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 解析 Wechat-Export 工具脚本路径。
-    *
-    * <p>options 中的 {@code tool.path} 可以指向 export.py 文件本身，
-    * 也可以指向工具根目录（自动查找其下的 export.py）。</p>
-    *
-    * @param config 还原配置
-    * @return export.py 脚本文件
-    */
+     * 解析 Wechat-Export 工具脚本路径。
+     *
+     * <p>options 中的 {@code tool.path} 可以指向 export.py 文件本身，
+     * 也可以指向工具根目录（自动查找其下的 export.py）。</p>
+     *
+     * @param config 还原配置
+     * @return export.py 脚本文件
+     */
     private static File resolveToolScript(DataRestoreConfig config) {
         Object toolPath = config.getOptions().get(WechatDataRestore.OPTION_TOOL_PATH);
         if (toolPath == null || String.valueOf(toolPath).isBlank()) {
@@ -276,15 +276,15 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 解析微信数据目录。
-    *
-    * <p>options 中的 {@code data.dir} 优先；缺省时源是目录就取它本身，
-    * 源是文件才退到它所在目录。</p>
-    *
-    * @param source 源文件或源目录
-    * @param config 还原配置
-    * @return 微信数据目录
-    */
+     * 解析微信数据目录。
+     *
+     * <p>options 中的 {@code data.dir} 优先；缺省时源是目录就取它本身，
+     * 源是文件才退到它所在目录。</p>
+     *
+     * @param source 源文件或源目录
+     * @param config 还原配置
+     * @return 微信数据目录
+     */
     private static File resolveDataDir(File source, DataRestoreConfig config) {
         Object dataDirOption = config.getOptions().get(WechatDataRestore.OPTION_DATA_DIR);
         if (dataDirOption != null && !String.valueOf(dataDirOption).isBlank()) {
@@ -306,12 +306,12 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 解析 long 类型 options 值。
-    *
-    * @param value        原始值
-    * @param defaultValue 解析失败时的默认值
-    * @return long 值
-    */
+     * 解析 long 类型 options 值。
+     *
+     * @param value        原始值
+     * @param defaultValue 解析失败时的默认值
+     * @return long 值
+     */
     private static long parseLongOption(Object value, long defaultValue) {
         if (value instanceof Number number) {
             return number.longValue();
@@ -327,20 +327,20 @@ public final class WechatToolExporter {
     }
 
     /**
-    * 解析字符串类型 options 值。
-    *
-    * @param value 原始值
-    * @return 字符串值，null 转为空串
-    */
+     * 解析字符串类型 options 值。
+     *
+     * @param value 原始值
+     * @return 字符串值，null 转为空串
+     */
     private static String parseStringOption(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }
 
     /**
-    * 在系统中查找可用的 Python 可执行文件。
-    *
-    * @return 找到的 Python 命令名称
-    */
+     * 在系统中查找可用的 Python 可执行文件。
+     *
+     * @return 找到的 Python 命令名称
+     */
     private static String findPython() {
         String osName = System.getProperty("os.name").toLowerCase();
         String[] candidates = osName.contains("win")

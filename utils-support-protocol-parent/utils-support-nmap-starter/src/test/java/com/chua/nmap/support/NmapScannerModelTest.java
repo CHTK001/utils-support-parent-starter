@@ -4,9 +4,9 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
-* nmapscanner 数据模型测试（不依赖动态库）
-* @author CH
-* @since 4.0.0
+ * nmapscanner 数据模型测试（不依赖动态库）
+ * @author CH
+ * @since 4.0.0
  */
 class NmapScannerModelTest {
 

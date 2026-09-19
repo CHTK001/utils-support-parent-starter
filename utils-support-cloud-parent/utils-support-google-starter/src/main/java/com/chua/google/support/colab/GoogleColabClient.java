@@ -21,63 +21,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Google Colab Enterprise 客户端
-*
-* <p>基于 Vertex AI NotebookService API（aiplatform.googleapis.com）封装，
-* 提供 Colab Enterprise 运行时管理与笔记本执行能力：
-* <ul>
-*   <li>运行时管理：查询、启动、停止、删除 Notebook 运行时</li>
-*   <li>运行时模板：查询可用的运行时模板</li>
-*   <li>执行作业：提交 GCS 上的 .ipynb 笔记本执行任务，查询执行状态与结果</li>
-* </ul>
-*
-* <p>注意：普通版 Colab（colab.research.google.com）不提供公开 API，
-* 本客户端仅支持 Colab Enterprise，需要 GCP 项目与服务账号凭据。
-*
-* @author CH
-* @see <a href="https://cloud.google.com/colab/docs/reference/rest">Colab Enterprise REST API</a>
-* @since 4.0.0.42
+ * Google Colab Enterprise 客户端
+ *
+ * <p>基于 Vertex AI NotebookService API（aiplatform.googleapis.com）封装，
+ * 提供 Colab Enterprise 运行时管理与笔记本执行能力：
+ * <ul>
+ *   <li>运行时管理：查询、启动、停止、删除 Notebook 运行时</li>
+ *   <li>运行时模板：查询可用的运行时模板</li>
+ *   <li>执行作业：提交 GCS 上的 .ipynb 笔记本执行任务，查询执行状态与结果</li>
+ * </ul>
+ *
+ * <p>注意：普通版 Colab（colab.research.google.com）不提供公开 API，
+ * 本客户端仅支持 Colab Enterprise，需要 GCP 项目与服务账号凭据。
+ *
+ * @author CH
+ * @see <a href="https://cloud.google.com/colab/docs/reference/rest">Colab Enterprise REST API</a>
+ * @since 4.0.0.42
  */
 @Slf4j
 public class GoogleColabClient implements AutoCloseable {
 
     /**
-    * 默认区域
-    */
+     * 默认区域
+     */
     public static final String DEFAULT_LOCATION = "us-central1";
 
     /**
-    * 执行状态轮询间隔（毫秒）
-    */
+     * 执行状态轮询间隔（毫秒）
+     */
     private static final long POLL_INTERVAL_MILLIS = 5_000L;
 
     /**
-    * Vertex AI notebook服务 客户端
-    */
+     * Vertex AI notebook服务 客户端
+     */
     private final NotebookServiceClient client;
 
     /**
-    * GCP 项目 标识
-    */
+     * GCP 项目 标识
+     */
     private final String projectId;
 
     /**
-    * 区域
-    */
+     * 区域
+     */
     private final String location;
 
     /**
-    * 资源父路径：projects/{project}/位置/{位置}
-    */
+     * 资源父路径：projects/{project}/位置/{位置}
+     */
     private final String parent;
 
     /**
-    * 创建 Google Colab Enterprise 客户端
-    *
-    * @param projectId          GCP 项目 标识
-    * @param location           区域，如 us-中央1、asia-east1
-    * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
-    */
+     * 创建 Google Colab Enterprise 客户端
+     *
+     * @param projectId          GCP 项目 标识
+     * @param location           区域，如 us-中央1、asia-east1
+     * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
+     */
     public GoogleColabClient(String projectId, String location, String serviceAccountJson) {
         this.projectId = projectId;
         this.location = location != null && !location.isBlank() ? location : DEFAULT_LOCATION;
@@ -95,27 +95,27 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 创建 Google Colab Enterprise 客户端（默认区域）
-    *
-    * @param projectId          GCP 项目 标识
-    * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
-    */
+     * 创建 Google Colab Enterprise 客户端（默认区域）
+     *
+     * @param projectId          GCP 项目 标识
+     * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
+     */
     public GoogleColabClient(String projectId, String serviceAccountJson) {
         this(projectId, DEFAULT_LOCATION, serviceAccountJson);
     }
 
     /**
-    * 解析 GCP 凭据。
-    *
-    * <p>解析优先级：
-    * <ol>
-    *   <li>将 {@code secret} 作为服务账号 JSON 密钥内容解析</li>
-    *   <li>若解析失败，降级为 {@link GoogleCredentials#getApplicationDefault()}（ADC 凭据链）</li>
-    * </ol>
-    *
-    * @param secret 密钥内容（JSON 字符串或任意字符串）
-    * @return 解析后的凭据，不会为 空
-    */
+     * 解析 GCP 凭据。
+     *
+     * <p>解析优先级：
+     * <ol>
+     *   <li>将 {@code secret} 作为服务账号 JSON 密钥内容解析</li>
+     *   <li>若解析失败，降级为 {@link GoogleCredentials#getApplicationDefault()}（ADC 凭据链）</li>
+     * </ol>
+     *
+     * @param secret 密钥内容（JSON 字符串或任意字符串）
+     * @return 解析后的凭据，不会为 空
+     */
     private static Credentials resolveCredentials(String secret) {
         if (secret != null && !secret.isBlank()) {
             String trimmed = secret.trim();
@@ -137,10 +137,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 查询运行时列表
-    *
-    * @return 当前项目与区域下的全部 Notebook 运行时
-    */
+     * 查询运行时列表
+     *
+     * @return 当前项目与区域下的全部 Notebook 运行时
+     */
     public List<RuntimeInfo> listRuntimes() {
         List<RuntimeInfo> result = new ArrayList<>();
         for (NotebookRuntime runtime : client.listNotebookRuntimes(parent).iterateAll()) {
@@ -156,11 +156,11 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 查询单个运行时
-    *
-    * @param runtimeId 运行时 标识
-    * @return 运行时信息
-    */
+     * 查询单个运行时
+     *
+     * @param runtimeId 运行时 标识
+     * @return 运行时信息
+     */
     public RuntimeInfo getRuntime(String runtimeId) {
         NotebookRuntime runtime = client.getNotebookRuntime(runtimeName(runtimeId));
         return RuntimeInfo.builder()
@@ -173,37 +173,37 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 启动运行时（阻塞直至启动完成）
-    *
-    * @param runtimeId 运行时 标识
-    */
+     * 启动运行时（阻塞直至启动完成）
+     *
+     * @param runtimeId 运行时 标识
+     */
     public void startRuntime(String runtimeId) {
         awaitQuietly(client.startNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
 
     /**
-    * 停止运行时（阻塞直至停止完成）
-    *
-    * @param runtimeId 运行时 标识
-    */
+     * 停止运行时（阻塞直至停止完成）
+     *
+     * @param runtimeId 运行时 标识
+     */
     public void stopRuntime(String runtimeId) {
         awaitQuietly(client.stopNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
 
     /**
-    * 删除运行时（阻塞直至删除完成）
-    *
-    * @param runtimeId 运行时 标识
-    */
+     * 删除运行时（阻塞直至删除完成）
+     *
+     * @param runtimeId 运行时 标识
+     */
     public void deleteRuntime(String runtimeId) {
         awaitQuietly(client.deleteNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
 
     /**
-    * 查询运行时模板列表
-    *
-    * @return 当前项目与区域下的全部运行时模板
-    */
+     * 查询运行时模板列表
+     *
+     * @return 当前项目与区域下的全部运行时模板
+     */
     public List<TemplateInfo> listRuntimeTemplates() {
         List<TemplateInfo> result = new ArrayList<>();
         for (NotebookRuntimeTemplate template : client.listNotebookRuntimeTemplates(parent).iterateAll()) {
@@ -217,18 +217,18 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 提交笔记本执行作业。
-    *
-    * <p>提交后立即返回，通过 {@link #getExecution(String)} 或
-    * {@link #waitExecution(String, long)} 跟踪执行进度；
-    * 执行完成后结果写入 {@code outputUri} 对应的 GCS 目录。
-    *
-    * @param notebookUri      待执行笔记本的 GCS 地址，如 gs://bucket/路径/notebook.ipynb
-    * @param outputUri        执行输出目录，如 gs://bucket/输出/
-    * @param templateId       运行时模板 标识 或完整资源名
-    * @param displayName      作业显示名称
-    * @return 执行作业信息
-    */
+     * 提交笔记本执行作业。
+     *
+     * <p>提交后立即返回，通过 {@link #getExecution(String)} 或
+     * {@link #waitExecution(String, long)} 跟踪执行进度；
+     * 执行完成后结果写入 {@code outputUri} 对应的 GCS 目录。
+     *
+     * @param notebookUri      待执行笔记本的 GCS 地址，如 gs://bucket/路径/notebook.ipynb
+     * @param outputUri        执行输出目录，如 gs://bucket/输出/
+     * @param templateId       运行时模板 标识 或完整资源名
+     * @param displayName      作业显示名称
+     * @return 执行作业信息
+     */
     public ExecutionInfo executeNotebook(String notebookUri, String outputUri,
                                          String templateId, String displayName) {
         String jobId = "exec-" + java.util.UUID.randomUUID();
@@ -251,21 +251,21 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 查询执行作业状态
-    *
-    * @param executionId 执行作业 标识
-    * @return 执行作业信息
-    */
+     * 查询执行作业状态
+     *
+     * @param executionId 执行作业 标识
+     * @return 执行作业信息
+     */
     public ExecutionInfo getExecution(String executionId) {
         NotebookExecutionJob job = client.getNotebookExecutionJob(executionName(executionId));
         return toExecutionInfo(job);
     }
 
     /**
-    * 查询执行作业列表
-    *
-    * @return 全部执行作业
-    */
+     * 查询执行作业列表
+     *
+     * @return 全部执行作业
+     */
     public List<ExecutionInfo> listExecutions() {
         List<ExecutionInfo> result = new ArrayList<>();
         for (NotebookExecutionJob job : client.listNotebookExecutionJobs(parent).iterateAll()) {
@@ -275,12 +275,12 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 等待执行作业到达终态（成功/失败/取消等）。
-    *
-    * @param executionId 执行作业 标识
-    * @param timeoutMillis 最长等待时间（毫秒），超时后返回当前状态
-    * @return 最新执行作业信息
-    */
+     * 等待执行作业到达终态（成功/失败/取消等）。
+     *
+     * @param executionId 执行作业 标识
+     * @param timeoutMillis 最长等待时间（毫秒），超时后返回当前状态
+     * @return 最新执行作业信息
+     */
     public ExecutionInfo waitExecution(String executionId, long timeoutMillis) {
         long deadline = System.currentTimeMillis() + timeoutMillis;
         ExecutionInfo info = getExecution(executionId);
@@ -297,20 +297,20 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 删除执行作业
-    *
-    * @param executionId 执行作业 标识
-    */
+     * 删除执行作业
+     *
+     * @param executionId 执行作业 标识
+     */
     public void deleteExecution(String executionId) {
         awaitQuietly(client.deleteNotebookExecutionJobAsync(executionName(executionId)));
     }
 
     /**
-    * 判断执行状态是否为终态（成功/失败/取消/过期/部分成功）。
-    *
-    * @param state 状态名
-    * @return 是否终态
-    */
+     * 判断执行状态是否为终态（成功/失败/取消/过期/部分成功）。
+     *
+     * @param state 状态名
+     * @return 是否终态
+     */
     private boolean isTerminal(String state) {
         return JobState.JOB_STATE_SUCCEEDED.name().equals(state)
                 || JobState.JOB_STATE_FAILED.name().equals(state)
@@ -320,11 +320,11 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 转为执行信息。
-    *
-    * @param job 作业
-    * @return 转为执行信息的结果
-    */
+     * 转为执行信息。
+     *
+     * @param job 作业
+     * @return 转为执行信息的结果
+     */
     private ExecutionInfo toExecutionInfo(NotebookExecutionJob job) {
         return ExecutionInfo.builder()
                 .name(job.getName())
@@ -346,10 +346,10 @@ public class GoogleColabClient implements AutoCloseable {
     private String runtimeName(String runtimeId) {
         return runtimeId.contains("/") ? runtimeId : parent + "/notebookRuntimes/" + runtimeId;
     /**
-    * templateresource。
-    * @param templateId templateid
-    * @return templateResource的结果
-    */
+     * templateresource。
+     * @param templateId templateid
+     * @return templateResource的结果
+     */
     }
 
     /**
@@ -361,12 +361,12 @@ public class GoogleColabClient implements AutoCloseable {
     private String templateResource(String templateId) {
         return templateId.contains("/") ? templateId : parent + "/notebookRuntimeTemplates/" + templateId;
     /**
-    * 执行名称。
-    * @param executionId 执行标识
-    * @return 执行名称的结果
-    * @param future 期货
-    * @param resourceName resource名称
-    */
+     * 执行名称。
+     * @param executionId 执行标识
+     * @return 执行名称的结果
+     * @param future 期货
+     * @param resourceName resource名称
+     */
     }
 
     /**

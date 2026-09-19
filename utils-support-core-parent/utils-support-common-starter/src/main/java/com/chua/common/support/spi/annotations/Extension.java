@@ -7,16 +7,16 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Extension {
 
     /**
-    * 扩展名
-    *
-    * @return 扩展名字符串
-    */
+     * 扩展名
+     *
+     * @return 扩展名字符串
+     */
     String value();
 }

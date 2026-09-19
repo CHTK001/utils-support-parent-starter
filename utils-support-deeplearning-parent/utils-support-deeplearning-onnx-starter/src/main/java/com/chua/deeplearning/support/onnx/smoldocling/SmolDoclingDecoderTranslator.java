@@ -15,45 +15,45 @@ import java.util.Map;
 
 
 /**
-* smoldocling 解码器 Translator
-* <p>
-*                                        
-* <p>
-*                
-* - 输入_embeds:
-* - attention_mask:                
-* - 位置_标识:
-* - past_键_值:           KV
-* <p>
-*                
-* - logits:           令牌
-* - past_键_值:              KV
-*
-* @author CH
-* @版本 4.0.0.32
-* @since 2025/01/22
+ * smoldocling 解码器 Translator
+ * <p>
+ *                                        
+ * <p>
+ *                
+ * - 输入_embeds:
+ * - attention_mask:                
+ * - 位置_标识:
+ * - past_键_值:           KV
+ * <p>
+ *                
+ * - logits:           令牌
+ * - past_键_值:              KV
+ *
+ * @author CH
+ * @版本 4.0.0.32
+ * @since 2025/01/22
  */
 @Slf4j
 public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecoderTranslator.DecoderInput, SmolDoclingDecoderTranslator.DecoderStepOutput> {
 
     /**
-    *                                               30       
-    */
+     *                                               30       
+     */
     private static final int NUM_LAYERS = 30;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private static final int NUM_ATTENTION_HEADS = 9;
 
     /**
-    * KV                
-    */
+     * KV                
+     */
     private static final int NUM_KEY_VALUE_HEADS = 3;
 
     /**
-    *                   
-    */
+     *                   
+     */
     private static final int HEAD_DIM = 64;
 
     @Override
@@ -207,39 +207,39 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     /**
-    *                
-    * @author CH
-    * @since 4.0.0
-    */
+     *                
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     public static class DecoderInput {
         /**
-        *                                                       
-        */
+         *                                                       
+         */
         private NDArray inputsEmbeds;
 
         /**
-        *                
-        */
+         *                
+         */
         private NDArray attentionMask;
 
         /**
-        *             
-        */
+         *             
+         */
         private NDArray positionIds;
 
         /**
-        * Past 键 值   KV
-        */
+         * Past 键 值   KV
+         */
         private Map<String, NDArray> pastKeyValues;
 
         /**
-        *             
-        *
-        * @param inputsEmbeds              
-        * @param attentionMask                
-        * @param positionIds               
-        */
+         *             
+         *
+         * @param inputsEmbeds              
+         * @param attentionMask                
+         * @param positionIds               
+         */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds) {
             this.inputsEmbeds = inputsEmbeds;
             this.attentionMask = attentionMask;
@@ -248,13 +248,13 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-        *                    KV          
-        *
-        * @param inputsEmbeds              
-        * @param attentionMask                
-        * @param positionIds               
-        * @param pastKeyValues KV       
-        */
+         *                    KV          
+         *
+         * @param inputsEmbeds              
+         * @param attentionMask                
+         * @param positionIds               
+         * @param pastKeyValues KV       
+         */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds,
                             Map<String, NDArray> pastKeyValues) {
             this.inputsEmbeds = inputsEmbeds;
@@ -265,33 +265,33 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     /**
-    *                      
-    * @author CH
-    * @since 4.0.0
-    */
+     *                      
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     public static class DecoderStepOutput {
         /**
-        * logits       
-        */
+         * logits       
+         */
         private long[] shape;
 
         /**
-        * logits       
-        */
+         * logits       
+         */
         private float[] logits;
 
         /**
-        *              KV                   
-        */
+         *              KV                   
+         */
         private Map<String, NDArray> pastKeyValues;
 
         /**
-        *             
-        *
-        * @param shape  logits       
-        * @param logits logits       
-        */
+         *             
+         *
+         * @param shape  logits       
+         * @param logits logits       
+         */
         public DecoderStepOutput(long[] shape, float[] logits) {
             this.shape = shape;
             this.logits = logits;
@@ -299,12 +299,12 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-        *                    KV          
-        *
-        * @param shape        logits       
-        * @param logits       logits       
-        * @param pastKeyValues              KV       
-        */
+         *                    KV          
+         *
+         * @param shape        logits       
+         * @param logits       logits       
+         * @param pastKeyValues              KV       
+         */
         public DecoderStepOutput(long[] shape, float[] logits, Map<String, NDArray> pastKeyValues) {
             this.shape = shape;
             this.logits = logits;
@@ -312,10 +312,10 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         /**
-        *                   
-        *
-        * @return             
-        */
+         *                   
+         *
+         * @return             
+         */
         public int getVocabSize() {
             return (int) shape[shape.length - 1];
         }

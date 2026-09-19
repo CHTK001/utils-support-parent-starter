@@ -17,63 +17,63 @@ import org.opencv.objdetect.CascadeClassifier;
 import java.io.File;
 
 /**
-* 纯 打开cv 人脸质量评估翻译器。
-* <p>结合 Haar 人脸检测与模糊/亮度/尺寸指标，判断人脸是否可用于后续识别。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 纯 打开cv 人脸质量评估翻译器。
+ * <p>结合 Haar 人脸检测与模糊/亮度/尺寸指标，判断人脸是否可用于后续识别。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class OpencvFaceQualityAssessor extends OpencvModelTranslator {
 
     /**
-    * 人脸级联模型路径。
-    */
+     * 人脸级联模型路径。
+     */
     private final String modelPath;
 
     /**
-    * 人脸级联分类器。
-    */
+     * 人脸级联分类器。
+     */
     private final CascadeClassifier classifier;
 
     /**
-    * 模糊阈值。
-    */
+     * 模糊阈值。
+     */
     private final double blurThreshold;
 
     /**
-    * 最小人脸面积比。
-    */
+     * 最小人脸面积比。
+     */
     private final float minFaceRatio;
 
     /**
-    * 最低亮度。
-    */
+     * 最低亮度。
+     */
     private final double minBrightness;
 
     /**
-    * 最高亮度。
-    */
+     * 最高亮度。
+     */
     private final double maxBrightness;
 
     /**
-    * 构造评估器。
-    *
-    * @param modelPath 人脸模型路径
-    */
+     * 构造评估器。
+     *
+     * @param modelPath 人脸模型路径
+     */
     public OpencvFaceQualityAssessor(String modelPath) {
         this(modelPath, 80.0, 0.05f, 40.0, 220.0);
     }
 
     /**
-    * 构造评估器。
-    *
-    * @param modelPath      人脸模型路径
-    * @param blurThreshold  模糊阈值
-    * @param minFaceRatio   最小人脸面积比
-    * @param minBrightness  最低亮度
-    * @param maxBrightness  最高亮度
-    */
+     * 构造评估器。
+     *
+     * @param modelPath      人脸模型路径
+     * @param blurThreshold  模糊阈值
+     * @param minFaceRatio   最小人脸面积比
+     * @param minBrightness  最低亮度
+     * @param maxBrightness  最高亮度
+     */
     public OpencvFaceQualityAssessor(String modelPath,
                                      double blurThreshold,
                                      float minFaceRatio,

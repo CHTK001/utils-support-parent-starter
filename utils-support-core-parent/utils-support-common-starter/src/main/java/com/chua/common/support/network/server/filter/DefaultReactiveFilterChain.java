@@ -12,24 +12,24 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
-* 默认响应式过滤器链实现。
-*
-* <p>按顺序异步执行所有匹配的过滤器，最终调用目标处理器。
-* 每个 {@link ReactiveServerFilter} 通过调用 {@link ReactiveFilterChain#doFilter} 放行。</p>
-*
-* <p>过滤器执行逻辑：
-* <ol>
-*   <li>路径匹配检查：{@link ReactiveServerFilter#supportPath()} 不为空时，
-*       仅当请求路径匹配时才执行该过滤器</li>
-*   <li>执行过滤器 {@link ReactiveServerFilter#doFilter} 并等待其完成</li>
-*   <li>全部过滤器执行完毕后，调用目标处理器 {@link ServerHandler#handle}</li>
-* </ol></p>
-*
-* <p>注意：本实现为简化版，未引入 {@link FilterChainListener} 回调，
-* 因为响应式场景下 listener 可通过 {@link ReactiveServerFilter} 自行实现。</p>
-*
-* @author CH
-* @since 2026/07/16
+ * 默认响应式过滤器链实现。
+ *
+ * <p>按顺序异步执行所有匹配的过滤器，最终调用目标处理器。
+ * 每个 {@link ReactiveServerFilter} 通过调用 {@link ReactiveFilterChain#doFilter} 放行。</p>
+ *
+ * <p>过滤器执行逻辑：
+ * <ol>
+ *   <li>路径匹配检查：{@link ReactiveServerFilter#supportPath()} 不为空时，
+ *       仅当请求路径匹配时才执行该过滤器</li>
+ *   <li>执行过滤器 {@link ReactiveServerFilter#doFilter} 并等待其完成</li>
+ *   <li>全部过滤器执行完毕后，调用目标处理器 {@link ServerHandler#handle}</li>
+ * </ol></p>
+ *
+ * <p>注意：本实现为简化版，未引入 {@link FilterChainListener} 回调，
+ * 因为响应式场景下 listener 可通过 {@link ReactiveServerFilter} 自行实现。</p>
+ *
+ * @author CH
+ * @since 2026/07/16
  */
 @Slf4j
 public class DefaultReactiveFilterChain implements ReactiveFilterChain {
@@ -47,11 +47,11 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     private int index;
 
     /**
-    * 构造响应式过滤器链。
-    *
-    * @param filters 过滤器列表
-    * @param handler 目标处理器
-    */
+     * 构造响应式过滤器链。
+     *
+     * @param filters 过滤器列表
+     * @param handler 目标处理器
+     */
     public DefaultReactiveFilterChain(List<ReactiveServerFilter> filters, ServerHandler handler) {
         this.filters = filters != null ? filters : List.of();
         this.handler = handler;
@@ -117,14 +117,14 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     }
 
     /**
-    * 路径匹配。
-    *
-    * <p>支持精确匹配、前缀匹配和单级匹配。</p>
-    *
-    * @param pattern     过滤器绑定的路径模式
-    * @param requestPath 请求路径
-    * @return 匹配返回 true
-    */
+     * 路径匹配。
+     *
+     * <p>支持精确匹配、前缀匹配和单级匹配。</p>
+     *
+     * @param pattern     过滤器绑定的路径模式
+     * @param requestPath 请求路径
+     * @return 匹配返回 true
+     */
     private boolean matchPath(String pattern, String requestPath) {
         if (requestPath == null) {
             return false;

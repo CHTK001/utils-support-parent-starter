@@ -15,24 +15,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* BGE 系列文本嵌入 Translator（BGE-small / BGE-M3 通用）。
-*
-* <p>BGE（BAAI General Embedding）是中文语义向量模型，输入
-* {@code input_ids + attention_mask}（int64），输出 {@code embedding}（已池化句向量）。
-* 与 sentence-transformers 语义一致，可直接用于余弦相似度 / 向量检索。</p>
-*
-* <p>资源加载：若模型在 jar 内（如 bge-small-zh），由 {@link NativeLoader} 解压到临时目录；
-* 若为自动下载模型（bge-m3），模型路径由调用方传入（registry 下载后本地路径）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * BGE 系列文本嵌入 Translator（BGE-small / BGE-M3 通用）。
+ *
+ * <p>BGE（BAAI General Embedding）是中文语义向量模型，输入
+ * {@code input_ids + attention_mask}（int64），输出 {@code embedding}（已池化句向量）。
+ * 与 sentence-transformers 语义一致，可直接用于余弦相似度 / 向量检索。</p>
+ *
+ * <p>资源加载：若模型在 jar 内（如 bge-small-zh），由 {@link NativeLoader} 解压到临时目录；
+ * 若为自动下载模型（bge-m3），模型路径由调用方传入（registry 下载后本地路径）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class BgeEmbeddingTranslator {
 
     /**
-    * 默认最大序列长度（含 [CLS]/[SEP]）
-    */
+     * 默认最大序列长度（含 [CLS]/[SEP]）
+     */
     public static final int DEFAULT_MAX_LEN = 512;
 
     /** ONNX 运行时环境 */
@@ -77,11 +77,11 @@ public class BgeEmbeddingTranslator {
     }
 
     /**
-    * 从本地路径加载 BGE 模型（自动下载模型用）。
-    *
-    * @param modelPath 本地模型文件路径
-    * @throws Exception 加载异常
-    */
+     * 从本地路径加载 BGE 模型（自动下载模型用）。
+     *
+     * @param modelPath 本地模型文件路径
+     * @throws Exception 加载异常
+     */
     public synchronized void loadLocal(String modelPath) throws Exception {
         if (session != null) {
             return;
@@ -94,10 +94,10 @@ public class BgeEmbeddingTranslator {
     }
 
     /**
-    * 创建会话
-    *
-    * @param modelPath 模型路径
-    */
+     * 创建会话
+     *
+     * @param modelPath 模型路径
+     */
     private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
@@ -111,12 +111,12 @@ public class BgeEmbeddingTranslator {
     }
 
     /**
-    * 计算文本句向量（已池化）。
-    *
-    * @param inputIds      令牌 标识
-    * @param attentionMask attention mask
-    * @return 句向量 float[]
-    */
+     * 计算文本句向量（已池化）。
+     *
+     * @param inputIds      令牌 标识
+     * @param attentionMask attention mask
+     * @return 句向量 float[]
+     */
     public float[] embed(long[] inputIds, long[] attentionMask) throws Exception {
         if (session == null) {
             throw new IllegalStateException("BGE 模型未初始化");
@@ -160,8 +160,8 @@ public class BgeEmbeddingTranslator {
     }
 
     /**
-    * 关闭底层 ONNX 会话。
-    */
+     * 关闭底层 ONNX 会话。
+     */
     public synchronized void close() {
         try {
             if (session != null) {

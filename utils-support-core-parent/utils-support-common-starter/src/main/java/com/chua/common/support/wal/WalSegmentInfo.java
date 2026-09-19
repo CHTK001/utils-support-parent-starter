@@ -13,7 +13,7 @@ import java.nio.file.Path;
  * @param active      是否为当前活跃分片
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public record WalSegmentInfo(
     int segmentNo,
     long firstLsn,
@@ -24,19 +24,19 @@ public record WalSegmentInfo(
 ) {
 
     /**
-    * 分片是否为空（无任何记录）。
-    *
-    * @return true=空
-    */
+     * 分片是否为空（无任何记录）。
+     *
+     * @return true=空
+     */
     public boolean isEmpty() {
         return recordCount <= 0;
     }
 
     /**
-    * 分片是否可删除（已 checkpoint 且非活跃）。
-    *
-    * @return true=可删除
-    */
+     * 分片是否可删除（已 checkpoint 且非活跃）。
+     *
+     * @return true=可删除
+     */
     public boolean isRemovable() {
         return !active && !isEmpty();
     }

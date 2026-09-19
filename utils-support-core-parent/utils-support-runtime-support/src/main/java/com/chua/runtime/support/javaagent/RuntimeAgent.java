@@ -22,74 +22,74 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 运行时 智能体 入口 — 可作为 {@code -javaagent} 附加到 JVM，
-* 或在运行时通过 {@code VirtualMachine.attach()} 注入。
-*
-* <p>核心能力：</p>
-* <ul>
-*   <li><strong>premain</strong> — 启动时通过 {@code -javaagent} 加载，在 main 方法前初始化运行时管理器</li>
-*   <li><strong>agentmain</strong> — 运行时注入后执行，提供进程管理和监控能力</li>
-* </ul>
-*
-* <h3>启动方式</h3>
-* <pre>
-* # 方式 1：启动时附加
-* java -javaagent:utils-support-runtime-starter.jar=com.chua.runtime.support.javaagent.RuntimeAgent \
-*      -jar my-app.jar
-*
-* # 方式 2：运行时注入（使用 jattach）
-* jattach <target_pid> load utils-support-runtime-starter.jar com.chua.runtime.support.javaagent.RuntimeAgent
-*
-* # 方式 3：直接调用 RuntimeManager
-* RuntimeManager manager = new DefaultRuntimeManager();
-* </pre>
-*
-* <h3>Agent 参数</h3>
-* <p>通过 {@code -javaagent:jar=参数} 或 {@code VirtualMachine.loadAgent(path, 参数)} 传递：</p>
-* <pre>
-* -javaagent:runtime-starter.jar=log_level=DEBUG,startup_timeout=60000
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 运行时 智能体 入口 — 可作为 {@code -javaagent} 附加到 JVM，
+ * 或在运行时通过 {@code VirtualMachine.attach()} 注入。
+ *
+ * <p>核心能力：</p>
+ * <ul>
+ *   <li><strong>premain</strong> — 启动时通过 {@code -javaagent} 加载，在 main 方法前初始化运行时管理器</li>
+ *   <li><strong>agentmain</strong> — 运行时注入后执行，提供进程管理和监控能力</li>
+ * </ul>
+ *
+ * <h3>启动方式</h3>
+ * <pre>
+ * # 方式 1：启动时附加
+ * java -javaagent:utils-support-runtime-starter.jar=com.chua.runtime.support.javaagent.RuntimeAgent \
+ *      -jar my-app.jar
+ *
+ * # 方式 2：运行时注入（使用 jattach）
+ * jattach <target_pid> load utils-support-runtime-starter.jar com.chua.runtime.support.javaagent.RuntimeAgent
+ *
+ * # 方式 3：直接调用 RuntimeManager
+ * RuntimeManager manager = new DefaultRuntimeManager();
+ * </pre>
+ *
+ * <h3>Agent 参数</h3>
+ * <p>通过 {@code -javaagent:jar=参数} 或 {@code VirtualMachine.loadAgent(path, 参数)} 传递：</p>
+ * <pre>
+ * -javaagent:runtime-starter.jar=log_level=DEBUG,startup_timeout=60000
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class RuntimeAgent {
 
     /**
-    * 日志级别参数
+     * 日志级别参数
      */
     private static final String OPT_LOG_LEVEL = "log_level";
 
     /**
-    * 启动超时参数
+     * 启动超时参数
      */
     private static final String OPT_STARTUP_TIMEOUT = "startup_timeout";
 
     /**
-    * 健康检查间隔（秒）
+     * 健康检查间隔（秒）
      */
     private static final String OPT_HEALTH_CHECK_INTERVAL = "health_check_interval";
 
     /**
-    * 启动超时（毫秒）
+     * 启动超时（毫秒）
      */
     private static final int DEFAULT_STARTUP_TIMEOUT = 30_000;
 
     /**
-    * 健康检查间隔（秒）
+     * 健康检查间隔（秒）
      */
     private static final int DEFAULT_HEALTH_CHECK_INTERVAL = 30;
 
     // ==================== Java Agent 入口 ====================
 
     /**
-    * JVM 启动时通过 -javaagent 加载的入口方法。
-    *
-    * <p>在 main 方法执行前被调用，用于在应用启动时初始化运行时管理器。</p>
-    *
-    * @param agentArgs   智能体 参数
-    * @param inst        Instrumentation 实例
+     * JVM 启动时通过 -javaagent 加载的入口方法。
+     *
+     * <p>在 main 方法执行前被调用，用于在应用启动时初始化运行时管理器。</p>
+     *
+     * @param agentArgs   智能体 参数
+     * @param inst        Instrumentation 实例
      */
     public static void premain(String agentArgs, Instrumentation inst) {
         log.info("[runtime-javaagent] RuntimeAgent premain 加载，参数: {}", agentArgs);
@@ -104,12 +104,12 @@ public class RuntimeAgent {
     }
 
     /**
-    * 运行时通过 虚拟machine.attach() 注入的入口方法。
-    *
-    * <p>在目标 JVM 运行时被调用，用于动态附加运行时管理器到已有进程。</p>
-    *
-    * @param agentArgs   智能体 参数
-    * @param inst        Instrumentation 实例
+     * 运行时通过 虚拟machine.attach() 注入的入口方法。
+     *
+     * <p>在目标 JVM 运行时被调用，用于动态附加运行时管理器到已有进程。</p>
+     *
+     * @param agentArgs   智能体 参数
+     * @param inst        Instrumentation 实例
      */
     public static void agentmain(String agentArgs, Instrumentation inst) {
         log.info("[runtime-javaagent] RuntimeAgent agentmain 注入，参数: {}", agentArgs);
@@ -134,10 +134,10 @@ public class RuntimeAgent {
     // ==================== 运行时管理器创建 ====================
 
     /**
-    * 根据参数创建 runtime管理器 实例。
-    *
-    * @param agentArgs 智能体 参数
-    * @return RuntimeManager 实例
+     * 根据参数创建 runtime管理器 实例。
+     *
+     * @param agentArgs 智能体 参数
+     * @return RuntimeManager 实例
      */
     private static RuntimeManager createRuntimeManager(String agentArgs) {
         AgentParams params = parseAgentArgs(agentArgs);
@@ -151,10 +151,10 @@ public class RuntimeAgent {
     // ==================== 参数解析 ====================
 
     /**
-    * 解析 智能体 参数。
-    *
-    * @param agentArgs 智能体 参数字符串
-    * @return 解析后的参数
+     * 解析 智能体 参数。
+     *
+     * @param agentArgs 智能体 参数字符串
+     * @return 解析后的参数
      */
     private static AgentParams parseAgentArgs(String agentArgs) {
         if (agentArgs == null || agentArgs.isBlank()) {
@@ -189,11 +189,11 @@ public class RuntimeAgent {
     // ==================== 内部类 ====================
 
     /**
-    * 智能体 参数容器。
-    *
-    * @param startupTimeoutMs      启动超时（毫秒）
-    * @param healthCheckIntervalSec 健康检查间隔（秒）
-    * @since 4.0.0.42
+     * 智能体 参数容器。
+     *
+     * @param startupTimeoutMs      启动超时（毫秒）
+     * @param healthCheckIntervalSec 健康检查间隔（秒）
+     * @since 4.0.0.42
      */
     private record AgentParams(
             int startupTimeoutMs,

@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 
 
 /**
-* 里图配置
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * 里图配置
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class InsideConfig {
 
     /** A */

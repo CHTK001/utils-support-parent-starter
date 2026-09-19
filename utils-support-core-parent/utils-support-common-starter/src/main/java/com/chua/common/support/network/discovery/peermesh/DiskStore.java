@@ -19,10 +19,10 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
-* 磁盘持久化存储：读写 known_peers.json，写时加锁。
-*
-* @author CH
-* @since 4.0.0.42
+ * 磁盘持久化存储：读写 known_peers.json，写时加锁。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class DiskStore {
@@ -33,10 +33,10 @@ public class DiskStore {
     private final ReentrantLock lock = new ReentrantLock();
 
     /**
-    * 构造函数。
-    *
-    * @param peersFile 持久化文件路径，可为 null 表示禁用
-    */
+     * 构造函数。
+     *
+     * @param peersFile 持久化文件路径，可为 null 表示禁用
+     */
     public DiskStore(String peersFile) {
         if (peersFile != null && !peersFile.isBlank()) {
             this.filePath = Paths.get(peersFile);
@@ -46,10 +46,10 @@ public class DiskStore {
     }
 
     /**
-    * 加载磁盘上的节点列表。
-    *
-    * @return 节点列表（可能为空但非 null）
-    */
+     * 加载磁盘上的节点列表。
+     *
+     * @return 节点列表（可能为空但非 null）
+     */
     public List<NodeTable.NodeEntry> load() {
         if (filePath == null) {
             return Collections.emptyList();
@@ -99,10 +99,10 @@ public class DiskStore {
     }
 
     /**
-    * 保存节点列表到磁盘。
-    *
-    * @param entries 要保存的节点列表
-    */
+     * 保存节点列表到磁盘。
+     *
+     * @param entries 要保存的节点列表
+     */
     public void save(List<NodeTable.NodeEntry> entries) {
         if (filePath == null) {
             return;
@@ -144,10 +144,10 @@ public class DiskStore {
     }
 
     /**
-    * 保存单个条目（追加模式，线程安全）。
-    *
-    * @param entry 节点条目
-    */
+     * 保存单个条目（追加模式，线程安全）。
+     *
+     * @param entry 节点条目
+     */
     public void saveOne(NodeTable.NodeEntry entry) {
         if (filePath == null) {
             return;
@@ -175,8 +175,8 @@ public class DiskStore {
     }
 
     /**
-    * 删除磁盘文件（用于清理）。
-    */
+     * 删除磁盘文件（用于清理）。
+     */
     public void delete() {
         if (filePath == null) {
             return;

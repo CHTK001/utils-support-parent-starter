@@ -15,7 +15,7 @@ import java.util.function.Function;
  *
  * @author CH
  * @since 2024/12/20
-*/
+ */
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认服务注入器（@AutoInject）")

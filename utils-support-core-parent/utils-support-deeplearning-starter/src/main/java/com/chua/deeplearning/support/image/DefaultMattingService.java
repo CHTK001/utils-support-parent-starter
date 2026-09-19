@@ -11,35 +11,35 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
 
 /**
-* 默认抠图服务实现。
-*
-* @author CH
-* @since 4.0.0.42
+ * 默认抠图服务实现。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 class DefaultMattingService implements MattingService {
 
     /**
-    * 默认模型名称
-    */
+     * 默认模型名称
+     */
     private static final String DEFAULT_MODEL = "modnet";
 
     /**
-    * 识别引擎
-    */
+     * 识别引擎
+     */
     private final IdentificationEngine engine;
 
     /**
-    * 模型名称
-    */
+     * 模型名称
+     */
     private final String modelName;
 
     /**
-    * 构造默认抠图服务。
-    *
-    * @param engine    识别引擎
-    * @param modelName 模型名称
-    * @param setting   模型配置
-    */
+     * 构造默认抠图服务。
+     *
+     * @param engine    识别引擎
+     * @param modelName 模型名称
+     * @param setting   模型配置
+     */
     DefaultMattingService(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName != null ? modelName : DEFAULT_MODEL;
@@ -48,11 +48,11 @@ class DefaultMattingService implements MattingService {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Matte
-    *
-    * @param imageData 镜像数据
-    * @return matte的结果
-    */
+     * Matte
+     *
+     * @param imageData 镜像数据
+     * @return matte的结果
+     */
     public byte[] matte(byte[] imageData) {
         ITranslator<Object, Object> t = engine.get(modelName, ITranslator.class);
         if (t == null) {
@@ -67,11 +67,11 @@ class DefaultMattingService implements MattingService {
     }
 
     /**
-    * 将模型输出转换为 缓冲镜像。
-    *
-    * @param result 模型输出
-    * @return BufferedImage，无法转换返回 空
-    */
+     * 将模型输出转换为 缓冲镜像。
+     *
+     * @param result 模型输出
+     * @return BufferedImage，无法转换返回 空
+     */
     private static BufferedImage toBufferedImage(Object result) {
         if (result instanceof BufferedImage image) {
             return image;

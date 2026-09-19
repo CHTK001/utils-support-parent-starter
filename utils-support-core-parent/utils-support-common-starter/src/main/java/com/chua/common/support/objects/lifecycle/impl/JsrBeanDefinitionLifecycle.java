@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 @Slf4j
 @Spi("jsr")
 @SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")
@@ -86,12 +86,12 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     /**
-    * 是否拥有任意注解
-    *
-    * @param method 方法
-    * @param annotationNames 注解名称
-    * @return 是否包含任意注解的结果
-    */
+     * 是否拥有任意注解
+     *
+     * @param method 方法
+     * @param annotationNames 注解名称
+     * @return 是否包含任意注解的结果
+     */
     private boolean hasAnyAnnotation(Method method, String... annotationNames) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

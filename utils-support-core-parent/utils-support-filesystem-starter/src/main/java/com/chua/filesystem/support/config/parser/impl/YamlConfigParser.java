@@ -13,39 +13,39 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* YAML 配置文件解析器。
-*
-* <p>解析 YAML 格式的配置文件（.yaml 或 .yml 后缀）。
-* 将 YAML 的层级结构展平为点分隔的 键-值 对。</p>
-*
-* <p>解析规则：
-* <ul>
-*   <li>支持 .yaml 和 .yml 两种文件扩展名</li>
-*   <li>嵌套 Map 使用 '.' 连接，形成全路径 key</li>
-*   <li>List 使用 [index] 索引作为 key 的一部分</li>
-*   <li>基础类型（字符串、数字、布尔值）直接作为 value</li>
-* </ul></p>
-*
-* <p>示例：</p>
-* <pre>
-*   server:
-*     port: 8080
-*     host: localhost
-*   app:
-*     name: my-app
-*     profiles:
-*       - dev
-*       - test
-*   // 解析结果：
-*   // server.port = 8080
-*   // server.host = "localhost"
-*   // app.name = "my-app"
-*   // app.profiles[0] = "dev"
-*   // app.profiles[1] = "test"
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * YAML 配置文件解析器。
+ *
+ * <p>解析 YAML 格式的配置文件（.yaml 或 .yml 后缀）。
+ * 将 YAML 的层级结构展平为点分隔的 键-值 对。</p>
+ *
+ * <p>解析规则：
+ * <ul>
+ *   <li>支持 .yaml 和 .yml 两种文件扩展名</li>
+ *   <li>嵌套 Map 使用 '.' 连接，形成全路径 key</li>
+ *   <li>List 使用 [index] 索引作为 key 的一部分</li>
+ *   <li>基础类型（字符串、数字、布尔值）直接作为 value</li>
+ * </ul></p>
+ *
+ * <p>示例：</p>
+ * <pre>
+ *   server:
+ *     port: 8080
+ *     host: localhost
+ *   app:
+ *     name: my-app
+ *     profiles:
+ *       - dev
+ *       - test
+ *   // 解析结果：
+ *   // server.port = 8080
+ *   // server.host = "localhost"
+ *   // app.name = "my-app"
+ *   // app.profiles[0] = "dev"
+ *   // app.profiles[1] = "test"
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("yaml")

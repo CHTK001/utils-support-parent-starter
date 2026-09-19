@@ -7,18 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Oracle 修改用户链式步骤实现。
-* <p>
-* 支持修改密码、授予权限和回收权限：
-* <ul>
-*   <li>{@code ALTER USER 用户名 IDENTIFIED BY "新密码"}</li>
-*   <li>{@code GRANT 权限 TO 用户名}</li>
-*   <li>{@code REVOKE 权限 FROM 用户名}</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Oracle 修改用户链式步骤实现。
+ * <p>
+ * 支持修改密码、授予权限和回收权限：
+ * <ul>
+ *   <li>{@code ALTER USER 用户名 IDENTIFIED BY "新密码"}</li>
+ *   <li>{@code GRANT 权限 TO 用户名}</li>
+ *   <li>{@code REVOKE 权限 FROM 用户名}</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class OracleAlterUserStep implements UserManager.AlterUserStep {
 
@@ -45,11 +45,11 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     }
 
     /**
-    * 设置新密码。
-    *
-    * @param password 新密码
-    * @return this
-    */
+     * 设置新密码。
+     *
+     * @param password 新密码
+     * @return this
+     */
     @Override
     public UserManager.AlterUserStep withPassword(String password) {
         this.password = password;
@@ -57,23 +57,23 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     }
 
     /**
-    * Oracle 不支持 主机 概念，忽略此参数。
-    *
-    * @param host 忽略
-    * @return this
-    */
+     * Oracle 不支持 主机 概念，忽略此参数。
+     *
+     * @param host 忽略
+     * @return this
+     */
     @Override
     public UserManager.AlterUserStep withHost(String host) {
         return this;
     }
 
     /**
-    * 授予权限。
-    *
-    * @param privilege 权限名（如 创建 会话、选择 任意 TABLE）
-    * @param database  忽略（Oracle 中直接对用户授权）
-    * @return this
-    */
+     * 授予权限。
+     *
+     * @param privilege 权限名（如 创建 会话、选择 任意 TABLE）
+     * @param database  忽略（Oracle 中直接对用户授权）
+     * @return this
+     */
     @Override
     public UserManager.AlterUserStep withGrant(String privilege, String database) {
         grants.add("GRANT " + privilege + " TO " + username);
@@ -81,12 +81,12 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     }
 
     /**
-    * 回收权限。
-    *
-    * @param privilege 权限名
-    * @param database  忽略
-    * @return this
-    */
+     * 回收权限。
+     *
+     * @param privilege 权限名
+     * @param database  忽略
+     * @return this
+     */
     @Override
     public UserManager.AlterUserStep withRevoke(String privilege, String database) {
         revokes.add("REVOKE " + privilege + " FROM " + username);
@@ -94,8 +94,8 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     }
 
     /**
-    * 依次执行修改密码（如有）、授权、回收操作。
-    */
+     * 依次执行修改密码（如有）、授权、回收操作。
+     */
     @Override
     public void execute() {
         try (var c = dataSource.getConnection();

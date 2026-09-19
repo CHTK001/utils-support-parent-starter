@@ -17,20 +17,20 @@ import java.util.Optional;
  * @param value 值
  * @return KvPair的结果
  * @param config 配置
-*/
+ */
 @Spi("wal-kv")
 public class KvWalFileSystem extends AbstractWalFileSystem {
 
     /**
-    * kvwal文件系统。
-    * @param config 配置
-    */
+     * kvwal文件系统。
+     * @param config 配置
+     */
     public KvWalFileSystem(WalStoreConfig config) throws IOException {
         super(config);
     /**
-    * op类型。
-    * @return op类型的结果
-    */
+     * op类型。
+     * @return op类型的结果
+     */
     }
 
     @Override
@@ -46,11 +46,11 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
             return null;
         }
         /**
-        * encode。
-        * @param key 键
-        * @param value 值
-        * @return encode的结果
-        */
+         * encode。
+         * @param key 键
+         * @param value 值
+         * @return encode的结果
+         */
         return new String(payload, 4, keyLen, StandardCharsets.UTF_8);
     }
 
@@ -74,20 +74,20 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         bb.position(0);
         bb.get(result);
         /**
-        * decode。
-        * @param payload payload
-        * @return decode的结果
-        * @param key 键
-        * @param value 值
-        */
+         * decode。
+         * @param payload payload
+         * @return decode的结果
+         * @param key 键
+         * @param value 值
+         */
         return result;
     /**
-    * decode。
-    * @param payload payload
-    * @return decode的结果
-    * @param key 键
-    * @param value 值
-    */
+     * decode。
+     * @param payload payload
+     * @return decode的结果
+     * @param key 键
+     * @param value 值
+     */
     }
 
     /**

@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
-* {@link RemoteHeader} 的容器注解，支持在单个方法上重复使用 {@code @RemoteHeader}。
-*
-* @author CH
-* @since 4.0.0.42
-* @see RemoteHeader
+ * {@link RemoteHeader} 的容器注解，支持在单个方法上重复使用 {@code @RemoteHeader}。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see RemoteHeader
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

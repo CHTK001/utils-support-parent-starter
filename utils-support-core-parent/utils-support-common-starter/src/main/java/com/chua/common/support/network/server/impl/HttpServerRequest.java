@@ -27,7 +27,7 @@ import com.chua.common.support.spi.ServiceProvider;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public class HttpServerRequest implements ServerRequest {
 
     /** Exchange */
@@ -248,10 +248,10 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     /**
-    * 从 Content-Type 解析字符集，未声明时回退到服务器配置。
-    *
-    * @return 请求体字符集
-    */
+     * 从 Content-Type 解析字符集，未声明时回退到服务器配置。
+     *
+     * @return 请求体字符集
+     */
     private Charset resolveCharset() {
         String contentType = getContentType();
         if (contentType != null) {

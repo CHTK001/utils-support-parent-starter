@@ -36,46 +36,46 @@ import java.util.Map;
 public final class IbdTablespace implements Closeable {
 
     /**
-    * 表空间文件路径。
-    */
+     * 表空间文件路径。
+     */
     private final Path path;
 
     /**
-    * 只读文件通道。
-    */
+     * 只读文件通道。
+     */
     private final FileChannel channel;
 
     /**
-    * 页大小（字节）。
-    */
+     * 页大小（字节）。
+     */
     private final int pageSize;
 
     /**
-    * 表空间 id。
-    */
+     * 表空间 id。
+     */
     private final long spaceId;
 
     /**
-    * {@code FSP_SPACE_FLAGS} 原始值。
-    */
+     * {@code FSP_SPACE_FLAGS} 原始值。
+     */
     private final long spaceFlags;
 
     /**
-    * 文件里能完整读出的页数。
-    */
+     * 文件里能完整读出的页数。
+     */
     private final long pageCount;
 
     /**
-    * 索引 id → 该索引的叶子页页号（惰性扫描）。
-    */
+     * 索引 id → 该索引的叶子页页号（惰性扫描）。
+     */
     private Map<Long, List<Long>> leafPagesByIndex;
 
     /**
-    * 打开表空间。
-    *
-    * @param file {@code .ibd} 文件
-    * @throws IOException 读取失败
-    */
+     * 打开表空间。
+     *
+     * @param file {@code .ibd} 文件
+     * @throws IOException 读取失败
+     */
     private IbdTablespace(Path file) throws IOException {
         this.path = file;
         this.channel = FileChannel.open(file, StandardOpenOption.READ);
@@ -98,68 +98,68 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 打开表空间。
-    *
-    * @param file {@code .ibd} 文件
-    * @return 表空间对象，使用后需 {@link #close()}
-    * @throws IOException 读取失败
-    */
+     * 打开表空间。
+     *
+     * @param file {@code .ibd} 文件
+     * @return 表空间对象，使用后需 {@link #close()}
+     * @throws IOException 读取失败
+     */
     public static IbdTablespace open(File file) throws IOException {
         return new IbdTablespace(file.toPath());
     }
 
     /**
-    * 表空间文件路径。
-    *
-    * @return 路径
-    */
+     * 表空间文件路径。
+     *
+     * @return 路径
+     */
     public Path path() {
         return path;
     }
 
     /**
-    * 页大小。
-    *
-    * @return 页大小（字节）
-    */
+     * 页大小。
+     *
+     * @return 页大小（字节）
+     */
     public int pageSize() {
         return pageSize;
     }
 
     /**
-    * 表空间 id。
-    *
-    * @return space id
-    */
+     * 表空间 id。
+     *
+     * @return space id
+     */
     public long spaceId() {
         return spaceId;
     }
 
     /**
-    * {@code FSP_SPACE_FLAGS} 原始值。
-    *
-    * @return 标志位
-    */
+     * {@code FSP_SPACE_FLAGS} 原始值。
+     *
+     * @return 标志位
+     */
     public long spaceFlags() {
         return spaceFlags;
     }
 
     /**
-    * 页数。
-    *
-    * @return 文件里能完整读出的页数
-    */
+     * 页数。
+     *
+     * @return 文件里能完整读出的页数
+     */
     public long pageCount() {
         return pageCount;
     }
 
     /**
-    * 读一页。
-    *
-    * @param pageNo 页号
-    * @return 页内容（长度等于页大小）
-    * @throws IOException 页号越界或读取失败
-    */
+     * 读一页。
+     *
+     * @param pageNo 页号
+     * @return 页内容（长度等于页大小）
+     * @throws IOException 页号越界或读取失败
+     */
     public byte[] readPage(long pageNo) throws IOException {
         if (pageNo < 0 || pageNo >= pageCount) {
             throw new IOException("页号越界: " + pageNo + "（本表空间共 " + pageCount + " 页）");
@@ -177,14 +177,14 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 扫描出所有 SDI 页的页号。
-    *
-    * <p>SDI 页的页类型是 {@code 17853}（{@code FIL_PAGE_SDI}），与普通索引页
-    * {@code 17855} 只差一个数字，必须分清。</p>
-    *
-    * @return SDI 页页号（升序）
-    * @throws IOException 读取失败
-    */
+     * 扫描出所有 SDI 页的页号。
+     *
+     * <p>SDI 页的页类型是 {@code 17853}（{@code FIL_PAGE_SDI}），与普通索引页
+     * {@code 17855} 只差一个数字，必须分清。</p>
+     *
+     * @return SDI 页页号（升序）
+     * @throws IOException 读取失败
+     */
     public List<Long> sdiPages() throws IOException {
         List<Long> pages = new ArrayList<>();
         for (long i = 0; i < pageCount; i++) {
@@ -197,11 +197,11 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 扫描出所有索引页（{@code FIL_PAGE_INDEX}）的页号，按「索引 id → 叶子页」分组。
-    *
-    * @return 索引 id → 叶子页页号（升序）
-    * @throws IOException 读取失败
-    */
+     * 扫描出所有索引页（{@code FIL_PAGE_INDEX}）的页号，按「索引 id → 叶子页」分组。
+     *
+     * @return 索引 id → 叶子页页号（升序）
+     * @throws IOException 读取失败
+     */
     public Map<Long, List<Long>> leafPagesByIndex() throws IOException {
         if (leafPagesByIndex != null) {
             return leafPagesByIndex;
@@ -222,12 +222,12 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 取某个索引的叶子页页号。
-    *
-    * @param indexId 索引 id
-    * @return 叶子页页号；该索引没有叶子页时返回空列表
-    * @throws IOException 读取失败
-    */
+     * 取某个索引的叶子页页号。
+     *
+     * @param indexId 索引 id
+     * @return 叶子页页号；该索引没有叶子页时返回空列表
+     * @throws IOException 读取失败
+     */
     public List<Long> leafPagesOf(long indexId) throws IOException {
         List<Long> pages = leafPagesByIndex().get(indexId);
         return pages == null ? List.of() : pages;
@@ -239,12 +239,12 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 从字节数组读 4 字节无符号整数（大端）。
-    *
-    * @param data   字节数组
-    * @param offset 偏移
-    * @return 无符号值
-    */
+     * 从字节数组读 4 字节无符号整数（大端）。
+     *
+     * @param data   字节数组
+     * @param offset 偏移
+     * @return 无符号值
+     */
     static long readUnsignedInt(byte[] data, int offset) {
         return ((long) (data[offset] & 0xFF) << 24)
                 | ((long) (data[offset + 1] & 0xFF) << 16)
@@ -253,34 +253,34 @@ public final class IbdTablespace implements Closeable {
     }
 
     /**
-    * 从字节数组读 2 字节无符号整数（大端）。
-    *
-    * @param data   字节数组
-    * @param offset 偏移
-    * @return 无符号值
-    */
+     * 从字节数组读 2 字节无符号整数（大端）。
+     *
+     * @param data   字节数组
+     * @param offset 偏移
+     * @return 无符号值
+     */
     static int readUnsignedShort(byte[] data, int offset) {
         return ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
     }
 
     /**
-    * 从字节数组读 2 字节有符号整数（大端）。
-    *
-    * @param data   字节数组
-    * @param offset 偏移
-    * @return 有符号值
-    */
+     * 从字节数组读 2 字节有符号整数（大端）。
+     *
+     * @param data   字节数组
+     * @param offset 偏移
+     * @return 有符号值
+     */
     static short readShort(byte[] data, int offset) {
         return (short) readUnsignedShort(data, offset);
     }
 
     /**
-    * 从字节数组读 8 字节无符号整数（大端）。
-    *
-    * @param data   字节数组
-    * @param offset 偏移
-    * @return 无符号值（超出 long 范围时按 long 解释）
-    */
+     * 从字节数组读 8 字节无符号整数（大端）。
+     *
+     * @param data   字节数组
+     * @param offset 偏移
+     * @return 无符号值（超出 long 范围时按 long 解释）
+     */
     static long readLong(byte[] data, int offset) {
         long value = 0;
         for (int i = 0; i < 8; i++) {

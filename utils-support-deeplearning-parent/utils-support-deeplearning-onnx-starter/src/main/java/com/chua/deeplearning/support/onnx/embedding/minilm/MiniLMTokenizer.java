@@ -14,47 +14,47 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
-* 纯 Java 实现的 BERT wordpiece tokenizer（不依赖 Rust tokenizers / DJL）。
-*
-* <p>用于 {@link MiniLMEmbeddingTranslator} 加载 Xenova/all-MiniLM-L6-v2
-* 配套的 {@code vocab.txt} + {@code tokenizer_config.json}：
-* <ul>
-*   <li>{@code do_lower_case=true}：文本统一转小写</li>
-*   <li>{@code tokenize_chinese_chars=true}：CJK 字符逐字切分（前后加空格）</li>
-*   <li>{@code strip_accents=true}（默认）：剥离重音符号</li>
-*   <li>WordPiece greedy longest-match-first，{@code [UNK]}=兜底</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 纯 Java 实现的 BERT wordpiece tokenizer（不依赖 Rust tokenizers / DJL）。
+ *
+ * <p>用于 {@link MiniLMEmbeddingTranslator} 加载 Xenova/all-MiniLM-L6-v2
+ * 配套的 {@code vocab.txt} + {@code tokenizer_config.json}：
+ * <ul>
+ *   <li>{@code do_lower_case=true}：文本统一转小写</li>
+ *   <li>{@code tokenize_chinese_chars=true}：CJK 字符逐字切分（前后加空格）</li>
+ *   <li>{@code strip_accents=true}（默认）：剥离重音符号</li>
+ *   <li>WordPiece greedy longest-match-first，{@code [UNK]}=兜底</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class MiniLMTokenizer {
 
     /**
-    * 起始 令牌（[CLS]）
-    */
+     * 起始 令牌（[CLS]）
+     */
     public static final String CLS = "[CLS]";
 
     /**
-    * 结束 令牌（[SEP]）
-    */
+     * 结束 令牌（[SEP]）
+     */
     public static final String SEP = "[SEP]";
 
     /**
-    * 填充 令牌（[PAD]）
-    */
+     * 填充 令牌（[PAD]）
+     */
     public static final String PAD = "[PAD]";
 
     /**
-    * 未登录词 令牌（[UNK]）
-    */
+     * 未登录词 令牌（[UNK]）
+     */
     public static final String UNK = "[UNK]";
 
     /**
-    * 前缀子词标识，wordpiece 切分后所有非起始子词都需带此前缀
-    */
+     * 前缀子词标识，wordpiece 切分后所有非起始子词都需带此前缀
+     */
     private static final String SUBWORD_PREFIX = "##";
 
     /** 词表映射 */
@@ -98,11 +98,11 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 从 vocab.txt 加载词表。
-    *
-    * @param vocabPath vocab.txt 路径，每行一个 令牌
-    * @return 加载好的 tokenizer
-    */
+     * 从 vocab.txt 加载词表。
+     *
+     * @param vocabPath vocab.txt 路径，每行一个 令牌
+     * @return 加载好的 tokenizer
+     */
     public static MiniLMTokenizer load(Path vocabPath) throws IOException {
         Map<String, Integer> vocab = new HashMap<>();
         try (BufferedReader reader = Files.newBufferedReader(vocabPath)) {
@@ -117,52 +117,52 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 词表大小
-    * @return vocab大小的结果
-    */
+     * 词表大小
+     * @return vocab大小的结果
+     */
     public int vocabSize() {
         return vocab.size();
     }
 
     /**
-    * unkid
-    *
-    * @return unkId的结果
-    */
+     * unkid
+     *
+     * @return unkId的结果
+     */
     public int unkId() {
         return unkId;
     }
 
     /**
-    * clsid
-    *
-    * @return clsId的结果
-    */
+     * clsid
+     *
+     * @return clsId的结果
+     */
     public int clsId() {
         return clsId;
     }
 
     /**
-    * sepid
-    *
-    * @return sepId的结果
-    */
+     * sepid
+     *
+     * @return sepId的结果
+     */
     public int sepId() {
         return sepId;
     }
 
     /**
-    * padid
-    *
-    * @return padId的结果
-    */
+     * padid
+     *
+     * @return padId的结果
+     */
     public int padId() {
         return padId;
     }
 
     /**
-    * BERT 风格单句编码结果：输入_标识 / attention_mask / 令牌_类型_标识 三个等长数组。
-    */
+     * BERT 风格单句编码结果：输入_标识 / attention_mask / 令牌_类型_标识 三个等长数组。
+     */
     public static final class EncodeResult {
         /** 输入标识数组 */
         /** 输入标识 */
@@ -175,14 +175,14 @@ public class MiniLMTokenizer {
         public final int[] tokenTypeIds;
 
         /**
-        * 创建 encode结果 实例
-        * @param inputIds 输入标识
-        * @param int int
-        * @param attentionMask attentionmask
-        * @param int int
-        * @param tokenTypeIds 令牌类型标识
-        * @return encode结果的结果
-        */
+         * 创建 encode结果 实例
+         * @param inputIds 输入标识
+         * @param int int
+         * @param attentionMask attentionmask
+         * @param int int
+         * @param tokenTypeIds 令牌类型标识
+         * @return encode结果的结果
+         */
         public EncodeResult(int[] inputIds, int[] attentionMask, int[] tokenTypeIds) {
             this.inputIds = inputIds;
             this.attentionMask = attentionMask;
@@ -191,12 +191,12 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 编码单句为 [CLS] + 令牌 + [SEP]，右侧按 [PAD] 补齐到 最大len。
-    *
-    * @param text   输入文本
-    * @param maxLen 最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
-    * @return 三个长度均为 最大len 的 int[] 数组
-    */
+     * 编码单句为 [CLS] + 令牌 + [SEP]，右侧按 [PAD] 补齐到 最大len。
+     *
+     * @param text   输入文本
+     * @param maxLen 最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
+     * @return 三个长度均为 最大len 的 int[] 数组
+     */
     public EncodeResult encode(String text, int maxLen) {
         List<Integer> tokenIds = new ArrayList<>();
         tokenIds.add(clsId);
@@ -230,10 +230,10 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 基础切分：清理空白、剥离重音、CJK 字符逐字、小写化。
-    * @param text 文本
-    * @return basicTokenize的结果
-    */
+     * 基础切分：清理空白、剥离重音、CJK 字符逐字、小写化。
+     * @param text 文本
+     * @return basicTokenize的结果
+     */
     private List<String> basicTokenize(String text) {
         if (text == null || text.isEmpty()) {
             return new ArrayList<>();
@@ -269,10 +269,10 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 按空白 + 标点切分（保留缩写、空格分隔后输出独立 令牌）。
-    * @param text 文本
-    * @return 分割onwhitespace和punct的结果
-    */
+     * 按空白 + 标点切分（保留缩写、空格分隔后输出独立 令牌）。
+     * @param text 文本
+     * @return 分割onwhitespace和punct的结果
+     */
     private List<String> splitOnWhitespaceAndPunct(String text) {
         List<String> out = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
@@ -300,10 +300,10 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * Unicode 标点判断（C 0-未分类、U 0-未分类、ASCII 标点、ASCII 控制）。
-    * @param c c
-    * @return 是否punctuation的结果
-    */
+     * Unicode 标点判断（C 0-未分类、U 0-未分类、ASCII 标点、ASCII 控制）。
+     * @param c c
+     * @return 是否punctuation的结果
+     */
     private static boolean isPunctuation(char c) {
         int cp = c;
         if ((cp >= 33 && cp <= 47) || (cp >= 58 && cp <= 64)
@@ -321,11 +321,11 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 是否Cjk
-    *
-    * @param c c
-    * @return 是否cjk的结果
-    */
+     * 是否Cjk
+     *
+     * @param c c
+     * @return 是否cjk的结果
+     */
     private static boolean isCjk(char c) {
         int cp = c;
         return (cp >= 0x4E00 && cp <= 0x9FFF)
@@ -339,10 +339,10 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * 剥离拉丁重音符号（normalize NFD + 移除组合标记）。
-    * @param s s
-    * @return stripAccents的结果
-    */
+     * 剥离拉丁重音符号（normalize NFD + 移除组合标记）。
+     * @param s s
+     * @return stripAccents的结果
+     */
     private static String stripAccents(String s) {
         try {
             String nfd = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
@@ -360,10 +360,10 @@ public class MiniLMTokenizer {
     }
 
     /**
-    * wordpiece greedy longest-匹配-第一个。
-    * @param token 令牌
-    * @return wordpieceTokenize的结果
-    */
+     * wordpiece greedy longest-匹配-第一个。
+     * @param token 令牌
+     * @return wordpieceTokenize的结果
+     */
     private List<Integer> wordpieceTokenize(String token) {
         if (token.isEmpty()) {
             return new ArrayList<>();

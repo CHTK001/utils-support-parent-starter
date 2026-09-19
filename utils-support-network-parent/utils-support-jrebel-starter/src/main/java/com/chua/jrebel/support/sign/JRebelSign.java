@@ -11,20 +11,20 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
-* jrebel 签名工具。
-* <p>
-* 提供 RSA 签名功能，生成 jrebel 许可证的数字签名。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
+ * jrebel 签名工具。
+ * <p>
+ * 提供 RSA 签名功能，生成 jrebel 许可证的数字签名。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class JRebelSign {
 
     /**
-    * jrebel 私钥（PKCS8 格式）
-    */
+     * jrebel 私钥（PKCS8 格式）
+     */
     private static final String PRIVATE_KEY =
             "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALrznBxfPFSgBx8g" +
             "oicpgKJHxJsQp1zh7gk3JYdGSr5eS4G3BiiZ+uvmD+nFJpGLQh4YBHhVjhBRTcPF" +
@@ -42,8 +42,8 @@ public class JRebelSign {
             "3H3H3H3H3H3H3H3H3H3H3H3H3H3H3H3H3H3H3Q==";
 
     /**
-    * 服务器 RSA 私钥（生成签名）
-    */
+     * 服务器 RSA 私钥（生成签名）
+     */
     private static final BigInteger PRIVATE_EXPONENT = new BigInteger(
             "73aborea1r8et31vbk4rkpvjk7a39upgrhqaqndj3t3i1meok3j0c3jt8d1vni173" +
             "mb82vnvekhpodpgghgpjl6ctaocq7g88g4cj3h4p6c54t9b4r3qvf35ggtb76o46h" +
@@ -51,8 +51,8 @@ public class JRebelSign {
             "n8nkq74m3lqbh2l3fg5d7k1h3i8g5t2q1d6h4h8tb3a6m5i8h2r3", 36);
 
     /**
-    * RSA 模数
-    */
+     * RSA 模数
+     */
     private static final BigInteger MODULUS = new BigInteger(
             "v3p5s0k6d8c1e2d4l0j3b5n1r5s8k3b5d0l8c5j1n7r1p3k5d3c8j5b5s0l0p1k8" +
             "d5c3j1b0s5l3p8k0d1c6j4b2s7l5p3k7d4c2j0b8s4l2p6k2d9c7j3b1s6l4p2k1" +
@@ -60,8 +60,8 @@ public class JRebelSign {
             "d0c9j7b3s8l8p0k5", 36);
 
     /**
-    * RSA 私钥对象
-    */
+     * RSA 私钥对象
+     */
     private PrivateKey privateKey;
 
     /** 创建 jrebel标志 实例 */
@@ -86,11 +86,11 @@ public class JRebelSign {
     }
 
     /**
-    * 使用 MD5withrsa 进行签名
-    *
-    * @param content 待签名内容
-    * @return Base64 编码的签名
-    */
+     * 使用 MD5withrsa 进行签名
+     *
+     * @param content 待签名内容
+     * @return Base64 编码的签名
+     */
     public String sign(String content) {
         try {
             if (privateKey != null) {
@@ -108,11 +108,11 @@ public class JRebelSign {
     }
 
     /**
-    * 生成签名（备用方式）
-    *
-    * @param content 待签名内容
-    * @return 签名字符串
-    */
+     * 生成签名（备用方式）
+     *
+     * @param content 待签名内容
+     * @return 签名字符串
+     */
     private String generateSignature(String content) {
         try {
             byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
@@ -126,15 +126,15 @@ public class JRebelSign {
     }
 
     /**
-    * 生成 jrebel 专用签名
-    *
-    * @param clientRandomness 客户端随机数
-    * @param guid             许可证 GUID
-    * @param offline          是否离线
-    * @param validFrom        有效期开始时间
-    * @param validUntil       有效期结束时间
-    * @return 签名字符串
-    */
+     * 生成 jrebel 专用签名
+     *
+     * @param clientRandomness 客户端随机数
+     * @param guid             许可证 GUID
+     * @param offline          是否离线
+     * @param validFrom        有效期开始时间
+     * @param validUntil       有效期结束时间
+     * @return 签名字符串
+     */
     public String toLeaseCreateJson(long clientRandomness, String guid, boolean offline,
                                     String validFrom, String validUntil) {
         StringBuilder sb = new StringBuilder();

@@ -22,39 +22,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 代理池节点连通性测试服务。
-*
-* <p>对代理池中每个节点通过 HTTP HEAD 请求验证可达性，
-* 返回每节点的连通性结果（耗时、状态码、错误信息）。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 代理池节点连通性测试服务。
+ *
+ * <p>对代理池中每个节点通过 HTTP HEAD 请求验证可达性，
+ * 返回每节点的连通性结果（耗时、状态码、错误信息）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @RequiredArgsConstructor
 public class SpiderProxyProbe {
 
     /**
-    * 测试超时（秒）
-    */
+     * 测试超时（秒）
+     */
     private static final int TEST_TIMEOUT_SECONDS = 5;
 
     /**
-    * 探测目标 URL（仅测代理链路：能 TCP 握手即视为连通）
-    */
+     * 探测目标 URL（仅测代理链路：能 TCP 握手即视为连通）
+     */
     private static final String PROBE_URL = "http://www.gstatic.com/generate_204";
 
     /**
-    * 代理池存储
-    */
+     * 代理池存储
+     */
     private final SpiderProxyPoolStore poolStore;
 
     /**
-    * 测试指定代理池的所有节点。
-    *
-    * @param poolCode 代理池编码
-    * @return 每个节点测试结果，含 summary
-    */
+     * 测试指定代理池的所有节点。
+     *
+     * @param poolCode 代理池编码
+     * @return 每个节点测试结果，含 summary
+     */
     public Map<String, Object> testPool(String poolCode) {
         SpiderProxyPool pool = poolStore.get(poolCode);
         if (pool == null) {
@@ -78,11 +78,11 @@ public class SpiderProxyProbe {
     }
 
     /**
-    * 测试单个代理节点。
-    *
-    * @param proxy 代理节点
-    * @return 测试结果 { ok, 主机, 端口, 状态, elapsedms, 错误 }
-    */
+     * 测试单个代理节点。
+     *
+     * @param proxy 代理节点
+     * @return 测试结果 { ok, 主机, 端口, 状态, elapsedms, 错误 }
+     */
     private Map<String, Object> testOne(SpiderProxy proxy) {
         long start = System.currentTimeMillis();
         Map<String, Object> r = new LinkedHashMap<>();
@@ -117,16 +117,16 @@ public class SpiderProxyProbe {
     }
 
     /**
-    * 始终返回同一代理的 代理selector。
-    *
-    * <p>JDK 25 javac 对 {@code ProxySelector.of(Proxy)} 重载解析为
-    * {@code of(InetSocketAddress)}，为此显式继承 ProxySelector 避免歧义。</p>
-    */
+     * 始终返回同一代理的 代理selector。
+     *
+     * <p>JDK 25 javac 对 {@code ProxySelector.of(Proxy)} 重载解析为
+     * {@code of(InetSocketAddress)}，为此显式继承 ProxySelector 避免歧义。</p>
+     */
     private static final class SingleProxySelector extends ProxySelector {
 
         /**
-        * 唯一的代理
-        */
+         * 唯一的代理
+         */
         private final Proxy proxy;
 
         SingleProxySelector(Proxy proxy) {

@@ -14,29 +14,29 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
-* IP 异常流量检测 auto编码器 Translator。
-*
-* <p>底层模型为通过 Python/PyTorch 训练的 AutoEncoder，导出为 ONNX
-* （opset ≥ 14, fp32, 批量=1），输入输出均为单条 IP 聚合特征向量：</p>
-* <ul>
-*   <li>输入：{@code features} [1, inputDim] float32，特征顺序与
-*       {@code ueba-config.yaml} 中 {@code features} 定义严格一致</li>
-*   <li>输出：{@code reconstruction} [1, inputDim] float32，重建后的特征向量</li>
-* </ul>
-* <p>重建误差 = MSE(features, reconstruction)，误差越大代表该 IP 的访问行为越偏离
-* 训练时的正常模式，由 UEBA 引擎据此判定异常等级。</p>
-*
-* <p>模型加载优先级：</p>
-* <ol>
-*   <li>构造参数指定的显式模型路径 {@code explicitPath}</li>
-*   <li>系统属性 {@code ueba.model.dir} 指向的目录下的模型文件</li>
-*   <li>classpath 资源 {@code models/ueba/autoencoder_ip.onnx}</li>
-* </ol>
-* <p>模型缺失时 {@link #isAvailable()} 返回 {@code false}，UEBA 引擎将自动回退到
-* 规则评分，不会中断整体分析流程。{@code OrtSession} 本身线程安全，可多线程并发推理。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * IP 异常流量检测 auto编码器 Translator。
+ *
+ * <p>底层模型为通过 Python/PyTorch 训练的 AutoEncoder，导出为 ONNX
+ * （opset ≥ 14, fp32, 批量=1），输入输出均为单条 IP 聚合特征向量：</p>
+ * <ul>
+ *   <li>输入：{@code features} [1, inputDim] float32，特征顺序与
+ *       {@code ueba-config.yaml} 中 {@code features} 定义严格一致</li>
+ *   <li>输出：{@code reconstruction} [1, inputDim] float32，重建后的特征向量</li>
+ * </ul>
+ * <p>重建误差 = MSE(features, reconstruction)，误差越大代表该 IP 的访问行为越偏离
+ * 训练时的正常模式，由 UEBA 引擎据此判定异常等级。</p>
+ *
+ * <p>模型加载优先级：</p>
+ * <ol>
+ *   <li>构造参数指定的显式模型路径 {@code explicitPath}</li>
+ *   <li>系统属性 {@code ueba.model.dir} 指向的目录下的模型文件</li>
+ *   <li>classpath 资源 {@code models/ueba/autoencoder_ip.onnx}</li>
+ * </ol>
+ * <p>模型缺失时 {@link #isAvailable()} 返回 {@code false}，UEBA 引擎将自动回退到
+ * 规则评分，不会中断整体分析流程。{@code OrtSession} 本身线程安全，可多线程并发推理。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class AutoEncoderIpTranslator {
@@ -78,22 +78,22 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 构造 auto编码器 Translator。
-    *
-    * @param inputDim  输入特征维度，必须大于 0，与训练模型输入维度一致
-    * @param modelFile 模型文件名，不能为 空 或空字符串
-    */
+     * 构造 auto编码器 Translator。
+     *
+     * @param inputDim  输入特征维度，必须大于 0，与训练模型输入维度一致
+     * @param modelFile 模型文件名，不能为 空 或空字符串
+     */
     public AutoEncoderIpTranslator(int inputDim, String modelFile) {
         this(inputDim, modelFile, null);
     }
 
     /**
-    * 构造 auto编码器 Translator。
-    *
-    * @param inputDim     输入特征维度，必须大于 0，与训练模型输入维度一致
-    * @param modelFile    模型文件名，不能为 空 或空字符串
-    * @param explicitPath 显式模型文件路径，允许为 空（空 时按目录扫描与 类路径 回退）
-    */
+     * 构造 auto编码器 Translator。
+     *
+     * @param inputDim     输入特征维度，必须大于 0，与训练模型输入维度一致
+     * @param modelFile    模型文件名，不能为 空 或空字符串
+     * @param explicitPath 显式模型文件路径，允许为 空（空 时按目录扫描与 类路径 回退）
+     */
     public AutoEncoderIpTranslator(int inputDim, String modelFile, String explicitPath) {
         if (inputDim <= 0) {
             throw new IllegalArgumentException("inputDim 必须大于 0, 实际: " + inputDim);
@@ -107,10 +107,10 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 初始化并加载 ONNX 模型，线程安全且只加载一次。
-    *
-    * @throws IOException 当模型文件不存在或创建 ONNX Runtime 会话失败时
-    */
+     * 初始化并加载 ONNX 模型，线程安全且只加载一次。
+     *
+     * @throws IOException 当模型文件不存在或创建 ONNX Runtime 会话失败时
+     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -128,11 +128,11 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 按优先级解析模型文件路径。
-    *
-    * @return 模型文件路径；未找到时返回 空
-    * @throws IOException 当临时目录创建失败或 类路径 资源提取失败时
-    */
+     * 按优先级解析模型文件路径。
+     *
+     * @return 模型文件路径；未找到时返回 空
+     * @throws IOException 当临时目录创建失败或 类路径 资源提取失败时
+     */
     private Path resolveModelPath() throws IOException {
         if (explicitPath != null) {
             Path p = Paths.get(explicitPath);
@@ -176,10 +176,10 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 判断模型是否可用（可加载、可推理）。
-    *
-    * @return true 表示模型已就绪
-    */
+     * 判断模型是否可用（可加载、可推理）。
+     *
+     * @return true 表示模型已就绪
+     */
     public boolean isAvailable() {
         try {
             prepare();
@@ -191,12 +191,12 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 计算输入特征向量的重建误差。
-    *
-    * @param features IP 聚合特征向量，长度必须等于 输入dim，顺序与配置定义一致
-    * @return 重建误差（MSE），非负，越大代表越异常
-    * @throws Exception 当模型不可用、特征维度不匹配或推理失败时
-    */
+     * 计算输入特征向量的重建误差。
+     *
+     * @param features IP 聚合特征向量，长度必须等于 输入dim，顺序与配置定义一致
+     * @return 重建误差（MSE），非负，越大代表越异常
+     * @throws Exception 当模型不可用、特征维度不匹配或推理失败时
+     */
     public double reconstructionError(float[] features) throws Exception {
         prepare();
         if (features == null || features.length != inputDim) {
@@ -213,13 +213,13 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 从推理结果中读取重建向量。
-    *
-    * @param result 推理结果
-    * @param dim    期望输出维度
-    * @return 重建后的特征向量
-    * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
-    */
+     * 从推理结果中读取重建向量。
+     *
+     * @param result 推理结果
+     * @param dim    期望输出维度
+     * @return 重建后的特征向量
+     * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
+     */
     private float[] readOutput(OrtSession.Result result, int dim) throws Exception {
         Object value = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         if (value instanceof float[][] matrix) {
@@ -239,12 +239,12 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 计算两个等长向量的均方误差。
-    *
-    * @param x 原始特征向量，长度必须大于 0
-    * @param y 重建特征向量，长度必须等于 x 的长度
-    * @return 均方误差值，非负
-    */
+     * 计算两个等长向量的均方误差。
+     *
+     * @param x 原始特征向量，长度必须大于 0
+     * @param y 重建特征向量，长度必须等于 x 的长度
+     * @return 均方误差值，非负
+     */
     private static double mse(float[] x, float[] y) {
         double sum = 0.0d;
         for (int i = 0; i < x.length; i++) {
@@ -255,8 +255,8 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-    * 释放底层 ONNX Runtime 会话与环境。
-    */
+     * 释放底层 ONNX Runtime 会话与环境。
+     */
     public synchronized void close() {
         try {
             if (session != null) {

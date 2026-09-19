@@ -12,35 +12,35 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *
  * @author CH
  * @since 4.0.0.42
-*/
+ */
 public class StartNode implements PipelineNode {
 
     /**
-    * 节点唯一标识
-    */
+     * 节点唯一标识
+     */
     private final String id;
 
     /**
-    * 起始节点的下一节点 标识
-    */
+     * 起始节点的下一节点 标识
+     */
     private final String nextNodeId;
 
     /**
-    * 构造起始节点。
-    *
-    * @param id         节点唯一标识
-    * @param nextNodeId 下一节点 标识
-    */
+     * 构造起始节点。
+     *
+     * @param id         节点唯一标识
+     * @param nextNodeId 下一节点 标识
+     */
     public StartNode(String id, String nextNodeId) {
         this.id = id;
         this.nextNodeId = nextNodeId;
     }
 
     /**
-    * 获取节点 标识。
-    *
-    * @return 节点 标识
-    */
+     * 获取节点 标识。
+     *
+     * @return 节点 标识
+     */
     public String getId() {
         return id;
     }

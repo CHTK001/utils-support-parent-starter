@@ -8,8 +8,8 @@ public class DuckdbDialect extends SqlDialect {
     */
     public DuckdbDialect() { super("duckdb"); }
     /**
-    * duckdbdialect。
-    * @param properties 属性
-    */
+     * duckdbdialect。
+     * @param properties 属性
+     */
     public DuckdbDialect(Properties properties) { super("duckdb", properties); }
 }

@@ -21,14 +21,14 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
-* WD-v1-4 moat Tagger V2 自动标签 Translator（448×448，NHWC BGR→RGB，9083 标签）。
-*
-* <p>输入 448×448 NHWC，ImageNet 均值方差，输出 9083 维 sigmoid 标签分数。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @param topk topk
-* @param csvPath csv路径
+ * WD-v1-4 moat Tagger V2 自动标签 Translator（448×448，NHWC BGR→RGB，9083 标签）。
+ *
+ * <p>输入 448×448 NHWC，ImageNet 均值方差，输出 9083 维 sigmoid 标签分数。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @param topk topk
+ * @param csvPath csv路径
  */
 @Slf4j
 public class MoatTaggerTranslator implements Translator<Image, Classifications> {
@@ -39,10 +39,10 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     private final int topk; // topk
     private List<String> classes; // 类
     /**
-    * moattaggertranslator。
-    * @param topk topk
-    * @param csvPath csv路径
-    */
+     * moattaggertranslator。
+     * @param topk topk
+     * @param csvPath csv路径
+     */
     private final Path csvPath;
 
     /**
@@ -151,10 +151,10 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     }
 
     /**
-    * 加载csv。
-    * @param csv csv
-    * @return 加载csv的结果
-    */
+     * 加载csv。
+     * @param csv csv
+     * @return 加载csv的结果
+     */
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {

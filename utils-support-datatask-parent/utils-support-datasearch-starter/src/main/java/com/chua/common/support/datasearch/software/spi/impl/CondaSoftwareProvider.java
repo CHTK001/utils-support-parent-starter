@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Conda 软件包管理器提供器。
-*
-* <p>通过 conda CLI 搜索、安装和卸载 Conda / Anaconda 环境中的软件包。
-* 支持 <code>Conda 搜索</code>、<code>Conda install -y</code>、
-* <code>conda remove -y</code>。
-*
-* @author CH
-* @since 4.0.0.42
+ * Conda 软件包管理器提供器。
+ *
+ * <p>通过 conda CLI 搜索、安装和卸载 Conda / Anaconda 环境中的软件包。
+ * 支持 <code>Conda 搜索</code>、<code>Conda install -y</code>、
+ * <code>conda remove -y</code>。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("conda")
 public class CondaSoftwareProvider implements SoftwareProvider {
@@ -157,11 +157,11 @@ public class CondaSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * lookslike版本
-    *
-    * @param s s
-    * @return lookslike版本的结果
-    */
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");
     }

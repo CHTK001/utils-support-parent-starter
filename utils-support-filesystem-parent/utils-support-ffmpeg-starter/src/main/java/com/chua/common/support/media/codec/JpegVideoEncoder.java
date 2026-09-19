@@ -11,66 +11,66 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 /**
-* 基于纯 Java 镜像io 的 MJPEG/JPEG 编码器。
-*
-* <p>低延迟、软件编码。硬件加速不可用时优雅降级。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于纯 Java 镜像io 的 MJPEG/JPEG 编码器。
+ *
+ * <p>低延迟、软件编码。硬件加速不可用时优雅降级。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = {"jpeg", "mjpeg"}, order = 30)
 public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
-    * JPEG 编码格式名称
-    */
+     * JPEG 编码格式名称
+     */
     private static final String FORMAT_JPEG = "JPEG";
 
     /**
-    * 默认图片质量 0.8
-    */
+     * 默认图片质量 0.8
+     */
     private static final double DEFAULT_QUALITY = 0.8;
 
     /**
-    * JPEG 编码格式名称
-    */
+     * JPEG 编码格式名称
+     */
     private static final String CODEC_NAME_JPEG = "jpeg";
 
     /**
-    * JPEG 图片质量
-    */
+     * JPEG 图片质量
+     */
     private double quality = DEFAULT_QUALITY;
 
     /**
-    * 编码器是否已启动
-    */
+     * 编码器是否已启动
+     */
     private boolean started = true;
 
     /**
-    * 空构造。
-    */
+     * 空构造。
+     */
     public JpegVideoEncoder() {
     }
 
     /**
-    * 使用宽高和帧率构造并初始化。
-    *
-    * @param width 视频宽度
-    * @param height 视频高度
-    * @param fps 帧率
-    */
+     * 使用宽高和帧率构造并初始化。
+     *
+     * @param width 视频宽度
+     * @param height 视频高度
+     * @param fps 帧率
+     */
     public JpegVideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
 
     /**
-    * 使用包装类型宽高和帧率构造，空 时跳过初始化。
-    *
-    * @param width 视频宽度
-    * @param height 视频高度
-    * @param fps 帧率
-    */
+     * 使用包装类型宽高和帧率构造，空 时跳过初始化。
+     *
+     * @param width 视频宽度
+     * @param height 视频高度
+     * @param fps 帧率
+     */
     public JpegVideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
@@ -78,10 +78,10 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * 使用可变参数构造，前三个参数分别为宽高和帧率。
-    *
-    * @param args 可变参数数组
-    */
+     * 使用可变参数构造，前三个参数分别为宽高和帧率。
+     *
+     * @param args 可变参数数组
+     */
     public JpegVideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -94,12 +94,12 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * 初始化
-    *
-    * @param width width
-    * @param height height
-    * @param fps fps
-    */
+     * 初始化
+     *
+     * @param width width
+     * @param height height
+     * @param fps fps
+     */
     public synchronized void init(int width, int height, int fps) {
         // 重置编码质量为默认值
         this.quality = DEFAULT_QUALITY;

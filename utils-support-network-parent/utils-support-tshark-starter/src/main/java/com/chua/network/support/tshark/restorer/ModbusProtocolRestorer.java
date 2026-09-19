@@ -1,16 +1,16 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-* Modbus TCP 协议还原器。
-*
-* <p>Modbus Application Protocol over TCP/IP：
-* <ul>
-*   <li>MBAP Header (7 bytes): transactionId(2) + protocolId(2, 0x0000) + length(2) + unitId(1)</li>
-*   <li>Function Code (1 byte): 0x01=ReadCoils, 0x03=ReadHoldingRegisters 等</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
+ * Modbus TCP 协议还原器。
+ *
+ * <p>Modbus Application Protocol over TCP/IP：
+ * <ul>
+ *   <li>MBAP Header (7 bytes): transactionId(2) + protocolId(2, 0x0000) + length(2) + unitId(1)</li>
+ *   <li>Function Code (1 byte): 0x01=ReadCoils, 0x03=ReadHoldingRegisters 等</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -61,11 +61,11 @@ public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为function名称
-    *
-    * @param fc 函数计算
-    * @return 转为function名称的结果
-    */
+     * 转为function名称
+     *
+     * @param fc 函数计算
+     * @return 转为function名称的结果
+     */
     private static String toFunctionName(int fc) {
         return switch (fc) {
             case 0x01 -> "ReadCoils";

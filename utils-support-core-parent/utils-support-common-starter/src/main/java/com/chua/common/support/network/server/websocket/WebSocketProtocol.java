@@ -18,12 +18,12 @@ import java.util.Base64;
  * {@code Upgrade: websocket} 时将连接升级为 WebSocket。</p>
  *
  * @since 2026/08/15
-*/
+ */
 public final class WebSocketProtocol {
 
     /**
-    * RFC 6455 规定的握手 GUID。
-    */
+     * RFC 6455 规定的握手 GUID。
+     */
     private static final String WS_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     /** 创建 WebSocketProtocol 实例 */
@@ -54,11 +54,11 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 计算 Sec-WebSocket-Accept（RFC 6455 握手响应值）。
-    *
-    * @param key 请求头 Sec-WebSocket-Key
-    * @return accept 值
-    */
+     * 计算 Sec-WebSocket-Accept（RFC 6455 握手响应值）。
+     *
+     * @param key 请求头 Sec-WebSocket-Key
+     * @return accept 值
+     */
     public static String computeAccept(String key) {
         try {
             String combined = key + WS_MAGIC;
@@ -71,11 +71,11 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 构建 101 Switching Protocols 握手响应报文。
-    *
-    * @param accept Sec-WebSocket-Accept 值
-    * @return 握手响应字节
-    */
+     * 构建 101 Switching Protocols 握手响应报文。
+     *
+     * @param accept Sec-WebSocket-Accept 值
+     * @return 握手响应字节
+     */
     public static byte[] handshakeResponse(String accept) {
         return ("HTTP/1.1 101 Switching Protocols\r\n"
                 + "Upgrade: websocket\r\n"
@@ -85,21 +85,21 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 构建文本帧（服务端发送，不掩码）。
-    *
-    * @param payload 文本内容
-    * @return 完整帧字节
-    */
+     * 构建文本帧（服务端发送，不掩码）。
+     *
+     * @param payload 文本内容
+     * @return 完整帧字节
+     */
     public static byte[] textFrame(String payload) {
         return buildFrame((byte) 0x81, payload.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
-    * 构建关闭帧（服务端发送，不掩码）。
-    *
-    * @param reason 关闭原因，可为 null
-    * @return 完整帧字节
-    */
+     * 构建关闭帧（服务端发送，不掩码）。
+     *
+     * @param reason 关闭原因，可为 null
+     * @return 完整帧字节
+     */
     public static byte[] closeFrame(String reason) {
         byte[] reasonBytes = reason != null ? reason.getBytes(StandardCharsets.UTF_8) : new byte[0];
         byte[] frame = buildFrame((byte) 0x88, reasonBytes);
@@ -111,11 +111,11 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 构建指定 opcode 的帧（服务端发送，不掩码，FIN=1）。
-    * @param opcode 方法入参 opcode
-    * @param data 数据，不允许为 null
-    * @return 结果值
-    */
+     * 构建指定 opcode 的帧（服务端发送，不掩码，FIN=1）。
+     * @param opcode 方法入参 opcode
+     * @param data 数据，不允许为 null
+     * @return 结果值
+     */
     private static byte[] buildFrame(byte opcode, byte[] data) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length + 10);
         out.write(opcode);
@@ -137,12 +137,12 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 从输入流读取一帧（处理客户端掩码、长度扩展）。
-    *
-    * @param in 连接输入流
-    * @return 帧数据；EOF 时返回 null
-    * @throws IOException 读取失败
-    */
+     * 从输入流读取一帧（处理客户端掩码、长度扩展）。
+     *
+     * @param in 连接输入流
+     * @return 帧数据；EOF 时返回 null
+     * @throws IOException 读取失败
+     */
     public static Frame readFrame(InputStream in) throws IOException {
         int b0 = in.read();
         if (b0 < 0) {
@@ -181,10 +181,10 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 读取完整数据到目标数组。
-    * @param in 方法入参 in
-    * @param target 目标，不允许为 null
-    */
+     * 读取完整数据到目标数组。
+     * @param in 方法入参 in
+     * @param target 目标，不允许为 null
+     */
     private static void readFully(InputStream in, byte[] target) throws IOException {
         int off = 0;
         while (off < target.length) {
@@ -197,13 +197,13 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * WebSocket 帧：opcode + 已去掩码的 payload。
-    *
-    * @param opcode  操作码（0x1 文本、0x2 二进制、0x8 关闭、0x9 ping、0xA pong）
-    * @author CH
-    * @param payload 载荷
-    * @return 结果值
-    */
+     * WebSocket 帧：opcode + 已去掩码的 payload。
+     *
+     * @param opcode  操作码（0x1 文本、0x2 二进制、0x8 关闭、0x9 ping、0xA pong）
+     * @author CH
+     * @param payload 载荷
+     * @return 结果值
+     */
     public record Frame(int opcode, byte[] payload) {
     }
 }

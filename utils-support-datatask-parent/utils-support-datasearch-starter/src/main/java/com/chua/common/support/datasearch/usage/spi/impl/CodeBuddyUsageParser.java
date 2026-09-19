@@ -17,47 +17,47 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 腾讯云 编码buddy 编码 usage parser.
-*
-* <p>CodeBuddy Code (npm {@code @tencent-ai/codebuddy-code}) persists each
-* 会话 as a Claude-编码-style transcript under
-* {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl}. Completed
-* assistant 消息 carry real per-请求 usage:</p>
-*
-* <pre>{@code
-* {
-*   "type": "message",
-*   "role": "assistant",
-*   "timestamp": 1787546545090,
-*   "sessionId": "...",
-*   "message": {
-*     "usage": {
-*       "input_tokens": 24964,
-*       "output_tokens": 17,
-*       "total_tokens": 24981,
-*       "cache_read_input_tokens": 24928
-*     }
-*   },
-*   "providerData": {
-*     "model": "hy3",
-*     "rawUsage": {
-*       "prompt_cache_hit_tokens": 24928,
-*       "completion_thinking_tokens": 14,
-*       "credit": 0, ...
-*     }
-*   }
-* }
-* }</pre> "完成_thinking_令牌": 14,
-* "抵免": 0, ...
-*     }
-*   }
-* }
-* }</pre>
-*
-* <p>国内版的同名目录 {@code ~/.codebuddycn} 也会被一并扫描。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 腾讯云 编码buddy 编码 usage parser.
+ *
+ * <p>CodeBuddy Code (npm {@code @tencent-ai/codebuddy-code}) persists each
+ * 会话 as a Claude-编码-style transcript under
+ * {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl}. Completed
+ * assistant 消息 carry real per-请求 usage:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "type": "message",
+ *   "role": "assistant",
+ *   "timestamp": 1787546545090,
+ *   "sessionId": "...",
+ *   "message": {
+ *     "usage": {
+ *       "input_tokens": 24964,
+ *       "output_tokens": 17,
+ *       "total_tokens": 24981,
+ *       "cache_read_input_tokens": 24928
+ *     }
+ *   },
+ *   "providerData": {
+ *     "model": "hy3",
+ *     "rawUsage": {
+ *       "prompt_cache_hit_tokens": 24928,
+ *       "completion_thinking_tokens": 14,
+ *       "credit": 0, ...
+ *     }
+ *   }
+ * }
+ * }</pre> "完成_thinking_令牌": 14,
+ * "抵免": 0, ...
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * <p>国内版的同名目录 {@code ~/.codebuddycn} 也会被一并扫描。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("codebuddy")
 public class CodeBuddyUsageParser extends BaseUsageParser {
@@ -71,13 +71,13 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     private static final String PROVIDER_CODEBUDDY = "codebuddy"; // 提供者codebuddy
 
     /**
-    * 返回 the SPI 名称 for 编码buddy.
-    *
-    * @return {@code "codebuddy"}
-    */
+     * 返回 the SPI 名称 for 编码buddy.
+     *
+     * @return {@code "codebuddy"}
+     */
     /**
-    * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
-    */
+     * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
+     */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -89,10 +89,10 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析 全部 编码buddy 会话 transcripts 和 extracts 令牌 usage.
-    *
-    * @return list 的 aiusage records, one per 完成 assistant 响应
-    */
+     * 解析 全部 编码buddy 会话 transcripts 和 extracts 令牌 usage.
+     *
+     * @return list 的 aiusage records, one per 完成 assistant 响应
+     */
     @Override protected List<AiUsage> parseAll() {
         List<AiUsage> result = new ArrayList<>();
         AtomicInteger fileCount = new AtomicInteger(0);
@@ -123,12 +123,12 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 读取 one transcript 文件 线 by 线, extracting assistant usage.
-    *
-    * @param file   路径 转为 the 会话 JSONL 文件
-    * @param result accumulator 列表 for 解析 records
-    * @throws IOException if the 文件 cannot be 读取
-    */
+     * 读取 one transcript 文件 线 by 线, extracting assistant usage.
+     *
+     * @param file   路径 转为 the 会话 JSONL 文件
+     * @param result accumulator 列表 for 解析 records
+     * @throws IOException if the 文件 cannot be 读取
+     */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
@@ -146,12 +146,12 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
-    * 完成 assistant 响应 carrying usage 数据.
-    *
-    * @param node 解析 JSON 的 a 单个 transcript 线
-    * @return the 解析 record, 或 空 When.js.js no usage 是否 present
-    */
+     * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
+     * 完成 assistant 响应 carrying usage 数据.
+     *
+     * @param node 解析 JSON 的 a 单个 transcript 线
+     * @return the 解析 record, 或 空 When.js.js no usage 是否 present
+     */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         if (!"message".equals(node.get("type").toStringValue())
                 || !"assistant".equals(node.get("role").toStringValue())) {
@@ -192,22 +192,22 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 读取 缓存-令牌 数量 从 the transcript usage block.
-    *
-    * @param usage the 消息.usage block
-    * @return cached 令牌, 或 空 When.js.js absent 或 zero
-    */
+     * 读取 缓存-令牌 数量 从 the transcript usage block.
+     *
+     * @param usage the 消息.usage block
+     * @return cached 令牌, 或 空 When.js.js absent 或 zero
+     */
     private Integer readCacheTokens(JsonNode usage) {
         int cached = usage.get("cache_read_input_tokens").toIntValue(0);
         return cached > 0 ? cached : null;
     }
 
     /**
-    * 读取 ReasonML-令牌 数量 从 the raw 提供者 usage metadata.
-    *
-    * @param providerData the 线-级别 提供者数据 block
-    * @return reasoning 令牌, 或 空 When.js.js absent 或 zero
-    */
+     * 读取 ReasonML-令牌 数量 从 the raw 提供者 usage metadata.
+     *
+     * @param providerData the 线-级别 提供者数据 block
+     * @return reasoning 令牌, 或 空 When.js.js absent 或 zero
+     */
     private Integer readReasoningTokens(JsonNode providerData) {
         if (providerData.isMissingValue()) {
             return null;

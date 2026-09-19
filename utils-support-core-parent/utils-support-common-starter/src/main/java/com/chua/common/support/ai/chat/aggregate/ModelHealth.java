@@ -3,10 +3,10 @@ package com.chua.common.support.ai.chat.aggregate;
 import java.time.Instant;
 
 /**
-* 模型健康状态
-*
-* @author CH
-* @since 4.0.0.43
+ * 模型健康状态
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 public class ModelHealth {
 
@@ -141,8 +141,8 @@ public class ModelHealth {
     }
 
     /**
-    * 重置模型健康状态
-    */
+     * 重置模型健康状态
+     */
     public void reset() {
         this.rateLimited = false;
         this.quotaExhausted = false;
@@ -151,9 +151,9 @@ public class ModelHealth {
     }
 
     /**
-    * 模型是否健康（可用）
-    * @return 是否成功（true 表示成功）
-    */
+     * 模型是否健康（可用）
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isHealthy() {
         return !rateLimited && !quotaExhausted;
     }

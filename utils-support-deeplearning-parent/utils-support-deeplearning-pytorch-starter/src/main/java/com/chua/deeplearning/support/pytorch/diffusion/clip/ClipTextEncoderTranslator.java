@@ -14,27 +14,27 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
-* CLIP 文本编码器 Translator（Stable Diffusion 条件）。
-* <p>优先本地 tokenizer 目录，否则回退 HuggingFace 模型名。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * CLIP 文本编码器 Translator（Stable Diffusion 条件）。
+ * <p>优先本地 tokenizer 目录，否则回退 HuggingFace 模型名。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, NDList> {
 
     /**
-    * CLIP 最大 令牌 长度。
-    */
+     * CLIP 最大 令牌 长度。
+     */
     private static final int MAX_LENGTH = 77;
 
     /**
-    * 本地 tokenizer 目录（可选）。
-    */
+     * 本地 tokenizer 目录（可选）。
+     */
     private final String tokenizerPath;
 
     /**
-    * huggingface tokenizer。
-    */
+     * huggingface tokenizer。
+     */
     private HuggingFaceTokenizer tokenizer;
 
     /** 创建 clip文本编码器translator 实例 */

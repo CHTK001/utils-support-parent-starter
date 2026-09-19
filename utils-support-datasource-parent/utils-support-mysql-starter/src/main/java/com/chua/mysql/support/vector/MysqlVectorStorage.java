@@ -11,40 +11,40 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 基于 MySQL 8.0.31+ 原生 向量 类型的向量存储实现。
-* <p>
-* MySQL 8.0.31+ 支持 {@code VECTOR} 数据类型及内置相似度函数：
-* <ul>
-*   <li>{@code COSINE_SIMILARITY(vec, query)} — 余弦相似度</li>
-*   <li>{@code EUCLIDEAN_DISTANCE(vec, query)} — 欧氏距离</li>
-*   <li>{@code DOT_PRODUCT(vec, query)} — 点积</li>
-* </ul>
-* </p>
-* <p>
-* 表结构（首次 添加 时自动创建）：
-* <pre>{@code
-* CREATE TABLE IF NOT EXISTS vector_store (
-*     id   VARCHAR(255) PRIMARY KEY,
-*     vec  VECTOR(128)  NOT NULL   -- 维度由首次 add 决定
-* );
-* }</pre>add 决定
-* );
-* }</pre>
-* </p>
-* <p>
-* 使用示例：
-* <pre>{@code
-* DataSource ds = dataSource; // 从 Spring 容器获取
-* VectorStorage storage = new MysqlVectorStorage(ds, 128, VectorCompareAlgorithm.cosine());
-* storage.add("id1", new float[]{...});
-* List<Vector> results = storage.search(query, 10);
-* }</pre>ge.搜索(查询, 10);
-* }</pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see <a href="https://dev.mysql.com/doc/refman/8.0/en/vector-functions.html">MySQL Vector Functions</a>
+ * 基于 MySQL 8.0.31+ 原生 向量 类型的向量存储实现。
+ * <p>
+ * MySQL 8.0.31+ 支持 {@code VECTOR} 数据类型及内置相似度函数：
+ * <ul>
+ *   <li>{@code COSINE_SIMILARITY(vec, query)} — 余弦相似度</li>
+ *   <li>{@code EUCLIDEAN_DISTANCE(vec, query)} — 欧氏距离</li>
+ *   <li>{@code DOT_PRODUCT(vec, query)} — 点积</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 表结构（首次 添加 时自动创建）：
+ * <pre>{@code
+ * CREATE TABLE IF NOT EXISTS vector_store (
+ *     id   VARCHAR(255) PRIMARY KEY,
+ *     vec  VECTOR(128)  NOT NULL   -- 维度由首次 add 决定
+ * );
+ * }</pre>add 决定
+ * );
+ * }</pre>
+ * </p>
+ * <p>
+ * 使用示例：
+ * <pre>{@code
+ * DataSource ds = dataSource; // 从 Spring 容器获取
+ * VectorStorage storage = new MysqlVectorStorage(ds, 128, VectorCompareAlgorithm.cosine());
+ * storage.add("id1", new float[]{...});
+ * List<Vector> results = storage.search(query, 10);
+ * }</pre>ge.搜索(查询, 10);
+ * }</pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see <a href="https://dev.mysql.com/doc/refman/8.0/en/vector-functions.html">MySQL Vector Functions</a>
  */
 public class MysqlVectorStorage extends AbstractVectorStorage {
 
@@ -62,12 +62,12 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     /**
-    * 构造 MySQL 向量存储。
-    *
-    * @param dataSource  JDBC 数据源
-    * @param dimension   向量维度
-    * @param algorithm   比较算法（COSINE / EUCLIDEAN / DOT）
-    */
+     * 构造 MySQL 向量存储。
+     *
+     * @param dataSource  JDBC 数据源
+     * @param dimension   向量维度
+     * @param algorithm   比较算法（COSINE / EUCLIDEAN / DOT）
+     */
     public MysqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         super(dimension, algorithm);
         this.dataSource = dataSource;
@@ -77,13 +77,13 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 全参数构造。
-    *
-    * @param dataSource  JDBC 数据源
-    * @param dimension   向量维度
-    * @param algorithm   比较算法
-    * @param properties  配置属性（表名、列名等）
-    */
+     * 全参数构造。
+     *
+     * @param dataSource  JDBC 数据源
+     * @param dimension   向量维度
+     * @param algorithm   比较算法
+     * @param properties  配置属性（表名、列名等）
+     */
     public MysqlVectorStorage(DataSource dataSource, int dimension,
                                VectorCompareAlgorithm algorithm,
                                MysqlVectorStorageProperties properties) {
@@ -131,8 +131,8 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 确保向量表已创建；失败时自动降级到内存存储。
-    */
+     * 确保向量表已创建；失败时自动降级到内存存储。
+     */
     private synchronized void ensureSchema() {
         if (schemaInitialized) {
             return;
@@ -153,9 +153,9 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
-    * @return resolved的结果
-    */
+     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     * @return resolved的结果
+     */
     private com.chua.common.support.vector.VectorStorage resolved() {
         if (fallback != null) {
             return fallback;
@@ -165,10 +165,10 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 根据当前算法构建 SQL 订单 BY 子句。
-    * <p>使用 MySQL 内置向量函数，对 JSON 存储的向量进行相似度排序。</p>
-    * @return 构建订单clause的结果
-    */
+     * 根据当前算法构建 SQL 订单 BY 子句。
+     * <p>使用 MySQL 内置向量函数，对 JSON 存储的向量进行相似度排序。</p>
+     * @return 构建订单clause的结果
+     */
     private String buildOrderClause() {
         String algoName = getAlgorithm().name().toUpperCase();
         return switch (algoName) {
@@ -182,10 +182,10 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     // ==================== JSON 转换工具 ====================
 
     /**
-    * 将 float 数组序列化为 MySQL JSON 数组字符串。
-    * @param vector 向量
-    * @return floatarray转为json的结果
-    */
+     * 将 float 数组序列化为 MySQL JSON 数组字符串。
+     * @param vector 向量
+     * @return floatarray转为json的结果
+     */
     private static String floatArrayToJson(float[] vector) {
         if (vector == null || vector.length == 0) {
             return "[]";
@@ -203,10 +203,10 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将 MySQL JSON 数组字符串反序列化为 float 数组。
-    * @param json json
-    * @return jsonarray转为floatarray的结果
-    */
+     * 将 MySQL JSON 数组字符串反序列化为 float 数组。
+     * @param json json
+     * @return jsonarray转为floatarray的结果
+     */
     private static float[] jsonArrayToFloatArray(String json) {
         if (json == null || json.isBlank()) {
             return null;

@@ -9,11 +9,11 @@ import ai.djl.translate.TranslatorContext;
 import java.util.Arrays;
 
 /**
-* NLLB 编码器 Translator。
-* <p>输入 token id 序列，输出 encoder hidden states。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * NLLB 编码器 Translator。
+ * <p>输入 token id 序列，输出 encoder hidden states。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class NllbEncoderTranslator implements NoBatchifyTranslator<long[], NDArray> {
 

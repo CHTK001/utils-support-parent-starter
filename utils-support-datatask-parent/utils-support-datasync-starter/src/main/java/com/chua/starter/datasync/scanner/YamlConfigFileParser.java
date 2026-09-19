@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* YAML 配置文件解析器。
-*
-* @author CH
-* @since 4.0.0.42
+ * YAML 配置文件解析器。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class YamlConfigFileParser implements ConfigFileParser {
 
@@ -121,25 +121,25 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-    * 获取字符串
-    *
-    * @param map 映射
-    * @param key 键
-    * @return 获取字符串的结果
-    */
+     * 获取字符串
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 获取字符串的结果
+     */
     private static String getString(Map<String, Object> map, String key) {
         Object v = map.get(key);
         return v != null ? String.valueOf(v) : null;
     }
 
     /**
-    * 获取Int
-    *
-    * @param map 映射
-    * @param key 键
-    * @param defaultValue 默认值
-    * @return 获取int的结果
-    */
+     * 获取Int
+     *
+     * @param map 映射
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取int的结果
+     */
     private static int getInt(Map<String, Object> map, String key, int defaultValue) {
         Object v = map.get(key);
         if (v instanceof Number n) {
@@ -155,8 +155,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-    * 默认字段映射。
-    */
+     * 默认字段映射。
+     */
     private record DefaultDataSyncFieldMapping(String sourceField, String targetField, String converter)
             implements DataSyncFieldMapping {
         @Override

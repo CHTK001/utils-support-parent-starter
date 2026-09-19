@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 水印配置。
-*
-* <p>支持文字水印和图片水印两种模式。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * 水印配置。
+ *
+ * <p>支持文字水印和图片水印两种模式。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @NoArgsConstructor
@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 public class FileStorageWatermarkSetting {
 
     /**
-    * 是否启用水印。
-    */
+     * 是否启用水印。
+     */
     @Builder.Default
     /** 是否启用 */
     private boolean enabled = false;
@@ -39,27 +39,27 @@ public class FileStorageWatermarkSetting {
     private String text;
 
     /**
-    * 图片水印 URL（类型=镜像 时有效）。
-    */
+     * 图片水印 URL（类型=镜像 时有效）。
+     */
     private String imageUrl;
 
     /**
-    * 水印位置。
-    * <p>取值：
-    * <ul>
-    *   <li>LEFT_TOP / TOP_LEFT</li>
-    *   <li>TOP_CENTER / TOP</li>
-    *   <li>RIGHT_TOP / TOP_RIGHT</li>
-    *   <li>CENTER_LEFT / LEFT</li>
-    *   <li>CENTER / MIDDLE</li>
-    *   <li>CENTER_RIGHT / RIGHT</li>
-    *   <li>BOTTOM_LEFT / LEFT_BOTTOM</li>
-    *   <li>BOTTOM_CENTER / BOTTOM</li>
-    *   <li>BOTTOM_RIGHT / RIGHT_BOTTOM</li>
-    *   <li>TILE（平铺）</li>
-    * </ul>
-    * </p>
-    */
+     * 水印位置。
+     * <p>取值：
+     * <ul>
+     *   <li>LEFT_TOP / TOP_LEFT</li>
+     *   <li>TOP_CENTER / TOP</li>
+     *   <li>RIGHT_TOP / TOP_RIGHT</li>
+     *   <li>CENTER_LEFT / LEFT</li>
+     *   <li>CENTER / MIDDLE</li>
+     *   <li>CENTER_RIGHT / RIGHT</li>
+     *   <li>BOTTOM_LEFT / LEFT_BOTTOM</li>
+     *   <li>BOTTOM_CENTER / BOTTOM</li>
+     *   <li>BOTTOM_RIGHT / RIGHT_BOTTOM</li>
+     *   <li>TILE（平铺）</li>
+     * </ul>
+     * </p>
+     */
     @Builder.Default
     /** 位置 */
     private String position = "BOTTOM_RIGHT";
@@ -84,8 +84,8 @@ public class FileStorageWatermarkSetting {
     private String fontFamily;
 
     /**
-    * 透明度 0.0 ~ 1.0。
-    */
+     * 透明度 0.0 ~ 1.0。
+     */
     @Builder.Default
     /** Opacity */
     private float opacity = 0.3f;

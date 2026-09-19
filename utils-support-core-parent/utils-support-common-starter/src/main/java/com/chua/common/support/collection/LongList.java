@@ -11,70 +11,70 @@ import java.util.Objects;
 import java.util.RandomAccess;
 
 /**
-* 基于 {@code long[]} 的长整数列表，避免 {@link Long} 装箱开销。
-* <p>
-* 内部使用基本类型 {@code long[]} 存储数据，提供 {@link List}{@code <Long>} 语义。
-* </p>
-*
-* <h3>适用场景</h3>
-* <ul>
-*   <li><strong>高性能长整数序列</strong> — 避免 {@code Long} 装箱/拆箱，降低 GC 压力</li>
-*   <li><strong>时间戳/ID 序列</strong> — 存储最近 N 个 long 值（时间戳、ID 等）</li>
-*   <li><strong>协议字段数组</strong> — 二进制协议解析后的 long 数组</li>
-*   <li><strong>批量运算</strong> — 求和、均值、最值等批量数值计算</li>
-* </ul>
-*
-* <p>
-* 线程不安全，多线程环境请自行加锁。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
-* @version 1.0.0
-* @see IntList
+ * 基于 {@code long[]} 的长整数列表，避免 {@link Long} 装箱开销。
+ * <p>
+ * 内部使用基本类型 {@code long[]} 存储数据，提供 {@link List}{@code <Long>} 语义。
+ * </p>
+ *
+ * <h3>适用场景</h3>
+ * <ul>
+ *   <li><strong>高性能长整数序列</strong> — 避免 {@code Long} 装箱/拆箱，降低 GC 压力</li>
+ *   <li><strong>时间戳/ID 序列</strong> — 存储最近 N 个 long 值（时间戳、ID 等）</li>
+ *   <li><strong>协议字段数组</strong> — 二进制协议解析后的 long 数组</li>
+ *   <li><strong>批量运算</strong> — 求和、均值、最值等批量数值计算</li>
+ * </ul>
+ *
+ * <p>
+ * 线程不安全，多线程环境请自行加锁。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @version 1.0.0
+ * @see IntList
  */
 public class LongList extends AbstractList<Long> implements RandomAccess {
 
     /**
-    * 内部 long 数组
-    */
+     * 内部 long 数组
+     */
     private long[] elements;
 
     /**
-    * 当前元素数量
-    */
+     * 当前元素数量
+     */
     private int size;
 
     /**
-    * 默认初始容量
-    */
+     * 默认初始容量
+     */
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
-    * 创建空长整数列表。
-    *
-    * @return LongList 实例
-    */
+     * 创建空长整数列表。
+     *
+     * @return LongList 实例
+     */
     public static LongList of() {
         return new LongList();
     }
 
     /**
-    * 使用指定初始容量创建长整数列表。
-    *
-    * @param capacity 初始容量，必须大于等于 0
-    * @return LongList 实例
-    */
+     * 使用指定初始容量创建长整数列表。
+     *
+     * @param capacity 初始容量，必须大于等于 0
+     * @return LongList 实例
+     */
     public static LongList of(int capacity) {
         return new LongList(capacity);
     }
 
     /**
-    * 从基本类型 long 数组创建长整数列表。
-    *
-    * @param values long 数组
-    * @return LongList 实例
-    */
+     * 从基本类型 long 数组创建长整数列表。
+     *
+     * @param values long 数组
+     * @return LongList 实例
+     */
     public static LongList of(long[] values) {
         LongList list = new LongList(values.length);
         list.addAll(values);
@@ -82,11 +82,11 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 从 {@link Collection}{@code <Long>} 创建长整数列表。
-    *
-    * @param values 长整数集合
-    * @return LongList 实例
-    */
+     * 从 {@link Collection}{@code <Long>} 创建长整数列表。
+     *
+     * @param values 长整数集合
+     * @return LongList 实例
+     */
     public static LongList of(Collection<Long> values) {
         LongList list = new LongList(values.size());
         list.addAll(values);
@@ -94,17 +94,17 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 构造方法，创建默认容量的长整数列表。
-    */
+     * 构造方法，创建默认容量的长整数列表。
+     */
     public LongList() {
         this(DEFAULT_CAPACITY);
     }
 
     /**
-    * 构造方法，创建指定初始容量的长整数列表。
-    *
-    * @param capacity 初始容量
-    */
+     * 构造方法，创建指定初始容量的长整数列表。
+     *
+     * @param capacity 初始容量
+     */
     public LongList(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("容量不能为负数: " + capacity);
@@ -335,42 +335,42 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     // ==================== 数值专用 API ====================
 
     /**
-    * 返回指定位置的 long 值（避免自动装箱）。
-    *
-    * @param index 索引
-    * @return long 值
-    */
+     * 返回指定位置的 long 值（避免自动装箱）。
+     *
+     * @param index 索引
+     * @return long 值
+     */
     public long getLong(int index) {
         checkElementIndex(index);
         return elements[index];
     }
 
     /**
-    * 设置指定位置的 long 值（避免自动装箱）。
-    *
-    * @param index 索引
-    * @param value long 值
-    */
+     * 设置指定位置的 long 值（避免自动装箱）。
+     *
+     * @param index 索引
+     * @param value long 值
+     */
     public void setLong(int index, long value) {
         checkElementIndex(index);
         elements[index] = value;
     }
 
     /**
-    * 追加一个 long 值（避免自动装箱）。
-    *
-    * @param value long 值
-    */
+     * 追加一个 long 值（避免自动装箱）。
+     *
+     * @param value long 值
+     */
     public void addLong(long value) {
         ensureCapacity(size + 1);
         elements[size++] = value;
     }
 
     /**
-    * 批量追加 long 值（避免自动装箱）。
-    *
-    * @param values long 数组
-    */
+     * 批量追加 long 值（避免自动装箱）。
+     *
+     * @param values long 数组
+     */
     public void addAll(long[] values) {
         ensureCapacity(size + values.length);
         System.arraycopy(values, 0, elements, size, values.length);
@@ -378,10 +378,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 计算所有元素的和。
-    *
-    * @return 元素总和
-    */
+     * 计算所有元素的和。
+     *
+     * @return 元素总和
+     */
     public long sum() {
         long sum = 0L;
         for (int i = 0; i < size; i++) {
@@ -391,10 +391,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 计算所有元素的平均值。
-    *
-    * @return 元素平均值
-    */
+     * 计算所有元素的平均值。
+     *
+     * @return 元素平均值
+     */
     public double average() {
         if (size == 0) {
             return 0.0;
@@ -403,11 +403,11 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 返回最大元素。
-    *
-    * @return 最大元素
-    * @throws NoSuchElementException 如果列表为空
-    */
+     * 返回最大元素。
+     *
+     * @return 最大元素
+     * @throws NoSuchElementException 如果列表为空
+     */
     public long max() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -422,11 +422,11 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 返回最小元素。
-    *
-    * @return 最小元素
-    * @throws NoSuchElementException 如果列表为空
-    */
+     * 返回最小元素。
+     *
+     * @return 最小元素
+     * @throws NoSuchElementException 如果列表为空
+     */
     public long min() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -441,10 +441,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 将列表转换为基本类型 long 数组。
-    *
-    * @return long 数组
-    */
+     * 将列表转换为基本类型 long 数组。
+     *
+     * @return long 数组
+     */
     public long[] toLongArray() {
         return Arrays.copyOf(elements, size);
     }
@@ -452,10 +452,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     // ==================== 内部工具 ====================
 
     /**
-    * 确保容量足够。
-    *
-    * @param minCapacity 最小容量
-    */
+     * 确保容量足够。
+     *
+     * @param minCapacity 最小容量
+     */
     private void ensureCapacity(int minCapacity) {
         if (minCapacity > elements.length) {
             int newCapacity = Math.max(elements.length * 2, minCapacity);
@@ -464,10 +464,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 检查元素索引是否合法。
-    *
-    * @param index 索引
-    */
+     * 检查元素索引是否合法。
+     *
+     * @param index 索引
+     */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);
@@ -475,10 +475,10 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     }
 
     /**
-    * 检查位置索引是否合法。
-    *
-    * @param index 索引
-    */
+     * 检查位置索引是否合法。
+     *
+     * @param index 索引
+     */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);

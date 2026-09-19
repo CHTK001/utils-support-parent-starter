@@ -11,7 +11,7 @@ package com.chua.common.support.task.loader;
  * @param <T> 被加载的对象类型
  * @author CH
  * @since 2026/07/18
-*/
+ */
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {
 
     /** 缓存的实例，volatile 保证双重检查锁定的可见性 */
@@ -36,8 +36,8 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     }
 
     /**
-    * 重置缓存实例：下次 {@link #get()} 将重新创建。
-    */
+     * 重置缓存实例：下次 {@link #get()} 将重新创建。
+     */
     @Override
     public void reset() {
         synchronized (this) {
@@ -46,19 +46,19 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     }
 
     /**
-    * 判断实例是否已加载。
-    */
+     * 判断实例是否已加载。
+     */
     @Override
     public boolean isLoaded() {
         return instance != null;
     }
 
     /**
-    * 创建要加载的实例。
-    *
-    * <p>由子类实现具体创建逻辑，仅在首次调用 {@link #get()} 时执行一次。</p>
-    *
-    * @return 新创建的实例
-    */
+     * 创建要加载的实例。
+     *
+     * <p>由子类实现具体创建逻辑，仅在首次调用 {@link #get()} 时执行一次。</p>
+     *
+     * @return 新创建的实例
+     */
     protected abstract T create();
 }

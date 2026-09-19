@@ -19,25 +19,25 @@ import java.util.stream.Stream;
 
 
 /**
-* Rust 原生文件搜索执行器
-*
-* @author CH
-* @since 4.0.0
+ * Rust 原生文件搜索执行器
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class RustFileSearchHelper {
 
     /**
-    * 流式搜索批量缓冲区大小
-    */
+     * 流式搜索批量缓冲区大小
+     */
     private static final int STREAM_BATCH_SIZE = 128;
     /**
-    * 大小不限标记值
-    */
+     * 大小不限标记值
+     */
     private static final long SIZE_UNLIMITED = -1;
     /**
-    * 文件占比未计算时的默认值
-    */
+     * 文件占比未计算时的默认值
+     */
     private static final double PERCENTAGE_NOT_CALCULATED = 0.0;
 
     static {
@@ -45,11 +45,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 同步搜索文件
-    *
-    * @param criteria 搜索条件
-    * @return 文件列表
-    */
+     * 同步搜索文件
+     *
+     * @param criteria 搜索条件
+     * @return 文件列表
+     */
     public static List<FileInfo> search(FileSearchCriteria criteria) {
         List<FileInfo> results = search0(criteria);
         if (!results.isEmpty()) {
@@ -60,11 +60,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 搜索
-    *
-    * @param criteria criteria
-    * @return search0的结果
-    */
+     * 搜索
+     *
+     * @param criteria criteria
+     * @return search0的结果
+     */
     private static List<FileInfo> search0(FileSearchCriteria criteria) {
         if (!RustFileSearchBridge.isLoaded()) {
             return new ArrayList<>();
@@ -104,11 +104,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 搜索byjdk
-    *
-    * @param criteria criteria
-    * @return 搜索byjdk的结果
-    */
+     * 搜索byjdk
+     *
+     * @param criteria criteria
+     * @return 搜索byjdk的结果
+     */
     private static List<FileInfo> searchByJdk(FileSearchCriteria criteria) {
         String rootPath = resolveRootPath(criteria.rootPath());
         Path root = Paths.get(rootPath);
@@ -152,12 +152,12 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 匹配glob
-    *
-    * @param name 名称
-    * @param pattern 模式
-    * @return 匹配glob的结果
-    */
+     * 匹配glob
+     *
+     * @param name 名称
+     * @param pattern 模式
+     * @return 匹配glob的结果
+     */
     private static boolean matchesGlob(String name, String pattern) {
         if (pattern == null || pattern.isEmpty() || "*".equals(pattern)) {
             return true;
@@ -170,11 +170,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 延伸的
-    *
-    * @param p p
-    * @return 延伸的的结果
-    */
+     * 延伸的
+     *
+     * @param p p
+     * @return 延伸的的结果
+     */
     private static String extensionOf(Path p) {
         String name = p.getFileName().toString();
         int idx = name.lastIndexOf('.');
@@ -185,12 +185,12 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 流式搜索文件
-    *
-    * @param criteria  搜索条件
-    * @param consumer  结果消费者
-    * @return 实际匹配数
-    */
+     * 流式搜索文件
+     *
+     * @param criteria  搜索条件
+     * @param consumer  结果消费者
+     * @return 实际匹配数
+     */
     public static long searchStream(FileSearchCriteria criteria, Consumer<FileInfo> consumer) {
         if (!RustFileSearchBridge.isLoaded()) {
             log.warn("Native file search library not loaded");
@@ -244,26 +244,26 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 取消正在进行的搜索
-    */
+     * 取消正在进行的搜索
+     */
     public static void cancel() {
         RustFileSearchBridge.cancel();
     }
 
     /**
-    * 获取引擎版本
-    *
-    * @return 版本字符串
-    */
+     * 获取引擎版本
+     *
+     * @return 版本字符串
+     */
     public static String getVersion() {
         return RustFileSearchBridge.getVersion();
     }
 
     /**
-    * Post处理树
-    *
-    * @param results 结果
-    */
+     * Post处理树
+     *
+     * @param results 结果
+     */
     private static void postProcessTree(List<FileInfo> results) {
         Map<String, List<FileInfo>> parentToChildren = new HashMap<>();
         Map<String, FileInfo> dirIndex = new HashMap<>();
@@ -330,13 +330,13 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * computedirtotals
-    *
-    * @param dirPath dir路径
-    * @param children children
-    * @param cache 缓存
-    * @return computeDirTotals的结果
-    */
+     * computedirtotals
+     *
+     * @param dirPath dir路径
+     * @param children children
+     * @param cache 缓存
+     * @return computeDirTotals的结果
+     */
     private static long[] computeDirTotals(String dirPath, Map<String, List<FileInfo>> children, Map<String, long[]> cache) {
         long[] cached = cache.get(dirPath);
         if (cached != null) {
@@ -366,11 +366,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 解析根路径
-    *
-    * @param rootPath 根路径
-    * @return resolve根路径的结果
-    */
+     * 解析根路径
+     *
+     * @param rootPath 根路径
+     * @return resolve根路径的结果
+     */
     private static String resolveRootPath(String rootPath) {
         if (rootPath != null && !rootPath.isBlank()) {
             return rootPath;
@@ -379,11 +379,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 构建文件信息
-    *
-    * @param data 数据
-    * @return 构建文件信息的结果
-    */
+     * 构建文件信息
+     *
+     * @param data 数据
+     * @return 构建文件信息的结果
+     */
     private static FileInfo buildFileInfo(RustFileSearchBridge.FileResultData data) {
         Path p = Paths.get(data.path());
         String name = p.getFileName() != null ? p.getFileName().toString() : data.path();
@@ -425,12 +425,12 @@ public class RustFileSearchHelper {
         };
 
         /**
-        * attribute字符串
-        *
-        * @param attrs attrs
-        * @param isDirectory 是否目录
-        * @return attribute字符串的结果
-        */
+         * attribute字符串
+         *
+         * @param attrs attrs
+         * @param isDirectory 是否目录
+         * @return attribute字符串的结果
+         */
         static String attributeString(int attrs, boolean isDirectory) {
             if (attrs == 0 && !isDirectory) {
                 return "0x00000000";
@@ -449,11 +449,11 @@ public class RustFileSearchHelper {
     }
 
     /**
-    * 格式化获取大小
-    *
-    * @param bytes bytes
-    * @return 格式化大小的结果
-    */
+     * 格式化获取大小
+     *
+     * @param bytes bytes
+     * @return 格式化大小的结果
+     */
     private static String formatSize(long bytes) {
         if (bytes < 0) {
             return "0 B";

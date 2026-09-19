@@ -8,12 +8,12 @@ import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
-* 分布式锁拦截器，处理 {@link DistributedLock} 注解的方法。
-*
-* <p>基于 {@link LockFlow} 门面，通过链式 API 获取锁。</p>
-*
-* @author CH
-* @since 4.0.0
+ * 分布式锁拦截器，处理 {@link DistributedLock} 注解的方法。
+ *
+ * <p>基于 {@link LockFlow} 门面，通过链式 API 获取锁。</p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("com.chua.common.support.concurrent.lock.annotation.DistributedLock")
 public class DistributedLockIntercept implements MethodAnnotationIntercept<DistributedLock> {

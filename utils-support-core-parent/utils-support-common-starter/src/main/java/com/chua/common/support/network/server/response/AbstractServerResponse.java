@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author CH
  * @since 2026/07/16
-*/
+ */
 public abstract class AbstractServerResponse implements ServerResponse {
 
     /** HTTP 状态码 */
@@ -30,8 +30,8 @@ public abstract class AbstractServerResponse implements ServerResponse {
     protected HttpHeader headers = HttpHeader.create();
 
     /**
-    * 请求体
-    */
+     * 请求体
+     */
     protected byte[] body;
 
     /** 是否已提交响应头 */
@@ -159,18 +159,18 @@ public abstract class AbstractServerResponse implements ServerResponse {
     }
 
     /**
-    * 子类实现：获取底层输出流。
-    *
-    * @return 输出流
-    */
+     * 子类实现：获取底层输出流。
+     *
+     * @return 输出流
+     */
     @Override
     public abstract OutputStream getOutputStream();
 
     /**
-    * 子类实现：直接写入原始字节数据。
-    *
-    * @param bytes 原始字节数组
-    */
+     * 子类实现：直接写入原始字节数据。
+     *
+     * @param bytes 原始字节数组
+     */
     @Override
     public abstract void writeRaw(byte[] bytes);
 }

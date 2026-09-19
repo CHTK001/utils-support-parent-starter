@@ -7,13 +7,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
-* 基于文件锁的进程间锁提供者
-*
-* <p>同 JVM 内通过 {@link ReentrantLock} 协调多线程，
-* 跨进程通过文件锁协调多 JVM。
-*
-* @author CH
-* @since 4.0.0.42
+ * 基于文件锁的进程间锁提供者
+ *
+ * <p>同 JVM 内通过 {@link ReentrantLock} 协调多线程，
+ * 跨进程通过文件锁协调多 JVM。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("chronicle")
 public class ChronicleLockProvider extends AbstractLockProvider {

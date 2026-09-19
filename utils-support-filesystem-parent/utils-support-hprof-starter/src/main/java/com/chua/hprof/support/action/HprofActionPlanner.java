@@ -33,41 +33,41 @@ public final class HprofActionPlanner {
     }
 
     /**
-    * 单条处置项。
-    *
-    * @param id            稳定机器 id（用于勾选状态）
-    * @param title         做什么（一句话）
-    * @param how           怎么做（可执行路径 / 命令 / 设置项）
-    * @param expectedEffect 预期效果（释放多少内存 / 消除什么）
-    * @param verify        验证方法（处理后如何确认有效）
-    * @param priority      优先级 1（最高）.. 3
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * 单条处置项。
+     *
+     * @param id            稳定机器 id（用于勾选状态）
+     * @param title         做什么（一句话）
+     * @param how           怎么做（可执行路径 / 命令 / 设置项）
+     * @param expectedEffect 预期效果（释放多少内存 / 消除什么）
+     * @param verify        验证方法（处理后如何确认有效）
+     * @param priority      优先级 1（最高）.. 3
+     * @author CH
+     * @since 4.0.0.42
+     */
     public record ActionItem(String id, String title, String how,
                               String expectedEffect, String verify, int priority) {
     }
 
     /**
-    * 完整处置计划。
-    *
-    * @param problemSummary  一段话概括问题（非开发人员可读）
-    * @param items           处置步骤（按优先级排序）
-    * @param ideaSpecific    是否含 IDEA 专属步骤
-    * @author CH
-    * @since 4.0.0.42
-    * @return 结果值
-    */
+     * 完整处置计划。
+     *
+     * @param problemSummary  一段话概括问题（非开发人员可读）
+     * @param items           处置步骤（按优先级排序）
+     * @param ideaSpecific    是否含 IDEA 专属步骤
+     * @author CH
+     * @since 4.0.0.42
+     * @return 结果值
+     */
     public record ActionPlan(String problemSummary, List<ActionItem> items, boolean ideaSpecific) {
     }
 
     /**
-    * 从分析结果生成处置计划。
-    *
-    * @param result   解析结果
-    * @param analysis 分析结果
-    * @return 处置计划
-    */
+     * 从分析结果生成处置计划。
+     *
+     * @param result   解析结果
+     * @param analysis 分析结果
+     * @return 处置计划
+     */
     public static ActionPlan plan(HprofParser.Result result, HprofAnalysis analysis) {
         List<ActionItem> items = new ArrayList<>();
         boolean idea = isIntelliJ(analysis);
@@ -166,11 +166,11 @@ public final class HprofActionPlanner {
     }
 
     /**
-    * 是否 IntelliJ 场景。
-    *
-    * @param analysis 分析
-    * @return true 时非 JDK 包排行头部含 com.intellij
-    */
+     * 是否 IntelliJ 场景。
+     *
+     * @param analysis 分析
+     * @return true 时非 JDK 包排行头部含 com.intellij
+     */
     private static boolean isIntelliJ(HprofAnalysis analysis) {
         return !analysis.nonJdkPackageGroups.isEmpty()
                 && analysis.nonJdkPackageGroups.get(0).name()
@@ -178,39 +178,39 @@ public final class HprofActionPlanner {
     }
 
     /**
-    * 头部非 JDK 包的保留字节。
-    *
-    * @param analysis 分析
-    * @return 保留字节
-    */
+     * 头部非 JDK 包的保留字节。
+     *
+     * @param analysis 分析
+     * @return 保留字节
+     */
     private static long topPkgBytes(HprofAnalysis analysis) {
         return analysis.nonJdkPackageGroups.isEmpty()
                 ? 0L : analysis.nonJdkPackageGroups.get(0).retained();
     }
 
     /**
-    * 构造一条处置项。
-    *
-    * @param seq    序号
-    * @param id     稳定 id
-    * @param priority 优先级
-    * @param title  标题
-    * @param how    怎么做
-    * @param effect 预期
-    * @param verify 验证
-    * @return 处置项
-    */
+     * 构造一条处置项。
+     *
+     * @param seq    序号
+     * @param id     稳定 id
+     * @param priority 优先级
+     * @param title  标题
+     * @param how    怎么做
+     * @param effect 预期
+     * @param verify 验证
+     * @return 处置项
+     */
     private static ActionItem item(int seq, String id, int priority, String title,
                                    String how, String effect, String verify) {
         return new ActionItem(id + "_" + seq, title, how, effect, verify, priority);
     }
 
     /**
-    * 百分比格式化。
-    *
-    * @param ratio 0..1
-    * @return 百分比
-    */
+     * 百分比格式化。
+     *
+     * @param ratio 0..1
+     * @return 百分比
+     */
     private static String percent(double ratio) {
         return String.format(Locale.ROOT, "%.1f%%", ratio * 100.0);
     }
