@@ -3,7 +3,6 @@ package com.chua.sqlite.support.engine;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.datasource.support.dialect.SqliteDialect;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -44,9 +43,11 @@ public class SqliteEngine extends JdbcEngine {
      */
     public Engine addDataSource(String name, String filePath) {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:sqlite:" + filePath);
+        ds.setJdbcUrl("jdbc:sqlite:" + toUrlPath(name, filePath));
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setMaximumPoolSize(5);
+        // sqlite 是单写者模型，池内并发写会让后到的连接立刻 SQLITE_BUSY，busy_timeout 使其排队等待
+        ds.addDataSourceProperty("busy_timeout", 5000);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             private com.chua.common.support.lang.datasource.dialect.Dialect dialect =
                     com.chua.common.support.lang.datasource.dialect.Dialect.require("sqlite");
@@ -79,7 +80,7 @@ public class SqliteEngine extends JdbcEngine {
              * 设置源
             */
             public EngineDataSource<Object> setSource(Object source) {
-                return this;
+                throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
             }
 
             @Override
@@ -122,3 +123,31 @@ public class SqliteEngine extends JdbcEngine {
              * 密码
             */
             public String password() {
+                return ds.getPassword();
+            }
+        };
+        return super.addDataSource(name, dataSource);
+    }
+
+    /**
+     * 归一化 jdbc url 中的 sqlite 路径部分。
+     * <p>
+     * {@code :memory:} 是私有库：连接池里每条连接都会拿到一份独立的空库，写入的数据随机不可见，
+     * 因此改写为按数据源命名的共享缓存库，使同一数据源的多个连接看到同一份数据。
+     * </p>
+     *
+     * @param name     数据源名称
+     * @param filePath 数据库文件路径，或 {@code :memory:}
+     * @return 可拼入 jdbc url 的路径
+     */
+    private static String toUrlPath(String name, String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("sqlite 数据库路径不能为空, 数据源: " + name);
+        }
+        if (!":memory:".equals(filePath)) {
+            return filePath;
+        }
+        String key = (name == null ? "default" : name).replaceAll("[^A-Za-z0-9_]", "_");
+        return "file:ch_mem_" + key + "?mode=memory&cache=shared";
+    }
+}

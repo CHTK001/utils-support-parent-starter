@@ -8,6 +8,7 @@ import com.chua.common.support.ai.chat.ChatClient;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
+import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ChatTool;
 import com.chua.common.support.ai.probe.ProbeReport;
 import com.chua.common.support.spi.annotations.Spi;
@@ -28,6 +29,7 @@ import com.openai.models.chat.completions.ChatCompletionMessage;
 import com.openai.models.chat.completions.ChatCompletionNamedToolChoice;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
+import com.openai.models.chat.completions.ChatCompletionStreamOptions;
 import com.openai.models.completions.CompletionUsage;
 import com.openai.models.completions.CompletionUsage.PromptTokensDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -472,13 +474,31 @@ public class OpenAiChatClient implements ChatClient {
      * 对话同步
     */
     public String chatSync(String prompt) {
+        ChatSyncResponse response = chatSyncWithResponse(prompt);
+        return response == null ? null : response.getText();
+    }
+
+    @Override
+    /**
+     * 对话同步（携带用量信息）
+     * @param prompt 提示词
+     * @return 同步响应
+    */
+    public ChatSyncResponse chatSyncWithResponse(String prompt) {
         // 同步方法强制使用非流式，不受外部 stream(true) 影响
         boolean savedStream = this.stream;
         this.stream = false;
         try {
             StringBuilder result = new StringBuilder();
             StringBuilder reasoning = new StringBuilder();
+            final AiUsage[] usage = new AiUsage[1];
             chat(prompt, response -> {
+                if (response.getState() == ChatResponse.State.STOP) {
+                    if (response.getUsage() != null) {
+                        usage[0] = response.getUsage();
+                    }
+                    return;
+                }
                 if (response.getState() == ChatResponse.State.STREAMING) {
                     if (response.getContent() != null) {
                         result.append(response.getContent());
@@ -489,10 +509,10 @@ public class OpenAiChatClient implements ChatClient {
                 }
             });
             // 仅当显式开启深度思考时才附带思维链，关闭思考时只返回正式回答
-            if (thinking && reasoning.length() > 0) {
-                return reasoning.toString() + "\n---\n" + result.toString();
-            }
-            return result.toString();
+            String text = thinking && reasoning.length() > 0
+                    ? reasoning + "\n---\n" + result
+                    : result.toString();
+            return ChatSyncResponse.builder().text(text).usage(usage[0]).build();
         } finally {
             this.stream = savedStream;
         }
@@ -540,15 +560,21 @@ public class OpenAiChatClient implements ChatClient {
         // 添加对话历史（优先使用外部传入的历史）
         List<ChatMessage> messages = externalHistory != null ? externalHistory : history;
         for (ChatMessage msg : messages) {
-            if ("user".equals(msg.getRole())) {
+            String role = msg.getRole();
+            if ("user".equals(role)) {
                 paramsBuilder.addUserMessage(msg.getContent());
+            } else if ("system".equals(role)) {
+                // 摘要上下文等指令性内容必须以 system 下发，降级成 assistant 会被模型当作自己的历史发言
+                paramsBuilder.addSystemMessage(msg.getContent());
             } else {
                 paramsBuilder.addAssistantMessage(msg.getContent());
             }
         }
 
         // 添加当前用户输入
-        paramsBuilder.addUserMessage(prompt);
+        if (prompt != null && !prompt.isEmpty()) {
+            paramsBuilder.addUserMessage(prompt);
+        }
 
         // 工具（函数调用）定义
         if (tools != null && !tools.isEmpty()) {
@@ -597,6 +623,13 @@ public class OpenAiChatClient implements ChatClient {
         if (smartSearch) {
             paramsBuilder.webSearchOptions(ChatCompletionCreateParams.WebSearchOptions.builder()
                     .searchContextSize(ChatCompletionCreateParams.WebSearchOptions.SearchContextSize.MEDIUM)
+                    .build());
+        }
+        if (stream) {
+            // OpenAI 兼容协议默认不在流式分片回 usage，须显式声明后末帧才带 token 统计，
+            // 否则下游计量只能记到 0
+            paramsBuilder.streamOptions(ChatCompletionStreamOptions.builder()
+                    .includeUsage(true)
                     .build());
         }
 
@@ -650,25 +683,23 @@ public class OpenAiChatClient implements ChatClient {
 
                 while (it.hasNext()) {
                     ChatCompletionChunk chunk = it.next();
+                    // include_usage 时 usage 只在末帧给出，且该帧 choices 为空，必须先于 choices 判空读取
+                    if (chunk.usage().isPresent()) {
+                        CompletionUsage usage = chunk.usage().get();
+                        usageBuilder
+                                .inputTokens((int) usage.promptTokens())
+                                .outputTokens((int) usage.completionTokens())
+                                .totalTokens((int) usage.totalTokens())
+                                .cacheTokens(extractCacheTokens(usage));
+                    }
                     List<ChatCompletionChunk.Choice> choices = chunk.choices();
                     if (choices != null && !choices.isEmpty()) {
                         ChatCompletionChunk.Choice choice = choices.getFirst();
 
-                        // 检查是否完成
+                        // 检查是否完成：不提前 break，末尾还有 usage 帧要读
                         Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = choice.finishReason();
-                        if (finishReason.isPresent()
-                                && finishReason.get() == ChatCompletionChunk.Choice.FinishReason.STOP) {
-                            usageBuilder.finishReason("stop");
-                            // 记录用量信息
-                            if (chunk.usage().isPresent()) {
-                                CompletionUsage usage = chunk.usage().get();
-                                usageBuilder
-                                        .inputTokens((int) usage.promptTokens())
-                                        .outputTokens((int) usage.completionTokens())
-                                        .totalTokens((int) usage.totalTokens())
-                                        .cacheTokens(extractCacheTokens(usage));
-                            }
-                            break;
+                        if (finishReason.isPresent()) {
+                            usageBuilder.finishReason(finishReason.get().toString());
                         }
 
                         // 提取内容片段

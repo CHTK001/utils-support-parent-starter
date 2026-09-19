@@ -2,6 +2,7 @@ package com.chua.mysql.support.engine;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcReactorEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 
 /**
  * MySQL 响应式引擎，对应同步侧 {@link MysqlEngine}。
@@ -40,6 +41,9 @@ public class MysqlReactorEngine extends JdbcReactorEngine {
      * @return 当前引擎实例
      */
     public MysqlReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
+        JdbcUrl.checkHost(host);
+        JdbcUrl.checkDatabase(database);
+        JdbcUrl.checkPort(port);
         ((MysqlEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库
         registerJdbcDataSource(name,

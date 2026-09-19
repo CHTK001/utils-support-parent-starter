@@ -26,9 +26,12 @@ import java.util.List;
  * <h3>扩展方式</h3>
  * <ol>
  *   <li>实现本接口（可继承 {@code DefaultScriptConverter} 只做增量转换）</li>
- *   <li>类上标注 {@code @Spi(value = ScriptConverter.SPI_NAME, order = 100)}，
- *       {@code supports(protocol)} 返回目标库协议名（如 {@code h2}、{@code postgresql}）</li>
- *   <li>默认实现（order=0，{@code @SpiDefault}）支持全部协议，作为兜底</li>
+ *   <li>以<strong>协议名</strong>作为扩展键注册：类上标注 {@code @Spi(value = "sqlite", order = 100)}，
+ *       并在 {@code META-INF/extensions/com.chua...ScriptConverter} 中写入 {@code sqlite=<实现全限定名>}；
+ *       {@link #supports(String)} 返回该协议名</li>
+ *   <li>不要用 {@link #SPI_NAME} 作为协议实现的扩展键——与兜底默认实现同键时只会保留最高优先级的一个，
+ *       其他协议的转换会被遮蔽；扩展键按协议名区开后 {@link #getExtension(String)} 才能稳定命中</li>
+ *   <li>默认实现（{@code @SpiDefault}，支持全部协议）作为兜底</li>
  * </ol>
  *
  * <p>执行链（由 {@code DataSourceFlyway} / 内置 Populator 驱动）：</p>
@@ -85,17 +88,34 @@ public interface ScriptConverter {
 
     /**
      * 通过 SPI 获取支持指定协议的转换器。
-     * <p>按 SPI 注册顺序遍历扩展，匹配 {@link #supports(String)} 返回的第一项；
-     * 全部不支持时返回默认兜底实现（{@code @SpiDefault}，支持全部协议）。</p>
+     * <p>选择顺序（结果必须与 {@code collect()} 的 HashMap 迭代顺序无关）：</p>
+     * <ol>
+     *   <li>以协议名注册的扩展（{@code META-INF/extensions/<本接口全限定名>} 中 {@code sqlite=...}）</li>
+     *   <li>其余扩展按扩展名字典序遍历，取首个 {@link #supports(String)} 命中者</li>
+     *   <li>兜底默认实现（{@code @SpiDefault}，支持全部协议）</li>
+     * </ol>
      *
      * @param protocol 目标数据库协议名
-     * @return 转换器实例，无法获取时返回 null
+     * @return 转换器，无法获取时返回 null
      */
     static ScriptConverter getExtension(String protocol) {
+        if (protocol == null || protocol.isBlank()) {
+            return null;
+        }
         var provider = ServiceProvider.of(ScriptConverter.class);
-        for (ScriptConverter c : provider.collect()) {
-            if (c != null && c.supports(protocol)) {
-                return c;
+        if (provider.isSupport(protocol)) {
+            ScriptConverter exact = provider.getIfPresent(protocol).orElse(null);
+            if (exact != null && exact.supports(protocol)) {
+                return exact;
+            }
+        }
+        for (String name : new java.util.TreeSet<>(provider.getExtensions())) {
+            if ("default".equalsIgnoreCase(name) || name.contains(".")) {
+                continue;
+            }
+            ScriptConverter candidate = provider.getIfPresent(name).orElse(null);
+            if (candidate != null && candidate.supports(protocol)) {
+                return candidate;
             }
         }
         // 兜底：默认实现（@SpiDefault, order=0）支持全部协议

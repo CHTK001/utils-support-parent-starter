@@ -72,10 +72,16 @@ public class EsSearchEngineImpl implements SearchEngine {
 
             if (indexResponse.result().containsKey(indexName)) {
                 var indexSettings = indexResponse.result().get(indexName).settings();
-                def.setSettings(Map.of(
-                        "number_of_shards", indexSettings.index().numberOfShards(),
-                        "number_of_replicas", indexSettings.index().numberOfReplicas()
-                ));
+                Map<String, Object> settings = new LinkedHashMap<>();
+                if (indexSettings.index() != null) {
+                    if (indexSettings.index().numberOfShards() != null) {
+                        settings.put("number_of_shards", indexSettings.index().numberOfShards());
+                    }
+                    if (indexSettings.index().numberOfReplicas() != null) {
+                        settings.put("number_of_replicas", indexSettings.index().numberOfReplicas());
+                    }
+                }
+                def.setSettings(settings);
             }
 
             if (mappingResponse.result().containsKey(indexName)) {
@@ -85,7 +91,8 @@ public class EsSearchEngineImpl implements SearchEngine {
                     mapping.properties().forEach((name, prop) -> {
                         SearchFieldDef field = new SearchFieldDef();
                         field.setName(name);
-                        field.setType(prop._kind().name());
+                        // Kind 枚举名带下划线后缀（Long_/Float_），与 createIndex 的类型词表对齐
+                        field.setType(prop._kind().name().replaceAll("_+$", ""));
                         fields.add(field);
                     });
                 }
@@ -132,7 +139,7 @@ public class EsSearchEngineImpl implements SearchEngine {
                         if (indexDef.getFields() != null && !indexDef.getFields().isEmpty()) {
                             Map<String, Property> properties = new LinkedHashMap<>();
                             for (SearchFieldDef field : indexDef.getFields()) {
-                                properties.put(field.getName(), buildProperty(field.getType()));
+                                properties.put(field.getName(), buildProperty(field));
                             }
                             m.properties(properties);
                         }
@@ -146,31 +153,96 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     /**
-     * 构建财产
+     * 按字段定义构建 ES mapping 属性，落实 analyzer/index/store/ignore_above/null_value/doc_values。
      *
-     * @param type 类型
-     * @return 构建财产的结果
+     * @param field 字段定义
+     * @return ES 属性
      */
-    private Property buildProperty(String type) {
-        if (type == null) {
-            return PropertyBuilders.text(b -> b);
-        }
-        return switch (type.toUpperCase()) {
-            case "TEXT" -> PropertyBuilders.text(b -> b);
-            case "KEYWORD" -> PropertyBuilders.keyword(b -> b);
-            case "INTEGER" -> PropertyBuilders.integer(b -> b);
-            case "LONG" -> PropertyBuilders.long_(b -> b);
-            case "FLOAT" -> PropertyBuilders.float_(b -> b);
-            case "DOUBLE" -> PropertyBuilders.double_(b -> b);
-            case "BOOLEAN" -> PropertyBuilders.boolean_(b -> b);
-            case "DATE" -> PropertyBuilders.date(b -> b);
-            case "OBJECT" -> PropertyBuilders.object(b -> b);
+    private Property buildProperty(SearchFieldDef field) {
+        String type = field.getType() == null ? "" : field.getType().toUpperCase();
+        boolean indexed = field.isIndexed();
+        boolean stored = field.isStored();
+        return switch (type) {
+            case "KEYWORD" -> PropertyBuilders.keyword(b -> {
+                b.index(indexed).store(stored);
+                if (field.getIgnoreAbove() != null) {
+                    b.ignoreAbove(field.getIgnoreAbove());
+                }
+                if (field.getNullValue() != null) {
+                    b.nullValue(field.getNullValue());
+                }
+                if (field.getDocValues() != null) {
+                    b.docValues(field.getDocValues());
+                }
+                return b;
+            });
+            case "INTEGER" -> PropertyBuilders.integer(b -> {
+                numberShape(b::index, b::store, b::ignoreAbove, indexed, stored, field);
+                return b;
+            });
+            case "LONG" -> PropertyBuilders.long_(b -> {
+                numberShape(b::index, b::store, b::ignoreAbove, indexed, stored, field);
+                return b;
+            });
+            case "FLOAT" -> PropertyBuilders.float_(b -> {
+                numberShape(b::index, b::store, b::ignoreAbove, indexed, stored, field);
+                return b;
+            });
+            case "DOUBLE" -> PropertyBuilders.double_(b -> {
+                numberShape(b::index, b::store, b::ignoreAbove, indexed, stored, field);
+                return b;
+            });
+            case "BOOLEAN" -> PropertyBuilders.boolean_(b -> {
+                b.index(indexed).store(stored);
+                if (field.getDocValues() != null) {
+                    b.docValues(field.getDocValues());
+                }
+                return b;
+            });
+            case "DATE" -> PropertyBuilders.date(b -> {
+                b.store(stored);
+                if (field.getDocValues() != null) {
+                    b.docValues(field.getDocValues());
+                }
+                return b;
+            });
+            case "OBJECT" -> PropertyBuilders.object(b -> b.enabled(indexed));
             case "NESTED" -> PropertyBuilders.nested(b -> b);
-            case "BINARY" -> PropertyBuilders.binary(b -> b);
+            case "BINARY" -> PropertyBuilders.binary(b -> b.store(stored));
             case "IP" -> PropertyBuilders.ip(b -> b);
             case "COMPLETION" -> PropertyBuilders.completion(b -> b);
-            default -> PropertyBuilders.text(b -> b);
+            default -> PropertyBuilders.text(b -> {
+                b.index(indexed).store(stored);
+                if (field.getAnalyzer() != null) {
+                    b.analyzer(field.getAnalyzer());
+                }
+                if (field.getSearchAnalyzer() != null) {
+                    b.searchAnalyzer(field.getSearchAnalyzer());
+                }
+                return b;
+            });
         };
+    }
+
+    /**
+     * 数值类型公共形状：index/store/ignore_above。
+     *
+     * @param indexFn 方法入参 indexFn
+     * @param storeFn 方法入参 storeFn
+     * @param ignoreAboveFn 方法入参 ignoreAboveFn
+     * @param indexed 方法入参 indexed
+     * @param stored 方法入参 stored
+     * @param field 方法入参 field
+     */
+    private static void numberShape(java.util.function.Consumer<Boolean> indexFn,
+                                    java.util.function.Consumer<Boolean> storeFn,
+                                    java.util.function.Consumer<Integer> ignoreAboveFn,
+                                    boolean indexed, boolean stored, SearchFieldDef field) {
+        indexFn.accept(indexed);
+        storeFn.accept(stored);
+        if (field.getIgnoreAbove() != null) {
+            ignoreAboveFn.accept(field.getIgnoreAbove());
+        }
     }
 
     @Override

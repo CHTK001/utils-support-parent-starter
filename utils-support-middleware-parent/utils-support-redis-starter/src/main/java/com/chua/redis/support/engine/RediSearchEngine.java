@@ -64,35 +64,34 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
             for (int i = 0; i < data.size(); i++) {
                 T item = data.get(i);
-                String key = keyPrefix + ":" + i;
                 Map<String, String> hash = new LinkedHashMap<>();
-                try {
-                    for (Method method : item.getClass().getMethods()) {
-                        if (method.getParameterCount() == 0 && method.getName().startsWith("get")
-                                && !method.getName().equals("getClass")) {
-                            String propName = method.getName().substring(3);
-                            String fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
-                            Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
-                            if (value != null) {
-                                hash.put(fieldName, value.toString());
-                            }
-                        } else if (method.getParameterCount() == 0 && method.getName().startsWith("is")
-                                && (method.getReturnType() == Boolean.class || method.getReturnType() == boolean.class)) {
-                            String propName = method.getName().substring(2);
-                            String fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
-                            Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
-                            if (value != null) {
-                                hash.put(fieldName, value.toString());
-                            }
-                        }
+                for (Method method : item.getClass().getMethods()) {
+                    if (method.getParameterCount() != 0 || method.getDeclaringClass() == Object.class) {
+                        continue;
                     }
-                } catch (Exception e) {
-                    log.warn("存储实体失败: " + e.getMessage());
+                    String fieldName = null;
+                    if (method.getName().startsWith("get") && method.getName().length() > 3) {
+                        String propName = method.getName().substring(3);
+                        fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
+                    } else if (method.getName().startsWith("is") && method.getName().length() > 2
+                            && (method.getReturnType() == Boolean.class || method.getReturnType() == boolean.class)) {
+                        String propName = method.getName().substring(2);
+                        fieldName = Character.toLowerCase(propName.charAt(0)) + propName.substring(1);
+                    }
+                    if (fieldName == null) {
+                        continue;
+                    }
+                    Object value = ReflectUtils.invoke(item, method.getName(), Object.class);
+                    if (value != null) {
+                        hash.put(fieldName, value.toString());
+                    }
                 }
+                String id = hash.get("id");
+                String key = keyPrefix + ":" + (id != null ? id : i + "-" + UUID.randomUUID());
                 jedis.hmset(key, hash);
             }
         } catch (Exception e) {
-            log.warn("Redis store失败: " + e.getMessage());
+            throw new IllegalStateException("Redis store 失败: " + keyPrefix, e);
         }
         return this;
     }
@@ -560,8 +559,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
                 Object response = jedis.sendCommand(FT_AGGREGATE, args);
                 return parseAggregateResponse(response);
             } catch (Exception e) {
-                log.warn("Redis GROUP BY 失败: " + e.getMessage(), e);
-                return Collections.emptyList();
+                throw new IllegalStateException("Redis GROUP BY 查询失败: " + e.getMessage(), e);
             }
         }
     }
@@ -711,42 +709,14 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     /**
-     * 执行Page
-     * @param wrapper 包装器
+     * 执行分页查询（内存切片，全量结果上限见 buildFtSearchArgs）。
+     *
+     * @param wrapper     查询包装器
      * @param entityClass 实体类
-     * @param pageNum pagenum
-     * @param pageSize page大小
-     * @param entityClass 实体类
-     * @param total total
-     * @param to 转为
-     * @param pageSize page大小
-     * @param total total
-     * @param records records
-     * @param wrapper 包装器
-     * @param wrapper 包装器
-     * @param sql SQL
-     * @param params 参数
-     * @param sql SQL
-     * @param params 参数
-     * @param index 索引
-     * @param query 查询
-     * @param response 响应
-     * @param entityClass 实体类
-     * @param jedis jedis
-     * @param entityClass 实体类
-     * @param index 索引
-     * @param query 查询
-     * @param groupByCols 群体bycols
-     * @param sortCol 排序col
-     * @param sortAsc 排序asc
-     * @param offset 偏移量
-     * @param limit 限制
-     * @param response 响应
-     * @param list 列表
-     * @param listRow 列表row
-     * @param val val
-     * @param value 值
-     * @param value 值
+     * @param pageNum     页码（从 1 开始）
+     * @param pageSize    页大小
+     * @param <T>         实体泛型
+     * @return 分页结果
      */
     private <T> Page<T> executePage(
             LambdaQueryWrapper<T> wrapper,
@@ -834,22 +804,53 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      */
     private <T> List<T> mapFtSearchResponse(Object response, Class<T> entityClass, Jedis jedis) {
         List<T> result = new ArrayList<>();
-        if (response == null) {
+        if (!(response instanceof List<?> reply) || reply.isEmpty()) {
             return result;
         }
-        String respStr = response.toString();
-        String[] lines = respStr.split("\n");
-        for (int i = 1; i < lines.length; i++) {
-            String key = lines[i].trim();
-            if (key.isEmpty()) {
+        // FT.SEARCH RESP2 结构: [total, key1, [attrs+field/value...], key2, [...], ...]
+        int i = 1;
+        while (i + 1 < reply.size()) {
+            String key = asString(reply.get(i));
+            Object payload = reply.get(i + 1);
+            i += 2;
+            if (key == null || key.isEmpty()) {
                 continue;
             }
-            Map<String, String> hash = jedis.hgetAll(key);
+            Map<String, String> hash = new LinkedHashMap<>();
+            if (payload instanceof List<?> flat) {
+                int start = flat.size() % 2 == 1 ? 1 : 0;
+                for (int j = start; j + 1 < flat.size(); j += 2) {
+                    String field = asString(flat.get(j));
+                    String value = asString(flat.get(j + 1));
+                    if (field != null && value != null && !field.startsWith("__")) {
+                        hash.put(field, value);
+                    }
+                }
+            }
+            if (hash.isEmpty()) {
+                hash = jedis.hgetAll(key);
+            }
             if (!hash.isEmpty()) {
                 result.add(mapToEntity(hash, entityClass));
             }
         }
         return result;
+    }
+
+    /**
+     * 将 RESP 回复元素解码为字符串（兼容 byte[] 与 String 两种解码形态）。
+     *
+     * @param value 回复元素
+     * @return 字符串，无法识别返回 空
+     */
+    private static String asString(Object value) {
+        if (value instanceof String s) {
+            return s;
+        }
+        if (value instanceof byte[] bytes) {
+            return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        }
+        return value == null ? null : String.valueOf(value);
     }
 
     /**

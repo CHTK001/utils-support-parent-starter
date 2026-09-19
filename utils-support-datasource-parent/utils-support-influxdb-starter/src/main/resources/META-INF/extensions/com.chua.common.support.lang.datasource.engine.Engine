@@ -1,1 +1,1 @@
-INFLUXDB=com.chua.influxdb.support.engine.InfluxDbEngine
+influxdb=com.chua.influxdb.support.engine.InfluxDbEngine

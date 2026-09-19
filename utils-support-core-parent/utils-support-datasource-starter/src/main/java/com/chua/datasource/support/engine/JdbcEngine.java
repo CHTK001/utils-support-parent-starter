@@ -3,6 +3,7 @@ package com.chua.datasource.support.engine;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
@@ -41,10 +42,6 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(JdbcEngine.class);
-
-    /** SQL 标识符白名单：简单名或 库.表 限定名，仅字母数字下划线 */
-    private static final java.util.regex.Pattern IDENTIFIER_PATTERN =
-            java.util.regex.Pattern.compile("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)?");
 
     @Override
     @SuppressWarnings("unchecked")
@@ -1064,7 +1061,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     private static String escapeIdentifier(String name) {
         // 白名单校验：仅允许字母数字下划线（可带一层限定），杜绝拼接注入
-        if (name == null || name.isBlank() || !IDENTIFIER_PATTERN.matcher(name).matches()) {
+        if (!SqlName.isSafe(name)) {
             throw new IllegalArgumentException("非法 SQL 标识符: " + name);
         }
         return name;

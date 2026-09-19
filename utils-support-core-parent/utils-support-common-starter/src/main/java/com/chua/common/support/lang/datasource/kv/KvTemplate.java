@@ -69,6 +69,14 @@ public class KvTemplate {
     }
 
     /**
+     * 底层引擎是否支持 TTL 操作
+     * @return 是否成功（true 表示成功）
+     */
+    public boolean supportsTtl() {
+        return engine.supportsTtl();
+    }
+
+    /**
      * Put
      * @param key 键，不允许为 null
      * @param value 值，不允许为 null

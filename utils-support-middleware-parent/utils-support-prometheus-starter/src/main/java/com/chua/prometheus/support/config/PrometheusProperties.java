@@ -22,22 +22,22 @@ public class PrometheusProperties {
     private boolean enabled = true;
 
     /**
-     * 服务地址
+     * 服务地址, 必须包含 http/https 协议, 尾部斜杠可有可无(自动规整)
      */
     private String url = "http://localhost:9090";
 
     /**
-     * 用户名(可选, 用于 基础 认证)
+     * 用户名(可选, 用于 HTTP Basic 认证)
      */
     private String username;
 
     /**
-     * 密码(可选)
+     * 密码(可选, 配合 username 使用)
      */
     private String password;
 
     /**
-     * 请求超时(毫秒)
+     * 请求超时(毫秒), 同时用于连接超时与单次请求读取超时, 必须大于 0
      */
     private int timeoutMs = 5_000;
 }

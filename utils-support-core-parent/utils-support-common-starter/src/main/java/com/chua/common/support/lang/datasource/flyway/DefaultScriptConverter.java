@@ -42,10 +42,12 @@ import java.util.regex.Pattern;
  * <p>各数据库专用增强（如自增列 → 序列/IDENTITY 改写、反引号 → 双引号）
  * 可继承本类并注册更高优先级 SPI：</p>
  * <pre>{@code
- * @Spi(value = ScriptConverter.SPI_NAME, order = 100)
+ * @Spi(value = "postgresql", order = 100)
  * public class MyPgConverter extends DefaultScriptConverter {
  *     public boolean supports(String protocol) { return "postgresql".equals(protocol); }
  * }
+ * // META-INF/extensions/com.chua.common.support.lang.datasource.flyway.ScriptConverter
+ * // postgresql=com.example.MyPgConverter
  * }</pre>
  *
  * @author CH
@@ -265,6 +267,8 @@ public class DefaultScriptConverter implements ScriptConverter {
                 sql = sql.replaceAll("(?i)\\bTINYTEXT\\b", "TEXT");
                 sql = sql.replaceAll("(?i)\\bDATETIME\\b", "TIMESTAMP");
                 sql = sql.replaceAll("(?i)\\bJSON\\b", "TEXT");
+                // SQLite 无 NOW() 函数，MySQL 风格脚本需映射到标准 CURRENT_TIMESTAMP
+                sql = sql.replaceAll("(?i)\\bNOW\\s*\\(\\s*\\)", "CURRENT_TIMESTAMP");
             }
             default -> {
                 // duckdb/hive/其他协议：仅通用函数映射

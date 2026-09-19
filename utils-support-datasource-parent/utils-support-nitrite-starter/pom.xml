@@ -34,6 +34,12 @@
             <artifactId>nitrite-mvstore-adapter</artifactId>
             <version>${nitrite.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
         </dependencies>
 
     <build>

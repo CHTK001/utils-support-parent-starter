@@ -1,1 +1,1 @@
-GRETIMEDB=com.chua.greptimedb.support.engine.GreptimeDbEngine
+greptimedb=com.chua.greptimedb.support.engine.GreptimeDbEngine

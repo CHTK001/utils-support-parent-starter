@@ -141,13 +141,22 @@ public class RedisEngine {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setMaxTotal(8);
         config.setMaxIdle(4);
-        if (url != null && !url.isEmpty()) {
-            String[] parts = url.split(":");
-            String host = parts[0];
-            int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 6379;
-            return new JedisPool(config, host, port);
+        if (url == null || url.isBlank()) {
+            return new JedisPool(config, "localhost", 6379);
         }
-        return new JedisPool(config, "localhost", 6379);
+        String trimmed = url.trim();
+        if (trimmed.contains("://")) {
+            // Jedis 原生解析 redis(s)://[user:pass@]host:port[/db]
+            return new JedisPool(config, trimmed);
+        }
+        String host = trimmed;
+        int port = 6379;
+        int idx = trimmed.lastIndexOf(':');
+        if (idx > 0 && idx < trimmed.length() - 1) {
+            host = trimmed.substring(0, idx);
+            port = Integer.parseInt(trimmed.substring(idx + 1));
+        }
+        return new JedisPool(config, host, port);
     }
 
     /**
@@ -259,11 +268,17 @@ public class RedisEngine {
         try {
             T instance = ReflectUtils.instantiate(entityClass);
             for (Map.Entry<String, String> entry : hash.entrySet()) {
-                String propName = toCamelCase(entry.getKey());
-                String setterName = "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
-                for (Method method : entityClass.getMethods()) {
-                    if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                        ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(entry.getValue(), method.getParameterTypes()[0]));
+                String legacy = toCamelCase(entry.getKey());
+                String keptCase = snakeToCamelKeepCase(entry.getKey());
+                for (String propName : new String[]{keptCase, legacy}) {
+                    if (propName == null || propName.isEmpty()) {
+                        continue;
+                    }
+                    String setterName = "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
+                    Method setter = findSetter(entityClass, setterName);
+                    if (setter != null) {
+                        ReflectUtils.invoke(instance, setter.getName(), void.class,
+                                convertValue(entry.getValue(), setter.getParameterTypes()[0]));
                         break;
                     }
                 }
@@ -272,6 +287,46 @@ public class RedisEngine {
         } catch (Exception e) {
             throw new RuntimeException("无法映射Redis hash到类型: " + entityClass.getName(), e);
         }
+    }
+
+    /**
+     * 查找单参数 setter。
+     *
+     * @param entityClass 实体类型
+     * @param setterName  setter 方法名
+     * @param <T>         实体泛型
+     * @return 匹配的方法，未找到返回 空
+     */
+    private <T> Method findSetter(Class<T> entityClass, String setterName) {
+        for (Method method : entityClass.getMethods()) {
+            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 下划线名转为保持原大小写的驼峰名（dept_id → deptId，deptId → deptId）。
+     *
+     * @param name 字段名
+     * @return 驼峰名
+     */
+    private String snakeToCamelKeepCase(String name) {
+        if (name == null || name.isEmpty()) {
+            return name;
+        }
+        StringBuilder sb = new StringBuilder(name.length());
+        boolean upper = false;
+        for (char c : name.toCharArray()) {
+            if (c == '_') {
+                upper = true;
+            } else {
+                sb.append(upper ? Character.toUpperCase(c) : c);
+                upper = false;
+            }
+        }
+        return sb.toString();
     }
 
     /**

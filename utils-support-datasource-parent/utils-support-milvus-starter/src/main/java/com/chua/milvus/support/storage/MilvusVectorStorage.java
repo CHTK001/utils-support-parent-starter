@@ -11,6 +11,7 @@ import io.milvus.v2.service.collection.request.HasCollectionReq;
 import io.milvus.v2.service.collection.request.LoadCollectionReq;
 import io.milvus.v2.service.collection.request.GetCollectionStatsReq;
 import io.milvus.v2.service.collection.request.DropCollectionReq;
+import io.milvus.v2.service.index.request.CreateIndexReq;
 import io.milvus.v2.service.utility.request.FlushReq;
 import io.milvus.v2.service.vector.request.DeleteReq;
 import io.milvus.v2.service.vector.request.InsertReq;
@@ -23,6 +24,7 @@ import io.milvus.v2.service.vector.response.QueryResp;
 import io.milvus.v2.service.vector.response.SearchResp;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
+import lombok.extern.slf4j.Slf4j;
 
 import com.chua.common.support.utils.CollectionUtils;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
@@ -115,6 +118,15 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
                     .enableDynamicField(true)
                     .build();
             client.createCollection(req);
+            // 新建 集合 必须显式建索引，否则 搜索 无法走 索引 路径
+            client.createIndex(CreateIndexReq.builder()
+                    .collectionName(collectionName)
+                    .indexParams(List.of(IndexParam.builder()
+                            .fieldName("vector")
+                            .indexType(IndexParam.IndexType.AUTOINDEX)
+                            .metricType(algorithmName)
+                            .build()))
+                    .build());
         }
         client.loadCollection(io.milvus.v2.service.collection.request.LoadCollectionReq.builder()
                 .collectionName(collectionName)
@@ -229,6 +241,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
      * 执行搜索
     */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
+        if (topK <= 0) {
+            return List.of();
+        }
         if (!released) {
             release();
         }
@@ -295,10 +310,14 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     /**
      * Clear
     */
-    public void clear() {
+    public synchronized void clear() {
+        checkNotClosed();
         client.dropCollection(io.milvus.v2.service.collection.request.DropCollectionReq.builder()
                 .collectionName(collectionName)
                 .build());
+        // drop 后集合不复存在，必须重建（含索引与加载），否则后续写入全部失败
+        initCollection();
+        released = false;
     }
 
     @Override
@@ -307,9 +326,20 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     */
     public void close() {
         try {
+            if (!released) {
+                client.flush(FlushReq.builder()
+                        .collectionNames(List.of(collectionName))
+                        .build());
+            }
+        } catch (Exception e) {
+            log.error("[milvus] 关闭前刷盘失败，新增向量可能未持久化: {}", e.getMessage());
+        }
+        try {
             client.close();
         } catch (Exception ignored) {
         }
+        released = true;
+        super.close();
     }
 
     /**

@@ -16,7 +16,9 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
+import net.openhft.chronicle.queue.impl.single.SingleChronicleQueue;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
+import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueStore;
 import net.openhft.chronicle.wire.DocumentContext;
 import net.openhft.chronicle.wire.ValueIn;
 
@@ -25,8 +27,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 /**
  * @作者 CH
@@ -51,6 +56,14 @@ public class ChronicleWalLog implements WalLog {
      * 字段_checkpoint
     */
     private static final String FIELD_CHECKPOINT = "checkpointLsn";
+    /**
+     * Chronicle 分片文件名前缀（{@code cycle.<hex>.cq4}）
+     */
+    private static final String CYCLE_FILE_PREFIX = "cycle.";
+    /**
+     * Chronicle 分片文件名后缀
+     */
+    private static final String CYCLE_FILE_SUFFIX = ".cq4";
 
     /**
      * 队列
@@ -358,31 +371,177 @@ public class ChronicleWalLog implements WalLog {
 
     @Override
     /**
-     * purgecheckpointed
-    */
+     * purgecheckpointed（真实 删除：逐 cycle 统计 末 条 LSN，仅 移除
+     * 非 活跃 且 全 部 记录 ≤ checkpoint 的 cycle 文 件，保 留 最 近 keepSegments 个）
+     */
     public int purgeCheckpointed(int keepSegments) throws IOException {
-        return 0;
+        ensureOpen();
+        Map<Integer, long[]> stats = scanCycleStats();
+        List<Integer> cycles = allCycles(stats);
+        if (cycles.isEmpty()) {
+            return 0;
+        }
+        int activeCycle = cycles.get(cycles.size() - 1);
+        long cp = checkpointLsn.get();
+        List<Integer> removable = new ArrayList<>();
+        for (int c : cycles) {
+            if (c == activeCycle) {
+                continue;
+            }
+            long[] s = stats.get(c);
+            boolean fullyCheckpointed = s == null || s[2] == 0L
+                    || (s[1] != Long.MIN_VALUE && s[1] <= cp);
+            if (fullyCheckpointed) {
+                removable.add(c);
+            }
+        }
+        int keep = Math.max(1, keepSegments);
+        int maxDelete = Math.max(0, cycles.size() - keep);
+        int limit = Math.min(removable.size(), maxDelete);
+        SingleChronicleQueue scq = queue instanceof SingleChronicleQueue s ? s : null;
+        int deleted = 0;
+        for (int i = 0; i < limit; i++) {
+            int c = removable.get(i);
+            if (scq != null) {
+                try (SingleChronicleQueueStore store = scq.storeForCycle(c, 0L, false, null)) {
+                    if (store != null) {
+                        File f = store.currentFile();
+                        if (f != null && f.exists() && !f.delete()) {
+                            throw new IOException("无法删除 Chronicle WAL 分片文件: " + f);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new IOException("删除 Chronicle WAL 分片失败: cycle=" + c, e);
+                }
+            }
+            File fallback = cycleFilePath(c).toFile();
+            if (fallback.exists() && !fallback.delete()) {
+                throw new IOException("无法删除 Chronicle WAL 分片文件: " + fallback);
+            }
+            deleted++;
+        }
+        if (scq != null && deleted > 0) {
+            scq.refreshDirectoryListing();
+        }
+        return deleted;
     }
 
     @Override
     /**
-     * 当前segment
-    */
+     * 当前lsn所在活跃分片（真实 cycle 扫描：最 大 cycle 即 活 跃 分 片）
+     */
     public WalSegmentInfo currentSegment() {
-        return new WalSegmentInfo(1,
-                checkpointLsn.get() + 1,
-                currentLsn.get(),
-                Math.toIntExact(Math.max(0L, currentLsn.get() - checkpointLsn.get())),
-                resolveDir(config),
-                true);
+        List<WalSegmentInfo> segments = listSegments();
+        for (int i = segments.size() - 1; i >= 0; i--) {
+            if (segments.get(i).active()) {
+                return segments.get(i);
+            }
+        }
+        return new WalSegmentInfo(1, 0L, 0L, 0, resolveDir(config), true);
     }
 
     @Override
     /**
-     * 列表segments
-    */
+     * 列表segments（按 cycle 升 序 还 原 真 实 分 片，segmentNo 从 1 编 号）
+     */
     public List<WalSegmentInfo> listSegments() {
-        return Collections.singletonList(currentSegment());
+        Map<Integer, long[]> stats = scanCycleStats();
+        List<Integer> cycles = allCycles(stats);
+        List<WalSegmentInfo> out = new ArrayList<>();
+        int activeCycle = cycles.isEmpty() ? Integer.MIN_VALUE : cycles.get(cycles.size() - 1);
+        int no = 1;
+        for (int c : cycles) {
+            long[] s = stats.get(c);
+            long first = s == null || s[0] == Long.MAX_VALUE ? 0L : s[0];
+            long last = s == null || s[1] == Long.MIN_VALUE ? 0L : s[1];
+            int count = s == null ? 0 : (int) s[2];
+            out.add(new WalSegmentInfo(no, first, last, count, cycleFilePath(c), c == activeCycle));
+            no++;
+        }
+        return out;
+    }
+
+    /**
+     * 全 量 扫 描 队 列，按 cycle 收 集 [firstLsn, lastLsn, recordCount] 统 计。
+     *
+     * @return cycle → 统计 数组（LinkedHashMap 保 持 读 取 顺 序）
+     */
+    private Map<Integer, long[]> scanCycleStats() {
+        Map<Integer, long[]> stats = new LinkedHashMap<>();
+        ExcerptTailer tailer = queue.createTailer();
+        while (true) {
+            try (DocumentContext dc = tailer.readingDocument(true)) {
+                if (!dc.isPresent()) {
+                    break;
+                }
+                if (!dc.isData()) {
+                    continue;
+                }
+                int cycle = tailer.cycle();
+                long[] s = stats.computeIfAbsent(cycle, k -> new long[]{Long.MAX_VALUE, Long.MIN_VALUE, 0L});
+                s[2]++;
+                ValueIn lsnIn = dc.wire().read(FIELD_LSN);
+                if (lsnIn.isPresent()) {
+                    long lsn = lsnIn.int64();
+                    if (lsn < s[0]) {
+                        s[0] = lsn;
+                    }
+                    if (lsn > s[1]) {
+                        s[1] = lsn;
+                    }
+                }
+            }
+        }
+        return stats;
+    }
+
+    /**
+     * 合并 扫 描 命 中 与 磁 盘 文 件 的 cycle 集 合（升 序）。
+     *
+     * @param stats 扫 描 统 计
+     * @return 全 部 cycle（升 序）
+     */
+    private List<Integer> allCycles(Map<Integer, long[]> stats) {
+        TreeSet<Integer> set = new TreeSet<>(stats.keySet());
+        set.addAll(cyclesOnDisk());
+        return new ArrayList<>(set);
+    }
+
+    /**
+     * 从 目 录 列 表 解 析 {@code cycle.<hex>.cq4} 文 件 得 到 cycle 集 合。
+     *
+     * @return 磁 盘 上 存 在 的 cycle（升 序）
+     */
+    private List<Integer> cyclesOnDisk() {
+        List<Integer> cycles = new ArrayList<>();
+        File[] files = resolveDir(config).toFile().listFiles(
+                (d, n) -> n.startsWith(CYCLE_FILE_PREFIX) && n.endsWith(CYCLE_FILE_SUFFIX));
+        if (files != null) {
+            for (File f : files) {
+                String name = f.getName();
+                String hex = name.substring(CYCLE_FILE_PREFIX.length(),
+                        name.length() - CYCLE_FILE_SUFFIX.length());
+                try {
+                    cycles.add(Integer.parseUnsignedInt(hex, 16));
+                } catch (NumberFormatException ignored) {
+ // 非 标 准 命 名 的 残 留 文 件，跳 过
+                }
+            }
+        }
+        Collections.sort(cycles);
+        return cycles;
+    }
+
+    /**
+     * 构 造 cycle 对 应 的 分 片 文 件 路 径。
+     *
+     * @param cycle cycle 编 号
+     * @return 文 件 路 径
+     */
+    private Path cycleFilePath(int cycle) {
+        return resolveDir(config).resolve(CYCLE_FILE_PREFIX + Integer.toHexString(cycle) + CYCLE_FILE_SUFFIX);
     }
 
     @Override

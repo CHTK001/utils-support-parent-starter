@@ -42,6 +42,13 @@ public final class EngineUpdateSqlExecutor {
      */
     private static final String SQL_UPDATE_KEYWORD = "UPDATE";
 
+    /** 可路由条件的列名白名单：不带引用符的简单标识符 */
+    private static final java.util.regex.Pattern COLUMN_NAME =
+            java.util.regex.Pattern.compile("[A-Za-z_][\\w$]{0,127}");
+
+    /** 字面量解析失败哨兵：不能把无法识别的片段当作字符串值写入 */
+    private static final Object INVALID_LITERAL = new Object();
+
     /**
      * 已注册的引擎方案列表
      */
@@ -63,11 +70,37 @@ public final class EngineUpdateSqlExecutor {
      * @return 影响行数；不可路由返回 空
      */
     public Integer tryExecute(String sql) {
+        RoutableUpdate update = parse(sql);
+        return update == null ? null : update.execute();
+    }
+
+    /**
+     * 解析并判定 SQL 是否可路由到引擎，**不执行任何写入**。
+     * <p>调用方据此把「是否路由」的决策放在语句准备阶段，把「执行」推迟到
+     * {@code executeUpdate} 时刻，避免预编译即产生副作用。</p>
+     *
+     * @param sql 原始 SQL
+     * @return 可路由的更新描述；不可路由返回 空
+     */
+    public RoutableUpdate parse(String sql) {
         if (sql == null) {
             return null;
         }
         String trimmed = sql.trim();
+        if (trimmed.endsWith(";")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
+        }
         if (!trimmed.regionMatches(true, 0, SQL_UPDATE_KEYWORD, 0, SQL_UPDATE_KEYWORD.length())) {
+            return null;
+        }
+        // 一次执行只能复现一条语句
+        if (trimmed.indexOf(';') >= 0) {
+            log.debug("[calcite] UPDATE 含多条语句，不路由: {}", sql);
+            return null;
+        }
+        // 占位符的绑定值只在 JDBC 侧可见，引擎侧无法复现
+        if (hasPlaceholder(trimmed)) {
+            log.debug("[calcite] UPDATE 含参数占位符，不路由: {}", sql);
             return null;
         }
         Matcher m = UPDATE.matcher(trimmed);
@@ -80,44 +113,89 @@ public final class EngineUpdateSqlExecutor {
         String setPart = m.group(5);
         String wherePart = m.group(6);
 
+        Map<String, Object> sets = parseAssignments(setPart);
+        if (sets == null || sets.isEmpty()) {
+            log.debug("[calcite] UPDATE 的 SET 含无法解析的赋值，不路由: {}", sql);
+            return null;
+        }
+        Map<String, Object> wheres;
+        if (wherePart == null || wherePart.isBlank()) {
+            wheres = Map.of();
+        } else {
+            wheres = parseAndEquals(wherePart);
+            if (wheres == null) {
+                // WHERE 存在却解析不出完整等值条件：路由将退化为全表更新，必须拒绝
+                log.debug("[calcite] UPDATE 的 WHERE 含非等值条件，不路由: {}", sql);
+                return null;
+            }
+        }
+
         SourceDataTable source = resolveTable(schema, table);
         if (source == null) {
             return null;
         }
-
-        Map<String, Object> sets = parseAssignments(setPart);
-        if (sets.isEmpty()) {
-            return 0;
-        }
-        Map<String, Object> wheres = wherePart == null || wherePart.isBlank()
-                ? Map.of()
-                : parseAndEquals(wherePart);
-
-        return executeUpdate(source, sets, wheres);
+        return new RoutableUpdate(source, sets, wheres);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
-     * 执行更新
-     *
-     * @param source 源
-     * @param sets 设置
-     * @param wheres wheres
-     * @return 执行更新的结果
+     * 一条已判定可路由的 更新，实际写入推迟到 {@link #execute()}。
      */
-    private int executeUpdate(SourceDataTable source, Map<String, Object> sets, Map<String, Object> wheres) {
-        Engine engine = source.getEngine();
-        Class<?> entityClass = source.getEntityClass();
-        LambdaUpdateWrapper wrapper = (LambdaUpdateWrapper) engine.update(entityClass);
-        for (Map.Entry<String, Object> e : sets.entrySet()) {
-            wrapper.set(e.getKey(), e.getValue());
+    public static final class RoutableUpdate {
+
+        private final SourceDataTable source;
+        private final Map<String, Object> sets;
+        private final Map<String, Object> wheres;
+
+        private RoutableUpdate(SourceDataTable source, Map<String, Object> sets, Map<String, Object> wheres) {
+            this.source = source;
+            this.sets = sets;
+            this.wheres = wheres;
         }
-        for (Map.Entry<String, Object> e : wheres.entrySet()) {
-            wrapper.eq(e.getKey(), e.getValue());
+
+        /**
+         * 执行路由到引擎的更新。
+         *
+         * @return 影响行数
+         */
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public int execute() {
+            Engine engine = source.getEngine();
+            Class<?> entityClass = source.getEntityClass();
+            LambdaUpdateWrapper wrapper = (LambdaUpdateWrapper) engine.update(entityClass);
+            for (Map.Entry<String, Object> e : sets.entrySet()) {
+                wrapper.set(e.getKey(), e.getValue());
+            }
+            for (Map.Entry<String, Object> e : wheres.entrySet()) {
+                wrapper.eq(e.getKey(), e.getValue());
+            }
+            int rows = wrapper.update();
+            log.debug("[calcite] Engine UPDATE {}.{} 影响 {} 行",
+                    source.getName(), entityClass.getSimpleName(), rows);
+            return rows;
         }
-        int rows = wrapper.update();
-        log.debug("[calcite] Engine UPDATE {}.{} 影响 {} 行", source.getName(), entityClass.getSimpleName(), rows);
-        return rows;
+    }
+
+    /**
+     * 字符串字面量之外是否存在参数占位符。
+     *
+     * @param sql 已裁剪的 SQL
+     * @return 存在返回 true
+     */
+    private static boolean hasPlaceholder(String sql) {
+        boolean inStr = false;
+        for (int i = 0; i < sql.length(); i++) {
+            char c = sql.charAt(i);
+            if (c == '\'') {
+                if (inStr && i + 1 < sql.length() && sql.charAt(i + 1) == '\'') {
+                    i++;
+                    continue;
+                }
+                inStr = !inStr;
+            } else if (!inStr && c == '?') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -159,40 +237,57 @@ public final class EngineUpdateSqlExecutor {
     private static Map<String, Object> parseAssignments(String part) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String seg : splitTopLevel(part, ',')) {
-            int eq = indexOfAssign(seg);
-            if (eq < 0) {
-                continue;
+            Map.Entry<String, Object> entry = parseCondition(seg);
+            if (entry == null) {
+                return null;
             }
-            String col = unquoteIdent(seg.substring(0, eq).trim());
-            Object val = parseLiteral(seg.substring(eq + 1).trim());
-            if (col != null && !col.isEmpty()) {
-                map.put(col, val);
-            }
+            map.put(entry.getKey(), entry.getValue());
         }
         return map;
     }
 
     /**
-     * 解析和判断相等
+     * 解析 AND 连接的等值条件。
      *
      * @param where where
-     * @return 解析和equals的结果
+     * @return 列名到字面量的映射；含不可解析或非等值条件时返回 空
      */
     private static Map<String, Object> parseAndEquals(String where) {
         Map<String, Object> map = new LinkedHashMap<>();
-        // 仅支持 AND 连接的 col = val
+        // 仅支持 AND 连接的 col = val，任何一段解析失败都不能当作"没有条件"
         for (String seg : splitTopLevel(where, "AND")) {
-            int eq = indexOfAssign(seg);
-            if (eq < 0) {
-                continue;
+            Map.Entry<String, Object> entry = parseCondition(seg);
+            if (entry == null) {
+                return null;
             }
-            String col = unquoteIdent(seg.substring(0, eq).trim());
-            Object val = parseLiteral(seg.substring(eq + 1).trim());
-            if (col != null && !col.isEmpty()) {
-                map.put(col, val);
-            }
+            map.put(entry.getKey(), entry.getValue());
         }
-        return map;
+        return map.isEmpty() ? null : map;
+    }
+
+    /**
+     * 解析单个 {@code 列 = 字面量} 条件。
+     *
+     * @param seg 单个片段
+     * @return 列名与值；不合法返回 空
+     */
+    private static Map.Entry<String, Object> parseCondition(String seg) {
+        if (seg == null || seg.isBlank()) {
+            return null;
+        }
+        int eq = indexOfAssign(seg);
+        if (eq < 0 || eq + 1 >= seg.length()) {
+            return null;
+        }
+        String col = unquoteIdent(seg.substring(0, eq).trim());
+        if (col == null || !COLUMN_NAME.matcher(col).matches()) {
+            return null;
+        }
+        Object val = parseLiteral(seg.substring(eq + 1).trim());
+        if (val == INVALID_LITERAL) {
+            return null;
+        }
+        return new java.util.AbstractMap.SimpleEntry<>(col, val);
     }
 
     /**
@@ -336,14 +431,16 @@ public final class EngineUpdateSqlExecutor {
                     return (int) v;
                 }
                 return v;
-            } catch (NumberFormatException ignored) {
-                return s;
+            } catch (NumberFormatException e) {
+                // 超出 long 范围的整数字面量按精确十进制保留
+                return new java.math.BigInteger(s);
             }
         }
         if (s.matches("-?\\d+\\.\\d+([eE][+-]?\\d+)?")) {
             return Double.parseDouble(s);
         }
-        return s;
+        // 列引用、表达式、函数、子查询等一律不可路由，绝不能当作字符串值写入
+        return INVALID_LITERAL;
     }
 
     /**

@@ -284,6 +284,70 @@ public class SshClient implements AutoCloseable {
          * 执行And获取ExitCode
         */
         public int executeAndGetExitCode() { return execute().exitCode(); }
+
+        /**
+         * 流式执行（阻塞到命令结束）：stdout / stderr 逐行回调，同时保留完整输出。
+         * <p>用于需要实时滚动输出的长命令（安装、打包、备份等）。</p>
+         *
+         * @param stdoutLine stdout 每一行的回调（null 表示不回调）
+         * @param stderrLine stderr 每一行的回调（null 表示不回调）
+         * @return 执行结果（exitCode + 完整 stdout/stderr）
+         */
+        public ExecResult stream(Consumer<String> stdoutLine, Consumer<String> stderrLine) {
+            try {
+                var channel = client.getSession().createExecChannel(command);
+                var stdoutBuf = new java.io.ByteArrayOutputStream();
+                var stderrBuf = new java.io.ByteArrayOutputStream();
+                // 同时写入完整缓冲与按行回调（tee）
+                channel.setOut(new TeeOutputStream(stdoutBuf,
+                        stdoutLine == null ? null : new LineOutputStream(stdoutLine)));
+                channel.setErr(new TeeOutputStream(stderrBuf,
+                        stderrLine == null ? null : new LineOutputStream(stderrLine)));
+
+                channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
+                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED), EXEC_EXIT_WAIT_MILLIS);
+                channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EOF),
+                        EXEC_OUTPUT_DRAIN_MILLIS);
+                Integer status = channel.getExitStatus();
+                int exitCode = status == null ? -1 : status;
+                channel.close();
+                return new ExecResult(exitCode, stdoutBuf.toString(StandardCharsets.UTF_8),
+                        stderrBuf.toString(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                throw new SshClientException("SSH 流式命令执行失败: " + command, e);
+            }
+        }
+
+        /**
+         * 流式执行（阻塞）：stdout / stderr 合并逐行回调。
+         *
+         * @param lineConsumer 每一行输出（含 stderr）的回调
+         * @return 执行结果
+         */
+        public ExecResult stream(Consumer<String> lineConsumer) {
+            return stream(lineConsumer, lineConsumer);
+        }
+
+        /**
+         * 持续跟随（非阻塞）：用于 {@code tail -f} 等不主动退出的命令，输出逐行回调，
+         * 直到调用方关闭返回的句柄。
+         *
+         * @param lineConsumer 每一行输出的回调
+         * @return 可关闭句柄（关闭即中断远端命令与读取）
+         */
+        public StreamHandle follow(Consumer<String> lineConsumer) {
+            try {
+                var channel = client.getSession().createExecChannel(command);
+                var lineStream = new LineOutputStream(lineConsumer);
+                channel.setOut(lineStream);
+                channel.setErr(lineStream);
+                channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                return new StreamHandle(channel);
+            } catch (Exception e) {
+                throw new SshClientException("SSH follow 失败: " + command, e);
+            }
+        }
     }
 
     // ==================== ShellOperation ====================
@@ -802,6 +866,136 @@ public class SshClient implements AutoCloseable {
          * 是否Connected
         */
         public boolean isConnected() { return connected; }
+    }
+
+    // ==================== 流式辅助 ====================
+
+    /**
+     * 按行切分输出流：累积字节，遇到换行即回调一行（兼容 \n 与 \r\n）。
+     */
+    static final class LineOutputStream extends OutputStream {
+        /**
+         * 行缓冲
+         */
+        private final java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        /**
+         * 行回调
+         */
+        private final Consumer<String> consumer;
+
+        LineOutputStream(Consumer<String> consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public synchronized void write(int b) {
+            if (b == '\n') {
+                flushLine();
+            } else if (b != '\r') {
+                buffer.write(b);
+            }
+        }
+
+        @Override
+        public synchronized void write(byte[] bytes, int off, int len) {
+            for (int i = off; i < off + len; i++) {
+                int c = bytes[i] & 0xFF;
+                if (c == '\n') {
+                    flushLine();
+                } else if (c != '\r') {
+                    buffer.write(c);
+                }
+            }
+        }
+
+        /**
+         * 输出当前缓冲的一行
+         */
+        private void flushLine() {
+            String line = buffer.toString(StandardCharsets.UTF_8);
+            buffer.reset();
+            try {
+                consumer.accept(line);
+            } catch (Exception ignored) {
+                // 回调异常不影响通道读取
+            }
+        }
+
+        /**
+         * 输出末尾残余（无换行结尾的最后一行）
+         */
+        synchronized void flushRemaining() {
+            if (buffer.size() > 0) {
+                flushLine();
+            }
+        }
+    }
+
+    /**
+     * 分流输出流：写入同时转发到主缓冲与可选的第二输出流。
+     */
+    static final class TeeOutputStream extends OutputStream {
+        /**
+         * 主输出（完整缓冲）
+         */
+        private final OutputStream main;
+        /**
+         * 第二输出（按行回调），可为 null
+         */
+        private final OutputStream second;
+
+        TeeOutputStream(OutputStream main, OutputStream second) {
+            this.main = main;
+            this.second = second;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            main.write(b);
+            if (second != null) {
+                second.write(b);
+            }
+        }
+
+        @Override
+        public void write(byte[] bytes, int off, int len) throws IOException {
+            main.write(bytes, off, len);
+            if (second != null) {
+                second.write(bytes, off, len);
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            main.flush();
+            if (second != null) {
+                second.flush();
+            }
+        }
+    }
+
+    /**
+     * follow 句柄：关闭即中断远端命令通道。
+     */
+    public static final class StreamHandle implements AutoCloseable {
+        /**
+         * exec 通道
+         */
+        private final org.apache.sshd.client.channel.ChannelExec channel;
+
+        StreamHandle(org.apache.sshd.client.channel.ChannelExec channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public void close() {
+            try {
+                if (channel != null && !channel.isClosed()) {
+                    channel.close(false);
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     // ==================== ExecResult ====================

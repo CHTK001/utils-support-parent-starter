@@ -1,5 +1,6 @@
 package com.chua.rocksdb.support.engine;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -105,12 +106,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB 打开失败: " + path, e);
         }
-        register(name, db, path);
+        register(name, db, path, true);
         return this;
     }
 
     /**
-     * 添加一个已打开的 RocksDB 数据源。
+     * 添加一个已打开的 RocksDB 数据源（外部实例，close 时不关闭）。
      *
      * @param name 数据源名称
      * @param db   RocksDB 实例
@@ -118,20 +119,41 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return this
      */
     public RocksDbEngine addDataSource(String name, RocksDB db, String path) {
-        register(name, db, path);
+        register(name, db, path, false);
         return this;
     }
 
     /**
-     * 注册数据源到引擎内部映射。
+     * 本引擎自建（按路径打开）的数据源名称集合，仅这些实例由本引擎负责关闭。
+     */
+    private final Set<String> ownedDataSources =
+            Collections.synchronizedSet(new java.util.HashSet<>());
+
+    /**
+     * 注册数据源到引擎内部映射；同名替换时关闭旧的自建实例（外部实例不关）。
      *
-     * @param name 数据源名称
-     * @param db   RocksDB 实例
-     * @param path 数据库目录路径
+     * @param name   数据源名称
+     * @param db     RocksDB 实例
+     * @param path   数据库目录路径
+     * @param owned  是否由本引擎打开（决定关闭责任）
      * @return this
      */
-    private RocksDbEngine register(String name, RocksDB db, String path) {
-        databases.put(name, db);
+    private RocksDbEngine register(String name, RocksDB db, String path, boolean owned) {
+        boolean previousOwned = ownedDataSources.contains(name);
+        RocksDB previous = databases.put(name, db);
+        if (owned) {
+            ownedDataSources.add(name);
+        } else {
+            ownedDataSources.remove(name);
+        }
+        if (previous != null && previous != db && previousOwned) {
+            try {
+                previous.close();
+            } catch (Exception e) {
+                // 替换数据源时旧实例关闭失败会泄漏 RocksDB 本地句柄，必须留痕
+                log.warn("RocksDB 旧实例关闭失败 name={}: {}", name, e.getMessage(), e);
+            }
+        }
         super.addDataSource(name, new RocksDbEngineDataSource(name, path, db));
         return this;
     }
@@ -168,10 +190,14 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     private RocksDB currentDB() {
         if (defaultDataSourceName == null) {
-            if (databases.isEmpty()) {
-                return null;
+            if (databases.size() == 1) {
+                return databases.values().iterator().next();
             }
-            return databases.values().iterator().next();
+            if (databases.size() > 1) {
+                throw new IllegalStateException(
+                        "未指定默认 RocksDB 数据源且存在多个数据源: " + databases.keySet());
+            }
+            return null;
         }
         return databases.get(defaultDataSourceName);
     }
@@ -333,6 +359,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     private static final String STR_KV_PREFIX = "SKV:";
 
+    /**
+     * SET 子句中 "col = ?" 占位符对的解析模式。
+     */
+    private static final java.util.regex.Pattern SET_ASSIGNMENT =
+            java.util.regex.Pattern.compile("([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*\\?");
+
     @Override
     /**
      * 获取（RocksDB 真实 读取，重启 后 仍可 读 回）
@@ -414,8 +446,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
                 if (raw != null) {
                     try {
                         newValue = Long.parseLong(new String(raw, StandardCharsets.UTF_8)) + 1;
-                    } catch (NumberFormatException ignored) {
-                        newValue = 1L;
+                    } catch (NumberFormatException e) {
+                        throw new IllegalStateException(
+                                "RocksDB 键值非数值，无法递增: " + key, e);
                     }
                 }
                 db.put(kvKey(key), String.valueOf(newValue).getBytes(StandardCharsets.UTF_8));
@@ -480,7 +513,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             throw new IllegalStateException("RocksDB 数据源未连接");
         }
         Map<String, Object> docMap = toDocumentMap(document);
-        String id = String.valueOf(docMap.get("id"));
+        Object rawId = docMap.get("id");
+        if (rawId == null || String.valueOf(rawId).isEmpty()) {
+            throw new IllegalArgumentException("RocksDB 文档缺少 id 字段，无法插入集合: " + collection);
+        }
+        String id = String.valueOf(rawId);
         String key = DOC_PREFIX + collection + ":" + id;
         byte[] docJson = toJson(docMap).getBytes(StandardCharsets.UTF_8);
         synchronized (ftsCollectionLock(collection)) {
@@ -529,9 +566,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
                     return null;
                 }
                 Map<String, Object> docMap = toDocumentMap(document);
+                docMap.putIfAbsent("id", String.valueOf(id));
                 Map<String, Object> oldDoc = MAPPER.readValue(new String(existing, StandardCharsets.UTF_8), Map.class);
                 byte[] docJson = toJson(docMap).getBytes(StandardCharsets.UTF_8);
-                removeFtsIndex(db, collection, oldDoc, key, docJson);
+                removeFtsIndex(db, collection, oldDoc, key, docJson, docMap);
                 return document;
             } catch (RocksDBException e) {
                 throw new IllegalStateException("RocksDB 文档更新失败: " + key, e);
@@ -558,7 +596,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
                     return false;
                 }
                 Map<String, Object> oldDoc = MAPPER.readValue(new String(existing, StandardCharsets.UTF_8), Map.class);
-                removeFtsIndex(db, collection, oldDoc, key, null);
+                removeFtsIndex(db, collection, oldDoc, key, null, null);
                 return true;
             } catch (RocksDBException e) {
                 throw new IllegalStateException("RocksDB 文档删除失败: " + key, e);
@@ -724,20 +762,12 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     private void buildFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey,
                                byte[] newDocJson) {
-        Set<String> ftsKeys = new LinkedHashSet<>();
+        Set<String> ftsKeys = ftsKeysOf(collection, docMap, docIdOf(docKey));
         byte[] docKeyBytes = docKey.getBytes(StandardCharsets.UTF_8);
-        for (Map.Entry<String, Object> entry : docMap.entrySet()) {
-            if (entry.getValue() instanceof String text) {
-                for (String token : tokenize(text)) {
-                    ftsKeys.add(FTS_PREFIX + collection + ":" + token + ":" + docIdOf(docKey));
-                }
-            }
-        }
         if (ftsKeys.isEmpty() && newDocJson == null) {
             return;
         }
-        WriteBatch batch = new WriteBatch();
-        try {
+        try (WriteBatch batch = new WriteBatch()) {
             if (newDocJson != null) {
                 batch.put(docKeyBytes, newDocJson);
             }
@@ -748,55 +778,76 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
                 db.write(writeOptions, batch);
             }
         } catch (RocksDBException e) {
-            batch.close();
             throw new IllegalStateException("RocksDB 全文索引构建失败: " + collection, e);
         }
     }
 
     /**
-     * 移除 文档 的 全文 倒排 索引。
+     * 移除 文档 的 全文 倒排 索引（更新 场景 同时 重建 新 词条 条目）。
      * <p>FTS 单 值 键 直接 删除（无 多 值 拼接 竞态）。
      * 与 文档 操作 共 用 同一 {@link WriteBatch}：{@code newDocJson} 非 空 时 同 批 更新 文档，
-     * 否则 同 批 删除 文档 键（删除 场景）。</p>
+     * 否则 同 批 删除 文档 键（删除 场景）。{@code newDocMap} 非 空 时 计算 新 词条
+     * 集合并 与 旧 集合 求 差：仅 删 失去 的 条目、仅 加 新增 的 条目，共享 条目 不动。</p>
      *
      * @param db         数据库 实例
      * @param collection 集合名
      * @param docMap     旧 文档 映射
      * @param docKey     文档 键
      * @param newDocJson 新 文档 JSON 字节（更新 场景 非 空；删除 场景 传 空 → 同 批 删 文档 键）
+     * @param newDocMap  新 文档 映射（更新 场景 非 空，用于 重建 新增 词条；删除 场景 传 空）
      */
     private void removeFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey,
-                                byte[] newDocJson) {
-        Set<String> ftsKeys = new LinkedHashSet<>();
-        for (Map.Entry<String, Object> entry : docMap.entrySet()) {
-            if (entry.getValue() instanceof String text) {
-                for (String token : tokenize(text)) {
-                    ftsKeys.add(FTS_PREFIX + collection + ":" + token + ":" + docIdOf(docKey));
-                }
-            }
-        }
-        if (ftsKeys.isEmpty() && newDocJson == null) {
-            // 无 FTS 条目 且 无 文档 变更，无需 写 入
+                                byte[] newDocJson, Map<String, Object> newDocMap) {
+        String docId = docIdOf(docKey);
+        Set<String> oldKeys = ftsKeysOf(collection, docMap, docId);
+        Set<String> newKeys = newDocMap == null ? Collections.emptySet() : ftsKeysOf(collection, newDocMap, docId);
+        Set<String> toRemove = new LinkedHashSet<>(oldKeys);
+        toRemove.removeAll(newKeys);
+        Set<String> toAdd = new LinkedHashSet<>(newKeys);
+        toAdd.removeAll(oldKeys);
+        if (toRemove.isEmpty() && toAdd.isEmpty() && newDocJson == null) {
+            // 无 FTS 条目 变更 且 无 文档 变更，无需 写 入
             return;
         }
-        WriteBatch batch = new WriteBatch();
-        try {
+        try (WriteBatch batch = new WriteBatch()) {
             byte[] docKeyBytes = docKey.getBytes(StandardCharsets.UTF_8);
             if (newDocJson != null) {
                 batch.put(docKeyBytes, newDocJson);
             } else {
                 batch.delete(docKeyBytes);
             }
-            for (String ftsKey : ftsKeys) {
+            for (String ftsKey : toRemove) {
                 batch.delete(ftsKey.getBytes(StandardCharsets.UTF_8));
+            }
+            for (String ftsKey : toAdd) {
+                batch.put(ftsKey.getBytes(StandardCharsets.UTF_8), docKeyBytes);
             }
             try (WriteOptions writeOptions = new WriteOptions()) {
                 db.write(writeOptions, batch);
             }
         } catch (RocksDBException e) {
-            batch.close();
             throw new IllegalStateException("RocksDB 全文索引移除失败: " + collection, e);
         }
+    }
+
+    /**
+     * 计算 文档 的 全部 FTS 条目 键（{@code FTS_<collection>:<token>:<docId>}）。
+     *
+     * @param collection 集合名
+     * @param docMap     文档 映射
+     * @param docId      文档 id 段
+     * @return 条目 键 集合（去 重，保持 出现 顺序）
+     */
+    private static Set<String> ftsKeysOf(String collection, Map<String, Object> docMap, String docId) {
+        Set<String> keys = new LinkedHashSet<>();
+        for (Map.Entry<String, Object> entry : docMap.entrySet()) {
+            if (entry.getValue() instanceof String text) {
+                for (String token : tokenize(text)) {
+                    keys.add(FTS_PREFIX + collection + ":" + token + ":" + docId);
+                }
+            }
+        }
+        return keys;
     }
 
     /**
@@ -1027,28 +1078,31 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         if (store == null) {
             throw new IllegalStateException("RocksDB 数据源未连接");
         }
-        // 解析 SET 子句 与 WHERE 参数 边界（与 基类 内存 实现 同 语法）
+        // 解析 SET 子句 与 WHERE 参数 边界（与 Lucene 引擎同 语法：正则 逐个 消费 "col = ?"）
         java.util.Map<String, Object> setValues = new java.util.LinkedHashMap<>();
         String setClause = sql.setClause();
-        int setCount = 0;
+        java.util.List<Object> allParams = sql.params() == null
+                ? java.util.Collections.emptyList() : sql.params();
+        int paramIdx = 0;
         if (setClause != null && !setClause.isEmpty()) {
-            String[] setParts = setClause.split(", ");
-            setCount = setParts.length;
-            java.util.List<Object> allParams = sql.params();
-            for (int i = 0; i < setCount; i++) {
-                int eqIdx = setParts[i].indexOf(" = ");
-                if (eqIdx > 0) {
-                    setValues.put(setParts[i].substring(0, eqIdx), allParams.get(i));
+            java.util.regex.Matcher m = SET_ASSIGNMENT.matcher(setClause);
+            while (m.find()) {
+                if (paramIdx >= allParams.size()) {
+                    throw new IllegalStateException("SET 子句占位符数量超过参数数量");
                 }
+                String col = m.group(1);
+                if (!SqlName.isSimple(col)) {
+                    throw new IllegalArgumentException("非法字段名: " + col);
+                }
+                setValues.put(col, allParams.get(paramIdx++));
+            }
+            if (setValues.isEmpty()) {
+                throw new IllegalArgumentException("SET 子句无法解析: " + setClause);
             }
         }
-        java.util.List<Object> whereParams;
-        java.util.List<Object> allParams = sql.params() == null ? java.util.Collections.emptyList() : sql.params();
-        if (allParams.size() > setCount) {
-            whereParams = allParams.subList(setCount, allParams.size());
-        } else {
-            whereParams = java.util.Collections.emptyList();
-        }
+        java.util.List<Object> whereParams = paramIdx < allParams.size()
+                ? allParams.subList(paramIdx, allParams.size())
+                : java.util.Collections.emptyList();
         return store.update(sql.whereClause(), whereParams, setValues, sql.entityClass());
     }
 
@@ -1101,18 +1155,23 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-     * 关闭所有数据源连接
+     * 关闭所有由本引擎自建的数据源（外部传入的 RocksDB 实例不关闭），并清空映射
     */
     @Override
     public void close() {
-        for (RocksDB db : databases.values()) {
+        for (Map.Entry<String, RocksDB> entry : databases.entrySet()) {
+            if (!ownedDataSources.contains(entry.getKey())) {
+                continue;
+            }
             try {
-                db.close();
-            } catch (Exception ignored) {
-                // 忽略单个数据源关闭异常
+                entry.getValue().close();
+            } catch (Exception e) {
+                // 单个数据源关闭失败不阻断其余关闭，但必须留痕
+                log.warn("RocksDB 数据源关闭失败 name={}: {}", entry.getKey(), e.getMessage(), e);
             }
         }
         databases.clear();
+        ownedDataSources.clear();
         dataSources.clear();
     }
 }

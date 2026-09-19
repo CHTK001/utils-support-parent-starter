@@ -31,11 +31,6 @@ import java.io.Serializable;
  *                 .forceCpu(false)
  *                 .requireGpu(true))
  *         .build();
- * }</pre>Storage storage = VectorStorageProvider.of("vector")
- *         .properties(new VectorStorageProperties()
- *                 .forceCpu(false)
- *                 .requireGpu(true))
- *         .build();
  * }</pre>
  *
  * @author CH

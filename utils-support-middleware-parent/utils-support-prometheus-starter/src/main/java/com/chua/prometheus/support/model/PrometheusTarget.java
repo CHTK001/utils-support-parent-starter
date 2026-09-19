@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 /**
  * Prometheus 抓取目标
  * <p>
- * 对应 {@code /api/v1/targets} 返回的 活跃Target 元素。
+ * 对应 {@code /api/v1/targets} 返回的 activeTargets 元素。
  * </p>
  *
  * @author CH
@@ -26,7 +26,7 @@ public class PrometheusTarget {
     private String scrapeUrl;
 
     /**
-     * 所属 作业
+     * 所属 job
      */
     private String job;
 
@@ -46,12 +46,21 @@ public class PrometheusTarget {
     private String lastError;
 
     /**
-     * 最近抓取时间(毫秒)
+     * 最近抓取时间(epoch 毫秒), 0 表示远端未返回
      */
     private long lastScrape;
 
     /**
-     * 抓取时长(毫秒)
+     * 抓取耗时(秒, 对应远端 lastScrapeDuration)
      */
     private double scrapeDuration;
+
+    /**
+     * 目标是否健康
+     *
+     * @return true 表示 health=up
+     */
+    public boolean isUp() {
+        return "up".equalsIgnoreCase(health);
+    }
 }

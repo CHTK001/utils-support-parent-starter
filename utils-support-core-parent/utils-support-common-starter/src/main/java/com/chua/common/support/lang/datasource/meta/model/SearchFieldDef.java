@@ -65,4 +65,19 @@ public class SearchFieldDef {
      * 权重
     */
     private double weight = 1.0;
+
+    /**
+     * 忽略长度超过该值的字符串（ES keyword/number 的 ignore_above，null 表示不设置）
+     */
+    private Integer ignoreAbove;
+
+    /**
+     * 空值占位（ES null_value，null 表示不设置）
+     */
+    private String nullValue;
+
+    /**
+     * 是否启用列存（ES doc_values，null 表示沿用默认）
+     */
+    private Boolean docValues;
 }

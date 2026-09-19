@@ -78,7 +78,16 @@ final class MethodCache {
             return value;
         }
         String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-        return ReflectUtils.invoke(obj, isGetter, Object.class);
+        value = ReflectUtils.invoke(obj, isGetter, Object.class);
+        if (value != null) {
+            return value;
+        }
+        // 兜底：无 getter 的实体直接读字段（驼峰名与原字段名各试一次）
+        value = ReflectUtils.getField(obj, camel);
+        if (value == null && !camel.equals(field)) {
+            value = ReflectUtils.getField(obj, field);
+        }
+        return value;
     }
 
     /**
@@ -106,6 +115,10 @@ final class MethodCache {
                 ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{m.getParameterTypes()[0]}, value);
                 return;
             }
+        }
+        // 兜底：无 setter 的实体直接写字段
+        if (!ReflectUtils.setField(obj, camel, value) && !camel.equals(field)) {
+            ReflectUtils.setField(obj, field, value);
         }
     }
 

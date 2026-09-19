@@ -1,5 +1,6 @@
 package com.chua.sqlserver.support.engine;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcReactorEngine;
@@ -8,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
@@ -19,11 +19,6 @@ import java.util.regex.Pattern;
  */
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
-
-    /**
-     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-    */
-    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine(); // delegate
 
@@ -56,13 +51,6 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
      */
     public Flux<Map<String, Object>> queryAll(String table) {
         return query("SELECT * FROM " + safeIdentifier(table));
-    /**
-     * 查询where。
-     * @param table table
-     * @param where where
-     * @param params 参数
-     * @return 查询where的结果
-     */
     }
 
     /**
@@ -90,8 +78,9 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
      * @return Mono 对象
      */
     public Mono<Integer> insert(String table, String[] cols, Object... vals) {
-        StringBuilder sb = new StringBuilder("INSERT INTO ").append(table)
-                .append(" (").append(String.join(", ", cols)).append(") VALUES (");
+        String safeTable = safeIdentifier(table);
+        StringBuilder sb = new StringBuilder("INSERT INTO ").append(safeTable)
+                .append(" (").append(String.join(", ", safeColumns(cols))).append(") VALUES (");
         for (int i = 0; i < cols.length; i++) {
             if (i > 0) {
                 sb.append(", ");
@@ -103,7 +92,25 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     }
 
     /**
-     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     * 逐个校验插入列名。
+     *
+     * @param cols 列名数组，不允许为 null
+     * @return 校验通过的列名
+     * @throws IllegalArgumentException 列名非法时抛出
+     */
+    private String[] safeColumns(String[] cols) {
+        if (cols == null) {
+            throw new IllegalArgumentException("SQL 标识符不能为空");
+        }
+        String[] safe = new String[cols.length];
+        for (int i = 0; i < cols.length; i++) {
+            safe[i] = safeIdentifier(cols[i]);
+        }
+        return safe;
+    }
+
+    /**
+     * 校验并返回安全的 SQL 标识符（字符集规则见 {@link SqlName#isWord(String)}）。
      *
      * @param id 待校验标识符
      * @return 去除首尾空白后的标识符
@@ -114,7 +121,7 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
             throw new IllegalArgumentException("SQL 标识符不能为空");
         }
         String trimmed = id.trim();
-        if (!SAFE_IDENTIFIER.matcher(trimmed).matches()) {
+        if (!SqlName.isWord(trimmed)) {
             throw new IllegalArgumentException("非法的 SQL 标识符: " + id);
         }
         return trimmed;

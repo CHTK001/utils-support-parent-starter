@@ -9,8 +9,8 @@ import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.task.message.TemplateInfo;
 
-import javax.mail.Message;
-import javax.mail.Transport;
+import jakarta.mail.Message;
+import jakarta.mail.Transport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -101,19 +101,33 @@ public class EmailPush implements MessagePush {
         Properties props = buildProperties();
         String from = environment.get("smtp.from", environment.get("smtp.username"));
 
- // 创建 会话
-        var session = javax.mail.Session.getInstance(props);
+        // 创建 会话：JavaMail 仅在执行 Authenticator 时才做 SMTP 认证
+        String username = environment.get("smtp.username");
+        String password = environment.get("smtp.password");
+        boolean auth = Boolean.parseBoolean(props.getProperty("mail.smtp.auth", "true"));
+        var session = jakarta.mail.Session.getInstance(props,
+                auth && username != null && password != null
+                        ? new jakarta.mail.Authenticator() {
+                            @Override
+                            /**
+                             * 获取密码认证
+                            */
+                            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                                return new jakarta.mail.PasswordAuthentication(username, password);
+                            }
+                        }
+                        : null);
 
         // 构建邮件
-        var message = new javax.mail.internet.MimeMessage(session);
-        message.setFrom(new javax.mail.internet.InternetAddress(from));
+        var message = new jakarta.mail.internet.MimeMessage(session);
+        message.setFrom(new jakarta.mail.internet.InternetAddress(from));
         message.setRecipients(Message.RecipientType.TO,
-                javax.mail.internet.InternetAddress.parse(request.getTo()));
+                jakarta.mail.internet.InternetAddress.parse(request.getTo()));
 
         if (request.getCc() != null && !request.getCc().isEmpty()) {
             String[] ccArr = request.getCc().toArray(new String[0]);
             message.setRecipients(Message.RecipientType.CC,
-                    javax.mail.internet.InternetAddress.parse(String.join(",", ccArr)));
+                    jakarta.mail.internet.InternetAddress.parse(String.join(",", ccArr)));
         }
 
         if (request.getSubject() != null) {
@@ -177,16 +191,12 @@ public class EmailPush implements MessagePush {
         props.setProperty("mail.smtp.host", host);
         props.setProperty("mail.smtp.port", port);
         props.setProperty("mail.smtp.auth", String.valueOf(auth));
+        props.setProperty("mail.smtp.connectiontimeout", "5000");
+        props.setProperty("mail.smtp.timeout", "30000");
+        props.setProperty("mail.smtp.writetimeout", "30000");
 
         if (starttls) {
             props.setProperty("mail.smtp.starttls.enable", "true");
-        }
-
-        String username = environment.get("smtp.username");
-        String password = environment.get("smtp.password");
-        if (auth && username != null && password != null) {
-            props.setProperty("mail.smtp.username", username);
-            props.setProperty("mail.smtp.password", password);
         }
 
         return props;

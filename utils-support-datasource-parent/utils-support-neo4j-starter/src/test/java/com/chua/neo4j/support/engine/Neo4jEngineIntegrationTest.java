@@ -44,6 +44,9 @@ public class Neo4jEngineIntegrationTest {
      */
     @BeforeAll
     static void startContainer() {
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                org.testcontainers.DockerClientFactory.instance().isDockerAvailable(),
+                "本机无 Docker 环境，跳过 Neo4j 容器集成测试");
         NEO4J.start();
     }
 

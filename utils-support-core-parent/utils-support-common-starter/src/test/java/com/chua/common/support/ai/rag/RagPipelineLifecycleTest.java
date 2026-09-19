@@ -97,7 +97,8 @@ public class RagPipelineLifecycleTest {
         boolean removed = p.deleteDocument(d1.id());
         check(removed, "deleteDocument returns true for existing doc");
         check(p.documentCount() == 1, "documentCount == 1 after delete");
-        check(p.readDocumentContent(d1.id()) == null, "readDocumentContent returns null after delete");
+        check("".equals(p.readDocumentContent(d1.id())),
+                "readDocumentContent returns empty string after delete (contract: never null)");
         check(p.readDocumentContent(d2.id()) != null, "readDocumentContent still works for surviving doc");
         p.close();
     }

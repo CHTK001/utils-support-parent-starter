@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Prometheus 即时查询结果(向量)
+ * Prometheus 查询结果
  * <p>
- * 对应 {@code /api/v1/query} 返回的 结果类型=向量 结构。
+ * 对应 {@code /api/v1/query} 与 {@code /api/v1/query_range} 的 data 结构,
+ * 具体语义由 {@link #resultType} 决定。
  * </p>
  *
  * @author CH
@@ -24,18 +25,15 @@ import java.util.List;
 public class QueryResult {
 
     /**
-     * 结果类型: 向量 / matrix / scalar / 字符串
+     * 结果类型: vector / matrix / scalar
      */
     private String resultType;
 
     /**
-     * 结果列表
+     * 结果列表(vector/matrix 为序列, scalar 为单条值)
      */
     @Builder.Default
-    /**
-     * 结果
-    */
-    private List<PrometheusMetric> result = new ArrayList<>();
+    private List<PrometheusMetric> result = new ArrayList<>(); // 结果
 
     /**
      * 是否存在数据

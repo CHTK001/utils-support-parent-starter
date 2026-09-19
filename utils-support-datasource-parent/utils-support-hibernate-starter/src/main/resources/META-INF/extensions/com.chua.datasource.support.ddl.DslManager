@@ -1,1 +1,1 @@
-﻿hibernate=com.chua.hibernate.support.ddl.HibernateDdlManager
+hibernate=com.chua.hibernate.support.ddl.HibernateDdlManager

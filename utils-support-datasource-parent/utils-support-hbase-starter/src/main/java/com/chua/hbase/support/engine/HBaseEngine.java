@@ -61,8 +61,10 @@ public class HBaseEngine extends AbstractEngine {
         Object source = dataSource.getSource();
         HBaseEngineDataSource wrapped;
         if (source instanceof Connection conn) {
+            ownedDataSources.remove(name);
             wrapped = new HBaseEngineDataSource(name, dataSource.url(), conn);
         } else if (source instanceof String quorum) {
+            ownedDataSources.add(name);
             wrapped = new HBaseEngineDataSource(name, quorum, connect(quorum));
         } else {
             throw new IllegalArgumentException("HBaseEngine 仅支持 Connection 或 quorum 地址串");
@@ -75,13 +77,20 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 便捷添加数据源（ZooKeeper 地址）。
+     * 由引擎自建的连接名称集合（close 时仅关闭这些，外部传入的连接不归本引擎管理）。
+     */
+    private final java.util.Set<String> ownedDataSources =
+            java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
+    /**
+     * 便捷添加数据源（ZooKeeper 地址），由本引擎创建并负责关闭连接。
      *
      * @param name   数据源名称
      * @param quorum 形如 {@code 172.16.0.40:2181}
      * @return this
      */
     public HBaseEngine addDataSource(String name, String quorum) {
+        ownedDataSources.add(name);
         dataSources.put(name, (EngineDataSource<Object>) (Object)
                 new HBaseEngineDataSource(name, quorum, connect(quorum)));
         if (defaultDataSourceName == null || defaultDataSourceName.equals(name)) {
@@ -122,8 +131,13 @@ public class HBaseEngine extends AbstractEngine {
     private Connection conn() {
         EngineDataSource<Object> ds = defaultDataSourceName == null
                 ? null : dataSources.get(defaultDataSourceName);
-        if (ds == null && !dataSources.isEmpty()) {
-            ds = dataSources.values().iterator().next();
+        if (ds == null) {
+            if (dataSources.size() == 1) {
+                ds = dataSources.values().iterator().next();
+            } else if (dataSources.size() > 1) {
+                throw new IllegalStateException(
+                        "未指定默认 HBase 数据源且存在多个数据源: " + dataSources.keySet());
+            }
         }
         Object raw = ds;
         if (!(raw instanceof HBaseEngineDataSource h)) {
@@ -195,7 +209,7 @@ public class HBaseEngine extends AbstractEngine {
      * 全表扫描（真实 扫描），可选行键前缀过滤。
      *
      * @param table      表名
-     * @param family     列族
+     * @param family     列族，为空表示全部列族
      * @param rowPrefix  行键前缀，可为 空
      * @return 行列表，每行含 {@code __row} 键为行键
      */
@@ -204,11 +218,12 @@ public class HBaseEngine extends AbstractEngine {
              ResultScanner scanner = t.getScanner(buildScan(family, rowPrefix))) {
             java.util.List<Map<String, String>> out = new java.util.ArrayList<>();
             for (Result r : scanner) {
-                Map<String, String> m = toMap(r, family);
-                if (!m.isEmpty()) {
-                    m.put("__row", Bytes.toString(r.getRow()));
-                    out.add(m);
+                if (r.isEmpty()) {
+                    continue;
                 }
+                Map<String, String> m = toMap(r, family);
+                m.put("__row", Bytes.toString(r.getRow()));
+                out.add(m);
             }
             return out;
         } catch (Exception e) {
@@ -234,38 +249,45 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
      * 构建 扫描（含可选前缀）。
-     * @param family family
+     * @param family family，为空表示全部列族
      * @param rowPrefix row前缀
      * @return 构建扫描的结果
      */
     private static Scan buildScan(String family, String rowPrefix) {
         Scan s = new Scan();
-        s.addFamily(Bytes.toBytes(family));
+        if (family != null && !family.isEmpty()) {
+            s.addFamily(Bytes.toBytes(family));
+        }
         if (rowPrefix != null && !rowPrefix.isEmpty()) {
-            s.withStartRow(Bytes.toBytes(rowPrefix));
-            s.setStopRow(Bytes.toBytes(incrementPrefix(rowPrefix)));
+            byte[] start = Bytes.toBytes(rowPrefix);
+            byte[] stop = prefixStopRow(start);
+            s.withStartRow(start);
+            if (stop != null) {
+                s.setStopRow(stop);
+            }
         }
         return s;
     }
 
     /**
-     * 前缀+1 用于 扫描 停止row（包含式边界处理）。
-     * @param prefix 前缀
-     * @return increment前缀的结果
+     * 前缀末字节+1 截断得到 扫描 停止row（纯字节运算，不做字符串往返以免破坏非 ASCII 前缀）。
+     *
+     * @param start 起始row字节
+     * @return 停止row；前缀全为 0xFF（无后继）时返回 空 表示不设边界
      */
-    private static String incrementPrefix(String prefix) {
-        byte[] b = Bytes.toBytes(prefix);
+    private static byte[] prefixStopRow(byte[] start) {
+        byte[] b = start.clone();
         for (int i = b.length - 1; i >= 0; i--) {
             if (b[i] != (byte) 0xFF) {
                 b[i]++;
-                return Bytes.toString(b, 0, i + 1);
+                return java.util.Arrays.copyOf(b, i + 1);
             }
         }
-        return prefix + "\0";
+        return null;
     }
 
     /**
-     * 结果 转 映射（仅取指定列族下的字符串值）。
+     * 结果 转 映射（family 为空取全部列族，否则仅取指定列族下的字符串值）。
      * @param r r
      * @param family family
      * @return 转为映射的结果
@@ -275,13 +297,14 @@ public class HBaseEngine extends AbstractEngine {
         if (r.isEmpty()) {
             return m;
         }
+        boolean allFamilies = family == null || family.isEmpty();
         for (org.apache.hadoop.hbase.Cell cell : r.rawCells()) {
             String fam = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
-            if (family.equals(fam)) {
+            if (allFamilies || family.equals(fam)) {
                 String q = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 String v = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (q != null && v != null) {
-                    m.put(q, v);
+                    m.put(allFamilies ? fam + ":" + q : q, v);
                 }
             }
         }
@@ -327,13 +350,16 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 关闭所有数据源连接
+     * 关闭所有由本引擎自建的连接（外部传入的连接不关闭），并清空数据源
     */
     @Override
     public void close() {
-        for (EngineDataSource<?> ds : dataSources.values()) {
-            ds.close();
+        for (Map.Entry<String, EngineDataSource<Object>> entry : dataSources.entrySet()) {
+            if (ownedDataSources.contains(entry.getKey())) {
+                entry.getValue().close();
+            }
         }
+        ownedDataSources.clear();
         dataSources.clear();
     }
 }

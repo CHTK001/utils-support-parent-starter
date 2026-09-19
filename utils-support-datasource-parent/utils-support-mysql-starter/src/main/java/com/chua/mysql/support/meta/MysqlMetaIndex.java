@@ -2,203 +2,160 @@ package com.chua.mysql.support.meta;
 
 import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.meta.IndexCreateBuilder;
-import com.chua.common.support.lang.datasource.meta.MetaIndex;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaIndex;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
+ * MySQL 索引元数据操作。
+ * <p>
+ * 索引明细统一来自 {@code INFORMATION_SCHEMA.STATISTICS}（读取实现与表元数据共用
+ * {@link MysqlMetaTable#readIndexes(String, String, String)}，包内只保留一份 SQL），
+ * 以 {@code TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?} 过滤，
+ * 库名与表名均为绑定参数；多列索引按 {@code SEQ_IN_INDEX} 归并成一条索引定义。
+ * </p>
+ * <p>
+ * 能力边界：MySQL 的 {@code information_schema} 不暴露索引可见性，
+ * 因此 {@link IndexMetadata#isInvisible()} 在只读路径上恒为 {@code false}（不伪造）；
+ * 写入路径支持 {@code INVISIBLE}（MySQL 8.0+）。
+ * </p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
-
 public class MysqlMetaIndex extends AbstractMetaIndex {
 
     /**
-     * 创建 mysqlmeta索引 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+     * 构造方法（无索引名上下文）。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
      */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 mysqlmeta索引 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param indexName 字符串
-     * @param engine engine
-     * @param indexName 索引名称
+     * 构造方法（带索引名上下文）。
+     *
+     * @param metaData  元数据入口
+     * @param engine    引擎实例
+     * @param indexName 索引名
      */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine, String indexName) {
         super(metaData, engine, indexName);
     }
 
-    @Override
     /**
-     * 列表
-    */
+     * 列出当前表的所有索引。
+     *
+     * @return 索引定义列表
+     * @throws IllegalStateException 未指定表名或查询失败
+     */
+    @Override
     public List<IndexMetadata> list() {
-        List<IndexMetadata> result = new ArrayList<>();
-        if (tableName == null) {
-            return result;
-        }
-        String sql = "SHOW INDEX FROM " + quote(tableName);
-        try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                String keyName = rs.getString("Key_name");
-                String columnName = rs.getString("Column_name");
-                String nonUnique = rs.getString("Non_unique");
-                String indexType = rs.getString("Index_type");
-                int position = rs.getInt("Seq_in_index");
-                String comment = rs.getString("Comment");
-                boolean isUnique = "0".equals(nonUnique);
-                boolean isPrimary = "PRIMARY".equals(keyName);
-                IndexMetadata existing = result.stream()
-                        .filter(m -> keyName.equals(m.getName()))
-                        .findFirst()
-                        .orElse(null);
-                if (existing == null) {
-                    IndexMetadata meta = new IndexMetadata();
-                    meta.setName(keyName);
-                    meta.setTableName(tableName);
-                    meta.setPrimary(isPrimary);
-                    meta.setUnique(isUnique);
-                    meta.setType(indexType);
-                    meta.setComment(comment);
-                    meta.setPosition(position);
-                    List<String> cols = new ArrayList<>();
-                    cols.add(columnName);
-                    meta.setColumns(cols);
-                    meta.setColumnName(columnName);
-                    result.add(meta);
-                } else {
-                    existing.getColumns().add(columnName);
-                    if (existing.getPosition() == null || position < existing.getPosition()) {
-                        existing.setPosition(position);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("列出索引失败: " + tableName, e);
-        }
-        return result;
+        return readIndexes(null);
     }
 
-    @Override
     /**
-     * 获取
-    */
+     * 获取指定索引的定义。
+     *
+     * @param indexName 索引名，为 {@code null} 时使用构造期上下文
+     * @return 索引定义，不存在时返回 {@code null}
+     * @throws IllegalStateException 未指定表名或索引名、查询失败
+     */
+    @Override
     public IndexMetadata get(String indexName) {
-        List<IndexMetadata> all = list();
-        return all.stream()
-                .filter(m -> indexName.equals(m.getName()))
-                .findFirst()
-                .orElse(null);
+        String target = indexName != null ? indexName : this.indexName;
+        if (target == null) {
+            throw new IllegalStateException("未指定索引名");
+        }
+        List<IndexMetadata> indexes = readIndexes(target);
+        for (IndexMetadata meta : indexes) {
+            if (target.equals(meta.getName())) {
+                return meta;
+            }
+        }
+        return null;
     }
 
     @Override
-    /**
-     * 创建
-    */
     public IndexCreateBuilder create(String indexName) {
         return new MysqlIndexCreateBuilder(this, indexName);
     }
 
     @Override
-    /**
-     * 掉落
-    */
     public boolean drop(String indexName) {
+        if (tableName == null) {
+            throw new IllegalStateException("未指定表名，请先调用 onTable(String)");
+        }
         String sql = "ALTER TABLE " + quote(tableName) + " DROP INDEX " + quote(indexName);
-        return executeUpdate(sql);
+        return MysqlMetaData.execute(engine, "删除索引 " + indexName, sql, List.of());
     }
 
     /**
-     * 获取Connection
+     * 读取索引列表：SQL 与多列归并逻辑与表元数据共用同一份实现，避免包内重复。
      *
-     * @return 获取connection的结果
+     * @param indexName 索引名过滤，{@code null} 表示全部
+     * @return 归并后的索引定义列表
+     * @throws IllegalStateException 未指定表名或查询失败
      */
-    protected Connection getConnection() throws Exception {
-        EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
-        if (eds == null) {
-            throw new IllegalStateException("默认数据源未配置");
+    private List<IndexMetadata> readIndexes(String indexName) {
+        if (tableName == null) {
+            throw new IllegalStateException("未指定表名，请先调用 onTable(String)");
         }
-        Object source = eds.getSource();
-        if (source instanceof DataSource ds) {
-            return ds.getConnection();
-        }
-        throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
+        return new MysqlMetaTable(metaData, engine, tableName)
+                .readIndexes(MysqlMetaData.resolveSchema(metaData), tableName, indexName);
     }
 
     /**
-     * 引述
+     * 引用 MySQL 标识符。
      *
-     * @param name 名称
-     * @return 引述的结果
+     * @param name 标识符
+     * @return 引用后的标识符
      */
     private String quote(String name) {
-        return "`" + name + "`";
+        return MysqlMetaData.quote(name);
     }
 
     /**
-     * 执行更新
+     * MySQL 建索引链式构建器。
      *
-     * @param sql SQL
-     * @return 执行更新的结果
      * @author CH
      * @since 4.0.0
      */
-    private boolean executeUpdate(String sql) {
-        try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException("执行 SQL 失败: " + sql, e);
-        }
-    }
-
     private static class MysqlIndexCreateBuilder implements IndexCreateBuilder {
 
         /**
-         * Meta索引
-        */
+         * 所属索引元数据入口
+         */
         private final MysqlMetaIndex metaIndex;
         /**
-         * 索引名称
-        */
+         * 索引名
+         */
         private final String indexName;
         /**
-         * Columns
-        */
+         * 索引列
+         */
         private final List<String> columns = new ArrayList<>();
         /**
-         * Unique
-        */
+         * 唯一
+         */
         private boolean unique;
         /**
-         * 类型
-        */
+         * 索引算法
+         */
         private String type;
         /**
-         * 评论
-        */
+         * 注释
+         */
         private String comment;
         /**
-         * Visible
-        */
+         * 可见性
+         */
         private boolean visible = true;
 
         MysqlIndexCreateBuilder(MysqlMetaIndex metaIndex, String indexName) {
@@ -207,18 +164,12 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
-        /**
-         * Column
-        */
         public IndexCreateBuilder column(String columnName) {
             columns.add(columnName);
             return this;
         }
 
         @Override
-        /**
-         * Columns
-        */
         public IndexCreateBuilder columns(String... columnNames) {
             for (String col : columnNames) {
                 columns.add(col);
@@ -227,93 +178,47 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
-        /**
-         * Unique
-        */
         public IndexCreateBuilder unique() {
             this.unique = true;
             return this;
         }
 
         @Override
-        /**
-         * 类型
-        */
         public IndexCreateBuilder type(String type) {
-            this.type = type;
+            this.type = MysqlMetaData.checkDdlFragment("索引类型", type);
             return this;
         }
 
         @Override
-        /**
-         * 使用
-        */
         public IndexCreateBuilder using(String algorithm) {
-            this.type = algorithm;
+            this.type = MysqlMetaData.checkDdlFragment("索引类型", algorithm);
             return this;
         }
 
         @Override
-        /**
-         * 评论
-        */
         public IndexCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
-        /**
-         * Visible
-        */
         public IndexCreateBuilder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
         @Override
-        /**
-         * 执行
-        */
         public IndexMetadata execute() {
+            if (metaIndex.tableName == null) {
+                throw new IllegalStateException("未指定表名，请先调用 onTable(String)");
+            }
             if (columns.isEmpty()) {
                 throw new IllegalStateException("索引列不能为空");
             }
-            if (metaIndex.tableName == null) {
-                throw new IllegalStateException("未指定表名，请先调用 onTable()");
-            }
-            StringBuilder sb = new StringBuilder();
-            if (unique) {
-                sb.append("ALTER TABLE ").append(metaIndex.quote(metaIndex.tableName)).append(" ADD UNIQUE INDEX ");
-            } else if (type != null && !type.isEmpty()) {
-                sb.append("ALTER TABLE ").append(metaIndex.quote(metaIndex.tableName)).append(" ADD INDEX ");
-            } else {
-                sb.append("ALTER TABLE ").append(metaIndex.quote(metaIndex.tableName)).append(" ADD INDEX ");
-            }
-            sb.append(metaIndex.quote(indexName)).append(" (");
-            sb.append(String.join(", ", columns.stream().map(metaIndex::quote).toList()));
-            sb.append(")");
-            if (type != null && !type.isEmpty() && !unique) {
-                sb.append(" USING ").append(type);
-            }
-            if (comment != null && !comment.isEmpty()) {
-                sb.append(" COMMENT '").append(escapeSql(comment)).append("'");
-            }
-            metaIndex.executeUpdate(sb.toString());
+            String sql = MysqlMetaData.addIndexClause(MysqlMetaData.quote(metaIndex.tableName), indexName, columns,
+                    unique, type, comment, visible);
+            MysqlMetaData.execute(metaIndex.engine, "创建索引 " + indexName, sql, List.of());
             return metaIndex.get(indexName);
         }
-    }
-
-    /**
-     * escapesql
-     *
-     * @param value 值
-     * @return escapeSql的结果
-     */
-    private static String escapeSql(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("'", "''");
     }
 }

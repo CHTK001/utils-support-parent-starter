@@ -159,8 +159,7 @@ public class RocksDbOrmStore {
      */
     @SuppressWarnings("unchecked")
     private <T> int storeLocked(String table, List<T> entities) {
-        WriteBatch batch = new WriteBatch();
-        try {
+        try (WriteBatch batch = new WriteBatch()) {
             for (T entity : entities) {
                 String key = ormKey(table, resolveIdLocked(table, entity, entity.getClass()));
                 batch.put(key.getBytes(StandardCharsets.UTF_8), toEntityJson(entity));
@@ -170,7 +169,6 @@ public class RocksDbOrmStore {
             }
             return entities.size();
         } catch (RocksDBException e) {
-            batch.close();
             throw new IllegalStateException("RocksDB ORM 存储 失败: " + table, e);
         }
     }
@@ -252,8 +250,9 @@ public class RocksDbOrmStore {
                 }
                 return matched.size();
             } catch (RocksDBException e) {
-                batch.close();
                 throw new IllegalStateException("RocksDB ORM 更新 失败: " + table, e);
+            } finally {
+                batch.close();
             }
         }
     }
@@ -290,8 +289,9 @@ public class RocksDbOrmStore {
                 }
                 return matched.size();
             } catch (RocksDBException e) {
-                batch.close();
                 throw new IllegalStateException("RocksDB ORM 删除 失败: " + table, e);
+            } finally {
+                batch.close();
             }
         }
     }
@@ -480,14 +480,14 @@ public class RocksDbOrmStore {
     private static void setFieldValue(Object entity, String field, Object value) {
         Field f = findField(entity.getClass(), field);
         if (f == null) {
-            log.warn("RocksDB ORM 更新 未 找到 实体 字段: {}.{}", entity.getClass().getSimpleName(), field);
-            return;
+            throw new IllegalArgumentException("RocksDB ORM 更新 未 找到 实体 字段: "
+                    + entity.getClass().getSimpleName() + "." + field);
         }
         try {
             f.set(entity, coerceValue(f.getType(), value));
         } catch (Exception e) {
-            log.warn("RocksDB ORM 更新 字段 写 入 失败: {}.{} = {}",
-                    entity.getClass().getSimpleName(), field, value, e);
+            throw new IllegalArgumentException("RocksDB ORM 更新 字段 写 入 失败: "
+                    + entity.getClass().getSimpleName() + "." + field + " = " + value, e);
         }
     }
 
@@ -647,7 +647,7 @@ public class RocksDbOrmStore {
     /**
      * 取 表 级 递增 序号（键 级 读取 + 回写，调用 方 必须 持有 表 级 锁 才 原子）。
      * <p>计数 器 存储 为 十 进制 数字 符 串（"下一 可用 值"），读 出 后 取 当前 值、
-     * 回写 当前 值 +1。序号 以 8 位 零 填充 十 进制 编 码 作 为 行 键 后缀
+     * 回写 当前 值 +1。序号 以 20 位 零 填充 十 进制 编 码 作 为 行 键 后缀
      * （字典 序 = 数值 序，避免 "10" 排 在 "2" 前 的 字典 序 陷阱），
      * 行 键 扫描 顺序 即 插入 顺序。</p>
      *
@@ -667,21 +667,23 @@ public class RocksDbOrmStore {
     }
 
     /**
-     * 将 自增 序号 编码 为 8 位 零 填充 行 键 后缀（字典 序 = 数值 序）。
+     * 将 自增 序号 编码 为 20 位 零 填充 行 键 后缀（字典 序 = 数值 序，
+     * 20 位 足以 容纳 long 最大 值，序号 溢出 前 顺序 恒 成立）。
      *
      * @param seq 序号
-     * @return 8 位 零 填充 十 进制 字符 串
+     * @return 20 位 零 填充 十 进制 字符 串
      */
     private static String seqKeySuffix(long seq) {
-        return String.format("%08d", seq);
+        return String.format("%020d", seq);
     }
 
     /**
-     * 读取 实体 id 属性（按 {@code id} 字段 名 反射 取值，取 不到 返回 空）。
+     * 读取实体 id 属性（按 {@code id} 字段名反射取值）。
      *
-     * @param entity 实体 实例
-     * @param entityClass 实体 类 类型
-     * @return id 属性 值，未 命中 返回 空
+     * @param entity 实体实例
+     * @param entityClass 实体类型
+     * @return id 属性值，实体没有 id 字段时返回空
+     * @throws IllegalStateException 字段存在但反射取值失败
      */
     private static Object readIdProperty(Object entity, Class<?> entityClass) {
         Field field = findField(entityClass, "id");
@@ -690,8 +692,8 @@ public class RocksDbOrmStore {
         }
         try {
             return field.get(entity);
-        } catch (Exception e) {
-            return null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("读取实体 id 属性失败: " + entityClass.getName() + "#id", e);
         }
     }
 

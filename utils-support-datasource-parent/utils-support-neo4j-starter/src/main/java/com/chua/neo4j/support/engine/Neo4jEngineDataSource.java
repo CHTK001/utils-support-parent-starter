@@ -119,7 +119,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     @SuppressWarnings("unchecked")
     @Override
     public EngineDataSource<Driver> setSource(Object source) {
-        return this;
+        throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
     }
 
     /**

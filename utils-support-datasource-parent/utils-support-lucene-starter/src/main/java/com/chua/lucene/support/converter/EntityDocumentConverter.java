@@ -3,6 +3,7 @@ package com.chua.lucene.support.converter;
 import com.chua.lucene.support.engine.LuceneFields;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.document.*;
 
 import java.lang.reflect.Field;
@@ -69,7 +70,7 @@ public final class EntityDocumentConverter {
                 }
                 Object value = ReflectUtils.getField(entity, fieldName);
                 if (value != null) {
-                    addField(doc, fieldName, value);
+                    addFieldToDocument(doc, fieldName, value);
                 }
             }
             cls = cls.getSuperclass();
@@ -97,7 +98,7 @@ public final class EntityDocumentConverter {
         }
         for (Field field : entityClass.getDeclaredFields()) {
             String fieldName = field.getName();
-            String valueStr = doc.getField(fieldName) != null ? doc.getField(fieldName).stringValue() : null;
+            String valueStr = extractStoredValue(doc, fieldName);
             if (valueStr != null) {
                 setFieldValue(entity, fieldName, valueStr, field.getType());
             }
@@ -106,13 +107,47 @@ public final class EntityDocumentConverter {
     }
 
     /**
-     * 向 文档 添加字段。
+     * 从 文档 中提取指定字段的首个已存储值。
+     * <p>跳过仅索引不存储的 Point 字段（其 stringValue 为 空 且二进制值是编码后的点值），
+     * 取第一个 存储() 且值非空的字段表示。</p>
      *
      * @param doc       Lucene 文档
      * @param fieldName 字段名
-     * @param value     字段值
+     * @return 字段的字符串表示，不存在时返回 null
      */
-    private static void addField(Document doc, String fieldName, Object value) {
+    private static String extractStoredValue(Document doc, String fieldName) {
+        for (IndexableField f : doc.getFields(fieldName)) {
+            if (!f.fieldType().stored()) {
+                continue;
+            }
+            String s = f.stringValue();
+            if (s != null) {
+                return s;
+            }
+            Number n = f.numericValue();
+            if (n != null) {
+                return n.toString();
+            }
+            org.apache.lucene.util.BytesRef b = f.binaryValue();
+            if (b != null) {
+                return b.utf8ToString();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 向 文档 添加字段。
+     * <p>LuceneEngine 的更新/同步写入路径同样复用此方法，保证索引形态一致。</p>
+     *
+     * @param doc       Lucene 文档
+     * @param fieldName 字段名
+     * @param value     字段值，null 直接跳过
+     */
+    public static void addFieldToDocument(Document doc, String fieldName, Object value) {
+        if (value == null) {
+            return;
+        }
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));
             doc.add(new TextField(fieldName + "_text", str, org.apache.lucene.document.Field.Store.NO));
@@ -138,7 +173,8 @@ public final class EntityDocumentConverter {
             doc.add(new DoublePoint(fieldName, bd.doubleValue()));
             doc.add(new StoredField(fieldName, bd.toString()));
         } else if (value instanceof Boolean b) {
-            doc.add(new StoredField(fieldName, b ? "true" : "false"));
+            doc.add(new StringField(fieldName, b ? "true" : "false",
+                    org.apache.lucene.document.Field.Store.YES));
         } else if (value instanceof Date date) {
             doc.add(new LongPoint(fieldName, date.getTime()));
             doc.add(new StoredField(fieldName, String.valueOf(date.getTime())));
@@ -149,7 +185,8 @@ public final class EntityDocumentConverter {
             doc.add(new LongPoint(fieldName, ld.atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()));
             doc.add(new StoredField(fieldName, ld.toString()));
         } else if (value instanceof LocalTime lt) {
-            doc.add(new StoredField(fieldName, lt.toString()));
+            doc.add(new StringField(fieldName, lt.toString(),
+                    org.apache.lucene.document.Field.Store.YES));
         } else {
             // 其他类型统一转为字符串存储
             doc.add(new StringField(fieldName, String.valueOf(value), org.apache.lucene.document.Field.Store.YES));

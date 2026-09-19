@@ -1,6 +1,7 @@
 package com.chua.neo4j.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -22,6 +23,7 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -113,8 +115,17 @@ public class Neo4jEngine implements Engine {
      */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
-        if (src instanceof String uri) {
-            driver = GraphDatabase.driver(uri, AuthTokens.none());
+        if (src instanceof Driver d) {
+            driver = d;
+        } else if (src instanceof String uri) {
+            if (uri.contains("@")) {
+                driver = GraphDatabase.driver(uri);
+            } else {
+                driver = GraphDatabase.driver(uri, AuthTokens.none());
+            }
+        } else {
+            throw new IllegalArgumentException("Neo4j 数据源仅支持 Driver 或 bolt URI 字符串，实际为: "
+                    + (src == null ? "null" : src.getClass().getName()));
         }
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
@@ -157,47 +168,48 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     /**
      * 存储
     */
     public <T> Engine store(String name, List<T> data) {
-        if (driver == null || CollectionUtils.isEmpty(data)) {
+        if (CollectionUtils.isEmpty(data)) {
             return this;
         }
+        if (driver == null) {
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
+        }
         Class<T> entityClass = (Class<T>) data.getFirst().getClass();
-        String label = entityClass.getSimpleName();
-        try (var session = driver.session()) {
-            for (T entity : data) {
-                Map<String, Object> props = new LinkedHashMap<>();
-                for (var method : entityClass.getMethods()) {
-                    if (method.getName().startsWith("get") && method.getParameterCount() == 0
-                            && !method.getName().equals("getClass")) {
-                        String fieldName = method.getName().substring(3);
-                        fieldName = Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
-                        try {
-                            Object value = ReflectUtils.invoke(entity, method.getName(), Object.class);
-                            props.put(fieldName, value);
-                        } catch (Exception e) {
-                            // ignore
+        String label = safeLabel(entityClass.getSimpleName());
+        List<Map<String, Object>> rows = new ArrayList<>(data.size());
+        for (T entity : data) {
+            Map<String, Object> props = new LinkedHashMap<>();
+            for (var method : entityClass.getMethods()) {
+                if (method.getName().startsWith("get") && method.getParameterCount() == 0
+                        && !method.getName().equals("getClass")) {
+                    String fieldName = method.getName().substring(3);
+                    fieldName = Character.toLowerCase(fieldName.charAt(0)) + fieldName.substring(1);
+                    try {
+                        Object value = method.invoke(entity);
+                        if (value != null) {
+                            props.put(safeProperty(fieldName), value);
                         }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Neo4j 存储读取实体属性失败: "
+                                + entityClass.getName() + "#" + method.getName(), e);
                     }
                 }
-                StringBuilder cypher = new StringBuilder("CREATE (n:").append(label).append(" {");
-                boolean first = true;
-                for (String key : props.keySet()) {
-                    if (!first) {
-                        cypher.append(", ");
-                    }
-                    cypher.append(key).append(": $").append(key);
-                    first = false;
-                }
-                cypher.append("})");
-                log.info("[neo4j-engine] 执行 Cypher: cypher={}, params={}", cypher, props);
-                session.run(cypher.toString(), props);
-                log.info("[neo4j-engine] 实体已写入: entity={}", entityClass.getSimpleName());
             }
+            rows.add(props);
+        }
+        String cypher = "UNWIND $rows AS row CREATE (n:" + label + ") SET n = row";
+        try (var session = driver.session()) {
+            session.executeWrite(tx -> {
+                tx.run(cypher, Map.of("rows", rows)).consume();
+                return null;
+            });
         } catch (Exception e) {
-            log.error("[neo4j-engine] 存储失败: {}", e.getMessage(), e);
+            throw new RuntimeException("Neo4j 存储失败: label=" + label + " rows=" + rows.size(), e);
         }
         return this;
     }
@@ -222,7 +234,7 @@ public class Neo4jEngine implements Engine {
     /**
      * 执行原生 Cypher 语句。
      * <p>位置参数按 {@code p0、p1…} 转换为 Cypher {@code $pN} 命名参数；
-     * 返回受影响的节点/关系/属性变更总数。</p>
+     * 返回受影响的节点/关系变更数（不含属性级计数）。</p>
      *
      * @param ql     Cypher 语句
      * @param params 参数列表
@@ -237,11 +249,9 @@ public class Neo4jEngine implements Engine {
             cypherParams.put("p" + i, params[i]);
         }
         try (Session session = driver.session()) {
-            var summary = session.run(ql, cypherParams).consume();
-            var counters = summary.counters();
+            var counters = session.run(ql, cypherParams).consume().counters();
             return counters.nodesCreated() + counters.nodesDeleted()
-                    + counters.relationshipsCreated() + counters.relationshipsDeleted()
-                    + counters.propertiesSet();
+                    + counters.relationshipsCreated() + counters.relationshipsDeleted();
         } catch (Exception e) {
             throw new RuntimeException("Cypher 执行失败: " + ql, e);
         }
@@ -275,7 +285,7 @@ public class Neo4jEngine implements Engine {
      * 获取Dialect
     */
     public Dialect getDialect(String n) {
-        return null;
+        return Dialect.getExtension("neo4j");
     }
 
     @Override
@@ -342,7 +352,8 @@ public class Neo4jEngine implements Engine {
              * 列表
             */
             public List<T> list() {
-                return cypherQuery(entityClass, getConditions());
+                return cypherQuery(entityClass, getConditions(), getOrderBys(),
+                        getOffset(), getLimit());
             }
 
             @Override
@@ -350,7 +361,8 @@ public class Neo4jEngine implements Engine {
              * One
             */
             public T one() {
-                List<T> r = cypherQuery(entityClass, getConditions());
+                List<T> r = cypherQuery(entityClass, getConditions(), getOrderBys(),
+                        getOffset(), 1);
                 if (r.isEmpty()) {
                     return null;
                 }
@@ -362,16 +374,15 @@ public class Neo4jEngine implements Engine {
              * Page
             */
             public Page<T> page(int pn, int ps) {
-                int offset = (pn - 1) * ps;
-                int limit = ps;
- // 原生分页：限制 非零时驱动 跳过/限制
-                if (supportsNativePagination() && limit > 0) {
-                    List<T> all = cypherQuery(entityClass, getConditions(), offset, limit);
-                    long total = all.size(); // 注意：原生分页时 total 需另发 数量 查询
-                    return new Page<>(pn, ps, total, all);
+                int offset = Math.max(0, (pn - 1) * ps);
+                if (supportsNativePagination()) {
+                    List<T> records = cypherQuery(entityClass, getConditions(), getOrderBys(),
+                            offset, ps);
+                    long total = cypherCount(entityClass, getConditions());
+                    return new Page<>(pn, ps, total, records);
                 }
                 // 内存兜底
-                List<T> all = cypherQuery(entityClass, getConditions());
+                List<T> all = cypherQuery(entityClass, getConditions(), getOrderBys(), 0, 0);
                 int from = Math.min(offset, all.size());
                 int to = Math.min(from + ps, all.size());
                 if (from >= all.size()) {
@@ -483,44 +494,34 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-     * 执行 Cypher 查询（无分页）。
-     *
-     * @param entityClass 实体类
-     * @param conditions  条件列表
-     * @param <T>         实体类型
-     * @return 查询结果列表
-     */
-    @SuppressWarnings("unchecked")
-    private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
-        return cypherQuery(entityClass, conditions, 0, 0);
-    }
-
-    /**
      * cypher查询。
      *
      * @param entityClass 实体Class，不允许为 null
      * @param conditions 方法入参 conditions
-     * @param offset 偏移量，不允许为 null
-     * @param limit 上限，不允许为 null
-     * @return 结果列表，无数据时为空列表
+     * @param orderBys 排序列表（"col ASC"/"col DESC"），可为 null
+     * @param offset 偏移量，0 表示不限
+     * @param limit 上限，0 表示不限
+     * @return 结果列表
      */
-    private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions, int offset, int limit) {
+    private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions,
+                                    List<String> orderBys, int offset, int limit) {
         if (driver == null) {
-            log.warn("[neo4j-engine] 驱动未初始化，无法执行查询");
-            return Collections.emptyList();
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        String label = entityClass.getSimpleName();
+        String label = safeLabel(entityClass.getSimpleName());
         Map<String, Object> params = new LinkedHashMap<>();
         String whereClause = buildCypherWhere(conditions, params, "n");
-        StringBuilder cypher = new StringBuilder("MATCH (n:")
-                .append(label)
-                .append(")");
+        StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
         if (!whereClause.isEmpty()) {
             cypher.append(" WHERE ").append(whereClause);
         }
         cypher.append(" RETURN n");
- // 原生分页：追加 跳过/限制
-        if (supportsNativePagination() && (limit > 0 || offset > 0)) {
+        String orderByClause = buildCypherOrderBy(orderBys);
+        if (!orderByClause.isEmpty()) {
+            cypher.append(" ORDER BY ").append(orderByClause);
+        }
+        // 原生分页：追加 SKIP/LIMIT
+        if (supportsNativePagination()) {
             if (offset > 0) {
                 cypher.append(" SKIP ").append(offset);
             }
@@ -532,37 +533,94 @@ public class Neo4jEngine implements Engine {
         try (var session = driver.session()) {
             var result = session.run(cypher.toString(), params);
             return result.list(r -> mapToEntity(r.get("n").asMap(), entityClass));
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("[NEO4J QUERY ERROR] {}", e.getMessage(), e);
-            log.error("Neo4j 查询失败: {}", e.getMessage());
-            return Collections.emptyList();
+            throw new RuntimeException("Neo4j 查询失败: " + cypher, e);
         }
+    }
+
+    /**
+     * 统计满足条件的节点数（page 的 total 查询）。
+     *
+     * @param entityClass 实体Class
+     * @param conditions  条件列表
+     * @return 节点数
+     */
+    private long cypherCount(Class<?> entityClass, List<Condition> conditions) {
+        if (driver == null) {
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
+        }
+        String label = safeLabel(entityClass.getSimpleName());
+        Map<String, Object> params = new LinkedHashMap<>();
+        String whereClause = buildCypherWhere(conditions, params, "n");
+        StringBuilder cypher = new StringBuilder("MATCH (n:").append(label).append(")");
+        if (!whereClause.isEmpty()) {
+            cypher.append(" WHERE ").append(whereClause);
+        }
+        cypher.append(" RETURN count(n) AS total");
+        try (var session = driver.session()) {
+            return session.run(cypher.toString(), params).single().get("total").asLong();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Neo4j 计数失败: " + cypher, e);
+        }
+    }
+
+    /**
+     * 将包装器排序列表转为 Cypher ORDER BY 子句。
+     *
+     * @param orderBys "col ASC|DESC" 列表，可为 null
+     * @return ORDER BY 表达式（不含关键字），无排序时为空串
+     */
+    private String buildCypherOrderBy(List<String> orderBys) {
+        if (CollectionUtils.isEmpty(orderBys)) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String item : orderBys) {
+            if (item == null || item.isBlank()) {
+                continue;
+            }
+            String[] parts = item.trim().split("\\s+");
+            String col = safeProperty(parts[0]);
+            boolean desc = parts.length > 1 && "DESC".equalsIgnoreCase(parts[1]);
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append("n.").append(col).append(desc ? " DESC" : " ASC");
+        }
+        return sb.toString();
     }
 
     /**
      * 执行 Cypher 更新。
      */
-    @SuppressWarnings("unchecked")
     private <T> int cypherUpdate(
             Class<T> entityClass,
             List<Condition> conditions,
             Map<String, Object> setValues) {
-        if (driver == null || CollectionUtils.isEmpty(setValues)) {
+        if (driver == null) {
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
+        }
+        if (CollectionUtils.isEmpty(setValues)) {
             return 0;
         }
-        String label = entityClass.getSimpleName();
+        String label = safeLabel(entityClass.getSimpleName());
         Map<String, Object> params = new LinkedHashMap<>();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
         StringBuilder setSb = new StringBuilder(" SET ");
         boolean first = true;
+        int setIndex = 0;
         for (Map.Entry<String, Object> entry : setValues.entrySet()) {
             if (!first) {
                 setSb.append(", ");
             }
             first = false;
-            String paramKey = "set_" + entry.getKey();
-            setSb.append("n.").append(entry.getKey()).append(" = $").append(paramKey);
+            String paramKey = "set" + setIndex++;
+            setSb.append("n.").append(safeProperty(entry.getKey())).append(" = $").append(paramKey);
             params.put(paramKey, entry.getValue());
         }
 
@@ -573,14 +631,11 @@ public class Neo4jEngine implements Engine {
         cypher.append(setSb).append(" RETURN count(n) AS updated");
 
         try (var session = driver.session()) {
-            var result = session.run(cypher.toString(), params);
-            if (result.hasNext()) {
-                return result.next().get("updated").asInt();
-            }
-            return 0;
+            return session.run(cypher.toString(), params).single().get("updated").asInt();
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("Neo4j 更新失败: {}", e.getMessage());
-            return 0;
+            throw new RuntimeException("Neo4j 更新失败: " + cypher, e);
         }
     }
 
@@ -590,12 +645,11 @@ public class Neo4jEngine implements Engine {
      * @param conditions 条件
      * @return cypher删除的结果
      */
-    @SuppressWarnings("unchecked")
     private <T> int cypherDelete(Class<T> entityClass, List<Condition> conditions) {
         if (driver == null) {
-            return 0;
+            throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
         }
-        String label = entityClass.getSimpleName();
+        String label = safeLabel(entityClass.getSimpleName());
         Map<String, Object> params = new LinkedHashMap<>();
         String whereClause = buildCypherWhere(conditions, params, "n");
 
@@ -606,14 +660,11 @@ public class Neo4jEngine implements Engine {
         cypher.append(" DETACH DELETE n RETURN count(n) AS deleted");
 
         try (var session = driver.session()) {
-            var result = session.run(cypher.toString(), params);
-            if (result.hasNext()) {
-                return result.next().get("deleted").asInt();
-            }
-            return 0;
+            return session.run(cypher.toString(), params).single().get("deleted").asInt();
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("Neo4j 删除失败: {}", e.getMessage());
-            return 0;
+            throw new RuntimeException("Neo4j 删除失败: " + cypher, e);
         }
     }
 
@@ -665,65 +716,129 @@ public class Neo4jEngine implements Engine {
         String col = c.getColumnName();
         String op = c.getOperator();
         Object val = c.getValue();
+
+        if (col == null) {
+            throw new IllegalArgumentException("查询条件缺少列名: op=" + op);
+        }
+        String property = safeProperty(col);
         String paramKey = "p" + params.size();
 
         switch (op) {
             case "=":
-                sb.append(alias).append(".").append(col).append(" = $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" = $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case "!=":
-                sb.append(alias).append(".").append(col).append(" <> $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" <> $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case ">":
-                sb.append(alias).append(".").append(col).append(" > $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" > $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case ">=":
-                sb.append(alias).append(".").append(col).append(" >= $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" >= $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case "<":
-                sb.append(alias).append(".").append(col).append(" < $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" < $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case "<=":
-                sb.append(alias).append(".").append(col).append(" <= $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" <= $").append(paramKey);
                 params.put(paramKey, val);
                 break;
             case "LIKE":
-                sb.append(alias).append(".").append(col).append(" CONTAINS $").append(paramKey);
-                params.put(paramKey, String.valueOf(val).replace("%", ""));
+                sb.append(alias).append(".").append(property).append(" =~ $").append(paramKey);
+                params.put(paramKey, likeToRegex(val == null ? null : val.toString()));
+                break;
+            case "NOT LIKE":
+                sb.append("NOT ").append(alias).append(".").append(property).append(" =~ $").append(paramKey);
+                params.put(paramKey, likeToRegex(val == null ? null : val.toString()));
                 break;
             case "IS NULL":
-                sb.append(alias).append(".").append(col).append(" IS NULL");
+                sb.append(alias).append(".").append(property).append(" IS NULL");
                 break;
             case "IS NOT NULL":
-                sb.append(alias).append(".").append(col).append(" IS NOT NULL");
+                sb.append(alias).append(".").append(property).append(" IS NOT NULL");
                 break;
             case "IN":
-                sb.append(alias).append(".").append(col).append(" IN $").append(paramKey);
+                sb.append(alias).append(".").append(property).append(" IN $").append(paramKey);
                 params.put(paramKey, val instanceof Collection ? val : List.of(val));
                 break;
             case "NOT IN":
-                sb.append("NOT ").append(alias).append(".").append(col).append(" IN $").append(paramKey);
+                sb.append("NOT ").append(alias).append(".").append(property).append(" IN $").append(paramKey);
                 params.put(paramKey, val instanceof Collection ? val : List.of(val));
                 break;
             case "BETWEEN":
                 Object[] range = (Object[]) val;
                 String p1 = "p" + params.size();
                 String p2 = "p" + (params.size() + 1);
-                sb.append(alias).append(".").append(col).append(" >= $").append(p1)
-                        .append(" AND ").append(alias).append(".").append(col).append(" <= $").append(p2);
+                sb.append(alias).append(".").append(property).append(" >= $").append(p1)
+                        .append(" AND ").append(alias).append(".").append(property).append(" <= $").append(p2);
                 params.put(p1, range[0]);
                 params.put(p2, range[1]);
                 break;
             default:
-                sb.append(alias).append(".").append(col).append(" = $").append(paramKey);
-                params.put(paramKey, val);
-                break;
+                throw new UnsupportedOperationException("Neo4j 不支持操作符: " + op);
         }
+    }
+
+    /**
+     * 将 SQL LIKE 模式翻译为 Cypher 正则（锚定全串，% → .*，_ → .，其余字面量转义）。
+     *
+     * @param pattern SQL LIKE 模式，可为 null
+     * @return 正则字符串；null 输入返回不可能匹配的正则，保证行为可预期
+     */
+    static String likeToRegex(String pattern) {
+        if (pattern == null) {
+            return "(?!x)x";
+        }
+        StringBuilder sb = new StringBuilder("(?s)^");
+        for (int i = 0; i < pattern.length(); i++) {
+            char ch = pattern.charAt(i);
+            switch (ch) {
+                case '%':
+                    sb.append(".*");
+                    break;
+                case '_':
+                    sb.append('.');
+                    break;
+                default:
+                    if ("\\^$.|?*+()[]{}".indexOf(ch) >= 0) {
+                        sb.append('\\');
+                    }
+                    sb.append(ch);
+            }
+        }
+        sb.append("$");
+        return sb.toString();
+    }
+
+    /**
+     * 校验并返回可安全内联到 Cypher 的节点标签（反引号包裹，内部反引号加倍）。
+     *
+     * @param label 标签
+     * @return 转义后的标签
+     */
+    static String safeLabel(String label) {
+        if (label == null || label.isEmpty()) {
+            throw new IllegalArgumentException("节点标签不能为空");
+        }
+        return "`" + label.replace("`", "``") + "`";
+    }
+
+    /**
+     * 校验属性/列名为合法 Cypher 标识符后返回。
+     *
+     * @param name 属性名
+     * @return 校验后的属性名
+     */
+    static String safeProperty(String name) {
+        if (!SqlName.isSimple(name)) {
+            throw new IllegalArgumentException("非法属性名: " + name);
+        }
+        return name;
     }
 
     @SuppressWarnings("unchecked")

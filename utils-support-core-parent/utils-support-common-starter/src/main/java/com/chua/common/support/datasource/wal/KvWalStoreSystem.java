@@ -2,6 +2,8 @@ package com.chua.common.support.datasource.wal;
 
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.wal.*;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -9,11 +11,11 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * KV 存储引擎。
  */
+@Slf4j
 public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     private final WalStoreConfig config;
@@ -22,6 +24,14 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private final java.util.concurrent.ConcurrentHashMap<String, byte[]> memIndex = new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicLong totalRecords = new AtomicLong(0);
     private volatile boolean closed = false;
+    /**
+     * KV 写入记录的操作码
+    */
+    private static final byte OP_PUT = 0x01;
+    /**
+     * 墓碑标记位，与写入操作码按位或后表示删除
+    */
+    private static final byte OP_TOMBSTONE = AbstractWalFileSystem.OP_TOMBSTONE;
     private final ScheduledExecutorService scheduler =
             ThreadUtils.newDaemonSingleThreadScheduledExecutor("kv-compact");
 
@@ -52,9 +62,19 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     /**
      * fsync全部。
+     * <p>该引擎 {@code syncOnWrite(false)}，定时 fsync 是唯一的落盘时机，
+     * 失败必须留痕；但不向外抛出——任务抛异常会让 {@code scheduleAtFixedRate}
+     * 取消后续所有执行，等于彻底停止落盘，后果更严重。</p>
      */
     private void fsyncAll() {
-        for (SegmentWalLog log : walLogs) { try { log.sync(); } catch (IOException ignored) {} }
+        for (int i = 0; i < walLogs.length; i++) {
+            try {
+                walLogs[i].sync();
+            } catch (IOException | RuntimeException e) {
+                log.error("[WAL] KV 分片 {} 定时 fsync 失败，已确认的写入可能仍未落盘: {}",
+                        i, e.getMessage(), e);
+            }
+        }
     }
 
     @Override public String type() { return "kv"; }
@@ -68,35 +88,80 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
             throw new IllegalStateException("closed");
         }
         int idx = shardHash(key.getBytes(StandardCharsets.UTF_8)) % config.shardCount();
-        long lsn = walLogs[idx].append((byte) 0x01, payload == null ? new byte[0] : payload);
+        long lsn = walLogs[idx].append(OP_PUT, payload == null ? new byte[0] : payload);
         totalRecords.incrementAndGet();
         return lsn;
     }
 
+    /**
+     * 点查：从内存索引读取（索引由 put/putFast 维护、由 rebuildIndex 从 WAL 重建）。
+     *
+     * @param key 键，不允许为 null
+     * @return 可选结果，不存在时为 Optional.empty()
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     @Override
     public Optional<byte[]> get(String key) throws IOException {
-        return Optional.empty(); // index-based lookup in future
+        return getBytes(key);
     }
 
+    /**
+     * 判断 key 是否存在。
+     *
+     * @param key 键，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     @Override
-    public boolean contains(String key) { return false; }
+    public boolean contains(String key) {
+        return memIndex.containsKey(key);
+    }
 
     @Override
     public List<Map.Entry<String, byte[]>> range(String from, String to) throws IOException {
         return range(from, to, 0, Integer.MAX_VALUE);
     }
 
+    /**
+     * 带分页的范围查询：按 key 升序取 [from, to) 区间内 offset 之后的 limit 条。
+     *
+     * @param from 下界（含）
+     * @param to 上界（不含）
+     * @param offset 偏移量
+     * @param limit 上限
+     * @return 条目列表
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     @Override
     public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
-        return Collections.emptyList();
+        List<String> keys = new ArrayList<>(memIndex.keySet());
+        keys.sort(Comparator.naturalOrder());
+        List<Map.Entry<String, byte[]>> entries = new ArrayList<>();
+        for (String key : keys) {
+            if ((from == null || key.compareTo(from) >= 0) && (to == null || key.compareTo(to) < 0)) {
+                entries.add(Map.entry(key, memIndex.get(key)));
+            }
+        }
+        int begin = Math.min(Math.max(offset, 0), entries.size());
+        int end = limit <= 0 || (long) begin + limit > entries.size() ? entries.size() : begin + limit;
+        return new ArrayList<>(entries.subList(begin, end));
     }
 
+    /**
+     * 逻辑删除：追加携带键的墓碑记录并摘除内存索引条目。
+     *
+     * @param key 键，不允许为 null
+     * @return 删除前 key 是否存在
+     * @throws IOException 当墓碑写入失败时
+     */
     @Override
     public boolean delete(String key) throws IOException {
-        byte[] payload = KvWalFileSystem.encode(key, new byte[0]);
-        append(key, payload);
-        memIndex.remove(key);
-        return true;
+        if (closed) {
+            throw new IllegalStateException("StoreSystem 已关闭");
+        }
+        byte[] kb = key.getBytes(StandardCharsets.UTF_8);
+        int idx = shardHash(kb) % config.shardCount();
+        walLogs[idx].append((byte) (OP_PUT | OP_TOMBSTONE), KvWalFileSystem.encode(key, new byte[0]));
+        return memIndex.remove(key) != null;
     }
 
     @Override
@@ -123,9 +188,25 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         scheduler.shutdownNow();
         try {
             scheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("[WAL] KV 关闭时等待 fsync 调度线程被中断: {}", e.getMessage());
         }
-        for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
+        IOException first = null;
+        for (SegmentWalLog walLog : walLogs) {
+            try {
+                walLog.close();
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
+        }
     }
 
     // ==================== KV 专用 ====================
@@ -173,7 +254,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         }
         int idx = shardHash(kb) % config.shardCount();
         byte[] payload = Arrays.copyOf(writeBuf, total);
-        long lsn = walLogs[idx].append((byte) 0x01, payload);
+        long lsn = walLogs[idx].append(OP_PUT, payload);
         memIndex.put(key, value == null ? new byte[0] : Arrays.copyOf(value, vlen));
         totalRecords.incrementAndGet();
         return lsn;
@@ -197,10 +278,13 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         }
         int idx = shardHash(key) % config.shardCount();
         byte[] payload = Arrays.copyOf(writeBuf, total);
-        long lsn = walLogs[idx].append((byte) 0x01, payload);
+        long lsn = walLogs[idx].append(OP_PUT, payload);
+        String k = new String(key, StandardCharsets.UTF_8);
         try {
-            memIndex.put(new String(key, StandardCharsets.UTF_8), value == null ? new byte[0] : Arrays.copyOf(value, vlen));
-        } catch (Exception ignored) {
+            memIndex.put(k, value == null ? new byte[0] : Arrays.copyOf(value, vlen));
+        } catch (RuntimeException e) {
+            memIndex.remove(k);
+            throw new WalException("KV 内存索引写入失败，WAL 与索引已不一致: key=" + k + ", lsn=" + lsn, e);
         }
         totalRecords.incrementAndGet();
         return lsn;
@@ -218,23 +302,49 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         return v == null ? Optional.empty() : Optional.of(v);
     }
 
+    /**
+     * 重建索引：逐分片回放 WAL，重写内存索引。
+     *
+     * <p>任一分片回放失败都会包装为 {@link WalException} 抛出，避免把残缺索引当作重建成功。</p>
+     *
+     * @throws IOException 当回放过程失败时
+     */
     @Override
     public void rebuildIndex() throws IOException {
         memIndex.clear();
-        for (SegmentWalLog log : walLogs) {
+        for (int i = 0; i < walLogs.length; i++) {
+            replayShardIntoMemIndex(i);
+        }
+        totalRecords.set(memIndex.size());
+    }
+
+    /**
+     * 回放单个分片并把有效记录写入内存索引。
+     *
+     * @param shardIdx 分片索引
+     * @throws IOException 当回放过程失败时
+     */
+    private void replayShardIntoMemIndex(int shardIdx) throws IOException {
+        SegmentWalLog log = walLogs[shardIdx];
+        for (WalSegmentInfo seg : log.listSegments()) {
             try {
-                log.replay((lsn, op, payload) -> {
-                    if ((op & 0x80) != 0) {
-                        memIndex.remove(decodeKey(payload));
+                log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
+                    String k = decodeKey(payload);
+                    if ((op & OP_TOMBSTONE) != 0) {
+                        if (k != null) {
+                            memIndex.remove(k);
+                        }
                         return true;
                     }
-                    String k = decodeKey(payload);
                     if (k != null) {
                         memIndex.put(k, extractValue(payload));
                     }
                     return true;
                 });
-            } catch (IOException ignored) {}
+            } catch (IOException | RuntimeException e) {
+                throw new WalException("WAL 索引重建失败: 分片=" + config.namespace() + "-" + shardIdx
+                        + ", 分段=" + seg.path(), e);
+            }
         }
     }
 

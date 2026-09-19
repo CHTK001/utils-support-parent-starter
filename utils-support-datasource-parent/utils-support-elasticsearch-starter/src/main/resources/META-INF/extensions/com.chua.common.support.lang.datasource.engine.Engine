@@ -1,1 +1,1 @@
-ELASTICSEARCH=com.chua.elasticsearch.support.engine.ElasticsearchEngine
+elasticsearch=com.chua.elasticsearch.support.engine.ElasticsearchEngine

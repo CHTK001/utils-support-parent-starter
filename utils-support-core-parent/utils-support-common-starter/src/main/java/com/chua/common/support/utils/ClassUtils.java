@@ -1167,15 +1167,30 @@ public class ClassUtils {
             Class<?> aClass1 = forName(realTypeName, object.getClass().getClassLoader());
             return null == aClass1 ? void.class : ObjectUtils.defaultIfNull(aClass1, void.class);
         }
-        String toString = object.toString();
-        if (!toString.contains("$Proxy")) {
-            Class<?> aClass1 = forName(StringUtils.removeSuffixContains(toString.replace("@", ""), "("), object.getClass().getClassLoader());
-            if (null == aClass1) {
-                aClass1 = forName(toString.substring(0, toString.indexOf("@")), object.getClass().getClassLoader());
+        // JDK 动态代理只能按声明接口推断类型；toString() 可被业务覆写，不能作为类型来源
+        return proxyType(aClass);
+    }
+
+    /**
+     * 推断 JDK 动态代理的类型：优先业务接口，其次任意接口，都取不到时返回 {@code void.class}
+     * 以保持构造器匹配阶段的通配语义。
+     *
+     * @param proxyClass 代理类
+     * @return 代理所表示的类型
+     */
+    private static Class<?> proxyType(Class<?> proxyClass) {
+        Class<?>[] interfaces = proxyClass.getInterfaces();
+        Class<?> fallback = null;
+        for (Class<?> itf : interfaces) {
+            String name = itf.getName();
+            if (!name.startsWith("java.")) {
+                return itf;
             }
-            return null == aClass1 ? void.class : ObjectUtils.defaultIfNull(aClass1, void.class);
+            if (null == fallback) {
+                fallback = itf;
+            }
         }
-        return void.class;
+        return null == fallback ? void.class : fallback;
     }
     /**
      * 将类对象或类名输入转换为可直接实例化的对象表示，便于后续构造逻辑使用。

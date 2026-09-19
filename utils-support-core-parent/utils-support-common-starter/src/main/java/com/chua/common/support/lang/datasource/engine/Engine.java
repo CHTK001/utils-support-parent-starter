@@ -30,8 +30,8 @@ import java.util.Map;
  * <p>
  * 使用示例：
  * <pre>{@code
- * // SPI 创建引擎
- * Engine engine = Engine.create("jdbc");
+ * // SPI 创建引擎（键为 META-INF/extensions 中登记的方言名，如 mysql / h2 / postgresql）
+ * Engine engine = Engine.create("mysql");
  *
  * // 添加 JDBC 数据源
  * HikariDataSource ds = new HikariDataSource();
@@ -320,9 +320,13 @@ public interface Engine extends AutoCloseable {
      * 获取数据库迁移工具，提供类似 Flyway 的 SQL 脚本版本化管理。
      * <p>获取逻辑：通过 {@code ServiceProvider.of(Flyway.class).getNewExtensions(SPI_NAME, this)}
      * 获取 {@code flyway} 扩展点实现（结果列表按 SPI order 降序排列，首个即最高优先级）；
-     * 取列表中首个（即最高优先级）扩展实例，如业务方注册的
-     * {@code utils-support-flyway-starter} 增强实现；无匹配扩展时兜底返回
-     * 默认实现 {@link DefaultFlyway}。</p>
+     * 构造上下文为本引擎，故只有能以 {@code Engine} 为参数构造的实现会被选中：默认实现
+     * {@link DefaultFlyway}，或业务方注册的更高 order 扩展。SPI 无可用实例时兜底返回
+     * {@link DefaultFlyway}。</p>
+     *
+     * <p>需要以 {@code DataSource} 为上下文时使用 {@code utils-support-flyway-starter} 的增强实现：
+     * {@code ServiceProvider.of(Flyway.class).getNewExtensions(Flyway.SPI_NAME, dataSource)}，
+     * 该上下文下它排序最前。</p>
      *
      * @return 迁移工具（非 null：SPI 扩展或默认实现二选一）
      */

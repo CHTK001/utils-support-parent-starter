@@ -6,7 +6,6 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.datasource.support.dialect.OracleDialect;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -83,7 +82,7 @@ public class OracleEngine extends JdbcEngine {
             private Dialect dialect = Dialect.require("oracle");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
-            @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
+            @Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源"); }
             @Override public Dialect getDialect() { return dialect; }
             @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
                 if (d != null) {
@@ -96,14 +95,6 @@ public class OracleEngine extends JdbcEngine {
             @Override public String url() { return ds.getJdbcUrl(); }
             @Override public String username() { return ds.getUsername(); }
             @Override public String password() { return ds.getPassword(); }
-            @Override public void close() {
-                if (ds instanceof AutoCloseable c) {
-                    try {
-                        c.close();
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
         });
     }
 }

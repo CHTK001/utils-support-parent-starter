@@ -160,16 +160,24 @@ public interface Dialect {
     /**
      * 引用标识符，自动加上数据库特定的引用符。
      * <p>如果 {@link #openQuote()} 或 {@link #closeQuote()} 返回空格，则原样返回名称。</p>
+     * <p>名称内部出现的右引用符按厂商规则加倍转义（MySQL 的 {@code ``}、标准 SQL 的 {@code ""}、
+     * SQL Server 的 {@code ]]}），避免标识符提前闭合带来的注入。</p>
      *
      * @param name 标识符名称
      * @return 引用后的名称，例如 {@code `user_name`}
      */
     default String quote(String name) {
+        if (name == null) {
+            return null;
+        }
         char oq = openQuote(), cq = closeQuote();
         if (oq == ' ' || cq == ' ') {
             return name;
         }
-        return oq + name + cq;
+        String escaped = name.indexOf(cq) >= 0
+                ? name.replace(String.valueOf(cq), String.valueOf(cq) + cq)
+                : name;
+        return oq + escaped + cq;
     }
 
     /**

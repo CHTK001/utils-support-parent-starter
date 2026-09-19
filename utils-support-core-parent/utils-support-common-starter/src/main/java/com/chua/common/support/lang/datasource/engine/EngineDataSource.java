@@ -66,7 +66,8 @@ public interface EngineDataSource<T> extends AutoCloseable {
 
     /**
      * 设置底层数据源对象。
-     * <p>允许在创建后替换数据源实现。</p>
+     * <p>由数据源自身托管生命周期的实现不支持运行期替换，调用时将抛出
+     * {@link UnsupportedOperationException}，此时应重新向引擎注册数据源。</p>
      *
      * @param source 新的数据源对象
      * @return this
@@ -147,6 +148,8 @@ public interface EngineDataSource<T> extends AutoCloseable {
     /**
      * 关闭数据源，释放底层资源。
      * <p>如果底层数据源实现了 {@link AutoCloseable}，则自动调用 close。</p>
+     * <p>底层释放失败会抛出 {@link IllegalStateException}，不静默泄漏资源；
+     * 需要“关闭其余资源不受影响”的调用方（如引擎批量关闭）自行逐个捕获并记录。</p>
      */
     @Override
     default void close() {
@@ -154,7 +157,9 @@ public interface EngineDataSource<T> extends AutoCloseable {
         if (source instanceof AutoCloseable c) {
             try {
                 c.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                throw new IllegalStateException("数据源关闭失败: "
+                        + (source == null ? "null" : source.getClass().getName()), e);
             }
         }
     }

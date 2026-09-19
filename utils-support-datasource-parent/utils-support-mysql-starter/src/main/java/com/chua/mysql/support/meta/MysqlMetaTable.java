@@ -1,11 +1,10 @@
 package com.chua.mysql.support.meta;
 
-import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.dialect.meta.IndexMetadata;
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.meta.AlterColumnBuilder;
-import com.chua.common.support.lang.datasource.meta.AlterIndexBuilder;
 import com.chua.common.support.lang.datasource.meta.AlterForeignKeyBuilder;
+import com.chua.common.support.lang.datasource.meta.AlterIndexBuilder;
 import com.chua.common.support.lang.datasource.meta.TableAlterBuilder;
 import com.chua.common.support.lang.datasource.meta.TableCreateBuilder;
 import com.chua.common.support.lang.datasource.table.ColumnDef;
@@ -13,296 +12,441 @@ import com.chua.common.support.lang.datasource.table.TableDef;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaTable;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
+ * MySQL 表元数据操作。
+ * <p>
+ * 读取路径全部落在 {@code INFORMATION_SCHEMA} 上，并带
+ * {@code TABLE_SCHEMA = COALESCE(?, DATABASE())} 过滤：调用方通过
+ * {@link AbstractMetaData#getSchema()} / {@link AbstractMetaData#getCatalog()} 指定库名时按参数绑定，
+ * 未指定时只返回当前会话默认库，不会把跨库同名表混进来。
+ * </p>
+ * <p>
+ * 能力边界：
+ * <ul>
+ *   <li>{@link #list()} 返回表级属性（引擎、字符集、排序规则、注释、行数、创建/更新时间），
+ *       不含列与索引明细，避免对全库做 N+1 查询；列与索引明细由 {@link #get()} 提供。</li>
+ *   <li>{@code TableDef.rowCount} 取自 {@code TABLES.TABLE_ROWS}，InnoDB 下为估算值。</li>
+ *   <li>{@code TableDef.type} 直接透传厂商值：{@code BASE TABLE} / {@code VIEW} / {@code SYSTEM VIEW}。</li>
+ * </ul>
+ * </p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
-
 public class MysqlMetaTable extends AbstractMetaTable {
 
     /**
-     * 创建 mysqlmetatable 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+     * 表级属性查询：库名以绑定参数下发，参数为 {@code null} 时回落到 {@code DATABASE()}。
+     */
+    private static final String TABLE_SQL =
+            "SELECT t.TABLE_CATALOG, t.TABLE_SCHEMA, t.TABLE_NAME, t.TABLE_TYPE, t.ENGINE,"
+                    + " t.TABLE_COLLATION, t.TABLE_COMMENT, t.TABLE_ROWS, t.CREATE_TIME, t.UPDATE_TIME,"
+                    + " cs.CHARACTER_SET_NAME"
+                    + " FROM INFORMATION_SCHEMA.TABLES t"
+                    + " LEFT JOIN INFORMATION_SCHEMA.COLLATIONS cs ON cs.COLLATION_NAME = t.TABLE_COLLATION"
+                    + " WHERE t.TABLE_SCHEMA = COALESCE(?, DATABASE())";
+
+    /**
+     * 列查询：只有 MySQL 特有的 {@code COLUMN_TYPE / EXTRA / COLUMN_KEY / COLUMN_COMMENT}
+     * 才能填满 {@link ColumnDef} 的 unsigned、autoIncrement、comment 等属性。
+     */
+    private static final String COLUMN_SQL =
+            "SELECT c.COLUMN_NAME, c.DATA_TYPE, c.COLUMN_TYPE, c.ORDINAL_POSITION, c.IS_NULLABLE,"
+                    + " c.COLUMN_DEFAULT, c.COLUMN_COMMENT, c.CHARACTER_MAXIMUM_LENGTH, c.NUMERIC_PRECISION,"
+                    + " c.NUMERIC_SCALE, c.CHARACTER_SET_NAME, c.COLLATION_NAME, c.EXTRA, c.COLUMN_KEY"
+                    + " FROM INFORMATION_SCHEMA.COLUMNS c"
+                    + " WHERE c.TABLE_SCHEMA = COALESCE(?, DATABASE()) AND c.TABLE_NAME = ?"
+                    + " ORDER BY c.ORDINAL_POSITION";
+
+    /**
+     * 索引查询：{@code information_schema.STATISTICS} 的列名在 MySQL 5.7 / 8.x 上稳定。
+     */
+    private static final String INDEX_SQL =
+            "SELECT s.TABLE_NAME, s.INDEX_NAME, s.SEQ_IN_INDEX, s.COLUMN_NAME, s.NON_UNIQUE, s.INDEX_TYPE,"
+                    + " s.INDEX_COMMENT, s.COLLATION"
+                    + " FROM INFORMATION_SCHEMA.STATISTICS s"
+                    + " WHERE s.TABLE_SCHEMA = COALESCE(?, DATABASE()) AND s.TABLE_NAME = ?";
+
+    /**
+     * 构造方法（无表名上下文）。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
      */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 mysqlmetatable 实例
+     * 构造方法（带表名上下文）。
      *
-     * @param metaData  meta数据
-     * @param engine    Engine
-     * @param tableName table名称
+     * @param metaData  元数据入口
+     * @param engine    引擎实例
+     * @param tableName 表名
      */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
     }
 
+    /**
+     * 列出当前库下的所有基表。
+     *
+     * @return 表定义列表（表级属性完整，列与索引明细为空）
+     * @throws IllegalStateException 查询失败
+     */
     @Override
     public List<TableDef> list() {
-        List<TableDef> result = new ArrayList<>();
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                     "SELECT TABLE_NAME, TABLE_COMMENT, CREATE_TIME, UPDATE_TIME"
-                             + " FROM INFORMATION_SCHEMA.TABLES"
-                             + " WHERE TABLE_SCHEMA = DATABASE()")) {
-            while (rs.next()) {
-                TableDef def = new TableDef();
-                def.setName(rs.getString("TABLE_NAME"));
-                def.setComment(rs.getString("TABLE_COMMENT"));
-                def.setCreateTime(rs.getTimestamp("CREATE_TIME"));
-                def.setUpdateTime(rs.getTimestamp("UPDATE_TIME"));
-                result.add(def);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("列出表失败", e);
-        }
-        return result;
+        String sql = TABLE_SQL + " AND t.TABLE_TYPE = 'BASE TABLE' ORDER BY t.TABLE_NAME";
+        return MysqlMetaData.query(engine, "列出表", sql,
+                MysqlMetaData.args(MysqlMetaData.resolveSchema(metaData)), this::mapTable);
     }
 
     /**
-     * 创建。
+     * 获取当前表的完整结构定义（表属性 + 列 + 主键 + 索引）。
      *
-     * @param tableName 表名称，不允许为 null
-     * @return 表创建Builder 对象
+     * @return 表定义；表不存在时返回 {@code null}
+     * @throws IllegalStateException 未指定表名或查询失败
      */
+    @Override
+    public TableDef get() {
+        if (tableName == null) {
+            throw new IllegalStateException("未指定表名，请先调用 meta().table(String)");
+        }
+        String schema = MysqlMetaData.resolveSchema(metaData);
+        TableDef def = MysqlMetaData.queryOne(engine, "查询表结构 " + tableName,
+                TABLE_SQL + " AND t.TABLE_NAME = ?", MysqlMetaData.args(schema, tableName), this::mapTable);
+        if (def == null) {
+            return null;
+        }
+        List<IndexMetadata> indexes = readIndexes(schema, tableName, null);
+        def.setIndexes(indexes);
+        Set<String> pkColumns = new LinkedHashSet<>();
+        for (IndexMetadata index : indexes) {
+            if (index.isPrimary() && index.getColumns() != null) {
+                pkColumns.addAll(index.getColumns());
+            }
+        }
+        def.setPrimaryKeys(pkColumns.toArray(new String[0]));
+        List<ColumnDef> columns = readColumns(schema, tableName);
+        for (ColumnDef column : columns) {
+            column.setPrimaryKey(pkColumns.contains(column.getName()));
+        }
+        def.setColumns(columns);
+        return def;
+    }
+
+    @Override
     public TableCreateBuilder create(String tableName) {
         return new MysqlTableCreateBuilder(this, tableName);
     }
 
-        /**
-         * Alter
-        */
-@Override
+    @Override
     public TableAlterBuilder alter() {
         return new MysqlTableAlterBuilder(this);
     }
 
-        /**
-         * 掉落
-        */
-@Override
+    @Override
     public boolean drop() {
         if (tableName == null) {
             throw new IllegalStateException("未指定表名");
         }
-        return executeUpdate("DROP TABLE IF EXISTS " + quote(tableName));
+        return MysqlMetaData.execute(engine, "删除表", "DROP TABLE IF EXISTS " + quote(tableName), List.of());
     }
 
-        /**
-         * 重命名
-        */
-@Override
+    @Override
     public boolean rename(String newName) {
         if (tableName == null) {
             throw new IllegalStateException("未指定原表名");
         }
-        return executeUpdate("RENAME TABLE " + quote(tableName) + " TO " + quote(newName));
+        return MysqlMetaData.execute(engine, "重命名表",
+                "RENAME TABLE " + quote(tableName) + " TO " + quote(newName), List.of());
     }
 
     /**
-     * 单查
-    */
-@Override
-    public TableDef get() {
-        if (tableName == null) {
-            throw new IllegalStateException("未指定表名");
+     * 读取列定义。
+     *
+     * @param schema 库名，可为 {@code null}（取 {@code DATABASE()}）
+     * @param table  表名
+     * @return 列定义列表，按 {@code ORDINAL_POSITION} 升序
+     * @throws IllegalStateException 查询失败
+     */
+    protected List<ColumnDef> readColumns(String schema, String table) {
+        return MysqlMetaData.query(engine, "查询列 " + table, COLUMN_SQL,
+                MysqlMetaData.args(schema, table), MysqlMetaTable::mapColumn);
+    }
+
+    /**
+     * 读取索引定义（MySQL 主键即名为 {@code PRIMARY} 的聚簇索引）。
+     *
+     * @param schema    库名，可为 {@code null}
+     * @param table     表名
+     * @param indexName 索引名，{@code null} 表示该表全部索引
+     * @return 索引列表，按索引名与列序号有序
+     * @throws IllegalStateException 查询失败
+     */
+    protected List<IndexMetadata> readIndexes(String schema, String table, String indexName) {
+        String sql = indexName == null
+                ? INDEX_SQL + " ORDER BY s.INDEX_NAME, s.SEQ_IN_INDEX"
+                : INDEX_SQL + " AND s.INDEX_NAME = ? ORDER BY s.INDEX_NAME, s.SEQ_IN_INDEX";
+        List<Object> args = indexName == null
+                ? MysqlMetaData.args(schema, table)
+                : MysqlMetaData.args(schema, table, indexName);
+        List<IndexRow> rows = MysqlMetaData.query(engine, "查询索引 " + table, sql, args, IndexRow::read);
+        Map<String, IndexMetadata> grouped = new LinkedHashMap<>();
+        for (IndexRow row : rows) {
+            IndexMetadata meta = grouped.get(row.indexName);
+            if (meta == null) {
+                meta = new IndexMetadata();
+                meta.setName(row.indexName);
+                meta.setTableName(row.tableName);
+                meta.setPrimary("PRIMARY".equals(row.indexName));
+                meta.setUnique(!row.nonUnique);
+                meta.setType(row.indexType);
+                meta.setComment(row.indexComment);
+                meta.setPosition(row.seqInIndex);
+                meta.setColumns(new ArrayList<>());
+                grouped.put(row.indexName, meta);
+            }
+            if (row.columnName != null) {
+                meta.getColumns().add(row.columnName);
+                if (meta.getColumnName() == null) {
+                    meta.setColumnName(row.columnName);
+                }
+            }
+            if (meta.getSortDirection() == null) {
+                meta.setSortDirection(resolveSortDirection(row.collation));
+            }
         }
+        // MySQL 的 information_schema 不提供索引可见性（仅 SHOW INDEX / mysql.indexes 提供），
+        // 故 IndexMetadata.invisible 保持默认 false，不伪造"不可见索引"信息。
+        return new ArrayList<>(grouped.values());
+    }
+
+    /**
+     * 引用标识符，使用 MySQL 反引号并做注入校验。
+     *
+     * @param name 标识符
+     * @return 引用后的标识符
+     */
+    String quote(String name) {
+        return MysqlMetaData.quote(name);
+    }
+
+    /**
+     * 执行 DDL。
+     *
+     * @param sql SQL 语句
+     * @return 是否成功
+     * @throws IllegalStateException 执行失败
+     */
+    boolean executeUpdate(String sql) {
+        return MysqlMetaData.execute(engine, "执行 SQL", sql, List.of());
+    }
+
+    /**
+     * 按表名重读真实结构，供构建器回填返回值。
+     *
+     * @param table 表名
+     * @return 表定义，表不存在时为 {@code null}
+     */
+    TableDef reload(String table) {
+        return new MysqlMetaTable(metaData, engine, table).get();
+    }
+
+    /**
+     * 表级结果集映射。
+     *
+     * @param rs 结果集当前行
+     * @return 表定义
+     * @throws SQLException 读取失败
+     */
+    private TableDef mapTable(ResultSet rs) throws SQLException {
         TableDef def = new TableDef();
-        def.setName(tableName);
-        try (Connection conn = getConnection()) {
-            DatabaseMetaData dbMeta = conn.getMetaData();
-            String catalog = metaData.getCatalog();
-            String schema = metaData.getSchema();
-            // columns
-            List<ColumnDef> cols = readColumns(dbMeta, catalog, schema, tableName);
-            def.setColumns(cols);
- // primary 键
-            List<String> pks = new ArrayList<>();
-            try (ResultSet rs = dbMeta.getPrimaryKeys(catalog, schema, tableName)) {
-                while (rs.next()) {
-                    pks.add(rs.getString("COLUMN_NAME"));
-                }
-            }
-            def.setPrimaryKeys(pks.toArray(new String[0]));
-            // indexes (skipped to avoid compilation issues with IndexMetadata)
-            def.setIndexes(new ArrayList<>());
- // table 信息 从 信息_模式
-            try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(
-                         "SELECT TABLE_COMMENT, TABLE_TYPE, CREATE_TIME, UPDATE_TIME"
-                                 + " FROM INFORMATION_SCHEMA.TABLES"
-                                  + " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" + tableName.replace("'", "''") + "'")) {
-                if (rs.next()) {
-                    def.setComment(rs.getString("TABLE_COMMENT"));
-                    def.setType(rs.getString("TABLE_TYPE"));
-                    def.setCreateTime(rs.getTimestamp("CREATE_TIME"));
-                    def.setUpdateTime(rs.getTimestamp("UPDATE_TIME"));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("查询表详情失败: " + tableName, e);
-        }
+        def.setCatalog(rs.getString("TABLE_CATALOG"));
+        def.setSchema(rs.getString("TABLE_SCHEMA"));
+        def.setName(rs.getString("TABLE_NAME"));
+        def.setType(rs.getString("TABLE_TYPE"));
+        def.setEngine(MysqlMetaData.trimToNull(rs.getString("ENGINE")));
+        def.setCollate(MysqlMetaData.trimToNull(rs.getString("TABLE_COLLATION")));
+        def.setCharset(MysqlMetaData.trimToNull(rs.getString("CHARACTER_SET_NAME")));
+        def.setComment(MysqlMetaData.trimToNull(rs.getString("TABLE_COMMENT")));
+        def.setCreateTime(toDate(rs.getTimestamp("CREATE_TIME")));
+        def.setUpdateTime(toDate(rs.getTimestamp("UPDATE_TIME")));
+        long rows = rs.getLong("TABLE_ROWS");
+        def.setRowCount(rs.wasNull() ? null : rows);
         return def;
     }
 
     /**
-     * 读取Columns
+     * 列结果集映射。
      *
-     * @param dbMeta dbmeta
-     * @param catalog catalog
-     * @param schema 模式
-     * @param tableName table名称
-     * @return 读取columns的结果
+     * @param rs 结果集当前行
+     * @return 列定义
+     * @throws SQLException 读取失败
      */
-    protected List<ColumnDef> readColumns(DatabaseMetaData dbMeta, String catalog, String schema, String tableName) throws SQLException {
-        List<ColumnDef> columns = new ArrayList<>();
-        try (ResultSet rs = dbMeta.getColumns(catalog, schema, tableName, "%")) {
-            while (rs.next()) {
-                ColumnDef col = new ColumnDef();
-                col.setName(rs.getString("COLUMN_NAME"));
-                col.setType(rs.getString("TYPE_NAME"));
-                col.setLength(rs.getLong("COLUMN_SIZE"));
-                col.setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
-                col.setDefaultValue(rs.getString("COLUMN_DEF"));
-                col.setComment(rs.getString("REMARKS"));
-                col.setOrdinalPosition(rs.getInt("ORDINAL_POSITION"));
-                columns.add(col);
-            }
-        }
-        return columns;
+    private static ColumnDef mapColumn(ResultSet rs) throws SQLException {
+        ColumnDef col = new ColumnDef();
+        String columnType = MysqlMetaData.trimToNull(rs.getString("COLUMN_TYPE"));
+        col.setName(rs.getString("COLUMN_NAME"));
+        col.setType(columnType != null ? columnType : MysqlMetaData.trimToNull(rs.getString("DATA_TYPE")));
+        col.setNullable("YES".equalsIgnoreCase(rs.getString("IS_NULLABLE")));
+        col.setDefaultValue(MysqlMetaData.trimToNull(rs.getString("COLUMN_DEFAULT")));
+        col.setComment(MysqlMetaData.trimToNull(rs.getString("COLUMN_COMMENT")));
+        col.setCharset(MysqlMetaData.trimToNull(rs.getString("CHARACTER_SET_NAME")));
+        col.setCollation(MysqlMetaData.trimToNull(rs.getString("COLLATION_NAME")));
+        col.setLength(toLong(rs, "CHARACTER_MAXIMUM_LENGTH"));
+        Integer precision = toInteger(rs, "NUMERIC_PRECISION");
+        col.setPrecision(precision);
+        col.setScale(toInteger(rs, "NUMERIC_SCALE"));
+        col.setOrdinalPosition(toInteger(rs, "ORDINAL_POSITION"));
+        String extra = rs.getString("EXTRA");
+        col.setAutoIncrement(extra != null && extra.toLowerCase().contains("auto_increment"));
+        col.setUnsigned(columnType != null && columnType.toLowerCase().contains("unsigned"));
+        col.setPrimaryKey("PRI".equals(rs.getString("COLUMN_KEY")));
+        return col;
     }
 
     /**
-     * 获取Connection
+     * 索引排序方向：{@code COLLATION} 为 {@code A}（升序）/ {@code D}（降序）/ {@code NULL}（不适用）。
      *
-     * @return 获取connection的结果
+     * @param collation 原始值
+     * @return ASC / DESC，无法判定时 {@code null}
      */
-    protected Connection getConnection() throws Exception {
-        EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
-        if (eds == null) {
-            throw new IllegalStateException("默认数据源未配置");
+    private static String resolveSortDirection(String collation) {
+        if ("A".equalsIgnoreCase(collation)) {
+            return "ASC";
         }
-        Object source = eds.getSource();
-        if (source instanceof DataSource ds) {
-            return ds.getConnection();
+        if ("D".equalsIgnoreCase(collation)) {
+            return "DESC";
         }
-        throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
+        return null;
     }
 
     /**
-     * quote。
+     * 读取可空数值列为 {@link Long}。
      *
-     * @param name 名称，不允许为 null
-     * @return 结果字符串
+     * @param rs    结果集
+     * @param label 列名
+     * @return 数值，列为 {@code NULL} 时返回 {@code null}
+     * @throws SQLException 读取失败
      */
-    String quote(String name) {
-        Dialect dialect = resolveDialect();
-        if (dialect != null) {
-            return dialect.quote(name);
-        }
-        return "`" + name + "`";
+    private static Long toLong(ResultSet rs, String label) throws SQLException {
+        long value = rs.getLong(label);
+        return rs.wasNull() ? null : value;
     }
 
     /**
-     * 执行更新。
+     * 读取可空数值列为 {@link Integer}。
      *
-     * @param sql SQL，不允许为 null
-     * @return 是否成功（true 表示成功）
+     * @param rs    结果集
+     * @param label 列名
+     * @return 数值，列为 {@code NULL} 时返回 {@code null}
+     * @throws SQLException 读取失败
      */
-    boolean executeUpdate(String sql) {
-        try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException("执行 SQL 失败: " + sql, e);
-        }
+    private static Integer toInteger(ResultSet rs, String label) throws SQLException {
+        int value = rs.getInt(label);
+        return rs.wasNull() ? null : value;
     }
 
     /**
-     * 解析Dialect。
+     * {@link Timestamp} 转 {@link java.util.Date}。
      *
-     * @return Dialect 对象
+     * @param ts 时间戳
+     * @return 日期，入参为 {@code null} 时返回 {@code null}
      */
-    Dialect resolveDialect() {
-        EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
-        return eds != null ? eds.getDialect() : null;
+    private static java.util.Date toDate(Timestamp ts) {
+        return ts == null ? null : new java.util.Date(ts.getTime());
     }
 
-    // ==================== MySQL 建表构建器 ====================
     /**
-     * mysqltable创建构建器类。
+     * {@code STATISTICS} 单行原始值。
      *
      * @author CH
      * @since 4.0.0
      */
+    private record IndexRow(String tableName, String indexName, Integer seqInIndex, String columnName,
+                            boolean nonUnique, String indexType, String indexComment, String collation) {
 
+        /**
+         * 读取结果集当前行。
+         *
+         * @param rs 结果集
+         * @return 行值
+         * @throws SQLException 读取失败
+         */
+        static IndexRow read(ResultSet rs) throws SQLException {
+            return new IndexRow(rs.getString("TABLE_NAME"), rs.getString("INDEX_NAME"),
+                    toInteger(rs, "SEQ_IN_INDEX"), rs.getString("COLUMN_NAME"),
+                    rs.getInt("NON_UNIQUE") != 0, MysqlMetaData.trimToNull(rs.getString("INDEX_TYPE")),
+                    MysqlMetaData.trimToNull(rs.getString("INDEX_COMMENT")), rs.getString("COLLATION"));
+        }
+    }
+
+    // ==================== MySQL 建表构建器 ====================
+
+    /**
+     * MySQL 建表链式构建器。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     private static class MysqlTableCreateBuilder implements TableCreateBuilder {
 
         /**
-         * Meta表
-        */
+         * 所属表元数据入口
+         */
         private final MysqlMetaTable metaTable;
         /**
-         * 表名称
-        */
+         * 表名
+         */
         private final String tableName;
         /**
-         * Columns
-        */
+         * 列定义
+         */
         private final List<ColumnDef> columns = new ArrayList<>();
         /**
-         * 评论
-        */
+         * 联合主键列
+         */
+        private final List<String> primaryKeys = new ArrayList<>();
+        /**
+         * 表注释
+         */
         private String comment;
         /**
-         * 引擎
-        */
-        private String engine;
+         * 存储引擎
+         */
+        private String engineName;
         /**
          * 字符集
-        */
+         */
         private String charset;
         /**
-         * Collate
-        */
+         * 排序规则
+         */
         private String collate;
-        /**
-         * Primarykeys
-        */
-        private final List<String> primaryKeys = new ArrayList<>();
 
         MysqlTableCreateBuilder(MysqlMetaTable metaTable, String tableName) {
             this.metaTable = metaTable;
             this.tableName = tableName;
         }
 
-                /**
-                 * Column
-                */
-@Override
+        @Override
         public TableCreateBuilder column(String name, String type) {
-            columns.add(new ColumnDef().setName(name).setType(type));
+            columns.add(new ColumnDef().setName(name).setType(MysqlMetaData.checkDdlFragment("列类型", type)));
             return this;
         }
 
-                /**
-                 * not空
-                */
-@Override
+        @Override
         public TableCreateBuilder notNull() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setNullable(false);
@@ -310,24 +454,18 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * primary键
-                */
-@Override
+        @Override
         public TableCreateBuilder primaryKey() {
             if (!columns.isEmpty()) {
-                ColumnDef c = columns.get(columns.size() - 1);
-                c.setPrimaryKey(true);
-                c.setNullable(false);
-                primaryKeys.add(c.getName());
+                ColumnDef col = columns.get(columns.size() - 1);
+                col.setPrimaryKey(true);
+                col.setNullable(false);
+                primaryKeys.add(col.getName());
             }
             return this;
         }
 
-                /**
-                 * autoincrement
-                */
-@Override
+        @Override
         public TableCreateBuilder autoIncrement() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setAutoIncrement(true);
@@ -335,10 +473,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * Unsigned
-                */
-@Override
+        @Override
         public TableCreateBuilder unsigned() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setUnsigned(true);
@@ -346,21 +481,15 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * 默认值
-                */
-@Override
+        @Override
         public TableCreateBuilder defaultValue(String val) {
             if (!columns.isEmpty()) {
-                columns.get(columns.size() - 1).setDefaultValue(val);
+                columns.get(columns.size() - 1).setDefaultValue(MysqlMetaData.checkDdlFragment("默认值", val));
             }
             return this;
         }
 
-                /**
-                 * 评论
-                */
-@Override
+        @Override
         public TableCreateBuilder comment(String val) {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setComment(val);
@@ -368,10 +497,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * 之后
-                */
-@Override
+        @Override
         public TableCreateBuilder after(String columnName) {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setAfter(columnName);
@@ -379,10 +505,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * 第一个
-                */
-@Override
+        @Override
         public TableCreateBuilder first() {
             if (!columns.isEmpty()) {
                 columns.get(columns.size() - 1).setFirst(true);
@@ -390,10 +513,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * primary键
-                */
-@Override
+        @Override
         public TableCreateBuilder primaryKey(String... cols) {
             for (String col : cols) {
                 primaryKeys.add(col);
@@ -401,487 +521,424 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /**
-                 * 评论table
-                */
-@Override
+        @Override
         public TableCreateBuilder commentTable(String comment) {
             this.comment = comment;
             return this;
         }
 
-                /**
-                 * Engine
-                */
-@Override
+        @Override
         public TableCreateBuilder engine(String engine) {
-            this.engine = engine;
+            this.engineName = MysqlMetaData.checkDdlFragment("存储引擎", engine);
             return this;
         }
 
-                /**
-                 * 字符集
-                */
-@Override
+        @Override
         public TableCreateBuilder charset(String charset) {
-            this.charset = charset;
+            this.charset = MysqlMetaData.checkDdlFragment("字符集", charset);
             return this;
         }
 
-                /**
-                 * Collate
-                */
-@Override
+        @Override
         public TableCreateBuilder collate(String collate) {
-            this.collate = collate;
+            this.collate = MysqlMetaData.checkDdlFragment("排序规则", collate);
             return this;
         }
 
-                /**
-                 * 执行
-                */
-@Override
+        @Override
         public TableDef execute() {
-            Dialect dialect = metaTable.resolveDialect();
-            StringBuilder sb = new StringBuilder();
-            sb.append("CREATE TABLE ").append(metaTable.quote(tableName)).append(" (\n");
-            for (int i = 0; i < columns.size(); i++) {
-                ColumnDef col = columns.get(i);
-                sb.append("  ").append(metaTable.quote(col.getName())).append(" ").append(col.getType());
+            if (columns.isEmpty()) {
+                throw new IllegalStateException("建表至少需要一个列");
+            }
+            List<String> definitions = new ArrayList<>();
+            for (ColumnDef col : columns) {
+                StringBuilder line = new StringBuilder();
+                line.append(metaTable.quote(col.getName())).append(' ').append(col.getType());
+                if (col.isUnsigned()) {
+                    line.append(" UNSIGNED");
+                }
                 if (col.isAutoIncrement()) {
-                    sb.append(" ").append(dialect != null ? dialect.getAutoIncrementKeyword() : "AUTO_INCREMENT");
+                    line.append(" AUTO_INCREMENT");
                 }
                 if (!col.isNullable()) {
-                    sb.append(" NOT NULL");
+                    line.append(" NOT NULL");
                 }
                 if (col.getDefaultValue() != null && !col.getDefaultValue().isEmpty()) {
-                    sb.append(" DEFAULT ").append(col.getDefaultValue());
+                    line.append(" DEFAULT ").append(col.getDefaultValue());
                 }
                 if (col.getComment() != null && !col.getComment().isEmpty()) {
-                    sb.append(" COMMENT '").append(escapeSql(col.getComment())).append("'");
+                    line.append(" COMMENT '").append(MysqlMetaData.escapeSql(col.getComment())).append("'");
                 }
-                if (i < columns.size() - 1) {
-                    sb.append(",");
-                }
-                sb.append("\n");
+                definitions.add(line.toString());
             }
             if (!primaryKeys.isEmpty()) {
-                sb.append("  ,PRIMARY KEY (");
-                sb.append(String.join(", ", primaryKeys.stream().map(metaTable::quote).toList()));
-                sb.append(")\n");
+                List<String> quoted = new ArrayList<>();
+                for (String pk : primaryKeys) {
+                    quoted.add(metaTable.quote(pk));
+                }
+                definitions.add("PRIMARY KEY (" + String.join(", ", quoted) + ")");
             }
-            sb.append(")");
-            if (engine != null) {
-                sb.append(" ENGINE=").append(engine);
+            StringBuilder sql = new StringBuilder("CREATE TABLE ")
+                    .append(metaTable.quote(tableName)).append(" (\n  ")
+                    .append(String.join(",\n  ", definitions)).append("\n)");
+            if (engineName != null) {
+                sql.append(" ENGINE=").append(engineName);
             }
             if (charset != null) {
-                sb.append(" DEFAULT CHARSET=").append(charset);
+                sql.append(" DEFAULT CHARSET=").append(charset);
             }
             if (collate != null) {
-                sb.append(" COLLATE=").append(collate);
+                sql.append(" COLLATE=").append(collate);
             }
             if (comment != null) {
-                sb.append(" COMMENT='").append(escapeSql(comment)).append("'");
+                sql.append(" COMMENT='").append(MysqlMetaData.escapeSql(comment)).append("'");
             }
-            sb.append(";");
-            String sql = sb.toString();
-            metaTable.executeUpdate(sql);
-            // 不依赖未实现的 get()，直接构造建表结果
-            TableDef def = new TableDef();
-            def.setName(tableName);
-            def.setColumns(columns);
-            return def;
+            metaTable.executeUpdate(sql.toString());
+            // 以 information_schema 读回的真实结构作为返回值
+            return metaTable.reload(tableName);
         }
     }
 
     // ==================== MySQL 改表构建器 ====================
+
     /**
-     * mysqltablealter构建器类。
+     * MySQL 改表链式构建器。
+     * <p>
+     * 变更子句按下标登记，列变更通过下标回写，避免"永远改最后一条"导致的语句错位。
+     * </p>
      *
      * @author CH
      * @since 4.0.0
      */
-
     private static class MysqlTableAlterBuilder implements TableAlterBuilder {
 
         /**
-         * Meta表
-        */
+         * 所属表元数据入口
+         */
         private final MysqlMetaTable metaTable;
         /**
-         * SQL
-        */
-        private final List<String> sqls = new ArrayList<>();
+         * 变更子句
+         */
+        private final List<String> clauses = new ArrayList<>();
 
         MysqlTableAlterBuilder(MysqlMetaTable metaTable) {
             this.metaTable = metaTable;
         }
 
-        void addSql(String sql) {
-            sqls.add(sql);
+        int addSql(String sql) {
+            clauses.add(sql);
+            return clauses.size() - 1;
         }
 
-                /**
-                 * 添加Column
-                */
-@Override
+        void replaceSql(int index, String sql) {
+            clauses.set(index, sql);
+        }
+
+        MysqlMetaTable metaTable() {
+            return metaTable;
+        }
+
+        @Override
         public AlterColumnBuilder addColumn(String name, String type) {
-            return new MysqlAlterColumnBuilder(this, "ADD COLUMN `" + name + "` " + type, name);
+            return new MysqlAlterColumnBuilder(this, "ADD COLUMN", name, MysqlMetaData.checkDdlFragment("列类型", type));
         }
 
-                /**
-                 * 掉落column
-                */
-@Override
+        @Override
         public TableAlterBuilder dropColumn(String columnName) {
-            sqls.add("DROP COLUMN `" + columnName + "`");
+            addSql("DROP COLUMN " + metaTable.quote(columnName));
             return this;
         }
 
-                /**
-                 * modifycolumn
-                */
-@Override
+        @Override
         public AlterColumnBuilder modifyColumn(String columnName, String newType) {
-            return new MysqlAlterColumnBuilder(this, "MODIFY COLUMN `" + columnName + "` " + newType, columnName);
+            return new MysqlAlterColumnBuilder(this, "MODIFY COLUMN", columnName,
+                    MysqlMetaData.checkDdlFragment("列类型", newType));
         }
 
-                /**
-                 * 添加primary键
-                */
-@Override
+        @Override
         public TableAlterBuilder addPrimaryKey(String... columns) {
-            String pkCols = String.join(", ", java.util.Arrays.stream(columns).map(c -> "`" + c + "`").toList());
-            sqls.add("ADD PRIMARY KEY (" + pkCols + ")");
+            List<String> quoted = new ArrayList<>();
+            for (String column : columns) {
+                quoted.add(metaTable.quote(column));
+            }
+            addSql("ADD PRIMARY KEY (" + String.join(", ", quoted) + ")");
             return this;
         }
 
-                /**
-                 * 掉落primary键
-                */
-@Override
+        @Override
         public TableAlterBuilder dropPrimaryKey() {
-            sqls.add("DROP PRIMARY KEY");
+            addSql("DROP PRIMARY KEY");
             return this;
         }
 
-                /**
-                 * 添加索引
-                */
-@Override
+        @Override
         public AlterIndexBuilder addIndex(String indexName) {
             return new MysqlAlterIndexBuilder(this, indexName);
         }
 
-                /**
-                 * 掉落索引
-                */
-@Override
+        @Override
         public TableAlterBuilder dropIndex(String indexName) {
-            sqls.add("DROP INDEX `" + indexName + "`");
+            addSql("DROP INDEX " + metaTable.quote(indexName));
             return this;
         }
 
-                /**
-                 * 添加国外键
-                */
-@Override
+        @Override
         public AlterForeignKeyBuilder addForeignKey(String fkName) {
             return new MysqlAlterForeignKeyBuilder(this, fkName);
         }
 
-                /**
-                 * 掉落国外键
-                */
-@Override
+        @Override
         public TableAlterBuilder dropForeignKey(String fkName) {
-            sqls.add("DROP FOREIGN KEY `" + fkName + "`");
+            addSql("DROP FOREIGN KEY " + metaTable.quote(fkName));
             return this;
         }
 
-                /**
-                 * 重命名转为
-                */
-@Override
+        @Override
         public TableAlterBuilder renameTo(String newName) {
-            sqls.add("RENAME TO `" + newName + "`");
+            addSql("RENAME TO " + metaTable.quote(newName));
             return this;
         }
 
-                /**
-                 * 执行
-                */
-@Override
+        @Override
         public TableDef execute() {
-            if (sqls.isEmpty()) {
+            if (clauses.isEmpty()) {
                 throw new IllegalStateException("没有需要执行的变更");
             }
-            String tableName = metaTable.tableName != null ? metaTable.tableName : "";
-            if (tableName.isEmpty()) {
+            if (metaTable.tableName == null) {
                 throw new IllegalStateException("未指定表名");
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append("ALTER TABLE ").append(metaTable.quote(tableName)).append("\n");
-            for (int i = 0; i < sqls.size(); i++) {
-                sb.append("  ").append(sqls.get(i));
-                if (i < sqls.size() - 1) {
-                    sb.append(",");
-                }
-                sb.append("\n");
-            }
-            metaTable.executeUpdate(sb.toString());
+            String sql = "ALTER TABLE " + metaTable.quote(metaTable.tableName) + "\n  "
+                    + String.join(",\n  ", clauses);
+            metaTable.executeUpdate(sql);
             return metaTable.get();
         }
     }
 
+    /**
+     * MySQL 列变更构建器。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     private static class MysqlAlterColumnBuilder implements AlterColumnBuilder {
 
         /**
-         * 父级
-        */
+         * 父级改表构建器
+         */
         private final MysqlTableAlterBuilder parent;
         /**
-         * 列名称
-        */
+         * 子句下标
+         */
+        private final int clauseIndex;
+        /**
+         * 动作关键字（ADD COLUMN / MODIFY COLUMN）
+         */
+        private final String keyword;
+        /**
+         * 列名
+         */
         private final String columnName;
         /**
-         * NOT是否为空
-        */
+         * 列类型
+         */
+        private final String columnType;
+        /**
+         * 非空标记
+         */
         private boolean notNull;
         /**
          * 默认值
-        */
+         */
         private String defaultValue;
         /**
-         * 评论
-        */
+         * 注释
+         */
         private String comment;
         /**
-         * 之后
-        */
+         * 位置：某列之后
+         */
         private String after;
         /**
-         * 首个
-        */
+         * 位置：首列
+         */
         private boolean first;
 
-        MysqlAlterColumnBuilder(MysqlTableAlterBuilder parent, String clause, String columnName) {
+        MysqlAlterColumnBuilder(MysqlTableAlterBuilder parent, String keyword, String columnName, String columnType) {
             this.parent = parent;
+            this.keyword = keyword;
             this.columnName = columnName;
-            StringBuilder sql = new StringBuilder();
-            sql.append(clause);
-            if (clause.contains("ADD COLUMN")) {
-                sql.append(" NOT NULL");
-            }
-            parent.addSql(sql.toString());
+            this.columnType = columnType;
+            this.clauseIndex = parent.addSql(rebuild());
         }
 
-                /**
-                 * not空
-                */
-@Override
+        @Override
         public AlterColumnBuilder notNull() {
             this.notNull = true;
-            rebuildColumnClause();
+            refresh();
             return this;
         }
 
-                /**
-                 * 默认值
-                */
-@Override
+        @Override
         public AlterColumnBuilder defaultValue(String val) {
-            this.defaultValue = val;
-            rebuildColumnClause();
+            this.defaultValue = MysqlMetaData.checkDdlFragment("默认值", val);
+            refresh();
             return this;
         }
 
-                /**
-                 * 评论
-                */
-@Override
+        @Override
         public AlterColumnBuilder comment(String comment) {
             this.comment = comment;
-            rebuildColumnClause();
+            refresh();
             return this;
         }
 
-                /**
-                 * 之后
-                */
-@Override
+        @Override
         public AlterColumnBuilder after(String columnName) {
             this.after = columnName;
-            rebuildColumnClause();
+            refresh();
             return this;
         }
 
-                /**
-                 * 第一个
-                */
-@Override
+        @Override
         public AlterColumnBuilder first() {
             this.first = true;
-            rebuildColumnClause();
+            refresh();
             return this;
         }
 
-                /**
-                 * 执行
-                */
-@Override
+        @Override
         public TableAlterBuilder execute() {
+            refresh();
             return parent;
         }
 
-        /**
-         * rebuildcolumnclause
-        */
-        private void rebuildColumnClause() {
-            String base = parent.sqls.getLast();
-            StringBuilder sb = new StringBuilder();
-            sb.append(base.substring(0, base.indexOf("`") + 1 + columnName.length() + 1));
-            sb.append(columnName).append("` ");
+        private void refresh() {
+            parent.replaceSql(clauseIndex, rebuild());
+        }
+
+        private String rebuild() {
+            MysqlMetaTable target = parent.metaTable();
+            StringBuilder sb = new StringBuilder(keyword)
+                    .append(' ').append(target.quote(columnName)).append(' ').append(columnType);
             if (notNull) {
-                sb.append("NOT NULL ");
+                sb.append(" NOT NULL");
             }
             if (defaultValue != null && !defaultValue.isEmpty()) {
-                sb.append("DEFAULT ").append(defaultValue).append(" ");
+                sb.append(" DEFAULT ").append(defaultValue);
             }
             if (first) {
-                sb.append("FIRST ");
+                sb.append(" FIRST");
             } else if (after != null && !after.isEmpty()) {
-                sb.append("AFTER `").append(after).append("` ");
+                sb.append(" AFTER ").append(target.quote(after));
             }
             if (comment != null && !comment.isEmpty()) {
-                sb.append("COMMENT '").append(escapeSql(comment)).append("' ");
+                sb.append(" COMMENT '").append(MysqlMetaData.escapeSql(comment)).append("'");
             }
-            parent.sqls.set(parent.sqls.size() - 1, sb.toString().trim());
+            return sb.toString();
         }
     }
 
+    /**
+     * MySQL 索引变更构建器。
+     * <p>
+     * 核心契约 {@link AlterIndexBuilder} 只有列、唯一性、类型三个入口，
+     * 因此改表路径不承载索引注释与可见性：需要这两项请走
+     * {@link MysqlMetaIndex#create(String)} 的 {@code comment(String)} / {@code visible(boolean)}。
+     * </p>
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     private static class MysqlAlterIndexBuilder implements AlterIndexBuilder {
 
         /**
-         * 父级
-        */
+         * 父级改表构建器
+         */
         private final MysqlTableAlterBuilder parent;
         /**
-         * 索引名称
-        */
+         * 索引名
+         */
         private final String indexName;
         /**
-         * Cols
-        */
+         * 索引列
+         */
         private final List<String> cols = new ArrayList<>();
         /**
-         * Unique
-        */
+         * 唯一
+         */
         private boolean unique;
         /**
-         * 类型
-        */
+         * 索引算法
+         */
         private String type;
-        /**
-         * 评论
-        */
-        private String comment;
 
         MysqlAlterIndexBuilder(MysqlTableAlterBuilder parent, String indexName) {
             this.parent = parent;
             this.indexName = indexName;
         }
 
-                /**
-                 * Column
-                */
-@Override
+        @Override
         public AlterIndexBuilder column(String columnName) {
             cols.add(columnName);
             return this;
         }
 
-                /**
-                 * Unique
-                */
-@Override
+        @Override
         public AlterIndexBuilder unique() {
             this.unique = true;
             return this;
         }
 
-                /**
-                 * 类型
-                */
-@Override
+        @Override
         public AlterIndexBuilder type(String type) {
-            this.type = type;
+            this.type = MysqlMetaData.checkDdlFragment("索引类型", type);
             return this;
         }
 
-        /**
-         * 评论
-         *
-         * @param comment 评论
-         * @return 评论的结果
-         */
-        public AlterIndexBuilder comment(String comment) {
-            this.comment = comment;
-            return this;
-        }
-
-                /**
-                 * 执行
-                */
-@Override
+        @Override
         public TableAlterBuilder execute() {
-            StringBuilder sb = new StringBuilder();
-            if (unique) {
-                sb.append("ADD UNIQUE INDEX `").append(indexName).append("` (");
-            } else if (type != null && !type.isEmpty()) {
-                sb.append("ADD INDEX `").append(indexName).append("` USING ").append(type).append(" (");
-            } else {
-                sb.append("ADD INDEX `").append(indexName).append("` (");
-            }
-            sb.append(String.join(", ", cols.stream().map(c -> "`" + c + "`").toList()));
-            sb.append(")");
-            if (comment != null && !comment.isEmpty()) {
-                sb.append(" COMMENT '").append(escapeSql(comment)).append("'");
-            }
-            parent.addSql(sb.toString());
+            parent.addSql(MysqlMetaData.addIndexClause(parent.metaTable().quote(parent.metaTable().tableName),
+                    indexName, cols, unique, type, null, true));
             return parent;
         }
     }
 
+    /**
+     * MySQL 外键变更构建器。
+     * <p>
+     * 核心契约 {@link AlterForeignKeyBuilder} 只提供 {@code references(引用表, 引用列)}，
+     * 没有本表列入口，故按"本表列与引用列同名"这一常规约定推导；
+     * 两侧列名不同时请改用 {@link MysqlMetaForeignKey#add(String)}，它带 {@code column(String)}。
+     * </p>
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     private static class MysqlAlterForeignKeyBuilder implements AlterForeignKeyBuilder {
 
         /**
-         * 父级
-        */
+         * 父级改表构建器
+         */
         private final MysqlTableAlterBuilder parent;
         /**
-         * FK名称
-        */
+         * 外键名
+         */
         private final String fkName;
         /**
-         * 列名称
-        */
-        private String columnName;
-        /**
          * 引用表
-        */
+         */
         private String refTable;
         /**
          * 引用列
-        */
+         */
         private String refColumn;
         /**
-         * ondelete
-        */
+         * 删除规则
+         */
         private String onDelete;
         /**
-         * onupdate
-        */
+         * 更新规则
+         */
         private String onUpdate;
 
         MysqlAlterForeignKeyBuilder(MysqlTableAlterBuilder parent, String fkName) {
@@ -889,74 +946,31 @@ public class MysqlMetaTable extends AbstractMetaTable {
             this.fkName = fkName;
         }
 
-        /**
-         * Column
-         *
-         * @param columnName column名称
-         * @return column的结果
-         */
-        public AlterForeignKeyBuilder column(String columnName) {
-            this.columnName = columnName;
-            return this;
-        }
-
-                /**
-                 * 引用
-                */
-@Override
+        @Override
         public AlterForeignKeyBuilder references(String table, String column) {
             this.refTable = table;
             this.refColumn = column;
             return this;
         }
 
-                /**
-                 * On删除
-                */
-@Override
+        @Override
         public AlterForeignKeyBuilder onDelete(String action) {
             this.onDelete = action;
             return this;
         }
 
-                /**
-                 * On更新
-                */
-@Override
+        @Override
         public AlterForeignKeyBuilder onUpdate(String action) {
             this.onUpdate = action;
             return this;
         }
 
-                /**
-                 * 执行
-                */
-@Override
+        @Override
         public TableAlterBuilder execute() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("ADD CONSTRAINT `").append(fkName).append("` FOREIGN KEY (`").append(columnName).append("`) ");
-            sb.append("REFERENCES `").append(refTable).append("` (`").append(refColumn).append("`)");
-            if (onDelete != null && !onDelete.isEmpty()) {
-                sb.append(" ON DELETE ").append(onDelete);
-            }
-            if (onUpdate != null && !onUpdate.isEmpty()) {
-                sb.append(" ON UPDATE ").append(onUpdate);
-            }
-            parent.addSql(sb.toString());
+            parent.addSql(MysqlMetaData.addForeignKeyClause(fkName, refColumn, refTable, refColumn,
+                    onDelete == null ? null : MysqlMetaData.referentialAction("删除规则", onDelete),
+                    onUpdate == null ? null : MysqlMetaData.referentialAction("更新规则", onUpdate)));
             return parent;
         }
-    }
-
-    /**
-     * escapesql
-     *
-     * @param value 值
-     * @return escapeSql的结果
-     */
-    private static String escapeSql(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("'", "''");
     }
 }

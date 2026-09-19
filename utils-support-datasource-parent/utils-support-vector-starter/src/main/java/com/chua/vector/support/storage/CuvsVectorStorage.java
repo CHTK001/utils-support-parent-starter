@@ -131,21 +131,21 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
         @Override
         public List<Vector> search(float[] query, int topK) {
-            if (vectors.isEmpty()) {
+            if (vectors.isEmpty() || topK <= 0) {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
-            int fetchK = topK * properties.bruteForceFetchFactor();
-            List<Vector> all = new ArrayList<>();
+            List<Vector> all = new ArrayList<>(vectors.size());
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
-                float dist = algo.compare(query, vectors.get(entry.getValue()));
+                float sim = algo.compare(query, vectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), vectors.get(entry.getValue()),
-                        Map.of("score", (double) dist)));
+                        Map.of("score", (double) sim)));
             }
+            // compare() 语义为相似度（越大越相似），必须降序取最优 topK
             all.sort((a, b) -> Double.compare(
-                    (Double) a.metadata().get("score"),
-                    (Double) b.metadata().get("score")));
-            return all.subList(0, Math.min(fetchK, all.size()));
+                    (Double) b.metadata().get("score"),
+                    (Double) a.metadata().get("score")));
+            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
         }
 
         @Override
@@ -167,7 +167,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         public boolean remove(String id) {
             Integer ord = idToOrd.remove(id);
             if (ord != null) {
-                vectors.remove((int) ord.longValue());
+                vectors.remove(ord.intValue());
+                // 其后序数整体前移，必须同步重映射，否则 id 指向错误向量
+                idToOrd.replaceAll((k, v) -> v > ord ? v - 1 : v);
             }
             return ord != null;
         }
@@ -231,6 +233,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
                             String id = findIdByOrd(ord, idToOrd);
+                            if (id == null) {
+                                continue;
+                            }
                             candidates.add(new Vector(id, rawVectors.get(ord),
                                     Map.of("score", (double) e.getValue(), "origOrd", ord)));
                         }
@@ -248,32 +253,43 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
          *
          * @param query 查询向量
          * @param topK  返回数量
-         * @return 排序后的向量列表
+         * @return 按相似度降序排列的向量列表
          */
         private List<Vector> fallbackSearch(float[] query, int topK) {
-            if (rawVectors.isEmpty()) {
+            if (rawVectors.isEmpty() || topK <= 0) {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
             List<Vector> all = new ArrayList<>();
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
-                float dist = algo.compare(query, rawVectors.get(entry.getValue()));
+                float sim = algo.compare(query, rawVectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), rawVectors.get(entry.getValue()),
-                        Map.of("score", (double) dist)));
+                        Map.of("score", (double) sim)));
             }
+            // compare() 语义为相似度（越大越相似），必须降序取最优 topK
             all.sort((a, b) -> Double.compare(
-                    (Double) a.metadata().get("score"),
-                    (Double) b.metadata().get("score")));
-            return all.subList(0, Math.min(topK, all.size()));
+                    (Double) b.metadata().get("score"),
+                    (Double) a.metadata().get("score")));
+            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
         }
 
         /**
          * 确保 GPU 索引已构建（线程安全，单例缓存）。
          */
         private synchronized void ensureIndexBuilt() {
-            if (indexBuilt || index != null || rawVectors.isEmpty() || building) {
+            if (indexBuilt || rawVectors.isEmpty() || building) {
                 return;
             }
+            // 数据变更后旧索引已失效，必须先关闭旧索引并释放旧 resources，否则会泄漏
+            if (index != null) {
+                try {
+                    invoke(index, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close CagraIndex", ignored);
+                }
+                index = null;
+            }
+            releaseResources();
             building = true;
             try {
                 resources = invokeStatic("com.nvidia.cuvs.CuVSResources", "create", Object.class);
@@ -337,16 +353,6 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             return findEnumByName(constants, target);
         }
 
-        @SuppressWarnings("unchecked")
-        private static Object findEnumByName(Object[] constants, String name) {
-            for (Object c : constants) {
-                if (name.equals(invoke(c, "name", String.class))) {
-                    return c;
-                }
-            }
-            throw new IllegalArgumentException("Unknown cuVS distance type: " + name);
-        }
-
         @Override
         public int size() {
             return rawVectors.size();
@@ -377,7 +383,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         public boolean remove(String id) {
             Integer ord = idToOrd.remove(id);
             if (ord != null) {
-                rawVectors.remove((int) ord.longValue());
+                rawVectors.remove(ord.intValue());
+                // 其后序数整体前移，必须同步重映射，否则 id 指向错误向量
+                idToOrd.replaceAll((k, v) -> v > ord ? v - 1 : v);
                 indexBuilt = false;
             }
             return ord != null;
@@ -397,13 +405,10 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
     // ==================== HNSW 策略（GPU 加速，反射调用） ====================
     /**
-     * HnswStrategy类。
+     * HNSW 索引策略，通过反射调用 cuvs GPU 实现，索引不可用时降级 CPU 暴力搜索。
      *
      * @author CH
      * @since 4.0.0
-     * @param constants 常量
-     * @param name 名称
-     * @return findenumby名称的结果
      */
 
     private class HnswStrategy implements IndexStrategy {
@@ -412,12 +417,6 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         private final List<float[]> rawVectors = new ArrayList<>(); // raw向量
         private final Map<String, Integer> idToOrd = new java.util.HashMap<>(); // 标识转为ord
         private volatile boolean indexBuilt = false; // 索引built
-        /**
-         * 添加。
-         * @param id 标识
-         * @param vector 向量
-         * @return 添加的结果
-         */
         private volatile boolean building = false;
 
         @Override
@@ -430,16 +429,13 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             idToOrd.put(id, ord);
             indexBuilt = false;
             return true;
-        /**
-         * 搜索。
-         * @param query 查询
-         * @param topK topk
-         * @return 搜索的结果
-         */
         }
 
         @Override
         public List<Vector> search(float[] query, int topK) {
+            if (topK <= 0) {
+                return List.of();
+            }
             ensureIndexBuilt();
             if (index == null) {
                 return fallbackSearch(query, topK);
@@ -458,6 +454,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
                             String id = findIdByOrd(ord, idToOrd);
+                            if (id == null) {
+                                continue;
+                            }
                             candidates.add(new Vector(id, rawVectors.get(ord),
                                     Map.of("score", (double) e.getValue(), "origOrd", ord)));
                         }
@@ -467,39 +466,41 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             } catch (Throwable t) {
                 log.warn("[vector-starter] HNSW search failed, falling back to CPU: {}", t.getMessage());
                 return fallbackSearch(query, topK);
-            /**
-             * 降级搜索。
-             * @param query 查询
-             * @param topK topk
-             * @return 降级搜索的结果
-             */
             }
         }
 
         private List<Vector> fallbackSearch(float[] query, int topK) {
-            if (rawVectors.isEmpty()) {
+            if (rawVectors.isEmpty() || topK <= 0) {
                 return List.of();
             }
             var algo = getAlgorithm() != null ? getAlgorithm() : VectorCompareAlgorithm.euclidean();
             List<Vector> all = new ArrayList<>();
             for (Map.Entry<String, Integer> entry : idToOrd.entrySet()) {
-                float dist = algo.compare(query, rawVectors.get(entry.getValue()));
+                float sim = algo.compare(query, rawVectors.get(entry.getValue()));
                 all.add(new Vector(entry.getKey(), rawVectors.get(entry.getValue()),
-                        Map.of("score", (double) dist)));
+                        Map.of("score", (double) sim)));
             }
+            // compare() 语义为相似度（越大越相似），必须降序取最优 topK
             all.sort((a, b) -> Double.compare(
-                    (Double) a.metadata().get("score"),
-                    (Double) b.metadata().get("score")));
-            /**
-             * ensure索引built。
-             */
-            return all.subList(0, Math.min(topK, all.size()));
+                    (Double) b.metadata().get("score"),
+                    (Double) a.metadata().get("score")));
+            return new ArrayList<>(all.subList(0, Math.min(topK, all.size())));
         }
 
         private synchronized void ensureIndexBuilt() {
-            if (indexBuilt || index != null || rawVectors.isEmpty() || building) {
+            if (indexBuilt || rawVectors.isEmpty() || building) {
                 return;
             }
+            // 数据变更后旧索引已失效，必须先关闭旧索引并释放旧 resources，否则会泄漏
+            if (index != null) {
+                try {
+                    invoke(index, "close", Object.class);
+                } catch (Throwable ignored) {
+                    log.debug("[vector-starter] Failed to close HnswIndex", ignored);
+                }
+                index = null;
+            }
+            releaseResources();
             building = true;
             try {
                 resources = invokeStatic("com.nvidia.cuvs.CuVSResources", "create", Object.class);
@@ -522,12 +523,6 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 releaseResources();
             } finally {
                 building = false;
-            /**
-             * releaseresources。
-             * @param constants 常量
-             * @param name 名称
-             * @return findenumby名称的结果
-             */
             }
         }
 
@@ -556,16 +551,6 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 default -> "L2Expanded";
             };
             return findEnumByName(constants, target);
-        }
-
-        @SuppressWarnings("unchecked")
-        private static Object findEnumByName(Object[] constants, String name) {
-            for (Object c : constants) {
-                if (name.equals(invoke(c, "name", String.class))) {
-                    return c;
-                }
-            }
-            throw new IllegalArgumentException("Unknown cuVS distance type: " + name);
         }
 
         @Override
@@ -598,7 +583,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         public boolean remove(String id) {
             Integer ord = idToOrd.remove(id);
             if (ord != null) {
-                rawVectors.remove((int) ord.longValue());
+                rawVectors.remove(ord.intValue());
+                // 其后序数整体前移，必须同步重映射，否则 id 指向错误向量
+                idToOrd.replaceAll((k, v) -> v > ord ? v - 1 : v);
                 indexBuilt = false;
             }
             return ord != null;
@@ -617,7 +604,23 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 两阶段重排序：先用 cuvs 原生算法粗筛 topk×5，再用自定义算法精排取 topk。
+     * 按名称查找 cuVS 距离类型枚举值。
+     *
+     * @param constants 枚举常量数组
+     * @param name 目标枚举名
+     * @return 枚举值，找不到抛 IllegalArgumentException
+     */
+    private static Object findEnumByName(Object[] constants, String name) {
+        for (Object c : constants) {
+            if (name.equals(invoke(c, "name", String.class))) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException("Unknown cuVS distance type: " + name);
+    }
+
+    /**
+     * 两阶段重排序：先用 cuvs 原生算法粗筛候选，再用自定义算法按相似度降序精排取 topK。
      *
      * @param candidates 候选向量
      * @param query 查询向量
@@ -625,28 +628,32 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
      * @return 重排序结果
      */
     private List<Vector> reRank(List<Vector> candidates, float[] query, int topK) {
+        if (topK <= 0) {
+            return List.of();
+        }
         var algo = getAlgorithm();
-        if (algo == null || candidates.size() <= topK) {
+        if (algo == null) {
             return candidates.subList(0, Math.min(topK, candidates.size()));
         }
+        // compare() 语义为相似度（越大越相似），必须降序精排
         candidates.sort((a, b) -> Double.compare(
-                algo.compare(query, a.data()),
-                algo.compare(query, b.data())));
-        return candidates.subList(0, topK);
+                (double) algo.compare(query, b.data()),
+                (double) algo.compare(query, a.data())));
+        return candidates.subList(0, Math.min(topK, candidates.size()));
     }
 
     /**
-     * 查找IDByOrd。
+     * 反查序数对应的标识。
      *
-     * @param ord 方法入参 ord
-     * @param idToOrd ID转为Ord，不允许为 null
-     * @return 结果字符串
+     * @param ord 序数
+     * @param idToOrd 标识到序数的映射
+     * @return 对应标识，无法解析时返回 空（调用方必须跳过该候选）
      */
     private static String findIdByOrd(int ord, Map<String, Integer> idToOrd) {
         return idToOrd.entrySet().stream()
                 .filter(e -> e.getValue() == ord)
                 .findFirst()
                 .map(Map.Entry::getKey)
-                .orElse(String.valueOf(ord));
+                .orElse(null);
     }
 }
