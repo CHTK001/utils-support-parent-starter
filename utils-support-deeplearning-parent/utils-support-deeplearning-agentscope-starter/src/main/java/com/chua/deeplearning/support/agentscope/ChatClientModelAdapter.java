@@ -225,7 +225,12 @@ public class ChatClientModelAdapter implements Model {
                 String toolName = fnCall.name();
                 String argumentsJson = fnCall.arguments();
                 Map<String, Object> input = parseJson(argumentsJson);
-                blocks.add(new ToolUseBlock(callId, toolName, input));
+                blocks.add(ToolUseBlock.builder()
+                        .id(callId)
+                        .name(toolName)
+                        .input(input)
+                        .content(argumentsJson)
+                        .build());
             }
             return ChatResponse.builder()
                     .id(completion.id())
