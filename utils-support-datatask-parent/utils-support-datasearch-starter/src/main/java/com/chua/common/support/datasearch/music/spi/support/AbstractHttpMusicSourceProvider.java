@@ -30,25 +30,43 @@ import java.util.function.Consumer;
 @Slf4j
 public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProvider {
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     protected static final ObjectMapper MAPPER = new ObjectMapper();
-    /** Desktop_ua */
+    /**
+     * Desktop_ua
+    */
     protected static final String DESKTOP_UA =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-    /** Mobile_ua */
+    /**
+     * Mobile_ua
+    */
     protected static final String MOBILE_UA =
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
-    /** 默认_连接_超时_millis */
+    /**
+     * 默认_连接_超时_millis
+    */
     private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10_000;
-    /** 默认_读取_超时_millis */
+    /**
+     * 默认_读取_超时_millis
+    */
     private static final int DEFAULT_READ_TIMEOUT_MILLIS = 20_000;
-    /** 连接_超时_财产 */
+    /**
+     * 连接_超时_财产
+    */
     private static final String CONNECT_TIMEOUT_PROPERTY = "music.http.connect-timeout-millis";
-    /** 连接_超时_env */
+    /**
+     * 连接_超时_env
+    */
     private static final String CONNECT_TIMEOUT_ENV = "MUSIC_HTTP_CONNECT_TIMEOUT_MILLIS";
-    /** 读取_超时_财产 */
+    /**
+     * 读取_超时_财产
+    */
     private static final String READ_TIMEOUT_PROPERTY = "music.http.read-timeout-millis";
-    /** 读取_超时_env */
+    /**
+     * 读取_超时_env
+    */
     private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
     /**

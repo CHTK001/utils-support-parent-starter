@@ -32,7 +32,9 @@ public class DoubaoUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_DOU_BAO = "doubao";
 
-    /** 数据库路径（支持 DOUBAO_USAGE_DB 环境变量覆盖，便于测试注入）。 */
+    /**
+     * 数据库路径（支持 DOUBAO_USAGE_DB 环境变量覆盖，便于测试注入）。
+    */
     private static final Path DB_PATH = resolveDbPath();
 
     /**

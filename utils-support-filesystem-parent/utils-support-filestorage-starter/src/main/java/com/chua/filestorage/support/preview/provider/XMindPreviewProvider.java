@@ -544,9 +544,13 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
      * @since 4.0.0
      */
     private static class TopicNode {
-        /** 主题标题（不可为 空） */
+        /**
+         * 主题标题（不可为 空）
+        */
         String title;
-        /** 子主题列表（可能为空） */
+        /**
+         * 子主题列表（可能为空）
+        */
         List<TopicNode> children = new ArrayList<>();
 
         /**

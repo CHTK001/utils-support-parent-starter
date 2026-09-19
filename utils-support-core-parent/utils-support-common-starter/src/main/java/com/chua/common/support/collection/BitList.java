@@ -233,19 +233,25 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     // ==================== List 接口实现 ====================
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return bits.length();
     }
 
     @Override
-    /** 是否Empty */
+    /**
+     * 是否Empty
+    */
     public boolean isEmpty() {
         return bits.isEmpty();
     }
 
     @Override
-    /** Contains */
+    /**
+     * Contains
+    */
     public boolean contains(Object o) {
         if (!(o instanceof Boolean)) {
             return false;
@@ -258,14 +264,18 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public Boolean get(int index) {
         checkElementIndex(index);
         return bits.get(index);
     }
 
     @Override
-    /** 设置 */
+    /**
+     * 设置
+    */
     public Boolean set(int index, Boolean element) {
         checkElementIndex(index);
         boolean old = bits.get(index);
@@ -274,7 +284,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public void add(int index, Boolean element) {
         if (index != size()) {
             throw new UnsupportedOperationException("位列表不支持在中间插入，仅支持追加");
@@ -285,7 +297,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public Boolean remove(int index) {
         checkElementIndex(index);
         boolean old = bits.get(index);
@@ -294,13 +308,17 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         bits.clear();
     }
 
     @Override
-    /** IndexOf */
+    /**
+     * IndexOf
+    */
     public int indexOf(Object o) {
         if (!(o instanceof Boolean)) {
             return -1;
@@ -317,7 +335,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** LastIndexOf */
+    /**
+     * LastIndexOf
+    */
     public int lastIndexOf(Object o) {
         if (!(o instanceof Boolean)) {
             return -1;
@@ -342,20 +362,28 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** Iterator */
+    /**
+     * Iterator
+    */
     public Iterator<Boolean> iterator() {
         return new Iterator<Boolean>() {
-            /** 索引位置 */
+            /**
+             * 索引位置
+            */
             private int index = 0;
 
             @Override
-            /** 是否拥有Next */
+            /**
+             * 是否拥有Next
+            */
             public boolean hasNext() {
                 return index < size();
             }
 
             @Override
-            /** Next */
+            /**
+             * Next
+            */
             public Boolean next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -366,13 +394,17 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** SubList */
+    /**
+     * SubList
+    */
     public List<Boolean> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("位列表不支持子列表视图");
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(Collection<? extends Boolean> c) {
         int oldSize = size();
         int index = oldSize;
@@ -399,7 +431,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -423,7 +457,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         int result = 1;
         for (int i = 0; i < size(); i++) {
@@ -433,7 +469,9 @@ public class BitList extends AbstractList<Boolean> implements RandomAccess {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');

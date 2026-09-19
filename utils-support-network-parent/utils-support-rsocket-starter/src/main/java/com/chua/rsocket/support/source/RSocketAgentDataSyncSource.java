@@ -68,25 +68,33 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.INPUT;
     }
 
     @Override
-    /** 源id */
+    /**
+     * 源id
+    */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** Agentid */
+    /**
+     * Agentid
+    */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -115,13 +123,17 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 当前偏移量 */
+    /**
+     * 当前偏移量
+    */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -146,7 +158,9 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 }

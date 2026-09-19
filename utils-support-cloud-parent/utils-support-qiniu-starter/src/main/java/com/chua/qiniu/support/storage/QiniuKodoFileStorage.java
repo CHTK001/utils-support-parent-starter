@@ -32,11 +32,17 @@ import java.util.List;
 @Spi({"kodo", "qiniu"})
 public class QiniuKodoFileStorage extends AbstractFileStorage {
 
-    /** 鉴权客户端 */
+    /**
+     * 鉴权客户端
+    */
     private final Auth auth;
-    /** 上传管理器 */
+    /**
+     * 上传管理器
+    */
     private final UploadManager uploadManager;
-    /** Bucket 管理器 */
+    /**
+     * Bucket 管理器
+    */
     private final BucketManager bucketManager;
 
     /**
@@ -52,7 +58,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 放入对象 */
+    /**
+     * 放入对象
+    */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -79,7 +87,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -104,7 +114,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -112,7 +124,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除对象 */
+    /**
+     * 删除对象
+    */
     public DeleteObjectResult deleteObject(String key) {
         try {
             bucketManager.delete(bucket, key);
@@ -128,7 +142,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** exist对象 */
+    /**
+     * exist对象
+    */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             com.qiniu.storage.model.FileInfo info = bucketManager.stat(bucket, request.getKey());
@@ -152,7 +168,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 列表对象 */
+    /**
+     * 列表对象
+    */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
  // 使用 记号笔 作为分页起始（七牛用空字符串表示从头开始）
@@ -193,7 +211,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 七牛云客户端无需显式关闭
     }

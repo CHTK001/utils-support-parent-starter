@@ -35,37 +35,49 @@ public class MemcachedHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "memcached-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "memcached.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.MEMCACHED;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.MEMCACHED;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(MEMCACHED_CLIENT, CLIENT_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object address = findField(instance, "mux");
         String url = address != null ? String.valueOf(findField(address, "locator")) : null;

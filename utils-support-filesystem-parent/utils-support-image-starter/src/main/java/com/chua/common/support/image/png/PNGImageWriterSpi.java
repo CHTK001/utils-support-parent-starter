@@ -22,32 +22,46 @@ import javax.annotation.Nullable;
  */
 public class PNGImageWriterSpi extends ImageWriterSpi {
     // 定义厂商名称
-    /** 厂商名称 */
+    /**
+     * 厂商名称
+    */
     private static final String vendorName = "Karstian Lee";
 
     // 定义版本号
-    /** 版本 */
+    /**
+     * 版本
+    */
     private static final String version = "1.0";
 
     // 支持的图像格式名称，包括 PNG 和 APNG
-    /** 名称 */
+    /**
+     * 名称
+    */
     private static final String[] names = { "png", "PNG", "apng", "APNG" };
 
     // 支持的文件后缀
-    /** Suffixes */
+    /**
+     * Suffixes
+    */
     private static final String[] suffixes = { "png", "apng" };
 
     // 支持的 MIME 类型
-    /** Mimetypes */
+    /**
+     * Mimetypes
+    */
     private static final String[] MIMETypes = { "image/png", "image/x-png", "image/apng" };
 
     // 图像写入器类名
-    /** 写入器类名称 */
+    /**
+     * 写入器类名称
+    */
     private static final String writerClassName =
             "com.tianscar.imageio.plugins.png.PNGImageWriter";
 
     // 图像读取器服务提供者名称
-    /** 读取器spinames */
+    /**
+     * 读取器spinames
+    */
     private static final String[] readerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageReaderSpi"
     };

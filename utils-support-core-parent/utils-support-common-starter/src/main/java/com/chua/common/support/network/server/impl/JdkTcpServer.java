@@ -248,14 +248,18 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** 设置Handler */
+    /**
+     * 设置Handler
+    */
     public JdkTcpServer setHandler(TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -317,7 +321,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         running = false;
         try {
@@ -351,7 +357,9 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

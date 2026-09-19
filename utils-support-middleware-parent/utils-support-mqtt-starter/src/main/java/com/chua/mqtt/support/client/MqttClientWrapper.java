@@ -65,34 +65,62 @@ import java.util.function.Consumer;
 @Getter
 public class MqttClientWrapper implements AutoCloseable {
 
-    /** Broker */
+    /**
+     * Broker
+    */
     private final String broker;
-    /** 客户端标识 */
+    /**
+     * 客户端标识
+    */
     private final String clientId;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** Keepalive */
+    /**
+     * Keepalive
+    */
     private final int keepAlive;
-    /** Clean会话 */
+    /**
+     * Clean会话
+    */
     private final boolean cleanSession;
-    /** Connection超时 */
+    /**
+     * Connection超时
+    */
     private final int connectionTimeout;
-    /** Automaticreconnect */
+    /**
+     * Automaticreconnect
+    */
     private final boolean automaticReconnect;
 
-    /** MQTT客户端 */
+    /**
+     * MQTT客户端
+    */
     private MqttClient mqttClient;
-    /** topic处理器 */
+    /**
+     * topic处理器
+    */
     private final Map<String, List<BiConsumer<String, String>>> topicHandlers = new ConcurrentHashMap<>();
-    /** Connectlisteners */
+    /**
+     * Connectlisteners
+    */
     private final List<Runnable> connectListeners = new CopyOnWriteArrayList<>();
-    /** Disconnectlisteners */
+    /**
+     * Disconnectlisteners
+    */
     private final List<Consumer<Throwable>> disconnectListeners = new CopyOnWriteArrayList<>();
-    /** 错误监听器 */
+    /**
+     * 错误监听器
+    */
     private final List<Consumer<Throwable>> errorListeners = new CopyOnWriteArrayList<>();
-    /** 连接 */
+    /**
+     * 连接
+    */
     private final AtomicBoolean connected = new AtomicBoolean(false);
 
     /**
@@ -150,7 +178,9 @@ public class MqttClientWrapper implements AutoCloseable {
             mqttClient = new MqttClient(broker, clientId, new MemoryPersistence());
             mqttClient.setCallback(new MqttCallback() {
                 @Override
-                /** connectionlost */
+                /**
+                 * connectionlost
+                */
                 public void connectionLost(Throwable cause) {
                     connected.set(false);
                     log.warn("MQTT 连接断开: {}", cause.getMessage());
@@ -171,7 +201,9 @@ public class MqttClientWrapper implements AutoCloseable {
                 }
 
                 @Override
-                /** 消息arrived */
+                /**
+                 * 消息arrived
+                */
                 public void messageArrived(String topic, MqttMessage message) {
                     String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
                     // 精确匹配
@@ -214,7 +246,9 @@ public class MqttClientWrapper implements AutoCloseable {
                 }
 
                 @Override
-                /** delivery完成 */
+                /**
+                 * delivery完成
+                */
                 public void deliveryComplete(IMqttDeliveryToken token) {}
             });
 
@@ -277,7 +311,9 @@ public class MqttClientWrapper implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() { shutdown(); }
 
     // ==================== 操作入口 ====================
@@ -388,21 +424,37 @@ public class MqttClientWrapper implements AutoCloseable {
      */
 
     public static class Builder {
-        /** Broker */
+        /**
+         * Broker
+        */
         private String broker = "tcp://127.0.0.1:1883";
-        /** 客户端标识 */
+        /**
+         * 客户端标识
+        */
         private String clientId = "mqtt-client-" + System.currentTimeMillis();
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         private String username;
-        /** 密码 */
+        /**
+         * 密码
+        */
         private String password;
-        /** Keepalive */
+        /**
+         * Keepalive
+        */
         private int keepAlive = 60;
-        /** Clean会话 */
+        /**
+         * Clean会话
+        */
         private boolean cleanSession = true;
-        /** Connection超时 */
+        /**
+         * Connection超时
+        */
         private int connectionTimeout = 10;
-        /** Automaticreconnect */
+        /**
+         * Automaticreconnect
+        */
         private boolean automaticReconnect = true;
 
         /**
@@ -503,13 +555,21 @@ public class MqttClientWrapper implements AutoCloseable {
      */
 
     public static class SubscribeOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final MqttClientWrapper client;
-        /** Topic */
+        /**
+         * Topic
+        */
         private String topic;
-        /** QOS */
+        /**
+         * QOS
+        */
         private int qos = 1;
-        /** 处理器 */
+        /**
+         * 处理器
+        */
         private BiConsumer<String, String> handler;
 
         SubscribeOperation(MqttClientWrapper client) { this.client = client; }
@@ -555,7 +615,9 @@ public class MqttClientWrapper implements AutoCloseable {
             return this;
         }
 
-        /** 开始 */
+        /**
+         * 开始
+        */
         public void start() {
             try {
                 client.mqttClient.subscribe(topic, qos);
@@ -568,7 +630,9 @@ public class MqttClientWrapper implements AutoCloseable {
             }
         }
 
-        /** 停止 */
+        /**
+         * 停止
+        */
         public void stop() {
             try { client.mqttClient.unsubscribe(topic); }
             catch (MqttException e) { throw new MqttClientException("取消订阅失败", e); }
@@ -584,15 +648,25 @@ public class MqttClientWrapper implements AutoCloseable {
      */
 
     public static class PublishOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final MqttClientWrapper client;
-        /** Topic */
+        /**
+         * Topic
+        */
         private String topic;
-        /** Payload */
+        /**
+         * Payload
+        */
         private byte[] payload;
-        /** QOS */
+        /**
+         * QOS
+        */
         private int qos = 1;
-        /** Retained */
+        /**
+         * Retained
+        */
         private boolean retained = false;
 
         PublishOperation(MqttClientWrapper client) { this.client = client; }
@@ -675,7 +749,9 @@ public class MqttClientWrapper implements AutoCloseable {
             return this;
         }
 
-        /** 发送 */
+        /**
+         * 发送
+        */
         public void send() {
             try {
                 MqttMessage msg = new MqttMessage(payload);
@@ -687,7 +763,9 @@ public class MqttClientWrapper implements AutoCloseable {
             }
         }
 
-        /** 发送异步 */
+        /**
+         * 发送异步
+        */
         public void sendAsync() {
             try {
                 MqttMessage msg = new MqttMessage(payload);

@@ -65,33 +65,43 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 设置状态 */
+    /**
+     * 设置状态
+    */
     public ServerResponse setStatus(int statusCode) {
         this.statusCode = statusCode;
         return this;
     }
 
     @Override
-    /** 获取状态 */
+    /**
+     * 获取状态
+    */
     public int getStatus() {
         return statusCode;
     }
 
     @Override
-    /** 设置头部 */
+    /**
+     * 设置头部
+    */
     public ServerResponse setHeader(String name, String value) {
         headers.put(name, value);
         return this;
     }
 
     @Override
-    /** 获取头部 */
+    /**
+     * 获取头部
+    */
     public String getHeader(String name) {
         return headers.get(name);
     }
 
     @Override
-    /** 获取头部 */
+    /**
+     * 获取头部
+    */
     public HttpHeader getHeaders() {
         HttpHeader result = new HttpHeader();
         for (var entry : headers.entrySet()) {
@@ -101,20 +111,26 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 设置内容类型 */
+    /**
+     * 设置内容类型
+    */
     public ServerResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
     @Override
-    /** 获取内容类型 */
+    /**
+     * 获取内容类型
+    */
     public String getContentType() {
         return contentType;
     }
 
     @Override
-    /** 设置主体 */
+    /**
+     * 设置主体
+    */
     public ServerResponse setBody(byte[] body) {
         try {
             bodyBuffer.reset();
@@ -126,7 +142,9 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 设置主体 */
+    /**
+     * 设置主体
+    */
     public ServerResponse setBody(String body) {
         try {
             bodyBuffer.reset();
@@ -139,26 +157,34 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 获取主体 */
+    /**
+     * 获取主体
+    */
     public byte[] getBody() {
         return bodyBuffer.toByteArray();
     }
 
     @Override
-    /** 获取输出流 */
+    /**
+     * 获取输出流
+    */
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
     @Override
-    /** 发送Redirect */
+    /**
+     * 发送Redirect
+    */
     public ServerResponse sendRedirect(String location) {
         setBody("Redirect: " + location);
         return this;
     }
 
     @Override
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+    */
     public ServerResponse sendError(int statusCode, String message) {
         this.statusCode = statusCode;
         String errorMsg = "ERROR (" + statusCode + "): " + message;
@@ -172,7 +198,9 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 刷新 */
+    /**
+     * 刷新
+    */
     public void flush() {
         try {
             byte[] data = bodyBuffer.toByteArray();
@@ -187,32 +215,42 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 是否Committed */
+    /**
+     * 是否Committed
+    */
     public boolean isCommitted() {
         return ended.get();
     }
 
     @Override
-    /** 是否结束 */
+    /**
+     * 是否结束
+    */
     public boolean isEnded() {
         return ended.get();
     }
 
     @Override
-    /** 设置结果 */
+    /**
+     * 设置结果
+    */
     public ServerResponse setResult(Object result) {
         this.result = result;
         return this;
     }
 
     @Override
-    /** 获取结果 */
+    /**
+     * 获取结果
+    */
     public Object getResult() {
         return result;
     }
 
     @Override
-    /** 重置 */
+    /**
+     * 重置
+    */
     public ServerResponse reset() {
         bodyBuffer.reset();
         statusCode = 200;
@@ -224,7 +262,9 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 结束 */
+    /**
+     * 结束
+    */
     public void end() {
         if (ended.compareAndSet(false, true)) {
             flush();
@@ -238,7 +278,9 @@ public class SshCommandResponse implements ServerResponse {
     }
 
     @Override
-    /** 写入Raw */
+    /**
+     * 写入Raw
+    */
     public void writeRaw(byte[] bytes) {
         try {
             outputStream.write(bytes);

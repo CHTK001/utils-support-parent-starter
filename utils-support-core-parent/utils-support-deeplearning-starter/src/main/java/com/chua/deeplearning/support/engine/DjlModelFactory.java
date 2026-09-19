@@ -167,7 +167,9 @@ public class DjlModelFactory implements AutoCloseable {
         return forceCpu ? "cpu" : DeviceSelector.resolve(deviceSetting);
     }
 
-    /** ensure初始化 */
+    /**
+     * ensure初始化
+    */
     private void ensureInitialized() {
         if (initialized) {
             return;
@@ -325,7 +327,9 @@ public class DjlModelFactory implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         releaseQuietly();
     }

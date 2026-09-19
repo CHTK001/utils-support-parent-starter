@@ -31,7 +31,9 @@ public class SafeTensorFeatureClient extends AbstractLocalFeatureClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("text_embedding", "image_recognition");
     }

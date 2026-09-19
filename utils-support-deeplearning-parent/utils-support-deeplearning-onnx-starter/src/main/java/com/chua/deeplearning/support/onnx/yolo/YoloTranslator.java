@@ -76,7 +76,9 @@ import java.util.List;
 @Slf4j
 class YoloTranslator implements Translator<Image, DetectedObjects> {
 
-    /** COCO 数据集 80 个类别名称 */
+    /**
+     * COCO 数据集 80 个类别名称
+    */
     private static final List<String> COCO_80_CLASSES = Arrays.asList(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
             "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",

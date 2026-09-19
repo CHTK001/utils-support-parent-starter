@@ -23,7 +23,9 @@ import java.util.List;
 public class OsgiServiceResolver implements ServiceResolver {
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public List<ServiceDefinition> resolve(Class<?> type, ClassLoader classLoader) {
         OsgiLauncher launcher = OsgiLauncherHolder.getInstance();
         if (launcher == null || !launcher.isActive()) {
@@ -57,7 +59,9 @@ public class OsgiServiceResolver implements ServiceResolver {
     }
 
     @Override
-    /** 是否Dynamic */
+    /**
+     * 是否Dynamic
+    */
     public boolean isDynamic() {
         return true;
     }

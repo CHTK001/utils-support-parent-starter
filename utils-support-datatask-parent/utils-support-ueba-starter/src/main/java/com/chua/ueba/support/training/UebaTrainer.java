@@ -37,43 +37,69 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UebaTrainer {
 
-    /** 内置 Python 训练脚本在 jar 内的资源路径 */
+    /**
+     * 内置 Python 训练脚本在 jar 内的资源路径
+    */
     private static final String TRAINING_SCRIPT_RESOURCE = "python/train_ueba.py";
 
-    /** 超时时间上限（毫秒） */
+    /**
+     * 超时时间上限（毫秒）
+    */
     private static final long EXEC_TIMEOUT_MILLIS = TimeUnit.HOURS.toMillis(1L);
 
-    /** 派生配置输出文件名 */
+    /**
+     * 派生配置输出文件名
+    */
     private static final String DERIVED_CONFIG_FILE = "ueba-config-derived.yaml";
 
-    /** 训练参数记录文件名 */
+    /**
+     * 训练参数记录文件名
+    */
     private static final String TRAINING_PARAMS_FILE = "training-params.yaml";
 
-    /** UEBA 配置 */
+    /**
+     * UEBA 配置
+    */
     private final UebaConfig config;
 
-    /** 配置源文件（配置(路径) 时非 空） */
+    /**
+     * 配置源文件（配置(路径) 时非 空）
+    */
     private final Path configSource;
 
-    /** 训练数据 CSV 路径 */
+    /**
+     * 训练数据 CSV 路径
+    */
     private final Path dataCsv;
 
-    /** 输出目录 */
+    /**
+     * 输出目录
+    */
     private final Path outputDir;
 
-    /** 训练轮数 */
+    /**
+     * 训练轮数
+    */
     private final int epochs;
 
-    /** 批大小 */
+    /**
+     * 批大小
+    */
     private final int batchSize;
 
-    /** 学习率 */
+    /**
+     * 学习率
+    */
     private final double learningRate;
 
-    /** Python 解释器命令 */
+    /**
+     * Python 解释器命令
+    */
     private final String pythonCommand;
 
-    /** 续训来源目录（已有模型或 checkpoint），空 表示从零训练 */
+    /**
+     * 续训来源目录（已有模型或 checkpoint），空 表示从零训练
+    */
     private final Path resumeDir;
 
     /**

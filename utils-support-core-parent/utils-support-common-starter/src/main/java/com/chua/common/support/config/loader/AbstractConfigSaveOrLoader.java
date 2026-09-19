@@ -16,7 +16,9 @@ import java.util.Objects;
  */
 public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
 
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     protected final ConfigSaveLoadSetting setting;
 
     /**
@@ -28,7 +30,9 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     }
 
     @Override
-    /** Charset */
+    /**
+     * Charset
+    */
     public Charset charset() {
         return setting.getCharset();
     }

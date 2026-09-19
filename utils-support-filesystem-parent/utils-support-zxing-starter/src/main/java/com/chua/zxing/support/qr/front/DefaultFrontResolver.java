@@ -22,7 +22,9 @@ import javax.annotation.Nullable;
 public class DefaultFrontResolver implements FrontResolver {
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public BufferedImage resolve(BufferedImage bufferedImage, FrontSetting frontSetting, QrSetting setting) throws IOException {
         if(null == frontSetting) {
             return bufferedImage;

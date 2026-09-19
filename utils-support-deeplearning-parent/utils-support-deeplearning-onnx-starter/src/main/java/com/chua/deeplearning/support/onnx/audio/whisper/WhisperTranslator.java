@@ -35,36 +35,66 @@ import java.util.Map;
 @Slf4j
 public class WhisperTranslator {
 
-    /** 采样率 */
+    /**
+     * 采样率
+    */
     private static final int SAMPLE_RATE = 16000;
-    /** 梅尔滤波器组数量 */
+    /**
+     * 梅尔滤波器组数量
+    */
     private static final int N_MELS = 80;
-    /** 帧数量 */
+    /**
+     * 帧数量
+    */
     private static final int N_FRAMES = 3000;
-    /** 编码器序列输出索引 */
+    /**
+     * 编码器序列输出索引
+    */
     private static final int ENC_SEQ_OUT = 1500;
-    /** 隐藏层维度 */
+    /**
+     * 隐藏层维度
+    */
     private static final int HIDDEN_SIZE = 384;
-    /** 层数量 */
+    /**
+     * 层数量
+    */
     private static final int N_LAYERS = 4;
-    /** 注意力头数量 */
+    /**
+     * 注意力头数量
+    */
     private static final int N_HEADS = 6;
-    /** 注意力头维度 */
+    /**
+     * 注意力头维度
+    */
     private static final int HEAD_DIM = 64;
 
-    /** 梅尔特征提取器 */
+    /**
+     * 梅尔特征提取器
+    */
     private WhisperMelExtractor melExtractor;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private WhisperTokenizer tokenizer;
-    /** 识别语言（zh/en 等；显式指定后在提示中加入语言 令牌，解决非英文输出乱码） */
+    /**
+     * 识别语言（zh/en 等；显式指定后在提示中加入语言 令牌，解决非英文输出乱码）
+    */
     private String language;
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 编码器会话 */
+    /**
+     * 编码器会话
+    */
     private OrtSession encoderSession;
-    /** 解码器会话（初始 2-令牌 解码） */
+    /**
+     * 解码器会话（初始 2-令牌 解码）
+    */
     private OrtSession decoderSession;
-    /** 解码器会话（自回归单 令牌 解码，带 KV 缓存） */
+    /**
+     * 解码器会话（自回归单 令牌 解码，带 KV 缓存）
+    */
     private OrtSession decoderPastSession;
 
     /**

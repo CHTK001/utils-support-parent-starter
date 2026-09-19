@@ -62,11 +62,15 @@ public class LmStudioUsageParser extends BaseUsageParser {
     private static final Pattern USAGE_MARKER = Pattern.compile(
             "\"usage\"\\s*:\\s*\\{", Pattern.MULTILINE);
 
-    /** 匹配响应 id 前缀。 */
+    /**
+     * 匹配响应 id 前缀。
+    */
     private static final Pattern RESPONSE_ID = Pattern.compile(
             "\"id\"\\s*:\\s*\"(chatcmpl-[^\"\\s]+|cmpl-[^\"\\s]+|resp_[^\"\\s]+)\"");
 
-    /** 匹配 model 字段（取 usage 之前最近的 model 字符串）。 */
+    /**
+     * 匹配 model 字段（取 usage 之前最近的 model 字符串）。
+    */
     private static final Pattern MODEL_FIELD = Pattern.compile(
             "\"model\"\\s*:\\s*\"([^\"]+)\"");
 

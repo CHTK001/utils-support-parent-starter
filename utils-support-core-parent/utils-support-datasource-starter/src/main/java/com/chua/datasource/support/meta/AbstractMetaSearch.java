@@ -44,37 +44,49 @@ public abstract class AbstractMetaSearch implements MetaSearch {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<SearchIndexDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public SearchIndexDef get(String indexName) {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public SearchIndexCreateBuilder create(String indexName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop(String indexName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }
 
     @Override
-    /** Refresh */
+    /**
+     * Refresh
+    */
     public boolean refresh(String indexName) {
         throw new UnsupportedOperationException("请实现 refresh() 方法");
     }
 
     @Override
-    /** 优化 */
+    /**
+     * 优化
+    */
     public boolean optimize(String indexName) {
         throw new UnsupportedOperationException("请实现 optimize() 方法");
     }

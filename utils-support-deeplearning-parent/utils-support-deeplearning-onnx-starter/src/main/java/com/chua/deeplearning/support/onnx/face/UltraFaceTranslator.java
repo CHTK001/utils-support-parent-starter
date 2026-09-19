@@ -29,29 +29,51 @@ import java.util.Locale;
  */
 public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
-    /** 默认方差数组 */
+    /**
+     * 默认方差数组
+    */
     private static final double[] DEFAULT_VARIANCE = {0.1d, 0.2d};
-    /** BGR 通道均值 */
+    /**
+     * BGR 通道均值
+    */
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
-    /** 置信度阈值 */
+    /**
+     * 置信度阈值
+    */
     private final double confThresh;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private final double nmsThresh;
-    /** Top-K 采样数量 */
+    /**
+     * Top-K 采样数量
+    */
     private final int topK;
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private final int inputWidth;
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private final int inputHeight;
-    /** 方差数组 */
+    /**
+     * 方差数组
+    */
     private final double[] variance;
-    /** 缩放系数数组 */
+    /**
+     * 缩放系数数组
+    */
     private final int[][] scales;
-    /** 步数数组 */
+    /**
+     * 步数数组
+    */
     private final int[] steps;
 
-    /** 创建 ultrafacetranslator 实例 */
+    /**
+     * 创建 ultrafacetranslator 实例
+    */
     public UltraFaceTranslator() {
         this((String) null);
     }
@@ -165,7 +187,9 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
@@ -191,7 +215,9 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -340,7 +366,9 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

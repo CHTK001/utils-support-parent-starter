@@ -14,16 +14,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubtitleSearchRequest {
-    /** Keyword */
+    /**
+     * Keyword
+    */
     private String keyword;
-    /** 视频标识 */
+    /**
+     * 视频标识
+    */
     private String videoId;
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String language;
     @Builder.Default
-    /** 页 */
+    /**
+     * 页
+    */
     private int page = 1;
     @Builder.Default
-    /** 每页大小 */
+    /**
+     * 每页大小
+    */
     private int pageSize = 10;
 }

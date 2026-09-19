@@ -39,7 +39,9 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public FaceQualityAssessor model(String model) {
         this.modelName = model;
         return this;
@@ -58,21 +60,27 @@ public class OnnxFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** blur阈值 */
+    /**
+     * blur阈值
+    */
     public FaceQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FaceQualityAssessor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** 评定 */
+    /**
+     * 评定
+    */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).device(device).assess(imageData);
     }

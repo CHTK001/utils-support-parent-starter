@@ -38,25 +38,35 @@ import java.util.Collections;
 @Spi("zmq")
 public class ZmqInvoker implements Invoker {
 
-    /** 类级地址注解集合（Spring MVC 请求mapping） */
+    /**
+     * 类级地址注解集合（Spring MVC 请求mapping）
+    */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
 
-    /** 调用的注册中心配置协议 */
+    /**
+     * 调用的注册中心配置协议
+    */
     private static final String REGISTRY_PROTOCOL = "direct";
 
-    /** 客户端调用的应用名 */
+    /**
+     * 客户端调用的应用名
+    */
     private static final String APP_NAME = "zmq-invoker";
 
     @Override
-    /** 创建（带缓存） */
+    /**
+     * 创建（带缓存）
+    */
     public <T> T create(Class<T> apiClass) {
         return createProxy(apiClass, false);
     }
 
     @Override
-    /** 创建新（不缓存） */
+    /**
+     * 创建新（不缓存）
+    */
     public <T> T createNew(Class<T> apiClass) {
         return createProxy(apiClass, true);
     }

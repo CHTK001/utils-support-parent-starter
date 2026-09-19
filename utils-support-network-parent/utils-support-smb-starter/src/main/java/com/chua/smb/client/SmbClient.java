@@ -331,7 +331,9 @@ public class SmbClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             if (diskShare != null) {
@@ -357,7 +359,9 @@ public class SmbClient implements AutoCloseable {
         }
     }
 
-    /** 校验共享 */
+    /**
+     * 校验共享
+    */
     private void checkShare() {
         if (diskShare == null) {
             throw new IllegalStateException("请先 openShare()");

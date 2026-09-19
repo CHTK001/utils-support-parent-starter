@@ -136,7 +136,9 @@ public class ShellUrlServerFilter implements EndServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || path.isEmpty()) {
@@ -152,25 +154,33 @@ public class ShellUrlServerFilter implements EndServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 100;
     }
 
     @Override
-    /** 获取过滤Id */
+    /**
+     * 获取过滤Id
+    */
     public String getFilterId() {
         return "ShellUrlServerFilter";
     }
 
     @Override
-    /** SupportPath */
+    /**
+     * SupportPath
+    */
     public String supportPath() {
         return null;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.SSH};
     }

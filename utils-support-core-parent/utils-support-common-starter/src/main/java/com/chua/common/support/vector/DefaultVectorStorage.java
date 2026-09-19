@@ -37,7 +37,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class DefaultVectorStorage implements VectorStorage {
 
-    /** 存储模式。 */
+    /**
+     * 存储模式。
+    */
     public enum Mode { MEMORY, FILE, HYBRID }
 
     /**
@@ -78,21 +80,29 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ReadWriteLock lock = new ReentrantReadWriteLock(); // 锁
     private final VectorCompareAlgorithm algorithm; // algorithm
 
-    /** 热数据：内存索引（标识 → 向量）。 */
+    /**
+     * 热数据：内存索引（标识 → 向量）。
+    */
     private final ConcurrentHashMap<String, Vector> hot = new ConcurrentHashMap<>();
-    /** 冷数据分片列表（有序，用于定位文件路径）。 */
+    /**
+     * 冷数据分片列表（有序，用于定位文件路径）。
+    */
     private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
     /**
      * 路径 → 分片序号的反向索引，O(1) 查找，避免每次 读取entry 线性扫描。
      */
     private final ConcurrentHashMap<Path, Integer> pathToShardIdx = new ConcurrentHashMap<>();
-    /** 冷数据索引：标识 → entryloc，用于精确跳跃读取。 */
+    /**
+     * 冷数据索引：标识 → entryloc，用于精确跳跃读取。
+    */
     private final ConcurrentHashMap<String, EntryLoc> coldIndex = new ConcurrentHashMap<>();
     /**
      * 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。
      */
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
-    /** 分片元数据（centroid），键 为分片序号，用于剪枝。 */
+    /**
+     * 分片元数据（centroid），键 为分片序号，用于剪枝。
+    */
     private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
     /**
      * 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。
@@ -104,14 +114,18 @@ public class DefaultVectorStorage implements VectorStorage {
      */
     private static final int DEFAULT_READ_BUF = 4096;
     private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]); // thread本地读取buf
-    /** thread本地 float 缓冲：动态扩容，默认 128 维。 */
+    /**
+     * thread本地 float 缓冲：动态扩容，默认 128 维。
+    */
     private final ThreadLocal<float[]> vecBuf = ThreadLocal.withInitial(() -> new float[128]);
     /**
      * thread本地 向量累加器：用于计算 centroid，默认 128 维。
      */
     private final ThreadLocal<float[]> centroidAcc = ThreadLocal.withInitial(() -> new float[128]);
 
-    /** SIMD 分块宽度：每次处理 16 个 float。 */
+    /**
+     * SIMD 分块宽度：每次处理 16 个 float。
+    */
     private static final int SIMD = 16;
 
     // ---- 构造 ----
@@ -336,7 +350,9 @@ public class DefaultVectorStorage implements VectorStorage {
 
     // ---- 冷热管理 ----
 
-    /** 将热数据刷盘为冷分片，并重建 B+ 树 索引。 */
+    /**
+     * 将热数据刷盘为冷分片，并重建 B+ 树 索引。
+    */
     public void flush() {
         lock.writeLock().lock();
         try {

@@ -34,22 +34,30 @@ import java.util.stream.Stream;
 @Slf4j
 public class MacOSUnifiedLogProvider implements SystemLogProvider {
 
-    /** 源 */
+    /**
+     * 源
+    */
     private static final List<String> SOURCES = Arrays.asList(
             "unified", "system", "install", "kernel"
     );
 
-    /** Var_日志_文件 */
+    /**
+     * Var_日志_文件
+    */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/system.log",
             "/var/log/install.log"
     );
 
-    /** 日志_show_CMD */
+    /**
+     * 日志_show_CMD
+    */
     private static final String LOG_SHOW_CMD = "/usr/bin/log";
 
     @Override
-    /** 是否platform支持 */
+    /**
+     * 是否platform支持
+    */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isMacOs();
@@ -57,7 +65,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public List<String> getSources() {
         
         return SOURCES;
@@ -65,7 +75,9 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             return List.of();

@@ -28,7 +28,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class TransmissionEvent {
 
-    /** 内部 row 标识，存储层自增 */
+    /**
+     * 内部 row 标识，存储层自增
+    */
     private long id;
 
     /**
@@ -86,19 +88,29 @@ public class TransmissionEvent {
      */
     private String targetPath;
 
-    /** 协议名（HTTP/TCP/Redis/...） */
+    /**
+     * 协议名（HTTP/TCP/Redis/...）
+    */
     private String protocol;
 
-    /** 软件栈名（JEDIS/Tomcat/...） */
+    /**
+     * 软件栈名（JEDIS/Tomcat/...）
+    */
     private String software;
 
-    /** 操作描述（获取 /api/订单） */
+    /**
+     * 操作描述（获取 /api/订单）
+    */
     private String operation;
 
-    /** 状态（OK/错误） */
+    /**
+     * 状态（OK/错误）
+    */
     private StatusCode status;
 
-    /** 响应码（HTTP 状态码 / ZK rc / Redis reply） */
+    /**
+     * 响应码（HTTP 状态码 / ZK rc / Redis reply）
+    */
     private int statusCode;
 
     /**
@@ -132,7 +144,9 @@ public class TransmissionEvent {
      */
     private String errorMessage;
 
-    /** 附加属性（懒填充） */
+    /**
+     * 附加属性（懒填充）
+    */
     @Builder.Default
     private Map<String, String> attributes = new HashMap<>(); // attributes
 

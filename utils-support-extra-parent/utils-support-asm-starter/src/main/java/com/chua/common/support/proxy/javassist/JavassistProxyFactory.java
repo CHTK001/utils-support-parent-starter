@@ -53,7 +53,9 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
 
         proxyObject.setHandler(new MethodHandler() {
             @Override
-            /** 调用 */
+            /**
+             * 调用
+            */
             public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
                 intercept.before(self, thisMethod, args, (T) self);
 

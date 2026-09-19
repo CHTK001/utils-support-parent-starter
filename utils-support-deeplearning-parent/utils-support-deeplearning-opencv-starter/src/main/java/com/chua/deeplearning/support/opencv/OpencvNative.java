@@ -20,7 +20,9 @@ public final class OpencvNative {
      */
     private static volatile boolean loaded = false;
 
-    /** 创建 opencvNAT 实例 */
+    /**
+     * 创建 opencvNAT 实例
+    */
     private OpencvNative() {
     }
 

@@ -28,20 +28,26 @@ public class WindowsServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "windows";
     }
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupported() {
         String osName = System.getProperty("os.name", "").toLowerCase();
         return osName.contains("win");
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public CmdResult install(ManagedService service) {
         log.info("[runtime-service] 正在安装 Windows 服务[{}]: {}", service.getServiceName(), service.getDisplayName());
 
@@ -80,7 +86,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public CmdResult uninstall(String serviceName) {
         log.info("[runtime-service] 正在卸载 Windows 服务[{}]", serviceName);
         String cmd = "sc delete \"" + serviceName + "\"";
@@ -96,7 +104,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public CmdResult start(String serviceName) {
         log.info("[runtime-service] 正在启动 Windows 服务[{}]", serviceName);
         String cmd = "sc start \"" + serviceName + "\"";
@@ -104,7 +114,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public CmdResult stop(String serviceName) {
         log.info("[runtime-service] 正在停止 Windows 服务[{}]", serviceName);
         String cmd = "sc stop \"" + serviceName + "\"";
@@ -112,7 +124,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Restart */
+    /**
+     * Restart
+    */
     public CmdResult restart(String serviceName) {
         log.info("[runtime-service] 正在重启 Windows 服务[{}]", serviceName);
         CmdResult stopResult = stop(serviceName);
@@ -128,14 +142,18 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public CmdResult status(String serviceName) {
         String cmd = "sc query \"" + serviceName + "\"";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
-    /** 启用 */
+    /**
+     * 启用
+    */
     public CmdResult enable(String serviceName) {
         log.info("[runtime-service] 设置 Windows 服务[{}] 开机自启", serviceName);
         String cmd = "sc config \"" + serviceName + "\" start= auto";
@@ -143,7 +161,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 禁用 */
+    /**
+     * 禁用
+    */
     public CmdResult disable(String serviceName) {
         log.info("[runtime-service] 禁用 Windows 服务[{}] 开机自启", serviceName);
         String cmd = "sc config \"" + serviceName + "\" start= disabled";
@@ -151,7 +171,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否已启用 */
+    /**
+     * 是否已启用
+    */
     public boolean isEnabled(String serviceName) {
         CmdResult result = status(serviceName);
         if (!result.isSuccess()) {
@@ -162,7 +184,9 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否Installed */
+    /**
+     * 是否Installed
+    */
     public boolean isInstalled(String serviceName) {
         CmdResult result = status(serviceName);
         return result.isSuccess();

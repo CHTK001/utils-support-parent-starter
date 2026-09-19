@@ -15,20 +15,36 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PermissionInfo {
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private String user;
-    /** 主机/IP */
+    /**
+     * 主机/IP
+    */
     private String host;
-    /** 权限类型（TABLE / COLUMN / DATABASE / 全局） */
+    /**
+     * 权限类型（TABLE / COLUMN / DATABASE / 全局）
+    */
     private String privilegeType;
-    /** 数据库名 */
+    /**
+     * 数据库名
+    */
     private String databaseName;
-    /** 表名 */
+    /**
+     * 表名
+    */
     private String tableName;
-    /** 列名（COLUMN 类型时有效） */
+    /**
+     * 列名（COLUMN 类型时有效）
+    */
     private String columnName;
-    /** 权限名（选择 / 插入 / 更新 / 删除 / 全部 等） */
+    /**
+     * 权限名（选择 / 插入 / 更新 / 删除 / 全部 等）
+    */
     private String privilege;
-    /** 是否可转授 */
+    /**
+     * 是否可转授
+    */
     private boolean grantable;
 }

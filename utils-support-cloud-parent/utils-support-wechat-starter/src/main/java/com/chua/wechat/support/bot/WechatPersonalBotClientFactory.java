@@ -38,13 +38,19 @@ public class WechatPersonalBotClientFactory implements BotClient.Factory {
      */
     static class WechatPersonalBuilder implements BotClient.Builder {
 
-        /** Hook 服务地址 */
+        /**
+         * Hook 服务地址
+        */
         private String baseUrl;
 
-        /** 入站回调地址 */
+        /**
+         * 入站回调地址
+        */
         private String callbackUrl;
 
-        /** 鉴权令牌 */
+        /**
+         * 鉴权令牌
+        */
         private String token;
 
         /** 连接超时（毫秒）*/

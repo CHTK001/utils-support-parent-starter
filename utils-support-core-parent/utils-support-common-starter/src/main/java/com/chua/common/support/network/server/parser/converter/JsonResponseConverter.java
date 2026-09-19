@@ -22,7 +22,9 @@ import java.nio.charset.StandardCharsets;
 public class JsonResponseConverter implements ResponseConverter {
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public void convert(ServerResponse response, Object data) throws Exception {
         response.setContentType(contentType());
         if (data instanceof String s) {
@@ -35,19 +37,25 @@ public class JsonResponseConverter implements ResponseConverter {
     }
 
     @Override
-    /** ContentType */
+    /**
+     * ContentType
+    */
     public String contentType() {
         return "application/json; charset=utf-8";
     }
 
     @Override
-    /** Support */
+    /**
+     * Support
+    */
     public boolean support(Object data) {
         return true;
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return 100;
     }

@@ -19,38 +19,60 @@ import com.chua.common.support.utils.BeanUtils;
  */
 public abstract class WriteBuilder {
 
-    /** 待写入的文件 */
+    /**
+     * 待写入的文件
+    */
     protected final File file;
 
-    /** 写入时使用的字符集编码，默认使用系统编码 */
+    /**
+     * 写入时使用的字符集编码，默认使用系统编码
+    */
     protected Charset charset = Charset.defaultCharset();
 
-    /** 模板文件路径，用于基于模板的写入操作 */
+    /**
+     * 模板文件路径，用于基于模板的写入操作
+    */
     protected File templateFile;
 
-    /** 模板填充数据，用于带变量的模板渲染 */
+    /**
+     * 模板填充数据，用于带变量的模板渲染
+    */
     protected Map<String, Object> templateData;
 
-    /** 通用延迟写入暂存区 */
+    /**
+     * 通用延迟写入暂存区
+    */
     protected final List<Object> pending = new ArrayList<>();
 
-    /** 列名映射（字段 → 中文），写入时自动转换 */
+    /**
+     * 列名映射（字段 → 中文），写入时自动转换
+    */
     protected Map<String, String> columnMapping;
 
-    /** 写入回调 */
+    /**
+     * 写入回调
+    */
     protected WriteCallback callback = new WriteCallback() {
         @Override
-        /** OnComplete */
+        /**
+         * OnComplete
+        */
         public void onComplete(boolean success) {}
     };
 
-    /** 是否写入表头行 */
+    /**
+     * 是否写入表头行
+    */
     protected boolean withHeader = true;
 
-    /** 固定表头列列表（null 则自动从数据推断） */
+    /**
+     * 固定表头列列表（null 则自动从数据推断）
+    */
     protected List<String> headerColumns;
 
-    /** 行过滤谓词（null 表示写入所有行） */
+    /**
+     * 行过滤谓词（null 表示写入所有行）
+    */
     protected Predicate<Map<String, Object>> rowFilter;
 
     /**

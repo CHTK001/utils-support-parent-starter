@@ -54,7 +54,9 @@ public class RoundRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
 
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         RoundRectangle2D.Double shape = new RoundRectangle2D.Double(leftPadding + x * infoSize,
                 topPadding + y * infoSize,
@@ -88,7 +90,9 @@ public class RoundRectangleDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
         //绘制LT
     }

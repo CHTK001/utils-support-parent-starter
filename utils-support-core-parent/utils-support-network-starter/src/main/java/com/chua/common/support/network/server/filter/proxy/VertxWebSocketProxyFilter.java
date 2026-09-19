@@ -43,31 +43,43 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFilter {
 
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** WebSocket客户端 */
+    /**
+     * WebSocket客户端
+    */
     private WebSocketClient webSocketClient;
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 45;
     }
 
     @Override
-    /** 支持路径 */
+    /**
+     * 支持路径
+    */
     public String supportPath() {
         return null;
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.WS};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
  // 后端 WebSocket 客户端性能配置:tcpno延迟 减小包延迟,帧大小上限放大,
@@ -81,7 +93,9 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (webSocketClient != null) {
             webSocketClient.close();

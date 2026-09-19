@@ -29,26 +29,44 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VitPoseTranslator implements Translator<Image, float[][]> {
 
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private static final int INPUT_H = 256;
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private static final int INPUT_W = 192;
-    /** 关键点数量 */
+    /**
+     * 关键点数量
+    */
     private static final int NUM_KEYPOINTS = 17;
-    /** 热力图除数 */
+    /**
+     * 热力图除数
+    */
     private static final int HEATMAP_DIVISOR = 4;
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
-    /** 原始宽度 */
+    /**
+     * 原始宽度
+    */
     private int originalWidth;
-    /** 原始高度 */
+    /**
+     * 原始高度
+    */
     private int originalHeight;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -73,7 +91,9 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray heatmaps = list.singletonOrThrow();
 
@@ -122,7 +142,9 @@ public class VitPoseTranslator implements Translator<Image, float[][]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

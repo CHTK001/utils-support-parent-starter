@@ -220,7 +220,9 @@ public class DbfDataTable extends MutableDataTable {
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return "DbfDataTable{" +
                 "name='" + getName() + '\'' +

@@ -29,7 +29,9 @@ import java.util.List;
  */
 @Spi("Wanou")
 public class WanouResourceProvider extends AbstractResourceProvider {
-    /** 创建 wanouresource提供者 实例 */
+    /**
+     * 创建 wanouresource提供者 实例
+    */
     public WanouResourceProvider() {
         super();
     }
@@ -170,369 +172,729 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     @Data
     static class VideoList {
 
-        /** 代码 */
+        /**
+         * 代码
+        */
         @JsonProperty("code")
-        /** 代码 */
+        /**
+         * 代码
+        */
         private Integer code;
-        /** 消息文本 */
+        /**
+         * 消息文本
+        */
         @JsonProperty("msg")
-        /** MSG */
+        /**
+         * MSG
+        */
         private String msg;
-        /** 页码 */
+        /**
+         * 页码
+        */
         @JsonProperty("page")
-        /** 页 */
+        /**
+         * 页
+        */
         private Integer page;
-        /** 页数 */
+        /**
+         * 页数
+        */
         @JsonProperty("pagecount")
-        /** Pagecount */
+        /**
+         * Pagecount
+        */
         private Integer pagecount;
-        /** 限制数量 */
+        /**
+         * 限制数量
+        */
         @JsonProperty("limit")
-        /** 限制 */
+        /**
+         * 限制
+        */
         private Integer limit;
-        /** 总数 */
+        /**
+         * 总数
+        */
         @JsonProperty("total")
-        /** 总数 */
+        /**
+         * 总数
+        */
         private Integer total;
-        /** 列表数据 */
+        /**
+         * 列表数据
+        */
         @JsonProperty("list")
-        /** 列表 */
+        /**
+         * 列表
+        */
         private List<ListDTO> list;
 
         @NoArgsConstructor
         @Data
         public static class ListDTO {
-            /** 视频标识 */
+            /**
+             * 视频标识
+            */
             @JsonProperty("vod_id")
-            /** VODID */
+            /**
+             * VODID
+            */
             private Integer vodId;
-            /** 类型标识 */
+            /**
+             * 类型标识
+            */
             @JsonProperty("type_id")
-            /** 类型标识 */
+            /**
+             * 类型标识
+            */
             private Integer typeId;
-            /** 类型标识 */
+            /**
+             * 类型标识
+            */
             @JsonProperty("type_id_1")
-            /** 类型标识1 */
+            /**
+             * 类型标识1
+            */
             private Integer typeId1;
-            /** 分组标识 */
+            /**
+             * 分组标识
+            */
             @JsonProperty("group_id")
-            /** 分组标识 */
+            /**
+             * 分组标识
+            */
             private Integer groupId;
-            /** 影片名称 */
+            /**
+             * 影片名称
+            */
             @JsonProperty("vod_name")
-            /** VOD名称 */
+            /**
+             * VOD名称
+            */
             private String vodName;
-            /** 副标题 */
+            /**
+             * 副标题
+            */
             @JsonProperty("vod_sub")
-            /** VODSUB */
+            /**
+             * VODSUB
+            */
             private String vodSub;
-            /** 英文名称 */
+            /**
+             * 英文名称
+            */
             @JsonProperty("vod_en")
-            /** VODEN */
+            /**
+             * VODEN
+            */
             private String vodEn;
-            /** 状态标识 */
+            /**
+             * 状态标识
+            */
             @JsonProperty("vod_status")
-            /** VOD状态 */
+            /**
+             * VOD状态
+            */
             private Integer vodStatus;
-            /** 首字母 */
+            /**
+             * 首字母
+            */
             @JsonProperty("vod_letter")
-            /** vodletter */
+            /**
+             * vodletter
+            */
             private String vodLetter;
-            /** 颜色标识 */
+            /**
+             * 颜色标识
+            */
             @JsonProperty("vod_color")
-            /** VOD颜色 */
+            /**
+             * VOD颜色
+            */
             private String vodColor;
-            /** 标签 */
+            /**
+             * 标签
+            */
             @JsonProperty("vod_tag")
-            /** VOD标签 */
+            /**
+             * VOD标签
+            */
             private String vodTag;
-            /** 分类 */
+            /**
+             * 分类
+            */
             @JsonProperty("vod_class")
-            /** vodclass */
+            /**
+             * vodclass
+            */
             private String vodClass;
-            /** 封面图 */
+            /**
+             * 封面图
+            */
             @JsonProperty("vod_pic")
-            /** VODPIC */
+            /**
+             * VODPIC
+            */
             private String vodPic;
-            /** 缩略图 */
+            /**
+             * 缩略图
+            */
             @JsonProperty("vod_pic_thumb")
-            /** vodpicthumb */
+            /**
+             * vodpicthumb
+            */
             private String vodPicThumb;
-            /** 轮播图 */
+            /**
+             * 轮播图
+            */
             @JsonProperty("vod_pic_slide")
-            /** vodpicslide */
+            /**
+             * vodpicslide
+            */
             private String vodPicSlide;
-            /** 截图图集 */
+            /**
+             * 截图图集
+            */
             @JsonProperty("vod_pic_screenshot")
-            /** vodpicscreenshot */
+            /**
+             * vodpicscreenshot
+            */
             private String vodPicScreenshot;
-            /** 演员列表 */
+            /**
+             * 演员列表
+            */
             @JsonProperty("vod_actor")
-            /** vodactor */
+            /**
+             * vodactor
+            */
             private String vodActor;
-            /** 导演 */
+            /**
+             * 导演
+            */
             @JsonProperty("vod_director")
-            /** voddirector */
+            /**
+             * voddirector
+            */
             private String vodDirector;
-            /** 编剧 */
+            /**
+             * 编剧
+            */
             @JsonProperty("vod_writer")
-            /** VOD写入器 */
+            /**
+             * VOD写入器
+            */
             private String vodWriter;
-            /** 幕后花絮 */
+            /**
+             * 幕后花絮
+            */
             @JsonProperty("vod_behind")
-            /** vodbehind */
+            /**
+             * vodbehind
+            */
             private String vodBehind;
-            /** 简介 */
+            /**
+             * 简介
+            */
             @JsonProperty("vod_blurb")
-            /** vodblurb */
+            /**
+             * vodblurb
+            */
             private String vodBlurb;
-            /** 备注 */
+            /**
+             * 备注
+            */
             @JsonProperty("vod_remarks")
-            /** vodremarks */
+            /**
+             * vodremarks
+            */
             private String vodRemarks;
-            /** 上映时间 */
+            /**
+             * 上映时间
+            */
             @JsonProperty("vod_pubdate")
-            /** vodpubdate */
+            /**
+             * vodpubdate
+            */
             private String vodPubdate;
-            /** 总集数 */
+            /**
+             * 总集数
+            */
             @JsonProperty("vod_total")
-            /** VOD总数 */
+            /**
+             * VOD总数
+            */
             private Integer vodTotal;
-            /** 连载状态 */
+            /**
+             * 连载状态
+            */
             @JsonProperty("vod_serial")
-            /** vodserial */
+            /**
+             * vodserial
+            */
             private String vodSerial;
-            /** 电视台 */
+            /**
+             * 电视台
+            */
             @JsonProperty("vod_tv")
-            /** VODTV */
+            /**
+             * VODTV
+            */
             private String vodTv;
-            /** 星期 */
+            /**
+             * 星期
+            */
             @JsonProperty("vod_weekday")
-            /** vodweekday */
+            /**
+             * vodweekday
+            */
             private String vodWeekday;
-            /** 地区 */
+            /**
+             * 地区
+            */
             @JsonProperty("vod_area")
-            /** vodarea */
+            /**
+             * vodarea
+            */
             private String vodArea;
-            /** 语言 */
+            /**
+             * 语言
+            */
             @JsonProperty("vod_lang")
-            /** vodlang */
+            /**
+             * vodlang
+            */
             private String vodLang;
-            /** 年份 */
+            /**
+             * 年份
+            */
             @JsonProperty("vod_year")
-            /** vodyear */
+            /**
+             * vodyear
+            */
             private String vodYear;
-            /** 版本 */
+            /**
+             * 版本
+            */
             @JsonProperty("vod_version")
-            /** VOD版本 */
+            /**
+             * VOD版本
+            */
             private String vodVersion;
-            /** 状态 */
+            /**
+             * 状态
+            */
             @JsonProperty("vod_state")
-            /** VOD状态 */
+            /**
+             * VOD状态
+            */
             private String vodState;
-            /** 作者 */
+            /**
+             * 作者
+            */
             @JsonProperty("vod_author")
-            /** vodauthor */
+            /**
+             * vodauthor
+            */
             private String vodAuthor;
-            /** 跳转地址 */
+            /**
+             * 跳转地址
+            */
             @JsonProperty("vod_jumpurl")
-            /** vodjumpurl */
+            /**
+             * vodjumpurl
+            */
             private String vodJumpurl;
-            /** 模板 */
+            /**
+             * 模板
+            */
             @JsonProperty("vod_tpl")
-            /** VODTPL */
+            /**
+             * VODTPL
+            */
             private String vodTpl;
-            /** 播放模板 */
+            /**
+             * 播放模板
+            */
             @JsonProperty("vod_tpl_play")
-            /** vodtplplay */
+            /**
+             * vodtplplay
+            */
             private String vodTplPlay;
-            /** 下载模板 */
+            /**
+             * 下载模板
+            */
             @JsonProperty("vod_tpl_down")
-            /** vodtpldown */
+            /**
+             * vodtpldown
+            */
             private String vodTplDown;
-            /** 是否完结 */
+            /**
+             * 是否完结
+            */
             @JsonProperty("vod_isend")
-            /** vodisend */
+            /**
+             * vodisend
+            */
             private Integer vodIsend;
-            /** 是否锁定 */
+            /**
+             * 是否锁定
+            */
             @JsonProperty("vod_lock")
-            /** VOD锁 */
+            /**
+             * VOD锁
+            */
             private Integer vodLock;
-            /** 等级 */
+            /**
+             * 等级
+            */
             @JsonProperty("vod_level")
-            /** VOD级别 */
+            /**
+             * VOD级别
+            */
             private Integer vodLevel;
-            /** 版权 */
+            /**
+             * 版权
+            */
             @JsonProperty("vod_copyright")
-            /** vodcopyright */
+            /**
+             * vodcopyright
+            */
             private Integer vodCopyright;
-            /** 积分 */
+            /**
+             * 积分
+            */
             @JsonProperty("vod_points")
-            /** vodpoints */
+            /**
+             * vodpoints
+            */
             private Integer vodPoints;
-            /** 播放所需积分 */
+            /**
+             * 播放所需积分
+            */
             @JsonProperty("vod_points_play")
-            /** vodpointsplay */
+            /**
+             * vodpointsplay
+            */
             private Integer vodPointsPlay;
-            /** 下载所需积分 */
+            /**
+             * 下载所需积分
+            */
             @JsonProperty("vod_points_down")
-            /** vodpointsdown */
+            /**
+             * vodpointsdown
+            */
             private Integer vodPointsDown;
-            /** 点击量 */
+            /**
+             * 点击量
+            */
             @JsonProperty("vod_hits")
-            /** vodhits */
+            /**
+             * vodhits
+            */
             private Integer vodHits;
-            /** 日点击量 */
+            /**
+             * 日点击量
+            */
             @JsonProperty("vod_hits_day")
-            /** vodhitsday */
+            /**
+             * vodhitsday
+            */
             private Integer vodHitsDay;
-            /** 周点击量 */
+            /**
+             * 周点击量
+            */
             @JsonProperty("vod_hits_week")
-            /** vodhitsweek */
+            /**
+             * vodhitsweek
+            */
             private Integer vodHitsWeek;
-            /** 月点击量 */
+            /**
+             * 月点击量
+            */
             @JsonProperty("vod_hits_month")
-            /** vodhitsmonth */
+            /**
+             * vodhitsmonth
+            */
             private Integer vodHitsMonth;
-            /** 时长 */
+            /**
+             * 时长
+            */
             @JsonProperty("vod_duration")
-            /** VOD持续时间 */
+            /**
+             * VOD持续时间
+            */
             private String vodDuration;
-            /** 是否上架 */
+            /**
+             * 是否上架
+            */
             @JsonProperty("vod_up")
-            /** VODUP */
+            /**
+             * VODUP
+            */
             private Integer vodUp;
-            /** 下载开关 */
+            /**
+             * 下载开关
+            */
             @JsonProperty("vod_down")
-            /** voddown */
+            /**
+             * voddown
+            */
             private Integer vodDown;
-            /** 评分 */
+            /**
+             * 评分
+            */
             @JsonProperty("vod_score")
-            /** VOD分数 */
+            /**
+             * VOD分数
+            */
             private String vodScore;
-            /** 评分总数 */
+            /**
+             * 评分总数
+            */
             @JsonProperty("vod_score_all")
-            /** VOD分数全部 */
+            /**
+             * VOD分数全部
+            */
             private Integer vodScoreAll;
-            /** 评分人数 */
+            /**
+             * 评分人数
+            */
             @JsonProperty("vod_score_num")
-            /** VOD分数NUM */
+            /**
+             * VOD分数NUM
+            */
             private Integer vodScoreNum;
-            /** 更新时间 */
+            /**
+             * 更新时间
+            */
             @JsonProperty("vod_time")
-            /** VOD时间 */
+            /**
+             * VOD时间
+            */
             private String vodTime;
-            /** 添加时间戳 */
+            /**
+             * 添加时间戳
+            */
             @JsonProperty("vod_time_add")
-            /** VOD时间添加 */
+            /**
+             * VOD时间添加
+            */
             private Integer vodTimeAdd;
-            /** 点击更新时间戳 */
+            /**
+             * 点击更新时间戳
+            */
             @JsonProperty("vod_time_hits")
-            /** VOD时间hits */
+            /**
+             * VOD时间hits
+            */
             private Integer vodTimeHits;
-            /** 制作时间戳 */
+            /**
+             * 制作时间戳
+            */
             @JsonProperty("vod_time_make")
-            /** VOD时间make */
+            /**
+             * VOD时间make
+            */
             private Integer vodTimeMake;
-            /** 试看秒数 */
+            /**
+             * 试看秒数
+            */
             @JsonProperty("vod_trysee")
-            /** vodtrysee */
+            /**
+             * vodtrysee
+            */
             private Integer vodTrysee;
-            /** 豆瓣标识 */
+            /**
+             * 豆瓣标识
+            */
             @JsonProperty("vod_douban_id")
-            /** voddoubanid */
+            /**
+             * voddoubanid
+            */
             private Integer vodDoubanId;
-            /** 豆瓣评分 */
+            /**
+             * 豆瓣评分
+            */
             @JsonProperty("vod_douban_score")
-            /** voddouban分数 */
+            /**
+             * voddouban分数
+            */
             private String vodDoubanScore;
-            /** 重定向地址 */
+            /**
+             * 重定向地址
+            */
             @JsonProperty("vod_reurl")
-            /** vodreurl */
+            /**
+             * vodreurl
+            */
             private String vodReurl;
-            /** 相关视频 */
+            /**
+             * 相关视频
+            */
             @JsonProperty("vod_rel_vod")
-            /** VODRELVOD */
+            /**
+             * VODRELVOD
+            */
             private String vodRelVod;
-            /** 相关文章 */
+            /**
+             * 相关文章
+            */
             @JsonProperty("vod_rel_art")
-            /** VODRELART */
+            /**
+             * VODRELART
+            */
             private String vodRelArt;
-            /** 密码 */
+            /**
+             * 密码
+            */
             @JsonProperty("vod_pwd")
-            /** VODPWD */
+            /**
+             * VODPWD
+            */
             private String vodPwd;
-            /** 带密码地址 */
+            /**
+             * 带密码地址
+            */
             @JsonProperty("vod_pwd_url")
-            /** VODPWDURL */
+            /**
+             * VODPWDURL
+            */
             private String vodPwdUrl;
-            /** 播放密码 */
+            /**
+             * 播放密码
+            */
             @JsonProperty("vod_pwd_play")
-            /** vodpwdplay */
+            /**
+             * vodpwdplay
+            */
             private String vodPwdPlay;
-            /** 带密码播放地址 */
+            /**
+             * 带密码播放地址
+            */
             @JsonProperty("vod_pwd_play_url")
-            /** vodpwdplayurl */
+            /**
+             * vodpwdplayurl
+            */
             private String vodPwdPlayUrl;
-            /** 下载密码 */
+            /**
+             * 下载密码
+            */
             @JsonProperty("vod_pwd_down")
-            /** vodpwddown */
+            /**
+             * vodpwddown
+            */
             private String vodPwdDown;
-            /** 带密码下载地址 */
+            /**
+             * 带密码下载地址
+            */
             @JsonProperty("vod_pwd_down_url")
-            /** vodpwddownurl */
+            /**
+             * vodpwddownurl
+            */
             private String vodPwdDownUrl;
-            /** 内容 */
+            /**
+             * 内容
+            */
             @JsonProperty("vod_content")
-            /** VOD内容 */
+            /**
+             * VOD内容
+            */
             private String vodContent;
-            /** 播放来源 */
+            /**
+             * 播放来源
+            */
             @JsonProperty("vod_play_from")
-            /** vodplayfrom */
+            /**
+             * vodplayfrom
+            */
             private String vodPlayFrom;
-            /** 播放服务器 */
+            /**
+             * 播放服务器
+            */
             @JsonProperty("vod_play_server")
-            /** vodplay服务器 */
+            /**
+             * vodplay服务器
+            */
             private String vodPlayServer;
-            /** 播放说明 */
+            /**
+             * 播放说明
+            */
             @JsonProperty("vod_play_note")
-            /** vodplaynote */
+            /**
+             * vodplaynote
+            */
             private String vodPlayNote;
-            /** 播放地址 */
+            /**
+             * 播放地址
+            */
             @JsonProperty("vod_play_url")
-            /** vodplayurl */
+            /**
+             * vodplayurl
+            */
             private String vodPlayUrl;
-            /** 下载来源 */
+            /**
+             * 下载来源
+            */
             @JsonProperty("vod_down_from")
-            /** voddownfrom */
+            /**
+             * voddownfrom
+            */
             private String vodDownFrom;
-            /** 下载服务器 */
+            /**
+             * 下载服务器
+            */
             @JsonProperty("vod_down_server")
-            /** voddown服务器 */
+            /**
+             * voddown服务器
+            */
             private String vodDownServer;
-            /** 下载说明 */
+            /**
+             * 下载说明
+            */
             @JsonProperty("vod_down_note")
-            /** voddownnote */
+            /**
+             * voddownnote
+            */
             private String vodDownNote;
-            /** 下载地址 */
+            /**
+             * 下载地址
+            */
             @JsonProperty("vod_down_url")
-            /** voddownurl */
+            /**
+             * voddownurl
+            */
             private String vodDownUrl;
-            /** 剧情概要 */
+            /**
+             * 剧情概要
+            */
             @JsonProperty("vod_plot")
-            /** vodplot */
+            /**
+             * vodplot
+            */
             private Integer vodPlot;
-            /** 剧情名称 */
+            /**
+             * 剧情名称
+            */
             @JsonProperty("vod_plot_name")
-            /** vodplot名称 */
+            /**
+             * vodplot名称
+            */
             private String vodPlotName;
-            /** 剧情详细介绍 */
+            /**
+             * 剧情详细介绍
+            */
             @JsonProperty("vod_plot_detail")
-            /** vodplotdetail */
+            /**
+             * vodplotdetail
+            */
             private String vodPlotDetail;
-            /** 类型名称 */
+            /**
+             * 类型名称
+            */
             @JsonProperty("type_name")
-            /** 类型名称 */
+            /**
+             * 类型名称
+            */
             private String typeName;
         }
     }

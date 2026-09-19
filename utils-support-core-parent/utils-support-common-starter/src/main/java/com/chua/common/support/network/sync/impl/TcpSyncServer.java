@@ -129,26 +129,34 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 获取Protocol */
+    /**
+     * 获取Protocol
+    */
     public String getProtocol() {
         return "tcp";
     }
 
     @Override
-    /** 创建Server */
+    /**
+     * 创建Server
+    */
     public SyncServer createServer(ServerSetting setting) {
         return new TcpSyncServer(setting);
     }
 
     @Override
-    /** 创建Client */
+    /**
+     * 创建Client
+    */
     public SyncClient createClient(Object setting) {
         String url = setting instanceof String ? (String) setting : "tcp://127.0.0.1:19391";
         return new TcpSyncClient(url);
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             serverChannel = ServerSocketChannel.open();
@@ -185,7 +193,9 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         running.set(false);
         if (bossSelector != null) {
@@ -259,7 +269,9 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message;
         for (ClientConnection connection : clients.values()) {
@@ -268,7 +280,9 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         ClientConnection connection = clients.get(clientId);
         if (connection == null) {
@@ -278,32 +292,42 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /**
+     * 获取ConnectedClients
+    */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /**
+     * 获取ClientMetadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         ClientConnection connection = clients.get(clientId);
         return connection != null ? Collections.unmodifiableMap(connection.metadata) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加Listener */
+    /**
+     * 添加Listener
+    */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /**
+     * 移除Listener
+    */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

@@ -8,20 +8,34 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoSource {
 
-    /** 视频来源URL */
+    /**
+     * 视频来源URL
+    */
     private String videoSourceUrl;
-    /** 视频来源令牌 */
+    /**
+     * 视频来源令牌
+    */
     private String videoSourceToken;
-    /** 视频来源用户Agent */
+    /**
+     * 视频来源用户Agent
+    */
     private String videoSourceUserAgent;
-    /** 视频来源连接超时 */
+    /**
+     * 视频来源连接超时
+    */
     private Integer videoSourceConnectTimeout;
-    /** 视频来源最大值resource */
+    /**
+     * 视频来源最大值resource
+    */
     private Integer videoSourceMaxResource;
-    /** 视频来源最小值year */
+    /**
+     * 视频来源最小值year
+    */
     private Integer videoSourceMinYear;
 
-    /** 创建 视频源 实例 */
+    /**
+     * 创建 视频源 实例
+    */
     public VideoSource() {
     }
 

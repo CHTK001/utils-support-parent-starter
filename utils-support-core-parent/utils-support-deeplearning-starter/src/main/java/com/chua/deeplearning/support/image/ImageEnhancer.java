@@ -146,7 +146,9 @@ class DefaultImageEnhancer implements ImageEnhancer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -179,14 +181,18 @@ class DefaultImageEnhancer implements ImageEnhancer {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageEnhancer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageEnhancer device(String device) {
         this.device = device;
         return this;

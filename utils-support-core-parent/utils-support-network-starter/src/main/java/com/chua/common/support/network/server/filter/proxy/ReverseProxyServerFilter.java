@@ -53,14 +53,22 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFilter {
 
-    /** 超时秒 */
+    /**
+     * 超时秒
+    */
     private final int timeoutSeconds;
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private volatile HttpClient httpClient;
-    /** 异步执行器 */
+    /**
+     * 异步执行器
+    */
     private ExecutorService asyncExecutor;
 
-    /** 创建 reverse代理服务端过滤器 实例 */
+    /**
+     * 创建 reverse代理服务端过滤器 实例
+    */
     public ReverseProxyServerFilter() {
         this(30);
     }
@@ -74,13 +82,17 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 40;
     }
 
     @Override
-    /** 支持路径 */
+    /**
+     * 支持路径
+    */
     public String supportPath() {
  // 服务端过滤器 与 响应式服务端过滤器 均有同名 默认 方法,显式覆写消除接口冲突;
         // 返回 null = Access Filter,每次请求都触发代理判断
@@ -88,13 +100,17 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         this.asyncExecutor = Executors.newVirtualThreadPerTaskExecutor();
         this.httpClient = HttpClient.newBuilder()
@@ -107,7 +123,9 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (asyncExecutor != null) {
             asyncExecutor.shutdown();

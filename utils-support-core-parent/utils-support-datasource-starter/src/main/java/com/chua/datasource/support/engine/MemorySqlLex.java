@@ -26,10 +26,14 @@ final class MemorySqlLex {
      */
     static final class TokenStream {
 
-        /** 令牌 序列 */
+        /**
+         * 令牌 序列
+        */
         private final List<String> tokens;
 
-        /** 当前读取位置 */
+        /**
+         * 当前读取位置
+        */
         private int pos;
 
         /**

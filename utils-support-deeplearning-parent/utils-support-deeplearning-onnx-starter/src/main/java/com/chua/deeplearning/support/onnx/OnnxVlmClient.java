@@ -22,7 +22,9 @@ public class OnnxVlmClient implements VlmClient {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxVlmClient.class); // 日志
 
-    /** 当前使用的模型名称 */
+    /**
+     * 当前使用的模型名称
+    */
     private String modelName = "florence2";
 
     /**

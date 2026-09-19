@@ -32,9 +32,13 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class DefaultBackupRestore implements BackupRestore {
 
-    /** 历史备份压缩包目录名 */
+    /**
+     * 历史备份压缩包目录名
+    */
     private static final String ARCHIVE_DIR = "archive";
-    /** 备份日期目录/压缩包的日期格式 */
+    /**
+     * 备份日期目录/压缩包的日期格式
+    */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -237,14 +241,18 @@ public class DefaultBackupRestore implements BackupRestore {
             return;
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-            /** 删除单个文件 */
+            /**
+             * 删除单个文件
+            */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
-            /** 目录内文件删尽后删除目录本身 */
+            /**
+             * 目录内文件删尽后删除目录本身
+            */
             @Override
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);

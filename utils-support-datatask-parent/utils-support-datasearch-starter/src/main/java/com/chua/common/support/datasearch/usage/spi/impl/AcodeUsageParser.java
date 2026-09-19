@@ -18,7 +18,9 @@ public class AcodeUsageParser extends AbstractCodexForkRolloutUsageParser {
 
     private final Path sessionsRoot;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public AcodeUsageParser() {
         String home = System.getenv("TOKENTRACKER_ACODE_HOME");
         Path root = (home != null && !home.isBlank())

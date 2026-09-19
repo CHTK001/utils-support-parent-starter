@@ -29,26 +29,44 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class TimedAstProcessor extends AbstractProcessor {
 
-    /** Slf4j 日志字段名称 */
+    /**
+     * Slf4j 日志字段名称
+    */
     private static final String SLF4J_LOGGER = "org.slf4j.Logger";
-    /** Slf4j 日志工厂字段名称 */
+    /**
+     * Slf4j 日志工厂字段名称
+    */
     private static final String SLF4J_LOGGER_FACTORY = "org.slf4j.LoggerFactory";
-    /** Slf4j 注解名称 */
+    /**
+     * Slf4j 注解名称
+    */
     private static final String SLF4J_ANNOTATION = "lombok.extern.slf4j.Slf4j";
-    /** 日志字段名称 */
+    /**
+     * 日志字段名称
+    */
     private static final String LOG_FIELD_NAME = "log";
 
-    /** 抽象语法树工具 */
+    /**
+     * 抽象语法树工具
+    */
     private com.sun.source.util.Trees trees;
-    /** 消息器 */
+    /**
+     * 消息器
+    */
     private Messager messager;
-    /** 注解处理环境 */
+    /**
+     * 注解处理环境
+    */
     private ProcessingEnvironment pe;
-    /** 依赖探测器 */
+    /**
+     * 依赖探测器
+    */
     private DependencyDetector dependencyDetector;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -63,7 +81,9 @@ public final class TimedAstProcessor extends AbstractProcessor {
     }
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) {
             return false;

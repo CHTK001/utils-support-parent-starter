@@ -30,7 +30,9 @@ public abstract class AbstractDialect implements Dialect {
      */
     protected Properties properties;
 
-    /** 内存中的默认值缓存，避免重复从 属性 读取 */
+    /**
+     * 内存中的默认值缓存，避免重复从 属性 读取
+    */
     private final Map<String, String> configCache = new HashMap<>();
 
     /**
@@ -62,19 +64,25 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     @Override
-    /** 支持限制 */
+    /**
+     * 支持限制
+    */
     public boolean supportsLimit() {
         return true;
     }
 
     @Override
-    /** 处理SQL */
+    /**
+     * 处理SQL
+    */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
     @Override
-    /** 获取类型名称 */
+    /**
+     * 获取类型名称
+    */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
  // 1. 优先读外部 属性（application.属性 等）
         String configured = config("type." + jdbcTypeName(jdbcType), null);
@@ -130,13 +138,17 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     @Override
-    /** Driver */
+    /**
+     * Driver
+    */
     public String driver() {
         return config("driver", null);
     }
 
     @Override
-    /** Url */
+    /**
+     * Url
+    */
     public String url() {
         return config("url", null);
     }

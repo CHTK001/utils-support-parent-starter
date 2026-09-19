@@ -18,14 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 public class FeishuBotClientFactory implements BotClient.Factory {
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public BotClient create() {
         log.debug("Creating Feishu Bot client");
         return new FeishuBotClient();
     }
 
     @Override
-    /** 构建器 */
+    /**
+     * 构建器
+    */
     public BotClient.Builder builder() {
         log.debug("Creating Feishu Bot client builder");
         return new FeishuBuilder();
@@ -65,14 +69,18 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         private long readTimeoutMillis = 30_000;
 
         @Override
-        /** 令牌 */
+        /**
+         * 令牌
+        */
         public BotClient.Builder token(String token) {
             this.appId = token;
             return this;
         }
 
         @Override
-        /** Secret */
+        /**
+         * Secret
+        */
         public BotClient.Builder secret(String secret) {
             this.appSecret = secret;
             return this;
@@ -95,7 +103,9 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** baseurl */
+        /**
+         * baseurl
+        */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -143,7 +153,9 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** 构建 */
+        /**
+         * 构建
+        */
         public BotClient build() {
             FeishuBotClient client = new FeishuBotClient();
             if (appId != null) {

@@ -17,10 +17,14 @@ import org.slf4j.LoggerFactory;
 @Spi("skillhub-plugins")
 public class SkillHubPluginOnlineProvider implements PluginOnlineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(SkillHubPluginOnlineProvider.class);
 
-    /** 市场主页 */
+    /**
+     * 市场主页
+    */
     private static final String MARKET_URL = "https://skillhub.cn/plugins";
 
     @Override

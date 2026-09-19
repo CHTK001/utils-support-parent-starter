@@ -94,20 +94,26 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     public ImageClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 尺寸 */
+    /**
+     * 尺寸
+    */
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -115,13 +121,17 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 正向提示词 */
+    /**
+     * 正向提示词
+    */
     public ImageClient prompt(String prompt) {
         return this;
     }
 
     @Override
-    /** 图片生成 */
+    /**
+     * 图片生成
+    */
     public BufferedImage generate(String prompt) {
         String text = prompt != null ? prompt : null;
         OllamaGenerateImageRequest request = new OllamaGenerateImageRequest();
@@ -148,7 +158,9 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(String prompt) {
         // Ollama 图像 生成 为 同步 流式 端点，无 原生 异步 任务；
         // 此处 立即 执行 生成 并 缓存 结果，返回 本地 任务 标识 供 queryTask 轮询。
@@ -175,7 +187,9 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public ImageResponse queryTask(String taskId) {
         ImageResponse response = taskCache.get(taskId);
         if (response == null) {
@@ -189,7 +203,9 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 模型列表 */
+    /**
+     * 模型列表
+    */
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -216,7 +232,9 @@ public class OllamaImageClient implements ImageClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         taskCache.clear();
     }

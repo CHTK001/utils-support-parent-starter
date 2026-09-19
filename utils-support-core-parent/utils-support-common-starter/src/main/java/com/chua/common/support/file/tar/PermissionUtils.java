@@ -47,7 +47,9 @@ public class PermissionUtils {
          */
         READ(0440);
 
-        /** 文件权限模式 */
+        /**
+         * 文件权限模式
+        */
         private final int mode;
 
         StandardFilePermission(int mode) {

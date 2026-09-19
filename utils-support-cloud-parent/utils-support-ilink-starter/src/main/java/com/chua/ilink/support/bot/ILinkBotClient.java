@@ -43,7 +43,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class ILinkBotClient implements BotClient {
 
-    /** i链接 机器人 API 基础地址 */
+    /**
+     * i链接 机器人 API 基础地址
+    */
     private static final String DEFAULT_BASE_URL = "https://ilinkai.weixin.qq.com";
 
     /**
@@ -56,22 +58,34 @@ public class ILinkBotClient implements BotClient {
      */
     private static final int ILINK_APP_CLIENT_VERSION = 132102;
 
-    /** 渠道版本（openclaw-weixin 包版本） */
+    /**
+     * 渠道版本（openclaw-weixin 包版本）
+    */
     private static final String CHANNEL_VERSION = "2.4.6";
 
-    /** 默认 机器人 代理标识 */
+    /**
+     * 默认 机器人 代理标识
+    */
     private static final String DEFAULT_BOT_AGENT = "OpenClaw";
 
-    /** API 基础地址 */
+    /**
+     * API 基础地址
+    */
     private String baseUrl = DEFAULT_BASE_URL;
 
-    /** 机器人 令牌（登录后获得或手动配置） */
+    /**
+     * 机器人 令牌（登录后获得或手动配置）
+    */
     private String token;
 
-    /** 密钥 */
+    /**
+     * 密钥
+    */
     private String secret;
 
-    /** 加密 AES 键 */
+    /**
+     * 加密 AES 键
+    */
     private String encodingAesKey;
 
     /** 连接超时（毫秒）*/
@@ -80,28 +94,44 @@ public class ILinkBotClient implements BotClient {
     /** 读取超时（毫秒）*/
     private long readTimeoutMillis = 40_000L;
 
-    /** 运行标志 */
+    /**
+     * 运行标志
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    /** 消息监听器列表 */
+    /**
+     * 消息监听器列表
+    */
     private final CopyOnWriteArrayList<BotMessageListener> messageListeners = new CopyOnWriteArrayList<>();
 
-    /** 错误监听器列表 */
+    /**
+     * 错误监听器列表
+    */
     private final CopyOnWriteArrayList<Runnable> errorListeners = new CopyOnWriteArrayList<>();
 
-    /** 二维码监听器 */
+    /**
+     * 二维码监听器
+    */
     private volatile QrcodeListener qrcodeListener;
 
-    /** 上下文_令牌 缓存：用户id → 上下文令牌 */
+    /**
+     * 上下文_令牌 缓存：用户id → 上下文令牌
+    */
     private final Map<String, String> contextTokens = new ConcurrentHashMap<>();
 
-    /** getupdates 游标（会话内的消息拉取续接标记） */
+    /**
+     * getupdates 游标（会话内的消息拉取续接标记）
+    */
     private volatile String getUpdatesBuf = "";
 
-    /** 机器人 标识（登录成功后赋值） */
+    /**
+     * 机器人 标识（登录成功后赋值）
+    */
     private volatile String botId;
 
-    /** HTTP 客户端 */
+    /**
+     * HTTP 客户端
+    */
     private final HttpClient httpClient = HttpClientFactory.getClient();
 
     /**

@@ -49,39 +49,51 @@ public class GaussianPureCalibrator implements PureCalibrator {
      * 正样本分数均值，默认0.85
      */
     @Builder.Default
-    /** MUPOS */
+    /**
+     * MUPOS
+    */
     private double muPos = 0.85;
 
     /**
      * 正样本分数标准差，默认0.05
      */
     @Builder.Default
-    /** STDPOS */
+    /**
+     * STDPOS
+    */
     private double stdPos = 0.05;
 
     /**
      * 负样本分数均值，默认0.50
      */
     @Builder.Default
-    /** MUNEG */
+    /**
+     * MUNEG
+    */
     private double muNeg = 0.50;
 
     /**
      * 负样本分数标准差，默认0.15
      */
     @Builder.Default
-    /** STDNEG */
+    /**
+     * STDNEG
+    */
     private double stdNeg = 0.15;
 
     /**
      * 正样本先验概率，默认0.5
      */
     @Builder.Default
-    /** PriorPOS */
+    /**
+     * PriorPOS
+    */
     private double priorPos = 0.5;
 
     @Override
-    /** Calibrate */
+    /**
+     * Calibrate
+    */
     public double calibrate(double rawScore) {
         double pPos = gaussianPdf(rawScore, muPos, stdPos) * priorPos;
         double pNeg = gaussianPdf(rawScore, muNeg, stdNeg) * (1 - priorPos);
@@ -108,13 +120,17 @@ public class GaussianPureCalibrator implements PureCalibrator {
     }
 
     @Override
-    /** 获取Name */
+    /**
+     * 获取Name
+    */
     public String getName() {
         return "双高斯纯校准";
     }
 
     @Override
-    /** 获取Description */
+    /**
+     * 获取Description
+    */
     public String getDescription() {
         return "基于双高斯分布的贝叶斯概率校准。参数：正类均值/标准差、负类均值/标准差、先验概率。";
     }

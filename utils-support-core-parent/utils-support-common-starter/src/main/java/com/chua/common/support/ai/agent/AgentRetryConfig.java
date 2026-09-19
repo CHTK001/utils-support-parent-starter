@@ -39,7 +39,9 @@ public class AgentRetryConfig {
      * </ul>
      */
     @Builder.Default
-    /** Backoff策略 */
+    /**
+     * Backoff策略
+    */
     private BackoffStrategy backoffStrategy = BackoffStrategy.EXPONENTIAL;
 
     /**
@@ -47,7 +49,9 @@ public class AgentRetryConfig {
      * <p>退避计算的基准值。</p>
      */
     @Builder.Default
-    /** Basedelay毫秒 */
+    /**
+     * Basedelay毫秒
+    */
     private long baseDelayMillis = 1000;
 
     /**
@@ -55,7 +59,9 @@ public class AgentRetryConfig {
      * <p>退避等待的上限，防止等待时间过长。</p>
      */
     @Builder.Default
-    /** 最大值delay毫秒 */
+    /**
+     * 最大值delay毫秒
+    */
     private long maxDelayMillis = 30000;
 
     /**
@@ -69,11 +75,17 @@ public class AgentRetryConfig {
      * 退避策略枚举。
      */
     public enum BackoffStrategy {
-        /** 固定间隔 */
+        /**
+         * 固定间隔
+        */
         FIXED,
-        /** 线性递增 */
+        /**
+         * 线性递增
+        */
         LINEAR,
-        /** 指数退避 */
+        /**
+         * 指数退避
+        */
         EXPONENTIAL
     }
 

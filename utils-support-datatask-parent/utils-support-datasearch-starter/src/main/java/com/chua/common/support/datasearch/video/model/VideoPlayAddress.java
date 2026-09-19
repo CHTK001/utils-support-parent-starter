@@ -10,14 +10,22 @@ import java.util.List;
  */
 public class VideoPlayAddress {
 
-    /** 视频play地址名称 */
+    /**
+     * 视频play地址名称
+    */
     private String videoPlayAddressName;
-    /** 视频play地址代码 */
+    /**
+     * 视频play地址代码
+    */
     private String videoPlayAddressCode;
-    /** 视频play地址通道 */
+    /**
+     * 视频play地址通道
+    */
     private List<VideoPlayAddressChannel> videoPlayAddressChannels;
 
-    /** 创建 视频play地址 实例 */
+    /**
+     * 创建 视频play地址 实例
+    */
     public VideoPlayAddress() {
     }
 

@@ -28,10 +28,14 @@ import java.nio.file.Path;
 @Spi("arcsoft")
 public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, AutoCloseable {
 
-    /** 人脸引擎 */
+    /**
+     * 人脸引擎
+    */
     private final FaceEngine faceEngine;
 
-    /** 创建 face特征comparealgorithm 实例 */
+    /**
+     * 创建 face特征comparealgorithm 实例
+    */
     public FaceFeatureCompareAlgorithm() {
         DeeplearningEnvironment env = DeeplearningEnvironment.of("arcsoft");
         String modelPath = env.getModelPath();
@@ -88,19 +92,25 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         faceEngine.unInit();
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "FACE_COMPARE";
     }
 
     @Override
-    /** 比较 */
+    /**
+     * 比较
+    */
     public float compare(float[] feature1, float[] feature2) {
         if (feature1 == null || feature2 == null) {
             return 0.0f;

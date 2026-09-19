@@ -69,7 +69,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public synchronized void connect() {
         if (connected) {
             return;
@@ -85,7 +87,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public synchronized void disconnect() {
         if (!connected) {
             return;
@@ -100,7 +104,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 是否连接 */
+    /**
+     * 是否连接
+    */
     public boolean isConnected() {
         return connected && kcpClient != null && kcpClient.isConnected();
     }
@@ -227,7 +233,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String topic, SyncMessageHandler handler) {
  // 允许连接前注册订阅（connection游泳池 在连接建立前调用 响应subscriber）
         if (topic != null && handler != null) {
@@ -239,7 +247,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(String topic) {
         pendingSubscriptions.remove(topic);
         if (kcpClient != null) {
@@ -273,7 +283,9 @@ public class KcpSyncClient implements SyncClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }

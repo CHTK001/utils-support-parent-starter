@@ -2754,7 +2754,9 @@ public class ClassUtils {
             Map<String, Method> rs = new LinkedHashMap<>(64);
         doWithMethods(type, new SafeConsumer<Method>() {
             @Override
-            /** 安全回调：注册方法的原始名与驼峰名映射 */
+            /**
+             * 安全回调：注册方法的原始名与驼峰名映射
+            */
             public void safeAccept(Method method) throws Throwable {
                 if (!predicate.test(method)) {
                     return;
@@ -3157,7 +3159,9 @@ public class ClassUtils {
      * @param <T> 目标反射对象类型（须继承 {@link AccessibleObject}）
      */
     static class SetAccessibleAction<T extends AccessibleObject> implements PrivilegedAction<T> {
-        /** 待设置可访问性的反射对象 */
+        /**
+         * 待设置可访问性的反射对象
+        */
         private final T obj;
         /**
          * 创建设置 accessible 动作实例。
@@ -3168,7 +3172,9 @@ public class ClassUtils {
             this.obj = obj;
         }
         @Override
-        /** 执行动作：设置目标对象可访问性并返回 */
+        /**
+         * 执行动作：设置目标对象可访问性并返回
+        */
         public T run() {
             setAccessible(obj);
             return obj;

@@ -35,9 +35,13 @@ public class IpRateLimitServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_REFILL_RATE = 10;
 
-    /** 存储桶容量 */
+    /**
+     * 存储桶容量
+    */
     private int bucketCapacity = DEFAULT_BUCKET_CAPACITY;
-    /** Refill比率 */
+    /**
+     * Refill比率
+    */
     private int refillRate = DEFAULT_REFILL_RATE;
 
     /**
@@ -46,7 +50,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         String capacity = config.getInitParameter("ipRateLimit.bucketCapacity");
         if (capacity != null && !capacity.isEmpty()) {
@@ -59,7 +65,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         TokenBucket bucket = buckets.computeIfAbsent(ip,
@@ -72,13 +80,17 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 25;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "IpRateLimitServerFilter";
     }
@@ -108,13 +120,21 @@ public class IpRateLimitServerFilter implements ServerFilter {
      * @since 4.0.0
      */
     private static class TokenBucket {
-        /** 容量 */
+        /**
+         * 容量
+        */
         private final int capacity;
-        /** Refill比率PERMS */
+        /**
+         * Refill比率PERMS
+        */
         private final double refillRatePerMs;
-        /** 令牌 */
+        /**
+         * 令牌
+        */
         private final AtomicLong tokens;
-        /** 最后一个refill时间 */
+        /**
+         * 最后一个refill时间
+        */
         private volatile long lastRefillTime;
 
         TokenBucket(int capacity, int refillRatePerSecond) {
@@ -139,7 +159,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
             return false;
         }
 
-        /** Refill */
+        /**
+         * Refill
+        */
         private void refill() {
             long now = System.currentTimeMillis();
             long elapsed = now - lastRefillTime;

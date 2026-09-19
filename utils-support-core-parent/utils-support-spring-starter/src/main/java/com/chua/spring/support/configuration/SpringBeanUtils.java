@@ -320,7 +320,9 @@ public class SpringBeanUtils {
      * 内部持有 转换服务 的单例类，延迟加载以避免循环依赖或空指针问题。
      */
     private static final class ConversionServiceHolder {
-        /** 转换服务 */
+        /**
+         * 转换服务
+        */
         private static volatile ConversionService conversionService;
 
         /**
@@ -468,7 +470,9 @@ public class SpringBeanUtils {
      */
     public static final class EventPublisher {
 
-        /** Application上下文 */
+        /**
+         * Application上下文
+        */
         private final ApplicationContext applicationContext;
 
         /**

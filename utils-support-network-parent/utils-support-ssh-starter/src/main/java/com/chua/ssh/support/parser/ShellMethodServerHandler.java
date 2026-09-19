@@ -69,19 +69,25 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
-    /** 路径 */
+    /**
+     * 路径
+    */
     public String path() {
         return path;
     }
 
     @Override
-    /** 方法 */
+    /**
+     * 方法
+    */
     public HttpMethod method() {
         return null;
     }
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         Object bean = objectContext.getBeanOfType(targetClass);
         if (bean == null) {

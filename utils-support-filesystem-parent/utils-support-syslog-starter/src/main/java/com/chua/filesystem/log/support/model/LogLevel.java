@@ -8,19 +8,29 @@ package com.chua.filesystem.log.support.model;
  */
 public enum LogLevel {
 
-    /** 追踪 */
+    /**
+     * 追踪
+    */
     TRACE(0),
 
-    /** 调试 */
+    /**
+     * 调试
+    */
     DEBUG(1),
 
-    /** 信息 */
+    /**
+     * 信息
+    */
     INFO(2),
 
-    /** 警告 */
+    /**
+     * 警告
+    */
     WARNING(3),
 
-    /** 错误 */
+    /**
+     * 错误
+    */
     ERROR(4),
 
     /**
@@ -29,7 +39,9 @@ public enum LogLevel {
      */
     CRITICAL(5);
 
-    /** Severity */
+    /**
+     * Severity
+    */
     private final int severity;
 
     /**

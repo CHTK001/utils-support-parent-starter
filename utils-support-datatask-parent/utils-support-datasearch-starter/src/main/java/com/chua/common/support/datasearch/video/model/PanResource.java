@@ -11,30 +11,54 @@ import java.time.LocalDateTime;
  */
 public class PanResource {
 
-    /** 标题 */
+    /**
+     * 标题
+    */
     private String title;
-    /** URL */
+    /**
+     * URL
+    */
     private String url;
-    /** PAN类型 */
+    /**
+     * PAN类型
+    */
     private PanType panType;
-    /** 尺寸 */
+    /**
+     * 尺寸
+    */
     private String size;
-    /** 描述 */
+    /**
+     * 描述
+    */
     private String description;
-    /** 发布时间 */
+    /**
+     * 发布时间
+    */
     private LocalDateTime publishTime;
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** 分数 */
+    /**
+     * 分数
+    */
     private Double score;
-    /** Extract代码 */
+    /**
+     * Extract代码
+    */
     private String extractCode;
-    /** 是否有效 */
+    /**
+     * 是否有效
+    */
     private Boolean valid;
-    /** 创建时间 */
+    /**
+     * 创建时间
+    */
     private LocalDateTime createTime;
 
-    /** 创建 panresource 实例 */
+    /**
+     * 创建 panresource 实例
+    */
     public PanResource() {
         this.createTime = LocalDateTime.now();
         this.valid = true;

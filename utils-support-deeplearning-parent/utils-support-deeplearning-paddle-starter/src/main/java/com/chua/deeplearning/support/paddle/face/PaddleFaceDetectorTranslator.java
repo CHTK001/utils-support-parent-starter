@@ -40,7 +40,9 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
      */
     private final List<String> className;
 
-    /** 创建 飞桨facedetectortranslator 实例 */
+    /**
+     * 创建 飞桨facedetectortranslator 实例
+    */
     public PaddleFaceDetectorTranslator() {
         this(0.5f, 0.7f);
     }
@@ -58,13 +60,17 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return processImageInput(ctx.getNDManager(), input, shrink);
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -103,7 +109,9 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

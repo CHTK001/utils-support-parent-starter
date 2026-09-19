@@ -61,9 +61,13 @@ import javax.annotation.Nullable;
 public class ImageWidthFilter extends AbstractImageFilter {
 
 
-    /** 目标宽度 */
+    /**
+     * 目标宽度
+    */
     private int width = 100;
-    /** 目标高度 */
+    /**
+     * 目标高度
+    */
     private int height = 100;
 
     /**
@@ -77,7 +81,9 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return zoomBySize(width, height, src);

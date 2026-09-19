@@ -164,7 +164,9 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public RpcServer register(String name, Object bean) {
         if (name == null || bean == null) {
             log.warn("JsonRpcServer ignore invalid register: name={}, bean={}", name, bean);
@@ -177,7 +179,9 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() {
         if (state.compareAndSet(false, true)) {
             try {
@@ -282,19 +286,25 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** 获取协议名称 */
+    /**
+     * 获取协议名称
+    */
     public String getProtocol() {
         return "json";
     }
 
     @Override
-    /** 获取已暴露服务数 */
+    /**
+     * 获取已暴露服务数
+    */
     public int getServiceCount() {
         return rpcServerMap.size();
     }
 
     @Override
-    /** 获取连接信息 */
+    /**
+     * 获取连接信息
+    */
     public List<RpcConnectionInfo> getConnections() {
         String localAddress = "0.0.0.0";
         int localPort = DEFAULT_PORT;
@@ -315,7 +325,9 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** 获取指标快照 */
+    /**
+     * 获取指标快照
+    */
     public RpcMetrics getMetrics() {
         RpcMetrics metrics = new RpcMetrics("json");
         metrics.setStartTime(startTime);
@@ -428,7 +440,9 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         state.set(false);
         if (httpServer != null) {

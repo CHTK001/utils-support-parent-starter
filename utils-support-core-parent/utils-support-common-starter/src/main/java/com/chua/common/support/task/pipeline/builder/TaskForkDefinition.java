@@ -91,19 +91,33 @@ import java.util.function.Consumer;
  */
 public class TaskForkDefinition {
 
-    /** 标识 */
+    /**
+     * 标识
+    */
     private final String id;
-    /** PRE处理器 */
+    /**
+     * PRE处理器
+    */
     private PipelineNode preHandler;
-    /** 构建器 */
+    /**
+     * 构建器
+    */
     private final PipelineBuilder builder;
-    /** branches */
+    /**
+     * branches
+    */
     private final Map<String, Pipeline> branches = new LinkedHashMap<>();
-    /** 错误策略 */
+    /**
+     * 错误策略
+    */
     private ForkErrorStrategy errorStrategy;
-    /** 参数 */
+    /**
+     * 参数
+    */
     private Map<String, Object> params;
-    /** env */
+    /**
+     * env
+    */
     private Map<String, Object> env;
 
     /**

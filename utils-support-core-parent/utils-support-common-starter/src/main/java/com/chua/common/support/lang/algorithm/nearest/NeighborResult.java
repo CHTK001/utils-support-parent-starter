@@ -17,16 +17,24 @@ package com.chua.common.support.lang.algorithm.nearest;
  */
 public class NeighborResult {
 
-    /** 空结果常量，表示查询无结果 */
+    /**
+     * 空结果常量，表示查询无结果
+    */
     public static final NeighborResult EMPTY = new NeighborResult(-1, Double.MAX_VALUE, new double[0]);
 
-    /** 样本在原数据集中的索引位置 */
+    /**
+     * 样本在原数据集中的索引位置
+    */
     private final int index;
 
-    /** 与目标点的距离值 */
+    /**
+     * 与目标点的距离值
+    */
     private final double distance;
 
-    /** 样本的完整特征向量 */
+    /**
+     * 样本的完整特征向量
+    */
     private final double[] vector;
 
     /**
@@ -79,7 +87,9 @@ public class NeighborResult {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return String.format("NeighborResult{index=%d, distance=%.6f}", index, distance);
     }

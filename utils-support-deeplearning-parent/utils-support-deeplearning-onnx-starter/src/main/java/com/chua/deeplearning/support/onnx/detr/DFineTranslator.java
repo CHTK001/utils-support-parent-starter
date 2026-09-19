@@ -35,7 +35,9 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     private static final int INPUT_SIZE = 640; // 输入大小
     private static final float SCORE_THRESHOLD = 0.5f; // score阈值
 
-    /** COCO 80 类标准类别名 */
+    /**
+     * COCO 80 类标准类别名
+    */
     private static final String[] COCO_LABELS = {
 
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
@@ -52,7 +54,9 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
             "hair drier", "toothbrush"
     };
 
-    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    /**
+     * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+    */
     private float thresholdOverride = -1f;
 
     /**

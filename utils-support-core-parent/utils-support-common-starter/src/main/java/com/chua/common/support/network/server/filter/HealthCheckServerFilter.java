@@ -34,7 +34,9 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
      */
     private static final int STATUS_OK = 200;
 
-    /** 健康检查路径集合(精确匹配) */
+    /**
+     * 健康检查路径集合(精确匹配)
+    */
     private final Set<String> healthPaths;
 
     /**
@@ -54,7 +56,9 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
-    /** 获取Order:最先执行,保证探针请求短路整条链 */
+    /**
+     * 获取Order:最先执行,保证探针请求短路整条链
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 10;
     }
@@ -68,7 +72,9 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

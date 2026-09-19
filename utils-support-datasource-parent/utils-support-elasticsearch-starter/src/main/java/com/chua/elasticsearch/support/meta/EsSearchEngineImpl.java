@@ -24,7 +24,9 @@ import java.util.Map;
  */
 public class EsSearchEngineImpl implements SearchEngine {
 
-    /** 引擎 */
+    /**
+     * 引擎
+    */
     private final ElasticsearchEngine engine;
 
     /**
@@ -36,13 +38,17 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "elasticsearch";
     }
 
     @Override
-    /** 列表索引 */
+    /**
+     * 列表索引
+    */
     public List<String> listIndexes() {
         try {
             var response = engine.getClient().indices().get(i -> i.index("*"));
@@ -53,7 +59,9 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取索引 */
+    /**
+     * 获取索引
+    */
     public SearchIndexDef getIndex(String indexName) {
         try {
             GetIndexResponse indexResponse = engine.getClient().indices().get(i -> i.index(indexName));
@@ -91,7 +99,9 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 创建索引 */
+    /**
+     * 创建索引
+    */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -164,7 +174,9 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 删除索引 */
+    /**
+     * 删除索引
+    */
     public boolean deleteIndex(String indexName) {
         try {
             engine.getClient().indices().delete(d -> d.index(indexName));
@@ -175,7 +187,9 @@ public class EsSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取客户端 */
+    /**
+     * 获取客户端
+    */
     public Object getClient() {
         return engine.getClient();
     }

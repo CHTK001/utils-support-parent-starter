@@ -76,7 +76,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
         // 添加配置变更监听器
         apolloConfig.addChangeListener(new ConfigChangeListener() {
             @Override
-            /** on改变 */
+            /**
+             * on改变
+            */
             public void onChange(ConfigChangeEvent event) {
                 Set<String> changedKeys = event.changedKeys();
                 for (String key : changedKeys) {
@@ -183,7 +185,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         apolloConfig.addChangeListener(new ConfigChangeListener() {
             @Override
-            /** on改变 */
+            /**
+             * on改变
+            */
             public void onChange(ConfigChangeEvent event) {
                 Set<String> changedKeys = event.changedKeys();
                 for (String key : changedKeys) {

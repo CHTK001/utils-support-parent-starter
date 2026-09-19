@@ -44,7 +44,9 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值。
      */
-    /** 置信度阈值（默认 0.5），可经 detection配置 覆盖。 */
+    /**
+     * 置信度阈值（默认 0.5），可经 detection配置 覆盖。
+    */
     public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (configuration != null) {
             this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
@@ -96,7 +98,9 @@ private float confThreshold = 0.45f; // conf阈值
     private int imageHeight;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -131,7 +135,9 @@ private float confThreshold = 0.45f; // conf阈值
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.getFirst();
         long[] shape = output.getShape().getShape();
@@ -320,7 +326,9 @@ private float confThreshold = 0.45f; // conf阈值
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;

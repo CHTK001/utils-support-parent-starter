@@ -31,16 +31,24 @@ import java.util.Objects;
 @Slf4j
 public class MiniMindUebaAnalyzer implements AutoCloseable {
 
-    /** 系统属性名：minimind 模型目录 */
+    /**
+     * 系统属性名：minimind 模型目录
+    */
     public static final String MODEL_DIR_PROPERTY = "ueba.minimind.model.dir";
 
-    /** 提示词中最近路径的最大展示条数 */
+    /**
+     * 提示词中最近路径的最大展示条数
+    */
     private static final int MAX_RECENT_PATHS = 5;
 
-    /** 异常等级最大展示条数（正常等级不生成解释） */
+    /**
+     * 异常等级最大展示条数（正常等级不生成解释）
+    */
     private static final String NORMAL_LEVEL = "NORMAL";
 
-    /** minimind 模型（懒加载，可能为 空） */
+    /**
+     * minimind 模型（懒加载，可能为 空）
+    */
     private final ZooModel<String, String> model;
 
     /**

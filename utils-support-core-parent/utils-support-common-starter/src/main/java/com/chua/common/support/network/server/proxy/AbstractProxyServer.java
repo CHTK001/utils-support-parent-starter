@@ -99,7 +99,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -157,7 +159,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         running = false;
         if (preferNonBlockingAccept && acceptChannel != null) {

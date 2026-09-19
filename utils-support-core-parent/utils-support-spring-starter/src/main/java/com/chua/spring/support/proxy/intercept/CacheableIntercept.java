@@ -18,19 +18,25 @@ import org.springframework.cache.annotation.Cacheable;
 public class CacheableIntercept implements MethodAnnotationIntercept<Cacheable> {
 
     @Override
-    /** 注解类型 */
+    /**
+     * 注解类型
+    */
     public Class<Cacheable> annotationType() {
         return Cacheable.class;
     }
 
     @Override
-    /** 订单 */
+    /**
+     * 订单
+    */
     public int order() {
         return 200;
     }
 
     @Override
-    /** Intercept */
+    /**
+     * Intercept
+    */
     public Object intercept(Cacheable annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
         return invocation.proceed();
     }

@@ -16,11 +16,17 @@ import javax.sql.DataSource;
  */
 public class OracleDropIndexStep implements IndexManager.DropIndexStep {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 索引名称 */
+    /**
+     * 索引名称
+    */
     private final String indexName;
-    /** 表 */
+    /**
+     * 表
+    */
     private String table;
 
     /**

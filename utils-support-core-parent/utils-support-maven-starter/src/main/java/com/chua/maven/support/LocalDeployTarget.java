@@ -31,7 +31,9 @@ import java.nio.file.StandardCopyOption;
  */
 public class LocalDeployTarget implements MavenDeployTarget {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LocalDeployTarget.class);
 
     /**
@@ -59,19 +61,25 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "本地文件系统: " + rootDir;
     }
 
     @Override
-    /** 是否就绪 */
+    /**
+     * 是否就绪
+    */
     public boolean isReady() {
         return ready;
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         File dir = new File(rootDir);
         if (!dir.exists()) {
@@ -82,7 +90,9 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** Upload */
+    /**
+     * Upload
+    */
     public void upload(String localPath, String targetPath) {
         ensureReady();
         try {
@@ -100,7 +110,9 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 创建目录 */
+    /**
+     * 创建目录
+    */
     public void createDirectory(String path) {
         ensureReady();
         File dir = new File(rootDir, path);
@@ -111,13 +123,17 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 是否存在 */
+    /**
+     * 是否存在
+    */
     public boolean exists(String path) {
         return new File(rootDir, path).exists();
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public void delete(String path) {
         File file = new File(rootDir, path);
         if (file.exists()) {
@@ -131,13 +147,17 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         ready = false;
     }
 
     @Override
-    /** 设置Callback */
+    /**
+     * 设置Callback
+    */
     public void setCallback(MavenDeployCallback callback) {
         this.callback = callback;
     }

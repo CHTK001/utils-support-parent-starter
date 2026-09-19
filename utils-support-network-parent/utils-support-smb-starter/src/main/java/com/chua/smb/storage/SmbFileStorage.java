@@ -82,7 +82,9 @@ public class SmbFileStorage extends AbstractFileStorage {
         this.smbClient = SmbClient.create(uri);
     }
 
-    /** ensure连接 */
+    /**
+     * ensure连接
+    */
     private void ensureConnected() {
         if (smbClient != null) {
             smbClient.connect().login().openShare();
@@ -90,7 +92,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 放入对象 */
+    /**
+     * 放入对象
+    */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -116,7 +120,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -137,7 +143,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(String key) {
         String name = extractName(key);
         String path = extractPath(key);
@@ -145,7 +153,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除对象 */
+    /**
+     * 删除对象
+    */
     public DeleteObjectResult deleteObject(String key) {
         try {
             ensureConnected();
@@ -162,7 +172,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** exist对象 */
+    /**
+     * exist对象
+    */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             ensureConnected();
@@ -182,7 +194,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 列表对象 */
+    /**
+     * 列表对象
+    */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String path = request.getFilePath() != null ? request.getFilePath() : "/";
@@ -211,7 +225,9 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             if (smbClient != null) {

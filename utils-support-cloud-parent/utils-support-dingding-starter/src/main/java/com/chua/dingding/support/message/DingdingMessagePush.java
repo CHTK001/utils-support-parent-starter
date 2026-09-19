@@ -58,12 +58,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 public class DingdingMessagePush implements MessagePush {
 
-    /** 消息环境 */
+    /**
+     * 消息环境
+    */
     private final MessageEnvironment environment;
-    /** 模板映射 */
+    /**
+     * 模板映射
+    */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 dingding消息push 实例 */
+    /**
+     * 创建 dingding消息push 实例
+    */
     public DingdingMessagePush() {
         this(new MessageEnvironment());
     }
@@ -77,7 +83,9 @@ public class DingdingMessagePush implements MessagePush {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "dingding";
     }
@@ -169,7 +177,9 @@ public class DingdingMessagePush implements MessagePush {
     }
 
     @Override
-    /** 列表templates */
+    /**
+     * 列表templates
+    */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }

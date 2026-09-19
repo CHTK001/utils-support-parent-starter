@@ -63,19 +63,33 @@ public class ServiceBuilder implements Closeable {
 
     // ---------- 公共属性 ----------
 
-    /** jar 文件路径 */
+    /**
+     * jar 文件路径
+    */
     private String jarPath;
-    /** 启动命令（支持 {jar} 占位符） */
+    /**
+     * 启动命令（支持 {jar} 占位符）
+    */
     private String startCmd;
-    /** 停止命令（支持 {pid} 占位符） */
+    /**
+     * 停止命令（支持 {pid} 占位符）
+    */
     private String stopCmd;
-    /** 服务名称 */
+    /**
+     * 服务名称
+    */
     private String serviceName;
-    /** PID 文件路径（空 则使用默认） */
+    /**
+     * PID 文件路径（空 则使用默认）
+    */
     private String pidFile;
-    /** 工作目录 */
+    /**
+     * 工作目录
+    */
     private String workingDir;
-    /** 环境变量 */
+    /**
+     * 环境变量
+    */
     private Map<String, String> env;
 
     /**

@@ -31,10 +31,14 @@ import java.util.Map;
  */
 public class FileViewerStaticFilter implements ServerFilter {
 
-    /** 版本路径前缀：/文件-viewer/{版本}/ */
+    /**
+     * 版本路径前缀：/文件-viewer/{版本}/
+    */
     private static final String VERSION_PREFIX_PATTERN = "/file-viewer/[^/]+/";
 
-    /** MIME 类型映射 */
+    /**
+     * MIME 类型映射
+    */
     private static final Map<String, String> MIME_TYPES;
     static {
         Map<String, String> m = new java.util.HashMap<>();

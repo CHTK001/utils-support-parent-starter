@@ -35,27 +35,43 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RateLimitFilter implements ServerFilter {
 
-    /** 提供者名称 */
+    /**
+     * 提供者名称
+    */
     private final String providerName;
-    /** QPS */
+    /**
+     * QPS
+    */
     private final double qps;
-    /** 密钥策略 */
+    /**
+     * 密钥策略
+    */
     private final KeyStrategy keyStrategy;
-    /** 路径prefix */
+    /**
+     * 路径prefix
+    */
     private final String pathPrefix;
 
-    /** limiter */
+    /**
+     * limiter
+    */
     private volatile RateLimitProvider.RateLimiter limiter;
 
     /**
      * 限流 key 提取策略
      */
     public enum KeyStrategy {
-        /** 全局限流 */
+        /**
+         * 全局限流
+        */
         GLOBAL,
-        /** 按 IP 限流 */
+        /**
+         * 按 IP 限流
+        */
         BY_IP,
-        /** 按路径限流 */
+        /**
+         * 按路径限流
+        */
         BY_PATH
     }
 
@@ -108,19 +124,25 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 30;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         RateLimitProvider provider = ServiceProvider.of(RateLimitProvider.class).getExtension(providerName);
         if (provider == null) {

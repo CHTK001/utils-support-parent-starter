@@ -48,24 +48,42 @@ public class ObjectUtils {
     }
 
     private static final long serialVersionUID = 1L; // 串行版本uid
-    /** Initial_哈希 */
+    /**
+     * Initial_哈希
+    */
     private static final int INITIAL_HASH = 7;
-    /** 倍数 */
+    /**
+     * 倍数
+    */
     private static final int MULTIPLIER = 31;
 
-    /** 空_字符串 */
+    /**
+     * 空_字符串
+    */
     private static final String EMPTY_STRING = "";
-    /** 空_字符串 */
+    /**
+     * 空_字符串
+    */
     private static final String NULL_STRING = "null";
-    /** Array_启动 */
+    /**
+     * Array_启动
+    */
     private static final String ARRAY_START = "{";
-    /** Array_结束 */
+    /**
+     * Array_结束
+    */
     private static final String ARRAY_END = "}";
-    /** 空_array */
+    /**
+     * 空_array
+    */
     private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
-    /** Array_element_separator */
+    /**
+     * Array_element_separator
+    */
     private static final String ARRAY_ELEMENT_SEPARATOR = ", ";
-    /** At_标志 */
+    /**
+     * At_标志
+    */
     private static final char AT_SIGN = '@';
 
 

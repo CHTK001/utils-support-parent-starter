@@ -165,7 +165,9 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public PdfWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -217,7 +219,9 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -355,7 +359,9 @@ public class PdfWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** 解析Template */
+    /**
+     * 解析Template
+    */
     private void resolveTemplate() {
         try {
             TemplateFileSystem engine = ServiceProvider.of(TemplateFileSystem.class).getExtension("txt");

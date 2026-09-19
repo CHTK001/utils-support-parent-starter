@@ -25,7 +25,9 @@ public class ConfigSaveLoadSetting {
      * <p>本地文件存储时的根目录，默认为 ${user.home}/.config。</p>
      */
     @Builder.Default
-    /** 根级路径 */
+    /**
+     * 根级路径
+    */
     private String rootPath = System.getProperty("user.home", ".") + "/.config";
 
     /**
@@ -65,7 +67,9 @@ public class ConfigSaveLoadSetting {
      * <p>与远程配置中心建立连接的最大等待时间，默认 5000ms。</p>
      */
     @Builder.Default
-    /** Connect超时毫秒 */
+    /**
+     * Connect超时毫秒
+    */
     private long connectTimeoutMillis = 5000;
 
     /**
@@ -74,7 +78,9 @@ public class ConfigSaveLoadSetting {
      * <p>等待远程配置中心返回数据的最大时间，默认 5000ms。</p>
      */
     @Builder.Default
-    /** Read超时毫秒 */
+    /**
+     * Read超时毫秒
+    */
     private long readTimeoutMillis = 5000;
 
     /**
@@ -83,9 +89,13 @@ public class ConfigSaveLoadSetting {
      * <p>配置数据传输时的 Content-Type 头，默认 "application/octet-stream"。</p>
      */
     @Builder.Default
-    /** 内容类型 */
+    /**
+     * 内容类型
+    */
     private String contentType = "application/octet-stream";
 
-    /** 获取ContentType */
+    /**
+     * 获取ContentType
+    */
     public String getContentType() { return contentType; }
 }

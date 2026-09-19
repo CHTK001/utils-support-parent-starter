@@ -40,7 +40,9 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     private int lastPadW; // 最后一个padw
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
@@ -49,7 +51,9 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         int h = buffered.getHeight();
@@ -83,7 +87,9 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
@@ -129,7 +135,9 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

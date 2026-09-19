@@ -30,41 +30,73 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class TraceContext {
 
-    /** 环境启用开关 */
+    /**
+     * 环境启用开关
+    */
     private static final String ENV_ENABLED = "TRACE_ENABLED";
-    /** 缩进单位 */
+    /**
+     * 缩进单位
+    */
     private static final String INDENT_UNIT = "    ";
-    /** 分支名称 */
+    /**
+     * 分支名称
+    */
     private static final String BRANCH = "└── ";
-    /** 最大缩进深度 */
+    /**
+     * 最大缩进深度
+    */
     private static final int MAX_INDENT_DEPTH = 16;
 
-    /** 调用栈 */
+    /**
+     * 调用栈
+    */
     private static final ThreadLocal<Deque<TraceNode>> STACK = ThreadLocal.withInitial(ArrayDeque::new);
-    /** 最大深度 */
+    /**
+     * 最大深度
+    */
     private static final ThreadLocal<Integer> MAX_DEPTH = new ThreadLocal<>();
-    /** 共享节点存储：追踪id → 该调用链的所有节点（跨线程共享） */
+    /**
+     * 共享节点存储：追踪id → 该调用链的所有节点（跨线程共享）
+    */
     private static final java.util.concurrent.ConcurrentHashMap<String, List<TraceNode>> SHARED_NODES = new java.util.concurrent.ConcurrentHashMap<>();
-    /** 标识序号生成器 */
+    /**
+     * 标识序号生成器
+    */
     private static final AtomicLong ID_SEQ = new AtomicLong(0);
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private static final boolean ENABLED;
-    /** 缩进序列 */
+    /**
+     * 缩进序列
+    */
     private static final String[] INDENTS;
 
-    /** MDC 写入方法句柄 */
+    /**
+     * MDC 写入方法句柄
+    */
     private static MethodHandle mdcPutHandle;
-    /** MDC 移除方法句柄 */
+    /**
+     * MDC 移除方法句柄
+    */
     private static MethodHandle mdcRemoveHandle;
-    /** MDC 是否可用 */
+    /**
+     * MDC 是否可用
+    */
     private static volatile boolean mdcAvailable = true;
 
-    /** 日志信息处理方法句柄 */
+    /**
+     * 日志信息处理方法句柄
+    */
     private static MethodHandle loggerInfoHandle;
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static Object logger;
-    /** Slf4j 是否可用 */
+    /**
+     * Slf4j 是否可用
+    */
     private static volatile boolean slf4jAvailable = true;
 
     static {
@@ -85,7 +117,9 @@ public final class TraceContext {
         }
     }
 
-    /** 创建 追踪上下文 实例 */
+    /**
+     * 创建 追踪上下文 实例
+    */
     private TraceContext() {
     }
 
@@ -384,12 +418,18 @@ public final class TraceContext {
 
     // ==================== 树形输出 ====================
 
-    /** 颜色阈值：耗时占比超过此值显示红色 */
+    /**
+     * 颜色阈值：耗时占比超过此值显示红色
+    */
     private static final long COLOR_THRESHOLD_PERCENT = 80;
 
-    /** ANSI 红色 */
+    /**
+     * ANSI 红色
+    */
     private static final String RED = "\033[31m";
-    /** ANSI 重置 */
+    /**
+     * ANSI 重置
+    */
     private static final String RESET = "\033[0m";
 
     /**

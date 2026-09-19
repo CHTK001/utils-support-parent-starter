@@ -220,35 +220,45 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public OcrRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** Lang */
+    /**
+     * Lang
+    */
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public OcrRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** usegpu */
+    /**
+     * usegpu
+    */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;

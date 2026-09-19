@@ -29,35 +29,55 @@ public class BTreeNode {
      */
     public enum Type {
 
-        /** 逻辑运算：AND / OR */
+        /**
+         * 逻辑运算：AND / OR
+        */
         LOGIC,
 
-        /** 逻辑非：NOT */
+        /**
+         * 逻辑非：NOT
+        */
         NOT,
 
-        /** 比较运算：= / != / > / < / >= / <= */
+        /**
+         * 比较运算：= / != / > / < / >= / <=
+        */
         COMPARE,
 
-        /** 列引用：如 age、status */
+        /**
+         * 列引用：如 age、status
+        */
         COLUMN,
 
-        /** 常量值：如 18、'active'、TRUE */
+        /**
+         * 常量值：如 18、'active'、TRUE
+        */
         VALUE,
 
-        /** 函数调用：如 NOW()、UPPER(name) */
+        /**
+         * 函数调用：如 NOW()、UPPER(name)
+        */
         FUNCTION,
 
-        /** 原始表达式（未解析的文本） */
+        /**
+         * 原始表达式（未解析的文本）
+        */
         RAW
     }
 
-    /** 节点类型 */
+    /**
+     * 节点类型
+    */
     private final Type type;
 
-    /** 运算符或列名或函数名 */
+    /**
+     * 运算符或列名或函数名
+    */
     private final String operator;
 
-    /** 值（VALUE 类型时为实际值，其他类型可能为 null） */
+    /**
+     * 值（VALUE 类型时为实际值，其他类型可能为 null）
+    */
     private final Object value;
 
     /**
@@ -65,10 +85,14 @@ public class BTreeNode {
      */
     private BTreeNode left;
 
-    /** 右子节点（LOGIC/NOT/COMPARE 时有值） */
+    /**
+     * 右子节点（LOGIC/NOT/COMPARE 时有值）
+    */
     private BTreeNode right;
 
-    /** 子节点列表（FUNCTION 参数等） */
+    /**
+     * 子节点列表（FUNCTION 参数等）
+    */
     private final List<BTreeNode> children = new ArrayList<>();
 
     /**
@@ -305,7 +329,9 @@ public class BTreeNode {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return switch (type) {
             case LOGIC -> "(" + left + " " + operator + " " + right + ")";

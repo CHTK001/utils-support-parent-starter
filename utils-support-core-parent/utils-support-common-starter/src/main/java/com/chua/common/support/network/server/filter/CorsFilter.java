@@ -16,23 +16,31 @@ import com.chua.common.support.network.server.response.ServerResponse;
  */
 public class CorsFilter implements ServerFilter {
 
-    /** setting */
+    /**
+     * setting
+    */
     private volatile ServerSetting setting;
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 50;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         if (config != null) {
             this.setting = config.getServerSetting();
@@ -42,7 +50,9 @@ public class CorsFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (setting == null) {
             chain.doFilter(request, response);

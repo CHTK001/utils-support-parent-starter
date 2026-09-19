@@ -23,17 +23,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SystemLogBridge {
 
-    /** 实例 */
+    /**
+     * 实例
+    */
     private static final SystemLogBridge INSTANCE = new SystemLogBridge();
 
-    /** win32Registry */
+    /**
+     * win32Registry
+    */
     private volatile NativeFunctionRegistry win32Registry;
-    /** Linuxregistry */
+    /**
+     * Linuxregistry
+    */
     private volatile NativeFunctionRegistry linuxRegistry;
-    /** initialized */
+    /**
+     * initialized
+    */
     private volatile boolean initialized;
 
-    /** 创建 系统日志bridge 实例 */
+    /**
+     * 创建 系统日志bridge 实例
+    */
     private SystemLogBridge() {
     }
 
@@ -46,7 +56,9 @@ public final class SystemLogBridge {
         return INSTANCE;
     }
 
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void initialize() {
         if (initialized) {
             return;

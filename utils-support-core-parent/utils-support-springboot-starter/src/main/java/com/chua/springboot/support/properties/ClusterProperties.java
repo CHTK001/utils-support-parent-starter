@@ -40,43 +40,69 @@ import java.util.List;
 @ConfigurationProperties(prefix = "chua.cluster")
 public class ClusterProperties {
 
-    /** 节点 标识（缺省自动生成） */
+    /**
+     * 节点 标识（缺省自动生成）
+    */
     private String nodeId;
 
-    /** 本机 主机 */
+    /**
+     * 本机 主机
+    */
     private String host = "127.0.0.1";
 
-    /** 业务分组标识（scatterid） */
+    /**
+     * 业务分组标识（scatterid）
+    */
     private String scatterId = "default";
 
-    /** 集群标识（为空回落到 scatterid） */
+    /**
+     * 集群标识（为空回落到 scatterid）
+    */
     private String clusterId;
 
-    /** 种子节点列表（主机:端口） */
+    /**
+     * 种子节点列表（主机:端口）
+    */
     private List<String> seeds = new ArrayList<>();
 
-    /** 本节点服务路径列表 */
+    /**
+     * 本节点服务路径列表
+    */
     private List<String> servicePaths = new ArrayList<>();
 
-    /** 本节点业务端口（0=自动分配） */
+    /**
+     * 本节点业务端口（0=自动分配）
+    */
     private int port = 0;
 
-    /** scatter 通信端口（0=端口+2） */
+    /**
+     * scatter 通信端口（0=端口+2）
+    */
     private int scatterPort = 0;
 
-    /** 是否启用 HTTP 入口（默认 true） */
+    /**
+     * 是否启用 HTTP 入口（默认 true）
+    */
     private boolean httpEnabled = true;
 
-    /** 是否启用 TCP 入口（默认 false） */
+    /**
+     * 是否启用 TCP 入口（默认 false）
+    */
     private boolean tcpEnabled = false;
 
-    /** 负载均衡策略（权重/round/随机） */
+    /**
+     * 负载均衡策略（权重/round/随机）
+    */
     private String balance = "weight";
 
-    /** 请求超时毫秒 */
+    /**
+     * 请求超时毫秒
+    */
     private long timeoutMillis = 3000;
 
-    /** 自动发现间隔毫秒 */
+    /**
+     * 自动发现间隔毫秒
+    */
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
@@ -94,19 +120,29 @@ public class ClusterProperties {
     @Setter
     public static class ServerEntryProp {
 
-        /** 服务路径，如 "/api" */
+        /**
+         * 服务路径，如 "/api"
+        */
         private String servicePath;
 
-        /** 目标主机 */
+        /**
+         * 目标主机
+        */
         private String host;
 
-        /** 目标端口 */
+        /**
+         * 目标端口
+        */
         private int port;
 
-        /** 协议：http / tcp / udp */
+        /**
+         * 协议：http / tcp / udp
+        */
         private String protocol = "http";
 
-        /** 业务分组（空 时回落 clusterid/scatterid） */
+        /**
+         * 业务分组（空 时回落 clusterid/scatterid）
+        */
         private String scatterId;
     }
 }

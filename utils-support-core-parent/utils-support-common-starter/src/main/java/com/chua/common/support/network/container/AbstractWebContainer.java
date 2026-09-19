@@ -134,7 +134,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     protected final List<DeployUnitInfo> deployedUnits = new ArrayList<>();
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void initialize(WebContainerSetting setting) {
         if (setting == null) {
             throw new ContainerException("容器配置不能为 null");
@@ -147,7 +149,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** Deploy */
+    /**
+     * Deploy
+    */
     public void deploy(String archivePath) {
         DeployUnitType type = DeployUnitType.fromFileName(archivePath);
         String contextPath = resolveContextPath(archivePath, type);
@@ -155,7 +159,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** Deploy */
+    /**
+     * Deploy
+    */
     public void deploy(String archivePath, String contextPath, DeployUnitType type) {
         ensureInitialized();
         if (isRunning()) {
@@ -218,7 +224,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** DeployAll */
+    /**
+     * DeployAll
+    */
     public void deployAll() {
         ensureInitialized();
         if (setting.getDeployUnits() == null || setting.getDeployUnits().isEmpty()) {
@@ -237,7 +245,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** Undeploy */
+    /**
+     * Undeploy
+    */
     public void undeploy(String contextPath) {
         if (!isRunning()) {
             throw new ContainerException("容器未启动，无法执行卸载操作");
@@ -248,7 +258,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (!status.compareAndSet(ContainerStatus.INITIALIZED, ContainerStatus.STARTING)) {
             ContainerStatus current = status.get();
@@ -270,7 +282,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (!status.compareAndSet(ContainerStatus.RUNNING, ContainerStatus.STOPPING)) {
             ContainerStatus current = status.get();
@@ -293,7 +307,9 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** Restart */
+    /**
+     * Restart
+    */
     public void restart() {
         log.info("{} 容器正在重启...", getName());
         if (isRunning()) {
@@ -306,13 +322,17 @@ public abstract class AbstractWebContainer implements WebContainer {
     }
 
     @Override
-    /** 获取Status */
+    /**
+     * 获取Status
+    */
     public ContainerStatus getStatus() {
         return status.get();
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return status.get() == ContainerStatus.RUNNING;
     }

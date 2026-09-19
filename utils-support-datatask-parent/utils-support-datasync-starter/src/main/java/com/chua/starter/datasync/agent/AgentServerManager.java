@@ -48,9 +48,13 @@ public interface AgentServerManager {
      */
     void push(String agentId, String sinkId, java.util.List<java.util.Map<String, Object>> data);
 
-    /** 开始 */
+    /**
+     * 开始
+    */
     default void start() {}
 
-    /** 停止 */
+    /**
+     * 停止
+    */
     default void stop() {}
 }

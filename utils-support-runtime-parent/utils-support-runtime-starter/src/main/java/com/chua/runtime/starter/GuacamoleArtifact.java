@@ -28,7 +28,9 @@ import java.nio.file.Paths;
  */
 public final class GuacamoleArtifact {
 
-    /** 创建 guacamoleartifact 实例 */
+    /**
+     * 创建 guacamoleartifact 实例
+    */
     private GuacamoleArtifact() {
         // NOTHING
     }

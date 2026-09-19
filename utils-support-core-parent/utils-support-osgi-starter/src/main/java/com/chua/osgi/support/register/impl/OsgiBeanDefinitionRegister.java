@@ -29,9 +29,13 @@ import java.util.*;
 @SpiDescribe("OSGi Bean 定义注册器（只读，委托 Felix OSGi 框架）")
 public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
-    /** closed */
+    /**
+     * closed
+    */
     private volatile boolean closed;
-    /** osgilauncher */
+    /**
+     * osgilauncher
+    */
     private volatile OsgiLauncher osgiLauncher;
 
     /**
@@ -44,55 +48,73 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "osgi";
     }
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 100;
     }
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return false;
     }
 
     @Override
-    /** 是否Writable */
+    /**
+     * 是否Writable
+    */
     public boolean isWritable() {
         return false;
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public boolean register(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注册");
     }
 
     @Override
-    /** 注销 */
+    /**
+     * 注销
+    */
     public boolean unregister(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注销");
     }
 
     @Override
-    /** 注销 */
+    /**
+     * 注销
+    */
     public boolean unregister(String beanName) {
         throw new UnsupportedOperationException("OSGi Bean 定义注册器不支持手动注销");
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void initialize() {
         closed = false;
     }
 
     @Override
-    /** 获取Beandefinition */
+    /**
+     * 获取Beandefinition
+    */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -128,7 +150,9 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取Beandefinition的类型 */
+    /**
+     * 获取Beandefinition的类型
+    */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -158,7 +182,9 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取Beandefinition的类型 */
+    /**
+     * 获取Beandefinition的类型
+    */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -174,7 +200,9 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** containsBean */
+    /**
+     * containsBean
+    */
     public boolean containsBean(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -183,32 +211,42 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取Beandefinition名称 */
+    /**
+     * 获取Beandefinition名称
+    */
     public Collection<String> getBeanDefinitionNames() {
         return Collections.emptyList();
     }
 
     @Override
-    /** 获取Beanwith注解 */
+    /**
+     * 获取Beanwith注解
+    */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }
 
     @Override
-    /** 获取Beanwith方法注解 */
+    /**
+     * 获取Beanwith方法注解
+    */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         destroySingletons();
     }
 
     @Override
-    /** 是否Closed */
+    /**
+     * 是否Closed
+    */
     public boolean isClosed() {
         return closed;
     }

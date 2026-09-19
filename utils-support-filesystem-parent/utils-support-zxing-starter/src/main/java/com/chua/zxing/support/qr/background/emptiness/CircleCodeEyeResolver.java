@@ -15,10 +15,14 @@ import javax.annotation.Nullable;
  */
 public class CircleCodeEyeResolver implements CodeEyeResolver{
     
-    /** 单位宽度 */
+    /**
+     * 单位宽度
+    */
     private int unitWidth = 54;
 
-    /** 创建 circle编码eye解析器 实例 */
+    /**
+     * 创建 circle编码eye解析器 实例
+    */
     public CircleCodeEyeResolver() {
     }
 
@@ -31,7 +35,9 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version) {
         // 画四个圆滑的大码眼
         Stroke stroke = g.getStroke();

@@ -12,7 +12,9 @@ package com.chua.common.support.exception;
  */
 public class NoPermissionException extends RuntimeException {
 
-    /** 创建 NoPermissionException 实例 */
+    /**
+     * 创建 NoPermissionException 实例
+    */
     public NoPermissionException() {
         super();
     }

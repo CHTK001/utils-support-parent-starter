@@ -31,10 +31,14 @@ import java.util.stream.Collectors;
  */
 public class AtomCodeUsageParserTest {
 
-    /** 失败计数 */
+    /**
+     * 失败计数
+    */
     private static int failureCount = 0;
 
-    /** 成功计数 */
+    /**
+     * 成功计数
+    */
     private static int passCount = 0;
 
     /**

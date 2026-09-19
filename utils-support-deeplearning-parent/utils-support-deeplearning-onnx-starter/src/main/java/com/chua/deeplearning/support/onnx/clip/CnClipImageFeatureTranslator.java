@@ -21,15 +21,23 @@ import java.nio.file.Path;
  */
 public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.cv.Image, float[]> {
 
-    /** 图像尺寸 */
+    /**
+     * 图像尺寸
+    */
     private static final int IMAGE_SIZE = 224;
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = new float[]{0.48145466f, 0.45782750f, 0.40821073f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, ai.djl.modality.cv.Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), ai.djl.modality.cv.Image.Flag.COLOR);
         array = ai.djl.modality.cv.util.NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -55,14 +63,18 @@ public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         return imageEmbeds.squeeze().toFloatArray();
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

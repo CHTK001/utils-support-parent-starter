@@ -28,17 +28,29 @@ import java.util.List;
 @Slf4j
 public class CompressionAwareModel implements Model {
 
-    /** 委托对象 */
+    /**
+     * 委托对象
+    */
     private final Model delegate;
-    /** 降级聊天客户端 */
+    /**
+     * 降级聊天客户端
+    */
     private final ChatClient fallbackChatClient;
-    /** 压缩配置 */
+    /**
+     * 压缩配置
+    */
     private final AgentCompressionConfig compressionConfig;
-    /** 上下文压缩器 */
+    /**
+     * 上下文压缩器
+    */
     private final ContextCompressor compressor;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String modelName;
-    /** 压缩模型标识 */
+    /**
+     * 压缩模型标识
+    */
     private final String compressionModelId;
 
     /**
@@ -80,7 +92,9 @@ public class CompressionAwareModel implements Model {
     }
 
     @Override
-    /** 获取模型名称 */
+    /**
+     * 获取模型名称
+    */
     public String getModelName() {
         return modelName;
     }

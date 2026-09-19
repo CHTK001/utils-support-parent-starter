@@ -14,29 +14,53 @@ import java.util.List;
 @Data
 @Builder
 public class MusicTrackDetail {
-    /** trackid */
+    /**
+     * trackid
+    */
     private String trackId;
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** 标题 */
+    /**
+     * 标题
+    */
     private String title;
-    /** Artist */
+    /**
+     * Artist
+    */
     private String artist;
-    /** Album */
+    /**
+     * Album
+    */
     private String album;
-    /** coverurl */
+    /**
+     * coverurl
+    */
     private String coverUrl;
-    /** 流URL */
+    /**
+     * 流URL
+    */
     private String streamUrl;
-    /** 持续时间秒 */
+    /**
+     * 持续时间秒
+    */
     private Integer durationSeconds;
-    /** Lyrics */
+    /**
+     * Lyrics
+    */
     private String lyrics;
-    /** Play数量 */
+    /**
+     * Play数量
+    */
     private Long playCount;
-    /** 评论数量 */
+    /**
+     * 评论数量
+    */
     private Long commentCount;
-    /** 评论 */
+    /**
+     * 评论
+    */
     private List<MusicComment> comments;
 }
 

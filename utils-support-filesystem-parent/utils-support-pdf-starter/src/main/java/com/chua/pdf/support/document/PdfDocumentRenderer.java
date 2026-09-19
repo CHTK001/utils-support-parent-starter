@@ -21,19 +21,25 @@ import java.nio.charset.StandardCharsets;
 public class PdfDocumentRenderer implements DocumentProvider {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "pdf";
     }
 
     @Override
-    /** 获取延伸 */
+    /**
+     * 获取延伸
+    */
     public String[] getExtensions() {
         return new String[]{".pdf"};
     }
 
     @Override
-    /** 导出 */
+    /**
+     * 导出
+    */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         DocumentExportConfig resolved = config == null
                 ? DocumentExportConfig.builder().format("pdf").templateType(DocumentTemplateType.DEFAULT).build()

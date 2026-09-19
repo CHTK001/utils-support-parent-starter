@@ -26,20 +26,28 @@ import java.util.concurrent.TimeUnit;
 @Spi("pip")
 public class PipSoftwareProvider implements SoftwareProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(PipSoftwareProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private static final String NAME = "pip";
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
 
@@ -51,19 +59,25 @@ public class PipSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("pip 搜索完成, exitCode={}", exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.warn("pip 搜索异常: {}", throwable.getMessage());
             }
@@ -77,7 +91,9 @@ public class PipSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String packageId) {
         String cmd = "pip install " + packageId;
         log.info("pip 安装: {}", packageId);
@@ -85,7 +101,9 @@ public class PipSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String packageId) {
         String cmd = "pip uninstall -y " + packageId;
         log.info("pip 卸载: {}", packageId);
@@ -103,19 +121,25 @@ public class PipSoftwareProvider implements SoftwareProvider {
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }

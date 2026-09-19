@@ -20,13 +20,17 @@ public final class AnnotationDefinition<A extends Annotation> {
      * @since 4.0.0
      */
     public enum Source {
-        /** 直接在当前元素上声明 */
+        /**
+         * 直接在当前元素上声明
+        */
         DIRECT,
         /**
          * 从父类/父接口继承（{@link java.lang.annotation.Inherited}）
          */
         INHERITED,
-        /** 从父类方法重写继承 */
+        /**
+         * 从父类方法重写继承
+        */
         OVERRIDDEN_METHOD,
         /**
          * 通过别名解析找到（如 {@code @GetMapping} → {@code @RequestMapping}）

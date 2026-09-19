@@ -32,23 +32,31 @@ import java.util.concurrent.atomic.AtomicLong;
 @Spi("html")
 public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
-    /** Id_gen */
+    /**
+     * Id_gen
+    */
     private static final AtomicLong ID_GEN = new AtomicLong(System.nanoTime());
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "html";
     }
 
     @Override
-    /** 获取Extensions */
+    /**
+     * 获取Extensions
+    */
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
     @Override
-    /** Export */
+    /**
+     * Export
+    */
     public void export(OpenApiDocumentData data, File outputFile) {
         if (data == null) {
             throw new IllegalArgumentException("OpenApiDocumentData 不能为空");
@@ -364,7 +372,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
             .back-top.visible { display:flex; }
             """;
 
-    /** Script */
+    /**
+     * Script
+    */
     private static final String SCRIPT = """
             (function() {
               const tree = document.getElementById('apiTree');

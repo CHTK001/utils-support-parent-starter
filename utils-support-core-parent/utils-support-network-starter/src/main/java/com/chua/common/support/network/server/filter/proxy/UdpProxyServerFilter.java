@@ -75,7 +75,9 @@ public class UdpProxyServerFilter implements ServerFilter {
      */
     private DatagramSocket serverSocket;
 
-    /** 创建 udp代理服务端过滤器 实例 */
+    /**
+     * 创建 udp代理服务端过滤器 实例
+    */
     public UdpProxyServerFilter() {
         this(5000, null);
     }
@@ -131,19 +133,25 @@ public class UdpProxyServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 25;
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.UDP};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         running.set(true);
@@ -151,7 +159,9 @@ public class UdpProxyServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         running.set(false);
         stopProxy();

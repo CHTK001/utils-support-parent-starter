@@ -38,38 +38,50 @@ public class CassandraHandler extends AbstractAppHandler {
     private static final String[] SESSION_METHODS = {"execute", "executeAsync", "prepare", "prepareAsync"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "cassandra-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "cassandra.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.CASSANDRA_DRIVER;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.CASSANDRA;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(CQL_SESSION, SESSION_METHODS);
         registerAll(DEFAULT_SESSION, SESSION_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object contexts = findField(instance, "contexts");
         String url = contexts != null ? String.valueOf(findField(contexts, "node")) : null;

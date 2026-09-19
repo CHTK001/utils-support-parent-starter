@@ -22,7 +22,9 @@ import javax.annotation.Nullable;
 public class DefaultCodePointRender implements CodePointRender {
 
     @Override
-    /** Render */
+    /**
+     * Render
+    */
     public void render(QrCodeGenWrapper.Builder builder, CodePointSetting setting) throws IOException {
         if (StringUtils.isEmpty(setting.getCodePointColor())) {
             Color color = Converter.convertIfNecessary(setting.getCodePointColor(), Color.class);

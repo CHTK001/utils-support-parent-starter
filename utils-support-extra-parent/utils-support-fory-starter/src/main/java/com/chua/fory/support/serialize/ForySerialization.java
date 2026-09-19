@@ -38,13 +38,17 @@ public class ForySerialization implements Serialization {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "fory";
     }
 
     @Override
-    /** 序列化 */
+    /**
+     * 序列化
+    */
     public byte[] serialize(Object obj) {
         if (obj == null) {
             return new byte[0];

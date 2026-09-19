@@ -379,7 +379,9 @@ public class CampplusEmbedding {
         return 700.0 * (Math.exp(mel / 1127.0) - 1.0);
     }
 
-    /** 关闭会话 */
+    /**
+     * 关闭会话
+    */
     public void close() {
         if (session != null) {
             try {

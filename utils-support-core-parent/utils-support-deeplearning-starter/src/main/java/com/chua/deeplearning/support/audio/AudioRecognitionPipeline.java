@@ -80,17 +80,29 @@ import java.util.Map;
 @Slf4j
 public class AudioRecognitionPipeline {
 
-    /** 说话人嵌入模型 标识，可为 空（跳过嵌入/聚类步骤） */
+    /**
+     * 说话人嵌入模型 标识，可为 空（跳过嵌入/聚类步骤）
+    */
     private final String speakerEmbeddingModel;
-    /** ASR 语音识别模型 标识，可为 空（跳过转写步骤） */
+    /**
+     * ASR 语音识别模型 标识，可为 空（跳过转写步骤）
+    */
     private final String asrModel;
-    /** 最大说话人数，空 表示不限制 */
+    /**
+     * 最大说话人数，空 表示不限制
+    */
     private final Integer maxSpeakers;
-    /** 聚类最小片段数，少于该值的碎片将被合并到相邻片段 */
+    /**
+     * 聚类最小片段数，少于该值的碎片将被合并到相邻片段
+    */
     private final int minSegmentMs;
-    /** 推理引擎实例 */
+    /**
+     * 推理引擎实例
+    */
     private final IdentificationEngine engine;
-    /** 音频识别管线回调 */
+    /**
+     * 音频识别管线回调
+    */
     private AudioRecognitionPipelineCallback callback;
 
     /**
@@ -701,13 +713,21 @@ public class AudioRecognitionPipeline {
      * @since 4.0.0
      */
     public static class Builder {
-        /** 说话人嵌入模型 标识，空 则跳过嵌入/聚类步骤 */
+        /**
+         * 说话人嵌入模型 标识，空 则跳过嵌入/聚类步骤
+        */
         private String speakerEmbeddingModel;
-        /** ASR 语音识别模型 标识，空 则跳过转写步骤 */
+        /**
+         * ASR 语音识别模型 标识，空 则跳过转写步骤
+        */
         private String asrModel;
-        /** 最大说话人数，空 表示不限制 */
+        /**
+         * 最大说话人数，空 表示不限制
+        */
         private Integer maxSpeakers;
-        /** 合并相邻同说话人片段的最大间隔（毫秒），默认 500ms */
+        /**
+         * 合并相邻同说话人片段的最大间隔（毫秒），默认 500ms
+        */
         private int minSegmentMs = 500;
 
         /**

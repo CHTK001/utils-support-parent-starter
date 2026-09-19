@@ -14,10 +14,14 @@ import java.nio.file.StandardOpenOption;
  */
 public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
 
-    /** 存储目录 */
+    /**
+     * 存储目录
+    */
     private final Path storageDir;
 
-    /** 创建 文件同步数据偏移量storage 实例 */
+    /**
+     * 创建 文件同步数据偏移量storage 实例
+    */
     public FileSyncDataOffsetStorage() {
         this(Path.of(System.getProperty("java.io.tmpdir"), "datasync-offsets"));
     }
@@ -36,7 +40,9 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public SyncDataOffset read(String sourceId, SyncDataOffset defaultValue) {
         if (sourceId == null) {
             return defaultValue;
@@ -61,7 +67,9 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(SyncDataOffset offset) {
         if (offset == null || offset.sourceId() == null) {
             return;
@@ -76,7 +84,9 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public void delete(String sourceId) {
         if (sourceId == null) {
             return;
@@ -89,7 +99,9 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
-    /** 列表全部 */
+    /**
+     * 列表全部
+    */
     public java.util.List<SyncDataOffset> listAll() {
         try {
             return Files.list(storageDir)

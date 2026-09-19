@@ -24,9 +24,13 @@ import java.util.Map;
 @Spi("captcha-run")
 public class CaptchaRunClient implements CaptchaParser {
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final CaptchaSetting setting;
-    /** 任务persistence */
+    /**
+     * 任务persistence
+    */
     private TaskPersistence taskPersistence;
 
     /**
@@ -49,7 +53,9 @@ public class CaptchaRunClient implements CaptchaParser {
     }
 
     @Override
-    /** 提交Captcha */
+    /**
+     * 提交Captcha
+    */
     public String submitCaptcha(byte[] imageData, Map<String, String> options) {
         if (options == null) {
             options = new HashMap<>();
@@ -79,7 +85,9 @@ public class CaptchaRunClient implements CaptchaParser {
     }
 
     @Override
-    /** 查询结果 */
+    /**
+     * 查询结果
+    */
     public CaptchaResponse queryResult(String taskId) {
         if (taskPersistence != null) {
             var cached = taskPersistence.query(taskId);

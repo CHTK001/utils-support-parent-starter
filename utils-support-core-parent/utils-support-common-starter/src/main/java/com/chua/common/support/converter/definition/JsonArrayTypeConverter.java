@@ -27,7 +27,9 @@ import java.util.Map;
  */
 public class JsonArrayTypeConverter implements TypeConverter<List> {
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public Class<List> getType() {
         return List.class;
     }

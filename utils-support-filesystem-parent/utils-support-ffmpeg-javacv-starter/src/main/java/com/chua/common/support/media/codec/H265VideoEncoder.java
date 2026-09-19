@@ -215,25 +215,33 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取codec名称 */
+    /**
+     * 获取codec名称
+    */
     public String getCodecName() {
         return CODEC_NAME_H265;
     }
 
     @Override
-    /** 获取codecid */
+    /**
+     * 获取codecid
+    */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H265;
     }
 
     @Override
-    /** 是否hardware加速 */
+    /**
+     * 是否hardware加速
+    */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** force键帧 */
+    /**
+     * force键帧
+    */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
@@ -252,7 +260,9 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public synchronized byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -278,7 +288,9 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -337,7 +349,9 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         started = false;
         if (recorder != null) {
@@ -379,19 +393,25 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
         }
     }

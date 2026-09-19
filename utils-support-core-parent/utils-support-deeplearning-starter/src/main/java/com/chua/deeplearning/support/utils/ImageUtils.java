@@ -45,7 +45,9 @@ public final class ImageUtils {
      */
     private static volatile boolean loaded;
 
-    /** JPEG 文件结束标记（EOI）：0xff 0Adobe Adobe XD9 */
+    /**
+     * JPEG 文件结束标记（EOI）：0xff 0Adobe Adobe XD9
+    */
     private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
 
     /**

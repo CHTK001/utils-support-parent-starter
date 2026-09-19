@@ -27,7 +27,9 @@ import java.util.Map;
 @Spi("md")
 public class MarkdownTableViewParser implements ViewParser {
 
-    /** 单元格左右内边距（空格数） */
+    /**
+     * 单元格左右内边距（空格数）
+    */
     private static final int PAD = 1;
 
     @Override

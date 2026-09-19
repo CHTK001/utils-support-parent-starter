@@ -14,7 +14,9 @@ import java.util.Map;
  */
 public interface DataSyncSource {
 
-    /** 输入标识 */
+    /**
+     * 输入标识
+    */
     String INPUT_ID = "sourceId";
 
     /**

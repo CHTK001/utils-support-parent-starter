@@ -18,7 +18,9 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     @Override
-    /** 序列化 */
+    /**
+     * 序列化
+    */
     public byte[] serialize(T object) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(512);

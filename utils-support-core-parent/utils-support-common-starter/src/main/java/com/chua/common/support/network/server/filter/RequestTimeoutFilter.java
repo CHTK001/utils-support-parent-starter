@@ -22,7 +22,9 @@ import java.util.concurrent.TimeoutException;
  */
 public class RequestTimeoutFilter implements ServerFilter {
 
-    /** 超时毫秒 */
+    /**
+     * 超时毫秒
+    */
     private final long timeoutMillis;
 
     /**
@@ -44,13 +46,17 @@ public class RequestTimeoutFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 5;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

@@ -29,7 +29,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public WordReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -118,7 +120,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Object read() {
         return text();
     }
@@ -136,13 +140,17 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** as线 */
+    /**
+     * as线
+    */
     public List<String> asLines() {
          return paragraphs(); 
     }
 
     @Override
-    /** as字符串 */
+    /**
+     * as字符串
+    */
     public String asString() {
          return text(); 
     }

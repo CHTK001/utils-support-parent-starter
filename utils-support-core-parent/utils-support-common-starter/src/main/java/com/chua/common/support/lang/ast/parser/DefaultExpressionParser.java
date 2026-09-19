@@ -172,13 +172,17 @@ public class DefaultExpressionParser implements ExpressionParser {
     private static final String KW_FALSE = "FALSE";
 
     @Override
-    /** Type */
+    /**
+     * Type
+    */
     public String type() {
         return TYPE;
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public BTreeNode parse(String expression) {
         if (StringUtils.isBlank(expression)) {
             throw new IllegalArgumentException(ERROR_EXPR_EMPTY);
@@ -192,7 +196,9 @@ public class DefaultExpressionParser implements ExpressionParser {
     }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public String generate(BTreeNode tree) {
         if (tree == null) {
             return "";

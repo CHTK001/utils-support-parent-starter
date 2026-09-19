@@ -107,19 +107,25 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return size;
     }
 
     @Override
-    /** 是否Empty */
+    /**
+     * 是否Empty
+    */
     public boolean isEmpty() {
         return size == 0;
     }
 
     @Override
-    /** Contains */
+    /**
+     * Contains
+    */
     public boolean contains(Object o) {
         for (int i = 0; i < size; i++) {
             if (Objects.equals(get(i), o)) {
@@ -130,20 +136,28 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** Iterator */
+    /**
+     * Iterator
+    */
     public Iterator<E> iterator() {
         return new Iterator<E>() {
-            /** 索引位置 */
+            /**
+             * 索引位置
+            */
             private int index = 0;
 
             @Override
-            /** 是否拥有Next */
+            /**
+             * 是否拥有Next
+            */
             public boolean hasNext() {
                 return index < size;
             }
 
             @Override
-            /** Next */
+            /**
+             * Next
+            */
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -152,7 +166,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public void remove() {
                 if (index == 0) {
                     throw new IllegalStateException();
@@ -164,7 +180,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** ToArray */
+    /**
+     * ToArray
+    */
     public Object[] toArray() {
         Object[] result = new Object[size];
         for (int i = 0; i < size; i++) {
@@ -174,7 +192,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** ToArray */
+    /**
+     * ToArray
+    */
     public <T> T[] toArray(T[] a) {
         T[] result = a.length >= size ? a : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
         for (int i = 0; i < size; i++) {
@@ -187,7 +207,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public boolean add(E e) {
         if (size < capacity) {
             int index = (head + size) % capacity;
@@ -201,7 +223,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public boolean remove(Object o) {
         for (int i = 0; i < size; i++) {
             if (Objects.equals(get(i), o)) {
@@ -213,7 +237,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** ContainsAll */
+    /**
+     * ContainsAll
+    */
     public boolean containsAll(Collection<?> c) {
         for (Object o : c) {
             if (!contains(o)) {
@@ -224,7 +250,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
         for (E e : c) {
@@ -234,7 +262,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(int index, Collection<? extends E> c) {
         checkPositionIndex(index);
         boolean modified = false;
@@ -247,7 +277,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 移除All */
+    /**
+     * 移除All
+    */
     public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -260,7 +292,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** RetainAll */
+    /**
+     * RetainAll
+    */
     public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -273,7 +307,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         for (int i = 0; i < size; i++) {
             elements[(head + i) % capacity] = null;
@@ -283,14 +319,18 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public E get(int index) {
         checkElementIndex(index);
         return (E) elements[actualIndex(index)];
     }
 
     @Override
-    /** 设置 */
+    /**
+     * 设置
+    */
     public E set(int index, E element) {
         checkElementIndex(index);
         E old = get(index);
@@ -299,7 +339,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public void add(int index, E element) {
         checkPositionIndex(index);
         if (size == capacity) {
@@ -329,7 +371,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public E remove(int index) {
         checkElementIndex(index);
         E old = get(index);
@@ -343,7 +387,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** IndexOf */
+    /**
+     * IndexOf
+    */
     public int indexOf(Object o) {
         for (int i = 0; i < size; i++) {
             if (Objects.equals(get(i), o)) {
@@ -354,7 +400,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** LastIndexOf */
+    /**
+     * LastIndexOf
+    */
     public int lastIndexOf(Object o) {
         for (int i = size - 1; i >= 0; i--) {
             if (Objects.equals(get(i), o)) {
@@ -365,29 +413,41 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** ListIterator */
+    /**
+     * ListIterator
+    */
     public ListIterator<E> listIterator() {
         return listIterator(0);
     }
 
     @Override
-    /** ListIterator */
+    /**
+     * ListIterator
+    */
     public ListIterator<E> listIterator(int index) {
         checkPositionIndex(index);
         return new ListIterator<E>() {
-            /** 当前索引位置 */
+            /**
+             * 当前索引位置
+            */
             private int currentIndex = index;
-            /** 最后索引位置 */
+            /**
+             * 最后索引位置
+            */
             private int lastIndex = -1;
 
             @Override
-            /** 是否拥有Next */
+            /**
+             * 是否拥有Next
+            */
             public boolean hasNext() {
                 return currentIndex < size;
             }
 
             @Override
-            /** Next */
+            /**
+             * Next
+            */
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -397,13 +457,17 @@ public class CircularArrayList<E> implements CircularArray<E> {
             }
 
             @Override
-            /** 是否拥有Previous */
+            /**
+             * 是否拥有Previous
+            */
             public boolean hasPrevious() {
                 return currentIndex > 0;
             }
 
             @Override
-            /** Previous */
+            /**
+             * Previous
+            */
             public E previous() {
                 if (!hasPrevious()) {
                     throw new NoSuchElementException();
@@ -413,19 +477,25 @@ public class CircularArrayList<E> implements CircularArray<E> {
             }
 
             @Override
-            /** NextIndex */
+            /**
+             * NextIndex
+            */
             public int nextIndex() {
                 return currentIndex;
             }
 
             @Override
-            /** PreviousIndex */
+            /**
+             * PreviousIndex
+            */
             public int previousIndex() {
                 return currentIndex - 1;
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public void remove() {
                 if (lastIndex < 0) {
                     throw new IllegalStateException();
@@ -436,7 +506,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
             }
 
             @Override
-            /** 设置 */
+            /**
+             * 设置
+            */
             public void set(E e) {
                 if (lastIndex < 0) {
                     throw new IllegalStateException();
@@ -445,7 +517,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
             }
 
             @Override
-            /** 添加 */
+            /**
+             * 添加
+            */
             public void add(E e) {
                 CircularArrayList.this.add(currentIndex, e);
                 currentIndex++;
@@ -455,13 +529,17 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** SubList */
+    /**
+     * SubList
+    */
     public List<E> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("环状数组不支持子列表视图");
     }
 
     @Override
-    /** ReplaceAll */
+    /**
+     * ReplaceAll
+    */
     public void replaceAll(UnaryOperator<E> operator) {
         for (int i = 0; i < size; i++) {
             set(i, operator.apply(get(i)));
@@ -469,7 +547,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 排序 */
+    /**
+     * 排序
+    */
     public void sort(Comparator<? super E> c) {
         List<E> sorted = new ArrayList<>(this);
         sorted.sort(c);
@@ -482,7 +562,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     // ==================== CircularArray 接口方法 ====================
 
     @Override
-    /** 查看 */
+    /**
+     * 查看
+    */
     public E peek() {
         if (isEmpty()) {
             throw new NoSuchElementException();
@@ -491,7 +573,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 取出 */
+    /**
+     * 取出
+    */
     public E poll() {
         if (isEmpty()) {
             throw new NoSuchElementException();
@@ -500,13 +584,17 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** Rotate */
+    /**
+     * Rotate
+    */
     public void rotate() {
         rotate(1);
     }
 
     @Override
-    /** Rotate */
+    /**
+     * Rotate
+    */
     public void rotate(int distance) {
         if (isEmpty()) {
             if (distance != 0) {
@@ -521,7 +609,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** Capacity */
+    /**
+     * Capacity
+    */
     public int capacity() {
         return capacity;
     }
@@ -561,7 +651,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -585,7 +677,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         int result = 1;
         for (int i = 0; i < size; i++) {
@@ -596,7 +690,9 @@ public class CircularArrayList<E> implements CircularArray<E> {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');

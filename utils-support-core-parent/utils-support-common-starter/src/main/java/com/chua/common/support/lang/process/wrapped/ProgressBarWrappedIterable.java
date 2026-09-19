@@ -42,7 +42,9 @@ public class ProgressBarWrappedIterable<T> implements Iterable<T> {
     }
 
     @Override
-    /** Iterator */
+    /**
+     * Iterator
+    */
     public ProgressBarWrappedIterator<T> iterator() {
         Iterator<T> it = underlying.iterator();
         long exactSizeIfKnown = underlying.spliterator().getExactSizeIfKnown();

@@ -266,79 +266,105 @@ public class LiteRawMap implements Map<String, Object> {
     // ==================== Map 接口实现 ====================
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return delegate.size();
     }
 
     @Override
-    /** 是否Empty */
+    /**
+     * 是否Empty
+    */
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
 
     @Override
-    /** ContainsKey */
+    /**
+     * ContainsKey
+    */
     public boolean containsKey(Object key) {
         return delegate.containsKey(key);
     }
 
     @Override
-    /** ContainsValue */
+    /**
+     * ContainsValue
+    */
     public boolean containsValue(Object value) {
         return delegate.containsValue(value);
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public Object get(Object key) {
         return delegate.get(key);
     }
 
     @Override
-    /** Put */
+    /**
+     * Put
+    */
     public Object put(String key, Object value) {
         return delegate.put(key, value);
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public Object remove(Object key) {
         return delegate.remove(key);
     }
 
     @Override
-    /** PutAll */
+    /**
+     * PutAll
+    */
     public void putAll(Map<? extends String, ?> m) {
         delegate.putAll(m);
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         delegate.clear();
     }
 
     @Override
-    /** Key设置 */
+    /**
+     * Key设置
+    */
     public Set<String> keySet() {
         return delegate.keySet();
     }
 
     @Override
-    /** Values */
+    /**
+     * Values
+    */
     public Collection<Object> values() {
         return delegate.values();
     }
 
     @Override
-    /** Entry设置 */
+    /**
+     * Entry设置
+    */
     public Set<Map.Entry<String, Object>> entrySet() {
         return delegate.entrySet();
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return delegate.toString();
     }

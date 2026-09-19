@@ -14,17 +14,29 @@ import java.util.List;
 @Data
 @Builder
 public class MusicSearchResult {
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** Keyword */
+    /**
+     * Keyword
+    */
     private String keyword;
-    /** 页 */
+    /**
+     * 页
+    */
     private Integer page;
-    /** 每页大小 */
+    /**
+     * 每页大小
+    */
     private Integer pageSize;
-    /** 总数 */
+    /**
+     * 总数
+    */
     private Long total;
-    /** Tracks */
+    /**
+     * Tracks
+    */
     private List<MusicTrackSummary> tracks;
 }
 

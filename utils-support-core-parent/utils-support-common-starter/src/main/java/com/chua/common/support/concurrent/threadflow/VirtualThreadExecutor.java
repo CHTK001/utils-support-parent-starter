@@ -52,7 +52,9 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 提交Tasks */
+    /**
+     * 提交Tasks
+    */
     protected List<Future<Object>> submitTasks() {
         List<Future<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -62,7 +64,9 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         executor.shutdownNow();
     }

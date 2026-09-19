@@ -38,34 +38,54 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FilePushBenchmark {
 
-    /** MB 换算基数 */
+    /**
+     * MB 换算基数
+    */
     private static final double BYTES_PER_MB = 1024.0 * 1024.0;
 
-    /** 大文件场景：文件数 */
+    /**
+     * 大文件场景：文件数
+    */
     private static final int LARGE_FILE_COUNT = 8;
 
-    /** 大文件场景：单文件 MB */
+    /**
+     * 大文件场景：单文件 MB
+    */
     private static final int LARGE_FILE_MB = 64;
 
-    /** 小文件场景：文件数 */
+    /**
+     * 小文件场景：文件数
+    */
     private static final int SMALL_FILE_COUNT = 4000;
 
-    /** 小文件场景：单文件字节数 */
+    /**
+     * 小文件场景：单文件字节数
+    */
     private static final int SMALL_FILE_BYTES = 8 * 1024;
 
-    /** 小文件场景：子目录数 */
+    /**
+     * 小文件场景：子目录数
+    */
     private static final int SMALL_FILE_DIRS = 40;
 
-    /** 落盘原语 A/B：分片数 */
+    /**
+     * 落盘原语 A/B：分片数
+    */
     private static final int PRIMITIVE_CHUNKS = 512;
 
-    /** 落盘原语 A/B：分片字节数 */
+    /**
+     * 落盘原语 A/B：分片字节数
+    */
     private static final int PRIMITIVE_CHUNK_BYTES = 1024 * 1024;
 
-    /** 基准结果汇总行 */
+    /**
+     * 基准结果汇总行
+    */
     private static final List<String> SUMMARY = new ArrayList<>();
 
-    /** 是否全部通过 */
+    /**
+     * 是否全部通过
+    */
     private static boolean allPassed = true;
 
     /**
@@ -316,7 +336,9 @@ public class FilePushBenchmark {
         return (System.nanoTime() - start) / 1_000_000.0;
     }
 
-    /** 定位写，循环直到缓冲区全部写完 */
+    /**
+     * 定位写，循环直到缓冲区全部写完
+    */
     private static void writeFully(FileChannel channel, ByteBuffer buffer, long position)
             throws IOException {
         while (buffer.hasRemaining()) {
@@ -331,7 +353,9 @@ public class FilePushBenchmark {
      */
     private enum WriteStrategy {
 
-        /** 旧实现：每个分片独立开/seek/写/关一次 RandomAccessFile */
+        /**
+         * 旧实现：每个分片独立开/seek/写/关一次 RandomAccessFile
+        */
         RAF_PER_CHUNK("每分片 RandomAccessFile 开关") {
             @Override
             boolean needsSharedChannel() {
@@ -347,7 +371,9 @@ public class FilePushBenchmark {
             }
         },
 
-        /** 当前实现：整个文件只开一个 FileChannel，各分片带 position 定位写 */
+        /**
+         * 当前实现：整个文件只开一个 FileChannel，各分片带 position 定位写
+        */
         SHARED_CHANNEL_POSITIONAL("共享 FileChannel 定位写") {
             @Override
             boolean needsSharedChannel() {
@@ -360,7 +386,9 @@ public class FilePushBenchmark {
             }
         },
 
-        /** 备选：每个分片独立开一个 FileChannel 后定位写，避免共享通道锁 */
+        /**
+         * 备选：每个分片独立开一个 FileChannel 后定位写，避免共享通道锁
+        */
         CHANNEL_PER_CHUNK("每分片 FileChannel 开关") {
             @Override
             boolean needsSharedChannel() {
@@ -375,14 +403,18 @@ public class FilePushBenchmark {
             }
         };
 
-        /** 中文标签，用于报表输出 */
+        /**
+         * 中文标签，用于报表输出
+        */
         private final String label;
 
         WriteStrategy(String label) {
             this.label = label;
         }
 
-        /** 是否需要预先打开一个供全部分片共享的通道 */
+        /**
+         * 是否需要预先打开一个供全部分片共享的通道
+        */
         abstract boolean needsSharedChannel();
 
         /**
@@ -434,7 +466,9 @@ public class FilePushBenchmark {
         }
     }
 
-    /** 校验目标目录累计字节数 */
+    /**
+     * 校验目标目录累计字节数
+    */
     private static boolean assertTargetBytes(Path target, long expected, String label)
             throws IOException {
         long actual = 0;
@@ -449,7 +483,9 @@ public class FilePushBenchmark {
                 "actual=" + actual + " expected=" + expected);
     }
 
-    /** 抽样校验服务端文件 mtime 是否与源一致（增量同步的前提） */
+    /**
+     * 抽样校验服务端文件 mtime 是否与源一致（增量同步的前提）
+    */
     private static boolean checkMtimePreserved(Path source, Path target, int sample)
             throws IOException {
         List<Path> files;

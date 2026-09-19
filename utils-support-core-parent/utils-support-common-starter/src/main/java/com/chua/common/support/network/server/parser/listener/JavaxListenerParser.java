@@ -29,7 +29,9 @@ import java.util.Map;
  */
 public class JavaxListenerParser implements ListenerParser {
 
-    /** javax.websocket 注解类名列表 */
+    /**
+     * javax.websocket 注解类名列表
+    */
     private static final String[] JAVAX_ANNOTATIONS = {
             "javax.websocket.OnOpen",
             "javax.websocket.OnMessage",
@@ -37,7 +39,9 @@ public class JavaxListenerParser implements ListenerParser {
             "javax.websocket.OnError"
     };
 
-    /** jakarta.websocket 注解类名列表 */
+    /**
+     * jakarta.websocket 注解类名列表
+    */
     private static final String[] JAKARTA_ANNOTATIONS = {
             "jakarta.websocket.OnOpen",
             "jakarta.websocket.OnMessage",
@@ -46,7 +50,9 @@ public class JavaxListenerParser implements ListenerParser {
     };
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -63,7 +69,9 @@ public class JavaxListenerParser implements ListenerParser {
     }
 
     @Override
-    /** Support */
+    /**
+     * Support
+    */
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (hasAnyAnnotation(method, JAVAX_ANNOTATIONS, clazz.getClassLoader())) {
@@ -77,7 +85,9 @@ public class JavaxListenerParser implements ListenerParser {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return 0;
     }

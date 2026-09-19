@@ -37,22 +37,38 @@ import java.util.stream.Collectors;
  */
 public class MiniMindTokenizer {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 词表映射 */
+    /**
+     * 词表映射
+    */
     private final Map<String, Integer> vocab;
-    /** 反向词表映射 */
+    /**
+     * 反向词表映射
+    */
     private final Map<Integer, String> reverseVocab;
-    /** BPE 合并优先级映射 */
+    /**
+     * BPE 合并优先级映射
+    */
     private final Map<String, Integer> bpeRanks;
-    /** 字节到 Unicode 映射 */
+    /**
+     * 字节到 Unicode 映射
+    */
     private final Map<Integer, Character> byteToUnicode;
-    /** Unicode 到字节映射 */
+    /**
+     * Unicode 到字节映射
+    */
     private final Map<Character, Integer> unicodeToByte;
-    /** 词表大小 */
+    /**
+     * 词表大小
+    */
     private final int vocabSize;
-    /** 已添加标记数量映射 */
+    /**
+     * 已添加标记数量映射
+    */
     private final Map<String, Integer> addedTokens;
 
     /**

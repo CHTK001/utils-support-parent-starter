@@ -29,7 +29,9 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
      */
     private final String resourceName;
 
-    /** 创建 sentinelrate限制提供者 实例 */
+    /**
+     * 创建 sentinelrate限制提供者 实例
+    */
     public SentinelRateLimiterProvider() {
         this("sentinel-limiter");
     }
@@ -44,7 +46,9 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** 尝试获取 */
+    /**
+     * 尝试获取
+    */
     public boolean tryAcquire() {
         try (Entry ignored = SphU.entry(resourceName)) {
             return true;
@@ -54,7 +58,9 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** 尝试获取 */
+    /**
+     * 尝试获取
+    */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         long deadline = System.currentTimeMillis() + timeUnit.toMillis(timeout);
         for (;;) {
@@ -75,7 +81,9 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return name;
     }

@@ -47,10 +47,14 @@ import java.util.UUID;
 @SuppressWarnings("unchecked")
 public class MemoryMcpPlugin {
 
-    /** 工具名称前缀 */
+    /**
+     * 工具名称前缀
+    */
     private static final String PREFIX = "memory_";
 
-    /** 记忆管理器 */
+    /**
+     * 记忆管理器
+    */
     private final MemoryManager manager;
 
     /**
@@ -71,15 +75,21 @@ public class MemoryMcpPlugin {
     public void registerTo(McpManager mcpManager) {
         // memory_save
         mcpManager.register("memory", new com.chua.common.support.ai.mcp.McpClient() {
-            /** 是否已初始化 */
+            /**
+             * 是否已初始化
+            */
             private boolean initialized = false;
 
             @Override
-            /** 初始化 */
+            /**
+             * 初始化
+            */
             public void init() { initialized = true; }
 
             @Override
-            /** ListTools */
+            /**
+             * ListTools
+            */
             public List<McpToolDescriptor> listTools() {
                 return List.of(
                     new McpToolDescriptor(PREFIX + "save",
@@ -122,7 +132,9 @@ public class MemoryMcpPlugin {
             }
 
             @Override
-            /** 调用Tool */
+            /**
+             * 调用Tool
+            */
             public McpToolResult callTool(McpToolCall toolCall) {
                 String toolName = toolCall.getToolName();
                 Map<String, Object> args = toolCall.getArguments();
@@ -137,11 +149,15 @@ public class MemoryMcpPlugin {
             }
 
             @Override
-            /** 是否Initialized */
+            /**
+             * 是否Initialized
+            */
             public boolean isInitialized() { return initialized; }
 
             @Override
-            /** 关闭 */
+            /**
+             * 关闭
+            */
             public void close() {}
         });
     }

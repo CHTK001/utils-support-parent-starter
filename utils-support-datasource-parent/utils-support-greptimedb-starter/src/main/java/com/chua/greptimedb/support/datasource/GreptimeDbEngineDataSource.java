@@ -66,13 +66,17 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return name;
     }
 
     @Override
-    /** 获取客户端 */
+    /**
+     * 获取客户端
+    */
     public GreptimeDB getSource() {
         return source;
     }
@@ -93,43 +97,57 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     }
 
     @Override
-    /** 获取方言（非 SQL 数据源返回 空） */
+    /**
+     * 获取方言（非 SQL 数据源返回 空）
+    */
     public Dialect getDialect() {
         return null;
     }
 
     @Override
-    /** 设置方言 */
+    /**
+     * 设置方言
+    */
     public EngineDataSource<GreptimeDB> setDialect(Dialect dialect) {
         return this;
     }
 
     @Override
-    /** 连接端点 */
+    /**
+     * 连接端点
+    */
     public String url() {
         return url;
     }
 
     @Override
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     public String username() {
         return username;
     }
 
     @Override
-    /** 密码 */
+    /**
+     * 密码
+    */
     public String password() {
         return password;
     }
 
     @Override
-    /** 数据库名 */
+    /**
+     * 数据库名
+    */
     public String database() {
         return database;
     }
 
     @Override
-    /** 关闭客户端 */
+    /**
+     * 关闭客户端
+    */
     public void close() {
         if (source != null) {
             try {

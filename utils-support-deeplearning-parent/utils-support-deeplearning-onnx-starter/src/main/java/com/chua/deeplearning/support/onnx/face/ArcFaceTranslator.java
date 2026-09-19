@@ -25,11 +25,15 @@ import ai.djl.translate.TranslatorContext;
  */
 public class ArcFaceTranslator implements Translator<Image, float[]> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 112;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(
                 input, INPUT_SIZE, INPUT_SIZE,
@@ -38,7 +42,9 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] features = array.toFloatArray();
@@ -60,7 +66,9 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // 输入已含 批量 维度 shape [1, C, H, W]，返回 空 避免 batchifier 二次堆叠
         return null;

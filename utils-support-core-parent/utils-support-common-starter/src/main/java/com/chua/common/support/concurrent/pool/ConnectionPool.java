@@ -122,7 +122,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     }
 
     @Override
-    /** 获取Stats */
+    /**
+     * 获取Stats
+    */
     public String getStats() {
         return "ConnectionPool{url=" + url
                 + ", maxTotal=" + getNumActive() + "+" + getNumIdle()
@@ -137,7 +139,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
      */
     private static class ConnectionFactory implements ObjectFactory<Connection> {
 
-        /** 构建器 */
+        /**
+         * 构建器
+        */
         private final Builder builder;
 
         ConnectionFactory(Builder builder) {
@@ -145,7 +149,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
-        /** 创建 */
+        /**
+         * 创建
+        */
         public Connection create() throws Exception {
             Properties props = new Properties();
             if (builder.username != null) {
@@ -161,7 +167,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
-        /** 初始化Object */
+        /**
+         * 初始化Object
+        */
         public void initObject(Connection conn) throws Exception {
             // 设置 autoCommit
             if (builder.defaultAutoCommit != null) {
@@ -182,7 +190,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
-        /** 销毁 */
+        /**
+         * 销毁
+        */
         public void destroy(Connection conn) {
             if (conn == null) {
                 return;
@@ -196,7 +206,9 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         }
 
         @Override
-        /** 校验 */
+        /**
+         * 校验
+        */
         public boolean validate(Connection conn) {
             if (conn == null) {
                 return false;

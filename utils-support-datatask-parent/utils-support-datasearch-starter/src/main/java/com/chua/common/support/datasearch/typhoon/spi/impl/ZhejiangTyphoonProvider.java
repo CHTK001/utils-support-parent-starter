@@ -38,23 +38,33 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 活跃台风列表地址 */
+    /**
+     * 活跃台风列表地址
+    */
     private static final String ACTIVITY_URL = "https://typhoon.slt.zj.gov.cn/Api/TyhoonActivity";
 
-    /** 详情接口地址模板 */
+    /**
+     * 详情接口地址模板
+    */
     private static final String INFO_URL = "https://typhoon.slt.zj.gov.cn/Api/TyphoonInfo/%s";
 
-    /** 缓存有效期（毫秒）：30 分钟 */
+    /**
+     * 缓存有效期（毫秒）：30 分钟
+    */
     private static final long CACHE_TTL_MILLIS = 30 * 60 * 1000L;
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    /** 活跃列表缓存 */
+    /**
+     * 活跃列表缓存
+    */
     private volatile List<TyphoonActivity> cachedList;
     private volatile long listCachedAt; // 列表缓存at
 
-    /** 详情缓存（tfid -> 详情） */
+    /**
+     * 详情缓存（tfid -> 详情）
+    */
     private final Map<String, TyphoonDetail> cachedDetail = new ConcurrentHashMap<>();
     private final Map<String, Long> detailCachedAt = new ConcurrentHashMap<>(); // detail缓存at
 

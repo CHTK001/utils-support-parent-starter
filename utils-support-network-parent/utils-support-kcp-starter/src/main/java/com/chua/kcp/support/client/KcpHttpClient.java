@@ -64,7 +64,9 @@ public class KcpHttpClient {
         this.timeoutMs = timeoutMs;
     }
 
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() throws Exception {
         client = new KcpClient("kcp-http-client", "kcp://" + host + ":" + port);
         try {
@@ -146,7 +148,9 @@ public class KcpHttpClient {
         return client != null && client.isConnected();
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (client != null) {
             try {
@@ -233,7 +237,9 @@ public class KcpHttpClient {
         }
 
         @Override
-        /** 转为字符串 */
+        /**
+         * 转为字符串
+        */
         public String toString() {
             return "HttpResponse{status=" + status + ", body=" + getBodyString() + "}";
         }

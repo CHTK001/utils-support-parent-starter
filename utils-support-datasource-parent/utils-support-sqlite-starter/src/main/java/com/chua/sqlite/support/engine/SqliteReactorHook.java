@@ -55,20 +55,28 @@ public final class SqliteReactorHook implements AutoCloseable {
     private static volatile boolean LIBRARY_RESOLVED = false;
     private static volatile boolean LIBRARY_OK = false;
 
-    /** 实例 ID，用于全局回调分发 */
+    /**
+     * 实例 ID，用于全局回调分发
+    */
     private final long instanceId;
     private final MemorySegment handle;
     private final Sinks.Many<SqliteChangeEvent> eventSink;
     private final Flux<SqliteChangeEvent> flux;
 
-    /** 全局实例映射（native 回调通过 ID 找到 Java 实例） */
+    /**
+     * 全局实例映射（native 回调通过 ID 找到 Java 实例）
+    */
     private static final ConcurrentHashMap<Long, SqliteReactorHook> INSTANCES = new ConcurrentHashMap<>();
     private static final AtomicLong INSTANCE_COUNTER = new AtomicLong(0);
 
-    /** 保持 Arena 存活（回调期间不能释放） */
+    /**
+     * 保持 Arena 存活（回调期间不能释放）
+    */
     private Arena callbackArena;
 
-    /** 防止 close() 重入 */
+    /**
+     * 防止 close() 重入
+    */
     private volatile boolean closed = false;
 
     /**

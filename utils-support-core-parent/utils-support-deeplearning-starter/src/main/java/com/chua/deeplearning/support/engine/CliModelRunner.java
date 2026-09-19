@@ -59,16 +59,24 @@ import java.util.zip.ZipFile;
 @Slf4j
 public final class CliModelRunner {
 
-    /** 系统属性前缀：{@code deeplearning.cli.<id>.bin}（整路径）/ {@code .dir}（目录），未命中时下载落到此目标 */
+    /**
+     * 系统属性前缀：{@code deeplearning.cli.<id>.bin}（整路径）/ {@code .dir}（目录），未命中时下载落到此目标
+    */
     private static final String PROP_CLI_BIN_PREFIX = "deeplearning.cli.";
 
-    /** 缓存根目录名（相对 deeplearning.model.cache-dir，默认 %TEMP%） */
+    /**
+     * 缓存根目录名（相对 deeplearning.model.cache-dir，默认 %TEMP%）
+    */
     private static final String CACHE_DIR_NAME = "chua-dl-models";
 
-    /** CLI 安装子目录 */
+    /**
+     * CLI 安装子目录
+    */
     private static final String CLIS_SUBDIR = "clis";
 
-    /** 进程调用默认超时（秒） */
+    /**
+     * 进程调用默认超时（秒）
+    */
     private static final long DEFAULT_TIMEOUT_SECONDS = 300L;
 
     /**
@@ -78,16 +86,24 @@ public final class CliModelRunner {
      */
     private static final int READ_TIMEOUT_MILLIS = 60_000;
 
-    /** 单文件下载大小上限（1GB） */
+    /**
+     * 单文件下载大小上限（1GB）
+    */
     private static final long MAX_DOWNLOAD_BYTES = 1L << 30;
 
-    /** 错误消息截断窗口（字节） */
+    /**
+     * 错误消息截断窗口（字节）
+    */
     private static final int ERROR_SNIPPET_BYTES = 2048;
 
-    /** 实例化缓存：cliId -> 定位结果 */
+    /**
+     * 实例化缓存：cliId -> 定位结果
+    */
     private static final Map<String, Path> LOCATED = new ConcurrentHashMap<>();
 
-    /** 下载去重锁：url -> 锁对象 */
+    /**
+     * 下载去重锁：url -> 锁对象
+    */
     private static final Map<String, Object> DOWNLOAD_LOCKS = new ConcurrentHashMap<>();
 
     /**
@@ -142,7 +158,9 @@ public final class CliModelRunner {
                 name + "." + ext + ".sha256", null);
     }
 
-    /** 默认 opencode 版本（GitHub Release tag） */
+    /**
+     * 默认 opencode 版本（GitHub Release tag）
+    */
     private static final String DEFAULT_OPENCODE_VERSION = "v1.18.31";
 
     /**

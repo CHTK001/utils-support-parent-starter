@@ -40,7 +40,9 @@ public class ZipformerAudioClient implements VirtualClient {
     private static final String HF_MIRROR =
             "https://hf-mirror.com/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/resolve/main/";
 
-    /** 需要就位的模型文件名。 */
+    /**
+     * 需要就位的模型文件名。
+    */
     private static final String[] MODEL_FILES = {
             "encoder-epoch-99-avg-1.int8.onnx",
             "decoder-epoch-99-avg-1.int8.onnx",
@@ -49,9 +51,13 @@ public class ZipformerAudioClient implements VirtualClient {
     };
 
     private final AudioClientSetting setting;
-    /** translator */
+    /**
+     * translator
+    */
     private ZipformerStreamingTranslator translator;
-    /** prepared */
+    /**
+     * prepared
+    */
     private boolean prepared;
 
     /**
@@ -154,7 +160,9 @@ public class ZipformerAudioClient implements VirtualClient {
         }
     }
 
-    /** 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。 */
+    /**
+     * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
+    */
     private void ensurePrepared() {
         if (prepared) {
             return;

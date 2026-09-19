@@ -170,7 +170,9 @@ public class WinRmExecClient implements AutoCloseable {
         return this;
     }
 
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         try {
             if (winRmClient != null) {
@@ -205,7 +207,9 @@ public class WinRmExecClient implements AutoCloseable {
         return executeCommand(command, 30_000);
     }
 
-    /** 关闭Quietly */
+    /**
+     * 关闭Quietly
+    */
     public void closeQuietly() {
         try {
             close();
@@ -214,7 +218,9 @@ public class WinRmExecClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }
@@ -447,7 +453,9 @@ public class WinRmExecClient implements AutoCloseable {
             return "";
         }
 
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             if (shell != null) {
                 try {
@@ -601,7 +609,9 @@ public class WinRmExecClient implements AutoCloseable {
             return data;
         }
 
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             connected = false;
             if (closeCallback != null) {

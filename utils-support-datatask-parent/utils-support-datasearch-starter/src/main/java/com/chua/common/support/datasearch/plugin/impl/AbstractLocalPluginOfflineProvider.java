@@ -24,10 +24,14 @@ import java.util.List;
  */
 public abstract class AbstractLocalPluginOfflineProvider implements PluginOfflineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(AbstractLocalPluginOfflineProvider.class);
 
-    /** 用户主目录 */
+    /**
+     * 用户主目录
+    */
     protected static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
     /**

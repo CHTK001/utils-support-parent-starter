@@ -18,7 +18,9 @@ import java.util.function.Consumer;
 @Slf4j
 public final class RustFFmpegBridge {
 
-    /** ?? rustffmpegbridge ?? */
+    /**
+     * ?? rustffmpegbridge ??
+    */
     private RustFFmpegBridge() {
     }
 

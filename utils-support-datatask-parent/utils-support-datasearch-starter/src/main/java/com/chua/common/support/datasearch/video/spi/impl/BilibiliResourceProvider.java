@@ -31,16 +31,26 @@ import java.util.List;
 @Spi("bilibili")
 public class BilibiliResourceProvider extends AbstractResourceProvider {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static final Logger log = LoggerFactory.getLogger(BilibiliResourceProvider.class);
-    /** 哔哩哔哩搜索接口地址 */
+    /**
+     * 哔哩哔哩搜索接口地址
+    */
     private static final String BILIBILI_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2";
-    /** 哔哩哔哩视频链接地址 */
+    /**
+     * 哔哩哔哩视频链接地址
+    */
     private static final String BILIBILI_VIDEO_URL = "https://www.bilibili.com/video/";
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 创建 bilibiliresource提供者 实例 */
+    /**
+     * 创建 bilibiliresource提供者 实例
+    */
     public BilibiliResourceProvider() {
         super();
     }
@@ -54,7 +64,9 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     }
 
     @Override
-    /** 搜索Resource */
+    /**
+     * 搜索Resource
+    */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {

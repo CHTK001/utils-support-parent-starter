@@ -184,32 +184,42 @@ public class PrometheusEngine implements Engine {
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public <T> Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持数据存储");
     }
 
     @Override
-    /** 设置默认数据源名称 */
+    /**
+     * 设置默认数据源名称
+    */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** 获取默认数据源名称 */
+    /**
+     * 获取默认数据源名称
+    */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor() {
         return null;
     }
@@ -263,37 +273,49 @@ public class PrometheusEngine implements Engine {
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 查询, 请使用 query(promql)");
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 更新");
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         throw new UnsupportedOperationException("Prometheus 引擎不支持 Lambda 删除");
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** Meta */
+    /**
+     * Meta
+    */
     public MetaData meta() {
         return null;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         dataSources.clear();
     }

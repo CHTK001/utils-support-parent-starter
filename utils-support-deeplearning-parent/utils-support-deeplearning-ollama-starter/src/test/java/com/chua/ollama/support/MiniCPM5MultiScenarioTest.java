@@ -14,7 +14,9 @@ import com.chua.common.support.ai.chat.ChatSyncResponse;
  */
 public class MiniCPM5MultiScenarioTest {
 
-    /** MiniCPM5-2B 量化模型 名称 */
+    /**
+     * MiniCPM5-2B 量化模型 名称
+    */
     private static final String MODEL = "hf.co/openbmb/MiniCPM5-2B-GGUF:Q4_K_M";
 
     /**

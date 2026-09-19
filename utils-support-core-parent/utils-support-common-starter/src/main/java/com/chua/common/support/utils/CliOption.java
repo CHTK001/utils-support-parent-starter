@@ -12,7 +12,9 @@ package com.chua.common.support.utils;
  */
 @Deprecated
 public final class CliOption {
-    /** 创建 cli期权 实例 */
+    /**
+     * 创建 cli期权 实例
+    */
     private CliOption() {
         throw new UnsupportedOperationException("已迁移到 com.chua.common.support.lang.cmd.CliOption");
     }

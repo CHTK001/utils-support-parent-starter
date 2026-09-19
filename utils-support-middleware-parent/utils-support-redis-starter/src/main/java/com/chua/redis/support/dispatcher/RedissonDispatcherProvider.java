@@ -27,15 +27,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Spi("redis")
 public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
 
-    /** Redisson客户端 */
+    /**
+     * Redisson客户端
+    */
     private final RedissonClient redissonClient;
-    /** topic映射 */
+    /**
+     * topic映射
+    */
     private final Map<String, RTopic> topicMap = new ConcurrentHashMap<>();
-    /** definition映射 */
+    /**
+     * definition映射
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    /** 监听器id映射 */
+    /**
+     * 监听器id映射
+    */
     private final Map<String, Integer> listenerIdMap = new ConcurrentHashMap<>();
-    /** closed */
+    /**
+     * closed
+    */
     private volatile boolean closed = false;
 
     /**
@@ -63,7 +73,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         var value = body == null ? "" : body.toString();
         var rt = getOrCreateTopic(topic);
@@ -72,7 +84,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -80,7 +94,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
                 var rt = getOrCreateTopic(topic);
                 var listenerId = rt.addListener(String.class, new MessageListener<String>() {
                     @Override
-                    /** on消息 */
+                    /**
+                     * on消息
+                    */
                     public void onMessage(CharSequence channel, String msg) {
                         var definitions = definitionMap.get(topic);
                         if (definitions != null) {
@@ -101,7 +117,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -123,7 +141,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         listenerIdMap.clear();

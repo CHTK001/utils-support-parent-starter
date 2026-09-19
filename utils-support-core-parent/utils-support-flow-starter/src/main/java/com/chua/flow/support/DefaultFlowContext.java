@@ -106,43 +106,57 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取流标识 */
+    /**
+     * 获取流标识
+    */
     public String getFlowId() {
         return flowId;
     }
 
     @Override
-    /** 获取当前节点标识 */
+    /**
+     * 获取当前节点标识
+    */
     public String getCurrentNodeId() {
         return currentNodeId;
     }
 
     @Override
-    /** 设置当前节点标识 */
+    /**
+     * 设置当前节点标识
+    */
     public void setCurrentNodeId(String nodeId) {
         this.currentNodeId = nodeId;
     }
 
     @Override
-    /** 获取数据 */
+    /**
+     * 获取数据
+    */
     public Object getData() {
         return data;
     }
 
     @Override
-    /** 设置数据 */
+    /**
+     * 设置数据
+    */
     public void setData(Object data) {
         this.data = data;
     }
 
     @Override
-    /** 获取Attributes */
+    /**
+     * 获取Attributes
+    */
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
     @Override
-    /** 设置Attribute */
+    /**
+     * 设置Attribute
+    */
     public void setAttribute(String key, Object value) {
         attributes.put(key, value);
     }
@@ -160,61 +174,81 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 当前节点props */
+    /**
+     * 当前节点props
+    */
     public FlowProps currentNodeProps() {
         return flow.nodeProps(currentNodeId);
     }
 
     @Override
-    /** 获取下一个节点标识 */
+    /**
+     * 获取下一个节点标识
+    */
     public String getNextNodeId() {
         return nextNodeId;
     }
 
     @Override
-    /** 设置下一个节点标识 */
+    /**
+     * 设置下一个节点标识
+    */
     public void setNextNodeId(String nodeId) {
         this.nextNodeId = nodeId;
     }
 
     @Override
-    /** waitfor恢复 */
+    /**
+     * waitfor恢复
+    */
     public void waitForResume() {
         this.action = Action.WAIT;
     }
 
     @Override
-    /** Exit */
+    /**
+     * Exit
+    */
     public void exit() {
         this.action = Action.EXIT;
     }
 
     @Override
-    /** 获取执行追踪 */
+    /**
+     * 获取执行追踪
+    */
     public List<String> getExecutionTrace() {
         return new ArrayList<>(executionTrace);
     }
 
     @Override
-    /** 获取追踪 */
+    /**
+     * 获取追踪
+    */
     public List<FlowTrace> getTraces() {
         return new ArrayList<>(traces);
     }
 
     @Override
-    /** 获取执行计算数量 */
+    /**
+     * 获取执行计算数量
+    */
     public int getExecuteCount(String nodeId) {
         return executeCounts.getOrDefault(nodeId, 0);
     }
 
     @Override
-    /** 获取最大值循环计算数量 */
+    /**
+     * 获取最大值循环计算数量
+    */
     public int getMaxLoopCount() {
         return maxLoopCount;
     }
 
     @Override
-    /** 设置最大值循环计算数量 */
+    /**
+     * 设置最大值循环计算数量
+    */
     public void setMaxLoopCount(int maxLoopCount) {
         if (maxLoopCount <= 0) {
             throw new IllegalArgumentException("maxLoopCount 必须大于 0");
@@ -223,7 +257,9 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取pending节点标识 */
+    /**
+     * 获取pending节点标识
+    */
     public List<String> getPendingNodeIds() {
         return new ArrayList<>(pendingSnapshot);
     }

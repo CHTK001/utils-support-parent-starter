@@ -42,7 +42,9 @@ import java.util.List;
 @Spi(ScriptConverter.SPI_NAME)
 public interface ScriptConverter {
 
-    /** SPI 名称（{@code @Spi} 扩展键） */
+    /**
+     * SPI 名称（{@code @Spi} 扩展键）
+    */
     String SPI_NAME = "script-converter";
 
     /**

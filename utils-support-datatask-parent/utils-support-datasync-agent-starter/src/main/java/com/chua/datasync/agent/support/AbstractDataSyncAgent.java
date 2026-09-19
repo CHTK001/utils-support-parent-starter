@@ -59,7 +59,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** Agentid */
+    /**
+     * Agentid
+    */
     public String agentId() {
         return agentId;
     }
@@ -74,7 +76,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public DataSyncAgentSource getSource(String sourceId) {
         for (DataSyncAgentSource source : sources) {
             if (source.sourceId().equals(sourceId)) {
@@ -94,7 +98,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 获取Sink */
+    /**
+     * 获取Sink
+    */
     public DataSyncAgentSink getSink(String sinkId) {
         for (DataSyncAgentSink sink : sinks) {
             if (sink.sinkId().equals(sinkId)) {
@@ -105,7 +111,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         for (DataSyncAgentSource source : sources) {
             try {
@@ -124,7 +132,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         for (DataSyncAgentSource source : sources) {
             try {

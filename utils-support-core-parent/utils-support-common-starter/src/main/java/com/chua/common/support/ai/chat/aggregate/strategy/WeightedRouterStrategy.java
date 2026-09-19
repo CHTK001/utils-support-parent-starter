@@ -17,11 +17,15 @@ import java.util.Random;
 @Spi("weighted")
 public class WeightedRouterStrategy implements RouterStrategy {
 
-    /** 随机数生成器 */
+    /**
+     * 随机数生成器
+    */
     private final Random random = new Random();
 
     @Override
-    /** 选择 */
+    /**
+     * 选择
+    */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

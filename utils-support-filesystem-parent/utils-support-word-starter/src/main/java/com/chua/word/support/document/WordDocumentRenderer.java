@@ -23,19 +23,25 @@ import java.math.BigInteger;
 public class WordDocumentRenderer implements DocumentProvider {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "word";
     }
 
     @Override
-    /** 获取延伸 */
+    /**
+     * 获取延伸
+    */
     public String[] getExtensions() {
         return new String[]{".docx", ".doc"};
     }
 
     @Override
-    /** 导出 */
+    /**
+     * 导出
+    */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         try (XWPFDocument doc = new XWPFDocument()) {
             writeTitle(doc, data);

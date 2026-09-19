@@ -65,13 +65,19 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(AbstractModelMetricsProvider.class);
 
-    /** 配置保存orloader */
+    /**
+     * 配置保存orloader
+    */
     private ConfigSaveOrLoader configSaveOrLoader;
 
-    /** 创建 抽象模型指标提供者 实例 */
+    /**
+     * 创建 抽象模型指标提供者 实例
+    */
     protected AbstractModelMetricsProvider() {
     }
 
@@ -84,7 +90,9 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         Spi spi = this.getClass().getAnnotation(Spi.class);
         if (spi != null && spi.value().length > 0) {
@@ -94,7 +102,9 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     @Override
-    /** 获取Pricing */
+    /**
+     * 获取Pricing
+    */
     public List<ModelDefinition> getMetrics() {
         if (configSaveOrLoader == null) {
             return Collections.emptyList();
@@ -118,7 +128,9 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     @Override
-    /** 同步从online */
+    /**
+     * 同步从online
+    */
     public void syncFromOnline() {
         List<ModelDefinition> pricing = fetchOnlinePricing();
         if (pricing == null || pricing.isEmpty()) {

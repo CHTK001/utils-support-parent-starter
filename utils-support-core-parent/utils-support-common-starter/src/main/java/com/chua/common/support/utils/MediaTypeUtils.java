@@ -45,7 +45,9 @@ import java.util.Optional;
  * @see com.google.common.net.MediaType
  */
 public class MediaTypeUtils {
-    /** 创建 media类型工具 实例 */
+    /**
+     * 创建 media类型工具 实例
+    */
     private MediaTypeUtils() {
         //
     }

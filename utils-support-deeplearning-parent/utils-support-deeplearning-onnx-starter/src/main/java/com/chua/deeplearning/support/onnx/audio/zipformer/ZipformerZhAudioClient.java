@@ -46,11 +46,17 @@ public class ZipformerZhAudioClient implements VirtualClient {
             "tokens.txt",
     };
 
-    /** 类路径 内嵌资源基准路径 */
+    /**
+     * 类路径 内嵌资源基准路径
+    */
     private static final String RESOURCE_BASE = "audio/asr/zipformer-zh/";
-    /** 缓存子目录 */
+    /**
+     * 缓存子目录
+    */
     private static final String CACHE_SUBDIR = "audio/asr/zipformer-zh/";
-    /** 临时音频文件前缀 */
+    /**
+     * 临时音频文件前缀
+    */
     private static final String TMP_PREFIX = "zipformer-zh-audio-";
 
     private final AudioClientSetting setting; // setting
@@ -101,7 +107,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
 
     // ==================== 流式转录门面实现 ====================
 
-    /** 流式转录状态是否已初始化（非 空 表示正在流式中） */
+    /**
+     * 流式转录状态是否已初始化（非 空 表示正在流式中）
+    */
     private boolean streamingActive = false;
 
     @Override

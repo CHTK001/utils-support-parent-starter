@@ -36,9 +36,13 @@ public class RedisDeduplicator implements Deduplicator {
      */
     private static final String KEY_PREFIX = "dedup:";
 
-    /** Redisson */
+    /**
+     * Redisson
+    */
     private final RedissonClient redisson;
-    /** TTLMS */
+    /**
+     * TTLMS
+    */
     private final long ttlMs;
 
     /**
@@ -61,26 +65,34 @@ public class RedisDeduplicator implements Deduplicator {
     }
 
     @Override
-    /** 是否重复 */
+    /**
+     * 是否重复
+    */
     public boolean isDuplicate(String key) {
         return redisson.getBucket(KEY_PREFIX + key).isExists();
     }
 
     @Override
-    /** 标记处理 */
+    /**
+     * 标记处理
+    */
     public void markProcessed(String key) {
         RBucket<String> bucket = redisson.getBucket(KEY_PREFIX + key);
         bucket.set("1", ttlMs, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         // Redis 不支持批量按前缀删除的原子操作，保留为空实现
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return 0;
     }

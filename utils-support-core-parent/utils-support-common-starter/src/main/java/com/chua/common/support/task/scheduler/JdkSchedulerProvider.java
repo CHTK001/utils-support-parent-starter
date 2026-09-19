@@ -55,7 +55,9 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
      */
     private final ConcurrentHashMap<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
-    /** 锁 */
+    /**
+     * 锁
+    */
     private final ReentrantLock lock = new ReentrantLock();
 
     /**

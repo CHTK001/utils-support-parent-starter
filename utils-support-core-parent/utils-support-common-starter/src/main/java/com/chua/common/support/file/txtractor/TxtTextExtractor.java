@@ -28,7 +28,9 @@ import java.util.List;
 public class TxtTextExtractor implements TextExtractor {
 
     @Override
-    /** ExtractText */
+    /**
+     * ExtractText
+    */
     public List<TextExtractResult> extractText(File file) {
         StringBuilder sb = new StringBuilder();
 
@@ -48,7 +50,9 @@ public class TxtTextExtractor implements TextExtractor {
     }
 
     @Override
-    /** Type */
+    /**
+     * Type
+    */
     public String type() {
         return "txt";
     }

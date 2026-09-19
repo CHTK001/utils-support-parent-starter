@@ -241,25 +241,33 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-     /** 获取codec名称 */
+     /**
+      * 获取codec名称
+     */
     public String getCodecName() {
         return codecName != null ? codecName : "none";
     }
 
     @Override
-     /** 获取codecid */
+     /**
+      * 获取codecid
+     */
     public int getCodecId() {
         return org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
-     /** 是否hardware加速 */
+     /**
+      * 是否hardware加速
+     */
     public boolean isHardwareAccelerated() {
         return true;
     }
 
     @Override
-     /** force键帧 */
+     /**
+      * force键帧
+     */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
         this.pendingForceIdr = true;
@@ -289,7 +297,9 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-     /** 编码 */
+     /**
+      * 编码
+     */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -674,13 +684,17 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 设置Crf */
+    /**
+     * 设置Crf
+    */
     public synchronized void setCrf(int crf) {
         // NVENC 通过 rc-buf-size / rate 控制质量，recorder 不直接支持动态修改 CRF，故此处为占位实现
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         if (!started) {
             return;
@@ -737,19 +751,25 @@ public class H264NvencEncoder implements VideoEncoder {
         }
 
         @Override
-        /** 写入单字节 */
+        /**
+         * 写入单字节
+        */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
-        /** 写入字节区间 */
+        /**
+         * 写入字节区间
+        */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
-        /** 关闭（不做实际处理，由持有者管理生命周期） */
+        /**
+         * 关闭（不做实际处理，由持有者管理生命周期）
+        */
         public void close() {
         }
     }
@@ -785,7 +805,9 @@ public class H264NvencEncoder implements VideoEncoder {
             return out;
         }
 
-        /** 暴露底层 bytearray 输出流视图（用于 内存输出流 适配）。 */
+        /**
+         * 暴露底层 bytearray 输出流视图（用于 内存输出流 适配）。
+        */
         ByteArrayOutputStream asByteArrayOutputStream() {
             return this;
         }

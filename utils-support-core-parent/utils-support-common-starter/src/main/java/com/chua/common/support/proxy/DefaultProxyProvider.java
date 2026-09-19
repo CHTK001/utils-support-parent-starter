@@ -121,7 +121,9 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * </p>
      */
     @Getter
-    /** 对象上下文 */
+    /**
+     * 对象上下文
+    */
     private ObjectContext objectContext;
 
     /**
@@ -227,14 +229,18 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     }
 
     @Override
-    /** 尝试asm */
+    /**
+     * 尝试asm
+    */
     public ProxyProvider<T> tryAsm(boolean enable) {
         this.tryAsm = enable;
         return this;
     }
 
     @Override
-    /** 尝试javassist */
+    /**
+     * 尝试javassist
+    */
     public ProxyProvider<T> tryJavassist(boolean enable) {
         this.tryJavassist = enable;
         return this;
@@ -356,13 +362,17 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         }
         return new MethodIntercept<>() {
             @Override
-            /** 之前 */
+            /**
+             * 之前
+            */
             public void before(Object obj, Method method, Object[] args, T proxy) {
                 delegate.before(obj, method, args, proxy);
             }
 
             @Override
-            /** 调用 */
+            /**
+             * 调用
+            */
             public Object invoke(Object obj, Method method, Object[] args, T proxy) throws Throwable {
                 ProxyMethod proxyMethod = ProxyMethod.builder()
                         .args(args)
@@ -387,13 +397,17 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             }
 
             @Override
-            /** 之后 */
+            /**
+             * 之后
+            */
             public void after(Object obj, Method method, Object[] args, T proxy) {
                 delegate.after(obj, method, args, proxy);
             }
 
             @Override
-            /** 处理异常 */
+            /**
+             * 处理异常
+            */
             public Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
                 return delegate.handleException(obj, method, args, proxy, throwable);
             }
@@ -646,13 +660,21 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * @since 4.0.0
      */
     private static class ArroundHandler {
-        /** Intercept */
+        /**
+         * Intercept
+        */
         private final MethodArroundIntercept intercept;
-        /** 模式 */
+        /**
+         * 模式
+        */
         private final String[] patterns;
-        /** 匹配类型 */
+        /**
+         * 匹配类型
+        */
         private final MatchUtils.MatchType matchType;
-        /** 排序 */
+        /**
+         * 排序
+        */
         private final int order;
 
         /**

@@ -9,11 +9,17 @@ import java.io.Serializable;
 public class MediaType implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 类型 */
+    /**
+     * 类型
+    */
     private final String type;
-    /** Subtype */
+    /**
+     * Subtype
+    */
     private final String subtype;
-    /** 字符集 */
+    /**
+     * 字符集
+    */
     private final String charset;
 
     /**

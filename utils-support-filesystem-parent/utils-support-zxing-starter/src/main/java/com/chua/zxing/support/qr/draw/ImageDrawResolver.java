@@ -48,7 +48,9 @@ public class ImageDrawResolver extends AbstractDrawResolver{
     }
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw() {
         DrawEyeResolver drawEyeResolver = ServiceProvider.of(DrawEyeResolver.class)
                 .getNewExtension(setting.getCodeEyeSetting().getCodeEye());

@@ -48,16 +48,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RocksDbOrmStore {
 
-    /** ORM 键 前缀 */
+    /**
+     * ORM 键 前缀
+    */
     public static final String ORM_PREFIX = "ORM:";
-    /** 表 级 序号 键 后缀 */
+    /**
+     * 表 级 序号 键 后缀
+    */
     private static final String SEQ_SUFFIX = "__seq__";
-    /** 键 字段 索引 */
+    /**
+     * 键 字段 索引
+    */
     private static final int KEY_FIELD = 0;
-    /** 实体 字段 索引 */
+    /**
+     * 实体 字段 索引
+    */
     private static final int ENTITY_FIELD = 1;
 
-    /** JSON 序列化 器 */
+    /**
+     * JSON 序列化 器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -70,7 +80,9 @@ public class RocksDbOrmStore {
      */
     private final Map<String, Object> tableLocks;
 
-    /** RocksDB 实例 */
+    /**
+     * RocksDB 实例
+    */
     private final RocksDB db;
 
     /**

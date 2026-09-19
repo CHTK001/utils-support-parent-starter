@@ -11,7 +11,9 @@ package com.chua.datasync.agent.support.exception;
  */
 public class DataSyncAgentException extends RuntimeException {
 
-    /** 序列化版本号 */
+    /**
+     * 序列化版本号
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -111,7 +113,9 @@ public class DataSyncAgentException extends RuntimeException {
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return errorCode.codeString() + " " + getMessage();
     }

@@ -42,7 +42,9 @@ import javax.annotation.Nullable;
 public class ConditionEvaluator {
 
 
-    /** 创建 条件evaluator 实例 */
+    /**
+     * 创建 条件evaluator 实例
+    */
     public ConditionEvaluator() {
     }
 

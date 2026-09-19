@@ -38,13 +38,17 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 转换视频 */
+    /**
+     * 转换视频
+    */
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
         convertVideo(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
-    /** 转换视频 */
+    /**
+     * 转换视频
+    */
     public void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -77,13 +81,17 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 转换音频 */
+    /**
+     * 转换音频
+    */
     public void convertAudio(File input, File output, String targetFormat) throws IOException {
         convertAudio(input, output, targetFormat, FFmpegOptions.defaultOptions());
     }
 
     @Override
-    /** 转换音频 */
+    /**
+     * 转换音频
+    */
     public void convertAudio(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -97,7 +105,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** extract音频 */
+    /**
+     * extract音频
+    */
     public void extractAudio(File videoInput, File audioOutput, String audioFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -110,7 +120,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** capture帧 */
+    /**
+     * capture帧
+    */
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -123,7 +135,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** capture帧 */
+    /**
+     * capture帧
+    */
     public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -138,14 +152,18 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** generatethumbnail */
+    /**
+     * generatethumbnail
+    */
     public void generateThumbnail(File videoInput, File imageOutput, int width, int height) throws IOException {
         double duration = getDuration(videoInput);
         captureFrame(videoInput, imageOutput, duration / 2);
     }
 
     @Override
-    /** 去空格 */
+    /**
+     * 去空格
+    */
     public void trim(File input, File output, double startTime, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -160,7 +178,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void concat(File[] inputs, File output) throws IOException {
         if (!available || inputs == null || inputs.length == 0) {
             return;
@@ -181,7 +201,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 调整大小 */
+    /**
+     * 调整大小
+    */
     public void resize(File input, File output, int width, int height) throws IOException {
         FFmpegOptions opts = new FFmpegOptions();
         opts.setWidth(width);
@@ -190,7 +212,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** Rotate */
+    /**
+     * Rotate
+    */
     public void rotate(File input, File output, int angle) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -215,7 +239,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 添加Watermark */
+    /**
+     * 添加Watermark
+    */
     public void addWatermark(File videoInput, File watermarkFile, File output, int x, int y) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -255,7 +281,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 镜像转为视频 */
+    /**
+     * 镜像转为视频
+    */
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -271,7 +299,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 推送流 */
+    /**
+     * 推送流
+    */
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -340,7 +370,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 拉取流 */
+    /**
+     * 拉取流
+    */
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -403,7 +435,9 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 获取media信息 */
+    /**
+     * 获取media信息
+    */
     public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);
@@ -446,19 +480,25 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     }
 
     @Override
-    /** 获取持续时间 */
+    /**
+     * 获取持续时间
+    */
     public double getDuration(File input) throws IOException {
         return getMediaInfo(input).getDuration();
     }
 
     @Override
-    /** 获取版本 */
+    /**
+     * 获取版本
+    */
     public String getVersion() {
         return "Jaffree FFmpeg Processor";
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public FFmpegResult execute(String... args) throws IOException {
         if (!available) {
             throw new IllegalStateException("FFmpeg unavailable: " + loadError);

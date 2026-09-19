@@ -28,13 +28,19 @@ public final class OshiCli {
     private OshiCli() {
     }
 
-    /** 程序名 */
+    /**
+     * 程序名
+    */
     private static final String PROGRAM = "oshc";
 
-    /** 版本 */
+    /**
+     * 版本
+    */
     private static final String VERSION = "1.0.0";
 
-    /** 命令注册表 */
+    /**
+     * 命令注册表
+    */
     private static final AbstractCommand[] COMMANDS = {
             new StatusCommand(),
             new CpuCommand(),

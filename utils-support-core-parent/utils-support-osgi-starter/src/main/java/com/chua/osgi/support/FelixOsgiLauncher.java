@@ -38,19 +38,31 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
 
-    /** 框架 */
+    /**
+     * 框架
+    */
     private volatile Framework framework;
-    /** 原始 osgi bundle上下文（服务注册表按名查找入口） */
+    /**
+     * 原始 osgi bundle上下文（服务注册表按名查找入口）
+    */
     private volatile org.osgi.framework.BundleContext frameworkContext;
-    /** Applications */
+    /**
+     * Applications
+    */
     private final List<BundleApplication> applications = new CopyOnWriteArrayList<>();
-    /** 监听器 */
+    /**
+     * 监听器
+    */
     private final List<BundleLifecycleListener> listeners = new CopyOnWriteArrayList<>();
-    /** Auto开始installedbundles */
+    /**
+     * Auto开始installedbundles
+    */
     private boolean autoStartInstalledBundles = true;
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(Map<String, String> config) {
         if (framework != null && framework.getState() == Bundle.ACTIVE) {
             log.warn("[osgi] OSGI framework is already active");
@@ -87,7 +99,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         return frameworkContext;
     }
 
-    /** 通知Applications */
+    /**
+     * 通知Applications
+    */
     private void notifyApplications() {
         BundleContext ctx = new FelixBundleContext(framework.getBundleContext());
         ServiceProvider<BundleApplication> provider = ServiceProvider.of(BundleApplication.class);
@@ -196,7 +210,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (framework == null) {
             return;
@@ -221,13 +237,17 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** 是否活跃 */
+    /**
+     * 是否活跃
+    */
     public boolean isActive() {
         return framework != null && framework.getState() == Bundle.ACTIVE;
     }
 
     @Override
-    /** 获取服务 */
+    /**
+     * 获取服务
+    */
     public <T> List<T> getServices(Class<T> type) {
         if (!isActive()) {
             return Collections.emptyList();
@@ -252,14 +272,18 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** 获取服务 */
+    /**
+     * 获取服务
+    */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
         return services.isEmpty() ? null : services.getFirst();
     }
 
     @Override
-    /** 获取Bundles */
+    /**
+     * 获取Bundles
+    */
     public List<OsgiBundle> getBundles() {
         if (!isActive()) {
             return Collections.emptyList();
@@ -273,7 +297,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** installbundle */
+    /**
+     * installbundle
+    */
     public OsgiBundle installBundle(String url) {
         if (!isActive()) {
             throw new IllegalStateException("OSGI framework is not active");
@@ -299,7 +325,9 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** uninstallbundle */
+    /**
+     * uninstallbundle
+    */
     public void uninstallBundle(String bundleSymbolicName) {
         if (!isActive()) {
             return;

@@ -23,7 +23,9 @@ import java.util.function.Consumer;
 @Slf4j
 public final class FailoverTemplate {
 
-    /** 创建 FailoverTemplate 实例 */
+    /**
+     * 创建 FailoverTemplate 实例
+    */
     private FailoverTemplate() {
     }
 

@@ -66,7 +66,9 @@ public class GithubMcpProvider extends GithubSkillProvider implements McpProvide
      * @since 4.0.0.45
      */
     protected class GithubMcpClient implements McpClient {
-        /** initialized */
+        /**
+         * initialized
+        */
         private volatile boolean initialized = false;
 
         @Override

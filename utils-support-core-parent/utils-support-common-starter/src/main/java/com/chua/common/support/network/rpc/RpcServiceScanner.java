@@ -14,7 +14,9 @@ import java.util.Set;
 @Slf4j
 public class RpcServiceScanner {
 
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private final RpcServer server;
 
     /**

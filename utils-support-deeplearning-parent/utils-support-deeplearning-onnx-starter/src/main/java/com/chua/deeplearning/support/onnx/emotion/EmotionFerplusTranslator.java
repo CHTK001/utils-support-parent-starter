@@ -31,10 +31,14 @@ import com.chua.deeplearning.support.utils.ImageUtils;
  */
 public class EmotionFerplusTranslator implements Translator<Image, PredictResult> {
 
-    /** 情感标签数组 */
+    /**
+     * 情感标签数组
+    */
     private final String[] emotionLabels;
 
-    /** 创建 情绪ferplustranslator 实例 */
+    /**
+     * 创建 情绪ferplustranslator 实例
+    */
     public EmotionFerplusTranslator() {
         this(new String[]{"angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"});
     }
@@ -48,7 +52,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
@@ -71,7 +77,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         float[] scores = logits.toFloatArray();
@@ -126,7 +134,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

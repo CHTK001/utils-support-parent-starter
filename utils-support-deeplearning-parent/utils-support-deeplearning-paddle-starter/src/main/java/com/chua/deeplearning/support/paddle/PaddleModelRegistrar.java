@@ -25,12 +25,16 @@ public class PaddleModelRegistrar implements ModelRegistrar {
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
-    /** 注册全部 */
+    /**
+     * 注册全部
+    */
     private static void registerAll() {
         // 分类
         reg("paddle-animal",

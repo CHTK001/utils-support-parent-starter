@@ -26,20 +26,28 @@ import java.util.concurrent.TimeUnit;
 @Spi("nuget")
 public class NuGetSoftwareProvider implements SoftwareProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(NuGetSoftwareProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private static final String NAME = "nuget";
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
         String cmd = "dotnet nuget search " + keyword + " 2>&1";
@@ -48,19 +56,25 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("nuget 搜索完成, exitCode={}", exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.warn("nuget 搜索异常: {}", throwable.getMessage());
             }
@@ -74,7 +88,9 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String packageId) {
         String cmd = "dotnet tool install --global " + packageId;
         log.info("nuget 安装: {}", packageId);
@@ -82,7 +98,9 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String packageId) {
         String cmd = "dotnet tool uninstall --global " + packageId;
         log.info("nuget 卸载: {}", packageId);
@@ -100,19 +118,25 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }

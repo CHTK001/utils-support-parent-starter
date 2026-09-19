@@ -38,7 +38,9 @@ import com.chua.common.support.utils.SubImageOptions;
 public class JdkImageOperation implements ImageOperation {
 
     @Override
-    /** 调整大小 */
+    /**
+     * 调整大小
+    */
     public Mono<byte[]> resize(byte[] imageBytes, String format, Integer width, Integer height, Double scale) {
         
         return Mono.fromCallable(() -> {
@@ -73,7 +75,9 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     @Override
-    /** Crop */
+    /**
+     * Crop
+    */
     public Mono<byte[]> crop(byte[] imageBytes, String format, int x, int y, int width, int height) {
         
         return Mono.fromCallable(() -> {
@@ -105,7 +109,9 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     @Override
-    /** Rotate */
+    /**
+     * Rotate
+    */
     public Mono<byte[]> rotate(byte[] imageBytes, String format, int angle) {
         
         return Mono.fromCallable(() -> {
@@ -131,7 +137,9 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public Mono<byte[]> filter(byte[] imageBytes, String format, String filterType, ImageOperation.FilterParams params) {
         
         return Mono.fromCallable(() -> {
@@ -173,7 +181,9 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     @Override
-    /** 压缩 */
+    /**
+     * 压缩
+    */
     public Mono<Void> compress(byte[] imageBytes, String format, float quality, String outputFormat, File output) {
         
         return Mono.fromRunnable(() -> {
@@ -242,7 +252,9 @@ public class JdkImageOperation implements ImageOperation {
     }
 
     @Override
-    /** Watermark */
+    /**
+     * Watermark
+    */
     public Mono<byte[]> watermark(byte[] imageBytes, String format, ImageOperation.WatermarkParams params) {
         
         return Mono.fromCallable(() -> {

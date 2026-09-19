@@ -36,17 +36,29 @@ public class NumberUtils {
      */
     private NumberUtils() {
     }
-    /** Long_最小 */
+    /**
+     * Long_最小
+    */
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
-    /** Long_最大 */
+    /**
+     * Long_最大
+    */
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
-    /** A */
+    /**
+     * A
+    */
     private static final int A = 'A';
-    /** Z 轴 */
+    /**
+     * Z 轴
+    */
     private static final int Z = 'Z';
-    /** 中文数字字符 → 数值映射（小写+大写+两） */
+    /**
+     * 中文数字字符 → 数值映射（小写+大写+两）
+    */
     private static final Map<Character, Integer> CN_DIGITS = new HashMap<>();
-    /** 中文单位字符 → 数值映射（十/百/千/万/亿） */
+    /**
+     * 中文单位字符 → 数值映射（十/百/千/万/亿）
+    */
     private static final Map<Character, Integer> CN_UNITS = new HashMap<>();
     static {
         CN_DIGITS.put('零', 0);

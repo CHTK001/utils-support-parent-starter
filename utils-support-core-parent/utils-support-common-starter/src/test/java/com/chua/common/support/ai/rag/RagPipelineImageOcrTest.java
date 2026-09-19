@@ -43,10 +43,14 @@ import java.util.List;
  */
 public class RagPipelineImageOcrTest {
 
-    /** 固定文本 OCR 提取器（测试桩）：返回预设文本，用于验证 RagPipeline 图片分支路由，不依赖真实 OCR 模型 */
+    /**
+     * 固定文本 OCR 提取器（测试桩）：返回预设文本，用于验证 RagPipeline 图片分支路由，不依赖真实 OCR 模型
+    */
     private static final class FakeOcrTextExtractor implements TextExtractor {
 
-        /** 预设识别文本 */
+        /**
+         * 预设识别文本
+        */
         private final String fixedText;
 
         /**
@@ -69,11 +73,17 @@ public class RagPipelineImageOcrTest {
         }
     }
 
-    /** 通过断言计数 */
+    /**
+     * 通过断言计数
+    */
     private static int passed = 0;
-    /** 失败断言计数 */
+    /**
+     * 失败断言计数
+    */
     private static int failed = 0;
-    /** 测试临时目录根（统一输出到 test-output/，避免散落系统临时目录） */
+    /**
+     * 测试临时目录根（统一输出到 test-output/，避免散落系统临时目录）
+    */
     private static final String TEST_OUTPUT_ROOT = Paths.get(System.getProperty("java.io.tmpdir"),
             "test-output", "rag-image-ocr").toAbsolutePath().toString();
 

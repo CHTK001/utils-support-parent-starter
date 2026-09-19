@@ -14,21 +14,33 @@ import lombok.Data;
 @Data
 public class HourlyWeather {
 
-    /** 采样时间点（0-2100，3 小时间隔） */
+    /**
+     * 采样时间点（0-2100，3 小时间隔）
+    */
     private String time;
 
-    /** 气温（摄氏度） */
+    /**
+     * 气温（摄氏度）
+    */
     private Double tempC;
 
-    /** 体感温度（摄氏度） */
+    /**
+     * 体感温度（摄氏度）
+    */
     private Double feelsLikeC;
 
-    /** 相对湿度（%） */
+    /**
+     * 相对湿度（%）
+    */
     private Integer humidity;
 
-    /** 天气描述（如晴、多云） */
+    /**
+     * 天气描述（如晴、多云）
+    */
     private String weatherDesc;
 
-    /** 风速（公里/小时） */
+    /**
+     * 风速（公里/小时）
+    */
     private Double windSpeedKmph;
 }

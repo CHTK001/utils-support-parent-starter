@@ -93,13 +93,17 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.SSH;
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public Server registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -155,7 +159,9 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             sshd = org.apache.sshd.server.SshServer.setUpDefaultServer();
@@ -186,7 +192,9 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         try {
             if (sshd != null) {
@@ -231,38 +239,50 @@ public class SshServer extends AbstractServer {
         private Thread thread;
 
         @Override
-        /** 设置输入流 */
+        /**
+         * 设置输入流
+        */
         public void setInputStream(InputStream in) {
             this.in = in;
         }
 
         @Override
-        /** 设置输出流 */
+        /**
+         * 设置输出流
+        */
         public void setOutputStream(OutputStream out) {
             this.out = out;
         }
 
         @Override
-        /** 设置记录错误流 */
+        /**
+         * 设置记录错误流
+        */
         public void setErrorStream(OutputStream err) {
             this.err = err;
         }
 
         @Override
-        /** 设置exitcallback */
+        /**
+         * 设置exitcallback
+        */
         public void setExitCallback(ExitCallback callback) {
             this.exitCallback = callback;
         }
 
         @Override
-        /** 开始 */
+        /**
+         * 开始
+        */
         public void start(ChannelSession channel, Environment env) throws IOException {
             thread = new Thread(this, "ssh-shell-" + channel.getSession().getIoSession().getRemoteAddress());
             thread.start();
         }
 
         @Override
-        /** 销毁 */
+        /**
+         * 销毁
+        */
         public void destroy(ChannelSession channel) {
             if (thread != null) {
                 thread.interrupt();
@@ -270,7 +290,9 @@ public class SshServer extends AbstractServer {
         }
 
         @Override
-        /** 运行 */
+        /**
+         * 运行
+        */
         public void run() {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true)) {
@@ -340,7 +362,9 @@ public class SshServer extends AbstractServer {
     private class InteractiveShellFactory implements ShellFactory {
 
         @Override
-        /** 创建Shell */
+        /**
+         * 创建Shell
+        */
         public Command createShell(ChannelSession channel) throws IOException {
             return new InteractiveShell();
         }

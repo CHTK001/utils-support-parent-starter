@@ -43,7 +43,9 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** Restore */
+    /**
+     * Restore
+    */
     public RestoreResult restore(InputStream inputStream, String fileName) throws Exception {
         // 创建临时文件
         String suffix = "";
@@ -63,7 +65,9 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** restore结构 */
+    /**
+     * restore结构
+    */
     public RestoreResult restoreStructure(File sourceFile) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -84,7 +88,9 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** restore数据 */
+    /**
+     * restore数据
+    */
     public RestoreResult restoreData(File sourceFile) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -108,13 +114,17 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** restore转为table */
+    /**
+     * restore转为table
+    */
     public RestoreResult restoreToTable(File sourceFile, String targetTable) throws Exception {
         return restoreToTable(sourceFile, null, targetTable);
     }
 
     @Override
-    /** restore转为table */
+    /**
+     * restore转为table
+    */
     public RestoreResult restoreToTable(File sourceFile, String targetSchema, String targetTable) throws Exception {
         RestoreSetting originalSetting = this.restoreSetting;
         try {
@@ -139,7 +149,9 @@ public abstract class AbstractRestore implements Restore {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade(RestoreSetting restoreSetting) {
         this.restoreSetting = restoreSetting;
         log.info("[filesystem-restore] 升级恢复设置");

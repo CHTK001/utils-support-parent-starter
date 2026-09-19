@@ -12,13 +12,19 @@ import org.rocksdb.RocksDB;
  */
 public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
 
-    /** 数据源名称 */
+    /**
+     * 数据源名称
+    */
     private final String name;
 
-    /** RocksDB 数据库实例 */
+    /**
+     * RocksDB 数据库实例
+    */
     private final RocksDB source;
 
-    /** 数据库目录路径 */
+    /**
+     * 数据库目录路径
+    */
     private final String url;
 
     /**
@@ -34,19 +40,25 @@ public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
         this.source = source;
     }
 
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     @Override
     public String name() {
         return name;
     }
 
-    /** 获取数据库实例 */
+    /**
+     * 获取数据库实例
+    */
     @Override
     public RocksDB getSource() {
         return source;
     }
 
-    /** 获取指定类型的数据库实例 */
+    /**
+     * 获取指定类型的数据库实例
+    */
     @Override
     public <R> R getSource(Class<R> type) {
         return type.isInstance(source) ? type.cast(source) : null;
@@ -60,37 +72,49 @@ public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
         throw new UnsupportedOperationException("RocksDbEngineDataSource 不支持 运行期 替换 底层 RocksDB 实例");
     }
 
-    /** 非 SQL 方言返回 空 */
+    /**
+     * 非 SQL 方言返回 空
+    */
     @Override
     public Dialect getDialect() {
         return null;
     }
 
-    /** 忽略方言设置 */
+    /**
+     * 忽略方言设置
+    */
     @Override
     public EngineDataSource<RocksDB> setDialect(Dialect dialect) {
         return this;
     }
 
-    /** 数据库目录路径 */
+    /**
+     * 数据库目录路径
+    */
     @Override
     public String url() {
         return url;
     }
 
-    /** 无用户名概念 */
+    /**
+     * 无用户名概念
+    */
     @Override
     public String username() {
         return null;
     }
 
-    /** 无密码概念 */
+    /**
+     * 无密码概念
+    */
     @Override
     public String password() {
         return null;
     }
 
-    /** 关闭底层连接 */
+    /**
+     * 关闭底层连接
+    */
     @Override
     public void close() {
         if (source != null) {

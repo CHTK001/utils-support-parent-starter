@@ -23,12 +23,18 @@ import java.util.Map;
  */
 public class IpcMethodServerHandler implements HttpDefaultServerHandler {
 
-    /** Object上下文 */
+    /**
+     * Object上下文
+    */
     private final ObjectContext objectContext;
     private final Class<?> targetClass;
-    /** Method */
+    /**
+     * Method
+    */
     private final Method method;
-    /** 路径 */
+    /**
+     * 路径
+    */
     private final String path;
 
     /**
@@ -49,19 +55,25 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     @Override
-    /** Path */
+    /**
+     * Path
+    */
     public String path() {
         return path;
     }
 
     @Override
-    /** Method */
+    /**
+     * Method
+    */
     public HttpMethod method() {
         return null;
     }
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         Object bean = objectContext.getBeanOfType(targetClass);
         if (bean == null) {

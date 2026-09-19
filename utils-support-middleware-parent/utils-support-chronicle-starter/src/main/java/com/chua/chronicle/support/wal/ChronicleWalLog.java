@@ -28,31 +28,53 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Spi("chronicle")
 public class ChronicleWalLog implements WalLog {
 
-    /** 字段_lsn */
+    /**
+     * 字段_lsn
+    */
     private static final String FIELD_LSN = "lsn";
-    /** 字段_op */
+    /**
+     * 字段_op
+    */
     private static final String FIELD_OP = "op";
-    /** 字段_payload */
+    /**
+     * 字段_payload
+    */
     private static final String FIELD_PAYLOAD = "payload";
-    /** 字段_checkpoint */
+    /**
+     * 字段_checkpoint
+    */
     private static final String FIELD_CHECKPOINT = "checkpointLsn";
 
-    /** 队列 */
+    /**
+     * 队列
+    */
     private final ChronicleQueue queue;
-    /** Appender */
+    /**
+     * Appender
+    */
     private final ExcerptAppender appender;
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final WalConfig config;
-    /** 当前LSN */
+    /**
+     * 当前LSN
+    */
     private final AtomicLong currentLsn = new AtomicLong(0L);
-    /** checkpointlsn */
+    /**
+     * checkpointlsn
+    */
     private final AtomicLong checkpointLsn = new AtomicLong(0L);
-    /** closed */
+    /**
+     * closed
+    */
     private volatile boolean closed;
 
     /**
@@ -92,7 +114,9 @@ public class ChronicleWalLog implements WalLog {
                 .resolve("wal").resolve(config.namespace());
     }
 
-    /** 扫描Tail */
+    /**
+     * 扫描Tail
+    */
     private void scanTail() {
         long maxLsn = 0L;
         long cp = 0L;
@@ -136,7 +160,9 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 追加 */
+    /**
+     * 追加
+    */
     public long append(byte op, byte[] payload) throws IOException {
         ensureOpen();
         long lsn = currentLsn.incrementAndGet();
@@ -149,26 +175,34 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 同步 */
+    /**
+     * 同步
+    */
     public void sync() throws IOException {
         ensureOpen();
     }
 
     @Override
-    /** 当前lsn */
+    /**
+     * 当前lsn
+    */
     public long currentLsn() {
         return currentLsn.get();
     }
 
     @Override
-    /** 加载Checkpoint */
+    /**
+     * 加载Checkpoint
+    */
     public CheckpointMeta loadCheckpoint() throws IOException {
         ensureOpen();
         return new CheckpointMeta(checkpointLsn.get(), 1, 0L, System.currentTimeMillis());
     }
 
     @Override
-    /** 标记Checkpoint */
+    /**
+     * 标记Checkpoint
+    */
     public void markCheckpoint(long lsn) throws IOException {
         ensureOpen();
         long target = Math.min(lsn, currentLsn.get());
@@ -181,14 +215,18 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 重置Checkpoint */
+    /**
+     * 重置Checkpoint
+    */
     public void resetCheckpoint() throws IOException {
         ensureOpen();
         this.checkpointLsn.set(0L);
     }
 
     @Override
-    /** forcecheckpoint */
+    /**
+     * forcecheckpoint
+    */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         long target = Math.max(0L, lsn);
@@ -200,19 +238,25 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(WalReplayHandler handler) throws IOException {
         return replay(checkpointLsn.get() + 1, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException {
         return replay(fromLsn, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
         List<WalRecord> records = new ArrayList<>();
@@ -259,7 +303,9 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 追加Chain */
+    /**
+     * 追加Chain
+    */
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
         List<WalOp> ops = new ArrayList<>();
@@ -278,7 +324,9 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 查找bylsn */
+    /**
+     * 查找bylsn
+    */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         ExcerptTailer tailer = queue.createTailer();
@@ -309,13 +357,17 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** purgecheckpointed */
+    /**
+     * purgecheckpointed
+    */
     public int purgeCheckpointed(int keepSegments) throws IOException {
         return 0;
     }
 
     @Override
-    /** 当前segment */
+    /**
+     * 当前segment
+    */
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1,
                 checkpointLsn.get() + 1,
@@ -326,13 +378,17 @@ public class ChronicleWalLog implements WalLog {
     }
 
     @Override
-    /** 列表segments */
+    /**
+     * 列表segments
+    */
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws IOException {
         if (closed) {
             return;
@@ -345,7 +401,9 @@ public class ChronicleWalLog implements WalLog {
         }
     }
 
-    /** Ensure打开 */
+    /**
+     * Ensure打开
+    */
     private void ensureOpen() {
         if (closed) {
             throw new IllegalStateException("Chronicle WAL is closed");
@@ -353,7 +411,9 @@ public class ChronicleWalLog implements WalLog {
     }
 
     private static final class ChronicleWalChain implements WalChain {
-        /** OPS */
+        /**
+         * OPS
+        */
         private final List<WalOp> ops;
 
         ChronicleWalChain(List<WalOp> ops) {
@@ -361,14 +421,18 @@ public class ChronicleWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, byte[] payload) {
             ops.add(new WalOp(op, payload == null ? new byte[0] : payload));
             return this;
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, String s) {
             byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             ops.add(new WalOp(op, bytes));
@@ -376,14 +440,18 @@ public class ChronicleWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op) {
             ops.add(new WalOp(op, new byte[0]));
             return this;
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public int size() {
             return ops.size();
         }

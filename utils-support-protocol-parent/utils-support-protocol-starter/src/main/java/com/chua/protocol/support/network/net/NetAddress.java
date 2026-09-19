@@ -8,13 +8,19 @@ package com.chua.protocol.support.network.net;
  */
 public class NetAddress {
 
-    /** 主机地址 */
+    /**
+     * 主机地址
+    */
     private String host;
 
-    /** 端口号 */
+    /**
+     * 端口号
+    */
     private int port;
 
-    /** 默认构造 */
+    /**
+     * 默认构造
+    */
     public NetAddress() {
     }
 

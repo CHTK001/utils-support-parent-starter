@@ -40,19 +40,25 @@ public class KcpHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议 */
+    /**
+     * 获取协议
+    */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         setting.setProtocol("kcp");
         kcpServer = new KcpServer(setting);
@@ -62,7 +68,9 @@ public class KcpHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (kcpServer != null) {
             try {

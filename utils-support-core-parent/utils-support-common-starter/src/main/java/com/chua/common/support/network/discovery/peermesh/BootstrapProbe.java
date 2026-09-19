@@ -15,19 +15,33 @@ import java.util.List;
 @Slf4j
 public class BootstrapProbe {
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final MeshConfig config;
-    /** 节点表 */
+    /**
+     * 节点表
+    */
     private final NodeTable nodeTable;
-    /** Selector */
+    /**
+     * Selector
+    */
     private final InterfaceSelector selector;
-    /** 本地服务器ID */
+    /**
+     * 本地服务器ID
+    */
     private final String localServerId;
-    /** 本地端口 */
+    /**
+     * 本地端口
+    */
     private final int localPort;
-    /** Diskstore */
+    /**
+     * Diskstore
+    */
     private final DiskStore diskStore;
-    /** 本地主机 */
+    /**
+     * 本地主机
+    */
     private final String localHost;
 
     /**
@@ -110,17 +124,23 @@ public class BootstrapProbe {
                 all.addAll(seedMode.getDiscoveredNodes());
                 return new ProbeStrategy() {
                     @Override
-                    /** 开始 */
+                    /**
+                     * 开始
+                    */
                     public void start() {
                     }
 
                     @Override
-                    /** 停止 */
+                    /**
+                     * 停止
+                    */
                     public void stop() {
                     }
 
                     @Override
-                    /** 获取DiscoveredNodes */
+                    /**
+                     * 获取DiscoveredNodes
+                    */
                     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
                         return Collections.unmodifiableList(all);
                     }

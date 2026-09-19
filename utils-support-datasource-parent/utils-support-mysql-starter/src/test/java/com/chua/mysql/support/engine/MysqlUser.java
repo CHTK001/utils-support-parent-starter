@@ -10,22 +10,34 @@ import com.chua.datasource.support.annotation.TableName;
 @TableName("t_mysql_user")
 public class MysqlUser {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private String name;
 
-    /** 年龄 */
+    /**
+     * 年龄
+    */
     private Integer age;
 
-    /** 部门编号（驼峰，验证驼峰转下划线列名解析） */
+    /**
+     * 部门编号（驼峰，验证驼峰转下划线列名解析）
+    */
     private Long deptId;
 
-    /** 金额 */
+    /**
+     * 金额
+    */
     private Double amount;
 
-    /** 无参构造器 */
+    /**
+     * 无参构造器
+    */
     public MysqlUser() {
     }
 

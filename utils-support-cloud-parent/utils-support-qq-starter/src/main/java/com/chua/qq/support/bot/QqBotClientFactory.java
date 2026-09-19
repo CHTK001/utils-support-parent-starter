@@ -16,14 +16,18 @@ import lombok.extern.slf4j.Slf4j;
 public class QqBotClientFactory implements BotClient.Factory {
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public BotClient create() {
         log.debug("Creating QQ Bot client");
         return new QqBotClient();
     }
 
     @Override
-    /** 构建器 */
+    /**
+     * 构建器
+    */
     public BotClient.Builder builder() {
         log.debug("Creating QQ Bot client builder");
         return new QqBuilder();
@@ -73,14 +77,18 @@ public class QqBotClientFactory implements BotClient.Factory {
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
-        /** 令牌 */
+        /**
+         * 令牌
+        */
         public BotClient.Builder token(String token) {
             this.appId = token;
             return this;
         }
 
         @Override
-        /** Secret */
+        /**
+         * Secret
+        */
         public BotClient.Builder secret(String secret) {
             this.appSecret = secret;
             return this;
@@ -104,7 +112,9 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** baseurl */
+        /**
+         * baseurl
+        */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -153,7 +163,9 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** 构建 */
+        /**
+         * 构建
+        */
         public BotClient build() {
             QqBotClient client = new QqBotClient();
             if (appId != null) {

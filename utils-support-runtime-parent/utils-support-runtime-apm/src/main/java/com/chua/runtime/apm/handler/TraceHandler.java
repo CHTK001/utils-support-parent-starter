@@ -248,7 +248,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
         }
     }
 
-    /** 创建 追踪处理器 实例 */
+    /**
+     * 创建 追踪处理器 实例
+    */
     public TraceHandler() {
         this.traceContext = new TraceContext();
         this.spans = Collections.synchronizedList(new ArrayList<>());
@@ -257,19 +259,25 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_TRACE_ENABLED.equals(context.getProperty(PROP_TRACE_ENABLED, DEFAULT_TRACE_ENABLED));
@@ -278,7 +286,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -306,7 +316,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -316,13 +328,17 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("TraceHandler[enabled=%s, spans=%d, http=%s]", enabled, spans.size(), httpTracingEnabled);
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -812,7 +828,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
             return old;
         }
 
-        /** Clear */
+        /**
+         * Clear
+        */
         public void clear() {
             currentSpan.remove();
         }

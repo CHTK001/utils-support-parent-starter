@@ -9,12 +9,18 @@ package com.chua.common.support.network.tunnel;
  */
 public enum TunnelStatus {
 
-    /** 隧道已开启，正在运行 */
+    /**
+     * 隧道已开启，正在运行
+    */
     OPEN,
 
-    /** 隧道已关闭 */
+    /**
+     * 隧道已关闭
+    */
     CLOSED,
 
-    /** 隧道发生错误 */
+    /**
+     * 隧道发生错误
+    */
     ERROR
 }

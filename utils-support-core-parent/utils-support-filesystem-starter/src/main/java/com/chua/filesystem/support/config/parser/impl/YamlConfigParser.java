@@ -54,7 +54,9 @@ public class YamlConfigParser implements ConfigParser {
 
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public PropertySource parse(String urlPath, InputStream is) {
         Map<String, Object> result = new LinkedHashMap<>();
         try {

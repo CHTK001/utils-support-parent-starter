@@ -34,7 +34,9 @@ import java.util.Map;
  */
 public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorProvider implements McpProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(AbstractExternalMcpInstallerProvider.class);
 
     /**
@@ -175,7 +177,9 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
      * @since 4.0.0.45
      */
     protected class ExternalBrowserMcpClient implements McpClient {
-        /** initialized */
+        /**
+         * initialized
+        */
         private volatile boolean initialized = false;
 
         @Override

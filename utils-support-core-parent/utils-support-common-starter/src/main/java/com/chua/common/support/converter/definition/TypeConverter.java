@@ -40,11 +40,17 @@ import java.util.regex.Pattern;
  */
 public interface TypeConverter<O> {
 
-    /** 科学计数法标识字符（如 1e10 中的 e） */
+    /**
+     * 科学计数法标识字符（如 1e10 中的 e）
+    */
     String E = "e";
-    /** 数字后缀正则，匹配末尾的 f/F/d/D 标识 */
+    /**
+     * 数字后缀正则，匹配末尾的 f/F/d/D 标识
+    */
     Pattern NU = Pattern.compile("(f|F|d|D)");
-    /** 存储容量单位与字节数的映射表 */
+    /**
+     * 存储容量单位与字节数的映射表
+    */
     Map<String, Long> MAPPING = new HashMap<>(10);
 
     /**

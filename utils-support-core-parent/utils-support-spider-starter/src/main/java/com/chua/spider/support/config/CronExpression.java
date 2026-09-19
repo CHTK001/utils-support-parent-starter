@@ -55,24 +55,38 @@ public class CronExpression {
      */
     private final String expression;
 
-    /** 秒 */
+    /**
+     * 秒
+    */
     private final Field seconds;
-    /** Minutes */
+    /**
+     * Minutes
+    */
     private final Field minutes;
-    /** Hours */
+    /**
+     * Hours
+    */
     private final Field hours;
-    /** daysofmonth */
+    /**
+     * daysofmonth
+    */
     private final Field daysOfMonth;
-    /** Months */
+    /**
+     * Months
+    */
     private final Field months;
-    /** daysofweek */
+    /**
+     * daysofweek
+    */
     private final Field daysOfWeek;
 
     /**
      * DOM / DOW 是否为通配（影响 或 / 和 语义判定）。
      */
     private final boolean domIsAny;
-    /** DOWISANY */
+    /**
+     * DOWISANY
+    */
     private final boolean dowIsAny;
 
     /**
@@ -231,7 +245,9 @@ public class CronExpression {
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return expression;
     }
@@ -241,11 +257,17 @@ public class CronExpression {
      */
     private static final class Field {
 
-        /** 最小值 */
+        /**
+         * 最小值
+        */
         private final int min;
-        /** 最大值 */
+        /**
+         * 最大值
+        */
         private final int max;
-        /** 钻头 */
+        /**
+         * 钻头
+        */
         private final boolean[] bits;
 
         /**

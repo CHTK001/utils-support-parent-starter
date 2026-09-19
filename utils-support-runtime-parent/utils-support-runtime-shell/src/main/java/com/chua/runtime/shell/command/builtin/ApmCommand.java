@@ -109,13 +109,17 @@ public class ApmCommand implements Command {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return CMD_NAME;
     }
 
     @Override
-    /** Aliases */
+    /**
+     * Aliases
+    */
     public String[] aliases() {
  // 动态别名：处理器 名称去除 -处理器 后缀
         List<String> aliases = new ArrayList<>();
@@ -128,13 +132,17 @@ public class ApmCommand implements Command {
     }
 
     @Override
-    /** Description */
+    /**
+     * Description
+    */
     public String description() {
         return "查看 APM 拦截数据 (apm [handler])";
     }
 
     @Override
-    /** 完成 */
+    /**
+     * 完成
+    */
     public List<String> complete(String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 0 || args.length == 1) {
@@ -155,7 +163,9 @@ public class ApmCommand implements Command {
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public int execute(String[] args, Console console) {
         if (apm == null) {
             console.error("APM 未启动");

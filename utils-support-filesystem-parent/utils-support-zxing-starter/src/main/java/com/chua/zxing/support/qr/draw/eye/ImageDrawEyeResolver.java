@@ -54,7 +54,9 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
     }
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         BufferedImage detectedImg = qrCodeConfig.getDetectOptions().chooseDetectedImg(detectLocation);
         if (detectedImg != null) {
@@ -81,7 +83,9 @@ public class ImageDrawEyeResolver extends AbstractDrawEyeResolver{
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
 
     }

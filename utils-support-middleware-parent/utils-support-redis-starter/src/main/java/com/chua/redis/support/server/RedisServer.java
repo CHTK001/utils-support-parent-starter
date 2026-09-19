@@ -155,11 +155,17 @@ public class RedisServer {
      * @since 4.0.0
      */
     public static class Builder {
-        /** 端口 */
+        /**
+         * 端口
+        */
         private int port = 6379;
-        /** 最大值内存 */
+        /**
+         * 最大值内存
+        */
         private String maxMemory;
-        /** 参数 */
+        /**
+         * 参数
+        */
         private String[] args = new String[0];
 
         /**

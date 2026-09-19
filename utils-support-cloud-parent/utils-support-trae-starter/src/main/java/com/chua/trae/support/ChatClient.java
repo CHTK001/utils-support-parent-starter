@@ -59,26 +59,42 @@ public class ChatClient implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(ChatClient.class); // 日志
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** Trae 聊天后端端点路径，对应 POST {api主机}{路径} */
+    /**
+     * Trae 聊天后端端点路径，对应 POST {api主机}{路径}
+    */
     private static final String CHAT_ENDPOINT = "/api/agent/v3/llm_utils_chat";
-    /** 默认模型标识，当请求未指定且配置无 降级 时使用 */
+    /**
+     * 默认模型标识，当请求未指定且配置无 降级 时使用
+    */
     private static final String DEFAULT_MODEL = "glm-5.2";
-    /** 令牌 即将过期阈值（秒），剩余时间低于该值时触发刷新 */
+    /**
+     * 令牌 即将过期阈值（秒），剩余时间低于该值时触发刷新
+    */
     private static final int EXPIRY_THRESHOLD_SECONDS = 120;
 
-    /** 认证管理器，负责从 storage.json 读取 令牌 及过期检测，不可为 空 */
+    /**
+     * 认证管理器，负责从 storage.json 读取 令牌 及过期检测，不可为 空
+    */
     private final AuthManager authManager;
     /**
      * Trae HTTP 客户端，封装 OkHttp 实例、请求头构造与代理配置，不可为 空
      */
     private final TraeHttpClient httpClient;
-    /** 模型分档配置，可为 空（此时不启用分档降级） */
+    /**
+     * 模型分档配置，可为 空（此时不启用分档降级）
+    */
     private final ModelConfig modelConfig;
-    /** 最大重试次数，针对 429/4011 限流，默认 3 */
+    /**
+     * 最大重试次数，针对 429/4011 限流，默认 3
+    */
     private final int maxRetries;
-    /** 默认模型标识，当请求未指定 模型 时使用，不可为 空 */
+    /**
+     * 默认模型标识，当请求未指定 模型 时使用，不可为 空
+    */
     private final String defaultModel;
-    /** 重试调度器，守护线程，调用 关闭() 时关闭 */
+    /**
+     * 重试调度器，守护线程，调用 关闭() 时关闭
+    */
     private final ScheduledExecutorService retryScheduler;
 
     /**
@@ -461,31 +477,57 @@ public class ChatClient implements AutoCloseable {
      * @since 4.0.0
      */
     private class StreamCollector extends EventSourceListener {
-        /** 当前请求（已注入模型），不可为 空 */
+        /**
+         * 当前请求（已注入模型），不可为 空
+        */
         final ChatRequest request;
-        /** 文本块回调，可为 空 */
+        /**
+         * 文本块回调，可为 空
+        */
         final Consumer<String> onText;
-        /** 推理块回调，可为 空 */
+        /**
+         * 推理块回调，可为 空
+        */
         final Consumer<String> onReasoning;
-        /** 完成回调，可为 空 */
+        /**
+         * 完成回调，可为 空
+        */
         final Consumer<ChatResponse> onComplete;
-        /** 错误回调，不可为 空 */
+        /**
+         * 错误回调，不可为 空
+        */
         final Consumer<ChatException> onError;
-        /** 同步 期货，流collect 场景赋值，对话流 场景为 空 */
+        /**
+         * 同步 期货，流collect 场景赋值，对话流 场景为 空
+        */
         volatile CompletableFuture<ChatResponse> future;
-        /** 文本缓冲区 */
+        /**
+         * 文本缓冲区
+        */
         final StringBuilder textBuffer = new StringBuilder();
-        /** 推理缓冲区 */
+        /**
+         * 推理缓冲区
+        */
         final StringBuilder reasoningBuffer = new StringBuilder();
-        /** 工具调用列表 */
+        /**
+         * 工具调用列表
+        */
         final List<ToolCall> toolCalls = new ArrayList<>();
-        /** 重试计数器 */
+        /**
+         * 重试计数器
+        */
         final AtomicInteger retries = new AtomicInteger();
-        /** 结束原因，done 事件解析后赋值 */
+        /**
+         * 结束原因，done 事件解析后赋值
+        */
         volatile String finishReason;
-        /** 令牌 用量，令牌_usage 事件解析后赋值 */
+        /**
+         * 令牌 用量，令牌_usage 事件解析后赋值
+        */
         volatile ChatResponse.Usage usage;
-        /** 流是否已失败，失败后不再触发 完成 */
+        /**
+         * 流是否已失败，失败后不再触发 完成
+        */
         volatile boolean failed;
 
         StreamCollector(ChatRequest request, Consumer<String> onText, Consumer<String> onReasoning,
@@ -722,31 +764,53 @@ public class ChatClient implements AutoCloseable {
      * @since 4.0.0
      */
     public static class Builder {
-        /** Trae API 主机地址，默认 CN 版 */
+        /**
+         * Trae API 主机地址，默认 CN 版
+        */
         private String apiHost = "https://trae-api-cn.mchost.guru";
-        /** Trae 版本：cn（国内）或 sg（国际），默认 cn */
+        /**
+         * Trae 版本：cn（国内）或 sg（国际），默认 cn
+        */
         private String edition = "cn";
         /**
          * Trae 数据目录，storage.json 所在路径，可为 空（使用 manual令牌 时）
          */
         private String dataDir;
-        /** 手动 令牌，JWT 格式，优先于 数据dir 读取 */
+        /**
+         * 手动 令牌，JWT 格式，优先于 数据dir 读取
+        */
         private String manualToken;
-        /** App 标识，覆盖默认值 */
+        /**
+         * App 标识，覆盖默认值
+        */
         private String appId;
-        /** HTTP 代理主机，可为 空（不启用代理） */
+        /**
+         * HTTP 代理主机，可为 空（不启用代理）
+        */
         private String httpProxy;
-        /** HTTP 代理端口，默认 7890 */
+        /**
+         * HTTP 代理端口，默认 7890
+        */
         private int httpProxyPort = 7890;
-        /** 最大重试次数，默认 3 */
+        /**
+         * 最大重试次数，默认 3
+        */
         private int maxRetries = 3;
-        /** 模型分档配置，可为 空 */
+        /**
+         * 模型分档配置，可为 空
+        */
         private ModelConfig modelConfig;
-        /** 默认模型标识，默认 glm-5.2 */
+        /**
+         * 默认模型标识，默认 glm-5.2
+        */
         private String defaultModel = DEFAULT_MODEL;
-        /** 认证管理器，可直接注入以复用已有实例 */
+        /**
+         * 认证管理器，可直接注入以复用已有实例
+        */
         private AuthManager authManager;
-        /** HTTP 客户端，可直接注入以复用已有实例 */
+        /**
+         * HTTP 客户端，可直接注入以复用已有实例
+        */
         private TraeHttpClient httpClient;
 
         /**

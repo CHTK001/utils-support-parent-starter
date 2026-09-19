@@ -21,48 +21,64 @@ import java.util.List;
 public class SafeTensorIdentificationEngine implements IdentificationEngine {
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public <T> T get(String modelId, Class<T> target) {
         return null;
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public <T> T get(Class<T> target) {
         return null;
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public void register(TranslatorModelDefinition definition) {
     }
 
     @Override
-    /** 获取模型 */
+    /**
+     * 获取模型
+    */
     public List<ModelDefinition> getModels() {
         return new ArrayList<>();
     }
 
     @Override
-    /** 获取translator模型 */
+    /**
+     * 获取translator模型
+    */
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return new ArrayList<>();
     }
 
     @Override
-    /** 按能力接口查询模型名称（Safetensors 引擎暂无注册模型，返回空列表） */
+    /**
+     * 按能力接口查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
+    */
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
         return new ArrayList<>();
     }
 
     @Override
-    /** 按能力标签查询模型名称（Safetensors 引擎暂无注册模型，返回空列表） */
+    /**
+     * 按能力标签查询模型名称（Safetensors 引擎暂无注册模型，返回空列表）
+    */
     public List<String> getModelNamesByCapability(String capability) {
         return new ArrayList<>();
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 }

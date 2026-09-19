@@ -18,19 +18,25 @@ import com.chua.common.support.spi.annotations.Spi;
 public class SwaggerDocumentTemplate extends AbstractClasspathDocumentTemplate {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "swagger";
     }
 
     @Override
-    /** htmltemplate路径 */
+    /**
+     * htmltemplate路径
+    */
     protected String htmlTemplatePath() {
         return "document/templates/swagger/index.html";
     }
 
     @Override
-    /** markdowntemplate路径 */
+    /**
+     * markdowntemplate路径
+    */
     protected String markdownTemplatePath() {
         return "document/templates/swagger/document.markdown";
     }

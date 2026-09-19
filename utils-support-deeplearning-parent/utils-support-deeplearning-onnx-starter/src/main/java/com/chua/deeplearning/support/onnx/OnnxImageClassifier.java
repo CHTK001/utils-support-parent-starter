@@ -4,18 +4,28 @@ import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxImageClassifier implements ImageClassifier {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** Top-K 采样数量 */
+    /**
+     * Top-K 采样数量
+    */
     private int topK = 5;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -26,7 +36,9 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageClassifier model(String model) {
         this.modelName = model;
         return this;
@@ -42,34 +54,44 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
     @Override
-    /** topk */
+    /**
+     * topk
+    */
     public ImageClassifier topK(int topK) {
         this.topK = topK;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageClassifier modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageClassifier device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Classify */
+    /**
+     * Classify
+    */
     public String classify(byte[] imageData) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classify(imageData);
     }
 
     @Override
-    /** classifytopk */
+    /**
+     * classifytopk
+    */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData, k);
     }

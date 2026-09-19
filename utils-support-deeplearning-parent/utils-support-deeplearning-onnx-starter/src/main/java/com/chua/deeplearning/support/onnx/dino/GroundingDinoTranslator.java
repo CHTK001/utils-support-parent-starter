@@ -53,54 +53,98 @@ import java.util.*;
 @Slf4j
 public class GroundingDinoTranslator implements Translator<Image, DetectedObjects> {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    /** 默认阈值 */
+    /**
+     * 默认阈值
+    */
     private static final double DEFAULT_THRESHOLD = 0.35d;
-    /** 默认 NMS 阈值 */
+    /**
+     * 默认 NMS 阈值
+    */
     private static final double DEFAULT_NMS_THRESHOLD = 0.50d;
-    /** 默认输入尺寸 */
+    /**
+     * 默认输入尺寸
+    */
     private static final int DEFAULT_INPUT_SIZE = 800;
 
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private final double threshold;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private final double nmsThreshold;
-    /** 请求的候选列表 */
+    /**
+     * 请求的候选列表
+    */
     private final List<String> requestedCandidates;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
-    /** 候选输入标识 */
+    /**
+     * 候选输入标识
+    */
     private long[][] candidateInputIds;
-    /** 候选注意力掩码 */
+    /**
+     * 候选注意力掩码
+    */
     private long[][] candidateAttentionMasks;
-    /** 候选输出标签 */
+    /**
+     * 候选输出标签
+    */
     private List<String> candidateOutputLabels;
 
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private int inputHeight = DEFAULT_INPUT_SIZE;
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private int inputWidth = DEFAULT_INPUT_SIZE;
-    /** 图像均值数组 */
+    /**
+     * 图像均值数组
+    */
     private float[] imageMean = {0.485f, 0.456f, 0.406f};
-    /** 图像标准差数组 */
+    /**
+     * 图像标准差数组
+    */
     private float[] imageStd = {0.229f, 0.224f, 0.225f};
-    /** 重缩放系数 */
+    /**
+     * 重缩放系数
+    */
     private float rescaleFactor = 1f / 255f;
 
-    /** 原始宽度 */
+    /**
+     * 原始宽度
+    */
     private int originalWidth;
-    /** 原始高度 */
+    /**
+     * 原始高度
+    */
     private int originalHeight;
-    /** 缩放比例 */
+    /**
+     * 缩放比例
+    */
     private double resizeScale = 1d;
-    /** X 轴填充值 */
+    /**
+     * X 轴填充值
+    */
     private int padX;
-    /** Y 轴填充值 */
+    /**
+     * Y 轴填充值
+    */
     private int padY;
 
-    /** 创建 groundingdinotranslator 实例 */
+    /**
+     * 创建 groundingdinotranslator 实例
+    */
     public GroundingDinoTranslator() {
         this(DetectionConfiguration.DEFAULT);
     }
@@ -117,7 +161,9 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = resolveRequiredFile(modelRoot, "tokenizer.json");
@@ -294,7 +340,9 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         rescaleFactor = (float) root.path("rescale_factor").asDouble(1d / 255d);
     }
 
-    /** 解析Candidates */
+    /**
+     * 解析Candidates
+    */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? List.of("person", "flower", "dog", "car") : requestedCandidates;
         candidateOutputLabels = new ArrayList<>();
@@ -308,7 +356,9 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
         }
     }
 
-    /** 构建文本输入 */
+    /**
+     * 构建文本输入
+    */
     private void buildTextInputs() throws Exception {
         List<long[]> idsList = new ArrayList<>();
         int maxLength = 0;

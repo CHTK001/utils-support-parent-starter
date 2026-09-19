@@ -35,19 +35,25 @@ public class HttpClient5Executor implements HttpClientExecutor {
      */
     private CloseableHttpClient client;
 
-    /** 创建 HTTP客户端5执行器 实例 */
+    /**
+     * 创建 HTTP客户端5执行器 实例
+    */
     public HttpClient5Executor() {
         this.client = HttpClients.createDefault();
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "httpclient5";
     }
 
     @Override
-    /** 是否可用 */
+    /**
+     * 是否可用
+    */
     public boolean isAvailable() {
         try {
             ReflectUtils.forName("org.apache.hc.client5.http.classic.methods.HttpGet");
@@ -111,7 +117,9 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public ClientResponse execute(ClientRequest request) {
         try {
             if (client == null) {
@@ -145,11 +153,15 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() { return 1; }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (client != null) {
             try {

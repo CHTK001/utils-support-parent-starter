@@ -34,29 +34,45 @@ import java.util.concurrent.ThreadLocalRandom;
 @Spi("chinese-xinhua")
 public class OnlineHanziProvider implements HanziProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlineHanziProvider.class);
 
-    /** 在线数据源地址 */
+    /**
+     * 在线数据源地址
+    */
     private static final String DEFAULT_URL =
             "https://cdn.jsdelivr.net/gh/pwxcoo/chinese-xinhua@master/data/word.json";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 在线数据源地址 */
+    /**
+     * 在线数据源地址
+    */
     private final String url;
 
-    /** 内存索引：character -> 汉字信息（惰性加载） */
+    /**
+     * 内存索引：character -> 汉字信息（惰性加载）
+    */
     private volatile Map<String, HanziInfo> index = Collections.emptyMap();
 
-    /** 内置兜底数据 */
+    /**
+     * 内置兜底数据
+    */
     private static final List<HanziInfo> FALLBACK = buildFallback();
 
-    /** 创建 onlinehanzi提供者 实例 */
+    /**
+     * 创建 onlinehanzi提供者 实例
+    */
     public OnlineHanziProvider() {
         this(DEFAULT_URL);
     }
@@ -72,13 +88,17 @@ public class OnlineHanziProvider implements HanziProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "chinese-xinhua";
     }
 
     @Override
-    /** 获取Hanzi */
+    /**
+     * 获取Hanzi
+    */
     public HanziInfo get(String character) {
         if (character == null || character.isBlank()) {
             return null;
@@ -87,7 +107,9 @@ public class OnlineHanziProvider implements HanziProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<HanziInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
@@ -107,7 +129,9 @@ public class OnlineHanziProvider implements HanziProvider {
     }
 
     @Override
-    /** 随机 */
+    /**
+     * 随机
+    */
     public HanziInfo random() {
         Map<String, HanziInfo> idx = loadIndex();
         if (idx.isEmpty()) {
@@ -221,7 +245,9 @@ public class OnlineHanziProvider implements HanziProvider {
         return list;
     }
 
-    /** 添加兜底词条 */
+    /**
+     * 添加兜底词条
+    */
     private static void add(List<HanziInfo> list, String character, String pinyin, String radicals,
                             String strokes, String explanation, String more) {
         list.add(new HanziInfo(character, pinyin, radicals, strokes, explanation, more));

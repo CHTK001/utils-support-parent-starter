@@ -47,35 +47,63 @@ public class DefaultBreakerJudge implements BreakerJudge {
      */
     public static final String NAME = "default";
 
-    /** 等于操作符 */
+    /**
+     * 等于操作符
+    */
     private static final String OP_EQ = "==";
-    /** SQL 等于操作符 */
+    /**
+     * SQL 等于操作符
+    */
     private static final String OP_EQ_SQL = "=";
-    /** 不等于操作符 */
+    /**
+     * 不等于操作符
+    */
     private static final String OP_NE = "!=";
-    /** SQL 不等于操作符 */
+    /**
+     * SQL 不等于操作符
+    */
     private static final String OP_NE_SQL = "<>";
-    /** 大于操作符 */
+    /**
+     * 大于操作符
+    */
     private static final String OP_GT = ">";
-    /** 小于操作符 */
+    /**
+     * 小于操作符
+    */
     private static final String OP_LT = "<";
-    /** 大于等于操作符 */
+    /**
+     * 大于等于操作符
+    */
     private static final String OP_GTE = ">=";
-    /** 小于等于操作符 */
+    /**
+     * 小于等于操作符
+    */
     private static final String OP_LTE = "<=";
-    /** IN 操作符 */
+    /**
+     * IN 操作符
+    */
     private static final String OP_IN = "IN";
-    /** BETWEEN 操作符 */
+    /**
+     * BETWEEN 操作符
+    */
     private static final String OP_BETWEEN = "BETWEEN";
-    /** LIKE 操作符 */
+    /**
+     * LIKE 操作符
+    */
     private static final String OP_LIKE = "LIKE";
-    /** IS NULL 操作符 */
+    /**
+     * IS NULL 操作符
+    */
     private static final String OP_IS_NULL = "IS NULL";
-    /** IS NOT NULL 操作符 */
+    /**
+     * IS NOT NULL 操作符
+    */
     private static final String OP_IS_NOT_NULL = "IS NOT NULL";
 
     @Override
-    /** Judge */
+    /**
+     * Judge
+    */
     public boolean judge(BTreeNode node, Map<String, Object> context) {
         if (node == null || context == null) {
             return false;

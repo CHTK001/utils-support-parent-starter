@@ -21,11 +21,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class IpFilter implements ServerFilter {
 
-    /** Whitelist */
+    /**
+     * Whitelist
+    */
     private final Set<String> whitelist = ConcurrentHashMap.newKeySet();
-    /** Blacklist */
+    /**
+     * Blacklist
+    */
     private final Set<String> blacklist = ConcurrentHashMap.newKeySet();
-    /** Whitelist模式 */
+    /**
+     * Whitelist模式
+    */
     private boolean whitelistMode = false;
 
     /**
@@ -52,23 +58,35 @@ public class IpFilter implements ServerFilter {
         this.whitelistMode = whitelistMode;
     }
 
-    /** 添加Whitelist */
+    /**
+     * 添加Whitelist
+    */
     public void addWhitelist(String ip) { whitelist.add(ip); }
-    /** 添加Blacklist */
+    /**
+     * 添加Blacklist
+    */
     public void addBlacklist(String ip) { blacklist.add(ip); }
-    /** 移除Whitelist */
+    /**
+     * 移除Whitelist
+    */
     public void removeWhitelist(String ip) { whitelist.remove(ip); }
-    /** 移除Blacklist */
+    /**
+     * 移除Blacklist
+    */
     public void removeBlacklist(String ip) { blacklist.remove(ip); }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 40;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

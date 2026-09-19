@@ -25,7 +25,9 @@ import lombok.Data;
 @Data
 public class AiChatClientBindingEntity {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
     /**
@@ -35,7 +37,9 @@ public class AiChatClientBindingEntity {
 
     // ==================== 组上下文 ====================
 
-    /** 组名称 */
+    /**
+     * 组名称
+    */
     private String groupName;
 
     /**
@@ -43,49 +47,77 @@ public class AiChatClientBindingEntity {
      */
     private String groupStrategy;
 
-    /** 组条件表达式（如 "prompt.length < 200"） */
+    /**
+     * 组条件表达式（如 "prompt.length < 200"）
+    */
     private String groupCondition;
 
-    /** 组排序 */
+    /**
+     * 组排序
+    */
     private Integer groupOrder;
 
     // ==================== 客户端配置 ====================
 
-    /** AI 服务商名称，如 "openai"、"alibaba" */
+    /**
+     * AI 服务商名称，如 "openai"、"alibaba"
+    */
     private String provider;
 
-    /** API 密钥 */
+    /**
+     * API 密钥
+    */
     private String apiKey;
 
-    /** 自定义 API 地址（可选） */
+    /**
+     * 自定义 API 地址（可选）
+    */
     private String baseUrl;
 
-    /** 模型名称（可选） */
+    /**
+     * 模型名称（可选）
+    */
     private String model;
 
-    /** 温度参数（可选） */
+    /**
+     * 温度参数（可选）
+    */
     private Double temperature;
 
-    /** 最大 Token 数（可选） */
+    /**
+     * 最大 Token 数（可选）
+    */
     private Integer maxTokens;
 
-    /** 系统提示词（可选） */
+    /**
+     * 系统提示词（可选）
+    */
     private String systemPrompt;
 
-    /** HTTP 代理（可选） */
+    /**
+     * HTTP 代理（可选）
+    */
     private String proxy;
 
-    /** 权重（weighted 策略使用，默认 1） */
+    /**
+     * 权重（weighted 策略使用，默认 1）
+    */
     private int weight = 1;
 
-    /** 客户端排序 */
+    /**
+     * 客户端排序
+    */
     private Integer clientOrder;
 
     // ==================== 审计 ====================
 
-    /** 创建时间 */
+    /**
+     * 创建时间
+    */
     private Long createdAt;
 
-    /** 更新时间 */
+    /**
+     * 更新时间
+    */
     private Long updatedAt;
 }

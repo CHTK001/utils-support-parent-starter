@@ -31,7 +31,9 @@ public class ThreadUtils {
      * 无效退出状态码标记。
      */
     public static final int INVALID_EXITVALUE = 0xdeadbeef;
-    /** 全局_执行器 */
+    /**
+     * 全局_执行器
+    */
     public static final Executor GLOBAL_EXECUTOR = newVirtualThreadExecutor();
 
     /**
@@ -44,12 +46,18 @@ public class ThreadUtils {
      */
     private static final long KEEP_ALIVE_TIME = 0L;
 
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private static final int PROCESSOR = processor();
 
-    /** Thread_游泳池 */
+    /**
+     * Thread_游泳池
+    */
     private static final ExecutorService THREAD_POOL = newVirtualThreadExecutor();
-    /** 调度_执行器_服务 */
+    /**
+     * 调度_执行器_服务
+    */
     private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = newScheduledThreadPoolExecutor(200, "com-ch-scheduled-thread-pool");
 
     static {
@@ -1107,7 +1115,9 @@ public class ThreadUtils {
     static class DelegatedScheduledExecutorServiceImpl
             extends DelegatedExecutorService
             implements ScheduledExecutorService {
-        /** E */
+        /**
+         * E
+        */
         private final ScheduledExecutorService e;
         DelegatedScheduledExecutorServiceImpl(ScheduledExecutorService executor) {
             super(executor);
@@ -1118,7 +1128,9 @@ public class ThreadUtils {
             return e.schedule(command, delay, unit);
         }
         @Override
-        /** 调度 */
+        /**
+         * 调度
+        */
         public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
             return e.schedule(callable, delay, unit);
         }
@@ -1139,26 +1151,40 @@ public class ThreadUtils {
      * @since 4.0.0
      */
     static class DelegatedExecutorService extends AbstractExecutorService {
-        /** E */
+        /**
+         * E
+        */
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void execute(Runnable command) { e.execute(command); }
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void shutdown() { e.shutdown(); }
         @Override
-        /** 关闭Now */
+        /**
+         * 关闭Now
+        */
         public List<Runnable> shutdownNow() { return e.shutdownNow(); }
         @Override
-        /** 是否关闭 */
+        /**
+         * 是否关闭
+        */
         public boolean isShutdown() { return e.isShutdown(); }
         @Override
-        /** 是否Terminated */
+        /**
+         * 是否Terminated
+        */
         public boolean isTerminated() { return e.isTerminated(); }
         @Override
-        /** await终止 */
+        /**
+         * await终止
+        */
         public boolean awaitTermination(long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.awaitTermination(timeout, unit);
@@ -1168,17 +1194,23 @@ public class ThreadUtils {
             return e.submit(task);
         }
         @Override
-        /** 提交 */
+        /**
+         * 提交
+        */
         public <T> Future<T> submit(Callable<T> task) {
             return e.submit(task);
         }
         @Override
-        /** 提交 */
+        /**
+         * 提交
+        */
         public <T> Future<T> submit(Runnable task, T result) {
             return e.submit(task, result);
         }
         @Override
-        /** 调用全部 */
+        /**
+         * 调用全部
+        */
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException {
             return e.invokeAll(tasks);
@@ -1196,7 +1228,9 @@ public class ThreadUtils {
             return e.invokeAll(tasks, timeout, unit);
         }
         @Override
-        /** 调用任意 */
+        /**
+         * 调用任意
+        */
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException, ExecutionException {
             return e.invokeAny(tasks);
@@ -1218,15 +1252,21 @@ public class ThreadUtils {
      * 默认线程工厂实现，支持命名前缀和线程编号。
      */
     public static final class DefaultThreadFactory implements ThreadFactory {
-        /** 游泳池_数字 */
+        /**
+         * 游泳池_数字
+        */
         private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         /**
          * 用户组
          */
         private final ThreadGroup group;
-        /** 线程数字 */
+        /**
+         * 线程数字
+        */
         private final AtomicInteger threadNumber = new AtomicInteger(1);
-        /** 名称前缀 */
+        /**
+         * 名称前缀
+        */
         private final String namePrefix;
 
         /**
@@ -1263,7 +1303,9 @@ public class ThreadUtils {
         }
 
         @Override
-        /** 新thread */
+        /**
+         * 新thread
+        */
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
             if (t.isDaemon()) {

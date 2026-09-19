@@ -55,7 +55,9 @@ public abstract class AbstractServer implements ConfigServer {
      * @return 监听器条目列表，可能为 null
      */
     @Getter
-    /** 过滤器管理器 */
+    /**
+     * 过滤器管理器
+    */
     protected final ServerFilterManager filterManager;
 
     /**
@@ -67,7 +69,9 @@ public abstract class AbstractServer implements ConfigServer {
      * 服务器运行指标统计。
      */
     @Getter
-    /** Metrics */
+    /**
+     * Metrics
+    */
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
@@ -133,7 +137,9 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** SupportsReactor */
+    /**
+     * SupportsReactor
+    */
     public boolean supportsReactor() {
         return true;
     }
@@ -305,7 +311,9 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public final synchronized void start() {
         if (running) {
             return;
@@ -339,7 +347,9 @@ public abstract class AbstractServer implements ConfigServer {
     protected abstract void doStart();
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public final synchronized void stop() {
         if (!running) {
             return;
@@ -380,37 +390,49 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         stop();
     }
 
     @Override
-    /** 获取Port */
+    /**
+     * 获取Port
+    */
     public int getPort() {
         return setting.getPort();
     }
 
     @Override
-    /** 获取Setting */
+    /**
+     * 获取Setting
+    */
     public ServerSetting getSetting() {
         return setting;
     }
 
     @Override
-    /** 获取ObjectContext */
+    /**
+     * 获取ObjectContext
+    */
     public ObjectContext getObjectContext() {
         return objectContext;
     }
 
     @Override
-    /** 设置ObjectContext */
+    /**
+     * 设置ObjectContext
+    */
     public void setObjectContext(ObjectContext objectContext) {
         this.objectContext = objectContext;
         this.urlMappingFilter = new UrlMappingServerFilter(objectContext);
@@ -428,13 +450,17 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** 获取Filters */
+    /**
+     * 获取Filters
+    */
     public List<ServerFilter> getFilters() {
         return filterManager.getStaticFilters();
     }
 
     @Override
-    /** 添加过滤 */
+    /**
+     * 添加过滤
+    */
     public Server addFilter(ServerFilter filter) {
         filterManager.addFilter(filter);
         if (filter instanceof ReactiveServerFilter reactiveFilter) {
@@ -444,35 +470,45 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** 移除过滤 */
+    /**
+     * 移除过滤
+    */
     public Server removeFilter(ServerFilter filter) {
         filterManager.removeFilter(filter);
         return this;
     }
 
     @Override
-    /** 注册Mapping */
+    /**
+     * 注册Mapping
+    */
     public Server registerMapping(String path, HttpMethod method, ServerHandler handler) {
         urlMappingFilter.route(path, method, handler);
         return this;
     }
 
     @Override
-    /** 注册Mapping */
+    /**
+     * 注册Mapping
+    */
     public Server registerMapping(String path, ServerHandler handler) {
         urlMappingFilter.route(path, handler);
         return this;
     }
 
     @Override
-    /** 移除Mapping */
+    /**
+     * 移除Mapping
+    */
     public Server removeMapping(String path) {
         urlMappingFilter.removeRoute(path);
         return this;
     }
 
     @Override
-    /** RefreshFilters */
+    /**
+     * RefreshFilters
+    */
     public Server refreshFilters() {
         filterManager.refreshSpiFilters();
         if (objectContext != null) {
@@ -485,7 +521,9 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public Server registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -512,7 +550,9 @@ public abstract class AbstractServer implements ConfigServer {
      * 简单的 ServerFilterConfig 实现，用于内置过滤器。
      */
     private static class SimpleServerFilterConfig implements ServerFilterConfig {
-        /** 设置 */
+        /**
+         * 设置
+        */
         private final ServerSetting setting;
 
         SimpleServerFilterConfig(ServerSetting setting) {
@@ -520,25 +560,33 @@ public abstract class AbstractServer implements ConfigServer {
         }
 
         @Override
-        /** 获取过滤Name */
+        /**
+         * 获取过滤Name
+        */
         public String getFilterName() {
             return "default";
         }
 
         @Override
-        /** 获取初始化Parameter */
+        /**
+         * 获取初始化Parameter
+        */
         public String getInitParameter(String name) {
             return null;
         }
 
         @Override
-        /** 获取初始化Parameters */
+        /**
+         * 获取初始化Parameters
+        */
         public Map<String, String> getInitParameters() {
             return Map.of();
         }
 
         @Override
-        /** 获取ServerSetting */
+        /**
+         * 获取ServerSetting
+        */
         public ServerSetting getServerSetting() {
             return setting;
         }

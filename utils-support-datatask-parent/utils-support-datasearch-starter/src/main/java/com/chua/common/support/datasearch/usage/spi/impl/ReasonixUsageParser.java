@@ -32,7 +32,9 @@ public class ReasonixUsageParser extends BaseUsageParser {
 
     private final Path reasonixHome;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public ReasonixUsageParser() {
         String home = System.getenv("REASONIX_STATE_HOME");
         if (home == null || home.isBlank()) {

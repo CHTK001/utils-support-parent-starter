@@ -32,7 +32,9 @@ public class QueryResult {
      * 结果列表
      */
     @Builder.Default
-    /** 结果 */
+    /**
+     * 结果
+    */
     private List<PrometheusMetric> result = new ArrayList<>();
 
     /**

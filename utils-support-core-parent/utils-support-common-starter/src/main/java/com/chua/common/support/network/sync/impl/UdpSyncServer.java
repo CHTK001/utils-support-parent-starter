@@ -72,26 +72,34 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 获取Protocol */
+    /**
+     * 获取Protocol
+    */
     public String getProtocol() {
         return "udp";
     }
 
     @Override
-    /** 创建Server */
+    /**
+     * 创建Server
+    */
     public SyncServer createServer(ServerSetting setting) {
         return new UdpSyncServer(setting);
     }
 
     @Override
-    /** 创建Client */
+    /**
+     * 创建Client
+    */
     public SyncClient createClient(Object setting) {
         String url = setting instanceof String ? (String) setting : "udp://127.0.0.1:19391";
         return new UdpSyncClient(url);
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             server = new DatagramSocket(new InetSocketAddress(setting.getHost(), setting.getPort()));
@@ -104,7 +112,9 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (server != null) {
             server.close();
@@ -114,7 +124,9 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message;
         for (ClientInfo client : clients.values()) {
@@ -123,7 +135,9 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         ClientInfo client = clients.get(clientId);
         if (client == null) {
@@ -134,32 +148,42 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /**
+     * 获取ConnectedClients
+    */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /**
+     * 获取ClientMetadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         ClientInfo client = clients.get(clientId);
         return client != null ? Collections.unmodifiableMap(client.metadata) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加Listener */
+    /**
+     * 添加Listener
+    */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /**
+     * 移除Listener
+    */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }

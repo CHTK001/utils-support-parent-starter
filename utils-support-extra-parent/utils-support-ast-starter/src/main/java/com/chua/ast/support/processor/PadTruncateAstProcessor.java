@@ -26,7 +26,9 @@ import java.util.Set;
 public final class PadTruncateAstProcessor extends AbstractAstProcessor {
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || !isTreeApiAvailable()) {
             return false;

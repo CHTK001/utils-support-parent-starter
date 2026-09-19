@@ -29,25 +29,33 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "help";
     }
 
     @Override
-    /** Aliases */
+    /**
+     * Aliases
+    */
     public String[] aliases() {
         return new String[]{"?", "commands"};
     }
 
     @Override
-    /** Description */
+    /**
+     * Description
+    */
     public String description() {
         return "显示所有可用命令";
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public int execute(String[] args, Console console) {
         if (args.length > 0) {
             String target = args[0];

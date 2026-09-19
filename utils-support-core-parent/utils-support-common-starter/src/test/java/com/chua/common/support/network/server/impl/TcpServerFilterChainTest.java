@@ -22,9 +22,13 @@ import java.nio.ByteBuffer;
  */
 public class TcpServerFilterChainTest {
 
-    /** 服务器实例 */
+    /**
+     * 服务器实例
+    */
     private static JdkTcpServer server;
-    /** 监听端口，0 = 由系统分配 */
+    /**
+     * 监听端口，0 = 由系统分配
+    */
     private static int port;
 
     /**

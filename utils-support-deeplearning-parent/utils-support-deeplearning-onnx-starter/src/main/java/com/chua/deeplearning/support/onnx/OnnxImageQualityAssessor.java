@@ -3,18 +3,28 @@ package com.chua.deeplearning.support.onnx;
 import com.chua.deeplearning.support.image.ImageQualityAssessor;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxImageQualityAssessor implements ImageQualityAssessor {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 模糊度阈值 */
+    /**
+     * 模糊度阈值
+    */
     private double blurThreshold = 100.0;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -25,7 +35,9 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageQualityAssessor model(String model) {
         this.modelName = model;
         return this;
@@ -41,28 +53,36 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    /** blur阈值 */
+    /**
+     * blur阈值
+    */
     public ImageQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageQualityAssessor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageQualityAssessor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** 评定 */
+    /**
+     * 评定
+    */
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath).device(device).assess(imageData);
     }

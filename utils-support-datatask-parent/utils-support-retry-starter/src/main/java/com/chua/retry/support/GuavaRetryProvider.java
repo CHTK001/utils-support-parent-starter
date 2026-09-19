@@ -32,7 +32,9 @@ import java.util.concurrent.TimeUnit;
 public class GuavaRetryProvider extends AbstractRetryProvider {
 
     @Override
-    /** 执行执行 */
+    /**
+     * 执行执行
+    */
     protected <T> T doExecute(Callable<T> task, RetryConfig config) throws Exception {
         var builder = RetryerBuilder.<T>newBuilder()
                 .retryIfException()
@@ -42,7 +44,9 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
         if (config.getRetryListener() != null) {
             builder.withRetryListener(new com.github.rholder.retry.RetryListener() {
                 @Override
-                /** on重试 */
+                /**
+                 * on重试
+                */
                 public <V> void onRetry(com.github.rholder.retry.Attempt<V> attempt) {
                     if (attempt.hasException()) {
                         config.getRetryListener().onRetry((int) attempt.getAttemptNumber(), attempt.getExceptionCause());

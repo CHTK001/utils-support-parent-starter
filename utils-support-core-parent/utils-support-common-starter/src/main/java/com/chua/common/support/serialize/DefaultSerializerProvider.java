@@ -11,7 +11,9 @@ import java.io.Serializable;
 public class DefaultSerializerProvider implements SerializerProvider {
 
     @Override
-    /** 获取序列化器 */
+    /**
+     * 获取序列化器
+    */
     public <T extends Serializable> Serializer<T> getSerializer(Class<T> type) {
         return new JsonSerializer<>(type);
     }

@@ -13,9 +13,13 @@ import java.util.Objects;
  * @since 4.0.0.42
  */
 public record ModelInfo(
-    /** 模型标识 */
+    /**
+     * 模型标识
+    */
     @JsonProperty("id") String id,
-    /** 对象类型，固定 模型 */
+    /**
+     * 对象类型，固定 模型
+    */
     @JsonProperty("object") String object
 ) {
     /**
@@ -38,9 +42,13 @@ public record ModelInfo(
      * @since 4.0.0.42
      */
     public record ModelList(
-        /** 对象类型 */
+        /**
+         * 对象类型
+        */
         @JsonProperty("object") String object,
-        /** 模型列表 */
+        /**
+         * 模型列表
+        */
         @JsonProperty("data") List<ModelInfo> data
     ) {
         /**

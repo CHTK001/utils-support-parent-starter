@@ -93,10 +93,14 @@ public class FilePushClient implements AutoCloseable {
      */
     private static final int MAX_BATCH_ATTEMPTS = 3;
 
-    /** 客户端配置 */
+    /**
+     * 客户端配置
+    */
     private final FilePushConfig config;
 
-    /** 连接虚拟线程池 */
+    /**
+     * 连接虚拟线程池
+    */
     private final ExecutorService executor;
 
     /**
@@ -104,10 +108,14 @@ public class FilePushClient implements AutoCloseable {
      */
     private volatile Semaphore fileLimiter;
 
-    /** 统计：成功推送的文件数 */
+    /**
+     * 统计：成功推送的文件数
+    */
     private final AtomicLong filesPushed = new AtomicLong();
 
-    /** 统计：成功推送的总字节数 */
+    /**
+     * 统计：成功推送的总字节数
+    */
     private final AtomicLong bytesPushed = new AtomicLong();
 
     /**
@@ -115,7 +123,9 @@ public class FilePushClient implements AutoCloseable {
      */
     private volatile Consumer<FileTaskResult> progressListener;
 
-    /** 运行标记 */
+    /**
+     * 运行标记
+    */
     private volatile boolean closed;
 
     /**

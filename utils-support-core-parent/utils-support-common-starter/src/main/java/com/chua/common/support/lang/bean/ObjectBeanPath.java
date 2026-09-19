@@ -27,14 +27,18 @@ public class ObjectBeanPath implements BeanPath {
     private NamingStyle namingStyle = NamingStyle.RAW;
 
     @Override
-    /** IgnoreCase */
+    /**
+     * IgnoreCase
+    */
     public ObjectBeanPath ignoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
         return this;
     }
 
     @Override
-    /** NamingStyle */
+    /**
+     * NamingStyle
+    */
     public ObjectBeanPath namingStyle(NamingStyle style) {
         this.namingStyle = style != null ? style : NamingStyle.RAW;
         return this;
@@ -42,7 +46,9 @@ public class ObjectBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Value */
+    /**
+     * 获取Value
+    */
     public <T> T getValue(Object source, String path) {
         if (source == null || path == null || path.isEmpty()) {
             return null;
@@ -53,7 +59,9 @@ public class ObjectBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 设置Value */
+    /**
+     * 设置Value
+    */
     public void setValue(Object source, String path, Object value) {
         if (source == null || path == null || path.isEmpty()) {
             return;
@@ -89,7 +97,9 @@ public class ObjectBeanPath implements BeanPath {
     }
 
     @Override
-    /** 是否存在 */
+    /**
+     * 是否存在
+    */
     public boolean exists(Object source, String path) {
         return getValue(source, path) != null;
     }

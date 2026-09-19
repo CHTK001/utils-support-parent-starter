@@ -86,7 +86,9 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         Configuration configuration = new Configuration();
         configuration.setHostname(setting.getHost());
@@ -117,7 +119,9 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (delegate != null) {
             delegate.stop();
@@ -129,7 +133,9 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
@@ -324,103 +330,137 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public Map<String, String> getParams() {
             return java.util.Collections.emptyMap();
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public String getParam(String name) {
             return null;
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return "application/json";
         }
 
         @Override
-        /** 获取内容获取长度 */
+        /**
+         * 获取内容获取长度
+        */
         public long getContentLength() {
             return body != null ? body.getBytes().length : -1;
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return body != null ? body.getBytes() : new byte[0];
         }
 
         @Override
-        /** 获取主体字符串 */
+        /**
+         * 获取主体字符串
+        */
         public String getBodyString() {
             return body;
         }
 
         @Override
-        /** 获取输入流 */
+        /**
+         * 获取输入流
+        */
         public java.io.InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return 0;
         }
 
         @Override
-        /** 获取Attributes */
+        /**
+         * 获取Attributes
+        */
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
         @Override
-        /** 获取Attribute */
+        /**
+         * 获取Attribute
+        */
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
         @Override
-        /** 设置Attribute */
+        /**
+         * 设置Attribute
+        */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
@@ -451,82 +491,108 @@ public class SocketIOServer extends AbstractServer {
         private Object result;
 
         @Override
-        /** 获取状态 */
+        /**
+         * 获取状态
+        */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置状态 */
+        /**
+         * 设置状态
+        */
         public ServerResponse setStatus(int status) {
             this.status = status;
             return this;
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 设置头部 */
+        /**
+         * 设置头部
+        */
         public ServerResponse setHeader(String name, String value) {
             return this;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return null;
         }
 
         @Override
-        /** 设置内容类型 */
+        /**
+         * 设置内容类型
+        */
         public ServerResponse setContentType(String contentType) {
             return this;
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return result instanceof byte[] ? (byte[]) result : null;
         }
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 发送Redirect */
+        /**
+         * 发送Redirect
+        */
         public ServerResponse sendRedirect(String location) {
             return this;
         }
 
         @Override
-        /** 发送记录错误 */
+        /**
+         * 发送记录错误
+        */
         public ServerResponse sendError(int code, String message) {
             this.status = code;
             this.result = message;
@@ -535,30 +601,40 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 刷新 */
+        /**
+         * 刷新
+        */
         public void flush() {
         }
 
         @Override
-        /** 是否Committed */
+        /**
+         * 是否Committed
+        */
         public boolean isCommitted() {
             return committed;
         }
 
         @Override
-        /** 是否结束 */
+        /**
+         * 是否结束
+        */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** 结束 */
+        /**
+         * 结束
+        */
         public void end() {
             this.ended = true;
         }
 
         @Override
-        /** 重置 */
+        /**
+         * 重置
+        */
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -569,19 +645,25 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
         }
 
         @Override
-        /** 设置结果 */
+        /**
+         * 设置结果
+        */
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
         @Override
-        /** 获取结果 */
+        /**
+         * 获取结果
+        */
         public Object getResult() {
             return result;
         }

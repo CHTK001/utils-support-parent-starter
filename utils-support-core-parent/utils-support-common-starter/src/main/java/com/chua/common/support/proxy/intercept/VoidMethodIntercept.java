@@ -14,13 +14,17 @@ import java.lang.reflect.Method;
 public class VoidMethodIntercept<T> implements MethodIntercept<T>, InvocationHandler {
 
     @Override
-    /** 调用 */
+    /**
+     * 调用
+    */
     public Object invoke(Object proxy, Method method, Object[] args) {
         return null;
     }
 
     @Override
-    /** 调用 */
+    /**
+     * 调用
+    */
     public Object invoke(Object obj, Method method, Object[] args, T proxy) {
         return null;
     }

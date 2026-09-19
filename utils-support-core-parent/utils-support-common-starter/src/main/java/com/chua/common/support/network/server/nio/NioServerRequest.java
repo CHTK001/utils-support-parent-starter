@@ -81,46 +81,78 @@ public class NioServerRequest implements ServerRequest {
      * 无通道场景(AIO)必填,有通道场景可为 null
      */
     private final SocketAddress remoteAddress;
-    /** 最大值请求尺寸 */
+    /**
+     * 最大值请求尺寸
+    */
     private final long maxRequestSize;
-    /** 默认字符集 */
+    /**
+     * 默认字符集
+    */
     private final Charset defaultCharset;
-    /** Method */
+    /**
+     * Method
+    */
     private String method;
-    /** URI */
+    /**
+     * URI
+    */
     private String uri;
-    /** 路径 */
+    /**
+     * 路径
+    */
     private String path;
-    /** Query字符串 */
+    /**
+     * Query字符串
+    */
     private String queryString;
-    /** HTTP版本 */
+    /**
+     * HTTP版本
+    */
     private String httpVersion = "HTTP/1.1";
     /**
      * headers - 使用 HashMap(忽略大小写通过 toLowerCase 保证)
      */
     private final java.util.HashMap<String, String> headers = new java.util.HashMap<>(8);
-    /** 请求体 */
+    /**
+     * 请求体
+    */
     private byte[] body;
     /** 行解析缓冲(REQUEST_LINE/HEADERS/chunked 头);懒分配,空闲连接(未收到数据)不占用
      *  <p>百万级空闲连接场景,每连接省 8KB,整体省数十 GB,是支撑高连接数的关键</p> */
-    /** BUF */
+    /**
+     * BUF
+    */
     private ByteBuffer buf;
-    /** BUFHAS数据 */
+    /**
+     * BUFHAS数据
+    */
     private boolean bufHasData = true;
-    /** attributes */
+    /**
+     * attributes
+    */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     // ==================== 增量解析状态机 ====================
 
-    /** 当前解析状态 */
+    /**
+     * 当前解析状态
+    */
     private ParseState parseState = ParseState.REQUEST_LINE;
-    /** 请求体剩余需读取字节数(非 chunked) */
+    /**
+     * 请求体剩余需读取字节数(非 chunked)
+    */
     private int bodyRemaining = 0;
-    /** 是否 chunked 编码 */
+    /**
+     * 是否 chunked 编码
+    */
     private boolean chunked = false;
-    /** chunked:当前 chunk 剩余字节 */
+    /**
+     * chunked:当前 chunk 剩余字节
+    */
     private int chunkRemaining = 0;
-    /** chunked:是否正在读 chunk 头部行 */
+    /**
+     * chunked:是否正在读 chunk 头部行
+    */
     private boolean chunkHeaderPending = false;
 
     /**
@@ -547,7 +579,9 @@ public class NioServerRequest implements ServerRequest {
         return parser.parse(getBody(), ct);
     }
 
-    /** 解码 */
+    /**
+     * 解码
+    */
     private String decode(String value) { return URLDecoder.decode(value, defaultCharset); }
     /**
      * 解析Charset

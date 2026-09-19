@@ -57,7 +57,9 @@ import java.util.regex.Pattern;
  */
 public class MavenClient implements AutoCloseable {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MavenClient.class);
 
     /**
@@ -129,28 +131,46 @@ public class MavenClient implements AutoCloseable {
      * 编译阶段进度阈值
      */
     private static final int PROGRESS_VALIDATION = 5;
-    /** 进步_resolve */
+    /**
+     * 进步_resolve
+    */
     private static final int PROGRESS_RESOLVE = 15;
-    /** 进步_compile */
+    /**
+     * 进步_compile
+    */
     private static final int PROGRESS_COMPILE = 50;
-    /** 进步_测试 */
+    /**
+     * 进步_测试
+    */
     private static final int PROGRESS_TEST = 75;
-    /** 进步_包 */
+    /**
+     * 进步_包
+    */
     private static final int PROGRESS_PACKAGE = 90;
-    /** 进步_完成 */
+    /**
+     * 进步_完成
+    */
     private static final int PROGRESS_COMPLETE = 100;
 
     /**
      * Maven 输出解析正则
      */
     private static final Pattern BUILD_SUCCESS_PATTERN = Pattern.compile("BUILD\\s+SUCCESS");
-    /** 构建_失败_模式 */
+    /**
+     * 构建_失败_模式
+    */
     private static final Pattern BUILD_FAILURE_PATTERN = Pattern.compile("BUILD\\s+FAILURE");
-    /** 错误_线_模式 */
+    /**
+     * 错误_线_模式
+    */
     private static final Pattern ERROR_LINE_PATTERN = Pattern.compile("\\[ERROR\\]\\s*(.+)");
-    /** Compiling_模式 */
+    /**
+     * Compiling_模式
+    */
     private static final Pattern COMPILING_PATTERN = Pattern.compile("Compiling\\s+(\\d+)\\s+source\\s+files");
-    /** 测试_模式 */
+    /**
+     * 测试_模式
+    */
     private static final Pattern TESTING_PATTERN = Pattern.compile("Tests run:\\s+(\\d+)");
 
     /**
@@ -228,7 +248,9 @@ public class MavenClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 无需清理特殊资源
     }

@@ -150,7 +150,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** 执行添加 */
+    /**
+     * 执行添加
+    */
     protected synchronized boolean doAdd(String id, float[] vector) {
         com.google.gson.JsonObject entity = new com.google.gson.JsonObject();
         entity.addProperty("id", id);
@@ -223,7 +225,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** 执行搜索 */
+    /**
+     * 执行搜索
+    */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         if (!released) {
             release();
@@ -272,7 +276,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         var resp = client.getCollectionStats(
                 io.milvus.v2.service.collection.request.GetCollectionStatsReq.builder()
@@ -286,7 +292,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         client.dropCollection(io.milvus.v2.service.collection.request.DropCollectionReq.builder()
                 .collectionName(collectionName)
@@ -294,7 +302,9 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             client.close();

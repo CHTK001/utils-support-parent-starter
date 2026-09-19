@@ -269,7 +269,9 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

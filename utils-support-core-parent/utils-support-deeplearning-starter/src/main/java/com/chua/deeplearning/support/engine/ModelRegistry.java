@@ -66,15 +66,25 @@ public final class ModelRegistry {
      */
     private static final String PROP_MODEL_CACHE_DIR = "deeplearning.model.cache-dir";
 
-    /** REGISTRY */
+    /**
+     * REGISTRY
+    */
     private static final Map<String, Entry> REGISTRY = new ConcurrentHashMap<>();
-    /** CLASSPATCACHE */
+    /**
+     * CLASSPATCACHE
+    */
     private static final Map<String, Path> CLASSPATH_CACHE = new ConcurrentHashMap<>();
-    /** 模型根dir */
+    /**
+     * 模型根dir
+    */
     private static volatile String modelRootDir = initModelRootDir();
-    /** extract根 */
+    /**
+     * extract根
+    */
     private static volatile Path extractRoot = initExtractRoot();
-    /** downloader */
+    /**
+     * downloader
+    */
     private static volatile ModelDownloader downloader = new DefaultModelDownloader();
 
     /**
@@ -985,15 +995,25 @@ public final class ModelRegistry {
      */
     private static final class LazyDjlTranslator implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
 
-        /** 模型标识 */
+        /**
+         * 模型标识
+        */
         private final String modelId;
-        /** 模型路径 */
+        /**
+         * 模型路径
+        */
         private final Path modelPath;
-        /** Translatorclass名称 */
+        /**
+         * Translatorclass名称
+        */
         private final String translatorClassName;
-        /** 运行参数（阈值 等，首次实例化前可注入） */
+        /**
+         * 运行参数（阈值 等，首次实例化前可注入）
+        */
         private volatile Map<String, Object> options;
-        /** delegate */
+        /**
+         * delegate
+        */
         private volatile ITranslator<Object, Object> delegate;
 
         /**
@@ -1076,19 +1096,25 @@ public final class ModelRegistry {
         }
 
         @Override
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name() {
             return modelId;
         }
 
         @Override
-        /** Translate */
+        /**
+         * Translate
+        */
         public Object translate(Object input) {
             return ensure().translate(input);
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             if (delegate != null) {
                 if (delegate instanceof AutoCloseable closeable) {
@@ -1174,7 +1200,9 @@ public final class ModelRegistry {
      */
     private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable {
 
-        /** 模型标识 */
+        /**
+         * 模型标识
+        */
         private final String modelId;
         private final ITranslator<?, ?> translator;
 
@@ -1264,7 +1292,9 @@ public final class ModelRegistry {
         }
 
         @Override
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name() {
             return modelId;
         }
@@ -1282,7 +1312,9 @@ public final class ModelRegistry {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             if (translator instanceof AutoCloseable closeable) {
                 try {
@@ -1327,7 +1359,9 @@ public final class ModelRegistry {
     public static final class DefaultModelDownloader implements ModelDownloader {
 
         @Override
-        /** Download */
+        /**
+         * Download
+        */
         public Path download(String url, Path target) throws Exception {
             HttpURLConnection conn = null;
             try {

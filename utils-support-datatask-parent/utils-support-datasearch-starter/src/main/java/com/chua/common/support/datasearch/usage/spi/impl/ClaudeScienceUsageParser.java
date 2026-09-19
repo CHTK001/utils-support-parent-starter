@@ -38,10 +38,14 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER = "claude-science";
 
-    /** 两种可能的数据库文件名（新名 + 旧名）。 */
+    /**
+     * 两种可能的数据库文件名（新名 + 旧名）。
+    */
     private static final String[] DB_FILENAMES = {"operon-cli.db", "operon.db"};
 
-    /** 令牌列（新版必含主列；aux 等其余列为可选，缺失时按 0 计）。 */
+    /**
+     * 令牌列（新版必含主列；aux 等其余列为可选，缺失时按 0 计）。
+    */
     private static final String[] TOKEN_COLUMNS = {
         "input_tokens", "output_tokens", "cache_read_tokens", "cache_write_tokens",
         "aux_input_tokens", "aux_output_tokens", "aux_cache_read_tokens", "aux_cache_write_tokens"
@@ -68,7 +72,9 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
 
     private final Path dbPath;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public ClaudeScienceUsageParser() {
         this.dbPath = resolveDbPath();
     }
@@ -84,7 +90,9 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
 
-    /** 全量解析 frames 表。 */
+    /**
+     * 全量解析 frames 表。
+    */
     @Override
     protected List<AiUsage> parseAll() {
         if (!Files.exists(dbPath)) {

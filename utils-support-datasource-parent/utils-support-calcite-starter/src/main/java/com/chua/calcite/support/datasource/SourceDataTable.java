@@ -119,13 +119,17 @@ public class SourceDataTable extends MutableDataTable {
     }
 
     @Override
-    /** 获取Row计算数量 */
+    /**
+     * 获取Row计算数量
+    */
     public long getRowCount() {
         return getData().size();
     }
 
     @Override
-    /** 添加Row */
+    /**
+     * 添加Row
+    */
     public void addRow(Map<String, Object> row) {
         super.addRow(row);
         persistSnapshot(super.getData());

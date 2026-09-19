@@ -76,13 +76,17 @@ public class DuckDbLogSink implements DataSink {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "duckdb-log";
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             connection = DriverManager.getConnection(jdbcUrl);
@@ -96,7 +100,9 @@ public class DuckDbLogSink implements DataSink {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (connection != null) {
             try {
@@ -108,7 +114,9 @@ public class DuckDbLogSink implements DataSink {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (connection == null) {
             log.warn("[duckdb-sink] 未连接，无法写入");

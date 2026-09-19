@@ -101,7 +101,9 @@ public class SofaRpcClient implements RpcClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         for (ConsumerConfig<?> config : consumerCache.values()) {
             try {

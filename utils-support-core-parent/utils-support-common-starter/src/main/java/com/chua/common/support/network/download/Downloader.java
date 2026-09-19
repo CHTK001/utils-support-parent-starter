@@ -51,37 +51,69 @@ import java.util.Map;
 public class Downloader {
 
     // ===== 链式配置字段 =====
-    /** 下载地址 */
+    /**
+     * 下载地址
+    */
     private String url;
-    /** 目标下载目录 */
+    /**
+     * 目标下载目录
+    */
     private Path targetDir;
-    /** 显式文件名 */
+    /**
+     * 显式文件名
+    */
     private String filename;
-    /** 期望的 MD5 校验值 */
+    /**
+     * 期望的 MD5 校验值
+    */
     private String expectedMd5;
-    /** 并发下载线程数 */
+    /**
+     * 并发下载线程数
+    */
     private int concurrency = 1;
-    /** 限速字节/秒 */
+    /**
+     * 限速字节/秒
+    */
     private long maxSpeed = 0;
-    /** HTTP 代理 */
+    /**
+     * HTTP 代理
+    */
     private Proxy proxy;
-    /** 下载完成后自动解压 */
+    /**
+     * 下载完成后自动解压
+    */
     private boolean autoExtract = false;
-    /** 解压目标目录 */
+    /**
+     * 解压目标目录
+    */
     private Path extractTo;
-    /** 是否跳过 MD5 校验 */
+    /**
+     * 是否跳过 MD5 校验
+    */
     private boolean skipMd5Check = false;
-    /** 是否强制重新下载 */
+    /**
+     * 是否强制重新下载
+    */
     private boolean forceDownload = false;
-    /** 是否显示进度条 */
+    /**
+     * 是否显示进度条
+    */
     private boolean showProgress = true;
-    /** 连接超时（毫秒） */
+    /**
+     * 连接超时（毫秒）
+    */
     private int connectTimeoutMs = 15_000;
-    /** 读取超时（毫秒） */
+    /**
+     * 读取超时（毫秒）
+    */
     private int readTimeoutMs = 60_000;
-    /** 自定义请求头 */
+    /**
+     * 自定义请求头
+    */
     private Map<String, String> headers = new LinkedHashMap<>();
-    /** 下载协议 */
+    /**
+     * 下载协议
+    */
     private DownloadProtocol protocol = DownloadProtocol.DEFAULT;
 
     // ===== 构造 =====

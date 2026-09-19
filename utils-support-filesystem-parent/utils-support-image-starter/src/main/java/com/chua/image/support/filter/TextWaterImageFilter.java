@@ -63,19 +63,33 @@ import javax.annotation.Nullable;
 @Setter
 public class TextWaterImageFilter extends AbstractImageFilter {
 
-    /** DEFAULFON缩放比例 */
+    /**
+     * DEFAULFON缩放比例
+    */
     private static final int DEFAULT_FONT_SIZE = 18;
-    /** DEFAUL字体 */
+    /**
+     * DEFAUL字体
+    */
     private static final Font DEFAULT_FONT = new Font("黑体", Font.PLAIN, DEFAULT_FONT_SIZE);
-    /** 文本内容 */
+    /**
+     * 文本内容
+    */
     private String text = "";
-    /** 位置（final，仅可通过构造器设置） */
+    /**
+     * 位置（final，仅可通过构造器设置）
+    */
     private final Position position;
-    /** 字体大小 */
+    /**
+     * 字体大小
+    */
     private int fontSize = DEFAULT_FONT_SIZE;
-    /** 文字颜色 */
+    /**
+     * 文字颜色
+    */
     private Color color = Color.WHITE;
-    /** 字体 */
+    /**
+     * 字体
+    */
     private Font font = DEFAULT_FONT;
 
 
@@ -207,7 +221,9 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);

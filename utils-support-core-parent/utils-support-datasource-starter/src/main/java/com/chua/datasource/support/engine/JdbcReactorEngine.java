@@ -62,7 +62,9 @@ public class JdbcReactorEngine implements ReactorEngine {
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(JdbcReactorEngine.class);
 
-    /** 同步委托引擎（伪响应式模式使用，可空） */
+    /**
+     * 同步委托引擎（伪响应式模式使用，可空）
+    */
     protected final Engine delegate;
 
     /**
@@ -81,19 +83,29 @@ public class JdbcReactorEngine implements ReactorEngine {
         this.delegate = delegate;
     }
 
-    /** 默认数据源名称 */
+    /**
+     * 默认数据源名称
+    */
     private String defaultDataSourceName;
 
-    /** 数据源名称 → R2DBC 连接工厂（单数据源模式使用） */
+    /**
+     * 数据源名称 → R2DBC 连接工厂（单数据源模式使用）
+    */
     private final Map<String, ConnectionFactory> r2dbcFactories = new ConcurrentHashMap<>();
 
-    /** 数据源名称 → JDBC DataSource（多数据源模式使用） */
+    /**
+     * 数据源名称 → JDBC DataSource（多数据源模式使用）
+    */
     private final Map<String, DataSource> jdbcDataSources = new ConcurrentHashMap<>();
 
-    /** 数据源名称 → 方言 */
+    /**
+     * 数据源名称 → 方言
+    */
     private final Map<String, Dialect> dialects = new ConcurrentHashMap<>();
 
-    /** 统一的联邦数据源（多数据源模式） */
+    /**
+     * 统一的联邦数据源（多数据源模式）
+    */
     private DataSource unifiedDataSource;
 
     /**
@@ -397,17 +409,6 @@ public class JdbcReactorEngine implements ReactorEngine {
             @Override
             public java.util.logging.Logger getParentLogger() throws java.sql.SQLFeatureNotSupportedException { return null; }
         };
-    }
-
-    private static String buildParams(String username, String password) {
-        StringBuilder sb = new StringBuilder();
-        if (username != null && !username.isEmpty()) {
-            sb.append("?user=").append(username);
-        }
-        if (password != null && !password.isEmpty()) {
-            sb.append(sb.length() > 0 ? "&" : "?").append("password=").append(password);
-        }
-        return sb.toString();
     }
 
     /**
@@ -874,7 +875,9 @@ public class JdbcReactorEngine implements ReactorEngine {
 
     // ==================== 内部适配器 ====================
 
-    /** R2DBC 引擎适配器，供 Lambda 包装器使用 */
+    /**
+     * R2DBC 引擎适配器，供 Lambda 包装器使用
+    */
     private class R2dbcEngineAdapter implements Engine {
         @Override
         public <T> Engine addDataSource(String name, EngineDataSource<T> ds) { throw new UnsupportedOperationException(); }
@@ -911,7 +914,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         public void close() {}
     }
 
-    /** 统一数据源适配器，供多数据源模式的 Lambda 包装器使用 */
+    /**
+     * 统一数据源适配器，供多数据源模式的 Lambda 包装器使用
+    */
     private class UnifiedEngineAdapter implements Engine {
         private final DataSource ds;
         UnifiedEngineAdapter(DataSource ds) { this.ds = ds; }
@@ -945,7 +950,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         public void close() {}
     }
 
-    /** R2DBC SqlExecutor 包装 */
+    /**
+     * R2DBC SqlExecutor 包装
+    */
     private class R2dbcSqlExecutorWrapper implements SqlExecutor {
         private final ConnectionFactory factory;
         private final Dialect dialect;
@@ -1036,7 +1043,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
     }
 
-    /** JDBC SqlExecutor 包装 */
+    /**
+     * JDBC SqlExecutor 包装
+    */
     private class JdbcSqlExecutorWrapper implements SqlExecutor {
         private final DataSource ds;
         private final Dialect dialect;

@@ -58,7 +58,9 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     @Override
-    /** 查找 */
+    /**
+     * 查找
+    */
     public Set<Resource> find(String name) {
         String fullName = CLASSPATH_URL_PREFIX + name;
         if (isPattern(name)) {
@@ -278,13 +280,17 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
      */
     private class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
 
-        /** 完整匹配模式 */
+        /**
+         * 完整匹配模式
+        */
         private final String fullPattern;
         /**
          * 结果
          */
         private final Set<Resource> result;
-        /** 已扫描计数 */
+        /**
+         * 已扫描计数
+        */
         private final AtomicLong scannedCount;
 
         ClassPathFileVisitor(String fullPattern, Set<Resource> result, AtomicLong scannedCount) {
@@ -294,7 +300,9 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
-        /** PreVisitDirectory */
+        /**
+         * PreVisitDirectory
+        */
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             String dirPath = StringUtils.replace(dir.toString(), File.separator, "/");
             if (!matcher.matchStart(fullPattern, dirPath + "/")) {
@@ -307,7 +315,9 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
-        /** VisitFile */
+        /**
+         * VisitFile
+        */
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             scannedCount.incrementAndGet();
             String filePath = StringUtils.replace(file.toString(), File.separator, "/");
@@ -323,13 +333,17 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         }
 
         @Override
-        /** VisitFileFailed */
+        /**
+         * VisitFileFailed
+        */
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             return FileVisitResult.CONTINUE;
         }
 
         @Override
-        /** PostVisitDirectory */
+        /**
+         * PostVisitDirectory
+        */
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
             return FileVisitResult.CONTINUE;
         }

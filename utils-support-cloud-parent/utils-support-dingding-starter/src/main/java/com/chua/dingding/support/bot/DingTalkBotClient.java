@@ -146,7 +146,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     public BotClient token(String token) {
         if (token != null && !token.isBlank()) {
             this.webhookUrl = baseUrl + token;
@@ -155,20 +157,26 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** Secret */
+    /**
+     * Secret
+    */
     public BotClient secret(String secret) {
         this.secret = secret;
         return this;
     }
 
     @Override
-    /** 编码aes键 */
+    /**
+     * 编码aes键
+    */
     public BotClient encodingAesKey(String encodingAesKey) {
         return this;
     }
 
     @Override
-    /** baseurl */
+    /**
+     * baseurl
+    */
     public BotClient baseUrl(String baseUrl) {
         if (baseUrl != null && !baseUrl.isBlank()) {
             this.baseUrl = baseUrl;
@@ -177,21 +185,27 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 连接超时millis */
+    /**
+     * 连接超时millis
+    */
     public BotClient connectTimeoutMillis(long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
         return this;
     }
 
     @Override
-    /** 读取超时millis */
+    /**
+     * 读取超时millis
+    */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
     @Override
-    /** 配置保存或加载 */
+    /**
+     * 配置保存或加载
+    */
     public BotClient configSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
         return this;
     }
@@ -219,7 +233,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public BotClient start() {
         if (httpClient == null) {
             httpClient = new OkHttpClient.Builder()
@@ -235,7 +251,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running = false;
         if (httpClient != null) {
@@ -247,13 +265,17 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** 发送文本 */
+    /**
+     * 发送文本
+    */
     public BotSendResult sendText(String toUser, String content) {
         Map<String, String> text
                 = Collections.singletonMap("content", content);
@@ -264,7 +286,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 发送镜像 */
+    /**
+     * 发送镜像
+    */
     public BotSendResult sendImage(String toUser, String mediaPath) {
         try {
             byte[] imageBytes = Files.readAllBytes(
@@ -291,7 +315,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 发送Voice */
+    /**
+     * 发送Voice
+    */
     public BotSendResult sendVoice(String toUser, String mediaPath) {
         log.warn(
                 "DingTalk bot does not support voice messages "
@@ -318,7 +344,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 发送文件 */
+    /**
+     * 发送文件
+    */
     public BotSendResult sendFile(String toUser, String mediaPath) {
         log.warn(
                 "DingTalk bot does not support file messages "
@@ -328,7 +356,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public BotSendResult send(BotOutboundMessage message) {
         if (message.getType() == null) {
             return BotSendResult.fail(-1,
@@ -503,7 +533,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 列表群体 */
+    /**
+     * 列表群体
+    */
     public List<BotGroupInfo> listGroups() {
         return Collections.emptyList();
     }
@@ -632,7 +664,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 用户存储 */
+    /**
+     * 用户存储
+    */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -641,13 +675,17 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 列表用户 */
+    /**
+     * 列表用户
+    */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
-    /** 添加消息监听器 */
+    /**
+     * 添加消息监听器
+    */
     public BotClient addMessageListener(BotMessageListener listener) {
         if (listener != null) {
             messageListeners.add(listener);
@@ -684,7 +722,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 添加记录错误监听器 */
+    /**
+     * 添加记录错误监听器
+    */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);
@@ -693,7 +733,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     @Override
-    /** 获取配置 */
+    /**
+     * 获取配置
+    */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("webhookUrl",

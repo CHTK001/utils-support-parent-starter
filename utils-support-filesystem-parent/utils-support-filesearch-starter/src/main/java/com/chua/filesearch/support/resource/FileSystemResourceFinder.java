@@ -45,7 +45,9 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
     }
 
     @Override
-    /** 查找 */
+    /**
+     * 查找
+    */
     public Set<Resource> find(String name) {
         String fullName = FILESYSTEM_URL_PREFIX + name;
         if (name.startsWith(FILESYSTEM_URL_ALL_PREFIX.replace(":", ""))) {

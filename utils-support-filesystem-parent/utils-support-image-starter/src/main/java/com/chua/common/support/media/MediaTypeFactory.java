@@ -9,7 +9,9 @@ import java.util.Map;
 
 public class MediaTypeFactory {
 
-    /** MEDITYPES */
+    /**
+     * MEDITYPES
+    */
     private static final Map<String, MediaType> MEDIA_TYPES = new HashMap<>();
 
     static {

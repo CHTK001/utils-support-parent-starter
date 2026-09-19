@@ -2,12 +2,16 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageCaptioning;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxImageCaptioning implements ImageCaptioning {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
     /**
@@ -18,7 +22,9 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageCaptioning model(String model) {
         this.modelName = model;
         return this;
@@ -34,7 +40,9 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     }
 
     @Override
-    /** Describe */
+    /**
+     * Describe
+    */
     public String describe(byte[] imageData) {
         return ImageCaptioning.create(resolveModel()).describe(imageData);
     }

@@ -12,10 +12,14 @@ package com.chua.common.support.osgi;
  */
 public class OsgiLauncherHolder {
 
-    /** INSTANCE */
+    /**
+     * INSTANCE
+    */
     private static volatile OsgiLauncher INSTANCE;
 
-    /** 创建 osgilauncherholder 实例 */
+    /**
+     * 创建 osgilauncherholder 实例
+    */
     private OsgiLauncherHolder() {}
 
     /**

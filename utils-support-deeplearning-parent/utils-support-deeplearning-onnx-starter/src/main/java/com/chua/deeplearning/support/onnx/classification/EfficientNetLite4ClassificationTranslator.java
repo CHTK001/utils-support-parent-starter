@@ -22,9 +22,13 @@ import java.util.List;
  */
 public class EfficientNetLite4ClassificationTranslator implements Translator<Image, Classifications> {
 
-    /** 默认类别数量 */
+    /**
+     * 默认类别数量
+    */
     private static final int DEFAULT_CLASS_COUNT = 1000;
-    /** 运行时标签列表 */
+    /**
+     * 运行时标签列表
+    */
     private List<String> runtimeLabels = defaultLabels(DEFAULT_CLASS_COUNT);
 
     /**
@@ -34,7 +38,9 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws Exception {
         List<String> labels = loadLabels(ctx.getModel().getModelPath());
         if (!labels.isEmpty()) {
@@ -43,7 +49,9 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         // OpenCV 预处理：resize 224 + CHW 归一化 → float[] → create() 喂入 djl-onnx
         float[] pixels = com.chua.deeplearning.support.utils.ImageUtils.toTensor(input, 224);
@@ -53,7 +61,9 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
  // 转为floatarray 已扁平化，无需 squeeze
@@ -74,7 +84,9 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

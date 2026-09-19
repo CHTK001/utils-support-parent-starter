@@ -36,18 +36,28 @@ public class DocumentConfig {
      */
     private String type;
 
-    /** JDBC URL 或 API 文档地址 */
+    /**
+     * JDBC URL 或 API 文档地址
+    */
     private String url;
 
-    /** 数据库用户名 */
+    /**
+     * 数据库用户名
+    */
     private String username;
 
-    /** 数据库密码 */
+    /**
+     * 数据库密码
+    */
     private String password;
 
-    /** JDBC 驱动类全限定名 */
+    /**
+     * JDBC 驱动类全限定名
+    */
     private String driverClass;
 
-    /** 扩展参数字段，各实现可自行定义键值含义 */
+    /**
+     * 扩展参数字段，各实现可自行定义键值含义
+    */
     private Map<String, Object> options;
 }

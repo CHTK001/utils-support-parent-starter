@@ -304,7 +304,9 @@ public class HttpInvoker implements Invoker {
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public <T> T create(Class<T> apiClass) {
         if (isDefault()) {
             return com.chua.common.support.network.client.HttpApiFactory.create(apiClass);
@@ -313,7 +315,9 @@ public class HttpInvoker implements Invoker {
     }
 
     @Override
-    /** 创建New */
+    /**
+     * 创建New
+    */
     public <T> T createNew(Class<T> apiClass) {
         if (isDefault()) {
             return com.chua.common.support.network.client.HttpApiFactory.createNew(apiClass);

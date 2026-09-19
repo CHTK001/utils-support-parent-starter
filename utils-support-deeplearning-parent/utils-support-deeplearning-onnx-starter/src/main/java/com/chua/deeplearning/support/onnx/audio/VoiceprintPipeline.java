@@ -53,22 +53,34 @@ import java.util.Objects;
 @Slf4j
 public class VoiceprintPipeline implements AutoCloseable {
 
-    /** 向量存储后端（192 维，cosine）。 */
+    /**
+     * 向量存储后端（192 维，cosine）。
+    */
     private final VectorStorage storage;
 
-    /** CAM++ 神经声纹特征提取器（传统方式）。 */
+    /**
+     * CAM++ 神经声纹特征提取器（传统方式）。
+    */
     private final CampplusEmbedding campplus;
 
-    /** 声纹嵌入翻译器（模型registry 方式）。 */
+    /**
+     * 声纹嵌入翻译器（模型registry 方式）。
+    */
     private final com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> embedderTranslator;
 
-    /** 检索结果上限（与 搜索 的 topk 取 最小）。 */
+    /**
+     * 检索结果上限（与 搜索 的 topk 取 最小）。
+    */
     private final int maxResults;
 
-    /** 降噪增强器（空 表示不降噪）。 */
+    /**
+     * 降噪增强器（空 表示不降噪）。
+    */
     private final SpeechEnhancer denoiseEnhancer;
 
-    /** VAD 类型（空 表示不做 VAD）。 */
+    /**
+     * VAD 类型（空 表示不做 VAD）。
+    */
     private final String vadType;
 
     private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder, int maxResults,
@@ -463,7 +475,9 @@ public class VoiceprintPipeline implements AutoCloseable {
         return base.resolve("chua-voiceprints");
     }
 
-    /** 管线构建器。 */
+    /**
+     * 管线构建器。
+    */
     public static final class Builder {
         private CampplusEmbedding embedder;
         private com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> translator;

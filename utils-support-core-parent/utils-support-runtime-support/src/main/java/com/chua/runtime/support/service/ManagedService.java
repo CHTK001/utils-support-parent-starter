@@ -73,7 +73,9 @@ public class ManagedService {
      * 启动类型（auto / manual / 已禁用）
      */
     @Builder.Default
-    /** Startup类型 */
+    /**
+     * Startup类型
+    */
     private String startupType = "auto";
 
     /**
@@ -85,21 +87,27 @@ public class ManagedService {
      * 服务依赖（其他服务名，如 "network.Target"）
      */
     @Builder.Default
-    /** Dependencies */
+    /**
+     * Dependencies
+    */
     private List<String> dependencies = new ArrayList<>();
 
     /**
      * 是否在崩溃后自动重启
      */
     @Builder.Default
-    /** Autorestart */
+    /**
+     * Autorestart
+    */
     private boolean autoRestart = true;
 
     /**
      * 重启间隔（秒）
      */
     @Builder.Default
-    /** restartsec */
+    /**
+     * restartsec
+    */
     private int restartSec = 10;
 
     /**

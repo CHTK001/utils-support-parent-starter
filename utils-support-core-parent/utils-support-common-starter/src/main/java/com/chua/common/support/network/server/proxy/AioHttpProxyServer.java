@@ -29,11 +29,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi({"aio-http-proxy"})
 public class AioHttpProxyServer extends AbstractServer {
 
-    /** 监听通道 */
+    /**
+     * 监听通道
+    */
     private AsynchronousServerSocketChannel serverChannel;
-    /** IOCP 线程组 */
+    /**
+     * IOCP 线程组
+    */
     private AsynchronousChannelGroup group;
-    /** 活跃连接数 */
+    /**
+     * 活跃连接数
+    */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
@@ -43,7 +49,9 @@ public class AioHttpProxyServer extends AbstractServer {
             ArrayDeque<AsynchronousSocketChannel>> BACKEND_POOL =
             new java.util.concurrent.ConcurrentHashMap<>();
 
-    /** 从池中取或新建后端连接 */
+    /**
+     * 从池中取或新建后端连接
+    */
     private void acquireBackend(String hostKey, InetSocketAddress addr,
                                 java.util.function.Consumer<AsynchronousSocketChannel> onDone,
                                 java.util.function.Consumer<Throwable> onError) {
@@ -204,15 +212,25 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private final class Pump implements CompletionHandler<Integer, Void> {
 
-        /** 源通道 */
+        /**
+         * 源通道
+        */
         private final AsynchronousSocketChannel src;
-        /** 目标通道 */
+        /**
+         * 目标通道
+        */
         private final AsynchronousSocketChannel dst;
-        /** 中转缓冲 */
+        /**
+         * 中转缓冲
+        */
         private final ByteBuffer buf = ByteBuffer.allocateDirect(16384);
-        /** 共享去重标志 */
+        /**
+         * 共享去重标志
+        */
         private final java.util.concurrent.atomic.AtomicBoolean fired;
-        /** 关闭回调 */
+        /**
+         * 关闭回调
+        */
         private final Runnable onClose;
 
         Pump(AsynchronousSocketChannel src, AsynchronousSocketChannel dst,
@@ -494,19 +512,33 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private final class LimitedRelay implements CompletionHandler<Integer, Void> {
 
-        /** 源通道 */
+        /**
+         * 源通道
+        */
         private final AsynchronousSocketChannel src;
-        /** 目标通道 */
+        /**
+         * 目标通道
+        */
         private final AsynchronousSocketChannel dst;
-        /** 中转缓冲 */
+        /**
+         * 中转缓冲
+        */
         private final ByteBuffer buf = ByteBuffer.allocateDirect(16384);
-        /** 完成回调 */
+        /**
+         * 完成回调
+        */
         private final Runnable onDone;
-        /** 对端提前关闭回调 */
+        /**
+         * 对端提前关闭回调
+        */
         private final Runnable onEof;
-        /** 异常回调 */
+        /**
+         * 异常回调
+        */
         private final java.util.function.Consumer<Throwable> onError;
-        /** 剩余字节数 */
+        /**
+         * 剩余字节数
+        */
         private long left;
 
         /**
@@ -584,21 +616,37 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     private static final class ClientCtx {
 
-        /** 客户端通道 */
+        /**
+         * 客户端通道
+        */
         final AsynchronousSocketChannel client;
-        /** 客户端读缓冲 */
+        /**
+         * 客户端读缓冲
+        */
         final ByteBuffer clientBuf = ByteBuffer.allocateDirect(32768);
-        /** 增量头解析器 */
+        /**
+         * 增量头解析器
+        */
         final HeadParser parser = new HeadParser();
-        /** 后端通道 */
+        /**
+         * 后端通道
+        */
         volatile AsynchronousSocketChannel backend;
-        /** 已发出的请求体字节数 */
+        /**
+         * 已发出的请求体字节数
+        */
         long reqBodySent;
-        /** 尚待转发的请求体字节数 */
+        /**
+         * 尚待转发的请求体字节数
+        */
         long reqBodyLeft;
-        /** 最近一次请求的 keep-alive 意图 */
+        /**
+         * 最近一次请求的 keep-alive 意图
+        */
         boolean lastKeepAlive = true;
-        /** 关闭标志 */
+        /**
+         * 关闭标志
+        */
         boolean closed;
 
         ClientCtx(AsynchronousSocketChannel client) {
@@ -705,13 +753,21 @@ public class AioHttpProxyServer extends AbstractServer {
      */
     static final class HeadParser {
 
-        /** 解析结果 */
+        /**
+         * 解析结果
+        */
         enum Result {
-            /** 需要更多数据 */
+            /**
+             * 需要更多数据
+            */
             NEED_MORE,
-            /** 头就绪(head 可用) */
+            /**
+             * 头就绪(head 可用)
+            */
             DONE,
-            /** 非法报文 */
+            /**
+             * 非法报文
+            */
             ERROR
         }
 
@@ -827,21 +883,37 @@ public class AioHttpProxyServer extends AbstractServer {
      * 请求头信息。
      */
     static final class RequestHead {
-        /** 方法 */
+        /**
+         * 方法
+        */
         final String method;
-        /** 原始目标 */
+        /**
+         * 原始目标
+        */
         final String target;
-        /** 目标主机 */
+        /**
+         * 目标主机
+        */
         final String host;
-        /** 目标端口 */
+        /**
+         * 目标端口
+        */
         final int port;
-        /** 头部行 */
+        /**
+         * 头部行
+        */
         final java.util.List<String> headers;
-        /** 体长度 */
+        /**
+         * 体长度
+        */
         final long contentLength;
-        /** Connection 值 */
+        /**
+         * Connection 值
+        */
         final String connection;
-        /** 是否保持连接 */
+        /**
+         * 是否保持连接
+        */
         final boolean keepAlive;
 
         RequestHead(String method, String target, String host, int port,
@@ -943,11 +1015,17 @@ public class AioHttpProxyServer extends AbstractServer {
      * 响应元数据。
      */
     static final class ResponseMeta {
-        /** 原始头(含结尾空行) */
+        /**
+         * 原始头(含结尾空行)
+        */
         final byte[] rawHeader;
-        /** 体长度,-1 表示未声明 */
+        /**
+         * 体长度,-1 表示未声明
+        */
         final long contentLength;
-        /** 后端是否声明 close */
+        /**
+         * 后端是否声明 close
+        */
         final boolean close;
 
         ResponseMeta(byte[] rawHeader, long contentLength, boolean close) {
@@ -958,7 +1036,9 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止Accepting */
+    /**
+     * Do停止Accepting
+    */
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -969,7 +1049,9 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (group != null) {
             try {
@@ -981,7 +1063,9 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

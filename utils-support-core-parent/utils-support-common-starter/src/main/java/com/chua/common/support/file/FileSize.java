@@ -26,23 +26,39 @@ import java.text.DecimalFormat;
  */
 public class FileSize {
 
-    /** 字节数 */
+    /**
+     * 字节数
+    */
     private final long bytes;
 
-    /** 1024 = 1 KB */
+    /**
+     * 1024 = 1 KB
+    */
     public static final long KB = 1024;
-    /** 1024^2 = 1 MB */
+    /**
+     * 1024^2 = 1 MB
+    */
     public static final long MB = KB * 1024;
-    /** 1024^3 = 1 GB */
+    /**
+     * 1024^3 = 1 GB
+    */
     public static final long GB = MB * 1024;
-    /** 1024^4 = 1 TB */
+    /**
+     * 1024^4 = 1 TB
+    */
     public static final long TB = GB * 1024;
-    /** 1024^5 = 1 PB */
+    /**
+     * 1024^5 = 1 PB
+    */
     public static final long PB = TB * 1024;
 
-    /** 数字格式化器 */
+    /**
+     * 数字格式化器
+    */
     private static final DecimalFormat DF = new DecimalFormat("#.00");
-    /** 文件容量单位数组 */
+    /**
+     * 文件容量单位数组
+    */
     private static final String[] UNITS = {"B", "KB", "MB", "GB", "TB", "PB"};
 
     /**
@@ -230,7 +246,9 @@ public class FileSize {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
@@ -239,13 +257,17 @@ public class FileSize {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         return Long.hashCode(bytes);
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return toHumanReadable();
     }

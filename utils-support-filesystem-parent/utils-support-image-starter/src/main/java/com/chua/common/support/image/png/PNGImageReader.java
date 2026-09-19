@@ -54,7 +54,9 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     }
 
     @Override
-    /** NextElement */
+    /**
+     * NextElement
+    */
     public InputStream nextElement() {
         try {
             firstTime = false;
@@ -66,7 +68,9 @@ class PNGImageDataEnumeration implements Enumeration<InputStream> {
     }
 
     @Override
-    /** 是否拥有MoreElements */
+    /**
+     * 是否拥有MoreElements
+    */
     public boolean hasMoreElements() {
         if (firstTime) {
             return true;
@@ -244,7 +248,9 @@ public class PNGImageReader extends ImageReader {
         return baos.toString(charset);
     }
 
-    /** 读取Header */
+    /**
+     * 读取Header
+    */
     private void readHeader() throws IIOException {
         if (gotHeader) {
             return;
@@ -343,7 +349,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** 解析acTchunk */
+    /**
+     * 解析acTchunk
+    */
     private void parse_acTL_chunk() throws IOException {
         if (metadata.acTL_present) {
             processWarningOccurred(
@@ -359,7 +367,9 @@ public class PNGImageReader extends ImageReader {
         metadata.acTL_present = true;
     }
 
-    /** 解析fcTchunk */
+    /**
+     * 解析fcTchunk
+    */
     private void parse_fcTL_chunk() throws IOException {
         if (!frameMetadata.containsKey(nextImageIndex)) {
             PNGMetadata metadata = new PNGMetadata();
@@ -444,7 +454,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** 解析bKGchunk */
+    /**
+     * 解析bKGchunk
+    */
     private void parse_bKGD_chunk() throws IOException {
         if (metadata.IHDR_colorType == PNG_COLOR_PALETTE) {
             metadata.bKGD_colorType = PNG_COLOR_PALETTE;
@@ -464,7 +476,9 @@ public class PNGImageReader extends ImageReader {
         metadata.bKGD_present = true;
     }
 
-    /** 解析cHRchunk */
+    /**
+     * 解析cHRchunk
+    */
     private void parse_cHRM_chunk() throws IOException {
         metadata.cHRM_whitePointX = stream.readInt();
         metadata.cHRM_whitePointY = stream.readInt();
@@ -478,7 +492,9 @@ public class PNGImageReader extends ImageReader {
         metadata.cHRM_present = true;
     }
 
-    /** 解析gAMchunk */
+    /**
+     * 解析gAMchunk
+    */
     private void parse_gAMA_chunk() throws IOException {
         int gamma = stream.readInt();
         metadata.gAMA_gamma = gamma;
@@ -584,7 +600,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** 解析pHYschunk */
+    /**
+     * 解析pHYschunk
+    */
     private void parse_pHYs_chunk() throws IOException {
         metadata.pHYs_pixelsPerUnitXAxis = stream.readInt();
         metadata.pHYs_pixelsPerUnitYAxis = stream.readInt();
@@ -593,7 +611,9 @@ public class PNGImageReader extends ImageReader {
         metadata.pHYs_present = true;
     }
 
-    /** 解析sBIchunk */
+    /**
+     * 解析sBIchunk
+    */
     private void parse_sBIT_chunk() throws IOException {
         int colorType = metadata.IHDR_colorType;
         if (colorType == PNG_COLOR_GRAY ||
@@ -662,14 +682,18 @@ public class PNGImageReader extends ImageReader {
         metadata.sPLT_present = true;
     }
 
-    /** 解析sRGchunk */
+    /**
+     * 解析sRGchunk
+    */
     private void parse_sRGB_chunk() throws IOException {
         metadata.sRGB_renderingIntent = stream.readUnsignedByte();
 
         metadata.sRGB_present = true;
     }
 
-    /** 解析cICchunk */
+    /**
+     * 解析cICchunk
+    */
     private void parse_cICP_chunk() throws IOException {
         metadata.cICP_colourPrimaries = stream.readUnsignedByte();
         metadata.cICP_transferFunction = stream.readUnsignedByte();
@@ -704,7 +728,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** 解析tIMchunk */
+    /**
+     * 解析tIMchunk
+    */
     private void parse_tIME_chunk() throws IOException {
         metadata.tIME_year = stream.readUnsignedShort();
         metadata.tIME_month = stream.readUnsignedByte();
@@ -826,7 +852,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** 读取Metadata */
+    /**
+     * 读取Metadata
+    */
     private void readMetadata() throws IIOException {
         if (gotMetadata) {
             return;
@@ -1182,7 +1210,9 @@ public class PNGImageReader extends ImageReader {
         }
     }
 
-    /** Bandoffsets */
+    /**
+     * Bandoffsets
+    */
     private static final int[][] bandOffsets = {
         null,
         // 灰度（G）
@@ -2070,7 +2100,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
-    /** 获取Default读取Param */
+    /**
+     * 获取Default读取Param
+    */
     public ImageReadParam getDefaultReadParam() {
         
         return new PNGImageReadParam();
@@ -2078,7 +2110,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
-    /** 获取流式输出Metadata */
+    /**
+     * 获取流式输出Metadata
+    */
     public IIOMetadata getStreamMetadata()
         throws IIOException {
         return null;
@@ -2128,13 +2162,17 @@ public class PNGImageReader extends ImageReader {
     }
 
     @Override
-    /** Reset */
+    /**
+     * Reset
+    */
     public void reset() {
         super.reset();
         resetStreamSettings();
     }
 
-    /** Reset流式输出Settings */
+    /**
+     * Reset流式输出Settings
+    */
     private void resetStreamSettings() {
         gotHeader = false;
         gotMetadata = false;

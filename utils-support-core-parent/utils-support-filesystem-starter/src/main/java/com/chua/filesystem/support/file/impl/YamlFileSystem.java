@@ -33,7 +33,9 @@ import java.io.File;
 public class YamlFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         
         return "yaml";
@@ -41,7 +43,9 @@ public class YamlFileSystem implements FileSystem {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         
         return new YamlReadBuilder(file);
@@ -49,7 +53,9 @@ public class YamlFileSystem implements FileSystem {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         
         return new YamlWriteBuilder(file);

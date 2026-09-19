@@ -52,9 +52,13 @@ public class ClusterNode implements AutoCloseable {
     private int httpPort; // http端口
     private int tcpPort; // tcp端口
     private int scatterPort; // scatter端口
-    /** 本节点实际注册的服务路径列表 */
+    /**
+     * 本节点实际注册的服务路径列表
+    */
     private List<String> registeredPaths = List.of();
-    /** 本节点注册的 http/tcp 服务端标识，用于注销 */
+    /**
+     * 本节点注册的 http/tcp 服务端标识，用于注销
+    */
     private final List<String> selfServerIds = new ArrayList<>();
 
     /**
@@ -154,7 +158,9 @@ public class ClusterNode implements AutoCloseable {
         return paths;
     }
 
-    /** 将本节点自身注册进集群（按 http已启用/tcp已启用 + 服务路径）。 */
+    /**
+     * 将本节点自身注册进集群（按 http已启用/tcp已启用 + 服务路径）。
+    */
     private void registerSelf() {
         List<String> paths = resolveServicePaths();
         for (String path : paths) {
@@ -176,7 +182,9 @@ public class ClusterNode implements AutoCloseable {
         log.info("ClusterNode 自身已注册: paths={}, serverIds={}", paths, selfServerIds);
     }
 
-    /** 将显式 添加服务端 声明的远端目标注册进集群，供 scatter 扩散。 */
+    /**
+     * 将显式 添加服务端 声明的远端目标注册进集群，供 scatter 扩散。
+    */
     private void registerExternalServers() {
  // cluster服务端 构建器 会在启动前把 entry 传给 clustersetting
         List<ServerEntry> entries = clusterSetting.getServerEntries();

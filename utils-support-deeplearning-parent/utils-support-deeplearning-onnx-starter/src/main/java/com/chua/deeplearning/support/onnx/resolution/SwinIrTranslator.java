@@ -35,14 +35,22 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class SwinIrTranslator implements Translator<Image, Image> {
 
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     private int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     private int height;
 
     /**
@@ -51,7 +59,9 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     private static final int INPUT_SIZE = 128;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -86,7 +96,9 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
@@ -147,7 +159,9 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

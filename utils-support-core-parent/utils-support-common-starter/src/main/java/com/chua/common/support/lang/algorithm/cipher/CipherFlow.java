@@ -27,12 +27,18 @@ package com.chua.common.support.lang.algorithm.cipher;
  */
 public final class CipherFlow {
 
-    /** 默认提供者（BouncyCastle） */
+    /**
+     * 默认提供者（BouncyCastle）
+    */
     private static final String DEFAULT_PROVIDER = "bc";
 
-    /** 算法名 */
+    /**
+     * 算法名
+    */
     private String algorithm;
-    /** 提供者名称，默认 "bc" */
+    /**
+     * 提供者名称，默认 "bc"
+    */
     private String provider = DEFAULT_PROVIDER;
 
     /**

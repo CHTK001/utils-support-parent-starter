@@ -72,14 +72,18 @@ public class HprofToHtmlFileConvertSystem implements FileConvertSystem {
     }
 
     @Override
-    /** Whether supported */
+    /**
+     * Whether supported
+    */
     public boolean isSupported(String sourceType, String targetType) {
         return SOURCE_TYPE.equalsIgnoreCase(sourceType)
                 && TARGET_TYPE.equalsIgnoreCase(targetType);
     }
 
     @Override
-    /** Convert */
+    /**
+     * Convert
+    */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
             HprofParser.Result result = HprofParser.parse(toInputStream(source), source.getPath());

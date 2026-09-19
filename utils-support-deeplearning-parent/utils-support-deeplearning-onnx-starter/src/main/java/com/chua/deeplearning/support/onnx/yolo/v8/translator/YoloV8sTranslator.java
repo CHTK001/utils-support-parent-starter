@@ -24,7 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
-    /** 类别名称列表 */
+    /**
+     * 类别名称列表
+    */
     public static final List<String> CLASSES = List.of(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
             "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -40,26 +42,44 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             "toothbrush"
     );
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 640;
-    /** 默认阈值 */
+    /**
+     * 默认阈值
+    */
     private static final float DEFAULT_THRESHOLD = 0.25f;
-    /** 默认 NMS 阈值 */
+    /**
+     * 默认 NMS 阈值
+    */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private final float threshold;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private final float nmsThreshold;
-    /** 类别名称列表 */
+    /**
+     * 类别名称列表
+    */
     private final List<String> classes;
 
-    /** 图像宽度 */
+    /**
+     * 图像宽度
+    */
     private int imageWidth;
-    /** 图像高度 */
+    /**
+     * 图像高度
+    */
     private int imageHeight;
 
-    /** 创建 yolov8stranslator 实例 */
+    /**
+     * 创建 yolov8stranslator 实例
+    */
     public YoloV8sTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, CLASSES);
     }
@@ -98,7 +118,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -111,7 +133,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.getFirst();
 
@@ -220,7 +244,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

@@ -33,7 +33,9 @@ public class HBaseEngineIntegrationTest {
     private static final String TABLE = "hbase_itest";
     private static final String FAMILY = HBaseEngine.DEFAULT_FAMILY;
 
-    /** 真实 HBase standalone 容器（ZK 2181 + master/regionserver RPC 16000/16020） */
+    /**
+     * 真实 HBase standalone 容器（ZK 2181 + master/regionserver RPC 16000/16020）
+    */
     static final GenericContainer<?> HBASE = new GenericContainer<>(DockerImageName.parse("harisekhon/hbase:2.1"))
             .withExposedPorts(2181, 16000, 16010, 16020, 16030)
             .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));

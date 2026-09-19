@@ -24,41 +24,55 @@ import javax.annotation.Nullable;
  */
 public class DefaultImaging implements Imaging{
 
-    /** 缓冲图片 */
+    /**
+     * 缓冲图片
+    */
     private BufferedImage bufferedImage;
-    /** 类型 */
+    /**
+     * 类型
+    */
     private String type;
 
     @Override
-    /** 镜像 */
+    /**
+     * 镜像
+    */
     public Imaging image(BufferedImage image) {
         this.bufferedImage = image;
         return this;
     }
 
     @Override
-    /** 镜像 */
+    /**
+     * 镜像
+    */
     public Imaging image(byte[] image) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(image);
         return this;
     }
 
     @Override
-    /** 镜像 */
+    /**
+     * 镜像
+    */
     public Imaging image(File file) {
         this.bufferedImage = BufferedImageUtils.toBufferedImage(file);
         return this;
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public Imaging type(String type) {
         this.type = type;
         return this;
     }
 
     @Override
-    /** 输出quality */
+    /**
+     * 输出quality
+    */
     public Imaging outputQuality(float outputQuality) {
         ImageWriter imageWriter = ImageIO.getImageWritersByFormatName(type).next();
         ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
@@ -80,7 +94,9 @@ public class DefaultImaging implements Imaging{
 
 
     @Override
-    /** media类型 */
+    /**
+     * media类型
+    */
     public MediaType mediaType() {
         
         return MediaTypeFactory.getMediaTypeNullable(type);
@@ -89,7 +105,9 @@ public class DefaultImaging implements Imaging{
 
 
     @Override
-    /** 获取缓冲镜像 */
+    /**
+     * 获取缓冲镜像
+    */
     public BufferedImage getBufferedImage() {
         
         return this.bufferedImage;

@@ -18,18 +18,26 @@ import java.util.Map;
  */
 @Slf4j
 public abstract class AbstractWriter implements FileSystem {
-    /** 表头列表 */
+    /**
+     * 表头列表
+    */
     protected List<String> headers;
-    /** 写入选项 */
+    /**
+     * 写入选项
+    */
     protected WriteOption writeOption;
-    /** 是否已初始化 */
+    /**
+     * 是否已初始化
+    */
     protected boolean initialized;
     /**
      * 文件路径
      */
     protected File file;
 
-    /** 创建 AbstractWriter 实例 */
+    /**
+     * 创建 AbstractWriter 实例
+    */
     protected AbstractWriter() {
         this.headers = new ArrayList<>();
         this.writeOption = WriteOption.maps();
@@ -70,19 +78,25 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "unknown";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         throw new UnsupportedOperationException();
     }
@@ -159,7 +173,9 @@ public abstract class AbstractWriter implements FileSystem {
         }
     }
 
-    /** EnsureInitialized */
+    /**
+     * EnsureInitialized
+    */
     protected void ensureInitialized() throws IOException {
         if (initialized) {
             return;
@@ -171,7 +187,9 @@ public abstract class AbstractWriter implements FileSystem {
         initialized = true;
     }
 
-    /** Do初始化 */
+    /**
+     * Do初始化
+    */
     protected abstract void doInitialize() throws IOException;
     /**
      * Do写入Line
@@ -193,12 +211,18 @@ public abstract class AbstractWriter implements FileSystem {
      * @param data 数据，不允许为 null
      */
     protected abstract void doWrite(Map<String, Object> data) throws IOException;
-    /** Do刷新 */
+    /**
+     * Do刷新
+    */
     protected abstract void doFlush() throws IOException;
-    /** DoFinish */
+    /**
+     * DoFinish
+    */
     protected abstract void doFinish() throws IOException;
 
-    /** Finish */
+    /**
+     * Finish
+    */
     public void finish() {
         try {
             doFinish();
@@ -212,7 +236,9 @@ public abstract class AbstractWriter implements FileSystem {
         }
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws IOException {
         try {
             if (initialized) {

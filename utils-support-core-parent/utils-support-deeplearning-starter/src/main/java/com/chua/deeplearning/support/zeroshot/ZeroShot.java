@@ -59,14 +59,22 @@ import java.util.Map;
  */
 public final class ZeroShot {
 
-    /** 默认零样本分类模型 */
+    /**
+     * 默认零样本分类模型
+    */
     private static final String DEFAULT_CLASSIFIER = "siglip-zero-shot-classification";
-    /** 默认零样本检测模型 */
+    /**
+     * 默认零样本检测模型
+    */
     private static final String DEFAULT_DETECTOR = "yolov8s-world";
-    /** 默认零样本分割模型 */
+    /**
+     * 默认零样本分割模型
+    */
     private static final String DEFAULT_SEGMENTER = "clipseg-zero-shot";
 
-    /** 私有构造 */
+    /**
+     * 私有构造
+    */
     private ZeroShot() {
     }
 

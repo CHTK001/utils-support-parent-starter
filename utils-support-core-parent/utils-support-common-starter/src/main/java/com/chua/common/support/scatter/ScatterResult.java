@@ -12,13 +12,21 @@ import lombok.Data;
 @Data
 public class ScatterResult<T> {
 
-    /** 是否成功 */
+    /**
+     * 是否成功
+    */
     private final boolean success;
-    /** 来源节点标识 */
+    /**
+     * 来源节点标识
+    */
     private final String fromNodeId;
-    /** 载荷 */
+    /**
+     * 载荷
+    */
     private final T data;
-    /** 错误信息 */
+    /**
+     * 错误信息
+    */
     private final String error;
 
     /**

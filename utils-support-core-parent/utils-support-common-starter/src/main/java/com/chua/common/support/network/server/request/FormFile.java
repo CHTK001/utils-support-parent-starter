@@ -9,16 +9,24 @@ package com.chua.common.support.network.server.request;
  */
 public class FormFile {
 
-    /** 表单字段名 */
+    /**
+     * 表单字段名
+    */
     private final String fieldName;
 
-    /** 原始文件名 */
+    /**
+     * 原始文件名
+    */
     private final String fileName;
 
-    /** 文件内容类型 */
+    /**
+     * 文件内容类型
+    */
     private final String contentType;
 
-    /** 文件字节数据 */
+    /**
+     * 文件字节数据
+    */
     private final byte[] data;
 
     /**
@@ -38,14 +46,24 @@ public class FormFile {
         this.data = data;
     }
 
-    /** 获取FieldName */
+    /**
+     * 获取FieldName
+    */
     public String getFieldName() { return fieldName; }
-    /** 获取FileName */
+    /**
+     * 获取FileName
+    */
     public String getFileName() { return fileName; }
-    /** 获取ContentType */
+    /**
+     * 获取ContentType
+    */
     public String getContentType() { return contentType; }
-    /** 获取Data */
+    /**
+     * 获取Data
+    */
     public byte[] getData() { return data; }
-    /** 获取获取大小 */
+    /**
+     * 获取获取大小
+    */
     public long getSize() { return data != null ? data.length : 0; }
 }

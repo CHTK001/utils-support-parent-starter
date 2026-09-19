@@ -45,7 +45,9 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<ForeignKeyDef> list() {
         List<ForeignKeyDef> result = new ArrayList<>();
         if (tableName == null) {
@@ -75,7 +77,9 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public ForeignKeyDef get(String fkName) {
         List<ForeignKeyDef> all = list();
         return all.stream()
@@ -85,13 +89,17 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public ForeignKeyCreateBuilder add(String fkName) {
         return new MysqlForeignKeyCreateBuilder(this, fkName);
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop(String fkName) {
         return executeUpdate("ALTER TABLE " + quote(tableName) + " DROP FOREIGN KEY " + quote(fkName));
     }
@@ -159,19 +167,33 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
 
     private static class MysqlForeignKeyCreateBuilder implements ForeignKeyCreateBuilder {
 
-        /** metafk */
+        /**
+         * metafk
+        */
         private final MysqlMetaForeignKey metaFk;
-        /** FK名称 */
+        /**
+         * FK名称
+        */
         private final String fkName;
-        /** 列名称 */
+        /**
+         * 列名称
+        */
         private String columnName;
-        /** 引用表 */
+        /**
+         * 引用表
+        */
         private String refTable;
-        /** 引用列 */
+        /**
+         * 引用列
+        */
         private String refColumn;
-        /** ondelete */
+        /**
+         * ondelete
+        */
         private String onDelete;
-        /** onupdate */
+        /**
+         * onupdate
+        */
         private String onUpdate;
 
         MysqlForeignKeyCreateBuilder(MysqlMetaForeignKey metaFk, String fkName) {
@@ -180,14 +202,18 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         }
 
         @Override
-        /** Column */
+        /**
+         * Column
+        */
         public ForeignKeyCreateBuilder column(String columnName) {
             this.columnName = columnName;
             return this;
         }
 
         @Override
-        /** 引用 */
+        /**
+         * 引用
+        */
         public ForeignKeyCreateBuilder references(String table, String column) {
             this.refTable = table;
             this.refColumn = column;
@@ -195,21 +221,27 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
         }
 
         @Override
-        /** On删除 */
+        /**
+         * On删除
+        */
         public ForeignKeyCreateBuilder onDelete(String action) {
             this.onDelete = action;
             return this;
         }
 
         @Override
-        /** On更新 */
+        /**
+         * On更新
+        */
         public ForeignKeyCreateBuilder onUpdate(String action) {
             this.onUpdate = action;
             return this;
         }
 
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public ForeignKeyDef execute() {
             if (metaFk.tableName == null) {
                 throw new IllegalStateException("未指定表名，请先调用 onTable()");

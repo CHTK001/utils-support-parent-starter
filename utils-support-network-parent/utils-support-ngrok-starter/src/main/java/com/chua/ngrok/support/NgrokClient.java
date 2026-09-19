@@ -414,7 +414,9 @@ public class NgrokClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         for (Forwarder forwarder : forwarders) {
             try {
@@ -442,7 +444,9 @@ public class NgrokClient implements AutoCloseable {
         }
     }
 
-    /** ensure会话 */
+    /**
+     * ensure会话
+    */
     private void ensureSession() {
         if (session == null) {
             connect();

@@ -21,7 +21,9 @@ public final class VideoProviderRegistry {
     private static final ConcurrentHashMap<String, BlockReason> BLOCKED_PROVIDERS = new ConcurrentHashMap<>(); // blocked提供者
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 视频提供者registry。 */
+    /**
+     * 视频提供者registry。
+    */
     private VideoProviderRegistry() {}
 
     /**
@@ -107,7 +109,9 @@ public final class VideoProviderRegistry {
         public void setNote(String note) { this.note = note; }
     }
 
-    /** 初始化已封禁列表（从资源文件） */
+    /**
+     * 初始化已封禁列表（从资源文件）
+    */
     public static void initBlockedResources() {
         try {
             InputStream is = VideoProviderRegistry.class.getClassLoader()
@@ -194,7 +198,9 @@ public final class VideoProviderRegistry {
         BLOCKED_PROVIDERS.remove(name);
     }
 
-    /** 清除所有封禁记录 */
+    /**
+     * 清除所有封禁记录
+    */
     public static void clear() {
         BLOCKED_PROVIDERS.clear();
     }

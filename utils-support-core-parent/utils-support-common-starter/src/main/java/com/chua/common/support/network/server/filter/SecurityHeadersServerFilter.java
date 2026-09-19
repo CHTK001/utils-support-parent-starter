@@ -60,7 +60,9 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
      */
     private static final String VALUE_HSTS = "max-age=31536000; includeSubDomains";
 
-    /** 是否附加 HSTS 头(TLS 部署时开启) */
+    /**
+     * 是否附加 HSTS 头(TLS 部署时开启)
+    */
     private final boolean hstsEnabled;
 
     /**
@@ -80,7 +82,9 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     }
 
     @Override
-    /** 获取Order:早于业务链执行,保证所有响应携带安全头 */
+    /**
+     * 获取Order:早于业务链执行,保证所有响应携带安全头
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 30;
     }
@@ -94,7 +98,9 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

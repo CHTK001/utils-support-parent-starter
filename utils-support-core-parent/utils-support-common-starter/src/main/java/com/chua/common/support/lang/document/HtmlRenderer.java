@@ -19,19 +19,25 @@ import java.nio.charset.StandardCharsets;
 public class HtmlRenderer implements DocumentProvider {
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "html";
     }
 
     @Override
-    /** 获取Extensions */
+    /**
+     * 获取Extensions
+    */
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
     @Override
-    /** Export */
+    /**
+     * Export
+    */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         DocumentExportConfig resolved = config == null
                 ? DocumentExportConfig.builder().format("html").templateType(DocumentTemplateType.DEFAULT).build()

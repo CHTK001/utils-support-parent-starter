@@ -41,13 +41,17 @@ public class ArchiveEntryAdapter implements ArchiveEntry {
     }
 
     @Override
-    /** 是否目录 */
+    /**
+     * 是否目录
+    */
     public boolean isDirectory() {
         return delegate.isDirectory();
     }
 
     @Override
-    /** 获取获取大小 */
+    /**
+     * 获取获取大小
+    */
     public long getSize() {
         return delegate.getSize();
     }

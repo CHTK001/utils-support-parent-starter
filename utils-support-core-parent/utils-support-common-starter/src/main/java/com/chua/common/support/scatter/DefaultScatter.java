@@ -15,9 +15,13 @@ public class DefaultScatter implements Scatter {
 
     private final ScatterBuilder<?> builder;
     private final ScatterSetting setting;
-    /** discovery */
+    /**
+     * discovery
+    */
     private AbstractScatterDiscovery discovery;
-    /** 节点服务端 */
+    /**
+     * 节点服务端
+    */
     private ScatterNodeServer nodeServer;
 
     /**

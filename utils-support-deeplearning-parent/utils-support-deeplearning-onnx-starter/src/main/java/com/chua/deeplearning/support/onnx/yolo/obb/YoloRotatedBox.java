@@ -175,9 +175,13 @@ public class YoloRotatedBox {
      */
     @Data
     public static class Point2D {
-        /** X 坐标 */
+        /**
+         * X 坐标
+        */
         private float x;
-        /** Y 坐标 */
+        /**
+         * Y 坐标
+        */
         private float y;
 
         /**

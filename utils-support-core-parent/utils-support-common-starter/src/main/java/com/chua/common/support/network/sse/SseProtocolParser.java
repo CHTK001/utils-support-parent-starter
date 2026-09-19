@@ -42,33 +42,55 @@ import java.util.function.Consumer;
  */
 public class SseProtocolParser {
 
-    /** {@code data} 字段名 */
+    /**
+     * {@code data} 字段名
+    */
     private static final String FIELD_DATA = "data";
-    /** {@code event} 字段名 */
+    /**
+     * {@code event} 字段名
+    */
     private static final String FIELD_EVENT = "event";
-    /** {@code id} 字段名 */
+    /**
+     * {@code id} 字段名
+    */
     private static final String FIELD_ID = "id";
-    /** {@code retry} 字段名 */
+    /**
+     * {@code retry} 字段名
+    */
     private static final String FIELD_RETRY = "retry";
 
     // ==================== 当前事件缓冲区 ====================
 
-    /** 数据缓冲区 */
+    /**
+     * 数据缓冲区
+    */
     private StringBuilder dataBuffer;
-    /** 事件类型 */
+    /**
+     * 事件类型
+    */
     private String eventType;
-    /** 事件ID */
+    /**
+     * 事件ID
+    */
     private String eventId;
-    /** 重试MS */
+    /**
+     * 重试MS
+    */
     private Long retryMs;
-    /** HAS数据 */
+    /**
+     * HAS数据
+    */
     private boolean hasData;
 
     // ==================== 回调 ====================
 
-    /** 事件处理器 */
+    /**
+     * 事件处理器
+    */
     private final Consumer<SseEvent> eventHandler;
-    /** Comment处理器 */
+    /**
+     * Comment处理器
+    */
     private final Consumer<String> commentHandler;
 
     /**

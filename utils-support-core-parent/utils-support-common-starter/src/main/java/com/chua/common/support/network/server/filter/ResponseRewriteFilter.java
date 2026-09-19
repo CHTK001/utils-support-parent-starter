@@ -112,7 +112,9 @@ public class ResponseRewriteFilter implements ServerFilter {
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
@@ -192,39 +194,53 @@ public class ResponseRewriteFilter implements ServerFilter {
          */
         private boolean endImmediately;
 
-        /** 创建 RewriteRule 实例 */
+        /**
+         * 创建 RewriteRule 实例
+        */
         private RewriteRule() {}
 
-        /** Builder */
+        /**
+         * Builder
+        */
         public static RewriteRule builder() {
             return new RewriteRule();
         }
 
-        /** Condition */
+        /**
+         * Condition
+        */
         public RewriteRule condition(Predicate<ServerRequest> condition) {
             this.condition = condition;
             return this;
         }
 
-        /** StatusRewrite */
+        /**
+         * StatusRewrite
+        */
         public RewriteRule statusRewrite(java.util.function.IntUnaryOperator statusRewrite) {
             this.statusRewrite = statusRewrite;
             return this;
         }
 
-        /** BodyRewrite */
+        /**
+         * BodyRewrite
+        */
         public RewriteRule bodyRewrite(java.util.function.BiFunction<ServerRequest, String, String> bodyRewrite) {
             this.bodyRewrite = bodyRewrite;
             return this;
         }
 
-        /** BodyRewriteBytes */
+        /**
+         * BodyRewriteBytes
+        */
         public RewriteRule bodyRewriteBytes(java.util.function.BiFunction<ServerRequest, byte[], byte[]> bodyRewrite) {
             this.bodyRewriteBytes = bodyRewrite;
             return this;
         }
 
-        /** EndImmediately */
+        /**
+         * EndImmediately
+        */
         public RewriteRule endImmediately(boolean endImmediately) {
             this.endImmediately = endImmediately;
             return this;

@@ -23,7 +23,9 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
      */
     private static final Set<String> SUPPORTED_EXTS = Set.of("odt", "ods", "odp");
 
-    /** Base64 内嵌 打开文档 预览允许的最大字节数（约 20 MB） */
+    /**
+     * Base64 内嵌 打开文档 预览允许的最大字节数（约 20 MB）
+    */
     private static final long MAX_OD_PREVIEW_BYTES = 20L * 1024 * 1024;
 
     /**
@@ -37,7 +39,9 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
-    /** Preview */
+    /**
+     * Preview
+    */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         if (content.length > MAX_OD_PREVIEW_BYTES) {
             return PreviewResult.builder()

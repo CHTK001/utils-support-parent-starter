@@ -70,7 +70,9 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     }
 
     @Override
-    /** NewInstance */
+    /**
+     * NewInstance
+    */
     protected LambdaDeleteWrapper<T> newInstance() {
         return new LambdaDeleteWrapper<>(entityClass);
     }

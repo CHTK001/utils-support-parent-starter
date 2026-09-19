@@ -29,37 +29,59 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class MysqlCdcListener {
 
-    /** Binlog 客户端 */
+    /**
+     * Binlog 客户端
+    */
     private volatile BinaryLogClient client;
 
-    /** MySQL 主机 */
+    /**
+     * MySQL 主机
+    */
     private final String host;
 
-    /** MySQL 端口 */
+    /**
+     * MySQL 端口
+    */
     private final int port;
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
 
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
 
-    /** 服务器 标识（集群唯一） */
+    /**
+     * 服务器 标识（集群唯一）
+    */
     private final int serverId;
 
-    /** 监听的表 标识（空 = 全部） */
+    /**
+     * 监听的表 标识（空 = 全部）
+    */
     private final Long tableIdFilter;
 
-    /** 管线 标识 */
+    /**
+     * 管线 标识
+    */
     private final String pipelineId;
 
-    /** 管线引擎 */
+    /**
+     * 管线引擎
+    */
     private final PipelineEngine pipelineEngine;
 
-    /** 事件计数器 */
+    /**
+     * 事件计数器
+    */
     private final AtomicLong eventCount = new AtomicLong(0);
 
-    /** 运行状态 */
+    /**
+     * 运行状态
+    */
     private volatile boolean running = false;
 
     /**

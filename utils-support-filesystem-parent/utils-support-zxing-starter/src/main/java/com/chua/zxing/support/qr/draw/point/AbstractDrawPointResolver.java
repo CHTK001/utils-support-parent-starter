@@ -48,7 +48,9 @@ public abstract class AbstractDrawPointResolver implements DrawPointResolver{
     }
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y) {
         if (!qrCodeConfig.getDrawOptions().isEnableScale()) {
             // 用几何图形进行填充时，如果不支持多个像素点渲染一个几何图形时，直接返回即可

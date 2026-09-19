@@ -148,13 +148,17 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
-    /** 比较转为 */
+    /**
+     * 比较转为
+    */
     public int compareTo(KademliaNodeId o) {
         return this.getInt().compareTo(o.getInt());
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -167,13 +171,17 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     }
 
     @Override
-    /** 哈希编码 */
+    /**
+     * 哈希编码
+    */
     public int hashCode() {
         return Arrays.hashCode(id);
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         StringBuilder sb = new StringBuilder(40);
         for (byte b : id) {

@@ -25,21 +25,37 @@ import java.util.Map;
 @Slf4j
 public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional {
 
-    /** 数据源标识 */
+    /**
+     * 数据源标识
+    */
     private final String sourceId;
-    /** 输入标识 */
+    /**
+     * 输入标识
+    */
     private final String inputId;
-    /** JDBC 连接地址 */
+    /**
+     * JDBC 连接地址
+    */
     private final String jdbcUrl;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** SQL 语句 */
+    /**
+     * SQL 语句
+    */
     private final String sql;
-    /** 列名数组 */
+    /**
+     * 列名数组
+    */
     private final String[] columnNames;
-    /** 数据源 */
+    /**
+     * 数据源
+    */
     private final HikariDataSource dataSource;
 
     /**
@@ -91,19 +107,25 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
-    /** 源id */
+    /**
+     * 源id
+    */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** 输入id */
+    /**
+     * 输入id
+    */
     public String inputId() {
         return inputId;
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         Object offsetObj = null;
         if (params != null) {
@@ -146,7 +168,9 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -155,7 +179,9 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.INPUT;
     }

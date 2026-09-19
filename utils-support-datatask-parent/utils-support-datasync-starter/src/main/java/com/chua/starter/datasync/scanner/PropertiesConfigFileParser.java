@@ -16,14 +16,18 @@ import java.util.*;
 public class PropertiesConfigFileParser implements ConfigFileParser {
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".properties");
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         Properties props = new Properties();
         try (InputStream is = Files.newInputStream(file)) {

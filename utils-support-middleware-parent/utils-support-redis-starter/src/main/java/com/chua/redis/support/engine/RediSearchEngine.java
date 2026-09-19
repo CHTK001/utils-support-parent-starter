@@ -38,21 +38,27 @@ import java.util.*;
 public class RediSearchEngine extends RedisEngine implements Engine {
 
     @Override
-    /** 添加数据源 */
+    /**
+     * 添加数据源
+    */
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         super.doAddDataSource(name, dataSource);
         return this;
     }
 
     @Override
-    /** 设置默认数据源名称 */
+    /**
+     * 设置默认数据源名称
+    */
     public Engine setDefaultDataSourceName(String name) {
         super.doSetDefaultDataSourceName(name);
         return this;
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public <T> Engine store(String name, List<T> data) {
         String keyPrefix = name != null ? name.toLowerCase() : "default";
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
@@ -92,13 +98,17 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor() {
         return null;
     }
@@ -141,33 +151,45 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /** 获取数据源 */
+    /**
+     * 获取数据源
+    */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return super.getDataSource(name);
     }
 
     @Override
-    /** 获取数据源 */
+    /**
+     * 获取数据源
+    */
     public <T> EngineDataSource<T> getDataSource() {
         return super.getDataSource();
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaQueryWrapper<T> newInstance() {
                 LambdaQueryWrapper<T> sub = new LambdaQueryWrapper<T>(entityClass) {
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
@@ -176,20 +198,26 @@ public class RediSearchEngine extends RedisEngine implements Engine {
             }
 
             @Override
-            /** 列表 */
+            /**
+             * 列表
+            */
             public List<T> list() {
                 return executeQuery(this, entityClass);
             }
 
             @Override
-            /** One */
+            /**
+             * One
+            */
             public T one() {
                 List<T> r = executeQuery(this, entityClass);
                 return r.isEmpty() ? null : r.getFirst();
             }
 
             @Override
-            /** Page */
+            /**
+             * Page
+            */
             public Page<T> page(int pageNum, int pageSize) {
                 return executePage(this, entityClass, pageNum, pageSize);
             }
@@ -197,21 +225,29 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
@@ -219,7 +255,9 @@ public class RediSearchEngine extends RedisEngine implements Engine {
             }
 
             @Override
-            /** 更新 */
+            /**
+             * 更新
+            */
             public int update() {
                 return executeUpdate(this);
             }
@@ -227,21 +265,29 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return LambdaUtils.resolveObject(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return LambdaUtils.resolveObject(column);
                     }
@@ -249,7 +295,9 @@ public class RediSearchEngine extends RedisEngine implements Engine {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public int remove() {
                 return executeDelete(this);
             }
@@ -272,21 +320,37 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     public static final class GroupByQueryWrapper<T> {
 
-        /** 引擎 */
+        /**
+         * 引擎
+        */
         private final RediSearchEngine engine;
-        /** Entityclass */
+        /**
+         * Entityclass
+        */
         private final Class<T> entityClass;
-        /** 分组bycols */
+        /**
+         * 分组bycols
+        */
         private final List<String> groupByCols = new ArrayList<>();
-        /** Where */
+        /**
+         * Where
+        */
         private final List<String> where = new ArrayList<>();
-        /** 排序col */
+        /**
+         * 排序col
+        */
         private String sortCol;
-        /** 排序asc */
+        /**
+         * 排序asc
+        */
         private boolean sortAsc = true;
-        /** 偏移 */
+        /**
+         * 偏移
+        */
         private int offset = 0;
-        /** 限制 */
+        /**
+         * 限制
+        */
         private int limit = 1000;
 
         GroupByQueryWrapper(RediSearchEngine engine, Class<T> entityClass, String... groupByCols) {
@@ -503,31 +567,41 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         super.close();
     }
 
     @Override
-    /** 获取默认数据源名称 */
+    /**
+     * 获取默认数据源名称
+    */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
-    /** Meta */
+    /**
+     * Meta
+    */
     public MetaData meta() {
         return new RedisSearchMetaData(this);
     }
 
     @Override
-    /** 支持元数据操作（meta() 返回真实实现） */
+    /**
+     * 支持元数据操作（meta() 返回真实实现）
+    */
     public boolean supportsMeta() {
         return true;
     }
@@ -727,7 +801,9 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         throw new UnsupportedOperationException("RediSearch 引擎不支持条件删除");
     }
 
-    /** Ft_搜索 */
+    /**
+     * Ft_搜索
+    */
     private static final ProtocolCommand FT_SEARCH = () -> SafeEncoder.encode("FT.SEARCH");
 
     /**
@@ -776,7 +852,9 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         return result;
     }
 
-    /** Ft_aggregate */
+    /**
+     * Ft_aggregate
+    */
     private static final ProtocolCommand FT_AGGREGATE = () -> SafeEncoder.encode("FT.AGGREGATE");
 
     /**

@@ -93,10 +93,14 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
      */
     private double sigma = 2;
 
-    /** 线程池执行器 */
+    /**
+     * 线程池执行器
+    */
     ExecutorService mExecutor;
 
-    /** 完成服务，管理并发任务 */
+    /**
+     * 完成服务，管理并发任务
+    */
     CompletionService<Void> service;
 
     /**

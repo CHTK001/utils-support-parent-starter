@@ -23,15 +23,21 @@ import java.util.List;
  */
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 
-    /** 标签列表 */
+    /**
+     * 标签列表
+    */
     private static final List<String> LABELS = List.of(
             "angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"
     );
 
-    /** 图像尺寸 */
+    /**
+     * 图像尺寸
+    */
     private final int imageSize;
 
-    /** 创建 densenetexpressiontranslator 实例 */
+    /**
+     * 创建 densenetexpressiontranslator 实例
+    */
     public DenseNetExpressionTranslator() {
         this(224);
     }
@@ -45,7 +51,9 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Shape shape = array.getShape();
@@ -63,7 +71,9 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -82,7 +92,9 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

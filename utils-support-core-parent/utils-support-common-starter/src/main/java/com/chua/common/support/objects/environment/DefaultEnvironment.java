@@ -284,7 +284,9 @@ public class DefaultEnvironment implements Environment {
 
 
     @Override
-    /** Refresh */
+    /**
+     * Refresh
+    */
     public void refresh() {
         // 步骤一：依次刷新所有配置源
         for (PropertySource propertySource : propertySources) {

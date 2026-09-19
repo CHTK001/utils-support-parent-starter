@@ -16,35 +16,65 @@ import java.awt.*;
 public abstract class AbstractDrawResolver implements DrawResolver {
 
 
-    /** G2 */
+    /**
+     * G2
+    */
     protected final Graphics2D g2;
-    /** Detectinner颜色 */
+    /**
+     * Detectinner颜色
+    */
     protected final Color detectInnerColor;
-    /** detect出颜色 */
+    /**
+     * detect出颜色
+    */
     protected final Color detectOutColor;
-    /** QR代码配置 */
+    /**
+     * QR代码配置
+    */
     protected final QrCodeOptions qrCodeConfig;
-    /** 位matrix */
+    /**
+     * 位matrix
+    */
     protected final BitMatrixEx bitMatrix;
-    /** Drawoptions */
+    /**
+     * Drawoptions
+    */
     protected final QrCodeOptions.DrawOptions drawOptions;
-    /** PRE颜色 */
+    /**
+     * PRE颜色
+    */
     protected final Color preColor;
-    /** 信息尺寸 */
+    /**
+     * 信息尺寸
+    */
     protected final int infoSize;
-    /** Drawstyle */
+    /**
+     * Drawstyle
+    */
     protected final QrCodeOptions.DrawStyle drawStyle;
-    /** 设置 */
+    /**
+     * 设置
+    */
     protected final QrSetting setting;
-    /** matrixh */
+    /**
+     * matrixh
+    */
     protected final int matrixH;
-    /** matrixw */
+    /**
+     * matrixw
+    */
     protected final int matrixW;
-    /** Detectcorner尺寸 */
+    /**
+     * Detectcorner尺寸
+    */
     protected final int detectCornerSize;
-    /** 顶部padding */
+    /**
+     * 顶部padding
+    */
     protected final int topPadding;
-    /** 左侧padding */
+    /**
+     * 左侧padding
+    */
     protected final int leftPadding;
 
     /**

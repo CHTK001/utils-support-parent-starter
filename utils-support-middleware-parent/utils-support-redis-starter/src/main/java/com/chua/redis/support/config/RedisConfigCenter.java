@@ -92,7 +92,9 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             // 解析 Redis 地址
@@ -131,7 +133,9 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         if (jedisPool != null) {
             try {

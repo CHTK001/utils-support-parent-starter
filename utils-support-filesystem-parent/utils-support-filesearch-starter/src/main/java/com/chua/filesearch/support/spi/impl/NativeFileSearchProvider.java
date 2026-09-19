@@ -17,12 +17,16 @@ import java.util.List;
 @Slf4j
 public class NativeFileSearchProvider implements FileSearchProvider {
 
-    /** 创建 NAT文件搜索提供者 实例 */
+    /**
+     * 创建 NAT文件搜索提供者 实例
+    */
     public NativeFileSearchProvider() {
     }
 
     @Override
-    /** 搜索文件 */
+    /**
+     * 搜索文件
+    */
     public List<FileInfo> searchFiles(FileSearchCriteria criteria) {
         return RustFileSearchHelper.search(criteria);
     }

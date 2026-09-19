@@ -44,9 +44,13 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "daily";
-    /** Archive_dir */
+    /**
+     * Archive_dir
+    */
     private static final String ARCHIVE_DIR = "archive";
-    /** 日期_fmt */
+    /**
+     * 日期_fmt
+    */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -225,7 +229,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         Files.createDirectories(zipFile.getParent());
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
-                /** 将单个文件以相对路径写入 压缩 条目 */
+                /**
+                 * 将单个文件以相对路径写入 压缩 条目
+                */
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String entryName = source.relativize(file).toString().replace("\\", "/");
@@ -247,14 +253,18 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             return;
         }
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-            /** 删除单个文件 */
+            /**
+             * 删除单个文件
+            */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
-            /** 目录内文件删尽后删除目录本身 */
+            /**
+             * 目录内文件删尽后删除目录本身
+            */
             @Override
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);

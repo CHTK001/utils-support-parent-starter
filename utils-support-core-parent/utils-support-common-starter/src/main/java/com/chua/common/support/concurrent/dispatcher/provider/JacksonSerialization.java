@@ -16,26 +16,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Spi({"jackson"})
 public class JacksonSerialization implements Serialization {
 
-    /** 单例实例 */
+    /**
+     * 单例实例
+    */
     public static final JacksonSerialization INSTANCE = new JacksonSerialization();
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    /** Name */
+    /**
+     * Name
+    */
     public String name() {
         return "jackson";
     }
 
     @Override
-    /** 序列化 */
+    /**
+     * 序列化
+    */
     public byte[] serialize(Object obj) throws Exception {
         return objectMapper.writeValueAsBytes(obj);
     }
 
     @Override
-    /** 反序列化 */
+    /**
+     * 反序列化
+    */
     public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
         return objectMapper.readValue(data, type);
     }

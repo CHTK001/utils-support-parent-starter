@@ -74,7 +74,9 @@ public abstract class ShmQueue implements AutoCloseable {
         }
 
         @Override
-        /** 转为字符串 */
+        /**
+         * 转为字符串
+        */
         public String toString() {
             return "Message{type=" + type + ", len=" + bytes.length + "}";
         }

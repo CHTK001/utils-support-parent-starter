@@ -186,7 +186,9 @@ public class ZookeeperClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (curator != null) {
             curator.close();

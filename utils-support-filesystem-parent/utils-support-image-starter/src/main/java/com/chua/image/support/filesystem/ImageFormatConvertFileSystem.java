@@ -72,7 +72,9 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "image";
     }
@@ -131,7 +133,9 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 支持类型 */
+    /**
+     * 支持类型
+    */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         Set<String> formats = ImageSupportUtils.getAllSupportedFormats();
         List<String> formatList = new ArrayList<>(formats);

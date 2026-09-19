@@ -63,7 +63,9 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 执行转换 */
+    /**
+     * 执行转换
+    */
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取 APNG 文件
@@ -310,7 +312,9 @@ if (metadata != null) {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         
         return "gif";
@@ -330,7 +334,9 @@ if (metadata != null) {
     }
 
     @Override
-    /** 支持类型 */
+    /**
+     * 支持类型
+    */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         return new ConvertFileSystem.ConvertSupport[]{
                 new ConvertFileSystem.ConvertSupport("apng", "gif"),
@@ -344,9 +350,13 @@ if (metadata != null) {
      * @since 4.0.0
      */
     private static class AnimationFrame {
-        /** 图片 */
+        /**
+         * 图片
+        */
         private final BufferedImage image;
-        /** 延迟 */
+        /**
+         * 延迟
+        */
         private final int delay;
 
         /**

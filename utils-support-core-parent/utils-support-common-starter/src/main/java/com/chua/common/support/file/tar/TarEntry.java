@@ -72,7 +72,9 @@ public class TarEntry {
 	}
 
 	@Override
-	/** 判断相等 */
+	/**
+	 * 判断相等
+	*/
 	public boolean equals(Object it) {
 		if (!(it instanceof TarEntry)) {
 			return false;
@@ -82,7 +84,9 @@ public class TarEntry {
 	}
 
 	@Override
-	/** HashCode */
+	/**
+	 * HashCode
+	*/
 	public int hashCode() {
 		return this.header.name.hashCode();
 	}

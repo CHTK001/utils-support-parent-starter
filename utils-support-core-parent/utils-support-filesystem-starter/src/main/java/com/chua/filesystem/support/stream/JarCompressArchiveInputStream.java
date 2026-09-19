@@ -23,7 +23,9 @@ import javax.annotation.Nullable;
 public class JarCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -33,14 +35,18 @@ public class JarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
-    /** 创建输入流 */
+    /**
+     * 创建输入流
+    */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var jarInputStream = new JarArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(jarInputStream);
     }
 
     @Override
-    /** 获取格式化名称 */
+    /**
+     * 获取格式化名称
+    */
     public String getFormatName() {
         return "jar";
     }

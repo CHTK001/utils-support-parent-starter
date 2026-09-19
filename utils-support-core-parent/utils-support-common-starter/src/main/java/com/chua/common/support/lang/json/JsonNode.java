@@ -938,7 +938,9 @@ public class JsonNode {
     // ==================== 对象方法 ====================
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         if (missing) {
             return "MISSING";
@@ -953,7 +955,9 @@ public class JsonNode {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -972,7 +976,9 @@ public class JsonNode {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         int result = missing ? 1 : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);

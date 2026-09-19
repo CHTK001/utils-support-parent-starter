@@ -33,16 +33,22 @@ public class IpApiLocationProvider implements LocationProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 查询地址模板（空 IP 时定位请求者自身） */
+    /**
+     * 查询地址模板（空 IP 时定位请求者自身）
+    */
     private static final String LOCATE_URL = "http://ip-api.com/json/%s?lang=zh-CN";
 
-    /** 缓存有效期（毫秒）：1 小时 */
+    /**
+     * 缓存有效期（毫秒）：1 小时
+    */
     private static final long CACHE_TTL_MILLIS = 60 * 60 * 1000L;
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    /** 缓存（键 -> [定位, 时间戳]） */
+    /**
+     * 缓存（键 -> [定位, 时间戳]）
+    */
     private final Map<String, LocationInfo> cache = new ConcurrentHashMap<>();
     private final Map<String, Long> cachedAt = new ConcurrentHashMap<>(); // 缓存at
 

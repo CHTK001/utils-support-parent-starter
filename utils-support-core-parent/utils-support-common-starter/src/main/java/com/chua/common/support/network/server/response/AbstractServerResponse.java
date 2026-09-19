@@ -23,10 +23,14 @@ import java.nio.charset.StandardCharsets;
  */
 public abstract class AbstractServerResponse implements ServerResponse {
 
-    /** HTTP 状态码 */
+    /**
+     * HTTP 状态码
+    */
     protected int statusCode = 200;
 
-    /** 响应头集合 */
+    /**
+     * 响应头集合
+    */
     protected HttpHeader headers = HttpHeader.create();
 
     /**
@@ -34,78 +38,104 @@ public abstract class AbstractServerResponse implements ServerResponse {
      */
     protected byte[] body;
 
-    /** 是否已提交响应头 */
+    /**
+     * 是否已提交响应头
+    */
     protected boolean committed;
 
-    /** 是否已调用 end() 终止 */
+    /**
+     * 是否已调用 end() 终止
+    */
     protected boolean ended;
 
     @Override
-    /** 设置Status */
+    /**
+     * 设置Status
+    */
     public ServerResponse setStatus(int statusCode) {
         this.statusCode = statusCode;
         return this;
     }
 
     @Override
-    /** 获取Status */
+    /**
+     * 获取Status
+    */
     public int getStatus() {
         return statusCode;
     }
 
     @Override
-    /** 设置Header */
+    /**
+     * 设置Header
+    */
     public ServerResponse setHeader(String name, String value) {
         headers.add(name, value);
         return this;
     }
 
     @Override
-    /** 获取Header */
+    /**
+     * 获取Header
+    */
     public String getHeader(String name) {
         return headers.get(name);
     }
 
     @Override
-    /** 获取Headers */
+    /**
+     * 获取Headers
+    */
     public HttpHeader getHeaders() {
         return headers;
     }
 
     @Override
-    /** 设置ContentType */
+    /**
+     * 设置ContentType
+    */
     public ServerResponse setContentType(String contentType) {
         return setHeader("Content-Type", contentType);
     }
 
     @Override
-    /** 获取ContentType */
+    /**
+     * 获取ContentType
+    */
     public String getContentType() {
         return getHeader("Content-Type");
     }
 
     @Override
-    /** 设置Body */
+    /**
+     * 设置Body
+    */
     public ServerResponse setBody(byte[] body) {
         this.body = body;
         return this;
     }
 
     @Override
-    /** 设置Body */
+    /**
+     * 设置Body
+    */
     public ServerResponse setBody(String body) {
         this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : null;
         return this;
     }
 
     @Override
-    /** 获取Body */
+    /**
+     * 获取Body
+    */
     public byte[] getBody() {
         return body;
     }
 
     @Override
-    /** 发送Redirect */
+    /**
+     * 发送Redirect
+    */
     public ServerResponse sendRedirect(String location) {
         setHeader("Location", location);
         setStatus(302);
@@ -114,7 +144,9 @@ public abstract class AbstractServerResponse implements ServerResponse {
     }
 
     @Override
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+    */
     public ServerResponse sendError(int statusCode, String message) {
         setStatus(statusCode);
         setBody(message);
@@ -123,25 +155,33 @@ public abstract class AbstractServerResponse implements ServerResponse {
     }
 
     @Override
-    /** 刷新 */
+    /**
+     * 刷新
+    */
     public void flush() {
         // 默认空实现，子类按需覆盖
     }
 
     @Override
-    /** 是否Committed */
+    /**
+     * 是否Committed
+    */
     public boolean isCommitted() {
         return committed;
     }
 
     @Override
-    /** 是否Ended */
+    /**
+     * 是否Ended
+    */
     public boolean isEnded() {
         return ended;
     }
 
     @Override
-    /** 重置 */
+    /**
+     * 重置
+    */
     public ServerResponse reset() {
         this.body = null;
         this.statusCode = 200;
@@ -152,7 +192,9 @@ public abstract class AbstractServerResponse implements ServerResponse {
     }
 
     @Override
-    /** End */
+    /**
+     * End
+    */
     public void end() {
         this.ended = true;
         this.committed = true;

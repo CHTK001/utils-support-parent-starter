@@ -33,13 +33,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("alibaba")
 public class AlibabaRegionProvider implements RegionProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(AlibabaRegionProvider.class);
 
-    /** 基础 */
+    /**
+     * 基础
+    */
     private static final String BASE = "https://geo.datav.aliyun.com/areas_v3/bound/";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -52,10 +58,14 @@ public class AlibabaRegionProvider implements RegionProvider {
      */
     private final int defaultLevel;
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 创建 alibabaregion提供者 实例 */
+    /**
+     * 创建 alibabaregion提供者 实例
+    */
     public AlibabaRegionProvider() {
         this(2);
     }
@@ -71,19 +81,25 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "alibaba";
     }
 
     @Override
-    /** 获取Regions */
+    /**
+     * 获取Regions
+    */
     public List<RegionInfo> getRegions() {
         return getRegions(defaultLevel);
     }
 
     @Override
-    /** 获取Regions */
+    /**
+     * 获取Regions
+    */
     public List<RegionInfo> getRegions(int maxLevel) {
         RegionInfo root = getTree(maxLevel);
         List<RegionInfo> flat = new ArrayList<>();
@@ -92,14 +108,18 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     @Override
-    /** 获取Children */
+    /**
+     * 获取Children
+    */
     public List<RegionInfo> getChildren(String parentAdcode) {
         String code = (parentAdcode == null || parentAdcode.isEmpty()) ? "100000" : parentAdcode;
         return fetchChildren(code);
     }
 
     @Override
-    /** 获取树 */
+    /**
+     * 获取树
+    */
     public RegionInfo getTree(int maxLevel) {
         RegionInfo root = new RegionInfo("100000", "中国", 0, "country", null, 0, 0);
         build(root, 0, Math.max(1, maxLevel));

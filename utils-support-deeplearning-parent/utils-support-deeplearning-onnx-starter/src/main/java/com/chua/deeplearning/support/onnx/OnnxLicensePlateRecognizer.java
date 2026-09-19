@@ -8,18 +8,28 @@ import com.chua.deeplearning.support.plate.PlateResult;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private float threshold = 0.5f;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -30,7 +40,9 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public LicensePlateRecognizer model(String model) {
         this.modelName = model;
         return this;
@@ -78,28 +90,36 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public LicensePlateRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public LicensePlateRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Recognize */
+    /**
+     * Recognize
+    */
     public String recognize(byte[] imageData) {
         PlateResult pr = recognizePlate(imageData);
         return pr == null ? "" : pr.plateNo();

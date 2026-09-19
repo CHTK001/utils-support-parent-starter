@@ -9,7 +9,9 @@ import java.util.regex.Pattern;
 
 public class RegexUtils {
 
-    /** 数字_模式 */
+    /**
+     * 数字_模式
+    */
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     /**

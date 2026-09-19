@@ -39,42 +39,78 @@ import java.util.function.Consumer;
 @Spi({"alibaba"})
 public class AlibabaChatClient implements ChatClient {
 
-    /** 默认模型 */
+    /**
+     * 默认模型
+    */
     private static final String DEFAULT_MODEL = "qwen-turbo";
-    /** 默认温度参数 */
+    /**
+     * 默认温度参数
+    */
     private static final double DEFAULT_TEMPERATURE = 0.3;
-    /** 默认最大令牌数 */
+    /**
+     * 默认最大令牌数
+    */
     private static final int DEFAULT_MAX_TOKENS = 2048;
-    /** 历史记录容量 */
+    /**
+     * 历史记录容量
+    */
     private static final int HISTORY_CAPACITY = 16;
 
-    /** 通义千问生成服务 */
+    /**
+     * 通义千问生成服务
+    */
     private final Generation generation;
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final ChatClientSetting setting;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String model;
-    /** 温度参数 */
+    /**
+     * 温度参数
+    */
     private Double temperature;
-    /** 最大令牌数 */
+    /**
+     * 最大令牌数
+    */
     private Integer maxTokens;
-    /** 系统提示 */
+    /**
+     * 系统提示
+    */
     private String system;
-    /** 会话 标识 */
+    /**
+     * 会话 标识
+    */
     private String sessionId;
-    /** 对话历史消息 */
+    /**
+     * 对话历史消息
+    */
     private final List<ChatMessage> history = new ArrayList<>(HISTORY_CAPACITY);
-    /** 外部历史消息 */
+    /**
+     * 外部历史消息
+    */
     private List<ChatMessage> externalHistory;
-    /** 图片链接列表 */
+    /**
+     * 图片链接列表
+    */
     private final List<String> imageUrls = new ArrayList<>(4);
-    /** 是否开启思考模式 */
+    /**
+     * 是否开启思考模式
+    */
     private boolean thinking;
-    /** 思考努力程度 */
+    /**
+     * 思考努力程度
+    */
     private String thinkingEffort;
-    /** 是否启用智能搜索 */
+    /**
+     * 是否启用智能搜索
+    */
     private boolean smartSearch;
-    /** 技能管理器 */
+    /**
+     * 技能管理器
+    */
     private SkillManager skillManager;
 
     /**
@@ -129,110 +165,142 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** 最大值令牌 */
+    /**
+     * 最大值令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** Thinking */
+    /**
+     * Thinking
+    */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
-    /** thinkingeffort */
+    /**
+     * thinkingeffort
+    */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** Smart搜索 */
+    /**
+     * Smart搜索
+    */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
-    /** Skill */
+    /**
+     * Skill
+    */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
-    /** 添加镜像 */
+    /**
+     * 添加镜像
+    */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加用户历史 */
+    /**
+     * 添加用户历史
+    */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role(Role.USER.getValue()).content(content).build());
         return this;
     }
 
     @Override
-    /** 添加assistant历史 */
+    /**
+     * 添加assistant历史
+    */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role(Role.ASSISTANT.getValue()).content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 会话 */
+    /**
+     * 会话
+    */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
-    /** 添加Attachment */
+    /**
+     * 添加Attachment
+    */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持文件附件");
     }
 
     @Override
-    /** 添加attachmenturl */
+    /**
+     * 添加attachmenturl
+    */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
-    /** 新对话 */
+    /**
+     * 新对话
+    */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -241,7 +309,9 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         var result = new StringBuilder();
         chat(prompt, response -> {
@@ -254,7 +324,9 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话 */
+    /**
+     * 对话
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {

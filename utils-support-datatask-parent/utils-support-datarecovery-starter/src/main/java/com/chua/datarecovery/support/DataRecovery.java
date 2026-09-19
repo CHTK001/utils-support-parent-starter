@@ -13,7 +13,9 @@ public class DataRecovery {
         com.chua.common.support.utils.NativeUtils.loadFromClasspath("data_recovery_ffi");
     }
 
-    /** Device路径 */
+    /**
+     * Device路径
+    */
     private final String devicePath;
 
     /**
@@ -67,7 +69,9 @@ public class DataRecovery {
         return this;
     }
 
-    /** Callback */
+    /**
+     * Callback
+    */
     private RecoveryCallback callback;
 
     public static interface RecoveryCallback {
@@ -78,61 +82,105 @@ public class DataRecovery {
     }
 
     public static class FileEntry {
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name;
-        /** 路径 */
+        /**
+         * 路径
+        */
         public String path;
-        /** 尺寸bytes */
+        /**
+         * 尺寸bytes
+        */
         public long sizeBytes;
-        /** Modified时间戳 */
+        /**
+         * Modified时间戳
+        */
         public long modifiedTimestamp;
-        /** 删除标记时间戳 */
+        /**
+         * 删除标记时间戳
+        */
         public long deletedTimestamp;
-        /** Recovery分数 */
+        /**
+         * Recovery分数
+        */
         public int recoveryScore;
-        /** Carved签名 */
+        /**
+         * Carved签名
+        */
         public String carvedSignature;
     }
 
     public static class ScanResult {
-        /** 成功 */
+        /**
+         * 成功
+        */
         public boolean success;
-        /** Filesscanned */
+        /**
+         * Filesscanned
+        */
         public int filesScanned;
-        /** Filesfound */
+        /**
+         * Filesfound
+        */
         public int filesFound;
-        /** 消息 */
+        /**
+         * 消息
+        */
         public String message;
-        /** Entries */
+        /**
+         * Entries
+        */
         public FileEntry[] entries;
     }
 
     public static class DeleteResult {
-        /** 成功 */
+        /**
+         * 成功
+        */
         public boolean success;
-        /** Bytesoverwritten */
+        /**
+         * Bytesoverwritten
+        */
         public long bytesOverwritten;
-        /** Passescompleted */
+        /**
+         * Passescompleted
+        */
         public int passesCompleted;
-        /** 消息 */
+        /**
+         * 消息
+        */
         public String message;
     }
 
     public static class RecoverResult {
-        /** 成功数量 */
+        /**
+         * 成功数量
+        */
         public int successCount;
-        /** 失败数量 */
+        /**
+         * 失败数量
+        */
         public int failedCount;
-        /** 失败列表 */
+        /**
+         * 失败列表
+        */
         public FailedItem[] failedList;
-        /** 总数byteswritten */
+        /**
+         * 总数byteswritten
+        */
         public long totalBytesWritten;
     }
 
     public static class FailedItem {
-        /** 路径 */
+        /**
+         * 路径
+        */
         public String path;
-        /** ReasonMLML */
+        /**
+         * ReasonMLML
+        */
         public String reason;
     }
 

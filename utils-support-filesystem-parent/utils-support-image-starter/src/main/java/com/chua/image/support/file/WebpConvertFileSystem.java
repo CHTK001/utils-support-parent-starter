@@ -52,7 +52,9 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         
         return "webp";
@@ -78,7 +80,9 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 执行转换 */
+    /**
+     * 执行转换
+    */
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取图片
@@ -126,7 +130,9 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** 支持类型 */
+    /**
+     * 支持类型
+    */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         List<ConvertFileSystem.ConvertSupport> supports = new ArrayList<>();
         

@@ -39,7 +39,9 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe() {
         log.info("[datalake-subscribe] 订阅器已订阅: subscriberId={}, offset={}",
                 subscriberId, currentOffset());

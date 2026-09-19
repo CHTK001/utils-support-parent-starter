@@ -60,20 +60,26 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 维度 */
+    /**
+     * 维度
+    */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -103,7 +109,9 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入 */
+    /**
+     * 嵌入
+    */
     public float[] embedding(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -127,7 +135,9 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入批量 */
+    /**
+     * 嵌入批量
+    */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -140,7 +150,9 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入with响应 */
+    /**
+     * 嵌入with响应
+    */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -150,7 +162,9 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batchwith响应 */
+    /**
+     * 嵌入batchwith响应
+    */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -163,19 +177,25 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入异步 */
+    /**
+     * 嵌入异步
+    */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** 嵌入批量异步 */
+    /**
+     * 嵌入批量异步
+    */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

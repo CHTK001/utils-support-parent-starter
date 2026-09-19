@@ -214,13 +214,17 @@ public final class RpcSerialization {
     private static final class JdkSerialization implements Serialization {
 
         @Override
-        /** Name */
+        /**
+         * Name
+        */
         public String name() {
             return "java";
         }
 
         @Override
-        /** 序列化 */
+        /**
+         * 序列化
+        */
         public byte[] serialize(Object obj) throws Exception {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
             try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -231,7 +235,9 @@ public final class RpcSerialization {
 
         @SuppressWarnings("unchecked")
         @Override
-        /** 反序列化 */
+        /**
+         * 反序列化
+        */
         public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
                 ois.setObjectInputFilter(RpcSerialization.objectInputFilter());

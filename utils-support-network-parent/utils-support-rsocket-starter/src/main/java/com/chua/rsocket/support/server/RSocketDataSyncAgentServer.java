@@ -40,26 +40,34 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
         }
         RSocketServer.create((setup, sendingSocket) -> Mono.just(new io.rsocket.RSocket() {
             @Override
-            /** 请求响应 */
+            /**
+             * 请求响应
+            */
             public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                 return handleRequest(payload);
             }
 
             @Override
-            /** 请求流 */
+            /**
+             * 请求流
+            */
             public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                 return handleRequestStream(payload);
             }
 
             @Override
-            /** fire和forget */
+            /**
+             * fire和forget
+            */
             public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
                 handleFireAndForget(payload);
                 return Mono.empty();
@@ -73,7 +81,9 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running = false;
         log.info("[RSocketDataSyncAgentServer] 已停止");

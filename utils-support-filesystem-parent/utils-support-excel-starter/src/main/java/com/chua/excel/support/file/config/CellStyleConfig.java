@@ -39,60 +39,104 @@ import java.awt.Color;
 public class CellStyleConfig {
 
     // ==================== 字体属性 ====================
-    /** Font名称 */
+    /**
+     * Font名称
+    */
     private String fontName;
-    /** Font尺寸 */
+    /**
+     * Font尺寸
+    */
     private Short fontSize;
-    /** Bold */
+    /**
+     * Bold
+    */
     private Boolean bold;
-    /** Italic */
+    /**
+     * Italic
+    */
     private Boolean italic;
-    /** Strikeout */
+    /**
+     * Strikeout
+    */
     private Boolean strikeout;
-    /** Underline */
+    /**
+     * Underline
+    */
     private Byte underline;
-    /** 六位 RGB（如 "4472C4"）或 IndexedColors 名称 */
+    /**
+     * 六位 RGB（如 "4472C4"）或 IndexedColors 名称
+    */
     private String fontColor;
 
     // ==================== 背景填充 ====================
-    /** Background颜色 */
+    /**
+     * Background颜色
+    */
     private String backgroundColor;
-    /** Fill模式 */
+    /**
+     * Fill模式
+    */
     private FillPatternType fillPattern = FillPatternType.SOLID_FOREGROUND;
 
     // ==================== 边框 ====================
-    /** Border顶部 */
+    /**
+     * Border顶部
+    */
     private BorderStyle borderTop;
-    /** Border底部 */
+    /**
+     * Border底部
+    */
     private BorderStyle borderBottom;
-    /** Border左侧 */
+    /**
+     * Border左侧
+    */
     private BorderStyle borderLeft;
-    /** Border右侧 */
+    /**
+     * Border右侧
+    */
     private BorderStyle borderRight;
-    /** Border颜色 */
+    /**
+     * Border颜色
+    */
     private String borderColor;
 
     // ==================== 对齐 ====================
-    /** Horizontalalignment */
+    /**
+     * Horizontalalignment
+    */
     private HorizontalAlignment horizontalAlignment;
-    /** Verticalalignment */
+    /**
+     * Verticalalignment
+    */
     private VerticalAlignment verticalAlignment;
-    /** Wrap文本 */
+    /**
+     * Wrap文本
+    */
     private Boolean wrapText;
-    /** Indention */
+    /**
+     * Indention
+    */
     private Integer indention;
-    /** Rotation */
+    /**
+     * Rotation
+    */
     private Integer rotation;
 
     // ==================== 数据格式 ====================
-    /** 数据格式 */
+    /**
+     * 数据格式
+    */
     private String dataFormat;
 
     // ==================== 行高 ====================
-    /** 行高度 */
+    /**
+     * 行高度
+    */
     private Float rowHeight;
 
-    /** 创建 CellStyleConfig 实例 */
+    /**
+     * 创建 CellStyleConfig 实例
+    */
     private CellStyleConfig() {
     }
 

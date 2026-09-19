@@ -66,7 +66,9 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public SpiderResult parse(SpiderResponse response) {
         String content = response.getContent();
         if (content == null || content.isEmpty()) {
@@ -103,7 +105,9 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     @Override
-    /** 支持内容类型 */
+    /**
+     * 支持内容类型
+    */
     public String[] supportedContentTypes() {
         return SUPPORTED_TYPES;
     }

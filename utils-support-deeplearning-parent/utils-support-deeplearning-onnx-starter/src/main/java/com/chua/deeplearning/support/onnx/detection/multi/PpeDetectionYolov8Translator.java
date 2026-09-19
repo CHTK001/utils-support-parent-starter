@@ -42,7 +42,9 @@ public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Transl
             "no-helmet"
     );
 
-    /** 创建 ppedetectionyolov8Translator 实例 */
+    /**
+     * 创建 ppedetectionyolov8Translator 实例
+    */
     public PpeDetectionYolov8Translator() {
         super();
     }
@@ -60,13 +62,17 @@ public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Transl
     }
 
     @Override
-    /** 类名称resource路径 */
+    /**
+     * 类名称resource路径
+    */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** 默认类名称 */
+    /**
+     * 默认类名称
+    */
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

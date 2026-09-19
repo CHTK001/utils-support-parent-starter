@@ -91,7 +91,9 @@ public class OpencvCascadeDetector extends OpencvModelTranslator {
     }
 
     @Override
-    /** 执行translate */
+    /**
+     * 执行translate
+    */
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入，实际: "

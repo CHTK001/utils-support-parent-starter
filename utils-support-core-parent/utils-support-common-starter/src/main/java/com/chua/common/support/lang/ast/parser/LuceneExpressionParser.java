@@ -36,17 +36,23 @@ public class LuceneExpressionParser implements ExpressionParser {
      */
     private static final String TYPE = "lucene";
 
-    /** 委托客户端 */
+    /**
+     * 委托客户端
+    */
     private final DefaultExpressionParser delegate = new DefaultExpressionParser();
 
     @Override
-    /** Type */
+    /**
+     * Type
+    */
     public String type() {
         return TYPE;
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public BTreeNode parse(String expression) {
         // Lucene 语法预处理：将 field:value 转为 field = value
         String normalized = normalizeLucene(expression);
@@ -54,7 +60,9 @@ public class LuceneExpressionParser implements ExpressionParser {
     }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public String generate(BTreeNode tree) {
         // 将 B-Tree 还原为 Lucene 查询语法
         if (tree == null) { return ""; }

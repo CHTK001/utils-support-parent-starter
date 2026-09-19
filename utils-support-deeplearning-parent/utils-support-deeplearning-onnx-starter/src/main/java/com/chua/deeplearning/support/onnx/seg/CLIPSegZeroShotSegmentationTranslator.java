@@ -49,15 +49,23 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 @Slf4j
 public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, Image> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 352;
-    /** 最大文本长度 */
+    /**
+     * 最大文本长度
+    */
     private static final int MAX_TEXT_LENGTH = 77;
 
-    /** 提示词 */
+    /**
+     * 提示词
+    */
     private final String prompt;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /**
@@ -97,7 +105,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -114,7 +124,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         if (tokenizer == null) {
             throw new IllegalStateException("CLIPSeg tokenizer not initialized");
@@ -145,7 +157,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -160,7 +174,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

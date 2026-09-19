@@ -100,19 +100,25 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Artifact */
+    /**
+     * Artifact
+    */
     public RuntimeArtifact artifact() {
         return artifact;
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public RuntimeStatus status() {
         return status.get();
     }
 
     @Override
-    /** Pid */
+    /**
+     * Pid
+    */
     public long pid() {
         Process process = processRef.get();
         if (process != null && process.isAlive()) {
@@ -122,7 +128,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
             log.warn("[runtime] 工件[{}] 已在运行中，跳过启动", artifact.getId());
@@ -221,7 +229,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public synchronized CmdResult stop() {
         Process process = processRef.get();
         if (process == null || !process.isAlive()) {
@@ -274,7 +284,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Restart */
+    /**
+     * Restart
+    */
     public synchronized CmdResult restart() {
         log.info("[runtime] 正在重启工件[{}]: {}", artifact.getId(), artifact.getName());
         CmdResult stopResult = stop();
@@ -285,7 +297,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 健康校验 */
+    /**
+     * 健康校验
+    */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String command = artifact.getHealthCheckCommand();
@@ -308,19 +322,25 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 记录日志流 */
+    /**
+     * 记录日志流
+    */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
-    /** onexit */
+    /**
+     * onexit
+    */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         stop();
         logStream.close();

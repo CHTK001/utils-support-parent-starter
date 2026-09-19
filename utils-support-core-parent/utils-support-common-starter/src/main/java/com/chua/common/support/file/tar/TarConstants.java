@@ -24,7 +24,9 @@ public final class TarConstants {
      */
     public static final int HEADER_BLOCK = 512;
 
-    /** 创建 TarConstants 实例 */
+    /**
+     * 创建 TarConstants 实例
+    */
     private TarConstants() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }

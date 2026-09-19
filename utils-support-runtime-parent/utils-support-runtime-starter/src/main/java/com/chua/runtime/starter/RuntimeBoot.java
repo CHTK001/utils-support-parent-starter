@@ -196,13 +196,17 @@ public class RuntimeBoot {
             LOG.log(Level.INFO, String.format("工件[%s] 已注册，下载中...", id));
             manager.download(id, new LineCallback() {
                 @Override
-                /** on线 */
+                /**
+                 * on线
+                */
                 public void onLine(String line) {
                     LOG.log(Level.INFO, String.valueOf(line));
                 }
 
                 @Override
-                /** On记录错误 */
+                /**
+                 * On记录错误
+                */
                 public void onError(String key, Throwable e) {
                     LOG.log(Level.SEVERE, String.format("下载失败: \" + ke", e));
                 }
@@ -503,7 +507,9 @@ public class RuntimeBoot {
          * 工件
          */
         @Builder.Default
-        /** Artifact */
+        /**
+         * Artifact
+        */
         private RuntimeArtifact artifact = RuntimeArtifact.builder().id("default").build();
 
         /**
@@ -520,28 +526,36 @@ public class RuntimeBoot {
          * Agent 选项
          */
         @Builder.Default
-        /** Agentoptions */
+        /**
+         * Agentoptions
+        */
         private String agentOptions = "";
 
         /**
          * 目标 PID
          */
         @Builder.Default
-        /** PID */
+        /**
+         * PID
+        */
         private int pid = 0;
 
         /**
          * Shell 端口
          */
         @Builder.Default
-        /** Shell端口 */
+        /**
+         * Shell端口
+        */
         private int shellPort = 4567;
 
         /**
          * 插件目录
          */
         @Builder.Default
-        /** 插件目录 */
+        /**
+         * 插件目录
+        */
         private Path pluginDir = Paths.get("plugins");
     }
 }

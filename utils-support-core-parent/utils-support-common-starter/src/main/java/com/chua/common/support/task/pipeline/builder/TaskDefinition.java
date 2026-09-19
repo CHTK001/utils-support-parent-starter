@@ -111,21 +111,37 @@ import java.util.function.Consumer;
  */
 public class TaskDefinition {
 
-    /** 标识 */
+    /**
+     * 标识
+    */
     private final String id;
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private PipelineNode handler;
-    /** 构建器 */
+    /**
+     * 构建器
+    */
     private final PipelineBuilder builder;
-    /** 结束afterexecute */
+    /**
+     * 结束afterexecute
+    */
     private boolean endAfterExecute;
-    /** 开始节点 */
+    /**
+     * 开始节点
+    */
     private boolean startNode;
-    /** env */
+    /**
+     * env
+    */
     private Map<String, Object> env;
-    /** 重试配置 */
+    /**
+     * 重试配置
+    */
     private RetryConfig retryConfig;
-    /** Units */
+    /**
+     * Units
+    */
     private Set<String> units;
 
     /**
@@ -526,13 +542,17 @@ public class TaskDefinition {
     public TaskDefinition params(Map<String, Object> params) {
         PipelineNode original = this.handler;
         this.handler = new PipelineNode() {
-            /** 委托原处理器执行节点逻辑。 */
+            /**
+             * 委托原处理器执行节点逻辑。
+            */
             @Override
             public String execute(com.chua.common.support.task.pipeline.core.PipelineContext<?> context) {
                 return original.execute(context);
             }
 
-            /** 返回任务注册的参数表。 */
+            /**
+             * 返回任务注册的参数表。
+            */
             @Override
             public Map<String, Object> getParams() {
                 return params;

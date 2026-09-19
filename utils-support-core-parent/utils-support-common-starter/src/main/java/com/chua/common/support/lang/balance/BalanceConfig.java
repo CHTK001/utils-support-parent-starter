@@ -39,6 +39,8 @@ public class BalanceConfig {
   * 路径前缀
   */
  @Builder.Default
- /** 根级 */
+ /**
+  * 根级
+ */
  private String root = "/service";
 }

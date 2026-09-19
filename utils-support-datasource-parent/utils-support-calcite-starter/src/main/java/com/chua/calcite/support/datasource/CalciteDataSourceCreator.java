@@ -101,7 +101,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     // ---------------------------------------------------------------
 
     @Override
-    /** 添加数据源 */
+    /**
+     * 添加数据源
+    */
     public CalciteDataSourceCreator addDataSource(String name, DataSource dataSource) {
         Objects.requireNonNull(name, "dataSource name must not be null");
         Objects.requireNonNull(dataSource, "dataSource must not be null");
@@ -110,7 +112,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    /** 添加Scheme */
+    /**
+     * 添加Scheme
+    */
     public CalciteDataSourceCreator addScheme(DataScheme scheme) {
         Objects.requireNonNull(scheme, "scheme must not be null");
         this.schemes.add(scheme);
@@ -118,7 +122,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     @Override
-    /** 添加Table */
+    /**
+     * 添加Table
+    */
     public CalciteDataSourceCreator addTable(String schemaName, DataTable table) {
         Objects.requireNonNull(schemaName, "schemaName must not be null");
         Objects.requireNonNull(table, "table must not be null");
@@ -180,11 +186,17 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
      */
     private static class UnifiedCalciteDataSource implements DataSource {
 
-        /** 数据源 */
+        /**
+         * 数据源
+        */
         private final Map<String, DataSource> dataSources;
-        /** Schemes */
+        /**
+         * Schemes
+        */
         private final List<DataScheme> schemes;
-        /** Calciteprops */
+        /**
+         * Calciteprops
+        */
         private final Properties calciteProps;
 
         UnifiedCalciteDataSource(Map<String, DataSource> dataSources,
@@ -196,7 +208,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 获取Connection */
+        /**
+         * 获取Connection
+        */
         public Connection getConnection() throws SQLException {
             Connection connection = DriverManager.getConnection("jdbc:calcite:", calciteProps);
             CalciteConnection calciteConn = connection.unwrap(CalciteConnection.class);
@@ -254,7 +268,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 获取Connection */
+        /**
+         * 获取Connection
+        */
         public Connection getConnection(String username, String password) throws SQLException {
             return getConnection();
         }
@@ -275,35 +291,47 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 是否包装器for */
+        /**
+         * 是否包装器for
+        */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
 
         @Override
-        /** 获取记录日志Writer */
+        /**
+         * 获取记录日志Writer
+        */
         public PrintWriter getLogWriter() {
             return null;
         }
 
         @Override
-        /** 设置记录日志Writer */
+        /**
+         * 设置记录日志Writer
+        */
         public void setLogWriter(PrintWriter out) {
         }
 
         @Override
-        /** 设置login超时 */
+        /**
+         * 设置login超时
+        */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
-        /** 获取login超时 */
+        /**
+         * 获取login超时
+        */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
-        /** 获取父日志记录器 */
+        /**
+         * 获取父日志记录器
+        */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }
@@ -316,7 +344,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
      */
     private static class DataSchemeSchema extends AbstractSchema {
 
-        /** table映射 */
+        /**
+         * table映射
+        */
         private final Map<String, Table> tableMap;
 
         DataSchemeSchema(Map<String, Table> tableMap) {
@@ -324,7 +354,9 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         }
 
         @Override
-        /** 获取table映射 */
+        /**
+         * 获取table映射
+        */
         protected Map<String, Table> getTableMap() {
             return tableMap;
         }

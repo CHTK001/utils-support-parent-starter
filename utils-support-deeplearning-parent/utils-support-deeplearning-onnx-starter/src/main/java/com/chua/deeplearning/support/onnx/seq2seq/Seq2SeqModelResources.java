@@ -42,7 +42,9 @@ public final class Seq2SeqModelResources {
      */
     private static final String MODEL_SCOPE_BASE = "https://www.modelscope.cn/models/%s/resolve/master/%s";
 
-    /** 创建 Seq2seq模型resources 实例 */
+    /**
+     * 创建 Seq2seq模型resources 实例
+    */
     private Seq2SeqModelResources() {
     }
 

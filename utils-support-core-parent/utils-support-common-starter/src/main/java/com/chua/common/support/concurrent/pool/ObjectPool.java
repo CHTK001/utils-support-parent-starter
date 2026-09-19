@@ -102,7 +102,9 @@ public interface ObjectPool<T> extends AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     default void close() {
         clear();
     }

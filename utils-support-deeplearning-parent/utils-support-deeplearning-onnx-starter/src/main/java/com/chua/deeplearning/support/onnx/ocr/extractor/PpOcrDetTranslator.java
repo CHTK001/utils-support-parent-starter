@@ -34,16 +34,26 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 @Slf4j
 public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInfo>> {
 
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private static final float THRESHOLD = 0.3f;
-    /** 最大边长 */
+    /**
+     * 最大边长
+    */
     private static final int MAX_SIDE = 960;
 
-        /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+        /**
+         * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+        */
     private float thresholdOverride = -1f;
 
     /**
@@ -90,7 +100,9 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         return thresholdOverride > 0 ? thresholdOverride : modelDefault;
     }
 
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private static final String MODEL_FILE = "inference.onnx";
 
     /**
@@ -103,13 +115,21 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
      */
     private final String modelName;
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
-    /** 源图像宽度 */
+    /**
+     * 源图像宽度
+    */
     private int srcWidth;
-    /** 源图像高度 */
+    /**
+     * 源图像高度
+    */
     private int srcHeight;
 
     /**
@@ -130,7 +150,9 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         this.modelName = modelName;
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -189,13 +211,17 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public synchronized List<DetectionInfo> translate(byte[] imageData) {
         try {
             prepare();

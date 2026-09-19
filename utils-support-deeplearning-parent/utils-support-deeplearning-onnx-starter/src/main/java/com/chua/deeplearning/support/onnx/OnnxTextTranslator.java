@@ -2,12 +2,16 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.nlp.TextTranslator;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxTextTranslator implements TextTranslator {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
     /**
@@ -18,7 +22,9 @@ public class OnnxTextTranslator implements TextTranslator {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public TextTranslator model(String model) {
         this.modelName = model;
         return this;
@@ -34,7 +40,9 @@ public class OnnxTextTranslator implements TextTranslator {
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public String translate(String text) {
         return TextTranslator.create(resolveModel()).translate(text);
     }

@@ -38,11 +38,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class OracleEngineIntegrationTest {
 
-    /** 真实 Oracle 容器（21.3.0 XE） */
+    /**
+     * 真实 Oracle 容器（21.3.0 XE）
+    */
     static final OracleContainer ORACLE = new OracleContainer(
             DockerImageName.parse("gvenzl/oracle-xe:21.3.0-slim-faststart"));
 
-    /** 被测引擎 */
+    /**
+     * 被测引擎
+    */
     private OracleEngine engine;
 
     /**

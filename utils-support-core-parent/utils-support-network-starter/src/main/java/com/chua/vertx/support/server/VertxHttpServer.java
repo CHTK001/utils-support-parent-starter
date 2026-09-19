@@ -47,17 +47,29 @@ import lombok.extern.slf4j.Slf4j;
 @Spi({"vertx-http", "http"})
 public class VertxHttpServer extends AbstractServer {
 
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private io.vertx.core.http.HttpServer server;
-    /** 虚拟线程池:处理器 执行 */
+    /**
+     * 虚拟线程池:处理器 执行
+    */
     private java.util.concurrent.ExecutorService virtualThreadExecutor;
-    /** WebSocket 主题处理器映射 */
+    /**
+     * WebSocket 主题处理器映射
+    */
     private final Map<String, java.util.List<com.chua.common.support.network.server.handler.ServerHandler>> wsTopicHandlers = new java.util.concurrent.ConcurrentHashMap<>();
-    /** 基准测试模式:跳过虚拟线程,直接在 事件 循环 执行 */
+    /**
+     * 基准测试模式:跳过虚拟线程,直接在 事件 循环 执行
+    */
     private final boolean benchmarkMode = "true".equals(System.getProperty("bench.fast"));
-    /** 响应式 */
+    /**
+     * 响应式
+    */
     private boolean reactive;
 
     /**
@@ -69,19 +81,25 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 支持reactor */
+    /**
+     * 支持reactor
+    */
     public boolean supportsReactor() {
         return true;
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(Runtime.getRuntime().availableProcessors(), 2);
@@ -390,11 +408,17 @@ public class VertxHttpServer extends AbstractServer {
      * WebSocket 消息请求（与 niohttp服务端.ws服务端请求 行为一致）。
      */
     private static final class VertxWsRequest implements com.chua.common.support.network.server.request.ServerRequest {
-        /** Topic */
+        /**
+         * Topic
+        */
         private final String topic;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private final String body;
-        /** attributes */
+        /**
+         * attributes
+        */
         private final Map<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>();
 
         VertxWsRequest(String topic, String body) {
@@ -425,15 +449,25 @@ public class VertxHttpServer extends AbstractServer {
      * WebSocket 消息响应（持有 Vert.x 服务端webSocket 引用用于回写）。
      */
     private static final class VertxWsResponse implements com.chua.common.support.network.server.response.ServerResponse {
-        /** WebSocket 连接 */
+        /**
+         * WebSocket 连接
+        */
         private final io.vertx.core.http.ServerWebSocket ws;
-        /** 状态 */
+        /**
+         * 状态
+        */
         private int status = 200;
-        /** 结束 */
+        /**
+         * 结束
+        */
         private boolean ended;
-        /** Committed */
+        /**
+         * Committed
+        */
         private boolean committed;
-        /** 结果 */
+        /**
+         * 结果
+        */
         private Object result;
 
         VertxWsResponse(io.vertx.core.http.ServerWebSocket ws) {
@@ -510,7 +544,9 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (server != null) {
             try {
@@ -531,28 +567,50 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerResponse implements ServerResponse {
 
-        /** Benchmark模式:预分配响应缓冲 (thread本地复用) */
+        /**
+         * Benchmark模式:预分配响应缓冲 (thread本地复用)
+        */
         private static final ThreadLocal<byte[]> ECHO_BUF = ThreadLocal.withInitial(() -> new byte[128]);
-        /** CTX */
+        /**
+         * CTX
+        */
         private final RoutingContext ctx;
-        /** 状态 */
+        /**
+         * 状态
+        */
         private int status = 200;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private byte[] body;
         // getOutputStream() 写入内容保留在此,响应完成(endVertx)时写回,避免临时流丢字节
-        /** 出流 */
+        /**
+         * 出流
+        */
         private java.io.ByteArrayOutputStream outStream;
-        /** 头部 - 可能被工人线程池访问,保留并发哈希映射 */
+        /**
+         * 头部 - 可能被工人线程池访问,保留并发哈希映射
+        */
         private final java.util.concurrent.ConcurrentHashMap<String, String> headers = new java.util.concurrent.ConcurrentHashMap<>(4);
-        /** 内容类型 */
+        /**
+         * 内容类型
+        */
         private String contentType;
-        /** Committed */
+        /**
+         * Committed
+        */
         private boolean committed;
-        /** 结束 */
+        /**
+         * 结束
+        */
         private boolean ended;
-        /** 结果 */
+        /**
+         * 结果
+        */
         private Object result;
-        /** SSE模式 */
+        /**
+         * SSE模式
+        */
         private boolean sseMode;
 
         VertxServerResponse(RoutingContext ctx) {
@@ -560,7 +618,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置状态 */
+        /**
+         * 设置状态
+        */
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -569,13 +629,17 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取状态 */
+        /**
+         * 获取状态
+        */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置头部 */
+        /**
+         * 设置头部
+        */
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -584,13 +648,17 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
@@ -598,20 +666,26 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置内容类型 */
+        /**
+         * 设置内容类型
+        */
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return contentType;
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -620,7 +694,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -629,13 +705,17 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return body;
         }
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public OutputStream getOutputStream() {
             if (outStream == null) {
                 outStream = new java.io.ByteArrayOutputStream();
@@ -644,20 +724,26 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置结果 */
+        /**
+         * 设置结果
+        */
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
         @Override
-        /** 获取结果 */
+        /**
+         * 获取结果
+        */
         public Object getResult() {
             return result;
         }
 
         @Override
-        /** 发送Redirect */
+        /**
+         * 发送Redirect
+        */
         public ServerResponse sendRedirect(String location) {
             setStatus(302);
             headers.put("Location", location);
@@ -667,7 +753,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 发送记录错误 */
+        /**
+         * 发送记录错误
+        */
         public ServerResponse sendError(int code, String msg) {
             if (ended) {
                 return this;
@@ -680,24 +768,32 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 刷新 */
+        /**
+         * 刷新
+        */
         public void flush() {
         }
 
         @Override
-        /** 是否Committed */
+        /**
+         * 是否Committed
+        */
         public boolean isCommitted() {
             return committed;
         }
 
         @Override
-        /** 是否结束 */
+        /**
+         * 是否结束
+        */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** 结束 */
+        /**
+         * 结束
+        */
         public void end() {
             if (ended) {
                 return;
@@ -706,7 +802,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 重置 */
+        /**
+         * 重置
+        */
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -719,7 +817,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
             if (committed) {
                 return;
@@ -728,7 +828,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** Sse */
+        /**
+         * Sse
+        */
         public ServerResponse sse() {
             this.sseMode = true;
             setContentType("text/event-stream; charset=utf-8");
@@ -751,7 +853,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** sse事件 */
+        /**
+         * sse事件
+        */
         public void sseEvent(String event, String data) {
             if (!sseMode) {
                 return;
@@ -770,7 +874,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** Sse关闭 */
+        /**
+         * Sse关闭
+        */
         public void sseClose() {
             sseEvent(null, "[DONE]");
             this.ended = true;
@@ -807,13 +913,21 @@ public class VertxHttpServer extends AbstractServer {
 
     static class VertxServerRequest implements ServerRequest {
 
-        /** 空字节数组常量 */
+        /**
+         * 空字节数组常量
+        */
         private static final byte[] EMPTY_BYTES = new byte[0];
-        /** CTX */
+        /**
+         * CTX
+        */
         private final RoutingContext ctx;
-        /** 请求体bytes */
+        /**
+         * 请求体bytes
+        */
         private byte[] bodyBytes;
-        /** attributes - 可能被工人线程池访问,保留并发哈希映射 */
+        /**
+         * attributes - 可能被工人线程池访问,保留并发哈希映射
+        */
         private final java.util.concurrent.ConcurrentHashMap<String, Object> attributes = new java.util.concurrent.ConcurrentHashMap<>(4);
 
         VertxServerRequest(RoutingContext ctx) {
@@ -832,31 +946,41 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return ctx.request().uri();
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return ctx.request().path();
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.request().method().name());
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return ctx.request().getHeader(name);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             ctx.request().headers().forEach(e -> h.add(e.getKey(), e.getValue()));
@@ -864,7 +988,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public Map<String, String> getParams() {
             Map<String, String> params = new java.util.HashMap<>();
             ctx.request().params().forEach(e -> params.put(e.getKey(), e.getValue()));
@@ -872,73 +998,97 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public String getParam(String name) {
             return ctx.request().getParam(name);
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return ctx.request().getHeader("Content-Type");
         }
 
         @Override
-        /** 获取内容获取长度 */
+        /**
+         * 获取内容获取长度
+        */
         public long getContentLength() {
             return bodyBytes != null ? bodyBytes.length : 0;
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return bodyBytes;
         }
 
         @Override
-        /** 获取主体字符串 */
+        /**
+         * 获取主体字符串
+        */
         public String getBodyString() {
             return bodyBytes != null ? new String(bodyBytes, StandardCharsets.UTF_8) : "";
         }
 
         @Override
-        /** 获取输入流 */
+        /**
+         * 获取输入流
+        */
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return ctx.request().remoteAddress().host();
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return ctx.request().remoteAddress().port();
         }
 
         @Override
-        /** 获取Attributes */
+        /**
+         * 获取Attributes
+        */
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
         @Override
-        /** 获取Attribute */
+        /**
+         * 获取Attribute
+        */
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
         @Override
-        /** 设置Attribute */
+        /**
+         * 设置Attribute
+        */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
 
         @Override
-        /** 获取form数据 */
+        /**
+         * 获取form数据
+        */
         public Map<String, String> getFormData() {
             Map<String, String> form = new java.util.LinkedHashMap<>();
             var req = ctx.request();
@@ -949,7 +1099,9 @@ public class VertxHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取文件 */
+        /**
+         * 获取文件
+        */
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
             log.debug("[VF] ct={} uploads={} bodyLen={}",

@@ -51,16 +51,24 @@ public final class RandomForestModel implements Serializable {
 
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 底层 Weka 随机森林分类器 */
+    /**
+     * 底层 Weka 随机森林分类器
+    */
     private final RandomForest forest;
 
-    /** 训练参数快照 */
+    /**
+     * 训练参数快照
+    */
     private final RandomForestOptions options;
 
-    /** 建模域快照（特征列 / 目标列 / 回归标记 / 名义取值） */
+    /**
+     * 建模域快照（特征列 / 目标列 / 回归标记 / 名义取值）
+    */
     private final ModelDomain domain;
 
-    /** 创建时间戳（毫秒） */
+    /**
+     * 创建时间戳（毫秒）
+    */
     private final long createdAtMillis;
 
     /**

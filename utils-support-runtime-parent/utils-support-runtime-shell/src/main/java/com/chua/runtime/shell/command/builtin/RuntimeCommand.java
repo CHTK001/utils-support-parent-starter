@@ -67,25 +67,33 @@ public class RuntimeCommand implements Command {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return CMD_NAME;
     }
 
     @Override
-    /** Aliases */
+    /**
+     * Aliases
+    */
     public String[] aliases() {
         return new String[]{SUB_LIST, "services"};
     }
 
     @Override
-    /** Description */
+    /**
+     * Description
+    */
     public String description() {
         return "显示运行时管理状态 (runtime list/start/stop)";
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public int execute(String[] args, Console console) {
         if (args.length == 0) {
             listAll(console);
@@ -186,13 +194,17 @@ public class RuntimeCommand implements Command {
         String id = args[1];
         manager.tailLog(id, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 console.println(line);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String key, Throwable e) {
                 console.error("日志读取失败: " + e.getMessage());
             }

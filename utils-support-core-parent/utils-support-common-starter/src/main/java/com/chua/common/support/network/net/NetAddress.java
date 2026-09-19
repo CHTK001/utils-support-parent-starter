@@ -18,7 +18,9 @@ public class NetAddress implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 协议 */
+    /**
+     * 协议
+    */
     private String protocol;
     /**
      * 主机名
@@ -28,15 +30,21 @@ public class NetAddress implements Serializable {
      * 端口号
      */
     private Integer port;
-    /** 地址 */
+    /**
+     * 地址
+    */
     private String address;
     /**
      * 路径
      */
     private String path;
-    /** Query */
+    /**
+     * Query
+    */
     private String query;
-    /** Fragment */
+    /**
+     * Fragment
+    */
     private String fragment;
     /**
      * 用户名
@@ -55,7 +63,9 @@ public class NetAddress implements Serializable {
      */
     private boolean r2dbc;
 
-    /** 创建 NetAddress 实例 */
+    /**
+     * 创建 NetAddress 实例
+    */
     public NetAddress() {}
 
     /**
@@ -282,7 +292,9 @@ public class NetAddress implements Serializable {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(protocol)) {

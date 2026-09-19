@@ -14,7 +14,9 @@ package com.chua.common.support.objects.definition;
  */
 public class FrameworkBeanDefinition extends AbstractBeanDefinition {
 
-    /** instance */
+    /**
+     * instance
+    */
     private volatile Object instance;
 
     /**
@@ -30,37 +32,49 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** 获取Bean */
+    /**
+     * 获取Bean
+    */
     public Object getBean() {
         return instance;
     }
 
     @Override
-    /** 执行获取Bean */
+    /**
+     * 执行获取Bean
+    */
     protected Object doGetBean() {
         return instance;
     }
 
     @Override
-    /** 设置Bean */
+    /**
+     * 设置Bean
+    */
     protected void setBean(Object bean) {
         this.instance = bean;
     }
 
     @Override
-    /** 创建Instance */
+    /**
+     * 创建Instance
+    */
     public Object createInstance() {
         return instance;
     }
 
     @Override
-    /** 初始化Bean */
+    /**
+     * 初始化Bean
+    */
     public Object initializeBean() {
         return instance;
     }
 
     @Override
-    /** 销毁Bean */
+    /**
+     * 销毁Bean
+    */
     public void destroyBean() {
         if (isDestroyed()) {
             return;

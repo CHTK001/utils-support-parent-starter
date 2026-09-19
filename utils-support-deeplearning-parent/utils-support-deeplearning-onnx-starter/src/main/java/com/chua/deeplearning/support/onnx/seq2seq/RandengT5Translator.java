@@ -42,16 +42,24 @@ import java.nio.file.Path;
 @Slf4j
 public class RandengT5Translator implements Translator<String, String> {
 
-    /** 最大输入长度 */
+    /**
+     * 最大输入长度
+    */
     private static final int MAX_INPUT_LENGTH = 512;
-    /** 结束符标识 */
+    /**
+     * 结束符标识
+    */
     private static final long EOS_ID = 1L;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = findFile(modelRoot, "tokenizer.json");
@@ -68,7 +76,9 @@ public class RandengT5Translator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("RandengT5 tokenizer not initialized");
@@ -89,7 +99,9 @@ public class RandengT5Translator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -108,7 +120,9 @@ public class RandengT5Translator implements Translator<String, String> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

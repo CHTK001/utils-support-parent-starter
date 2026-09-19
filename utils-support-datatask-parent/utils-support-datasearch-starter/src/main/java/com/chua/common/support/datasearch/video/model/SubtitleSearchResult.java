@@ -14,22 +14,40 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubtitleSearchResult {
-    /** subtitleid */
+    /**
+     * subtitleid
+    */
     private String subtitleId;
-    /** 视频标识 */
+    /**
+     * 视频标识
+    */
     private String videoId;
-    /** 视频名称 */
+    /**
+     * 视频名称
+    */
     private String videoName;
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String language;
-    /** Subtitle内容 */
+    /**
+     * Subtitle内容
+    */
     private String subtitleContent;
-    /** 开始时间 */
+    /**
+     * 开始时间
+    */
     private String startTime;
-    /** 结束时间 */
+    /**
+     * 结束时间
+    */
     private String endTime;
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** 视频URL */
+    /**
+     * 视频URL
+    */
     private String videoUrl;
 }

@@ -89,7 +89,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
@@ -101,7 +103,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         CompletableFuture<WebSocket> cf = httpClient.newWebSocketBuilder()
                 .buildAsync(URI.create(serverUri), new WebSocket.Listener() {
                     @Override
-                    /** On打开 */
+                    /**
+                     * On打开
+                    */
                     public void onOpen(WebSocket webSocket) {
                         WebSocketDataSyncAgent.this.webSocket = webSocket;
                         sendRegister();
@@ -114,7 +118,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
                     }
 
                     @Override
-                    /** On记录错误 */
+                    /**
+                     * On记录错误
+                    */
                     public void onError(WebSocket webSocket, Throwable error) {
                     }
                 });
@@ -126,7 +132,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running = false;
         if (webSocket != null) {
@@ -136,30 +144,40 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** AgentId */
+    /**
+     * AgentId
+    */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** ToSource */
+    /**
+     * ToSource
+    */
     public DataSyncSource toSource() {
         return source;
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** DataUrl */
+    /**
+     * DataUrl
+    */
     public String dataUrl() {
         return "";
     }
 
-    /** 发送注册 */
+    /**
+     * 发送注册
+    */
     private void sendRegister() {
         sendJson(Map.of(
                 "type", "register",
@@ -169,7 +187,9 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         ));
     }
 
-    /** 开始MessageLoop */
+    /**
+     * 开始MessageLoop
+    */
     private void startMessageLoop() {
         Thread t = new Thread(() -> {
             while (running && !Thread.currentThread().isInterrupted()) {

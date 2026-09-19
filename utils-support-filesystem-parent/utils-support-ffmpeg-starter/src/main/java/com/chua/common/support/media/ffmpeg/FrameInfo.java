@@ -12,25 +12,39 @@ package com.chua.common.support.media.ffmpeg;
  */
 public class FrameInfo {
 
-    /** 帧序号（从 0 开始） */
+    /**
+     * 帧序号（从 0 开始）
+    */
     private long frameNumber;
 
-    /** 帧时间戳（毫秒） */
+    /**
+     * 帧时间戳（毫秒）
+    */
     private long timestampMs;
 
-    /** 视频宽度 */
+    /**
+     * 视频宽度
+    */
     private int width;
 
-    /** 视频高度 */
+    /**
+     * 视频高度
+    */
     private int height;
 
-    /** 视频编码器名称 */
+    /**
+     * 视频编码器名称
+    */
     private String codec;
 
-    /** 帧率 */
+    /**
+     * 帧率
+    */
     private double fps;
 
-    /** 是否为关键帧 */
+    /**
+     * 是否为关键帧
+    */
     private boolean keyFrame;
 
     /**
@@ -41,7 +55,9 @@ public class FrameInfo {
      */
     private byte[] imageData;
 
-    /** 创建 帧信息 实例 */
+    /**
+     * 创建 帧信息 实例
+    */
     public FrameInfo() {
     }
 
@@ -150,7 +166,9 @@ public class FrameInfo {
     public void setImageData(byte[] imageData) { this.imageData = imageData; }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return "FrameInfo{frame=" + frameNumber + ", ts=" + timestampMs + "ms, " +
                 width + "x" + height + ", key=" + keyFrame +

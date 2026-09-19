@@ -26,17 +26,29 @@ import org.bytedeco.javacv.Frame;
 @Spi("javacv")
 public class JavaCVScreenCapture implements ScreenCature {
 
-    /** Grabber */
+    /**
+     * Grabber
+    */
     private FFmpegFrameGrabber grabber;
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     private int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     private int height;
-    /** FPS */
+    /**
+     * FPS
+    */
     private int fps;
-    /** initialized */
+    /**
+     * initialized
+    */
     private volatile boolean initialized;
-    /** Pixelstride */
+    /**
+     * Pixelstride
+    */
     private int pixelStride;
 
     /**
@@ -57,7 +69,9 @@ public class JavaCVScreenCapture implements ScreenCature {
     private volatile Frame reusableResultFrame;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public boolean init(int width, int height, int fps) {
         close();
         try {
@@ -98,7 +112,9 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
-    /** grab帧 */
+    /**
+     * grab帧
+    */
     public Frame grabFrame() {
         if (!initialized || grabber == null) {
             return null;
@@ -200,19 +216,25 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
-    /** 获取Width */
+    /**
+     * 获取Width
+    */
     public int getWidth() {
         return width;
     }
 
     @Override
-    /** 获取Height */
+    /**
+     * 获取Height
+    */
     public int getHeight() {
         return height;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         initialized = false;
         try {

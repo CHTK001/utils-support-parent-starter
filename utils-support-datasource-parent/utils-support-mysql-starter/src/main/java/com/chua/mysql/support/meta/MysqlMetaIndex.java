@@ -44,7 +44,9 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<IndexMetadata> list() {
         List<IndexMetadata> result = new ArrayList<>();
         if (tableName == null) {
@@ -95,7 +97,9 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public IndexMetadata get(String indexName) {
         List<IndexMetadata> all = list();
         return all.stream()
@@ -105,13 +109,17 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public IndexCreateBuilder create(String indexName) {
         return new MysqlIndexCreateBuilder(this, indexName);
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop(String indexName) {
         String sql = "ALTER TABLE " + quote(tableName) + " DROP INDEX " + quote(indexName);
         return executeUpdate(sql);
@@ -164,19 +172,33 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
 
     private static class MysqlIndexCreateBuilder implements IndexCreateBuilder {
 
-        /** Meta索引 */
+        /**
+         * Meta索引
+        */
         private final MysqlMetaIndex metaIndex;
-        /** 索引名称 */
+        /**
+         * 索引名称
+        */
         private final String indexName;
-        /** Columns */
+        /**
+         * Columns
+        */
         private final List<String> columns = new ArrayList<>();
-        /** Unique */
+        /**
+         * Unique
+        */
         private boolean unique;
-        /** 类型 */
+        /**
+         * 类型
+        */
         private String type;
-        /** 评论 */
+        /**
+         * 评论
+        */
         private String comment;
-        /** Visible */
+        /**
+         * Visible
+        */
         private boolean visible = true;
 
         MysqlIndexCreateBuilder(MysqlMetaIndex metaIndex, String indexName) {
@@ -185,14 +207,18 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
-        /** Column */
+        /**
+         * Column
+        */
         public IndexCreateBuilder column(String columnName) {
             columns.add(columnName);
             return this;
         }
 
         @Override
-        /** Columns */
+        /**
+         * Columns
+        */
         public IndexCreateBuilder columns(String... columnNames) {
             for (String col : columnNames) {
                 columns.add(col);
@@ -201,42 +227,54 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
         }
 
         @Override
-        /** Unique */
+        /**
+         * Unique
+        */
         public IndexCreateBuilder unique() {
             this.unique = true;
             return this;
         }
 
         @Override
-        /** 类型 */
+        /**
+         * 类型
+        */
         public IndexCreateBuilder type(String type) {
             this.type = type;
             return this;
         }
 
         @Override
-        /** 使用 */
+        /**
+         * 使用
+        */
         public IndexCreateBuilder using(String algorithm) {
             this.type = algorithm;
             return this;
         }
 
         @Override
-        /** 评论 */
+        /**
+         * 评论
+        */
         public IndexCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
-        /** Visible */
+        /**
+         * Visible
+        */
         public IndexCreateBuilder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public IndexMetadata execute() {
             if (columns.isEmpty()) {
                 throw new IllegalStateException("索引列不能为空");

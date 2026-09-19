@@ -75,7 +75,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         if (connected) {
             return;
@@ -88,7 +90,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         if (!connected) {
             return;
@@ -103,19 +107,25 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 是否连接 */
+    /**
+     * 是否连接
+    */
     public boolean isConnected() {
         return connected && socket != null && socket.connected();
     }
 
     @Override
-    /** 获取客户端id */
+    /**
+     * 获取客户端id
+    */
     public String getClientId() {
         return clientId;
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String topic, Object message) {
         if (!connected || socket == null) {
             throw new IllegalStateException("客户端未连接");
@@ -124,7 +134,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
         if (connected && socket != null) {
@@ -133,7 +145,9 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(String topic) {
         SyncMessageHandler removed = subscriptions.remove(topic);
         if (removed != null && socket != null) {
@@ -142,30 +156,40 @@ public class SocketIOSyncClient implements SyncClient {
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取Metadata */
+    /**
+     * 获取Metadata
+    */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "socketio");
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }
 
-    /** 执行连接 */
+    /**
+     * 执行连接
+    */
     private void doConnect() throws Exception {
         URI uri = URI.create(serverUrl);
         IO.Options options = new IO.Options();

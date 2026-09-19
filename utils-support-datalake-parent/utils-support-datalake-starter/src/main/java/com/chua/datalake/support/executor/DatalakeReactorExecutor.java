@@ -72,7 +72,9 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String sinkId, Consumer<List<Map<String, Object>>> consumer) {
         if (chronicleProvider == null) {
             log.warn("[datalake-server] ReactorExecutor 订阅跳过: chronicleProvider 未初始化");
@@ -102,7 +104,9 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String sinkId, List<Map<String, Object>> data) {
         if (data == null) {
             return;

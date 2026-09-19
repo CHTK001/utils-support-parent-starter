@@ -74,11 +74,17 @@ public class SshClient implements AutoCloseable {
      */
     private final int sessionTimeout;
 
-    /** exec 通道打开超时（秒） */
+    /**
+     * exec 通道打开超时（秒）
+    */
     private static final long EXEC_OPEN_TIMEOUT_SECONDS = 10L;
-    /** exec 通道退出码等待（毫秒） */
+    /**
+     * exec 通道退出码等待（毫秒）
+    */
     private static final long EXEC_EXIT_WAIT_MILLIS = 30_000L;
-    /** 取到退出码后等待输出流 EOF 的排空窗口（毫秒），仅在通道仍被后台进程占着时才会用满 */
+    /**
+     * 取到退出码后等待输出流 EOF 的排空窗口（毫秒），仅在通道仍被后台进程占着时才会用满
+    */
     private static final long EXEC_OUTPUT_DRAIN_MILLIS = 250L;
 
     /**
@@ -106,7 +112,9 @@ public class SshClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
-    /** Builder */
+    /**
+     * Builder
+    */
     public static Builder builder() { return new Builder(); }
 
     /**
@@ -157,7 +165,9 @@ public class SshClient implements AutoCloseable {
         return this;
     }
 
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         try {
             if (session != null) {
@@ -173,7 +183,9 @@ public class SshClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() { disconnect(); }
 
     // ==================== 操作入口 ====================
@@ -225,13 +237,17 @@ public class SshClient implements AutoCloseable {
 
         ExecOperation(SshClient client) { this.client = client; }
 
-        /** Command */
+        /**
+         * Command
+        */
         public ExecOperation command(String cmd) {
             this.command = cmd;
             return this;
         }
 
-        /** 执行 */
+        /**
+         * 执行
+        */
         public ExecResult execute() {
             try {
                 var channel = client.getSession().createExecChannel(command);
@@ -260,9 +276,13 @@ public class SshClient implements AutoCloseable {
             }
         }
 
-        /** 执行And获取Output */
+        /**
+         * 执行And获取Output
+        */
         public String executeAndGetOutput() { return execute().stdout(); }
-        /** 执行And获取ExitCode */
+        /**
+         * 执行And获取ExitCode
+        */
         public int executeAndGetExitCode() { return execute().exitCode(); }
     }
 
@@ -281,7 +301,9 @@ public class SshClient implements AutoCloseable {
 
         ShellOperation(SshClient client) { this.client = client; }
 
-        /** 连接 */
+        /**
+         * 连接
+        */
         public ShellOperation connect() {
             try {
                 channel = client.getSession().createShellChannel();
@@ -293,14 +315,18 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 发送 */
+        /**
+         * 发送
+        */
         public ShellOperation send(String command) throws IOException {
             channel.getInvertedIn().write((command + "\n").getBytes());
             channel.getInvertedIn().flush();
             return this;
         }
 
-        /** 读取All */
+        /**
+         * 读取All
+        */
         public String readAll() throws IOException {
             StringBuilder sb = new StringBuilder();
             try (InputStream in = channel.getInvertedOut()) {
@@ -313,7 +339,9 @@ public class SshClient implements AutoCloseable {
             return sb.toString();
         }
 
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             try {
                 channel.close();
@@ -398,13 +426,17 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 绑定Address */
+        /**
+         * 绑定Address
+        */
         public ForwardOperation bindAddress(String address) {
             this.bindAddress = address;
             return this;
         }
 
-        /** 开始 */
+        /**
+         * 开始
+        */
         public AutoCloseable start() {
             try {
                 if (dynamic) {
@@ -419,7 +451,9 @@ public class SshClient implements AutoCloseable {
             }
         }
 
-        /** 开始Local */
+        /**
+         * 开始Local
+        */
         private AutoCloseable startLocal() throws IOException {
             SshdSocketAddress bindAddr = new SshdSocketAddress(bindAddress, localPort);
             SshdSocketAddress remoteAddr = new SshdSocketAddress(remoteHost, remotePort);
@@ -429,7 +463,9 @@ public class SshClient implements AutoCloseable {
             return tracker;
         }
 
-        /** 开始Remote */
+        /**
+         * 开始Remote
+        */
         private AutoCloseable startRemote() throws IOException {
             SshdSocketAddress remoteAddr = new SshdSocketAddress(bindAddress, remotePort);
             SshdSocketAddress localAddr = new SshdSocketAddress(remoteHost, localPort);
@@ -439,7 +475,9 @@ public class SshClient implements AutoCloseable {
             return tracker;
         }
 
-        /** 开始Dynamic */
+        /**
+         * 开始Dynamic
+        */
         private AutoCloseable startDynamic() throws IOException {
             SshdSocketAddress bindAddr = new SshdSocketAddress(bindAddress, localPort);
             AutoCloseable tracker = client.getSession().createDynamicPortForwardingTracker(bindAddr);
@@ -575,33 +613,45 @@ public class SshClient implements AutoCloseable {
 
         TerminalOperation(SshClient client) { this.client = client; }
 
-        /** Pty */
+        /**
+         * Pty
+        */
         public TerminalOperation pty(boolean v) {
             this.pty = v;
             return this;
         }
-        /** Width */
+        /**
+         * Width
+        */
         public TerminalOperation width(int w) {
             this.width = w;
             return this;
         }
-        /** Height */
+        /**
+         * Height
+        */
         public TerminalOperation height(int h) {
             this.height = h;
             return this;
         }
-        /** OnOutput */
+        /**
+         * OnOutput
+        */
         public TerminalOperation onOutput(Consumer<String> callback) {
             this.outputCallback = callback;
             return this;
         }
-        /** On关闭 */
+        /**
+         * On关闭
+        */
         public TerminalOperation onClose(Runnable callback) {
             this.closeCallback = callback;
             return this;
         }
 
-        /** 连接 */
+        /**
+         * 连接
+        */
         public TerminalOperation connect() {
             try {
                 PtyChannelConfiguration ptyConfig = new PtyChannelConfiguration();
@@ -624,7 +674,9 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 开始ReaderThread */
+        /**
+         * 开始ReaderThread
+        */
         private void startReaderThread() {
             readerThread = new Thread(() -> {
                 byte[] buf = new byte[4096];
@@ -659,7 +711,9 @@ public class SshClient implements AutoCloseable {
             readerThread.start();
         }
 
-        /** 发送 */
+        /**
+         * 发送
+        */
         public TerminalOperation send(String command) throws IOException {
             if (!connected) {
                 throw new SshClientException("终端未连接", null);
@@ -669,7 +723,9 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 发送Raw */
+        /**
+         * 发送Raw
+        */
         public TerminalOperation sendRaw(String input) throws IOException {
             if (!connected) {
                 throw new SshClientException("终端未连接", null);
@@ -679,7 +735,9 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 发送Key */
+        /**
+         * 发送Key
+        */
         public TerminalOperation sendKey(String key) throws IOException {
             if (!connected) {
                 throw new SshClientException("终端未连接", null);
@@ -696,7 +754,9 @@ public class SshClient implements AutoCloseable {
             return this;
         }
 
-        /** 读取Buffer */
+        /**
+         * 读取Buffer
+        */
         public String readBuffer() {
             synchronized (outputBuffer) {
                 String data = outputBuffer.toString();
@@ -705,7 +765,9 @@ public class SshClient implements AutoCloseable {
             }
         }
 
-        /** 读取Until */
+        /**
+         * 读取Until
+        */
         public String readUntil(String expected, long timeoutMs) throws InterruptedException {
             waitingForPrompt = true;
             expectedPrompt = expected;
@@ -719,7 +781,9 @@ public class SshClient implements AutoCloseable {
             return output;
         }
 
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             connected = false;
             try {
@@ -734,7 +798,9 @@ public class SshClient implements AutoCloseable {
             }
         }
 
-        /** 是否Connected */
+        /**
+         * 是否Connected
+        */
         public boolean isConnected() { return connected; }
     }
 
@@ -748,7 +814,9 @@ public class SshClient implements AutoCloseable {
      * @return 结果值
      */
     public record ExecResult(int exitCode, String stdout, String stderr) {
-        /** 获取Output */
+        /**
+         * 获取Output
+        */
         public String getOutput() {
             return stdout;
         }
@@ -786,43 +854,59 @@ public class SshClient implements AutoCloseable {
          */
         private int sessionTimeout = 30;
 
-        /** Host */
+        /**
+         * Host
+        */
         public Builder host(String h) {
             this.host = h;
             return this;
         }
-        /** Port */
+        /**
+         * Port
+        */
         public Builder port(int p) {
             this.port = p;
             return this;
         }
-        /** Username */
+        /**
+         * Username
+        */
         public Builder username(String u) {
             this.username = u;
             return this;
         }
-        /** Password */
+        /**
+         * Password
+        */
         public Builder password(String p) {
             this.password = p;
             return this;
         }
-        /** PrivateKey */
+        /**
+         * PrivateKey
+        */
         public Builder privateKey(String path) {
             this.privateKeyPath = path;
             return this;
         }
-        /** 连接Timeout */
+        /**
+         * 连接Timeout
+        */
         public Builder connectTimeout(int t) {
             this.connectTimeout = t;
             return this;
         }
-        /** SessionTimeout */
+        /**
+         * SessionTimeout
+        */
         public Builder sessionTimeout(int t) {
             this.sessionTimeout = t;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+        */
         public SshClient build() {
             if (host == null) {
                 throw new IllegalArgumentException("host 不能为空");

@@ -155,7 +155,9 @@ class DefaultPedestrianDetector implements PedestrianDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -193,21 +195,27 @@ class DefaultPedestrianDetector implements PedestrianDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public PedestrianDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public PedestrianDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public PedestrianDetector device(String device) {
         this.device = device;
         return this;

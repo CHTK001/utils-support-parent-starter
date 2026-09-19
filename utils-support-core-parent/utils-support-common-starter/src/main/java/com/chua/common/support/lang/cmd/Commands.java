@@ -64,10 +64,14 @@ import java.util.stream.Collectors;
  */
 public final class Commands {
 
-    /** 内部命令容器 */
+    /**
+     * 内部命令容器
+    */
     private final Map<String, Cmd> commandMap = new ConcurrentHashMap<>();
 
-    /** 创建 Commands 实例 */
+    /**
+     * 创建 Commands 实例
+    */
     private Commands() {
     }
 

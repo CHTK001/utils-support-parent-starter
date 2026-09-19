@@ -35,21 +35,33 @@ import java.util.List;
  */
 public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryWrapper<T>> {
 
-    /** 查询列列表 */
+    /**
+     * 查询列列表
+    */
     private final List<String> selectColumns = new ArrayList<>();
-    /** 分组列名 */
+    /**
+     * 分组列名
+    */
     private String groupByColumn;
-    /** 返回行数上限，0 表示不限制 */
+    /**
+     * 返回行数上限，0 表示不限制
+    */
     private int limit;
-    /** 偏移行数，0 表示不偏移 */
+    /**
+     * 偏移行数，0 表示不偏移
+    */
     private int offset;
-    /** JOIN 关联子句列表 */
+    /**
+     * JOIN 关联子句列表
+    */
     private final List<JoinClause> joins = new ArrayList<>();
     /**
      * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
      */
     private String havingClause;
-    /** HAVING 条件参数列表（与 ? 占位符顺序一致） */
+    /**
+     * HAVING 条件参数列表（与 ? 占位符顺序一致）
+    */
     private final List<Object> havingParams = new ArrayList<>();
 
     /**
@@ -424,7 +436,9 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     // ==================== 内部实现 ====================
 
     @Override
-    /** NewInstance */
+    /**
+     * NewInstance
+    */
     protected LambdaQueryWrapper<T> newInstance() {
         return new LambdaQueryWrapper<>(entityClass);
     }

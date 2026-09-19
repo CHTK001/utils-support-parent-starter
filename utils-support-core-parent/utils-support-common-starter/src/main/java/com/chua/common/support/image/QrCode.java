@@ -17,9 +17,13 @@ public interface QrCode {
      * 编码类型：二维码 / 条形码
      */
     enum BarcodeType {
-        /** 二维码（QR Code） */
+        /**
+         * 二维码（QR Code）
+        */
         QR_CODE,
-        /** 条形码 */
+        /**
+         * 条形码
+        */
         BARCODE
     }
 

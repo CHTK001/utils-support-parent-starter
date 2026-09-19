@@ -31,14 +31,22 @@ import java.util.Map;
  */
 public class SkillsmpProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(SkillsmpProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     protected static final String NAME = "skillsmp";
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     protected static final String PREFIX = "";
-    /** Api_基础 */
+    /**
+     * Api_基础
+    */
     protected static final String API_BASE = "https://skillsmp.com/api/skills";
 
     /**
@@ -191,24 +199,32 @@ public class SkillsmpProvider {
      * @since 4.0.0
      */
     protected class SkillsmpMcpClient implements McpClient {
-        /** initialized */
+        /**
+         * initialized
+        */
         private volatile boolean initialized = false;
 
         @Override
-        /** 初始化 */
+        /**
+         * 初始化
+        */
         public void init() {
             initialized = true;
             log.info("skillsmp MCP 客户端已初始化");
         }
 
         @Override
-        /** 列表tools */
+        /**
+         * 列表tools
+        */
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }
 
         @Override
-        /** 调用Tool */
+        /**
+         * 调用Tool
+        */
         public McpToolResult callTool(McpToolCall toolCall) {
             try {
                 if ((PREFIX + "search").equals(toolCall.getToolName())) {
@@ -222,7 +238,9 @@ public class SkillsmpProvider {
         }
 
         @Override
-        /** 是否Initialized */
+        /**
+         * 是否Initialized
+        */
         public boolean isInitialized() {
             return initialized;
         }

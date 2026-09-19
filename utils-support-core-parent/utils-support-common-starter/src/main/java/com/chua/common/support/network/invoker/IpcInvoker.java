@@ -34,7 +34,9 @@ import java.util.concurrent.ConcurrentMap;
 public class IpcInvoker implements Invoker {
 
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
-    /** 全局injectrules */
+    /**
+     * 全局injectrules
+    */
     private final List<SharedInvocationContext.InjectRule> globalInjectRules = new java.util.ArrayList<>();
 
     @Override
@@ -164,15 +166,25 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
 
     private static class IpcInvocationHandler implements InvocationHandler {
 
-        /** BaseURL */
+        /**
+         * BaseURL
+        */
         private final String baseUrl;
-        /** Namespace */
+        /**
+         * Namespace
+        */
         private final String namespace;
-        /** Filters */
+        /**
+         * Filters
+        */
         private final List<ServerFilter> filters;
-        /** Shared上下文 */
+        /**
+         * Shared上下文
+        */
         private final SharedInvocationContext sharedContext;
-        /** Property解析器 */
+        /**
+         * Property解析器
+        */
         private final StringValuePropertyResolver propertyResolver = new StringValuePropertyResolver(null);
 
         IpcInvocationHandler(String baseUrl, String namespace, List<ServerFilter> filters, SharedInvocationContext sharedContext) {
@@ -346,7 +358,9 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
 
         private static void runFilterChain(InvocationContext ctx, List<ServerFilter> filters) {
             ServerFilterChain chain = new ServerFilterChain() {
-                /** 索引 */
+                /**
+                 * 索引
+                */
                 private int index = 0;
                 @Override
                 /**

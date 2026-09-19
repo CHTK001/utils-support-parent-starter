@@ -27,13 +27,21 @@ import java.util.Map;
 @Slf4j
 public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directional {
 
-    /** 写入端标识 */
+    /**
+     * 写入端标识
+    */
     private final String sinkId;
-    /** 文件路径 */
+    /**
+     * 文件路径
+    */
     private final Path filePath;
-    /** 分隔符 */
+    /**
+     * 分隔符
+    */
     private final String delimiter;
-    /** 是否追加写入 */
+    /**
+     * 是否追加写入
+    */
     private final boolean append;
 
     /**
@@ -66,13 +74,17 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     @Override
-    /** sinkid */
+    /**
+     * sinkid
+    */
     public String sinkId() {
         return sinkId;
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(Flux<Map<String, Object>> data) {
         try (BufferedWriter writer = openWriter()) {
             log.info("[DelimitedDataSyncAgentSink] 开始写入, sinkId={}, path={}, append={}", sinkId, filePath, append);
@@ -111,13 +123,17 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
  // 每次 写入 都是 尝试-with-resources，无需额外关闭
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.OUTPUT;
     }

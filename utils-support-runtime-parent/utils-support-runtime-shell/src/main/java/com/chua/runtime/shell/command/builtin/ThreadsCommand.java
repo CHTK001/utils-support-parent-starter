@@ -16,25 +16,33 @@ import java.lang.management.ThreadMXBean;
 public class ThreadsCommand implements Command {
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "threads";
     }
 
     @Override
-    /** Aliases */
+    /**
+     * Aliases
+    */
     public String[] aliases() {
         return new String[]{"th", "dump"};
     }
 
     @Override
-    /** Description */
+    /**
+     * Description
+    */
     public String description() {
         return "显示 JVM 线程列表与状态";
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public int execute(String[] args, Console console) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         long[] ids = bean.getAllThreadIds();

@@ -18,14 +18,18 @@ import java.util.Locale;
 public class TextPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String extension, String mimeType) {
         return "txt".equalsIgnoreCase(extension)
                 || "text/plain".equals(mimeType);
     }
 
     @Override
-    /** Preview */
+    /**
+     * Preview
+    */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String text = new String(content, StandardCharsets.UTF_8);
         String css = "body{margin:0;padding:16px;font-family:'Georgia',serif;line-height:1.8;color:#333;max-width:720px;margin:0 auto}"

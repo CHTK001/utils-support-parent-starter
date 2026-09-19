@@ -18,7 +18,9 @@ public class EveryCodeUsageParser extends AbstractCodexForkRolloutUsageParser {
 
     private final Path sessionsRoot;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public EveryCodeUsageParser() {
         String home = System.getenv("CODE_HOME");
         Path root = (home != null && !home.isBlank())

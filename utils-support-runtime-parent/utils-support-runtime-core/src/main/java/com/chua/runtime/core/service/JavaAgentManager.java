@@ -64,7 +64,9 @@ public interface JavaAgentManager extends AutoCloseable {
     CmdResult detach(int pid);
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     default void close() throws Exception {
     }
 }

@@ -35,7 +35,9 @@ public class IniReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public IniReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -128,7 +130,9 @@ public class IniReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Object read() {
         return rows();
     }

@@ -598,7 +598,9 @@ public interface ServiceProvider<T> {
         }
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             @Override
-            /** 应用 */
+            /**
+             * 应用
+            */
             public Object apply(ProxyMethod proxyMethod) {
                 Object result = null;
                 for (T t : collect) {
@@ -673,7 +675,9 @@ public interface ServiceProvider<T> {
         Map<Class<?>, Set<String>> failedMethods = new ConcurrentHashMap<>();
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
             @Override
-            /** 应用 */
+            /**
+             * 应用
+            */
             public Object apply(ProxyMethod proxyMethod) {
                 String methodName = proxyMethod.getMethodName();
                 Exception last = null;

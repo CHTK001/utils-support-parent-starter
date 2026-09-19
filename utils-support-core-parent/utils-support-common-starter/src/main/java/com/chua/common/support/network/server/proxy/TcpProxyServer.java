@@ -130,14 +130,18 @@ public class TcpProxyServer extends AbstractProxyServer {
     }
 
     @Override
-    /** 添加过滤 */
+    /**
+     * 添加过滤
+    */
     public TcpProxyServer addFilter(ServerFilter filter) {
         super.addFilter(filter);
         return this;
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

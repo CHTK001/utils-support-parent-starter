@@ -72,10 +72,14 @@ public class ActionsOperation {
      */
     public enum CiPlatform {
 
-        /** GitHub Actions 平台 */
+        /**
+         * GitHub Actions 平台
+        */
         GITHUB,
 
-        /** Gitee Go 流水线平台 */
+        /**
+         * Gitee Go 流水线平台
+        */
         GITEE
     }
 

@@ -17,16 +17,24 @@ import lombok.Data;
 @Builder(toBuilder = true)
 public class ConversationMessage {
 
-    /** 来源工具标识（如 claude-编码、qoder） */
+    /**
+     * 来源工具标识（如 claude-编码、qoder）
+    */
     private String provider;
 
-    /** 会话 标识 */
+    /**
+     * 会话 标识
+    */
     private String sessionId;
 
-    /** 消息 标识 */
+    /**
+     * 消息 标识
+    */
     private String messageId;
 
-    /** 角色：用户 / assistant */
+    /**
+     * 角色：用户 / assistant
+    */
     private String role;
 
     /**
@@ -37,15 +45,23 @@ public class ConversationMessage {
      */
     private String contentType;
 
-    /** 文本内容（仅 文本 块有值） */
+    /**
+     * 文本内容（仅 文本 块有值）
+    */
     private String content;
 
-    /** assistant 消息的模型名 */
+    /**
+     * assistant 消息的模型名
+    */
     private String model;
 
-    /** 时间戳（轮次 毫秒） */
+    /**
+     * 时间戳（轮次 毫秒）
+    */
     private Long timestamp;
 
-    /** 消息发生时的工作目录 */
+    /**
+     * 消息发生时的工作目录
+    */
     private String cwd;
 }

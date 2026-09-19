@@ -16,7 +16,9 @@ import com.chua.deeplearning.support.dl4j.train.ResNet50TransferTrainer;
  */
 public final class TrainerFactory {
 
-    /** 默认训练器实例（懒加载） */
+    /**
+     * 默认训练器实例（懒加载）
+    */
     private static volatile Trainer current;
 
     /**

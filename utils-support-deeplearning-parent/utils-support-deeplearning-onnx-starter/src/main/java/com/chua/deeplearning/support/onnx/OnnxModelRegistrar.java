@@ -21,12 +21,16 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public void register(ModelRegistry registry) {
         registerAll();
     }
 
-    /** 注册全部 */
+    /**
+     * 注册全部
+    */
     private static void registerAll() {
         // 通用动作识别：识别图片中人物动作（跑步、跳跃等），输出动作类别+置信度；适用安防监控、体育分析
         reg("common-action", "com.chua.deeplearning.support.onnx.action.CommonActionTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class, com.chua.deeplearning.support.image.ImageClassifier.class, "vision/action/common/action.onnx", "https://huggingface.co/onnx-community/action-recognition/resolve/main/onnx/model.onnx", false, null);

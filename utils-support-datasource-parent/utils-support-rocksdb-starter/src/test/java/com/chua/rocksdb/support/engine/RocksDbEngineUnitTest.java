@@ -24,11 +24,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class RocksDbEngineUnitTest {
 
-    /** 临时目录 */
+    /**
+     * 临时目录
+    */
     @TempDir
     Path tempDir;
 
-    /** 引擎实例 */
+    /**
+     * 引擎实例
+    */
     private RocksDbEngine engine;
 
     /**
@@ -352,52 +356,78 @@ public class RocksDbEngineUnitTest {
 
     // ==================== ORM 支持 ====================
 
-    /** 测试 用 实体 */
+    /**
+     * 测试 用 实体
+    */
     public static class User {
-        /** 标识 */
+        /**
+         * 标识
+        */
         public Integer id;
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name;
-        /** 年龄 */
+        /**
+         * 年龄
+        */
         public Integer age;
-        /** 部门编号（多 词 驼峰 字段，验证 snake → camel 映射） */
+        /**
+         * 部门编号（多 词 驼峰 字段，验证 snake → camel 映射）
+        */
         public Integer deptId;
 
-        /** 空 构造 器 */
+        /**
+         * 空 构造 器
+        */
         public User() {
         }
 
-        /** 获取id */
+        /**
+         * 获取id
+        */
         public Integer getId() {
             return id;
         }
 
-        /** 获取name */
+        /**
+         * 获取name
+        */
         public String getName() {
             return name;
         }
 
-        /** 获取age */
+        /**
+         * 获取age
+        */
         public Integer getAge() {
             return age;
         }
 
-        /** 获取deptId */
+        /**
+         * 获取deptId
+        */
         public Integer getDeptId() {
             return deptId;
         }
 
-        /** 设置name */
+        /**
+         * 设置name
+        */
         public void setName(String name) {
             this.name = name;
         }
 
-        /** 设置age */
+        /**
+         * 设置age
+        */
         public void setAge(Integer age) {
             this.age = age;
         }
 
-        /** 设置deptId */
+        /**
+         * 设置deptId
+        */
         public void setDeptId(Integer deptId) {
             this.deptId = deptId;
         }
@@ -683,21 +713,31 @@ public class RocksDbEngineUnitTest {
                 "并 发 插入 后 FTS 不 应 丢 任 何 文档（C1 修复 验证）");
     }
 
-    /** 无 id 字段 的 测试 实体（验证 自增 序号 路径） */
+    /**
+     * 无 id 字段 的 测试 实体（验证 自增 序号 路径）
+    */
     public static class NoIdDoc {
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name;
 
-        /** 空 构造 器 */
+        /**
+         * 空 构造 器
+        */
         public NoIdDoc() {
         }
 
-        /** 获取name */
+        /**
+         * 获取name
+        */
         public String getName() {
             return name;
         }
 
-        /** 设置name */
+        /**
+         * 设置name
+        */
         public void setName(String name) {
             this.name = name;
         }

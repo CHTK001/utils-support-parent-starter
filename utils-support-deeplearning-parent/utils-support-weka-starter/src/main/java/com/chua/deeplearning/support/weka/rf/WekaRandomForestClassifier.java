@@ -294,10 +294,14 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
 
         private static final long serialVersionUID = 1L;
 
-        /** 无状态分类场景对象（可序列化） */
+        /**
+         * 无状态分类场景对象（可序列化）
+        */
         private final WekaRandomForestClassifier task;
 
-        /** 训练好的模型 */
+        /**
+         * 训练好的模型
+        */
         private final RandomForestModel model;
 
         /**

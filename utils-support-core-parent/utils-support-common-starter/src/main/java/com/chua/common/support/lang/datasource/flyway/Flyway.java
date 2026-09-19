@@ -36,7 +36,9 @@ import java.nio.file.Path;
  */
 @Spi(Flyway.SPI_NAME)
 public interface Flyway {
-    /** SPI 名称 */
+    /**
+     * SPI 名称
+    */
     String SPI_NAME = "flyway";
 
     /**

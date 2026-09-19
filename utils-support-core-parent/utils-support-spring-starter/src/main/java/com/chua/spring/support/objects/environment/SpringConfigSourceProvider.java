@@ -21,7 +21,9 @@ import java.util.List;
 public class SpringConfigSourceProvider implements ConfigSourceProvider {
 
     @Override
-    /** 获取财产源 */
+    /**
+     * 获取财产源
+    */
     public List<com.chua.common.support.config.source.PropertySource> getPropertySources() {
         List<com.chua.common.support.config.source.PropertySource> result = new ArrayList<>();
         try {
@@ -55,10 +57,14 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
      */
     private static class SpringPropertySourceAdapter implements com.chua.common.support.config.source.PropertySource {
 
-        /** 名称 */
+        /**
+         * 名称
+        */
         private final String name;
         private final org.springframework.core.env.PropertySource<?> delegate; // delegate
-        /** 优先级 */
+        /**
+         * 优先级
+        */
         private final int priority;
 
         SpringPropertySourceAdapter(org.springframework.core.env.PropertySource<?> delegate, int priority) {
@@ -68,7 +74,9 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
         }
 
         @Override
-        /** 获取财产 */
+        /**
+         * 获取财产
+        */
         public Object getProperty(String key) {
             try {
                 return delegate.getProperty(key);
@@ -78,13 +86,17 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
         }
 
         @Override
-        /** 获取名称 */
+        /**
+         * 获取名称
+        */
         public String getName() {
             return name;
         }
 
         @Override
-        /** 获取Priority */
+        /**
+         * 获取Priority
+        */
         public int getPriority() {
             return priority;
         }

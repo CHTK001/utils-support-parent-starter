@@ -40,7 +40,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 midas深度translator 实例 */
+    /**
+     * 创建 midas深度translator 实例
+    */
     public MidasDepthTranslator() {
         this(512, 512);
     }
@@ -57,7 +59,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -70,7 +74,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         NDArray min = depthPt.min();
@@ -86,7 +92,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

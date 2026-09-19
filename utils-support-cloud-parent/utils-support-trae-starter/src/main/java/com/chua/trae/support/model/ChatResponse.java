@@ -13,17 +13,29 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChatResponse {
 
-    /** 响应 标识，cmpl- 前缀 */
+    /**
+     * 响应 标识，cmpl- 前缀
+    */
     @JsonProperty("id") private String id;
-    /** 对象类型，固定 对话.完成 */
+    /**
+     * 对象类型，固定 对话.完成
+    */
     @JsonProperty("object") private String object;
-    /** 创建时间戳（秒） */
+    /**
+     * 创建时间戳（秒）
+    */
     @JsonProperty("created") private Long created;
-    /** 使用的模型标识 */
+    /**
+     * 使用的模型标识
+    */
     @JsonProperty("model") private String model;
-    /** 候选结果列表 */
+    /**
+     * 候选结果列表
+    */
     @JsonProperty("choices") private List<Choice> choices;
-    /** 令牌 用量统计 */
+    /**
+     * 令牌 用量统计
+    */
     @JsonProperty("usage") private Usage usage;
 
     /**
@@ -116,13 +128,21 @@ public class ChatResponse {
      * @since 4.0.0
      */
     public static class Choice {
-        /** 结果索引 */
+        /**
+         * 结果索引
+        */
         @JsonProperty("index") private Integer index;
-        /** 完整消息（非流式） */
+        /**
+         * 完整消息（非流式）
+        */
         @JsonProperty("message") private ResponseMessage message;
-        /** 增量消息（流式） */
+        /**
+         * 增量消息（流式）
+        */
         @JsonProperty("delta") private ResponseMessage delta;
-        /** 结束原因：停止/长度/tool_calls */
+        /**
+         * 结束原因：停止/长度/tool_calls
+        */
         @JsonProperty("finish_reason") private String finishReason;
 
         /**
@@ -188,13 +208,21 @@ public class ChatResponse {
      * @since 4.0.0
      */
     public static class ResponseMessage {
-        /** 角色 */
+        /**
+         * 角色
+        */
         @JsonProperty("role") private String role;
-        /** 文本内容 */
+        /**
+         * 文本内容
+        */
         @JsonProperty("content") private String content;
-        /** 推理内容（思维链） */
+        /**
+         * 推理内容（思维链）
+        */
         @JsonProperty("reasoning_content") private String reasoningContent;
-        /** 工具调用列表 */
+        /**
+         * 工具调用列表
+        */
         @JsonProperty("tool_calls") private List<ChatRequest.ToolCall> toolCalls;
 
         /**
@@ -260,11 +288,17 @@ public class ChatResponse {
      * @since 4.0.0
      */
     public static class Usage {
-        /** 提示词 令牌 数 */
+        /**
+         * 提示词 令牌 数
+        */
         @JsonProperty("prompt_tokens") private Integer promptTokens;
-        /** 补全 令牌 数 */
+        /**
+         * 补全 令牌 数
+        */
         @JsonProperty("completion_tokens") private Integer completionTokens;
-        /** 总 令牌 数 */
+        /**
+         * 总 令牌 数
+        */
         @JsonProperty("total_tokens") private Integer totalTokens;
 
         /**

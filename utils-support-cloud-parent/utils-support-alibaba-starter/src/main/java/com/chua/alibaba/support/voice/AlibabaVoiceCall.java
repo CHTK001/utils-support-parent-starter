@@ -34,10 +34,14 @@ import java.util.Map;
 @Spi("alibaba-voice")
 public class AlibabaVoiceCall implements VoiceCall {
 
-    /** 消息环境 */
+    /**
+     * 消息环境
+    */
     private final MessageEnvironment environment;
 
-    /** 创建 alibabavoicecall 实例 */
+    /**
+     * 创建 alibabavoicecall 实例
+    */
     public AlibabaVoiceCall() {
         this(new MessageEnvironment());
     }
@@ -51,13 +55,17 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "alibaba-voice";
     }
 
     @Override
-    /** 调用 */
+    /**
+     * 调用
+    */
     public CallResponse call(CallRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -134,7 +142,9 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
-    /** 获取调用状态 */
+    /**
+     * 获取调用状态
+    */
     public CallResponse getCallStatus(String callId) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -185,7 +195,9 @@ public class AlibabaVoiceCall implements VoiceCall {
     }
 
     @Override
-    /** Hangup */
+    /**
+     * Hangup
+    */
     public CallResponse hangup(String callId) throws Exception {
         String accessKey = environment.get("voice.accessKey");
         String secretKey = environment.get("voice.secretKey");

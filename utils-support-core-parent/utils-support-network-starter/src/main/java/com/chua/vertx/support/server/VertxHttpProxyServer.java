@@ -40,11 +40,17 @@ public class VertxHttpProxyServer extends AbstractServer {
      */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
 
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private HttpServer server;
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private HttpClient httpClient;
 
     /**
@@ -80,7 +86,9 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -189,7 +197,9 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (server != null) {
             try {
@@ -213,7 +223,9 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

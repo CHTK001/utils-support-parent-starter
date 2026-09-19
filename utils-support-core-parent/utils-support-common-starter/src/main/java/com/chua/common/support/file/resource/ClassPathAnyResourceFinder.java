@@ -67,7 +67,9 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     }
 
     @Override
-    /** 查找 */
+    /**
+     * 查找
+    */
     public Set<Resource> find(String name) {
         return analysisAnyResources(CLASSPATH_URL_ALL_PREFIX + name);
     }
@@ -222,7 +224,9 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
         try {
             Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
                 @Override
-                /** VisitFile */
+                /**
+                 * VisitFile
+                */
                 public FileVisitResult visitFile(Path visited, BasicFileAttributes attrs) {
                     if (visited.toFile().isFile()) {
                         String absolutePath = visited.toString();

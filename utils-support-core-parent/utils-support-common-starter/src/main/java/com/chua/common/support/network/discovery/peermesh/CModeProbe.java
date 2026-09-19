@@ -28,18 +28,30 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CModeProbe implements ProbeStrategy {
 
-    /** Connect_timeout_ms */
+    /**
+     * Connect_timeout_ms
+    */
     private static final int CONNECT_TIMEOUT_MS = 200;
-    /** Max_hosts_per_cidr */
+    /**
+     * Max_hosts_per_cidr
+    */
     private static final int MAX_HOSTS_PER_CIDR = 256;
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final MeshConfig config;
-    /** 本地服务器ID */
+    /**
+     * 本地服务器ID
+    */
     private final String localServerId;
-    /** Discovered */
+    /**
+     * Discovered
+    */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
-    /** stopped */
+    /**
+     * stopped
+    */
     private volatile boolean stopped;
 
     /**
@@ -54,7 +66,9 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         List<String> subnets = config.getScanSubnets();
         if (subnets == null || subnets.isEmpty()) {
@@ -85,13 +99,17 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
-    /** 获取DiscoveredNodes */
+    /**
+     * 获取DiscoveredNodes
+    */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }

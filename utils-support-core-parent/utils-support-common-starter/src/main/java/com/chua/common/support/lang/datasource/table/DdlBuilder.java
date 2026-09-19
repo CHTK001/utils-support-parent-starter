@@ -54,35 +54,55 @@ public class DdlBuilder {
      * DDL 操作模式枚举。
      */
     public enum Mode {
-        /** 建表模式 */
+        /**
+         * 建表模式
+        */
         CREATE,
-        /** 改表模式 */
+        /**
+         * 改表模式
+        */
         ALTER,
-        /** 删表模式 */
+        /**
+         * 删表模式
+        */
         DROP
     }
 
-    /** 模式 */
+    /**
+     * 模式
+    */
     private final Mode mode;
-    /** 表名称 */
+    /**
+     * 表名称
+    */
     private final String tableName;
     /**
      * Schema 名
      */
     private String schema;
-    /** Comment */
+    /**
+     * Comment
+    */
     private String comment;
-    /** 引擎 */
+    /**
+     * 引擎
+    */
     private String engine;
     /**
      * 字符集
      */
     private String charset;
-    /** Columns */
+    /**
+     * Columns
+    */
     private final List<ColumnDef> columns = new ArrayList<>();
-    /** Primarykeys */
+    /**
+     * Primarykeys
+    */
     private final List<String> primaryKeys = new ArrayList<>();
-    /** NEW表名称 */
+    /**
+     * NEW表名称
+    */
     private String newTableName;
 
     /**

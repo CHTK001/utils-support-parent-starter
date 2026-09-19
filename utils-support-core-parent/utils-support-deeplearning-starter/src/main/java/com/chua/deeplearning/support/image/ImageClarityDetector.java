@@ -208,21 +208,27 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** blur阈值 */
+    /**
+     * blur阈值
+    */
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageClarityDetector device(String device) {
         this.device = device;
         return this;

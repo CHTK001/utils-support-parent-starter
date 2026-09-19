@@ -67,19 +67,25 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 支持reactor */
+    /**
+     * 支持reactor
+    */
     public boolean supportsReactor() {
         return true;
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
@@ -167,7 +173,9 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (server != null) {
             try {
@@ -236,7 +244,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置状态 */
+        /**
+         * 设置状态
+        */
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -245,13 +255,17 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取状态 */
+        /**
+         * 获取状态
+        */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置头部 */
+        /**
+         * 设置头部
+        */
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -260,13 +274,17 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
@@ -274,20 +292,26 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置内容类型 */
+        /**
+         * 设置内容类型
+        */
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return contentType;
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -296,7 +320,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置主体 */
+        /**
+         * 设置主体
+        */
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -305,32 +331,42 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return body;
         }
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 设置结果 */
+        /**
+         * 设置结果
+        */
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
         @Override
-        /** 获取结果 */
+        /**
+         * 获取结果
+        */
         public Object getResult() {
             return result;
         }
 
         @Override
-        /** 发送Redirect */
+        /**
+         * 发送Redirect
+        */
         public ServerResponse sendRedirect(String location) {
             setStatus(302);
             headers.put("Location", location);
@@ -340,7 +376,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 发送记录错误 */
+        /**
+         * 发送记录错误
+        */
         public ServerResponse sendError(int code, String msg) {
             if (ended) {
                 return this;
@@ -353,24 +391,32 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 刷新 */
+        /**
+         * 刷新
+        */
         public void flush() {
         }
 
         @Override
-        /** 是否Committed */
+        /**
+         * 是否Committed
+        */
         public boolean isCommitted() {
             return committed;
         }
 
         @Override
-        /** 是否结束 */
+        /**
+         * 是否结束
+        */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** 结束 */
+        /**
+         * 结束
+        */
         public void end() {
             if (ended) {
                 return;
@@ -379,7 +425,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 重置 */
+        /**
+         * 重置
+        */
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -392,7 +440,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
             if (committed) {
                 return;
@@ -401,7 +451,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** Sse */
+        /**
+         * Sse
+        */
         public ServerResponse sse() {
             this.sseMode = true;
             setContentType("text/event-stream; charset=utf-8");
@@ -424,7 +476,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** sse事件 */
+        /**
+         * sse事件
+        */
         public void sseEvent(String event, String data) {
             if (!sseMode) {
                 return;
@@ -443,7 +497,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** Sse关闭 */
+        /**
+         * Sse关闭
+        */
         public void sseClose() {
             sseEvent(null, "[DONE]");
             this.ended = true;
@@ -535,31 +591,41 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return ctx.request().uri();
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return ctx.request().path();
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.request().method().name());
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return ctx.request().getHeader(name);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             ctx.request().headers().forEach(e -> h.add(e.getKey(), e.getValue()));
@@ -567,7 +633,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public Map<String, String> getParams() {
             Map<String, String> params = new java.util.HashMap<>();
             ctx.request().params().forEach(e -> params.put(e.getKey(), e.getValue()));
@@ -575,73 +643,97 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取参数 */
+        /**
+         * 获取参数
+        */
         public String getParam(String name) {
             return ctx.request().getParam(name);
         }
 
         @Override
-        /** 获取内容类型 */
+        /**
+         * 获取内容类型
+        */
         public String getContentType() {
             return ctx.request().getHeader("Content-Type");
         }
 
         @Override
-        /** 获取内容获取长度 */
+        /**
+         * 获取内容获取长度
+        */
         public long getContentLength() {
             return bodyBytes != null ? bodyBytes.length : 0;
         }
 
         @Override
-        /** 获取主体 */
+        /**
+         * 获取主体
+        */
         public byte[] getBody() {
             return bodyBytes;
         }
 
         @Override
-        /** 获取主体字符串 */
+        /**
+         * 获取主体字符串
+        */
         public String getBodyString() {
             return bodyBytes != null ? new String(bodyBytes, StandardCharsets.UTF_8) : "";
         }
 
         @Override
-        /** 获取输入流 */
+        /**
+         * 获取输入流
+        */
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return ctx.request().remoteAddress().host();
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return ctx.request().remoteAddress().port();
         }
 
         @Override
-        /** 获取Attributes */
+        /**
+         * 获取Attributes
+        */
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
         @Override
-        /** 获取Attribute */
+        /**
+         * 获取Attribute
+        */
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
         @Override
-        /** 设置Attribute */
+        /**
+         * 设置Attribute
+        */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
 
         @Override
-        /** 获取form数据 */
+        /**
+         * 获取form数据
+        */
         public Map<String, String> getFormData() {
             Map<String, String> form = new java.util.LinkedHashMap<>();
             var req = ctx.request();
@@ -652,7 +744,9 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取文件 */
+        /**
+         * 获取文件
+        */
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
             if (uploads == null || uploads.isEmpty()) {

@@ -33,13 +33,17 @@ import org.apache.commons.compress.utils.MultiReadOnlySeekableByteChannel;
 public class SevenZFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "7z";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new SevenZReadBuilder(file);
     }
@@ -59,7 +63,9 @@ public class SevenZFileSystem implements FileSystem {
 
     public static class SevenZReadBuilder extends ReadBuilder {
 
-        /** 是否启用分卷读取模式 */
+        /**
+         * 是否启用分卷读取模式
+        */
         private boolean splitMode = false;
 
         SevenZReadBuilder(File file) {
@@ -242,7 +248,9 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public Object read() {
             return listEntries();
         }
@@ -290,16 +298,24 @@ public class SevenZFileSystem implements FileSystem {
 
     public static class SevenZWriteBuilder extends WriteBuilder {
 
-        /** Entries */
+        /**
+         * Entries
+        */
         private final List<EntryData> entries = new ArrayList<>();
 
-        /** 压缩方法（默认 LZMA2） */
+        /**
+         * 压缩方法（默认 LZMA2）
+        */
         private SevenZMethod compressionMethod = SevenZMethod.LZMA2;
 
-        /** 压缩级别（-1 表示默认，具体含义随方法而异） */
+        /**
+         * 压缩级别（-1 表示默认，具体含义随方法而异）
+        */
         private int compressionLevel = -1;
 
-        /** 分卷大小（字节），0 表示不分卷 */
+        /**
+         * 分卷大小（字节），0 表示不分卷
+        */
         private long splitSize = 0;
 
         SevenZWriteBuilder(File file) {
@@ -376,7 +392,9 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         @Override
-        /** 饰面 */
+        /**
+         * 饰面
+        */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();

@@ -58,7 +58,9 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }

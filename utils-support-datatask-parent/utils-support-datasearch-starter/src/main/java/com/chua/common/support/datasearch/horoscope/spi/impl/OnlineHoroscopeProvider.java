@@ -30,32 +30,48 @@ import java.util.Map;
 @Spi("vvhan")
 public class OnlineHoroscopeProvider implements HoroscopeProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlineHoroscopeProvider.class);
 
-    /** 在线接口地址模板 */
+    /**
+     * 在线接口地址模板
+    */
     private static final String DEFAULT_URL_TEMPLATE =
             "https://api.vvhan.com/api/horoscope?type=%s&astro=%s";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 在线接口地址模板 */
+    /**
+     * 在线接口地址模板
+    */
     private final String urlTemplate;
 
-    /** 十二星座列表 */
+    /**
+     * 十二星座列表
+    */
     private static final String[] SIGNS = {
             "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座",
             "天秤座", "天蝎座", "射手座", "摩羯座", "水瓶座", "双鱼座"
     };
 
-    /** 内置兜底运势库：标志 -> 类型 -> 运势 */
+    /**
+     * 内置兜底运势库：标志 -> 类型 -> 运势
+    */
     private static final Map<String, Map<String, HoroscopeInfo>> FALLBACK = buildFallback();
 
-    /** 创建 onlinehoroscope提供者 实例 */
+    /**
+     * 创建 onlinehoroscope提供者 实例
+    */
     public OnlineHoroscopeProvider() {
         this(DEFAULT_URL_TEMPLATE);
     }
@@ -72,13 +88,17 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "vvhan";
     }
 
     @Override
-    /** 获取运势 */
+    /**
+     * 获取运势
+    */
     public HoroscopeInfo get(String sign, String type) {
         if (sign == null || type == null) {
             return null;
@@ -202,7 +222,9 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
         return map;
     }
 
-    /** 填充兜底运势库（today/week/month 使用同一条兜底数据） */
+    /**
+     * 填充兜底运势库（today/week/month 使用同一条兜底数据）
+    */
     private static void put(Map<String, Map<String, HoroscopeInfo>> map, String sign, int overall, int love,
                             int career, int wealth, int health, String luckyNumber, String luckyColor, String description) {
         Map<String, HoroscopeInfo> inner = new HashMap<>();

@@ -43,50 +43,66 @@ public class RocketMqHandler extends AbstractAppHandler {
     private static final String[] CONSUMER_METHODS = {"subscribe", "unsubscribe"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "rocketmq-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "rocketmq.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.ROCKETMQ_PRODUCER;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.ROCKETMQ;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(PRODUCER_CLASS, PRODUCER_METHODS);
         registerAll(CONSUMER_CLASS, CONSUMER_METHODS);
     }
 
     @Override
-    /** softwareforentry */
+    /**
+     * softwareforentry
+    */
     protected Software softwareForEntry(InterceptContext ctx) {
         return CONSUMER_CLASS.equals(ctx.getClassName()) ? Software.ROCKETMQ_CONSUMER : Software.ROCKETMQ_PRODUCER;
     }
 
     @Override
-    /** 种类forentry */
+    /**
+     * 种类forentry
+    */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
         return CONSUMER_CLASS.equals(ctx.getClassName()) ? EndpointKind.CONSUMER : EndpointKind.PRODUCER;
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object producer = instance;
         String namesrv = null;

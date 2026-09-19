@@ -20,19 +20,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ServerEntry {
 
-    /** 服务路径，如 "/api"、"/薪酬" */
+    /**
+     * 服务路径，如 "/api"、"/薪酬"
+    */
     private String servicePath;
 
-    /** 目标主机 */
+    /**
+     * 目标主机
+    */
     private String host;
 
-    /** 目标端口 */
+    /**
+     * 目标端口
+    */
     private int port;
 
-    /** 协议：http / tcp / udp */
+    /**
+     * 协议：http / tcp / udp
+    */
     private String protocol;
 
-    /** 业务分组（空 时回落到 clustersetting.scatterid） */
+    /**
+     * 业务分组（空 时回落到 clustersetting.scatterid）
+    */
     private String scatterId;
 
     /**

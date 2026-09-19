@@ -24,10 +24,14 @@ import java.util.Optional;
 @SpiOrder(100)
 public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
-    /** 配置根路径 */
+    /**
+     * 配置根路径
+    */
     private final Path rootPath;
 
-    /** 创建 FileConfigSaveOrLoader 实例 */
+    /**
+     * 创建 FileConfigSaveOrLoader 实例
+    */
     public FileConfigSaveOrLoader() {
         this(ConfigSaveLoadSetting.builder().build());
     }
@@ -42,7 +46,9 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 保存Bytes */
+    /**
+     * 保存Bytes
+    */
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         String normalizedKey = normalizeKey(key);
         byte[] bytes = content == null ? new byte[0] : content;
@@ -66,7 +72,9 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 加载Bytes */
+    /**
+     * 加载Bytes
+    */
     public Optional<byte[]> loadBytes(String key) {
         String normalizedKey = normalizeKey(key);
         try {
@@ -81,7 +89,9 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public boolean delete(String key) {
         String normalizedKey = normalizeKey(key);
         try {

@@ -33,7 +33,9 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp");
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;
@@ -42,7 +44,9 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     }
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try {
             String src = source.isPath() ? source.getPath() : writeTemp(source.getInputStream(), "." + source.getType());

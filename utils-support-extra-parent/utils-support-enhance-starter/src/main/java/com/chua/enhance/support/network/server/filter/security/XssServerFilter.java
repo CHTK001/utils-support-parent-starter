@@ -43,7 +43,9 @@ public class XssServerFilter implements ServerFilter {
             Pattern.CASE_INSENSITIVE);
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         byte[] body = request.getBody();
         if (body != null && body.length > 0) {
@@ -60,13 +62,17 @@ public class XssServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 30;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "XssServerFilter";
     }

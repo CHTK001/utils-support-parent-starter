@@ -12,16 +12,24 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxFeatureClient implements FeatureClient {
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final FeatureClientSetting setting;
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private ITranslator<Object, Object> translator;
-    /** 解析后的模型标识 */
+    /**
+     * 解析后的模型标识
+    */
     private String resolvedModelId;
 
     /**
@@ -33,7 +41,9 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public FeatureClient model(String model) {
         setting.setModel(model);
         translator = null;
@@ -61,13 +71,17 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** Extract */
+    /**
+     * Extract
+    */
     public float[] extract(String text) {
         throw new UnsupportedOperationException("文本特征提取请使用 EmbeddingClient");
     }
 
     @Override
-    /** extract镜像 */
+    /**
+     * extract镜像
+    */
     public float[] extractImage(byte[] imageData) {
         try {
             BufferedImage img = ImageUtils.toBufferedImage(imageData);
@@ -81,7 +95,9 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (translator != null) {
             try {

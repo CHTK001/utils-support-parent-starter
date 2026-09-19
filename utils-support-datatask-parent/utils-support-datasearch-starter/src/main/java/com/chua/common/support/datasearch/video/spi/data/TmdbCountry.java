@@ -7,7 +7,9 @@ package com.chua.common.support.datasearch.video.spi.data;
  * @since 4.0.0.42
  */
 public class TmdbCountry {
-    /** 创建 tmdbcountry 实例 */
+    /**
+     * 创建 tmdbcountry 实例
+    */
     private TmdbCountry() {
     }
 
@@ -286,7 +288,9 @@ public class TmdbCountry {
         ZR("Zaire"),
         ZW("Zimbabwe");
 
-        /** 本地名称 */
+        /**
+         * 本地名称
+        */
         private final String nativeName;
 
         Code(String nativeName) {

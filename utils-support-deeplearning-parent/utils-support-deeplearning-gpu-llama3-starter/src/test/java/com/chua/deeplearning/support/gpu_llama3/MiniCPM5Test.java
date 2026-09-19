@@ -24,9 +24,13 @@ import java.nio.file.Paths;
  */
 public class MiniCPM5Test {
 
-    /** 生成上限 令牌 数 */
+    /**
+     * 生成上限 令牌 数
+    */
     private static final int NPREDICT = 128;
-    /** 上下文大小 */
+    /**
+     * 上下文大小
+    */
     private static final int CTX_SIZE = 2048;
 
     /**

@@ -158,7 +158,9 @@ public class SimpleWalLog implements WalLog {
         open();
     }
 
-    /** 打开 */
+    /**
+     * 打开
+    */
     private void open() throws IOException {
  // 打开 随机access文件（支持读写 + 追加 + mmap）
         boolean exists = Files.exists(walFile);
@@ -200,7 +202,9 @@ public class SimpleWalLog implements WalLog {
         this.checkpointOffset = meta.checkpointOffset();
     }
 
-    /** 写入魔法转为mmap */
+    /**
+     * 写入魔法转为mmap
+    */
     private void writeMagicToMmap() throws IOException {
         byte[] magic = config.magic();
         mmapBuffer.put(magic);
@@ -261,7 +265,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 追加 */
+    /**
+     * 追加
+    */
     public long append(byte op, byte[] payload) throws IOException {
         ensureOpen();
         if (payload == null) {
@@ -319,7 +325,9 @@ public class SimpleWalLog implements WalLog {
         }
     }
 
-    /** Mmap缓冲区引用 */
+    /**
+     * Mmap缓冲区引用
+    */
     private static final java.lang.reflect.Method mmapBufferRef;
 
     static {
@@ -337,7 +345,9 @@ public class SimpleWalLog implements WalLog {
         mmapBufferRef = m;
     }
 
-    /** maybefsync */
+    /**
+     * maybefsync
+    */
     private void maybeFsync() throws IOException {
         if (!config.syncOnWrite()) {
             return;
@@ -349,7 +359,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 同步 */
+    /**
+     * 同步
+    */
     public void sync() throws IOException {
         ensureOpen();
         force();
@@ -373,7 +385,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 当前lsn */
+    /**
+     * 当前lsn
+    */
     public long currentLsn() {
         return currentLsn;
     }
@@ -381,7 +395,9 @@ public class SimpleWalLog implements WalLog {
     // ==================== Checkpoint ====================
 
     @Override
-    /** 加载Checkpoint */
+    /**
+     * 加载Checkpoint
+    */
     public CheckpointMeta loadCheckpoint() throws IOException {
         ensureOpen();
         return readCheckpointFromDisk();
@@ -444,7 +460,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 标记Checkpoint */
+    /**
+     * 标记Checkpoint
+    */
     public void markCheckpoint(long lsn) throws IOException {
         ensureOpen();
         if (lsn > currentLsn) {
@@ -457,7 +475,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 重置Checkpoint */
+    /**
+     * 重置Checkpoint
+    */
     public void resetCheckpoint() throws IOException {
         ensureOpen();
         this.checkpointLsn = 0L;
@@ -469,7 +489,9 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** forcecheckpoint */
+    /**
+     * forcecheckpoint
+    */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         this.checkpointLsn = lsn;
@@ -481,20 +503,26 @@ public class SimpleWalLog implements WalLog {
     // ==================== Replay ====================
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(WalReplayHandler handler) throws IOException {
         CheckpointMeta meta = loadCheckpoint();
         return replay(meta.checkpointLsn() + 1, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException {
         return replay(fromLsn, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
         CheckpointMeta meta = loadCheckpoint();
@@ -551,7 +579,9 @@ public class SimpleWalLog implements WalLog {
     // ==================== Chain ====================
 
     @Override
-    /** 追加Chain */
+    /**
+     * 追加Chain
+    */
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
         List<WalOp> ops = new ArrayList<>();
@@ -573,7 +603,9 @@ public class SimpleWalLog implements WalLog {
     // ==================== Query ====================
 
     @Override
-    /** 查找bylsn */
+    /**
+     * 查找bylsn
+    */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         if (!Files.exists(walFile) || Files.size(walFile) <= config.magic().length) {
@@ -614,13 +646,17 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** purgecheckpointed */
+    /**
+     * purgecheckpointed
+    */
     public int purgeCheckpointed(int keepSegments) {
         return 0;
     }
 
     @Override
-    /** 当前segment */
+    /**
+     * 当前segment
+    */
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1,
                 currentLsn == 0 ? 0 : 1,
@@ -631,13 +667,17 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** 列表segments */
+    /**
+     * 列表segments
+    */
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws IOException {
         if (closed) {
             return;
@@ -672,7 +712,9 @@ public class SimpleWalLog implements WalLog {
         mmapBuffer = null;
     }
 
-    /** Ensure打开 */
+    /**
+     * Ensure打开
+    */
     private void ensureOpen() {
         if (closed) {
             throw new WalException("WAL 已关闭: " + walFile);
@@ -784,7 +826,9 @@ public class SimpleWalLog implements WalLog {
      */
     private static final class WalChainImpl implements WalChain {
 
-        /** OPS */
+        /**
+         * OPS
+        */
         private final List<WalOp> ops;
 
         WalChainImpl(List<WalOp> ops) {
@@ -792,14 +836,18 @@ public class SimpleWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, byte[] payload) {
             ops.add(new WalOp(op, payload));
             return this;
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, String s) {
             byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             ops.add(new WalOp(op, bytes));
@@ -807,14 +855,18 @@ public class SimpleWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op) {
             ops.add(new WalOp(op, new byte[0]));
             return this;
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public int size() {
             return ops.size();
         }

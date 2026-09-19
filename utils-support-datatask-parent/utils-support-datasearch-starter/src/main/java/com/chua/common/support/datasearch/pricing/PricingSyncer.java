@@ -35,10 +35,14 @@ import java.util.Map;
  */
 public final class PricingSyncer {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(PricingSyncer.class);
 
-    /** 创建 pricing同步 实例 */
+    /**
+     * 创建 pricing同步 实例
+    */
     private PricingSyncer() {
     }
 

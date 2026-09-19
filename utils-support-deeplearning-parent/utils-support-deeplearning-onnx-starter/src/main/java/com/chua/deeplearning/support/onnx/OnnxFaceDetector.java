@@ -26,17 +26,29 @@ import java.util.List;
 @Slf4j
 public class OnnxFaceDetector implements FaceDetector {
 
-    /** API 密钥 */
+    /**
+     * API 密钥
+    */
     private final String apiKey;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private float threshold = DEFAULT_THRESHOLD;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private float nms = DEFAULT_NMS;
-    /** 最小人脸尺寸 */
+    /**
+     * 最小人脸尺寸
+    */
     private int minFaceSize = DEFAULT_MIN_FACE_SIZE;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -48,42 +60,54 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public FaceDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** Nms */
+    /**
+     * Nms
+    */
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
-    /** 最小值Face获取大小 */
+    /**
+     * 最小值Face获取大小
+    */
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FaceDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Detect */
+    /**
+     * Detect
+    */
     public List<PredictRectangle> detect(byte[] imageData) {
         String name = modelName != null ? modelName : "scrfd-face-detector";
         return FaceDetector.create(name)
@@ -95,7 +119,9 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** detect信息 */
+    /**
+     * detect信息
+    */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -105,7 +131,9 @@ public class OnnxFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** Face计算数量 */
+    /**
+     * Face计算数量
+    */
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

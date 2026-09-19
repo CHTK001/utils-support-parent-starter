@@ -20,7 +20,9 @@ public class DirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "directory";
-    /** 全量备份委托实现 */
+    /**
+     * 全量备份委托实现
+    */
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     /**
@@ -93,7 +95,9 @@ public class DirectoryBackup implements BackupStrategy {
         Files.createDirectories(target);
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
-            /** 拷贝修改时间晚于增量的文件 */
+            /**
+             * 拷贝修改时间晚于增量的文件
+            */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {

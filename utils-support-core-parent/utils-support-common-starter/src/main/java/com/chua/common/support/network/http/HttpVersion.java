@@ -75,9 +75,13 @@ public enum HttpVersion {
      */
     HTTP_3(3, 0);
 
-    /** Major */
+    /**
+     * Major
+    */
     private final int major;
-    /** Minor */
+    /**
+     * Minor
+    */
     private final int minor;
 
     /**

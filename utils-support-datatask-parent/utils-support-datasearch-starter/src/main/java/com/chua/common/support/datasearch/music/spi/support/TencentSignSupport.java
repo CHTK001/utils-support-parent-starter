@@ -13,16 +13,24 @@ import java.util.Base64;
  */
 public final class TencentSignSupport {
 
-    /** Part_1_indexes */
+    /**
+     * Part_1_indexes
+    */
     private static final int[] PART_1_INDEXES = {23, 14, 6, 36, 16, 40, 7, 19};
-    /** Part_2_indexes */
+    /**
+     * Part_2_indexes
+    */
     private static final int[] PART_2_INDEXES = {16, 1, 32, 12, 19, 27, 8, 5};
-    /** Scramble_值 */
+    /**
+     * Scramble_值
+    */
     private static final int[] SCRAMBLE_VALUES = {
             89, 39, 179, 150, 218, 82, 58, 252, 177, 52, 186, 123, 120, 64, 242, 133, 143, 161, 121, 179
     };
 
-    /** 创建 tencent标志支持 实例 */
+    /**
+     * 创建 tencent标志支持 实例
+    */
     private TencentSignSupport() {
     }
 

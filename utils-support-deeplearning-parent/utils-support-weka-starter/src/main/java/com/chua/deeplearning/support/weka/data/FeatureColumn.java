@@ -25,20 +25,30 @@ public final class FeatureColumn implements Serializable {
      */
     public enum FeatureType {
 
-        /** 数值特征，映射为 Weka 数值属性 */
+        /**
+         * 数值特征，映射为 Weka 数值属性
+        */
         NUMERIC,
 
-        /** 类别特征（字符串取值），映射为 Weka 名义属性 */
+        /**
+         * 类别特征（字符串取值），映射为 Weka 名义属性
+        */
         CATEGORICAL
     }
 
-    /** 列名 */
+    /**
+     * 列名
+    */
     private final String name;
 
-    /** 特征类型 */
+    /**
+     * 特征类型
+    */
     private final FeatureType type;
 
-    /** 列描述 */
+    /**
+     * 列描述
+    */
     private final String description;
 
     /**

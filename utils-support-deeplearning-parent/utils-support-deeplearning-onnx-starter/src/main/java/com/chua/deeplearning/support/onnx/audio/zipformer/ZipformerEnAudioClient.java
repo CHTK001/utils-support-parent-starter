@@ -46,9 +46,13 @@ public class ZipformerEnAudioClient implements VirtualClient {
     };
 
     private final AudioClientSetting setting;
-    /** translator */
+    /**
+     * translator
+    */
     private ZipformerEnOfflineTranslator translator;
-    /** prepared */
+    /**
+     * prepared
+    */
     private boolean prepared;
 
     /**

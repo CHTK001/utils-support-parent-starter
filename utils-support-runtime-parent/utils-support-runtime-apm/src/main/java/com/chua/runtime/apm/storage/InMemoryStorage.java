@@ -28,7 +28,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Log
 public class InMemoryStorage implements ApmStorage {
 
-    /** 自增 标识 分配器 */
+    /**
+     * 自增 标识 分配器
+    */
     private final AtomicLong transmissionSeq = new AtomicLong();
     /**
      * leak Seq
@@ -39,16 +41,24 @@ public class InMemoryStorage implements ApmStorage {
      */
     private final AtomicLong logSeq = new AtomicLong();
 
-    /** 传输事件表（标识 → 事件） */
+    /**
+     * 传输事件表（标识 → 事件）
+    */
     private final Map<Long, TransmissionEvent> transmissions = new ConcurrentHashMap<>();
 
-    /** 依赖图边表（edgeid → edge） */
+    /**
+     * 依赖图边表（edgeid → edge）
+    */
     private final Map<String, DependencyEdge> dependencies = new ConcurrentHashMap<>();
 
-    /** 泄漏记录表（处理id → record） */
+    /**
+     * 泄漏记录表（处理id → record）
+    */
     private final Map<String, LeakRecord> leaks = new ConcurrentHashMap<>();
 
-    /** 日志表（标识 → record） */
+    /**
+     * 日志表（标识 → record）
+    */
     private final Map<Long, LogRecord> logs = new ConcurrentHashMap<>();
 
     /**
@@ -61,7 +71,9 @@ public class InMemoryStorage implements ApmStorage {
     private volatile long retentionMillis = 7L * 24 * 60 * 60 * 1000L;
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(StorageConfig config) {
         this.capacity = config.getInt("apm.storage.capacity", 100_000);
         this.retentionMillis = config.getLong("apm.storage.retention.ms", 7L * 24 * 60 * 60 * 1000L);
@@ -69,13 +81,17 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         log.info("InMemoryStorage 停止");
     }
 
     @Override
-    /** 追加Transmission */
+    /**
+     * 追加Transmission
+    */
     public void appendTransmission(TransmissionEvent event) {
         if (event == null) {
             return;
@@ -88,7 +104,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 追加Dependency */
+    /**
+     * 追加Dependency
+    */
     public void appendDependency(DependencyEdge edge) {
         if (edge == null || edge.getSource() == null || edge.getTarget() == null) {
             return;
@@ -111,7 +129,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 追加Leak */
+    /**
+     * 追加Leak
+    */
     public void appendLeak(LeakRecord record) {
         if (record == null) {
             return;
@@ -123,7 +143,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 追加记录日志 */
+    /**
+     * 追加记录日志
+    */
     public void appendLog(LogRecord record) {
         if (record == null) {
             return;
@@ -136,7 +158,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 查询Transmissions */
+    /**
+     * 查询Transmissions
+    */
     public List<TransmissionEvent> queryTransmissions(Query query) {
         return transmissions.values().stream()
                 .filter(e -> matchTime(e.getStartTime(), query))
@@ -155,13 +179,17 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 查询Dependencies */
+    /**
+     * 查询Dependencies
+    */
     public List<DependencyEdge> queryDependencies(Query query) {
         return new ArrayList<>(dependencies.values());
     }
 
     @Override
-    /** 查询Leaks */
+    /**
+     * 查询Leaks
+    */
     public List<LeakRecord> queryLeaks(Query query) {
         return leaks.values().stream()
                 .filter(r -> matchTime(r.getCreatedAt(), query))
@@ -172,7 +200,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 查询日志 */
+    /**
+     * 查询日志
+    */
     public List<LogRecord> queryLogs(Query query) {
         return logs.values().stream()
                 .filter(r -> matchTime(r.getTimestamp(), query))
@@ -183,7 +213,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** Stats */
+    /**
+     * Stats
+    */
     public Map<String, Long> stats() {
         return Map.of(
                 "transmissions", (long) transmissions.size(),
@@ -193,7 +225,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** Cleanup */
+    /**
+     * Cleanup
+    */
     public long cleanup(long retentionMillis) {
         long cutoff = System.currentTimeMillis() - retentionMillis;
         return cleanupInternal(cutoff);
@@ -265,7 +299,9 @@ public class InMemoryStorage implements ApmStorage {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "inmemory";
     }

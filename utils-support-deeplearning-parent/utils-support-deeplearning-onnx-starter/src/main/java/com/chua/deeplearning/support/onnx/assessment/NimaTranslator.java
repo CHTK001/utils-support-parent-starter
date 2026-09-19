@@ -39,15 +39,23 @@ import javax.annotation.Nonnull;
 @Slf4j
 public class NimaTranslator implements Translator<Image, float[]> {
 
-    /** 图像尺寸 */
+    /**
+     * 图像尺寸
+    */
     private static final int IMAGE_SIZE = 224;
-    /** 图像均值 */
+    /**
+     * 图像均值
+    */
     private static final float[] IMAGE_MEAN = {0.485f, 0.456f, 0.406f};
-    /** 图像标准差 */
+    /**
+     * 图像标准差
+    */
     private static final float[] IMAGE_STD = {0.229f, 0.224f, 0.225f};
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
         float[] pixels = ImageUtils.toTensor(new TensorOptions(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false));
@@ -57,7 +65,9 @@ public class NimaTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         float[] logits = output.toFloatArray();
@@ -83,7 +93,9 @@ public class NimaTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

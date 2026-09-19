@@ -27,7 +27,9 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class MidasDepthTranslator implements Translator<Image, Image> {
 
-    /** 模型图像尺寸 */
+    /**
+     * 模型图像尺寸
+    */
     private static final int MODEL_IMAGE_SIZE = 256;
     
     /**
@@ -74,7 +76,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -94,7 +98,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
 
@@ -133,7 +139,9 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return batchifier;
     }

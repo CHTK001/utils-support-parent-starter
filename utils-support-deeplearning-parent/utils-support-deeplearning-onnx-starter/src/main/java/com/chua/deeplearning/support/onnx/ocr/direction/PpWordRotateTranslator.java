@@ -32,24 +32,40 @@ import java.util.Map;
 @Slf4j
 public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo> {
 
-    /** 缩放宽度 */
+    /**
+     * 缩放宽度
+    */
     private static final int RESIZE_WIDTH = 192;
-    /** 缩放高度 */
+    /**
+     * 缩放高度
+    */
     private static final int RESIZE_HEIGHT = 48;
-    /** 类别名称列表 */
+    /**
+     * 类别名称列表
+    */
     private static final List<String> CLASSES = List.of("0", "180");
 
-    /** 资源基础路径 */
+    /**
+     * 资源基础路径
+    */
     private static final String RESOURCE_BASE = "ocr/direction/ppocr_cls/";
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private static final String MODEL_FILE = "model.onnx";
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -78,13 +94,17 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "pp-word-rotate";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public DirectionInfo translate(byte[] imageData) {
         try {
             prepare();

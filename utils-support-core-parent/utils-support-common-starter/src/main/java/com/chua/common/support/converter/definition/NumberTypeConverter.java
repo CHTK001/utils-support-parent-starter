@@ -15,7 +15,9 @@ public class NumberTypeConverter implements TypeConverter<Number> {
 
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public Class<Number> getType() {
         return Number.class;
     }

@@ -41,7 +41,9 @@ public class ILinkBotClientFactory implements BotClient.Factory {
      */
     public static class Builder implements BotClient.Builder {
 
-        /** 客户端实例 */
+        /**
+         * 客户端实例
+        */
         private final ILinkBotClient client = new ILinkBotClient();
 
         @Override

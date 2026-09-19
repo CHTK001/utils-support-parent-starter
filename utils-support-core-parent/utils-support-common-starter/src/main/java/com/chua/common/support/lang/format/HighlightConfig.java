@@ -95,44 +95,80 @@ public class HighlightConfig {
 
     // ==================== 默认ANSI颜色配置 ====================
 
-    /** Ansi_reset */
+    /**
+     * Ansi_reset
+    */
     private static final String ANSI_RESET = "\u001B[0m";
-    /** Ansi_bold */
+    /**
+     * Ansi_bold
+    */
     private static final String ANSI_BOLD = "\u001B[1m";
-    /** Ansi_red */
+    /**
+     * Ansi_red
+    */
     private static final String ANSI_RED = "\u001B[31m";
-    /** Ansi_green */
+    /**
+     * Ansi_green
+    */
     private static final String ANSI_GREEN = "\u001B[32m";
-    /** Ansi_yellow */
+    /**
+     * Ansi_yellow
+    */
     private static final String ANSI_YELLOW = "\u001B[33m";
-    /** Ansi_blue */
+    /**
+     * Ansi_blue
+    */
     private static final String ANSI_BLUE = "\u001B[34m";
-    /** Ansi_magenta */
+    /**
+     * Ansi_magenta
+    */
     private static final String ANSI_MAGENTA = "\u001B[35m";
-    /** Ansi_cyan */
+    /**
+     * Ansi_cyan
+    */
     private static final String ANSI_CYAN = "\u001B[36m";
-    /** Ansi_white */
+    /**
+     * Ansi_white
+    */
     private static final String ANSI_WHITE = "\u001B[37m";
-    /** Ansi_gray */
+    /**
+     * Ansi_gray
+    */
     private static final String ANSI_GRAY = "\u001B[90m";
 
     // ==================== 默认HTML颜色配置 ====================
 
-    /** Html_red */
+    /**
+     * Html_red
+    */
     private static final String HTML_RED = "<span style=\"color:#c7254e;\">";
-    /** Html_green */
+    /**
+     * Html_green
+    */
     private static final String HTML_GREEN = "<span style=\"color:#42b983;\">";
-    /** Html_blue */
+    /**
+     * Html_blue
+    */
     private static final String HTML_BLUE = "<span style=\"color:#2c8cff;\">";
-    /** Html_orange */
+    /**
+     * Html_orange
+    */
     private static final String HTML_ORANGE = "<span style=\"color:#f0a030;\">";
-    /** Html_purple */
+    /**
+     * Html_purple
+    */
     private static final String HTML_PURPLE = "<span style=\"color:#a855f7;\">";
-    /** Html_gray */
+    /**
+     * Html_gray
+    */
     private static final String HTML_GRAY = "<span style=\"color:#88909e;\">";
-    /** Html_cyan */
+    /**
+     * Html_cyan
+    */
     private static final String HTML_CYAN = "<span style=\"color:#1abc9c;\">";
-    /** Html_end */
+    /**
+     * Html_end
+    */
     private static final String HTML_END = "</span>";
 
     /**

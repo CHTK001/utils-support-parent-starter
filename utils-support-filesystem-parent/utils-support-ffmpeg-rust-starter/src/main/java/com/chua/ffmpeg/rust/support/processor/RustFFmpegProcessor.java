@@ -28,17 +28,23 @@ import java.util.function.Consumer;
 @Spi(value = {"rust", "native"}, order = 100)
 public class RustFFmpegProcessor implements FFmpegProcessor {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
-    /** 转换视频 */
+    /**
+     * 转换视频
+    */
     public void convertVideo(File input, File output, String targetFormat) throws IOException {
         convertVideo(input, output, targetFormat, null);
     }
 
     @Override
-    /** 转换视频 */
+    /**
+     * 转换视频
+    */
     public void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         checkStreamAvailable();
         String videoCodec = options != null ? options.getVideoCodec() : null;
@@ -96,13 +102,17 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 转换音频 */
+    /**
+     * 转换音频
+    */
     public void convertAudio(File input, File output, String targetFormat) throws IOException {
         convertAudio(input, output, targetFormat, null);
     }
 
     @Override
-    /** 转换音频 */
+    /**
+     * 转换音频
+    */
     public void convertAudio(File input, File output, String targetFormat, FFmpegOptions options) throws IOException {
         checkStreamAvailable();
         String audioCodec = options != null ? options.getAudioCodec() : null;
@@ -114,7 +124,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** extract音频 */
+    /**
+     * extract音频
+    */
     public void extractAudio(File videoInput, File audioOutput, String audioFormat) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.convertFile(videoInput.getAbsolutePath(), audioOutput.getAbsolutePath(),
@@ -125,7 +137,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** capture帧 */
+    /**
+     * capture帧
+    */
     public void captureFrame(File videoInput, File imageOutput, double timestamp) throws IOException {
         checkStreamAvailable();
         long timestampMs = (long) (timestamp * 1000);
@@ -136,7 +150,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** capture帧 */
+    /**
+     * capture帧
+    */
     public File[] captureFrames(File videoInput, File outputDir, double interval, String imageFormat) throws IOException {
         checkStreamAvailable();
         double duration = getDuration(videoInput);
@@ -158,13 +174,17 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** generatethumbnail */
+    /**
+     * generatethumbnail
+    */
     public void generateThumbnail(File videoInput, File imageOutput, int width, int height) throws IOException {
         captureFrame(videoInput, imageOutput, 0);
     }
 
     @Override
-    /** 去空格 */
+    /**
+     * 去空格
+    */
     public void trim(File input, File output, double startTime, double duration) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
@@ -175,7 +195,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void concat(File[] inputs, File output) throws IOException {
         checkStreamAvailable();
         if (inputs == null || inputs.length == 0) {
@@ -195,7 +217,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 调整大小 */
+    /**
+     * 调整大小
+    */
     public void resize(File input, File output, int width, int height) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.convertFile(input.getAbsolutePath(), output.getAbsolutePath(),
@@ -206,7 +230,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** Rotate */
+    /**
+     * Rotate
+    */
     public void rotate(File input, File output, int angle) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.rotate(input.getAbsolutePath(), output.getAbsolutePath(), angle);
@@ -216,7 +242,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 添加Watermark */
+    /**
+     * 添加Watermark
+    */
     public void addWatermark(File videoInput, File watermarkFile, File output, int x, int y) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.addWatermark(videoInput.getAbsolutePath(), watermarkFile.getAbsolutePath(),
@@ -247,7 +275,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 镜像转为视频 */
+    /**
+     * 镜像转为视频
+    */
     public void imagesToVideo(File imageDir, File videoOutput, int fps, String imagePattern) throws IOException {
         checkStreamAvailable();
         String pattern = imagePattern != null ? imagePattern : "%06d.jpg";
@@ -258,7 +288,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 推送流 */
+    /**
+     * 推送流
+    */
     public void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException {
         checkStreamAvailable();
         String videoCodec = options != null ? options.getVideoCodec() : null;
@@ -309,7 +341,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 拉取流 */
+    /**
+     * 拉取流
+    */
     public void pullStream(String streamUrl, File output, double duration) throws IOException {
         checkStreamAvailable();
         int ret = RustFFmpegBridge.pullStream(streamUrl, output.getAbsolutePath(), duration);
@@ -349,7 +383,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 获取media信息 */
+    /**
+     * 获取media信息
+    */
     public FFmpegMediaInfo getMediaInfo(File input) throws IOException {
         checkStreamAvailable();
         String json = RustFFmpegBridge.getStreamMediaInfo(input.getAbsolutePath());
@@ -360,7 +396,9 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 获取持续时间 */
+    /**
+     * 获取持续时间
+    */
     public double getDuration(File input) throws IOException {
         if (!RustFFmpegBridge.isStreamLoaded()) {
             throw new UnsupportedOperationException("NativeFFmpeg library not loaded");
@@ -373,12 +411,16 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 是否可用 */
+    /**
+     * 是否可用
+    */
     public boolean isAvailable() {
         return RustFFmpegBridge.isLoaded() || RustFFmpegBridge.isStreamLoaded();
     }
 
-    /** 校验流可用 */
+    /**
+     * 校验流可用
+    */
     private void checkStreamAvailable() throws IOException {
         if (!RustFFmpegBridge.isStreamLoaded()) {
             throw new IOException("Rust FFmpeg stream library not loaded. " +
@@ -469,13 +511,17 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 获取版本 */
+    /**
+     * 获取版本
+    */
     public String getVersion() {
         return RustFFmpegBridge.getVersion();
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public com.chua.common.support.media.ffmpeg.FFmpegResult execute(String... args) throws IOException {
         com.chua.common.support.media.ffmpeg.FFmpegResult result = new com.chua.common.support.media.ffmpeg.FFmpegResult();
         if (!isAvailable()) {

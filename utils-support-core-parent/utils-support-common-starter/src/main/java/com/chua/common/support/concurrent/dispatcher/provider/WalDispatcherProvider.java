@@ -171,7 +171,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         if (closed.get()) {
             return;
@@ -196,7 +198,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -208,7 +212,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -222,7 +228,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed.set(true);
         logs.values().forEach(WalLog::close);

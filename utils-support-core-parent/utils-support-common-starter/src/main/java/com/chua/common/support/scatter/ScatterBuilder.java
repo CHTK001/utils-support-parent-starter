@@ -323,7 +323,9 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return new DefaultScatter(this);
     }
 
-    /** 节点服务端包装：桥接 ScatterNodeServer 接口。 */
+    /**
+     * 节点服务端包装：桥接 ScatterNodeServer 接口。
+    */
     private static final class ScatterNodeServerWrapper implements ScatterNodeServer {
         private final AutoCloseable delegate;
         private final ScatterSetting setting;

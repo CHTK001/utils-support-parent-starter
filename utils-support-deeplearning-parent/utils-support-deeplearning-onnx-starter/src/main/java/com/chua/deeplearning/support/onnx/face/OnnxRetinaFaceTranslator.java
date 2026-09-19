@@ -78,7 +78,9 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     private int height;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -101,7 +103,9 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 3) {
             return empty();

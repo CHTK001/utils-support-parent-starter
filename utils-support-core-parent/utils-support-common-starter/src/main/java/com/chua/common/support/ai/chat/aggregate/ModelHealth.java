@@ -10,25 +10,39 @@ import java.time.Instant;
  */
 public class ModelHealth {
 
-    /** 服务商 */
+    /**
+     * 服务商
+    */
     private final String provider;
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String model;
 
-    /** 是否限流 */
+    /**
+     * 是否限流
+    */
     private boolean rateLimited = false;
 
-    /** 是否余额不足 */
+    /**
+     * 是否余额不足
+    */
     private boolean quotaExhausted = false;
 
-    /** 连续失败次数 */
+    /**
+     * 连续失败次数
+    */
     private int consecutiveFailures = 0;
 
-    /** 最后检测时间 */
+    /**
+     * 最后检测时间
+    */
     private long lastCheckTime = System.currentTimeMillis();
 
-    /** 最后失败原因 */
+    /**
+     * 最后失败原因
+    */
     private String lastFailureReason;
 
     /**
@@ -98,12 +112,16 @@ public class ModelHealth {
         return consecutiveFailures;
     }
 
-    /** IncrementConsecutiveFailures */
+    /**
+     * IncrementConsecutiveFailures
+    */
     public void incrementConsecutiveFailures() {
         this.consecutiveFailures++;
     }
 
-    /** 重置ConsecutiveFailures */
+    /**
+     * 重置ConsecutiveFailures
+    */
     public void resetConsecutiveFailures() {
         this.consecutiveFailures = 0;
     }
@@ -159,7 +177,9 @@ public class ModelHealth {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return "ModelHealth{" +
                 "provider='" + provider + '\'' +

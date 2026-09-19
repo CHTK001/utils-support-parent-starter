@@ -25,7 +25,9 @@ public class ProxyScrapeFetcher implements ProxyFetcher {
             + "?request=displayproxies&protocol=http&anonymity=elite&proxy_format=protocolipport&format=json";
 
     @Override
-    /** 获取代理 */
+    /**
+     * 获取代理
+    */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -54,7 +56,9 @@ public class ProxyScrapeFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取源名称 */
+    /**
+     * 获取源名称
+    */
     public String getSourceName() {
         return "proxy-scrape";
     }

@@ -376,17 +376,29 @@ public class AgentEditorProvider {
      * @since 4.0.0
      */
     protected static class McpServerConfig {
-        /** 名称 */
+        /**
+         * 名称
+        */
         private String name;
-        /** 命令 */
+        /**
+         * 命令
+        */
         private String command;
-        /** 参数 */
+        /**
+         * 参数
+        */
         private List<String> args;
-        /** env */
+        /**
+         * env
+        */
         private Map<String, String> env;
-        /** URL */
+        /**
+         * URL
+        */
         private String url;
-        /** 类型 */
+        /**
+         * 类型
+        */
         private String type;
 
         /**
@@ -456,7 +468,9 @@ public class AgentEditorProvider {
         public void setType(String type) { this.type = type; }
 
         @Override
-        /** 转为字符串 */
+        /**
+         * 转为字符串
+        */
         public String toString() {
             return name + " [" + (command != null ? command : url) + "]";
         }

@@ -42,13 +42,17 @@ public class CaptchaSetting {
      * 连接超时时间（毫秒），默认 30000ms
      */
     @Builder.Default
-    /** 连接超时 */
+    /**
+     * 连接超时
+    */
     private long connectTimeout = 30000;
 
     /**
      * 读取超时时间（毫秒），默认 30000ms
      */
     @Builder.Default
-    /** 读取超时 */
+    /**
+     * 读取超时
+    */
     private long readTimeout = 30000;
 }

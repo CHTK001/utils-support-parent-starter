@@ -35,14 +35,18 @@ public class DispatcherConfig {
      * 连接超时时间，单位毫秒
      */
     @Builder.Default
-    /** Connection超时毫秒 */
+    /**
+     * Connection超时毫秒
+    */
     private long connectionTimeoutMillis = 5000;
 
     /**
      * 会话超时时间，单位毫秒
      */
     @Builder.Default
-    /** 会话超时毫秒 */
+    /**
+     * 会话超时毫秒
+    */
     private long sessionTimeoutMillis = 10000;
 
     /**
@@ -68,14 +72,18 @@ public class DispatcherConfig {
      * 自动确认偏移量
      */
     @Builder.Default
-    /** Autocommit偏移 */
+    /**
+     * Autocommit偏移
+    */
     private boolean autoCommitOffset = true;
 
     /**
      * 批量消费最大条数
      */
     @Builder.Default
-    /** 最大值batch尺寸 */
+    /**
+     * 最大值batch尺寸
+    */
     private int maxBatchSize = 100;
 
     /**
@@ -84,13 +92,17 @@ public class DispatcherConfig {
      * 默认 64MB。
      */
     @Builder.Default
-    /** Block尺寸 */
+    /**
+     * Block尺寸
+    */
     private long blockSize = 64L * 1024 * 1024;
 
     /**
      * 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），
      * 为空时使用默认 Jackson 实现。各派发提供者统一通过该参数初始化序列化器。
      */
-    /** Serializer名 */
+    /**
+     * Serializer名
+    */
     private String serializer;
 }

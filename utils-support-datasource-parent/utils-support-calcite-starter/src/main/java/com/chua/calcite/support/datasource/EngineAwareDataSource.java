@@ -45,13 +45,17 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     @Override
-    /** 获取Connection */
+    /**
+     * 获取Connection
+    */
     public Connection getConnection() throws SQLException {
         return wrapConnection(delegate.getConnection());
     }
 
     @Override
-    /** 获取Connection */
+    /**
+     * 获取Connection
+    */
     public Connection getConnection(String username, String password) throws SQLException {
         return wrapConnection(delegate.getConnection(username, password));
     }
@@ -71,9 +75,13 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     private static final class ConnectionHandler implements InvocationHandler {
-        /** 目标 */
+        /**
+         * 目标
+        */
         private final Connection target;
-        /** 更新执行器 */
+        /**
+         * 更新执行器
+        */
         private final EngineUpdateSqlExecutor updateExecutor;
 
         ConnectionHandler(Connection target, EngineUpdateSqlExecutor updateExecutor) {
@@ -82,7 +90,9 @@ public final class EngineAwareDataSource implements DataSource {
         }
 
         @Override
-        /** 调用 */
+        /**
+         * 调用
+        */
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             String name = method.getName();
             if ("createStatement".equals(name)) {
@@ -182,37 +192,49 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     @Override
-    /** 获取记录日志Writer */
+    /**
+     * 获取记录日志Writer
+    */
     public PrintWriter getLogWriter() throws SQLException {
         return delegate.getLogWriter();
     }
 
     @Override
-    /** 设置记录日志Writer */
+    /**
+     * 设置记录日志Writer
+    */
     public void setLogWriter(PrintWriter out) throws SQLException {
         delegate.setLogWriter(out);
     }
 
     @Override
-    /** 设置login超时 */
+    /**
+     * 设置login超时
+    */
     public void setLoginTimeout(int seconds) throws SQLException {
         delegate.setLoginTimeout(seconds);
     }
 
     @Override
-    /** 获取login超时 */
+    /**
+     * 获取login超时
+    */
     public int getLoginTimeout() throws SQLException {
         return delegate.getLoginTimeout();
     }
 
     @Override
-    /** 获取父日志记录器 */
+    /**
+     * 获取父日志记录器
+    */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return delegate.getParentLogger();
     }
 
     @Override
-    /** Unwrap */
+    /**
+     * Unwrap
+    */
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface.isInstance(this)) {
             return iface.cast(this);
@@ -221,7 +243,9 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     @Override
-    /** 是否包装器for */
+    /**
+     * 是否包装器for
+    */
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return iface.isInstance(this) || delegate.isWrapperFor(iface);
     }

@@ -179,7 +179,9 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -227,35 +229,45 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     }
 
     @Override
-    /** Lang */
+    /**
+     * Lang
+    */
     public SpeechSynthesizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public SpeechSynthesizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public SpeechSynthesizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** 速度 */
+    /**
+     * 速度
+    */
     public SpeechSynthesizer speed(float speed) {
         this.speed = speed;
         return this;
     }
 
     @Override
-    /** Pitch */
+    /**
+     * Pitch
+    */
     public SpeechSynthesizer pitch(float pitch) {
         this.pitch = pitch;
         return this;

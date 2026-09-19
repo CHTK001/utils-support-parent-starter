@@ -24,11 +24,17 @@ import java.util.List;
  */
 public class DefaultServerFilterChain implements ServerFilterChain {
 
-    /** Filters */
+    /**
+     * Filters
+    */
     private final List<ServerFilter> filters;
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private final ServerHandler handler;
-    /** Listeners */
+    /**
+     * Listeners
+    */
     private final List<FilterChainListener> listeners;
     /**
      * 索引名
@@ -61,7 +67,9 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response) throws Exception {
         if (index < filters.size()) {
             ServerFilter filter = filters.get(index++);

@@ -55,11 +55,17 @@ public class ThermalImageFilter extends AbstractImageFilter {
      * 伪彩色带
      */
     public enum Palette {
-        /** 白热（黑→白） */
+        /**
+         * 白热（黑→白）
+        */
         WHITEHOT,
-        /** 铁红（黑→蓝→紫→红→橙→黄→白） */
+        /**
+         * 铁红（黑→蓝→紫→红→橙→黄→白）
+        */
         IRONBOW,
-        /** Jet（蓝→青→绿→黄→红） */
+        /**
+         * Jet（蓝→青→绿→黄→红）
+        */
         JET
     }
 

@@ -90,31 +90,53 @@ public class StringUtils {
     static final String[] PADDING = {"", " ", "  ", "   ", "    ", "     ", "      ", "       ", "        ",
             "         ", "          ", "           ", "            ", "             ", "              ", "               ",
             "                ", "                 ", "                  ", "                   ", "                    "};
-    /** Thread_本地_构建器 */
+    /**
+     * Thread_本地_构建器
+    */
     private static final ThreadLocal<Stack<StringBuilder>> THREAD_LOCAL_BUILDERS = new ThreadLocal<Stack<StringBuilder>>() {
         @Override
-        /** initial值 */
+        /**
+         * initial值
+        */
         protected Stack<StringBuilder> initialValue() {
             return new Stack<>();
         }
     };
-    /** 无 */
+    /**
+     * 无
+    */
     private static final String NONE = "NONE";
-    /** 是否为空 */
+    /**
+     * 是否为空
+    */
     private static final String NULL = "NULL";
-    /** Sbuf_extra_容量 */
+    /**
+     * Sbuf_extra_容量
+    */
     private static final int SBUF_EXTRA_CAPACITY = 50;
-    /** 默认_pad_限制 */
+    /**
+     * 默认_pad_限制
+    */
     private static final int DEFAULT_PAD_LIMIT = 30;
-    /** Newline */
+    /**
+     * Newline
+    */
     private static final String NEWLINE = "\r\n";
-    /** Ascii_限制 */
+    /**
+     * Ascii_限制
+    */
     private static final int ASCII_LIMIT = 127;
-    /** HTML_space */
+    /**
+     * HTML_space
+    */
     private static final int HTML_SPACE = 160;
-    /** Invisible_char_1 */
+    /**
+     * Invisible_char_1
+    */
     private static final char INVISIBLE_CHAR_1 = 8203;
-    /** Invisible_char_2 */
+    /**
+     * Invisible_char_2
+    */
     private static final char INVISIBLE_CHAR_2 = 173;
 
     /**

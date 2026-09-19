@@ -38,19 +38,31 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi({"parakeet", "parakeet-v3", "nemo-speech", "nemo-speech-asr"})
 public class CliAsrAudioClient implements VirtualClient {
 
-    /** 默认 模型 标识（ModelRegistry 注册项，见 CliAsrModelRegistrar） */
+    /**
+     * 默认 模型 标识（ModelRegistry 注册项，见 CliAsrModelRegistrar）
+    */
     private static final String DEFAULT_MODEL = "parakeet-v3";
 
-    /** 异步 任务 前缀 */
+    /**
+     * 异步 任务 前缀
+    */
     private static final String TASK_PREFIX = "cli-asr-";
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final AudioClientSetting setting;
-    /** 当前 模型 */
+    /**
+     * 当前 模型
+    */
     private String model;
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String language;
-    /** 任务 缓存（CLI 无原生 异步； 本地 记录 模拟 轮询 契约） */
+    /**
+     * 任务 缓存（CLI 无原生 异步； 本地 记录 模拟 轮询 契约）
+    */
     private final Map<String, AudioResponse> taskCache =
             java.util.Collections.synchronizedMap(new java.util.LinkedHashMap<String, AudioResponse>(64, 0.75f, true) {
                 @Override

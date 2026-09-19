@@ -19,16 +19,24 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ModelConfig(
 
-    /** 模型映射表 */
+    /**
+     * 模型映射表
+    */
     @JsonProperty("models") Map<String, ModelEntry> models,
 
-    /** 分档定义 */
+    /**
+     * 分档定义
+    */
     @JsonProperty("tiers") Map<String, TierDef> tiers,
 
-    /** 降级配置 */
+    /**
+     * 降级配置
+    */
     @JsonProperty("fallback") FallbackConfig fallback,
 
-    /** 运行时设置 */
+    /**
+     * 运行时设置
+    */
     @JsonProperty("settings") Settings settings
 ) {
 

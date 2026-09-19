@@ -17,10 +17,14 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
      * 名称
      */
     private final String name;
-    /** 信号量 */
+    /**
+     * 信号量
+    */
     private final Semaphore semaphore;
 
-    /** 创建 SemaphoreLockProvider 实例 */
+    /**
+     * 创建 SemaphoreLockProvider 实例
+    */
     public SemaphoreLockProvider() {
         this(false);
     }
@@ -71,7 +75,9 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** DoTry锁 */
+    /**
+     * DoTry锁
+    */
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {
             return semaphore.tryAcquire(timeout, timeUnit);
@@ -82,19 +88,25 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** Do解锁 */
+    /**
+     * Do解锁
+    */
     protected void doUnlock() {
         semaphore.release();
     }
 
     @Override
-    /** Do获取Name */
+    /**
+     * Do获取Name
+    */
     protected String doGetName() {
         return name;
     }
 
     @Override
-    /** Do获取Type */
+    /**
+     * Do获取Type
+    */
     protected String doGetType() {
         return "semaphore";
     }

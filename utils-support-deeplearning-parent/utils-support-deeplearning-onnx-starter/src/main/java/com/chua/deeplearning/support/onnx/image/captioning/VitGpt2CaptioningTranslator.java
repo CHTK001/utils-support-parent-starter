@@ -91,15 +91,25 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
      */
     private static final String CACHE_ROOT = "vision/captioning/vit-gpt2/";
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 编码器会话 */
+    /**
+     * 编码器会话
+    */
     private OrtSession encoderSession;
-    /** 解码器会话 */
+    /**
+     * 解码器会话
+    */
     private OrtSession decoderSession;
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private volatile boolean prepared;
 
     /**
@@ -210,13 +220,17 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public String translate(byte[] input) {
         return caption(input, null);
     }

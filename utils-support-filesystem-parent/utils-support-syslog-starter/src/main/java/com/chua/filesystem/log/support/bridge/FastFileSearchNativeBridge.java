@@ -29,29 +29,45 @@ import java.util.function.BiConsumer;
 @Slf4j
 public final class FastFileSearchNativeBridge {
 
-    /** Arena */
+    /**
+     * Arena
+    */
     private static Arena ARENA;
-    /** 图书馆 */
+    /**
+     * 图书馆
+    */
     private static SymbolLookup LIBRARY;
 
-    /** 搜索mfthandle */
+    /**
+     * 搜索mfthandle
+    */
     private static MethodHandle searchMftHandle;
-    /** Cancelhandle */
+    /**
+     * Cancelhandle
+    */
     private static MethodHandle cancelHandle;
 
-    /** 加载 */
+    /**
+     * 加载
+    */
     private static volatile boolean loaded = false;
-    /** 加载_锁 */
+    /**
+     * 加载_锁
+    */
     private static final Object LOAD_LOCK = new Object();
 
-    /** Linker */
+    /**
+     * Linker
+    */
     private static final Linker LINKER = Linker.nativeLinker();
 
     static {
         loadLibrary();
     }
 
-    /** 创建 fast文件搜索NATbridge 实例 */
+    /**
+     * 创建 fast文件搜索NATbridge 实例
+    */
     private FastFileSearchNativeBridge() {
         throw new UnsupportedOperationException("Utility class");
     }
@@ -207,7 +223,9 @@ public final class FastFileSearchNativeBridge {
         return loaded;
     }
 
-    /** 校验加载 */
+    /**
+     * 校验加载
+    */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(

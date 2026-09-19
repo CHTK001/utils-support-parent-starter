@@ -24,13 +24,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DefaultExecutorManager implements ExecutorManager {
 
-    /** 服务标识 */
+    /**
+     * 服务标识
+    */
     private final String serverId;
-    /** 是否直接分发 */
+    /**
+     * 是否直接分发
+    */
     private final boolean directDispatch;
-    /** 执行器映射 */
+    /**
+     * 执行器映射
+    */
     private final Map<String, ReactorDataSyncExecutor> executors = new ConcurrentHashMap<>();
-    /** 是否已启动 */
+    /**
+     * 是否已启动
+    */
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
@@ -53,14 +61,18 @@ public class DefaultExecutorManager implements ExecutorManager {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         started.set(true);
         log.info("ExecutorManager 已启动，serverId={}, 执行器数量={}, directDispatch={}", serverId, executors.size(), directDispatch);
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         started.set(false);
         executors.values().forEach(executor -> {
@@ -75,7 +87,9 @@ public class DefaultExecutorManager implements ExecutorManager {
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);

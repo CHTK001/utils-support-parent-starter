@@ -14,39 +14,69 @@ import java.util.Map;
  */
 public class DownloadConfig {
 
-    /** 下载地址 URL（必须非空） */
+    /**
+     * 下载地址 URL（必须非空）
+    */
     private final String url;
-    /** 目标下载目录 */
+    /**
+     * 目标下载目录
+    */
     private final Path targetDir;
-    /** 显式指定的文件名（null 时从 URL 路径自动解析） */
+    /**
+     * 显式指定的文件名（null 时从 URL 路径自动解析）
+    */
     private final String filename;
-    /** 期望的 MD5 校验值（null 或空白则跳过校验） */
+    /**
+     * 期望的 MD5 校验值（null 或空白则跳过校验）
+    */
     private final String expectedMd5;
-    /** 并发下载线程数，必须 >= 1 */
+    /**
+     * 并发下载线程数，必须 >= 1
+    */
     private final int concurrency;
-    /** 限速字节/秒（0 = 不限速） */
+    /**
+     * 限速字节/秒（0 = 不限速）
+    */
     private final long maxSpeed;
-    /** HTTP 代理（可为 null，表示不使用代理） */
+    /**
+     * HTTP 代理（可为 null，表示不使用代理）
+    */
     private final Proxy proxy;
-    /** 下载完成后是否自动解压压缩包 */
+    /**
+     * 下载完成后是否自动解压压缩包
+    */
     private final boolean autoExtract;
-    /** 解压目标目录（null 时表示与下载目录相同） */
+    /**
+     * 解压目标目录（null 时表示与下载目录相同）
+    */
     private final Path extractTo;
     /**
      * 是否跳过 MD5 校验（优先于 expectedMd5，true 时忽略校验）
      */
     private final boolean skipMd5Check;
-    /** 是否强制重新下载（忽略本地缓存文件） */
+    /**
+     * 是否强制重新下载（忽略本地缓存文件）
+    */
     private final boolean forceDownload;
-    /** 是否在控制台显示下载进度条 */
+    /**
+     * 是否在控制台显示下载进度条
+    */
     private final boolean showProgress;
-    /** 连接超时（毫秒） */
+    /**
+     * 连接超时（毫秒）
+    */
     private final int connectTimeoutMs;
-    /** 读取超时（毫秒） */
+    /**
+     * 读取超时（毫秒）
+    */
     private final int readTimeoutMs;
-    /** 自定义 HTTP 请求头（可为空 map，不影响正常请求） */
+    /**
+     * 自定义 HTTP 请求头（可为空 map，不影响正常请求）
+    */
     private final Map<String, String> headers;
-    /** 断点续传起始偏移字节数（>0 时启用，由框架自动设置） */
+    /**
+     * 断点续传起始偏移字节数（>0 时启用，由框架自动设置）
+    */
     private final long resumeOffset;
 
     /**
@@ -100,37 +130,69 @@ public class DownloadConfig {
      */
     public static class Builder {
 
-        /** 下载地址，必须通过 {@link #url(String)} 设置 */
+        /**
+         * 下载地址，必须通过 {@link #url(String)} 设置
+        */
         private String url;
-        /** 目标下载目录，默认当前工作目录 */
+        /**
+         * 目标下载目录，默认当前工作目录
+        */
         private Path targetDir;
-        /** 显式文件名，为空时从 URL 路径自动解析 */
+        /**
+         * 显式文件名，为空时从 URL 路径自动解析
+        */
         private String filename;
-        /** 期望的 MD5 校验值，为 null 时跳过校验 */
+        /**
+         * 期望的 MD5 校验值，为 null 时跳过校验
+        */
         private String expectedMd5;
-        /** 并发线程数，默认 1 */
+        /**
+         * 并发线程数，默认 1
+        */
         private int concurrency = 1;
-        /** 限速（bytes/sec），0 表示不限速 */
+        /**
+         * 限速（bytes/sec），0 表示不限速
+        */
         private long maxSpeed = 0;
-        /** HTTP 代理，可为 null */
+        /**
+         * HTTP 代理，可为 null
+        */
         private Proxy proxy;
-        /** 下载完成后自动解压，默认 false */
+        /**
+         * 下载完成后自动解压，默认 false
+        */
         private boolean autoExtract = false;
-        /** 解压目标目录，为 null 时使用下载目录 */
+        /**
+         * 解压目标目录，为 null 时使用下载目录
+        */
         private Path extractTo;
-        /** 跳过 MD5 校验，默认 false */
+        /**
+         * 跳过 MD5 校验，默认 false
+        */
         private boolean skipMd5Check = false;
-        /** 强制重新下载（忽略本地缓存），默认 false */
+        /**
+         * 强制重新下载（忽略本地缓存），默认 false
+        */
         private boolean forceDownload = false;
-        /** 显示进度条，默认 true */
+        /**
+         * 显示进度条，默认 true
+        */
         private boolean showProgress = true;
-        /** 连接超时（毫秒），默认 15000 */
+        /**
+         * 连接超时（毫秒），默认 15000
+        */
         private int connectTimeoutMs = 15_000;
-        /** 读取超时（毫秒），默认 60000 */
+        /**
+         * 读取超时（毫秒），默认 60000
+        */
         private int readTimeoutMs = 60_000;
-        /** 自定义请求头，默认空 map */
+        /**
+         * 自定义请求头，默认空 map
+        */
         private Map<String, String> headers = java.util.Collections.emptyMap();
-        /** 断点续传偏移字节，默认 0 */
+        /**
+         * 断点续传偏移字节，默认 0
+        */
         private long resumeOffset = 0;
 
         /**

@@ -36,12 +36,18 @@ import java.util.concurrent.Executors;
  */
 public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
-    /** seed 元数据键 */
+    /**
+     * seed 元数据键
+    */
     private static final String METADATA_SEED = "seed";
-    /** seed 掉线标记 */
+    /**
+     * seed 掉线标记
+    */
     private static final String METADATA_SEED_DOWN = "seedDown";
 
-    /** 已扩散过的新节点（去重） */
+    /**
+     * 已扩散过的新节点（去重）
+    */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
     /**
      * 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
@@ -246,7 +252,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 注册 seed 引导条目（带 seed 标记，不参与心跳剔除）。 */
+    /**
+     * 注册 seed 引导条目（带 seed 标记，不参与心跳剔除）。
+    */
     @Override
     public void registerSelf() {
         super.registerSelf();

@@ -41,31 +41,49 @@ import java.util.Map;
 @Slf4j
 public class AutoEncoderIpTranslator {
 
-    /** 系统属性名：UEBA 模型所在目录 */
+    /**
+     * 系统属性名：UEBA 模型所在目录
+    */
     public static final String MODEL_DIR_PROPERTY = "ueba.model.dir";
 
-    /** 默认模型文件名 */
+    /**
+     * 默认模型文件名
+    */
     public static final String DEFAULT_MODEL_FILE = "autoencoder_ip.onnx";
 
-    /** 类路径 资源基础路径 */
+    /**
+     * 类路径 资源基础路径
+    */
     private static final String RESOURCE_BASE = "models/ueba/";
 
-    /** ONNX Runtime 单次推理使用的最多线程数 */
+    /**
+     * ONNX Runtime 单次推理使用的最多线程数
+    */
     private static final int MAX_INTRA_OP_THREADS = 8;
 
-    /** 输入特征维度，由配置的 特征 数量决定 */
+    /**
+     * 输入特征维度，由配置的 特征 数量决定
+    */
     private final int inputDim;
 
-    /** 模型文件名 */
+    /**
+     * 模型文件名
+    */
     private final String modelFile;
 
-    /** 显式模型路径（可选，优先级最高） */
+    /**
+     * 显式模型路径（可选，优先级最高）
+    */
     private final String explicitPath;
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
 
-    /** 推理会话 */
+    /**
+     * 推理会话
+    */
     private OrtSession session;
 
     /**

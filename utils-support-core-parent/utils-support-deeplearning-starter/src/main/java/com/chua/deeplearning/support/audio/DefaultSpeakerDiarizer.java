@@ -59,9 +59,13 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     // ==================== 默认参数 ====================
 
-    /** 默认推理设备：CPU */
+    /**
+     * 默认推理设备：CPU
+    */
     private static final String DEFAULT_DEVICE = "cpu";
-    /** 默认目标采样率：16khz（语音处理标准） */
+    /**
+     * 默认目标采样率：16khz（语音处理标准）
+    */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
     /**
      * 每帧分析时长：25ms（约 400 个 16khz 采样点，语音处理的行业标准帧长）
@@ -73,7 +77,9 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
      * 0.002 对应 RMS ≈ 0.045，约为安静房间的底色噪声水平。</p>
      */
     private static final double DEFAULT_energy_THRESHOLD = 0.002d;
-    /** 最小有效语音片段时长：80ms。短于此值的片段视为噪声/咔嗒声，予以丢弃 */
+    /**
+     * 最小有效语音片段时长：80ms。短于此值的片段视为噪声/咔嗒声，予以丢弃
+    */
     private static final long DEFAULT_MIN_SPEECH_MS = 80L;
     /**
      * 静音分割阈值：200ms。
@@ -84,32 +90,54 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     // ==================== 成员字段 ====================
 
-    /** 推理引擎实例（全局单例） */
+    /**
+     * 推理引擎实例（全局单例）
+    */
     private final IdentificationEngine engine;
-    /** 模型 标识（本实现在当前版本中主要用于日志输出，VAD 逻辑不依赖具体模型） */
+    /**
+     * 模型 标识（本实现在当前版本中主要用于日志输出，VAD 逻辑不依赖具体模型）
+    */
     private final String modelName;
-    /** 模型配置（保留字段，供后续升级至模型驱动方案时复用） */
+    /**
+     * 模型配置（保留字段，供后续升级至模型驱动方案时复用）
+    */
     @SuppressWarnings("unused")
     private final ModelSetting setting; // setting
 
-    /** 自定义模型路径（预留，当前 VAD 方案不使用） */
+    /**
+     * 自定义模型路径（预留，当前 VAD 方案不使用）
+    */
     private String modelPath;
-    /** 推理设备："cpu" 或 "cuda" */
+    /**
+     * 推理设备："cpu" 或 "cuda"
+    */
     private String device = DEFAULT_DEVICE;
-    /** 目标采样率（Hz） */
+    /**
+     * 目标采样率（Hz）
+    */
     private int sampleRate = DEFAULT_SAMPLE_RATE;
-    /** 最大说话人数限制，空 表示不限制 */
+    /**
+     * 最大说话人数限制，空 表示不限制
+    */
     private Integer maxSpeakers;
 
     // ==================== VAD 算法参数（可调优） ====================
 
-    /** 每帧时长（毫秒） */
+    /**
+     * 每帧时长（毫秒）
+    */
     private long segmentDurationMs = DEFAULT_SEGMENT_MS;
-    /** 能量检测阈值 */
+    /**
+     * 能量检测阈值
+    */
     private double energyThreshold = DEFAULT_energy_THRESHOLD;
-    /** 最小语音片段时长（毫秒），短于此值的静音间隙不被计入 */
+    /**
+     * 最小语音片段时长（毫秒），短于此值的静音间隙不被计入
+    */
     private long minSpeechMs = DEFAULT_MIN_SPEECH_MS;
-    /** 静音分割阈值（毫秒），超过此值的静音间隔触发新说话人 标识 */
+    /**
+     * 静音分割阈值（毫秒），超过此值的静音间隔触发新说话人 标识
+    */
     private long silenceThresholdMs = DEFAULT_SILENCE_THRESHOLD_MS;
 
     /**

@@ -30,13 +30,17 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     private static final int CMD_TIMEOUT = 30;
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "default";
     }
 
     @Override
-    /** 列表pids */
+    /**
+     * 列表pids
+    */
     public Map<Integer, String> listPids() {
         Map<Integer, String> jvms = new HashMap<>();
         try {
@@ -61,7 +65,9 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** inspectjvm */
+    /**
+     * inspectjvm
+    */
     public CmdResult inspectJvm(int pid) {
         try {
             Class<?> vmClass = ReflectUtils.forName("com.sun.tools.attach.VirtualMachine");
@@ -77,7 +83,9 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** Attach */
+    /**
+     * Attach
+    */
     public CmdResult attach(int pid, Path agentPath, String options) {
         LOG.log(Level.INFO, String.format("正在注入 Agent 到 PID[%s]", pid));
         try {
@@ -92,13 +100,17 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** attachby端口 */
+    /**
+     * attachby端口
+    */
     public CmdResult attachByPort(int port, Path agentPath, String options) {
         return attach(port, agentPath, options);
     }
 
     @Override
-    /** Detach */
+    /**
+     * Detach
+    */
     public CmdResult detach(int pid) {
         return CmdResult.builder()
                 .exitCode(1)

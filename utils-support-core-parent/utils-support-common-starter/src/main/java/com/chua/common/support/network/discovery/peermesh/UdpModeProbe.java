@@ -23,16 +23,26 @@ import java.util.List;
 @Slf4j
 public class UdpModeProbe implements ProbeStrategy {
 
-    /** Receive_timeout_ms */
+    /**
+     * Receive_timeout_ms
+    */
     private static final int RECEIVE_TIMEOUT_MS = 2000;
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final MeshConfig config;
-    /** 本地服务器ID */
+    /**
+     * 本地服务器ID
+    */
     private final String localServerId;
-    /** Discovered */
+    /**
+     * Discovered
+    */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
-    /** stopped */
+    /**
+     * stopped
+    */
     private volatile boolean stopped;
 
     /**
@@ -47,7 +57,9 @@ public class UdpModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         int port = config.getPort();
         try (DatagramSocket socket = new DatagramSocket()) {
@@ -79,13 +91,17 @@ public class UdpModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
-    /** 获取DiscoveredNodes */
+    /**
+     * 获取DiscoveredNodes
+    */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return discovered;
     }

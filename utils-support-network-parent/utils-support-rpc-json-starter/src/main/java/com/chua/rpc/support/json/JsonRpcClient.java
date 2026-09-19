@@ -148,7 +148,9 @@ public class JsonRpcClient implements RpcClient {
         }
 
         @Override
-        /** 应用 */
+        /**
+         * 应用
+        */
         public Object apply(ProxyMethod proxyMethod) {
             int maxRetries = consumerConfig != null && Boolean.FALSE.equals(consumerConfig.getRetryEnabled())
                     ? 0 : (consumerConfig != null && consumerConfig.getRetries() != null ? consumerConfig.getRetries() : 0);
@@ -237,7 +239,9 @@ public class JsonRpcClient implements RpcClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         clientCache.clear();
         proxyCache.clear();

@@ -50,7 +50,9 @@ public final class KimiProtocol {
      */
     public static final int FLAG_TYPE_KEEP = 0x00;
 
-    /** 创建 kimi协议 实例 */
+    /**
+     * 创建 kimi协议 实例
+    */
     private KimiProtocol() {
     }
 

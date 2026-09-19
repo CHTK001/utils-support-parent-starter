@@ -14,21 +14,37 @@ import java.util.List;
 @Data
 @Builder
 public class MusicPlaylistDetail {
-    /** playlistid */
+    /**
+     * playlistid
+    */
     private String playlistId;
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** 标题 */
+    /**
+     * 标题
+    */
     private String title;
-    /** 描述 */
+    /**
+     * 描述
+    */
     private String description;
-    /** coverurl */
+    /**
+     * coverurl
+    */
     private String coverUrl;
-    /** 作者 */
+    /**
+     * 作者
+    */
     private String author;
-    /** Track数量 */
+    /**
+     * Track数量
+    */
     private Integer trackCount;
-    /** Tracks */
+    /**
+     * Tracks
+    */
     private List<MusicTrackSummary> tracks;
 }
 

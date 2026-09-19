@@ -12,17 +12,29 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicComment {
-    /** 评论id */
+    /**
+     * 评论id
+    */
     private String commentId;
-    /** 作者 */
+    /**
+     * 作者
+    */
     private String author;
-    /** Avatar */
+    /**
+     * Avatar
+    */
     private String avatar;
-    /** 内容 */
+    /**
+     * 内容
+    */
     private String content;
-    /** Liked数量 */
+    /**
+     * Liked数量
+    */
     private Long likedCount;
-    /** 时间 */
+    /**
+     * 时间
+    */
     private String time;
 }
 

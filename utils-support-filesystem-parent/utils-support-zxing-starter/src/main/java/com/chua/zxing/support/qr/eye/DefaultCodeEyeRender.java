@@ -26,7 +26,9 @@ import javax.annotation.Nullable;
  */
 public class DefaultCodeEyeRender implements CodeEyeRender {
     @Override
-    /** Render */
+    /**
+     * Render
+    */
     public void render(QrCodeGenWrapper.Builder builder, CodeEyeSetting setting) throws IOException {
         if (!StringUtils.isBlank(setting.getCodeEyeColor())) {
             Color color = Converter.convertIfNecessary(setting.getCodeEyeColor(), Color.class);

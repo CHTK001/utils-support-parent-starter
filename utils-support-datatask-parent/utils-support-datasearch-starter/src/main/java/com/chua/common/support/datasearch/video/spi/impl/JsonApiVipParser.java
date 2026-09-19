@@ -28,7 +28,9 @@ import java.util.List;
 @Spi("json")
 public class JsonApiVipParser implements VipParser {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(JsonApiVipParser.class);
 
     @Override

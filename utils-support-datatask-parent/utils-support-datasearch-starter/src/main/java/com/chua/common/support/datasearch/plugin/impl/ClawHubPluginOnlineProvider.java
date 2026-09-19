@@ -17,10 +17,14 @@ import org.slf4j.LoggerFactory;
 @Spi("clawhub-plugins")
 public class ClawHubPluginOnlineProvider implements PluginOnlineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(ClawHubPluginOnlineProvider.class);
 
-    /** 市场主页 */
+    /**
+     * 市场主页
+    */
     private static final String MARKET_URL = "https://clawhub.ai/plugins";
 
     @Override

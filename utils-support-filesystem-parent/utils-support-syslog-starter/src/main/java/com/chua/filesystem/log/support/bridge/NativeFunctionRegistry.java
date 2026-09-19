@@ -24,9 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class NativeFunctionRegistry {
 
-    /** 原生链接器（JVM 全局共享实例） */
+    /**
+     * 原生链接器（JVM 全局共享实例）
+    */
     private final Linker linker;
-    /** 符号查找表，用于按名称解析原生函数地址 */
+    /**
+     * 符号查找表，用于按名称解析原生函数地址
+    */
     private final SymbolLookup lookup;
     /**
      * 方法处理 句柄缓存，键 为「函数名@方法描述符」，避免重复 downcall 绑定

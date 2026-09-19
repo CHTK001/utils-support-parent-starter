@@ -88,11 +88,17 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     private final String modelId; // 模型标识
     private final boolean useGpu; // usegpu
 
-    /** 采样温度（>0 时启用温度采样；0 = 纯贪心） */
+    /**
+     * 采样温度（>0 时启用温度采样；0 = 纯贪心）
+    */
     private final float temperature;
-    /** 重复惩罚系数（>=1，1 = 不惩罚） */
+    /**
+     * 重复惩罚系数（>=1，1 = 不惩罚）
+    */
     private final float repeatPenalty;
-    /** top-k 采样候选数（>0 启用，0 = 不限制） */
+    /**
+     * top-k 采样候选数（>0 启用，0 = 不限制）
+    */
     private final int topK;
 
     private HuggingFaceTokenizer tokenizer; // tokenizer
@@ -105,10 +111,14 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      */
     private boolean kvCacheModel;
 
-    /** 多轮对话历史（交替存储 用户 / assistant 文本） */
+    /**
+     * 多轮对话历史（交替存储 用户 / assistant 文本）
+    */
     private final List<String> history = new ArrayList<>();
 
-    /** 多轮对话总结指令 */
+    /**
+     * 多轮对话总结指令
+    */
     private static final String SUMMARIZE_PROMPT =
             "请用简洁的中文总结我们刚才的整个对话内容，说明用户询问了什么、你给出了什么答复。";
 

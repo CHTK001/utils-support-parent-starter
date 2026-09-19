@@ -31,17 +31,29 @@ import java.util.List;
 @Spi("wuji")
 public class WuJiResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索结果行标记：result-title 单元格 */
+    /**
+     * 搜索结果行标记：result-title 单元格
+    */
     private static final String MARKER = "<td class=\"result-title\"";
-    /** 标记与标题链接的最大允许间距（字符） */
+    /**
+     * 标记与标题链接的最大允许间距（字符）
+    */
     private static final int MAX_MARKER_TO_LINK_CHARS = 200;
-    /** 标记与大小元信息的最大允许间距（字符） */
+    /**
+     * 标记与大小元信息的最大允许间距（字符）
+    */
     private static final int MAX_MARKER_TO_META_CHARS = 500;
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 10;
-    /** 默认资源站搜索地址（%s 替换 UTF-8 编码后的关键词） */
+    /**
+     * 默认资源站搜索地址（%s 替换 UTF-8 编码后的关键词）
+    */
     private static final String DEFAULT_SEARCH_URL = "https://xcili.net/search?q=%s";
-    /** 详情页地址前缀（拼接站点相对 href） */
+    /**
+     * 详情页地址前缀（拼接站点相对 href）
+    */
     private static final String DETAIL_URL_PREFIX = "https://xcili.net";
 
     /**

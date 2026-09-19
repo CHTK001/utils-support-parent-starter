@@ -35,32 +35,50 @@ import java.util.concurrent.ThreadLocalRandom;
 @Spi("chinese-xinhua")
 public class OnlineIdiomProvider implements IdiomProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlineIdiomProvider.class);
 
-    /** 在线数据源地址 */
+    /**
+     * 在线数据源地址
+    */
     private static final String DEFAULT_URL =
             "https://cdn.jsdelivr.net/gh/pwxcoo/chinese-xinhua@master/data/idiom.json";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 在线数据源地址模板 */
+    /**
+     * 在线数据源地址模板
+    */
     private final String url;
 
-    /** 内存索引：word -> 成语信息（惰性加载） */
+    /**
+     * 内存索引：word -> 成语信息（惰性加载）
+    */
     private volatile Map<String, IdiomInfo> index = Collections.emptyMap();
 
-    /** 首字索引：首字符 -> 成语列表（惰性加载） */
+    /**
+     * 首字索引：首字符 -> 成语列表（惰性加载）
+    */
     private volatile Map<String, List<IdiomInfo>> firstCharIndex = Collections.emptyMap();
 
-    /** 内置兜底数据 */
+    /**
+     * 内置兜底数据
+    */
     private static final List<IdiomInfo> FALLBACK = buildFallback();
 
-    /** 创建 onlineidiom提供者 实例 */
+    /**
+     * 创建 onlineidiom提供者 实例
+    */
     public OnlineIdiomProvider() {
         this(DEFAULT_URL);
     }
@@ -76,13 +94,17 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "chinese-xinhua";
     }
 
     @Override
-    /** 获取Idiom */
+    /**
+     * 获取Idiom
+    */
     public IdiomInfo get(String word) {
         if (word == null || word.isBlank()) {
             return null;
@@ -91,7 +113,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<IdiomInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
@@ -110,7 +134,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     @Override
-    /** 随机 */
+    /**
+     * 随机
+    */
     public IdiomInfo random() {
         Map<String, IdiomInfo> idx = loadIndex();
         if (idx.isEmpty()) {
@@ -121,7 +147,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     @Override
-    /** 成语接龙 */
+    /**
+     * 成语接龙
+    */
     public List<IdiomInfo> chain(String text, int limit) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
@@ -133,7 +161,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     @Override
-    /** 按首字查找 */
+    /**
+     * 按首字查找
+    */
     public List<IdiomInfo> findByFirstChar(String firstChar, int limit) {
         if (firstChar == null || firstChar.isBlank()) {
             return Collections.emptyList();
@@ -281,7 +311,9 @@ public class OnlineIdiomProvider implements IdiomProvider {
         return list;
     }
 
-    /** 添加兜底词条 */
+    /**
+     * 添加兜底词条
+    */
     private static void add(List<IdiomInfo> list, String word, String pinyin, String abbreviation,
                             String derivation, String explanation, String example) {
         list.add(new IdiomInfo(word, pinyin, abbreviation, derivation, explanation, example));

@@ -34,20 +34,28 @@ public class WttrInWeatherProvider implements WeatherProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 查询地址模板（城市名进入路径） */
+    /**
+     * 查询地址模板（城市名进入路径）
+    */
     private static final String WEATHER_URL = "https://wttr.in/%s?format=j1";
 
-    /** 缓存有效期（毫秒）：30 分钟 */
+    /**
+     * 缓存有效期（毫秒）：30 分钟
+    */
     private static final long CACHE_TTL_MILLIS = 30 * 60 * 1000L;
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    /** 缓存的城市名与天气 */
+    /**
+     * 缓存的城市名与天气
+    */
     private volatile String cachedCity;
     private volatile WeatherInfo cached; // 缓存
 
-    /** 缓存时间戳 */
+    /**
+     * 缓存时间戳
+    */
     private volatile long cachedAt;
 
     @Override

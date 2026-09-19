@@ -132,7 +132,9 @@ public class ConcurrentEndpoint {
         return configAndStatus(metric, name);
     }
 
-    /** POST /{指标}/{名称}：配置保存 */
+    /**
+     * POST /{指标}/{名称}：配置保存
+    */
     @WriteOperation
     public Map<String, Object> save(@Selector String metric, @Selector String name,
                                     Map<String, Object> body) {
@@ -218,7 +220,9 @@ public class ConcurrentEndpoint {
         return Map.of("error", "unknown metric: " + metric);
     }
 
-    /** POST /{指标}/{名称}/reset：单点复位（当前仅熔断器支持） */
+    /**
+     * POST /{指标}/{名称}/reset：单点复位（当前仅熔断器支持）
+    */
     @WriteOperation
     public Map<String, Object> resetOne(@Selector String metric, @Selector String name,
                                         @Selector String action) {

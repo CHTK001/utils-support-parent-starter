@@ -32,12 +32,18 @@ import java.util.regex.Pattern;
 @Spi("douban2")
 public class Douban2ResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索页地址前缀（拼接 UTF-8 编码后的关键词） */
+    /**
+     * 搜索页地址前缀（拼接 UTF-8 编码后的关键词）
+    */
     private static final String SEARCH_URL = "https://www.douban.com/search?query=";
-    /** 标题链接匹配模式：群体(1)=链接，群体(2)=标题 */
+    /**
+     * 标题链接匹配模式：群体(1)=链接，群体(2)=标题
+    */
     private static final Pattern TITLE_LINK_PATTERN =
             Pattern.compile("<a[^>]+href=\"([^\"]+)\"[^>]*>\\s*([^<]{2,})\\s*</a>");
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 10;
 
     /**

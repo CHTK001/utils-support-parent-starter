@@ -23,7 +23,9 @@ import java.util.function.Supplier;
  */
 public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
 
-    /** 供应商 */
+    /**
+     * 供应商
+    */
     private final Supplier<T> supplier;
 
     /**

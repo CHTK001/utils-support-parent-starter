@@ -12,16 +12,24 @@ import java.util.Map;
  */
 public class McpToolDescriptor {
 
-    /** 工具名称 */
+    /**
+     * 工具名称
+    */
     private final String name;
 
-    /** 所属 MCP 服务端名称 */
+    /**
+     * 所属 MCP 服务端名称
+    */
     private final String serverName;
 
-    /** 工具描述 */
+    /**
+     * 工具描述
+    */
     private final String description;
 
-    /** 参数 schema（JSON Schema 格式） */
+    /**
+     * 参数 schema（JSON Schema 格式）
+    */
     private final Map<String, Object> inputSchema;
 
     /**

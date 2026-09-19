@@ -59,22 +59,34 @@ import java.util.List;
  */
 public class AgentDefinition {
 
-    /** Agent 标识 */
+    /**
+     * Agent 标识
+    */
     private final String id;
 
-    /** Agent 名称 */
+    /**
+     * Agent 名称
+    */
     private final String name;
 
-    /** Agent 描述 */
+    /**
+     * Agent 描述
+    */
     private final String description;
 
-    /** Agent 角色 */
+    /**
+     * Agent 角色
+    */
     private final String role;
 
-    /** 系统指令（即 system prompt） */
+    /**
+     * 系统指令（即 system prompt）
+    */
     private final String instruction;
 
-    /** 是否允许启用规划 */
+    /**
+     * 是否允许启用规划
+    */
     private final boolean planning;
 
     /**
@@ -82,10 +94,14 @@ public class AgentDefinition {
      */
     private final boolean mcp;
 
-    /** 是否为主 Agent */
+    /**
+     * 是否为主 Agent
+    */
     private final boolean leader;
 
-    /** 已注册的子 Agent 定义列表（仅主 Agent 使用） */
+    /**
+     * 已注册的子 Agent 定义列表（仅主 Agent 使用）
+    */
     private final List<AgentDefinition> agents;
 
     /**
@@ -93,7 +109,9 @@ public class AgentDefinition {
      */
     private final McpManager mcpManager;
 
-    /** Agent 专属的技能管理器（子 Agent 可独立配置技能集） */
+    /**
+     * Agent 专属的技能管理器（子 Agent 可独立配置技能集）
+    */
     private final SkillManager skillManager;
 
     /**
@@ -101,13 +119,19 @@ public class AgentDefinition {
      */
     private final String systemPrompt;
 
-    /** 是否启用记忆体（默认开启） */
+    /**
+     * 是否启用记忆体（默认开启）
+    */
     private final boolean memory;
 
-    /** 记忆体配置 */
+    /**
+     * 记忆体配置
+    */
     private final MemoryConfig memoryConfig;
 
-    /** 重试配置 */
+    /**
+     * 重试配置
+    */
     private final AgentRetryConfig retryConfig;
 
     /**
@@ -118,7 +142,9 @@ public class AgentDefinition {
      */
     private final int maxToolIterations;
 
-    /** 上下文压缩配置 */
+    /**
+     * 上下文压缩配置
+    */
     private final AgentCompressionConfig compressionConfig;
 
     /**
@@ -128,10 +154,14 @@ public class AgentDefinition {
      */
     private final int planMaxTask;
 
-    /** 调试 Hook */
+    /**
+     * 调试 Hook
+    */
     private final AgentDebugHook debugHook;
 
-    /** 规划 Hook */
+    /**
+     * 规划 Hook
+    */
     private final AgentPlanHook planHook;
 
     /**
@@ -482,25 +512,33 @@ public class AgentDefinition {
         Builder() {
         }
 
-        /** Id */
+        /**
+         * Id
+        */
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        /** Name */
+        /**
+         * Name
+        */
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        /** Description */
+        /**
+         * Description
+        */
         public Builder description(String description) {
             this.description = description;
             return this;
         }
 
-        /** Role */
+        /**
+         * Role
+        */
         public Builder role(String role) {
             this.role = role;
             return this;
@@ -537,7 +575,9 @@ public class AgentDefinition {
             return this;
         }
 
-        /** Planning */
+        /**
+         * Planning
+        */
         public Builder planning(boolean planning) {
             this.planning = planning;
             return this;
@@ -601,7 +641,9 @@ public class AgentDefinition {
             return this;
         }
 
-        /** Leader */
+        /**
+         * Leader
+        */
         public Builder leader(boolean leader) {
             this.leader = leader;
             return this;

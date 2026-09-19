@@ -27,16 +27,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ShardedIndex {
 
-    /** 每棵 B+Tree 的阶数（越大节点容量越高，树高度越低） */
+    /**
+     * 每棵 B+Tree 的阶数（越大节点容量越高，树高度越低）
+    */
     private static final int TREE_ORDER = 200;
 
     private final int shardCount;
-    /** 各分片索引：shardIdx → B+Tree */
+    /**
+     * 各分片索引：shardIdx → B+Tree
+    */
     private final BPlusTree<String, EntryLoc>[] shards;
-    /** 读写锁：写操作独占，读操作共享 */
+    /**
+     * 读写锁：写操作独占，读操作共享
+    */
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    /** EntryLoc：WAL 分片内的记录位置 */
+    /**
+     * EntryLoc：WAL 分片内的记录位置
+    */
     public record EntryLoc(int segmentNo, long offset, int length) {}
 
     /**
@@ -225,6 +233,8 @@ public class ShardedIndex {
         return (hash & 0x7FFFFFFF) % shardCount;
     }
 
-    /** 索引条目（批量重建用） */
+    /**
+     * 索引条目（批量重建用）
+    */
     public record IndexEntry(String key, EntryLoc loc) {}
 }

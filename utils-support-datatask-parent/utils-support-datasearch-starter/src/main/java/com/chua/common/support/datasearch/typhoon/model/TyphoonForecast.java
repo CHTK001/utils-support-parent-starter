@@ -18,9 +18,13 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TyphoonForecast {
 
-    /** 预报机构（中国、日本、美国等） */
+    /**
+     * 预报机构（中国、日本、美国等）
+    */
     private String tm;
 
-    /** 预报路径点 */
+    /**
+     * 预报路径点
+    */
     private List<TyphoonForecastPoint> forecastpoints;
 }

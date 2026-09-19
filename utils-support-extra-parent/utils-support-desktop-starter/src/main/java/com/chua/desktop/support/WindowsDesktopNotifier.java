@@ -6,7 +6,9 @@ package com.chua.desktop.support;
 
 public class WindowsDesktopNotifier implements NativeDesktopNotifier {
     @Override
-    /** 通知 */
+    /**
+     * 通知
+    */
     public void notify(String title, String content, String icon) throws Exception {
         String script = String.format(
             "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null;"

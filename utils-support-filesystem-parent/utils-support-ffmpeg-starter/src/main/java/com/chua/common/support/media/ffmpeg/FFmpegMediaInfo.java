@@ -11,28 +11,44 @@ package com.chua.common.support.media.ffmpeg;
  */
 public class FFmpegMediaInfo {
 
-    /** 文件名 */
+    /**
+     * 文件名
+    */
     private String filename;
 
-    /** 封装格式名称（如 mp4, avi, mkv） */
+    /**
+     * 封装格式名称（如 mp4, avi, mkv）
+    */
     private String formatName;
 
-    /** 封装格式详细描述 */
+    /**
+     * 封装格式详细描述
+    */
     private String formatLongName;
 
-    /** 视频总时长（秒） */
+    /**
+     * 视频总时长（秒）
+    */
     private double duration;
 
-    /** 文件大小（字节） */
+    /**
+     * 文件大小（字节）
+    */
     private long size;
 
-    /** 总码率（bps） */
+    /**
+     * 总码率（bps）
+    */
     private long bitrate;
 
-    /** 视频流信息 */
+    /**
+     * 视频流信息
+    */
     private VideoStream videoStream;
 
-    /** 音频流信息 */
+    /**
+     * 音频流信息
+    */
     private AudioStream audioStream;
 
     /**
@@ -42,21 +58,37 @@ public class FFmpegMediaInfo {
      * @author CH
      */
     public static class VideoStream {
-        /** 流索引 */
+        /**
+         * 流索引
+        */
         private int index;
-        /** 编码器名称（如 h264, hevc） */
+        /**
+         * 编码器名称（如 h264, hevc）
+        */
         private String codec;
-        /** 编码器详细名称 */
+        /**
+         * 编码器详细名称
+        */
         private String codecLongName;
-        /** 视频宽度（像素） */
+        /**
+         * 视频宽度（像素）
+        */
         private int width;
-        /** 视频高度（像素） */
+        /**
+         * 视频高度（像素）
+        */
         private int height;
-        /** 帧率 */
+        /**
+         * 帧率
+        */
         private double fps;
-        /** 视频码率（bps） */
+        /**
+         * 视频码率（bps）
+        */
         private long bitrate;
-        /** 视频时长（秒） */
+        /**
+         * 视频时长（秒）
+        */
         private double duration;
 
         /**
@@ -164,21 +196,37 @@ public class FFmpegMediaInfo {
      * @author CH
      */
     public static class AudioStream {
-        /** 流索引 */
+        /**
+         * 流索引
+        */
         private int index;
-        /** 编码器名称（如 aac, mp3） */
+        /**
+         * 编码器名称（如 aac, mp3）
+        */
         private String codec;
-        /** 编码器详细名称 */
+        /**
+         * 编码器详细名称
+        */
         private String codecLongName;
-        /** 采样率（Hz） */
+        /**
+         * 采样率（Hz）
+        */
         private int sampleRate;
-        /** 声道数 */
+        /**
+         * 声道数
+        */
         private int channels;
-        /** 声道布局（如 立体, 5.1） */
+        /**
+         * 声道布局（如 立体, 5.1）
+        */
         private String channelLayout;
-        /** 音频码率（bps） */
+        /**
+         * 音频码率（bps）
+        */
         private long bitrate;
-        /** 音频时长（秒） */
+        /**
+         * 音频时长（秒）
+        */
         private double duration;
 
         /**

@@ -43,7 +43,9 @@ public class HttpApiFactory {
 
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
 
-    /** 创建 HttpApiFactory 实例 */
+    /**
+     * 创建 HttpApiFactory 实例
+    */
     private HttpApiFactory() {
     }
 

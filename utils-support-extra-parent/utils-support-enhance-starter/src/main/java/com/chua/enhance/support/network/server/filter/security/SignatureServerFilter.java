@@ -42,17 +42,27 @@ public class SignatureServerFilter implements ServerFilter {
      */
     private static final String DEFAULT_ALGORITHM = "HMAC-SHA256";
 
-    /** Secret */
+    /**
+     * Secret
+    */
     private String secret;
-    /** 算法 */
+    /**
+     * 算法
+    */
     private String algorithm = DEFAULT_ALGORITHM;
-    /** 签名头部 */
+    /**
+     * 签名头部
+    */
     private String signatureHeader = DEFAULT_SIGNATURE_HEADER;
-    /** Excludepaths */
+    /**
+     * Excludepaths
+    */
     private final Set<String> excludePaths = new HashSet<>();
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         this.secret = config.getInitParameter("signature.secret");
         String alg = config.getInitParameter("signature.algorithm");
@@ -75,7 +85,9 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (secret == null || isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -96,13 +108,17 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 15;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "SignatureServerFilter";
     }

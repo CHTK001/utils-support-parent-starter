@@ -97,7 +97,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     @Override
-    /** 获取row类型 */
+    /**
+     * 获取row类型
+    */
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (rowType == null) {
             List<String> names = dataTable.getColumnNames();
@@ -553,7 +555,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 获取modifiable集合 */
+        /**
+         * 获取modifiable集合
+        */
         public Collection getModifiableCollection() {
             return new ObjectArrayMutableCollection(dataTable);
         }
@@ -643,7 +647,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             final DataTable source = this.dataTable;
             return new AbstractTableQueryable<T>(queryProvider, schema, this, tableName) {
                 @Override
-                /** Enumerator */
+                /**
+                 * Enumerator
+                */
                 public Enumerator<T> enumerator() {
                     List<String> names = source.getColumnNames();
                     List<Object[]> rows = new ArrayList<>();
@@ -660,13 +666,17 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 获取element类型 */
+        /**
+         * 获取element类型
+        */
         public Type getElementType() {
             return Object[].class;
         }
 
         @Override
-        /** 获取Expression */
+        /**
+         * 获取Expression
+        */
         public Expression getExpression(SchemaPlus schema, String tableName, Class clazz) {
  // 第 4 参必须是调用方传入的 clazz（查询/Enumerable），不能写死 对象[]
             return Schemas.tableExpression(schema, getElementType(), tableName, clazz);
@@ -682,11 +692,17 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
      */
     private static class ObjectArrayMutableCollection extends AbstractList<Object> {
 
-        /** 数据表 */
+        /**
+         * 数据表
+        */
         private final DataTable dataTable;
-        /** 列名称 */
+        /**
+         * 列名称
+        */
         private final List<String> columnNames;
-        /** Rows */
+        /**
+         * Rows
+        */
         private final List<Row> rows = new ArrayList<>();
 
         ObjectArrayMutableCollection(DataTable dataTable) {
@@ -702,19 +718,25 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 获取 */
+        /**
+         * 获取
+        */
         public Object get(int index) {
             return rows.get(index).values;
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public int size() {
             return rows.size();
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public boolean add(Object element) {
             rows.add(toRow(element));
             flush();
@@ -722,14 +744,18 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public void add(int index, Object element) {
             rows.add(index, toRow(element));
             flush();
         }
 
         @Override
-        /** 移除 */
+        /**
+         * 移除
+        */
         public Object remove(int index) {
             Row removed = rows.remove(index);
             flush();
@@ -737,7 +763,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 移除 */
+        /**
+         * 移除
+        */
         public boolean remove(Object o) {
             boolean ok = rows.remove(toRow(o));
             if (ok) {
@@ -747,7 +775,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 移除全部 */
+        /**
+         * 移除全部
+        */
         public boolean removeAll(Collection<?> c) {
             boolean changed = false;
             for (Object o : c) {
@@ -762,7 +792,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 设置 */
+        /**
+         * 设置
+        */
         public Object set(int index, Object element) {
             Row old = rows.set(index, toRow(element));
             flush();
@@ -770,7 +802,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** Clear */
+        /**
+         * Clear
+        */
         public void clear() {
             rows.clear();
             flush();
@@ -792,7 +826,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return new Row(new Object[]{element});
         }
 
-        /** 刷新 */
+        /**
+         * 刷新
+        */
         private void flush() {
             List<Map<String, Object>> maps = new ArrayList<>(rows.size());
             for (Row row : rows) {
@@ -814,7 +850,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
     }
 
-    /** 内容等值的行包装，供 移除全部 匹配。 */
+    /**
+     * 内容等值的行包装，供 移除全部 匹配。
+    */
     private static final class Row {
         final Object[] values;
 
@@ -823,7 +861,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 判断相等 */
+        /**
+         * 判断相等
+        */
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -835,7 +875,9 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 哈希编码 */
+        /**
+         * 哈希编码
+        */
         public int hashCode() {
             return Arrays.hashCode(values);
         }

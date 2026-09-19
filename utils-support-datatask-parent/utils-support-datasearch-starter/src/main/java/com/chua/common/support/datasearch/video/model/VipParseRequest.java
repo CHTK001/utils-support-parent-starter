@@ -10,16 +10,26 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VipParseRequest {
 
-    /** 视频播放页 URL */
+    /**
+     * 视频播放页 URL
+    */
     private String url;
-    /** 视频来源编码（如 bilibili/douyin/youku） */
+    /**
+     * 视频来源编码（如 bilibili/douyin/youku）
+    */
     private String source;
-    /** 是否强制解析（忽略缓存） */
+    /**
+     * 是否强制解析（忽略缓存）
+    */
     private boolean forceRefresh;
-    /** 请求超时毫秒 */
+    /**
+     * 请求超时毫秒
+    */
     private int timeoutMs;
 
-    /** 无参构造器。 */
+    /**
+     * 无参构造器。
+    */
     public VipParseRequest() {}
 
     /**

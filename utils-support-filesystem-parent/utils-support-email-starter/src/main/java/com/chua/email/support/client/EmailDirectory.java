@@ -44,24 +44,42 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 public class EmailDirectory implements PolledDirectory {
 
-    /** IMAP主机 */
+    /**
+     * IMAP主机
+    */
     private final String imapHost;
-    /** IMAP端口 */
+    /**
+     * IMAP端口
+    */
     private final int imapPort;
-    /** Username */
+    /**
+     * Username
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** 文件夹 */
+    /**
+     * 文件夹
+    */
     private final String folder;
-    /** Poll间隔秒 */
+    /**
+     * Poll间隔秒
+    */
     private final int pollIntervalSeconds;
 
-    /** Listeners */
+    /**
+     * Listeners
+    */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
-    /** Seen消息IDS */
+    /**
+     * Seen消息IDS
+    */
     private final Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
-    /** running */
+    /**
+     * running
+    */
     private volatile boolean running = false;
 
     /**
@@ -79,20 +97,26 @@ public class EmailDirectory implements PolledDirectory {
 
     // ==================== 工厂方法 ====================
 
-    /** Builder */
+    /**
+     * Builder
+    */
     public static Builder builder() { return new Builder(); }
 
     // ==================== PolledDirectory 实现 ====================
 
     @Override
-    /** 是否DelegatedOperatingSystem */
+    /**
+     * 是否DelegatedOperatingSystem
+    */
     public boolean isDelegatedOperatingSystem() {
         // 邮件需要轮询
         return false;
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         running = true;
         log.info("邮件轮询启动: host={}:{}, folder={}, interval={}s",
@@ -107,7 +131,9 @@ public class EmailDirectory implements PolledDirectory {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade() {
         if (!running) {
             return;
@@ -168,7 +194,9 @@ public class EmailDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加Listener */
+    /**
+     * 添加Listener
+    */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
@@ -200,7 +228,9 @@ public class EmailDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         running = false;
     }
@@ -208,51 +238,77 @@ public class EmailDirectory implements PolledDirectory {
     // ==================== Builder ====================
 
     public static class Builder {
-        /** IMAP主机 */
+        /**
+         * IMAP主机
+        */
         private String imapHost;
-        /** IMAP端口 */
+        /**
+         * IMAP端口
+        */
         private int imapPort = 993;
-        /** Username */
+        /**
+         * Username
+        */
         private String username;
-        /** 密码 */
+        /**
+         * 密码
+        */
         private String password;
-        /** 文件夹 */
+        /**
+         * 文件夹
+        */
         private String folder = "INBOX";
-        /** Poll间隔秒 */
+        /**
+         * Poll间隔秒
+        */
         private int pollIntervalSeconds = 60;
 
-        /** ImapHost */
+        /**
+         * ImapHost
+        */
         public Builder imapHost(String h) {
             this.imapHost = h;
             return this;
         }
-        /** ImapPort */
+        /**
+         * ImapPort
+        */
         public Builder imapPort(int p) {
             this.imapPort = p;
             return this;
         }
-        /** Username */
+        /**
+         * Username
+        */
         public Builder username(String u) {
             this.username = u;
             return this;
         }
-        /** Password */
+        /**
+         * Password
+        */
         public Builder password(String p) {
             this.password = p;
             return this;
         }
-        /** Folder */
+        /**
+         * Folder
+        */
         public Builder folder(String f) {
             this.folder = f;
             return this;
         }
-        /** 取出Interval */
+        /**
+         * 取出Interval
+        */
         public Builder pollInterval(int seconds) {
             this.pollIntervalSeconds = seconds;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+        */
         public EmailDirectory build() {
             if (imapHost == null) {
                 throw new IllegalArgumentException("imapHost 不能为空");

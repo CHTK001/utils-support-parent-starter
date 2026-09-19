@@ -133,7 +133,9 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         state.set(false);
         for (ServiceConfig<?> config : serviceConfigs) {
@@ -150,14 +152,18 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() {
         state.compareAndSet(false, true);
         log.info("DubboRpcServer initialized");
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public RpcServer register(String name, Object bean) {
         ServiceConfig<Object> config = new ServiceConfig<>();
         config.setRegistries(registryConfigs);
@@ -171,13 +177,17 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
-    /** 获取协议名称 */
+    /**
+     * 获取协议名称
+    */
     public String getProtocol() {
         return "dubbo";
     }
 
     @Override
-    /** 获取已暴露服务数 */
+    /**
+     * 获取已暴露服务数
+    */
     public int getServiceCount() {
         try {
             return DubboProtocol.getDubboProtocol().getExporters().size();
@@ -188,7 +198,9 @@ public class DubboRpcServer implements RpcServer {
     }
 
     @Override
-    /** 获取连接信息 */
+    /**
+     * 获取连接信息
+    */
     public List<RpcConnectionInfo> getConnections() {
         List<RpcConnectionInfo> result = new ArrayList<>();
         try {
@@ -220,7 +232,9 @@ public class DubboRpcServer implements RpcServer {
         return result;
     }
 
-    /** 获取指标快照（连接信息 + Dubbo 协议层调用计数） */
+    /**
+     * 获取指标快照（连接信息 + Dubbo 协议层调用计数）
+    */
     @Override
     public RpcMetrics getMetrics() {
         RpcMetrics metrics = DubboRpcMetricsHolder.snapshot("dubbo");

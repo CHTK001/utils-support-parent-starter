@@ -19,7 +19,9 @@ import java.util.Set;
  */
 public final class SafeTensorModelRegistry {
 
-    /** 创建 safetensor模型registry 实例 */
+    /**
+     * 创建 safetensor模型registry 实例
+    */
     private SafeTensorModelRegistry() {
     }
 

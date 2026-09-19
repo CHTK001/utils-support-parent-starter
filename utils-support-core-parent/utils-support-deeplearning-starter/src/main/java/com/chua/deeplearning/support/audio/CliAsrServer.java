@@ -36,50 +36,78 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 final class CliAsrServer {
 
-    /** 常驻服务开关的系统属性名 */
+    /**
+     * 常驻服务开关的系统属性名
+    */
     private static final String PROP_SERVE = "deeplearning.cli.nemo-speech.serve";
 
-    /** 空闲回收阈值的系统属性名 */
+    /**
+     * 空闲回收阈值的系统属性名
+    */
     private static final String PROP_IDLE = "deeplearning.cli.nemo-speech.serve.idleSeconds";
 
-    /** 会话就绪等待上限（秒） */
+    /**
+     * 会话就绪等待上限（秒）
+    */
     private static final long READY_TIMEOUT_SECONDS = 90L;
 
-    /** 健康探测间隔（毫秒） */
+    /**
+     * 健康探测间隔（毫秒）
+    */
     private static final long READY_POLL_MILLIS = 500L;
 
-    /** 单次转写请求超时（秒） */
+    /**
+     * 单次转写请求超时（秒）
+    */
     private static final long REQUEST_TIMEOUT_SECONDS = 120L;
 
-    /** 默认空闲回收阈值（秒） */
+    /**
+     * 默认空闲回收阈值（秒）
+    */
     private static final long DEFAULT_IDLE_SECONDS = 600L;
 
-    /** 错误响应体截断长度 */
+    /**
+     * 错误响应体截断长度
+    */
     private static final int ERROR_SNIPPET_CHARS = 512;
 
-    /** 会话缓存，键 = CLI 可执行文件 + 模型本地路径 */
+    /**
+     * 会话缓存，键 = CLI 可执行文件 + 模型本地路径
+    */
     private static final Map<String, CliAsrServer> SESSIONS = new ConcurrentHashMap<>();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(CliAsrServer::shutdownAll, "cli-asr-serve-shutdown"));
     }
 
-    /** 会话缓存键分隔符（不会出现在路径中） */
+    /**
+     * 会话缓存键分隔符（不会出现在路径中）
+    */
     private static final char KEY_DELIMITER = '\n';
 
-    /** CLI 可执行文件 */
+    /**
+     * CLI 可执行文件
+    */
     private final Path exe;
 
-    /** 模型本地路径 */
+    /**
+     * 模型本地路径
+    */
     private final String modelPath;
 
-    /** 监听端口（仅 127.0.0.1） */
+    /**
+     * 监听端口（仅 127.0.0.1）
+    */
     private final int port;
 
-    /** 服务进程 */
+    /**
+     * 服务进程
+    */
     private final Process process;
 
-    /** 最近一次成功使用时间戳 */
+    /**
+     * 最近一次成功使用时间戳
+    */
     private volatile long lastUsedMillis;
 
     /**

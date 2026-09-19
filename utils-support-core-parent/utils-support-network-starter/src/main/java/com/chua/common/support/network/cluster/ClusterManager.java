@@ -35,13 +35,21 @@ import java.util.Set;
 @Slf4j
 public class ClusterManager {
 
-    /** Discovery */
+    /**
+     * Discovery
+    */
     private final ScatterServiceDiscovery discovery;
-    /** Balance */
+    /**
+     * Balance
+    */
     private final String balance;
-    /** Self 节点 标识 */
+    /**
+     * Self 节点 标识
+    */
     private final String selfNodeId;
-    /** 分组 标识 */
+    /**
+     * 分组 标识
+    */
     private final String groupId;
     /**
      * 已注册的服务端 entry 列表（含本节点自身与远端目标）。

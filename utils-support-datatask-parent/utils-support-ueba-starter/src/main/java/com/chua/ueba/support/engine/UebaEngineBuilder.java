@@ -31,16 +31,24 @@ import java.util.Objects;
 @Slf4j
 public final class UebaEngineBuilder {
 
-    /** 类路径 默认配置文件 */
+    /**
+     * 类路径 默认配置文件
+    */
     private static final String DEFAULT_CONFIG_RESOURCE = "ueba-config.yaml";
 
-    /** 已解析的配置 */
+    /**
+     * 已解析的配置
+    */
     private UebaConfig config;
 
-    /** 是否启用 minimind，空 表示默认启用 */
+    /**
+     * 是否启用 minimind，空 表示默认启用
+    */
     private Boolean enableLlm;
 
-    /** 模型目录（写入 ueba.模型.dir 系统属性） */
+    /**
+     * 模型目录（写入 ueba.模型.dir 系统属性）
+    */
     private String modelDir;
 
     /**

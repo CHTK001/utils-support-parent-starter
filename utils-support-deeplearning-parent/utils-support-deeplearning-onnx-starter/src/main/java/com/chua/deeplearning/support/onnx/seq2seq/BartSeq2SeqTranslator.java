@@ -40,14 +40,20 @@ import java.nio.file.Path;
 @Slf4j
 public class BartSeq2SeqTranslator implements Translator<String, String> {
 
-    /** 最大输入长度 */
+    /**
+     * 最大输入长度
+    */
     private static final int MAX_INPUT_LENGTH = 1024;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokenizerPath = modelRoot.resolve("tokenizer.json");
@@ -67,7 +73,9 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("BartSeq2Seq tokenizer not initialized");
@@ -88,7 +96,9 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -102,7 +112,9 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

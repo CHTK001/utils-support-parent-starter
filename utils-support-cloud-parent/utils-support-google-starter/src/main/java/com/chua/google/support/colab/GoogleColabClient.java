@@ -406,7 +406,9 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭客户端并释放底层资源 */
+    /**
+     * 关闭客户端并释放底层资源
+    */
     public void close() {
         if (client != null) {
             client.close();
@@ -422,19 +424,29 @@ public class GoogleColabClient implements AutoCloseable {
     @Builder
     public static class RuntimeInfo {
 
-        /** 完整资源名 */
+        /**
+         * 完整资源名
+        */
         private String name;
 
-        /** 运行时 标识 */
+        /**
+         * 运行时 标识
+        */
         private String id;
 
-        /** 显示名称 */
+        /**
+         * 显示名称
+        */
         private String displayName;
 
-        /** 状态：RUNNING、STOPPED、存在_启动 等 */
+        /**
+         * 状态：RUNNING、STOPPED、存在_启动 等
+        */
         private String state;
 
-        /** Jupyter 代理地址，运行中可用该地址访问内核 */
+        /**
+         * Jupyter 代理地址，运行中可用该地址访问内核
+        */
         private String proxyUri;
     }
 
@@ -447,13 +459,19 @@ public class GoogleColabClient implements AutoCloseable {
     @Builder
     public static class TemplateInfo {
 
-        /** 完整资源名 */
+        /**
+         * 完整资源名
+        */
         private String name;
 
-        /** 模板 标识 */
+        /**
+         * 模板 标识
+        */
         private String id;
 
-        /** 显示名称 */
+        /**
+         * 显示名称
+        */
         private String displayName;
     }
 
@@ -466,25 +484,39 @@ public class GoogleColabClient implements AutoCloseable {
     @Builder
     public static class ExecutionInfo {
 
-        /** 完整资源名 */
+        /**
+         * 完整资源名
+        */
         private String name;
 
-        /** 执行作业 标识 */
+        /**
+         * 执行作业 标识
+        */
         private String id;
 
-        /** 显示名称 */
+        /**
+         * 显示名称
+        */
         private String displayName;
 
-        /** 状态：队列、PENDING、RUNNING、SUCCEEDED、失败 等 */
+        /**
+         * 状态：队列、PENDING、RUNNING、SUCCEEDED、失败 等
+        */
         private String state;
 
-        /** 错误或状态描述 */
+        /**
+         * 错误或状态描述
+        */
         private String message;
 
-        /** 输出目录 */
+        /**
+         * 输出目录
+        */
         private String gcsOutputUri;
 
-        /** 创建时间 */
+        /**
+         * 创建时间
+        */
         private String createTime;
     }
 }

@@ -18,7 +18,9 @@ import java.util.List;
  */
 public class VideoReadBuilder extends ReadBuilder {
 
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private final FFmpegProcessor processor;
 
     /**
@@ -33,7 +35,9 @@ public class VideoReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public VideoReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

@@ -34,15 +34,23 @@ import java.util.Map;
  */
 public class GithubSkillProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(GithubSkillProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     protected static final String NAME = "github";
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     protected static final String PREFIX = "";
 
-    /** 默认技能仓库（对齐 TokenTracker DEFAULT_REPOS）。 */
+    /**
+     * 默认技能仓库（对齐 TokenTracker DEFAULT_REPOS）。
+    */
     protected static final String[][] DEFAULT_REPOS = {
             {"anthropics", "skills", "main"},
             {"ComposioHQ", "awesome-claude-skills", "master"},
@@ -50,7 +58,9 @@ public class GithubSkillProvider {
             {"JimLiu", "baoyu-skills", "main"},
     };
 
-    /** GitHub API 基础。 */
+    /**
+     * GitHub API 基础。
+    */
     protected static final String API_BASE = "https://api.github.com";
 
     /**

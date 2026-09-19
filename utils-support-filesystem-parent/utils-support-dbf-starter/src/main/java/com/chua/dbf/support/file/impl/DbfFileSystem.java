@@ -34,7 +34,9 @@ import java.io.File;
 public class DbfFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         
         return "dbf";
@@ -42,7 +44,9 @@ public class DbfFileSystem implements FileSystem {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         
         return new DbfReadBuilder(file);
@@ -50,7 +54,9 @@ public class DbfFileSystem implements FileSystem {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         
         return new DbfWriteBuilder(file);

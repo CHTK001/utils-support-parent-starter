@@ -91,14 +91,18 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
          * 陡度参数，默认15.0
          */
         @Builder.Default
-        /** K */
+        /**
+         * K
+        */
         private double k = 15.0;
 
         /**
          * 阈值参数，默认0.75
          */
         @Builder.Default
-        /** T */
+        /**
+         * T
+        */
         private double t = 0.75;
     }
 
@@ -198,7 +202,9 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
-    /** Train */
+    /**
+     * Train
+    */
     public TrainerPureCalibrator train() {
         if (trainingData == null || trainingData.isEmpty()) {
             throw new IllegalStateException("训练数据为空，请先调用 generateTrainingData() 或 setTrainingData()");
@@ -282,7 +288,9 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
-    /** 保存Model */
+    /**
+     * 保存Model
+    */
     public TrainerPureCalibrator saveModel(String filePath) {
         if (!trained) {
             throw new IllegalStateException("模型尚未训练，请先调用 train()");
@@ -303,7 +311,9 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
-    /** 加载Model */
+    /**
+     * 加载Model
+    */
     public TrainerPureCalibrator loadModel(String filePath) {
         try (FileReader reader = new FileReader(filePath)) {
             ModelData modelData = Json.fromJson(reader, ModelData.class);
@@ -325,13 +335,17 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     @Override
-    /** 获取TrainingData */
+    /**
+     * 获取TrainingData
+    */
     public TrainingData getTrainingData() {
         return trainingData;
     }
 
     @Override
-    /** 获取TrainingStats */
+    /**
+     * 获取TrainingStats
+    */
     public TrainingStats getTrainingStats() {
         return trainingStats;
     }
@@ -339,19 +353,25 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 实现 PureCalibrator ====================
 
     @Override
-    /** Calibrate */
+    /**
+     * Calibrate
+    */
     public double calibrate(double rawScore) {
         return calibrator.calibrate(rawScore);
     }
 
     @Override
-    /** 获取Name */
+    /**
+     * 获取Name
+    */
     public String getName() {
         return "Sigmoid可训练校准器";
     }
 
     @Override
-    /** 获取Description */
+    /**
+     * 获取Description
+    */
     public String getDescription() {
         return "基于Sigmoid函数的可训练校准器。支持生成训练数据、自动拟合参数、保存/加载模型。";
     }
@@ -413,13 +433,19 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
      */
     @lombok.Data
     private static class ModelData {
-        /** 算法名称 */
+        /**
+         * 算法名称
+        */
         private String algorithm;
 
-        /** 陡度参数 */
+        /**
+         * 陡度参数
+        */
         private double k;
 
-        /** 阈值参数 */
+        /**
+         * 阈值参数
+        */
         private double t;
     }
 }

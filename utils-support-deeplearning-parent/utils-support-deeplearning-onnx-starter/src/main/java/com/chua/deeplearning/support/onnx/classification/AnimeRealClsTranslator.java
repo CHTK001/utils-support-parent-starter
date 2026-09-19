@@ -24,10 +24,14 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
     static final String MODEL_NAME = "anime_real_cls"; // 模型名称
     static final String MODEL_RELATIVE_PATH = "vision/classification/anime/anime_real_cls/mobilenetv3_v1.4_dist/model.onnx"; // 模型relative路径
 
-    /** 委托对象 */
+    /**
+     * 委托对象
+    */
     private final ImageClassificationTranslator delegate;
 
-    /** 创建 animerealclstranslator 实例 */
+    /**
+     * 创建 animerealclstranslator 实例
+    */
     public AnimeRealClsTranslator() {
         this(Map.of());
     }
@@ -54,25 +58,33 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws Exception {
         delegate.prepare(ctx);
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return delegate.processInput(ctx, input);
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return delegate.processOutput(ctx, list);
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return delegate.getBatchifier();
     }

@@ -37,7 +37,9 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     private long unkId;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = open(model)) {
@@ -80,7 +82,9 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, String[][] input) {
         NDManager manager = ctx.getNDManager();
         String[] query = input != null && input.length > 0 ? input[0] : new String[0];
@@ -115,13 +119,17 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.getFirst().toFloatArray();
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

@@ -17,42 +17,68 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TyphoonPoint {
 
-    /** 时间 */
+    /**
+     * 时间
+    */
     private String time;
 
-    /** 经度 */
+    /**
+     * 经度
+    */
     private String lng;
 
-    /** 纬度 */
+    /**
+     * 纬度
+    */
     private String lat;
 
-    /** 强度等级 */
+    /**
+     * 强度等级
+    */
     private String strong;
 
-    /** 风力（级） */
+    /**
+     * 风力（级）
+    */
     private String power;
 
-    /** 风速（米/秒） */
+    /**
+     * 风速（米/秒）
+    */
     private String speed;
 
-    /** 中心气压（hpa） */
+    /**
+     * 中心气压（hpa）
+    */
     private String pressure;
 
-    /** 移动速度（公里/小时） */
+    /**
+     * 移动速度（公里/小时）
+    */
     private String movespeed;
 
-    /** 移动方向 */
+    /**
+     * 移动方向
+    */
     private String movedirection;
 
-    /** 7 级风圈半径 */
+    /**
+     * 7 级风圈半径
+    */
     private String radius7;
 
-    /** 10 级风圈半径 */
+    /**
+     * 10 级风圈半径
+    */
     private String radius10;
 
-    /** 12 级风圈半径 */
+    /**
+     * 12 级风圈半径
+    */
     private String radius12;
 
-    /** 各机构预报 */
+    /**
+     * 各机构预报
+    */
     private List<TyphoonForecast> forecast;
 }

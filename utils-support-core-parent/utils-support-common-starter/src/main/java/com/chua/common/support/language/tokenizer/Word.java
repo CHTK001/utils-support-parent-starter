@@ -33,7 +33,9 @@ public class Word {
      * <p>例如：输入"我爱北京天安门"，分词后可能包含 "我"、"爱"、"北京"、"天安门" 等。</p>
      */
     @NonNull
-    /** 词 */
+    /**
+     * 词
+    */
     public String word;
 
     /**
@@ -41,7 +43,9 @@ public class Word {
      * <p>采用标准词性标记集，例如 "n" 表示名词，"v" 表示动词，"a" 表示形容词等。</p>
      */
     @NonNull
-    /** Nature */
+    /**
+     * Nature
+    */
     public String nature;
 
     /**
@@ -69,7 +73,9 @@ public class Word {
     private Float weight;
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return word + "(" + nature + ")";
     }

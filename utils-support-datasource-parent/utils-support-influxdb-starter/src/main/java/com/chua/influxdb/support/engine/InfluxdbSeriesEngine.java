@@ -21,13 +21,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("influxdb")
 public class InfluxdbSeriesEngine implements SeriesEngine {
 
-    /** 单次曲线返回点数上限 */
+    /**
+     * 单次曲线返回点数上限
+    */
     private static final int MAX_SERIES_POINTS = 1440;
 
-    /** 内存存储：key -> (timestamp, value) */
+    /**
+     * 内存存储：key -> (timestamp, value)
+    */
     private final Map<String, List<Map.Entry<Long, Double>>> store = new ConcurrentHashMap<>();
 
-    /** 是否可用 */
+    /**
+     * 是否可用
+    */
     private final boolean available = true;
 
     @Override

@@ -2,16 +2,24 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageSegmenter;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxImageSegmenter implements ImageSegmenter {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -22,7 +30,9 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageSegmenter model(String model) {
         this.modelName = model;
         return this;
@@ -38,27 +48,35 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageSegmenter modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Segment */
+    /**
+     * Segment
+    */
     public byte[] segment(byte[] imageData) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData);
     }
 
     @Override
-    /** Segment */
+    /**
+     * Segment
+    */
     public byte[] segment(byte[] imageData, int targetClass) {
         return ImageSegmenter.create(resolveModel()).modelPath(modelPath).device(device).segment(imageData, targetClass);
     }

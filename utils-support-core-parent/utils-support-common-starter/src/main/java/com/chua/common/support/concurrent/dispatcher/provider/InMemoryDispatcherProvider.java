@@ -25,17 +25,27 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class InMemoryDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
 
-    /** 主题队列映射 */
+    /**
+     * 主题队列映射
+    */
     private final Map<String, LinkedBlockingQueue<Object>> topicQueues = new ConcurrentHashMap<>();
-    /** 分发定义映射 */
+    /**
+     * 分发定义映射
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    /** 线程池执行器 */
+    /**
+     * 线程池执行器
+    */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("inmem-dispatcher-", 0).factory());
-    /** 是否已关闭 */
+    /**
+     * 是否已关闭
+    */
     private volatile boolean closed = false;
 
-    /** 队列容量 */
+    /**
+     * 队列容量
+    */
     private static final int QUEUE_CAPACITY = 50000;
 
     /**
@@ -47,7 +57,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         if (closed) {
             return;
@@ -59,7 +71,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -71,7 +85,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -85,7 +101,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         topicQueues.clear();

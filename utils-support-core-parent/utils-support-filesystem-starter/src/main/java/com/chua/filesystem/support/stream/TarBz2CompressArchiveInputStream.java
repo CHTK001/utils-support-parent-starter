@@ -21,7 +21,9 @@ import javax.annotation.Nullable;
 public class TarBz2CompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -31,7 +33,9 @@ public class TarBz2CompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 创建输入流 */
+    /**
+     * 创建输入流
+    */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var bzip2InputStream = new BZip2CompressorInputStream(inputStream);
         var tarInputStream = new TarArchiveInputStream(bzip2InputStream);
@@ -39,7 +43,9 @@ public class TarBz2CompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 获取格式化名称 */
+    /**
+     * 获取格式化名称
+    */
     public String getFormatName() {
         return "tar.bz2";
     }

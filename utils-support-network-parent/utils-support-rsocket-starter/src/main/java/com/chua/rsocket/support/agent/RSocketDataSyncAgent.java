@@ -83,7 +83,9 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
@@ -97,7 +99,9 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running = false;
         if (rSocket != null) {
@@ -107,25 +111,33 @@ public class RSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** Agentid */
+    /**
+     * Agentid
+    */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** 转为源 */
+    /**
+     * 转为源
+    */
     public DataSyncSource toSource() {
         return source;
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** 数据url */
+    /**
+     * 数据url
+    */
     public String dataUrl() {
         return "tcp://" + host + ":" + port;
     }

@@ -26,7 +26,9 @@ import java.util.Map;
  */
 public class WhisperTokenizer {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -34,13 +36,19 @@ public class WhisperTokenizer {
      */
     public static final int VOCAB_SIZE = 51864;
 
-    /** 令牌 标识 → 令牌 字符串（含 Ġ 前导空格标记） */
+    /**
+     * 令牌 标识 → 令牌 字符串（含 Ġ 前导空格标记）
+    */
     private final String[] idToToken;
 
-    /** 令牌 字符串 → 令牌 标识，用于特殊 令牌 查找 */
+    /**
+     * 令牌 字符串 → 令牌 标识，用于特殊 令牌 查找
+    */
     private final Map<String, Integer> tokenToId;
 
-    /** vocab 大小 */
+    /**
+     * vocab 大小
+    */
     private final int vocabSize;
 
     /**
@@ -209,19 +217,33 @@ public class WhisperTokenizer {
      * 来源: 配置.json bos_令牌_标识=50257, eos_令牌_标识=50256
      */
 
-    /** 启动 的 转写 */
+    /**
+     * 启动 的 转写
+    */
     public static final int SOT = 50257;
-    /** 结束 的 转写 */
+    /**
+     * 结束 的 转写
+    */
     public static final int EOT = 50256;
-    /** No 时间戳 */
+    /**
+     * No 时间戳
+    */
     public static final int NOTIMESTAMPS = 50362;
-    /** Transcribe */
+    /**
+     * Transcribe
+    */
     public static final int TRANSCRIBE = 50358;
-    /** Translate */
+    /**
+     * Translate
+    */
     public static final int TRANSLATE = 50357;
-    /** No 语音 */
+    /**
+     * No 语音
+    */
     public static final int NO_SPEECH = 50362;
-    /** Language 令牌 基础 标识 */
+    /**
+     * Language 令牌 基础 标识
+    */
     public static final int LANG_BASE = 50260;
     /**
      * 判断字符串是否为整数键

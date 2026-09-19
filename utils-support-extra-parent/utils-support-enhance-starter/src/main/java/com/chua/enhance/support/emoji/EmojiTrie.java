@@ -23,7 +23,9 @@ public class EmojiTrie {
      */
     public final int maxDepth;
 
-    /** 根级 */
+    /**
+     * 根级
+    */
     private final Node root = new Node();
 
     /**
@@ -129,11 +131,17 @@ public class EmojiTrie {
      * @since 4.0.0
      */
     public static class Matches {
-        /** Exactmatch */
+        /**
+         * Exactmatch
+        */
         private final boolean exactMatch;
-        /** Prefixmatch */
+        /**
+         * Prefixmatch
+        */
         private final boolean prefixMatch;
-        /** Impossiblematch */
+        /**
+         * Impossiblematch
+        */
         private final boolean impossibleMatch;
 
         /**

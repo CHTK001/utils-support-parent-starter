@@ -26,9 +26,13 @@ import java.util.stream.Collectors;
  */
 public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
-    /** 全量兜底周期（轮） */
+    /**
+     * 全量兜底周期（轮）
+    */
     private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
-    /** 并发同步线程池（固定大小，避免节点数过多时线程爆炸） */
+    /**
+     * 并发同步线程池（固定大小，避免节点数过多时线程爆炸）
+    */
     private static final int SYNC_POOL_SIZE = 8;
     private static final ExecutorService syncExecutor = Executors.newFixedThreadPool(
             SYNC_POOL_SIZE, r -> {
@@ -37,9 +41,13 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
                 return t;
             });
 
-    /** probeRound */
+    /**
+     * probeRound
+    */
     private long probeRound = 0;
-    /** 每轮同步请求 ID 计数器 */
+    /**
+     * 每轮同步请求 ID 计数器
+    */
     private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
 
     /**

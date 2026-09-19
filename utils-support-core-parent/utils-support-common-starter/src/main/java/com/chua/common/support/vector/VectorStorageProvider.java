@@ -127,13 +127,21 @@ public interface VectorStorageProvider {
      * }</pre>
      */
     final class Builder {
-        /** 提供者 */
+        /**
+         * 提供者
+        */
         private final VectorStorageProvider provider;
-        /** Dimension */
+        /**
+         * Dimension
+        */
         private int dimension = 128;
-        /** 算法 */
+        /**
+         * 算法
+        */
         private VectorCompareAlgorithm algorithm = VectorCompareAlgorithm.euclidean();
-        /** 属性 */
+        /**
+         * 属性
+        */
         private Object properties;
 
         Builder(VectorStorageProvider provider) {
@@ -205,7 +213,9 @@ public interface VectorStorageProvider {
     @Spi(value = "memory", order = -100)
     class MemoryProvider implements VectorStorageProvider {
         @Override
-        /** Name */
+        /**
+         * Name
+        */
         public String name() {
             return "memory";
         }

@@ -20,35 +20,59 @@ import javax.annotation.Nullable;
  */
 public class PNGMetadataFormat extends IIOMetadataFormatImpl {
 
-    /** 实例 */
+    /**
+     * 实例
+    */
     private static IIOMetadataFormat instance = null;
 
-    /** 值_0 */
+    /**
+     * 值_0
+    */
     private static final String VALUE_0 = "0";
-    /** 值_1 */
+    /**
+     * 值_1
+    */
     private static final String VALUE_1 = "1";
-    /** 值_12 */
+    /**
+     * 值_12
+    */
     private static final String VALUE_12 = "12";
-    /** 值_23 */
+    /**
+     * 值_23
+    */
     private static final String VALUE_23 = "23";
-    /** 值_31 */
+    /**
+     * 值_31
+    */
     private static final String VALUE_31 = "31";
-    /** 值_59 */
+    /**
+     * 值_59
+    */
     private static final String VALUE_59 = "59";
-    /** 值_60 */
+    /**
+     * 值_60
+    */
     private static final String VALUE_60 = "60";
-    /** 值_255 */
+    /**
+     * 值_255
+    */
     private static final String VALUE_255 = "255";
     // 2^16 - 1
     // ;
-    /** 值_最大_16 */
+    /**
+     * 值_最大_16
+    */
     private static final String VALUE_MAX_16 = "65535";
     // 2^32 - 1
     // ;
-    /** 值_最大_32 */
+    /**
+     * 值_最大_32
+    */
     private static final String VALUE_MAX_32 = "2147483647";
 
-    /** 创建 pngmetadata格式化 实例 */
+    /**
+     * 创建 pngmetadata格式化 实例
+    */
     private PNGMetadataFormat() {
         super(PNGMetadata.nativeMetadataFormatName,
               CHILD_POLICY_SOME);

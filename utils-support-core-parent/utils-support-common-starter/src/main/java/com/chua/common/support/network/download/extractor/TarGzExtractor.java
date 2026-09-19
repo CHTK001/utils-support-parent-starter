@@ -30,13 +30,17 @@ public class TarGzExtractor implements Extractor {
     private static final int TAR_HEADER_SIZE = 512;
 
     @Override
-    /** SupportedExtensions */
+    /**
+     * SupportedExtensions
+    */
     public String[] supportedExtensions() {
         return new String[]{".tar.gz", ".tgz"};
     }
 
     @Override
-    /** Extract */
+    /**
+     * Extract
+    */
     public boolean extract(File sourceFile, File targetDir) {
         if (log.isDebugEnabled()) {
             log.debug("开始解压 TAR.GZ 文件：{} -> {}", sourceFile.getName(), targetDir.getAbsolutePath());

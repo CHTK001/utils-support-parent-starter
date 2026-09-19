@@ -14,10 +14,14 @@ import java.util.Map;
  */
 public class SkillArgumentSchema {
 
-    /** 参数名称 */
+    /**
+     * 参数名称
+    */
     private final String name;
 
-    /** 参数描述 */
+    /**
+     * 参数描述
+    */
     private final String description;
 
     /**
@@ -28,10 +32,14 @@ public class SkillArgumentSchema {
      */
     private final String type;
 
-    /** 是否必填 */
+    /**
+     * 是否必填
+    */
     private final boolean required;
 
-    /** 枚举值列表（仅 type=enum 时有效） */
+    /**
+     * 枚举值列表（仅 type=enum 时有效）
+    */
     private final List<String> enumValues;
 
     /**

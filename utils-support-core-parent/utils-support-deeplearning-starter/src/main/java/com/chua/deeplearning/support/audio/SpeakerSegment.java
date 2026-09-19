@@ -51,15 +51,25 @@ package com.chua.deeplearning.support.audio;
  * @since 4.0.0.43
  */
 public record SpeakerSegment(
-        /** 说话人标识（如 "speaker_0"） */
+        /**
+         * 说话人标识（如 "speaker_0"）
+        */
         String speakerId,
-        /** 片段起始时间（毫秒，相对音频首帧） */
+        /**
+         * 片段起始时间（毫秒，相对音频首帧）
+        */
         long startTimeMs,
-        /** 片段结束时间（毫秒，闭区间） */
+        /**
+         * 片段结束时间（毫秒，闭区间）
+        */
         long endTimeMs,
-        /** 该片段经 ASR 转写后的文本，可为 空 */
+        /**
+         * 该片段经 ASR 转写后的文本，可为 空
+        */
         String transcript,
-        /** 该片段归属该说话人的置信度，范围 [0, 1] */
+        /**
+         * 该片段归属该说话人的置信度，范围 [0, 1]
+        */
         float confidence
 ) {
     /**

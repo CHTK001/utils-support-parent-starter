@@ -12,17 +12,29 @@ import java.util.List;
 
 public class MysqlAlterUserStep implements UserManager.AlterUserStep {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private String password;
-    /** 主机 */
+    /**
+     * 主机
+    */
     private String host;
-    /** Grants */
+    /**
+     * Grants
+    */
     private final List<String> grants = new ArrayList<>();
-    /** Revokes */
+    /**
+     * Revokes
+    */
     private final List<String> revokes = new ArrayList<>();
 
     /**
@@ -37,21 +49,27 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
-    /** with密码 */
+    /**
+     * with密码
+    */
     public UserManager.AlterUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
-    /** with主机 */
+    /**
+     * with主机
+    */
     public UserManager.AlterUserStep withHost(String host) {
         this.host = host;
         return this;
     }
 
     @Override
-    /** withgrant */
+    /**
+     * withgrant
+    */
     public UserManager.AlterUserStep withGrant(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         grants.add("GRANT " + privilege + " ON " + database + " TO '" + username + "'@'" + resolvedHost + "'");
@@ -59,7 +77,9 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
-    /** withrevoke */
+    /**
+     * withrevoke
+    */
     public UserManager.AlterUserStep withRevoke(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         revokes.add("REVOKE " + privilege + " ON " + database + " FROM '" + username + "'@'" + resolvedHost + "'");
@@ -67,7 +87,9 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

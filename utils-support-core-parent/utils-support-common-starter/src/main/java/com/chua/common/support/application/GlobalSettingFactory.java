@@ -27,10 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GlobalSettingFactory {
 
-    /** 单例实例 */
+    /**
+     * 单例实例
+    */
     private static final GlobalSettingFactory INSTANCE = new GlobalSettingFactory();
 
-    /** 配置项前缀 */
+    /**
+     * 配置项前缀
+    */
     public static volatile String PREFIX = "";
 
     static final Map<String, Object> CONFIG = new ConcurrentHashMap<>();

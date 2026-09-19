@@ -25,7 +25,9 @@ public class YamlWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public YamlWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;

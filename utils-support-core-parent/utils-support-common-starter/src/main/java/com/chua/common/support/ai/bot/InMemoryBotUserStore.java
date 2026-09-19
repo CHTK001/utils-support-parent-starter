@@ -16,12 +16,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InMemoryBotUserStore implements BotUserStore {
 
-    /** 用户数据存储 */
+    /**
+     * 用户数据存储
+    */
     private final ConcurrentHashMap<String, BotUserInfo> users
             = new ConcurrentHashMap<>();
 
     @Override
-    /** Upsert */
+    /**
+     * Upsert
+    */
     public void upsert(BotUserInfo user) {
         if (user != null && user.getUserId() != null) {
             users.put(user.getUserId(), user);
@@ -29,25 +33,33 @@ public class InMemoryBotUserStore implements BotUserStore {
     }
 
     @Override
-    /** 查找ByUserId */
+    /**
+     * 查找ByUserId
+    */
     public Optional<BotUserInfo> findByUserId(String userId) {
         return Optional.ofNullable(users.get(userId));
     }
 
     @Override
-    /** 查找All */
+    /**
+     * 查找All
+    */
     public List<BotUserInfo> findAll() {
         return List.copyOf(users.values());
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public void delete(String userId) {
         users.remove(userId);
     }
 
     @Override
-    /** 计算数量 */
+    /**
+     * 计算数量
+    */
     public long count() {
         return users.size();
     }

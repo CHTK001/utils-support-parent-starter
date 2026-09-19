@@ -58,12 +58,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EmailPush implements MessagePush {
 
-    /** 环境 */
+    /**
+     * 环境
+    */
     private final MessageEnvironment environment;
-    /** templates */
+    /**
+     * templates
+    */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 emailpush 实例 */
+    /**
+     * 创建 emailpush 实例
+    */
     public EmailPush() {
         this(new MessageEnvironment());
     }
@@ -77,7 +83,9 @@ public class EmailPush implements MessagePush {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "email";
     }
@@ -131,7 +139,9 @@ public class EmailPush implements MessagePush {
     }
 
     @Override
-    /** 列表templates */
+    /**
+     * 列表templates
+    */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }

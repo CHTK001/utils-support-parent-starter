@@ -41,38 +41,50 @@ public class RabbitMqHandler extends AbstractAppHandler {
     private static final String CONNECTION_CLASS = "com/rabbitmq/client/impl/ConnectionImpl";
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "rabbitmq-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "rabbitmq.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.RABBITMQ_CLIENT;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.RABBITMQ;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(CHANNEL_CLASS, CHANNEL_METHODS);
         register(CONNECTION_CLASS, "createChannel");
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object connection = findField(instance, "connection");
         return Endpoint.builder()

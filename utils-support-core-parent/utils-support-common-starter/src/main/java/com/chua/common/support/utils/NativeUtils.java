@@ -22,26 +22,44 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NativeUtils {
 
-    /** 操作系统名称（小写） */
+    /**
+     * 操作系统名称（小写）
+    */
     private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
-    /** 原始架构名称（小写） */
+    /**
+     * 原始架构名称（小写）
+    */
     private static final String RAW_ARCH = System.getProperty("os.arch").toLowerCase();
-    /** 归一化后的架构名称 */
+    /**
+     * 归一化后的架构名称
+    */
     private static final String OS_ARCH = normalizeArch(RAW_ARCH);
-    /** 操作系统前缀（窗口/Linux/darwin 等） */
+    /**
+     * 操作系统前缀（窗口/Linux/darwin 等）
+    */
     private static final String OS_PREFIX = getOsPrefix();
-    /** 架构回退候选列表 */
+    /**
+     * 架构回退候选列表
+    */
     private static final String[] FALLBACK_ARCHES = buildFallbackArches();
 
-    /** 已加载库的缓存（键: 图书馆名称|basedir） */
+    /**
+     * 已加载库的缓存（键: 图书馆名称|basedir）
+    */
     private static final ConcurrentHashMap<String, Boolean> LOADED = new ConcurrentHashMap<>();
-    /** 已加载库的临时文件路径集合 */
+    /**
+     * 已加载库的临时文件路径集合
+    */
     private static final Set<String> LOADED_PATHS = new LinkedHashSet<>();
 
-    /** Native 库在临时目录下的统一根目录名 */
+    /**
+     * Native 库在临时目录下的统一根目录名
+    */
     public static final String NATIVE_TMP_ROOT = "chua-native";
 
-    /** 创建 NAT工具 实例 */
+    /**
+     * 创建 NAT工具 实例
+    */
     private NativeUtils() {}
 
     /**

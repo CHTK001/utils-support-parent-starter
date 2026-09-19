@@ -26,18 +26,26 @@ import java.util.Arrays;
  */
 public class CnClipTextFeatureTranslator implements Translator<String, float[]> {
 
-    /** 文本最大长度 */
+    /**
+     * 文本最大长度
+    */
     private static final int TEXT_MAX_LENGTH = 52;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
-    /** 创建 cnclip文本特征translator 实例 */
+    /**
+     * 创建 cnclip文本特征translator 实例
+    */
     public CnClipTextFeatureTranslator() {
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -48,7 +56,9 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, String input) {
         Encoding encoding = tokenizer.encode(input);
         long[] inputIds = truncate(encoding.getIds(), TEXT_MAX_LENGTH);
@@ -56,14 +66,18 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray textEmbeds = list.singletonOrThrow();
         return textEmbeds.squeeze().toFloatArray();
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

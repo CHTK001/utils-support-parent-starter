@@ -190,7 +190,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 获取上下文 */
+    /**
+     * 获取上下文
+    */
     public ObjectContext context() {
         return context;
     }
@@ -198,7 +200,9 @@ public class DefaultQuick implements Quick {
     // ==================== 脚本绑定 ====================
 
     @Override
-    /** 导入包 */
+    /**
+     * 导入包
+    */
     public Quick importPackage(String... packages) {
         if (packages != null) {
             for (String pkg : packages) {
@@ -211,7 +215,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 注册常量 */
+    /**
+     * 注册常量
+    */
     public Quick constant(String name, Object value) {
         if (name == null || name.isBlank()) {
             return this;
@@ -222,7 +228,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 注册变量 */
+    /**
+     * 注册变量
+    */
     public Quick variable(String name, Object value) {
         if (name == null || name.isBlank()) {
             return this;
@@ -233,7 +241,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 获取变量 */
+    /**
+     * 获取变量
+    */
     public Object variable(String name) {
         if (name == null) {
             return null;
@@ -242,7 +252,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 设置环境 */
+    /**
+     * 设置环境
+    */
     public Quick env(String key, Object value) {
         if (key != null && !key.isBlank()) {
             context.getEnvironment().setProperty(key, value);
@@ -253,7 +265,9 @@ public class DefaultQuick implements Quick {
     // ==================== 数据导入 ====================
 
     @Override
-    /** 从JSON导入 */
+    /**
+     * 从JSON导入
+    */
     public Quick fromJson(String json) {
         if (json == null || json.isBlank()) {
             return this;
@@ -265,7 +279,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 从XML导入 */
+    /**
+     * 从XML导入
+    */
     public Quick fromXml(String xml) {
         if (xml == null || xml.isBlank()) {
             return this;
@@ -277,7 +293,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 从JSON导入并转换 */
+    /**
+     * 从JSON导入并转换
+    */
     public <T> T fromJson(String json, Class<T> type) {
         if (type == null) {
             return null;
@@ -292,7 +310,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 从XML导入并转换 */
+    /**
+     * 从XML导入并转换
+    */
     public <T> T fromXml(String xml, Class<T> type) {
         if (type == null) {
             return null;
@@ -307,7 +327,9 @@ public class DefaultQuick implements Quick {
     // ==================== 类初始化 ====================
 
     @Override
-    /** 初始化类 */
+    /**
+     * 初始化类
+    */
     public <T> T init(Class<T> type) {
         if (type == null) {
             return null;
@@ -341,7 +363,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 初始化类（按名称） */
+    /**
+     * 初始化类（按名称）
+    */
     public <T> T init(String className) {
         if (className == null || className.isBlank()) {
             return null;
@@ -356,19 +380,25 @@ public class DefaultQuick implements Quick {
     // ==================== 集合构造器 ====================
 
     @Override
-    /** 创建映射构造器 */
+    /**
+     * 创建映射构造器
+    */
     public <K, V> MapBuilder<K, V> map() {
         return new DefaultMapBuilder<>();
     }
 
     @Override
-    /** 创建列表构造器 */
+    /**
+     * 创建列表构造器
+    */
     public <E> ListBuilder<E> list() {
         return new DefaultListBuilder<>();
     }
 
     @Override
-    /** 创建Table构造器 */
+    /**
+     * 创建Table构造器
+    */
     public <R extends Comparable<? super R>, C extends Comparable<? super C>, V> TableBuilder<R, C, V> table() {
         return new DefaultTableBuilder<>();
     }
@@ -376,7 +406,9 @@ public class DefaultQuick implements Quick {
     // ==================== 动态类 ====================
 
     @Override
-    /** 编译源码 */
+    /**
+     * 编译源码
+    */
     public Class<?> compile(String source) {
         if (source == null || source.isBlank()) {
             return null;
@@ -386,7 +418,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 生成动态子类 */
+    /**
+     * 生成动态子类
+    */
     public <T> T dynamic(Class<T> superType, String source) {
         if (superType == null || source == null) {
             return null;
@@ -410,7 +444,9 @@ public class DefaultQuick implements Quick {
     // ==================== 脚本执行 ====================
 
     @Override
-    /** 执行脚本 */
+    /**
+     * 执行脚本
+    */
     public Object execute(String script) {
         if (script == null || script.isBlank()) {
             return null;
@@ -423,7 +459,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 执行脚本并转换类型 */
+    /**
+     * 执行脚本并转换类型
+    */
     public <T> T execute(String script, Class<T> returnType) {
         Object result = execute(script);
         if (returnType == null || result == null) {
@@ -435,14 +473,18 @@ public class DefaultQuick implements Quick {
     // ==================== Bean 访问 ====================
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public Quick register(String name, Object bean) {
         registerNamedBean(name, bean);
         return this;
     }
 
     @Override
-    /** 获取Bean */
+    /**
+     * 获取Bean
+    */
     public <T> T get(String name) {
         if (name == null) {
             return null;
@@ -461,7 +503,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 获取Bean的类型 */
+    /**
+     * 获取Bean的类型
+    */
     public <T> T get(Class<T> type) {
         if (type == null) {
             return null;
@@ -470,7 +514,9 @@ public class DefaultQuick implements Quick {
     }
 
     @Override
-    /** 关闭Quick */
+    /**
+     * 关闭Quick
+    */
     public void close() {
         try {
             context.close();
@@ -842,14 +888,18 @@ public class DefaultQuick implements Quick {
         private String type = "hash";
 
         @Override
-        /** 添加键值对 */
+        /**
+         * 添加键值对
+        */
         public MapBuilder<K, V> put(K key, V value) {
             values.put(key, value);
             return this;
         }
 
         @Override
-        /** 指定实现类型 */
+        /**
+         * 指定实现类型
+        */
         public MapBuilder<K, V> type(String type) {
             if (type != null && !type.isBlank()) {
                 this.type = type.trim().toLowerCase();
@@ -858,7 +908,9 @@ public class DefaultQuick implements Quick {
         }
 
         @Override
-        /** 构建映射 */
+        /**
+         * 构建映射
+        */
         public Map<K, V> build() {
             return switch (type) {
                 case "linked" -> new LinkedHashMap<>(values);
@@ -889,14 +941,18 @@ public class DefaultQuick implements Quick {
         private String type = "array";
 
         @Override
-        /** 添加元素 */
+        /**
+         * 添加元素
+        */
         public ListBuilder<E> add(E value) {
             values.add(value);
             return this;
         }
 
         @Override
-        /** 指定实现类型 */
+        /**
+         * 指定实现类型
+        */
         public ListBuilder<E> type(String type) {
             if (type != null && !type.isBlank()) {
                 this.type = type.trim().toLowerCase();
@@ -905,7 +961,9 @@ public class DefaultQuick implements Quick {
         }
 
         @Override
-        /** 构建列表 */
+        /**
+         * 构建列表
+        */
         public List<E> build() {
             return switch (type) {
                 case "linked" -> new LinkedList<>(values);
@@ -947,7 +1005,9 @@ public class DefaultQuick implements Quick {
         private final Table<R, C, V> treeValues = TreeBasedTable.create();
 
         @Override
-        /** 添加单元格 */
+        /**
+         * 添加单元格
+        */
         public TableBuilder<R, C, V> put(R rowKey, C columnKey, V value) {
             if ("tree".equals(type)) {
                 treeValues.put(rowKey, columnKey, value);
@@ -958,7 +1018,9 @@ public class DefaultQuick implements Quick {
         }
 
         @Override
-        /** 指定实现类型 */
+        /**
+         * 指定实现类型
+        */
         public TableBuilder<R, C, V> type(String type) {
             if (type != null && !type.isBlank()) {
                 this.type = type.trim().toLowerCase();
@@ -967,7 +1029,9 @@ public class DefaultQuick implements Quick {
         }
 
         @Override
-        /** 构建Table */
+        /**
+         * 构建Table
+        */
         public Table<R, C, V> build() {
             return "tree".equals(type) ? treeValues : hashValues;
         }

@@ -92,7 +92,9 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     }
 
     @Override
-    /** 添加Task */
+    /**
+     * 添加Task
+    */
     public ThreadExecutor<Object> addTask(Runnable runnable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(() -> {
             runnable.run();
@@ -102,21 +104,27 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     }
 
     @Override
-    /** 添加Callable */
+    /**
+     * 添加Callable
+    */
     public ThreadExecutor<Object> addCallable(Callable<Object> callable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(callable)));
         return this;
     }
 
     @Override
-    /** Listener */
+    /**
+     * Listener
+    */
     public ThreadExecutor<Object> listener(ThreadFlowListener listener) {
         this.listener = listener;
         return this;
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public ThreadFlowResult<Object> execute() throws Exception {
         long start = System.currentTimeMillis();
         if (listener != null) {

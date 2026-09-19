@@ -8,9 +8,13 @@ package com.chua.deeplearning.support.onnx.ocr.direction;
  */
 public class DirectionInfo {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
-    /** 概率 */
+    /**
+     * 概率
+    */
     private final double probability;
 
     /**

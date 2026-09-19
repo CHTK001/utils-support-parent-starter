@@ -51,7 +51,9 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
     );
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupported(String source, String target) {
         if (!SOURCES.contains(source)) {
             return false;
@@ -60,7 +62,9 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
     }
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public void convert(FileSource source, FileSource target, ConvertSetting setting) {
         try (InputStream in = source.isInputStream() ? source.getInputStream() : new FileInputStream(source.getPath());
              OutputStream out = target.isOutputStream() ? target.getOutputStream() : new FileOutputStream(target.getPath())) {

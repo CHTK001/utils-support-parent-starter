@@ -34,17 +34,29 @@ import java.util.Map;
 @Slf4j
 public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Directional {
 
-    /** 数据源标识 */
+    /**
+     * 数据源标识
+    */
     private final String sourceId;
-    /** 输入标识 */
+    /**
+     * 输入标识
+    */
     private final String inputId;
-    /** 文件路径 */
+    /**
+     * 文件路径
+    */
     private final Path filePath;
-    /** 分隔符 */
+    /**
+     * 分隔符
+    */
     private final String delimiter;
-    /** 偏移量存储 */
+    /**
+     * 偏移量存储
+    */
     private final SyncDataOffsetStorage offsetStorage;
-    /** 最后行号 */
+    /**
+     * 最后行号
+    */
     private volatile long lastLineNumber = 0;
 
     /**
@@ -82,25 +94,33 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
-    /** 源id */
+    /**
+     * 源id
+    */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** 输入id */
+    /**
+     * 输入id
+    */
     public String inputId() {
         return inputId;
     }
 
     @Override
-    /** 读取偏移量 */
+    /**
+     * 读取偏移量
+    */
     public SyncDataOffset readOffset(Map<String, Object> params) {
         return offsetStorage.read(sourceId, null);
     }
 
     @Override
-    /** 写入偏移量 */
+    /**
+     * 写入偏移量
+    */
     public void writeOffset(SyncDataOffset offset) {
         if (offset == null) {
             return;
@@ -109,7 +129,9 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Flux<Map<String, Object>> read(Map<String, Object> params) {
         return Flux.<Map<String, Object>>create(sink -> {
             long skip = 0;
@@ -168,18 +190,24 @@ public class DelimitedDataSyncAgentSource implements DataSyncAgentSource, Direct
     }
 
     @Override
-    /** 获取最后一个读取偏移量 */
+    /**
+     * 获取最后一个读取偏移量
+    */
     public Object getLastReadOffset() {
         return lastLineNumber;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.INPUT;
     }

@@ -9,16 +9,24 @@ package com.chua.elasticsearch.support.engine;
  */
 public class EsDoc {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
-    /** 标题 */
+    /**
+     * 标题
+    */
     private String title;
 
-    /** 正文 */
+    /**
+     * 正文
+    */
     private String content;
 
-    /** 无参构造器 */
+    /**
+     * 无参构造器
+    */
     public EsDoc() {
     }
 

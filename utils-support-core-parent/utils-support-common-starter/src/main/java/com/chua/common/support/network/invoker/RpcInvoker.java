@@ -32,19 +32,25 @@ import java.util.Collections;
 @Spi(value = "rpc", order = 50)
 public class RpcInvoker implements Invoker {
 
-    /** Class_level_annotations */
+    /**
+     * Class_level_annotations
+    */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public <T> T create(Class<T> apiClass) {
         return createProxy(apiClass, false);
     }
 
     @Override
-    /** 创建New */
+    /**
+     * 创建New
+    */
     public <T> T createNew(Class<T> apiClass) {
         return createProxy(apiClass, true);
     }

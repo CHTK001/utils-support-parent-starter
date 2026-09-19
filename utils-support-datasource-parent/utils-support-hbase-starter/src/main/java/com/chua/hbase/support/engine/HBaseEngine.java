@@ -326,7 +326,9 @@ public class HBaseEngine extends AbstractEngine {
                 "HBase 无 SQL DELETE。请使用 deleteRow(table, rowKey) 真实 API。");
     }
 
-    /** 关闭所有数据源连接 */
+    /**
+     * 关闭所有数据源连接
+    */
     @Override
     public void close() {
         for (EngineDataSource<?> ds : dataSources.values()) {

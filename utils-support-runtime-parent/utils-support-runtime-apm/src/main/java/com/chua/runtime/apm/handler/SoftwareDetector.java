@@ -26,7 +26,9 @@ public final class SoftwareDetector {
      * 日志
      */
     private static final Logger LOG = Logger.getLogger(SoftwareDetector.class.getName());
-    /** 创建 softwaredetector 实例 */
+    /**
+     * 创建 softwaredetector 实例
+    */
     private SoftwareDetector() {
     }
 

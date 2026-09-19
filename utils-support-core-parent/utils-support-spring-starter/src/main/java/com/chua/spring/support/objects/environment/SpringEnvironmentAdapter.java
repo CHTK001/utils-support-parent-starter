@@ -34,7 +34,9 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
      * 被委托的框架环境
      */
     @Getter
-    /** Delegate */
+    /**
+     * Delegate
+    */
     private final Environment delegate;
 
     @Override
@@ -123,13 +125,17 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
     }
 
     @Override
-    /** 获取活跃配置文件 */
+    /**
+     * 获取活跃配置文件
+    */
     public String[] getActiveProfiles() {
         return new String[0];
     }
 
     @Override
-    /** 获取默认配置文件 */
+    /**
+     * 获取默认配置文件
+    */
     public String[] getDefaultProfiles() {
         return new String[0];
     }

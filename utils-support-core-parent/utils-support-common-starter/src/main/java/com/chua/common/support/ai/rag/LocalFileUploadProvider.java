@@ -23,13 +23,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class LocalFileUploadProvider implements UploadProvider {
 
-    /** 子目录名 */
+    /**
+     * 子目录名
+    */
     private static final String FILES_SUBDIR = "files";
 
-    /** 内存中已上传的文件内容缓存（docId -> data） */
+    /**
+     * 内存中已上传的文件内容缓存（docId -> data）
+    */
     private final Map<String, byte[]> cache = new ConcurrentHashMap<>();
 
-    /** 上传根目录 */
+    /**
+     * 上传根目录
+    */
     private final Path baseDir;
 
     /**

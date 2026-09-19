@@ -29,10 +29,14 @@ import java.util.List;
 @Slf4j
 public final class ContextCompressor {
 
-    /** 压缩配置 */
+    /**
+     * 压缩配置
+    */
     private final ContextCompressionConfig config;
 
-    /** 底层压缩服务 */
+    /**
+     * 底层压缩服务
+    */
     private final AgentContextCompressionService delegate;
 
     /**

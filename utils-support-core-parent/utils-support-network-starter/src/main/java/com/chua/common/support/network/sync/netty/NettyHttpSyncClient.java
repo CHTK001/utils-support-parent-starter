@@ -20,19 +20,33 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyHttpSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
-    /** 客户端标识 */
+    /**
+     * 客户端标识
+    */
     private final String clientId = UUID.randomUUID().toString();
-    /** 服务器URL */
+    /**
+     * 服务器URL
+    */
     private final String serverUrl;
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
-    /** 连接 */
+    /**
+     * 连接
+    */
     private volatile boolean connected;
-    /** subscriptions */
+    /**
+     * subscriptions
+    */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
-    /** 监听器 */
+    /**
+     * 监听器
+    */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
-    /** 拉手线程 */
+    /**
+     * 拉手线程
+    */
     private Thread pullThread;
 
     /**
@@ -48,7 +62,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         if (connected) {
             return;
@@ -59,7 +75,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         if (!connected) {
             return;
@@ -71,19 +89,25 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 是否连接 */
+    /**
+     * 是否连接
+    */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
-    /** 获取客户端标识 */
+    /**
+     * 获取客户端标识
+    */
     public String getClientId() {
         return clientId;
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -102,42 +126,56 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取Metadata */
+    /**
+     * 获取Metadata
+    */
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "http");
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }
 
-    /** 开始拉取 */
+    /**
+     * 开始拉取
+    */
     private void startPull() {
         pullThread = new Thread(() -> {
             while (connected) {
@@ -160,7 +198,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
         pullThread.start();
     }
 
-    /** 停止拉取 */
+    /**
+     * 停止拉取
+    */
     private void stopPull() {
         if (pullThread != null) {
             pullThread.interrupt();
@@ -168,7 +208,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    /** 拉取消息 */
+    /**
+     * 拉取消息
+    */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {
             Thread.sleep(500);

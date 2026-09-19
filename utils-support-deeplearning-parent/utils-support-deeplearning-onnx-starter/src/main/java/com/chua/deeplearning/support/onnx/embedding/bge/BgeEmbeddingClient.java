@@ -34,31 +34,47 @@ public class BgeEmbeddingClient implements EmbeddingClient {
      */
     private static final int DEFAULT_MAX_LEN = 512;
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final EmbeddingClientSetting setting;
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private BgeEmbeddingTranslator translator;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 是否已加载 */
+    /**
+     * 是否已加载
+    */
     private boolean loaded;
 
     /**
      * jar 内打包的资源目录（离线版），空 表示自动下载版
      */
     private String embeddedBase;
-    /** 嵌入式模型名称 */
+    /**
+     * 嵌入式模型名称
+    */
     private final String embeddedModel;
-    /** 嵌入式分词器名称 */
+    /**
+     * 嵌入式分词器名称
+    */
     private final String embeddedTokenizer;
 
     /**
      * 本地模型目录（自动下载版经 registry 解析后传入）
      */
     private Path localModelRoot;
-    /** 嵌入式本地目录 */
+    /**
+     * 嵌入式本地目录
+    */
     private Path embeddedLocalDir;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private Path modelPath;
 
     /**
@@ -97,14 +113,18 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.embeddedBase = resolveEmbeddedBase(model);
@@ -113,13 +133,17 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 维度 */
+    /**
+     * 维度
+    */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
-    /** 重置加载 */
+    /**
+     * 重置加载
+    */
     private void resetLoaded() {
         loaded = false;
         translator = null;
@@ -127,7 +151,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
         embeddedLocalDir = null;
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -185,7 +211,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入 */
+    /**
+     * 嵌入
+    */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -207,7 +235,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batch */
+    /**
+     * 嵌入batch
+    */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -220,7 +250,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入with响应 */
+    /**
+     * 嵌入with响应
+    */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -230,7 +262,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batchwith响应 */
+    /**
+     * 嵌入batchwith响应
+    */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -243,19 +277,25 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入异步 */
+    /**
+     * 嵌入异步
+    */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** 嵌入batch异步 */
+    /**
+     * 嵌入batch异步
+    */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         if (translator != null) {
             translator.close();

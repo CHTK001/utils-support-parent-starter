@@ -71,21 +71,27 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Language */
+    /**
+     * Language
+    */
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -93,7 +99,9 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -101,7 +109,9 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(InputStream input) {
         try {
             this.audio = input != null ? input.readAllBytes() : null;
@@ -136,7 +146,9 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Transcribe */
+    /**
+     * Transcribe
+    */
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -174,13 +186,17 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(Path path) {
         return "asr-" + UUID.randomUUID();
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public AudioResponse queryTask(String taskId) {
         try {
             String transcript = transcribe(audioPath);
@@ -199,7 +215,9 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

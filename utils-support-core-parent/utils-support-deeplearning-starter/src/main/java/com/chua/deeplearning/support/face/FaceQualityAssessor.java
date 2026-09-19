@@ -172,7 +172,9 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -215,28 +217,36 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
     }
 
     @Override
-    /** blur阈值 */
+    /**
+     * blur阈值
+    */
     public FaceQualityAssessor blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 最小值faceratio */
+    /**
+     * 最小值faceratio
+    */
     public FaceQualityAssessor minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public FaceQualityAssessor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FaceQualityAssessor device(String device) {
         this.device = device;
         return this;

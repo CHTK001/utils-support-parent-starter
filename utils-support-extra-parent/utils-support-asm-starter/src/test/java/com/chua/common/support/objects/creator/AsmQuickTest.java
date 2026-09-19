@@ -28,10 +28,14 @@ import java.lang.reflect.Method;
  */
 public class AsmQuickTest {
 
-    /** 失败计数 */
+    /**
+     * 失败计数
+    */
     private static int failureCount = 0;
 
-    /** 成功计数 */
+    /**
+     * 成功计数
+    */
     private static int passCount = 0;
 
     /**
@@ -54,14 +58,18 @@ public class AsmQuickTest {
         System.out.println("RESULT: PASS");
     }
 
-    /** SPI 注册：asm=asmcompiler */
+    /**
+     * SPI 注册：asm=asmcompiler
+    */
     static void testSpiResolvesAsm() {
         ServiceProvider<Compiler> provider = ServiceProvider.of(Compiler.class);
         Compiler asm = provider.getExtension("asm");
         check(asm instanceof AsmCompiler, "Compiler SPI 解析到 AsmCompiler");
     }
 
-    /** 默认quick.resolvecompiler() 优先选择 asmcompiler */
+    /**
+     * 默认quick.resolvecompiler() 优先选择 asmcompiler
+    */
     static void testResolveCompilerPrefersAsm() {
         DefaultQuick quick = new DefaultQuick();
         try {
@@ -72,7 +80,9 @@ public class AsmQuickTest {
         }
     }
 
-    /** dynamic() 在 ASM 编译器下生成子类 */
+    /**
+     * dynamic() 在 ASM 编译器下生成子类
+    */
     static void testDynamicWithAsm() {
         DefaultQuick quick = new DefaultQuick();
         Runnable runnable = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"asm dynamic ok\"); }");
@@ -83,7 +93,9 @@ public class AsmQuickTest {
         quick.close();
     }
 
-    /** compile() 在 ASM 编译器下编译完整类并可调用 */
+    /**
+     * compile() 在 ASM 编译器下编译完整类并可调用
+    */
     static void testCompileWithAsm() {
         DefaultQuick quick = new DefaultQuick();
         Class<?> clazz = quick.compile("public class AsmProbe { public static String hello() { return \"asm-hello\"; } }");
@@ -99,7 +111,9 @@ public class AsmQuickTest {
         quick.close();
     }
 
-    /** 执行() 脚本经 ASM 编译器执行 */
+    /**
+     * 执行() 脚本经 ASM 编译器执行
+    */
     static void testExecuteWithAsm() {
         DefaultQuick quick = new DefaultQuick();
         Object result = quick.execute("1 + 2");

@@ -25,11 +25,17 @@ import java.util.List;
 @Data
 public class ScatterSetting {
 
-    /** 节点唯一标识 */
+    /**
+     * 节点唯一标识
+    */
     private String nodeId;
-    /** 分组标识（仅同分组节点互相发现/合并） */
+    /**
+     * 分组标识（仅同分组节点互相发现/合并）
+    */
     private String groupId = "default";
-    /** 监听地址 */
+    /**
+     * 监听地址
+    */
     private String host = "0.0.0.0";
     /**
      * 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中
@@ -39,14 +45,18 @@ public class ScatterSetting {
      * scatter 通信端口（由 NodeServer 启动后自动填充）
      */
     private int scatterPort;
-    /** 传输协议：tcp / udp */
+    /**
+     * 传输协议：tcp / udp
+    */
     private String protocol = "tcp";
     /**
      * 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景）
      */
     private String announceHost;
 
-    /** 服务路径 */
+    /**
+     * 服务路径
+    */
     private String servicePath = "/scatter";
 
     /**
@@ -63,30 +73,48 @@ public class ScatterSetting {
      * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk
      */
     private String spiName;
-    /** 直接注入服务端实现对象（未启动） */
+    /**
+     * 直接注入服务端实现对象（未启动）
+    */
     private TcpServer server;
-    /** 直接注入客户端实现对象（未启动） */
+    /**
+     * 直接注入客户端实现对象（未启动）
+    */
     private TcpClient client;
 
-    /** 自动发现（gossip/同步）周期毫秒 */
+    /**
+     * 自动发现（gossip/同步）周期毫秒
+    */
     private long autoDiscoveryIntervalMillis = 30_000L;
-    /** 心跳探活周期毫秒 */
+    /**
+     * 心跳探活周期毫秒
+    */
     private long heartbeatIntervalMillis = 30_000L;
-    /** 连续心跳失败剔除阈值 */
+    /**
+     * 连续心跳失败剔除阈值
+    */
     private int failRemoveCount = 3;
-    /** 单次同步超时毫秒 */
+    /**
+     * 单次同步超时毫秒
+    */
     private long timeoutMillis = 2000L;
     /**
      * 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度）
      */
     private long heartbeatTimeoutMillis = 0L;
 
-    /** 持久化开关 */
+    /**
+     * 持久化开关
+    */
     private boolean persistenceEnabled = true;
-    /** 持久化文件 */
+    /**
+     * 持久化文件
+    */
     private String persistenceFile = ".scatter-nodes.json";
 
-    /** gossip 扩散目标数（路由模式抽样） */
+    /**
+     * gossip 扩散目标数（路由模式抽样）
+    */
     private int gossipTargetCount = 4;
 
     /**

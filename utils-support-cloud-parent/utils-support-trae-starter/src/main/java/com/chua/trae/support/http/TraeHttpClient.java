@@ -27,26 +27,46 @@ import java.util.UUID;
 public class TraeHttpClient {
 
     private static final Logger log = LoggerFactory.getLogger(TraeHttpClient.class); // 日志
-    /** 默认 Trae CN API 主机 */
+    /**
+     * 默认 Trae CN API 主机
+    */
     private static final String DEFAULT_API_HOST = "https://trae-api-cn.mchost.guru";
-    /** 默认 App 标识 */
+    /**
+     * 默认 App 标识
+    */
     private static final String DEFAULT_APP_ID = "6eefa01c-1036-4c7e-9ca5-d891f63bfcd8";
-    /** 默认 IDE 版本 */
+    /**
+     * 默认 IDE 版本
+    */
     private static final String DEFAULT_IDE_VERSION = "3.3.67";
-    /** 默认 IDE 版本码 */
+    /**
+     * 默认 IDE 版本码
+    */
     private static final String DEFAULT_IDE_VERSION_CODE = "20260401";
 
-    /** 底层 OkHttp 实例，持有代理/超时配置，不可为 空 */
+    /**
+     * 底层 OkHttp 实例，持有代理/超时配置，不可为 空
+    */
     private final OkHttpClient client;
-    /** 认证管理器，不可为 空 */
+    /**
+     * 认证管理器，不可为 空
+    */
     private final AuthManager authManager;
-    /** Trae API 主机地址，不可为 空 */
+    /**
+     * Trae API 主机地址，不可为 空
+    */
     private final String apiHost;
-    /** App 标识 */
+    /**
+     * App 标识
+    */
     private final String appId;
-    /** IDE 版本 */
+    /**
+     * IDE 版本
+    */
     private final String ideVersion;
-    /** IDE 版本码 */
+    /**
+     * IDE 版本码
+    */
     private final String ideVersionCode;
 
     /**
@@ -81,19 +101,33 @@ public class TraeHttpClient {
      * @since 4.0.0
      */
     public static class Builder {
-        /** 认证管理器，必填 */
+        /**
+         * 认证管理器，必填
+        */
         private AuthManager authManager;
-        /** API 主机，默认 CN */
+        /**
+         * API 主机，默认 CN
+        */
         private String apiHost = DEFAULT_API_HOST;
-        /** App 标识 */
+        /**
+         * App 标识
+        */
         private String appId = DEFAULT_APP_ID;
-        /** IDE 版本 */
+        /**
+         * IDE 版本
+        */
         private String ideVersion = DEFAULT_IDE_VERSION;
-        /** IDE 版本码 */
+        /**
+         * IDE 版本码
+        */
         private String ideVersionCode = DEFAULT_IDE_VERSION_CODE;
-        /** HTTP 代理主机，空 表示不启用 */
+        /**
+         * HTTP 代理主机，空 表示不启用
+        */
         private String httpProxy;
-        /** HTTP 代理端口，默认 7890 */
+        /**
+         * HTTP 代理端口，默认 7890
+        */
         private int proxyPort = 7890;
 
         /**

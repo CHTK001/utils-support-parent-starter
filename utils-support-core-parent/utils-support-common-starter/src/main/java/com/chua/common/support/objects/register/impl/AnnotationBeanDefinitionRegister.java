@@ -22,31 +22,43 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @SpiDescribe("注解 Bean 定义注册器")
 public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
-    /** Beandefinitions */
+    /**
+     * Beandefinitions
+    */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
-    /** closed */
+    /**
+     * closed
+    */
     private volatile boolean closed;
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "annotation";
     }
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 10;
     }
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public boolean register(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -62,7 +74,9 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 注销 */
+    /**
+     * 注销
+    */
     public boolean unregister(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -76,7 +90,9 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 注销 */
+    /**
+     * 注销
+    */
     public boolean unregister(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -86,13 +102,17 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取Beandefinition */
+    /**
+     * 获取Beandefinition
+    */
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanName != null && !closed ? beanDefinitions.get(beanName) : null;
     }
 
     @Override
-    /** 获取Beandefinition的类型 */
+    /**
+     * 获取Beandefinition的类型
+    */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -110,7 +130,9 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取Beandefinition的类型 */
+    /**
+     * 获取Beandefinition的类型
+    */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -127,19 +149,25 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** containsBean */
+    /**
+     * containsBean
+    */
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
     @Override
-    /** 获取Beandefinition名称 */
+    /**
+     * 获取Beandefinition名称
+    */
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
     @Override
-    /** 获取Beanwith注解 */
+    /**
+     * 获取Beanwith注解
+    */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -160,7 +188,9 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取Beanwith方法注解 */
+    /**
+     * 获取Beanwith方法注解
+    */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -181,13 +211,17 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void initialize() {
         closed = false;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         destroySingletons();
@@ -195,7 +229,9 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 是否Closed */
+    /**
+     * 是否Closed
+    */
     public boolean isClosed() {
         return closed;
     }

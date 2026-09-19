@@ -27,7 +27,9 @@ import java.util.Map;
 public class MqttListenerParser implements ListenerParser {
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -40,7 +42,9 @@ public class MqttListenerParser implements ListenerParser {
     }
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(OnOpen.class)
@@ -54,7 +58,9 @@ public class MqttListenerParser implements ListenerParser {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 50;
     }

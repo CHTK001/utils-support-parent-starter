@@ -26,10 +26,14 @@ import java.util.Map;
 @Spi("vscode-marketplace")
 public class VscodeMarketplacePluginOnlineProvider implements PluginOnlineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(VscodeMarketplacePluginOnlineProvider.class);
 
-    /** 搜索 API */
+    /**
+     * 搜索 API
+    */
     private static final String SEARCH_API =
             "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 

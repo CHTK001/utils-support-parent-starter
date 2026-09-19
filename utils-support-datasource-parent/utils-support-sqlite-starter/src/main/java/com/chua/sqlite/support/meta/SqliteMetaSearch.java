@@ -26,7 +26,9 @@ import java.util.function.Consumer;
  */
 public class SqliteMetaSearch extends AbstractMetaSearch {
 
-    /** 搜索引擎实现 */
+    /**
+     * 搜索引擎实现
+    */
     private final SqliteSearchEngineImpl searchEngine;
 
     /**

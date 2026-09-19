@@ -24,7 +24,9 @@ import java.util.function.Consumer;
 public class RustNmapScanner implements NmapScanner {
 
     private final ExecutorService executor;
-    /** 选项 */
+    /**
+     * 选项
+    */
     private ScanOptions options = ScanOptions.defaults();
 
     /**

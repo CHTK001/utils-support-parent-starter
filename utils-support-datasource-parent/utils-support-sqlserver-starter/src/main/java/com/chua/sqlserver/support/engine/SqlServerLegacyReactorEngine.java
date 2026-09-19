@@ -20,7 +20,9 @@ import java.util.regex.Pattern;
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
 
-    /** 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线） */
+    /**
+     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+    */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine(); // delegate

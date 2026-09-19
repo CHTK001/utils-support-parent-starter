@@ -27,7 +27,9 @@ import java.util.Set;
 @SpiDescribe("Spring Bean 定义生成器")
 public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
-    /** Spring_注解 */
+    /**
+     * Spring_注解
+    */
     private static final Set<String> SPRING_ANNOTATIONS = Set.of(
             "org.springframework.stereotype.Component",
             "org.springframework.stereotype.Service",
@@ -40,13 +42,17 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
     );
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 20;
     }
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null || beanClass.isInterface() || beanClass.isEnum()
                 || beanClass.isAnnotation() || Modifier.isAbstract(beanClass.getModifiers())) {
@@ -61,7 +67,9 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
     }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public List<BeanDefinition> generate(Class<?> beanClass) {
         List<BeanDefinition> definitions = new ArrayList<>();
         if (beanClass == null) {

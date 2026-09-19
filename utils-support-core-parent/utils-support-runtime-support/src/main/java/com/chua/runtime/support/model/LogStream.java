@@ -62,7 +62,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** on线 */
+    /**
+     * on线
+    */
     public synchronized void onLine(String line) {
         if (closed) {
             return;
@@ -77,7 +79,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** on完成 */
+    /**
+     * on完成
+    */
     public synchronized void onComplete(int exitCode) {
         if (closed) {
             return;
@@ -88,7 +92,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** On记录错误 */
+    /**
+     * On记录错误
+    */
     public synchronized void onError(String command, Throwable throwable) {
         if (closed) {
             return;

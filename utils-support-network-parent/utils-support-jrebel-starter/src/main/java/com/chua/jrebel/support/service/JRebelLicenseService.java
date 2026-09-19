@@ -55,7 +55,9 @@ public class JRebelLicenseService {
      */
     private final Map<String, LicenseInfo> licenseCache = new ConcurrentHashMap<>();
 
-    /** 创建 jrebel执照服务 实例 */
+    /**
+     * 创建 jrebel执照服务 实例
+    */
     public JRebelLicenseService() {
         this.jRebelSign = new JRebelSign();
     }

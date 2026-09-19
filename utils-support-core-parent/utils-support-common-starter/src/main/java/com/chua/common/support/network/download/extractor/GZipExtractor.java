@@ -23,7 +23,9 @@ import java.util.zip.GZIPInputStream;
 public class GZipExtractor implements Extractor {
 
     @Override
-    /** Extract */
+    /**
+     * Extract
+    */
     public boolean extract(File sourceFile, File targetDir) {
         if (sourceFile == null || !sourceFile.exists()) {
             log.error("源文件不存在: {}", sourceFile);
@@ -53,7 +55,9 @@ public class GZipExtractor implements Extractor {
     }
 
     @Override
-    /** SupportedExtensions */
+    /**
+     * SupportedExtensions
+    */
     public String[] supportedExtensions() {
         return new String[]{".gz"};
     }

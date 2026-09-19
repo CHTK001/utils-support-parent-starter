@@ -14,13 +14,21 @@ import java.util.List;
 @Data
 @Builder
 public class MusicOverview {
-    /** 源 */
+    /**
+     * 源
+    */
     private List<MusicSourceOption> sources;
-    /** 默认来源 */
+    /**
+     * 默认来源
+    */
     private String defaultSource;
-    /** hotkeywords */
+    /**
+     * hotkeywords
+    */
     private List<String> hotKeywords;
-    /** Featuredplaylists */
+    /**
+     * Featuredplaylists
+    */
     private List<MusicPlaylistSummary> featuredPlaylists;
 }
 

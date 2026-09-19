@@ -33,12 +33,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class PackageManagerProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(PackageManagerProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     protected static final String NAME = "package-manager";
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     protected static final String PREFIX = "";
 
     /**
@@ -135,11 +141,15 @@ public class PackageManagerProvider {
      */
 
     protected class PackageManagerMcpClient implements McpClient {
-        /** initialized */
+        /**
+         * initialized
+        */
         private volatile boolean initialized = false;
 
         @Override
-        /** 初始化 */
+        /**
+         * 初始化
+        */
         public void init() {
             initialized = true;
             List<PackageManager.Type> pms = detectAvailable();
@@ -147,13 +157,17 @@ public class PackageManagerProvider {
         }
 
         @Override
-        /** 列表tools */
+        /**
+         * 列表tools
+        */
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }
 
         @Override
-        /** 调用Tool */
+        /**
+         * 调用Tool
+        */
         public McpToolResult callTool(McpToolCall toolCall) {
             try {
                 return switch (toolCall.getToolName()) {
@@ -170,7 +184,9 @@ public class PackageManagerProvider {
         }
 
         @Override
-        /** 是否Initialized */
+        /**
+         * 是否Initialized
+        */
         public boolean isInitialized() {
             return initialized;
         }
@@ -336,19 +352,25 @@ public class PackageManagerProvider {
         log.info("开始安装软件包: {}", packageId);
         CmdResult result = PackageManager.install(packageId, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 log.info("  [安装] {}", line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [安装] 完成, exitCode={}", exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.error("  [安装] 异常: {}", throwable.getMessage());
             }
@@ -379,19 +401,25 @@ public class PackageManagerProvider {
         log.info("使用 {} 卸载: {}", pm.getCommand(), cmd);
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 300, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 log.info("  [卸载] {}", line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [卸载] 完成, exitCode={}", exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.error("  [卸载] 异常: {}", throwable.getMessage());
             }
@@ -428,20 +456,26 @@ public class PackageManagerProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(searchCmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
                 log.debug("  [{}] {}", pm.getCommand(), line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 搜索完成, exitCode={}", pm.getCommand(), exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.warn("  [{}] 搜索异常: {}", pm.getCommand(), throwable.getMessage());
             }

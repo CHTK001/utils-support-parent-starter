@@ -30,7 +30,9 @@ final class SpringObjectContextBridge {
      */
     private static final ConcurrentMap<String, Object> REGISTERED = new ConcurrentHashMap<>();
 
-    /** 创建 spring对象上下文bridge 实例 */
+    /**
+     * 创建 spring对象上下文bridge 实例
+    */
     private SpringObjectContextBridge() {
     }
 

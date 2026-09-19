@@ -23,18 +23,26 @@ import java.util.function.Consumer;
 @Slf4j
 public class ReactorDataSyncExecutor {
 
-    /** Chronicle 调度提供者 */
+    /**
+     * Chronicle 调度提供者
+    */
     protected DispatcherProvider chronicleProvider;
-    /** 代理标识 */
+    /**
+     * 代理标识
+    */
     private final String agentId;
-    /** 服务端模式 */
+    /**
+     * 服务端模式
+    */
     private final boolean serverMode;
 
     /**
      * 直连派发模式：同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle 派发层。
      */
     private volatile boolean directDispatch;
-    /** 直接消费器 */
+    /**
+     * 直接消费器
+    */
     private volatile Consumer<List<Map<String, Object>>> directConsumer;
 
     /**
@@ -84,7 +92,9 @@ public class ReactorDataSyncExecutor {
         this.chronicleProvider = chronicleProvider;
     }
 
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (directDispatch) {
             log.info("直连派发模式已启用 (agentId={})", agentId);
@@ -98,7 +108,9 @@ public class ReactorDataSyncExecutor {
         chronicleProvider.start();
     }
 
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (directDispatch) {
             directConsumer = null;

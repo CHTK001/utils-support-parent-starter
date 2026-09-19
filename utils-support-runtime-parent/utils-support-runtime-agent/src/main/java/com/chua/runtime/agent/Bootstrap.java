@@ -19,7 +19,9 @@ import com.chua.runtime.spy.RuntimeSpy;
  */
 public final class Bootstrap {
 
-    /** 创建 Bootstrap 实例 */
+    /**
+     * 创建 Bootstrap 实例
+    */
     private Bootstrap() {
     }
 

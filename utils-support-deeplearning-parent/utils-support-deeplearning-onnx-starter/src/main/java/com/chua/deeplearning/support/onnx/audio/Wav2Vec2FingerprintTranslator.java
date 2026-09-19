@@ -75,17 +75,29 @@ import java.util.Map;
 @Slf4j
 public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[]> {
 
-    /** ONNX Runtime 全局环境单例，所有会话共享（线程安全） */
+    /**
+     * ONNX Runtime 全局环境单例，所有会话共享（线程安全）
+    */
     private OrtEnvironment ortEnv;
-    /** ONNX 模型推理会话 */
+    /**
+     * ONNX 模型推理会话
+    */
     private OrtSession session;
-    /** 模型特征维度（来自 ONNX 模型结构推断） */
+    /**
+     * 模型特征维度（来自 ONNX 模型结构推断）
+    */
     private int hiddenSize = 768;
-    /** 模型最大输入序列长度（采样点数） */
+    /**
+     * 模型最大输入序列长度（采样点数）
+    */
     private int maxInputLength = 480000;
-    /** 是否已在本实例上完成初始化 */
+    /**
+     * 是否已在本实例上完成初始化
+    */
     private boolean prepared = false;
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private String modelPath;
 
     /**

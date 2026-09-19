@@ -99,7 +99,9 @@ public class SymmetricEnvironment {
      */
     public static final String KEY_AUTO_SETUP = "symmetric.auto.setup";
 
-    /** 创建 symmetric环境 实例 */
+    /**
+     * 创建 symmetric环境 实例
+    */
     private SymmetricEnvironment() {}
 
     /**

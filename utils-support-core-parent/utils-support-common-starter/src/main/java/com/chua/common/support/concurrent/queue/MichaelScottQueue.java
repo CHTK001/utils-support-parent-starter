@@ -134,7 +134,9 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         int count = 0;
         Node<E> node = head.getAcquire().next.getAcquire();

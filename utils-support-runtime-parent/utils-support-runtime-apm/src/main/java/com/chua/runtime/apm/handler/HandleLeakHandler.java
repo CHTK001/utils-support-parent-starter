@@ -112,7 +112,9 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 处理leak处理器 实例 */
+    /**
+     * 创建 处理leak处理器 实例
+    */
     public HandleLeakHandler() {
         this.handles = new ConcurrentHashMap<>();
         this.idGenerator = new AtomicLong(0);
@@ -120,26 +122,34 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_LEAK_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("HandleLeakHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -163,7 +173,9 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -173,20 +185,26 @@ public class HandleLeakHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("HandleLeakHandler[enabled=%s, handles=%d, leaks=%d]",
                 enabled, handles.size(), detectLeaks().size());
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }
 
     @Override
-    /** onintercept */
+    /**
+     * onintercept
+    */
     public void onIntercept(com.chua.runtime.spy.InterceptContext ctx) {
         if (!enabled) {
             return;

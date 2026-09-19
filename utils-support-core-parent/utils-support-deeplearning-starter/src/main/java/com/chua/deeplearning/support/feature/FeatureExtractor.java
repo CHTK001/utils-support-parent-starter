@@ -156,7 +156,9 @@ class DefaultFeatureExtractor implements FeatureExtractor {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -194,21 +196,27 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public FeatureExtractor modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Normalize */
+    /**
+     * Normalize
+    */
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;

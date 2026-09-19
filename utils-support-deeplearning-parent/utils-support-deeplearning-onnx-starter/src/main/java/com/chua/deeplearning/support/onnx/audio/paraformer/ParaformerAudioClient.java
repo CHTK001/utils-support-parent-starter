@@ -35,64 +35,102 @@ import java.util.UUID;
 @Spi({"paraformer", "paraformer-zh-small", "paraformer-onnx", "sherpa-onnx-paraformer"})
 public class ParaformerAudioClient implements VirtualClient {
 
-    /** 默认模型名 */
+    /**
+     * 默认模型名
+    */
     private static final String DEFAULT_MODEL = "paraformer-zh-small";
 
-    /** 类路径 资源根路径 */
+    /**
+     * 类路径 资源根路径
+    */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
      * 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%）
      */
-    /** 缓存_根 */
+    /**
+     * 缓存_根
+    */
     private static final String CACHE_ROOT = "audio/asr/";
 
-    /** 临时音频文件名前缀 */
+    /**
+     * 临时音频文件名前缀
+    */
     private static final String TMP_AUDIO_PREFIX = "paraformer-audio-";
 
-    /** 临时音频文件名后缀 */
+    /**
+     * 临时音频文件名后缀
+    */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
-    /** 任务 标识 前缀 */
+    /**
+     * 任务 标识 前缀
+    */
     private static final String TASK_ID_PREFIX = "paraformer-";
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final AudioClientSetting setting;
 
-    /** 模型 */
+    /**
+     * 模型
+    */
     private String model;
 
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String language;
 
-    /** 覆盖采样率 */
+    /**
+     * 覆盖采样率
+    */
     private Integer overrideSampleRate;
 
-    /** 格式 */
+    /**
+     * 格式
+    */
     private String format;
 
-    /** 提示词 */
+    /**
+     * 提示词
+    */
     private String prompt;
 
-    /** 温度 */
+    /**
+     * 温度
+    */
     private Double temperature;
 
-    /** 随机种子 */
+    /**
+     * 随机种子
+    */
     private Long seed;
 
-    /** 音频数据 */
+    /**
+     * 音频数据
+    */
     private byte[] audio;
 
-    /** 音频文件路径 */
+    /**
+     * 音频文件路径
+    */
     private Path audioPath;
 
-    /** 音频输入流 */
+    /**
+     * 音频输入流
+    */
     private InputStream audioInput;
 
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private ParaformerTranslator translator;
 
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private boolean prepared;
 
     /**
@@ -111,56 +149,72 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Language */
+    /**
+     * Language
+    */
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
-    /** 样本rate */
+    /**
+     * 样本rate
+    */
     public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
     }
 
     @Override
-    /** 格式化 */
+    /**
+     * 格式化
+    */
     public VirtualClient format(String format) {
         this.format = format;
         return this;
     }
 
     @Override
-    /** 提示符 */
+    /**
+     * 提示符
+    */
     public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public VirtualClient temperature(Double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** Seed */
+    /**
+     * Seed
+    */
     public VirtualClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -169,7 +223,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -178,7 +234,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -187,7 +245,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Transcribe */
+    /**
+     * Transcribe
+    */
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -205,7 +265,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -214,7 +276,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -301,7 +365,9 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         translator = null;
         prepared = false;

@@ -85,11 +85,15 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     };
 
     // "Unknown" unit for pHYs chunk
-    /** Phys_unit_unknown */
+    /**
+     * Phys_unit_unknown
+    */
     public static final int PHYS_UNIT_UNKNOWN = 0;
 
     // "Meter" unit for pHYs chunk
-    /** Phys_unit_节拍 */
+    /**
+     * Phys_unit_节拍
+    */
     public static final int PHYS_UNIT_METER = 1;
 
  // Unit specifiers for phys chunk
@@ -127,33 +131,57 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     };
 
     // IHDR chunk
-    /** Ihdr_present */
+    /**
+     * Ihdr_present
+    */
     public boolean IHDR_present;
-    /** Ihdr_width */
+    /**
+     * Ihdr_width
+    */
     public int IHDR_width;
-    /** Ihdr_height */
+    /**
+     * Ihdr_height
+    */
     public int IHDR_height;
-    /** IHDR 位深度 */
+    /**
+     * IHDR 位深度
+    */
     public int IHDR_bitDepth;
-    /** Ihdr_color类型 */
+    /**
+     * Ihdr_color类型
+    */
     public int IHDR_colorType;
-    /** Ihdr_compressionmethod */
+    /**
+     * Ihdr_compressionmethod
+    */
     public int IHDR_compressionMethod;
-    /** Ihdr_filtermethod */
+    /**
+     * Ihdr_filtermethod
+    */
     public int IHDR_filterMethod;
         // 0 == none, 1 == adam7
         // ;
-        /** Ihdr_interlacemethod */
+        /**
+         * Ihdr_interlacemethod
+        */
         public int IHDR_interlaceMethod;
 
     // PLTE chunk
-    /** Plte_present */
+    /**
+     * Plte_present
+    */
     public boolean PLTE_present;
-    /** Plte_R */
+    /**
+     * Plte_R
+    */
     public byte[] PLTE_red;
-    /** Plte_green */
+    /**
+     * Plte_green
+    */
     public byte[] PLTE_green;
-    /** Plte_blue */
+    /**
+     * Plte_blue
+    */
     public byte[] PLTE_blue;
 
  // 若非 null,则在编码过程中用于对调色板条目重新排序
@@ -161,203 +189,355 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     // 'i' 应编码为索引 'PLTE_order[i]'。
     // 除非 'initialize' 被传入
  // 索引颜色模型，否则 PLTE_order 为 null。
-    /** Plte_订单 */
+    /**
+     * Plte_订单
+    */
     public int[] PLTE_order = null;
 
  // bkgd chunk
     // 若外部（非 PNG 来源）数据满足 red = green = blue，
  // 则始终按 gray 存储，并在写出时做类型提升
-    /** Bkgd_present */
+    /**
+     * Bkgd_present
+    */
     public boolean bKGD_present;
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
     // ;
-    /** Bkgd_color类型 */
+    /**
+     * Bkgd_color类型
+    */
     public int bKGD_colorType;
-    /** Bkgd_索引 */
+    /**
+     * Bkgd_索引
+    */
     public int bKGD_index;
-    /** Bkgd_gray */
+    /**
+     * Bkgd_gray
+    */
     public int bKGD_gray;
-    /** Bkgd_R */
+    /**
+     * Bkgd_R
+    */
     public int bKGD_red;
-    /** Bkgd_green */
+    /**
+     * Bkgd_green
+    */
     public int bKGD_green;
-    /** Bkgd_blue */
+    /**
+     * Bkgd_blue
+    */
     public int bKGD_blue;
 
  // chrm chunk
-    /** Chrm_present */
+    /**
+     * Chrm_present
+    */
     public boolean cHRM_present;
-    /** Chrm_whitepointx坐标 */
+    /**
+     * Chrm_whitepointx坐标
+    */
     public int cHRM_whitePointX;
-    /** Chrm_whitepointy坐标 */
+    /**
+     * Chrm_whitepointy坐标
+    */
     public int cHRM_whitePointY;
-    /** Chrm_Rx坐标 */
+    /**
+     * Chrm_Rx坐标
+    */
     public int cHRM_redX;
-    /** Chrm_Ry坐标 */
+    /**
+     * Chrm_Ry坐标
+    */
     public int cHRM_redY;
-    /** Chrm_greenx坐标 */
+    /**
+     * Chrm_greenx坐标
+    */
     public int cHRM_greenX;
-    /** Chrm_greeny坐标 */
+    /**
+     * Chrm_greeny坐标
+    */
     public int cHRM_greenY;
-    /** Chrm_bluex坐标 */
+    /**
+     * Chrm_bluex坐标
+    */
     public int cHRM_blueX;
-    /** Chrm_bluey坐标 */
+    /**
+     * Chrm_bluey坐标
+    */
     public int cHRM_blueY;
 
  // gama chunk
-    /** Gama_present */
+    /**
+     * Gama_present
+    */
     public boolean gAMA_present;
-    /** Gama_gamma */
+    /**
+     * Gama_gamma
+    */
     public int gAMA_gamma;
 
  // hist chunk
-    /** Hist_present */
+    /**
+     * Hist_present
+    */
     public boolean hIST_present;
-    /** Hist_histogram */
+    /**
+     * Hist_histogram
+    */
     public char[] hIST_histogram;
 
  // iccp chunk
-    /** Iccp_present */
+    /**
+     * Iccp_present
+    */
     public boolean iCCP_present;
-    /** Iccp_配置文件名称 */
+    /**
+     * Iccp_配置文件名称
+    */
     public String iCCP_profileName;
-    /** Iccp_compressionmethod */
+    /**
+     * Iccp_compressionmethod
+    */
     public int iCCP_compressionMethod;
-    /** Iccp_compressed配置文件 */
+    /**
+     * Iccp_compressed配置文件
+    */
     public byte[] iCCP_compressedProfile;
 
  // cicp chunk
-    /** Cicp_present */
+    /**
+     * Cicp_present
+    */
     public boolean cICP_present;
-    /** Cicp_colourprimaries */
+    /**
+     * Cicp_colourprimaries
+    */
     public int cICP_colourPrimaries;
-    /** Cicp_transferfunction */
+    /**
+     * Cicp_transferfunction
+    */
     public int cICP_transferFunction;
-    /** Cicp_matrixcoefficients */
+    /**
+     * Cicp_matrixcoefficients
+    */
     public int cICP_matrixCoefficients;
-    /** Cicp_videofullrange标记 */
+    /**
+     * Cicp_videofullrange标记
+    */
     public boolean cICP_videoFullRangeFlag;
 
  // exif chunk
-    /** Exif_present */
+    /**
+     * Exif_present
+    */
     public boolean eXIf_present;
-    /** Exif_数据 */
+    /**
+     * Exif_数据
+    */
     public byte[] eXIf_data;
 
  // itxt chunk
-    /** Itxt_keyword */
+    /**
+     * Itxt_keyword
+    */
     public ArrayList<String> iTXt_keyword = new ArrayList<String>();
-    /** Itxt_compression标记 */
+    /**
+     * Itxt_compression标记
+    */
     public ArrayList<Boolean> iTXt_compressionFlag = new ArrayList<Boolean>();
-    /** Itxt_compressionmethod */
+    /**
+     * Itxt_compressionmethod
+    */
     public ArrayList<Integer> iTXt_compressionMethod = new ArrayList<Integer>();
-    /** Itxt_language标签 */
+    /**
+     * Itxt_language标签
+    */
     public ArrayList<String> iTXt_languageTag = new ArrayList<String>();
-    /** Itxt_translatedkeyword */
+    /**
+     * Itxt_translatedkeyword
+    */
     public ArrayList<String> iTXt_translatedKeyword = new ArrayList<String>();
-    /** Itxt_文本 */
+    /**
+     * Itxt_文本
+    */
     public ArrayList<String> iTXt_text = new ArrayList<String>();
 
  // phys chunk
-    /** Phys_present */
+    /**
+     * Phys_present
+    */
     public boolean pHYs_present;
-    /** Phys_pixelsper单位xaxis */
+    /**
+     * Phys_pixelsper单位xaxis
+    */
     public int pHYs_pixelsPerUnitXAxis;
-    /** Phys_pixelsper单位yaxis */
+    /**
+     * Phys_pixelsper单位yaxis
+    */
     public int pHYs_pixelsPerUnitYAxis;
         // 0 == unknown, 1 == meter
         // ;
-        /** Phys_unitspecifier */
+        /**
+         * Phys_unitspecifier
+        */
         public int pHYs_unitSpecifier;
 
  // sBIT chunk
-    /** Sbit_present */
+    /**
+     * Sbit_present
+    */
     public boolean sBIT_present;
         // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
         // ;
-        /** Sbit_color类型 */
+        /**
+         * Sbit_color类型
+        */
         public int sBIT_colorType;
-    /** Sbit_graybits */
+    /**
+     * Sbit_graybits
+    */
     public int sBIT_grayBits;
-    /** Sbit_redbits */
+    /**
+     * Sbit_redbits
+    */
     public int sBIT_redBits;
-    /** Sbit_greenbits */
+    /**
+     * Sbit_greenbits
+    */
     public int sBIT_greenBits;
-    /** Sbit_bluebits */
+    /**
+     * Sbit_bluebits
+    */
     public int sBIT_blueBits;
-    /** Sbit_alphabits */
+    /**
+     * Sbit_alphabits
+    */
     public int sBIT_alphaBits;
 
  // splt chunk
-    /** Splt_present */
+    /**
+     * Splt_present
+    */
     public boolean sPLT_present;
         // 1-79 characters
         // ;
-        /** Splt_palette名称 */
+        /**
+         * Splt_palette名称
+        */
         public String sPLT_paletteName;
  // 8 或 16
         // ;
-        /** Splt_样本深度 */
+        /**
+         * Splt_样本深度
+        */
         public int sPLT_sampleDepth;
-    /** Splt_R */
+    /**
+     * Splt_R
+    */
     public int[] sPLT_red;
-    /** Splt_green */
+    /**
+     * Splt_green
+    */
     public int[] sPLT_green;
-    /** Splt_blue */
+    /**
+     * Splt_blue
+    */
     public int[] sPLT_blue;
-    /** Splt_alpha */
+    /**
+     * Splt_alpha
+    */
     public int[] sPLT_alpha;
-    /** Splt_频率 */
+    /**
+     * Splt_频率
+    */
     public int[] sPLT_frequency;
 
  // srgb chunk
-    /** Srgb_present */
+    /**
+     * Srgb_present
+    */
     public boolean sRGB_present;
-    /** Srgb_renderingintent */
+    /**
+     * Srgb_renderingintent
+    */
     public int sRGB_renderingIntent;
 
  // 文本 chunk
     // 1-79 characters
     // ;
-    /** 文本_keyword */
+    /**
+     * 文本_keyword
+    */
     public ArrayList<String> tEXt_keyword = new ArrayList<String>();
-    /** 文本_文本 */
+    /**
+     * 文本_文本
+    */
     public ArrayList<String> tEXt_text = new ArrayList<String>();
 
  // 时间块。给出图像的修改时间。
-    /** 时间_present */
+    /**
+     * 时间_present
+    */
     public boolean tIME_present;
-    /** 时间_year */
+    /**
+     * 时间_year
+    */
     public int tIME_year;
-    /** 时间_month */
+    /**
+     * 时间_month
+    */
     public int tIME_month;
-    /** 时间_day */
+    /**
+     * 时间_day
+    */
     public int tIME_day;
-    /** 时间_hour */
+    /**
+     * 时间_hour
+    */
     public int tIME_hour;
-    /** 时间_minute */
+    /**
+     * 时间_minute
+    */
     public int tIME_minute;
-    /** 时间_second */
+    /**
+     * 时间_second
+    */
     public int tIME_second;
 
  // 指定元数据是否包含镜像创建时间
-    /** 创建_时间_present */
+    /**
+     * 创建_时间_present
+    */
     public boolean creation_time_present;
 
  // 构成标准/文档/镜像创建时间的各个字段值。
-    /** 创建_时间_year */
+    /**
+     * 创建_时间_year
+    */
     public int creation_time_year;
-    /** 创建_时间_month */
+    /**
+     * 创建_时间_month
+    */
     public int creation_time_month;
-    /** 创建_时间_day */
+    /**
+     * 创建_时间_day
+    */
     public int creation_time_day;
-    /** 创建_时间_hour */
+    /**
+     * 创建_时间_hour
+    */
     public int creation_time_hour;
-    /** 创建_时间_minute */
+    /**
+     * 创建_时间_minute
+    */
     public int creation_time_minute;
-    /** 创建_时间_second */
+    /**
+     * 创建_时间_second
+    */
     public int creation_time_second;
-    /** 创建_时间_偏移 */
+    /**
+     * 创建_时间_偏移
+    */
     public ZoneOffset creation_time_offset;
 
     /*
@@ -379,86 +559,148 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * RFC1123 格式化编码。通过更新文本块的数据结构,
     * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
     */
-    /** tEXtcreation时间present */
+    /**
+     * tEXtcreation时间present
+    */
     public boolean tEXt_creation_time_present;
-    /** 文本_创建_时间_iter */
+    /**
+     * 文本_创建_时间_iter
+    */
     private ListIterator<String> tEXt_creation_time_iter = null;
-    /** 文本_创建时间密钥 */
+    /**
+     * 文本_创建时间密钥
+    */
     public static final String tEXt_creationTimeKey = "Creation Time";
 
  // trns chunk
     // 若外部（非 PNG 来源）数据满足 red = green = blue，
  // 则始终按 gray 存储，并在写出时做类型提升
-/** Trns_present */
+/**
+ * Trns_present
+*/
 public boolean tRNS_present;
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
     // ;
-    /** Trns_color类型 */
+    /**
+     * Trns_color类型
+    */
     public int tRNS_colorType;
  // 条目数可能少于 PLTE_R 等表
     // ;
-    /** Trns_alpha */
+    /**
+     * Trns_alpha
+    */
     public byte[] tRNS_alpha;
-    /** Trns_gray */
+    /**
+     * Trns_gray
+    */
     public int tRNS_gray;
-    /** Trns_R */
+    /**
+     * Trns_R
+    */
     public int tRNS_red;
-    /** Trns_green */
+    /**
+     * Trns_green
+    */
     public int tRNS_green;
-    /** Trns_blue */
+    /**
+     * Trns_blue
+    */
     public int tRNS_blue;
 
  // ztxt chunk
-    /** Z 轴txt_keyword */
+    /**
+     * Z 轴txt_keyword
+    */
     public ArrayList<String> zTXt_keyword = new ArrayList<String>();
-    /** Z 轴txt_compressionmethod */
+    /**
+     * Z 轴txt_compressionmethod
+    */
     public ArrayList<Integer> zTXt_compressionMethod = new ArrayList<Integer>();
-    /** Z 轴txt_文本 */
+    /**
+     * Z 轴txt_文本
+    */
     public ArrayList<String> zTXt_text = new ArrayList<String>();
 
  // actl chunk
-    /** actl_present */
+    /**
+     * actl_present
+    */
     public boolean acTL_present;
-    /** actl_num_frames */
+    /**
+     * actl_num_frames
+    */
     public int acTL_num_frames;
-    /** actl_num_plays */
+    /**
+     * actl_num_plays
+    */
     public int acTL_num_plays;
 
  // fcTL chunk
-    /** fctl_present */
+    /**
+     * fctl_present
+    */
     public boolean fcTL_present;
-    /** fctl_sequence_数字 */
+    /**
+     * fctl_sequence_数字
+    */
     public int fcTL_sequence_number;
-    /** fctl_width */
+    /**
+     * fctl_width
+    */
     public int fcTL_width;
-    /** fctl_height */
+    /**
+     * fctl_height
+    */
     public int fcTL_height;
-    /** fcTL x 偏移 */
+    /**
+     * fcTL x 偏移
+    */
     public int fcTL_x_offset;
-    /** fcTL y 偏移 */
+    /**
+     * fcTL y 偏移
+    */
     public int fcTL_y_offset;
-    /** fctl_延迟_num */
+    /**
+     * fctl_延迟_num
+    */
     public int fcTL_delay_num;
-    /** fctl_延迟_den */
+    /**
+     * fctl_延迟_den
+    */
     public int fcTL_delay_den;
-    /** fctl_dispose_op */
+    /**
+     * fctl_dispose_op
+    */
     public int fcTL_dispose_op;
-    /** fctl_blend_op */
+    /**
+     * fctl_blend_op
+    */
     public int fcTL_blend_op;
 
  // fdat chunk
-    /** fdat_present */
+    /**
+     * fdat_present
+    */
     public boolean fdAT_present;
-    /** fdat_sequence_数字 */
+    /**
+     * fdat_sequence_数字
+    */
     public int fdAT_sequence_number;
 
     // Unknown chunks
-    /** Unknownchunk类型 */
+    /**
+     * Unknownchunk类型
+    */
     public ArrayList<String> unknownChunkType = new ArrayList<String>();
-    /** Unknownchunk数据 */
+    /**
+     * Unknownchunk数据
+    */
     public ArrayList<byte[]> unknownChunkData = new ArrayList<byte[]>();
 
-    /** 创建 pngmetadata 实例 */
+    /**
+     * 创建 pngmetadata 实例
+    */
     public PNGMetadata() {
         super(true,
               nativeMetadataFormatName,
@@ -1532,7 +1774,9 @@ public boolean tRNS_present;
     }
 
  // Shorthand for 抛出 an iioinvalid树异常
-    /** Fatal */
+    /**
+     * Fatal
+    */
     private static void fatal(Node node, String reason)
         throws IIOInvalidTreeException {
         throw new IIOInvalidTreeException(reason, node);
@@ -1577,14 +1821,18 @@ public boolean tRNS_present;
     }
 
  // 获取 a required integer-值 attribute
-    /** 获取intattribute */
+    /**
+     * 获取intattribute
+    */
     private static int getIntAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getIntAttribute(node, name, -1, true);
     }
 
  // 获取 a required float-值 attribute
-    /** 获取floatattribute */
+    /**
+     * 获取floatattribute
+    */
     private static float getFloatAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getFloatAttribute(node, name, -1.0F, true);
@@ -1616,7 +1864,9 @@ public boolean tRNS_present;
     }
 
  // 获取 a required 布尔值-值 attribute
-    /** 获取布尔值attribute */
+    /**
+     * 获取布尔值attribute
+    */
     private static boolean getBooleanAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getBooleanAttribute(node, name, false, true);
@@ -1669,7 +1919,9 @@ public boolean tRNS_present;
     }
 
  // 获取 a required 字符串-值 attribute
-    /** 获取Attribute */
+    /**
+     * 获取Attribute
+    */
     private static String getAttribute(Node node, String name)
         throws IIOInvalidTreeException {
             return getAttribute(node, name, null, true);
@@ -1741,7 +1993,9 @@ public boolean tRNS_present;
         return intValue;
     }
 
-    /** 合并树 */
+    /**
+     * 合并树
+    */
     public void mergeTree(String formatName, Node root)
         throws IIOInvalidTreeException {
         if (formatName.equals(nativeMetadataFormatName)) {
@@ -1760,7 +2014,9 @@ public boolean tRNS_present;
         }
     }
 
-    /** 合并NAT树 */
+    /**
+     * 合并NAT树
+    */
     private void mergeNativeTree(Node root)
         throws IIOInvalidTreeException {
         Node node = root;
@@ -2367,7 +2623,9 @@ public boolean tRNS_present;
         return true;
     }
 
-    /** 合并标准树 */
+    /**
+     * 合并标准树
+    */
     private void mergeStandardTree(Node root)
         throws IIOInvalidTreeException {
         Node node = root;
@@ -2868,7 +3126,9 @@ public boolean tRNS_present;
     }
 
  // 将所有实例变量重置为初始状态
-    /** 重置 */
+    /**
+     * 重置
+    */
     public void reset() {
         IHDR_present = false;
         PLTE_present = false;

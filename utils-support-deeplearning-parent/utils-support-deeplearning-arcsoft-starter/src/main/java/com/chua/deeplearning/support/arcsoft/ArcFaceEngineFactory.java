@@ -13,7 +13,9 @@ import com.arcsoft.face.FaceEngine;
  */
 public final class ArcFaceEngineFactory {
 
-    /** 创建 arcfaceengine工厂 实例 */
+    /**
+     * 创建 arcfaceengine工厂 实例
+    */
     private ArcFaceEngineFactory() {
     }
 

@@ -32,19 +32,33 @@ import java.util.TreeMap;
  */
 public class TcpServerResponse implements ServerResponse {
 
-    /** 状态码，默认 200 */
+    /**
+     * 状态码，默认 200
+    */
     private int statusCode = 200;
-    /** 响应头（大小写不敏感） */
+    /**
+     * 响应头（大小写不敏感）
+    */
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    /** 响应体 */
+    /**
+     * 响应体
+    */
     private byte[] body;
-    /** 是否已终止 */
+    /**
+     * 是否已终止
+    */
     private boolean ended;
-    /** 输出缓冲（OutputStream 写入路径用） */
+    /**
+     * 输出缓冲（OutputStream 写入路径用）
+    */
     private ByteArrayOutputStream output;
-    /** SSE 模式开关 */
+    /**
+     * SSE 模式开关
+    */
     private boolean sseMode;
-    /** 原始结果对象 */
+    /**
+     * 原始结果对象
+    */
     private Object result;
 
     @Override

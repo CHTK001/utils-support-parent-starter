@@ -85,7 +85,9 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 保存Bytes */
+    /**
+     * 保存Bytes
+    */
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         try {
             ensureParentPath(key);
@@ -98,7 +100,9 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 加载Bytes */
+    /**
+     * 加载Bytes
+    */
     public Optional<byte[]> loadBytes(String key) {
         try {
             InputStream is = sardine.get(fullUrl(key));
@@ -112,7 +116,9 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public boolean delete(String key) {
         try {
             sardine.delete(fullUrl(key));
@@ -124,7 +130,9 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             sardine.shutdown();

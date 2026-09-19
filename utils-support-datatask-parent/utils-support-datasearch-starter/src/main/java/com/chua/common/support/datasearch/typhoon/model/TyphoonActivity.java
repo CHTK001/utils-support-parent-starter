@@ -15,51 +15,83 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TyphoonActivity {
 
-    /** 台风编号（如 202618） */
+    /**
+     * 台风编号（如 202618）
+    */
     private String tfid;
 
-    /** 中文名 */
+    /**
+     * 中文名
+    */
     private String name;
 
-    /** 英文名 */
+    /**
+     * 英文名
+    */
     private String enname;
 
-    /** 中心纬度 */
+    /**
+     * 中心纬度
+    */
     private String lat;
 
-    /** 中心经度 */
+    /**
+     * 中心经度
+    */
     private String lng;
 
-    /** 强度等级（如 热带低压、热带风暴） */
+    /**
+     * 强度等级（如 热带低压、热带风暴）
+    */
     private String strong;
 
-    /** 风力（级） */
+    /**
+     * 风力（级）
+    */
     private String power;
 
-    /** 中心气压（hpa） */
+    /**
+     * 中心气压（hpa）
+    */
     private String pressure;
 
-    /** 风速（米/秒） */
+    /**
+     * 风速（米/秒）
+    */
     private String speed;
 
-    /** 移动方向 */
+    /**
+     * 移动方向
+    */
     private String movedirection;
 
-    /** 移动速度（公里/小时） */
+    /**
+     * 移动速度（公里/小时）
+    */
     private String movespeed;
 
-    /** 7 级风圈半径（公里） */
+    /**
+     * 7 级风圈半径（公里）
+    */
     private String radius7;
 
-    /** 10 级风圈半径（公里） */
+    /**
+     * 10 级风圈半径（公里）
+    */
     private String radius10;
 
-    /** 预警级别 */
+    /**
+     * 预警级别
+    */
     private String warnlevel;
 
-    /** 观测时间 */
+    /**
+     * 观测时间
+    */
     private String time;
 
-    /** 观测时间（中文格式） */
+    /**
+     * 观测时间（中文格式）
+    */
     private String timeformate;
 }

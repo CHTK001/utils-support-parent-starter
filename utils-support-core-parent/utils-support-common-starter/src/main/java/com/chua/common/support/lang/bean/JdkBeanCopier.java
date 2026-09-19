@@ -46,13 +46,17 @@ public class JdkBeanCopier implements BeanCopier {
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> WRITE_CACHE = new ConcurrentHashMap<>();
 
     @Override
-    /** 复制Properties */
+    /**
+     * 复制Properties
+    */
     public void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String[]) null);
     }
 
     @Override
-    /** 复制Properties */
+    /**
+     * 复制Properties
+    */
     public void copyProperties(Object source, Object target, String... ignoreProperties) {
         if (source == null || target == null) {
             return;
@@ -96,7 +100,9 @@ public class JdkBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 复制Properties */
+    /**
+     * 复制Properties
+    */
     public void copyProperties(Map<String, Object> sourceMap, Object target) {
         if (sourceMap == null || target == null) {
             return;
@@ -126,7 +132,9 @@ public class JdkBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 复制Properties */
+    /**
+     * 复制Properties
+    */
     public void copyProperties(Object source, Map<String, Object> target) {
         if (source == null || target == null) {
             return;

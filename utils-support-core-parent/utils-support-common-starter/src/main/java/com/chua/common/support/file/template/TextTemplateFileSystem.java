@@ -19,11 +19,15 @@ import java.util.regex.Pattern;
 @Spi({"txt", "xml", "html"})
 public class TextTemplateFileSystem implements TemplateFileSystem {
 
-    /** 占位符正则：匹配 #{单词.单词}# 格式 */
+    /**
+     * 占位符正则：匹配 #{单词.单词}# 格式
+    */
     private static final Pattern PLACEHOLDER = Pattern.compile("#([\\w.]+)#");
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public void resolve(InputStream inputStream, OutputStream outputStream, Map<String, Object> templateData) {
         try {
             String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);

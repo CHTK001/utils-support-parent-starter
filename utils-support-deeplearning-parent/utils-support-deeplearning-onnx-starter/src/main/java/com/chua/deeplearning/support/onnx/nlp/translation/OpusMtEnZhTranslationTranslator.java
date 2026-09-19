@@ -16,7 +16,9 @@ public class OpusMtEnZhTranslationTranslator extends OpusMtTranslationTranslator
      */
     private static final String RESOURCE_BASE = "nlp/translation/opus_mt_en_zh/";
 
-    /** 创建 opusmtenzh翻译translator 实例 */
+    /**
+     * 创建 opusmtenzh翻译translator 实例
+    */
     public OpusMtEnZhTranslationTranslator() {
         super("opus-mt-en-zh", RESOURCE_BASE, null);
     }

@@ -28,7 +28,9 @@ public class MetadataDownloader {
          */
         public String name;
 
-        /** 创建 metadata结果 实例 */
+        /**
+         * 创建 metadata结果 实例
+        */
         public MetadataResult() {
             this.ok = false;
             this.name = null;

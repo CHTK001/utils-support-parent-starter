@@ -23,31 +23,49 @@ import java.util.Map;
  */
 public final class ServerAttribute {
 
-    /** 反向代理后端目标地址 (host:port) */
+    /**
+     * 反向代理后端目标地址 (host:port)
+    */
     public static final String BACKEND_ADDRESS = "__backend_address";
 
-    /** 反向代理后端协议 (http/https) */
+    /**
+     * 反向代理后端协议 (http/https)
+    */
     public static final String BACKEND_SCHEME = "__backend_scheme";
 
-    /** 反向代理后端主机 */
+    /**
+     * 反向代理后端主机
+    */
     public static final String BACKEND_HOST = "__backend_host";
 
-    /** 反向代理后端端口 */
+    /**
+     * 反向代理后端端口
+    */
     public static final String BACKEND_PORT = "__backend_port";
 
-    /** 反向代理后端完整 URI */
+    /**
+     * 反向代理后端完整 URI
+    */
     public static final String BACKEND_URI = "__backend_uri";
 
-    /** 匹配的 Ant 路由模式 */
+    /**
+     * 匹配的 Ant 路由模式
+    */
     public static final String ROUTE_PATTERN = "__route_pattern";
 
-    /** 路径模板变量集 ({@code {var} -> value}) */
+    /**
+     * 路径模板变量集 ({@code {var} -> value})
+    */
     public static final String PATH_VARIABLES = "__path_variables";
 
-    /** 已认证用户标识 */
+    /**
+     * 已认证用户标识
+    */
     public static final String AUTH_PRINCIPAL = "__auth_principal";
 
-    /** 原始请求路径（重写前） */
+    /**
+     * 原始请求路径（重写前）
+    */
     public static final String ORIGINAL_PATH = "__original_path";
 
     /**
@@ -60,7 +78,9 @@ public final class ServerAttribute {
      */
     public static final String VERTX_ROUTING_CONTEXT = "__vertx_routing_context";
 
-    /** 创建 ServerAttribute 实例 */
+    /**
+     * 创建 ServerAttribute 实例
+    */
     private ServerAttribute() {
     }
 

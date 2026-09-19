@@ -77,7 +77,9 @@ public class ModelDefinition {
      * 货币单位
      */
     @Builder.Default
-    /** Currency */
+    /**
+     * Currency
+    */
     private String currency = "USD";
 
     /**

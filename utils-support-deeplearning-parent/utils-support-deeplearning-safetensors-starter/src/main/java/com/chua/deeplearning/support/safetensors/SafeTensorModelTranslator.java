@@ -49,7 +49,9 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }

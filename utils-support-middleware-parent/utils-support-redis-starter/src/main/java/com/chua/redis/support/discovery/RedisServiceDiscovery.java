@@ -23,7 +23,9 @@ import java.util.*;
 @Spi("redis")
 public class RedisServiceDiscovery extends AbstractServiceDiscovery {
 
-    /** Redisson客户端 */
+    /**
+     * Redisson客户端
+    */
     private RedissonClient redissonClient;
 
 
@@ -46,7 +48,9 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         Config config = new Config();
         config.useSingleServer().setAddress(discoveryOption.getAddress());
@@ -54,7 +58,9 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 注册服务 */
+    /**
+     * 注册服务
+    */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixedPath = addClusterPrefix(path);
         discovery.setUriSpec(prefixedPath);
@@ -68,7 +74,9 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行注销 */
+    /**
+     * 执行注销
+    */
     protected void doUnregister(String path, Discovery discovery) {
         String mapKey = "discovery:" + path;
         String entryKey = discovery.getHost() + ":" + discovery.getPort();
@@ -77,7 +85,9 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行更新 */
+    /**
+     * 执行更新
+    */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String mapKey = "discovery:" + path;
         String entryKey = newDiscovery.getHost() + ":" + newDiscovery.getPort();
@@ -86,19 +96,25 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 是否支持订阅 */
+    /**
+     * 是否支持订阅
+    */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         log.warn("RedisServiceDiscovery subscribe is not fully implemented without Pub/Sub");
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (redissonClient != null) {
             redissonClient.shutdown();

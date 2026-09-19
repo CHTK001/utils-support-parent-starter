@@ -34,24 +34,32 @@ import java.util.Map;
 @Spi("benchmark-html")
 public class BenchmarkHtmlProvider implements DocumentProvider {
 
-    /** ECharts CDN 地址 */
+    /**
+     * ECharts CDN 地址
+    */
     private static final String ECHARTS_CDN =
             "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js";
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "benchmark-html";
     }
 
     @Override
-    /** 获取Extensions */
+    /**
+     * 获取Extensions
+    */
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
     @Override
-    /** Export */
+    /**
+     * Export
+    */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         if (!(data instanceof BenchmarkDocumentData benchmark)) {
             throw new IllegalArgumentException(

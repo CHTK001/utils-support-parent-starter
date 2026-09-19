@@ -19,7 +19,9 @@ public interface JoinStrategy {
      */
     String name();
 
-    /** 是否启用（none 默认不启用） */
+    /**
+     * 是否启用（none 默认不启用）
+    */
     default boolean enabled() { return false; }
 
     /**
@@ -30,7 +32,9 @@ public interface JoinStrategy {
      */
     List<Map<String, Object>> execute(JoinContext ctx);
 
-    /** JOIN 查询上下文 */
+    /**
+     * JOIN 查询上下文
+    */
     record JoinContext(
             String leftTable,
             List<Map<String, Object>> leftRows,

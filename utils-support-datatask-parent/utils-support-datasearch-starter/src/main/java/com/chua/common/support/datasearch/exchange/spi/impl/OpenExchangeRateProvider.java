@@ -31,15 +31,21 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
 
     private static final Logger log = LoggerFactory.getLogger(OpenExchangeRateProvider.class); // 日志
 
-    /** 缓存有效期（毫秒）：6 小时 */
+    /**
+     * 缓存有效期（毫秒）：6 小时
+    */
     private static final long CACHE_TTL_MILLIS = 6 * 60 * 60 * 1000L;
 
     private final ExchangeRateApi api = InvokerFactory.getInvoker("http").create(ExchangeRateApi.class); // api
 
-    /** 缓存的 USD 基准汇率表 */
+    /**
+     * 缓存的 USD 基准汇率表
+    */
     private volatile Map<String, Double> cachedRates = Collections.emptyMap();
 
-    /** 缓存时间戳 */
+    /**
+     * 缓存时间戳
+    */
     private volatile long cachedAt;
 
     @Override

@@ -29,7 +29,9 @@ import java.util.Map;
 public class DataSearchModelPricingProvider implements ModelPricingProvider {
 
     @Override
-    /** 获取模型pricing */
+    /**
+     * 获取模型pricing
+    */
     public ModelDefinition getModelPricing(String provider, String model) {
         if (provider == null || model == null) {
             return null;

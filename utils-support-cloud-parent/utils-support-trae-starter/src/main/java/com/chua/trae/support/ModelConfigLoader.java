@@ -18,10 +18,14 @@ import java.util.Optional;
  */
 public class ModelConfigLoader {
 
-    /** JSON 解析器，线程安全，可复用 */
+    /**
+     * JSON 解析器，线程安全，可复用
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 默认 类路径 资源名 */
+    /**
+     * 默认 类路径 资源名
+    */
     private static final String DEFAULT_RESOURCE = "/model-config.json";
 
     /**

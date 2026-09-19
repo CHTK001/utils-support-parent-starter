@@ -89,11 +89,15 @@ public final class Branch<T> {
      */
     private static final class Group {
 
-        /** 组内候选分支。 */
+        /**
+         * 组内候选分支。
+        */
         final List<Case> cases = new ArrayList<>();
     }
 
-    /** 阶段抽象。 */
+    /**
+     * 阶段抽象。
+    */
     private interface Stage {
     }
 
@@ -133,16 +137,24 @@ public final class Branch<T> {
     private record ProtectStage(CircuitBreakerFlow flow) implements Stage {
     }
 
-    /** 初始种子。 */
+    /**
+     * 初始种子。
+    */
     private final Object seed;
 
-    /** 已登记的阶段序列。 */
+    /**
+     * 已登记的阶段序列。
+    */
     private final List<Stage> stages = new ArrayList<>();
 
-    /** 当前未封组的条件组；空 表示无开放组。 */
+    /**
+     * 当前未封组的条件组；空 表示无开放组。
+    */
     private Group openGroup;
 
-    /** 是否已设置过任意条件分支（规范校验依据）。 */
+    /**
+     * 是否已设置过任意条件分支（规范校验依据）。
+    */
     private boolean hasCondition;
 
     /**
@@ -566,7 +578,9 @@ public final class Branch<T> {
      */
     public static final class WhenGroup<T, R> {
 
-        /** 宿主链（裸类型操作内部结构）。 */
+        /**
+         * 宿主链（裸类型操作内部结构）。
+        */
         private final Branch<R> owner;
 
         /**

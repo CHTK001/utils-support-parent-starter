@@ -35,13 +35,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HandPoseTranslator implements Translator<Image, float[]> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 224;
-    /** 关键点数量 */
+    /**
+     * 关键点数量
+    */
     private static final int NUM_KEYPOINTS = 21;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -68,7 +74,9 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // Identity: [1, 63]     21              3 (x,y,z)
         NDArray landmarks = list.getFirst();
@@ -97,7 +105,9 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

@@ -61,21 +61,37 @@ public class DateUtils {
      * 3
      */
     public static final int THIRD = 3;
-    /** One_day */
+    /**
+     * One_day
+    */
     public static final int ONE_DAY = 24 * 60 * 60;
-    /** One_hour */
+    /**
+     * One_hour
+    */
     public static final int ONE_HOUR = 60;
-    /** One_minute */
+    /**
+     * One_minute
+    */
     public static final int ONE_MINUTE = ONE_HOUR;
-    /** 准确_hours */
+    /**
+     * 准确_hours
+    */
     public static final int ACCURACY_HOURS = 4;
-    /** 准确_minutes */
+    /**
+     * 准确_minutes
+    */
     public static final int ACCURACY_MINUTES = 5;
-    /** 准确_seconds */
+    /**
+     * 准确_seconds
+    */
     public static final int ACCURACY_SECONDS = 6;
-    /** 准确_milliseconds */
+    /**
+     * 准确_milliseconds
+    */
     public static final int ACCURACY_MILLISECONDS = 7;
-    /** 准确_milliseconds_forced */
+    /**
+     * 准确_milliseconds_forced
+    */
     public static final int ACCURACY_MILLISECONDS_FORCED = 8;
     /**
      * Milliseconds per seconde
@@ -93,11 +109,17 @@ public class DateUtils {
      *                 24*60*60*1000;
      */
     public static final long MILLISECONDS_PER_DAY = 86400000;
-    /** Week */
+    /**
+     * Week
+    */
     public static final String WEEK = "week";
-    /** Week_day */
+    /**
+     * Week_day
+    */
     public static final int WEEK_DAY = 7;
-    /** 默认_zone_标识 */
+    /**
+     * 默认_zone_标识
+    */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
     /**
      * Hours per day.
@@ -159,15 +181,25 @@ public class DateUtils {
      * =====================================            ===============================================
      */
     private static final String YEAR = "year";
-    /** Month */
+    /**
+     * Month
+    */
     private static final String MONTH = "month";
-    /** DAY */
+    /**
+     * DAY
+    */
     private static final String DAY = "day";
-    /** Hour */
+    /**
+     * Hour
+    */
     private static final String HOUR = "hour";
-    /** Minute */
+    /**
+     * Minute
+    */
     private static final String MINUTE = "minute";
-    /** Second */
+    /**
+     * Second
+    */
     private static final String SECOND = "second";
     /**
      * Monday 常量
@@ -197,12 +229,16 @@ public class DateUtils {
      * Sunday 常量
      */
     private static final String SUNDAY = "SUNDAY";
-    /** 模式 */
+    /**
+     * 模式
+    */
     private static final Pattern PATTERN =
             Pattern.compile("([-+]?)P(?:([-+]?[0-9]+)D)?" +
                             "(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?",
                     Pattern.CASE_INSENSITIVE);
-    /** 日期_格式化 */
+    /**
+     * 日期_格式化
+    */
     private final static String[] DATE_FORMATS = {
             "yyyy-MM-dd'T'HH:mm:ss.SSS+08:00",
             "E M d H:m:s z yyyy",
@@ -238,7 +274,9 @@ public class DateUtils {
             "yyyy/MM",
             "yyyy   "
     };
-    /** 索引_not_found */
+    /**
+     * 索引_not_found
+    */
     private static final int INDEX_NOT_FOUND = -1;
     /**
      * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。

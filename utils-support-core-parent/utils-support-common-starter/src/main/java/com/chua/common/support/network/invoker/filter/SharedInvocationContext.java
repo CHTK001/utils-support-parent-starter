@@ -13,14 +13,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class SharedInvocationContext {
 
-    /** attributes */
+    /**
+     * attributes
+    */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-    /** defaultHeaders */
+    /**
+     * defaultHeaders
+    */
     private final Map<String, String> defaultHeaders = new ConcurrentHashMap<>();
-    /** Injectrules */
+    /**
+     * Injectrules
+    */
     private final List<InjectRule> injectRules = new CopyOnWriteArrayList<>();
 
-    /** InjectRule */
+    /**
+     * InjectRule
+    */
     public record InjectRule(String target, InjectCallback callback) {}
 
     /**
@@ -86,7 +94,9 @@ public class SharedInvocationContext {
         defaultHeaders.forEach(ctx::addHeader);
     }
 
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         attributes.clear();
         defaultHeaders.clear();

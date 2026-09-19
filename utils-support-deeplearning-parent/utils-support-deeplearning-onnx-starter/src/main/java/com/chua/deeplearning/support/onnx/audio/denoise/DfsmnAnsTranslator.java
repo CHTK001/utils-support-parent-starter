@@ -33,13 +33,19 @@ import java.util.Map;
 @Slf4j
 public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
 
-    /** 采样率 */
+    /**
+     * 采样率
+    */
     private static final int SAMPLE_RATE = 48000;
 
-    /** mel 数量 */
+    /**
+     * mel 数量
+    */
     private static final int N_MELS = 120;
 
-    /** mask 维度（FFT/2+1） */
+    /**
+     * mask 维度（FFT/2+1）
+    */
     private static final int N_MASK = 961;
 
     private static final String RESOURCE_BASE = "audio/denoise/dfsmn_ans/"; // RESOURCE_基础

@@ -68,19 +68,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ShardingV5Conversion implements DataSourceConversion {
 
-    /** 表配置 */
+    /**
+     * 表配置
+    */
     private final List<TableConfig> tableConfigs = new ArrayList<>();
-    /** 数据库配置 */
+    /**
+     * 数据库配置
+    */
     private final List<DbConfig> dbConfigs = new ArrayList<>();
-    /** 时间rangeconfigs */
+    /**
+     * 时间rangeconfigs
+    */
     private final List<TimeRangeConfig> timeRangeConfigs = new ArrayList<>();
-    /** algorithms */
+    /**
+     * algorithms
+    */
     private final Map<String, AlgorithmHolder> algorithms = new LinkedHashMap<>();
-    /** Autodiscover */
+    /**
+     * Autodiscover
+    */
     private boolean autoDiscover = true;
-    /** 缓存秒 */
+    /**
+     * 缓存秒
+    */
     private int cacheSeconds = -1;
-    /** 表缓存 */
+    /**
+     * 表缓存
+    */
     private TableCache tableCache;
 
     /**
@@ -202,7 +216,9 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment env) {
         if (dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个实际数据源");

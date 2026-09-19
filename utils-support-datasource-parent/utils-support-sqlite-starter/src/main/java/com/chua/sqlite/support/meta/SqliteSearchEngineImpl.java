@@ -22,7 +22,9 @@ import java.util.List;
  */
 public class SqliteSearchEngineImpl implements SearchEngine {
 
-    /** 引擎实例 */
+    /**
+     * 引擎实例
+    */
     private final SqliteEngine engine;
 
     /**

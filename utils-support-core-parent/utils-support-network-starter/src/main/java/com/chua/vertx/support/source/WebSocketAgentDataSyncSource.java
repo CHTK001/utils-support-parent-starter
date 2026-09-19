@@ -18,9 +18,13 @@ import java.util.Map;
  */
 public class WebSocketAgentDataSyncSource implements DataSyncSource {
 
-    /** Connection */
+    /**
+     * Connection
+    */
     private final com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection;
-    /** 来源标识 */
+    /**
+     * 来源标识
+    */
     private final String sourceId;
 
     /**
@@ -35,25 +39,33 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.INPUT;
     }
 
     @Override
-    /** 源标识 */
+    /**
+     * 源标识
+    */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** Agent标识 */
+    /**
+     * Agent标识
+    */
     public String agentId() {
         return connection.getAgentId();
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.defer(() -> {
             try {
@@ -75,13 +87,17 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 当前偏移量 */
+    /**
+     * 当前偏移量
+    */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(Flux<Map<String, Object>> data) {
         try {
             List<Map<String, Object>> rows = data.collectList().block();
@@ -101,7 +117,9 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 }

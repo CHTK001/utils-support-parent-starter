@@ -15,13 +15,21 @@ import java.util.Map;
 @Slf4j
 public class EvictionManager {
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final MeshConfig config;
-    /** 节点表 */
+    /**
+     * 节点表
+    */
     private final NodeTable nodeTable;
-    /** 本地服务器ID */
+    /**
+     * 本地服务器ID
+    */
     private final String localServerId;
-    /** Discovery */
+    /**
+     * Discovery
+    */
     private final PeerMeshDiscovery discovery;
 
     /**

@@ -38,7 +38,9 @@ public class PathTraversalServerFilter implements ServerFilter {
     private static final String ROOT_PATH = new File("").getAbsolutePath();
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null) {
@@ -63,13 +65,17 @@ public class PathTraversalServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 8;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "PathTraversalServerFilter";
     }

@@ -21,15 +21,21 @@ public class DefaultConfigureObjectContext implements ConfigureObjectContext {
     }
 
     @Override
-    /** 获取Bean */
+    /**
+     * 获取Bean
+    */
     public <T> T getBean(String name, Class<T> type) { return null; }
 
     @Override
-    /** 获取Bean的类型 */
+    /**
+     * 获取Bean的类型
+    */
     public <T> T getBeanOfType(Class<T> type) { return null; }
 
     @Override
-    /** 获取Bean的类型 */
+    /**
+     * 获取Bean的类型
+    */
     public <T> java.util.Map<String, T> getBeansOfType(Class<T> type) { return java.util.Collections.emptyMap(); }
 
     /**

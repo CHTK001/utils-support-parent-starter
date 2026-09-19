@@ -13,21 +13,33 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TyphoonLand {
 
-    /** 登陆地点 */
+    /**
+     * 登陆地点
+    */
     private String landaddress;
 
-    /** 登陆时间 */
+    /**
+     * 登陆时间
+    */
     private String landtime;
 
-    /** 登陆经度 */
+    /**
+     * 登陆经度
+    */
     private String lng;
 
-    /** 登陆纬度 */
+    /**
+     * 登陆纬度
+    */
     private String lat;
 
-    /** 登陆说明 */
+    /**
+     * 登陆说明
+    */
     private String info;
 
-    /** 登陆时强度 */
+    /**
+     * 登陆时强度
+    */
     private String strong;
 }

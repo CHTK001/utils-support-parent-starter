@@ -40,13 +40,17 @@ public class QuarkusServerHandlerAnnotationParser
         implements com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser {
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 10;
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if(!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();

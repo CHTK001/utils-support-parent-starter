@@ -102,19 +102,25 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Artifact */
+    /**
+     * Artifact
+    */
     public RuntimeArtifact artifact() {
         return artifact;
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public RuntimeStatus status() {
         return status.get();
     }
 
     @Override
-    /** Pid */
+    /**
+     * Pid
+    */
     public long pid() {
         Process p = processRef.get();
         if (p != null && p.isAlive()) {
@@ -124,7 +130,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public synchronized CmdResult start() {
         if (status.get() == RuntimeStatus.RUNNING) {
             return CmdResult.builder()
@@ -211,7 +219,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public synchronized CmdResult stop() {
  // 优先通过 SPI runtimelauncher 停止
         RuntimeLauncher launcher = RuntimeLauncher.find(artifact.getType().name());
@@ -253,14 +263,18 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** Restart */
+    /**
+     * Restart
+    */
     public synchronized CmdResult restart() {
         stop();
         return start();
     }
 
     @Override
-    /** 健康校验 */
+    /**
+     * 健康校验
+    */
     public CmdResult healthCheck() {
         String url = artifact.getHealthCheckUrl();
         String cmd = artifact.getHealthCheckCommand();
@@ -279,19 +293,25 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     @Override
-    /** 记录日志流 */
+    /**
+     * 记录日志流
+    */
     public LogStream logStream() {
         return logStream;
     }
 
     @Override
-    /** onexit */
+    /**
+     * onexit
+    */
     public CompletableFuture<CmdResult> onExit() {
         return onExitFuture;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         stop();
         logStream.close();
@@ -391,7 +411,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
         t.start();
     }
 
-    /** 停止记录日志Reader */
+    /**
+     * 停止记录日志Reader
+    */
     private void stopLogReader() {
         Thread t = this.logThread;
         if (t != null && t.isAlive()) {

@@ -35,36 +35,60 @@ import java.util.regex.PatternSyntaxException;
 @Slf4j
 public class WindowsEventLogProvider implements SystemLogProvider {
 
-    /** 源 */
+    /**
+     * 源
+    */
     private static final List<String> SOURCES = List.of("System", "Application", "Security");
 
-    /** Eventlog_sequential_读取 */
+    /**
+     * Eventlog_sequential_读取
+    */
     private static final int EVENTLOG_SEQUENTIAL_READ = 0x0001;
-    /** Eventlog_远期_读取 */
+    /**
+     * Eventlog_远期_读取
+    */
     private static final int EVENTLOG_FORWARDS_READ    = 0x0004;
-    /** Eventlog_seek_读取 */
+    /**
+     * Eventlog_seek_读取
+    */
     private static final int EVENTLOG_SEEK_READ        = 0x0002;
 
-    /** 缓冲_大小 */
+    /**
+     * 缓冲_大小
+    */
     private static final int BUFFER_SIZE = 65536;
 
-    /** 时间戳_formatter */
+    /**
+     * 时间戳_formatter
+    */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
 
-    /** 注册表 */
+    /**
+     * 注册表
+    */
     private final NativeFunctionRegistry registry;
 
-    /** 打开事件日志 */
+    /**
+     * 打开事件日志
+    */
     private volatile MethodHandle openEventLog;
-    /** 读取事件日志 */
+    /**
+     * 读取事件日志
+    */
     private volatile MethodHandle readEventLog;
-    /** 关闭事件日志 */
+    /**
+     * 关闭事件日志
+    */
     private volatile MethodHandle closeEventLog;
-    /** 获取数字的事件日志records */
+    /**
+     * 获取数字的事件日志records
+    */
     private volatile MethodHandle getNumberOfEventLogRecords;
-    /** 获取最后一个错误处理 */
+    /**
+     * 获取最后一个错误处理
+    */
     private volatile MethodHandle getLastErrorHandle;
 
     /**
@@ -91,7 +115,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 是否platform支持 */
+    /**
+     * 是否platform支持
+    */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isWindows() && registry != null;
@@ -99,7 +125,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public List<String> getSources() {
         
         return SOURCES;
@@ -107,7 +135,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             log.warn("WindowsEventLogProvider not supported on current platform");
@@ -344,7 +374,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     @SuppressWarnings("unchecked")
-    /** 绑定Functions */
+    /**
+     * 绑定Functions
+    */
     private void bindFunctions() {
         if (openEventLog == null) {
             synchronized (this) {

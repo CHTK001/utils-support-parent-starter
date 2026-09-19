@@ -49,19 +49,33 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, DetectedObjects> {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    /** 中文匹配正则 */
+    /**
+     * 中文匹配正则
+    */
     private static final Pattern CHINESE_PATTERN = Pattern.compile(".*[\\u4e00-\\u9fff].*");
-    /** 默认候选列表 */
+    /**
+     * 默认候选列表
+    */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "flower", "dog", "car");
-    /** 默认阈值 */
+    /**
+     * 默认阈值
+    */
     private static final double DEFAULT_THRESHOLD = 0.10d;
-    /** 默认 NMS 阈值 */
+    /**
+     * 默认 NMS 阈值
+    */
     private static final double DEFAULT_NMS_THRESHOLD = 0.50d;
-    /** 默认低信息方差 */
+    /**
+     * 默认低信息方差
+    */
     private static final double DEFAULT_LOW_INFO_VARIANCE = 25d;
-    /** 中文转英文映射表 */
+    /**
+     * 中文转英文映射表
+    */
     private static final Map<String, String> CHINESE_TO_ENGLISH;
 
     static {
@@ -77,48 +91,88 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         CHINESE_TO_ENGLISH = Collections.unmodifiableMap(mapping);
     }
 
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private final double threshold;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private final double nmsThreshold;
-    /** 请求的候选列表 */
+    /**
+     * 请求的候选列表
+    */
     private final List<String> requestedCandidates;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 候选输入标识 */
+    /**
+     * 候选输入标识
+    */
     private long[][] candidateInputIds = new long[0][];
-    /** 候选注意力掩码 */
+    /**
+     * 候选注意力掩码
+    */
     private long[][] candidateAttentionMasks = new long[0][];
-    /** 候选输出标签 */
+    /**
+     * 候选输出标签
+    */
     private List<String> candidateOutputLabels = DEFAULT_CANDIDATES;
-    /** 候选模型标签 */
+    /**
+     * 候选模型标签
+    */
     private List<String> candidateModelLabels = DEFAULT_CANDIDATES;
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private int inputWidth = 960;
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private int inputHeight = 960;
-    /** 图像均值数组 */
+    /**
+     * 图像均值数组
+    */
     private float[] imageMean = {0.48145466f, 0.4578275f, 0.40821073f};
-    /** 图像标准差数组 */
+    /**
+     * 图像标准差数组
+    */
     private float[] imageStd = {0.26862954f, 0.26130258f, 0.27577711f};
-    /** 重缩放系数 */
+    /**
+     * 重缩放系数
+    */
     private float rescaleFactor = 1f / 255f;
 
-    /** 是否为低信息图像 */
+    /**
+     * 是否为低信息图像
+    */
     private boolean lowInformationImage;
-    /** 原始宽度 */
+    /**
+     * 原始宽度
+    */
     private int originalWidth;
-    /** 原始高度 */
+    /**
+     * 原始高度
+    */
     private int originalHeight;
-    /** 缩放比例 */
+    /**
+     * 缩放比例
+    */
     private double resizeScale = 1d;
-    /** X 轴填充值 */
+    /**
+     * X 轴填充值
+    */
     private int padX;
-    /** Y 轴填充值 */
+    /**
+     * Y 轴填充值
+    */
     private int padY;
 
-    /** 创建 Owlv2zeroshotdetectortranslator 实例 */
+    /**
+     * 创建 Owlv2zeroshotdetectortranslator 实例
+    */
     public Owlv2ZeroShotDetectorTranslator() {
         this(DetectionConfiguration.DEFAULT);
     }
@@ -135,7 +189,9 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         tokenizer = HuggingFaceTokenizer.builder()
@@ -283,7 +339,9 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         rescaleFactor = (float) root.path("rescale_factor").asDouble(1d / 255d);
     }
 
-    /** 解析Candidates */
+    /**
+     * 解析Candidates
+    */
     private void resolveCandidates() {
         List<String> source = requestedCandidates.isEmpty() ? DEFAULT_CANDIDATES : requestedCandidates;
         LinkedHashMap<String, String> normalized = new LinkedHashMap<>();
@@ -319,7 +377,9 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
         return mapped;
     }
 
-    /** 构建文本输入 */
+    /**
+     * 构建文本输入
+    */
     private void buildTextInputs() {
         List<long[]> idsList = new ArrayList<>(candidateModelLabels.size());
         int maxLength = 1;

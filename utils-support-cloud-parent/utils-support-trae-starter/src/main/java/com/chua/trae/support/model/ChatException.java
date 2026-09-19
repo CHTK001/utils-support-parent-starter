@@ -10,7 +10,9 @@ import java.util.Objects;
  * @since 4.0.0.42
  */
 public class ChatException extends Exception {
-    /** HTTP 状态码，0 表示非 HTTP 错误（如 SSE 内错误事件） */
+    /**
+     * HTTP 状态码，0 表示非 HTTP 错误（如 SSE 内错误事件）
+    */
     private final int statusCode;
 
     /**

@@ -22,7 +22,9 @@ import java.util.List;
 @Slf4j
 public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
 
-    /** 人脸引擎 */
+    /**
+     * 人脸引擎
+    */
     private final FaceEngine faceEngine;
 
     /**
@@ -34,13 +36,17 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "arcface-feature";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public float[] translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

@@ -27,16 +27,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Spi("nats")
 public class NatsDispatcherProvider extends AbstractDispatcherProvider {
 
-    /** NATS 连接 */
+    /**
+     * NATS 连接
+    */
     private Connection connection;
 
-    /** NATS 分发器 */
+    /**
+     * NATS 分发器
+    */
     private Dispatcher dispatcher;
 
-    /** 主题与订阅定义列表的映射 */
+    /**
+     * 主题与订阅定义列表的映射
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
-    /** 是否已关闭 */
+    /**
+     * 是否已关闭
+    */
     private volatile boolean closed = false;
 
     /**
@@ -48,7 +56,9 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             var options = new Options.Builder()
@@ -76,7 +86,9 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         if (connection == null || connection.getStatus() != Connection.Status.CONNECTED) {
             log.warn("NATS 未连接，无法发布消息到: {}", topic);
@@ -87,7 +99,9 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
@@ -98,7 +112,9 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -115,7 +131,9 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         try {

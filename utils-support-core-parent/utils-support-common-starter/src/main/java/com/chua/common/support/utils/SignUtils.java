@@ -74,7 +74,9 @@ public class SignUtils {
     private static final Set<String> WECHAT_EXCLUDE_KEYS = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList("sign", "sign_type")));
 
-    /** 创建 标志工具 实例 */
+    /**
+     * 创建 标志工具 实例
+    */
     private SignUtils() {
     }
 

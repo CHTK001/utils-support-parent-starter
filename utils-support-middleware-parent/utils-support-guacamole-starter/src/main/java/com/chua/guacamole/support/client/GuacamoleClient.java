@@ -60,48 +60,84 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class GuacamoleClient {
 
-    /** 默认 guacd 服务器地址（本机） */
+    /**
+     * 默认 guacd 服务器地址（本机）
+    */
     private static final String DEFAULT_GUACD_HOST = "127.0.0.1";
-    /** 默认 guacd 服务器端口 */
+    /**
+     * 默认 guacd 服务器端口
+    */
     private static final int DEFAULT_GUACD_PORT = 4822;
-    /** 默认 Web 前端地址（本机） */
+    /**
+     * 默认 Web 前端地址（本机）
+    */
     private static final String DEFAULT_WEB_HOST = "127.0.0.1";
-    /** 默认 Web 前端端口 */
+    /**
+     * 默认 Web 前端端口
+    */
     private static final int DEFAULT_WEB_PORT = 8080;
-    /** 默认 Web 上下文路径 */
+    /**
+     * 默认 Web 上下文路径
+    */
     private static final String DEFAULT_CONTEXT_PATH = "/guacamole";
-    /** 默认短 令牌 有效期（1 小时） */
+    /**
+     * 默认短 令牌 有效期（1 小时）
+    */
     private static final Duration DEFAULT_TOKEN_TTL = Duration.ofHours(1);
-    /** 短链 fragment 参数名 */
+    /**
+     * 短链 fragment 参数名
+    */
     private static final String TOKEN_FRAGMENT_PARAM = "token";
-    /** 令牌 随机字节数（16 位十六进制字符） */
+    /**
+     * 令牌 随机字节数（16 位十六进制字符）
+    */
     private static final int TOKEN_BYTES = 8;
-    /** 令牌 冲突重试上限 */
+    /**
+     * 令牌 冲突重试上限
+    */
     private static final int TOKEN_MAX_RETRY = 3;
-    /** 随机数生成器（线程安全） */
+    /**
+     * 随机数生成器（线程安全）
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
-    /** 十六进制格式化器 */
+    /**
+     * 十六进制格式化器
+    */
     private static final HexFormat HEX_FORMAT = HexFormat.of();
 
-    /** guacd 服务器地址 */
+    /**
+     * guacd 服务器地址
+    */
     @Getter
     private String guacdHost; // guacd主机
-    /** guacd 服务器端口 */
+    /**
+     * guacd 服务器端口
+    */
     @Getter
     private int guacdPort; // guacd端口
-    /** Web 前端地址 */
+    /**
+     * Web 前端地址
+    */
     @Getter
     private String webHost; // web主机
-    /** Web 前端端口 */
+    /**
+     * Web 前端端口
+    */
     @Getter
     private int webPort; // web端口
-    /** Web 上下文路径 */
+    /**
+     * Web 上下文路径
+    */
     @Getter
     private String contextPath; // 上下文路径
-    /** 短 令牌 有效期 */
+    /**
+     * 短 令牌 有效期
+    */
     @Getter
     private final Duration tokenTtl; // 令牌ttl
-    /** 短链登记表：令牌 到连接参数，每个 令牌 的有效期由 expire值 维护 */
+    /**
+     * 短链登记表：令牌 到连接参数，每个 令牌 的有效期由 expire值 维护
+    */
     private final Map<String, ExpireValue<RemoteSpec>> tokens = new ConcurrentHashMap<>(16);
 
     /**
@@ -378,17 +414,29 @@ public class GuacamoleClient {
      * @since 4.0.0
      */
     public static class Builder {
-        /** guacd 服务器地址，默认本机 */
+        /**
+         * guacd 服务器地址，默认本机
+        */
         private String guacdHost = DEFAULT_GUACD_HOST;
-        /** guacd 服务器端口，默认 4822 */
+        /**
+         * guacd 服务器端口，默认 4822
+        */
         private int guacdPort = DEFAULT_GUACD_PORT;
-        /** Web 前端地址，默认本机 */
+        /**
+         * Web 前端地址，默认本机
+        */
         private String webHost = DEFAULT_WEB_HOST;
-        /** Web 前端端口，默认 8080 */
+        /**
+         * Web 前端端口，默认 8080
+        */
         private int webPort = DEFAULT_WEB_PORT;
-        /** Web 上下文路径，默认 /guacamole */
+        /**
+         * Web 上下文路径，默认 /guacamole
+        */
         private String contextPath = DEFAULT_CONTEXT_PATH;
-        /** 短 令牌 有效期，默认 1 小时 */
+        /**
+         * 短 令牌 有效期，默认 1 小时
+        */
         private Duration tokenTtl = DEFAULT_TOKEN_TTL;
 
         /**
@@ -493,19 +541,33 @@ public class GuacamoleClient {
      * @since 4.0.0
      */
     public static class IssueOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final GuacamoleClient client;
-        /** 协议，默认 RDP */
+        /**
+         * 协议，默认 RDP
+        */
         private RemoteProtocol protocol = RemoteProtocol.RDP;
-        /** 远控服务器地址 */
+        /**
+         * 远控服务器地址
+        */
         private String host;
-        /** 远控服务器端口，可为 空（空 时取协议默认端口） */
+        /**
+         * 远控服务器端口，可为 空（空 时取协议默认端口）
+        */
         private Integer port;
-        /** 用户名，可为 空 */
+        /**
+         * 用户名，可为 空
+        */
         private String username;
-        /** 密码，可为 空 */
+        /**
+         * 密码，可为 空
+        */
         private String password;
-        /** Guacamole 扩展参数 */
+        /**
+         * Guacamole 扩展参数
+        */
         private final Map<String, String> params = new LinkedHashMap<>(8);
 
         /**
@@ -685,18 +747,30 @@ public class GuacamoleClient {
      * @since 4.0.0
      */
     public enum RemoteProtocol {
-        /** RDP 远程桌面 */
+        /**
+         * RDP 远程桌面
+        */
         RDP("rdp", 3389),
-        /** VNC 虚拟网络计算 */
+        /**
+         * VNC 虚拟网络计算
+        */
         VNC("vnc", 5900),
-        /** SSH 安全外壳协议 */
+        /**
+         * SSH 安全外壳协议
+        */
         SSH("ssh", 22),
-        /** TELNET */
+        /**
+         * TELNET
+        */
         TELNET("telnet", 23);
 
-        /** guacd 参数值 */
+        /**
+         * guacd 参数值
+        */
         private final String value;
-        /** 默认端口 */
+        /**
+         * 默认端口
+        */
         private final int defaultPort;
 
         /**

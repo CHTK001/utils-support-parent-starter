@@ -27,7 +27,9 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
 
     private final MattingTranslator.MattingMode mode;
     private int width, height;
-    /** originalImage */
+    /**
+     * originalImage
+    */
     private BufferedImage originalImage;
 
     public U2netSegTranslator() { this(DEFAULT_MODE); }

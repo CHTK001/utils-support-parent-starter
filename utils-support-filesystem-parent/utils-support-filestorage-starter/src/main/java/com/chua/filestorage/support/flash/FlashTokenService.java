@@ -30,9 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class FlashTokenService {
 
-    /** Flash目录 */
+    /**
+     * Flash目录
+    */
     private final Path flashDir;
-    /** Expire秒 */
+    /**
+     * Expire秒
+    */
     private final long expireSeconds;
 
     /**

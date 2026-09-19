@@ -37,23 +37,41 @@ public class AlibabaImageClient implements ImageClient {
      */
     private static final String DEFAULT_URL = "https://dashscope.aliyuncs.com";
 
-    /** 默认模型 */
+    /**
+     * 默认模型
+    */
     private static final String DEFAULT_MODEL = "wanx-v1";
-    /** 默认推理步数 */
+    /**
+     * 默认推理步数
+    */
     private static final int DEFAULT_STEPS = 50;
-    /** 默认尺寸（像素） */
+    /**
+     * 默认尺寸（像素）
+    */
     private static final int DEFAULT_SIZE = 1024;
-    /** 授权请求头名称 */
+    /**
+     * 授权请求头名称
+    */
     private static final String HEADER_AUTHORIZATION = "Authorization";
-    /** Bearer 令牌前缀 */
+    /**
+     * Bearer 令牌前缀
+    */
     private static final String TOKEN_PREFIX = "Bearer ";
-    /** JSON 内容类型 */
+    /**
+     * JSON 内容类型
+    */
     private static final String CONTENT_TYPE_JSON = "application/json";
-    /** 任务成功状态 */
+    /**
+     * 任务成功状态
+    */
     private static final String STATUS_SUCCEEDED = "SUCCEEDED";
-    /** 任务失败状态 */
+    /**
+     * 任务失败状态
+    */
     private static final String STATUS_FAILED = "FAILED";
-    /** 连接超时时间（秒） */
+    /**
+     * 连接超时时间（秒）
+    */
     private static final int CONNECT_TIMEOUT_SECONDS = 30;
 
     /**
@@ -132,14 +150,18 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -147,66 +169,86 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 提示符 */
+    /**
+     * 提示符
+    */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** Quality */
+    /**
+     * Quality
+    */
     public ImageClient quality(String quality) {
         this.quality = quality;
         return this;
     }
 
     @Override
-    /** Style */
+    /**
+     * Style
+    */
     public ImageClient style(String style) {
         this.style = style;
         return this;
     }
 
     @Override
-    /** Seed */
+    /**
+     * Seed
+    */
     public ImageClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
-    /** Steps */
+    /**
+     * Steps
+    */
     public ImageClient steps(Integer steps) {
         this.steps = steps;
         return this;
     }
 
     @Override
-    /** 引用镜像 */
+    /**
+     * 引用镜像
+    */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** 引用镜像 */
+    /**
+     * 引用镜像
+    */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** 镜像strength */
+    /**
+     * 镜像strength
+    */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** control类型 */
+    /**
+     * control类型
+    */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public BufferedImage generate(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -236,7 +278,9 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -283,7 +327,9 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public ImageResponse queryTask(String taskId) {
         try {
             String url = normalizeBaseUrl() + "/api/v1/tasks/" + taskId;
@@ -388,7 +434,9 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 

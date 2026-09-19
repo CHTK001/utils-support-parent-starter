@@ -19,7 +19,9 @@ import java.util.function.Function;
 public class SpringBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Autowired.class);
     }

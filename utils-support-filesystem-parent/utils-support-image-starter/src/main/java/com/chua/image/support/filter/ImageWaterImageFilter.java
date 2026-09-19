@@ -80,13 +80,21 @@ import javax.annotation.Nullable;
 @Setter
 public class ImageWaterImageFilter extends AbstractImageFilter {
 
-    /** 水印方向（final，仅可通过构造器设置） */
+    /**
+     * 水印方向（final，仅可通过构造器设置）
+    */
     private final Position direction;
-    /** DEFAUL水印位置点 */
+    /**
+     * DEFAUL水印位置点
+    */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
-    /** 水印图片字节数组（final，仅可通过构造器设置） */
+    /**
+     * 水印图片字节数组（final，仅可通过构造器设置）
+    */
     private final byte[] bytes;
-    /** 水印位置点 */
+    /**
+     * 水印位置点
+    */
     private ImagePoint point = DEFAULT_POINT;
 
     /**
@@ -193,7 +201,9 @@ public class ImageWaterImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);

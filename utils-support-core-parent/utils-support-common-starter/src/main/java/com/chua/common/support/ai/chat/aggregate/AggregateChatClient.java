@@ -442,7 +442,9 @@ public class AggregateChatClient implements ChatClient {
     @Override
      * @param prompt 提示词，不允许为 null
      * @return ChatSync响应 对象
-    /** ChatSyncWithResponse */
+    /**
+     * ChatSyncWithResponse
+    */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder().text(text).usage(aggregateUsage()).build();

@@ -57,16 +57,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("rocksdb")
 public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentStore, FulltextSearch {
 
-    /** 文档键前缀 */
+    /**
+     * 文档键前缀
+    */
     private static final String DOC_PREFIX = "DOC:";
-    /** 全文倒排索引键前缀 */
+    /**
+     * 全文倒排索引键前缀
+    */
     private static final String FTS_PREFIX = "FTS_";
-    /** JSON 序列化器 */
+    /**
+     * JSON 序列化器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    /** 数据源未找到错误前缀 */
+    /**
+     * 数据源未找到错误前缀
+    */
     private static final String ERROR_DATASOURCE_NOT_FOUND = "RocksDB 数据源未找到: ";
 
-    /** RocksDB 数据库映射表，键为数据源名称 */
+    /**
+     * RocksDB 数据库映射表，键为数据源名称
+    */
     private final ConcurrentHashMap<String, RocksDB> databases = new ConcurrentHashMap<>();
     /**
      * 字符串 KV 键 级 锁：完整 键 → {@link Object}（incr 读-改-写 串行化）
@@ -324,7 +334,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     private static final String STR_KV_PREFIX = "SKV:";
 
     @Override
-    /** 获取（RocksDB 真实 读取，重启 后 仍可 读 回） */
+    /**
+     * 获取（RocksDB 真实 读取，重启 后 仍可 读 回）
+    */
     public String get(String key) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -339,7 +351,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 放入（value 为 空 时 等效 删除，RocksDB 真实 写入） */
+    /**
+     * 放入（value 为 空 时 等效 删除，RocksDB 真实 写入）
+    */
     public void put(String key, String value) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -357,13 +371,17 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 判断键 是否 存在（RocksDB 真实 读取） */
+    /**
+     * 判断键 是否 存在（RocksDB 真实 读取）
+    */
     public boolean containsKey(String key) {
         return get(key) != null;
     }
 
     @Override
-    /** 删除（RocksDB 真实 删除） */
+    /**
+     * 删除（RocksDB 真实 删除）
+    */
     public boolean delete(String key) {
         if (get(key) == null) {
             return false;
@@ -472,7 +490,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 查找byid */
+    /**
+     * 查找byid
+    */
     @SuppressWarnings("unchecked")
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         RocksDB db = currentDB();
@@ -522,7 +542,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 删除（文档 + FTS 索引 条目 同 批 原子 移除，集合 级 锁 串行化） */
+    /**
+     * 删除（文档 + FTS 索引 条目 同 批 原子 移除，集合 级 锁 串行化）
+    */
     public boolean delete(String collection, Object id) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -547,7 +569,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 查找全部 */
+    /**
+     * 查找全部
+    */
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         RocksDB db = currentDB();
@@ -579,7 +603,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
@@ -638,7 +664,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     @Override
-    /** 删除全文索引（集合 级 锁 内 前缀 批量 删除） */
+    /**
+     * 删除全文索引（集合 级 锁 内 前缀 批量 删除）
+    */
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         RocksDB db = currentDB();
         if (db == null) {
@@ -1072,7 +1100,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         return store.delete(sql.whereClause(), paramList, sql.entityClass());
     }
 
-    /** 关闭所有数据源连接 */
+    /**
+     * 关闭所有数据源连接
+    */
     @Override
     public void close() {
         for (RocksDB db : databases.values()) {

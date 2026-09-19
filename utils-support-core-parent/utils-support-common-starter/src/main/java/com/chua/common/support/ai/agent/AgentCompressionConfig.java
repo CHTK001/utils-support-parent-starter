@@ -45,7 +45,9 @@ public class AgentCompressionConfig {
      * <p>默认 false，关闭时所有压缩逻辑不生效。
      */
     @Builder.Default
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private boolean enabled = false;
 
     /**
@@ -55,7 +57,9 @@ public class AgentCompressionConfig {
      * 压缩前会保存完整的原始上下文作为基线快照。
      */
     @Builder.Default
-    /** 上下文compression阈值 */
+    /**
+     * 上下文compression阈值
+    */
     private int contextCompressionThreshold = 12;
 
     /**
@@ -65,7 +69,9 @@ public class AgentCompressionConfig {
      * 读取基线快照 → 用压缩 ChatClient 总结 → 与当前压缩上下文偏差纠正 → 输出修复后的上下文。
      */
     @Builder.Default
-    /** 上下文deviation阈值 */
+    /**
+     * 上下文deviation阈值
+    */
     private int contextDeviationThreshold = 6;
 
     /**
@@ -75,7 +81,9 @@ public class AgentCompressionConfig {
      * 建议使用更便宜的小模型以节省成本。
      */
     @Builder.Default
-    /** Compressionchat客户端 */
+    /**
+     * Compressionchat客户端
+    */
     private ChatClient compressionChatClient = null;
 
     /**
@@ -85,7 +93,9 @@ public class AgentCompressionConfig {
      * 确保最近的对话上下文完整保留。
      */
     @Builder.Default
-    /** Retainmessages */
+    /**
+     * Retainmessages
+    */
     private int retainMessages = 6;
 
     /**

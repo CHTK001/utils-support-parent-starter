@@ -10,18 +10,30 @@ package com.chua.mysql.support.vector;
  * @since 4.0.0.42
  */
 public record MysqlVectorStorageProperties(
-        /** 向量表名称，默认 向量_存储 */
+        /**
+         * 向量表名称，默认 向量_存储
+        */
         String tableName,
-        /** 标识 列名，默认 标识 */
+        /**
+         * 标识 列名，默认 标识
+        */
         String idColumn,
-        /** 向量列名，默认 vec */
+        /**
+         * 向量列名，默认 vec
+        */
         String vectorColumn
 ) {
-    /** 默认表名 */
+    /**
+     * 默认表名
+    */
     private static final String DEFAULT_TABLE = "vector_store";
-    /** 默认 标识 列名 */
+    /**
+     * 默认 标识 列名
+    */
     private static final String DEFAULT_ID_COLUMN = "id";
-    /** 默认向量列名 */
+    /**
+     * 默认向量列名
+    */
     private static final String DEFAULT_VECTOR_COLUMN = "vec";
 
     /**

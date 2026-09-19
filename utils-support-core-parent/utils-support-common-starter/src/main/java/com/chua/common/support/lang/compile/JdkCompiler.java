@@ -57,7 +57,9 @@ public class JdkCompiler implements Compiler {
      */
     public static final class DynamicClassLoader extends ClassLoader {
         // 存储已编译的字节码映射：类名 -> 字节码对象
-        /** 字节码缓存集合 */
+        /**
+         * 字节码缓存集合
+        */
         private final Map<String, MemoryByteCode> byteCodes = new HashMap<String, MemoryByteCode>();
 
         /**
@@ -124,7 +126,9 @@ public class JdkCompiler implements Compiler {
      */
     static final class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         // 需要转发给标准文件管理器的位置名称（平台类路径和系统模块）
-        /** 父级类路径位置名称 */
+        /**
+         * 父级类路径位置名称
+        */
         private static final String[] SUPER_LOCATION_NAMES = {StandardLocation.PLATFORM_CLASS_PATH.name(),
                 /**
                  * JPMS StandardLocation.SYSTEM_MODULES *
@@ -132,14 +136,20 @@ public class JdkCompiler implements Compiler {
                 "SYSTEM_MODULES"};
         
         // 用于在 ClassLoader 中查找包内部类的工具
-        /** 包内部查找器 */
+        /**
+         * 包内部查找器
+        */
         private final PackageInternalsFinder finder;
 
         // 关联的动态类加载器
-        /** 类加载器 */
+        /**
+         * 类加载器
+        */
         private final DynamicClassLoader classLoader;
         // 存储正在编译中的内存字节码列表
-        /** 字节码缓存集合 */
+        /**
+         * 字节码缓存集合
+        */
         private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
         /**
@@ -229,7 +239,9 @@ public class JdkCompiler implements Compiler {
 
         // 辅助类：合并两个 Iterable
         static class IterableJoin<T> implements Iterable<T> {
-            /** 第一个与第二个迭代器 */
+            /**
+             * 第一个与第二个迭代器
+            */
             private final Iterable<T> first, next;
 
             /**
@@ -244,7 +256,9 @@ public class JdkCompiler implements Compiler {
             }
 
             @Override
-            /** Iterator */
+            /**
+             * Iterator
+            */
             public Iterator<T> iterator() {
                 return new IteratorJoin<T>(first.iterator(), next.iterator());
             }
@@ -252,7 +266,9 @@ public class JdkCompiler implements Compiler {
 
         // 辅助类：合并两个 Iterator
         static class IteratorJoin<T> implements Iterator<T> {
-            /** 第一个与第二个迭代器 */
+            /**
+             * 第一个与第二个迭代器
+            */
             private final Iterator<T> first, next;
 
             /**
@@ -267,13 +283,17 @@ public class JdkCompiler implements Compiler {
             }
 
             @Override
-            /** 是否拥有Next */
+            /**
+             * 是否拥有Next
+            */
             public boolean hasNext() {
                 return first.hasNext() || next.hasNext();
             }
 
             @Override
-            /** Next */
+            /**
+             * Next
+            */
             public T next() {
                 if (first.hasNext()) {
                     return first.next();
@@ -282,7 +302,9 @@ public class JdkCompiler implements Compiler {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public void remove() {
                 throw new UnsupportedOperationException("remove");
             }
@@ -296,7 +318,9 @@ public class JdkCompiler implements Compiler {
      * @param <T> 元素类型
      */
     static class IteratorJoin<T> implements Iterator<T> {
-        /** 第一个与第二个迭代器 */
+        /**
+         * 第一个与第二个迭代器
+        */
         private final Iterator<T> first, next;
 
         /**
@@ -311,13 +335,17 @@ public class JdkCompiler implements Compiler {
         }
 
         @Override
-        /** 是否拥有Next */
+        /**
+         * 是否拥有Next
+        */
         public boolean hasNext() {
             return first.hasNext() || next.hasNext();
         }
 
         @Override
-        /** Next */
+        /**
+         * Next
+        */
         public T next() {
             if (first.hasNext()) {
                 return first.next();
@@ -326,7 +354,9 @@ public class JdkCompiler implements Compiler {
         }
 
         @Override
-        /** 移除 */
+        /**
+         * 移除
+        */
         public void remove() {
             throw new UnsupportedOperationException("remove");
         }
@@ -338,14 +368,22 @@ public class JdkCompiler implements Compiler {
      * 避免写入磁盘，实现纯内存编译
      */
     static final class MemoryByteCode extends SimpleJavaFileObject {
-        /** 包路径分隔符 */
+        /**
+         * 包路径分隔符
+        */
         private static final char PKG_SEPARATOR = '.';
-        /** 目录分隔符 */
+        /**
+         * 目录分隔符
+        */
         private static final char DIR_SEPARATOR = '/';
-        /** 类文件后缀 */
+        /**
+         * 类文件后缀
+        */
         private static final String CLASS_FILE_SUFFIX = ".class";
 
-        /** 字节数组输出流 */
+        /**
+         * 字节数组输出流
+        */
         private ByteArrayOutputStream byteArrayOutputStream;
 
         /**
@@ -386,7 +424,9 @@ public class JdkCompiler implements Compiler {
         }
 
         @Override
-        /** 打开OutputStream */
+        /**
+         * 打开OutputStream
+        */
         public OutputStream openOutputStream() throws IOException {
             if (byteArrayOutputStream == null) {
                 byteArrayOutputStream = new ByteArrayOutputStream();
@@ -402,9 +442,13 @@ public class JdkCompiler implements Compiler {
      * 支持本地目录和 JAR 包两种场景
      */
     static final class PackageInternalsFinder {
-        /** 类文件扩展名 */
+        /**
+         * 类文件扩展名
+        */
         private static final String CLASS_FILE_EXTENSION = ".class";
-        /** 类加载器 */
+        /**
+         * 类加载器
+        */
         private final ClassLoader classLoader;
 
         /**
@@ -511,23 +555,39 @@ public class JdkCompiler implements Compiler {
      * 封装了 JavaCompiler API 的调用流程，负责编译源码并返回 Class 对象或字节码
      */
     final class DynamicCompiler {
-        /** Java 编译器 */
+        /**
+         * Java 编译器
+        */
         private final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
-        /** 标准文件管理器 */
+        /**
+         * 标准文件管理器
+        */
         private final StandardJavaFileManager standardFileManager;
-        /** 选项列表 */
+        /**
+         * 选项列表
+        */
         private final List<String> options = new ArrayList<>();
-        /** 动态类加载器 */
+        /**
+         * 动态类加载器
+        */
         private final DynamicClassLoader dynamicClassLoader;
 
-        /** 编译单元集合 */
+        /**
+         * 编译单元集合
+        */
         private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
-        /** 编译错误列表 */
+        /**
+         * 编译错误列表
+        */
         private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
-        /** 编译警告列表 */
+        /**
+         * 编译警告列表
+        */
         private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
 
-        /** 写入器 */
+        /**
+         * 写入器
+        */
         private final Writer writer;
 
         /**
@@ -720,7 +780,9 @@ public class JdkCompiler implements Compiler {
      * 将 Java 源码字符串包装成 JavaFileObject，供编译器使用
      */
     public static class StringSource extends SimpleJavaFileObject {
-        /** 文件内容 */
+        /**
+         * 文件内容
+        */
         private final String contents;
 
         /**
@@ -734,7 +796,9 @@ public class JdkCompiler implements Compiler {
         }
 
         @Override
-        /** 获取CharContent */
+        /**
+         * 获取CharContent
+        */
         public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
             return contents;
         }
@@ -745,9 +809,13 @@ public class JdkCompiler implements Compiler {
      * 用于表示 JAR 包或本地文件系统中的类文件
      */
     public static class CustomJavaFileObject implements JavaFileObject {
-        /** 二进制类名 */
+        /**
+         * 二进制类名
+        */
         private final String binaryName;
-        /** 文件 URI */
+        /**
+         * 文件 URI
+        */
         private final URI uri;
         /**
          * 名称
@@ -766,91 +834,121 @@ public class JdkCompiler implements Compiler {
         }
 
         @Override
-        /** ToUri */
+        /**
+         * ToUri
+        */
         public URI toUri() {
             return this.uri;
         }
 
         @Override
-        /** 打开InputStream */
+        /**
+         * 打开InputStream
+        */
         public InputStream openInputStream() throws IOException {
             return this.uri.toURL().openStream();
         }
 
         @Override
-        /** 打开OutputStream */
+        /**
+         * 打开OutputStream
+        */
         public OutputStream openOutputStream() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 获取Name */
+        /**
+         * 获取Name
+        */
         public String getName() {
             return this.name;
         }
 
         @Override
-        /** 打开Reader */
+        /**
+         * 打开Reader
+        */
         public Reader openReader(boolean ignoreEncodingErrors) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 获取CharContent */
+        /**
+         * 获取CharContent
+        */
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 打开Writer */
+        /**
+         * 打开Writer
+        */
         public Writer openWriter() throws IOException {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 获取LastModified */
+        /**
+         * 获取LastModified
+        */
         public long getLastModified() {
             return 0L;
         }
 
         @Override
-        /** 删除 */
+        /**
+         * 删除
+        */
         public boolean delete() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 获取Kind */
+        /**
+         * 获取Kind
+        */
         public Kind getKind() {
             return Kind.CLASS;
         }
 
         @Override
-        /** 是否NameCompatible */
+        /**
+         * 是否NameCompatible
+        */
         public boolean isNameCompatible(String simpleName, Kind kind) {
             String baseName = simpleName + kind.extension;
             return kind.equals(this.getKind()) && (baseName.equals(this.getName()) || this.getName().endsWith("/" + baseName));
         }
 
         @Override
-        /** 获取NestingKind */
+        /**
+         * 获取NestingKind
+        */
         public NestingKind getNestingKind() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        /** 获取AccessLevel */
+        /**
+         * 获取AccessLevel
+        */
         public Modifier getAccessLevel() {
             throw new UnsupportedOperationException();
         }
 
-        /** BinaryName */
+        /**
+         * BinaryName
+        */
         public String binaryName() {
             return this.binaryName;
         }
 
         @Override
-        /** ToString */
+        /**
+         * ToString
+        */
         public String toString() {
             return this.getClass().getName() + CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET + this.toUri() + CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
         }

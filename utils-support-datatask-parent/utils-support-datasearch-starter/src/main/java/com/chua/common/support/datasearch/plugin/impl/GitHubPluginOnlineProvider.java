@@ -29,13 +29,19 @@ import java.util.Map;
 @Spi("github-plugins")
 public class GitHubPluginOnlineProvider implements PluginOnlineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(GitHubPluginOnlineProvider.class);
 
-    /** GitHub API 基础 */
+    /**
+     * GitHub API 基础
+    */
     private static final String API_BASE = "https://api.github.com";
 
-    /** 默认插件仓库：{owner, name, branch}。 */
+    /**
+     * 默认插件仓库：{owner, name, branch}。
+    */
     private static final String[][] DEFAULT_REPOS = {
             {"anthropics", "claude-code-plugins", "main"},
             {"anthropics", "skills", "main"},

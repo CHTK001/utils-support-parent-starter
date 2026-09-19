@@ -157,6 +157,8 @@ public abstract class AbstractFFmpegProcessor implements FFmpegProcessor {
     }
 
     @Override
-    /** 是否可用 */
+    /**
+     * 是否可用
+    */
     public boolean isAvailable() { return available; }
 }

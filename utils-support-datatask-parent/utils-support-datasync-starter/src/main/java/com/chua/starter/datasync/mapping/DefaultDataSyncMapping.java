@@ -55,7 +55,9 @@ public record DefaultDataSyncMapping(
     }
 
     @Override
-    /** Trigger */
+    /**
+     * Trigger
+    */
     public com.chua.common.support.task.scheduler.Trigger trigger() {
         return trigger;
     }

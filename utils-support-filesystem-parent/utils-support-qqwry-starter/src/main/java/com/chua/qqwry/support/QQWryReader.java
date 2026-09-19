@@ -17,9 +17,13 @@ import java.nio.file.Path;
  */
 public class QQWryReader implements Closeable {
 
-    /** Mode_1 */
+    /**
+     * Mode_1
+    */
     private static final int MODE_1 = 0x01;
-    /** Mode_2 */
+    /**
+     * Mode_2
+    */
     private static final int MODE_2 = 0x02;
 
     /**
@@ -266,7 +270,9 @@ public class QQWryReader implements Closeable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 无需释放资源，因为数据已加载到内存
     }

@@ -216,7 +216,9 @@ class DefaultFaceDetector implements FaceDetector {
      * 模型配置
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -264,35 +266,45 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** Nms */
+    /**
+     * Nms
+    */
     public FaceDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
-    /** 最小值Face获取大小 */
+    /**
+     * 最小值Face获取大小
+    */
     public FaceDetector minFaceSize(int size) {
         this.minFaceSize = size;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public FaceDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FaceDetector device(String device) {
         this.device = device;
         return this;
@@ -316,7 +328,9 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** detect信息 */
+    /**
+     * detect信息
+    */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         List<PredictRectangle> raw = detect(imageData);
         if (raw == null) {
@@ -336,7 +350,9 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** Face计算数量 */
+    /**
+     * Face计算数量
+    */
     public int faceCount(byte[] imageData) {
         return detect(imageData).size();
     }

@@ -28,13 +28,17 @@ public class SolrMetaData extends DefaultMetaData {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public MetaSearch search() {
         return new SolrMeta(this, (SolrEngine) engine);
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public MetaSearch search(String indexName) {
         return new SolrMeta(this, (SolrEngine) engine);
     }

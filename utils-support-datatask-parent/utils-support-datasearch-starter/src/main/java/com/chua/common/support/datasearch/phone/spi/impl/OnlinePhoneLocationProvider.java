@@ -30,25 +30,39 @@ import java.util.Map;
 @Spi("tenapi")
 public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlinePhoneLocationProvider.class);
 
-    /** 在线接口地址模板 */
+    /**
+     * 在线接口地址模板
+    */
     private static final String DEFAULT_URL_TEMPLATE = "https://tenapi.cn/v2/mobile?phone=%s";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 在线接口地址模板 */
+    /**
+     * 在线接口地址模板
+    */
     private final String urlTemplate;
 
-    /** 内置号码段前缀表：前 4 位（如 1380）-> 归属地 */
+    /**
+     * 内置号码段前缀表：前 4 位（如 1380）-> 归属地
+    */
     private static final Map<String, PhoneLocationInfo> PREFIX_TABLE = buildPrefixTable();
 
-    /** 创建 onlinephone位置提供者 实例 */
+    /**
+     * 创建 onlinephone位置提供者 实例
+    */
     public OnlinePhoneLocationProvider() {
         this(DEFAULT_URL_TEMPLATE);
     }
@@ -64,13 +78,17 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "tenapi";
     }
 
     @Override
-    /** 获取归属地 */
+    /**
+     * 获取归属地
+    */
     public PhoneLocationInfo getLocation(String phone) {
         if (phone == null || !phone.matches("^1\\d{10}$")) {
             return null;

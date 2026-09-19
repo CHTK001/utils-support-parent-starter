@@ -16,11 +16,17 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 class DefaultValue<T> implements Value<T> {
 
-    /** 原始值 */
+    /**
+     * 原始值
+    */
     private final T value;
-    /** 默认值（当 值 为 空 时返回） */
+    /**
+     * 默认值（当 值 为 空 时返回）
+    */
     private final T defaultValue;
-    /** 转换过程中产生的异常 */
+    /**
+     * 转换过程中产生的异常
+    */
     private final Throwable throwable;
 
     /**

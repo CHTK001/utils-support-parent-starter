@@ -23,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsolePipeline implements SpiderPipeline {
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public void process(SpiderResult result) {
         if (result == null) {
             return;

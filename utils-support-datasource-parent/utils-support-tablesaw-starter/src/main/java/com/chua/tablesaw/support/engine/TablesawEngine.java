@@ -77,7 +77,9 @@ public class TablesawEngine implements Engine {
     private String defaultDataSourceName;
 
     @Override
-    /** 添加数据源 */
+    /**
+     * 添加数据源
+    */
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         dataSources.put(name, (EngineDataSource<Object>) dataSource);
         if (defaultDataSourceName == null) {
@@ -87,7 +89,9 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 设置默认数据源名称 */
+    /**
+     * 设置默认数据源名称
+    */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
@@ -236,43 +240,57 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
-    /** 获取数据源 */
+    /**
+     * 获取数据源
+    */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return (EngineDataSource<T>) dataSources.get(name);
     }
 
     @Override
-    /** 获取数据源 */
+    /**
+     * 获取数据源
+    */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect(String dataSourceName) {
         return null;
     }
 
     @Override
-    /** 不支持元数据操作 */
+    /**
+     * 不支持元数据操作
+    */
     public boolean supportsMeta() {
         return false;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         tables.clear();
         dataSources.clear();
@@ -370,23 +388,31 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
@@ -394,13 +420,17 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** 列表 */
+            /**
+             * 列表
+            */
             public List<T> list() {
                 return executeQuery(this);
             }
 
             @Override
-            /** One */
+            /**
+             * One
+            */
             public T one() {
                 List<T> r = executeQuery(this);
                 if (r.isEmpty()) {
@@ -410,7 +440,9 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** Page */
+            /**
+             * Page
+            */
             public Page<T> page(int pageNum, int pageSize) {
                 return executePage(this, pageNum, pageSize);
             }
@@ -418,23 +450,31 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
@@ -442,7 +482,9 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** 更新 */
+            /**
+             * 更新
+            */
             public int update() {
                 return 0;
             }
@@ -450,23 +492,31 @@ public class TablesawEngine implements Engine {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
             @Override
-            /** 解析Column */
+            /**
+             * 解析Column
+            */
             protected String resolveColumn(SFunction<T, ?> column) {
                 return resolveLambdaColumn(column);
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
                     @Override
-                    /** 解析Column */
+                    /**
+                     * 解析Column
+                    */
                     protected String resolveColumn(SFunction<T, ?> column) {
                         return resolveLambdaColumn(column);
                     }
@@ -474,7 +524,9 @@ public class TablesawEngine implements Engine {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public int remove() {
                 return 0;
             }

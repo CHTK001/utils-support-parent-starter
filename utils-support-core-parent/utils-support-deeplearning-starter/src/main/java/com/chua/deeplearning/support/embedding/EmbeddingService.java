@@ -118,7 +118,9 @@ class DefaultEmbeddingService implements EmbeddingService {
      * 模型配置
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -161,14 +163,18 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public EmbeddingService modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public EmbeddingService device(String device) {
         this.device = device;
         return this;
@@ -209,7 +215,9 @@ class DefaultEmbeddingService implements EmbeddingService {
     }
 
     @Override
-    /** embedbatch */
+    /**
+     * embedbatch
+    */
     public List<float[]> embedBatch(List<String> texts) {
         int size = texts.size();
         List<float[]> result = new ArrayList<>(size);

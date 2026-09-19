@@ -26,9 +26,13 @@ import java.util.function.Predicate;
 @SpiIgnore
 public class HybridRouterStrategy implements RouterStrategy {
 
-    /** 路由组列表 */
+    /**
+     * 路由组列表
+    */
     private final List<GroupRouter> groups;
-    /** 健康状态过滤器 */
+    /**
+     * 健康状态过滤器
+    */
     private final Predicate<WeightedClient> healthFilter;
 
     /**
@@ -51,7 +55,9 @@ public class HybridRouterStrategy implements RouterStrategy {
     }
 
     @Override
-    /** 选择 */
+    /**
+     * 选择
+    */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         throw new UnsupportedOperationException(
                 "HybridRouterStrategy: use executeSync/executeStream, not select()");
@@ -151,7 +157,9 @@ public class HybridRouterStrategy implements RouterStrategy {
             RouterStrategy strategy,
             List<WeightedClient> clients
     ) {
-        /** Matches */
+        /**
+         * Matches
+        */
         public boolean matches(String prompt) {
             return condition == null || condition.test(prompt);
         }

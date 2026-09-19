@@ -18,13 +18,19 @@ package com.chua.common.support.collection;
  */
 public enum ListState {
 
-    /** 未加载状态，首次访问将触发懒加载 */
+    /**
+     * 未加载状态，首次访问将触发懒加载
+    */
     UNLOADED,
 
-    /** 加载中，其他线程阻塞等待 */
+    /**
+     * 加载中，其他线程阻塞等待
+    */
     LOADING,
 
-    /** 已加载，数据可访问 */
+    /**
+     * 已加载，数据可访问
+    */
     LOADED,
 
     /**

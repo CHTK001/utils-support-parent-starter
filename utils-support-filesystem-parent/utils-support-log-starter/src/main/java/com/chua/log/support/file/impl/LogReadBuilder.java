@@ -49,25 +49,39 @@ public class LogReadBuilder extends ReadBuilder {
             DateTimeFormatter.ISO_LOCAL_DATE_TIME,
     };
 
-    /** 关键词过滤（子串匹配） */
+    /**
+     * 关键词过滤（子串匹配）
+    */
     private String keyword;
 
-    /** 正则过滤 模式 */
+    /**
+     * 正则过滤 模式
+    */
     private Pattern regexPattern;
 
-    /** 尾部行数（> 0 时启用 tail） */
+    /**
+     * 尾部行数（> 0 时启用 tail）
+    */
     private int tailLines;
 
-    /** 时间范围下限（空 不限） */
+    /**
+     * 时间范围下限（空 不限）
+    */
     private LocalDateTime timeFrom;
 
-    /** 时间范围上限（空 不限） */
+    /**
+     * 时间范围上限（空 不限）
+    */
     private LocalDateTime timeTo;
 
-    /** 自定义时间戳格式（空 则自动检测） */
+    /**
+     * 自定义时间戳格式（空 则自动检测）
+    */
     private DateTimeFormatter timestampFormat;
 
-    /** 是否反转过滤（类似 grep -v） */
+    /**
+     * 是否反转过滤（类似 grep -v）
+    */
     private boolean invertMatch;
 
     /**
@@ -188,7 +202,9 @@ public class LogReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public LogReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -238,19 +254,25 @@ public class LogReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** as线 */
+    /**
+     * as线
+    */
     public List<String> asLines() {
         return lines();
     }
 
     @Override
-    /** as字符串 */
+    /**
+     * as字符串
+    */
     public String asString() {
         return String.join(System.lineSeparator(), lines());
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Object read() {
         return lines();
     }

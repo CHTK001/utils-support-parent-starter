@@ -97,17 +97,29 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
      */
     private static final String DECODER_PAST_FILE = "decoder_with_past_model_quantized.onnx";
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 编码器会话 */
+    /**
+     * 编码器会话
+    */
     private OrtSession encoderSession;
-    /** 解码器会话 */
+    /**
+     * 解码器会话
+    */
     private OrtSession decoderSession;
-    /** 解码器历史会话 */
+    /**
+     * 解码器历史会话
+    */
     private OrtSession decoderPastSession;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 是否已加载 */
+    /**
+     * 是否已加载
+    */
     private volatile boolean loaded;
 
     /**
@@ -152,13 +164,17 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "opus-mt-zh-en";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public String translate(String text) {
         if (text == null || text.isBlank()) {
             return text;
@@ -322,7 +338,9 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         for (OrtSession session : List.of(encoderSession, decoderSession, decoderPastSession)) {
             if (session != null) {

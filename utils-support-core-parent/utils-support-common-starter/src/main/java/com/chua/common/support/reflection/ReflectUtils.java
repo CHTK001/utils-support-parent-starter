@@ -42,19 +42,29 @@ public final class ReflectUtils {
      */
     private static final ConcurrentMap<String, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>(512);
 
-    /** 字段 getter 方法处理 缓存 */
+    /**
+     * 字段 getter 方法处理 缓存
+    */
     private static final ConcurrentMap<String, MethodHandle> FIELD_GETTER_CACHE = new ConcurrentHashMap<>(256);
 
-    /** 字段 setter 方法处理 缓存 */
+    /**
+     * 字段 setter 方法处理 缓存
+    */
     private static final ConcurrentMap<String, MethodHandle> FIELD_SETTER_CACHE = new ConcurrentHashMap<>(256);
 
-    /** 类加载 缓存 */
+    /**
+     * 类加载 缓存
+    */
     private static final ConcurrentMap<String, Class<?>> CLASS_NAME_CACHE = new ConcurrentHashMap<>(256);
 
-    /** 方法处理.Lookup 实例 */
+    /**
+     * 方法处理.Lookup 实例
+    */
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
-    /** 私有构造，禁止实例化 */
+    /**
+     * 私有构造，禁止实例化
+    */
     private ReflectUtils() {
     }
 

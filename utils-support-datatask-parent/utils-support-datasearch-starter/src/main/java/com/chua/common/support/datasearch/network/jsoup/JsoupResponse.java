@@ -26,7 +26,9 @@ public class JsoupResponse {
 
     final Document document; // 文档
 
-    /** Mappings */
+    /**
+     * Mappings
+    */
     private final Mappings mappings;
 
     /**
@@ -233,28 +235,46 @@ public class JsoupResponse {
     @Data
     @Builder
     public static class Mappings {
-        /** 父级xpath */
+        /**
+         * 父级xpath
+        */
         private String parentXpath;
         @Singular("addMapping")
-        /** Mapping */
+        /**
+         * Mapping
+        */
         private List<MappingsPath> mapping;
     }
 
     @Data
     public static class MappingsPath {
-        /** 路径 */
+        /**
+         * 路径
+        */
         private String path;
-        /** Attribute */
+        /**
+         * Attribute
+        */
         private String attribute;
-        /** 最后 */
+        /**
+         * 最后
+        */
         private boolean last;
-        /** 首个 */
+        /**
+         * 首个
+        */
         private boolean first;
-        /** function */
+        /**
+         * function
+        */
         private Function<Element, String> function;
-        /** 类型 */
+        /**
+         * 类型
+        */
         private PathType type = PathType.XPATH;
-        /** 字段 */
+        /**
+         * 字段
+        */
         private String field;
 
         /**
@@ -269,19 +289,33 @@ public class JsoupResponse {
         }
 
         public static class MappingsPathBuilder {
-            /** 路径 */
+            /**
+             * 路径
+            */
             private String path;
-            /** Attribute */
+            /**
+             * Attribute
+            */
             private String attribute;
-            /** 最后 */
+            /**
+             * 最后
+            */
             private boolean last;
-            /** 首个 */
+            /**
+             * 首个
+            */
             private boolean first;
-            /** function */
+            /**
+             * function
+            */
             private Function<Element, String> function;
-            /** 类型 */
+            /**
+             * 类型
+            */
             private PathType type = PathType.XPATH;
-            /** 字段 */
+            /**
+             * 字段
+            */
             private String field;
 
             /**
@@ -429,7 +463,9 @@ public class JsoupResponse {
     }
 
     public static final class View {
-        /** Elements */
+        /**
+         * Elements
+        */
         private final Elements elements;
 
         /**

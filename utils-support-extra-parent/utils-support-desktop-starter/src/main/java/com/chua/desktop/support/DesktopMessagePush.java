@@ -57,12 +57,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DesktopMessagePush implements MessagePush {
 
-    /** 环境 */
+    /**
+     * 环境
+    */
     private final MessageEnvironment environment;
-    /** templates */
+    /**
+     * templates
+    */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 desktop消息push 实例 */
+    /**
+     * 创建 desktop消息push 实例
+    */
     public DesktopMessagePush() {
         this(new MessageEnvironment());
     }
@@ -76,7 +82,9 @@ public class DesktopMessagePush implements MessagePush {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "desktop";
     }
@@ -113,7 +121,9 @@ public class DesktopMessagePush implements MessagePush {
     }
 
     @Override
-    /** 列表templates */
+    /**
+     * 列表templates
+    */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }

@@ -24,7 +24,9 @@ public class DatabayFetcher implements ProxyFetcher {
             + "?protocol=http&anonymity=elite&format=json&limit=20";
 
     @Override
-    /** 获取代理 */
+    /**
+     * 获取代理
+    */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -51,7 +53,9 @@ public class DatabayFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取源名称 */
+    /**
+     * 获取源名称
+    */
     public String getSourceName() {
         return "databay";
     }

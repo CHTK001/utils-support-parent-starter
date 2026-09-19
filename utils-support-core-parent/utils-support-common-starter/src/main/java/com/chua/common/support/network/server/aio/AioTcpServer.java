@@ -44,19 +44,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi({"aio-tcp", "tcp-aio"})
 public class AioTcpServer extends AbstractServer implements TcpServer {
 
-    /** 监听通道 */
+    /**
+     * 监听通道
+    */
     private AsynchronousServerSocketChannel serverChannel;
-    /** IOCP 完成端口线程组 */
+    /**
+     * IOCP 完成端口线程组
+    */
     private AsynchronousChannelGroup group;
-    /** 虚拟线程 worker 池 */
+    /**
+     * 虚拟线程 worker 池
+    */
     private ExecutorService executor;
 
-    /** 帧模式处理器 */
+    /**
+     * 帧模式处理器
+    */
     private volatile TcpServerHandler frameHandler;
-    /** 管道模式处理器 */
+    /**
+     * 管道模式处理器
+    */
     private volatile RawPipeHandler rawPipeHandler;
 
-    /** 活跃连接数 */
+    /**
+     * 活跃连接数
+    */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
@@ -77,7 +89,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
         void write(byte[] data, Runnable onDone,
                    java.util.function.Consumer<Throwable> onError);
 
-        /** 关闭连接(幂等)。 */
+        /**
+         * 关闭连接(幂等)。
+        */
         void close();
     }
 
@@ -139,7 +153,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             int groupThreads = setting.getEventLoops() > 0
@@ -365,11 +381,17 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
      */
     private final class AsyncConnImpl implements AsyncConn {
 
-        /** 通道 */
+        /**
+         * 通道
+        */
         private final AsynchronousSocketChannel channel;
-        /** 读缓冲(懒分配) */
+        /**
+         * 读缓冲(懒分配)
+        */
         private ByteBuffer buf;
-        /** 关闭标志(幂等) */
+        /**
+         * 关闭标志(幂等)
+        */
         private final AtomicBoolean closed = new AtomicBoolean(false);
 
         AsyncConnImpl(AsynchronousSocketChannel channel) {
@@ -560,7 +582,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** Do停止Accepting */
+    /**
+     * Do停止Accepting
+    */
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -571,7 +595,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (executor != null) {
             executor.shutdownNow();
@@ -586,7 +612,9 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

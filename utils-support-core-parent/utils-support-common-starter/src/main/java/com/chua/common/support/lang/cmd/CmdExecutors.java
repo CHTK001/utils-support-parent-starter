@@ -45,13 +45,19 @@ import java.util.concurrent.TimeUnit;
  */
 public final class CmdExecutors {
 
-    /** 默认执行器名称 */
+    /**
+     * 默认执行器名称
+    */
     private static String DEFAULT_NAME = "process";
 
-    /** 缓存的 CmdExecutor 实例 */
+    /**
+     * 缓存的 CmdExecutor 实例
+    */
     private static volatile CmdExecutor executor;
 
-    /** 创建 CmdExecutors 实例 */
+    /**
+     * 创建 CmdExecutors 实例
+    */
     private CmdExecutors() {}
 
     /**
@@ -232,13 +238,17 @@ public final class CmdExecutors {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, new CmdCallback() {
             @Override
-            /** OnComplete */
+            /**
+             * OnComplete
+            */
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }
@@ -258,13 +268,17 @@ public final class CmdExecutors {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, timeout, unit, new CmdCallback() {
             @Override
-            /** OnComplete */
+            /**
+             * OnComplete
+            */
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }

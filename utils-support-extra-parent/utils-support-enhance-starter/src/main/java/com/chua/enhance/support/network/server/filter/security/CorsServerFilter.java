@@ -27,19 +27,31 @@ import com.chua.common.support.network.server.filter.ServerFilterConfig;
  */
 public class CorsServerFilter implements ServerFilter {
 
-    /** Alloworigin */
+    /**
+     * Alloworigin
+    */
     private String allowOrigin = "*";
-    /** Allowmethods */
+    /**
+     * Allowmethods
+    */
     private String allowMethods = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
-    /** Allowheaders */
+    /**
+     * Allowheaders
+    */
     private String allowHeaders = "*";
-    /** 最大值AGE */
+    /**
+     * 最大值AGE
+    */
     private String maxAge = "3600";
-    /** Allowcredentials */
+    /**
+     * Allowcredentials
+    */
     private boolean allowCredentials;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         String origin = config.getInitParameter("cors.allowOrigin");
         if (origin != null && !origin.isEmpty()) {
@@ -64,7 +76,9 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         response.setHeader("Access-Control-Allow-Origin", allowOrigin);
         response.setHeader("Access-Control-Allow-Methods", allowMethods);
@@ -82,19 +96,25 @@ public class CorsServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 5;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "CorsServerFilter";
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

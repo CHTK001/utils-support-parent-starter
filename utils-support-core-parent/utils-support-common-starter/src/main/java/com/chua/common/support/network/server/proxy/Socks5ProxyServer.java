@@ -42,60 +42,112 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     // ==================== SOCKS5 协议常量 ====================
 
-    /** 版本 */
+    /**
+     * 版本
+    */
     protected static final byte VERSION = 0x05;
-    /** Method_no_auth */
+    /**
+     * Method_no_auth
+    */
     protected static final byte METHOD_NO_AUTH = 0x00;
-    /** Method_user_pass */
+    /**
+     * Method_user_pass
+    */
     protected static final byte METHOD_USER_PASS = 0x02;
-    /** Method_no_acceptable */
+    /**
+     * Method_no_acceptable
+    */
     protected static final byte METHOD_NO_ACCEPTABLE = (byte) 0xFF;
-    /** User_pass_version */
+    /**
+     * User_pass_version
+    */
     protected static final byte USER_PASS_VERSION = 0x01;
-    /** User_pass_ok */
+    /**
+     * User_pass_ok
+    */
     protected static final byte USER_PASS_OK = 0x00;
-    /** User_pass_fail */
+    /**
+     * User_pass_fail
+    */
     protected static final byte USER_PASS_FAIL = 0x01;
-    /** Cmd_connect */
+    /**
+     * Cmd_connect
+    */
     protected static final byte CMD_CONNECT = 0x01;
-    /** Cmd_bind */
+    /**
+     * Cmd_bind
+    */
     protected static final byte CMD_BIND = 0x02;
-    /** Cmd_udp_associate */
+    /**
+     * Cmd_udp_associate
+    */
     protected static final byte CMD_UDP_ASSOCIATE = 0x03;
-    /** Atyp_ipv4 */
+    /**
+     * Atyp_ipv4
+    */
     protected static final byte ATYP_IPV4 = 0x01;
-    /** Atyp_domain */
+    /**
+     * Atyp_domain
+    */
     protected static final byte ATYP_DOMAIN = 0x03;
-    /** Atyp_ipv6 */
+    /**
+     * Atyp_ipv6
+    */
     protected static final byte ATYP_IPV6 = 0x04;
-    /** Rep_success */
+    /**
+     * Rep_success
+    */
     protected static final byte REP_SUCCESS = 0x00;
-    /** Rep_general_failure */
+    /**
+     * Rep_general_failure
+    */
     protected static final byte REP_GENERAL_FAILURE = 0x01;
-    /** Rep_not_allowed */
+    /**
+     * Rep_not_allowed
+    */
     protected static final byte REP_NOT_ALLOWED = 0x02;
-    /** Rep_network_unreachable */
+    /**
+     * Rep_network_unreachable
+    */
     protected static final byte REP_NETWORK_UNREACHABLE = 0x03;
-    /** Rep_host_unreachable */
+    /**
+     * Rep_host_unreachable
+    */
     protected static final byte REP_HOST_UNREACHABLE = 0x04;
-    /** Rep_refused */
+    /**
+     * Rep_refused
+    */
     protected static final byte REP_REFUSED = 0x05;
-    /** Rep_ttl_expired */
+    /**
+     * Rep_ttl_expired
+    */
     protected static final byte REP_TTL_EXPIRED = 0x06;
-    /** Rep_cmd_unsupported */
+    /**
+     * Rep_cmd_unsupported
+    */
     protected static final byte REP_CMD_UNSUPPORTED = 0x07;
-    /** Rep_atyp_unsupported */
+    /**
+     * Rep_atyp_unsupported
+    */
     protected static final byte REP_ATYP_UNSUPPORTED = 0x08;
 
     // ==================== 实例字段 ====================
 
-    /** Username */
+    /**
+     * Username
+    */
     protected final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     protected final String password;
-    /** Connect超时MS */
+    /**
+     * Connect超时MS
+    */
     protected final int connectTimeoutMs;
-    /** Read超时MS */
+    /**
+     * Read超时MS
+    */
     protected final int readTimeoutMs;
 
     // ==================== 构造函数 ====================
@@ -138,14 +190,18 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     }
 
     @Override
-    /** 添加过滤 */
+    /**
+     * 添加过滤
+    */
     public Socks5ProxyServer addFilter(ServerFilter filter) {
         super.addFilter(filter);
         return this;
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

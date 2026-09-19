@@ -66,7 +66,9 @@ import java.util.concurrent.Executors;
 @Spi({"nio", "nio-http"})
 public class NioHttpServer extends AbstractServer {
 
-    /** 服务器通道 */
+    /**
+     * 服务器通道
+    */
     private ServerSocketChannel serverChannel;
     /**
      * 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈
@@ -82,13 +84,21 @@ public class NioHttpServer extends AbstractServer {
     private java.util.Queue<SelectionKey>[] rearmReadQueues;
     /** 每分片对应的待注册连接队列:accept 线程只入队,由目标分片事件循环线程自行 register,
      *  消除跨线程 register 与 select() 之间的竞态(8 分片下跨线程注册占比高时会出现请求超时) */
-    /** Pendingacceptqueues */
+    /**
+     * Pendingacceptqueues
+    */
     private java.util.Queue<SocketChannel>[] pendingAcceptQueues;
-    /** 执行器 */
+    /**
+     * 执行器
+    */
     private ExecutorService executor;
-    /** Acceptor池 */
+    /**
+     * Acceptor池
+    */
     private ExecutorService acceptorPool;
-    /** SSL上下文 */
+    /**
+     * SSL上下文
+    */
     private SSLContext sslContext;
 
     /**
@@ -110,7 +120,9 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             // 基准测试快速路径:bench.fast=true 时强制内联派发,echo 等微秒级 handler 跳过虚拟线程
@@ -713,7 +725,9 @@ public class NioHttpServer extends AbstractServer {
         closeQuietly(st.channel);
     }
 
-    /** 连接状态:非阻塞通道 + 增量解析器 + 读缓冲 + 待写队列 */
+    /**
+     * 连接状态:非阻塞通道 + 增量解析器 + 读缓冲 + 待写队列
+    */
     private static final class ConnectionState {
         final SocketChannel channel;
         final NioServerRequest request;
@@ -726,7 +740,9 @@ public class NioHttpServer extends AbstractServer {
         final java.util.ArrayDeque<ByteBuffer> writeQueue = new java.util.ArrayDeque<>();
         boolean keepAlive = true;
         boolean inWorker = false;
-        /** 所属分片索引(决定注册到哪个 Selector 与写队列) */
+        /**
+         * 所属分片索引(决定注册到哪个 Selector 与写队列)
+        */
         int shard = 0;
 
         ConnectionState(SocketChannel channel, long maxRequestSize, String charset) {
@@ -919,7 +935,9 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public NioHttpServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -985,7 +1003,9 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 连接封装，负责向对端发送帧。
      */
     private static final class WsConnection {
-        /** OUT */
+        /**
+         * OUT
+        */
         private final OutputStream out;
 
         WsConnection(OutputStream out) {
@@ -1017,11 +1037,17 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 消息请求（与 JdkWebSocketServer.SimpleServerRequest 行为一致）。
      */
     private static final class WsServerRequest implements ServerRequest {
-        /** Topic */
+        /**
+         * Topic
+        */
         private final String topic;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private final String body;
-        /** attributes */
+        /**
+         * attributes
+        */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         WsServerRequest(String topic, String body) {
@@ -1052,15 +1078,25 @@ public class NioHttpServer extends AbstractServer {
      * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
      */
     private static final class WsServerResponse implements ServerResponse {
-        /** Connection */
+        /**
+         * Connection
+        */
         private final WsConnection connection;
-        /** 状态 */
+        /**
+         * 状态
+        */
         private int status = 200;
-        /** Ended */
+        /**
+         * Ended
+        */
         private boolean ended;
-        /** Committed */
+        /**
+         * Committed
+        */
         private boolean committed;
-        /** 结果 */
+        /**
+         * 结果
+        */
         private Object result;
 
         WsServerResponse(WsConnection connection) {
@@ -1153,7 +1189,9 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止Accepting */
+    /**
+     * Do停止Accepting
+    */
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -1164,7 +1202,9 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (selectors != null) {
             for (Selector sel : selectors) {
@@ -1191,7 +1231,9 @@ public class NioHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

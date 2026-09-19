@@ -65,21 +65,35 @@ public class ExpireValue<T> implements Value<T> {
     @Serial
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 未设置过期时间的时间戳（值为 空 或已清除时） */
+    /**
+     * 未设置过期时间的时间戳（值为 空 或已清除时）
+    */
     private static final long UNSET_EXPIRE_AT = 0L;
 
-    /** 永不过期的过期时间戳（ttl 为 空 时使用） */
+    /**
+     * 永不过期的过期时间戳（ttl 为 空 时使用）
+    */
     private static final long NEVER_EXPIRE_AT = Long.MAX_VALUE;
 
-    /** 当前值，清除后为 空 */
+    /**
+     * 当前值，清除后为 空
+    */
     private volatile T value;
-    /** 过期时间戳（毫秒），未设置时为 0 */
+    /**
+     * 过期时间戳（毫秒），未设置时为 0
+    */
     private volatile long expireAt;
-    /** 过期回调（有返回值）：返回 空 清除，返回 新值 替换并重新计时 */
+    /**
+     * 过期回调（有返回值）：返回 空 清除，返回 新值 替换并重新计时
+    */
     private volatile transient Function<? super T, ? extends T> expireCallback;
-    /** 重新加载提供者，过期或手动刷新时从此处加载新值 */
+    /**
+     * 重新加载提供者，过期或手动刷新时从此处加载新值
+    */
     private volatile transient Supplier<? extends T> loader;
-    /** 存活时间 */
+    /**
+     * 存活时间
+    */
     private final Duration ttl;
 
     /**

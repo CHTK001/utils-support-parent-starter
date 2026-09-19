@@ -53,7 +53,9 @@ public class LacTranslator implements Translator<String, String[][]> {
     private String input;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         loadWordDic(model);
@@ -143,7 +145,9 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, String input) {
         this.input = input == null ? "" : input;
         NDManager manager = ctx.getNDManager();
@@ -185,7 +189,9 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
         NDArray tags = list.getFirst();
         long[] tagIds = tags.toLongArray();
@@ -224,7 +230,9 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

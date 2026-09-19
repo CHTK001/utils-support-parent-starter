@@ -25,7 +25,9 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
 
     private static final long serialVersionUID = 1L;
 
-    /** targetMap */
+    /**
+     * targetMap
+    */
     private final Map<K, List<V>> targetMap = new LinkedHashMap<>();
 
     /**
@@ -247,19 +249,25 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object other) {
         return (this == other || this.targetMap.equals(other));
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         return this.targetMap.hashCode();
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return this.targetMap.toString();
     }

@@ -93,7 +93,9 @@ public class JsonPathUtils {
      */
     private static final ParseContext PARSE_CTX = JsonPath.using(DEFAULT_CONFIG);
 
-    /** 创建 json路径工具 实例 */
+    /**
+     * 创建 json路径工具 实例
+    */
     private JsonPathUtils() {
     }
 

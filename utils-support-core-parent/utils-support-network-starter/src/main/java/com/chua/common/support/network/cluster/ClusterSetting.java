@@ -20,22 +20,34 @@ import java.util.List;
 @Setter
 public class ClusterSetting {
 
-    /** 节点 标识（缺省自动生成：主机:端口） */
+    /**
+     * 节点 标识（缺省自动生成：主机:端口）
+    */
     private String nodeId;
 
-    /** 本机 主机 */
+    /**
+     * 本机 主机
+    */
     private String host = "127.0.0.1";
 
-    /** 业务分组标识：同一服务路径下仅与同 scatterid 节点互通 */
+    /**
+     * 业务分组标识：同一服务路径下仅与同 scatterid 节点互通
+    */
     private String scatterId = "default";
 
-    /** 集群标识：为空时回落到 scatterid */
+    /**
+     * 集群标识：为空时回落到 scatterid
+    */
     private String clusterId;
 
-    /** 集群种子节点（主机:端口 列表，引导无中心化发现） */
+    /**
+     * 集群种子节点（主机:端口 列表，引导无中心化发现）
+    */
     private List<String> seeds = new ArrayList<>();
 
-    /** 本节点对外提供的服务路径（用于 scatter 路由前缀匹配） */
+    /**
+     * 本节点对外提供的服务路径（用于 scatter 路由前缀匹配）
+    */
     private List<String> servicePaths = new ArrayList<>();
 
     /**
@@ -45,7 +57,9 @@ public class ClusterSetting {
      */
     private List<ServerEntry> serverEntries = new ArrayList<>();
 
-    /** 本节点业务端口（HTTP 与 TCP 共用；0=自动分配） */
+    /**
+     * 本节点业务端口（HTTP 与 TCP 共用；0=自动分配）
+    */
     private int port = 0;
 
     /**
@@ -53,19 +67,29 @@ public class ClusterSetting {
      */
     private int scatterPort = 0;
 
-    /** 是否启用 HTTP 代理入口 */
+    /**
+     * 是否启用 HTTP 代理入口
+    */
     private boolean httpEnabled = true;
 
-    /** 是否启用 TCP 代理入口 */
+    /**
+     * 是否启用 TCP 代理入口
+    */
     private boolean tcpEnabled = true;
 
-    /** 负载均衡策略（权重/round/随机） */
+    /**
+     * 负载均衡策略（权重/round/随机）
+    */
     private String balance = "weight";
 
-    /** 请求超时（毫秒） */
+    /**
+     * 请求超时（毫秒）
+    */
     private long timeoutMillis = 3000;
 
-    /** 自动发现间隔（毫秒），默认 1000 */
+    /**
+     * 自动发现间隔（毫秒），默认 1000
+    */
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
