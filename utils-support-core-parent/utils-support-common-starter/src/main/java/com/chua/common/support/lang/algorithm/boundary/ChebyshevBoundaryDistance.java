@@ -24,7 +24,9 @@ package com.chua.common.support.lang.algorithm.boundary;
 public class ChebyshevBoundaryDistance extends AbstractBoundaryDistance {
 
     @Override
-    /** Distance */
+    /**
+     * Distance
+    */
     public double distance(double[] a, double[] b) {
         double max = 0.0;
         for (int i = 0; i < a.length; i++) {

@@ -37,12 +37,18 @@ import java.util.Map;
 @Spi("alipay")
 public class AlipayProvider implements PaymentChannel {
 
-    /** 客户端 */
+    /**
+     * 客户端
+    */
     private final AlipayClient client;
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final AlipayConfig config;
 
-    /** 创建 alipay提供者 实例 */
+    /**
+     * 创建 alipay提供者 实例
+    */
     public AlipayProvider() {
         this(null);
     }
@@ -57,7 +63,9 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     @Override
-    /** 薪酬 */
+    /**
+     * 薪酬
+    */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case APP:

@@ -21,7 +21,9 @@ import com.chua.common.support.reflection.ReflectUtils;
  */
 public class SingletonBeanDefinition extends AbstractBeanDefinition {
 
-    /** 单例实例，volatile 保证多线程可见性 */
+    /**
+     * 单例实例，volatile 保证多线程可见性
+    */
     private volatile Object singletonInstance;
 
     /**
@@ -112,7 +114,9 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** 销毁Bean */
+    /**
+     * 销毁Bean
+    */
     public void destroyBean() {
         if (isDestroyed()) {
             return;
@@ -124,7 +128,9 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** 是否销毁 */
+    /**
+     * 是否销毁
+    */
     public boolean isDestroyed() {
  // 父类 销毁 标志即销毁完成
         return super.isDestroyed();

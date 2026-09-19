@@ -10,14 +10,22 @@ import java.math.BigDecimal;
  */
 public class VideoMark {
 
-    /** 视频mark类型 */
+    /**
+     * 视频mark类型
+    */
     private String videoMarkType;
-    /** 视频markpeople */
+    /**
+     * 视频markpeople
+    */
     private Integer videoMarkPeople;
-    /** 视频mark分数 */
+    /**
+     * 视频mark分数
+    */
     private BigDecimal videoMarkScore;
 
-    /** 创建 视频mark 实例 */
+    /**
+     * 创建 视频mark 实例
+    */
     public VideoMark() {
     }
 

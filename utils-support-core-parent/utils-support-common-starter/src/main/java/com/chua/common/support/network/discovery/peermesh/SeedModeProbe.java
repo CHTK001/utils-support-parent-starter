@@ -24,20 +24,34 @@ import java.util.List;
 @Slf4j
 public class SeedModeProbe implements ProbeStrategy {
 
-    /** Connect_timeout_ms */
+    /**
+     * Connect_timeout_ms
+    */
     private static final int CONNECT_TIMEOUT_MS = 500;
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final MeshConfig config;
-    /** 本地服务器ID */
+    /**
+     * 本地服务器ID
+    */
     private final String localServerId;
-    /** 本地主机 */
+    /**
+     * 本地主机
+    */
     private final String localHost;
-    /** 本地端口 */
+    /**
+     * 本地端口
+    */
     private final int localPort;
-    /** Discovered */
+    /**
+     * Discovered
+    */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
-    /** stopped */
+    /**
+     * stopped
+    */
     private volatile boolean stopped;
 
     /**
@@ -56,7 +70,9 @@ public class SeedModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         List<String> seeds = config.getSeeds();
         if (seeds == null || seeds.isEmpty()) {
@@ -71,13 +87,17 @@ public class SeedModeProbe implements ProbeStrategy {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         stopped = true;
     }
 
     @Override
-    /** 获取DiscoveredNodes */
+    /**
+     * 获取DiscoveredNodes
+    */
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }

@@ -24,9 +24,13 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class NeteaseCryptoSupport {
 
-    /** IV */
+    /**
+     * IV
+    */
     private static final byte[] IV = "0102030405060708".getBytes(StandardCharsets.UTF_8);
-    /** Preset_键 */
+    /**
+     * Preset_键
+    */
     private static final byte[] PRESET_KEY = "0CoJUm6Qyw8W8jud".getBytes(StandardCharsets.UTF_8);
     /**
      * Linux_api_键，由配置文件 plugin.datasearch.music.Linux-api-键 覆盖，默认为空
@@ -38,9 +42,13 @@ public final class NeteaseCryptoSupport {
      */
     private static final String EAPI_KEY_STR = "";
     private static final byte[] EAPI_KEY = EAPI_KEY_STR.getBytes(StandardCharsets.UTF_8); // eapi键
-    /** 基础62 */
+    /**
+     * 基础62
+    */
     private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    /** 公共_键_pem */
+    /**
+     * 公共_键_pem
+    */
     private static final String PUBLIC_KEY_PEM =
             "-----BEGIN PUBLIC KEY-----\n" +
                     "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUr\n" +
@@ -49,10 +57,14 @@ public final class NeteaseCryptoSupport {
                     "CiK45wIDAQAB\n" +
                     "-----END PUBLIC KEY-----";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 私有构造器，禁止实例化 */
+    /**
+     * 私有构造器，禁止实例化
+    */
     private NeteaseCryptoSupport() {
     }
 

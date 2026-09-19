@@ -13,15 +13,25 @@ package com.chua.postgresql.support.vector;
  * @since 4.0.0.42
  */
 public record PostgresqlVectorStorageProperties(
-        /** 向量表名称，默认 向量_存储 */
+        /**
+         * 向量表名称，默认 向量_存储
+        */
         String tableName,
-        /** 标识 列名，默认 标识 */
+        /**
+         * 标识 列名，默认 标识
+        */
         String idColumn,
-        /** 向量列名，默认 嵌入 */
+        /**
+         * 向量列名，默认 嵌入
+        */
         String vectorColumn,
-        /** ivfflat 列表 数，默认 100 */
+        /**
+         * ivfflat 列表 数，默认 100
+        */
         int ivfflatLists,
-        /** HNSW M 参数，默认 16 */
+        /**
+         * HNSW M 参数，默认 16
+        */
         int hnswM,
         /**
          * HNSW ef_搜索，默认 40

@@ -147,7 +147,9 @@ public class DecisionNode implements PipelineNode {
         return this;
     }
 
-    /** 节点类型：decision。 */
+    /**
+     * 节点类型：decision。
+    */
     @Override
     public String getType() {
         return "decision";
@@ -162,7 +164,9 @@ public class DecisionNode implements PipelineNode {
         this.params = params != null ? params : Collections.emptyMap();
     }
 
-    /** 返回路由参数表。 */
+    /**
+     * 返回路由参数表。
+    */
     @Override
     public Map<String, Object> getParams() {
         return params;
@@ -177,7 +181,9 @@ public class DecisionNode implements PipelineNode {
         this.env = env != null ? env : Collections.emptyMap();
     }
 
-    /** 返回节点环境变量表。 */
+    /**
+     * 返回节点环境变量表。
+    */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
@@ -192,13 +198,17 @@ public class DecisionNode implements PipelineNode {
         this.retryConfig = retryConfig;
     }
 
-    /** 返回本节点的重试配置；未配置时由引擎按默认策略处理。 */
+    /**
+     * 返回本节点的重试配置；未配置时由引擎按默认策略处理。
+    */
     @Override
     public RetryConfig getRetryConfig() {
         return retryConfig;
     }
 
-    /** 执行路由判定，返回下一节点 标识。 */
+    /**
+     * 执行路由判定，返回下一节点 标识。
+    */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

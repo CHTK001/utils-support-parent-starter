@@ -36,9 +36,13 @@ import javax.annotation.Nullable;
  */
 public class NeuQuant {
 
-    /** Netsize */
+    /**
+     * Netsize
+    */
     protected static final int NETSIZE = 256;
-/** 数字 的 colours used */
+/**
+ * 数字 的 colours used
+*/
 
 
 /**
@@ -49,17 +53,27 @@ public class NeuQuant {
      * that it 是否 divisible by 全部 four primes
      */
     protected static final int PRIME1 = 499;
-    /** Prime2 */
+    /**
+     * Prime2
+    */
     protected static final int PRIME2 = 491;
-    /** Prime3 */
+    /**
+     * Prime3
+    */
     protected static final int PRIME3 = 487;
-    /** Prime4 */
+    /**
+     * Prime4
+    */
     protected static final int PRIME4 = 503;
 
-    /** Minpicturebytes */
+    /**
+     * Minpicturebytes
+    */
     protected static final int MINPICTUREBYTES = (3 * PRIME4);
 
-/** minimum 大小 for 输入 镜像 */
+/**
+ * minimum 大小 for 输入 镜像
+*/
 
 
 /**Program Skeleton
@@ -81,13 +95,17 @@ public class NeuQuant {
      */
 
     protected static final int MAXNETPOS = (NETSIZE - 1); // MAXNETPOS
-    /** Netbiasshift */
+    /**
+     * Netbiasshift
+    */
     protected static final int NETBIASSHIFT = 4;
     /**
      * 偏置 for colour 值
      */
     protected static final int NCYCLES = 100;
-/** no. 的 学习 循环 */
+/**
+ * no. 的 学习 循环
+*/
 
 
     /**
@@ -98,15 +116,21 @@ public class NeuQuant {
      * 偏置 for fractions
      */
     protected static final int INTBIAS = (1 << INTBIASSHIFT);
-    /** Gammashift */
+    /**
+     * Gammashift
+    */
     protected static final int GAMMASHIFT = 10;
     /**
      * gamma = 1024
      */
     protected static final int GAMMA = (1 << GAMMASHIFT);
-    /** Betashift */
+    /**
+     * Betashift
+    */
     protected static final int BETASHIFT = 10;
-    /** Beta */
+    /**
+     * Beta
+    */
     protected static final int BETA = (INTBIAS >> BETASHIFT);
     /**
      * beta = 1/1024
@@ -127,13 +151,17 @@ public class NeuQuant {
      * 从 32.0 半径开始，偏置 6 位
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
-    /** Initradius */
+    /**
+     * Initradius
+    */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
      * 和 减少 by a
      */
     protected static final int RADIUSDEC = 30;
-/** factor 的 1/30 each 循环 */
+/**
+ * factor 的 1/30 each 循环
+*/
 
 
     /**
@@ -145,20 +173,30 @@ public class NeuQuant {
      */
     protected static final int INITALPHA = (1 << ALPHABIASSHIFT);
 
-    /** Alphadec */
+    /**
+     * Alphadec
+    */
     protected int alphadec;
-/** 偏置 10 位 */
+/**
+ * 偏置 10 位
+*/
 
 
     /**
      * radbias 和 alpharadbias used for radpower calculation
      */
     protected static final int RADBIASSHIFT = 8;
-    /** Radbias */
+    /**
+     * Radbias
+    */
     protected static final int RADBIAS = (1 << RADBIASSHIFT);
-    /** Alpharadbshift */
+    /**
+     * Alpharadbshift
+    */
     protected static final int ALPHARADBSHIFT = (ALPHABIASSHIFT + RADBIASSHIFT);
-    /** Alpharadbias */
+    /**
+     * Alpharadbias
+    */
     protected static final int ALPHARADBIAS = (1 << ALPHARADBSHIFT);
 
 
@@ -200,7 +238,9 @@ public class NeuQuant {
      * 偏置 和 freq arrays for 学习
      */
     protected int[] freq = new int[NETSIZE];
-    /** Radpower */
+    /**
+     * Radpower
+    */
     protected int[] radpower = new int[INITRAD];
 
 /**radpower for precomputation */
@@ -272,21 +312,31 @@ public class NeuQuant {
             p = network[i];
             smallpos = i;
             smallval = p[1];
-/** 索引 on g */
+/**
+ * 索引 on g
+*/
 
-/** 查找 smallest 入 i..netsize-1 */
+/**
+ * 查找 smallest 入 i..netsize-1
+*/
             for (j = i + 1; j < NETSIZE; j++) {
                 q = network[j];
                 if (q[1] < smallval) {
-/** 索引 on g */
+/**
+ * 索引 on g
+*/
                     smallpos = j;
                     smallval = q[1];
-/** 索引 on g */
+/**
+ * 索引 on g
+*/
                 }
             }
             q = network[smallpos];
 
-/** 掉期 p (i) 和 Q (smallpos) entries */
+/**
+ * 掉期 p (i) 和 Q (smallpos) entries
+*/
             if (i != smallpos) {
                 j = q[0];
                 q[0] = p[0];
@@ -302,7 +352,9 @@ public class NeuQuant {
                 p[3] = j;
             }
 
-/** smallval entry 是否 now 入 位置 i */
+/**
+ * smallval entry 是否 now 入 位置 i
+*/
             if (smallval != previouscol) {
                 netindex[previouscol] = (startpos + i) >> 1;
                 for (j = previouscol + 1; j < smallval; j++) {
@@ -421,21 +473,31 @@ public class NeuQuant {
         int best;
 
         bestd = 1000;
-/** biggest possible dist 是否 256*3 */
+/**
+ * biggest possible dist 是否 256*3
+*/
         best = -1;
         i = netindex[g];
-/** 索引 on g */
+/**
+ * 索引 on g
+*/
         j = i - 1;
-/** 启动 at netindex[g] 和 work outwards */
+/**
+ * 启动 at netindex[g] 和 work outwards
+*/
 
         while ((i < NETSIZE) || (j >= 0)) {
             if (i < NETSIZE) {
                 p = network[i];
                 dist = p[1] - g;
-/** inx 键 */
+/**
+ * inx 键
+*/
                 if (dist >= bestd) {
                     i = NETSIZE;
-/** 停止 iter */
+/**
+ * 停止 iter
+*/
                 } else {
                     i++;
                     if (dist < 0) {
@@ -462,10 +524,14 @@ public class NeuQuant {
             if (j >= 0) {
                 p = network[j];
                 dist = g - p[1];
-/** inx 键 - reverse dif */
+/**
+ * inx 键 - reverse dif
+*/
                 if (dist >= bestd) {
                     j = -1;
-/** 停止 iter */
+/**
+ * 停止 iter
+*/
                 } else {
                     j--;
                     if (dist < 0) {
@@ -602,15 +668,21 @@ public class NeuQuant {
     protected int contest(int b, int g, int r) {
 
 
-/** 查找 closest neuron (最小 dist) 和 更新 freq */
+/**
+ * 查找 closest neuron (最小 dist) 和 更新 freq
+*/
 
-/** 查找 best neuron (最小 dist-偏置) 和 返回 位置 */
+/**
+ * 查找 best neuron (最小 dist-偏置) 和 返回 位置
+*/
 
 /**
  * for frequently chosen neurons, freq[i] 是否 high 和 偏置[i] 是否 negative
  */
 
-/** 偏置[i] = gamma*((1/netsize)-freq[i]) */
+/**
+ * 偏置[i] = gamma*((1/netsize)-freq[i])
+*/
 
         int i, dist, a, biasdist, betafreq;
         int bestpos, bestbiaspos, bestd, bestbiasd;

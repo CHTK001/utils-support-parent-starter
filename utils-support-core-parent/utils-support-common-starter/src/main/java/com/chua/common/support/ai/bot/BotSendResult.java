@@ -14,19 +14,29 @@ import lombok.Data;
 @Data
 public class BotSendResult {
 
-    /** 是否发送成功 */
+    /**
+     * 是否发送成功
+    */
     private boolean success;
 
-    /** 返回的消息 ID */
+    /**
+     * 返回的消息 ID
+    */
     private String msgId;
 
-    /** 错误码 */
+    /**
+     * 错误码
+    */
     private int errorCode;
 
-    /** 错误信息 */
+    /**
+     * 错误信息
+    */
     private String errorMessage;
 
-    /** 原始响应内容 */
+    /**
+     * 原始响应内容
+    */
     private String rawResponse;
 
     /**

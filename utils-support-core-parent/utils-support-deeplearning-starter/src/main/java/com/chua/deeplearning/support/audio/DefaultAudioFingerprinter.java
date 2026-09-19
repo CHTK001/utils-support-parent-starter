@@ -48,25 +48,43 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultAudioFingerprinter implements AudioFingerprinter {
 
-    /** 默认推理设备：CPU */
+    /**
+     * 默认推理设备：CPU
+    */
     private static final String DEFAULT_DEVICE = "cpu";
-    /** 默认目标采样率：16kHz（大多数语音模型的标准输入采样率） */
+    /**
+     * 默认目标采样率：16kHz（大多数语音模型的标准输入采样率）
+    */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
 
-    /** 推理引擎实例（全局单例） */
+    /**
+     * 推理引擎实例（全局单例）
+    */
     private final IdentificationEngine engine;
-    /** 要使用的模型 ID */
+    /**
+     * 要使用的模型 ID
+    */
     private final String modelName;
-    /** 模型配置（来源：构造时传入） */
+    /**
+     * 模型配置（来源：构造时传入）
+    */
     @SuppressWarnings("unused")
     private final ModelSetting setting;
-    /** 自定义模型路径（覆盖注册表中的默认路径） */
+    /**
+     * 自定义模型路径（覆盖注册表中的默认路径）
+    */
     private String modelPath;
-    /** 推理设备："cpu" 或 "cuda" */
+    /**
+     * 推理设备："cpu" 或 "cuda"
+    */
     private String device = DEFAULT_DEVICE;
-    /** 目标采样率（Hz） */
+    /**
+     * 目标采样率（Hz）
+    */
     private int sampleRate = DEFAULT_SAMPLE_RATE;
-    /** 是否对特征向量做 L2 归一化 */
+    /**
+     * 是否对特征向量做 L2 归一化
+    */
     private boolean normalize = true;
 
     /**

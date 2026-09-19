@@ -26,7 +26,9 @@ public enum ProgressUnitType implements ProgressUnit {
      */
     NONE() {
         @Override
-        /** 格式化 */
+        /**
+         * 格式化
+        */
         public String format(long num) {
             return SYMBOL_EMPTY;
         }
@@ -39,7 +41,9 @@ public enum ProgressUnitType implements ProgressUnit {
      */
     BYTE() {
         @Override
-        /** 格式化 */
+        /**
+         * 格式化
+        */
         public String format(long num) {
             return SizeValue.format(num);
         }
@@ -52,7 +56,9 @@ public enum ProgressUnitType implements ProgressUnit {
      */
     ORIGINAL() {
         @Override
-        /** 格式化 */
+        /**
+         * 格式化
+        */
         public String format(long num) {
             return String.valueOf(num);
         }
@@ -65,7 +71,9 @@ public enum ProgressUnitType implements ProgressUnit {
      */
     SIZE() {
         @Override
-        /** 格式化 */
+        /**
+         * 格式化
+        */
         public String format(long num) {
             return SizeValue.format(NumberUtils.toBigDecimal(num).longValue());
         }

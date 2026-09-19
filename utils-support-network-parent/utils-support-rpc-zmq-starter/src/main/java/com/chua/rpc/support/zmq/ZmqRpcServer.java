@@ -207,7 +207,9 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     @Override
-    /** 注册服务 */
+    /**
+     * 注册服务
+    */
     public RpcServer register(String name, Object bean) {
         if (name == null || bean == null) {
             log.warn("ZmqRpcServer ignore invalid register: name={}, bean={}", name, bean);
@@ -260,7 +262,9 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() {
         if (!state.compareAndSet(false, true)) {
             return;
@@ -448,26 +452,34 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     @Override
-    /** 协议名称 */
+    /**
+     * 协议名称
+    */
     public String getProtocol() {
         return "zmq";
     }
 
     @Override
-    /** 服务数量 */
+    /**
+     * 服务数量
+    */
     public int getServiceCount() {
         return services.size();
     }
 
     @Override
-    /** 连接信息 */
+    /**
+     * 连接信息
+    */
     public List<RpcConnectionInfo> getConnections() {
  // jeromq 不暴露已连接的 identity 列表，装载后按协议返回虚拟连接占位
         return Collections.emptyList();
     }
 
     @Override
-    /** 指标快照 */
+    /**
+     * 指标快照
+    */
     public RpcMetrics getMetrics() {
         RpcMetrics metrics = new RpcMetrics("zmq");
         metrics.setStartTime(startTime);
@@ -481,7 +493,9 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (!state.compareAndSet(true, false)) {
             return;
@@ -527,7 +541,9 @@ public class ZmqRpcServer implements RpcServer {
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override
-        /** 判断相等 */
+        /**
+         * 判断相等
+        */
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -540,7 +556,9 @@ public class ZmqRpcServer implements RpcServer {
         }
 
         @Override
-        /** 哈希编码 */
+        /**
+         * 哈希编码
+        */
         public int hashCode() {
             int result = service.hashCode();
             result = 31 * result + method.hashCode();

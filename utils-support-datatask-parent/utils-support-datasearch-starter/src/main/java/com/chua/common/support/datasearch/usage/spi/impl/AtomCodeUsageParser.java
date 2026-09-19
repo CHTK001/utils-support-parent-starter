@@ -67,20 +67,28 @@ public class AtomCodeUsageParser extends BaseUsageParser {
      */
     private static final Path ATOMCODE_HOME;
 
-    /** 会话 transcripts 根: $ATOMCODE_Home/会话 */
+    /**
+     * 会话 transcripts 根: $ATOMCODE_Home/会话
+    */
     private static final Path SESSIONS_DIR;
 
     private static final String PROVIDER_ATOMCODE = "atomcode"; // 提供者atomcode
 
-    /** config.toml 的 default_model 声明行 */
+    /**
+     * config.toml 的 default_model 声明行
+    */
     private static final Pattern DEFAULT_MODEL_PATTERN =
             Pattern.compile("^\\s*default_model\\s*=\\s*\"([^\"]+)\"");
 
-    /** config.toml 的 [models."xxx"] 小节头（键名可带引号） */
+    /**
+     * config.toml 的 [models."xxx"] 小节头（键名可带引号）
+    */
     private static final Pattern MODELS_SECTION_PATTERN =
             Pattern.compile("^\\s*\\[models\\.\"?([^\"\\]]+)\"?\\]\\s*$");
 
-    /** config.toml 小节内的 model = "xxx" 声明行 */
+    /**
+     * config.toml 小节内的 model = "xxx" 声明行
+    */
     private static final Pattern SECTION_MODEL_PATTERN =
             Pattern.compile("^\\s*model\\s*=\\s*\"([^\"]+)\"");
 

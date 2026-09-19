@@ -35,10 +35,14 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class MiganInpaintingTranslator implements Translator<Image, Image> {
 
-    /** 当前帧宽度。 */
+    /**
+     * 当前帧宽度。
+    */
     private int width;
 
-    /** 当前帧高度。 */
+    /**
+     * 当前帧高度。
+    */
     private int height;
 
 
@@ -121,7 +125,9 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
 
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

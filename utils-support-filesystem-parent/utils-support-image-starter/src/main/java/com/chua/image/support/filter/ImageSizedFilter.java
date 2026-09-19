@@ -56,7 +56,9 @@ import javax.annotation.Nullable;
 public class ImageSizedFilter extends AbstractImageFilter {
 
 
-    /** 缩放比例 */
+    /**
+     * 缩放比例
+    */
     private double size = 0.5d;
 
     /**
@@ -68,7 +70,9 @@ public class ImageSizedFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return zoomByScale(size, src);

@@ -24,19 +24,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
     @Override
-    /** 获取协议 */
+    /**
+     * 获取协议
+    */
     public String getProtocol() {
         return "rsocket";
     }
 
     @Override
-    /** 创建服务端 */
+    /**
+     * 创建服务端
+    */
     public SyncServer createServer(ServerSetting setting) {
         return new RSocketSyncServer(setting);
     }
 
     @Override
-    /** 创建客户端 */
+    /**
+     * 创建客户端
+    */
     public SyncClient createClient(Object setting) {
         String url = "rsocket://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
         return new RSocketSyncClient(url);
@@ -65,59 +71,77 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         delegate.start();
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         delegate.stop();
         clients.clear();
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         delegate.publish(topic, message.toString());
         notifyListener(l -> l.onMessage("broadcast", topic, message));
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         delegate.publish(topic, message.toString());
         notifyListener(l -> l.onMessage(clientId, topic, message));
     }
 
     @Override
-    /** 获取连接客户端 */
+    /**
+     * 获取连接客户端
+    */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取客户端metadata */
+    /**
+     * 获取客户端metadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }

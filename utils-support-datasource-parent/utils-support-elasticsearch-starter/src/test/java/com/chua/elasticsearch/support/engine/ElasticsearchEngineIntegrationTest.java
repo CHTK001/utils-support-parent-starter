@@ -32,7 +32,9 @@ public class ElasticsearchEngineIntegrationTest {
 
     private static final String INDEX_NAME = "esdoc";
 
-    /** 真实 Elasticsearch 8 容器（禁用安全） */
+    /**
+     * 真实 Elasticsearch 8 容器（禁用安全）
+    */
     static final ElasticsearchContainer ES = new ElasticsearchContainer(
             DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.12.0")
                     .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch"))
@@ -86,7 +88,9 @@ public class ElasticsearchEngineIntegrationTest {
         engine.getClient().indices().refresh(r -> r.index(INDEX_NAME));
     }
 
-    /** 测试用 ES 数据源（匿名实现 EngineDataSource） */
+    /**
+     * 测试用 ES 数据源（匿名实现 EngineDataSource）
+    */
     private static class EsDataSource implements EngineDataSource<Object> {
 
         private final String url;

@@ -70,7 +70,9 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     }
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         if (inOuterDetectCornerArea(x, y, matrixW, matrixH, detectCornerSize)) {
             // 外层的框

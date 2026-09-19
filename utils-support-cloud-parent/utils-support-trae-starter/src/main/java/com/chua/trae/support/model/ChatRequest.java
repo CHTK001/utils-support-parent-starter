@@ -15,31 +15,49 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChatRequest {
 
-    /** 模型标识，如 glm-5.2，可为 空（使用默认） */
+    /**
+     * 模型标识，如 glm-5.2，可为 空（使用默认）
+    */
     @JsonProperty("model")
     private String model; // 模型
-    /** 消息列表，不可为 空 或空 */
+    /**
+     * 消息列表，不可为 空 或空
+    */
     @JsonProperty("messages")
     private List<ChatMessage> messages; // 消息
-    /** 是否流式，空 视为 true */
+    /**
+     * 是否流式，空 视为 true
+    */
     @JsonProperty("stream")
     private Boolean stream; // 流
-    /** 温度参数，0.0-2.0 */
+    /**
+     * 温度参数，0.0-2.0
+    */
     @JsonProperty("temperature")
     private Double temperature; // temperature
-    /** 最大生成 令牌 数 */
+    /**
+     * 最大生成 令牌 数
+    */
     @JsonProperty("max_tokens")
     private Integer maxTokens; // 最大令牌
-    /** Top-P 采样参数 */
+    /**
+     * Top-P 采样参数
+    */
     @JsonProperty("top_p")
     private Double topP; // topp
-    /** 工具定义列表，可为 空 */
+    /**
+     * 工具定义列表，可为 空
+    */
     @JsonProperty("tools")
     private List<ToolDefinition> tools; // tools
-    /** 工具选择策略：auto/无/required */
+    /**
+     * 工具选择策略：auto/无/required
+    */
     @JsonProperty("tool_choice")
     private String toolChoice; // toolchoice
-    /** 扩展参数，透传至后端 */
+    /**
+     * 扩展参数，透传至后端
+    */
     @JsonProperty("extra")
     private Map<String, Object> extra; // extra
 
@@ -182,7 +200,9 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class Builder {
-        /** 构建中的请求对象 */
+        /**
+         * 构建中的请求对象
+        */
         private final ChatRequest req = new ChatRequest();
 
         /**
@@ -298,11 +318,17 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class UserMessage implements ChatMessage {
-        /** 角色，固定 用户 */
+        /**
+         * 角色，固定 用户
+        */
         @JsonProperty("role") public String role = "user";
-        /** 文本内容 */
+        /**
+         * 文本内容
+        */
         @JsonProperty("content") public String content;
-        /** 工具调用列表（多轮场景） */
+        /**
+         * 工具调用列表（多轮场景）
+        */
         @JsonProperty("tool_calls") public List<ToolCall> toolCalls;
 
         /**
@@ -348,13 +374,21 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class AssistantMessage implements ChatMessage {
-        /** 角色，固定 assistant */
+        /**
+         * 角色，固定 assistant
+        */
         @JsonProperty("role") public String role = "assistant";
-        /** 文本内容 */
+        /**
+         * 文本内容
+        */
         @JsonProperty("content") public String content;
-        /** 工具调用列表 */
+        /**
+         * 工具调用列表
+        */
         @JsonProperty("tool_calls") public List<ToolCall> toolCalls;
-        /** 推理内容（思维链） */
+        /**
+         * 推理内容（思维链）
+        */
         @JsonProperty("reasoning_content") public String reasoningContent;
 
         /**
@@ -421,11 +455,17 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class ToolMessage implements ChatMessage {
-        /** 角色，固定 tool */
+        /**
+         * 角色，固定 tool
+        */
         @JsonProperty("role") public String role = "tool";
-        /** 工具调用 标识，对应 toolcall.标识 */
+        /**
+         * 工具调用 标识，对应 toolcall.标识
+        */
         @JsonProperty("tool_call_id") public String toolCallId;
-        /** 工具执行结果 */
+        /**
+         * 工具执行结果
+        */
         @JsonProperty("content") public String content;
 
         /**
@@ -468,13 +508,21 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class ToolCall {
-        /** 调用 标识 */
+        /**
+         * 调用 标识
+        */
         @JsonProperty("id") private String id;
-        /** 调用类型，固定 function */
+        /**
+         * 调用类型，固定 function
+        */
         @JsonProperty("type") private String type = "function";
-        /** 函数调用详情 */
+        /**
+         * 函数调用详情
+        */
         @JsonProperty("function") private FunctionCall function;
-        /** 参数 映射（打开AI 风格） */
+        /**
+         * 参数 映射（打开AI 风格）
+        */
         @JsonProperty("arguments") private Map<String, Object> arguments;
 
         /**
@@ -540,9 +588,13 @@ public class ChatRequest {
      * @since 4.0.0
      */
     public static class FunctionCall {
-        /** 函数名 */
+        /**
+         * 函数名
+        */
         @JsonProperty("name") private String name;
-        /** 参数 JSON 字符串 */
+        /**
+         * 参数 JSON 字符串
+        */
         @JsonProperty("arguments") private String arguments;
 
         /**

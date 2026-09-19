@@ -22,7 +22,9 @@ import java.util.Objects;
 public record ModelDomain(List<FeatureColumn> features, String targetName, boolean regression,
         Map<String, List<String>> nominalValues) implements Serializable {
 
-    /** 序列化版本号（P3C 规约：Serializable 必须声明） */
+    /**
+     * 序列化版本号（P3C 规约：Serializable 必须声明）
+    */
     private static final long serialVersionUID = 1L;
 
     /**

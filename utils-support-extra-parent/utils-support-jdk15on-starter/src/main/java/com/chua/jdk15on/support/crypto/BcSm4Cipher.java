@@ -26,13 +26,19 @@ public class BcSm4Cipher implements Sm4Cipher {
         }
     }
 
-    /** 算法 */
+    /**
+     * 算法
+    */
     private static final String ALGORITHM = "SM4";
-    /** 转变 */
+    /**
+     * 转变
+    */
     private static final String TRANSFORMATION = "SM4/ECB/PKCS7Padding";
 
     @Override
-    /** Encrypt */
+    /**
+     * Encrypt
+    */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(validateKey(key), ALGORITHM);
@@ -45,7 +51,9 @@ public class BcSm4Cipher implements Sm4Cipher {
     }
 
     @Override
-    /** Decrypt */
+    /**
+     * Decrypt
+    */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(validateKey(key), ALGORITHM);

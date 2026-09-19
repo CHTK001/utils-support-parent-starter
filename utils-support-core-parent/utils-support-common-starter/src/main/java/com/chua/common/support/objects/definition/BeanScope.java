@@ -15,13 +15,19 @@ package com.chua.common.support.objects.definition;
  */
 public enum BeanScope {
 
-    /** 单例，整个容器生命周期内只有一个实例 */
+    /**
+     * 单例，整个容器生命周期内只有一个实例
+    */
     SINGLETON("singleton"),
 
-    /** 原型，每次获取都创建新实例 */
+    /**
+     * 原型，每次获取都创建新实例
+    */
     PROTOTYPE("prototype");
 
-    /** 作用域名称 */
+    /**
+     * 作用域名称
+    */
     private final String name;
 
     /**

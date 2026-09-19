@@ -49,13 +49,17 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     protected VectorCompareAlgorithm getAlgorithm() {
         return algorithm;
     }
-    /** 维度 */
+    /**
+     * 维度
+    */
     @Override
     public int dimension() {
         checkNotClosed();
         return dimension;
     }
-    /** 添加 */
+    /**
+     * 添加
+    */
     @Override
     public boolean add(String id, float[] vector) {
         checkNotClosed();
@@ -65,7 +69,9 @@ public abstract class AbstractVectorStorage implements VectorStorage {
         }
         return doAdd(id, vector);
     }
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     @Override
     public List<Vector> search(float[] query, int topK) {
         checkNotClosed();
@@ -116,7 +122,9 @@ public abstract class AbstractVectorStorage implements VectorStorage {
                 algo.compare(a.data(), query)));
         return results.size() > topK ? results.subList(0, topK) : results;
     }
-/** 关闭 */
+/**
+ * 关闭
+*/
 @Override
     public void close() {
         this.closed = true;

@@ -342,7 +342,9 @@ public class LaMaConfiguration {
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         
         return String.format("LaMaConfiguration{modelPath='%s', inputSize=%d, threads=%d, useGpu=%s}",

@@ -80,19 +80,33 @@ public record LogQuery(
     }
 
     public static final class Builder {
-        /** 来源 */
+        /**
+         * 来源
+        */
         private String source;
-        /** 模式 */
+        /**
+         * 模式
+        */
         private String pattern;
-        /** 最小值级别 */
+        /**
+         * 最小值级别
+        */
         private LogLevel minLevel;
-        /** 最大值结果 */
+        /**
+         * 最大值结果
+        */
         private int maxResults = DEFAULT_MAX_RESULTS;
-        /** 之后 */
+        /**
+         * 之后
+        */
         private String after;
-        /** Tail */
+        /**
+         * Tail
+        */
         private boolean tail;
-        /** 排序 */
+        /**
+         * 排序
+        */
         private String order = ORDER_DESC;
 
         /**

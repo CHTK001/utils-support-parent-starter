@@ -28,19 +28,25 @@ import java.lang.reflect.Method;
 public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<CircuitBreaker> {
 
     @Override
-    /** 注解类型 */
+    /**
+     * 注解类型
+    */
     public Class<CircuitBreaker> annotationType() {
         return CircuitBreaker.class;
     }
 
     @Override
-    /** 订单 */
+    /**
+     * 订单
+    */
     public int order() {
         return 100;
     }
 
     @Override
-    /** Intercept */
+    /**
+     * Intercept
+    */
     public Object intercept(CircuitBreaker annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
  // 解析熔断器名称：优先使用注解 名称（支持 spel），未填则使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);

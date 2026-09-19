@@ -26,7 +26,9 @@ public final class WebSocketProtocol {
      */
     private static final String WS_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-    /** 创建 WebSocketProtocol 实例 */
+    /**
+     * 创建 WebSocketProtocol 实例
+    */
     private WebSocketProtocol() {
     }
 

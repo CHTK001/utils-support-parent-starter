@@ -21,22 +21,34 @@ import java.nio.file.Path;
 @Slf4j
 public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
 
-    /** 默认最大长度 */
+    /**
+     * 默认最大长度
+    */
     private static final int DEFAULT_MAX_LEN = 512;
 
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private final BgeEmbeddingTranslator translator;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 是否已加载 */
+    /**
+     * 是否已加载
+    */
     private volatile boolean loaded;
 
-    /** 创建 bge文本特征translator 实例 */
+    /**
+     * 创建 bge文本特征translator 实例
+    */
     public BgeTextFeatureTranslator() {
         this.translator = new BgeEmbeddingTranslator();
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -111,13 +123,17 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "bge-text-feature";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public float[] translate(String input) {
         try {
             prepare();

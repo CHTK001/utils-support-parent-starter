@@ -64,7 +64,9 @@ public class JRebelSign {
      */
     private PrivateKey privateKey;
 
-    /** 创建 jrebel标志 实例 */
+    /**
+     * 创建 jrebel标志 实例
+    */
     public JRebelSign() {
         initPrivateKey();
     }

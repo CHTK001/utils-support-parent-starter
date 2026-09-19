@@ -78,7 +78,9 @@ public class MavenCompileResult {
      */
     private List<String> artifacts;
 
-    /** 创建 mavencompile结果 实例 */
+    /**
+     * 创建 mavencompile结果 实例
+    */
     public MavenCompileResult() {
     }
 
@@ -374,7 +376,9 @@ public class MavenCompileResult {
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return "MavenCompileResult{" +
                 "success=" + success +

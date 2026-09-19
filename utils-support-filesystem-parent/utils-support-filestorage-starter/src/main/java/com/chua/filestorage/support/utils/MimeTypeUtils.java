@@ -24,15 +24,25 @@ import java.util.Set;
  */
 public final class MimeTypeUtils {
 
-    /** 浏览器原生可预览的 MIME 类型集合（部分） */
+    /**
+     * 浏览器原生可预览的 MIME 类型集合（部分）
+    */
     private static final Set<String> BROWSER_PREVIEW_MIMES;
-    /** 可转换为 PDF 的扩展名集合 */
+    /**
+     * 可转换为 PDF 的扩展名集合
+    */
     private static final Set<String> CONVERTABLE_TO_PDF_EXTENSIONS;
-    /** 前端插件可预览的扩展名集合（如 办公室、CAD 等） */
+    /**
+     * 前端插件可预览的扩展名集合（如 办公室、CAD 等）
+    */
     private static final Set<String> PLUGIN_PREVIEW_EXTENSIONS;
-    /** 支持 范围 断点续传的 MIME 类型 */
+    /**
+     * 支持 范围 断点续传的 MIME 类型
+    */
     private static final Set<String> RANGE_SUPPORTED_MIMES;
-    /** 扩展名到 MIME 的映射 */
+    /**
+     * 扩展名到 MIME 的映射
+    */
     private static final Map<String, String> EXTENSION_TO_MIME;
 
     static {
@@ -190,7 +200,9 @@ public final class MimeTypeUtils {
         RANGE_SUPPORTED_MIMES = Collections.unmodifiableSet(range);
     }
 
-    /** 创建 mime类型工具 实例 */
+    /**
+     * 创建 mime类型工具 实例
+    */
     private MimeTypeUtils() {
         throw new AssertionError("No com.chua.filestorage.support.utils.MimeTypeUtils instances for you!");
     }

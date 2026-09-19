@@ -14,88 +14,166 @@ import java.util.List;
  */
 public class VideoInfoResult {
 
-    /** 视频标识 */
+    /**
+     * 视频标识
+    */
     private Integer videoId;
-    /** 视频标题 */
+    /**
+     * 视频标题
+    */
     private String videoTitle;
-    /** 视频名称 */
+    /**
+     * 视频名称
+    */
     private String videoName;
-    /** 视频别名名称 */
+    /**
+     * 视频别名名称
+    */
     private String videoAliasName;
-    /** 视频分数 */
+    /**
+     * 视频分数
+    */
     private BigDecimal videoScore;
-    /** 视频year */
+    /**
+     * 视频year
+    */
     private Integer videoYear;
-    /** 视频platform */
+    /**
+     * 视频platform
+    */
     private String videoPlatform;
-    /** 视频语言 */
+    /**
+     * 视频语言
+    */
     private String videoLanguage;
-    /** 视频quality */
+    /**
+     * 视频quality
+    */
     private String videoQuality;
-    /** 视频thumbnail */
+    /**
+     * 视频thumbnail
+    */
     private String videoThumbnail;
-    /** 视频cover */
+    /**
+     * 视频cover
+    */
     private String videoCover;
-    /** 视频URL */
+    /**
+     * 视频URL
+    */
     private String videoUrl;
-    /** 视频views */
+    /**
+     * 视频views
+    */
     private BigDecimal videoViews;
-    /** 视频likes */
+    /**
+     * 视频likes
+    */
     private Integer videoLikes;
-    /** 视频状态 */
+    /**
+     * 视频状态
+    */
     private Integer videoStatus;
-    /** 视频持续时间 */
+    /**
+     * 视频持续时间
+    */
     private Integer videoDuration;
-    /** 视频版本 */
+    /**
+     * 视频版本
+    */
     private Integer videoVersion;
-    /** 视频DOUBANID */
+    /**
+     * 视频DOUBANID
+    */
     private String videoDouBanId;
-    /** 视频发布日期 */
+    /**
+     * 视频发布日期
+    */
     private LocalDateTime videoPublishDate;
-    /** 视频分类 */
+    /**
+     * 视频分类
+    */
     private String videoCategory;
-    /** 视频类型 */
+    /**
+     * 视频类型
+    */
     private String videoType;
-    /** 视频release */
+    /**
+     * 视频release
+    */
     private String videoRelease;
-    /** 视频district */
+    /**
+     * 视频district
+    */
     private String videoDistrict;
-    /** 视频尺寸 */
+    /**
+     * 视频尺寸
+    */
     private String videoSize;
-    /** 视频作者 */
+    /**
+     * 视频作者
+    */
     private String videoAuthor;
-    /** 视频director */
+    /**
+     * 视频director
+    */
     private String videoDirector;
-    /** 视频写入器 */
+    /**
+     * 视频写入器
+    */
     private String videoWriter;
-    /** 视频actor */
+    /**
+     * 视频actor
+    */
     private String videoActor;
-    /** 视频描述 */
+    /**
+     * 视频描述
+    */
     private String videoDescription;
-    /** 视频originid */
+    /**
+     * 视频originid
+    */
     private String videoOriginId;
-    /** 视频popularity */
+    /**
+     * 视频popularity
+    */
     private String videoPopularity;
-    /** 视频vote数量 */
+    /**
+     * 视频vote数量
+    */
     private Integer videoVoteCount;
 
  // 视频信息结果 特定 字段
-    /** videoMark列出 */
+    /**
+     * videoMark列出
+    */
     private List<?> videoMarkList;
     private List<?> downloadList; // download列表
     private List<?> playAddressesList; // play地址列表
-    /** 下载urls */
+    /**
+     * 下载urls
+    */
     private String downloadUrls;
-    /** 标签 */
+    /**
+     * 标签
+    */
     private String tags;
-    /** 视频备注（如 vod_remarks） */
+    /**
+     * 视频备注（如 vod_remarks）
+    */
     private String videoRemark;
-    /** 是否被封 (true=该站点已封/过期，无需重试) */
+    /**
+     * 是否被封 (true=该站点已封/过期，无需重试)
+    */
     private boolean blocked;
-    /** 被封原因 */
+    /**
+     * 被封原因
+    */
     private String blockReason;
 
-    /** 创建 视频信息结果 实例 */
+    /**
+     * 创建 视频信息结果 实例
+    */
     public VideoInfoResult() {}
 
  // --- Getters 和 Setters ---

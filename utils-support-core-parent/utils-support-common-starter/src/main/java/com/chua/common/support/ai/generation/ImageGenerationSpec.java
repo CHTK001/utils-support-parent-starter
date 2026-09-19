@@ -19,28 +19,44 @@ import com.chua.common.support.ai.chat.ChatClient;
  */
 public class ImageGenerationSpec {
 
-    /** 底层对话客户端 */
+    /**
+     * 底层对话客户端
+    */
     private final ChatClient client;
 
-    /** 生成提示词 */
+    /**
+     * 生成提示词
+    */
     private String prompt;
 
-    /** 宽高比 */
+    /**
+     * 宽高比
+    */
     private String ratio;
 
-    /** 生成数量 */
+    /**
+     * 生成数量
+    */
     private int n = 1;
 
-    /** 图像宽度（像素） */
+    /**
+     * 图像宽度（像素）
+    */
     private int width;
 
-    /** 图像高度（像素） */
+    /**
+     * 图像高度（像素）
+    */
     private int height;
 
-    /** 图像质量 */
+    /**
+     * 图像质量
+    */
     private String quality;
 
-    /** 参考图键 */
+    /**
+     * 参考图键
+    */
     private String refImageKey;
 
     /**
@@ -129,18 +145,32 @@ public class ImageGenerationSpec {
         return client.generateImage(prompt, ratio, n, width, height, quality, refImageKey);
     }
 
-    /** Prompt */
+    /**
+     * Prompt
+    */
     public String prompt() { return prompt; }
-    /** Ratio */
+    /**
+     * Ratio
+    */
     public String ratio() { return ratio; }
-    /** N */
+    /**
+     * N
+    */
     public int n() { return n; }
-    /** Width */
+    /**
+     * Width
+    */
     public int width() { return width; }
-    /** Height */
+    /**
+     * Height
+    */
     public int height() { return height; }
-    /** Quality */
+    /**
+     * Quality
+    */
     public String quality() { return quality; }
-    /** RefImageKey */
+    /**
+     * RefImageKey
+    */
     public String refImageKey() { return refImageKey; }
 }

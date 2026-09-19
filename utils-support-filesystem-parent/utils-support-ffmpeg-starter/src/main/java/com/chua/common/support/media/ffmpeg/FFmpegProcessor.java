@@ -32,7 +32,9 @@ public interface FFmpegProcessor {
      */
     void convertVideo(File input, File output, String targetFormat, FFmpegOptions options) throws IOException;
 
-    /** 流式视频转换 */
+    /**
+     * 流式视频转换
+    */
     void convertVideo(InputStream inputStream, OutputStream outputStream,
                       String inputFormat, String outputFormat) throws IOException;
 
@@ -160,13 +162,17 @@ public interface FFmpegProcessor {
      */
     void pushStream(String input, String streamUrl, FFmpegOptions options) throws IOException;
 
-    /** RTMP 推流（带帧通知回调，无返回） */
+    /**
+     * RTMP 推流（带帧通知回调，无返回）
+    */
     default void pushStream(String input, String streamUrl, FFmpegOptions options,
                             Consumer<FrameInfo> callback) throws IOException {
         pushStream(input, streamUrl, options);
     }
 
-    /** RTMP 推流（带帧回调，返回帧数据用于渲染） */
+    /**
+     * RTMP 推流（带帧回调，返回帧数据用于渲染）
+    */
     default void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                       Consumer<FrameInfo> callback) throws IOException {
         pushStream(input, streamUrl, options);
@@ -180,13 +186,17 @@ public interface FFmpegProcessor {
      */
     void pullStream(String streamUrl, File output, double duration) throws IOException;
 
-    /** 拉流保存（带帧通知回调，无返回） */
+    /**
+     * 拉流保存（带帧通知回调，无返回）
+    */
     default void pullStream(String streamUrl, File output, double duration,
                             Consumer<FrameInfo> callback) throws IOException {
         pullStream(streamUrl, output, duration);
     }
 
-    /** 拉流保存（带帧回调，返回帧数据用于渲染） */
+    /**
+     * 拉流保存（带帧回调，返回帧数据用于渲染）
+    */
     default void pullStreamWithFrames(String streamUrl, File output, double duration,
                                       Consumer<FrameInfo> callback) throws IOException {
         pullStream(streamUrl, output, duration);

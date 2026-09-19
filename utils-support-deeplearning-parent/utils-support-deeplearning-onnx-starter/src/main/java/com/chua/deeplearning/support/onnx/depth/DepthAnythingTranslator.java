@@ -35,20 +35,32 @@ import java.awt.image.BufferedImage;
 @Slf4j
 public class DepthAnythingTranslator implements Translator<Image, Image> {
 
-    /** 模型尺寸 */
+    /**
+     * 模型尺寸
+    */
     private static final int MODEL_SIZE = 518;
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     private int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     private int height;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -74,7 +86,9 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depth = list.singletonOrThrow();
 
@@ -114,7 +128,9 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

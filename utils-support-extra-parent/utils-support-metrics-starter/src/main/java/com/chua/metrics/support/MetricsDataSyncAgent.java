@@ -188,19 +188,25 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         @Override
-        /** 源id */
+        /**
+         * 源id
+        */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
-        /** 输入id */
+        /**
+         * 输入id
+        */
         public String inputId() {
             return "metrics";
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public Flux<Map<String, Object>> read(Map<String, Object> params) {
             return Flux.defer(() -> {
                 if (closed) {
@@ -295,13 +301,17 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         @Override
-        /** Direction */
+        /**
+         * Direction
+        */
         public Direction direction() {
             return Direction.INPUT;
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             closed = true;
         }

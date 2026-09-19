@@ -33,11 +33,17 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
  */
 public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 640;
-    /** 步长数组 */
+    /**
+     * 步长数组
+    */
 
-    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    /**
+     * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+    */
     private float thresholdOverride = -1f;
 
     /**
@@ -50,15 +56,23 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
     private static final int[] STRIDES = {8, 16, 32}; // STRIDES
-    /** 锚框数量 */
+    /**
+     * 锚框数量
+    */
     private static final int NUM_ANCHORS = 2;
-    /** 分数阈值 */
+    /**
+     * 分数阈值
+    */
     private static final float SCORE_THRESHOLD = 0.70f;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private static final double NMS_THRESHOLD = 0.40d;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
@@ -78,7 +92,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 9) {
             return empty();
@@ -189,7 +205,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() { return null; }
 
     /**
@@ -206,7 +224,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
          */
         private Rectangle rectangle() { return landmark; }
     }
-        /** 默认构造。 */
+        /**
+         * 默认构造。
+        */
     public ScrfdFaceDetectorTranslator() {
     }
 

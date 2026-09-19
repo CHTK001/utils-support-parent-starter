@@ -10,13 +10,21 @@ import javax.sql.DataSource;
 
 public class MysqlCreateUserStep implements UserManager.CreateUserStep {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private String password;
-    /** 主机 */
+    /**
+     * 主机
+    */
     private String host = "%";
 
     /**
@@ -31,21 +39,27 @@ public class MysqlCreateUserStep implements UserManager.CreateUserStep {
     }
 
     @Override
-    /** with密码 */
+    /**
+     * with密码
+    */
     public UserManager.CreateUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
-    /** with主机 */
+    /**
+     * with主机
+    */
     public UserManager.CreateUserStep withHost(String host) {
         this.host = host;
         return this;
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

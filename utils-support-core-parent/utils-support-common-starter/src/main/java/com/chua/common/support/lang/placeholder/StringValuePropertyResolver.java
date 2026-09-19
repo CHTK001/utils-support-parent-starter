@@ -19,7 +19,9 @@ import java.util.Set;
 @Slf4j
 public class StringValuePropertyResolver implements PropertyResolver {
 
-    /** Placeholdersupport */
+    /**
+     * Placeholdersupport
+    */
     private final PlaceholderSupport placeholderSupport;
 
     /**
@@ -69,7 +71,9 @@ public class StringValuePropertyResolver implements PropertyResolver {
         }
         placeholderResolver = placeholderSupport.getResolver();
     }
-/** 获取PlaceholderSupport */
+/**
+ * 获取PlaceholderSupport
+*/
 @Override
     public PlaceholderSupport getPlaceholderSupport() {
         return placeholderSupport;

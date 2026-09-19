@@ -36,27 +36,47 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 @Slf4j
 public class FastSamSegmentTranslator {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 1024;
-    /** 类别数量 */
+    /**
+     * 类别数量
+    */
     private static final int NUM_CLASSES = 1;
-    /** 原型掩码数量 */
+    /**
+     * 原型掩码数量
+    */
     private static final int NUM_PROTOS = 32;
-    /** 步长 */
+    /**
+     * 步长
+    */
     private static final int STRIDE = 4;
-    /** 置信度阈值 */
+    /**
+     * 置信度阈值
+    */
     private static final float CONF_THRESHOLD = 0.3f;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private static final float NMS_THRESHOLD = 0.5f;
-    /** 掩码尺寸 */
+    /**
+     * 掩码尺寸
+    */
     private static final int MASK_SIZE = 256;
 
-    /** 资源基础路径 */
+    /**
+     * 资源基础路径
+    */
     private static final String RESOURCE_BASE = "vision/seg/fastsam/onnx/";
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private static final String MODEL_FILE = "fastsam_s.onnx";
 
-    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    /**
+     * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+    */
     private float thresholdOverride = -1f;
 
     /**
@@ -69,17 +89,27 @@ public class FastSamSegmentTranslator {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
 
-    /** 源图像宽度 */
+    /**
+     * 源图像宽度
+    */
     private int srcWidth;
-    /** 源图像高度 */
+    /**
+     * 源图像高度
+    */
     private int srcHeight;
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -325,7 +355,9 @@ public class FastSamSegmentTranslator {
         return (BufferedImage) ImageFactory.getInstance().fromImage(input).getWrappedImage();
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         try {
             if (session != null) {

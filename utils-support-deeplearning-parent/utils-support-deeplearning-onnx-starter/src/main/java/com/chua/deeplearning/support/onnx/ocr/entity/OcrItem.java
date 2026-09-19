@@ -8,9 +8,13 @@ package com.chua.deeplearning.support.onnx.ocr.entity;
  */
 public class OcrItem {
 
-    /** OCR 文本框 */
+    /**
+     * OCR 文本框
+    */
     private OcrBox ocrBox;
-    /** 得分 */
+    /**
+     * 得分
+    */
     private float score;
 
     /**

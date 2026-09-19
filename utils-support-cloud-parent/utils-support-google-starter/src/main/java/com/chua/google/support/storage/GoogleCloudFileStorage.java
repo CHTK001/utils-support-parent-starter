@@ -34,7 +34,9 @@ import java.util.List;
 @Spi({"gcs", "google"})
 public class GoogleCloudFileStorage extends AbstractFileStorage {
 
-    /** 对象存储客户端 */
+    /**
+     * 对象存储客户端
+    */
     private final Storage storage;
 
     /**
@@ -257,7 +259,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // Google Cloud Storage 客户端由 SDK 内部管理连接池
     }

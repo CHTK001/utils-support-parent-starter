@@ -12,7 +12,9 @@ package com.chua.common.support.exception;
  */
 public class RuntimeTimeoutException extends RuntimeException {
 
-    /** 创建 RuntimeTimeoutException 实例 */
+    /**
+     * 创建 RuntimeTimeoutException 实例
+    */
     public RuntimeTimeoutException() {
         super("请求处理超时");
     }

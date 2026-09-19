@@ -12,16 +12,24 @@ package com.chua.deeplearning.support.onnx.audio.paraformer;
  */
 class FftRadix2 {
 
-    /** FFT 长度 */
+    /**
+     * FFT 长度
+    */
     private final int n;
 
-    /** 位反转索引表 */
+    /**
+     * 位反转索引表
+    */
     private final int[] rev;
 
-    /** 预计算旋转因子实部 */
+    /**
+     * 预计算旋转因子实部
+    */
     private final float[] wr;
 
-    /** 预计算旋转因子虚部 */
+    /**
+     * 预计算旋转因子虚部
+    */
     private final float[] wi;
 
     /**

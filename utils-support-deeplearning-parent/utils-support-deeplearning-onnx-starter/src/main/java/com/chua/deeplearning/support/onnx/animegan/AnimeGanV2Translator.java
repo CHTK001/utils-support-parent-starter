@@ -52,7 +52,9 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     private int originalHeight;
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -79,7 +81,9 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
 
@@ -188,7 +192,9 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.fromString("none");
     }

@@ -7,19 +7,29 @@ package com.chua.datasource.support.engine.fixture;
  */
 public class FixtureUser {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private String name;
 
-    /** 年龄 */
+    /**
+     * 年龄
+    */
     private Integer age;
 
-    /** 部门编号 */
+    /**
+     * 部门编号
+    */
     private Long deptId;
 
-    /** 金额 */
+    /**
+     * 金额
+    */
     private Double amount;
 
     /**

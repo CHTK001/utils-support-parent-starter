@@ -33,47 +33,75 @@ public class WechatReplyPolicy {
      */
     public enum DenyReason {
 
-        /** 处于人工接管状态 */
+        /**
+         * 处于人工接管状态
+        */
         PAUSED,
 
-        /** 消息对象为空 */
+        /**
+         * 消息对象为空
+        */
         NO_MESSAGE,
 
-        /** 消息正文为空，无内容可回复 */
+        /**
+         * 消息正文为空，无内容可回复
+        */
         EMPTY_CONTENT,
 
-        /** 消息来自群聊，而群聊回复开关未打开 */
+        /**
+         * 消息来自群聊，而群聊回复开关未打开
+        */
         GROUP_DISABLED,
 
-        /** 命中黑名单 */
+        /**
+         * 命中黑名单
+        */
         BLOCKED,
 
-        /** 白名单非空且未命中 */
+        /**
+         * 白名单非空且未命中
+        */
         NOT_ALLOWED,
 
-        /** 配置了触发关键词但正文未包含 */
+        /**
+         * 配置了触发关键词但正文未包含
+        */
         NO_KEYWORD,
 
-        /** 当日回复总量已达上限 */
+        /**
+         * 当日回复总量已达上限
+        */
         DAILY_LIMIT,
 
-        /** 单个会话每分钟回复次数已达上限 */
+        /**
+         * 单个会话每分钟回复次数已达上限
+        */
         USER_RATE_LIMIT
     }
 
-    /** 一分钟毫秒数 */
+    /**
+     * 一分钟毫秒数
+    */
     private static final long MINUTE_MILLIS = 60_000L;
 
-    /** 一天毫秒数 */
+    /**
+     * 一天毫秒数
+    */
     private static final long DAY_MILLIS = 24 * 60 * 60_000L;
 
-    /** 频控记账的会话数上限，超出后清理整日无记录的会话 */
+    /**
+     * 频控记账的会话数上限，超出后清理整日无记录的会话
+    */
     private static final int MAX_TRACKED_CONVERSATIONS = 1024;
 
-    /** 默认单对象每分钟回复上限 */
+    /**
+     * 默认单对象每分钟回复上限
+    */
     private static final int DEFAULT_MAX_PER_USER_PER_MINUTE = 5;
 
-    /** 默认当日回复总量上限 */
+    /**
+     * 默认当日回复总量上限
+    */
     private static final int DEFAULT_MAX_PER_DAY = 200;
 
     /** 默认同一对端两次回复的最小间隔（毫秒）*/
@@ -82,31 +110,49 @@ public class WechatReplyPolicy {
     /** 默认随机延迟上限（毫秒）*/
     private static final long DEFAULT_JITTER_MILLIS = 2_000L;
 
-    /** 白名单，为空表示不限制对象 */
+    /**
+     * 白名单，为空表示不限制对象
+    */
     private final Set<String> allowList = new LinkedHashSet<>();
 
-    /** 黑名单，优先级高于白名单 */
+    /**
+     * 黑名单，优先级高于白名单
+    */
     private final Set<String> blockList = new LinkedHashSet<>();
 
-    /** 触发关键词，为空表示任何消息都触发 */
+    /**
+     * 触发关键词，为空表示任何消息都触发
+    */
     private final Set<String> keywords = new LinkedHashSet<>();
 
-    /** 单对象每分钟命中时间 */
+    /**
+     * 单对象每分钟命中时间
+    */
     private final Map<String, Deque<Long>> userHits = new ConcurrentHashMap<>();
 
-    /** 当日全局回复时间 */
+    /**
+     * 当日全局回复时间
+    */
     private final Deque<Long> dailyHits = new ArrayDeque<>();
 
-    /** 人工接管开关，置位后一律不回 */
+    /**
+     * 人工接管开关，置位后一律不回
+    */
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    /** 是否允许在群聊回复 */
+    /**
+     * 是否允许在群聊回复
+    */
     private boolean allowGroups;
 
-    /** 单对象每分钟回复上限 */
+    /**
+     * 单对象每分钟回复上限
+    */
     private int maxPerUserPerMinute = DEFAULT_MAX_PER_USER_PER_MINUTE;
 
-    /** 当日回复总量上限 */
+    /**
+     * 当日回复总量上限
+    */
     private int maxPerDay = DEFAULT_MAX_PER_DAY;
 
     /** 同一对端两次回复的最小间隔（毫秒）*/

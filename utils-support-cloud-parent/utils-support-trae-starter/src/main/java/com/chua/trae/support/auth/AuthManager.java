@@ -28,23 +28,35 @@ public class AuthManager {
     private static final Logger log = LoggerFactory.getLogger(AuthManager.class); // 日志
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** storage.json 中认证信息对应的 JSON 键 */
+    /**
+     * storage.json 中认证信息对应的 JSON 键
+    */
     private static final String AUTH_KEY = "iCubeAuthInfo://icube.cloudide";
-    /** JWT 前缀，用于识别手动 令牌 */
+    /**
+     * JWT 前缀，用于识别手动 令牌
+    */
     private static final String JWT_PREFIX = "eyJ";
 
-    /** Trae 版本：cn 或 sg，不可为 空 */
+    /**
+     * Trae 版本：cn 或 sg，不可为 空
+    */
     private final String edition;
     /**
      * Trae 数据目录（storage.json 所在 用户/全局storage 路径），可为 空
      */
     private final String dataDir;
-    /** 手动 JWT 令牌，可为 空（优先于 数据dir 读取） */
+    /**
+     * 手动 JWT 令牌，可为 空（优先于 数据dir 读取）
+    */
     private final String manualToken;
-    /** Trae API 主机地址，用于手动 令牌 场景 */
+    /**
+     * Trae API 主机地址，用于手动 令牌 场景
+    */
     private final String apiHost;
 
-    /** 认证快照缓存，volatile 保证多线程可见性 */
+    /**
+     * 认证快照缓存，volatile 保证多线程可见性
+    */
     private volatile AuthSnapshot cached;
 
     /**

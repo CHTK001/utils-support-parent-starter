@@ -24,37 +24,49 @@ public class SpringIntegrationHandler extends AbstractAppHandler {
     private static final String[] SEND_METHODS = {"send", "receive"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "spring-integration-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "spring-integration.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.SPRING_INTEGRATION;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.MESSAGE;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(MESSAGE_CHANNEL, SEND_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

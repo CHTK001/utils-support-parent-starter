@@ -306,11 +306,17 @@ public class ApngUtils {
      * @since 4.0.0
      */
     public static class ApngInfo {
-        /** 帧数量 */
+        /**
+         * 帧数量
+        */
         private final int frameCount;
-        /** 宽度 */
+        /**
+         * 宽度
+        */
         private final int width;
-        /** 高度 */
+        /**
+         * 高度
+        */
         private final int height;
 
         /**
@@ -364,7 +370,9 @@ public class ApngUtils {
         }
 
         @Override
-        /** 转为字符串 */
+        /**
+         * 转为字符串
+        */
         public String toString() {
         
             return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}", 

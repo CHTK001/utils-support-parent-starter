@@ -212,7 +212,9 @@ public final class ProgressSimulator {
         return Math.max(min, Math.min(max, v));
     }
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return "ProgressSimulator{" +
                 "type=" + type +

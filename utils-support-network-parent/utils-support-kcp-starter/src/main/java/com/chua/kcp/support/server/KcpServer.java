@@ -207,19 +207,25 @@ public class KcpServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议 */
+    /**
+     * 获取协议
+    */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         setting.setProtocol("kcp");
         channelConfig = new ChannelConfig();
@@ -300,7 +306,9 @@ public class KcpServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (kcpBaseServer != null) {
             for (Ukcp ukcp : sessions.values()) {
@@ -451,7 +459,9 @@ public class KcpServer extends AbstractServer {
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public KcpServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -635,7 +645,9 @@ public class KcpServer extends AbstractServer {
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
-        /** on连接 */
+        /**
+         * on连接
+        */
         public void onConnected(Ukcp ukcp) {
             // kcp-base 1.6.2 的 Ukcp 未暴露 remoteAddress()，用 hashCode 兜底，由客户端 register: 重命名
             String initialId = "client-" + System.nanoTime() + "-" + ukcp.hashCode();
@@ -662,7 +674,9 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
-        /** 处理接收 */
+        /**
+         * 处理接收
+        */
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
  // kcp-基础 1.6.2 读取任务 自行管理 bytebuf 引用计数，此处不可 release（双重释放会 illegal引用数量异常）
             String line = byteBuf.toString(StandardCharsets.UTF_8).trim();
@@ -670,14 +684,18 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
-        /** 处理异常 */
+        /**
+         * 处理异常
+        */
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 连接处理异常: {}", ex.getMessage(), ex);
             notifyErrorListeners(ex);
         }
 
         @Override
-        /** 处理关闭 */
+        /**
+         * 处理关闭
+        */
         public void handleClose(Ukcp ukcp) {
             kcp.User user = ukcp.user();
             String clientId = user != null && user.getCache() instanceof String
@@ -837,49 +855,65 @@ public class KcpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return topic;
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return topic;
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return clientId;
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return 0;
         }
 
         @Override
-        /** 读取主体 */
+        /**
+         * 读取主体
+        */
         protected byte[] readBody() {
             return payload;
         }
@@ -891,13 +925,17 @@ public class KcpServer extends AbstractServer {
     private static final class KcpServerResponse extends AbstractServerResponse {
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
             // KCP 文本协议无原始响应写回，忽略
         }

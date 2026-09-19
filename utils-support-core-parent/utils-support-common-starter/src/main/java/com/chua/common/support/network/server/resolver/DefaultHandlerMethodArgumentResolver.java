@@ -29,7 +29,9 @@ import java.util.Map;
 public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
-    /** 是否Support */
+    /**
+     * 是否Support
+    */
     public boolean isSupport(Method method, int parameterIndex, ServerRequest request) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         return type == ServerRequest.class ||
@@ -41,7 +43,9 @@ public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgume
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public Object resolve(Method method, int parameterIndex, ServerRequest request, ServerResponse response) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         if (type == ServerRequest.class) {

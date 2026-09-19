@@ -226,84 +226,108 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** 最大值令牌 */
+    /**
+     * 最大值令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** 添加镜像 */
+    /**
+     * 添加镜像
+    */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加Attachment */
+    /**
+     * 添加Attachment
+    */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
     }
 
     @Override
-    /** 添加attachmenturl */
+    /**
+     * 添加attachmenturl
+    */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
     @Override
-    /** 添加用户历史 */
+    /**
+     * 添加用户历史
+    */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加assistant历史 */
+    /**
+     * 添加assistant历史
+    */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 会话 */
+    /**
+     * 会话
+    */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
-    /** 新对话 */
+    /**
+     * 新对话
+    */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -313,7 +337,9 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Tools */
+    /**
+     * Tools
+    */
     public ChatClient tools(List<ChatTool> tools) {
         this.tools.clear();
         if (tools != null) {
@@ -323,7 +349,9 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Tool */
+    /**
+     * Tool
+    */
     public ChatClient tool(ChatTool tool) {
         if (tool != null) {
             this.tools.add(tool);
@@ -332,91 +360,117 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** toolchoice */
+    /**
+     * toolchoice
+    */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** topp */
+    /**
+     * topp
+    */
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public ChatClient stop(List<String> stop) {
         this.stop = stop != null ? new ArrayList<>(stop) : null;
         return this;
     }
 
     @Override
-    /** Seed */
+    /**
+     * Seed
+    */
     public ChatClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
-    /** 响应格式化 */
+    /**
+     * 响应格式化
+    */
     public ChatClient responseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
 
     @Override
-    /** extra主体 */
+    /**
+     * extra主体
+    */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody != null ? extraBody : new HashMap<>();
         return this;
     }
 
     @Override
-    /** extra头部 */
+    /**
+     * extra头部
+    */
     public ChatClient extraHeaders(Map<String, String> headers) {
         this.extraHeaders = headers;
         return this;
     }
 
     @Override
-    /** Thinking */
+    /**
+     * Thinking
+    */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
-    /** thinkingeffort */
+    /**
+     * thinkingeffort
+    */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** 流 */
+    /**
+     * 流
+    */
     public ChatClient stream(boolean stream) {
         this.stream = stream;
         return this;
     }
 
     @Override
-    /** Smart搜索 */
+    /**
+     * Smart搜索
+    */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
-    /** Skill */
+    /**
+     * Skill
+    */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         // 同步方法强制使用非流式，不受外部 stream(true) 影响
         boolean savedStream = this.stream;
@@ -445,7 +499,9 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话 */
+    /**
+     * 对话
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -582,7 +638,9 @@ public class OpenAiChatClient implements ChatClient {
                     .provider("openai")
                     .startTime(startTime);
 
-            /** 流式首包时间戳（首个内容 chunk 到达时刻），用于计算首字延迟 */
+            /**
+             * 流式首包时间戳（首个内容 chunk 到达时刻），用于计算首字延迟
+            */
             long firstTokenAt = 0;
 
             if (stream) {
@@ -927,7 +985,9 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** 探针 */
+    /**
+     * 探针
+    */
     public ProbeReport probe() {
         if (probeStation == null) {
             probeStation = new OpenAiProbeStation(setting);

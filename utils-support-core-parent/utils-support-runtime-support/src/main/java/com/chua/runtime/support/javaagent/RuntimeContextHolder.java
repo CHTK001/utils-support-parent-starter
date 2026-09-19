@@ -52,7 +52,9 @@ public final class RuntimeContextHolder {
      */
     private static final Map<String, RuntimeArtifact> quickArtifacts = new ConcurrentHashMap<>();
 
-    /** 创建 runtime上下文holder 实例 */
+    /**
+     * 创建 runtime上下文holder 实例
+    */
     private RuntimeContextHolder() {
     }
 

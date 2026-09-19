@@ -449,19 +449,33 @@ import java.util.concurrent.ConcurrentHashMap;
 
     public static final class GroupByQueryWrapper<T> {
 
-        /** 引擎 */
+        /**
+         * 引擎
+        */
         private final LuceneEngine engine;
-        /** Entityclass */
+        /**
+         * Entityclass
+        */
         private final Class<T> entityClass;
-        /** 分组bycols */
+        /**
+         * 分组bycols
+        */
         private final List<String> groupByCols = new ArrayList<>();
-        /** Where */
+        /**
+         * Where
+        */
         private String where;
-        /** 参数 */
+        /**
+         * 参数
+        */
         private Object[] params;
-        /** 排序col */
+        /**
+         * 排序col
+        */
         private String sortCol;
-        /** 排序asc */
+        /**
+         * 排序asc
+        */
         private boolean sortAsc = true;
 
         GroupByQueryWrapper(LuceneEngine engine, Class<T> entityClass, String... groupByCols) {
@@ -1089,7 +1103,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
-    /** 执行更新 */
+    /**
+     * 执行更新
+    */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         if (sql == null || !sql.hasSet() || !sql.hasWhere()) {
             return 0;
@@ -1163,7 +1179,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
-    /** 执行删除 */
+    /**
+     * 执行删除
+    */
     public <T> int executeDelete(DeleteSql<T> sql) {
         if (sql == null || !sql.hasWhere()) {
             return 0;

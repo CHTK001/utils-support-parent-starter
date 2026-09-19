@@ -43,34 +43,60 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCloseable {
 
-    /** 默认 TTL：0 表示不过期 */
+    /**
+     * 默认 TTL：0 表示不过期
+    */
     private static final long DEFAULT_TTL_MILLIS = 0L;
-    /** 默认过期检查间隔提示值 */
+    /**
+     * 默认过期检查间隔提示值
+    */
     private static final long DEFAULT_EXPIRY_CHECK_INTERVAL_MILLIS = 1000L;
-    /** 默认最大容量 */
+    /**
+     * 默认最大容量
+    */
     private static final int DEFAULT_MAX_CAPACITY = Integer.MAX_VALUE;
 
-    /** 数据加载器 */
+    /**
+     * 数据加载器
+    */
     private final Supplier<List<E>> loader;
-    /** TTL 毫秒（0 = 不过期） */
+    /**
+     * TTL 毫秒（0 = 不过期）
+    */
     private final long ttlMillis;
-    /** 过期检查间隔毫秒（读时惰性检查的粒度提示） */
+    /**
+     * 过期检查间隔毫秒（读时惰性检查的粒度提示）
+    */
     private final long expiryCheckIntervalMillis;
-    /** 最大容量 */
+    /**
+     * 最大容量
+    */
     private final int maxCapacity;
-    /** 是否使用堆外存储 */
+    /**
+     * 是否使用堆外存储
+    */
     private final boolean offHeap;
-    /** 生命周期监听器 */
+    /**
+     * 生命周期监听器
+    */
     private final Consumer<LifecycleEvent> lifecycleListener;
 
-    /** 加载锁：保证并发首访只加载一次 */
+    /**
+     * 加载锁：保证并发首访只加载一次
+    */
     private final ReentrantLock loadLock = new ReentrantLock();
 
-    /** 当前状态 */
+    /**
+     * 当前状态
+    */
     private ListState state = ListState.UNLOADED;
-    /** 底层存储（未加载或已释放时为 null） */
+    /**
+     * 底层存储（未加载或已释放时为 null）
+    */
     private DataStore<E> store;
-    /** 加载完成时间戳（纳秒），用于 TTL 判定 */
+    /**
+     * 加载完成时间戳（纳秒），用于 TTL 判定
+    */
     private long loadedAtNanos;
 
     /**
@@ -105,17 +131,29 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
      */
     public static final class Builder<E> {
 
-        /** 数据加载器（必填） */
+        /**
+         * 数据加载器（必填）
+        */
         private Supplier<List<E>> loader;
-        /** TTL 毫秒 */
+        /**
+         * TTL 毫秒
+        */
         private long ttlMillis = DEFAULT_TTL_MILLIS;
-        /** 过期检查间隔毫秒 */
+        /**
+         * 过期检查间隔毫秒
+        */
         private long expiryCheckIntervalMillis = DEFAULT_EXPIRY_CHECK_INTERVAL_MILLIS;
-        /** 最大容量 */
+        /**
+         * 最大容量
+        */
         private int maxCapacity = DEFAULT_MAX_CAPACITY;
-        /** 是否堆外 */
+        /**
+         * 是否堆外
+        */
         private boolean offHeap;
-        /** 生命周期监听器 */
+        /**
+         * 生命周期监听器
+        */
         private Consumer<LifecycleEvent> lifecycleListener;
 
         /**
@@ -209,17 +247,27 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
          * 事件类型枚举。
          */
         public enum Type {
-            /** 数据加载完成 */
+            /**
+             * 数据加载完成
+            */
             LOADED,
-            /** 手动释放（evict） */
+            /**
+             * 手动释放（evict）
+            */
             EVICTED,
-            /** 关闭 */
+            /**
+             * 关闭
+            */
             CLOSED,
-            /** 加载失败 */
+            /**
+             * 加载失败
+            */
             LOAD_FAILED
         }
 
-        /** 事件类型 */
+        /**
+         * 事件类型
+        */
         private final Type type;
 
         /**

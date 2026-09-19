@@ -26,28 +26,44 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TimerTask {
 
 
-    /** 任务唯一标识 */
+    /**
+     * 任务唯一标识
+    */
     private final String id;
 
-    /** 待执行的任务逻辑 */
+    /**
+     * 待执行的任务逻辑
+    */
     private final Runnable task;
 
-    /** 任务名称（用于日志） */
+    /**
+     * 任务名称（用于日志）
+    */
     private final String name;
 
-    /** 到期时间戳（毫秒）；周期任务重排时由时间轮推进 */
+    /**
+     * 到期时间戳（毫秒）；周期任务重排时由时间轮推进
+    */
     private volatile long deadline;
 
-    /** 重复周期（毫秒），-1 表示单次任务 */
+    /**
+     * 重复周期（毫秒），-1 表示单次任务
+    */
     private final long period;
 
-    /** 状态标记 */
+    /**
+     * 状态标记
+    */
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
-    /** 执行次数统计 */
+    /**
+     * 执行次数统计
+    */
     private final AtomicInteger executeCount = new AtomicInteger(0);
 
-    /** 槽位索引（注册后写入） */
+    /**
+     * 槽位索引（注册后写入）
+    */
     volatile int slotIndex = -1;
 
     /**

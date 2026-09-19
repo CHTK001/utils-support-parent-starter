@@ -44,13 +44,19 @@ import java.util.UUID;
 @SuppressWarnings("unchecked")
 public class MemoryManager implements AutoCloseable {
 
-    /** 记忆存储 */
+    /**
+     * 记忆存储
+    */
     private final MemoryStore store;
 
-    /** 记忆配置 */
+    /**
+     * 记忆配置
+    */
     private final MemoryConfig config;
 
-    /** 默认总结 prompt */
+    /**
+     * 默认总结 prompt
+    */
     private static final String DEFAULT_SUMMARIZER_PROMPT =
             "请从以下对话内容中提炼出关键信息，生成一条高质量的记忆条目。\n"
             + "要求：\n"
@@ -237,7 +243,9 @@ public class MemoryManager implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         store.close();
     }

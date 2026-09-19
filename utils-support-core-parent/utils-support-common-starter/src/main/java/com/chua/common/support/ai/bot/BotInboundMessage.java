@@ -21,38 +21,58 @@ import lombok.Singular;
 @SuppressWarnings("unchecked")
 public class BotInboundMessage {
 
-    /** 消息类型枚举 */
+    /**
+     * 消息类型枚举
+    */
     public enum Type {
 
-        /** 文本类型 */
+        /**
+         * 文本类型
+        */
         TEXT,
 
-        /** 图片类型 */
+        /**
+         * 图片类型
+        */
         IMAGE,
 
-        /** 语音类型 */
+        /**
+         * 语音类型
+        */
         VOICE,
 
-        /** 视频类型 */
+        /**
+         * 视频类型
+        */
         VIDEO,
 
-        /** 文件类型 */
+        /**
+         * 文件类型
+        */
         FILE,
 
-        /** 位置类型 */
+        /**
+         * 位置类型
+        */
         LOCATION,
 
         /** 事件类型（订阅、点击等）*/
         EVENT,
 
-        /** 未知类型 */
+        /**
+         * 未知类型
+        */
         UNKNOWN
     }
 
-    /** 消息唯一标识 ID */
+    /**
+     * 消息唯一标识 ID
+    */
     private String msgId;
 
-    /** 消息类型 */
+    /**
+     * 消息类型
+    */
     private Type type;
 
     /**
@@ -97,7 +117,9 @@ public class BotInboundMessage {
      */
     private String eventType;
 
-    /** 事件 Key */
+    /**
+     * 事件 Key
+    */
     private String eventKey;
 
     /**
@@ -106,12 +128,18 @@ public class BotInboundMessage {
      */
     private String chatId;
 
-    /** 是否来自群组 */
+    /**
+     * 是否来自群组
+    */
     private boolean fromGroup;
 
-    /** @ 提及的用户 ID 列表 */
+    /**
+     * @ 提及的用户 ID 列表
+    */
     @Singular("mentionedItem")
-    /** Mentioned列表 */
+    /**
+     * Mentioned列表
+    */
     private List<String> mentionedList;
 
     /**

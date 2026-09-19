@@ -38,37 +38,49 @@ public class MqttHandler extends AbstractAppHandler {
     private static final String[] MQTT_METHODS = {"publish", "subscribe", "unsubscribe"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "mqtt-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "mqtt.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.PAHO_MQTT;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.MQTT;
     }
 
     @Override
-    /** softwareforentry */
+    /**
+     * softwareforentry
+    */
     protected Software softwareForEntry(InterceptContext ctx) {
         return Software.PAHO_MQTT;
     }
 
     @Override
-    /** 种类forentry */
+    /**
+     * 种类forentry
+    */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
  // 发布 为生产者，订阅 为消费者
         String method = ctx.getMethodName();
@@ -77,14 +89,18 @@ public class MqttHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(MQTT_ASYNC_CLIENT, MQTT_METHODS);
         registerAll(MQTT_SYNC_CLIENT, MQTT_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object serverURI = instance != null ? findField(instance, "serverURI") : null;
         String url = serverURI != null ? String.valueOf(serverURI) : null;

@@ -31,12 +31,18 @@ import java.util.Map;
  */
 public class ClawHubProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(ClawHubProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     protected static final String NAME = "clawhub";
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     protected static final String PREFIX = "";
 
     /**

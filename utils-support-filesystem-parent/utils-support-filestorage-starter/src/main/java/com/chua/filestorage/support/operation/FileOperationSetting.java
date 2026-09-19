@@ -69,7 +69,9 @@ public class FileOperationSetting {
      * 是否自动根据 EXIF 旋转
      */
     @Builder.Default
-    /** Autoorient */
+    /**
+     * Autoorient
+    */
     private Boolean autoOrient = false;
 
     /**
@@ -91,7 +93,9 @@ public class FileOperationSetting {
      * 是否强制下载（忽略预览逻辑）
      */
     @Builder.Default
-    /** Force下载 */
+    /**
+     * Force下载
+    */
     private Boolean forceDownload = false;
 
     /**

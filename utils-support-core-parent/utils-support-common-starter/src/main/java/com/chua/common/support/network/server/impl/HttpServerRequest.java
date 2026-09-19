@@ -30,15 +30,25 @@ import com.chua.common.support.spi.ServiceProvider;
  */
 public class HttpServerRequest implements ServerRequest {
 
-    /** Exchange */
+    /**
+     * Exchange
+    */
     private final HttpExchange exchange;
-    /** 最大值请求尺寸 */
+    /**
+     * 最大值请求尺寸
+    */
     private final long maxRequestSize;
-    /** 默认字符集 */
+    /**
+     * 默认字符集
+    */
     private final Charset defaultCharset;
-    /** Cached请求体 */
+    /**
+     * Cached请求体
+    */
     private byte[] cachedBody;
-    /** attributes */
+    /**
+     * attributes
+    */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
@@ -56,19 +66,25 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Uri */
+    /**
+     * 获取Uri
+    */
     public String getUri() {
         return exchange.getRequestURI().toString();
     }
 
     @Override
-    /** 获取Path */
+    /**
+     * 获取Path
+    */
     public String getPath() {
         return exchange.getRequestURI().getPath();
     }
 
     @Override
-    /** 获取Method */
+    /**
+     * 获取Method
+    */
     public HttpMethod getMethod() {
         try {
             return HttpMethod.valueOf(exchange.getRequestMethod().toUpperCase());
@@ -78,13 +94,17 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Header */
+    /**
+     * 获取Header
+    */
     public String getHeader(String name) {
         return exchange.getRequestHeaders().getFirst(name);
     }
 
     @Override
-    /** 获取Headers */
+    /**
+     * 获取Headers
+    */
     public HttpHeader getHeaders() {
         HttpHeader h = HttpHeader.create();
         exchange.getRequestHeaders().forEach((k, v) -> h.add(k, String.join(",", v)));
@@ -92,7 +112,9 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Params */
+    /**
+     * 获取Params
+    */
     public Map<String, String> getParams() {
         String query = exchange.getRequestURI().getQuery();
         if (query == null || query.isEmpty()) {
@@ -109,19 +131,25 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Param */
+    /**
+     * 获取Param
+    */
     public String getParam(String name) {
         return getParams().get(name);
     }
 
     @Override
-    /** 获取ContentType */
+    /**
+     * 获取ContentType
+    */
     public String getContentType() {
         return exchange.getRequestHeaders().getFirst("Content-Type");
     }
 
     @Override
-    /** 获取Content获取长度 */
+    /**
+     * 获取Content获取长度
+    */
     public long getContentLength() {
         String len = exchange.getRequestHeaders().getFirst("Content-Length");
         if (len == null) {
@@ -135,7 +163,9 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Body */
+    /**
+     * 获取Body
+    */
     public byte[] getBody() {
         if (cachedBody == null) {
             try (InputStream is = exchange.getRequestBody()) {
@@ -151,49 +181,65 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取BodyString */
+    /**
+     * 获取BodyString
+    */
     public String getBodyString() {
         return new String(getBody(), resolveCharset());
     }
 
     @Override
-    /** 获取InputStream */
+    /**
+     * 获取InputStream
+    */
     public InputStream getInputStream() {
         return new java.io.ByteArrayInputStream(getBody());
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /**
+     * 获取RemoteAddress
+    */
     public String getRemoteAddress() {
         return exchange.getRemoteAddress().getHostString();
     }
 
     @Override
-    /** 获取RemotePort */
+    /**
+     * 获取RemotePort
+    */
     public int getRemotePort() {
         return exchange.getRemoteAddress().getPort();
     }
 
     @Override
-    /** 获取Attributes */
+    /**
+     * 获取Attributes
+    */
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
     @Override
-    /** 获取Attribute */
+    /**
+     * 获取Attribute
+    */
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
     @Override
-    /** 设置Attribute */
+    /**
+     * 设置Attribute
+    */
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
 
     @Override
-    /** 获取FormData */
+    /**
+     * 获取FormData
+    */
     public Map<String, String> getFormData() {
         String ct = getContentType();
         if (ct == null) {
@@ -224,7 +270,9 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     @Override
-    /** 获取Files */
+    /**
+     * 获取Files
+    */
     public List<FormFile> getFiles() {
         String ct = getContentType();
         if (ct == null || !ct.toLowerCase().startsWith("multipart/form-data")) {

@@ -2,12 +2,16 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.MattingService;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxMattingService implements MattingService {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
     /**
@@ -18,7 +22,9 @@ public class OnnxMattingService implements MattingService {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public MattingService model(String model) {
         this.modelName = model;
         return this;
@@ -34,7 +40,9 @@ public class OnnxMattingService implements MattingService {
     }
 
     @Override
-    /** Matte */
+    /**
+     * Matte
+    */
     public byte[] matte(byte[] imageData) {
         return MattingService.create(resolveModel()).matte(imageData);
     }

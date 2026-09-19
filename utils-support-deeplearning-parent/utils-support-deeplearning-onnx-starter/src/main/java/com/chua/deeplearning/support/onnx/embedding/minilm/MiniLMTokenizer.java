@@ -57,19 +57,33 @@ public class MiniLMTokenizer {
      */
     private static final String SUBWORD_PREFIX = "##";
 
-    /** 词表映射 */
+    /**
+     * 词表映射
+    */
     private final Map<String, Integer> vocab;
-    /** 未知词标识 */
+    /**
+     * 未知词标识
+    */
     private final int unkId;
-    /** 类别标识 */
+    /**
+     * 类别标识
+    */
     private final int clsId;
-    /** 分隔符标识 */
+    /**
+     * 分隔符标识
+    */
     private final int sepId;
-    /** 填充符标识 */
+    /**
+     * 填充符标识
+    */
     private final int padId;
-    /** 是否转小写 */
+    /**
+     * 是否转小写
+    */
     private final boolean doLowerCase;
-    /** 是否分词中文字符 */
+    /**
+     * 是否分词中文字符
+    */
     private final boolean tokenizeChineseChars;
 
     /**
@@ -158,11 +172,17 @@ public class MiniLMTokenizer {
      * BERT 风格单句编码结果：输入_标识 / attention_mask / 令牌_类型_标识 三个等长数组。
      */
     public static final class EncodeResult {
-        /** 输入标识数组 */
+        /**
+         * 输入标识数组
+        */
         public final int[] inputIds;
-        /** 注意力掩码 */
+        /**
+         * 注意力掩码
+        */
         public final int[] attentionMask;
-        /** 标记类型标识数组 */
+        /**
+         * 标记类型标识数组
+        */
         public final int[] tokenTypeIds;
 
         /**

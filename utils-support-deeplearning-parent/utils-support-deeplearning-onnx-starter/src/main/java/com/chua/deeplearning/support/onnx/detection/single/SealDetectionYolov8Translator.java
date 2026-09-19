@@ -49,13 +49,17 @@ public class SealDetectionYolov8Translator extends AbstractSingleClassYolov8Tran
     }
 
     @Override
-    /** 类名称resource路径 */
+    /**
+     * 类名称resource路径
+    */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** 默认类名称 */
+    /**
+     * 默认类名称
+    */
     protected String defaultClassName() {
         return "seal";
     }

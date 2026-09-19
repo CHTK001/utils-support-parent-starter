@@ -10,15 +10,25 @@ import javax.sql.DataSource;
 
 public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 索引名称 */
+    /**
+     * 索引名称
+    */
     private final String indexName;
-    /** 表 */
+    /**
+     * 表
+    */
     private String table;
-    /** 列 */
+    /**
+     * 列
+    */
     private String column;
-    /** 算法 */
+    /**
+     * 算法
+    */
     private String algorithm;
 
     /**
@@ -33,42 +43,54 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
     }
 
     @Override
-    /** ontable */
+    /**
+     * ontable
+    */
     public IndexManager.CreateIndexStep onTable(String table) {
         this.table = table;
         return this;
     }
 
     @Override
-    /** oncolumn */
+    /**
+     * oncolumn
+    */
     public IndexManager.CreateIndexStep onColumn(String column) {
         this.column = column;
         return this;
     }
 
     @Override
-    /** 字段 */
+    /**
+     * 字段
+    */
     public IndexManager.CreateIndexStep field(String field) {
         this.column = field;
         return this;
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public IndexManager.CreateIndexStep type(String type) {
         this.algorithm = type;
         return this;
     }
 
     @Override
-    /** 使用 */
+    /**
+     * 使用
+    */
     public IndexManager.CreateIndexStep using(String algorithm) {
         this.algorithm = algorithm;
         return this;
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public void execute() {
         StringBuilder sb = new StringBuilder("CREATE INDEX ").append(indexName).append(" ON ").append(table);
         if (algorithm != null && !algorithm.isEmpty()) {

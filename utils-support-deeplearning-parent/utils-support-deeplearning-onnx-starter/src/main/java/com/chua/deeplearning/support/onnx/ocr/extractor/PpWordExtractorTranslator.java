@@ -34,18 +34,30 @@ import java.util.Map;
 @Slf4j
 public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
-    /** 图像高度 */
+    /**
+     * 图像高度
+    */
     private static final int IMG_H = 48;
-    /** 图像最大宽度 */
+    /**
+     * 图像最大宽度
+    */
     private static final int IMG_W_MAX = 1920;
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private static final String MODEL_FILE = "inference.onnx";
-    /** 配置文件路径 */
+    /**
+     * 配置文件路径
+    */
     private static final String CONFIG_FILE = "inference.yml";
 
     /**
@@ -58,11 +70,17 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      */
     private final String modelName;
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
-    /** 词典列表 */
+    /**
+     * 词典列表
+    */
     private List<String> dict;
 
     /**
@@ -83,7 +101,9 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         this.modelName = modelName;
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -152,13 +172,17 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public String translate(byte[] imageData) {
         try {
             prepare();

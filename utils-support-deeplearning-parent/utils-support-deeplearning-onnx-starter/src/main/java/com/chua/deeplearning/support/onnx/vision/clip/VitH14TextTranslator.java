@@ -42,10 +42,14 @@ import java.util.Arrays;
 @Slf4j
 public class VitH14TextTranslator implements Translator<String, float[]> {
 
-    /** 文本最大长度（Chinese-CLIP roberta） */
+    /**
+     * 文本最大长度（Chinese-CLIP roberta）
+    */
     private static final int TEXT_MAX_LENGTH = 52;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /**

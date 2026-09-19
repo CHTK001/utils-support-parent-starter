@@ -35,21 +35,35 @@ import java.util.regex.Pattern;
 @Spi("duanjuw")
 public class DuanJuWangResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索页地址前缀（拼接 UTF-8 编码后的关键词） */
+    /**
+     * 搜索页地址前缀（拼接 UTF-8 编码后的关键词）
+    */
     private static final String SEARCH_URL = "https://www.duanjuw.com/?s=";
-    /** 站点特征词：正常短剧站页面包含该词 */
+    /**
+     * 站点特征词：正常短剧站页面包含该词
+    */
     private static final String SITE_MARKER = "短剧";
-    /** 标题链接匹配模式：群体(1)=链接，群体(2)=标题 */
+    /**
+     * 标题链接匹配模式：群体(1)=链接，群体(2)=标题
+    */
     private static final Pattern TITLE_LINK_PATTERN =
             Pattern.compile("<a[^>]+href=\"([^\"]+)\"[^>]*>\\s*([^<]{2,})\\s*</a>");
-    /** 导航菜单标题排除模式（非短剧搜索结果） */
+    /**
+     * 导航菜单标题排除模式（非短剧搜索结果）
+    */
     private static final Pattern NAV_TITLE_EXCLUDE_PATTERN =
             Pattern.compile("^(?i)(登录|注册|首页|关于我们|联系我们|客户端|客服|下载|帮助|更多|全部|新闻|资讯|公告)$");
-    /** 链接扫描上限（防止大页面遍历过深） */
+    /**
+     * 链接扫描上限（防止大页面遍历过深）
+    */
     private static final int MAX_SCAN_LINKS = 50;
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 10;
-    /** 最短有效标题长度（过滤导航短词） */
+    /**
+     * 最短有效标题长度（过滤导航短词）
+    */
     private static final int MIN_TITLE_LENGTH = 3;
 
     /**

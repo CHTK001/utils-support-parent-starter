@@ -53,19 +53,25 @@ public class ChronicleActiveCollector implements ActiveCollector {
     private Thread collectorThread;
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     public String protocol() {
         return "CHRONICLE";
     }
 
     @Override
-    /** 默认端口 */
+    /**
+     * 默认端口
+    */
     public int defaultPort() {
         return 0;
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(int port) throws Exception {
         if (running) {
             return;
@@ -98,7 +104,9 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running = false;
         if (collectorThread != null) {
@@ -109,13 +117,17 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** 注册Mapping */
+    /**
+     * 注册Mapping
+    */
     public void registerMapping(String topic, String pipelineId) {
         if (topic != null && pipelineId != null) {
             topicToPipeline.put(topic, pipelineId);
@@ -126,7 +138,9 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     @Override
-    /** 注销Mapping */
+    /**
+     * 注销Mapping
+    */
     public void unregisterMapping(String topic) {
         if (topic != null) {
             topicToPipeline.remove(topic);
@@ -136,25 +150,33 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     @Override
-    /** 获取Mappings */
+    /**
+     * 获取Mappings
+    */
     public Map<String, String> getMappings() {
         return Map.copyOf(topicToPipeline);
     }
 
     @Override
-    /** 订阅topics */
+    /**
+     * 订阅topics
+    */
     public Set<String> subscribedTopics() {
         return Set.copyOf(subscribedTopics);
     }
 
     @Override
-    /** 设置处理器 */
+    /**
+     * 设置处理器
+    */
     public void setHandler(DataHandler handler) {
         this.handler = handler;
     }
 
     @Override
-    /** 获取状态 */
+    /**
+     * 获取状态
+    */
     public Map<String, Object> getStatus() {
         return Map.of(
                 "protocol", protocol(),

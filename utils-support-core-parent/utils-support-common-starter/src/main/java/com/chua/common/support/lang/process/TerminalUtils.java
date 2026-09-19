@@ -29,7 +29,9 @@ public class TerminalUtils {
     static final char ESCAPE_CHAR = '\u001b';
     static final int DEFAULT_TERMINAL_WIDTH = 120;
 
-    /** Cursormovementsupported */
+    /**
+     * Cursormovementsupported
+    */
     private static final boolean cursorMovementSupported = false;
 
     static Queue<ProgressBarConsumer> activeConsumers = new ConcurrentLinkedQueue<>();
@@ -82,7 +84,9 @@ public class TerminalUtils {
         return DEFAULT_TERMINAL_WIDTH;
     }
 
-    /** OS名称 */
+    /**
+     * OS名称
+    */
     private static String osName;
 
     /**
@@ -187,7 +191,9 @@ public class TerminalUtils {
         return cursorMovementSupported;
     }
 
-    /** 关闭Terminal */
+    /**
+     * 关闭Terminal
+    */
     synchronized static void closeTerminal() {
     }
 

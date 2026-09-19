@@ -11,13 +11,19 @@ package com.chua.common.support.ai.mcp;
  */
 public class McpToolResult {
 
-    /** 是否成功 */
+    /**
+     * 是否成功
+    */
     private final boolean success;
 
-    /** 结果内容 */
+    /**
+     * 结果内容
+    */
     private final Object content;
 
-    /** 错误信息 */
+    /**
+     * 错误信息
+    */
     private final String errorMessage;
 
     /**

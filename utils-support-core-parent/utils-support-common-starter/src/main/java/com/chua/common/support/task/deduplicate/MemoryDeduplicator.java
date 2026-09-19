@@ -33,11 +33,17 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
      */
     private static final long CLEANUP_INTERVAL_MS = 60_000L;
 
-    /** TTLMS */
+    /**
+     * TTLMS
+    */
     private final long ttlMs;
-    /** 处理 */
+    /**
+     * 处理
+    */
     private final Map<String, Long> processed;
-    /** Cleanup执行器 */
+    /**
+     * Cleanup执行器
+    */
     private final ScheduledThreadPoolExecutor cleanupExecutor;
 
     /**

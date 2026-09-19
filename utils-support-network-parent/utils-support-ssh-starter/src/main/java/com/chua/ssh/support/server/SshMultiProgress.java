@@ -135,14 +135,18 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (delegate != null) {
             delegate.close();
         }
     }
 
-    /** Lazy初始化 */
+    /**
+     * Lazy初始化
+    */
     private void lazyInit() {
         if (delegate != null) {
             return;

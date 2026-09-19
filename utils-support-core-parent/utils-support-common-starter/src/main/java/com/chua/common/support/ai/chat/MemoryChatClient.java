@@ -16,7 +16,9 @@ import com.chua.common.support.spi.annotations.Spi;
 public class MemoryChatClient implements ChatClient {
 
     @Override
-    /** ChatSync */
+    /**
+     * ChatSync
+    */
     public String chatSync(String prompt) {
         return "【内存模式】这是对问题的模拟回答。实际使用时请配置真实的 LLM 服务。\n问题: " + prompt;
     }

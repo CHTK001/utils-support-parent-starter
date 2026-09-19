@@ -27,9 +27,13 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class DiskStore {
 
-    /** 文件路径 */
+    /**
+     * 文件路径
+    */
     private final Path filePath;
-    /** 锁 */
+    /**
+     * 锁
+    */
     private final ReentrantLock lock = new ReentrantLock();
 
     /**

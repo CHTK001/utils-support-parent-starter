@@ -116,7 +116,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws IOException {
         if (running.get()) {
             return;
@@ -156,7 +158,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** 运行 */
+    /**
+     * 运行
+    */
     public void run() {
         byte[] buf = new byte[BUFFER_SIZE];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -201,7 +205,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** 注册Service */
+    /**
+     * 注册Service
+    */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         discovery.setUriSpec(prefixed);
@@ -212,14 +218,18 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** Do注销 */
+    /**
+     * Do注销
+    */
     protected void doUnregister(String path, Discovery discovery) {
         broadcast(createMessage(path, discovery, true));
         localServices.removeIf(d -> Objects.equals(d.getServerId(), discovery.getServerId()));
     }
 
     @Override
-    /** Do更新 */
+    /**
+     * Do更新
+    */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         localServices.removeIf(d -> Objects.equals(d.getServerId(), oldDiscovery.getServerId()));
         localServices.add(newDiscovery);
@@ -285,13 +295,17 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** 是否Support订阅 */
+    /**
+     * 是否Support订阅
+    */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         scheduler.scheduleAtFixedRate(() -> {
             String path = StringUtils.startWithAppend(serviceName, "/");
@@ -306,7 +320,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         running.set(false);
 
@@ -354,42 +370,58 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
          */
         private boolean remove;
 
-        /** 获取Path */
+        /**
+         * 获取Path
+        */
         public String getPath() {
             return path;
         }
 
-        /** 设置Path */
+        /**
+         * 设置Path
+        */
         public void setPath(String path) {
             this.path = path;
         }
 
-        /** 获取ServerId */
+        /**
+         * 获取ServerId
+        */
         public String getServerId() {
             return serverId;
         }
 
-        /** 设置ServerId */
+        /**
+         * 设置ServerId
+        */
         public void setServerId(String serverId) {
             this.serverId = serverId;
         }
 
-        /** 获取Discovery */
+        /**
+         * 获取Discovery
+        */
         public Discovery getDiscovery() {
             return discovery;
         }
 
-        /** 设置Discovery */
+        /**
+         * 设置Discovery
+        */
         public void setDiscovery(Discovery discovery) {
             this.discovery = discovery;
         }
 
-        /** 是否移除 */
+        /**
+         * 是否移除
+        */
         public boolean isRemove() {
             return remove;
         }
 
-        /** 设置移除 */
+        /**
+         * 设置移除
+        */
         public void setRemove(boolean remove) {
             this.remove = remove;
         }

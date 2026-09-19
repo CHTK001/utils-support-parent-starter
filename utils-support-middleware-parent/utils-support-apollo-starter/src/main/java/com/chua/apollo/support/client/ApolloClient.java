@@ -50,13 +50,21 @@ import java.util.function.Consumer;
 @Getter
 public class ApolloClient implements AutoCloseable {
 
-    /** APPID */
+    /**
+     * APPID
+    */
     private final String appId;
-    /** Meta */
+    /**
+     * Meta
+    */
     private final String meta;
-    /** Namespaces */
+    /**
+     * Namespaces
+    */
     private final List<String> namespaces;
-    /** 配置缓存 */
+    /**
+     * 配置缓存
+    */
     private final Map<String, Config> configCache = new ConcurrentHashMap<>();
 
     /**
@@ -126,7 +134,9 @@ public class ApolloClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         configCache.clear();
         log.info("Apollo 客户端关闭");
@@ -141,11 +151,17 @@ public class ApolloClient implements AutoCloseable {
      */
 
     public static class Builder {
-        /** APPID */
+        /**
+         * APPID
+        */
         private String appId;
-        /** Meta */
+        /**
+         * Meta
+        */
         private String meta;
-        /** Namespaces */
+        /**
+         * Namespaces
+        */
         private List<String> namespaces = new ArrayList<>(List.of("application"));
 
         /**
@@ -223,9 +239,13 @@ public class ApolloClient implements AutoCloseable {
      * @since 4.0.0
      */
     public static class ConfigOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final ApolloClient client;
-        /** Namespace */
+        /**
+         * Namespace
+        */
         private String namespace = "application";
 
         ConfigOperation(ApolloClient client) { this.client = client; }

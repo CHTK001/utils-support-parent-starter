@@ -30,7 +30,9 @@ public class OpencodeUsageParser extends BaseUsageParser {
 
     private static final Logger log = LoggerFactory.getLogger(OpencodeUsageParser.class); // 日志
 
-    /** DB 路径 */
+    /**
+     * DB 路径
+    */
     private static final Path DB_PATH = resolveDbPath();
 
     /**

@@ -728,7 +728,9 @@ public final class WindowsConPtyProcess implements Closeable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (inputStream != null) {
             try {
@@ -821,7 +823,9 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public int read() throws IOException {
             byte[] b = new byte[1];
             int n = read(b, 0, 1);
@@ -829,7 +833,9 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -866,7 +872,9 @@ public final class WindowsConPtyProcess implements Closeable {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
         }
     }

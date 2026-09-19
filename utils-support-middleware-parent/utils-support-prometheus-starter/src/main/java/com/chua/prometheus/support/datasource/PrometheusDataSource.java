@@ -45,19 +45,25 @@ public class PrometheusDataSource implements EngineDataSource<PrometheusClient> 
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return name;
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public PrometheusClient getSource() {
         return client;
     }
 
     @Override
-    /** 设置源 */
+    /**
+     * 设置源
+    */
     public EngineDataSource<PrometheusClient> setSource(Object source) {
         if (source instanceof PrometheusClient pc) {
             this.client = pc;
@@ -66,31 +72,41 @@ public class PrometheusDataSource implements EngineDataSource<PrometheusClient> 
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect() {
         return null;
     }
 
     @Override
-    /** 设置Dialect */
+    /**
+     * 设置Dialect
+    */
     public EngineDataSource<PrometheusClient> setDialect(Dialect dialect) {
         return this;
     }
 
     @Override
-    /** Url */
+    /**
+     * Url
+    */
     public String url() {
         return url;
     }
 
     @Override
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     public String username() {
         return null;
     }
 
     @Override
-    /** 密码 */
+    /**
+     * 密码
+    */
     public String password() {
         return null;
     }

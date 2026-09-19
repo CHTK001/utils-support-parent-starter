@@ -39,7 +39,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictResult> {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 
     /**
@@ -79,7 +81,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     };
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -111,7 +115,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public HumanPredictResult processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}          ", list.size());
@@ -279,7 +285,9 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // batchifier                         处理输入                    批量
         return null;

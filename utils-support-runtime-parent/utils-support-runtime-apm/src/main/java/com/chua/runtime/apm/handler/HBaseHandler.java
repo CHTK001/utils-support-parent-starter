@@ -37,38 +37,50 @@ public class HBaseHandler extends AbstractAppHandler {
     private static final String[] TABLE_METHODS = {"get", "put", "delete", "scan", "increment", "append"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "hbase-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "hbase.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.HBASE_CLIENT;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.HBASE;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(TABLE_CLASS, TABLE_METHODS);
         registerAll(HTABLE_CLASS, TABLE_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

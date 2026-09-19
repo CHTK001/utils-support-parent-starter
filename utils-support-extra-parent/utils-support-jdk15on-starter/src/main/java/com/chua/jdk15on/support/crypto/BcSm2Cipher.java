@@ -24,11 +24,17 @@ import java.security.spec.ECGenParameterSpec;
 @Spi({"bc", "bouncycastle"})
 public class BcSm2Cipher implements Sm2Cipher {
 
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     private static final String PROVIDER = "BC";
-    /** Ec_algorithm */
+    /**
+     * Ec_algorithm
+    */
     private static final String EC_ALGORITHM = "EC";
-    /** Sm2_标识 */
+    /**
+     * Sm2_标识
+    */
     private static final byte[] SM2_ID = "1234567812345678".getBytes();
 
     static {
@@ -38,7 +44,9 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** generate键pair */
+    /**
+     * generate键pair
+    */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(EC_ALGORITHM, PROVIDER);
@@ -50,7 +58,9 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** Encrypt */
+    /**
+     * Encrypt
+    */
     public byte[] encrypt(byte[] publicKey, byte[] data) {
         try {
             AsymmetricKeyParameter pubKey = PublicKeyFactory.createKey(publicKey);
@@ -63,7 +73,9 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** Decrypt */
+    /**
+     * Decrypt
+    */
     public byte[] decrypt(byte[] privateKey, byte[] ciphertext) {
         try {
             AsymmetricKeyParameter privKey = PrivateKeyFactory.createKey(privateKey);
@@ -76,7 +88,9 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** 标志 */
+    /**
+     * 标志
+    */
     public byte[] sign(byte[] privateKey, byte[] data) {
         try {
             AsymmetricKeyParameter privKey = PrivateKeyFactory.createKey(privateKey);
@@ -90,7 +104,9 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** 验证 */
+    /**
+     * 验证
+    */
     public boolean verify(byte[] publicKey, byte[] data, byte[] signature) {
         try {
             AsymmetricKeyParameter pubKey = PublicKeyFactory.createKey(publicKey);

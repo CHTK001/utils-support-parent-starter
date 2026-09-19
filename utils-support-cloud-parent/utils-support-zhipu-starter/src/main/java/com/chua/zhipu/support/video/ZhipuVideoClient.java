@@ -24,25 +24,45 @@ import java.util.Map;
 @Spi({"zhipu", "glm"})
 public class ZhipuVideoClient implements VideoClient {
 
-    /** 默认 API 地址 */
+    /**
+     * 默认 API 地址
+    */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final VideoClientSetting setting;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String model;
-    /** 图片宽度 */
+    /**
+     * 图片宽度
+    */
     private Integer width;
-    /** 图片高度 */
+    /**
+     * 图片高度
+    */
     private Integer height;
-    /** 提示词 */
+    /**
+     * 提示词
+    */
     private String prompt;
-    /** 耗时（毫秒） */
+    /**
+     * 耗时（毫秒）
+    */
     private Integer duration;
-    /** 图片风格 */
+    /**
+     * 图片风格
+    */
     private String style;
-    /** 参考图 */
+    /**
+     * 参考图
+    */
     private byte[] referenceImage;
-    /** 参考图强度 */
+    /**
+     * 参考图强度
+    */
     private Double imageStrength;
 
     /**
@@ -59,14 +79,18 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public VideoClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public VideoClient size(int width, int height) {
         this.width = width;
         this.height = height;
@@ -74,28 +98,36 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** 提示符 */
+    /**
+     * 提示符
+    */
     public VideoClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** 持续时间 */
+    /**
+     * 持续时间
+    */
     public VideoClient duration(Integer duration) {
         this.duration = duration;
         return this;
     }
 
     @Override
-    /** Style */
+    /**
+     * Style
+    */
     public VideoClient style(String style) {
         this.style = style;
         return this;
     }
 
     @Override
-    /** 引用镜像 */
+    /**
+     * 引用镜像
+    */
     public VideoClient referenceImage(byte[] image) {
         this.referenceImage = image;
         return this;
@@ -119,20 +151,26 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** 镜像strength */
+    /**
+     * 镜像strength
+    */
     public VideoClient imageStrength(double strength) {
         this.imageStrength = strength;
         return this;
     }
 
     @Override
-    /** Seed */
+    /**
+     * Seed
+    */
     public VideoClient seed(Long seed) {
         return this;
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -240,7 +278,9 @@ public class ZhipuVideoClient implements VideoClient {
 
     @Override public void close() {}
 
-    /** normalizebaseurl */
+    /**
+     * normalizebaseurl
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

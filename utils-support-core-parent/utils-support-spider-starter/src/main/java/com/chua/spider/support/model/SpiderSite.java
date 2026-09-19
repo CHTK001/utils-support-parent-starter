@@ -36,7 +36,9 @@ public class SpiderSite {
      * <p>爬取该站点时使用的 User-Agent 字符串，用于模拟浏览器。
      */
     @Builder.Default
-    /** 用户Agent */
+    /**
+     * 用户Agent
+    */
     private String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
             + "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
@@ -47,7 +49,9 @@ public class SpiderSite {
      * 用于避免对目标服务器造成过大压力。
      */
     @Builder.Default
-    /** 间隔 */
+    /**
+     * 间隔
+    */
     private int interval = 1000;
 
     /**
@@ -56,7 +60,9 @@ public class SpiderSite {
      * <p>请求失败时的最大重试次数。超过此次数后丢弃该请求。
      */
     @Builder.Default
-    /** 重试时间 */
+    /**
+     * 重试时间
+    */
     private int retryTimes = 3;
 
     /**
@@ -65,7 +71,9 @@ public class SpiderSite {
      * <p>单次请求的超时时长，单位为毫秒。
      */
     @Builder.Default
-    /** 超时 */
+    /**
+     * 超时
+    */
     private int timeout = 30000;
 
     /**
@@ -89,7 +97,9 @@ public class SpiderSite {
      * <p>为 true 时，爬虫会检查并遵守目标站点的 robots.txt 规则。
      */
     @Builder.Default
-    /** respectrobotstxt */
+    /**
+     * respectrobotstxt
+    */
     private boolean respectRobotsTxt = false;
 
     /**
@@ -99,7 +109,9 @@ public class SpiderSite {
      * 负数表示不限制深度。
      */
     @Builder.Default
-    /** 最大值深度 */
+    /**
+     * 最大值深度
+    */
     private int maxDepth = -1;
 
     /**
@@ -108,6 +120,8 @@ public class SpiderSite {
      * <p>限制本次爬取任务最多抓取的页面数量。0 或负数表示不限制。
      */
     @Builder.Default
-    /** 最大值pages */
+    /**
+     * 最大值pages
+    */
     private int maxPages = 0;
 }

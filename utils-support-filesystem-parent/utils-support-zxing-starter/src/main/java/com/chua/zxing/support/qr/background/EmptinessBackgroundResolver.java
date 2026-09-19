@@ -27,7 +27,9 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     static final int UNIT_WIDTH = 54; // UNIT_WIDTH
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix) {
         int width = setting.getWidth();
         int height = setting.getHeight();

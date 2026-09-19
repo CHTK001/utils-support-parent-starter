@@ -38,10 +38,14 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class FileResourceFinder implements ResourceFinder {
 
-    /** 默认_最大_深度 */
+    /**
+     * 默认_最大_深度
+    */
     private static final int DEFAULT_MAX_DEPTH = 128;
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final ResourceConfiguration configuration;
 
     /**
@@ -52,16 +56,22 @@ public class FileResourceFinder implements ResourceFinder {
         this.configuration = configuration;
     }
 
-    /** 创建 文件resource查找 实例 */
+    /**
+     * 创建 文件resource查找 实例
+    */
     public FileResourceFinder() {
         this(ResourceConfiguration.DEFAULT);
     }
 
-    /** 协议 */
+    /**
+     * 协议
+    */
     private static final String PROTOCOL = "file";
 
     @Override
-    /** 查找 */
+    /**
+     * 查找
+    */
     public Set<Resource> find(String name) {
         name = name.replace("\\", "/");
         if (name.startsWith(PROTOCOL + ":")) {
@@ -441,7 +451,9 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
-    /** 尝试installlocate */
+    /**
+     * 尝试installlocate
+    */
     private static void tryInstallLocate() {
         try {
             if (log.isInfoEnabled()) {
@@ -497,7 +509,9 @@ public class FileResourceFinder implements ResourceFinder {
         }
     }
 
-    /** 构建Updatedb */
+    /**
+     * 构建Updatedb
+    */
     private static void buildUpdatedb() {
         if (log.isInfoEnabled()) {
             log.info("Building locate database (updatedb) - this may take a minute...");
@@ -552,13 +566,21 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     private class FileVisitorImpl extends SimpleFileVisitor<Path> {
-        /** 完整路径 */
+        /**
+         * 完整路径
+        */
         private final String fullPath;
-        /** 匹配路径 */
+        /**
+         * 匹配路径
+        */
         private final String matchPath;
-        /** 结果 */
+        /**
+         * 结果
+        */
         private final Set<Resource> results;
-        /** Scanned数量 */
+        /**
+         * Scanned数量
+        */
         private final AtomicLong scannedCount;
 
         FileVisitorImpl(String fullPath, String matchPath, Set<Resource> results, AtomicLong scannedCount) {
@@ -569,7 +591,9 @@ public class FileResourceFinder implements ResourceFinder {
         }
 
         @Override
-        /** visit文件 */
+        /**
+         * visit文件
+        */
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             scannedCount.incrementAndGet();
             String realName = getRealName(file.toString(), fullPath);
@@ -583,7 +607,9 @@ public class FileResourceFinder implements ResourceFinder {
         }
 
         @Override
-        /** visit文件失败 */
+        /**
+         * visit文件失败
+        */
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
             if (log.isDebugEnabled()) { log.debug("Failed to access: {}", file, exc); }
             return FileVisitResult.CONTINUE;

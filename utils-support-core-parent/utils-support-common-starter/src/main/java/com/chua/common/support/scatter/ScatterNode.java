@@ -11,17 +11,29 @@ import lombok.Data;
 @Data
 public class ScatterNode {
 
-    /** 节点标识 */
+    /**
+     * 节点标识
+    */
     private final String nodeId;
-    /** 主机 */
+    /**
+     * 主机
+    */
     private final String host;
-    /** 端口 */
+    /**
+     * 端口
+    */
     private final int port;
-    /** 协议：tcp / udp */
+    /**
+     * 协议：tcp / udp
+    */
     private final String protocol;
-    /** 分组 */
+    /**
+     * 分组
+    */
     private final String groupId;
-    /** 服务路径 */
+    /**
+     * 服务路径
+    */
     private final String servicePath;
 
     public ScatterNode(String nodeId, String host, int port, String protocol,

@@ -134,7 +134,9 @@ class DefaultDepthEstimator implements DepthEstimator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -167,14 +169,18 @@ class DefaultDepthEstimator implements DepthEstimator {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public DepthEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public DepthEstimator device(String device) {
         this.device = device;
         return this;

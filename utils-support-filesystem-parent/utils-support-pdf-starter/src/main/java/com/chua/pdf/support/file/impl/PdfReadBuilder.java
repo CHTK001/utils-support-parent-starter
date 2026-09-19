@@ -22,9 +22,13 @@ import java.util.Map;
  */
 public class PdfReadBuilder extends ReadBuilder {
 
-    /** 开始页 */
+    /**
+     * 开始页
+    */
     private int startPage = 1;
-    /** 结束页 */
+    /**
+     * 结束页
+    */
     private int endPage = Integer.MAX_VALUE;
 
     /**
@@ -56,7 +60,9 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** with字符集 */
+    /**
+     * with字符集
+    */
     public PdfReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -110,7 +116,9 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Object read() {
         return text();
     }
@@ -145,13 +153,17 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     @Override
-    /** as线 */
+    /**
+     * as线
+    */
     public List<String> asLines() {
          return List.of(text().split("\\n")); 
     }
 
     @Override
-    /** as字符串 */
+    /**
+     * as字符串
+    */
     public String asString() {
          return text(); 
     }

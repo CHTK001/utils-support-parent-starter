@@ -142,7 +142,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     private static final ThreadLocal<TransmissionRecord> TRANSMISSION_HOLDER =
             new ThreadLocal<>();
 
-    /** 创建 transmission处理器 实例 */
+    /**
+     * 创建 transmission处理器 实例
+    */
     public TransmissionHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.connectionCount = new ConcurrentHashMap<>();
@@ -150,19 +152,25 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.context = context;
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_TRANSMISSION_ENABLED, DEFAULT_ENABLED));
@@ -170,7 +178,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -183,7 +193,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -193,18 +205,24 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("TransmissionHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }
 
-    /** 注册套接字拦截器 */
+    /**
+     * 注册套接字拦截器
+    */
     private void registerSocketInterceptors() {
         for (String method : SOCKET_METHODS) {
             RuntimeSpy.registerInterceptor(SOCKET, method, "", InterceptPoint.ENTRY, this);
@@ -229,7 +247,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** onintercept */
+    /**
+     * onintercept
+    */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -651,7 +671,9 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
         return Collections.unmodifiableMap(connectionCount);
     }
 
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         records.clear();
         connectionCount.clear();

@@ -26,13 +26,19 @@ import java.util.Map;
  */
 public class SolrDdlManager implements DslManager {
 
-    /** Solr 客户端（绑定到 /Solr 根路径） */
+    /**
+     * Solr 客户端（绑定到 /Solr 根路径）
+    */
     private final SolrClient client;
 
-    /** 默认分片数 */
+    /**
+     * 默认分片数
+    */
     private int numShards = 1;
 
-    /** 默认副本数 */
+    /**
+     * 默认副本数
+    */
     private int replicationFactor = 1;
 
     /**
@@ -45,7 +51,9 @@ public class SolrDdlManager implements DslManager {
     }
 
     @Override
-    /** 类型标识 */
+    /**
+     * 类型标识
+    */
     public String type() {
         return "solr";
     }

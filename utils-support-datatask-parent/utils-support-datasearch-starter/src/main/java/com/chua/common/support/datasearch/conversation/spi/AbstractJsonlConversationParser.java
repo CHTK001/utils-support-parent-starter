@@ -23,7 +23,9 @@ import reactor.core.scheduler.Schedulers;
  */
 public abstract class AbstractJsonlConversationParser implements ConversationParser {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**

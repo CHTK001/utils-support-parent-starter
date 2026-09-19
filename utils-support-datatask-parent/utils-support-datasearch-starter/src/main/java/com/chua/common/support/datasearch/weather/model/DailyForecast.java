@@ -16,24 +16,38 @@ import java.util.List;
 @Data
 public class DailyForecast {
 
-    /** 日期（yyyy-MM-dd） */
+    /**
+     * 日期（yyyy-MM-dd）
+    */
     private String date;
 
-    /** 最高气温（摄氏度） */
+    /**
+     * 最高气温（摄氏度）
+    */
     private Double maxTempC;
 
-    /** 最低气温（摄氏度） */
+    /**
+     * 最低气温（摄氏度）
+    */
     private Double minTempC;
 
-    /** 平均气温（摄氏度） */
+    /**
+     * 平均气温（摄氏度）
+    */
     private Double avgTempC;
 
-    /** 紫外线指数 */
+    /**
+     * 紫外线指数
+    */
     private String uvIndex;
 
-    /** 日照小时数 */
+    /**
+     * 日照小时数
+    */
     private String sunHour;
 
-    /** 逐小时采样（8 个点，3 小时间隔，00:00-21:00） */
+    /**
+     * 逐小时采样（8 个点，3 小时间隔，00:00-21:00）
+    */
     private List<HourlyWeather> hourly;
 }

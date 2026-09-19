@@ -81,7 +81,9 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     }
 
     @Override
-    /** 搜索Resource */
+    /**
+     * 搜索Resource
+    */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {

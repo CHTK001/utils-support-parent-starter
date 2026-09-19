@@ -79,13 +79,17 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.SMB;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             RustSmbServerBridge.loadLibrary();
@@ -105,7 +109,9 @@ public class SmbServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (serverHandle > 0) {
             try {

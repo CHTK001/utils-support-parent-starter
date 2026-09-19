@@ -31,9 +31,13 @@ import java.util.concurrent.Executors;
 @Spi({"jdk", "jdk-http"})
 public class JdkHttpServer extends AbstractServer {
 
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private HttpServer server;
-    /** 执行器 */
+    /**
+     * 执行器
+    */
     private ExecutorService executor;
 
     /**
@@ -45,7 +49,9 @@ public class JdkHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -87,7 +93,9 @@ public class JdkHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -99,7 +107,9 @@ public class JdkHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

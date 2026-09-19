@@ -36,7 +36,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
      */
     private List<String> table;
 
-    /** 创建 ppword认可translator 实例 */
+    /**
+     * 创建 ppword认可translator 实例
+    */
     public PpWordRecognitionTranslator() {
         this(false);
     }
@@ -50,7 +52,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) throws IOException {
         Model model = ctx.getModel();
         try (InputStream is = openVocabulary(model)) {
@@ -89,7 +93,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public String processOutput(TranslatorContext ctx, NDList list) {
         StringBuilder sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
@@ -115,7 +121,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         int imgC = 3;
@@ -143,7 +151,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

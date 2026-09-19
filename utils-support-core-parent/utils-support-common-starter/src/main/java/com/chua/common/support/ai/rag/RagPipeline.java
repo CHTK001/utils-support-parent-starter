@@ -45,91 +45,169 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RagPipeline implements RagClient {
 
-    /** 节点：保存上传文件 */
+    /**
+     * 节点：保存上传文件
+    */
     private static final String NODE_SAVE = "save";
-    /** 节点：文本抽取 */
+    /**
+     * 节点：文本抽取
+    */
     private static final String NODE_EXTRACT = "extract";
-    /** 节点：文本分块 */
+    /**
+     * 节点：文本分块
+    */
     private static final String NODE_SPLIT = "split";
-    /** 节点：向量化嵌入 */
+    /**
+     * 节点：向量化嵌入
+    */
     private static final String NODE_EMBED = "embed";
-    /** 节点：向量存储（已合并入 embed 节点，保留常量） */
+    /**
+     * 节点：向量存储（已合并入 embed 节点，保留常量）
+    */
     private static final String NODE_STORE = "store";
-    /** 节点：结果收集 */
+    /**
+     * 节点：结果收集
+    */
     private static final String NODE_COLLECT = "collect";
-    /** 节点：结束 */
+    /**
+     * 节点：结束
+    */
     private static final String NODE_END = "end";
-    /** 节点：查询向量化 */
+    /**
+     * 节点：查询向量化
+    */
     private static final String NODE_EMBED_QUERY = "embedQuery";
-    /** 节点：向量检索 */
+    /**
+     * 节点：向量检索
+    */
     private static final String NODE_SEARCH = "search";
-    /** 节点：相似度过滤 */
+    /**
+     * 节点：相似度过滤
+    */
     private static final String NODE_FILTER = "filter";
-    /** 节点：模型生成回答 */
+    /**
+     * 节点：模型生成回答
+    */
     private static final String NODE_GENERATE = "generate";
 
-    /** 上传文件子目录名 */
+    /**
+     * 上传文件子目录名
+    */
     private static final String UPLOAD_FILES_SUBDIR = "files";
-    /** 向量元数据键：分块原文 */
+    /**
+     * 向量元数据键：分块原文
+    */
     private static final String META_CONTENT = "content";
-    /** 向量元数据键：文档 ID */
+    /**
+     * 向量元数据键：文档 ID
+    */
     private static final String META_DOC_ID = "docId";
-    /** 向量元数据键：文件名 */
+    /**
+     * 向量元数据键：文件名
+    */
     private static final String META_FILE_NAME = "fileName";
-    /** 向量元数据键：文件类型（扩展名） */
+    /**
+     * 向量元数据键：文件类型（扩展名）
+    */
     private static final String META_FILE_TYPE = "fileType";
-    /** 向量元数据键：分块序号 */
+    /**
+     * 向量元数据键：分块序号
+    */
     private static final String META_CHUNK_INDEX = "chunkIndex";
-    /** 文档 ID 与分块序号的拼接分隔符 */
+    /**
+     * 文档 ID 与分块序号的拼接分隔符
+    */
     private static final String FILE_NAME_SEPARATOR = "_";
-    /** 多段上下文的段落分隔符 */
+    /**
+     * 多段上下文的段落分隔符
+    */
     private static final String PARAGRAPH_BREAK = "\n\n";
-    /** 生成提示词的上下文头部 */
+    /**
+     * 生成提示词的上下文头部
+    */
     private static final String CONTEXT_HEADER = "基于以下上下文回答问题。\n\n上下文:";
-    /** 生成提示词的问题前缀 */
+    /**
+     * 生成提示词的问题前缀
+    */
     private static final String QUESTION_PREFIX = "\n\n问题: ";
-    /** 生成提示词末尾的引用格式说明（要求模型在回答中标注来源编号） */
+    /**
+     * 生成提示词末尾的引用格式说明（要求模型在回答中标注来源编号）
+    */
     private static final String CITATION_HINT =
             "\n\n请基于以上编号来源回答，在引用某来源时在句末标注 [编号]，例如 [1][3]。";
-    /** 文档处理状态：就绪 */
+    /**
+     * 文档处理状态：就绪
+    */
     private static final String STATUS_READY = "READY";
-    /** UUID 字符串中的短横线 */
+    /**
+     * UUID 字符串中的短横线
+    */
     private static final String UUID_DASH = "-";
-    /** 空字符串常量 */
+    /**
+     * 空字符串常量
+    */
     private static final String EMPTY = "";
-    /** 无匹配提取器时跳过 UTF-8 解码的文件大小上限（1MB） */
+    /**
+     * 无匹配提取器时跳过 UTF-8 解码的文件大小上限（1MB）
+    */
     private static final int MAX_TEXT_EXTRACT_BYTES = 1_048_576;
-    /** Pipeline 上下文中 RAG 上下文的属性键 */
+    /**
+     * Pipeline 上下文中 RAG 上下文的属性键
+    */
     private static final String RAG_CTX_KEY = "rag";
 
-    /** RAG 客户端配置（含嵌入、分块、向量存储等组件引用） */
+    /**
+     * RAG 客户端配置（含嵌入、分块、向量存储等组件引用）
+    */
     private final RagClientSetting setting;
-    /** 向量存储，负责分块向量的增删与检索 */
+    /**
+     * 向量存储，负责分块向量的增删与检索
+    */
     private final VectorStorage vectorStorage;
-    /** 文本分块器，将抽取文本切分为若干分块 */
+    /**
+     * 文本分块器，将抽取文本切分为若干分块
+    */
     private final TextSplitter textSplitter;
-    /** 向量服务（嵌入客户端的适配层） */
+    /**
+     * 向量服务（嵌入客户端的适配层）
+    */
     private final VectorService vectorService;
-    /** 上传文件提供者（本地落盘实现） */
+    /**
+     * 上传文件提供者（本地落盘实现）
+    */
     private final UploadProvider uploadProvider;
-    /** 上传根目录 */
+    /**
+     * 上传根目录
+    */
     private final Path uploadDir;
-    /** 上传文件子目录（uploadDir/files） */
+    /**
+     * 上传文件子目录（uploadDir/files）
+    */
     private final Path filesDir;
-    /** 已入库文档元数据列表（线程安全，按入库顺序追加） */
+    /**
+     * 已入库文档元数据列表（线程安全，按入库顺序追加）
+    */
     private final List<RagDocument> documents;
     /**
      * 分块内容缓存：chunkId（docId_chunkIndex）→ 分块文本。
      * jvector ON_DISK 等向量库不返回 metadata.content，检索后需从此缓存回读原文。
      */
     private final Map<String, String> chunkContentCache;
-    /** 查询返回的 TopK 数量（可热更新） */
+    /**
+     * 查询返回的 TopK 数量（可热更新）
+    */
     private volatile int topK;
-    /** 查询相似度阈值（可热更新） */
+    /**
+     * 查询相似度阈值（可热更新）
+    */
     private volatile double similarityThreshold;
-    /** 入库管线实例（保存→抽取→分块→嵌入→收集） */
+    /**
+     * 入库管线实例（保存→抽取→分块→嵌入→收集）
+    */
     private final Pipeline ingestPipeline;
-    /** 查询管线实例（嵌入→检索→过滤→生成→收集） */
+    /**
+     * 查询管线实例（嵌入→检索→过滤→生成→收集）
+    */
     private final Pipeline queryPipeline;
 
     /**
@@ -802,23 +880,41 @@ public class RagPipeline implements RagClient {
      * @since 4.0.0.42
      */
     public static class Builder {
-        /** 对话生成模型客户端 */
+        /**
+         * 对话生成模型客户端
+        */
         private ChatClient chatClient;
-        /** 嵌入向量模型客户端 */
+        /**
+         * 嵌入向量模型客户端
+        */
         private EmbeddingClient embeddingClient;
-        /** 图片 OCR 文本提取器（可选，非图片文件不使用） */
+        /**
+         * 图片 OCR 文本提取器（可选，非图片文件不使用）
+        */
         private TextExtractor textExtractor;
-        /** 文本分块器 */
+        /**
+         * 文本分块器
+        */
         private TextSplitter textSplitter;
-        /** 向量存储 */
+        /**
+         * 向量存储
+        */
         private VectorStorage vectorStorage;
-        /** 上传文件根目录，默认 ./rag-uploads */
+        /**
+         * 上传文件根目录，默认 ./rag-uploads
+        */
         private String uploadDir = "./rag-uploads";
-        /** 查询 TopK，默认 5 */
+        /**
+         * 查询 TopK，默认 5
+        */
         private int topK = 5;
-        /** 查询相似度阈值，默认 0.7 */
+        /**
+         * 查询相似度阈值，默认 0.7
+        */
         private double similarityThreshold = 0.7;
-        /** 系统提示词（可选） */
+        /**
+         * 系统提示词（可选）
+        */
         private String systemPrompt;
 
         /**
@@ -949,121 +1045,235 @@ public class RagPipeline implements RagClient {
      * @since 4.0.0.42
      */
     private static class RagContext {
-        /** 文档 ID（入库节点写入） */
+        /**
+         * 文档 ID（入库节点写入）
+        */
         private String docId;
-        /** 文件名 */
+        /**
+         * 文件名
+        */
         private String fileName;
-        /** 文件类型（扩展名） */
+        /**
+         * 文件类型（扩展名）
+        */
         private String fileType;
-        /** 文件原始字节 */
+        /**
+         * 文件原始字节
+        */
         private byte[] data;
-        /** 查询语句 */
+        /**
+         * 查询语句
+        */
         private String query;
-        /** 查询 TopK */
+        /**
+         * 查询 TopK
+        */
         private int topK;
-        /** 查询相似度阈值 */
+        /**
+         * 查询相似度阈值
+        */
         private double threshold;
 
-        /** 当前保存后的文件 ID */
+        /**
+         * 当前保存后的文件 ID
+        */
         private String currentFileId;
-        /** 当前抽取出的纯文本 */
+        /**
+         * 当前抽取出的纯文本
+        */
         private String currentText;
-        /** 当前分块列表 */
+        /**
+         * 当前分块列表
+        */
         private List<TextChunk> currentChunks;
-        /** 当前入库的分块数量 */
+        /**
+         * 当前入库的分块数量
+        */
         private int currentChunkCount;
-        /** 当前节点记录的错误信息（null 表示无错误） */
+        /**
+         * 当前节点记录的错误信息（null 表示无错误）
+        */
         private String currentError;
-        /** 当前查询语句的向量 */
+        /**
+         * 当前查询语句的向量
+        */
         private float[] currentQueryVector;
-        /** 当前检索命中的向量列表 */
+        /**
+         * 当前检索命中的向量列表
+        */
         private List<Vector> currentResults;
-        /** 当前过滤后的来源列表 */
+        /**
+         * 当前过滤后的来源列表
+        */
         private List<RagResponse.Source> currentSources;
-        /** 当前模型生成的回答 */
+        /**
+         * 当前模型生成的回答
+        */
         private String currentAnswer;
-        /** 当前组装的查询响应 */
+        /**
+         * 当前组装的查询响应
+        */
         private RagResponse currentResponse;
-        /** 是否处理中（预留） */
+        /**
+         * 是否处理中（预留）
+        */
         private boolean processing;
-        /** 当前入库的文档元数据 */
+        /**
+         * 当前入库的文档元数据
+        */
         private RagDocument currentDocument;
 
-        /** 获取文档 ID */
+        /**
+         * 获取文档 ID
+        */
         public String docId() { return docId; }
-        /** 设置文档 ID */
+        /**
+         * 设置文档 ID
+        */
         public void docId(String docId) { this.docId = docId; }
-        /** 获取文件名 */
+        /**
+         * 获取文件名
+        */
         public String fileName() { return fileName; }
-        /** 设置文件名 */
+        /**
+         * 设置文件名
+        */
         public void fileName(String fileName) { this.fileName = fileName; }
-        /** 获取文件类型 */
+        /**
+         * 获取文件类型
+        */
         public String fileType() { return fileType; }
-        /** 设置文件类型 */
+        /**
+         * 设置文件类型
+        */
         public void fileType(String fileType) { this.fileType = fileType; }
-        /** 获取文件字节 */
+        /**
+         * 获取文件字节
+        */
         public byte[] data() { return data; }
-        /** 设置文件字节 */
+        /**
+         * 设置文件字节
+        */
         public void data(byte[] data) { this.data = data; }
-        /** 获取查询语句 */
+        /**
+         * 获取查询语句
+        */
         public String query() { return query; }
-        /** 设置查询语句 */
+        /**
+         * 设置查询语句
+        */
         public void query(String query) { this.query = query; }
-        /** 获取 TopK */
+        /**
+         * 获取 TopK
+        */
         public int topK() { return topK; }
-        /** 设置 TopK */
+        /**
+         * 设置 TopK
+        */
         public void topK(int topK) { this.topK = topK; }
-        /** 获取相似度阈值 */
+        /**
+         * 获取相似度阈值
+        */
         public double threshold() { return threshold; }
-        /** 设置相似度阈值 */
+        /**
+         * 设置相似度阈值
+        */
         public void threshold(double threshold) { this.threshold = threshold; }
-        /** 获取文件 ID */
+        /**
+         * 获取文件 ID
+        */
         public String currentFileId() { return currentFileId; }
-        /** 设置文件 ID */
+        /**
+         * 设置文件 ID
+        */
         public void currentFileId(String currentFileId) { this.currentFileId = currentFileId; }
-        /** 获取抽取文本 */
+        /**
+         * 获取抽取文本
+        */
         public String currentText() { return currentText; }
-        /** 设置抽取文本 */
+        /**
+         * 设置抽取文本
+        */
         public void currentText(String currentText) { this.currentText = currentText; }
-        /** 获取分块列表 */
+        /**
+         * 获取分块列表
+        */
         public List<TextChunk> currentChunks() { return currentChunks; }
-        /** 设置分块列表 */
+        /**
+         * 设置分块列表
+        */
         public void currentChunks(List<TextChunk> currentChunks) { this.currentChunks = currentChunks; }
-        /** 获取入库分块数 */
+        /**
+         * 获取入库分块数
+        */
         public int currentChunkCount() { return currentChunkCount; }
-        /** 设置入库分块数 */
+        /**
+         * 设置入库分块数
+        */
         public void currentChunkCount(int currentChunkCount) { this.currentChunkCount = currentChunkCount; }
-        /** 获取错误信息 */
+        /**
+         * 获取错误信息
+        */
         public String currentError() { return currentError; }
-        /** 设置错误信息 */
+        /**
+         * 设置错误信息
+        */
         public void currentError(String currentError) { this.currentError = currentError; }
-        /** 获取查询向量 */
+        /**
+         * 获取查询向量
+        */
         public float[] currentQueryVector() { return currentQueryVector; }
-        /** 设置查询向量 */
+        /**
+         * 设置查询向量
+        */
         public void currentQueryVector(float[] currentQueryVector) { this.currentQueryVector = currentQueryVector; }
-        /** 获取检索命中向量 */
+        /**
+         * 获取检索命中向量
+        */
         public List<Vector> currentResults() { return currentResults; }
-        /** 设置检索命中向量 */
+        /**
+         * 设置检索命中向量
+        */
         public void currentResults(List<Vector> currentResults) { this.currentResults = currentResults; }
-        /** 获取过滤后来源 */
+        /**
+         * 获取过滤后来源
+        */
         public List<RagResponse.Source> currentSources() { return currentSources; }
-        /** 设置过滤后来源 */
+        /**
+         * 设置过滤后来源
+        */
         public void currentSources(List<RagResponse.Source> currentSources) { this.currentSources = currentSources; }
-        /** 获取模型回答 */
+        /**
+         * 获取模型回答
+        */
         public String currentAnswer() { return currentAnswer; }
-        /** 设置模型回答 */
+        /**
+         * 设置模型回答
+        */
         public void currentAnswer(String currentAnswer) { this.currentAnswer = currentAnswer; }
-        /** 获取查询响应 */
+        /**
+         * 获取查询响应
+        */
         public RagResponse currentResponse() { return currentResponse; }
-        /** 设置查询响应 */
+        /**
+         * 设置查询响应
+        */
         public void currentResponse(RagResponse currentResponse) { this.currentResponse = currentResponse; }
-        /** 获取处理中标志 */
+        /**
+         * 获取处理中标志
+        */
         public boolean processing() { return processing; }
-        /** 设置处理中标志 */
+        /**
+         * 设置处理中标志
+        */
         public void processing(boolean processing) { this.processing = processing; }
-        /** 获取入库文档元数据 */
+        /**
+         * 获取入库文档元数据
+        */
         public RagDocument currentDocument() { return currentDocument; }
-        /** 设置入库文档元数据 */
+        /**
+         * 设置入库文档元数据
+        */
         public void currentDocument(RagDocument currentDocument) { this.currentDocument = currentDocument; }
     }
 

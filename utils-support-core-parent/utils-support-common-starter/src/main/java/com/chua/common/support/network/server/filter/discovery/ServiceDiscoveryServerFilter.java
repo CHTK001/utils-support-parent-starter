@@ -32,13 +32,21 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
 
     private final Map<String, String> routeServiceMap = new ConcurrentHashMap<>();
     private final String discoveryName;
-    /** balance */
+    /**
+     * balance
+    */
     private String balance = "weight";
-    /** protocol */
+    /**
+     * protocol
+    */
     private String protocol;
-    /** scatterID */
+    /**
+     * scatterID
+    */
     private String scatterId;
-    /** exclude服务端ID */
+    /**
+     * exclude服务端ID
+    */
     private String excludeServerId;
     private volatile ServiceDiscovery serviceDiscovery;
 

@@ -24,13 +24,19 @@ import java.util.List;
 @Spi("cost")
 public class CostRouterStrategy implements RouterStrategy {
 
-    /** 短文本阈值 */
+    /**
+     * 短文本阈值
+    */
     private static final int SHORT_THRESHOLD = 100;
-    /** 中等文本阈值 */
+    /**
+     * 中等文本阈值
+    */
     private static final int MEDIUM_THRESHOLD = 1000;
 
     @Override
-    /** 选择 */
+    /**
+     * 选择
+    */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

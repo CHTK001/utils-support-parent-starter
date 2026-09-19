@@ -39,7 +39,9 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
     }
 
     @Override
-    /** 序列化 */
+    /**
+     * 序列化
+    */
     public byte[] serialize(T object) {
         return Json.toJsonByte(object);
     }

@@ -32,13 +32,17 @@ import java.util.Map;
 public class ApacheMultipartParser implements MultipartParser {
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean support(String contentType) {
         return contentType != null && contentType.toLowerCase().startsWith("multipart/form-data");
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public List<FormFile> parse(byte[] body, String contentType) {
         if (body == null || body.length == 0 || contentType == null) {
             return List.of();
@@ -53,16 +57,24 @@ public class ApacheMultipartParser implements MultipartParser {
                     new JakartaServletFileUpload<>(factory);
             RequestContext ctx = new RequestContext() {
                 @Override
-                /** 获取内容类型 */
+                /**
+                 * 获取内容类型
+                */
                 public String getContentType() { return contentType; }
                 @Override
-                /** 获取character编码 */
+                /**
+                 * 获取character编码
+                */
                 public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
                 @Override
-                /** 获取内容获取长度 */
+                /**
+                 * 获取内容获取长度
+                */
                 public long getContentLength() { return body.length; }
                 @Override
-                /** 获取输入流 */
+                /**
+                 * 获取输入流
+                */
                 public InputStream getInputStream() { return new ByteArrayInputStream(body); }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);
@@ -84,7 +96,9 @@ public class ApacheMultipartParser implements MultipartParser {
     }
 
     @Override
-    /** 解析form字段 */
+    /**
+     * 解析form字段
+    */
     public Map<String, String> parseFormFields(byte[] body, String contentType) {
         if (body == null || body.length == 0 || contentType == null) {
             return Map.of();
@@ -99,16 +113,24 @@ public class ApacheMultipartParser implements MultipartParser {
                     new JakartaServletFileUpload<>(factory);
             RequestContext ctx = new RequestContext() {
                 @Override
-                /** 获取内容类型 */
+                /**
+                 * 获取内容类型
+                */
                 public String getContentType() { return contentType; }
                 @Override
-                /** 获取character编码 */
+                /**
+                 * 获取character编码
+                */
                 public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
                 @Override
-                /** 获取内容获取长度 */
+                /**
+                 * 获取内容获取长度
+                */
                 public long getContentLength() { return body.length; }
                 @Override
-                /** 获取输入流 */
+                /**
+                 * 获取输入流
+                */
                 public InputStream getInputStream() { return new ByteArrayInputStream(body); }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);

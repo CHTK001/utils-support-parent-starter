@@ -16,73 +16,119 @@ import java.util.List;
 @Spi("ftp-config")
 public class FtpConfig {
 
-    /** 默认 FTP 控制端口 */
+    /**
+     * 默认 FTP 控制端口
+    */
     public static final int DEFAULT_CONTROL_PORT = 21;
 
-    /** 默认匿名访问用户名 */
+    /**
+     * 默认匿名访问用户名
+    */
     public static final String ANONYMOUS_USER = "anonymous";
 
-    /** 控制端口 */
+    /**
+     * 控制端口
+    */
     private int controlPort = DEFAULT_CONTROL_PORT;
 
-    /** 监听主机 */
+    /**
+     * 监听主机
+    */
     private String host = "0.0.0.0";
 
-    /** 根目录（客户端可访问的根路径） */
+    /**
+     * 根目录（客户端可访问的根路径）
+    */
     private File homeDirectory = new File("ftp-home");
 
-    /** 是否启用匿名访问 */
+    /**
+     * 是否启用匿名访问
+    */
     private boolean anonymousEnabled = true;
 
-    /** 匿名用户是否可写 */
+    /**
+     * 匿名用户是否可写
+    */
     private boolean anonymousWriteEnabled = false;
 
-    /** 最大并发连接数，0 表示不限制 */
+    /**
+     * 最大并发连接数，0 表示不限制
+    */
     private int maxConnections = 0;
 
-    /** 被动模式端口范围起始（含） */
+    /**
+     * 被动模式端口范围起始（含）
+    */
     private int passivePortMin = 49152;
 
-    /** 被动模式端口范围结束（含） */
+    /**
+     * 被动模式端口范围结束（含）
+    */
     private int passivePortMax = 65535;
 
-    /** 是否启用被动模式（默认 true，主动模式兼容性差） */
+    /**
+     * 是否启用被动模式（默认 true，主动模式兼容性差）
+    */
     private boolean passiveMode = true;
 
-    /** 是否开启 SSL/TLS（FTPS 模式） */
+    /**
+     * 是否开启 SSL/TLS（FTPS 模式）
+    */
     private boolean sslEnabled = false;
 
-    /** SSL 证书文件路径（PEM 格式） */
+    /**
+     * SSL 证书文件路径（PEM 格式）
+    */
     private String certPath;
 
-    /** SSL 私钥文件路径（PEM 格式） */
+    /**
+     * SSL 私钥文件路径（PEM 格式）
+    */
     private String keyPath;
 
-    /** SSL 私钥密码 */
+    /**
+     * SSL 私钥密码
+    */
     private String keyPassword;
 
-    /** 是否信任所有证书（开发环境） */
+    /**
+     * 是否信任所有证书（开发环境）
+    */
     private boolean trustAll = false;
 
-    /** 一键自签（自动启用 SSL 并生成自签名证书） */
+    /**
+     * 一键自签（自动启用 SSL 并生成自签名证书）
+    */
     private boolean selfSignedAuto = false;
 
-    /** 控制连接超时（秒），0 表示不超时 */
+    /**
+     * 控制连接超时（秒），0 表示不超时
+    */
     private int controlTimeout = 300;
 
-    /** 数据连接超时（秒） */
+    /**
+     * 数据连接超时（秒）
+    */
     private int dataTimeout = 30;
 
-    /** 是否允许匿名上传 */
+    /**
+     * 是否允许匿名上传
+    */
     private boolean allowAnonymousUpload = false;
 
-    /** 允许的匿名上传目录（相对于 homeDirectory） */
+    /**
+     * 允许的匿名上传目录（相对于 homeDirectory）
+    */
     private String anonymousUploadDir = "upload";
 
-    /** 是否允许被动模式（安全考虑可禁用） */
+    /**
+     * 是否允许被动模式（安全考虑可禁用）
+    */
     private boolean allowPassiveMode = true;
 
-    /** 是否允许主动模式 */
+    /**
+     * 是否允许主动模式
+    */
     private boolean allowActiveMode = false;
 
     /**

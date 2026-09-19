@@ -31,7 +31,9 @@ import java.util.List;
  */
 public class SshDeployTarget implements MavenDeployTarget {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SshDeployTarget.class);
 
     /**
@@ -104,19 +106,25 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "SSH:" + host + ":" + port + " -> " + remoteRoot;
     }
 
     @Override
-    /** 是否就绪 */
+    /**
+     * 是否就绪
+    */
     public boolean isReady() {
         return ready;
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         try {
  // 通过 reflect工具 动态加载避免编译时强依赖
@@ -141,7 +149,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** Upload */
+    /**
+     * Upload
+    */
     public void upload(String localPath, String targetPath) {
         ensureReady();
         try {
@@ -160,7 +170,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 创建目录 */
+    /**
+     * 创建目录
+    */
     public void createDirectory(String path) {
         if (path == null || ".".equals(path)) {
             return;
@@ -179,7 +191,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 是否存在 */
+    /**
+     * 是否存在
+    */
     public boolean exists(String path) {
         try {
             String remote = remoteRoot + "/" + path;
@@ -193,7 +207,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public void delete(String path) {
         ensureReady();
         try {
@@ -210,7 +226,9 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         if (sftpClient != null) {
             try {
@@ -224,13 +242,17 @@ public class SshDeployTarget implements MavenDeployTarget {
     }
 
     @Override
-    /** 设置Callback */
+    /**
+     * 设置Callback
+    */
     public void setCallback(MavenDeployCallback callback) {
         this.callback = callback;
     }
 
     @Override
-    /** uploadbatch */
+    /**
+     * uploadbatch
+    */
     public int uploadBatch(List<String> files, String targetDir) {
         ensureReady();
         int count = 0;

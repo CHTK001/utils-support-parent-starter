@@ -35,10 +35,14 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
      */
     private static final String DEFAULT_SYNSET_FILE = "classes.txt";
 
-    /** 委托对象 */
+    /**
+     * 委托对象
+    */
     private final ImageClassificationTranslator delegate;
 
-    /** 创建 inceptionv3动作translator 实例 */
+    /**
+     * 创建 inceptionv3动作translator 实例
+    */
     public InceptionV3ActionTranslator() {
         this(Map.of());
     }
@@ -65,19 +69,25 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return delegate.getBatchifier();
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return delegate.processInput(ctx, input);
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return delegate.processOutput(ctx, list);
     }

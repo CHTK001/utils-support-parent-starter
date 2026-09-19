@@ -27,25 +27,39 @@ import java.util.Map;
  */
 public class ParaformerTokenizer {
 
-    /** EOS 令牌 名 */
+    /**
+     * EOS 令牌 名
+    */
     private static final String EOS_TOKEN = "</s>";
 
-    /** BPE 合并标记后缀 */
+    /**
+     * BPE 合并标记后缀
+    */
     private static final String MERGE_SUFFIX = "@@";
 
-    /** BPE 合并标记后缀长度 */
+    /**
+     * BPE 合并标记后缀长度
+    */
     private static final int MERGE_SUFFIX_LEN = 2;
 
-    /** 令牌 标识 → 令牌 字符串 */
+    /**
+     * 令牌 标识 → 令牌 字符串
+    */
     private final String[] idToToken;
 
-    /** 令牌 字符串 → 令牌 标识 */
+    /**
+     * 令牌 字符串 → 令牌 标识
+    */
     private final Map<String, Integer> tokenToId;
 
-    /** 词表大小 */
+    /**
+     * 词表大小
+    */
     private final int vocabSize;
 
-    /** EOS 令牌 标识 */
+    /**
+     * EOS 令牌 标识
+    */
     private final int eosId;
 
     /**

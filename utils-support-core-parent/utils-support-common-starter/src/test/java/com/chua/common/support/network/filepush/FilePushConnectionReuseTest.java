@@ -37,7 +37,9 @@ import java.util.TreeMap;
  */
 public class FilePushConnectionReuseTest {
 
-    /** 是否全部通过 */
+    /**
+     * 是否全部通过
+    */
     private static boolean allPassed = true;
 
     /**

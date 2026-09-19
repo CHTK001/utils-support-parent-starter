@@ -27,13 +27,17 @@ import java.util.*;
 public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 0;
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if (!(serverFilter instanceof ShellUrlServerFilter)) {
             return List.of();

@@ -43,7 +43,9 @@ class TableNameResolveTest {
         assertEquals("abc", AbstractEngine.resolveTableName(Abc.class));
     }
 
-    /** 全小写命名的测试夹具（定义在测试方法同文件内）。 */
+    /**
+     * 全小写命名的测试夹具（定义在测试方法同文件内）。
+    */
     static class Abc {
     }
 }

@@ -13,13 +13,21 @@ import java.io.OutputStream;
  */
 public class DefaultModel3D implements Model3D {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private String name;
-    /** 模型三维格式 */
+    /**
+     * 模型三维格式
+    */
     private Model3DFormat format;
-    /** 数据列表 */
+    /**
+     * 数据列表
+    */
     private byte[] data;
-    /** 纹理数据 */
+    /**
+     * 纹理数据
+    */
     private byte[] texture;
 
     /**
@@ -37,61 +45,81 @@ public class DefaultModel3D implements Model3D {
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 设置名称 */
+    /**
+     * 设置名称
+    */
     public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    /** 获取格式化 */
+    /**
+     * 获取格式化
+    */
     public Model3DFormat getFormat() {
         return format;
     }
 
     @Override
-    /** 设置格式化 */
+    /**
+     * 设置格式化
+    */
     public void setFormat(Model3DFormat format) {
         this.format = format;
     }
 
     @Override
-    /** 获取数据 */
+    /**
+     * 获取数据
+    */
     public InputStream getData() {
         return new ByteArrayInputStream(data != null ? data : new byte[0]);
     }
 
     @Override
-    /** 设置数据 */
+    /**
+     * 设置数据
+    */
     public void setData(byte[] data) {
         this.data = data;
     }
 
     @Override
-    /** 获取获取大小 */
+    /**
+     * 获取获取大小
+    */
     public long getSize() {
         return data != null ? data.length : 0;
     }
 
     @Override
-    /** 获取Texture */
+    /**
+     * 获取Texture
+    */
     public byte[] getTexture() {
         return texture;
     }
 
     @Override
-    /** 设置Texture */
+    /**
+     * 设置Texture
+    */
     public void setTexture(byte[] texture) {
         this.texture = texture;
     }
 
     @Override
-    /** 写入转为 */
+    /**
+     * 写入转为
+    */
     public void writeTo(OutputStream out) throws Exception {
         if (data != null) {
             out.write(data);

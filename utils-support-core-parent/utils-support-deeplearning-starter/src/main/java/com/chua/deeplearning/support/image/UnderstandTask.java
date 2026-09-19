@@ -9,38 +9,70 @@ package com.chua.deeplearning.support.image;
  * @since 4.0.0.42
  */
 public enum UnderstandTask {
-    /** 生成简短图像描述 */
+    /**
+     * 生成简短图像描述
+    */
     CAPTION("<CAPTION>"),
-    /** 生成详细图像描述 */
+    /**
+     * 生成详细图像描述
+    */
     DETAILED_CAPTION("<DETAILED_CAPTION>"),
-    /** 生成更详细的图像描述 */
+    /**
+     * 生成更详细的图像描述
+    */
     MORE_DETAILED_CAPTION("<MORE_DETAILED_CAPTION>"),
-    /** 光学字符识别 */
+    /**
+     * 光学字符识别
+    */
     OCR("<OCR>"),
-    /** 带区域的 OCR */
+    /**
+     * 带区域的 OCR
+    */
     OCR_WITH_REGION("<OCR_WITH_REGION>"),
-    /** 开放词汇目标检测 */
+    /**
+     * 开放词汇目标检测
+    */
     OD("<OD>"),
-    /** 密集区域 caption */
+    /**
+     * 密集区域 caption
+    */
     DENSE_REGION_CAPTION("<DENSE_REGION_CAPTION>"),
-    /** Caption 到短语接地 */
+    /**
+     * Caption 到短语接地
+    */
     CAPTION_TO_PHRASE_GROUNDING("<CAPTION_TO_PHRASE_GROUNDING>"),
-    /** 指代表达式分割 */
+    /**
+     * 指代表达式分割
+    */
     REFERRING_EXPRESSION_SEGMENTATION("<REFERRING_EXPRESSION_SEGMENTATION>"),
-    /** 区域到分割 */
+    /**
+     * 区域到分割
+    */
     REGION_TO_SEGMENTATION("<REGION_TO_SEGMENTATION>"),
-    /** 开放词汇检测 */
+    /**
+     * 开放词汇检测
+    */
     OPEN_VOCABULARY_DETECTION("<OPEN_VOCABULARY_DETECTION>"),
-    /** 区域到类别 */
+    /**
+     * 区域到类别
+    */
     REGION_TO_CATEGORY("<REGION_TO_CATEGORY>"),
-    /** 区域到描述 */
+    /**
+     * 区域到描述
+    */
     REGION_TO_DESCRIPTION("<REGION_TO_DESCRIPTION>"),
-    /** 区域到 OCR */
+    /**
+     * 区域到 OCR
+    */
     REGION_TO_OCR("<REGION_TO_OCR>"),
-    /** 区域提议 */
+    /**
+     * 区域提议
+    */
     REGION_PROPOSAL("<REGION_PROPOSAL>");
 
-    /** 提示符 前缀 */
+    /**
+     * 提示符 前缀
+    */
     private final String prompt;
 
     /**

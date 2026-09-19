@@ -24,49 +24,91 @@ import java.io.OutputStream;
 @Slf4j
 @Spi(value = {"h266", "vvc"}, order = 35)
 public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
-    /** Codec_名称_h266 */
+    /**
+     * Codec_名称_h266
+    */
     private static final String CODEC_NAME_H266 = "h266";
-    /** 格式化_h266 */
+    /**
+     * 格式化_h266
+    */
     private static final String FORMAT_H266 = "h266";
-    /** 内存_流_initial_容量 */
+    /**
+     * 内存_流_initial_容量
+    */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
-    /** Gop_大小 */
+    /**
+     * Gop_大小
+    */
     private static final int GOP_SIZE = 150;
-    /** 键_preset */
+    /**
+     * 键_preset
+    */
     private static final String KEY_PRESET = "preset";
-    /** 键_tune */
+    /**
+     * 键_tune
+    */
     private static final String KEY_TUNE = "tune";
-    /** 键_配置文件 */
+    /**
+     * 键_配置文件
+    */
     private static final String KEY_PROFILE = "profile";
-    /** Val_preset */
+    /**
+     * Val_preset
+    */
     private static final String VAL_PRESET = "ultrafast";
-    /** Val_tune */
+    /**
+     * Val_tune
+    */
     private static final String VAL_TUNE = "zerolatency";
-    /** Val_配置文件 */
+    /**
+     * Val_配置文件
+    */
     private static final String VAL_PROFILE = "main";
 
-    /** Recorder */
+    /**
+     * Recorder
+    */
     private FFmpegFrameRecorder recorder;
-    /** 内存流 */
+    /**
+     * 内存流
+    */
     private ByteArrayOutputStream memoryStream;
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     private int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     private int height;
-    /** FPS */
+    /**
+     * FPS
+    */
     private int fps;
-    /** 密钥framerequested */
+    /**
+     * 密钥framerequested
+    */
     private boolean keyFrameRequested;
-    /** PTS */
+    /**
+     * PTS
+    */
     private long pts;
-    /** 启动 */
+    /**
+     * 启动
+    */
     private boolean started;
-    /** 帧索引 */
+    /**
+     * 帧索引
+    */
     private long frameIndex;
-    /** 缓冲图片转换器 */
+    /**
+     * 缓冲图片转换器
+    */
     private Java2DFrameConverter bufferedImageConverter;
 
-    /** 创建 H266视频编码器 实例 */
+    /**
+     * 创建 H266视频编码器 实例
+    */
     public H266VideoEncoder() {
     }
 
@@ -162,25 +204,33 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取codec名称 */
+    /**
+     * 获取codec名称
+    */
     public String getCodecName() {
         return CODEC_NAME_H266;
     }
 
     @Override
-    /** 获取codecid */
+    /**
+     * 获取codecid
+    */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H266;
     }
 
     @Override
-    /** 是否hardware加速 */
+    /**
+     * 是否hardware加速
+    */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** force键帧 */
+    /**
+     * force键帧
+    */
     public void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
@@ -199,7 +249,9 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -225,7 +277,9 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -272,7 +326,9 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         started = false;
         if (recorder != null) {
@@ -323,6 +379,8 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
         return bgr;
     }
 
-    /** 键_force_键_帧 */
+    /**
+     * 键_force_键_帧
+    */
     private static final String KEY_FORCE_KEY_FRAME = "force_key_frame";
 }

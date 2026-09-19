@@ -14,21 +14,35 @@ import java.io.OutputStream;
  */
 class LzwEncoder {
 
-    /** EOF */
+    /**
+     * EOF
+    */
     private static final int EOF = -1;
 
-    /** IMGW */
+    /**
+     * IMGW
+    */
     private final int imgW;
-    /** IMGH */
+    /**
+     * IMGH
+    */
     private final int imgH;
-    /** PIXARY */
+    /**
+     * PIXARY
+    */
     private final byte[] pixAry;
-    /** 初始化代码尺寸 */
+    /**
+     * 初始化代码尺寸
+    */
     private final int initCodeSize;
 
-    /** 剩余 */
+    /**
+     * 剩余
+    */
     private int remaining;
-    /** curpixel */
+    /**
+     * curpixel
+    */
     private int curPixel;
 
 

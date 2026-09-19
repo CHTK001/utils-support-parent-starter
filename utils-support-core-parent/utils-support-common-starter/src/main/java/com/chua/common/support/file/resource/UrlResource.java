@@ -30,25 +30,33 @@ public class UrlResource implements Resource {
     }
 
     @Override
-    /** 打开Stream */
+    /**
+     * 打开Stream
+    */
     public InputStream openStream() throws IOException {
         return url.openStream();
     }
 
     @Override
-    /** 获取UrlPath */
+    /**
+     * 获取UrlPath
+    */
     public String getUrlPath() {
         return url.toExternalForm();
     }
 
     @Override
-    /** 获取Url */
+    /**
+     * 获取Url
+    */
     public URL getUrl() {
         return url;
     }
 
     @Override
-    /** LastModified */
+    /**
+     * LastModified
+    */
     public long lastModified() {
         try {
             return url.openConnection().getLastModified();

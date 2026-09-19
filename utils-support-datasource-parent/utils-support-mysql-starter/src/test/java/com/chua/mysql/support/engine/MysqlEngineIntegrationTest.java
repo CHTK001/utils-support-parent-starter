@@ -38,13 +38,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class MysqlEngineIntegrationTest {
 
-    /** 真实 MySQL 容器（8.0） */
+    /**
+     * 真实 MySQL 容器（8.0）
+    */
     static final MySQLContainer<?> MYSQL = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
             .withDatabaseName("test")
             .withUsername("test")
             .withPassword("test");
 
-    /** 被测引擎 */
+    /**
+     * 被测引擎
+    */
     private MysqlEngine engine;
 
     /**

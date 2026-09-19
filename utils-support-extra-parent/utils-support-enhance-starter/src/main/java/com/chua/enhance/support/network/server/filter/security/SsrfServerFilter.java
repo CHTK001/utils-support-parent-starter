@@ -39,7 +39,9 @@ public class SsrfServerFilter implements ServerFilter {
     private boolean blockInternal = true;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         String domains = config.getInitParameter("ssrf.allowedDomains");
         if (domains != null) {
@@ -57,7 +59,9 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String referer = request.getHeader("Referer");
         if (referer != null && !referer.isEmpty() && !isAllowedHost(referer)) {
@@ -73,13 +77,17 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 12;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "SsrfServerFilter";
     }

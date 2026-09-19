@@ -33,49 +33,93 @@ import javax.annotation.Nullable;
  */
 public class GifEncoder {
 
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     protected int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     protected int height;
-    /** Transparent */
+    /**
+     * Transparent
+    */
     protected Color transparent = null;
-    /** Transparentexactmatch */
+    /**
+     * Transparentexactmatch
+    */
     protected boolean transparentExactMatch = false;
-    /** Background */
+    /**
+     * Background
+    */
     protected Color background = null;
-    /** Trans索引 */
+    /**
+     * Trans索引
+    */
     protected int transIndex;
-    /** Repeat */
+    /**
+     * Repeat
+    */
     protected int repeat = -1;
-    /** 延迟 */
+    /**
+     * 延迟
+    */
     protected int delay = 0;
-    /** 启动 */
+    /**
+     * 启动
+    */
     protected boolean started = false;
-    /** 出 */
+    /**
+     * 出
+    */
     protected OutputStream out;
-    /** 图片 */
+    /**
+     * 图片
+    */
     protected BufferedImage image;
-    /** Pixels */
+    /**
+     * Pixels
+    */
     protected byte[] pixels;
-    /** Indexedpixels */
+    /**
+     * Indexedpixels
+    */
     protected byte[] indexedPixels;
-    /** 颜色深度 */
+    /**
+     * 颜色深度
+    */
     protected int colorDepth;
-    /** 颜色TAB */
+    /**
+     * 颜色TAB
+    */
     protected byte[] colorTab;
-    /** Usedentry */
+    /**
+     * Usedentry
+    */
     protected boolean[] usedEntry = new boolean[256];
-    /** PAL尺寸 */
+    /**
+     * PAL尺寸
+    */
     protected int palSize = 7;
-    /** Dispose */
+    /**
+     * Dispose
+    */
     protected int dispose = -1;
-    /** 关闭流 */
+    /**
+     * 关闭流
+    */
     protected boolean closeStream = false;
-    /** 首个帧 */
+    /**
+     * 首个帧
+    */
     protected boolean firstFrame = true;
-    /** 尺寸集合 */
+    /**
+     * 尺寸集合
+    */
     protected boolean sizeSet = false;
-    /** 示例 */
+    /**
+     * 示例
+    */
     protected int sample = 10;
 
     /**

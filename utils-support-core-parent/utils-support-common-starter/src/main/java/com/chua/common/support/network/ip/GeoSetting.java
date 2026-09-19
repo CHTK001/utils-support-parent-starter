@@ -11,10 +11,14 @@ package com.chua.common.support.network.ip;
  */
 public class GeoSetting {
 
-    /** 默认配置 */
+    /**
+     * 默认配置
+    */
     public static final GeoSetting DEFAULT = new GeoSetting("", "");
 
-    /** 数据库文件路径 */
+    /**
+     * 数据库文件路径
+    */
     private final String databaseFile;
 
     /**
@@ -33,9 +37,13 @@ public class GeoSetting {
         this.licenseKey = licenseKey;
     }
 
-    /** 获取DatabaseFile */
+    /**
+     * 获取DatabaseFile
+    */
     public String getDatabaseFile() { return databaseFile; }
-    /** 获取LicenseKey */
+    /**
+     * 获取LicenseKey
+    */
     public String getLicenseKey() { return licenseKey; }
 
     /**
@@ -47,22 +55,32 @@ public class GeoSetting {
     }
 
     public static class Builder {
-        /** 数据库文件 */
+        /**
+         * 数据库文件
+        */
         private String databaseFile = "";
-        /** License密钥 */
+        /**
+         * License密钥
+        */
         private String licenseKey = "";
 
-        /** DatabaseFile */
+        /**
+         * DatabaseFile
+        */
         public Builder databaseFile(String databaseFile) {
             this.databaseFile = databaseFile;
             return this;
         }
-        /** LicenseKey */
+        /**
+         * LicenseKey
+        */
         public Builder licenseKey(String licenseKey) {
             this.licenseKey = licenseKey;
             return this;
         }
-        /** 构建 */
+        /**
+         * 构建
+        */
         public GeoSetting build() { return new GeoSetting(databaseFile, licenseKey); }
     }
 }

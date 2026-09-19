@@ -9,20 +9,32 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxLayoutDetector implements LayoutDetector {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private float threshold = 0.5f;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 是否使用 GPU */
+    /**
+     * 是否使用 GPU
+    */
     private boolean useGpu = false;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -33,7 +45,9 @@ public class OnnxLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public LayoutDetector model(String model) {
         this.modelName = model;
         return this;
@@ -49,35 +63,45 @@ public class OnnxLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public LayoutDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** usegpu */
+    /**
+     * usegpu
+    */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Detect */
+    /**
+     * Detect
+    */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         List<DetectionInfo> detections = ImageDetector.create(resolveModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
@@ -91,7 +115,9 @@ public class OnnxLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public String parse(byte[] imageData) {
         Map<String, List<PredictRectangle>> regions = detect(imageData);
         StringBuilder sb = new StringBuilder();

@@ -41,38 +41,50 @@ public class EurekaHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "eureka-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "eureka.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.EUREKA;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.EUREKA;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(DISCOVERY_CLIENT, DISCOVERY_METHODS);
         registerAll(EUREKA_CLIENT, DISCOVERY_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object config = instance != null ? findField(instance, "eurekaClientConfig") : null;
         String host = "eureka";

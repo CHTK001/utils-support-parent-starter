@@ -181,7 +181,9 @@ class DefaultLayoutDetector implements LayoutDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -224,28 +226,36 @@ class DefaultLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public LayoutDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public LayoutDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** usegpu */
+    /**
+     * usegpu
+    */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;

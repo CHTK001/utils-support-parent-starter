@@ -18,25 +18,33 @@ import java.util.List;
 public class PackageManagerSoftwareProvider extends PackageManagerProvider implements SoftwareProvider {
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<SoftwareInfo> search(String keyword) {
         return searchSoftware(keyword);
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String packageId) {
         return installSoftware(packageId);
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String packageId) {
         return uninstallSoftware(packageId);
     }

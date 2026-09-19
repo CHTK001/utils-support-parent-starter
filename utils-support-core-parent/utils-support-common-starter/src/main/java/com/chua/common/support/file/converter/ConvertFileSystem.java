@@ -74,7 +74,9 @@ public interface ConvertFileSystem {
      */
     record ConvertSupport(String sourceFormat, String targetFormat) {
         @Override
-        /** ToString */
+        /**
+         * ToString
+        */
         public String toString() {
             return sourceFormat + " → " + targetFormat;
         }

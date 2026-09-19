@@ -8,9 +8,13 @@ package com.chua.datasync.agent.support.model;
  */
 public enum Direction {
 
-    /** 输入 */
+    /**
+     * 输入
+    */
     INPUT,
 
-    /** 输出 */
+    /**
+     * 输出
+    */
     OUTPUT
 }

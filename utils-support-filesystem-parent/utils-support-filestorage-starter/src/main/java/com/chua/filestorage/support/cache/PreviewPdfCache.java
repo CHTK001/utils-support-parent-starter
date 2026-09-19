@@ -40,54 +40,86 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class PreviewPdfCache {
 
-    /** 默认缓存根目录（位于系统临时目录下） */
+    /**
+     * 默认缓存根目录（位于系统临时目录下）
+    */
     private static final Path DEFAULT_CACHE_DIR = Path.of(System.getProperty("java.io.tmpdir"), "file-storage-preview-cache");
 
-    /** 默认 TTL：1 天（秒） */
+    /**
+     * 默认 TTL：1 天（秒）
+    */
     private static final long DEFAULT_TTL_SECONDS = 86400L;
 
-    /** 默认内存 LRU 容量（条目数） */
+    /**
+     * 默认内存 LRU 容量（条目数）
+    */
     private static final int DEFAULT_MEMORY_CAPACITY = 128;
 
-    /** 默认单文件内存缓存上限：5MB */
+    /**
+     * 默认单文件内存缓存上限：5MB
+    */
     private static final long DEFAULT_MAX_MEMORY_FILE_SIZE = 5L * 1024 * 1024;
 
-    /** 缓存目录 */
+    /**
+     * 缓存目录
+    */
     private final Path cacheDir;
 
-    /** 缓存 TTL（秒），0 表示永不过期 */
+    /**
+     * 缓存 TTL（秒），0 表示永不过期
+    */
     private final long ttlSeconds;
 
-    /** 内存 LRU 缓存：键 → pdf 字节（access-订单 驱逐最久未访问的） */
+    /**
+     * 内存 LRU 缓存：键 → pdf 字节（access-订单 驱逐最久未访问的）
+    */
     private final LinkedHashMap<String, byte[]> memoryCache;
 
-    /** 内存缓存容量（条目数） */
+    /**
+     * 内存缓存容量（条目数）
+    */
     private final int memoryCapacity;
 
-    /** 单文件内存缓存上限（字节），超过此值不放入内存 */
+    /**
+     * 单文件内存缓存上限（字节），超过此值不放入内存
+    */
     private final long maxMemoryFileSize;
 
-    /** 并发去重：键 → 正在进行的转换 期货，避免同一文件重复转换 */
+    /**
+     * 并发去重：键 → 正在进行的转换 期货，避免同一文件重复转换
+    */
     private final ConcurrentHashMap<String, CompletableFuture<byte[]>> inflightMap = new ConcurrentHashMap<>();
 
-    /** 后台清理调度器 */
+    /**
+     * 后台清理调度器
+    */
     private final ScheduledExecutorService cleanupScheduler;
 
-    /** 独立转换线程池，隔离 PDF 转换任务，避免占用公共 ForkJoin 池 */
+    /**
+     * 独立转换线程池，隔离 PDF 转换任务，避免占用公共 ForkJoin 池
+    */
     private final java.util.concurrent.ExecutorService convertExecutor;
 
-    /** 缓存统计：命中次数 */
+    /**
+     * 缓存统计：命中次数
+    */
     private final AtomicLong hitCount = new AtomicLong(0);
 
-    /** 缓存统计：未命中次数 */
+    /**
+     * 缓存统计：未命中次数
+    */
     private final AtomicLong missCount = new AtomicLong(0);
 
-    /** 缓存统计：淘汰次数 */
+    /**
+     * 缓存统计：淘汰次数
+    */
     private final AtomicLong evictionCount = new AtomicLong(0);
 
     // ==================== 构造 ====================
 
-    /** 创建 previewpdf缓存 实例（使用全部默认值） */
+    /**
+     * 创建 previewpdf缓存 实例（使用全部默认值）
+    */
     public PreviewPdfCache() {
         this(DEFAULT_CACHE_DIR, DEFAULT_TTL_SECONDS, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }

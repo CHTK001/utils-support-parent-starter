@@ -2,18 +2,28 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.feature.FeatureExtractor;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxFeatureExtractor implements FeatureExtractor {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 是否归一化 */
+    /**
+     * 是否归一化
+    */
     private boolean normalize = true;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -24,7 +34,9 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public FeatureExtractor model(String model) {
         this.modelName = model;
         return this;
@@ -40,34 +52,44 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public FeatureExtractor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** Normalize */
+    /**
+     * Normalize
+    */
     public FeatureExtractor normalize(boolean normalize) {
         this.normalize = normalize;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FeatureExtractor device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Extract */
+    /**
+     * Extract
+    */
     public float[] extract(byte[] imageData) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(imageData);
     }
 
     @Override
-    /** Extract */
+    /**
+     * Extract
+    */
     public float[] extract(String text) {
         return FeatureExtractor.create(resolveModel()).modelPath(modelPath).normalize(normalize).device(device).extract(text);
     }

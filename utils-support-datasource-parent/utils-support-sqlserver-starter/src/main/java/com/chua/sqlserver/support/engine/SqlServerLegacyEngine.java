@@ -40,12 +40,18 @@ import java.util.Map;
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyEngine extends JdbcEngine {
 
-    /** jtds JDBC URL 前缀 */
+    /**
+     * jtds JDBC URL 前缀
+    */
     private static final String JTDS_URL_PREFIX = "jdbc:jtds:sqlserver://";
 
-    /** jtds URL 默认参数：游标模式读取结果集 */
+    /**
+     * jtds URL 默认参数：游标模式读取结果集
+    */
     private static final String DEFAULT_JTDS_SELECT_METHOD = "cursor";
-    /** 默认最大连接数 */
+    /**
+     * 默认最大连接数
+    */
     private static final int DEFAULT_MAX_POOL_SIZE = 10;
 
     /**

@@ -17,28 +17,44 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LeakRecord {
 
-    /** 内部 row 标识 */
+    /**
+     * 内部 row 标识
+    */
     private long id;
 
-    /** 唯一 处理id */
+    /**
+     * 唯一 处理id
+    */
     private String handleId;
 
-    /** 句柄类型名（如 {@code java/io/FileInputStream}） */
+    /**
+     * 句柄类型名（如 {@code java/io/FileInputStream}）
+    */
     private String kind;
 
-    /** 名称 / 描述（路径 / URL） */
+    /**
+     * 名称 / 描述（路径 / URL）
+    */
     private String name;
 
-    /** 持有线程名 */
+    /**
+     * 持有线程名
+    */
     private String thread;
 
-    /** 创建时间（毫秒） */
+    /**
+     * 创建时间（毫秒）
+    */
     private long createdAt;
 
-    /** 关闭时间（毫秒），未关闭为 0 */
+    /**
+     * 关闭时间（毫秒），未关闭为 0
+    */
     private long closedAt;
 
-    /** 创建时的栈追踪（多行字符串） */
+    /**
+     * 创建时的栈追踪（多行字符串）
+    */
     private String stackTrace;
 
     /**

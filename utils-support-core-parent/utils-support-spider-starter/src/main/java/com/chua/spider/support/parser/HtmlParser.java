@@ -36,7 +36,9 @@ public class HtmlParser implements SpiderParser {
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public SpiderResult parse(SpiderResponse response) {
         String content = response.getContent();
         if (StringUtils.isEmpty(content)) {
@@ -77,7 +79,9 @@ public class HtmlParser implements SpiderParser {
     }
 
     @Override
-    /** 支持内容类型 */
+    /**
+     * 支持内容类型
+    */
     public String[] supportedContentTypes() {
         return SUPPORTED_TYPES;
     }

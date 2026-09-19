@@ -14,7 +14,9 @@ import com.chua.common.support.objects.ObjectContext;
  */
 public class DefaultObjectProvider<T> implements ObjectProvider<T> {
 
-    /** CTX */
+    /**
+     * CTX
+    */
     private final ObjectContext ctx;
     /**
      * 类型
@@ -33,7 +35,9 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public T getObject() {
         return ctx.getBeanOfTypeSafely(type);
     }

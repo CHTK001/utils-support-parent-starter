@@ -27,13 +27,17 @@ import java.util.List;
 public class Zip4jFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "zip4j";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new Zip4jReadBuilder(file);
     }
@@ -53,7 +57,9 @@ public class Zip4jFileSystem implements FileSystem {
 
     public static class Zip4jReadBuilder extends ReadBuilder {
 
-        /** 密码 */
+        /**
+         * 密码
+        */
         private char[] password;
 
         Zip4jReadBuilder(File file) {
@@ -201,7 +207,9 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public Object read() {
             return listEntries();
         }
@@ -221,13 +229,21 @@ public class Zip4jFileSystem implements FileSystem {
 
     public static class Zip4jWriteBuilder extends WriteBuilder {
 
-        /** Entries */
+        /**
+         * Entries
+        */
         private final List<EntryData> entries = new ArrayList<>();
-        /** 密码 */
+        /**
+         * 密码
+        */
         private char[] password;
-        /** Compression级别 */
+        /**
+         * Compression级别
+        */
         private CompressionLevel compressionLevel = CompressionLevel.NORMAL;
-        /** 分卷大小（字节），0 表示不分卷。最小 65536 字节（64KB） */
+        /**
+         * 分卷大小（字节），0 表示不分卷。最小 65536 字节（64KB）
+        */
         private long splitSize = 0;
 
         Zip4jWriteBuilder(File file) {
@@ -350,7 +366,9 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         @Override
-        /** 饰面 */
+        /**
+         * 饰面
+        */
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();

@@ -49,11 +49,15 @@ import java.util.Set;
 @Slf4j
 public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter {
 
-    /** 复合扩展名列表（需优先于单扩展名识别） */
+    /**
+     * 复合扩展名列表（需优先于单扩展名识别）
+    */
     private static final Set<String> COMPOUND_EXTS = Set.of(
             "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
 
-    /** 预览请求允许读取的最大内容字节数（防止超大文件拖垮内存与转换线程） */
+    /**
+     * 预览请求允许读取的最大内容字节数（防止超大文件拖垮内存与转换线程）
+    */
     private static final long MAX_PREVIEW_CONTENT_BYTES = 512L * 1024 * 1024;
 
     /**

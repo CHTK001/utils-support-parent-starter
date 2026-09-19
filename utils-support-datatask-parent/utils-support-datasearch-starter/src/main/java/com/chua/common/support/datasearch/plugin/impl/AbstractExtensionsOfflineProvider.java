@@ -23,10 +23,14 @@ import java.util.List;
  */
 public abstract class AbstractExtensionsOfflineProvider implements com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(AbstractExtensionsOfflineProvider.class);
 
-    /** 用户主目录 */
+    /**
+     * 用户主目录
+    */
     protected static final Path USER_HOME = Path.of(System.getProperty("user.home", "."));
 
     /**

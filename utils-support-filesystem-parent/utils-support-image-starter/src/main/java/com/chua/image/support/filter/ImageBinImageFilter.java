@@ -78,7 +78,9 @@ public class ImageBinImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int h = src.getHeight();
         int w = src.getWidth();

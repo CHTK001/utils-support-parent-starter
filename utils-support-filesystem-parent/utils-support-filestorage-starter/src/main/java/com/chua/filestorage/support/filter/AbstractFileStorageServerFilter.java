@@ -36,25 +36,43 @@ import static java.util.concurrent.ConcurrentHashMap.newKeySet;
 @Slf4j
 public abstract class AbstractFileStorageServerFilter implements ServerFilter {
 
-    /** 全局共享：所有实例的 pdf缓存 引用，用于 JVM 关闭时统一释放 */
+    /**
+     * 全局共享：所有实例的 pdf缓存 引用，用于 JVM 关闭时统一释放
+    */
     private static final Set<PreviewPdfCache> ALL_CACHES = newKeySet();
-    /** 全局共享：单个 JVM 关闭 hook，避免多实例重复注册 */
+    /**
+     * 全局共享：单个 JVM 关闭 hook，避免多实例重复注册
+    */
     private static volatile Thread shutdownHook;
 
-    /** storage映射 */
+    /**
+     * storage映射
+    */
     protected final Map<String, FileStorage> storageMap = new ConcurrentHashMap<>();
-    /** 设置 */
+    /**
+     * 设置
+    */
     protected final FileStorageSetting setting;
 
-    /** PDF缓存 */
+    /**
+     * PDF缓存
+    */
     protected PreviewPdfCache pdfCache;
-    /** 文件设置 */
+    /**
+     * 文件设置
+    */
     protected FileStorageFileSetting fileSetting;
-    /** 过滤器设置 */
+    /**
+     * 过滤器设置
+    */
     protected FileStorageFilterSetting filterSetting;
-    /** 图片operation */
+    /**
+     * 图片operation
+    */
     protected ImageOperation imageOperation;
-    /** flash服务 */
+    /**
+     * flash服务
+    */
     protected transient FlashTokenService flashService;
 
     /**
@@ -113,7 +131,9 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
         }
     }
 
-    /** 加载Spis */
+    /**
+     * 加载Spis
+    */
     private void loadSpis() {
         String fsKey = StringUtils.isEmpty(setting.getFileSettingKey()) ? "jdk" : setting.getFileSettingKey();
         this.fileSetting = ServiceProvider.of(FileStorageFileSetting.class).getNewExtension(fsKey);
@@ -271,13 +291,17 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 80;
     }
 
     @Override
-    /** 支持路径 */
+    /**
+     * 支持路径
+    */
     public String supportPath() {
         return "/**";
     }

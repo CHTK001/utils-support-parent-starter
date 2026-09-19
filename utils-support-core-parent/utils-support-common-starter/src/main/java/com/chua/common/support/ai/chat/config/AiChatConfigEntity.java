@@ -27,7 +27,9 @@ import java.util.List;
 @Data
 public class AiChatConfigEntity {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
     /**
@@ -46,10 +48,14 @@ public class AiChatConfigEntity {
      */
     private String strategy = "hybrid";
 
-    /** 是否启用调用监控 */
+    /**
+     * 是否启用调用监控
+    */
     private boolean monitor = true;
 
-    /** 更新时间 */
+    /**
+     * 更新时间
+    */
     private Long updatedAt;
 
     /**

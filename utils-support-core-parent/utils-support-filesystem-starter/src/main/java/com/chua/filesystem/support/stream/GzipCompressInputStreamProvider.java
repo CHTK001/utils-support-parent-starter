@@ -19,7 +19,9 @@ import javax.annotation.Nonnull;
 public class GzipCompressInputStreamProvider implements CompressInputStream {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(@Nonnull File file) {
         if (file == null) {
             return false;
@@ -32,13 +34,17 @@ public class GzipCompressInputStreamProvider implements CompressInputStream {
     }
 
     @Override
-    /** 创建输入流 */
+    /**
+     * 创建输入流
+    */
     public Object createInputStream(@Nonnull InputStream inputStream, @Nonnull File file) throws IOException {
         return new GzipCompressorInputStream(inputStream);
     }
 
     @Override
-    /** 获取格式化名称 */
+    /**
+     * 获取格式化名称
+    */
     public String getFormatName() {
         return "gz";
     }

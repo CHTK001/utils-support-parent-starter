@@ -30,14 +30,22 @@ import java.util.Map;
 @Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
 public class ImageWriterFileSystem extends AbstractWriter {
 
-    /** 键_bytes */
+    /**
+     * 键_bytes
+    */
     private static final String KEY_BYTES = "bytes";
-    /** 键_基础64 */
+    /**
+     * 键_基础64
+    */
     private static final String KEY_BASE64 = "base64";
-    /** 键_镜像 */
+    /**
+     * 键_镜像
+    */
     private static final String KEY_IMAGE = "image";
 
-    /** 创建 镜像writer文件系统 实例 */
+    /**
+     * 创建 镜像writer文件系统 实例
+    */
     public ImageWriterFileSystem() {
         super();
     }
@@ -59,7 +67,9 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         
         return "image";
@@ -101,7 +111,9 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 执行初始化 */
+    /**
+     * 执行初始化
+    */
     protected void doInitialize() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");
@@ -112,13 +124,17 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 执行写入线 */
+    /**
+     * 执行写入线
+    */
     protected void doWriteLine(String line) throws IOException {
         throw new UnsupportedOperationException("图片文件系统不支持按行写入");
     }
 
     @Override
-    /** 执行写入文本 */
+    /**
+     * 执行写入文本
+    */
     protected void doWriteText(String text) throws IOException {
         if (text == null || text.isEmpty()) {
             return;
@@ -128,7 +144,9 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 执行写入Bytes */
+    /**
+     * 执行写入Bytes
+    */
     protected void doWriteBytes(byte[] bytes) throws IOException {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -137,7 +155,9 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 执行写入 */
+    /**
+     * 执行写入
+    */
     protected void doWrite(Map<String, Object> data) throws IOException {
         if (data == null || data.isEmpty()) {
             return;
@@ -170,13 +190,17 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** 执行刷新 */
+    /**
+     * 执行刷新
+    */
     protected void doFlush() throws IOException {
         // 文件写入为一次性覆盖，flush 由底层 NIO 处理
     }
 
     @Override
-    /** 执行饰面 */
+    /**
+     * 执行饰面
+    */
     protected void doFinish() throws IOException {
         // 无需额外收尾
     }

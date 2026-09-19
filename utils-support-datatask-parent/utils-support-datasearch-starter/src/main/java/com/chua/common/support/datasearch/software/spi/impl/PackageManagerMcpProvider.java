@@ -19,37 +19,49 @@ import java.util.Map;
 public class PackageManagerMcpProvider extends PackageManagerProvider implements McpProvider {
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public McpClient create() {
         return new PackageManagerMcpClient();
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }
 
     @Override
-    /** 列表installed */
+    /**
+     * 列表installed
+    */
     public Map<String, Boolean> listInstalled() {
         return super.listInstalled();
     }
 
     @Override
-    /** 列表可用 */
+    /**
+     * 列表可用
+    */
     public List<String> listAvailable() {
         return super.listAvailable();
     }

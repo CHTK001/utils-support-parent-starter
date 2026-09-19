@@ -15,11 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultMcpManager implements McpManager {
 
-    /** MCP 客户端注册表，键为服务端名称 */
+    /**
+     * MCP 客户端注册表，键为服务端名称
+    */
     private final Map<String, McpClient> clients = new ConcurrentHashMap<>();
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public McpManager register(String name, McpClient client) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("MCP 客户端名称不能为空");
@@ -32,19 +36,25 @@ public class DefaultMcpManager implements McpManager {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public McpClient get(String name) {
         return name == null ? null : clients.get(name);
     }
 
     @Override
-    /** 获取All */
+    /**
+     * 获取All
+    */
     public Map<String, McpClient> getAll() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(clients));
     }
 
     @Override
-    /** ListAllTools */
+    /**
+     * ListAllTools
+    */
     public List<McpToolDescriptor> listAllTools() {
         List<McpToolDescriptor> allTools = new ArrayList<>();
         for (Map.Entry<String, McpClient> entry : clients.entrySet()) {
@@ -61,7 +71,9 @@ public class DefaultMcpManager implements McpManager {
     }
 
     @Override
-    /** 调用Tool */
+    /**
+     * 调用Tool
+    */
     public McpToolResult callTool(String serverName, McpToolCall toolCall) {
         McpClient client = get(serverName);
         if (client == null) {
@@ -78,7 +90,9 @@ public class DefaultMcpManager implements McpManager {
     }
 
     @Override
-    /** 初始化All */
+    /**
+     * 初始化All
+    */
     public void initAll() {
         for (Map.Entry<String, McpClient> entry : clients.entrySet()) {
             try {
@@ -90,7 +104,9 @@ public class DefaultMcpManager implements McpManager {
     }
 
     @Override
-    /** 关闭All */
+    /**
+     * 关闭All
+    */
     public void closeAll() {
         for (Map.Entry<String, McpClient> entry : clients.entrySet()) {
             try {

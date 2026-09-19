@@ -42,12 +42,16 @@ import java.util.stream.Stream;
 @Slf4j
 public class LinuxJournaldProvider implements SystemLogProvider {
 
-    /** 源 */
+    /**
+     * 源
+    */
     private static final List<String> SOURCES = Arrays.asList(
             "journald", "syslog", "auth", "kern", "daemon", "cron", "user"
     );
 
-    /** Var_日志_文件 */
+    /**
+     * Var_日志_文件
+    */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/syslog",
             "/var/log/messages",
@@ -56,33 +60,57 @@ public class LinuxJournaldProvider implements SystemLogProvider {
             "/var/log/daemon.log"
     );
 
-    /** 时间戳_formatter */
+    /**
+     * 时间戳_formatter
+    */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
 
-    /** 注册表 */
+    /**
+     * 注册表
+    */
     private final NativeFunctionRegistry registry;
 
-    /** sdjournal打开 */
+    /**
+     * sdjournal打开
+    */
     private volatile MethodHandle sdJournalOpen;
-    /** sdjournal添加匹配 */
+    /**
+     * sdjournal添加匹配
+    */
     private volatile MethodHandle sdJournalAddMatch;
-    /** sdjournal下一个 */
+    /**
+     * sdjournal下一个
+    */
     private volatile MethodHandle sdJournalNext;
-    /** sdjournal上一个 */
+    /**
+     * sdjournal上一个
+    */
     private volatile MethodHandle sdJournalPrevious;
-    /** sdjournal获取数据 */
+    /**
+     * sdjournal获取数据
+    */
     private volatile MethodHandle sdJournalGetData;
-    /** sdjournal关闭 */
+    /**
+     * sdjournal关闭
+    */
     private volatile MethodHandle sdJournalClose;
-    /** sdjournalseektail */
+    /**
+     * sdjournalseektail
+    */
     private volatile MethodHandle sdJournalSeekTail;
-    /** sdjournalseekhead */
+    /**
+     * sdjournalseekhead
+    */
     private volatile MethodHandle sdJournalSeekHead;
-    /** sdjournal获取Cursor */
+    /**
+     * sdjournal获取Cursor
+    */
     private volatile MethodHandle sdJournalGetCursor;
-    /** sdjournalseekCursor */
+    /**
+     * sdjournalseekCursor
+    */
     private volatile MethodHandle sdJournalSeekCursor;
 
     /**
@@ -98,7 +126,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 是否platform支持 */
+    /**
+     * 是否platform支持
+    */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isLinux();
@@ -106,7 +136,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public List<String> getSources() {
         
         return SOURCES;
@@ -114,7 +146,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<LogEntry> search(LogQuery query) {
         if (!isPlatformSupported()) {
             return List.of();
@@ -442,7 +476,9 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @SuppressWarnings("unchecked")
-    /** 绑定Functions */
+    /**
+     * 绑定Functions
+    */
     private void bindFunctions() {
         if (sdJournalOpen == null) {
             synchronized (this) {

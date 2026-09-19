@@ -18,7 +18,9 @@ import java.util.Date;
 @Builder
 public class AiToken {
 
-    /** 令牌值（如 sk-xxx） */
+    /**
+     * 令牌值（如 sk-xxx）
+    */
     private String token;
 
     /**
@@ -29,22 +31,32 @@ public class AiToken {
      */
     private String group;
 
-    /** 过期时间，null 表示永不过期 */
+    /**
+     * 过期时间，null 表示永不过期
+    */
     private Date expireTime;
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     @Builder.Default
     /**
      * 是否启用
      */
     private boolean enabled = true;
 
-    /** 备注 */
+    /**
+     * 备注
+    */
     private String remark;
 
-    /** 创建时间 */
+    /**
+     * 创建时间
+    */
     @Builder.Default
-    /** Create时间 */
+    /**
+     * Create时间
+    */
     private Date createTime = new Date();
 
     /**

@@ -59,24 +59,42 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class TcpProxyServerFilter implements ServerFilter {
 
-    /** 连接超时MS */
+    /**
+     * 连接超时MS
+    */
     private final int connectTimeoutMs;
-    /** 读取超时MS */
+    /**
+     * 读取超时MS
+    */
     private final int readTimeoutMs;
-    /** 目标解析器 */
+    /**
+     * 目标解析器
+    */
     private final ProxyTargetResolver targetResolver;
-    /** Running */
+    /**
+     * Running
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
-    /** 是否激活connections */
+    /**
+     * 是否激活connections
+    */
     private final AtomicInteger activeConnections = new AtomicInteger(0);
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** NET服务器 */
+    /**
+     * NET服务器
+    */
     private NetServer netServer;
-    /** NET客户端 */
+    /**
+     * NET客户端
+    */
     private NetClient netClient;
 
-    /** 创建 tcp代理服务端过滤器 实例 */
+    /**
+     * 创建 tcp代理服务端过滤器 实例
+    */
     public TcpProxyServerFilter() {
         this(5000, 30000, null);
     }
@@ -139,19 +157,25 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 30;
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.TCP};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.netClient = vertx.createNetClient(new NetClientOptions()
@@ -163,7 +187,9 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         running.set(false);
         stopProxy();
@@ -188,7 +214,9 @@ public class TcpProxyServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    /** 停止代理 */
+    /**
+     * 停止代理
+    */
     public void stopProxy() {
         running.set(false);
         if (netServer != null) {

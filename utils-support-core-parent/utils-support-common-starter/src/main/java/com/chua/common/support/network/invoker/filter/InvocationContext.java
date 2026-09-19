@@ -22,32 +22,58 @@ import java.util.*;
  */
 public class InvocationContext implements ServerRequest, ServerResponse {
 
-    /** headers */
+    /**
+     * headers
+    */
     private final Map<String, String> headers = new LinkedHashMap<>();
-    /** queryParams */
+    /**
+     * queryParams
+    */
     private final Map<String, String> queryParams = new LinkedHashMap<>();
-    /** attributes */
+    /**
+     * attributes
+    */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
-    /** 请求体 */
+    /**
+     * 请求体
+    */
     private byte[] body;
-    /** 路径 */
+    /**
+     * 路径
+    */
     private String path;
-    /** 结果 */
+    /**
+     * 结果
+    */
     private Object result;
-    /** 状态代码 */
+    /**
+     * 状态代码
+    */
     private int statusCode = 200;
-    /** Ended */
+    /**
+     * Ended
+    */
     private boolean ended;
 
-    /** 获取Path */
+    /**
+     * 获取Path
+    */
     public String getPath() { return path; }
-    /** 设置Path */
+    /**
+     * 设置Path
+    */
     public void setPath(String path) { this.path = path; }
-    /** 获取Result */
+    /**
+     * 获取Result
+    */
     public Object getResult() { return result; }
-    /** 添加Header */
+    /**
+     * 添加Header
+    */
     public void addHeader(String name, String value) { if (name != null && value != null) headers.put(name, value); }
-    /** 添加Headers */
+    /**
+     * 添加Headers
+    */
     public void addHeaders(Map<String, String> h) { if (h != null) headers.putAll(h); }
 
     @Override public String getUri() { return path; }

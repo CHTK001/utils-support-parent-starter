@@ -79,7 +79,9 @@ public class DependencyGraphHandler implements Plugin {
      */
     private final AtomicBoolean started;
 
-    /** 创建 dependency图计算处理器 实例 */
+    /**
+     * 创建 dependency图计算处理器 实例
+    */
     public DependencyGraphHandler() {
         this.edges = new ConcurrentHashMap<>();
         this.nodes = new ConcurrentHashMap<>();
@@ -87,26 +89,34 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return HANDLER_VERSION;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.enabled = DEFAULT_ENABLED.equals(context.getProperty(PROP_DEP_ENABLED, DEFAULT_ENABLED));
         LOG.log(Level.INFO, String.format("DependencyGraphHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -116,7 +126,9 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         started.set(false);
@@ -124,14 +136,18 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("DependencyGraphHandler[enabled=%s, edges=%d, nodes=%d]",
                 enabled, edges.size(), nodes.size());
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }

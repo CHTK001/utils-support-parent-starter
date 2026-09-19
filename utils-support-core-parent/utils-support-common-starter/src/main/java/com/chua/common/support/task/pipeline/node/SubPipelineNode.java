@@ -109,7 +109,9 @@ public class SubPipelineNode implements PipelineNode {
         return id;
     }
 
-    /** 节点类型：subpipeline。 */
+    /**
+     * 节点类型：subpipeline。
+    */
     @Override
     public String getType() {
         return "subPipeline";
@@ -220,13 +222,17 @@ public class SubPipelineNode implements PipelineNode {
         this.env = env != null ? env : Collections.emptyMap();
     }
 
-    /** 返回节点环境变量表。 */
+    /**
+     * 返回节点环境变量表。
+    */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
     }
 
-    /** 执行子流水线并回传其结果数据。 */
+    /**
+     * 执行子流水线并回传其结果数据。
+    */
     @SuppressWarnings("unchecked")
     @Override
     public String execute(PipelineContext<?> context) {

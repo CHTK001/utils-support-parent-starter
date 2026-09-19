@@ -44,11 +44,15 @@ public class CircuitBreakerAdvisor extends StaticMethodMatcherPointcutAdvisor {
     @RequiredArgsConstructor
     private static class CircuitBreakerAdvice implements MethodInterceptor {
 
-        /** Intercept */
+        /**
+         * Intercept
+        */
         private final CircuitBreakerIntercept intercept;
 
         @Override
-        /** 调用 */
+        /**
+         * 调用
+        */
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             CircuitBreaker annotation = method.getAnnotation(CircuitBreaker.class);

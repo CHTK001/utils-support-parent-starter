@@ -55,7 +55,9 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
  // 外层圆角方框（实心），再清空内层形成 R
         double outerArc = infoSize * detectCornerSize / 2D;
@@ -90,7 +92,9 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
         // 无需额外操作
     }

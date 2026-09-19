@@ -67,7 +67,9 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     private HuggingFaceTokenizer tokenizer;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {

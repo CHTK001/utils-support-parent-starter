@@ -44,7 +44,9 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
      */
     private static final int INITIAL_MAP_CAPACITY = 256;
 
-    /** 单 IP 允许的最大在途并发请求数 */
+    /**
+     * 单 IP 允许的最大在途并发请求数
+    */
     private final int maxConcurrentPerIp;
 
     /**
@@ -63,7 +65,9 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     }
 
     @Override
-    /** 获取Order:尽早拦截,避免超预算请求占用下游资源 */
+    /**
+     * 获取Order:尽早拦截,避免超预算请求占用下游资源
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 40;
     }
@@ -77,7 +81,9 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

@@ -113,63 +113,81 @@ public class OllamaChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** 温度 */
+    /**
+     * 温度
+    */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** 最大令牌 */
+    /**
+     * 最大令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** Top-P */
+    /**
+     * Top-P
+    */
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
     }
 
     @Override
-    /** 用户历史 */
+    /**
+     * 用户历史
+    */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 助手历史 */
+    /**
+     * 助手历史
+    */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 新会话 */
+    /**
+     * 新会话
+    */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -177,13 +195,17 @@ public class OllamaChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         return chatSyncWithResponse(prompt).getText();
     }
 
     @Override
-    /** 对话同步带响应 */
+    /**
+     * 对话同步带响应
+    */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         OllamaChatRequest request = buildRequest(prompt);
         try {
@@ -231,7 +253,9 @@ public class OllamaChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型列表 */
+    /**
+     * 模型列表
+    */
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -258,7 +282,9 @@ public class OllamaChatClient implements ChatClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         newChat();
     }

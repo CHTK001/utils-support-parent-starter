@@ -13,16 +13,26 @@ import java.util.List;
  */
 public class VipParseResult {
 
-    /** 解析是否成功 */
+    /**
+     * 解析是否成功
+    */
     private boolean success;
-    /** 播放地址列表 */
+    /**
+     * 播放地址列表
+    */
     private List<VideoPlayAddress> playAddresses;
-    /** 错误信息 */
+    /**
+     * 错误信息
+    */
     private String errorMessage;
-    /** 视频标题（如可获取） */
+    /**
+     * 视频标题（如可获取）
+    */
     private String title;
 
-    /** 无参构造器。 */
+    /**
+     * 无参构造器。
+    */
     public VipParseResult() {}
 
     /**

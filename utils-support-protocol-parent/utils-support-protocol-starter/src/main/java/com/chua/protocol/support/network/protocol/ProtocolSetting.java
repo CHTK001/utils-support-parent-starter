@@ -10,13 +10,19 @@ package com.chua.protocol.support.network.protocol;
  */
 public class ProtocolSetting {
 
-    /** 协议类型（如 http / armeria / kcp / rsocket） */
+    /**
+     * 协议类型（如 http / armeria / kcp / rsocket）
+    */
     private String protocol;
 
-    /** 监听端口 */
+    /**
+     * 监听端口
+    */
     private int port;
 
-    /** 附加选项，接收任意配置对象（如 期权 / 映射） */
+    /**
+     * 附加选项，接收任意配置对象（如 期权 / 映射）
+    */
     private Object options;
 
     /**

@@ -75,7 +75,9 @@ public class UnslothUsageParser extends BaseUsageParser {
                     + "FROM chat_messages m LEFT JOIN chat_threads t ON t.id = m.thread_id "
                     + "WHERE m.role = 'assistant'";
 
-    /** 无 chat_threads 表时的降级投影。 */
+    /**
+     * 无 chat_threads 表时的降级投影。
+    */
     private static final String SQL_CHAT_MESSAGES_NO_THREAD =
             "SELECT 'chat' AS usage_kind, m.id, m.created_at, "
                     + "json_valid(m.metadata_json) AS meta_ok, "
@@ -213,7 +215,9 @@ public class UnslothUsageParser extends BaseUsageParser {
         return t;
     }
 
-    /** 归一后的令牌计数载体。 */
+    /**
+     * 归一后的令牌计数载体。
+    */
     private static class Tokens {
         private int input;
         private int output;

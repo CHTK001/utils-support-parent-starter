@@ -21,7 +21,9 @@ import java.util.List;
  */
 public final class DeeplearningModels {
 
-    /** 创建 deeplearning模型 实例 */
+    /**
+     * 创建 deeplearning模型 实例
+    */
     private DeeplearningModels() {
     }
 

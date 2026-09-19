@@ -19,13 +19,21 @@ public class RetryConfig {
      * 延迟（毫秒）
      */
     private long delay = 1000;
-    /** 倍数 */
+    /**
+     * 倍数
+    */
     private double multiplier = 2.0;
-    /** 退避策略 */
+    /**
+     * 退避策略
+    */
     private BackoffStrategy backoffStrategy = BackoffStrategy.FIXED;
-    /** 重试ON异常 */
+    /**
+     * 重试ON异常
+    */
     private Predicate<Throwable> retryOnException;
-    /** 重试监听器 */
+    /**
+     * 重试监听器
+    */
     private RetryListenerCallback retryListener = (attempt, cause) -> {};
 
     public enum BackoffStrategy {

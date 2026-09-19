@@ -32,7 +32,9 @@ public class DshUsageParser extends BaseUsageParser {
 
     private final Path dshHome;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public DshUsageParser() {
         String home = System.getenv("DSH_HOME");
         if (home == null || home.isBlank()) {

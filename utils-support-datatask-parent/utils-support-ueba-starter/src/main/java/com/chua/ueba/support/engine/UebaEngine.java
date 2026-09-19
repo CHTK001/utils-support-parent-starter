@@ -38,70 +38,114 @@ import java.util.Objects;
 @Slf4j
 public class UebaEngine implements AutoCloseable {
 
-    /** 类路径 默认配置文件 */
+    /**
+     * 类路径 默认配置文件
+    */
     private static final String DEFAULT_CONFIG_RESOURCE = "ueba-config.yaml";
 
-    /** LOW 风险阈值 */
+    /**
+     * LOW 风险阈值
+    */
     private static final double LOW_RISK_THRESHOLD = 0.15d;
 
-    /** auto编码器 自适应阈值：标准差倍数（mean + k * std） */
+    /**
+     * auto编码器 自适应阈值：标准差倍数（mean + k * std）
+    */
     private static final double AE_STD_MULTIPLIER = 3.0d;
 
-    /** auto编码器 自适应阈值：学习所需最少样本数（Warm-up 期间不告警） */
+    /**
+     * auto编码器 自适应阈值：学习所需最少样本数（Warm-up 期间不告警）
+    */
     private static final long AE_MIN_SAMPLES = 30L;
 
-    /** auto编码器 等级映射：MEDIUM 最小误差比 */
+    /**
+     * auto编码器 等级映射：MEDIUM 最小误差比
+    */
     private static final double AE_MEDIUM_RATIO = 1.2d;
 
-    /** auto编码器 等级映射：HIGH 最小误差比 */
+    /**
+     * auto编码器 等级映射：HIGH 最小误差比
+    */
     private static final double AE_HIGH_RATIO = 2.0d;
 
-    /** auto编码器 等级映射：CRITICAL 最小误差比 */
+    /**
+     * auto编码器 等级映射：CRITICAL 最小误差比
+    */
     private static final double AE_CRITICAL_RATIO = 3.0d;
 
-    /** attack 类别的风险分值 */
+    /**
+     * attack 类别的风险分值
+    */
     private static final double ATTACK_RISK = 0.9d;
 
-    /** suspicious 类别的风险分值 */
+    /**
+     * suspicious 类别的风险分值
+    */
     private static final double SUSPICIOUS_RISK = 0.5d;
 
-    /** normal 类别的风险分值 */
+    /**
+     * normal 类别的风险分值
+    */
     private static final double NORMAL_RISK = 0.1d;
 
-    /** 实体键：IP 与 会话 均缺失时使用 */
+    /**
+     * 实体键：IP 与 会话 均缺失时使用
+    */
     private static final String UNKNOWN_ENTITY = "unknown";
 
-    /** UEBA 配置 */
+    /**
+     * UEBA 配置
+    */
     private final UebaConfig config;
 
-    /** 特征提取器 */
+    /**
+     * 特征提取器
+    */
     private final FeatureExtractor featureExtractor;
 
-    /** 实体窗口跟踪器 */
+    /**
+     * 实体窗口跟踪器
+    */
     private final IpBehaviorTracker tracker;
 
-    /** auto编码器 推理器 */
+    /**
+     * auto编码器 推理器
+    */
     private final AutoEncoderIpTranslator autoEncoder;
 
-    /** LSTM/GRU 序列推理器 */
+    /**
+     * LSTM/GRU 序列推理器
+    */
     private final LstmAttentionBehaviorTranslator lstm;
 
-    /** minimind 解释器（enablellm=false 时为 空） */
+    /**
+     * minimind 解释器（enablellm=false 时为 空）
+    */
     private final MiniMindUebaAnalyzer llm;
 
-    /** 规则评分器 */
+    /**
+     * 规则评分器
+    */
     private final RuleBasedScorer ruleScorer;
 
-    /** auto编码器 重建误差的在线统计（自适应阈值） */
+    /**
+     * auto编码器 重建误差的在线统计（自适应阈值）
+    */
     private final OnlineStats aeStats;
 
-    /** 行为序列长度 */
+    /**
+     * 行为序列长度
+    */
     private final int seqLen;
 
-    /** 每步数值特征数量 */
+    /**
+     * 每步数值特征数量
+    */
     private final int numNumeric;
 
-    /** 类别数量 */
+    /**
+     * 类别数量
+    */
     private final int numClasses;
 
     /**
@@ -287,13 +331,19 @@ public class UebaEngine implements AutoCloseable {
      */
     private static final class OnlineStats {
 
-        /** 样本数 */
+        /**
+         * 样本数
+        */
         private long count;
 
-        /** 运行均值 */
+        /**
+         * 运行均值
+        */
         private double mean;
 
-        /** 运行平方差累积 */
+        /**
+         * 运行平方差累积
+        */
         private double m2;
 
         /**

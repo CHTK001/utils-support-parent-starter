@@ -56,14 +56,18 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public TextToAudioClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 文本 */
+    /**
+     * 文本
+    */
     public TextToAudioClient text(String text) {
         this.text = text;
         return this;
@@ -93,7 +97,9 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** 综合 */
+    /**
+     * 综合
+    */
     public byte[] synthesize(String text) {
         if (text != null) {
             this.text = text;
@@ -113,19 +119,25 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(String text) {
         throw new UnsupportedOperationException("本地 TTS 不支持异步任务模式");
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public TextToAudioResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("本地 TTS 不支持异步任务模式");
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

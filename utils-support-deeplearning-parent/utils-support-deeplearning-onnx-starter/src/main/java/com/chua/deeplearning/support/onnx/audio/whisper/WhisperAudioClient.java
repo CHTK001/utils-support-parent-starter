@@ -64,32 +64,58 @@ public class WhisperAudioClient implements VirtualClient {
      */
     private static final String TASK_ID_PREFIX = "whisper-";
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final AudioClientSetting setting;
-    /** 模型 */
+    /**
+     * 模型
+    */
     private String model;
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String language;
-    /** 覆盖采样率 */
+    /**
+     * 覆盖采样率
+    */
     private Integer overrideSampleRate;
-    /** 模型三维格式 */
+    /**
+     * 模型三维格式
+    */
     private String format;
-    /** 提示词 */
+    /**
+     * 提示词
+    */
     private String prompt;
-    /** 温度参数 */
+    /**
+     * 温度参数
+    */
     private Double temperature;
-    /** 随机种子 */
+    /**
+     * 随机种子
+    */
     private Long seed;
-    /** 音频数据 */
+    /**
+     * 音频数据
+    */
     private byte[] audio;
-    /** 音频文件路径 */
+    /**
+     * 音频文件路径
+    */
     private Path audioPath;
-    /** 音频输入流 */
+    /**
+     * 音频输入流
+    */
     private InputStream audioInput;
 
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private WhisperTranslator translator;
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private boolean prepared;
 
     /**
@@ -108,56 +134,72 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Language */
+    /**
+     * Language
+    */
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
-    /** 样本rate */
+    /**
+     * 样本rate
+    */
     public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
     }
 
     @Override
-    /** 格式化 */
+    /**
+     * 格式化
+    */
     public VirtualClient format(String format) {
         this.format = format;
         return this;
     }
 
     @Override
-    /** 提示符 */
+    /**
+     * 提示符
+    */
     public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public VirtualClient temperature(Double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** Seed */
+    /**
+     * Seed
+    */
     public VirtualClient seed(Long seed) {
         this.seed = seed;
         return this;
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -166,7 +208,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -175,7 +219,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 音频 */
+    /**
+     * 音频
+    */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -184,7 +230,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Transcribe */
+    /**
+     * Transcribe
+    */
     public String transcribe(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -202,7 +250,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -211,7 +261,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -234,7 +286,9 @@ public class WhisperAudioClient implements VirtualClient {
         }
     }
 
-    /** ensureprepared */
+    /**
+     * ensureprepared
+    */
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;
@@ -299,7 +353,9 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         translator = null;
         prepared = false;

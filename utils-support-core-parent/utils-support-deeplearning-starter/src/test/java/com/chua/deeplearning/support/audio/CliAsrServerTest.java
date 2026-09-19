@@ -31,15 +31,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CliAsrServerTest {
 
-    /** 常驻服务开关属性 */
+    /**
+     * 常驻服务开关属性
+    */
     private static final String PROP_SERVE = "deeplearning.cli.nemo-speech.serve";
 
-    /** 空闲回收阈值属性 */
+    /**
+     * 空闲回收阈值属性
+    */
     private static final String PROP_IDLE = "deeplearning.cli.nemo-speech.serve.idleSeconds";
 
-    /** 用例开始前已有的系统属性取值，用例结束后原样恢复 */
+    /**
+     * 用例开始前已有的系统属性取值，用例结束后原样恢复
+    */
     private final String serveBefore = System.getProperty(PROP_SERVE);
-    /** 同上 */
+    /**
+     * 同上
+    */
     private final String idleBefore = System.getProperty(PROP_IDLE);
 
     /**

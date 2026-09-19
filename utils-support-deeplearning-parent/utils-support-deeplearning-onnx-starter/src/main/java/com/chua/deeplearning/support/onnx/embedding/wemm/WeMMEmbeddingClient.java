@@ -38,11 +38,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class WeMMEmbeddingClient implements EmbeddingClient {
 
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final EmbeddingClientSetting setting;
-    /** 翻译器 */
+    /**
+     * 翻译器
+    */
     private volatile WeMMEmbeddingTranslator translator;
-    /** 已解析的模型标识 */
+    /**
+     * 已解析的模型标识
+    */
     private volatile String resolvedModel;
 
     /**
@@ -71,14 +77,18 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Provider */
+    /**
+     * Provider
+    */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** Model */
+    /**
+     * Model
+    */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.resolvedModel = null;
@@ -86,7 +96,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Dimensions */
+    /**
+     * Dimensions
+    */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
@@ -118,7 +130,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Embedding */
+    /**
+     * Embedding
+    */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -137,7 +151,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /**
+     * EmbeddingBatch
+    */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -150,7 +166,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /**
+     * EmbeddingWithResponse
+    */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -160,7 +178,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /**
+     * EmbeddingBatchWithResponse
+    */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -173,19 +193,25 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingAsync */
+    /**
+     * EmbeddingAsync
+    */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** EmbeddingBatchAsync */
+    /**
+     * EmbeddingBatchAsync
+    */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         if (translator != null) {
             translator.close();

@@ -20,18 +20,24 @@ import java.util.Map;
  */
 public class JsonConfigFileParser implements ConfigFileParser {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".json");
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public DataSyncConfigDefinition parse(Path file) throws Exception {
         try (InputStream is = Files.newInputStream(file)) {
             Map<String, Object> map = MAPPER.readValue(is, new TypeReference<Map<String, Object>>() {});

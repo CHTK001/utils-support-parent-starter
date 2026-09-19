@@ -39,7 +39,9 @@ public class HttpStatus {
 
     // ==================== 2xx 成功 ====================
 
-    /** 200 OK — 请求成功。标准响应，表示请求已被成功处理。 */
+    /**
+     * 200 OK — 请求成功。标准响应，表示请求已被成功处理。
+    */
     public static final int OK = 200;
     /**
      * 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。
@@ -60,7 +62,9 @@ public class HttpStatus {
      * 401 Unauthorized — 未认证。请求需要用户身份验证。
      */
     public static final int UNAUTHORIZED = 401;
-    /** 403 Forbidden — 无权限。服务器理解请求但拒绝执行。 */
+    /**
+     * 403 Forbidden — 无权限。服务器理解请求但拒绝执行。
+    */
     public static final int FORBIDDEN = 403;
     /**
      * 404 Not Found — 资源不存在。服务器找不到请求的资源。

@@ -10,11 +10,17 @@ import java.nio.file.Path;
 
 public class VideoProcessorBridge {
 
-    /** 图书馆_名称 */
+    /**
+     * 图书馆_名称
+    */
     private static final String LIBRARY_NAME = "video_processor";
-    /** 加载 */
+    /**
+     * 加载
+    */
     private static volatile boolean loaded = false;
-    /** 加载错误 */
+    /**
+     * 加载错误
+    */
     private static volatile Throwable loadError = null;
 
     static {
@@ -50,7 +56,9 @@ public class VideoProcessorBridge {
         return loadError;
     }
 
-    /** ensure加载 */
+    /**
+     * ensure加载
+    */
     public static void ensureLoaded() {
         if (!loaded) {
             throw new UnsupportedOperationException(

@@ -43,19 +43,25 @@ public class IpcServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 200;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.IPC};
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || !path.startsWith("/ipc")) {

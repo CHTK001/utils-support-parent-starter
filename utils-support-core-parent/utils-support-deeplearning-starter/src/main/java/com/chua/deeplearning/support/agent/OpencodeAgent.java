@@ -95,61 +95,99 @@ import java.util.function.Consumer;
 @Slf4j
 public class OpencodeAgent implements Agent {
 
-    /** 默认进程超时（秒）；编码任务耗时较长，放宽到 10 分钟 */
+    /**
+     * 默认进程超时（秒）；编码任务耗时较长，放宽到 10 分钟
+    */
     private static final long DEFAULT_TIMEOUT_SECONDS = 600L;
 
-    /** CLI 描述 */
+    /**
+     * CLI 描述
+    */
     private final CliModelRunner.CliDescriptor cli;
 
-    /** 模型（provider/model，透传 -m）；null=opencode 默认 */
+    /**
+     * 模型（provider/model，透传 -m）；null=opencode 默认
+    */
     private String model;
 
-    /** 会话 ID（透传 -s，续话）；null=新会话 */
+    /**
+     * 会话 ID（透传 -s，续话）；null=新会话
+    */
     private String session;
 
-    /** 工作目录（透传 --dir）；null=继承进程 cwd */
+    /**
+     * 工作目录（透传 --dir）；null=继承进程 cwd
+    */
     private Path workDir;
 
-    /** 进程超时（秒） */
+    /**
+     * 进程超时（秒）
+    */
     private long timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
 
-    /** 执行模式（仅支持 SINGLE） */
+    /**
+     * 执行模式（仅支持 SINGLE）
+    */
     private AgentMode mode = AgentMode.SINGLE;
 
-    /** opencode agent 名称（透传 --agent）；null=不指定 */
+    /**
+     * opencode agent 名称（透传 --agent）；null=不指定
+    */
     private String agentName;
 
-    /** 不加载外部插件（透传 --pure），由 mcp(false) 派生；null=默认不启用 */
+    /**
+     * 不加载外部插件（透传 --pure），由 mcp(false) 派生；null=默认不启用
+    */
     private Boolean pure;
 
-    /** 是否打印 opencode 内部日志（透传 --print-logs --log-level DEBUG） */
+    /**
+     * 是否打印 opencode 内部日志（透传 --print-logs --log-level DEBUG）
+    */
     private boolean debug;
 
-    /** 是否运行前打印生效配置 */
+    /**
+     * 是否运行前打印生效配置
+    */
     private boolean printConfig;
 
-    /** 调试 Hook（PRE_CALL/POST_CALL/ERROR 回调） */
+    /**
+     * 调试 Hook（PRE_CALL/POST_CALL/ERROR 回调）
+    */
     private AgentDebugHook debugHook;
 
-    /** 重试配置；null=不重试 */
+    /**
+     * 重试配置；null=不重试
+    */
     private AgentRetryConfig retryConfig;
 
-    /** 主 Agent 定义（供 getDefinition/getSystemPrompt） */
+    /**
+     * 主 Agent 定义（供 getDefinition/getSystemPrompt）
+    */
     private AgentDefinition definition;
 
-    /** 已注册子 Agent（SINGLE 下不委派，仅记录） */
+    /**
+     * 已注册子 Agent（SINGLE 下不委派，仅记录）
+    */
     private final List<AgentDefinition> subAgents = new ArrayList<>();
 
-    /** 上下文压缩配置（仅存值供 getter，不转发） */
+    /**
+     * 上下文压缩配置（仅存值供 getter，不转发）
+    */
     private AgentCompressionConfig compressionConfig;
 
-    /** 无法映射到 opencode 的配置项，首次运行 WARN 一次 */
+    /**
+     * 无法映射到 opencode 的配置项，首次运行 WARN 一次
+    */
     private final Set<String> ignored = new LinkedHashSet<>();
 
-    /** WARN 是否已发出 */
+    /**
+     * WARN 是否已发出
+    */
     private final AtomicBoolean warned = new AtomicBoolean(false);
 
-    /** 工具调用最大轮数（看门狗计数 step_finish）；≤0 不限制 */
+    /**
+     * 工具调用最大轮数（看门狗计数 step_finish）；≤0 不限制
+    */
     private int maxToolIterations;
 
     /**
@@ -532,15 +570,25 @@ public class OpencodeAgent implements Agent {
      * <p>独立成类以便单测在不拉起真实进程的情况下驱动逐行解析与看门狗逻辑。</p>
      */
     static final class StreamState {
-        /** 文本输出累加 */
+        /**
+         * 文本输出累加
+        */
         final StringBuilder output = new StringBuilder();
-        /** 已采集事件列表 */
+        /**
+         * 已采集事件列表
+        */
         final List<AgentEvent> events = new ArrayList<>();
-        /** token/费用累加器 */
+        /**
+         * token/费用累加器
+        */
         final UsageAccum acc = new UsageAccum();
-        /** 逐事件回调，可为 null */
+        /**
+         * 逐事件回调，可为 null
+        */
         final Consumer<AgentEvent> onEvent;
-        /** step_finish 计数（看门狗用） */
+        /**
+         * step_finish 计数（看门狗用）
+        */
         int stepCount;
 
         StreamState(Consumer<AgentEvent> onEvent) {
@@ -907,7 +955,9 @@ public class OpencodeAgent implements Agent {
      * 强杀进程后由 {@link #runOnce} 正常返回已采集的部分结果。
      */
     private static final class IterationLimit extends RuntimeException {
-        /** 序列化版本号 */
+        /**
+         * 序列化版本号
+        */
         private static final long serialVersionUID = 1L;
 
         IterationLimit() {
@@ -919,19 +969,33 @@ public class OpencodeAgent implements Agent {
      * 多次 step_finish 的 token/费用累加器。
      */
     static final class UsageAccum {
-        /** 输入 token 累计 */
+        /**
+         * 输入 token 累计
+        */
         private int input;
-        /** 输出 token 累计 */
+        /**
+         * 输出 token 累计
+        */
         private int output;
-        /** 总 token 累计 */
+        /**
+         * 总 token 累计
+        */
         private int total;
-        /** 推理 token 累计 */
+        /**
+         * 推理 token 累计
+        */
         private int reasoning;
-        /** 缓存读取 token 累计 */
+        /**
+         * 缓存读取 token 累计
+        */
         private int cacheRead;
-        /** 费用累计 */
+        /**
+         * 费用累计
+        */
         private BigDecimal cost = BigDecimal.ZERO;
-        /** 最后一次停止原因 */
+        /**
+         * 最后一次停止原因
+        */
         private String reason;
 
         /**

@@ -48,115 +48,189 @@ import java.io.File;
  */
 public class TarHeader {
 
-    /** Header 区域字段长度：文件名 */
+    /**
+     * Header 区域字段长度：文件名
+    */
     public static final int NAMELEN = 100;
 
-    /** Header 区域字段长度：文件模式 */
+    /**
+     * Header 区域字段长度：文件模式
+    */
     public static final int MODELEN = 8;
 
-    /** Header 区域字段长度：用户 ID */
+    /**
+     * Header 区域字段长度：用户 ID
+    */
     public static final int UIDLEN = 8;
 
-    /** Header 区域字段长度：分组 ID */
+    /**
+     * Header 区域字段长度：分组 ID
+    */
     public static final int GIDLEN = 8;
 
-    /** Header 区域字段长度：文件大小 */
+    /**
+     * Header 区域字段长度：文件大小
+    */
     public static final int SIZELEN = 12;
 
-    /** Header 区域字段长度：修改时间 */
+    /**
+     * Header 区域字段长度：修改时间
+    */
     public static final int MODTIMELEN = 12;
 
-    /** Header 区域字段长度：校验和 */
+    /**
+     * Header 区域字段长度：校验和
+    */
     public static final int CHKSUMLEN = 8;
 
-    /** 文件类型：旧式普通文件 */
+    /**
+     * 文件类型：旧式普通文件
+    */
     public static final byte LF_OLDNORM = 0;
 
-    /** 文件类型：普通文件 */
+    /**
+     * 文件类型：普通文件
+    */
     public static final byte LF_NORMAL = (byte) '0';
 
-    /** 文件类型：硬链接 */
+    /**
+     * 文件类型：硬链接
+    */
     public static final byte LF_LINK = (byte) '1';
 
-    /** 文件类型：符号链接 */
+    /**
+     * 文件类型：符号链接
+    */
     public static final byte LF_SYMLINK = (byte) '2';
 
-    /** 文件类型：字符设备 */
+    /**
+     * 文件类型：字符设备
+    */
     public static final byte LF_CHR = (byte) '3';
 
-    /** 文件类型：块设备 */
+    /**
+     * 文件类型：块设备
+    */
     public static final byte LF_BLK = (byte) '4';
 
-    /** 文件类型：目录 */
+    /**
+     * 文件类型：目录
+    */
     public static final byte LF_DIR = (byte) '5';
 
-    /** 文件类型：FIFO 管道 */
+    /**
+     * 文件类型：FIFO 管道
+    */
     public static final byte LF_FIFO = (byte) '6';
 
-    /** 文件类型：连续文件 */
+    /**
+     * 文件类型：连续文件
+    */
     public static final byte LF_CONTIG = (byte) '7';
 
-    /** UStar 魔数标识 */
+    /**
+     * UStar 魔数标识
+    */
     public static final String USTAR_MAGIC = "ustar";
 
-    /** UStar 魔数字段长度 */
+    /**
+     * UStar 魔数字段长度
+    */
     public static final int USTAR_MAGICLEN = 8;
 
-    /** UStar 用户名字段长度 */
+    /**
+     * UStar 用户名字段长度
+    */
     public static final int USTAR_USER_NAMELEN = 32;
 
-    /** UStar 分组名字段长度 */
+    /**
+     * UStar 分组名字段长度
+    */
     public static final int USTAR_GROUP_NAMELEN = 32;
 
-    /** UStar 设备字段长度 */
+    /**
+     * UStar 设备字段长度
+    */
     public static final int USTAR_DEVLEN = 8;
 
-    /** UStar 文件名前缀字段长度 */
+    /**
+     * UStar 文件名前缀字段长度
+    */
     public static final int USTAR_FILENAME_PREFIX = 155;
 
-    /** 文件名 */
+    /**
+     * 文件名
+    */
     public StringBuffer name;
 
-    /** 文件权限模式 */
+    /**
+     * 文件权限模式
+    */
     public int mode;
 
-    /** 用户 ID */
+    /**
+     * 用户 ID
+    */
     public int userId;
 
-    /** 分组 ID */
+    /**
+     * 分组 ID
+    */
     public int groupId;
 
-    /** 文件大小（字节） */
+    /**
+     * 文件大小（字节）
+    */
     public long size;
 
-    /** 最后修改时间（Unix 时间戳） */
+    /**
+     * 最后修改时间（Unix 时间戳）
+    */
     public long modTime;
 
-    /** 校验和 */
+    /**
+     * 校验和
+    */
     public int checkSum;
 
-    /** 链接标识（文件类型） */
+    /**
+     * 链接标识（文件类型）
+    */
     public byte linkFlag;
 
-    /** 链接文件名 */
+    /**
+     * 链接文件名
+    */
     public StringBuffer linkName;
 
-    /** UStar 魔数（indicator and version） */
+    /**
+     * UStar 魔数（indicator and version）
+    */
     public StringBuffer magic;
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     public StringBuffer userName;
 
-    /** 分组名 */
+    /**
+     * 分组名
+    */
     public StringBuffer groupName;
 
-    /** 主设备号 */
+    /**
+     * 主设备号
+    */
     public int devMajor;
 
-    /** 次设备号 */
+    /**
+     * 次设备号
+    */
     public int devMinor;
 
-    /** 文件名前缀 */
+    /**
+     * 文件名前缀
+    */
     public StringBuffer namePrefix;
 
     /**

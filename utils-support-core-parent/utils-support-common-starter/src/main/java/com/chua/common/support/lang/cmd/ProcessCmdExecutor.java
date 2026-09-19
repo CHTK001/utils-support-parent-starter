@@ -200,7 +200,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     @Override
-    /** 获取Name */
+    /**
+     * 获取Name
+    */
     public String getName() {
         return EXECUTOR_NAME;
     }
@@ -208,31 +210,41 @@ public class ProcessCmdExecutor implements CmdExecutor {
     // ==================== 同步执行 ====================
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public CmdResult execute(String command) {
         return doExecute(command, NO_TIMEOUT, null);
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public CmdResult execute(String command, long timeout, TimeUnit unit) {
         return doExecute(command, timeout, unit);
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public CmdResult execute(String[] command) {
         return doExecuteArray(command, NO_TIMEOUT, null);
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public CmdResult execute(String[] command, long timeout, TimeUnit unit) {
         return doExecuteArray(command, timeout, unit);
     }
 
     @Override
-    /** 执行（扩展参数：工作目录/环境变量/标准输入） */
+    /**
+     * 执行（扩展参数：工作目录/环境变量/标准输入）
+    */
     public CmdResult execute(String[] command, long timeout, TimeUnit unit,
                              File workingDirectory, Map<String, String> environment, String input) {
         long startTime = System.currentTimeMillis();
@@ -244,7 +256,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     @Override
-    /** 执行WithOutput（扩展参数） */
+    /**
+     * 执行WithOutput（扩展参数）
+    */
     public CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback,
                                        File workingDirectory, Map<String, String> environment, String input) {
         long startTime = System.currentTimeMillis();
@@ -253,7 +267,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     @Override
-    /** 执行Async（扩展参数） */
+    /**
+     * 执行Async（扩展参数）
+    */
     public void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback,
                              File workingDirectory, Map<String, String> environment, String input) {
         String displayCommand = joinCommand(command);
@@ -440,25 +456,33 @@ public class ProcessCmdExecutor implements CmdExecutor {
     // ==================== 异步执行 ====================
 
     @Override
-    /** 执行Async */
+    /**
+     * 执行Async
+    */
     public void executeAsync(String command, CmdCallback callback) {
         doExecuteAsync(command, NO_TIMEOUT, null, callback);
     }
 
     @Override
-    /** 执行Async */
+    /**
+     * 执行Async
+    */
     public void executeAsync(String command, long timeout, TimeUnit unit, CmdCallback callback) {
         doExecuteAsync(command, timeout, unit, callback);
     }
 
     @Override
-    /** 执行Async */
+    /**
+     * 执行Async
+    */
     public void executeAsync(String[] command, CmdCallback callback) {
         doExecuteArrayAsync(command, NO_TIMEOUT, null, callback);
     }
 
     @Override
-    /** 执行Async */
+    /**
+     * 执行Async
+    */
     public void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
         doExecuteArrayAsync(command, timeout, unit, callback);
     }
@@ -501,7 +525,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
                              CmdCallback callback, Supplier<CmdResult> task) {
         CmdCallback finalCallback = callback != null ? callback : new CmdCallback() {
             @Override
-            /** OnComplete */
+            /**
+             * OnComplete
+            */
             public void onComplete(CmdResult result) {
                 // 空操作：未指定回调时静默完成
             }
@@ -524,7 +550,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     // ==================== 实时输出执行 ====================
 
     @Override
-    /** 执行WithOutput */
+    /**
+     * 执行WithOutput
+    */
     public CmdResult executeWithOutput(String command, long timeout, TimeUnit unit, LineCallback callback) {
         long startTime = System.currentTimeMillis();
 
@@ -535,7 +563,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     @Override
-    /** 执行WithOutput */
+    /**
+     * 执行WithOutput
+    */
     public CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
         long startTime = System.currentTimeMillis();
 
@@ -788,7 +818,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
     // ==================== 资源释放 ====================
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         executorService.shutdown();
         try {
@@ -851,7 +883,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
         }
 
         @Override
-        /** 运行 */
+        /**
+         * 运行
+        */
         public void run() {
             try {
                 content = IoUtils.asString(inputStream, charset);
@@ -900,7 +934,9 @@ public class ProcessCmdExecutor implements CmdExecutor {
         }
 
         @Override
-        /** 运行 */
+        /**
+         * 运行
+        */
         public void run() {
             try (InputStreamReader reader = new InputStreamReader(inputStream, charset)) {
                 StringBuilder buf = new StringBuilder();

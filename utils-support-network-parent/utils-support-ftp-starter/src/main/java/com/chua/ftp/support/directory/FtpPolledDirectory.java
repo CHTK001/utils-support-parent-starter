@@ -99,7 +99,9 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
-    /** 列表和modified */
+    /**
+     * 列表和modified
+    */
     protected List<FTPFile> listAndModified(String path) {
         try {
             FTPFile[] files = client.listFiles(path);
@@ -111,20 +113,26 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     }
 
     @Override
-    /** 获取文件名 */
+    /**
+     * 获取文件名
+    */
     protected String getFileName(FTPFile item) {
         return item.getName();
     }
 
     @Override
-    /** 获取Modified */
+    /**
+     * 获取Modified
+    */
     protected Long getModified(FTPFile item) {
         long t = item.getTimestamp() != null ? item.getTimestamp().getTimeInMillis() : 0L;
         return t;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         super.close();
         if (client != null && client.isConnected()) {

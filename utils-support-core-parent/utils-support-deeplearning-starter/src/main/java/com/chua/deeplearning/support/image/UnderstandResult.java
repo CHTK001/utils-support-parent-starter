@@ -10,9 +10,13 @@ package com.chua.deeplearning.support.image;
  */
 public class UnderstandResult {
 
-    /** 执行的任务类型 */
+    /**
+     * 执行的任务类型
+    */
     private final UnderstandTask task;
-    /** 模型返回的文本结果 */
+    /**
+     * 模型返回的文本结果
+    */
     private final String text;
 
     /**

@@ -15,23 +15,31 @@ import java.util.List;
 
 public class MysqlIndexManager implements IndexManager, com.chua.datasource.support.user.DataSourceAware {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private DataSource dataSource;
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "mysql";
     }
 
     @Override
-    /** 设置数据源 */
+    /**
+     * 设置数据源
+    */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    /** 列表索引 */
+    /**
+     * 列表索引
+    */
     public List<String> listIndexes(String table) {
         List<String> list = new ArrayList<>();
         try (Connection c = dataSource.getConnection();
@@ -47,13 +55,17 @@ public class MysqlIndexManager implements IndexManager, com.chua.datasource.supp
     }
 
     @Override
-    /** 创建索引 */
+    /**
+     * 创建索引
+    */
     public CreateIndexStep createIndex(String indexName) {
         return new MysqlCreateIndexStep(dataSource, indexName);
     }
 
     @Override
-    /** 掉落索引 */
+    /**
+     * 掉落索引
+    */
     public DropIndexStep dropIndex(String indexName) {
         return new MysqlDropIndexStep(dataSource, indexName);
     }

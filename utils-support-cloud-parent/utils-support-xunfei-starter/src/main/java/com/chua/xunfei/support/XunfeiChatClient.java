@@ -133,110 +133,142 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** 最大值令牌 */
+    /**
+     * 最大值令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** Thinking */
+    /**
+     * Thinking
+    */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
-    /** thinkingeffort */
+    /**
+     * thinkingeffort
+    */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** Smart搜索 */
+    /**
+     * Smart搜索
+    */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
-    /** Skill */
+    /**
+     * Skill
+    */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
-    /** 添加镜像 */
+    /**
+     * 添加镜像
+    */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加用户历史 */
+    /**
+     * 添加用户历史
+    */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加assistant历史 */
+    /**
+     * 添加assistant历史
+    */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 会话 */
+    /**
+     * 会话
+    */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
-    /** 添加Attachment */
+    /**
+     * 添加Attachment
+    */
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持文件附件");
     }
 
     @Override
-    /** 添加attachmenturl */
+    /**
+     * 添加attachmenturl
+    */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
-    /** 新对话 */
+    /**
+     * 新对话
+    */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -245,7 +277,9 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
@@ -272,7 +306,9 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话 */
+    /**
+     * 对话
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -357,7 +393,9 @@ public class XunfeiChatClient implements ChatClient {
 
         ChatListener listener = new ChatListener(aiChatRequest) {
             @Override
-            /** on对话输出 */
+            /**
+             * on对话输出
+            */
             public void onChatOutput(AIChatResponse response) {
                 if (response.getPayload() == null
                         || response.getPayload().getChoices() == null
@@ -377,7 +415,9 @@ public class XunfeiChatClient implements ChatClient {
             }
 
             @Override
-            /** on对话记录错误 */
+            /**
+             * on对话记录错误
+            */
             public void onChatError(AIChatResponse response) {
                 String errorMsg = "讯飞星火返回错误: code=" + response.getHeader().getCode()
                         + ", message=" + response.getHeader().getMessage();
@@ -391,13 +431,17 @@ public class XunfeiChatClient implements ChatClient {
             }
 
             @Override
-            /** on对话结束 */
+            /**
+             * on对话结束
+            */
             public void onChatEnd() {
  // 不做任何操作，等待 on对话令牌 回调
             }
 
             @Override
-            /** on对话令牌 */
+            /**
+             * on对话令牌
+            */
             public void onChatToken(Usage usage) {
                 AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                         .model(resolvedModel)

@@ -33,16 +33,24 @@ import javax.annotation.Nullable;
 @Slf4j
 public class DistilBertSentimentTranslator implements Translator<String, Classifications> {
 
-    /** 最大长度 */
+    /**
+     * 最大长度
+    */
     private static final int MAX_LENGTH = 128;
-    /** 标签列表 */
+    /**
+     * 标签列表
+    */
     private static final List<String> LABELS = List.of("NEGATIVE", "POSITIVE");
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {

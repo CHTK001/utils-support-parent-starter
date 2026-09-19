@@ -36,21 +36,31 @@ import java.util.zip.Deflater;
  */
 public class ApngEncoder {
 
-    /** PNG 文件签名 */
+    /**
+     * PNG 文件签名
+    */
     private static final byte[] PNG_SIGNATURE = {
             (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
     };
 
-    /** 帧列表 */
+    /**
+     * 帧列表
+    */
     private final List<BufferedImage> frames = new ArrayList<>();
 
-    /** 每帧延迟（毫秒） */
+    /**
+     * 每帧延迟（毫秒）
+    */
     private final List<Integer> delays = new ArrayList<>();
 
-    /** 循环次数，0 表示无限循环 */
+    /**
+     * 循环次数，0 表示无限循环
+    */
     private int loopCount;
 
-    /** 输出流 */
+    /**
+     * 输出流
+    */
     private DataOutputStream out;
 
     /**

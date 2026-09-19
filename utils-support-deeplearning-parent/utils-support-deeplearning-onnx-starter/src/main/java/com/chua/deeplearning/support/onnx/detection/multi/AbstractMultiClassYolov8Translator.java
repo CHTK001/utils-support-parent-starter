@@ -60,21 +60,35 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
      */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private final int inputSize;
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     private final float threshold;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private final float nmsThreshold;
-    /** 类别名称列表 */
+    /**
+     * 类别名称列表
+    */
     private final List<String> classes;
 
-    /** 图像宽度 */
+    /**
+     * 图像宽度
+    */
     private int imageWidth;
-    /** 图像高度 */
+    /**
+     * 图像高度
+    */
     private int imageHeight;
 
-    /** 创建 抽象multi类yolov8Translator 实例 */
+    /**
+     * 创建 抽象multi类yolov8Translator 实例
+    */
     protected AbstractMultiClassYolov8Translator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD);
     }
@@ -160,7 +174,9 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -173,7 +189,9 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.getFirst();
 
@@ -284,7 +302,9 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

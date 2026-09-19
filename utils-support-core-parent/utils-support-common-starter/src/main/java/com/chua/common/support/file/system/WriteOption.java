@@ -10,15 +10,21 @@ import java.util.Map;
  */
 
 public class WriteOption {
-    /** 写入类型 */
+    /**
+     * 写入类型
+    */
     private WriteType writeType = WriteType.MAP;
     /**
      * 字符集
      */
     private Charset charset = StandardCharsets.UTF_8;
-    /** 是否自动关闭流 */
+    /**
+     * 是否自动关闭流
+    */
     private boolean autoCloseStream;
-    /** 扩展属性集合 */
+    /**
+     * 扩展属性集合
+    */
     private Map<String, Object> attributes = new HashMap<>();
 
     /**

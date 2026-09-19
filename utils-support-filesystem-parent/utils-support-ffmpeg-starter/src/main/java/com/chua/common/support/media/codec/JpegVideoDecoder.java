@@ -20,9 +20,13 @@ import java.nio.ByteBuffer;
 @Spi("jpeg")
 public class JpegVideoDecoder implements VideoDecoder {
 
-    /** 宽度 */
+    /**
+     * 宽度
+    */
     private int width;
-    /** 高度 */
+    /**
+     * 高度
+    */
     private int height;
 
     /**
@@ -32,7 +36,9 @@ public class JpegVideoDecoder implements VideoDecoder {
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public boolean init(int codecId, int width, int height) {
         this.width = width;
         this.height = height;
@@ -40,7 +46,9 @@ public class JpegVideoDecoder implements VideoDecoder {
     }
 
     @Override
-    /** 解码 */
+    /**
+     * 解码
+    */
     public ByteBuffer decode(byte[] packet) {
         if (packet == null || packet.length == 0) {
             return null;
@@ -72,25 +80,33 @@ public class JpegVideoDecoder implements VideoDecoder {
     }
 
     @Override
-    /** 刷新 */
+    /**
+     * 刷新
+    */
     public ByteBuffer[] flush() {
         return new ByteBuffer[0];
     }
 
     @Override
-    /** 获取Width */
+    /**
+     * 获取Width
+    */
     public int getWidth() {
         return width;
     }
 
     @Override
-    /** 获取Height */
+    /**
+     * 获取Height
+    */
     public int getHeight() {
         return height;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 }

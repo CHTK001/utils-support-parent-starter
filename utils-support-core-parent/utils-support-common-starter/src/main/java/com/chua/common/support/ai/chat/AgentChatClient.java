@@ -35,22 +35,34 @@ import java.util.function.Consumer;
  */
 public class AgentChatClient implements ChatClient {
 
-    /** 从模型注册表，键为 Agent 标识 */
+    /**
+     * 从模型注册表，键为 Agent 标识
+    */
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>(); // [P3C 3.15 豁免] 运行期 slave() 动态注册，规模不可预估
 
-    /** 主模型客户端（负责路由决策） */
+    /**
+     * 主模型客户端（负责路由决策）
+    */
     private ChatClient masterClient;
 
-    /** 主模型名称 */
+    /**
+     * 主模型名称
+    */
     private String masterModel = "default";
 
-    /** 执行模式 */
+    /**
+     * 执行模式
+    */
     private AgentMode mode = AgentMode.ROUTER;
 
-    /** 内部 Agent 实例 */
+    /**
+     * 内部 Agent 实例
+    */
     private Agent agent;
 
-    /** 是否启用 MCP 工具 */
+    /**
+     * 是否启用 MCP 工具
+    */
     private boolean mcp = false;
 
     /**
@@ -126,14 +138,18 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /**
+     * ChatSync
+    */
     public String chatSync(String prompt) {
         AgentResponse result = getOrCreateAgent().run(prompt);
         return result != null ? result.getOutput() : "";
     }
 
     @Override
-    /** Chat */
+    /**
+     * Chat
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
@@ -169,7 +185,9 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
-    /** Models */
+    /**
+     * Models
+    */
     public List<ModelDefinition> models() {
         Map<String, AgentDefinition> defs = getOrCreateAgent().getSubAgents().stream()
                 .collect(java.util.stream.Collectors.toMap(
@@ -184,13 +202,17 @@ public class AgentChatClient implements ChatClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (agent != null) {
             agent.close();
         }
     }
 
-    /** SlaveConfig */
+    /**
+     * SlaveConfig
+    */
     private record SlaveConfig(String id, String name, String description, ChatClient client) {}
 }

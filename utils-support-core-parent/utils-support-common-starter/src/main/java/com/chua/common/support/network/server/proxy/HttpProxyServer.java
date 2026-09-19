@@ -35,7 +35,9 @@ public class HttpProxyServer extends AbstractProxyServer {
      * 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈）
      */
     private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
-    /** 连接池容量上限 */
+    /**
+     * 连接池容量上限
+    */
     private static final int BACKEND_POOL_MAX = 8;
 
     /**

@@ -19,7 +19,9 @@ public final class SemaphoreRegistry {
      */
     private static final Map<String, Semaphore> CACHE = new ConcurrentHashMap<>();
 
-    /** 创建 SemaphoreRegistry 实例 */
+    /**
+     * 创建 SemaphoreRegistry 实例
+    */
     private SemaphoreRegistry() {
     }
 

@@ -28,10 +28,14 @@ import java.util.Map;
 @Spi("open-vsx")
 public class OpenVsxPluginOnlineProvider implements PluginOnlineProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OpenVsxPluginOnlineProvider.class);
 
-    /** API 基础 */
+    /**
+     * API 基础
+    */
     private static final String API_BASE = "https://open-vsx.org/api/-/search";
 
     @Override

@@ -243,7 +243,9 @@ public class CommandLine {
  return positional;
  }
 
- /** 解析 */
+ /**
+  * 解析
+ */
  private void parse() {
  int index = 0;
  while (index < args.length) {

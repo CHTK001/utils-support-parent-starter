@@ -104,19 +104,25 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** Capacity */
+    /**
+     * Capacity
+    */
     public int capacity() {
         return capacity;
     }
 
     @Override
-    /** Policy */
+    /**
+     * Policy
+    */
     public OverflowPolicy policy() {
         return policy;
     }
 
     @Override
-    /** 设置Policy */
+    /**
+     * 设置Policy
+    */
     public void setPolicy(OverflowPolicy policy) {
         if (policy == null) {
             throw new NullPointerException("溢出策略不允许为 null");
@@ -125,7 +131,9 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** 查看Eldest */
+    /**
+     * 查看Eldest
+    */
     public E peekEldest() {
         if (delegate.isEmpty()) {
             throw new NoSuchElementException("有界集合为空");
@@ -134,7 +142,9 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** 取出Eldest */
+    /**
+     * 取出Eldest
+    */
     public E pollEldest() {
         if (delegate.isEmpty()) {
             throw new NoSuchElementException("有界集合为空");
@@ -143,31 +153,41 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return delegate.size();
     }
 
     @Override
-    /** 是否Empty */
+    /**
+     * 是否Empty
+    */
     public boolean isEmpty() {
         return delegate.isEmpty();
     }
 
     @Override
-    /** Contains */
+    /**
+     * Contains
+    */
     public boolean contains(Object o) {
         return delegate.contains(o);
     }
 
     @Override
-    /** Iterator */
+    /**
+     * Iterator
+    */
     public Iterator<E> iterator() {
         return delegate.iterator();
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public boolean add(E e) {
         // 达到容量上限，按策略处理
         if (delegate.size() >= capacity) {
@@ -178,13 +198,17 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public boolean remove(Object o) {
         return delegate.remove(o);
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
         for (E e : c) {
@@ -194,7 +218,9 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** 移除All */
+    /**
+     * 移除All
+    */
     public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for (Object o : c) {
@@ -204,7 +230,9 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** RetainAll */
+    /**
+     * RetainAll
+    */
     public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         Iterator<E> iterator = delegate.iterator();
@@ -219,13 +247,17 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         delegate.clear();
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return delegate.toString();
     }

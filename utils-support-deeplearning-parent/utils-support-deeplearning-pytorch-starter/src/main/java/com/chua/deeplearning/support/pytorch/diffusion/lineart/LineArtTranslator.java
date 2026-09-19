@@ -40,7 +40,9 @@ public class LineArtTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 线arttranslator 实例 */
+    /**
+     * 创建 线arttranslator 实例
+    */
     public LineArtTranslator() {
         this(512, 512);
     }
@@ -57,7 +59,9 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -70,7 +74,9 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray line = list.singletonOrThrow();
         if (line.getShape().dimension() == 4 && line.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -85,7 +91,9 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

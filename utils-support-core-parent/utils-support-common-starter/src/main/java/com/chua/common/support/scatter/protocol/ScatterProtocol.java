@@ -20,18 +20,30 @@ package com.chua.common.support.scatter.protocol;
  */
 public final class ScatterProtocol {
 
-    /** 帧魔数 */
+    /**
+     * 帧魔数
+    */
     public static final byte MAGIC = 'S';
 
-    /** 类型：拉取服务表（请求） */
+    /**
+     * 类型：拉取服务表（请求）
+    */
     public static final byte TYPE_REQ = 0x01;
-    /** 类型：推送服务 hash（扩散） */
+    /**
+     * 类型：推送服务 hash（扩散）
+    */
     public static final byte TYPE_PUSH = 0x02;
-    /** 类型：响应（服务表/ACK） */
+    /**
+     * 类型：响应（服务表/ACK）
+    */
     public static final byte TYPE_RESP = 0x03;
-    /** 类型：确认 */
+    /**
+     * 类型：确认
+    */
     public static final byte TYPE_ACK = 0x04;
-    /** 类型：选举通知 */
+    /**
+     * 类型：选举通知
+    */
     public static final byte TYPE_ELEC = 0x05;
 
     /**

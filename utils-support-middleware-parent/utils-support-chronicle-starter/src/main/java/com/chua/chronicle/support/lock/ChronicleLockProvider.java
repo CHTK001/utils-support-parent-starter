@@ -18,12 +18,18 @@ import java.util.concurrent.locks.ReentrantLock;
 @Spi("chronicle")
 public class ChronicleLockProvider extends AbstractLockProvider {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
-    /** 锁 */
+    /**
+     * 锁
+    */
     private final ReentrantLock lock = new ReentrantLock();
 
-    /** 创建 chronicle锁提供者 实例 */
+    /**
+     * 创建 chronicle锁提供者 实例
+    */
     public ChronicleLockProvider() {
         this("default");
     }
@@ -37,7 +43,9 @@ public class ChronicleLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** 执行尝试锁 */
+    /**
+     * 执行尝试锁
+    */
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {
             return lock.tryLock(timeout, timeUnit);
@@ -48,19 +56,25 @@ public class ChronicleLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** 执行解锁 */
+    /**
+     * 执行解锁
+    */
     protected void doUnlock() {
         lock.unlock();
     }
 
     @Override
-    /** 执行获取名称 */
+    /**
+     * 执行获取名称
+    */
     protected String doGetName() {
         return name;
     }
 
     @Override
-    /** 执行获取类型 */
+    /**
+     * 执行获取类型
+    */
     protected String doGetType() {
         return "chronicle";
     }

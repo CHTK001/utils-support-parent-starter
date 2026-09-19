@@ -19,18 +19,30 @@ import java.util.*;
 @Slf4j
 public class SolrDataSyncSource implements DataSyncSource {
 
-    /** 默认_批量 */
+    /**
+     * 默认_批量
+    */
     private static final int DEFAULT_BATCH = 1000;
 
-    /** 引擎 */
+    /**
+     * 引擎
+    */
     private final SolrEngine engine;
-    /** 集合名称 */
+    /**
+     * 集合名称
+    */
     private final String collectionName;
-    /** 来源标识 */
+    /**
+     * 来源标识
+    */
     private final String sourceId;
-    /** Agentid */
+    /**
+     * Agentid
+    */
     private final String agentId;
-    /** 批量尺寸 */
+    /**
+     * 批量尺寸
+    */
     private final int batchSize;
 
     /**
@@ -76,37 +88,49 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.OUTPUT;
     }
 
     @Override
-    /** 源id */
+    /**
+     * 源id
+    */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** Agentid */
+    /**
+     * Agentid
+    */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public Flux<Map<String, Object>> read(SyncDataOffset offset, Map<String, Object> params) {
         return Flux.empty();
     }
 
     @Override
-    /** 当前偏移量 */
+    /**
+     * 当前偏移量
+    */
     public SyncDataOffset currentOffset() {
         return null;
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(Flux<Map<String, Object>> data) {
         List<Map<String, Object>> rows = data.collectList().block();
         if (rows == null || rows.isEmpty()) {
@@ -143,7 +167,9 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
     }
 }

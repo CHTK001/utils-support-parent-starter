@@ -11,7 +11,9 @@ import java.util.List;
  */
 public class Options {
 
-    /** 内部字符串列表 */
+    /**
+     * 内部字符串列表
+    */
     private final List<String> options = new ArrayList<>();
 
     /**

@@ -10,11 +10,17 @@ import javax.sql.DataSource;
 
 public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
 
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 索引名称 */
+    /**
+     * 索引名称
+    */
     private final String indexName;
-    /** 表 */
+    /**
+     * 表
+    */
     private String table;
 
     /**
@@ -29,14 +35,18 @@ public class MysqlDropIndexStep implements IndexManager.DropIndexStep {
     }
 
     @Override
-    /** ontable */
+    /**
+     * ontable
+    */
     public IndexManager.DropIndexStep onTable(String table) {
         this.table = table;
         return this;
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public void execute() {
         try (var c = dataSource.getConnection();
              var s = c.createStatement()) {

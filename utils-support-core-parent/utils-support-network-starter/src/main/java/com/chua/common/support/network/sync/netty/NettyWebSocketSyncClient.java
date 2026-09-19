@@ -18,21 +18,37 @@ import java.util.concurrent.*;
  */
 public class NettyWebSocketSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
-    /** 客户端标识 */
+    /**
+     * 客户端标识
+    */
     private final String clientId = java.util.UUID.randomUUID().toString();
-    /** 连接 */
+    /**
+     * 连接
+    */
     private volatile boolean connected;
-    /** Socket */
+    /**
+     * Socket
+    */
     private Socket socket;
-    /** 输出 */
+    /**
+     * 输出
+    */
     private OutputStream output;
-    /** 输入 */
+    /**
+     * 输入
+    */
     private BufferedReader input;
-    /** subscriptions */
+    /**
+     * subscriptions
+    */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
-    /** 监听器 */
+    /**
+     * 监听器
+    */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
-    /** 接收线程 */
+    /**
+     * 接收线程
+    */
     private Thread receiveThread;
 
     /**
@@ -54,7 +70,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         if (connected) {
             return;
@@ -94,7 +112,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         if (!connected) {
             return;
@@ -107,19 +127,25 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
-    /** 是否连接 */
+    /**
+     * 是否连接
+    */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
-    /** 获取客户端标识 */
+    /**
+     * 获取客户端标识
+    */
     public String getClientId() {
         return clientId;
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -139,42 +165,56 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取Metadata */
+    /**
+     * 获取Metadata
+    */
     public java.util.Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "protocol", "websocket");
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }
 
-    /** 开始接收Thread */
+    /**
+     * 开始接收Thread
+    */
     private void startReceiveThread() {
         receiveThread = new Thread(() -> {
             while (connected && socket != null && socket.isConnected()) {
@@ -212,7 +252,9 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
         receiveThread.start();
     }
 
-    /** 停止接收Thread */
+    /**
+     * 停止接收Thread
+    */
     private void stopReceiveThread() {
         if (receiveThread != null) {
             receiveThread.interrupt();

@@ -21,25 +21,39 @@ import java.util.stream.Stream;
  */
 public abstract class ReadBuilder {
 
-    /** 待读取的文件 */
+    /**
+     * 待读取的文件
+    */
     protected final File file;
 
-    /** 读取时使用的字符集编码，默认使用系统编码 */
+    /**
+     * 读取时使用的字符集编码，默认使用系统编码
+    */
     protected Charset charset = Charset.defaultCharset();
 
-    /** 读取回调 */
+    /**
+     * 读取回调
+    */
     protected ReadCallback callback;
 
-    /** 列名映射（字段 → 中文），读取时自动转换 */
+    /**
+     * 列名映射（字段 → 中文），读取时自动转换
+    */
     protected Map<String, String> columnMapping;
 
-    /** 是否将首行作为表头 */
+    /**
+     * 是否将首行作为表头
+    */
     protected boolean hasHeader = true;
 
-    /** 行过滤谓词（null 表示不过滤） */
+    /**
+     * 行过滤谓词（null 表示不过滤）
+    */
     protected Predicate<Map<String, Object>> rowFilter;
 
-    /** 行数据转换函数（null 表示不转换） */
+    /**
+     * 行数据转换函数（null 表示不转换）
+    */
     protected Function<Map<String, Object>, Map<String, Object>> rowMapper;
 
     /**

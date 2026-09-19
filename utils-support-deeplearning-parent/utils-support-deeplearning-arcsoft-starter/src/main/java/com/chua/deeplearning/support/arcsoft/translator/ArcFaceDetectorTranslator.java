@@ -22,7 +22,9 @@ import java.util.List;
 @Slf4j
 public class ArcFaceDetectorTranslator implements ITranslator<Object, List<DetectionInfo>> {
 
-    /** 人脸引擎 */
+    /**
+     * 人脸引擎
+    */
     private final FaceEngine faceEngine;
 
     /**
@@ -34,13 +36,17 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "arcface-detector";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public List<DetectionInfo> translate(Object input) {
         BufferedImage image = Converter.convertIfNecessary(input, BufferedImage.class);
         if (image == null || faceEngine == null) {

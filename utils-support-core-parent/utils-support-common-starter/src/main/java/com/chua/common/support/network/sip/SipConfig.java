@@ -16,30 +16,48 @@ import com.chua.common.support.spi.annotations.Spi;
  @Spi("sip-config")
 public class SipConfig {
 
-    /** 默认端口 */
+    /**
+     * 默认端口
+    */
     public static final int DEFAULT_PORT = 19460;
-    /** 默认 TCP 端口 */
+    /**
+     * 默认 TCP 端口
+    */
     public static final int DEFAULT_TCP_PORT = 19461;
 
-    /** 默认主机地址 */
+    /**
+     * 默认主机地址
+    */
     public static final String DEFAULT_HOST = "0.0.0.0";
 
-    /** 默认认证令牌 */
+    /**
+     * 默认认证令牌
+    */
     public static final String DEFAULT_TOKEN = "chua-sip-default-token";
 
-    /** 数据平面中继模式 */
+    /**
+     * 数据平面中继模式
+    */
     public static final String MODE_RELAY = "relay";
 
-    /** 数据平面直连模式 */
+    /**
+     * 数据平面直连模式
+    */
     public static final String MODE_DIRECT = "direct";
 
-    /** 数据平面自动模式：先尝试直连，失败自动回退到中继 */
+    /**
+     * 数据平面自动模式：先尝试直连，失败自动回退到中继
+    */
     public static final String MODE_AUTO = "auto";
 
-    /** 是否开启压缩，默认开启 */
+    /**
+     * 是否开启压缩，默认开启
+    */
     private boolean compress;
 
-    /** 是否开启加密，默认关闭 */
+    /**
+     * 是否开启加密，默认关闭
+    */
     private boolean encrypt;
 
     /**
@@ -52,13 +70,19 @@ public class SipConfig {
      */
     private String cipher;
 
-    /** 认证令牌 */
+    /**
+     * 认证令牌
+    */
     private String token;
 
-    /** 监听主机 */
+    /**
+     * 监听主机
+    */
     private String host;
 
-    /** 监听端口 */
+    /**
+     * 监听端口
+    */
     private int port;
 
     /**
@@ -66,13 +90,19 @@ public class SipConfig {
      */
     private String dataPlaneMode;
 
-    /** 认证最小帧间隔（纳秒），用于限速 */
+    /**
+     * 认证最小帧间隔（纳秒），用于限速
+    */
     private long minFrameIntervalNs; // 10ms
 
-    /** 每分钟最大认证请求数（防暴力破解） */
+    /**
+     * 每分钟最大认证请求数（防暴力破解）
+    */
     private int maxAuthPerIpPerMin;
 
-    /** Token 文件路径（可选，优先于 token 字段） */
+    /**
+     * Token 文件路径（可选，优先于 token 字段）
+    */
     private String tokenFile;
 
     /**

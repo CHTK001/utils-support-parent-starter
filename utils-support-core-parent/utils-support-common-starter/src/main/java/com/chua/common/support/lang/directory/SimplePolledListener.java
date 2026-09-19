@@ -13,25 +13,33 @@ import lombok.extern.slf4j.Slf4j;
 public class SimplePolledListener implements PolledListener {
 
     @Override
-    /** On创建 */
+    /**
+     * On创建
+    */
     public void onCreate(WatcherEvent event, EventObserver observer) {
         log.info("文件创建: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
     }
 
     @Override
-    /** OnModify */
+    /**
+     * OnModify
+    */
     public void onModify(WatcherEvent event, EventObserver observer) {
         log.info("文件修改: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
     }
 
     @Override
-    /** On删除 */
+    /**
+     * On删除
+    */
     public void onDelete(WatcherEvent event, EventObserver observer) {
         log.info("文件删除: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
     }
 
     @Override
-    /** OnOverflow */
+    /**
+     * OnOverflow
+    */
     public void onOverflow(WatcherEvent event, EventObserver observer) {
         log.warn("事件溢出: {}/{}，部分事件可能丢失", observer.getCurrentPath(), observer.getTriggerFile());
     }

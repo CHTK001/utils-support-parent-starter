@@ -88,19 +88,25 @@ import java.util.stream.Collectors;
 public class ExcelFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "excel";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new ExcelReadBuilder(file);
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         return new ExcelWriteBuilder(file);
     }
@@ -115,11 +121,17 @@ public class ExcelFileSystem implements FileSystem {
 
     public static class ExcelReadBuilder extends ReadBuilder {
 
-        /** Sheet名称 */
+        /**
+         * Sheet名称
+        */
         private String sheetName;
-        /** Sheet索引 */
+        /**
+         * Sheet索引
+        */
         private int sheetIndex;
-        /** 列投影（空 表示全部列） */
+        /**
+         * 列投影（空 表示全部列）
+        */
         private Set<String> selectedColumns;
 
         ExcelReadBuilder(File file) {
@@ -151,7 +163,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** 过滤 */
+        /**
+         * 过滤
+        */
         public ExcelReadBuilder filter(Predicate<Map<String, Object>> filter) {
             super.filter(filter);
             return this;
@@ -184,7 +198,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** with字符集 */
+        /**
+         * with字符集
+        */
         public ExcelReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -300,7 +316,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public Object read() {
             return rows();
         }
@@ -387,10 +405,14 @@ public class ExcelFileSystem implements FileSystem {
 
         // ==================== 全局默认配置 ====================
 
-        /** cellstyle 缓存（按 cellstyle配置 引用复用） */
+        /**
+         * cellstyle 缓存（按 cellstyle配置 引用复用）
+        */
         private final java.util.Map<CellStyleConfig, CellStyle> cellStyleCache = new java.util.IdentityHashMap<>();
 
-        /** 是否创建新工作簿 */
+        /**
+         * 是否创建新工作簿
+        */
         private boolean newWorkbook = true;
 
         // ==================== Sheet 上下文管理 ====================
@@ -419,7 +441,9 @@ public class ExcelFileSystem implements FileSystem {
                 this.name = name;
             }
 
-            /** 解析列名（优先固定表头，否则从首行推断） */
+            /**
+             * 解析列名（优先固定表头，否则从首行推断）
+            */
             List<String> resolveHeaders() {
                 if (headerColumns != null) {
                     return headerColumns;
@@ -431,10 +455,14 @@ public class ExcelFileSystem implements FileSystem {
             }
         }
 
-        /** 所有 Sheet（按添加顺序），键 为 sheet 名 */
+        /**
+         * 所有 Sheet（按添加顺序），键 为 sheet 名
+        */
         private final LinkedHashMap<String, SheetContext> sheets = new LinkedHashMap<>();
 
-        /** 当前活跃的 Sheet 上下文 */
+        /**
+         * 当前活跃的 Sheet 上下文
+        */
         private SheetContext activeSheet;
 
         ExcelWriteBuilder(File file) {
@@ -493,7 +521,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public ExcelWriteBuilder write(Object data) {
             if (data instanceof Map<?, ?> m) {
                 @SuppressWarnings("unchecked")
@@ -518,14 +548,18 @@ public class ExcelFileSystem implements FileSystem {
         // ==================== 当前 Sheet 配置 ====================
 
         @Override
-        /** with头部 */
+        /**
+         * with头部
+        */
         public ExcelWriteBuilder withHeader(boolean withHeader) {
             activeSheet.withHeader = withHeader;
             return this;
         }
 
         @Override
-        /** with头部 */
+        /**
+         * with头部
+        */
         public ExcelWriteBuilder withHeaders(List<String> headerColumns) {
             activeSheet.headerColumns = headerColumns;
             return this;
@@ -645,7 +679,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** with字符集 */
+        /**
+         * with字符集
+        */
         public ExcelWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -676,7 +712,9 @@ public class ExcelFileSystem implements FileSystem {
         }
 
         @Override
-        /** 饰面 */
+        /**
+         * 饰面
+        */
         public void finish() {
             if (sheets.isEmpty()) {
                 return;

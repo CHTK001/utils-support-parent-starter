@@ -18,25 +18,39 @@ import java.util.Random;
  */
 class DfsmnKaldiFbank {
 
-    /** 采样率 */
+    /**
+     * 采样率
+    */
     private static final float SAMPLE_RATE = 48000.0f;
 
-    /** 帧长采样数（40ms） */
+    /**
+     * 帧长采样数（40ms）
+    */
     private static final int WINDOW_SIZE = 1920;
 
-    /** 帧移采样数（20ms） */
+    /**
+     * 帧移采样数（20ms）
+    */
     private static final int WINDOW_SHIFT = 960;
 
-    /** FFT 长度（1920 向上取整到 2 的幂） */
+    /**
+     * FFT 长度（1920 向上取整到 2 的幂）
+    */
     private static final int PADDED_WINDOW_SIZE = 2048;
 
-    /** 谱 bin 数（2048/2+1） */
+    /**
+     * 谱 bin 数（2048/2+1）
+    */
     private static final int N_FFT_BINS = PADDED_WINDOW_SIZE / 2 + 1;
 
-    /** mel 滤波器组数量 */
+    /**
+     * mel 滤波器组数量
+    */
     private static final int N_MELS = 120;
 
-    /** mel 低频截止（Hz） */
+    /**
+     * mel 低频截止（Hz）
+    */
     private static final float LOW_FREQ = 20.0f;
 
     /**
@@ -44,28 +58,44 @@ class DfsmnKaldiFbank {
      */
     private static final float HIGH_FREQ = SAMPLE_RATE / 2.0f;
 
-    /** pre-emphasis 系数 */
+    /**
+     * pre-emphasis 系数
+    */
     private static final float PREEMPH_COEFF = 0.97f;
 
-    /** dither 系数 */
+    /**
+     * dither 系数
+    */
     private static final float DITHER = 1.0f;
 
-    /** 日志 下限（避免 日志(0)） */
+    /**
+     * 日志 下限（避免 日志(0)）
+    */
     private static final float EPSILON = Float.MIN_NORMAL;
 
-    /** hamming 窗系数 */
+    /**
+     * hamming 窗系数
+    */
     private final float[] window;
 
-    /** mel 滤波器组：[N_MELS][N_FFT_BINS]，matmul 用 */
+    /**
+     * mel 滤波器组：[N_MELS][N_FFT_BINS]，matmul 用
+    */
     private final float[][] melBanks;
 
-    /** dither 系数（0 表示关闭，便于测试确定性对比） */
+    /**
+     * dither 系数（0 表示关闭，便于测试确定性对比）
+    */
     private final float dither;
 
-    /** 固定随机种子（dither 可复现） */
+    /**
+     * 固定随机种子（dither 可复现）
+    */
     private final Random random = new Random(0);
 
-    /** 创建 dfsmnkaldifbank 实例（dither=1.0） */
+    /**
+     * 创建 dfsmnkaldifbank 实例（dither=1.0）
+    */
     DfsmnKaldiFbank() {
         this(DITHER);
     }

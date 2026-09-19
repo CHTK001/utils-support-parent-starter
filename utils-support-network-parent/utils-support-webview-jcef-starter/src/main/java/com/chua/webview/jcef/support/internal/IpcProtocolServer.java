@@ -9,25 +9,33 @@ package com.chua.webview.jcef.support.internal;
 public abstract class IpcProtocolServer implements ProtocolServer {
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.IPC;
     }
 
     @Override
-    /** 获取服务端url */
+    /**
+     * 获取服务端url
+    */
     public String getServerUrl() {
         return "ipc://local";
     }
 
     @Override
-    /** 开始ifneeded */
+    /**
+     * 开始ifneeded
+    */
     public void startIfNeeded() {
         // 默认空实现，子类可覆盖
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void shutdown() {
         // 默认空实现，子类可覆盖
     }

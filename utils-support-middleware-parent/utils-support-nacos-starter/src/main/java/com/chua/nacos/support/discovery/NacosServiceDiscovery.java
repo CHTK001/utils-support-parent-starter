@@ -23,7 +23,9 @@ import java.util.stream.Collectors;
 @Spi("nacos")
 public class NacosServiceDiscovery extends AbstractServiceDiscovery {
 
-    /** Naming服务 */
+    /**
+     * Naming服务
+    */
     private NamingService namingService;
 
     /**
@@ -45,13 +47,17 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** needs路径前缀isolation */
+    /**
+     * needs路径前缀isolation
+    */
     protected boolean needsPathPrefixIsolation() {
         return false;
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     protected Set<Discovery> get(String path) {
         if (path == null || path.trim().isEmpty() || "/".equals(path)) {
             return Collections.emptySet();
@@ -100,7 +106,9 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 注册服务 */
+    /**
+     * 注册服务
+    */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         discovery.setUriSpec(path);
         Instance instance = new Instance();
@@ -133,7 +141,9 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行注销 */
+    /**
+     * 执行注销
+    */
     protected void doUnregister(String path, Discovery discovery) {
         try {
             String name = path.startsWith("/") ? path.substring(1) : path;
@@ -144,14 +154,18 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行更新 */
+    /**
+     * 执行更新
+    */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         doUnregister(path, oldDiscovery);
         registerService(path, newDiscovery);
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             if (clusterName != null && !clusterName.isEmpty()) {
@@ -168,18 +182,24 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 是否支持订阅 */
+    /**
+     * 是否支持订阅
+    */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         try {
             namingService.subscribe(serviceName, new EventListener() {
                 @Override
-                /** on事件 */
+                /**
+                 * on事件
+                */
                 public void onEvent(com.alibaba.nacos.api.naming.listener.Event event) {
                     if (event instanceof NamingEvent ne) {
                         String name = ne.getServiceName();
@@ -204,7 +224,9 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         clearCache();
         if (namingService != null) {

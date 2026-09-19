@@ -36,28 +36,44 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("online")
 public class OnlineHolidayProvider implements HolidayProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlineHolidayProvider.class);
 
-    /** 默认_url */
+    /**
+     * 默认_url
+    */
     private static final String DEFAULT_URL = "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/%d.json";
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 降级_2026 */
+    /**
+     * 降级_2026
+    */
     private static final Map<String, HolidayInfo> FALLBACK_2026 = build2026();
 
-    /** URL模板 */
+    /**
+     * URL模板
+    */
     private final String urlTemplate;
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 缓存 */
+    /**
+     * 缓存
+    */
     private final Map<Integer, Map<String, HolidayInfo>> cache = new ConcurrentHashMap<>();
 
-    /** 创建 online假日提供者 实例 */
+    /**
+     * 创建 online假日提供者 实例
+    */
     public OnlineHolidayProvider() {
         this(DEFAULT_URL);
     }
@@ -73,20 +89,26 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "online";
     }
 
     @Override
-    /** 是否假日 */
+    /**
+     * 是否假日
+    */
     public boolean isHoliday(LocalDate date) {
         HolidayInfo info = resolve(date);
         return info != null && "holiday".equals(info.getType());
     }
 
     @Override
-    /** 是否Workday */
+    /**
+     * 是否Workday
+    */
     public boolean isWorkday(LocalDate date) {
         HolidayInfo info = resolve(date);
         if (info != null) {
@@ -97,13 +119,17 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
-    /** 获取假日 */
+    /**
+     * 获取假日
+    */
     public HolidayInfo getHoliday(LocalDate date) {
         return resolve(date);
     }
 
     @Override
-    /** 获取假日 */
+    /**
+     * 获取假日
+    */
     public List<HolidayInfo> getHolidays(int year) {
         return new ArrayList<>(load(year).values());
     }

@@ -19,22 +19,34 @@ import com.chua.common.support.ai.chat.ChatClient;
  */
 public class VideoGenerationSpec {
 
-    /** 底层对话客户端 */
+    /**
+     * 底层对话客户端
+    */
     private final ChatClient client;
 
-    /** 生成提示词 */
+    /**
+     * 生成提示词
+    */
     private String prompt;
 
-    /** 宽高比 */
+    /**
+     * 宽高比
+    */
     private String ratio;
 
-    /** 镜头运动描述 */
+    /**
+     * 镜头运动描述
+    */
     private String cameraMovement;
 
-    /** 参考图键 */
+    /**
+     * 参考图键
+    */
     private String refImageKey;
 
-    /** 超时时间（秒） */
+    /**
+     * 超时时间（秒）
+    */
     private int timeoutSeconds = 300;
 
     /**
@@ -103,14 +115,24 @@ public class VideoGenerationSpec {
         return client.generateVideo(prompt, ratio, cameraMovement, refImageKey, timeoutSeconds);
     }
 
-    /** Prompt */
+    /**
+     * Prompt
+    */
     public String prompt() { return prompt; }
-    /** Ratio */
+    /**
+     * Ratio
+    */
     public String ratio() { return ratio; }
-    /** CameraMovement */
+    /**
+     * CameraMovement
+    */
     public String cameraMovement() { return cameraMovement; }
-    /** RefImageKey */
+    /**
+     * RefImageKey
+    */
     public String refImageKey() { return refImageKey; }
-    /** TimeoutSeconds */
+    /**
+     * TimeoutSeconds
+    */
     public int timeoutSeconds() { return timeoutSeconds; }
 }

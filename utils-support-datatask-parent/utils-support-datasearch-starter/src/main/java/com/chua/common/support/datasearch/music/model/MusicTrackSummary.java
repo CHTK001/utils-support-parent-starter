@@ -12,23 +12,41 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicTrackSummary {
-    /** trackid */
+    /**
+     * trackid
+    */
     private String trackId;
-    /** 来源 */
+    /**
+     * 来源
+    */
     private String source;
-    /** 标题 */
+    /**
+     * 标题
+    */
     private String title;
-    /** Artist */
+    /**
+     * Artist
+    */
     private String artist;
-    /** Album */
+    /**
+     * Album
+    */
     private String album;
-    /** coverurl */
+    /**
+     * coverurl
+    */
     private String coverUrl;
-    /** 持续时间秒 */
+    /**
+     * 持续时间秒
+    */
     private Integer durationSeconds;
-    /** Play数量 */
+    /**
+     * Play数量
+    */
     private Long playCount;
-    /** 评论数量 */
+    /**
+     * 评论数量
+    */
     private Long commentCount;
 }
 

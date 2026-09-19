@@ -33,26 +33,46 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
  */
 public class FacePluginDetectTranslator implements Translator<Image, DetectedObjects> {
 
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private static final int INPUT_WIDTH = 320;
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private static final int INPUT_HEIGHT = 240;
-    /** 置信度阈值 */
+    /**
+     * 置信度阈值
+    */
     private static final float CONFIDENCE_THRESHOLD = 0.6f;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private static final double NMS_THRESHOLD = 0.3d;
-    /** 最大候选数量 */
+    /**
+     * 最大候选数量
+    */
     private static final int MAX_CANDIDATES = 1500;
-    /** 中心点方差 */
+    /**
+     * 中心点方差
+    */
     private static final float CENTER_VARIANCE = 0.1f;
-    /** 尺寸方差 */
+    /**
+     * 尺寸方差
+    */
     private static final float SIZE_VARIANCE = 0.2f;
-    /** 图像均值 */
+    /**
+     * 图像均值
+    */
     private static final float IMAGE_MEAN = 127.0f;
-    /** 图像标准差 */
+    /**
+     * 图像标准差
+    */
     private static final float IMAGE_STD = 128.0f;
 
-    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    /**
+     * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+    */
     private float thresholdOverride = -1f;
 
     /**
@@ -80,12 +100,16 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         }
     }
 
-/** 创建 faceplugindetecttranslator 实例 */
+/**
+ * 创建 faceplugindetecttranslator 实例
+*/
     public FacePluginDetectTranslator() {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_HEIGHT || input.getWidth() != INPUT_WIDTH) {
             input = input.resize(INPUT_WIDTH, INPUT_HEIGHT, false);
@@ -98,7 +122,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -229,7 +255,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
 @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;

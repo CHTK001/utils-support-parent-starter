@@ -14,16 +14,26 @@ import java.io.Serializable;
  */
 @Builder
 public record AgentEvent(
-        /** 事件类型 */
+        /**
+         * 事件类型
+        */
         String type,
-        /** 事件描述 */
+        /**
+         * 事件描述
+        */
         String message,
-        /** 事件关联的 Agent 标识 */
+        /**
+         * 事件关联的 Agent 标识
+        */
         String agentId,
-        /** 事件时间戳 */
+        /**
+         * 事件时间戳
+        */
         long timestamp
 ) implements Serializable {
 
-    /** 序列化版本号 */
+    /**
+     * 序列化版本号
+    */
     private static final long serialVersionUID = 1L;
 }

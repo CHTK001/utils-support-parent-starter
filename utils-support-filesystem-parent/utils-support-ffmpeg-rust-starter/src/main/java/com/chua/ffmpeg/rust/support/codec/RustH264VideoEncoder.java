@@ -132,25 +132,33 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取codec名称 */
+    /**
+     * 获取codec名称
+    */
     public String getCodecName() {
         return "h264";
     }
 
     @Override
-    /** 获取codecid */
+    /**
+     * 获取codecid
+    */
     public int getCodecId() {
         return 27;
     }
 
     @Override
-    /** 是否hardware加速 */
+    /**
+     * 是否hardware加速
+    */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** force键帧 */
+    /**
+     * force键帧
+    */
     public void forceKeyFrame() {
     }
 
@@ -168,7 +176,9 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public synchronized byte[] encode(BufferedImage image) {
         if (image == null) {
             return new byte[0];
@@ -187,7 +197,9 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public synchronized byte[] encode(org.bytedeco.javacv.Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -209,7 +221,9 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         if (encoderHandle != 0) {
             NativeVideoCodec.h264EncoderFree(encoderHandle);

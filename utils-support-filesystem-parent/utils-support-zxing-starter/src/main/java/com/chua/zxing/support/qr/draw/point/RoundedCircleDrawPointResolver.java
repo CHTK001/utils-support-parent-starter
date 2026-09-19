@@ -133,7 +133,9 @@ public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
         // 二阶段：按连通关系合并并重绘整图，得到顺滑外轮廓
         ByteMatrix m = bitMatrix.getByteMatrix();

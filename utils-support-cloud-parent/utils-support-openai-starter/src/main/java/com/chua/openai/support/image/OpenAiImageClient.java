@@ -104,51 +104,71 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageClient model(String model) {
         this.model = model;
         return this;
     }
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public ImageClient size(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
     }
     @Override
-    /** 提示符 */
+    /**
+     * 提示符
+    */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
     @Override
-    /** Quality */
+    /**
+     * Quality
+    */
     public ImageClient quality(String quality) {
         this.quality = quality;
         return this;
     }
     @Override
-    /** Style */
+    /**
+     * Style
+    */
     public ImageClient style(String style) {
         this.style = style;
         return this;
     }
     @Override
-    /** 引用镜像 */
+    /**
+     * 引用镜像
+    */
     public ImageClient referenceImage(byte[] image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
-    /** 引用镜像 */
+    /**
+     * 引用镜像
+    */
     public ImageClient referenceImage(BufferedImage image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
-    /** 镜像strength */
+    /**
+     * 镜像strength
+    */
     public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
     @Override
-    /** control类型 */
+    /**
+     * control类型
+    */
     public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public BufferedImage generate(String prompt) {
         // 优先使用方法参数，其次使用链式设置的值
         String actualPrompt = prompt != null ? prompt : this.prompt;
@@ -218,19 +238,25 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("请使用 generate() 方法同步生成图片");
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("不支持异步任务查询，请使用 generate() 方法同步生成");
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
  // 使用 http客户端工厂 创建的 HTTP 客户端由框架自动管理，无需手动关闭
     }

@@ -39,15 +39,25 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static final int MAX_NEW_TOKENS = 100;
     private static final String MODEL_DIR = "vision/florence2/";
     private static final String CACHE_ROOT = System.getProperty("deeplearning.model.cache-dir", System.getProperty("java.io.tmpdir"));
-    /** tokenizer */
+    /**
+     * tokenizer
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** ort环境 */
+    /**
+     * ort环境
+    */
     private OrtEnvironment ortEnv;
-    /** vision会话 */
+    /**
+     * vision会话
+    */
     private OrtSession visionSession;
-    /** embed会话 */
+    /**
+     * embed会话
+    */
     private OrtSession embedSession;
-    /** decoder会话 */
+    /**
+     * decoder会话
+    */
     private OrtSession decoderSession;
     private volatile boolean prepared;
     @Override public String name() { return NAME; }

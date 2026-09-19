@@ -18,13 +18,21 @@ import java.util.Objects;
 class BPlusTreeNode<K, V> {
 
     final boolean leaf; // leaf
-    /** 当前节点所有键，有序排列 */
+    /**
+     * 当前节点所有键，有序排列
+    */
     List<K> keys = new ArrayList<>();
-    /** 与 键 一一对应的值 */
+    /**
+     * 与 键 一一对应的值
+    */
     List<V> values = new ArrayList<>();
-    /** 内部节点的子节点列表（叶子节点为空） */
+    /**
+     * 内部节点的子节点列表（叶子节点为空）
+    */
     List<BPlusTreeNode<K, V>> children = new ArrayList<>();
-    /** 叶子节点之间的链表后继指针；内部节点为 空 */
+    /**
+     * 叶子节点之间的链表后继指针；内部节点为 空
+    */
     BPlusTreeNode<K, V> next;
 
     /**

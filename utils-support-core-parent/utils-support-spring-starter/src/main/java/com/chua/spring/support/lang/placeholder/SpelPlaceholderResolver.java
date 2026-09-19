@@ -35,7 +35,9 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
     private final ExpressionParser parser = new SpelExpressionParser();
 
     @Override
-    /** 解析Placeholder */
+    /**
+     * 解析Placeholder
+    */
     public String resolvePlaceholder(String placeholderName) {
         if (placeholderName == null) {
             return null;
@@ -54,7 +56,9 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
     }
 
     @Override
-    /** 获取财产 */
+    /**
+     * 获取财产
+    */
     public String getProperty(String key) {
         return null;
     }

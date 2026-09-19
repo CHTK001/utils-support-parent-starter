@@ -31,35 +31,55 @@ import java.util.concurrent.ThreadLocalRandom;
 @Spi("chinese-poetry")
 public class OnlinePoetryProvider implements PoetryProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(OnlinePoetryProvider.class);
 
-    /** 在线数据源地址模板（%d 为分卷序号） */
+    /**
+     * 在线数据源地址模板（%d 为分卷序号）
+    */
     private static final String DEFAULT_URL_TEMPLATE =
             "https://cdn.jsdelivr.net/gh/chinese-poetry/chinese-poetry@master/全唐诗/poet.tang.%d.json";
 
-    /** 默认分卷数 */
+    /**
+     * 默认分卷数
+    */
     private static final int DEFAULT_VOLUME_COUNT = 5;
 
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private final HttpClient httpClient;
 
-    /** 在线数据源地址模板 */
+    /**
+     * 在线数据源地址模板
+    */
     private final String urlTemplate;
 
-    /** 加载的分卷数 */
+    /**
+     * 加载的分卷数
+    */
     private final int volumeCount;
 
-    /** 内存缓存（惰性加载） */
+    /**
+     * 内存缓存（惰性加载）
+    */
     private volatile List<PoetryInfo> cached = Collections.emptyList();
 
-    /** 内置兜底数据 */
+    /**
+     * 内置兜底数据
+    */
     private static final List<PoetryInfo> FALLBACK = buildFallback();
 
-    /** 创建 onlinepoetry提供者 实例 */
+    /**
+     * 创建 onlinepoetry提供者 实例
+    */
     public OnlinePoetryProvider() {
         this(DEFAULT_URL_TEMPLATE, DEFAULT_VOLUME_COUNT);
     }
@@ -77,13 +97,17 @@ public class OnlinePoetryProvider implements PoetryProvider {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "chinese-poetry";
     }
 
     @Override
-    /** 随机 */
+    /**
+     * 随机
+    */
     public PoetryInfo random() {
         List<PoetryInfo> list = load();
         if (list.isEmpty()) {
@@ -93,7 +117,9 @@ public class OnlinePoetryProvider implements PoetryProvider {
     }
 
     @Override
-    /** by作者 */
+    /**
+     * by作者
+    */
     public List<PoetryInfo> byAuthor(String author, int limit) {
         if (author == null || author.isBlank()) {
             return Collections.emptyList();
@@ -111,7 +137,9 @@ public class OnlinePoetryProvider implements PoetryProvider {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<PoetryInfo> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();

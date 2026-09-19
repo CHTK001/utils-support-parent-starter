@@ -39,11 +39,15 @@ import java.util.function.Predicate;
 @Spi("memory")
 public class InMemoryEngine extends AbstractEngine {
 
-    /** indexes */
+    /**
+     * indexes
+    */
     private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public <T> Engine store(String name, List<T> data) {
         super.store(name, data);
         return this;
@@ -115,25 +119,33 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new InMemQueryWrapper<>(entityClass);
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new InMemUpdateWrapper<>(entityClass);
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new InMemDeleteWrapper<>(entityClass);
     }
 
     @Override
-    /** 执行新查询 */
+    /**
+     * 执行新查询
+    */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         throw new UnsupportedOperationException();
     }
@@ -296,7 +308,8 @@ public class InMemoryEngine extends AbstractEngine {
         if (from >= all.size()) {
             return new Page<>(pn, ps, all.size(), Collections.emptyList());
         }
-        return new Page<>(pn, ps, all.size(), all.subList(from, to));
+        // 独立副本，避免 subList 视图持有内存存储引用
+        return new Page<>(pn, ps, all.size(), new java.util.ArrayList<>(all.subList(from, to)));
     }
 
     /**
@@ -523,13 +536,17 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
-        /** 列表 */
+        /**
+         * 列表
+        */
         public List<T> list() {
             return evaluateQuery(this);
         }
 
         @Override
-        /** One */
+        /**
+         * One
+        */
         public T one() {
             List<T> list = list();
             return list.isEmpty() ? null : list.getFirst();
@@ -574,7 +591,9 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
-        /** 移除 */
+        /**
+         * 移除
+        */
         public int remove() {
             return evaluateDelete(this);
         }

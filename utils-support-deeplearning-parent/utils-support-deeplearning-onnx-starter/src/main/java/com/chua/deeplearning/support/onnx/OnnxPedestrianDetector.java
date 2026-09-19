@@ -5,14 +5,20 @@ import com.chua.deeplearning.support.image.PedestrianDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxPedestrianDetector implements PedestrianDetector {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -23,7 +29,9 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public PedestrianDetector model(String model) {
         this.modelName = model;
         return this;
@@ -39,14 +47,18 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public PedestrianDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Detect */
+    /**
+     * Detect
+    */
     public List<DetectionInfo> detect(byte[] imageData) {
         return ImageDetector.create(resolveModel()).device(device).detect(imageData);
     }

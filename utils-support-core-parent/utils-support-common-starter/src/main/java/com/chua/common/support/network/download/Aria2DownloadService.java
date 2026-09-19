@@ -266,29 +266,53 @@ public class Aria2DownloadService implements DownloadService {
     @lombok.Builder
     @lombok.Data
     private static class Aria2Options {
-        /** 下载地址 */
+        /**
+         * 下载地址
+        */
         private String url;
-        /** 目标文件（含目录与文件名） */
+        /**
+         * 目标文件（含目录与文件名）
+        */
         private Path targetFile;
-        /** 并发连接数 */
+        /**
+         * 并发连接数
+        */
         private int concurrency;
-        /** 限速（bytes/sec，0 = 不限） */
+        /**
+         * 限速（bytes/sec，0 = 不限）
+        */
         private long maxSpeed;
-        /** 代理 */
+        /**
+         * 代理
+        */
         private Proxy proxy;
-        /** 自定义请求头 */
+        /**
+         * 自定义请求头
+        */
         private Map<String, String> headers;
-        /** 期望 MD5（null 则跳过 aria2 校验） */
+        /**
+         * 期望 MD5（null 则跳过 aria2 校验）
+        */
         private String expectedMd5;
-        /** 断点续传偏移（>0 时启用 --continue） */
+        /**
+         * 断点续传偏移（>0 时启用 --continue）
+        */
         private long resumeOffset;
-        /** 强制重新下载 */
+        /**
+         * 强制重新下载
+        */
         private boolean forceDownload;
-        /** 是否显示进度 */
+        /**
+         * 是否显示进度
+        */
         private boolean showProgress;
-        /** 连接超时（毫秒） */
+        /**
+         * 连接超时（毫秒）
+        */
         private int connectTimeoutMs;
-        /** 读取超时（毫秒） */
+        /**
+         * 读取超时（毫秒）
+        */
         private int readTimeoutMs;
     }
 }

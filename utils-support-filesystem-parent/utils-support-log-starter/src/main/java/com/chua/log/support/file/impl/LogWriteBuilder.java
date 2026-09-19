@@ -44,26 +44,40 @@ import java.util.Map;
  */
 public class LogWriteBuilder extends WriteBuilder {
 
-    /** 默认时间戳格式 */
+    /**
+     * 默认时间戳格式
+    */
     private static final DateTimeFormatter DEFAULT_TIMESTAMP_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    /** 是否追加模式（默认 true） */
+    /**
+     * 是否追加模式（默认 true）
+    */
     private boolean appendMode = true;
 
-    /** 是否自动添加时间戳前缀（默认 false） */
+    /**
+     * 是否自动添加时间戳前缀（默认 false）
+    */
     private boolean withTimestamp;
 
-    /** 自定义时间戳格式 */
+    /**
+     * 自定义时间戳格式
+    */
     private DateTimeFormatter timestampFormatter = DEFAULT_TIMESTAMP_FMT;
 
-    /** 行前缀（自定义固定前缀，时间戳之前） */
+    /**
+     * 行前缀（自定义固定前缀，时间戳之前）
+    */
     private String prefix;
 
-    /** 行后缀（追加在行尾） */
+    /**
+     * 行后缀（追加在行尾）
+    */
     private String suffix;
 
-    /** 换行符 */
+    /**
+     * 换行符
+    */
     private String lineSeparator = System.lineSeparator();
 
     /**
@@ -153,7 +167,9 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** WithCharset */
+    /**
+     * WithCharset
+    */
     public LogWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -162,7 +178,9 @@ public class LogWriteBuilder extends WriteBuilder {
     // ==================== 写入方法 ====================
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public LogWriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -227,7 +245,9 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** Finish */
+    /**
+     * Finish
+    */
     public void finish() {
         if (file == null) {
             return;

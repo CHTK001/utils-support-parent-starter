@@ -40,7 +40,9 @@ import java.util.concurrent.*;
  */
 public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(WebSocketDataSyncAgentServer.class);
 
     /**
@@ -78,7 +80,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
@@ -96,7 +100,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -113,7 +119,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         log.info("[WebSocketDataSyncAgentServer] 已停止");
     }
 
-    /** accept循环 */
+    /**
+     * accept循环
+    */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -342,11 +350,17 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     public static class Connection {
-        /** Socket */
+        /**
+         * Socket
+        */
         private final Socket socket;
-        /** Agent标识 */
+        /**
+         * Agent标识
+        */
         private final String agentId;
-        /** 来源标识 */
+        /**
+         * 来源标识
+        */
         private final String sourceId;
 
         Connection(Socket socket, String agentId, String sourceId) {
@@ -378,7 +392,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
          * @return 获取源id的结果
          */
         public String getSourceId() { return sourceId; }
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             try {
                 socket.close();
@@ -388,9 +404,13 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
-        /** Agent标识 */
+        /**
+         * Agent标识
+        */
         private final String agentId;
-        /** 来源标识 */
+        /**
+         * 来源标识
+        */
         private final String sourceId;
 
         SimpleDataSyncAgent(String agentId, String sourceId) {

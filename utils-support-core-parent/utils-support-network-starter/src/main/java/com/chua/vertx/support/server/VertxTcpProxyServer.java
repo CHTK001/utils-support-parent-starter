@@ -35,13 +35,21 @@ import java.util.concurrent.TimeUnit;
 @Spi("vertx-tcp-proxy")
 public class VertxTcpProxyServer extends AbstractServer {
 
-    /** 目标解析器 */
+    /**
+     * 目标解析器
+    */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** NET服务器 */
+    /**
+     * NET服务器
+    */
     private NetServer netServer;
-    /** NET客户端 */
+    /**
+     * NET客户端
+    */
     private NetClient netClient;
 
     /**
@@ -77,7 +85,9 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -130,7 +140,9 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -154,7 +166,9 @@ public class VertxTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

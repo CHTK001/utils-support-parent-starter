@@ -41,7 +41,9 @@ import java.util.List;
  */
 public abstract class JdbcMetaData extends AbstractMetaData implements DataSourceAware {
 
-    /** 当前连接的 数据源（由引擎注入） */
+    /**
+     * 当前连接的 数据源（由引擎注入）
+    */
     protected DataSource dataSource;
 
     /**

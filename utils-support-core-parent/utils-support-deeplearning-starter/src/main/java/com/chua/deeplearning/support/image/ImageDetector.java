@@ -161,7 +161,9 @@ class DefaultImageDetector implements ImageDetector {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -204,28 +206,36 @@ class DefaultImageDetector implements ImageDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** Nms */
+    /**
+     * Nms
+    */
     public ImageDetector nms(float nms) {
         this.nms = nms;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageDetector device(String device) {
         this.device = device;
         return this;

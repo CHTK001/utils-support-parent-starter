@@ -134,7 +134,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
      * 可复用写缓冲，最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024
      */
     private static final int KV_WRITE_BUF_SIZE = 1024;
-    /** 写入Buf */
+    /**
+     * 写入Buf
+    */
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
     /**
@@ -265,7 +267,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         return Arrays.copyOfRange(payload, klen + 8, klen + 8 + vlen);
     }
 
-    /** 供测试访问内部 walLogs，生产环境不应暴露 */
+    /**
+     * 供测试访问内部 walLogs，生产环境不应暴露
+    */
     SegmentWalLog[] getWalLogs() { return walLogs; }
 
     /**

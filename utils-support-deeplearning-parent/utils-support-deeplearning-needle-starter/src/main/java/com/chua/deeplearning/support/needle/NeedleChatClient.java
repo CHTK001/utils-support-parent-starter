@@ -85,28 +85,36 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Tools */
+    /**
+     * Tools
+    */
     public ChatClient tools(List<ChatTool> tools) {
         // Needle 引擎暂不支持工具调用
         return this;
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
@@ -127,7 +135,9 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步with响应 */
+    /**
+     * 对话同步with响应
+    */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -136,13 +146,17 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         ModelDefinition definition = ModelDefinition.builder()
                 .id(model != null ? model : "needle2")

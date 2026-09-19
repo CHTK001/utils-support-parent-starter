@@ -53,7 +53,9 @@ public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
     }
 
     @Override
-    /** 分发 */
+    /**
+     * 分发
+    */
     public void dispatch(Object body) {
         consumer.accept((T) body);
     }

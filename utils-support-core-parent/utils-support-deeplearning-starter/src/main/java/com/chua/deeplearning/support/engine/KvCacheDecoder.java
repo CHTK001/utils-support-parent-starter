@@ -70,7 +70,9 @@ public final class KvCacheDecoder implements AutoCloseable {
      * 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步
      */
     private List<OnnxTensor> past;
-    /** 已缓存的 令牌 数（首步为 0） */
+    /**
+     * 已缓存的 令牌 数（首步为 0）
+    */
     private int pastSeqLen;
 
     /**

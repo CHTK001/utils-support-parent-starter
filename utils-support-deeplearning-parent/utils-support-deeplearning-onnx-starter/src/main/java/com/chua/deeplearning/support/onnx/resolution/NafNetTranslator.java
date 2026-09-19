@@ -57,7 +57,9 @@ public class NafNetTranslator implements Translator<Image, Image> {
     private int origHeight;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(TranslatorContext ctx) {
         this.manager = ctx.getNDManager();
         if (log.isDebugEnabled()) {
@@ -66,7 +68,9 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
         this.origWidth = src.getWidth();
@@ -98,7 +102,9 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
@@ -178,7 +184,9 @@ public class NafNetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

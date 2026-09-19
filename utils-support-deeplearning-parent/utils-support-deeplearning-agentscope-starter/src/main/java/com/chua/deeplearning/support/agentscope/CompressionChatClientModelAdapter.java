@@ -28,12 +28,18 @@ import java.util.UUID;
  */
 public class CompressionChatClientModelAdapter implements Model {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static final Logger log = LoggerFactory.getLogger(CompressionChatClientModelAdapter.class);
 
-    /** 压缩聊天客户端 */
+    /**
+     * 压缩聊天客户端
+    */
     private final ChatClient compressionChatClient;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String modelName;
 
     /**
@@ -48,7 +54,9 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     @Override
-    /** 流 */
+    /**
+     * 流
+    */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractLastUserPrompt(messages);
 
@@ -70,7 +78,9 @@ public class CompressionChatClientModelAdapter implements Model {
     }
 
     @Override
-    /** 获取模型名称 */
+    /**
+     * 获取模型名称
+    */
     public String getModelName() {
         return modelName;
     }

@@ -38,7 +38,9 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
@@ -71,7 +73,9 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (server != null) {
             server.stop();

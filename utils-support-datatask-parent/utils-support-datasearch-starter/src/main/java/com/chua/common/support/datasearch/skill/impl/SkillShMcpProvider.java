@@ -65,7 +65,9 @@ public class SkillShMcpProvider extends SkillShProvider implements McpProvider {
      * @since 4.0.0.45
      */
     protected class SkillShMcpClient implements McpClient {
-        /** initialized */
+        /**
+         * initialized
+        */
         private volatile boolean initialized = false;
 
         @Override

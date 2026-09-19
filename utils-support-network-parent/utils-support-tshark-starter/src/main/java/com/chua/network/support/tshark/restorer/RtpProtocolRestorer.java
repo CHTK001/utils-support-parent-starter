@@ -11,19 +11,25 @@ package com.chua.network.support.tshark.restorer;
 public class RtpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取协议名称 */
+    /**
+     * 获取协议名称
+    */
     public String getProtocolName() {
         return "rtp";
     }
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 140;
     }
 
     @Override
-    /** 是否可以Restore */
+    /**
+     * 是否可以Restore
+    */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return false;
@@ -38,7 +44,9 @@ public class RtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
-    /** Restore */
+    /**
+     * Restore
+    */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 12) {
             return "[RTP] empty";

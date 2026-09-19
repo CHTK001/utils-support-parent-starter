@@ -150,10 +150,14 @@ public class SegmentWalLog implements WalLog {
      */
     private boolean closed;
 
-    /** 可复用的 CRC32 实例，避免每次 追加 分配对象 */
+    /**
+     * 可复用的 CRC32 实例，避免每次 追加 分配对象
+    */
     private final CRC32 crc = new CRC32();
 
-    /** 可复用的写缓冲，最大单条记录大小（含头部），首次使用按需扩容 */
+    /**
+     * 可复用的写缓冲，最大单条记录大小（含头部），首次使用按需扩容
+    */
     private byte[] writeBuf;
 
     /**
@@ -169,7 +173,9 @@ public class SegmentWalLog implements WalLog {
         open();
     }
 
-    /** 打开 */
+    /**
+     * 打开
+    */
     private void open() throws IOException {
         List<WalSegmentInfo> segments = scanSegments();
         if (segments.isEmpty()) {
@@ -301,7 +307,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 追加 */
+    /**
+     * 追加
+    */
     public long append(byte op, byte[] payload) throws IOException {
         ensureOpen();
         if (payload == null) {
@@ -340,7 +348,9 @@ public class SegmentWalLog implements WalLog {
         return false;
     }
 
-    /** rollsegment */
+    /**
+     * rollsegment
+    */
     private void rollSegment() throws IOException {
         if (activeOut != null) {
             try {
@@ -376,14 +386,18 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 同步 */
+    /**
+     * 同步
+    */
     public void sync() throws IOException {
         ensureOpen();
         force();
         pendingFsyncOps = 0;
     }
 
-    /** Force */
+    /**
+     * Force
+    */
     private void force() throws IOException {
         if (activeOut != null) {
             activeOut.flush();
@@ -410,7 +424,9 @@ public class SegmentWalLog implements WalLog {
         }
     }
 
-    /** maybefsync */
+    /**
+     * maybefsync
+    */
     private void maybeFsync() throws IOException {
         if (!config.syncOnWrite()) {
             return;
@@ -422,7 +438,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 当前lsn */
+    /**
+     * 当前lsn
+    */
     public long currentLsn() {
         return currentLsn;
     }
@@ -430,7 +448,9 @@ public class SegmentWalLog implements WalLog {
     // ==================== Checkpoint ====================
 
     @Override
-    /** 加载Checkpoint */
+    /**
+     * 加载Checkpoint
+    */
     public CheckpointMeta loadCheckpoint() throws IOException {
         ensureOpen();
         return readCheckpointFromDisk();
@@ -493,7 +513,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 标记Checkpoint */
+    /**
+     * 标记Checkpoint
+    */
     public void markCheckpoint(long lsn) throws IOException {
         ensureOpen();
         if (lsn > currentLsn) {
@@ -510,7 +532,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 重置Checkpoint */
+    /**
+     * 重置Checkpoint
+    */
     public void resetCheckpoint() throws IOException {
         ensureOpen();
         this.checkpointLsn = 0L;
@@ -523,7 +547,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** forcecheckpoint */
+    /**
+     * forcecheckpoint
+    */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         if (lsn > currentLsn) {
@@ -542,20 +568,26 @@ public class SegmentWalLog implements WalLog {
     // ==================== Replay ====================
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(WalReplayHandler handler) throws IOException {
         CheckpointMeta meta = loadCheckpoint();
         return replay(meta.checkpointLsn() + 1, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException {
         return replay(fromLsn, Long.MAX_VALUE, handler);
     }
 
     @Override
-    /** Replay */
+    /**
+     * Replay
+    */
     public WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException {
         ensureOpen();
         CheckpointMeta meta = loadCheckpoint();
@@ -629,7 +661,9 @@ public class SegmentWalLog implements WalLog {
     // ==================== Chain ====================
 
     @Override
-    /** 追加Chain */
+    /**
+     * 追加Chain
+    */
     public long appendChain(WalChainHandler handler) throws IOException {
         ensureOpen();
         List<WalOp> ops = new ArrayList<>();
@@ -651,7 +685,9 @@ public class SegmentWalLog implements WalLog {
     // ==================== Query ====================
 
     @Override
-    /** 查找bylsn */
+    /**
+     * 查找bylsn
+    */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         List<WalSegmentInfo> segments = scanSegments();
@@ -707,7 +743,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** purgecheckpointed */
+    /**
+     * purgecheckpointed
+    */
     public int purgeCheckpointed(int keepSegments) {
         List<WalSegmentInfo> all = scanSegments();
         int deleted = 0;
@@ -730,7 +768,9 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 当前segment */
+    /**
+     * 当前segment
+    */
     public WalSegmentInfo currentSegment() {
         Path p = segmentPath(activeSegmentNo);
         return new WalSegmentInfo(activeSegmentNo, activeFirstLsn, currentLsn,
@@ -738,13 +778,17 @@ public class SegmentWalLog implements WalLog {
     }
 
     @Override
-    /** 列表segments */
+    /**
+     * 列表segments
+    */
     public List<WalSegmentInfo> listSegments() {
         return scanSegments();
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws IOException {
         if (closed) {
             return;
@@ -778,7 +822,9 @@ public class SegmentWalLog implements WalLog {
         }
     }
 
-    /** Ensure打开 */
+    /**
+     * Ensure打开
+    */
     private void ensureOpen() {
         if (closed) {
             throw new WalException("WAL 已关闭");
@@ -891,7 +937,9 @@ public class SegmentWalLog implements WalLog {
      */
     private static final class WalChainImpl implements WalChain {
 
-        /** OPS */
+        /**
+         * OPS
+        */
         private final List<WalOp> ops;
 
         WalChainImpl(List<WalOp> ops) {
@@ -899,14 +947,18 @@ public class SegmentWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, byte[] payload) {
             ops.add(new WalOp(op, payload));
             return this;
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op, String s) {
             byte[] bytes = s == null ? new byte[0] : s.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             ops.add(new WalOp(op, bytes));
@@ -914,14 +966,18 @@ public class SegmentWalLog implements WalLog {
         }
 
         @Override
-        /** 添加 */
+        /**
+         * 添加
+        */
         public WalChain add(byte op) {
             ops.add(new WalOp(op, new byte[0]));
             return this;
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public int size() {
             return ops.size();
         }

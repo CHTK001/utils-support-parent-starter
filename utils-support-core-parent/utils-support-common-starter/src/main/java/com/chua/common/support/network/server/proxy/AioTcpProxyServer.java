@@ -34,18 +34,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi({"aio-tcp-proxy"})
 public class AioTcpProxyServer extends AbstractServer {
 
-    /** 监听通道 */
+    /**
+     * 监听通道
+    */
     private AsynchronousServerSocketChannel serverChannel;
-    /** IOCP 线程组 */
+    /**
+     * IOCP 线程组
+    */
     private AsynchronousChannelGroup group;
-    /** 虚拟线程池 */
+    /**
+     * 虚拟线程池
+    */
     private ExecutorService executor;
     /**
      * 固定后端目标(null 则回退 setting host/port)
      */
     private volatile InetSocketAddress target;
 
-    /** 活跃连接数 */
+    /**
+     * 活跃连接数
+    */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
@@ -82,7 +90,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             int threads = setting.getEventLoops() > 0
@@ -184,11 +194,17 @@ public class AioTcpProxyServer extends AbstractServer {
     private final class PipeReader
             implements java.nio.channels.CompletionHandler<Integer, Void> {
 
-        /** 源通道 */
+        /**
+         * 源通道
+        */
         private final AsynchronousSocketChannel src;
-        /** 目标通道 */
+        /**
+         * 目标通道
+        */
         private final AsynchronousSocketChannel dst;
-        /** 中转缓冲 */
+        /**
+         * 中转缓冲
+        */
         private final ByteBuffer buf;
 
         /**
@@ -268,7 +284,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止Accepting */
+    /**
+     * Do停止Accepting
+    */
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -279,7 +297,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         if (executor != null) {
             executor.shutdownNow();
@@ -294,7 +314,9 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

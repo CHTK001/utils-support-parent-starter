@@ -28,74 +28,120 @@ import java.util.Objects;
 @Slf4j
 public class RuleBasedScorer {
 
-    /** 规则评分归一化基数（阈值 恒为 1.0，分数即归一化后的风险度） */
+    /**
+     * 规则评分归一化基数（阈值 恒为 1.0，分数即归一化后的风险度）
+    */
     private static final double RULE_THRESHOLD = 1.0d;
 
-    /** IP 高异常阈值 */
+    /**
+     * IP 高异常阈值
+    */
     private static final double IP_HIGH_THRESHOLD = 0.7d;
 
-    /** IP 中异常阈值 */
+    /**
+     * IP 中异常阈值
+    */
     private static final double IP_MEDIUM_THRESHOLD = 0.45d;
 
-    /** IP 低异常阈值 */
+    /**
+     * IP 低异常阈值
+    */
     private static final double IP_LOW_THRESHOLD = 0.25d;
 
-    /** 高错误率判定阈值 */
+    /**
+     * 高错误率判定阈值
+    */
     private static final double ERROR_RATE_HIGH = 0.3d;
 
-    /** 高请求频率判定阈值（次/秒） */
+    /**
+     * 高请求频率判定阈值（次/秒）
+    */
     private static final double REQUEST_RATE_HIGH = 50.0d;
 
-    /** 高路径熵判定阈值（比特） */
+    /**
+     * 高路径熵判定阈值（比特）
+    */
     private static final double PATH_ENTROPY_HIGH = 4.0d;
 
-    /** 高 UA 多样性判定阈值 */
+    /**
+     * 高 UA 多样性判定阈值
+    */
     private static final double UA_DIVERSITY_HIGH = 0.8d;
 
-    /** 攻击类别判定阈值 */
+    /**
+     * 攻击类别判定阈值
+    */
     private static final double BEHAVIOR_ATTACK_THRESHOLD = 0.6d;
 
-    /** 可疑类别判定阈值 */
+    /**
+     * 可疑类别判定阈值
+    */
     private static final double BEHAVIOR_SUSPICIOUS_THRESHOLD = 0.3d;
 
-    /** 敏感路径命中权重 */
+    /**
+     * 敏感路径命中权重
+    */
     private static final double SENSITIVE_PATH_WEIGHT = 0.3d;
 
-    /** 高错误率权重 */
+    /**
+     * 高错误率权重
+    */
     private static final double ERROR_RATE_WEIGHT = 0.2d;
 
-    /** 高请求频率权重 */
+    /**
+     * 高请求频率权重
+    */
     private static final double REQUEST_RATE_WEIGHT = 0.2d;
 
-    /** 高路径熵权重 */
+    /**
+     * 高路径熵权重
+    */
     private static final double PATH_ENTROPY_WEIGHT = 0.2d;
 
-    /** 高 UA 多样性权重 */
+    /**
+     * 高 UA 多样性权重
+    */
     private static final double UA_DIVERSITY_WEIGHT = 0.2d;
 
-    /** 夜间访问权重 */
+    /**
+     * 夜间访问权重
+    */
     private static final double NIGHT_ACCESS_WEIGHT = 0.1d;
 
-    /** 夜间时段起始小时 */
+    /**
+     * 夜间时段起始小时
+    */
     private static final int NIGHT_HOUR_START = 22;
 
-    /** 夜间时段结束小时 */
+    /**
+     * 夜间时段结束小时
+    */
     private static final int NIGHT_HOUR_END = 6;
 
-    /** 事件数阈值：少于该数量不做行为评分 */
+    /**
+     * 事件数阈值：少于该数量不做行为评分
+    */
     private static final int MIN_EVENTS_FOR_BEHAVIOR = 1;
 
-    /** 敏感路径关键字 */
+    /**
+     * 敏感路径关键字
+    */
     private static final List<String> SENSITIVE_KEYWORDS = List.of(
             "/admin", "/api/internal", "/config", "/backup", "/.env");
 
-    /** 默认类别标签 */
+    /**
+     * 默认类别标签
+    */
     private static final List<String> DEFAULT_CLASS_LABELS = List.of("normal", "suspicious", "attack");
 
-    /** 特征提取器 */
+    /**
+     * 特征提取器
+    */
     private final FeatureExtractor featureExtractor;
 
-    /** 时区 */
+    /**
+     * 时区
+    */
     private static final ZoneId ZONE = ZoneId.systemDefault();
 
     /**

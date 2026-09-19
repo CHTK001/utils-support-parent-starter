@@ -44,13 +44,17 @@ public class ProtobufSerialization implements Serialization {
             ThreadLocal.withInitial(() -> LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE));
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "protobuf";
     }
 
     @Override
-    /** 序列化 */
+    /**
+     * 序列化
+    */
     public byte[] serialize(Object obj) throws Exception {
         if (obj == null) {
             return new byte[0];

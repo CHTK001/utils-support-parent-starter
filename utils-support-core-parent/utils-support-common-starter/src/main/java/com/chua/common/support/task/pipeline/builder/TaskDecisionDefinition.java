@@ -90,25 +90,45 @@ import java.util.function.Consumer;
  */
 public class TaskDecisionDefinition {
 
-    /** 标识 */
+    /**
+     * 标识
+    */
     private final String id;
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private PipelineNode handler;
-    /** 构建器 */
+    /**
+     * 构建器
+    */
     private final PipelineBuilder builder;
-    /** branches */
+    /**
+     * branches
+    */
     private final Map<String, String> branches = new LinkedHashMap<>();
-    /** 默认分支 */
+    /**
+     * 默认分支
+    */
     private String defaultBranch;
-    /** 结束afterexecute */
+    /**
+     * 结束afterexecute
+    */
     private boolean endAfterExecute;
-    /** 参数 */
+    /**
+     * 参数
+    */
     private Map<String, Object> params;
-    /** env */
+    /**
+     * env
+    */
     private Map<String, Object> env;
-    /** 开始节点 */
+    /**
+     * 开始节点
+    */
     private boolean startNode;
-    /** 重试配置 */
+    /**
+     * 重试配置
+    */
     private RetryConfig retryConfig;
 
     /**

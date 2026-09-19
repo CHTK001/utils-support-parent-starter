@@ -18,13 +18,21 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ReturnPageResult<T> implements Serializable {
 
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
-    /** 数据 */
+    /**
+     * 数据
+    */
     private PageResult<T> data;
-    /** 消息 */
+    /**
+     * 消息
+    */
     private String message;
-    /** 成功 */
+    /**
+     * 成功
+    */
     private boolean success;
 
     /**

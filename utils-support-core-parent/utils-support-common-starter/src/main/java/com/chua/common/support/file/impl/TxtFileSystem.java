@@ -52,19 +52,25 @@ public class TxtFileSystem implements FileSystem {
     private static final String LINE_SEPARATOR = "\n";
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "txt";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new TxtReadBuilder(file);
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         return new TxtWriteBuilder(file);
     }
@@ -87,7 +93,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        /** WithCharset */
+        /**
+         * WithCharset
+        */
         public TxtReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -182,13 +190,17 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public Object read() {
             return hasHeader ? rows() : lines();
         }
 
         @Override
-        /** AsString */
+        /**
+         * AsString
+        */
         public String asString() {
             return String.join(LINE_SEPARATOR, lines());
         }
@@ -217,7 +229,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        /** WithCharset */
+        /**
+         * WithCharset
+        */
         public TxtWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -225,7 +239,9 @@ public class TxtFileSystem implements FileSystem {
 
         @Override
         @SuppressWarnings("unchecked")
-        /** 写入 */
+        /**
+         * 写入
+        */
         public TxtWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);
@@ -247,7 +263,9 @@ public class TxtFileSystem implements FileSystem {
         }
 
         @Override
-        /** Finish */
+        /**
+         * Finish
+        */
         public void finish() {
             txtHeaderDone = false;
             txtHeaderCols = new ArrayList<>();

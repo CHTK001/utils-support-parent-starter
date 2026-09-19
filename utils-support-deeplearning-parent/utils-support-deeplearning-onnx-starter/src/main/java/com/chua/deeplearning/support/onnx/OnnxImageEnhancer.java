@@ -2,12 +2,16 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageEnhancer;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxImageEnhancer implements ImageEnhancer {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
     /**
@@ -18,7 +22,9 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageEnhancer model(String model) {
         this.modelName = model;
         return this;
@@ -34,7 +40,9 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     }
 
     @Override
-    /** 增强 */
+    /**
+     * 增强
+    */
     public byte[] enhance(byte[] imageData) {
         return ImageEnhancer.create(resolveModel()).enhance(imageData);
     }

@@ -40,55 +40,73 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
         this.source = source;
     }
 
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     @Override
     public String name() {
         return name;
     }
 
-    /** 获取连接 */
+    /**
+     * 获取连接
+    */
     @Override
     public Connection getSource() {
         return source;
     }
 
-    /** 不支持运行期替换连接 */
+    /**
+     * 不支持运行期替换连接
+    */
     @Override
     public EngineDataSource<Connection> setSource(Object source) {
         return this;
     }
 
-    /** 非 SQL 方言返回 空 */
+    /**
+     * 非 SQL 方言返回 空
+    */
     @Override
     public Dialect getDialect() {
         return null;
     }
 
-    /** 忽略方言设置 */
+    /**
+     * 忽略方言设置
+    */
     @Override
     public EngineDataSource<Connection> setDialect(Dialect dialect) {
         return this;
     }
 
-    /** 连接描述 */
+    /**
+     * 连接描述
+    */
     @Override
     public String url() {
         return url;
     }
 
-    /** 无用户名概念 */
+    /**
+     * 无用户名概念
+    */
     @Override
     public String username() {
         return null;
     }
 
-    /** 无密码概念 */
+    /**
+     * 无密码概念
+    */
     @Override
     public String password() {
         return null;
     }
 
-    /** 关闭底层连接 */
+    /**
+     * 关闭底层连接
+    */
     @Override
     public void close() {
         if (source != null) {

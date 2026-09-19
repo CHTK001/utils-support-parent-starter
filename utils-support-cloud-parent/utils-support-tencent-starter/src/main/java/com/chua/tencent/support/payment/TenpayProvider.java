@@ -30,12 +30,18 @@ import java.util.Map;
 @Spi("tenpay")
 public class TenpayProvider implements PaymentChannel {
 
-    /** 微信支付服务 */
+    /**
+     * 微信支付服务
+    */
     private final WxPayService wxPayService;
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final TenpayConfig config;
 
-    /** 创建 tenpay提供者 实例 */
+    /**
+     * 创建 tenpay提供者 实例
+    */
     public TenpayProvider() {
         this(null);
     }
@@ -50,7 +56,9 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     @Override
-    /** 薪酬 */
+    /**
+     * 薪酬
+    */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case JSAPI:

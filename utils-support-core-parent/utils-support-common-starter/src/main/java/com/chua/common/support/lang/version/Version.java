@@ -48,9 +48,13 @@ import java.util.List;
 @Slf4j
 public class Version implements Comparable<Version> {
 
-    /** Ver1_0_0 */
+    /**
+     * Ver1_0_0
+    */
     public static final Version VER1_0_0 = new Version("1.0.0");
-    /** Ver0_0_1 */
+    /**
+     * Ver0_0_1
+    */
     public static final Version VER0_0_1 = new Version("0.0.1");
 
     /**
@@ -58,7 +62,9 @@ public class Version implements Comparable<Version> {
      * 保存用户传入的原始版本字符串，用于后续解析和比较。
      */
     @Getter
-    /** Original字符串 */
+    /**
+     * Original字符串
+    */
     private final String originalString;
 
     /**
@@ -66,7 +72,9 @@ public class Version implements Comparable<Version> {
      * 存储版本字符串中所有数值部分的列表，例如 "1.7.3" 对应 [1, 7, 3]。
      */
     @Getter
-    /** Subversionnumbers */
+    /**
+     * Subversionnumbers
+    */
     private final List<Long> subversionNumbers = new ArrayList<>();
 
     /**
@@ -75,7 +83,9 @@ public class Version implements Comparable<Version> {
      * 例如 "1.7.0" 对应 [1, 7]。
      */
     @Getter
-    /** Trimmedsubversionnumbers */
+    /**
+     * Trimmedsubversionnumbers
+    */
     private final List<Long> trimmedSubversionNumbers = new ArrayList<>();
 
     /**
@@ -493,7 +503,9 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
-    /** 比较To */
+    /**
+     * 比较To
+    */
     public final int compareTo(Version version) {
         return compareTo(version, false);
     }
@@ -521,7 +533,9 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public final boolean equals(Object o) {
         if (o instanceof Version && isEqual((Version) o)) {
             return true;
@@ -530,7 +544,9 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public final int hashCode() {
         int result = trimmedSubversionNumbers.hashCode();
         result = 31 * result + releaseType.hashCode();
@@ -539,7 +555,9 @@ public class Version implements Comparable<Version> {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return String.valueOf(originalString);
     }
@@ -550,15 +568,25 @@ public class Version implements Comparable<Version> {
      */
     static final class VersionComparator {
 
-        /** Snapshot_string */
+        /**
+         * Snapshot_string
+        */
         private static final String SNAPSHOT_STRING = "snapshot";
-        /** Pre_string */
+        /**
+         * Pre_string
+        */
         private static final String PRE_STRING = "pre";
-        /** Alpha_string */
+        /**
+         * Alpha_string
+        */
         private static final String ALPHA_STRING = "alpha";
-        /** Beta_string */
+        /**
+         * Beta_string
+        */
         private static final String BETA_STRING = "beta";
-        /** Rc_string */
+        /**
+         * Rc_string
+        */
         private static final String RC_STRING = "rc";
 
         /**

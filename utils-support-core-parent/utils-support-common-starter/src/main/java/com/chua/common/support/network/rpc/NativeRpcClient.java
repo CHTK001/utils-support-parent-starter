@@ -166,7 +166,9 @@ public class NativeRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 获取 */
+    /**
+     * 获取
+    */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -181,7 +183,9 @@ public class NativeRpcClient implements RpcClient {
         }
 
         @Override
-        /** 应用 */
+        /**
+         * 应用
+        */
         public Object apply(ProxyMethod pm) {
             // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
             Object localService = inlineEnabled ? LocalServiceRegistry.INSTANCE.get(targetType.getName()) : null;
@@ -235,7 +239,9 @@ public class NativeRpcClient implements RpcClient {
             throw RpcException.transport("All native RPC endpoints unreachable");
         }
 
-        /** 调用 */
+        /**
+         * 调用
+        */
         private Object call(String addr, RpcRequest req) throws Exception {
             String host = addr.contains(":") ? addr.split(":")[0] : addr;
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
@@ -275,7 +281,9 @@ public class NativeRpcClient implements RpcClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         proxyCache.clear();
         try {

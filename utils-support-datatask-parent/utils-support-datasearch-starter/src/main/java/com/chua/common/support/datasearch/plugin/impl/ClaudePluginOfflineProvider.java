@@ -18,7 +18,9 @@ import java.util.List;
 @Spi("claude")
 public class ClaudePluginOfflineProvider extends AbstractLocalPluginOfflineProvider {
 
-    /** 插件缓存根目录。 */
+    /**
+     * 插件缓存根目录。
+    */
     private static final Path CACHE_DIR = USER_HOME.resolve(".claude").resolve("plugins").resolve("cache");
 
     @Override

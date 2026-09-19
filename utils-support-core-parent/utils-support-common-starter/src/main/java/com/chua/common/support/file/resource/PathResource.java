@@ -42,19 +42,25 @@ public class PathResource implements Resource {
     }
 
     @Override
-    /** 打开Stream */
+    /**
+     * 打开Stream
+    */
     public InputStream openStream() throws IOException {
         return Files.newInputStream(path);
     }
 
     @Override
-    /** 获取UrlPath */
+    /**
+     * 获取UrlPath
+    */
     public String getUrlPath() {
         return path.toString();
     }
 
     @Override
-    /** 获取Url */
+    /**
+     * 获取Url
+    */
     public URL getUrl() {
         try {
             return path.toUri().toURL();
@@ -64,7 +70,9 @@ public class PathResource implements Resource {
     }
 
     @Override
-    /** LastModified */
+    /**
+     * LastModified
+    */
     public long lastModified() {
         try {
             return Files.getLastModifiedTime(path).toMillis();

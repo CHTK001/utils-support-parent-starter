@@ -43,51 +43,67 @@ public class PulsarHandler extends AbstractAppHandler {
     private static final String[] CONSUMER_METHODS = {"receive", "receiveAsync", "acknowledge"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "pulsar-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "pulsar.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.PULSAR;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.PULSAR;
     }
 
     @Override
-    /** softwareforentry */
+    /**
+     * softwareforentry
+    */
     protected Software softwareForEntry(InterceptContext ctx) {
         return Software.PULSAR;
     }
 
     @Override
-    /** 种类forentry */
+    /**
+     * 种类forentry
+    */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
         String cn = ctx.getClassName();
         return cn != null && cn.contains("Producer") ? EndpointKind.PRODUCER : EndpointKind.CONSUMER;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(PRODUCER_CLASS, PRODUCER_METHODS);
         registerAll(CONSUMER_CLASS, CONSUMER_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object conf = instance != null ? findField(instance, "conf") : null;
         String url = conf != null ? String.valueOf(findField(conf, "serviceUrl")) : null;

@@ -120,7 +120,9 @@ public class FpWinRmFullTest {
         System.exit(ok ? 0 : 1);
     }
 
-    /** 停止远程 Server */
+    /**
+     * 停止远程 Server
+    */
     static void stopServer() {
         try {
             winrm.exec().command("cmd.exe /c powershell -Command \"Get-CimInstance Win32_Process -Filter \\\"Name like '%java%'\\\" | Where-Object { $_.CommandLine -like '*FilePushServerMain*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }\"").execute();

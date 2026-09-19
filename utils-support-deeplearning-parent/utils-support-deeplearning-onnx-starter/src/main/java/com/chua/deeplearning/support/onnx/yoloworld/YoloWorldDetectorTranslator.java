@@ -204,15 +204,25 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         return result;
     }
 
-    /** original宽度 */
+    /**
+     * original宽度
+    */
     private int originalWidth;
-    /** original高度 */
+    /**
+     * original高度
+    */
     private int originalHeight;
-    /** letterPadX */
+    /**
+     * letterPadX
+    */
     private int letterPadX;
-    /** letterPadY */
+    /**
+     * letterPadY
+    */
     private int letterPadY;
-    /** letterScale */
+    /**
+     * letterScale
+    */
     private float letterScale;
 
     @Override

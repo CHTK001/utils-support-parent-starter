@@ -71,13 +71,17 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor pollerExecutor) {
  // 事件-driven, 执行器 传 空 即可
 
@@ -231,19 +235,25 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade() {
         // 由事件驱动，无需轮询
     }
 
     @Override
-    /** 是否delegatedoperating系统 */
+    /**
+     * 是否delegatedoperating系统
+    */
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (engine != null) {
             try {

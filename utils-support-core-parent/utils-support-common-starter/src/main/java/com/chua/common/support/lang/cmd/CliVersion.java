@@ -44,17 +44,27 @@ public final class CliVersion implements Comparable<CliVersion> {
      */
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("\\d+(?:[._-]\\d+)*");
 
-    /** 数字段分隔符 */
+    /**
+     * 数字段分隔符
+    */
     private static final Pattern SEGMENT_SEPARATOR = Pattern.compile("[._-]");
 
-    /** 限定符起始字符 */
+    /**
+     * 限定符起始字符
+    */
     private static final char[] QUALIFIER_PREFIXES = {'-', '+', '_'};
 
-    /** 原始版本字符串 */
+    /**
+     * 原始版本字符串
+    */
     private final String raw;
-    /** 数字段，如 4.0.0 → [4, 0, 0] */
+    /**
+     * 数字段，如 4.0.0 → [4, 0, 0]
+    */
     private final int[] numbers;
-    /** 限定符，如 rc-6、beta.1，无则为空字符串 */
+    /**
+     * 限定符，如 rc-6、beta.1，无则为空字符串
+    */
     private final String qualifier;
 
     /**

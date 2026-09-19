@@ -40,21 +40,27 @@ public class ResourceConfiguration {
      * 类加载器，用于 {@code classpath:} / {@code classpath*:} 资源定位。
      */
     @Builder.Default
-    /** Classloader */
+    /**
+     * Classloader
+    */
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     /**
      * 路径匹配器，默认使用 {@link AntPathMatcher}。
      */
     @Builder.Default
-    /** 路径matcher */
+    /**
+     * 路径matcher
+    */
     private PathMatcher pathMatcher = new AntPathMatcher();
 
     /**
      * 排除规则集合，匹配的资源将被过滤。
      */
     @Singular("excludes")
-    /** Excludes */
+    /**
+     * Excludes
+    */
     private Set<String> excludes;
 
     /**

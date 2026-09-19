@@ -99,7 +99,9 @@ private static final float[][] ANCHORS = {
      *                                     
      */
     private int imageWidth;
-    /** 图像高度 */
+    /**
+     * 图像高度
+    */
     private int imageHeight;
 
     /**
@@ -131,7 +133,9 @@ private static final float[][] ANCHORS = {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
         imageWidth = input.getWidth();
@@ -163,7 +167,9 @@ private static final float[][] ANCHORS = {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");

@@ -24,9 +24,13 @@ import javax.annotation.Nullable;
 @Slf4j
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
 
-    /** 识别为 true 的字符串集合 */
+    /**
+     * 识别为 true 的字符串集合
+    */
     private static final Set<String> TRUE_WORDS = new HashSet<>();
-    /** 识别为 false 的字符串集合 */
+    /**
+     * 识别为 false 的字符串集合
+    */
     private static final Set<String> FALSE_WORDS = new HashSet<>();
 
     static {

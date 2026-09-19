@@ -20,15 +20,25 @@ import java.util.Map;
  */
 public class HttpAgentDataSyncSource implements DataSyncAgentSource {
 
-    /** 数据源标识 */
+    /**
+     * 数据源标识
+    */
     private final String sourceId;
-    /** 输入标识 */
+    /**
+     * 输入标识
+    */
     private final String inputId;
-    /** 代理标识 */
+    /**
+     * 代理标识
+    */
     private final String agentId;
-    /** 代理服务地址 */
+    /**
+     * 代理服务地址
+    */
     private final String agentUrl;
-    /** HTTP 客户端（懒加载） */
+    /**
+     * HTTP 客户端（懒加载）
+    */
     private volatile ReactiveHttpClient httpClient;
 
     /**

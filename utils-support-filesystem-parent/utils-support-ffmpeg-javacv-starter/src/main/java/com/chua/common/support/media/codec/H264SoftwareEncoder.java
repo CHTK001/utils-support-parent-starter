@@ -164,31 +164,41 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 获取codec名称 */
+    /**
+     * 获取codec名称
+    */
     public String getCodecName() {
         return "libx264";
     }
 
     @Override
-    /** 获取codecid */
+    /**
+     * 获取codecid
+    */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
-    /** 是否hardware加速 */
+    /**
+     * 是否hardware加速
+    */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** force键帧 */
+    /**
+     * force键帧
+    */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
 
     @Override
-    /** 编码 */
+    /**
+     * 编码
+    */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -311,7 +321,9 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 设置Crf */
+    /**
+     * 设置Crf
+    */
     public synchronized void setCrf(int crf) {
         this.crf = Math.max(18, Math.min(35, crf));
         if (started) {
@@ -324,7 +336,9 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         started = false;
         if (recorder != null) {
@@ -386,19 +400,25 @@ public class H264SoftwareEncoder implements VideoEncoder {
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
         }
     }

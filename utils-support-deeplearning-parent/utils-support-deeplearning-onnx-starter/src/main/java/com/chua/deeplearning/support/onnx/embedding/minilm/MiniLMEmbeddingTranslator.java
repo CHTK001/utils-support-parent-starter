@@ -55,26 +55,46 @@ public class MiniLMEmbeddingTranslator {
      */
     public static final int DEFAULT_MAX_LEN = 128;
 
-    /** 资源基础路径 - int8 量化版（默认） */
+    /**
+     * 资源基础路径 - int8 量化版（默认）
+    */
     private static final String RESOURCE_BASE_INT8 = "nlp/embedding/minilm/";
-    /** 资源基础路径 - fp32 未量化版 */
+    /**
+     * 资源基础路径 - fp32 未量化版
+    */
     private static final String RESOURCE_BASE_FP32 = "nlp/embedding/minilm-fp32/";
-    /** int8 模型文件路径 */
+    /**
+     * int8 模型文件路径
+    */
     private static final String MODEL_FILE_INT8 = "model_quantized.onnx";
-    /** fp32 模型文件路径 */
+    /**
+     * fp32 模型文件路径
+    */
     private static final String MODEL_FILE_FP32 = "model.onnx";
-    /** 词表文件路径（两个版本共用） */
+    /**
+     * 词表文件路径（两个版本共用）
+    */
     private static final String VOCAB_FILE = "vocab.txt";
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private MiniLMTokenizer tokenizer;
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
-    /** 当前使用的资源基础路径 */
+    /**
+     * 当前使用的资源基础路径
+    */
     private final String resourceBase;
-    /** 当前使用的模型文件名 */
+    /**
+     * 当前使用的模型文件名
+    */
     private final String modelFile;
 
     /**
@@ -111,7 +131,9 @@ public class MiniLMEmbeddingTranslator {
         return new MiniLMEmbeddingTranslator(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;

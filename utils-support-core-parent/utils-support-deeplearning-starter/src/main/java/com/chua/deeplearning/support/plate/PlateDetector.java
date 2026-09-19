@@ -171,21 +171,27 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public PlateDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public PlateDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public PlateDetector device(String device) {
         this.device = device;
         return this;
@@ -209,7 +215,9 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** detect信息 */
+    /**
+     * detect信息
+    */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -221,7 +229,9 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** 铭牌计算数量 */
+    /**
+     * 铭牌计算数量
+    */
     public int plateCount(byte[] imageData) {
         return detect(imageData).size();
     }

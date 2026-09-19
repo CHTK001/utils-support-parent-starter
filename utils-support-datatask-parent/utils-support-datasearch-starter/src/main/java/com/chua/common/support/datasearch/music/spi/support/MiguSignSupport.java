@@ -14,12 +14,18 @@ import java.util.Map;
  */
 public final class MiguSignSupport {
 
-    /** Device_标识 */
+    /**
+     * Device_标识
+    */
     private static final String DEVICE_ID = "963B7AA0D21511ED807EE5846EC87D20";
-    /** 签名_md5 */
+    /**
+     * 签名_md5
+    */
     private static final String SIGNATURE_MD5 = "6cdc72a439cef99a3418d2a78aa28c73";
 
-    /** 创建 migu标志支持 实例 */
+    /**
+     * 创建 migu标志支持 实例
+    */
     private MiguSignSupport() {
     }
 

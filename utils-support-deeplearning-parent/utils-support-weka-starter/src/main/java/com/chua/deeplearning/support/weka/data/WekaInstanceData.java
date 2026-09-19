@@ -53,22 +53,34 @@ import weka.core.Instances;
 @Getter
 public final class WekaInstanceData {
 
-    /** 缺失值标记（Weka 3.8 以 nan 表示缺失） */
+    /**
+     * 缺失值标记（Weka 3.8 以 nan 表示缺失）
+    */
     public static final double MISSING_VALUE = Double.NaN;
 
-    /** 特征列定义（不含目标列） */
+    /**
+     * 特征列定义（不含目标列）
+    */
     private final List<FeatureColumn> features;
 
-    /** 分类标签列名（名义值），与 Targetcolumn 二选一 */
+    /**
+     * 分类标签列名（名义值），与 Targetcolumn 二选一
+    */
     private final String labelColumn;
 
-    /** 回归目标列名（数值），与 标签column 二选一 */
+    /**
+     * 回归目标列名（数值），与 标签column 二选一
+    */
     private final String targetColumn;
 
-    /** 行数据，每行为「列名 -> 值」，值可为 数字 / 字符串 / 空（缺失） */
+    /**
+     * 行数据，每行为「列名 -> 值」，值可为 数字 / 字符串 / 空（缺失）
+    */
     private final List<Map<String, Object>> rows;
 
-    /** 内部构造器：校验特征列非空、标签/目标列名非空白，固化不可变特征与行数据副本 */
+    /**
+     * 内部构造器：校验特征列非空、标签/目标列名非空白，固化不可变特征与行数据副本
+    */
     private WekaInstanceData(List<FeatureColumn> features, String labelColumn, String targetColumn,
             List<Map<String, Object>> rows) {
         Objects.requireNonNull(features, "features must not be null");

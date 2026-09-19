@@ -35,7 +35,9 @@ public class KimiCodeUsageParser extends BaseUsageParser {
 
     private final Path kimiCodeHome;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public KimiCodeUsageParser() {
         String home = System.getenv("KIMI_CODE_HOME");
         this.kimiCodeHome = (home != null && !home.isBlank())

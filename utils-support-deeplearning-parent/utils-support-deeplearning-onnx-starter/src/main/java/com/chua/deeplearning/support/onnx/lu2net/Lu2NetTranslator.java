@@ -11,10 +11,14 @@ import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.TranslatorContext;
 import ai.djl.translate.Translator;
 
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 public class Lu2NetTranslator implements Translator<Image, Image> {
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         // U²-Net 类模型要求尺寸对齐，统一缩放到 320x320
@@ -38,7 +42,9 @@ public class Lu2NetTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.singletonOrThrow();
  // clip 和 转换 转为 [0,255]

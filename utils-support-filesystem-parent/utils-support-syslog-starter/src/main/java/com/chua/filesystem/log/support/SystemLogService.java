@@ -46,16 +46,24 @@ import java.util.*;
 @Slf4j
 public class SystemLogService {
 
-    /** INSTANCE */
+    /**
+     * INSTANCE
+    */
     private static volatile SystemLogService INSTANCE;
 
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     private final SystemLogProvider provider;
 
-    /** initialized */
+    /**
+     * initialized
+    */
     private volatile boolean initialized;
 
-    /** 创建 系统日志服务 实例 */
+    /**
+     * 创建 系统日志服务 实例
+    */
     public SystemLogService() {
         SystemLogProvider p = null;
 

@@ -39,11 +39,15 @@ import java.util.List;
 @Spi("tika")
 public class TikaTextExtractor implements TextExtractor {
 
-    /** 解析器 */
+    /**
+     * 解析器
+    */
     private final Parser parser = new AutoDetectParser();
 
     @Override
-    /** ExtractText */
+    /**
+     * ExtractText
+    */
     public List<TextExtractResult> extractText(File file) {
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
@@ -105,7 +109,9 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    /** Type */
+    /**
+     * Type
+    */
     public String type() {
         return "tika";
     }

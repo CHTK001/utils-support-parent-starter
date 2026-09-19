@@ -76,7 +76,9 @@ public final class Converter {
         put(int.class, 0);
     }};
 
-    /** 创建 Converter 实例 */
+    /**
+     * 创建 Converter 实例
+    */
     private Converter() {
     }
 

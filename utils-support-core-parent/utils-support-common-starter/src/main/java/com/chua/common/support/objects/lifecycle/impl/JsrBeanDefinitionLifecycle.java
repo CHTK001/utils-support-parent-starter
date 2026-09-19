@@ -30,23 +30,35 @@ import java.lang.reflect.Method;
 @SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")
 public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
-    /** Post_Construct_javax */
+    /**
+     * Post_Construct_javax
+    */
     private static final String POST_CONSTRUCT_JAVAX = "javax.annotation.PostConstruct";
-    /** Post_Construct_jakarta */
+    /**
+     * Post_Construct_jakarta
+    */
     private static final String POST_CONSTRUCT_JAKARTA = "jakarta.annotation.PostConstruct";
-    /** Pre_销毁_javax */
+    /**
+     * Pre_销毁_javax
+    */
     private static final String PRE_DESTROY_JAVAX = "javax.annotation.PreDestroy";
-    /** Pre_销毁_jakarta */
+    /**
+     * Pre_销毁_jakarta
+    */
     private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -55,7 +67,9 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;

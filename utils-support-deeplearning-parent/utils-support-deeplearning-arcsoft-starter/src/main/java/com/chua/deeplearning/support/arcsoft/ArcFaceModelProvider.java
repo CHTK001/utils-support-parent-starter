@@ -24,10 +24,14 @@ import java.util.List;
 @Slf4j
 public class ArcFaceModelProvider implements BulkModelProvider {
 
-    /** 人脸引擎 */
+    /**
+     * 人脸引擎
+    */
     private final FaceEngine faceEngine;
 
-    /** 创建 arcface模型提供者 实例 */
+    /**
+     * 创建 arcface模型提供者 实例
+    */
     public ArcFaceModelProvider() {
         FaceEngine engine = null;
         try {
@@ -39,7 +43,9 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     }
 
     @Override
-    /** 获取全部 */
+    /**
+     * 获取全部
+    */
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> definitions = new ArrayList<>();
 
@@ -81,7 +87,9 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     }
 
     @Override
-    /** 获取Definition */
+    /**
+     * 获取Definition
+    */
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
         return all != null && !all.isEmpty() ? all.getFirst() : null;

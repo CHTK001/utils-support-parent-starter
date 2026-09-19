@@ -66,18 +66,30 @@ public class ModelscopeChatClient implements ChatClient {
 
     private final ChatClientSetting setting;
 
-    /** 模型 */
+    /**
+     * 模型
+    */
     private String model;
-    /** system */
+    /**
+     * system
+    */
     private String system;
-    /** temperature */
+    /**
+     * temperature
+    */
     private Double temperature;
-    /** 最大值Tokens */
+    /**
+     * 最大值Tokens
+    */
     private Integer maxTokens;
-    /** 顶部P */
+    /**
+     * 顶部P
+    */
     private Double topP;
     private final List<ChatMessage> history = new ArrayList<>();
-    /** externalHistory */
+    /**
+     * externalHistory
+    */
     private List<ChatMessage> externalHistory;
     private final List<String> imageUrls = new ArrayList<>();
     private final List<Attachment> attachments = new ArrayList<>();

@@ -128,7 +128,9 @@ public class SslSocketChannel extends SocketChannel {
     // ==================== 读写 ====================
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read(ByteBuffer dst) throws IOException {
         if (closed) {
             return -1;
@@ -183,7 +185,9 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public int write(ByteBuffer src) throws IOException {
         if (closed) {
             throw new IOException("Channel is closed");
@@ -215,7 +219,9 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
         long total = 0;
         for (int i = offset; i < offset + length; i++) {
@@ -232,7 +238,9 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
         long total = 0;
         for (int i = offset; i < offset + length; i++) {
@@ -318,77 +326,101 @@ public class SslSocketChannel extends SocketChannel {
     // ==================== SocketChannel 委托 ====================
 
     @Override
-    /** 绑定 */
+    /**
+     * 绑定
+    */
     public SocketChannel bind(SocketAddress local) throws IOException {
         delegate.bind(local);
         return this;
     }
 
     @Override
-    /** 获取LocalAddress */
+    /**
+     * 获取LocalAddress
+    */
     public SocketAddress getLocalAddress() throws IOException {
         return delegate.getLocalAddress();
     }
 
     @Override
-    /** 关闭Input */
+    /**
+     * 关闭Input
+    */
     public SocketChannel shutdownInput() throws IOException {
         delegate.shutdownInput();
         return this;
     }
 
     @Override
-    /** 关闭Output */
+    /**
+     * 关闭Output
+    */
     public SocketChannel shutdownOutput() throws IOException {
         delegate.shutdownOutput();
         return this;
     }
 
     @Override
-    /** 是否Connected */
+    /**
+     * 是否Connected
+    */
     public boolean isConnected() {
         return delegate.isConnected();
     }
 
     @Override
-    /** 是否ConnectionPending */
+    /**
+     * 是否ConnectionPending
+    */
     public boolean isConnectionPending() {
         return delegate.isConnectionPending();
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public boolean connect(SocketAddress remote) throws IOException {
         return delegate.connect(remote);
     }
 
     @Override
-    /** Finish连接 */
+    /**
+     * Finish连接
+    */
     public boolean finishConnect() throws IOException {
         return delegate.finishConnect();
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /**
+     * 获取RemoteAddress
+    */
     public SocketAddress getRemoteAddress() throws IOException {
         return delegate.getRemoteAddress();
     }
 
     @Override
-    /** Socket */
+    /**
+     * Socket
+    */
     public Socket socket() {
         return delegate.socket();
     }
 
     @Override
-    /** 设置Option */
+    /**
+     * 设置Option
+    */
     public <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException {
         delegate.setOption(name, value);
         return this;
     }
 
     @Override
-    /** 获取Option */
+    /**
+     * 获取Option
+    */
     public <T> T getOption(SocketOption<T> name) throws IOException {
         return delegate.getOption(name);
     }
@@ -399,13 +431,17 @@ public class SslSocketChannel extends SocketChannel {
     }
 
     @Override
-    /** ImplConfigureBlocking */
+    /**
+     * ImplConfigureBlocking
+    */
     protected void implConfigureBlocking(boolean block) throws IOException {
         delegate.configureBlocking(block);
     }
 
     @Override
-    /** Impl关闭SelectableChannel */
+    /**
+     * Impl关闭SelectableChannel
+    */
     protected void implCloseSelectableChannel() throws IOException {
         if (closed) {
             return;

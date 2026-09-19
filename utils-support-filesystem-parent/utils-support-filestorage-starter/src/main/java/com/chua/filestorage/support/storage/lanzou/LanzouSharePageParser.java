@@ -68,7 +68,9 @@ final class LanzouSharePageParser {
     private static final Pattern VAR_PATTERN =
             Pattern.compile("var\\s+(\\w+)\\s*=\\s*['\"]([^'\"]*)['\"]");
 
-    /** 创建 lanzou共享pageparser 实例 */
+    /**
+     * 创建 lanzou共享pageparser 实例
+    */
     private LanzouSharePageParser() {
     }
 

@@ -29,11 +29,17 @@ public record GitFileEvent(ChangeType changeType, String filePath) {
      * @since 4.0.0
      */
     public enum ChangeType {
-        /** 文件新增 */
+        /**
+         * 文件新增
+        */
         ADD,
-        /** 文件修改（包含重命名、拷贝） */
+        /**
+         * 文件修改（包含重命名、拷贝）
+        */
         MODIFY,
-        /** 文件删除 */
+        /**
+         * 文件删除
+        */
         DELETE
     }
 }

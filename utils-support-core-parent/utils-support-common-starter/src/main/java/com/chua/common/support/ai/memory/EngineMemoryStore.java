@@ -38,11 +38,17 @@ public class EngineMemoryStore implements MemoryStore {
      */
     public static final String TABLE = "memory_entry_entity";
 
-    /** 引擎实例 */
+    /**
+     * 引擎实例
+    */
     private final Engine engine;
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final MemoryConfig config;
-    /** 内存行数据列表 */
+    /**
+     * 内存行数据列表
+    */
     private final List<MemoryEntryEntity> rows = new CopyOnWriteArrayList<>();
 
     /**
@@ -56,7 +62,9 @@ public class EngineMemoryStore implements MemoryStore {
         loadFromEngine();
     }
 
-    /** 加载FromEngine */
+    /**
+     * 加载FromEngine
+    */
     private void loadFromEngine() {
         if (engine == null) {
             return;
@@ -75,7 +83,9 @@ public class EngineMemoryStore implements MemoryStore {
         }
     }
 
-    /** SyncToEngine */
+    /**
+     * SyncToEngine
+    */
     private void syncToEngine() {
         if (engine == null) {
             return;
@@ -89,7 +99,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** 保存 */
+    /**
+     * 保存
+    */
     public void save(MemoryEntry entry) {
         MemoryEntryEntity entity = MemoryEntryEntity.from(normalize(entry));
         rows.removeIf(r -> entity.getId() != null && entity.getId().equals(r.getId()));
@@ -119,7 +131,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<MemoryEntry> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return listAll(limit);
@@ -137,7 +151,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** ListByType */
+    /**
+     * ListByType
+    */
     public List<MemoryEntry> listByType(String type, int limit) {
         return rows.stream()
                 .map(MemoryEntryEntity::toEntry)
@@ -148,7 +164,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** ListBySession */
+    /**
+     * ListBySession
+    */
     public List<MemoryEntry> listBySession(String sessionId) {
         return rows.stream()
                 .map(MemoryEntryEntity::toEntry)
@@ -158,7 +176,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public boolean delete(String id) {
         boolean removed = rows.removeIf(r -> id != null && id.equals(r.getId()));
         if (removed) {
@@ -168,13 +188,17 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** 计算数量 */
+    /**
+     * 计算数量
+    */
     public int count() {
         return rows.size();
     }
 
     @Override
-    /** Backup */
+    /**
+     * Backup
+    */
     public void backup(String backupPath) {
         try {
             Path target = Path.of(backupPath);
@@ -190,7 +214,9 @@ public class EngineMemoryStore implements MemoryStore {
     }
 
     @Override
-    /** Restore */
+    /**
+     * Restore
+    */
     public void restore(String backupPath) {
         try {
             String json = Files.readString(Path.of(backupPath));
@@ -221,7 +247,9 @@ public class EngineMemoryStore implements MemoryStore {
                 .collect(Collectors.toList());
     }
 
-    /** EvictIfNeeded */
+    /**
+     * EvictIfNeeded
+    */
     private void evictIfNeeded() {
         int max = config.getMaxEntries();
         if (rows.size() <= max) {

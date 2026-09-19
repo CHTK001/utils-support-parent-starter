@@ -13,15 +13,25 @@ import java.util.Map;
  */
 @Builder
 public record BotGroupInfo(
-        /** 群组 ID */
+        /**
+         * 群组 ID
+        */
         String groupId,
-        /** 群组名称 */
+        /**
+         * 群组名称
+        */
         String groupName,
-        /** 成员 ID 列表 */
+        /**
+         * 成员 ID 列表
+        */
         List<String> memberIds,
-        /** 成员数量 */
+        /**
+         * 成员数量
+        */
         int memberCount,
-        /** 扩展字段 */
+        /**
+         * 扩展字段
+        */
         Map<String, Object> extra
 ) {
 }

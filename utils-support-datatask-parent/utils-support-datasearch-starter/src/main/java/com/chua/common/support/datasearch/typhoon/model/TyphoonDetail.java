@@ -18,36 +18,58 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TyphoonDetail {
 
-    /** 台风编号 */
+    /**
+     * 台风编号
+    */
     private String tfid;
 
-    /** 中文名 */
+    /**
+     * 中文名
+    */
     private String name;
 
-    /** 英文名 */
+    /**
+     * 英文名
+    */
     private String enname;
 
-    /** 是否活跃（1=活跃） */
+    /**
+     * 是否活跃（1=活跃）
+    */
     private String isactive;
 
-    /** 生成时间 */
+    /**
+     * 生成时间
+    */
     private String starttime;
 
-    /** 结束时间 */
+    /**
+     * 结束时间
+    */
     private String endtime;
 
-    /** 预警级别 */
+    /**
+     * 预警级别
+    */
     private String warnlevel;
 
-    /** 当前中心经度 */
+    /**
+     * 当前中心经度
+    */
     private String centerlng;
 
-    /** 当前中心纬度 */
+    /**
+     * 当前中心纬度
+    */
     private String centerlat;
 
-    /** 登陆记录 */
+    /**
+     * 登陆记录
+    */
     private List<TyphoonLand> land;
 
-    /** 历史路径点（含多机构预报） */
+    /**
+     * 历史路径点（含多机构预报）
+    */
     private List<TyphoonPoint> points;
 }

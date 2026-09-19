@@ -16,16 +16,24 @@ package com.chua.deeplearning.support.onnx.audio.denoise;
  */
 class DfsmnStftIStft {
 
-    /** FFT 长度 */
+    /**
+     * FFT 长度
+    */
     private static final int N_FFT = 1920;
 
-    /** 帧移 */
+    /**
+     * 帧移
+    */
     private static final int HOP_LENGTH = 960;
 
-    /** 频点数 */
+    /**
+     * 频点数
+    */
     private static final int N_FREQ = N_FFT / 2 + 1;
 
-    /** torch 分析窗（hamming periodic=false） */
+    /**
+     * torch 分析窗（hamming periodic=false）
+    */
     private final float[] analysisWindow;
 
     /**
@@ -33,7 +41,9 @@ class DfsmnStftIStft {
      */
     private final float[] synthWindow;
 
-    /** 创建 dfsmnstftistft 实例 */
+    /**
+     * 创建 dfsmnstftistft 实例
+    */
     DfsmnStftIStft() {
         this.analysisWindow = buildTorchHammingWindow();
         this.synthWindow = buildLibrosaIfftShiftWindow();

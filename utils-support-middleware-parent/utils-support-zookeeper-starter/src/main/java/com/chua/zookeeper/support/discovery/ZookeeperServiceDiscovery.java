@@ -74,7 +74,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 注册服务 */
+    /**
+     * 注册服务
+    */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         discovery.setUriSpec(prefixed);
@@ -96,7 +98,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行注销 */
+    /**
+     * 执行注销
+    */
     protected void doUnregister(String path, Discovery discovery) {
         String host = discovery.getHost();
         int port = discovery.getPort();
@@ -142,7 +146,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 执行更新 */
+    /**
+     * 执行更新
+    */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String zkPath = root + path + "/" + newDiscovery.getHost() + ":" + newDiscovery.getPort();
         try {
@@ -153,7 +159,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (started.get()) {
             return;
@@ -194,7 +202,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
             List<String> children = client.getChildren()
                     .usingWatcher(new Watcher() {
                         @Override
-                        /** 处理 */
+                        /**
+                         * 处理
+                        */
                         public void process(WatchedEvent event) {
                             if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
                                 refreshPath(zkPath);
@@ -339,20 +349,26 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 是否支持订阅 */
+    /**
+     * 是否支持订阅
+    */
     public boolean isSupportSubscribe() {
         return true;
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         String path = StringUtils.startWithAppend(serviceName, "/");
         listeners.computeIfAbsent(path, k -> new ArrayList<>()).add(listener);
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(String serviceName, ServiceDiscoveryListener listener) {
         String path = StringUtils.startWithAppend(serviceName, "/");
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
@@ -362,7 +378,9 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (client != null && client.getState() == CuratorFrameworkState.STARTED) {
             client.close();

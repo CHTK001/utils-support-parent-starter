@@ -35,53 +35,77 @@ import java.util.function.Function;
 @Setter
 public class PlaceholderSupport {
 
-    /** Default_placeholder_prefix */
+    /**
+     * Default_placeholder_prefix
+    */
     public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
-    /** Default_placeholder_suffix */
+    /**
+     * Default_placeholder_suffix
+    */
     public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
-    /** Default_value_separator */
+    /**
+     * Default_value_separator
+    */
     public static final String DEFAULT_VALUE_SEPARATOR = ":";
 
     @Getter
-    /** Placeholderprefix */
+    /**
+     * Placeholderprefix
+    */
     private String placeholderPrefix = DEFAULT_PLACEHOLDER_PREFIX;
     @Getter
-    /** Placeholdersuffix */
+    /**
+     * Placeholdersuffix
+    */
     private String placeholderSuffix = DEFAULT_PLACEHOLDER_SUFFIX;
     @Getter
-    /** 值separator */
+    /**
+     * 值separator
+    */
     private String valueSeparator = DEFAULT_VALUE_SEPARATOR;
     @Getter
-    /** Ignoreunresolvableplaceholders */
+    /**
+     * Ignoreunresolvableplaceholders
+    */
     private boolean ignoreUnresolvablePlaceholders = false;
-    /** Trimvalues */
+    /**
+     * Trimvalues
+    */
     private boolean trimValues = true;
 
     /**
      * 是否启用内置函数功能 (如 now, uuid, random 等)
      */
     @Getter
-    /** Function是否启用 */
+    /**
+     * Function是否启用
+    */
     private boolean functionEnabled = true;
 
     /**
      * 是否启用三元表达式功能 (如 condition ? trueVal : falseVal)
      */
     @Getter
-    /** Ternary是否启用 */
+    /**
+     * Ternary是否启用
+    */
     private boolean ternaryEnabled = true;
 
     /**
      * 是否启用数组和 Map 的方括号访问功能 (如 key[index])
      */
     @Getter
-    /** 数组access是否启用 */
+    /**
+     * 数组access是否启用
+    */
     private boolean arrayAccessEnabled = true;
 
     @Getter
     @Setter
     @Accessors(chain = true)
-    /** 解析器 */
+    /**
+     * 解析器
+    */
     private PlaceholderResolver resolver = new SystemPropertyPlaceholderResolver();
 
     /**
@@ -89,7 +113,9 @@ public class PlaceholderSupport {
      */
     private final Map<String, Function<String, String>> functions = new HashMap<>();
 
-    /** 创建 PlaceholderSupport 实例 */
+    /**
+     * 创建 PlaceholderSupport 实例
+    */
     public PlaceholderSupport() {
         registerFunction("now", this::nowFunction);
         registerFunction("uuid", this::uuidFunction);

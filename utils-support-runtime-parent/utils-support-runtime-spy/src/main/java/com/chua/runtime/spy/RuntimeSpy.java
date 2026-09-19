@@ -151,7 +151,9 @@ public class RuntimeSpy {
      */
     private static final String MDC_KEY_METHOD_NAME = "methodName";
 
-    /** 创建 runtimespy 实例 */
+    /**
+     * 创建 runtimespy 实例
+    */
     private RuntimeSpy() {
     }
 
@@ -953,7 +955,9 @@ public class RuntimeSpy {
             return map.remove(key);
         }
 
-        /** Clear */
+        /**
+         * Clear
+        */
         synchronized void clear() {
             map.clear();
         }

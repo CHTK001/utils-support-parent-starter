@@ -8,13 +8,21 @@ package com.chua.deeplearning.support.onnx.ocr.entity;
  */
 public class OcrBox {
 
-    /** 左上角点 */
+    /**
+     * 左上角点
+    */
     private final Point topLeft;
-    /** 右上角点 */
+    /**
+     * 右上角点
+    */
     private final Point topRight;
-    /** 右下角点 */
+    /**
+     * 右下角点
+    */
     private final Point bottomRight;
-    /** 左下角点 */
+    /**
+     * 左下角点
+    */
     private final Point bottomLeft;
 
     /**

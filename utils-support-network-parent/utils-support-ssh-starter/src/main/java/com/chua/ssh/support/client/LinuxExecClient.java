@@ -31,7 +31,9 @@ public class LinuxExecClient implements AutoCloseable {
         this.setting = setting;
     }
 
-    /** 连接 */
+    /**
+     * 连接
+    */
     public void connect() {
         this.sshClient = SshClient.builder()
                 .host(setting.getHost())
@@ -74,7 +76,9 @@ public class LinuxExecClient implements AutoCloseable {
         return executeCommand(command, 30_000);
     }
 
-    /** 关闭Quietly */
+    /**
+     * 关闭Quietly
+    */
     public void closeQuietly() {
         try {
             close();
@@ -83,7 +87,9 @@ public class LinuxExecClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         if (sshClient != null) {
             sshClient.close();

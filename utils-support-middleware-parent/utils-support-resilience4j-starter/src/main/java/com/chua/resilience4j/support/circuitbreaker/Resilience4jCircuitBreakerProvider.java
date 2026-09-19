@@ -23,7 +23,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @ConditionalOnClass("io.github.resilience4j.circuitbreaker.CircuitBreaker")
 public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvider {
 
-    /** Circuitbreaker */
+    /**
+     * Circuitbreaker
+    */
     private final CircuitBreaker circuitBreaker;
 
     /**
@@ -52,7 +54,9 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** 尝试获取 */
+    /**
+     * 尝试获取
+    */
     public boolean tryAcquire() {
         boolean acquired = circuitBreaker.tryAcquirePermission();
         if (acquired) {
@@ -62,7 +66,9 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** record成功 */
+    /**
+     * record成功
+    */
     public void recordSuccess() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -72,7 +78,9 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** record失败 */
+    /**
+     * record失败
+    */
     public void recordFailure() {
         long start = callStartNs.getAndSet(-1);
         if (start < 0) {
@@ -83,19 +91,25 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     }
 
     @Override
-    /** 重置 */
+    /**
+     * 重置
+    */
     public void reset() {
         circuitBreaker.reset();
     }
 
     @Override
-    /** 是否打开 */
+    /**
+     * 是否打开
+    */
     public boolean isOpen() {
         return circuitBreaker.getState() == io.github.resilience4j.circuitbreaker.CircuitBreaker.State.OPEN;
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return circuitBreaker.getName();
     }

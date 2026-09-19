@@ -22,14 +22,20 @@ import java.util.zip.DeflaterOutputStream;
  */
 final class PNGfdATOutputStream extends PNGImageOutputStream {
 
-    /** Chunk类型 */
+    /**
+     * Chunk类型
+    */
     private static final byte[] chunkType = {
             (byte)'f', (byte)'d', (byte)'A', (byte)'T'
     };
 
-    /** Sequence数字 */
+    /**
+     * Sequence数字
+    */
     public int sequenceNumber;
-    /** Sequence数字BUF */
+    /**
+     * Sequence数字BUF
+    */
     private final byte[] sequenceNumberBuf = new byte[4];
 
     /**
@@ -49,7 +55,9 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     }
 
     @Override
-    /** 开始Chunk */
+    /**
+     * 开始Chunk
+    */
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();

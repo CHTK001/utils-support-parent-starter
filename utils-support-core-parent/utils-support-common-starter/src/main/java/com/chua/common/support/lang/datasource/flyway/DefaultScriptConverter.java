@@ -55,7 +55,9 @@ import java.util.regex.Pattern;
 @Spi(value = ScriptConverter.SPI_NAME, order = 0)
 public class DefaultScriptConverter implements ScriptConverter {
 
-    /** MySQL 系协议：脚本按 MySQL 风格编写，原样执行 */
+    /**
+     * MySQL 系协议：脚本按 MySQL 风格编写，原样执行
+    */
     private static final List<String> MYSQL_PROTOCOLS =
             List.of("mysql", "mariadb", "tidb", "oceanbase");
 

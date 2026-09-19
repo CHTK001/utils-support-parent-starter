@@ -140,7 +140,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     private double colorHarmonyStrength = 0.6;
 
     @Override
-    /** 获取镜像格式化 */
+    /**
+     * 获取镜像格式化
+    */
     public String getImageFormat() {
         
         return "jpeg";
@@ -148,7 +150,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 获取镜像格式化 */
+    /**
+     * 获取镜像格式化
+    */
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -165,7 +169,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -451,7 +457,9 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 转换器 */
+    /**
+     * 转换器
+    */
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

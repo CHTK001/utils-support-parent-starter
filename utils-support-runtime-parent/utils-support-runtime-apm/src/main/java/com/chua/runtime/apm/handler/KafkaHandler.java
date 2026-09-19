@@ -75,33 +75,43 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
      */
     private final AtomicBoolean started;
 
-    /** 创建 kafka处理器 实例 */
+    /**
+     * 创建 kafka处理器 实例
+    */
     public KafkaHandler() {
         this.records = new com.chua.runtime.apm.handler.BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "kafka-handler";
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return "1.0.0";
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty("kafka.enabled", "true"));
         LOG.log(Level.INFO, String.format("KafkaHandler 初始化完成，启用状态: %s", enabled));
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -114,7 +124,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -124,13 +136,17 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("KafkaHandler[enabled=%s, records=%d]", enabled, records.size());
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }
@@ -177,7 +193,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     @Override
-    /** onintercept */
+    /**
+     * onintercept
+    */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;

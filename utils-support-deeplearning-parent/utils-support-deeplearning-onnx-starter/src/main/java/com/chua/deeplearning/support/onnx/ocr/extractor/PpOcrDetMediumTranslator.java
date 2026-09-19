@@ -13,13 +13,17 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
  */
 public class PpOcrDetMediumTranslator extends PpOcrDetTranslator {
 
-    /** 创建 ppocrdetmediumtranslator 实例 */
+    /**
+     * 创建 ppocrdetmediumtranslator 实例
+    */
     public PpOcrDetMediumTranslator() {
         super("ocr/PP-OCRv6/medium/det_infer/", "paddleocrv6-medium-det");
     }
 
     @Override
-    /** 获取阈值 */
+    /**
+     * 获取阈值
+    */
     protected float getThreshold() {
         return effectiveThreshold(0.25f);
     }

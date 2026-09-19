@@ -18,10 +18,14 @@ import java.util.List;
  */
 public class H2CleanupPlugin {
 
-    /** 版本记录表名 */
+    /**
+     * 版本记录表名
+    */
     private static final String HISTORY_TABLE = "flyway_schema_history";
 
-    /** 引擎实例 */
+    /**
+     * 引擎实例
+    */
     private final Engine engine;
 
     /**

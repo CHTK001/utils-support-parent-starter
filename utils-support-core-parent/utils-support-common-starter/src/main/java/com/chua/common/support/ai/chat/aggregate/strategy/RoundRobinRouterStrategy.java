@@ -17,11 +17,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("round_robin")
 public class RoundRobinRouterStrategy implements RouterStrategy {
 
-    /** 原子计数器 */
+    /**
+     * 原子计数器
+    */
     private final AtomicInteger counter = new AtomicInteger(0);
 
     @Override
-    /** 选择 */
+    /**
+     * 选择
+    */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

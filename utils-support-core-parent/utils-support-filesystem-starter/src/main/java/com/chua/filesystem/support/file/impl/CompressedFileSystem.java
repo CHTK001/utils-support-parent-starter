@@ -46,9 +46,13 @@ import java.util.zip.ZipOutputStream;
  */
 public class CompressedFileSystem implements AutoCloseable {
 
-    /** 压缩路径 */
+    /**
+     * 压缩路径
+    */
     private final Path zipPath;
-    /** Readonly */
+    /**
+     * Readonly
+    */
     private final boolean readOnly;
 
     /**
@@ -219,7 +223,9 @@ public class CompressedFileSystem implements AutoCloseable {
         return zipPath;
     }
 
-    /** 校验Writable */
+    /**
+     * 校验Writable
+    */
     private void checkWritable() {
         if (readOnly) {
             throw new IllegalStateException("只读模式，无法写入");
@@ -227,7 +233,9 @@ public class CompressedFileSystem implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
  // 压缩 操作完成后无需特殊关闭
     }

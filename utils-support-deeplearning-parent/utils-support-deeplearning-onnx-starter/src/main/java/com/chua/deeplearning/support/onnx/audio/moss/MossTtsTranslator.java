@@ -344,7 +344,9 @@ public class MossTtsTranslator implements AutoCloseable {
         return synthesizeChunks(splitChunks(text), selectVoicePrompt(voice));
     }
 
-    /** 分段循环合成的公共实现（克隆与内置音色共用）。 */
+    /**
+     * 分段循环合成的公共实现（克隆与内置音色共用）。
+    */
     private byte[] synthesizeChunks(List<String> chunks, List<int[]> promptCodes)
             throws Exception {
         if (chunks.isEmpty()) {
@@ -385,13 +387,21 @@ public class MossTtsTranslator implements AutoCloseable {
         return AudioUtils.toWavBytes(all, 48000);
     }
 
-    /** 句末标点（在此处切分并保留标点）。 */
+    /**
+     * 句末标点（在此处切分并保留标点）。
+    */
     private static final String SENTENCE_END = "。！？!?；;\n";
-    /** 句内标点（超长句的次级切分点）。 */
+    /**
+     * 句内标点（超长句的次级切分点）。
+    */
     private static final String CLAUSE_SPLIT = "，,、：:—…";
-    /** 分段间静音秒数。 */
+    /**
+     * 分段间静音秒数。
+    */
     private static final float PAUSE_SECONDS = 0.32f;
-    /** 单段字符上限（超出则按句内标点二次切分）。 */
+    /**
+     * 单段字符上限（超出则按句内标点二次切分）。
+    */
     private static final int MAX_CHUNK_CHARS = 55;
 
     /**

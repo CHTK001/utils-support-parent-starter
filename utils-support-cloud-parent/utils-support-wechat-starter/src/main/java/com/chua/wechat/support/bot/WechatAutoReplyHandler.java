@@ -37,53 +37,85 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
     /** 参与上下文的历史消息条数上限（按会话）*/
     private static final int DEFAULT_HISTORY_SIZE = 12;
 
-    /** 保留会话数上限 */
+    /**
+     * 保留会话数上限
+    */
     private static final int MAX_CONVERSATIONS = 256;
 
-    /** 单条微信文本上限，超出拆分为多条 */
+    /**
+     * 单条微信文本上限，超出拆分为多条
+    */
     private static final int DEFAULT_MAX_REPLY_LENGTH = 1000;
 
-    /** 回复线程数，固定为 1 以串行化发送 */
+    /**
+     * 回复线程数，固定为 1 以串行化发送
+    */
     private static final int REPLY_THREAD_COUNT = 1;
 
-    /** 回复队列容量，堆积超过即丢弃新回复 */
+    /**
+     * 回复队列容量，堆积超过即丢弃新回复
+    */
     private static final int QUEUE_CAPACITY = 64;
 
-    /** 空闲线程存活秒数 */
+    /**
+     * 空闲线程存活秒数
+    */
     private static final long KEEP_ALIVE_SECONDS = 0L;
 
-    /** 回复线程名，便于异常回溯 */
+    /**
+     * 回复线程名，便于异常回溯
+    */
     private static final String REPLY_THREAD_NAME = "wechat-auto-reply";
 
-    /** 关闭时等待在途回复的秒数 */
+    /**
+     * 关闭时等待在途回复的秒数
+    */
     private static final long AWAIT_TERMINATION_SECONDS = 5L;
 
-    /** 对话角色：用户 */
+    /**
+     * 对话角色：用户
+    */
     private static final String ROLE_USER = "user";
 
-    /** 对话角色：助手 */
+    /**
+     * 对话角色：助手
+    */
     private static final String ROLE_ASSISTANT = "assistant";
 
-    /** 发送通道 */
+    /**
+     * 发送通道
+    */
     private final WechatPersonalBotClient botClient;
 
-    /** 模型客户端 */
+    /**
+     * 模型客户端
+    */
     private final ChatClient chatClient;
 
-    /** 风控守卫 */
+    /**
+     * 风控守卫
+    */
     private final WechatReplyPolicy policy;
 
-    /** 人设提示词 */
+    /**
+     * 人设提示词
+    */
     private volatile String systemPrompt
             = "你是微信里的助手，回答简短、口语化，不要用 markdown 标记。";
 
-    /** 历史轮数上限 */
+    /**
+     * 历史轮数上限
+    */
     private final int historySize;
 
-    /** 单条回复长度上限 */
+    /**
+     * 单条回复长度上限
+    */
     private final int maxReplyLength;
 
-    /** 会话历史，LRU 淘汰 */
+    /**
+     * 会话历史，LRU 淘汰
+    */
     private final Map<String, Deque<ChatMessage>> histories = Collections.synchronizedMap(
             new LinkedHashMap<String, Deque<ChatMessage>>(16, 0.75f, true) {
                 @Override
@@ -92,7 +124,9 @@ public class WechatAutoReplyHandler implements BotMessageListener, AutoCloseable
                 }
             });
 
-    /** 回复线程池：单线程串行，队列有界，满了直接丢消息而不是堆积 */
+    /**
+     * 回复线程池：单线程串行，队列有界，满了直接丢消息而不是堆积
+    */
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
             REPLY_THREAD_COUNT, REPLY_THREAD_COUNT,
             KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,

@@ -45,7 +45,9 @@ import java.util.Base64;
  */
 public class HMac implements Serializable {
 
- /** 序列化版本号 */
+ /**
+  * 序列化版本号
+ */
  private static final long serialVersionUID = 1L;
 
  /**

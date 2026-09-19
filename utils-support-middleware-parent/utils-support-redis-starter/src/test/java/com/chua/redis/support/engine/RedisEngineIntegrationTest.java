@@ -30,11 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class RedisEngineIntegrationTest {
 
-    /** 真实 Redis 容器（7-alpine） */
+    /**
+     * 真实 Redis 容器（7-alpine）
+    */
     static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
             .withExposedPorts(6379);
 
-    /** 被测引擎 */
+    /**
+     * 被测引擎
+    */
     private RedisEngine engine;
 
     /**

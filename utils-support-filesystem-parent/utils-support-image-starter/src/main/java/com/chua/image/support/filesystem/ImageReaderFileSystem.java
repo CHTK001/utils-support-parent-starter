@@ -130,7 +130,9 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         if (file == null) {
             return DEFAULT_TYPE;
@@ -160,7 +162,9 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     @Override
-    /** with文件 */
+    /**
+     * with文件
+    */
     public ImageReaderFileSystem withFile(File file) {
         super.withFile(file);
         return this;
@@ -178,7 +182,9 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     @Override
-    /** 执行读取映射 */
+    /**
+     * 执行读取映射
+    */
     protected List<Map<String, Object>> doReadMaps() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");

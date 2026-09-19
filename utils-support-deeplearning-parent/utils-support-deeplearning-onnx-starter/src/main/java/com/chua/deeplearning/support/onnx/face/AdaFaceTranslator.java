@@ -33,7 +33,9 @@ import ai.djl.translate.TranslatorContext;
 public class AdaFaceTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
@@ -55,7 +57,9 @@ public class AdaFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] features = array.toFloatArray();
@@ -77,7 +81,9 @@ public class AdaFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
     }

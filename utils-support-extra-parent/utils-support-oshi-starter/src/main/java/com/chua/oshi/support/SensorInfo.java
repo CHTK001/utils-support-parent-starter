@@ -11,18 +11,32 @@ import lombok.Data;
 @Data
 public class SensorInfo {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private String name;
-    /** 类型 */
+    /**
+     * 类型
+    */
     private String type;
-    /** 当前temperature */
+    /**
+     * 当前temperature
+    */
     private double currentTemperature;
-    /** 最大值temperature */
+    /**
+     * 最大值temperature
+    */
     private double maxTemperature;
-    /** 当前fanspeed */
+    /**
+     * 当前fanspeed
+    */
     private double currentFanSpeed;
-    /** 最大值fanspeed */
+    /**
+     * 最大值fanspeed
+    */
     private double maxFanSpeed;
-    /** 当前voltage */
+    /**
+     * 当前voltage
+    */
     private double currentVoltage;
 }

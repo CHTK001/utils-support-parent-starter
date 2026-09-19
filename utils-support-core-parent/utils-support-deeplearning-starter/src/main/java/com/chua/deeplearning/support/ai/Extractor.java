@@ -22,7 +22,9 @@ public interface Extractor extends AutoCloseable {
     PredictResultObject<?> extract(Object input);
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     default void close() throws Exception {
     }
 }

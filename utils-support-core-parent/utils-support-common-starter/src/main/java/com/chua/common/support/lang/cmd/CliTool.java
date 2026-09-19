@@ -45,19 +45,29 @@ import java.util.regex.Pattern;
  */
 public class CliTool {
 
-    /** 版本探测的超时时间（秒） */
+    /**
+     * 版本探测的超时时间（秒）
+    */
     private static final long VERSION_TIMEOUT_SECONDS = 10L;
 
-    /** 工具描述 */
+    /**
+     * 工具描述
+    */
     protected final CliToolDescriptor descriptor;
 
-    /** 显式指定的可执行文件路径，优先级高于自动定位 */
+    /**
+     * 显式指定的可执行文件路径，优先级高于自动定位
+    */
     private volatile String explicitPath;
 
-    /** 定位结果缓存，null 表示尚未定位或定位失败 */
+    /**
+     * 定位结果缓存，null 表示尚未定位或定位失败
+    */
     private volatile Path resolvedPath;
 
-    /** 版本缓存 */
+    /**
+     * 版本缓存
+    */
     private volatile CliVersion cachedVersion;
 
     /**

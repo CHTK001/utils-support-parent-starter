@@ -38,28 +38,38 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 城市地理编码地址模板 */
+    /**
+     * 城市地理编码地址模板
+    */
     private static final String GEO_URL =
             "https://geocoding-api.open-meteo.com/v1/search?name=%s&count=1&language=zh";
 
-    /** 逐小时预报地址模板（3 天 × 24 点 + 当前实况） */
+    /**
+     * 逐小时预报地址模板（3 天 × 24 点 + 当前实况）
+    */
     private static final String FORECAST_URL =
             "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s"
                     + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
                     + "&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
                     + "&forecast_days=3&timezone=Asia%%2FShanghai";
 
-    /** 缓存有效期（毫秒）：30 分钟 */
+    /**
+     * 缓存有效期（毫秒）：30 分钟
+    */
     private static final long CACHE_TTL_MILLIS = 30 * 60 * 1000L;
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126 Safari/537.36";
 
-    /** 缓存的天气与城市 */
+    /**
+     * 缓存的天气与城市
+    */
     private volatile String cachedCity;
     private volatile WeatherInfo cached; // 缓存
 
-    /** 缓存时间戳 */
+    /**
+     * 缓存时间戳
+    */
     private volatile long cachedAt;
 
     @Override

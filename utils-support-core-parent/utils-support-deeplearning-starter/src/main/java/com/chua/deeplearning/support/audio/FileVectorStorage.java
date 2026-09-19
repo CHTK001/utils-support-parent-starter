@@ -88,7 +88,9 @@ public class FileVectorStorage implements VectorStorage {
         return new FileVectorStorage(dimension, directory.resolve("voiceprints.json"));
     }
 
-    /** 启动时从磁盘恢复 */
+    /**
+     * 启动时从磁盘恢复
+    */
     private void load() {
         if (!Files.exists(file)) {
             return;
@@ -119,7 +121,9 @@ public class FileVectorStorage implements VectorStorage {
         }
     }
 
-    /** 全量落盘 */
+    /**
+     * 全量落盘
+    */
     private void save() {
         try {
             ObjectMapper mapper = new ObjectMapper();

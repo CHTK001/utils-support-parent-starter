@@ -22,10 +22,14 @@ import java.io.File;
 @Spi("video")
 public class VideoFileSystem implements FileSystem {
 
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private final FFmpegProcessor processor;
 
-    /** 创建 视频文件系统 实例 */
+    /**
+     * 创建 视频文件系统 实例
+    */
     public VideoFileSystem() {
         FFmpegProcessor p = null;
         try {
@@ -37,19 +41,25 @@ public class VideoFileSystem implements FileSystem {
     }
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "video";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new VideoReadBuilder(file, processor);
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         return new VideoWriteBuilder(file, processor);
     }

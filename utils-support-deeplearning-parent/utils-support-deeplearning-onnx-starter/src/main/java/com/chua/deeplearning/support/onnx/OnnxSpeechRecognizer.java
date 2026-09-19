@@ -48,7 +48,9 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public SpeechRecognizer model(String model) {
         this.modelName = model;
         return this;
@@ -67,41 +69,53 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** Lang */
+    /**
+     * Lang
+    */
     public SpeechRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public SpeechRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** 样本rate */
+    /**
+     * 样本rate
+    */
     public SpeechRecognizer sampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public SpeechRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Recognize */
+    /**
+     * Recognize
+    */
     public String recognize(byte[] audioData) {
         return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData);
     }
 
     @Override
-    /** Recognize */
+    /**
+     * Recognize
+    */
     public String recognize(byte[] audioData, String language) {
         return SpeechRecognizer.create(resolveModel()).lang(lang).modelPath(modelPath).sampleRate(sampleRate).device(device).recognize(audioData, language);
     }

@@ -30,11 +30,15 @@ import java.util.Map;
 @Spi("netease")
 public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider {
 
-    /** 搜索接口地址 */
+    /**
+     * 搜索接口地址
+    */
     private static final String SEARCH_URL = "https://music.163.com/weapi/cloudsearch/get/web?csrf_token=";
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("netease")
@@ -45,13 +49,17 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
-    /** 获取Overview */
+    /**
+     * 获取Overview
+    */
     public MusicOverview getOverview() {
         return overviewOf(List.of(), List.of());
     }
 
     @Override
-    /** 搜索歌曲 */
+    /**
+     * 搜索歌曲
+    */
     public MusicSearchResult search(String keyword, int page, int pageSize) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("s", keyword);
@@ -71,7 +79,9 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
-    /** 搜索歌单 */
+    /**
+     * 搜索歌单
+    */
     public MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("s", keyword);
@@ -98,7 +108,9 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
-    /** 获取歌单详情 */
+    /**
+     * 获取歌单详情
+    */
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         return MusicPlaylistDetail.builder()
                 .playlistId(playlistId)
@@ -107,7 +119,9 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     @Override
-    /** 获取歌曲播放详情 */
+    /**
+     * 获取歌曲播放详情
+    */
     public MusicTrackDetail getTrackDetail(String trackId) {
         return MusicTrackDetail.builder()
                 .trackId(trackId)

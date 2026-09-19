@@ -40,7 +40,9 @@ import java.util.Map;
 @Spi("table")
 public class TableViewParser implements ViewParser {
 
-    /** 单元格左右内边距（空格数） */
+    /**
+     * 单元格左右内边距（空格数）
+    */
     private static final int PAD = 1;
 
     /**

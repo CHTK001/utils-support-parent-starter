@@ -34,7 +34,9 @@ import java.util.List;
 @Slf4j
 public class CuvsRuntimeDetector implements RuntimeDetector {
 
-    /** cuvs Java API 类名前缀，用于检测包是否已加载 */
+    /**
+     * cuvs Java API 类名前缀，用于检测包是否已加载
+    */
     private static final String CUVS_PACKAGE_PREFIX = "com.nvidia.cuvs.";
 
     @Override

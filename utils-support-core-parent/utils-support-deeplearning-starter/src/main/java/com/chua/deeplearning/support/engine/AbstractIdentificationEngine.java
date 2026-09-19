@@ -67,7 +67,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         ServiceProvider.CACHE.clear();
     }
 
-    /** 创建 抽象identificationengine 实例 */
+    /**
+     * 创建 抽象identificationengine 实例
+    */
     public AbstractIdentificationEngine() {
         ImageUtils.load();
         discoverModels();
@@ -150,7 +152,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
-    /** 获取模型 */
+    /**
+     * 获取模型
+    */
     public List<ModelDefinition> getModels() {
         List<ModelDefinition> result = new ArrayList<>();
         for (TranslatorModelDefinition def : modelMap.values()) {
@@ -162,13 +166,17 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
-    /** 获取translator模型 */
+    /**
+     * 获取translator模型
+    */
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return new ArrayList<>(modelMap.values());
     }
 
     @Override
-    /** 注册 */
+    /**
+     * 注册
+    */
     public void register(TranslatorModelDefinition definition) {
         if (definition == null) {
             return;
@@ -182,7 +190,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
-    /** 获取模型名称bycapability */
+    /**
+     * 获取模型名称bycapability
+    */
     public List<String> getModelNamesByCapability(Class<?> capabilityInterface) {
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(capabilityInterface);
         if (label != null) {
@@ -193,7 +203,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
-    /** 获取模型名称bycapability */
+    /**
+     * 获取模型名称bycapability
+    */
     public List<String> getModelNamesByCapability(String capability) {
         if (capability == null || capability.isBlank()) {
             List<String> all = new ArrayList<>();
@@ -302,7 +314,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return INSTANCE;
     }
 
-    /** INSTANCE */
+    /**
+     * INSTANCE
+    */
     private static volatile IdentificationEngine INSTANCE;
 
     /**
@@ -388,7 +402,9 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         modelMap.clear();
         INSTANCE = null;

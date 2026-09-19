@@ -53,78 +53,148 @@ public final class ModelCapabilities {
 
     // ==================== 本地深度学习能力标签 ====================
 
-    /** 人脸检测 */
+    /**
+     * 人脸检测
+    */
     public static final String DETECT = "detect";
-    /** 眼睛检测 */
+    /**
+     * 眼睛检测
+    */
     public static final String EYE_DETECT = "eye-detect";
-    /** 微笑检测 */
+    /**
+     * 微笑检测
+    */
     public static final String SMILE_DETECT = "smile-detect";
-    /** 人脸质量评估 */
+    /**
+     * 人脸质量评估
+    */
     public static final String FACE_QUALITY = "face-quality";
-    /** 人脸识别（1:1/1:N） */
+    /**
+     * 人脸识别（1:1/1:N）
+    */
     public static final String FACE_RECOGNIZE = "face-recognize";
-    /** 特征提取（图像/文本） */
+    /**
+     * 特征提取（图像/文本）
+    */
     public static final String FEATURE = "feature";
-    /** 图像分类 */
+    /**
+     * 图像分类
+    */
     public static final String CLASSIFY = "classify";
-    /** 图像检测（目标/物体） */
+    /**
+     * 图像检测（目标/物体）
+    */
     public static final String IMAGE_DETECT = "image-detect";
-    /** 图像增强（超分/上色/风格等 镜像→镜像） */
+    /**
+     * 图像增强（超分/上色/风格等 镜像→镜像）
+    */
     public static final String ENHANCE = "enhance";
-    /** 图像修复（inpainting，去水印/去杂物/划痕，带掩码 镜像→镜像） */
+    /**
+     * 图像修复（inpainting，去水印/去杂物/划痕，带掩码 镜像→镜像）
+    */
     public static final String INPAINTING = "inpainting";
-    /** 图像分割 */
+    /**
+     * 图像分割
+    */
     public static final String SEGMENT = "segment";
-    /** 图像质量评估 */
+    /**
+     * 图像质量评估
+    */
     public static final String IMAGE_QUALITY = "image-quality";
-    /** 图像描述（镜像 Captioning） */
+    /**
+     * 图像描述（镜像 Captioning）
+    */
     public static final String CAPTIONING = "captioning";
-    /** 图像生成 */
+    /**
+     * 图像生成
+    */
     public static final String IMAGE_GENERATE = "image-generate";
-    /** 深度估计 */
+    /**
+     * 深度估计
+    */
     public static final String DEPTH = "depth";
-    /** 行人检测 */
+    /**
+     * 行人检测
+    */
     public static final String PEDESTRIAN = "pedestrian";
-    /** OCR 文字识别 */
+    /**
+     * OCR 文字识别
+    */
     public static final String OCR = "ocr";
-    /** 活体检测 */
+    /**
+     * 活体检测
+    */
     public static final String LIVENESS = "liveness";
-    /** 版面分析 */
+    /**
+     * 版面分析
+    */
     public static final String LAYOUT = "layout";
-    /** 姿态估计 */
+    /**
+     * 姿态估计
+    */
     public static final String POSE = "pose";
-    /** 嵌入（文本/图像向量化） */
+    /**
+     * 嵌入（文本/图像向量化）
+    */
     public static final String EMBEDDING = "embedding";
-    /** 文本翻译 */
+    /**
+     * 文本翻译
+    */
     public static final String TRANSLATE = "translate";
-    /** 车牌检测 */
+    /**
+     * 车牌检测
+    */
     public static final String PLATE_DETECT = "plate-detect";
-    /** 车牌识别 */
+    /**
+     * 车牌识别
+    */
     public static final String PLATE_RECOGNIZE = "plate-recognize";
-    /** 语音识别 ASR */
+    /**
+     * 语音识别 ASR
+    */
     public static final String ASR = "asr";
-    /** 语音合成 TTS */
+    /**
+     * 语音合成 TTS
+    */
     public static final String TTS = "tts";
-    /** 音频指纹提取（语音特征向量） */
+    /**
+     * 音频指纹提取（语音特征向量）
+    */
     public static final String AUDIO_FINGERPRINT = "audio-fingerprint";
-    /** 说话人分离（时间切分） */
+    /**
+     * 说话人分离（时间切分）
+    */
     public static final String SPEAKER_DIARIZATION = "speaker-diarization";
 
     // ==================== 云端 AI 客户端能力标签 ====================
 
-    /** 对话/大模型 */
+    /**
+     * 对话/大模型
+    */
     public static final String CHAT = "chat";
-    /** 视觉理解（多模态图像理解） */
+    /**
+     * 视觉理解（多模态图像理解）
+    */
     public static final String VISION = "vision";
-    /** 文生图 */
+    /**
+     * 文生图
+    */
     public static final String TEXT_TO_IMAGE = "text-to-image";
-    /** 文生视频 */
+    /**
+     * 文生视频
+    */
     public static final String TEXT_TO_VIDEO = "text-to-video";
-    /** 文本嵌入 */
+    /**
+     * 文本嵌入
+    */
     public static final String TEXT_EMBEDDING = "text-embedding";
-    /** RAG 检索增强 */
+    /**
+     * RAG 检索增强
+    */
     public static final String RAG = "rag";
-    /** Agent Agent */
+    /**
+     * Agent Agent
+    */
     public static final String AGENT = "agent";
 
     /**
@@ -168,7 +238,9 @@ public final class ModelCapabilities {
             Map.entry(com.chua.deeplearning.support.image.ImageInpainter.class, INPAINTING)
     );
 
-    /** 创建 模型capabilities 实例 */
+    /**
+     * 创建 模型capabilities 实例
+    */
     private ModelCapabilities() {
     }
 

@@ -37,7 +37,9 @@ import java.util.List;
 @Slf4j
 public class CudaRuntimeDetector implements RuntimeDetector {
 
-    /** onnxruntime 类名，用于检测 GPU 构件是否在 类路径 */
+    /**
+     * onnxruntime 类名，用于检测 GPU 构件是否在 类路径
+    */
     private static final String ORT_GPU_CLASS = "ai.onnxruntime.OrtSession";
 
     @Override

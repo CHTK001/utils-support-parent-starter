@@ -38,12 +38,16 @@ import java.util.zip.Inflater;
  */
 public class ApngDecoder {
 
-    /** PNG 文件签名 */
+    /**
+     * PNG 文件签名
+    */
     private static final byte[] PNG_SIGNATURE = {
             (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
     };
 
-    /** 块类型字节（大端 int） */
+    /**
+     * 块类型字节（大端 int）
+    */
     private static final int CHUNK_IHDR = 0x49484452; // IHDR
     private static final int CHUNK_acTL = 0x6163544C; // actl
     private static final int CHUNK_fcTL = 0x6663544C; // fcTL
@@ -51,25 +55,39 @@ public class ApngDecoder {
     private static final int CHUNK_fdAT = 0x66644154; // fdat
     private static final int CHUNK_IEND = 0x49454E44; // IEND
 
-    /** 解码后的帧列表 */
+    /**
+     * 解码后的帧列表
+    */
     private final List<BufferedImage> frames = new ArrayList<>();
 
-    /** 每帧延迟（毫秒） */
+    /**
+     * 每帧延迟（毫秒）
+    */
     private final List<Integer> delays = new ArrayList<>();
 
-    /** 循环次数（actl num_plays），0 表示无限循环 */
+    /**
+     * 循环次数（actl num_plays），0 表示无限循环
+    */
     private int loopCount;
 
-    /** 画布宽度 */
+    /**
+     * 画布宽度
+    */
     private int width;
 
-    /** 画布高度 */
+    /**
+     * 画布高度
+    */
     private int height;
 
-    /** 是否为 APNG（含 actl 块） */
+    /**
+     * 是否为 APNG（含 actl 块）
+    */
     private boolean animated;
 
-    /** 是否已解析 */
+    /**
+     * 是否已解析
+    */
     private boolean read;
 
     /**

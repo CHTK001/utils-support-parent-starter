@@ -11,19 +11,25 @@ package com.chua.network.support.tshark.restorer;
 public class SshProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取协议名称 */
+    /**
+     * 获取协议名称
+    */
     public String getProtocolName() {
         return "ssh";
     }
 
     @Override
-    /** 获取Priority */
+    /**
+     * 获取Priority
+    */
     public int getPriority() {
         return 50;
     }
 
     @Override
-    /** 是否可以Restore */
+    /**
+     * 是否可以Restore
+    */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return false;
@@ -32,7 +38,9 @@ public class SshProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     @Override
-    /** Restore */
+    /**
+     * Restore
+    */
     public String restore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
         if (rawData == null || rawData.length < 4) {
             return "[SSH] empty";

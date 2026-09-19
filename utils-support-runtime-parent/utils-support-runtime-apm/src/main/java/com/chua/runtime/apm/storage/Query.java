@@ -15,37 +15,59 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class Query {
 
-    /** 起始时间（毫秒） */
+    /**
+     * 起始时间（毫秒）
+    */
     private Long startTime;
 
-    /** 结束时间（毫秒） */
+    /**
+     * 结束时间（毫秒）
+    */
     private Long endTime;
 
-    /** 限制返回条数 */
+    /**
+     * 限制返回条数
+    */
     private int limit = 100;
 
-    /** 偏移 */
+    /**
+     * 偏移
+    */
     private int offset = 0;
 
-    /** 追踪id 精确匹配 */
+    /**
+     * 追踪id 精确匹配
+    */
     private String traceId;
 
-    /** 源端点 主机 模糊匹配 */
+    /**
+     * 源端点 主机 模糊匹配
+    */
     private String sourceHost;
 
-    /** 目标端点 主机 模糊匹配 */
+    /**
+     * 目标端点 主机 模糊匹配
+    */
     private String targetHost;
 
-    /** 协议过滤（HTTP/TCP/...） */
+    /**
+     * 协议过滤（HTTP/TCP/...）
+    */
     private String protocol;
 
-    /** 软件栈过滤（JEDIS/Tomcat/...） */
+    /**
+     * 软件栈过滤（JEDIS/Tomcat/...）
+    */
     private String software;
 
-    /** 状态过滤（OK/错误） */
+    /**
+     * 状态过滤（OK/错误）
+    */
     private String status;
 
-    /** 只查询错误 */
+    /**
+     * 只查询错误
+    */
     private boolean errorOnly;
 
     /**

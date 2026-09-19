@@ -37,21 +37,35 @@ import java.util.Map;
  */
 public class SiglipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
-    /** 图像尺寸 */
+    /**
+     * 图像尺寸
+    */
     private static final int IMAGE_SIZE = 224;
-    /** 默认候选列表 */
+    /**
+     * 默认候选列表
+    */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "document", "animal", "vehicle");
 
-    /** 请求的候选列表 */
+    /**
+     * 请求的候选列表
+    */
     private final List<String> requestedCandidates;
-    /** 提示词模板 */
+    /**
+     * 提示词模板
+    */
     private final String promptTemplate;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 候选列表 */
+    /**
+     * 候选列表
+    */
     private List<String> candidates = DEFAULT_CANDIDATES;
-    /** 候选输入标识 */
+    /**
+     * 候选输入标识
+    */
     private long[][] candidateInputIds = new long[0][];
 
     /**
@@ -73,7 +87,9 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         tokenizer = HuggingFaceTokenizer.builder()
@@ -85,7 +101,9 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -107,7 +125,9 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (list == null || list.isEmpty() || candidates.isEmpty()) {
             return new Classifications(List.of(), List.of());
@@ -135,7 +155,9 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
 
     @Nullable
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

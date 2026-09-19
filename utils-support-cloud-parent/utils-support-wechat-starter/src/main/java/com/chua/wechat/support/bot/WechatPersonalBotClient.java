@@ -62,25 +62,39 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WechatPersonalBotClient implements BotClient {
 
-    /** Hook 服务默认监听地址 */
+    /**
+     * Hook 服务默认监听地址
+    */
     public static final String DEFAULT_BASE_URL = "http://127.0.0.1:19088";
 
-    /** 发送文本端点 */
+    /**
+     * 发送文本端点
+    */
     public static final String SEND_TEXT_PATH = "/api/sendTextMsg";
 
-    /** 发送图片端点 */
+    /**
+     * 发送图片端点
+    */
     public static final String SEND_IMAGE_PATH = "/api/sendImageMsg";
 
-    /** 发送文件端点 */
+    /**
+     * 发送文件端点
+    */
     public static final String SEND_FILE_PATH = "/api/sendFileMsg";
 
-    /** 注册消息回调地址端点 */
+    /**
+     * 注册消息回调地址端点
+    */
     public static final String CALLBACK_REGISTER_PATH = "/api/http/plus";
 
-    /** 查询当前登录账号端点 */
+    /**
+     * 查询当前登录账号端点
+    */
     public static final String USER_INFO_PATH = "/api/userInfo";
 
-    /** 群聊 wxid 后缀 */
+    /**
+     * 群聊 wxid 后缀
+    */
     public static final String ROOM_SUFFIX = "@chatroom";
 
     /** 默认连接超时（毫秒）*/
@@ -89,34 +103,54 @@ public class WechatPersonalBotClient implements BotClient {
     /** 默认读取超时（毫秒）*/
     public static final long DEFAULT_READ_TIMEOUT_MILLIS = 15_000L;
 
-    /** 微信消息类型：文本 */
+    /**
+     * 微信消息类型：文本
+    */
     private static final int MSG_TYPE_TEXT = 1;
 
-    /** 微信消息类型：图片 */
+    /**
+     * 微信消息类型：图片
+    */
     private static final int MSG_TYPE_IMAGE = 3;
 
-    /** 微信消息类型：语音 */
+    /**
+     * 微信消息类型：语音
+    */
     private static final int MSG_TYPE_VOICE = 34;
 
-    /** 微信消息类型：视频 */
+    /**
+     * 微信消息类型：视频
+    */
     private static final int MSG_TYPE_VIDEO = 43;
 
-    /** 微信消息类型：文件/表情等复合消息 */
+    /**
+     * 微信消息类型：文件/表情等复合消息
+    */
     private static final int MSG_TYPE_FILE = 49;
 
-    /** 消息去重窗口大小，Hook 服务重推时避免重复回调 */
+    /**
+     * 消息去重窗口大小，Hook 服务重推时避免重复回调
+    */
     private static final int SEEN_CAPACITY = 512;
 
-    /** 鉴权头值前缀 */
+    /**
+     * 鉴权头值前缀
+    */
     private static final String BEARER_PREFIX = "Bearer ";
 
-    /** 回调注册接口的启用标记值 */
+    /**
+     * 回调注册接口的启用标记值
+    */
     private static final int CALLBACK_ENABLED = 1;
 
-    /** 秒级与毫秒级时间戳的分界值，小于此值按秒处理 */
+    /**
+     * 秒级与毫秒级时间戳的分界值，小于此值按秒处理
+    */
     private static final long SECONDS_TIMESTAMP_THRESHOLD = 10_000_000_000L;
 
-    /** 每秒毫秒数 */
+    /**
+     * 每秒毫秒数
+    */
     private static final long MILLIS_PER_SECOND = 1000L;
 
     /**
@@ -143,16 +177,24 @@ public class WechatPersonalBotClient implements BotClient {
     private static final String[] TO_USER_KEYS = {
             "toUserWxid", "toUser", "receiver", "to_wxid"};
 
-    /** API 基础地址 */
+    /**
+     * API 基础地址
+    */
     private String baseUrl = DEFAULT_BASE_URL;
 
-    /** Hook 服务鉴权令牌，非空时以 Bearer 头下发 */
+    /**
+     * Hook 服务鉴权令牌，非空时以 Bearer 头下发
+    */
     private String token;
 
-    /** 密钥，未使用，仅为对齐 {@link BotClient} 接口 */
+    /**
+     * 密钥，未使用，仅为对齐 {@link BotClient} 接口
+    */
     private String secret;
 
-    /** 加密密钥，未使用，仅为对齐 {@link BotClient} 接口 */
+    /**
+     * 加密密钥，未使用，仅为对齐 {@link BotClient} 接口
+    */
     private String encodingAesKey;
 
     /** 连接超时（毫秒）*/
@@ -161,25 +203,39 @@ public class WechatPersonalBotClient implements BotClient {
     /** 读取超时（毫秒）*/
     private long readTimeoutMillis = DEFAULT_READ_TIMEOUT_MILLIS;
 
-    /** 注册给 Hook 服务的入站回调地址，为空表示由外部自行调用 deliver */
+    /**
+     * 注册给 Hook 服务的入站回调地址，为空表示由外部自行调用 deliver
+    */
     private volatile String callbackUrl;
 
-    /** 当前登录账号 wxid，用于过滤自己发出的消息 */
+    /**
+     * 当前登录账号 wxid，用于过滤自己发出的消息
+    */
     private volatile String selfWxid;
 
-    /** 运行标志 */
+    /**
+     * 运行标志
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    /** 消息监听器 */
+    /**
+     * 消息监听器
+    */
     private final List<BotMessageListener> messageListeners = new CopyOnWriteArrayList<>();
 
-    /** 错误监听器 */
+    /**
+     * 错误监听器
+    */
     private final List<BotErrorListener> errorListeners = new CopyOnWriteArrayList<>();
 
-    /** 用户存储 */
+    /**
+     * 用户存储
+    */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
-    /** 已处理消息 id 的 LRU 索引 */
+    /**
+     * 已处理消息 id 的 LRU 索引
+    */
     private final Map<String, Boolean> seenMsgIds = Collections.synchronizedMap(
             new LinkedHashMap<String, Boolean>(64, 0.75f, true) {
                 @Override
@@ -188,7 +244,9 @@ public class WechatPersonalBotClient implements BotClient {
                 }
             });
 
-    /** HTTP 客户端 */
+    /**
+     * HTTP 客户端
+    */
     private final HttpClient httpClient = HttpClientFactory.getClient();
 
     /**

@@ -48,17 +48,29 @@ import java.util.Map;
  */
 public class MysqlVectorStorage extends AbstractVectorStorage {
 
-    /** 数据源 */
+    /**
+     * 数据源
+    */
     private final DataSource dataSource;
-    /** 表名 */
+    /**
+     * 表名
+    */
     private final String tableName;
-    /** 标识 列名 */
+    /**
+     * 标识 列名
+    */
     private final String idColumn;
-    /** 向量列名 */
+    /**
+     * 向量列名
+    */
     private final String vectorColumn;
-    /** 是否已建表 */
+    /**
+     * 是否已建表
+    */
     private volatile boolean schemaInitialized;
-    /** 降级存储（建表失败时初始化） */
+    /**
+     * 降级存储（建表失败时初始化）
+    */
     private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     /**

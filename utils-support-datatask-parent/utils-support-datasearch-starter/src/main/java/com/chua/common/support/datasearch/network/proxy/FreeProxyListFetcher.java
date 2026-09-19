@@ -28,7 +28,9 @@ public class FreeProxyListFetcher implements ProxyFetcher {
     private static final Pattern PROXY_PATTERN = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
 
     @Override
-    /** 获取代理 */
+    /**
+     * 获取代理
+    */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -43,7 +45,9 @@ public class FreeProxyListFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取源名称 */
+    /**
+     * 获取源名称
+    */
     public String getSourceName() {
         return "free-proxy-list";
     }

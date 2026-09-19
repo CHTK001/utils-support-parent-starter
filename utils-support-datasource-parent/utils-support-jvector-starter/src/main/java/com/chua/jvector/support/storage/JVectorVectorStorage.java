@@ -108,51 +108,67 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** 执行添加 */
+    /**
+     * 执行添加
+    */
     protected synchronized boolean doAdd(String id, float[] vector) {
         return delegate.doAdd(id, vector);
     }
 
     @Override
-    /** 执行搜索 */
+    /**
+     * 执行搜索
+    */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         return delegate.doSearch(query, topK);
     }
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public synchronized int size() {
         return delegate.size();
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public synchronized void clear() {
         delegate.clear();
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         delegate.close();
     }
 
     @Override
-    /** Rebuild */
+    /**
+     * Rebuild
+    */
     public synchronized void rebuild() {
         checkNotClosed();
         delegate.rebuild();
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public synchronized boolean remove(String id) {
         checkNotClosed();
         return delegate.doRemove(id);
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public synchronized boolean update(String id, float[] vector) {
         checkNotClosed();
         if (vector.length != dimension()) {
@@ -193,19 +209,33 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     private static class EagerMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
-        /** 向量维度 */
+        /**
+         * 向量维度
+        */
         private final int dimension;
-        /** 相似度度量函数 */
+        /**
+         * 相似度度量函数
+        */
         private final VectorSimilarityFunction similarity;
-        /** 存储配置属性（含图参数） */
+        /**
+         * 存储配置属性（含图参数）
+        */
         private final JVectorStorageProperties properties;
-        /** 比较算法 */
+        /**
+         * 比较算法
+        */
         private final VectorCompareAlgorithm algorithm;
-        /** 内存图索引；构建前为 空 */
+        /**
+         * 内存图索引；构建前为 空
+        */
         private ImmutableGraphIndex graph;
-        /** 原始向量深拷贝（防御调用者后续修改） */
+        /**
+         * 原始向量深拷贝（防御调用者后续修改）
+        */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** j向量 向量视图 */
+        /**
+         * j向量 向量视图
+        */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
         EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -217,7 +247,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Rebuild */
+        /**
+         * Rebuild
+        */
         public synchronized void rebuild() {
             if (graph != null) {
                 try {
@@ -228,7 +260,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行添加 */
+        /**
+         * 执行添加
+        */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -400,7 +434,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行移除 */
+        /**
+         * 执行移除
+        */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -431,7 +467,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行更新 */
+        /**
+         * 执行更新
+        */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -449,11 +487,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public synchronized int size() { return vectors.size(); }
 
         @Override
-        /** Clear */
+        /**
+         * Clear
+        */
         public synchronized void clear() {
             vectors.clear();
             rawVectors.clear();
@@ -467,7 +509,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public synchronized void close() {
             if (graph != null) {
                 try {
@@ -477,7 +521,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 构建图计算 */
+        /**
+         * 构建图计算
+        */
         private void buildGraph() {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
@@ -502,25 +548,45 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      * @since 4.0.0
      */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
-        /** 向量维度 */
+        /**
+         * 向量维度
+        */
         private final int dimension;
-        /** 相似度度量函数 */
+        /**
+         * 相似度度量函数
+        */
         private final VectorSimilarityFunction similarity;
-        /** 存储配置属性（含图参数） */
+        /**
+         * 存储配置属性（含图参数）
+        */
         private final JVectorStorageProperties properties;
-        /** 磁盘索引文件路径 */
+        /**
+         * 磁盘索引文件路径
+        */
         private final Path indexPath;
-        /** 磁盘图索引；构建前为 空 */
+        /**
+         * 磁盘图索引；构建前为 空
+        */
         private OnDiskGraphIndex diskGraph;
-        /** 原始向量深拷贝（防御调用者后续修改） */
+        /**
+         * 原始向量深拷贝（防御调用者后续修改）
+        */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** j向量 向量视图 */
+        /**
+         * j向量 向量视图
+        */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        /** 向量持久化文件路径 */
+        /**
+         * 向量持久化文件路径
+        */
         private final Path vectorDataPath;
-        /** 向量是否被修改且未持久化 */
+        /**
+         * 向量是否被修改且未持久化
+        */
         private boolean vectorsDirty;
-        /** 比较算法 */
+        /**
+         * 比较算法
+        */
         private final VectorCompareAlgorithm algorithm;
 
         DiskStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -535,7 +601,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             tryLoadExistingIndex();
         }
 
-        /** 尝试加载existing索引 */
+        /**
+         * 尝试加载existing索引
+        */
         private void tryLoadExistingIndex() {
             if (!Files.exists(indexPath)) {
                 return;
@@ -550,7 +618,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 加载向量 */
+        /**
+         * 加载向量
+        */
         private void loadVectors() {
             if (!Files.exists(vectorDataPath)) {
                 return;
@@ -580,7 +650,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 保存向量 */
+        /**
+         * 保存向量
+        */
         private void saveVectors() {
             try {
                 Files.createDirectories(vectorDataPath.getParent());
@@ -609,7 +681,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
         @Override
-        /** 执行添加 */
+        /**
+         * 执行添加
+        */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -624,7 +698,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行搜索 */
+        /**
+         * 执行搜索
+        */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (diskGraph != null && vectors.isEmpty()) {
                 loadVectors();
@@ -661,7 +737,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行移除 */
+        /**
+         * 执行移除
+        */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -687,7 +765,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行更新 */
+        /**
+         * 执行更新
+        */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -701,11 +781,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public synchronized int size() { return vectors.size(); }
 
         @Override
-        /** Clear */
+        /**
+         * Clear
+        */
         public synchronized void clear() {
             vectors.clear();
             rawVectors.clear();
@@ -723,7 +807,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public synchronized void close() {
             if (vectorsDirty || diskGraph == null) {
                 ensureGraphBuilt();
@@ -740,7 +826,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Rebuild */
+        /**
+         * Rebuild
+        */
         public synchronized void rebuild() {
             if (diskGraph != null) {
                 try {
@@ -752,7 +840,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             ensureGraphBuilt();
         }
 
-        /** ensure图计算built */
+        /**
+         * ensure图计算built
+        */
         private void ensureGraphBuilt() {
             if (diskGraph != null) {
                 return;
@@ -786,23 +876,41 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
      * @since 4.0.0
      */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
-        /** 向量维度 */
+        /**
+         * 向量维度
+        */
         private final int dimension;
-        /** 相似度度量函数 */
+        /**
+         * 相似度度量函数
+        */
         private final VectorSimilarityFunction similarity;
-        /** 存储配置属性（含图参数） */
+        /**
+         * 存储配置属性（含图参数）
+        */
         private final JVectorStorageProperties properties;
-        /** PQ 索引持久化路径 */
+        /**
+         * PQ 索引持久化路径
+        */
         private final Path indexPath;
-        /** 内存图索引；构建前为 空 */
+        /**
+         * 内存图索引；构建前为 空
+        */
         private ImmutableGraphIndex graph;
-        /** PQ 压缩向量；训练前为 空 */
+        /**
+         * PQ 压缩向量；训练前为 空
+        */
         private PQVectors pqVectors;
-        /** 原始向量深拷贝（防御调用者后续修改） */
+        /**
+         * 原始向量深拷贝（防御调用者后续修改）
+        */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** j向量 向量视图 */
+        /**
+         * j向量 向量视图
+        */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
-        /** 比较算法 */
+        /**
+         * 比较算法
+        */
         private final VectorCompareAlgorithm algorithm;
 
         LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -815,7 +923,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Rebuild */
+        /**
+         * Rebuild
+        */
         public synchronized void rebuild() {
             if (graph != null) {
                 try {
@@ -827,7 +937,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行添加 */
+        /**
+         * 执行添加
+        */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -842,7 +954,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行搜索 */
+        /**
+         * 执行搜索
+        */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -885,7 +999,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行移除 */
+        /**
+         * 执行移除
+        */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -911,7 +1027,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 执行更新 */
+        /**
+         * 执行更新
+        */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -925,11 +1043,15 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 获取大小 */
+        /**
+         * 获取大小
+        */
         public synchronized int size() { return vectors.size(); }
 
         @Override
-        /** Clear */
+        /**
+         * Clear
+        */
         public synchronized void clear() {
             vectors.clear();
             rawVectors.clear();
@@ -944,7 +1066,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public synchronized void close() {
             if (graph != null) {
                 try {
@@ -955,7 +1079,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             pqVectors = null;
         }
 
-        /** ensure图计算built */
+        /**
+         * ensure图计算built
+        */
         private void ensureGraphBuilt() {
             if (graph != null && pqVectors != null) {
                 return;

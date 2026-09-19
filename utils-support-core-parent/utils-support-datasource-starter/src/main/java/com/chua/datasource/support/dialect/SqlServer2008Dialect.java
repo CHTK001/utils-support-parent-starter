@@ -1,6 +1,8 @@
 package com.chua.datasource.support.dialect;
 import java.util.Properties;
-/** SQL 服务端 2008 方言。 */
+/**
+ * SQL 服务端 2008 方言。
+*/
 public class SqlServer2008Dialect extends SqlDialect {
     public static final String VERSION = "SQL Server 2008"; // 版本
     /**

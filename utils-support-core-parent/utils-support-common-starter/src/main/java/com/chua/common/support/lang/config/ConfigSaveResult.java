@@ -48,7 +48,9 @@ public class ConfigSaveResult {
      * </p>
      */
     @Builder.Default
-    /** Update时间 */
+    /**
+     * Update时间
+    */
     private LocalDateTime updateTime = LocalDateTime.now();
 
     /**

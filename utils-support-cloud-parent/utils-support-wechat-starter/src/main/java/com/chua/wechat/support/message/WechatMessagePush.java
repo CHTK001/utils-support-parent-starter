@@ -106,10 +106,14 @@ public class WechatMessagePush implements MessagePush {
      */
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
-    /** 消息环境 */
+    /**
+     * 消息环境
+    */
     private final MessageEnvironment environment;
 
-    /** 模板映射 */
+    /**
+     * 模板映射
+    */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
@@ -127,7 +131,9 @@ public class WechatMessagePush implements MessagePush {
     private record TokenCache(String token, long expireAt) {
     }
 
-    /** 创建 wechat消息push 实例 */
+    /**
+     * 创建 wechat消息push 实例
+    */
     public WechatMessagePush() {
         this(new MessageEnvironment());
     }
@@ -141,7 +147,9 @@ public class WechatMessagePush implements MessagePush {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "wechat";
     }
@@ -435,7 +443,9 @@ public class WechatMessagePush implements MessagePush {
     }
 
     @Override
-    /** 列表templates */
+    /**
+     * 列表templates
+    */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }

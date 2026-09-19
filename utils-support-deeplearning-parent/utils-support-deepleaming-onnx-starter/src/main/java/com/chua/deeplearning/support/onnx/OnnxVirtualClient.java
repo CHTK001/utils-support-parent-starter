@@ -18,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxVirtualClient implements VirtualClient {
 
-    /** 当前使用的模型名称 */
+    /**
+     * 当前使用的模型名称
+    */
     private String modelName = "florence2";
 
     /**

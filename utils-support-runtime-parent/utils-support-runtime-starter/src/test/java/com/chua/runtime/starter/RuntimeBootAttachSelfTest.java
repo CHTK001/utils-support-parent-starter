@@ -40,10 +40,14 @@ class RuntimeBootAttachSelfTest {
 
     private static final Logger LOG = Logger.getLogger(RuntimeBootAttachSelfTest.class.getName()); // 日志
 
-    /** 当前 JVM 的 PID（attach 目标）。 */
+    /**
+     * 当前 JVM 的 PID（attach 目标）。
+    */
     private static int currentPid;
 
-    /** 探测到的 智能体 jar 路径（可能为 空）。 */
+    /**
+     * 探测到的 智能体 jar 路径（可能为 空）。
+    */
     private static Path agentJar;
 
     @org.junit.jupiter.api.BeforeAll

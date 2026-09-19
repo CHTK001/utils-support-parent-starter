@@ -34,11 +34,15 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /** 逆地理编码地址模板 */
+    /**
+     * 逆地理编码地址模板
+    */
     private static final String REVERSE_URL =
             "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=%s&longitude=%s&localityLanguage=zh";
 
-    /** 缓存有效期（毫秒）：24 小时 */
+    /**
+     * 缓存有效期（毫秒）：24 小时
+    */
     private static final long CACHE_TTL_MILLIS = 24 * 60 * 60 * 1000L;
 
     private static final String DEFAULT_USER_AGENT =
@@ -46,7 +50,9 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
 
     private final IpApiLocationProvider locationProvider = new IpApiLocationProvider(); // 位置提供者
 
-    /** 逆编码缓存（"lat,lon" -> 地址） */
+    /**
+     * 逆编码缓存（"lat,lon" -> 地址）
+    */
     private final Map<String, String> cache = new ConcurrentHashMap<>();
     private final Map<String, Long> cachedAt = new ConcurrentHashMap<>(); // 缓存at
 

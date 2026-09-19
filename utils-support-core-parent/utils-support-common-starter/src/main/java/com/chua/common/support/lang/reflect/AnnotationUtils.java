@@ -61,7 +61,9 @@ import java.util.Map;
  */
 public final class AnnotationUtils {
 
-    /** 创建 AnnotationUtils 实例 */
+    /**
+     * 创建 AnnotationUtils 实例
+    */
     private AnnotationUtils() {
     }
 

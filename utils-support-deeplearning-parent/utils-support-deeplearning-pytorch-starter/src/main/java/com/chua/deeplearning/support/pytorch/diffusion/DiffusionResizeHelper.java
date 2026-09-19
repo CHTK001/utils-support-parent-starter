@@ -9,7 +9,9 @@ package com.chua.deeplearning.support.pytorch.diffusion;
  */
 public final class DiffusionResizeHelper {
 
-    /** 创建 diffusionresize助手 实例 */
+    /**
+     * 创建 diffusionresize助手 实例
+    */
     private DiffusionResizeHelper() {
     }
 

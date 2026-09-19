@@ -74,44 +74,78 @@ public class PocketTtsTranslator {
      */
     private static final String CACHE_ROOT = "audio/tts/";
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private ai.onnxruntime.OrtEnvironment ortEnv;
-    /** 文本编码器会话 */
+    /**
+     * 文本编码器会话
+    */
     private ai.onnxruntime.OrtSession textEncoderSession;
-    /** 流 LM 会话 */
+    /**
+     * 流 LM 会话
+    */
     private ai.onnxruntime.OrtSession flowSession;
-    /** Mimi 解码器会话 */
+    /**
+     * Mimi 解码器会话
+    */
     private ai.onnxruntime.OrtSession mimiDecoderSession;
-    /** Mimi 编码器会话 */
+    /**
+     * Mimi 编码器会话
+    */
     private ai.onnxruntime.OrtSession mimiEncoderSession;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private PocketTtsTokenizer tokenizer;
 
     /**
      * 各模型解析后的输入/输出张量名（prepare 时解析一次，推理复用）
      */
     private String textEncoderInputName;
-    /** 文本编码器输出节点名称 */
+    /**
+     * 文本编码器输出节点名称
+    */
     private String textEncoderOutputName;
-    /** 流 LM x 输入节点名称 */
+    /**
+     * 流 LM x 输入节点名称
+    */
     private String flowXName;
-    /** 流 LM t 时间步输入节点名称 */
+    /**
+     * 流 LM t 时间步输入节点名称
+    */
     private String flowTName;
-    /** 流 LM 空调 嵌入输入节点名称 */
+    /**
+     * 流 LM 空调 嵌入输入节点名称
+    */
     private String flowEmbName;
-    /** 流 LM 掩码输入节点名称 */
+    /**
+     * 流 LM 掩码输入节点名称
+    */
     private String flowMaskName;
-    /** 流 LM 参考音频输入节点名称 */
+    /**
+     * 流 LM 参考音频输入节点名称
+    */
     private String flowRefName;
-    /** 流 LM 速率 输出节点名称 */
+    /**
+     * 流 LM 速率 输出节点名称
+    */
     private String flowVName;
-    /** Mimi 解码器输入节点名称 */
+    /**
+     * Mimi 解码器输入节点名称
+    */
     private String mimiInputName;
-    /** Mimi 解码器输出节点名称 */
+    /**
+     * Mimi 解码器输出节点名称
+    */
     private String mimiOutputName;
-    /** Mimi 编码器输入节点名称 */
+    /**
+     * Mimi 编码器输入节点名称
+    */
     private String mimiEncoderInputName;
-    /** Mimi 编码器输出节点名称 */
+    /**
+     * Mimi 编码器输出节点名称
+    */
     private String mimiEncoderOutputName;
 
     /**
@@ -129,16 +163,26 @@ public class PocketTtsTranslator {
      */
     private double framesPerToken = 4.0;
 
-    /** 文本 编码器 条件向量维度 */
+    /**
+     * 文本 编码器 条件向量维度
+    */
     private static final int CONDITIONING_DIM = 1024;
-    /** 流 LM 状态 张量数量 */
+    /**
+     * 流 LM 状态 张量数量
+    */
     private static final int STATE_TENSOR_COUNT = 18;
-    /** 最大帧数上限（防 OOM） */
+    /**
+     * 最大帧数上限（防 OOM）
+    */
     private static final int MAX_FRAMES = 4096;
-    /** 配置.json 扁平化键值对解析正则 */
+    /**
+     * 配置.json 扁平化键值对解析正则
+    */
     private static final Pattern FLATTEN_JSON_KEY_PATTERN =
             Pattern.compile("\"([^\"]+)\"\\s*:\\s*");
-    /** 最大帧数（可由 配置.json 覆盖） */
+    /**
+     * 最大帧数（可由 配置.json 覆盖）
+    */
     private int maxFrames = MAX_FRAMES;
 
     /**
@@ -146,7 +190,9 @@ public class PocketTtsTranslator {
      */
     private String refLatentsLayout = "NCT";
 
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private volatile boolean prepared;
 
     /**
@@ -319,7 +365,9 @@ public class PocketTtsTranslator {
         return configStr("model_files.mimi_encoder", "mimi_encoder.onnx");
     }
 
-    /** 配置.json 扁平化缓存：点路径 → 值 */
+    /**
+     * 配置.json 扁平化缓存：点路径 → 值
+    */
     private final Map<String, String> configCache = new LinkedHashMap<>();
 
     /**
@@ -718,7 +766,9 @@ public class PocketTtsTranslator {
         }
     }
 
-    /** 流 LM 当前 状态（由 运行文本条件 初始化） */
+    /**
+     * 流 LM 当前 状态（由 运行文本条件 初始化）
+    */
     private Map<String, ai.onnxruntime.OnnxTensor> flowState = new LinkedHashMap<>();
 
     /**

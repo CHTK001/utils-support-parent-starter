@@ -32,7 +32,9 @@ public class PiUsageParser extends BaseUsageParser {
 
     private final Path agentDir;
 
-    /** 默认构造器。 */
+    /**
+     * 默认构造器。
+    */
     public PiUsageParser() {
         String explicit = System.getenv("TOKENTRACKER_PI_AGENT_DIR");
         if (explicit == null || explicit.isBlank()) {

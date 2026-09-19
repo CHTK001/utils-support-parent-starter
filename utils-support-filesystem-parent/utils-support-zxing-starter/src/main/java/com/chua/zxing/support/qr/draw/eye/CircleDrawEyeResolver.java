@@ -52,7 +52,9 @@ public class CircleDrawEyeResolver extends AbstractDrawEyeResolver {
 
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         Ellipse2D.Double shape = new Ellipse2D.Double(leftPadding + x * infoSize, topPadding + y * infoSize,infoSize * detectCornerSize, infoSize * detectCornerSize);
         g2.setColor(Converter.convertIfNecessary(codeEyeSetting.getCodeEyeColor(), Color.class));
@@ -71,7 +73,9 @@ public class CircleDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
     }
 

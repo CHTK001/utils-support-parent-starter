@@ -55,13 +55,17 @@ public class FileOffsetStore implements OffsetStore {
     }
 
     @Override
-    /** 获取Offset */
+    /**
+     * 获取Offset
+    */
     public Offset getOffset(String subscriberId) {
         return cache.computeIfAbsent(subscriberId, this::createOffset);
     }
 
     @Override
-    /** 移除Offset */
+    /**
+     * 移除Offset
+    */
     public Offset removeOffset(String subscriberId) {
         Offset removed = cache.remove(subscriberId);
         if (removed != null) {
@@ -71,7 +75,9 @@ public class FileOffsetStore implements OffsetStore {
     }
 
     @Override
-    /** Truncate */
+    /**
+     * Truncate
+    */
     public void truncate() {
         cache.values().forEach(Offset::close);
         cache.clear();
@@ -96,7 +102,9 @@ public class FileOffsetStore implements OffsetStore {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running.compareAndSet(false, true)) {
             if (config.isPersistent()) {
@@ -111,7 +119,9 @@ public class FileOffsetStore implements OffsetStore {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         running.set(false);
         cache.values().forEach(Offset::close);
@@ -159,19 +169,25 @@ public class FileOffsetStore implements OffsetStore {
         }
 
         @Override
-        /** SubscriberId */
+        /**
+         * SubscriberId
+        */
         public String subscriberId() {
             return subscriberId;
         }
 
         @Override
-        /** Value */
+        /**
+         * Value
+        */
         public long value() {
             return value;
         }
 
         @Override
-        /** IncrementAnd获取 */
+        /**
+         * IncrementAnd获取
+        */
         public synchronized long incrementAndGet() {
             value++;
             flush();
@@ -179,20 +195,26 @@ public class FileOffsetStore implements OffsetStore {
         }
 
         @Override
-        /** 重置 */
+        /**
+         * 重置
+        */
         public synchronized void reset(long newValue) {
             value = newValue;
             flush();
         }
 
         @Override
-        /** OffsetPath */
+        /**
+         * OffsetPath
+        */
         public String offsetPath() {
             return offsetPath.toString();
         }
 
         @Override
-        /** 刷新 */
+        /**
+         * 刷新
+        */
         public void flush() {
             if (!config.isPersistent() || closed) {
                 return;
@@ -219,13 +241,17 @@ public class FileOffsetStore implements OffsetStore {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             closed = true;
             flush();
         }
 
-        /** 加载FromFile */
+        /**
+         * 加载FromFile
+        */
         private long loadFromFile() {
             if (!config.isPersistent()) {
                 return 0L;

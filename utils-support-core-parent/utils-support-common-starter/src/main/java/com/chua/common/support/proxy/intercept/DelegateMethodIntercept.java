@@ -19,7 +19,9 @@ public class DelegateMethodIntercept<T> implements InvocationHandler {
      * 类型
      */
     private final Class<T> type;
-    /** delegate */
+    /**
+     * delegate
+    */
     private final Function<ProxyMethod, Object> delegate;
 
     /**
@@ -35,7 +37,9 @@ public class DelegateMethodIntercept<T> implements InvocationHandler {
     }
 
     @Override
-    /** 调用 */
+    /**
+     * 调用
+    */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         return delegate.apply(ProxyMethod.builder().method(method).args(args).build());
     }

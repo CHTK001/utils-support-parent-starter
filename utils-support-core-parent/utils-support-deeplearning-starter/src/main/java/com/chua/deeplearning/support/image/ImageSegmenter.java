@@ -149,7 +149,9 @@ class DefaultImageSegmenter implements ImageSegmenter {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -182,14 +184,18 @@ class DefaultImageSegmenter implements ImageSegmenter {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageSegmenter modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageSegmenter device(String device) {
         this.device = device;
         return this;

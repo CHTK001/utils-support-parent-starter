@@ -67,21 +67,37 @@ public class SenseVoiceAudioClient implements VirtualClient {
      */
     private static final String TASK_ID_PREFIX = "sensevoice-";
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final AudioClientSetting setting;
-    /** 模型名 */
+    /**
+     * 模型名
+    */
     private String model;
-    /** 语言（zh/en/ja/ko/yue/auto） */
+    /**
+     * 语言（zh/en/ja/ko/yue/auto）
+    */
     private String language;
-    /** 音频字节 */
+    /**
+     * 音频字节
+    */
     private byte[] audio;
-    /** 音频路径 */
+    /**
+     * 音频路径
+    */
     private Path audioPath;
-    /** 音频流 */
+    /**
+     * 音频流
+    */
     private InputStream audioInput;
-    /** 推理器 */
+    /**
+     * 推理器
+    */
     private SenseVoiceTranslator translator;
-    /** 是否就绪 */
+    /**
+     * 是否就绪
+    */
     private boolean prepared;
 
     /**
@@ -210,7 +226,9 @@ public class SenseVoiceAudioClient implements VirtualClient {
         }
     }
 
-    /** 确保模型已从 类路径 解压并加载 */
+    /**
+     * 确保模型已从 类路径 解压并加载
+    */
     private void ensurePrepared() {
         if (prepared) {
             return;

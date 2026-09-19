@@ -41,46 +41,74 @@ import java.util.Map;
 @Slf4j
 public class ParaformerTranslator {
 
-    /** 采样率 */
+    /**
+     * 采样率
+    */
     private static final int SAMPLE_RATE = 16000;
 
-    /** 输入名：语音特征 */
+    /**
+     * 输入名：语音特征
+    */
     private static final String INPUT_SPEECH = "speech";
 
-    /** 输入名：特征帧数 */
+    /**
+     * 输入名：特征帧数
+    */
     private static final String INPUT_SPEECH_LENGTHS = "speech_lengths";
 
-    /** 特征维度（LFR 后 560 = 80×7） */
+    /**
+     * 特征维度（LFR 后 560 = 80×7）
+    */
     private static final int FEATURE_DIM = 560;
 
-    /** 模型 metadata 键：vocab 大小 */
+    /**
+     * 模型 metadata 键：vocab 大小
+    */
     private static final String META_VOCAB_SIZE = "vocab_size";
 
-    /** 模型 metadata 键：LFR 窗口 */
+    /**
+     * 模型 metadata 键：LFR 窗口
+    */
     private static final String META_LFR_WINDOW_SIZE = "lfr_window_size";
 
-    /** 模型 metadata 键：LFR 步长 */
+    /**
+     * 模型 metadata 键：LFR 步长
+    */
     private static final String META_LFR_WINDOW_SHIFT = "lfr_window_shift";
 
-    /** 模型 metadata 键：CMVN 负均值 */
+    /**
+     * 模型 metadata 键：CMVN 负均值
+    */
     private static final String META_NEG_MEAN = "neg_mean";
 
-    /** 模型 metadata 键：CMVN 逆标准差 */
+    /**
+     * 模型 metadata 键：CMVN 逆标准差
+    */
     private static final String META_INV_STDDEV = "inv_stddev";
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
 
-    /** ONNX 会话 */
+    /**
+     * ONNX 会话
+    */
     private OrtSession session;
 
-    /** 特征提取器 */
+    /**
+     * 特征提取器
+    */
     private ParaformerFbankExtractor extractor;
 
-    /** 词表 */
+    /**
+     * 词表
+    */
     private ParaformerTokenizer tokenizer;
 
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private boolean prepared;
 
     /**

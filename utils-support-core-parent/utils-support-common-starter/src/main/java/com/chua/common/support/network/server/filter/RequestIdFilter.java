@@ -21,13 +21,17 @@ import java.util.UUID;
 public class RequestIdFilter implements ServerFilter {
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 20;
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         // e[0]; // 所有协议
         return new ProtocolType[] {};

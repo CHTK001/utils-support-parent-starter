@@ -29,7 +29,9 @@ import java.util.Map;
 public class JdkImageProcessor implements ImageProcessor {
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public byte[] process(byte[] imageData, String operation, Map<String, Object> params) {
         try {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageData));
@@ -519,13 +521,17 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     @Override
-    /** Name */
+    /**
+     * Name
+    */
     public String name() {
         return "jdk";
     }
 
     @Override
-    /** Available */
+    /**
+     * Available
+    */
     public boolean available() {
         return true;
     }

@@ -29,13 +29,17 @@ public class OpusDecoderTranslator implements NoBatchifyTranslator<NDList, Causa
      */
     private final String tupleName;
 
-    /** 创建 opus解码器translator 实例 */
+    /**
+     * 创建 opus解码器translator 实例
+    */
     public OpusDecoderTranslator() {
         this.tupleName = "past_key_values(" + NUM_LAYERS + ',' + NUM_ATTENTION_HEADS + ')';
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray placeholder = ctx.getNDManager().create(0);
         placeholder.setName("module_method:decoder");
@@ -44,7 +48,9 @@ public class OpusDecoderTranslator implements NoBatchifyTranslator<NDList, Causa
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public CausalLMOutput processOutput(TranslatorContext ctx, NDList output) {
         NDArray logitsOutput = output.get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
         NDList pastKeyValuesOutput = output.subNDList(1, NUM_LAYERS * NUM_ATTENTION_HEADS + 1);

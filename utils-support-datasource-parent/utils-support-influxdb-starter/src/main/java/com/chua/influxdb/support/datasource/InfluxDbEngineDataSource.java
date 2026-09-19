@@ -62,61 +62,81 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
         this.source = source;
     }
 
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     @Override
     public String name() {
         return name;
     }
 
-    /** 获取客户端 */
+    /**
+     * 获取客户端
+    */
     @Override
     public InfluxDB getSource() {
         return source;
     }
 
-    /** 设置客户端 */
+    /**
+     * 设置客户端
+    */
     @Override
     public EngineDataSource<InfluxDB> setSource(Object source) {
         return this;
     }
 
-    /** 非 SQL 方言返回 空 */
+    /**
+     * 非 SQL 方言返回 空
+    */
     @Override
     public Dialect getDialect() {
         return null;
     }
 
-    /** 忽略方言设置 */
+    /**
+     * 忽略方言设置
+    */
     @Override
     public EngineDataSource<InfluxDB> setDialect(Dialect dialect) {
         return this;
     }
 
-    /** 连接地址 */
+    /**
+     * 连接地址
+    */
     @Override
     public String url() {
         return url;
     }
 
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     @Override
     public String username() {
         return username;
     }
 
-    /** 密码 */
+    /**
+     * 密码
+    */
     @Override
     public String password() {
         return password;
     }
 
-    /** 数据库名 */
+    /**
+     * 数据库名
+    */
     @Override
     public String database() {
         return database;
     }
 
-    /** 关闭客户端连接 */
+    /**
+     * 关闭客户端连接
+    */
     @Override
     public void close() {
         if (source != null) {

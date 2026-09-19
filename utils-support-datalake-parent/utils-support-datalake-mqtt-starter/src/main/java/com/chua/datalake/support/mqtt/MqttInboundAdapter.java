@@ -42,40 +42,64 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class MqttInboundAdapter {
 
-    /** MQTT 客户端 */
+    /**
+     * MQTT 客户端
+    */
     private volatile MqttClient client;
 
-    /** Broker URL */
+    /**
+     * Broker URL
+    */
     private final String brokerUrl;
 
-    /** 客户端 标识 */
+    /**
+     * 客户端 标识
+    */
     private final String clientId;
 
-    /** 订阅主题（支持通配符 +/#） */
+    /**
+     * 订阅主题（支持通配符 +/#）
+    */
     private final String topic;
 
-    /** 管线 标识 */
+    /**
+     * 管线 标识
+    */
     private final String pipelineId;
 
-    /** 管线引擎 */
+    /**
+     * 管线引擎
+    */
     private final PipelineEngine pipelineEngine;
 
-    /** qos 级别（0/1/2） */
+    /**
+     * qos 级别（0/1/2）
+    */
     private final int qos;
 
-    /** 用户名（可选） */
+    /**
+     * 用户名（可选）
+    */
     private final String username;
 
-    /** 密码（可选） */
+    /**
+     * 密码（可选）
+    */
     private final String password;
 
-    /** 消息计数器 */
+    /**
+     * 消息计数器
+    */
     private final AtomicLong messageCount = new AtomicLong(0);
 
-    /** JSON 解析器 */
+    /**
+     * JSON 解析器
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 运行状态 */
+    /**
+     * 运行状态
+    */
     private volatile boolean running = false;
 
     /**

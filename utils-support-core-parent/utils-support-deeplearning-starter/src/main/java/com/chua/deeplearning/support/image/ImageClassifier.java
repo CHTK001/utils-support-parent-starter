@@ -180,7 +180,9 @@ class DefaultImageClassifier implements ImageClassifier {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -218,28 +220,36 @@ class DefaultImageClassifier implements ImageClassifier {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public ImageClassifier threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** topk */
+    /**
+     * topk
+    */
     public ImageClassifier topK(int k) {
         this.topK = k;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageClassifier modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageClassifier device(String device) {
         this.device = device;
         return this;

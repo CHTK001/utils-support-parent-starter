@@ -37,37 +37,59 @@ import java.util.Objects;
  */
 public class ReverseProxyServer implements AutoCloseable {
 
-    /** 默认转发超时（秒）。 */
+    /**
+     * 默认转发超时（秒）。
+    */
     private static final int DEFAULT_TIMEOUT_SECONDS = 30;
 
-    /** 默认监听地址。 */
+    /**
+     * 默认监听地址。
+    */
     private static final String DEFAULT_HOST = "127.0.0.1";
 
-    /** 底层 HTTP 服务器。 */
+    /**
+     * 底层 HTTP 服务器。
+    */
     private final Server server;
 
-    /** 转发超时（秒）。 */
+    /**
+     * 转发超时（秒）。
+    */
     private final int timeoutSeconds;
 
-    /** 服务发现实例（与发现名二选一）。 */
+    /**
+     * 服务发现实例（与发现名二选一）。
+    */
     private ServiceDiscovery serviceDiscovery;
 
-    /** 服务发现名称（SPI 查找用，与实例二选一）。 */
+    /**
+     * 服务发现名称（SPI 查找用，与实例二选一）。
+    */
     private String discoveryName;
 
-    /** 路由映射：匹配模式 -> 服务路径。 */
+    /**
+     * 路由映射：匹配模式 -> 服务路径。
+    */
     private final Map<String, String> routes = new LinkedHashMap<>();
 
-    /** 集群标识。 */
+    /**
+     * 集群标识。
+    */
     private String scatterId;
 
-    /** 协议过滤。 */
+    /**
+     * 协议过滤。
+    */
     private String protocol;
 
-    /** 负载均衡策略。 */
+    /**
+     * 负载均衡策略。
+    */
     private String balance;
 
-    /** 排除的服务 标识。 */
+    /**
+     * 排除的服务 标识。
+    */
     private String excludeServerId;
 
     /**

@@ -26,7 +26,9 @@ import java.util.Random;
  */
 public class FilePushRoundTripTest {
 
-    /** 是否全部通过 */
+    /**
+     * 是否全部通过
+    */
     private static boolean allPassed;
 
     /**
@@ -103,7 +105,9 @@ public class FilePushRoundTripTest {
         return !ok && result.successCount() == expectedFiles;
     }
 
-    /** 校验目标目录内容 */
+    /**
+     * 校验目标目录内容
+    */
     private static boolean verifyTargetFiles(Path targetDir, byte[] small, byte[] big,
                                               byte[] empty) throws IOException {
         boolean ok = true;
@@ -135,7 +139,9 @@ public class FilePushRoundTripTest {
         return ok;
     }
 
-    /** 断言目标文件内容与源一致 */
+    /**
+     * 断言目标文件内容与源一致
+    */
     private static boolean assertContent(Path file, byte[] expected, String label)
             throws IOException {
         if (!Files.exists(file)) {

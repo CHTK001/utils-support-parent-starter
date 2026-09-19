@@ -28,11 +28,17 @@ public class PackageManager {
  DNF("dnf", "dnf install -y %s", true),
  APK("apk", "apk add %s", true);
 
- /** 命令字符串 */
+ /**
+  * 命令字符串
+ */
  private final String command;
- /** 安装模板 */
+ /**
+  * 安装模板
+ */
  private final String installTemplate;
- /** 是否可用 */
+ /**
+  * 是否可用
+ */
  private final boolean available;
 
  Type(String command, String installTemplate, boolean available) {
@@ -41,11 +47,17 @@ public class PackageManager {
  this.available = available;
  }
 
- /** 获取Command */
+ /**
+  * 获取Command
+ */
  public String getCommand() { return command; }
- /** 获取InstallTemplate */
+ /**
+  * 获取InstallTemplate
+ */
  public String getInstallTemplate() { return installTemplate; }
- /** 是否Available */
+ /**
+  * 是否Available
+ */
  public boolean isAvailable() { return available; }
  }
 

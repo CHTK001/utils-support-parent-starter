@@ -100,7 +100,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
  // 增加 Netty 工人 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
         int workers = Math.max(4, Runtime.getRuntime().availableProcessors() * 2);
@@ -109,7 +111,9 @@ public class RSocketServer extends AbstractServer {
             return Mono.just(new io.rsocket.RSocket() {
 
                 @Override
-                /** 请求响应 */
+                /**
+                 * 请求响应
+                */
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                     // 虚拟线程异步派发,避免同步认证(DB/Redis)阻塞连接 event loop,
  // 否则同一条长连接的并发 流 会全部串行排队导致超时
@@ -151,7 +155,9 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
-                /** fire和forget */
+                /**
+                 * fire和forget
+                */
                 public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
  // 虚拟线程异步执行,业务不阻塞连接 事件 循环
                     return Mono.<Void>fromRunnable(() -> {
@@ -183,7 +189,9 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
-                /** 请求流 */
+                /**
+                 * 请求流
+                */
                 public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     if (topic == null || topic.isEmpty()) {
@@ -213,7 +221,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (serverDisposable != null) {
             serverDisposable.dispose();
@@ -236,7 +246,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }
@@ -454,49 +466,65 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 读取主体 */
+        /**
+         * 读取主体
+        */
         protected byte[] readBody() {
             return body;
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return 0;
         }
@@ -510,13 +538,17 @@ public class RSocketServer extends AbstractServer {
     private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
             this.body = bytes;
         }

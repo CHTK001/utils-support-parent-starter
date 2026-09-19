@@ -8,26 +8,46 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoDownload {
 
-    /** 视频下载URL */
+    /**
+     * 视频下载URL
+    */
     private String videoDownloadUrl;
-    /** 视频下载名称 */
+    /**
+     * 视频下载名称
+    */
     private String videoDownloadName;
-    /** 视频下载quality */
+    /**
+     * 视频下载quality
+    */
     private String videoDownloadQuality;
-    /** 视频下载platform */
+    /**
+     * 视频下载platform
+    */
     private String videoDownloadPlatform;
-    /** 视频下载尺寸 */
+    /**
+     * 视频下载尺寸
+    */
     private String videoDownloadSize;
-    /** 视频下载共享时间 */
+    /**
+     * 视频下载共享时间
+    */
     private String videoDownloadShareTime;
-    /** 视频下载类型 */
+    /**
+     * 视频下载类型
+    */
     private String videoDownloadType;
-    /** 视频下载magnetic */
+    /**
+     * 视频下载magnetic
+    */
     private String videoDownloadMagnetic;
-    /** 视频下载状态 */
+    /**
+     * 视频下载状态
+    */
     private Byte videoDownloadStatus;
 
-    /** 创建 视频download 实例 */
+    /**
+     * 创建 视频download 实例
+    */
     public VideoDownload() {
     }
 

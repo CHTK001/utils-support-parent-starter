@@ -19,7 +19,9 @@ import java.util.Map;
 public class JdkFileStorageFileSetting implements FileStorageFileSetting {
 
     @Override
-    /** Capabilities */
+    /**
+     * Capabilities
+    */
     public List<String> capabilities() {
         return List.of(
                 "size", "format", "quality", "crop", "rotate",
@@ -30,7 +32,9 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public FileOperationSetting parse(ServerRequest request) {
         return FileOperationSetting.builder()
                 .size(getFirst(request, "size", "w", "width"))

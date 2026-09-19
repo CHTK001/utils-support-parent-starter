@@ -26,7 +26,9 @@ final class MemorySqlAst {
 
     /* ==================== 表达式节点 ==================== */
 
-    /** 表达式基类 */
+    /**
+     * 表达式基类
+    */
     abstract static class Node {
 
         /**
@@ -46,7 +48,9 @@ final class MemorySqlAst {
         abstract boolean eval(Object row, ParamProvider p);
     }
 
-    /** 二元逻辑/比较节点 */
+    /**
+     * 二元逻辑/比较节点
+    */
     static final class BinaryNode extends Node {
         private final String op;
         private final Node left;
@@ -100,7 +104,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** NOT 节点 */
+    /**
+     * NOT 节点
+    */
     static final class NotNode extends Node {
         private final Node child;
 
@@ -119,7 +125,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** 列引用 */
+    /**
+     * 列引用
+    */
     static final class ColumnNode extends Node {
         private final String name;
 
@@ -147,7 +155,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** 字面量 */
+    /**
+     * 字面量
+    */
     static final class LiteralNode extends Node {
         private final Object value;
 
@@ -192,7 +202,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** 是否 [NOT] 空 */
+    /**
+     * 是否 [NOT] 空
+    */
     static final class IsNullNode extends Node {
         private final ColumnNode col;
         private final boolean notNull;
@@ -215,7 +227,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** BETWEEN a 和 b（闭区间） */
+    /**
+     * BETWEEN a 和 b（闭区间）
+    */
     static final class BetweenNode extends Node {
         private final ColumnNode col;
         private final Object lo;
@@ -245,7 +259,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** 入 列表 */
+    /**
+     * 入 列表
+    */
     static final class InNode extends Node {
         private final ColumnNode col;
         private final List<Object> values;
@@ -277,7 +293,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** LIKE，仅支持 % 通配（前缀 / 后缀 / 包含） */
+    /**
+     * LIKE，仅支持 % 通配（前缀 / 后缀 / 包含）
+    */
     static final class LikeNode extends Node {
         private final ColumnNode col;
         private final String pattern;
@@ -316,13 +334,19 @@ final class MemorySqlAst {
 
     /* ==================== SELECT 语句 ==================== */
 
-    /** 订单 BY 项 */
+    /**
+     * 订单 BY 项
+    */
     static final class OrderItem {
 
-        /** 排序列名 */
+        /**
+         * 排序列名
+        */
         final String column;
 
-        /** 是否降序 */
+        /**
+         * 是否降序
+        */
         final boolean desc;
 
         /**
@@ -337,11 +361,15 @@ final class MemorySqlAst {
         }
     }
 
-    /** 参数占位标记 */
+    /**
+     * 参数占位标记
+    */
     static final class ParamMarker {
     }
 
-    /** 参数绑定提供器 */
+    /**
+     * 参数绑定提供器
+    */
     interface ParamProvider {
 
         /**
@@ -352,34 +380,54 @@ final class MemorySqlAst {
         Object next();
     }
 
-    /** 选择 语句：从 表行引用 + WHERE 树 + 投影/排序/截断 */
+    /**
+     * 选择 语句：从 表行引用 + WHERE 树 + 投影/排序/截断
+    */
     static final class SelectStmt {
 
-        /** 是否为 数量(*) 聚合 */
+        /**
+         * 是否为 数量(*) 聚合
+        */
         boolean countStar;
 
-        /** 是否 选择 全部 */
+        /**
+         * 是否 选择 全部
+        */
         boolean selectAll;
 
-        /** 投影列清单 */
+        /**
+         * 投影列清单
+        */
         final List<String> selectColumns = new ArrayList<>();
 
-        /** 从 表名 */
+        /**
+         * 从 表名
+        */
         String table;
 
-        /** WHERE 表达式树根节点，空 表示无条件 */
+        /**
+         * WHERE 表达式树根节点，空 表示无条件
+        */
         Node where;
 
-        /** 排序项列表 */
+        /**
+         * 排序项列表
+        */
         final List<OrderItem> orderBys = new ArrayList<>();
 
-        /** 返回上限，默认整型最大值表示不限 */
+        /**
+         * 返回上限，默认整型最大值表示不限
+        */
         int limit = Integer.MAX_VALUE;
 
-        /** 偏移量，默认 0 */
+        /**
+         * 偏移量，默认 0
+        */
         int offset;
 
-        /** 绑定后的参数列表 */
+        /**
+         * 绑定后的参数列表
+        */
         private List<Object> boundParams;
 
         /**
@@ -496,7 +544,9 @@ final class MemorySqlAst {
 
     /* ==================== DML 计划 ==================== */
 
-    /** DML 基类 */
+    /**
+     * DML 基类
+    */
     abstract static class DmlPlan {
         String table;
         Node where;
@@ -520,13 +570,19 @@ final class MemorySqlAst {
         }
     }
 
-    /** 插入 计划 */
+    /**
+     * 插入 计划
+    */
     static final class InsertPlan extends DmlPlan {
 
-        /** 显式列清单，未指定时由首行推断 */
+        /**
+         * 显式列清单，未指定时由首行推断
+        */
         final List<String> columns = new ArrayList<>();
 
-        /** 各待插入行的值集合 */
+        /**
+         * 各待插入行的值集合
+        */
         final List<List<Object>> rows = new ArrayList<>();
 
         /**
@@ -548,10 +604,14 @@ final class MemorySqlAst {
         }
     }
 
-    /** 更新 计划 */
+    /**
+     * 更新 计划
+    */
     static final class UpdatePlan extends DmlPlan {
 
-        /** 设置 赋值映射（保持语句顺序） */
+        /**
+         * 设置 赋值映射（保持语句顺序）
+        */
         final Map<String, Object> sets = new LinkedHashMap<>();
 
         /**
@@ -564,7 +624,9 @@ final class MemorySqlAst {
         }
     }
 
-    /** 删除 计划 */
+    /**
+     * 删除 计划
+    */
     static final class DeletePlan extends DmlPlan {
     }
 

@@ -26,17 +26,27 @@ import java.util.regex.Pattern;
 @Spi("jdk")
 public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
 
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     private static final String PREFIX = "filestorage.filter.";
 
-    /** 过滤器chain */
+    /**
+     * 过滤器chain
+    */
     private final List<FileStorageFilterSetting.ImageFilterConfig> filterChain;
-    /** Exclude路径模式 */
+    /**
+     * Exclude路径模式
+    */
     private final List<Pattern> excludePathPatterns;
-    /** Excludeextensions */
+    /**
+     * Excludeextensions
+    */
     private final Set<String> excludeExtensions;
 
-    /** 创建 jdk文件storage过滤器setting 实例 */
+    /**
+     * 创建 jdk文件storage过滤器setting 实例
+    */
     public JdkFileStorageFilterSetting() {
         this.filterChain = buildFilterChain();
         this.excludePathPatterns = buildExcludePathPatterns();
@@ -44,7 +54,9 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     @Override
-    /** Capabilities */
+    /**
+     * Capabilities
+    */
     public List<String> capabilities() {
         return List.of(
                 "size", "resize",
@@ -61,13 +73,17 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     }
 
     @Override
-    /** 获取过滤Chain */
+    /**
+     * 获取过滤Chain
+    */
     public List<FileStorageFilterSetting.ImageFilterConfig> getFilterChain() {
         return filterChain;
     }
 
     @Override
-    /** 是否Excluded */
+    /**
+     * 是否Excluded
+    */
     public boolean isExcluded(String path, String extension) {
         if (extension != null && excludeExtensions.contains(extension.toLowerCase())) {
             return true;

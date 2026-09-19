@@ -26,9 +26,13 @@ import java.util.List;
  */
 public class ImageGenerationModel implements Model {
 
-    /** 图像客户端 */
+    /**
+     * 图像客户端
+    */
     private final ImageClient imageClient;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String modelName;
 
     /**
@@ -43,7 +47,9 @@ public class ImageGenerationModel implements Model {
     }
 
     @Override
-    /** 流 */
+    /**
+     * 流
+    */
     public Flux<ChatResponse> stream(List<Msg> messages, List<ToolSchema> tools, GenerateOptions options) {
         String prompt = extractPrompt(messages);
         String resultText;
@@ -66,7 +72,9 @@ public class ImageGenerationModel implements Model {
     }
 
     @Override
-    /** 获取模型名称 */
+    /**
+     * 获取模型名称
+    */
     public String getModelName() {
         return modelName;
     }

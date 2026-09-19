@@ -45,19 +45,25 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public ViewCreateBuilder create(String viewName) {
         return new MysqlViewCreateBuilder(this, viewName);
     }
 
     @Override
-    /** Alter */
+    /**
+     * Alter
+    */
     public ViewAlterBuilder alter() {
         return new MysqlViewAlterBuilder(this);
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop() {
         if (viewName == null) {
             throw new IllegalStateException("未指定视图名");
@@ -66,7 +72,9 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<ViewDef> list() {
         List<ViewDef> result = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -88,7 +96,9 @@ public class MysqlMetaView extends AbstractMetaView {
     }
 
     @Override
-    /** 单查 */
+    /**
+     * 单查
+    */
     public ViewDef get() {
         if (viewName == null) {
             throw new IllegalStateException("未指定视图名");
@@ -175,17 +185,29 @@ public class MysqlMetaView extends AbstractMetaView {
 
     private static class MysqlViewCreateBuilder implements ViewCreateBuilder {
 
-        /** Metaview */
+        /**
+         * Metaview
+        */
         private final MysqlMetaView metaView;
-        /** View名称 */
+        /**
+         * View名称
+        */
         private final String viewName;
-        /** Definition */
+        /**
+         * Definition
+        */
         private String definition;
-        /** orreplace */
+        /**
+         * orreplace
+        */
         private boolean orReplace;
-        /** 评论 */
+        /**
+         * 评论
+        */
         private String comment;
-        /** Updatable */
+        /**
+         * Updatable
+        */
         private boolean updatable;
 
         MysqlViewCreateBuilder(MysqlMetaView metaView, String viewName) {
@@ -194,35 +216,45 @@ public class MysqlMetaView extends AbstractMetaView {
         }
 
         @Override
-        /** Definition */
+        /**
+         * Definition
+        */
         public ViewCreateBuilder definition(String definition) {
             this.definition = definition;
             return this;
         }
 
         @Override
-        /** 或替换 */
+        /**
+         * 或替换
+        */
         public ViewCreateBuilder orReplace() {
             this.orReplace = true;
             return this;
         }
 
         @Override
-        /** 评论 */
+        /**
+         * 评论
+        */
         public ViewCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
-        /** Updatable */
+        /**
+         * Updatable
+        */
         public ViewCreateBuilder updatable() {
             this.updatable = true;
             return this;
         }
 
         @Override
-        /** 校验期权 */
+        /**
+         * 校验期权
+        */
         public ViewCreateBuilder checkOption(String checkOption) {
             return this;
         }
@@ -259,11 +291,17 @@ public class MysqlMetaView extends AbstractMetaView {
 
     private static class MysqlViewAlterBuilder implements ViewAlterBuilder {
 
-        /** Metaview */
+        /**
+         * Metaview
+        */
         private final MysqlMetaView metaView;
-        /** Definition */
+        /**
+         * Definition
+        */
         private String definition;
-        /** 新名称 */
+        /**
+         * 新名称
+        */
         private String newName;
 
         MysqlViewAlterBuilder(MysqlMetaView metaView) {
@@ -271,21 +309,27 @@ public class MysqlMetaView extends AbstractMetaView {
         }
 
         @Override
-        /** Definition */
+        /**
+         * Definition
+        */
         public ViewAlterBuilder definition(String definition) {
             this.definition = definition;
             return this;
         }
 
         @Override
-        /** 重命名转为 */
+        /**
+         * 重命名转为
+        */
         public ViewAlterBuilder renameTo(String newName) {
             this.newName = newName;
             return this;
         }
 
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public ViewDef execute() {
             if (newName != null && !newName.isEmpty()) {
                 metaView.executeUpdate("RENAME TABLE " + metaView.quote(metaView.viewName) + " TO " + metaView.quote(newName));

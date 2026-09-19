@@ -41,7 +41,9 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     private static final String CALCITE_LEX_MYSQL = "MYSQL";
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public DataSource convert(List<DataSource> dataSources, DataSourceEnvironment environment) {
         if (dataSources == null || dataSources.isEmpty()) {
             throw new IllegalArgumentException("至少需要一个数据源");
@@ -50,7 +52,9 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "CALCITE";
     }
@@ -77,7 +81,9 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
-        /** 获取Connection */
+        /**
+         * 获取Connection
+        */
         public Connection getConnection() throws SQLException {
             Properties info = new Properties();
             info.put(CALCITE_LEX, CALCITE_LEX_MYSQL);
@@ -94,7 +100,9 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
-        /** 获取Connection */
+        /**
+         * 获取Connection
+        */
         public Connection getConnection(String username, String password) throws SQLException {
             return getConnection();
         }
@@ -115,35 +123,47 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
-        /** 是否包装器for */
+        /**
+         * 是否包装器for
+        */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
 
         @Override
-        /** 获取记录日志Writer */
+        /**
+         * 获取记录日志Writer
+        */
         public PrintWriter getLogWriter() {
             return null;
         }
 
         @Override
-        /** 设置记录日志Writer */
+        /**
+         * 设置记录日志Writer
+        */
         public void setLogWriter(PrintWriter out) {
         }
 
         @Override
-        /** 设置login超时 */
+        /**
+         * 设置login超时
+        */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
-        /** 获取login超时 */
+        /**
+         * 获取login超时
+        */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
-        /** 获取父日志记录器 */
+        /**
+         * 获取父日志记录器
+        */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }

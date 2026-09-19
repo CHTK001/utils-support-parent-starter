@@ -57,32 +57,44 @@ import java.util.concurrent.atomic.LongAdder;
 @Spi("java")
 public class JavaBenchmark implements Benchmark {
 
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private BenchmarkConfig config = BenchmarkConfig.builder().build();
-    /** 结果对象 */
+    /**
+     * 结果对象
+    */
     private BenchmarkResult result;
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         return "java";
     }
 
     @Override
-    /** Configure */
+    /**
+     * Configure
+    */
     public Benchmark configure(BenchmarkConfig config) {
         this.config = config != null ? config : BenchmarkConfig.builder().build();
         return this;
     }
 
     @Override
-    /** Config */
+    /**
+     * Config
+    */
     public BenchmarkConfig config() {
         return config;
     }
 
     @Override
-    /** 运行 */
+    /**
+     * 运行
+    */
     public BenchmarkResult run() throws Exception {
         String targetUrl = config.getTargetUrl();
         if (targetUrl == null || targetUrl.isEmpty()) {
@@ -220,7 +232,9 @@ public class JavaBenchmark implements Benchmark {
     }
 
     @Override
-    /** Report */
+    /**
+     * Report
+    */
     public File report(String reportPath) throws Exception {
         if (result == null || result.getRows().isEmpty()) {
             throw new IllegalStateException("请先执行 run() 获取压测结果");
@@ -233,7 +247,9 @@ public class JavaBenchmark implements Benchmark {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 压测线程池在 run() 内已关闭，无需额外资源
     }

@@ -66,7 +66,9 @@ public class OkHttpSseClient implements SseClient {
     }
 
     @Override
-    /** 连接 */
+    /**
+     * 连接
+    */
     public SseConnection connect(SseRequest request, SseListener listener) {
         try {
             // 构建 OkHttp 请求
@@ -191,7 +193,9 @@ public class OkHttpSseClient implements SseClient {
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             closed = true;
             if (readerThread != null) {
@@ -201,7 +205,9 @@ public class OkHttpSseClient implements SseClient {
         }
 
         @Override
-        /** 是否连接 */
+        /**
+         * 是否连接
+        */
         public boolean isConnected() {
             return !closed;
         }
@@ -218,12 +224,16 @@ public class OkHttpSseClient implements SseClient {
         static final ClosedSseConnection INSTANCE = new ClosedSseConnection();
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
         }
 
         @Override
-        /** 是否连接 */
+        /**
+         * 是否连接
+        */
         public boolean isConnected() {
             return false;
         }

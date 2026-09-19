@@ -14,31 +14,49 @@ import java.util.Map;
  */
 public class DetectionConfiguration {
 
-    /** 运行参数键：置信度阈值 */
+    /**
+     * 运行参数键：置信度阈值
+    */
     public static final String KEY_THRESHOLD = "threshold";
 
-    /** 运行参数键：NMS IOU 阈值 */
+    /**
+     * 运行参数键：NMS IOU 阈值
+    */
     public static final String KEY_IOU_THRESHOLD = "iouThreshold";
 
-    /** 是否使用 GPU */
+    /**
+     * 是否使用 GPU
+    */
     private boolean useGpu;
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
-    /** 覆盖加载的模型名称 */
+    /**
+     * 覆盖加载的模型名称
+    */
     private String loadModelName;
 
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private String loadModelPath;
 
-    /** 系统级选项（appid、app键 等） */
+    /**
+     * 系统级选项（appid、app键 等）
+    */
     private Map<String, Object> systemOption;
 
-    /** 默认配置实例 */
+    /**
+     * 默认配置实例
+    */
     public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
 
-    /** 全局当前配置（静态单例，线程安全） */
+    /**
+     * 全局当前配置（静态单例，线程安全）
+    */
     private static volatile DetectionConfiguration current;
 
     static {

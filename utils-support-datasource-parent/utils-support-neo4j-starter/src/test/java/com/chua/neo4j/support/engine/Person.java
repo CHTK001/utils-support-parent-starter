@@ -9,16 +9,24 @@ package com.chua.neo4j.support.engine;
  */
 public class Person {
 
-    /** 主键 */
+    /**
+     * 主键
+    */
     private Long id;
 
-    /** 姓名 */
+    /**
+     * 姓名
+    */
     private String name;
 
-    /** 年龄 */
+    /**
+     * 年龄
+    */
     private Integer age;
 
-    /** 无参构造器 */
+    /**
+     * 无参构造器
+    */
     public Person() {
     }
 

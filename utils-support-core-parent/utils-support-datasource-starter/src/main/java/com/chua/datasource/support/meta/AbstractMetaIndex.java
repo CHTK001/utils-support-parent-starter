@@ -64,32 +64,42 @@ public abstract class AbstractMetaIndex implements MetaIndex {
     }
 
     @Override
-    /** ontable */
+    /**
+     * ontable
+    */
     public MetaIndex onTable(String tableName) {
         this.tableName = tableName;
         return this;
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<IndexMetadata> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public IndexMetadata get(String indexName) {
         throw new UnsupportedOperationException("请实现 get() 方法");
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public IndexCreateBuilder create(String indexName) {
         throw new UnsupportedOperationException("请实现 create() 方法");
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop(String indexName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

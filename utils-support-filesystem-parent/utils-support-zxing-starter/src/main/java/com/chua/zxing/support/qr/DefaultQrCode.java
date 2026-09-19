@@ -43,7 +43,9 @@ import javax.annotation.Nullable;
 @Slf4j
 @Spi({"zxing", DEFAULT})
 public class DefaultQrCode extends AbstractQrCode {
-    /** Quiet_zone_大小 */
+    /**
+     * Quiet_zone_大小
+    */
     private static final int QUIET_ZONE_SIZE = 4;
 
     /**
@@ -55,7 +57,9 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     @Override
-    /** 出 */
+    /**
+     * 出
+    */
     public void out(String content, OutputStream outputStream) {
         QrCodeGenWrapper.Builder builder = QrCodeGenWrapper.of(content);
 

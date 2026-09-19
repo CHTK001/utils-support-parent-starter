@@ -23,11 +23,17 @@ import java.security.SecureRandom;
 @Spi({"bc", "bouncycastle"})
 public class BcDesedeCipher implements DesedeCipher {
 
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     private static final String PROVIDER = "BC";
-    /** 算法 */
+    /**
+     * 算法
+    */
     private static final String ALGORITHM = "DESede";
-    /** 转变 */
+    /**
+     * 转变
+    */
     private static final String TRANSFORMATION = "DESede/CBC/PKCS7Padding";
 
     static {
@@ -37,7 +43,9 @@ public class BcDesedeCipher implements DesedeCipher {
     }
 
     @Override
-    /** Encrypt */
+    /**
+     * Encrypt
+    */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[8];
@@ -58,7 +66,9 @@ public class BcDesedeCipher implements DesedeCipher {
     }
 
     @Override
-    /** Decrypt */
+    /**
+     * Decrypt
+    */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[8];

@@ -20,38 +20,68 @@ import lombok.Data;
  */
 @Data
 public class RpcRegistryConfig {
-    /** 注册中心地址 */
+    /**
+     * 注册中心地址
+    */
     private String address;
-    /** 登录用户名 */
+    /**
+     * 登录用户名
+    */
     private String username;
-    /** 登录密码 */
+    /**
+     * 登录密码
+    */
     private String password;
-    /** 端口 */
+    /**
+     * 端口
+    */
     private Integer port;
     /**
      * 注册中心协议类型（zookeeper, nacos, redis, multicast, direct）
      */
     private String protocol;
-    /** 连接超时（毫秒） */
+    /**
+     * 连接超时（毫秒）
+    */
     private Integer timeout;
-    /** 会话超时（毫秒），ZooKeeper 等依赖心跳的注册中心使用 */
+    /**
+     * 会话超时（毫秒），ZooKeeper 等依赖心跳的注册中心使用
+    */
     private Integer sessionTimeout;
-    /** 服务分组 */
+    /**
+     * 服务分组
+    */
     private String group;
-    /** 服务版本 */
+    /**
+     * 服务版本
+    */
     private String version;
-    /** 启动时检查连通性 */
+    /**
+     * 启动时检查连通性
+    */
     private Boolean check;
-    /** 是否动态注册 */
+    /**
+     * 是否动态注册
+    */
     private Boolean dynamic;
-    /** 是否注册（服务端） */
+    /**
+     * 是否注册（服务端）
+    */
     private Boolean register;
-    /** 是否订阅（客户端） */
+    /**
+     * 是否订阅（客户端）
+    */
     private Boolean subscribe;
-    /** 节点权重 */
+    /**
+     * 节点权重
+    */
     private Integer weight;
-    /** 扩展参数 */
+    /**
+     * 扩展参数
+    */
     private java.util.Map<String, String> parameters;
-    /** 本地缓存文件路径（如 dubbo-registry-file） */
+    /**
+     * 本地缓存文件路径（如 dubbo-registry-file）
+    */
     private String file;
 }

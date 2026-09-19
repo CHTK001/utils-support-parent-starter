@@ -35,28 +35,46 @@ import java.util.regex.Pattern;
 @Spi("quarktv")
 public class QuarktvResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索页地址前缀（拼接 UTF-8 编码后的关键词） */
+    /**
+     * 搜索页地址前缀（拼接 UTF-8 编码后的关键词）
+    */
     private static final String SEARCH_URL = "https://www.quarktv.com/?s=";
-    /** 标题链接匹配模式：群体(1)=链接，群体(2)=标题 */
+    /**
+     * 标题链接匹配模式：群体(1)=链接，群体(2)=标题
+    */
     private static final Pattern TITLE_LINK_PATTERN =
             Pattern.compile("<a[^>]+href=\"([^\"]+)\"[^>]*>\\s*([^<]{2,})\\s*</a>");
-    /** 视频类链接特征（详情页/播放/分享/vod 路径） */
+    /**
+     * 视频类链接特征（详情页/播放/分享/vod 路径）
+    */
     private static final Pattern VIDEO_LINK_PATTERN =
             Pattern.compile("/(?:movie|video|detail|play|share)/?[\\w-]*.*|/s/[\\w/]+|/vod/.*",
                     Pattern.CASE_INSENSITIVE);
-    /** 导航菜单标题排除模式（非视频搜索结果） */
+    /**
+     * 导航菜单标题排除模式（非视频搜索结果）
+    */
     private static final Pattern NAV_TITLE_EXCLUDE_PATTERN =
             Pattern.compile("^(?i)(登录|注册|首页|关于我们|联系我们|客户端|客服|下载|帮助|更多|全部|"
                     + "电影|电视|动漫|综艺|短剧|纪录片|搜索|热门|最新|排行|资讯|公告)$");
-    /** SPA 壳页特征标记 */
+    /**
+     * SPA 壳页特征标记
+    */
     private static final String SPA_SHELL_MARKER = "ice-container";
-    /** 无 JS 提示标记（纯 JS 渲染兜底检测） */
+    /**
+     * 无 JS 提示标记（纯 JS 渲染兜底检测）
+    */
     private static final String NO_SCRIPT_MARKER = "<noscript>";
-    /** 链接扫描上限（防止大页面遍历过深） */
+    /**
+     * 链接扫描上限（防止大页面遍历过深）
+    */
     private static final int MAX_SCAN_LINKS = 50;
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 10;
-    /** 最短有效标题长度（过滤导航短词） */
+    /**
+     * 最短有效标题长度（过滤导航短词）
+    */
     private static final int MIN_TITLE_LENGTH = 3;
 
     /**

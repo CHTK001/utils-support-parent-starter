@@ -26,7 +26,9 @@ import java.util.Map;
  */
 public class ReactorFlywayBridge implements Engine {
 
-    /** 目标响应式引擎 */
+    /**
+     * 目标响应式引擎
+    */
     private final JdbcReactorEngine delegate;
 
     /**
@@ -135,7 +137,9 @@ public class ReactorFlywayBridge implements Engine {
     }
 
     @Override
-    /** 不支持元数据操作 */
+    /**
+     * 不支持元数据操作
+    */
     public boolean supportsMeta() {
         return false;
     }

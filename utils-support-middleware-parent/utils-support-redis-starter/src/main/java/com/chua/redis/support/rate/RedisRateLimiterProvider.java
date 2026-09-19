@@ -22,11 +22,17 @@ import java.util.concurrent.TimeUnit;
 @Spi("redis")
 public class RedisRateLimiterProvider implements RateLimiterProvider {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
-    /** Redisson客户端 */
+    /**
+     * Redisson客户端
+    */
     private final RedissonClient redissonClient;
-    /** 比率limiter */
+    /**
+     * 比率limiter
+    */
     private final RRateLimiter rateLimiter;
 
     /**
@@ -62,19 +68,25 @@ public class RedisRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** 尝试获取 */
+    /**
+     * 尝试获取
+    */
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
     @Override
-    /** 尝试获取 */
+    /**
+     * 尝试获取
+    */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return name;
     }

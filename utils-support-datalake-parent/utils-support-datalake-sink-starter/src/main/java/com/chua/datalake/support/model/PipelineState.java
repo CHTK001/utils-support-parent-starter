@@ -8,24 +8,38 @@ package com.chua.datalake.support.model;
  */
 public enum PipelineState {
 
-    /** 数据已接收 */
+    /**
+     * 数据已接收
+    */
     RECEIVED,
 
-    /** 已过滤 */
+    /**
+     * 已过滤
+    */
     FILTERED,
 
-    /** 已解析 */
+    /**
+     * 已解析
+    */
     PARSED,
 
-    /** 已清洗 */
+    /**
+     * 已清洗
+    */
     CLEANED,
 
-    /** 已标准化 */
+    /**
+     * 已标准化
+    */
     STANDARDIZED,
 
-    /** 落盘成功 */
+    /**
+     * 落盘成功
+    */
     SINK_OK,
 
-    /** 落盘失败 */
+    /**
+     * 落盘失败
+    */
     SINK_FAIL
 }

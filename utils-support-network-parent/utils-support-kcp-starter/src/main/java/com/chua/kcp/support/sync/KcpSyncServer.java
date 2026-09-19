@@ -46,74 +46,98 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
     }
 
     @Override
-    /** 获取协议 */
+    /**
+     * 获取协议
+    */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
-    /** 创建服务端 */
+    /**
+     * 创建服务端
+    */
     public SyncServer createServer(ServerSetting setting) {
         return new KcpSyncServer(setting);
     }
 
     @Override
-    /** 创建客户端 */
+    /**
+     * 创建客户端
+    */
     public SyncClient createClient(Object setting) {
         String url = setting instanceof String ? (String) setting : DEFAULT_URL;
         return new KcpSyncClient(url);
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         delegate.start();
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         delegate.stop();
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         delegate.publish(topic, message);
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         delegate.send(clientId, topic, message);
     }
 
     @Override
-    /** 获取连接客户端 */
+    /**
+     * 获取连接客户端
+    */
     public List<String> getConnectedClients() {
         return delegate.getConnectedClients();
     }
 
     @Override
-    /** 获取客户端metadata */
+    /**
+     * 获取客户端metadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         return delegate.getClientMetadata(clientId);
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncServerListener listener) {
         delegate.addListener(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncServerListener listener) {
         delegate.removeListener(listener);
     }

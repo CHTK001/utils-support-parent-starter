@@ -22,7 +22,9 @@ import java.util.function.Function;
 public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(AutoInject.class);

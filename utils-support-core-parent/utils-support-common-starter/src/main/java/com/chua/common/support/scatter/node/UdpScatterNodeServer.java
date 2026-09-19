@@ -26,9 +26,13 @@ import java.util.concurrent.Executors;
 public class UdpScatterNodeServer extends AbstractServer {
 
     private final ScatterNodeHandler handler;
-    /** socket */
+    /**
+     * socket
+    */
     private DatagramSocket socket;
-    /** workerPool */
+    /**
+     * workerPool
+    */
     private ExecutorService workerPool;
     private volatile boolean running = false;
 

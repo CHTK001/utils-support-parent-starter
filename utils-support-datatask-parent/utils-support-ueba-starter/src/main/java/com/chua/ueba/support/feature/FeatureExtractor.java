@@ -28,13 +28,19 @@ import java.util.Objects;
 @Slf4j
 public class FeatureExtractor {
 
-    /** 一天的小时数，用于 时间_的_day 归一化 */
+    /**
+     * 一天的小时数，用于 时间_的_day 归一化
+    */
     private static final double HOURS_PER_DAY = 24.0d;
 
-    /** HTTP 4xx/5xx 状态码下限 */
+    /**
+     * HTTP 4xx/5xx 状态码下限
+    */
     private static final int CLIENT_ERROR_STATUS = 400;
 
-    /** 默认时区 */
+    /**
+     * 默认时区
+    */
     private static final ZoneId ZONE = ZoneId.systemDefault();
 
     /**
@@ -150,17 +156,29 @@ public class FeatureExtractor {
         return numeric;
     }
 
-    /** 获取 方法编码 */
+    /**
+     * 获取 方法编码
+    */
     private static final int METHOD_CODE_GET = 0;
-    /** POST 方法编码 */
+    /**
+     * POST 方法编码
+    */
     private static final int METHOD_CODE_POST = 1;
-    /** 放入 方法编码 */
+    /**
+     * 放入 方法编码
+    */
     private static final int METHOD_CODE_PUT = 2;
-    /** 删除 方法编码 */
+    /**
+     * 删除 方法编码
+    */
     private static final int METHOD_CODE_DELETE = 3;
-    /** 其它方法编码 */
+    /**
+     * 其它方法编码
+    */
     private static final int METHOD_CODE_OTHER = 4;
-    /** 方法编码最大值（归一化除数） */
+    /**
+     * 方法编码最大值（归一化除数）
+    */
     private static final float METHOD_CODE_MAX = 4.0f;
 
     /**

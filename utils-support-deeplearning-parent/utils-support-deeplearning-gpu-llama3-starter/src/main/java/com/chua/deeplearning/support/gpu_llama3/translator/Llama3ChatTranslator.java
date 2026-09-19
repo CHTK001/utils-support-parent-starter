@@ -39,34 +39,58 @@ import java.util.Map;
 @Slf4j
 public class Llama3ChatTranslator implements ITranslator<String, String>, DetectionConfigurable, AutoCloseable {
 
-    /** 单次回答最大 令牌 数 */
+    /**
+     * 单次回答最大 令牌 数
+    */
     private static final int DEFAULT_N_PREDICT = 512;
-    /** Llama 3 对话 结束标记 */
+    /**
+     * Llama 3 对话 结束标记
+    */
     private static final String END_TOKEN = "<|end_of_text|>";
-    /** 默认上下文大小 */
+    /**
+     * 默认上下文大小
+    */
     private static final int DEFAULT_CTX_SIZE = 4096;
-    /** 默认 Top-K */
+    /**
+     * 默认 Top-K
+    */
     private static final int DEFAULT_TOP_K = 40;
-    /** 默认温度 */
+    /**
+     * 默认温度
+    */
     private static final float DEFAULT_TEMPERATURE = 0.7f;
 
     private final String modelId; // 模型标识
     private volatile LlamaModel model; // 模型
     private volatile boolean initialized; // 初始化
 
-    /** 运行时配置的 GPU 层数（空 = 使用默认） */
+    /**
+     * 运行时配置的 GPU 层数（空 = 使用默认）
+    */
     private volatile Integer gpuLayers;
-    /** 运行时配置的上下文大小 */
+    /**
+     * 运行时配置的上下文大小
+    */
     private volatile Integer ctxSize;
-    /** 运行时配置的 Top-K */
+    /**
+     * 运行时配置的 Top-K
+    */
     private volatile Integer topK;
-    /** 运行时配置的温度 */
+    /**
+     * 运行时配置的温度
+    */
     private volatile Float temperature;
-    /** 运行时配置的最大输出 令牌 */
+    /**
+     * 运行时配置的最大输出 令牌
+    */
     private volatile Integer nPredict;
-    /** 运行时配置的线程数 */
+    /**
+     * 运行时配置的线程数
+    */
     private volatile Integer threads;
-    /** 运行时配置的 device 选择（空/blank = auto） */
+    /**
+     * 运行时配置的 device 选择（空/blank = auto）
+    */
     private volatile String device;
 
     /**

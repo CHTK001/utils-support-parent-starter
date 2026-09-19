@@ -19,11 +19,17 @@ import java.util.Map;
 @Slf4j
 public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
 
-    /** 客户端 */
+    /**
+     * 客户端
+    */
     private final SafeTensorServiceClient client;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String modelName;
-    /** 模型类型 */
+    /**
+     * 模型类型
+    */
     private final String modelType;
 
     /**
@@ -43,7 +49,9 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }

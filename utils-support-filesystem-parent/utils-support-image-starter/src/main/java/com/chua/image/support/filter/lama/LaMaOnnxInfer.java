@@ -40,13 +40,21 @@ import javax.annotation.Nullable;
 @Slf4j
 public class LaMaOnnxInfer implements AutoCloseable {
 
-    /** 配置 */
+    /**
+     * 配置
+    */
     private final LaMaConfiguration config;
-    /** ort环境 */
+    /**
+     * ort环境
+    */
     private Object ortEnvironment;
-    /** ort会话 */
+    /**
+     * ort会话
+    */
     private Object ortSession;
-    /** 是否已初始化 */
+    /**
+     * 是否已初始化
+    */
     private boolean initialized = false;
 
     /**
@@ -401,7 +409,9 @@ if (tensorValue instanceof float[][][]) {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (initialized && ortSession != null) {
             try {

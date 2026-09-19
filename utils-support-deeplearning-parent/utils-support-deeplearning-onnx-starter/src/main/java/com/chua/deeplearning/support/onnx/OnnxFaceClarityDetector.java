@@ -48,7 +48,9 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public FaceClarityDetector model(String model) {
         this.modelName = model;
         return this;
@@ -68,35 +70,45 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** blur阈值 */
+    /**
+     * blur阈值
+    */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 最小值faceratio */
+    /**
+     * 最小值faceratio
+    */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public FaceClarityDetector device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** 评定 */
+    /**
+     * 评定
+    */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

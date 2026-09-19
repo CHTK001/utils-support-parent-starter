@@ -26,7 +26,9 @@ public class PythonScriptExecutor implements ScriptExecutor {
      */
     private final long timeoutMillis;
 
-    /** 创建 pythonscript执行器 实例 */
+    /**
+     * 创建 pythonscript执行器 实例
+    */
     public PythonScriptExecutor() {
         this("python3");
     }
@@ -51,7 +53,9 @@ public class PythonScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public String execute(Path scriptPath, Map<String, Object> context) {
         try {
             ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath.toString());
@@ -92,7 +96,9 @@ public class PythonScriptExecutor implements ScriptExecutor {
     }
 
     @Override
-    /** 获取延伸 */
+    /**
+     * 获取延伸
+    */
     public String getExtension() {
         return ".py";
     }

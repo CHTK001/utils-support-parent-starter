@@ -10,7 +10,9 @@ package com.chua.common.support.network.download;
  */
 public enum DownloadProtocol {
 
-    /** 内置 HTTP 下载（默认） */
+    /**
+     * 内置 HTTP 下载（默认）
+    */
     DEFAULT,
 
     /**

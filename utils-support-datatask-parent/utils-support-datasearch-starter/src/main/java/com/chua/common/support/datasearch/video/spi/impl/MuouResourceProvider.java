@@ -40,45 +40,85 @@ import java.util.regex.Pattern;
 @Spi("muou")
 public class MuouResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索页地址（%s 替换 UTF-8 编码后的关键词） */
+    /**
+     * 搜索页地址（%s 替换 UTF-8 编码后的关键词）
+    */
     private static final String SEARCH_URL = "https://666.666291.xyz/index.php/vod/search/wd/%s.html";
-    /** 详情页地址（%s 替换视频标识） */
+    /**
+     * 详情页地址（%s 替换视频标识）
+    */
     private static final String DETAIL_URL = "https://666.666291.xyz/index.php/vod/detail/id/%s.html";
-    /** 详情页链接标识提取模式 */
+    /**
+     * 详情页链接标识提取模式
+    */
     private static final Pattern ID_PATTERN = Pattern.compile("/vod/detail/id/(\\d+)\\.html");
-    /** 夸克网盘链接模式 */
+    /**
+     * 夸克网盘链接模式
+    */
     private static final Pattern QUARK = Pattern.compile("https?://pan\\.quark\\.cn/s/[0-9a-zA-Z]+");
-    /** UC网盘链接模式 */
+    /**
+     * UC网盘链接模式
+    */
     private static final Pattern UC = Pattern.compile("https?://drive\\.uc\\.cn/s/[0-9a-zA-Z]+(?:\\?[^\\s\"']*)?");
-    /** 百度网盘链接模式 */
+    /**
+     * 百度网盘链接模式
+    */
     private static final Pattern BAIDU = Pattern.compile("https?://pan\\.baidu\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
-    /** 阿里云盘链接模式 */
+    /**
+     * 阿里云盘链接模式
+    */
     private static final Pattern ALIYUN = Pattern.compile("https?://(?:www\\.)?(aliyundrive\\.com|alipan\\.com)/s/[0-9a-zA-Z]+");
-    /** 迅雷网盘链接模式 */
+    /**
+     * 迅雷网盘链接模式
+    */
     private static final Pattern XUNLEI = Pattern.compile("https?://pan\\.xunlei\\.com/s/[0-9a-zA-Z_\\-]+(?:\\?pwd=[0-9a-zA-Z]+)?");
-    /** 天翼云盘链接模式 */
+    /**
+     * 天翼云盘链接模式
+    */
     private static final Pattern TIANYI = Pattern.compile("https?://cloud\\.189\\.cn/t/[0-9a-zA-Z]+");
-    /** 115网盘链接模式 */
+    /**
+     * 115网盘链接模式
+    */
     private static final Pattern LINK_115 = Pattern.compile("https?://115\\.com/s/[0-9a-zA-Z]+");
-    /** 123网盘链接模式 */
+    /**
+     * 123网盘链接模式
+    */
     private static final Pattern LINK_123 = Pattern.compile("https?://123pan\\.com/s/[0-9a-zA-Z]+");
-    /** PikPak链接模式 */
+    /**
+     * PikPak链接模式
+    */
     private static final Pattern PIKPAK = Pattern.compile("https?://mypikpak\\.com/s/[0-9a-zA-Z]+");
-    /** 磁力链接模式 */
+    /**
+     * 磁力链接模式
+    */
     private static final Pattern MAGNET = Pattern.compile("magnet:\\?xt=urn:btih:[0-9a-fA-F]{40}");
-    /** h1 标题提取模式 */
+    /**
+     * h1 标题提取模式
+    */
     private static final Pattern TITLE_H1_PATTERN = Pattern.compile("<h1[^>]*>([^<]+)</h1>");
-    /** title 标签提取模式 */
+    /**
+     * title 标签提取模式
+    */
     private static final Pattern TITLE_TAG_PATTERN = Pattern.compile("<title>([^<]+)</title>");
-    /** 占位标题（无法提取时使用） */
+    /**
+     * 占位标题（无法提取时使用）
+    */
     private static final String UNNAMED_TITLE = "未命名";
-    /** 停服公告特征词：命中即标记站点不可用 */
+    /**
+     * 停服公告特征词：命中即标记站点不可用
+    */
     private static final String SHUTDOWN_MARKER = "跑路";
-    /** 详情标识扫描上限（避免遍历过多） */
+    /**
+     * 详情标识扫描上限（避免遍历过多）
+    */
     private static final int MAX_ID_COUNT = 6;
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 5;
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(MuouResourceProvider.class);
 

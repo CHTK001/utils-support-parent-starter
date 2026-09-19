@@ -7,7 +7,9 @@ import java.util.List;
  */
 
 public interface ReadCallback {
-    /** OnHeader */
+    /**
+     * OnHeader
+    */
     default void onHeader(List<String> headers) {}
     /**
      * 响应请求体。
@@ -15,6 +17,8 @@ public interface ReadCallback {
      * @param row 行，不允许为 null
      */
     void onBody(Object row);
-    /** OnComplete */
+    /**
+     * OnComplete
+    */
     default void onComplete(long total) {}
 }

@@ -47,11 +47,15 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
     @RequiredArgsConstructor
     private static class RateLimiterAdvice implements MethodInterceptor {
 
-        /** Intercept */
+        /**
+         * Intercept
+        */
         private final RateLimiterIntercept intercept;
 
         @Override
-        /** 调用 */
+        /**
+         * 调用
+        */
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
             RateLimiter annotation = method.getAnnotation(RateLimiter.class);

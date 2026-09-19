@@ -98,19 +98,25 @@ public class EngineDataSchema implements DataScheme {
     }
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 获取table名称 */
+    /**
+     * 获取table名称
+    */
     public List<String> getTableNames() {
         return tables.stream().map(DataTable::getName).collect(Collectors.toList());
     }
 
     @Override
-    /** 获取Table */
+    /**
+     * 获取Table
+    */
     public DataTable getTable(String name) {
         for (DataTable t : tables) {
             if (t.getName().equals(name)) {
@@ -121,7 +127,9 @@ public class EngineDataSchema implements DataScheme {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         engine.close();
     }

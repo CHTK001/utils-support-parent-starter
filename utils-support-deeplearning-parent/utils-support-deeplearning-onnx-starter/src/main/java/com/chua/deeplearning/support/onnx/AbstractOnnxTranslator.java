@@ -7,7 +7,9 @@ import com.chua.deeplearning.support.translator.ITranslator;
  */
 
 public abstract class AbstractOnnxTranslator<I, O> implements ITranslator<I, O> {
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private final String modelName;
     /**
      * 创建 抽象onnxtranslator 实例
@@ -16,6 +18,8 @@ public abstract class AbstractOnnxTranslator<I, O> implements ITranslator<I, O> 
     protected AbstractOnnxTranslator(String modelName) { this.modelName = modelName; }
     @Override public String name() { return modelName; }
     @Override public O translate(I input) { return runInference(input); }
-    /** 运行推理 */
+    /**
+     * 运行推理
+    */
     protected abstract O runInference(I input);
 }

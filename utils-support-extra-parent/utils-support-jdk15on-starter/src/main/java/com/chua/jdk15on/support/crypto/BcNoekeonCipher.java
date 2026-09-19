@@ -22,11 +22,17 @@ import java.security.SecureRandom;
 @Spi({"bc", "bouncycastle"})
 public class BcNoekeonCipher implements NoekeonCipher {
 
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     private static final String PROVIDER = "BC";
-    /** 算法 */
+    /**
+     * 算法
+    */
     private static final String ALGORITHM = "Noekeon";
-    /** 转变 */
+    /**
+     * 转变
+    */
     private static final String TRANSFORMATION = "Noekeon/ECB/ZeroBytePadding";
 
     static {
@@ -36,7 +42,9 @@ public class BcNoekeonCipher implements NoekeonCipher {
     }
 
     @Override
-    /** Encrypt */
+    /**
+     * Encrypt
+    */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
@@ -49,7 +57,9 @@ public class BcNoekeonCipher implements NoekeonCipher {
     }
 
     @Override
-    /** Decrypt */
+    /**
+     * Decrypt
+    */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);

@@ -50,27 +50,35 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
      */
     protected final AtomicBoolean started;
 
-    /** 创建 抽象app处理器 实例 */
+    /**
+     * 创建 抽象app处理器 实例
+    */
     protected AbstractAppHandler() {
         this.records = new BoundedRecordList<>(10000);
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         return "1.0.0";
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(PluginContext context) throws Exception {
         this.enabled = "true".equals(context.getProperty(enabledKey(), "true"));
         LOG.log(Level.INFO, String.format("%s 初始化完成，启用状态: %s", name(), enabled));
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() throws Exception {
         if (!enabled) {
             return;
@@ -83,7 +91,9 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() throws Exception {
         this.enabled = false;
         if (started.compareAndSet(true, false)) {
@@ -93,19 +103,25 @@ public abstract class AbstractAppHandler implements Plugin, RuntimeSpy.Intercept
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public String status() {
         return String.format("%s[enabled=%s, records=%d]", name(), enabled, records.size());
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return enabled && started.get();
     }
 
     @Override
-    /** onintercept */
+    /**
+     * onintercept
+    */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;

@@ -58,7 +58,9 @@ public class RustVideoDecoder implements VideoDecoder {
     private static final int AV_CODEC_ID_H266 = 276;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public synchronized boolean init(int codecId, int width, int height) {
         close();
         this.codecId = codecId;
@@ -84,7 +86,9 @@ public class RustVideoDecoder implements VideoDecoder {
     }
 
     @Override
-    /** 解码 */
+    /**
+     * 解码
+    */
     public synchronized ByteBuffer decode(byte[] packet) {
         if (!initialized || decoderHandle == 0 || packet == null || packet.length == 0) {
             return null;
@@ -115,25 +119,33 @@ public class RustVideoDecoder implements VideoDecoder {
     }
 
     @Override
-    /** 刷新 */
+    /**
+     * 刷新
+    */
     public ByteBuffer[] flush() {
         return new ByteBuffer[0];
     }
 
     @Override
-    /** 获取Width */
+    /**
+     * 获取Width
+    */
     public int getWidth() {
         return width;
     }
 
     @Override
-    /** 获取Height */
+    /**
+     * 获取Height
+    */
     public int getHeight() {
         return height;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         if (decoderHandle != 0) {
             switch (codecId) {

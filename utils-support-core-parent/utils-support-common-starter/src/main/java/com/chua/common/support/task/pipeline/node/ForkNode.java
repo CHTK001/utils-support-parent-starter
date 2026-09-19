@@ -139,7 +139,9 @@ public class ForkNode implements PipelineNode {
         return id;
     }
 
-    /** 节点类型：fork。 */
+    /**
+     * 节点类型：fork。
+    */
     @Override
     public String getType() {
         return "fork";
@@ -163,7 +165,9 @@ public class ForkNode implements PipelineNode {
         return errorStrategy;
     }
 
-    /** 返回分支参数表。 */
+    /**
+     * 返回分支参数表。
+    */
     @Override
     public Map<String, Object> getParams() {
         return params;
@@ -187,7 +191,9 @@ public class ForkNode implements PipelineNode {
         this.env = env != null ? env : Collections.emptyMap();
     }
 
-    /** 返回节点环境变量表。 */
+    /**
+     * 返回节点环境变量表。
+    */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();

@@ -36,9 +36,13 @@ public class DosServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_WINDOW_SECONDS = 60;
 
-    /** 最大值Requests */
+    /**
+     * 最大值Requests
+    */
     private int maxRequests = DEFAULT_MAX_REQUESTS;
-    /** 窗口秒 */
+    /**
+     * 窗口秒
+    */
     private int windowSeconds = DEFAULT_WINDOW_SECONDS;
 
     /**
@@ -51,7 +55,9 @@ public class DosServerFilter implements ServerFilter {
     private final Map<String, Long> windowStartTimes = new ConcurrentHashMap<>();
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("dos.maxRequests");
         if (max != null && !max.isEmpty()) {
@@ -64,7 +70,9 @@ public class DosServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         long now = System.currentTimeMillis();
@@ -87,13 +95,17 @@ public class DosServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 20;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "DosServerFilter";
     }

@@ -46,7 +46,9 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 提交Tasks */
+    /**
+     * 提交Tasks
+    */
     protected List<Future<Object>> submitTasks() {
         List<CompletableFuture<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -63,7 +65,9 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 无需显式释放
     }

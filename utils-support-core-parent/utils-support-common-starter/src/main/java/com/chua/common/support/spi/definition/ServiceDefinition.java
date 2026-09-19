@@ -696,7 +696,9 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return null != parentType && parentType.isAssignableFrom(implClass);
     }
     @Override
-    /** 比较转为 */
+    /**
+     * 比较转为
+    */
     public int compareTo(ServiceDefinition o) {
         return Integer.compare(o.order, this.order);
     }

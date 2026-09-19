@@ -83,7 +83,9 @@ public class AsmCompiler implements Compiler {
      * @since 4.0.0
      */
     static class StringSource extends SimpleJavaFileObject {
-        /** 代码 */
+        /**
+         * 代码
+        */
         private final String code;
 
         StringSource(String className, String code) {
@@ -92,7 +94,9 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 获取char内容 */
+        /**
+         * 获取char内容
+        */
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             return code;
         }
@@ -104,9 +108,13 @@ public class AsmCompiler implements Compiler {
      * @since 4.0.0
      */
     static class InMemoryByteCode extends SimpleJavaFileObject {
-        /** 字节数组输出流 */
+        /**
+         * 字节数组输出流
+        */
         private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        /** 类名称 */
+        /**
+         * 类名称
+        */
         private final String className;
 
         InMemoryByteCode(String className) {
@@ -123,7 +131,9 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 打开输出流 */
+        /**
+         * 打开输出流
+        */
         public OutputStream openOutputStream() {
             return baos;
         }
@@ -135,7 +145,9 @@ public class AsmCompiler implements Compiler {
      * @since 4.0.0
      */
     static class InMemoryClassLoader extends ClassLoader {
-        /** 字节码缓存映射 */
+        /**
+         * 字节码缓存映射
+        */
         private final Map<String, InMemoryByteCode> bytecodes = new HashMap<>();
 
         InMemoryClassLoader(ClassLoader parent) {
@@ -175,7 +187,9 @@ public class AsmCompiler implements Compiler {
      * @since 4.0.0
      */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-        /** 类加载器 */
+        /**
+         * 类加载器
+        */
         private final InMemoryClassLoader classLoader;
 
         InMemoryFileManager(JavaFileManager fileManager, InMemoryClassLoader classLoader) {
@@ -184,7 +198,9 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 获取类加载 */
+        /**
+         * 获取类加载
+        */
         public ClassLoader getClassLoader(Location location) {
             return classLoader;
         }

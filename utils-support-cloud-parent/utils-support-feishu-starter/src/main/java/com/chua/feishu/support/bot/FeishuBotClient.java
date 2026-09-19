@@ -142,27 +142,35 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     public BotClient token(String token) {
         this.appId = token;
         return this;
     }
 
     @Override
-    /** Secret */
+    /**
+     * Secret
+    */
     public BotClient secret(String secret) {
         this.appSecret = secret;
         return this;
     }
 
     @Override
-    /** 编码aes键 */
+    /**
+     * 编码aes键
+    */
     public BotClient encodingAesKey(String encodingAesKey) {
         return this;
     }
 
     @Override
-    /** baseurl */
+    /**
+     * baseurl
+    */
     public BotClient baseUrl(String baseUrl) {
         if (baseUrl != null && !baseUrl.isEmpty()) {
             this.baseUrl = baseUrl;
@@ -283,7 +291,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 读取超时millis */
+    /**
+     * 读取超时millis
+    */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
@@ -410,7 +420,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public BotClient start() {
         if (appId == null || appId.isBlank()) {
             throw new IllegalStateException("appId is required");
@@ -471,7 +483,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         running.set(false);
         // SDK 2.4.19 的 ws.Client 未暴露 close,只能释放引用
@@ -481,13 +495,17 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running.get();
     }
 
     @Override
-    /** 发送文本 */
+    /**
+     * 发送文本
+    */
     public BotSendResult sendText(String toUser, String content) {
         return send(BotOutboundMessage.text(toUser, content));
     }
@@ -751,7 +769,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public BotSendResult send(BotOutboundMessage message) {
         if (client == null) {
             return BotSendResult.fail(-1, "Client not started");
@@ -876,7 +896,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 获取配置 */
+    /**
+     * 获取配置
+    */
     public Map<String, Object> getConfig() {
         Map<String, Object> config = new ConcurrentHashMap<>();
         config.put("appId", appId != null ? appId : "");
@@ -887,7 +909,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 用户存储 */
+    /**
+     * 用户存储
+    */
     public BotClient userStore(BotUserStore userStore) {
         if (userStore != null) {
             this.userStore = userStore;
@@ -896,13 +920,17 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 列表用户 */
+    /**
+     * 列表用户
+    */
     public List<BotUserInfo> listUsers() {
         return userStore.findAll();
     }
 
     @Override
-    /** 列表群体 */
+    /**
+     * 列表群体
+    */
     public List<BotGroupInfo> listGroups() {
         if (client == null) {
             return Collections.emptyList();
@@ -1230,7 +1258,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     @Override
-    /** 添加记录错误监听器 */
+    /**
+     * 添加记录错误监听器
+    */
     public BotClient addErrorListener(BotErrorListener listener) {
         if (listener != null) {
             errorListeners.add(listener);

@@ -43,7 +43,9 @@ import java.awt.image.BufferedImage;
 public class LamaInpaintingTranslator implements Translator<Image, Image> {
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -69,7 +71,9 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
 
@@ -83,7 +87,9 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

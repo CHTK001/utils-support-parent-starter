@@ -23,7 +23,9 @@ import javax.annotation.Nullable;
 public class SevenZCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -33,7 +35,9 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 创建输入流 */
+    /**
+     * 创建输入流
+    */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
  // 7Z格式需要随机访问，必须使用文件对象
         if (file == null) {
@@ -44,7 +48,9 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 获取格式化名称 */
+    /**
+     * 获取格式化名称
+    */
     public String getFormatName() {
         return "7z";
     }

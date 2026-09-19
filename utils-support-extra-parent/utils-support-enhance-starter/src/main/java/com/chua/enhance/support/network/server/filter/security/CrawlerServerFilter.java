@@ -93,21 +93,37 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private static final long DEFAULT_CLEANUP_INTERVAL_SECONDS = 300;
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private boolean enabled = DEFAULT_ENABLED;
-    /** Block是否启用 */
+    /**
+     * Block是否启用
+    */
     private boolean blockEnabled = DEFAULT_BLOCK_ENABLED;
-    /** Block状态 */
+    /**
+     * Block状态
+    */
     private int blockStatus = DEFAULT_BLOCK_STATUS;
-    /** 周期是否启用 */
+    /**
+     * 周期是否启用
+    */
     private boolean periodEnabled = DEFAULT_PERIOD_ENABLED;
-    /** 周期最小值时间 */
+    /**
+     * 周期最小值时间
+    */
     private int periodMinTimes = DEFAULT_PERIOD_MIN_TIMES;
-    /** Periodwindow秒 */
+    /**
+     * Periodwindow秒
+    */
     private int periodWindowSeconds = DEFAULT_PERIOD_WINDOW_SECONDS;
-    /** 周期最大值间隔比率 */
+    /**
+     * 周期最大值间隔比率
+    */
     private double periodMaxIntervalRatio = DEFAULT_PERIOD_MAX_INTERVAL_RATIO;
-    /** Cleanup间隔秒 */
+    /**
+     * Cleanup间隔秒
+    */
     private long cleanupIntervalSeconds = DEFAULT_CLEANUP_INTERVAL_SECONDS;
 
     /**
@@ -126,7 +142,9 @@ public class CrawlerServerFilter implements ServerFilter {
     private ScheduledExecutorService cleanupExecutor;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) throws Exception {
         String enabledVal = config.getInitParameter("crawler.enabled");
         if (enabledVal != null && !enabledVal.isEmpty()) {
@@ -173,7 +191,9 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (cleanupExecutor != null) {
             cleanupExecutor.shutdownNow();
@@ -183,7 +203,9 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!enabled) {
             chain.doFilter(request, response);
@@ -211,13 +233,17 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return 30;
     }
 
     @Override
-    /** 获取过滤标识 */
+    /**
+     * 获取过滤标识
+    */
     public String getFilterId() {
         return "CrawlerServerFilter";
     }

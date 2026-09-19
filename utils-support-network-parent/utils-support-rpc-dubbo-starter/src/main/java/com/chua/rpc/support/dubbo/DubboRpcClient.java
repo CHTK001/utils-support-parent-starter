@@ -143,7 +143,9 @@ public class DubboRpcClient implements RpcClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         for (ReferenceConfig<?> reference : referenceCache.values()) {
             try {

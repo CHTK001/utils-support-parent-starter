@@ -35,34 +35,62 @@ import java.util.function.Consumer;
 @Spi({"doubao", "volcengine"})
 public class DoubaoChatClient implements ChatClient {
 
-    /** 默认 API 地址 */
+    /**
+     * 默认 API 地址
+    */
     private static final String DEFAULT_URL = "https://ark.cn-beijing.volces.com/api/v3";
 
-    /** 火山引擎 Ark 服务客户端 */
+    /**
+     * 火山引擎 Ark 服务客户端
+    */
     private final ArkService arkService;
-    /** 配置对象 */
+    /**
+     * 配置对象
+    */
     private final ChatClientSetting setting;
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String model;
-    /** 温度参数 */
+    /**
+     * 温度参数
+    */
     private Double temperature;
-    /** 最大令牌数 */
+    /**
+     * 最大令牌数
+    */
     private Integer maxTokens;
-    /** 系统提示 */
+    /**
+     * 系统提示
+    */
     private String system;
-    /** 会话 标识 */
+    /**
+     * 会话 标识
+    */
     private String sessionId;
-    /** 对话历史消息 */
+    /**
+     * 对话历史消息
+    */
     private final List<ChatMessage> history = new ArrayList<>();
-    /** 外部历史消息 */
+    /**
+     * 外部历史消息
+    */
     private List<ChatMessage> externalHistory;
-    /** 是否开启思考模式 */
+    /**
+     * 是否开启思考模式
+    */
     private boolean thinking;
-    /** 思考努力程度 */
+    /**
+     * 思考努力程度
+    */
     private String thinkingEffort;
-    /** 是否启用智能搜索 */
+    /**
+     * 是否启用智能搜索
+    */
     private boolean smartSearch;
-    /** 技能管理器 */
+    /**
+     * 技能管理器
+    */
     private SkillManager skillManager;
 
     /**
@@ -94,91 +122,117 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
     }
 
     @Override
-    /** 最大值令牌 */
+    /**
+     * 最大值令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** Thinking */
+    /**
+     * Thinking
+    */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
-    /** thinkingeffort */
+    /**
+     * thinkingeffort
+    */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** Smart搜索 */
+    /**
+     * Smart搜索
+    */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
-    /** Skill */
+    /**
+     * Skill
+    */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
-    /** 添加用户历史 */
+    /**
+     * 添加用户历史
+    */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加assistant历史 */
+    /**
+     * 添加assistant历史
+    */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** 历史 */
+    /**
+     * 历史
+    */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** 会话 */
+    /**
+     * 会话
+    */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
-    /** 新对话 */
+    /**
+     * 新对话
+    */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -186,7 +240,9 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -198,7 +254,9 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    /** 对话 */
+    /**
+     * 对话
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
@@ -313,7 +371,9 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             arkService.shutdownExecutor();

@@ -33,30 +33,52 @@ import java.util.regex.Pattern;
 @Spi("subhd")
 public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     private static final Logger log = LoggerFactory.getLogger(DemoSubtitleSearchProvider.class);
-    /** subhd 搜索接口地址（当前已 404，仅作兼容保留，正常走 HTML 降级） */
+    /**
+     * subhd 搜索接口地址（当前已 404，仅作兼容保留，正常走 HTML 降级）
+    */
     private static final String SUBHD_API_SEARCH_URL = "https://subhd.tv/api/search";
-    /** subhd HTML 搜索页地址（API 失效时的降级路径） */
+    /**
+     * subhd HTML 搜索页地址（API 失效时的降级路径）
+    */
     private static final String SUBHD_HTML_SEARCH_URL = "https://subhd.tv/search/";
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    /** 用户代理字符串 */
+    /**
+     * 用户代理字符串
+    */
     private static final String UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-    /** 结果区域起点标记：搜索结果标题（例如 "盗梦空间 的搜索结果"） */
+    /**
+     * 结果区域起点标记：搜索结果标题（例如 "盗梦空间 的搜索结果"）
+    */
     private static final String RESULT_REGION_MARKER = "的搜索结果";
-    /** 结果区域向后扩展的字符数（一般足够覆盖一页结果卡片） */
+    /**
+     * 结果区域向后扩展的字符数（一般足够覆盖一页结果卡片）
+    */
     private static final int REGION_EXTENSION_CHARS = 20000;
-    /** 卡片尾部扩展字符数：截取卡片正文文本所用范围 */
+    /**
+     * 卡片尾部扩展字符数：截取卡片正文文本所用范围
+    */
     private static final int CARD_TAIL_EXTENSION_CHARS = 3000;
-    /** 结果卡片模板中的字幕详情链接，同时捕获单/双引号 href */
+    /**
+     * 结果卡片模板中的字幕详情链接，同时捕获单/双引号 href
+    */
     private static final Pattern CARD_PATTERN =
             Pattern.compile("<a[^>]+href=[\"'](/d/[^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
-    /** 结果卡片模板中的字幕条目链接（/a/xxx），用于提取条目编号 */
+    /**
+     * 结果卡片模板中的字幕条目链接（/a/xxx），用于提取条目编号
+    */
     private static final Pattern ENTRY_PATTERN =
             Pattern.compile("<a[^>]+href=[\"'](/a/[^\"']+)[\"'][^>]*>(.*?)</a>", Pattern.DOTALL);
-    /** 字幕语言标签匹配（卡片正文中的 语言/格式 字段） */
+    /**
+     * 字幕语言标签匹配（卡片正文中的 语言/格式 字段）
+    */
     private static final Pattern LANG_PATTERN =
             Pattern.compile("zh|en|双语|English|Chinese", Pattern.CASE_INSENSITIVE);
 

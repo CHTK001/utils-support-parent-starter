@@ -80,7 +80,9 @@ public class JcefWebviewWindow implements WebViewWindow {
     private IpcProtocolServer ipcServer;
 
     @Override
-    /** 打开 */
+    /**
+     * 打开
+    */
     public void open(String url, String title, int width, int height) {
         try {
             cefApp = new CefAppBuilder().build();
@@ -92,7 +94,9 @@ public class JcefWebviewWindow implements WebViewWindow {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
-                /** 窗口关闭 */
+                /**
+                 * 窗口关闭
+                */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -105,7 +109,9 @@ catch (Throwable e) {
     }
 
     @Override
-    /** 支持ipc */
+    /**
+     * 支持ipc
+    */
     public boolean supportsIpc() {
         return true;
     }
@@ -168,7 +174,9 @@ catch (Throwable e) {
             frame.setSize(width, height);
             frame.addWindowListener(new WindowAdapter() {
                 @Override
-                /** 窗口关闭 */
+                /**
+                 * 窗口关闭
+                */
                 public void windowClosing(WindowEvent e) {
                     close();
                 }
@@ -181,7 +189,9 @@ catch (Throwable e) {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         try {
             if (browser != null) {

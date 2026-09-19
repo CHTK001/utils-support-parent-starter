@@ -32,25 +32,39 @@ import java.util.Map;
  */
 public final class BiRefNetTranslator implements Translator<Image, Image> {
 
-    /** 512 目标尺寸。 */
+    /**
+     * 512 目标尺寸。
+    */
     private static final int SIZE_512 = 512;
 
-    /** 1024 目标尺寸。 */
+    /**
+     * 1024 目标尺寸。
+    */
     private static final int SIZE_1024 = 1024;
 
-    /** 模型标识。 */
+    /**
+     * 模型标识。
+    */
     private final int targetSize;
 
-    /** 输出模式。 */
+    /**
+     * 输出模式。
+    */
     private final MattingTranslator.MattingMode mode;
 
-    /** 当前帧原始宽度。 */
+    /**
+     * 当前帧原始宽度。
+    */
     private int width;
 
-    /** 当前帧原始高度。 */
+    /**
+     * 当前帧原始高度。
+    */
     private int height;
 
-    /** 当前帧原始图像。 */
+    /**
+     * 当前帧原始图像。
+    */
     private BufferedImage originalImage;
 
 

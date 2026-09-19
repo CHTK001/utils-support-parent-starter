@@ -108,7 +108,9 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
-    /** 列表和modified */
+    /**
+     * 列表和modified
+    */
     protected List<SftpClient.DirEntry> listAndModified(String path) {
         try {
             Iterable<SftpClient.DirEntry> dirEntries = sftp.readDir(path);
@@ -123,13 +125,17 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
-    /** 获取文件名 */
+    /**
+     * 获取文件名
+    */
     protected String getFileName(SftpClient.DirEntry item) {
         return item.getFilename();
     }
 
     @Override
-    /** 获取Modified */
+    /**
+     * 获取Modified
+    */
     protected Long getModified(SftpClient.DirEntry item) {
         try {
             var attrs = item.getAttributes();
@@ -140,7 +146,9 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         super.close();
         try {

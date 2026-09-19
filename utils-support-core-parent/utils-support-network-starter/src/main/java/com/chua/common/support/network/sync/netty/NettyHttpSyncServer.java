@@ -21,13 +21,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("netty-http")
 public class NettyHttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
-    /** 客户端 */
+    /**
+     * 客户端
+    */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
-    /** 消息队列 */
+    /**
+     * 消息队列
+    */
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
-    /** 监听器 */
+    /**
+     * 监听器
+    */
     private final List<SyncServerListener> listeners = new ArrayList<>();
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private com.sun.net.httpserver.HttpServer server;
 
     /**
@@ -39,7 +47,9 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             server = com.sun.net.httpserver.HttpServer.create(
@@ -91,7 +101,9 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -102,14 +114,18 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         messageQueues.computeIfAbsent(topic, k -> new java.util.LinkedList<>()).add(payload);
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         Map<String, Object> meta = clients.get(clientId);
         if (meta == null) {
@@ -121,32 +137,42 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     @Override
-    /** 获取连接客户端 */
+    /**
+     * 获取连接客户端
+    */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取客户端metadata */
+    /**
+     * 获取客户端metadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

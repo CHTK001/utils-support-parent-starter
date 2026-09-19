@@ -41,34 +41,54 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class IdUtils {
 
-    /** 雪花算法 标识 生成器实例 */
+    /**
+     * 雪花算法 标识 生成器实例
+    */
     private static final SnowflakeIdGenerator SNOWFLAKE_ID_GENERATOR = new SnowflakeIdGenerator();
 
-    /** Kafka 自增序列 标识 生成器实例 */
+    /**
+     * Kafka 自增序列 标识 生成器实例
+    */
     private static final KafkaSequenceGenerator KAFKA_SEQUENCE_GENERATOR = new KafkaSequenceGenerator();
 
-    /** MAC 地址自增序列 标识 生成器实例 */
+    /**
+     * MAC 地址自增序列 标识 生成器实例
+    */
     private static final MacSequenceGenerator MAC_SEQUENCE_GENERATOR = new MacSequenceGenerator();
 
-    /** 生成同步锁，用于线程安全的时间 标识 生成 */
+    /**
+     * 生成同步锁，用于线程安全的时间 标识 生成
+    */
     private static final Object LOCK = new Object();
 
-    /** 时间 标识 格式化模式 */
+    /**
+     * 时间 标识 格式化模式
+    */
     private static final String TIME_FORMAT = "yyyyMMddHHmmss";
 
-    /** 日期序列 标识 日期格式化器 */
+    /**
+     * 日期序列 标识 日期格式化器
+    */
     private static final DateTimeFormatter DAILY_SEQ_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    /** 日期序列 标识 最大序列值 */
+    /**
+     * 日期序列 标识 最大序列值
+    */
     private static final long MAX_DAILY_SEQ = 999_999_999L;
 
-    /** 日期序列 标识 生成同步锁 */
+    /**
+     * 日期序列 标识 生成同步锁
+    */
     private static final Object DAILY_SEQUENCE_LOCK = new Object();
 
-    /** 日期序列 标识 当前日期（每日重置判断） */
+    /**
+     * 日期序列 标识 当前日期（每日重置判断）
+    */
     private static volatile String dailySeqDate = "";
 
-    /** 日期序列 标识 当前序列值 */
+    /**
+     * 日期序列 标识 当前序列值
+    */
     private static long dailySeq = 0;
 
     /**

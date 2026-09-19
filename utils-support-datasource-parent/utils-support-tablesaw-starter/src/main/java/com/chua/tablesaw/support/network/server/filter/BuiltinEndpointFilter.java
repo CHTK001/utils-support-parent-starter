@@ -85,19 +85,25 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MIN_VALUE + 100;
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null) {

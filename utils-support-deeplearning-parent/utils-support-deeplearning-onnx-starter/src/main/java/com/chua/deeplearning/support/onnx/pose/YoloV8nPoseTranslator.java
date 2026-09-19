@@ -31,23 +31,39 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 @Slf4j
 public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypoint>> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 640;
-    /** 预测数量 */
+    /**
+     * 预测数量
+    */
     private static final int NUM_PREDS = 8400;
-    /** 关键点数量 */
+    /**
+     * 关键点数量
+    */
     private static final int NUM_KEYPOINTS = 17;
-    /** 置信度阈值 */
+    /**
+     * 置信度阈值
+    */
     private static final float CONF_THRESHOLD = 0.3f;
-    /** NMS 阈值 */
+    /**
+     * NMS 阈值
+    */
     private static final float NMS_THRESHOLD = 0.45f;
 
-    /** 资源基础路径 */
+    /**
+     * 资源基础路径
+    */
     private static final String RESOURCE_BASE = "vision/pose/yolov8n/onnx/";
-    /** 模型文件路径 */
+    /**
+     * 模型文件路径
+    */
     private static final String MODEL_FILE = "model_quantized.onnx";
 
-    /** 关键点名称数组 */
+    /**
+     * 关键点名称数组
+    */
     private static final String[] KEYPOINT_NAMES = {
             "nose", "left_eye", "right_eye", "left_ear", "right_ear",
             "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
@@ -55,7 +71,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             "left_knee", "right_knee", "left_ankle", "right_ankle"
     };
 
-    /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
+    /**
+     * 外部阈值覆盖（-1 表示未配置，使用内置默认值）。
+    */
     private float thresholdOverride = -1f;
 
     /**
@@ -68,13 +86,21 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
-    /** 源图像宽度 */
+    /**
+     * 源图像宽度
+    */
     private int srcWidth;
-    /** 源图像高度 */
+    /**
+     * 源图像高度
+    */
     private int srcHeight;
     /**
      * pose结果类。
@@ -84,17 +110,27 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
      */
 
     public static class PoseResult {
-        /** 边界框坐标 */
+        /**
+         * 边界框坐标
+        */
         public float[] bbox;
-        /** 得分 */
+        /**
+         * 得分
+        */
         public float score;
-        /** 关键点坐标数组（[17][2]，(x, y)） */
+        /**
+         * 关键点坐标数组（[17][2]，(x, y)）
+        */
         public float[][] keypoints;
-        /** 关键点得分数组（[17]） */
+        /**
+         * 关键点得分数组（[17]）
+        */
         public float[] keypointScores;
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -126,13 +162,17 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "yolov8n-pose";
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public List<PoseKeypoint> translate(byte[] imageData) {
         List<PoseResult> results = detectBytes(imageData);
         if (results.isEmpty()) {
@@ -276,7 +316,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         return inter / (areaA + areaB - inter + 1e-9f);
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         try {
             if (session != null) {

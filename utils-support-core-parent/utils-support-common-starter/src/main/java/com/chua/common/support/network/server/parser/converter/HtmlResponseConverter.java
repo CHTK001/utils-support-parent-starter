@@ -21,7 +21,9 @@ import java.nio.charset.StandardCharsets;
 public class HtmlResponseConverter implements ResponseConverter {
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public void convert(ServerResponse response, Object data) throws Exception {
         response.setContentType(contentType());
         if (data instanceof String s) {
@@ -34,19 +36,25 @@ public class HtmlResponseConverter implements ResponseConverter {
     }
 
     @Override
-    /** ContentType */
+    /**
+     * ContentType
+    */
     public String contentType() {
         return "text/html; charset=utf-8";
     }
 
     @Override
-    /** Support */
+    /**
+     * Support
+    */
     public boolean support(Object data) {
         return data instanceof String s && (s.trim().startsWith("<") || s.trim().startsWith("<!"));
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return 1;
     }

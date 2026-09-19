@@ -39,7 +39,9 @@ public class LogStream implements LineCallback, AutoCloseable {
      */
     private volatile boolean closed;
 
-    /** 创建 日志流 实例 */
+    /**
+     * 创建 日志流 实例
+    */
     public LogStream() {
         this(DEFAULT_MAX_LINES);
     }
@@ -55,7 +57,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** on线 */
+    /**
+     * on线
+    */
     public synchronized void onLine(String line) {
         if (closed) {
             return;
@@ -70,7 +74,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** on完成 */
+    /**
+     * on完成
+    */
     public synchronized void onComplete(int exitCode) {
         if (closed) {
             return;
@@ -81,7 +87,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** On记录错误 */
+    /**
+     * On记录错误
+    */
     public synchronized void onError(String command, Throwable throwable) {
         if (closed) {
             return;
@@ -134,13 +142,17 @@ public class LogStream implements LineCallback, AutoCloseable {
         return new LinkedList<>(buffer.subList(size - n, size));
     }
 
-    /** Clear */
+    /**
+     * Clear
+    */
     public synchronized void clear() {
         buffer.clear();
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public synchronized void close() {
         this.closed = true;
         subscribers.clear();

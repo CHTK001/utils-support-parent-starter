@@ -88,35 +88,49 @@ import java.util.Map;
  */
 public class DataSearchServerFilter implements ServerFilter {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(DataSearchServerFilter.class);
 
-    /** 接口前缀 */
+    /**
+     * 接口前缀
+    */
     private static final String PREFIX = "/datasearch";
 
-    /** 过滤器标识 */
+    /**
+     * 过滤器标识
+    */
     private static final String FILTER_ID = "DataSearchServerFilter";
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
     @Override
-    /** 支持路径 */
+    /**
+     * 支持路径
+    */
     public String supportPath() {
         return PREFIX + "/**";
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
-    /** 执行过滤 */
+    /**
+     * 执行过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || !path.startsWith(PREFIX)) {
@@ -716,7 +730,9 @@ public class DataSearchServerFilter implements ServerFilter {
         response.end();
     }
 
-    /** 内置演示页面 */
+    /**
+     * 内置演示页面
+    */
     private static final String PAGE_HTML = ""
             + "<!DOCTYPE html>\n"
             + "<html lang=\"zh-CN\">\n"

@@ -31,7 +31,9 @@ import java.util.List;
 @Spi("openrouter")
 public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider {
 
-    /** 打开router 模型列表 API(免 键) */
+    /**
+     * 打开router 模型列表 API(免 键)
+    */
     private static final String OPENROUTER_URL = "https://openrouter.ai/api/v1/models";
 
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器

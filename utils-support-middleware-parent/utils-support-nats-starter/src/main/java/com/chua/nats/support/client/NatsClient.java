@@ -55,36 +55,64 @@ import java.util.function.Consumer;
 @Getter
 public class NatsClient implements AutoCloseable {
 
-    /** 默认 NATS 服务器 URL */
+    /**
+     * 默认 NATS 服务器 URL
+    */
     public static final String DEFAULT_URL = "nats://localhost:4222";
 
-    /** URL */
+    /**
+     * URL
+    */
     private final String url;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     private final String token;
-    /** Connection超时 */
+    /**
+     * Connection超时
+    */
     private final Duration connectionTimeout;
-    /** Reconnectwait */
+    /**
+     * Reconnectwait
+    */
     private final Duration reconnectWait;
-    /** 最大值reconnects */
+    /**
+     * 最大值reconnects
+    */
     private final int maxReconnects;
-    /** Pedantic */
+    /**
+     * Pedantic
+    */
     private final boolean pedantic;
 
-    /** Connection */
+    /**
+     * Connection
+    */
     private Connection connection;
-    /** JET流 */
+    /**
+     * JET流
+    */
     private JetStream jetStream;
-    /** JET流management */
+    /**
+     * JET流management
+    */
     private JetStreamManagement jetStreamManagement;
-    /** Closed */
+    /**
+     * Closed
+    */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    /** 活跃的订阅列表 */
+    /**
+     * 活跃的订阅列表
+    */
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
     /**
@@ -157,7 +185,9 @@ public class NatsClient implements AutoCloseable {
                     })
                     .errorListener(new ErrorListener() {
                         @Override
-                        /** 记录错误Occurred */
+                        /**
+                         * 记录错误Occurred
+                        */
                         public void errorOccurred(Connection conn, String error) {
                             log.error("NATS 错误: error={}", error);
                         }
@@ -216,7 +246,9 @@ public class NatsClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         shutdown();
     }
@@ -367,21 +399,37 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class Builder {
-        /** URL */
+        /**
+         * URL
+        */
         private String url = DEFAULT_URL;
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         private String username;
-        /** 密码 */
+        /**
+         * 密码
+        */
         private String password;
-        /** 令牌 */
+        /**
+         * 令牌
+        */
         private String token;
-        /** Connection超时 */
+        /**
+         * Connection超时
+        */
         private Duration connectionTimeout = Duration.ofSeconds(5);
-        /** Reconnectwait */
+        /**
+         * Reconnectwait
+        */
         private Duration reconnectWait = Duration.ofSeconds(2);
-        /** 最大值reconnects */
+        /**
+         * 最大值reconnects
+        */
         private int maxReconnects = 60;
-        /** Pedantic */
+        /**
+         * Pedantic
+        */
         private boolean pedantic;
 
         /**
@@ -493,15 +541,25 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class PublishOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
-        /** 主题 */
+        /**
+         * 主题
+        */
         private String subject;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private byte[] body;
-        /** reply转为 */
+        /**
+         * reply转为
+        */
         private String replyTo;
-        /** 头部 */
+        /**
+         * 头部
+        */
         private Map<String, String> headers;
 
         PublishOperation(NatsClient client) {
@@ -623,15 +681,25 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class SubscribeOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
-        /** 主题 */
+        /**
+         * 主题
+        */
         private String subject;
-        /** 队列 */
+        /**
+         * 队列
+        */
         private String queue;
-        /** 处理器 */
+        /**
+         * 处理器
+        */
         private Consumer<io.nats.client.Message> handler;
-        /** autoACK */
+        /**
+         * autoACK
+        */
         private boolean autoAck = true;
 
         SubscribeOperation(NatsClient client) {
@@ -751,7 +819,9 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class JetStreamOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
 
         JetStreamOperation(NatsClient client) {
@@ -829,11 +899,17 @@ public class NatsClient implements AutoCloseable {
      * @since 4.0.0
      */
     public static class StreamOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
-        /** 流名称 */
+        /**
+         * 流名称
+        */
         private final String streamName;
-        /** 配置 */
+        /**
+         * 配置
+        */
         private StreamConfiguration config;
 
         StreamOperation(NatsClient client, String streamName) {
@@ -979,11 +1055,17 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class KvOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
-        /** 存储桶名称 */
+        /**
+         * 存储桶名称
+        */
         private final String bucketName;
-        /** 配置 */
+        /**
+         * 配置
+        */
         private KeyValueConfiguration config;
 
         KvOperation(NatsClient client, String bucketName) {
@@ -1125,9 +1207,13 @@ public class NatsClient implements AutoCloseable {
      */
 
     public static class ObjectStoreOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NatsClient client;
-        /** 存储桶名称 */
+        /**
+         * 存储桶名称
+        */
         private final String bucketName;
 
         ObjectStoreOperation(NatsClient client, String bucketName) {
@@ -1239,13 +1325,21 @@ public class NatsClient implements AutoCloseable {
      */
     @Getter
     public static class DispatchedSubscription {
-        /** Coresubscription */
+        /**
+         * Coresubscription
+        */
         private final io.nats.client.Subscription coreSubscription;
-        /** jssubscription */
+        /**
+         * jssubscription
+        */
         private final io.nats.client.JetStreamSubscription jsSubscription;
-        /** ISJET流 */
+        /**
+         * ISJET流
+        */
         private final boolean isJetStream;
-        /** cancelled */
+        /**
+         * cancelled
+        */
         private volatile boolean cancelled;
 
         DispatchedSubscription(io.nats.client.Subscription subscription, boolean isJetStream) {

@@ -54,7 +54,9 @@ public class SingleSidedFilletRectangleDrawEyeResolver extends AbstractDrawEyeRe
 
 
     @Override
-    /** Draw */
+    /**
+     * Draw
+    */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
         int x1 =  leftPadding + x * infoSize;
         int y1 =  topPadding + y * infoSize;
@@ -100,7 +102,9 @@ public class SingleSidedFilletRectangleDrawEyeResolver extends AbstractDrawEyeRe
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
         //绘制LT
     }

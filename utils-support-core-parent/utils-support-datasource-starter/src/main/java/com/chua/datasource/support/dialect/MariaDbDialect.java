@@ -1,6 +1,8 @@
 package com.chua.datasource.support.dialect;
 import java.util.Properties;
-/** mariadb 10.6+ 方言（兼容 10.3/10.5）。 */
+/**
+ * mariadb 10.6+ 方言（兼容 10.3/10.5）。
+*/
 public class MariaDbDialect extends SqlDialect {
     public static final String VERSION = "MariaDB 10.6+ (兼容 10.3/10.5)"; // 版本
     /**

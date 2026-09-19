@@ -200,7 +200,9 @@ public class SyncFlow implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         stop();
     }
@@ -211,13 +213,17 @@ public class SyncFlow implements AutoCloseable {
     private void initializeComponents() {
         sink.setExecutor(new SinkExecutor() {
             @Override
-            /** Wakeup */
+            /**
+             * Wakeup
+            */
             public void wakeup() {
                 // 消费循环基于轮询, 无需显式唤醒
             }
 
             @Override
-            /** 是否Running */
+            /**
+             * 是否Running
+            */
             public boolean isRunning() {
                 return running.get();
             }

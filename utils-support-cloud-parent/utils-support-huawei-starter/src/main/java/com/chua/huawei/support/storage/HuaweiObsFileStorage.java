@@ -35,7 +35,9 @@ import java.util.List;
 @Spi({"obs", "huawei"})
 public class HuaweiObsFileStorage extends AbstractFileStorage {
 
-    /** 华为云 OBS 客户端 */
+    /**
+     * 华为云 OBS 客户端
+    */
     private final ObsClient obsClient;
 
     /**
@@ -48,7 +50,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 放入对象 */
+    /**
+     * 放入对象
+    */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -68,7 +72,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -93,7 +99,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取对象 */
+    /**
+     * 获取对象
+    */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -101,7 +109,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除对象 */
+    /**
+     * 删除对象
+    */
     public DeleteObjectResult deleteObject(String key) {
         try {
             obsClient.deleteObject(bucket, key);
@@ -117,7 +127,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** exist对象 */
+    /**
+     * exist对象
+    */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = obsClient.doesObjectExist(bucket, request.getKey());
@@ -134,7 +146,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 列表对象 */
+    /**
+     * 列表对象
+    */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest(bucket);
@@ -173,7 +187,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (obsClient != null) {
             try {

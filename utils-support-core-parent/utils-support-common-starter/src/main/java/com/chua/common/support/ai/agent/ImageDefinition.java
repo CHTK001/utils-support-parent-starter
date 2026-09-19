@@ -23,7 +23,9 @@ public class ImageDefinition extends AgentDefinition {
      */
     private final String imageModel;
 
-    /** 图像生成客户端 */
+    /**
+     * 图像生成客户端
+    */
     private final ImageClient imageClient;
 
     /**

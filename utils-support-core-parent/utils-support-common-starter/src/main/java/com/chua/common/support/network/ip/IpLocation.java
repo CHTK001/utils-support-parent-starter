@@ -11,20 +11,30 @@ import lombok.Data;
 @Data
 public class IpLocation {
 
-    /** 国家或地区 */
+    /**
+     * 国家或地区
+    */
     private String country;
 
-    /** 省份 */
+    /**
+     * 省份
+    */
     private String province;
 
-    /** 城市 */
+    /**
+     * 城市
+    */
     private String city;
 
-    /** 运营商 */
+    /**
+     * 运营商
+    */
     private String isp;
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return String.format("%s%s%s %s",
                 country != null ? country : "",

@@ -12,13 +12,19 @@ import org.dizitart.no2.Nitrite;
  */
 public class NitriteEngineDataSource implements EngineDataSource<Object> {
 
-    /** 数据源名称 */
+    /**
+     * 数据源名称
+    */
     private final String name;
 
-    /** 数据库文件路径 */
+    /**
+     * 数据库文件路径
+    */
     private final String filePath;
 
-    /** Nitrite 数据库实例 */
+    /**
+     * Nitrite 数据库实例
+    */
     private final Nitrite nitrite;
 
     /**
@@ -35,67 +41,89 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return name;
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public Object getSource() {
         return nitrite;
     }
 
     @Override
-    /** 获取源 */
+    /**
+     * 获取源
+    */
     public <R> R getSource(Class<R> type) {
         return type.cast(nitrite);
     }
 
     @Override
-    /** 设置源 */
+    /**
+     * 设置源
+    */
     public EngineDataSource<Object> setSource(Object source) {
         return this;
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect() {
         return null;
     }
 
     @Override
-    /** 设置Dialect */
+    /**
+     * 设置Dialect
+    */
     public EngineDataSource<Object> setDialect(Dialect dialect) {
         return this;
     }
 
     @Override
-    /** tunnel端口 */
+    /**
+     * tunnel端口
+    */
     public int tunnelPort() {
         return 0;
     }
 
     @Override
-    /** 设置tunnel端口 */
+    /**
+     * 设置tunnel端口
+    */
     public EngineDataSource<Object> setTunnelPort(int tunnelPort) {
         return this;
     }
 
     @Override
-    /** Url */
+    /**
+     * Url
+    */
     public String url() {
         return filePath;
     }
 
     @Override
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     public String username() {
         return null;
     }
 
     @Override
-    /** 密码 */
+    /**
+     * 密码
+    */
     public String password() {
         return null;
     }

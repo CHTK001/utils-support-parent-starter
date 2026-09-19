@@ -37,7 +37,9 @@ public final class StorageManager {
      */
     private static final Map<String, ApmStorage> REGISTERED = new ConcurrentHashMap<>();
 
-    /** 创建 storage管理器 实例 */
+    /**
+     * 创建 storage管理器 实例
+    */
     private StorageManager() {
     }
 

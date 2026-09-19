@@ -137,13 +137,17 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         this.environment = environment;
 
@@ -170,7 +174,9 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade() {
         File dir = new File(listenPath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -212,7 +218,9 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (executor != null) {
             executor.close();

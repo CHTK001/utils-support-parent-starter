@@ -104,7 +104,9 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** 转换器 */
+    /**
+     * 转换器
+    */
     public BufferedImage converter(BufferedImage image) throws Exception {
         if (image == null) {
             throw new IllegalArgumentException("输入图像不能为空");
@@ -154,7 +156,9 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** 转换器 */
+    /**
+     * 转换器
+    */
     public OutputStream converter(InputStream image) throws Exception {
         BufferedImage inputImage = ImageUtils.toBufferedImage(ImageUtils.decode(image.readAllBytes()));
         BufferedImage outputImage = converter(inputImage);
@@ -164,13 +168,17 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** 获取镜像格式化 */
+    /**
+     * 获取镜像格式化
+    */
     public String getImageFormat() {
         return "png";
     }
 
     @Override
-    /** 获取镜像格式化 */
+    /**
+     * 获取镜像格式化
+    */
     public String getImageFormat(String name) {
         return name != null ? name : getImageFormat();
     }

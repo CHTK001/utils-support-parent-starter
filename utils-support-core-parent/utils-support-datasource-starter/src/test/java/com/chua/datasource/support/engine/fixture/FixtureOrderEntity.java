@@ -10,10 +10,14 @@ import com.chua.datasource.support.annotation.TableName;
 @TableName("t_order")
 public class FixtureOrderEntity {
 
-    /** 订单编号 */
+    /**
+     * 订单编号
+    */
     private Long id;
 
-    /** 用户编号 */
+    /**
+     * 用户编号
+    */
     private Long userId;
 
     /**

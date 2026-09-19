@@ -41,7 +41,9 @@ public class LatencyStrategy implements RouterStrategy {
     private static final String EMPTY_TEXT = "";
 
     @Override
-    /** 选择 */
+    /**
+     * 选择
+    */
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         // LatencyStrategy 总是返回首个客户端，真正的选择逻辑在 executeSync 的竞速中
         if (clients.isEmpty()) {

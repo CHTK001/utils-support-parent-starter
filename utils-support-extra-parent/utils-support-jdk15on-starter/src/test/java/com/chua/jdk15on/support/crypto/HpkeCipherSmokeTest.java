@@ -23,10 +23,14 @@ import java.util.Arrays;
  */
 public class HpkeCipherSmokeTest {
 
-    /** 失败计数 */
+    /**
+     * 失败计数
+    */
     private static int failureCount = 0;
 
-    /** 成功计数 */
+    /**
+     * 成功计数
+    */
     private static int passCount = 0;
 
     /**
@@ -52,7 +56,9 @@ public class HpkeCipherSmokeTest {
         System.out.println("RESULT: PASS");
     }
 
-    /** 密钥对长度 */
+    /**
+     * 密钥对长度
+    */
     static void testKeyPair() {
         byte[][] keys = HpkeCipher.create("bc").generateKeyPair();
         check(keys.length == 2, "generateKeyPair 返回 2 段");
@@ -60,7 +66,9 @@ public class HpkeCipherSmokeTest {
         check(keys[1].length == 32, "私钥 32 字节");
     }
 
-    /** 原语 round-trip */
+    /**
+     * 原语 round-trip
+    */
     static void testPrimitivesRoundTrip() {
         HpkeCipher hpke = HpkeCipher.create("bc");
         byte[][] keys = hpke.generateKeyPair();
@@ -77,7 +85,9 @@ public class HpkeCipherSmokeTest {
         check(ct.length > plain.length, "密文含 GCM 标签（比明文长）");
     }
 
-    /** hpke流 链式 */
+    /**
+     * hpke流 链式
+    */
     static void testFlowChain() {
         byte[][] keys = HpkeFlow.of().keys();
         byte[] plain = "flow".getBytes(StandardCharsets.UTF_8);
@@ -89,7 +99,9 @@ public class HpkeCipherSmokeTest {
         check(msg.enc().length == 32, "SealedMessage.enc 为 32 字节封装密钥");
     }
 
-    /** ikm 参与派生 */
+    /**
+     * ikm 参与派生
+    */
     static void testIkM() {
         HpkeFlow flow = HpkeFlow.of();
         byte[][] keys = flow.keys();
@@ -110,7 +122,9 @@ public class HpkeCipherSmokeTest {
         check(threw, "ikm 不一致时解密失败（GCM 校验）");
     }
 
-    /** 篡改检测 */
+    /**
+     * 篡改检测
+    */
     static void testTamperDetection() {
         HpkeFlow flow = HpkeFlow.of();
         byte[][] keys = flow.keys();
@@ -139,7 +153,9 @@ public class HpkeCipherSmokeTest {
         check(threwCt, "篡改密文被检测到");
     }
 
-    /** KDF 幂等性 */
+    /**
+     * KDF 幂等性
+    */
     static void testKdfDeterminism() {
         HpkeCipher hpke = HpkeCipher.create("bc");
         byte[][] keys = hpke.generateKeyPair();
@@ -151,7 +167,9 @@ public class HpkeCipherSmokeTest {
         check(ekA.length == 44, "派生密钥材料为 key(32)+nonce(12)=44 字节");
     }
 
-    /** cipher流 统一入口 */
+    /**
+     * cipher流 统一入口
+    */
     static void testCipherFlowEntry() {
         HpkeFlow hf = CipherFlow.of("hpke").hpkeFlow();
         byte[][] keys = hf.keys();
@@ -164,7 +182,9 @@ public class HpkeCipherSmokeTest {
         check(aes instanceof AesCipher, "resolve(\"aes\") 返回 AesCipher");
     }
 
-    /** AES 内置 */
+    /**
+     * AES 内置
+    */
     static void testAesBuiltIn() {
         AesCipher aes = CipherFlow.of("aes").aes();
         byte[] key = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);

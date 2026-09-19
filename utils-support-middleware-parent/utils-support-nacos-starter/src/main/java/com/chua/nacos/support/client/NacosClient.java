@@ -60,22 +60,38 @@ import java.util.function.Consumer;
 @Getter
 public class NacosClient implements AutoCloseable {
 
-    /** 服务器addr */
+    /**
+     * 服务器addr
+    */
     private final String serverAddr;
-    /** Namespace */
+    /**
+     * Namespace
+    */
     private final String namespace;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** 超时 */
+    /**
+     * 超时
+    */
     private final long timeout;
 
-    /** 配置服务 */
+    /**
+     * 配置服务
+    */
     private ConfigService configService;
-    /** Naming服务 */
+    /**
+     * Naming服务
+    */
     private NamingService namingService;
-    /** 配置监听器 */
+    /**
+     * 配置监听器
+    */
     private final Map<String, Listener> configListeners = new ConcurrentHashMap<>();
 
     /**
@@ -190,7 +206,9 @@ public class NacosClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         shutdown();
     }
@@ -227,15 +245,25 @@ public class NacosClient implements AutoCloseable {
      */
 
     public static class Builder {
-        /** 服务器addr */
+        /**
+         * 服务器addr
+        */
         private String serverAddr = "127.0.0.1:8848";
-        /** Namespace */
+        /**
+         * Namespace
+        */
         private String namespace;
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         private String username;
-        /** 密码 */
+        /**
+         * 密码
+        */
         private String password;
-        /** 超时 */
+        /**
+         * 超时
+        */
         private long timeout = 30000;
 
         /**
@@ -307,13 +335,21 @@ public class NacosClient implements AutoCloseable {
      * @since 4.0.0
      */
     public static class ConfigOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NacosClient client;
-        /** 数据标识 */
+        /**
+         * 数据标识
+        */
         private String dataId;
-        /** 分组 */
+        /**
+         * 分组
+        */
         private String group = "DEFAULT_GROUP";
-        /** 超时MS */
+        /**
+         * 超时MS
+        */
         private long timeoutMs = 5000;
 
         ConfigOperation(NacosClient client) { this.client = client; }
@@ -456,13 +492,17 @@ public class NacosClient implements AutoCloseable {
             try {
                 Listener nacosListener = new Listener() {
                     @Override
-                    /** 接收配置信息 */
+                    /**
+                     * 接收配置信息
+                    */
                     public void receiveConfigInfo(String configInfo) {
                         listener.accept(configInfo);
                     }
 
                     @Override
-                    /** 获取执行器 */
+                    /**
+                     * 获取执行器
+                    */
                     public Executor getExecutor() {
                         return null;
                     }
@@ -483,21 +523,37 @@ public class NacosClient implements AutoCloseable {
      * @since 4.0.0
      */
     public static class NamingOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final NacosClient client;
-        /** 服务名称 */
+        /**
+         * 服务名称
+        */
         private String serviceName;
-        /** IP */
+        /**
+         * IP
+        */
         private String ip = "127.0.0.1";
-        /** 端口 */
+        /**
+         * 端口
+        */
         private int port = 8080;
-        /** 权重 */
+        /**
+         * 权重
+        */
         private double weight = 1.0;
-        /** Healthy */
+        /**
+         * Healthy
+        */
         private boolean healthy = true;
-        /** Ephemeral */
+        /**
+         * Ephemeral
+        */
         private boolean ephemeral = true;
-        /** metadata */
+        /**
+         * metadata
+        */
         private Map<String, String> metadata = new HashMap<>();
 
         NamingOperation(NacosClient client) { this.client = client; }

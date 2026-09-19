@@ -49,55 +49,73 @@ public class SqliteEngine extends JdbcEngine {
         ds.setMaximumPoolSize(5);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             @Override
-            /** 名称 */
+            /**
+             * 名称
+            */
             public String name() {
                 return name;
             }
 
             @Override
-            /** 获取源 */
+            /**
+             * 获取源
+            */
             public Object getSource() {
                 return ds;
             }
 
             @Override
-            /** 获取源 */
+            /**
+             * 获取源
+            */
             public <R> R getSource(Class<R> type) {
                 return type.cast(ds);
             }
 
             @Override
-            /** 设置源 */
+            /**
+             * 设置源
+            */
             public EngineDataSource<Object> setSource(Object source) {
                 return this;
             }
 
             @Override
-            /** 获取Dialect */
+            /**
+             * 获取Dialect
+            */
             public SqliteDialect getDialect() {
                 return new SqliteDialect();
             }
 
             @Override
-            /** 设置Dialect */
+            /**
+             * 设置Dialect
+            */
             public EngineDataSource<Object> setDialect(com.chua.common.support.lang.datasource.dialect.Dialect dialect) {
                 return this;
             }
 
             @Override
-            /** Url */
+            /**
+             * Url
+            */
             public String url() {
                 return ds.getJdbcUrl();
             }
 
             @Override
-            /** 用户名 */
+            /**
+             * 用户名
+            */
             public String username() {
                 return ds.getUsername();
             }
 
             @Override
-            /** 密码 */
+            /**
+             * 密码
+            */
             public String password() {
                 return ds.getPassword();
             }

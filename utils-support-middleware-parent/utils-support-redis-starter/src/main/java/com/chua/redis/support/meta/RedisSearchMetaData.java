@@ -28,13 +28,17 @@ public class RedisSearchMetaData extends DefaultMetaData {
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public MetaSearch search() {
         return new RedisSearchMeta(this, (RediSearchEngine) engine);
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public MetaSearch search(String indexName) {
         return new RedisSearchMeta(this, (RediSearchEngine) engine);
     }

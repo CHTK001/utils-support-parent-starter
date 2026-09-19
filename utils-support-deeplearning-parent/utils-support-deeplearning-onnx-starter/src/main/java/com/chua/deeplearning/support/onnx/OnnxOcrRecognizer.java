@@ -5,20 +5,32 @@ import com.chua.deeplearning.support.ocr.OcrResult;
 import com.chua.deeplearning.support.ocr.OcrPipeline;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @作者 CH */
+/**
+ * @作者 CH
+*/
 
 @Slf4j
 public class OnnxOcrRecognizer implements OcrRecognizer {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
-    /** 语言 */
+    /**
+     * 语言
+    */
     private String lang = "zh";
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
-    /** 是否使用 GPU */
+    /**
+     * 是否使用 GPU
+    */
     private boolean useGpu = false;
-    /** 设备类型 */
+    /**
+     * 设备类型
+    */
     private String device = "cpu";
 
     /**
@@ -29,7 +41,9 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public OcrRecognizer model(String model) {
         this.modelName = model;
         return this;
@@ -71,35 +85,45 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** Lang */
+    /**
+     * Lang
+    */
     public OcrRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public OcrRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** usegpu */
+    /**
+     * usegpu
+    */
     public OcrRecognizer useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public OcrRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** Recognize */
+    /**
+     * Recognize
+    */
     public String recognize(byte[] imageData) {
         return OcrPipeline.builder()
                 .detector(detectorModel())
@@ -109,7 +133,9 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    /** recognizedetail */
+    /**
+     * recognizedetail
+    */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return OcrPipeline.builder()
                 .detector(detectorModel())

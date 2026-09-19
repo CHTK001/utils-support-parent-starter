@@ -23,18 +23,30 @@ import java.util.concurrent.TimeUnit;
  */
 public class CmdResult {
 
-    /** 退出码：超时标记 */
+    /**
+     * 退出码：超时标记
+    */
     public static final int EXIT_CODE_TIMEOUT = -1;
-    /** 退出码：未知错误 */
+    /**
+     * 退出码：未知错误
+    */
     public static final int EXIT_CODE_ERROR = -2;
 
-    /** 退出码 */
+    /**
+     * 退出码
+    */
     private final int exitCode;
-    /** 标准输出 */
+    /**
+     * 标准输出
+    */
     private final String stdout;
-    /** 标准错误输出 */
+    /**
+     * 标准错误输出
+    */
     private final String stderr;
-    /** 命令字符串 */
+    /**
+     * 命令字符串
+    */
     private final String command;
     /**
      * 开始时间
@@ -48,7 +60,9 @@ public class CmdResult {
      * 超时时间（毫秒）
      */
     private final boolean timeout;
-    /** 异常对象 */
+    /**
+     * 异常对象
+    */
     private final Throwable throwable;
 
     CmdResult(int exitCode, String stdout, String stderr, String command,
@@ -163,7 +177,9 @@ public class CmdResult {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         return "CmdResult{" +
                 "command='" + command + '\'' +
@@ -192,13 +208,21 @@ public class CmdResult {
      * CmdResult 构建器
      */
     public static class CmdResultBuilder {
-        /** 退出码 */
+        /**
+         * 退出码
+        */
         private int exitCode;
-        /** 标准输出 */
+        /**
+         * 标准输出
+        */
         private String stdout;
-        /** 标准错误输出 */
+        /**
+         * 标准错误输出
+        */
         private String stderr;
-        /** 命令字符串 */
+        /**
+         * 命令字符串
+        */
         private String command;
         /**
          * 开始时间
@@ -212,60 +236,80 @@ public class CmdResult {
          * 超时时间（毫秒）
          */
         private boolean timeout;
-        /** 异常对象 */
+        /**
+         * 异常对象
+        */
         private Throwable throwable;
 
         CmdResultBuilder() {}
 
-        /** ExitCode */
+        /**
+         * ExitCode
+        */
         public CmdResultBuilder exitCode(int exitCode) {
             this.exitCode = exitCode;
             return this;
         }
 
-        /** Stdout */
+        /**
+         * Stdout
+        */
         public CmdResultBuilder stdout(String stdout) {
             this.stdout = stdout;
             return this;
         }
 
-        /** Stderr */
+        /**
+         * Stderr
+        */
         public CmdResultBuilder stderr(String stderr) {
             this.stderr = stderr;
             return this;
         }
 
-        /** Command */
+        /**
+         * Command
+        */
         public CmdResultBuilder command(String command) {
             this.command = command;
             return this;
         }
 
-        /** 开始Time */
+        /**
+         * 开始Time
+        */
         public CmdResultBuilder startTime(long startTime) {
             this.startTime = startTime;
             return this;
         }
 
-        /** EndTime */
+        /**
+         * EndTime
+        */
         public CmdResultBuilder endTime(long endTime) {
             this.endTime = endTime;
             return this;
         }
 
-        /** Timeout */
+        /**
+         * Timeout
+        */
         public CmdResultBuilder timeout(boolean timeout) {
             this.timeout = timeout;
             return this;
         }
 
-        /** Throwable */
+        /**
+         * Throwable
+        */
         public CmdResultBuilder throwable(Throwable throwable) {
             this.throwable = throwable;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+        */
         public CmdResult build() {
             return new CmdResult(exitCode, stdout, stderr, command, startTime, endTime, timeout, throwable);
         }

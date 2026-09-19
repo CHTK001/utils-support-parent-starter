@@ -20,7 +20,9 @@ import javax.annotation.Nullable;
 public class DefaultCodeProduct implements CodeProduct{
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode, QrSetting setting) throws IOException {
         return toBufferedImage(qrCodeOptions, bitMatrix, setting);
     }

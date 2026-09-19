@@ -160,11 +160,15 @@ public class JsonArray extends LinkedList<Object> {
   *
   * @param action 要执行的操作
   */    @Override
-    /** ForEach */
+    /**
+     * ForEach
+    */
     public void forEach(Consumer<? super Object> action) {
         super.forEach(new SafeConsumer<Object>() {
             @Override
-            /** SafeAccept */
+            /**
+             * SafeAccept
+            */
             public void safeAccept(Object o) throws Throwable {
                 if (o instanceof Map) {
                     action.accept(Json.createJsonObject((Map) o));

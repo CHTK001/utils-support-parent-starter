@@ -25,24 +25,42 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
 
-    /** 写入端标识 */
+    /**
+     * 写入端标识
+    */
     private final String sinkId;
-    /** JDBC 连接地址 */
+    /**
+     * JDBC 连接地址
+    */
     private final String jdbcUrl;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** SQL 语句 */
+    /**
+     * SQL 语句
+    */
     private final String sql;
-    /** 列名数组 */
+    /**
+     * 列名数组
+    */
     private final String[] columnNames;
-    /** 数据源 */
+    /**
+     * 数据源
+    */
     private final HikariDataSource dataSource;
-    /** 批次大小 */
+    /**
+     * 批次大小
+    */
     private final int batchSize;
 
-    /** 是否已初始化 */
+    /**
+     * 是否已初始化
+    */
     private volatile boolean initialized = false;
 
     /**
@@ -112,13 +130,17 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
-    /** sinkid */
+    /**
+     * sinkid
+    */
     public String sinkId() {
         return sinkId;
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(Flux<Map<String, Object>> data) {
         log.info("[JdbcDataSyncAgentSink] 开始写入数据, sinkId={}, batchSize={}, sql={}", sinkId, batchSize, sql);
 
@@ -235,7 +257,9 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
@@ -244,7 +268,9 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     }
 
     @Override
-    /** Direction */
+    /**
+     * Direction
+    */
     public Direction direction() {
         return Direction.OUTPUT;
     }

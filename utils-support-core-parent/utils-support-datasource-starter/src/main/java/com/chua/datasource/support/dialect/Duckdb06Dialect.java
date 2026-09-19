@@ -1,6 +1,8 @@
 package com.chua.datasource.support.dialect;
 import java.util.Properties;
-/** duckdb 0.6 方言。 */
+/**
+ * duckdb 0.6 方言。
+*/
 public class Duckdb06Dialect extends SqlDialect {
     public static final String VERSION = "DuckDB 0.6"; // 版本
     /**

@@ -155,7 +155,9 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** Do获取Type */
+    /**
+     * Do获取Type
+    */
     protected String doGetType() {
         return "filesystem";
     }

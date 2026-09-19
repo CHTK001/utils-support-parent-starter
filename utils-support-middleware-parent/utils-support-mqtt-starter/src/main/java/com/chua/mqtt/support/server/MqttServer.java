@@ -117,7 +117,9 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -140,7 +142,9 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         running = false;
         if (serverSocket != null) {
@@ -167,7 +171,9 @@ public class MqttServer extends AbstractServer {
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.MQTT;
     }
@@ -214,17 +220,27 @@ public class MqttServer extends AbstractServer {
 
     // ==================== 注解方法缓存 ====================
 
-    /** onopenmethods */
+    /**
+     * onopenmethods
+    */
     private final List<AnnotatedMethod> onOpenMethods = new CopyOnWriteArrayList<>();
-    /** onclosemethods */
+    /**
+     * onclosemethods
+    */
     private final List<AnnotatedMethod> onCloseMethods = new CopyOnWriteArrayList<>();
-    /** ON消息方法 */
+    /**
+     * ON消息方法
+    */
     private final List<AnnotatedMessage> onMessageMethods = new CopyOnWriteArrayList<>();
-    /** ON错误方法 */
+    /**
+     * ON错误方法
+    */
     private final List<AnnotatedMethod> onErrorMethods = new CopyOnWriteArrayList<>();
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public MqttServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -388,7 +404,9 @@ public class MqttServer extends AbstractServer {
         return p == pp.length && t == tp.length;
     }
 
-    /** accept循环 */
+    /**
+     * accept循环
+    */
     private void acceptLoop() {
         while (running) {
             try {
@@ -416,15 +434,25 @@ public class MqttServer extends AbstractServer {
      */
 
     private class ClientSession {
-        /** 客户端标识 */
+        /**
+         * 客户端标识
+        */
         private String clientId;
-        /** Socket */
+        /**
+         * Socket
+        */
         private final Socket socket;
-        /** 入 */
+        /**
+         * 入
+        */
         private final DataInputStream in;
-        /** 出 */
+        /**
+         * 出
+        */
         private final DataOutputStream out;
-        /** Subscriptions */
+        /**
+         * Subscriptions
+        */
         private final Set<String> subscriptions = new CopyOnWriteArraySet<>();
 
         ClientSession(String clientId, Socket socket) throws IOException {
@@ -528,7 +556,9 @@ public class MqttServer extends AbstractServer {
             }
         }
 
-        /** 处理连接 */
+        /**
+         * 处理连接
+        */
         private void handleConnect() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -567,7 +597,9 @@ public class MqttServer extends AbstractServer {
             dispatchAnnotatedMethods(onOpenMethods);
         }
 
-        /** 处理断开 */
+        /**
+         * 处理断开
+        */
         private void handleDisconnect() {
             for (Consumer<String> listener : disconnectListeners) {
                 try {
@@ -586,7 +618,9 @@ public class MqttServer extends AbstractServer {
             dispatchAnnotatedMethods(onCloseMethods);
         }
 
-        /** 处理订阅 */
+        /**
+         * 处理订阅
+        */
         private void handleSubscribe() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -610,7 +644,9 @@ public class MqttServer extends AbstractServer {
             sendSuback(packetId);
         }
 
-        /** 处理取消订阅 */
+        /**
+         * 处理取消订阅
+        */
         private void handleUnsubscribe() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] packet = new byte[remainingLength];
@@ -659,14 +695,18 @@ public class MqttServer extends AbstractServer {
             out.flush();
         }
 
-        /** 处理Pingreq */
+        /**
+         * 处理Pingreq
+        */
         private void handlePingreq() throws IOException {
             out.write(0xD0);
             out.write(0x00);
             out.flush();
         }
 
-        /** 发送Connack */
+        /**
+         * 发送Connack
+        */
         private void sendConnack() throws IOException {
             out.write(0x20);
             out.write(0x02);
@@ -764,7 +804,9 @@ public class MqttServer extends AbstractServer {
             } while (length > 0);
         }
 
-        /** 跳过数据包 */
+        /**
+         * 跳过数据包
+        */
         private void skipPacket() throws IOException {
             int remainingLength = readRemainingLength();
             byte[] skip = new byte[remainingLength];

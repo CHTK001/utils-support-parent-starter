@@ -81,7 +81,9 @@ public class UrlScriptListener implements Listener {
     }
 
     @Override
-    /** 是否Change */
+    /**
+     * 是否Change
+    */
     public boolean isChange() {
         boolean result = changed.getAndSet(false);
         if (lastContent.get() == null) {
@@ -92,7 +94,9 @@ public class UrlScriptListener implements Listener {
     }
 
     @Override
-    /** 获取Source */
+    /**
+     * 获取Source
+    */
     public String getSource() {
         return lastContent.get();
     }
@@ -152,7 +156,9 @@ public class UrlScriptListener implements Listener {
      */
     private static class UrlScriptThreadFactory implements ThreadFactory {
         @Override
-        /** NewThread */
+        /**
+         * NewThread
+        */
         public Thread newThread(Runnable r) {
             Thread thread = ThreadUtils.newThread(r, "url-script-listener-" + r.hashCode());
             thread.setDaemon(true);

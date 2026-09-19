@@ -75,21 +75,31 @@ public class EfficientSamSegmentTranslator {
      */
     private static final String DECODER_FILE = "efficientsam_ti_decoder.onnx";
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 编码器会话 */
+    /**
+     * 编码器会话
+    */
     private OrtSession encoderSession;
-    /** 解码器会话 */
+    /**
+     * 解码器会话
+    */
     private OrtSession decoderSession;
 
     /**
      * 当前依赖上下文（原图尺寸），由 segment 串行使用
      */
     private int srcWidth;
-    /** 源图像高度 */
+    /**
+     * 源图像高度
+    */
     private int srcHeight;
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (encoderSession != null && decoderSession != null) {
             return;

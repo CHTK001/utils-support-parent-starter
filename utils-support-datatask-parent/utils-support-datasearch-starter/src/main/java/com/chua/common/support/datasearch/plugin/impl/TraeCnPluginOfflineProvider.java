@@ -17,7 +17,9 @@ import java.util.List;
 @Spi("trae-cn")
 public class TraeCnPluginOfflineProvider extends AbstractLocalPluginOfflineProvider {
 
-    /** Trae-CN 插件根目录。 */
+    /**
+     * Trae-CN 插件根目录。
+    */
     private static final Path PLUGINS_DIR = USER_HOME.resolve(".trae-cn").resolve("plugins");
 
     @Override

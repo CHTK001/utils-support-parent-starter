@@ -26,14 +26,22 @@ import java.util.List;
 @Slf4j
 public final class Oshi {
 
-    /** 系统_信息 */
+    /**
+     * 系统_信息
+    */
     private static final SystemInfo SYSTEM_INFO = new SystemInfo();
-    /** Hardware */
+    /**
+     * Hardware
+    */
     private static final HardwareAbstractionLayer HARDWARE = SYSTEM_INFO.getHardware();
-    /** Operating_系统 */
+    /**
+     * Operating_系统
+    */
     private static final OperatingSystem OPERATING_SYSTEM = SYSTEM_INFO.getOperatingSystem();
 
-    /** 创建 Oshi 实例 */
+    /**
+     * 创建 Oshi 实例
+    */
     private Oshi() {
     }
 

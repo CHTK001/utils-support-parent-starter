@@ -28,7 +28,9 @@ public class OnnxImageGenerator implements ImageGenerator {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ImageGenerator model(String model) {
         this.modelName = model;
         return this;
@@ -47,7 +49,9 @@ public class OnnxImageGenerator implements ImageGenerator {
     }
 
     @Override
-    /** Generate */
+    /**
+     * Generate
+    */
     public byte[] generate(long classId) {
         return ImageGenerator.create(resolveModel()).generate(classId);
     }

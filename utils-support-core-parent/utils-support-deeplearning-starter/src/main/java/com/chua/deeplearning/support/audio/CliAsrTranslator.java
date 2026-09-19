@@ -49,16 +49,24 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class CliAsrTranslator implements ITranslator<byte[], String> {
 
-    /** 翻译器名称 */
+    /**
+     * 翻译器名称
+    */
     private final String name;
 
-    /** CLI 描述 */
+    /**
+     * CLI 描述
+    */
     private final CliModelRunner.CliDescriptor cli;
 
-    /** ASR 模型短名（nemo-speech 索引）或本地 GGUF 路径；null=CLI 默认模型 */
+    /**
+     * ASR 模型短名（nemo-speech 索引）或本地 GGUF 路径；null=CLI 默认模型
+    */
     private final String model;
 
-    /** 是否请求 JSON 结构化输出（含词级时间戳） */
+    /**
+     * 是否请求 JSON 结构化输出（含词级时间戳）
+    */
     private final boolean jsonOutput;
 
     /**
@@ -183,7 +191,9 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
         return CliModelRunner.run(exe, args, 300L);
     }
 
-    /** ModelRegistrar SPI 是否已扫描（避免每次转写重复扫资源） */
+    /**
+     * ModelRegistrar SPI 是否已扫描（避免每次转写重复扫资源）
+    */
     private static volatile boolean registrarScanned;
 
     /**

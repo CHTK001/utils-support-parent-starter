@@ -44,28 +44,48 @@ import java.util.Map;
  */
 public class CnClipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
-    /** 图像尺寸 */
+    /**
+     * 图像尺寸
+    */
     private static final int IMAGE_SIZE = 224;
-    /** 文本最大长度 */
+    /**
+     * 文本最大长度
+    */
     private static final int TEXT_MAX_LENGTH = 52;
-    /** Logit 缩放系数 */
+    /**
+     * Logit 缩放系数
+    */
     private static final float LOGIT_SCALE = 100f;
-    /** 默认候选列表 */
+    /**
+     * 默认候选列表
+    */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "document", "animal", "vehicle");
 
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float[] MEAN = new float[]{0.48145466f, 0.45782750f, 0.40821073f};
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
-    /** 请求的候选列表 */
+    /**
+     * 请求的候选列表
+    */
     private final List<String> requestedCandidates;
-    /** 提示词模板 */
+    /**
+     * 提示词模板
+    */
     private final String promptTemplate;
 
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 候选列表 */
+    /**
+     * 候选列表
+    */
     private List<String> candidates = DEFAULT_CANDIDATES;
 
     /**
@@ -87,7 +107,9 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
         Path tokPath = resolveFirstExisting(modelRoot,
@@ -100,7 +122,9 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -126,7 +150,9 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         float[] imageVec = normalize(imageEmbeds.squeeze().toFloatArray());
@@ -168,7 +194,9 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

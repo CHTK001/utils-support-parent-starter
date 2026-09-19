@@ -56,7 +56,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
     private volatile SystemLogProvider provider;
 
     @Override
-    /** 查找 */
+    /**
+     * 查找
+    */
     public Set<Resource> find(String name) {
         LogQuery query = parseQuery(name);
         if (query == null) {
@@ -266,13 +268,17 @@ public class SystemLogResourceFinder implements ResourceFinder {
     private record VirtualResourceImpl(LogEntry entry, byte[] content) implements Resource {
 
         @Override
-        /** 打开流 */
+        /**
+         * 打开流
+        */
         public InputStream openStream() throws IOException {
             return new ByteArrayInputStream(content);
         }
 
         @Override
-        /** 获取url路径 */
+        /**
+         * 获取url路径
+        */
         public String getUrlPath() {
         
             return "syslog-" + entry.timestamp() + "-" + entry.source();
@@ -280,7 +286,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
         @Override
-        /** 获取Url */
+        /**
+         * 获取Url
+        */
         public URL getUrl() {
             try {
                 return new URL("syslog", "", getUrlPath());
@@ -290,7 +298,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
         }
 
         @Override
-        /** 最后一个modified */
+        /**
+         * 最后一个modified
+        */
         public long lastModified() {
         
             return 0;
@@ -298,7 +308,9 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
         @Override
-        /** 转为字符串 */
+        /**
+         * 转为字符串
+        */
         public String toString() {
         
             return new String(content, StandardCharsets.UTF_8);

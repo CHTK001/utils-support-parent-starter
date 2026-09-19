@@ -26,22 +26,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AiTokenServerFilter implements ServerFilter {
 
-    /** 请求属性名：token 分组 */
+    /**
+     * 请求属性名：token 分组
+    */
     public static final String ATTR_TOKEN_GROUP = "_ai_token_group";
-    /** 请求属性名：token 值 */
+    /**
+     * 请求属性名：token 值
+    */
     public static final String ATTR_TOKEN_VALUE = "_ai_token_value";
-    /** 请求属性名：token 对象 */
+    /**
+     * 请求属性名：token 对象
+    */
     public static final String ATTR_TOKEN = "_ai_token";
 
-    /** 令牌提供者 */
+    /**
+     * 令牌提供者
+    */
     private final AiTokenProvider tokenProvider;
 
-    /** 未认证时的错误消息 */
+    /**
+     * 未认证时的错误消息
+    */
     @Setter
-    /** Unauthorized消息 */
+    /**
+     * Unauthorized消息
+    */
     private String unauthorizedMessage = "Invalid or expired token";
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     @Setter
     /**
      * 是否启用
@@ -57,7 +71,9 @@ public class AiTokenServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         // 未启用或无 token → 直接放行
         if (!enabled || tokenProvider == null || tokenProvider.count() == 0) {
@@ -107,19 +123,25 @@ public class AiTokenServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return 50;
     }
 
     @Override
-    /** 获取过滤Id */
+    /**
+     * 获取过滤Id
+    */
     public String getFilterId() {
         return "AiTokenServerFilter";
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }

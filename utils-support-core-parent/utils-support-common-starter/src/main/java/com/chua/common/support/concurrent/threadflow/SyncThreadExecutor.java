@@ -33,7 +33,9 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 提交Tasks */
+    /**
+     * 提交Tasks
+    */
     protected List<Future<Object>> submitTasks() {
         List<Future<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -48,7 +50,9 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // 无需释放资源
     }
@@ -57,7 +61,9 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
      * 已完成 Future 包装。
      */
     private static final class CompletedFuture implements Future<Object> {
-        /** 结果对象 */
+        /**
+         * 结果对象
+        */
         private final Object result;
 
         CompletedFuture(Object result) {
@@ -65,31 +71,41 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
         }
 
         @Override
-        /** Cancel */
+        /**
+         * Cancel
+        */
         public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
         }
 
         @Override
-        /** 是否Cancelled */
+        /**
+         * 是否Cancelled
+        */
         public boolean isCancelled() {
             return false;
         }
 
         @Override
-        /** 是否Done */
+        /**
+         * 是否Done
+        */
         public boolean isDone() {
             return true;
         }
 
         @Override
-        /** 获取 */
+        /**
+         * 获取
+        */
         public Object get() {
             return result;
         }
 
         @Override
-        /** 获取 */
+        /**
+         * 获取
+        */
         public Object get(long timeout, TimeUnit unit) {
             return result;
         }
@@ -99,7 +115,9 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
      * 失败 Future 包装。
      */
     private static final class FailedFuture implements Future<Object> {
-        /** 异常对象 */
+        /**
+         * 异常对象
+        */
         private final Exception exception;
 
         FailedFuture(Exception exception) {
@@ -107,31 +125,41 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
         }
 
         @Override
-        /** Cancel */
+        /**
+         * Cancel
+        */
         public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
         }
 
         @Override
-        /** 是否Cancelled */
+        /**
+         * 是否Cancelled
+        */
         public boolean isCancelled() {
             return false;
         }
 
         @Override
-        /** 是否Done */
+        /**
+         * 是否Done
+        */
         public boolean isDone() {
             return true;
         }
 
         @Override
-        /** 获取 */
+        /**
+         * 获取
+        */
         public Object get() throws ExecutionException {
             throw new ExecutionException(exception);
         }
 
         @Override
-        /** 获取 */
+        /**
+         * 获取
+        */
         public Object get(long timeout, TimeUnit unit) throws ExecutionException {
             throw new ExecutionException(exception);
         }

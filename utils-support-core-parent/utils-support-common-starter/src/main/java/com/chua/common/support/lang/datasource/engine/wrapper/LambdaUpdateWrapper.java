@@ -36,7 +36,9 @@ import java.util.Map;
  */
 public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdateWrapper<T>> {
 
-    /** SET 值映射：列名 → 新值 */
+    /**
+     * SET 值映射：列名 → 新值
+    */
     private final Map<String, Object> setValues = new LinkedHashMap<>();
 
     /**
@@ -143,7 +145,9 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     }
 
     @Override
-    /** NewInstance */
+    /**
+     * NewInstance
+    */
     protected LambdaUpdateWrapper<T> newInstance() {
         return new LambdaUpdateWrapper<>(entityClass);
     }

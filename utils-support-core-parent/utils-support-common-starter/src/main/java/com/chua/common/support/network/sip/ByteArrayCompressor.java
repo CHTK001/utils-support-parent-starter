@@ -26,19 +26,29 @@ import java.util.zip.Inflater;
 @Spi("byte-array-compressor")
 public final class ByteArrayCompressor {
 
-    /** 压缩级别（BEST_SPEED：低延迟优先） */
+    /**
+     * 压缩级别（BEST_SPEED：低延迟优先）
+    */
     private static final int LEVEL = Deflater.BEST_SPEED;
 
-    /** 单次压缩上限（防止超大数组导致 OOM） */
+    /**
+     * 单次压缩上限（防止超大数组导致 OOM）
+    */
     private static final int MAX_FRAME_SIZE = 64 * 1024;
 
-    /** 压缩后帧头长度（4B 压缩后长度 + 4B 原始长度） */
+    /**
+     * 压缩后帧头长度（4B 压缩后长度 + 4B 原始长度）
+    */
     public static final int HEADER_LEN = 8;
 
-    /** 单帧明文上限 */
+    /**
+     * 单帧明文上限
+    */
     public static final int MAX_PLAIN_LEN = 64 * 1024;
 
-    /** 防止实例化 */
+    /**
+     * 防止实例化
+    */
     private ByteArrayCompressor() {
     }
 

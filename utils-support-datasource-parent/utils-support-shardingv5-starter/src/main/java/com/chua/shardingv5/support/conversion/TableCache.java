@@ -17,11 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TableCache {
 
-    /** 数据源 */
+    /**
+     * 数据源
+    */
     private final List<DataSource> dataSources;
-    /** 缓存秒 */
+    /**
+     * 缓存秒
+    */
     private final int cacheSeconds;
-    /** 缓存 */
+    /**
+     * 缓存
+    */
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /**
@@ -61,7 +67,9 @@ public class TableCache {
         return tables;
     }
 
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() { cache.clear(); }
 
     /**

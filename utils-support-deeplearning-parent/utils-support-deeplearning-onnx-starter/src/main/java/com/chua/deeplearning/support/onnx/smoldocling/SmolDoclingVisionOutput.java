@@ -12,7 +12,9 @@ import java.util.Arrays;
  */
 public class SmolDoclingVisionOutput {
 
-    /** 图像特征 */
+    /**
+     * 图像特征
+    */
     private final NDArray imageFeatures;
 
     /**

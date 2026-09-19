@@ -45,13 +45,17 @@ public class StartNode implements PipelineNode {
         return id;
     }
 
-    /** 节点类型：启动。 */
+    /**
+     * 节点类型：启动。
+    */
     @Override
     public String getType() {
         return "start";
     }
 
-    /** 进入起始节点：设置当前节点并跳转到下一节点。 */
+    /**
+     * 进入起始节点：设置当前节点并跳转到下一节点。
+    */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

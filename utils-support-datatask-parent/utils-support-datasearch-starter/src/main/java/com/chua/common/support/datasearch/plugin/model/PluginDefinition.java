@@ -14,25 +14,41 @@ import java.util.Map;
  */
 public class PluginDefinition {
 
-    /** 插件唯一标识（市场/仓库 + 名称）。 */
+    /**
+     * 插件唯一标识（市场/仓库 + 名称）。
+    */
     private final String id;
-    /** 插件名称。 */
+    /**
+     * 插件名称。
+    */
     private final String name;
-    /** 插件描述。 */
+    /**
+     * 插件描述。
+    */
     private final String description;
-    /** 作者/发布者。 */
+    /**
+     * 作者/发布者。
+    */
     private final String author;
-    /** 版本。 */
+    /**
+     * 版本。
+    */
     private final String version;
-    /** 插件落盘位置（本地）或市场主页（在线）。 */
+    /**
+     * 插件落盘位置（本地）或市场主页（在线）。
+    */
     private final String location;
     /**
      * 来源标识（如 claude / trae-cn / open-vsx / clawhub）。
      */
     private final String source;
-    /** 插件清单路径（如 plugin.json / package.json）。 */
+    /**
+     * 插件清单路径（如 plugin.json / package.json）。
+    */
     private final String manifestPath;
-    /** 额外元信息。 */
+    /**
+     * 额外元信息。
+    */
     private final Map<String, Object> extra;
 
     /**

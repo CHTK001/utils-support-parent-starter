@@ -17,9 +17,13 @@ import java.util.concurrent.TimeUnit;
 @Spi("rate")
 public class GuavaRateLimiterProvider implements RateLimiterProvider {
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
-    /** 限流器 */
+    /**
+     * 限流器
+    */
     private final RateLimiter rateLimiter;
 
     /**
@@ -46,25 +50,33 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     }
 
     @Override
-    /** Try获取 */
+    /**
+     * Try获取
+    */
     public boolean tryAcquire() {
         return rateLimiter.tryAcquire();
     }
 
     @Override
-    /** Try获取 */
+    /**
+     * Try获取
+    */
     public boolean tryAcquire(long timeout, TimeUnit timeUnit) {
         return rateLimiter.tryAcquire(timeout, timeUnit);
     }
 
     @Override
-    /** AvailablePermits */
+    /**
+     * AvailablePermits
+    */
     public int availablePermits() {
         return (int) rateLimiter.getRate();
     }
 
     @Override
-    /** 获取Name */
+    /**
+     * 获取Name
+    */
     public String getName() {
         return name;
     }

@@ -8,14 +8,22 @@ package com.chua.protocol.support.network.net;
  */
 public class UserAgent {
 
-    /** 原始 用户-Agent 字符串 */
+    /**
+     * 原始 用户-Agent 字符串
+    */
     private String raw;
-    /** 浏览器名称 */
+    /**
+     * 浏览器名称
+    */
     private String browser;
-    /** 操作系统名称 */
+    /**
+     * 操作系统名称
+    */
     private String operatingSystem;
 
-    /** 默认构造 */
+    /**
+     * 默认构造
+    */
     public UserAgent() {
     }
 

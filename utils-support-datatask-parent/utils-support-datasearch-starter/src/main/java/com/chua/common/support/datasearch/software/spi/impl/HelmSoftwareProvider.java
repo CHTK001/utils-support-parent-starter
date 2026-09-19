@@ -26,20 +26,28 @@ import java.util.concurrent.TimeUnit;
 @Spi("helm")
 public class HelmSoftwareProvider implements SoftwareProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(HelmSoftwareProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     private static final String NAME = "helm";
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
         String cmd = "helm search hub " + keyword + " 2>&1";
@@ -48,19 +56,25 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("helm 搜索完成, exitCode={}", exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.warn("helm 搜索异常: {}", throwable.getMessage());
             }
@@ -74,7 +88,9 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String packageId) {
         String release = sanitize(packageId);
         String cmd = "helm install " + release + " " + packageId;
@@ -83,7 +99,9 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String packageId) {
         String release = sanitize(packageId);
         String cmd = "helm uninstall " + release;
@@ -102,19 +120,25 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** on线 */
+            /**
+             * on线
+            */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** on完成 */
+            /**
+             * on完成
+            */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
 
             @Override
-            /** On记录错误 */
+            /**
+             * On记录错误
+            */
             public void onError(String command, Throwable throwable) {
                 log.error("  [{}] 异常: {}", action, throwable.getMessage());
             }

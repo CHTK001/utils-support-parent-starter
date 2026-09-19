@@ -10,19 +10,29 @@ package com.chua.common.support.media.ffmpeg;
  */
 public class FFmpegResult {
 
-    /** 是否执行成功 */
+    /**
+     * 是否执行成功
+    */
     private boolean success;
 
-    /** 进程退出码，0 表示正常退出 */
+    /**
+     * 进程退出码，0 表示正常退出
+    */
     private int exitCode;
 
-    /** 标准输出内容 */
+    /**
+     * 标准输出内容
+    */
     private String stdout;
 
-    /** 错误输出内容 */
+    /**
+     * 错误输出内容
+    */
     private String stderr;
 
-    /** 执行耗时（毫秒） */
+    /**
+     * 执行耗时（毫秒）
+    */
     private long executionTime;
 
     /**

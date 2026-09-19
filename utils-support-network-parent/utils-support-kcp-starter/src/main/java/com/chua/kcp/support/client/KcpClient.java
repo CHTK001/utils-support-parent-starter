@@ -214,7 +214,9 @@ public class KcpClient {
         this.serverUrl = serverUrl;
     }
 
-    /** 连接 */
+    /**
+     * 连接
+    */
     public synchronized void connect() {
         if (session != null) {
             return;
@@ -241,7 +243,9 @@ public class KcpClient {
         }
     }
 
-    /** 断开 */
+    /**
+     * 断开
+    */
     public synchronized void disconnect() {
         if (session != null) {
             try {
@@ -462,7 +466,9 @@ public class KcpClient {
         return Collections.unmodifiableMap(metadata);
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         disconnect();
     }
@@ -481,7 +487,9 @@ public class KcpClient {
         }
     }
 
-    /** 校验连接 */
+    /**
+     * 校验连接
+    */
     private void checkConnected() {
         if (session == null || !session.isActive()) {
             throw new IllegalStateException("KCP 未连接");
@@ -634,7 +642,9 @@ public class KcpClient {
     private final class OAuthKcpListener implements KcpListener {
 
         @Override
-        /** on连接 */
+        /**
+         * on连接
+        */
         public void onConnected(Ukcp ukcp) {
  // 服务端会收到 注册:客户端标识 的第一帧作为注册请求
  // 这里仅触发连接事件，回写 注册: 让服务端把 客户端标识 绑定
@@ -644,7 +654,9 @@ public class KcpClient {
         }
 
         @Override
-        /** 处理接收 */
+        /**
+         * 处理接收
+        */
         public void handleReceive(ByteBuf byteBuf, Ukcp ukcp) {
  // kcp-基础 1.6.2 读取任务 自行管理 bytebuf 引用计数，此处不可 release（双重释放会 illegal引用数量异常）
             // 服务端批量聚合 + KCP 分包：追加到跨包缓冲，按 \n 切出完整行分发，未完成行保留
@@ -671,7 +683,9 @@ public class KcpClient {
         }
 
         @Override
-        /** 处理异常 */
+        /**
+         * 处理异常
+        */
         public void handleException(Throwable ex, Ukcp ukcp) {
             log.error("KCP 客户端异常: {}", ex.getMessage(), ex);
             notifyError(ex);
@@ -679,13 +693,17 @@ public class KcpClient {
         }
 
         @Override
-        /** 处理关闭 */
+        /**
+         * 处理关闭
+        */
         public void handleClose(Ukcp ukcp) {
             notifyDisconnect(clientId);
             dispatchAnnotatedMethods(onCloseMethods);
         }
 
-        /** 发送注册 */
+        /**
+         * 发送注册
+        */
         private void sendRegister() {
             try {
                 Thread.sleep(50);

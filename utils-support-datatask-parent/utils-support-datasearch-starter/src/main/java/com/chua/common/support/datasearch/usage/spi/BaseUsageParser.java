@@ -26,7 +26,9 @@ import java.util.Map;
  */
 public abstract class BaseUsageParser implements UsageParser {
 
-    /** 日志记录器 */
+    /**
+     * 日志记录器
+    */
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");

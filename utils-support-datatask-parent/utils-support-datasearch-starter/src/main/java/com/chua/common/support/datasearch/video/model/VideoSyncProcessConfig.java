@@ -8,18 +8,30 @@ package com.chua.common.support.datasearch.video.model;
  */
 public class VideoSyncProcessConfig {
 
-    /** 视频类型 */
+    /**
+     * 视频类型
+    */
     private String videoType;
-    /** 当前页内页码 */
+    /**
+     * 当前页内页码
+    */
     private int currentPageInPage;
-    /** 页内总数 */
+    /**
+     * 页内总数
+    */
     private int totalInPage;
-    /** 页码 */
+    /**
+     * 页码
+    */
     private int page;
-    /** 总页数 */
+    /**
+     * 总页数
+    */
     private int totalPages;
 
-    /** 创建 视频同步处理配置 实例 */
+    /**
+     * 创建 视频同步处理配置 实例
+    */
     public VideoSyncProcessConfig() {
     }
 
@@ -125,15 +137,25 @@ public class VideoSyncProcessConfig {
     }
 
     public static class VideoSyncProcessConfigBuilder {
-        /** 视频类型 */
+        /**
+         * 视频类型
+        */
         private String videoType;
-        /** 当前页内页码 */
+        /**
+         * 当前页内页码
+        */
         private int currentPageInPage;
-        /** 页内总数 */
+        /**
+         * 页内总数
+        */
         private int totalInPage;
-        /** 页码 */
+        /**
+         * 页码
+        */
         private int page;
-        /** 总页数 */
+        /**
+         * 总页数
+        */
         private int totalPages;
 
         VideoSyncProcessConfigBuilder() {

@@ -69,7 +69,9 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public Map<String, Object> get(String dataId) {
         if (apolloConfig == null) {
             throw new IllegalStateException("Apollo 未初始化，请先调用 start() 方法启动配置中心");
@@ -101,14 +103,18 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public Map<String, Object> get(String dataId, String group) {
  // Apollo 中 群体 参数对应不同的 namespace
         return get(dataId);
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         // 确定命名空间
         this.namespace = StringUtils.isNotBlank(configCenterSetting.getProfile())
@@ -120,7 +126,9 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         // 注册配置变更监听器
         this.apolloConfig.addChangeListener(new ConfigChangeListener() {
             @Override
-            /** on改变 */
+            /**
+             * on改变
+            */
             public void onChange(ConfigChangeEvent event) {
                 Set<String> changedKeys = event.changedKeys();
                 for (String key : changedKeys) {
@@ -140,7 +148,9 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws Exception {
         if (apolloConfig != null) {
             apolloConfig = null;
@@ -149,20 +159,26 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 是否支持发布 */
+    /**
+     * 是否支持发布
+    */
     public boolean isSupportPublish() {
         return false;
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public boolean publish(String dataId, String group, String key, String value) {
         log.warn("Apollo 配置中心不支持发布操作，配置仅在本地缓存生效");
         return false;
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public boolean remove(String dataId, String key) {
         log.warn("Apollo 配置中心不支持删除操作");
         return false;
@@ -182,7 +198,9 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
@@ -192,7 +210,9 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         if (config != null) {
             config.addChangeListener(new ConfigChangeListener() {
                 @Override
-                /** on改变 */
+                /**
+                 * on改变
+                */
                 public void onChange(ConfigChangeEvent event) {
                     Set<String> changedKeys = event.changedKeys();
                     for (String key : changedKeys) {

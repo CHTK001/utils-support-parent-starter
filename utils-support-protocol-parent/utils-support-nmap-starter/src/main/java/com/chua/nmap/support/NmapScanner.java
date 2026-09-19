@@ -185,21 +185,37 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class ScanResult {
-        /** 目标主机 */
+        /**
+         * 目标主机
+        */
         private String host;
-        /** 主机信息 */
+        /**
+         * 主机信息
+        */
         private HostInfo hostInfo;
-        /** 端口信息列表 */
+        /**
+         * 端口信息列表
+        */
         private List<PortInfo> ports;
-        /** 扫描耗时（毫秒） */
+        /**
+         * 扫描耗时（毫秒）
+        */
         private long duration;
-        /** 扫描开始时间 */
+        /**
+         * 扫描开始时间
+        */
         private long startTime;
-        /** 扫描结束时间 */
+        /**
+         * 扫描结束时间
+        */
         private long endTime;
-        /** 总共扫描端口数 */
+        /**
+         * 总共扫描端口数
+        */
         private int totalPorts;
-        /** 开放端口数 */
+        /**
+         * 开放端口数
+        */
         private int openPorts;
 
         /**
@@ -290,19 +306,33 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class PortInfo {
-        /** 端口号 */
+        /**
+         * 端口号
+        */
         private int port;
-        /** 协议（TCP/UDP） */
+        /**
+         * 协议（TCP/UDP）
+        */
         private String protocol;
-        /** 状态 */
+        /**
+         * 状态
+        */
         private PortState state;
-        /** 服务名称 */
+        /**
+         * 服务名称
+        */
         private String serviceName;
-        /** 服务版本 */
+        /**
+         * 服务版本
+        */
         private String serviceVersion;
-        /** Banner信息 */
+        /**
+         * Banner信息
+        */
         private String banner;
-        /** 响应时间（毫秒） */
+        /**
+         * 响应时间（毫秒）
+        */
         private long responseTime;
 
         /**
@@ -388,13 +418,21 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     enum PortState {
-        /** 开放 */
+        /**
+         * 开放
+        */
         OPEN,
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         CLOSED,
-        /** 被过滤 */
+        /**
+         * 被过滤
+        */
         FILTERED,
-        /** 未知 */
+        /**
+         * 未知
+        */
         UNKNOWN
     }
 
@@ -404,19 +442,33 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class HostInfo {
-        /** IP地址 */
+        /**
+         * IP地址
+        */
         private String ip;
-        /** 主机名 */
+        /**
+         * 主机名
+        */
         private String hostname;
-        /** MAC地址 */
+        /**
+         * MAC地址
+        */
         private String mac;
-        /** 厂商 */
+        /**
+         * 厂商
+        */
         private String vendor;
-        /** 是否存活 */
+        /**
+         * 是否存活
+        */
         private boolean alive;
-        /** 延迟（毫秒） */
+        /**
+         * 延迟（毫秒）
+        */
         private long latency;
-        /** TTL */
+        /**
+         * TTL
+        */
         private int ttl;
 
         /**
@@ -502,19 +554,33 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class ServiceInfo {
-        /** 端口 */
+        /**
+         * 端口
+        */
         private int port;
-        /** 服务名称 */
+        /**
+         * 服务名称
+        */
         private String name;
-        /** 产品名称 */
+        /**
+         * 产品名称
+        */
         private String product;
-        /** 版本 */
+        /**
+         * 版本
+        */
         private String version;
-        /** 额外信息 */
+        /**
+         * 额外信息
+        */
         private String extraInfo;
-        /** CPE标识 */
+        /**
+         * CPE标识
+        */
         private String cpe;
-        /** 置信度（0-100） */
+        /**
+         * 置信度（0-100）
+        */
         private int confidence;
 
         /**
@@ -595,19 +661,33 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class OsInfo {
-        /** 操作系统名称 */
+        /**
+         * 操作系统名称
+        */
         private String name;
-        /** 操作系统家族 */
+        /**
+         * 操作系统家族
+        */
         private String family;
-        /** 版本 */
+        /**
+         * 版本
+        */
         private String version;
-        /** 厂商 */
+        /**
+         * 厂商
+        */
         private String vendor;
-        /** 设备类型 */
+        /**
+         * 设备类型
+        */
         private String deviceType;
-        /** 准确度（0-100） */
+        /**
+         * 准确度（0-100）
+        */
         private int accuracy;
-        /** CPE标识列表 */
+        /**
+         * CPE标识列表
+        */
         private List<String> cpes;
 
         /**
@@ -688,15 +768,25 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class ScanProgress {
-        /** 当前扫描端口 */
+        /**
+         * 当前扫描端口
+        */
         private int currentPort;
-        /** 已扫描端口数 */
+        /**
+         * 已扫描端口数
+        */
         private int scannedPorts;
-        /** 总端口数 */
+        /**
+         * 总端口数
+        */
         private int totalPorts;
-        /** 进度百分比 */
+        /**
+         * 进度百分比
+        */
         private double progress;
-        /** 已发现开放端口数 */
+        /**
+         * 已发现开放端口数
+        */
         private int openPorts;
 
         /**
@@ -757,19 +847,33 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     class ScanOptions {
-        /** 超时时间（毫秒） */
+        /**
+         * 超时时间（毫秒）
+        */
         private int timeout = 1000;
-        /** 并发数 */
+        /**
+         * 并发数
+        */
         private int concurrency = 100;
-        /** 重试次数 */
+        /**
+         * 重试次数
+        */
         private int retries = 1;
-        /** 扫描延迟（毫秒） */
+        /**
+         * 扫描延迟（毫秒）
+        */
         private int delay = 0;
-        /** 是否进行服务检测 */
+        /**
+         * 是否进行服务检测
+        */
         private boolean serviceDetection = false;
-        /** 是否进行OS检测 */
+        /**
+         * 是否进行OS检测
+        */
         private boolean osDetection = false;
-        /** 扫描类型 */
+        /**
+         * 扫描类型
+        */
         private ScanType scanType = ScanType.TCP_CONNECT;
 
         /**
@@ -894,13 +998,21 @@ public interface NmapScanner {
      * @since 4.0.0
      */
     enum ScanType {
-        /** TCP连接扫描 */
+        /**
+         * TCP连接扫描
+        */
         TCP_CONNECT,
-        /** TCP SYN扫描（需要根权限） */
+        /**
+         * TCP SYN扫描（需要根权限）
+        */
         TCP_SYN,
-        /** UDP扫描 */
+        /**
+         * UDP扫描
+        */
         UDP,
-        /** Ping扫描 */
+        /**
+         * Ping扫描
+        */
         PING
     }
 }

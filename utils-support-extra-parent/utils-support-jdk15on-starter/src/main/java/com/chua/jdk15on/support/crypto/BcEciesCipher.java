@@ -33,11 +33,17 @@ import org.bouncycastle.crypto.util.PublicKeyFactory;
 @Spi({"bc", "bouncycastle"})
 public class BcEciesCipher implements EciesCipher {
 
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     private static final String PROVIDER = "BC";
-    /** Curve */
+    /**
+     * Curve
+    */
     private static final String CURVE = "secp256r1";
-    /** 键_algorithm */
+    /**
+     * 键_algorithm
+    */
     private static final String KEY_ALGORITHM = "EC";
 
     static {
@@ -47,7 +53,9 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
-    /** generate键pair */
+    /**
+     * generate键pair
+    */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -59,7 +67,9 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
-    /** Encrypt */
+    /**
+     * Encrypt
+    */
     public byte[] encrypt(byte[] publicKey, byte[] data) {
         try {
             KeyPair ephemeral = generateKeyPair();
@@ -112,7 +122,9 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
-    /** Decrypt */
+    /**
+     * Decrypt
+    */
     public byte[] decrypt(byte[] privateKey, byte[] ciphertext) {
         try {
             int off = 0;

@@ -85,7 +85,9 @@ public class ConfigValueBindingManager implements ConfigListener {
         return instance;
     }
 
-    /** 创建 ConfigValueBindingManager 实例 */
+    /**
+     * 创建 ConfigValueBindingManager 实例
+    */
     private ConfigValueBindingManager() {
     }
 

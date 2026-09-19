@@ -43,22 +43,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
-    /** token → AiToken 映射 */
+    /**
+     * token → AiToken 映射
+    */
     private final Map<String, AiToken> tokenMap = new ConcurrentHashMap<>();
 
-    /** 令牌文件路径 */
+    /**
+     * 令牌文件路径
+    */
     private final Path filePath;
 
-    /** 令牌文件所在目录 */
+    /**
+     * 令牌文件所在目录
+    */
     private final Path watchDir;
 
-    /** 是否正在监听文件 */
+    /**
+     * 是否正在监听文件
+    */
     private final AtomicBoolean watching = new AtomicBoolean(false);
 
-    /** 文件监听线程 */
+    /**
+     * 文件监听线程
+    */
     private Thread watcherThread;
 
-    /** 日期格式 */
+    /**
+     * 日期格式
+    */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
@@ -91,7 +103,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         doLoadFromFile();
     }
 
-    /** Do加载FromFile */
+    /**
+     * Do加载FromFile
+    */
     private synchronized void doLoadFromFile() {
         if (!Files.exists(filePath)) {
             log.warn("[FileAiTokenProvider] 令牌文件不存在，创建空文件: {}", filePath);
@@ -239,7 +253,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     // ======================== AiTokenProvider 接口 ========================
 
     @Override
-    /** 获取ValidToken */
+    /**
+     * 获取ValidToken
+    */
     public AiToken getValidToken(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) {
             return null;
@@ -252,19 +268,25 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
-    /** AllTokens */
+    /**
+     * AllTokens
+    */
     public Map<String, AiToken> allTokens() {
         return Map.copyOf(tokenMap);
     }
 
     @Override
-    /** 计算数量 */
+    /**
+     * 计算数量
+    */
     public int count() {
         return tokenMap.size();
     }
 
     @Override
-    /** Put */
+    /**
+     * Put
+    */
     public synchronized void put(AiToken token) {
         if (token == null || token.getToken() == null || token.getToken().isBlank()) {
             return;
@@ -275,7 +297,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
-    /** PutAll */
+    /**
+     * PutAll
+    */
     public synchronized void putAll(List<AiToken> tokens) {
         if (tokens == null) {
             return;
@@ -290,7 +314,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public synchronized AiToken remove(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) {
             return null;
@@ -304,7 +330,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public synchronized void clear() {
         tokenMap.clear();
         flushToFile();

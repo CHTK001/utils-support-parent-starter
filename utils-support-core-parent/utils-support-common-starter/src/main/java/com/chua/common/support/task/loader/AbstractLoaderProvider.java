@@ -14,7 +14,9 @@ package com.chua.common.support.task.loader;
  */
 public abstract class AbstractLoaderProvider<T> implements Loader<T> {
 
-    /** 缓存的实例，volatile 保证双重检查锁定的可见性 */
+    /**
+     * 缓存的实例，volatile 保证双重检查锁定的可见性
+    */
     private volatile T instance;
 
     /**

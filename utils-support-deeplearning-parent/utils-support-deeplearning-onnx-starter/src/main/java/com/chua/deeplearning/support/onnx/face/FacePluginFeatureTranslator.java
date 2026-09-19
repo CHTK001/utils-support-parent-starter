@@ -24,15 +24,21 @@ import ai.djl.translate.TranslatorContext;
  */
 public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 128;
 
-    /** 创建 faceplugin特征translator 实例 */
+    /**
+     * 创建 faceplugin特征translator 实例
+    */
     public FacePluginFeatureTranslator() {
     }
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_SIZE || input.getWidth() != INPUT_SIZE) {
             input = input.resize(INPUT_SIZE, INPUT_SIZE, false);
@@ -45,7 +51,9 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] raw = array.toFloatArray();
@@ -67,7 +75,9 @@ public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
     }
 
 @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
  // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;

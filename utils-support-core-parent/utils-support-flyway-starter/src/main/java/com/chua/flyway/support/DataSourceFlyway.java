@@ -63,15 +63,21 @@ public class DataSourceFlyway implements Flyway {
     private static final String COL_SCRIPT_NAME = "script_name";
     private static final String COL_CHECKSUM = "checksum";
     private static final String COL_SUCCESS = "success";
-    /** success 列取值：成功 / 失败占位 */
+    /**
+     * success 列取值：成功 / 失败占位
+    */
     private static final String SUCCESS_TRUE = "true";
     private static final String SUCCESS_FALSE = "false";
-    /** 失败语句的占位校验和 */
+    /**
+     * 失败语句的占位校验和
+    */
     private static final String CHECKSUM_FAILED = "FAILED";
 
     private final DataSource dataSource;
     private final List<String> locations = new ArrayList<>();
-    /** 分隔符 */
+    /**
+     * 分隔符
+    */
     private String separator = "__";
     /** 语句级容错：方言差异语句（如 MySQL PREPARE 在 H2 下报错）跳过并记 FAILED，不中断整体迁移。
      * 对齐 DataSourceScriptProperties.continueOnError 默认 true 语义 */

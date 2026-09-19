@@ -37,9 +37,13 @@ import java.nio.file.Path;
 @Slf4j
 public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoCloseable {
 
-    /** 模型固定输入尺寸 */
+    /**
+     * 模型固定输入尺寸
+    */
     private static final int MODEL_SIZE = 768;
-    /** letterbox 填充灰度值（Ultralytics 约定） */
+    /**
+     * letterbox 填充灰度值（Ultralytics 约定）
+    */
     private static final int PAD_VALUE = 114;
 
     private OrtEnvironment ortEnv; // ortenv

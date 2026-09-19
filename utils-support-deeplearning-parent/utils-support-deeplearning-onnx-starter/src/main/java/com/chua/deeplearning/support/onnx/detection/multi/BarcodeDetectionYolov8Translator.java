@@ -44,7 +44,9 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
             "pdf_417"
     );
 
-    /** 创建 barcodedetectionyolov8Translator 实例 */
+    /**
+     * 创建 barcodedetectionyolov8Translator 实例
+    */
     public BarcodeDetectionYolov8Translator() {
         super();
     }
@@ -62,13 +64,17 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
     }
 
     @Override
-    /** 类名称resource路径 */
+    /**
+     * 类名称resource路径
+    */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** 默认类名称 */
+    /**
+     * 默认类名称
+    */
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

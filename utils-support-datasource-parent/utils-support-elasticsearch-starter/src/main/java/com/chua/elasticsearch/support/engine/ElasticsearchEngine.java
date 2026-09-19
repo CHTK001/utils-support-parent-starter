@@ -73,7 +73,9 @@ public class ElasticsearchEngine implements Engine {
     private ElasticsearchClient client;
 
     @Override
-    /** 添加数据源 */
+    /**
+     * 添加数据源
+    */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String url) {
@@ -101,26 +103,34 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 设置默认数据源名称 */
+    /**
+     * 设置默认数据源名称
+    */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** 获取默认数据源名称 */
+    /**
+     * 获取默认数据源名称
+    */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
-    /** Meta */
+    /**
+     * Meta
+    */
     public MetaData meta() {
         return new EsMetaData(this);
     }
 
     @Override
-    /** 支持元数据操作（meta() 返回真实实现） */
+    /**
+     * 支持元数据操作（meta() 返回真实实现）
+    */
     public boolean supportsMeta() {
         return true;
     }
@@ -135,7 +145,9 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public <T> Engine store(String name, List<T> data) {
         if (client == null) {
             throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
@@ -157,13 +169,17 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor() {
         return null;
     }
@@ -192,19 +208,25 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 获取Dialect */
+    /**
+     * 获取Dialect
+    */
     public Dialect getDialect(String n) {
         return null;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         dataSources.clear();
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new LambdaQueryWrapper<T>(entityClass) {
 
@@ -267,7 +289,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaQueryWrapper<T> newInstance() {
                 return new LambdaQueryWrapper<T>(entityClass) {
 
@@ -331,13 +355,17 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 列表 */
+            /**
+             * 列表
+            */
             public List<T> list() {
                 return search(entityClass, getConditions());
             }
 
             @Override
-            /** One */
+            /**
+             * One
+            */
             public T one() {
                 List<T> results = search(entityClass, getConditions());
                 if (results.isEmpty()) {
@@ -347,7 +375,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** Page */
+            /**
+             * Page
+            */
             public Page<T> page(int pn, int ps) {
                 List<T> all = search(entityClass, getConditions());
                 int from = (pn - 1) * ps;
@@ -361,7 +391,9 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new LambdaUpdateWrapper<T>(entityClass) {
 
@@ -416,7 +448,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaUpdateWrapper<T> newInstance() {
                 return new LambdaUpdateWrapper<T>(entityClass) {
 
@@ -472,7 +506,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 更新 */
+            /**
+             * 更新
+            */
             public int update() {
                 throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件更新");
             }
@@ -480,7 +516,9 @@ public class ElasticsearchEngine implements Engine {
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new LambdaDeleteWrapper<T>(entityClass) {
 
@@ -532,7 +570,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 新instance */
+            /**
+             * 新instance
+            */
             protected LambdaDeleteWrapper<T> newInstance() {
                 return new LambdaDeleteWrapper<T>(entityClass) {
 
@@ -585,7 +625,9 @@ public class ElasticsearchEngine implements Engine {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public int remove() {
                 throw new UnsupportedOperationException("Elasticsearch 引擎不支持条件删除");
             }

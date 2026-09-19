@@ -24,15 +24,23 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("default")
 public class DefaultConfigValueExpressionResolver implements ConfigValueExpressionResolver {
 
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     private static final String PREFIX = "${";
-    /** 后缀 */
+    /**
+     * 后缀
+    */
     private static final String SUFFIX = "}";
-    /** Separator */
+    /**
+     * Separator
+    */
     private static final String SEPARATOR = ":";
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(String expression) {
         return expression != null && expression.startsWith(PREFIX) && expression.endsWith(SUFFIX);
     }

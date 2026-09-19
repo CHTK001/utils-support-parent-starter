@@ -31,17 +31,29 @@ import com.chua.deeplearning.support.dl4j.train.ResNet50TransferTrainer;
  */
 public final class ChainedTrainer {
 
-    /** 底层训练器 */
+    /**
+     * 底层训练器
+    */
     private final Trainer trainer;
-    /** 训练超参数（可变副本，避免污染 默认 缓存） */
+    /**
+     * 训练超参数（可变副本，避免污染 默认 缓存）
+    */
     private final TrainArgument argument;
-    /** 预训练模型路径 */
+    /**
+     * 预训练模型路径
+    */
     private final String modelPath;
-    /** 模型保存路径 */
+    /**
+     * 模型保存路径
+    */
     private final String savePath;
-    /** 训练数据根目录（子目录为类别） */
+    /**
+     * 训练数据根目录（子目录为类别）
+    */
     private final String dataRootPath;
-    /** 进度回调 */
+    /**
+     * 进度回调
+    */
     private final TrainListener listener;
 
     /**

@@ -10,36 +10,66 @@ import java.time.LocalDateTime;
  */
 public class VideoSyncConfig {
 
-    /** 视频同步配置标识 */
+    /**
+     * 视频同步配置标识
+    */
     private String videoSyncConfigId;
-    /** 视频同步配置名称 */
+    /**
+     * 视频同步配置名称
+    */
     private String videoSyncConfigName;
-    /** 视频来源标识 */
+    /**
+     * 视频来源标识
+    */
     private String videoSourceId;
-    /** 视频同步配置是否启用 */
+    /**
+     * 视频同步配置是否启用
+    */
     private Boolean videoSyncConfigEnabled;
-    /** 视频同步间隔 */
+    /**
+     * 视频同步间隔
+    */
     private Integer videoSyncInterval;
-    /** 视频同步配置最后异步时间 */
+    /**
+     * 视频同步配置最后异步时间
+    */
     private LocalDateTime videoSyncConfigLastAsyncTime;
-    /** 视频同步配置头部 */
+    /**
+     * 视频同步配置头部
+    */
     private String videoSyncConfigHeaders;
-    /** 视频同步配置评论 */
+    /**
+     * 视频同步配置评论
+    */
     private String videoSyncConfigRemark;
-    /** 视频同步配置状态 */
+    /**
+     * 视频同步配置状态
+    */
     private String videoSyncConfigStatus;
-    /** 视频同步配置消息 */
+    /**
+     * 视频同步配置消息
+    */
     private String videoSyncConfigMessage;
-    /** 视频同步配置最后偏移 */
+    /**
+     * 视频同步配置最后偏移
+    */
     private String videoSyncConfigLastOffset;
-    /** 视频同步配置最后日志 */
+    /**
+     * 视频同步配置最后日志
+    */
     private String videoSyncConfigLastLog;
-    /** 同步数量 */
+    /**
+     * 同步数量
+    */
     private Integer syncCount;
-    /** 同步视频数量 */
+    /**
+     * 同步视频数量
+    */
     private Long syncVideoCount;
 
-    /** 创建 视频同步配置 实例 */
+    /**
+     * 创建 视频同步配置 实例
+    */
     public VideoSyncConfig() {
     }
 

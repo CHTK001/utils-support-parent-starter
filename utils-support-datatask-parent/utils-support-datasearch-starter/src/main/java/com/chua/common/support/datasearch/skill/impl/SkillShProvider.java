@@ -31,14 +31,22 @@ import java.util.Map;
  */
 public class SkillShProvider {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     protected static final Logger log = LoggerFactory.getLogger(SkillShProvider.class);
 
-    /** 名称 */
+    /**
+     * 名称
+    */
     protected static final String NAME = "skills-sh";
-    /** 前缀 */
+    /**
+     * 前缀
+    */
     protected static final String PREFIX = "";
-    /** API 基础 */
+    /**
+     * API 基础
+    */
     protected static final String API_BASE = "https://skills.sh/api/search";
 
     /**

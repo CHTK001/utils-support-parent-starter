@@ -21,7 +21,9 @@ import java.util.Set;
 @Spi("preview-code")
 public class CodePreviewProvider implements FileStoragePreviewProvider {
 
-    /** 编码_exts */
+    /**
+     * 编码_exts
+    */
     private static final Set<String> CODE_EXTS = Set.of(
             "js", "ts", "jsx", "tsx", "css", "scss", "less",
             "xml", "json", "yaml", "yml", "toml",
@@ -30,7 +32,9 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
             "properties", "cfg", "conf", "ini", "env"
     );
 
-    /** 已有专门 SPI 提供者抢跑的扩展名，编码preview提供者 不应匹配 */
+    /**
+     * 已有专门 SPI 提供者抢跑的扩展名，编码preview提供者 不应匹配
+    */
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
     /**
@@ -44,7 +48,9 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     private static final String HIGHLIGHT_CSS = "/preview-vendor/hljs/atom-one-dark.min.css";
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String extension, String mimeType) {
         // 排除已有专门 SPI 提供者的扩展名
         if (extension != null && BYPASS_EXTS.contains(extension.toLowerCase(Locale.ENGLISH))) {
@@ -67,7 +73,9 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     }
 
     @Override
-    /** Preview */
+    /**
+     * Preview
+    */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String code = new String(content, StandardCharsets.UTF_8);
         String lang = extension != null ? extension.toLowerCase(Locale.ENGLISH) : "txt";

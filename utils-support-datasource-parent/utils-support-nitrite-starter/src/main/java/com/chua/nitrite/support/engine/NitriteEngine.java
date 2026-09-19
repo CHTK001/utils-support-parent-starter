@@ -39,9 +39,13 @@ import java.util.concurrent.ConcurrentHashMap;
  @Spi("nitrite")
  public class NitriteEngine extends AbstractEngine implements FulltextSearch, DocumentStore {
 
-    /** 数据源未找到错误前缀 */
+    /**
+     * 数据源未找到错误前缀
+    */
     private static final String ERROR_DATASOURCE_NOT_FOUND = "Nitrite 数据源未找到: ";
-    /** 数据库实例映射表 */
+    /**
+     * 数据库实例映射表
+    */
     private final ConcurrentHashMap<String, Nitrite> databases = new ConcurrentHashMap<>();
 
     /**
@@ -297,7 +301,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public boolean delete(String collection, Object id) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -426,7 +432,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         for (Nitrite nitrite : databases.values()) {
             try {

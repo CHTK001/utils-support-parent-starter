@@ -32,19 +32,25 @@ import java.io.File;
 public class IniFileSystem implements FileSystem {
 
     @Override
-    /** 获取类型 */
+    /**
+     * 获取类型
+    */
     public String getType() {
         return "ini";
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         return new IniReadBuilder(file);
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         return new IniWriteBuilder(file);
     }

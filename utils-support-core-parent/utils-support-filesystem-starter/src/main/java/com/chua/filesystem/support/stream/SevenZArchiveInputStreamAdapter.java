@@ -54,7 +54,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read() throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -63,7 +65,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read(byte[] b) throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -72,7 +76,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read(byte[] b, int off, int len) throws IOException {
         if (currentEntry == null) {
             return -1;
@@ -81,7 +87,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 跳过 */
+    /**
+     * 跳过
+    */
     public long skip(long n) throws IOException {
         if (currentEntry == null) {
             return 0;
@@ -102,7 +110,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 可用 */
+    /**
+     * 可用
+    */
     public int available() throws IOException {
         if (currentEntry == null) {
             return 0;
@@ -112,25 +122,33 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 标记 */
+    /**
+     * 标记
+    */
     public void mark(int readlimit) {
         // 7Z格式不支持标记
     }
 
     @Override
-    /** 重置 */
+    /**
+     * 重置
+    */
     public void reset() throws IOException {
         throw new IOException("7Z格式不支持重置操作");
     }
 
     @Override
-    /** 标记支持 */
+    /**
+     * 标记支持
+    */
     public boolean markSupported() {
         return false;
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() throws IOException {
         sevenZFile.close();
     }

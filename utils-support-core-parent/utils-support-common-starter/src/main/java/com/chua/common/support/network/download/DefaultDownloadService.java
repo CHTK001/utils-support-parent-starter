@@ -384,15 +384,21 @@ public class DefaultDownloadService implements DownloadService {
      * <p>每读取指定字节数后，若令牌不足则阻塞等待令牌补充，从而实现限速。
      */
     private static class ThrottledInputStream extends InputStream {
-        /** 底层输入流 */
+        /**
+         * 底层输入流
+        */
         private final InputStream delegate;
         /**
          * 每秒可消耗的毫秒级速率（bytesPerSecond / 1000）
          */
         private final long bytesPerMs;
-        /** 当前可用令牌数（字节） */
+        /**
+         * 当前可用令牌数（字节）
+        */
         private long tokens;
-        /** 上次令牌补充时间（毫秒时间戳） */
+        /**
+         * 上次令牌补充时间（毫秒时间戳）
+        */
         private long lastRefill;
 
         /**

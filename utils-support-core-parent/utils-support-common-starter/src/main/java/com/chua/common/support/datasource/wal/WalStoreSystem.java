@@ -75,7 +75,9 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
         }
     }
 
-    /** 追加条目 */
+    /**
+     * 追加条目
+    */
     record WalAppendItem<K>(K key, byte[] payload) {}
 
     // ==================== 点查 ====================

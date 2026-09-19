@@ -22,7 +22,9 @@ public class ErrorItem {
   * 是否错误
   */
  @Builder.Default
- /** IS错误 */
+ /**
+  * IS错误
+ */
  private boolean isError = true;
  /**
   * 错误信息

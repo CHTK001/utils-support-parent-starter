@@ -44,15 +44,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Spi("vertx-tcp")
 public class VertxTcpServer extends AbstractServer implements com.chua.common.support.network.tcp.TcpServer {
 
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** NET服务器 */
+    /**
+     * NET服务器
+    */
     private NetServer netServer;
-    /** 工人池 */
+    /**
+     * 工人池
+    */
     private ExecutorService workerPool;
-    /** 处理器 */
+    /**
+     * 处理器
+    */
     private final Map<String, JdkTcpServer.TcpHandler> handlers = new ConcurrentHashMap<>();
-    /** 帧处理器（tcp服务端 接口，短连接一请求一响应） */
+    /**
+     * 帧处理器（tcp服务端 接口，短连接一请求一响应）
+    */
     private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
 
     /**
@@ -64,14 +74,18 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** 注册帧处理器（tcp服务端 接口） */
+    /**
+     * 注册帧处理器（tcp服务端 接口）
+    */
     public VertxTcpServer setHandler(com.chua.common.support.network.tcp.callback.TcpServerHandler handler) {
         this.frameHandler = handler;
         return this;
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -122,7 +136,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (netServer != null) {
             try {
@@ -143,7 +159,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
@@ -324,7 +342,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         return this;
     }
 
-    /** 基于 netSocket 的 输入流(阻塞读,虚拟线程专用)。 */
+    /**
+     * 基于 netSocket 的 输入流(阻塞读,虚拟线程专用)。
+    */
     private static final class NetSocketInputStream extends InputStream {
         /**
          * 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing
@@ -334,17 +354,25 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
             int pos;
             Segment(byte[] data) { this.data = data; }
         }
-        /** 结束哨兵(关闭信号) */
+        /**
+         * 结束哨兵(关闭信号)
+        */
         private static final Segment EOS = new Segment(new byte[0]);
-        /** Socket */
+        /**
+         * Socket
+        */
         private final NetSocket socket;
         /**
          * 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询)
          */
         private final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
-        /** Closed */
+        /**
+         * Closed
+        */
         private volatile boolean closed;
-        /** 当前正在读的数据段 */
+        /**
+         * 当前正在读的数据段
+        */
         private Segment current;
 
         NetSocketInputStream(NetSocket socket) {
@@ -363,14 +391,18 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public int read() throws IOException {
             byte[] b = new byte[1];
             return read(b, 0, 1) == -1 ? -1 : b[0] & 0xFF;
         }
 
         @Override
-        /** 读取 */
+        /**
+         * 读取
+        */
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -398,7 +430,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** 可用 */
+        /**
+         * 可用
+        */
         public int available() {
             Segment c = current;
             int avail = (c == null || c.pos >= c.data.length) ? 0 : (c.data.length - c.pos);
@@ -407,9 +441,13 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
     }
 
-    /** 基于 netSocket 的 输出流(阻塞写,虚拟线程专用)。 */
+    /**
+     * 基于 netSocket 的 输出流(阻塞写,虚拟线程专用)。
+    */
     private static final class NetSocketOutputStream extends OutputStream {
-        /** Socket */
+        /**
+         * Socket
+        */
         private final NetSocket socket;
         /**
          * 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 Socket（避免逐字节 Vert.x 调用）
@@ -422,7 +460,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(int b) {
             if (pos >= buf.length) {
                 flush();
@@ -431,7 +471,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** 写入 */
+        /**
+         * 写入
+        */
         public void write(byte[] b, int off, int len) {
             if (len >= buf.length) {
                 // 大块直接写，避免缓冲中转（Vert.x 无 buffer(byte[],off,len) 重载，需拷贝）
@@ -448,7 +490,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
 
         @Override
-        /** 刷写 */
+        /**
+         * 刷写
+        */
         public void flush() {
             if (pos > 0) {
  // 拷贝后写：避免 缓冲 共享内部攒批数组（后续覆写会影响异步发送）

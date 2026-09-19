@@ -35,31 +35,53 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RagDocumentLifeCycle implements AutoCloseable {
 
-    /** JSON 对象映射器 */
+    /**
+     * JSON 对象映射器
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    /** 数据库文件名称 */
+    /**
+     * 数据库文件名称
+    */
     private static final String DB_FILE = "db.json";
-    /** 文件存储目录 */
+    /**
+     * 文件存储目录
+    */
     private static final String FILES_DIR = "files";
-    /** 文档列表类型引用 */
+    /**
+     * 文档列表类型引用
+    */
     private static final TypeReference<List<RagDocument>> DOC_LIST_TYPE = new TypeReference<>() {};
 
-    /** 上传目录 */
+    /**
+     * 上传目录
+    */
     private final Path uploadDir;
-    /** 文件存储目录 */
+    /**
+     * 文件存储目录
+    */
     private final Path filesDir;
-    /** 数据库文件路径 */
+    /**
+     * 数据库文件路径
+    */
     private final Path dbFile;
-    /** 知识库客户端 */
+    /**
+     * 知识库客户端
+    */
     private final KnowledgeClient knowledgeClient;
-    /** 文本分割器 */
+    /**
+     * 文本分割器
+    */
     private final TextSplitter textSplitter;
-    /** 文本提取器 */
+    /**
+     * 文本提取器
+    */
     private final TextExtractor textExtractor;
-    /** 文档列表 */
+    /**
+     * 文档列表
+    */
     private final List<RagDocument> documents;
 
     /**
@@ -296,7 +318,9 @@ public class RagDocumentLifeCycle implements AutoCloseable {
         saveDb();
     }
 
-    /** 保存Db */
+    /**
+     * 保存Db
+    */
     private void saveDb() {
         try {
             MAPPER.writerWithDefaultPrettyPrinter().writeValue(dbFile.toFile(), documents);
@@ -354,7 +378,9 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         saveDb();
         log.info("[RagDocumentLifeCycle] 已关闭");

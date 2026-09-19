@@ -17,7 +17,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class FelixOsgiBundle implements OsgiBundle {
 
-    /** Bundle */
+    /**
+     * Bundle
+    */
     private final Bundle bundle;
     private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>(); // registrations
 
@@ -30,19 +32,25 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
-    /** 获取symbolic名称 */
+    /**
+     * 获取symbolic名称
+    */
     public String getSymbolicName() {
         return bundle.getSymbolicName();
     }
 
     @Override
-    /** 获取版本 */
+    /**
+     * 获取版本
+    */
     public String getVersion() {
         return bundle.getVersion().toString();
     }
 
     @Override
-    /** 获取状态 */
+    /**
+     * 获取状态
+    */
     public String getState() {
         return switch (bundle.getState()) {
             case Bundle.ACTIVE -> "ACTIVE";
@@ -56,7 +64,9 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             bundle.start();
@@ -66,7 +76,9 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         try {
             for (ServiceRegistration<?> reg : registrations) {
@@ -80,7 +92,9 @@ public class FelixOsgiBundle implements OsgiBundle {
     }
 
     @Override
-    /** 卸载 */
+    /**
+     * 卸载
+    */
     public void uninstall() {
         try {
             for (ServiceRegistration<?> reg : registrations) {

@@ -30,17 +30,23 @@ import java.util.List;
 @Spi("TOMCAT")
 public class TomcatRuntimeLauncher implements RuntimeLauncher {
 
-    /** 容器 */
+    /**
+     * 容器
+    */
     private volatile WebContainer container;
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "TOMCAT";
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public CmdResult start(RuntimeArtifact artifact) {
         if (container != null && container.isRunning()) {
             return CmdResult.builder()
@@ -109,7 +115,9 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public CmdResult stop(RuntimeArtifact artifact) {
         if (container == null) {
             return CmdResult.builder().exitCode(0).command(artifact.getName() + " 未在运行").build();
@@ -130,7 +138,9 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
     }
 
     @Override
-    /** 状态 */
+    /**
+     * 状态
+    */
     public RuntimeStatus status() {
         if (container != null && container.isRunning()) {
             return RuntimeStatus.RUNNING;

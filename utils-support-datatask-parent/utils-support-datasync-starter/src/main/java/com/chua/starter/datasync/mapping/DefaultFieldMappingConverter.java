@@ -55,7 +55,9 @@ public class DefaultFieldMappingConverter implements FieldMappingConverter {
     private static final String CONVERT_TO_DATE = "todate";
 
     @Override
-    /** 转换 */
+    /**
+     * 转换
+    */
     public Object convert(Object value, String sourceField, String targetField, String converter) {
         if (value == null) {
             return null;

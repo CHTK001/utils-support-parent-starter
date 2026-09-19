@@ -10,10 +10,16 @@ import lombok.Builder;
  */
 @Builder
 public class DonutResult {
-    /** JSON 文本 */
+    /**
+     * JSON 文本
+    */
     private String jsonText;
-    /** 标记标识数组 */
+    /**
+     * 标记标识数组
+    */
     private long[] tokenIds;
-    /** 置信度 */
+    /**
+     * 置信度
+    */
     private float confidence;
 }

@@ -40,29 +40,51 @@ import java.util.Map;
 @Slf4j
 public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
-    /** 默认最大序列长度 */
+    /**
+     * 默认最大序列长度
+    */
     private static final int DEFAULT_MAX_LEN = 512;
 
-    /** 翻译器名称 */
+    /**
+     * 翻译器名称
+    */
     private final String name;
-    /** 资源基础路径（jar 内） */
+    /**
+     * 资源基础路径（jar 内）
+    */
     private final String resourceBase;
-    /** ONNX 模型文件名 */
+    /**
+     * ONNX 模型文件名
+    */
     private final String modelFile;
-    /** 分词器文件名 */
+    /**
+     * 分词器文件名
+    */
     private final String tokenizerFile;
-    /** 默认输出维度 */
+    /**
+     * 默认输出维度
+    */
     private final int defaultDim;
-    /** 本地模型目录（downloadurl 缓存注入） */
+    /**
+     * 本地模型目录（downloadurl 缓存注入）
+    */
     private volatile Path localModelDir;
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
-    /** 会话 */
+    /**
+     * 会话
+    */
     private OrtSession session;
-    /** 分词器 */
+    /**
+     * 分词器
+    */
     private HuggingFaceTokenizer tokenizer;
-    /** 是否已加载 */
+    /**
+     * 是否已加载
+    */
     private volatile boolean loaded;
 
     /**
@@ -128,7 +150,9 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
         this.loaded = false;
     }
 
-    /** Prepare */
+    /**
+     * Prepare
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;

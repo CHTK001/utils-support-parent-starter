@@ -44,13 +44,17 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return modelName;
     }
 
     @Override
-    /** Translate */
+    /**
+     * Translate
+    */
     public Object translate(Object input) {
         return doTranslate(input);
     }

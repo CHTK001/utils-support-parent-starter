@@ -23,11 +23,17 @@ import java.util.Map;
  */
 public class FileSystemDataSyncSource implements DataSyncAgentSource {
 
-    /** 数据源标识 */
+    /**
+     * 数据源标识
+    */
     private final String sourceId;
-    /** 输入标识 */
+    /**
+     * 输入标识
+    */
     private final String inputId;
-    /** 文件路径 */
+    /**
+     * 文件路径
+    */
     private final String filePath;
 
     /**

@@ -34,13 +34,19 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class DefaultReactiveFilterChain implements ReactiveFilterChain {
 
-    /** 响应式过滤器列表 */
+    /**
+     * 响应式过滤器列表
+    */
     private final List<ReactiveServerFilter> filters;
 
-    /** 目标处理器（过滤器链末端） */
+    /**
+     * 目标处理器（过滤器链末端）
+    */
     private final ServerHandler handler;
 
-    /** 当前执行索引 */
+    /**
+     * 当前执行索引
+    */
     private int index;
 
     /**
@@ -56,7 +62,9 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     }
 
     @Override
-    /** Do过滤 */
+    /**
+     * Do过滤
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response) {
         // 全部过滤器已执行完，调用目标处理器
         if (index >= filters.size()) {

@@ -54,7 +54,9 @@ public class ReturnResult<T> implements Serializable {
      */
     private transient volatile Map<String, Object> temp;
 
-    /** 创建 ReturnResult 实例 */
+    /**
+     * 创建 ReturnResult 实例
+    */
     public ReturnResult() {
     }
 

@@ -10,13 +10,21 @@ import lombok.Builder;
  */
 @Builder
 public record BotUserEntity(
-        /** 用户 ID */
+        /**
+         * 用户 ID
+        */
         String userId,
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         String username,
-        /** 昵称 */
+        /**
+         * 昵称
+        */
         String nickname,
-        /** 头像 URL */
+        /**
+         * 头像 URL
+        */
         String avatarUrl,
         /** 扩展字段（JSON 字符串）*/
         String extra

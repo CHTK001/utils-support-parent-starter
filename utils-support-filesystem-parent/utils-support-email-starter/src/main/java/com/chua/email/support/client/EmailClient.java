@@ -60,23 +60,41 @@ import java.util.function.Consumer;
 @Getter
 public class EmailClient {
 
-    /** SMTP主机 */
+    /**
+     * SMTP主机
+    */
     private final String smtpHost;
-    /** SMTP端口 */
+    /**
+     * SMTP端口
+    */
     private final int smtpPort;
-    /** IMAP主机 */
+    /**
+     * IMAP主机
+    */
     private final String imapHost;
-    /** IMAP端口 */
+    /**
+     * IMAP端口
+    */
     private final int imapPort;
-    /** Pop3主机 */
+    /**
+     * Pop3主机
+    */
     private final String pop3Host;
-    /** Pop3端口 */
+    /**
+     * Pop3端口
+    */
     private final int pop3Port;
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private final String username;
-    /** 密码 */
+    /**
+     * 密码
+    */
     private final String password;
-    /** SMTP可用 */
+    /**
+     * SMTP可用
+    */
     private final boolean smtpAvailable;
 
     /**
@@ -188,23 +206,41 @@ public class EmailClient {
 
     @Getter
     public static class SendOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final EmailClient client;
-        /** 转为 */
+        /**
+         * 转为
+        */
         private String to;
-        /** 主题 */
+        /**
+         * 主题
+        */
         private String subject;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private String body;
-        /** HTML */
+        /**
+         * HTML
+        */
         private boolean html = false;
-        /** 从 */
+        /**
+         * 从
+        */
         private String from;
-        /** CC */
+        /**
+         * CC
+        */
         private List<String> cc = new ArrayList<>();
-        /** BCC */
+        /**
+         * BCC
+        */
         private List<String> bcc = new ArrayList<>();
-        /** attachments */
+        /**
+         * attachments
+        */
         private Map<String, byte[]> attachments = new LinkedHashMap<>();
 
         SendOperation(EmailClient client) { this.client = client; }
@@ -321,7 +357,9 @@ public class EmailClient {
 
                 Session session = Session.getInstance(props, new Authenticator() {
                     @Override
-                    /** 获取密码认证 */
+                    /**
+                     * 获取密码认证
+                    */
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(client.username, client.password);
                     }
@@ -374,15 +412,25 @@ public class EmailClient {
 
     @Getter
     public static class FetchOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final EmailClient client;
-        /** 文件夹 */
+        /**
+         * 文件夹
+        */
         private String folder = "INBOX";
-        /** 限制 */
+        /**
+         * 限制
+        */
         private int limit = 20;
-        /** Unreadonly */
+        /**
+         * Unreadonly
+        */
         private boolean unreadOnly = false;
-        /** Searchterm */
+        /**
+         * Searchterm
+        */
         private String searchTerm;
 
         FetchOperation(EmailClient client) { this.client = client; }
@@ -509,17 +557,29 @@ public class EmailClient {
 
     @Getter
     public static class WatchOperation {
-        /** 客户端 */
+        /**
+         * 客户端
+        */
         private final EmailClient client;
-        /** 文件夹 */
+        /**
+         * 文件夹
+        */
         private String folder = "INBOX";
-        /** Poll间隔 */
+        /**
+         * Poll间隔
+        */
         private int pollInterval = 60;
-        /** on消息 */
+        /**
+         * on消息
+        */
         private Consumer<Map<String, Object>> onMessage;
-        /** Watch线程 */
+        /**
+         * Watch线程
+        */
         private Thread watchThread;
-        /** running */
+        /**
+         * running
+        */
         private volatile boolean running = false;
 
         WatchOperation(EmailClient client) { this.client = client; }
@@ -626,21 +686,37 @@ public class EmailClient {
      */
 
     public static class Builder {
-        /** SMTP主机 */
+        /**
+         * SMTP主机
+        */
         private String smtpHost;
-        /** SMTP端口 */
+        /**
+         * SMTP端口
+        */
         private int smtpPort = 587;
-        /** IMAP主机 */
+        /**
+         * IMAP主机
+        */
         private String imapHost;
-        /** IMAP端口 */
+        /**
+         * IMAP端口
+        */
         private int imapPort = 993;
-        /** Pop3主机 */
+        /**
+         * Pop3主机
+        */
         private String pop3Host;
-        /** Pop3端口 */
+        /**
+         * Pop3端口
+        */
         private int pop3Port = 110;
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         private String username;
-        /** 密码 */
+        /**
+         * 密码
+        */
         private String password;
 
         /**

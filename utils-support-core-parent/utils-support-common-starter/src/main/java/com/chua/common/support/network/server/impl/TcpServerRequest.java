@@ -36,27 +36,49 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TcpServerRequest implements ServerRequest {
 
-    /** 请求方法 */
+    /**
+     * 请求方法
+    */
     private HttpMethod method;
-    /** 完整请求 URI（含查询串） */
+    /**
+     * 完整请求 URI（含查询串）
+    */
     private String uri;
-    /** 请求路径（不含查询串） */
+    /**
+     * 请求路径（不含查询串）
+    */
     private String path;
-    /** 查询参数 */
+    /**
+     * 查询参数
+    */
     private Map<String, String> params;
-    /** 请求头（大小写不敏感） */
+    /**
+     * 请求头（大小写不敏感）
+    */
     private Map<String, String> headers;
-    /** 请求体字节数组 */
+    /**
+     * 请求体字节数组
+    */
     private byte[] body;
-    /** 请求体字符串缓存 */
+    /**
+     * 请求体字符串缓存
+    */
     private String bodyString;
-    /** 客户端地址 */
+    /**
+     * 客户端地址
+    */
     private final String remoteAddress;
-    /** 客户端端口 */
+    /**
+     * 客户端端口
+    */
     private final int remotePort;
-    /** 请求属性，用于 Filter 间传递数据 */
+    /**
+     * 请求属性，用于 Filter 间传递数据
+    */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-    /** 字符集（从 Content-Type 解析，默认 UTF-8） */
+    /**
+     * 字符集（从 Content-Type 解析，默认 UTF-8）
+    */
     private final Charset charset;
 
     /**

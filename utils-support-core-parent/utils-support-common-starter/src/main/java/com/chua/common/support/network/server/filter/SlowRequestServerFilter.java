@@ -30,13 +30,19 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
      */
     private static final int DEFAULT_SAMPLE_EVERY = 10;
 
-    /** 慢请求判定阈值(毫秒) */
+    /**
+     * 慢请求判定阈值(毫秒)
+    */
     private final long thresholdMillis;
 
-    /** 采样间隔:每 N 条慢请求记录一条日志 */
+    /**
+     * 采样间隔:每 N 条慢请求记录一条日志
+    */
     private final int sampleEvery;
 
-    /** 慢请求累计计数(用于采样与观测) */
+    /**
+     * 慢请求累计计数(用于采样与观测)
+    */
     private final AtomicLong slowCount = new AtomicLong();
 
     /**
@@ -61,7 +67,9 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
-    /** 获取Order */
+    /**
+     * 获取Order
+    */
     public int getOrder() {
         return 200;
     }
@@ -75,7 +83,9 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
-    /** SupportProtocols */
+    /**
+     * SupportProtocols
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

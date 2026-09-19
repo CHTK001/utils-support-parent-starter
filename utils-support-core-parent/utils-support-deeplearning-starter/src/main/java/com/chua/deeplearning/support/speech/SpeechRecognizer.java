@@ -175,7 +175,9 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -218,28 +220,36 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     }
 
     @Override
-    /** Lang */
+    /**
+     * Lang
+    */
     public SpeechRecognizer lang(String lang) {
         this.lang = lang;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public SpeechRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public SpeechRecognizer device(String device) {
         this.device = device;
         return this;
     }
 
     @Override
-    /** 样本rate */
+    /**
+     * 样本rate
+    */
     public SpeechRecognizer sampleRate(int rate) {
         this.sampleRate = rate;
         return this;

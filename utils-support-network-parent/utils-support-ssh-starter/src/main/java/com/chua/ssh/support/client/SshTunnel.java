@@ -61,7 +61,9 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** 打开 */
+    /**
+     * 打开
+    */
     public int open() {
         if (open) {
             return actualPort;
@@ -104,7 +106,9 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (!open) {
             return;
@@ -133,7 +137,9 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** 获取信息 */
+    /**
+     * 获取信息
+    */
     public TunnelInfo getInfo() {
         return TunnelInfo.of(
                 actualPort,
@@ -146,13 +152,17 @@ public class SshTunnel implements Tunnel {
     }
 
     @Override
-    /** on信息 */
+    /**
+     * on信息
+    */
     public void onInfo(Consumer<TunnelInfo> callback) {
         this.callback = callback;
     }
 
     @Override
-    /** 是否打开 */
+    /**
+     * 是否打开
+    */
     public boolean isOpen() {
         return open;
     }

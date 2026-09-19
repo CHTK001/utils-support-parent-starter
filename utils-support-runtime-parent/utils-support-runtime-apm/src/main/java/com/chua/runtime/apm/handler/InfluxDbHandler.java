@@ -32,37 +32,49 @@ public class InfluxDbHandler extends AbstractAppHandler {
     private static final String[] CLIENT_METHODS = {"write", "query", "queryAsync", "ping", "batch"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "influxdb-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "influxdb.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.INFLUXDB_CLIENT;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.INFLUXDB;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(INFLUX_CLIENT, CLIENT_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object url = instance != null ? findField(instance, "url") : null;
         String urlStr = url != null ? String.valueOf(url) : null;

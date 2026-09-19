@@ -43,7 +43,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<ProcedureDef> list() {
         List<ProcedureDef> result = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -63,7 +65,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public ProcedureDef get(String procedureName) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement();
@@ -81,13 +85,17 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
     }
 
     @Override
-    /** 创建 */
+    /**
+     * 创建
+    */
     public ProcedureCreateBuilder create(String procedureName) {
         return new MysqlProcedureCreateBuilder(this, procedureName);
     }
 
     @Override
-    /** 掉落 */
+    /**
+     * 掉落
+    */
     public boolean drop(String procedureName) {
         return executeUpdate("DROP PROCEDURE IF EXISTS `" + procedureName + "`");
     }
@@ -129,19 +137,33 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
 
     private static class MysqlProcedureCreateBuilder implements ProcedureCreateBuilder {
 
-        /** Metaprocedure */
+        /**
+         * Metaprocedure
+        */
         private final MysqlMetaProcedure metaProcedure;
-        /** Procedure名称 */
+        /**
+         * Procedure名称
+        */
         private final String procedureName;
-        /** 参数 */
+        /**
+         * 参数
+        */
         private final StringBuilder params = new StringBuilder();
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private final StringBuilder body = new StringBuilder();
-        /** 语言 */
+        /**
+         * 语言
+        */
         private String language = "SQL";
-        /** 安全性类型 */
+        /**
+         * 安全性类型
+        */
         private String securityType;
-        /** 评论 */
+        /**
+         * 评论
+        */
         private String comment;
 
         MysqlProcedureCreateBuilder(MysqlMetaProcedure metaProcedure, String procedureName) {
@@ -150,7 +172,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** 入 */
+        /**
+         * 入
+        */
         public ProcedureCreateBuilder in(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -160,7 +184,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** 出 */
+        /**
+         * 出
+        */
         public ProcedureCreateBuilder out(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -170,7 +196,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** Inout */
+        /**
+         * Inout
+        */
         public ProcedureCreateBuilder inout(String name, String type) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -180,7 +208,9 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** 参数 */
+        /**
+         * 参数
+        */
         public ProcedureCreateBuilder param(String name, String type, String direction) {
             if (params.length() > 0) {
                 params.append(", ");
@@ -190,41 +220,53 @@ public class MysqlMetaProcedure extends AbstractMetaProcedure {
         }
 
         @Override
-        /** 主体 */
+        /**
+         * 主体
+        */
         public ProcedureCreateBuilder body(String body) {
             this.body.append(body);
             return this;
         }
 
         @Override
-        /** Language */
+        /**
+         * Language
+        */
         public ProcedureCreateBuilder language(String language) {
             this.language = language;
             return this;
         }
 
         @Override
-        /** 安全性类型 */
+        /**
+         * 安全性类型
+        */
         public ProcedureCreateBuilder securityType(String securityType) {
             this.securityType = securityType;
             return this;
         }
 
         @Override
-        /** 评论 */
+        /**
+         * 评论
+        */
         public ProcedureCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
         @Override
-        /** 或替换 */
+        /**
+         * 或替换
+        */
         public ProcedureCreateBuilder orReplace() {
             return this;
         }
 
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public ProcedureDef execute() {
             StringBuilder sb = new StringBuilder();
             sb.append("CREATE PROCEDURE `").append(procedureName).append("`(");

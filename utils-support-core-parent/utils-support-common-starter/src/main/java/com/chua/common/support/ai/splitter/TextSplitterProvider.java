@@ -77,13 +77,17 @@ public interface TextSplitterProvider {
     @Spi(value = "sentence", order = -100)
     class SentenceProvider implements TextSplitterProvider {
         @Override
-        /** Name */
+        /**
+         * Name
+        */
         public String name() {
             return "sentence";
         }
 
         @Override
-        /** 创建 */
+        /**
+         * 创建
+        */
         public TextSplitter create(int chunkSize, int chunkOverlap) {
             return new SentenceTextSplitter(chunkSize, chunkOverlap);
         }

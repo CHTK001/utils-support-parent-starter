@@ -26,9 +26,13 @@ public enum PanType {
      */
     OTHERS("others", "其他");
 
-    /** 代码 */
+    /**
+     * 代码
+    */
     private final String code;
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
 
     /**

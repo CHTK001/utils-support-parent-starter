@@ -67,12 +67,18 @@ public class BaiduSmsMessagePush implements MessagePush {
      */
     private static final String SMS_API_URL = "https://sms.bce.baidu.com/api/v2/sms";
 
-    /** 消息环境 */
+    /**
+     * 消息环境
+    */
     private final MessageEnvironment environment;
-    /** 模板映射 */
+    /**
+     * 模板映射
+    */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 baidusms消息push 实例 */
+    /**
+     * 创建 baidusms消息push 实例
+    */
     public BaiduSmsMessagePush() {
         this(new MessageEnvironment());
     }
@@ -86,7 +92,9 @@ public class BaiduSmsMessagePush implements MessagePush {
     }
 
     @Override
-    /** 获取提供者 */
+    /**
+     * 获取提供者
+    */
     public String getProvider() {
         return "baidu-sms";
     }
@@ -150,7 +158,9 @@ public class BaiduSmsMessagePush implements MessagePush {
     }
 
     @Override
-    /** 列表templates */
+    /**
+     * 列表templates
+    */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }

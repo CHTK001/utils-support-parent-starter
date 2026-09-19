@@ -44,7 +44,9 @@ public class SseEvent {
      * <p>来自 {@code event:} 行。如果服务端未指定，默认为 {@code "message"}。
      */
     @Builder.Default
-    /** 事件 */
+    /**
+     * 事件
+    */
     private String event = "message";
 
     /**

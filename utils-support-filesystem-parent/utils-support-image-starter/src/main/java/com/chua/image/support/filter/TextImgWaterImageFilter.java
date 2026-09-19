@@ -69,25 +69,45 @@ import javax.annotation.Nullable;
 @Setter
 public class TextImgWaterImageFilter extends AbstractImageFilter {
 
-    /** DEFAULFON缩放比例 */
+    /**
+     * DEFAULFON缩放比例
+    */
     private static final int DEFAULT_FONT_SIZE = 18;
-    /** DEFAUL字体 */
+    /**
+     * DEFAUL字体
+    */
     private static final Font DEFAULT_FONT = new Font("黑体", Font.PLAIN, DEFAULT_FONT_SIZE);
-    /** DEFAUL水印位置点 */
+    /**
+     * DEFAUL水印位置点
+    */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
-    /** 镜像水印图片字节数组（final，仅可通过构造器设置） */
+    /**
+     * 镜像水印图片字节数组（final，仅可通过构造器设置）
+    */
     private final byte[] imageBytes;
-    /** 文本内容 */
+    /**
+     * 文本内容
+    */
     private String text;
-    /** 水印位置 */
+    /**
+     * 水印位置
+    */
     private Position position = Position.RIGHT_BOTTOM;
-    /** 字体大小 */
+    /**
+     * 字体大小
+    */
     private int fontSize = DEFAULT_FONT_SIZE;
-    /** 文字颜色 */
+    /**
+     * 文字颜色
+    */
     private Color color = Color.WHITE;
-    /** 字体 */
+    /**
+     * 字体
+    */
     private Font font = DEFAULT_FONT;
-    /** 镜像水印位置点 */
+    /**
+     * 镜像水印位置点
+    */
     private ImagePoint imagePoint = DEFAULT_POINT;
 
 
@@ -189,7 +209,9 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 过滤 */
+    /**
+     * 过滤
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
         return waterFilter(src, dst);

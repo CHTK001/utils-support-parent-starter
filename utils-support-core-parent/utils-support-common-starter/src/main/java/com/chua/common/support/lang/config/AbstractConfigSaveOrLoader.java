@@ -28,7 +28,9 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     }
 
     @Override
-    /** Charset */
+    /**
+     * Charset
+    */
     public Charset charset() {
         return setting.getCharset();
     }

@@ -62,7 +62,9 @@ public class AutoParser implements SpiderParser {
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public SpiderResult parse(SpiderResponse response) {
         String url = response.getRequest() != null ? response.getRequest().getUrl() : "unknown";
 
@@ -111,7 +113,9 @@ public class AutoParser implements SpiderParser {
     }
 
     @Override
-    /** 支持内容类型 */
+    /**
+     * 支持内容类型
+    */
     public String[] supportedContentTypes() {
         // 支持所有类型，由内部 Parser 决定
         return new String[] {"*/*"};

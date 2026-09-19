@@ -112,7 +112,9 @@ public class PipelineException extends RuntimeException {
         return sb.toString();
     }
 
-    /** 返回标准异常描述（类名 + 消息）。 */
+    /**
+     * 返回标准异常描述（类名 + 消息）。
+    */
     @Override
     public String toString() {
         String s = getClass().getName();

@@ -27,9 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DependencyDetector {
 
-    /** 元素工具 */
+    /**
+     * 元素工具
+    */
     private final javax.lang.model.util.Elements elementUtils;
-    /** 缓存映射 */
+    /**
+     * 缓存映射
+    */
     private final Map<String, Boolean> cache = new ConcurrentHashMap<>();
 
     /**

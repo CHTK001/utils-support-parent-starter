@@ -23,7 +23,9 @@ import java.util.function.Function;
 public class QuarkusBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return method != null && method.isAnnotationPresent(Inject.class);
     }

@@ -22,7 +22,9 @@ import java.util.Map;
  */
 public class RedisSearchEngineImpl implements SearchEngine {
 
-    /** 引擎 */
+    /**
+     * 引擎
+    */
     private final RediSearchEngine engine;
 
     /**
@@ -34,13 +36,17 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "redis";
     }
 
     @Override
-    /** 列表索引 */
+    /**
+     * 列表索引
+    */
     public List<String> listIndexes() {
         List<String> indexes = new ArrayList<>();
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
@@ -59,7 +65,9 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取索引 */
+    /**
+     * 获取索引
+    */
     public SearchIndexDef getIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             Object response = jedis.sendCommand(() -> SafeEncoder.encode("FT.INFO"), SafeEncoder.encode(indexName));
@@ -96,7 +104,9 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 创建索引 */
+    /**
+     * 创建索引
+    */
     public boolean createIndex(SearchIndexDef indexDef) {
         if (indexDef == null || indexDef.getName() == null) {
             throw new IllegalArgumentException("索引定义不能为空");
@@ -127,7 +137,9 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 删除索引 */
+    /**
+     * 删除索引
+    */
     public boolean deleteIndex(String indexName) {
         try (Jedis jedis = engine.getPoolPublic(engine.getDefaultDataSourceName()).getResource()) {
             jedis.sendCommand(() -> SafeEncoder.encode("FT.DROPINDEX"), SafeEncoder.encode(indexName));
@@ -138,7 +150,9 @@ public class RedisSearchEngineImpl implements SearchEngine {
     }
 
     @Override
-    /** 获取客户端 */
+    /**
+     * 获取客户端
+    */
     public Object getClient() {
         return engine.getPoolPublic(engine.getDefaultDataSourceName());
     }

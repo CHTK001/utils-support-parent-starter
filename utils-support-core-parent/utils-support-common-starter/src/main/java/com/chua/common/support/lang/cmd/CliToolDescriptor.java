@@ -41,37 +41,67 @@ import java.util.regex.Pattern;
  */
 public final class CliToolDescriptor {
 
-    /** 默认版本探测参数 */
+    /**
+     * 默认版本探测参数
+    */
     private static final List<String> DEFAULT_VERSION_ARGS = Collections.singletonList("--version");
 
-    /** 默认超时时间（秒） */
+    /**
+     * 默认超时时间（秒）
+    */
     private static final long DEFAULT_TIMEOUT_SECONDS = 60L;
 
-    /** 工具唯一标识 */
+    /**
+     * 工具唯一标识
+    */
     private final String name;
-    /** 展示名称 */
+    /**
+     * 展示名称
+    */
     private final String displayName;
-    /** Windows 下的可执行文件名 */
+    /**
+     * Windows 下的可执行文件名
+    */
     private final String windowsExecutable;
-    /** 类 Unix 下的可执行文件名 */
+    /**
+     * 类 Unix 下的可执行文件名
+    */
     private final String unixExecutable;
-    /** 不分平台的通用可执行文件名 */
+    /**
+     * 不分平台的通用可执行文件名
+    */
     private final String executable;
-    /** 用于覆盖定位结果的环境变量名 */
+    /**
+     * 用于覆盖定位结果的环境变量名
+    */
     private final String envKey;
-    /** 候选安装目录 */
+    /**
+     * 候选安装目录
+    */
     private final List<String> candidateDirs;
-    /** 版本探测参数 */
+    /**
+     * 版本探测参数
+    */
     private final List<String> versionArgs;
-    /** 版本提取正则 */
+    /**
+     * 版本提取正则
+    */
     private final Pattern versionPattern;
-    /** 最低版本要求 */
+    /**
+     * 最低版本要求
+    */
     private final CliVersion minVersion;
-    /** 默认超时时间（秒） */
+    /**
+     * 默认超时时间（秒）
+    */
     private final long defaultTimeoutSeconds;
-    /** 包管理器安装时使用的包 ID */
+    /**
+     * 包管理器安装时使用的包 ID
+    */
     private final String installPackageId;
-    /** 选项契约，供强类型参数组装使用 */
+    /**
+     * 选项契约，供强类型参数组装使用
+    */
     private final List<CliOption> options;
 
     /**
@@ -257,31 +287,57 @@ public final class CliToolDescriptor {
      */
     public static final class Builder {
 
-        /** 工具唯一标识 */
+        /**
+         * 工具唯一标识
+        */
         private final String name;
-        /** 展示名称 */
+        /**
+         * 展示名称
+        */
         private String displayName;
-        /** 通用可执行名 */
+        /**
+         * 通用可执行名
+        */
         private String executable;
-        /** Windows 可执行名 */
+        /**
+         * Windows 可执行名
+        */
         private String windowsExecutable;
-        /** Unix 可执行名 */
+        /**
+         * Unix 可执行名
+        */
         private String unixExecutable;
-        /** 环境变量键 */
+        /**
+         * 环境变量键
+        */
         private String envKey;
-        /** 候选目录，去重有序 */
+        /**
+         * 候选目录，去重有序
+        */
         private final Set<String> candidateDirs = new LinkedHashSet<>();
-        /** 版本参数 */
+        /**
+         * 版本参数
+        */
         private final List<String> versionArgs = new ArrayList<>(DEFAULT_VERSION_ARGS);
-        /** 版本正则 */
+        /**
+         * 版本正则
+        */
         private Pattern versionPattern;
-        /** 最低版本 */
+        /**
+         * 最低版本
+        */
         private CliVersion minVersion;
-        /** 默认超时秒数 */
+        /**
+         * 默认超时秒数
+        */
         private long defaultTimeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
-        /** 安装包 ID */
+        /**
+         * 安装包 ID
+        */
         private String installPackageId;
-        /** 选项契约，去重有序 */
+        /**
+         * 选项契约，去重有序
+        */
         private final Set<CliOption> options = new LinkedHashSet<>();
 
         /**

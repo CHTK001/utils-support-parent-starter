@@ -89,27 +89,35 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     public VirtualClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 语言 */
+    /**
+     * 语言
+    */
     public VirtualClient language(String language) {
         this.language = language;
         return this;
     }
 
     @Override
-    /** 语音转写 */
+    /**
+     * 语音转写
+    */
     public String transcribe(Path path) {
         byte[] audioBytes = readAudio(path, setting != null ? setting.getAudio() : null);
         String prompt = buildTranscribePrompt(audioBytes);
@@ -124,7 +132,9 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建任务 */
+    /**
+     * 创建任务
+    */
     public String createTask(Path path) {
         String taskId = "ollama-asr-" + System.currentTimeMillis();
         AudioResponse response;
@@ -149,7 +159,9 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 查询任务 */
+    /**
+     * 查询任务
+    */
     public AudioResponse queryTask(String taskId) {
         AudioResponse response = taskCache.get(taskId);
         if (response == null) {
@@ -163,7 +175,9 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 模型列表 */
+    /**
+     * 模型列表
+    */
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -190,7 +204,9 @@ public class OllamaAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         taskCache.clear();
     }

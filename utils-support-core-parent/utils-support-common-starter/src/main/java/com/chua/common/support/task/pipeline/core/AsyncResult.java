@@ -252,7 +252,9 @@ public class AsyncResult {
         return error;
     }
 
-    /** 返回含 节点id 与状态的调试字符串。 */
+    /**
+     * 返回含 节点id 与状态的调试字符串。
+    */
     @Override
     public String toString() {
         return "AsyncResult{" +

@@ -32,25 +32,39 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class WebhookInboundAdapter {
 
-    /** JDK HTTP 服务器 */
+    /**
+     * JDK HTTP 服务器
+    */
     private volatile HttpServer server;
 
-    /** 端口（启动后填充，端口=0 时为系统分配的 ephemeral 端口） */
+    /**
+     * 端口（启动后填充，端口=0 时为系统分配的 ephemeral 端口）
+    */
     private int actualPort;
 
-    /** 端口 */
+    /**
+     * 端口
+    */
     private final int port;
 
-    /** 管线引擎 */
+    /**
+     * 管线引擎
+    */
     private final PipelineEngine pipelineEngine;
 
-    /** 消息计数器 */
+    /**
+     * 消息计数器
+    */
     private final AtomicLong messageCount = new AtomicLong(0);
 
-    /** JSON 解析器 */
+    /**
+     * JSON 解析器
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 运行状态 */
+    /**
+     * 运行状态
+    */
     private volatile boolean running = false;
 
     /**

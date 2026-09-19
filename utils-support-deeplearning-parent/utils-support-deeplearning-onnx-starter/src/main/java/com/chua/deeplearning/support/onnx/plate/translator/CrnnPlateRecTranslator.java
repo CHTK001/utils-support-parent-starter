@@ -27,23 +27,39 @@ import java.util.List;
  */
 public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
 
-    /** 车牌名称 */
+    /**
+     * 车牌名称
+    */
     private static final String PLATE_NAME = "#                                                                                                                           0123456789ABCDEFGHJKLMNPQRSTUVWXYZ      ";
-    /** 车牌颜色数组 */
+    /**
+     * 车牌颜色数组
+    */
     private static final String[] PLATE_COLORS = {"      ", "      ", "      ", "      ", "      "};
-    /** 均值数组 */
+    /**
+     * 均值数组
+    */
     private static final float MEAN = 0.588f;
-    /** 标准差数组 */
+    /**
+     * 标准差数组
+    */
     private static final float STD = 0.193f;
-    /** 输入宽度 */
+    /**
+     * 输入宽度
+    */
     private static final int INPUT_W = 168;
-    /** 输入高度 */
+    /**
+     * 输入高度
+    */
     private static final int INPUT_H = 48;
-    /** 省份名称 */
+    /**
+     * 省份名称
+    */
     private static final String PROVINCES = "                                                                                             ";
 
     @Override
-    /** 处理输入 */
+    /**
+     * 处理输入
+    */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -65,7 +81,9 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     @Override
-    /** 处理输出 */
+    /**
+     * 处理输出
+    */
     public PlateResult processOutput(TranslatorContext ctx, NDList list) {
  // 铭牌 logits + color logits
         // (0);  // shape: [1, T, num_classes]
@@ -190,7 +208,9 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

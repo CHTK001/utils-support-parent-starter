@@ -57,7 +57,9 @@ public class JavaScriptMarker extends AbstractScriptMarker {
     private volatile ClassLoader lastClassLoader;
 
     @Override
-    /** 创建Object */
+    /**
+     * 创建Object
+    */
     public synchronized Object createObject(Listener listener, ClassLoader classLoader, Object[] args) {
         if (listener == null) {
             return null;
@@ -90,7 +92,9 @@ public class JavaScriptMarker extends AbstractScriptMarker {
     }
 
     @Override
-    /** 获取ScriptClassLoader */
+    /**
+     * 获取ScriptClassLoader
+    */
     public ClassLoader getScriptClassLoader() {
         return lastClassLoader;
     }

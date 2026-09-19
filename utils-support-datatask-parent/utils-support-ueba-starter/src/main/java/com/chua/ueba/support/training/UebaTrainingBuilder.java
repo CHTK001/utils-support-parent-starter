@@ -39,49 +39,79 @@ import java.util.Objects;
 @Slf4j
 public final class UebaTrainingBuilder {
 
-    /** 类路径 默认配置文件 */
+    /**
+     * 类路径 默认配置文件
+    */
     private static final String DEFAULT_CONFIG_RESOURCE = "ueba-config.yaml";
 
-    /** 默认输出目录（相对当前工作目录） */
+    /**
+     * 默认输出目录（相对当前工作目录）
+    */
     private static final Path DEFAULT_OUTPUT_DIR = Paths.get("target", "ueba-models");
 
-    /** 默认训练轮数 */
+    /**
+     * 默认训练轮数
+    */
     private static final int DEFAULT_EPOCHS = 50;
 
-    /** 默认批大小 */
+    /**
+     * 默认批大小
+    */
     private static final int DEFAULT_BATCH_SIZE = 64;
 
-    /** 默认学习率 */
+    /**
+     * 默认学习率
+    */
     private static final double DEFAULT_LEARNING_RATE = 1e-3;
 
-    /** 默认 Python 解释器 */
+    /**
+     * 默认 Python 解释器
+    */
     private static final String DEFAULT_PYTHON = "python";
 
-    /** 已解析的配置 */
+    /**
+     * 已解析的配置
+    */
     private UebaConfig config;
 
-    /** 配置来源文件路径（配置(路径)/配置文件 时非 空，复制时保留原始注释） */
+    /**
+     * 配置来源文件路径（配置(路径)/配置文件 时非 空，复制时保留原始注释）
+    */
     private Path configSource;
 
-    /** 训练数据 CSV 路径 */
+    /**
+     * 训练数据 CSV 路径
+    */
     private Path dataCsv;
 
-    /** 输出目录 */
+    /**
+     * 输出目录
+    */
     private Path outputDir;
 
-    /** 训练轮数 */
+    /**
+     * 训练轮数
+    */
     private int epochs = DEFAULT_EPOCHS;
 
-    /** 批大小 */
+    /**
+     * 批大小
+    */
     private int batchSize = DEFAULT_BATCH_SIZE;
 
-    /** 学习率 */
+    /**
+     * 学习率
+    */
     private double learningRate = DEFAULT_LEARNING_RATE;
 
-    /** Python 解释器命令 */
+    /**
+     * Python 解释器命令
+    */
     private String pythonCommand = DEFAULT_PYTHON;
 
-    /** 续训来源目录（已有模型或 checkpoint，空 表示从零训练） */
+    /**
+     * 续训来源目录（已有模型或 checkpoint，空 表示从零训练）
+    */
     private Path resumeDir;
 
     /**

@@ -21,10 +21,14 @@ import java.util.Map;
  */
 public final class MatcherUtils {
 
-    /** Path_matcher */
+    /**
+     * Path_matcher
+    */
     private static final PathMatcher PATH_MATCHER = new AntPathMatcher();
 
-    /** 创建 MatcherUtils 实例 */
+    /**
+     * 创建 MatcherUtils 实例
+    */
     private MatcherUtils() {
     }
 

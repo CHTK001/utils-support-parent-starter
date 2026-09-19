@@ -89,19 +89,25 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 是否DelegatedOperatingSystem */
+    /**
+     * 是否DelegatedOperatingSystem
+    */
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
     @Override
-    /** 添加Listener */
+    /**
+     * 添加Listener
+    */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -134,7 +140,9 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade() {
         // WatchService 由事件驱动，无需轮询
     }
@@ -218,7 +226,9 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         running.set(false);
         if (watchService != null) {

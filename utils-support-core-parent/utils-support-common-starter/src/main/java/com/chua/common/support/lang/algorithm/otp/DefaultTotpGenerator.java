@@ -31,17 +31,25 @@ import static com.chua.common.support.constant.NameConstant.DEFAULT;
 @Spi(DEFAULT)
 public class DefaultTotpGenerator implements TotpGenerator {
     // 注意：虽然常量名为 HMAC_SHA256，但实际使用的是 "HmacSHA1" 算法，这是 TOTP 标准推荐算法
-    /** HmacSHA1 算法名称 */
+    /**
+     * HmacSHA1 算法名称
+    */
     private static final String HMAC_SHA1 = "HmacSHA1"; 
-    /** 默认 OTP 验证码长度 */
+    /**
+     * 默认 OTP 验证码长度
+    */
     private static final int DEFAULT_OTP_LENGTH = 6;
     /**
      * TOTP 时间步长，单位为秒
      */
     private static final int INTERVAL = 30;
-    /** 密钥字节数组 */
+    /**
+     * 密钥字节数组
+    */
     private final byte[] secret;
-    /** 时区 */
+    /**
+     * 时区
+    */
     private final ZoneId zoneId;
 
 

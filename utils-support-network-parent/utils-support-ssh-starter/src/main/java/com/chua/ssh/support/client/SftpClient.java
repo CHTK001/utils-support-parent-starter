@@ -123,7 +123,9 @@ public class SftpClient implements AutoCloseable {
         return this;
     }
 
-    /** 断开 */
+    /**
+     * 断开
+    */
     public void disconnect() {
         try {
             if (sftp != null) {
@@ -142,7 +144,9 @@ public class SftpClient implements AutoCloseable {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() { disconnect(); }
 
     /**
@@ -225,7 +229,9 @@ public class SftpClient implements AutoCloseable {
             remotePath = p;
             return this;
         }
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void exec() {
             try {
                 byte[] data = Files.readAllBytes(Path.of(localPath));
@@ -274,7 +280,9 @@ public class SftpClient implements AutoCloseable {
             localPath = p;
             return this;
         }
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void exec() {
             try {
                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
@@ -370,7 +378,9 @@ public class SftpClient implements AutoCloseable {
             recursive = r;
             return this;
         }
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void exec() {
             try {
                 if (recursive) {
@@ -425,7 +435,9 @@ public class SftpClient implements AutoCloseable {
             recursive = r;
             return this;
         }
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void exec() {
             try {
                 if (recursive) {
@@ -475,7 +487,9 @@ public class SftpClient implements AutoCloseable {
             newPath = p;
             return this;
         }
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void exec() {
             try {
                 client.getSftp().rename(oldPath, newPath);

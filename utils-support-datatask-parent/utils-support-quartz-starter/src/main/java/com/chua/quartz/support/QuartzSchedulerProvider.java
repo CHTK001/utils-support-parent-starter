@@ -74,7 +74,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** 执行调度 */
+    /**
+     * 执行调度
+    */
     public synchronized void doSchedule(String id, Runnable task, Trigger trigger) {
         try {
             TASK_CACHE.put(id, task);
@@ -98,7 +100,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** 执行reschedule */
+    /**
+     * 执行reschedule
+    */
     public synchronized void doReschedule(String id, Trigger trigger) {
         try {
             var oldTriggerKey = TriggerKey.triggerKey(id, "default");
@@ -114,7 +118,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** 执行cancel */
+    /**
+     * 执行cancel
+    */
     public synchronized void doCancel(String id) {
         try {
             scheduler.deleteJob(JobKey.jobKey(id, "default"));
@@ -125,7 +131,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     @Override
-    /** 执行关闭 */
+    /**
+     * 执行关闭
+    */
     protected synchronized void doShutdown() {
         try {
             if (scheduler != null && !scheduler.isShutdown()) {
@@ -179,7 +187,9 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
      */
     public static class DelegateJob implements Job {
         @Override
-        /** 执行 */
+        /**
+         * 执行
+        */
         public void execute(JobExecutionContext context) {
             String taskId = context.getJobDetail().getKey().getName();
             Runnable task = TASK_CACHE.get(taskId);

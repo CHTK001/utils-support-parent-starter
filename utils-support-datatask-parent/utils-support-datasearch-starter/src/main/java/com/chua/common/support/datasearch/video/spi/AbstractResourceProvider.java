@@ -11,10 +11,14 @@ import com.chua.common.support.datasearch.video.model.VideoSource;
 
 public abstract class AbstractResourceProvider implements ResourceProvider {
 
-    /** 视频数据源 */
+    /**
+     * 视频数据源
+    */
     protected VideoSource videoSource;
 
-    /** 创建 抽象resource提供者 实例 */
+    /**
+     * 创建 抽象resource提供者 实例
+    */
     public AbstractResourceProvider() {
         this.videoSource = new VideoSource();
     }

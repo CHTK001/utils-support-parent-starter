@@ -26,10 +26,14 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class QuickTest {
 
-    /** 失败计数 */
+    /**
+     * 失败计数
+    */
     private static int failureCount = 0;
 
-    /** 成功计数 */
+    /**
+     * 成功计数
+    */
     private static int passCount = 0;
 
     /**
@@ -68,7 +72,9 @@ public class QuickTest {
         System.out.println("RESULT: PASS");
     }
 
-    /** 静态创建 */
+    /**
+     * 静态创建
+    */
     static void testCreate() {
         Quick quick = Quick.create();
         check(quick != null, "Quick.create() 返回实例");
@@ -76,7 +82,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 独立上下文 */
+    /**
+     * 独立上下文
+    */
     static void testIndependentContext() {
         Quick quick1 = Quick.create();
         Quick quick2 = Quick.create();
@@ -86,7 +94,9 @@ public class QuickTest {
         quick2.close();
     }
 
-    /** 常量变量环境绑定 */
+    /**
+     * 常量变量环境绑定
+    */
     static void testBindings() {
         Quick quick = Quick.create()
                 .constant("PI", 3.14)
@@ -99,7 +109,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** XML数据导入 */
+    /**
+     * XML数据导入
+    */
     static void testFromXml() {
         Quick quick = Quick.create();
         quick.fromXml("<user><name>li</name><age>30</age></user>");
@@ -108,7 +120,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** JSON数据导入 */
+    /**
+     * JSON数据导入
+    */
     static void testFromJson() {
         Quick quick = Quick.create();
         quick.fromJson("{\"name\":\"wang\",\"age\":25}");
@@ -117,7 +131,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** XML转类型对象 */
+    /**
+     * XML转类型对象
+    */
     static void testFromXmlToType() {
         Quick quick = Quick.create();
         User user = quick.fromXml("<user><name>li</name><age>30</age></user>", User.class);
@@ -127,7 +143,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** JSON转类型对象 */
+    /**
+     * JSON转类型对象
+    */
     static void testFromJsonToType() {
         Quick quick = Quick.create();
         User user = quick.fromJson("{\"name\":\"wang\",\"age\":25}", User.class);
@@ -137,7 +155,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 初始化类 */
+    /**
+     * 初始化类
+    */
     static void testInit() {
         Quick quick = Quick.create();
         User user = quick.init(User.class);
@@ -145,7 +165,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 初始化从数据 */
+    /**
+     * 初始化从数据
+    */
     static void testInitFromData() {
         Quick quick = Quick.create();
         quick.fromXml("<user><name>zhao</name><age>40</age></user>");
@@ -156,7 +178,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 映射构造器 */
+    /**
+     * 映射构造器
+    */
     static void testMapBuilder() {
         Quick quick = Quick.create();
         Map<String, Integer> map = quick.<String, Integer>map()
@@ -173,7 +197,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 列表构造器 */
+    /**
+     * 列表构造器
+    */
     static void testListBuilder() {
         Quick quick = Quick.create();
         List<String> list = quick.<String>list()
@@ -189,7 +215,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** Table构造器 */
+    /**
+     * Table构造器
+    */
     static void testTableBuilder() {
         Quick quick = Quick.create();
         Table<String, String, Object> table = quick.<String, String, Object>table()
@@ -201,7 +229,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 动态类生成 */
+    /**
+     * 动态类生成
+    */
     static void testDynamic() {
         Quick quick = Quick.create();
         Runnable runnable = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"dynamic ok\"); }");
@@ -210,7 +240,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 动态类-继承具体类 */
+    /**
+     * 动态类-继承具体类
+    */
     static void testDynamicExtendsClass() {
         Quick quick = Quick.create();
         User user = quick.dynamic(User.class, "public String getName() { return \"dynamic-user\"; }");
@@ -219,7 +251,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 脚本执行-表达式 */
+    /**
+     * 脚本执行-表达式
+    */
     static void testExecuteExpression() {
         Quick quick = Quick.create();
         Object result = quick.execute("1 + 2");
@@ -227,7 +261,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 脚本执行-访问变量 */
+    /**
+     * 脚本执行-访问变量
+    */
     static void testExecuteWithVariables() {
         Quick quick = Quick.create()
                 .variable("x", 10)
@@ -239,7 +275,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 脚本执行-完整类 */
+    /**
+     * 脚本执行-完整类
+    */
     static void testExecuteFullClass() {
         Quick quick = Quick.create();
         Object result = quick.execute(
@@ -250,7 +288,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 脚本执行-返回类型转换 */
+    /**
+     * 脚本执行-返回类型转换
+    */
     static void testExecuteTyped() {
         Quick quick = Quick.create();
         Integer result = quick.execute("3 * 4", Integer.class);
@@ -258,14 +298,18 @@ public class QuickTest {
         quick.close();
     }
 
-    /** SPI注册 */
+    /**
+     * SPI注册
+    */
     static void testSpiRegistration() {
         Quick quick = ServiceProvider.of(Quick.class).getExtension("quick");
         check(quick != null, "SPI 发现 DefaultQuick 实现");
         quick.close();
     }
 
-    /** 导入包 + 按名称初始化 */
+    /**
+     * 导入包 + 按名称初始化
+    */
     static void testImportPackageAndInitByName() {
         Quick quick = Quick.create()
                 .importPackage("java.util");
@@ -274,7 +318,9 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 编译器 SPI：dynamic/compile 自动切换（类路径 含 asm-启动 时使用 ASM） */
+    /**
+     * 编译器 SPI：dynamic/compile 自动切换（类路径 含 asm-启动 时使用 ASM）
+    */
     static void testCompilerSpiSwitch() {
         Quick quick = Quick.create();
         Compiler compiler = resolveCompilerReflectively(quick);

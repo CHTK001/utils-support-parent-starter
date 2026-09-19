@@ -36,10 +36,14 @@ public class RandomForestOptions implements Serializable {
 
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 树的数量（默认 10） */
+    /**
+     * 树的数量（默认 10）
+    */
     private int numTrees = 10;
 
-    /** 随机种子 */
+    /**
+     * 随机种子
+    */
     private int seed = 1;
 
     /**
@@ -47,13 +51,19 @@ public class RandomForestOptions implements Serializable {
      */
     private int bagSizePercent = 100;
 
-    /** 每棵树分裂时的候选特征数（0 = 默认 sqrt(总特征数)） */
+    /**
+     * 每棵树分裂时的候选特征数（0 = 默认 sqrt(总特征数)）
+    */
     private int numFeatures = 0;
 
-    /** 最大树深（0 = 不限制） */
+    /**
+     * 最大树深（0 = 不限制）
+    */
     private int maxDepth = 0;
 
-    /** 候选特征得分并列时随机选择 */
+    /**
+     * 候选特征得分并列时随机选择
+    */
     private boolean breakTiesRandomly = false;
 
     /**

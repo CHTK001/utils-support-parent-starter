@@ -19,7 +19,9 @@ import java.util.regex.Pattern;
  */
 public class MemoryWhereParser {
 
-    /** 数值常量比较（如 1 = 0），用于空集合 IN/NOT IN 渲染出的恒假/恒真条件 */
+    /**
+     * 数值常量比较（如 1 = 0），用于空集合 IN/NOT IN 渲染出的恒假/恒真条件
+    */
     private static final Pattern CONSTANT_PATTERN =
             Pattern.compile("^(\\d+)\\s*(=|!=|<>|>=|<=|>|<)\\s*(\\d+)");
 

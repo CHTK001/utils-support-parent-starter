@@ -36,18 +36,30 @@ import java.util.regex.Pattern;
 @Spi("quark")
 public class QuarkResourceProvider extends AbstractResourceProvider {
 
-    /** 搜索接口地址前缀（拼接 UTF-8 编码后的关键词） */
+    /**
+     * 搜索接口地址前缀（拼接 UTF-8 编码后的关键词）
+    */
     private static final String API_URL = "https://pan.quark.cn/s/search?kw=";
-    /** 分享链接匹配模式：pan.quark.cn/s/xxx */
+    /**
+     * 分享链接匹配模式：pan.quark.cn/s/xxx
+    */
     private static final Pattern SHARE_LINK_PATTERN =
             Pattern.compile("(https?://(?:pan\\.)?quark\\.cn/s/[\\w/]+)");
-    /** SPA 壳页特征：搜索页为纯 JS 渲染时无结果数据 */
+    /**
+     * SPA 壳页特征：搜索页为纯 JS 渲染时无结果数据
+    */
     private static final String SPA_SHELL_MARKER = "ice-container";
-    /** 夸克网盘分享页标题特征 */
+    /**
+     * 夸克网盘分享页标题特征
+    */
     private static final String SPA_TITLE_MARKER = "夸克网盘分享";
-    /** 结果条数上限 */
+    /**
+     * 结果条数上限
+    */
     private static final int MAX_RESULT_COUNT = 10;
-    /** 占位标题（夸克壳页无法解析真实条目标题） */
+    /**
+     * 占位标题（夸克壳页无法解析真实条目标题）
+    */
     private static final String PLACEHOLDER_NAME = "夸克网盘资源";
 
     /**

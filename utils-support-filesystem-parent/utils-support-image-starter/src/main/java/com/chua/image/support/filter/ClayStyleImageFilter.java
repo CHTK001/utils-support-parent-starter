@@ -124,11 +124,15 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
      */
     private double saturationAdjustment = 0.9;
 
-    /** 随机数生成器 */
+    /**
+     * 随机数生成器
+    */
     private Random random = new Random();
 
     @Override
-    /** 获取镜像格式化 */
+    /**
+     * 获取镜像格式化
+    */
     public String getImageFormat() {
         
         return "jpeg";

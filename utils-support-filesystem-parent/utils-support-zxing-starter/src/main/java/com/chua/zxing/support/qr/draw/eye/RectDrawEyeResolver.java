@@ -51,7 +51,9 @@ public class RectDrawEyeResolver extends AbstractDrawEyeResolver{
     }
 
     @Override
-    /** 饰面 */
+    /**
+     * 饰面
+    */
     public void finish() {
 
     }

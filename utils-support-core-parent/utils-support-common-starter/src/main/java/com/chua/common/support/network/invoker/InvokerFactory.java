@@ -37,7 +37,9 @@ import com.chua.common.support.spi.ServiceProvider;
  */
 public class InvokerFactory {
 
-    /** 创建 InvokerFactory 实例 */
+    /**
+     * 创建 InvokerFactory 实例
+    */
     private InvokerFactory() {
     }
 

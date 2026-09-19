@@ -83,19 +83,25 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 查询 */
+    /**
+     * 查询
+    */
     public <T> LambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new EngineQueryWrapper<>(this, entityClass);
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public <T> LambdaUpdateWrapper<T> update(Class<T> entityClass) {
         return new EngineUpdateWrapper<>(this, entityClass);
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         return new EngineDeleteWrapper<>(this, entityClass);
     }
@@ -118,14 +124,18 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 设置默认数据源名称 */
+    /**
+     * 设置默认数据源名称
+    */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public <T> Engine store(String name, List<T> data) {
         dataStores.put(name, new ArrayList<>(data));
         if (defaultDataSourceName == null) {
@@ -135,13 +145,17 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
-    /** 获取执行器 */
+    /**
+     * 获取执行器
+    */
     public SqlExecutor getExecutor() {
         return null;
     }
@@ -183,13 +197,17 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 获取默认数据源名称 */
+    /**
+     * 获取默认数据源名称
+    */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
 
     @Override
-    /** Meta */
+    /**
+     * Meta
+    */
     public com.chua.common.support.lang.datasource.meta.MetaData meta() {
         return new DefaultMetaData(this);
     }
@@ -223,7 +241,9 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 设置Tunnel */
+    /**
+     * 设置Tunnel
+    */
     public Engine setTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -233,7 +253,9 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 打开Tunnel */
+    /**
+     * 打开Tunnel
+    */
     public int openTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null) {
@@ -245,7 +267,9 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 关闭Tunnel */
+    /**
+     * 关闭Tunnel
+    */
     public Engine closeTunnel(String dataSourceName) {
         EngineDataSource<?> ds = dataSources.get(dataSourceName);
         if (ds != null && ds.tunnelPort() > 0) {
@@ -446,8 +470,16 @@ public abstract class AbstractEngine implements Engine {
         // SQL 引擎走数据库物理分页：COUNT 取总数 + 分页 SQL 取当前页，避免全表加载
         if (supportsNativePaging(ec)) {
             long total = executeCount(wrapper);
-            wrapper.limit(ps).offset((pn - 1) * ps);
-            List<T> records = executeQuery(wrapper, ec);
+            int origLimit = wrapper.getLimit();
+            int origOffset = wrapper.getOffset();
+            List<T> records;
+            try {
+                // 临时注入分页参数，查询完成后恢复，避免污染调用方 wrapper 复用
+                wrapper.limit(ps).offset((pn - 1) * ps);
+                records = executeQuery(wrapper, ec);
+            } finally {
+                wrapper.limit(origLimit).offset(origOffset);
+            }
             return new Page<>(pn, ps, total, records);
         }
         List<T> all = executeQuery(wrapper, ec);
@@ -590,23 +622,38 @@ public abstract class AbstractEngine implements Engine {
             return 0;
         }
 
- // 解析 设置 子句，分离参数
-        List<Object> params = sql.params();
+ // 解析 设置 子句，分离参数：仅 "?" 占位符消费参数，字面量赋值直接取值
+        List<Object> params = sql.params() == null ? Collections.emptyList() : sql.params();
         Map<String, Object> setValues = new LinkedHashMap<>();
         String[] setParts = setClause.split(", ");
-        int setCount = setParts.length;
-        for (int i = 0; i < setCount; i++) {
-            int eqIdx = setParts[i].indexOf(" = ");
-            if (eqIdx > 0) {
-                setValues.put(setParts[i].substring(0, eqIdx), params.get(i));
+        int paramIdx = 0;
+        for (String setPart : setParts) {
+            int eqIdx = setPart.indexOf(" = ");
+            if (eqIdx <= 0) {
+                continue;
+            }
+            String column = setPart.substring(0, eqIdx).trim();
+            String rhs = setPart.substring(eqIdx + 3).trim();
+            if ("?".equals(rhs)) {
+                if (paramIdx >= params.size()) {
+                    throw new IllegalStateException("UPDATE SET 占位符数量超过参数个数: " + setClause);
+                }
+                setValues.put(column, params.get(paramIdx++));
+            } else {
+                Object literal = parseMemoryLiteral(rhs);
+                if (literal != null) {
+                    setValues.put(column, literal);
+                }
+                // 无法求值的 SQL 表达式（如 now()）在内存引擎跳过，不消费参数
             }
         }
 
- // WHERE 参数在 设置 参数之后
+ // WHERE 参数在 设置 参数之后（按实际消费的占位符个数切分）
+        int setParamCount = paramIdx;
         List<Object> whereParams;
         int totalParams = params.size();
-        if (totalParams > setCount) {
-            whereParams = params.subList(setCount, totalParams);
+        if (totalParams > setParamCount) {
+            whereParams = params.subList(setParamCount, totalParams);
         } else {
             whereParams = Collections.emptyList();
         }
@@ -657,6 +704,31 @@ public abstract class AbstractEngine implements Engine {
             }
         }
         return removed;
+    }
+
+    /**
+     * 解析内存引擎可求值的 SQL 字面量。
+     * <p>支持单引号字符串（'' 转义）、整数与小数；其余（NULL、函数表达式等）
+     * 返回 null 表示无法在内存中求值，由调用方决定跳过。</p>
+     *
+     * @param rhs 赋值右侧文本
+     * @return 字面量值，无法求值返回 null
+     */
+    private static Object parseMemoryLiteral(String rhs) {
+        if (rhs == null || rhs.isEmpty()) {
+            return null;
+        }
+        if (rhs.length() >= 2 && rhs.charAt(0) == '\'' && rhs.charAt(rhs.length() - 1) == '\'') {
+            return rhs.substring(1, rhs.length() - 1).replace("''", "'");
+        }
+        try {
+            if (rhs.indexOf('.') >= 0) {
+                return Double.parseDouble(rhs);
+            }
+            return Long.parseLong(rhs);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**

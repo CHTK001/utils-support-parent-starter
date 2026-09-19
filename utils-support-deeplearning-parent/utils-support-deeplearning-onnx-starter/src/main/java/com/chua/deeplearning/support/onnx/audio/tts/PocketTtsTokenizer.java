@@ -24,23 +24,37 @@ import java.util.regex.Pattern;
 @Slf4j
 public class PocketTtsTokenizer {
 
-    /** vocab.json 中的 令牌 标识 正则模式 */
+    /**
+     * vocab.json 中的 令牌 标识 正则模式
+    */
     private static final Pattern VOCAB_PATTERN =
             Pattern.compile("\"([^\"]+)\"\\s*:\\s*(\\d+)");
 
-    /** 单次最大匹配长度（字符） */
+    /**
+     * 单次最大匹配长度（字符）
+    */
     private static final int MAX_MATCH_LEN = 20;
 
-    /** 词表：令牌 字符串 → 标识 */
+    /**
+     * 词表：令牌 字符串 → 标识
+    */
     private final Map<String, Integer> vocab = new LinkedHashMap<>(4096);
 
-    /** BOS 令牌 标识 */
+    /**
+     * BOS 令牌 标识
+    */
     private int bosId = 1;
-    /** EOS 令牌 标识 */
+    /**
+     * EOS 令牌 标识
+    */
     private int eosId = 2;
-    /** UNK 令牌 标识 */
+    /**
+     * UNK 令牌 标识
+    */
     private int unkId = 0;
-    /** PAD 令牌 标识 */
+    /**
+     * PAD 令牌 标识
+    */
     private int padId = 3;
 
     /**

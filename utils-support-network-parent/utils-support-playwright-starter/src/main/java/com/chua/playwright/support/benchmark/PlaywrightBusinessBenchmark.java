@@ -64,23 +64,39 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class PlaywrightBusinessBenchmark {
 
-    /** 业务测试点类型 */
+    /**
+     * 业务测试点类型
+    */
     public enum StepType {
-        /** 打开页面（url 为相对路径，拼接 baseurl） */
+        /**
+         * 打开页面（url 为相对路径，拼接 baseurl）
+        */
         OPEN,
-        /** 填充表单（selector + 值） */
+        /**
+         * 填充表单（selector + 值）
+        */
         FILL,
-        /** 点击（selector） */
+        /**
+         * 点击（selector）
+        */
         CLICK,
-        /** 等待元素出现（selector + 超时ms） */
+        /**
+         * 等待元素出现（selector + 超时ms）
+        */
         WAIT_FOR,
-        /** 断言文本包含（selector + 值） */
+        /**
+         * 断言文本包含（selector + 值）
+        */
         ASSERT_TEXT,
-        /** 截图（值 为截图说明） */
+        /**
+         * 截图（值 为截图说明）
+        */
         SCREENSHOT
     }
 
-    /** 单个业务测试点 */
+    /**
+     * 单个业务测试点
+    */
     public static final class BusinessStep {
         /**
          * 名称
@@ -238,7 +254,9 @@ public class PlaywrightBusinessBenchmark {
         }
     }
 
-    /** 单个测试点执行结果 */
+    /**
+     * 单个测试点执行结果
+    */
     public static final class StepResult {
         /**
          * 名称
@@ -315,7 +333,9 @@ public class PlaywrightBusinessBenchmark {
         }
     }
 
-    /** 一个并发用户的一次完整业务流程执行结果 */
+    /**
+     * 一个并发用户的一次完整业务流程执行结果
+    */
     public static final class BusinessRun {
         /**
          * 步骤执行结果列表

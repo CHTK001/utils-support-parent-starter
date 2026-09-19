@@ -37,7 +37,9 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     @Override
-    /** 注册服务 */
+    /**
+     * 注册服务
+    */
     public <T> void registerService(Class<T> type, T service) {
         org.osgi.framework.ServiceRegistration<?> reg =
                 delegate.registerService(type.getName(), service, null);
@@ -45,7 +47,9 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     @Override
-    /** 注销服务 */
+    /**
+     * 注销服务
+    */
     public <T> void unregisterService(Class<T> type, T service) {
         for (Map.Entry<org.osgi.framework.ServiceReference<?>, org.osgi.framework.ServiceRegistration<?>> e
                 : registrations.entrySet()) {
@@ -103,7 +107,9 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     @Override
-    /** 获取服务 */
+    /**
+     * 获取服务
+    */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
         return services.isEmpty() ? null : services.getFirst();

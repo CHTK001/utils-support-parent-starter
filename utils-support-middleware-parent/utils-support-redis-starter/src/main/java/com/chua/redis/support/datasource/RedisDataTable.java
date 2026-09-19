@@ -137,7 +137,9 @@ public class RedisDataTable implements DataTable {
     // ---------------------------------------------------------------
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return name;
     }
@@ -164,21 +166,27 @@ public class RedisDataTable implements DataTable {
     }
 
     @Override
-    /** 获取数据 */
+    /**
+     * 获取数据
+    */
     public List<Map<String, Object>> getData() {
         ensureLoaded();
         return Collections.unmodifiableList(rows);
     }
 
     @Override
-    /** 获取Row计算数量 */
+    /**
+     * 获取Row计算数量
+    */
     public long getRowCount() {
         ensureLoaded();
         return rows.size();
     }
 
     @Override
-    /** 转为字符串 */
+    /**
+     * 转为字符串
+    */
     public String toString() {
         return "RedisDataTable{" +
                 "name='" + name + '\'' +

@@ -443,7 +443,9 @@ public class QrCodeRenderUtils {
         RT,
         NONE {
             @Override
-            /** detectedarea */
+            /**
+             * detectedarea
+            */
             public boolean detectedArea() {
         
                 return false;

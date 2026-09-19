@@ -69,31 +69,55 @@ import java.util.concurrent.TimeUnit;
 @Spi({"jdk-telnet"})
 public class JdkTelnetServer extends AbstractServer {
 
-    /** Telnet 协议选项：回显 */
+    /**
+     * Telnet 协议选项：回显
+    */
     private static final int TELNET_OPTION_ECHO = 1;
-    /** Telnet 协议选项：抑制回显 */
+    /**
+     * Telnet 协议选项：抑制回显
+    */
     private static final int TELNET_OPTION_SGA = 3;
-    /** Telnet 协议选项：窗口大小 */
+    /**
+     * Telnet 协议选项：窗口大小
+    */
     private static final int TELNET_OPTION_NAWS = 31;
 
-    /** Telnet 协议命令：IAC */
+    /**
+     * Telnet 协议命令：IAC
+    */
     private static final int TELNET_IAC = 255;
-    /** Telnet 协议命令：WILL */
+    /**
+     * Telnet 协议命令：WILL
+    */
     private static final int TELNET_WILL = 251;
-    /** Telnet 协议命令：WONT */
+    /**
+     * Telnet 协议命令：WONT
+    */
     private static final int TELNET_WONT = 252;
-    /** Telnet 协议命令：DO */
+    /**
+     * Telnet 协议命令：DO
+    */
     private static final int TELNET_DO = 253;
-    /** Telnet 协议命令：DONT */
+    /**
+     * Telnet 协议命令：DONT
+    */
     private static final int TELNET_DONT = 254;
 
-    /** 服务器Socket */
+    /**
+     * 服务器Socket
+    */
     private ServerSocket serverSocket;
-    /** Worker池 */
+    /**
+     * Worker池
+    */
     private ExecutorService workerPool;
-    /** commands */
+    /**
+     * commands
+    */
     private final Map<String, TelnetCommand> commands = new ConcurrentHashMap<>();
-    /** sessions */
+    /**
+     * sessions
+    */
     private final Map<String, TelnetSession> sessions = new ConcurrentHashMap<>();
 
     /**
@@ -105,7 +129,9 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /**
+     * Do开始
+    */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -125,7 +151,9 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /**
+     * Do停止
+    */
     protected void doStop() {
         running = false;
         // 关闭所有会话
@@ -155,12 +183,16 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /**
+     * 获取ProtocolType
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }
 
-    /** AcceptLoop */
+    /**
+     * AcceptLoop
+    */
     private void acceptLoop() {
         while (running) {
             try {
@@ -246,7 +278,9 @@ public class JdkTelnetServer extends AbstractServer {
         }
     }
 
-    /** 注册BuiltinCommands */
+    /**
+     * 注册BuiltinCommands
+    */
     private void registerBuiltinCommands() {
         registerCommand("help", (session, args) -> {
             session.println("可用命令:");
@@ -339,11 +373,17 @@ public class JdkTelnetServer extends AbstractServer {
          * 客户端 ID
          */
         private final String clientId;
-        /** Socket */
+        /**
+         * Socket
+        */
         private final Socket socket;
-        /** 读取器 */
+        /**
+         * 读取器
+        */
         private final BufferedReader reader;
-        /** 写入器 */
+        /**
+         * 写入器
+        */
         private final DataOutputStream writer;
 
         TelnetSession(String clientId, Socket socket) throws IOException {

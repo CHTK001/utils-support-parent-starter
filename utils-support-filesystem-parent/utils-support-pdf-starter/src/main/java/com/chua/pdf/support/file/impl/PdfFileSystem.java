@@ -32,7 +32,9 @@ import java.io.File;
 public class PdfFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /**
+     * 获取Type
+    */
     public String getType() {
         
         return "pdf";
@@ -40,7 +42,9 @@ public class PdfFileSystem implements FileSystem {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public ReadBuilder read(File file) {
         
         return new PdfReadBuilder(file);
@@ -48,7 +52,9 @@ public class PdfFileSystem implements FileSystem {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public WriteBuilder write(File file) {
         
         return new PdfWriteBuilder(file);

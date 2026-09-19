@@ -168,7 +168,9 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -206,21 +208,27 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     @Override
-    /** 阈值 */
+    /**
+     * 阈值
+    */
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public LicensePlateRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public LicensePlateRecognizer device(String device) {
         this.device = device;
         return this;

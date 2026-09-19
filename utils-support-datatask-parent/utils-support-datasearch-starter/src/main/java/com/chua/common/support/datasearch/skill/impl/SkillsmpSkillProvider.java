@@ -18,31 +18,41 @@ import java.util.List;
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnlineProvider {
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return NAME;
     }
 
     @Override
-    /** 获取Skills */
+    /**
+     * 获取Skills
+    */
     public List<SkillDefinition> getSkills() {
         return List.of(searchSkill());
     }
 
     @Override
-    /** 搜索 */
+    /**
+     * 搜索
+    */
     public List<SkillDefinition> search(String keyword) {
         return List.of(searchSkill());
     }
 
     @Override
-    /** Install */
+    /**
+     * Install
+    */
     public boolean install(String clientId, String skillId) {
         return super.install(clientId, skillId);
     }
 
     @Override
-    /** Uninstall */
+    /**
+     * Uninstall
+    */
     public boolean uninstall(String clientId, String skillId) {
         return super.uninstall(clientId, skillId);
     }

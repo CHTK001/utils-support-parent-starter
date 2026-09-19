@@ -39,7 +39,9 @@ import java.util.List;
  */
 public class Page<T> {
 
-    /** 页NUM */
+    /**
+     * 页NUM
+    */
     private final int pageNum;
     /**
      * 每页大小
@@ -49,7 +51,9 @@ public class Page<T> {
      * 总数
      */
     private final long total;
-    /** Records */
+    /**
+     * Records
+    */
     private final List<T> records;
 
     /**

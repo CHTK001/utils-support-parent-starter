@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("方言分页 SQL 测试")
 class DialectPagingSqlTest {
 
-    /** 基础查询 SQL */
+    /**
+     * 基础查询 SQL
+    */
     private static final String BASE_SQL = "SELECT * FROM fixture_user";
 
     /**

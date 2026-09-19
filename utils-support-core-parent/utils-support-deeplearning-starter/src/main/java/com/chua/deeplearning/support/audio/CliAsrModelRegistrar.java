@@ -17,7 +17,9 @@ import java.util.List;
  */
 public class CliAsrModelRegistrar implements ModelRegistrar {
 
-    /** Parakeet GGUF 在 HuggingFace 上的文件名 */
+    /**
+     * Parakeet GGUF 在 HuggingFace 上的文件名
+    */
     private static final String PARAKEET_FILE = "parakeet-tdt-0.6b-v3.q8_0.gguf";
 
     static {

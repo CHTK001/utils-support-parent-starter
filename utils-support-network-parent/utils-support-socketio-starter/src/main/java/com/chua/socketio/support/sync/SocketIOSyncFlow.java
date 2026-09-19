@@ -63,7 +63,9 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         if (running) {
             return;
@@ -79,7 +81,9 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 停止 */
+    /**
+     * 停止
+    */
     public void stop() {
         if (!running) {
             return;
@@ -95,49 +99,65 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 是否Running */
+    /**
+     * 是否Running
+    */
     public boolean isRunning() {
         return running;
     }
 
     @Override
-    /** 获取服务端 */
+    /**
+     * 获取服务端
+    */
     public SyncServer getServer() {
         return server;
     }
 
     @Override
-    /** 获取客户端 */
+    /**
+     * 获取客户端
+    */
     public SyncClient getClient() {
         return client;
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
         if (server != null) {
             server.addListener(new SyncServerListener() {
                 @Override
-                /** on客户端连接 */
+                /**
+                 * on客户端连接
+                */
                 public void onClientConnected(String clientId, Map<String, Object> metadata) {
                     listener.onClientConnected(clientId);
                 }
 
                 @Override
-                /** on客户端断开连接 */
+                /**
+                 * on客户端断开连接
+                */
                 public void onClientDisconnected(String clientId) {
                     listener.onClientDisconnected(clientId);
                 }
 
                 @Override
-                /** on消息 */
+                /**
+                 * on消息
+                */
                 public void onMessage(String clientId, String topic, Object message) {
                     listener.onMessage(topic, message);
                 }
 
                 @Override
-                /** On记录错误 */
+                /**
+                 * On记录错误
+                */
                 public void onError(String clientId, Throwable cause) {
                     listener.onError(clientId, cause);
                 }
@@ -149,7 +169,9 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
         if (client != null) {
@@ -158,7 +180,9 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         stop();
     }

@@ -40,11 +40,17 @@ import java.util.function.Consumer;
 @ConditionalOnClass("org.jsoup.Jsoup")
 public class SpiderMappingPipeline<T> implements SpiderPipeline {
 
-    /** 目标类 */
+    /**
+     * 目标类
+    */
     private final Class<T> targetClass;
-    /** 消费者 */
+    /**
+     * 消费者
+    */
     private final Consumer<T> consumer;
-    /** 映射器 */
+    /**
+     * 映射器
+    */
     private final SpiderFieldMapper mapper;
 
     /**
@@ -87,7 +93,9 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     }
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public void process(SpiderResult result) {
         if (result == null || targetClass == null) {
             return;

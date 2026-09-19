@@ -34,31 +34,49 @@ import java.nio.file.Path;
 @Slf4j
 public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCloseable {
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private static final String NAME = "vit-h-14";
 
-    /** 输入图像尺寸（vit-H 224） */
+    /**
+     * 输入图像尺寸（vit-H 224）
+    */
     private static final int IMAGE_SIZE = 224;
 
-    /** CLIP 图像均值 */
+    /**
+     * CLIP 图像均值
+    */
     private static final float[] MEAN = {0.48145466f, 0.4578275f, 0.40821073f};
 
-    /** CLIP 图像标准差 */
+    /**
+     * CLIP 图像标准差
+    */
     private static final float[] STD = {0.26862954f, 0.26130258f, 0.27577711f};
 
-    /** 输出特征维度 */
+    /**
+     * 输出特征维度
+    */
     private static final int FEATURE_DIM = 1024;
 
-    /** ONNX 运行时环境 */
+    /**
+     * ONNX 运行时环境
+    */
     private OrtEnvironment ortEnv;
 
-    /** ONNX 会话 */
+    /**
+     * ONNX 会话
+    */
     private OrtSession session;
 
-    /** 是否已准备 */
+    /**
+     * 是否已准备
+    */
     private volatile boolean prepared;
 
-    /** 模型文件路径（可由外部指定） */
+    /**
+     * 模型文件路径（可由外部指定）
+    */
     private Path modelPath;
 
     /**

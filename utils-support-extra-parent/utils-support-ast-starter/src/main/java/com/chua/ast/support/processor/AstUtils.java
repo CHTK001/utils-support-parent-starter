@@ -18,7 +18,9 @@ import java.lang.reflect.Field;
  */
 public final class AstUtils {
 
-    /** 创建 ast工具 实例 */
+    /**
+     * 创建 ast工具 实例
+    */
     private AstUtils() {}
 
     /**

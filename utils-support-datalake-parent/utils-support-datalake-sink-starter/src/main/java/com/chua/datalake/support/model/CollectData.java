@@ -17,15 +17,23 @@ import lombok.Setter;
 @Setter
 public class CollectData {
 
-    /** 数据主题（topic） */
+    /**
+     * 数据主题（topic）
+    */
     private String topic;
 
-    /** 消息负载（原始数据） */
+    /**
+     * 消息负载（原始数据）
+    */
     private String payload;
 
-    /** 数据源协议（如 KAFKA / CHRONICLE / MQTT） */
+    /**
+     * 数据源协议（如 KAFKA / CHRONICLE / MQTT）
+    */
     private String protocol;
 
-    /** 采集时间戳（毫秒） */
+    /**
+     * 采集时间戳（毫秒）
+    */
     private long timestamp;
 }

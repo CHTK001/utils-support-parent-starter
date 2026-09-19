@@ -25,13 +25,17 @@ import java.lang.reflect.Method;
 public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
     @Override
-    /** 是否支持 */
+    /**
+     * 是否支持
+    */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -47,7 +51,9 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;

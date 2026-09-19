@@ -36,7 +36,9 @@ import java.util.Map;
  */
 public interface ApmStorage {
 
-    /** SPI 默认实现 键 — 当未配置 / SPI 找不到实现时，使用 noopstorage。 */
+    /**
+     * SPI 默认实现 键 — 当未配置 / SPI 找不到实现时，使用 noopstorage。
+    */
     String DEFAULT_NAME = "noop";
 
     /**
@@ -45,7 +47,9 @@ public interface ApmStorage {
      */
     void start(StorageConfig config);
 
-    /** 停止存储 — 关闭连接 / 刷盘。 */
+    /**
+     * 停止存储 — 关闭连接 / 刷盘。
+    */
     void stop();
 
     /**

@@ -53,15 +53,23 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
 public final class DefaultValueAstProcessor extends AbstractProcessor {
 
-    /** 抽象语法树工具 */
+    /**
+     * 抽象语法树工具
+    */
     private com.sun.source.util.Trees trees;
-    /** 消息器 */
+    /**
+     * 消息器
+    */
     private Messager messager;
-    /** 注解处理环境 */
+    /**
+     * 注解处理环境
+    */
     private ProcessingEnvironment pe;
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.pe = processingEnv;
@@ -75,7 +83,9 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() || trees == null) { return false; }
 

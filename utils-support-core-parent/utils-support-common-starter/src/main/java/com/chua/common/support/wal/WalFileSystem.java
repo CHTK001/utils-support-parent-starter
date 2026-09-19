@@ -25,11 +25,17 @@ package com.chua.common.support.wal;
  */
 public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
-    /** 魔数字节 */
+    /**
+     * 魔数字节
+    */
     byte[] MAGIC = new byte[]{'W', 'A', 'L', '1'};
-    /** 当前版本 */
+    /**
+     * 当前版本
+    */
     int VERSION = 1;
-    /** 文件头固定大小（魔法+版本+flags+crc = 16B） */
+    /**
+     * 文件头固定大小（魔法+版本+flags+crc = 16B）
+    */
     int HEADER_SIZE = 16;
 
     // ==================== WAL 核心操作 ====================

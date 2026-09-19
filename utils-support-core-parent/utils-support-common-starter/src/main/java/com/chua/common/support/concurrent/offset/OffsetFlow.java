@@ -210,13 +210,17 @@ public final class OffsetFlow implements AutoCloseable {
         return ServiceProvider.of(OffsetStore.class).getNewExtension(providerName, config);
     }
 
-    /** Sleep */
+    /**
+     * Sleep
+    */
     private void sleep() {
         ThreadUtils.sleep(RETRY_DELAY_MS);
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (store != null) {
             store.close();

@@ -30,9 +30,13 @@ public enum TmdbGenre {
      */
     WESTERN(37, "西部");
 
-    /** 标识 */
+    /**
+     * 标识
+    */
     private final int id;
-    /** 名称 */
+    /**
+     * 名称
+    */
     private final String name;
 
     /**

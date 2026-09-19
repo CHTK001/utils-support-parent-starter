@@ -23,19 +23,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
-    /** 服务器Socket */
+    /**
+     * 服务器Socket
+    */
     private ServerSocket serverSocket;
-    /** 执行器 */
+    /**
+     * 执行器
+    */
     private ExecutorService executor;
-    /** Connections */
+    /**
+     * Connections
+    */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
-    /** 客户端 */
+    /**
+     * 客户端
+    */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
-    /** subscriptions */
+    /**
+     * subscriptions
+    */
     private final Map<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
-    /** 监听器 */
+    /**
+     * 监听器
+    */
     private final List<SyncServerListener> listeners = new ArrayList<>();
-    /** connectionidseq */
+    /**
+     * connectionidseq
+    */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
@@ -47,7 +61,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 执行开始 */
+    /**
+     * 执行开始
+    */
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -60,7 +76,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 执行停止 */
+    /**
+     * 执行停止
+    */
     protected void doStop() {
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
@@ -85,7 +103,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object message) {
         String payload = topic + ":" + message.toString();
         for (Connection conn : connections) {
@@ -100,7 +120,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 发送 */
+    /**
+     * 发送
+    */
     public void send(String clientId, String topic, Object message) {
         String payload = topic + ":" + message.toString();
         for (Connection conn : connections) {
@@ -118,37 +140,49 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     @Override
-    /** 获取连接客户端 */
+    /**
+     * 获取连接客户端
+    */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取客户端metadata */
+    /**
+     * 获取客户端metadata
+    */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加监听器 */
+    /**
+     * 添加监听器
+    */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除监听器 */
+    /**
+     * 移除监听器
+    */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取协议类型 */
+    /**
+     * 获取协议类型
+    */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
 
-    /** accept循环 */
+    /**
+     * accept循环
+    */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {

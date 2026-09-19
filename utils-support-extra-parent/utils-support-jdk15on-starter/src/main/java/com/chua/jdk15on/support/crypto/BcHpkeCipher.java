@@ -55,24 +55,40 @@ import java.util.Arrays;
 @Spi({"bc", "bouncycastle"})
 public class BcHpkeCipher implements HpkeCipher {
 
-    /** X25519 共享密钥长度（字节） */
+    /**
+     * X25519 共享密钥长度（字节）
+    */
     private static final int KEY_SIZE = 32;
-    /** AES-256 对称密钥长度（字节） */
+    /**
+     * AES-256 对称密钥长度（字节）
+    */
     private static final int SYM_KEY_LEN = 32;
-    /** GCM 认证标签长度（字节） */
+    /**
+     * GCM 认证标签长度（字节）
+    */
     private static final int GCM_TAG_LEN = 16;
-    /** GCM nonce 长度（字节） */
+    /**
+     * GCM nonce 长度（字节）
+    */
     private static final int GCM_NONCE_LEN = 12;
-    /** HKDF 盐（域分隔，防止跨协议复用） */
+    /**
+     * HKDF 盐（域分隔，防止跨协议复用）
+    */
     private static final byte[] SALT = "chua-hpke-salt-v1".getBytes(StandardCharsets.UTF_8);
-    /** HKDF 信息上下文（标识本派生用途） */
+    /**
+     * HKDF 信息上下文（标识本派生用途）
+    */
     private static final byte[] INFO = "chua-hpke-key".getBytes(StandardCharsets.UTF_8);
 
-    /** 安全随机数源，用于生成临时私钥 */
+    /**
+     * 安全随机数源，用于生成临时私钥
+    */
     private final SecureRandom random = new SecureRandom();
 
     @Override
-    /** generate键pair */
+    /**
+     * generate键pair
+    */
     public byte[][] generateKeyPair() {
         byte[] seed = new byte[KEY_SIZE];
         random.nextBytes(seed);
@@ -82,7 +98,9 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     @Override
-    /** Encap */
+    /**
+     * Encap
+    */
     public byte[][] encap(byte[] receiverPublicKey, byte[] ikm) {
         byte[] seed = new byte[KEY_SIZE];
         random.nextBytes(seed);
@@ -93,14 +111,18 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     @Override
-    /** recover键 */
+    /**
+     * recover键
+    */
     public byte[] recoverKey(byte[] receiverPrivateKey, byte[] enc, byte[] ikm) {
         X25519PrivateKeyParameters sk = new X25519PrivateKeyParameters(receiverPrivateKey);
         return deriveSharedKey(sk, enc, ikm);
     }
 
     @Override
-    /** Seal */
+    /**
+     * Seal
+    */
     public byte[] seal(byte[] ek, byte[] aad, byte[] plaintext) {
         try {
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());
@@ -118,7 +140,9 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     @Override
-    /** 打开 */
+    /**
+     * 打开
+    */
     public byte[] open(byte[] ek, byte[] aad, byte[] ciphertext) {
         try {
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());

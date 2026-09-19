@@ -15,20 +15,28 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("memory")
 public class MemoryEmbeddingClient implements EmbeddingClient {
 
-    /** 默认向量维度 */
+    /**
+     * 默认向量维度
+    */
     private static final int DEFAULT_DIMENSIONS = 1536;
 
-    /** 当前向量维度 */
+    /**
+     * 当前向量维度
+    */
     private int dimensions = DEFAULT_DIMENSIONS;
 
     @Override
-    /** Embedding */
+    /**
+     * Embedding
+    */
     public float[] embedding(String text) {
         return generatePseudoVector(text, dimensions);
     }
 
     @Override
-    /** EmbeddingBatch */
+    /**
+     * EmbeddingBatch
+    */
     public float[][] embeddingBatch(String[] texts) {
         float[][] results = new float[texts.length][];
         for (int i = 0; i < texts.length; i++) {
@@ -38,7 +46,9 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Dimensions */
+    /**
+     * Dimensions
+    */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;

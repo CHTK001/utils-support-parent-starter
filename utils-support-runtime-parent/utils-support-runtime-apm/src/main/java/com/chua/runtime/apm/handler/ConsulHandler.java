@@ -36,37 +36,49 @@ public class ConsulHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "consul-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "consul.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.CONSUL;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.CONSUL;
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(CONSUL_CLIENT, CLIENT_METHODS);
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         String host = "consul";
         int port = Protocol.CONSUL.defaultPort();

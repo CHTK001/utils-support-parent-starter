@@ -106,7 +106,9 @@ public interface JavaAgentManager extends AutoCloseable {
     CmdResult attachByPort(int port, java.nio.file.Path agentPath, String options);
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     default void close() throws Exception {
     }
 }

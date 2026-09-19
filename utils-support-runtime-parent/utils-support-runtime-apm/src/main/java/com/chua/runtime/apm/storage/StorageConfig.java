@@ -28,7 +28,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class StorageConfig {
 
-    /** 配置项 映射 */
+    /**
+     * 配置项 映射
+    */
     private Map<String, String> properties = new HashMap<>();
 
     /**

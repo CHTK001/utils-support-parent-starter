@@ -11,11 +11,17 @@ import redis.clients.jedis.JedisPool;
  */
 
 public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
-        /** 名称 */
+        /**
+         * 名称
+        */
         private final String name;
-        /** 池 */
+        /**
+         * 池
+        */
         private final JedisPool pool;
-        /** Dialect */
+        /**
+         * Dialect
+        */
         private Dialect dialect;
 
         /**
@@ -30,13 +36,17 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
         }
 
         @Override
-        /** 名称 */
+        /**
+         * 名称
+        */
         public String name() {
             return name;
         }
 
         @Override
-        /** 获取源 */
+        /**
+         * 获取源
+        */
         public JedisPool getSource() {
             return pool;
         }
@@ -63,44 +73,58 @@ public class SimpleRedisDataSource implements EngineDataSource<JedisPool> {
         }
 
         @Override
-        /** 设置源 */
+        /**
+         * 设置源
+        */
         public EngineDataSource<JedisPool> setSource(Object source) {
             return this;
         }
 
         @Override
-        /** 获取Dialect */
+        /**
+         * 获取Dialect
+        */
         public Dialect getDialect() {
             return dialect;
         }
 
         @Override
-        /** 设置Dialect */
+        /**
+         * 设置Dialect
+        */
         public EngineDataSource<JedisPool> setDialect(Dialect dialect) {
             this.dialect = dialect;
             return this;
         }
 
         @Override
-        /** Url */
+        /**
+         * Url
+        */
         public String url() {
             return null;
         }
 
         @Override
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         public String username() {
             return null;
         }
 
         @Override
-        /** 密码 */
+        /**
+         * 密码
+        */
         public String password() {
             return null;
         }
 
         @Override
-        /** 关闭 */
+        /**
+         * 关闭
+        */
         public void close() {
             pool.close();
         }

@@ -23,24 +23,40 @@ import java.util.zip.DeflaterOutputStream;
  */
 abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
-    /** 流 */
+    /**
+     * 流
+    */
     protected ImageOutputStream stream;
-    /** 开始采购订单 */
+    /**
+     * 开始采购订单
+    */
     protected long startPos;
-    /** Chunk长度 */
+    /**
+     * Chunk长度
+    */
     protected final int chunkLength;
-    /** CRC */
+    /**
+     * CRC
+    */
     protected final CRC crc = new CRC();
 
-    /** DEF */
+    /**
+     * DEF
+    */
     private final Deflater def;
-    /** BUF */
+    /**
+     * BUF
+    */
     private final byte[] buf = new byte[512];
     // reused 1 byte[] array:
-    /** Wbuf1 */
+    /**
+     * Wbuf1
+    */
     private final byte[] wbuf1 = new byte[1];
 
-    /** Bytes剩余 */
+    /**
+     * Bytes剩余
+    */
     protected int bytesRemaining;
 
     PNGImageOutputStream(ImageOutputStream stream, int chunkLength,
@@ -53,10 +69,14 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         //startChunk();
     }
 
-    /** 开始Chunk */
+    /**
+     * 开始Chunk
+    */
     protected abstract void startChunk() throws IOException;
 
-    /** 饰面chunk */
+    /**
+     * 饰面chunk
+    */
     protected void finishChunk() throws IOException {
  // 写入 CRC
         stream.writeInt(crc.getValue());
@@ -82,19 +102,25 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read() throws IOException {
         throw new RuntimeException("Method not available");
     }
 
     @Override
-    /** 读取 */
+    /**
+     * 读取
+    */
     public int read(byte[] b, int off, int len) throws IOException {
         throw new RuntimeException("Method not available");
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(byte[] b, int off, int len) throws IOException {
         if (len == 0) {
             return;
@@ -134,7 +160,9 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     }
 
     @Override
-    /** 写入 */
+    /**
+     * 写入
+    */
     public void write(int b) throws IOException {
         wbuf1[0] = (byte)b;
         write(wbuf1, 0, 1);

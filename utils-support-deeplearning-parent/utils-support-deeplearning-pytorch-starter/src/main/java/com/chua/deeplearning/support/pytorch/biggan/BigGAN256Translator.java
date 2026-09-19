@@ -8,7 +8,9 @@ package com.chua.deeplearning.support.pytorch.biggan;
  */
 public class BigGAN256Translator extends BigGANTranslator {
 
-    /** 创建 biggan256Translator 实例 */
+    /**
+     * 创建 biggan256Translator 实例
+    */
     public BigGAN256Translator() {
         super(256, 0.4f);
     }

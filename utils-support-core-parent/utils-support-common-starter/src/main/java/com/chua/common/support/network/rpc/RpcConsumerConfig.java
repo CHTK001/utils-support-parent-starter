@@ -71,31 +71,49 @@ public class RpcConsumerConfig {
         return this;
     }
 
-    /** 启动时检查 */
+    /**
+     * 启动时检查
+    */
     private Boolean check;
-    /** 超时（毫秒） */
+    /**
+     * 超时（毫秒）
+    */
     private Integer timeout;
-    /** 重试次数 */
+    /**
+     * 重试次数
+    */
     private Integer retries;
     /**
      * 负载均衡策略（random, roundrobin, leastactive, consistenthash, shortestresponse）
      */
     private String loadBalance;
-    /** 是否异步 */
+    /**
+     * 是否异步
+    */
     private Boolean async;
-    /** 版本 */
+    /**
+     * 版本
+    */
     private String version;
-    /** 分组 */
+    /**
+     * 分组
+    */
     private String group;
-    /** 最大连接数 */
+    /**
+     * 最大连接数
+    */
     private Integer connections;
     /**
      * 集群策略（failover, failfast, failsafe, failback, forking, broadcast）
      */
     private String cluster;
-    /** 粘性连接 */
+    /**
+     * 粘性连接
+    */
     private Boolean sticky;
-    /** 序列化协议 */
+    /**
+     * 序列化协议
+    */
     private String serialization;
 
     /**
@@ -108,25 +126,41 @@ public class RpcConsumerConfig {
      * <p>本机无该服务时自动回退到远程 RPC，不影响分布式部署。</p>
      */
     private Boolean inline;
-    /** 连接超时（毫秒） */
+    /**
+     * 连接超时（毫秒）
+    */
     private Integer connectTimeout;
-    /** 是否启用重试 */
+    /**
+     * 是否启用重试
+    */
     private Boolean retryEnabled;
-    /** 重试间隔（毫秒） */
+    /**
+     * 重试间隔（毫秒）
+    */
     private Integer retryDelay;
-    /** 是否开启访问日志 */
+    /**
+     * 是否开启访问日志
+    */
     private Boolean accessLog;
-    /** 是否延迟检查 */
+    /**
+     * 是否延迟检查
+    */
     private Boolean lazy;
-    /** 直连 URL */
+    /**
+     * 直连 URL
+    */
     private String url;
     /**
      * 调用模式（sync, async, future, callback, oneway）
      */
     private String invokeType;
-    /** 服务接口类 */
+    /**
+     * 服务接口类
+    */
     private Class<?> interfaceClass;
-    /** 服务接口名 */
+    /**
+     * 服务接口名
+    */
     private String interfaceName;
     /**
      * 服务治理令牌（请求头 X-RPC-Token），服务端 {@code RpcService#token()} 校验时必填

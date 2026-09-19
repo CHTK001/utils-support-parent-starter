@@ -31,7 +31,9 @@ public class SpiderExecutionController {
      * 测试态：蜘蛛runner 在保存前回调通知，记录 哈希 与 json 长度。
      */
     private volatile int lastSavedHash = 0;
-    /** 最后一个保存结果json */
+    /**
+     * 最后一个保存结果json
+    */
     private volatile String lastSavedResultsJson = null;
 
     /**

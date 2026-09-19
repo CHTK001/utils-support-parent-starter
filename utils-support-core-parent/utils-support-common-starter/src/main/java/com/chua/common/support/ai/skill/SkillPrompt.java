@@ -20,7 +20,9 @@ import java.util.Map;
  */
 public final class SkillPrompt {
 
-    /** 创建 SkillPrompt 实例 */
+    /**
+     * 创建 SkillPrompt 实例
+    */
     private SkillPrompt() {
     }
 

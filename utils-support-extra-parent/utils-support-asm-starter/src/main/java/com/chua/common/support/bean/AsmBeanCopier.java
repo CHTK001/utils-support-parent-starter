@@ -35,20 +35,28 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("ALL")
 public class AsmBeanCopier implements BeanCopier {
 
-    /** Bean 拷贝器缓存 */
+    /**
+     * Bean 拷贝器缓存
+    */
     private static final Map<List<Class<?>>, BeanCopier> GENERATED_CACHE = new ConcurrentHashMap<>();
 
-    /** 降级使用的 Bean 拷贝器 */
+    /**
+     * 降级使用的 Bean 拷贝器
+    */
     private static final BeanCopier FALLBACK = new JdkBeanCopier();
 
     @Override
-    /** 复制属性 */
+    /**
+     * 复制属性
+    */
     public void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String[]) null);
     }
 
     @Override
-    /** 复制属性 */
+    /**
+     * 复制属性
+    */
     public void copyProperties(Object source, Object target, String... ignoreProperties) {
         if (source == null || target == null) {
             return;
@@ -65,13 +73,17 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 复制属性 */
+    /**
+     * 复制属性
+    */
     public void copyProperties(Map<String, Object> sourceMap, Object target) {
         FALLBACK.copyProperties(sourceMap, target);
     }
 
     @Override
-    /** 复制属性 */
+    /**
+     * 复制属性
+    */
     public void copyProperties(Object source, Map<String, Object> target) {
         FALLBACK.copyProperties(source, target);
     }
@@ -387,7 +399,9 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -396,7 +410,9 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 哈希编码 */
+    /**
+     * 哈希编码
+    */
     public int hashCode() {
         return getClass().hashCode();
     }

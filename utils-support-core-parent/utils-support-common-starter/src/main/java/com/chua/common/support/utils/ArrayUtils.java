@@ -1843,9 +1843,13 @@ public class ArrayUtils {
      * @since 4.0.0
      */
     public enum SortDirection {
-        /** 升序 */
+        /**
+         * 升序
+        */
         ASC,
-        /** 降序 */
+        /**
+         * 降序
+        */
         DESC
     }
 

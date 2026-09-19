@@ -149,7 +149,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 启动 */
+    /**
+     * 启动
+    */
     public void start() {
         if (closed.get()) {
             return;
@@ -211,7 +213,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         if (closed.get() || topic == null) {
             return;
@@ -225,7 +229,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             if (topic == null) {
@@ -240,7 +246,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 注销订阅 */
+    /**
+     * 注销订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (String topic : definition.getTopics()) {
             if (topic == null) {
@@ -303,7 +311,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         if (!closed.compareAndSet(false, true)) {
             return;

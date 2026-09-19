@@ -30,7 +30,9 @@ import java.util.Properties;
  */
 public class SqlDialect extends AbstractDialect {
 
-    /** 当前方言的协议名（对应 .env 文件名） */
+    /**
+     * 当前方言的协议名（对应 .env 文件名）
+    */
     private final String protocol;
 
     /**

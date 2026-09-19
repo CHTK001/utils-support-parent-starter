@@ -57,7 +57,9 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     private HuggingFaceTokenizer tokenizer;
 
     @Override
-    /** Prepare */
+    /**
+     * Prepare
+    */
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         Path modelPath = ctx.getModel().getModelPath();
         if (modelPath == null) {

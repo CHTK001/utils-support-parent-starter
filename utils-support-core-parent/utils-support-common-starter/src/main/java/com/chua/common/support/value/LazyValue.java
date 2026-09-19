@@ -49,7 +49,9 @@ public final class LazyValue<T> implements Value<T> {
     @Serial
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    /** 懒加载器，负责实际计算并缓存值 */
+    /**
+     * 懒加载器，负责实际计算并缓存值
+    */
     private final Loader<T> loader;
 
     /**

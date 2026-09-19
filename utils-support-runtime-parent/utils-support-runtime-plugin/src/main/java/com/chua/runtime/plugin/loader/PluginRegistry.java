@@ -29,7 +29,9 @@ public class PluginRegistry {
      */
     private final List<PluginInfo> pluginList;
 
-    /** 创建 pluginregistry 实例 */
+    /**
+     * 创建 pluginregistry 实例
+    */
     public PluginRegistry() {
         this.pluginMap = new HashMap<>();
         this.pluginList = new ArrayList<>();

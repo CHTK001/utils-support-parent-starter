@@ -109,7 +109,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Bean 获取（多级查找） ====================
 
     @Override
-    /** 获取Bean */
+    /**
+     * 获取Bean
+    */
     public <T> T getBean(String name, Class<T> type) {
  // 1. Spring application上下文
         try {
@@ -146,7 +148,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean的类型 */
+    /**
+     * 获取Bean的类型
+    */
     public <T> T getBeanOfType(Class<T> type) {
         // 1. Spring
         try {
@@ -170,7 +174,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean的类型safely */
+    /**
+     * 获取Bean的类型safely
+    */
     public <T> T getBeanOfTypeSafely(Class<T> type) {
         try {
             return getBeanOfType(type);
@@ -181,7 +187,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean的类型 */
+    /**
+     * 获取Bean的类型
+    */
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
         Map<String, T> result = new LinkedHashMap<>();
 
@@ -201,19 +209,25 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean的类型集合 */
+    /**
+     * 获取Bean的类型集合
+    */
     public <T> Collection<T> getBeanOfTypeCollection(Class<T> type) {
         return getBeanOfTypes(type).values();
     }
 
     @Override
-    /** 获取Beanwith注解 */
+    /**
+     * 获取Beanwith注解
+    */
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         return applicationContext.getBeansWithAnnotation(annotationType);
     }
 
     @Override
-    /** 获取方法with注解 */
+    /**
+     * 获取方法with注解
+    */
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         List<MethodDefinition> result = new ArrayList<>();
         // 1. Spring 容器中标注了该类注解的 Bean 上的方法
@@ -269,7 +283,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** Autowire */
+    /**
+     * Autowire
+    */
     public void autowire(Object bean) {
         if (bean == null) {
             return;
@@ -285,7 +301,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Bean 存在性检查 ====================
 
     @Override
-    /** containsBean */
+    /**
+     * containsBean
+    */
     public boolean containsBean(String name) {
         if (applicationContext.containsBean(name)) {
             return true;
@@ -294,7 +312,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 是否单例 */
+    /**
+     * 是否单例
+    */
     public boolean isSingleton(String name) {
         if (applicationContext.containsBean(name)) {
             return applicationContext.isSingleton(name);
@@ -303,7 +323,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Beandefinition名称 */
+    /**
+     * 获取Beandefinition名称
+    */
     public Collection<String> getBeanDefinitionNames() {
         Set<String> names = new LinkedHashSet<>();
         names.addAll(Arrays.asList(applicationContext.getBeanDefinitionNames()));
@@ -312,13 +334,17 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Beandefinition计算数量 */
+    /**
+     * 获取Beandefinition计算数量
+    */
     public int getBeanDefinitionCount() {
         return applicationContext.getBeanDefinitionCount() + localRegistry.getBeanDefinitionCount();
     }
 
     @Override
-    /** 是否拥有Bean的类型 */
+    /**
+     * 是否拥有Bean的类型
+    */
     public <T> boolean hasBeanOfType(Class<T> type) {
         try {
             return !applicationContext.getBeansOfType(type).isEmpty();
@@ -328,7 +354,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean名称 */
+    /**
+     * 获取Bean名称
+    */
     public Collection<String> getBeanNames(Class<?> type) {
         Set<String> names = new LinkedHashSet<>();
         try {
@@ -340,7 +368,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取Bean提供者 */
+    /**
+     * 获取Bean提供者
+    */
     public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
         return () -> getBeanOfType(requiredType);
     }
@@ -348,7 +378,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Environment ====================
 
     @Override
-    /** 获取环境 */
+    /**
+     * 获取环境
+    */
     public Environment getEnvironment() {
         if (environment == null) {
             environment = new SpringBootEnvironment(applicationContext);
@@ -359,7 +391,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== 事件发布 ====================
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public int publish(Object event) {
         if (event == null) {
             return 0;
@@ -375,7 +409,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 获取事件发布 */
+    /**
+     * 获取事件发布
+    */
     public EventPublisher getEventPublisher() {
         return eventPublisher;
     }
@@ -383,7 +419,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Bean 注册 ====================
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public void registerBean(Object bean) {
         if (bean == null) {
             return;
@@ -400,19 +438,25 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public void registerBean(Class<?> type) {
         ObjectContext.super.registerBean(type);
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public void registerBean(BeanDefinition beanDefinition) {
         ObjectContext.super.registerBean(beanDefinition);
     }
 
     @Override
-    /** 注册Bean */
+    /**
+     * 注册Bean
+    */
     public boolean registerBean(BeanDefinitionRegister register) {
         if (register == null) {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException("BeanDefinitionRegister 不能为空");
@@ -423,13 +467,17 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== 包扫描 ====================
 
     @Override
-    /** 扫描 */
+    /**
+     * 扫描
+    */
     public void scan(String basePackage) {
         ObjectContextScanner.scan(this, basePackage);
     }
 
     @Override
-    /** 扫描 */
+    /**
+     * 扫描
+    */
     public void scan(List<String> basePackages) {
         ObjectContextScanner.scan(this, basePackages);
     }
@@ -437,13 +485,17 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== 注册中心 ====================
 
     @Override
-    /** 获取Registry */
+    /**
+     * 获取Registry
+    */
     public BeanDefinitionRegistry getRegistry() {
         return localRegistry;
     }
 
     @Override
-    /** 获取Registry */
+    /**
+     * 获取Registry
+    */
     public BeanDefinitionRegistry getRegistry(boolean spiEnabled) {
         return localRegistry;
     }
@@ -484,7 +536,9 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     @Override
-    /** 是否Closed */
+    /**
+     * 是否Closed
+    */
     public boolean isClosed() {
         return closed;
     }
@@ -498,7 +552,9 @@ public class SpringBootObjectContext implements ObjectContext {
      */
     private static class SpringBootEnvironment implements Environment {
 
-        /** springenv */
+        /**
+         * springenv
+        */
         private final org.springframework.core.env.Environment springEnv;
 
         SpringBootEnvironment(ApplicationContext applicationContext) {
@@ -506,68 +562,90 @@ public class SpringBootObjectContext implements ObjectContext {
         }
 
         @Override
-        /** 获取财产 */
+        /**
+         * 获取财产
+        */
         public String getProperty(String key) {
             return springEnv.getProperty(key);
         }
 
         @Override
-        /** 获取财产 */
+        /**
+         * 获取财产
+        */
         public String getProperty(String key, String defaultValue) {
             return springEnv.getProperty(key, defaultValue);
         }
 
         @Override
-        /** 获取财产 */
+        /**
+         * 获取财产
+        */
         public <T> T getProperty(String key, Class<T> targetType) {
             return springEnv.getProperty(key, targetType);
         }
 
         @Override
-        /** 获取财产 */
+        /**
+         * 获取财产
+        */
         public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
             T value = springEnv.getProperty(key, targetType);
             return value != null ? value : defaultValue;
         }
 
         @Override
-        /** 设置财产 */
+        /**
+         * 设置财产
+        */
         public void setProperty(String key, Object value) {
  // Spring 环境 不支持直接 设置财产，留空
         }
 
         @Override
-        /** contains财产 */
+        /**
+         * contains财产
+        */
         public boolean containsProperty(String key) {
             return springEnv.containsProperty(key);
         }
 
         @Override
-        /** 添加改变监听器 */
+        /**
+         * 添加改变监听器
+        */
         public void addChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
  // Spring 环境 适配器暂不实现监听器
         }
 
         @Override
-        /** 移除改变监听器 */
+        /**
+         * 移除改变监听器
+        */
         public void removeChangeListener(com.chua.common.support.objects.environment.EnvironmentChangeListener listener) {
  // Spring 环境 适配器暂不实现监听器
         }
 
         @Override
-        /** 添加配置源 */
+        /**
+         * 添加配置源
+        */
         public void addConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
  // Spring 环境 适配器暂不实现 配置源 动态添加
         }
 
         @Override
-        /** 移除配置源 */
+        /**
+         * 移除配置源
+        */
         public void removeConfigSource(com.chua.common.support.config.source.PropertySource propertySource) {
  // Spring 环境 适配器暂不实现 配置源 动态移除
         }
 
         @Override
-        /** Refresh */
+        /**
+         * Refresh
+        */
         public void refresh() {
  // Spring 环境 不需要主动刷新配置源
         }

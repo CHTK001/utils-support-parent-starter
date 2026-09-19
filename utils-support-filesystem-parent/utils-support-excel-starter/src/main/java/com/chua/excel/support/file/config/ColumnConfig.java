@@ -19,22 +19,34 @@ package com.chua.excel.support.file.config;
  */
 public class ColumnConfig {
 
-    /** 字段名（数据 映射 中的 键） */
+    /**
+     * 字段名（数据 映射 中的 键）
+    */
     private final String fieldName;
 
-    /** 列显示名（默认为字段名） */
+    /**
+     * 列显示名（默认为字段名）
+    */
     private String displayName;
 
-    /** 列宽（字符数，默认自动） */
+    /**
+     * 列宽（字符数，默认自动）
+    */
     private Integer width;
 
-    /** 列样式 */
+    /**
+     * 列样式
+    */
     private CellStyleConfig style;
 
-    /** 自定义表头样式（覆盖列样式中的表头设置） */
+    /**
+     * 自定义表头样式（覆盖列样式中的表头设置）
+    */
     private CellStyleConfig headerStyle;
 
-    /** 是否隐藏该列 */
+    /**
+     * 是否隐藏该列
+    */
     private boolean hidden;
 
     /**

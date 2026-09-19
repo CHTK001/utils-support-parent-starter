@@ -19,22 +19,36 @@ package com.chua.common.support.lang.cmd;
  */
 public enum OsFamily {
 
-    /** Windows */
+    /**
+     * Windows
+    */
     WINDOWS,
-    /** macOS */
+    /**
+     * macOS
+    */
     MACOS,
-    /** Linux 及其他类 Unix（不含 macOS） */
+    /**
+     * Linux 及其他类 Unix（不含 macOS）
+    */
     LINUX,
-    /** 无法识别的操作系统，按类 Unix 处理 */
+    /**
+     * 无法识别的操作系统，按类 Unix 处理
+    */
     UNKNOWN;
 
-    /** 系统属性名：操作系统名称 */
+    /**
+     * 系统属性名：操作系统名称
+    */
     private static final String OS_NAME_PROPERTY = "os.name";
 
-    /** 操作系统名称小写形式，用于前缀匹配 */
+    /**
+     * 操作系统名称小写形式，用于前缀匹配
+    */
     private static final String OS_NAME = System.getProperty(OS_NAME_PROPERTY, "").toLowerCase();
 
-    /** 当前操作系统族，在类加载时确定 */
+    /**
+     * 当前操作系统族，在类加载时确定
+    */
     private static final OsFamily CURRENT = detect();
 
     /**

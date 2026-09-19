@@ -38,11 +38,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FilePushFluentApiTest {
 
-    /** 默认客户端并发：CPU × 4，上限 256（与 FilePushConfig 保持一致） */
+    /**
+     * 默认客户端并发：CPU × 4，上限 256（与 FilePushConfig 保持一致）
+    */
     private static final int DEFAULT_PARALLELISM =
             Math.min(256, Runtime.getRuntime().availableProcessors() * 4);
 
-    /** 是否全部通过 */
+    /**
+     * 是否全部通过
+    */
     private static boolean allPassed = true;
 
     /**
@@ -68,7 +72,9 @@ public class FilePushFluentApiTest {
         System.exit(allPassed ? 0 : 1);
     }
 
-    /** 配置链式 setter：每步返回同一实例，且字段确实生效 */
+    /**
+     * 配置链式 setter：每步返回同一实例，且字段确实生效
+    */
     private static void testConfigChaining() {
         System.out.println("--- 1. FilePushConfig 链式 setter ---");
         FilePushConfig config = FilePushConfig.defaults();
@@ -114,7 +120,9 @@ public class FilePushFluentApiTest {
                 String.valueOf(config.getIncludes()));
     }
 
-    /** loadFromSystemProperties 返回入参配置，可继续接链 */
+    /**
+     * loadFromSystemProperties 返回入参配置，可继续接链
+    */
     private static void testLoadFromSystemPropertiesChaining() {
         System.out.println("--- 2. loadFromSystemProperties 链式 ---");
         System.setProperty("filepush.host", "192.168.9.9");
@@ -250,7 +258,9 @@ public class FilePushFluentApiTest {
         }
     }
 
-    /** parallelism(n) 必须在构造后重建限流信号量，否则设置静默不生效 */
+    /**
+     * parallelism(n) 必须在构造后重建限流信号量，否则设置静默不生效
+    */
     private static void testParallelismRebuildsLimiter() throws Exception {
         System.out.println("--- 5. parallelism() 重建限流信号量 ---");
         FilePushConfig config = FilePushConfig.defaults().setClientFileParallelism(2);

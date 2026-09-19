@@ -116,19 +116,25 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     // ==================== List 接口实现 ====================
 
     @Override
-    /** 获取大小 */
+    /**
+     * 获取大小
+    */
     public int size() {
         return size;
     }
 
     @Override
-    /** 是否Empty */
+    /**
+     * 是否Empty
+    */
     public boolean isEmpty() {
         return size == 0;
     }
 
     @Override
-    /** Contains */
+    /**
+     * Contains
+    */
     public boolean contains(Object o) {
         if (!(o instanceof Integer)) {
             return false;
@@ -143,14 +149,18 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 获取 */
+    /**
+     * 获取
+    */
     public Integer get(int index) {
         checkElementIndex(index);
         return elements[index];
     }
 
     @Override
-    /** 设置 */
+    /**
+     * 设置
+    */
     public Integer set(int index, Integer element) {
         checkElementIndex(index);
         int old = elements[index];
@@ -159,7 +169,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public void add(int index, Integer element) {
         checkPositionIndex(index);
         ensureCapacity(size + 1);
@@ -169,7 +181,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 添加 */
+    /**
+     * 添加
+    */
     public boolean add(Integer element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
@@ -177,7 +191,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(Collection<? extends Integer> c) {
         ensureCapacity(size + c.size());
         for (Integer i : c) {
@@ -187,7 +203,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 添加All */
+    /**
+     * 添加All
+    */
     public boolean addAll(int index, Collection<? extends Integer> c) {
         checkPositionIndex(index);
         ensureCapacity(size + c.size());
@@ -204,7 +222,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public Integer remove(int index) {
         checkElementIndex(index);
         int old = elements[index];
@@ -214,7 +234,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 移除 */
+    /**
+     * 移除
+    */
     public boolean remove(Object o) {
         if (!(o instanceof Integer)) {
             return false;
@@ -230,7 +252,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 移除All */
+    /**
+     * 移除All
+    */
     public boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -243,7 +267,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** RetainAll */
+    /**
+     * RetainAll
+    */
     public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         for (int i = size - 1; i >= 0; i--) {
@@ -256,14 +282,18 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** Clear */
+    /**
+     * Clear
+    */
     public void clear() {
         Arrays.fill(elements, 0, size, 0);
         size = 0;
     }
 
     @Override
-    /** IndexOf */
+    /**
+     * IndexOf
+    */
     public int indexOf(Object o) {
         if (!(o instanceof Integer)) {
             return -1;
@@ -278,7 +308,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** LastIndexOf */
+    /**
+     * LastIndexOf
+    */
     public int lastIndexOf(Object o) {
         if (!(o instanceof Integer)) {
             return -1;
@@ -293,20 +325,28 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** Iterator */
+    /**
+     * Iterator
+    */
     public Iterator<Integer> iterator() {
         return new Iterator<Integer>() {
-            /** 索引位置 */
+            /**
+             * 索引位置
+            */
             private int index = 0;
 
             @Override
-            /** 是否拥有Next */
+            /**
+             * 是否拥有Next
+            */
             public boolean hasNext() {
                 return index < size;
             }
 
             @Override
-            /** Next */
+            /**
+             * Next
+            */
             public Integer next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -315,7 +355,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
             }
 
             @Override
-            /** 移除 */
+            /**
+             * 移除
+            */
             public void remove() {
                 if (index == 0) {
                     throw new IllegalStateException();
@@ -327,7 +369,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** SubList */
+    /**
+     * SubList
+    */
     public List<Integer> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException("整数列表不支持子列表视图");
     }
@@ -486,7 +530,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** 判断相等 */
+    /**
+     * 判断相等
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -510,7 +556,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** HashCode */
+    /**
+     * HashCode
+    */
     public int hashCode() {
         int result = 1;
         for (int i = 0; i < size; i++) {
@@ -520,7 +568,9 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     }
 
     @Override
-    /** ToString */
+    /**
+     * ToString
+    */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');

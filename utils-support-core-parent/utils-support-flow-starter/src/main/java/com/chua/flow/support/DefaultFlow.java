@@ -71,19 +71,25 @@ public class DefaultFlow implements Flow {
     }
 
     @Override
-    /** 获取标识 */
+    /**
+     * 获取标识
+    */
     public String getId() {
         return definition.getId();
     }
 
     @Override
-    /** 添加节点 */
+    /**
+     * 添加节点
+    */
     public Flow addNode(String id, FlowNode node) {
         return addNode(id, node, Collections.emptyMap());
     }
 
     @Override
-    /** 添加节点 */
+    /**
+     * 添加节点
+    */
     public Flow addNode(String id, FlowNode node, Map<String, Object> props) {
         if (node == null) {
             throw new FlowException("节点实例不能为空: " + id);
@@ -98,37 +104,49 @@ public class DefaultFlow implements Flow {
     }
 
     @Override
-    /** 获取节点 */
+    /**
+     * 获取节点
+    */
     public FlowNode getNode(String id) {
         return nodes.get(id);
     }
 
     @Override
-    /** contains节点 */
+    /**
+     * contains节点
+    */
     public boolean containsNode(String id) {
         return nodes.containsKey(id);
     }
 
     @Override
-    /** 列表节点 */
+    /**
+     * 列表节点
+    */
     public List<FlowNode> listNodes() {
         return new ArrayList<>(nodes.values());
     }
 
     @Override
-    /** 创建图计算 */
+    /**
+     * 创建图计算
+    */
     public FlowGraph createGraph() {
         return new DefaultFlowGraph(this);
     }
 
     @Override
-    /** 导出json */
+    /**
+     * 导出json
+    */
     public String exportJson() {
         return FlowJson.toJson(definition);
     }
 
     @Override
-    /** 导入json */
+    /**
+     * 导入json
+    */
     public Flow importJson(String json) {
         FlowDefinition parsed = FlowJson.fromJson(json);
         return new DefaultFlow(parsed);

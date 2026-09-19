@@ -135,7 +135,9 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     @Nullable
     @Override
-    /** 获取Batchifier */
+    /**
+     * 获取Batchifier
+    */
     public Batchifier getBatchifier() {
         return null;
     }

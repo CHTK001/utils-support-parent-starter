@@ -43,64 +43,104 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("个人微信自动回复全链路测试")
 class WechatAutoReplyFlowTest {
 
-    /** 当前登录账号 wxid */
+    /**
+     * 当前登录账号 wxid
+    */
     private static final String SELF_WXID = "wxid_self";
 
-    /** 好友 wxid */
+    /**
+     * 好友 wxid
+    */
     private static final String FRIEND_WXID = "wxid_friend";
 
-    /** 群 wxid */
+    /**
+     * 群 wxid
+    */
     private static final String ROOM_WXID = "123@chatroom";
 
-    /** 回调地址路径 */
+    /**
+     * 回调地址路径
+    */
     private static final String CALLBACK_PATH = "/wechat/callback";
 
-    /** 单条回复长度上限，故意设小以触发切条 */
+    /**
+     * 单条回复长度上限，故意设小以触发切条
+    */
     private static final int REPLY_MAX_LENGTH = 12;
 
-    /** 每会话保留的历史消息条数 */
+    /**
+     * 每会话保留的历史消息条数
+    */
     private static final int HISTORY_SIZE = 12;
 
-    /** 等待异步回复的超时毫秒数 */
+    /**
+     * 等待异步回复的超时毫秒数
+    */
     private static final long AWAIT_TIMEOUT_MILLIS = 5_000L;
 
-    /** 轮询间隔毫秒数 */
+    /**
+     * 轮询间隔毫秒数
+    */
     private static final long POLL_INTERVAL_MILLIS = 50L;
 
-    /** 判定发送已停止增长所需的连续轮询次数 */
+    /**
+     * 判定发送已停止增长所需的连续轮询次数
+    */
     private static final int STABLE_POLLS = 2;
 
-    /** 观察静默期的等待毫秒数，期间不应有任何发送 */
+    /**
+     * 观察静默期的等待毫秒数，期间不应有任何发送
+    */
     private static final long SILENCE_WINDOW_MILLIS = 400L;
 
-    /** 假回复的固定前缀 */
+    /**
+     * 假回复的固定前缀
+    */
     private static final String ANSWER_PREFIX = "收到：";
 
-    /** 假回复的固定尾巴，保证长度超过上限以触发切条 */
+    /**
+     * 假回复的固定尾巴，保证长度超过上限以触发切条
+    */
     private static final String ANSWER_SUFFIX = "。这是补充说明。";
 
-    /** 假 Hook 服务 */
+    /**
+     * 假 Hook 服务
+    */
     private HttpServer server;
 
-    /** 假 Hook 服务基础地址 */
+    /**
+     * 假 Hook 服务基础地址
+    */
     private String baseUrl;
 
-    /** 被测客户端 */
+    /**
+     * 被测客户端
+    */
     private WechatPersonalBotClient client;
 
-    /** 被测处理器 */
+    /**
+     * 被测处理器
+    */
     private WechatAutoReplyHandler handler;
 
-    /** 假模型调用次数 */
+    /**
+     * 假模型调用次数
+    */
     private final AtomicInteger modelCalls = new AtomicInteger();
 
-    /** 最近一次喂给模型的历史条数 */
+    /**
+     * 最近一次喂给模型的历史条数
+    */
     private final AtomicInteger lastHistorySize = new AtomicInteger(-1);
 
-    /** Hook 服务收到的发送请求体 */
+    /**
+     * Hook 服务收到的发送请求体
+    */
     private final List<String> sentBodies = new CopyOnWriteArrayList<>();
 
-    /** Hook 服务收到的回调注册请求体 */
+    /**
+     * Hook 服务收到的回调注册请求体
+    */
     private final AtomicReference<String> registerBody = new AtomicReference<>();
 
     /**

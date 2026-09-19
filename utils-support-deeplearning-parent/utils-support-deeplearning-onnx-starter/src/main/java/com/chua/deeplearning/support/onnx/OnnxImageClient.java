@@ -40,7 +40,9 @@ public class OnnxImageClient extends AbstractLocalImageClient {
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, ai.djl.modality.cv.Image.class);
     }

@@ -44,9 +44,13 @@ public class PolledDirectoryBackup implements BackupStrategy {
      * 类型
      */
     private static final String TYPE = "polled";
-    /** 日期_fmt */
+    /**
+     * 日期_fmt
+    */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    /** 时间_fmt */
+    /**
+     * 时间_fmt
+    */
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -69,14 +73,18 @@ public class PolledDirectoryBackup implements BackupStrategy {
         String transform(String fileName, String content);
     }
 
-    /** 默认转换器：包装为 JSON 插入 格式 */
+    /**
+     * 默认转换器：包装为 JSON 插入 格式
+    */
     private static final RecordTransformer DEFAULT_TRANSFORMER = (fileName, content) -> {
         return "{\"type\":\"insert\",\"source\":\"" + fileName + "\","
                 + "\"timestamp\":\"" + LocalDateTime.now().format(TIME_FMT) + "\","
                 + "\"data\":" + content + "}";
     };
 
-    /** Transformer */
+    /**
+     * Transformer
+    */
     private RecordTransformer transformer = DEFAULT_TRANSFORMER;
 
     /**
@@ -156,7 +164,9 @@ public class PolledDirectoryBackup implements BackupStrategy {
         Files.createDirectories(backupSubDir);
 
         Files.walkFileTree(source, new SimpleFileVisitor<>() {
-            /** 转换并备份单个已处理文件，失败仅告警并跳过 */
+            /**
+             * 转换并备份单个已处理文件，失败仅告警并跳过
+            */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {

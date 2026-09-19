@@ -71,7 +71,9 @@ public record MemoryEntry(
         Map<String, Object> metadata
 ) implements Serializable {
 
-    /** 序列化版本号 */
+    /**
+     * 序列化版本号
+    */
     private static final long serialVersionUID = 1L;
 
     /**

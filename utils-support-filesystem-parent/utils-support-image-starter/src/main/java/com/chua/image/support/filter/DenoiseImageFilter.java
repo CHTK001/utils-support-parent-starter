@@ -56,9 +56,13 @@ public class DenoiseImageFilter extends AbstractImageFilter {
      * 降噪模式
      */
     public enum Mode {
-        /** 中值滤波 */
+        /**
+         * 中值滤波
+        */
         MEDIAN,
-        /** 双边简化 */
+        /**
+         * 双边简化
+        */
         BILATERAL
     }
 

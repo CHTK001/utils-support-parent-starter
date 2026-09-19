@@ -34,16 +34,24 @@ import java.util.regex.Pattern;
 @Spi("artificialanalysis")
 public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetricsProvider {
 
-    /** Leaderboard_url */
+    /**
+     * Leaderboard_url
+    */
     private static final String LEADERBOARD_URL = "https://artificialanalysis.ai/zh/leaderboards/providers";
 
-    /** 模型排行榜页(含活跃参数量 活跃参数) */
+    /**
+     * 模型排行榜页(含活跃参数量 活跃参数)
+    */
     private static final String MODELS_URL = "https://artificialanalysis.ai/models";
 
-    /** 图标地址前缀（相对路径补全用） */
+    /**
+     * 图标地址前缀（相对路径补全用）
+    */
     private static final String LOGO_BASE = "https://artificialanalysis.ai";
 
-    /** 记录锚点：转义形态的 \"模型\":{\"slug\":\"xxx\" */
+    /**
+     * 记录锚点：转义形态的 \"模型\":{\"slug\":\"xxx\"
+    */
     private static final Pattern ANCHOR =
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
@@ -54,7 +62,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
                     + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
 
-    /** 图片输入能力推断：slug 含 镜像/clip/vit 等关键词 */
+    /**
+     * 图片输入能力推断：slug 含 镜像/clip/vit 等关键词
+    */
     private static final Pattern IMAGE_INPUT_PATTERN = Pattern.compile(
             "image|clip|vit|vision|multimodal", Pattern.CASE_INSENSITIVE);
 

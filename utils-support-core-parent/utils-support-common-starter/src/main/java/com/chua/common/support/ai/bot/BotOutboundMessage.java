@@ -111,10 +111,14 @@ public class BotOutboundMessage {
                 .build();
     }
 
-    /** 消息类型 */
+    /**
+     * 消息类型
+    */
     private BotInboundMessage.Type type;
 
-    /** 目标用户 ID */
+    /**
+     * 目标用户 ID
+    */
     private String toUser;
 
     /**
@@ -129,10 +133,14 @@ public class BotOutboundMessage {
      */
     private String mediaPath;
 
-    /** 视频标题 */
+    /**
+     * 视频标题
+    */
     private String title;
 
-    /** 视频描述 */
+    /**
+     * 视频描述
+    */
     private String description;
 
     /**
@@ -141,7 +149,9 @@ public class BotOutboundMessage {
      */
     private boolean toGroup;
 
-    /** @ 提及的用户 ID 列表 */
+    /**
+     * @ 提及的用户 ID 列表
+    */
     private List<String> mentionedUsers;
 
     /**

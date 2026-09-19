@@ -29,7 +29,9 @@ public class MossSentencePieceBpe implements AutoCloseable {
 
     private static final String SPACE_MARK = "\u2581"; // SPACE_MARK
 
-    /** piece 类型常量（对应 protobuf enum）。 */
+    /**
+     * piece 类型常量（对应 protobuf enum）。
+    */
     private static final int TYPE_NORMAL = 1;
     private static final int TYPE_UNKNOWN = 2; // 类型unknown
     private static final int TYPE_CONTROL = 3; // 类型control

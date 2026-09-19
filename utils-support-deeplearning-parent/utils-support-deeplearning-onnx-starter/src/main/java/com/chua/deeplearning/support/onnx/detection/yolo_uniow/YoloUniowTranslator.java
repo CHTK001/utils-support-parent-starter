@@ -47,30 +47,46 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
 
     private static final Logger log = LoggerFactory.getLogger(YoloUniowTranslator.class); // 日志
 
-    /** 输入尺寸 */
+    /**
+     * 输入尺寸
+    */
     private static final int INPUT_SIZE = 640;
 
-    /** 默认置信度阈值 */
+    /**
+     * 默认置信度阈值
+    */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
-    /** 默认 NMS iou 阈值 */
+    /**
+     * 默认 NMS iou 阈值
+    */
     private static final float DEFAULT_NMS = 0.5f;
 
-    /** DFL 积分 bin 数 */
+    /**
+     * DFL 积分 bin 数
+    */
     private static final int REG_MAX = 16;
 
-    /** 特征图 stride（640 输入：80/40/20 网格） */
+    /**
+     * 特征图 stride（640 输入：80/40/20 网格）
+    */
     private static final int[] STRIDES = {8, 16, 32};
 
-    /** 文本嵌入 类路径 资源路径（LVIS 1203 类，1203×512） */
+    /**
+     * 文本嵌入 类路径 资源路径（LVIS 1203 类，1203×512）
+    */
     private static final String EMBEDDINGS_RESOURCE =
             "vision/detection/yolo_uniow/class_embeddings_1203x512.f32";
 
-    /** 类别名 类路径 资源路径 */
+    /**
+     * 类别名 类路径 资源路径
+    */
     private static final String CLASS_NAMES_RESOURCE =
             "vision/detection/yolo_uniow/class.names.txt";
 
-    /** 回退类别 */
+    /**
+     * 回退类别
+    */
     private static final List<String> DEFAULT_CLASSES = List.of("dog", "horse", "sheep", "cow");
 
     private final float threshold; // 阈值
@@ -78,7 +94,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     private final List<String> classes; // 类
     private float[] textFeatures; // 文本特征
 
-    /** 原始图像尺寸（用于结果坐标还原） */
+    /**
+     * 原始图像尺寸（用于结果坐标还原）
+    */
     private int imageWidth;
     private int imageHeight; // 镜像height
 

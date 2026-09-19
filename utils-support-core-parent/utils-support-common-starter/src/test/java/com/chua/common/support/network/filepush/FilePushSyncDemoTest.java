@@ -52,13 +52,19 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class FilePushSyncDemoTest {
 
-    /** 排除模式：日志目录不参与同步，用于演示 excludes 生效 */
+    /**
+     * 排除模式：日志目录不参与同步，用于演示 excludes 生效
+    */
     private static final String EXCLUDE_PATTERN = "logs/";
 
-    /** 校验和流式读取缓冲 */
+    /**
+     * 校验和流式读取缓冲
+    */
     private static final int DIGEST_BUFFER = 64 * 1024;
 
-    /** 超过该文件数则只打印目录级汇总，不逐个列文件 */
+    /**
+     * 超过该文件数则只打印目录级汇总，不逐个列文件
+    */
     private static final int TREE_DETAIL_LIMIT = 60;
 
     private static boolean allPassed = true;

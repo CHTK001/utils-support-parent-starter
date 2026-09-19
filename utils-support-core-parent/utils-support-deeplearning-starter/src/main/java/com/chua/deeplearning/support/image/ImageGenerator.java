@@ -140,7 +140,9 @@ class DefaultImageGenerator implements ImageGenerator {
      * 模型配置。
      */
     @SuppressWarnings("unused")
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ModelSetting setting;
 
     /**
@@ -173,14 +175,18 @@ class DefaultImageGenerator implements ImageGenerator {
     }
 
     @Override
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     public ImageGenerator modelPath(String path) {
         this.modelPath = path;
         return this;
     }
 
     @Override
-    /** Device */
+    /**
+     * Device
+    */
     public ImageGenerator device(String device) {
         this.device = device;
         return this;

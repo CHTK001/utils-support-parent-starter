@@ -16,7 +16,9 @@ import com.chua.test.spi.EmbeddingClient;
 public class ExtensionAnnotatedClient implements EmbeddingClient {
 
     @Override
-    /** 嵌入 */
+    /**
+     * 嵌入
+    */
     public float[] embedding(String text) {
         return new float[0];
     }

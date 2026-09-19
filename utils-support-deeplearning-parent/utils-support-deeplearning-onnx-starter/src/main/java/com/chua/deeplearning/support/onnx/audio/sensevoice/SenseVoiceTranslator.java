@@ -79,23 +79,41 @@ public class SenseVoiceTranslator {
 
     private OrtEnvironment ortEnv; // ortenv
     private OrtSession session; // 会话
-    /** 标识 → 令牌 词表 */
+    /**
+     * 标识 → 令牌 词表
+    */
     private Map<Integer, String> vocab;
-    /** CMVN 减项 */
+    /**
+     * CMVN 减项
+    */
     private float[] negMean;
-    /** CMVN 乘项 */
+    /**
+     * CMVN 乘项
+    */
     private float[] invStddev;
-    /** LFR 窗口帧数 */
+    /**
+     * LFR 窗口帧数
+    */
     private int lfrWindowSize;
-    /** LFR 帧移帧数 */
+    /**
+     * LFR 帧移帧数
+    */
     private int lfrWindowShift;
-    /** 语言 标识 映射（zh/en/ja/ko/yue/auto） */
+    /**
+     * 语言 标识 映射（zh/en/ja/ko/yue/auto）
+    */
     private Map<String, Integer> langIds;
-    /** with-itn 的 文本_norm 取值 */
+    /**
+     * with-itn 的 文本_norm 取值
+    */
     private int withItnId;
-    /** blank 标识（元数据可覆盖默认值） */
+    /**
+     * blank 标识（元数据可覆盖默认值）
+    */
     private int blankId;
-    /** 是否就绪 */
+    /**
+     * 是否就绪
+    */
     private boolean prepared;
 
     /**
@@ -340,17 +358,25 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** CTC 解析后的富文本结果 */
+    /**
+     * CTC 解析后的富文本结果
+    */
     public static class RichResult {
-        /** 转写文本（已剥离所有特殊 令牌） */
+        /**
+         * 转写文本（已剥离所有特殊 令牌）
+        */
         public final String text;
-        /** 检测到的语种（zh/en/ja/ko/yue/nospeech/auto） */
+        /**
+         * 检测到的语种（zh/en/ja/ko/yue/nospeech/auto）
+        */
         public final String language;
         /**
          * 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN）
          */
         public final String emotion;
-        /** 事件标签（语音/BGM/Laughter/...） */
+        /**
+         * 事件标签（语音/BGM/Laughter/...）
+        */
         public final List<String> events;
 
         /**
@@ -799,7 +825,9 @@ public class SenseVoiceTranslator {
         }
     }
 
-    /** 关闭会话 */
+    /**
+     * 关闭会话
+    */
     public synchronized void close() {
         if (session != null) {
             try {

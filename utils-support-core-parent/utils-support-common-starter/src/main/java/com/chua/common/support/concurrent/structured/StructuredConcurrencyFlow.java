@@ -250,7 +250,9 @@ public final class StructuredConcurrencyFlow {
         return this;
     }
 
-    /** 合并 */
+    /**
+     * 合并
+    */
     public void join() throws Exception {
         executeAll();
     }

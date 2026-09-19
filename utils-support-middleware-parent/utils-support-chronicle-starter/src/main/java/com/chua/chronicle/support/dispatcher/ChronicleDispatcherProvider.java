@@ -32,19 +32,31 @@ import java.util.concurrent.TimeUnit;
 @Spi("chronicle")
 public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
 
-    /** 序列化器 */
+    /**
+     * 序列化器
+    */
     private static final ChronicleQueueSerializer SERIALIZER = new ChronicleQueueSerializer();
 
-    /** 队列映射 */
+    /**
+     * 队列映射
+    */
     private final Map<String, ChronicleQueue> queueMap = new ConcurrentHashMap<>();
-    /** definition映射 */
+    /**
+     * definition映射
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    /** Chronicle 初始化失败时启用的内存回退队列 */
+    /**
+     * Chronicle 初始化失败时启用的内存回退队列
+    */
     private final java.util.Map<String, java.util.Queue<Object>> memoryFallback = new java.util.concurrent.ConcurrentHashMap<>();
-    /** 执行器 */
+    /**
+     * 执行器
+    */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("chronicle-dispatcher-", 0).factory());
-    /** closed */
+    /**
+     * closed
+    */
     private volatile boolean closed = false;
 
     /**
@@ -111,7 +123,9 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 发布 */
+    /**
+     * 发布
+    */
     public void publish(String topic, Object body) {
         ChronicleQueue queue;
         try {
@@ -134,7 +148,9 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 订阅 */
+    /**
+     * 订阅
+    */
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -294,7 +310,9 @@ executor.submit(() -> {
     }
 
     @Override
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+    */
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var definitions = definitionMap.get(topic);
@@ -308,7 +326,9 @@ executor.submit(() -> {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         closed = true;
         executor.shutdown();

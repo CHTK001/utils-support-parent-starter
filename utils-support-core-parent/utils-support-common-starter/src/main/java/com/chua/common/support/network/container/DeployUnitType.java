@@ -17,7 +17,9 @@ public enum DeployUnitType {
      */
     WAR("war"),
 
-    /** Java Archive - Java 归档 */
+    /**
+     * Java Archive - Java 归档
+    */
     JAR("jar"),
 
     /**
@@ -25,16 +27,24 @@ public enum DeployUnitType {
      */
     EAR("ear"),
 
-    /** 可执行 FAT-JAR（含所有依赖的独立 JAR） */
+    /**
+     * 可执行 FAT-JAR（含所有依赖的独立 JAR）
+    */
     FAT_JAR("jar"),
 
-    /** Spring Boot 可执行 JAR */
+    /**
+     * Spring Boot 可执行 JAR
+    */
     SPRING_BOOT("jar"),
 
-    /** Main 类部署（将 Main 方法作为 Web 入口启动） */
+    /**
+     * Main 类部署（将 Main 方法作为 Web 入口启动）
+    */
     MAIN("class");
 
-    /** Extension */
+    /**
+     * Extension
+    */
     private final String extension;
 
     /**

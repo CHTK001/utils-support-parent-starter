@@ -62,9 +62,13 @@ public @interface Retry {
      * @since 4.0.0.42
      */
     enum RetryStrategy {
-        /** 固定间隔 */
+        /**
+         * 固定间隔
+        */
         FIXED,
-        /** 指数退避 */
+        /**
+         * 指数退避
+        */
         EXPONENTIAL
     }
 }

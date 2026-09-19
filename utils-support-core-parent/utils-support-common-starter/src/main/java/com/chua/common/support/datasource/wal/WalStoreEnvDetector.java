@@ -30,15 +30,25 @@ import java.nio.file.Path;
 @Spi(value = "wal-store-detector", order = 0)
 public class WalStoreEnvDetector implements RuntimeDetector {
 
-    /** 索引内存预算比例：可用内存的 25% 用于 B+Tree 索引 */
+    /**
+     * 索引内存预算比例：可用内存的 25% 用于 B+Tree 索引
+    */
     private static final double INDEX_MEMORY_RATIO = 0.25;
-    /** 每个 shard 索引节点约 20MB（含树结构开销） */
+    /**
+     * 每个 shard 索引节点约 20MB（含树结构开销）
+    */
     private static final long BYTES_PER_SHARD_INDEX = 20_000_000L;
-    /** 最小 shard 数（保证大表也能并行） */
+    /**
+     * 最小 shard 数（保证大表也能并行）
+    */
     private static final int MIN_SHARDS = 10;
-    /** 最大 shard 数（避免过多文件句柄） */
+    /**
+     * 最大 shard 数（避免过多文件句柄）
+    */
     private static final int MAX_SHARDS = 200;
-    /** SSD 分段大小 100MB，HDD 50MB */
+    /**
+     * SSD 分段大小 100MB，HDD 50MB
+    */
     private static final long SSD_SEGMENT_BYTES = 100L * 1024 * 1024;
     private static final long HDD_SEGMENT_BYTES = 50L * 1024 * 1024;
 

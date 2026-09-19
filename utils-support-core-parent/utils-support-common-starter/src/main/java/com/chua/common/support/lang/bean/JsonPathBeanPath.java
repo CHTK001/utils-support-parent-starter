@@ -19,12 +19,16 @@ import com.chua.common.support.spi.annotations.Spi;
 @ConditionalOnClass("com.chua.common.support.lang.json.JsonPath")
 public class JsonPathBeanPath implements BeanPath {
 
-    /** 回退解析器 */
+    /**
+     * 回退解析器
+    */
     private final ObjectBeanPath fallback = new ObjectBeanPath();
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Value */
+    /**
+     * 获取Value
+    */
     public <T> T getValue(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -37,7 +41,9 @@ public class JsonPathBeanPath implements BeanPath {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 设置Value */
+    /**
+     * 设置Value
+    */
     public void setValue(Object source, String path, Object value) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -50,7 +56,9 @@ public class JsonPathBeanPath implements BeanPath {
     }
 
     @Override
-    /** 是否存在 */
+    /**
+     * 是否存在
+    */
     public boolean exists(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();

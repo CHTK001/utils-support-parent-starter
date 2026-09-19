@@ -15,25 +15,39 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
 
-    /** 默认模型名称 */
+    /**
+     * 默认模型名称
+    */
     private static final String DEFAULT_MODEL = "mms-tts-eng";
 
-    /** 模型名称 */
+    /**
+     * 模型名称
+    */
     private String modelName;
 
-    /** 合成语言 */
+    /**
+     * 合成语言
+    */
     private String lang = "zh";
 
-    /** 模型路径 */
+    /**
+     * 模型路径
+    */
     private String modelPath;
 
-    /** 语速倍率 */
+    /**
+     * 语速倍率
+    */
     private float speed = 1.0f;
 
-    /** 音调倍率 */
+    /**
+     * 音调倍率
+    */
     private float pitch = 1.0f;
 
-    /** 运行设备 */
+    /**
+     * 运行设备
+    */
     private String device = "cpu";
 
     /**

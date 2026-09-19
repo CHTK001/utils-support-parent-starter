@@ -45,14 +45,18 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
     private static final long MAX_PDF_PREVIEW_BYTES = 10L * 1024 * 1024;
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String extension, String mimeType) {
         return "pdf".equalsIgnoreCase(extension)
                 || "application/pdf".equals(mimeType);
     }
 
     @Override
-    /** Preview */
+    /**
+     * Preview
+    */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         if (content.length > MAX_PDF_PREVIEW_BYTES) {
             return PreviewResult.builder()

@@ -73,27 +73,35 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 提供者 */
+    /**
+     * 提供者
+    */
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** 维度 */
+    /**
+     * 维度
+    */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
     }
 
     @Override
-    /** 嵌入 */
+    /**
+     * 嵌入
+    */
     public float[] embedding(String text) {
         OllamaEmbedResult result = doEmbed(List.of(text));
         List<List<Double>> embeddings = result.getEmbeddings();
@@ -104,7 +112,9 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入批量 */
+    /**
+     * 嵌入批量
+    */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -122,7 +132,9 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入with响应 */
+    /**
+     * 嵌入with响应
+    */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -132,7 +144,9 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batchwith响应 */
+    /**
+     * 嵌入batchwith响应
+    */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -145,7 +159,9 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 模型列表 */
+    /**
+     * 模型列表
+    */
     public List<ModelDefinition> models() {
         try {
             List<Model> raw = ollama.listModels();
@@ -172,7 +188,9 @@ public class OllamaEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 关闭 */
+    /**
+     * 关闭
+    */
     public void close() {
         // ollama4j 客户端无状态，无需释放
     }

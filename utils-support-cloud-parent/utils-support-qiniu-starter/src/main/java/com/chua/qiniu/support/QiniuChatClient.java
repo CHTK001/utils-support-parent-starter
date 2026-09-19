@@ -49,66 +49,86 @@ public class QiniuChatClient implements ChatClient {
     private SkillManager skillManager;
 
     @Override
-    /** 模型 */
+    /**
+     * 模型
+    */
     public ChatClient model(String model) {
         return this;
     }
 
     @Override
-    /** Temperature */
+    /**
+     * Temperature
+    */
     public ChatClient temperature(double temperature) {
         return this;
     }
 
     @Override
-    /** 最大值令牌 */
+    /**
+     * 最大值令牌
+    */
     public ChatClient maxTokens(int maxTokens) {
         return this;
     }
 
     @Override
-    /** 系统 */
+    /**
+     * 系统
+    */
     public ChatClient system(String system) {
         return this;
     }
 
     @Override
-    /** Thinking */
+    /**
+     * Thinking
+    */
     public ChatClient thinking(boolean thinking) {
         this.thinking = thinking;
         return this;
     }
 
     @Override
-    /** thinkingeffort */
+    /**
+     * thinkingeffort
+    */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** Smart搜索 */
+    /**
+     * Smart搜索
+    */
     public ChatClient smartSearch(boolean smartSearch) {
         this.smartSearch = smartSearch;
         return this;
     }
 
     @Override
-    /** Skill */
+    /**
+     * Skill
+    */
     public ChatClient skill(SkillManager skillManager) {
         this.skillManager = skillManager;
         return this;
     }
 
     @Override
-    /** 对话同步 */
+    /**
+     * 对话同步
+    */
     public String chatSync(String prompt) {
         log.warn("七牛云暂不支持 AI 对话，调用 chatSync 返回固定提示");
         return NOT_SUPPORTED_MSG;
     }
 
     @Override
-    /** 对话 */
+    /**
+     * 对话
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {

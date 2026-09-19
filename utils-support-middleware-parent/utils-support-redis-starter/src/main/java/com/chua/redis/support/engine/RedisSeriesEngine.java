@@ -23,19 +23,29 @@ import java.util.List;
 @Spi("redis")
 public class RedisSeriesEngine implements SeriesEngine {
 
-    /** ZSET 键前缀 */
+    /**
+     * ZSET 键前缀
+    */
     private static final String KEY_PREFIX = "monitor:metric:";
 
-    /** 单条 ZSET 上限（防止无限增长） */
+    /**
+     * 单条 ZSET 上限（防止无限增长）
+    */
     private static final int MAX_POINTS_PER_METRIC = 100_000;
 
-    /** 单次曲线返回点数上限 */
+    /**
+     * 单次曲线返回点数上限
+    */
     private static final int MAX_SERIES_POINTS = 1440;
 
-    /** Lettuce Redis 客户端 */
+    /**
+     * Lettuce Redis 客户端
+    */
     private final RedisClient redisClient;
 
-    /** 是否可用 */
+    /**
+     * 是否可用
+    */
     private final boolean available;
 
     /**

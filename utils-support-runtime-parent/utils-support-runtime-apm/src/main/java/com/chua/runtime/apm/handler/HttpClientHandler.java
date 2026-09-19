@@ -53,31 +53,41 @@ public class HttpClientHandler extends AbstractAppHandler {
     private static final String[] APACHE_METHODS = {"doExecute"};
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "httpclient-handler";
     }
 
     @Override
-    /** 已启用键 */
+    /**
+     * 已启用键
+    */
     protected String enabledKey() {
         return "httpclient.enabled";
     }
 
     @Override
-    /** Software */
+    /**
+     * Software
+    */
     protected Software software() {
         return Software.OKHTTP;
     }
 
     @Override
-    /** 协议 */
+    /**
+     * 协议
+    */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** softwareforentry */
+    /**
+     * softwareforentry
+    */
     protected Software softwareForEntry(InterceptContext ctx) {
         String cn = ctx.getClassName();
         if (cn != null && cn.startsWith("okhttp")) {
@@ -90,7 +100,9 @@ public class HttpClientHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** 注册拦截器 */
+    /**
+     * 注册拦截器
+    */
     protected void registerInterceptors() {
         registerAll(OKHTTP_REAL_CALL, OKHTTP_METHODS);
         registerAll(OKHTTP_ASYNC_CALL, OKHTTP_ASYNC_METHODS);
@@ -98,7 +110,9 @@ public class HttpClientHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** 构建Target */
+    /**
+     * 构建Target
+    */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
         Object request = findField(instance, "originalRequest");
         if (request == null) {

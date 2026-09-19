@@ -68,7 +68,9 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     @Override
-    /** 开始 */
+    /**
+     * 开始
+    */
     public void start() {
         try {
             String clientId = config.getClientId() != null ? config.getClientId() : DEFAULT_CLIENT_ID_PREFIX + System.currentTimeMillis();
@@ -76,13 +78,17 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
             client.connect();
             client.setCallback(new MqttCallback() {
                 @Override
-                /** connectionlost */
+                /**
+                 * connectionlost
+                */
                 public void connectionLost(Throwable cause) {
                     log.warn("MQTT 连接已断开: {}", cause.getMessage(), cause);
                 }
 
                 @Override
-                /** 消息arrived */
+                /**
+                 * 消息arrived
+                */
                 public void messageArrived(String topic, MqttMessage message) {
                     var defs = definitionMap.get(topic);
                     if (defs != null) {
@@ -94,7 +100,9 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                 }
 
                 @Override
-                /** delivery完成 */
+                /**
+                 * delivery完成
+                */
                 public void deliveryComplete(IMqttDeliveryToken token) {
                 }
             });

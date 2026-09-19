@@ -49,7 +49,9 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
 
     private static final long serialVersionUID = 1L;
 
-    /** 序列化器，将对象与字节数组互转 */
+    /**
+     * 序列化器，将对象与字节数组互转
+    */
     private final Serializer<E> serializer;
 
     /**
@@ -73,7 +75,9 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
      */
     private final LongAdder totalBytes = new LongAdder();
 
-    /** 关闭标志，volatile 保证可见性 */
+    /**
+     * 关闭标志，volatile 保证可见性
+    */
     private volatile boolean closed;
 
     /**

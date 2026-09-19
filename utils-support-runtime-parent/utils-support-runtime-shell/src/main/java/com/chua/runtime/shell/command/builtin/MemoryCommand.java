@@ -17,25 +17,33 @@ import java.lang.management.MemoryPoolMXBean;
 public class MemoryCommand implements Command {
 
     @Override
-    /** 名称 */
+    /**
+     * 名称
+    */
     public String name() {
         return "memory";
     }
 
     @Override
-    /** Aliases */
+    /**
+     * Aliases
+    */
     public String[] aliases() {
         return new String[]{"mem", "gc"};
     }
 
     @Override
-    /** Description */
+    /**
+     * Description
+    */
     public String description() {
         return "显示 JVM 内存池与 GC 信息";
     }
 
     @Override
-    /** 执行 */
+    /**
+     * 执行
+    */
     public int execute(String[] args, Console console) {
         MemoryMXBean memMx = ManagementFactory.getMemoryMXBean();
         console.header("堆内存");

@@ -45,31 +45,43 @@ import java.util.concurrent.CompletionStage;
 @Slf4j
 public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilter {
 
-    /** Vertx */
+    /**
+     * Vertx
+    */
     private Vertx vertx;
-    /** HTTP客户端 */
+    /**
+     * HTTP客户端
+    */
     private HttpClient httpClient;
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
     @Override
-    /** 支持路径 */
+    /**
+     * 支持路径
+    */
     public String supportPath() {
         return null;
     }
 
     @Override
-    /** 支持协议 */
+    /**
+     * 支持协议
+    */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
     @Override
-    /** 初始化 */
+    /**
+     * 初始化
+    */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
         this.httpClient = vertx.createHttpClient(new HttpClientOptions()
@@ -79,7 +91,9 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (httpClient != null) {
             httpClient.close();
