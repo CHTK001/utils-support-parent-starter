@@ -26,6 +26,16 @@ import java.util.Map;
 public class SolrSearchEngine implements SearchEngine {
 
     /**
+     * 新建集合副本上线为异步过程，schema 字段注册的最大重试次数
+     */
+    private static final int SCHEMA_APPLY_RETRY = 20;
+
+    /**
+     * schema 字段注册重试间隔（毫秒）
+     */
+    private static final long SCHEMA_APPLY_RETRY_DELAY_MS = 500L;
+
+    /**
      * 引擎
     */
     private final SolrEngine engine;
@@ -124,10 +134,77 @@ public class SolrSearchEngine implements SearchEngine {
                     indexDef.getShards() != null ? indexDef.getShards() : 1,
                     indexDef.getReplicas() != null ? indexDef.getReplicas() : 1
             ).process(client);
-            return response.isSuccess();
+            if (!response.isSuccess()) {
+                throw new RuntimeException("创建 Solr 索引失败: " + indexDef.getName()
+                        + " -> " + response.getResponse());
+            }
+            applySchemaFields(client, indexDef);
+            return true;
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("创建 Solr 索引失败: " + indexDef.getName(), e);
         }
+    }
+
+    /**
+     * 将索引定义的字段写入集合的 managed schema。
+     * <p>使用 replace-field 保证与 _default 已有字段（如 id）兼容；新建集合的副本
+     * 上线是异步的，因此在超时窗口内重试。</p>
+     *
+     * @param client   客户端
+     * @param indexDef 索引定义
+     * @throws Exception 最后一次尝试仍失败时抛出
+     */
+    private void applySchemaFields(SolrClient client, SearchIndexDef indexDef) throws Exception {
+        List<SearchFieldDef> fields = indexDef.getFields();
+        if (fields == null || fields.isEmpty()) {
+            return;
+        }
+        List<SchemaRequest.Update> updates = new ArrayList<>();
+        for (SearchFieldDef f : fields) {
+            if (f == null || f.getName() == null || f.getName().isEmpty()) {
+                continue;
+            }
+            if (!f.getName().matches("[A-Za-z0-9_.\\-]+")) {
+                throw new IllegalArgumentException("非法字段名: " + f.getName());
+            }
+            Map<String, Object> def = new LinkedHashMap<>();
+            def.put("name", f.getName());
+            def.put("type", f.getType() == null || f.getType().isEmpty() ? "string" : f.getType());
+            def.put("multiValued", false);
+            if (!f.isIndexed()) {
+                def.put("indexed", false);
+            }
+            if (f.isStored()) {
+                def.put("stored", true);
+            }
+            if (f.getDocValues() != null) {
+                def.put("docValues", f.getDocValues());
+            }
+            updates.add(new SchemaRequest.ReplaceField(def));
+        }
+        if (updates.isEmpty()) {
+            return;
+        }
+        SchemaRequest.MultiUpdate multiUpdate = new SchemaRequest.MultiUpdate(updates);
+        Exception last = null;
+        for (int attempt = 0; attempt < SCHEMA_APPLY_RETRY; attempt++) {
+            try {
+                // schema API 失败（4xx/校验错误）会以 SolrException 抛出，返回即视为成功
+                multiUpdate.process(client, indexDef.getName());
+                return;
+            } catch (Exception e) {
+                last = e;
+            }
+            try {
+                Thread.sleep(SCHEMA_APPLY_RETRY_DELAY_MS);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw ie;
+            }
+        }
+        throw last;
     }
 
     @Override

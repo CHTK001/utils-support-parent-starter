@@ -9,7 +9,7 @@
     </parent>
     <artifactId>utils-support-greptimedb-starter</artifactId>
     <name>GreptimeDB Starter</name>
-    <description>GreptimeDB 时序数据库 Ingester 集成模块，基于 gRPC SDK 提供 Engine 引擎与高性能写入能力</description>
+    <description>GreptimeDB 时序数据库集成模块：写入基于官方 gRPC Ingester SDK，查询与删除经 MySQL 协议执行真实 SQL，统一提供 Engine 引擎能力</description>
 
     <dependencies>
         <dependency>
@@ -66,6 +66,17 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>3.25.1</version>
+        </dependency>
+
+        <!--
+            单元测试：仅覆盖端点解析、SQL 下推渲染与生命周期守卫等纯逻辑，
+            无需外部 GreptimeDB 服务即可运行（版本与兄弟模块保持一致）。
+        -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

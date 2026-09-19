@@ -61,7 +61,7 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
     */
     @Override
     public EngineDataSource<Connection> setSource(Object source) {
-        return this;
+        throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
     }
 
     /**
@@ -102,19 +102,5 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
     @Override
     public String password() {
         return null;
-    }
-
-    /**
-     * 关闭底层连接
-    */
-    @Override
-    public void close() {
-        if (source != null) {
-            try {
-                source.close();
-            } catch (Exception ignored) {
-                // 关闭失败无需处理
-            }
-        }
     }
 }

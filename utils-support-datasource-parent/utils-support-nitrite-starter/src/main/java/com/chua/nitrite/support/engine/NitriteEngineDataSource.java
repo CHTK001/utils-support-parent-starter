@@ -69,7 +69,7 @@ public class NitriteEngineDataSource implements EngineDataSource<Object> {
      * 设置源
     */
     public EngineDataSource<Object> setSource(Object source) {
-        return this;
+        throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
     }
 
     @Override

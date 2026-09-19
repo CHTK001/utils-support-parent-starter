@@ -67,19 +67,100 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     public Optional<byte[]> get(String key) throws IOException { return Optional.empty(); }
     @Override public boolean contains(String key) { return false; }
     @Override
-    public List<Map.Entry<String, byte[]>> range(String from, String to) throws IOException { return Collections.emptyList(); }
+    public List<Map.Entry<String, byte[]>> range(String from, String to) throws IOException {
+        return range(from, to, 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 范围查询。
+     *
+     * <p>该存储只把列数据写入记录，键（rowId）仅用于分片路由而未持久化，
+     * 因此无法按 key 还原区间内的条目，显式抛出不支持异常而非返回空列表。</p>
+     *
+     * @param from 下界（含）
+     * @param to 上界（不含）
+     * @param offset 偏移量
+     * @param limit 上限
+     * @return 不返回
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     @Override
-    public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException { return Collections.emptyList(); }
+    public List<Map.Entry<String, byte[]>> range(String from, String to, int offset, int limit) throws IOException {
+        throw new UnsupportedOperationException("JDBC 行式 WAL 记录只在载荷中持久化列数据，未持久化主键 rowId 与有序索引，"
+                + "无法按键做范围查询，请改用 KvWalStoreSystem（载荷内含键）或 TsWalStoreSystem.queryRange；"
+                + "行数据查询请使用 query(sql)");
+    }
+
+    /**
+     * 逻辑删除。
+     *
+     * <p>主键未持久化，无法定位记录所在的 LSN，追加不带键的墓碑也不能使原记录失效，
+     * 因此显式抛出不支持异常而非返回 false。</p>
+     *
+     * @param key 键，不允许为 null
+     * @return 不返回
+     * @throws IOException 当执行过程不满足前置条件时
+     */
     @Override
-    public boolean delete(String key) throws IOException { return false; }
+    public boolean delete(String key) throws IOException {
+        throw new UnsupportedOperationException("JDBC 行式 WAL 记录未持久化主键 rowId，无法定位待删记录，"
+                + "不支持按键删除，请改用 KvWalStoreSystem.delete（载荷内含键且墓碑在 rebuildIndex 时生效）");
+    }
+
+    /**
+     * 重建索引：全量回放 WAL，按分段重算有效记录数。
+     *
+     * <p>任一分段回放失败都会包装为 {@link WalException} 抛出，避免把残缺计数当作重建成功。</p>
+     *
+     * @throws IOException 当回放过程失败时
+     */
     @Override
-    public void rebuildIndex() throws IOException {}
+    public void rebuildIndex() throws IOException {
+        long alive = 0;
+        for (int i = 0; i < walLogs.length; i++) {
+            alive += countAliveRecords(i);
+        }
+        totalRecords.set(alive);
+    }
+
+    /**
+     * 统计单个分片内未被墓碑覆盖的记录数。
+     *
+     * @param shardIdx 分片索引
+     * @return 有效记录数
+     * @throws IOException 当回放过程失败时
+     */
+    private long countAliveRecords(int shardIdx) throws IOException {
+        SegmentWalLog log = walLogs[shardIdx];
+        long[] counter = new long[1];
+        for (WalSegmentInfo seg : log.listSegments()) {
+            try {
+                log.replay(seg.firstLsn(), seg.lastLsn() + 1, (lsn, op, payload) -> {
+                    if ((op & AbstractWalFileSystem.OP_TOMBSTONE) == 0) {
+                        counter[0]++;
+                    }
+                    return true;
+                });
+            } catch (IOException | RuntimeException e) {
+                throw new WalException("WAL 索引重建失败: 分片=" + config.namespace() + "-" + shardIdx
+                        + ", 分段=" + seg.path(), e);
+            }
+        }
+        return counter[0];
+    }
+
+    /**
+     * 压缩：清理已 checkpoint 覆盖的历史分段。
+     *
+     * @throws IOException 当清理过程失败时
+     */
     @Override
     public void compact() throws IOException {
-        for (SegmentWalLog log : walLogs) {
+        for (int i = 0; i < walLogs.length; i++) {
             try {
-                log.purgeCheckpointed(1);
-            } catch (Exception e) {
+                walLogs[i].purgeCheckpointed(1);
+            } catch (RuntimeException e) {
+                throw new WalException("WAL 压缩清理失败: 分片=" + config.namespace() + "-" + i, e);
             }
         }
     }
@@ -96,7 +177,21 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     @Override
     public void close() throws IOException {
         closed = true;
-        for (SegmentWalLog log : walLogs) { try { log.close(); } catch (IOException ignored) {} }
+        IOException first = null;
+        for (SegmentWalLog walLog : walLogs) {
+            try {
+                walLog.close();
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
+        }
     }
     @Override
     public void appendBatch(List<WalStoreSystem.WalAppendItem<String>> items) throws IOException {
@@ -181,6 +276,9 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     /**
      * 更新。
      *
+     * <p>实现依赖 {@link #delete(String)} 定位旧版本记录，而该存储未持久化 rowId，
+     * 因此更新会抛出不支持异常，而不是留下新旧两份记录却返回成功。</p>
+     *
      * @param table 表，不允许为 null
      * @param rowId 行ID，不允许为 null
      * @param updates 方法入参 updates
@@ -207,6 +305,8 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
 
     /**
      * 执行。
+     *
+     * <p>返回真正写入的行数；不支持的语句由解析器抛出不支持异常，不会返回 0 表示成功。</p>
      *
      * @param sql SQL，不允许为 null
      * @param params 参数，不允许为 null

@@ -1,1 +1,1 @@
-HBASE=com.chua.hbase.support.engine.HBaseEngine
+hbase=com.chua.hbase.support.engine.HBaseEngine

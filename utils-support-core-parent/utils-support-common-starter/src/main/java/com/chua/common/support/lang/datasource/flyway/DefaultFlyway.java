@@ -4,36 +4,27 @@ import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 默认数据库迁移实现，基于 {@link Engine#execute(String, Object...)} 执行 SQL。
  *
- * <p>迁移版本持久化到 {@code flyway_schema_history} 表，跨实例幂等：
- * 已执行的迁移记录在表中，重复 {@link #migrate()} 不会重复执行。</p>
+ * <p>脚本扫描、命名解析、语句拆分与版本记录全部复用
+ * {@link FlywayScripts} / {@link FlywayHistory}，与增强实现
+ * （{@code utils-support-flyway-starter}）共享同一套语义与同一张记录表。</p>
  *
  * <p>特性：</p>
  * <ul>
- *   <li>扫描 {@code V{N}__{描述}.sql} 命名脚本，按版本升序执行</li>
- *   <li>版本记录表 {@code flyway_schema_history}，保证幂等</li>
- *   <li>支持文件系统目录与 classpath 前缀（{@code classpath:}）</li>
- *   <li>SQL 按分号分割，忽略 {@code --} 行注释与单引号字符串内的分号</li>
+ *   <li>脚本命名 {@code V{版本}__{描述}.sql}，版本支持点分多段并按段数值升序</li>
+ *   <li>位置支持 {@code classpath:}（枚举全部根，含 jar 内资源）与文件系统目录（递归）</li>
+ *   <li>记录表 {@code sys_database_version}，复合主键 {@code (version, script_name)}，跨实例幂等</li>
+ *   <li>{@link #protocol(String)} 指定目标库后，语句经 {@link ScriptConverter} SPI 做方言转换</li>
  * </ul>
+ *
+ * <p>执行严格：任一句失败即抛出并中断本次迁移，不写成功记录，下次启动重跑该脚本。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,56 +34,14 @@ import java.util.regex.Pattern;
 public class DefaultFlyway implements Flyway {
 
     /**
-     * 迁移脚本文件扩展名
-     */
-    private static final String SQL_EXTENSION = "sql";
-
-    /**
-     * 默认版本与描述分隔符
-     */
-    private static final String DEFAULT_SEPARATOR = "__";
-
-    /**
-     * classpath 前缀
-     */
-    private static final String CLASSPATH_PREFIX = "classpath:";
-
-    /**
-     * 匹配 {@code V{N}__{描述}.sql} 的脚本名
-     */
-    private static final Pattern SCRIPT_PATTERN = Pattern.compile("^V(\\d+)__([^\\s]+)\\.sql$", Pattern.CASE_INSENSITIVE);
-
-    /**
-     * 版本记录表名
-     */
-    private static final String HISTORY_TABLE = "flyway_schema_history";
-
-    /**
-     * 创建版本记录表 SQL
-     */
-    private static final String CREATE_HISTORY_SQL =
-            "CREATE TABLE IF NOT EXISTS " + HISTORY_TABLE + " ("
-                    + "version BIGINT PRIMARY KEY, "
-                    + "description VARCHAR(255), "
-                    + "script VARCHAR(255), "
-                    + "applied_at BIGINT )";
-
-    /**
-     * 插入版本记录 SQL
-     */
-    private static final String INSERT_HISTORY_SQL =
-            "INSERT INTO " + HISTORY_TABLE + " (version, description, script, applied_at) VALUES (?, ?, ?, ?)";
-
-    /**
-     * 查询已应用版本 SQL
-     */
-    private static final String SELECT_VERSIONS_SQL =
-            "SELECT version FROM " + HISTORY_TABLE;
-
-    /**
      * 所属引擎，用于执行迁移 SQL
      */
     private final Engine engine;
+
+    /**
+     * 历史表读写执行器
+     */
+    private final FlywayHistory.Runner runner;
 
     /**
      * 脚本位置列表
@@ -102,7 +51,12 @@ public class DefaultFlyway implements Flyway {
     /**
      * 版本与描述分隔符
      */
-    private String separator = DEFAULT_SEPARATOR;
+    private String separator = FlywayScripts.DEFAULT_SEPARATOR;
+
+    /**
+     * 目标数据库协议名，为空表示脚本按目标库原生方言编写、不做转换
+     */
+    private String protocol;
 
     /**
      * 构造迁移执行器。
@@ -111,6 +65,7 @@ public class DefaultFlyway implements Flyway {
      */
     public DefaultFlyway(Engine engine) {
         this.engine = engine;
+        this.runner = new EngineRunner(engine);
     }
 
     @Override
@@ -130,31 +85,38 @@ public class DefaultFlyway implements Flyway {
     }
 
     @Override
+    public Flyway protocol(String protocol) {
+        this.protocol = protocol;
+        return this;
+    }
+
+    @Override
     public List<MigrationInfo> info() {
-        Set<Long> appliedVersions = loadAppliedVersions();
+        Map<String, String> applied = FlywayHistory.loadApplied(runner);
         List<MigrationInfo> result = new ArrayList<>();
-        for (ScriptFile script : scanScripts()) {
+        for (FlywayScripts.Script script : scan()) {
             result.add(new MigrationInfo(
-                    script.version,
-                    script.description,
-                    script.fileName,
-                    appliedVersions.contains(script.version)));
+                    FlywayScripts.majorVersion(script.version()),
+                    script.description(),
+                    script.fileName(),
+                    FlywayHistory.SUCCESS_TRUE.equals(applied.get(script.fileName()))));
         }
-        result.sort(Comparator.comparingLong(MigrationInfo::version));
         return result;
     }
 
     @Override
     public int migrate() {
-        ensureHistoryTable();
-        Set<Long> appliedVersions = loadAppliedVersions();
+        FlywayHistory.ensure(runner);
+        Map<String, String> applied = FlywayHistory.loadApplied(runner);
         int executed = 0;
-        for (ScriptFile script : scanScripts()) {
-            if (appliedVersions.contains(script.version)) {
+        for (FlywayScripts.Script script : scan()) {
+            if (FlywayHistory.SUCCESS_TRUE.equals(applied.get(script.fileName()))) {
                 continue;
             }
-            executeScriptContent(readContent(script.path));
-            recordApplied(script.version, script.description, script.fileName);
+            String content = FlywayScripts.readContent(script);
+            executeScript(content, script.fileName());
+            FlywayHistory.record(runner, script.version(), script.description(), script.fileName(),
+                    FlywayScripts.checksum(content), FlywayHistory.SUCCESS_TRUE);
             executed++;
         }
         return executed;
@@ -165,234 +127,74 @@ public class DefaultFlyway implements Flyway {
         if (script == null) {
             throw new IllegalArgumentException("脚本路径不能为空");
         }
-        try {
-            return executeScriptContent(Files.readString(script, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new RuntimeException("读取脚本失败: " + script, e);
-        }
-    }
-
-    // ==================== 版本记录 ====================
-
-    /**
-     * 确保版本记录表存在。
-     */
-    private void ensureHistoryTable() {
-        engine.execute(CREATE_HISTORY_SQL);
+        return executeScript(FlywayScripts.readContent(
+                com.chua.common.support.file.resource.Resource.create(script.toFile()), script.toString()), script.getFileName().toString());
     }
 
     /**
-     * 加载已应用版本集合。
+     * 扫描已配置位置下的迁移脚本。
      *
-     * @return 已应用版本集合
+     * @return 按版本升序的脚本列表
      */
-    @SuppressWarnings("deprecation")
-    private Set<Long> loadAppliedVersions() {
-        Set<Long> versions = new HashSet<>();
-        if (engine.getExecutor() == null) {
-            return versions;
-        }
-        List<Map<String, Object>> rows = engine.getExecutor().query(SELECT_VERSIONS_SQL);
-        for (Map<String, Object> row : rows) {
-            Object value = row.values().iterator().next();
-            if (value instanceof Number number) {
-                versions.add(number.longValue());
-            }
-        }
-        return versions;
+    private List<FlywayScripts.Script> scan() {
+        return FlywayScripts.scan(locations, separator, Thread.currentThread().getContextClassLoader());
     }
 
     /**
-     * 记录已应用版本。
+     * 拆分、按协议转换并逐条执行脚本内容。
      *
-     * @param version     版本号
-     * @param description 描述
-     * @param script      脚本文件名
+     * @param sql        脚本全文
+     * @param scriptName 脚本文件名（失败信息中使用）
+     * @return 实际执行语句数
      */
-    private void recordApplied(long version, String description, String script) {
-        engine.execute(INSERT_HISTORY_SQL, version, description, script, System.currentTimeMillis());
-    }
-
-    // ==================== 脚本扫描 ====================
-
-    /**
-     * 扫描所有位置的迁移脚本。
-     *
-     * @return 脚本列表（按版本升序）
-     */
-    private List<ScriptFile> scanScripts() {
-        List<ScriptFile> scripts = new ArrayList<>();
-        for (String location : locations) {
-            if (location.startsWith(CLASSPATH_PREFIX)) {
-                scanClasspath(location.substring(CLASSPATH_PREFIX.length()), scripts);
-            } else {
-                scanDirectory(location, scripts);
-            }
-        }
-        scripts.sort(Comparator.comparingLong(ScriptFile::version));
-        return scripts;
-    }
-
-    /**
-     * 扫描文件系统目录。
-     *
-     * @param dirPath 目录路径
-     * @param target  结果集合
-     */
-    private void scanDirectory(String dirPath, List<ScriptFile> target) {
-        File dir = new File(dirPath);
-        if (!dir.isDirectory()) {
-            return;
-        }
-        File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith("." + SQL_EXTENSION));
-        if (files == null) {
-            return;
-        }
-        for (File file : files) {
-            addScript(file.toPath(), file.getName(), target);
-        }
-    }
-
-    /**
-     * 扫描 classpath 资源目录。
-     *
-     * @param resourcePath classpath 路径
-     * @param target       结果集合
-     */
-    private void scanClasspath(String resourcePath, List<ScriptFile> target) {
-        try {
-            ClassLoader classLoader = defaultClassLoader();
-            Enumeration<URL> resources = classLoader.getResources(resourcePath);
-            while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
-                if ("file".equals(url.getProtocol())) {
-                    scanDirectory(new File(url.toURI()).getPath(), target);
-                }
-            }
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException("扫描 classpath 脚本失败: " + resourcePath, e);
-        }
-    }
-
-    /**
-     * 解析单个脚本并加入集合。
-     *
-     * @param path     脚本路径
-     * @param fileName 脚本文件名
-     * @param target   结果集合
-     */
-    private void addScript(Path path, String fileName, List<ScriptFile> target) {
-        Matcher matcher = SCRIPT_PATTERN.matcher(fileName);
-        if (!matcher.matches()) {
-            return;
-        }
-        long version = Long.parseLong(matcher.group(1));
-        String description = matcher.group(2);
-        target.add(new ScriptFile(version, description, fileName, path));
-    }
-
-    // ==================== SQL 执行 ====================
-
-    /**
-     * 读取脚本内容，执行并返回语句数量。
-     *
-     * @param sql 脚本 SQL 内容
-     * @return 语句数量
-     */
-    private int executeScriptContent(String sql) {
-        List<String> statements = splitStatements(sql);
-        if (statements.isEmpty()) {
-            return 0;
-        }
+    private int executeScript(String sql, String scriptName) {
+        List<String> statements = convert(FlywayScripts.splitStatements(sql));
         int executed = 0;
         for (String statement : statements) {
-            if (statement.isBlank()) {
+            if (statement == null || statement.isBlank()) {
                 continue;
             }
-            engine.execute(statement);
-            executed++;
+            try {
+                engine.execute(statement);
+                executed++;
+            } catch (RuntimeException e) {
+                throw new IllegalStateException("执行迁移脚本失败: " + scriptName
+                        + " (语句: " + FlywayScripts.truncate(statement, 200) + "): " + e.getMessage(), e);
+            }
         }
         return executed;
     }
 
     /**
-     * 按分号分割 SQL 语句，忽略 {@code --} 行注释与单引号字符串内的分号。
+     * 按目标协议做方言转换；未指定协议或 SPI 无可用实现时原样返回。
      *
-     * @param sql 原始 SQL
-     * @return 语句列表
+     * @param statements 拆分后的语句列表
+     * @return 可执行语句列表
      */
-    private static List<String> splitStatements(String sql) {
-        List<String> statements = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        boolean inString = false;
-        for (int i = 0; i < sql.length(); i++) {
-            char c = sql.charAt(i);
-            // 行注释：-- 到行尾
-            if (c == '-' && i + 1 < sql.length() && sql.charAt(i + 1) == '-' && !inString) {
-                while (i < sql.length() && sql.charAt(i) != '\n') {
-                    i++;
-                }
-                continue;
-            }
-            if (c == '\'') {
-                inString = !inString;
-                current.append(c);
-            } else if (c == ';' && !inString) {
-                statements.add(current.toString());
-                current.setLength(0);
-            } else {
-                current.append(c);
-            }
+    private List<String> convert(List<String> statements) {
+        if (protocol == null || protocol.isBlank()) {
+            return statements;
         }
-        if (!current.toString().isBlank()) {
-            statements.add(current.toString());
-        }
-        return statements;
+        ScriptConverter converter = ScriptConverter.getExtension(protocol);
+        return converter == null ? statements : converter.convertAll(statements, protocol);
     }
 
     /**
-     * 获取默认类加载器。
+     * 以 {@link Engine} 为底座的历史表读写执行器。
      *
-     * @return 类加载器
+     * <p>依赖 {@link Engine} 的默认 SQL 代理：不支持原生语句的引擎会抛出
+     * {@link UnsupportedOperationException}，迁移在首个建表语句即失败，而不是静默无记录。</p>
      */
-    private static ClassLoader defaultClassLoader() {
-        ClassLoader context = Thread.currentThread().getContextClassLoader();
-        if (context != null) {
-            return context;
-        }
-        ClassLoader own = DefaultFlyway.class.getClassLoader();
-        return own != null ? own : ClassLoader.getSystemClassLoader();
-    }
+    private record EngineRunner(Engine engine) implements FlywayHistory.Runner {
 
-    /**
-     * 读取脚本文件内容。
-     *
-     * @param path 脚本路径
-     * @return 文件内容
-     */
-    private static String readContent(Path path) {
-        try {
-            return Files.readString(path, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("读取迁移脚本失败: " + path, e);
+        @Override
+        public int update(String sql, Object... params) {
+            return engine.execute(sql, params);
         }
-    }
 
-    /**
-     * 扫描到的脚本文件信息。
-     *
-     * @param version     版本号
-     * @param description 描述
-     * @param fileName    文件名
-     * @param path        文件路径
-     * @author CH
-     * @since 4.0.0.42
-     */
-    private record ScriptFile(
-            long version,
-            String description,
-            String fileName,
-            Path path
-    ) {
+        @Override
+        public List<Map<String, Object>> select(String sql, Object... params) {
+            return engine.query(sql, params);
+        }
     }
 }

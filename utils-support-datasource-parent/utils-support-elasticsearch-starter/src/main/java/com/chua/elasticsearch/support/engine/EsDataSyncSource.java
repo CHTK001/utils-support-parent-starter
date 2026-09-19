@@ -152,17 +152,22 @@ public class EsDataSyncSource implements DataSyncSource {
         }
         ElasticsearchClient client = engine.getClient();
         if (client == null) {
-            log.warn("[elasticsearch-datasource] 客户端未初始化，跳过写入: {}", indexName);
-            return;
+            throw new IllegalStateException("Elasticsearch 客户端未初始化，无法写入: " + indexName);
         }
         try {
-            for (Map<String, Object> row : rows) {
-                String id = row.containsKey(ID) ? String.valueOf(row.get(ID)) : null;
-                client.index(i -> i
-                        .index(indexName)
-                        .id(id != null ? id : UUID.randomUUID().toString())
-                        .document(row)
-                );
+            var response = client.bulk(b -> {
+                for (Map<String, Object> row : rows) {
+                    Object rawId = row.get(ID);
+                    String id = rawId == null ? UUID.randomUUID().toString() : String.valueOf(rawId);
+                    b.operations(op -> op.index(io -> io.index(indexName).id(id).document(row)));
+                }
+                return b;
+            });
+            if (response.errors()) {
+                long failed = response.items().stream()
+                        .filter(item -> item.error() != null).count();
+                throw new RuntimeException("EsDataSyncSource 批量写入部分失败: index="
+                        + indexName + " 失败条数=" + failed);
             }
         } catch (Exception e) {
             throw new RuntimeException("EsDataSyncSource write failed: " + indexName, e);

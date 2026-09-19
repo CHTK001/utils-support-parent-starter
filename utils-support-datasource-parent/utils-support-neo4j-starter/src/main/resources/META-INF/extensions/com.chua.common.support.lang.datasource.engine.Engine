@@ -1,1 +1,1 @@
-NEO4J=com.chua.neo4j.support.engine.Neo4jEngine
+neo4j=com.chua.neo4j.support.engine.Neo4jEngine

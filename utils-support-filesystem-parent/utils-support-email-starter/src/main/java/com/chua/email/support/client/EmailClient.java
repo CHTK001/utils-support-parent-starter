@@ -6,9 +6,9 @@ import com.chua.common.support.lang.directory.environment.DirectoryPollerEnviron
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;

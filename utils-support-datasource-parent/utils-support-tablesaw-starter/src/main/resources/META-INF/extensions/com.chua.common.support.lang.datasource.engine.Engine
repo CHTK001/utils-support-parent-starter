@@ -1,1 +1,1 @@
-TABLESAW=com.chua.tablesaw.support.engine.TablesawEngine
+tablesaw=com.chua.tablesaw.support.engine.TablesawEngine

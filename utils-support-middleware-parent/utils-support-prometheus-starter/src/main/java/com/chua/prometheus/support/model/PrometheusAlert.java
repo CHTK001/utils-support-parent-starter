@@ -41,16 +41,40 @@ public class PrometheusAlert {
     private String state;
 
     /**
-     * 活跃起始时间(毫秒)
+     * 告警表达式的取值(远端以字符串返回, 可能为 NaN / +Inf)
+     */
+    private String value;
+
+    /**
+     * 活跃起始时间(epoch 毫秒), 0 表示远端未返回
      */
     private long activeAt;
 
     /**
-     * 告警名(从 标签.alertname 读取)
+     * 告警名(从 labels.alertname 读取)
      *
      * @return 告警名
      */
     public String getAlertName() {
         return labels == null ? "" : labels.getOrDefault("alertname", "");
+    }
+
+    /**
+     * 告警级别(从 labels.severity 读取)
+     *
+     * @return 级别, 不存在返回空串
+     */
+    public String getSeverity() {
+        return labels == null ? "" : labels.getOrDefault("severity", "");
+    }
+
+    /**
+     * 获取指定标签的值
+     *
+     * @param key 标签名
+     * @return 标签值, 不存在返回 null
+     */
+    public String getLabel(String key) {
+        return labels == null ? null : labels.get(key);
     }
 }

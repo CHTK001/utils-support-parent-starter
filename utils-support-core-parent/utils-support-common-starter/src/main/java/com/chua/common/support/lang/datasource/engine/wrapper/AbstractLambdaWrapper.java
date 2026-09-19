@@ -1,8 +1,9 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
+
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 /**
  * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
@@ -65,12 +66,6 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
      * 是否允许无 WHERE 条件的全表更新/删除（allowFullTable() 显式开启）
     */
     protected boolean fullTableAllowed;
-
-    /**
-     * 合法 SQL 标识符：字母/数字/下划线，允许一级表限定（如 user_name、t.user_name）
-    */
-    private static final Pattern IDENTIFIER_PATTERN =
-            Pattern.compile("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)?");
 
     /**
      * 创建 AbstractLambdaWrapper 实例
@@ -594,7 +589,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
         if (column == null || column.isBlank()) {
             throw new IllegalArgumentException("SQL 标识符不能为空");
         }
-        if (!IDENTIFIER_PATTERN.matcher(column).matches()) {
+        if (!SqlName.isSafe(column)) {
             throw new IllegalArgumentException("非法 SQL 标识符: " + column);
         }
         return column;

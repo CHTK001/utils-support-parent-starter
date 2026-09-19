@@ -3,6 +3,7 @@ package com.chua.solr.support.ddl;
 import com.chua.common.support.lang.datasource.table.ColumnDef;
 import com.chua.common.support.lang.datasource.table.TableDef;
 import com.chua.datasource.support.ddl.DslManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
@@ -24,7 +25,14 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0
  */
+@Slf4j
 public class SolrDdlManager implements DslManager {
+
+    /**
+     * Solr 集合名白名单：以字母或下划线开头，可含数字、{@code _}、{@code -}，最多限定一层
+     */
+    private static final java.util.regex.Pattern COLLECTION_PATTERN =
+            java.util.regex.Pattern.compile("[A-Za-z_][A-Za-z0-9_\\-]{0,99}(?:\\.[A-Za-z_][A-Za-z0-9_\\-]{0,99})?");
 
     /**
      * Solr 客户端（绑定到 /Solr 根路径）
@@ -102,14 +110,13 @@ public class SolrDdlManager implements DslManager {
 
     @Override
     public TableDef getTable(String catalogName, String schemaName, String tableName) {
-        List<ColumnDef> columns = readColumns(tableName);
-        if (columns.isEmpty()) {
+        if (!collectionExists(checkCollection(tableName))) {
             return null;
         }
         TableDef def = new TableDef();
         def.setName(tableName);
         def.setType("COLLECTION");
-        def.setColumns(columns);
+        def.setColumns(readColumns(tableName));
         return def;
     }
 
@@ -117,31 +124,27 @@ public class SolrDdlManager implements DslManager {
 
     @Override
     public String createTableDDL(String catalogName, String schemaName, String tableName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"create-collection\":{")
-                .append("\"name\":\"").append(tableName).append("\",")
-                .append("\"numShards\":").append(numShards).append(",")
-                .append("\"replicationFactor\":").append(replicationFactor).append("}}");
-        List<ColumnDef> columns = readColumns(tableName);
+        String collection = checkCollection(tableName);
+        List<ColumnDef> columns = readColumns(collection);
         if (!columns.isEmpty()) {
-            sb.append("\n/* 已存在 schema 字段: ");
-            for (ColumnDef c : columns) {
-                sb.append(c.getName()).append(':').append(c.getType()).append(' ');
-            }
-            sb.append("*/");
+            log.info("Solr 集合 {} 已存在 {} 个 schema 字段，创建请求需换名或先删除旧集合", collection, columns.size());
         }
-        return sb.toString();
+        return "{\"create-collection\":{\"name\":\"" + json(collection)
+                + "\",\"numShards\":" + numShards
+                + ",\"replicationFactor\":" + replicationFactor + "}}";
     }
 
     @Override
     public String renameTable(String schemaName, String oldTableName, String newTableName) {
-        return "{\"rename-collection\":{\"" + oldTableName + "\":\"" + newTableName + "\"}}";
+        return "{\"rename-collection\":{\"collection\":\"" + json(checkCollection(oldTableName))
+                + "\",\"new\":\"" + json(checkCollection(newTableName)) + "\"}}";
     }
 
     @Override
     public String copyTableStructure(String schemaName, String sourceTableName, String targetTableName) {
-        return "{\"create-collection\":{\"name\":\"" + targetTableName
-                + "\",\"baseConfigSet\":\"_default\",\"clone-from\":\"" + sourceTableName + "\"}}";
+        throw new UnsupportedOperationException(
+                "Solr 的 Collections API 没有等价的“复制表结构”动作，请改用 createCollection(目标集合) + addField(目标集合, 字段, 类型) 逐项建模，"
+                        + "源集合结构可用 getTable(" + sourceTableName + ") 读取");
     }
 
     // ==================== 执行类（超出 SPI 的增强能力） ====================
@@ -175,6 +178,68 @@ public class SolrDdlManager implements DslManager {
     }
 
     // ==================== 内部 ====================
+
+    /**
+     * 校验集合并返回可用于拼接请求体的名称。
+     *
+     * @param collectionName 集合名称
+     * @return 通过校验的集合名称
+     */
+    private static String checkCollection(String collectionName) {
+        if (collectionName == null || collectionName.isEmpty()) {
+            throw new IllegalArgumentException("Solr 集合名不能为空");
+        }
+        if (!COLLECTION_PATTERN.matcher(collectionName).matches()) {
+            throw new IllegalArgumentException("非法的 Solr 集合名: " + collectionName);
+        }
+        return collectionName;
+    }
+
+    /**
+     * 按 JSON 字符串规则转义，避免标识符中的引号或反斜杠破坏请求体结构。
+     *
+     * @param value 原始字符串
+     * @return 转义后的字符串（不含首尾引号）
+     */
+    private static String json(String value) {
+        StringBuilder sb = new StringBuilder(value.length() + 8);
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '"' -> sb.append("\\\"");
+                case '\\' -> sb.append("\\\\");
+                case '\b' -> sb.append("\\b");
+                case '\f' -> sb.append("\\f");
+                case '\n' -> sb.append("\\n");
+                case '\r' -> sb.append("\\r");
+                case '\t' -> sb.append("\\t");
+                default -> {
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 判断集合是否存在。
+     *
+     * @param collectionName 集合名称
+     * @return 存在返回 true
+     */
+    private boolean collectionExists(String collectionName) {
+        try {
+            CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
+            Object names = response.getResponse().get("collections");
+            return names instanceof List && ((List<?>) names).contains(collectionName);
+        } catch (Exception e) {
+            throw new IllegalStateException("collectionExists failed: " + e.getMessage(), e);
+        }
+    }
 
     /**
      * 读取columns。

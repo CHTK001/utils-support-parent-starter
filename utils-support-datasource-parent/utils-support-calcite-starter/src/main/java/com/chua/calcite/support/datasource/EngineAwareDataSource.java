@@ -100,10 +100,10 @@ public final class EngineAwareDataSource implements DataSource {
                 return wrapStatement(st);
             }
             if ("prepareStatement".equals(name) && args != null && args.length >= 1 && args[0] instanceof String sql) {
-                Integer routed = updateExecutor.tryExecute(sql);
+                EngineUpdateSqlExecutor.RoutableUpdate routed = updateExecutor.parse(sql);
                 if (routed != null) {
- // 预编译 更新：返回只执行已计算结果的代理
-                    return fixedUpdatePreparedStatement(routed);
+                    // 准备阶段只判定不落库，写入推迟到 executeUpdate/execute 时刻
+                    return routedPreparedStatement(routed);
                 }
             }
             try {
@@ -152,40 +152,56 @@ public final class EngineAwareDataSource implements DataSource {
         }
 
         /**
-         * Fixed更新prepared对账单
+         * 为可路由的 更新 生成延迟执行的预处理语句代理。
+         * <p>底层不创建真实语句，因此 {@code close()} 无资源需要释放；
+         * 每次 {@code execute*} 都真实执行一次，与 JDBC 语义一致。</p>
          *
-         * @param rows rows
-         * @return fixed更新prepared对账单的结果
+         * @param update 已解析可路由的更新
+         * @return 预处理语句代理
          */
-        private Object fixedUpdatePreparedStatement(int rows) {
+        private Object routedPreparedStatement(EngineUpdateSqlExecutor.RoutableUpdate update) {
+            int[] lastUpdateCount = {-1};
             return ReflectUtils.newProxy(
                     java.sql.PreparedStatement.class.getClassLoader(),
                     new Class[]{java.sql.PreparedStatement.class},
                     (proxy, method, args) -> {
                         String m = method.getName();
                         if ("executeUpdate".equals(m)) {
+                            int rows = update.execute();
+                            lastUpdateCount[0] = rows;
                             return rows;
                         }
                         if ("executeLargeUpdate".equals(m)) {
+                            int rows = update.execute();
+                            lastUpdateCount[0] = rows;
                             return (long) rows;
                         }
                         if ("execute".equals(m)) {
+                            int rows = update.execute();
+                            lastUpdateCount[0] = rows;
+                            // 更新 语句无结果集，与 JDBC 约定一致返回 false
                             return false;
                         }
-                        if ("close".equals(m) || "clearParameters".equals(m) || m.startsWith("set")) {
+                        if ("close".equals(m) || "clearParameters".equals(m) || "clearWarnings".equals(m)) {
                             return null;
                         }
                         if ("getUpdateCount".equals(m)) {
-                            return rows;
+                            return lastUpdateCount[0];
                         }
-                        if ("getResultSet".equals(m) || "getConnection".equals(m)) {
+                        if ("getMoreResults".equals(m)) {
+                            return false;
+                        }
+                        if ("getResultSet".equals(m) || "getConnection".equals(m) || "getWarnings".equals(m)) {
                             return null;
                         }
                         if ("isClosed".equals(m)) {
                             return false;
                         }
+                        if ("wasNull".equals(m) || "getFetchSize".equals(m)) {
+                            return 0;
+                        }
                         throw new SQLFeatureNotSupportedException(
-                                "Engine 路由 UPDATE 的 PreparedStatement 仅支持 executeUpdate: " + m);
+                                "Engine 路由 UPDATE 的语句只支持 executeUpdate/execute/executeLargeUpdate: " + m);
                     }
             );
         }

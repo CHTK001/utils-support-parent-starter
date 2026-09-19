@@ -1,12 +1,12 @@
 package com.chua.sqlite.support.directory;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * sqlite 数据库轮询目录实现，基于 JDBC 查询的快照对比机制。
@@ -53,11 +53,6 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
-
-    /**
-     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-     */
-    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     /**
      * JDBC 连接 URL，如 {@code jdbc:sqlite:/data/test.db}
@@ -176,7 +171,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     }
 
     /**
-     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+     * 校验并返回安全的 SQL 标识符（字符集规则见 {@link SqlName#isWord(String)}）。
      *
      * @param id 待校验标识符
      * @return 去除首尾空白后的标识符
@@ -187,7 +182,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
             throw new IllegalArgumentException("SQL 标识符不能为空");
         }
         String trimmed = id.trim();
-        if (!SAFE_IDENTIFIER.matcher(trimmed).matches()) {
+        if (!SqlName.isWord(trimmed)) {
             throw new IllegalArgumentException("非法的 SQL 标识符: " + id);
         }
         return trimmed;

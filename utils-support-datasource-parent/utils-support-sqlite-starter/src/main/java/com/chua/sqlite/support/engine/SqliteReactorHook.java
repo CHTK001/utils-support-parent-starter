@@ -46,6 +46,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class SqliteReactorHook implements AutoCloseable {
 
     private static final Linker LINKER = Linker.nativeLinker();
+
+    /**
+     * 日志记录器
+     */
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(SqliteReactorHook.class);
     private static volatile SymbolLookup SYM_LOOKUP;
     private static final int EVENT_BUF_SIZE = 512;
 
@@ -191,7 +197,10 @@ public final class SqliteReactorHook implements AutoCloseable {
             if (event != null) {
                 instance.eventSink.tryEmitNext(event);
             }
-        } catch (Exception ignored) {
+        } catch (Throwable e) {
+            // 该方法是 native 侧 upcall 入口，异常不允许穿越 FFI 边界（会直接终止进程），
+            // 因此只能就地记录：否则 CDC 事件静默丢失且无从排查
+            log.warn("SQLite CDC 事件处理失败: {}", e.toString());
         }
     }
     @Override
@@ -209,13 +218,16 @@ public final class SqliteReactorHook implements AutoCloseable {
             if (handle != null && !handle.equals(MemorySegment.NULL)) {
                 HOOK_CLOSE_ASYNC_HANDLE.invoke(handle);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            log.warn("SQLite CDC 钩子关闭失败: {}", e.toString());
         }
 
         if (callbackArena != null) {
             try {
                 callbackArena.close();
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                // Arena 关闭失败只可能来自生命周期竞争，继续置空以免重复关闭
+                log.warn("SQLite CDC 回调 Arena 关闭失败: {}", e.toString());
             }
             callbackArena = null;
         }

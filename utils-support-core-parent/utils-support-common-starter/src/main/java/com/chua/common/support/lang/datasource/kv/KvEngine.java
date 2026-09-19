@@ -88,6 +88,20 @@ public interface KvEngine extends KvOperations {
     // ==================== TTL 操作 ====================
 
     /**
+     * 当前后端是否支持 TTL 操作（{@link #put(String, String, Duration)} /
+     * {@link #ttl(String)} / {@link #expire(String, long)}）。
+     *
+     * <p>调用方可据此选择带 TTL 的写入路径，避免依赖捕获
+     * {@link UnsupportedOperationException} 做流程判断。
+     * 覆写了任一 TTL 操作的实现类必须同时覆写本方法返回 {@code true}。</p>
+     *
+     * @return 支持 TTL 返回 true，否则 false
+     */
+    default boolean supportsTtl() {
+        return false;
+    }
+
+    /**
      * 写入带过期时间的键值对。
      *
      * <p>不支持 TTL 的后端（如 ChronicleMap）默认抛出 {@link UnsupportedOperationException}。</p>

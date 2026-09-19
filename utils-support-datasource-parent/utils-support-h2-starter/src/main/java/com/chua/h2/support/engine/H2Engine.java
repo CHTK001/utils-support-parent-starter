@@ -64,7 +64,7 @@ public class H2Engine extends JdbcEngine {
             @Override
             public <R> R getSource(Class<R> type) { return type.cast(ds); }
             @Override
-            public EngineDataSource<Object> setSource(Object source) { return this; }
+            public EngineDataSource<Object> setSource(Object source) { throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源"); }
             @Override
             public Dialect getDialect() { return dialect; }
             @Override

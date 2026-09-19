@@ -25,13 +25,10 @@ import java.util.function.Consumer;
  *     // 批量消费缓冲事件
  *     List<SqliteChangeEvent> events = cdc.drain();
  * }
- * }</pre>ent> events = cdc.drain();
- * }
  * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
- * @param handle 处理
  */
 public final class SqliteHookConnection implements AutoCloseable {
 
@@ -46,24 +43,35 @@ public final class SqliteHookConnection implements AutoCloseable {
     private static volatile boolean LIBRARY_RESOLVED = false; // 图书馆resolved
     private static volatile boolean LIBRARY_OK = false; // 图书馆ok
 
+    /**
+     * 日志记录器
+     */
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(SqliteHookConnection.class);
+
     private final MemorySegment handle; // 处理
     private Consumer<SqliteChangeEvent> eventConsumer; // 事件consumer
+    private volatile boolean closed; // 已关闭
     private final List<SqliteChangeEvent> eventBuffer = new ArrayList<>(); // 事件缓冲
-/**
- * 打开。
- * @param dbPath db路径
- * @return 打开的结果
- * @param handle 处理
- */
-
+    /**
+     * 打开 CDC 钩子连接。
+     *
+     * @param dbPath sqlite 数据库文件路径
+     * @return 连接实例；native 钩子库缺失或打开失败时返回空，失败原因见日志
+     */
     public static SqliteHookConnection open(String dbPath) {
         if (!loadLibrary()) {
             return null;
         }
         try (var arena = Arena.ofConfined()) {
             MemorySegment h = (MemorySegment) HOOK_OPEN_HANDLE.invoke(arena.allocateFrom(dbPath, StandardCharsets.UTF_8));
-            return (h != null && !h.equals(MemorySegment.NULL)) ? new SqliteHookConnection(h) : null;
+            if (h == null || h.equals(MemorySegment.NULL)) {
+                log.warn("SQLite CDC 钩子打开失败 dbPath={}", dbPath);
+                return null;
+            }
+            return new SqliteHookConnection(h);
         } catch (Throwable e) {
+            log.warn("SQLite CDC 钩子打开异常 dbPath={}: {}", dbPath, e.toString());
             return null;
         }
     }
@@ -97,6 +105,7 @@ public final class SqliteHookConnection implements AutoCloseable {
             drainBufferSync();
             return rc;
         } catch (Throwable e) {
+            log.warn("SQLite CDC 钩子执行异常: {}", e.toString());
             return -1;
         }
     }
@@ -116,13 +125,11 @@ public final class SqliteHookConnection implements AutoCloseable {
 
     @Override
     public void close() {
-        /**
-         * 是否打开。
-         * @return 是否打开的结果
-         */
+        closed = true;
         try {
             HOOK_CLOSE_HANDLE.invoke(handle);
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            log.warn("SQLite CDC 钩子关闭失败: {}", e.toString());
         }
     }
 
@@ -132,10 +139,7 @@ public final class SqliteHookConnection implements AutoCloseable {
      * @return 是否成功（true 表示成功）
      */
     public boolean isOpen() {
-        /**
-         * drain缓冲同步。
-         */
-        return handle != null && !handle.equals(MemorySegment.NULL);
+        return !closed && handle != null && !handle.equals(MemorySegment.NULL);
     }
 
     /**
@@ -158,7 +162,8 @@ public final class SqliteHookConnection implements AutoCloseable {
                     }
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            log.warn("SQLite CDC 事件排空失败，缓冲区事件可能丢失: {}", e.toString());
         }
     }
 
@@ -190,6 +195,8 @@ public final class SqliteHookConnection implements AutoCloseable {
                 return true;
             } catch (Throwable e) {
                 LIBRARY_RESOLVED = true;
+                LIBRARY_OK = false;
+                log.warn("SQLite CDC 原生钩子库不可用，CDC 能力降级: {}", e.toString());
                 return false;
             }
         }
@@ -205,11 +212,6 @@ public final class SqliteHookConnection implements AutoCloseable {
     private static MethodHandle bind(String name, FunctionDescriptor desc) {
         MemorySegment sym = SYM_LOOKUP.find(name)
                 .orElseThrow(() -> new UnsatisfiedLinkError("符号未找到: " + name));
-        /**
-         * 解析事件。
-         * @param json json
-         * @return 解析事件的结果
-         */
         return LINKER.downcallHandle(sym, desc);
     }
 

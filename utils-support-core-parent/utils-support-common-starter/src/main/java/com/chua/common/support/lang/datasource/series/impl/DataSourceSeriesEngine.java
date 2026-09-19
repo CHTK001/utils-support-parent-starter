@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.series.impl;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.series.SeriesEngine;
@@ -11,7 +12,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,11 +43,6 @@ public class DataSourceSeriesEngine implements SeriesEngine {
      * 单次曲线返回点数上限
     */
     private static final int MAX_SERIES_POINTS = 1440;
-
-    /**
-     * 合法标识符（表名/列名后缀），防止 SQL 注入
-    */
-    private static final String IDENTIFIER_REGEX = "[a-zA-Z0-9_]+";
 
     /**
      * 已知明细表的数值列后缀（不含表名前缀），未登记的表无法推断数值列
@@ -92,34 +87,40 @@ public class DataSourceSeriesEngine implements SeriesEngine {
 
     @Override
     public void writePoint(String target, Long monitorId, String metricName, double value, long timestamp) {
-        if (!isAvailable() || target == null || monitorId == null || metricName == null) {
-            return;
+        if (target == null || monitorId == null || metricName == null) {
+            throw new IllegalArgumentException("时序写入缺少必填参数: target/monitorId/metricName");
         }
-        if (!target.matches(IDENTIFIER_REGEX) || !metricName.matches(IDENTIFIER_REGEX)) {
-            log.error("[SeriesEngine] 非法标识符 target={} metric={}", target, metricName);
-            return;
+        if (!SqlName.isWord(target) || !SqlName.isWord(metricName)) {
+            throw new IllegalArgumentException("非法标识符 target=" + target + " metric=" + metricName);
+        }
+        if (!isAvailable()) {
+            throw new IllegalStateException("DataSourceSeriesEngine 不可用：SqlExecutor 为空或已关闭");
         }
         String sql = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)",
                 target, monitorColumn(target), valueColumn(target, metricName), timeColumn(target));
         try {
             executor.execute(sql, monitorId, value, new Timestamp(timestamp));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("[SeriesEngine] JDBC 写入失败 target={} metric={}", target, metricName, e);
+            throw e;
         }
     }
 
     @Override
     public List<List<Object>> series(String target, Long monitorId, int hours, String window) {
-        if (!isAvailable() || target == null || monitorId == null) {
-            return List.of();
+        if (target == null || monitorId == null) {
+            throw new IllegalArgumentException("时序查询缺少必填参数: target/monitorId");
         }
-        if (!target.matches(IDENTIFIER_REGEX)) {
+        if (!SqlName.isWord(target)) {
             throw new IllegalArgumentException("非法 target: " + target);
+        }
+        if (!isAvailable()) {
+            return List.of();
         }
         String suffix = TARGET_VALUE_COLUMN.get(target);
         if (suffix == null) {
-            log.error("[SeriesEngine] 未知明细表 {}，无法推断数值列（SeriesEngine.series 缺少 metricName 维度）", target);
-            return List.of();
+            throw new IllegalArgumentException("未知明细表 " + target + "，无法推断数值列"
+                    + "（SeriesEngine.series 缺少 metricName 维度）");
         }
         String timeCol = timeColumn(target);
         String valueCol = target + "_" + suffix;
@@ -140,46 +141,9 @@ public class DataSourceSeriesEngine implements SeriesEngine {
             }
         } catch (Exception e) {
             log.error("[SeriesEngine] JDBC 查询失败 target={} monitor={}", target, monitorId, e);
-            return List.of();
+            throw new IllegalStateException("时序曲线查询失败 target=" + target + ": " + e.getMessage(), e);
         }
-        return downsample(points, parseWindowMillis(window));
-    }
-
-    /**
-     * 按窗口对升序点做均值聚合，并封顶返回点数。
-     *
-     * @param points   原始点列表 [ts, value]
-     * @param windowMs 聚合窗口（毫秒）
-     * @return [[ts, avg], ...] 升序
-     */
-    private List<List<Object>> downsample(List<Object[]> points, long windowMs) {
-        List<List<Object>> result = new ArrayList<>();
-        if (points.isEmpty()) {
-            return result;
-        }
-        Map<Long, double[]> buckets = new LinkedHashMap<>();
-        for (Object[] point : points) {
-            long bucket = ((Number) point[0]).longValue() / windowMs;
-            double[] acc = buckets.computeIfAbsent(bucket, k -> new double[2]);
-            acc[0] += (Double) point[1];
-            acc[1] += 1;
-        }
-        for (Map.Entry<Long, double[]> entry : buckets.entrySet()) {
-            double[] acc = entry.getValue();
-            List<Object> pair = new ArrayList<>(2);
-            pair.add(entry.getKey() * windowMs);
-            pair.add(acc[1] > 0 ? acc[0] / acc[1] : 0D);
-            result.add(pair);
-        }
-        if (result.size() > MAX_SERIES_POINTS) {
-            int step = (int) Math.ceil((double) result.size() / MAX_SERIES_POINTS);
-            List<List<Object>> sampled = new ArrayList<>();
-            for (int i = 0; i < result.size(); i += step) {
-                sampled.add(result.get(i));
-            }
-            result = sampled;
-        }
-        return result;
+        return SeriesEngine.downsample(points, SeriesEngine.windowMillis(window), MAX_SERIES_POINTS);
     }
 
     /**
@@ -256,30 +220,5 @@ public class DataSourceSeriesEngine implements SeriesEngine {
      */
     private String valueColumn(String target, String metricName) {
         return target + "_" + metricName;
-    }
-
-    /**
-     * 解析时间窗口为毫秒数。
-     *
-     * @param window 窗口字符串，如 1m/5m/1h
-     * @return 窗口毫秒数，非法输入回退 5 分钟
-     */
-    private long parseWindowMillis(String window) {
-        long minutes = 5;
-        if (window != null && !window.isEmpty()) {
-            try {
-                String lower = window.toLowerCase();
-                if (lower.endsWith("m")) {
-                    minutes = Long.parseLong(lower.substring(0, lower.length() - 1));
-                } else if (lower.endsWith("h")) {
-                    minutes = Long.parseLong(lower.substring(0, lower.length() - 1)) * 60;
-                } else if (lower.endsWith("s")) {
-                    minutes = Math.max(1, Long.parseLong(lower.substring(0, lower.length() - 1)) / 60);
-                }
-            } catch (NumberFormatException e) {
-                log.warn("[SeriesEngine] 非法窗口 {}，回退 5m", window);
-            }
-        }
-        return Math.max(1, minutes) * 60_000L;
     }
 }

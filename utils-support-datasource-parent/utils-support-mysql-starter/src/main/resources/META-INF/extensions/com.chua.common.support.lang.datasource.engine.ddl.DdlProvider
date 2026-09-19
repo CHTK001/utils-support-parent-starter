@@ -1,0 +1,1 @@
+mysql=com.chua.mysql.support.ddl.MysqlDdlProvider

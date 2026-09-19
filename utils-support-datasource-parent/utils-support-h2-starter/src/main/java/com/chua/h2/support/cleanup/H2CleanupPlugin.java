@@ -1,6 +1,7 @@
 package com.chua.h2.support.cleanup;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.flyway.FlywayHistory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -19,9 +20,9 @@ import java.util.List;
 public class H2CleanupPlugin {
 
     /**
-     * 版本记录表名
-    */
-    private static final String HISTORY_TABLE = "flyway_schema_history";
+     * 版本记录表名，与迁移层共用同一常量
+     */
+    private static final String HISTORY_TABLE = FlywayHistory.HISTORY_TABLE;
 
     /**
      * 引擎实例
@@ -168,14 +169,14 @@ public class H2CleanupPlugin {
      */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
-        String excludePattern = "(?i)(information_schema|system_|INFORMATION_SCHEMA|flyway_schema_history|schema_)";
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES "
                              + "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = 'PUBLIC'")) {
             while (rs.next()) {
                 String name = rs.getString("TABLE_NAME");
-                if (!name.matches(excludePattern) && !name.equalsIgnoreCase(HISTORY_TABLE)) {
+                // PUBLIC 模式不含 H2 系统表；版本记录表由步骤 3 单独处理
+                if (!name.equalsIgnoreCase(HISTORY_TABLE)) {
                     tables.add(name);
                 }
             }

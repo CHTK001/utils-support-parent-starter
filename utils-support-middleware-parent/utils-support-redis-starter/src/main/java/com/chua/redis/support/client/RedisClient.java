@@ -29,8 +29,7 @@ import java.util.Map;
  * String value = engine.get("mykey");
  *
  * // 响应式用法（扩展方法）
- * Mono<String> valueMono = ((RedisClient) engine).reactiveGet("mykey");
- * }</pre>ne).reactiveGet("mykey");
+ * Mono&lt;String&gt; valueMono = ((RedisClient) engine).reactiveGet("mykey");
  * }</pre>
  *
  * @author CH
@@ -58,6 +57,11 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     private final RedisReactorEngine engine;
 
     /**
+     * 是否由本客户端创建并持有引擎（决定 close() 是否关闭引擎）
+     */
+    private final boolean ownsEngine;
+
+    /**
      * 使用默认配置创建 redis客户端。
      * 连接地址为 {@value #DEFAULT_REDIS_URL}。
      */
@@ -82,13 +86,9 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
      */
     public RedisClient(String url, String password) {
         this.engine = new RedisReactorEngine();
-        if (password != null && !password.isEmpty()) {
-            this.engine.addDataSource("default", url, password);
-        } else {
-            this.engine.addDataSource("default", url);
-        }
+        this.ownsEngine = true;
+        this.engine.addDataSource("default", url, password);
         this.engine.setTimeout(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS));
-        log.info("RedisClient 已初始化，地址: {}", url);
     }
 
     /**
@@ -98,6 +98,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
      */
     public RedisClient(RedisReactorEngine engine) {
         this.engine = engine;
+        this.ownsEngine = false;
     }
 
     /**
@@ -137,6 +138,16 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
+     * 当前后端为 Redis，完整支持 TTL 操作。
+     *
+     * @return 恒为 true
+     */
+    @Override
+    public boolean supportsTtl() {
+        return true;
+    }
+
+    /**
      * 同步写入带过期时间的键值对。
      *
      * @param key   键
@@ -149,7 +160,12 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
             delete(key);
             return;
         }
-        engine.setex(key, value, ttl.getSeconds()).block();
+        if (ttl == null || !ttl.isPositive()) {
+            throw new IllegalArgumentException("TTL 必须为正时长: " + ttl);
+        }
+        // SETEX 只接受正秒数，亚秒级 TTL 向上取整到 1 秒
+        long seconds = (ttl.toMillis() + 999L) / 1000L;
+        engine.setex(key, value, seconds).block();
     }
 
     /**
@@ -218,7 +234,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, String> findAllByPrefix(String prefix) {
-        List<Map.Entry<String, String>> entries = (List) engine.scanKeys(prefix + "*")
+        List<Map.Entry<String, String>> entries = (List) engine.scanKeys(matchPattern(prefix))
                 .flatMap(key -> engine.get(key)
                         .map(value -> new AbstractMap.SimpleEntry<>(
                                 key, value != null ? value : ""))
@@ -327,10 +343,20 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
      * @return 匹配键值对 Flux
      */
     public Flux<Map.Entry<String, String>> reactiveFindAllByPrefix(String prefix) {
-        return engine.scanKeys(prefix + "*")
+        return engine.scanKeys(matchPattern(prefix))
                 .flatMap(key -> engine.get(key)
                         .map(value -> new AbstractMap.SimpleEntry<>(key, value != null ? value : ""))
                         .onErrorResume(e -> Mono.empty()));
+    }
+
+    /**
+     * 将前缀转换为 Redis MATCH 模式；空前缀表示全量扫描。
+     *
+     * @param prefix 键前缀（可为空）
+     * @return MATCH 模式串
+     */
+    private static String matchPattern(String prefix) {
+        return prefix == null || prefix.isEmpty() ? "*" : prefix + "*";
     }
 
     /**
@@ -409,78 +435,88 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     }
 
     /**
-     * 关闭引擎，释放 Lettuce 连接资源。
+     * 关闭客户端；仅当引擎由本客户端创建时才释放引擎资源。
      */
+    @Override
     public void close() {
-        engine.close();
-        log.info("RedisClient 已关闭");
+        if (ownsEngine) {
+            engine.close();
+            log.info("RedisClient 已关闭");
+        }
     }
 
     /**
      * redis客户端 构建器。
+     *
      * @author CH
      * @since 4.0.0
-     * @return 构建的结果
-     * @param timeoutMs 超时ms
      */
     public static class Builder {
-        private String host = "127.0.0.1"; // 主机
-        private int port = 6379; // 端口
-        private String password = ""; // 密码
-        private int database = 0; // database
-        /**
-         * 主机。
-         * @param host 主机
-         * @return 主机的结果
-         */
+        /** 主机 */
+        private String host = "127.0.0.1";
+        /** 端口 */
+        private int port = 6379;
+        /** 密码 */
+        private String password = "";
+        /** 库序号 */
+        private int database = 0;
+        /** 超时毫秒 */
         private long timeoutMs = 5000;
 
         /**
-         * 主机。
+         * 设置主机。
          * @param host 主机
-         * @return 主机的结果
+         * @return this
          */
         public Builder host(String host) {
             this.host = host;
             return this;
-        /**
-         * 端口。
-         * @param port 端口
-         * @return 端口的结果
-         */
         }
 
+        /**
+         * 设置端口。
+         * @param port 端口
+         * @return this
+         */
         public Builder port(int port) {
             this.port = port;
             return this;
-        /**
-         * 密码。
-         * @param password 密码
-         * @return 密码的结果
-         */
         }
 
+        /**
+         * 设置密码。
+         * @param password 密码
+         * @return this
+         */
         public Builder password(String password) {
             this.password = password;
             return this;
-        /**
-         * database。
-         * @param database database
-         * @return database的结果
-         * @param timeoutMs 超时ms
-         */
         }
 
+        /**
+         * 设置库序号。
+         * @param database 库序号
+         * @return this
+         */
         public Builder database(int database) {
             this.database = database;
             return this;
         }
 
+        /**
+         * 设置超时毫秒。
+         * @param timeoutMs 超时毫秒
+         * @return this
+         */
         public Builder timeout(long timeoutMs) {
             this.timeoutMs = timeoutMs;
             return this;
         }
 
+        /**
+         * 构建客户端。
+         * @return RedisClient 实例
+         */
         public RedisClient build() {
             String url = "redis://" + host + ":" + port + "/" + database;
             String pwd = (password == null || password.isEmpty()) ? null : password;

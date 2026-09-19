@@ -62,6 +62,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SolrEngine extends AbstractEngine {
 
     /**
+     * update() 游标深分页每批拉取行数
+     */
+    private static final int UPDATE_BATCH = 1000;
+
+    /**
      * 客户端
     */
     private SolrClient client;
@@ -102,12 +107,15 @@ public class SolrEngine extends AbstractEngine {
      * 存储
     */
     public <T> Engine store(String name, List<T> data) {
-        SolrClient sc = getClient();
-        if (sc == null) {
-            log.warn("Solr 客户端未初始化，跳过 store: {}", name);
+        if (data == null || data.isEmpty()) {
             return this;
         }
+        SolrClient sc = getClient();
+        if (sc == null) {
+            throw new IllegalStateException("Solr 客户端未初始化，无法写入: " + name);
+        }
         try {
+            List<SolrInputDocument> docs = new ArrayList<>(data.size());
             for (T item : data) {
                 SolrInputDocument doc = new SolrInputDocument();
                 boolean hasId = false;
@@ -128,11 +136,12 @@ public class SolrEngine extends AbstractEngine {
                 if (!hasId) {
                     doc.addField(SolrFields.ID, UUID.randomUUID().toString());
                 }
-                sc.add(name, doc);
+                docs.add(doc);
             }
+            sc.add(name, docs);
             sc.commit(name);
         } catch (Exception e) {
-            log.warn("Solr store失败: " + e.getMessage(), e);
+            throw new RuntimeException("Solr store 失败: collection=" + name, e);
         }
         return this;
     }
@@ -199,11 +208,10 @@ public class SolrEngine extends AbstractEngine {
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         SolrClient sc = getClient();
         if (sc == null) {
-            log.warn("[SOLR_DEBUG] getClient() returned null");
-            return Collections.emptyList();
+            throw new IllegalStateException("Solr 客户端未初始化，无法查询");
         }
+        String collectionName = entityClass.getSimpleName().toLowerCase();
         try {
-            String collectionName = entityClass.getSimpleName().toLowerCase();
             org.apache.solr.client.solrj.SolrQuery query = new org.apache.solr.client.solrj.SolrQuery();
             if (where == null || where.isEmpty()) {
                 query.setQuery("*:*");
@@ -215,34 +223,18 @@ public class SolrEngine extends AbstractEngine {
                     query.addFilterQuery(String.valueOf(param));
                 }
             }
-            query.setRows(1000);
-            log.warn("[SOLR_DEBUG] query collection={}, query={}, params={}", collectionName, query.getQuery(), java.util.Arrays.toString(params));
+            query.setStart(Math.max(0, offset));
+            query.setRows(limit > 0 ? limit : 1000);
             QueryResponse response = sc.query(collectionName, query);
             SolrDocumentList docs = response.getResults();
-            log.warn("[SOLR_DEBUG] numFound={}", docs.getNumFound());
-            List<T> result = new ArrayList<>();
+            List<T> result = new ArrayList<>(docs.size());
             for (SolrDocument doc : docs) {
-                T instance = ReflectUtils.instantiate(entityClass);
-                for (String field : doc.getFieldNames()) {
-                    Object value = doc.getFieldValue(field);
-                    if (value instanceof List<?> list && !list.isEmpty()) {
-                        value = list.getFirst();
-                    }
-                    String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-                    for (var method : entityClass.getMethods()) {
-                        if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                            ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(value, method.getParameterTypes()[0]));
-                            break;
-                        }
-                    }
-                }
-                result.add(instance);
+                result.add(documentToEntity(doc, entityClass));
             }
             return result;
         } catch (Exception e) {
-            log.warn("[SOLR_DEBUG] exception: {}", e.getMessage());
-            e.printStackTrace();
-            return Collections.emptyList();
+            throw new RuntimeException("Solr 查询失败: collection=" + collectionName
+                    + " q=" + where, e);
         }
     }
 
@@ -251,7 +243,8 @@ public class SolrEngine extends AbstractEngine {
      * 执行更新
     */
     public <T> int executeUpdate(com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<T> sql) {
-        return 0;
+        throw new UnsupportedOperationException(
+                "Solr 引擎不支持 SQL 式更新，请使用 update(Class) 链式包装器");
     }
 
     @Override
@@ -259,7 +252,8 @@ public class SolrEngine extends AbstractEngine {
      * 执行删除
     */
     public <T> int executeDelete(com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<T> sql) {
-        return 0;
+        throw new UnsupportedOperationException(
+                "Solr 引擎不支持 SQL 式删除，请使用 delete(Class) 链式包装器");
     }
 
     // ==================== ORM：Condition -> Solr 查询 ====================
@@ -300,7 +294,8 @@ public class SolrEngine extends AbstractEngine {
              * 列表
             */
             public List<T> list() {
-                return search(entityClass, getConditions());
+                return search(entityClass, getConditions(), getOrderBys(),
+                        getOffset(), getLimit() > 0 ? getLimit() : 1000).list();
             }
 
             @Override
@@ -308,7 +303,7 @@ public class SolrEngine extends AbstractEngine {
              * One
             */
             public T one() {
-                List<T> results = search(entityClass, getConditions());
+                List<T> results = search(entityClass, getConditions(), getOrderBys(), 0, 1).list();
                 if (results.isEmpty()) {
                     return null;
                 }
@@ -320,8 +315,8 @@ public class SolrEngine extends AbstractEngine {
              * Page
             */
             public Page<T> page(int pn, int ps) {
-                int from = (pn - 1) * ps;
-                SearchResult<T> sr = search(entityClass, getConditions(), from, ps);
+                SearchResult<T> sr = search(entityClass, getConditions(), getOrderBys(),
+                        (pn - 1) * ps, ps);
                 return new Page<>(pn, ps, sr.total(), sr.list());
             }
         };
@@ -488,17 +483,7 @@ public class SolrEngine extends AbstractEngine {
          * @return like的结果
          */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
-            String p = pattern;
-            if (p.contains("%")) {
-                p = p.replace("%", "*");
-            }
-            if (!p.startsWith("*")) {
-                p = "*" + p;
-            }
-            if (!p.endsWith("*")) {
-                p = p + "*";
-            }
-            where.add(escape(col) + ":" + escapeValue(p));
+            where.add(escape(col) + ":" + likePattern(pattern));
             return this;
         }
 
@@ -510,6 +495,10 @@ public class SolrEngine extends AbstractEngine {
          * @return 入的结果
          */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
+            if (vals == null || vals.isEmpty()) {
+                where.add("-*:*");
+                return this;
+            }
             StringBuilder sb = new StringBuilder();
             sb.append(escape(col)).append(":(");
             Iterator<?> it = vals.iterator();
@@ -592,12 +581,15 @@ public class SolrEngine extends AbstractEngine {
          * @return 执行群体by的结果
          */
         private List<Map<String, Object>> executeGroupBy() {
-            SolrClient sc = engine.getClient();
-            if (sc == null || groupByCols.isEmpty()) {
+            if (groupByCols.isEmpty()) {
                 return Collections.emptyList();
             }
+            SolrClient sc = engine.getClient();
+            if (sc == null) {
+                throw new IllegalStateException("Solr 客户端未初始化，无法执行 GROUP BY");
+            }
+            String collectionName = entityClass.getSimpleName().toLowerCase();
             try {
-                String collectionName = entityClass.getSimpleName().toLowerCase();
                 String query = "*:*";
                 if (!where.isEmpty()) {
                     query = String.join(" AND ", where);
@@ -618,8 +610,7 @@ public class SolrEngine extends AbstractEngine {
                 List<Map<String, Object>> result = parseFacetResponse(facetsObj, groupByCols, 0);
                 return result != null ? result : Collections.emptyList();
             } catch (Exception e) {
-                log.warn("Solr GROUP BY 失败: " + e.getMessage(), e);
-                return Collections.emptyList();
+                throw new RuntimeException("Solr GROUP BY 失败: collection=" + collectionName, e);
             }
         }
     }
@@ -641,6 +632,9 @@ public class SolrEngine extends AbstractEngine {
             return "{\"count\":\"*\"}";
         }
         String col = cols.get(idx);
+        if (col == null || !col.matches("[A-Za-z0-9_.\\-]+")) {
+            throw new IllegalArgumentException("非法 GROUP BY 列名: " + col);
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("{\"").append(col).append("\":{");
         sb.append("\"type\":\"terms\",");
@@ -806,56 +800,65 @@ public class SolrEngine extends AbstractEngine {
             public int update() {
                 SolrClient sc = getClient();
                 if (sc == null) {
-                    return 0;
+                    throw new IllegalStateException("Solr 客户端未初始化，无法更新");
                 }
                 String collectionName = entityClass.getSimpleName().toLowerCase();
                 String query = buildSolrQuery(getConditions());
                 try {
                     org.apache.solr.client.solrj.SolrQuery q = new org.apache.solr.client.solrj.SolrQuery();
                     q.setQuery(query);
-                    q.setRows(1000);
-                    QueryResponse response = sc.query(collectionName, q);
-                    SolrDocumentList docs = response.getResults();
-                    if (docs.isEmpty()) {
-                        return 0;
-                    }
-
+                    q.setSort(SolrFields.ID, org.apache.solr.client.solrj.SolrQuery.ORDER.asc);
+                    q.setRows(UPDATE_BATCH);
+                    q.setParam(org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_PARAM,
+                            org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_START);
+                    String cursorMark = org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_START;
                     Map<String, Object> setValues = getSetValues();
                     int updated = 0;
-                    for (SolrDocument doc : docs) {
-                        Object id = doc.getFieldValue(SolrFields.ID);
-                        if (id == null) {
-                            continue;
-                        }
-                        SolrInputDocument newDoc = new SolrInputDocument();
-                        newDoc.addField(SolrFields.ID, id);
-                        for (String field : doc.getFieldNames()) {
-                            if (SolrFields.ID.equals(field) || SolrFields.VERSION.equals(field)) {
+                    while (true) {
+                        QueryResponse response = sc.query(collectionName, q);
+                        SolrDocumentList docs = response.getResults();
+                        for (SolrDocument doc : docs) {
+                            Object id = doc.getFieldValue(SolrFields.ID);
+                            if (id == null) {
                                 continue;
                             }
-                            if (setValues.containsKey(field)) {
-                                newDoc.addField(field, setValues.get(field));
-                            } else {
-                                Object value = doc.getFieldValue(field);
-                                if (value != null) {
-                                    newDoc.addField(field, value);
+                            SolrInputDocument newDoc = new SolrInputDocument();
+                            newDoc.addField(SolrFields.ID, id);
+                            for (String field : doc.getFieldNames()) {
+                                if (SolrFields.ID.equals(field) || SolrFields.VERSION.equals(field)) {
+                                    continue;
+                                }
+                                if (setValues.containsKey(field)) {
+                                    newDoc.addField(field, setValues.get(field));
+                                } else {
+                                    Object value = doc.getFieldValue(field);
+                                    if (value != null) {
+                                        newDoc.addField(field, value);
+                                    }
                                 }
                             }
-                        }
-                        for (Map.Entry<String, Object> entry : setValues.entrySet()) {
-                            String field = entry.getKey();
-                            if (!doc.containsKey(field) && !SolrFields.ID.equals(field)) {
-                                newDoc.addField(field, entry.getValue());
+                            for (Map.Entry<String, Object> entry : setValues.entrySet()) {
+                                String field = entry.getKey();
+                                if (!doc.containsKey(field) && !SolrFields.ID.equals(field)) {
+                                    newDoc.addField(field, entry.getValue());
+                                }
                             }
+                            sc.add(collectionName, newDoc);
+                            updated++;
                         }
-                        sc.add(collectionName, newDoc);
-                        updated++;
+                        String nextCursor = response.getNextCursorMark();
+                        if (docs.isEmpty() || nextCursor == null
+                                || nextCursor.equals(cursorMark)) {
+                            break;
+                        }
+                        cursorMark = nextCursor;
+                        q.setParam(org.apache.solr.common.params.CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
                     }
                     sc.commit(collectionName);
                     return updated;
                 } catch (Exception e) {
-                    log.warn("Solr 更新失败: " + e.getMessage(), e);
-                    return 0;
+                    throw new RuntimeException("Solr 更新失败: collection=" + collectionName
+                            + " q=" + query, e);
                 }
             }
         };
@@ -899,17 +902,23 @@ public class SolrEngine extends AbstractEngine {
             public int remove() {
                 SolrClient sc = getClient();
                 if (sc == null) {
-                    return 0;
+                    throw new IllegalStateException("Solr 客户端未初始化，无法删除");
                 }
                 String collectionName = entityClass.getSimpleName().toLowerCase();
                 String query = buildSolrQuery(getConditions());
                 try {
-                    sc.deleteByQuery(collectionName, query);
-                    sc.commit(collectionName);
-                    return 0;
+                    org.apache.solr.client.solrj.SolrQuery countQuery =
+                            new org.apache.solr.client.solrj.SolrQuery(query);
+                    countQuery.setRows(0);
+                    long numFound = sc.query(collectionName, countQuery).getResults().getNumFound();
+                    if (numFound > 0) {
+                        sc.deleteByQuery(collectionName, query);
+                        sc.commit(collectionName);
+                    }
+                    return (int) numFound;
                 } catch (Exception e) {
-                    log.warn("Solr 删除失败: " + e.getMessage(), e);
-                    return 0;
+                    throw new RuntimeException("Solr 删除失败: collection=" + collectionName
+                            + " q=" + query, e);
                 }
             }
         };
@@ -924,7 +933,7 @@ public class SolrEngine extends AbstractEngine {
      * @return 搜索的结果
      */
     private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
-        return search(entityClass, conditions, 0, 1000).list();
+        return search(entityClass, conditions, null, 0, 1000).list();
     }
 
     private record SearchResult<T>(List<T> list, long total) {
@@ -936,51 +945,84 @@ public class SolrEngine extends AbstractEngine {
      *
      * @param entityClass 实体类
      * @param conditions 条件
+     * @param orderBys 排序列表（"col ASC"/"col DESC"），可为 null
      * @param start 启动
      * @param rows rows
      * @return 搜索的结果
      */
-    private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions, int start, int rows) {
+    private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions,
+                                       List<String> orderBys, int start, int rows) {
         SolrClient sc = getClient();
         if (sc == null) {
-            return new SearchResult<>(Collections.emptyList(), 0);
+            throw new IllegalStateException("Solr 客户端未初始化，无法查询");
         }
+        String collectionName = entityClass.getSimpleName().toLowerCase();
         try {
-            String collectionName = entityClass.getSimpleName().toLowerCase();
             String query = buildSolrQuery(conditions);
-            log.warn("[SOLR_SEARCH] collection={}, query={}, start={}, rows={}", collectionName, query, start, rows);
             org.apache.solr.client.solrj.SolrQuery solrQuery = new org.apache.solr.client.solrj.SolrQuery();
             solrQuery.setQuery(query);
             solrQuery.setStart(start);
             solrQuery.setRows(rows);
+            applySorts(solrQuery, orderBys);
             QueryResponse response = sc.query(collectionName, solrQuery);
             SolrDocumentList docs = response.getResults();
             long total = docs.getNumFound();
-            log.warn("[SOLR_SEARCH] numFound={}, docs={}", total, docs.size());
-            List<T> result = new ArrayList<>();
+            List<T> result = new ArrayList<>(docs.size());
             for (SolrDocument doc : docs) {
-                log.warn("[SOLR_SEARCH] doc={}", doc);
-                T instance = ReflectUtils.instantiate(entityClass);
-                for (String field : doc.getFieldNames()) {
-                    Object value = doc.getFieldValue(field);
-                    if (value instanceof List<?> list && !list.isEmpty()) {
-                        value = list.getFirst();
-                    }
-                    String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-                    for (var method : entityClass.getMethods()) {
-                        if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
-                            ReflectUtils.invoke(instance, method.getName(), void.class, convertValue(value, method.getParameterTypes()[0]));
-                            break;
-                        }
-                    }
-                }
-                result.add(instance);
+                result.add(documentToEntity(doc, entityClass));
             }
             return new SearchResult<>(result, total);
         } catch (Exception e) {
-            log.warn("[SOLR_SEARCH] exception: {}", e.getMessage());
-            e.printStackTrace();
-            return new SearchResult<>(Collections.emptyList(), 0);
+            throw new RuntimeException("Solr 查询失败: collection=" + collectionName
+                    + " q=" + buildSolrQuery(conditions), e);
+        }
+    }
+
+    /**
+     * 将 Solr 文档映射为实体对象。
+     *
+     * @param doc doc对象
+     * @param entityClass 实体类
+     * @param <T> T 泛型
+     * @return 实体 对象
+     */
+    private <T> T documentToEntity(SolrDocument doc, Class<T> entityClass) {
+        T instance = ReflectUtils.instantiate(entityClass);
+        for (String field : doc.getFieldNames()) {
+            Object value = doc.getFieldValue(field);
+            if (value instanceof List<?> list && !list.isEmpty()) {
+                value = list.getFirst();
+            }
+            String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
+            for (var method : entityClass.getMethods()) {
+                if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                    ReflectUtils.invoke(instance, method.getName(), void.class,
+                            convertValue(value, method.getParameterTypes()[0]));
+                    break;
+                }
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * 应用包装器排序片段到 Solr 查询。
+     *
+     * @param solrQuery solr查询
+     * @param orderBys 排序列表
+     */
+    private static void applySorts(org.apache.solr.client.solrj.SolrQuery solrQuery,
+                                   List<String> orderBys) {
+        if (orderBys == null || orderBys.isEmpty()) {
+            return;
+        }
+        for (String orderBy : orderBys) {
+            String[] parts = orderBy.trim().split("\\s+");
+            org.apache.solr.client.solrj.SolrQuery.ORDER order =
+                    parts.length > 1 && "DESC".equalsIgnoreCase(parts[1])
+                            ? org.apache.solr.client.solrj.SolrQuery.ORDER.desc
+                            : org.apache.solr.client.solrj.SolrQuery.ORDER.asc;
+            solrQuery.addSort(parts[0], order);
         }
     }
 
@@ -1033,7 +1075,7 @@ public class SolrEngine extends AbstractEngine {
         Object val = c.getValue();
 
         if (col == null) {
-            return "*:*";
+            throw new IllegalArgumentException("查询条件缺少列名: op=" + op);
         }
 
         switch (op) {
@@ -1049,36 +1091,14 @@ public class SolrEngine extends AbstractEngine {
                 return escape(col) + ":{* TO " + escapeValue(val) + "}";
             case "<=":
                 return escape(col) + ":[* TO " + escapeValue(val) + "]";
-            case "LIKE": {
-                String pattern = val == null ? "*" : val.toString();
-                if (pattern.contains("%")) {
-                    pattern = pattern.replace("%", "*");
-                }
-                if (!pattern.startsWith("*")) {
-                    pattern = "*" + pattern;
-                }
-                if (!pattern.endsWith("*")) {
-                    pattern = pattern + "*";
-                }
-                return escape(col) + ":" + escapeValue(pattern);
-            }
-            case "NOT LIKE": {
-                String pattern = val == null ? "*" : val.toString();
-                if (pattern.contains("%")) {
-                    pattern = pattern.replace("%", "*");
-                }
-                if (!pattern.startsWith("*")) {
-                    pattern = "*" + pattern;
-                }
-                if (!pattern.endsWith("*")) {
-                    pattern = pattern + "*";
-                }
-                return "-" + escape(col) + ":" + escapeValue(pattern);
-            }
+            case "LIKE":
+                return escape(col) + ":" + likePattern(val == null ? "*" : val.toString());
+            case "NOT LIKE":
+                return "-" + escape(col) + ":" + likePattern(val == null ? "*" : val.toString());
             case "IN": {
                 Collection<?> values = (Collection<?>) val;
                 if (CollectionUtils.isEmpty(values)) {
-                    return "*:*";
+                    return "-*:*";
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.append(escape(col)).append(":(");
@@ -1118,7 +1138,7 @@ public class SolrEngine extends AbstractEngine {
                 return escape(col) + ":[" + escapeValue(range[0]) + " TO " + escapeValue(range[1]) + "]";
             }
             default:
-                return "*:*";
+                throw new UnsupportedOperationException("Solr 不支持操作符: " + op);
         }
     }
 
@@ -1177,6 +1197,37 @@ public class SolrEngine extends AbstractEngine {
             return "\"" + str.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
         }
         return escape(str);
+    }
+
+    /**
+     * 将 SQL LIKE 模式转换为 Solr 通配符查询值。
+     * <p>'%' → '*'，'_' → '?'，模式中出现的字面量 '*'/?'/'\' 及 Solr 特殊字符（含空格）
+     * 均以反斜杠转义，保持通配符生效且不做隐式前后补 '*'。</p>
+     *
+     * @param pattern SQL LIKE 模式
+     * @return Solr 通配符值（不含字段名）
+     */
+    static String likePattern(String pattern) {
+        if (pattern == null) {
+            return "\\*";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char ch : pattern.toCharArray()) {
+            switch (ch) {
+                case '%':
+                    sb.append('*');
+                    break;
+                case '_':
+                    sb.append('?');
+                    break;
+                default:
+                    if ("\\*?+-!(){}[]^\"~:&|;,#@/'. ".indexOf(ch) >= 0) {
+                        sb.append('\\');
+                    }
+                    sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 
     /**

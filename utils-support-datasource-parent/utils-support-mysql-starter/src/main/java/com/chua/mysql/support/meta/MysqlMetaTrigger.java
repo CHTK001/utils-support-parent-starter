@@ -1,261 +1,234 @@
 package com.chua.mysql.support.meta;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
-import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import com.chua.common.support.lang.datasource.meta.MetaTrigger;
 import com.chua.common.support.lang.datasource.meta.TriggerCreateBuilder;
 import com.chua.common.support.lang.datasource.meta.model.TriggerDef;
 import com.chua.datasource.support.meta.AbstractMetaData;
 import com.chua.datasource.support.meta.AbstractMetaTrigger;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+
 /**
+ * MySQL 触发器元数据操作。
+ * <p>
+ * 读取路径为 {@code INFORMATION_SCHEMA.TRIGGERS}：
+ * {@code TRIGGER_SCHEMA = COALESCE(?, DATABASE())}，已调用 {@code onTable(String)} 时追加
+ * {@code EVENT_OBJECT_TABLE = ?}，按触发器名查询时追加 {@code TRIGGER_NAME = ?}，三者都是绑定参数。
+ * 不再走 {@code DatabaseMetaData#getTables(..., "TRIGGER")}（该结果集根本没有 {@code TRIGGER_NAME} 列，
+ * 只会得到空列表），也不再使用 {@code SHOW CREATE TRIGGER} 与"失败回退拼字符串查询"的写法。
+ * </p>
+ * <p>
+ * 能力边界：
+ * <ul>
+ *   <li>MySQL 触发器恒为 {@code FOR EACH ROW}，{@code forEachStatement()} 显式拒绝，不静默降级。</li>
+ *   <li>MySQL 没有 {@code ALTER TABLE ... ENABLE/DISABLE TRIGGER} 语法（那是 PostgreSQL 的），
+ *       {@code enable(String)} / {@code disable(String)} 与构建器的 {@code disable()} 显式抛
+ *       {@link UnsupportedOperationException}。</li>
+ *   <li>MySQL 触发器无注释子句，{@code comment(String)} 显式拒绝。</li>
+ *   <li>因此 {@link TriggerDef#getStatus()} 在 MySQL 侧恒为 {@code null}（既无禁用态也就没有状态可报），不伪造
+ *       {@code ENABLED}。</li>
+ * </ul>
+ * </p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
-
 public class MysqlMetaTrigger extends AbstractMetaTrigger {
 
     /**
-     * 创建 mysqlmetatrigger 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+     * 触发器查询：库名绑定，表名/触发器名按需追加绑定条件。
+     */
+    private static final String TRIGGER_SQL =
+            "SELECT t.TRIGGER_CATALOG, t.TRIGGER_SCHEMA, t.TRIGGER_NAME, t.EVENT_OBJECT_TABLE, t.ACTION_TIMING,"
+                    + " t.EVENT_MANIPULATION, t.ACTION_STATEMENT, t.ACTION_REFERENCE_NEW_ROW"
+                    + " FROM INFORMATION_SCHEMA.TRIGGERS t"
+                    + " WHERE t.TRIGGER_SCHEMA = COALESCE(?, DATABASE())";
+
+    /**
+     * 构造方法（无触发器名上下文）。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
      */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 mysqlmetatrigger 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param triggerName 字符串
-     * @param engine engine
-     * @param triggerName trigger名称
+     * 构造方法（带触发器名上下文）。
+     *
+     * @param metaData    元数据入口
+     * @param engine      引擎实例
+     * @param triggerName 触发器名
      */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine, String triggerName) {
         super(metaData, engine, triggerName);
     }
 
-    @Override
     /**
-     * 列表
-    */
+     * 列出触发器：已调用 {@code onTable(String)} 时只返回该表的触发器。
+     *
+     * @return 触发器定义列表
+     * @throws IllegalStateException 查询失败
+     */
+    @Override
     public List<TriggerDef> list() {
-        List<TriggerDef> result = new ArrayList<>();
-        try (Connection conn = getConnection()) {
-            DatabaseMetaData dbMeta = conn.getMetaData();
-            String schemaPattern = metaData.getSchema() != null ? metaData.getSchema() : "%";
-            try (ResultSet rs = dbMeta.getTables(metaData.getCatalog(), schemaPattern, "%", new String[]{"TRIGGER"})) {
-                while (rs.next()) {
-                    String name = rs.getString("TRIGGER_NAME");
-                    String triggerSchema = rs.getString("TRIGGER_SCHEM");
-                    TriggerDef def = getTriggerDefinition(conn, triggerSchema, name);
-                    if (def != null) {
-                        result.add(def);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("列出触发器失败: " + e.getMessage(), e);
-        }
-        return result;
+        return readTriggers(null);
     }
 
-    @Override
     /**
-     * 获取
-    */
+     * 获取指定触发器定义。
+     *
+     * @param triggerName 触发器名，为 {@code null} 时使用构造期上下文
+     * @return 触发器定义，不存在时返回 {@code null}
+     * @throws IllegalStateException 未指定触发器名或查询失败
+     */
+    @Override
     public TriggerDef get(String triggerName) {
-        try (Connection conn = getConnection()) {
-            return getTriggerDefinition(conn, metaData.getSchema(), triggerName);
-        } catch (Exception e) {
-            throw new RuntimeException("获取触发器定义失败: " + triggerName, e);
+        String target = triggerName != null ? triggerName : this.triggerName;
+        if (target == null) {
+            throw new IllegalStateException("未指定触发器名");
         }
+        List<TriggerDef> defs = readTriggers(target);
+        return defs.isEmpty() ? null : defs.get(0);
     }
 
     @Override
-    /**
-     * 创建
-    */
     public TriggerCreateBuilder create(String triggerName) {
         return new MysqlTriggerCreateBuilder(this, triggerName);
     }
 
-    @Override
     /**
-     * 掉落
-    */
+     * 删除触发器。
+     *
+     * @param triggerName 触发器名
+     * @return 是否成功
+     * @throws IllegalStateException 未指定触发器名或执行失败
+     */
+    @Override
     public boolean drop(String triggerName) {
-        return executeUpdate("DROP TRIGGER IF EXISTS " + quote(triggerName));
+        if (triggerName == null) {
+            throw new IllegalStateException("未指定触发器名");
+        }
+        return MysqlMetaData.execute(engine, "删除触发器 " + triggerName,
+                "DROP TRIGGER IF EXISTS " + qualified(triggerName), List.of());
     }
 
     @Override
-    /**
-     * 启用
-    */
     public boolean enable(String triggerName) {
-        return executeUpdate("ALTER TABLE " + quote(tableName) + " ENABLE TRIGGER `" + triggerName + "`");
+        throw new UnsupportedOperationException("MySQL 不支持启用/禁用触发器（无 ALTER TRIGGER 语法）");
     }
 
     @Override
-    /**
-     * 禁用
-    */
     public boolean disable(String triggerName) {
-        return executeUpdate("ALTER TABLE " + quote(tableName) + " DISABLE TRIGGER `" + triggerName + "`");
+        throw new UnsupportedOperationException("MySQL 不支持启用/禁用触发器（无 ALTER TRIGGER 语法）");
     }
 
     /**
-     * 获取Connection
+     * 按条件读取触发器定义。
      *
-     * @return 获取connection的结果
+     * @param name 触发器名过滤，{@code null} 表示不过滤
+     * @return 触发器定义列表
+     * @throws IllegalStateException 查询失败
      */
-    protected Connection getConnection() throws Exception {
-        EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
-        if (eds == null) {
-            throw new IllegalStateException("默认数据源未配置");
+    private List<TriggerDef> readTriggers(String name) {
+        StringBuilder sql = new StringBuilder(TRIGGER_SQL);
+        List<Object> args = MysqlMetaData.args(MysqlMetaData.resolveSchema(metaData));
+        if (tableName != null) {
+            sql.append(" AND t.EVENT_OBJECT_TABLE = ?");
+            args.add(tableName);
         }
-        Object source = eds.getSource();
-        if (source instanceof DataSource ds) {
-            return ds.getConnection();
+        if (name != null) {
+            sql.append(" AND t.TRIGGER_NAME = ?");
+            args.add(name);
         }
-        throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
+        sql.append(" ORDER BY t.TRIGGER_NAME");
+        return MysqlMetaData.query(engine, "查询触发器" + (name == null ? "" : " " + name),
+                sql.toString(), args, MysqlMetaTrigger::mapTrigger);
     }
 
     /**
-     * 获取triggerdefinition
+     * 触发器结果集映射，逐列对应 {@link TriggerDef} 属性。
      *
-     * @param conn conn
-     * @param triggerSchema trigger模式
-     * @param triggerName trigger名称
-     * @return 获取triggerdefinition的结果
+     * @param rs 结果集当前行
+     * @return 触发器定义
+     * @throws SQLException 读取失败
      */
-    private TriggerDef getTriggerDefinition(Connection conn, String triggerSchema, String triggerName) throws Exception {
-        String sql = "SHOW CREATE TRIGGER " + quote(triggerSchema != null ? triggerSchema + "." + triggerName : triggerName);
-        try (java.sql.Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            if (rs.next()) {
-                String createStmt = rs.getString("SQL Original Statement");
-                TriggerDef def = new TriggerDef();
-                def.setName(triggerName);
-                def.setSchema(triggerSchema);
-                def.setBody(createStmt);
-                if (createStmt != null) {
-                    String upper = createStmt.toUpperCase();
-                    if (upper.contains("BEFORE")) {
-                        def.setTiming("BEFORE");
-                    } else if (upper.contains("AFTER")) {
-                        def.setTiming("AFTER");
-                    }
-                    if (upper.contains("INSERT")) {
-                        def.setEvent("INSERT");
-                    } else if (upper.contains("UPDATE")) {
-                        def.setEvent("UPDATE");
-                    } else if (upper.contains("DELETE")) {
-                        def.setEvent("DELETE");
-                    }
-                    def.setForEachRow(upper.contains("FOR EACH ROW"));
-                }
-                return def;
-            }
-        } catch (SQLException e) {
- // 豁免：信息_模式 回退查询，trigger名称/trigger模式 为系统触发器标识（由应用自身创建），非外部用户输入
-            String infoSchemaSql = "SELECT * FROM INFORMATION_SCHEMA.TRIGGERS WHERE TRIGGER_NAME = '" + triggerName + "'";
-            if (triggerSchema != null) {
-                infoSchemaSql += " AND TRIGGER_SCHEMA = '" + triggerSchema + "'";
-            }
-            try (java.sql.Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(infoSchemaSql)) {
-                if (rs.next()) {
-                    TriggerDef def = new TriggerDef();
-                    def.setName(rs.getString("TRIGGER_NAME"));
-                    def.setSchema(rs.getString("TRIGGER_SCHEMA"));
-                    def.setTableName(rs.getString("EVENT_OBJECT_TABLE"));
-                    def.setTiming(rs.getString("ACTION_TIMING"));
-                    def.setEvent(rs.getString("EVENT_MANIPULATION"));
-                    def.setBody(rs.getString("ACTION_STATEMENT"));
-                    def.setForEachRow(true);
-                    return def;
-                }
-            }
-        }
-        return null;
+    private static TriggerDef mapTrigger(ResultSet rs) throws SQLException {
+        TriggerDef def = new TriggerDef();
+        def.setName(rs.getString("TRIGGER_NAME"));
+        def.setCatalog(MysqlMetaData.trimToNull(rs.getString("TRIGGER_CATALOG")));
+        def.setSchema(rs.getString("TRIGGER_SCHEMA"));
+        def.setTableName(rs.getString("EVENT_OBJECT_TABLE"));
+        def.setTiming(MysqlMetaData.trimToNull(rs.getString("ACTION_TIMING")));
+        def.setEvent(MysqlMetaData.trimToNull(rs.getString("EVENT_MANIPULATION")));
+        def.setBody(rs.getString("ACTION_STATEMENT"));
+        // MySQL 用 ACTION_REFERENCE_NEW_ROW='ROW' 表达逐行触发，语句级触发为空串
+        def.setForEachRow("ROW".equalsIgnoreCase(MysqlMetaData.trimToNull(rs.getString("ACTION_REFERENCE_NEW_ROW"))));
+        // MySQL 无触发器启用/禁用状态，保持 null
+        return def;
     }
 
     /**
-     * 引述
+     * 生成带库名前缀的触发器引用名；库名未指定时交给会话默认库。
      *
-     * @param name 名称
-     * @return 引述的结果
+     * @param name 触发器名
+     * @return 引用后的触发器名
      */
-    private String quote(String name) {
-        return "`" + name + "`";
+    private String qualified(String name) {
+        String schema = MysqlMetaData.resolveSchema(metaData);
+        return schema == null ? MysqlMetaData.quote(name)
+                : MysqlMetaData.quote(schema) + "." + MysqlMetaData.quote(name);
     }
 
     /**
-     * 执行更新
+     * 校验并归一触发事件。
      *
-     * @param sql SQL
-     * @return 执行更新的结果
+     * @param event 事件
+     * @return 大写事件名
+     */
+    private static String checkEvent(String event) {
+        String upper = event == null ? "" : event.trim().toUpperCase();
+        if (!"INSERT".equals(upper) && !"UPDATE".equals(upper) && !"DELETE".equals(upper)) {
+            throw new IllegalArgumentException("MySQL 触发事件仅支持 INSERT / UPDATE / DELETE，实际为: " + event);
+        }
+        return upper;
+    }
+
+    /**
+     * MySQL 建触发器链式构建器。
+     *
      * @author CH
      * @since 4.0.0
      */
-    private boolean executeUpdate(String sql) {
-        try (Connection conn = getConnection();
-             java.sql.Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException("执行 SQL 失败: " + sql, e);
-        }
-    }
-
     private static class MysqlTriggerCreateBuilder implements TriggerCreateBuilder {
 
         /**
-         * Metatrigger
-        */
+         * 所属触发器元数据入口
+         */
         private final MysqlMetaTrigger metaTrigger;
         /**
-         * Trigger名称
-        */
+         * 触发器名
+         */
         private final String triggerName;
         /**
-         * 表名称
-        */
+         * 所属表名
+         */
         private String tableName;
         /**
-         * Timing
-        */
+         * 触发时机
+         */
         private String timing;
         /**
-         * 事件
-        */
+         * 触发事件
+         */
         private String event;
         /**
-         * foreach行
-        */
-        private boolean forEachRow = true;
-        /**
-         * 请求体
-        */
+         * 触发器体
+         */
         private String body;
-        /**
-         * Enable
-        */
-        private boolean enable = true;
-        /**
-         * 评论
-        */
-        private String comment;
 
         MysqlTriggerCreateBuilder(MysqlMetaTrigger metaTrigger, String triggerName) {
             this.metaTrigger = metaTrigger;
@@ -263,127 +236,101 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
-        /**
-         * ontable
-        */
         public TriggerCreateBuilder onTable(String tableName) {
             this.tableName = tableName;
             return this;
         }
 
         @Override
-        /**
-         * 之前
-        */
         public TriggerCreateBuilder before(String event) {
             this.timing = "BEFORE";
-            this.event = event;
+            this.event = checkEvent(event);
             return this;
         }
 
         @Override
-        /**
-         * 之后
-        */
         public TriggerCreateBuilder after(String event) {
             this.timing = "AFTER";
-            this.event = event;
+            this.event = checkEvent(event);
             return this;
         }
 
         @Override
-        /**
-         * instead的
-        */
         public TriggerCreateBuilder insteadOf(String event) {
             throw new UnsupportedOperationException("MySQL 不支持 INSTEAD OF 触发器");
         }
 
         @Override
-        /**
-         * foreachrow
-        */
         public TriggerCreateBuilder forEachRow() {
-            this.forEachRow = true;
             return this;
         }
 
         @Override
-        /**
-         * foreach对账单
-        */
         public TriggerCreateBuilder forEachStatement() {
-            this.forEachRow = false;
-            return this;
+            throw new UnsupportedOperationException("MySQL 触发器只支持 FOR EACH ROW");
         }
 
         @Override
-        /**
-         * 主体
-        */
         public TriggerCreateBuilder body(String body) {
             this.body = body;
             return this;
         }
 
         @Override
-        /**
-         * 启用
-        */
         public TriggerCreateBuilder enable() {
-            this.enable = true;
             return this;
         }
 
         @Override
-        /**
-         * 禁用
-        */
         public TriggerCreateBuilder disable() {
-            this.enable = false;
-            return this;
+            throw new UnsupportedOperationException("MySQL 不支持创建禁用态触发器");
         }
 
         @Override
-        /**
-         * 评论
-        */
         public TriggerCreateBuilder comment(String comment) {
-            this.comment = comment;
-            return this;
+            throw new UnsupportedOperationException("MySQL 触发器没有注释子句");
         }
 
-        @Override
         /**
-         * 执行
-        */
+         * 执行建触发器语句，并以字典读回结果作为返回值。
+         * <p>触发器体含多条语句时自动包一层 {@code BEGIN ... END}。</p>
+         *
+         * @return 落库后的触发器定义
+         * @throws IllegalStateException 参数不完整或执行失败
+         */
+        @Override
         public TriggerDef execute() {
             if (tableName == null) {
-                throw new IllegalStateException("未指定表名，请先调用 onTable()");
+                throw new IllegalStateException("未指定表名，请先调用 onTable(String)");
             }
             if (timing == null || event == null) {
-                throw new IllegalStateException("未指定触发时机和事件，请先调用 before() 或 after()");
+                throw new IllegalStateException("未指定触发时机和事件，请先调用 before(String) 或 after(String)");
             }
-            if (body == null || body.isEmpty()) {
+            if (body == null || body.trim().isEmpty()) {
                 throw new IllegalStateException("触发器体不能为空");
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append("CREATE TRIGGER ").append(metaTrigger.quote(triggerName)).append(" ");
-            sb.append(timing).append(" ").append(event).append(" ON ").append(metaTrigger.quote(tableName)).append("\n");
-            sb.append("FOR EACH ROW\n");
-            sb.append("BEGIN\n");
-            sb.append("  ").append(body.replace("\n", "\n  ")).append("\n");
-            sb.append("END");
-            metaTrigger.executeUpdate(sb.toString());
-            TriggerDef def = new TriggerDef();
-            def.setName(triggerName);
-            def.setTableName(tableName);
-            def.setTiming(timing);
-            def.setEvent(event);
-            def.setForEachRow(forEachRow);
-            def.setBody(body);
-            def.setStatus(enable ? "ENABLED" : "DISABLED");
-            return def;
+            String trimmed = body.trim();
+            String statement = trimmed.indexOf(';') >= 0
+                    ? "BEGIN\n  " + trimmed.replace("\n", "\n  ") + "\nEND"
+                    : trimmed;
+            String sql = "CREATE TRIGGER " + metaTrigger.qualified(triggerName) + " " + timing + " " + event
+                    + " ON " + MysqlMetaData.quote(tableName) + "\nFOR EACH ROW\n" + statement;
+            MysqlMetaData.execute(metaTrigger.engine, "创建触发器 " + triggerName, sql, List.of());
+            return new MysqlMetaTrigger(metaTrigger.metaData, metaTrigger.engine)
+                    .readTriggerOn(tableName, triggerName);
         }
+    }
+
+    /**
+     * 在指定表上下文中读取单个触发器，供构建器回填返回值。
+     *
+     * @param table       表名
+     * @param triggerName 触发器名
+     * @return 触发器定义，不存在时为 {@code null}
+     */
+    private TriggerDef readTriggerOn(String table, String triggerName) {
+        MysqlMetaTrigger probe = new MysqlMetaTrigger(metaData, engine);
+        probe.tableName = table;
+        return probe.get(triggerName);
     }
 }

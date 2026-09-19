@@ -7,6 +7,7 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.network.tunnel.Tunnel;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcEngine;
+import com.chua.datasource.support.url.JdbcUrl;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
@@ -61,6 +62,9 @@ public class MysqlEngine extends JdbcEngine {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");
         }
+        JdbcUrl.checkHost(options.host());
+        JdbcUrl.checkPort(options.port());
+        JdbcUrl.checkDatabase(options.database());
         HikariDataSource ds = new HikariDataSource();
         final int[] tunnelPortCapture = {0};
         int targetPort = options.port();
@@ -84,7 +88,7 @@ public class MysqlEngine extends JdbcEngine {
             private Dialect dialect = Dialect.require("mysql");
             @Override public String name() { return options.name(); }
             @Override public HikariDataSource getSource() { return ds; }
-            @Override public EngineDataSource<HikariDataSource> setSource(Object source) { return this; }
+            @Override public EngineDataSource<HikariDataSource> setSource(Object source) { throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源"); }
             @Override public Dialect getDialect() { return dialect; }
             @Override public EngineDataSource<HikariDataSource> setDialect(Dialect d) {
                 if (d != null) {
@@ -97,15 +101,6 @@ public class MysqlEngine extends JdbcEngine {
             @Override public String url() { return ds.getJdbcUrl(); }
             @Override public String username() { return ds.getUsername(); }
             @Override public String password() { return ds.getPassword(); }
-            @Override
-            public void close() {
-                if (ds instanceof AutoCloseable c) {
-                    try {
-                        c.close();
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
         });
     }
 }

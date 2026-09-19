@@ -49,6 +49,8 @@ public class Mysql57Dialect extends SqlDialect {
         Properties p = new Properties();
         p.setProperty("driver", driver);
         p.setProperty("table-type", tableType);
+        // SPI 键为 mysql57：protocol() 须与键一致（env 仍复用 mysql.env）
+        p.setProperty("protocol", "mysql57");
         return p;
     }
 

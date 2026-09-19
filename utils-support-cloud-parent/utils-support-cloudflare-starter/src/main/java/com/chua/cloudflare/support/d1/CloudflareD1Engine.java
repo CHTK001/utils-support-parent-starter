@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * <p>封装 Cloudflare D1 SQL 查询能力，提供参数绑定、批量查询、事务等高级 API。
  * 本类是薄壳委托 + 结果映射层：所有执行均通过 {@link CloudflareClient#post}
- * 提交到 {@code /accounts/{account_id}/d1/database/{db_标识}/查询}。</p>
+ * 提交到 {@code /accounts/{account_id}/d1/database/{db_id}/query}。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -24,7 +24,7 @@ import java.util.Map;
  * engine.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)");
  *
  * // 插入（命名参数）
- * engine.execute(
+ * engine.executeNamed(
  *     "INSERT INTO users (name) VALUES (:name)",
  *     Map.of("name", "Alice"));
  *
@@ -34,10 +34,6 @@ import java.util.Map;
  *
  * // 批量
  * engine.batch(List.of(
- *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Bob"),
- *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Carol")
- * ));
- * }</pre>t.of(
  *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Bob"),
  *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Carol")
  * ));
@@ -94,12 +90,15 @@ public class CloudflareD1Engine {
 
     /**
      * 执行 SQL（命名参数）。
+     * <p>不复用 {@code execute(String, Object...)} 的重载位：当唯一的位置参数本身
+     * 就是一个 Map（如 JSON 列值）时，同名重载会被静态解析到命名参数版本，
+     * 从而静默改变绑定语义，因此命名参数入口单独命名。</p>
      *
      * @param sql   SQL 语句
      * @param named 命名参数映射
      * @return D1 元数据
      */
-    public D1Result execute(String sql, Map<String, Object> named) {
+    public D1Result executeNamed(String sql, Map<String, Object> named) {
         return executeWithParams(sql, D1SqlParameter.ofNamed(named));
     }
 
@@ -119,13 +118,14 @@ public class CloudflareD1Engine {
 
     /**
      * 执行单条 SQL 并返回结果列表（命名参数）。
+     * <p>改名理由同 {@link #executeNamed(String, Map)}。</p>
      *
      * @param sql   SQL 语句
      * @param named 命名参数
      * @return 结果列表
      */
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> query(String sql, Map<String, Object> named) {
+    public List<Map<String, Object>> queryNamed(String sql, Map<String, Object> named) {
         D1Result result = executeWithParams(sql, D1SqlParameter.ofNamed(named));
         return (List<Map<String, Object>>) (List<?>) result.rows();
     }

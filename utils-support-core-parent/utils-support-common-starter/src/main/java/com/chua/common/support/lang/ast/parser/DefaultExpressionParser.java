@@ -82,6 +82,21 @@ public class DefaultExpressionParser implements ExpressionParser {
     private static final String OP_IN = "IN";
 
     /**
+     * NOT IN 运算符
+     */
+    private static final String OP_NOT_IN = "NOT IN";
+
+    /**
+     * NOT LIKE 运算符
+     */
+    private static final String OP_NOT_LIKE = "NOT LIKE";
+
+    /**
+     * NOT BETWEEN 运算符
+     */
+    private static final String OP_NOT_BETWEEN = "NOT BETWEEN";
+
+    /**
      * BETWEEN 运算符
      */
     private static final String OP_BETWEEN = "BETWEEN";
@@ -363,12 +378,12 @@ public class DefaultExpressionParser implements ExpressionParser {
             if (KW_IS.equalsIgnoreCase(op)) {
                 return parseIsNull(left);
             }
-            if (KW_IN.equalsIgnoreCase(op)) {
+            if (KW_IN.equalsIgnoreCase(op) || OP_NOT_IN.equalsIgnoreCase(op)) {
                 BTreeNode right = parseInList();
-                return BTreeNode.compare(OP_IN, left, right);
+                return BTreeNode.compare(OP_NOT_IN.equalsIgnoreCase(op) ? OP_NOT_IN : OP_IN, left, right);
             }
-            if (KW_BETWEEN.equalsIgnoreCase(op)) {
-                return parseBetween(left);
+            if (KW_BETWEEN.equalsIgnoreCase(op) || OP_NOT_BETWEEN.equalsIgnoreCase(op)) {
+                return parseBetween(left, OP_NOT_BETWEEN.equalsIgnoreCase(op) ? OP_NOT_BETWEEN : OP_BETWEEN);
             }
             BTreeNode right = parseAtom();
             return BTreeNode.compare(op, left, right);
@@ -395,11 +410,11 @@ public class DefaultExpressionParser implements ExpressionParser {
          * @param left 左子节点
          * @return BETWEEN 表达式根节点
          */
-        BTreeNode parseBetween(BTreeNode left) {
+        BTreeNode parseBetween(BTreeNode left, String op) {
             BTreeNode low = parseAtom();
             matchKeyword(KW_AND);
             BTreeNode high = parseAtom();
-            return BTreeNode.compare(OP_BETWEEN, left,
+            return BTreeNode.compare(op, left,
                     BTreeNode.compare(OP_AND_PLACEHOLDER, low, high));
         }
 
@@ -417,6 +432,7 @@ public class DefaultExpressionParser implements ExpressionParser {
             while (!match(')')) {
                 if (count > 0) {
                     match(',');
+                    list.append(',');
                     skipWhitespace();
                 }
                 list.append(readValue());
@@ -598,6 +614,20 @@ public class DefaultExpressionParser implements ExpressionParser {
          */
         String matchCompareOp() {
             skipWhitespace();
+            // 否定复合运算符：NOT LIKE / NOT IN / NOT BETWEEN
+            int mark = pos;
+            if (matchKeyword(KW_NOT)) {
+                if (matchKeyword(KW_LIKE)) {
+                    return OP_NOT_LIKE;
+                }
+                if (matchKeyword(KW_IN)) {
+                    return OP_NOT_IN;
+                }
+                if (matchKeyword(KW_BETWEEN)) {
+                    return OP_NOT_BETWEEN;
+                }
+                pos = mark;
+            }
             // 多字符运算符优先
             if (matchKeyword(KW_LIKE)) {
                 return KW_LIKE;

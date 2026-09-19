@@ -18,7 +18,7 @@ import java.nio.file.Path;
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * Engine engine = Engine.create("jdbc");
+ * Engine engine = Engine.create("h2");
  * engine.flyway()
  *     .location("classpath:db/migration")
  *     .migrate();
@@ -60,8 +60,11 @@ public interface Flyway {
 
     /**
      * 设置目标数据库协议名，启用 {@link ScriptConverter} SPI 方言转换。
-     * <p>默认空实现（不做转换）；{@code DataSourceFlyway} 覆盖此方法，在语句拆分后、
-     * JDBC 执行前按协议做 MySQL→目标库的方言兼容转换。传入 {@code null} 或空串表示原样执行。</p>
+     * <p>执行链：原始脚本 --拆分--> 语句列表 --{@code ScriptConverter.convert(protocol)}-->
+     * 转换后语句列表 --执行--> 目标库。{@link DefaultFlyway} 与
+     * {@code DataSourceFlyway} 均按此约定实现；协议为空表示脚本已按目标库原生方言编写。</p>
+     * <p>接口默认实现为空操作（仅适用于本身不做方言处理的实现），因此跨实现的可移植用法是
+     * 通过 {@code Engine#flyway()} 取得实例后调用本方法。</p>
      *
      * @param protocol 数据库协议名（如 {@code sqlite}、{@code postgresql}、{@code oracle}）
      * @return this

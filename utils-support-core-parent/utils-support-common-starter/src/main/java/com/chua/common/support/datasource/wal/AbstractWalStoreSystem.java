@@ -79,11 +79,20 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
         }
         closed = true;
         compactScheduler.shutdownNow();
-        for (SegmentWalLog log : walLogs) {
+        IOException first = null;
+        for (SegmentWalLog walLog : walLogs) {
             try {
-                log.close();
-            } catch (IOException ignored) {
+                walLog.close();
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
             }
+        }
+        if (first != null) {
+            throw first;
         }
     }
 

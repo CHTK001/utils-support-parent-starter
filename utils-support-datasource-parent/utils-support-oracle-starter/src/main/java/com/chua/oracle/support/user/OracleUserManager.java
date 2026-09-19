@@ -7,6 +7,7 @@ import com.chua.datasource.support.user.UserManager;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
  *   <li>删除用户需使用 CASCADE 以级联删除其 Schema 对象</li>
  *   <li>用户列表查询 dba_users 视图需要 DBA 权限</li>
  * </ul>
+ * 用户名在语句中以裸标识符出现，因此一律先过白名单校验，杜绝拼接注入。
  * </p>
  *
  * @author CH
@@ -31,7 +33,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
 
     /**
      * 数据来源
-    */
+     */
     private DataSource dataSource;
 
     /**
@@ -55,7 +57,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-     * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_用户 视图）。
+     * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_users 视图）。
      *
      * @return 用户信息列表
      */
@@ -71,8 +73,8 @@ public class OracleUserManager implements UserManager, DataSourceAware {
                 ui.setHost("");
                 list.add(ui);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new IllegalStateException("列出 Oracle 用户失败", e);
         }
         return list;
     }
@@ -80,7 +82,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     /**
      * 创建一个 Oracle 用户的链式构建器。
      *
-     * @param username 用户名
+     * @param username 用户名，必须命中用户名白名单
      * @return 创建用户的链式步骤对象
      */
     @Override
@@ -89,19 +91,21 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
     /**
-     * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 模式 对象）。
+     * 删除一个 Oracle 用户（使用 CASCADE 级联删除其 Schema 对象）。
      *
-     * @param username 用户名
+     * @param username 用户名，必须命中用户名白名单
      * @return 执行步骤对象
      */
     @Override
     public DropUserStep dropUser(String username) {
+        String user = OracleSqlNames.checkUserName(username);
         return () -> {
+            String sql = "DROP USER " + user + " CASCADE";
             try (Connection c = dataSource.getConnection();
                  Statement s = c.createStatement()) {
-                s.execute("DROP USER " + username + " CASCADE");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                s.execute(sql);
+            } catch (SQLException e) {
+                throw new IllegalStateException("删除用户失败: " + user, e);
             }
         };
     }
@@ -109,11 +113,12 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     /**
      * 修改 Oracle 用户属性的链式构建器。
      *
-     * @param username 用户名
+     * @param username 用户名，必须命中用户名白名单
      * @return 修改用户的链式步骤对象
      */
     @Override
     public AlterUserStep alterUser(String username) {
         return new OracleAlterUserStep(dataSource, username);
     }
+
 }

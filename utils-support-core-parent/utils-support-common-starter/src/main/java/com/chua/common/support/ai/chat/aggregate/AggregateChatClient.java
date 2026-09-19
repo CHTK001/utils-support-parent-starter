@@ -337,6 +337,87 @@ public class AggregateChatClient implements ChatClient {
     }
 
     /**
+     * 将一项请求级配置广播到所有被聚合的底层客户端。
+     *
+     * <p>聚合客户端本身不持有模型连接，接口中的配置方法默认是空实现（仅返回 this）。
+     * 若不把配置传播到每个候选客户端，模型、温度、深度思考、在线检索、历史等配置
+     * 会被静默丢弃，导致底层客户端仍使用构造时的默认配置。</p>
+     *
+     * @param configFn 对单个底层客户端的配置动作
+     * @return 当前聚合客户端
+     */
+    private AggregateChatClient broadcast(java.util.function.Function<ChatClient, ChatClient> configFn) {
+        for (RouterStrategy.WeightedClient wc : allClients) {
+            try {
+                configFn.apply(wc.client());
+            } catch (Exception e) {
+                log.debug("[Aggregate] 配置传播失败 provider={}: {}", wc.provider(), e.getMessage());
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public ChatClient model(String model) {
+        return broadcast(c -> c.model(model));
+    }
+
+    @Override
+    public ChatClient system(String system) {
+        return broadcast(c -> c.system(system));
+    }
+
+    @Override
+    public ChatClient temperature(double temperature) {
+        return broadcast(c -> c.temperature(temperature));
+    }
+
+    @Override
+    public ChatClient maxTokens(int maxTokens) {
+        return broadcast(c -> c.maxTokens(maxTokens));
+    }
+
+    @Override
+    public ChatClient topP(Double topP) {
+        return topP == null ? this : broadcast(c -> c.topP(topP));
+    }
+
+    @Override
+    public ChatClient extraBody(Map<String, Object> extraBody) {
+        return broadcast(c -> c.extraBody(extraBody));
+    }
+
+    @Override
+    public ChatClient thinking(boolean thinking) {
+        return broadcast(c -> c.thinking(thinking));
+    }
+
+    @Override
+    public ChatClient thinkingEffort(String effort) {
+        return broadcast(c -> c.thinkingEffort(effort));
+    }
+
+    @Override
+    public ChatClient smartSearch(boolean smartSearch) {
+        return broadcast(c -> c.smartSearch(smartSearch));
+    }
+
+    @Override
+    public ChatClient stream(boolean stream) {
+        return broadcast(c -> c.stream(stream));
+    }
+
+    @Override
+    public ChatClient addImage(String imageUrl) {
+        return broadcast(c -> c.addImage(imageUrl));
+    }
+
+    @Override
+    public ChatClient history(List<com.chua.common.support.ai.chat.ChatMessage> messages) {
+        return broadcast(c -> c.history(messages));
+    }
+
+    /**
      * 流式对话，通过 Consumer 回调接收响应。
      *
      * @param prompt   用户输入
@@ -366,8 +447,26 @@ public class AggregateChatClient implements ChatClient {
             String prepared = preparePrompt(prompt);
             consumer.accept(ChatResponse.builder().state(ChatResponse.State.START).build());
             List<RouterStrategy.WeightedClient> candidates = filterHealthy(allClients);
-            router.executeStream(candidates.isEmpty() ? allClients : candidates, prepared, consumer);
-            consumer.accept(ChatResponse.builder().state(ChatResponse.State.STOP).build());
+            // 底层客户端会自行发出带 usage 的 STOP，聚合层不得再补发一个空 usage 的 STOP，
+            // 否则上层「按 STOP 取用量」会被空值覆盖，流式调用完全不计量
+            final AiUsage[] streamedUsage = new AiUsage[1];
+            final boolean[] stopDelivered = new boolean[1];
+            Consumer<ChatResponse> tracked = response -> {
+                if (response.getState() == ChatResponse.State.STOP) {
+                    stopDelivered[0] = true;
+                    if (response.getUsage() != null) {
+                        streamedUsage[0] = response.getUsage();
+                    }
+                }
+                consumer.accept(response);
+            };
+            router.executeStream(candidates.isEmpty() ? allClients : candidates, prepared, tracked);
+            if (!stopDelivered[0] || streamedUsage[0] == null) {
+                consumer.accept(ChatResponse.builder()
+                        .state(ChatResponse.State.STOP)
+                        .usage(streamedUsage[0])
+                        .build());
+            }
             onComplete.run();
         } catch (Exception e) {
             log.error("[AggregateChatClient] stream failed: {}", e.getMessage(), e);

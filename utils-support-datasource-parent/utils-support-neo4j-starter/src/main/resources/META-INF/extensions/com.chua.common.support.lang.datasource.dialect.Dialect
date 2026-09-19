@@ -1,0 +1,1 @@
+neo4j=com.chua.neo4j.support.dialect.Neo4jDialect

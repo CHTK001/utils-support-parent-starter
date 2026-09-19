@@ -189,6 +189,12 @@ public class EsMeta extends AbstractMetaSearch {
                 field.setIndexed(builder.indexed);
                 field.setStored(builder.stored);
                 field.setWeight(builder.weight);
+                field.setIgnoreAbove(builder.ignoreAbove);
+                field.setNullValue(builder.nullValue);
+                field.setDocValues(builder.docValues);
+                if (builder.typeOverride != null) {
+                    field.setType(builder.typeOverride);
+                }
             }
             fields.add(field);
             return this;
@@ -263,6 +269,22 @@ public class EsMeta extends AbstractMetaSearch {
          * 权重
         */
         private double weight = 1.0;
+        /**
+         * 类型覆盖（keyword()/text() 等快捷方法设置）
+         */
+        private String typeOverride;
+        /**
+         * ignore_above 长度
+         */
+        private Integer ignoreAbove;
+        /**
+         * null_value 占位
+         */
+        private String nullValue;
+        /**
+         * doc_values 开关
+         */
+        private Boolean docValues;
 
         @Override
         /**
@@ -305,6 +327,7 @@ public class EsMeta extends AbstractMetaSearch {
          * Keyword
         */
         public SearchFieldBuilder keyword() {
+            this.typeOverride = "KEYWORD";
             return this;
         }
 
@@ -313,6 +336,7 @@ public class EsMeta extends AbstractMetaSearch {
          * 文本
         */
         public SearchFieldBuilder text() {
+            this.typeOverride = "TEXT";
             return this;
         }
 
@@ -321,6 +345,7 @@ public class EsMeta extends AbstractMetaSearch {
          * Integer
         */
         public SearchFieldBuilder integer() {
+            this.typeOverride = "INTEGER";
             return this;
         }
 
@@ -329,6 +354,7 @@ public class EsMeta extends AbstractMetaSearch {
          * long类型
         */
         public SearchFieldBuilder longType() {
+            this.typeOverride = "LONG";
             return this;
         }
 
@@ -337,6 +363,7 @@ public class EsMeta extends AbstractMetaSearch {
          * float类型
         */
         public SearchFieldBuilder floatType() {
+            this.typeOverride = "FLOAT";
             return this;
         }
 
@@ -345,6 +372,7 @@ public class EsMeta extends AbstractMetaSearch {
          * double类型
         */
         public SearchFieldBuilder doubleType() {
+            this.typeOverride = "DOUBLE";
             return this;
         }
 
@@ -353,6 +381,7 @@ public class EsMeta extends AbstractMetaSearch {
          * 日期
         */
         public SearchFieldBuilder date() {
+            this.typeOverride = "DATE";
             return this;
         }
 
@@ -361,6 +390,7 @@ public class EsMeta extends AbstractMetaSearch {
          * Bool
         */
         public SearchFieldBuilder bool() {
+            this.typeOverride = "BOOLEAN";
             return this;
         }
 
@@ -369,6 +399,7 @@ public class EsMeta extends AbstractMetaSearch {
          * 对象
         */
         public SearchFieldBuilder object() {
+            this.typeOverride = "OBJECT";
             return this;
         }
 
@@ -377,6 +408,7 @@ public class EsMeta extends AbstractMetaSearch {
          * 嵌套
         */
         public SearchFieldBuilder nested() {
+            this.typeOverride = "NESTED";
             return this;
         }
 
@@ -394,6 +426,7 @@ public class EsMeta extends AbstractMetaSearch {
          * ignoreabove
         */
         public SearchFieldBuilder ignoreAbove(int ignoreAbove) {
+            this.ignoreAbove = ignoreAbove;
             return this;
         }
 
@@ -402,6 +435,7 @@ public class EsMeta extends AbstractMetaSearch {
          * doc值
         */
         public SearchFieldBuilder docValues(boolean docValues) {
+            this.docValues = docValues;
             return this;
         }
 
@@ -410,6 +444,7 @@ public class EsMeta extends AbstractMetaSearch {
          * 空值
         */
         public SearchFieldBuilder nullValue(String nullValue) {
+            this.nullValue = nullValue;
             return this;
         }
     }

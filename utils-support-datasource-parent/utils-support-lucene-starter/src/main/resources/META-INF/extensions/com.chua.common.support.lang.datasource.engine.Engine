@@ -1,1 +1,1 @@
-LUCENE=com.chua.lucene.support.engine.LuceneEngine
+lucene=com.chua.lucene.support.engine.LuceneEngine

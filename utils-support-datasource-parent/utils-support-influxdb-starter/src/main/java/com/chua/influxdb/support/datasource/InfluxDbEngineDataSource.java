@@ -83,22 +83,30 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
     */
     @Override
     public EngineDataSource<InfluxDB> setSource(Object source) {
-        return this;
+        throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新调用 addDataSource 注册新数据源");
     }
 
     /**
-     * 非 SQL 方言返回 空
+     * 方言实例，可通过 setDialect 替换。
+    */
+    private Dialect dialect = Dialect.getExtension("influxdb");
+
+    /**
+     * 获取方言
     */
     @Override
     public Dialect getDialect() {
-        return null;
+        return dialect;
     }
 
     /**
-     * 忽略方言设置
+     * 设置方言
     */
     @Override
     public EngineDataSource<InfluxDB> setDialect(Dialect dialect) {
+        if (dialect != null) {
+            this.dialect = dialect;
+        }
         return this;
     }
 

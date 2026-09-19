@@ -70,9 +70,12 @@ public class ResourceFlow {
             new ConcurrentReferenceHashMap<>(DEFAULT_CACHE_CAPACITY);
 
     /**
-     * 协议 → 查找器实例缓存（查找器为无状态对象，按配置维度复用）。
+     * （协议，查找配置）→ 查找器实例缓存。
+     *
+     * <p>查找器会把配置中的类加载器、匹配器、排除规则与回调固化进实例，因此缓存键必须包含配置，
+     * 否则首个调用方的类加载器会被所有后续调用方复用，造成跨类加载器的资源静默丢失。</p>
      */
-    private static final Map<String, ResourceFinder> FINDER_CACHE = new ConcurrentHashMap<>(4);
+    private static final Map<FinderKey, ResourceFinder> FINDER_CACHE = new ConcurrentHashMap<>(4);
 
     /**
      * 结果缓存（路径 → 资源集合）。
@@ -184,7 +187,8 @@ public class ResourceFlow {
         String protocol = name.substring(0, index + 1);
         String resourcePath = name.substring(index + 1);
 
-        ResourceFinder finder = FINDER_CACHE.computeIfAbsent(protocol, key -> createFinder(key, configuration));
+        ResourceFinder finder = FINDER_CACHE.computeIfAbsent(
+                new FinderKey(protocol, configuration), key -> createFinder(key.protocol(), configuration));
         if (finder == null) {
             log.warn("不支持的资源协议: {}，回退到空结果", protocol);
             return new ResourceFlow(resourcePath, EmptyResourceFinder.INSTANCE, configuration);
@@ -312,6 +316,7 @@ public class ResourceFlow {
             if (removed != null) {
                 removed.values().forEach(flow -> flow.storeCache.clear());
             }
+            FINDER_CACHE.keySet().removeIf(key -> classLoader == key.configuration().getClassLoader());
         }
     }
 
@@ -321,6 +326,7 @@ public class ResourceFlow {
     public static void clearAllCache() {
         PROVIDER_CACHE.values().forEach(map -> map.values().forEach(flow -> flow.storeCache.clear()));
         PROVIDER_CACHE.clear();
+        FINDER_CACHE.clear();
     }
 
     /**
@@ -355,6 +361,15 @@ public class ResourceFlow {
     public String toString() {
         return String.format("ResourceFlow{name='%s', finder=%s}",
                 name, resourceFinder.getClass().getSimpleName());
+    }
+
+    /**
+     * 查找器缓存键：协议前缀与固化进查找器实例的查找配置。
+     *
+     * @param protocol      协议前缀（含冒号）
+     * @param configuration 查找配置
+     */
+    private record FinderKey(String protocol, ResourceConfiguration configuration) {
     }
 
     /**

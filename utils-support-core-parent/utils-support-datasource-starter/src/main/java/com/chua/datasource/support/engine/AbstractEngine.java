@@ -43,6 +43,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractEngine implements Engine {
 
     /**
+     * 日志记录器
+     */
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(AbstractEngine.class);
+
+    /**
      * 内存数据存储映射表，键为表名，值为数据列表。
      */
     protected final Map<String, List<?>> dataStores = new ConcurrentHashMap<>();
@@ -229,11 +235,12 @@ public abstract class AbstractEngine implements Engine {
      * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
      */
     public void close() {
-        for (EngineDataSource<?> ds : dataSources.values()) {
+        for (Map.Entry<String, EngineDataSource<Object>> entry : dataSources.entrySet()) {
             try {
-                ds.close();
-            } catch (Exception ignored) {
-                // 忽略单个数据源关闭异常，继续关闭其余
+                entry.getValue().close();
+            } catch (Exception e) {
+                // 单个数据源关闭失败不阻断其余关闭，但必须留下证据
+                log.warn("数据源关闭失败 name={}: {}", entry.getKey(), e.getMessage(), e);
             }
         }
         dataStores.clear();

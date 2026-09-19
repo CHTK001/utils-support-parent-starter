@@ -9,7 +9,9 @@ import com.chua.datasource.support.engine.ReactorEngine;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
+import io.lettuce.core.KeyScanCursor;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.ScanArgs;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,6 +78,16 @@ public class RedisReactorEngine implements ReactorEngine {
     private final Map<String, Duration> timeouts = new ConcurrentHashMap<>();
 
     /**
+     * 数据源名称 -> 共享 Lettuce 连接（Lettuce 连接线程安全，随命令复用，避免每命令建连）
+     */
+    private final Map<String, StatefulRedisConnection<String, String>> connections = new ConcurrentHashMap<>();
+
+    /**
+     * 默认命令超时
+     */
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
+
+    /**
      * 默认数据源名称
      */
     private String defaultDataSourceName;
@@ -89,26 +102,11 @@ public class RedisReactorEngine implements ReactorEngine {
      * 添加 Redis 数据源。
      *
      * @param name     数据源名称
-     * @param redisUrl Redis 连接 URL（如 Redis://127.0.0.1:6379）
+     * @param redisUrl Redis 连接 URL（如 redis://127.0.0.1:6379，可带 /db 路径与 rediss:// 协议）
      * @return this
      */
     public RedisReactorEngine addDataSource(String name, String redisUrl) {
-        if (redisUrl == null || redisUrl.isEmpty()) {
-            throw new IllegalArgumentException("Redis URL cannot be null or empty");
-        }
-        String url = redisUrl;
-        if (!url.startsWith(REDIS_PREFIX)) {
-            url = REDIS_PREFIX + url;
-        }
-        if (!url.endsWith("/0")) {
-            url = url + "/0";
-        }
-        lettuceClients.put(name, RedisClient.create(url));
-        if (defaultDataSourceName == null) {
-            defaultDataSourceName = name;
-        }
-        log.info("Redis 数据源已添加: name={}, url={}", name, url);
-        return this;
+        return addDataSource(name, redisUrl, null);
     }
 
     /**
@@ -116,29 +114,125 @@ public class RedisReactorEngine implements ReactorEngine {
      *
      * @param name     数据源名称
      * @param redisUrl Redis 连接 URL
-     * @param password 密码
+     * @param password 密码，可为 空（无认证）
      * @return this
      */
     public RedisReactorEngine addDataSource(String name, String redisUrl, String password) {
         if (redisUrl == null || redisUrl.isEmpty()) {
             throw new IllegalArgumentException("Redis URL cannot be null or empty");
         }
-        String url = redisUrl;
-        if (!url.startsWith(REDIS_PREFIX)) {
-            url = REDIS_PREFIX + url;
-        }
-        if (!url.endsWith("/0")) {
-            url = url + "/0";
-        }
-        if (password != null && !password.isEmpty()) {
-            url = url.replaceFirst("://", "://" + password + "@");
-        }
+        String url = attachPassword(normalizeUrl(redisUrl), password);
         lettuceClients.put(name, RedisClient.create(url));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
-        log.info("Redis 数据源已添加: name={}, url={}", name, url);
+        log.info("Redis 数据源已添加: name={}, url={}", name, maskUrl(url));
         return this;
+    }
+
+    /**
+     * 补全协议前缀（已是 redis:// / rediss:// / unix:// 的不动，不强制附加数据库段）。
+     *
+     * @param redisUrl 原始 URL
+     * @return 规范化 URL
+     */
+    private static String normalizeUrl(String redisUrl) {
+        String url = redisUrl.trim();
+        if (url.startsWith("redis://") || url.startsWith("rediss://") || url.startsWith("unix://")) {
+            return url;
+        }
+        return REDIS_PREFIX + url;
+    }
+
+    /**
+     * 把独立传入的密码按 userinfo 形式并入 URL（密码做百分号编码，避免正则/特殊字符破坏 URL）。
+     * <p>URL 已自带密码段（{@code :pwd@}）时以 URL 为准，不覆盖。</p>
+     *
+     * @param url      规范化 URL
+     * @param password 密码，可为 空
+     * @return 含凭据的 URL
+     */
+    private static String attachPassword(String url, String password) {
+        if (password == null || password.isEmpty()) {
+            return url;
+        }
+        int schemeEnd = url.indexOf("://");
+        if (schemeEnd < 0) {
+            return url;
+        }
+        String prefix = url.substring(0, schemeEnd + 3);
+        String rest = url.substring(schemeEnd + 3);
+        int pathStart = rest.indexOf('/');
+        String authority = pathStart < 0 ? rest : rest.substring(0, pathStart);
+        String tail = pathStart < 0 ? "" : rest.substring(pathStart);
+        int at = authority.indexOf('@');
+        if (at >= 0) {
+            String userInfo = authority.substring(0, at);
+            if (userInfo.indexOf(':') >= 0 || userInfo.isEmpty()) {
+                // URL 已带密码段，URL 优先
+                return url;
+            }
+            return prefix + userInfo + ":" + encodePassword(password) + "@" + authority.substring(at + 1) + tail;
+        }
+        return prefix + ":" + encodePassword(password) + "@" + authority + tail;
+    }
+
+    /**
+     * 密码百分号编码（URLEncoder 的 + 号语义不适用 userinfo，替换为 %20）。
+     *
+     * @param password 原始密码
+     * @return 编码后密码
+     */
+    private static String encodePassword(String password) {
+        return java.net.URLEncoder.encode(password, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    /**
+     * 掩码 URL 中的凭据段用于日志输出。
+     *
+     * @param url 含凭据的 URL
+     * @return 密码替换为 *** 的 URL
+     */
+    private static String maskUrl(String url) {
+        int schemeEnd = url.indexOf("://");
+        if (schemeEnd < 0) {
+            return url;
+        }
+        String prefix = url.substring(0, schemeEnd + 3);
+        String rest = url.substring(schemeEnd + 3);
+        int pathStart = rest.indexOf('/');
+        String authority = pathStart < 0 ? rest : rest.substring(0, pathStart);
+        String tail = pathStart < 0 ? "" : rest.substring(pathStart);
+        int at = authority.indexOf('@');
+        if (at < 0) {
+            return url;
+        }
+        String userInfo = authority.substring(0, at);
+        int colon = userInfo.indexOf(':');
+        String masked = colon < 0 ? userInfo : userInfo.substring(0, colon) + ":***";
+        return prefix + masked + "@" + authority.substring(at + 1) + tail;
+    }
+
+    /**
+     * 取数据源的共享命令句柄（懒建连，连接线程安全可跨命令复用）。
+     *
+     * @param name 数据源名称
+     * @return 同步命令句柄
+     */
+    private RedisCommands<String, String> commands(String name) {
+        StatefulRedisConnection<String, String> conn = connections.compute(name, (k, existing) -> {
+            if (existing != null && existing.isOpen()) {
+                return existing;
+            }
+            RedisClient client = lettuceClients.get(k);
+            if (client == null) {
+                throw new IllegalStateException("Redis 数据源未配置: " + k);
+            }
+            StatefulRedisConnection<String, String> created = client.connect();
+            created.setTimeout(timeouts.getOrDefault(k, DEFAULT_TIMEOUT));
+            return created;
+        });
+        return conn.sync();
     }
 
     /**
@@ -250,6 +344,9 @@ public class RedisReactorEngine implements ReactorEngine {
         }
         try {
             Object result = executeSingleCommand(name, sql, params);
+            if (result == null) {
+                return Flux.empty();
+            }
             return Flux.just(convertTo(result, rowType));
         } catch (Exception e) {
             return Flux.error(e);
@@ -271,17 +368,26 @@ public class RedisReactorEngine implements ReactorEngine {
         if (name == null) {
             return Mono.error(new IllegalStateException("未配置 Redis 数据源"));
         }
- // 将命令名与参数重新组合，确保 执行单个命令 能正确解析
-        Object[] fullArgs = new Object[params.length + 1];
-        fullArgs[0] = sql.toUpperCase();
-        System.arraycopy(params, 0, fullArgs, 1, params.length);
         return Mono.fromCallable(() -> {
-            Object result = executeSingleCommand(name, sql, fullArgs);
-            if (result instanceof Number num) {
-                return num.intValue();
-            }
-            return result != null ? 1 : 0;
+            Object result = executeSingleCommand(name, sql, params);
+            return toAffectedRows(result);
         }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    /**
+     * 命令结果折算受影响行数：数值取自身，布尔真为 1，其余非空结果为 1，空结果为 0。
+     *
+     * @param result 原始结果
+     * @return 行数
+     */
+    private static int toAffectedRows(Object result) {
+        if (result instanceof Number num) {
+            return num.intValue();
+        }
+        if (result instanceof Boolean bool) {
+            return bool ? 1 : 0;
+        }
+        return result != null ? 1 : 0;
     }
 
     /**
@@ -301,16 +407,7 @@ public class RedisReactorEngine implements ReactorEngine {
             return Flux.error(new IllegalStateException("未配置 Redis 数据源"));
         }
         return Flux.fromIterable(batchParams)
-                .map(params -> {
-                    Object[] fullArgs = new Object[params.length + 1];
-                    fullArgs[0] = sql.toUpperCase();
-                    System.arraycopy(params, 0, fullArgs, 1, params.length);
-                    Object result = executeSingleCommand(name, sql, fullArgs);
-                    if (result instanceof Number num) {
-                        return num.intValue();
-                    }
-                    return result != null ? 1 : 0;
-                })
+                .map(params -> toAffectedRows(executeSingleCommand(name, sql, params)))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -332,33 +429,25 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     @SuppressWarnings({"unchecked"})
     private Object executeSingleCommand(String name, String command, Object... params) {
-        RedisClient client = lettuceClients.get(name);
-        if (client == null) {
-            throw new IllegalStateException("Redis 数据源未配置: " + name);
+        if (command == null || command.trim().isEmpty()) {
+            throw new IllegalArgumentException("Redis 命令为空");
         }
-        Duration timeout = timeouts.getOrDefault(name, Duration.ofSeconds(5));
-        RedisCommands<String, String> conn = null;
-        try {
-            io.lettuce.core.api.StatefulRedisConnection<String, String> connection = client.connect();
-            connection.setTimeout(timeout);
-            conn = connection.sync();
-
-            String cmd;
-            String[] args;
-            // 判断是否为"完整命令字符串"模式（无额外 params 时）
-            if (params == null || params.length == 0) {
-                String[] parts = command.trim().toUpperCase().split("\\s+");
-                cmd = parts[0];
-                args = Arrays.copyOfRange(parts, 1, parts.length);
-            } else {
- // 结构化模式：命令 为命令名，参数 为参数
-                cmd = command.trim().toUpperCase();
-                args = new String[params.length];
-                for (int i = 0; i < params.length; i++) {
-                    args[i] = params[i].toString();
-                }
+        String[] parts = command.trim().split("\\s+");
+ // 仅命令名大写；键值保持原样（Redis 键大小写敏感）
+        String cmd = parts[0].toUpperCase(Locale.ROOT);
+        List<String> argList = new ArrayList<>();
+        for (int i = 1; i < parts.length; i++) {
+            argList.add(parts[i]);
+        }
+        if (params != null) {
+            for (Object p : params) {
+                argList.add(p == null ? "" : p.toString());
             }
-
+        }
+        String[] args = argList.toArray(new String[0]);
+        requireArgs(cmd, args);
+        RedisCommands<String, String> conn = commands(name);
+        try {
             Object result;
             switch (cmd) {
                 case "GET":
@@ -493,20 +582,43 @@ public class RedisReactorEngine implements ReactorEngine {
                     result = "OK";
                     break;
                 default:
-                    log.warn("不支持的 Redis 命令: {}", cmd);
-                    result = null;
+                    throw new IllegalArgumentException("不支持的 Redis 命令: " + cmd);
             }
             return result;
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("执行 Redis 命令失败: {} {}", command, Arrays.toString(params), e);
-            throw new RuntimeException("Redis 命令执行失败: " + command, e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.getStatefulConnection().close();
-                } catch (Exception ignored) {
-                }
-            }
+ // 不打印命令参数，避免 AUTH/SETEX 等敏感值进日志
+            log.error("执行 Redis 命令失败: cmd={}", cmd, e);
+            throw new IllegalStateException("Redis 命令执行失败: " + cmd, e);
+        }
+    }
+
+    /**
+     * 各支持命令的最少参数数（未列出的命令只校验命令合法）
+     */
+    private static final Map<String, Integer> MIN_ARGS = Map.ofEntries(
+            Map.entry("GET", 1), Map.entry("SET", 1), Map.entry("SETEX", 3), Map.entry("DEL", 1),
+            Map.entry("EXISTS", 1), Map.entry("TTL", 1), Map.entry("PTTL", 1), Map.entry("EXPIRE", 2),
+            Map.entry("INCR", 1), Map.entry("INCRBY", 2), Map.entry("DECR", 1), Map.entry("DECRBY", 2),
+            Map.entry("APPEND", 2), Map.entry("STRLEN", 1), Map.entry("LPUSH", 2), Map.entry("RPUSH", 2),
+            Map.entry("LPOP", 1), Map.entry("RPOP", 1), Map.entry("LRANGE", 3), Map.entry("LLEN", 1),
+            Map.entry("HGET", 2), Map.entry("HSET", 3), Map.entry("HDEL", 2), Map.entry("HGETALL", 1),
+            Map.entry("HEXISTS", 2), Map.entry("HLEN", 1), Map.entry("SADD", 2), Map.entry("SMEMBERS", 1),
+            Map.entry("SREM", 2), Map.entry("SCARD", 1), Map.entry("ZADD", 3), Map.entry("ZRANGE", 3),
+            Map.entry("ZCARD", 1), Map.entry("KEYS", 1), Map.entry("SELECT", 1), Map.entry("AUTH", 1));
+
+    /**
+     * 校验命令参数数量，不足时显式抛（避免深层数组越界异常）。
+     *
+     * @param cmd  命令名（大写）
+     * @param args 参数数组
+     */
+    private static void requireArgs(String cmd, String[] args) {
+        int min = MIN_ARGS.getOrDefault(cmd, 0);
+        if (args.length < min) {
+            throw new IllegalArgumentException("Redis 命令 " + cmd + " 至少需要 " + min
+                    + " 个参数，实际 " + args.length);
         }
     }
 
@@ -625,7 +737,10 @@ public class RedisReactorEngine implements ReactorEngine {
     public Mono<Boolean> expire(String key, long seconds) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "EXPIRE", key, seconds);
-            return result instanceof Number num ? num.longValue() > 0 : false;
+            if (result instanceof Boolean bool) {
+                return bool;
+            }
+            return result instanceof Number num && num.longValue() > 0;
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
@@ -708,20 +823,29 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式 键 扫描（前缀匹配），返回匹配键的 Flux。
+     * 响应式 键 扫描（SCAN 游标 增量 遍历，避免 KEYS 阻塞 服务端）。
      *
-     * @param pattern 匹配模式（如 "用户:*"）
+     * @param pattern 匹配模式（如 "user:*"，空 表示 全 量）
      * @return 匹配的键 Flux
      */
     public Flux<String> scanKeys(String pattern) {
         return Mono.fromCallable(() -> {
-            Object result = executeSingleCommand(defaultDataSourceName, "KEYS", pattern);
-            if (result instanceof Collection<?> coll) {
-                return new ArrayList<>((Collection<?>) coll);
+            RedisCommands<String, String> conn = commands(defaultDataSourceName);
+            ScanArgs scanArgs = pattern == null || pattern.isEmpty()
+                    ? ScanArgs.Builder.limit(500)
+                    : ScanArgs.Builder.matches(pattern).limit(500);
+            List<String> keys = new ArrayList<>();
+            KeyScanCursor<String> cursor = conn.scan(scanArgs);
+            while (true) {
+                keys.addAll(cursor.getKeys());
+                if (cursor.isFinished()) {
+                    break;
+                }
+                cursor = conn.scan(cursor, scanArgs);
             }
-            return Collections.emptyList();
+            return keys;
         }).subscribeOn(Schedulers.boundedElastic())
-                .flatMapMany(list -> Flux.fromIterable(list).map(Object::toString));
+                .flatMapMany(Flux::fromIterable);
     }
 
     /**
@@ -732,18 +856,9 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 列表长度 Mono
      */
     public Mono<Long> lpush(String key, String... values) {
-        return Mono.fromCallable(() -> {
-            RedisClient client = lettuceClients.get(defaultDataSourceName);
-            if (client == null) {
-                throw new IllegalStateException("Redis 数据源未配置");
-            }
-            Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
-            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
-            conn.setTimeout(timeout);
-            long result = conn.sync().lpush(key, values);
-            conn.close();
-            return result;
-        }).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+                commands(defaultDataSourceName).lpush(key, values))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -790,18 +905,9 @@ public class RedisReactorEngine implements ReactorEngine {
      * @return 新增成员数 Mono
      */
     public Mono<Long> sadd(String key, String... values) {
-        return Mono.fromCallable(() -> {
-            RedisClient client = lettuceClients.get(defaultDataSourceName);
-            if (client == null) {
-                throw new IllegalStateException("Redis 数据源未配置");
-            }
-            Duration timeout = timeouts.getOrDefault(defaultDataSourceName, Duration.ofSeconds(5));
-            io.lettuce.core.api.StatefulRedisConnection<String, String> conn = client.connect();
-            conn.setTimeout(timeout);
-            long result = conn.sync().sadd(key, values);
-            conn.close();
-            return result;
-        }).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() ->
+                commands(defaultDataSourceName).sadd(key, values))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -834,9 +940,17 @@ public class RedisReactorEngine implements ReactorEngine {
     // ==================== 资源管理 ====================
 
     /**
-     * 关闭引擎，释放所有 Lettuce 连接。
+     * 关闭引擎，释放所有共享连接与 Lettuce 客户端。
      */
     public void close() {
+        for (StatefulRedisConnection<String, String> conn : connections.values()) {
+            try {
+                conn.close();
+            } catch (Exception e) {
+                log.warn("关闭 Redis 共享连接失败: {}", e.getMessage());
+            }
+        }
+        connections.clear();
         for (RedisClient client : lettuceClients.values()) {
             try {
                 client.shutdown();
@@ -851,18 +965,21 @@ public class RedisReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 设置默认超时时间。
+     * 设置默认数据源超时时间（已建立的共享连接同步生效）。
      *
      * @param timeout 超时时长
      * @return this
      */
     public RedisReactorEngine setTimeout(Duration timeout) {
-        timeouts.put(defaultDataSourceName, timeout);
-        return this;
+        String name = defaultDataSourceName;
+        if (name == null) {
+            throw new IllegalStateException("未配置 Redis 数据源");
+        }
+        return setTimeout(name, timeout);
     }
 
     /**
-     * 为指定数据源设置超时时间。
+     * 为指定数据源设置超时时间（已建立的共享连接同步生效）。
      *
      * @param name    数据源名称
      * @param timeout 超时时长
@@ -870,6 +987,10 @@ public class RedisReactorEngine implements ReactorEngine {
      */
     public RedisReactorEngine setTimeout(String name, Duration timeout) {
         timeouts.put(name, timeout);
+        StatefulRedisConnection<String, String> conn = connections.get(name);
+        if (conn != null && conn.isOpen()) {
+            conn.setTimeout(timeout);
+        }
         return this;
     }
 

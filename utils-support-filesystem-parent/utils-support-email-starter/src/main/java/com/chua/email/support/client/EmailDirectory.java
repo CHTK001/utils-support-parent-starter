@@ -9,8 +9,8 @@ import com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.mail.*;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;

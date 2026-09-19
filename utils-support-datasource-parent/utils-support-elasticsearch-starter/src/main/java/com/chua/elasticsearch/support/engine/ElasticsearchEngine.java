@@ -72,34 +72,49 @@ public class ElasticsearchEngine implements Engine {
      */
     private ElasticsearchClient client;
 
+    /**
+     * 本引擎创建的 RestClient，close() 时统一回收（外部传入的客户端不归本引擎管）
+     */
+    private final List<RestClient> ownedRestClients = new ArrayList<>();
+
     @Override
     /**
      * 添加数据源
     */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
-        if (src instanceof String url) {
-            String[] parts = url.split("://");
-            String hostPort = parts[parts.length - 1];
-            String[] hostAndPort = hostPort.split(":");
-            String host = hostAndPort[0];
-            int port = 9200;
-            if (hostAndPort.length > 1) {
-                port = Integer.parseInt(hostAndPort[1]);
-            }
-            String scheme = "http";
-            if (parts.length > 1) {
-                scheme = parts[0];
-            }
-            RestClient restClient = RestClient.builder(new HttpHost(host, port, scheme)).build();
-            RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-            client = new ElasticsearchClient(transport);
+        if (src instanceof ElasticsearchClient esClient) {
+            client = esClient;
+        } else if (src instanceof String url) {
+            client = createClient(url);
         }
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
         return this;
+    }
+
+    /**
+     * 由连接串创建 ES 客户端，RestClient 记入回收列表。
+     *
+     * @param url es:// 或 http(s)://host:port 连接串
+     * @return ES 客户端
+     */
+    private ElasticsearchClient createClient(String url) {
+        java.net.URI uri;
+        try {
+            uri = java.net.URI.create(url.replaceFirst("^(es|elasticsearch)://", "http://"));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Elasticsearch 连接串非法: " + url, e);
+        }
+        String scheme = uri.getScheme() == null ? "http" : uri.getScheme();
+        String host = uri.getHost() == null ? "localhost" : uri.getHost();
+        int port = uri.getPort() > 0 ? uri.getPort() : 9200;
+        RestClient restClient = RestClient.builder(new HttpHost(host, port, scheme)).build();
+        ownedRestClients.add(restClient);
+        RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        return new ElasticsearchClient(transport);
     }
 
     @Override
@@ -156,12 +171,18 @@ public class ElasticsearchEngine implements Engine {
             return this;
         }
         try {
-            client.bulk(builder -> {
+            var response = client.bulk(builder -> {
                 for (T entity : data) {
                     builder.operations(op -> op.index(io -> io.index(name).document(entity)));
                 }
                 return builder;
             });
+            if (response.errors()) {
+                long failed = response.items().stream()
+                        .filter(item -> item.error() != null).count();
+                throw new RuntimeException("Elasticsearch 批量索引部分失败: index=" + name
+                        + " 失败条数=" + failed);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Elasticsearch 批量索引失败: index=" + name, e);
         }
@@ -212,7 +233,7 @@ public class ElasticsearchEngine implements Engine {
      * 获取Dialect
     */
     public Dialect getDialect(String n) {
-        return null;
+        return Dialect.getExtension("elasticsearch");
     }
 
     @Override
@@ -220,6 +241,15 @@ public class ElasticsearchEngine implements Engine {
      * 关闭
     */
     public void close() {
+        for (RestClient restClient : ownedRestClients) {
+            try {
+                restClient.close();
+            } catch (Exception e) {
+                log.warn("[elasticsearch-datasource] RestClient 关闭失败: {}", e.getMessage());
+            }
+        }
+        ownedRestClients.clear();
+        client = null;
         dataSources.clear();
     }
 
@@ -359,7 +389,7 @@ public class ElasticsearchEngine implements Engine {
              * 列表
             */
             public List<T> list() {
-                return search(entityClass, getConditions());
+                return search(entityClass, getConditions(), getOrderBys(), getOffset(), getLimit());
             }
 
             @Override
@@ -367,7 +397,7 @@ public class ElasticsearchEngine implements Engine {
              * One
             */
             public T one() {
-                List<T> results = search(entityClass, getConditions());
+                List<T> results = search(entityClass, getConditions(), getOrderBys(), 0, 1);
                 if (results.isEmpty()) {
                     return null;
                 }
@@ -379,13 +409,7 @@ public class ElasticsearchEngine implements Engine {
              * Page
             */
             public Page<T> page(int pn, int ps) {
-                List<T> all = search(entityClass, getConditions());
-                int from = (pn - 1) * ps;
-                int to = Math.min(from + ps, all.size());
-                if (from >= all.size()) {
-                    return new Page<>(pn, ps, all.size(), Collections.emptyList());
-                }
-                return new Page<>(pn, ps, all.size(), all.subList(from, to));
+                return searchPage(entityClass, getConditions(), getOrderBys(), pn, ps);
             }
         };
     }
@@ -643,31 +667,115 @@ public class ElasticsearchEngine implements Engine {
      *
      * @param entityClass 实体类类型
      * @param conditions  条件列表（来自 lambda查询包装器）
+     * @param orderBys    排序列表（"col ASC"/"col DESC"），可为 null
+     * @param from        起始偏移，0 表示不限制
+     * @param size        返回上限，0 表示不限制
      * @param <T>         实体类型
      * @return 查询结果列表
      */
     @SuppressWarnings("unchecked")
-    private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
-        if (client == null) {
-            return Collections.emptyList();
-        }
+    private <T> List<T> search(Class<T> entityClass, List<Condition> conditions,
+                               List<String> orderBys, int from, int size) {
         try {
-            String indexName = entityClass.getSimpleName().toLowerCase();
-            Query query;
-            if (CollectionUtils.isEmpty(conditions)) {
-                query = Query.of(q -> q.matchAll(m -> m));
-            } else {
-                query = buildQuery(conditions);
-            }
-            var response = client.search(
-                    s -> s.index(indexName).query(query),
-                    Map.class);
+            var response = doSearch(entityClass, conditions, orderBys, from, size, false);
             return response.hits().hits().stream()
                     .map(h -> mapToEntity((Map<String, Object>) h.source(), entityClass))
                     .toList();
         } catch (Exception e) {
-            log.warn("[elasticsearch-datasource] 查询失败: {}", e.getMessage());
-            return Collections.emptyList();
+            throw new RuntimeException("Elasticsearch 查询失败: index="
+                    + entityClass.getSimpleName().toLowerCase(), e);
+        }
+    }
+
+    /**
+     * 分页查询：from/size 与排序下推 ES 服务端，total 取自信任计数。
+     *
+     * @param entityClass 实体类类型
+     * @param conditions  条件列表
+     * @param orderBys    排序列表
+     * @param pageNum     页码（从 1 开始）
+     * @param pageSize    页大小
+     * @param <T>         实体类型
+     * @return 分页结果
+     */
+    @SuppressWarnings("unchecked")
+    private <T> Page<T> searchPage(Class<T> entityClass, List<Condition> conditions,
+                                   List<String> orderBys, int pageNum, int pageSize) {
+        String indexName = entityClass.getSimpleName().toLowerCase();
+        try {
+            var response = doSearch(entityClass, conditions, orderBys,
+                    (pageNum - 1) * pageSize, pageSize, true);
+            List<T> records = response.hits().hits().stream()
+                    .map(h -> mapToEntity((Map<String, Object>) h.source(), entityClass))
+                    .toList();
+            long total = response.hits().total() == null
+                    ? records.size() : response.hits().total().value();
+            return new Page<>(pageNum, pageSize, total, records);
+        } catch (Exception e) {
+            throw new RuntimeException("Elasticsearch 分页查询失败: index=" + indexName, e);
+        }
+    }
+
+    /**
+     * 构建并执行 ES 搜索请求。
+     *
+     * @param entityClass 实体类（用于推导索引名）
+     * @param conditions 条件列表
+     * @param orderBys 排序列表
+     * @param from from偏移
+     * @param size size数量
+     * @param trackTotal 是否启用 trackTotal 计数
+     * @return 响应 对象
+     */
+    private co.elastic.clients.elasticsearch.core.SearchResponse<Map> doSearch(
+            Class<?> entityClass, List<Condition> conditions,
+            List<String> orderBys, int from, int size, boolean trackTotal) {
+        if (client == null) {
+            throw new IllegalStateException("请先 addDataSource 配置 Elasticsearch 客户端");
+        }
+        String indexName = entityClass.getSimpleName().toLowerCase();
+        Query query = CollectionUtils.isEmpty(conditions)
+                ? Query.of(q -> q.matchAll(m -> m)) : buildQuery(conditions);
+        try {
+            return client.search(s -> {
+                s.index(indexName).query(query);
+                if (from > 0) {
+                    s.from(from);
+                }
+                if (size > 0) {
+                    s.size(size);
+                }
+                if (trackTotal) {
+                    s.trackTotalHits(t -> t.enabled(true));
+                }
+                applySorts(s, orderBys);
+                return s;
+            }, Map.class);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Elasticsearch 搜索 IO 失败: index=" + indexName, e);
+        }
+    }
+
+    /**
+     * 将 wrapper 排序片段应用为 ES sort 子句。
+     *
+     * @param builder builder 对象
+     * @param orderBys 排序 对象列表
+     */
+    private static void applySorts(
+            co.elastic.clients.elasticsearch.core.SearchRequest.Builder builder,
+            List<String> orderBys) {
+        if (orderBys == null || orderBys.isEmpty()) {
+            return;
+        }
+        for (String orderBy : orderBys) {
+            String[] parts = orderBy.trim().split("\\s+");
+            String field = parts[0];
+            co.elastic.clients.elasticsearch._types.SortOrder sort =
+                    parts.length > 1 && "DESC".equalsIgnoreCase(parts[1])
+                            ? co.elastic.clients.elasticsearch._types.SortOrder.Desc
+                            : co.elastic.clients.elasticsearch._types.SortOrder.Asc;
+            builder.sort(s -> s.field(f -> f.field(field).order(sort)));
         }
     }
 
@@ -713,7 +821,7 @@ public class ElasticsearchEngine implements Engine {
                 subQueries.add(buildConditionQuery(sub));
             }
             if ("OR".equalsIgnoreCase(c.getNestedOperator())) {
-                return Query.of(q -> q.bool(b -> b.should(subQueries)));
+                return Query.of(q -> q.bool(b -> b.should(subQueries).minimumShouldMatch("1")));
             }
             return Query.of(q -> q.bool(b -> b.must(subQueries)));
         }
@@ -723,7 +831,7 @@ public class ElasticsearchEngine implements Engine {
         Object val = c.getValue();
 
         if (col == null) {
-            return Query.of(q -> q.matchAll(m -> m));
+            throw new IllegalArgumentException("查询条件缺少列名: op=" + op);
         }
 
         switch (op) {
@@ -765,8 +873,7 @@ public class ElasticsearchEngine implements Engine {
                                 .lte(JsonData.of(range[1])))));
             }
             default:
-                log.warn("[elasticsearch-datasource] 不支持的操作符: {}", op);
-                return Query.of(q -> q.matchAll(m -> m));
+                throw new UnsupportedOperationException("Elasticsearch 不支持操作符: " + op);
         }
     }
 
@@ -851,7 +958,9 @@ public class ElasticsearchEngine implements Engine {
     }
 
     /**
-     * 将 SQL LIKE 模式（%...%）转为 ES 通配符模式（*...*）。
+     * 将 SQL LIKE 模式转为 ES wildcard 模式。
+     * <p>{@code %} → {@code *}，{@code _} → {@code ?}；值中出现的 ES 元字符
+     * （{@code *}/{@code ?}/{@code \}）先反斜杠转义，防止字面量被当作通配符。</p>
      *
      * @param value LIKE 模式或普通值
      * @return ES 通配符字符串
@@ -861,10 +970,17 @@ public class ElasticsearchEngine implements Engine {
             return "*";
         }
         String pattern = value.toString();
-        if (pattern.contains("%")) {
-            return pattern.replace("%", "*");
+        StringBuilder sb = new StringBuilder(pattern.length() + 2);
+        for (int i = 0; i < pattern.length(); i++) {
+            char ch = pattern.charAt(i);
+            switch (ch) {
+                case '%' -> sb.append('*');
+                case '_' -> sb.append('?');
+                case '*', '?', '\\' -> sb.append('\\').append(ch);
+                default -> sb.append(ch);
+            }
         }
-        return "*" + pattern + "*";
+        return sb.toString();
     }
 
     // ---------------------------------------------------------------

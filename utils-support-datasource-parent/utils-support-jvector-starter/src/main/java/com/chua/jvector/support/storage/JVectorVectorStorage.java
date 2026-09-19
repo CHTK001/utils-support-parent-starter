@@ -29,11 +29,11 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
@@ -179,6 +179,60 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     /**
+     * 读取向量侧录文件：每条记录为 标识 + 向量。
+     *
+     * @param path 侧录文件路径
+     * @return 有序的 id-向量 列表
+     * @throws IOException 读取失败
+     */
+    private static List<Map.Entry<String, float[]>> readVectorData(Path path) throws IOException {
+        try (DataInputStream dis = new DataInputStream(
+                new BufferedInputStream(Files.newInputStream(path)))) {
+            int count = dis.readInt();
+            List<Map.Entry<String, float[]>> entries = new ArrayList<>(count);
+            for (int i = 0; i < count; i++) {
+                String id = dis.readUTF();
+                int len = dis.readInt();
+                float[] v = new float[len];
+                for (int j = 0; j < len; j++) {
+                    v[j] = dis.readFloat();
+                }
+                entries.add(Map.entry(id, v));
+            }
+            return entries;
+        }
+    }
+
+    /**
+     * 写入向量侧录文件（覆盖式全量落盘）。
+     *
+     * @param path       侧录文件路径
+     * @param rawVectors 原始向量列表（下标即序数）
+     * @param ordToId    序数到标识映射
+     * @throws IOException 写入失败
+     */
+    private static void writeVectorData(Path path, List<float[]> rawVectors,
+                                        Map<Integer, String> ordToId) throws IOException {
+        Path parent = path.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        try (DataOutputStream dos = new DataOutputStream(
+                new BufferedOutputStream(Files.newOutputStream(path)))) {
+            dos.writeInt(rawVectors.size());
+            for (int i = 0; i < rawVectors.size(); i++) {
+                String id = ordToId.get(i);
+                dos.writeUTF(id != null ? id : "");
+                float[] v = rawVectors.get(i);
+                dos.writeInt(v.length);
+                for (float f : v) {
+                    dos.writeFloat(f);
+                }
+            }
+        }
+    }
+
+    /**
      * 转为j向量sim
      *
      * @param algo algo
@@ -289,12 +343,18 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * @return 按相似度排序的向量列表
          */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
-            if (vectors.isEmpty()) {
+            if (vectors.isEmpty() || topK <= 0) {
                 return List.of();
             }
             var algo = algorithm;
             List<Vector> graphResults = graphSearch(query, topK * 5);
-            return algo != null ? reRank(graphResults, query, algo, topK) : graphResults;
+            if (algo == null) {
+                // 无重排算法时也必须封顶 topK，不能把 topK*5 的超集直接返回
+                return graphResults.size() > topK
+                        ? new ArrayList<>(graphResults.subList(0, topK))
+                        : graphResults;
+            }
+            return reRank(graphResults, query, algo, topK);
         }
 
         private List<Vector> graphSearch(float[] query, int fetchK) {
@@ -313,6 +373,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     var list = new ArrayList<Vector>();
                     for (var n : result.getNodes()) {
                         var id = idOf(n.node);
+                        if (id == null) {
+                            continue;
+                        }
                         float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                         list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
                         if (list.size() >= fetchK) {
@@ -334,19 +397,48 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         private List<Vector> reRank(List<Vector> candidates, float[] query, VectorCompareAlgorithm algo, int topK) {
-            candidates.sort((a, b) -> Double.compare(
-                    algo.compare(query, a.data()),
-                    algo.compare(query, b.data())));
+            // compare() 语义为相似度（越大越相似），必须降序排列才能保留最优 topK
+            candidates.sort((a, b) -> Float.compare(
+                    algo.compare(query, b.data()),
+                    algo.compare(query, a.data())));
             return candidates.subList(0, Math.min(topK, candidates.size()));
         }
 
         /**
-         * 暴力线性扫描，使用当前配置的算法计算距离并选出 topK。
-         * 遍历全部向量与查询向量计算距离，按距离排序取前 topK 个候选。
+         * 将候选插入降序 top-k 窗口（[0, filled) 区间内 topScores 降序）。
+         *
+         * @param topIds   候选 id 数组
+         * @param topScores 候选分数数组
+         * @param filled   当前有效槽位数
+         * @param sim      候选相似度（越大越优）
+         * @param id       候选标识
+         * @return 更新后的有效槽位数（封顶数组长度）
+         */
+        private static int insertIntoTopK(String[] topIds, float[] topScores, int filled, float sim, String id) {
+            int k = topIds.length;
+            if (filled == k && topScores[k - 1] >= sim) {
+                return filled;
+            }
+            int insert = Math.min(filled, k - 1);
+            while (insert > 0 && topScores[insert - 1] < sim) {
+                insert--;
+            }
+            for (int j = Math.min(filled, k - 1); j > insert; j--) {
+                topIds[j] = topIds[j - 1];
+                topScores[j] = topScores[j - 1];
+            }
+            topIds[insert] = id;
+            topScores[insert] = sim;
+            return Math.min(filled + 1, k);
+        }
+
+        /**
+         * 暴力线性扫描，使用当前配置的算法计算相似度并选出 topK。
+         * 遍历全部向量与查询向量计算相似度，按相似度降序取前 topK 个候选。
          *
          * @param query 查询向量
          * @param topK  返回的最大结果数
-         * @return 按距离排序的向量列表
+         * @return 按相似度降序排列的向量列表
          */
         private List<Vector> bruteForceSearch(float[] query, int topK) {
             var algo = algorithm;
@@ -355,26 +447,19 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             int n = vectors.size();
             int k = Math.min(topK, n);
+            if (k <= 0) {
+                return List.of();
+            }
             String[] topIds = new String[k];
             float[] topScores = new float[k];
-            Arrays.fill(topScores, Float.POSITIVE_INFINITY);
+            int filled = 0;
             for (int i = 0; i < n; i++) {
                 float[] vec = rawVectors.get(i);
-                float dist = algo.compare(query, vec);
-                int pos = k - 1;
-                while (pos >= 0 && topScores[pos] > dist) {
-                    topIds[pos + 1] = topIds[pos];
-                    topScores[pos + 1] = topScores[pos];
-                    pos--;
-                }
-                topIds[pos + 1] = idOf(i);
-                topScores[pos + 1] = dist;
+                float sim = algo.compare(query, vec);
+                filled = insertIntoTopK(topIds, topScores, filled, sim, idOf(i));
             }
-            var result = new ArrayList<Vector>();
-            for (int i = 0; i < k; i++) {
-                if (topIds[i] == null) {
-                    break;
-                }
+            var result = new ArrayList<Vector>(filled);
+            for (int i = 0; i < filled; i++) {
                 int idx = ordinalOf(topIds[i]);
                 if (idx < 0 || idx >= rawVectors.size()) {
                     continue;
@@ -388,15 +473,18 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private List<Vector> bruteForceCosine(float[] query, int topK) {
             int n = vectors.size();
             int k = Math.min(topK, n);
+            if (k <= 0) {
+                return List.of();
+            }
             String[] topIds = new String[k];
             float[] topScores = new float[k];
-            Arrays.fill(topScores, Float.NEGATIVE_INFINITY);
             double qNorm = 0;
             for (float f : query) { qNorm += f * f; }
             qNorm = Math.sqrt(qNorm);
             if (qNorm == 0) {
                 return List.of();
             }
+            int filled = 0;
             for (int i = 0; i < n; i++) {
                 float[] vec = rawVectors.get(i);
                 double dot = 0, vNorm = 0;
@@ -409,20 +497,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     continue;
                 }
                 float sim = (float) (dot / (qNorm * vNorm));
-                int pos = k - 1;
-                while (pos >= 0 && topScores[pos] < sim) {
-                    topIds[pos + 1] = topIds[pos];
-                    topScores[pos + 1] = topScores[pos];
-                    pos--;
-                }
-                topIds[pos + 1] = idOf(i);
-                topScores[pos + 1] = sim;
+                filled = insertIntoTopK(topIds, topScores, filled, sim, idOf(i));
             }
-            var result = new ArrayList<Vector>();
-            for (int i = 0; i < k; i++) {
-                if (topIds[i] == null) {
-                    break;
-                }
+            var result = new ArrayList<Vector>(filled);
+            for (int i = 0; i < filled; i++) {
                 int idx = ordinalOf(topIds[i]);
                 if (idx < 0 || idx >= rawVectors.size()) {
                     continue;
@@ -625,28 +703,25 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (!Files.exists(vectorDataPath)) {
                 return;
             }
-            try (DataInputStream dis = new DataInputStream(
-                    new BufferedInputStream(Files.newInputStream(vectorDataPath)))) {
-                int count = dis.readInt();
+            try {
+                List<Map.Entry<String, float[]>> entries = readVectorData(vectorDataPath);
                 rawVectors.clear();
                 vectors.clear();
                 resetOrdinals();
-                for (int i = 0; i < count; i++) {
-                    String id = dis.readUTF();
-                    int len = dis.readInt();
-                    float[] v = new float[len];
-                    for (int j = 0; j < len; j++) {
-                        v[j] = dis.readFloat();
-                    }
-                    rawVectors.add(v);
-                    vectors.add(VTS.createFloatVector(v));
-                    idToOrd.put(id, i);
-                    ordToId.put(i, id);
+                for (int i = 0; i < entries.size(); i++) {
+                    Map.Entry<String, float[]> entry = entries.get(i);
+                    rawVectors.add(entry.getValue());
+                    vectors.add(VTS.createFloatVector(entry.getValue()));
+                    idToOrd.put(entry.getKey(), i);
+                    ordToId.put(i, entry.getKey());
                 }
                 vectorsDirty = false;
-            } catch (Exception e) {
-                log.warn("[jvector-storage] 磁盘向量数据加载失败: path={}, err={}",
-                        vectorDataPath, e.getMessage());
+            } catch (IOException e) {
+                // 加载中途失败必须回滚半成品状态，否则序数映射与磁盘索引不一致
+                rawVectors.clear();
+                vectors.clear();
+                resetOrdinals();
+                throw new UncheckedIOException("磁盘向量数据加载失败: " + vectorDataPath, e);
             }
         }
 
@@ -655,27 +730,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         */
         private void saveVectors() {
             try {
-                Files.createDirectories(vectorDataPath.getParent());
-                try (DataOutputStream dos = new DataOutputStream(
-                        new BufferedOutputStream(Files.newOutputStream(vectorDataPath)))) {
-                    dos.writeInt(rawVectors.size());
-                    for (int i = 0; i < rawVectors.size(); i++) {
-                        String id = ordToId.get(i);
-                        if (id == null) {
-                            id = "";
-                        }
-                        dos.writeUTF(id);
-                        float[] v = rawVectors.get(i);
-                        dos.writeInt(v.length);
-                        for (float f : v) {
-                            dos.writeFloat(f);
-                        }
-                    }
-                }
+                writeVectorData(vectorDataPath, rawVectors, ordToId);
                 vectorsDirty = false;
-            } catch (Exception e) {
-                log.warn("[jvector-storage] 磁盘向量数据保存失败: path={}, err={}",
-                        vectorDataPath, e.getMessage());
+            } catch (IOException e) {
+                // 持久化失败不得静默吞掉，否则调用方以为已落盘
+                throw new UncheckedIOException("磁盘向量数据保存失败: " + vectorDataPath, e);
             }
         }
 
@@ -702,6 +761,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 执行搜索
         */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
+            if (topK <= 0) {
+                return List.of();
+            }
             if (diskGraph != null && vectors.isEmpty()) {
                 loadVectors();
             }
@@ -724,6 +786,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var list = new ArrayList<Vector>();
                 for (var n : result.getNodes()) {
                     var id = idOf(n.node);
+                    if (id == null) {
+                        continue;
+                    }
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
                     if (list.size() >= topK) {
@@ -803,7 +868,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             try {
                 Files.deleteIfExists(vectorDataPath);
-            } catch (IOException ignored) {}
+                Files.deleteIfExists(indexPath);
+            } catch (IOException e) {
+                log.error("[jvector-storage] 清空时删除磁盘文件失败: {}", e.getMessage());
+            }
         }
 
         @Override
@@ -811,17 +879,26 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 关闭
         */
         public synchronized void close() {
-            if (vectorsDirty || diskGraph == null) {
-                ensureGraphBuilt();
-            }
-            if (diskGraph != null) {
-                try {
-                    diskGraph.close();
-                } catch (Exception ignored) {}
-                diskGraph = null;
-            }
-            if (vectorsDirty) {
-                saveVectors();
+            try {
+                if (vectorsDirty || diskGraph == null) {
+                    ensureGraphBuilt();
+                }
+            } catch (Exception e) {
+                log.error("[jvector-storage] 关闭时重建磁盘图失败，未落盘: {}", e.getMessage());
+            } finally {
+                if (diskGraph != null) {
+                    try {
+                        diskGraph.close();
+                    } catch (Exception ignored) {}
+                    diskGraph = null;
+                }
+                if (vectorsDirty) {
+                    try {
+                        saveVectors();
+                    } catch (Exception e) {
+                        log.error("[jvector-storage] 关闭时向量数据落盘失败: {}", e.getMessage());
+                    }
+                }
             }
         }
 
@@ -847,6 +924,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             if (diskGraph != null) {
                 return;
             }
+            if (vectors.isEmpty()) {
+                // 空数据集无可建内容，避免向磁盘写入空图
+                return;
+            }
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
                     rav, similarity,
@@ -856,7 +937,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 // build() 内部会遍历全部节点添加，无需手动 addGraphNode（否则重复添加报错）
                 var memGraph = builder.build(rav);
                 // 持久化到磁盘
-                Files.createDirectories(indexPath.getParent());
+                Path parent = indexPath.getParent();
+                if (parent != null) {
+                    Files.createDirectories(parent);
+                }
                 OnDiskGraphIndex.write(memGraph, rav, indexPath);
                 memGraph.close();
                 // 加载回来
@@ -889,9 +973,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         */
         private final JVectorStorageProperties properties;
         /**
-         * PQ 索引持久化路径
+         * 原始向量侧录文件路径（与磁盘模式同格式，可跨模式复用）
         */
-        private final Path indexPath;
+        private final Path vectorDataPath;
         /**
          * 内存图索引；构建前为 空
         */
@@ -912,6 +996,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 比较算法
         */
         private final VectorCompareAlgorithm algorithm;
+        /**
+         * 向量是否被修改且未持久化
+        */
+        private boolean vectorsDirty;
 
         LargerThanMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
                                  JVectorStorageProperties properties, VectorCompareAlgorithm algorithm) {
@@ -919,7 +1007,47 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             this.similarity = similarity;
             this.properties = properties;
             this.algorithm = algorithm;
-            this.indexPath = Paths.get(properties.getIndexPath() + ".pq");
+            this.vectorDataPath = Paths.get(properties.getIndexPath() + ".vectors");
+            if (Files.exists(vectorDataPath)) {
+                loadVectors();
+            }
+        }
+
+        /**
+         * 从侧录文件加载原始向量（图与 PQ 为派生缓存，搜索时自动重建）
+        */
+        private void loadVectors() {
+            try {
+                List<Map.Entry<String, float[]>> entries = readVectorData(vectorDataPath);
+                rawVectors.clear();
+                vectors.clear();
+                resetOrdinals();
+                for (int i = 0; i < entries.size(); i++) {
+                    Map.Entry<String, float[]> entry = entries.get(i);
+                    rawVectors.add(entry.getValue());
+                    vectors.add(VTS.createFloatVector(entry.getValue()));
+                    idToOrd.put(entry.getKey(), i);
+                    ordToId.put(i, entry.getKey());
+                }
+                vectorsDirty = false;
+            } catch (IOException e) {
+                rawVectors.clear();
+                vectors.clear();
+                resetOrdinals();
+                throw new UncheckedIOException("PQ 模式向量数据加载失败: " + vectorDataPath, e);
+            }
+        }
+
+        /**
+         * 将原始向量全量落盘
+        */
+        private void saveVectors() {
+            try {
+                writeVectorData(vectorDataPath, rawVectors, ordToId);
+                vectorsDirty = false;
+            } catch (IOException e) {
+                throw new UncheckedIOException("PQ 模式向量数据保存失败: " + vectorDataPath, e);
+            }
         }
 
         @Override
@@ -934,6 +1062,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 graph = null;
             }
             pqVectors = null;
+            saveVectors();
         }
 
         @Override
@@ -950,6 +1079,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             // 添加后需要重新构建
             graph = null;
             pqVectors = null;
+            vectorsDirty = true;
             return true;
         }
 
@@ -958,7 +1088,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
          * 执行搜索
         */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
-            if (vectors.isEmpty()) {
+            if (vectors.isEmpty() || topK <= 0) {
                 return List.of();
             }
             ensureGraphBuilt();
@@ -984,6 +1114,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 var list = new ArrayList<Vector>();
                 for (var n : roughResult.getNodes()) {
                     var id = idOf(n.node);
+                    if (id == null) {
+                        continue;
+                    }
                     float exactSimilarity = exactScore.similarityTo(n.node);
                     float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                     list.add(new Vector(id, vd, Map.of("score", (double) exactSimilarity)));
@@ -1023,6 +1156,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             graph = null;
             pqVectors = null;
+            vectorsDirty = true;
             return true;
         }
 
@@ -1039,6 +1173,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             vectors.set(ord, VTS.createFloatVector(vector));
             graph = null;
             pqVectors = null;
+            vectorsDirty = true;
             return true;
         }
 
@@ -1063,6 +1198,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 graph = null;
             }
             pqVectors = null;
+            vectorsDirty = false;
+            try {
+                Files.deleteIfExists(vectorDataPath);
+            } catch (IOException e) {
+                log.error("[jvector-storage] 清空时删除向量侧录失败: {}", e.getMessage());
+            }
         }
 
         @Override
@@ -1077,6 +1218,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 graph = null;
             }
             pqVectors = null;
+            if (vectorsDirty) {
+                try {
+                    saveVectors();
+                } catch (Exception e) {
+                    log.error("[jvector-storage] PQ 模式关闭时向量落盘失败: {}", e.getMessage());
+                }
+            }
         }
 
         /**

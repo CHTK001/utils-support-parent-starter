@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  *
  * <p>使用示例：
  * <pre>{@code
- *   Engine engine = Engine.create("jdbc");
+ *   Engine engine = Engine.create("mysql");
  *
  *   // 包装任意 ChatClient
  *   ChatClient client = UsagePersistChatClient.wrap(

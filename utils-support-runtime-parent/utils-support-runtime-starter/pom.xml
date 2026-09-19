@@ -34,5 +34,12 @@
             <artifactId>utils-support-runtime-shell</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 单元测试 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.13.0-M3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

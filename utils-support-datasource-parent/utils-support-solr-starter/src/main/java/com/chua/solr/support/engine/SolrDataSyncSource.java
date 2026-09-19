@@ -138,17 +138,18 @@ public class SolrDataSyncSource implements DataSyncSource {
         }
         org.apache.solr.client.solrj.SolrClient sc = engine.getClient();
         if (sc == null) {
-            log.warn("Solr 客户端未初始化，跳过 write: {}", collectionName);
-            return;
+            throw new IllegalStateException("Solr 客户端未初始化，无法写入: " + collectionName);
         }
         try {
             int count = 0;
             for (Map<String, Object> row : rows) {
                 SolrInputDocument doc = new SolrInputDocument();
                 for (Map.Entry<String, Object> entry : row.entrySet()) {
-                    doc.addField(entry.getKey(), entry.getValue());
+                    if (entry.getValue() != null) {
+                        doc.addField(entry.getKey(), entry.getValue());
+                    }
                 }
-                if (!row.containsKey(SolrFields.ID)) {
+                if (!doc.containsKey(SolrFields.ID)) {
                     doc.addField(SolrFields.ID, UUID.randomUUID().toString());
                 }
                 sc.add(collectionName, doc);

@@ -17,8 +17,9 @@ import java.util.Map;
  * 响应式引擎 → 同步 Engine 桥接适配器。
  * <p>
  * 供 {@link com.chua.common.support.lang.datasource.flyway.DefaultFlyway} 复用：
- * Flyway 仅依赖 {@code execute(sql, params)} 与 {@code getExecutor().query(sql)}，
- * 本桥接将其转发到 {@link JdbcReactorEngine} 的阻塞执行路径（JDBC/R2DBC 降级链）。
+ * Flyway 仅依赖 {@code execute(sql, params)} 与 {@code query(sql, params)}
+ * （后者默认转发到 {@code getExecutor().query}），本桥接将其转发到
+ * {@link JdbcReactorEngine} 的阻塞执行路径（JDBC/R2DBC 降级链）。
  * </p>
  *
  * @author CH

@@ -1,2 +1,3 @@
-﻿memory=com.chua.datasource.support.engine.InMemoryReactorEngine
+memory=com.chua.datasource.support.engine.InMemoryReactorEngine
 file=com.chua.datasource.support.engine.FileReactorEngine
+jdbc=com.chua.datasource.support.engine.JdbcReactorEngine

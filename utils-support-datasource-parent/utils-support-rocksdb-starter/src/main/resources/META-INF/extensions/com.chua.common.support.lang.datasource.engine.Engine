@@ -1,1 +1,1 @@
-ROCKSDB=com.chua.rocksdb.support.engine.RocksDbEngine
+rocksdb=com.chua.rocksdb.support.engine.RocksDbEngine
