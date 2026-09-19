@@ -43,7 +43,6 @@ import java.io.OutputStream;
  * 依赖：需要引入对应的 模型-父 模块（如 utils-support-onnx-animegan-hayao）
  *
  * @author CH
- * @版本 4.0.0.42
  * @since 2026/8/15
  */
 @Slf4j

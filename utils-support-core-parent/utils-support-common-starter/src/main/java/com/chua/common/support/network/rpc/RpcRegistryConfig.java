@@ -23,40 +23,22 @@ public class RpcRegistryConfig {
     /** 注册中心地址 */
     private String address;
     /** 登录用户名 */
-    /**
-     * 用户名
-     */
     private String username;
     /** 登录密码 */
-    /**
-     * 密码
-     */
     private String password;
     /** 端口 */
-    /**
-     * 端口号
-     */
     private Integer port;
     /**
      * 注册中心协议类型（zookeeper, nacos, redis, multicast, direct）
      */
     private String protocol;
     /** 连接超时（毫秒） */
-    /**
-     * 超时时间（毫秒）
-     */
     private Integer timeout;
     /** 会话超时（毫秒），ZooKeeper 等依赖心跳的注册中心使用 */
     private Integer sessionTimeout;
     /** 服务分组 */
-    /**
-     * 用户组
-     */
     private String group;
     /** 服务版本 */
-    /**
-     * 版本号
-     */
     private String version;
     /** 启动时检查连通性 */
     private Boolean check;
@@ -71,8 +53,5 @@ public class RpcRegistryConfig {
     /** 扩展参数 */
     private java.util.Map<String, String> parameters;
     /** 本地缓存文件路径（如 dubbo-registry-file） */
-    /**
-     * 文件路径
-     */
     private String file;
 }

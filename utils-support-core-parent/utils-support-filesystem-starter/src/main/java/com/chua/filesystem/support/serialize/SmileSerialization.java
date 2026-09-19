@@ -12,7 +12,6 @@ import lombok.SneakyThrows;
  * 直接使用 Jackson Smile（对象映射器 + smile工厂）进行编解码，性能与兼容性更佳。
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("smile")

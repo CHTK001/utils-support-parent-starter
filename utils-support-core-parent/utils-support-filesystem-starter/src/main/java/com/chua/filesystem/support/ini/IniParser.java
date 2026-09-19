@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
  * 支持注释处理（;和#）
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Slf4j

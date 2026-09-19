@@ -70,7 +70,6 @@ import com.chua.common.support.utils.RgbOptions;
  * }</pre>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2021/6/11
  */
 public abstract class AbstractImageFilter implements ImageFilter {

@@ -80,7 +80,6 @@ import javax.annotation.Nullable;
  * </ul>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2024/10/2
  */
 @Spi("laplace")

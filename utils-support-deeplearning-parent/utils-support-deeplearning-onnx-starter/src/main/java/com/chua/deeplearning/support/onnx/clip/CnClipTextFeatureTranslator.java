@@ -27,11 +27,9 @@ import java.util.Arrays;
 public class CnClipTextFeatureTranslator implements Translator<String, float[]> {
 
     /** 文本最大长度 */
-    /** 文本_最大_长度 */
     private static final int TEXT_MAX_LENGTH = 52;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     /** 创建 cnclip文本特征translator 实例 */

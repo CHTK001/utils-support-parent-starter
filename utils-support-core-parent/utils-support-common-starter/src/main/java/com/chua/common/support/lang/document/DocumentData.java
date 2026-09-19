@@ -34,9 +34,6 @@ public class DocumentData {
     private String productVersion;
 
     /** JDBC 连接 URL */
-    /**
-     * 地址
-     */
     private String url;
 
     /** 文档标题，默认值为 "数据库设计文档" */
@@ -45,9 +42,6 @@ public class DocumentData {
     private String title = "数据库设计文档";
 
     /** 文档描述说明 */
-    /**
-     * 描述
-     */
     private String description;
 
     /** 文档版本号，默认 "1.0.0" */

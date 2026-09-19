@@ -36,10 +36,8 @@ import java.awt.image.BufferedImage;
 public class SwinIrTranslator implements Translator<Image, Image> {
 
     /** 均值数组 */
-    /** Mean */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
     /** 标准差数组 */
-    /** STD */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /** 宽度 */

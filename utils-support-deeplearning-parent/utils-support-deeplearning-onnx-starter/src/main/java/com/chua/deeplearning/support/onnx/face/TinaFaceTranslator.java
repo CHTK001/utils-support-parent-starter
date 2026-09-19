@@ -34,31 +34,23 @@ import java.util.Map;
 public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 640;
     /** 层步长 */
-    /** Strides */
     private static final int[] STRIDES = {4, 8, 16, 32, 64, 128};
     /** 每像素锚框数量 */
-    /** Num_锚栓 */
     private static final int NUM_ANCHORS = 3;
     /** 每个 octave 的缩放数 */
-    /** Scales_per_octave */
     private static final float SCALE_PER_OCTAVE = (float) Math.pow(2.0d, 4.0d / 3.0d);
     /** 宽高比 */
-    /** Ratio */
     private static final float RATIO = 1.3f;
     /** 均值 */
-    /** Mean */
     private static final float[] RGB_MEAN = {123.675f, 116.28f, 103.53f};
     /** 解码（缩放标准差分归一到 [0,1] 前的坐标域） */
     private static final double[] TARGET_STDS = {0.1d, 0.1d, 0.2d, 0.2d};
 
     /** 置信度阈值 */
-    /** Confthresh */
     private double confThresh = 0.4d;
     /** NMS 阈值 */
-    /** Nms_thresh */
     private double nmsThresh = 0.45d;
 
     /**

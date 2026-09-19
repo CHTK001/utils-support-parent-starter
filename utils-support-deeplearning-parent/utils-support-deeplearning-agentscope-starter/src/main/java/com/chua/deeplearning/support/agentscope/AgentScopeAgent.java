@@ -47,7 +47,6 @@ import java.util.Map;
 public class AgentScopeAgent implements Agent {
 
     /** 日志记录器 */
-    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(AgentScopeAgent.class);
 
     /**
@@ -55,56 +54,41 @@ public class AgentScopeAgent implements Agent {
      */
     private int maxRetries = 0;
     /** 重试基础延迟 */
-    /** 重试basedelay */
     private long retryBaseDelay = 1000;
     /** 重试退避策略 */
-    /** 重试策略 */
     private AgentRetryConfig.BackoffStrategy retryStrategy = AgentRetryConfig.BackoffStrategy.EXPONENTIAL;
 
     /** 代理定义 */
-    /** Definition */
     private AgentDefinition definition;
     /** 模式 */
     private AgentMode mode = AgentMode.AUTO;
     /** 最大工具迭代次数 */
-    /** 最大值tooliterations */
     private int maxToolIterations = 5;
     /** 聊天客户端映射 */
     private final Map<String, ChatClient> chatClients = new HashMap<>();
     /** 子代理定义列表 */
-    /** subagentdefinitions */
     private final List<AgentDefinition> subAgentDefinitions = new ArrayList<>();
     /** 全局 MCP 管理器 */
-    /** 全局MCP管理器 */
     private McpManager globalMcpManager;
     /** 全局技能管理器 */
-    /** 全局skill管理器 */
     private SkillManager globalSkillManager;
     /** 记忆配置 */
-    /** 内存配置 */
     private MemoryConfig memoryConfig;
     /** 压缩配置 */
-    /** Compression配置 */
     private AgentCompressionConfig compressionConfig;
     /** 是否启用计划 */
-    /** Plan是否启用 */
     private boolean planEnabled;
     /** 是否打印配置 */
-    /** Print配置 */
     private boolean printConfig = false;
     /** 是否开启调试日志 */
-    /** 调试日志 */
     private boolean debugLogging = false;
     /** 计划最大任务数 */
-    /** Plan最大值任务 */
     private int planMaxTask;
     /** 调试钩子 */
     private AgentDebugHook debugHook;
     /** 计划钩子 */
-    /** Plan钩子 */
     private AgentPlanHook planHook;
     /** 是否启用 MCP */
-    /** MCP是否启用 */
     private boolean mcpEnabled = true;
 
     /** 注册的技能列表（名称 → 处理器） */
@@ -637,9 +621,6 @@ public class AgentScopeAgent implements Agent {
     }
 
     /** 记录日志Architecture */
-    /**
-     * 打印代理架构图（print配置(true) 时随 运行 输出到宿主控制台）。
-     */
     private static final String DIAGRAM_HEADER = "===== Agent Architecture Diagram =====";
     private static final String PROMPTS_TREE_HEADER = "===== System Prompts Tree ====="; // 提示符树头部
     private static final String ROUTER_NODE_LABEL = "\u53ef\u7528\u5b50 Agent"; // router节点标签

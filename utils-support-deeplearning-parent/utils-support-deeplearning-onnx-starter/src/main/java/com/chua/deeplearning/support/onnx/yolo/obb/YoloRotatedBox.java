@@ -13,7 +13,6 @@ import java.util.List;
  *                                                       
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025-01-22
  */
 @Data
@@ -177,10 +176,8 @@ public class YoloRotatedBox {
     @Data
     public static class Point2D {
         /** X 坐标 */
-        /** X坐标 */
         private float x;
         /** Y 坐标 */
-        /** Y坐标 */
         private float y;
 
         /**

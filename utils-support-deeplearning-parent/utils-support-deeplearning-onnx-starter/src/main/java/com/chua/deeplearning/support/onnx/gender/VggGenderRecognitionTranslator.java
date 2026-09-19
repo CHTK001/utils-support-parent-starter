@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
  * - 1: "Male"
  *
  * @author CH
- * @版本 1.0.0
  * @since 2025/11/06
  */
 @Slf4j

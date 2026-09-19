@@ -45,37 +45,27 @@ import java.util.Map;
 public class CnClipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
     /** 图像尺寸 */
-    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 文本最大长度 */
-    /** 文本_最大_长度 */
     private static final int TEXT_MAX_LENGTH = 52;
     /** Logit 缩放系数 */
-    /** Logit_scale */
     private static final float LOGIT_SCALE = 100f;
     /** 默认候选列表 */
-    /** 默认_candidates */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "document", "animal", "vehicle");
 
     /** 均值数组 */
-    /** Mean */
     private static final float[] MEAN = new float[]{0.48145466f, 0.45782750f, 0.40821073f};
     /** 标准差数组 */
-    /** STD */
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
     /** 请求的候选列表 */
-    /** Requestedcandidates */
     private final List<String> requestedCandidates;
     /** 提示词模板 */
-    /** 提示符模板 */
     private final String promptTemplate;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 候选列表 */
-    /** Candidates */
     private List<String> candidates = DEFAULT_CANDIDATES;
 
     /**

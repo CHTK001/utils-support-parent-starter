@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
  * 参考: https://github.com/TachibanaYoshino/AnimeGANv2
  *
  * @author CH
- * @版本 4.0.0.42
  * @since 2026/8/15
  */
 @Slf4j

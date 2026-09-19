@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
  * 应使用类型_INT_RGB而不是类型_BYTE_GRAY。
  *
  * @author CH
- * @版本 1.0.0
  * @since 2021/6/11
  */
 @SpiDescribe("负片反转滤镜")

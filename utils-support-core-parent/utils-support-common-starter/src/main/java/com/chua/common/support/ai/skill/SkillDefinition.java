@@ -17,15 +17,9 @@ import java.util.Map;
 public class SkillDefinition {
 
     /** 技能名称 */
-    /**
-     * 名称
-     */
     private final String name;
 
     /** 技能描述 */
-    /**
-     * 描述
-     */
     private final String description;
 
     /** 参数 schema */

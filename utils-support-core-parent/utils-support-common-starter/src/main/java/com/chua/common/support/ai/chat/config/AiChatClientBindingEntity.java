@@ -26,9 +26,6 @@ import lombok.Data;
 public class AiChatClientBindingEntity {
 
     /** 主键 */
-    /**
-     * 标识
-     */
     private Long id;
 
     /**
@@ -55,24 +52,15 @@ public class AiChatClientBindingEntity {
     // ==================== 客户端配置 ====================
 
     /** AI 服务商名称，如 "openai"、"alibaba" */
-    /**
-     * 提供方标识
-     */
     private String provider;
 
     /** API 密钥 */
-    /**
-     * API 密钥
-     */
     private String apiKey;
 
     /** 自定义 API 地址（可选） */
     private String baseUrl;
 
     /** 模型名称（可选） */
-    /**
-     * 模型名称
-     */
     private String model;
 
     /** 温度参数（可选） */
@@ -96,14 +84,8 @@ public class AiChatClientBindingEntity {
     // ==================== 审计 ====================
 
     /** 创建时间 */
-    /**
-     * 创建时间
-     */
     private Long createdAt;
 
     /** 更新时间 */
-    /**
-     * 更新时间
-     */
     private Long updatedAt;
 }

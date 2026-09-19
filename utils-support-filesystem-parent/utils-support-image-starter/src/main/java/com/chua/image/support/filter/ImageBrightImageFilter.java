@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
  * - 对于已经很亮的图像效果有限
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("Bright")

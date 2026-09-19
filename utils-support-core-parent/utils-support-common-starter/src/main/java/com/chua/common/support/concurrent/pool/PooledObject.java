@@ -32,9 +32,6 @@ class PooledObject<T> {
     private final T object;
 
     /** 当前状态 */
-    /**
-     * 状态
-     */
     private volatile Status status;
 
     /** 最后一次借出时间（毫秒时间戳） */

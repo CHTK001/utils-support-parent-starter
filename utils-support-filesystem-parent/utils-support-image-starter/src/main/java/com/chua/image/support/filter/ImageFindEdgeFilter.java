@@ -45,7 +45,6 @@ import javax.annotation.Nullable;
  * - 工业检测：产品边缘质量检测
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("FindEdge")

@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
  * 3.                                  
  *
  * @author CH
- * @版本 4.0.0.30
  * @since 2024/12/20
  */
 @Slf4j
@@ -41,7 +40,6 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
      *                                           
      */
     private int originalWidth;
-    /** 原始高度 */
     /** 原始高度 */
     private int originalHeight;
 

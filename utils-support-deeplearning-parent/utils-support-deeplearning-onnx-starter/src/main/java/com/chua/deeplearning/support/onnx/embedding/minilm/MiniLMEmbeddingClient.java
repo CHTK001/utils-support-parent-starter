@@ -48,7 +48,6 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     /** 设置 */
     private final EmbeddingClientSetting setting;
     /** 翻译器 */
-    /** Translator */
     private volatile MiniLMEmbeddingTranslator translator;
     /** 已解析的模型标识 */
     private volatile String resolvedModel;

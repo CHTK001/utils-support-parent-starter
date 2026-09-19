@@ -22,7 +22,6 @@ public class OnnxFeatureClient implements FeatureClient {
     /** 翻译器 */
     private ITranslator<Object, Object> translator;
     /** 解析后的模型标识 */
-    /** Resolved模型标识 */
     private String resolvedModelId;
 
     /**

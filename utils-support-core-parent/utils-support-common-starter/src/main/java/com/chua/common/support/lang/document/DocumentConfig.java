@@ -37,21 +37,12 @@ public class DocumentConfig {
     private String type;
 
     /** JDBC URL 或 API 文档地址 */
-    /**
-     * 地址
-     */
     private String url;
 
     /** 数据库用户名 */
-    /**
-     * 用户名
-     */
     private String username;
 
     /** 数据库密码 */
-    /**
-     * 密码
-     */
     private String password;
 
     /** JDBC 驱动类全限定名 */

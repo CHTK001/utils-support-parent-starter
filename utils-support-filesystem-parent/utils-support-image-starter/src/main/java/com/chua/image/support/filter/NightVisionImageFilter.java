@@ -51,7 +51,6 @@ import javax.annotation.Nullable;
  * - 可以添加噪声效果，模拟设备的电子噪声
  *
  * @author CH
- * @版本 1.0.0
  * @since 2024/10/2
  */
 @Spi("nightVision")

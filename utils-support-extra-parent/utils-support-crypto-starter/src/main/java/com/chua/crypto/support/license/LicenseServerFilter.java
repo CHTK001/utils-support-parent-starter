@@ -82,7 +82,7 @@ public class LicenseServerFilter implements ServerFilter {
      * 全参构造：注册表 + 响应签名密钥（生产推荐）
      *
      * @param registry       已加载的注册表
-     * @param responseSecret 响应签名密钥（客户端 chua.加密货币.执照-secret 须一致）
+     * @param responseSecret 响应签名密钥（客户端 chua.crypto.license-secret 须一致）
      */
     public LicenseServerFilter(LicenseRegistry registry, char[] responseSecret) {
         this.registry = registry;

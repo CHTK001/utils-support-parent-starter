@@ -70,7 +70,6 @@ import java.lang.annotation.Target;
  *
  * @author CH
  * @since 2025/11/26
- * @版本 1.1.0
  * @see com.chua.common.support.proxy.intercept.MethodArroundIntercept
  * @see MethodAnnotationIntercept
  */

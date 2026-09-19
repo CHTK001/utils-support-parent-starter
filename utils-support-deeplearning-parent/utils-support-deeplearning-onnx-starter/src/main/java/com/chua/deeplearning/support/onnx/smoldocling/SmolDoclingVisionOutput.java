@@ -8,13 +8,11 @@ import java.util.Arrays;
  * smoldocling Vision
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/01/22
  */
 public class SmolDoclingVisionOutput {
 
     /** 图像特征 */
-    /** 图片特征 */
     private final NDArray imageFeatures;
 
     /**

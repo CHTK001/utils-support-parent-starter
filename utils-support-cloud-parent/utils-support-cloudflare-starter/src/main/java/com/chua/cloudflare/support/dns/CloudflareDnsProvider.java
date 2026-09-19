@@ -39,7 +39,6 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
- * @版本 1.0.0
  */
 @Slf4j
 @Spi("cloudflare")

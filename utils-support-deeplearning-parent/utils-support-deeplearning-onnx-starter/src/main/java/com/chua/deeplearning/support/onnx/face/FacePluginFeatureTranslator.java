@@ -25,7 +25,6 @@ import ai.djl.translate.TranslatorContext;
 public class FacePluginFeatureTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 128;
 
     /** 创建 faceplugin特征translator 实例 */

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 系统加密配置属性（chua.加密货币.*）
+ * 系统加密配置属性（chua.crypto.*）
  *
  * <p>配置示例：
  * <pre>{@code

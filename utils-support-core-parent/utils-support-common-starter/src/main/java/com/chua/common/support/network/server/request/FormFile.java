@@ -19,9 +19,6 @@ public class FormFile {
     private final String contentType;
 
     /** 文件字节数据 */
-    /**
-     * 数据
-     */
     private final byte[] data;
 
     /**

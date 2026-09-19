@@ -37,10 +37,8 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class CardCorrectionTranslator implements ITranslator<byte[], List<DetectionInfo>> {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 768;
     /** 热力图尺寸 */
-    /** Heat_大小 */
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
@@ -56,32 +54,24 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     }
     private static final int HEAT_SIZE = 192; // heat大小
     /** 角点数量 */
-    /** Num_corners */
     private static final int NUM_CORNERS = 4;
     /** 步长 */
-    /** Stride */
     private static final int STRIDE = 4;
     /** 置信度阈值 */
-    /** Conf_阈值 */
     private static final float CONF_THRESHOLD = 0.3f;
 
     /** 资源基础路径 */
-    /** Resource_基础 */
     private static final String RESOURCE_BASE = "cv/card_correction/";
     /** 模型文件路径 */
-    /** 模型_文件 */
     private static final String MODEL_FILE = "card_detection.onnx";
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
     /** 源图像宽度 */
-    /** SRC宽度 */
     private int srcWidth;
     /** 源图像高度 */
-    /** SRC高度 */
     private int srcHeight;
 
     /**

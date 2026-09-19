@@ -51,7 +51,6 @@ import javax.annotation.Nullable;
  * </ul>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)

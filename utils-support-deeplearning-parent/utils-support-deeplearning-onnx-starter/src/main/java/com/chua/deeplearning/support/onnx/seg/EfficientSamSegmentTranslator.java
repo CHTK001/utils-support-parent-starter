@@ -76,7 +76,6 @@ public class EfficientSamSegmentTranslator {
     private static final String DECODER_FILE = "efficientsam_ti_decoder.onnx";
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;
@@ -88,7 +87,6 @@ public class EfficientSamSegmentTranslator {
      */
     private int srcWidth;
     /** 源图像高度 */
-    /** SRC高度 */
     private int srcHeight;
 
     /** Prepare */

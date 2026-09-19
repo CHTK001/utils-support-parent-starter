@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
  * -           镜像
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j

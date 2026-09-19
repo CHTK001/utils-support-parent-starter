@@ -34,10 +34,8 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 640;
     /** 步长数组 */
-    /** Strides */
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
@@ -53,13 +51,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
     private static final int[] STRIDES = {8, 16, 32}; // STRIDES
     /** 锚框数量 */
-    /** Num_锚栓 */
     private static final int NUM_ANCHORS = 2;
     /** 分数阈值 */
-    /** Score_阈值 */
     private static final float SCORE_THRESHOLD = 0.70f;
     /** NMS 阈值 */
-    /** Nms_阈值 */
     private static final double NMS_THRESHOLD = 0.40d;
 
     @Override

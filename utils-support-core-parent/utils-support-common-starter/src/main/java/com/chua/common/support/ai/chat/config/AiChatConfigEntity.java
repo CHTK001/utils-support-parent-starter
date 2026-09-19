@@ -28,9 +28,6 @@ import java.util.List;
 public class AiChatConfigEntity {
 
     /** 主键 */
-    /**
-     * 标识
-     */
     private Long id;
 
     /**
@@ -53,9 +50,6 @@ public class AiChatConfigEntity {
     private boolean monitor = true;
 
     /** 更新时间 */
-    /**
-     * 更新时间
-     */
     private Long updatedAt;
 
     /**

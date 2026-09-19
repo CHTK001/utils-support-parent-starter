@@ -5,7 +5,6 @@ package com.chua.common.support.datasearch.video.model;
  * ֧持的网盘类型定?
  *
  * @author CH
- * @版本 1.0
  * @since 4.0.0.42
  */
 public enum PanType {

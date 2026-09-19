@@ -65,7 +65,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <T> 代理接口类型
  * @author CH
  * @since 2025/11/26
- * @版本 1.1.0
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 class DefaultProxyProvider<T> implements ProxyProvider<T> {

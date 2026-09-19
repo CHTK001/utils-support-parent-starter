@@ -37,7 +37,6 @@ import java.util.List;
  * - ONNX          https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/yolov2-coco
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
@@ -95,7 +94,6 @@ private static final float[][] ANCHORS = {
      */
     private int imageWidth;
     /** 图像高度 */
-    /** 图片高度 */
     private int imageHeight;
 
     /**

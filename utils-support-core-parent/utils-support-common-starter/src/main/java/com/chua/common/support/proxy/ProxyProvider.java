@@ -46,7 +46,6 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  * @param <T> 代理接口类型
  * @author CH
  * @since 2025/11/26
- * @版本 1.0.0
  */
 public interface ProxyProvider<T> {
 

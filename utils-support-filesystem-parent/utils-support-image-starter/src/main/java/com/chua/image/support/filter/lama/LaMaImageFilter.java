@@ -112,7 +112,6 @@ import javax.annotation.Nullable;
  * </ul>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2024/7/29
  */
 @Slf4j

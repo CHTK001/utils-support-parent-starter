@@ -31,7 +31,7 @@ public class CryptoAutoConfiguration {
     /**
      * 注册系统加密门面 Bean
      *
-     * @param properties chua.加密货币.* 配置
+     * @param properties chua.crypto.* 配置
      * @return 已初始化的加密门面
      */
     @Bean(destroyMethod = "close")

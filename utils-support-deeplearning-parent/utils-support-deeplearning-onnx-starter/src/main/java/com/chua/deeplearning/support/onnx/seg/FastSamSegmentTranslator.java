@@ -37,32 +37,23 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class FastSamSegmentTranslator {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 1024;
     /** 类别数量 */
-    /** Num_classes */
     private static final int NUM_CLASSES = 1;
     /** 原型掩码数量 */
-    /** Num_Proto.io.io */
     private static final int NUM_PROTOS = 32;
     /** 步长 */
-    /** Stride */
     private static final int STRIDE = 4;
     /** 置信度阈值 */
-    /** Conf_阈值 */
     private static final float CONF_THRESHOLD = 0.3f;
     /** NMS 阈值 */
-    /** Nms_阈值 */
     private static final float NMS_THRESHOLD = 0.5f;
     /** 掩码尺寸 */
-    /** Mask_大小 */
     private static final int MASK_SIZE = 256;
 
     /** 资源基础路径 */
-    /** Resource_基础 */
     private static final String RESOURCE_BASE = "vision/seg/fastsam/onnx/";
     /** 模型文件路径 */
-    /** 模型_文件 */
     private static final String MODEL_FILE = "fastsam_s.onnx";
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
@@ -79,16 +70,13 @@ public class FastSamSegmentTranslator {
     }
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;
 
     /** 源图像宽度 */
-    /** SRC宽度 */
     private int srcWidth;
     /** 源图像高度 */
-    /** SRC高度 */
     private int srcHeight;
 
     /** Prepare */

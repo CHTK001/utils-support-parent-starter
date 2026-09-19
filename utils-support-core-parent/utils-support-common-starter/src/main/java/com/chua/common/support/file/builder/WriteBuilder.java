@@ -20,9 +20,6 @@ import com.chua.common.support.utils.BeanUtils;
 public abstract class WriteBuilder {
 
     /** 待写入的文件 */
-    /**
-     * 文件路径
-     */
     protected final File file;
 
     /** 写入时使用的字符集编码，默认使用系统编码 */

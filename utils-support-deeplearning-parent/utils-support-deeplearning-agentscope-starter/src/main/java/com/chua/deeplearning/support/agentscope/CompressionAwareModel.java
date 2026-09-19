@@ -29,21 +29,16 @@ import java.util.List;
 public class CompressionAwareModel implements Model {
 
     /** 委托对象 */
-    /** Delegate */
     private final Model delegate;
     /** 降级聊天客户端 */
-    /** 回退对话客户端 */
     private final ChatClient fallbackChatClient;
     /** 压缩配置 */
-    /** Compression配置 */
     private final AgentCompressionConfig compressionConfig;
     /** 上下文压缩器 */
-    /** Compressor */
     private final ContextCompressor compressor;
     /** 模型名称 */
     private final String modelName;
     /** 压缩模型标识 */
-    /** Compression模型标识 */
     private final String compressionModelId;
 
     /**

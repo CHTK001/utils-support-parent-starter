@@ -52,18 +52,12 @@ public class BTreeNode {
     }
 
     /** 节点类型 */
-    /**
-     * 类型
-     */
     private final Type type;
 
     /** 运算符或列名或函数名 */
     private final String operator;
 
     /** 值（VALUE 类型时为实际值，其他类型可能为 null） */
-    /**
-     * 值
-     */
     private final Object value;
 
     /**

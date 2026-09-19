@@ -56,7 +56,7 @@ public class CryptoSetting {
 
     /**
      * 固定服务器指纹（服务端_BOUND 策略下用于容灾迁移；缺省自动采集本机指纹，
-     * 亦可通过环境变量 CHUA_加密货币_服务端_标识 或系统属性 chua.加密货币.服务端-标识 指定）
+     * 亦可通过环境变量 CHUA_CRYPTO_SERVER_ID 或系统属性 chua.crypto.server-id 指定）
      */
     private String serverId;
 

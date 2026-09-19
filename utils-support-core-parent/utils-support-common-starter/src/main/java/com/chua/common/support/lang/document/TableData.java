@@ -23,9 +23,6 @@ public class TableData {
     private String tableName;
 
     /** 模式名（schema） */
-    /**
-     * Schema 名
-     */
     private String schema;
 
     /** 表注释/备注 */
@@ -47,8 +44,5 @@ public class TableData {
     private List<RelationshipData> exportedKeys = new ArrayList<>();
 
     /** 对象类型：TABLE 或 VIEW */
-    /**
-     * 类型
-     */
     private String type;
 }
