@@ -48,6 +48,8 @@ public class SqliteEngine extends JdbcEngine {
         ds.setDriverClassName("org.sqlite.JDBC");
         ds.setMaximumPoolSize(5);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
+            private com.chua.common.support.lang.datasource.dialect.Dialect dialect =
+                    com.chua.common.support.lang.datasource.dialect.Dialect.require("sqlite");
             @Override
             /**
              * 名称
@@ -84,8 +86,8 @@ public class SqliteEngine extends JdbcEngine {
             /**
              * 获取Dialect
             */
-            public SqliteDialect getDialect() {
-                return new SqliteDialect();
+            public com.chua.common.support.lang.datasource.dialect.Dialect getDialect() {
+                return dialect;
             }
 
             @Override
@@ -93,6 +95,9 @@ public class SqliteEngine extends JdbcEngine {
              * 设置Dialect
             */
             public EngineDataSource<Object> setDialect(com.chua.common.support.lang.datasource.dialect.Dialect dialect) {
+                if (dialect != null) {
+                    this.dialect = dialect;
+                }
                 return this;
             }
 
@@ -117,9 +122,3 @@ public class SqliteEngine extends JdbcEngine {
              * 密码
             */
             public String password() {
-                return ds.getPassword();
-            }
-        };
-        return super.addDataSource(name, dataSource);
-    }
-}

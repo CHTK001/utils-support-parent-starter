@@ -6,7 +6,6 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.JdbcEngine;
 import com.chua.h2.support.cleanup.H2CleanupPlugin;
-import com.chua.h2.support.dialect.H2Dialect;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
@@ -57,6 +56,7 @@ public class H2Engine extends JdbcEngine {
         ds.setDriverClassName("org.h2.Driver");
         ds.setMaximumPoolSize(5);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
+            private Dialect dialect = Dialect.require("h2");
             @Override
             public String name() { return name; }
             @Override
@@ -66,9 +66,14 @@ public class H2Engine extends JdbcEngine {
             @Override
             public EngineDataSource<Object> setSource(Object source) { return this; }
             @Override
-            public Dialect getDialect() { return new H2Dialect(); }
+            public Dialect getDialect() { return dialect; }
             @Override
-            public EngineDataSource<Object> setDialect(Dialect dialect) { return this; }
+            public EngineDataSource<Object> setDialect(Dialect d) {
+                if (d != null) {
+                    dialect = d;
+                }
+                return this;
+            }
             @Override
             public String url() { return ds.getJdbcUrl(); }
             @Override
