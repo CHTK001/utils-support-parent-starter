@@ -47,14 +47,13 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
      * @return 删除 SQL 信息
      */
     public DeleteSql buildSql() {
+        if (conditions.isEmpty() && !fullTableAllowed) {
+            throw new IllegalStateException("禁止无 WHERE 条件的全表删除: "
+                    + entityClass.getSimpleName() + "，如需全表删除请显式调用 allowFullTable()");
+        }
         List<Object> params = new ArrayList<>();
         StringBuilder where = new StringBuilder();
-        for (int i = 0; i < conditions.size(); i++) {
-            if (i > 0) {
-                where.append(" AND ");
-            }
-            renderCondition(where, params, conditions.get(i));
-        }
+        buildWhere(where, params);
         return new DeleteSql(entityClass, where.toString(), params);
     }
 
@@ -103,32 +102,6 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
         } catch (Exception e) {
             throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
         }
-    }
-
-    /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb 方法入参 sb
-     * @param params 参数，不允许为 null
-     * @param c 方法入参 c
-     */
-    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
-        if (c.isNested()) {
-            sb.append("(");
-            for (int i = 0; i < c.getNested().size(); i++) {
-                if (i > 0) {
-                    sb.append(" ").append(c.getNestedOperator()).append(" ");
-                }
-                renderCondition(sb, params, c.getNested().get(i));
-            }
-            sb.append(")");
-            return;
-        }
-        String col = c.getColumnName();
-        if (col == null) {
-            col = "?";
-        }
-        sb.append(col).append(" ").append(c.getOperator()).append(" ?");
-        params.add(c.getValue());
     }
 
 }

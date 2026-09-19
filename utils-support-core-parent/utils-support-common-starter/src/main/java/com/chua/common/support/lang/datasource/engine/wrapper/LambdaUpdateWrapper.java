@@ -40,9 +40,9 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     private final Map<String, Object> setValues = new LinkedHashMap<>();
 
     /**
-    * 创建 LambdaUpdateWrapper 实例
-    * @param entityClass entityClass
-    */
+     * 创建 LambdaUpdateWrapper 实例
+     * @param entityClass entityClass
+     */
     public LambdaUpdateWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -67,7 +67,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
      * @return this
      */
     public LambdaUpdateWrapper<T> set(String column, Object value) {
-        setValues.put(column, value);
+        setValues.put(checkIdentifier(column), value);
         return this;
     }
 
@@ -90,6 +90,14 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
      * @return 更新 SQL 信息
      */
     public UpdateSql buildSql() {
+        if (setValues.isEmpty()) {
+            throw new IllegalStateException("UPDATE 至少需要一个 SET 列: "
+                    + entityClass.getSimpleName());
+        }
+        if (conditions.isEmpty() && !fullTableAllowed) {
+            throw new IllegalStateException("禁止无 WHERE 条件的全表更新: "
+                    + entityClass.getSimpleName() + "，如需全表更新请显式调用 allowFullTable()");
+        }
         List<Object> params = new ArrayList<>();
         StringBuilder setSb = new StringBuilder();
         for (Map.Entry<String, Object> e : setValues.entrySet()) {
@@ -120,13 +128,18 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
 
     /**
      * 保存或更新实体。
-     * <p>直接委托给 {@link #update()}，由 Engine 实现类根据实体 ID 判断 INSERT 或 UPDATE。</p>
+     * <p>包装器层没有实体主键元数据（无 {@code @TableId} 语义），无法判定
+     * INSERT 还是 UPDATE 的匹配条件；此前实现忽略入参直接执行空更新，
+     * 属无效操作，现改为显式拒绝。</p>
      *
      * @param entity 实体实例
      * @return 受影响行数
+     * @throws UnsupportedOperationException 恒定抛出，请改用
+     *         {@code set(...).eq(主键列, 值).update()} 显式表达更新条件
      */
     public int saveOrUpdate(T entity) {
-        return update();
+        throw new UnsupportedOperationException(
+                "saveOrUpdate 未实现：更新包装器不携带主键元数据，请显式使用 set(...).eq(主键, 值).update()");
     }
 
     @Override
@@ -162,47 +175,6 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
         } catch (Exception e) {
             throw new IllegalArgumentException("无法解析 Lambda 列: " + column, e);
         }
-    }
-
-    /**
-     * 构建 WHERE 子句和参数列表。
-     * <p>遍历所有条件，用 AND 连接，参数追加到已有参数列表之后。</p>
-     * @param sb 方法入参 sb
-     * @param params 参数，不允许为 null
-     */
-    protected void buildWhere(StringBuilder sb, List<Object> params) {
-        for (int i = 0; i < conditions.size(); i++) {
-            if (i > 0) {
-                sb.append(" AND ");
-            }
-            renderCondition(sb, params, conditions.get(i));
-        }
-    }
-
-    /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb 方法入参 sb
-     * @param params 参数，不允许为 null
-     * @param c 方法入参 c
-     */
-    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
-        if (c.isNested()) {
-            sb.append("(");
-            for (int i = 0; i < c.getNested().size(); i++) {
-                if (i > 0) {
-                    sb.append(" ").append(c.getNestedOperator()).append(" ");
-                }
-                renderCondition(sb, params, c.getNested().get(i));
-            }
-            sb.append(")");
-            return;
-        }
-        String col = c.getColumnName();
-        if (col == null) {
-            col = "?";
-        }
-        sb.append(col).append(" ").append(c.getOperator()).append(" ?");
-        params.add(c.getValue());
     }
 
 }

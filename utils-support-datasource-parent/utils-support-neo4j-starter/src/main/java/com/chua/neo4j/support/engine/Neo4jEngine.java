@@ -269,6 +269,12 @@ public class Neo4jEngine implements Engine {
     }
 
     @Override
+    /** 不支持元数据操作 */
+    public boolean supportsMeta() {
+        return false;
+    }
+
+    @Override
     /** 关闭 */
     public void close() {
         if (driver != null) {
@@ -284,11 +290,11 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-    * 解析属性函数引用的列名。
-    *
-    * @param col 属性函数引用
-    * @return 解析后的列名
-    */
+             * 解析属性函数引用的列名。
+             *
+             * @param col 属性函数引用
+             * @return 解析后的列名
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -301,11 +307,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-            * 解析属性函数引用的列名。
-            *
-            * @param col 属性函数引用
-            * @return 解析后的列名
-            */
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -359,11 +365,11 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-            * 解析属性函数引用的列名。
-            *
-            * @param col 属性函数引用
-            * @return 解析后的列名
-            */
+             * 解析属性函数引用的列名。
+             *
+             * @param col 属性函数引用
+             * @return 解析后的列名
+             */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -376,11 +382,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-            * 解析属性函数引用的列名。
-            *
-            * @param col 属性函数引用
-            * @return 解析后的列名
-            */
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -420,11 +426,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-            * 解析属性函数引用的列名。
-            *
-            * @param col 属性函数引用
-            * @return 解析后的列名
-            */
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
+                     */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -441,13 +447,13 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-            * 执行 Cypher 查询（无分页）。
-            *
-            * @param entityClass 实体类
-            * @param conditions  条件列表
-            * @param <T>         实体类型
-            * @return 查询结果列表
-            */
+     * 执行 Cypher 查询（无分页）。
+     *
+     * @param entityClass 实体类
+     * @param conditions  条件列表
+     * @param <T>         实体类型
+     * @return 查询结果列表
+     */
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
         return cypherQuery(entityClass, conditions, 0, 0);

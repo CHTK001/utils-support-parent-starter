@@ -250,10 +250,11 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
      * 为 SQL 追加分页子句。
-     * <p>偏移量与页大小对齐（offset 是 limit 的整数倍）时，优先使用当前方言的
-     * {@link Dialect#processSql(String, Pagination)}，支持 SQL Server/Oracle 等
-     * 非 LIMIT 语法；无方言或非对齐偏移时使用标准 {@code LIMIT ? OFFSET ?}
-     * 语法兜底（兼容 MySQL/PostgreSQL/H2/SQLite）。</p>
+     * <p>无方言或方言支持标准 LIMIT 语法（MySQL/PostgreSQL/H2/SQLite 等）时，
+     * 直接追加 {@code LIMIT n OFFSET m}，任意偏移量均合法；
+     * 方言不支持 LIMIT（SQL Server/Oracle 等）时统一走
+     * {@link Dialect#processSql(String, Pagination)} 方言分页，
+     * 其翻页模型只有页码/页大小，偏移量非页对齐无法表达，显式抛出异常。</p>
      *
      * @param coreSql 不含分页的 SQL
      * @param limit   返回行数上限
@@ -262,13 +263,17 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     private String wrapPagination(String coreSql, int limit, int offset) {
         Dialect d = dialect();
-        if (d != null && offset % limit == 0) {
+        if (d == null || d.supportsLimit()) {
+            return coreSql + " LIMIT " + limit + " OFFSET " + offset;
+        }
+        if (offset % limit == 0) {
             Pagination pagination = new Pagination()
                     .setPageNum(offset / limit + 1)
                     .setPageSize(limit);
             return d.processSql(coreSql, pagination);
         }
-        return coreSql + " LIMIT " + limit + " OFFSET " + offset;
+        throw new UnsupportedOperationException("当前方言（" + d.protocol()
+                + "）不支持任意偏移分页，offset 必须是 limit 的整数倍: limit=" + limit + ", offset=" + offset);
     }
 
     /**

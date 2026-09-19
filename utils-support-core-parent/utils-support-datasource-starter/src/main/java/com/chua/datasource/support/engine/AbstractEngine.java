@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -104,12 +103,12 @@ public abstract class AbstractEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 添加数据源
-    *
-    * @param name 名称
-    * @param ds ds
-    * @return 添加数据源的结果
-    */
+     * 添加数据源
+     *
+     * @param name 名称
+     * @param ds ds
+     * @return 添加数据源的结果
+     */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
@@ -193,6 +192,16 @@ public abstract class AbstractEngine implements Engine {
     /** Meta */
     public com.chua.common.support.lang.datasource.meta.MetaData meta() {
         return new DefaultMetaData(this);
+    }
+
+    @Override
+    /**
+     * 是否支持元数据操作：以 meta() 是否返回真实实现为准。
+     * 默认实现 {@link DefaultMetaData} 各方法均抛异常，此时报告不支持；
+     * 子类覆盖 meta() 返回真实元数据实现后自动报告支持。
+     */
+    public boolean supportsMeta() {
+        return !(meta() instanceof DefaultMetaData);
     }
 
     @Override
@@ -316,8 +325,9 @@ public abstract class AbstractEngine implements Engine {
     /**
      * 执行完整查询 SQL 信息（含 SELECT 列、WHERE、GROUP BY、ORDER BY、LIMIT/OFFSET）。
      * <p>
-     * 默认实现仅把 WHERE 条件与分页参数委托给子类的 {@link #executeNewQuery}，
-     * 再通过 {@link #processQueryResult} 做内存排序与分页兜底，适用于内存/文件/NoSQL 引擎。
+     * 默认实现把 WHERE 条件委托给子类的 {@link #executeNewQuery}（分页参数固定传 0，
+     * 即不做引擎侧截断），再由 {@link #processQueryResult} 统一完成排序与
+     * limit/offset 单次截取，适用于内存/文件/NoSQL 引擎。
      * SQL 引擎（如 {@link JdbcEngine}）应覆盖本方法，将 SELECT 列、GROUP BY、ORDER BY、
      * LIMIT/OFFSET 全部下推到数据库执行，避免全表数据加载到 JVM。
      * </p>
@@ -327,8 +337,10 @@ public abstract class AbstractEngine implements Engine {
      * @return 查询结果
      */
     protected <T> List<T> executeQueryFull(QuerySql<T> sql) {
+        // 分页只在 processQueryResult 截一次：这里以 (0,0) 取全量过滤结果，
+        // 避免 executeNewQuery 先截、排序后内存再截导致第二页起恒为空
         List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(),
-                sql.entityClass(), sql.limit(), sql.offset());
+                sql.entityClass(), 0, 0);
         return processQueryResult(sql, result);
     }
 
@@ -344,23 +356,25 @@ public abstract class AbstractEngine implements Engine {
         if (result == null || result.isEmpty()) {
             return result;
         }
- // 如果设置了 限制 但 dialect 不支持物理分页，内存截取
-        if (sql.hasLimit()) {
-            int from = sql.offset();
-            int to = Math.min(from + sql.limit(), result.size());
-            if (from >= result.size()) {
-                return Collections.emptyList();
-            }
-            result = result.subList(from, to);
-        }
  // 过滤 空 元素，避免排序引发 NPE
         List<T> valid = result.stream()
                 .filter(java.util.Objects::nonNull)
                 .toList();
+ // 先全量排序，再按 limit/offset 截取当前页
         if (sql.orderBys() != null && !sql.orderBys().isEmpty() && !valid.isEmpty()) {
             List<T> sorted = new ArrayList<>(valid);
             sorted.sort((a, b) -> compareOrdered(a, b, sql.orderBys()));
-            return sorted;
+            valid = sorted;
+        }
+ // 如果设置了 限制 但 dialect 不支持物理分页，内存截取
+        if (sql.hasLimit()) {
+            int from = sql.offset();
+            if (from >= valid.size()) {
+                return Collections.emptyList();
+            }
+            int to = Math.min(from + sql.limit(), valid.size());
+            // 返回独立副本，避免 subList 试图图泄漏内存存储
+            return new ArrayList<>(valid.subList(from, to));
         }
         return valid;
     }
@@ -442,7 +456,8 @@ public abstract class AbstractEngine implements Engine {
         if (from >= all.size()) {
             return new Page<>(pn, ps, all.size(), Collections.emptyList());
         }
-        return new Page<>(pn, ps, all.size(), all.subList(from, to));
+        // 独立副本，避免 subList 视图持有内存存储引用
+        return new Page<>(pn, ps, all.size(), new ArrayList<>(all.subList(from, to)));
     }
 
     /**
@@ -657,6 +672,8 @@ public abstract class AbstractEngine implements Engine {
 
     /**
      * 获取指定实体类对应的数据列表。
+     * <p>仅匹配实体表名与显式的 "default" 存储；无对应内存存储时返回空列表。
+     * 不再回退到"随机取第一个存储"，避免跨表读到无关数据。</p>
      *
      * @param entityClass 实体类
      * @param <T>         实体类型
@@ -670,8 +687,7 @@ public abstract class AbstractEngine implements Engine {
             data = dataStores.get("default");
         }
         if (data == null) {
-            Optional<List<?>> first = dataStores.values().stream().findFirst();
-            data = first.orElse(Collections.emptyList());
+            return Collections.emptyList();
         }
         return (List<T>) data;
     }

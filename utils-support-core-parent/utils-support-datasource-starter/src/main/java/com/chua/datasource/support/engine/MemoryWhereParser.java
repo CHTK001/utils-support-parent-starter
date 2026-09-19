@@ -19,6 +19,10 @@ import java.util.regex.Pattern;
  */
 public class MemoryWhereParser {
 
+    /** 数值常量比较（如 1 = 0），用于空集合 IN/NOT IN 渲染出的恒假/恒真条件 */
+    private static final Pattern CONSTANT_PATTERN =
+            Pattern.compile("^(\\d+)\\s*(=|!=|<>|>=|<=|>|<)\\s*(\\d+)");
+
     /**
      * 解析 WHERE 子句为 Predicate。
      *
@@ -210,6 +214,31 @@ public class MemoryWhereParser {
                     result = result.and(pred);
                 }
                 remaining = remaining.substring(parenEnd + 1).trim();
+                continue;
+            }
+
+            // 数值常量比较（如空集合 IN 渲染出的 1 = 0 / 1 = 1）
+            var cm = CONSTANT_PATTERN.matcher(remaining);
+            if (cm.find()) {
+                long left = Long.parseLong(cm.group(1));
+                String cop = cm.group(2);
+                long right = Long.parseLong(cm.group(3));
+                boolean constResult = switch (cop) {
+                    case "=" -> left == right;
+                    case "!=", "<>" -> left != right;
+                    case ">" -> left > right;
+                    case ">=" -> left >= right;
+                    case "<" -> left < right;
+                    case "<=" -> left <= right;
+                    default -> true;
+                };
+                Predicate<T> pred = t -> constResult;
+                if ("OR".equalsIgnoreCase(lastConnector)) {
+                    result = result.or(pred);
+                } else {
+                    result = result.and(pred);
+                }
+                remaining = remaining.substring(cm.end()).trim();
                 continue;
             }
 

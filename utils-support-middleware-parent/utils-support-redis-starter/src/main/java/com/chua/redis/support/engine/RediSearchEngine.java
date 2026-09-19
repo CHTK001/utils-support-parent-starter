@@ -105,15 +105,15 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     @Override
     /**
-    * 执行原生 Redis 命令。
-    * <p>将语句按空白拆分为命令与参数（{@code params} 追加为尾部参数），
-    * 经 Jedis {@code sendCommand} 分发执行；命令返回整数响应时返回该值，
-    * 其余响应返回 0。</p>
-    *
-    * @param ql     Redis 命令行（如 {@code DEL user:1}）
-    * @param params 附加参数列表
-    * @return 受影响行数
-    */
+     * 执行原生 Redis 命令。
+     * <p>将语句按空白拆分为命令与参数（{@code params} 追加为尾部参数），
+     * 经 Jedis {@code sendCommand} 分发执行；命令返回整数响应时返回该值，
+     * 其余响应返回 0。</p>
+     *
+     * @param ql     Redis 命令行（如 {@code DEL user:1}）
+     * @param params 附加参数列表
+     * @return 受影响行数
+     */
     public int execute(String ql, Object... params) {
         if (ql == null || ql.isBlank()) {
             throw new IllegalArgumentException("Redis 命令不能为空");
@@ -258,12 +258,12 @@ public class RediSearchEngine extends RedisEngine implements Engine {
 
     @SafeVarargs
     /**
-    * 分组By
-    *
-    * @param entityClass 实体类
-    * @param groupByCols 群体bycols
-    * @return 群体by的结果
-    */
+     * 分组By
+     *
+     * @param entityClass 实体类
+     * @param groupByCols 群体bycols
+     * @return 群体by的结果
+     */
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -526,6 +526,12 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         return new RedisSearchMetaData(this);
     }
 
+    @Override
+    /** 支持元数据操作（meta() 返回真实实现） */
+    public boolean supportsMeta() {
+        return true;
+    }
+
     // ==================== 新版 Wrapper ====================
 
     /**
@@ -675,7 +681,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         int total = all.size();
         int from = (pageNum - 1) * pageSize;
         int to = Math.min(from + pageSize, total);
-        List<T> records = from >= total ? Collections.emptyList() : all.subList(from, to);
+        List<T> records = from >= total ? Collections.emptyList() : new ArrayList<>(all.subList(from, to));
         return new Page<>(pageNum, pageSize, total, records);
     }
 
@@ -686,7 +692,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @return 执行更新的结果
      */
     private <T> int executeUpdate(LambdaUpdateWrapper<T> wrapper) {
-        return 0;
+        throw new UnsupportedOperationException("RediSearch 引擎不支持条件更新");
     }
 
     /**
@@ -696,7 +702,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @return 执行删除的结果
      */
     private <T> int executeDelete(LambdaDeleteWrapper<T> wrapper) {
-        return 0;
+        throw new UnsupportedOperationException("RediSearch 引擎不支持条件删除");
     }
 
     /**
@@ -707,7 +713,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @return 执行新更新的结果
      */
     private int executeNewUpdate(String sql, Object[] params) {
-        return 0;
+        throw new UnsupportedOperationException("RediSearch 引擎不支持条件更新");
     }
 
     /**
@@ -718,19 +724,19 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @return 执行新删除的结果
      */
     private int executeNewDelete(String sql, Object[] params) {
-        return 0;
+        throw new UnsupportedOperationException("RediSearch 引擎不支持条件删除");
     }
 
     /** Ft_搜索 */
     private static final ProtocolCommand FT_SEARCH = () -> SafeEncoder.encode("FT.SEARCH");
 
     /**
-    * 构建Ft搜索参数
-    *
-    * @param index 索引
-    * @param query 查询
-    * @return 构建ft搜索参数的结果
-    */
+     * 构建Ft搜索参数
+     *
+     * @param index 索引
+     * @param query 查询
+     * @return 构建ft搜索参数的结果
+     */
     private byte[][] buildFtSearchArgs(String index, String query) {
         return new byte[][]{
                 SafeEncoder.encode(index),
@@ -774,15 +780,15 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     private static final ProtocolCommand FT_AGGREGATE = () -> SafeEncoder.encode("FT.AGGREGATE");
 
     /**
-    * 构建ftaggregate参数
-    * @param index 索引
-    * @param query 查询
-    * @param groupByCols 群体bycols
-    * @param sortCol 排序col
-    * @param sortAsc 排序asc
-    * @param offset 偏移量
-    * @param limit 限制
-    */
+     * 构建ftaggregate参数
+     * @param index 索引
+     * @param query 查询
+     * @param groupByCols 群体bycols
+     * @param sortCol 排序col
+     * @param sortAsc 排序asc
+     * @param offset 偏移量
+     * @param limit 限制
+     */
     private static byte[][] buildFtAggregateArgs(String index, String query, List<String> groupByCols,
                                                   String sortCol, boolean sortAsc, int offset, int limit) {
         List<byte[]> args = new ArrayList<>();

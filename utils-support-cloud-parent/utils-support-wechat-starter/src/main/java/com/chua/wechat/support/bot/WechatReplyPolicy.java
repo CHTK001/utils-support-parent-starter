@@ -5,9 +5,9 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.chua.common.support.ai.bot.BotInboundMessage;
@@ -16,7 +16,7 @@ import com.chua.common.support.utils.StringUtils;
 /**
  * 个人微信自动回复的风控守卫。
  *
- * <p>hook 个人微信的封号风险主要来自"回复得像机器"，所以拦截规则全部放在这一层：
+ * <p>注入个人微信进程的封号风险主要来自"回复得像机器"，所以拦截规则全部放在这一层：
  * 白名单 / 黑名单、群聊总开关、关键词触发、单对象每分钟上限、当日总量上限、
  * 两次回复间的最小间隔与随机抖动、人工接管开关。</p>
  *
@@ -28,11 +28,59 @@ import com.chua.common.support.utils.StringUtils;
  */
 public class WechatReplyPolicy {
 
+    /**
+     * 拒绝自动回复的原因。
+     */
+    public enum DenyReason {
+
+        /** 处于人工接管状态 */
+        PAUSED,
+
+        /** 消息对象为空 */
+        NO_MESSAGE,
+
+        /** 消息正文为空，无内容可回复 */
+        EMPTY_CONTENT,
+
+        /** 消息来自群聊，而群聊回复开关未打开 */
+        GROUP_DISABLED,
+
+        /** 命中黑名单 */
+        BLOCKED,
+
+        /** 白名单非空且未命中 */
+        NOT_ALLOWED,
+
+        /** 配置了触发关键词但正文未包含 */
+        NO_KEYWORD,
+
+        /** 当日回复总量已达上限 */
+        DAILY_LIMIT,
+
+        /** 单个会话每分钟回复次数已达上限 */
+        USER_RATE_LIMIT
+    }
+
     /** 一分钟毫秒数 */
     private static final long MINUTE_MILLIS = 60_000L;
 
     /** 一天毫秒数 */
     private static final long DAY_MILLIS = 24 * 60 * 60_000L;
+
+    /** 频控记账的会话数上限，超出后清理整日无记录的会话 */
+    private static final int MAX_TRACKED_CONVERSATIONS = 1024;
+
+    /** 默认单对象每分钟回复上限 */
+    private static final int DEFAULT_MAX_PER_USER_PER_MINUTE = 5;
+
+    /** 默认当日回复总量上限 */
+    private static final int DEFAULT_MAX_PER_DAY = 200;
+
+    /** 默认同一对端两次回复的最小间隔（毫秒）*/
+    private static final long DEFAULT_MIN_INTERVAL_MILLIS = 3_000L;
+
+    /** 默认随机延迟上限（毫秒）*/
+    private static final long DEFAULT_JITTER_MILLIS = 2_000L;
 
     /** 白名单，为空表示不限制对象 */
     private final Set<String> allowList = new LinkedHashSet<>();
@@ -52,23 +100,20 @@ public class WechatReplyPolicy {
     /** 人工接管开关，置位后一律不回 */
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    /** 抖动随机源 */
-    private final Random random = new Random();
-
     /** 是否允许在群聊回复 */
     private boolean allowGroups;
 
     /** 单对象每分钟回复上限 */
-    private int maxPerUserPerMinute = 5;
+    private int maxPerUserPerMinute = DEFAULT_MAX_PER_USER_PER_MINUTE;
 
     /** 当日回复总量上限 */
-    private int maxPerDay = 200;
+    private int maxPerDay = DEFAULT_MAX_PER_DAY;
 
     /** 同一对端两次回复的最小间隔（毫秒）*/
-    private long minIntervalMillis = 3_000L;
+    private long minIntervalMillis = DEFAULT_MIN_INTERVAL_MILLIS;
 
     /** 追加到最小间隔上的随机延迟上限（毫秒）*/
-    private long jitterMillis = 2_000L;
+    private long jitterMillis = DEFAULT_JITTER_MILLIS;
 
     /**
      * 加入白名单。
@@ -109,44 +154,86 @@ public class WechatReplyPolicy {
         return this;
     }
 
+    /**
+     * 设置群聊回复开关。
+     *
+     * @param allowGroups 是否允许在群聊回复
+     * @return this
+     */
     public WechatReplyPolicy allowGroups(boolean allowGroups) {
         this.allowGroups = allowGroups;
         return this;
     }
 
+    /**
+     * 设置单对象每分钟回复上限。
+     *
+     * @param maxPerUserPerMinute 上限次数
+     * @return this
+     */
     public WechatReplyPolicy maxPerUserPerMinute(int maxPerUserPerMinute) {
         this.maxPerUserPerMinute = maxPerUserPerMinute;
         return this;
     }
 
+    /**
+     * 设置当日回复总量上限。
+     *
+     * @param maxPerDay 上限次数
+     * @return this
+     */
     public WechatReplyPolicy maxPerDay(int maxPerDay) {
         this.maxPerDay = maxPerDay;
         return this;
     }
 
+    /**
+     * 设置同一对端两次回复的最小间隔。
+     *
+     * @param minIntervalMillis 间隔毫秒数
+     * @return this
+     */
     public WechatReplyPolicy minIntervalMillis(long minIntervalMillis) {
         this.minIntervalMillis = minIntervalMillis;
         return this;
     }
 
+    /**
+     * 设置随机延迟上限。
+     *
+     * @param jitterMillis 抖动毫秒数上限
+     * @return this
+     */
     public WechatReplyPolicy jitterMillis(long jitterMillis) {
         this.jitterMillis = jitterMillis;
         return this;
     }
 
-    /** 进入人工接管，停止一切自动回复 */
+    /**
+     * 进入人工接管，停止一切自动回复。
+     *
+     * @return this
+     */
     public WechatReplyPolicy pause() {
         paused.set(true);
         return this;
     }
 
-    /** 交还自动回复 */
+    /**
+     * 交还自动回复。
+     *
+     * @return this
+     */
     public WechatReplyPolicy resume() {
         paused.set(false);
         return this;
     }
 
-    /** 是否处于人工接管 */
+    /**
+     * 是否处于人工接管。
+     *
+     * @return true 表示已暂停自动回复
+     */
     public boolean isPaused() {
         return paused.get();
     }
@@ -157,42 +244,39 @@ public class WechatReplyPolicy {
      * @param message 入站消息
      * @return 放行返回 {@code null}，否则返回拒绝原因
      */
-    public String denyReason(BotInboundMessage message) {
+    public DenyReason denyReason(BotInboundMessage message) {
         if (paused.get()) {
-            return "paused";
+            return DenyReason.PAUSED;
         }
         if (message == null) {
-            return "no-message";
+            return DenyReason.NO_MESSAGE;
         }
         if (StringUtils.isBlank(message.getContent())) {
-            return "empty-content";
+            return DenyReason.EMPTY_CONTENT;
         }
         String fromUser = message.getFromUser();
         String conversation = StringUtils.isNotBlank(message.getChatId())
                 ? message.getChatId() : fromUser;
         if (message.isFromGroup() && !allowGroups) {
-            return "group-disabled";
+            return DenyReason.GROUP_DISABLED;
         }
         if (blockList.contains(fromUser) || blockList.contains(conversation)) {
-            return "blocked";
+            return DenyReason.BLOCKED;
         }
         if (!allowList.isEmpty()
                 && !allowList.contains(fromUser)
                 && !allowList.contains(conversation)) {
-            return "not-allowed";
+            return DenyReason.NOT_ALLOWED;
         }
         if (!keywords.isEmpty() && !containsKeyword(message.getContent())) {
-            return "no-keyword";
-        }
-        if (maxPerDay <= 0) {
-            return "daily-disabled";
+            return DenyReason.NO_KEYWORD;
         }
         long now = System.currentTimeMillis();
         if (countDaily(now) >= maxPerDay) {
-            return "daily-limit";
+            return DenyReason.DAILY_LIMIT;
         }
         if (countUser(conversation, now) >= maxPerUserPerMinute) {
-            return "user-rate-limit";
+            return DenyReason.USER_RATE_LIMIT;
         }
         return null;
     }
@@ -209,6 +293,7 @@ public class WechatReplyPolicy {
             synchronized (hits) {
                 hits.addLast(now);
             }
+            trimExpiredHits();
         }
         synchronized (dailyHits) {
             dailyHits.addLast(now);
@@ -221,12 +306,19 @@ public class WechatReplyPolicy {
      * @return 最小间隔加上随机抖动
      */
     public long nextDelayMillis() {
+        long interval = Math.max(minIntervalMillis, 0L);
         if (jitterMillis <= 0) {
-            return Math.max(minIntervalMillis, 0L);
+            return interval;
         }
-        return Math.max(minIntervalMillis, 0L) + random.nextInt((int) jitterMillis + 1);
+        return interval + ThreadLocalRandom.current().nextLong(jitterMillis + 1);
     }
 
+    /**
+     * 正文是否命中任一触发关键词。
+     *
+     * @param content 消息正文，不允许为 null
+     * @return true 表示命中关键词
+     */
     private boolean containsKeyword(String content) {
         for (String keyword : keywords) {
             if (content.contains(keyword)) {
@@ -236,6 +328,13 @@ public class WechatReplyPolicy {
         return false;
     }
 
+    /**
+     * 统计单个会话最近一分钟内的回复次数。
+     *
+     * @param conversation 会话 wxid，可为空白
+     * @param now 当前时间戳（毫秒）
+     * @return 一分钟内的回复次数
+     */
     private int countUser(String conversation, long now) {
         if (StringUtils.isBlank(conversation)) {
             return 0;
@@ -250,6 +349,12 @@ public class WechatReplyPolicy {
         }
     }
 
+    /**
+     * 统计全局最近一天内的回复次数。
+     *
+     * @param now 当前时间戳（毫秒）
+     * @return 一天内的回复次数
+     */
     private int countDaily(long now) {
         synchronized (dailyHits) {
             prune(dailyHits, now - DAY_MILLIS);
@@ -257,6 +362,32 @@ public class WechatReplyPolicy {
         }
     }
 
+    /**
+     * 会话记账表只增不减会持续占内存，超过阈值时清掉整日无回复的会话。
+     */
+    private void trimExpiredHits() {
+        if (userHits.size() <= MAX_TRACKED_CONVERSATIONS) {
+            return;
+        }
+        long expiredBefore = System.currentTimeMillis() - DAY_MILLIS;
+        Iterator<Map.Entry<String, Deque<Long>>> iterator = userHits.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Deque<Long> hits = iterator.next().getValue();
+            synchronized (hits) {
+                prune(hits, expiredBefore);
+                if (hits.isEmpty()) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * 摘除队首已过期的记账时间，队列按时间递增，遇到未过期即停止。
+     *
+     * @param hits 记账队列，调用方需持有其监视器锁
+     * @param expiredBefore 过期分界时间戳（毫秒），早于此值的记录被丢弃
+     */
     private static void prune(Deque<Long> hits, long expiredBefore) {
         Iterator<Long> iterator = hits.iterator();
         while (iterator.hasNext()) {

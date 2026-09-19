@@ -2,7 +2,6 @@ package com.chua.datasource.support.wrapper;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.wrapper.AbstractLambdaWrapper;
-import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
@@ -50,14 +49,13 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
      * @return 构建sql的结果
      */
     public DeleteSql<T> buildSql() {
+        if (conditions.isEmpty() && !fullTableAllowed) {
+            throw new IllegalStateException("禁止无 WHERE 条件的全表删除: "
+                    + entityClass.getSimpleName() + "，如需全表删除请显式调用 allowFullTable()");
+        }
         List<Object> params = new ArrayList<>();
         StringBuilder where = new StringBuilder();
-        for (int i = 0; i < conditions.size(); i++) {
-            if (i > 0) {
-                where.append(" AND ");
-            }
-            renderCondition(where, params, conditions.get(i));
-        }
+        buildWhere(where, params);
         return new DeleteSql<>(entityClass, where.toString(), params);
     }
 
@@ -93,31 +91,5 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
         return LambdaUtils.resolveColumn(column);
-    }
-
-    /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb sb
-     * @param params 参数
-     * @param c c
-     */
-    protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
-        if (c.isNested()) {
-            sb.append("(");
-            for (int i = 0; i < c.getNested().size(); i++) {
-                if (i > 0) {
-                    sb.append(" ").append(c.getNestedOperator()).append(" ");
-                }
-                renderCondition(sb, params, c.getNested().get(i));
-            }
-            sb.append(")");
-            return;
-        }
-        String col = c.getColumnName();
-        if (col == null) {
-            col = "?";
-        }
-        sb.append(col).append(" ").append(c.getOperator()).append(" ?");
-        params.add(c.getValue());
     }
 }
