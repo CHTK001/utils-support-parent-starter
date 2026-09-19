@@ -463,10 +463,10 @@ public class AgentEditorProvider {
     }
 
     /**
-        * MCP 传输模式枚举：STDIO 表示标准输入输出模式，SSE 表示 服务端-Sent 事件 模式
-        * @author CH
-        * @since 4.0.0
-        */
+     * MCP 传输模式枚举：STDIO 表示标准输入输出模式，SSE 表示 服务端-Sent 事件 模式
+     * @author CH
+     * @since 4.0.0
+     */
     public enum McpMode {
         /**
          * 标准输入输出模式，MCP 服务端 通过子进程 stdin/stdout 通信

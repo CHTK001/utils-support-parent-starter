@@ -213,12 +213,12 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     /**
-    * 编码单帧 YUV420P 数据。
-    *
-    * @param frame 输入 YUV 帧
-    * @return 编码后的 H264 数据
-    * @throws Exception 编码异常
-    */
+     * 编码单帧 YUV420P 数据。
+     *
+     * @param frame 输入 YUV 帧
+     * @return 编码后的 H264 数据
+     * @throws Exception 编码异常
+     */
     private byte[] encodeFrame(Frame frame) throws Exception {
         int inW = frame.imageWidth;
         int inH = frame.imageHeight;

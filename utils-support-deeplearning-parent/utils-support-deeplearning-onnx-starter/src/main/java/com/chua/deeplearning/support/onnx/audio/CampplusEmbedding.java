@@ -390,11 +390,11 @@ public class CampplusEmbedding {
     }
 
         /**
-    * 将 double 矩阵拍平并转为 float 数组。
-    *
-    * @param mat mat
-    * @return flatten的结果
-    */
+         * 将 double 矩阵拍平并转为 float 数组。
+         *
+         * @param mat mat
+         * @return flatten的结果
+         */
     private static float[] flatten(double[][] mat) {
         int rows = mat.length;
         int cols = rows > 0 ? mat[0].length : 0;

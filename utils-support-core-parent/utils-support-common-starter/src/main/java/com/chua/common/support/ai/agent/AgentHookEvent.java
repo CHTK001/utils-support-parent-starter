@@ -22,11 +22,11 @@ public class AgentHookEvent implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 事件类型
-    *
-    * <p>常见值：PRE_CALL / POST_CALL / PRE_REASONING / POST_REASONING /
-    * PRE_ACTING / POST_ACTING / ERROR / PLAN_ENTER / PLAN_WRITE / PLAN_EXIT 等
-    */
+     * 事件类型
+     *
+     * <p>常见值：PRE_CALL / POST_CALL / PRE_REASONING / POST_REASONING /
+     * PRE_ACTING / POST_ACTING / ERROR / PLAN_ENTER / PLAN_WRITE / PLAN_EXIT 等
+     */
     private String type;
 
     /** Agent 标识 */

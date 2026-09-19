@@ -32,10 +32,10 @@ public class YamlWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 将指定对象写入 YAML 文件。
-    *
-    * @param data 待写入的对象，可以是 映射、列表 或普通 Java Bean
-    */
+     * 将指定对象写入 YAML 文件。
+     *
+     * @param data 待写入的对象，可以是 映射、列表 或普通 Java Bean
+     */
     @Override
     public YamlWriteBuilder write(Object data) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), charset)) {

@@ -36,9 +36,9 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     private Thread pullThread;
 
     /**
-    * 创建 nettyhttp同步客户端 实例
-    * @param serverUrl 服务端url
-    */
+     * 创建 nettyhttp同步客户端 实例
+     * @param serverUrl 服务端url
+     */
     public NettyHttpSyncClient(String serverUrl) {
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;
         this.httpClient = HttpClient.newBuilder()

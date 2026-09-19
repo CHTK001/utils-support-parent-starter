@@ -69,10 +69,10 @@ public class AutoEncoderIpTranslator {
     private OrtSession session;
 
     /**
-    * 构造 auto编码器 Translator。
-    *
-    * @param inputDim 输入特征维度，必须大于 0，与训练模型输入维度一致
-    */
+     * 构造 auto编码器 Translator。
+     *
+     * @param inputDim 输入特征维度，必须大于 0，与训练模型输入维度一致
+     */
     public AutoEncoderIpTranslator(int inputDim) {
         this(inputDim, DEFAULT_MODEL_FILE, null);
     }

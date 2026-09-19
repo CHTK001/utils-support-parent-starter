@@ -25,8 +25,8 @@ public class CliAsrModelRegistrar implements ModelRegistrar {
     }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
     @Override
     public void register(ModelRegistry registry) {
         registerAll();

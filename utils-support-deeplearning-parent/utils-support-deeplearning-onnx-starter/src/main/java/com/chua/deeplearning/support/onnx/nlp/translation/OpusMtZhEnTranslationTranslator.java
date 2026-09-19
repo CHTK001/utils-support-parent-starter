@@ -114,8 +114,8 @@ public class OpusMtZhEnTranslationTranslator implements ITranslator<String, Stri
     private volatile boolean loaded;
 
     /**
-    * 懒加载模型与 tokenizer。
-    */
+     * 懒加载模型与 tokenizer。
+     */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;

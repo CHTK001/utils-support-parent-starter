@@ -203,14 +203,14 @@ public class AiUsage {
     private String currency = "USD";
 
     /**
-    * 费用是否为估算值
-    *
-    * <p>部分服务商不返回精确的费用数据，此时费用根据公开的单价信息计算得出，
-    * 该标志位为 true 表示费用为估算值，仅供参考。
-    *
-    * <p>需要精确计费的场景（如用户账单、财务对账）应优先使用
-    * 服务商返回的真实费用数据（当 estimated 为 false 时）。
-    */
+     * 费用是否为估算值
+     *
+     * <p>部分服务商不返回精确的费用数据，此时费用根据公开的单价信息计算得出，
+     * 该标志位为 true 表示费用为估算值，仅供参考。
+     *
+     * <p>需要精确计费的场景（如用户账单、财务对账）应优先使用
+     * 服务商返回的真实费用数据（当 estimated 为 false 时）。
+     */
     @Builder.Default
     /** Estimated */
     private boolean estimated = false;

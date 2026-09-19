@@ -414,10 +414,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 运行时信息
-    * @author CH
-    * @since 4.0.0
-    */
+     * 运行时信息
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     @Builder
     public static class RuntimeInfo {
@@ -439,10 +439,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-        * 运行时模板信息
-        * @author CH
-        * @since 4.0.0
-        */
+     * 运行时模板信息
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     @Builder
     public static class TemplateInfo {
@@ -458,10 +458,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-        * 执行作业信息
-        * @author CH
-        * @since 4.0.0
-        */
+     * 执行作业信息
+     * @author CH
+     * @since 4.0.0
+     */
     @Data
     @Builder
     public static class ExecutionInfo {

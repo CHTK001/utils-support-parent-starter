@@ -60,11 +60,11 @@ public class HybridStrategy implements RouterStrategy {
 
     @Override
     /**
-    * 执行Sync
-    * @param clients clients
-    * @param prompt prompt
-    * @param usageCallback usageCallback
-    */
+     * 执行Sync
+     * @param clients clients
+     * @param prompt prompt
+     * @param usageCallback usageCallback
+     */
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {
         if (groups.isEmpty()) {

@@ -47,14 +47,14 @@ public class CompressionAwareModel implements Model {
     private final String compressionModelId;
 
     /**
-    * 创建 compressionaware模型 实例
-    * @param delegate delegate
-    * @param fallbackChatClient 降级对话客户端
-    * @param compressionConfig compression配置
-    * @param modelName 模型名称
-    * @param workspace workspace
-    * @param compressionModelId compression模型标识
-    */
+     * 创建 compressionaware模型 实例
+     * @param delegate delegate
+     * @param fallbackChatClient 降级对话客户端
+     * @param compressionConfig compression配置
+     * @param modelName 模型名称
+     * @param workspace workspace
+     * @param compressionModelId compression模型标识
+     */
     public CompressionAwareModel(Model delegate, ChatClient fallbackChatClient,
                                  AgentCompressionConfig compressionConfig,
                                  String modelName, String workspace,
@@ -91,10 +91,10 @@ public class CompressionAwareModel implements Model {
     }
 
     /**
-    * 包内测试 / 调试入口，与 流 路径一致。
-    * @param messages 方法入参 messages
-    * @return 结果列表，无数据时为空列表
-    */
+     * 包内测试 / 调试入口，与 流 路径一致。
+     * @param messages 方法入参 messages
+     * @return 结果列表，无数据时为空列表
+     */
     List<ChatMessage> detectAndCompress(List<ChatMessage> messages) {
         return compressor.maybeCompress(messages);
     }

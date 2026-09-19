@@ -30,11 +30,11 @@ public final class Base64 {
     }
 
     /**
-    * 标准 Base64 编码
-    *
-    * @param data 待编码的字节数组
-    * @return Base64 编码字符串
-    */
+     * 标准 Base64 编码
+     *
+     * @param data 待编码的字节数组
+     * @return Base64 编码字符串
+     */
     public static String encode(byte[] data) {
         return java.util.Base64.getEncoder().encodeToString(data);
     }

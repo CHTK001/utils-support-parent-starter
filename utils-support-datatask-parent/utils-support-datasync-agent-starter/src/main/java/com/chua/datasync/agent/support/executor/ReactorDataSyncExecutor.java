@@ -31,18 +31,18 @@ public class ReactorDataSyncExecutor {
     private final boolean serverMode;
 
     /**
-    * 直连派发模式：同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle 派发层。
-    */
+     * 直连派发模式：同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle 派发层。
+     */
     private volatile boolean directDispatch;
     /** 直接消费器 */
     private volatile Consumer<List<Map<String, Object>>> directConsumer;
 
     /**
-    * 创建 reactor数据同步执行器 实例
-    * @param agentId Agent标识
-    * @param serverMode 布尔值
-    * @param serverMode 服务端mode
-    */
+     * 创建 reactor数据同步执行器 实例
+     * @param agentId Agent标识
+     * @param serverMode 布尔值
+     * @param serverMode 服务端mode
+     */
     public ReactorDataSyncExecutor(String agentId, boolean serverMode) {
         this.agentId = agentId;
         this.serverMode = serverMode;

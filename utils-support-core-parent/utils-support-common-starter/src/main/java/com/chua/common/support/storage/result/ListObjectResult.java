@@ -24,8 +24,8 @@ public class ListObjectResult extends ObjectResult {
     public static final ListObjectResult EMPTY = ListObjectResult.builder().build();
 
     /**
-    * 文件元数据列表。
-    */
+     * 文件元数据列表。
+     */
     private List<Metadata> metadata;
 
     /**

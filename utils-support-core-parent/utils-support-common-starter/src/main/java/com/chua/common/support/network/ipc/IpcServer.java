@@ -50,13 +50,13 @@ public class IpcServer extends AbstractServer {
     }
 
     /**
-    * 处理 IPC 消息。
-    *
-    * @param source 消息来源标识
-    * @param path   方法路径
-    * @param body   请求体
-    * @return JSON 响应字符串
-    */
+     * 处理 IPC 消息。
+     *
+     * @param source 消息来源标识
+     * @param path   方法路径
+     * @param body   请求体
+     * @return JSON 响应字符串
+     */
     public String handleMessage(String source, String path, String body) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("source", source);

@@ -243,8 +243,8 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
     }
 
     /**
-    * 消费循环（支持批量处理）。
-    */
+     * 消费循环（支持批量处理）。
+     */
     private void consume() {
         while (running) {
             try {

@@ -239,11 +239,11 @@ public class NacosClient implements AutoCloseable {
         private long timeout = 30000;
 
         /**
-        * 服务端addr
-        *
-        * @param addr addr
-        * @return 服务端addr的结果
-        */
+         * 服务端addr
+         *
+         * @param addr addr
+         * @return 服务端addr的结果
+         */
         public Builder serverAddr(String addr) {
             this.serverAddr = addr;
             return this;

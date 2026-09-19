@@ -169,11 +169,11 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 获取指定命名空间的 Apollo 配置 对象。
-    *
-    * @param ns 命名空间名称
-    * @return Apollo 配置 对象；如果参数为空则返回当前 配置
-    */
+     * 获取指定命名空间的 Apollo 配置 对象。
+     *
+     * @param ns 命名空间名称
+     * @return Apollo 配置 对象；如果参数为空则返回当前 配置
+     */
     private Config getConfigForNamespace(String ns) {
         if (StringUtils.isBlank(ns) || ns.equals(namespace)) {
             return apolloConfig;

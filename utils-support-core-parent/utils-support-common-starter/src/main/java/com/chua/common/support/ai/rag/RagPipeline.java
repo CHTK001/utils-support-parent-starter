@@ -119,9 +119,9 @@ public class RagPipeline implements RagClient {
     /** 已入库文档元数据列表（线程安全，按入库顺序追加） */
     private final List<RagDocument> documents;
     /**
-    * 分块内容缓存：chunkId（docId_chunkIndex）→ 分块文本。
-    * jvector ON_DISK 等向量库不返回 metadata.content，检索后需从此缓存回读原文。
-    */
+     * 分块内容缓存：chunkId（docId_chunkIndex）→ 分块文本。
+     * jvector ON_DISK 等向量库不返回 metadata.content，检索后需从此缓存回读原文。
+     */
     private final Map<String, String> chunkContentCache;
     /** 查询返回的 TopK 数量（可热更新） */
     private volatile int topK;
@@ -822,11 +822,11 @@ public class RagPipeline implements RagClient {
         private String systemPrompt;
 
         /**
-        * 设置对话生成模型客户端。
-        *
-        * @param chatClient 客户端实例
-        * @return 当前构建器
-        */
+         * 设置对话生成模型客户端。
+         *
+         * @param chatClient 客户端实例
+         * @return 当前构建器
+         */
         public Builder chatClient(ChatClient chatClient) {
             this.chatClient = chatClient;
             return this;
@@ -1068,19 +1068,19 @@ public class RagPipeline implements RagClient {
     }
 
     /**
-        * 向量分块元数据：随分块向量一同存入向量库的固定 5 键结构。
-        *
-        * <p>用 record 承载（规约八：固定结构数据禁用 Map）；写库时展开为
-        * {@code Map<String,Object>} 以匹配 {@link VectorStorage} 的通用元数据签名。</p>
-        *
-        * @param content    分块原文
-        * @param docId      文档 ID
-        * @param fileName   文件名
-        * @param fileType   文件类型（扩展名）
-        * @param chunkIndex 分块序号
-        * @author CH
-        * @since 4.0.0.42
-        */
+     * 向量分块元数据：随分块向量一同存入向量库的固定 5 键结构。
+     *
+     * <p>用 record 承载（规约八：固定结构数据禁用 Map）；写库时展开为
+     * {@code Map<String,Object>} 以匹配 {@link VectorStorage} 的通用元数据签名。</p>
+     *
+     * @param content    分块原文
+     * @param docId      文档 ID
+     * @param fileName   文件名
+     * @param fileType   文件类型（扩展名）
+     * @param chunkIndex 分块序号
+     * @author CH
+     * @since 4.0.0.42
+     */
     private record VectorChunkMeta(
             String content,
             String docId,

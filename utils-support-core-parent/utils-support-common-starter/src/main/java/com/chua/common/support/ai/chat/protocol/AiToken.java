@@ -20,8 +20,8 @@ public class AiToken {
 
     /** 令牌值（如 sk-xxx） */
     /**
-    * 令牌
-    */
+     * 令牌
+     */
     private String token;
 
     /**
@@ -51,10 +51,10 @@ public class AiToken {
     private Date createTime = new Date();
 
     /**
-    * 令牌是否有效。
-    *
-    * @return true 有效，false 已过期或已禁用
-    */
+     * 令牌是否有效。
+     *
+     * @return true 有效，false 已过期或已禁用
+     */
     public boolean isValid() {
         if (!enabled) {
             return false;

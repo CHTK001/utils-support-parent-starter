@@ -49,8 +49,8 @@ public class ClusterSetting {
     private int port = 0;
 
     /**
-    * scatter 通信端口（节点服务端 监听；0=端口+2，与 HTTP/TCP 代理分离）
-    */
+     * scatter 通信端口（节点服务端 监听；0=端口+2，与 HTTP/TCP 代理分离）
+     */
     private int scatterPort = 0;
 
     /** 是否启用 HTTP 代理入口 */
@@ -69,9 +69,9 @@ public class ClusterSetting {
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
-    * 集群 master（域名或主入口地址）。
-    * <p>仅作为元数据记录，供运维/监控识别主入口，不影响 scatter 对等发现逻辑。</p>
-    */
+     * 集群 master（域名或主入口地址）。
+     * <p>仅作为元数据记录，供运维/监控识别主入口，不影响 scatter 对等发现逻辑。</p>
+     */
     private String master;
 
     /**

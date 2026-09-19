@@ -319,8 +319,8 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-    * 注入认证 Cookie 到豆包主域与字节跳动域。
-    */
+     * 注入认证 Cookie 到豆包主域与字节跳动域。
+     */
     private void injectCookies() {
         List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());
         String[] domains = {DoubaoConstants.DOUBAO_DOMAIN, DoubaoConstants.BYTEDANCE_DOMAIN};

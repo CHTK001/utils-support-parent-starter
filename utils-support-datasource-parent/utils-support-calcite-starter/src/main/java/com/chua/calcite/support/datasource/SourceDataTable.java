@@ -60,11 +60,11 @@ public class SourceDataTable extends MutableDataTable {
      * @param entityClass 实体类型
      * @return 获取column类型的结果
 /**
-    * 源数据table。
-    * @param name 名称
-    * @param engine engine
-    * @param entityClass 实体类
-    */
+ * 源数据table。
+ * @param name 名称
+ * @param engine engine
+ * @param entityClass 实体类
+ */
     public SourceDataTable(String name, Engine engine, Class<?> entityClass) {
         super(name);
         this.engine = engine;

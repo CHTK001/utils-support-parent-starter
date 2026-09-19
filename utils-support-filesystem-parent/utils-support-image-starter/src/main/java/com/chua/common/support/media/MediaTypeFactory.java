@@ -30,11 +30,11 @@ public class MediaTypeFactory {
     }
 
     /**
-    * 获取media类型
-    *
-    * @param name 名称
-    * @return 获取media类型的结果
-    */
+     * 获取media类型
+     *
+     * @param name 名称
+     * @return 获取media类型的结果
+     */
     public static MediaType getMediaType(String name) {
         MediaType mt = MEDIA_TYPES.get(name.toLowerCase());
         if (mt == null) {

@@ -43,11 +43,11 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     private float thresholdOverride = -1f;
 
     /**
-    * 取生效阈值。
-    *
-    * @param def def
-    * @return eff阈值的结果
-    */
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -198,12 +198,12 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     public Batchifier getBatchifier() { return null; }
 
     /**
-    * Candidate
-    *
-    * @param landmark landmark
-    * @param score score
-    * @return Candidate的结果
-    */
+     * Candidate
+     *
+     * @param landmark landmark
+     * @param score score
+     * @return Candidate的结果
+     */
     private record Candidate(Landmark landmark, double score) {
         /**
          * rectangle。
@@ -216,10 +216,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
 /**
-        * 创建 Translator（支持外部阈值覆盖）。
-        *
-        * @param configuration 检测配置（可空）
-        */
+ * 创建 Translator（支持外部阈值覆盖）。
+ *
+ * @param configuration 检测配置（可空）
+ */
     public ScrfdFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {

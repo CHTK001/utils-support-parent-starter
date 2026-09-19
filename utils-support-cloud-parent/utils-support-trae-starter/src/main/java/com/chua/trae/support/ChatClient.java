@@ -750,11 +750,11 @@ public class ChatClient implements AutoCloseable {
         private TraeHttpClient httpClient;
 
         /**
-        * 设置 Trae API 主机。
-        *
-        * @param apiHost 主机地址，不可为 空
-        * @return 当前 构建器
-        */
+         * 设置 Trae API 主机。
+         *
+         * @param apiHost 主机地址，不可为 空
+         * @return 当前 构建器
+         */
         public Builder apiHost(String apiHost) {
             this.apiHost = apiHost;
             return this;

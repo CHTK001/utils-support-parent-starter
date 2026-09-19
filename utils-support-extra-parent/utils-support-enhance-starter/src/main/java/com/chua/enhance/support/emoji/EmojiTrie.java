@@ -27,10 +27,10 @@ public class EmojiTrie {
     private final Node root = new Node();
 
     /**
-    * 创建指定容量的字典树
-    *
-    * @param maxDepth 最大深度
-    */
+     * 创建指定容量的字典树
+     *
+     * @param maxDepth 最大深度
+     */
     public EmojiTrie(int maxDepth) {
         this.maxDepth = maxDepth;
     }
@@ -137,13 +137,13 @@ public class EmojiTrie {
         private final boolean impossibleMatch;
 
         /**
-        * 创建 Matches 实例
-        * @param exactMatch exact匹配
-        * @param exactMatch 布尔值
-        * @param exactMatch 布尔值
-        * @param prefixMatch 前缀匹配
-        * @param impossibleMatch impossible匹配
-        */
+         * 创建 Matches 实例
+         * @param exactMatch exact匹配
+         * @param exactMatch 布尔值
+         * @param exactMatch 布尔值
+         * @param prefixMatch 前缀匹配
+         * @param impossibleMatch impossible匹配
+         */
         private Matches(boolean exactMatch, boolean prefixMatch, boolean impossibleMatch) {
             this.exactMatch = exactMatch;
             this.prefixMatch = prefixMatch;

@@ -41,11 +41,11 @@ public class MossSentencePieceBpe implements AutoCloseable {
     private final List<Integer> userDefinedIds = new ArrayList<>(); // 用户defined标识
 
     /**
-    * 从 .模型 文件加载词表。
-    *
-    * @param modelPath sentencepiece 模型路径
-    * @throws IOException 解析失败
-    */
+     * 从 .模型 文件加载词表。
+     *
+     * @param modelPath sentencepiece 模型路径
+     * @throws IOException 解析失败
+     */
     public void load(Path modelPath) throws IOException {
         try (InputStream in = Files.newInputStream(modelPath)) {
             load(in.readAllBytes());

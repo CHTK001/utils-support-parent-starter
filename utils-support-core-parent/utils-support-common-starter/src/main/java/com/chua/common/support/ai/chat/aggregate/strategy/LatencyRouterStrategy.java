@@ -52,20 +52,20 @@ public class LatencyRouterStrategy implements RouterStrategy {
     }
 
     /**
-    * 并行执行同步聊天请求，取最先成功返回的结果。
-    *
-    * <p>实现机制：为每个 provider 启动独立的 {@link CompletableFuture}，
-    * 主线程按 {@link #POLL_INTERVAL_MS} 周期轮询，任意一个 future 成功完成即返回并取消其他 future；
-    * 若在 {@link #MAX_WAIT_MS} 内无任何 provider 成功，则抛出 {@link RuntimeException}。</p>
-    *
-    * @param clients        provider 列表（含权重信息）
-    * @param prompt         用户输入
-    * @param usageCallback  用量回调，允许为 null
-    * @return 最先成功返回的 provider 文本结果
-    * @throws IllegalArgumentException 当 {@code clients} 为空时抛出
-    * @throws RuntimeException         当所有 provider 在超时时间内均失败时抛出
-    * @throws Exception                provider 自身可能抛出的异常
-    */
+     * 并行执行同步聊天请求，取最先成功返回的结果。
+     *
+     * <p>实现机制：为每个 provider 启动独立的 {@link CompletableFuture}，
+     * 主线程按 {@link #POLL_INTERVAL_MS} 周期轮询，任意一个 future 成功完成即返回并取消其他 future；
+     * 若在 {@link #MAX_WAIT_MS} 内无任何 provider 成功，则抛出 {@link RuntimeException}。</p>
+     *
+     * @param clients        provider 列表（含权重信息）
+     * @param prompt         用户输入
+     * @param usageCallback  用量回调，允许为 null
+     * @return 最先成功返回的 provider 文本结果
+     * @throws IllegalArgumentException 当 {@code clients} 为空时抛出
+     * @throws RuntimeException         当所有 provider 在超时时间内均失败时抛出
+     * @throws Exception                provider 自身可能抛出的异常
+     */
     @Override
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {

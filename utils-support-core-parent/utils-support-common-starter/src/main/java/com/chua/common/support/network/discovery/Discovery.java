@@ -54,8 +54,8 @@ public class Discovery implements Serializable {
     private String protocol = "http";
 
     /**
-    * 请求超时时间 (毫秒)
-    */
+     * 请求超时时间 (毫秒)
+     */
     private int timeout;
 
     /**
@@ -96,10 +96,10 @@ public class Discovery implements Serializable {
     private String env = "prod";
 
     /**
-    * 设置URI规格，仅当当前值为null时进行赋值
-    *
-    * @param uriSpec URI规格字符串
-    */
+     * 设置URI规格，仅当当前值为null时进行赋值
+     *
+     * @param uriSpec URI规格字符串
+     */
     public void setUriSpec(String uriSpec) {
         if (null == this.uriSpec) {
             this.uriSpec = uriSpec;

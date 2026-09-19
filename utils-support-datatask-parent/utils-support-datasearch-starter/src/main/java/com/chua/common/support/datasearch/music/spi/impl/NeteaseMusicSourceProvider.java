@@ -116,11 +116,11 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     /**
-    * 发送 weapi 加密搜索请求。
-    *
-    * @param payload 明文参数
-    * @return 响应根节点
-    */
+     * 发送 weapi 加密搜索请求。
+     *
+     * @param payload 明文参数
+     * @return 响应根节点
+     */
     private JsonNode postEncrypted(Map<String, Object> payload) {
         Map<String, String> enc = NeteaseCryptoSupport.weapi(payload);
         return postForm(SEARCH_URL, enc, builder -> builder

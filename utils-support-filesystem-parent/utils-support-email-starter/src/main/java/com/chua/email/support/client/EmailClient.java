@@ -80,9 +80,9 @@ public class EmailClient {
     private final boolean smtpAvailable;
 
     /**
-    * 创建 email客户端 实例
-    * @param b b
-    */
+     * 创建 email客户端 实例
+     * @param b b
+     */
     private EmailClient(Builder b) {
         this.smtpHost = b.smtpHost;
         this.smtpPort = b.smtpPort;
@@ -210,11 +210,11 @@ public class EmailClient {
         SendOperation(EmailClient client) { this.client = client; }
 
         /**
-        * 转为
-        *
-        * @param t t
-        * @return 转为的结果
-        */
+         * 转为
+         *
+         * @param t t
+         * @return 转为的结果
+         */
         public SendOperation to(String t) {
             this.to = t;
             return this;
@@ -353,10 +353,10 @@ public class EmailClient {
         }
 
         /**
-                    * 发送via队列
-                    *
-                    * @return 发送via队列的结果
-                    */
+         * 发送via队列
+         *
+         * @return 发送via队列的结果
+         */
         private SendResult sendViaQueue() {
             // 降级为本地队列，后续轮询发送
             log.info("SMTP 不可用，邮件已加入本地队列: to={}, subject={}", to, subject);
@@ -388,11 +388,11 @@ public class EmailClient {
         FetchOperation(EmailClient client) { this.client = client; }
 
         /**
-        * 文件夹
-        *
-        * @param f f
-        * @return 文件夹的结果
-        */
+         * 文件夹
+         *
+         * @param f f
+         * @return 文件夹的结果
+         */
         public FetchOperation folder(String f) {
             this.folder = f;
             return this;

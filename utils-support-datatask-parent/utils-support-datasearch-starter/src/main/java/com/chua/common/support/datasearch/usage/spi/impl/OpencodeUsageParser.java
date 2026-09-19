@@ -34,9 +34,9 @@ public class OpencodeUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-    * resolvedb路径。
-    * @return resolvedb路径的结果
-    */
+     * resolvedb路径。
+     * @return resolvedb路径的结果
+     */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {

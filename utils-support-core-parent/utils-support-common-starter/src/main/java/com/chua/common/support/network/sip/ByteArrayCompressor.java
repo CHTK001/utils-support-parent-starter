@@ -43,12 +43,12 @@ public final class ByteArrayCompressor {
     }
 
     /**
-    * 压缩字节数组为压缩帧。
-    *
-    * @param data 原始字节数据
-    * @return 压缩帧（头部 8B + 压缩数据），若数据为空返回空帧，过大则抛出异常
-    * @throws IOException 压缩过程异常
-    */
+     * 压缩字节数组为压缩帧。
+     *
+     * @param data 原始字节数据
+     * @return 压缩帧（头部 8B + 压缩数据），若数据为空返回空帧，过大则抛出异常
+     * @throws IOException 压缩过程异常
+     */
     public static byte[] compressFrame(byte[] data) throws IOException {
         if (data == null) {
             return new byte[0];

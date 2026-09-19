@@ -362,10 +362,10 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     }
 
     /**
-    *        YOLO       
-    *
-    * @return "DocLayout-YOLO"
-    */
+     *        YOLO       
+     *
+     * @return "DocLayout-YOLO"
+     */
     public String getYoloVersion() {
         return "DocLayout-YOLO";
     }

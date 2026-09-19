@@ -267,11 +267,11 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     /**
-        * escapesql
-        *
-        * @param value 值
-        * @return escapeSql的结果
-        */
+     * escapesql
+     *
+     * @param value 值
+     * @return escapeSql的结果
+     */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

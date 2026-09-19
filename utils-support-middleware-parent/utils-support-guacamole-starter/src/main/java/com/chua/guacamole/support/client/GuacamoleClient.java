@@ -509,10 +509,10 @@ public class GuacamoleClient {
         private final Map<String, String> params = new LinkedHashMap<>(8);
 
         /**
-        * 创建登记操作链。
-        *
-        * @param client 所属客户端，不能为 空
-        */
+         * 创建登记操作链。
+         *
+         * @param client 所属客户端，不能为 空
+         */
         IssueOperation(GuacamoleClient client) {
             this.client = client;
         }

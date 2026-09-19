@@ -65,11 +65,11 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     private float thresholdOverride = -1f;
 
     /**
-    * 取生效阈值。
-    *
-    * @param def def
-    * @return eff阈值的结果
-    */
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }

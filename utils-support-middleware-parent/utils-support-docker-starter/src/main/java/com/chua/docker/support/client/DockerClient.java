@@ -231,11 +231,11 @@ public class DockerClient implements Closeable {
         private int readTimeout = 30000;
 
         /**
-        * 设置 Docker 主机地址。
-        *
-        * @param h 主机地址
-        * @return this
-        */
+         * 设置 Docker 主机地址。
+         *
+         * @param h 主机地址
+         * @return this
+         */
         public Builder host(String h) {
             this.host = h;
             return this;
@@ -321,10 +321,10 @@ public class DockerClient implements Closeable {
         private final DockerClient client;
 
         /**
-        * 构造容器操作对象。
-        *
-        * @param client 父客户端
-        */
+         * 构造容器操作对象。
+         *
+         * @param client 父客户端
+         */
         ContainerOps(DockerClient client) {
             this.client = client;
         }
@@ -884,11 +884,11 @@ public class DockerClient implements Closeable {
             private int timeout = 10;
 
             /**
-            * 构造停止命令。
-            *
-            * @param client 父客户端
-            * @param id     容器 标识
-            */
+             * 构造停止命令。
+             *
+             * @param client 父客户端
+             * @param id     容器 标识
+             */
             StopCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -953,11 +953,11 @@ public class DockerClient implements Closeable {
             private int timeout = 10;
 
             /**
-            * 构造重启命令。
-            *
-            * @param client 父客户端
-            * @param id     容器 标识
-            */
+             * 构造重启命令。
+             *
+             * @param client 父客户端
+             * @param id     容器 标识
+             */
             RestartCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1106,10 +1106,10 @@ public class DockerClient implements Closeable {
             private List<String> filters = new ArrayList<>();
 
             /**
-            * 构造列表命令。
-            *
-            * @param client 父客户端
-            */
+             * 构造列表命令。
+             *
+             * @param client 父客户端
+             */
             ListCmd(DockerClient client) {
                 this.client = client;
             }
@@ -1250,11 +1250,11 @@ public class DockerClient implements Closeable {
             private int tail = 100;
 
             /**
-            * 构造日志命令。
-            *
-            * @param client 父客户端
-            * @param id     容器 标识
-            */
+             * 构造日志命令。
+             *
+             * @param client 父客户端
+             * @param id     容器 标识
+             */
             LogsCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1321,10 +1321,10 @@ public class DockerClient implements Closeable {
             }
 
             /**
-                            * 异步获取日志。
-                            *
-                            * @return CompletableFuture
-                            */
+             * 异步获取日志。
+             *
+             * @return CompletableFuture
+             */
             public CompletableFuture<String> exec() {
                 return CompletableFuture.supplyAsync(this::execSync);
             }
@@ -1360,11 +1360,11 @@ public class DockerClient implements Closeable {
             private String[] cmd;
 
             /**
-            * 构造执行命令。
-            *
-            * @param client 父客户端
-            * @param id     容器 标识
-            */
+             * 构造执行命令。
+             *
+             * @param client 父客户端
+             * @param id     容器 标识
+             */
             ExecCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1434,10 +1434,10 @@ public class DockerClient implements Closeable {
             }
 
             /**
-                            * 异步执行命令。
-                            *
-                            * @return CompletableFuture
-                            */
+             * 异步执行命令。
+             *
+             * @return CompletableFuture
+             */
             public CompletableFuture<String> exec() {
                 return CompletableFuture.supplyAsync(this::execSync);
             }
@@ -1473,11 +1473,11 @@ public class DockerClient implements Closeable {
             private String signal = "KILL";
 
             /**
-            * 构造杀掉命令。
-            *
-            * @param client 父客户端
-            * @param id     容器 标识
-            */
+             * 构造杀掉命令。
+             *
+             * @param client 父客户端
+             * @param id     容器 标识
+             */
             KillCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1535,10 +1535,10 @@ public class DockerClient implements Closeable {
         private final DockerClient client;
 
         /**
-        * 构造镜像操作对象。
-        *
-        * @param client 父客户端
-        */
+         * 构造镜像操作对象。
+         *
+         * @param client 父客户端
+         */
         ImageOps(DockerClient client) {
             this.client = client;
         }
@@ -1630,11 +1630,11 @@ public class DockerClient implements Closeable {
             private String tag = "latest";
 
             /**
-            * 构造拉取命令。
-            *
-            * @param client 父客户端
-            * @param name   镜像名称
-            */
+             * 构造拉取命令。
+             *
+             * @param client 父客户端
+             * @param name   镜像名称
+             */
             PullImageCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -1690,14 +1690,14 @@ public class DockerClient implements Closeable {
             }
 
             /**
-                                * 异步拉取，返回进度流。
-                                *
-                                * @param onProgress 进度回调
-                                * @param onError    错误回调
-                                * @return CompletableFuture
-                                * @author CH
-                                * @since 4.0.0
-                                */
+             * 异步拉取，返回进度流。
+             *
+             * @param onProgress 进度回调
+             * @param onError    错误回调
+             * @return CompletableFuture
+             * @author CH
+             * @since 4.0.0
+             */
             public CompletableFuture<Void> execAsyncFuture(Consumer<String> onProgress, Consumer<Throwable> onError) {
                 return CompletableFuture.runAsync(() -> {
                     try {
@@ -1716,10 +1716,10 @@ public class DockerClient implements Closeable {
             private final DockerClient client;
 
             /**
-            * 构造列表命令。
-            *
-            * @param client 父客户端
-            */
+             * 构造列表命令。
+             *
+             * @param client 父客户端
+             */
             ListImageCmd(DockerClient client) {
                 this.client = client;
             }
@@ -1749,11 +1749,11 @@ public class DockerClient implements Closeable {
             private boolean force = false;
 
             /**
-            * 构造删除命令。
-            *
-            * @param client 父客户端
-            * @param id     镜像 标识
-            */
+             * 构造删除命令。
+             *
+             * @param client 父客户端
+             * @param id     镜像 标识
+             */
             RemoveImageCmd(DockerClient client, String id) {
                 this.client = client;
                 this.id = id;
@@ -1793,10 +1793,10 @@ public class DockerClient implements Closeable {
         private final DockerClient client;
 
         /**
-        * 构造网络操作对象。
-        *
-        * @param client 父客户端
-        */
+         * 构造网络操作对象。
+         *
+         * @param client 父客户端
+         */
         NetworkOps(DockerClient client) {
             this.client = client;
         }
@@ -2006,10 +2006,10 @@ public class DockerClient implements Closeable {
             private final DockerClient client;
 
             /**
-            * 构造列表命令。
-            *
-            * @param client 父客户端
-            */
+             * 构造列表命令。
+             *
+             * @param client 父客户端
+             */
             ListNetworkCmd(DockerClient client) {
                 this.client = client;
             }
@@ -2069,10 +2069,10 @@ public class DockerClient implements Closeable {
         private final DockerClient client;
 
         /**
-        * 构造卷操作对象。
-        *
-        * @param client 父客户端
-        */
+         * 构造卷操作对象。
+         *
+         * @param client 父客户端
+         */
         VolumeOps(DockerClient client) {
             this.client = client;
         }
@@ -2171,11 +2171,11 @@ public class DockerClient implements Closeable {
             private final Map<String, String> labels = new ConcurrentHashMap<>();
 
             /**
-            * 构造创建卷命令。
-            *
-            * @param client 父客户端
-            * @param name   卷名称
-            */
+             * 构造创建卷命令。
+             *
+             * @param client 父客户端
+             * @param name   卷名称
+             */
             CreateVolumeCmd(DockerClient client, String name) {
                 this.client = client;
                 this.name = name;
@@ -2241,10 +2241,10 @@ public class DockerClient implements Closeable {
             private final DockerClient client;
 
             /**
-            * 构造列表命令。
-            *
-            * @param client 父客户端
-            */
+             * 构造列表命令。
+             *
+             * @param client 父客户端
+             */
             ListVolumeCmd(DockerClient client) {
                 this.client = client;
             }

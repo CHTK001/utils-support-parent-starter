@@ -109,11 +109,11 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     /**
-    * 解析
-    *
-    * @param date 日期
-    * @return resolve的结果
-    */
+     * 解析
+     *
+     * @param date 日期
+     * @return resolve的结果
+     */
     private HolidayInfo resolve(LocalDate date) {
         return load(date.getYear()).get(date.toString());
     }

@@ -61,8 +61,8 @@ public class CliTool {
     private volatile CliVersion cachedVersion;
 
     /**
-    * 固定参数模板（每次执行都会附加在可执行文件之后），null 表示未配置
-    */
+     * 固定参数模板（每次执行都会附加在可执行文件之后），null 表示未配置
+     */
     private volatile List<String> fixedArgs;
 
     /**

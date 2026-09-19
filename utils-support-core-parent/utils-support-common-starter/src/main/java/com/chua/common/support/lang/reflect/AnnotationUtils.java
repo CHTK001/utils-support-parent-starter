@@ -66,14 +66,14 @@ public final class AnnotationUtils {
     }
 
     /**
-    * 获取类上的注解属性映射。
-    *
-    * <p>遍历注解类中所有声明的方法，通过反射提取对应属性值，组装为 {@link Map}。</p>
-    *
-    * @param clazz           目标类
-    * @param annotationClass 注解类
-    * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
-    */
+     * 获取类上的注解属性映射。
+     *
+     * <p>遍历注解类中所有声明的方法，通过反射提取对应属性值，组装为 {@link Map}。</p>
+     *
+     * @param clazz           目标类
+     * @param annotationClass 注解类
+     * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
+     */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new LinkedHashMap<>();
         Annotation annotation = clazz.getAnnotation(annotationClass);

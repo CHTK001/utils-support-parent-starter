@@ -33,11 +33,11 @@ public class JsonArrayTypeConverter implements TypeConverter<List> {
     }
 
     /**
-    * 将给定值转换为 List（JSON 数组）。
-    *
-    * @param value 源值
-    * @return List 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 List（JSON 数组）。
+     *
+     * @param value 源值
+     * @return List 值，如果无法转换则返回 null
+     */
     @Override
     public List convert(Object value) {
         if (value instanceof String) {

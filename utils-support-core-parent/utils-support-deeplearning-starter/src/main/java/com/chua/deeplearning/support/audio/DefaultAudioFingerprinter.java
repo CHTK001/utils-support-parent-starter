@@ -70,12 +70,12 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
     private boolean normalize = true;
 
     /**
-    * 构造默认音频指纹提取器。
-    *
-    * @param engine    推理引擎实例
-    * @param modelName 模型 ID（须在 ModelRegistry 中注册）
-    * @param setting   模型配置（可包含 modelPath、device 等覆盖默认值）
-    */
+     * 构造默认音频指纹提取器。
+     *
+     * @param engine    推理引擎实例
+     * @param modelName 模型 ID（须在 ModelRegistry 中注册）
+     * @param setting   模型配置（可包含 modelPath、device 等覆盖默认值）
+     */
     public DefaultAudioFingerprinter(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;

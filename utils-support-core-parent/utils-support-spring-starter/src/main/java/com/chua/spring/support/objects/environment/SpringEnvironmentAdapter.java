@@ -39,9 +39,9 @@ public class SpringEnvironmentAdapter implements org.springframework.core.env.En
 
     @Override
     /**
-    * 获取财产
-    * @param key 键
-    */
+     * 获取财产
+     * @param key 键
+     */
     public String getProperty(String key) {
         return delegate.getProperty(key);
     }

@@ -144,9 +144,9 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-    * 获取默认流式输出Metadata
-    * @param param 参数
-    */
+     * 获取默认流式输出Metadata
+     * @param param 参数
+     */
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         
         return null;
@@ -627,8 +627,8 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
      /**
-    * 写入unknownchunks。
-    */
+      * 写入unknownchunks。
+      */
     private void writeUnknownChunks() throws IOException {
         Iterator<String> typeIter = metadata.unknownChunkType.iterator();
         Iterator<byte[]> dataIter = metadata.unknownChunkData.iterator();
@@ -985,11 +985,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-    * 写入fdat
-    * @param image 镜像
-    * @param deflaterLevel deflater级别
-    * @param currentSequence 当前sequence
-    */
+     * 写入fdat
+     * @param image 镜像
+     * @param deflaterLevel deflater级别
+     * @param currentSequence 当前sequence
+     */
     private void write_fdAT(RenderedImage image, int deflaterLevel, int currentSequence)
             throws IOException
     {
@@ -1046,9 +1046,9 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-    * Prepare写入Sequence
-    * @param streamMetadata 流metadata
-    */
+     * Prepare写入Sequence
+     * @param streamMetadata 流metadata
+     */
     public void prepareWriteSequence(IIOMetadata streamMetadata) throws IOException {
 
         if (stream == null) {

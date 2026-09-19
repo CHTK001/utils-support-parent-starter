@@ -73,14 +73,14 @@ final class LanzouSharePageParser {
     }
 
     /**
-    * 解析分享页，返回下载直链信息。
-    *
-    * @param http         蓝奏 HTTP 客户端（用于访问 iframe 二级页，自动处理 WAF 挑战）
-    * @param mainHtml     主分享页 HTML（已通过 WAF 挑战）
-    * @param shareBaseUrl 分享页 URL（用于拼接相对地址与 Referer）
-    * @param password     分享密码（公开分享传 空 或空串）
-    * @return 直链信息
-    */
+     * 解析分享页，返回下载直链信息。
+     *
+     * @param http         蓝奏 HTTP 客户端（用于访问 iframe 二级页，自动处理 WAF 挑战）
+     * @param mainHtml     主分享页 HTML（已通过 WAF 挑战）
+     * @param shareBaseUrl 分享页 URL（用于拼接相对地址与 Referer）
+     * @param password     分享密码（公开分享传 空 或空串）
+     * @return 直链信息
+     */
     static LanzouShareInfo parse(LanzouHttp http, String mainHtml, String shareBaseUrl, String password) {
         // 形态二：无密码，iframe 二级页
         String iframeSrc = matchFirst(IFRAME_PATTERN, mainHtml, 1);

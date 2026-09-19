@@ -84,15 +84,15 @@ public class NeuQuant {
     /** Netbiasshift */
     protected static final int NETBIASSHIFT = 4;
     /**
-    * 偏置 for colour 值
-    */
+     * 偏置 for colour 值
+     */
     protected static final int NCYCLES = 100;
 /** no. 的 学习 循环 */
 
 
     /**
-    * defs for freq 和 偏置
-    */
+     * defs for freq 和 偏置
+     */
     protected static final int INTBIASSHIFT = 16;
     /**
      * 偏置 for fractions
@@ -101,8 +101,8 @@ public class NeuQuant {
     /** Gammashift */
     protected static final int GAMMASHIFT = 10;
     /**
-    * gamma = 1024
-    */
+     * gamma = 1024
+     */
     protected static final int GAMMA = (1 << GAMMASHIFT);
     /** Betashift */
     protected static final int BETASHIFT = 10;
@@ -130,15 +130,15 @@ public class NeuQuant {
     /** Initradius */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
-    * 和 减少 by a
-    */
+     * 和 减少 by a
+     */
     protected static final int RADIUSDEC = 30;
 /** factor 的 1/30 each 循环 */
 
 
     /**
-    * defs for decreasing alpha factor
-    */
+     * defs for decreasing alpha factor
+     */
     protected static final int ALPHABIASSHIFT = 10;
     /**
      * alpha 启动 at 1.0
@@ -163,9 +163,9 @@ public class NeuQuant {
 
 
     /**
-    * 类型 和 全局 变量
-    * --------------------------
-    */
+     * 类型 和 全局 变量
+     * --------------------------
+     */
 
     protected byte[] thepicture; // thepicture
     /**
@@ -181,8 +181,8 @@ public class NeuQuant {
 
 
     /**
-    * bgrc
-    */
+     * bgrc
+     */
     protected int[][] network;
     /**
      * the network itself - [netsize][4]
@@ -234,10 +234,10 @@ public class NeuQuant {
     }
 
     /**
-    * color映射
-    *
-    * @return color映射的结果
-    */
+     * color映射
+     *
+     * @return color映射的结果
+     */
     public byte[] colorMap() {
         byte[] map = new byte[3 * NETSIZE];
         int[] index = new int[NETSIZE];
@@ -322,9 +322,9 @@ public class NeuQuant {
 
 
     /**
-    * Main 学习 循环
-    * ------------------
-    */
+     * Main 学习 循环
+     * ------------------
+     */
     public void learn() {
 
         int i, j, b, g, r;
@@ -407,13 +407,13 @@ public class NeuQuant {
 
 
     /**
-    * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
-    * ----------------------------------------------------------------------------
-    * @param b b
-    * @param g g
-    * @param r r
-    * @return 映射的结果
-    */
+     * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
+     * ----------------------------------------------------------------------------
+     * @param b b
+     * @param g g
+     * @param r r
+     * @return 映射的结果
+     */
     public int map(int b, int g, int r) {
 
         int i, j, dist, a, bestd;
@@ -494,10 +494,10 @@ public class NeuQuant {
     }
 
     /**
-    * 处理
-    *
-    * @return 处理的结果
-    */
+     * 处理
+     *
+     * @return 处理的结果
+     */
     public byte[] process() {
         learn();
         unbiasnet();
@@ -522,14 +522,14 @@ public class NeuQuant {
 
 
     /**
-    * 将相邻神经元按预计算的 alpha*(1-((i-j)^2/[R]^2)) 移入 radpower[|i-j|]
-    * ---------------------------------------------------------------------------------
-    * @param rad rad
-    * @param i i
-    * @param b b
-    * @param g g
-    * @param r r
-    */
+     * 将相邻神经元按预计算的 alpha*(1-((i-j)^2/[R]^2)) 移入 radpower[|i-j|]
+     * ---------------------------------------------------------------------------------
+     * @param rad rad
+     * @param i i
+     * @param b b
+     * @param g g
+     * @param r r
+     */
     protected void alterneigh(int rad, int i, int b, int g, int r) {
 
         int j, k, lo, hi, a, m;
@@ -592,13 +592,13 @@ public class NeuQuant {
 
 
     /**
-    * 搜索 for 偏置 BGR 值
-    * ----------------------------
-    * @param b b
-    * @param g g
-    * @param r r
-    * @return contest的结果
-    */
+     * 搜索 for 偏置 BGR 值
+     * ----------------------------
+     * @param b b
+     * @param g g
+     * @param r r
+     * @return contest的结果
+     */
     protected int contest(int b, int g, int r) {
 
 

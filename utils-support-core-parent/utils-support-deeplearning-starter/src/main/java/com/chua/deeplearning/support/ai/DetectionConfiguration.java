@@ -50,10 +50,10 @@ public class DetectionConfiguration {
     }
 
     /**
-    * 是否使用 GPU。
-    *
-    * @return 是否使用 GPU
-    */
+     * 是否使用 GPU。
+     *
+     * @return 是否使用 GPU
+     */
     public boolean deviceIsGpu() {
         return useGpu;
     }

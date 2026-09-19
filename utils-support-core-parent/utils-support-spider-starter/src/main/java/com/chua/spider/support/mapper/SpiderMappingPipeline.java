@@ -48,13 +48,13 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     private final SpiderFieldMapper mapper;
 
     /**
-    * 创建映射管道（不使用 AI）。
-    *
-    * @param targetClass 目标 POJO 类型
-    * @param consumer    类型化回调
-    * @param <T>         POJO 类型
-    * @return 映射管道实例
-    */
+     * 创建映射管道（不使用 AI）。
+     *
+     * @param targetClass 目标 POJO 类型
+     * @param consumer    类型化回调
+     * @param <T>         POJO 类型
+     * @return 映射管道实例
+     */
     public static <T> SpiderMappingPipeline<T> of(Class<T> targetClass, Consumer<T> consumer) {
         return new SpiderMappingPipeline<>(targetClass, consumer, null, null);
     }

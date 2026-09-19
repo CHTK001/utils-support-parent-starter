@@ -43,8 +43,8 @@ public class AlibabaRegionProvider implements RegionProvider {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-    * 会话级缓存：adcode -> 下级列表
-    */
+     * 会话级缓存：adcode -> 下级列表
+     */
     private static final Map<String, List<RegionInfo>> CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -107,12 +107,12 @@ public class AlibabaRegionProvider implements RegionProvider {
     }
 
     /**
-    * 构建
-    *
-    * @param node 节点
-    * @param cur cur
-    * @param max 最大
-    */
+     * 构建
+     *
+     * @param node 节点
+     * @param cur cur
+     * @param max 最大
+     */
     private void build(RegionInfo node, int cur, int max) {
         if (cur >= max) {
             node.setChildren(Collections.emptyList());

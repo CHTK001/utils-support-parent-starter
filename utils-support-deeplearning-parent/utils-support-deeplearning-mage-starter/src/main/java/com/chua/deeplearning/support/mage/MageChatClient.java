@@ -147,11 +147,11 @@ public class MageChatClient implements ChatClient {
     }
 
     /**
-    * 添加视频附件（Mage-VL 支持视频理解）。
-    *
-    * @param videoUrl 视频 URL、data URI 或服务端可访问的本地路径
-    * @return 当前客户端实例
-    */
+     * 添加视频附件（Mage-VL 支持视频理解）。
+     *
+     * @param videoUrl 视频 URL、data URI 或服务端可访问的本地路径
+     * @return 当前客户端实例
+     */
     public ChatClient addVideo(String videoUrl) {
         this.videoUrls.add(videoUrl);
         return this;

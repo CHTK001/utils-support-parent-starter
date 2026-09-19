@@ -23,15 +23,15 @@ public class SyncDataOffset implements Serializable {
     private final String mappingId;
 
     /**
-    * 创建 同步数据偏移量 实例
-    * @param sourceId 源标识
-    * @param offsetValue 对象
-    * @param timestamp long
-    * @param sourceId 字符串
-    * @param offsetValue 偏移量值
-    * @param timestamp 时间戳
-    * @param mappingId mappingid
-    */
+     * 创建 同步数据偏移量 实例
+     * @param sourceId 源标识
+     * @param offsetValue 对象
+     * @param timestamp long
+     * @param sourceId 字符串
+     * @param offsetValue 偏移量值
+     * @param timestamp 时间戳
+     * @param mappingId mappingid
+     */
     public SyncDataOffset(String sourceId, Object offsetValue, long timestamp, String mappingId) {
         this.sourceId = sourceId;
         this.offsetValue = offsetValue;

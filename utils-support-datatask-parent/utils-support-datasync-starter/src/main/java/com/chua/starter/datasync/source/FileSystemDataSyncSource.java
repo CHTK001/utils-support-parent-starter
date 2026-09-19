@@ -31,12 +31,12 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     private final String filePath;
 
     /**
-    * 创建 文件系统数据同步源 实例
-    *
-    * @param sourceId 源标识
-    * @param inputId  输入标识
-    * @param filePath 文件路径
-    */
+     * 创建 文件系统数据同步源 实例
+     *
+     * @param sourceId 源标识
+     * @param inputId  输入标识
+     * @param filePath 文件路径
+     */
     public FileSystemDataSyncSource(String sourceId, String inputId, String filePath) {
         this.sourceId = sourceId;
         this.inputId = inputId;

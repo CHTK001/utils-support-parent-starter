@@ -271,11 +271,11 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     }
 
     /**
-    * 处理队满时的溢出逻辑。
-    *
-    * @param e 待入队的新元素
-    * @return 是否成功入队
-    */
+     * 处理队满时的溢出逻辑。
+     *
+     * @param e 待入队的新元素
+     * @return 是否成功入队
+     */
     private boolean handleOverflow(E e) {
         switch (policy) {
             case EVICT_ELDEST -> {

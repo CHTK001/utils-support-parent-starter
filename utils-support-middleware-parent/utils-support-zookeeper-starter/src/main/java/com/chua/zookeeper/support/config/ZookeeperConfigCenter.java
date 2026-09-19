@@ -164,20 +164,20 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析配置内容字符串为键值映射。
-    * <p>
-    * 自动识别配置格式：
-    * <ul>
-    *   <li>YAML 格式（包含冒号和换行）— 使用 SnakeYAML 解析</li>
-    *   <li>Properties 格式（包含等号和换行）— 逐行解析</li>
-    *   <li>其他格式 — 作为单个 value 返回</li>
-    * </ul>
-    * </p>
-    *
-    * @param configContent 配置内容字符串
-    * @param dataId        配置标识（用于日志）
-    * @return 解析后的键值映射
-    */
+     * 解析配置内容字符串为键值映射。
+     * <p>
+     * 自动识别配置格式：
+     * <ul>
+     *   <li>YAML 格式（包含冒号和换行）— 使用 SnakeYAML 解析</li>
+     *   <li>Properties 格式（包含等号和换行）— 逐行解析</li>
+     *   <li>其他格式 — 作为单个 value 返回</li>
+     * </ul>
+     * </p>
+     *
+     * @param configContent 配置内容字符串
+     * @param dataId        配置标识（用于日志）
+     * @return 解析后的键值映射
+     */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 尝试 YAML 格式解析

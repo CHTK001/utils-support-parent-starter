@@ -187,13 +187,13 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     private static volatile boolean registrarScanned;
 
     /**
-    * 解析传给 CLI 的模型参数。
-    * <p>{@code model} 若为 {@link ModelRegistry} 注册过的标识，则由 Java 侧取得（必要时下载）
-    * 本地模型文件并传其绝对路径——CLI 自带的下载依赖系统 {@code curl}，在无法完成证书吊销
-    * 校验的环境下不可用。未注册或取不到文件时原样透传，CLI 原生短名与本地路径均可用。</p>
-    *
-    * @return CLI {@code --model} 取值；无模型时为 {@code null}
-    */
+     * 解析传给 CLI 的模型参数。
+     * <p>{@code model} 若为 {@link ModelRegistry} 注册过的标识，则由 Java 侧取得（必要时下载）
+     * 本地模型文件并传其绝对路径——CLI 自带的下载依赖系统 {@code curl}，在无法完成证书吊销
+     * 校验的环境下不可用。未注册或取不到文件时原样透传，CLI 原生短名与本地路径均可用。</p>
+     *
+     * @return CLI {@code --model} 取值；无模型时为 {@code null}
+     */
     private String resolveModelArg() {
         if (model == null || model.isBlank()) {
             return null;

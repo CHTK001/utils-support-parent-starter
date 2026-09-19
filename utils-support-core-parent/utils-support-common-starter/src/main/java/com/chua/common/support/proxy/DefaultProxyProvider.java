@@ -126,12 +126,12 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     private ObjectContext objectContext;
 
     /**
-    * 注解拦截器缓存（注解全名 -> 拦截器列表）。
-    * <p>
-    * 按需懒加载，避免每次方法调用重复扫描 SPI。
-    * 使用 volatile + 双重检查锁保证线程安全。
-    * </p>
-    */
+     * 注解拦截器缓存（注解全名 -> 拦截器列表）。
+     * <p>
+     * 按需懒加载，避免每次方法调用重复扫描 SPI。
+     * 使用 volatile + 双重检查锁保证线程安全。
+     * </p>
+     */
     private volatile Map<String, List<MethodAnnotationIntercept<Annotation>>> annotationInterceptCache;
 
     /**

@@ -176,8 +176,8 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
     private final ModelSetting setting;
 
     /**
-    * 模糊阈值。
-    */
+     * 模糊阈值。
+     */
     private double blurThreshold = 80.0;
 
     /**

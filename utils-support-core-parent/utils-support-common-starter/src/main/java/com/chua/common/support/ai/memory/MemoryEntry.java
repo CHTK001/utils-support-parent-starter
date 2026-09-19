@@ -75,10 +75,10 @@ public record MemoryEntry(
     private static final long serialVersionUID = 1L;
 
     /**
-    * 获取记忆 ID。
-    *
-    * @return 记忆 ID
-    */
+     * 获取记忆 ID。
+     *
+     * @return 记忆 ID
+     */
     public String getId() {
         return id;
     }

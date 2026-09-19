@@ -40,8 +40,8 @@ public class ColumnMetadata {
     private String comment;
     /** 是否主键 */
     /**
-    * 主键字段名
-    */
+     * 主键字段名
+     */
     private boolean primaryKey;
     /** 是否自增 */
     private boolean autoIncrement;

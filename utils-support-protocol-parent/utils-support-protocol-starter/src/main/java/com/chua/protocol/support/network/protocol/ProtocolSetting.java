@@ -20,8 +20,8 @@ public class ProtocolSetting {
     private Object options;
 
     /**
-    * 协议setting。
-    */
+     * 协议setting。
+     */
     private ProtocolSetting() {
     }
 

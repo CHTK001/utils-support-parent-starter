@@ -47,7 +47,7 @@ public class Trace {
     private List<Span> spans = new ArrayList<>();
 
     /**
-    * 追踪级属性（追踪-级别 attributes）
+     * 追踪级属性（追踪-级别 attributes）
      */
     @Builder.Default
     private Map<String, String> attributes = new HashMap<>(); // attributes

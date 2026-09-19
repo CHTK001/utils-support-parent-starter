@@ -60,12 +60,12 @@ public class SmbProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为命令名称
-    *
-    * @param magic 魔法
-    * @param command 命令
-    * @return 转为命令名称的结果
-    */
+     * 转为命令名称
+     *
+     * @param magic 魔法
+     * @param command 命令
+     * @return 转为命令名称的结果
+     */
     private static String toCommandName(int magic, int command) {
         if (magic == 0x424d53fe) {
             return "SMB2_Command_" + command;

@@ -208,11 +208,11 @@ public final class ModelCapabilities {
     }
 
     /**
-    * 将能力接口映射为能力标签。
-    *
-    * @param capabilityInterface 能力接口，可能为 空
-    * @return 能力标签；无法识别返回 空
-    */
+     * 将能力接口映射为能力标签。
+     *
+     * @param capabilityInterface 能力接口，可能为 空
+     * @return 能力标签；无法识别返回 空
+     */
     public static String labelOf(Class<?> capabilityInterface) {
         if (capabilityInterface == null) {
             return null;

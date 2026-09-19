@@ -59,13 +59,13 @@ public class ReturnResult<T> implements Serializable {
     }
 
     /**
-    * 创建 ReturnResult 实例
-    * @param code code
-    * @param T T
-    * @param String String
-    * @param data 数据，不允许为 null
-    * @param msg 消息，不允许为 null
-    */
+     * 创建 ReturnResult 实例
+     * @param code code
+     * @param T T
+     * @param String String
+     * @param data 数据，不允许为 null
+     * @param msg 消息，不允许为 null
+     */
     public ReturnResult(String code, T data, String msg) {
         this.code = code;
         this.data = data;

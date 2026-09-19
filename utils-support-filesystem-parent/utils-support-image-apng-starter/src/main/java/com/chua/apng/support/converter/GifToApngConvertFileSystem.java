@@ -97,12 +97,12 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-    * 是否支持格式化
-    *
-    * @param sourceFormat 源格式化
-    * @param targetFormat Target格式化
-    * @return 是否支持格式化的结果
-    */
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         if (sourceFormat == null || targetFormat == null) {
             return false;
@@ -123,12 +123,12 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-    * 读取 GIF 动画帧
-    *
-    * @param inputStream 输入流
-    * @return 动画帧列表
-    * @throws Exception 读取异常
-    */
+     * 读取 GIF 动画帧
+     *
+     * @param inputStream 输入流
+     * @return 动画帧列表
+     * @throws Exception 读取异常
+     */
     private List<AnimationFrame> readGifFrames(InputStream inputStream) throws Exception {
         List<AnimationFrame> frames = new ArrayList<>();
 

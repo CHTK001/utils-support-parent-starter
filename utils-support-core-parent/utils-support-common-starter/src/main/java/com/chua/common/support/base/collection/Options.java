@@ -15,11 +15,11 @@ public class Options {
     private final List<String> options = new ArrayList<>();
 
     /**
-    * 静态工厂。
-    *
-    * @param options 变长字符串参数
-    * @return Options 实例
-    */
+     * 静态工厂。
+     *
+     * @param options 变长字符串参数
+     * @return Options 实例
+     */
     public static Options of(String... options) {
         Options o = new Options();
         for (String opt : options) {

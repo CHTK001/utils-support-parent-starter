@@ -33,8 +33,8 @@ public class DownloadConfig {
     /** 解压目标目录（null 时表示与下载目录相同） */
     private final Path extractTo;
     /**
-    * 是否跳过 MD5 校验（优先于 expectedMd5，true 时忽略校验）
-    */
+     * 是否跳过 MD5 校验（优先于 expectedMd5，true 时忽略校验）
+     */
     private final boolean skipMd5Check;
     /** 是否强制重新下载（忽略本地缓存文件） */
     private final boolean forceDownload;

@@ -84,13 +84,13 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     /**
-    * 创建 抽象单个类yolov8Translator 实例
-    * @param inputSize 输入大小
-    * @param threshold float
-    * @param threshold float
-    * @param threshold 阈值
-    * @param nmsThreshold nms阈值
-    */
+     * 创建 抽象单个类yolov8Translator 实例
+     * @param inputSize 输入大小
+     * @param threshold float
+     * @param threshold float
+     * @param threshold 阈值
+     * @param nmsThreshold nms阈值
+     */
     protected AbstractSingleClassYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         if (inputSize <= 0) {
             throw new IllegalArgumentException("inputSize 必须 > 0: " + inputSize);
@@ -286,9 +286,9 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     /**
-    * 当前 Translator 实际加载的类别名。
-    * @return actual类名称的结果
-    */
+     * 当前 Translator 实际加载的类别名。
+     * @return actual类名称的结果
+     */
     public String actualClassName() {
         return classes.getFirst();
     }

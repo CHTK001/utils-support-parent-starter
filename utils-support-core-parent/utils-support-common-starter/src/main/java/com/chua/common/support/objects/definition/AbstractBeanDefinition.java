@@ -55,39 +55,39 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
-    * 销毁状态标志
-    */
+     * 销毁状态标志
+     */
     @Getter
     /** 销毁 */
     protected final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     /**
-    * 是否启用代理
-    */
+     * 是否启用代理
+     */
     @Getter
     @Setter
     /** 代理 */
     private boolean proxy = true;
 
     /**
-    * 优先级，值越大优先级越高
-    */
+     * 优先级，值越大优先级越高
+     */
     @Getter
     @Setter
     /** 优先级 */
     private int priority;
 
     /**
-    * Bean 作用域
-    */
+     * Bean 作用域
+     */
     @Getter
     @Setter
     /** 作用域 */
     private BeanScope scope = BeanScope.SINGLETON;
 
     /**
-    * Bean 名称
-    */
+     * Bean 名称
+     */
     @Getter
     @Setter
     /**
@@ -121,8 +121,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private boolean available = true;
 
     /**
-    * 关联的注册器
-    */
+     * 关联的注册器
+     */
     private volatile BeanDefinitionRegister register;
 
     /**
@@ -149,8 +149,8 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private Environment environment;
 
     /**
-    * 按名称查找 Bean 的函数，用于服务注入
-    */
+     * 按名称查找 Bean 的函数，用于服务注入
+     */
     @Setter
     protected Function<String, Object> beanNameProvider; // Bean名称提供者
 

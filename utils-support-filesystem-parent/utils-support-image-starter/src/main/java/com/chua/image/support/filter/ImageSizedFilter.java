@@ -61,9 +61,9 @@ public class ImageSizedFilter extends AbstractImageFilter {
     private double size = 0.5d;
 
     /**
-    * 创建 镜像大小过滤器 实例
-    * @param size 大小
-    */
+     * 创建 镜像大小过滤器 实例
+     * @param size 大小
+     */
     public ImageSizedFilter(double size) {
         this.size = size;
     }
@@ -78,15 +78,15 @@ public class ImageSizedFilter extends AbstractImageFilter {
 
 
     /**
-    * 按比例缩放
-    *
-    * 将图像宽高同时乘以缩放系数，输出新尺寸图像。
-    * 使用 Image.SCALE_DEFAULT（双线性插值）绘制。
-    *
-    * @param scale 缩放比率（0.5 = 缩小一半）
-    * @param img   缓冲镜像
-    * @return 缩放后的 TYPE_INT_RGB 图像
-    */
+     * 按比例缩放
+     *
+     * 将图像宽高同时乘以缩放系数，输出新尺寸图像。
+     * 使用 Image.SCALE_DEFAULT（双线性插值）绘制。
+     *
+     * @param scale 缩放比率（0.5 = 缩小一半）
+     * @param img   缓冲镜像
+     * @return 缩放后的 TYPE_INT_RGB 图像
+     */
     public static BufferedImage zoomByScale(double scale, BufferedImage img) {
         //获取缩放后的长和宽
         int width = (int) (scale * img.getWidth());

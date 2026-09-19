@@ -83,8 +83,8 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     private int imageHeight; // 镜像height
 
     /**
-    * 创建 yolouniowtranslator 实例（默认阈值 0.25 / NMS 0.5）
-    */
+     * 创建 yolouniowtranslator 实例（默认阈值 0.25 / NMS 0.5）
+     */
     public YoloUniowTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS);
     }

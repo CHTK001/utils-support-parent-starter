@@ -27,8 +27,8 @@ public class AiChatClientBindingEntity {
 
     /** 主键 */
     /**
-    * 标识
-    */
+     * 标识
+     */
     private Long id;
 
     /**
@@ -42,8 +42,8 @@ public class AiChatClientBindingEntity {
     private String groupName;
 
     /**
-    * 组内策略（failover | round_robin | weighted | cost | latency）
-    */
+     * 组内策略（failover | round_robin | weighted | cost | latency）
+     */
     private String groupStrategy;
 
     /** 组条件表达式（如 "prompt.length < 200"） */
@@ -56,14 +56,14 @@ public class AiChatClientBindingEntity {
 
     /** AI 服务商名称，如 "openai"、"alibaba" */
     /**
-    * 提供方标识
-    */
+     * 提供方标识
+     */
     private String provider;
 
     /** API 密钥 */
     /**
-    * API 密钥
-    */
+     * API 密钥
+     */
     private String apiKey;
 
     /** 自定义 API 地址（可选） */
@@ -97,13 +97,13 @@ public class AiChatClientBindingEntity {
 
     /** 创建时间 */
     /**
-    * 创建时间
-    */
+     * 创建时间
+     */
     private Long createdAt;
 
     /** 更新时间 */
     /**
-    * 更新时间
-    */
+     * 更新时间
+     */
     private Long updatedAt;
 }

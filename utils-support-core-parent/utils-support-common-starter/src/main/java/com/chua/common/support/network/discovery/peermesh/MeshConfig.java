@@ -29,29 +29,29 @@ public class MeshConfig {
     private String mode = "tcp";
 
     /**
-    * 发现模式：c / seed / c-seed。默认 c-seed。
-    */
+     * 发现模式：c / seed / c-seed。默认 c-seed。
+     */
     @lombok.Builder.Default
     /** Discovery */
     private String discovery = "c-seed";
 
     /**
-    * 主端口。默认 9876。
-    */
+     * 主端口。默认 9876。
+     */
     @lombok.Builder.Default
     /** 端口 */
     private int port = 9876;
 
     /**
-    * 备用端口。默认 9877。
-    */
+     * 备用端口。默认 9877。
+     */
     @lombok.Builder.Default
     /** ALT端口 */
     private int altPort = 9877;
 
     /**
-    * 绑定 IP，null 表示自动选择私网 IP。
-    */
+     * 绑定 IP，null 表示自动选择私网 IP。
+     */
     private String bindIp;
 
     /**
@@ -67,23 +67,23 @@ public class MeshConfig {
     private int scanInterval = 30;
 
     /**
-    * 心跳间隔（秒）。默认 5 秒。
-    */
+     * 心跳间隔（秒）。默认 5 秒。
+     */
     @lombok.Builder.Default
     /** Heartbeat间隔 */
     private int heartbeatInterval = 5;
 
     /**
-    * 剔除超时时间（秒）。默认 15 秒。
-    */
+     * 剔除超时时间（秒）。默认 15 秒。
+     */
     @lombok.Builder.Default
     /** Evict超时 */
     private int evictTimeout = 15;
 
     /**
-    * 种子节点列表（仅在 SEED 模式下使用）。
-    * 格式: host:port
-    */
+     * 种子节点列表（仅在 SEED 模式下使用）。
+     * 格式: host:port
+     */
     private List<String> seeds;
 
     /**

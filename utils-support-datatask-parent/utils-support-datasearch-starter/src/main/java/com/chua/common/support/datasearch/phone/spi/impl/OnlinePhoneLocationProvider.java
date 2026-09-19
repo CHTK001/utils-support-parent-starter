@@ -54,10 +54,10 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-    * 构造一个指定接口地址模板的提供器。
-    *
-    * @param urlTemplate 含 {@code %s} 号码占位符的接口地址，如 {@code https://host/api?phone=%s}
-    */
+     * 构造一个指定接口地址模板的提供器。
+     *
+     * @param urlTemplate 含 {@code %s} 号码占位符的接口地址，如 {@code https://host/api?phone=%s}
+     */
     public OnlinePhoneLocationProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
         this.httpClient = HttpClientFactory.getClient();

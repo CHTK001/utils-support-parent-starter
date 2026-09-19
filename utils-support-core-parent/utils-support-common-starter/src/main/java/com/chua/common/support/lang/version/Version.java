@@ -62,26 +62,26 @@ public class Version implements Comparable<Version> {
     private final String originalString;
 
     /**
-    * 子版本号列表。
-    * 存储版本字符串中所有数值部分的列表，例如 "1.7.3" 对应 [1, 7, 3]。
-    */
+     * 子版本号列表。
+     * 存储版本字符串中所有数值部分的列表，例如 "1.7.3" 对应 [1, 7, 3]。
+     */
     @Getter
     /** Subversionnumbers */
     private final List<Long> subversionNumbers = new ArrayList<>();
 
     /**
-    * 修剪后的子版本号列表。
-    * 移除尾部零后的子版本号列表，用于版本比较。
-    * 例如 "1.7.0" 对应 [1, 7]。
-    */
+     * 修剪后的子版本号列表。
+     * 移除尾部零后的子版本号列表，用于版本比较。
+     * 例如 "1.7.0" 对应 [1, 7]。
+     */
     @Getter
     /** Trimmedsubversionnumbers */
     private final List<Long> trimmedSubversionNumbers = new ArrayList<>();
 
     /**
-    * 后缀字符串。
-    * 存储版本号中的后缀部分，例如 "-rc2.xyz" 中的 "rc2.xyz"。
-    */
+     * 后缀字符串。
+     * 存储版本号中的后缀部分，例如 "-rc2.xyz" 中的 "rc2.xyz"。
+     */
     @Getter
     /**
      * 后缀
@@ -499,12 +499,12 @@ public class Version implements Comparable<Version> {
     }
 
     /**
-    * 比较两个版本号。
-    *
-    * @param version 要比较的版本对象
-    * @param ignoreSuffix 是否忽略后缀
-    * @return 比较结果：大于 0 表示当前版本较大，小于 0 表示当前版本较小，0 表示相等
-    */
+     * 比较两个版本号。
+     *
+     * @param version 要比较的版本对象
+     * @param ignoreSuffix 是否忽略后缀
+     * @return 比较结果：大于 0 表示当前版本较大，小于 0 表示当前版本较小，0 表示相等
+     */
     private int compareTo(Version version, boolean ignoreSuffix) {
         int versionNumberResult = VersionComparator.compareSubversionNumbers(
                 trimmedSubversionNumbers,
@@ -545,9 +545,9 @@ public class Version implements Comparable<Version> {
     }
 
     /**
-    * 版本比较器内部类。
-    * 提供版本号比较、发布类型判断等核心逻辑。
-    */
+     * 版本比较器内部类。
+     * 提供版本号比较、发布类型判断等核心逻辑。
+     */
     static final class VersionComparator {
 
         /** Snapshot_string */
@@ -562,22 +562,22 @@ public class Version implements Comparable<Version> {
         private static final String RC_STRING = "rc";
 
         /**
-        * 发布类型枚举。
-        *
-        * <p>版本类型优先级从高到低：
-        * <pre>
-        * ------------------------
-        * order  suffix
-        * ------------------------
-        *   5     empty or unknown
-        *   4     rc
-        *   3     beta
-        *   2     alpha
-        *   1     pre + alpha
-        *   0     snapshot
-        * ------------------------
-        * </pre>
-        */
+         * 发布类型枚举。
+         *
+         * <p>版本类型优先级从高到低：
+         * <pre>
+         * ------------------------
+         * order  suffix
+         * ------------------------
+         *   5     empty or unknown
+         *   4     rc
+         *   3     beta
+         *   2     alpha
+         *   1     pre + alpha
+         *   0     snapshot
+         * ------------------------
+         * </pre>
+         */
         enum ReleaseType {
             SNAPSHOT,
             PRE_ALPHA,

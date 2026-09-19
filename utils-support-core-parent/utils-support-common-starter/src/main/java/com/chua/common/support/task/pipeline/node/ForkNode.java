@@ -146,10 +146,10 @@ public class ForkNode implements PipelineNode {
     }
 
     /**
-    * 获取分叉分支映射。
-    *
-    * @return 分支名称 -> 子流水线的不可变映射
-    */
+     * 获取分叉分支映射。
+     *
+     * @return 分支名称 -> 子流水线的不可变映射
+     */
     public Map<String, Pipeline> getBranches() {
         return Collections.unmodifiableMap(branches);
     }
@@ -170,10 +170,10 @@ public class ForkNode implements PipelineNode {
     }
 
     /**
-    * 设置节点参数映射。
-    *
-    * @param params 参数映射
-    */
+     * 设置节点参数映射。
+     *
+     * @param params 参数映射
+     */
     public void setParams(Map<String, Object> params) {
         this.params = params != null ? params : Collections.emptyMap();
     }
@@ -194,13 +194,13 @@ public class ForkNode implements PipelineNode {
     }
 
     /**
-    * 设置前置处理器。
-    *
-    * <p>前置处理器在所有分叉分支启动之前执行，适用于初始化共享数据等场景。</p>
-    *
-    * @param preHandler 前置处理器
-    * @return this
-    */
+     * 设置前置处理器。
+     *
+     * <p>前置处理器在所有分叉分支启动之前执行，适用于初始化共享数据等场景。</p>
+     *
+     * @param preHandler 前置处理器
+     * @return this
+     */
     public ForkNode preHandler(PipelineNode preHandler) {
         this.preHandler = preHandler;
         return this;

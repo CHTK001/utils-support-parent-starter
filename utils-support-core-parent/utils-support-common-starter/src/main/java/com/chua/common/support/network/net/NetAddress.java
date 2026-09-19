@@ -21,8 +21,8 @@ public class NetAddress implements Serializable {
     /** 协议 */
     private String protocol;
     /**
-    * 主机名
-    */
+     * 主机名
+     */
     private String host;
     /**
      * 端口号
@@ -31,8 +31,8 @@ public class NetAddress implements Serializable {
     /** 地址 */
     private String address;
     /**
-    * 路径
-    */
+     * 路径
+     */
     private String path;
     /** Query */
     private String query;
@@ -59,9 +59,9 @@ public class NetAddress implements Serializable {
     public NetAddress() {}
 
     /**
-    * 创建 NetAddress 实例
-    * @param url url
-    */
+     * 创建 NetAddress 实例
+     * @param url url
+     */
     private NetAddress(String url) {
         parse(url);
     }

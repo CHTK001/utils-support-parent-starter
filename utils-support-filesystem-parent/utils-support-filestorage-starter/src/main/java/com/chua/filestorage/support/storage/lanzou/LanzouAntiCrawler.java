@@ -54,11 +54,11 @@ final class LanzouAntiCrawler {
     }
 
     /**
-    * 判断给定 HTML 是否为 WAF 挑战页。
-    *
-    * @param html 响应正文
-    * @return true 表示需要计算 acw_sc__v2 后重试
-    */
+     * 判断给定 HTML 是否为 WAF 挑战页。
+     *
+     * @param html 响应正文
+     * @return true 表示需要计算 acw_sc__v2 后重试
+     */
     static boolean isChallenge(String html) {
         if (html == null || html.isEmpty()) {
             return false;

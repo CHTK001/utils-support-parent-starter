@@ -25,9 +25,9 @@ public class ClientSetting {
     private final long writeTimeout;
 
     /**
-    * 创建 ClientSetting 实例
-    * @param b b
-    */
+     * 创建 ClientSetting 实例
+     * @param b b
+     */
     private ClientSetting(Builder b) {
         this.host = b.host;
         this.port = b.port;

@@ -34,8 +34,8 @@ public class ChatConfigEntity {
 
     /** 主键 */
     /**
-    * 标识
-    */
+     * 标识
+     */
     private Long id;
 
     /**
@@ -48,20 +48,20 @@ public class ChatConfigEntity {
 
     /** AI 服务商名称 */
     /**
-    * 提供方标识
-    */
+     * 提供方标识
+     */
     private String provider;
 
     /** API 密钥 */
     /**
-    * 应用密钥
-    */
+     * 应用密钥
+     */
     private String appKey;
 
     /** API 密钥（备用） */
     /**
-    * 应用密钥
-    */
+     * 应用密钥
+     */
     private String appSecret;
 
     /** API 请求基础地址 */

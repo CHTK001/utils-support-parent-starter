@@ -21,12 +21,12 @@ final class RecognitionSupport {
     }
 
     /**
-    * 名称是否包含任一关键字。
-    *
-    * @param name 名称（小写）
-    * @param keys 关键字
-    * @return 命中任一返回 true
-    */
+     * 名称是否包含任一关键字。
+     *
+     * @param name 名称（小写）
+     * @param keys 关键字
+     * @return 命中任一返回 true
+     */
     static boolean contains(String name, String... keys) {
         if (name == null) {
             return false;

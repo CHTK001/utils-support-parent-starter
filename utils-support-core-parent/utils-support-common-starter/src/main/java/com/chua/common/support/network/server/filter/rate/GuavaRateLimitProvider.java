@@ -35,14 +35,14 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     }
 
     /**
-    * 全局 Guava 限流器。
-    */
+     * 全局 Guava 限流器。
+     */
     private static class GuavaRateLimiter implements RateLimiter {
         /** Limiter */
         private final com.google.common.util.concurrent.RateLimiter limiter;
         /**
-        * 容量
-        */
+         * 容量
+         */
         private final double capacity;
 
         GuavaRateLimiter(double qps) {

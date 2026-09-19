@@ -286,13 +286,13 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-    * Solr 分组查询入口。
-    * <p>将 GROUP BY 字段翻译为 Solr JSON Facet，返回每组 group_key 与 count。</p>
-    *
-    * @param entityClass 实体类
-    * @param groupByCols 分组字段列表（至少一个）
-    * @return 分组查询包装器
-    */
+     * Solr 分组查询入口。
+     * <p>将 GROUP BY 字段翻译为 Solr JSON Facet，返回每组 group_key 与 count。</p>
+     *
+     * @param entityClass 实体类
+     * @param groupByCols 分组字段列表（至少一个）
+     * @return 分组查询包装器
+     */
     @SafeVarargs
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
@@ -1099,10 +1099,10 @@ public class SolrEngine extends AbstractEngine {
 
     /** 获取客户端 */
     /**
-    * 获取 DDL 管理器入口（与 meta() 同模式）。
-    * 将集合映射为 tabledef、模式 字段映射为 columndef。
-    * @return ddl的结果
-    */
+     * 获取 DDL 管理器入口（与 meta() 同模式）。
+     * 将集合映射为 tabledef、模式 字段映射为 columndef。
+     * @return ddl的结果
+     */
     public com.chua.datasource.support.ddl.DslManager ddl() {
         return new com.chua.solr.support.ddl.SolrDdlManager(getClient());
     }

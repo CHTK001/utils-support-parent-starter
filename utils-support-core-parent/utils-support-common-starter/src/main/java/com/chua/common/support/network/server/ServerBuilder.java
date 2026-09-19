@@ -27,8 +27,8 @@ public class ServerBuilder {
     /** 设置 */
     private ServerSetting setting;
     /**
-    * 类型
-    */
+     * 类型
+     */
     private String type = "jdk";
     /** Object上下文 */
     private ObjectContext objectContext;
@@ -40,10 +40,10 @@ public class ServerBuilder {
     }
 
     /**
-    * 创建构建器实例。
-    *
-    * @return ServerBuilder
-    */
+     * 创建构建器实例。
+     *
+     * @return ServerBuilder
+     */
     public static ServerBuilder create() {
         return new ServerBuilder();
     }

@@ -156,15 +156,15 @@ public class RuntimeSpy {
     }
 
     /**
-    * 注册拦截器。
-    *
-    * <p>Handler 在 start() 中调用此方法注册拦截规则。</p>
-    *
-    * @param className  目标类名（内部名，如 "org/slf4j/日志记录器"）
-    * @param methodName 目标方法名（如 "信息"）
-    * @param descriptor 方法描述符（如 "(Ljava/lang/字符串;)V"）
-    * @param point      插桩点（ENTRY / EXIT / 日志_PRE / 日志_POST 等）
-    * @param interceptor 处理器 实例
+     * 注册拦截器。
+     *
+     * <p>Handler 在 start() 中调用此方法注册拦截规则。</p>
+     *
+     * @param className  目标类名（内部名，如 "org/slf4j/日志记录器"）
+     * @param methodName 目标方法名（如 "信息"）
+     * @param descriptor 方法描述符（如 "(Ljava/lang/字符串;)V"）
+     * @param point      插桩点（ENTRY / EXIT / 日志_PRE / 日志_POST 等）
+     * @param interceptor 处理器 实例
      */
     public static void registerInterceptor(String className,
                                            String methodName,
@@ -959,9 +959,9 @@ public class RuntimeSpy {
         }
 
         /**
-        * 获取大小
-        *
-        * @return 大小的结果
+         * 获取大小
+         *
+         * @return 大小的结果
          */
         synchronized int size() {
             return map.size();

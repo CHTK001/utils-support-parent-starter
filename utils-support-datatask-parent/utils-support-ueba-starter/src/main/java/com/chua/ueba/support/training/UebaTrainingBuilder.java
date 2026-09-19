@@ -85,12 +85,12 @@ public final class UebaTrainingBuilder {
     private Path resumeDir;
 
     /**
-    * 以内存配置对象设置配置。
-    *
-    * @param config UEBA 配置，不能为 空
-    * @return 当前构建器
-    * @throws IllegalArgumentException 当 配置 为 空 时
-    */
+     * 以内存配置对象设置配置。
+     *
+     * @param config UEBA 配置，不能为 空
+     * @return 当前构建器
+     * @throws IllegalArgumentException 当 配置 为 空 时
+     */
     public UebaTrainingBuilder config(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
         this.config = config;

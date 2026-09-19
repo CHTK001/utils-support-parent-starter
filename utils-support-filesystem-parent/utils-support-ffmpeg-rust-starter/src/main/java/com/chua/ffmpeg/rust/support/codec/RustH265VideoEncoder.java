@@ -209,11 +209,11 @@ public class RustH265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * 确保 缓冲镜像 转换为 BGR24 字节数组。
-    *
-    * @param image 源图像
-    * @return BGR24 字节数组
-    */
+     * 确保 缓冲镜像 转换为 BGR24 字节数组。
+     *
+     * @param image 源图像
+     * @return BGR24 字节数组
+     */
     private static byte[] ensureBgrBytes(BufferedImage image) {
         if (image.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             byte[] pixels = new byte[image.getWidth() * image.getHeight() * 3];

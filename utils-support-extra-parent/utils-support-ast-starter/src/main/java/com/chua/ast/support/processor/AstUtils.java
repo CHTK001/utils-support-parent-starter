@@ -22,16 +22,16 @@ public final class AstUtils {
     private AstUtils() {}
 
     /**
-    * 从编译处理环境中获取 javac 上下文 实例
-    *
-    * <p>
-    * 优先尝试从 javac处理环境 获取（适用于 JDK 25+），
-    * 失败时降级从 javac树 反射获取。
-    * </p>
-    *
-    * @param processingEnv 编译处理环境
-    * @return javac 上下文 实例
-    */
+     * 从编译处理环境中获取 javac 上下文 实例
+     *
+     * <p>
+     * 优先尝试从 javac处理环境 获取（适用于 JDK 25+），
+     * 失败时降级从 javac树 反射获取。
+     * </p>
+     *
+     * @param processingEnv 编译处理环境
+     * @return javac 上下文 实例
+     */
     public static com.sun.tools.javac.util.Context getContext(ProcessingEnvironment processingEnv) {
         // 方式 1：从 JavacProcessingEnvironment 获取 Context（JDK 25+ 支持 getContext() 方法）
         try {

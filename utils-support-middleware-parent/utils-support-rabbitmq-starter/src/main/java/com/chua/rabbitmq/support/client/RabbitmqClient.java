@@ -333,11 +333,11 @@ public class RabbitmqClient implements AutoCloseable {
         private int prefetchCount = 0;
 
         /**
-        * 主机
-        *
-        * @param h h
-        * @return 主机的结果
-        */
+         * 主机
+         *
+         * @param h h
+         * @return 主机的结果
+         */
         public Builder host(String h) {
             this.host = h;
             return this;
@@ -793,11 +793,11 @@ public class RabbitmqClient implements AutoCloseable {
         BindOperation(RabbitmqClient client) { this.client = client; }
 
         /**
-        * 队列
-        *
-        * @param q q
-        * @return 队列的结果
-        */
+         * 队列
+         *
+         * @param q q
+         * @return 队列的结果
+         */
         public BindOperation queue(String q) {
             this.queue = q;
             return this;
@@ -873,11 +873,11 @@ public class RabbitmqClient implements AutoCloseable {
         PublishOperation(RabbitmqClient client) { this.client = client; }
 
         /**
-        * Exchange
-        *
-        * @param e e
-        * @return exchange的结果
-        */
+         * Exchange
+         *
+         * @param e e
+         * @return exchange的结果
+         */
         public PublishOperation exchange(String e) {
             this.exchange = e;
             return this;
@@ -1339,10 +1339,10 @@ public class RabbitmqClient implements AutoCloseable {
         TxOperation(RabbitmqClient client) { this.client = client; }
 
         /**
-        * 执行事务操作
-        * @param callback callback
-        * @return 执行的结果
-        */
+         * 执行事务操作
+         * @param callback callback
+         * @return 执行的结果
+         */
         public <T> T execute(TransactionCallback<T> callback) {
             Channel ch = client.getChannel();
             try {

@@ -42,8 +42,8 @@ public class HttpStatus {
     /** 200 OK — 请求成功。标准响应，表示请求已被成功处理。 */
     public static final int OK = 200;
     /**
-    * 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。
-    */
+     * 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。
+     */
     public static final int CREATED = 201;
     /**
      * 204 No Content — 请求成功但无返回内容。常用于 DELETE 操作成功后返回。
@@ -63,8 +63,8 @@ public class HttpStatus {
     /** 403 Forbidden — 无权限。服务器理解请求但拒绝执行。 */
     public static final int FORBIDDEN = 403;
     /**
-    * 404 Not Found — 资源不存在。服务器找不到请求的资源。
-    */
+     * 404 Not Found — 资源不存在。服务器找不到请求的资源。
+     */
     public static final int NOT_FOUND = 404;
 
     // ==================== 5xx 服务端错误 ====================

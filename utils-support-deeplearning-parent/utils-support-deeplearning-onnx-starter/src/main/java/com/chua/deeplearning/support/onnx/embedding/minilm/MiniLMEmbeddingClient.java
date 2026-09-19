@@ -84,10 +84,10 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-    * Translator
-    *
-    * @return translator的结果
-    */
+     * Translator
+     *
+     * @return translator的结果
+     */
     private MiniLMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() || "minilm".equalsIgnoreCase(model)

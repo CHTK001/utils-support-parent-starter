@@ -194,10 +194,10 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * 扫描Segments
-    *
-    * @return 扫描segments的结果
-    */
+     * 扫描Segments
+     *
+     * @return 扫描segments的结果
+     */
     private List<WalSegmentInfo> scanSegments() {
         flushBuffered();
         if (!Files.exists(segmentsDir)) {
@@ -325,11 +325,11 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * needsroll
-    *
-    * @param incomingBytes 收入bytes
-    * @return needsRoll的结果
-    */
+     * needsroll
+     *
+     * @param incomingBytes 收入bytes
+     * @return needsRoll的结果
+     */
     private boolean needsRoll(int incomingBytes) {
         if (activeWrittenBytes + incomingBytes > config.maxSegmentBytes()) {
             return true;
@@ -394,12 +394,12 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * 将缓冲中的写入数据冲刷到文件，保证后续读路径可见。
-    *
-    * <p>当 {@code syncOnWrite=false} 时写入先进入 {@link BufferedOutputStream}，
-    * 若读路径（replay/列表segments/findbylsn）直接打开新文件流，会读不到仍未落盘的记录。
-    * 本方法在任何读操作前调用，确保写后读一致性（flush 到文件即可见，无需每次 fsync）。</p>
-    */
+     * 将缓冲中的写入数据冲刷到文件，保证后续读路径可见。
+     *
+     * <p>当 {@code syncOnWrite=false} 时写入先进入 {@link BufferedOutputStream}，
+     * 若读路径（replay/列表segments/findbylsn）直接打开新文件流，会读不到仍未落盘的记录。
+     * 本方法在任何读操作前调用，确保写后读一致性（flush 到文件即可见，无需每次 fsync）。</p>
+     */
     private void flushBuffered() {
         if (activeOut != null) {
             try {
@@ -437,10 +437,10 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * 读取checkpoint从disk
-    *
-    * @return 读取checkpoint从disk的结果
-    */
+     * 读取checkpoint从disk
+     *
+     * @return 读取checkpoint从disk的结果
+     */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();
@@ -574,13 +574,13 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * replaysegmentinto
-    * @param seg seg
-    * @param fromLsn 从lsn
-    * @param toLsn 转为lsn
-    * @param handler 处理器
-    * @param records records
-    */
+     * replaysegmentinto
+     * @param seg seg
+     * @param fromLsn 从lsn
+     * @param toLsn 转为lsn
+     * @param handler 处理器
+     * @param records records
+     */
     private void replaySegmentInto(WalSegmentInfo seg, long fromLsn, long toLsn,
                                    WalReplayHandler handler,
                                    List<WalRecord> records) throws IOException {
@@ -668,12 +668,12 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * 查找入segment
-    *
-    * @param seg seg
-    * @param lsn lsn
-    * @return find入segment的结果
-    */
+     * 查找入segment
+     *
+     * @param seg seg
+     * @param lsn lsn
+     * @return find入segment的结果
+     */
     private Optional<WalRecord> findInSegment(WalSegmentInfo seg, long lsn) throws IOException {
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(
                 Files.newInputStream(seg.path())))) {
@@ -786,13 +786,13 @@ public class SegmentWalLog implements WalLog {
     }
 
     /**
-    * 构建主体
-    *
-    * @param lsn lsn
-    * @param op op
-    * @param payload payload
-    * @return 构建主体的结果
-    */
+     * 构建主体
+     *
+     * @param lsn lsn
+     * @param op op
+     * @param payload payload
+     * @return 构建主体的结果
+     */
     private byte[] buildBody(long lsn, byte op, byte[] payload) {
         crc.reset();
         crc.update(op);

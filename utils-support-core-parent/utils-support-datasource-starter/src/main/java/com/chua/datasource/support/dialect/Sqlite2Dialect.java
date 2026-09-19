@@ -4,8 +4,8 @@ import java.util.Properties;
 public class Sqlite2Dialect extends SqlDialect {
     public static final String VERSION = "SQLite 2.x"; // 版本
     /**
-    * Sqlite2Dialect。
-    */
+     * Sqlite2Dialect。
+     */
     public Sqlite2Dialect() { super("sqlite2"); }
     /**
      * Sqlite2Dialect。

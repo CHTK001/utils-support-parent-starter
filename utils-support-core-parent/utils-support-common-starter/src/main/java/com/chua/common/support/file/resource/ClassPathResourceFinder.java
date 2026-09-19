@@ -68,11 +68,11 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-    * 按通配符模式在首个类路径根下查找匹配资源。
-    *
-    * @param name 含 {@code classpath:} 前缀的完整模式
-    * @return 匹配资源集合
-    */
+     * 按通配符模式在首个类路径根下查找匹配资源。
+     *
+     * @param name 含 {@code classpath:} 前缀的完整模式
+     * @return 匹配资源集合
+     */
     private Set<Resource> findPathMatchingResources(String name) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
 
@@ -281,8 +281,8 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
         /** 完整匹配模式 */
         private final String fullPattern;
         /**
-        * 结果
-        */
+         * 结果
+         */
         private final Set<Resource> result;
         /** 已扫描计数 */
         private final AtomicLong scannedCount;

@@ -184,19 +184,19 @@ final class ReaderUtils {
     }
 
     /**
-    * An 工具 方法 转为 allocate 和 初始化 a byte array
-    * step by step with pre-defined 限制, instead 的 allocating
-    * a large array up-front 基础 on the 长度 derived 从
-    * an 镜像 头部.
-    *
-    * @param iis a {@code ImageInputStream} 转为 decode 数据 和 存储
-    * it 入 byte array.
-    * @param length the 大小 的 数据 转为 decode
-    *
-    * @return array 的 大小 长度 When.js.js decode succeeeds
-    *
-    * @throws IOException if decoding 的 流 失败
-    */
+     * An 工具 方法 转为 allocate 和 初始化 a byte array
+     * step by step with pre-defined 限制, instead 的 allocating
+     * a large array up-front 基础 on the 长度 derived 从
+     * an 镜像 头部.
+     *
+     * @param iis a {@code ImageInputStream} 转为 decode 数据 和 存储
+     * it 入 byte array.
+     * @param length the 大小 的 数据 转为 decode
+     *
+     * @return array 的 大小 长度 When.js.js decode succeeeds
+     *
+     * @throws IOException if decoding 的 流 失败
+     */
     public static byte[] staggeredReadByteStream(ImageInputStream iis,
         int length) throws IOException {
         final int UNIT_SIZE = 1024000;

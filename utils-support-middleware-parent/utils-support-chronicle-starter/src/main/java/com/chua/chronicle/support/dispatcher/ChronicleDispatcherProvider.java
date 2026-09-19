@@ -146,10 +146,10 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 开始Consumer
-    *
-    * @param topic topic
-    */
+     * 开始Consumer
+     *
+     * @param topic topic
+     */
     private void startConsumer(String topic) {
         ChronicleQueue queue;
         try {

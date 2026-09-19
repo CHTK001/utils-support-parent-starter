@@ -268,8 +268,8 @@ public class ChatResponse {
         @JsonProperty("total_tokens") private Integer totalTokens;
 
         /**
-        * 无参构造，Jackson 用。
-        */
+         * 无参构造，Jackson 用。
+         */
         public Usage() {}
 
         /**

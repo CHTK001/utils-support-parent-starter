@@ -199,10 +199,10 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-    * 交互式 Shell 会话，为每个 SSH 客户端处理命令输入。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 交互式 Shell 会话，为每个 SSH 客户端处理命令输入。
+     * @author CH
+     * @since 4.0.0
+     */
     private class InteractiveShell implements Command, Runnable {
 
         /**
@@ -317,10 +317,10 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-        * 打印命令帮助信息。
-        *
-        * @param writer 输出写入器
-        */
+         * 打印命令帮助信息。
+         *
+         * @param writer 输出写入器
+         */
         private void printHelp(PrintWriter writer) {
             writer.println("Available commands:");
             writer.println("  help              显示帮助信息");
@@ -347,10 +347,10 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-        * 创建 ssh服务端 构建器。
-        *
-        * @return 构建器实例
-        */
+     * 创建 ssh服务端 构建器。
+     *
+     * @return 构建器实例
+     */
     public static Builder builder() {
         return new Builder();
     }

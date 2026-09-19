@@ -40,12 +40,12 @@ public interface Flyway {
     String SPI_NAME = "flyway";
 
     /**
-    * 添加迁移脚本位置。
-    * <p>支持文件系统路径（{@code /path/to/migrations}）与 classpath 前缀（{@code classpath:db/migration}）。</p>
-    *
-    * @param location 脚本位置
-    * @return this
-    */
+     * 添加迁移脚本位置。
+     * <p>支持文件系统路径（{@code /path/to/migrations}）与 classpath 前缀（{@code classpath:db/migration}）。</p>
+     *
+     * @param location 脚本位置
+     * @return this
+     */
     Flyway location(String location);
 
     /**

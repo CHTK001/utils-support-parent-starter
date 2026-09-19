@@ -135,15 +135,15 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
-    * 注册注解处理器。
-    * <p>
-    * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
-    * 自动绑定到对应事件。
-    * </p>
-    *
-    * @param handler 处理器对象
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册注解处理器。
+     * <p>
+     * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
+     * 自动绑定到对应事件。
+     * </p>
+     *
+     * @param handler 处理器对象
+     * @return 当前服务器实例，支持链式调用
+     */
     @Override
     public SocketIOServer registerBean(Object handler) {
         super.registerBean(handler);
@@ -427,10 +427,10 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
-        * 轻量 Socket.IO 响应适配。
-        * @author CH
-        * @since 4.0.0
-        */
+     * 轻量 Socket.IO 响应适配。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
 
         /**

@@ -56,8 +56,8 @@ public class PermissionUtils {
     }
 
     /**
-        * POSIX权限到整数的映射表。
-        */
+     * POSIX权限到整数的映射表。
+     */
     private static final Map<PosixFilePermission, Integer> POSIX_PERMISSION_TO_INTEGER = new HashMap<>();
 
     static {

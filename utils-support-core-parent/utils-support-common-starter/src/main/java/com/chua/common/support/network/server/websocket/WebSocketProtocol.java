@@ -31,11 +31,11 @@ public final class WebSocketProtocol {
     }
 
     /**
-    * 判断请求是否为 WebSocket 升级请求。
-    *
-    * @param request 服务器请求
-    * @return true 表示携带 {@code Upgrade: websocket} 头
-    */
+     * 判断请求是否为 WebSocket 升级请求。
+     *
+     * @param request 服务器请求
+     * @return true 表示携带 {@code Upgrade: websocket} 头
+     */
     public static boolean isUpgradeRequest(ServerRequest request) {
         String upgrade = request.getHeader("Upgrade");
         if (upgrade == null || !"websocket".equalsIgnoreCase(upgrade.trim())) {

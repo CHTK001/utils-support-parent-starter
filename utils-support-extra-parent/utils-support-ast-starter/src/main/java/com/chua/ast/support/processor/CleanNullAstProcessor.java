@@ -43,10 +43,10 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-    * 处理参数
-    *
-    * @param paramElement 参数element
-    */
+     * 处理参数
+     *
+     * @param paramElement 参数element
+     */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {

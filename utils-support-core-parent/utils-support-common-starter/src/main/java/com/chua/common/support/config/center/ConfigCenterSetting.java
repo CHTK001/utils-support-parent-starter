@@ -51,10 +51,10 @@ public class ConfigCenterSetting {
     private int connectionTimeout = 3000;
 
     /**
-    * 读取超时时间（毫秒）。
-    *
-    * <p>等待配置中心响应的最大时间，默认 5000ms。</p>
-    */
+     * 读取超时时间（毫秒）。
+     *
+     * <p>等待配置中心响应的最大时间，默认 5000ms。</p>
+     */
     @Builder.Default
     /**
      * 读取超时时间（毫秒）
@@ -71,10 +71,10 @@ public class ConfigCenterSetting {
     private int retryCount = 3;
 
     /**
-    * 是否启用 SSL。
-    *
-    * <p>启用时使用 HTTPS 协议连接配置中心。</p>
-    */
+     * 是否启用 SSL。
+     *
+     * <p>启用时使用 HTTPS 协议连接配置中心。</p>
+     */
     @Builder.Default
     /** SSL是否启用 */
     private boolean sslEnabled = false;

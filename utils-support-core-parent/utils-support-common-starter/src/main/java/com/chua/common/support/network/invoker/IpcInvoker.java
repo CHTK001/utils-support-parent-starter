@@ -184,11 +184,11 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
 
         @Override
         /**
-        * 调用
-        * @param proxy proxy
-        * @param method method
-        * @param args args
-        */
+         * 调用
+         * @param proxy proxy
+         * @param method method
+         * @param args args
+         */
         public Object invoke(Object proxy, Method method, Object[] args) {
             if (method.getDeclaringClass() == Object.class) {
                 try {
@@ -350,10 +350,10 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
                 private int index = 0;
                 @Override
                 /**
-                * Do过滤
-                * @param request request
-                * @param response response
-                */
+                 * Do过滤
+                 * @param request request
+                 * @param response response
+                 */
                 public void doFilter(com.chua.common.support.network.server.request.ServerRequest request,
                                      com.chua.common.support.network.server.response.ServerResponse response) {
                     if (index < filters.size()) {

@@ -130,12 +130,12 @@ public class EfficientSamSegmentTranslator {
     }
 
     /**
-    * 用提示框对图像做目标分割，返回与原图同尺寸的灰度掩码图。
-    *
-    * @param input 输入图像
-    * @param box   提示框 [x1, y1, x2, y2]（原图像素坐标）
-    * @return 灰度掩码图（0=背景，255=前景）
-    */
+     * 用提示框对图像做目标分割，返回与原图同尺寸的灰度掩码图。
+     *
+     * @param input 输入图像
+     * @param box   提示框 [x1, y1, x2, y2]（原图像素坐标）
+     * @return 灰度掩码图（0=背景，255=前景）
+     */
     public Image segment(Image input, float[] box) throws Exception {
         if (box == null || box.length != 4) {
             throw new IllegalArgumentException("box 必须为 [x1, y1, x2, y2]");

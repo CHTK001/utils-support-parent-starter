@@ -306,9 +306,9 @@ public interface NmapScanner {
         private long responseTime;
 
         /**
-        * 获取端口。
-        * @return 获取端口的结果
-        */
+         * 获取端口。
+         * @return 获取端口的结果
+         */
         public int getPort() { return port; }
         /**
          * 设置端口。
@@ -420,9 +420,9 @@ public interface NmapScanner {
         private int ttl;
 
         /**
-        * 获取ip。
-        * @return 获取ip的结果
-        */
+         * 获取ip。
+         * @return 获取ip的结果
+         */
         public String getIp() { return ip; }
         /**
          * 设置ip。
@@ -518,9 +518,9 @@ public interface NmapScanner {
         private int confidence;
 
         /**
-        * 获取端口。
-        * @return 获取端口的结果
-        */
+         * 获取端口。
+         * @return 获取端口的结果
+         */
         public int getPort() { return port; }
         /**
          * 设置端口。
@@ -611,9 +611,9 @@ public interface NmapScanner {
         private List<String> cpes;
 
         /**
-        * 获取名称。
-        * @return 获取名称的结果
-        */
+         * 获取名称。
+         * @return 获取名称的结果
+         */
         public String getName() { return name; }
         /**
          * 设置名称。
@@ -700,9 +700,9 @@ public interface NmapScanner {
         private int openPorts;
 
         /**
-        * 获取当前端口。
-        * @return 获取当前端口的结果
-        */
+         * 获取当前端口。
+         * @return 获取当前端口的结果
+         */
         public int getCurrentPort() { return currentPort; }
         /**
          * 设置当前端口。
@@ -773,9 +773,9 @@ public interface NmapScanner {
         private ScanType scanType = ScanType.TCP_CONNECT;
 
         /**
-        * 获取超时。
-        * @return 获取超时的结果
-        */
+         * 获取超时。
+         * @return 获取超时的结果
+         */
         public int getTimeout() { return timeout; }
         /**
          * 设置超时。

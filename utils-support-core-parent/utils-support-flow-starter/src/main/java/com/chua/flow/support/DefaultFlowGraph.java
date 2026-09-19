@@ -137,10 +137,10 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     /**
-    * 校验节点是否已注册到流程。
-    *
-    * @param nodeId 节点 标识
-    */
+     * 校验节点是否已注册到流程。
+     *
+     * @param nodeId 节点 标识
+     */
     private void checkNode(String nodeId) {
         if (!flow.containsNode(nodeId)) {
             throw new FlowException("节点未添加，请先调用 addNode: " + nodeId);

@@ -70,11 +70,11 @@ public class Http2ProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-    * 转为帧类型名称
-    *
-    * @param type 类型
-    * @return 转为帧类型名称的结果
-    */
+     * 转为帧类型名称
+     *
+     * @param type 类型
+     * @return 转为帧类型名称的结果
+     */
     private static String toFrameTypeName(int type) {
         return switch (type) {
             case 0x0 -> "DATA";

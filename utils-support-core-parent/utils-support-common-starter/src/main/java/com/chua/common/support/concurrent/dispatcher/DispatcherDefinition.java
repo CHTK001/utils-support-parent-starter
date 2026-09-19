@@ -29,8 +29,8 @@ public class DispatcherDefinition {
     private final Object subscriber;
 
     /**
-    * 目标方法
-    */
+     * 目标方法
+     */
     private final Method method;
 
     /**
@@ -41,12 +41,12 @@ public class DispatcherDefinition {
     private final List<String> topics;
 
     /**
-    * 创建订阅定义实例。
-    *
-    * @param subscriber 订阅者对象实例
-    * @param method 目标订阅方法
-    * @param topics 订阅主题列表
-    */
+     * 创建订阅定义实例。
+     *
+     * @param subscriber 订阅者对象实例
+     * @param method 目标订阅方法
+     * @param topics 订阅主题列表
+     */
     public DispatcherDefinition(Object subscriber, Method method, List<String> topics) {
         this.subscriber = subscriber;
         this.method = method;

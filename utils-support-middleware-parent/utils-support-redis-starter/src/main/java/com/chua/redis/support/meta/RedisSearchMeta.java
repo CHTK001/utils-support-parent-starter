@@ -26,11 +26,11 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     private final RedisSearchEngineImpl searchEngine;
 
     /**
-    * 创建 redis搜索meta 实例
-    * @param metaData meta数据
-    * @param engine redi搜索engine
-    * @param engine engine
-    */
+     * 创建 redis搜索meta 实例
+     * @param metaData meta数据
+     * @param engine redi搜索engine
+     * @param engine engine
+     */
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
         super(metaData, engine);
         this.searchEngine = new RedisSearchEngineImpl(engine);
@@ -76,13 +76,13 @@ public class RedisSearchMeta extends AbstractMetaSearch {
 
     @Override
     /**
-    * 优化
-    *
-    * @param indexName 索引名称
-    * @return 优化的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 优化
+     *
+     * @param indexName 索引名称
+     * @return 优化的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public boolean optimize(String indexName) {
         return true;
     }

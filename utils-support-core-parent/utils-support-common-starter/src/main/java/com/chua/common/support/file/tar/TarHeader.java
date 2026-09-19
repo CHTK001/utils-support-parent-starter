@@ -160,8 +160,8 @@ public class TarHeader {
     public StringBuffer namePrefix;
 
     /**
-    * 构造 TarHeader，初始化 UStar 魔数、用户名等默认值。
-    */
+     * 构造 TarHeader，初始化 UStar 魔数、用户名等默认值。
+     */
     public TarHeader() {
         this.magic = new StringBuffer(TarHeader.USTAR_MAGIC);
         this.name = new StringBuffer();

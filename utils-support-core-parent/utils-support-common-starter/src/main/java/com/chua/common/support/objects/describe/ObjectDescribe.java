@@ -22,9 +22,9 @@ public class ObjectDescribe {
     private final Class<?> objectClass; // 对象类
 
     /**
-    * 创建 对象describe 实例
-    * @param object 对象
-    */
+     * 创建 对象describe 实例
+     * @param object 对象
+     */
     private ObjectDescribe(Object object) {
         this.object = object;
         this.objectClass = object != null ? object.getClass() : null;

@@ -57,8 +57,8 @@ public class AlibabaImageClient implements ImageClient {
     private static final int CONNECT_TIMEOUT_SECONDS = 30;
 
     /**
-    * 任务轮询间隔（毫秒）
-    */
+     * 任务轮询间隔（毫秒）
+     */
     private static final long POLL_INTERVAL_MS = 2000;
 
     /**
@@ -393,10 +393,10 @@ public class AlibabaImageClient implements ImageClient {
     }
 
     /**
-    * 构建图片尺寸字符串
-    *
-    * @return 如 "1024x1024"
-    */
+     * 构建图片尺寸字符串
+     *
+     * @return 如 "1024x1024"
+     */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;

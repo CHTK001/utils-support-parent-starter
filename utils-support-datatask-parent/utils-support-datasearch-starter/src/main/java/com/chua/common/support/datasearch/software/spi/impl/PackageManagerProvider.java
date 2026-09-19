@@ -42,9 +42,9 @@ public class PackageManagerProvider {
     protected static final String PREFIX = "";
 
     /**
-    * 获取提供者名称
-    * @return 名称的结果
-    */
+     * 获取提供者名称
+     * @return 名称的结果
+     */
     public String name() {
         return NAME;
     }
@@ -362,11 +362,11 @@ public class PackageManagerProvider {
     }
 
     /**
-            * uninstallsoftware
-            *
-            * @param packageId 包标识
-            * @return uninstallSoftware的结果
-            */
+     * uninstallsoftware
+     *
+     * @param packageId 包标识
+     * @return uninstallSoftware的结果
+     */
     protected boolean uninstallSoftware(String packageId) {
         log.info("开始卸载软件包: {}", packageId);
         List<PackageManager.Type> availablePms = detectAvailable();
@@ -458,12 +458,12 @@ public class PackageManagerProvider {
     }
 
     /**
-            * 获取搜索命令
-            *
-            * @param pm pm
-            * @param keyword keyword
-            * @return 获取搜索命令的结果
-            */
+     * 获取搜索命令
+     *
+     * @param pm pm
+     * @param keyword keyword
+     * @return 获取搜索命令的结果
+     */
     protected String getSearchCommand(PackageManager.Type pm, String keyword) {
         return switch (pm) {
             case WINGET -> "winget search \"" + keyword + "\" --accept-source-agreements";

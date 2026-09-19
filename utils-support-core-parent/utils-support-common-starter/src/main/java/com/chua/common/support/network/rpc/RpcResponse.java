@@ -59,16 +59,16 @@ public class RpcResponse implements Serializable {
     private String exceptionType;
 
     /** 远程调用的失败原因描述
-    *
-    * <p>当且仅当 {@link #success} 为 {@code false} 时，此字段存放失败原因。</p>
-    *
-    * <p>常见错误信息示例：</p>
-    * <ul>
-    *   <li>服务端抛出的业务异常消息，如 {@code "余额不足"}</li>
-    *   <li>定位服务方法失败，如 {@code "Method not found: findByEmail"}</li>
-    *   <li>方法调用反射异常，如 {@code "java.lang.reflect.InvocationTargetException"}</li>
-    *   <li>参数类型不匹配，如 {@code "No matching method found for [String, Integer]"}</li>
-    * </ul>
-    */
+     *
+     * <p>当且仅当 {@link #success} 为 {@code false} 时，此字段存放失败原因。</p>
+     *
+     * <p>常见错误信息示例：</p>
+     * <ul>
+     *   <li>服务端抛出的业务异常消息，如 {@code "余额不足"}</li>
+     *   <li>定位服务方法失败，如 {@code "Method not found: findByEmail"}</li>
+     *   <li>方法调用反射异常，如 {@code "java.lang.reflect.InvocationTargetException"}</li>
+     *   <li>参数类型不匹配，如 {@code "No matching method found for [String, Integer]"}</li>
+     * </ul>
+     */
     private String error;
 }

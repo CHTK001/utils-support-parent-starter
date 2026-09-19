@@ -65,10 +65,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     /**
-    * 获取所有 源 实例。
-    *
-    * @return Source 列表
-    */
+     * 获取所有 源 实例。
+     *
+     * @return Source 列表
+     */
     public List<DataSyncAgentSource> sources() {
         return Collections.unmodifiableList(sources);
     }
@@ -85,10 +85,10 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     /**
-    * 获取所有 Sink 实例。
-    *
-    * @return Sink 列表
-    */
+     * 获取所有 Sink 实例。
+     *
+     * @return Sink 列表
+     */
     public List<DataSyncAgentSink> sinks() {
         return Collections.unmodifiableList(sinks);
     }

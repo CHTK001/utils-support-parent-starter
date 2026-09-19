@@ -4,8 +4,8 @@ import java.util.Properties;
 public class SqlServer2008Dialect extends SqlDialect {
     public static final String VERSION = "SQL Server 2008"; // 版本
     /**
-    * sql服务端2008Dialect。
-    */
+     * sql服务端2008Dialect。
+     */
     public SqlServer2008Dialect() { super("sqlserver2008"); }
     /**
      * sql服务端2008Dialect。

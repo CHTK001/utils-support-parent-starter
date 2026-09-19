@@ -35,8 +35,8 @@ public class SshDeployTarget implements MavenDeployTarget {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SshDeployTarget.class);
 
     /**
-    * SSH 主机
-    */
+     * SSH 主机
+     */
     private final String host;
 
     /**

@@ -64,11 +64,11 @@ public class SpyBootstrap {
     }
 
     /**
-    * 初始化 Spy 引擎。
-    *
-    * @param args 智能体 参数
-    * @param inst Instrumentation 实例
-    * @return 是否成功
+     * 初始化 Spy 引擎。
+     *
+     * @param args 智能体 参数
+     * @param inst Instrumentation 实例
+     * @return 是否成功
      */
     public static boolean init(String args, Instrumentation inst) {
         if (initialized) {

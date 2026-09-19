@@ -570,10 +570,10 @@ public final class Branch<T> {
         private final Branch<R> owner;
 
         /**
-        * When.js群体。
-        * @param owner owner
-        * @return When.js群体的结果
-        */
+         * When.js群体。
+         * @param owner owner
+         * @return When.js群体的结果
+         */
         private WhenGroup(Branch<R> owner) {
             this.owner = owner;
         }

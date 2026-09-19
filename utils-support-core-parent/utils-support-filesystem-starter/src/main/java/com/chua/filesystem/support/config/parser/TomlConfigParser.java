@@ -32,12 +32,12 @@ public class TomlConfigParser implements ConfigParser {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 解析
-    *
-    * @param urlPath url路径
-    * @param is 是否
-    * @return 解析的结果
-    */
+     * 解析
+     *
+     * @param urlPath url路径
+     * @param is 是否
+     * @return 解析的结果
+     */
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             Map<String, Object> map = TOML_MAPPER.readValue(is, Map.class);

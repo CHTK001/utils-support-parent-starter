@@ -455,12 +455,12 @@ public class OpenAiChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();

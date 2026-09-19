@@ -79,12 +79,12 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
 
     @Override
     /**
-    * 执行转换
-    * @param inputStream 输入流
-    * @param outputStream 输出流
-    * @param sourceFile 源文件
-    * @param targetFile Target文件
-    */
+     * 执行转换
+     * @param inputStream 输入流
+     * @param outputStream 输出流
+     * @param sourceFile 源文件
+     * @param targetFile Target文件
+     */
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
         try {

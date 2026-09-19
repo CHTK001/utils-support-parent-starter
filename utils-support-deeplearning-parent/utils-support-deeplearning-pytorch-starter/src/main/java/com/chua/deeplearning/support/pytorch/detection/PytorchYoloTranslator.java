@@ -238,13 +238,13 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-    * 简易 NMS。
-    *
-    * @param boxes         框
-    * @param probabilities 置信度
-    * @param threshold     iou 阈值
-    * @return 保留索引
-    */
+     * 简易 NMS。
+     *
+     * @param boxes         框
+     * @param probabilities 置信度
+     * @param threshold     iou 阈值
+     * @return 保留索引
+     */
     private static List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float threshold) {
         int n = boxes.size();
         List<Integer> order = new ArrayList<>(n);

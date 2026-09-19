@@ -36,12 +36,12 @@ public class ServerEntry {
     private String scatterId;
 
     /**
-    * 便捷构造：HTTP 服务。
-    * @param servicePath 服务路径
-    * @param host 主机
-    * @param port 端口
-    * @return http的结果
-    */
+     * 便捷构造：HTTP 服务。
+     * @param servicePath 服务路径
+     * @param host 主机
+     * @param port 端口
+     * @return http的结果
+     */
     public static ServerEntry http(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "http", null);
     }

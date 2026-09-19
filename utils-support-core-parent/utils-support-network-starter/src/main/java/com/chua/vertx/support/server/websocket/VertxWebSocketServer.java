@@ -402,13 +402,13 @@ public class VertxWebSocketServer extends AbstractServer {
 
         @Override
         /**
-        * 设置Attribute
-        *
-        * @param name 名称
-        * @param value 值
-        * @author CH
-        * @since 4.0.0
-        */
+         * 设置Attribute
+         *
+         * @param name 名称
+         * @param value 值
+         * @author CH
+         * @since 4.0.0
+         */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }

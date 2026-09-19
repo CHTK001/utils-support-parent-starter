@@ -50,13 +50,13 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
     }
 
     /**
-    * 创建 barcodedetectionyolov8Translator 实例
-    * @param inputSize 输入大小
-    * @param threshold float
-    * @param threshold float
-    * @param threshold 阈值
-    * @param nmsThreshold nms阈值
-    */
+     * 创建 barcodedetectionyolov8Translator 实例
+     * @param inputSize 输入大小
+     * @param threshold float
+     * @param threshold float
+     * @param threshold 阈值
+     * @param nmsThreshold nms阈值
+     */
     public BarcodeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

@@ -71,8 +71,8 @@ public class ReverseProxyServer implements AutoCloseable {
     private String excludeServerId;
 
     /**
-    * 构造反向代理（本机随机端口，超时 30 秒）。
-    */
+     * 构造反向代理（本机随机端口，超时 30 秒）。
+     */
     public ReverseProxyServer() {
         this(DEFAULT_HOST, 0, DEFAULT_TIMEOUT_SECONDS);
     }

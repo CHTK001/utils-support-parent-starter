@@ -63,11 +63,11 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     /**
-    * 打开
-    *
-    * @param model 模型
-    * @return 打开的结果
-    */
+     * 打开
+     *
+     * @param model 模型
+     * @return 打开的结果
+     */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
         for (String n : names) {
@@ -91,13 +91,13 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     /**
-    * 转为标识
-    *
-    * @param manager 管理器
-    * @param tokens 令牌
-    * @param name 名称
-    * @return 转为标识的结果
-    */
+     * 转为标识
+     *
+     * @param manager 管理器
+     * @param tokens 令牌
+     * @param name 名称
+     * @return 转为标识的结果
+     */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
         List<Long> ids = new ArrayList<>();
         if (tokens != null) {

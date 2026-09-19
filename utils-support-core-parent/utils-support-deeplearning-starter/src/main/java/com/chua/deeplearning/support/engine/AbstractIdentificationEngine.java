@@ -74,8 +74,8 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-    * 通过 模型registry 静态注册 + SPI 模型提供者 发现模型定义。
-    */
+     * 通过 模型registry 静态注册 + SPI 模型提供者 发现模型定义。
+     */
     private void discoverModels() {
         try {
             ModelRegistry.discoverAll();
@@ -215,12 +215,12 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取
-    *
-    * @param name 名称
-    * @param target Target
-    * @return 获取的结果
-    */
+     * 获取
+     *
+     * @param name 名称
+     * @param target Target
+     * @return 获取的结果
+     */
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -306,14 +306,14 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     private static volatile IdentificationEngine INSTANCE;
 
     /**
-    * 根据模型注册条目的能力接口生成能力标签列表。
-    *
-    * <p>优先使用能力接口映射（如 {@code ImageDetector → detect}）；
-    * 未声明能力接口或无法识别时，回退按名称约定识别（OCR/版面/姿态等）。</p>
-    *
-    * @param entry 模型注册条目
-    * @return 能力标签列表（可为空列表）
-    */
+     * 根据模型注册条目的能力接口生成能力标签列表。
+     *
+     * <p>优先使用能力接口映射（如 {@code ImageDetector → detect}）；
+     * 未声明能力接口或无法识别时，回退按名称约定识别（OCR/版面/姿态等）。</p>
+     *
+     * @param entry 模型注册条目
+     * @return 能力标签列表（可为空列表）
+     */
     private static List<String> capabilityLabels(ModelRegistry.Entry entry) {
         List<String> labels = new ArrayList<>();
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(entry.capabilityInterface());

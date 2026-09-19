@@ -132,11 +132,11 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     }
 
     /**
-    * 向所有注册的监听器分发事件。
-    *
-    * @param event    事件类型
-    * @param fileName 触发事件的文件名
-    */
+     * 向所有注册的监听器分发事件。
+     *
+     * @param event    事件类型
+     * @param fileName 触发事件的文件名
+     */
     private void fire(WatcherEvent event, String fileName) {
         EventObserver observer = EventObserver.builder()
                 .currentPath(listenPath)
@@ -167,11 +167,11 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     }
 
     /**
-    * 获取指定路径下的所有条目。
-    *
-    * @param path 路径
-    * @return 条目列表，返回 null 表示获取失败
-    */
+     * 获取指定路径下的所有条目。
+     *
+     * @param path 路径
+     * @return 条目列表，返回 null 表示获取失败
+     */
     protected abstract List<T> listAndModified(String path);
 
     /**

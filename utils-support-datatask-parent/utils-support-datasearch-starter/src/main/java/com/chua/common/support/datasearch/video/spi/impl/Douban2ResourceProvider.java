@@ -41,8 +41,8 @@ public class Douban2ResourceProvider extends AbstractResourceProvider {
     private static final int MAX_RESULT_COUNT = 10;
 
     /**
-    * 创建 douban2资源提供器 实例（无参构造，使用默认数据源）。
-    */
+     * 创建 douban2资源提供器 实例（无参构造，使用默认数据源）。
+     */
     public Douban2ResourceProvider() {
         super();
     }

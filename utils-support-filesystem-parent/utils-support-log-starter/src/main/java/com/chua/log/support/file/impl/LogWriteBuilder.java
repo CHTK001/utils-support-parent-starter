@@ -67,10 +67,10 @@ public class LogWriteBuilder extends WriteBuilder {
     private String lineSeparator = System.lineSeparator();
 
     /**
-    * 构造日志写入构建器。
-    *
-    * @param file 目标日志文件
-    */
+     * 构造日志写入构建器。
+     *
+     * @param file 目标日志文件
+     */
     public LogWriteBuilder(File file) {
         super(file);
     }
@@ -169,11 +169,11 @@ public class LogWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 追加写入单条文本。
-    *
-    * @param line 文本行
-    * @return 当前构建器
-    */
+     * 追加写入单条文本。
+     *
+     * @param line 文本行
+     * @return 当前构建器
+     */
     public LogWriteBuilder write(String line) {
         pending.add(line);
         return this;

@@ -326,10 +326,10 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 获取配置信息
-    *
-    * @return 配置对象
-    */
+     * 获取配置信息
+     *
+     * @return 配置对象
+     */
     public LaMaConfiguration getConfig() {
         return config;
     }
@@ -408,11 +408,11 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     }
 
     /**
-    * 创建默认lama滤镜
-    *
-    * @param modelPath 模型路径
-    * @return LaMa滤镜实例
-    */
+     * 创建默认lama滤镜
+     *
+     * @param modelPath 模型路径
+     * @return LaMa滤镜实例
+     */
     public static LaMaImageFilter createDefault(String modelPath) {
         return new LaMaImageFilter(modelPath);
     }

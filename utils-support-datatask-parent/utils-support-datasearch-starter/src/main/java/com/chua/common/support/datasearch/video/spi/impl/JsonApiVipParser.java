@@ -64,12 +64,12 @@ public class JsonApiVipParser implements VipParser {
     }
 
     /**
-    * 解析 JSON 响应中的播放地址。
-    *
-    * @param root JSON 根节点
-    * @param url  原始 URL
-    * @return 解析结果
-    */
+     * 解析 JSON 响应中的播放地址。
+     *
+     * @param root JSON 根节点
+     * @param url  原始 URL
+     * @return 解析结果
+     */
     @SuppressWarnings("unchecked")
     private VipParseResult parseJsonResponse(JsonNode root, String url) {
         // 尝试从标准 JSON API 响应提取播放地址

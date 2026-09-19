@@ -19,11 +19,11 @@ public class NetAddress {
     }
 
     /**
-    * 构造网络地址。
-    *
-    * @param host 主机地址
-    * @param port 端口号
-    */
+     * 构造网络地址。
+     *
+     * @param host 主机地址
+     * @param port 端口号
+     */
     public NetAddress(String host, int port) {
         this.host = host;
         this.port = port;

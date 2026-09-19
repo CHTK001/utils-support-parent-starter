@@ -316,8 +316,8 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     }
 
     /**
-    * 执行待处理的映射。
-    */
+     * 执行待处理的映射。
+     */
     private void executePendingMappings() {
         try {
             List<DataSyncMapping> mappings = dataSyncServer.mappingManager().getMappings();

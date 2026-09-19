@@ -44,10 +44,10 @@ public class ChatRequest {
     private Map<String, Object> extra; // extra
 
     /**
-    * 创建请求 构建器。
-    *
-    * @return Builder 实例
-    */
+     * 创建请求 构建器。
+     *
+     * @return Builder 实例
+     */
     public static Builder builder() { return new Builder(); }
 
     /**
@@ -186,11 +186,11 @@ public class ChatRequest {
         private final ChatRequest req = new ChatRequest();
 
         /**
-        * 设置模型。
-        *
-        * @param model 模型名
-        * @return 当前 构建器
-        */
+         * 设置模型。
+         *
+         * @param model 模型名
+         * @return 当前 构建器
+         */
         public Builder model(String model) {
             req.model = model;
             return this;
@@ -306,8 +306,8 @@ public class ChatRequest {
         @JsonProperty("tool_calls") public List<ToolCall> toolCalls;
 
         /**
-        * 无参构造，Jackson 用。
-        */
+         * 无参构造，Jackson 用。
+         */
         public UserMessage() {}
 
         /**
@@ -429,8 +429,8 @@ public class ChatRequest {
         @JsonProperty("content") public String content;
 
         /**
-        * 无参构造，Jackson 用。
-        */
+         * 无参构造，Jackson 用。
+         */
         public ToolMessage() {}
 
         /**

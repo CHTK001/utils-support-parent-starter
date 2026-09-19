@@ -161,11 +161,11 @@ public class FileSystemLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 打开文件资源，包括创建 RandomAccessFile 和获取 FileChannel。
-    * 如果文件不存在，会自动创建。
-    *
-    * @throws IOException 如果打开文件失败。
-    */
+     * 打开文件资源，包括创建 RandomAccessFile 和获取 FileChannel。
+     * 如果文件不存在，会自动创建。
+     *
+     * @throws IOException 如果打开文件失败。
+     */
     private void openResources() throws IOException {
         randomAccessFile = new RandomAccessFile(file, "rw");
         fileChannel = randomAccessFile.getChannel();

@@ -32,11 +32,11 @@ public class StorageConfig {
     private Map<String, String> properties = new HashMap<>();
 
     /**
-    * 放入
-    *
-    * @param key 键
-    * @param value 值
-    * @return 放入的结果
+     * 放入
+     *
+     * @param key 键
+     * @param value 值
+     * @return 放入的结果
      */
     public StorageConfig put(String key, String value) {
         properties.put(key, value);

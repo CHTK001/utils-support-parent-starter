@@ -49,9 +49,9 @@ public class Query {
     private boolean errorOnly;
 
     /**
-    * 全量查询（限制=100，无其他过滤）
-    *
-    * @return 全部的结果
+     * 全量查询（限制=100，无其他过滤）
+     *
+     * @return 全部的结果
      */
     public static Query all() {
         return new Query();

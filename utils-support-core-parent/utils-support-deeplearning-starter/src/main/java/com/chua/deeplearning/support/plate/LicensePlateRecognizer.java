@@ -172,8 +172,8 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     private final ModelSetting setting;
 
     /**
-    * 识别阈值。
-    */
+     * 识别阈值。
+     */
     private Float threshold;
 
     /**
@@ -229,11 +229,11 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Recognize
-    *
-    * @param imageData 镜像数据
-    * @return recognize的结果
-    */
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] imageData) {
         return recognizePlate(imageData).plateNo();
     }

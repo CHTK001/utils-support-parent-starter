@@ -77,12 +77,12 @@ public class LstmAttentionBehaviorTranslator {
     private OrtSession session;
 
     /**
-    * 行为预测结果。
-    *
-    * @param classIndex   预测类别下标，范围 [0, num类)
-    * @param probabilities softmax 后的各类别概率，长度等于 num类，和为 1
-    * @return 预测的结果
-    */
+     * 行为预测结果。
+     *
+     * @param classIndex   预测类别下标，范围 [0, num类)
+     * @param probabilities softmax 后的各类别概率，长度等于 num类，和为 1
+     * @return 预测的结果
+     */
     public record Prediction(int classIndex, float[] probabilities) {
     }
 

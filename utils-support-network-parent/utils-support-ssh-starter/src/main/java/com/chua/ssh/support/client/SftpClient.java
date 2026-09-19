@@ -242,8 +242,8 @@ public class SftpClient implements AutoCloseable {
     @Getter
     public static class DownloadOperation {
         /**
-        * 客户端实例
-        */
+         * 客户端实例
+         */
         private final SftpClient client;
         /**
          * 远程文件路径
@@ -295,8 +295,8 @@ public class SftpClient implements AutoCloseable {
     @Getter
     public static class ListOperation {
         /**
-        * 客户端实例
-        */
+         * 客户端实例
+         */
         private final SftpClient client;
         /**
          * 路径
@@ -393,8 +393,8 @@ public class SftpClient implements AutoCloseable {
     @Getter
     public static class RmOperation {
         /**
-        * 客户端实例
-        */
+         * 客户端实例
+         */
         private final SftpClient client;
         /**
          * 路径
@@ -443,8 +443,8 @@ public class SftpClient implements AutoCloseable {
     @Getter
     public static class RenameOperation {
         /**
-        * 客户端实例
-        */
+         * 客户端实例
+         */
         private final SftpClient client;
         /**
          * 原路径
@@ -489,8 +489,8 @@ public class SftpClient implements AutoCloseable {
     @Getter
     public static class StatOperation {
         /**
-        * 客户端实例
-        */
+         * 客户端实例
+         */
         private final SftpClient client;
         /**
          * 路径

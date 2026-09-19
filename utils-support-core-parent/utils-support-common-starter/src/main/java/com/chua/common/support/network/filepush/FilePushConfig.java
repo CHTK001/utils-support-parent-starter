@@ -54,8 +54,8 @@ public class FilePushConfig {
     /** 消息类型：NACK / 错误（服务端 → 客户端） */
     public static final byte MSG_ERROR = 0x11;
     /**
-    * 消息类型：会话清理指令（客户端 → 服务端，删除目标目录中本地已不存在的文件）
-    */
+     * 消息类型：会话清理指令（客户端 → 服务端，删除目标目录中本地已不存在的文件）
+     */
     public static final byte MSG_CLEANUP = 0x12;
     /**
      * 消息类型：索取目标目录现有文件清单（客户端 → 服务端，用于增量同步）
@@ -113,10 +113,10 @@ public class FilePushConfig {
     /** 包含模式列表（子串匹配），空表示全部包含 */
     private List<String> includes;
     /**
-    * 归一化分片大小。
-    *
-    * @return 有效分片大小（字节）
-    */
+     * 归一化分片大小。
+     *
+     * @return 有效分片大小（字节）
+     */
     public int effectiveChunkSize() {
         return chunkSize > 0 ? chunkSize : DEFAULT_CHUNK_SIZE;
     }

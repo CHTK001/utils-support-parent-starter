@@ -61,9 +61,9 @@ public class JdkCompiler implements Compiler {
         private final Map<String, MemoryByteCode> byteCodes = new HashMap<String, MemoryByteCode>();
 
         /**
-        * 创建 DynamicClassLoader 实例
-        * @param classLoader classLoader
-        */
+         * 创建 DynamicClassLoader 实例
+         * @param classLoader classLoader
+         */
         public DynamicClassLoader(ClassLoader classLoader) {
             super(classLoader);
         }
@@ -127,8 +127,8 @@ public class JdkCompiler implements Compiler {
         /** 父级类路径位置名称 */
         private static final String[] SUPER_LOCATION_NAMES = {StandardLocation.PLATFORM_CLASS_PATH.name(),
                 /**
-        * JPMS StandardLocation.SYSTEM_MODULES *
-        */
+                 * JPMS StandardLocation.SYSTEM_MODULES *
+                 */
                 "SYSTEM_MODULES"};
         
         // 用于在 ClassLoader 中查找包内部类的工具
@@ -143,10 +143,10 @@ public class JdkCompiler implements Compiler {
         private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
         /**
-        * 创建 DynamicJavaFileManager 实例
-        * @param fileManager fileManager
-        * @param DynamicClassLoader DynamicClassLoader
-        */
+         * 创建 DynamicJavaFileManager 实例
+         * @param fileManager fileManager
+         * @param DynamicClassLoader DynamicClassLoader
+         */
         public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
             super(fileManager);
             this.classLoader = classLoader;
@@ -233,11 +233,11 @@ public class JdkCompiler implements Compiler {
             private final Iterable<T> first, next;
 
             /**
-            * 创建 IterableJoin 实例
-            * @param first first
-            * @param Iterable Iterable
-            * @param next next
-            */
+             * 创建 IterableJoin 实例
+             * @param first first
+             * @param Iterable Iterable
+             * @param next next
+             */
             public IterableJoin(Iterable<T> first, Iterable<T> next) {
                 this.first = first;
                 this.next = next;
@@ -256,11 +256,11 @@ public class JdkCompiler implements Compiler {
             private final Iterator<T> first, next;
 
             /**
-            * 创建 IteratorJoin 实例
-            * @param first first
-            * @param Iterator Iterator
-            * @param next next
-            */
+             * 创建 IteratorJoin 实例
+             * @param first first
+             * @param Iterator Iterator
+             * @param next next
+             */
             public IteratorJoin(Iterator<T> first, Iterator<T> next) {
                 this.first = first;
                 this.next = next;
@@ -290,21 +290,21 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-            * 迭代器连接辅助类
-            * 将两个迭代器串联起来，依次返回元素
-            *
-            * @param <T> 元素类型
-            */
+     * 迭代器连接辅助类
+     * 将两个迭代器串联起来，依次返回元素
+     *
+     * @param <T> 元素类型
+     */
     static class IteratorJoin<T> implements Iterator<T> {
         /** 第一个与第二个迭代器 */
         private final Iterator<T> first, next;
 
         /**
-        * 创建 IteratorJoin 实例
-        * @param first first
-        * @param Iterator Iterator
-        * @param next next
-        */
+         * 创建 IteratorJoin 实例
+         * @param first first
+         * @param Iterator Iterator
+         * @param next next
+         */
         public IteratorJoin(Iterator<T> first, Iterator<T> next) {
             this.first = first;
             this.next = next;
@@ -333,10 +333,10 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-        * 内存字节码文件对象
-        * 继承 SimpleJavaFileObject，将编译后的 .class 字节码保存在 ByteArrayOutputStream 中
-        * 避免写入磁盘，实现纯内存编译
-        */
+     * 内存字节码文件对象
+     * 继承 SimpleJavaFileObject，将编译后的 .class 字节码保存在 ByteArrayOutputStream 中
+     * 避免写入磁盘，实现纯内存编译
+     */
     static final class MemoryByteCode extends SimpleJavaFileObject {
         /** 包路径分隔符 */
         private static final char PKG_SEPARATOR = '.';
@@ -397,10 +397,10 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-        * 包内部类查找器
-        * 用于在 ClassLoader 的资源路径中查找特定包下的所有 .class 文件
-        * 支持本地目录和 JAR 包两种场景
-        */
+     * 包内部类查找器
+     * 用于在 ClassLoader 的资源路径中查找特定包下的所有 .class 文件
+     * 支持本地目录和 JAR 包两种场景
+     */
     static final class PackageInternalsFinder {
         /** 类文件扩展名 */
         private static final String CLASS_FILE_EXTENSION = ".class";
@@ -724,10 +724,10 @@ public class JdkCompiler implements Compiler {
         private final String contents;
 
         /**
-        * 创建 StringSource 实例
-        * @param className className
-        * @param String String
-        */
+         * 创建 StringSource 实例
+         * @param className className
+         * @param String String
+         */
         public StringSource(String className, String contents) {
             super(URI.create("string:///" + className.replace('.', '/') + Kind.SOURCE.extension), Kind.SOURCE);
             this.contents = contents;
@@ -741,9 +741,9 @@ public class JdkCompiler implements Compiler {
     }
 
     /**
-        * 自定义 Java 文件对象
-        * 用于表示 JAR 包或本地文件系统中的类文件
-        */
+     * 自定义 Java 文件对象
+     * 用于表示 JAR 包或本地文件系统中的类文件
+     */
     public static class CustomJavaFileObject implements JavaFileObject {
         /** 二进制类名 */
         private final String binaryName;

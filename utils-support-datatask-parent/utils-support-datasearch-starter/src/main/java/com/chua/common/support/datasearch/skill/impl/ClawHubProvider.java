@@ -40,10 +40,10 @@ public class ClawHubProvider {
     protected static final String PREFIX = "";
 
     /**
-    * 获取提供者名称。
-    *
-    * @return 名称
-    */
+     * 获取提供者名称。
+     *
+     * @return 名称
+     */
     public String name() {
         return NAME;
     }

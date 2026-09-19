@@ -40,9 +40,9 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     private final BucketManager bucketManager;
 
     /**
-    * 创建 qiniukodo文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 qiniukodo文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public QiniuKodoFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         Configuration cfg = new Configuration(Region.autoRegion());

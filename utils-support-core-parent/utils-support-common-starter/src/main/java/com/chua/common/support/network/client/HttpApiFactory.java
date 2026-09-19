@@ -48,13 +48,13 @@ public class HttpApiFactory {
     }
 
     /**
-    * 创建接口的 HTTP API 客户端代理（带缓存）。
-    *
-    * @param <T>      接口类型
-    * @param apiClass 接口类，方法上标注 {@code @GetMapping}、{@code @PostMapping}、
-    *                 {@code @RequestMapping} 或 {@code @RequestMethod} 等注解
-    * @return 动态代理实现
-    */
+     * 创建接口的 HTTP API 客户端代理（带缓存）。
+     *
+     * @param <T>      接口类型
+     * @param apiClass 接口类，方法上标注 {@code @GetMapping}、{@code @PostMapping}、
+     *                 {@code @RequestMapping} 或 {@code @RequestMethod} 等注解
+     * @return 动态代理实现
+     */
 @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> apiClass) {
         return create(apiClass, null);

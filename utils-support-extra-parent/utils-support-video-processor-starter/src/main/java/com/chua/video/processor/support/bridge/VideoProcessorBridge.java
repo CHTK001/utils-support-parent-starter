@@ -33,10 +33,10 @@ public class VideoProcessorBridge {
     }
 
     /**
-    * 是否加载
-    *
-    * @return 是否加载的结果
-    */
+     * 是否加载
+     *
+     * @return 是否加载的结果
+     */
     public static boolean isLoaded() {
         return loaded;
     }
@@ -60,12 +60,12 @@ public class VideoProcessorBridge {
     }
 
     /**
-    * transcode转为hls
-    *
-    * @param inputPath 输入路径
-    * @param outputDir 输出dir
-    * @return transcode转为hls的结果
-    */
+     * transcode转为hls
+     *
+     * @param inputPath 输入路径
+     * @param outputDir 输出dir
+     * @return transcode转为hls的结果
+     */
     public static native boolean transcodeToHls(String inputPath, String outputDir);
 
     /**

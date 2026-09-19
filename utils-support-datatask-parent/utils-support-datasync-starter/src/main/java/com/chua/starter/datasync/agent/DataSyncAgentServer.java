@@ -156,8 +156,8 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-    * 远程 源 读取超时时间（秒）。
-    */
+     * 远程 源 读取超时时间（秒）。
+     */
     private static final int REMOTE_SOURCE_READ_TIMEOUT_SECONDS = 30;
 
     /**
@@ -229,12 +229,12 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         /**
-        * 从 JSON 中解析字符串数组。
-        *
-        * @param json JSON 字符串
-        * @param field 字段名
-        * @return 字符串列表
-        */
+         * 从 JSON 中解析字符串数组。
+         *
+         * @param json JSON 字符串
+         * @param field 字段名
+         * @return 字符串列表
+         */
         private List<String> parseStringArray(String json, String field) {
             List<String> result = new ArrayList<>();
             String marker = "\"" + field + "\":";
@@ -448,10 +448,10 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-        * 远程 Sink 代理，通过网络推送数据到远程 Agent。
-        * @author CH
-        * @since 4.0.0
-        */
+     * 远程 Sink 代理，通过网络推送数据到远程 Agent。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class RemoteAgentSink implements DataSyncAgentSink {
 
         /**

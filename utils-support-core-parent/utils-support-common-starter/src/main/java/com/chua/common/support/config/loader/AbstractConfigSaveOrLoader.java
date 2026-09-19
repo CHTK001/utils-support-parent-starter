@@ -20,9 +20,9 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     protected final ConfigSaveLoadSetting setting;
 
     /**
-    * 创建 AbstractConfigSaveOrLoader 实例
-    * @param setting setting
-    */
+     * 创建 AbstractConfigSaveOrLoader 实例
+     * @param setting setting
+     */
     protected AbstractConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         this.setting = setting == null ? ConfigSaveLoadSetting.builder().build() : setting;
     }
@@ -34,11 +34,11 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     }
 
     /**
-    * 规范化配置键，将反斜杠替换为正斜杠，去除开头斜杠。
-    *
-    * @param key 原始配置键
-    * @return 规范化后的相对路径
-    */
+     * 规范化配置键，将反斜杠替换为正斜杠，去除开头斜杠。
+     *
+     * @param key 原始配置键
+     * @return 规范化后的相对路径
+     */
     protected String normalizeKey(String key) {
         Objects.requireNonNull(key, "config key must not be null");
         String normalized = key.replace('\\', '/');

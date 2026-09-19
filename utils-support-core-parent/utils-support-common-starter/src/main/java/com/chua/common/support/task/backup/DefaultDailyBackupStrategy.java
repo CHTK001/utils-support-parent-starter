@@ -239,9 +239,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-                * 递归删除目录
-                * @param dir dir
-                */
+     * 递归删除目录
+     * @param dir dir
+     */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;

@@ -74,8 +74,8 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private List<String> dict;
 
     /**
-    * 默认使用 PP-ocrv6 tiny 资源。
-    */
+     * 默认使用 PP-ocrv6 tiny 资源。
+     */
     public PpWordExtractorTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/", "paddleocrv6-rec");
     }
@@ -122,11 +122,11 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-    * 从 推理.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
-    *
-    * @param ymlPath 推理.yml 路径
-    * @return 字符表（index 0 为 blank，其余为字符）
-    */
+     * 从 推理.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
+     *
+     * @param ymlPath 推理.yml 路径
+     * @return 字符表（index 0 为 blank，其余为字符）
+     */
     private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
         List<String> lines = Files.readAllLines(ymlPath);
         List<String> chars = new ArrayList<>();

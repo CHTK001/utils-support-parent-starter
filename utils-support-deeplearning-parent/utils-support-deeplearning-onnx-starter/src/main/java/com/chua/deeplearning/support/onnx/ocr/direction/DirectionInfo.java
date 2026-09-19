@@ -15,11 +15,11 @@ public class DirectionInfo {
     private final double probability;
 
     /**
-    * 创建 direction信息 实例
-    * @param name 名称
-    * @param probability double
-    * @param probability probability
-    */
+     * 创建 direction信息 实例
+     * @param name 名称
+     * @param probability double
+     * @param probability probability
+     */
     public DirectionInfo(String name, double probability) {
         this.name = name;
         this.probability = probability;

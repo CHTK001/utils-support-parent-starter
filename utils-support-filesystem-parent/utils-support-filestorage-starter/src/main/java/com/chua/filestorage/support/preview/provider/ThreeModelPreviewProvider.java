@@ -59,12 +59,12 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-    * 构建script
-    *
-    * @param b64 b64
-    * @param ext ext
-    * @return 构建script的结果
-    */
+     * 构建script
+     *
+     * @param b64 b64
+     * @param ext ext
+     * @return 构建script的结果
+     */
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +
  // 基础64 → array缓冲

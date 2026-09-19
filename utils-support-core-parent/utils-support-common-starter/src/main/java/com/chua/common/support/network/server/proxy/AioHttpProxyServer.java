@@ -37,8 +37,8 @@ public class AioHttpProxyServer extends AbstractServer {
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
-    * 后端空闲连接池(target -> 空闲通道列表,复用避免每次 connect)
-    */
+     * 后端空闲连接池(target -> 空闲通道列表,复用避免每次 connect)
+     */
     private final java.util.concurrent.ConcurrentHashMap<String,
             ArrayDeque<AsynchronousSocketChannel>> BACKEND_POOL =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -224,8 +224,8 @@ public class AioHttpProxyServer extends AbstractServer {
         }
 
         /**
-        * 启动读取。
-        */
+         * 启动读取。
+         */
         void start() {
             if (!running || !src.isOpen()) {
                 finish();
@@ -510,15 +510,15 @@ public class AioHttpProxyServer extends AbstractServer {
         private long left;
 
         /**
-        * 创建限量中继。
-        *
-        * @param src    源
-        * @param dst    目标
-        * @param n      总字节数
-        * @param onDone 完成
-        * @param onEof  提前 EOF
-        * @param onError 异常
-        */
+         * 创建限量中继。
+         *
+         * @param src    源
+         * @param dst    目标
+         * @param n      总字节数
+         * @param onDone 完成
+         * @param onEof  提前 EOF
+         * @param onError 异常
+         */
         LimitedRelay(AsynchronousSocketChannel src, AsynchronousSocketChannel dst,
                      long n, Runnable onDone, Runnable onEof,
                      java.util.function.Consumer<Throwable> onError) {

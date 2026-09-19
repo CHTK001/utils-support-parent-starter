@@ -172,11 +172,11 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 将 映射 数据加入延迟写入队列。
-    *
-    * @param rows 映射 数据列表
-    * @return 写入映射的结果
-    */
+     * 将 映射 数据加入延迟写入队列。
+     *
+     * @param rows 映射 数据列表
+     * @return 写入映射的结果
+     */
     public PdfWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
         return this;
@@ -272,10 +272,10 @@ public class PdfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 设置Metadata
-    *
-    * @param doc doc
-    */
+     * 设置Metadata
+     *
+     * @param doc doc
+     */
     private void setMetadata(PDDocument doc) {
         PDDocumentInformation info = new PDDocumentInformation();
         if (title != null) {

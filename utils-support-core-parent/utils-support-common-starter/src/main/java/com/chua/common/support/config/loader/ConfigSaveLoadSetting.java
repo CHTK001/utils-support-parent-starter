@@ -29,10 +29,10 @@ public class ConfigSaveLoadSetting {
     private String rootPath = System.getProperty("user.home", ".") + "/.config";
 
     /**
-    * 字符编码。
-    *
-    * <p>读写配置文件时使用的字符集，默认为 UTF-8。</p>
-    */
+     * 字符编码。
+     *
+     * <p>读写配置文件时使用的字符集，默认为 UTF-8。</p>
+     */
     @Builder.Default
     /**
      * 字符集
@@ -69,19 +69,19 @@ public class ConfigSaveLoadSetting {
     private long connectTimeoutMillis = 5000;
 
     /**
-    * 读取超时时间（毫秒）。
-    *
-    * <p>等待远程配置中心返回数据的最大时间，默认 5000ms。</p>
-    */
+     * 读取超时时间（毫秒）。
+     *
+     * <p>等待远程配置中心返回数据的最大时间，默认 5000ms。</p>
+     */
     @Builder.Default
     /** Read超时毫秒 */
     private long readTimeoutMillis = 5000;
 
     /**
-    * 内容类型。
-    *
-    * <p>配置数据传输时的 Content-Type 头，默认 "application/octet-stream"。</p>
-    */
+     * 内容类型。
+     *
+     * <p>配置数据传输时的 Content-Type 头，默认 "application/octet-stream"。</p>
+     */
     @Builder.Default
     /** 内容类型 */
     private String contentType = "application/octet-stream";

@@ -35,8 +35,8 @@ public class ThreadUtils {
     public static final Executor GLOBAL_EXECUTOR = newVirtualThreadExecutor();
 
     /**
-    * 单例线程数。
-    */
+     * 单例线程数。
+     */
     private static final int SINGLETON = 1;
 
     /**
@@ -57,13 +57,13 @@ public class ThreadUtils {
     }
 
     /**
-    * 安静关闭线程池（不抛异常）。
-    * <p>
-    * 若传入的 执行器 为 执行器服务 实例，则立即调用 关闭now。
-    * </p>
-    *
-    * @param executor 待关闭的执行器
-    */
+     * 安静关闭线程池（不抛异常）。
+     * <p>
+     * 若传入的 执行器 为 执行器服务 实例，则立即调用 关闭now。
+     * </p>
+     *
+     * @param executor 待关闭的执行器
+     */
     public static void closeQuietly(final Executor executor) {
         if (executor instanceof ExecutorService executorService) {
             executorService.shutdownNow();
@@ -1203,11 +1203,11 @@ public class ThreadUtils {
         }
         @Override
         /**
-        * 调用任意
-        * @param tasks 任务
-        * @param timeout 超时
-        * @param unit unit
-        */
+         * 调用任意
+         * @param tasks 任务
+         * @param timeout 超时
+         * @param unit unit
+         */
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -1221,8 +1221,8 @@ public class ThreadUtils {
         /** 游泳池_数字 */
         private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         /**
-        * 用户组
-        */
+         * 用户组
+         */
         private final ThreadGroup group;
         /** 线程数字 */
         private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -1278,13 +1278,13 @@ public class ThreadUtils {
 
 
     /**
-        * 立即关闭线程池（空安全）。
-        * <p>
-        * 调用前检查 空，避免空指针。
-        * </p>
-        *
-        * @param executorService 待关闭的线程池
-        */
+     * 立即关闭线程池（空安全）。
+     * <p>
+     * 调用前检查 空，避免空指针。
+     * </p>
+     *
+     * @param executorService 待关闭的线程池
+     */
     public static void shutdownNow(ExecutorService executorService) {
         if (executorService != null) {
             executorService.shutdownNow();

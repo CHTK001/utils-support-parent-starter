@@ -361,8 +361,8 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * 内存输出流适配器。
-    */
+     * 内存输出流适配器。
+     */
     static final class MemoryOutputStream extends OutputStream {
         /**
          * 底层字节数组输出流

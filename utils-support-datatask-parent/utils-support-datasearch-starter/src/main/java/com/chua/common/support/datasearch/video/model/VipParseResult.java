@@ -26,11 +26,11 @@ public class VipParseResult {
     public VipParseResult() {}
 
     /**
-    * 成功结果。
-    *
-    * @param playAddresses 播放地址列表
-    * @return 解析结果
-    */
+     * 成功结果。
+     *
+     * @param playAddresses 播放地址列表
+     * @return 解析结果
+     */
     public static VipParseResult success(List<VideoPlayAddress> playAddresses) {
         VipParseResult r = new VipParseResult();
         r.success = true;

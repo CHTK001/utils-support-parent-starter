@@ -71,17 +71,17 @@ public class ObjectUtils {
 
 
     /**
-    * 三目运算简化：根据布尔值返回对应的值。
-    *
-    * <p>等价于 {@code value ? trueValue : falseValue}，适用于需要内联选择值的场景。
-    *
-    * @param <O>        值类型占位
-    * @param <T>        返回类型
-    * @param value      布尔条件
-    * @param trueValue  条件为 true 时返回的值
-    * @param falseValue 条件为 false 时返回的值
-    * @return 根据条件返回 true值 或 false值
-    */
+     * 三目运算简化：根据布尔值返回对应的值。
+     *
+     * <p>等价于 {@code value ? trueValue : falseValue}，适用于需要内联选择值的场景。
+     *
+     * @param <O>        值类型占位
+     * @param <T>        返回类型
+     * @param value      布尔条件
+     * @param trueValue  条件为 true 时返回的值
+     * @param falseValue 条件为 false 时返回的值
+     * @return 根据条件返回 true值 或 false值
+     */
     @Nullable
     public static <O, T> T optional(boolean value, @Nullable T trueValue, @Nullable T falseValue) {
         return value ? trueValue : falseValue;

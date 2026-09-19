@@ -40,11 +40,11 @@ class DfsmnStftIStft {
     }
 
     /**
-    * 前向 STFT。
-    *
-    * @param signal 单声道时域信号
-    * @return 频谱 [帧][961][2]，每帧每频点 {real, imag}
-    */
+     * 前向 STFT。
+     *
+     * @param signal 单声道时域信号
+     * @return 频谱 [帧][961][2]，每帧每频点 {real, imag}
+     */
     float[][][] stft(float[] signal) {
         int frames = numFrames(signal.length);
         float[][][] out = new float[frames][N_FREQ][2];

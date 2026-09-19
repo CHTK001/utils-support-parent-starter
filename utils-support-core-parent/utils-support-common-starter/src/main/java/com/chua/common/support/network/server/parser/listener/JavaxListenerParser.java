@@ -83,11 +83,11 @@ public class JavaxListenerParser implements ListenerParser {
     }
 
     /**
-    * 检查方法是否标注了 javax.websocket 注解。
-    *
-    * @param method 目标方法
-    * @return 事件类型名，未匹配返回 null
-    */
+     * 检查方法是否标注了 javax.websocket 注解。
+     *
+     * @param method 目标方法
+     * @return 事件类型名，未匹配返回 null
+     */
     private String matchJavaxAnnotation(Method method) {
         for (String annClass : JAVAX_ANNOTATIONS) {
             // ReflectUtils.forName 不抛 checked 异常（类不存在返回 null）

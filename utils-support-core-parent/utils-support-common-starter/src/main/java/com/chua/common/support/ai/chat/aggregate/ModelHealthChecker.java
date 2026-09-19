@@ -194,11 +194,11 @@ public class ModelHealthChecker {
         private final String message;
 
         /**
-        * 创建 ModelHealthCheckResult 实例
-        * @param healthy healthy
-        * @param issueType IssueType
-        * @param message String
-        */
+         * 创建 ModelHealthCheckResult 实例
+         * @param healthy healthy
+         * @param issueType IssueType
+         * @param message String
+         */
         public ModelHealthCheckResult(boolean healthy, IssueType issueType, String message) {
             this.healthy = healthy;
             this.issueType = issueType;

@@ -38,10 +38,10 @@ public enum OsFamily {
     private static final OsFamily CURRENT = detect();
 
     /**
-    * 检测当前操作系统族。
-    *
-    * @return 当前操作系统族，不会返回 {@code null}
-    */
+     * 检测当前操作系统族。
+     *
+     * @return 当前操作系统族，不会返回 {@code null}
+     */
     private static OsFamily detect() {
         if (OS_NAME.contains("win")) {
             return WINDOWS;

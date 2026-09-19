@@ -49,41 +49,41 @@ public class AgentCompressionConfig {
     private boolean enabled = false;
 
     /**
-    * 上下文压缩触发阈值（消息数）。
-    *
-    * <p>当历史消息数达到此值时触发首次压缩。
-    * 压缩前会保存完整的原始上下文作为基线快照。
-    */
+     * 上下文压缩触发阈值（消息数）。
+     *
+     * <p>当历史消息数达到此值时触发首次压缩。
+     * 压缩前会保存完整的原始上下文作为基线快照。
+     */
     @Builder.Default
     /** 上下文compression阈值 */
     private int contextCompressionThreshold = 12;
 
     /**
-    * 上下文偏差纠正阈值（轮次）。
-    *
-    * <p>基线建立后，每经过此轮数触发一次偏差纠正：
-    * 读取基线快照 → 用压缩 ChatClient 总结 → 与当前压缩上下文偏差纠正 → 输出修复后的上下文。
-    */
+     * 上下文偏差纠正阈值（轮次）。
+     *
+     * <p>基线建立后，每经过此轮数触发一次偏差纠正：
+     * 读取基线快照 → 用压缩 ChatClient 总结 → 与当前压缩上下文偏差纠正 → 输出修复后的上下文。
+     */
     @Builder.Default
     /** 上下文deviation阈值 */
     private int contextDeviationThreshold = 6;
 
     /**
-    * 压缩专用 ChatClient。
-    *
-    * <p>用于总结和偏差纠正。若未设置（null），默认和主 Agent 的 ChatClient 同源。
-    * 建议使用更便宜的小模型以节省成本。
-    */
+     * 压缩专用 ChatClient。
+     *
+     * <p>用于总结和偏差纠正。若未设置（null），默认和主 Agent 的 ChatClient 同源。
+     * 建议使用更便宜的小模型以节省成本。
+     */
     @Builder.Default
     /** Compressionchat客户端 */
     private ChatClient compressionChatClient = null;
 
     /**
-    * 压缩后保留的最近消息数。
-    *
-    * <p>在压缩上下文时，保留最近 N 条消息不被压缩，
-    * 确保最近的对话上下文完整保留。
-    */
+     * 压缩后保留的最近消息数。
+     *
+     * <p>在压缩上下文时，保留最近 N 条消息不被压缩，
+     * 确保最近的对话上下文完整保留。
+     */
     @Builder.Default
     /** Retainmessages */
     private int retainMessages = 6;

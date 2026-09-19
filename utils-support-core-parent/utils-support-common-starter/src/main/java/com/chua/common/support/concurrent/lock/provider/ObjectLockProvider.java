@@ -92,11 +92,11 @@ public class ObjectLockProvider extends AbstractLockProvider {
     }
 
     /**
-    * 创建一个新的 Condition 对象，用于实现更复杂的线程同步逻辑。
-    * Condition 允许在锁的基础上进行条件变量的等待和通知操作。
-    *
-    * @return 新的 Condition 实例
-    */
+     * 创建一个新的 Condition 对象，用于实现更复杂的线程同步逻辑。
+     * Condition 允许在锁的基础上进行条件变量的等待和通知操作。
+     *
+     * @return 新的 Condition 实例
+     */
     public Condition newCondition() {
         return reentrantLock.newCondition();
     }

@@ -206,14 +206,14 @@ public class HibernateDdlManager implements DslManager {
     }
 
     /**
-    * 解析actual模式
-    *
-    * @param meta meta
-    * @param catalog catalog
-    * @param schema 模式
-    * @param table table
-    * @return resolveactual模式的结果
-    */
+     * 解析actual模式
+     *
+     * @param meta meta
+     * @param catalog catalog
+     * @param schema 模式
+     * @param table table
+     * @return resolveactual模式的结果
+     */
     private String resolveActualSchema(DatabaseMetaData meta, String catalog, String schema, String table) throws Exception {
         if (schema != null) {
             return schema;

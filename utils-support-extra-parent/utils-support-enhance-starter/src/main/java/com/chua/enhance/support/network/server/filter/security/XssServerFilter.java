@@ -72,11 +72,11 @@ public class XssServerFilter implements ServerFilter {
     }
 
     /**
-    * 是否文本内容
-    *
-    * @param contentType 内容类型
-    * @return 是否文本内容的结果
-    */
+     * 是否文本内容
+     *
+     * @param contentType 内容类型
+     * @return 是否文本内容的结果
+     */
     private boolean isTextContent(String contentType) {
         if (contentType == null) {
             return true;

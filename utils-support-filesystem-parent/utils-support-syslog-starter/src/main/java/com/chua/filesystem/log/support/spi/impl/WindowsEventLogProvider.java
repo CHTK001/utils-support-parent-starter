@@ -197,38 +197,38 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * 解析事件日志records
-    * @param buffer 缓冲
-    * @param bytesRead bytes读取
-    * @param source 源
-    * @param regex regex
-    * @param minLevel 最小级别
-    * @param remaining remaining
-    * @param results 结果
-    * @param remaining remaining
-    * @param offset 偏移量
-    * @param bytesRead bytes读取
-    * @param offset 偏移量
-    * @param stringOffset 字符串偏移量
-    * @param message 消息
-    * @param level 级别
-    * @param source 源
-    * @param message 消息
-    * @param null 空
-    * @param buffer 缓冲
-    * @param recordOffset record偏移量
-    * @param stringOffset 字符串偏移量
-    * @param i i
-    * @param eventType 事件类型
-    * @param glob glob
-    * @param e e
-    * @param glob glob
-    * @param handleObj 处理obj
-    * @param seg seg
-    * @param num num
-    * @param e e
-    * @param e e
-    */
+     * 解析事件日志records
+     * @param buffer 缓冲
+     * @param bytesRead bytes读取
+     * @param source 源
+     * @param regex regex
+     * @param minLevel 最小级别
+     * @param remaining remaining
+     * @param results 结果
+     * @param remaining remaining
+     * @param offset 偏移量
+     * @param bytesRead bytes读取
+     * @param offset 偏移量
+     * @param stringOffset 字符串偏移量
+     * @param message 消息
+     * @param level 级别
+     * @param source 源
+     * @param message 消息
+     * @param null 空
+     * @param buffer 缓冲
+     * @param recordOffset record偏移量
+     * @param stringOffset 字符串偏移量
+     * @param i i
+     * @param eventType 事件类型
+     * @param glob glob
+     * @param e e
+     * @param glob glob
+     * @param handleObj 处理obj
+     * @param seg seg
+     * @param num num
+     * @param e e
+     * @param e e
+     */
     public static int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
             String source,
@@ -366,11 +366,11 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-    * coerce转为内存segment
-    *
-    * @param handleObj 处理obj
-    * @return coerce转为内存segment的结果
-    */
+     * coerce转为内存segment
+     *
+     * @param handleObj 处理obj
+     * @return coerce转为内存segment的结果
+     */
     private static MemorySegment coerceToMemorySegment(Object handleObj) {
         if (handleObj instanceof MemorySegment seg) {
             return seg;

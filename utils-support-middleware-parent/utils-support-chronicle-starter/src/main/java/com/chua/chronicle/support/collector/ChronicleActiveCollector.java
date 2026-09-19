@@ -78,8 +78,8 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     /**
-    * 轮询 Chronicle 队列 并处理消息。
-    */
+     * 轮询 Chronicle 队列 并处理消息。
+     */
     private void pollLoop() {
         while (running) {
             try {

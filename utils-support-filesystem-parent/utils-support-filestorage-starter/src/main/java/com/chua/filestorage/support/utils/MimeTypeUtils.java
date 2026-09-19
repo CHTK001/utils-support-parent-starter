@@ -196,11 +196,11 @@ public final class MimeTypeUtils {
     }
 
     /**
-    * 根据扩展名获取 MIME 类型（小写）。
-    *
-    * @param extension 扩展名（不带点，如 "pdf"）
-    * @return MIME 类型，找不到返回 "application/octet-流"
-    */
+     * 根据扩展名获取 MIME 类型（小写）。
+     *
+     * @param extension 扩展名（不带点，如 "pdf"）
+     * @return MIME 类型，找不到返回 "application/octet-流"
+     */
     public static String getMimeType(String extension) {
         if (extension == null) {
             return "application/octet-stream";

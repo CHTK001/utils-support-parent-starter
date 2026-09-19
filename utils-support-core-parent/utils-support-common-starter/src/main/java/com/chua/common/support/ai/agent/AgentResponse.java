@@ -44,10 +44,10 @@ public class AgentResponse implements Serializable {
     private Map<String, Object> metadata = new LinkedHashMap<>(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态写入，规模不可预估
 
     /**
-    * 用量信息
-    *
-    * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
-    * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
-    */
+     * 用量信息
+     *
+     * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
+     * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
+     */
     private AiUsage usage;
 }

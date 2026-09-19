@@ -44,10 +44,10 @@ public class PrometheusMetric {
     private List<Sample> values = new ArrayList<>();
 
     /**
-    * 获取指标名(__名称__)
-    *
-    * @return 指标名, 无则空串
-    */
+     * 获取指标名(__名称__)
+     *
+     * @return 指标名, 无则空串
+     */
     public String getName() {
         return metric == null ? "" : metric.getOrDefault("__name__", "");
     }

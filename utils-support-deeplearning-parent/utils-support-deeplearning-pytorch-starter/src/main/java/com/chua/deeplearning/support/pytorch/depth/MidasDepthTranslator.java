@@ -46,11 +46,11 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 midas深度translator 实例
-    * @param detectResolution detectresolution
-    * @param detectResolution int
-    * @param imageResolution 镜像resolution
-    */
+     * 创建 midas深度translator 实例
+     * @param detectResolution detectresolution
+     * @param detectResolution int
+     * @param imageResolution 镜像resolution
+     */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;
@@ -92,11 +92,11 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 转为displayndarray
-    *
-    * @param depthPt 深度pt
-    * @return 转为displayndarray的结果
-    */
+     * 转为displayndarray
+     *
+     * @param depthPt 深度pt
+     * @return 转为displayndarray的结果
+     */
     private NDArray toDisplayNdArray(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）

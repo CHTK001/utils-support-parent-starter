@@ -56,10 +56,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     /**
-    * RAR归档输入流适配器
-    * @author CH
-    * @since 4.0.0
-    */
+     * RAR归档输入流适配器
+     * @author CH
+     * @since 4.0.0
+     */
     private static class RarArchiveInputStreamAdapter implements ArchiveInputStream {
         /** Archive */
         private final Archive archive;

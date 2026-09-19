@@ -22,12 +22,12 @@ public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
     private final String url;
 
     /**
-    * 构造数据源。
-    *
-    * @param name   数据源名称
-    * @param url    数据库目录路径
-    * @param source RocksDB 数据库实例
-    */
+     * 构造数据源。
+     *
+     * @param name   数据源名称
+     * @param url    数据库目录路径
+     * @param source RocksDB 数据库实例
+     */
     public RocksDbEngineDataSource(String name, String url, RocksDB source) {
         this.name = name;
         this.url = url;
@@ -53,8 +53,8 @@ public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
     }
 
     /**
-    * 不支持运行期替换连接（替换 需 重建 数据源 实例，显式 拒绝 避免 静默 no-op）
-    */
+     * 不支持运行期替换连接（替换 需 重建 数据源 实例，显式 拒绝 避免 静默 no-op）
+     */
     @Override
     public EngineDataSource<RocksDB> setSource(Object source) {
         throw new UnsupportedOperationException("RocksDbEngineDataSource 不支持 运行期 替换 底层 RocksDB 实例");

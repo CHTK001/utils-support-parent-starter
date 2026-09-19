@@ -95,16 +95,16 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         private double k = 15.0;
 
         /**
-        * 阈值参数，默认0.75
-        */
+         * 阈值参数，默认0.75
+         */
         @Builder.Default
         /** T */
         private double t = 0.75;
     }
 
     /**
-        * 当前参数
-        */
+     * 当前参数
+     */
     private final SigmoidParams params;
 
     // ==================== 构造方法 ====================

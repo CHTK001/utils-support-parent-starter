@@ -222,11 +222,11 @@ public class OllamaImageClient implements ImageClient {
     }
 
     /**
-    * 转换 图片 为 PNG 字节。
-    *
-    * @param image 图片
-    * @return PNG 字节 数组
-    */
+     * 转换 图片 为 PNG 字节。
+     *
+     * @param image 图片
+     * @return PNG 字节 数组
+     */
     private byte[] toBytes(BufferedImage image) {
         try {
             java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();

@@ -81,11 +81,11 @@ public final class Converter {
     }
 
     /**
-    * 通过 SPI 机制初始化并加载所有 {@link TypeConverter} 实现。
-    * <p>遍历 SPI 注册的所有 TypeConverter，按 {@link TypeConverter#getType()} 返回的目标类型建立映射关系。</p>
-    *
-    * @return 类型转换器映射表
-    */
+     * 通过 SPI 机制初始化并加载所有 {@link TypeConverter} 实现。
+     * <p>遍历 SPI 注册的所有 TypeConverter，按 {@link TypeConverter#getType()} 返回的目标类型建立映射关系。</p>
+     *
+     * @return 类型转换器映射表
+     */
     private static Map<Class<?>, TypeConverter> initConverterMap() {
         Map<Class<?>, TypeConverter> map = new ConcurrentHashMap<>();
         ServiceProvider.of(TypeConverter.class).forEach((name, converter) -> {

@@ -67,8 +67,8 @@ public class DdlBuilder {
     /** 表名称 */
     private final String tableName;
     /**
-        * Schema 名
-        */
+     * Schema 名
+     */
     private String schema;
     /** Comment */
     private String comment;
@@ -86,11 +86,11 @@ public class DdlBuilder {
     private String newTableName;
 
     /**
-    * 创建 DdlBuilder 实例
-    * @param mode mode
-    * @param String String
-    * @param tableName 表名称，不允许为 null
-    */
+     * 创建 DdlBuilder 实例
+     * @param mode mode
+     * @param String String
+     * @param tableName 表名称，不允许为 null
+     */
     private DdlBuilder(Mode mode, String tableName) {
         this.mode = mode;
         this.tableName = tableName;

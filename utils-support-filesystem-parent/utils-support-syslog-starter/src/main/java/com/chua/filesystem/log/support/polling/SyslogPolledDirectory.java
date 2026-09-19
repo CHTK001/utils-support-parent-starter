@@ -349,10 +349,10 @@ public class SyslogPolledDirectory implements PolledDirectory {
         private SystemLogService logService;
 
         /**
-        * 指定日志来源（如 窗口 的 系统/Application/安全性，journald 的 unit 名）
-        * @param source 源
-        * @return 源的结果
-        */
+         * 指定日志来源（如 窗口 的 系统/Application/安全性，journald 的 unit 名）
+         * @param source 源
+         * @return 源的结果
+         */
         public Builder source(String source) {
             this.source = source;
             return this;

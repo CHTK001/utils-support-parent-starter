@@ -393,12 +393,12 @@ public class KimiChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -560,11 +560,11 @@ public class KimiChatClient implements ChatClient {
     }
 
     /**
-    * 解析 gRPC 帧流，提取回答/思考内容与上下文。
-    *
-    * @param data 完整响应字节
-    * @return 解析结果
-    */
+     * 解析 gRPC 帧流，提取回答/思考内容与上下文。
+     *
+     * @param data 完整响应字节
+     * @return 解析结果
+     */
     private KimiChatResult parseFrames(byte[] data) {
         StringBuilder text = new StringBuilder();
         StringBuilder thinking = new StringBuilder();

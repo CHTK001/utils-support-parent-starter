@@ -44,14 +44,14 @@ public class RestoreResult {
     private String errorMessage;
 
     /**
-    * 创建成功结果。
-    *
-    * @param target   恢复目标目录
-    * @param files    恢复的文件列表
-    * @param size     恢复的总大小（字节）
-    * @param duration 耗时毫秒
-    * @return 成功结果
-    */
+     * 创建成功结果。
+     *
+     * @param target   恢复目标目录
+     * @param files    恢复的文件列表
+     * @param size     恢复的总大小（字节）
+     * @param duration 耗时毫秒
+     * @return 成功结果
+     */
     public static RestoreResult success(Path target, List<Path> files, long size, long duration) {
         return RestoreResult.builder()
                 .success(true)

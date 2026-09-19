@@ -54,9 +54,9 @@ public class WebhookInboundAdapter {
     private volatile boolean running = false;
 
     /**
-    * webhookinbound适配器。
-    * @param builder 构建器
-    */
+     * webhookinbound适配器。
+     * @param builder 构建器
+     */
     private WebhookInboundAdapter(Builder builder) {
         this.port = builder.port;
         this.pipelineEngine = builder.pipelineEngine;

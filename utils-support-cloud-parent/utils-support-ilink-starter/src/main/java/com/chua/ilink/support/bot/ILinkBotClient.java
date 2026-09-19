@@ -47,8 +47,8 @@ public class ILinkBotClient implements BotClient {
     private static final String DEFAULT_BASE_URL = "https://ilinkai.weixin.qq.com";
 
     /**
-    * i链接 应用标识（官方 openclaw-weixin 包.json ilink_appid）
-    */
+     * i链接 应用标识（官方 openclaw-weixin 包.json ilink_appid）
+     */
     private static final String ILINK_APP_ID = "bot";
 
     /**

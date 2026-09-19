@@ -28,8 +28,8 @@ public class FFmpegMediaInfo {
 
     /** 文件大小（字节） */
     /**
-    * 大小
-    */
+     * 大小
+     */
     private long size;
 
     /** 总码率（bps） */
@@ -42,16 +42,16 @@ public class FFmpegMediaInfo {
     private AudioStream audioStream;
 
     /**
-    * 视频流信息。
-    *
-    * @since 4.0.0.42
-    * @author CH
-    */
+     * 视频流信息。
+     *
+     * @since 4.0.0.42
+     * @author CH
+     */
     public static class VideoStream {
         /** 流索引 */
         /**
-        * 索引名
-        */
+         * 索引名
+         */
         private int index;
         /** 编码器名称（如 h264, hevc） */
         private String codec;
@@ -67,8 +67,8 @@ public class FFmpegMediaInfo {
         private long bitrate;
         /** 视频时长（秒） */
         /**
-        * 持续时间（毫秒）
-        */
+         * 持续时间（毫秒）
+         */
         private double duration;
 
         /**
@@ -178,8 +178,8 @@ public class FFmpegMediaInfo {
     public static class AudioStream {
         /** 流索引 */
         /**
-        * 索引名
-        */
+         * 索引名
+         */
         private int index;
         /** 编码器名称（如 aac, mp3） */
         private String codec;
@@ -195,8 +195,8 @@ public class FFmpegMediaInfo {
         private long bitrate;
         /** 音频时长（秒） */
         /**
-        * 持续时间（毫秒）
-        */
+         * 持续时间（毫秒）
+         */
         private double duration;
 
         /**

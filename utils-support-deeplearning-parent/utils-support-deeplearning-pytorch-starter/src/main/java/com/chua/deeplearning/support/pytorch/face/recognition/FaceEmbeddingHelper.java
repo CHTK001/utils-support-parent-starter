@@ -16,11 +16,11 @@ final class FaceEmbeddingHelper {
     }
 
     /**
-    * 将模型输出转为 L2 归一化特征向量。
-    *
-    * @param list 模型输出
-    * @return 特征向量
-    */
+     * 将模型输出转为 L2 归一化特征向量。
+     *
+     * @param list 模型输出
+     * @return 特征向量
+     */
     static float[] toFeature(NDList list) {
         NDArray output = list.singletonOrThrow();
         while (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）

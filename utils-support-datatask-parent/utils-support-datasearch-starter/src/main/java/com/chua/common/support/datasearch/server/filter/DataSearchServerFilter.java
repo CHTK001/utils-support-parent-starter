@@ -132,12 +132,12 @@ public class DataSearchServerFilter implements ServerFilter {
     }
 
     /**
-    * 分发路由
-    *
-    * @param subPath sub路径
-    * @param request 请求
-    * @param response 响应
-    */
+     * 分发路由
+     *
+     * @param subPath sub路径
+     * @param request 请求
+     * @param response 响应
+     */
     private void dispatch(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         if (subPath.isEmpty() || "/".equals(subPath)) {
             write(response, 200, "ok", index());

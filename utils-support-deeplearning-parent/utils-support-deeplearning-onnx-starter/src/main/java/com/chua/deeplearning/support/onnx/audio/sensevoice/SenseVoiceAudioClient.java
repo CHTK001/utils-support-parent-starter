@@ -238,11 +238,11 @@ public class SenseVoiceAudioClient implements VirtualClient {
     }
 
     /**
-    * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
-    * 未配置时回落 {@code %TEMP%}。
-    *
-    * @return 缓存根目录
-    */
+     * 模型缓存根目录：优先读系统属性 {@code deeplearning.model.cache-dir}，
+     * 未配置时回落 {@code %TEMP%}。
+     *
+     * @return 缓存根目录
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

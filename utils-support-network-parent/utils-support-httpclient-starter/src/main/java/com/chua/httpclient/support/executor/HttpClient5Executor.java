@@ -58,11 +58,11 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     /**
-    * 转为请求
-    *
-    * @param request 请求
-    * @return 转为请求的结果
-    */
+     * 转为请求
+     *
+     * @param request 请求
+     * @return 转为请求的结果
+     */
     private org.apache.hc.client5.http.classic.methods.HttpUriRequestBase toRequest(ClientRequest request) {
         String method = request.getMethod().name();
         HttpUriRequestBase req = switch (method) {
@@ -127,11 +127,11 @@ public class HttpClient5Executor implements HttpClientExecutor {
     }
 
     /**
-    * 转为客户端响应
-    *
-    * @param resp resp
-    * @return 转为客户端响应的结果
-    */
+     * 转为客户端响应
+     *
+     * @param resp resp
+     * @return 转为客户端响应的结果
+     */
     private ClientResponse toClientResponse(CloseableHttpResponse resp) throws Exception {
         ClientResponse cr = new ClientResponse();
         cr.setStatusCode(resp.getCode());

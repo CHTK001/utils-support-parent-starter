@@ -44,12 +44,12 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
     /**
-    * AES 加密
-    *
-    * @param key  加密密钥，支持 16 字节（128 位）、24 字节（192 位）或 32 字节（256 位）
-    * @param data 待加密的明文数据
-    * @return 加密后的密文数据（前 16 字节为随机 IV）
-    */
+     * AES 加密
+     *
+     * @param key  加密密钥，支持 16 字节（128 位）、24 字节（192 位）或 32 字节（256 位）
+     * @param data 待加密的明文数据
+     * @return 加密后的密文数据（前 16 字节为随机 IV）
+     */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[16];

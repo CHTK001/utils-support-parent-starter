@@ -88,9 +88,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-            * 加载 Apollo 配置中的所有服务发现条目。
-            * 遍历所有属性键，解析 JSON 并缓存到本地。
-            */
+     * 加载 Apollo 配置中的所有服务发现条目。
+     * 遍历所有属性键，解析 JSON 并缓存到本地。
+     */
     private void loadAll() {
         if (apolloConfig == null) {
             return;
@@ -200,9 +200,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-            * 关闭服务发现功能。
-            * 清理本地缓存数据。
-            */
+     * 关闭服务发现功能。
+     * 清理本地缓存数据。
+     */
     @Override
     public void close() {
         clearCache();

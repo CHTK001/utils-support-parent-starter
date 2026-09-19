@@ -45,8 +45,8 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     /**
-    * 创建 日志流 实例
-    * @param maxLines 最大线
+     * 创建 日志流 实例
+     * @param maxLines 最大线
      */
     public LogStream(int maxLines) {
         this.maxLines = maxLines;
@@ -92,9 +92,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     /**
-    * 订阅
-    *
-    * @param callback callback
+     * 订阅
+     *
+     * @param callback callback
      */
     public void subscribe(LineCallback callback) {
         if (!closed) {

@@ -51,15 +51,15 @@ public class RestoreResult {
     private long rowCount = 0;
 
     /**
-    * 执行耗时（毫秒）
-    */
+     * 执行耗时（毫秒）
+     */
     @Builder.Default
     /** 持续时间 */
     private long duration = 0;
 
     /**
-    * 是否恢复了表结构
-    */
+     * 是否恢复了表结构
+     */
     private boolean structureRestored;
 
     /**
@@ -90,12 +90,12 @@ public class RestoreResult {
     private List<String> warnings = new ArrayList<>();
 
     /**
-    * 创建成功结果
-    * @param schemaName 模式名称
-    * @param tableName table名称
-    * @param rowCount row数量
-    * @return 成功的结果
-    */
+     * 创建成功结果
+     * @param schemaName 模式名称
+     * @param tableName table名称
+     * @param rowCount row数量
+     * @return 成功的结果
+     */
     public static RestoreResult success(String schemaName, String tableName, long rowCount) {
         return RestoreResult.builder()
                 .success(true)

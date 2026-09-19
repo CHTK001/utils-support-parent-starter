@@ -27,10 +27,10 @@ public class TrainingData {
     private List<Double> samePersonScores;
 
     /**
-    * 判断训练数据是否为空。
-    *
-    * @return true 表示三个目录均无数据
-    */
+     * 判断训练数据是否为空。
+     *
+     * @return true 表示三个目录均无数据
+     */
     public boolean isEmpty() {
         return (notSimilarScores == null || notSimilarScores.isEmpty())
                 && (lookSimilarScores == null || lookSimilarScores.isEmpty())

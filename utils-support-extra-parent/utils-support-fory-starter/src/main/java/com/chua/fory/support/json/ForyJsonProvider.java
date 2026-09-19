@@ -451,11 +451,11 @@ public class ForyJsonProvider implements JsonProvider {
     }
 
     /**
-            * 读取 Reader 为字符串。
-            *
-            * @param reader 读取器
-            * @return 字符串内容
-            */
+     * 读取 Reader 为字符串。
+     *
+     * @param reader 读取器
+     * @return 字符串内容
+     */
     private String readString(Reader reader) {
         StringBuilder sb = new StringBuilder();
         char[] buffer = new char[1024];

@@ -453,10 +453,10 @@ public class SqliteStorage implements ApmStorage {
     }
 
     /**
-    * 打开数据库连接。
-    *
-    * @return 数据库连接
-    * @throws SQLException 连接失败
+     * 打开数据库连接。
+     *
+     * @return 数据库连接
+     * @throws SQLException 连接失败
      */
     private Connection open() throws SQLException {
         return DriverManager.getConnection(JDBC_PREFIX + dbPath);

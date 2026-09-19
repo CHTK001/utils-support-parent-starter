@@ -64,11 +64,11 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
      * @param ts ts
      * @return 解析instant转为millis的结果
      /**
-    * 解析线。
-    * @param line 线
-    * @return 解析线的结果
-    * @param ts ts
-    */
+      * 解析线。
+      * @param line 线
+      * @return 解析线的结果
+      * @param ts ts
+      */
     @Override
     protected List<ConversationMessage> parseLine(String line) {
         if (line.isBlank()) {

@@ -82,10 +82,10 @@ public class OpenCVImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 解码图像字节为 打开cv Mat
-    * @param data 数据
-    * @return imdecode的结果
-    */
+     * 解码图像字节为 打开cv Mat
+     * @param data 数据
+     * @return imdecode的结果
+     */
     private Mat imdecode(byte[] data) {
         try (CloseableMob mob = closeableMob(data)) {
             return Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_UNCHANGED);

@@ -291,11 +291,11 @@ public class NativeRpcClient implements RpcClient {
     }
 
     /**
-    * 创建负载均衡器（SPI 加载，策略名取自消费者配置 {@code loadBalance}，默认随机）。
-    *
-    * @param consumerConfig 消费者配置，可为空
-    * @return 负载均衡器实例，SPI 未找到时返回 {@code null}
-    */
+     * 创建负载均衡器（SPI 加载，策略名取自消费者配置 {@code loadBalance}，默认随机）。
+     *
+     * @param consumerConfig 消费者配置，可为空
+     * @return 负载均衡器实例，SPI 未找到时返回 {@code null}
+     */
     private static com.chua.common.support.lang.balance.LoadBalance createLoadBalancer(RpcConsumerConfig consumerConfig) {
         String type = consumerConfig != null && consumerConfig.getLoadBalance() != null
                 ? consumerConfig.getLoadBalance() : "random";

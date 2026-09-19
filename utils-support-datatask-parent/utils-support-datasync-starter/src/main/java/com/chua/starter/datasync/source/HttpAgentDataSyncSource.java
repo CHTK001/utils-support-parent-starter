@@ -32,13 +32,13 @@ public class HttpAgentDataSyncSource implements DataSyncAgentSource {
     private volatile ReactiveHttpClient httpClient;
 
     /**
-    * 创建 httpAgent数据同步源 实例
-    *
-    * @param sourceId 源标识
-    * @param inputId  输入标识
-    * @param agentId  Agent标识
-    * @param agentUrl Agenturl
-    */
+     * 创建 httpAgent数据同步源 实例
+     *
+     * @param sourceId 源标识
+     * @param inputId  输入标识
+     * @param agentId  Agent标识
+     * @param agentUrl Agenturl
+     */
     public HttpAgentDataSyncSource(String sourceId, String inputId, String agentId, String agentUrl) {
         this.sourceId = sourceId;
         this.inputId = inputId;

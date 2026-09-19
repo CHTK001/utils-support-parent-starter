@@ -23,8 +23,8 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
     private final Object bridging;
 
     /**
-    * 类型
-    */
+     * 类型
+     */
     private final Class<?> type;
 
     @Override

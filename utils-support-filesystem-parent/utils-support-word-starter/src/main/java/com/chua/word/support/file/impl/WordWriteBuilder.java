@@ -71,11 +71,11 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 将 映射 数据加入延迟写入队列。
-    *
-    * @param rows 映射 数据列表
-    * @return 写入映射的结果
-    */
+     * 将 映射 数据加入延迟写入队列。
+     *
+     * @param rows 映射 数据列表
+     * @return 写入映射的结果
+     */
     public WordWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
         return this;
@@ -164,10 +164,10 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 执行写入文本
-    *
-    * @param lines 线
-    */
+     * 执行写入文本
+     *
+     * @param lines 线
+     */
     private void doWriteText(List<String> lines) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;

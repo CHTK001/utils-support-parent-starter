@@ -20,8 +20,8 @@ public final class TrainerFactory {
     private static volatile Trainer current;
 
     /**
-    * trainer工厂。
-    */
+     * trainer工厂。
+     */
     private TrainerFactory() {
     }
 

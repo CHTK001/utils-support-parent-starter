@@ -46,11 +46,11 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 线arttranslator 实例
-    * @param imageResolution 镜像resolution
-    * @param imageResolution int
-    * @param detectResolution detectresolution
-    */
+     * 创建 线arttranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param detectResolution detectresolution
+     */
     public LineArtTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;

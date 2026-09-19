@@ -158,10 +158,10 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-        * 统一注解 {@link JsonIgnore} 的 Gson 排除策略适配器。
-        * @author CH
-        * @since 4.0.0
-        */
+     * 统一注解 {@link JsonIgnore} 的 Gson 排除策略适配器。
+     * @author CH
+     * @since 4.0.0
+     */
     static class JsonIgnoreExclusionStrategy implements ExclusionStrategy {
 
         @Override
@@ -519,11 +519,11 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-        * 读取输入流为字符串。
-        *
-        * @param stream 输入流
-        * @return 字符串内容
-        */
+     * 读取输入流为字符串。
+     *
+     * @param stream 输入流
+     * @return 字符串内容
+     */
     private String readString(InputStream stream) {
         try (InputStreamReader reader = new InputStreamReader(stream, UTF_8)) {
             StringBuilder sb = new StringBuilder();

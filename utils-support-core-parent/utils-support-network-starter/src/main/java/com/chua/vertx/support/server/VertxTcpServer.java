@@ -56,9 +56,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     private com.chua.common.support.network.tcp.callback.TcpServerHandler frameHandler;
 
     /**
-    * 创建 vertxtcp服务端 实例
-    * @param setting setting
-    */
+     * 创建 vertxtcp服务端 实例
+     * @param setting setting
+     */
     public VertxTcpServer(ServerSetting setting) {
         super(setting);
     }
@@ -327,8 +327,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     /** 基于 netSocket 的 输入流(阻塞读,虚拟线程专用)。 */
     private static final class NetSocketInputStream extends InputStream {
         /**
-    * 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing
-    */
+         * 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing
+         */
         private static final class Segment {
             final byte[] data;
             int pos;
@@ -412,8 +412,8 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         /** Socket */
         private final NetSocket socket;
         /**
-        * 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 Socket（避免逐字节 Vert.x 调用）
-        */
+         * 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 Socket（避免逐字节 Vert.x 调用）
+         */
         private final byte[] buf = new byte[8192];
         private int pos;
 

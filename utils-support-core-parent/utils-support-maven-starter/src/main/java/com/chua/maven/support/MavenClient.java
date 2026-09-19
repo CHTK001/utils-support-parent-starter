@@ -61,8 +61,8 @@ public class MavenClient implements AutoCloseable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MavenClient.class);
 
     /**
-    * 项目 pom.xml 路径
-    */
+     * 项目 pom.xml 路径
+     */
     private final String projectPath;
 
     /**
@@ -141,8 +141,8 @@ public class MavenClient implements AutoCloseable {
     private static final int PROGRESS_COMPLETE = 100;
 
     /**
-    * Maven 输出解析正则
-    */
+     * Maven 输出解析正则
+     */
     private static final Pattern BUILD_SUCCESS_PATTERN = Pattern.compile("BUILD\\s+SUCCESS");
     /** 构建_失败_模式 */
     private static final Pattern BUILD_FAILURE_PATTERN = Pattern.compile("BUILD\\s+FAILURE");

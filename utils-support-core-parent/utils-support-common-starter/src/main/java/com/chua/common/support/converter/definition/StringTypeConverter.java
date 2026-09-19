@@ -43,11 +43,11 @@ public class StringTypeConverter implements TypeConverter<String> {
     }
 
     /**
-    * 将给定值转换为 String。
-    *
-    * @param value 源值
-    * @return String 值，如果为 null 则返回 null
-    */
+     * 将给定值转换为 String。
+     *
+     * @param value 源值
+     * @return String 值，如果为 null 则返回 null
+     */
     @Override
     public String convert(Object value) {
         if (null == value) {

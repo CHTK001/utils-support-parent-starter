@@ -116,8 +116,8 @@ public class TcpSyncClient implements SyncClient {
     }
 
     /**
-    * 等待服务端注册确认, 保证 connect() 返回后已可收发。
-    */
+     * 等待服务端注册确认, 保证 connect() 返回后已可收发。
+     */
     private void waitRegistered() {
         long deadline = System.currentTimeMillis() + 3000L;
         while (!registered && System.currentTimeMillis() < deadline) {

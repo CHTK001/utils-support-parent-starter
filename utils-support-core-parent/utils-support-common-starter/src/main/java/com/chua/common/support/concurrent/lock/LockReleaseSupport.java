@@ -18,17 +18,17 @@ public final class LockReleaseSupport {
     }
 
     /**
-    * 根据返回值类型决定何时执行 {@code unlock}。
-    * <ul>
-    *   <li>{@link Mono}/{@link Flux}：{@code doFinally} 后释放（完成/错误/取消）</li>
-    *   <li>{@link CompletionStage}/{@link CompletableFuture}：完成后释放</li>
-    *   <li>其它：立即释放</li>
-    * </ul>
-    *
-    * @param result 方法返回值
-    * @param unlock 释放逻辑
-    * @return 原返回值（响应式场景为附加了释放钩子的同一类型流）
-    */
+     * 根据返回值类型决定何时执行 {@code unlock}。
+     * <ul>
+     *   <li>{@link Mono}/{@link Flux}：{@code doFinally} 后释放（完成/错误/取消）</li>
+     *   <li>{@link CompletionStage}/{@link CompletableFuture}：完成后释放</li>
+     *   <li>其它：立即释放</li>
+     * </ul>
+     *
+     * @param result 方法返回值
+     * @param unlock 释放逻辑
+     * @return 原返回值（响应式场景为附加了释放钩子的同一类型流）
+     */
     public static Object releaseAfter(Object result, Runnable unlock) {
         switch (result) {
             case null -> {

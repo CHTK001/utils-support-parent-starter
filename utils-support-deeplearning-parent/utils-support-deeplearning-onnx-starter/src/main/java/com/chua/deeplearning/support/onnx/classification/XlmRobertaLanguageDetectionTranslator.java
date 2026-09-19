@@ -88,12 +88,12 @@ public class XlmRobertaLanguageDetectionTranslator implements Translator<String,
     @Override
     @Nonnull
     /**
-    * 处理输入
-    *
-    * @param ctx ctx
-    * @param input 输入
-    * @return 处理输入的结果
-    */
+     * 处理输入
+     *
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");

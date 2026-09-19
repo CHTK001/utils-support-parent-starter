@@ -221,10 +221,10 @@ public class NettyWebSocketSyncClient implements com.chua.common.support.network
     }
 
     /**
-    * 处理消息
-    *
-    * @param message 消息
-    */
+     * 处理消息
+     *
+     * @param message 消息
+     */
     private void handleMessage(String message) {
         int idx = message.indexOf(':');
         if (idx > 0) {

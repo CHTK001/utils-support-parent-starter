@@ -43,25 +43,25 @@ public class AgentRetryConfig {
     private BackoffStrategy backoffStrategy = BackoffStrategy.EXPONENTIAL;
 
     /**
-    * 基础延迟（毫秒）。
-    * <p>退避计算的基准值。</p>
-    */
+     * 基础延迟（毫秒）。
+     * <p>退避计算的基准值。</p>
+     */
     @Builder.Default
     /** Basedelay毫秒 */
     private long baseDelayMillis = 1000;
 
     /**
-    * 最大延迟（毫秒）。
-    * <p>退避等待的上限，防止等待时间过长。</p>
-    */
+     * 最大延迟（毫秒）。
+     * <p>退避等待的上限，防止等待时间过长。</p>
+     */
     @Builder.Default
     /** 最大值delay毫秒 */
     private long maxDelayMillis = 30000;
 
     /**
-    * 重试条件。
-    * <p>返回 true 表示应重试。默认对所有异常重试。</p>
-    */
+     * 重试条件。
+     * <p>返回 true 表示应重试。默认对所有异常重试。</p>
+     */
     private RetryPredicate retryPredicate;
 
     /**
@@ -78,9 +78,9 @@ public class AgentRetryConfig {
     }
 
     /**
-        * 重试条件函数式接口。
-        * @author CH
-        */
+     * 重试条件函数式接口。
+     * @author CH
+     */
     @FunctionalInterface
     public interface RetryPredicate {
         /**

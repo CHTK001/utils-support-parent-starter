@@ -54,11 +54,11 @@ public class FaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-    * lnormalize
-    *
-    * @param feature 特征
-    * @return l2Normalize的结果
-    */
+     * lnormalize
+     *
+     * @param feature 特征
+     * @return l2Normalize的结果
+     */
     private static float[] l2Normalize(float[] feature) {
         double sum = 0;
         for (float v : feature) {

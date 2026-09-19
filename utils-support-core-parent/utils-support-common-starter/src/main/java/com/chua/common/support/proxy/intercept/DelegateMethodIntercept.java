@@ -23,12 +23,12 @@ public class DelegateMethodIntercept<T> implements InvocationHandler {
     private final Function<ProxyMethod, Object> delegate;
 
     /**
-    * 创建 delegate方法intercept 实例
-    * @param type 类型
-    * @param delegate Function
-    * @param Object 对象
-    * @param delegate delegate
-    */
+     * 创建 delegate方法intercept 实例
+     * @param type 类型
+     * @param delegate Function
+     * @param Object 对象
+     * @param delegate delegate
+     */
     public DelegateMethodIntercept(Class<T> type, Function<ProxyMethod, Object> delegate) {
         this.type = type;
         this.delegate = delegate;

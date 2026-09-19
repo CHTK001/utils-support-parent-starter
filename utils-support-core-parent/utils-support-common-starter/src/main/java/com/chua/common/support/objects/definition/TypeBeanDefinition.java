@@ -48,8 +48,8 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     private ClassLoader classLoader;
 
     /**
-    * 单例缓存实例
-    */
+     * 单例缓存实例
+     */
     private volatile Object singletonInstance;
 
     // ==================== 工厂方法 ====================
@@ -188,10 +188,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     }
 
     /**
-    * 选择参数最多的构造器。
-    * @param beanClass Bean类
-    * @return 选择最大参数constructor的结果
-    */
+     * 选择参数最多的构造器。
+     * @param beanClass Bean类
+     * @return 选择最大参数constructor的结果
+     */
     private static Constructor<?> selectMaxParamConstructor(Class<?> beanClass) {
         Constructor<?>[] constructors = ReflectUtils.findDeclaredConstructors(beanClass);
         if (constructors.length == 0) {

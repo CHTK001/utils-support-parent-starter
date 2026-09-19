@@ -41,18 +41,18 @@ public class AioTcpProxyServer extends AbstractServer {
     /** 虚拟线程池 */
     private ExecutorService executor;
     /**
-    * 固定后端目标(null 则回退 setting host/port)
-    */
+     * 固定后端目标(null 则回退 setting host/port)
+     */
     private volatile InetSocketAddress target;
 
     /** 活跃连接数 */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
-    * 创建 AIO TCP 代理(SPI 入口,目标取 setting host/port)。
-    *
-    * @param setting 配置
-    */
+     * 创建 AIO TCP 代理(SPI 入口,目标取 setting host/port)。
+     *
+     * @param setting 配置
+     */
     public AioTcpProxyServer(ServerSetting setting) {
         super(setting);
     }
@@ -107,8 +107,8 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-    * 接纳循环(纯回调):完成后补位续挂。
-    */
+     * 接纳循环(纯回调):完成后补位续挂。
+     */
     private void acceptLoop() {
         issueAccept();
     }
@@ -192,11 +192,11 @@ public class AioTcpProxyServer extends AbstractServer {
         private final ByteBuffer buf;
 
         /**
-        * 创建单向泵。
-        *
-        * @param src 源通道
-        * @param dst 目标通道
-        */
+         * 创建单向泵。
+         *
+         * @param src 源通道
+         * @param dst 目标通道
+         */
         PipeReader(AsynchronousSocketChannel src, AsynchronousSocketChannel dst) {
             this.src = src;
             this.dst = dst;
@@ -300,10 +300,10 @@ public class AioTcpProxyServer extends AbstractServer {
     }
 
     /**
-    * 获取活跃连接数。
-    *
-    * @return 活跃连接数
-    */
+     * 获取活跃连接数。
+     *
+     * @return 活跃连接数
+     */
     public int getActiveConnections() {
         return activeConnections.get();
     }

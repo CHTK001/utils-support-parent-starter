@@ -48,10 +48,10 @@ public class SseEvent {
     private String event = "message";
 
     /**
-    * 事件 ID
-    *
-    * <p>来自 {@code id:} 行。用于断点重连时设置 {@code Last-Event-ID} 请求头。
-    */
+     * 事件 ID
+     *
+     * <p>来自 {@code id:} 行。用于断点重连时设置 {@code Last-Event-ID} 请求头。
+     */
     private String id;
 
     /**

@@ -22,9 +22,9 @@ public class FelixOsgiBundle implements OsgiBundle {
     private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>(); // registrations
 
     /**
-    * 创建 felixosgibundle 实例
-    * @param bundle bundle
-    */
+     * 创建 felixosgibundle 实例
+     * @param bundle bundle
+     */
     public FelixOsgiBundle(Bundle bundle) {
         this.bundle = bundle;
     }

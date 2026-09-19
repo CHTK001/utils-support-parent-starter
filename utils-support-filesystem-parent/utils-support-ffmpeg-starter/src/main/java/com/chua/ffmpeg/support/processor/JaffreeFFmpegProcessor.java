@@ -231,14 +231,14 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 视频转为gif
-    * @param videoInput 视频输入
-    * @param gifOutput gif输出
-    * @param startTime 启动时间
-    * @param duration 持续时间
-    * @param width width
-    * @param fps fps
-    */
+     * 视频转为gif
+     * @param videoInput 视频输入
+     * @param gifOutput gif输出
+     * @param startTime 启动时间
+     * @param duration 持续时间
+     * @param width width
+     * @param fps fps
+     */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         if (!available) {
@@ -358,12 +358,12 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
 
     @Override
     /**
-    * 拉取流式输出
-    * @param streamUrl 流url
-    * @param output 输出
-    * @param duration 持续时间
-    * @param callback callback
-    */
+     * 拉取流式输出
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
+     * @param callback callback
+     */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {

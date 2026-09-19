@@ -43,8 +43,8 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     }
 
     /**
-    * 客户端
-    */
+     * 客户端
+     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
      * 监听器列表
@@ -123,10 +123,10 @@ public class RSocketSyncServer extends com.chua.common.support.network.server.Ab
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

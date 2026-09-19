@@ -78,10 +78,10 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 创建 Kafka 生产者。
-    *
-    * @return KafkaProducer
-    */
+     * 创建 Kafka 生产者。
+     *
+     * @return KafkaProducer
+     */
     private KafkaProducer<String, String> createProducer() {
         var props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getUrl());

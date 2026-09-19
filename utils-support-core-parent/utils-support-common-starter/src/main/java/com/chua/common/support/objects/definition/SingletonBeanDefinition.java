@@ -25,11 +25,11 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
     private volatile Object singletonInstance;
 
     /**
-    * 构造单例 Bean 定义（懒加载）。
-    *
-    * @param name      Bean 名称
-    * @param beanClass Bean 类
-    */
+     * 构造单例 Bean 定义（懒加载）。
+     *
+     * @param name      Bean 名称
+     * @param beanClass Bean 类
+     */
     public SingletonBeanDefinition(String name, Class<?> beanClass) {
         super(name, beanClass, BeanScope.SINGLETON);
     }

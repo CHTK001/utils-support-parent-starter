@@ -63,9 +63,9 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 提取 PDF 文档的全部文本内容
-    * @return 文本的结果
-    */
+     * 提取 PDF 文档的全部文本内容
+     * @return 文本的结果
+     */
     public String text() {
         try (PDDocument doc = Loader.loadPDF(file)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -116,9 +116,9 @@ public class PdfReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 元数据
-    * @return metadata的结果
-    */
+     * 元数据
+     * @return metadata的结果
+     */
     public PDDocumentInformation metadata() {
         try (PDDocument doc = Loader.loadPDF(file)) {
             return doc.getDocumentInformation();

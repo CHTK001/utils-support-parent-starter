@@ -47,9 +47,9 @@ public class DefaultQrCode extends AbstractQrCode {
     private static final int QUIET_ZONE_SIZE = 4;
 
     /**
-    * 创建 默认qr编码 实例
-    * @param setting setting
-    */
+     * 创建 默认qr编码 实例
+     * @param setting setting
+     */
     public DefaultQrCode(QrSetting setting) {
         super(setting);
     }
@@ -86,15 +86,15 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     /**
-    * 获取QR码图像
-    *
-    * @param codeOptions QR码的选项设置
-    * @param setting QR码的详细设置，包括背景设置等
-    * @param qrCode 生成的QR码实例
-    * @param bitMatrix QR码的位矩阵表示
-    * @return QR码图像
-    * @throws IOException 生成图像时发生IO错误
-    */
+     * 获取QR码图像
+     *
+     * @param codeOptions QR码的选项设置
+     * @param setting QR码的详细设置，包括背景设置等
+     * @param qrCode 生成的QR码实例
+     * @param bitMatrix QR码的位矩阵表示
+     * @return QR码图像
+     * @throws IOException 生成图像时发生IO错误
+     */
     private BufferedImage getBufferedImage(QrCodeOptions codeOptions, QrSetting setting, QRCode qrCode, BitMatrixEx bitMatrix) throws IOException {
         // 如果未设置背景风格，使用默认风格生成QR码图像
         return ServiceProvider.of(CodeProduct.class).getNewExtension(DEFAULT).create(codeOptions, bitMatrix, qrCode, setting);

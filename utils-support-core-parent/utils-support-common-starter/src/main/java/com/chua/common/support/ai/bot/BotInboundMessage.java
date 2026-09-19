@@ -54,8 +54,8 @@ public class BotInboundMessage {
 
     /** 消息类型 */
     /**
-    * 类型
-    */
+     * 类型
+     */
     private Type type;
 
     /**
@@ -104,9 +104,9 @@ public class BotInboundMessage {
     private String eventKey;
 
     /**
-    * 会话 ID
-    * <p>群聊为 groupid / chatid</p>
-    */
+     * 会话 ID
+     * <p>群聊为 groupid / chatid</p>
+     */
     private String chatId;
 
     /** 是否来自群组 */
@@ -118,9 +118,9 @@ public class BotInboundMessage {
     private List<String> mentionedList;
 
     /**
-    * 消息是否 @ 了 Bot 自身
-    * <p>null 表示平台侧未提供该判定</p>
-    */
+     * 消息是否 @ 了 Bot 自身
+     * <p>null 表示平台侧未提供该判定</p>
+     */
     private Boolean mentionedBot;
 
     /**

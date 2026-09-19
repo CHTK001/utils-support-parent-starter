@@ -111,13 +111,13 @@ catch (Throwable e) {
     }
 
     /**
-    * 打开
-    *
-    * @param server 服务端
-    * @param title title
-    * @param width width
-    * @param height height
-    */
+     * 打开
+     *
+     * @param server 服务端
+     * @param title title
+     * @param width width
+     * @param height height
+     */
     public void open(ProtocolServer server, String title, int width, int height) {
         ProtocolType type = server.getProtocolType();
         if (type == ProtocolType.IPC) {

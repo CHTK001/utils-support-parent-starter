@@ -33,9 +33,9 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 realesrgantranslator 实例
-    * @param scale scale
-    */
+     * 创建 realesrgantranslator 实例
+     * @param scale scale
+     */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;
     }

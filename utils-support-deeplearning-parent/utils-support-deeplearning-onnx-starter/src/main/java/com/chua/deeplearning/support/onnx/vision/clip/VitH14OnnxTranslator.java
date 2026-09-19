@@ -62,8 +62,8 @@ public class VitH14OnnxTranslator implements ITranslator<Image, float[]>, AutoCl
     private Path modelPath;
 
     /**
-    * 构造图像特征提取器
-    */
+     * 构造图像特征提取器
+     */
     public VitH14OnnxTranslator() {
     }
 

@@ -209,10 +209,10 @@ public class SimpleWalLog implements WalLog {
     }
 
     /**
-    * 扫描Tail
-    *
-    * @param len len
-    */
+     * 扫描Tail
+     *
+     * @param len len
+     */
     private void scanTail(long len) throws IOException {
         if (len <= config.magic().length) {
             this.currentLsn = 0L;
@@ -286,10 +286,10 @@ public class SimpleWalLog implements WalLog {
     }
 
     /**
-    * ensuremmap容量
-    *
-    * @param needed needed
-    */
+     * ensuremmap容量
+     *
+     * @param needed needed
+     */
     private void ensureMmapCapacity(long needed) throws IOException {
         if (mmapBuffer == null) {
             return;
@@ -388,10 +388,10 @@ public class SimpleWalLog implements WalLog {
     }
 
     /**
-    * 读取checkpoint从disk
-    *
-    * @return 读取checkpoint从disk的结果
-    */
+     * 读取checkpoint从disk
+     *
+     * @return 读取checkpoint从disk的结果
+     */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();

@@ -80,9 +80,9 @@ public final class CurlParser {
     }
 
     /**
-    * 鐩存帴鎵ц curl 鍛戒护骞惰繑鍥炲搷搴斻€?     *
-    * @param curl curl 鍛戒护瀛楃涓?     * @return HTTP 鍝嶅簲
-    */
+     * 鐩存帴鎵ц curl 鍛戒护骞惰繑鍥炲搷搴斻€?     *
+     * @param curl curl 鍛戒护瀛楃涓?     * @return HTTP 鍝嶅簲
+     */
     public static ClientResponse curl(String curl) {
         return fromCurl(curl).execute();
     }

@@ -208,8 +208,8 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-    * 关闭客户端（等价 断开连接）。
-    */
+     * 关闭客户端（等价 断开连接）。
+     */
     @Override
     public void close() {
         disconnect();

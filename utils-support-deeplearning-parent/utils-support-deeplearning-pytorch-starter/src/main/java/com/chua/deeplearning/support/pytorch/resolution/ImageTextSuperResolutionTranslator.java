@@ -30,9 +30,9 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     /**
-    * 创建 镜像文本父resolutiontranslator 实例
-    * @param detectResolution detectresolution
-    */
+     * 创建 镜像文本父resolutiontranslator 实例
+     * @param detectResolution detectresolution
+     */
     public ImageTextSuperResolutionTranslator(int detectResolution) {
         this.detectResolution = detectResolution;
     }

@@ -32,9 +32,9 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-    * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
-    * 直接覆写 streamAll() 的子类不受影响。
-    */
+     * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
+     * 直接覆写 streamAll() 的子类不受影响。
+     */
     @Override
     public Flux<AiUsage> streamAll() {
         return Flux.defer(() -> Flux.fromIterable(parseAll()));

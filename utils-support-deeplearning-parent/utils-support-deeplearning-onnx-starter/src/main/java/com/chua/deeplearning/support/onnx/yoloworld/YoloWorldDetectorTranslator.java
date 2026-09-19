@@ -281,10 +281,10 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     }
 
     /**
-    * 构建习俗标签。
-    * @param numClasses num类
-    * @return 构建习俗标签的结果
-    */
+     * 构建习俗标签。
+     * @param numClasses num类
+     * @return 构建习俗标签的结果
+     */
     private String[] buildCustomLabels(int numClasses) {
         String[] labels = new String[Math.max(numClasses, customClasses.size())];
         for (int i = 0; i < customClasses.size(); i++) {

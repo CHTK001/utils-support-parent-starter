@@ -279,16 +279,16 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析配置内容字符串为键值映射。
-    * <p>
-    * 根据 数据id 的后缀（如 .yaml、.属性）选择合适的解析器。
-    * 无后缀时自动检测 YAML 或 属性 格式。
-    * </p>
-    *
-    * @param configContent 配置内容
-    * @param dataId        配置标识（用于确定解析格式）
-    * @return 解析后的键值映射
-    */
+     * 解析配置内容字符串为键值映射。
+     * <p>
+     * 根据 数据id 的后缀（如 .yaml、.属性）选择合适的解析器。
+     * 无后缀时自动检测 YAML 或 属性 格式。
+     * </p>
+     *
+     * @param configContent 配置内容
+     * @param dataId        配置标识（用于确定解析格式）
+     * @return 解析后的键值映射
+     */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 根据文件后缀选择解析方式

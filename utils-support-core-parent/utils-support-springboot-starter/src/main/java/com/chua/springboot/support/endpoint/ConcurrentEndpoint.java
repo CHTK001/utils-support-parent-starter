@@ -149,12 +149,12 @@ public class ConcurrentEndpoint {
     }
 
     /**
-    * 删除 /{指标}/{名称}：配置删除
-    *
-    * @param metric 指标
-    * @param name 名称
-    * @return 删除的结果
-    */
+     * 删除 /{指标}/{名称}：配置删除
+     *
+     * @param metric 指标
+     * @param name 名称
+     * @return 删除的结果
+     */
     @DeleteOperation
     public Map<String, Object> delete(@Selector String metric, @Selector String name) {
         if (METRIC_RATE_LIMITER.equals(metric)) {

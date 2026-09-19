@@ -21,9 +21,9 @@ public class OnnxImageClassifier implements ImageClassifier {
     private String device = "cpu";
 
     /**
-    * 创建 onnx镜像classifier 实例
-    * @param apiKey API密钥
-    */
+     * 创建 onnx镜像classifier 实例
+     * @param apiKey API密钥
+     */
     public OnnxImageClassifier(String apiKey) {
     }
 
@@ -35,10 +35,10 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
     /**
-    * 解析模型
-    *
-    * @return resolve模型的结果
-    */
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "efficient-net-lite4-classification";
     }

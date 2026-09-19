@@ -218,11 +218,11 @@ public class MetricsDataSyncAgent extends AbstractDataSyncAgent {
         }
 
         /**
-        * 将快照中的 CPU / 内存 / 掉期 / 磁盘 / 网络 / 加载 转换为统一行结构。
-        *
-        * @param snapshot 指标快照
-        * @return 行数据列表
-        */
+         * 将快照中的 CPU / 内存 / 掉期 / 磁盘 / 网络 / 加载 转换为统一行结构。
+         *
+         * @param snapshot 指标快照
+         * @return 行数据列表
+         */
         private List<Map<String, Object>> buildRows(MetricsSnapshot snapshot) {
             List<Map<String, Object>> rows = new ArrayList<>();
             long ts = snapshot.getTimestamp();

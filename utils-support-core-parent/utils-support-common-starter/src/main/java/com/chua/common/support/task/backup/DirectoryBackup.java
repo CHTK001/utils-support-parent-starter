@@ -24,8 +24,8 @@ public class DirectoryBackup implements BackupStrategy {
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     /**
-    * 策略类型标识：目录。
-    */
+     * 策略类型标识：目录。
+     */
     @Override
     public String type() {
         return TYPE;

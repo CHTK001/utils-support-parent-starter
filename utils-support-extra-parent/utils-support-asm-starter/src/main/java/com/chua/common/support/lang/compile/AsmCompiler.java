@@ -130,10 +130,10 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-        * 内存类加载器，负责将内存中的字节码定义为 类 对象
-        * @author CH
-        * @since 4.0.0
-        */
+     * 内存类加载器，负责将内存中的字节码定义为 类 对象
+     * @author CH
+     * @since 4.0.0
+     */
     static class InMemoryClassLoader extends ClassLoader {
         /** 字节码缓存映射 */
         private final Map<String, InMemoryByteCode> bytecodes = new HashMap<>();
@@ -170,10 +170,10 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-        * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
-        * @author CH
-        * @since 4.0.0
-        */
+     * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
+     * @author CH
+     * @since 4.0.0
+     */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         /** 类加载器 */
         private final InMemoryClassLoader classLoader;

@@ -82,8 +82,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-        * 管道模式处理器契约(纯异步)。
-        */
+     * 管道模式处理器契约(纯异步)。
+     */
     @FunctionalInterface
     public interface RawPipeHandler {
         /**
@@ -164,8 +164,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 发起异步 accept(纯回调):完成后补位续挂,连接交虚拟线程处理。
-    */
+     * 发起异步 accept(纯回调):完成后补位续挂,连接交虚拟线程处理。
+     */
     private void acceptLoop() {
         issueAccept();
     }
@@ -439,11 +439,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-        * 阻塞式 Future 读适配器(虚拟线程上零平台线程占用)。
-        *
-        * @param channel 通道
-        * @return 输入流
-        */
+     * 阻塞式 Future 读适配器(虚拟线程上零平台线程占用)。
+     *
+     * @param channel 通道
+     * @return 输入流
+     */
     public static InputStream newBlockingReader(AsynchronousSocketChannel channel) {
         return new InputStream() {
             final ByteBuffer buf = ByteBuffer.allocate(8192);
@@ -592,10 +592,10 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 获取活跃连接数。
-    *
-    * @return 活跃连接数
-    */
+     * 获取活跃连接数。
+     *
+     * @return 活跃连接数
+     */
     public int getActiveConnections() {
         return activeConnections.get();
     }

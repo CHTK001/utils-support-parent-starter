@@ -114,12 +114,12 @@ public class NeedleChatClient implements ChatClient {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 对话同步
-    *
-    * @param prompt 提示符
-    * @param timeoutMillis 超时millis
-    * @return 对话同步的结果
-    */
+     * 对话同步
+     *
+     * @param prompt 提示符
+     * @param timeoutMillis 超时millis
+     * @return 对话同步的结果
+     */
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
         String raw = NeedleNative.complete(prompt, maxTokens);
@@ -155,17 +155,17 @@ public class NeedleChatClient implements ChatClient {
     }
 
     /**
-    * 从引擎 JSON envelope 中提取文本响应。
-    *
-    * <p>引擎返回格式：
-    * <ul>
-    *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
-    *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
-    * </ul>
-    *
-    * @param raw 引擎原始输出
-    * @return 用户可读的文本响应
-    */
+     * 从引擎 JSON envelope 中提取文本响应。
+     *
+     * <p>引擎返回格式：
+     * <ul>
+     *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
+     *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
+     * </ul>
+     *
+     * @param raw 引擎原始输出
+     * @return 用户可读的文本响应
+     */
     @SuppressWarnings("unchecked")
     private String extractText(String raw) {
         if (raw == null || raw.isBlank()) {

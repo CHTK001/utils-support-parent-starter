@@ -28,8 +28,8 @@ public class PageResult<T> implements Serializable {
  private static final long serialVersionUID = 1L;
 
  /**
- * 页码
- */
+  * 页码
+  */
  private int pageNo;
  /**
   * 每页数量

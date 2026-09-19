@@ -55,11 +55,11 @@ public class WordDocumentRenderer implements DocumentProvider {
     }
 
     /**
-    * 写入Title
-    *
-    * @param doc doc
-    * @param data 数据
-    */
+     * 写入Title
+     *
+     * @param doc doc
+     * @param data 数据
+     */
     private void writeTitle(XWPFDocument doc, DocumentData data) {
         XWPFParagraph titlePara = doc.createParagraph();
         titlePara.setAlignment(ParagraphAlignment.CENTER);

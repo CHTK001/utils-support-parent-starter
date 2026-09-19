@@ -74,9 +74,9 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     private long loadedAtNanos;
 
     /**
-    * 私有构造，通过 {@link #builder()} 创建。
-    * @param b 方法入参 b
-    */
+     * 私有构造，通过 {@link #builder()} 创建。
+     * @param b 方法入参 b
+     */
     private LazyExpiringList(Builder<E> b) {
         this.loader = b.loader;
         this.ttlMillis = b.ttlMillis;
@@ -223,10 +223,10 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         private final Type type;
 
         /**
-            * 私有构造，由内部触发。
-            *
-            * @param type 事件类型
-            */
+         * 私有构造，由内部触发。
+         *
+         * @param type 事件类型
+         */
         private LifecycleEvent(Type type) {
             this.type = type;
         }

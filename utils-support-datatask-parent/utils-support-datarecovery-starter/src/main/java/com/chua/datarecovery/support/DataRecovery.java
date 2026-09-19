@@ -17,9 +17,9 @@ public class DataRecovery {
     private final String devicePath;
 
     /**
-    * 创建 数据recovery 实例
-    * @param devicePath device路径
-    */
+     * 创建 数据recovery 实例
+     * @param devicePath device路径
+     */
     private DataRecovery(String devicePath) {
         this.devicePath = devicePath;
     }
@@ -137,11 +137,11 @@ public class DataRecovery {
     }
 
     /**
-    * 扫描
-    *
-    * @param scanMode 扫描mode
-    * @return 扫描的结果
-    */
+     * 扫描
+     *
+     * @param scanMode 扫描mode
+     * @return 扫描的结果
+     */
     public ScanResult scan(int scanMode) {
         String json = nativeScan(devicePath, scanMode);
         return parse(json, ScanResult.class);

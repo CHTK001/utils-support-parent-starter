@@ -48,8 +48,8 @@ public class RateLimitFilter implements ServerFilter {
     private volatile RateLimitProvider.RateLimiter limiter;
 
     /**
-    * 限流 key 提取策略
-    */
+     * 限流 key 提取策略
+     */
     public enum KeyStrategy {
         /** 全局限流 */
         GLOBAL,
@@ -60,11 +60,11 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     /**
-        * 创建全局限流过滤器。
-        *
-        * @param providerName SPI 提供者名称（如 "guava"）
-        * @param qps          每秒最大请求数
-        */
+     * 创建全局限流过滤器。
+     *
+     * @param providerName SPI 提供者名称（如 "guava"）
+     * @param qps          每秒最大请求数
+     */
     public RateLimitFilter(String providerName, double qps) {
         this(providerName, qps, KeyStrategy.GLOBAL, null);
     }
@@ -135,11 +135,11 @@ public class RateLimitFilter implements ServerFilter {
 
     @Override
     /**
-    * Do过滤
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (limiter == null) {

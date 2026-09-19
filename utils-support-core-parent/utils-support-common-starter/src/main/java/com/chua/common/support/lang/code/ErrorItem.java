@@ -25,8 +25,8 @@ public class ErrorItem {
  /** IS错误 */
  private boolean isError = true;
  /**
- * 错误信息
- */
+  * 错误信息
+  */
  private String message;
  /**
   * 错误

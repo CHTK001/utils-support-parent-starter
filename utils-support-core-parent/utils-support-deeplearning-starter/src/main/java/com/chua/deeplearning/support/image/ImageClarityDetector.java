@@ -231,11 +231,11 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 评定
-    *
-    * @param imageData 镜像数据
-    * @return 评定的结果
-    */
+     * 评定
+     *
+     * @param imageData 镜像数据
+     * @return 评定的结果
+     */
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

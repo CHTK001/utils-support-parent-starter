@@ -42,8 +42,8 @@ public final class StorageManager {
     }
 
     /**
-    * 初始化全局存储。
-    * @param config 配置
+     * 初始化全局存储。
+     * @param config 配置
      */
     public static synchronized void init(StorageConfig config) {
         ApmStorage resolved = resolve(config);

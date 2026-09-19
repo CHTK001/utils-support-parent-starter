@@ -177,13 +177,13 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     /**
-    * 将 缓冲镜像 转换为字节数组
-    *
-    * @param image  图像
-    * @param format 格式（如 "png", "jpg"）
-    * @return 字节数组
-    * @throws IOException IO 异常
-    */
+     * 将 缓冲镜像 转换为字节数组
+     *
+     * @param image  图像
+     * @param format 格式（如 "png", "jpg"）
+     * @return 字节数组
+     * @throws IOException IO 异常
+     */
     private static byte[] toBytes(BufferedImage image, String format) throws IOException {
         return ImageUtils.encode(ImageUtils.toMat(image), format);
     }

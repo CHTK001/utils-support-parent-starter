@@ -49,8 +49,8 @@ public final class ImageUtils {
     private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
 
     /**
-    * PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前
-    */
+     * PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前
+     */
     private static final byte[] PNG_EOF = {(byte) 0x49, (byte) 0x45, (byte) 0x4E, (byte) 0x44};
 
     /**

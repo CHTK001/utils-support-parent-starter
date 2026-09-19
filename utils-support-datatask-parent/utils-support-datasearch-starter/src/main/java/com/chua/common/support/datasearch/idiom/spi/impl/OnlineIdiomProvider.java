@@ -66,10 +66,10 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 构造一个指定数据源地址的提供器。
-    *
-    * @param url 成语 JSON 数据源地址
-    */
+     * 构造一个指定数据源地址的提供器。
+     *
+     * @param url 成语 JSON 数据源地址
+     */
     public OnlineIdiomProvider(String url) {
         this.url = url;
         this.httpClient = HttpClientFactory.getClient();
@@ -149,12 +149,12 @@ public class OnlineIdiomProvider implements IdiomProvider {
     }
 
     /**
-    * 判断是否包含关键词
-    *
-    * @param text 文本
-    * @param kw kw
-    * @return contains的结果
-    */
+     * 判断是否包含关键词
+     *
+     * @param text 文本
+     * @param kw kw
+     * @return contains的结果
+     */
     private static boolean contains(String text, String kw) {
         return text != null && text.contains(kw);
     }

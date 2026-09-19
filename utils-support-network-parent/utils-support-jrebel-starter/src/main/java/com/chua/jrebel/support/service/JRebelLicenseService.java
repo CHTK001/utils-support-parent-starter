@@ -61,11 +61,11 @@ public class JRebelLicenseService {
     }
 
     /**
-    * 生成许可证 GUID
-    *
-    * @param clientId 客户端标识
-    * @return GUID
-    */
+     * 生成许可证 GUID
+     *
+     * @param clientId 客户端标识
+     * @return GUID
+     */
     public String generateGuid(String clientId) {
         if (clientId == null || clientId.isEmpty()) {
             return UUID.randomUUID().toString().toUpperCase();

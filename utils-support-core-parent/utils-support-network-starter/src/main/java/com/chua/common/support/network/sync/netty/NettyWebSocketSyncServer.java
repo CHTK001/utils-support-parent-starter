@@ -39,9 +39,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-    * 创建 nettywebSocket同步服务端 实例
-    * @param setting setting
-    */
+     * 创建 nettywebSocket同步服务端 实例
+     * @param setting setting
+     */
     public NettyWebSocketSyncServer(ServerSetting setting) {
         super(setting);
     }

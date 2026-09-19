@@ -708,11 +708,11 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 确保数值为偶数（YUV420P 要求宽高为偶数）。
-    *
-    * @param v 原始数值
-    * @return 调整后的偶数
-    */
+     * 确保数值为偶数（YUV420P 要求宽高为偶数）。
+     *
+     * @param v 原始数值
+     * @return 调整后的偶数
+     */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
@@ -755,17 +755,17 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-        * 可增量排空（drain）字节的 bytearray 输出流。
-        * <p>
-        * 解决 H264nvenc 编码器旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
-        * 带来的 O(n²) 内存拷贝问题：每次编码一帧前，编码器记录 {@code memoryStream.size()}；
-        * 编码 + flush 之后需要读取增量并清空。如果直接调用 {@code toByteArray()}，
-        * 30 秒后累计 缓冲 达到 100MB+ 后，每次都会完整复制 100MB。
-        * </p>
-        * <p>
-        * 本类通过 {@link #drain(int, int)} 直接读取并清空指定区间，避免重复扫描。
-        * </p>
-        */
+     * 可增量排空（drain）字节的 bytearray 输出流。
+     * <p>
+     * 解决 H264nvenc 编码器旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
+     * 带来的 O(n²) 内存拷贝问题：每次编码一帧前，编码器记录 {@code memoryStream.size()}；
+     * 编码 + flush 之后需要读取增量并清空。如果直接调用 {@code toByteArray()}，
+     * 30 秒后累计 缓冲 达到 100MB+ 后，每次都会完整复制 100MB。
+     * </p>
+     * <p>
+     * 本类通过 {@link #drain(int, int)} 直接读取并清空指定区间，避免重复扫描。
+     * </p>
+     */
     private static final class DrainableByteArrayOutputStream extends ByteArrayOutputStream {
         DrainableByteArrayOutputStream(int capacity) {
             super(capacity);

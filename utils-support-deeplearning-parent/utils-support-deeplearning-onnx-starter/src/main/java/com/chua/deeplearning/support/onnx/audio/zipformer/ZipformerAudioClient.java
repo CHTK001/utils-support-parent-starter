@@ -55,10 +55,10 @@ public class ZipformerAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-    * 构造客户端。
-    *
-    * @param setting 配置
-    */
+     * 构造客户端。
+     *
+     * @param setting 配置
+     */
     public ZipformerAudioClient(AudioClientSetting setting) {
         this.setting = setting;
     }

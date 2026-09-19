@@ -77,19 +77,19 @@ public class UebaTrainer {
     private final Path resumeDir;
 
     /**
-    * 构造训练管线。
-    *
-    * @param config         UEBA 配置，不能为 空
-    * @param configSource   配置源文件路径，允许为 空
-    * @param dataCsv        训练数据 CSV 路径，不能为 空
-    * @param outputDir      输出目录，不能为 空
-    * @param epochs         训练轮数，必须大于 0
-    * @param batchSize      批大小，必须大于 0
-    * @param learningRate   学习率，必须大于 0
-    * @param pythonCommand  Python 解释器，不能为 空 或空白
-    * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 空（空 表示从零训练）
-    * @throws IllegalArgumentException 当任一参数不合法时
-    */
+     * 构造训练管线。
+     *
+     * @param config         UEBA 配置，不能为 空
+     * @param configSource   配置源文件路径，允许为 空
+     * @param dataCsv        训练数据 CSV 路径，不能为 空
+     * @param outputDir      输出目录，不能为 空
+     * @param epochs         训练轮数，必须大于 0
+     * @param batchSize      批大小，必须大于 0
+     * @param learningRate   学习率，必须大于 0
+     * @param pythonCommand  Python 解释器，不能为 空 或空白
+     * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 空（空 表示从零训练）
+     * @throws IllegalArgumentException 当任一参数不合法时
+     */
     public UebaTrainer(UebaConfig config, Path configSource, Path dataCsv, Path outputDir,
                        int epochs, int batchSize, double learningRate, String pythonCommand,
                        Path resumeDir) {

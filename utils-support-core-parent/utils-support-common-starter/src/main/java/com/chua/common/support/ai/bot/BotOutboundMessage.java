@@ -113,17 +113,17 @@ public class BotOutboundMessage {
 
     /** 消息类型 */
     /**
-    * 类型
-    */
+     * 类型
+     */
     private BotInboundMessage.Type type;
 
     /** 目标用户 ID */
     private String toUser;
 
     /**
-    * 消息内容
-    * <p>TEXT 类型时包含文本</p>
-    */
+     * 消息内容
+     * <p>TEXT 类型时包含文本</p>
+     */
     private String content;
 
     /**
@@ -151,9 +151,9 @@ public class BotOutboundMessage {
     private List<String> mentionedUsers;
 
     /**
-    * 扩展字段
-    * <p>如 "markdown" 等自定义参数</p>
-    */
+     * 扩展字段
+     * <p>如 "markdown" 等自定义参数</p>
+     */
     @Singular("extension")
     private Map<String, Object> extensions;
 

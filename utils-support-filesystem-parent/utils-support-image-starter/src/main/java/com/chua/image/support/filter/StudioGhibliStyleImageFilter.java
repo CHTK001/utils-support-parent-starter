@@ -442,12 +442,12 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * RGB转HSV色彩空间
-    * @param r r
-    * @param g g
-    * @param b b
-    * @return rgb转为hsv的结果
-    */
+     * RGB转HSV色彩空间
+     * @param r r
+     * @param g g
+     * @param b b
+     * @return rgb转为hsv的结果
+     */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;

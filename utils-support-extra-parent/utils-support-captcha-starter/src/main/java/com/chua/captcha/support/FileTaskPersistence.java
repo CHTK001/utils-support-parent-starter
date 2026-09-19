@@ -78,8 +78,8 @@ public class FileTaskPersistence implements TaskPersistence {
     }
 
     /**
-    * 从文件加载缓存（仅首次调用生效）
-    */
+     * 从文件加载缓存（仅首次调用生效）
+     */
     private void ensureLoaded() {
         if (loaded) {
             return;

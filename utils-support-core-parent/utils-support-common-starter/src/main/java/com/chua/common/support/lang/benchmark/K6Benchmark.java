@@ -94,10 +94,10 @@ public class K6Benchmark implements Benchmark {
     }
 
     /**
-    * 解析 k6 可执行文件路径：配置 > 环境变量 K6_BIN > 常见安装路径 > PATH。
-    *
-    * @return k6 可执行文件路径
-    */
+     * 解析 k6 可执行文件路径：配置 > 环境变量 K6_BIN > 常见安装路径 > PATH。
+     *
+     * @return k6 可执行文件路径
+     */
     private String resolveK6Binary() {
         if (config.getK6Binary() != null && !config.getK6Binary().isEmpty()) {
             return config.getK6Binary();

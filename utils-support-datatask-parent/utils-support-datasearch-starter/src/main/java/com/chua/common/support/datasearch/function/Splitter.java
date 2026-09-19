@@ -14,9 +14,9 @@ public class Splitter {
     private final String delimiter;
 
     /**
-    * 创建 Splitter 实例
-    * @param delimiter delimiter
-    */
+     * 创建 Splitter 实例
+     * @param delimiter delimiter
+     */
     private Splitter(String delimiter) {
         this.delimiter = delimiter;
     }

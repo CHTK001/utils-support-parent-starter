@@ -298,9 +298,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-    * 构建命令
-    *
-    * @return 构建命令的结果
+     * 构建命令
+     *
+     * @return 构建命令的结果
      */
     private List<String> buildCommand() {
         List<String> cmd = new ArrayList<>();
@@ -401,9 +401,9 @@ public class DefaultRuntimeInstance implements RuntimeInstance {
     }
 
     /**
-    * waitforexit异步
-    *
-    * @param process 处理
+     * waitforexit异步
+     *
+     * @param process 处理
      */
     private void waitForExitAsync(Process process) {
         CompletableFuture.runAsync(() -> {

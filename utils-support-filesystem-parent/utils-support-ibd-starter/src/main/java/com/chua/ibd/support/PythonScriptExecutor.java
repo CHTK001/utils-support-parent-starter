@@ -32,9 +32,9 @@ public class PythonScriptExecutor implements ScriptExecutor {
     }
 
     /**
-    * 创建 pythonscript执行器 实例
-    * @param pythonPath Python路径
-    */
+     * 创建 pythonscript执行器 实例
+     * @param pythonPath Python路径
+     */
     public PythonScriptExecutor(String pythonPath) {
         this(pythonPath, 60000);
     }

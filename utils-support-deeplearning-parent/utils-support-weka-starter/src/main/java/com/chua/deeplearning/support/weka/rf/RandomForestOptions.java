@@ -57,10 +57,10 @@ public class RandomForestOptions implements Serializable {
     private boolean breakTiesRandomly = false;
 
     /**
-    * 默认参数。
-    *
-    * @return 默认参数实例
-    */
+     * 默认参数。
+     *
+     * @return 默认参数实例
+     */
     public static RandomForestOptions defaults() {
         return new RandomForestOptions();
     }

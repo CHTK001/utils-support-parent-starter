@@ -82,11 +82,11 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-    * 创建 tcp代理服务端过滤器 实例
-    * @param connectTimeoutMs 连接超时ms
-    * @param connectTimeoutMs int
-    * @param readTimeoutMs 读取超时ms
-    */
+     * 创建 tcp代理服务端过滤器 实例
+     * @param connectTimeoutMs 连接超时ms
+     * @param connectTimeoutMs int
+     * @param readTimeoutMs 读取超时ms
+     */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs) {
         this(connectTimeoutMs, readTimeoutMs, null);
     }
@@ -197,10 +197,10 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-    * 获取活跃connections
-    *
-    * @return 获取活跃connections的结果
-    */
+     * 获取活跃connections
+     *
+     * @return 获取活跃connections的结果
+     */
     public int getActiveConnections() {
         return activeConnections.get();
     }

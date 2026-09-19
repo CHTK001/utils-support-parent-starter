@@ -126,8 +126,8 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-    * 子类实现每轮发现/扩散逻辑（路由 gossip 或 seed 同步）。
-    */
+     * 子类实现每轮发现/扩散逻辑（路由 gossip 或 seed 同步）。
+     */
     protected abstract void doDiscoveryRound();
 
     @Override
@@ -277,9 +277,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-    * 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。
-    * @param d 方法入参 d
-    */
+     * 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。
+     * @param d 方法入参 d
+     */
     protected void probeHeartbeat(Discovery d) {
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
                 d.getProtocol(), getGroupId(), setting.getServicePath());

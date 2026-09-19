@@ -159,8 +159,8 @@ class DefaultPedestrianDetector implements PedestrianDetector {
     private final ModelSetting setting;
 
     /**
-    * 置信度阈值。
-    */
+     * 置信度阈值。
+     */
     private float threshold = 0.5f;
 
     /**
@@ -216,11 +216,11 @@ class DefaultPedestrianDetector implements PedestrianDetector {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Detect
-    *
-    * @param imageData 镜像数据
-    * @return detect的结果
-    */
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);

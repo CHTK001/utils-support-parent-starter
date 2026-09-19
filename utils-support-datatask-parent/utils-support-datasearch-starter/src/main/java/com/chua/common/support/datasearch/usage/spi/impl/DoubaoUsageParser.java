@@ -36,13 +36,13 @@ public class DoubaoUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-    * 匹配火山方舟 / 豆包 的 provider 标记。
-    * <p>CC-Switch 中火山方舟 provider 的 id / type 常见取值：</p>
-    * <ul>
-    *   <li>{@code volc}、{@code volcano}、{@code volcengine}</li>
-    *   <li>{@code ark}、{@code doubao}</li>
-    * </ul>
-    */
+     * 匹配火山方舟 / 豆包 的 provider 标记。
+     * <p>CC-Switch 中火山方舟 provider 的 id / type 常见取值：</p>
+     * <ul>
+     *   <li>{@code volc}、{@code volcano}、{@code volcengine}</li>
+     *   <li>{@code ark}、{@code doubao}</li>
+     * </ul>
+     */
     private static final String PROVIDER_SQL_FILTER =
             "(LOWER(provider_type) IN ('volc','volcano','volcengine','ark','doubao') "
                     + "OR LOWER(provider_id) LIKE '%volc%' "

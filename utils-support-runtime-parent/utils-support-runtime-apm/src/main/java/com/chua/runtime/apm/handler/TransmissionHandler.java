@@ -243,7 +243,7 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 本地网络身份缓存 — 避免在 处理entry 阶段重复解析 inet地址.获取本地主机()
+     * 本地网络身份缓存 — 避免在 处理entry 阶段重复解析 inet地址.获取本地主机()
      */
     private static volatile String LOCAL_HOST;
     /**

@@ -82,11 +82,11 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     }
 
     /**
-    * 加载标签
-    *
-    * @param modelPath 模型路径
-    * @return 加载标签的结果
-    */
+     * 加载标签
+     *
+     * @param modelPath 模型路径
+     * @return 加载标签的结果
+     */
     private static List<String> loadLabels(Path modelPath) {
         try {
             if (modelPath == null) {

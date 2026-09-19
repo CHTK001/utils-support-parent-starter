@@ -30,8 +30,8 @@ public class EmojiManager {
     /** Emoji_数据 */
     private static final List<Emoji> EMOJI_DATA = new ArrayList<>();
     /**
-    * 别名到 Emoji 的映射
-    */
+     * 别名到 Emoji 的映射
+     */
     public static final Map<String, Emoji> EMOJIS_BY_ALIAS = new ConcurrentHashMap<>();
 
     static {
@@ -43,10 +43,10 @@ public class EmojiManager {
     }
 
     /**
-    * 获取全部 emoji 数据
-    *
-    * @return emoji 列表
-    */
+     * 获取全部 emoji 数据
+     *
+     * @return emoji 列表
+     */
     public static List<Emoji> data() {
         return EMOJI_DATA;
     }

@@ -169,10 +169,10 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     /**
-    * 将启动类型映射为 sc.exe 的 启动 参数值。
-    *
-    * @param startupType 启动类型（auto / manual / 已禁用）
-    * @return sc.exe 的 启动 参数值
+     * 将启动类型映射为 sc.exe 的 启动 参数值。
+     *
+     * @param startupType 启动类型（auto / manual / 已禁用）
+     * @return sc.exe 的 启动 参数值
      */
     private String mapStartupType(String startupType) {
         if (startupType == null) {

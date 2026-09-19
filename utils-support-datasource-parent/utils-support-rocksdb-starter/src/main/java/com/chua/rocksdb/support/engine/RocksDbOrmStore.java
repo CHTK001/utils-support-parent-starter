@@ -61,8 +61,8 @@ public class RocksDbOrmStore {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-    * 实体 字段 反射 缓存：类 → 字段名 → {@link Field}（已 setAccessible）
-    */
+     * 实体 字段 反射 缓存：类 → 字段名 → {@link Field}（已 setAccessible）
+     */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -74,10 +74,10 @@ public class RocksDbOrmStore {
     private final RocksDB db;
 
     /**
-    * 构造 ORM 存储。
-    *
-    * @param db RocksDB 实例
-    */
+     * 构造 ORM 存储。
+     *
+     * @param db RocksDB 实例
+     */
     public RocksDbOrmStore(RocksDB db) {
         this(db, new ConcurrentHashMap<>());
     }

@@ -50,13 +50,13 @@ public class PidiScribbleTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 pidiscribbletranslator 实例
-    * @param imageResolution 镜像resolution
-    * @param imageResolution int
-    * @param safe 布尔值
-    * @param detectResolution detectresolution
-    * @param safe safe
-    */
+     * 创建 pidiscribbletranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param safe 布尔值
+     * @param detectResolution detectresolution
+     * @param safe safe
+     */
     public PidiScribbleTranslator(int imageResolution, int detectResolution, boolean safe) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;

@@ -65,10 +65,10 @@ public class JsonFileSystem implements FileSystem {
     }
 
     /**
-    * JSON 文件读取构建器。
-    *
-    * @since 4.0.0.42
-    */
+     * JSON 文件读取构建器。
+     *
+     * @since 4.0.0.42
+     */
     public static class JsonReadBuilder extends ReadBuilder {
 
         JsonReadBuilder(File file) {
@@ -83,10 +83,10 @@ public class JsonFileSystem implements FileSystem {
         }
 
         /**
-        * 以表格形式读取 JSON（{@code [[header,...],[val,...],...]}），首行为表头。
-        *
-        * @return Map 行数据列表
-        */
+         * 以表格形式读取 JSON（{@code [[header,...],[val,...],...]}），首行为表头。
+         *
+         * @return Map 行数据列表
+         */
         @SuppressWarnings("unchecked")
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
@@ -204,10 +204,10 @@ public class JsonFileSystem implements FileSystem {
     }
 
     /**
-        * JSON 文件写入构建器。
-        *
-        * @since 4.0.0.42
-        */
+     * JSON 文件写入构建器。
+     *
+     * @since 4.0.0.42
+     */
     public static class JsonWriteBuilder extends WriteBuilder {
 
         /**

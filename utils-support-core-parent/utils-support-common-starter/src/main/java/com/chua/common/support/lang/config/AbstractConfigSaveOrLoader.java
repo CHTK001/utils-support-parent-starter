@@ -34,16 +34,16 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     }
 
     /**
-    * 将配置键标准化为基于斜杠的相对路径。
-    * 处理步骤：
-    * 1. 将反斜杠转换为正斜杠以统一路径分隔符。
-    * 2. 移除路径开头的多余斜杠。
-    * 3. 验证结果是否为空，若为空则抛出异常。
-    *
-    * @param key 原始配置键。
-    * @return 标准化后的路径字符串。
-    * @throws IllegalArgumentException 当 key 为空白时抛出。
-    */
+     * 将配置键标准化为基于斜杠的相对路径。
+     * 处理步骤：
+     * 1. 将反斜杠转换为正斜杠以统一路径分隔符。
+     * 2. 移除路径开头的多余斜杠。
+     * 3. 验证结果是否为空，若为空则抛出异常。
+     *
+     * @param key 原始配置键。
+     * @return 标准化后的路径字符串。
+     * @throws IllegalArgumentException 当 key 为空白时抛出。
+     */
     protected String normalizeKey(String key) {
         Objects.requireNonNull(key, "config key must not be null");
         // 统一路径分隔符为正斜杠

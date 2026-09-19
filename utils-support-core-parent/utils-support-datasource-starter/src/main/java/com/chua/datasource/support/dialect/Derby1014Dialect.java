@@ -4,8 +4,8 @@ import java.util.Properties;
 public class Derby1014Dialect extends SqlDialect {
     public static final String VERSION = "Apache Derby 10.14"; // 版本
     /**
-    * Derby1014Dialect。
-    */
+     * Derby1014Dialect。
+     */
     public Derby1014Dialect() { super("derby1014"); }
     /**
      * Derby1014Dialect。

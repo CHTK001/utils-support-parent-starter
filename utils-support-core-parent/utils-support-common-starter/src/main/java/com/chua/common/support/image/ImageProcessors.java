@@ -127,11 +127,11 @@ public final class ImageProcessors {
         private String format = "png";
 
         /**
-        * 构造流畅处理器
-        *
-        * @param imageData 原始图像字节
-        * @param processor 底层处理器
-        */
+         * 构造流畅处理器
+         *
+         * @param imageData 原始图像字节
+         * @param processor 底层处理器
+         */
         private FluentProcessor(byte[] imageData, ImageProcessor processor) {
             this.imageData = imageData;
             this.processor = processor;

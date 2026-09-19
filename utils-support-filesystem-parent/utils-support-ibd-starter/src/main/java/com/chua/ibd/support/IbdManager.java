@@ -185,10 +185,10 @@ public class IbdManager {
     }
 
     /**
-                * extract从类路径
-                *
-                * @param classPath 类路径
-                */
+     * extract从类路径
+     *
+     * @param classPath 类路径
+     */
     private void extractFromClasspath(String classPath) {
  // 类路径 目录模式下，资源已在原位，无需解压
     }

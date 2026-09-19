@@ -115,8 +115,8 @@ public class PocketTtsTranslator {
     private String mimiEncoderOutputName;
 
     /**
-    * 流匹配采样步数（蒸馏一致性模型通常 4 步）
-    */
+     * 流匹配采样步数（蒸馏一致性模型通常 4 步）
+     */
     private int flowSteps = 4;
 
     /**
@@ -142,16 +142,16 @@ public class PocketTtsTranslator {
     private int maxFrames = MAX_FRAMES;
 
     /**
-    * 参考音频潜变量布局："NCT" = [1, C, T]（Mimi 默认），"NTC" = [1, T, C]（兼容旧导出）
-    */
+     * 参考音频潜变量布局："NCT" = [1, C, T]（Mimi 默认），"NTC" = [1, T, C]（兼容旧导出）
+     */
     private String refLatentsLayout = "NCT";
 
     /** 是否已准备 */
     private volatile boolean prepared;
 
     /**
-    * 构造合成器。
-    */
+     * 构造合成器。
+     */
     public PocketTtsTranslator() {
     }
 
@@ -323,12 +323,12 @@ public class PocketTtsTranslator {
     private final Map<String, String> configCache = new LinkedHashMap<>();
 
     /**
-    * 从 配置.json 读取字符串（点路径），未配置时返回默认值。
-    *
-    * @param dotPath 点路径键（如 "模型_文件.文本_编码器"）
-    * @param def     默认值
-    * @return 配置值或默认值
-    */
+     * 从 配置.json 读取字符串（点路径），未配置时返回默认值。
+     *
+     * @param dotPath 点路径键（如 "模型_文件.文本_编码器"）
+     * @param def     默认值
+     * @return 配置值或默认值
+     */
     private String configStr(String dotPath, String def) {
         return configCache.getOrDefault(dotPath, def);
     }
@@ -722,10 +722,10 @@ public class PocketTtsTranslator {
     private Map<String, ai.onnxruntime.OnnxTensor> flowState = new LinkedHashMap<>();
 
     /**
-    * 获取状态tensorshape。
-    * @param inName 入名称
-    * @return 获取状态tensorshape的结果
-    */
+     * 获取状态tensorshape。
+     * @param inName 入名称
+     * @return 获取状态tensorshape的结果
+     */
     private long[] getStateTensorShape(String inName) {
         try {
             Map<String, ?> meta = textEncoderSession.getInputInfo();

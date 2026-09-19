@@ -28,7 +28,7 @@ public enum ListState {
     LOADED,
 
     /**
-    * 已关闭，不可逆，任何访问将抛出 IllegalStateException
-    */
+     * 已关闭，不可逆，任何访问将抛出 IllegalStateException
+     */
     CLOSED
 }

@@ -57,11 +57,11 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     /**
-    * 打开Vocab
-    *
-    * @param model 模型
-    * @return 打开vocab的结果
-    */
+     * 打开Vocab
+     *
+     * @param model 模型
+     * @return 打开vocab的结果
+     */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
         for (String name : candidates) {
@@ -92,12 +92,12 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     /**
-    * Tokenize
-    *
-    * @param input 输入
-    * @param lod lod
-    * @return tokenize的结果
-    */
+     * Tokenize
+     *
+     * @param input 输入
+     * @param lod lod
+     * @return tokenize的结果
+     */
     private List<Long> tokenize(String[] input, List<Long> lod) {
         List<Long> wordIds = new ArrayList<>();
         for (String word : input) {

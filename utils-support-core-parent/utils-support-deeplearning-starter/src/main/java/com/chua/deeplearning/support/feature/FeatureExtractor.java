@@ -160,8 +160,8 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     private final ModelSetting setting;
 
     /**
-    * 模型路径。
-    */
+     * 模型路径。
+     */
     private String modelPath;
 
     /**
@@ -217,11 +217,11 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Extract
-    *
-    * @param imageData 镜像数据
-    * @return extract的结果
-    */
+     * Extract
+     *
+     * @param imageData 镜像数据
+     * @return extract的结果
+     */
     public float[] extract(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);

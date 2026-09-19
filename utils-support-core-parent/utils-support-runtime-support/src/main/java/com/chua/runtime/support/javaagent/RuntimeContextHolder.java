@@ -57,9 +57,9 @@ public final class RuntimeContextHolder {
     }
 
     /**
-    * 设置全局 runtime管理器 实例。
-    *
-    * @param manager runtime管理器 实例
+     * 设置全局 runtime管理器 实例。
+     *
+     * @param manager runtime管理器 实例
      */
     public static void setManager(RuntimeManager manager) {
         RuntimeManager old = managerRef.getAndSet(manager);

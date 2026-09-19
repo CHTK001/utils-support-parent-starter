@@ -24,11 +24,11 @@ public record PostgresqlVectorStorageProperties(
         /** HNSW M 参数，默认 16 */
         int hnswM,
         /**
-        * HNSW ef_搜索，默认 40
-        *
-        * @param obj obj
-        * @return 的的结果
-        */
+         * HNSW ef_搜索，默认 40
+         *
+         * @param obj obj
+         * @return 的的结果
+         */
         int hnswEfSearch
 ) {
     private static final String DEFAULT_TABLE = "vector_store";

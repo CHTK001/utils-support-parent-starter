@@ -257,10 +257,10 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-    * 构建图片尺寸字符串
-    *
-    * @return 如 "1024x1024"
-    */
+     * 构建图片尺寸字符串
+     *
+     * @return 如 "1024x1024"
+     */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;

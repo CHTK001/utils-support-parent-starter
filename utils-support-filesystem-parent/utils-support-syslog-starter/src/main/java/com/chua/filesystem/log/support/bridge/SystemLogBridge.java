@@ -38,10 +38,10 @@ public final class SystemLogBridge {
     }
 
     /**
-    * 获取Instance
-    *
-    * @return 获取instance的结果
-    */
+     * 获取Instance
+     *
+     * @return 获取instance的结果
+     */
     public static SystemLogBridge getInstance() {
         return INSTANCE;
     }
@@ -67,10 +67,10 @@ public final class SystemLogBridge {
     }
 
     /**
-    * 获取winregistry
-    *
-    * @return 获取win32registry的结果
-    */
+     * 获取winregistry
+     *
+     * @return 获取win32registry的结果
+     */
     public NativeFunctionRegistry getWin32Registry() {
         return win32Registry;
     }

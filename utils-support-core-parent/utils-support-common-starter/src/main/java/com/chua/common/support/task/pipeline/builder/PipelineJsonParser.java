@@ -186,12 +186,12 @@ public class PipelineJsonParser {
         }
 
         /**
-        * 获取对象值（String -> String 映射）。
-        * 自动将值转为字符串表示。
-        *
-        * @param key 属性键
-        * @return 字符串映射，不存在时返回 null
-        */
+         * 获取对象值（String -> String 映射）。
+         * 自动将值转为字符串表示。
+         *
+         * @param key 属性键
+         * @return 字符串映射，不存在时返回 null
+         */
         Map<String, String> getObjectAsStringMap(String key) {
             Object val = data.get(key);
             if (val instanceof Map) {

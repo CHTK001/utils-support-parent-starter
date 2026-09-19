@@ -316,12 +316,12 @@ public class MultiProgressBar implements AutoCloseable {
         }
 
         /**
-        * 添加一个任务。
-        *
-        * @param name 任务名称
-        * @param max  最大值
-        * @return this
-        */
+         * 添加一个任务。
+         *
+         * @param name 任务名称
+         * @param max  最大值
+         * @return this
+         */
         public Builder addTask(String name, long max) {
             taskNames.add(name);
             taskMaxs.add(max);

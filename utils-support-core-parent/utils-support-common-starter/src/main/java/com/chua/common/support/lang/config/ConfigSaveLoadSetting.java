@@ -30,8 +30,8 @@ public class ConfigSaveLoadSetting {
     private String rootPath = System.getProperty("user.home", ".") + "/.config";
 
     /**
-    * 文件读写使用的字符集，默认为 UTF-8。
-    */
+     * 文件读写使用的字符集，默认为 UTF-8。
+     */
     @Builder.Default
     /**
      * 字符集
@@ -66,23 +66,23 @@ public class ConfigSaveLoadSetting {
     private long connectTimeoutMillis = 5000;
 
     /**
-    * 读取超时时间（毫秒），默认值为 5000ms (5秒)。
-    */
+     * 读取超时时间（毫秒），默认值为 5000ms (5秒)。
+     */
     @Builder.Default
     /** Read超时毫秒 */
     private long readTimeoutMillis = 5000;
 
     /**
-    * 内容类型（Content-Type），默认值为 application/octet-stream。
-    */
+     * 内容类型（Content-Type），默认值为 application/octet-stream。
+     */
     @Builder.Default
     /** 内容类型 */
     private String contentType = "application/octet-stream";
 
     /**
-    * 获取内容类型字符串。
-    *
-    * @return 内容类型
-    */
+     * 获取内容类型字符串。
+     *
+     * @return 内容类型
+     */
     public String getContentType() { return contentType; }
 }

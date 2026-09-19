@@ -48,9 +48,9 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-    * 创建 alipay提供者 实例
-    * @param config 配置
-    */
+     * 创建 alipay提供者 实例
+     * @param config 配置
+     */
     public AlipayProvider(AlipayConfig config) {
         this.config = config;
         this.client = buildClient();
@@ -75,10 +75,10 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     /**
-    * 构建客户端
-    *
-    * @return 构建客户端的结果
-    */
+     * 构建客户端
+     *
+     * @return 构建客户端的结果
+     */
     private AlipayClient buildClient() {
         if (config == null) {
             return null;

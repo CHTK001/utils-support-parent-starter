@@ -63,14 +63,14 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     private final List<RagDocument> documents;
 
     /**
-    * 构造文档生命周期管理器。
-    *
-    * @param uploadDir       上传目录路径
-    * @param knowledgeClient 向量知识库客户端
-    * @param textSplitter    文本分块器
-    * @param textExtractor   文本提取器（为 null 时纯文本直接读取）
-    * @throws IOException 目录创建失败时抛出
-    */
+     * 构造文档生命周期管理器。
+     *
+     * @param uploadDir       上传目录路径
+     * @param knowledgeClient 向量知识库客户端
+     * @param textSplitter    文本分块器
+     * @param textExtractor   文本提取器（为 null 时纯文本直接读取）
+     * @throws IOException 目录创建失败时抛出
+     */
     public RagDocumentLifeCycle(String uploadDir, KnowledgeClient knowledgeClient,
                                 TextSplitter textSplitter, TextExtractor textExtractor) throws IOException {
         this.uploadDir = Path.of(uploadDir);

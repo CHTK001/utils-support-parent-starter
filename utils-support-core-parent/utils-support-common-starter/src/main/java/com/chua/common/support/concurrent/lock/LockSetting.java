@@ -66,8 +66,8 @@ public class LockSetting {
     private boolean reentrant = true;
 
     /**
-    * 锁的类型标识，用于指定具体的实现类（如 redis, filesystem, object 等）。
-    */
+     * 锁的类型标识，用于指定具体的实现类（如 redis, filesystem, object 等）。
+     */
     private String lockType;
 
     /**
@@ -106,8 +106,8 @@ public class LockSetting {
     private long connectionTimeout = 5000;
 
     /**
-    * 扩展参数对象，用于传递特定锁实现所需的额外配置信息。
-    */
+     * 扩展参数对象，用于传递特定锁实现所需的额外配置信息。
+     */
     private Object extension;
 }
 

@@ -37,10 +37,10 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /**
-    * 从 打开router 拉取全部模型指标。
-    *
-    * @return 模型指标列表；接口不可达或结构变化时返回空列表
-    */
+     * 从 打开router 拉取全部模型指标。
+     *
+     * @return 模型指标列表；接口不可达或结构变化时返回空列表
+     */
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String json = fetchUrl(OPENROUTER_URL);

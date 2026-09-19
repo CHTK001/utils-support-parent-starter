@@ -251,8 +251,8 @@ licenseType=0
     }
 
     /**
-    * JDK http服务端 实例
-    */
+     * JDK http服务端 实例
+     */
     private com.sun.net.httpserver.HttpServer httpServer;
 
     /**

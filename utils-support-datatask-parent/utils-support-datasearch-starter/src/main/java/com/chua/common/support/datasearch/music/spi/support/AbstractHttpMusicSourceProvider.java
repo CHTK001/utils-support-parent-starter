@@ -52,11 +52,11 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
     /**
-    * 获取Json
-    *
-    * @param url url
-    * @return 获取json的结果
-    */
+     * 获取Json
+     *
+     * @param url url
+     * @return 获取json的结果
+     */
     protected JsonNode getJson(String url) {
         return getJson(url, null);
     }

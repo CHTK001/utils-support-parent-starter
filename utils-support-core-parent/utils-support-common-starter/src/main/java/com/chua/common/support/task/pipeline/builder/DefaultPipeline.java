@@ -635,13 +635,13 @@ public class DefaultPipeline implements Pipeline {
     private static final String MARK_ERROR = "✗";
 
     /**
-    * 应用 ANSI 颜色。
-    *
-    * @param text     原始文本
-    * @param colorCode ANSI 颜色码
-    * @return 带颜色标记的文本（颜色禁用时返回原文本）
-    * @param colorEnabled color已启用
-    */
+     * 应用 ANSI 颜色。
+     *
+     * @param text     原始文本
+     * @param colorCode ANSI 颜色码
+     * @return 带颜色标记的文本（颜色禁用时返回原文本）
+     * @param colorEnabled color已启用
+     */
     private static String colorize(String text, String colorCode, boolean colorEnabled) {
         if (!colorEnabled) {
             return text;
@@ -818,20 +818,20 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * 递归打印节点树（带颜色和图标支持，递归展开子流水线和并行分支）。
-    *
-    * <p>遵循"自己管自己"原则：</p>
-    * <ul>
-    *   <li>SubPipelineNode — 调用子流水线的 printNodeTree 递归展开内部节点</li>
-    *   <li>ForkNode — 调用每个分支流水线的 printNodeTree 递归展开分支内部节点</li>
-    * </ul>
-    *
-    * @param nodeId       当前节点 标识
-    * @param prefix       行前缀
-    * @param isLast       是否为同级最后一个节点
-    * @param executed     已执行节点 标识 集合
-    * @param colorEnabled 是否启用 ANSI 颜色
-    */
+     * 递归打印节点树（带颜色和图标支持，递归展开子流水线和并行分支）。
+     *
+     * <p>遵循"自己管自己"原则：</p>
+     * <ul>
+     *   <li>SubPipelineNode — 调用子流水线的 printNodeTree 递归展开内部节点</li>
+     *   <li>ForkNode — 调用每个分支流水线的 printNodeTree 递归展开分支内部节点</li>
+     * </ul>
+     *
+     * @param nodeId       当前节点 标识
+     * @param prefix       行前缀
+     * @param isLast       是否为同级最后一个节点
+     * @param executed     已执行节点 标识 集合
+     * @param colorEnabled 是否启用 ANSI 颜色
+     */
     private void printNodeTree(String nodeId, String prefix, boolean isLast, Set<String> executed, boolean colorEnabled) {
         if (nodeId == null) {
             return;
@@ -935,10 +935,10 @@ public class DefaultPipeline implements Pipeline {
     }
 
     /**
-    * fire之前节点
-    *
-    * @param ctx ctx
-    */
+     * fire之前节点
+     *
+     * @param ctx ctx
+     */
     private void fireBeforeNode(PipelineContext<?> ctx) {
         for (PipelineListener listener : listeners) {
             listener.beforeNode(ctx);

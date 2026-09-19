@@ -112,13 +112,13 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-        * 连接超时millis
-        * @param connectTimeoutMillis 连接超时millis
-        * @param readTimeoutMillis 读取超时millis
-        * @param configSaveOrLoader 配置保存或加载
-        * @param appId appid
-        * @param baseUrl baseurl
-        */
+         * 连接超时millis
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
+         */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;

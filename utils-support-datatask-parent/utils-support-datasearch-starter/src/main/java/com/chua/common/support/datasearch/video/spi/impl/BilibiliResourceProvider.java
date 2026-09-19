@@ -46,9 +46,9 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 创建 bilibiliresource提供者 实例
-    * @param videoSource 视频源
-    */
+     * 创建 bilibiliresource提供者 实例
+     * @param videoSource 视频源
+     */
     public BilibiliResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }

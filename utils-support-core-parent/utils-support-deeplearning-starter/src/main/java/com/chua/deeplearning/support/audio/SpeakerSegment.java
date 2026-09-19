@@ -63,14 +63,14 @@ public record SpeakerSegment(
         float confidence
 ) {
     /**
-        * 便捷构造器，省略置信度参数，默认取 1.0。
-        *
-        * @param speakerId    说话人标识
-        * @param startTimeMs  起始时间（毫秒）
-        * @param endTimeMs    结束时间（毫秒）
-        * @param transcript   转录文本，可为 空
-        * @return SpeakerSegment的结果
-        */
+     * 便捷构造器，省略置信度参数，默认取 1.0。
+     *
+     * @param speakerId    说话人标识
+     * @param startTimeMs  起始时间（毫秒）
+     * @param endTimeMs    结束时间（毫秒）
+     * @param transcript   转录文本，可为 空
+     * @return SpeakerSegment的结果
+     */
     public SpeakerSegment(String speakerId, long startTimeMs, long endTimeMs, String transcript) {
         this(speakerId, startTimeMs, endTimeMs, transcript, 1.0f);
     }

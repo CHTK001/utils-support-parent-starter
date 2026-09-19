@@ -25,11 +25,11 @@ public class TableCache {
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /**
-    * 创建 table缓存 实例
-    * @param dataSources 数据源
-    * @param cacheSeconds int
-    * @param cacheSeconds 缓存seconds
-    */
+     * 创建 table缓存 实例
+     * @param dataSources 数据源
+     * @param cacheSeconds int
+     * @param cacheSeconds 缓存seconds
+     */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;
         this.cacheSeconds = cacheSeconds;
@@ -65,11 +65,11 @@ public class TableCache {
     public void clear() { cache.clear(); }
 
     /**
-    * 扫描Tables
-    *
-    * @param prefix 前缀
-    * @return 扫描tables的结果
-    */
+     * 扫描Tables
+     *
+     * @param prefix 前缀
+     * @return 扫描tables的结果
+     */
     private List<String> scanTables(String prefix) {
         var all = new LinkedHashSet<String>();
         var pat = Pattern.compile("^" + Pattern.quote(prefix) + ".+");

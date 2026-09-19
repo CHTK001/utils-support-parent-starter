@@ -189,9 +189,9 @@ public class ApmCommand implements Command {
     }
 
     /**
-    * 显示 APM 总览。
-    *
-    * @param console 控制台
+     * 显示 APM 总览。
+     *
+     * @param console 控制台
      */
     private void showOverview(Console console) {
         console.header("APM 处理器总览 (" + apm.getHandlers().size() + ")");

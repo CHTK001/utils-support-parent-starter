@@ -227,10 +227,10 @@ public class QwenBrowserSession implements AutoCloseable {
     }
 
     /**
-    * injectCookie
-    *
-    * @param cookieString Cookie字符串
-    */
+     * injectCookie
+     *
+     * @param cookieString Cookie字符串
+     */
     private void injectCookies(String cookieString) {
         Map<String, String> cookies = parseCookies(cookieString);
         List<com.microsoft.playwright.options.Cookie> cookieList = new ArrayList<>(cookies.size());

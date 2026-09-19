@@ -28,9 +28,9 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
 
 
     /**
-    * 创建 redis服务discovery 实例
-    * @param discoveryOption discovery期权
-    */
+     * 创建 redis服务discovery 实例
+     * @param discoveryOption discovery期权
+     */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }

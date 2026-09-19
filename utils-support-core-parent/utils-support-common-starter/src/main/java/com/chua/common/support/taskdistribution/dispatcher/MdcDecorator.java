@@ -36,11 +36,11 @@ public final class MdcDecorator {
     }
 
     /**
-    * 装饰 Runnable，使用当前线程 MDC 上下文快照。
-    *
-    * @param runnable 原始 Runnable
-    * @return 装饰后的 Runnable
-    */
+     * 装饰 Runnable，使用当前线程 MDC 上下文快照。
+     *
+     * @param runnable 原始 Runnable
+     * @return 装饰后的 Runnable
+     */
     public static Runnable decorate(Runnable runnable) {
         Map<String, String> contextSnapshot = MDC.getCopyOfContextMap();
         return () -> {

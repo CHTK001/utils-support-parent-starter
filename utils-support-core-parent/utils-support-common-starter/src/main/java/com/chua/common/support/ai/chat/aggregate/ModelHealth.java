@@ -32,11 +32,11 @@ public class ModelHealth {
     private String lastFailureReason;
 
     /**
-    * 创建 ModelHealth 实例
-    * @param provider provider
-    * @param provider String
-    * @param model 模型，不允许为 null
-    */
+     * 创建 ModelHealth 实例
+     * @param provider provider
+     * @param provider String
+     * @param model 模型，不允许为 null
+     */
     public ModelHealth(String provider, String model) {
         this.provider = provider;
         this.model = model;

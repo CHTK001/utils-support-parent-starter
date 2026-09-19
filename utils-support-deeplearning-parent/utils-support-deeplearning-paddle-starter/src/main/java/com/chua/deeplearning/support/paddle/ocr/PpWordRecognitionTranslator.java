@@ -42,9 +42,9 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     /**
-    * 创建 ppword认可translator 实例
-    * @param useSpaceChar usespacechar
-    */
+     * 创建 ppword认可translator 实例
+     * @param useSpaceChar usespacechar
+     */
     public PpWordRecognitionTranslator(boolean useSpaceChar) {
         this.useSpaceChar = useSpaceChar;
     }
@@ -65,11 +65,11 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     }
 
     /**
-    * 打开Vocabulary
-    *
-    * @param model 模型
-    * @return 打开vocabulary的结果
-    */
+     * 打开Vocabulary
+     *
+     * @param model 模型
+     * @return 打开vocabulary的结果
+     */
     private InputStream openVocabulary(Model model) throws IOException {
         String[] candidates = {
                 "ppocr_keys_v1.txt",

@@ -227,8 +227,8 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-    * 定时发送心跳包
-    */
+     * 定时发送心跳包
+     */
     private void sendHeartbeat() {
         for (Discovery d : localServices) {
             broadcast(createMessage(d.getUriSpec(), d, false));

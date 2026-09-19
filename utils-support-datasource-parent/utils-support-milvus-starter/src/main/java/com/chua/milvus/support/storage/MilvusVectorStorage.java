@@ -165,14 +165,14 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 删除指定 标识 的向量。
-    *
-    * <p>通过 Milvus {@code delete} 接口按主键 id 删除，删除后置空已刷新标记，
-    * 下次搜索前自动重新 flush。</p>
-    *
-    * @param id 向量标识
-    * @return 是否删除成功（id 不存在时返回 false）
-    */
+     * 删除指定 标识 的向量。
+     *
+     * <p>通过 Milvus {@code delete} 接口按主键 id 删除，删除后置空已刷新标记，
+     * 下次搜索前自动重新 flush。</p>
+     *
+     * @param id 向量标识
+     * @return 是否删除成功（id 不存在时返回 false）
+     */
     @Override
     public synchronized boolean remove(String id) {
         checkNotClosed();
@@ -303,11 +303,11 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * gsonfloatarray
-    *
-    * @param data 数据
-    * @return gsonFloatArray的结果
-    */
+     * gsonfloatarray
+     *
+     * @param data 数据
+     * @return gsonFloatArray的结果
+     */
     private static com.google.gson.JsonArray gsonFloatArray(float[] data) {
         com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
         for (float v : data) {

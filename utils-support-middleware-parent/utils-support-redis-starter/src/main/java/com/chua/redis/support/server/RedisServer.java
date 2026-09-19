@@ -163,10 +163,10 @@ public class RedisServer {
         private String[] args = new String[0];
 
         /**
-        * 设置端口，默认 6379
-        * @param port 端口
-        * @return 端口的结果
-        */
+         * 设置端口，默认 6379
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) {
             this.port = port;
             return this;

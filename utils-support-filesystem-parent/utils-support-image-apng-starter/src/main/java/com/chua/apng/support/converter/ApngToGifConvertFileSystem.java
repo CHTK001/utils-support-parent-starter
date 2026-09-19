@@ -318,12 +318,12 @@ if (metadata != null) {
     }
 
     /**
-    * 是否支持格式化
-    *
-    * @param sourceFormat 源格式化
-    * @param targetFormat Target格式化
-    * @return 是否支持格式化的结果
-    */
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         return ("apng".equalsIgnoreCase(sourceFormat) || "png".equalsIgnoreCase(sourceFormat)) &&
                 "gif".equalsIgnoreCase(targetFormat);
@@ -339,10 +339,10 @@ if (metadata != null) {
     }
 
     /**
-    * 动画帧数据类
-    * @author CH
-    * @since 4.0.0
-    */
+     * 动画帧数据类
+     * @author CH
+     * @since 4.0.0
+     */
     private static class AnimationFrame {
         /** 图片 */
         private final BufferedImage image;

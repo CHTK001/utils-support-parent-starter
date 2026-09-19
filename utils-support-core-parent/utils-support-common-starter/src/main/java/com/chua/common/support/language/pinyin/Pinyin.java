@@ -34,10 +34,10 @@ public class Pinyin {
     private String word;
 
     /**
-    * 该汉字对应的拼音项列表。
-    * <p>对于多音字，列表中可能包含多个 {@link PinyinItem}，每个代表一种读音。
-    * 单音字列表中只包含一个元素。</p>
-    */
+     * 该汉字对应的拼音项列表。
+     * <p>对于多音字，列表中可能包含多个 {@link PinyinItem}，每个代表一种读音。
+     * 单音字列表中只包含一个元素。</p>
+     */
     private List<PinyinItem> items;
 
     /**

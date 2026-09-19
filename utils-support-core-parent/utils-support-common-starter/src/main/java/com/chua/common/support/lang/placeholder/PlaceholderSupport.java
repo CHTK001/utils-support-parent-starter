@@ -65,15 +65,15 @@ public class PlaceholderSupport {
     private boolean functionEnabled = true;
 
     /**
-    * 是否启用三元表达式功能 (如 condition ? trueVal : falseVal)
-    */
+     * 是否启用三元表达式功能 (如 condition ? trueVal : falseVal)
+     */
     @Getter
     /** Ternary是否启用 */
     private boolean ternaryEnabled = true;
 
     /**
-    * 是否启用数组和 Map 的方括号访问功能 (如 key[index])
-    */
+     * 是否启用数组和 Map 的方括号访问功能 (如 key[index])
+     */
     @Getter
     /** 数组access是否启用 */
     private boolean arrayAccessEnabled = true;
@@ -100,13 +100,13 @@ public class PlaceholderSupport {
     }
 
     /**
-    * 创建 PlaceholderSupport 实例
-    * @param placeholderPrefix placeholderPrefix
-    * @param String String
-    * @param String String
-    * @param placeholderSuffix placeholder后缀，不允许为 null
-    * @param valueSeparator 值分隔符，不允许为 null
-    */
+     * 创建 PlaceholderSupport 实例
+     * @param placeholderPrefix placeholderPrefix
+     * @param String String
+     * @param String String
+     * @param placeholderSuffix placeholder后缀，不允许为 null
+     * @param valueSeparator 值分隔符，不允许为 null
+     */
     public PlaceholderSupport(String placeholderPrefix, String placeholderSuffix, String valueSeparator) {
         this();
         this.placeholderPrefix = placeholderPrefix;

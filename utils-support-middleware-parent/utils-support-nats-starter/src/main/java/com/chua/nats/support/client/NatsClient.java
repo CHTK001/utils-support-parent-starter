@@ -182,10 +182,10 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-                        * 关闭 NATS 客户端。
-                        *
-                        * @return this
-                        */
+     * 关闭 NATS 客户端。
+     *
+     * @return this
+     */
     public NatsClient shutdown() {
         if (closed.compareAndSet(false, true)) {
             // 取消所有订阅
@@ -222,10 +222,10 @@ public class NatsClient implements AutoCloseable {
     }
 
     /**
-    * 检查连接是否健康。
-    *
-    * @return 是否已连接
-    */
+     * 检查连接是否健康。
+     *
+     * @return 是否已连接
+     */
     public boolean isConnected() {
         return connection != null && connection.getStatus() == Connection.Status.CONNECTED;
     }
@@ -509,11 +509,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-        * 主题
-        *
-        * @param s s
-        * @return 主题的结果
-        */
+         * 主题
+         *
+         * @param s s
+         * @return 主题的结果
+         */
         public PublishOperation subject(String s) {
             this.subject = s;
             return this;
@@ -639,11 +639,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-        * 主题
-        *
-        * @param s s
-        * @return 主题的结果
-        */
+         * 主题
+         *
+         * @param s s
+         * @return 主题的结果
+         */
         public SubscribeOperation subject(String s) {
             this.subject = s;
             return this;
@@ -759,11 +759,11 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-        * 获取指定流的操作构建器。
-        *
-        * @param streamName 流名称
-        * @return StreamOperation
-        */
+         * 获取指定流的操作构建器。
+         *
+         * @param streamName 流名称
+         * @return StreamOperation
+         */
         public StreamOperation stream(String streamName) {
             return new StreamOperation(client, streamName);
         }
@@ -842,10 +842,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-        * 设置流配置。
-        * @param config 配置
-        * @return 配置的结果
-        */
+         * 设置流配置。
+         * @param config 配置
+         * @return 配置的结果
+         */
         public StreamOperation config(StreamConfiguration config) {
             this.config = config;
             return this;
@@ -992,10 +992,10 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-        * 设置 KV 存储配置。
-        * @param config 配置
-        * @return 配置的结果
-        */
+         * 设置 KV 存储配置。
+         * @param config 配置
+         * @return 配置的结果
+         */
         public KvOperation config(KeyValueConfiguration config) {
             this.config = config;
             return this;

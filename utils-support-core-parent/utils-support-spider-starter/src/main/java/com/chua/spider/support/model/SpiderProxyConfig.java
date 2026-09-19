@@ -41,8 +41,8 @@ public class SpiderProxyConfig {
     private String proxyProtocol = "HTTP";
 
     /**
-    * 代理认证用户名（可选）。
-    */
+     * 代理认证用户名（可选）。
+     */
     private String proxyUsername;
 
     /**

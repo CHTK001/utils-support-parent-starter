@@ -27,9 +27,9 @@ public class SafeTensorModelDownloadManager {
     private final Path modelRoot;
 
     /**
-    * 创建 safetensor模型download管理器 实例
-    * @param client 客户端
-    */
+     * 创建 safetensor模型download管理器 实例
+     * @param client 客户端
+     */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {
         String root = System.getProperty("safetensor.model.root", "D:/safetensor_models");
         this.modelRoot = Path.of(root);

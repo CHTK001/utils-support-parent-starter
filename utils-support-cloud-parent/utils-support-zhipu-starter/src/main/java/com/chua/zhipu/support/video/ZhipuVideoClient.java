@@ -169,11 +169,11 @@ public class ZhipuVideoClient implements VideoClient {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 查询任务
-    *
-    * @param taskId 任务标识
-    * @return 查询任务的结果
-    */
+     * 查询任务
+     *
+     * @param taskId 任务标识
+     * @return 查询任务的结果
+     */
     public VideoResponse queryTask(String taskId) {
         if (taskId == null || taskId.isBlank()) {
             throw new IllegalArgumentException("任务 ID 不能为空");

@@ -44,8 +44,8 @@ public class TableViewParser implements ViewParser {
     private static final int PAD = 1;
 
     /**
-    * 是否以无边框模式渲染：true 时不绘制框线字符，仅按列宽以空格对齐
-    */
+     * 是否以无边框模式渲染：true 时不绘制框线字符，仅按列宽以空格对齐
+     */
     private final boolean borderless;
 
     /**

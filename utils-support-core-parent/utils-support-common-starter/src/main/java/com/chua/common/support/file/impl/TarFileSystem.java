@@ -123,10 +123,10 @@ public class TarFileSystem implements FileSystem {
     }
 
     /**
-    * TAR 文件读取构建器。
-    *
-    * @since 1.0.0
-    */
+     * TAR 文件读取构建器。
+     *
+     * @since 1.0.0
+     */
     public static class TarReadBuilder extends ReadBuilder {
 
         /** 是否启用 GZIP 解包 */

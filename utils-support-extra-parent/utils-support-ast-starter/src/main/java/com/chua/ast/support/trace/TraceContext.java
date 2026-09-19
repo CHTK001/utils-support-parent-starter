@@ -393,10 +393,10 @@ public final class TraceContext {
     private static final String RESET = "\033[0m";
 
     /**
-    * 一次性输出整棵树（对齐格式：占比 + 类.方法 | 耗时 | 包名）
-    * @author CH
-    * @param traceId 追踪标识
-    */
+     * 一次性输出整棵树（对齐格式：占比 + 类.方法 | 耗时 | 包名）
+     * @author CH
+     * @param traceId 追踪标识
+     */
     private static void flushTree(String traceId) {
         List<TraceNode> nodes = SHARED_NODES.get(traceId);
         if (nodes == null || nodes.isEmpty()) { return; }

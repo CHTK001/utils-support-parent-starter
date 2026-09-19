@@ -50,8 +50,8 @@ public class RpcInvoker implements Invoker {
     }
 
     /**
-    * 未配置 {@code @RemoteService.client()} 时的默认 RPC 客户端协议
-    */
+     * 未配置 {@code @RemoteService.client()} 时的默认 RPC 客户端协议
+     */
     private static final String DEFAULT_CLIENT = "json";
 
     @SuppressWarnings("unchecked")

@@ -175,10 +175,10 @@ public class HpkeCipherSmokeTest {
     }
 
     /**
-    * 校验并计数
-    *
-    * @param condition 条件
-    * @param message 消息
+     * 校验并计数
+     *
+     * @param condition 条件
+     * @param message 消息
      */
     private static void check(boolean condition, String message) {
         if (condition) {

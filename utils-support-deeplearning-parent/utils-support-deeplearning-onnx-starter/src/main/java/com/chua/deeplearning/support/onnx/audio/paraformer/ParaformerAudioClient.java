@@ -110,9 +110,9 @@ public class ParaformerAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-    * 创建 paraformer音频客户端 实例
-    * @param setting setting
-    */
+     * 创建 paraformer音频客户端 实例
+     * @param setting setting
+     */
     public ParaformerAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -252,8 +252,8 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     /**
-    * 确保模型资源已解压并加载。
-    */
+     * 确保模型资源已解压并加载。
+     */
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;

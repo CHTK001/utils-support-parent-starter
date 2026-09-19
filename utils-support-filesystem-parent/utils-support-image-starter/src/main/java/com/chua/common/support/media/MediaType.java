@@ -17,11 +17,11 @@ public class MediaType implements Serializable {
     private final String charset;
 
     /**
-    * 创建 media类型 实例
-    * @param type 类型
-    * @param subtype subtype
-    * @param charset 字符集
-    */
+     * 创建 media类型 实例
+     * @param type 类型
+     * @param subtype subtype
+     * @param charset 字符集
+     */
     public MediaType(String type, String subtype, String charset) {
         this.type = type;
         this.subtype = subtype;

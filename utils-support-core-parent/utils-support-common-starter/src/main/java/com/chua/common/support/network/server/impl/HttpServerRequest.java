@@ -42,13 +42,13 @@ public class HttpServerRequest implements ServerRequest {
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
-    * 创建 HttpServerRequest 实例
-    * @param exchange exchange
-    * @param long long
-    * @param String String
-    * @param maxRequestSize 最大值请求大小，不允许为 null
-    * @param charset 字符集，不允许为 null
-    */
+     * 创建 HttpServerRequest 实例
+     * @param exchange exchange
+     * @param long long
+     * @param String String
+     * @param maxRequestSize 最大值请求大小，不允许为 null
+     * @param charset 字符集，不允许为 null
+     */
     public HttpServerRequest(HttpExchange exchange, long maxRequestSize, String charset) {
         this.exchange = exchange;
         this.maxRequestSize = maxRequestSize;
@@ -238,11 +238,11 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     /**
-    * 解码 URL 查询参数片段。
-    *
-    * @param value 原始参数片段
-    * @return 解码后的参数
-    */
+     * 解码 URL 查询参数片段。
+     *
+     * @param value 原始参数片段
+     * @return 解码后的参数
+     */
     private String decode(String value) {
         return URLDecoder.decode(value, defaultCharset);
     }

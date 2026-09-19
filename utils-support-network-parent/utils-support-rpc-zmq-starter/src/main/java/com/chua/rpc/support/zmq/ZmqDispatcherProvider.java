@@ -159,8 +159,8 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 收包主循环：阻塞接收 SUB 报文，先读主题帧，再读消息帧，按主题分派给订阅者。
-    */
+     * 收包主循环：阻塞接收 SUB 报文，先读主题帧，再读消息帧，按主题分派给订阅者。
+     */
     private void recvLoop() {
         while (!closed.get()) {
             try {
@@ -258,11 +258,11 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 序列化消息体。
-    *
-    * @param body 消息体
-    * @return 字节数组，序列化失败时返回 {@code null}
-    */
+     * 序列化消息体。
+     *
+     * @param body 消息体
+     * @return 字节数组，序列化失败时返回 {@code null}
+     */
     private byte[] writeBody(Object body) {
         try {
             if (serializer == null) {

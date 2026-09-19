@@ -127,13 +127,13 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     /**
-    * 深度复制 grabber 帧到复用的缓冲区，避免每帧分配 ~2.7MB 堆内存。
-    * <p>支持单平面 BGR/BGRA，由 FFmpegFrameRecorder 自动识别格式。</p>
-    * <p>使用堆上 byte[]（通过 ByteBuffer 视图）避免 JDK25 的 {@code jlong_disjoint_arraycopy}
-    * 在非 8 字节对齐的 allocatedirect 缓冲区上崩溃。</p>
-    * @param src src
-    * @return 副本帧的结果
-    */
+     * 深度复制 grabber 帧到复用的缓冲区，避免每帧分配 ~2.7MB 堆内存。
+     * <p>支持单平面 BGR/BGRA，由 FFmpegFrameRecorder 自动识别格式。</p>
+     * <p>使用堆上 byte[]（通过 ByteBuffer 视图）避免 JDK25 的 {@code jlong_disjoint_arraycopy}
+     * 在非 8 字节对齐的 allocatedirect 缓冲区上崩溃。</p>
+     * @param src src
+     * @return 副本帧的结果
+     */
     private Frame copyFrame(Frame src) {
         try {
             int channels = src.imageChannels > 0 ? src.imageChannels : 3;

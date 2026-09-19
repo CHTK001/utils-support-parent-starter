@@ -146,8 +146,8 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     }
 
     /**
-    * 清空队列，持续出队直至为空。
-    */
+     * 清空队列，持续出队直至为空。
+     */
     @Override
     public void clear() {
         while (poll() != null) {

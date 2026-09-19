@@ -97,11 +97,11 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     /**
-    * 探测指定主机端口。
-    *
-    * @param host 目标主机
-    * @param port 目标端口
-    */
+     * 探测指定主机端口。
+     *
+     * @param host 目标主机
+     * @param port 目标端口
+     */
     private void probeHost(String host, int port) {
         if (stopped) {
             return;

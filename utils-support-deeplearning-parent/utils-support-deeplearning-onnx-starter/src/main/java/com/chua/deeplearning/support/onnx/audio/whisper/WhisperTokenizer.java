@@ -45,12 +45,12 @@ public class WhisperTokenizer {
     private final int vocabSize;
 
     /**
-    * 创建 whispertokenizer 实例
-    *
-    * @param idToToken 令牌 标识 → 令牌 字符串 数组
-    * @param tokenToId 令牌 字符串 → 令牌 标识 映射
-    * @param vocabSize vocab 大小
-    */
+     * 创建 whispertokenizer 实例
+     *
+     * @param idToToken 令牌 标识 → 令牌 字符串 数组
+     * @param tokenToId 令牌 字符串 → 令牌 标识 映射
+     * @param vocabSize vocab 大小
+     */
     private WhisperTokenizer(String[] idToToken, Map<String, Integer> tokenToId, int vocabSize) {
         this.idToToken = idToToken;
         this.tokenToId = tokenToId;
@@ -225,11 +225,11 @@ public class WhisperTokenizer {
     /** Language 令牌 基础 标识 */
     public static final int LANG_BASE = 50260;
     /**
-    * 判断字符串是否为整数键
-    *
-    * @param key 键
-    * @return 是否int键的结果
-    */
+     * 判断字符串是否为整数键
+     *
+     * @param key 键
+     * @return 是否int键的结果
+     */
     private static boolean isIntKey(String key) {
         if (key == null || key.isEmpty()) {
             return false;

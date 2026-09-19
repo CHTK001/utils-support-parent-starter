@@ -35,9 +35,9 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
     }
 
     /**
-    * 创建 sentinelrate限制提供者 实例
-    * @param name 名称
-    */
+     * 创建 sentinelrate限制提供者 实例
+     * @param name 名称
+     */
     public SentinelRateLimiterProvider(String name) {
         this.name = name;
         this.resourceName = name;

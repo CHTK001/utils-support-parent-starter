@@ -36,11 +36,11 @@ public class VideoWriteBuilder extends WriteBuilder {
     private Integer quality;
 
     /**
-    * 创建 视频写入构建器 实例
-    * @param file 文件
-    * @param processor ffmpeg处理器
-    * @param processor 处理器
-    */
+     * 创建 视频写入构建器 实例
+     * @param file 文件
+     * @param processor ffmpeg处理器
+     * @param processor 处理器
+     */
     public VideoWriteBuilder(File file, FFmpegProcessor processor) {
         super(file);
         this.processor = processor;

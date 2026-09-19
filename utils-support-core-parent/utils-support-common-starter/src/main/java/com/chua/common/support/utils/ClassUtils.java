@@ -2779,15 +2779,15 @@ public class ClassUtils {
         return rs;
     }
     /**
-            * 获取指定类的所有泛型类型参数（解析泛型父类或接口，结果缓存于 {@link #ACTUAL}）。
-            *
-            * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
-            * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
-            *
-            * @param clazz 目标类，为 null 时返回空数组
-            * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
-            * @since 2024/12/21
-            */
+     * 获取指定类的所有泛型类型参数（解析泛型父类或接口，结果缓存于 {@link #ACTUAL}）。
+     *
+     * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
+     * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
+     *
+     * @param clazz 目标类，为 null 时返回空数组
+     * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
+     * @since 2024/12/21
+     */
     /**
      * 获取对象的泛型实际类型参数（按索引）。
      *
@@ -3160,10 +3160,10 @@ public class ClassUtils {
         /** 待设置可访问性的反射对象 */
         private final T obj;
         /**
-        * 创建设置 accessible 动作实例。
-        *
-        * @param obj 目标反射对象
-        */
+         * 创建设置 accessible 动作实例。
+         *
+         * @param obj 目标反射对象
+         */
         public SetAccessibleAction(T obj) {
             this.obj = obj;
         }

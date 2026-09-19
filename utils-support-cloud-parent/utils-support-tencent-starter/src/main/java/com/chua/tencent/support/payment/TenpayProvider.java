@@ -41,9 +41,9 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * 创建 tenpay提供者 实例
-    * @param config 配置
-    */
+     * 创建 tenpay提供者 实例
+     * @param config 配置
+     */
     public TenpayProvider(TenpayConfig config) {
         this.config = config;
         this.wxPayService = buildService();
@@ -70,10 +70,10 @@ public class TenpayProvider implements PaymentChannel {
     }
 
     /**
-    * 构建服务
-    *
-    * @return 构建服务的结果
-    */
+     * 构建服务
+     *
+     * @return 构建服务的结果
+     */
     private WxPayService buildService() {
         if (config == null) {
             return null;

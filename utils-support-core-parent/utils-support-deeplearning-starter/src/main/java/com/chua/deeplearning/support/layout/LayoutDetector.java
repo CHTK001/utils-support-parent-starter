@@ -185,8 +185,8 @@ class DefaultLayoutDetector implements LayoutDetector {
     private final ModelSetting setting;
 
     /**
-    * 检测阈值。
-    */
+     * 检测阈值。
+     */
     private Float threshold;
 
     /**

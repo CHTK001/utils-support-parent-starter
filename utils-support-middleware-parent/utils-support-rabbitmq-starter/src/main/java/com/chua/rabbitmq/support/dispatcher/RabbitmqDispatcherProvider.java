@@ -106,10 +106,10 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 启动 RabbitMQ 消费者监听指定交换器。
-    *
-    * @param topic 交换器名称
-    */
+     * 启动 RabbitMQ 消费者监听指定交换器。
+     *
+     * @param topic 交换器名称
+     */
     private void startConsumer(String topic) {
         try {
             channel.exchangeDeclare(topic, "fanout", true);

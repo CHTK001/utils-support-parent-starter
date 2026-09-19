@@ -38,12 +38,12 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     /**
-    * 注入管线引擎，并同时为执行器注册 sink（用于 降级 直接派发）。
-    *
-    * @param unused 兼容参数
-    * @param engine 管线引擎
-    * @param sinks  sink 注册表
-    */
+     * 注入管线引擎，并同时为执行器注册 sink（用于 降级 直接派发）。
+     *
+     * @param unused 兼容参数
+     * @param engine 管线引擎
+     * @param sinks  sink 注册表
+     */
     public void setPipelineEngine(ReactorDataSyncExecutor unused, PipelineEngine engine, Map<String, DataSink> sinks) {
         executor.setPipelineEngine(engine);
         if (sinks != null) {
@@ -80,11 +80,11 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     /**
-    * 获取内部执行器的 topic（用于跨进程 Chronicle 订阅）。
-    *
-    * @param sinkId sink 标识
-    * @return topic 字符串
-    */
+     * 获取内部执行器的 topic（用于跨进程 Chronicle 订阅）。
+     *
+     * @param sinkId sink 标识
+     * @return topic 字符串
+     */
     public String getTopic(String sinkId) {
         return "server:" + executor.getAgentId();
     }

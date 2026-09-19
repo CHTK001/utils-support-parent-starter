@@ -34,10 +34,10 @@ public class SqlDialect extends AbstractDialect {
     private final String protocol;
 
     /**
-    * 构造 SQL 方言，自动加载 {@code META-INF/dialect-env/{protocol}.env}。
-    *
-    * @param protocol 协议名（如 {@code mysql}、{@code postgresql}、{@code oracle}）
-    */
+     * 构造 SQL 方言，自动加载 {@code META-INF/dialect-env/{protocol}.env}。
+     *
+     * @param protocol 协议名（如 {@code mysql}、{@code postgresql}、{@code oracle}）
+     */
     public SqlDialect(String protocol) {
         this.protocol = protocol;
         // AbstractDialect 无参构造器先于本构造器执行并虚调用 loadDefaultEnv()，此时 protocol 为空，

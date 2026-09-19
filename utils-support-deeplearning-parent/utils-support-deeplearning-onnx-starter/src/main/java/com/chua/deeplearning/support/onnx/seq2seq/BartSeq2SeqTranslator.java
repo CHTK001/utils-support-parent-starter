@@ -110,11 +110,11 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     /**
-    * 解析模型根
-    *
-    * @param modelPath 模型路径
-    * @return resolve模型根的结果
-    */
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");

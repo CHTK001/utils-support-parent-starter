@@ -35,12 +35,12 @@ final class SpringObjectContextBridge {
     }
 
     /**
-    * 若 Spring 容器中尚未注册该对象，则以单例形式注册。
-    * <p>beanName 默认取小驼峰类名（与 {@code TypeBeanDefinition} 命名一致）。</p>
-    *
-    * @param applicationContext Spring 容器
-    * @param bean               待注册对象
-    */
+     * 若 Spring 容器中尚未注册该对象，则以单例形式注册。
+     * <p>beanName 默认取小驼峰类名（与 {@code TypeBeanDefinition} 命名一致）。</p>
+     *
+     * @param applicationContext Spring 容器
+     * @param bean               待注册对象
+     */
     public static void registerIfAbsent(ApplicationContext applicationContext, Object bean) {
         if (applicationContext == null || bean == null) {
             return;

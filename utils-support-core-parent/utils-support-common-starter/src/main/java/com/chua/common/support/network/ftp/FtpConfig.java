@@ -86,9 +86,9 @@ public class FtpConfig {
     private boolean allowActiveMode = false;
 
     /**
-    * 创建默认 FTP 配置。
-    * @return Ftp配置 对象
-    */
+     * 创建默认 FTP 配置。
+     * @return Ftp配置 对象
+     */
     public static FtpConfig defaults() {
         return new FtpConfig();
     }

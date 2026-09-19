@@ -55,10 +55,10 @@ public final class KimiProtocol {
     }
 
     /**
-    * 生成 device 标识（16 位纯数字，客户端持久化身份）。
-    *
-    * @return 随机 16 位数字字符串
-    */
+     * 生成 device 标识（16 位纯数字，客户端持久化身份）。
+     *
+     * @return 随机 16 位数字字符串
+     */
     public static String generateDeviceId() {
         long base = 7000000000000000000L + (long) (Math.random() * 999999999999999999L);
         return Long.toString(base);

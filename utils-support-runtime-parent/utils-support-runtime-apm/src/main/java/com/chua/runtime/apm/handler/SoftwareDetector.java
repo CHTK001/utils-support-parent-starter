@@ -31,7 +31,7 @@ public final class SoftwareDetector {
     }
 
     /**
-    * 包名前缀 → 软件栈映射（匹配顺序：前缀短的优先）。
+     * 包名前缀 → 软件栈映射（匹配顺序：前缀短的优先）。
      */
     private static final Map<String, Software> SOFTWARE_PATTERNS = new LinkedHashMap<>() {{
         // Redis

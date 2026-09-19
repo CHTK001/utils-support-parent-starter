@@ -717,9 +717,9 @@ public class PNGImageReader extends ImageReader {
     }
 
     /**
-    * 解析tRNchunk
-    * @param chunkLength chunkLength
-    */
+     * 解析tRNchunk
+     * @param chunkLength chunkLength
+     */
     private void parse_tRNS_chunk(int chunkLength) throws IOException {
         int colorType = metadata.IHDR_colorType;
         if (colorType == PNG_COLOR_PALETTE) {

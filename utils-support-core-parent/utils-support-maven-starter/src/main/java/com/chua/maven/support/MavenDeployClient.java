@@ -61,8 +61,8 @@ public class MavenDeployClient {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MavenDeployClient.class);
 
     /**
-    * 编译结果
-    */
+     * 编译结果
+     */
     private final MavenCompileResult result;
 
     /**

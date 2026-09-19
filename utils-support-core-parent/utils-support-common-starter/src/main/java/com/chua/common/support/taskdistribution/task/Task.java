@@ -57,8 +57,8 @@ public class Task<T> {
     private int shardCount = 1;
 
     /**
-    * 分片键（分片时用于计算分片归属）
-    */
+     * 分片键（分片时用于计算分片归属）
+     */
     private String shardKey;
 
     /**
@@ -69,35 +69,35 @@ public class Task<T> {
     private int shardIndex = -1;
 
     /**
-    * 执行超时时间（毫秒）
-    */
+     * 执行超时时间（毫秒）
+     */
     @Builder.Default
     /** 超时MS */
     private long timeoutMs = 30000;
 
     /**
-    * 最大重试次数
-    */
+     * 最大重试次数
+     */
     @Builder.Default
     /** 最大值重试次数 */
     private int maxRetries = 3;
 
     /**
-    * 任务优先级
-    */
+     * 任务优先级
+     */
     @Builder.Default
     /** 优先级 */
     private TaskPriority priority = TaskPriority.MEDIUM;
 
     /**
-    * 是否暂停（已创建但暂停派发，工作端可继续执行已派发的任务）
-    */
+     * 是否暂停（已创建但暂停派发，工作端可继续执行已派发的任务）
+     */
     @Builder.Default
     /** Paused */
     private boolean paused = false;
 
     /**
-    * 发布端节点 标识
-    */
+     * 发布端节点 标识
+     */
     private String sourceNodeId;
 }

@@ -357,10 +357,10 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 接收连接专用线程：accept 后根据处理模式分发。
-    * <p>帧式协议（注册了 {@link TcpServerHandler}）走 NIO Reactor 拼帧；
-    * 流式协议（{@link TcpHandler} / 默认回显）走虚拟线程阻塞处理。</p>
-    */
+     * 接收连接专用线程：accept 后根据处理模式分发。
+     * <p>帧式协议（注册了 {@link TcpServerHandler}）走 NIO Reactor 拼帧；
+     * 流式协议（{@link TcpHandler} / 默认回显）走虚拟线程阻塞处理。</p>
+     */
     private void acceptLoop() {
         while (running) {
             try {

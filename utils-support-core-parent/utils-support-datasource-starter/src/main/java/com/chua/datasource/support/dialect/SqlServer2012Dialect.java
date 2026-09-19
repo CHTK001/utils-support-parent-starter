@@ -4,8 +4,8 @@ import java.util.Properties;
 public class SqlServer2012Dialect extends SqlDialect {
     public static final String VERSION = "SQL Server 2012"; // 版本
     /**
-    * sql服务端2012Dialect。
-    */
+     * sql服务端2012Dialect。
+     */
     public SqlServer2012Dialect() { super("sqlserver2012"); }
     /**
      * sql服务端2012Dialect。

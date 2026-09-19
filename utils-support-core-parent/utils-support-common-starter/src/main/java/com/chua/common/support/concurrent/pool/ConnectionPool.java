@@ -131,10 +131,10 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     }
 
     /**
-    * 连接工厂（内部类）
-    *
-    * <p>实现 ObjectFactory&lt;Connection&gt;，负责连接的创建、初始化、验证和销毁。
-    */
+     * 连接工厂（内部类）
+     *
+     * <p>实现 ObjectFactory&lt;Connection&gt;，负责连接的创建、初始化、验证和销毁。
+     */
     private static class ConnectionFactory implements ObjectFactory<Connection> {
 
         /** 构建器 */

@@ -46,11 +46,11 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private float thresholdOverride = -1f;
 
     /**
-    * 取生效阈值。
-    *
-    * @param def def
-    * @return eff阈值的结果
-    */
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -85,8 +85,8 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     private int srcHeight;
 
     /**
-    * 共享实例（避免多实例重复提取模型 / 创建 会话）。
-    */
+     * 共享实例（避免多实例重复提取模型 / 创建 会话）。
+     */
     private static volatile CardCorrectionTranslator shared;
 
     /**
@@ -429,10 +429,10 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     }
 
 /**
-        * 创建 Translator（支持外部阈值覆盖）。
-        *
-        * @param configuration 检测配置（可空）
-        */
+ * 创建 Translator（支持外部阈值覆盖）。
+ *
+ * @param configuration 检测配置（可空）
+ */
     public CardCorrectionTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {

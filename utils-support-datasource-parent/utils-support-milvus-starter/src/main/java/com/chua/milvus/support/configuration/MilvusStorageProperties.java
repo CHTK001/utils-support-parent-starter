@@ -24,8 +24,8 @@ public class MilvusStorageProperties implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * Milvus 服务地址（支持完整 URI，如 https://...）
-    */
+     * Milvus 服务地址（支持完整 URI，如 https://...）
+     */
     private String host = "127.0.0.1";
 
     /**

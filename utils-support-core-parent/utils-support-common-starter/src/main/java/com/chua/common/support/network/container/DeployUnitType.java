@@ -21,8 +21,8 @@ public enum DeployUnitType {
     JAR("jar"),
 
     /**
-    * Enterprise Archive - 企业级 Java 应用归档
-    */
+     * Enterprise Archive - 企业级 Java 应用归档
+     */
     EAR("ear"),
 
     /** 可执行 FAT-JAR（含所有依赖的独立 JAR） */

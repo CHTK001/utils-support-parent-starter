@@ -297,10 +297,10 @@ public class UebaEngine implements AutoCloseable {
         private double m2;
 
         /**
-        * 更新一个样本。
-        *
-        * @param value 样本值
-        */
+         * 更新一个样本。
+         *
+         * @param value 样本值
+         */
         void update(double value) {
             count++;
             double delta = value - mean;

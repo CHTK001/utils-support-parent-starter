@@ -36,10 +36,10 @@ public class QueryResult {
     private List<PrometheusMetric> result = new ArrayList<>();
 
     /**
-    * 是否存在数据
-    *
-    * @return 是否
-    */
+     * 是否存在数据
+     *
+     * @return 是否
+     */
     public boolean hasData() {
         return result != null && !result.isEmpty();
     }

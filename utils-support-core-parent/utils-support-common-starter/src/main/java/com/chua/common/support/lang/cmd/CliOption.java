@@ -61,11 +61,11 @@ public final class CliOption {
 
     /** 选项的值类型枚举 */
     /**
-    * public enum OptionType {
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * public enum OptionType {
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public enum OptionType {
         STRING,
         INTEGER,
@@ -342,11 +342,11 @@ public final class CliOption {
         }
 
         /**
-        * 设置长选项名称（如 "port"）。
-        *
-        * @param longName 长选项名称
-        * @return this
-        */
+         * 设置长选项名称（如 "port"）。
+         *
+         * @param longName 长选项名称
+         * @return this
+         */
         @Nonnull
         public Builder longName(@Nonnull String longName) {
             this.longName = longName;

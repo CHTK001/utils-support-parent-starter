@@ -63,10 +63,10 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     /**
-    * 加载worddic
-    *
-    * @param model 模型
-    */
+     * 加载worddic
+     *
+     * @param model 模型
+     */
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -165,12 +165,12 @@ public class LacTranslator implements Translator<String, String[][]> {
     }
 
     /**
-    * 尝试设置Lod
-    *
-    * @param ndArray ndarray
-    * @param begin 开始
-    * @param end 结束
-    */
+     * 尝试设置Lod
+     *
+     * @param ndArray ndarray
+     * @param begin 开始
+     * @param end 结束
+     */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");

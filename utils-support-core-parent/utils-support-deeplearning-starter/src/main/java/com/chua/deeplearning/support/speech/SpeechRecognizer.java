@@ -179,8 +179,8 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     private final ModelSetting setting;
 
     /**
-    * 识别语言。
-    */
+     * 识别语言。
+     */
     private String lang = DEFAULT_LANG;
 
     /**

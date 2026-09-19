@@ -44,8 +44,8 @@ public class AiTokenServerFilter implements ServerFilter {
     /** 是否启用 */
     @Setter
     /**
-    * 是否启用
-    */
+     * 是否启用
+     */
     private boolean enabled = true;
 
     /**

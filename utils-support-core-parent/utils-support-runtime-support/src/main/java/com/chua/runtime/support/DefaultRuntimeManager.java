@@ -455,9 +455,9 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     /**
-    * 通过 SPI 自动发现当前平台可用的 服务管理器 实现。
-    *
-    * @return ServiceManager 实例，无可用实现返回 空
+     * 通过 SPI 自动发现当前平台可用的 服务管理器 实现。
+     *
+     * @return ServiceManager 实例，无可用实现返回 空
      */
     private ServiceManager discoverServiceManager() {
         java.util.Map<String, ServiceManager> managers = ServiceProvider.of(ServiceManager.class).list();

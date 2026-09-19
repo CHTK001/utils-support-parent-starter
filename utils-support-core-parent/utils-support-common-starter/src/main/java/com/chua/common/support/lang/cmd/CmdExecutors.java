@@ -55,10 +55,10 @@ public final class CmdExecutors {
     private CmdExecutors() {}
 
     /**
-    * 设置默认执行器名称
-    *
-    * @param name SPI 执行器名称
-    */
+     * 设置默认执行器名称
+     *
+     * @param name SPI 执行器名称
+     */
     public static void setDefaultName(String name) {
         synchronized (CmdExecutors.class) {
             DEFAULT_NAME = name;

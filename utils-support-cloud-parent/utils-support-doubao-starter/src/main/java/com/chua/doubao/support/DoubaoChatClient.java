@@ -205,12 +205,12 @@ public class DoubaoChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt 提示符
-    * @param consumer consumer
-    * @param onComplete on完成
-    * @param onError on错误
-    */
+     * 对话
+     * @param prompt 提示符
+     * @param consumer consumer
+     * @param onComplete on完成
+     * @param onError on错误
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -323,11 +323,11 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     /**
-    * 转为代理
-    *
-    * @param proxyStr 代理str
-    * @return 转为代理的结果
-    */
+     * 转为代理
+     *
+     * @param proxyStr 代理str
+     * @return 转为代理的结果
+     */
     private static java.net.Proxy toProxy(String proxyStr) {
         try {
             java.net.Proxy.Type proxyType;

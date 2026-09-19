@@ -13,9 +13,9 @@ public class WalException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 使用消息构造。
-    * @param message 消息
-    */
+     * 使用消息构造。
+     * @param message 消息
+     */
     public WalException(String message) {
         super(message);
     }

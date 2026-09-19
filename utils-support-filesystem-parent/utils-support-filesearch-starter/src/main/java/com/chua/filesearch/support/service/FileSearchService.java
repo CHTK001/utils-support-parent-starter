@@ -51,10 +51,10 @@ public final class FileSearchService {
     }
 
     /**
-    * 获取全局单例
-    *
-    * @return 服务实例
-    */
+     * 获取全局单例
+     *
+     * @return 服务实例
+     */
     public static FileSearchService getInstance() {
         if (INSTANCE == null) {
             synchronized (FileSearchService.class) {

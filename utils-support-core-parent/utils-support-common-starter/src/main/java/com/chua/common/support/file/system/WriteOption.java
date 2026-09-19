@@ -13,8 +13,8 @@ public class WriteOption {
     /** 写入类型 */
     private WriteType writeType = WriteType.MAP;
     /**
-    * 字符集
-    */
+     * 字符集
+     */
     private Charset charset = StandardCharsets.UTF_8;
     /** 是否自动关闭流 */
     private boolean autoCloseStream;

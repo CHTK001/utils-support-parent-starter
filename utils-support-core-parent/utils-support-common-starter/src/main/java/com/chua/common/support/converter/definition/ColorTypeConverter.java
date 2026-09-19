@@ -39,11 +39,11 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     private static final String HEX_16 = "0x";
 
     /**
-    * 将给定值转换为 Color。
-    *
-    * @param value 源值
-    * @return Color 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 Color。
+     *
+     * @param value 源值
+     * @return Color 值，如果无法转换则返回 null
+     */
     @Override
     public Color convert(Object value) {
         if (null == value) {
@@ -204,8 +204,8 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         /** RGB 颜色分量 */
         public int r, g, b;
         /**
-        * 名称
-        */
+         * 名称
+         */
         public String name;
 
         /**

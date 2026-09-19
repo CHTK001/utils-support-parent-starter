@@ -80,11 +80,11 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     }
 
     /**
-    * 判断链接是否有效（排除非 HTTP 协议链接、空链接、锚点链接）。
-    *
-    * @param href 链接 URL
-    * @return true 表示有效链接
-    */
+     * 判断链接是否有效（排除非 HTTP 协议链接、空链接、锚点链接）。
+     *
+     * @param href 链接 URL
+     * @return true 表示有效链接
+     */
     private boolean isValidLink(String href) {
         if (StringUtils.isEmpty(href)) {
             return false;
