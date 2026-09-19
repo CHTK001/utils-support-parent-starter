@@ -42,10 +42,10 @@ public class InvokerFactory {
     }
 
     /**
-    * 获取当前环境最高优先级的 {@code Invoker} 实例。
-    *
-    * @return Invoker 实例，无可用的 SPI 实现时返回 null
-    */
+     * 获取当前环境最高优先级的 {@code Invoker} 实例。
+     *
+     * @return Invoker 实例，无可用的 SPI 实现时返回 null
+     */
     public static Invoker getInvoker() {
         return ServiceProvider.of(Invoker.class).getPriority();
     }

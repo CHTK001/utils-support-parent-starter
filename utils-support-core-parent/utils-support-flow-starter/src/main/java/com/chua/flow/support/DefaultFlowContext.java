@@ -150,11 +150,11 @@ public class DefaultFlowContext implements FlowContext {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 获取Attribute
-    *
-    * @param key 键
-    * @return 获取attribute的结果
-    */
+     * 获取Attribute
+     *
+     * @param key 键
+     * @return 获取attribute的结果
+     */
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
@@ -229,10 +229,10 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     /**
-    * 获取当前流转动作。
-    *
-    * @return 流转动作
-    */
+     * 获取当前流转动作。
+     *
+     * @return 流转动作
+     */
     public Action getAction() {
         return action;
     }

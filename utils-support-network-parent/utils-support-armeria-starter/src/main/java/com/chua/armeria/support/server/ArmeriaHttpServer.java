@@ -354,8 +354,8 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         /**
-        * 标记 Armeria 层面的响应为已完成，禁止后续修改。
-        */
+         * 标记 Armeria 层面的响应为已完成，禁止后续修改。
+         */
         void endArmeria() {
             if (committed) {
                 return;

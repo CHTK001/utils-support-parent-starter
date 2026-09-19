@@ -477,12 +477,12 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 
         /**
-        * Where
-        *
-        * @param where where
-        * @param params 参数
-        * @return where的结果
-        */
+         * Where
+         *
+         * @param where where
+         * @param params 参数
+         * @return where的结果
+         */
         public GroupByQueryWrapper<T> where(String where, Object... params) {
             this.where = where;
             this.params = params;

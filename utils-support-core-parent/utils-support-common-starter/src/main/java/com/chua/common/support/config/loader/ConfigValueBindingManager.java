@@ -90,10 +90,10 @@ public class ConfigValueBindingManager implements ConfigListener {
     }
 
     /**
-    * 设置配置值提供者。
-    *
-    * @param provider 根据 key 返回配置值的函数
-    */
+     * 设置配置值提供者。
+     *
+     * @param provider 根据 key 返回配置值的函数
+     */
     public void setConfigProvider(Function<String, String> provider) {
         this.configProvider = provider;
     }

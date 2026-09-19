@@ -46,15 +46,15 @@ public class DocumentData {
 
     /** 文档描述说明 */
     /**
-    * 描述
-    */
+     * 描述
+     */
     private String description;
 
     /** 文档版本号，默认 "1.0.0" */
     @Builder.Default
     /**
-    * 版本号
-    */
+     * 版本号
+     */
     private String version = "1.0.0";
 
     /** 所有表结构的集合 */

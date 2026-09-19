@@ -39,9 +39,9 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-    * 创建 redissondispatcher提供者 实例
-    * @param config 配置
-    */
+     * 创建 redissondispatcher提供者 实例
+     * @param config 配置
+     */
     public RedissonDispatcherProvider(DispatcherConfig config) {
         super(config);
         var redisUri = config.getUrl() != null ? config.getUrl() : "redis://127.0.0.1:6379";
@@ -133,11 +133,11 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 获取或创建Topic
-    *
-    * @param topic topic
-    * @return 获取或创建topic的结果
-    */
+     * 获取或创建Topic
+     *
+     * @param topic topic
+     * @return 获取或创建topic的结果
+     */
     private RTopic getOrCreateTopic(String topic) {
         return topicMap.computeIfAbsent(topic, redissonClient::getTopic);
     }

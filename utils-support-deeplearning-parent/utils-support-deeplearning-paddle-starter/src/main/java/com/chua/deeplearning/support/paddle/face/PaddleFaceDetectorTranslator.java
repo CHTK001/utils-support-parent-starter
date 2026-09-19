@@ -46,11 +46,11 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     }
 
     /**
-    * 创建 飞桨facedetectortranslator 实例
-    * @param shrink shrink
-    * @param shrink float
-    * @param threshold 阈值
-    */
+     * 创建 飞桨facedetectortranslator 实例
+     * @param shrink shrink
+     * @param shrink float
+     * @param threshold 阈值
+     */
     public PaddleFaceDetectorTranslator(float shrink, float threshold) {
         this.shrink = shrink;
         this.threshold = threshold;

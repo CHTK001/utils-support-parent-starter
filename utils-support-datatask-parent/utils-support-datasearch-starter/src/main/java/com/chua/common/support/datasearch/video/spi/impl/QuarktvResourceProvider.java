@@ -60,8 +60,8 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
     private static final int MIN_TITLE_LENGTH = 3;
 
     /**
-    * 创建 quarktv资源提供器 实例（无参构造，使用默认数据源）。
-    */
+     * 创建 quarktv资源提供器 实例（无参构造，使用默认数据源）。
+     */
     public QuarktvResourceProvider() {
         super();
     }

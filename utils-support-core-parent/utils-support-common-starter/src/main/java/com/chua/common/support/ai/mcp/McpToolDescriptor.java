@@ -14,8 +14,8 @@ public class McpToolDescriptor {
 
     /** 工具名称 */
     /**
-    * 名称
-    */
+     * 名称
+     */
     private final String name;
 
     /** 所属 MCP 服务端名称 */
@@ -31,14 +31,14 @@ public class McpToolDescriptor {
     private final Map<String, Object> inputSchema;
 
     /**
-    * 创建 McpToolDescriptor 实例
-    * @param name name
-    * @param name String
-    * @param inputSchema Map
-    * @param Object Object
-    * @param inputSchema inputSchema
-    * @param description 描述，不允许为 null
-    */
+     * 创建 McpToolDescriptor 实例
+     * @param name name
+     * @param name String
+     * @param inputSchema Map
+     * @param Object Object
+     * @param inputSchema inputSchema
+     * @param description 描述，不允许为 null
+     */
     public McpToolDescriptor(String name, String description, Map<String, Object> inputSchema) {
         this(name, null, description, inputSchema);
     }

@@ -46,10 +46,10 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
      */
     /** 置信度阈值（默认 0.5），可经 detection配置 覆盖。 */
         /**
-    * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
-    *
-    * @param configuration 检测配置（可空）
-    */
+         * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
+         *
+         * @param configuration 检测配置（可空）
+         */
     public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (configuration != null) {
             this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);

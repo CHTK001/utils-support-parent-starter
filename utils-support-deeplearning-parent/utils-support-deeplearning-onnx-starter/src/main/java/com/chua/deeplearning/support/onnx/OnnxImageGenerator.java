@@ -35,10 +35,10 @@ public class OnnxImageGenerator implements ImageGenerator {
     }
 
     /**
-    * 解析模型
-    *
-    * @return resolve模型的结果
-    */
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + ImageGenerator.listModels());

@@ -321,11 +321,11 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     }
 
     /**
-    * post标志
-    *
-    * @param body 主体
-    * @return post标志的结果
-    */
+     * post标志
+     *
+     * @param body 主体
+     * @return post标志的结果
+     */
     private JsonNode postSigned(Object body) {
         String json;
         try {

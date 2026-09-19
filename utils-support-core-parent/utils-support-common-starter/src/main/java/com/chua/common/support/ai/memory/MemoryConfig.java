@@ -26,8 +26,8 @@ public class MemoryConfig {
     private String storeType = "file";
 
     /**
-    * Engine 实例（{@link #storeType}={@code engine} 时使用，亦可直接注入 {@link EngineMemoryStore}）。
-    */
+     * Engine 实例（{@link #storeType}={@code engine} 时使用，亦可直接注入 {@link EngineMemoryStore}）。
+     */
     private Engine engine;
 
     /**
@@ -41,32 +41,32 @@ public class MemoryConfig {
     private String workspace = ".agent/memory";
 
     /**
-    * 单条记忆最大字符数
-    *
-    * <p>超过此长度的记忆内容将被截断。防止单条记忆过大影响检索效率。
-    * 默认 2000 字符。
-    */
+     * 单条记忆最大字符数
+     *
+     * <p>超过此长度的记忆内容将被截断。防止单条记忆过大影响检索效率。
+     * 默认 2000 字符。
+     */
     @Builder.Default
     /** 最大值内容长度 */
     private int maxContentLength = 2000;
 
     /**
-    * 最大记忆条数
-    *
-    * <p>记忆体中保留的最大条目数量。超出时按时间淘汰最旧的条目。
-    * 默认 500 条。
-    */
+     * 最大记忆条数
+     *
+     * <p>记忆体中保留的最大条目数量。超出时按时间淘汰最旧的条目。
+     * 默认 500 条。
+     */
     @Builder.Default
     /** 最大值entries */
     private int maxEntries = 500;
 
     /**
-    * 总结用的 ChatClient
-    *
-    * <p>用于将对话内容提炼为高质量记忆条目。
-    * 建议使用能力较强的模型（如 gpt-4o、claude-sonnet）以获得更好的总结质量。
-    * 未设置时使用原始对话内容作为记忆（不做 AI 总结）。
-    */
+     * 总结用的 ChatClient
+     *
+     * <p>用于将对话内容提炼为高质量记忆条目。
+     * 建议使用能力较强的模型（如 gpt-4o、claude-sonnet）以获得更好的总结质量。
+     * 未设置时使用原始对话内容作为记忆（不做 AI 总结）。
+     */
     private ChatClient summarizerClient;
 
     /**

@@ -474,10 +474,10 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 应用手绘质感
-    * @param src src
-    * @return applyHandDrawnTexture的结果
-    */
+     * 应用手绘质感
+     * @param src src
+     * @return applyHandDrawnTexture的结果
+     */
     private BufferedImage applyHandDrawnTexture(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();

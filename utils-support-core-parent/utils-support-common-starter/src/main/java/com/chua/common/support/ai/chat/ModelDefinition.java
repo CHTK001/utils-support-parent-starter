@@ -81,8 +81,8 @@ public class ModelDefinition {
     private String currency = "USD";
 
     /**
-    * 智能指数（如 Artificial Analysis Intelligence Index）
-    */
+     * 智能指数（如 Artificial Analysis Intelligence Index）
+     */
     private BigDecimal intelligenceIndex;
 
     /**

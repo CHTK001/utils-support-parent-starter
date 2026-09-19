@@ -36,9 +36,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 提取 Word 文档的全部文本内容
-    * @return 文本的结果
-    */
+     * 提取 Word 文档的全部文本内容
+     * @return 文本的结果
+     */
     public String text() {
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
             StringBuilder sb = new StringBuilder();
@@ -124,9 +124,9 @@ public class WordReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 获取文档标题
-    * @return title的结果
-    */
+     * 获取文档标题
+     * @return title的结果
+     */
     public String title() {
         try (XWPFDocument doc = new XWPFDocument(new FileInputStream(file))) {
             var props = doc.getProperties();

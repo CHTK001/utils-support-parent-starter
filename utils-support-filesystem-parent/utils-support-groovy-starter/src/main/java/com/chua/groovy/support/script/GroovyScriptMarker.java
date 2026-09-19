@@ -152,10 +152,10 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     }
 
     /**
-    * 获取编译器配置。
-    *
-    * @return 编译器配置实例
-    */
+     * 获取编译器配置。
+     *
+     * @return 编译器配置实例
+     */
     public CompilerConfiguration getCompilerConfiguration() {
         return config;
     }

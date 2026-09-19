@@ -58,11 +58,11 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     private volatile com.chua.common.support.vector.VectorStorage fallback;
 
     /**
-    * postgresql向量storage。
-    * @param dataSource 数据源
-    * @param dimension 维度
-    * @param algorithm algorithm
-    */
+     * postgresql向量storage。
+     * @param dataSource 数据源
+     * @param dimension 维度
+     * @param algorithm algorithm
+     */
     public PostgresqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         this(dataSource, dimension, algorithm, new PostgresqlVectorStorageProperties());
     }

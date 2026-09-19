@@ -32,9 +32,9 @@ public class JavaEngine implements Engine {
  * @param handle 处理
  * @param type 类型
  /**
- * alloc。
- * @return alloc的结果
- */
+  * alloc。
+  * @return alloc的结果
+  */
  */
 
     private synchronized long alloc() { return nextHandle++; }

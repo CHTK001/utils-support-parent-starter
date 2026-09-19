@@ -59,8 +59,8 @@ public abstract class AbstractServer implements ConfigServer {
     protected final ServerFilterManager filterManager;
 
     /**
-    * URL映射过滤器，用于路由匹配。
-    */
+     * URL映射过滤器，用于路由匹配。
+     */
     protected UrlMappingServerFilter urlMappingFilter;
 
     /**
@@ -71,8 +71,8 @@ public abstract class AbstractServer implements ConfigServer {
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
-    * 服务器是否正在运行。
-    */
+     * 服务器是否正在运行。
+     */
     protected volatile boolean running;
 
     /**
@@ -139,11 +139,11 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
-    * 处理请求的统一入口。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    */
+     * 处理请求的统一入口。
+     *
+     * @param request  请求对象
+     * @param response 响应对象
+     */
     protected void handleRequest(ServerRequest request, ServerResponse response) {
         // 同步便捷方法：统一走响应式链并等待完成，保证调用方(JDK/NIO 等 Server 实现)
         // 无需各自等待 stage 也能获得"响应完整后再返回"的语义
@@ -333,9 +333,9 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
-    * 启动服务器的逻辑。
-    * <p>默认实现为空，由具体实现类完成启动逻辑。</p>
-    */
+     * 启动服务器的逻辑。
+     * <p>默认实现为空，由具体实现类完成启动逻辑。</p>
+     */
     protected abstract void doStart();
 
     @Override
@@ -366,9 +366,9 @@ public abstract class AbstractServer implements ConfigServer {
     }
 
     /**
-    * 停止服务器的逻辑。
-    * <p>默认实现为空，由具体实现类完成停止逻辑。</p>
-    */
+     * 停止服务器的逻辑。
+     * <p>默认实现为空，由具体实现类完成停止逻辑。</p>
+     */
     protected abstract void doStop();
 
     /**

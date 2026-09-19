@@ -69,9 +69,9 @@ public class EmailPush implements MessagePush {
     }
 
     /**
-    * 创建 emailpush 实例
-    * @param environment 环境
-    */
+     * 创建 emailpush 实例
+     * @param environment 环境
+     */
     public EmailPush(MessageEnvironment environment) {
         this.environment = environment;
     }
@@ -84,9 +84,9 @@ public class EmailPush implements MessagePush {
 
     @Override
     /**
-    * 发送
-    * @param request 请求
-    */
+     * 发送
+     * @param request 请求
+     */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -138,9 +138,9 @@ public class EmailPush implements MessagePush {
 
     @Override
     /**
-    * 获取Template
-    * @param templateId templateid
-    */
+     * 获取Template
+     * @param templateId templateid
+     */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

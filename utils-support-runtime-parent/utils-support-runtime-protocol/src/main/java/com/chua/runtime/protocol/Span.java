@@ -55,7 +55,7 @@ public class Span {
     private SpanKind kind = SpanKind.INTERNAL;
 
     /**
-    * Span 名（默认 {@code className.methodName}，也可填 SQL/HTTP 等）
+     * Span 名（默认 {@code className.methodName}，也可填 SQL/HTTP 等）
      */
     private String name;
 
@@ -97,9 +97,9 @@ public class Span {
     private StatusCode status = StatusCode.UNSET;
 
     /**
-    * 标准描述信息（"HTTP 获取 /api/订单 200 OK 12ms"）。
-    *
-    * <p>用于传输链路 / 日志 / 调试输出，对齐 SkyWalking / OpenTelemetry message 字段。</p>
+     * 标准描述信息（"HTTP 获取 /api/订单 200 OK 12ms"）。
+     *
+     * <p>用于传输链路 / 日志 / 调试输出，对齐 SkyWalking / OpenTelemetry message 字段。</p>
      */
     private String message;
 
@@ -127,16 +127,16 @@ public class Span {
     private List<SpanEvent> events = new ArrayList<>();
 
     /**
-    * 跨 追踪 关联（异步消息、批处理）
+     * 跨 追踪 关联（异步消息、批处理）
      */
     @Builder.Default
     /** 链接 */
     private List<SpanLink> links = new ArrayList<>();
 
     /**
-    * 添加事件。
-    *
-    * @param eventName 事件名
+     * 添加事件。
+     *
+     * @param eventName 事件名
      */
     public void addEvent(String eventName) {
         events.add(SpanEvent.builder()

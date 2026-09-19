@@ -247,13 +247,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
         @Override
         /**
-        * 执行向量搜索。
-        * 优先走图搜索（HNSW），配置了重排算法时再对结果二次排序；空数据集直接返回空列表。
-        *
-        * @param query 查询向量，不能为空
-        * @param topK  返回的最大结果数
-        * @return 按相似度排序的向量列表
-        */
+         * 执行向量搜索。
+         * 优先走图搜索（HNSW），配置了重排算法时再对结果二次排序；空数据集直接返回空列表。
+         *
+         * @param query 查询向量，不能为空
+         * @param topK  返回的最大结果数
+         * @return 按相似度排序的向量列表
+         */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -496,11 +496,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
     /**
-        * diskstrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
-        *
-        * @author CH
-        * @since 4.0.0
-        */
+     * diskstrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
         private final int dimension;

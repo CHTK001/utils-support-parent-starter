@@ -113,13 +113,13 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     /**
-    * 解析实际使用的模型名称。
-    *
-    * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
-    * 否则返回显式指定的模型名。</p>
-    *
-    * @return 模型名称
-    */
+     * 解析实际使用的模型名称。
+     *
+     * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
+     * 否则返回显式指定的模型名。</p>
+     *
+     * @return 模型名称
+     */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;
@@ -158,11 +158,11 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     /**
-    * 解析音频字节数据。
-    *
-    * @return 音频字节
-    * @throws Exception 读取失败
-    */
+     * 解析音频字节数据。
+     *
+     * @return 音频字节
+     * @throws Exception 读取失败
+     */
     private byte[] resolveAudio() throws Exception {
         if (audio != null) {
             return audio;

@@ -220,8 +220,8 @@ class DefaultFaceDetector implements FaceDetector {
     private final ModelSetting setting;
 
     /**
-    * 置信度阈值
-    */
+     * 置信度阈值
+     */
     private Float threshold;
 
     /**
@@ -301,11 +301,11 @@ class DefaultFaceDetector implements FaceDetector {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Detect
-    *
-    * @param imageData 镜像数据
-    * @return detect的结果
-    */
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

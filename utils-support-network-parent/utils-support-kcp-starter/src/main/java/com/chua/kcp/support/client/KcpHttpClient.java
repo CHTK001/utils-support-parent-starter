@@ -75,14 +75,14 @@ public class KcpHttpClient {
     }
 
     /**
-    * 请求
-    *
-    * @param method 方法
-    * @param path 路径
-    * @param headers 头部
-    * @param body 主体
-    * @return 请求的结果
-    */
+     * 请求
+     *
+     * @param method 方法
+     * @param path 路径
+     * @param headers 头部
+     * @param body 主体
+     * @return 请求的结果
+     */
     public HttpResponse request(String method, String path, Map<String, String> headers, byte[] body) throws Exception {
         if (!isConnected()) {
             throw new IllegalStateException("KCP HTTP 客户端未连接");
@@ -159,10 +159,10 @@ public class KcpHttpClient {
     }
 
     /**
-    * 简易 HTTP 响应对象。
-    * @author CH
-    * @since 4.0.0
-    */
+     * 简易 HTTP 响应对象。
+     * @author CH
+     * @since 4.0.0
+     */
     public static class HttpResponse {
         /**
          * HTTP 状态码，默认 200

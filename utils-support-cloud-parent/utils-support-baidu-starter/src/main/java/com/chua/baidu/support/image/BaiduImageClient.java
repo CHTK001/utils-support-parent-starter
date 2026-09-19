@@ -178,12 +178,12 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-    * 获取百度 OAuth 2.0 access_令牌
-    *
-    * @return access_token 字符串
-    * @throws IOException 网络请求异常
-    * @throws InterruptedException 请求被中断
-    */
+     * 获取百度 OAuth 2.0 access_令牌
+     *
+     * @return access_token 字符串
+     * @throws IOException 网络请求异常
+     * @throws InterruptedException 请求被中断
+     */
     private String getAccessToken() throws IOException, InterruptedException {
         String tokenUrl = normalizeBaseUrl() + "/oauth/2.0/token?grant_type=client_credentials"
                 + "&client_id=" + URLEncoder.encode(setting.getAppKey(), StandardCharsets.UTF_8.name())
@@ -257,10 +257,10 @@ public class BaiduImageClient implements ImageClient {
     }
 
     /**
-    * 构建图片尺寸字符串
-    *
-    * @return 如 "1024x1024"
-    */
+     * 构建图片尺寸字符串
+     *
+     * @return 如 "1024x1024"
+     */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;

@@ -36,10 +36,10 @@ public class SolrDdlManager implements DslManager {
     private int replicationFactor = 1;
 
     /**
-    * 构造管理器。
-    *
-    * @param client 绑定 /Solr 根路径的客户端
-    */
+     * 构造管理器。
+     *
+     * @param client 绑定 /Solr 根路径的客户端
+     */
     public SolrDdlManager(SolrClient client) {
         this.client = client;
     }
@@ -51,11 +51,11 @@ public class SolrDdlManager implements DslManager {
     }
 
     /**
-    * 设置分片数
-    *
-    * @param numShards numshards
-    * @return numShards的结果
-    */
+     * 设置分片数
+     *
+     * @param numShards numshards
+     * @return numShards的结果
+     */
     public SolrDdlManager numShards(int numShards) {
         this.numShards = numShards;
         return this;

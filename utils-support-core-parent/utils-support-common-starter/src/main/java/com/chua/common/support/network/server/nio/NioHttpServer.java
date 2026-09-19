@@ -69,8 +69,8 @@ public class NioHttpServer extends AbstractServer {
     /** 服务器通道 */
     private ServerSocketChannel serverChannel;
     /**
-    * 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈
-    */
+     * 多 Selector 分片:每分片一个事件循环线程,解决单事件循环在高并发下的瓶颈
+     */
     private Selector[] selectors;
     /**
      * 每分片对应的待写 key 队列(worker 只入队,由对应分片事件循环统一注册 OP_WRITE)
@@ -92,8 +92,8 @@ public class NioHttpServer extends AbstractServer {
     private SSLContext sslContext;
 
     /**
-    * WebSocket 主题处理器映射（topic -> handlers）。
-    */
+     * WebSocket 主题处理器映射（topic -> handlers）。
+     */
     private final Map<String, List<ServerHandler>> wsTopicHandlers = new ConcurrentHashMap<>();
 
     /**
@@ -736,10 +736,10 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-    * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
-    * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
-    * @param channel 方法入参 channel
-    */
+     * 处理连接(SSL 回退路径):阻塞读 + feed() 增量解析,支持 Keep-Alive。
+     * 普通 HTTP 走事件循环 processRequest;SSL 通道无法注册 Selector,回退此处。
+     * @param channel 方法入参 channel
+     */
     private void handleConnection(SocketChannel channel) {
         try {
             NioServerRequest request = new NioServerRequest(channel,
@@ -993,8 +993,8 @@ public class NioHttpServer extends AbstractServer {
         }
 
         /**
-        * 发送文本消息。
-        */
+         * 发送文本消息。
+         */
         void send(String text) {
             sendRaw(WebSocketProtocol.textFrame(text));
         }
@@ -1049,8 +1049,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-        * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
-        */
+     * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
+     */
     private static final class WsServerResponse implements ServerResponse {
         /** Connection */
         private final WsConnection connection;
@@ -1124,11 +1124,11 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-        * 判断是否保持连接
-        * @param request 请求，不允许为 null
-        * @param response 响应，不允许为 null
-        * @return 是否成功（true 表示成功）
-        */
+     * 判断是否保持连接
+     * @param request 请求，不允许为 null
+     * @param response 响应，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {
             return false;

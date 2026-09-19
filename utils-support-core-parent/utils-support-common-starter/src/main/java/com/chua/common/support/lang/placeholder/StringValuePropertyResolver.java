@@ -23,8 +23,8 @@ public class StringValuePropertyResolver implements PropertyResolver {
     private final PlaceholderSupport placeholderSupport;
 
     /**
-    * 定义右括号到左括号的映射关系，用于处理简单的嵌套前缀匹配
-    */
+     * 定义右括号到左括号的映射关系，用于处理简单的嵌套前缀匹配
+     */
     private static final Map<String, String> STRING_STRING_HASH_MAP = new HashMap<>(4);
 
     static {
@@ -76,12 +76,12 @@ public class StringValuePropertyResolver implements PropertyResolver {
     }
 
     /**
-    * 解析输入字符串中的所有占位符。
-    * 遍历字符串，找到每个占位符，递归解析其键和值，并替换原位置。
-    *
-    * @param value 待解析的原始字符串
-    * @return 解析后的字符串
-    */
+     * 解析输入字符串中的所有占位符。
+     * 遍历字符串，找到每个占位符，递归解析其键和值，并替换原位置。
+     *
+     * @param value 待解析的原始字符串
+     * @return 解析后的字符串
+     */
     @Override
     public String resolvePlaceholders(String value) {
         if (placeholderSupport == null) {

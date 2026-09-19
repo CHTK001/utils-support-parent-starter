@@ -99,11 +99,11 @@ public class RuleBasedScorer {
     private static final ZoneId ZONE = ZoneId.systemDefault();
 
     /**
-    * 构造规则评分器。
-    *
-    * @param featureExtractor 特征提取器，不能为 空
-    * @throws IllegalArgumentException 当 特征extractor 为 空 时
-    */
+     * 构造规则评分器。
+     *
+     * @param featureExtractor 特征提取器，不能为 空
+     * @throws IllegalArgumentException 当 特征extractor 为 空 时
+     */
     public RuleBasedScorer(FeatureExtractor featureExtractor) {
         Objects.requireNonNull(featureExtractor, "featureExtractor must not be null");
         this.featureExtractor = featureExtractor;

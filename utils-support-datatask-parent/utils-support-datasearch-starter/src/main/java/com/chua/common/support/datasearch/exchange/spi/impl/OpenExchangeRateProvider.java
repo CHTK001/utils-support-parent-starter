@@ -48,14 +48,14 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
     }
 
     /**
-    * 获取指定币种汇率（1 单位 从 = ? 单位 转为）。
-    *
-    * <p>基于 USD 基准汇率换算：from -&gt; to = usdRate(to) / usdRate(from)。</p>
-    *
-    * @param from 源币种（ISO 4217，如 USD、CNY）
-    * @param to   目标币种（ISO 4217，如 USD、CNY）
-    * @return 汇率；数据源不可达或币种不存在时返回 空
-    */
+     * 获取指定币种汇率（1 单位 从 = ? 单位 转为）。
+     *
+     * <p>基于 USD 基准汇率换算：from -&gt; to = usdRate(to) / usdRate(from)。</p>
+     *
+     * @param from 源币种（ISO 4217，如 USD、CNY）
+     * @param to   目标币种（ISO 4217，如 USD、CNY）
+     * @return 汇率；数据源不可达或币种不存在时返回 空
+     */
     @Override
     public BigDecimal getRate(String from, String to) {
         if (from == null || to == null) {

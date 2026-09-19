@@ -25,8 +25,8 @@ public abstract class AbstractWriter implements FileSystem {
     /** 是否已初始化 */
     protected boolean initialized;
     /**
-    * 文件路径
-    */
+     * 文件路径
+     */
     protected File file;
 
     /** 创建 AbstractWriter 实例 */
@@ -37,9 +37,9 @@ public abstract class AbstractWriter implements FileSystem {
     }
 
     /**
-    * 创建 AbstractWriter 实例
-    * @param file file
-    */
+     * 创建 AbstractWriter 实例
+     * @param file file
+     */
     protected AbstractWriter(File file) {
         this.file = file;
         this.headers = new ArrayList<>();

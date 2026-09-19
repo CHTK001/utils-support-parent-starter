@@ -356,8 +356,8 @@ public class ResourceFlow {
     }
 
     /**
-    * 空结果查找器，用于不支持的协议。
-    */
+     * 空结果查找器，用于不支持的协议。
+     */
     private static final class EmptyResourceFinder implements ResourceFinder {
 
         /**

@@ -467,9 +467,9 @@ public boolean tRNS_present;
     }
 
     /**
-    * 创建 pngmetadata 实例。
-    * @param metadata metadata
-    */
+     * 创建 pngmetadata 实例。
+     * @param metadata metadata
+     */
     public PNGMetadata(IIOMetadata metadata) {
         super(invokeBoolean(metadata, "isNativeFormat"),
               invokeString(metadata, "getNativeMetadataFormatName"),

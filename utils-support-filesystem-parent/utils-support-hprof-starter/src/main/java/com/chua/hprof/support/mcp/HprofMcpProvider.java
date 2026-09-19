@@ -126,11 +126,11 @@ public class HprofMcpProvider implements McpProvider {
     }
 
     /**
-    * HPROF MCP client, in-JVM implementation of tool listing and invocation.
-    *
-    * @author CH
-    * @since 4.0.0.42
-    */
+     * HPROF MCP client, in-JVM implementation of tool listing and invocation.
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     protected class HprofMcpClient implements McpClient {
 
         /**

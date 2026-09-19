@@ -45,10 +45,10 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     protected DataSource dataSource;
 
     /**
-    * 构造方法。
-    *
-    * @param engine 引擎实例
-    */
+     * 构造方法。
+     *
+     * @param engine 引擎实例
+     */
     protected JdbcMetaData(Engine engine) {
         super(engine);
     }

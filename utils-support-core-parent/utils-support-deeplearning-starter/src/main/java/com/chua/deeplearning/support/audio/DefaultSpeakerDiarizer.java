@@ -76,10 +76,10 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     /** 最小有效语音片段时长：80ms。短于此值的片段视为噪声/咔嗒声，予以丢弃 */
     private static final long DEFAULT_MIN_SPEECH_MS = 80L;
     /**
-    * 静音分割阈值：200ms。
-    * <p>若两个语音片段之间的静音间隔超过此值，认为是不同说话人切换；
-    * 短于此值的静音视为同一说话人内的呼吸间隙。</p>
-    */
+     * 静音分割阈值：200ms。
+     * <p>若两个语音片段之间的静音间隔超过此值，认为是不同说话人切换；
+     * 短于此值的静音视为同一说话人内的呼吸间隙。</p>
+     */
     private static final long DEFAULT_SILENCE_THRESHOLD_MS = 200L;
 
     // ==================== 成员字段 ====================

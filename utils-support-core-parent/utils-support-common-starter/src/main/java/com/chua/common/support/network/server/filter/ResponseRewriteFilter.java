@@ -119,11 +119,11 @@ public class ResponseRewriteFilter implements ServerFilter {
 
     @Override
     /**
-    * Do过滤
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 先放行完整链路
@@ -231,11 +231,11 @@ public class ResponseRewriteFilter implements ServerFilter {
         }
 
         /**
-        * 应用此规则到响应。
-        *
-        * @param request  请求对象
-        * @param response 响应对象
-        */
+         * 应用此规则到响应。
+         *
+         * @param request  请求对象
+         * @param response 响应对象
+         */
         void apply(ServerRequest request, ServerResponse response) {
             // 状态码改写
             if (statusRewrite != null) {

@@ -99,11 +99,11 @@ public class SenseVoiceTranslator {
     private boolean prepared;
 
     /**
-    * 使用解压后的模型目录初始化。
-    *
-    * @param modelDir 含 模型.int8.onnx 与 令牌.txt 的目录
-    * @throws Exception 初始化失败
-    */
+     * 使用解压后的模型目录初始化。
+     *
+     * @param modelDir 含 模型.int8.onnx 与 令牌.txt 的目录
+     * @throws Exception 初始化失败
+     */
     public synchronized void prepare(Path modelDir) throws Exception {
         if (prepared) {
             return;
@@ -347,19 +347,19 @@ public class SenseVoiceTranslator {
         /** 检测到的语种（zh/en/ja/ko/yue/nospeech/auto） */
         public final String language;
         /**
-    * 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN）
-    */
+         * 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN）
+         */
         public final String emotion;
         /** 事件标签（语音/BGM/Laughter/...） */
         public final List<String> events;
 
         /**
-        * rich结果。
-        * @param text 文本
-        * @param language language
-        * @param emotion 情绪
-        * @param events 事件
-        */
+         * rich结果。
+         * @param text 文本
+         * @param language language
+         * @param emotion 情绪
+         * @param events 事件
+         */
         public RichResult(String text, String language, String emotion, List<String> events) {
             this.text = text;
             this.language = language;

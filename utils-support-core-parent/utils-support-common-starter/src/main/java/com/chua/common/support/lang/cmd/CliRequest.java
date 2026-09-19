@@ -58,10 +58,10 @@ public final class CliRequest {
     private String input;
 
     /**
-    * 创建请求实例
-    *
-    * @param tool 所属的 CLI 工具
-    */
+     * 创建请求实例
+     *
+     * @param tool 所属的 CLI 工具
+     */
     CliRequest(@Nonnull CliTool tool) {
         this.tool = tool;
         this.timeout = tool.descriptor().defaultTimeoutSeconds();

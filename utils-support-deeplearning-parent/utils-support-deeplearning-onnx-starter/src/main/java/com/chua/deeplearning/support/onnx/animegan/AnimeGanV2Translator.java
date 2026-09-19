@@ -195,10 +195,10 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
     }
 
     /**
-    * 获取输入尺寸
-    *
-    * @return 输入尺寸
-    */
+     * 获取输入尺寸
+     *
+     * @return 输入尺寸
+     */
     public int getInputSize() {
         return INPUT_SIZE;
     }

@@ -62,12 +62,12 @@ public interface ScriptDefinition extends BeanDefinition {
     };
 
     /**
-        * 获取脚本标记器。
-        *
-        * <p>脚本标记器负责将脚本源码编译为 Java Class 并创建对象实例。</p>
-        *
-        * @return 脚本标记器实例
-        */
+     * 获取脚本标记器。
+     *
+     * <p>脚本标记器负责将脚本源码编译为 Java Class 并创建对象实例。</p>
+     *
+     * @return 脚本标记器实例
+     */
     ScriptMarker getScriptMarker();
 
     /**

@@ -71,13 +71,13 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * 创建 H266视频编码器 实例
-    * @param width width
-    * @param width int
-    * @param width int
-    * @param height height
-    * @param fps fps
-    */
+     * 创建 H266视频编码器 实例
+     * @param width width
+     * @param width int
+     * @param width int
+     * @param height height
+     * @param fps fps
+     */
     public H266VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
@@ -309,11 +309,11 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-    * ensurebgr
-    *
-    * @param src src
-    * @return ensureBgr的结果
-    */
+     * ensurebgr
+     *
+     * @param src src
+     * @return ensureBgr的结果
+     */
     private static BufferedImage ensureBgr(BufferedImage src) {
         if (src.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             return src;

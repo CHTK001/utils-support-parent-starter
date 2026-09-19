@@ -38,9 +38,9 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     private final Storage storage;
 
     /**
-    * 创建 googlecloud文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 googlecloud文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public GoogleCloudFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
  // 凭据解析策略：优先使用 access键secret 作为服务账号 JSON 密钥，失败时降级为 ADC

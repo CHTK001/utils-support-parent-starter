@@ -46,11 +46,11 @@ public interface ScriptConverter {
     String SPI_NAME = "script-converter";
 
     /**
-    * 判断当前转换器是否支持目标数据库协议。
-    *
-    * @param protocol 数据库协议名（如 {@code mysql}、{@code h2}、{@code postgresql}、{@code oracle}、{@code sqlserver}）
-    * @return true 表示该转换器可对目标协议做方言转换
-    */
+     * 判断当前转换器是否支持目标数据库协议。
+     *
+     * @param protocol 数据库协议名（如 {@code mysql}、{@code h2}、{@code postgresql}、{@code oracle}、{@code sqlserver}）
+     * @return true 表示该转换器可对目标协议做方言转换
+     */
     boolean supports(String protocol);
 
     /**

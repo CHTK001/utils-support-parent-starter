@@ -73,11 +73,11 @@ public class ApngDecoder {
     private boolean read;
 
     /**
-    * 从输入流解析 APNG。
-    *
-    * @param is 输入流，不能为空
-    * @throws IOException 解析失败时抛出
-    */
+     * 从输入流解析 APNG。
+     *
+     * @param is 输入流，不能为空
+     * @throws IOException 解析失败时抛出
+     */
     public void read(@Nonnull InputStream is) throws IOException {
         DataInputStream in = new DataInputStream(is);
 

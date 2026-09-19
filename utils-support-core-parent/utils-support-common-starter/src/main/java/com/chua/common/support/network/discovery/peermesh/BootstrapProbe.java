@@ -31,15 +31,15 @@ public class BootstrapProbe {
     private final String localHost;
 
     /**
-    * 创建 BootstrapProbe 实例
-    * @param config config
-    * @param nodeTable nodeTable
-    * @param selector selector
-    * @param localServerId localServerId
-    * @param localPort localPort
-    * @param diskStore diskStore
-    * @param localHost localHost
-    */
+     * 创建 BootstrapProbe 实例
+     * @param config config
+     * @param nodeTable nodeTable
+     * @param selector selector
+     * @param localServerId localServerId
+     * @param localPort localPort
+     * @param diskStore diskStore
+     * @param localHost localHost
+     */
     public BootstrapProbe(MeshConfig config, NodeTable nodeTable, InterfaceSelector selector,
                           String localServerId, int localPort, DiskStore diskStore,
                           String localHost) {

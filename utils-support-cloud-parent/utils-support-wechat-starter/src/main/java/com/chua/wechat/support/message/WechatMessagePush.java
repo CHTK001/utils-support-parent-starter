@@ -133,9 +133,9 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-    * 创建 wechat消息push 实例
-    * @param environment 环境
-    */
+     * 创建 wechat消息push 实例
+     * @param environment 环境
+     */
     public WechatMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
@@ -148,9 +148,9 @@ public class WechatMessagePush implements MessagePush {
 
     @Override
     /**
-    * 发送
-    * @param request 请求
-    */
+     * 发送
+     * @param request 请求
+     */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
         String type = resolveType(request);
@@ -442,9 +442,9 @@ public class WechatMessagePush implements MessagePush {
 
     @Override
     /**
-    * 获取Template
-    * @param templateId templateid
-    */
+     * 获取Template
+     * @param templateId templateid
+     */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }

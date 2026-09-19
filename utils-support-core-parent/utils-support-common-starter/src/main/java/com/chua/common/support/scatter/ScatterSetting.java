@@ -32,8 +32,8 @@ public class ScatterSetting {
     /** 监听地址 */
     private String host = "0.0.0.0";
     /**
-    * 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中
-    */
+     * 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中
+     */
     private int port;
     /**
      * scatter 通信端口（由 NodeServer 启动后自动填充）
@@ -42,16 +42,16 @@ public class ScatterSetting {
     /** 传输协议：tcp / udp */
     private String protocol = "tcp";
     /**
-    * 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景）
-    */
+     * 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景）
+     */
     private String announceHost;
 
     /** 服务路径 */
     private String servicePath = "/scatter";
 
     /**
-    * seed 引导模式：seed 地址列表（如 "192.168.1.10:19000"），非空即 seed 模式
-    */
+     * seed 引导模式：seed 地址列表（如 "192.168.1.10:19000"），非空即 seed 模式
+     */
     private List<String> seeds = new ArrayList<>();
 
     /**
@@ -90,10 +90,10 @@ public class ScatterSetting {
     private int gossipTargetCount = 4;
 
     /**
-    * 对外宣告地址：announceHost 非空时优先，否则回落 host。
-    *
-    * @return 宣告地址
-    */
+     * 对外宣告地址：announceHost 非空时优先，否则回落 host。
+     *
+     * @return 宣告地址
+     */
     public String effectiveHost() {
         return announceHost == null || announceHost.isBlank() ? host : announceHost;
     }

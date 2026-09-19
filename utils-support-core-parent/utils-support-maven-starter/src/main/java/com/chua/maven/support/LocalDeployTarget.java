@@ -35,8 +35,8 @@ public class LocalDeployTarget implements MavenDeployTarget {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LocalDeployTarget.class);
 
     /**
-    * 目标根目录
-    */
+     * 目标根目录
+     */
     private final String rootDir;
 
     /**
@@ -143,10 +143,10 @@ public class LocalDeployTarget implements MavenDeployTarget {
     }
 
     /**
-    * 获取根目录路径
-    *
-    * @return 根目录
-    */
+     * 获取根目录路径
+     *
+     * @return 根目录
+     */
     public String getRootDir() {
         return rootDir;
     }

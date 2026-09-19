@@ -135,13 +135,13 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-    *                   
-    *
-    * @param ctx                     
-    * @param input             
-    * @return              NDList
-    * @throws Exception             
-    */
+     *                   
+     *
+     * @param ctx                     
+     * @param input             
+     * @return              NDList
+     * @throws Exception             
+     */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         var manager = ctx.getNDManager();

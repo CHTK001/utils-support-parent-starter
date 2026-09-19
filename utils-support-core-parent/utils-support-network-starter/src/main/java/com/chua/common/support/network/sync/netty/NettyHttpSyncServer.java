@@ -152,12 +152,12 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * 拉取消息
-    *
-    * @param topics topics
-    * @param timeout 超时
-    * @return 拉手消息的结果
-    */
+     * 拉取消息
+     *
+     * @param topics topics
+     * @param timeout 超时
+     * @return 拉手消息的结果
+     */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
         while (System.currentTimeMillis() < deadline) {

@@ -26,11 +26,11 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     private final SqliteEngine engine;
 
     /**
-    * 构造方法。
-    * 持有 SQLite 引擎实例，用于获取 JDBC 连接与数据源。
-    *
-    * @param engine SQLite 引擎实例，不能为空
-    */
+     * 构造方法。
+     * 持有 SQLite 引擎实例，用于获取 JDBC 连接与数据源。
+     *
+     * @param engine SQLite 引擎实例，不能为空
+     */
     public SqliteSearchEngineImpl(SqliteEngine engine) {
         this.engine = engine;
     }

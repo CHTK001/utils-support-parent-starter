@@ -46,12 +46,12 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     }
 
     /**
-    * 推送一条数据。先推进 偏移量，再调用 consumer。
-    * 由 数据湖服务端 内部用。返回 {@link Mono} 以适配 响应式 背压。
-    *
-    * @param envelope envelope
-    * @return push的结果
-    */
+     * 推送一条数据。先推进 偏移量，再调用 consumer。
+     * 由 数据湖服务端 内部用。返回 {@link Mono} 以适配 响应式 背压。
+     *
+     * @param envelope envelope
+     * @return push的结果
+     */
     public Mono<Void> push(DataEnvelope envelope) {
         if (envelope == null) {
             return Mono.empty();

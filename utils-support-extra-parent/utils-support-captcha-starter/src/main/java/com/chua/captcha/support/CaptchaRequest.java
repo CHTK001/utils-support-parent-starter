@@ -50,8 +50,8 @@ public class CaptchaRequest {
     private long timeout = 180000;
 
     /**
-    * 轮询间隔（毫秒），默认 3000ms（3 秒）
-    */
+     * 轮询间隔（毫秒），默认 3000ms（3 秒）
+     */
     @Builder.Default
     /** Poll间隔 */
     private long pollInterval = 3000;

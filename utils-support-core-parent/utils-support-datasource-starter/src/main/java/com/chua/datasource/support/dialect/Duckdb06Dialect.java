@@ -4,8 +4,8 @@ import java.util.Properties;
 public class Duckdb06Dialect extends SqlDialect {
     public static final String VERSION = "DuckDB 0.6"; // 版本
     /**
-    * Duckdb06Dialect。
-    */
+     * Duckdb06Dialect。
+     */
     public Duckdb06Dialect() { super("duckdb06"); }
     /**
      * Duckdb06Dialect。

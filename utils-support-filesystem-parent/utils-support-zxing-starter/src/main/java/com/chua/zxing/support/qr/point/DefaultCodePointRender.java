@@ -34,12 +34,12 @@ public class DefaultCodePointRender implements CodePointRender {
     }
 
     /**
-    * 根据指定的码点样式格式化qr编码gen包装器的构建器设置。
-    *
-    * @param builder qr编码gen包装器的构建器对象，设置Qr码的绘制样式和其他选项
-    * @param setting   码点
-    * @param codePoint 码点样式枚举，定义了Qr码的绘制形状，例如矩形或圆形
-    */
+     * 根据指定的码点样式格式化qr编码gen包装器的构建器设置。
+     *
+     * @param builder qr编码gen包装器的构建器对象，设置Qr码的绘制样式和其他选项
+     * @param setting   码点
+     * @param codePoint 码点样式枚举，定义了Qr码的绘制形状，例如矩形或圆形
+     */
     private void formatCodePoint(QrCodeGenWrapper.Builder builder, CodePointSetting setting, CodePointStyle codePoint) {
         String codePointImage = setting.getCodePointImage();
         if (StringUtils.isNotEmpty(codePointImage)) {

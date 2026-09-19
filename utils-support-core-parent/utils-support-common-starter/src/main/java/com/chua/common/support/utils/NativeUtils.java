@@ -45,10 +45,10 @@ public class NativeUtils {
     private NativeUtils() {}
 
     /**
-    * 获取 NAT 库抽取统一临时根目录（{@code java.io.tmpdir/chua-native}）。
-    *
-    * @return 统一临时根目录 路径
-    */
+     * 获取 NAT 库抽取统一临时根目录（{@code java.io.tmpdir/chua-native}）。
+     *
+     * @return 统一临时根目录 路径
+     */
     public static Path tempRoot() {
         return Path.of(System.getProperty("java.io.tmpdir"), NATIVE_TMP_ROOT);
     }

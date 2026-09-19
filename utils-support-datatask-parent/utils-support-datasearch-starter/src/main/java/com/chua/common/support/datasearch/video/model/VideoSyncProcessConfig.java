@@ -140,11 +140,11 @@ public class VideoSyncProcessConfig {
         }
 
         /**
-        * 视频类型
-        *
-        * @param videoType 视频类型
-        * @return 视频类型的结果
-        */
+         * 视频类型
+         *
+         * @param videoType 视频类型
+         * @return 视频类型的结果
+         */
         public VideoSyncProcessConfigBuilder videoType(String videoType) {
             this.videoType = videoType;
             return this;

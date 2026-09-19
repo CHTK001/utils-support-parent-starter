@@ -443,12 +443,12 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     /**
-            * 解析 API 主机地址
-            *
-            * <p>优先使用配置的 baseUrl，否则根据模型自动选择。
-            *
-            * @return API 主机地址
-            */
+     * 解析 API 主机地址
+     *
+     * <p>优先使用配置的 baseUrl，否则根据模型自动选择。
+     *
+     * @return API 主机地址
+     */
     private String resolveHost() {
         String url = setting.getBaseUrl();
         if (StringUtils.isNotEmpty(url)) {

@@ -25,9 +25,9 @@ public final class OpencvNative {
     }
 
     /**
-    * 确保 打开cv 原生库已加载。
-    * <p>线程安全，可重复调用。</p>
-    */
+     * 确保 打开cv 原生库已加载。
+     * <p>线程安全，可重复调用。</p>
+     */
     public static void ensureLoaded() {
         if (loaded) {
             return;

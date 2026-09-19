@@ -64,8 +64,8 @@ public class ThermalImageFilter extends AbstractImageFilter {
     }
 
     /**
-        * 色带，默认 IRONBOW
-        */
+     * 色带，默认 IRONBOW
+     */
     private Palette palette = Palette.IRONBOW;
 
     /**

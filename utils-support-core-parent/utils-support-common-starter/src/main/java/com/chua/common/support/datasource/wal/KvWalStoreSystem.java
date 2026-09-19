@@ -138,10 +138,10 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
     /**
-    * FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确
-    * @param data 数据，不允许为 null
-    * @return 结果数值
-    */
+     * FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确
+     * @param data 数据，不允许为 null
+     * @return 结果数值
+     */
     private static int shardHash(byte[] data) {
         int h = 0x811c9dc5;
         for (byte b : data) {

@@ -116,10 +116,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
 
     @Override
     /**
-    * OnDeviationCompression
-    * @param baselineContext baselineContext
-    * @param currentContext currentContext
-    */
+     * OnDeviationCompression
+     * @param baselineContext baselineContext
+     * @param currentContext currentContext
+     */
     public List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                                      List<ChatMessage> currentContext) {
         if (!config.isEnabled()) {

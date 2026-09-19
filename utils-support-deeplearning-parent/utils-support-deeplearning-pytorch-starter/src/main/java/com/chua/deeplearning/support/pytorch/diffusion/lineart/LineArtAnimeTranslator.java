@@ -40,9 +40,9 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 线artanimetranslator 实例
-    * @param imageResolution 镜像resolution
-    */
+     * 创建 线artanimetranslator 实例
+     * @param imageResolution 镜像resolution
+     */
     public LineArtAnimeTranslator(int imageResolution) {
         this.imageResolution = imageResolution;
     }

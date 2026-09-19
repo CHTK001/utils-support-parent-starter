@@ -45,11 +45,11 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
     private static final ReaderTypeConverter INSTANCE = new ReaderTypeConverter();
 
     /**
-    * 将给定值转换为 Reader。
-    *
-    * @param value 源值
-    * @return Reader 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 Reader。
+     *
+     * @param value 源值
+     * @return Reader 值，如果无法转换则返回 null
+     */
     @Override
     public Reader convert(Object value) {
         if (null == value) {

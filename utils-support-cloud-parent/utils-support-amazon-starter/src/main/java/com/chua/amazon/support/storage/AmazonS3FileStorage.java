@@ -40,9 +40,9 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     private final AmazonS3 s3Client;
 
     /**
-    * 创建 amazons3文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 amazons3文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);

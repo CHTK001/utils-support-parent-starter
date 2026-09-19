@@ -46,8 +46,8 @@ public class CaptchaSetting {
     private long connectTimeout = 30000;
 
     /**
-    * 读取超时时间（毫秒），默认 30000ms
-    */
+     * 读取超时时间（毫秒），默认 30000ms
+     */
     @Builder.Default
     /** 读取超时 */
     private long readTimeout = 30000;

@@ -53,10 +53,10 @@ public final class LazyValue<T> implements Value<T> {
     private final Loader<T> loader;
 
     /**
-    * 构造函数，包装一个 {@link Loader}。
-    *
-    * @param loader 懒加载器，可为 空（空 表示该值恒为 空）
-    */
+     * 构造函数，包装一个 {@link Loader}。
+     *
+     * @param loader 懒加载器，可为 空（空 表示该值恒为 空）
+     */
     private LazyValue(Loader<T> loader) {
         this.loader = loader;
     }

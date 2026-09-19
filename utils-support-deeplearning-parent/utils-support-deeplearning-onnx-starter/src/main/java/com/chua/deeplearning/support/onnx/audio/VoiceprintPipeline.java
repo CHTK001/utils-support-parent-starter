@@ -474,10 +474,10 @@ public class VoiceprintPipeline implements AutoCloseable {
         private String vadType;
 
         /**
-    * embedder。
-    * @param e e
-    * @return embedder的结果
-    */
+         * embedder。
+         * @param e e
+         * @return embedder的结果
+         */
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
             return this;

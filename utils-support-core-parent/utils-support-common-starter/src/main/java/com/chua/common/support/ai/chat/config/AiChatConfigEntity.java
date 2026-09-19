@@ -29,8 +29,8 @@ public class AiChatConfigEntity {
 
     /** 主键 */
     /**
-    * 标识
-    */
+     * 标识
+     */
     private Long id;
 
     /**

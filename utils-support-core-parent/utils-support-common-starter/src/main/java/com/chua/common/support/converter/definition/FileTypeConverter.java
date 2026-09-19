@@ -37,8 +37,8 @@ public class FileTypeConverter implements TypeConverter<File> {
     /** 操作系统默认临时目录 */
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
     /**
-    * 数据
-    */
+     * 数据
+     */
     private static final String DATA = "data:";
     /** base64 数据前缀 */
     private static final CharSequence BASE64 = "base64,";

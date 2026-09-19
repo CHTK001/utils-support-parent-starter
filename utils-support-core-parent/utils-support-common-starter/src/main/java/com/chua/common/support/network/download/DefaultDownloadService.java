@@ -387,8 +387,8 @@ public class DefaultDownloadService implements DownloadService {
         /** 底层输入流 */
         private final InputStream delegate;
         /**
-        * 每秒可消耗的毫秒级速率（bytesPerSecond / 1000）
-        */
+         * 每秒可消耗的毫秒级速率（bytesPerSecond / 1000）
+         */
         private final long bytesPerMs;
         /** 当前可用令牌数（字节） */
         private long tokens;

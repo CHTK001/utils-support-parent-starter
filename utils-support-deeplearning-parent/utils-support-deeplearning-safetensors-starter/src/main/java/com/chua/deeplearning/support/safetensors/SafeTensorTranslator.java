@@ -64,11 +64,11 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     }
 
     /**
-    * 把图像字节发给 safetensor服务 并解析返回人脸框列表。
-    *
-    * @param input 图像字节数组
-    * @return PredictRectangle 列表
-    */
+     * 把图像字节发给 safetensor服务 并解析返回人脸框列表。
+     *
+     * @param input 图像字节数组
+     * @return PredictRectangle 列表
+     */
     @Override
     public List<PredictRectangle> translate(byte[] input) {
         if (input == null || input.length == 0) {

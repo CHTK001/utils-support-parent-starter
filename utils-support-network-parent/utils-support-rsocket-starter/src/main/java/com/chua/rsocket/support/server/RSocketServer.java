@@ -242,15 +242,15 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-    * 注册注解处理器。
-    * <p>
-    * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
-    * 自动绑定到对应事件。
-    * </p>
-    *
-    * @param handler 处理器对象
-    * @return 当前服务器实例，支持链式调用
-    */
+     * 注册注解处理器。
+     * <p>
+     * 扫描类上的 {@link OnOpen}、{@link OnClose}、{@link OnMessage} 注解，
+     * 自动绑定到对应事件。
+     * </p>
+     *
+     * @param handler 处理器对象
+     * @return 当前服务器实例，支持链式调用
+     */
     @Override
     public RSocketServer registerBean(Object handler) {
         super.registerBean(handler);

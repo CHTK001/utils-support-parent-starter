@@ -79,11 +79,11 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 创建 ultrafacetranslator 实例
-    * @param confThresh confthresh
-    * @param confThresh double
-    * @param nmsThresh nmsthresh
-    */
+     * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param confThresh double
+     * @param nmsThresh nmsthresh
+     */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
         this.nmsThresh = nmsThresh;
@@ -251,12 +251,12 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * Candidate
-    *
-    * @param rectangle rectangle
-    * @param probability probability
-    * @return Candidate的结果
-    */
+     * Candidate
+     *
+     * @param rectangle rectangle
+     * @param probability probability
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

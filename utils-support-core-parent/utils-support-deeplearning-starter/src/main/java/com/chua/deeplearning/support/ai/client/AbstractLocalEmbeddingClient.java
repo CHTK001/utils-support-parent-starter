@@ -80,13 +80,13 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-    * 解析实际使用的模型名称。
-    *
-    * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
-    * 否则返回显式指定的模型名。</p>
-    *
-    * @return 模型名称
-    */
+     * 解析实际使用的模型名称。
+     *
+     * <p>{@code auto} / 空值表示按当前服务器硬件配置自动挑选推荐模型，
+     * 否则返回显式指定的模型名。</p>
+     *
+     * @return 模型名称
+     */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;

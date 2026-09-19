@@ -55,11 +55,11 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-    * 按路径模式在文件系统中查找匹配资源。
-    *
-    * @param fullName 含 {@code filesystem:} 或 {@code filesystem*:} 前缀的完整模式
-    * @return 匹配资源集合
-    */
+     * 按路径模式在文件系统中查找匹配资源。
+     *
+     * @param fullName 含 {@code filesystem:} 或 {@code filesystem*:} 前缀的完整模式
+     * @return 匹配资源集合
+     */
     private Set<Resource> findPathMatchingResources(String fullName) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
 

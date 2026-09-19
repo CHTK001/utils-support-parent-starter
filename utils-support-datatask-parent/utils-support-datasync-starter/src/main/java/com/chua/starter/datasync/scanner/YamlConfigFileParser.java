@@ -179,8 +179,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-        * 默认目录配置定义。
-        */
+     * 默认目录配置定义。
+     */
     private record DefaultDirectoryConfigDefinition(
             String mappingId,
             String inputId,
@@ -250,8 +250,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-        * 默认文件配置定义。
-        */
+     * 默认文件配置定义。
+     */
     private record DefaultFileConfigDefinition(
             String mappingId,
             String inputId,
@@ -321,8 +321,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-        * 默认文本配置定义。
-        */
+     * 默认文本配置定义。
+     */
     private record DefaultTextConfigDefinition(
             String mappingId,
             String inputId,
@@ -392,8 +392,8 @@ public class YamlConfigFileParser implements ConfigFileParser {
     }
 
     /**
-        * 简单配置定义。
-        */
+     * 简单配置定义。
+     */
     private record SimpleConfigDefinition(
             String inputId,
             String sourceId,

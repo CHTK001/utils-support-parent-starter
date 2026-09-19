@@ -234,11 +234,11 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * Sigmoid
-    *
-    * @param x x
-    * @return sigmoid的结果
-    */
+     * Sigmoid
+     *
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }

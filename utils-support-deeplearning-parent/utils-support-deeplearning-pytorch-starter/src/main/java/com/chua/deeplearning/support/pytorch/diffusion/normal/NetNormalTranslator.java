@@ -47,11 +47,11 @@ public class NetNormalTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 netnormaltranslator 实例
-    * @param imageResolution 镜像resolution
-    * @param imageResolution int
-    * @param detectResolution detectresolution
-    */
+     * 创建 netnormaltranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param detectResolution detectresolution
+     */
     public NetNormalTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;

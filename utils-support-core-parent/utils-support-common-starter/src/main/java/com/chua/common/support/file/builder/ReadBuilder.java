@@ -23,8 +23,8 @@ public abstract class ReadBuilder {
 
     /** 待读取的文件 */
     /**
-    * 文件路径
-    */
+     * 文件路径
+     */
     protected final File file;
 
     /** 读取时使用的字符集编码，默认使用系统编码 */

@@ -147,10 +147,10 @@ public abstract class AbstractRestore implements Restore {
     }
 
     /**
-    * 获取文件扩展名
-    * @param file 文件
-    * @return 获取文件延伸的结果
-    */
+     * 获取文件扩展名
+     * @param file 文件
+     * @return 获取文件延伸的结果
+     */
     protected String getFileExtension(File file) {
         String name = file.getName();
         int dotIndex = name.lastIndexOf('.');

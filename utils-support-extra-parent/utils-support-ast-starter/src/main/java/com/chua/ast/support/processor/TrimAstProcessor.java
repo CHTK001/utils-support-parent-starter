@@ -81,11 +81,11 @@ public final class TrimAstProcessor extends AbstractProcessor {
     }
 
     /**
-    * 是否字符串类型
-    *
-    * @param type 类型
-    * @return 是否字符串类型的结果
-    */
+     * 是否字符串类型
+     *
+     * @param type 类型
+     * @return 是否字符串类型的结果
+     */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) { return false; }
         String typeName = type.toString();

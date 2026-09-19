@@ -162,8 +162,8 @@ class DefaultLivenessDetector implements LivenessDetector {
     private final ModelSetting setting;
 
     /**
-    * 活体阈值。
-    */
+     * 活体阈值。
+     */
     private Float threshold;
 
     /**
@@ -219,11 +219,11 @@ class DefaultLivenessDetector implements LivenessDetector {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 是否Live
-    *
-    * @param imageData 镜像数据
-    * @return 是否live的结果
-    */
+     * 是否Live
+     *
+     * @param imageData 镜像数据
+     * @return 是否live的结果
+     */
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

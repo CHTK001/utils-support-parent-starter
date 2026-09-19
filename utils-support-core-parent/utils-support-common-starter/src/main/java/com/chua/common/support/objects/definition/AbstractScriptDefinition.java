@@ -94,10 +94,10 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     /**
-    * 设置脚本标记器。
-    *
-    * @param scriptMarker 脚本标记器实例
-    */
+     * 设置脚本标记器。
+     *
+     * @param scriptMarker 脚本标记器实例
+     */
     public void setScriptMarker(ScriptMarker scriptMarker) {
         this.scriptMarker = scriptMarker;
     }
@@ -109,10 +109,10 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     }
 
     /**
-    * 设置脚本源码监听器。
-    *
-    * @param listener 脚本源码监听器实例
-    */
+     * 设置脚本源码监听器。
+     *
+     * @param listener 脚本源码监听器实例
+     */
     public void setListener(Listener listener) {
         this.listener = listener;
     }

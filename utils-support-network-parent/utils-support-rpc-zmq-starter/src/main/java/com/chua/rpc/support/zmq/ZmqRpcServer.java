@@ -285,8 +285,8 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     /**
-    * 收包主循环：阻塞接收 ROUTER 消息，拆帧后提交到业务线程池执行。
-    */
+     * 收包主循环：阻塞接收 ROUTER 消息，拆帧后提交到业务线程池执行。
+     */
     private void recvLoop() {
         while (!closed.get()) {
             try {

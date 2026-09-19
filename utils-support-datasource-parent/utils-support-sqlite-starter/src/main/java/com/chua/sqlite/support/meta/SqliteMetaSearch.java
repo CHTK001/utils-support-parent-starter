@@ -30,11 +30,11 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
     private final SqliteSearchEngineImpl searchEngine;
 
     /**
-    * 构造方法。
-    *
-    * @param metaData 元数据入口
-    * @param engine   引擎实例
-    */
+     * 构造方法。
+     *
+     * @param metaData 元数据入口
+     * @param engine   引擎实例
+     */
     public SqliteMetaSearch(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
         this.searchEngine = new SqliteSearchEngineImpl((com.chua.sqlite.support.engine.SqliteEngine) engine);

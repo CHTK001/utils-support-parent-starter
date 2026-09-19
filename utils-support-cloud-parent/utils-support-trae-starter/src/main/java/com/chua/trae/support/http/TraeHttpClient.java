@@ -97,11 +97,11 @@ public class TraeHttpClient {
         private int proxyPort = 7890;
 
         /**
-        * 设置认证管理器。
-        *
-        * @param authManager 认证实例，不可为 空
-        * @return 当前 构建器
-        */
+         * 设置认证管理器。
+         *
+         * @param authManager 认证实例，不可为 空
+         * @return 当前 构建器
+         */
         public Builder authManager(AuthManager authManager) {
             this.authManager = authManager;
             return this;

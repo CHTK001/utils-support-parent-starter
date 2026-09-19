@@ -104,10 +104,10 @@ public interface MavenDeployTarget extends AutoCloseable {
     }
 
     /**
-    * 部署进度回调（可选实现）
-    *
-    * @param callback 回调
-    */
+     * 部署进度回调（可选实现）
+     *
+     * @param callback 回调
+     */
     default void setCallback(MavenDeployCallback callback) {
     }
 }

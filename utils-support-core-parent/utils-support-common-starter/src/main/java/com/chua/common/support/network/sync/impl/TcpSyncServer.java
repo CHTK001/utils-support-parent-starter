@@ -309,8 +309,8 @@ public class TcpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-    * Boss 事件循环: 仅处理 accept,新连接轮询分发给 worker(主从 Reactor)。
-    */
+     * Boss 事件循环: 仅处理 accept,新连接轮询分发给 worker(主从 Reactor)。
+     */
     private void bossLoop() {
         while (running.get() && bossSelector.isOpen()) {
             try {

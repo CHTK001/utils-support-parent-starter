@@ -42,14 +42,14 @@ public class BgeEmbeddingTranslator {
     private OrtSession session;
 
     /**
-    * 加载 jar 内打包的 BGE 模型。
-    *
-    * @param basePath   jar 内资源目录（如 nlp/嵌入/bge-small-zh-v1.5/）
-    * @param modelFile  模型文件名
-    * @param tokenizerFile tokenizer 文件名
-    * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
-    * @throws Exception 加载异常
-    */
+     * 加载 jar 内打包的 BGE 模型。
+     *
+     * @param basePath   jar 内资源目录（如 nlp/嵌入/bge-small-zh-v1.5/）
+     * @param modelFile  模型文件名
+     * @param tokenizerFile tokenizer 文件名
+     * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
+     * @throws Exception 加载异常
+     */
     public synchronized Path extractFromClasspath(String basePath, String modelFile, String tokenizerFile) throws Exception {
         if (session != null) {
             return null;

@@ -223,11 +223,11 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     /**
-    * 判断 用户-Agent 是否命中爬虫特征关键词。
-    *
-    * @param userAgent 用户-Agent 请求头值
-    * @return true 表示命中爬虫特征
-    */
+     * 判断 用户-Agent 是否命中爬虫特征关键词。
+     *
+     * @param userAgent 用户-Agent 请求头值
+     * @return true 表示命中爬虫特征
+     */
     private boolean isCrawler(String userAgent) {
         String ua = userAgent.toLowerCase();
         for (String keyword : uaKeywords) {

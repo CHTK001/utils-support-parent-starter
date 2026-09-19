@@ -183,8 +183,8 @@ public class UdpSyncClient implements SyncClient {
     }
 
     /**
-    * 启动接收线程。
-    */
+     * 启动接收线程。
+     */
     private void startReceive() {
         receiveThread = ThreadUtils.newThread(() -> {
             byte[] buffer = new byte[8192];

@@ -27,59 +27,59 @@ public class FileStorageSetting {
     private boolean openPreview = true;
 
     /**
-    * 是否启用下载功能（总开关）。
-    */
+     * 是否启用下载功能（总开关）。
+     */
     @Builder.Default
     /** 打开下载 */
     private boolean openDownload = true;
 
     /**
-    * 是否启用 范围 断点续传。
-    */
+     * 是否启用 范围 断点续传。
+     */
     @Builder.Default
     /** Openrange */
     private boolean openRange = true;
 
     /**
-    * 是否启用 webjars 资源访问。
-    */
+     * 是否启用 webjars 资源访问。
+     */
     @Builder.Default
     /** Openwebjars */
     private boolean openWebjars = true;
 
     /**
-    * 是否启用远程文件访问。
-    */
+     * 是否启用远程文件访问。
+     */
     @Builder.Default
     /** 打开远程文件 */
     private boolean openRemoteFile = false;
 
     /**
-    * 是否启用闪图（一次性预览/下载）功能。
-    */
+     * 是否启用闪图（一次性预览/下载）功能。
+     */
     @Builder.Default
     /** Openflash */
     private boolean openFlash = true;
 
     /**
-    * 缓存相关配置。
-    */
+     * 缓存相关配置。
+     */
     @Builder.Default
     /** 缓存 */
     private FileStorageCacheSetting cache = new FileStorageCacheSetting();
 
     /**
-    * 水印配置。
-    */
+     * 水印配置。
+     */
     @Builder.Default
     /** Watermark */
     private FileStorageWatermarkSetting watermark = new FileStorageWatermarkSetting();
 
     /**
-    * 文件storage文件setting SPI 实现名称。
-    * <p>默认为空（使用 JDK 默认实现）。
-    * 可设置为 {@code "native"} 使用 Rust 实现。</p>
-    */
+     * 文件storage文件setting SPI 实现名称。
+     * <p>默认为空（使用 JDK 默认实现）。
+     * 可设置为 {@code "native"} 使用 Rust 实现。</p>
+     */
     private String fileSettingKey;
 
     /**

@@ -30,12 +30,12 @@ final class MemorySqlAst {
     abstract static class Node {
 
         /**
-    * 对行求值。
-    *
-    * @param row 行对象（映射 或 Bean）
-    * @param p   参数提供器
-    * @return 布真
-    */
+         * 对行求值。
+         *
+         * @param row 行对象（映射 或 Bean）
+         * @param p   参数提供器
+         * @return 布真
+         */
         /**
          * 对行求值。
          *
@@ -53,12 +53,12 @@ final class MemorySqlAst {
         private final Node right;
 
         /**
-    * 构造二元节点。
-    *
-    * @param op    运算符（和/或/= /!=/<>/</<=/>/>=）
-    * @param left  左子树
-    * @param right 右子树
-    */
+         * 构造二元节点。
+         *
+         * @param op    运算符（和/或/= /!=/<>/</<=/>/>=）
+         * @param left  左子树
+         * @param right 右子树
+         */
         BinaryNode(String op, Node left, Node right) {
             this.op = op.toUpperCase(Locale.ROOT);
             this.left = left;
@@ -105,10 +105,10 @@ final class MemorySqlAst {
         private final Node child;
 
         /**
-    * 构造取反节点。
-    *
-    * @param child 子谓词
-    */
+         * 构造取反节点。
+         *
+         * @param child 子谓词
+         */
         NotNode(Node child) {
             this.child = child;
         }
@@ -124,10 +124,10 @@ final class MemorySqlAst {
         private final String name;
 
         /**
-    * 构造列引用。
-    *
-    * @param name 列名
-    */
+         * 构造列引用。
+         *
+         * @param name 列名
+         */
         ColumnNode(String name) {
             this.name = name;
         }
@@ -152,10 +152,10 @@ final class MemorySqlAst {
         private final Object value;
 
         /**
-    * 构造字面量节点。
-    *
-    * @param value 字面值或 参数记号笔 占位
-    */
+         * 构造字面量节点。
+         *
+         * @param value 字面值或 参数记号笔 占位
+         */
         LiteralNode(Object value) {
             this.value = value;
         }
@@ -198,11 +198,11 @@ final class MemorySqlAst {
         private final boolean notNull;
 
         /**
-    * 构造空值判断节点。
-    *
-    * @param col     目标列
-    * @param notNull true 表示 是否 NOT 空
-    */
+         * 构造空值判断节点。
+         *
+         * @param col     目标列
+         * @param notNull true 表示 是否 NOT 空
+         */
         IsNullNode(ColumnNode col, boolean notNull) {
             this.col = col;
             this.notNull = notNull;
@@ -222,12 +222,12 @@ final class MemorySqlAst {
         private final Object hi;
 
         /**
-    * 构造闭区间判断节点。
-    *
-    * @param col 目标列
-    * @param lo  下界（可为占位）
-    * @param hi  上界（可为占位）
-    */
+         * 构造闭区间判断节点。
+         *
+         * @param col 目标列
+         * @param lo  下界（可为占位）
+         * @param hi  上界（可为占位）
+         */
         BetweenNode(ColumnNode col, Object lo, Object hi) {
             this.col = col;
             this.lo = lo;
@@ -251,11 +251,11 @@ final class MemorySqlAst {
         private final List<Object> values;
 
         /**
-    * 构造 入 列表节点。
-    *
-    * @param col    目标列
-    * @param values 候选值集合（元素可为占位）
-    */
+         * 构造 入 列表节点。
+         *
+         * @param col    目标列
+         * @param values 候选值集合（元素可为占位）
+         */
         InNode(ColumnNode col, List<Object> values) {
             this.col = col;
             this.values = values;
@@ -283,11 +283,11 @@ final class MemorySqlAst {
         private final String pattern;
 
         /**
-    * 构造 LIKE 节点。
-    *
-    * @param col     目标列
-    * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
-    */
+         * 构造 LIKE 节点。
+         *
+         * @param col     目标列
+         * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
+         */
         LikeNode(ColumnNode col, String pattern) {
             this.col = col;
             this.pattern = pattern;
@@ -326,11 +326,11 @@ final class MemorySqlAst {
         final boolean desc;
 
         /**
-    * 构造排序项。
-    *
-    * @param column 列名
-    * @param desc   是否降序
-    */
+         * 构造排序项。
+         *
+         * @param column 列名
+         * @param desc   是否降序
+         */
         OrderItem(String column, boolean desc) {
             this.column = column;
             this.desc = desc;
@@ -502,10 +502,10 @@ final class MemorySqlAst {
         Node where;
 
         /**
-    * 表名。
-    *
-    * @return 目标表
-    */
+         * 表名。
+         *
+         * @return 目标表
+         */
         public String table() {
             return table;
         }
@@ -530,10 +530,10 @@ final class MemorySqlAst {
         final List<List<Object>> rows = new ArrayList<>();
 
         /**
-    * 列清单。
-    *
-    * @return 列名列表
-    */
+         * 列清单。
+         *
+         * @return 列名列表
+         */
         public List<String> columns() {
             return columns;
         }

@@ -38,8 +38,8 @@ public class FeatureExtractor {
     private static final ZoneId ZONE = ZoneId.systemDefault();
 
     /**
-    * 特征配置
-    */
+     * 特征配置
+     */
     private final UebaConfig config;
 
     /**

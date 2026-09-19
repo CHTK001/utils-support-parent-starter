@@ -44,8 +44,8 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     /** 已扩散过的新节点（去重） */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
     /**
-    * 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
-    */
+     * 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
+     */
     private static final ExecutorService DEGRADE_SYNC_EXECUTOR = Executors.newFixedThreadPool(
             4, r -> {
                 Thread t = new Thread(r, "scatter-degrade-sync");

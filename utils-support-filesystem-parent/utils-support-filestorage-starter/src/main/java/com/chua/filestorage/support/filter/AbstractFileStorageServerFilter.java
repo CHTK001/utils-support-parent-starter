@@ -58,9 +58,9 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     protected transient FlashTokenService flashService;
 
     /**
-    * 创建 抽象文件storage服务端过滤器 实例
-    * @param setting setting
-    */
+     * 创建 抽象文件storage服务端过滤器 实例
+     * @param setting setting
+     */
     public AbstractFileStorageServerFilter(FileStorageSetting setting) {
         this(setting, null);
     }
@@ -126,11 +126,11 @@ public abstract class AbstractFileStorageServerFilter implements ServerFilter {
     }
 
     /**
-    * 添加文件storage
-    *
-    * @param name 名称
-    * @param storage storage
-    */
+     * 添加文件storage
+     *
+     * @param name 名称
+     * @param storage storage
+     */
     public void addFileStorage(String name, FileStorage storage) {
         storageMap.put(name, storage);
     }

@@ -17,12 +17,12 @@ public final class WalFactory {
     }
 
     /**
-    * 打开或创建 WAL 实例。
-    *
-    * @param config 配置
-    * @return WalLog 实例
-    * @throws IOException 打开失败
-    */
+     * 打开或创建 WAL 实例。
+     *
+     * @param config 配置
+     * @return WalLog 实例
+     * @throws IOException 打开失败
+     */
     public static WalLog open(WalConfig config) throws IOException {
         if (config == null) {
             throw new WalException("config 不能为 null");

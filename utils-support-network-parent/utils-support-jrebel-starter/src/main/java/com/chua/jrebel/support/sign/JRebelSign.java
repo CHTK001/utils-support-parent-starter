@@ -70,8 +70,8 @@ public class JRebelSign {
     }
 
     /**
-    * 初始化私钥
-    */
+     * 初始化私钥
+     */
     private void initPrivateKey() {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(PRIVATE_KEY);

@@ -50,15 +50,15 @@ public class SyncContext implements Serializable {
     private String eventType = "SNAPSHOT";
 
     /**
-    * 数据产生时间（毫秒时间戳）
-    */
+     * 数据产生时间（毫秒时间戳）
+     */
     @Builder.Default
     /** 时间戳 */
     private long timestamp = System.currentTimeMillis();
 
     /**
-    * 扩展属性
-    */
+     * 扩展属性
+     */
     @Builder.Default
     private Map<String, Object> attributes = new LinkedHashMap<>(); // attributes
 

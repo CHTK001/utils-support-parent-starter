@@ -23,8 +23,8 @@ public enum BeanScope {
 
     /** 作用域名称 */
     /**
-    * 名称
-    */
+     * 名称
+     */
     private final String name;
 
     /**

@@ -47,8 +47,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private boolean loaded;
 
     /**
-    * jar 内打包的资源目录（离线版），空 表示自动下载版
-    */
+     * jar 内打包的资源目录（离线版），空 表示自动下载版
+     */
     private String embeddedBase;
     /** 嵌入式模型名称 */
     /** Embedded模型 */
@@ -68,9 +68,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private Path modelPath;
 
     /**
-    * 创建 bge嵌入客户端 实例
-    * @param setting setting
-    */
+     * 创建 bge嵌入客户端 实例
+     * @param setting setting
+     */
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
         this.embeddedModel = "model.onnx";
@@ -143,8 +143,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-    * 将 registry 解析到的模型路径适配为本地可加载形式。
-    */
+     * 将 registry 解析到的模型路径适配为本地可加载形式。
+     */
     private void translateModel() throws Exception {
         if (embeddedBase != null) {
             translator = new BgeEmbeddingTranslator();

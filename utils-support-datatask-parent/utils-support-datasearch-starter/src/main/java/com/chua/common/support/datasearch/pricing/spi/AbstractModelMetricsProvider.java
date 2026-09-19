@@ -76,9 +76,9 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 创建 抽象模型指标提供者 实例
-    * @param configSaveOrLoader 配置保存或加载
-    */
+     * 创建 抽象模型指标提供者 实例
+     * @param configSaveOrLoader 配置保存或加载
+     */
     protected AbstractModelMetricsProvider(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }
@@ -132,13 +132,13 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     }
 
     /**
-    * 从线上 API 拉取定价数据。
-    *
-    * <p>默认行为：读取 classpath 内置 JSON 文件作为兜底数据。
-    * 若厂商有公开定价 API，子类可覆写此方法直接调用线上接口。</p>
-    *
-    * @return 模型定价列表
-    */
+     * 从线上 API 拉取定价数据。
+     *
+     * <p>默认行为：读取 classpath 内置 JSON 文件作为兜底数据。
+     * 若厂商有公开定价 API，子类可覆写此方法直接调用线上接口。</p>
+     *
+     * @return 模型定价列表
+     */
     public List<ModelDefinition> fetchOnlinePricing() {
         return readClasspathPricing();
     }

@@ -63,9 +63,9 @@ public class MysqlCdcListener {
     private volatile boolean running = false;
 
     /**
-    * mysqlcdc监听器。
-    * @param builder 构建器
-    */
+     * mysqlcdc监听器。
+     * @param builder 构建器
+     */
     private MysqlCdcListener(Builder builder) {
         this.host = builder.host;
         this.port = builder.port;

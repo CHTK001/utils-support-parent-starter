@@ -15,8 +15,8 @@ public class DataSyncAgentException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 错误码
-    */
+     * 错误码
+     */
     private final DataSyncErrorCode errorCode;
 
     /**

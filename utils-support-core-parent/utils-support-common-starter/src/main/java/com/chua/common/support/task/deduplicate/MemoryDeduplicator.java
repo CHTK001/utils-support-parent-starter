@@ -41,8 +41,8 @@ public class MemoryDeduplicator implements Deduplicator, AutoCloseable {
     private final ScheduledThreadPoolExecutor cleanupExecutor;
 
     /**
-    * 构造去重器，使用默认 TTL 5 分钟。
-    */
+     * 构造去重器，使用默认 TTL 5 分钟。
+     */
     public MemoryDeduplicator() {
         this(DEFAULT_TTL_MS);
     }

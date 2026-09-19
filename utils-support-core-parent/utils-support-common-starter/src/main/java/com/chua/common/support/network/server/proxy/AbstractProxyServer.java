@@ -184,10 +184,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-    * 接受连接循环。
-    * <p>支持多 acceptor 并行（bossThreads > 1 时），
-    * 超过 maxConnections 时直接关闭连接并发送 503。</p>
-    */
+     * 接受连接循环。
+     * <p>支持多 acceptor 并行（bossThreads > 1 时），
+     * 超过 maxConnections 时直接关闭连接并发送 503。</p>
+     */
     protected void acceptLoop() {
         while (running) {
             try {

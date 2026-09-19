@@ -58,11 +58,11 @@ public class NmapTool extends CliTool {
     }
 
     /**
-    * TCP Connect 全端口扫描（-sT --open -T4 -p-）。
-    *
-    * @param host 目标 IP 或域名
-    * @return 执行结果，stdout 为 nmap 标准输出
-    */
+     * TCP Connect 全端口扫描（-sT --open -T4 -p-）。
+     *
+     * @param host 目标 IP 或域名
+     * @return 执行结果，stdout 为 nmap 标准输出
+     */
     @Nonnull
     public CmdResult tcpConnectScan(@Nonnull String host) {
         return execute(120, TimeUnit.SECONDS,

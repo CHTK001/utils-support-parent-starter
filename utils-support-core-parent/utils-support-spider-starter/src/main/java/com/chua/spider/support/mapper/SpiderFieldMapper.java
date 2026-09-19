@@ -41,8 +41,8 @@ public class SpiderFieldMapper {
     private final ChatClient chatClient;
 
     /**
-    * 构造器（不使用 AI 提取）。
-    */
+     * 构造器（不使用 AI 提取）。
+     */
     public SpiderFieldMapper() {
         this.chatClient = null;
     }

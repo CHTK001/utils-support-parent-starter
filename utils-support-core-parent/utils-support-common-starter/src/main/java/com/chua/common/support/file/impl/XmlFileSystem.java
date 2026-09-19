@@ -159,10 +159,10 @@ public class XmlFileSystem implements FileSystem {
     }
 
     /**
-    * XML 文件读取构建器。
-    *
-    * @since 4.0.0.42
-    */
+     * XML 文件读取构建器。
+     *
+     * @since 4.0.0.42
+     */
     public static class XmlReadBuilder extends ReadBuilder {
 
         /**
@@ -182,10 +182,10 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-        * 标记首条记录为表头（属性名作为列名）。
-        *
-        * @return 当前构建器
-        */
+         * 标记首条记录为表头（属性名作为列名）。
+         *
+         * @return 当前构建器
+         */
         public XmlReadBuilder withHeader() {
             this.hasHeader = true;
             return this;
@@ -278,11 +278,11 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-        * 简易 XML 解析器，将标签结构转为 Map。
-        *
-        * @param xml 待解析的 XML 片段
-        * @param map 输出 Map 容器
-        */
+         * 简易 XML 解析器，将标签结构转为 Map。
+         *
+         * @param xml 待解析的 XML 片段
+         * @param map 输出 Map 容器
+         */
         private void parseXml(String xml, Map<String, Object> map) {
             int pos = 0;
             int len = xml.length();
@@ -381,10 +381,10 @@ public class XmlFileSystem implements FileSystem {
         }
 
         /**
-        * 渲染 XML 字符串。
-        *
-        * @return 渲染后的 XML 字符串
-        */
+         * 渲染 XML 字符串。
+         *
+         * @return 渲染后的 XML 字符串
+         */
         private String renderXml() {
             StringBuilder sb = new StringBuilder(XML_DECLARATION_HEADER);
             for (Object data : pending) {

@@ -236,9 +236,9 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         }
 
         /**
-        * 获取名称
-        * @return getName
-        */
+         * 获取名称
+         * @return getName
+         */
         @Override
         public String getName() {
             return name;

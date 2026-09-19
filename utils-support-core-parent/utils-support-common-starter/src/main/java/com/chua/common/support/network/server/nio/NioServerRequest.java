@@ -96,13 +96,13 @@ public class NioServerRequest implements ServerRequest {
     /** HTTP版本 */
     private String httpVersion = "HTTP/1.1";
     /**
-    * headers - 使用 HashMap(忽略大小写通过 toLowerCase 保证)
-    */
+     * headers - 使用 HashMap(忽略大小写通过 toLowerCase 保证)
+     */
     private final java.util.HashMap<String, String> headers = new java.util.HashMap<>(8);
     /** 请求体 */
     private byte[] body;
     /** 行解析缓冲(REQUEST_LINE/HEADERS/chunked 头);懒分配,空闲连接(未收到数据)不占用
-    *  <p>百万级空闲连接场景,每连接省 8KB,整体省数十 GB,是支撑高连接数的关键</p> */
+     *  <p>百万级空闲连接场景,每连接省 8KB,整体省数十 GB,是支撑高连接数的关键</p> */
     /** BUF */
     private ByteBuffer buf;
     /** BUFHAS数据 */
@@ -124,13 +124,13 @@ public class NioServerRequest implements ServerRequest {
     private boolean chunkHeaderPending = false;
 
     /**
-    * 创建 NioServerRequest 实例(NIO 场景,远端地址从 channel 动态获取)
-    * @param channel channel
-    * @param long long
-    * @param String String
-    * @param maxRequestSize 最大值请求大小，不允许为 null
-    * @param charset 字符集，不允许为 null
-    */
+     * 创建 NioServerRequest 实例(NIO 场景,远端地址从 channel 动态获取)
+     * @param channel channel
+     * @param long long
+     * @param String String
+     * @param maxRequestSize 最大值请求大小，不允许为 null
+     * @param charset 字符集，不允许为 null
+     */
     public NioServerRequest(SocketChannel channel, long maxRequestSize, String charset) {
         this.channel = channel;
         this.remoteAddress = null;

@@ -212,10 +212,10 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-                        * refresh路径
-                        *
-                        * @param zkPath zk路径
-                        */
+     * refresh路径
+     *
+     * @param zkPath zk路径
+     */
     private void refreshPath(String zkPath) {
         String discoveryPath = zkPath.substring(root.length());
         if (discoveryPath.isEmpty()) {

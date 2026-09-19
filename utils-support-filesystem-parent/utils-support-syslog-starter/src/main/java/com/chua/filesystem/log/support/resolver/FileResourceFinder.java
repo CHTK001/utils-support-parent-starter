@@ -104,14 +104,14 @@ public class FileResourceFinder implements ResourceFinder {
     }
 
     /**
-    * 搜索withNATtool
-    *
-    * @param name 名称
-    * @param fullPath 完整路径
-    * @param matchPath 匹配路径
-    * @param dirs dirs
-    * @return 搜索withNATtool的结果
-    */
+     * 搜索withNATtool
+     *
+     * @param name 名称
+     * @param fullPath 完整路径
+     * @param matchPath 匹配路径
+     * @param dirs dirs
+     * @return 搜索withNATtool的结果
+     */
     private Set<Resource> searchWithNativeTool(String name, String fullPath, String matchPath, Set<String> dirs) {
         try {
             if (PlatformSystems.isLinux()) {

@@ -25,10 +25,10 @@ public final class SkillPrompt {
     }
 
     /**
-    * 生成技能 Markdown 段。
-    * @param skills 方法入参 skills
-    * @return 结果字符串
-    */
+     * 生成技能 Markdown 段。
+     * @param skills 方法入参 skills
+     * @return 结果字符串
+     */
     public static String section(Map<String, SkillDefinition> skills) {
         return AgentSystemPromptBuilder.buildSkillsSection(skills);
     }

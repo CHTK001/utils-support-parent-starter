@@ -48,26 +48,26 @@ public class UrlUtils {
     }
 
     /**
-    * 将多个 URL 路径片段用 {@code /} 拼接为一个完整的 URL 并规范化。
-    *
-    * <p>算法步骤：
-    * <ol>
-    *   <li>若仅传入单个片段，无需拼接，直接返回原字符串</li>
-    *   <li>否则使用 Guava 的 {@code Joiner.on('/')} 将多个片段以 {@code /} 连接</li>
-    *   <li>调用 {@link #normalize(String, boolean)} 进行规范化，编码参数传 {@code false}（不对路径进行编码）</li>
-    * </ol>
-    *
-    * <p>边界情况：
-    * <ul>
-    *   <li>传入空数组 —— 实际由 {@code Joiner} 拼接成空字符串，再由 {@code normalize(String, false)} 处理</li>
-    *   <li>片段中包含 {@code null} —— {@code Joiner} 会将其视为字符串 {@code "null"} 参与拼接，
-    *       建议调用方确保片段均非空</li>
-    * </ul>
-    *
-    * @param url URL 路径片段数组，如 {@code {"http://example.com", "api", "v1"}}
-    * @return 拼接并规范化后的 URL 字符串，各部分以 {@code /} 连接且无重复斜杠，
-    *         例如 {@code "http://example.com/api/v1"}
-    */
+     * 将多个 URL 路径片段用 {@code /} 拼接为一个完整的 URL 并规范化。
+     *
+     * <p>算法步骤：
+     * <ol>
+     *   <li>若仅传入单个片段，无需拼接，直接返回原字符串</li>
+     *   <li>否则使用 Guava 的 {@code Joiner.on('/')} 将多个片段以 {@code /} 连接</li>
+     *   <li>调用 {@link #normalize(String, boolean)} 进行规范化，编码参数传 {@code false}（不对路径进行编码）</li>
+     * </ol>
+     *
+     * <p>边界情况：
+     * <ul>
+     *   <li>传入空数组 —— 实际由 {@code Joiner} 拼接成空字符串，再由 {@code normalize(String, false)} 处理</li>
+     *   <li>片段中包含 {@code null} —— {@code Joiner} 会将其视为字符串 {@code "null"} 参与拼接，
+     *       建议调用方确保片段均非空</li>
+     * </ul>
+     *
+     * @param url URL 路径片段数组，如 {@code {"http://example.com", "api", "v1"}}
+     * @return 拼接并规范化后的 URL 字符串，各部分以 {@code /} 连接且无重复斜杠，
+     *         例如 {@code "http://example.com/api/v1"}
+     */
     public static String normalize(String... url) {
         if (url.length == 1) {
             return url[0];

@@ -80,9 +80,9 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-    * 创建 文本水镜像过滤器 实例
-    * @param text 文本
-    */
+     * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     */
     public TextWaterImageFilter(String text) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE);
     }
@@ -215,12 +215,12 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-    * 水过滤
-    *
-    * @param src src
-    * @param dst dst
-    * @return 水过滤器的结果
-    */
+     * 水过滤
+     *
+     * @param src src
+     * @param dst dst
+     * @return 水过滤器的结果
+     */
     private BufferedImage waterFilter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth(), h = src.getHeight();
 

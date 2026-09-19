@@ -41,13 +41,13 @@ public class DefaultVectorStorage implements VectorStorage {
     public enum Mode { MEMORY, FILE, HYBRID }
 
     /**
-    * 冷分片内单条记录的位置信息。
-    *
-    * @param path 路径
-    * @param offset 偏移量
-    * @param length 长度
-    * @return EntryLoc的结果
-    */
+     * 冷分片内单条记录的位置信息。
+     *
+     * @param path 路径
+     * @param offset 偏移量
+     * @param length 长度
+     * @return EntryLoc的结果
+     */
     private record EntryLoc(Path path, long offset, int length) {
     }
 
@@ -89,14 +89,14 @@ public class DefaultVectorStorage implements VectorStorage {
     /** 冷数据索引：标识 → entryloc，用于精确跳跃读取。 */
     private final ConcurrentHashMap<String, EntryLoc> coldIndex = new ConcurrentHashMap<>();
     /**
-    * 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。
-    */
+     * 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。
+     */
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
     /** 分片元数据（centroid），键 为分片序号，用于剪枝。 */
     private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
     /**
-    * 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。
-    */
+     * 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。
+     */
     private final ConcurrentHashMap<Integer, List<EntryLoc>> shardToEntries = new ConcurrentHashMap<>();
 
     /**
@@ -107,8 +107,8 @@ public class DefaultVectorStorage implements VectorStorage {
     /** thread本地 float 缓冲：动态扩容，默认 128 维。 */
     private final ThreadLocal<float[]> vecBuf = ThreadLocal.withInitial(() -> new float[128]);
     /**
-    * thread本地 向量累加器：用于计算 centroid，默认 128 维。
-    */
+     * thread本地 向量累加器：用于计算 centroid，默认 128 维。
+     */
     private final ThreadLocal<float[]> centroidAcc = ThreadLocal.withInitial(() -> new float[128]);
 
     /** SIMD 分块宽度：每次处理 16 个 float。 */

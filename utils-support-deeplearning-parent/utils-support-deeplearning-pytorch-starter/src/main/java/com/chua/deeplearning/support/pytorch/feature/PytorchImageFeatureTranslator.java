@@ -74,11 +74,11 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     }
 
     /**
-    * L2 归一化。
-    *
-    * @param feature 特征向量
-    * @return 归一化后的向量
-    */
+     * L2 归一化。
+     *
+     * @param feature 特征向量
+     * @return 归一化后的向量
+     */
     private static float[] l2Normalize(float[] feature) {
         double sum = 0;
         for (float v : feature) {

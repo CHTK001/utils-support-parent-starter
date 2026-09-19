@@ -31,50 +31,50 @@ public class DhtConfig {
     private int port = 6881;
 
     /**
-    * K-Bucket 容量（K 值），默认 8
-    */
+     * K-Bucket 容量（K 值），默认 8
+     */
     @Builder.Default
     /** K存储桶尺寸 */
     private int kBucketSize = 8;
 
     /**
-    * 并行查询节点数（Alpha 值），默认 3
-    */
+     * 并行查询节点数（Alpha 值），默认 3
+     */
     @Builder.Default
     /** 透明度 */
     private int alpha = 3;
 
     /**
-    * 自动 Bootstrap 间隔（毫秒），默认 60 秒
-    */
+     * 自动 Bootstrap 间隔（毫秒），默认 60 秒
+     */
     @Builder.Default
     /** Bootstrap间隔MS */
     private long bootstrapIntervalMs = 10_000;
 
     /**
-    * 重新发布存储值的间隔（毫秒），默认 300 秒
-    */
+     * 重新发布存储值的间隔（毫秒），默认 300 秒
+     */
     @Builder.Default
     /** Republish间隔MS */
     private long republishIntervalMs = 300_000;
 
     /**
-    * 存储值的生存时间（毫秒），默认 600 秒
-    */
+     * 存储值的生存时间（毫秒），默认 600 秒
+     */
     @Builder.Default
     /** 值TTLMS */
     private long valueTtlMs = 600_000;
 
     /**
-    * 节点超时时间（毫秒），默认 30 秒
-    */
+     * 节点超时时间（毫秒），默认 30 秒
+     */
     @Builder.Default
     /** Peer超时MS */
     private long peerTimeoutMs = 30_000;
 
     /**
-    * 节点 标识 字符串（为空则随机生成）
-    */
+     * 节点 标识 字符串（为空则随机生成）
+     */
     private String nodeId;
 
     /**

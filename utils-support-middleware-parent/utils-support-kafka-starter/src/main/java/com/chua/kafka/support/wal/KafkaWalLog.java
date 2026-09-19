@@ -53,9 +53,9 @@ public class KafkaWalLog implements WalLog {
     private volatile boolean closed;
 
     /**
-    * 创建 kafkawal日志 实例
-    * @param config 配置
-    */
+     * 创建 kafkawal日志 实例
+     * @param config 配置
+     */
     public KafkaWalLog(WalConfig config) {
         this.config = config;
         this.topic = config.namespace();
@@ -102,11 +102,11 @@ public class KafkaWalLog implements WalLog {
     }
 
     /**
-    * extractlsn
-    *
-    * @param record record
-    * @return extractLsn的结果
-    */
+     * extractlsn
+     *
+     * @param record record
+     * @return extractLsn的结果
+     */
     private long extractLsn(ConsumerRecord<String, byte[]> record) {
         try {
             String key = record.key();

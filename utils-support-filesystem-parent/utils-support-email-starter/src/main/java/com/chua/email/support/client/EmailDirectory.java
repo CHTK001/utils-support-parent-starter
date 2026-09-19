@@ -65,9 +65,9 @@ public class EmailDirectory implements PolledDirectory {
     private volatile boolean running = false;
 
     /**
-    * 创建 EmailDirectory 实例
-    * @param b b
-    */
+     * 创建 EmailDirectory 实例
+     * @param b b
+     */
     private EmailDirectory(Builder b) {
         this.imapHost = b.imapHost;
         this.imapPort = b.imapPort;
@@ -174,8 +174,8 @@ public class EmailDirectory implements PolledDirectory {
     }
 
     /**
-    * 启动轮询线程。
-    */
+     * 启动轮询线程。
+     */
     private void startPollingThread() {
         Thread thread = new Thread(() -> {
             while (running) {

@@ -33,8 +33,8 @@ public class QpsServerFilter implements ServerFilter {
     private int maxQps = DEFAULT_MAX_QPS;
 
     /**
-    * 当前秒的请求计数
-    */
+     * 当前秒的请求计数
+     */
     private final AtomicLong counter = new AtomicLong(0);
 
     /**

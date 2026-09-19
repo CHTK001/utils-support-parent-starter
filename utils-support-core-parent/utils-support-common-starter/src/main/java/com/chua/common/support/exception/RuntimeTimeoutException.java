@@ -18,9 +18,9 @@ public class RuntimeTimeoutException extends RuntimeException {
     }
 
     /**
-    * 创建 RuntimeTimeoutException 实例
-    * @param message message
-    */
+     * 创建 RuntimeTimeoutException 实例
+     * @param message message
+     */
     public RuntimeTimeoutException(String message) {
         super(message);
     }

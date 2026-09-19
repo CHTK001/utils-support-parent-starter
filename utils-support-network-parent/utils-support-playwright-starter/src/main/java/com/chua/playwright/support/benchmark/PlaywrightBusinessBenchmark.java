@@ -241,8 +241,8 @@ public class PlaywrightBusinessBenchmark {
     /** 单个测试点执行结果 */
     public static final class StepResult {
         /**
-    * 名称
-    */
+         * 名称
+         */
         private final String name;
         /**
          * 类型
@@ -318,8 +318,8 @@ public class PlaywrightBusinessBenchmark {
     /** 一个并发用户的一次完整业务流程执行结果 */
     public static final class BusinessRun {
         /**
-    * 步骤执行结果列表
-    */
+         * 步骤执行结果列表
+         */
         private final List<StepResult> stepResults;
         /**
          * 总耗时（毫秒）

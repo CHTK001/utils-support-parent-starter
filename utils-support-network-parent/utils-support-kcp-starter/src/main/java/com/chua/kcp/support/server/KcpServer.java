@@ -320,11 +320,11 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 向所有客户端广播消息。
-    *
-    * @param topic   主题
-    * @param message 消息内容
-    */
+     * 向所有客户端广播消息。
+     *
+     * @param topic   主题
+     * @param message 消息内容
+     */
     public void publish(String topic, Object message) {
         String text = topic + ":" + message;
  // 编码一次，各连接共享字节数组（wrapped缓冲 零拷贝视图），避免逐连接重复编码
@@ -482,10 +482,10 @@ public class KcpServer extends AbstractServer {
     }
 
     /**
-    * 通知监听器
-    *
-    * @param action 动作
-    */
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

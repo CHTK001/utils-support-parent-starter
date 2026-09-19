@@ -116,10 +116,10 @@ public class Ip2regionIpPosition implements IpPosition {
     }
 
     /**
-    * 读取 4 字节无符号整数（小端序）。
-    * @param offset 偏移量
-    * @return 读取int的结果
-    */
+     * 读取 4 字节无符号整数（小端序）。
+     * @param offset 偏移量
+     * @return 读取int的结果
+     */
     private long readInt(int offset) {
         return (data[offset] & 0xFFL)
              | ((data[offset + 1] & 0xFFL) << 8)

@@ -51,8 +51,8 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-    * 客户端注册表（clientId -> metadata）
-    */
+     * 客户端注册表（clientId -> metadata）
+     */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
 
     /**

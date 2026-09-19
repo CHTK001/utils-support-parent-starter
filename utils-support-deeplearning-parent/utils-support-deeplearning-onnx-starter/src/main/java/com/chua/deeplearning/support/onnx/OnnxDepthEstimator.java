@@ -25,10 +25,10 @@ public class OnnxDepthEstimator implements DepthEstimator {
     }
 
     /**
-    * 解析模型
-    *
-    * @return resolve模型的结果
-    */
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "depth-anything";
     }

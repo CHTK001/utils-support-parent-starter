@@ -101,8 +101,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     private volatile boolean initialized; // 初始化
 
     /**
-    * 是否为 KV 缓存 版模型（含 past_键_值/present 输入输出，如 transformers.js 导出）
-    */
+     * 是否为 KV 缓存 版模型（含 past_键_值/present 输入输出，如 transformers.js 导出）
+     */
     private boolean kvCacheModel;
 
     /** 多轮对话历史（交替存储 用户 / assistant 文本） */

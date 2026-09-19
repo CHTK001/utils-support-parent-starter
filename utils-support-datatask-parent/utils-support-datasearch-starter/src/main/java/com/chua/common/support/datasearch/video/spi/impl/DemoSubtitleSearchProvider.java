@@ -61,8 +61,8 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
             Pattern.compile("zh|en|双语|English|Chinese", Pattern.CASE_INSENSITIVE);
 
     /**
-    * 创建 subhd 字幕搜索提供者实例（无参构造，供 SPI 框架反射实例化）。
-    */
+     * 创建 subhd 字幕搜索提供者实例（无参构造，供 SPI 框架反射实例化）。
+     */
     public DemoSubtitleSearchProvider() {
         // 无参构造：全部状态由请求参数携带，无成员字段初始化
     }

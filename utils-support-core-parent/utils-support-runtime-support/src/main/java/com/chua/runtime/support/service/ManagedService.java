@@ -77,7 +77,7 @@ public class ManagedService {
     private String startupType = "auto";
 
     /**
-    * 运行用户（systemd 用户= 或 窗口 服务登录账户）
+     * 运行用户（systemd 用户= 或 窗口 服务登录账户）
      */
     private String runAsUser;
 
@@ -89,23 +89,23 @@ public class ManagedService {
     private List<String> dependencies = new ArrayList<>();
 
     /**
-    * 是否在崩溃后自动重启
+     * 是否在崩溃后自动重启
      */
     @Builder.Default
     /** Autorestart */
     private boolean autoRestart = true;
 
     /**
-    * 重启间隔（秒）
+     * 重启间隔（秒）
      */
     @Builder.Default
     /** restartsec */
     private int restartSec = 10;
 
     /**
-    * 服务类型枚举。
-    * @author CH
-    * @since 4.0.0
+     * 服务类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum ServiceType {
         /**

@@ -49,14 +49,14 @@ public class BucketSetting {
     private long connectionTimeoutMills = 10 * 1000;
 
     /**
-    * 会话超时时间（毫秒），默认 10 秒。
-    */
+     * 会话超时时间（毫秒），默认 10 秒。
+     */
     @Builder.Default
     /** 会话超时mills */
     private long sessionTimeoutMills = 10 * 1000;
 
     /**
-    * 附加配置属性，用于扩展 SDK 特定参数。
-    */
+     * 附加配置属性，用于扩展 SDK 特定参数。
+     */
     private java.util.Map<String, String> extraProperties;
 }

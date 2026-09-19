@@ -83,18 +83,18 @@ public class MavenCompileResult {
     }
 
     /**
-    * 创建 mavencompile结果 实例
-    * @param success 成功
-    * @param exitCode exit编码
-    * @param output 输出
-    * @param errors 错误
-    * @param durationMillis 持续时间millis
-    * @param projectPath project路径
-    * @param projectDir projectdir
-    * @param goals goals
-    * @param profiles 配置文件
-    * @param artifacts artifacts
-    */
+     * 创建 mavencompile结果 实例
+     * @param success 成功
+     * @param exitCode exit编码
+     * @param output 输出
+     * @param errors 错误
+     * @param durationMillis 持续时间millis
+     * @param projectPath project路径
+     * @param projectDir projectdir
+     * @param goals goals
+     * @param profiles 配置文件
+     * @param artifacts artifacts
+     */
     private MavenCompileResult(boolean success, int exitCode, String output, List<String> errors,
                                long durationMillis, String projectPath, String projectDir,
                                List<String> goals, List<String> profiles, List<String> artifacts) {

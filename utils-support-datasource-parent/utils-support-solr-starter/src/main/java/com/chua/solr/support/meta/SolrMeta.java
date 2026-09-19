@@ -27,11 +27,11 @@ public class SolrMeta extends AbstractMetaSearch {
     private final SolrSearchEngine searchEngine;
 
     /**
-    * 创建 Solrmeta 实例
-    * @param metaData meta数据
-    * @param engine Solrengine
-    * @param engine engine
-    */
+     * 创建 Solrmeta 实例
+     * @param metaData meta数据
+     * @param engine Solrengine
+     * @param engine engine
+     */
     public SolrMeta(AbstractMetaData metaData, SolrEngine engine) {
         super(metaData, engine);
         this.searchEngine = new SolrSearchEngine(engine);
@@ -86,13 +86,13 @@ public class SolrMeta extends AbstractMetaSearch {
 
     @Override
     /**
-    * 优化
-    *
-    * @param indexName 索引名称
-    * @return 优化的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 优化
+     *
+     * @param indexName 索引名称
+     * @return 优化的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public boolean optimize(String indexName) {
         SolrClient client = ((SolrEngine) engine).getClient();
         if (client == null) {
@@ -191,12 +191,12 @@ public class SolrMeta extends AbstractMetaSearch {
 
         @Override
         /**
-        * 执行
-        *
-        * @return 执行的结果
-        * @author CH
-        * @since 4.0.0
-        */
+         * 执行
+         *
+         * @return 执行的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);

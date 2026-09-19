@@ -37,11 +37,11 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     private String device = "cpu";
 
     /**
-    * 创建 onnx语音synthesizer 实例。
-    *
-    * @param apiKey API 密钥（本地引擎可留空）
-    * @param model 模型
-    */
+     * 创建 onnx语音synthesizer 实例。
+     *
+     * @param apiKey API 密钥（本地引擎可留空）
+     * @param model 模型
+     */
     public OnnxSpeechSynthesizer(String apiKey) {
     }
 

@@ -80,9 +80,9 @@ public class ClusterProperties {
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
-    * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
-    * 同一 服务路径 下只允许同一种协议。
-    */
+     * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
+     * 同一 服务路径 下只允许同一种协议。
+     */
     private List<ServerEntryProp> serverEntries = new ArrayList<>();
 
     /**

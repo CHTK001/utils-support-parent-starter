@@ -58,12 +58,12 @@ public final class CliVersion implements Comparable<CliVersion> {
     private final String qualifier;
 
     /**
-    * 创建版本实例
-    *
-    * @param raw       原始版本字符串
-    * @param numbers   数字段
-    * @param qualifier 限定符
-    */
+     * 创建版本实例
+     *
+     * @param raw       原始版本字符串
+     * @param numbers   数字段
+     * @param qualifier 限定符
+     */
     private CliVersion(String raw, int[] numbers, String qualifier) {
         this.raw = raw;
         this.numbers = numbers;

@@ -55,12 +55,12 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-    * 转换视频
-    * @param inputStream 输入流
-    * @param outputStream 输出流
-    * @param inputFormat 输入格式化
-    * @param outputFormat 输出格式化
-    */
+     * 转换视频
+     * @param inputStream 输入流
+     * @param outputStream 输出流
+     * @param inputFormat 输入格式化
+     * @param outputFormat 输出格式化
+     */
     public void convertVideo(java.io.InputStream inputStream, java.io.OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         checkStreamAvailable();
@@ -228,14 +228,14 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-    * 视频转为gif
-    * @param videoInput 视频输入
-    * @param gifOutput gif输出
-    * @param startTime 启动时间
-    * @param duration 持续时间
-    * @param width width
-    * @param fps fps
-    */
+     * 视频转为gif
+     * @param videoInput 视频输入
+     * @param gifOutput gif输出
+     * @param startTime 启动时间
+     * @param duration 持续时间
+     * @param width width
+     * @param fps fps
+     */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         checkStreamAvailable();
@@ -320,12 +320,12 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
 
     @Override
     /**
-    * 拉取流式输出
-    * @param streamUrl 流url
-    * @param output 输出
-    * @param duration 持续时间
-    * @param callback callback
-    */
+     * 拉取流式输出
+     * @param streamUrl 流url
+     * @param output 输出
+     * @param duration 持续时间
+     * @param callback callback
+     */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         checkStreamAvailable();

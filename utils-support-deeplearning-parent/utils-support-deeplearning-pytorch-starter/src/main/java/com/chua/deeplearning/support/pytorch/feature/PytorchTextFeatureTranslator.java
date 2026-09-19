@@ -51,9 +51,9 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
     }
 
     /**
-    * 创建 pytorch文本特征translator 实例
-    * @param chinese chinese
-    */
+     * 创建 pytorch文本特征translator 实例
+     * @param chinese chinese
+     */
     public PytorchTextFeatureTranslator(boolean chinese) {
         this.chinese = chinese;
     }

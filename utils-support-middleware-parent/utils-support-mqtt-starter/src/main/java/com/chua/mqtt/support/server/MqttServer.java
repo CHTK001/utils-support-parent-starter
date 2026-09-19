@@ -254,12 +254,12 @@ public class MqttServer extends AbstractServer {
     }
 
     /**
-    * annotated方法
-    *
-    * @param beanClass Bean类
-    * @param method 方法
-    * @return annotated方法的结果
-    */
+     * annotated方法
+     *
+     * @param beanClass Bean类
+     * @param method 方法
+     * @return annotated方法的结果
+     */
     private record AnnotatedMethod(Class<?> beanClass, Method method) {}
     /**
      * annotated消息

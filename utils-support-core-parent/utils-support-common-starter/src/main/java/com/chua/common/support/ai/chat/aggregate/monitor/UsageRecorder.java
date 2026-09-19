@@ -37,8 +37,8 @@ public interface UsageRecorder extends Consumer<AiUsage> {
     }
 
     /**
-    * 记录一次用量
-    * @param usage 方法入参 usage
-    */
+     * 记录一次用量
+     * @param usage 方法入参 usage
+     */
     void record(AiUsage usage);
 }

@@ -32,11 +32,11 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
     }
 
     /**
-    * 将给定值转换为 byte[]。
-    *
-    * @param value 源值
-    * @return byte[] 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 byte[]。
+     *
+     * @param value 源值
+     * @return byte[] 值，如果无法转换则返回 null
+     */
     @Override
     public byte[] convert(Object value) {
         if(value instanceof byte[]) {

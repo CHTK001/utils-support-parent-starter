@@ -146,15 +146,15 @@ public final class CliModelRunner {
     private static final String DEFAULT_OPENCODE_VERSION = "v1.18.31";
 
     /**
-    * 工厂：opencode CLI（自包含独立二进制，按 OS/ARCH 选 artifact）
-    *
-    * <p>产物形如 {@code opencode-windows-x64.zip} / {@code opencode-linux-x64.tar.gz} /
-    * {@code opencode-darwin-arm64.zip}（bun 编译的单文件可执行程序，内嵌于压缩包根目录）。
-    * 这些 CLI 独立二进制<b>没有</b>配套的逐文件 {@code .sha256}，故不做下载校验。
-    * 版本默认 {@value #DEFAULT_OPENCODE_VERSION}，可设系统属性 {@code opencode.version} 覆盖。</p>
-    *
-    * @return 描述
-    */
+     * 工厂：opencode CLI（自包含独立二进制，按 OS/ARCH 选 artifact）
+     *
+     * <p>产物形如 {@code opencode-windows-x64.zip} / {@code opencode-linux-x64.tar.gz} /
+     * {@code opencode-darwin-arm64.zip}（bun 编译的单文件可执行程序，内嵌于压缩包根目录）。
+     * 这些 CLI 独立二进制<b>没有</b>配套的逐文件 {@code .sha256}，故不做下载校验。
+     * 版本默认 {@value #DEFAULT_OPENCODE_VERSION}，可设系统属性 {@code opencode.version} 覆盖。</p>
+     *
+     * @return 描述
+     */
     public static CliDescriptor opencode() {
         String os = System.getProperty("os.name", "").toLowerCase();
         String arch = System.getProperty("os.arch", "").toLowerCase();

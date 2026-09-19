@@ -45,10 +45,10 @@ public final class OshiCli {
     };
 
     /**
-    * 主入口。
-    *
-    * @param args 命令行参数
-    */
+     * 主入口。
+     *
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         if (args.length == 0) {
             COMMANDS[0].execute(CommandLine.parse(new String[0]));

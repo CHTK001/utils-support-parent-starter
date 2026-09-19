@@ -64,8 +64,8 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     private final boolean hstsEnabled;
 
     /**
-    * 创建安全响应头过滤器(默认不启用 HSTS)。
-    */
+     * 创建安全响应头过滤器(默认不启用 HSTS)。
+     */
     public SecurityHeadersServerFilter() {
         this.hstsEnabled = false;
     }
@@ -87,8 +87,8 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
 
     @Override
     /**
-    * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
-    */
+     * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
+     */
     public String supportPath() {
         return null;
     }
@@ -101,12 +101,12 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
 
     @Override
     /**
-    * Do过滤
-    *
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         applyHeaders(response);

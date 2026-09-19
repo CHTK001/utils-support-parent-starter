@@ -248,11 +248,11 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-    * 注册同步流程监听器。
-    *
-    * @param listener 监听器
-    * @return 当前实例
-    */
+     * 注册同步流程监听器。
+     *
+     * @param listener 监听器
+     * @return 当前实例
+     */
     public KcpSyncClient onFlow(SyncFlowListener listener) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -279,10 +279,10 @@ public class KcpSyncClient implements SyncClient {
     }
 
     /**
-    * 获取客户端id
-    *
-    * @return 获取客户端id的结果
-    */
+     * 获取客户端id
+     *
+     * @return 获取客户端id的结果
+     */
     public String getClientId() {
         return clientId;
     }

@@ -46,11 +46,11 @@ public class DptDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 dpt深度translator 实例
-    * @param detectResolution detectresolution
-    * @param detectResolution int
-    * @param imageResolution 镜像resolution
-    */
+     * 创建 dpt深度translator 实例
+     * @param detectResolution detectresolution
+     * @param detectResolution int
+     * @param imageResolution 镜像resolution
+     */
     public DptDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;

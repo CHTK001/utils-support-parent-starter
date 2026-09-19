@@ -33,13 +33,13 @@ public final class ExpressionResolvers {
     }
 
     /**
-    * 解析表达式，按优先级链尝试所有解析器。
-    *
-    * @param expression 原始表达式，如 {@code #{method.name}}
-    * @param root       根对象
-    * @param variables  上下文变量
-    * @return 解析后的值，无法解析返回 null
-    */
+     * 解析表达式，按优先级链尝试所有解析器。
+     *
+     * @param expression 原始表达式，如 {@code #{method.name}}
+     * @param root       根对象
+     * @param variables  上下文变量
+     * @return 解析后的值，无法解析返回 null
+     */
     public static String resolve(String expression, Object root, Map<String, Object> variables) {
         for (ExpressionResolver resolver : RESOLVERS) {
             if (resolver.isSupport(expression)) {

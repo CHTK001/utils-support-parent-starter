@@ -36,11 +36,11 @@ public class ListTypeConverter implements TypeConverter<List> {
     public static final ListTypeConverter INSTANCE = new ListTypeConverter();
 
     /**
-    * 将给定值转换为 List。
-    *
-    * @param value 源值
-    * @return List 值，如果为 null 则返回 null
-    */
+     * 将给定值转换为 List。
+     *
+     * @param value 源值
+     * @return List 值，如果为 null 则返回 null
+     */
     @Override
     public List convert(Object value) {
         if (null == value) {

@@ -39,8 +39,8 @@ public class EventObserver {
     private LocalDateTime timestamp = LocalDateTime.now();
 
     /**
-    * 事件类型：CREATE / MODIFY / DELETE / OVERFLOW
-    */
+     * 事件类型：CREATE / MODIFY / DELETE / OVERFLOW
+     */
     private WatcherEvent eventType;
 
     /**
@@ -56,11 +56,11 @@ public class EventObserver {
     private boolean directory = false;
 
     /**
-    * 获取事件文件的完整路径。
-    * <p>将 {@link #currentPath} 和 {@link #triggerFile} 拼接为完整路径，自动处理分隔符。</p>
-    *
-    * @return 完整路径，若 currentPath 或 triggerFile 为空则返回 null
-    */
+     * 获取事件文件的完整路径。
+     * <p>将 {@link #currentPath} 和 {@link #triggerFile} 拼接为完整路径，自动处理分隔符。</p>
+     *
+     * @return 完整路径，若 currentPath 或 triggerFile 为空则返回 null
+     */
     public String getFullPath() {
         if (currentPath == null || triggerFile == null) {
             return null;

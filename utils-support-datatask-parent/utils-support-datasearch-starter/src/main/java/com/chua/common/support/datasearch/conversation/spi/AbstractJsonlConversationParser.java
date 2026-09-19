@@ -27,10 +27,10 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-    * 返回会话文件根目录。
-    *
-    * @return 根目录路径
-    */
+     * 返回会话文件根目录。
+     *
+     * @return 根目录路径
+     */
     protected abstract Path rootDir();
 
     /**
@@ -66,10 +66,10 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
      * @param file 文件
      * @return 流文件的结果
      /**
-    * 流消息。
-    * @return 流消息的结果
-    * @param file 文件
-    */
+      * 流消息。
+      * @return 流消息的结果
+      * @param file 文件
+      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         List<Path> files = listTranscripts();

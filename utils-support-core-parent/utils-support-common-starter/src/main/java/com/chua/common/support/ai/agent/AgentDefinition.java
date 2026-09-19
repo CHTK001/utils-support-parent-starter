@@ -97,8 +97,8 @@ public class AgentDefinition {
     private final SkillManager skillManager;
 
     /**
-    * 自动生成的完整系统提示词（instruction + 子 Agent 路由描述）
-    */
+     * 自动生成的完整系统提示词（instruction + 子 Agent 路由描述）
+     */
     private final String systemPrompt;
 
     /** 是否启用记忆体（默认开启） */
@@ -111,21 +111,21 @@ public class AgentDefinition {
     private final AgentRetryConfig retryConfig;
 
     /**
-    * 工具调用最大迭代次数（思考上限）
-    *
-    * <p>控制 LLM → 工具调用 → LLM 循环的最大轮数。达到上限后即使仍有工具调用请求
-    * 也直接返回最终结果。0 或负数表示不限制（请谨慎使用）。默认 5 轮。
-    */
+     * 工具调用最大迭代次数（思考上限）
+     *
+     * <p>控制 LLM → 工具调用 → LLM 循环的最大轮数。达到上限后即使仍有工具调用请求
+     * 也直接返回最终结果。0 或负数表示不限制（请谨慎使用）。默认 5 轮。
+     */
     private final int maxToolIterations;
 
     /** 上下文压缩配置 */
     private final AgentCompressionConfig compressionConfig;
 
     /**
-    * 规划最大子任务数
-    *
-    * <p>Plan 模式下单次计划可拆分的最大子任务数。0 或负数表示使用框架默认值。
-    */
+     * 规划最大子任务数
+     *
+     * <p>Plan 模式下单次计划可拆分的最大子任务数。0 或负数表示使用框架默认值。
+     */
     private final int planMaxTask;
 
     /** 调试 Hook */
@@ -544,11 +544,11 @@ public class AgentDefinition {
         }
 
         /**
-        * 设置是否启用 Plan 规划模式（同 {@link #planning(boolean)}）
-        *
-        * @param plan 是否启用
-        * @return 当前 Builder
-        */
+         * 设置是否启用 Plan 规划模式（同 {@link #planning(boolean)}）
+         *
+         * @param plan 是否启用
+         * @return 当前 Builder
+         */
         public Builder plan(boolean plan) {
             this.planning = plan;
             return this;
@@ -608,14 +608,14 @@ public class AgentDefinition {
         }
 
         /**
-        * 设置 Agent 专属的 MCP 管理器
-        *
-        * <p>子 Agent 配置独立的 MCP 后，仅能调用该管理器注册的工具，
-        * 不会受主 Agent 或其他子 Agent 的工具集影响。
-        *
-        * @param mcpManager MCP 管理器
-        * @return 当前 Builder
-        */
+         * 设置 Agent 专属的 MCP 管理器
+         *
+         * <p>子 Agent 配置独立的 MCP 后，仅能调用该管理器注册的工具，
+         * 不会受主 Agent 或其他子 Agent 的工具集影响。
+         *
+         * @param mcpManager MCP 管理器
+         * @return 当前 Builder
+         */
         public Builder mcpManager(McpManager mcpManager) {
             this.mcpManager = mcpManager;
             return this;

@@ -75,8 +75,8 @@ public class NativeLoader {
     /** Extractonly */
     private boolean extractOnly;
     /**
-    * 是否启用全局 任务id 缓存（默认 true；同一 JVM 内同 任务id 只提取一次）
-    */
+     * 是否启用全局 任务id 缓存（默认 true；同一 JVM 内同 任务id 只提取一次）
+     */
     private boolean useCache;
     /**
      * 自定义 类路径 基础路径，覆盖默认的 NAT/{platformdir}/。
@@ -479,14 +479,14 @@ public class NativeLoader {
         private final StreamSupplier supplier;
 
         /**
-        * 创建 resourceitem 实例
-        * @param name 名称
-        * @param size long
-        * @param supplier 流供应商
-        * @param size 大小
-        * @param supplier 供应商
-        * @return ResourceItem的结果
-        */
+         * 创建 resourceitem 实例
+         * @param name 名称
+         * @param size long
+         * @param supplier 流供应商
+         * @param size 大小
+         * @param supplier 供应商
+         * @return ResourceItem的结果
+         */
         private ResourceItem(String name, long size, StreamSupplier supplier) {
             this.name = name;
             this.size = size;

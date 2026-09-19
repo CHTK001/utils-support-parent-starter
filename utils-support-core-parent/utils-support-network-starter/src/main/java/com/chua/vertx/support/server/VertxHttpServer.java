@@ -422,8 +422,8 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-        * WebSocket 消息响应（持有 Vert.x 服务端webSocket 引用用于回写）。
-        */
+     * WebSocket 消息响应（持有 Vert.x 服务端webSocket 引用用于回写）。
+     */
     private static final class VertxWsResponse implements com.chua.common.support.network.server.response.ServerResponse {
         /** WebSocket 连接 */
         private final io.vertx.core.http.ServerWebSocket ws;
@@ -493,11 +493,11 @@ public class VertxHttpServer extends AbstractServer {
     }
 
     /**
-        * 执行处理
-        *
-        * @param request 请求
-        * @param response 响应
-        */
+     * 执行处理
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void doHandleOriginal(VertxServerRequest request, VertxServerResponse response) {
         try {
             handleRequest(request, response);

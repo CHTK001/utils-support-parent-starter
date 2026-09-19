@@ -53,8 +53,8 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     };
 
     /**
-    * 构造函数，初始化 镜像writerspi 的基类信息。
-    */
+     * 构造函数，初始化 镜像writerspi 的基类信息。
+     */
     public PNGImageWriterSpi() {
         super(vendorName,
                 version,

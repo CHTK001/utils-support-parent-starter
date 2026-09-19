@@ -241,13 +241,13 @@ public final class RpcSerialization {
     }
 
     /**
-        * 创建反序列化安全过滤器。
-        *
-        * <p>策略：默认放行普通业务类，但拒绝已知反序列化攻击 gadget 链上的高危类，
-        * 同时限制对象图深度与数组长度，防止恶意报文 OOM。</p>
-        *
-        * @return 对象输入过滤器
-        */
+     * 创建反序列化安全过滤器。
+     *
+     * <p>策略：默认放行普通业务类，但拒绝已知反序列化攻击 gadget 链上的高危类，
+     * 同时限制对象图深度与数组长度，防止恶意报文 OOM。</p>
+     *
+     * @return 对象输入过滤器
+     */
     static ObjectInputFilter objectInputFilter() {
         return info -> {
             Class<?> serialClass = info.serialClass();

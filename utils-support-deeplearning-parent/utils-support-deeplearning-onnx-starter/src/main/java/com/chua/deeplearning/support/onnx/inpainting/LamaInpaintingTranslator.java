@@ -89,17 +89,17 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 从 RGBA 图像的 Alpha 通道提取二值掩码
-    * <p>
-    * Alpha=255 -> 掩码=1（需修复区域）
-    * Alpha=0   -> 掩码=0（保留区域）
-    *
-    * @param manager   nd管理器
-    * @param image     输入图像（应为 RGBA 格式）
-    * @param width     图像宽度
-    * @param height    图像高度
-    * @return 二值掩码 ndarray，形状 [1, 1, H, W]，值域 [0, 1]
-    */
+     * 从 RGBA 图像的 Alpha 通道提取二值掩码
+     * <p>
+     * Alpha=255 -> 掩码=1（需修复区域）
+     * Alpha=0   -> 掩码=0（保留区域）
+     *
+     * @param manager   nd管理器
+     * @param image     输入图像（应为 RGBA 格式）
+     * @param width     图像宽度
+     * @param height    图像高度
+     * @return 二值掩码 ndarray，形状 [1, 1, H, W]，值域 [0, 1]
+     */
     private static NDArray extractMask(NDManager manager, Image image, int width, int height) {
         BufferedImage buffered = (BufferedImage) image.getWrappedImage();
         int[] rgba = buffered.getRGB(0, 0, width, height, null, 0, width);

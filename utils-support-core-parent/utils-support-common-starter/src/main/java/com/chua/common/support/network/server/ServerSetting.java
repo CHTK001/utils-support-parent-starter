@@ -54,13 +54,13 @@ public class ServerSetting {
     private boolean auto = true;
 
     /**
-    * 按当前系统自动配置最优参数。
-    *
-    * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
-    * 等待队列长度、缓冲区等关键性能参数。返回当前实例，便于链式调用。</p>
-    *
-    * @return 当前配置实例
-    */
+     * 按当前系统自动配置最优参数。
+     *
+     * <p>基于 CPU 核数、JVM 可用堆内存与操作系统类型自动调整线程数、连接数、
+     * 等待队列长度、缓冲区等关键性能参数。返回当前实例，便于链式调用。</p>
+     *
+     * @return 当前配置实例
+     */
     public ServerSetting autoConfig() {
         int cpus = Runtime.getRuntime().availableProcessors();
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
@@ -126,95 +126,95 @@ public class ServerSetting {
     private String host = "0.0.0.0";
 
     /**
-    * 端口号
-    */
+     * 端口号
+     */
     @Builder.Default
     /** 端口 */
     private int port = 8080;
 
     /**
-    * 协议类型名称
-    */
+     * 协议类型名称
+     */
     @Builder.Default
     /** 协议 */
     private String protocol = "http";
 
     /**
-    * 上下文路径
-    */
+     * 上下文路径
+     */
     @Builder.Default
     /** 上下文路径 */
     private String contextPath = "/";
 
     /**
-    * Boss 线程数
-    */
+     * Boss 线程数
+     */
     @Builder.Default
     /** Bossthreads */
     private int bossThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
 
     /**
-    * Worker 线程数
-    */
+     * Worker 线程数
+     */
     @Builder.Default
     /** Workerthreads */
     private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
-    * IO Selector 事件循环线程数（Reactor 模式，仅支持 IO 多路复用的实现使用）。
-    *
-    * <p>默认 0 表示由实现自行确定；{@link #autoConfig()} 会根据 CPU 核数与平台
-    * 自动生成最优值。Windows 平台实测 4 分片为最优，Linux/macOS 按核数扩展。</p>
-    */
+     * IO Selector 事件循环线程数（Reactor 模式，仅支持 IO 多路复用的实现使用）。
+     *
+     * <p>默认 0 表示由实现自行确定；{@link #autoConfig()} 会根据 CPU 核数与平台
+     * 自动生成最优值。Windows 平台实测 4 分片为最优，Linux/macOS 按核数扩展。</p>
+     */
     @Builder.Default
     /** IoThreads */
     private int ioThreads = 0;
 
     /**
-    * 等待队列长度
-    */
+     * 等待队列长度
+     */
     @Builder.Default
     /** Backlog */
     private int backlog = 128;
 
     /**
-    * 最大请求体/消息大小（字节）
-    */
+     * 最大请求体/消息大小（字节）
+     */
     @Builder.Default
     /** 最大值请求尺寸 */
     private long maxRequestSize = 10 * 1024 * 1024;
 
     /**
-    * 最大连接数
-    */
+     * 最大连接数
+     */
     @Builder.Default
     /** 最大值connections */
     private int maxConnections = 10000;
 
     /**
-    * 字符集
-    */
+     * 字符集
+     */
     @Builder.Default
     /** 字符集 */
     private String charset = "UTF-8";
 
     /**
-    * 读取超时时间（毫秒）
-    */
+     * 读取超时时间（毫秒）
+     */
     @Builder.Default
     /** Read超时 */
     private int readTimeout = 30000;
 
     /**
-    * 写超时时间（毫秒）
-    */
+     * 写超时时间（毫秒）
+     */
     @Builder.Default
     /** Write超时 */
     private int writeTimeout = 30000;
 
     /**
-    * 最大并发请求数，0 表示不限制
-    */
+     * 最大并发请求数，0 表示不限制
+     */
     @Builder.Default
     private int maxConcurrency = 0;
 
@@ -263,127 +263,127 @@ public class ServerSetting {
     private long responseTimeout = 60000;
 
     /**
-    * 是否启用 Reactor 处理模式
-    */
+     * 是否启用 Reactor 处理模式
+     */
     @Builder.Default
     /** Reactor */
     private boolean reactor = false;
 
     /**
-    * 最大 Keep-Alive 请求数
-    */
+     * 最大 Keep-Alive 请求数
+     */
     @Builder.Default
     /** 最大值keepaliverequests */
     private int maxKeepAliveRequests = 100;
 
     /**
-    * 优雅关闭等待时间（秒）
-    */
+     * 优雅关闭等待时间（秒）
+     */
     @Builder.Default
     /** Shutdownquietperiod */
     private int shutdownQuietPeriod = 30;
 
     /**
-    * TCP_NODELAY
-    */
+     * TCP_NODELAY
+     */
     @Builder.Default
     /** TCPNOdelay */
     private boolean tcpNoDelay = true;
 
     /**
-    * 是否启用流加密（AES-256-GCM 帧式端到端加密）。
-    *
-    * <p>开启后 {@link JdkTcpServer} 流式协议模式会在连接建立时自动将
-    * 输入输出流包装为解密/加密流，处理器无感知；帧式（NIO 拼帧）协议不支持。
-    * 需与客户端侧共享同一 {@link #encryptKey}。</p>
-    */
+     * 是否启用流加密（AES-256-GCM 帧式端到端加密）。
+     *
+     * <p>开启后 {@link JdkTcpServer} 流式协议模式会在连接建立时自动将
+     * 输入输出流包装为解密/加密流，处理器无感知；帧式（NIO 拼帧）协议不支持。
+     * 需与客户端侧共享同一 {@link #encryptKey}。</p>
+     */
     @Builder.Default
     /** 加密是否启用 */
     private boolean encrypt = false;
 
     /**
-    * 流加密密钥短语（与客户端共享；AES-256 密钥由其 SHA-256 派生）。
-    *
-    * <p>{@link #encrypt} 为 true 时必须提供，未提供时服务端启动告警并按未加密处理。</p>
-    */
+     * 流加密密钥短语（与客户端共享；AES-256 密钥由其 SHA-256 派生）。
+     *
+     * <p>{@link #encrypt} 为 true 时必须提供，未提供时服务端启动告警并按未加密处理。</p>
+     */
     /** 加密密钥短语 */
     private String encryptKey;
 
     /**
-    * SO_REUSEADDR
-    */
+     * SO_REUSEADDR
+     */
     @Builder.Default
     /** SOreuseaddr */
     private boolean soReuseAddr = true;
 
     /**
-    * 默认 Content-Type
-    */
+     * 默认 Content-Type
+     */
     @Builder.Default
     /** 内容类型 */
     private String contentType = "text/html; charset=utf-8";
 
     /**
-    * 缓冲区大小（字节）
-    */
+     * 缓冲区大小（字节）
+     */
     @Builder.Default
     /** 缓冲区尺寸 */
     private int bufferSize = 8192;
 
     /**
-    * WebSocket/消息协议最大帧大小（字节）
-    */
+     * WebSocket/消息协议最大帧大小（字节）
+     */
     @Builder.Default
     /** 最大值frame尺寸 */
     private int maxFrameSize = 65536;
 
     /**
-    * 是否启用 Gzip 压缩
-    */
+     * 是否启用 Gzip 压缩
+     */
     @Builder.Default
     /** Gzip是否启用 */
     private boolean gzipEnabled = false;
 
     /**
-    * Gzip 压缩等级（1-9）
-    */
+     * Gzip 压缩等级（1-9）
+     */
     @Builder.Default
     /** Gzip级别 */
     private int gzipLevel = 6;
 
     /**
-    * Gzip 最小压缩大小（字节），小于此值不压缩
-    */
+     * Gzip 最小压缩大小（字节），小于此值不压缩
+     */
     @Builder.Default
     /** Gzip最小值尺寸 */
     private int gzipMinSize = 1024;
 
     /**
-    * CORS 配置
-    */
+     * CORS 配置
+     */
     @Builder.Default
     /** Cors */
     private CorsConfig cors = new CorsConfig();
 
     /**
-    * SSL/TLS 配置
-    */
+     * SSL/TLS 配置
+     */
     @Builder.Default
     /** SSL */
     private SslConfig ssl = new SslConfig();
 
     /**
-    * HTTP 协议专用配置
-    */
+     * HTTP 协议专用配置
+     */
     @Builder.Default
     /** HTTP */
     private HttpConfig http = new HttpConfig();
 
     /**
-    * CORS 跨域配置。
-    *
-    * @since 4.0.0.42
-    */
+     * CORS 跨域配置。
+     *
+     * @since 4.0.0.42
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -398,32 +398,32 @@ public class ServerSetting {
         private boolean allowOrigin = false;
 
         /**
-        * 允许的源
-        */
+         * 允许的源
+         */
         @Builder.Default
         /** Allowedorigins */
         private String allowedOrigins = "*";
 
         /**
-        * 允许的方法
-        */
+         * 允许的方法
+         */
         @Builder.Default
         /** Allowedmethods */
         private String allowedMethods = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
 
         /**
-        * 允许的请求头
-        */
+         * 允许的请求头
+         */
         @Builder.Default
         /** Allowedheaders */
         private String allowedHeaders = "Content-Type,Authorization";
     }
 
     /**
-        * SSL/TLS 配置。
-        *
-        * @since 4.0.0.42
-        */
+     * SSL/TLS 配置。
+     *
+     * @since 4.0.0.42
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -438,8 +438,8 @@ public class ServerSetting {
         private boolean enabled = false;
 
         /**
-        * SSL KeyStore 文件路径（JKS/PKCS12）
-        */
+         * SSL KeyStore 文件路径（JKS/PKCS12）
+         */
         private String keyStorePath;
 
         /**
@@ -470,64 +470,64 @@ public class ServerSetting {
         private boolean trustAll = false;
 
         /**
-        * 一键自签 — 启用后自动开启 SSL 并生成自签名证书，无需任何其他配置。
-        *
-        * <p>等效于同时设置 {@code enabled=true} + {@code selfSigned=true}，
-        * 使用默认域名（localhost, 127.0.0.1）和默认有效期（365天）。</p>
-        *
-        * <p>示例：{@code .selfSignedAuto(true)} 即可启动 HTTPS。</p>
-        */
+         * 一键自签 — 启用后自动开启 SSL 并生成自签名证书，无需任何其他配置。
+         *
+         * <p>等效于同时设置 {@code enabled=true} + {@code selfSigned=true}，
+         * 使用默认域名（localhost, 127.0.0.1）和默认有效期（365天）。</p>
+         *
+         * <p>示例：{@code .selfSignedAuto(true)} 即可启动 HTTPS。</p>
+         */
         @Builder.Default
         /** Selfsignedauto */
         private boolean selfSignedAuto = false;
 
         /**
-        * 是否启用自签名证书自动生成（开发/测试环境）
-        *
-        * <p>启用后，若未配置 keyStorePath 或 certPath/keyPath，
-        * 将自动使用 JDK keytool 生成自签名证书。</p>
-        */
+         * 是否启用自签名证书自动生成（开发/测试环境）
+         *
+         * <p>启用后，若未配置 keyStorePath 或 certPath/keyPath，
+         * 将自动使用 JDK keytool 生成自签名证书。</p>
+         */
         @Builder.Default
         /** Selfsigned */
         private boolean selfSigned = false;
 
         /**
-        * 自签名证书域名列表
-        *
-        * <p>默认包含 localhost 和 127.0.0.1。
-        * 多个域名将作为 SAN（Subject Alternative Name）扩展添加到证书中。</p>
-        */
+         * 自签名证书域名列表
+         *
+         * <p>默认包含 localhost 和 127.0.0.1。
+         * 多个域名将作为 SAN（Subject Alternative Name）扩展添加到证书中。</p>
+         */
         @Builder.Default
         /** Selfsigneddomains */
         private List<String> selfSignedDomains = List.of("localhost", "127.0.0.1");
 
         /**
-        * 自签名证书有效期（天），默认 365 天
-        */
+         * 自签名证书有效期（天），默认 365 天
+         */
         @Builder.Default
         /** Selfsignedvalidity */
         private int selfSignedValidity = 365;
 
         /**
-        * 自签名证书密钥算法（RSA / EC），默认 RSA
-        */
+         * 自签名证书密钥算法（RSA / EC），默认 RSA
+         */
         @Builder.Default
         /** Selfsigned密钥ALG */
         private String selfSignedKeyAlg = "RSA";
 
         /**
-        * 自签名证书密钥大小，默认 2048
-        */
+         * 自签名证书密钥大小，默认 2048
+         */
         @Builder.Default
         /** Selfsigned密钥尺寸 */
         private int selfSignedKeySize = 2048;
     }
 
     /**
-        * HTTP 协议专用配置。
-        *
-        * @since 4.0.0.42
-        */
+     * HTTP 协议专用配置。
+     *
+     * @since 4.0.0.42
+     */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

@@ -185,7 +185,7 @@ public class JedisHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 当前
+     * 当前
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 

@@ -27,10 +27,10 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     private static final long MAX_OD_PREVIEW_BYTES = 20L * 1024 * 1024;
 
     /**
-    * @param ext  文件扩展名
-    * @param mime MIME 类型（当前忽略）
-    * @return true 表示支持预览
-    */
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持预览
+     */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());

@@ -30,11 +30,11 @@ public class JsoupResponse {
     private final Mappings mappings;
 
     /**
-    * 创建 jsoup响应 实例
-    * @param html HTML
-    * @param mappings Mappings
-    * @param mappings mappings
-    */
+     * 创建 jsoup响应 实例
+     * @param html HTML
+     * @param mappings Mappings
+     * @param mappings mappings
+     */
     public JsoupResponse(String html, Mappings mappings) {
         this.document = Jsoup.parse(html);
         this.mappings = mappings;
@@ -258,12 +258,12 @@ public class JsoupResponse {
         private String field;
 
         /**
-        * 构建器
-        *
-        * @return 构建器的结果
-        * @author CH
-        * @since 4.0.0
-        */
+         * 构建器
+         *
+         * @return 构建器的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public static MappingsPathBuilder builder() {
             return new MappingsPathBuilder();
         }
@@ -285,11 +285,11 @@ public class JsoupResponse {
             private String field;
 
             /**
-            * 路径
-            *
-            * @param path 路径
-            * @return 路径的结果
-            */
+             * 路径
+             *
+             * @param path 路径
+             * @return 路径的结果
+             */
             public MappingsPathBuilder path(String path) {
                 this.path = path;
                 return this;
@@ -433,10 +433,10 @@ public class JsoupResponse {
         private final Elements elements;
 
         /**
-        * 创建 View 实例
-        * @param elements elements
-        * @return View的结果
-        */
+         * 创建 View 实例
+         * @param elements elements
+         * @return View的结果
+         */
         private View(Elements elements) { this.elements = elements; }
         /**
          * 创建 View 实例

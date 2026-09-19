@@ -79,11 +79,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
 
     @Nullable
     /**
-    * 解析查询
-    *
-    * @param raw raw
-    * @return 解析查询的结果
-    */
+     * 解析查询
+     *
+     * @param raw raw
+     * @return 解析查询的结果
+     */
     private LogQuery parseQuery(String raw) {
         if (raw == null) {
             return null;
@@ -307,11 +307,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-        * Url解码
-        *
-        * @param s s
-        * @return urlDecode的结果
-        */
+     * Url解码
+     *
+     * @param s s
+     * @return urlDecode的结果
+     */
     private static String urlDecode(String s) {
         if (s == null) {
             return null;

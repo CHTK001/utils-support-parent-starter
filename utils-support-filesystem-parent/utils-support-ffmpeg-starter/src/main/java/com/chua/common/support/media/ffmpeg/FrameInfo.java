@@ -34,11 +34,11 @@ public class FrameInfo {
     private boolean keyFrame;
 
     /**
-    * 帧图像数据（JPEG 格式字节）。
-    *
-    * <p>仅在 {@code pushStreamWithFrames} / {@code pullStreamWithFrames} 方法中填充，
-    * 普通回调方法中此字段为 {@code null}。</p>
-    */
+     * 帧图像数据（JPEG 格式字节）。
+     *
+     * <p>仅在 {@code pushStreamWithFrames} / {@code pullStreamWithFrames} 方法中填充，
+     * 普通回调方法中此字段为 {@code null}。</p>
+     */
     private byte[] imageData;
 
     /** 创建 帧信息 实例 */
@@ -46,10 +46,10 @@ public class FrameInfo {
     }
 
     /**
-    * 获取帧数字
-    *
-    * @return 获取帧数字的结果
-    */
+     * 获取帧数字
+     *
+     * @return 获取帧数字的结果
+     */
     public long getFrameNumber() { return frameNumber; }
     /**
      * 设置帧数字

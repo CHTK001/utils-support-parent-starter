@@ -54,8 +54,8 @@ public class ApngEncoder {
     private DataOutputStream out;
 
     /**
-    * 创建编码器。
-    */
+     * 创建编码器。
+     */
     public ApngEncoder() {
     }
 

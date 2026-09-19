@@ -40,17 +40,17 @@ public final class OnnxImageProcessor {
     }
 
     /**
-    * 将 {@link Image} 预处理为模型输入张量。
-    *
-    * @param image     输入图像
-    * @param width     目标宽度
-    * @param height    目标高度
-    * @param channels  通道数（3=RGB，1=灰度）
-    * @param grayscale true 时按灰度读取（BGR/ARGB 转灰度系数 0.299R+0.587G+0.114B）
-    * @param mean      减去的均值（每通道相同），RGB 顺序
-    * @param scale     缩放因子（典型 1.0f 或 1/128.0f）
-    * @return          [1, 通道, height, width] 的 nd列表
-    */
+     * 将 {@link Image} 预处理为模型输入张量。
+     *
+     * @param image     输入图像
+     * @param width     目标宽度
+     * @param height    目标高度
+     * @param channels  通道数（3=RGB，1=灰度）
+     * @param grayscale true 时按灰度读取（BGR/ARGB 转灰度系数 0.299R+0.587G+0.114B）
+     * @param mean      减去的均值（每通道相同），RGB 顺序
+     * @param scale     缩放因子（典型 1.0f 或 1/128.0f）
+     * @return          [1, 通道, height, width] 的 nd列表
+     */
     public static NDList toModelInput(Image image, int width, int height,
                                        int channels, boolean grayscale,
                                        float mean, float scale, NDManager ctxManager) {

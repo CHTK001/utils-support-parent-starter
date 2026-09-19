@@ -128,11 +128,11 @@ public class BackupManager {
     private final BackupRestore restore = new DefaultBackupRestore();
 
     /**
-    * 恢复备份（按配置中的日期）
-    *
-    * @param config 恢复配置
-    * @return 恢复结果
-    */
+     * 恢复备份（按配置中的日期）
+     *
+     * @param config 恢复配置
+     * @return 恢复结果
+     */
     public RestoreResult restore(RestoreConfig config) {
         return restore.restore(config);
     }

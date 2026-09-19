@@ -4,8 +4,8 @@ import java.util.Properties;
 public class Oracle11gDialect extends SqlDialect {
     public static final String VERSION = "Oracle 11g"; // 版本
     /**
-    * Oracle11gdialect。
-    */
+     * Oracle11gdialect。
+     */
     public Oracle11gDialect() { super("oracle11g"); }
     /**
      * Oracle11gdialect。

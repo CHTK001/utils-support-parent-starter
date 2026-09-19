@@ -143,8 +143,8 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     /**
-    * 将内存中的令牌写回文件。
-    */
+     * 将内存中的令牌写回文件。
+     */
     private void flushToFile() {
         synchronized (this) {
         try {

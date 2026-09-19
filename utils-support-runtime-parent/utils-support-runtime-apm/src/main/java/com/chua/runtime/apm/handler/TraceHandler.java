@@ -328,9 +328,9 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 注册指定类的 ENTRY/EXIT/异常 拦截器。
-    *
-    * @param className 类内部名
+     * 注册指定类的 ENTRY/EXIT/异常 拦截器。
+     *
+     * @param className 类内部名
      */
     private void registerClassInterceptors(String className) {
         RuntimeSpy.registerInterceptor(className, "*", "", InterceptPoint.ENTRY, this);
@@ -819,10 +819,10 @@ public class TraceHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-    * 追踪 Span。
-    *
-    * @since 4.0.0.42
-    * @author CH
+     * 追踪 Span。
+     *
+     * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class Span {

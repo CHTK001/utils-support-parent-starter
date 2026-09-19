@@ -62,11 +62,11 @@ public class BitUtils {
     private static final String SYMBOL_BLANK = " ";
 
     /**
-    * 将单个字节转换为 8 位二进制位数组。
-    *
-    * @param b 源字节值
-    * @return 8 位二进制位数组
-    */
+     * 将单个字节转换为 8 位二进制位数组。
+     *
+     * @param b 源字节值
+     * @return 8 位二进制位数组
+     */
     public static byte[] asBit(byte b) {
         byte[] byteArr = new byte[8];
         int size = BYTE_BIT_SIZE - 1;

@@ -101,8 +101,8 @@ public class DateUtils {
     /** 默认_zone_标识 */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
     /**
-    * Hours per day.
-    */
+     * Hours per day.
+     */
     static final int HOURS_PER_DAY = 24;
     /**
      * Minutes per hour.
@@ -171,8 +171,8 @@ public class DateUtils {
     /** Second */
     private static final String SECOND = "second";
     /**
-    * Monday 常量
-    */
+     * Monday 常量
+     */
     private static final String MONDAY = "MONDAY";
     /**
      * Tuesday 常量
@@ -242,12 +242,12 @@ public class DateUtils {
     /** 索引_not_found */
     private static final int INDEX_NOT_FOUND = -1;
     /**
-    * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。
-    *
-    * @param time ISO-8601 时长格式字符串，不含前缀
-    * @return 解析后的 持续时间
-    * @throws java.time.format.DateTimeParseException 格式不正确时抛出
-    */
+     * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。
+     *
+     * @param time ISO-8601 时长格式字符串，不含前缀
+     * @return 解析后的 持续时间
+     * @throws java.time.format.DateTimeParseException 格式不正确时抛出
+     */
     public static Duration toDuration(String time) {
         return Duration.parse("PT" + time);
     }

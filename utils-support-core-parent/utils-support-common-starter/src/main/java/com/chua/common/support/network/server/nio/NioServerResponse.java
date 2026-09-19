@@ -75,9 +75,9 @@ public class NioServerResponse implements ServerResponse {
     private ByteArrayOutputStream rawOutput;
 
     /**
-    * 异步写出回调(真响应式):事件循环设置后,complete() 不再直接写 channel,
-    * 而是把响应头/体字节交给回调,由事件循环通过 OP_WRITE 驱动写出。
-    */
+     * 异步写出回调(真响应式):事件循环设置后,complete() 不再直接写 channel,
+     * 而是把响应头/体字节交给回调,由事件循环通过 OP_WRITE 驱动写出。
+     */
     private java.util.function.BiConsumer<ByteBuffer, ByteBuffer> asyncWriter;
 
     /**

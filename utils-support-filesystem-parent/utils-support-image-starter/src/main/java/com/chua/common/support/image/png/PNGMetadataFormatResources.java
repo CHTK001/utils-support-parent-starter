@@ -20,10 +20,10 @@ public class PNGMetadataFormatResources extends ListResourceBundle {
     public PNGMetadataFormatResources() {}
 
     /**
-    * 获取内容
-    *
-    * @return 获取内容的结果
-    */
+     * 获取内容
+     *
+     * @return 获取内容的结果
+     */
     protected Object[][] getContents() {
         return new Object[][] {
 

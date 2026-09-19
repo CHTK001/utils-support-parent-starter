@@ -166,8 +166,8 @@ class DefaultPoseEstimator implements PoseEstimator {
     private final ModelSetting setting;
 
     /**
-    * 检测阈值。
-    */
+     * 检测阈值。
+     */
     private float threshold = DEFAULT_THRESHOLD;
 
     /**
@@ -223,11 +223,11 @@ class DefaultPoseEstimator implements PoseEstimator {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Estimate
-    *
-    * @param imageData 镜像数据
-    * @return estimate的结果
-    */
+     * Estimate
+     *
+     * @param imageData 镜像数据
+     * @return estimate的结果
+     */
     public List<PoseKeypoint> estimate(byte[] imageData) {
         ITranslator<byte[], List<PoseKeypoint>> t =
                 (ITranslator<byte[], List<PoseKeypoint>>) engine.get(modelName, ITranslator.class);

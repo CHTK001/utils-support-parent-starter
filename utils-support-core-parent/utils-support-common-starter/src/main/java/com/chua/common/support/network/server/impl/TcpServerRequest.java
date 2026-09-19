@@ -60,12 +60,12 @@ public class TcpServerRequest implements ServerRequest {
     private final Charset charset;
 
     /**
-    * 构造 TCP 帧请求。
-    *
-    * @param body        帧体字节（完整的 HTTP 请求报文）
-    * @param remoteAddr  客户端 InetSocketAddress
-    * @param charset     请求体字符集
-    */
+     * 构造 TCP 帧请求。
+     *
+     * @param body        帧体字节（完整的 HTTP 请求报文）
+     * @param remoteAddr  客户端 InetSocketAddress
+     * @param charset     请求体字符集
+     */
     public TcpServerRequest(byte[] body, InetSocketAddress remoteAddr, Charset charset) {
         this.body = body != null ? body : new byte[0];
         this.charset = charset != null ? charset : StandardCharsets.UTF_8;

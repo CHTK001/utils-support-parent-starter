@@ -42,10 +42,10 @@ public class IniReadBuilder extends ReadBuilder {
     }
 
     /**
-    * 读取 INI 文件原始内容字符串。
-    *
-    * @return 文件内容
-    */
+     * 读取 INI 文件原始内容字符串。
+     *
+     * @return 文件内容
+     */
     @Override
     public String asString() {
         try {

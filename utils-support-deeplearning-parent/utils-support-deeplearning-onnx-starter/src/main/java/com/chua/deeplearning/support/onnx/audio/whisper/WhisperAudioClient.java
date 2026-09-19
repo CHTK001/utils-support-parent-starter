@@ -103,9 +103,9 @@ public class WhisperAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-    * 创建 whisper音频客户端 实例
-    * @param setting setting
-    */
+     * 创建 whisper音频客户端 实例
+     * @param setting setting
+     */
     public WhisperAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();

@@ -55,8 +55,8 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-    * 构造 512×512 小模型 Translator。
-    */
+     * 构造 512×512 小模型 Translator。
+     */
     public BiRefNetTranslator() {
         this(SIZE_512, MattingTranslator.MattingMode.RGBA);
     }

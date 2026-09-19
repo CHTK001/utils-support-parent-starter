@@ -27,9 +27,9 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     private NamingService namingService;
 
     /**
-    * 创建 nacos服务discovery 实例
-    * @param discoveryOption discovery期权
-    */
+     * 创建 nacos服务discovery 实例
+     * @param discoveryOption discovery期权
+     */
     public NacosServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }

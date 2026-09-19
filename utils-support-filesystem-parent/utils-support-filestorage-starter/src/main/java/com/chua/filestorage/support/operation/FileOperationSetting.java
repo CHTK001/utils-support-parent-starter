@@ -73,8 +73,8 @@ public class FileOperationSetting {
     private Boolean autoOrient = false;
 
     /**
-    * 水印文本（操作级，覆盖全局）
-    */
+     * 水印文本（操作级，覆盖全局）
+     */
     private String watermarkText;
 
     /**
@@ -95,8 +95,8 @@ public class FileOperationSetting {
     private Boolean forceDownload = false;
 
     /**
-    * PDF 转换时页码（默认 1）
-    */
+     * PDF 转换时页码（默认 1）
+     */
     private Integer pdfPage;
 
     /**

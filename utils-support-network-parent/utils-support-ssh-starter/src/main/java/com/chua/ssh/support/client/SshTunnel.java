@@ -158,11 +158,11 @@ public class SshTunnel implements Tunnel {
     }
 
     /**
-    * 转为tunnel类型
-    *
-    * @param type 类型
-    * @return 转为tunnel类型的结果
-    */
+     * 转为tunnel类型
+     *
+     * @param type 类型
+     * @return 转为tunnel类型的结果
+     */
     private static TunnelType toTunnelType(SshClient.TunnelDefinition.Type type) {
         if (type == null) {
             return null;

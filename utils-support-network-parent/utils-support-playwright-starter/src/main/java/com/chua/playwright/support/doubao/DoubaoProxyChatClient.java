@@ -469,15 +469,15 @@ public void close() {
     }
 
     /**
-    * 构建豆包逆向协议请求体。
-    *
-    * <p>思考模式（{@code use_deep_think} / {@code use_auto_cot}）等参数
-    * 通过 {@link #extraBody(Map)} 传入，模型名仅作为标识透传。
-    *
-    * @param prompt   用户输入
-    * @param modelName 模型名称
-    * @return JSON 请求体字符串
-    */
+     * 构建豆包逆向协议请求体。
+     *
+     * <p>思考模式（{@code use_deep_think} / {@code use_auto_cot}）等参数
+     * 通过 {@link #extraBody(Map)} 传入，模型名仅作为标识透传。
+     *
+     * @param prompt   用户输入
+     * @param modelName 模型名称
+     * @return JSON 请求体字符串
+     */
     private String buildRequestBody(String prompt, String modelName) {
         boolean useDeepThink = thinking;
         boolean useAutoCot = false;
@@ -700,12 +700,12 @@ return parseImageResult(result, prompt);
     }
 
     /**
-    * DoGenerateVideo
-    * @param prompt prompt
-    * @param ratio ratio
-    * @param cameraMovement cameraMovement
-    * @param refImageKey refImageKey
-    */
+     * DoGenerateVideo
+     * @param prompt prompt
+     * @param ratio ratio
+     * @param cameraMovement cameraMovement
+     * @param refImageKey refImageKey
+     */
     private VideoGenerationResult doGenerateVideo(String prompt, String ratio,
                                                    String cameraMovement, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()

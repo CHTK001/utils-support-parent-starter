@@ -42,11 +42,11 @@ public class ByteUtils extends BitUtils {
             '-', '_'};
 
     /**
-    * 将索引位置转换为对应的十六进制数字字符。
-    *
-    * @param i 需要转换的字符索引
-    * @return 对应的字符
-    */
+     * 将索引位置转换为对应的十六进制数字字符。
+     *
+     * @param i 需要转换的字符索引
+     * @return 对应的字符
+     */
     public static char toDigit(int i) {
         return DIGITS[i];
     }

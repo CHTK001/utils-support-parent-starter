@@ -39,9 +39,9 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     private static final int QUEUE_CAPACITY = 50000;
 
     /**
-    * 创建 InMemoryDispatcherProvider 实例
-    * @param config config
-    */
+     * 创建 InMemoryDispatcherProvider 实例
+     * @param config config
+     */
     public InMemoryDispatcherProvider(DispatcherConfig config) {
         super(config);
     }

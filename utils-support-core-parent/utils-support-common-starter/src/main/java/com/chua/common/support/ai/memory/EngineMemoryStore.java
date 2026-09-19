@@ -46,10 +46,10 @@ public class EngineMemoryStore implements MemoryStore {
     private final List<MemoryEntryEntity> rows = new CopyOnWriteArrayList<>();
 
     /**
-    * 创建 EngineMemoryStore 实例
-    * @param engine engine
-    * @param config MemoryConfig
-    */
+     * 创建 EngineMemoryStore 实例
+     * @param engine engine
+     * @param config MemoryConfig
+     */
     public EngineMemoryStore(Engine engine, MemoryConfig config) {
         this.engine = engine;
         this.config = config != null ? config : MemoryConfig.builder().build();

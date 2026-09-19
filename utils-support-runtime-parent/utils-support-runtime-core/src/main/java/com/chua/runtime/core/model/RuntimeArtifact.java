@@ -65,7 +65,7 @@ public class RuntimeArtifact {
     private List<String> args = new ArrayList<>();
 
     /**
-    * 环境变量
+     * 环境变量
      */
     @Builder.Default
     private Map<String, String> env = new LinkedHashMap<>(); // env
@@ -78,7 +78,7 @@ public class RuntimeArtifact {
     private long startupTimeoutMs = 30_000;
 
     /**
-    * 健康检查 URL
+     * 健康检查 URL
      */
     private String healthCheckUrl;
 
@@ -100,7 +100,7 @@ public class RuntimeArtifact {
     private boolean autoExtract = false;
 
     /**
-    * 解压目标目录
+     * 解压目标目录
      */
     private Path extractTo;
 
@@ -112,7 +112,7 @@ public class RuntimeArtifact {
     private boolean autoRestart = false;
 
     /**
-    * 最大自动重启次数
+     * 最大自动重启次数
      */
     @Builder.Default
     /** 最大值restartattempts */

@@ -341,10 +341,10 @@ public class DefaultSpider implements Spider {
     }
 
     /**
-    * 带重试的请求处理。
-    *
-    * @param request 待处理的爬虫请求
-    */
+     * 带重试的请求处理。
+     *
+     * @param request 待处理的爬虫请求
+     */
     private void processRequestWithRetry(SpiderRequest request) {
         for (int i = 0; i <= retryTimes; i++) {
             if (i > 0) {

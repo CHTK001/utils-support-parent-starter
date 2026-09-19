@@ -94,8 +94,8 @@ public class GeoLite2IpPosition implements IpPosition {
     }
 
     /**
-    * 经纬度 → 城市信息（geolite2 不支持反向地理编码，返回空对象）。
-    */
+     * 经纬度 → 城市信息（geolite2 不支持反向地理编码，返回空对象）。
+     */
     @Override
     public GeoCity reverseGeocode(double latitude, double longitude) {
         return GeoCity.EMPTY;

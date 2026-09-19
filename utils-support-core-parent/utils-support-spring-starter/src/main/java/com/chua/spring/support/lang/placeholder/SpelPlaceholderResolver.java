@@ -60,13 +60,13 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
     }
 
     /**
-    * 创建 Spring Bean 感知的 spel 求值上下文。
-    *
-    * <p>Spring 环境中注册 {@link BeanFactoryResolver}，使表达式可通过
-    * {@code @beanName} 引用容器 Bean；非 Spring 环境仅支持纯表达式求值。</p>
-    *
-    * @return 绑定 Bean 解析器的求值上下文
-    */
+     * 创建 Spring Bean 感知的 spel 求值上下文。
+     *
+     * <p>Spring 环境中注册 {@link BeanFactoryResolver}，使表达式可通过
+     * {@code @beanName} 引用容器 Bean；非 Spring 环境仅支持纯表达式求值。</p>
+     *
+     * @return 绑定 Bean 解析器的求值上下文
+     */
     private StandardEvaluationContext createEvaluationContext() {
         StandardEvaluationContext context = new StandardEvaluationContext();
         if (SpringBeanUtils.getApplicationContextOrNull() != null) {

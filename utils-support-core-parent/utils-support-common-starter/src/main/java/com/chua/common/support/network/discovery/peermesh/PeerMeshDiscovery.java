@@ -193,10 +193,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 尝试绑定端口。
-    *
-    * @throws IOException IO 异常
-    */
+     * 尝试绑定端口。
+     *
+     * @throws IOException IO 异常
+     */
     private void bindPort() throws IOException {
         int mainPort = config.getPort();
         int altPort = config.getAltPort();

@@ -54,10 +54,10 @@ public class RuntimeAgent {
     }
 
     /**
-    * 智能体 启动入口（运行中注入）。
-    *
-    * @param args 智能体 参数
-    * @param inst Instrumentation 实例
+     * 智能体 启动入口（运行中注入）。
+     *
+     * @param args 智能体 参数
+     * @param inst Instrumentation 实例
      */
     public static void agentmain(String args, Instrumentation inst) {
         premain(args, inst);

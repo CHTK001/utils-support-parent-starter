@@ -201,16 +201,16 @@ public class OllamaChatClient implements ChatClient {
     }
 
     /**
-    * 合并思考型模型的输出：优先返回有内容的 {@code thinking} 与 {@code response}。
-    *
-    * <p>MiniCPM5 等 深度思考 模型 会 把 推理 过程 放入 {@code thinking} 字段、
-    * 最终 答案 放入 {@code response} 字段；部分 场景 仅 其一 非 空。
-    * 此 方法 将 两者 拼接 为 完整 文本，避免 调用方 拿到 空 响应。
-    * 若 两者 均 空 则 返回 空 字符串 而非 null。</p>
-    *
-    * @param message ollama4j 响应 消息（可为 空）
-    * @return 合并 后 的 文本
-    */
+     * 合并思考型模型的输出：优先返回有内容的 {@code thinking} 与 {@code response}。
+     *
+     * <p>MiniCPM5 等 深度思考 模型 会 把 推理 过程 放入 {@code thinking} 字段、
+     * 最终 答案 放入 {@code response} 字段；部分 场景 仅 其一 非 空。
+     * 此 方法 将 两者 拼接 为 完整 文本，避免 调用方 拿到 空 响应。
+     * 若 两者 均 空 则 返回 空 字符串 而非 null。</p>
+     *
+     * @param message ollama4j 响应 消息（可为 空）
+     * @return 合并 后 的 文本
+     */
     private String mergeOutput(OllamaChatMessage message) {
         if (message == null) {
             return "";

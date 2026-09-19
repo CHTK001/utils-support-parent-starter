@@ -38,13 +38,13 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
     protected static final Logger log = LoggerFactory.getLogger(AbstractExternalMcpInstallerProvider.class);
 
     /**
-    * npm 包名（如 agent-browser /
-    * 
-    * @playwright/mcp /
-    * 
-    * @puppeteer/mcp）。
-    * @return 结果字符串
-    */
+     * npm 包名（如 agent-browser /
+     * 
+     * @playwright/mcp /
+     * 
+     * @puppeteer/mcp）。
+     * @return 结果字符串
+     */
     protected abstract String npmPackage();
 
     /**
@@ -206,11 +206,11 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
     }
 
     /**
-        * 处理外部工具调用；子类可覆写为真实浏览器调用，默认返回未实现提示。
-        *
-        * @param toolCall 工具调用
-        * @return 工具调用结果
-        */
+     * 处理外部工具调用；子类可覆写为真实浏览器调用，默认返回未实现提示。
+     *
+     * @param toolCall 工具调用
+     * @return 工具调用结果
+     */
     protected McpToolResult handleExternalTool(McpToolCall toolCall) {
         return McpToolResult.error("工具[" + toolCall.getToolName() + "] 需通过 MCP 外部服务执行");
     }

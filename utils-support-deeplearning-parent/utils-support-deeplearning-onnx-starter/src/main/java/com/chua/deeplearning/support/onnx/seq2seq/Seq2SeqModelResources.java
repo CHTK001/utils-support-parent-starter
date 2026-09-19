@@ -47,12 +47,12 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-    * 解析模型缓存目录：
-    * 已完整则直接返回；否则按嵌入式 → modelscope 下载补齐。
-    *
-    * @param def 模型定义
-    * @return 存放全部模型文件的本地目录
-    */
+     * 解析模型缓存目录：
+     * 已完整则直接返回；否则按嵌入式 → modelscope 下载补齐。
+     *
+     * @param def 模型定义
+     * @return 存放全部模型文件的本地目录
+     */
     public static Path resolve(Seq2SeqModelDefinition def) {
         Path target = cacheRoot().resolve(def.modelId());
         if (isComplete(def, target)) {

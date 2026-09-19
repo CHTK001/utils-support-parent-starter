@@ -32,7 +32,7 @@ public class TransmissionEvent {
     private long id;
 
     /**
-    * 追踪 标识
+     * 追踪 标识
      */
     private String traceId;
     /**
@@ -102,7 +102,7 @@ public class TransmissionEvent {
     private int statusCode;
 
     /**
-    * 启动 时间
+     * 启动 时间
      */
     private long startTime;
     /**
@@ -137,9 +137,9 @@ public class TransmissionEvent {
     private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
-    * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。
-    * @param record record
-    * @return 从record的结果
+     * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。
+     * @param record record
+     * @return 从record的结果
      */
     public static TransmissionEvent fromRecord(TransmissionRecord record) {
         if (record == null) {

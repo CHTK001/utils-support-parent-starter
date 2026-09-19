@@ -146,9 +146,9 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     /**
-    * 创建 Owlv2zeroshotdetectortranslator 实例
-    * @param configuration 配置
-    */
+     * 创建 Owlv2zeroshotdetectortranslator 实例
+     * @param configuration 配置
+     */
     public Owlv2ZeroShotDetectorTranslator(DetectionConfiguration configuration) {
         DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
         this.threshold = readDouble(cfg.systemOption(), "threshold", DEFAULT_THRESHOLD);
@@ -173,12 +173,12 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     @Override
     @Nonnull
     /**
-    * 处理输入
-    *
-    * @param ctx ctx
-    * @param input 输入
-    * @return 处理输入的结果
-    */
+     * 处理输入
+     *
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         originalWidth = original.getWidth();
@@ -325,11 +325,11 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     /**
-    * normalizecandidate
-    *
-    * @param label 标签
-    * @return normalizeCandidate的结果
-    */
+     * normalizecandidate
+     *
+     * @param label 标签
+     * @return normalizeCandidate的结果
+     */
     private String normalizeCandidate(String label) {
         if (!CHINESE_PATTERN.matcher(label).matches()) {
             return label.trim().toLowerCase(Locale.ROOT);
@@ -366,11 +366,11 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     }
 
     /**
-    * Letterbox
-    *
-    * @param image 镜像
-    * @return letterbox的结果
-    */
+     * Letterbox
+     *
+     * @param image 镜像
+     * @return letterbox的结果
+     */
     private BufferedImage letterbox(BufferedImage image) {
         double widthScale = inputWidth / (double) image.getWidth();
         double heightScale = inputHeight / (double) image.getHeight();

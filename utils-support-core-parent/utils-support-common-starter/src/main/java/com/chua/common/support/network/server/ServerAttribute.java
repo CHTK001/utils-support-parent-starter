@@ -51,8 +51,8 @@ public final class ServerAttribute {
     public static final String ORIGINAL_PATH = "__original_path";
 
     /**
-    * 服务发现对象（ServiceDiscoveryServerFilter 存入）
-    */
+     * 服务发现对象（ServiceDiscoveryServerFilter 存入）
+     */
     public static final String BACKEND_DISCOVERY = "__backend_discovery";
 
     /**
@@ -65,13 +65,13 @@ public final class ServerAttribute {
     }
 
     /**
-    * 获取请求属性。
-    *
-    * @param request 请求对象
-    * @param name    属性名
-    * @param <T>     属性类型
-    * @return 属性值，不存在返回 null
-    */
+     * 获取请求属性。
+     *
+     * @param request 请求对象
+     * @param name    属性名
+     * @param <T>     属性类型
+     * @return 属性值，不存在返回 null
+     */
 @SuppressWarnings("unchecked")
     public static <T> T getAttribute(ServerRequest request, String name) {
         return (T) request.getAttribute(name);

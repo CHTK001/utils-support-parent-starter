@@ -81,12 +81,12 @@ public class AgentModelDefinition implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt prompt
-    * @param consumer consumer
-    * @param onComplete onComplete
-    * @param onError onError
-    */
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

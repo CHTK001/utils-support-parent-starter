@@ -48,9 +48,9 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     };
 
     /**
-    * 构造函数
-    * 初始化 镜像读取spi 的基本信息
-    */
+     * 构造函数
+     * 初始化 镜像读取spi 的基本信息
+     */
     public PNGImageReaderSpi() {
         super(vendorName,
                 version,

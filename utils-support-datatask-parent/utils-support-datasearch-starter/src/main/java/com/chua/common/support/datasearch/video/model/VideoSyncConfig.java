@@ -44,10 +44,10 @@ public class VideoSyncConfig {
     }
 
     /**
-    * 获取视频同步配置id
-    *
-    * @return 获取视频同步配置id的结果
-    */
+     * 获取视频同步配置id
+     *
+     * @return 获取视频同步配置id的结果
+     */
     public String getVideoSyncConfigId() { return videoSyncConfigId; }
     /**
      * 设置视频同步配置id

@@ -114,11 +114,11 @@ public class ParaformerFbankExtractor {
     }
 
     /**
-    * 设置 CMVN 归一化参数（来自 ONNX metadata）。
-    *
-    * @param negMean   负均值数组，长度为 80
-    * @param invStddev 逆标准差数组，长度为 80
-    */
+     * 设置 CMVN 归一化参数（来自 ONNX metadata）。
+     *
+     * @param negMean   负均值数组，长度为 80
+     * @param invStddev 逆标准差数组，长度为 80
+     */
     public void setCmvn(float[] negMean, float[] invStddev) {
         this.negMean = negMean;
         this.invStddev = invStddev;

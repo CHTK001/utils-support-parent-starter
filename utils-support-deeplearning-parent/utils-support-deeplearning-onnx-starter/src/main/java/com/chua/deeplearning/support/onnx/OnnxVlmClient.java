@@ -26,11 +26,11 @@ public class OnnxVlmClient implements VlmClient {
     private String modelName = "florence2";
 
     /**
-    * 设置模型名称。
-    *
-    * @param model 模型标识（如 florence2）
-    * @return 当前实例
-    */
+     * 设置模型名称。
+     *
+     * @param model 模型标识（如 florence2）
+     * @return 当前实例
+     */
     @Override
     public VlmClient model(String model) {
         this.modelName = model;

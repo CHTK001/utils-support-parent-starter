@@ -218,11 +218,11 @@ public class DefaultExpressionParser implements ExpressionParser {
     }
 
     /**
-    * 生成逻辑节点文本
-    *
-    * @param tree 逻辑节点
-    * @return 文本表示
-    */
+     * 生成逻辑节点文本
+     *
+     * @param tree 逻辑节点
+     * @return 文本表示
+     */
     private String generateLogic(BTreeNode tree) {
         String left = generate(tree.getLeft());
         String right = generate(tree.getRight());

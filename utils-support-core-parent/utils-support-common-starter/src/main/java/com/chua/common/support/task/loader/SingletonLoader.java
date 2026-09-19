@@ -27,10 +27,10 @@ public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
     private final Supplier<T> supplier;
 
     /**
-    * 构造函数。
-    *
-    * @param supplier 实例创建供应商，不能为空
-    */
+     * 构造函数。
+     *
+     * @param supplier 实例创建供应商，不能为空
+     */
     public SingletonLoader(Supplier<T> supplier) {
         this.supplier = Objects.requireNonNull(supplier, "supplier 不能为空");
     }

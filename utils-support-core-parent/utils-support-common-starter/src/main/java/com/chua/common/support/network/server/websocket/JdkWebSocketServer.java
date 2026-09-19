@@ -56,9 +56,9 @@ public class JdkWebSocketServer extends AbstractServer {
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-    * 创建 JdkWebSocketServer 实例
-    * @param setting setting
-    */
+     * 创建 JdkWebSocketServer 实例
+     * @param setting setting
+     */
     public JdkWebSocketServer(ServerSetting setting) {
         super(setting);
     }
@@ -611,8 +611,8 @@ public class JdkWebSocketServer extends AbstractServer {
         /** committed */
         private volatile boolean committed;
         /**
-        * 状态
-        */
+         * 状态
+         */
         private int status = 200;
         /**
          * 结果

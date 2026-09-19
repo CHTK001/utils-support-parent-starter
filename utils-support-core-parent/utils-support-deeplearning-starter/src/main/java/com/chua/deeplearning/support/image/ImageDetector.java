@@ -165,8 +165,8 @@ class DefaultImageDetector implements ImageDetector {
     private final ModelSetting setting;
 
     /**
-    * 检测阈值（空 表示未显式设置，使用各模型自身默认值）。
-    */
+     * 检测阈值（空 表示未显式设置，使用各模型自身默认值）。
+     */
     private Float threshold;
 
     /**

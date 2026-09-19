@@ -69,11 +69,11 @@ public class FastSamSegmentTranslator {
     private float thresholdOverride = -1f;
 
     /**
-    * 取生效阈值。
-    *
-    * @param def def
-    * @return eff阈值的结果
-    */
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -349,10 +349,10 @@ public class FastSamSegmentTranslator {
         ortEnv = null;
     }
     /**
-    * 创建 Translator（支持外部阈值覆盖）。
-    *
-    * @param configuration 检测配置（可空）
-    */
+     * 创建 Translator（支持外部阈值覆盖）。
+     *
+     * @param configuration 检测配置（可空）
+     */
     public FastSamSegmentTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {
             float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);

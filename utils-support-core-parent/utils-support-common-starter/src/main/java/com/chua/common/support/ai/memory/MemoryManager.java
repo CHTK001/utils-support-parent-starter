@@ -65,10 +65,10 @@ public class MemoryManager implements AutoCloseable {
             + "对话内容：\n{content}";
 
     /**
-    * 创建记忆管理器
-    *
-    * @param config 记忆体配置
-    */
+     * 创建记忆管理器
+     *
+     * @param config 记忆体配置
+     */
     public MemoryManager(MemoryConfig config) {
         this.config = config;
         this.store = createStore(config);
@@ -243,13 +243,13 @@ public class MemoryManager implements AutoCloseable {
     }
 
     /**
-    * AI 总结并保存
-    *
-    * <p>调用 ChatClient 将对话内容提炼为结构化记忆条目。
-    * @param conversation 方法入参 conversation
-    * @param sessionId 会话ID，不允许为 null
-    * @param agentId agentID，不允许为 null
-    */
+     * AI 总结并保存
+     *
+     * <p>调用 ChatClient 将对话内容提炼为结构化记忆条目。
+     * @param conversation 方法入参 conversation
+     * @param sessionId 会话ID，不允许为 null
+     * @param agentId agentID，不允许为 null
+     */
     private void summarizeAndSave(String conversation, String sessionId, String agentId) {
         try {
             String prompt = buildSummarizerPrompt(conversation);

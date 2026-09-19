@@ -330,11 +330,11 @@ public class SpyTransformer implements ClassFileTransformer {
         }
 
         /**
-        * 加载类（空 时回退 对象）。
-        *
-        * @param type 内部名
-        * @param loader 类加载器
-        * @return Class 实例
+         * 加载类（空 时回退 对象）。
+         *
+         * @param type 内部名
+         * @param loader 类加载器
+         * @return Class 实例
          */
         private static Class<?> loadClass(String type, ClassLoader loader) {
             try {

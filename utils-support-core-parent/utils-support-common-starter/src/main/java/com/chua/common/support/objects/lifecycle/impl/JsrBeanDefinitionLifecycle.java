@@ -64,11 +64,11 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     }
 
     /**
-    * 调用annotated方法
-    *
-    * @param bean Bean
-    * @param annotationNames 注解名称
-    */
+     * 调用annotated方法
+     *
+     * @param bean Bean
+     * @param annotationNames 注解名称
+     */
     private void invokeAnnotatedMethods(Object bean, String... annotationNames) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.getParameterCount() > 0) {

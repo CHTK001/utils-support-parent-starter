@@ -38,8 +38,8 @@ public class EmbeddedRedisServer {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(EmbeddedRedisServer.class);
 /**
-    * 底层嵌入式 Redis 服务器
-    */
+ * 底层嵌入式 Redis 服务器
+ */
     private final redis.embedded.RedisServer delegate;
 
     /**
@@ -164,10 +164,10 @@ public class EmbeddedRedisServer {
         private String[] args = new String[0];
 
         /**
-        * 设置端口，默认 6379
-        * @param port 端口
-        * @return 端口的结果
-        */
+         * 设置端口，默认 6379
+         * @param port 端口
+         * @return 端口的结果
+         */
         public Builder port(int port) {
             this.port = port;
             return this;

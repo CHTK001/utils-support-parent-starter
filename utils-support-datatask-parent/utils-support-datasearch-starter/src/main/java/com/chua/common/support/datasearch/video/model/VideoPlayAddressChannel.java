@@ -18,10 +18,10 @@ public class VideoPlayAddressChannel {
     }
 
     /**
-    * 获取视频play地址通道名称
-    *
-    * @return 获取视频play地址通道名称的结果
-    */
+     * 获取视频play地址通道名称
+     *
+     * @return 获取视频play地址通道名称的结果
+     */
     public String getVideoPlayAddressChannelName() {
         return videoPlayAddressChannelName;
     }

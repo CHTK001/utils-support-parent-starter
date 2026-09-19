@@ -32,8 +32,8 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     /** 日志 */
     protected final Logger log = LoggerFactory.getLogger(getClass());
     /**
-    * 本地服务列表缓存：Key 为路径，Value 为该路径下的服务实例列表
-    */
+     * 本地服务列表缓存：Key 为路径，Value 为该路径下的服务实例列表
+     */
     protected final ConcurrentMap<String, List<Discovery>> localCache = new ConcurrentHashMap<>();
     /**
      * 负载均衡器缓存：Key 为组合键 (路径#策略#协议)，Value 为带版本号的负载均衡器

@@ -87,15 +87,15 @@ public class ImageWidthFilter extends AbstractImageFilter {
 
 
     /**
-    * 按目标宽高自适应缩放
-    *
-    * 横图优先按宽适配、超出再按高适配；竖图反之。
-    *
-    * @param width  目标宽（像素）
-    * @param height 目标高（像素）
-    * @param img    缓冲镜像
-    * @return 缩放后的 TYPE_INT_RGB 图像
-    */
+     * 按目标宽高自适应缩放
+     *
+     * 横图优先按宽适配、超出再按高适配；竖图反之。
+     *
+     * @param width  目标宽（像素）
+     * @param height 目标高（像素）
+     * @param img    缓冲镜像
+     * @return 缩放后的 TYPE_INT_RGB 图像
+     */
     public static BufferedImage zoomBySize(int width, int height, BufferedImage img) {
         //横向图
         if (img.getWidth() >= img.getHeight()) {

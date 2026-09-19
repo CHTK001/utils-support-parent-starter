@@ -124,11 +124,11 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 构建搜索 URL。
-    *
-    * @param keyword 关键词
-    * @return 完整搜索 URL
-    */
+     * 构建搜索 URL。
+     *
+     * @param keyword 关键词
+     * @return 完整搜索 URL
+     */
     private String buildSearchUrl(String keyword) {
         return DOUBAN_SEARCH_URL + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
     }

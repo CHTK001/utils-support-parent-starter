@@ -184,8 +184,8 @@ class DefaultImageClassifier implements ImageClassifier {
     private final ModelSetting setting;
 
     /**
-    * Top-K 分类数。
-    */
+     * Top-K 分类数。
+     */
     private int topK = DEFAULT_TOP_K;
 
     /**

@@ -43,8 +43,8 @@ public class SipConfig {
     private boolean encrypt;
 
     /**
-    * 压缩器 SPI 名称，对应 {@link SipStreamCompressor} 的 SPI 标识
-    */
+     * 压缩器 SPI 名称，对应 {@link SipStreamCompressor} 的 SPI 标识
+     */
     private String compressor;
 
     /**
@@ -62,8 +62,8 @@ public class SipConfig {
     private int port;
 
     /**
-    * 数据平面模式：relay（中继）或 direct（直连），默认 relay
-    */
+     * 数据平面模式：relay（中继）或 direct（直连），默认 relay
+     */
     private String dataPlaneMode;
 
     /** 认证最小帧间隔（纳秒），用于限速 */
@@ -76,9 +76,9 @@ public class SipConfig {
     private String tokenFile;
 
     /**
-    * 创建默认配置。
-    * 默认 KCP 监听端口
-    */
+     * 创建默认配置。
+     * 默认 KCP 监听端口
+     */
     public static final int DEFAULT_KCP_PORT = 19461;
 
     /**

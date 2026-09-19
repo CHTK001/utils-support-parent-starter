@@ -122,8 +122,8 @@ class DefaultEmbeddingService implements EmbeddingService {
     private final ModelSetting setting;
 
     /**
-    * 模型路径
-    */
+     * 模型路径
+     */
     private String modelPath;
 
     /**

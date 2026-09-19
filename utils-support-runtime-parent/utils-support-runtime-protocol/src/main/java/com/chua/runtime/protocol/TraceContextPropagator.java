@@ -32,9 +32,9 @@ public final class TraceContextPropagator {
     }
 
     /**
-    * 把当前线程追踪上下文以 W3C traceparent 注入到 头部。
-    *
-    * @param headers 头部 集合（修改入参）
+     * 把当前线程追踪上下文以 W3C traceparent 注入到 头部。
+     *
+     * @param headers 头部 集合（修改入参）
      */
     public static void inject(Map<String, String> headers) {
         if (headers == null) {

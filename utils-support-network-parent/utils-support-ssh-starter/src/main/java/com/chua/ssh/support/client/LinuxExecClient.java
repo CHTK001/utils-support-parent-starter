@@ -45,12 +45,12 @@ public class LinuxExecClient implements AutoCloseable {
     }
 
     /**
-    * 执行命令
-    *
-    * @param command 命令
-    * @param timeoutMs 超时ms
-    * @return 执行命令的结果
-    */
+     * 执行命令
+     *
+     * @param command 命令
+     * @param timeoutMs 超时ms
+     * @return 执行命令的结果
+     */
     public SshClient.ExecResult executeCommand(String command, int timeoutMs) {
         if (sshClient == null) {
             throw new IllegalStateException("SSH 客户端未连接，请先调用 connect()");

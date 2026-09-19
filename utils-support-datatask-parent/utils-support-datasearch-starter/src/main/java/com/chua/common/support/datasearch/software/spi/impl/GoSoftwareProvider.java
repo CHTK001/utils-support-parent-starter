@@ -125,11 +125,11 @@ public class GoSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-            * 解析go输出
-            *
-            * @param output 输出
-            * @return 解析go输出的结果
-            */
+     * 解析go输出
+     *
+     * @param output 输出
+     * @return 解析go输出的结果
+     */
     private List<SoftwareInfo> parseGoOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {

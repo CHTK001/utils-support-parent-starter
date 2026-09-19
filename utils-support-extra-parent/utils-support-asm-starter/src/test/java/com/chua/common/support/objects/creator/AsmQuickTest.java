@@ -108,10 +108,10 @@ public class AsmQuickTest {
     }
 
     /**
-    * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
-    *
-    * @param quick 默认quick 实例
-    * @return 当前编译器实现
+     * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
+     *
+     * @param quick 默认quick 实例
+     * @return 当前编译器实现
      */
     private static Compiler resolveCompilerReflectively(DefaultQuick quick) {
         try {

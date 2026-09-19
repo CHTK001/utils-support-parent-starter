@@ -65,9 +65,9 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-    * 创建 ultrafacetranslator 实例
-    * @param configuration 配置
-    */
+     * 创建 ultrafacetranslator 实例
+     * @param configuration 配置
+     */
     public UltraFaceTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? null : configuration.loadModelName());
     }

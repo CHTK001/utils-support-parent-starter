@@ -78,8 +78,8 @@ public final class ModelRegistry {
     private static volatile ModelDownloader downloader = new DefaultModelDownloader();
 
     /**
-    * 类路径 资源前缀
-    */
+     * 类路径 资源前缀
+     */
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
@@ -997,14 +997,14 @@ public final class ModelRegistry {
         private volatile ITranslator<Object, Object> delegate;
 
         /**
-        * 创建 lazydjltranslator 实例
-        * @param modelId 模型标识
-        * @param modelPath 路径
-        * @param modelId 字符串
-        * @param modelPath 模型路径
-        * @param translatorClassName translator类名称
-        * @return LazyDjlTranslator的结果
-        */
+         * 创建 lazydjltranslator 实例
+         * @param modelId 模型标识
+         * @param modelPath 路径
+         * @param modelId 字符串
+         * @param modelPath 模型路径
+         * @param translatorClassName translator类名称
+         * @return LazyDjlTranslator的结果
+         */
         private LazyDjlTranslator(String modelId, Path modelPath, String translatorClassName) {
             this(modelId, modelPath, translatorClassName, null);
         }
@@ -1101,10 +1101,10 @@ public final class ModelRegistry {
         }
 
         /**
-        * 返回内部真实 Translator 实例（初始化后）。
-        *
-        * @return 已初始化的内部 Translator
-        */
+         * 返回内部真实 Translator 实例（初始化后）。
+         *
+         * @return 已初始化的内部 Translator
+         */
         public ITranslator<Object, Object> unwrap() {
             return ensure();
         }
@@ -1179,14 +1179,14 @@ public final class ModelRegistry {
         private final ITranslator<?, ?> translator;
 
         /**
-        * 创建 itranslatordelegate 实例
-        * @param modelId 模型标识
-        * @param modelPath 路径
-        * @param translator itranslator
-        * @param translator translator
-        * @param modelPath 模型路径
-        * @return ITranslatorDelegate的结果
-        */
+         * 创建 itranslatordelegate 实例
+         * @param modelId 模型标识
+         * @param modelPath 路径
+         * @param translator itranslator
+         * @param translator translator
+         * @param modelPath 模型路径
+         * @return ITranslatorDelegate的结果
+         */
         private ITranslatorDelegate(String modelId, Path modelPath, ITranslator<?, ?> translator) {
             this.modelId = modelId;
             this.translator = translator;
@@ -1272,11 +1272,11 @@ public final class ModelRegistry {
         @Override
         @SuppressWarnings("unchecked")
         /**
-        * Translate
-        *
-        * @param input 输入
-        * @return translate的结果
-        */
+         * Translate
+         *
+         * @param input 输入
+         * @return translate的结果
+         */
         public Object translate(Object input) {
             return ((ITranslator<Object, Object>) translator).translate(input);
         }
@@ -1293,10 +1293,10 @@ public final class ModelRegistry {
         }
 
         /**
-        * 返回原生 Translator 实例。
-        *
-        * @return 原生 Translator
-        */
+         * 返回原生 Translator 实例。
+         *
+         * @return 原生 Translator
+         */
         public ITranslator<?, ?> unwrap() {
             return translator;
         }
@@ -1363,10 +1363,10 @@ public final class ModelRegistry {
     }
 
     /**
-        * 设置模型下载器。
-        *
-        * @param downloader 下载器
-        */
+     * 设置模型下载器。
+     *
+     * @param downloader 下载器
+     */
     public static void setDownloader(ModelDownloader downloader) {
         ModelRegistry.downloader = downloader;
     }

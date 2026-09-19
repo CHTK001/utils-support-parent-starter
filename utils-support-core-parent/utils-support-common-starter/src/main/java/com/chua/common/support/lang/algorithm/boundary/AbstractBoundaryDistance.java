@@ -97,12 +97,12 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
     }
 
     /**
-    * 计算数据集的几何中心（各维度坐标的算术平均值）
-    *
-    * @param points    数据点列表
-    * @param dimension 特征向量维度
-    * @return 几何中心坐标向量
-    */
+     * 计算数据集的几何中心（各维度坐标的算术平均值）
+     *
+     * @param points    数据点列表
+     * @param dimension 特征向量维度
+     * @return 几何中心坐标向量
+     */
     private double[] computeCenter(List<double[]> points, int dimension) {
         double[] center = new double[dimension];
         for (double[] point : points) {

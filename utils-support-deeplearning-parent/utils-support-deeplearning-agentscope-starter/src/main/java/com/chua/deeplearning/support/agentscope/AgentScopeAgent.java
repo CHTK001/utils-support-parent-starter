@@ -517,17 +517,17 @@ public class AgentScopeAgent implements Agent {
     }
 
     /**
-    * 构建Harness
-    * @param agentId Agent标识
-    * @param sysPrompt sys提示符
-    * @param primaryModelId primary模型标识
-    * @param declarations declarations
-    * @param effectivePlan effectiveplan
-    * @param effectivePlanMaxTask effectiveplan最大任务
-    * @param effectiveDebugHook effective调试hook
-    * @param effectivePlanHook effectiveplanhook
-    * @param effectiveMaxIters effective最大iters
-    */
+     * 构建Harness
+     * @param agentId Agent标识
+     * @param sysPrompt sys提示符
+     * @param primaryModelId primary模型标识
+     * @param declarations declarations
+     * @param effectivePlan effectiveplan
+     * @param effectivePlanMaxTask effectiveplan最大任务
+     * @param effectiveDebugHook effective调试hook
+     * @param effectivePlanHook effectiveplanhook
+     * @param effectiveMaxIters effective最大iters
+     */
     private HarnessAgent buildHarness(String agentId, String sysPrompt,
                                       String primaryModelId, List<SubagentDeclaration> declarations,
                                       boolean effectivePlan, int effectivePlanMaxTask,
@@ -638,8 +638,8 @@ public class AgentScopeAgent implements Agent {
 
     /** 记录日志Architecture */
     /**
-    * 打印代理架构图（print配置(true) 时随 运行 输出到宿主控制台）。
-    */
+     * 打印代理架构图（print配置(true) 时随 运行 输出到宿主控制台）。
+     */
     private static final String DIAGRAM_HEADER = "===== Agent Architecture Diagram =====";
     private static final String PROMPTS_TREE_HEADER = "===== System Prompts Tree ====="; // 提示符树头部
     private static final String ROUTER_NODE_LABEL = "\u53ef\u7528\u5b50 Agent"; // router节点标签

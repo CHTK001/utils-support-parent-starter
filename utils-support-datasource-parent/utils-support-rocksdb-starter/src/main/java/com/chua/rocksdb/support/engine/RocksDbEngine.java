@@ -69,8 +69,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     /** RocksDB 数据库映射表，键为数据源名称 */
     private final ConcurrentHashMap<String, RocksDB> databases = new ConcurrentHashMap<>();
     /**
-    * 字符串 KV 键 级 锁：完整 键 → {@link Object}（incr 读-改-写 串行化）
-    */
+     * 字符串 KV 键 级 锁：完整 键 → {@link Object}（incr 读-改-写 串行化）
+     */
     private final ConcurrentHashMap<String, Object> kvKeyLocks = new ConcurrentHashMap<>();
     /**
      * FTS 集合 级 锁：集合名 → {@link Object}（倒排 条目 读-改-写 串行化）
@@ -493,8 +493,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 更新（旧 索引 移除 + 新 文档 + 新 索引 同 批 原子 写 入，集合 级 锁 串行化）
-    */
+     * 更新（旧 索引 移除 + 新 文档 + 新 索引 同 批 原子 写 入，集合 级 锁 串行化）
+     */
     @SuppressWarnings("unchecked")
     public <T> T update(String collection, Object id, T document) {
         RocksDB db = currentDB();
@@ -586,8 +586,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /**
-    * 搜索（FTS 单 值 键 布局：FTS_<collection>:<token>:<docId> → 文档 键 字节，按 token 段 匹配）
-    */
+     * 搜索（FTS 单 值 键 布局：FTS_<collection>:<token>:<docId> → 文档 键 字节，按 token 段 匹配）
+     */
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         RocksDB db = currentDB();
@@ -670,11 +670,11 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-    * 获取 FTS 集合 级 锁 句柄（同 集合 共享 同一 锁，跨 集合 互不 影响）。
-    *
-    * @param collection 集合名
-    * @return 锁 句柄
-    */
+     * 获取 FTS 集合 级 锁 句柄（同 集合 共享 同一 锁，跨 集合 互不 影响）。
+     *
+     * @param collection 集合名
+     * @return 锁 句柄
+     */
     private Object ftsCollectionLock(String collection) {
         return ftsCollectionLocks.computeIfAbsent(collection, k -> new Object());
     }

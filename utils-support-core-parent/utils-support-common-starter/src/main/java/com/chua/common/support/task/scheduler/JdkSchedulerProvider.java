@@ -59,10 +59,10 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     private final ReentrantLock lock = new ReentrantLock();
 
     /**
-    * 创建默认的 JDK 调度器提供者
-    *
-    * <p>核心线程数取 {@code max(2, CPU核心数)}。
-    */
+     * 创建默认的 JDK 调度器提供者
+     *
+     * <p>核心线程数取 {@code max(2, CPU核心数)}。
+     */
     public JdkSchedulerProvider() {
         this(Math.max(2, Runtime.getRuntime().availableProcessors()));
     }

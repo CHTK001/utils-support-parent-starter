@@ -253,11 +253,11 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
     }
 
     /**
-    *                          (x_center, y_center, w, h)                             (x1, y1, x2, y2)
-    *
-    * @param xywh                                  
-    * @return                               
-    */
+     *                          (x_center, y_center, w, h)                             (x1, y1, x2, y2)
+     *
+     * @param xywh                                  
+     * @return                               
+     */
     public static NDArray xywh2xyxy(NDArray xywh) {
         var x = xywh.get(":, 0");
         var y = xywh.get(":, 1");

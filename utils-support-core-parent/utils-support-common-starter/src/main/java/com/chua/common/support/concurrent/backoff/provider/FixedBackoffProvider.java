@@ -57,8 +57,8 @@ public class FixedBackoffProvider implements BackoffProvider {
     }
 
     /**
-    * 重置内部尝试次数计数器。
-    */
+     * 重置内部尝试次数计数器。
+     */
     public void reset() {
         attempt.set(0);
     }

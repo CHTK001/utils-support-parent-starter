@@ -43,16 +43,16 @@ public class HttpServerResponse implements ServerResponse {
     /** SSE输出流 */
     private OutputStream sseOutputStream;
     /**
-    * 结果
-    */
+     * 结果
+     */
     private Object result;
     /** 输出 */
     private ByteArrayOutputStream output;
 
     /**
-    * 创建 HttpServerResponse 实例
-    * @param exchange exchange
-    */
+     * 创建 HttpServerResponse 实例
+     * @param exchange exchange
+     */
     public HttpServerResponse(HttpExchange exchange) {
         this.exchange = exchange;
     }

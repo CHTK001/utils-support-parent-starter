@@ -71,11 +71,11 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     }
 
     /**
-    * 解析模型根
-    *
-    * @param modelPath 模型路径
-    * @return resolve模型根的结果
-    */
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");

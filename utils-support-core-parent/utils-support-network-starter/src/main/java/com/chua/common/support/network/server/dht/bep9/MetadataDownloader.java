@@ -35,11 +35,11 @@ public class MetadataDownloader {
         }
 
         /**
-        * 创建 metadata结果 实例
-        * @param ok ok
-        * @param name 字符串
-        * @param name 名称
-        */
+         * 创建 metadata结果 实例
+         * @param ok ok
+         * @param name 字符串
+         * @param name 名称
+         */
         public MetadataResult(boolean ok, String name) {
             this.ok = ok;
             this.name = name;

@@ -16,14 +16,14 @@ public class SkillArgumentSchema {
 
     /** 参数名称 */
     /**
-    * 名称
-    */
+     * 名称
+     */
     private final String name;
 
     /** 参数描述 */
     /**
-    * 描述
-    */
+     * 描述
+     */
     private final String description;
 
     /**
@@ -36,24 +36,24 @@ public class SkillArgumentSchema {
 
     /** 是否必填 */
     /**
-    * 是否必填
-    */
+     * 是否必填
+     */
     private final boolean required;
 
     /** 枚举值列表（仅 type=enum 时有效） */
     private final List<String> enumValues;
 
     /**
-    * 创建 SkillArgumentSchema 实例
-    * @param name name
-    * @param name String
-    * @param name String
-    * @param required boolean
-    * @param enumValues List
-    * @param enumValues enumValues
-    * @param description 描述，不允许为 null
-    * @param type 类型，不允许为 null
-    */
+     * 创建 SkillArgumentSchema 实例
+     * @param name name
+     * @param name String
+     * @param name String
+     * @param required boolean
+     * @param enumValues List
+     * @param enumValues enumValues
+     * @param description 描述，不允许为 null
+     * @param type 类型，不允许为 null
+     */
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {
         this.name = name;
         this.description = description;

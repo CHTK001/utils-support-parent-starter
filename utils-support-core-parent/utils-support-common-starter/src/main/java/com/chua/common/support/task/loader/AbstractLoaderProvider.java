@@ -18,8 +18,8 @@ public abstract class AbstractLoaderProvider<T> implements Loader<T> {
     private volatile T instance;
 
     /**
-    * 获取实例：首次调用触发懒加载，后续调用直接返回缓存。
-    */
+     * 获取实例：首次调用触发懒加载，后续调用直接返回缓存。
+     */
     @Override
     public T get() {
         T result = instance;

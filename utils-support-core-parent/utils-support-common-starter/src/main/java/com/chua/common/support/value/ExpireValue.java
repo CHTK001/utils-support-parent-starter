@@ -83,11 +83,11 @@ public class ExpireValue<T> implements Value<T> {
     private final Duration ttl;
 
     /**
-    * 构造函数，通过工厂方法 {@link #of(Object, Duration)} 创建实例。
-    *
-    * @param value 初始值，允许 空（空 表示初始即为已清除状态）
-    * @param ttl 存活时间，可为 空（空 表示永不过期）
-    */
+     * 构造函数，通过工厂方法 {@link #of(Object, Duration)} 创建实例。
+     *
+     * @param value 初始值，允许 空（空 表示初始即为已清除状态）
+     * @param ttl 存活时间，可为 空（空 表示永不过期）
+     */
     private ExpireValue(T value, Duration ttl) {
         this.value = value;
         this.ttl = ttl;

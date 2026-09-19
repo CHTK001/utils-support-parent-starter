@@ -59,10 +59,10 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             "image|clip|vit|vision|multimodal", Pattern.CASE_INSENSITIVE);
 
     /**
-    * 从排行榜抓取全量模型指标与价格。
-    *
-    * @return 模型指标列表，页面不可达或结构变化时返回空列表
-    */
+     * 从排行榜抓取全量模型指标与价格。
+     *
+     * @return 模型指标列表，页面不可达或结构变化时返回空列表
+     */
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(LEADERBOARD_URL);

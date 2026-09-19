@@ -48,9 +48,9 @@ public interface TypeConverter<O> {
     Map<String, Long> MAPPING = new HashMap<>(10);
 
     /**
-    * 初始化存储容量单位映射表。
-    * <p>预定义 B、KB/K、MB/M、GB/G、PB/P 与字节数的对应关系。</p>
-    */
+     * 初始化存储容量单位映射表。
+     * <p>预定义 B、KB/K、MB/M、GB/G、PB/P 与字节数的对应关系。</p>
+     */
     static void initial() {
         MAPPING.put("B", 1L);
         MAPPING.put("KB", 1024L);

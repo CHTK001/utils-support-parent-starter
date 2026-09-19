@@ -34,11 +34,11 @@ public class UrlTypeConverter implements TypeConverter<URL> {
     private static final String FILE_URL_PREFIX = "file:";
 
     /**
-    * 将给定值转换为 URL。
-    *
-    * @param value 源值
-    * @return URL 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 URL。
+     *
+     * @param value 源值
+     * @return URL 值，如果无法转换则返回 null
+     */
     @Override
     public URL convert(Object value) {
         if (null == value) {

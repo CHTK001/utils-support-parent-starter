@@ -33,10 +33,10 @@ public class LocalFileUploadProvider implements UploadProvider {
     private final Path baseDir;
 
     /**
-    * 构造本地文件上传提供者。
-    *
-    * @param uploadDir 上传根目录路径
-    */
+     * 构造本地文件上传提供者。
+     *
+     * @param uploadDir 上传根目录路径
+     */
     public LocalFileUploadProvider(String uploadDir) {
         this.baseDir = Path.of(uploadDir, FILES_SUBDIR);
         try {

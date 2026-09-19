@@ -24,15 +24,15 @@ public final class SafeTensorModelRegistry {
     }
 
     /**
-    * 模型描述条目。
-    *
-    * @param id 模型标识
-    * @param type 模型类型（llm / 镜像_gen / asr / tts / ocr / detection / face_detection 等）
-    * @param source 下载来源（modelscope / huggingface / 本地）
-    * @author CH
-    * @param description 模型描述
-    * @return 模型entry的结果
-    */
+     * 模型描述条目。
+     *
+     * @param id 模型标识
+     * @param type 模型类型（llm / 镜像_gen / asr / tts / ocr / detection / face_detection 等）
+     * @param source 下载来源（modelscope / huggingface / 本地）
+     * @author CH
+     * @param description 模型描述
+     * @return 模型entry的结果
+     */
     public record ModelEntry(String id, String type, String source, String description) {
     }
 

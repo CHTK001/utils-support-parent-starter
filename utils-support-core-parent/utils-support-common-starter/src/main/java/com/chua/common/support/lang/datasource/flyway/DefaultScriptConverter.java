@@ -60,8 +60,8 @@ public class DefaultScriptConverter implements ScriptConverter {
             List.of("mysql", "mariadb", "tidb", "oceanbase");
 
     /** 行内索引声明行（CREATE TABLE 表体内整行）：
-    *  {@code KEY idx_x (col)} / {@code UNIQUE KEY uk_x (a,b)} / {@code INDEX idx_x (col) USING BTREE}
-    *  / 尾随 {@code COMMENT 'xxx'}（SHOW CREATE TABLE 导出风格）。USING 子句可重复，COMMENT 段可选 */
+     *  {@code KEY idx_x (col)} / {@code UNIQUE KEY uk_x (a,b)} / {@code INDEX idx_x (col) USING BTREE}
+     *  / 尾随 {@code COMMENT 'xxx'}（SHOW CREATE TABLE 导出风格）。USING 子句可重复，COMMENT 段可选 */
     private static final Pattern INLINE_KEY_LINE = Pattern.compile(
             "^(?:\\s*,)?\\s*(?:UNIQUE\\s+)?(?:KEY|INDEX)\\s+\\S+\\s*\\(.*\\)(?:\\s*USING\\s+\\S+)*"
                     + "(?:\\s+COMMENT\\s+'(?:[^']|'')*')?\\s*,?\\s*$",
@@ -71,8 +71,8 @@ public class DefaultScriptConverter implements ScriptConverter {
     private static final Pattern PK_USING = Pattern.compile(
             "(?i)\\s+USING\\s+\\S+\\s*,?\\s*$");
     /** 列级 CHARACTER SET / COLLATE 子句（SHOW CREATE TABLE 导出风格：
-    *  {@code varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL}），
-    *  仅剥离子句本身，保留其后的 NULL/DEFAULT 等 */
+     *  {@code varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL}），
+     *  仅剥离子句本身，保留其后的 NULL/DEFAULT 等 */
     private static final Pattern COLUMN_CHARSET_COLLATE = Pattern.compile(
             "(?i)\\s*(?:CHARACTER\\s+SET\\s*=?\\s*\\w+|COLLATE\\s*=?\\s*\\w+)");
     /** 列内联注释（{@code TINYINT(1) DEFAULT 1 COMMENT 'x'} 中尾随的 COMMENT 段）。
@@ -83,8 +83,8 @@ public class DefaultScriptConverter implements ScriptConverter {
     private static final Pattern COLUMN_COMMENT = Pattern.compile(
             "(?i)\\s+COMMENT\\s+'(?:[^']|'')*'(,?)\\s*$");
     /**
-    * 表级尾部 MySQL 专属属性（CREATE TABLE ... ) 之后；等号两侧允许空格）
-    */
+     * 表级尾部 MySQL 专属属性（CREATE TABLE ... ) 之后；等号两侧允许空格）
+     */
     private static final Pattern TAIL_ENGINE = Pattern.compile(
             "\\s*ENGINE\\s*=\\s*\\S+", Pattern.CASE_INSENSITIVE);
     private static final Pattern TAIL_AUTO_INCREMENT = Pattern.compile(

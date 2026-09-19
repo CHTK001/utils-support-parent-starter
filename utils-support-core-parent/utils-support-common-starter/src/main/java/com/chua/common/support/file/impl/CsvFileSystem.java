@@ -83,10 +83,10 @@ public class CsvFileSystem implements FileSystem {
     }
 
     /**
-    * CSV 文件读取构建器。
-    *
-    * @since 4.0.0.42
-    */
+     * CSV 文件读取构建器。
+     *
+     * @since 4.0.0.42
+     */
     @Slf4j
     public static class CsvReadBuilder extends ReadBuilder {
 
@@ -118,12 +118,12 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-        * 读取全部行并返回 Map 列表。
-        *
-        * <p>当 {@link #withHeader()} 启用时，Map 的 key 为列名。</p>
-        *
-        * @return Map 行数据列表
-        */
+         * 读取全部行并返回 Map 列表。
+         *
+         * <p>当 {@link #withHeader()} 启用时，Map 的 key 为列名。</p>
+         *
+         * @return Map 行数据列表
+         */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = CollectionUtils.newArrayList();
             List<String> headerRow = CollectionUtils.newArrayList();
@@ -177,12 +177,12 @@ public class CsvFileSystem implements FileSystem {
         }
 
         /**
-        * 解析 CSV 一行数据，支持双引号包裹字段内含分隔符的场景。
-        *
-        * @param line      CSV 行文本
-        * @param delimiter 字段分隔符
-        * @return 解析后的字段数组
-        */
+         * 解析 CSV 一行数据，支持双引号包裹字段内含分隔符的场景。
+         *
+         * @param line      CSV 行文本
+         * @param delimiter 字段分隔符
+         * @return 解析后的字段数组
+         */
         private String[] parseLine(String line, char delimiter) {
             List<String> parts = CollectionUtils.newArrayList();
             StringBuilder sb = new StringBuilder();

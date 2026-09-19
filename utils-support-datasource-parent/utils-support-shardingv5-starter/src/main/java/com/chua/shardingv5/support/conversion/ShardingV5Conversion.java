@@ -84,11 +84,11 @@ public class ShardingV5Conversion implements DataSourceConversion {
     private TableCache tableCache;
 
     /**
-    * autodiscover
-    *
-    * @param auto auto
-    * @return autoDiscover的结果
-    */
+     * autodiscover
+     *
+     * @param auto auto
+     * @return autoDiscover的结果
+     */
     public ShardingV5Conversion autoDiscover(boolean auto) {
         this.autoDiscover = auto;
         return this;

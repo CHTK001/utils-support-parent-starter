@@ -80,10 +80,10 @@ public class ZipFileSystem implements FileSystem {
     }
 
     /**
-    * ZIP 文件读取构建器。
-    *
-    * @since 1.0.0
-    */
+     * ZIP 文件读取构建器。
+     *
+     * @since 1.0.0
+     */
     public static class ZipReadBuilder extends ReadBuilder {
 
         /** 是否启用分卷读取模式 */
@@ -94,11 +94,11 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 启用分卷读取模式。
-        * <p>启用后将自动检测同目录下的分卷文件（.z01, .z02 等）并合并读取。</p>
-        *
-        * @return 当前构建器
-        */
+         * 启用分卷读取模式。
+         * <p>启用后将自动检测同目录下的分卷文件（.z01, .z02 等）并合并读取。</p>
+         *
+         * @return 当前构建器
+         */
         public ZipReadBuilder split() {
             this.splitMode = true;
             return this;
@@ -490,11 +490,11 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 设置压缩级别。
-        *
-        * @param level 压缩级别（0=不压缩, 1=BEST_SPEED, 9=BEST_COMPRESSION, -1=默认）
-        * @return 当前构建器
-        */
+         * 设置压缩级别。
+         *
+         * @param level 压缩级别（0=不压缩, 1=BEST_SPEED, 9=BEST_COMPRESSION, -1=默认）
+         * @return 当前构建器
+         */
         public ZipWriteBuilder compressionLevel(int level) {
             this.compressionLevel = level;
             return this;
@@ -562,8 +562,8 @@ public class ZipFileSystem implements FileSystem {
         }
 
         /**
-        * 普通模式完成写入。
-        */
+         * 普通模式完成写入。
+         */
         private void finishNormal() {
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
                 zos.setLevel(compressionLevel);

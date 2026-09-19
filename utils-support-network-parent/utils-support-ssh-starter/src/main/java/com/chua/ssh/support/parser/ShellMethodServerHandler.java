@@ -116,11 +116,11 @@ public class ShellMethodServerHandler implements HttpDefaultServerHandler {
     }
 
     /**
-    * 解析参数
-    *
-    * @param request 请求
-    * @return resolve参数的结果
-    */
+     * 解析参数
+     *
+     * @param request 请求
+     * @return resolve参数的结果
+     */
     private static String[] resolveArgs(ServerRequest request) {
         List<String> args = new java.util.ArrayList<>();
         for (int i = 0; ; i++) {

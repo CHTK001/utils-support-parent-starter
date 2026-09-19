@@ -145,12 +145,12 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-    * 解析 Redis 地址为 主机 和 端口。
-    * <p>支持格式：host:port、host（默认端口 6379）</p>
-    *
-    * @param address Redis 地址字符串
-    * @return [host, 端口]
-    */
+     * 解析 Redis 地址为 主机 和 端口。
+     * <p>支持格式：host:port、host（默认端口 6379）</p>
+     *
+     * @param address Redis 地址字符串
+     * @return [host, 端口]
+     */
     private String[] parseRedisAddress(String address) {
         if (StringUtils.isBlank(address)) {
             return new String[]{"localhost", "6379"};

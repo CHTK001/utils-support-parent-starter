@@ -35,10 +35,10 @@ public class TerminalUtils {
     static Queue<ProgressBarConsumer> activeConsumers = new ConcurrentLinkedQueue<>();
 
     /**
-    * 获取终端宽度（使用 JLine3 库）
-    *
-    * @return 终端宽度
-    */
+     * 获取终端宽度（使用 JLine3 库）
+     *
+     * @return 终端宽度
+     */
     synchronized static int getTerminalWidth() {
         return getTerminalWidthCrossPlatform();
     }

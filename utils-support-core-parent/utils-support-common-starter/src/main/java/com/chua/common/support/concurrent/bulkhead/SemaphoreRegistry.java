@@ -24,13 +24,13 @@ public final class SemaphoreRegistry {
     }
 
     /**
-    * 获取指定名称的信号量，不存在则创建并缓存。
-    *
-    * @param name          信号量名称
-    * @param permits       许可数
-    * @param fair          是否公平
-    * @return 信号量实例
-    */
+     * 获取指定名称的信号量，不存在则创建并缓存。
+     *
+     * @param name          信号量名称
+     * @param permits       许可数
+     * @param fair          是否公平
+     * @return 信号量实例
+     */
     public static Semaphore acquire(String name, int permits, boolean fair) {
         return CACHE.computeIfAbsent(name, k -> new Semaphore(permits, fair));
     }

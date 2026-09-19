@@ -37,8 +37,8 @@ public class NodeMeta {
     private int weight = 1;
 
     /**
-    * 主机地址
-    */
+     * 主机地址
+     */
     private String host;
 
     /**

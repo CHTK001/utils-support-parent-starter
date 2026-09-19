@@ -26,9 +26,9 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, boole
     private static final long serialVersionUID = 1L;
 
     /**
-    * 紧凑构造器：校验 特征 / Target名称 / nominal值 非空，
-    * 并将 特征 固化为不可变列表、nominal值 固化为不可变 映射 拷贝。
-    */
+     * 紧凑构造器：校验 特征 / Target名称 / nominal值 非空，
+     * 并将 特征 固化为不可变列表、nominal值 固化为不可变 映射 拷贝。
+     */
     public ModelDomain {
         Objects.requireNonNull(features, "features must not be null");
         Objects.requireNonNull(targetName, "targetName must not be null");

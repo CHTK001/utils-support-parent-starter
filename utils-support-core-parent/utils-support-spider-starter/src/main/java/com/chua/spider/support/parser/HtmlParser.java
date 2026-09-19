@@ -83,13 +83,13 @@ public class HtmlParser implements SpiderParser {
     }
 
     /**
-    * 从 HTML 文档中提取页面标题。
-    *
-    * <p>优先使用 &lt;title&gt; 标签内容，其次使用 &lt;h1&gt; 标签内容。
-    *
-    * @param doc HTML 文档
-    * @return 页面标题，找不到时返回空字符串
-    */
+     * 从 HTML 文档中提取页面标题。
+     *
+     * <p>优先使用 &lt;title&gt; 标签内容，其次使用 &lt;h1&gt; 标签内容。
+     *
+     * @param doc HTML 文档
+     * @return 页面标题，找不到时返回空字符串
+     */
     private String extractTitle(Document doc) {
         String title = doc.title();
         if (StringUtils.isNotEmpty(title)) {

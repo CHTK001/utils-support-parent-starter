@@ -26,11 +26,11 @@ public final class DeeplearningModels {
     }
 
     /**
-    * 获取指定引擎（提供者）注册的全部模型。
-    *
-    * @param engine 引擎名称，如 "onnx"、"pytorch"、"飞桨"、"tensorflow"、"llama"
-    * @return 模型定义列表
-    */
+     * 获取指定引擎（提供者）注册的全部模型。
+     *
+     * @param engine 引擎名称，如 "onnx"、"pytorch"、"飞桨"、"tensorflow"、"llama"
+     * @return 模型定义列表
+     */
     public static List<ModelDefinition> models(String engine) {
         if (engine == null || engine.isBlank()) {
             return List.of();

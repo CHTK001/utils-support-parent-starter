@@ -197,11 +197,11 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-    * 设置 Webhook URL
-    *
-    * @param webhookUrl Webhook 地址
-    * @return this
-    */
+     * 设置 Webhook URL
+     *
+     * @param webhookUrl Webhook 地址
+     * @return this
+     */
     public DingTalkBotClient webhookUrl(String webhookUrl) {
         this.webhookUrl = webhookUrl;
         return this;
@@ -302,12 +302,12 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-    * 发送视频
-    * @param toUser 转为用户
-    * @param mediaPath media路径
-    * @param title title
-    * @param desc desc
-    */
+     * 发送视频
+     * @param toUser 转为用户
+     * @param mediaPath media路径
+     * @param title title
+     * @param desc desc
+     */
     public BotSendResult sendVideo(String toUser, String mediaPath,
             String title, String desc) {
         log.warn(
@@ -510,10 +510,10 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-    * 发送转为分组
-    * @param groupId 群体标识
-    * @param content 内容
-    */
+     * 发送转为分组
+     * @param groupId 群体标识
+     * @param content 内容
+     */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         log.warn("Use webhookUrl to target specific group");
@@ -657,26 +657,26 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-    * 移除消息监听器
-    * @param listener 监听器
-    * @param listener 监听器
-    * @param running running
-    * @param jsonBody json主体
-    * @param e e
-    * @param e e
-    * @param e e
-    * @param message 消息
-    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-    * @param errcode errcode
-    * @param errmsg errmsg
-    * @param e e
-    * @param e e
-    * @param HMAC_SHA256 HMAC_SHA256
-    * @param data 数据
-    * @param type 类型
-    * @param e e
-    * @param ignored ignored
-    */
+     * 移除消息监听器
+     * @param listener 监听器
+     * @param listener 监听器
+     * @param running running
+     * @param jsonBody json主体
+     * @param e e
+     * @param e e
+     * @param e e
+     * @param message 消息
+     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+     * @param errcode errcode
+     * @param errmsg errmsg
+     * @param e e
+     * @param e e
+     * @param HMAC_SHA256 HMAC_SHA256
+     * @param data 数据
+     * @param type 类型
+     * @param e e
+     * @param ignored ignored
+     */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);

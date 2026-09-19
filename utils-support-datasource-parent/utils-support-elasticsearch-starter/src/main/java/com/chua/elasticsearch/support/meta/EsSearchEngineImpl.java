@@ -28,9 +28,9 @@ public class EsSearchEngineImpl implements SearchEngine {
     private final ElasticsearchEngine engine;
 
     /**
-    * 创建 es搜索engineimpl 实例
-    * @param engine engine
-    */
+     * 创建 es搜索engineimpl 实例
+     * @param engine engine
+     */
     public EsSearchEngineImpl(ElasticsearchEngine engine) {
         this.engine = engine;
     }

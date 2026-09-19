@@ -40,8 +40,8 @@ class DfsmnKaldiFbank {
     private static final float LOW_FREQ = 20.0f;
 
     /**
-    * mel 高频截止（Hz，torchaudio 默认 high_freq=0 → Nyquist）
-    */
+     * mel 高频截止（Hz，torchaudio 默认 high_freq=0 → Nyquist）
+     */
     private static final float HIGH_FREQ = SAMPLE_RATE / 2.0f;
 
     /** pre-emphasis 系数 */

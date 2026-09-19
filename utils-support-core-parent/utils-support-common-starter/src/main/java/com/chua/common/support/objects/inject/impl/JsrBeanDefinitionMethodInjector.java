@@ -54,13 +54,13 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
 
     @Override
     /**
-    * Inject
-    * @param method 方法
-    * @param instance instance
-    * @param beanDefinition Beandefinition
-    * @param beanProvider Bean提供者
-    * @param typeProvider 类型提供者
-    */
+     * Inject
+     * @param method 方法
+     * @param instance instance
+     * @param beanDefinition Beandefinition
+     * @param beanProvider Bean提供者
+     * @param typeProvider 类型提供者
+     */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {

@@ -257,10 +257,10 @@ public class KcpClient {
     }
 
     /**
-    * 是否连接
-    *
-    * @return 是否连接的结果
-    */
+     * 是否连接
+     *
+     * @return 是否连接的结果
+     */
     public boolean isConnected() {
         return session != null && session.isActive();
     }
@@ -468,10 +468,10 @@ public class KcpClient {
     }
 
     /**
-    * 写入Raw
-    *
-    * @param text 文本
-    */
+     * 写入Raw
+     *
+     * @param text 文本
+     */
     private void writeRaw(String text) {
         ByteBuf buf = Unpooled.copiedBuffer(text, StandardCharsets.UTF_8);
         try {
@@ -489,11 +489,11 @@ public class KcpClient {
     }
 
     /**
-    * 解析远程
-    *
-    * @param url url
-    * @return 解析远程的结果
-    */
+     * 解析远程
+     *
+     * @param url url
+     * @return 解析远程的结果
+     */
     private InetSocketAddress parseRemote(String url) {
  // 解析 kcp://主机:端口
         String s = url;
@@ -696,10 +696,10 @@ public class KcpClient {
         }
 
         /**
-        * 处理线
-        *
-        * @param line 线
-        */
+         * 处理线
+         *
+         * @param line 线
+         */
         private void handleLine(String line) {
             int colon = line.indexOf(':');
             String topic = colon > 0 ? line.substring(0, colon) : line;

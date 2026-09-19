@@ -26,10 +26,10 @@ public class VideoSource {
     }
 
     /**
-    * 获取视频源url
-    *
-    * @return 获取视频源url的结果
-    */
+     * 获取视频源url
+     *
+     * @return 获取视频源url的结果
+     */
     public String getVideoSourceUrl() {
         return videoSourceUrl;
     }

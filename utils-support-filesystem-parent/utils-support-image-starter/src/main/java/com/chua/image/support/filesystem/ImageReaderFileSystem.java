@@ -145,11 +145,11 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 是否支持
-    *
-    * @param file 文件
-    * @return 是否支持的结果
-    */
+     * 是否支持
+     *
+     * @param file 文件
+     * @return 是否支持的结果
+     */
     public boolean isSupport(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
             return false;
@@ -167,11 +167,11 @@ public class ImageReaderFileSystem extends AbstractReader {
     }
 
     /**
-    * 获取文件扩展名
-    *
-    * @param fileName 文件名
-    * @return 扩展名（包含点号）
-    */
+     * 获取文件扩展名
+     *
+     * @param fileName 文件名
+     * @return 扩展名（包含点号）
+     */
     private String getExtension(String fileName) {
         var lastDot = fileName.lastIndexOf('.');
         return lastDot > 0 ? fileName.substring(lastDot) : "";

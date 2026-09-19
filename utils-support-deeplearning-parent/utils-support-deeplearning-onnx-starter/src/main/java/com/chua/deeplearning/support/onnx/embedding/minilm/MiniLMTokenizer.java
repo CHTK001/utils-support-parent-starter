@@ -79,14 +79,14 @@ public class MiniLMTokenizer {
     private final boolean tokenizeChineseChars;
 
     /**
-    * 创建 minilmtokenizer 实例
-    * @param vocab Integer
-    * @param vocab vocab
-    * @param doLowerCase 布尔值
-    * @param doLowerCase 布尔值
-    * @param doLowerCase 执行降低大小写
-    * @param tokenizeChineseChars tokenizechinesechars
-    */
+     * 创建 minilmtokenizer 实例
+     * @param vocab Integer
+     * @param vocab vocab
+     * @param doLowerCase 布尔值
+     * @param doLowerCase 布尔值
+     * @param doLowerCase 执行降低大小写
+     * @param tokenizeChineseChars tokenizechinesechars
+     */
     public MiniLMTokenizer(Map<String, Integer> vocab, boolean doLowerCase, boolean tokenizeChineseChars) {
         this.vocab = vocab;
         this.doLowerCase = doLowerCase;

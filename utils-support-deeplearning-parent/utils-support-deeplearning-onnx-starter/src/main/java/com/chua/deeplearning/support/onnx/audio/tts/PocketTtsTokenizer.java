@@ -44,11 +44,11 @@ public class PocketTtsTokenizer {
     private int padId = 3;
 
     /**
-    * 从 vocab.json 路径加载词表。
-    *
-    * @param vocabPath vocab.json 文件路径
-    * @throws IOException IO 异常
-    */
+     * 从 vocab.json 路径加载词表。
+     *
+     * @param vocabPath vocab.json 文件路径
+     * @throws IOException IO 异常
+     */
     public void load(Path vocabPath) throws IOException {
         String content = Files.readString(vocabPath, StandardCharsets.UTF_8);
         parseVocab(content);

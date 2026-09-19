@@ -82,14 +82,14 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
 
     @Override
     /**
-    * 转换转为源
-    *
-    * @param agent Agent
-    * @param data 数据
-    * @return 转换转为源的结果
-    * @author CH
-    * @since 4.0.0
-    */
+     * 转换转为源
+     *
+     * @param agent Agent
+     * @param data 数据
+     * @return 转换转为源的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public DataSyncSource convertToSource(DataSyncAgent agent, Object data) {
         if (agent == null) {
             return null;

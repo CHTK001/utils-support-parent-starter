@@ -168,8 +168,8 @@ public final class AgentSystemPromptBuilder {
     private static final String MCP_RULE_4 = "4. 根据工具结果生成最终回答";
 
     /**
-    * 子 Agent 段标题
-    */
+     * 子 Agent 段标题
+     */
     private static final String SUB_AGENT_HEADER = "## 可用子 Agent";
 
     /**
@@ -206,8 +206,8 @@ public final class AgentSystemPromptBuilder {
     private static final String ROUTE_RULE_4 = "4. 若没有合适的子 Agent，由当前 Agent 直接处理";
 
     /**
-    * 技能调用规则标题
-    */
+     * 技能调用规则标题
+     */
     private static final String SKILL_RULE_HEADER = "## 技能调用规则";
 
     /**
@@ -222,8 +222,8 @@ public final class AgentSystemPromptBuilder {
     private static final String SKILL_RULE_4 = "4. 若无匹配技能，直接回答用户问题";
 
     /**
-    * 纯文本模式子 Agent 段说明
-    */
+     * 纯文本模式子 Agent 段说明
+     */
     private static final String SUB_AGENT_PLAIN_DESC = "你可以将任务委派给以下子 Agent 执行。";
 
     /**
@@ -439,14 +439,14 @@ public final class AgentSystemPromptBuilder {
     }
 
     /**
-    * 生成技能描述段（Markdown 格式）
-    *
-    * <p>将所有已注册技能的名称、描述和参数 schema 输出为结构化文本，
-    * 使 LLM 能够识别何时应该调用哪个技能，以及如何构造调用参数。</p>
-    *
-    * @param skills 已注册的技能定义列表
-    * @return 技能描述段文本
-    */
+     * 生成技能描述段（Markdown 格式）
+     *
+     * <p>将所有已注册技能的名称、描述和参数 schema 输出为结构化文本，
+     * 使 LLM 能够识别何时应该调用哪个技能，以及如何构造调用参数。</p>
+     *
+     * @param skills 已注册的技能定义列表
+     * @return 技能描述段文本
+     */
     public static String buildSkillsSection(Map<String, SkillDefinition> skills) {
         if (MapUtils.isEmpty(skills)) {
             return EMPTY_STRING;

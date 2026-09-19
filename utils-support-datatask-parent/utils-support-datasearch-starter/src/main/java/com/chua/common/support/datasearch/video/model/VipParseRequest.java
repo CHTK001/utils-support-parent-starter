@@ -23,11 +23,11 @@ public class VipParseRequest {
     public VipParseRequest() {}
 
     /**
-    * 构造器。
-    *
-    * @param url   视频 URL
-    * @param source 来源编码
-    */
+     * 构造器。
+     *
+     * @param url   视频 URL
+     * @param source 来源编码
+     */
     public VipParseRequest(String url, String source) {
         this.url = url;
         this.source = source;

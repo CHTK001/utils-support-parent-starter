@@ -14,24 +14,24 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
-* 个人微信机器人入站映射测试。
-*
-* <p>只覆盖 {@code deliver()} 的纯解析逻辑，不触碰 Hook 服务。</p>
-*
-* @author CH
-* @since 4.0.0.42
-*/
+ * 个人微信机器人入站映射测试。
+ *
+ * <p>只覆盖 {@code deliver()} 的纯解析逻辑，不触碰 Hook 服务。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @DisplayName("个人微信机器人客户端测试")
 class WechatPersonalBotClientTest {
 
     private static final String SELF = "wxid_self";
 
     /**
-    * 构造已设置自身 wxid 并挂载消息收集监听器的真实客户端。
-    *
-    * @param sink 收集入站消息的列表，不允许为 null
-    * @return 真实客户端实例
-    */
+     * 构造已设置自身 wxid 并挂载消息收集监听器的真实客户端。
+     *
+     * @param sink 收集入站消息的列表，不允许为 null
+     * @return 真实客户端实例
+     */
     private WechatPersonalBotClient newClient(List<BotInboundMessage> sink) {
         WechatPersonalBotClient client = new WechatPersonalBotClient();
         client.selfWxid(SELF);
@@ -40,8 +40,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：deliver 解析单聊文本消息并正确映射字段。
-    */
+     * 测试：deliver 解析单聊文本消息并正确映射字段。
+     */
     @Test
     @DisplayName("deliver-单聊文本映射")
     void deliverPrivateText() {
@@ -65,8 +65,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：deliver 处理群聊消息时取真实发言人并保留群标识。
-    */
+     * 测试：deliver 处理群聊消息时取真实发言人并保留群标识。
+     */
     @Test
     @DisplayName("deliver-群聊取真实发言人并保留群标识")
     void deliverGroupMessage() {
@@ -82,8 +82,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：deliver 过滤自发消息与重复 msgId 的消息。
-    */
+     * 测试：deliver 过滤自发消息与重复 msgId 的消息。
+     */
     @Test
     @DisplayName("deliver-过滤自发消息与重复消息")
     void deliverSkipsSelfAndDuplicate() {
@@ -99,8 +99,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：deliver 对数组回调体逐条解析为入站消息。
-    */
+     * 测试：deliver 对数组回调体逐条解析为入站消息。
+     */
     @Test
     @DisplayName("deliver-数组回调体逐条解析")
     void deliverArrayPayload() {
@@ -115,8 +115,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：deliver 对无法识别的消息体返回空列表。
-    */
+     * 测试：deliver 对无法识别的消息体返回空列表。
+     */
     @Test
     @DisplayName("deliver-无法识别的消息体返回空")
     void deliverIgnoresUnparsable() {
@@ -129,8 +129,8 @@ class WechatPersonalBotClientTest {
     }
 
     /**
-    * 测试：SPI 注册可按平台名 wechat-personal 解析到实现。
-    */
+     * 测试：SPI 注册可按平台名 wechat-personal 解析到实现。
+     */
     @Test
     @DisplayName("SPI-按平台名 wechat-personal 可加载")
     void spiRegistrationResolves() {

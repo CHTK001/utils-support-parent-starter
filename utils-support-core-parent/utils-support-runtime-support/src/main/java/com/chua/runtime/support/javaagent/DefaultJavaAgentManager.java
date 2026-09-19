@@ -128,10 +128,10 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     /**
-    * 获取目标 JVM 的主类名。
-    *
-    * @param pid 目标进程 标识
-    * @return 主类名
+     * 获取目标 JVM 的主类名。
+     *
+     * @param pid 目标进程 标识
+     * @return 主类名
      */
     private String getMainClassName(int pid) {
         CmdResult result = CmdExecutors.execute(

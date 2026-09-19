@@ -45,9 +45,9 @@ public class Vgg16ActionTranslator implements Translator<Image, Classifications>
     }
 
     /**
-    * 创建 Vgg16动作translator 实例
-    * @param arguments 参数
-    */
+     * 创建 Vgg16动作translator 实例
+     * @param arguments 参数
+     */
     public Vgg16ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
         if (arguments != null && !arguments.isEmpty()) {

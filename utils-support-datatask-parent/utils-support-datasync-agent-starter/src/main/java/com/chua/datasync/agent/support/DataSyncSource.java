@@ -18,10 +18,10 @@ public interface DataSyncSource {
     String INPUT_ID = "sourceId";
 
     /**
-    * 获取方向。
-    *
-    * @return 方向
-    */
+     * 获取方向。
+     *
+     * @return 方向
+     */
     Direction direction();
 
     /**

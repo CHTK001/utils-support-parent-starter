@@ -135,10 +135,10 @@ public class FilePushServer implements AutoCloseable {
     private final AtomicLong errors = new AtomicLong();
 
     /**
-    * 创建服务端实例。
-    *
-    * @param config 服务端配置（targetDir 必填）
-    */
+     * 创建服务端实例。
+     *
+     * @param config 服务端配置（targetDir 必填）
+     */
     public FilePushServer(FilePushConfig config) {
         if (config == null) {
             throw new IllegalArgumentException("config 不能为 null");

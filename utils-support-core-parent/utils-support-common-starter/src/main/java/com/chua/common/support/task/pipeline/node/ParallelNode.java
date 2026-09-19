@@ -190,10 +190,10 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-    * 获取并行子流水线 标识。
-    *
-    * @return 子流水线 标识
-    */
+     * 获取并行子流水线 标识。
+     *
+     * @return 子流水线 标识
+     */
     public String getSubPipelineId() {
         return subPipeline.getId();
     }
@@ -323,26 +323,26 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-    * 并行执行子流水线（结构化并发版）。
-    *
-    * <p>执行流程：</p>
-    * <ol>
-    *   <li>设置当前节点 ID</li>
-    *   <li>执行前置处理器（如果配置）</li>
-    *   <li>创建独立上下文</li>
-    *   <li>从 PipelineContext.attributes 获取 StructuredTaskScope</li>
-    *   <li>scope.fork() 提交子流水线到结构化并发作用域</li>
-    *   <li>立即在 nodeOutputs 存入初始 AsyncResult（completed=false）</li>
-    *   <li>返回 null，主干继续执行后续节点</li>
-    *   <li>fork 内：执行子流水线 → 完成 AsyncResult → 合并结果到父上下文</li>
-    * </ol>
-    *
-    * <p><strong>降级策略：</strong>若 attributes 中无 StructuredTaskScope（非 Pipeline 级调用），
-    * 则同步执行子流水线，确保功能正确但无并发收益。</p>
-    *
-    * @param context 父流水线上下文
-    * @return null，按默认顺序继续执行下一节点
-    */
+     * 并行执行子流水线（结构化并发版）。
+     *
+     * <p>执行流程：</p>
+     * <ol>
+     *   <li>设置当前节点 ID</li>
+     *   <li>执行前置处理器（如果配置）</li>
+     *   <li>创建独立上下文</li>
+     *   <li>从 PipelineContext.attributes 获取 StructuredTaskScope</li>
+     *   <li>scope.fork() 提交子流水线到结构化并发作用域</li>
+     *   <li>立即在 nodeOutputs 存入初始 AsyncResult（completed=false）</li>
+     *   <li>返回 null，主干继续执行后续节点</li>
+     *   <li>fork 内：执行子流水线 → 完成 AsyncResult → 合并结果到父上下文</li>
+     * </ol>
+     *
+     * <p><strong>降级策略：</strong>若 attributes 中无 StructuredTaskScope（非 Pipeline 级调用），
+     * 则同步执行子流水线，确保功能正确但无并发收益。</p>
+     *
+     * @param context 父流水线上下文
+     * @return null，按默认顺序继续执行下一节点
+     */
     @Override
     @SuppressWarnings("unchecked")
     public String execute(PipelineContext<?> context) {

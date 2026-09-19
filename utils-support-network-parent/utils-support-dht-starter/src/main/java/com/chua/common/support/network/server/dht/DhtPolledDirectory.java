@@ -174,8 +174,8 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     /**
-    * 轮询所有监听的键，检测变更并分发事件。
-    */
+     * 轮询所有监听的键，检测变更并分发事件。
+     */
     private void pollDirectories() {
         if (!running) {
             return;

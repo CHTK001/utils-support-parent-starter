@@ -39,11 +39,11 @@ public final class JsonBeanMapper {
     }
 
     /**
-    * 将 Bean 对象转换为 Map，应用统一门户注解规则。
-    *
-    * @param bean 待转换的对象
-    * @return 转换后的 Map，bean 为 null 或基本类型时返回 null / 原值
-    */
+     * 将 Bean 对象转换为 Map，应用统一门户注解规则。
+     *
+     * @param bean 待转换的对象
+     * @return 转换后的 Map，bean 为 null 或基本类型时返回 null / 原值
+     */
     public static Object toMap(Object bean) {
         if (bean == null) {
             return null;

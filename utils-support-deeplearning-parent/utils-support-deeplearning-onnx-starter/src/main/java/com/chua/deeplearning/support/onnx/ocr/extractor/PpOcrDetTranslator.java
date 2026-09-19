@@ -120,8 +120,8 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private int srcHeight;
 
     /**
-    * 默认使用 PP-ocrv6 tiny 资源。
-    */
+     * 默认使用 PP-ocrv6 tiny 资源。
+     */
     public PpOcrDetTranslator() {
         this("ocr/PP-OCRv6/tiny/det_infer/", "paddleocrv6-det");
     }

@@ -36,8 +36,8 @@ public class AuthManager {
     /** Trae 版本：cn 或 sg，不可为 空 */
     private final String edition;
     /**
-    * Trae 数据目录（storage.json 所在 用户/全局storage 路径），可为 空
-    */
+     * Trae 数据目录（storage.json 所在 用户/全局storage 路径），可为 空
+     */
     private final String dataDir;
     /** 手动 JWT 令牌，可为 空（优先于 数据dir 读取） */
     private final String manualToken;
@@ -48,18 +48,18 @@ public class AuthManager {
     private volatile AuthSnapshot cached;
 
     /**
-    * 认证快照，承载从 Trae 存储或手动 令牌 中解析出的全部认证信息。
-    *
-    * @param token JWT 访问令牌，不可为 空
-    * @param refreshToken 刷新令牌，手动 令牌 场景为 空
-    * @param expiredAt 过期时间（ISO-8601），未知时为 空
-    * @param refreshTokenExpiredAt 刷新令牌过期时间，未知时为 空
-    * @param userId 用户 标识，从 JWT payload 解析
-    * @param host API 主机地址
-    * @param userRegion 用户区域（CN/SG/US）
-    * @param account 账号名
-    * @param edition 版本来源：cn / sg / manual
-    */
+     * 认证快照，承载从 Trae 存储或手动 令牌 中解析出的全部认证信息。
+     *
+     * @param token JWT 访问令牌，不可为 空
+     * @param refreshToken 刷新令牌，手动 令牌 场景为 空
+     * @param expiredAt 过期时间（ISO-8601），未知时为 空
+     * @param refreshTokenExpiredAt 刷新令牌过期时间，未知时为 空
+     * @param userId 用户 标识，从 JWT payload 解析
+     * @param host API 主机地址
+     * @param userRegion 用户区域（CN/SG/US）
+     * @param account 账号名
+     * @param edition 版本来源：cn / sg / manual
+     */
     public record AuthSnapshot(
         String token,
         String refreshToken,

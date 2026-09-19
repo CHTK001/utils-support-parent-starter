@@ -54,10 +54,10 @@ public class GithubSkillProvider {
     protected static final String API_BASE = "https://api.github.com";
 
     /**
-    * 获取提供者名称。
-    *
-    * @return 名称
-    */
+     * 获取提供者名称。
+     *
+     * @return 名称
+     */
     public String name() {
         return NAME;
     }

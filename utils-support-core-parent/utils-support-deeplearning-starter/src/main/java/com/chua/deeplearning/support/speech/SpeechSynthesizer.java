@@ -183,8 +183,8 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     private final ModelSetting setting;
 
     /**
-    * 合成语言。
-    */
+     * 合成语言。
+     */
     private String lang = DEFAULT_LANG;
 
     /**
@@ -264,11 +264,11 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 综合
-    *
-    * @param text 文本
-    * @return 综合的结果
-    */
+     * 综合
+     *
+     * @param text 文本
+     * @return 综合的结果
+     */
     public byte[] synthesize(String text) {
         ITranslator<String, byte[]> t =
                 (ITranslator<String, byte[]>) engine.get(modelName, ITranslator.class);

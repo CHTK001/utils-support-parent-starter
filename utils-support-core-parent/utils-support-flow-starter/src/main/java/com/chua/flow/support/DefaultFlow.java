@@ -135,10 +135,10 @@ public class DefaultFlow implements Flow {
     }
 
     /**
-    * 获取流程定义图模型。
-    *
-    * @return 流程定义
-    */
+     * 获取流程定义图模型。
+     *
+     * @return 流程定义
+     */
     public FlowDefinition getDefinition() {
         return definition;
     }

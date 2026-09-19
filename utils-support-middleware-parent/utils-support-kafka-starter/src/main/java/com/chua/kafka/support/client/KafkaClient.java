@@ -229,11 +229,11 @@ public class KafkaClient implements AutoCloseable {
         private Properties extraProps = new Properties();
 
         /**
-        * bootstrap服务端
-        *
-        * @param s s
-        * @return bootstrap服务端的结果
-        */
+         * bootstrap服务端
+         *
+         * @param s s
+         * @return bootstrap服务端的结果
+         */
         public Builder bootstrapServers(String s) {
             this.bootstrapServers = s;
             return this;
@@ -337,11 +337,11 @@ public class KafkaClient implements AutoCloseable {
         ProducerOperation(KafkaClient client) { this.client = client; }
 
         /**
-        * Topic
-        *
-        * @param t t
-        * @return topic的结果
-        */
+         * Topic
+         *
+         * @param t t
+         * @return topic的结果
+         */
         public ProducerOperation topic(String t) {
             this.topic = t;
             return this;
@@ -486,11 +486,11 @@ public class KafkaClient implements AutoCloseable {
         ConsumerOperation(KafkaClient client) { this.client = client; }
 
         /**
-        * 分组标识
-        *
-        * @param g g
-        * @return 群体id的结果
-        */
+         * 分组标识
+         *
+         * @param g g
+         * @return 群体id的结果
+         */
         public ConsumerOperation groupId(String g) {
             this.groupId = g;
             return this;
@@ -635,11 +635,11 @@ public class KafkaClient implements AutoCloseable {
         AdminOperation(KafkaClient client) { this.client = client; }
 
         /**
-        * 创建 Topic。
-        * @param name 名称
-        * @param partitions 分区
-        * @param replicationFactor replicationfactor
-        */
+         * 创建 Topic。
+         * @param name 名称
+         * @param partitions 分区
+         * @param replicationFactor replicationfactor
+         */
         public void createTopic(String name, int partitions, short replicationFactor) {
             try {
                 NewTopic topic = new NewTopic(name, partitions, replicationFactor);

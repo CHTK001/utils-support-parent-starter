@@ -77,12 +77,12 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     }
 
     /**
-    * 子类实现：添加向量。
-    *
-    * @param id     向量标识
-    * @param vector 向量数据
-    * @return 是否成功
-    */
+     * 子类实现：添加向量。
+     *
+     * @param id     向量标识
+     * @param vector 向量数据
+     * @return 是否成功
+     */
     protected abstract boolean doAdd(String id, float[] vector);
 
     /**
@@ -123,8 +123,8 @@ public abstract class AbstractVectorStorage implements VectorStorage {
     }
 
     /**
-    * 检查存储是否已关闭。
-    */
+     * 检查存储是否已关闭。
+     */
     protected void checkNotClosed() {
         if (closed) {
             throw new IllegalStateException("向量存储已关闭");

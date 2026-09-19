@@ -66,8 +66,8 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     private volatile boolean loaded;
 
     /**
-    * 创建 wemm-嵌入-2B 文本嵌入 Translator（默认 2048 维）。
-    */
+     * 创建 wemm-嵌入-2B 文本嵌入 Translator（默认 2048 维）。
+     */
     public WeMMEmbeddingTranslator() {
         this("wemm-embedding-2b", "nlp/embedding/wemm-embedding-2b/", "model.onnx", "tokenizer.json", 2048);
     }

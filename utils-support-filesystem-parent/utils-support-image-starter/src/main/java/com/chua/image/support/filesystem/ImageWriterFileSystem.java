@@ -67,11 +67,11 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     /**
-    * 是否支持
-    *
-    * @param file 文件
-    * @return 是否支持的结果
-    */
+     * 是否支持
+     *
+     * @param file 文件
+     * @return 是否支持的结果
+     */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;

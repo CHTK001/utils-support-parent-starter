@@ -14,10 +14,10 @@ public class ChatException extends Exception {
     private final int statusCode;
 
     /**
-    * 创建聊天异常（无状态码）。
-    *
-    * @param message 错误消息，不可为 空
-    */
+     * 创建聊天异常（无状态码）。
+     *
+     * @param message 错误消息，不可为 空
+     */
     public ChatException(String message) {
         super(Objects.requireNonNull(message, "message must not be null"));
         this.statusCode = 0;

@@ -254,13 +254,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     }
 
     /**
-    * 返回指定 {@code key} 对应的 {@link Entry} 的 {@link Reference} 引用，
-    * 如果未找到则返回 {@code null}。
-    *
-    * @param key         键（可为 null）
-    * @param restructure 此调用允许的重构类型
-    * @return 引用对象，未找到时返回 {@code null}
-    */
+     * 返回指定 {@code key} 对应的 {@link Entry} 的 {@link Reference} 引用，
+     * 如果未找到则返回 {@code null}。
+     *
+     * @param key         键（可为 null）
+     * @param restructure 此调用允许的重构类型
+     * @return 引用对象，未找到时返回 {@code null}
+     */
 
     protected final Reference<K, V> getReference(Object key, Restructure restructure) {
         int hash = getHash(key);
@@ -705,8 +705,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         }
 
         /**
-        * 返回当前引用数组的大小。
-        */
+         * 返回当前引用数组的大小。
+         */
         public final int getSize() {
             return this.references.length;
         }
@@ -846,9 +846,9 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         private final EnumSet<TaskOption> options;
 
         /**
-        * 创建 AbstractTask 实例
-        * @param options options
-        */
+         * 创建 AbstractTask 实例
+         * @param options options
+         */
         public AbstractTask(TaskOption... options) {
             this.options = (options.length == 0 ? EnumSet.noneOf(TaskOption.class) : EnumSet.of(options[0], options));
         }
@@ -859,14 +859,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         }
 
         /**
-        * 执行任务。
-        *
-        * @param ref     找到的引用（或 {@code null}）
-        * @param entry   找到的条目（或 {@code null}）
-        * @param entries 底层条目的访问接口
-        * @return 任务执行结果
-        * @see #execute(Reference, Entry)
-        */
+         * 执行任务。
+         *
+         * @param ref     找到的引用（或 {@code null}）
+         * @param entry   找到的条目（或 {@code null}）
+         * @param entries 底层条目的访问接口
+         * @return 任务执行结果
+         * @see #execute(Reference, Entry)
+         */
 
         protected T execute(Reference<K, V> ref, Entry<K, V> entry, Entries<V> entries) {
             return execute(ref, entry);
@@ -966,8 +966,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-        * 内部 Entry 迭代器实现。
-        */
+     * 内部 Entry 迭代器实现。
+     */
     private class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
         /** 分段索引 */
@@ -1063,8 +1063,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-        * 可执行的重构类型。
-        */
+     * 可执行的重构类型。
+     */
     protected enum Restructure {
         /** 必要时重构 */
         WHEN_NECESSARY,
@@ -1083,13 +1083,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         private final ReferenceQueue<Entry<K, V>> queue = new ReferenceQueue<>();
 
         /**
-        * 工厂方法，用于创建新的 {@link Reference}。
-        *
-        * @param entry 引用中包含的条目
-        * @param hash  哈希值
-        * @param next  链中的下一个引用，如果没有则为 {@code null}
-        * @return 新的 {@link Reference}
-        */
+         * 工厂方法，用于创建新的 {@link Reference}。
+         *
+         * @param entry 引用中包含的条目
+         * @param hash  哈希值
+         * @param next  链中的下一个引用，如果没有则为 {@code null}
+         * @return 新的 {@link Reference}
+         */
         public Reference<K, V> createReference(Entry<K, V> entry, int hash, Reference<K, V> next) {
             if (ConcurrentReferenceHashMap.this.referenceType == ReferenceType.WEAK) {
                 return new WeakEntryReference<>(entry, hash, next, this.queue);
@@ -1161,8 +1161,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-        * 针对 {@link WeakReference 弱引用} 的内部 {@link Reference} 实现。
-        */
+     * 针对 {@link WeakReference 弱引用} 的内部 {@link Reference} 实现。
+     */
     private static final class WeakEntryReference<K, V> extends WeakReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */

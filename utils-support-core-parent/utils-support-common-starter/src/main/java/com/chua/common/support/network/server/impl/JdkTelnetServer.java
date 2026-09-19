@@ -274,12 +274,12 @@ public class JdkTelnetServer extends AbstractServer {
     }
 
     /**
-    * 注册 Telnet 命令。
-    *
-    * @param name    命令名称
-    * @param command 命令处理器
-    * @return JdkTelnet服务端 对象
-    */
+     * 注册 Telnet 命令。
+     *
+     * @param name    命令名称
+     * @param command 命令处理器
+     * @return JdkTelnet服务端 对象
+     */
     public JdkTelnetServer registerCommand(String name, TelnetCommand command) {
         commands.put(name.toLowerCase(), command);
         return this;
@@ -354,10 +354,10 @@ public class JdkTelnetServer extends AbstractServer {
         }
 
         /**
-        * Telnet 协商（纯文本模式，不发送控制序列）。
-        *
-        * <p>直接使用原始文本模式，避免 Telnet 协商字节干扰 UTF-8 编码。</p>
-        */
+         * Telnet 协商（纯文本模式，不发送控制序列）。
+         *
+         * <p>直接使用原始文本模式，避免 Telnet 协商字节干扰 UTF-8 编码。</p>
+         */
         void negotiate() throws IOException {
             // 纯文本模式，不发送任何协商字节
         }

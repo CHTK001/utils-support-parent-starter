@@ -209,10 +209,10 @@ public final class HpkeFlow {
         }
 
         /**
-        * 获取封装密钥（发送给接收方）。
-        *
-        * @return 封装密钥
-        */
+         * 获取封装密钥（发送给接收方）。
+         *
+         * @return 封装密钥
+         */
         public byte[] enc() {
             return enc;
         }

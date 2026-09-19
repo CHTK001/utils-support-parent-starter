@@ -124,10 +124,10 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     }
 
     /**
-    * 处理健康检查请求，返回服务器运行状态。
-    *
-    * @param response 响应对象
-    */
+     * 处理健康检查请求，返回服务器运行状态。
+     *
+     * @param response 响应对象
+     */
     private void handleHealth(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
         Map<String, Object> body = new LinkedHashMap<>(6);
         BeanUtils.copyProperties(metrics, body);

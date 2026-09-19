@@ -101,14 +101,14 @@ public class SseRequest {
     private boolean reconnect = false;
 
     /**
-    * 添加单个请求头
-    *
-    * <p>便捷方法，用于在构建器之外修改请求头。
-    *
-    * @param name  请求头名称
-    * @param value 请求头值
-    * @return 当前实例
-    */
+     * 添加单个请求头
+     *
+     * <p>便捷方法，用于在构建器之外修改请求头。
+     *
+     * @param name  请求头名称
+     * @param value 请求头值
+     * @return 当前实例
+     */
     public SseRequest addHeader(String name, String value) {
         if (headers == null) {
             headers = new HashMap<>();

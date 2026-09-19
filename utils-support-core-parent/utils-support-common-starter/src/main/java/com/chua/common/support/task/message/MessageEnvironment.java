@@ -51,12 +51,12 @@ public class MessageEnvironment {
     private final Map<String, String> properties = new ConcurrentHashMap<>();
 
     /**
-    * 设置配置项
-    *
-    * @param key   配置键
-    * @param value 配置值
-    * @return 当前实例
-    */
+     * 设置配置项
+     *
+     * @param key   配置键
+     * @param value 配置值
+     * @return 当前实例
+     */
     public MessageEnvironment set(String key, String value) {
         properties.put(key, value);
         return this;

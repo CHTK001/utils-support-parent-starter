@@ -17,8 +17,8 @@ public class IndexMetadata {
 
     /** 索引名称 */
     /**
-    * 名称
-    */
+     * 名称
+     */
     private String name;
     /** 所属表名 */
     private String tableName;
@@ -29,8 +29,8 @@ public class IndexMetadata {
     private String type;
     /** 是否唯一索引 */
     /**
-    * 是否唯一
-    */
+     * 是否唯一
+     */
     private boolean unique;
     /** 是否主键索引 */
     private boolean primary;

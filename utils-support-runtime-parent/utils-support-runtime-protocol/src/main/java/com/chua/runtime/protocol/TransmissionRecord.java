@@ -69,7 +69,7 @@ public class TransmissionRecord {
     private StatusCode status = StatusCode.UNSET;
 
     /**
-    * 状态码（HTTP 状态 / ZK rc / Redis reply）
+     * 状态码（HTTP 状态 / ZK rc / Redis reply）
      */
     private int statusCode;
 

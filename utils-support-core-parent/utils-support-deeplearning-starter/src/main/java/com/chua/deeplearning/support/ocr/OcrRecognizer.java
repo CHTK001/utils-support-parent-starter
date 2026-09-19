@@ -257,11 +257,11 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * Recognize
-    *
-    * @param imageData 镜像数据
-    * @return recognize的结果
-    */
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] imageData) {
  // 优先走 字符串 路径（单行 rec 模型返回纯文本）
         try {

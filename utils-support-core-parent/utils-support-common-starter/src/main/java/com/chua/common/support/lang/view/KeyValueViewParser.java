@@ -53,11 +53,11 @@ public class KeyValueViewParser implements ViewParser {
     }
 
     /**
-    * 将对象转为键值对映射。
-    *
-    * @param data 待转换的数据
-    * @return 有序键值对映射
-    */
+     * 将对象转为键值对映射。
+     *
+     * @param data 待转换的数据
+     * @return 有序键值对映射
+     */
     private static Map<String, String> toKeyValue(Object data) {
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;

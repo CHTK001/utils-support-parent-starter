@@ -60,9 +60,9 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     private final Path basePath;
 
     /**
-    * 创建 文件系统文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 文件系统文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public FileSystemFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         String root = bucket != null && !bucket.isEmpty() ? bucket
@@ -82,11 +82,11 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     /**
-    * 解析路径
-    *
-    * @param key 键
-    * @return resolve路径的结果
-    */
+     * 解析路径
+     *
+     * @param key 键
+     * @return resolve路径的结果
+     */
     private Path resolvePath(String key) {
         return basePath.resolve(key).normalize();
     }

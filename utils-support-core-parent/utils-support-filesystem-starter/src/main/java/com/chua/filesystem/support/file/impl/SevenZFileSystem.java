@@ -67,11 +67,11 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 启用分卷读取模式。
-        * <p>启用后将自动检测同目录下的分卷文件（.7z.001, .7z.002 等）并合并读取。</p>
-        *
-        * @return 当前构建器
-        */
+         * 启用分卷读取模式。
+         * <p>启用后将自动检测同目录下的分卷文件（.7z.001, .7z.002 等）并合并读取。</p>
+         *
+         * @return 当前构建器
+         */
         public SevenZReadBuilder split() {
             this.splitMode = true;
             return this;
@@ -248,12 +248,12 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 读取压缩包中指定文件的内容为字符串。
-        *
-        * @param entryName 条目名称
-        * @return 文件内容字符串，若条目不存在返回 空
-        * @throws UncheckedIOException 如果 IO 异常
-        */
+         * 读取压缩包中指定文件的内容为字符串。
+         *
+         * @param entryName 条目名称
+         * @return 文件内容字符串，若条目不存在返回 空
+         * @throws UncheckedIOException 如果 IO 异常
+         */
         public String readEntry(String entryName) {
             try (SevenZFile szFile = openSevenZFile()) {
                 SevenZArchiveEntry entry;
@@ -390,8 +390,8 @@ public class SevenZFileSystem implements FileSystem {
         }
 
         /**
-        * 普通模式完成写入。
-        */
+         * 普通模式完成写入。
+         */
         private void finishNormal() {
             try (SevenZOutputFile szOut = createOutputFile()) {
                 for (EntryData ed : entries) {

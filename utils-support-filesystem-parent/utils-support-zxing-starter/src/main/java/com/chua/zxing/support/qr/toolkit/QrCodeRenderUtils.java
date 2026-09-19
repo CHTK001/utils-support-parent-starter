@@ -452,10 +452,10 @@ public class QrCodeRenderUtils {
         };
 
         /**
-            * detectedarea
-            *
-            * @return detectedArea的结果
-            */
+         * detectedarea
+         *
+         * @return detectedArea的结果
+         */
         public boolean detectedArea() {
             return true;
         }

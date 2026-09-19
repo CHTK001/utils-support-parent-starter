@@ -39,9 +39,9 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     private final ObsClient obsClient;
 
     /**
-    * 创建 huaweiobs文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 huaweiobs文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public HuaweiObsFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.obsClient = new ObsClient(accessKeyId, accessKeySecret, endpoint);

@@ -99,9 +99,9 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     /**
-    * 订阅日志行，注册回调接收实时日志。
-    *
-    * @param callback 日志行回调
+     * 订阅日志行，注册回调接收实时日志。
+     *
+     * @param callback 日志行回调
      */
     public void subscribe(LineCallback callback) {
         if (!closed) {

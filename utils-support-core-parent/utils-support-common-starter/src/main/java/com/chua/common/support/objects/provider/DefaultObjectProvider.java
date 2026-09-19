@@ -17,8 +17,8 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
     /** CTX */
     private final ObjectContext ctx;
     /**
-    * 类型
-    */
+     * 类型
+     */
     private final Class<T> type;
 
     /**

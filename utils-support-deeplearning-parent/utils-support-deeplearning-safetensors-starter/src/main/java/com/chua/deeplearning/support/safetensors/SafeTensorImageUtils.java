@@ -26,11 +26,11 @@ final class SafeTensorImageUtils {
     private SafeTensorImageUtils() {}
 
     /**
-    * 将输入图像转为 基础64 PNG 字符串。
-    *
-    * @param input 图像输入
-    * @return base64 编码字符串
-    */
+     * 将输入图像转为 基础64 PNG 字符串。
+     *
+     * @param input 图像输入
+     * @return base64 编码字符串
+     */
     static String toBase64(Object input) {
         if (input instanceof String text) {
             String normalized = normalizeBase64(text);

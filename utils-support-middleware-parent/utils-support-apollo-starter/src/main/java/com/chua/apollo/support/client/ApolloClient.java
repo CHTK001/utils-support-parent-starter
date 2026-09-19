@@ -149,11 +149,11 @@ public class ApolloClient implements AutoCloseable {
         private List<String> namespaces = new ArrayList<>(List.of("application"));
 
         /**
-        * appid
-        *
-        * @param appId appid
-        * @return appId的结果
-        */
+         * appid
+         *
+         * @param appId appid
+         * @return appId的结果
+         */
         public Builder appId(String appId) {
             this.appId = appId;
             return this;

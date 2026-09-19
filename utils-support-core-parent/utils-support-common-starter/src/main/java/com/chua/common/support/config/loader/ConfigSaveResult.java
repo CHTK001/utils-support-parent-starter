@@ -55,11 +55,11 @@ public class ConfigSaveResult {
     private LocalDateTime updateTime = LocalDateTime.now();
 
     /**
-    * 操作返回的消息信息
-    * <p>
-    * 成功时通常为 "success"，失败时为具体的错误描述
-    * </p>
-    */
+     * 操作返回的消息信息
+     * <p>
+     * 成功时通常为 "success"，失败时为具体的错误描述
+     * </p>
+     */
     private String message;
 
     /**

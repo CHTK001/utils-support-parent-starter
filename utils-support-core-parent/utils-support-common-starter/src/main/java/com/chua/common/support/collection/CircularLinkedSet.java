@@ -343,10 +343,10 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     }
 
     /**
-    * 处理容量已满时的溢出逻辑。
-    *
-    * @return 是否腾出了空间（可继续录入）
-    */
+     * 处理容量已满时的溢出逻辑。
+     *
+     * @return 是否腾出了空间（可继续录入）
+     */
     private boolean handleOverflow() {
         switch (policy) {
             case REJECT -> {

@@ -28,15 +28,15 @@ public final class FailoverTemplate {
     }
 
     /**
-    * 执行带故障转移的同步对话
-    *
-    * @param selector      客户端选择器（策略的 select 方法）
-    * @param clients       候选客户端列表
-    * @param prompt        用户输入
-    * @param usageCallback 用量回调，每次成功调用时触发（可为 null）
-    * @return 响应文本
-    * @throws Exception 全部客户端失败时抛出
-    */
+     * 执行带故障转移的同步对话
+     *
+     * @param selector      客户端选择器（策略的 select 方法）
+     * @param clients       候选客户端列表
+     * @param prompt        用户输入
+     * @param usageCallback 用量回调，每次成功调用时触发（可为 null）
+     * @return 响应文本
+     * @throws Exception 全部客户端失败时抛出
+     */
     public static String executeSync(
             RouterStrategy selector,
             List<RouterStrategy.WeightedClient> clients,

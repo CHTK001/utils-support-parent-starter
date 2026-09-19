@@ -33,10 +33,10 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     private DataSource dataSource;
 
     /**
-    * 返回 SPI 扩展键：{@code oracle}
-    *
-    * @return "oracle"
-    */
+     * 返回 SPI 扩展键：{@code oracle}
+     *
+     * @return "oracle"
+     */
     @Override
     public String type() {
         return "oracle";

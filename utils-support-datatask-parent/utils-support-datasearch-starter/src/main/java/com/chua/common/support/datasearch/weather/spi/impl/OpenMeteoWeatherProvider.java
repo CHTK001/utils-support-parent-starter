@@ -92,12 +92,12 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     }
 
     /**
-    * 抓取并组装天气：城市 → 经纬度 → 3 天逐小时。
-    *
-    * @param city 城市名
-    * @return 天气实体；解析失败返回 空
-    * @throws Exception 网络或解析异常
-    */
+     * 抓取并组装天气：城市 → 经纬度 → 3 天逐小时。
+     *
+     * @param city 城市名
+     * @return 天气实体；解析失败返回 空
+     * @throws Exception 网络或解析异常
+     */
     private WeatherInfo fetch(String city) throws Exception {
         // 1) 城市 → 经纬度
         String geoJson = HttpClientFactory.of(String.format(GEO_URL, encode(city)))

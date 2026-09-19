@@ -48,9 +48,9 @@ public class VertxHttpProxyServer extends AbstractServer {
     private HttpClient httpClient;
 
     /**
-    * 创建 vertxhttp代理服务端 实例
-    * @param setting setting
-    */
+     * 创建 vertxhttp代理服务端 实例
+     * @param setting setting
+     */
     public VertxHttpProxyServer(ServerSetting setting) {
         super(setting);
  // 与 tcp代理服务端 一致：SPI 加载时 解析器 未提供，拒绝所有连接，调用方自行注入

@@ -177,8 +177,8 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     private final ModelSetting setting;
 
     /**
-    * 识别阈值。
-    */
+     * 识别阈值。
+     */
     private float threshold = DEFAULT_THRESHOLD;
 
     /**
@@ -234,11 +234,11 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * extract特征
-    *
-    * @param imageData 镜像数据
-    * @return extract特征的结果
-    */
+     * extract特征
+     *
+     * @param imageData 镜像数据
+     * @return extract特征的结果
+     */
     public float[] extractFeature(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);

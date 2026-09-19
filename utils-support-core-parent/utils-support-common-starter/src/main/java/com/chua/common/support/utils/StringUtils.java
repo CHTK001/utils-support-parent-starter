@@ -118,11 +118,11 @@ public class StringUtils {
     private static final char INVISIBLE_CHAR_2 = 173;
 
     /**
-    * 释放当前线程的 {@link StringBuilder} 池 thread本地
-    *
-    * <p>在固定线程池中，线程长期存活会导致 {@link #THREAD_LOCAL_BUILDERS} 缓存的
-    * {@link Stack} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
-    */
+     * 释放当前线程的 {@link StringBuilder} 池 thread本地
+     *
+     * <p>在固定线程池中，线程长期存活会导致 {@link #THREAD_LOCAL_BUILDERS} 缓存的
+     * {@link Stack} 及其持有对象无法被回收，线程池关闭或应用退出时应调用此方法。</p>
+     */
     public static void clearThreadLocalBuilders() {
         THREAD_LOCAL_BUILDERS.remove();
     }
@@ -3922,16 +3922,16 @@ public class StringUtils {
     /**
      * 将数组对象转换为逗号分隔的字符串
     /**
-    * 将任意类型数组（含基本类型数组）转换为逗号分隔的字符串。
-    *
-    * <p>使用 {@link java.lang.reflect.Array} 支持基本类型数组（int[]/long[] 等），
-    * 这是 JDK 反射工具 API（非方法/字段反射调用），属规约 1.10 豁免范畴
-    * （ReflectUtils 不覆盖基本类型数组遍历场景）。</p>
-    *
-    * @param array 数组对象（Object 类型或基本类型数组）
-    * @return 逗号分隔的字符串
-    * @throws NullPointerException 如果 array 为 null
-    */
+     * 将任意类型数组（含基本类型数组）转换为逗号分隔的字符串。
+     *
+     * <p>使用 {@link java.lang.reflect.Array} 支持基本类型数组（int[]/long[] 等），
+     * 这是 JDK 反射工具 API（非方法/字段反射调用），属规约 1.10 豁免范畴
+     * （ReflectUtils 不覆盖基本类型数组遍历场景）。</p>
+     *
+     * @param array 数组对象（Object 类型或基本类型数组）
+     * @return 逗号分隔的字符串
+     * @throws NullPointerException 如果 array 为 null
+     */
     public static <T> String arrayToString(Object array) {
         int length = Array.getLength(array);
         StringBuilder sb = new StringBuilder(Math.max(length * 16, 16));

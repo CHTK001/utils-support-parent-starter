@@ -658,11 +658,11 @@ public class AioHttpServer extends AbstractServer {
     private static final ByteBuffer TLS_EMPTY = ByteBuffer.allocate(0);
 
     /**
-    * TLS 握手状态机驱动(纯异步):每完成一步 wrap/unwrap 后经
-    * CompletionHandler 回调再次进入,直至 NOT_HANDSHAKING 进入数据面。
-    *
-    * @param state 连接状态
-    */
+     * TLS 握手状态机驱动(纯异步):每完成一步 wrap/unwrap 后经
+     * CompletionHandler 回调再次进入,直至 NOT_HANDSHAKING 进入数据面。
+     *
+     * @param state 连接状态
+     */
     private void tlsDrive(ConnState state) {
         TlsState tls = state.tls;
         SSLEngineResult.HandshakeStatus hs = tls.engine.getHandshakeStatus();
@@ -1457,10 +1457,10 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-    * 获取当前活跃连接数(观测高并发连接目标进度)。
-    *
-    * @return 活跃连接数
-    */
+     * 获取当前活跃连接数(观测高并发连接目标进度)。
+     *
+     * @return 活跃连接数
+     */
     public int getActiveConnections() {
         return activeConnections.get();
     }
@@ -1523,10 +1523,10 @@ public class AioHttpServer extends AbstractServer {
         final AtomicBoolean closed = new AtomicBoolean(false);
 
         /**
-        * 创建连接状态。
-        *
-        * @param channel 异步通道
-        */
+         * 创建连接状态。
+         *
+         * @param channel 异步通道
+         */
         ConnState(AsynchronousSocketChannel channel) {
             this.channel = channel;
             // 远端地址一次性预存:热路径(getRemoteAddress/IP 限流)零系统调用;
@@ -1578,8 +1578,8 @@ public class AioHttpServer extends AbstractServer {
         final ByteBuffer netOut;
 
         /**
-        * 解密后明文累积缓冲(语义对齐非 TLS 的 readBuf,flip/feed/compact)
-        */
+         * 解密后明文累积缓冲(语义对齐非 TLS 的 readBuf,flip/feed/compact)
+         */
         volatile ByteBuffer plain;
 
         /** 会话密文包大小(WS/数据面加密分片依据) */
@@ -1601,11 +1601,11 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-        * WebSocket 连接封装,负责向对端发送帧(线程安全)。
-        *
-        * @author CH
-        * @since 2026/08/24
-        */
+     * WebSocket 连接封装,负责向对端发送帧(线程安全)。
+     *
+     * @author CH
+     * @since 2026/08/24
+     */
     private static final class AioWsConnection {
 
         /** OUT */
@@ -1616,8 +1616,8 @@ public class AioHttpServer extends AbstractServer {
         }
 
         /**
-        * 发送文本消息。
-        */
+         * 发送文本消息。
+         */
         void send(String text) {
             sendRaw(WebSocketProtocol.textFrame(text));
         }
@@ -1677,11 +1677,11 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-        * WebSocket 消息响应(语义与 NIO 版 WsServerResponse 一致)。
-        *
-        * @author CH
-        * @since 2026/08/24
-        */
+     * WebSocket 消息响应(语义与 NIO 版 WsServerResponse 一致)。
+     *
+     * @author CH
+     * @since 2026/08/24
+     */
     private static final class AioWsResponse implements ServerResponse {
         /** Connection */
         private final AioWsConnection connection;

@@ -55,8 +55,8 @@ public class BenchmarkConfig {
     private Mode mode = Mode.CONCURRENCY;
 
     /**
-    * 目标 URL（必填），如 {@code http://127.0.0.1:8100/echo}。
-    */
+     * 目标 URL（必填），如 {@code http://127.0.0.1:8100/echo}。
+     */
     private String targetUrl;
 
     /**
@@ -68,33 +68,33 @@ public class BenchmarkConfig {
     private int[] concurrencyLevels = {100, 500, 1000, 2000, 5000};
 
     /**
-    * 每 VU 迭代次数。
-    * <ul>
-    *   <li>并发模式：默认 1（flash，每 VU 各发 1 次）</li>
-    *   <li>吞吐模式：每连接请求数，如 500</li>
-    * </ul>
-    */
+     * 每 VU 迭代次数。
+     * <ul>
+     *   <li>并发模式：默认 1（flash，每 VU 各发 1 次）</li>
+     *   <li>吞吐模式：每连接请求数，如 500</li>
+     * </ul>
+     */
     @Builder.Default
     /** IterationsPERVUS */
     private int iterationsPerVus = 1;
 
     /**
-    * 压测时长（秒），吞吐模式可选（>0 时按时长而非迭代数压测）。
-    */
+     * 压测时长（秒），吞吐模式可选（>0 时按时长而非迭代数压测）。
+     */
     @Builder.Default
     /** 持续时间秒 */
     private int durationSeconds = 0;
 
     /**
-    * 报告指标列表，动态控制报告中展示的指标。
-    */
+     * 报告指标列表，动态控制报告中展示的指标。
+     */
     @Builder.Default
     /** Metrics */
     private Metric[] metrics = {Metric.SUCCESS_RATE, Metric.RPS, Metric.P95, Metric.P99};
 
     /**
-    * 服务器实现名称（报告分组用），如 jdk / nio / netty。
-    */
+     * 服务器实现名称（报告分组用），如 jdk / nio / netty。
+     */
     private String implementation;
 
     /**
@@ -125,8 +125,8 @@ public class BenchmarkConfig {
     private String reportPath = "target/http-server-benchmark.html";
 
     /**
-    * k6 可执行文件路径；为空时使用系统 PATH 中的 "k6"。
-    */
+     * k6 可执行文件路径；为空时使用系统 PATH 中的 "k6"。
+     */
     private String k6Binary;
 
     /**
@@ -142,11 +142,11 @@ public class BenchmarkConfig {
     private boolean keepSummaryJson = false;
 
     /**
-    * 判断是否展示指定指标。
-    *
-    * @param metric 指标
-    * @return true 表示展示
-    */
+     * 判断是否展示指定指标。
+     *
+     * @param metric 指标
+     * @return true 表示展示
+     */
     public boolean shows(Metric metric) {
         if (metrics == null) {
             return true;

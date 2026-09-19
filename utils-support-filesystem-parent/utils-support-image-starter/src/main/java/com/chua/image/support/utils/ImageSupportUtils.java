@@ -76,13 +76,13 @@ public class ImageSupportUtils {
     }
 
     /**
-    * 获取 镜像io 支持的所有可读取图片格式名称。
-    *
-    * <p>通过 {@link IIORegistry} 获取所有已注册的 {@link ImageReaderSpi}，
-    * 收集它们声明的文件后缀名。返回的格式名称已去重且均转为小写。
-    *
-    * @return 可读取的图片格式名称数组，不会返回 {@code null}
-    */
+     * 获取 镜像io 支持的所有可读取图片格式名称。
+     *
+     * <p>通过 {@link IIORegistry} 获取所有已注册的 {@link ImageReaderSpi}，
+     * 收集它们声明的文件后缀名。返回的格式名称已去重且均转为小写。
+     *
+     * @return 可读取的图片格式名称数组，不会返回 {@code null}
+     */
     public static String[] supportReader() {
         IIORegistry registry = IIORegistry.getDefaultInstance();
         Iterator<ImageReaderSpi> providers = registry.getServiceProviders(ImageReaderSpi.class, false);

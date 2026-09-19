@@ -38,10 +38,10 @@ public class DbfWriteBuilder extends WriteBuilder {
     }
 
     /**
-    * 写入
-    *
-    * @param rows rows
-    */
+     * 写入
+     *
+     * @param rows rows
+     */
     public void write(List<Map<String, Object>> rows) {
         pending.add(rows);
         finish();

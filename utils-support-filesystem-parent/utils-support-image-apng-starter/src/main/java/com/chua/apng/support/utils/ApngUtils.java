@@ -314,13 +314,13 @@ public class ApngUtils {
         private final int height;
 
         /**
-        * 创建 apng信息 实例
-        * @param frameCount 帧数量
-        * @param frameCount int
-        * @param frameCount int
-        * @param width width
-        * @param height height
-        */
+         * 创建 apng信息 实例
+         * @param frameCount 帧数量
+         * @param frameCount int
+         * @param frameCount int
+         * @param width width
+         * @param height height
+         */
         public ApngInfo(int frameCount, int width, int height) {
             this.frameCount = frameCount;
             this.width = width;

@@ -38,10 +38,10 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     /**
-    * 解析模型
-    *
-    * @return resolve模型的结果
-    */
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov5-plate-detect";
     }

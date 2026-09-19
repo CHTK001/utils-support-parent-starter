@@ -29,9 +29,9 @@ public class IpFilter implements ServerFilter {
     private boolean whitelistMode = false;
 
     /**
-    * 创建黑名单模式过滤器。
-    * @return IP过滤 对象
-    */
+     * 创建黑名单模式过滤器。
+     * @return IP过滤 对象
+     */
     public static IpFilter blacklist() {
         return new IpFilter(false);
     }

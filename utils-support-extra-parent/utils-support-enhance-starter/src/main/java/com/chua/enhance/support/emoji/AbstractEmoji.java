@@ -22,13 +22,13 @@ public abstract class AbstractEmoji {
     protected static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&#x?\\w+;");
 
     /**
-    * html助手
-    *
-    * @param text 文本
-    * @param hex hex
-    * @param asSurrogate assurrogate
-    * @return html助手的结果
-    */
+     * html助手
+     *
+     * @param text 文本
+     * @param hex hex
+     * @param asSurrogate assurrogate
+     * @return html助手的结果
+     */
     protected static String htmlHelper(String text, boolean hex, boolean asSurrogate) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {

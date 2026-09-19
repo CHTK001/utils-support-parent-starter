@@ -19,7 +19,7 @@ public class ExistObjectResult extends ObjectResult {
     public static final ExistObjectResult EMPTY = ExistObjectResult.builder().build();
 
     /**
-    * 文件是否存在。
-    */
+     * 文件是否存在。
+     */
     private boolean exists;
 }

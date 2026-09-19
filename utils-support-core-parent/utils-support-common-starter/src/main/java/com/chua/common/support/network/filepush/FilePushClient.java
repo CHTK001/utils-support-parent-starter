@@ -119,10 +119,10 @@ public class FilePushClient implements AutoCloseable {
     private volatile boolean closed;
 
     /**
-    * 创建客户端实例。
-    *
-    * @param config 客户端配置（sourceDir 必填，host/port 指向服务端）
-    */
+     * 创建客户端实例。
+     *
+     * @param config 客户端配置（sourceDir 必填，host/port 指向服务端）
+     */
     public FilePushClient(FilePushConfig config) {
         if (config == null) {
             throw new IllegalArgumentException("config 不能为 null");

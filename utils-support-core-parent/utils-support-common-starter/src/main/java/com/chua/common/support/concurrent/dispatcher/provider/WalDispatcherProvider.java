@@ -232,10 +232,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-    * 获取或创建指定主题的 WAL 日志。
-    * @param topic 方法入参 topic
-    * @return WalLog 对象
-    */
+     * 获取或创建指定主题的 WAL 日志。
+     * @param topic 方法入参 topic
+     * @return WalLog 对象
+     */
     private WalLog getLog(String topic) {
         return logs.computeIfAbsent(topic, t -> new WalLog(logDir.resolve("wal-" + t + ".log")));
     }

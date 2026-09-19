@@ -64,10 +64,10 @@ public class CmdResult {
     }
 
     /**
-    * 创建结果构建器
-    *
-    * @return CmdResultBuilder 实例
-    */
+     * 创建结果构建器
+     *
+     * @return CmdResultBuilder 实例
+     */
     public static CmdResultBuilder builder() {
         return new CmdResultBuilder();
     }

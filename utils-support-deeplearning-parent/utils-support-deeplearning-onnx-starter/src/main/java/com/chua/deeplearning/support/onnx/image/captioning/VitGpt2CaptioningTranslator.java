@@ -105,8 +105,8 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
     private volatile boolean prepared;
 
     /**
-    * 构造图像描述翻译器。
-    */
+     * 构造图像描述翻译器。
+     */
     public VitGpt2CaptioningTranslator() {
     }
 

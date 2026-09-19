@@ -68,11 +68,11 @@ public final class ExecutableLocator {
     }
 
     /**
-    * 按可执行文件名定位，使用默认查找策略。
-    *
-    * @param executableName 可执行文件名，如 {@code ffmpeg}
-    * @return 定位到的绝对路径，找不到时返回 {@link Optional#empty()}
-    */
+     * 按可执行文件名定位，使用默认查找策略。
+     *
+     * @param executableName 可执行文件名，如 {@code ffmpeg}
+     * @return 定位到的绝对路径，找不到时返回 {@link Optional#empty()}
+     */
     @Nonnull
     public static Optional<Path> locate(@Nonnull String executableName) {
         return locate(LocateRequest.of(executableName));

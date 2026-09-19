@@ -47,11 +47,11 @@ public class ConditionEvaluator {
     }
 
     /**
-    * 评估服务定义是否满足条件
-    *
-    * @param definition 服务定义
-    * @return true 表示满足条件
-    */
+     * 评估服务定义是否满足条件
+     *
+     * @param definition 服务定义
+     * @return true 表示满足条件
+     */
     public boolean evaluate(ServiceDefinition definition) {
         if (definition == null || definition.getImplClass() == null) {
             return false;

@@ -25,8 +25,8 @@ public final class VideoProviderRegistry {
     private VideoProviderRegistry() {}
 
     /**
-    * 构造函数中自动加载封禁名单（资源文件缺失时忽略）。
-    */
+     * 构造函数中自动加载封禁名单（资源文件缺失时忽略）。
+     */
     static {
         initBlockedResources();
     }
@@ -136,11 +136,11 @@ public final class VideoProviderRegistry {
     }
 
     /**
-    * 标记 提供者 为被封
-    *
-    * @param name 名称
-    * @param reason ReasonMLML
-    */
+     * 标记 提供者 为被封
+     *
+     * @param name 名称
+     * @param reason ReasonMLML
+     */
     public static void block(String name, BlockReason reason) {
         BLOCKED_PROVIDERS.put(name, reason);
     }
@@ -203,9 +203,9 @@ public final class VideoProviderRegistry {
         @JsonProperty("blocked")
         private List<BlockedEntry> blocked;
         /**
-    * 获取blocked。
-    * @return 获取blocked的结果
-    */
+         * 获取blocked。
+         * @return 获取blocked的结果
+         */
         public List<BlockedEntry> getBlocked() { return blocked; }
         /**
          * 设置blocked。

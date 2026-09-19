@@ -74,14 +74,14 @@ public class DataSourceFlyway implements Flyway {
     /** 分隔符 */
     private String separator = "__";
     /** 语句级容错：方言差异语句（如 MySQL PREPARE 在 H2 下报错）跳过并记 FAILED，不中断整体迁移。
-    * 对齐 DataSourceScriptProperties.continueOnError 默认 true 语义 */
+     * 对齐 DataSourceScriptProperties.continueOnError 默认 true 语义 */
     private boolean continueOnError = true;
     /** 目标数据库协议名（如 h2/postgresql/oracle），用于 {@link ScriptConverter} SPI 方言转换；
      * null 表示不做转换（脚本按目标库原生方言编写） */
     private String protocol;
     /**
-    * 最近一次 migrate 中失败（continueOnError 跳过）的语句，供日志/排查
-    */
+     * 最近一次 migrate 中失败（continueOnError 跳过）的语句，供日志/排查
+     */
     private final List<String> lastFailedStatements = new ArrayList<>();
 
     /**

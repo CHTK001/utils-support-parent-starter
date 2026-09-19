@@ -43,9 +43,9 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     /**
-    * 创建 clip文本编码器translator 实例
-    * @param tokenizerPath tokenizer路径
-    */
+     * 创建 clip文本编码器translator 实例
+     * @param tokenizerPath tokenizer路径
+     */
     public ClipTextEncoderTranslator(String tokenizerPath) {
         this.tokenizerPath = tokenizerPath;
     }
@@ -68,10 +68,10 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     }
 
     /**
-    * 解析tokenizer路径
-    *
-    * @return resolvetokenizer路径的结果
-    */
+     * 解析tokenizer路径
+     *
+     * @return resolvetokenizer路径的结果
+     */
     private Path resolveTokenizerPath() {
         if (tokenizerPath != null && !tokenizerPath.isBlank()) {
             Path p = Paths.get(tokenizerPath);

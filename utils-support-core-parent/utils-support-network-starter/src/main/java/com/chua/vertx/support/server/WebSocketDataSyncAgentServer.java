@@ -44,8 +44,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     private static final Logger log = LoggerFactory.getLogger(WebSocketDataSyncAgentServer.class);
 
     /**
-    * 监听端口
-    */
+     * 监听端口
+     */
     private final int port;
 
     /**
@@ -130,10 +130,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-    * 处理Connection
-    *
-    * @param socket Socket
-    */
+     * 处理Connection
+     *
+     * @param socket Socket
+     */
     private void handleConnection(Socket socket) {
         String agentId = null;
         try {
@@ -356,10 +356,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
 
         /**
-        * 发送文本帧
-        *
-        * @param text 文本
-        */
+         * 发送文本帧
+         *
+         * @param text 文本
+         */
         public void sendTextFrame(String text) throws IOException {
             synchronized (socket) {
                 writeTextFrame(socket.getOutputStream(), text);

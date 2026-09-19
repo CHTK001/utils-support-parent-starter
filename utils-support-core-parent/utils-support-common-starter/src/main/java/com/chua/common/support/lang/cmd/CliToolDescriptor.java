@@ -75,10 +75,10 @@ public final class CliToolDescriptor {
     private final List<CliOption> options;
 
     /**
-    * 创建描述实例
-    *
-    * @param builder 构建器
-    */
+     * 创建描述实例
+     *
+     * @param builder 构建器
+     */
     private CliToolDescriptor(Builder builder) {
         this.name = builder.name;
         this.displayName = builder.displayName != null ? builder.displayName : builder.name;
@@ -285,10 +285,10 @@ public final class CliToolDescriptor {
         private final Set<CliOption> options = new LinkedHashSet<>();
 
         /**
-        * 创建构建器
-        *
-        * @param name 工具唯一标识
-        */
+         * 创建构建器
+         *
+         * @param name 工具唯一标识
+         */
         private Builder(String name) {
             this.name = name;
             this.executable = name;

@@ -75,11 +75,11 @@ public class PathTraversalServerFilter implements ServerFilter {
     }
 
     /**
-    * 是否Traversal
-    *
-    * @param path 路径
-    * @return 是否traversal的结果
-    */
+     * 是否Traversal
+     *
+     * @param path 路径
+     * @return 是否traversal的结果
+     */
     private boolean isTraversal(String path) {
         return path.contains(TRAVERSAL_PATTERN) || path.contains("\\\\");
     }

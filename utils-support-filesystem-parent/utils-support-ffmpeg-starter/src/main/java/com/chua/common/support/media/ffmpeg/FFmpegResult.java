@@ -12,8 +12,8 @@ public class FFmpegResult {
 
     /** 是否执行成功 */
     /**
-    * 是否成功
-    */
+     * 是否成功
+     */
     private boolean success;
 
     /** 进程退出码，0 表示正常退出 */

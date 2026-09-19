@@ -54,7 +54,7 @@ public class ManagedService {
     private List<String> args = new ArrayList<>();
 
     /**
-    * 工作目录
+     * 工作目录
      */
     private String workDir;
 
@@ -71,7 +71,7 @@ public class ManagedService {
     private String startupType = "auto";
 
     /**
-    * 运行用户
+     * 运行用户
      */
     private String runAsUser;
 
@@ -83,23 +83,23 @@ public class ManagedService {
     private List<String> dependencies = new ArrayList<>();
 
     /**
-    * 是否崩溃后自动重启
+     * 是否崩溃后自动重启
      */
     @Builder.Default
     /** Autorestart */
     private boolean autoRestart = true;
 
     /**
-    * 重启间隔
+     * 重启间隔
      */
     @Builder.Default
     /** restartsec */
     private int restartSec = 10;
 
     /**
-    * 服务类型枚举
-    * @author CH
-    * @since 4.0.0
+     * 服务类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum ServiceType {
         WINDOWS_SERVICE,

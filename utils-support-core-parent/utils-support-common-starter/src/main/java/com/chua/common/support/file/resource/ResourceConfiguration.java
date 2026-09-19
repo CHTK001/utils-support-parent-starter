@@ -44,22 +44,22 @@ public class ResourceConfiguration {
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     /**
-    * 路径匹配器，默认使用 {@link AntPathMatcher}。
-    */
+     * 路径匹配器，默认使用 {@link AntPathMatcher}。
+     */
     @Builder.Default
     /** 路径matcher */
     private PathMatcher pathMatcher = new AntPathMatcher();
 
     /**
-    * 排除规则集合，匹配的资源将被过滤。
-    */
+     * 排除规则集合，匹配的资源将被过滤。
+     */
     @Singular("excludes")
     /** Excludes */
     private Set<String> excludes;
 
     /**
-    * 是否启用并行扫描。
-    */
+     * 是否启用并行扫描。
+     */
     private boolean isParallel;
 
     /**

@@ -18,9 +18,9 @@ public class NoPermissionException extends RuntimeException {
     }
 
     /**
-    * 创建 NoPermissionException 实例
-    * @param message message
-    */
+     * 创建 NoPermissionException 实例
+     * @param message message
+     */
     public NoPermissionException(String message) {
         super(message);
     }

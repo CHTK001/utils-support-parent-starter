@@ -33,10 +33,10 @@ public class DefaultConfigureObjectContext implements ConfigureObjectContext {
     public <T> java.util.Map<String, T> getBeansOfType(Class<T> type) { return java.util.Collections.emptyMap(); }
 
     /**
-    * 初始化上下文（默认实现为空操作）。
-    *
-    * @param setting 对象上下文配置项
-    */
+     * 初始化上下文（默认实现为空操作）。
+     *
+     * @param setting 对象上下文配置项
+     */
     @Override
     public void initialize(ObjectContextSetting setting) {
     }

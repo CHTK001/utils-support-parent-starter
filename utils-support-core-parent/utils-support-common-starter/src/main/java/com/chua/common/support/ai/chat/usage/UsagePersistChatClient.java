@@ -60,12 +60,12 @@ public class UsagePersistChatClient implements ChatClient {
     private final List<CompletableFuture<?>> pendingFutures = new CopyOnWriteArrayList<>();
 
     /**
-    * 包装任意 ChatClient，为其添加异步用量持久化能力
-    *
-    * @param delegate 被包装的 ChatClient 实例（不应是已配置 Engine 的 AggregateChatClient）
-    * @param engine   Engine 实例
-    * @return 包装后的 ChatClient
-    */
+     * 包装任意 ChatClient，为其添加异步用量持久化能力
+     *
+     * @param delegate 被包装的 ChatClient 实例（不应是已配置 Engine 的 AggregateChatClient）
+     * @param engine   Engine 实例
+     * @return 包装后的 ChatClient
+     */
     public static UsagePersistChatClient wrap(ChatClient delegate, Engine engine) {
         return new UsagePersistChatClient(delegate, engine);
     }

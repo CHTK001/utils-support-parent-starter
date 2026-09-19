@@ -263,13 +263,13 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     /**
-    * 实际执行逻辑
-    *
-    * @param command 命令字符串
-    * @param timeout 超时值（≤0 表示不超时）
-    * @param unit    超时单位
-    * @return 执行结果
-    */
+     * 实际执行逻辑
+     *
+     * @param command 命令字符串
+     * @param timeout 超时值（≤0 表示不超时）
+     * @param unit    超时单位
+     * @return 执行结果
+     */
     private CmdResult doExecute(String command, long timeout, TimeUnit unit) {
         long startTime = System.currentTimeMillis();
 
@@ -868,8 +868,8 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     /**
-        * 逐行读取流并回调的线程，用于实时输出场景
-        */
+     * 逐行读取流并回调的线程，用于实时输出场景
+     */
     static class LineStreamGobbler extends Thread {
         /**
          * 待读取的输入流

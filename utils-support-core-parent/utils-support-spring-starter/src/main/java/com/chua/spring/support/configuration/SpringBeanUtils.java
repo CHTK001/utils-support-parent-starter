@@ -324,11 +324,11 @@ public class SpringBeanUtils {
         private static volatile ConversionService conversionService;
 
         /**
-        * 获取
-        *
-        * @param applicationContext application上下文
-        * @return 获取的结果
-        */
+         * 获取
+         *
+         * @param applicationContext application上下文
+         * @return 获取的结果
+         */
         static ConversionService get(ApplicationContext applicationContext) {
             if (conversionService == null) {
                 synchronized (ConversionServiceHolder.class) {
@@ -472,10 +472,10 @@ public class SpringBeanUtils {
         private final ApplicationContext applicationContext;
 
         /**
-        * 创建 事件发布 实例
-        * @param applicationContext application上下文
-        * @return 事件发布的结果
-        */
+         * 创建 事件发布 实例
+         * @param applicationContext application上下文
+         * @return 事件发布的结果
+         */
         private EventPublisher(ApplicationContext applicationContext) {
             this.applicationContext = applicationContext;
         }

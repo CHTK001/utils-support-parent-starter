@@ -289,9 +289,9 @@ public class ClusterServer implements AutoCloseable {
         }
 
         /**
-        * 构建集群服务器实例（未启动）。
-        * @return 构建的结果
-        */
+         * 构建集群服务器实例（未启动）。
+         * @return 构建的结果
+         */
         public ClusterServer build() throws Exception {
             setting.setServerEntries(new ArrayList<>(entries));
             ClusterNode node = new ClusterNode(setting);

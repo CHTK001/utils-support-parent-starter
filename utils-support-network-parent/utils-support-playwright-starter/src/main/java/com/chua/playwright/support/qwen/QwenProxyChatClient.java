@@ -362,12 +362,12 @@ public class QwenProxyChatClient implements ChatClient {
 
     @Override
     /**
-    * 对话
-    * @param prompt prompt
-    * @param consumer consumer
-    * @param onComplete onComplete
-    * @param onError onError
-    */
+     * 对话
+     * @param prompt prompt
+     * @param consumer consumer
+     * @param onComplete onComplete
+     * @param onError onError
+     */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -565,12 +565,12 @@ public class QwenProxyChatClient implements ChatClient {
     }
 
     /**
-    * 构建通义千问请求体。
-    *
-    * @param prompt   用户输入
-    * @param modelName 模型名称
-    * @return JSON 请求体字符串
-    */
+     * 构建通义千问请求体。
+     *
+     * @param prompt   用户输入
+     * @param modelName 模型名称
+     * @return JSON 请求体字符串
+     */
     private String buildRequestBody(String prompt, String modelName) {
         String actualSystem = system;
         if (skillManager != null) {

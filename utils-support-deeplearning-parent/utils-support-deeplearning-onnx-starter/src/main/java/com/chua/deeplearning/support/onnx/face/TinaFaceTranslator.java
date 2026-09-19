@@ -62,8 +62,8 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     private double nmsThresh = 0.45d;
 
     /**
-    * tinafacetranslator。
-    */
+     * tinafacetranslator。
+     */
     public TinaFaceTranslator() {
     }
 

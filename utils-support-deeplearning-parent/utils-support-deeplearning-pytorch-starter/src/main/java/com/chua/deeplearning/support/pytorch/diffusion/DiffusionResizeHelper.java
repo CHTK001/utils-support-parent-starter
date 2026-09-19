@@ -14,13 +14,13 @@ public final class DiffusionResizeHelper {
     }
 
     /**
-    * 计算对齐到 64 的高宽。
-    *
-    * @param h          原高
-    * @param w          原宽
-    * @param resolution 目标短边分辨率
-    * @return [height, width]
-    */
+     * 计算对齐到 64 的高宽。
+     *
+     * @param h          原高
+     * @param w          原宽
+     * @param resolution 目标短边分辨率
+     * @return [height, width]
+     */
     public static int[] resize64(double h, double w, double resolution) {
         double k = resolution / Math.min(h, w);
         h *= k;

@@ -36,9 +36,9 @@ public class PluginRegistry {
     }
 
     /**
-    * 注册插件。
-    *
-    * @param info 插件信息
+     * 注册插件。
+     *
+     * @param info 插件信息
      */
     public void register(PluginInfo info) {
         if (pluginMap.containsKey(info.name())) {

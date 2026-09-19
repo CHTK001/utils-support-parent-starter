@@ -49,8 +49,8 @@ public class HMac implements Serializable {
  private static final long serialVersionUID = 1L;
 
  /**
- * 默认使用的字符集，用于将字符串转换为字节数组
- */
+  * 默认使用的字符集，用于将字符串转换为字节数组
+  */
  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
  /**

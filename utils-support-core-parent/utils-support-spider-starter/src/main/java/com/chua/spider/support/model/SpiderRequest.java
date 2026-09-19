@@ -58,19 +58,19 @@ public class SpiderRequest {
     private java.util.List<SpiderCookie> cookieList = new java.util.ArrayList<>();
 
     /**
-    * 请求方法。
-    *
-    * <p>HTTP 请求方法，默认 GET。支持 GET、POST 等。</p>
-    */
+     * 请求方法。
+     *
+     * <p>HTTP 请求方法，默认 GET。支持 GET、POST 等。</p>
+     */
     @Builder.Default
     /** 方法 */
     private String method = "GET";
 
     /**
-    * 请求体。
-    *
-    * <p>POST 请求时携带的请求体内容。</p>
-    */
+     * 请求体。
+     *
+     * <p>POST 请求时携带的请求体内容。</p>
+     */
     private String body;
 
     /**
@@ -83,19 +83,19 @@ public class SpiderRequest {
     private int priority = 0;
 
     /**
-    * 爬取深度。
-    *
-    * <p>当前请求相对于种子 URL 的链接深度。起始 URL 深度为 0。</p>
-    */
+     * 爬取深度。
+     *
+     * <p>当前请求相对于种子 URL 的链接深度。起始 URL 深度为 0。</p>
+     */
     @Builder.Default
     /** 深度 */
     private int depth = 0;
 
     /**
-    * 来源 URL。
-    *
-    * <p>当前请求是从哪个页面的链接提取出来的，用于追踪爬取路径。</p>
-    */
+     * 来源 URL。
+     *
+     * <p>当前请求是从哪个页面的链接提取出来的，用于追踪爬取路径。</p>
+     */
     private String referUrl;
 
     /**

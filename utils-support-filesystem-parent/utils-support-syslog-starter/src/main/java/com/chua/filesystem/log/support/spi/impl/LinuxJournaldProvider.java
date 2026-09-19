@@ -132,10 +132,10 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     /**
-    * 是否journald可用
-    *
-    * @return 是否journald可用的结果
-    */
+     * 是否journald可用
+     *
+     * @return 是否journald可用的结果
+     */
     private boolean isJournaldAvailable() {
         try {
             bindFunctions();

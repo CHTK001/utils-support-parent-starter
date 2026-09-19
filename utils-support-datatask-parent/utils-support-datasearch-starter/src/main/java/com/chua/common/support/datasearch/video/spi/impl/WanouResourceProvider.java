@@ -35,9 +35,9 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-    * 创建 wanouresource提供者 实例
-    * @param videoSource 视频源
-    */
+     * 创建 wanouresource提供者 实例
+     * @param videoSource 视频源
+     */
     public WanouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }

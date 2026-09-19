@@ -316,13 +316,13 @@ public class MageImageClient implements ImageClient {
     }
 
     /**
-    * 解析响应中的第一张 基础64 图片并解码为 {@link BufferedImage}。
-    *
-    * @param json 服务端 JSON 响应
-    * @param path 请求路径（用于错误信息）
-    * @return 解码后的图片
-    * @throws RuntimeException 响应数据缺失或解码失败时抛出
-    */
+     * 解析响应中的第一张 基础64 图片并解码为 {@link BufferedImage}。
+     *
+     * @param json 服务端 JSON 响应
+     * @param path 请求路径（用于错误信息）
+     * @return 解码后的图片
+     * @throws RuntimeException 响应数据缺失或解码失败时抛出
+     */
     @SuppressWarnings("unchecked")
     private BufferedImage parseFirstImage(String json, String path) {
         Map<String, Object> root;

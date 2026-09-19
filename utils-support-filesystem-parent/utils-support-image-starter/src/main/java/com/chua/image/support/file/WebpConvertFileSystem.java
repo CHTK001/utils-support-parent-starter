@@ -60,10 +60,10 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-    * 构造函数
-    *
-    * @param file 文件对象
-    */
+     * 构造函数
+     *
+     * @param file 文件对象
+     */
     public WebpConvertFileSystem(File file) {
         super(file);
     }

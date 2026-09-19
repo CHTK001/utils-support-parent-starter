@@ -395,12 +395,12 @@ public class MossTtsTranslator implements AutoCloseable {
     private static final int MAX_CHUNK_CHARS = 55;
 
     /**
-    * 日志chunk。
-    * @param index 索引
-    * @param total total
-    * @param chunk chunk
-    * @param samples 样本
-    */
+     * 日志chunk。
+     * @param index 索引
+     * @param total total
+     * @param chunk chunk
+     * @param samples 样本
+     */
     private void logChunk(int index, int total, String chunk, int samples) {
         log.info("[MossTTS] 段 {}/{} ({}字, {:.2fs}: {}",
                 index, total, chunk.length(), samples / 48000.0,

@@ -40,9 +40,9 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
     }
 
     /**
-    * 创建 hedscribbletranslator 实例
-    * @param resolution resolution
-    */
+     * 创建 hedscribbletranslator 实例
+     * @param resolution resolution
+     */
     public HedScribbleTranslator(int resolution) {
         this.resolution = resolution;
     }

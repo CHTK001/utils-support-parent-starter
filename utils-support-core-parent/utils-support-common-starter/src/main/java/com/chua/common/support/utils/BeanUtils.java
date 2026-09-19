@@ -58,8 +58,8 @@ public final class BeanUtils {
     private static final int CONTEXT_PLACEHOLDER_PREFIX_LENGTH = 2;
 
     /**
-    * 全局共享的 {@link BeanCopier} 实例，在类加载阶段通过 SPI 选择最优实现（asm 优先，jdk 回退）。
-    */
+     * 全局共享的 {@link BeanCopier} 实例，在类加载阶段通过 SPI 选择最优实现（asm 优先，jdk 回退）。
+     */
     private static final BeanCopier COPIER;
 
     static {
@@ -76,17 +76,17 @@ public final class BeanUtils {
     }
 
     /**
-    * 将源对象的属性复制到目标类型的全新实例中。
-    *
-    * <p>先通过 {@link ClassUtils#newInstance} 实例化目标类型（委托 SPI 选择的
-    * {@link BeanCopier} 与 {@link ReflectUtils}），再将源对象属性复制到新实例。</p>
-    *
-    * @param source 源对象，允许为 {@code null}（属性复制阶段做空处理）
-    * @param target 目标类型 类 对象，为 null 或 COPIER 未加载时抛出异常
-    * @param <T>    目标类型泛型
-    * @return 复制完成的目标对象
-    * @throws BeanNotInstantiationException 当无法实例化目标类型或 COPIER 未加载时抛出
-    */
+     * 将源对象的属性复制到目标类型的全新实例中。
+     *
+     * <p>先通过 {@link ClassUtils#newInstance} 实例化目标类型（委托 SPI 选择的
+     * {@link BeanCopier} 与 {@link ReflectUtils}），再将源对象属性复制到新实例。</p>
+     *
+     * @param source 源对象，允许为 {@code null}（属性复制阶段做空处理）
+     * @param target 目标类型 类 对象，为 null 或 COPIER 未加载时抛出异常
+     * @param <T>    目标类型泛型
+     * @return 复制完成的目标对象
+     * @throws BeanNotInstantiationException 当无法实例化目标类型或 COPIER 未加载时抛出
+     */
     public static <T> T copyProperties(Object source, Class<T> target) {
         if (ObjectUtils.isNull(COPIER) || ObjectUtils.isNull(target)) {
             throw new BeanNotInstantiationException("Failed to instantiate target bean of type " + target.getName());

@@ -76,10 +76,10 @@ public class CronExpression {
     private final boolean dowIsAny;
 
     /**
-    * 构造并解析 cron 表达式。
-    *
-    * @param expression cron 文本
-    */
+     * 构造并解析 cron 表达式。
+     *
+     * @param expression cron 文本
+     */
     public CronExpression(String expression) {
         if (StringUtils.isEmpty(expression)) {
             throw new IllegalArgumentException("cron expression must not be empty");
@@ -237,8 +237,8 @@ public class CronExpression {
     }
 
     /**
-    * Cron 字段（位图表示）。
-    */
+     * Cron 字段（位图表示）。
+     */
     private static final class Field {
 
         /** 最小值 */
@@ -249,12 +249,12 @@ public class CronExpression {
         private final boolean[] bits;
 
         /**
-        * 创建 字段 实例
-        * @param min 最小
-        * @param min int
-        * @param max 最大
-        * @return 字段的结果
-        */
+         * 创建 字段 实例
+         * @param min 最小
+         * @param min int
+         * @param max 最大
+         * @return 字段的结果
+         */
         private Field(int min, int max) {
             this.min = min;
             this.max = max;

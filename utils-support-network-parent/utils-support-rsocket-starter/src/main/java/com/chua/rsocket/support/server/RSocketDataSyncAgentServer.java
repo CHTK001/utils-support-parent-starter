@@ -80,11 +80,11 @@ public class RSocketDataSyncAgentServer extends com.chua.starter.datasync.agent.
     }
 
     /**
-    * extractAgentid
-    *
-    * @param payload payload
-    * @return extractAgentid的结果
-    */
+     * extractAgentid
+     *
+     * @param payload payload
+     * @return extractAgentid的结果
+     */
     private String extractAgentId(io.rsocket.Payload payload) {
         try {
             String data = payload.getDataUtf8();

@@ -18,9 +18,9 @@ public class RpcServiceScanner {
     private final RpcServer server;
 
     /**
-    * 创建 RpcServiceScanner 实例
-    * @param server server
-    */
+     * 创建 RpcServiceScanner 实例
+     * @param server server
+     */
     private RpcServiceScanner(RpcServer server) {
         this.server = server;
     }

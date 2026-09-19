@@ -29,8 +29,8 @@ public class RestoreSetting {
     private RestoreType restoreType = RestoreType.ALL;
 
     /**
-    * 目标库名（可选）
-    */
+     * 目标库名（可选）
+     */
     private String targetSchema;
 
     /**
@@ -46,43 +46,43 @@ public class RestoreSetting {
     private boolean dropIfExists = false;
 
     /**
-    * 是否在恢复前清空表数据
-    */
+     * 是否在恢复前清空表数据
+     */
     @Builder.Default
     /** Truncatebeforerestore */
     private boolean truncateBeforeRestore = false;
 
     /**
-    * 批量插入大小
-    */
+     * 批量插入大小
+     */
     @Builder.Default
     /** 批量尺寸 */
     private int batchSize = 1000;
 
     /**
-    * 是否使用事务
-    */
+     * 是否使用事务
+     */
     @Builder.Default
     /** usetransaction */
     private boolean useTransaction = true;
 
     /**
-    * 是否忽略错误继续执行
-    */
+     * 是否忽略错误继续执行
+     */
     @Builder.Default
     /** 继续on错误 */
     private boolean continueOnError = false;
 
     /**
-    * 是否使用加载 数据快速导入（仅MySQL支持）
-    */
+     * 是否使用加载 数据快速导入（仅MySQL支持）
+     */
     @Builder.Default
     /** useload数据 */
     private boolean useLoadData = true;
 
     /**
-    * 临时文件目录
-    */
+     * 临时文件目录
+     */
     private String tempDirectory;
 
     /**
@@ -93,15 +93,15 @@ public class RestoreSetting {
     private int timeout = 3600;
 
     /**
-    * 是否为MySQL 5.7版本（IBD文件解析）
-    */
+     * 是否为MySQL 5.7版本（IBD文件解析）
+     */
     @Builder.Default
     /** MySQL5 */
     private boolean mysql5 = false;
 
     /**
-    * keyring文件路径（加密IBD文件）
-    */
+     * keyring文件路径（加密IBD文件）
+     */
     private String keyringFile;
 
     /**
@@ -112,17 +112,17 @@ public class RestoreSetting {
     private boolean force = false;
 
     /**
-    * 字符编码
-    */
+     * 字符编码
+     */
     @Builder.Default
     /** 字符集 */
     private String charset = "UTF-8";
 
     /**
-    * 恢复类型枚举
-    * @author CH
-    * @since 4.0.0
-    */
+     * 恢复类型枚举
+     * @author CH
+     * @since 4.0.0
+     */
     public enum RestoreType {
         /**
          * 仅恢复表结构（DDL）

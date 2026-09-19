@@ -39,10 +39,10 @@ public class RedisSeriesEngine implements SeriesEngine {
     private final boolean available;
 
     /**
-    * 构造 Redis 时序引擎。
-    *
-    * @param redisClient Lettuce Redis 客户端
-    */
+     * 构造 Redis 时序引擎。
+     *
+     * @param redisClient Lettuce Redis 客户端
+     */
     public RedisSeriesEngine(RedisClient redisClient) {
         this.redisClient = redisClient;
         this.available = redisClient != null;

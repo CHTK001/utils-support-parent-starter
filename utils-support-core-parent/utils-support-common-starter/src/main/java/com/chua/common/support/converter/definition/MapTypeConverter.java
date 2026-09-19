@@ -46,11 +46,11 @@ public class MapTypeConverter implements TypeConverter<Map> {
     public static final MapTypeConverter INSTANCE = new MapTypeConverter();
 
     /**
-    * 将给定值转换为 Map。
-    *
-    * @param value 源值
-    * @return Map 值，如果为 null 则返回空 Map
-    */
+     * 将给定值转换为 Map。
+     *
+     * @param value 源值
+     * @return Map 值，如果为 null 则返回空 Map
+     */
     @Override
     @SuppressWarnings("ALL")
     public Map convert(Object value) {

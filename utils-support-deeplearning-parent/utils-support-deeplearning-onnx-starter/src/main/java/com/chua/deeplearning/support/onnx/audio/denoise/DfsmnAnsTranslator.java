@@ -55,10 +55,10 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     private static volatile DfsmnAnsTranslator shared; // 共享
 
     /**
-    * 获取共享实例。
-    *
-    * @return 实例
-    */
+     * 获取共享实例。
+     *
+     * @return 实例
+     */
     public static DfsmnAnsTranslator getInstance() {
         if (shared == null) {
             synchronized (DfsmnAnsTranslator.class) {

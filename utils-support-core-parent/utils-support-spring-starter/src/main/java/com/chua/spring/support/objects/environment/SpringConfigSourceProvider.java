@@ -48,11 +48,11 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
     }
 
     /**
-    * Spring {@link org.springframework.core.env.PropertySource} 到框架
-    * {@link com.chua.common.support.config.source.PropertySource} 的适配器。
-    * @author CH
-    * @since 4.0.0
-    */
+     * Spring {@link org.springframework.core.env.PropertySource} 到框架
+     * {@link com.chua.common.support.config.source.PropertySource} 的适配器。
+     * @author CH
+     * @since 4.0.0
+     */
     private static class SpringPropertySourceAdapter implements com.chua.common.support.config.source.PropertySource {
 
         /** 名称 */

@@ -60,12 +60,12 @@ public class JdkImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 缩放图像
-    *
-    * @param image  源图像
-    * @param params 参数：width / height
-    * @return 缩放后的图像
-    */
+     * 缩放图像
+     *
+     * @param image  源图像
+     * @param params 参数：width / height
+     * @return 缩放后的图像
+     */
     private BufferedImage resize(BufferedImage image, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 200);
         int height = ImageProcessorUtils.toInt(params.get("height"), 200);

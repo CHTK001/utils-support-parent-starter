@@ -27,30 +27,30 @@ public class ImageDefinition extends AgentDefinition {
     private final ImageClient imageClient;
 
     /**
-    * 创建 ImageDefinition 实例
-    * @param id id
-    * @param name name
-    * @param description description
-    * @param role role
-    * @param instruction instruction
-    * @param planning planning
-    * @param mcp mcp
-    * @param leader leader
-    * @param agents agents
-    * @param mcpManager mcpManager
-    * @param skillManager skillManager
-    * @param memory memory
-    * @param memoryConfig memoryConfig
-    * @param retryConfig retryConfig
-    * @param maxToolIterations maxToolIterations
-    * @param compressionConfig compressionConfig
-    * @param planMaxTask planMaxTask
-    * @param debugHook debugHook
-    * @param planHook planHook
-    * @param systemPrompt systemPrompt
-    * @param imageModel imageModel
-    * @param imageClient imageClient
-    */
+     * 创建 ImageDefinition 实例
+     * @param id id
+     * @param name name
+     * @param description description
+     * @param role role
+     * @param instruction instruction
+     * @param planning planning
+     * @param mcp mcp
+     * @param leader leader
+     * @param agents agents
+     * @param mcpManager mcpManager
+     * @param skillManager skillManager
+     * @param memory memory
+     * @param memoryConfig memoryConfig
+     * @param retryConfig retryConfig
+     * @param maxToolIterations maxToolIterations
+     * @param compressionConfig compressionConfig
+     * @param planMaxTask planMaxTask
+     * @param debugHook debugHook
+     * @param planHook planHook
+     * @param systemPrompt systemPrompt
+     * @param imageModel imageModel
+     * @param imageClient imageClient
+     */
     public ImageDefinition(String id, String name, String description, String role,
                            String instruction, boolean planning, boolean mcp, boolean leader,
                            List<AgentDefinition> agents,

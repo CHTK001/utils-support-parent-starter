@@ -53,8 +53,8 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     private final Serializer<E> serializer;
 
     /**
-    * 共享 Arena，管理所有 native 内存段的生命周期，close 时一次性释放
-    */
+     * 共享 Arena，管理所有 native 内存段的生命周期，close 时一次性释放
+     */
     private final Arena arena;
 
     /**
@@ -77,11 +77,11 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     private volatile boolean closed;
 
     /**
-    * 写操作互斥锁，保护 append/appendAll/clear/close 的原子性。
-    *
-    * <p>使用 synchronized 而非 ReentrantLock 以减少内存开销，
-    * 因为写操作频率通常远低于读操作。</p>
-    */
+     * 写操作互斥锁，保护 append/appendAll/clear/close 的原子性。
+     *
+     * <p>使用 synchronized 而非 ReentrantLock 以减少内存开销，
+     * 因为写操作频率通常远低于读操作。</p>
+     */
     private final Object writeLock = new Object();
 
     /**

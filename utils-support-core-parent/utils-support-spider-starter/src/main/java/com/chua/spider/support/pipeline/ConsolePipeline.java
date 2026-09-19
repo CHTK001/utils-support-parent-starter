@@ -61,10 +61,10 @@ public class ConsolePipeline implements SpiderPipeline {
     }
 
     /**
-    * 将 空 转换为空字符串。
-    * @param str str
-    * @return 空转为空的结果
-    */
+     * 将 空 转换为空字符串。
+     * @param str str
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String str) {
         return str != null ? str : "";
     }

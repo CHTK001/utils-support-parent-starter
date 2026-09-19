@@ -144,10 +144,10 @@ public class RedisDataTable implements DataTable {
 
     @Override
     /**
-    * 获取column名称
-    *
-    * @return column名称列表
-    */
+     * 获取column名称
+     *
+     * @return column名称列表
+     */
     public List<String> getColumnNames() {
         ensureLoaded();
         return Collections.unmodifiableList(columnNames);

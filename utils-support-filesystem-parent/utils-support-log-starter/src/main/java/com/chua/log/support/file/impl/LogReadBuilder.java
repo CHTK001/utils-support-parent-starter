@@ -71,10 +71,10 @@ public class LogReadBuilder extends ReadBuilder {
     private boolean invertMatch;
 
     /**
-    * 构造日志读取构建器。
-    *
-    * @param file 日志文件
-    */
+     * 构造日志读取构建器。
+     *
+     * @param file 日志文件
+     */
     public LogReadBuilder(File file) {
         super(file);
     }

@@ -18,12 +18,12 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
     private volatile Object instance;
 
     /**
-    * 构造框架 Bean 定义。
-    *
-    * @param name     Bean 名称
-    * @param type     Bean 类型
-    * @param instance Bean 实例（由外部框架管理）
-    */
+     * 构造框架 Bean 定义。
+     *
+     * @param name     Bean 名称
+     * @param type     Bean 类型
+     * @param instance Bean 实例（由外部框架管理）
+     */
     public FrameworkBeanDefinition(String name, Class<?> type, Object instance) {
         super(name, type, BeanScope.SINGLETON);
         this.instance = instance;

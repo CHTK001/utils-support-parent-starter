@@ -20,8 +20,8 @@ public enum ServerStatus {
     },
 
     /**
-        * 运行中：接受请求
-        */
+     * 运行中：接受请求
+     */
     RUNNING {
         @Override
         /** 是否可以acceptRequests */
@@ -31,8 +31,8 @@ public enum ServerStatus {
     },
 
     /**
-        * 停止中：暂不接受新请求，等待正在处理的请求完成
-        */
+     * 停止中：暂不接受新请求，等待正在处理的请求完成
+     */
     STOPPING {
         @Override
         /** 是否可以acceptRequests */
@@ -42,8 +42,8 @@ public enum ServerStatus {
     },
 
     /**
-        * 已停止：不接受请求
-        */
+     * 已停止：不接受请求
+     */
     STOPPED {
         @Override
         /** 是否可以acceptRequests */
@@ -53,8 +53,8 @@ public enum ServerStatus {
     },
 
     /**
-        * 已暂停：临时不接受请求，可恢复
-        */
+     * 已暂停：临时不接受请求，可恢复
+     */
     PAUSED {
         @Override
         /** 是否可以acceptRequests */
@@ -64,8 +64,8 @@ public enum ServerStatus {
     },
 
     /**
-        * 异常状态：发生错误，拒绝请求
-        */
+     * 异常状态：发生错误，拒绝请求
+     */
     ERROR {
         @Override
         /** 是否可以acceptRequests */
@@ -75,9 +75,9 @@ public enum ServerStatus {
     };
 
     /**
-        * 当前状态下服务器是否接受请求。
-        *
-        * @return true 表示可接受请求
-        */
+     * 当前状态下服务器是否接受请求。
+     *
+     * @return true 表示可接受请求
+     */
     public abstract boolean canAcceptRequests();
 }

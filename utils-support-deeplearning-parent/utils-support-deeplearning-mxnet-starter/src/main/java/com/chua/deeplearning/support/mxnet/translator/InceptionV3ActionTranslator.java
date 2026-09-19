@@ -45,9 +45,9 @@ public class InceptionV3ActionTranslator implements Translator<Image, Classifica
     }
 
     /**
-    * 创建 inceptionv3动作translator 实例
-    * @param arguments 参数
-    */
+     * 创建 inceptionv3动作translator 实例
+     * @param arguments 参数
+     */
     public InceptionV3ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
         if (arguments != null && !arguments.isEmpty()) {

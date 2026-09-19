@@ -99,9 +99,9 @@ public final class CommandLine {
     private final boolean helpOptionEnabled;
 
     /**
-    * 创建 CommandLine 实例
-    * @param builder builder
-    */
+     * 创建 CommandLine 实例
+     * @param builder builder
+     */
     private CommandLine(Builder builder) {
         this.options = Collections.unmodifiableList(new ArrayList<>(builder.options));
         this.programName = builder.programName;
@@ -712,12 +712,12 @@ public final class CommandLine {
         }
 
         /**
-        * 添加一个选项定义。
-        *
-        * @param option 选项定义
-        * @return this
-        * @throws IllegalArgumentException 如果存在重复的选项名称
-        */
+         * 添加一个选项定义。
+         *
+         * @param option 选项定义
+         * @return this
+         * @throws IllegalArgumentException 如果存在重复的选项名称
+         */
         @Nonnull
         public Builder option(@Nonnull CliOption option) {
             // 检查重复
@@ -1112,9 +1112,9 @@ public final class CommandLine {
         private boolean useEqualsFormat = false;
 
         /**
-        * 创建 Composer 实例
-        * @param commandLine commandLine
-        */
+         * 创建 Composer 实例
+         * @param commandLine commandLine
+         */
         private Composer(CommandLine commandLine) {
             this.commandLine = commandLine;
         }

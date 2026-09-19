@@ -46,19 +46,19 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     private volatile boolean initialized = false;
 
     /**
-    * 创建 jdbc数据同步Agentsink 实例
-    * @param sinkId sinkid
-    * @param sinkId 字符串
-    * @param sinkId 字符串
-    * @param sinkId 字符串
-    * @param sinkId 字符串
-    * @param sinkId 字符串
-    * @param columnNames column名称
-    * @param jdbcUrl jdbcurl
-    * @param username 用户名
-    * @param password 密码
-    * @param sql SQL
-    */
+     * 创建 jdbc数据同步Agentsink 实例
+     * @param sinkId sinkid
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param sinkId 字符串
+     * @param columnNames column名称
+     * @param jdbcUrl jdbcurl
+     * @param username 用户名
+     * @param password 密码
+     * @param sql SQL
+     */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this(sinkId, jdbcUrl, username, password, sql, 100, columnNames);
     }

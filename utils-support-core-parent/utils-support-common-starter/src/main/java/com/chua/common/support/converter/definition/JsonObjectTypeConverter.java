@@ -27,11 +27,11 @@ public class JsonObjectTypeConverter implements TypeConverter<Map> {
     }
 
     /**
-    * 将给定值转换为 Map（JSON 对象）。
-    *
-    * @param value 源值
-    * @return Map 值，如果无法转换则返回 null
-    */
+     * 将给定值转换为 Map（JSON 对象）。
+     *
+     * @param value 源值
+     * @return Map 值，如果无法转换则返回 null
+     */
     @Override
     public Map convert(Object value) {
         if (value instanceof String) {

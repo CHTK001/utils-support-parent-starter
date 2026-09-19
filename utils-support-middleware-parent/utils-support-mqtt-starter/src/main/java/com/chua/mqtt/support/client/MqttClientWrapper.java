@@ -598,11 +598,11 @@ public class MqttClientWrapper implements AutoCloseable {
         PublishOperation(MqttClientWrapper client) { this.client = client; }
 
         /**
-        * Topic
-        *
-        * @param t t
-        * @return topic的结果
-        */
+         * Topic
+         *
+         * @param t t
+         * @return topic的结果
+         */
         public PublishOperation topic(String t) {
             this.topic = t;
             return this;

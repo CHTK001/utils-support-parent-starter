@@ -27,8 +27,8 @@ public final class ScatterSyncHelper {
     /** 请求 ID 原子计数（线程安全，按目标节点隔离） */
     private static final ConcurrentHashMap<String, Integer> REQUEST_ID_SEQ = new ConcurrentHashMap<>();
     /**
-    * 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建
-    */
+     * 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建
+     */
     private static volatile TcpClient customClient;
 
     /**
@@ -52,13 +52,13 @@ public final class ScatterSyncHelper {
     }
 
     /**
-    * 拉取目标节点的服务表（带超时 + 重试）。
-    *
-    * @param context       请求上下文
-    * @param node          目标节点
-    * @param timeoutMillis 单次超时毫秒
-    * @return 同步结果（失败时返回 null）
-    */
+     * 拉取目标节点的服务表（带超时 + 重试）。
+     *
+     * @param context       请求上下文
+     * @param node          目标节点
+     * @param timeoutMillis 单次超时毫秒
+     * @return 同步结果（失败时返回 null）
+     */
     public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
                                                        long timeoutMillis) {
         return fetchWithRetry(context, node, timeoutMillis, MAX_RETRIES);

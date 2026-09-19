@@ -70,10 +70,10 @@ public class TxtFileSystem implements FileSystem {
     }
 
     /**
-    * TXT 文件读取构建器。
-    *
-    * @since 4.0.0.42
-    */
+     * TXT 文件读取构建器。
+     *
+     * @since 4.0.0.42
+     */
     @Slf4j
     public static class TxtReadBuilder extends ReadBuilder {
 
@@ -94,11 +94,11 @@ public class TxtFileSystem implements FileSystem {
         }
 
         /**
-        * 设置分隔符（默认 TAB）。
-        *
-        * @param delimiter 分隔符字符
-        * @return 当前构建器
-        */
+         * 设置分隔符（默认 TAB）。
+         *
+         * @param delimiter 分隔符字符
+         * @return 当前构建器
+         */
         public TxtReadBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
             return this;

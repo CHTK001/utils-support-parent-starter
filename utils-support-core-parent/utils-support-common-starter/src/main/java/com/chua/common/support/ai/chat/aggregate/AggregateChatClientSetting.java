@@ -70,8 +70,8 @@ public class AggregateChatClientSetting {
     private List<ClientConfig> clients;
 
     /**
-    * 上下文压缩配置（可选）
-    */
+     * 上下文压缩配置（可选）
+     */
     private ContextCompressionConfig compression;
 
     /**
@@ -313,10 +313,10 @@ public class AggregateChatClientSetting {
         }
 
         /**
-        * 转换为 ChatClientSetting，通过 SPI 创建 ChatClient
-        *
-        * @return ChatClient 实例
-        */
+         * 转换为 ChatClientSetting，通过 SPI 创建 ChatClient
+         *
+         * @return ChatClient 实例
+         */
         public ChatClient toChatClient() {
             return ChatClient.create(toSetting());
         }

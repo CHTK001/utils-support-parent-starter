@@ -55,11 +55,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     /**
-    * 构造请求并调用 safetensor服务，按 模型类型 解析响应。
-    *
-    * @param input 输入（字符串 / byte[] / Long / 映射 / 其他）
-    * @return 解析后的对象；失败返回 空
-    */
+     * 构造请求并调用 safetensor服务，按 模型类型 解析响应。
+     *
+     * @param input 输入（字符串 / byte[] / Long / 映射 / 其他）
+     * @return 解析后的对象；失败返回 空
+     */
     @Override
     public Object translate(Object input) {
         try {

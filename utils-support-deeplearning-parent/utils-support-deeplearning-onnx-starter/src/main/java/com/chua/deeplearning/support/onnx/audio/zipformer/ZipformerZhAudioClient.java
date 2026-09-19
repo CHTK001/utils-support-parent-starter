@@ -58,9 +58,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     private boolean prepared; // prepared
 
     /**
-    * zipformerzh音频客户端。
-    * @param setting setting
-    */
+     * zipformerzh音频客户端。
+     * @param setting setting
+     */
     public ZipformerZhAudioClient(AudioClientSetting setting) {
         this.setting = setting;
     }
@@ -184,10 +184,10 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
      /**
-    * ensureprepared。从 类路径 嵌入资源或 HF 下载模型到缓存目录
-    *
-    * @param modelDir 模型dir
-    */
+      * ensureprepared。从 类路径 嵌入资源或 HF 下载模型到缓存目录
+      *
+      * @param modelDir 模型dir
+      */
     private void ensurePrepared() {
         if (prepared) {
             return;

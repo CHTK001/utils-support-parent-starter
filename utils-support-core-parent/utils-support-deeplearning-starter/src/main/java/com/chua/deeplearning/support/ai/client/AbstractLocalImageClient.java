@@ -148,12 +148,12 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     }
 
     /**
-    * 将翻译器输出转换为 缓冲镜像。
-    *
-    * @param result    翻译器输出
-    * @param modelName 模型名称
-    * @return BufferedImage
-    */
+     * 将翻译器输出转换为 缓冲镜像。
+     *
+     * @param result    翻译器输出
+     * @param modelName 模型名称
+     * @return BufferedImage
+     */
     private static BufferedImage toBufferedImage(Object result, String modelName) {
         if (result instanceof BufferedImage image) {
             return image;

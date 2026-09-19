@@ -34,9 +34,9 @@ public abstract class AbstractDialect implements Dialect {
     private final Map<String, String> configCache = new HashMap<>();
 
     /**
-    * 从类路径 {@code META-INF/dialect-env/{className-lowercase}.env} 加载默认配置。
-    * <p>例如 {@code MysqlDialect} → {@code mysql.env}，{@code PostgresqlDialect} → {@code postgresql.env}。</p>
-    */
+     * 从类路径 {@code META-INF/dialect-env/{className-lowercase}.env} 加载默认配置。
+     * <p>例如 {@code MysqlDialect} → {@code mysql.env}，{@code PostgresqlDialect} → {@code postgresql.env}。</p>
+     */
     protected AbstractDialect() {
         this.properties = loadDefaultEnv();
     }

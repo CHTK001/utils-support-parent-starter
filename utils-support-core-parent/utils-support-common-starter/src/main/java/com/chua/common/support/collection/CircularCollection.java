@@ -154,10 +154,10 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     }
 
     /**
-    * 查看并返回最近一次因容量满而被淘汰的元素。
-    *
-    * @return 最近被淘汰的元素，未触发淘汰时返回 null
-    */
+     * 查看并返回最近一次因容量满而被淘汰的元素。
+     *
+     * @return 最近被淘汰的元素，未触发淘汰时返回 null
+     */
     public E lastEvicted() {
         return lastEvicted;
     }

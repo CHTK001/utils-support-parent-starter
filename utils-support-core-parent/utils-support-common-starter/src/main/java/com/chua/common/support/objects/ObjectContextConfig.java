@@ -37,24 +37,24 @@ public class ObjectContextConfig {
     private boolean spiEnabled = true;
 
     /**
-    * 是否启用注解/包扫描，默认 false；yml 中配置了 扫描-包 时自动为 true
-    */
+     * 是否启用注解/包扫描，默认 false；yml 中配置了 扫描-包 时自动为 true
+     */
     @Builder.Default
     /** Annotationscan是否启用 */
     private boolean annotationScanEnabled = false;
 
     /**
-    * 需要扫描的基包路径，注解扫描已启用=true 或列表非空时生效
-    */
+     * 需要扫描的基包路径，注解扫描已启用=true 或列表非空时生效
+     */
     @Builder.Default
     /** Scanpackages */
     private List<String> scanPackages = Collections.emptyList();
 
     /**
-    * 从 类路径 配置文件加载默认配置（application.yml / yaml / 属性）。
-    *
-    * @return 配置实例
-    */
+     * 从 类路径 配置文件加载默认配置（application.yml / yaml / 属性）。
+     *
+     * @return 配置实例
+     */
     public static ObjectContextConfig defaults() {
         return ObjectContextConfigLoader.load();
     }

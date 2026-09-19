@@ -36,9 +36,9 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     /**
-    * 创建 ppworddetectiontranslator 实例
-    * @param maxSideLen 最大sidelen
-    */
+     * 创建 ppworddetectiontranslator 实例
+     * @param maxSideLen 最大sidelen
+     */
     public PpWordDetectionTranslator(int maxSideLen) {
         this.maxSideLen = maxSideLen;
     }

@@ -42,13 +42,13 @@ public final class FeatureColumn implements Serializable {
     private final String description;
 
     /**
-        * 内部构造器：校验列名非空非空白、类型非空，描述为 空 时按空字符串固化
-        *
-        * @param name 名称
-        * @param type 类型
-        * @param description description
-        * @return 特征column的结果
-        */
+     * 内部构造器：校验列名非空非空白、类型非空，描述为 空 时按空字符串固化
+     *
+     * @param name 名称
+     * @param type 类型
+     * @param description description
+     * @return 特征column的结果
+     */
     private FeatureColumn(String name, FeatureType type, String description) {
         Objects.requireNonNull(name, "name must not be null");
         if (name.isBlank()) {

@@ -33,9 +33,9 @@ public class BaiduBosFileStorage extends AbstractFileStorage {
     private final BosClient bosClient;
 
     /**
-    * 创建 baidubos文件storage 实例
-    * @param bucketSetting bucketsetting
-    */
+     * 创建 baidubos文件storage 实例
+     * @param bucketSetting bucketsetting
+     */
     public BaiduBosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BosClientConfiguration config = new BosClientConfiguration();

@@ -38,8 +38,8 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     private final Set<String> healthPaths;
 
     /**
-    * 创建健康检查过滤器(使用默认路径:/healthz、/ping、/readyz)。
-    */
+     * 创建健康检查过滤器(使用默认路径:/healthz、/ping、/readyz)。
+     */
     public HealthCheckServerFilter() {
         this.healthPaths = DEFAULT_HEALTH_PATHS;
     }
@@ -61,8 +61,8 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
 
     @Override
     /**
-    * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
-    */
+     * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
+     */
     public String supportPath() {
         return null;
     }
@@ -75,12 +75,12 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
 
     @Override
     /**
-    * Do过滤
-    *
-    * @param request request
-    * @param response response
-    * @param chain chain
-    */
+     * Do过滤
+     *
+     * @param request request
+     * @param response response
+     * @param chain chain
+     */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 探针路径命中:直接响应并终止链,不进入路由与业务处理

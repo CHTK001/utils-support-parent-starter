@@ -61,11 +61,11 @@ public class Zip4jFileSystem implements FileSystem {
         }
 
         /**
-        * 链式设置密码（推荐）。
-        *
-        * @param password 密码
-        * @return 当前构建器
-        */
+         * 链式设置密码（推荐）。
+         *
+         * @param password 密码
+         * @return 当前构建器
+         */
         public Zip4jReadBuilder password(String password) {
             return setPassword(password);
         }
@@ -208,12 +208,12 @@ public class Zip4jFileSystem implements FileSystem {
 
         @Override
         /**
-        * as字符串
-        *
-        * @return as字符串的结果
-        * @author CH
-        * @since 4.0.0
-        */
+         * as字符串
+         *
+         * @return as字符串的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public String asString() {
             return String.join("\n", listEntries());
         }

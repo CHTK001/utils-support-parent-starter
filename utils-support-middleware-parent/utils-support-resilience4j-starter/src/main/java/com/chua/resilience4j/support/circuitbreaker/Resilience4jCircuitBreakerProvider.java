@@ -27,8 +27,8 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     private final CircuitBreaker circuitBreaker;
 
     /**
-    * 调用开始时间（纳秒），由 {@link #tryAcquire()} 记录。
-    */
+     * 调用开始时间（纳秒），由 {@link #tryAcquire()} 记录。
+     */
     private final AtomicLong callStartNs = new AtomicLong(-1);
 
     /**

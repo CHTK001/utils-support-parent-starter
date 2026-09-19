@@ -125,10 +125,10 @@ public class TaskNode implements PipelineNode {
     }
 
     /**
-    * 设置节点参数（JSON 构建时调用）。
-    *
-    * @param params 节点参数映射
-    */
+     * 设置节点参数（JSON 构建时调用）。
+     *
+     * @param params 节点参数映射
+     */
     public void setParams(Map<String, Object> params) {
         this.params = params != null ? params : Collections.emptyMap();
     }
@@ -140,10 +140,10 @@ public class TaskNode implements PipelineNode {
     }
 
     /**
-    * 设置节点环境参数（定义时调用）。
-    *
-    * @param env 环境参数映射
-    */
+     * 设置节点环境参数（定义时调用）。
+     *
+     * @param env 环境参数映射
+     */
     public void setEnv(Map<String, Object> env) {
         this.env = env != null ? env : Collections.emptyMap();
     }
@@ -155,10 +155,10 @@ public class TaskNode implements PipelineNode {
     }
 
     /**
-    * 设置重试配置。
-    *
-    * @param retryConfig 重试配置，空 表示不重试
-    */
+     * 设置重试配置。
+     *
+     * @param retryConfig 重试配置，空 表示不重试
+     */
     public void setRetryConfig(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
     }
@@ -170,10 +170,10 @@ public class TaskNode implements PipelineNode {
     }
 
     /**
-    * 设置数据依赖声明。
-    *
-    * @param units 依赖的节点 标识 集合
-    */
+     * 设置数据依赖声明。
+     *
+     * @param units 依赖的节点 标识 集合
+     */
     public void setUnits(Set<String> units) {
         this.units = units != null ? units : Collections.emptySet();
     }

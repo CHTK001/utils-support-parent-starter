@@ -41,9 +41,9 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     /**
-    * 创建 情绪ferplustranslator 实例
-    * @param emotionLabels 情绪标签
-    */
+     * 创建 情绪ferplustranslator 实例
+     * @param emotionLabels 情绪标签
+     */
     public EmotionFerplusTranslator(String[] emotionLabels) {
         this.emotionLabels = emotionLabels;
     }

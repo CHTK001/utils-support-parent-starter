@@ -212,11 +212,11 @@ public interface VectorStorageProvider {
 
         @Override
         /**
-        * 创建
-        * @param dimension dimension
-        * @param algorithm algorithm
-        * @param properties properties
-        */
+         * 创建
+         * @param dimension dimension
+         * @param algorithm algorithm
+         * @param properties properties
+         */
         public VectorStorage create(int dimension,
                                     VectorCompareAlgorithm algorithm,
                                     Object properties) {

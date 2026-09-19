@@ -139,10 +139,10 @@ public class SocketIoDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-    * 根据配置构建远程服务地址。
-    *
-    * @return 形如 http://host:port 的地址
-    */
+     * 根据配置构建远程服务地址。
+     *
+     * @return 形如 http://host:port 的地址
+     */
     private String buildUrl() {
         String url = config.getUrl();
         String host = "localhost";

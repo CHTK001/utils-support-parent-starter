@@ -103,10 +103,10 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     /**
-    * 添加监听器
-    *
-    * @param listener 监听器
-    */
+     * 添加监听器
+     *
+     * @param listener 监听器
+     */
     public void addListener(BundleLifecycleListener listener) {
         listeners.add(listener);
     }
@@ -326,11 +326,11 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     /**
-    * 获取Bundle
-    *
-    * @param symbolicName symbolic名称
-    * @return 获取bundle的结果
-    */
+     * 获取Bundle
+     *
+     * @param symbolicName symbolic名称
+     * @return 获取bundle的结果
+     */
     public OsgiBundle getBundle(String symbolicName) {
         List<OsgiBundle> bundles = getBundles();
         return bundles.stream()
