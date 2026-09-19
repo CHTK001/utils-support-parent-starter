@@ -34,7 +34,6 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2024-01-01
- * @版本 1.0.0
  * @see Spi
  */
 @Documented

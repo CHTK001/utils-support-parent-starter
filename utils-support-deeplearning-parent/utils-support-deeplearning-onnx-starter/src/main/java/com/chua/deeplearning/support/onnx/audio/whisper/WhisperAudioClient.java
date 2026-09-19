@@ -71,35 +71,25 @@ public class WhisperAudioClient implements VirtualClient {
     /** 语言 */
     private String language;
     /** 覆盖采样率 */
-    /** Override示例比率 */
     private Integer overrideSampleRate;
     /** 模型三维格式 */
-    /** 格式 */
     private String format;
     /** 提示词 */
-    /** 提示符 */
     private String prompt;
     /** 温度参数 */
-    /** Temperature */
     private Double temperature;
     /** 随机种子 */
-    /** Seed */
     private Long seed;
     /** 音频数据 */
-    /** 音频 */
     private byte[] audio;
     /** 音频文件路径 */
-    /** 音频路径 */
     private Path audioPath;
     /** 音频输入流 */
-    /** 音频输入 */
     private InputStream audioInput;
 
     /** 翻译器 */
-    /** Translator */
     private WhisperTranslator translator;
     /** 是否已准备 */
-    /** Prepared */
     private boolean prepared;
 
     /**

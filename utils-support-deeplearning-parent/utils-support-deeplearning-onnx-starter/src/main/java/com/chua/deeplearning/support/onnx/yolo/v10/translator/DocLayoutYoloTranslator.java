@@ -59,7 +59,6 @@ import java.util.List;
  * -        OCR          
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/11/28
  */
 @Slf4j
@@ -120,7 +119,6 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
      */
     private int imageWidth;
     /** 图像高度 */
-    /** 图片高度 */
     private int imageHeight;
 
         /**

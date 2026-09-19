@@ -40,13 +40,10 @@ import javax.annotation.Nonnull;
 public class NimaTranslator implements Translator<Image, float[]> {
 
     /** 图像尺寸 */
-    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 图像均值 */
-    /** 镜像_mean */
     private static final float[] IMAGE_MEAN = {0.485f, 0.456f, 0.406f};
     /** 图像标准差 */
-    /** 镜像_std */
     private static final float[] IMAGE_STD = {0.229f, 0.224f, 0.225f};
 
     @Override

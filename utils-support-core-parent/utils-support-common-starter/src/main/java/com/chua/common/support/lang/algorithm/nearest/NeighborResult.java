@@ -21,9 +21,6 @@ public class NeighborResult {
     public static final NeighborResult EMPTY = new NeighborResult(-1, Double.MAX_VALUE, new double[0]);
 
     /** 样本在原数据集中的索引位置 */
-    /**
-     * 索引名
-     */
     private final int index;
 
     /** 与目标点的距离值 */

@@ -14,7 +14,6 @@ import java.nio.file.Path;
  * 提供恢复接口的基础实现，子类需要实现具体的恢复逻辑。
  * </p>
  *
- * @版本 1.0.0
  * @author CH
  * @since 4.0.0.42
  */

@@ -169,7 +169,12 @@ public class JdbcReactorEngine implements ReactorEngine {
             url = convertJdbcToR2dbc(url);
         }
         r2dbcFactories.put(name, buildConnectionFactory(url, null, null));
-        dialects.put(name, detectR2dbcDialect(url));
+        Dialect dialect = detectR2dbcDialect(url);
+        if (dialect != null) {
+            dialects.put(name, dialect);
+        } else {
+            log.warn("未识别的 r2dbc URL（{}），方言未注册，分页与方言相关功能将不可用", url);
+        }
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -188,8 +193,13 @@ public class JdbcReactorEngine implements ReactorEngine {
      * @return this
      */
     public JdbcReactorEngine addDataSource(String name, ConnectionFactory factory, Dialect dialect) {
+        if (factory == null) {
+            throw new IllegalArgumentException("ConnectionFactory 不能为空: " + name);
+        }
         r2dbcFactories.put(name, factory);
-        dialects.put(name, dialect);
+        if (dialect != null) {
+            dialects.put(name, dialect);
+        }
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
@@ -209,12 +219,11 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         List<DataSource> sources = new ArrayList<>(jdbcDataSources.values());
         DataSourceConversion conversion = ServiceProvider.of(DataSourceConversion.class).getDefault();
-        if (conversion != null) {
-            unifiedDataSource = conversion.convert(sources, new DataSourceEnvironment("jdbc-reactor", null, null, null));
-        } else {
-            // 无 Conversion SPI，退回第一个数据源
-            unifiedDataSource = sources.getFirst();
+        if (conversion == null) {
+            throw new IllegalStateException(
+                    "多数据源联邦查询需要 DataSourceConversion SPI 实现（如 calcite 模块），当前 classpath 未找到；请只保留单数据源或引入实现");
         }
+        unifiedDataSource = conversion.convert(sources, new DataSourceEnvironment("jdbc-reactor", null, null, null));
     }
 
     /**
@@ -286,47 +295,66 @@ public class JdbcReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 根据 JDBC URL 检测方言。
+     * 根据 JDBC URL 检测方言，经 Dialect SPI（META-INF/extensions）解析。
      */
     private Dialect detectDialect(String jdbcUrl) {
-        if (jdbcUrl == null) {
-            return null;
-        }
-        String lower = jdbcUrl.toLowerCase();
-        if (lower.startsWith("jdbc:mysql:") || lower.startsWith("jdbc:mariadb:")) {
-            return new com.chua.datasource.support.dialect.MysqlDialect();
-        } else if (lower.startsWith("jdbc:postgresql:")) {
-            return new com.chua.datasource.support.dialect.PostgresqlDialect();
-        } else if (lower.startsWith("jdbc:h2:")) {
-            return new com.chua.datasource.support.dialect.H2Dialect();
-        } else if (lower.startsWith("jdbc:sqlserver:") || lower.startsWith("jdbc:mssql:")) {
-            return new com.chua.datasource.support.dialect.SqlServerDialect();
-        } else if (lower.startsWith("jdbc:oracle:")) {
-            return new com.chua.datasource.support.dialect.Oracle12cDialect();
-        }
-        return null;
+        return resolveDialectByScheme(jdbcUrl, "jdbc:");
     }
 
     /**
-     * 根据 R2DBC URL 检测方言。
+     * 根据 R2DBC URL 检测方言，经 Dialect SPI（META-INF/extensions）解析。
      */
     private Dialect detectR2dbcDialect(String r2dbcUrl) {
-        if (r2dbcUrl == null) {
+        return resolveDialectByScheme(r2dbcUrl, "r2dbc:");
+    }
+
+    /**
+     * 从 URL 提取 scheme 段并走 SPI 查方言；未命中返回 null。
+     *
+     * @param url    JDBC 或 R2DBC URL
+     * @param prefix 期望的 URL 前缀（jdbc: 或 r2dbc:）
+     * @return 方言实例，未识别时 null
+     */
+    private Dialect resolveDialectByScheme(String url, String prefix) {
+        String scheme = extractScheme(url, prefix);
+        if (scheme == null) {
             return null;
         }
-        String lower = r2dbcUrl.toLowerCase();
-        if (lower.startsWith("r2dbc:mysql:") || lower.startsWith("r2dbc:mariadb:")) {
-            return new com.chua.datasource.support.dialect.MysqlDialect();
-        } else if (lower.startsWith("r2dbc:postgresql:")) {
-            return new com.chua.datasource.support.dialect.PostgresqlDialect();
-        } else if (lower.startsWith("r2dbc:h2:")) {
-            return new com.chua.datasource.support.dialect.H2Dialect();
-        } else if (lower.startsWith("r2dbc:sqlserver:") || lower.startsWith("r2dbc:mssql:")) {
-            return new com.chua.datasource.support.dialect.SqlServerDialect();
-        } else if (lower.startsWith("r2dbc:oracle:")) {
-            return new com.chua.datasource.support.dialect.Oracle12cDialect();
+        if ("mssql".equals(scheme)) {
+            scheme = "sqlserver";
         }
-        return null;
+        Dialect dialect = Dialect.getExtension(scheme);
+        if (dialect == null) {
+            log.warn("Dialect SPI 未登记协议 '{}'，该数据源无方言（分页/方言相关能力不可用）", scheme);
+        }
+        return dialect;
+    }
+
+    /**
+     * 截取 URL 前缀后的驱动名（到下一个分隔符为止）。
+     *
+     * @param url    待解析 URL
+     * @param prefix 协议前缀
+     * @return 驱动名，不匹配前缀或为空时 null
+     */
+    private static String extractScheme(String url, String prefix) {
+        if (url == null) {
+            return null;
+        }
+        String lower = url.toLowerCase();
+        if (!lower.startsWith(prefix)) {
+            return null;
+        }
+        String rest = url.substring(prefix.length());
+        int cut = rest.length();
+        for (char sep : new char[]{':', '/', ';', '?'}) {
+            int idx = rest.indexOf(sep);
+            if (idx >= 0 && idx < cut) {
+                cut = idx;
+            }
+        }
+        String scheme = rest.substring(0, cut).trim();
+        return scheme.isEmpty() ? null : scheme;
     }
 
     /**
@@ -340,14 +368,15 @@ public class JdbcReactorEngine implements ReactorEngine {
         return new DataSource() {
             @Override
             public java.sql.Connection getConnection() throws java.sql.SQLException {
-                String url = finalUrl;
                 if (finalUser != null && !finalUser.isEmpty()) {
-                    url += (finalUrl.contains("?") ? "&" : "?") + "user=" + finalUser;
+                    java.util.Properties props = new java.util.Properties();
+                    props.put("user", finalUser);
+                    if (finalPass != null) {
+                        props.put("password", finalPass);
+                    }
+                    return java.sql.DriverManager.getConnection(finalUrl, props);
                 }
-                if (finalPass != null && !finalPass.isEmpty()) {
-                    url += "&password=" + finalPass;
-                }
-                return java.sql.DriverManager.getConnection(url);
+                return java.sql.DriverManager.getConnection(finalUrl);
             }
             @Override
             public java.sql.Connection getConnection(String username, String password) throws java.sql.SQLException {
@@ -508,7 +537,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 Mono.from(factory.create()),
                 conn -> Flux.from(executeStatement(conn, sql, params))
                         .flatMap(result -> Flux.from(result.map(this::toMap))),
-                conn -> Mono.empty());
+                conn -> Mono.from(conn.close()));
     }
 
     private <T> Flux<T> queryTypedViaR2dbc(String name, String sql, Class<T> rowType, Object... params) {
@@ -520,7 +549,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 Mono.from(factory.create()),
                 conn -> Flux.from(executeStatement(conn, sql, params))
                         .flatMap(result -> Flux.from(result.map((row, meta) -> toObject(row, rowType)))),
-                conn -> Mono.empty());
+                conn -> Mono.from(conn.close()));
     }
 
     private Mono<Integer> executeViaR2dbc(String name, String sql, Object... params) {
@@ -537,29 +566,27 @@ public class JdbcReactorEngine implements ReactorEngine {
                         .flatMap(result -> safeGetRowsUpdated(result))
                         .collectList()
                         .map(list -> list.stream().mapToLong(Long::longValue).sum()),
-                conn -> Mono.empty())
+                conn -> Mono.from(conn.close()))
                 .map(l -> l.intValue())
-                .defaultIfEmpty(0)
-                .onErrorResume(ClassCastException.class, e -> {
-                    // MySQL 驱动（asyncer r2dbc-mysql）getRowsUpdated() 内部 MonoReduce 类型不兼容，
-                    // 尝试降级到 JDBC 路径（需用户额外引入 mysql-connector-j）
-                    DataSource ds = jdbcDataSources.get(name);
-                    if (ds != null) {
-                        return executeViaJdbc(ds, sql, params);
-                    }
-                    return Mono.error(e);
-                });
+                .defaultIfEmpty(0);
     }
 
     /**
      * 安全获取 rowsUpdated：H2 多语句批量执行时非 DML Result 会抛出异常，MySQL 驱动的
-     * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容，统一 catch 返回 empty。
+     * getRowsUpdated() 内部 MonoReduce 对 Integer/Long 不兼容（驱动层 bug）。
+     * 该 bug 发生在语句已执行成功之后（服务端已生效），因此按结果级恢复为"已执行、行数未知"，
+     * 绝不重放语句（重放会造成双写）。
      */
-    private static Flux<Long> safeGetRowsUpdated(io.r2dbc.spi.Result result) {
+    private Flux<Long> safeGetRowsUpdated(io.r2dbc.spi.Result result) {
         try {
             return Flux.from(result.getRowsUpdated())
-                    .map(v -> v instanceof Number n ? n.longValue() : 0L);
+                    .map(v -> v instanceof Number n ? n.longValue() : 0L)
+                    .onErrorResume(ClassCastException.class, e -> {
+                        log.warn("r2dbc 驱动 getRowsUpdated 类型解析失败（语句已执行，按 1 行计）: {}", e.getMessage());
+                        return Flux.just(1L);
+                    });
         } catch (Exception e) {
+            log.warn("getRowsUpdated 装配失败，该结果按 0 行计: {}", e.getMessage());
             return Flux.empty();
         }
     }
@@ -575,7 +602,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         return Flux.from(Mono.usingWhen(
                 Mono.from(factory.create()),
                 conn -> Flux.fromIterable(batchParams)
-                        .flatMap(paramArray -> {
+                        .concatMap(paramArray -> {
                             Statement stmt = conn.createStatement(sql);
                             bindParams(stmt, paramArray);
                             return Flux.from(stmt.execute())
@@ -585,7 +612,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                         })
                         .collectList()
                         .map(list -> list == null || list.isEmpty() ? 0 : list.stream().mapToInt(Long::intValue).sum()),
-                conn -> Mono.empty()));
+                conn -> Mono.from(conn.close())));
     }
 
     // ==================== JDBC 执行路径（多数据源联邦） ====================
@@ -766,22 +793,41 @@ public class JdbcReactorEngine implements ReactorEngine {
      */
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
-        ConnectionFactory factory = r2dbcFactories.get(name);
-        if (factory == null) {
+        ConnectionFactory factory = name == null ? null : r2dbcFactories.get(name);
+        DataSource jdbc = name == null ? null : jdbcDataSources.get(name);
+        if (factory == null && jdbc == null) {
             return null;
         }
+        final Object source = factory != null ? factory : jdbc;
         return new EngineDataSource<T>() {
             @Override public String name() { return name; }
-            @Override public T getSource() { return null; }
+            @Override public T getSource() { return (T) source; }
             @Override public Dialect getDialect() { return dialects.get(name); }
             @Override public String url() { return null; }
             @Override public String username() { return null; }
             @Override public String password() { return null; }
-            @Override public EngineDataSource<T> setSource(Object source) { return this; }
-            @Override public EngineDataSource<T> setDialect(Dialect dialect) { return this; }
+            @Override public EngineDataSource<T> setSource(Object source) {
+                throw new UnsupportedOperationException("运行期不支持替换数据源对象，请重新 addDataSource: " + name);
+            }
+            @Override public EngineDataSource<T> setDialect(Dialect dialect) {
+                if (dialect == null) {
+                    dialects.remove(name);
+                } else {
+                    dialects.put(name, dialect);
+                }
+                return this;
+            }
             @Override public int tunnelPort() { return 0; }
             @Override public EngineDataSource<T> setTunnelPort(int tunnelPort) { return this; }
-            @Override public void close() {}
+            @Override public void close() {
+                if (source instanceof AutoCloseable ac) {
+                    try {
+                        ac.close();
+                    } catch (Exception e) {
+                        log.warn("关闭数据源 {} 失败: {}", name, e.getMessage());
+                    }
+                }
+            }
         };
     }
 
@@ -798,8 +844,25 @@ public class JdbcReactorEngine implements ReactorEngine {
             if (f instanceof AutoCloseable ac) {
                 try {
                     ac.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.warn("关闭 R2DBC 连接工厂失败: {}", e.getMessage());
                 }
+            }
+        }
+        for (DataSource ds : jdbcDataSources.values()) {
+            if (ds instanceof AutoCloseable ac) {
+                try {
+                    ac.close();
+                } catch (Exception e) {
+                    log.warn("关闭 JDBC 数据源失败: {}", e.getMessage());
+                }
+            }
+        }
+        if (delegate != null) {
+            try {
+                delegate.close();
+            } catch (Exception e) {
+                log.warn("关闭委托同步引擎失败: {}", e.getMessage());
             }
         }
         r2dbcFactories.clear();
@@ -859,9 +922,9 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public Engine setDefaultDataSourceName(String name) { return this; }
         @Override
-        public SqlExecutor getExecutor(String dataSourceName) { return new JdbcSqlExecutorWrapper(ds); }
+        public SqlExecutor getExecutor(String dataSourceName) { return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName)); }
         @Override
-        public SqlExecutor getExecutor() { return new JdbcSqlExecutorWrapper(ds); }
+        public SqlExecutor getExecutor() { return new JdbcSqlExecutorWrapper(ds, dialects.get(defaultDataSourceName)); }
         @Override
         public <T> EngineDataSource<T> getDataSource(String name) { return null; }
         @Override
@@ -873,7 +936,7 @@ public class JdbcReactorEngine implements ReactorEngine {
         @Override
         public <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass) { throw new UnsupportedOperationException(); }
         @Override
-        public Dialect getDialect(String dataSourceName) { return null; }
+        public Dialect getDialect(String dataSourceName) { return dialects.get(defaultDataSourceName); }
         @Override
         public String getDefaultDataSourceName() { return null; }
         @Override
@@ -899,7 +962,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map(JdbcReactorEngine.this::toMap)))
                             .collectList(),
-                    conn -> Mono.empty())).block();
+                    conn -> Mono.from(conn.close()))).block();
         }
         @Override
         public <T> List<T> query(String sql, Class<T> rowType, Object... params) {
@@ -910,7 +973,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     conn -> Flux.from(executeStatement(conn, sql, params))
                             .flatMap(r -> Flux.from(r.map((row, meta) -> JdbcReactorEngine.this.toObject(row, rowType))))
                             .collectList(),
-                    conn -> Mono.empty())).block();
+                    conn -> Mono.from(conn.close()))).block();
         }
         @Override
         public List<Map<String, Object>> queryPage(String sql, com.chua.common.support.lang.datasource.dialect.Pagination pagination, Object... params) {
@@ -924,9 +987,14 @@ public class JdbcReactorEngine implements ReactorEngine {
                         total = n.longValue();
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage());
+            }
             pagination.setTotal(total);
-            String pageSql = dialect != null ? dialect.processSql(sql, pagination) : sql;
+            if (dialect == null) {
+                throw new IllegalStateException("R2DBC 数据源缺少方言注册，无法执行分页查询（分页依赖 Dialect.processSql）");
+            }
+            String pageSql = dialect.processSql(sql, pagination);
             return query(pageSql, params);
         }
         @Override
@@ -936,8 +1004,8 @@ public class JdbcReactorEngine implements ReactorEngine {
             }
             return Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.from(executeStatement(conn, sql, params))
-                            .flatMap(Result::getRowsUpdated).reduce(0L, Long::sum),
-                    conn -> Mono.empty())
+                            .flatMap(JdbcReactorEngine.this::safeGetRowsUpdated).reduce(0L, Long::sum),
+                    conn -> Mono.from(conn.close()))
                     .map((Long l) -> l.intValue()).switchIfEmpty(Mono.just(0)).block();
         }
         @Override
@@ -947,13 +1015,13 @@ public class JdbcReactorEngine implements ReactorEngine {
             }
             List<Integer> results = Mono.usingWhen(Mono.from(factory.create()),
                     conn -> Flux.fromIterable(batchParams)
-                            .flatMap(p -> {
+                            .concatMap(p -> {
                                 Statement s = conn.createStatement(sql);
                                 bindParams(s, p);
-                                return Flux.from(s.execute()).flatMap(Result::getRowsUpdated).reduce(0L, Long::sum);
+                                return Flux.from(s.execute()).flatMap(JdbcReactorEngine.this::safeGetRowsUpdated).reduce(0L, Long::sum);
                             })
                             .map((Long l) -> l.intValue()).collectList(),
-                    conn -> Mono.empty()).block();
+                    conn -> Mono.from(conn.close())).block();
             return results == null ? new int[0] : results.stream().mapToInt(Integer::intValue).toArray();
         }
         private static String trimSql(String sql) {
@@ -971,7 +1039,8 @@ public class JdbcReactorEngine implements ReactorEngine {
     /** JDBC SqlExecutor 包装 */
     private class JdbcSqlExecutorWrapper implements SqlExecutor {
         private final DataSource ds;
-        JdbcSqlExecutorWrapper(DataSource ds) { this.ds = ds; }
+        private final Dialect dialect;
+        JdbcSqlExecutorWrapper(DataSource ds, Dialect dialect) { this.ds = ds; this.dialect = dialect; }
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
             try (java.sql.Connection conn = ds.getConnection();
@@ -1033,9 +1102,14 @@ public class JdbcReactorEngine implements ReactorEngine {
                         total = n.longValue();
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("分页 count 查询失败，total 记 0: {}", e.getMessage());
+            }
             pagination.setTotal(total);
-            return query(sql, params);
+            if (dialect == null) {
+                throw new IllegalStateException("数据源缺少方言注册，无法执行分页查询（分页依赖 Dialect.processSql）");
+            }
+            return query(dialect.processSql(sql, pagination), params);
         }
         @Override
         public int execute(String sql, Object... params) {

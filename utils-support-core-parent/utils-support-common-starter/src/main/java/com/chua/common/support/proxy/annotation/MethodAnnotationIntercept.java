@@ -72,7 +72,6 @@ import java.lang.annotation.Annotation;
  * @param <A> 注解类型，必须继承自 {@link java.lang.annotation.Annotation}
  * @author CH
  * @since 2025/11/26
- * @版本 1.1.0
  * @see ProxyMethod
  * @see MethodInvocation
  * @see Spi

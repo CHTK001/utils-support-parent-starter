@@ -11,7 +11,6 @@ import java.util.List;
  *                            OBB - Oriented Bounding Box                     
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025-01-22
  */
 @Data

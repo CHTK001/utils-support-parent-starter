@@ -38,27 +38,20 @@ import java.util.Map;
 public class SiglipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
     /** 图像尺寸 */
-    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 默认候选列表 */
-    /** 默认_candidates */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "document", "animal", "vehicle");
 
     /** 请求的候选列表 */
-    /** Requestedcandidates */
     private final List<String> requestedCandidates;
     /** 提示词模板 */
-    /** 提示符模板 */
     private final String promptTemplate;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
     /** 候选列表 */
-    /** Candidates */
     private List<String> candidates = DEFAULT_CANDIDATES;
     /** 候选输入标识 */
-    /** Candidate输入标识 */
     private long[][] candidateInputIds = new long[0][];
 
     /**

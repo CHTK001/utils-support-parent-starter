@@ -17,22 +17,16 @@ package com.chua.deeplearning.support.onnx.audio.whisper;
 public class WhisperMelExtractor {
 
     /** 16khz 采样率 */
-    /** 样本_rate */
     public static final int SAMPLE_RATE = 16000;
     /** 30 秒音频长度 */
-    /** Chunk_长度 */
     public static final int CHUNK_LENGTH = 30;
     /** 480000 样本 */
-    /** N_样本 */
     public static final int N_SAMPLES = SAMPLE_RATE * CHUNK_LENGTH;
     /** FFT 大小 */
-    /** N_fft */
     public static final int N_FFT = 400;
     /** 跳步 */
-    /** Hop_长度 */
     public static final int HOP_LENGTH = 160;
     /** Mel 通道数 */
-    /** N_mels */
     public static final int N_MELS = 80;
     /**
      * STFT 帧数：1 + (480000 / 160) = 3001, 但用 center padding 后实际是 3000
@@ -41,7 +35,6 @@ public class WhisperMelExtractor {
     public static final int N_FRAMES = 3000;
 
     /** 窗口向量 */
-    /** 窗口 */
     private final float[] window;
 
     /** 创建 whispermelextractor 实例 */

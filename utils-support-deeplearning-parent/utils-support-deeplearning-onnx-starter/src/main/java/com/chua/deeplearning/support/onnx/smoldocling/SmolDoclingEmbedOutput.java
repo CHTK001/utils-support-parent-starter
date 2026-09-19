@@ -6,13 +6,11 @@ import ai.djl.ndarray.NDArray;
  * smoldocling Embed
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/01/22
  */
 public class SmolDoclingEmbedOutput {
 
     /** 嵌入向量 */
-    /** 嵌入 */
     private final NDArray embeddings;
 
     /**

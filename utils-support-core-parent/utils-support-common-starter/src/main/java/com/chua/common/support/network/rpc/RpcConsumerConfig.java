@@ -74,33 +74,18 @@ public class RpcConsumerConfig {
     /** 启动时检查 */
     private Boolean check;
     /** 超时（毫秒） */
-    /**
-     * 超时时间（毫秒）
-     */
     private Integer timeout;
     /** 重试次数 */
-    /**
-     * 重试次数
-     */
     private Integer retries;
     /**
      * 负载均衡策略（random, roundrobin, leastactive, consistenthash, shortestresponse）
      */
     private String loadBalance;
     /** 是否异步 */
-    /**
-     * 是否异步执行
-     */
     private Boolean async;
     /** 版本 */
-    /**
-     * 版本号
-     */
     private String version;
     /** 分组 */
-    /**
-     * 用户组
-     */
     private String group;
     /** 最大连接数 */
     private Integer connections;
@@ -124,9 +109,6 @@ public class RpcConsumerConfig {
      */
     private Boolean inline;
     /** 连接超时（毫秒） */
-    /**
-     * 连接超时时间（毫秒）
-     */
     private Integer connectTimeout;
     /** 是否启用重试 */
     private Boolean retryEnabled;
@@ -137,9 +119,6 @@ public class RpcConsumerConfig {
     /** 是否延迟检查 */
     private Boolean lazy;
     /** 直连 URL */
-    /**
-     * 地址
-     */
     private String url;
     /**
      * 调用模式（sync, async, future, callback, oneway）

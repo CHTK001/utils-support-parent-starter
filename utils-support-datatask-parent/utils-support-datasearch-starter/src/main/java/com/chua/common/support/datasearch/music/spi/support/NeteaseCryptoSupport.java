@@ -52,7 +52,7 @@ public final class NeteaseCryptoSupport {
     /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 创建 netease加密货币支持 实例 */
+    /** 私有构造器，禁止实例化 */
     private NeteaseCryptoSupport() {
     }
 

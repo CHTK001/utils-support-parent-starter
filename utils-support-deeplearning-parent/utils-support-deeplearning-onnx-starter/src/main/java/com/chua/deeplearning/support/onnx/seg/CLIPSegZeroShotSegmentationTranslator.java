@@ -50,18 +50,14 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, Image> {
 
     /** 输入尺寸 */
-    /** 输入_大小 */
     private static final int INPUT_SIZE = 352;
     /** 最大文本长度 */
-    /** 最大_文本_长度 */
     private static final int MAX_TEXT_LENGTH = 77;
 
     /** 提示词 */
-    /** 提示符 */
     private final String prompt;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     /**

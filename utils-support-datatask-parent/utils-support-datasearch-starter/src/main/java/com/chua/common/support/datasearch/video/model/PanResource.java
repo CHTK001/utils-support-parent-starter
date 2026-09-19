@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
  * 用于封װ网盘搜索结果
  *
  * @author CH
- * @版本 1.0
  * @since 4.0.0.42
  */
 public class PanResource {

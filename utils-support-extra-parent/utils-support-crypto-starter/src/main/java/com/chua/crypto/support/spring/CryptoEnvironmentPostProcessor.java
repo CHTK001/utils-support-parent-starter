@@ -87,7 +87,7 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
     }
 
     /**
-     * 绑定 chua.加密货币.* 配置
+     * 绑定 chua.crypto.* 配置
      *
      * @param environment 环境
      * @return 属性对象

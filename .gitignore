@@ -203,3 +203,11 @@ utils-support-models-parent/
 .env* 
 # 443MB 模型权重超出 gitee/github 单文件限额,仅保留本地不入库
 **/seg/birefnet/birefnet_large_1024.onnx
+
+# 崩溃/回放/JVM dump 与打包临时残留
+replay_pid*
+hs_err*
+thread-dump*
+__pycache__/
+*.orig
+target.locked/

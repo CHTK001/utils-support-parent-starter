@@ -112,9 +112,6 @@ public class BotOutboundMessage {
     }
 
     /** 消息类型 */
-    /**
-     * 类型
-     */
     private BotInboundMessage.Type type;
 
     /** 目标用户 ID */
@@ -136,9 +133,6 @@ public class BotOutboundMessage {
     private String title;
 
     /** 视频描述 */
-    /**
-     * 描述
-     */
     private String description;
 
     /**

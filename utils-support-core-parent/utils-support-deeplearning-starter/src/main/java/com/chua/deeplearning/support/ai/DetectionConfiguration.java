@@ -21,25 +21,21 @@ public class DetectionConfiguration {
     public static final String KEY_IOU_THRESHOLD = "iouThreshold";
 
     /** 是否使用 GPU */
-    /** USEGPU */
     private boolean useGpu;
 
     /** 模型名称 */
     private String modelName;
 
     /** 覆盖加载的模型名称 */
-    /** 加载模型名称 */
     private String loadModelName;
 
     /** 模型文件路径 */
-    /** 加载模型路径 */
     private String loadModelPath;
 
     /** 系统级选项（appid、app键 等） */
     private Map<String, Object> systemOption;
 
     /** 默认配置实例 */
-    /** 默认 */
     public static final DetectionConfiguration DEFAULT = new DetectionConfiguration();
 
     /** 全局当前配置（静态单例，线程安全） */

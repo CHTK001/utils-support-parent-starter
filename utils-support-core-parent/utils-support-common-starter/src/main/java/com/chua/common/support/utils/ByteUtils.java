@@ -24,7 +24,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * 适用于底层协议解析、数据序列化和字节流处理等场景。
  *
  * @author CH
- * @版本 1.0.0
  * @since 2020/12/26
  */
 @Slf4j

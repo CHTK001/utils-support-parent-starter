@@ -79,7 +79,6 @@ import javax.annotation.Nullable;
  * </ul>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2024/5/27
  */
 @Spi("pixel")

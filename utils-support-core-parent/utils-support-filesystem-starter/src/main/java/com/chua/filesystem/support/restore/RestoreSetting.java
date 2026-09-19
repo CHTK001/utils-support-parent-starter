@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Data

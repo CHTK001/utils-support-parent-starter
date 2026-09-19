@@ -30,7 +30,6 @@ import java.util.Map;
  * - past_键_值:              KV
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j

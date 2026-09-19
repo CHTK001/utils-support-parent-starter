@@ -1098,11 +1098,6 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /** 获取客户端 */
-    /**
-     * 获取 DDL 管理器入口（与 meta() 同模式）。
-     * 将集合映射为 tabledef、模式 字段映射为 columndef。
-     * @return ddl的结果
-     */
     public com.chua.datasource.support.ddl.DslManager ddl() {
         return new com.chua.solr.support.ddl.SolrDdlManager(getClient());
     }

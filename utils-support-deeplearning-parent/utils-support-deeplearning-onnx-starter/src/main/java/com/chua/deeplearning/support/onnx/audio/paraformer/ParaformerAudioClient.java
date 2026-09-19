@@ -36,11 +36,9 @@ import java.util.UUID;
 public class ParaformerAudioClient implements VirtualClient {
 
     /** 默认模型名 */
-    /** 默认_模型 */
     private static final String DEFAULT_MODEL = "paraformer-zh-small";
 
     /** 类路径 资源根路径 */
-    /** Resource_基础 */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
@@ -50,15 +48,12 @@ public class ParaformerAudioClient implements VirtualClient {
     private static final String CACHE_ROOT = "audio/asr/";
 
     /** 临时音频文件名前缀 */
-    /** Tmp_音频_前缀 */
     private static final String TMP_AUDIO_PREFIX = "paraformer-audio-";
 
     /** 临时音频文件名后缀 */
-    /** Tmp_音频_后缀 */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /** 任务 标识 前缀 */
-    /** 任务_标识_前缀 */
     private static final String TASK_ID_PREFIX = "paraformer-";
 
     /** 设置 */
@@ -71,42 +66,33 @@ public class ParaformerAudioClient implements VirtualClient {
     private String language;
 
     /** 覆盖采样率 */
-    /** Override 采样率 */
     private Integer overrideSampleRate;
 
     /** 格式 */
     private String format;
 
     /** 提示词 */
-    /** 提示符 */
     private String prompt;
 
     /** 温度 */
-    /** Temperature */
     private Double temperature;
 
     /** 随机种子 */
-    /** Seed */
     private Long seed;
 
     /** 音频数据 */
-    /** 音频 */
     private byte[] audio;
 
     /** 音频文件路径 */
-    /** 音频路径 */
     private Path audioPath;
 
     /** 音频输入流 */
-    /** 音频输入 */
     private InputStream audioInput;
 
     /** 翻译器 */
-    /** Translator */
     private ParaformerTranslator translator;
 
     /** 是否已准备 */
-    /** Prepared */
     private boolean prepared;
 
     /**

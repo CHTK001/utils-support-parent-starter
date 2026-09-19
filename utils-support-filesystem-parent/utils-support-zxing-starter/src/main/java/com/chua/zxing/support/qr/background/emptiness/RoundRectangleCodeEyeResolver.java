@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
  * 码眼解析器
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 public class RoundRectangleCodeEyeResolver implements CodeEyeResolver{

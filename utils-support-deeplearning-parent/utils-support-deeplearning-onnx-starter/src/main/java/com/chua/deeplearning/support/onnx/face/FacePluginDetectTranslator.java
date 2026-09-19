@@ -34,31 +34,22 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class FacePluginDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入宽度 */
-    /** 输入_width */
     private static final int INPUT_WIDTH = 320;
     /** 输入高度 */
-    /** 输入_height */
     private static final int INPUT_HEIGHT = 240;
     /** 置信度阈值 */
-    /** 信心_阈值 */
     private static final float CONFIDENCE_THRESHOLD = 0.6f;
     /** NMS 阈值 */
-    /** Nms_阈值 */
     private static final double NMS_THRESHOLD = 0.3d;
     /** 最大候选数量 */
-    /** 最大_candidates */
     private static final int MAX_CANDIDATES = 1500;
     /** 中心点方差 */
-    /** Center_variance */
     private static final float CENTER_VARIANCE = 0.1f;
     /** 尺寸方差 */
-    /** 大小_variance */
     private static final float SIZE_VARIANCE = 0.2f;
     /** 图像均值 */
-    /** 镜像_mean */
     private static final float IMAGE_MEAN = 127.0f;
     /** 图像标准差 */
-    /** 镜像_std */
     private static final float IMAGE_STD = 128.0f;
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */

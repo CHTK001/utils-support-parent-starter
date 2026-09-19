@@ -15,9 +15,6 @@ import lombok.Data;
 public class BotSendResult {
 
     /** 是否发送成功 */
-    /**
-     * 是否成功
-     */
     private boolean success;
 
     /** 返回的消息 ID */

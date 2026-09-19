@@ -33,24 +33,18 @@ import java.util.Map;
 public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo> {
 
     /** 缩放宽度 */
-    /** Resize_width */
     private static final int RESIZE_WIDTH = 192;
     /** 缩放高度 */
-    /** Resize_height */
     private static final int RESIZE_HEIGHT = 48;
     /** 类别名称列表 */
-    /** Classes */
     private static final List<String> CLASSES = List.of("0", "180");
 
     /** 资源基础路径 */
-    /** Resource_基础 */
     private static final String RESOURCE_BASE = "ocr/direction/ppocr_cls/";
     /** 模型文件路径 */
-    /** 模型_文件 */
     private static final String MODEL_FILE = "model.onnx";
 
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 会话 */
     private OrtSession session;

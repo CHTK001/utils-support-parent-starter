@@ -23,7 +23,6 @@ import java.util.List;
 public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
 
     /** 人脸引擎 */
-    /** Face引擎 */
     private final FaceEngine faceEngine;
 
     /**

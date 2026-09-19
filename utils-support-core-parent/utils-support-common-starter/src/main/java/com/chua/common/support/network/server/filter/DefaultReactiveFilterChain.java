@@ -41,9 +41,6 @@ public class DefaultReactiveFilterChain implements ReactiveFilterChain {
     private final ServerHandler handler;
 
     /** 当前执行索引 */
-    /**
-     * 索引名
-     */
     private int index;
 
     /**

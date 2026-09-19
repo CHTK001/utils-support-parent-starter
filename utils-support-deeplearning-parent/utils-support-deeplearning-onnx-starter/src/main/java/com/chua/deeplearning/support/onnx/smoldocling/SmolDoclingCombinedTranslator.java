@@ -33,7 +33,6 @@ import java.io.IOException;
  * </p>
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j

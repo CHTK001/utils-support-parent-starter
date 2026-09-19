@@ -42,14 +42,11 @@ import java.nio.file.Path;
 public class ChineseT5BaseTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 512;
     /** 结束符标识 */
-    /** Eos_标识 */
     private static final long EOS_ID = 1L;
 
     /** 分词器 */
-    /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
     @Override

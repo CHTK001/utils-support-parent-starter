@@ -40,7 +40,6 @@ import static java.util.Calendar.getInstance;
  * 部分方法参考 Apache Commons Lang 实现。
  *
  * @author CH
- * @版本 4.0.0.42
  * @since 2020/12/21
  */
 @Slf4j

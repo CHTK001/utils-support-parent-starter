@@ -46,22 +46,17 @@ import java.util.stream.IntStream;
  * </p>
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2025/01/26
  */
 public class ClTaggerTranslator implements Translator<Image, Classifications> {
 
     /** JSON 对象映射器 */
-    /** 对象_映射器 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 默认类别数量 */
-    /** 默认_类_数量 */
     private static final int DEFAULT_CLASS_COUNT = 51213;
     /** 低信息范围阈值 */
-    /** Low_信息_范围_阈值 */
     private static final float LOW_INFORMATION_RANGE_THRESHOLD = 2.0f;
     /** 日志记录器 */
-    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(ClTaggerTranslator.class);
 
     /**
@@ -80,7 +75,6 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     private List<String> classes;
 
     /** 低信息输入标记 */
-    /** lowinformation输入 */
     private final ThreadLocal<Boolean> lowInformationInput = ThreadLocal.withInitial(() -> false);
 
     /**

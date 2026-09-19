@@ -22,87 +22,66 @@ import java.util.List;
 public class ParaformerFbankExtractor {
 
     /** 采样率 */
-    /** 样本_rate */
     private static final float SAMPLE_RATE = 16000.0f;
 
     /** 帧长（毫秒） */
-    /** 帧_长度_ms */
     private static final float FRAME_LENGTH_MS = 25.0f;
 
     /** 帧移（毫秒） */
-    /** 帧_Shift_ms */
     private static final float FRAME_SHIFT_MS = 10.0f;
 
     /** 帧移采样数 */
-    /** 窗口_Shift */
     private static final int WINDOW_SHIFT = (int) (SAMPLE_RATE * 0.001f * FRAME_SHIFT_MS);
 
     /** 帧长采样数 */
-    /** 窗口_大小 */
     private static final int WINDOW_SIZE = (int) (SAMPLE_RATE * 0.001f * FRAME_LENGTH_MS);
 
     /** FFT 长度（400 向上取整到 2 的幂） */
-    /** Padded_窗口_大小 */
     private static final int PADDED_WINDOW_SIZE = 512;
 
     /** 谱 bin 数（512/2+1） */
-    /** N_fft_bins */
     private static final int N_FFT_BINS = PADDED_WINDOW_SIZE / 2 + 1;
 
     /** mel 滤波器组数量 */
-    /** N_mels */
     private static final int N_MELS = 80;
 
     /** mel 低频截止 */
-    /** Low_freq */
     private static final float LOW_FREQ = 20.0f;
 
     /** mel 高频截止（nyquist + 0 = 8000Hz） */
-    /** High_freq */
     private static final float HIGH_FREQ = 8000.0f;
 
     /** pre-emphasis 系数 */
-    /** Preemph_coeff */
     private static final float PREEMPH_COEFF = 0.97f;
 
     /** 是否去除直流分量 */
-    /** 移除_dc_偏移量 */
     private static final boolean REMOVE_DC_OFFSET = true;
 
     /** 帧间能量下限 */
-    /** Energy_地板 */
     private static final float ENERGY_FLOOR = 1.0f;
 
     /** LFR 窗口大小 */
-    /** Lfr_窗口_大小 */
     private static final int LFR_WINDOW_SIZE = 7;
 
     /** LFR 窗口步长 */
-    /** Lfr_窗口_Shift */
     private static final int LFR_WINDOW_SHIFT = 6;
 
     /** hamming 窗口系数 */
-    /** 窗口 */
     private final float[] window;
 
     /** mel 滤波器组权重：每行一个 bin 的 {偏移量, 权重[]} */
-    /** Mel_banks */
     private final float[][] melWeights;
 
     /** mel 滤波器组每行起始 fft bin */
-    /** Mel_偏移量 */
     private final int[] melOffsets;
 
     /** CMVN 负均值（80 维） */
-    /** Neg_mean */
     private float[] negMean;
 
     /** CMVN 逆标准差（80 维） */
-    /** Inv_stddev */
     private float[] invStddev;
 
     /** 是否已配置 CMVN 参数 */
-    /** 是否包含_cmvn */
     private boolean hasCmvn;
 
     /** 创建 paraformerfbankextractor 实例 */

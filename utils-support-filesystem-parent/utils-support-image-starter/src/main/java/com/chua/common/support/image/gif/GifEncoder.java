@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
  * 来自：https:
  *
  * @author Kevin Weiner, FM Software
- * @版本 1.03 November 2003
  * @since 4.0.0.42
  * @author CH
  */

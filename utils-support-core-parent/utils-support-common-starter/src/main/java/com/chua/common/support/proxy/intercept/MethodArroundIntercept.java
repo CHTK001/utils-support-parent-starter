@@ -29,7 +29,6 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * @author CH
  * @since 2025/11/26
- * @版本 1.1.0
  * @see MethodInvocation
  * @see ProxyMethod
  * @see Around

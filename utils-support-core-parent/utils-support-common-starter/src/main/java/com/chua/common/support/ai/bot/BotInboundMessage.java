@@ -53,9 +53,6 @@ public class BotInboundMessage {
     private String msgId;
 
     /** 消息类型 */
-    /**
-     * 类型
-     */
     private Type type;
 
     /**

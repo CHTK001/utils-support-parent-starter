@@ -83,9 +83,13 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (where != null && !where.trim().isEmpty()) {
             fullSql.append(" WHERE ").append(where);
         }
+        String finalSql = fullSql.toString();
+        if (limit > 0) {
+            finalSql = wrapPagination(finalSql, limit, Math.max(offset, 0));
+        }
 
         try (Connection conn = ((DataSource) source).getConnection();
-             PreparedStatement ps = conn.prepareStatement(fullSql.toString())) {
+             PreparedStatement ps = conn.prepareStatement(finalSql)) {
 
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {

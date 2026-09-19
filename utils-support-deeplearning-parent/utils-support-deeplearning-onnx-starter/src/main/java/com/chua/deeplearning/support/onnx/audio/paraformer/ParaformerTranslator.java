@@ -42,59 +42,45 @@ import java.util.Map;
 public class ParaformerTranslator {
 
     /** 采样率 */
-    /** 样本_rate */
     private static final int SAMPLE_RATE = 16000;
 
     /** 输入名：语音特征 */
-    /** 语音_入 */
     private static final String INPUT_SPEECH = "speech";
 
     /** 输入名：特征帧数 */
-    /** 长度_入 */
     private static final String INPUT_SPEECH_LENGTHS = "speech_lengths";
 
     /** 特征维度（LFR 后 560 = 80×7） */
-    /** 特征_dim */
     private static final int FEATURE_DIM = 560;
 
     /** 模型 metadata 键：vocab 大小 */
-    /** Meta_vocab */
     private static final String META_VOCAB_SIZE = "vocab_size";
 
     /** 模型 metadata 键：LFR 窗口 */
-    /** Meta_lfr_窗口 */
     private static final String META_LFR_WINDOW_SIZE = "lfr_window_size";
 
     /** 模型 metadata 键：LFR 步长 */
-    /** Meta_lfr_Shift */
     private static final String META_LFR_WINDOW_SHIFT = "lfr_window_shift";
 
     /** 模型 metadata 键：CMVN 负均值 */
-    /** Meta_neg_mean */
     private static final String META_NEG_MEAN = "neg_mean";
 
     /** 模型 metadata 键：CMVN 逆标准差 */
-    /** Meta_inv_stddev */
     private static final String META_INV_STDDEV = "inv_stddev";
 
     /** ONNX 运行时环境 */
-    /** Ort_env */
     private OrtEnvironment ortEnv;
 
     /** ONNX 会话 */
-    /** 会话 */
     private OrtSession session;
 
     /** 特征提取器 */
-    /** Extractor */
     private ParaformerFbankExtractor extractor;
 
     /** 词表 */
-    /** Tokenizer */
     private ParaformerTokenizer tokenizer;
 
     /** 是否已准备 */
-    /** Prepared */
     private boolean prepared;
 
     /**

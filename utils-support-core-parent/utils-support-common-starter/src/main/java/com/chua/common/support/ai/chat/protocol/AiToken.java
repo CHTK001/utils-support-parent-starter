@@ -19,9 +19,6 @@ import java.util.Date;
 public class AiToken {
 
     /** 令牌值（如 sk-xxx） */
-    /**
-     * 令牌
-     */
     private String token;
 
     /**

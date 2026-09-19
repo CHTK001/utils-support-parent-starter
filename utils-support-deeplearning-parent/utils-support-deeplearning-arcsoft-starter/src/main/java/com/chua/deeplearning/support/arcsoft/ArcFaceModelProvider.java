@@ -25,7 +25,6 @@ import java.util.List;
 public class ArcFaceModelProvider implements BulkModelProvider {
 
     /** 人脸引擎 */
-    /** Face引擎 */
     private final FaceEngine faceEngine;
 
     /** 创建 arcface模型提供者 实例 */

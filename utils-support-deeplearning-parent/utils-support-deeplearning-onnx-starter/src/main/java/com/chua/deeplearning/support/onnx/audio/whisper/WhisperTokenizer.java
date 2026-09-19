@@ -27,7 +27,6 @@ import java.util.Map;
 public class WhisperTokenizer {
 
     /** JSON 对象映射器 */
-    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**

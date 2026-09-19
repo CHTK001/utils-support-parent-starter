@@ -35,12 +35,10 @@ import org.slf4j.LoggerFactory;
  * -          softmax                   White/Black/Asian/Indian/Others   
  *
  * @author CH
- * @版本 4.0.0.32
  * @since 2024/11/08
  */
 public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictResult> {
 
-    /** 日志记录器 */
     /** 日志记录器 */
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 

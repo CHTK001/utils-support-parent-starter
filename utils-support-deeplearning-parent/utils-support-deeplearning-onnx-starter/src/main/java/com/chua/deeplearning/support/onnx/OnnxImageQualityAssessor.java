@@ -11,12 +11,10 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     /** 模型名称 */
     private String modelName;
     /** 模糊度阈值 */
-    /** Blur阈值 */
     private double blurThreshold = 100.0;
     /** 模型路径 */
     private String modelPath;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     /**

@@ -36,40 +36,29 @@ import java.util.Map;
 public class WhisperTranslator {
 
     /** 采样率 */
-    /** 样本_rate */
     private static final int SAMPLE_RATE = 16000;
     /** 梅尔滤波器组数量 */
-    /** N_mels */
     private static final int N_MELS = 80;
     /** 帧数量 */
-    /** N_帧 */
     private static final int N_FRAMES = 3000;
     /** 编码器序列输出索引 */
-    /** Enc_seq_出 */
     private static final int ENC_SEQ_OUT = 1500;
     /** 隐藏层维度 */
-    /** Hidden_大小 */
     private static final int HIDDEN_SIZE = 384;
     /** 层数量 */
-    /** N_layers */
     private static final int N_LAYERS = 4;
     /** 注意力头数量 */
-    /** N_heads */
     private static final int N_HEADS = 6;
     /** 注意力头维度 */
-    /** Head_dim */
     private static final int HEAD_DIM = 64;
 
     /** 梅尔特征提取器 */
-    /** melextractor */
     private WhisperMelExtractor melExtractor;
     /** 分词器 */
-    /** Tokenizer */
     private WhisperTokenizer tokenizer;
     /** 识别语言（zh/en 等；显式指定后在提示中加入语言 令牌，解决非英文输出乱码） */
     private String language;
     /** ONNX 运行时环境 */
-    /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;

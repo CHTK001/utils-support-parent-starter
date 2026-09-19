@@ -65,17 +65,13 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     /** 阈值 */
     private final float threshold;
     /** NMS 阈值 */
-    /** NMS阈值 */
     private final float nmsThreshold;
     /** 类别名称列表 */
-    /** Classes */
     private final List<String> classes;
 
     /** 图像宽度 */
-    /** 图片宽度 */
     private int imageWidth;
     /** 图像高度 */
-    /** 图片高度 */
     private int imageHeight;
 
     /** 创建 抽象multi类yolov8Translator 实例 */

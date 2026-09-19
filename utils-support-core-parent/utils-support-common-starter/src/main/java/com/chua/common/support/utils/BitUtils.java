@@ -11,7 +11,6 @@ import static com.chua.common.support.utils.ByteUtils.*;
  * 转换为二进制位数组或位字符串，亦可对二进制字符串进行补齐、截断和分段拼接，适用于协议解析、调试和位运算场景。
  *
  * @author CH
- * @版本 1.0.0
  * @since 2021/3/3
  */
 public class BitUtils {

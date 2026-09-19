@@ -32,12 +32,10 @@ import org.slf4j.LoggerFactory;
  *                 = 0*0.01 + 1*0.05 + ... + 25*0.8 + 26*0.1 + ...
  *
  * @author CH
- * @版本 1.0.0
  * @since 2025/11/06
  */
 public class VggAgeRecognitionTranslator implements Translator<Image, PredictResult> {
 
-    /** 日志记录器 */
     /** 日志记录器 */
     private static final Logger LOGGER = LoggerFactory.getLogger(VggAgeRecognitionTranslator.class);
 

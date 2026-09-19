@@ -51,7 +51,6 @@ import javax.annotation.Nullable;
  * - 对于复杂背景可能需要更高级的背景分割算法
  *
  * @author CH
- * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Spi("transparent")

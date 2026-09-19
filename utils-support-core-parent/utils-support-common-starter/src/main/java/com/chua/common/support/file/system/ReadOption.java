@@ -18,9 +18,6 @@ public class ReadOption {
     private int startRow;
 
     /** 最大读取行数，0 表示不限制 */
-    /**
-     * 限制
-     */
     private int limit;
 
     /**

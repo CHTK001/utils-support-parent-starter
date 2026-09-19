@@ -13,7 +13,6 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     /** 模型名称 */
     private String modelName;
     /** 设备类型 */
-    /** Device */
     private String device = "cpu";
 
     /**
