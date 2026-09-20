@@ -50,7 +50,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
-        String cmd = "helm search hub " + keyword + " 2>&1";
+        String[] cmd = {"helm", "search", "hub", keyword};
 
         log.info("helm 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
@@ -93,7 +93,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     */
     public boolean install(String packageId) {
         String release = sanitize(packageId);
-        String cmd = "helm install " + release + " " + packageId;
+        String[] cmd = {"helm", "install", release, packageId};
         log.info("helm 安装: {} (release={})", packageId, release);
         return executeCommand(cmd, "安装", packageId);
     }
@@ -104,7 +104,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     */
     public boolean uninstall(String packageId) {
         String release = sanitize(packageId);
-        String cmd = "helm uninstall " + release;
+        String[] cmd = {"helm", "uninstall", release};
         log.info("helm 卸载: {} (release={})", packageId, release);
         return executeCommand(cmd, "卸载", packageId);
     }
@@ -117,7 +117,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
      * @param packageId 包标识
      * @return 执行命令的结果
      */
-    private boolean executeCommand(String cmd, String action, String packageId) {
+    private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**
