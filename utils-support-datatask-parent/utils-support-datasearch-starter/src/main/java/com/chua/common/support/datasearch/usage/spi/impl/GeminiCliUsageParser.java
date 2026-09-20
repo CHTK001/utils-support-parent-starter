@@ -11,7 +11,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +30,15 @@ import java.util.List;
  *   "tokens": { "input": 12779, "output": 1, "cached": 0,
  *               "thoughts": 151, "tool": 0, "total": 12931 }
  * }
- * }</pre> 151, "tool": 0, "total": 12931 }
- * }
  * }</pre>
  *
  * <p>The session id lives on the first line of each transcript. Older
  * transcripts without gemini 事件 are skipped silently.</p>
+ *
+ * <p>转录里没有耗时字段，但每轮提问行都带 {@code timestamp}，且紧跟其后的
+ * {@code type=gemini} 行是同一轮的回答，因此按"上一条非回答行的时间"折算
+ * {@code durationMillis}（本机实测该差值 2760ms，与首行 {@code startTime} 折算的
+ * 2814ms 一致）。多轮会话逐轮配对，不会把整段会话时长记到单次请求上。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -88,8 +90,10 @@ public class GeminiCliUsageParser extends BaseUsageParser {
                             } catch (IOException e) {
                                 return Flux.empty();
                             }
+                            // 每条转录单独持有，记下最近一次提问行的时间用于折算耗时
+                            long[] lastPromptMillis = new long[1];
                             return Flux.fromStream(reader.lines())
-                                    .map(line -> parseLineSafe(line, sessionId))
+                                    .map(line -> parseLineSafe(line, sessionId, lastPromptMillis))
                                     .flatMapIterable(l -> l);
                         },
                         r -> {
@@ -123,12 +127,6 @@ public class GeminiCliUsageParser extends BaseUsageParser {
             return sessionId.isMissingValue() ? "" : sessionId.toStringValue();
         } catch (Exception e) {
             return "";
-        /**
-         * 解析线safe。
-         * @param line 线
-         * @param sessionId 会话标识
-         * @return 解析线safe的结果
-         */
         }
     }
 
@@ -137,11 +135,12 @@ public class GeminiCliUsageParser extends BaseUsageParser {
      *
      * @param line 方法入参 line
      * @param sessionId 会话ID，不允许为 null
+     * @param lastPromptMillis 本条转录最近一次提问时间，跨行传递
      * @return 结果列表，无数据时为空列表
      */
-    private List<AiUsage> parseLineSafe(String line, String sessionId) {
+    private List<AiUsage> parseLineSafe(String line, String sessionId, long[] lastPromptMillis) {
         try {
-            return parseLine(line, sessionId);
+            return parseLine(line, sessionId, lastPromptMillis);
         } catch (Exception e) {
             log.debug("[gemini-cli] parse failed: {}", e.getMessage());
             return List.of();
@@ -153,14 +152,16 @@ public class GeminiCliUsageParser extends BaseUsageParser {
      *
      * @param line 方法入参 line
      * @param sessionId 会话ID，不允许为 null
+     * @param lastPromptMillis 本条转录最近一次提问时间，跨行传递
      * @return 结果列表，无数据时为空列表
      */
-    private List<AiUsage> parseLine(String line, String sessionId) {
+    private List<AiUsage> parseLine(String line, String sessionId, long[] lastPromptMillis) {
         if (line.isBlank()) {
             return List.of();
         }
         JsonNode node = Json.parse(line);
         if (!"gemini".equals(node.get("type").toStringValue())) {
+            rememberPromptTime(node, lastPromptMillis);
             return List.of();
         }
         JsonNode tokens = node.get("tokens");
@@ -175,6 +176,8 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         int cached = tokens.get("cached").toIntValue(0);
         int thoughts = tokens.get("thoughts").toIntValue(0);
         long timestamp = parseInstantToMillis(node.get("timestamp").toStringValue());
+        Long duration = durationOf(timestamp, lastPromptMillis[0]);
+        long startTime = startTimeOf(timestamp, duration);
 
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider("google")
@@ -185,12 +188,38 @@ public class GeminiCliUsageParser extends BaseUsageParser {
                 .totalTokens(inputTokens + outputTokens)
                 .cacheTokens(cached > 0 ? cached : null)
                 .reasoningTokens(thoughts > 0 ? thoughts : null)
-                .startTime(timestamp > 0 ? timestamp : null);
+                .durationMillis(duration)
+                .startTime(startTime > 0 ? startTime : null);
 
         if (!sessionId.isBlank()) {
             builder.requestId(sessionId + ":" + (timestamp > 0 ? timestamp : ""));
         }
         return new ArrayList<>(List.of(builder.build()));
+    }
+
+    /**
+     * 记下提问行的时间，供紧随其后的回答行折算耗时。
+     *
+     * @param node 当前行
+     * @param lastPromptMillis 本条转录最近一次提问时间
+     */
+    private static void rememberPromptTime(JsonNode node, long[] lastPromptMillis) {
+        long millis = parseInstantToMillis(node.get("timestamp").toStringValue());
+        if (millis > 0) {
+            lastPromptMillis[0] = millis;
+        }
+    }
+
+    /**
+     * 由回答时间与提问时间折算单次耗时。
+     *
+     * @param answerMillis 回答行时间，缺失时为 0
+     * @param promptMillis 本条转录最近一次提问时间，缺失时为 0
+     * @return 耗时毫秒；两端任一缺失或倒挂时返回 空
+     */
+    private static Long durationOf(long answerMillis, long promptMillis) {
+        return answerMillis > 0 && promptMillis > 0 && answerMillis > promptMillis
+                ? answerMillis - promptMillis : null;
     }
 
     /**

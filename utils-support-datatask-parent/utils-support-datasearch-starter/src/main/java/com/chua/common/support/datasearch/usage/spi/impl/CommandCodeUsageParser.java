@@ -46,6 +46,10 @@ import reactor.core.scheduler.Schedulers;
  * <p>旁路文件（{@code *.checkpoints.jsonl}、{@code *.prompts.jsonl} 等）会被排除，
  * 只扫描 {@code <session-id>.jsonl} 转录文件。</p>
  *
+ * <p>转录行不含耗时字段，但每条带 {@code usage} 的 assistant 行都紧跟在触发它的那条
+ * user 行之后（本机 841/841 条如此，工具回传轮亦写作 user 行），因此 {@code durationMillis}
+ * 按"上一条 user 行时间→本行时间"折算；两端缺失或倒挂的行留空而非编造。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -108,9 +112,11 @@ public class CommandCodeUsageParser extends BaseUsageParser {
      * @return Flux 对象
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
+        // 逐文件持有：记下最近一条 user 行的时间，即本次模型请求的发起时刻
+        long[] lastPromptMillis = new long[1];
         return streamLines(file)
                 .filter(line -> !line.isBlank())
-                .map(this::parseLineSafe)
+                .map(line -> parseLineSafe(line, lastPromptMillis))
                 .filter(java.util.Optional::isPresent)
                 .map(java.util.Optional::get);
     }
@@ -118,11 +124,12 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     /**
      * 安全解析单行，失败返回 empty。
      * @param line 方法入参 line
+     * @param lastPromptMillis 本文件上一条 user 行时间，跨行传递
      * @return 结果值
      */
-    private java.util.Optional<AiUsage> parseLineSafe(String line) {
+    private java.util.Optional<AiUsage> parseLineSafe(String line, long[] lastPromptMillis) {
         try {
-            return parseNode(Json.parse(line));
+            return parseNode(Json.parse(line), lastPromptMillis);
         } catch (Exception e) {
             log.debug("[command-code] line parse failed: {}", e.getMessage());
             return java.util.Optional.empty();
@@ -134,15 +141,20 @@ public class CommandCodeUsageParser extends BaseUsageParser {
      *
      * <p>仅接受带顶层 {@code usage} 且含有效 token/费用的 assistant 消息行。</p>
      * @param node 节点，不允许为 null
+     * @param lastPromptMillis 本文件上一条 user 行时间，跨行传递
      * @return 结果值
      */
-    private java.util.Optional<AiUsage> parseNode(JsonNode node) {
+    private java.util.Optional<AiUsage> parseNode(JsonNode node, long[] lastPromptMillis) {
         JsonNode type = node.get("type");
         if (type.isMissingValue() || !"message".equals(type.toStringValue())) {
             return java.util.Optional.empty();
         }
         JsonNode message = node.get("message");
-        if (message.isMissingValue() || !"assistant".equals(message.get("role").toStringValue())) {
+        long timestamp = parseInstantToMillis(node.get("timestamp").toStringValue());
+        if (!"assistant".equals(message.get("role").toStringValue())) {
+            if ("user".equals(message.get("role").toStringValue()) && timestamp > 0) {
+                lastPromptMillis[0] = timestamp;
+            }
             return java.util.Optional.empty();
         }
         JsonNode usage = node.get("usage");
@@ -157,12 +169,14 @@ public class CommandCodeUsageParser extends BaseUsageParser {
         }
         int cacheRead = usage.get("cacheReadTokens").toIntValue(0);
         int cacheWrite = usage.get("cacheWriteTokens").toIntValue(0);
-        long startTime = parseInstantToMillis(node.get("timestamp").toStringValue());
+        Long durationMillis = durationOf(timestamp, lastPromptMillis[0]);
+        long startTime = startTimeOf(timestamp, durationMillis);
 
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_COMMAND_CODE)
                 .model(firstNonBlank(node.get("model").toStringValue(), UNKNOWN_MODEL))
                 .requestId(firstNonBlank(node.get("id").toStringValue(), null))
+                .durationMillis(durationMillis)
                 .startTime(startTime > 0 ? startTime : null);
         if (inputTokens > 0 || outputTokens > 0) {
             builder.inputTokens(inputTokens > 0 ? inputTokens : null)
@@ -177,5 +191,17 @@ public class CommandCodeUsageParser extends BaseUsageParser {
                     .estimated(true);
         }
         return java.util.Optional.of(builder.build());
+    }
+
+    /**
+     * 由请求发起与响应时刻折算单次耗时。
+     *
+     * @param answerMillis  assistant 行时间，缺失时为 0
+     * @param promptMillis  上一条 user 行时间，缺失时为 0
+     * @return 耗时毫秒；任一端缺失或倒挂时返回 空
+     */
+    private static Long durationOf(long answerMillis, long promptMillis) {
+        return answerMillis > 0 && promptMillis > 0 && answerMillis > promptMillis
+                ? answerMillis - promptMillis : null;
     }
 }

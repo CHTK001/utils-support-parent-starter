@@ -29,6 +29,13 @@ import java.util.Map;
  * 厂商不一致（多厂商同名模型）时才回退一次精确匹配。索引按各数据源返回内容的签名
  * 感知变化，{@code PricingSyncer} 同步进新价后自动重建，无需重启。</p>
  *
+ * <p>模型标识除原样命中外，还回退到<b>折叠匹配</b>：剥掉厂商前缀、大小写与所有分隔符
+ * （{@code -}、{@code _}、{@code .}、{@code :}）后再比对，因此本机会话里的
+ * {@code GLM-5.3-Flash}、{@code glm5.3-flash}、{@code z-ai/glm-5.3-flash}
+ * 都能对上目录中的 {@code glm-5-3-flash}。免费档写法一并归一：目录侧的
+ * {@code 名称:free} 与各家 CLI 的 {@code 名称-free}（常再省掉版本日期段）视为同一档，
+ * 命中后按目录里的 0 价出账。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -41,9 +48,24 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     private static final Logger log = LoggerFactory.getLogger(DataSearchModelPricingProvider.class);
 
     /**
+     * 免费档标记：折叠后模型标识的结尾
+    */
+    private static final String FREE_MARK = "free";
+
+    /**
      * 定价索引：模型 标识 -> 合并后的模型定义（随数据源内容签名变化而重建）
     */
     private volatile Map<String, ModelDefinition> index;
+
+    /**
+     * 折叠索引：折叠后的模型标识 -> 合并后的模型定义（与 {@link #index} 同批重建）
+    */
+    private volatile Map<String, ModelDefinition> foldedIndex = Collections.emptyMap();
+
+    /**
+     * {@link #foldedIndex} 中全部免费档键（与 {@link #index} 同批重建）
+    */
+    private volatile List<String> freeFoldedKeys = Collections.emptyList();
 
     /**
      * 构建 {@link #index} 时的数据源内容签名
@@ -63,7 +85,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         if (model == null) {
             return null;
         }
-        ModelDefinition hit = loadIndex().get(model);
+        ModelDefinition hit = findPricing(model);
         if (hit == null) {
             return null;
         }
@@ -75,6 +97,78 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
             return scoped != null ? scoped : hit;
         }
         return hit;
+    }
+
+    /**
+     * 按模型标识取定价：原样命中优先，其次折叠匹配，最后解析免费档写法。
+     *
+     * @param model 模型 标识
+     * @return 合并后的模型定义，三级都未命中时返回 空
+     */
+    private ModelDefinition findPricing(String model) {
+        ModelDefinition exact = loadIndex().get(model);
+        if (exact != null) {
+            return exact;
+        }
+        Map<String, ModelDefinition> folded = foldedIndex;
+        String key = fold(model);
+        ModelDefinition foldedHit = key.isEmpty() ? null : folded.get(key);
+        return foldedHit == null ? findFreeVariant(folded, key) : foldedHit;
+    }
+
+    /**
+     * 解析 {@code 名称-free} 这类免费档写法。
+     *
+     * <p>目录侧写成 {@code 名称:free}，且名称里常带版本日期段（如
+     * {@code deepseek-v4-flash-0731:free}），而各家 CLI 记的是 {@code deepseek-v4-flash-free}，
+     * 折叠后仍差一段日期，等值比对必然落空。这里只在<b>同名的付费档也存在</b>时才回查
+     * 该前缀下的免费档，避免 {@code glm-free} 这类残缺名称撞到 {@code glm-5.3-flash:free}；
+     * 多个免费变体取最短键，即版本段最少、最接近请求名的那一个。</p>
+     *
+     * @param folded 折叠索引
+     * @param key    请求标识的折叠值
+     * @return 免费档定价，不满足回查条件时返回 空
+     */
+    private ModelDefinition findFreeVariant(Map<String, ModelDefinition> folded, String key) {
+        if (key.length() <= FREE_MARK.length() || !key.endsWith(FREE_MARK)) {
+            return null;
+        }
+        String stem = key.substring(0, key.length() - FREE_MARK.length());
+        if (!folded.containsKey(stem)) {
+            return null;
+        }
+        String best = null;
+        for (String candidate : freeFoldedKeys) {
+            if (candidate.length() > stem.length() && candidate.startsWith(stem)
+                    && (best == null || candidate.length() < best.length())) {
+                best = candidate;
+            }
+        }
+        return best == null ? null : folded.get(best);
+    }
+
+    /**
+     * 折叠模型标识：剥掉厂商前缀与所有分隔符，只留小写字母数字。
+     *
+     * @param model 模型 标识
+     * @return 折叠值；只剩分隔符时返回空串
+     */
+    private static String fold(String model) {
+        String name = model;
+        int slash = name.lastIndexOf('/');
+        if (slash >= 0 && slash + 1 < name.length()) {
+            name = name.substring(slash + 1);
+        }
+        StringBuilder builder = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            char ch = name.charAt(i);
+            if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) {
+                builder.append(ch);
+            } else if (ch >= 'A' && ch <= 'Z') {
+                builder.append((char) (ch + ('a' - 'A')));
+            }
+        }
+        return builder.toString();
     }
 
     /**
@@ -113,16 +207,30 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
                 return index;
             }
             Map<String, ModelDefinition> map = new LinkedHashMap<>();
+            Map<String, ModelDefinition> folded = new LinkedHashMap<>();
             for (ModelMetricsProvider metricsProvider : sources()) {
                 for (ModelDefinition md : safeMetrics(metricsProvider)) {
                     if (md.getId() == null) {
                         continue;
                     }
                     map.put(md.getId(), merge(map.get(md.getId()), md));
+                    String key = fold(md.getId());
+                    if (!key.isEmpty()) {
+                        folded.put(key, merge(folded.get(key), md));
+                    }
                 }
             }
-            log.info("[datasearch-pricing] 模型定价索引构建完成: {} 个模型", map.size());
+            List<String> freeKeys = new ArrayList<>(16);
+            for (String key : folded.keySet()) {
+                if (key.endsWith(FREE_MARK)) {
+                    freeKeys.add(key);
+                }
+            }
+            log.info("[datasearch-pricing] 模型定价索引构建完成: {} 个模型, 折叠后 {} 个键, 免费档 {} 个",
+                    map.size(), folded.size(), freeKeys.size());
             index = map;
+            foldedIndex = folded;
+            freeFoldedKeys = freeKeys;
             indexSignature = current;
             return map;
         }
