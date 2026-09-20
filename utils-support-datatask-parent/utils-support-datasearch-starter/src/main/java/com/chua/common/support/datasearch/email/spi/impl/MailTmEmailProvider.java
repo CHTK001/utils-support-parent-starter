@@ -130,13 +130,12 @@ public class MailTmEmailProvider implements EmailProvider {
                                 .get()
                                 .getBodyString();
                         JsonNode detail = MAPPER.readTree(detailResp);
-                        String body = detail.path("text").asText("")
-                                + detail.path("html").asText("");
                         result.add(EmailInfo.builder()
                                 .id(id)
                                 .from(from)
                                 .subject(subject)
-                                .body(body)
+                                .body(textOrJoin(detail.path("text")))
+                                .html(textOrJoin(detail.path("html")))
                                 .createdAt(createdAt)
                                 .build());
                     } catch (Exception ignored) {
@@ -174,5 +173,26 @@ public class MailTmEmailProvider implements EmailProvider {
             sb.append(chars.charAt((int) (Math.random() * chars.length())));
         }
         return sb.toString();
+    }
+
+    /**
+     * MailTM 的 text/html 既可能是字符串也可能是分段数组，数组需拼接。
+     *
+     * @param node 响应节点
+     * @return 文本，缺失时返回 null
+     */
+    static String textOrJoin(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        if (node.isArray()) {
+            StringBuilder sb = new StringBuilder();
+            for (JsonNode part : node) {
+                sb.append(part.asText(""));
+            }
+            return sb.length() == 0 ? null : sb.toString();
+        }
+        String text = node.asText(null);
+        return text == null || text.isEmpty() ? null : text;
     }
 }
