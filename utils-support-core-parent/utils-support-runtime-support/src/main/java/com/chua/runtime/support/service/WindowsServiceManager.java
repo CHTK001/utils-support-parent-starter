@@ -56,27 +56,25 @@ public class WindowsServiceManager implements ServiceManager {
                 ? " " + String.join(" ", service.getArgs())
                 : "";
 
-        // sc create <ServiceName> binPath= "<executable> <args>" start= <startupType> DisplayName= "<displayName>"
+        // sc.exe 要求 "binPath=" 与取值是两个独立参数（等号后必须留空格），
+        // 取值整体保持带引号形式以支持含空格的镜像路径
         String startupType = mapStartupType(service.getStartupType());
-        String cmd = String.format(
-                "sc create \"%s\" binPath= \"%s%s\" start= %s DisplayName= \"%s\"",
-                service.getServiceName(),
-                executable,
-                args,
-                startupType,
-                service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName()
-        );
-
-        CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdResult result = CmdExecutors.execute(
+                sc("create",
+                        service.getServiceName(),
+                        "binPath=", executable + args,
+                        "start=", startupType,
+                        "DisplayName=",
+                        service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName()),
+                CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         if (result.isSuccess()) {
             log.info("[runtime-service] Windows 服务[{}] 安装成功", service.getServiceName());
 
             // 设置服务描述
             if (service.getDescription() != null && !service.getDescription().isBlank()) {
-                String descCmd = String.format("sc description \"%s\" \"%s\"",
-                        service.getServiceName(), service.getDescription());
-                CmdExecutors.execute(descCmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                CmdExecutors.execute(sc("description", service.getServiceName(), service.getDescription()),
+                        CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             }
         } else {
             log.error("[runtime-service] Windows 服务[{}] 安装失败: {}", service.getServiceName(), result.getStderr());
@@ -91,8 +89,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult uninstall(String serviceName) {
         log.info("[runtime-service] 正在卸载 Windows 服务[{}]", serviceName);
-        String cmd = "sc delete \"" + serviceName + "\"";
-        CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdResult result = CmdExecutors.execute(sc("delete", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         if (result.isSuccess()) {
             log.info("[runtime-service] Windows 服务[{}] 卸载成功", serviceName);
@@ -109,8 +106,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult start(String serviceName) {
         log.info("[runtime-service] 正在启动 Windows 服务[{}]", serviceName);
-        String cmd = "sc start \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("start", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -119,8 +115,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult stop(String serviceName) {
         log.info("[runtime-service] 正在停止 Windows 服务[{}]", serviceName);
-        String cmd = "sc stop \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("stop", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -146,8 +141,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 状态
     */
     public CmdResult status(String serviceName) {
-        String cmd = "sc query \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("query", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -156,8 +150,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult enable(String serviceName) {
         log.info("[runtime-service] 设置 Windows 服务[{}] 开机自启", serviceName);
-        String cmd = "sc config \"" + serviceName + "\" start= auto";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("config", serviceName, "start=", "auto"), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -166,8 +159,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult disable(String serviceName) {
         log.info("[runtime-service] 禁用 Windows 服务[{}] 开机自启", serviceName);
-        String cmd = "sc config \"" + serviceName + "\" start= disabled";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("config", serviceName, "start=", "disabled"), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -190,6 +182,19 @@ public class WindowsServiceManager implements ServiceManager {
     public boolean isInstalled(String serviceName) {
         CmdResult result = status(serviceName);
         return result.isSuccess();
+    }
+
+    /**
+     * 组装 sc.exe 参数数组，使服务名与描述不经过 shell 二次解析。
+     *
+     * @param args sc 子命令及其参数
+     * @return 命令数组
+     */
+    private static String[] sc(String... args) {
+        String[] cmd = new String[args.length + 1];
+        cmd[0] = "sc";
+        System.arraycopy(args, 0, cmd, 1, args.length);
+        return cmd;
     }
 
     /**

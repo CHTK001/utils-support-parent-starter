@@ -2,6 +2,7 @@ package com.chua.runtime.support.service;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +37,11 @@ public class SystemdServiceManager implements ServiceManager {
      */
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
+    /**
+     * 让 systemd 重新读取单元文件的固定参数
+     */
+    private static final String[] SYSTEMCTL_RELOAD = {"systemctl", "daemon-reload"};
+
     @Override
     /**
      * 名称
@@ -53,7 +59,7 @@ public class SystemdServiceManager implements ServiceManager {
         if (!osName.contains("nix") && !osName.contains("nux") && !osName.contains("aix")) {
             return false;
         }
-        CmdResult result = CmdExecutors.execute("which systemctl", 5, TimeUnit.SECONDS);
+        CmdResult result = CmdExecutors.execute(new String[]{"which", "systemctl"}, 5, TimeUnit.SECONDS);
         return result.isSuccess();
     }
 
@@ -66,26 +72,26 @@ public class SystemdServiceManager implements ServiceManager {
 
         try {
             String serviceContent = generateServiceFile(service);
-            Path servicePath = Paths.get(SYSTEMD_SERVICE_DIR, service.getServiceName() + ".service");
+            Path servicePath = unitFile(service.getServiceName());
 
  // 需要 根 权限写入 /etc/systemd/系统
             String tempFile = "/tmp/" + service.getServiceName() + ".service";
             Files.writeString(Path.of(tempFile), serviceContent);
 
             CmdResult copyResult = CmdExecutors.execute(
-                    "cp " + tempFile + " " + servicePath.toString(),
+                    new String[]{"cp", tempFile, servicePath.toString()},
                     CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
             if (!copyResult.isSuccess()) {
                 log.error("[runtime-service] 复制 service 文件失败: {}", copyResult.getStderr());
                 // 尝试用 sudo
                 copyResult = CmdExecutors.execute(
-                        "sudo cp " + tempFile + " " + servicePath.toString(),
+                        new String[]{"sudo", "cp", tempFile, servicePath.toString()},
                         CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             }
 
             // 清理临时文件
-            CmdExecutors.execute("rm -f " + tempFile, 5, TimeUnit.SECONDS);
+            CmdExecutors.execute(new String[]{"rm", "-f", tempFile}, 5, TimeUnit.SECONDS);
 
             if (!copyResult.isSuccess()) {
                 return CmdResult.builder()
@@ -96,7 +102,7 @@ public class SystemdServiceManager implements ServiceManager {
             }
 
             // 重新加载 systemd 配置
-            CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            CmdExecutors.execute(SYSTEMCTL_RELOAD, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
             // 设置开机自启
             if ("auto".equalsIgnoreCase(service.getStartupType())) {
@@ -127,27 +133,27 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult uninstall(String serviceName) {
         log.info("[runtime-service] 正在卸载 systemd 服务[{}]", serviceName);
+        Path servicePath = unitFile(serviceName);
 
         // 先停止服务
         stop(serviceName);
 
         // 禁用开机自启
-        CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdExecutors.execute(systemctl("disable", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
- // 删除 服务 文件
-        Path servicePath = Paths.get(SYSTEMD_SERVICE_DIR, serviceName + ".service");
+        // 删除 服务 文件
         CmdResult result = CmdExecutors.execute(
-                "rm -f " + servicePath.toString(),
+                new String[]{"rm", "-f", servicePath.toString()},
                 CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         if (!result.isSuccess()) {
             result = CmdExecutors.execute(
-                    "sudo rm -f " + servicePath.toString(),
+                    new String[]{"sudo", "rm", "-f", servicePath.toString()},
                     CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         }
 
         // 重新加载 systemd
-        CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdExecutors.execute(SYSTEMCTL_RELOAD, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         log.info("[runtime-service] systemd 服务[{}] 卸载完成", serviceName);
         return result;
@@ -159,8 +165,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult start(String serviceName) {
         log.info("[runtime-service] 正在启动 systemd 服务[{}]", serviceName);
-        String cmd = "systemctl start \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("start", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -169,8 +174,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult stop(String serviceName) {
         log.info("[runtime-service] 正在停止 systemd 服务[{}]", serviceName);
-        String cmd = "systemctl stop \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("stop", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -179,8 +183,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult restart(String serviceName) {
         log.info("[runtime-service] 正在重启 systemd 服务[{}]", serviceName);
-        String cmd = "systemctl restart \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("restart", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -188,8 +191,10 @@ public class SystemdServiceManager implements ServiceManager {
      * 状态
     */
     public CmdResult status(String serviceName) {
-        String cmd = "systemctl status \"" + serviceName + "\" 2>&1";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        // 状态输出含错误流，走已合并 stderr 的实时输出通道
+        return CmdExecutors.executeWithOutput(systemctl("status", serviceName),
+                CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS, new LineCallback() {
+                });
     }
 
     @Override
@@ -198,8 +203,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult enable(String serviceName) {
         log.info("[runtime-service] 设置 systemd 服务[{}] 开机自启", serviceName);
-        String cmd = "systemctl enable \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("enable", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -208,8 +212,7 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult disable(String serviceName) {
         log.info("[runtime-service] 禁用 systemd 服务[{}] 开机自启", serviceName);
-        String cmd = "systemctl disable \"" + serviceName + "\"";
-        return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("disable", serviceName), CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override
@@ -217,8 +220,9 @@ public class SystemdServiceManager implements ServiceManager {
      * 是否已启用
     */
     public boolean isEnabled(String serviceName) {
-        String cmd = "systemctl is-enabled \"" + serviceName + "\" 2>&1";
-        CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdResult result = CmdExecutors.executeWithOutput(systemctl("is-enabled", serviceName),
+                CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS, new LineCallback() {
+                });
         return result.isSuccess() && "enabled".equals(result.getStdout().trim());
     }
 
@@ -227,11 +231,36 @@ public class SystemdServiceManager implements ServiceManager {
      * 是否Installed
     */
     public boolean isInstalled(String serviceName) {
-        Path servicePath = Paths.get(SYSTEMD_SERVICE_DIR, serviceName + ".service");
-        CmdResult result = CmdExecutors.execute(
-                "test -f " + servicePath.toString() + " && echo yes || echo no",
-                CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        return result.isSuccess() && "yes".equals(result.getStdout().trim());
+        Path servicePath = unitFile(serviceName);
+        return Files.isRegularFile(servicePath);
+    }
+
+    /**
+     * 组装 systemctl 子命令，服务名独占一个参数位。
+     *
+     * @param verb 子命令
+     * @param serviceName 服务名
+     * @return 进程参数数组
+     */
+    private static String[] systemctl(String verb, String serviceName) {
+        return new String[]{"systemctl", verb, serviceName};
+    }
+
+    /**
+     * 解析 systemd 单元文件路径，并拒绝含路径分隔符的服务名。
+     *
+     * <p>服务名会拼进单元文件路径并交给 {@code cp} / {@code rm -f}，若允许 {@code ../}
+     * 就能读写删除 {@code /etc/systemd/system} 之外的任意文件。</p>
+     *
+     * @param serviceName 服务名
+     * @return 单元文件路径
+     */
+    private static Path unitFile(String serviceName) {
+        if (serviceName == null || serviceName.isBlank()
+                || serviceName.indexOf('/') >= 0 || serviceName.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("非法的 systemd 服务名: " + serviceName);
+        }
+        return Paths.get(SYSTEMD_SERVICE_DIR, serviceName + ".service");
     }
 
     /**

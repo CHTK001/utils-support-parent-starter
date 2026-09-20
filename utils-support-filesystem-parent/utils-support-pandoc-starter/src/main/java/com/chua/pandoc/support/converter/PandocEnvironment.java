@@ -13,6 +13,7 @@ import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -40,6 +41,11 @@ public class PandocEnvironment {
      * Pandoc GitHub 发布页面
      */
     private static final String GITHUB_RELEASE = "https://github.com/jgm/pandoc/releases/download/" + PANDOC_VERSION;
+
+    /**
+     * macOS 安装包挂载后的临时路径
+     */
+    private static final String PANDOC_PKG_TMP = "/tmp/pandoc.pkg";
 
     /**
      * 检测是否安装 Pandoc 的缓存结果
@@ -88,7 +94,9 @@ public class PandocEnvironment {
      */
     private static String findPandoc() {
         String osName = System.getProperty("os.name").toLowerCase();
-        String cmd = osName.contains("win") ? "where pandoc" : "which pandoc";
+        String[] cmd = osName.contains("win")
+                ? new String[]{"where", "pandoc"}
+                : new String[]{"which", "pandoc"};
 
         try {
             CmdResult result = CmdExecutors.execute(cmd, 5, TimeUnit.SECONDS);
@@ -202,7 +210,7 @@ public class PandocEnvironment {
 
             log.info("执行 Pandoc 安装...");
             CmdResult result = CmdExecutors.execute(
-                "msiexec /i \"" + msiPath.toAbsolutePath() + "\" /qn /norestart",
+                new String[]{"msiexec", "/i", msiPath.toAbsolutePath().toString(), "/qn", "/norestart"},
                 120, TimeUnit.SECONDS
             );
 
@@ -262,11 +270,19 @@ public class PandocEnvironment {
 
             Path mountPoint = Files.createTempDirectory("pandoc_mount_");
             try {
-                CmdExecutors.execute("hdiutil attach -mountpoint \"" + mountPoint.toAbsolutePath()
-                    + "\" \"" + dmgPath.toAbsolutePath() + "\"", 30, TimeUnit.SECONDS);
-                CmdExecutors.execute("cp -R \"" + mountPoint.toAbsolutePath() + "/*.pkg\" /tmp/pandoc.pkg", 30, TimeUnit.SECONDS);
-                CmdExecutors.execute("installer -pkg /tmp/pandoc.pkg -target /", 120, TimeUnit.SECONDS);
-                CmdExecutors.execute("hdiutil detach \"" + mountPoint.toAbsolutePath() + "\"", 30, TimeUnit.SECONDS);
+                String mount = mountPoint.toAbsolutePath().toString();
+                CmdExecutors.execute(new String[]{"hdiutil", "attach", "-mountpoint", mount,
+                        dmgPath.toAbsolutePath().toString()}, 30, TimeUnit.SECONDS);
+                Path pkg = findFirstWithSuffix(mountPoint, ".pkg");
+                if (pkg != null) {
+                    CmdExecutors.execute(new String[]{"cp", "-R", pkg.toString(), PANDOC_PKG_TMP},
+                            30, TimeUnit.SECONDS);
+                    CmdExecutors.execute(new String[]{"installer", "-pkg", PANDOC_PKG_TMP, "-target", "/"},
+                            120, TimeUnit.SECONDS);
+                } else {
+                    log.warn("挂载点 {} 未找到 .pkg 安装包，跳过 installer", mount);
+                }
+                CmdExecutors.execute(new String[]{"hdiutil", "detach", mount}, 30, TimeUnit.SECONDS);
             } finally {
                 try {
                     Files.deleteIfExists(mountPoint);
@@ -285,6 +301,26 @@ public class PandocEnvironment {
         } finally {
             Files.deleteIfExists(dmgPath);
         }
+    }
+
+    /**
+     * 在目录内查找首个指定后缀的文件。
+     *
+     * <p>用于替代 shell 通配符，参数数组形式下 {@code *} 不会被目标命令展开。</p>
+     *
+     * @param dir 目录
+     * @param suffix 文件后缀
+     * @return 匹配的文件路径，未找到返回 null
+     */
+    private static Path findFirstWithSuffix(Path dir, String suffix) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*" + suffix)) {
+            for (Path path : stream) {
+                return path.toAbsolutePath();
+            }
+        } catch (Exception e) {
+            log.debug("遍历目录 {} 失败: {}", dir, e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -321,8 +357,8 @@ public class PandocEnvironment {
                      GZIPInputStream gzis = new GZIPInputStream(fis)) {
                     Path tempTar = extractDir.resolve("pandoc.tar");
                     Files.copy(gzis, tempTar, StandardCopyOption.REPLACE_EXISTING);
-                    CmdExecutors.execute("tar xf \"" + tempTar.toAbsolutePath() + "\" -C \""
-                        + extractDir.toAbsolutePath() + "\"", 30, TimeUnit.SECONDS);
+                    CmdExecutors.execute(new String[]{"tar", "xf", tempTar.toAbsolutePath().toString(),
+                        "-C", extractDir.toAbsolutePath().toString()}, 30, TimeUnit.SECONDS);
                 }
 
                 Path pandocBin = Files.find(extractDir, 5, (p, a) -> p.endsWith("bin/pandoc"))
