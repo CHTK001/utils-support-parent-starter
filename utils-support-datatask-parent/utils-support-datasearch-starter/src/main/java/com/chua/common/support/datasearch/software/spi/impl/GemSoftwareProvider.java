@@ -49,7 +49,7 @@ public class GemSoftwareProvider implements SoftwareProvider {
     */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
-        String cmd = "gem search " + keyword + " --remote";
+        String[] cmd = {"gem", "search", keyword, "--remote"};
 
         log.info("gem 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
@@ -91,7 +91,7 @@ public class GemSoftwareProvider implements SoftwareProvider {
      * Install
     */
     public boolean install(String packageId) {
-        String cmd = "gem install " + packageId;
+        String[] cmd = {"gem", "install", packageId};
         log.info("gem 安装: {}", packageId);
         return executeCommand(cmd, "安装", packageId);
     }
@@ -101,7 +101,7 @@ public class GemSoftwareProvider implements SoftwareProvider {
      * Uninstall
     */
     public boolean uninstall(String packageId) {
-        String cmd = "gem uninstall -x " + packageId;
+        String[] cmd = {"gem", "uninstall", "-x", packageId};
         log.info("gem 卸载: {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
@@ -114,7 +114,7 @@ public class GemSoftwareProvider implements SoftwareProvider {
      * @param packageId 包标识
      * @return 执行命令的结果
      */
-    private boolean executeCommand(String cmd, String action, String packageId) {
+    private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**

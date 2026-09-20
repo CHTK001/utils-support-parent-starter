@@ -397,8 +397,12 @@ public class PackageManagerProvider {
             return false;
         }
         PackageManager.Type pm = availablePms.getFirst();
-        String cmd = getUninstallCommand(pm, packageId);
-        log.info("使用 {} 卸载: {}", pm.getCommand(), cmd);
+        String[] cmd = getUninstallCommand(pm, packageId);
+        log.info("使用 {} 卸载: {}", pm.getCommand(), String.join(" ", cmd));
+        // apt 的不交互原本写成 "DEBIAN_FRONTEND=... apt …" 的 shell 前缀；
+        // 数组形式不经 shell，改为注入环境变量
+        Map<String, String> env = pm == PackageManager.Type.APT
+                ? Map.of("DEBIAN_FRONTEND", "noninteractive") : null;
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 300, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**
@@ -423,7 +427,7 @@ public class PackageManagerProvider {
             public void onError(String command, Throwable throwable) {
                 log.error("  [卸载] 异常: {}", throwable.getMessage());
             }
-        });
+        }, null, env, null);
         boolean ok = result.isSuccess();
         log.info("软件包卸载: packageId={}, exitCode={}, success={}", packageId, result.getExitCode(), ok);
         return ok;
@@ -451,8 +455,8 @@ public class PackageManagerProvider {
      * @return 搜索with的结果
      */
     protected List<SoftwareInfo> searchWith(PackageManager.Type pm, String keyword) {
-        String searchCmd = getSearchCommand(pm, keyword);
-        log.info("  [{}] 执行搜索: {}", pm.getCommand(), searchCmd);
+        String[] searchCmd = getSearchCommand(pm, keyword);
+        log.info("  [{}] 执行搜索: {}", pm.getCommand(), String.join(" ", searchCmd));
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(searchCmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
@@ -498,15 +502,15 @@ public class PackageManagerProvider {
      * @param keyword keyword
      * @return 获取搜索命令的结果
      */
-    protected String getSearchCommand(PackageManager.Type pm, String keyword) {
+    protected String[] getSearchCommand(PackageManager.Type pm, String keyword) {
         return switch (pm) {
-            case WINGET -> "winget search \"" + keyword + "\" --accept-source-agreements";
-            case CHOCO -> "choco search " + keyword;
-            case BREW -> "brew search " + keyword;
-            case APT -> "apt search " + keyword;
-            case YUM -> "yum search " + keyword;
-            case DNF -> "dnf search " + keyword;
-            case APK -> "apk search " + keyword;
+            case WINGET -> new String[]{"winget", "search", keyword, "--accept-source-agreements"};
+            case CHOCO -> new String[]{"choco", "search", keyword};
+            case BREW -> new String[]{"brew", "search", keyword};
+            case APT -> new String[]{"apt", "search", keyword};
+            case YUM -> new String[]{"yum", "search", keyword};
+            case DNF -> new String[]{"dnf", "search", keyword};
+            case APK -> new String[]{"apk", "search", keyword};
         };
     }
 
@@ -517,15 +521,15 @@ public class PackageManagerProvider {
      * @param packageId 包标识
      * @return 获取uninstall命令的结果
      */
-    protected String getUninstallCommand(PackageManager.Type pm, String packageId) {
+    protected String[] getUninstallCommand(PackageManager.Type pm, String packageId) {
         return switch (pm) {
-            case WINGET -> "winget uninstall --id " + packageId + " --silent";
-            case CHOCO -> "choco uninstall -y " + packageId;
-            case BREW -> "brew uninstall " + packageId;
-            case APT -> "DEBIAN_FRONTEND=noninteractive apt remove -y " + packageId;
-            case YUM -> "yum remove -y " + packageId;
-            case DNF -> "dnf remove -y " + packageId;
-            case APK -> "apk del " + packageId;
+            case WINGET -> new String[]{"winget", "uninstall", "--id", packageId, "--silent"};
+            case CHOCO -> new String[]{"choco", "uninstall", "-y", packageId};
+            case BREW -> new String[]{"brew", "uninstall", packageId};
+            case APT -> new String[]{"apt", "remove", "-y", packageId};
+            case YUM -> new String[]{"yum", "remove", "-y", packageId};
+            case DNF -> new String[]{"dnf", "remove", "-y", packageId};
+            case APK -> new String[]{"apk", "del", packageId};
         };
     }
 

@@ -51,7 +51,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
     */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
-        String cmd = "go list -m -versions " + keyword + " 2>&1";
+        String[] cmd = {"go", "list", "-m", "-versions", keyword};
 
         log.info("go 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
@@ -93,7 +93,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
      * Install
     */
     public boolean install(String packageId) {
-        String cmd = "go install " + packageId + "@latest";
+        String[] cmd = {"go", "install", packageId + "@latest"};
         log.info("go 安装: {}", packageId);
         return executeCommand(cmd, "安装", packageId);
     }
@@ -104,7 +104,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
     */
     public boolean uninstall(String packageId) {
         // Go 没有原生命令卸载全局安装的命令，这里尽力而为地清理二进制。
-        String cmd = "go clean -i " + packageId + "@latest";
+        String[] cmd = {"go", "clean", "-i", packageId + "@latest"};
         log.info("go 卸载(尽力而为): {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
@@ -117,7 +117,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
      * @param packageId 包标识
      * @return 执行命令的结果
      */
-    private boolean executeCommand(String cmd, String action, String packageId) {
+    private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**
