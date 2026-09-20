@@ -348,7 +348,7 @@ public final class WechatToolExporter {
                 : new String[]{"python3", "python"};
         for (String cmd : candidates) {
             try {
-                CmdResult result = CmdExecutors.execute(cmd + " --version", 5, TimeUnit.SECONDS);
+                CmdResult result = CmdExecutors.execute(new String[]{cmd, "--version"}, 5, TimeUnit.SECONDS);
                 if (result.isSuccess()) {
                     return cmd;
                 }

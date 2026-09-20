@@ -78,7 +78,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
      */
     private String executeIbd2Sql(File ibdFile) throws Exception {
         String python = findPython();
-        String command = python + " -m ibd2sql \"" + ibdFile.getAbsolutePath() + "\" --ddl --sql";
+        String[] command = {python, "-m", "ibd2sql", ibdFile.getAbsolutePath(), "--ddl", "--sql"};
         CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         if (!result.isSuccess()) {
             throw new IOException("ibd2sql 执行失败, exit=" + result.getExitCode()
@@ -119,7 +119,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
 
         for (String cmd : candidates) {
             try {
-                CmdResult result = CmdExecutors.execute(cmd + " --version", 5, TimeUnit.SECONDS);
+                CmdResult result = CmdExecutors.execute(new String[]{cmd, "--version"}, 5, TimeUnit.SECONDS);
                 if (result.isSuccess()) {
                     return cmd;
                 }

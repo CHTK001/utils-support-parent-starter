@@ -45,14 +45,19 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
         Map<Integer, String> jvms = new HashMap<>();
         try {
             CmdResult r = CmdExecutors.execute(
-                    "ps -eo pid,comm,args | grep -E '[j]ava|sun.tools.launcher' | grep -v grep",
+                    new String[]{"ps", "-eo", "pid,comm,args"},
                     10, TimeUnit.SECONDS);
             if (r.isSuccess()) {
                 for (String line : r.getStdout().split("\n")) {
-                    String[] parts = line.trim().split("\\s+");
+                    String trimmed = line.trim();
+                    String lower = trimmed.toLowerCase();
+                    if (!lower.contains("java") && !lower.contains("sun.tools.launcher")) {
+                        continue;
+                    }
+                    String[] parts = trimmed.split("\\s+");
                     if (parts.length >= 2) {
                         try {
-                            jvms.put(Integer.parseInt(parts[0]), line.trim());
+                            jvms.put(Integer.parseInt(parts[0]), trimmed);
                         } catch (NumberFormatException ignored) {
                         }
                     }
