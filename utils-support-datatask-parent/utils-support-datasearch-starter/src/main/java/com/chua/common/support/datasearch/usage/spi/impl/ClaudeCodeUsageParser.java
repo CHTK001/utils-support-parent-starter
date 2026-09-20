@@ -120,9 +120,11 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      * @return 用量记录流
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
+        // 逐文件持有：记下最近一次用户行的时间，即本次模型请求的发起时刻
+        long[] lastUserMillis = new long[1];
         return streamLines(file)
                 .filter(line -> !line.isBlank())
-                .map(this::parseLineSafe)
+                .map(line -> parseLineSafe(line, lastUserMillis))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .windowUntilChanged(ClaudeCodeUsageParser::groupKey)
@@ -156,10 +158,29 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         long latest = Math.max(leftAt, rightAt);
         AiUsage carrier = pickCarrier(left, right);
         carrier.setStartTime(earliest > 0L ? earliest : null);
+        carrier.setFirstTokenLatencyMillis(smallest(left.getFirstTokenLatencyMillis(),
+                right.getFirstTokenLatencyMillis()));
         if (carrier.getDurationMillis() == null && latest > earliest) {
             carrier.setDurationMillis(latest - earliest);
         }
         return carrier;
+    }
+
+    /**
+     * 取两次分块中更早的首字延迟。
+     *
+     * @param left  先到分块的延迟，可为空
+     * @param right 后到分块的延迟，可为空
+     * @return 两者中的较小值；均为空时返回 空
+     */
+    private static Long smallest(Long left, Long right) {
+        if (left == null) {
+            return right;
+        }
+        if (right == null) {
+            return left;
+        }
+        return Math.min(left, right);
     }
 
     /**
@@ -217,12 +238,13 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     /**
      * 安全解析单行，失败返回 empty（不中断流）。
      *
-     * @param line 单行 JSON
+     * @param line           单行 JSON
+     * @param lastUserMillis 本文件最近一次用户行的时间，跨行传递
      * @return 用量记录；非用量行或解析失败时 empty
      */
-    private Optional<AiUsage> parseLineSafe(String line) {
+    private Optional<AiUsage> parseLineSafe(String line, long[] lastUserMillis) {
         try {
-            return parseNode(Json.parse(line));
+            return parseNode(Json.parse(line), lastUserMillis);
         } catch (Exception e) {
             log.debug("[claude-code] line parse failed: {}", e.getMessage());
             return Optional.empty();
@@ -232,10 +254,18 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     /**
      * 将单条 JSONL 记录解析为用量；仅处理带非零 usage 的 assistant 行。
      *
-     * @param node 解析后的记录
+     * @param node           解析后的记录
+     * @param lastUserMillis 本文件最近一次用户行的时间，跨行传递
      * @return 用量记录；非目标行时 empty
      */
-    private Optional<AiUsage> parseNode(JsonNode node) {
+    private Optional<AiUsage> parseNode(JsonNode node, long[] lastUserMillis) {
+        long timestamp = parseTimestamp(node.get("timestamp").toStringValue());
+        if ("user".equals(node.get("type").toStringValue())) {
+            if (timestamp > 0) {
+                lastUserMillis[0] = timestamp;
+            }
+            return Optional.empty();
+        }
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return Optional.empty();
         }
@@ -257,7 +287,8 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         }
         int cacheRead = usage.get("cache_read_input_tokens").toIntValue(0);
         int cacheWrite = usage.get("cache_creation_input_tokens").toIntValue(0);
-        long startTime = parseTimestamp(node.get("timestamp").toStringValue());
+        long startTime = timestamp;
+        Long firstToken = firstTokenLatency(startTime, lastUserMillis[0]);
         return Optional.of(AiUsage.builder()
                 .provider("anthropic")
                 .model(normalizeModel(message.get("model").toStringValue()))
@@ -269,7 +300,24 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
                 .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .startTime(startTime > 0 ? startTime : null)
+                .firstTokenLatencyMillis(firstToken)
                 .build());
+    }
+
+    /**
+     * 首个分块相对请求发起时刻的延迟。
+     *
+     * <p>转录不含服务端上报的首字延迟，但 {@code type=user} 行即本次请求的发起时刻，
+     * 其后第一个带用量的分块行即首字到达时刻（本机 2987 次请求全部可配对，且无一行倒挂）。
+     * 同一请求的后续分块延迟更大，由 {@link #merge} 取最小值留下首块。</p>
+     *
+     * @param chunkMillis  本分块时间，缺失时为 0
+     * @param requestStart 本次请求的发起时刻，缺失时为 0
+     * @return 首字延迟毫秒；任一端缺失或倒挂时返回 空
+     */
+    private static Long firstTokenLatency(long chunkMillis, long requestStart) {
+        return chunkMillis > 0 && requestStart > 0 && chunkMillis > requestStart
+                ? chunkMillis - requestStart : null;
     }
 
     /**

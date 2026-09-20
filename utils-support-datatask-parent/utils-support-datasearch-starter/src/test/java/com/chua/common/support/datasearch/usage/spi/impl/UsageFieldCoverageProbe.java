@@ -1,12 +1,14 @@
 package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
+import com.chua.common.support.datasearch.usage.spi.UsageFieldCompleter;
 import com.chua.common.support.datasearch.usage.spi.UsageParser;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +19,9 @@ import java.util.function.Predicate;
  *
  * <p>逐个跑本机真实会话数据，统计每个解析器各字段的填充率，用于定位
  * Token 数、耗时、首字延迟等缺失项。只读取数据，不落库。</p>
+ *
+ * <p>两种跑法：默认只看解析器自身出数；带 {@code completed} 参数时逐条过一遍
+ * {@link UsageFieldCompleter}，得到落库路径上的真实填充率（单价、费用、汇总）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,9 +34,9 @@ public final class UsageFieldCoverageProbe {
     private static final int SAMPLE = 4000;
 
     /**
-     * 单个解析器最长耗时
+     * 单个解析器最长耗时（opencode 需在 60GB 库上逐消息回查首字时间，40 秒不够）
      */
-    private static final Duration BUDGET = Duration.ofSeconds(40);
+    private static final Duration BUDGET = Duration.ofMinutes(4);
 
     /**
      * 统计列名；末列为请求号重复数，不参与 {@link #CHECKS} 判定
@@ -52,7 +57,11 @@ public final class UsageFieldCoverageProbe {
     private static final int CACHE_GT_IN_COL = 5;
 
     /**
-     * {@code r>o} 列的计数器下标（LABELS 下标 6）；非零即证明该源的推理量与输出互斥，解析器不该净出
+     * {@code r>o} 列的计数器下标（LABELS 下标 6）；非零说明本列里推理量大于<b>净出后</b>的输出。
+     *
+     * <p>只有对"原样分列、未净出"的解析器（如 opencode）这才是推理与输出互斥的证据；
+     * 已按契约净出的解析器（codebuddy/gemini-cli/copilot-cli/vscode…）只要推理占多数就会恒亮，
+     * 属预期而非缺陷——互斥与否要回到源上的原始字段比。</p>
      */
     private static final int REASON_GT_OUT_COL = 7;
 
@@ -89,11 +98,30 @@ public final class UsageFieldCoverageProbe {
             u -> u.getTotalCost() != null);
 
     /**
+     * 是否逐条过字段补全（落库路径口径）
+     */
+    private static boolean completed;
+
+    /**
+     * 是否打印按模型标识的明细
+     */
+    private static boolean models;
+
+    /**
+     * 全场记录数与费用已补数，用于收尾的加权汇总
+     */
+    private static int grandRecords;
+    private static int grandCosted;
+
+    /**
      * 执行探针
      *
-     * @param args 未使用
+     * @param args 跑法开关：{@code completed} 过一遍字段补全，{@code models} 打印模型明细
      */
     public static void main(String[] args) {
+        List<String> modes = List.of(args);
+        completed = modes.contains("completed");
+        models = modes.contains("models");
         ServiceProvider<UsageParser> provider = ServiceProvider.of(UsageParser.class);
         Map<String, UsageParser> registered = provider.list();
         Map<String, Class<UsageParser>> declared = provider.listType();
@@ -106,6 +134,8 @@ public final class UsageFieldCoverageProbe {
         List<UsageParser> parsers = new ArrayList<>(registered.values());
         System.out.println("SPI 定义=" + declared.size() + " 已实例化=" + parsers.size()
                 + " collect=" + provider.collect().size() + " 静默丢弃=" + dropped);
+        System.out.println("口径=" + (completed ? "补全后（落库路径）" : "解析器原始出数")
+                + (models ? " +模型明细" : ""));
         StringBuilder header = new StringBuilder(String.format("%-24s %7s", "parser", "记录"));
         for (String label : LABELS) {
             header.append(String.format("%7s", label));
@@ -114,6 +144,9 @@ public final class UsageFieldCoverageProbe {
         for (UsageParser parser : parsers) {
             report(parser);
         }
+        System.out.printf("%n合计记录=%d 有费用=%d 覆盖率=%.1f%%%n",
+                grandRecords, grandCosted,
+                grandRecords == 0 ? 0d : grandCosted * 100.0 / grandRecords);
     }
 
     /**
@@ -124,10 +157,11 @@ public final class UsageFieldCoverageProbe {
     private static void report(UsageParser parser) {
         int[] c = new int[LABELS.length + 1];
         Set<String> seenRequests = new HashSet<>();
+        Map<String, int[]> perModel = new LinkedHashMap<>();
         String error = "";
         try {
             parser.streamAll().timeout(BUDGET).take(SAMPLE).toStream()
-                    .forEach(usage -> tally(usage, c, seenRequests));
+                    .forEach(usage -> tally(usage, c, seenRequests, perModel));
         } catch (Exception e) {
             error = e.getClass().getSimpleName();
         }
@@ -137,6 +171,8 @@ public final class UsageFieldCoverageProbe {
                     error.isEmpty() ? "" : " " + error);
             return;
         }
+        grandRecords += total;
+        grandCosted += c[COST_COL];
         StringBuilder row = new StringBuilder(String.format("%-24s %7d", parser.name(), total));
         for (int i = 0; i < LABELS.length; i++) {
             row.append(String.format("%6.0f%%", c[i + 1] * 100.0 / total));
@@ -151,16 +187,41 @@ public final class UsageFieldCoverageProbe {
             row.append(String.format("  推理互斥(%d行)", c[REASON_GT_OUT_COL]));
         }
         System.out.println(row + (error.isEmpty() ? "" : "  ! " + error));
+        if (models) {
+            printModels(parser.name(), perModel);
+        }
     }
+
+    /**
+     * 打印该解析器出现过的模型标识、条数与是否补到价。
+     *
+     * @param name     解析器名
+     * @param perModel 模型标识 -&gt; {条数, 补到价的条数}
+     */
+    private static void printModels(String name, Map<String, int[]> perModel) {
+        perModel.entrySet().stream()
+                .sorted((a, b) -> Integer.compare(b.getValue()[0], a.getValue()[0]))
+                .limit(20)
+                .forEach(entry -> System.out.printf("  %-14s %-40s %5d 条  补价=%d%n",
+                        name, entry.getKey(), entry.getValue()[0], entry.getValue()[1]));
+    }
+
+    /**
+     * {@code cost} 列的计数器下标（LABELS 下标 13）
+     */
+    private static final int COST_COL = 14;
 
     /**
      * 累加一条记录各字段的填充情况。
      *
-     * @param usage        用量记录
+     * @param rawUsage     解析器产出的用量记录
      * @param c            计数器，下标 0 为记录数，{@link #DUP_COL} 为重复请求号数
      * @param seenRequests 本次采样已出现过的请求号
+     * @param perModel     模型标识 -&gt; {条数, 补到单价的条数}
      */
-    private static void tally(AiUsage usage, int[] c, Set<String> seenRequests) {
+    private static void tally(AiUsage rawUsage, int[] c, Set<String> seenRequests,
+                              Map<String, int[]> perModel) {
+        AiUsage usage = completed ? UsageFieldCompleter.complete(rawUsage) : rawUsage;
         c[0]++;
         String requestId = usage.getRequestId();
         if (notBlank(requestId) && !seenRequests.add(requestId)) {
@@ -170,6 +231,12 @@ public final class UsageFieldCoverageProbe {
             if (CHECKS[i].test(usage)) {
                 c[i + 1]++;
             }
+        }
+        String model = usage.getModel() == null ? "<null>" : usage.getModel();
+        int[] stat = perModel.computeIfAbsent(model, k -> new int[2]);
+        stat[0]++;
+        if (usage.getInputUnitPrice() != null || usage.getOutputUnitPrice() != null) {
+            stat[1]++;
         }
     }
 
@@ -194,10 +261,10 @@ public final class UsageFieldCoverageProbe {
     }
 
     /**
-     * 推理量是否超过输出。
+     * 推理量是否超过解析器出数后的输出量。
      *
-     * <p>源把推理记成输出的明细时该情况不可能出现；一旦出现即说明这段数据里推理与输出互斥，
-     * 解析器原样分列即可，不该再净出。</p>
+     * <p>源把推理记成输出的明细、且解析器未净出时该情况不可能出现，此时它证明推理与输出互斥。
+     * 已净出的解析器比较的是净输出，推理占多数时本列必亮，属预期，要判互斥得回源字段比。</p>
      *
      * @param usage 用量记录
      * @return true 表示 {@code reasoningTokens} 严格大于 {@code outputTokens}

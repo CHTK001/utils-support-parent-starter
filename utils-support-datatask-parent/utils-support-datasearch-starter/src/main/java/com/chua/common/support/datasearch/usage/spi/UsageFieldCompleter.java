@@ -110,11 +110,17 @@ public final class UsageFieldCompleter {
      * 上游按 credits 出账的记录若贴上每百万 Token 的法币单价，同一行的单价与费用
      * 就会分属两种币种，因此这类记录只做汇总字段补全。</p>
      *
+     * <p>仅<b>已经带着金额</b>的记录才受此限制：不少解析器会给分文未记的行也盖上币种标签
+     * （zcode 曾无条件写 {@code CREDITS}），这类空标签不该把整行的定价补全挡掉。</p>
+     *
      * @param usage   用量记录
      * @param pricing 定价表记录
-     * @return true 表示币种不一致，应跳过价格类字段
+     * @return true 表示记录已带金额且币种不一致，应跳过价格类字段
      */
     private static boolean currencyConflict(AiUsage usage, ModelDefinition pricing) {
+        if (usage.getTotalCost() == null && usage.getInputCost() == null && usage.getOutputCost() == null) {
+            return false;
+        }
         String recordCurrency = usage.getCurrency();
         String pricingCurrency = pricing.getCurrency();
         return recordCurrency != null && !recordCurrency.isBlank()

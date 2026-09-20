@@ -52,10 +52,14 @@ public class OpencodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 消息表用量查询：一次请求一行，附带起止时间（算耗时）、结束原因与消息主键（作请求号）
+     * 消息表用量查询：一次请求一行，附带起止时间（算耗时）、首字时间、结束原因与消息主键（作请求号）
+     *
+     * <p>结束时间取 {@code $.time.completed} 而不是行上的 {@code time_updated}：后者在
+     * 140885 条里有 107763 条晚于真正的完成时刻（消息行完成后还会被更新），拿它算耗时偏大。
+     * 首字时间取该消息最早的文字/推理/工具块，即模型第一个产出落库的时刻。</p>
      */
     private static final String SQL_MESSAGES =
-            "SELECT time_created, time_updated, "
+            "SELECT time_created, COALESCE(CAST(json_extract(data, '$.time.completed') AS INTEGER), time_updated), "
             + "CAST(json_extract(data, '$.finish') AS TEXT), "
             + "CAST(json_extract(data, '$.providerID') AS TEXT), "
             + "CAST(json_extract(data, '$.modelID') AS TEXT), "
@@ -65,6 +69,9 @@ public class OpencodeUsageParser extends BaseUsageParser {
             + "CAST(json_extract(data, '$.tokens.cache.read') AS INTEGER), "
             + "CAST(json_extract(data, '$.tokens.cache.write') AS INTEGER), "
             + "CAST(json_extract(data, '$.cost') AS REAL), "
+            + "(SELECT MIN(p.time_created) FROM part p "
+            + " WHERE p.message_id = message.id "
+            + "   AND json_extract(p.data, '$.type') IN ('text', 'reasoning', 'tool')), "
             + "id "
             + "FROM message "
             + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
@@ -121,13 +128,15 @@ public class OpencodeUsageParser extends BaseUsageParser {
         int cacheRead = rs.getInt(9);
         int cacheWrite = rs.getInt(10);
         double costDouble = rs.getDouble(11);
-        String requestId = rs.getString(12);
+        long firstTokenTime = rs.getLong(12);
+        String requestId = rs.getString(13);
 
         int promptTokens = Math.max(0, inputTokens) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
         int cacheHit = Math.min(cacheRead, promptTokens);
         int totalTokens = promptTokens + Math.max(0, outputTokens);
         BigDecimal totalCost = BigDecimal.valueOf(costDouble);
         long duration = endTime > startTime ? endTime - startTime : 0L;
+        long firstToken = firstTokenTime > startTime ? firstTokenTime - startTime : 0L;
 
         return AiUsage.builder()
                 .provider(provider)
@@ -143,6 +152,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
                 .currency("USD")
                 .startTime(startTime > 0 ? startTime : null)
                 .durationMillis(duration > 0 ? duration : null)
+                .firstTokenLatencyMillis(firstToken > 0 ? firstToken : null)
                 .build();
     }
 }
