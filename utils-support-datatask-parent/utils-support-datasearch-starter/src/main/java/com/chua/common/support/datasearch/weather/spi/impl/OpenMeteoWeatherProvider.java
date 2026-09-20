@@ -49,8 +49,10 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     */
     private static final String FORECAST_URL =
             "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s"
-                    + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
-                    + "&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
+                    + "&current=temperature_2m,apparent_temperature,relative_humidity_2m"
+                    + ",cloud_cover,surface_pressure,weather_code,wind_speed_10m"
+                    + "&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m"
+                    + "&daily=temperature_2m_mean,uv_index_max,sunshine_duration"
                     + "&forecast_days=3&timezone=Asia%%2FShanghai";
 
     /**
@@ -134,14 +136,19 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
         JsonNode current = fc.path("current");
         if (!current.isMissingNode()) {
             info.setTempC(num(current.path("temperature_2m")));
+            info.setFeelsLikeC(num(current.path("apparent_temperature")));
             info.setHumidity(intVal(current.path("relative_humidity_2m")));
+            info.setCloudcover(intVal(current.path("cloud_cover")));
+            info.setPressure(intVal(current.path("surface_pressure")));
             info.setWindSpeedKmph(num(current.path("wind_speed_10m")));
+            info.setObservationTime(text(current.path("time")));
             info.setWeatherDesc(describeWmo(current.path("weather_code").asInt(-1)));
         }
         // 按天分组(日期列表,每天 24 点)
         JsonNode hourly = fc.path("hourly");
         JsonNode times = hourly.path("time");
         JsonNode temps = hourly.path("temperature_2m");
+        JsonNode feels = hourly.path("apparent_temperature");
         JsonNode hums = hourly.path("relative_humidity_2m");
         JsonNode codes = hourly.path("weather_code");
         JsonNode winds = hourly.path("wind_speed_10m");
@@ -159,6 +166,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
             HourlyWeather hw = new HourlyWeather();
             hw.setTime(time);
             hw.setTempC(num(temps.path(i)));
+            hw.setFeelsLikeC(num(feels.path(i)));
             hw.setHumidity(intVal(hums.path(i)));
             hw.setWindSpeedKmph(num(winds.path(i)));
             hw.setWeatherDesc(describeWmo(codes.path(i).asInt(-1)));
@@ -172,6 +180,22 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
                     df.setMinTempC(hw.getTempC());
                 }
             }
+        }
+        // 日级汇总：均温/紫外线/日照，按日期对齐合并
+        JsonNode daily = fc.path("daily");
+        JsonNode days = daily.path("time");
+        JsonNode avgTemps = daily.path("temperature_2m_mean");
+        JsonNode uvs = daily.path("uv_index_max");
+        JsonNode suns = daily.path("sunshine_duration");
+        for (int i = 0; i < days.size(); i++) {
+            String day = days.path(i).asText();
+            DailyForecast df = byDay.get(day.substring(0, Math.min(10, day.length())));
+            if (df == null) {
+                continue;
+            }
+            df.setAvgTempC(num(avgTemps.path(i)));
+            df.setUvIndex(text(uvs.path(i)));
+            df.setSunHour(hoursOf(suns.path(i)));
         }
         List<DailyForecast> forecast = new ArrayList<>(byDay.values());
         info.setForecast(forecast);
@@ -236,6 +260,33 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
             return "雷暴";
         }
         return "未知";
+    }
+
+    /**
+     * 读取文本节点。
+     *
+     * @param node 文本节点
+     * @return 文本；缺失/空白返回 空
+     */
+    private String text(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        String value = node.asText(null);
+        return value == null || value.isBlank() ? null : value;
+    }
+
+    /**
+     * 日照时长（秒）转小时（保留 1 位小数），与 wttr.in 的 sunHour 口径一致。
+     *
+     * @param node 秒数节点
+     * @return 小时数字符串；缺失返回 空
+     */
+    private String hoursOf(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull() || !node.isNumber()) {
+            return null;
+        }
+        return String.valueOf(Math.round(node.asDouble() / 360.0) / 10.0);
     }
 
     /**
