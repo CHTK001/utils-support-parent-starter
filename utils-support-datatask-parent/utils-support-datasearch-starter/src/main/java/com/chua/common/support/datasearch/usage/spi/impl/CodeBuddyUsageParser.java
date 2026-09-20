@@ -13,8 +13,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 腾讯云 编码buddy 编码 usage parser.
@@ -47,14 +51,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  *     }
  *   }
  * }
- * }</pre> "完成_thinking_令牌": 14,
- * "抵免": 0, ...
- *     }
- *   }
- * }
  * }</pre>
  *
  * <p>国内版的同名目录 {@code ~/.codebuddycn} 也会被一并扫描。</p>
+ *
+ * <p>转录行的 {@code timestamp} 是该条 assistant 消息的落盘时刻，本机实测与运行日志里
+ * {@code Stream completed} 的本地时间戳逐秒吻合，即它标记的是响应<b>结束</b>而非开始；
+ * 真实耗时只能从 {@code ~/.codebuddy/logs/<date>/project__*.log} 的
+ * {@code [ModelProvider]} 事件行取（{@code requestId} 与转录行的 {@code id} 同源）：
+ * {@code Stream completed ... elapsed=1721ms} 给出整段耗时，
+ * {@code First meaningful token received ... ttft=1213ms} 给出首字延迟。
+ * 取到耗时后 {@code startTime} 回退为 {@code timestamp - elapsed}，以免把结束时刻当开始时刻；
+ * 日志已滚动或该请求未记录时两列留空。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -68,6 +76,35 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     private static final Path PROJECTS_DIR_CN = Path.of(
             System.getProperty("user.home"), ".codebuddycn", "projects");
 
+    /**
+     * 国际版运行日志根目录，按日期分子目录存放 project 级日志
+     */
+    private static final Path LOGS_DIR_INTL = Path.of(
+            System.getProperty("user.home"), ".codebuddy", "logs");
+
+    /**
+     * 国内版运行日志根目录
+     */
+    private static final Path LOGS_DIR_CN = Path.of(
+            System.getProperty("user.home"), ".codebuddycn", "logs");
+
+    /**
+     * 流结束事件行前缀，其 {@code elapsed} 即整段请求耗时
+     */
+    private static final String EVENT_STREAM_COMPLETED = "Stream completed:";
+
+    /**
+     * 首个有效内容块事件行前缀，其 {@code ttft} 即首字延迟
+     */
+    private static final String EVENT_FIRST_TOKEN = "First meaningful token received:";
+
+    private static final Pattern REQUEST_ID_PATTERN =
+            Pattern.compile("requestId=([0-9a-zA-Z\\-]+)");
+
+    private static final Pattern ELAPSED_PATTERN = Pattern.compile("elapsed=(\\d+)ms");
+
+    private static final Pattern TTFT_PATTERN = Pattern.compile("ttft=(\\d+)ms");
+
     private static final String PROVIDER_CODEBUDDY = "codebuddy"; // 提供者codebuddy
 
     /**
@@ -75,6 +112,11 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      *
      * @return {@code "codebuddy"}
      */
+    @Override
+    public String name() {
+        return "codebuddy";
+    }
+
     /**
      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
@@ -83,10 +125,6 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
     }
-    @Override
-    public String name() {
-        return "codebuddy";
-    }
 
     /**
      * 解析 全部 编码buddy 会话 transcripts 和 extracts 令牌 usage.
@@ -94,6 +132,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      * @return list 的 aiusage records, one per 完成 assistant 响应
      */
     @Override protected List<AiUsage> parseAll() {
+        Map<String, RequestTiming> timings = loadRequestTimings();
         List<AiUsage> result = new ArrayList<>();
         AtomicInteger fileCount = new AtomicInteger(0);
         for (Path projectsDir : new Path[] {PROJECTS_DIR_INTL, PROJECTS_DIR_CN}) {
@@ -107,7 +146,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
                         .forEach(file -> {
                             fileCount.incrementAndGet();
                             try {
-                                parseJsonlFile(file, result);
+                                parseJsonlFile(file, result, timings);
                             } catch (IOException e) {
                                 log.debug("[codebuddy] read failed {}: {}",
                                         file.getFileName(), e.getMessage());
@@ -123,13 +162,130 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
+     * 扫描运行日志，建立请求号到时间线（整段耗时、首字延迟）的映射。
+     *
+     * @return 请求号到时间线的映射；日志目录缺失时为空映射
+     */
+    private Map<String, RequestTiming> loadRequestTimings() {
+        Map<String, RequestTiming> timings = new HashMap<>();
+        for (Path logsDir : new Path[] {LOGS_DIR_INTL, LOGS_DIR_CN}) {
+            if (!Files.isDirectory(logsDir)) {
+                continue;
+            }
+            try (var stream = Files.walk(logsDir)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().endsWith(".log"))
+                        .forEach(file -> readTimingLog(file, timings));
+            } catch (IOException e) {
+                log.debug("[codebuddy] log walk failed {}: {}", logsDir, e.getMessage());
+            }
+        }
+        log.debug("[codebuddy] 载入 {} 个请求的运行时间线", timings.size());
+        return timings;
+    }
+
+    /**
+     * 逐行读取单个运行日志，只关心带请求号的两个流式事件行。
+     *
+     * @param file    日志文件
+     * @param timings 累加的请求号映射
+     */
+    private void readTimingLog(Path file, Map<String, RequestTiming> timings) {
+        try (var lines = Files.lines(file, StandardCharsets.UTF_8)) {
+            lines.filter(line -> line.contains("requestId="))
+                    .forEach(line -> appendTiming(line, timings));
+        } catch (IOException e) {
+            log.debug("[codebuddy] log read failed {}: {}", file.getFileName(), e.getMessage());
+        }
+    }
+
+    /**
+     * 从一条 [ModelProvider] 事件行取出耗时或首字延迟，累进对应请求号。
+     *
+     * <p>{@code elapsed} 同时出现在多个事件行上，故只认 {@code Stream completed} 的
+     * 那一份作为整段耗时；同一请求的字段以首次出现的值为准。</p>
+     *
+     * @param line    事件行
+     * @param timings 累加的请求号映射
+     */
+    private static void appendTiming(String line, Map<String, RequestTiming> timings) {
+        boolean completed = line.contains(EVENT_STREAM_COMPLETED);
+        boolean firstToken = !completed && line.contains(EVENT_FIRST_TOKEN);
+        if (!completed && !firstToken) {
+            return;
+        }
+        Matcher requestId = REQUEST_ID_PATTERN.matcher(line);
+        Matcher millis = (completed ? ELAPSED_PATTERN : TTFT_PATTERN).matcher(line);
+        if (!requestId.find() || !millis.find()) {
+            return;
+        }
+        RequestTiming timing = timings.computeIfAbsent(requestId.group(1), key -> new RequestTiming());
+        long value = Long.parseLong(millis.group(1));
+        if (completed) {
+            timing.mergeDuration(value);
+        } else {
+            timing.mergeFirstToken(value);
+        }
+    }
+
+    /**
+     * 单个请求的运行时间线，字段以首次落到的值为准。
+     */
+    private static final class RequestTiming {
+
+        private static final long UNSET = -1L;
+
+        private long durationMillis = UNSET;
+
+        private long firstTokenMillis = UNSET;
+
+        /**
+         * 并入整段耗时，已记录过则保持首值。
+         *
+         * @param value 日志上报的 elapsed 毫秒数
+         */
+        void mergeDuration(long value) {
+            if (durationMillis == UNSET) {
+                durationMillis = value;
+            }
+        }
+
+        /**
+         * 并入首字延迟，已记录过则保持首值。
+         *
+         * @param value 日志上报的 ttft 毫秒数
+         */
+        void mergeFirstToken(long value) {
+            if (firstTokenMillis == UNSET) {
+                firstTokenMillis = value;
+            }
+        }
+
+        /**
+         * @return 整段耗时毫秒数；未记录时 null
+         */
+        Long durationMillis() {
+            return durationMillis == UNSET ? null : Long.valueOf(durationMillis);
+        }
+
+        /**
+         * @return 首字延迟毫秒数；未记录时 null
+         */
+        Long firstTokenMillis() {
+            return firstTokenMillis == UNSET ? null : Long.valueOf(firstTokenMillis);
+        }
+    }
+
+    /**
      * 读取 one transcript 文件 线 by 线, extracting assistant usage.
      *
-     * @param file   路径 转为 the 会话 JSONL 文件
-     * @param result accumulator 列表 for 解析 records
+     * @param file    路径 转为 the 会话 JSONL 文件
+     * @param result  accumulator 列表 for 解析 records
+     * @param timings 请求号到运行时间线的映射
      * @throws IOException if the 文件 cannot be 读取
      */
-    private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
+    private void parseJsonlFile(Path file, List<AiUsage> result,
+                               Map<String, RequestTiming> timings) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -137,7 +293,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
                     continue;
                 }
                 try {
-                    parseNode(Json.parse(line)).ifPresent(result::add);
+                    parseNode(Json.parse(line), timings).ifPresent(result::add);
                 } catch (Exception e) {
                     log.debug("[codebuddy] parse failed {}: {}", file.getFileName(), e.getMessage());
                 }
@@ -149,10 +305,11 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
      * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
      * 完成 assistant 响应 carrying usage 数据.
      *
-     * @param node 解析 JSON 的 a 单个 transcript 线
+     * @param node    解析 JSON 的 a 单个 transcript 线
+     * @param timings 请求号到运行时间线的映射
      * @return the 解析 record, 或 空 When.js.js no usage 是否 present
      */
-    private java.util.Optional<AiUsage> parseNode(JsonNode node) {
+    private java.util.Optional<AiUsage> parseNode(JsonNode node, Map<String, RequestTiming> timings) {
         if (!"message".equals(node.get("type").toStringValue())
                 || !"assistant".equals(node.get("role").toStringValue())) {
             return java.util.Optional.empty();
@@ -166,7 +323,7 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
         if (inputTokens <= 0 && outputTokens <= 0) {
             return java.util.Optional.empty();
         }
-        long startTime = node.get("timestamp").toLongValue(0L);
+        long endTime = node.get("timestamp").toLongValue(0L);
         JsonNode providerData = node.get("providerData");
         double credit = 0.0d;
         if (!providerData.isMissingValue() && !providerData.get("rawUsage").isMissingValue()) {
@@ -181,17 +338,24 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
         int netOutput = completion - reasoning;
         Integer reasoningTokens = reasoning > 0 ? Integer.valueOf(reasoning) : null;
 
+        String messageId = node.get("id").toStringValue("");
+        RequestTiming timing = timings.get(messageId);
+        Long durationMillis = timing == null ? null : timing.durationMillis();
+        Long firstTokenMillis = timing == null ? null : timing.firstTokenMillis();
+        long startTime = startTimeOf(endTime, durationMillis);
+
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_CODEBUDDY)
                 .model(firstNonBlank(providerData.get("model").toStringValue(), "unknown"))
-                .requestId(firstNonBlank(node.get("id").toStringValue(),
-                        node.get("sessionId").toStringValue()))
+                .requestId(firstNonBlank(messageId, node.get("sessionId").toStringValue()))
                 .inputTokens(prompt)
                 .outputTokens(netOutput)
                 .totalTokens(prompt + netOutput)
                 .cacheTokens(readCacheTokens(usage))
                 .reasoningTokens(reasoningTokens)
-                .startTime(startTime > 0 ? startTime : null)
+                .startTime(startTime > 0L ? startTime : null)
+                .durationMillis(durationMillis)
+                .firstTokenLatencyMillis(firstTokenMillis)
                 .finishReason(node.get("status").toStringValue());
         if (credit > 0) {
             builder.totalCost(BigDecimal.valueOf(credit)).currency("CREDITS");
