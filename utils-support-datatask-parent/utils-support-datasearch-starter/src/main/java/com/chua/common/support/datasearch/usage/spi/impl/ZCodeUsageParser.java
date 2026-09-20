@@ -92,14 +92,19 @@ public class ZCodeUsageParser extends BaseUsageParser {
 
         String providerId = asStr(row.get("provider_id"));
 
+        // reasoning_tokens 含在 output_tokens 之内：源侧 provider_total_tokens 与
+        // computed_total_tokens 都等于 input + output，推理量并未另占一段。
+        int reasoningHit = Math.max(0, Math.min(reasoning, outputTokens));
+        int netOutput = outputTokens - reasoningHit;
+
         return AiUsage.builder()
                 .provider(PROVIDER_ZCODE)
                 .model(asStr(row.get("model_id")))
                 .requestId(firstNonBlank(asStr(row.get("id")), asStr(row.get("session_id"))))
                 .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
-                .reasoningTokens(reasoning > 0 ? Integer.valueOf(reasoning) : null)
+                .outputTokens(netOutput)
+                .totalTokens(inputTokens + netOutput)
+                .reasoningTokens(reasoningHit > 0 ? Integer.valueOf(reasoningHit) : null)
                 .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .currency("CREDITS")

@@ -149,8 +149,7 @@ public class QwenUsageParser extends BaseUsageParser {
                 .requestId(sessionId)
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
-                .totalTokens(asInt(stats.get("totalTokens")) > 0
-                        ? asInt(stats.get("totalTokens")) : inputTokens + outputTokens)
+                .totalTokens(inputTokens + outputTokens)
                 .cacheTokens(cached > 0 ? cached : null)
                 .reasoningTokens(thoughts > 0 ? thoughts : null)
                 .startTime(timestamp > 0 ? timestamp : null)

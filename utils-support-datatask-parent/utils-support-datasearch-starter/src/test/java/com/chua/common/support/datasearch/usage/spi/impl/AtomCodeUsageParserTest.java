@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * 内部阶段：
  *   1. hermetic —— 子进程注入临时 ATOMCODE_HOME，端到端验收
  *      模型归属（meta 主导模型选取 / config 兜底 / 无 meta 文件）、
- *      token 口径（非缓存输入、缓存单列、totalTokens 汇总）、
+ *      token 口径（全量输入含缓存、命中单列且不超过输入、totalTokens 汇总）、
  *      脏行与无 usage 行跳过；
  *   2. real —— 对本机 ~/.atomcode 真实数据验收（无数据时自动跳过）。
  * 任一校验失败抛出 {@link AssertionError} 并输出 FAIL，全部通过输出 PASS。
@@ -105,10 +105,12 @@ public class AtomCodeUsageParserTest {
                     {"provider_id":"Cfg-glm","model_id":"glm-small","tokens":{"input":10,"output":1,"cached_input":5}}]},
                   {"turn_id":2,"model_usage":[]}]}
                 """.formatted(sessionA));
-        // 会话 B：有 usage 但无 meta 文件 → 全部走 config 兜底
+        // 会话 B：有 usage 但无 meta 文件 → 全部走 config 兜底；末行是 cached > prompt 的脏行
         Files.writeString(sessionDir.resolve(sessionB + ".jsonl"), String.join("\n",
                 "{\"v\":1,\"ts\":1787964681603,\"session_id\":\"" + sessionB + "\",\"turn_id\":1,"
                         + "\"usage\":{\"prompt\":800,\"completion\":40,\"cached\":100}}",
+                "{\"v\":1,\"ts\":1787964681604,\"session_id\":\"" + sessionB + "\",\"turn_id\":2,"
+                        + "\"usage\":{\"prompt\":300,\"completion\":20,\"cached\":500}}",
                 "{\"not-a-usage-line\":true}",
                 "{broken json",
                 ""));
@@ -128,9 +130,9 @@ public class AtomCodeUsageParserTest {
      */
     private static int verifyHermetic(Path home) {
         List<AiUsage> records = new AtomCodeUsageParser().streamAll().collectList().block(Duration.ofMinutes(1));
-        // 会话 A 两条 + 会话 B 一条；脏行/无 usage 行/空 meta turn 均被跳过
-        check(records != null && records.size() == 3, "记录数 = 3，实际 " + (records == null ? "null" : records.size()));
-        if (records == null || records.size() != 3) {
+        // 会话 A 两条 + 会话 B 两条（含 cached > prompt 脏行）；脏结构行/无 usage 行/空 meta turn 均被跳过
+        check(records != null && records.size() == 4, "记录数 = 4，实际 " + (records == null ? "null" : records.size()));
+        if (records == null || records.size() != 4) {
             System.out.println("FAIL hermetic 记录数不符");
             return failureCount > 0 ? 1 : 0;
         }
@@ -141,9 +143,9 @@ public class AtomCodeUsageParserTest {
         check(turn1 != null, "会话A turn1 存在");
         if (turn1 != null) {
             check("glm-big".equals(turn1.getModel()), "turn1 模型取主导条目 glm-big，实际 " + turn1.getModel());
-            check(Integer.valueOf(200).equals(turn1.getInputTokens()), "turn1 非缓存输入 = 200（1000-800），实际 " + turn1.getInputTokens());
+            check(Integer.valueOf(1000).equals(turn1.getInputTokens()), "turn1 全量输入 = 1000（prompt 原样，含缓存），实际 " + turn1.getInputTokens());
             check(Integer.valueOf(100).equals(turn1.getOutputTokens()), "turn1 输出 = 100，实际 " + turn1.getOutputTokens());
-            check(Integer.valueOf(300).equals(turn1.getTotalTokens()), "turn1 总数 = 300（不含缓存），实际 " + turn1.getTotalTokens());
+            check(Integer.valueOf(1100).equals(turn1.getTotalTokens()), "turn1 总数 = 1100（输入+输出），实际 " + turn1.getTotalTokens());
             check(Integer.valueOf(800).equals(turn1.getCacheTokens()), "turn1 缓存单列 = 800，实际 " + turn1.getCacheTokens());
         }
 
@@ -151,7 +153,7 @@ public class AtomCodeUsageParserTest {
         check(turn2 != null, "会话A turn2 存在");
         if (turn2 != null) {
             check("cfg-glm-real".equals(turn2.getModel()), "turn2 空 model_usage 回退 config 真实模型名，实际 " + turn2.getModel());
-            check(Integer.valueOf(500).equals(turn2.getInputTokens()), "turn2 非缓存输入 = 500（cached=0），实际 " + turn2.getInputTokens());
+            check(Integer.valueOf(500).equals(turn2.getInputTokens()), "turn2 输入 = 500（cached=0），实际 " + turn2.getInputTokens());
             check(turn2.getCacheTokens() == null, "turn2 无缓存则 cacheTokens 为 null，实际 " + turn2.getCacheTokens());
         }
 
@@ -159,8 +161,16 @@ public class AtomCodeUsageParserTest {
         check(sessionB != null, "会话B（无 meta）记录存在");
         if (sessionB != null) {
             check("cfg-glm-real".equals(sessionB.getModel()), "会话B 回退 config 兜底模型，实际 " + sessionB.getModel());
-            check(Integer.valueOf(700).equals(sessionB.getInputTokens()), "会话B 非缓存输入 = 700（800-100），实际 " + sessionB.getInputTokens());
+            check(Integer.valueOf(800).equals(sessionB.getInputTokens()), "会话B 全量输入 = 800，实际 " + sessionB.getInputTokens());
             check(Integer.valueOf(100).equals(sessionB.getCacheTokens()), "会话B 缓存单列 = 100，实际 " + sessionB.getCacheTokens());
+        }
+
+        AiUsage dirty = byRequest.get("22222222-2222-2222-2222-222222222222-2");
+        check(dirty != null, "会话B 脏行（cached > prompt）记录存在");
+        if (dirty != null) {
+            check(Integer.valueOf(300).equals(dirty.getInputTokens()), "脏行输入 = 300，实际 " + dirty.getInputTokens());
+            check(Integer.valueOf(300).equals(dirty.getCacheTokens()),
+                    "脏行命中封顶到输入 = 300（原值 500），实际 " + dirty.getCacheTokens());
         }
         System.out.println((failureCount == 0 ? "CHILD_PASS" : "CHILD_FAIL") + " " + passCount + " checks");
         return failureCount > 0 ? 1 : 0;
@@ -196,7 +206,13 @@ public class AtomCodeUsageParserTest {
                 .filter(r -> r.getInputTokens() != null)
                 .filter(r -> r.getInputTokens() < 0)
                 .limit(3)
-                .forEach(r -> check(false, "非缓存输入出现负值: " + r.getRequestId() + " = " + r.getInputTokens()));
+                .forEach(r -> check(false, "全量输入出现负值: " + r.getRequestId() + " = " + r.getInputTokens()));
+
+        long cacheOverInput = records.stream()
+                .filter(r -> r.getCacheTokens() != null && r.getInputTokens() != null)
+                .filter(r -> r.getCacheTokens() > r.getInputTokens())
+                .count();
+        check(cacheOverInput == 0, "cacheTokens <= inputTokens（违例 " + cacheOverInput + " 条）");
 
         String models = records.stream().map(AiUsage::getModel).distinct().collect(Collectors.joining(", "));
         System.out.println("  真实数据 " + records.size() + " 条，模型分布: " + models);

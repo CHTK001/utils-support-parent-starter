@@ -217,17 +217,20 @@ public class ZedUsageParser extends BaseUsageParser {
     private AiUsage build(String threadId, String requestId, String model,
                           int input, int output, int cacheRead, int cacheWrite,
                           int reasoning, long updatedAt) {
-        int cacheTokens = Math.max(cacheRead, cacheWrite);
+        int promptInput = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+        int cacheHit = Math.min(Math.max(0, cacheRead), promptInput);
+        // Anthropic 形制的 output_tokens 已含思考令牌，reasoning_tokens 只是其中的拆分明细，净出后单列。
+        int completion = Math.max(0, output);
+        int reasoningHit = Math.min(completion, Math.max(0, reasoning));
         return AiUsage.builder()
                 .provider(PROVIDER_ZED)
                 .model(model != null && !model.isBlank() ? model : PROVIDER_ZED)
                 .requestId(requestId)
-                .inputTokens(Math.max(0, input))
-                .outputTokens(Math.max(0, output))
-                .totalTokens(Math.max(0, input) + Math.max(0, output)
-                        + Math.max(0, cacheRead) + Math.max(0, cacheWrite))
-                .cacheTokens(cacheTokens > 0 ? cacheTokens : null)
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .inputTokens(promptInput > 0 ? Integer.valueOf(promptInput) : null)
+                .outputTokens(completion - reasoningHit)
+                .totalTokens(promptInput + completion - reasoningHit)
+                .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
+                .reasoningTokens(reasoningHit > 0 ? reasoningHit : null)
                 .currency("USD")
                 .estimated(false)
                 .startTime(updatedAt > 0 ? updatedAt : null)

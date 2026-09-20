@@ -37,8 +37,9 @@ import java.util.Map;
  *
  * <p>token 语义：{@code tokens.input} 本身就是<b>非缓存</b>
  * 输入；{@code cache.read} / {@code cache.write} 单独统计，
- * <i>不</i>计入总量。{@code session} 表同样存在，保存按会话累计的计数，
- * 但用于计费的逐次请求用量记录在本表；若把会话累计值也取过来会与本源重复计数，
+ * <i>不</i>计入该字段。由于本仓库约定 {@code inputTokens} 含缓存，产出时把两段并回，
+ * 命中量单独落在 {@code cacheTokens}（写入量不是命中，不报）。{@code session} 表同样存在，
+ * 保存按会话累计的计数，但用于计费的逐次请求用量记录在本表；若把会话累计值也取过来会与本源重复计数，
  * 因此只读取 {@code message} 行。</p>
  *
  * <p>新版 Kilo CLI 可能写入 OpenCode v2 结构
@@ -149,6 +150,9 @@ public class KiloUsageParser extends BaseUsageParser {
         if (input <= 0 && output <= 0) {
             return null;
         }
+        // tokens.input 只是非缓存段，按本仓库口径把命中与写入并回全量输入；写入不是命中，不进 cacheTokens。
+        int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+        int cacheHit = Math.min(cacheRead, promptTokens);
         double cost = asDouble(row.get("cost"));
         long completed = asLong(row.get("time_completed"));
         long created = asLong(row.get("time_created_inner"));
@@ -161,11 +165,11 @@ public class KiloUsageParser extends BaseUsageParser {
                 .provider(PROVIDER_KILO)
                 .model(modelId.isBlank() ? "kilo-unknown" : modelId)
                 .requestId(providerId + ":" + modelId)
-                .inputTokens(input)
+                .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)
-                .totalTokens(input + output)
+                .totalTokens(promptTokens + output)
                 .reasoningTokens(reasoning > 0 ? reasoning : null)
-                .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
+                .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .currency("USD")
                 .estimated(false)
                 .startTime(start > 0 ? start : null);

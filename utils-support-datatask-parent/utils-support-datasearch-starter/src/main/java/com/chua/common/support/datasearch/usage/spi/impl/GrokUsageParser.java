@@ -167,16 +167,15 @@ public class GrokUsageParser extends BaseUsageParser {
             int outputTokens = usage.get("outputTokens").toIntValue(0);
             int cachedRead = Math.max(usage.get("cachedReadTokens").toIntValue(0),
                     usage.get("cacheReadInputTokens").toIntValue(0));
-            int cacheCreation = Math.max(usage.get("cacheCreationTokens").toIntValue(0),
-                    usage.get("cachedWriteTokens").toIntValue(0));
             int reasoning = usage.get("reasoningTokens").toIntValue(0);
             if (inputTokens <= 0 && outputTokens <= 0) {
                 return Optional.empty();
             }
- // Grok camel大小写 口径的 输入令牌 含 缓存；输出令牌 含 ReasonML。
-            // 非缓存输入 = 全量输入 - 缓存读 - 缓存写；净输出 = 全量输出 - 推理。
-            int nonCachedInput = Math.max(0, inputTokens - cachedRead - cacheCreation);
-            int netOutput = Math.max(0, outputTokens - reasoning);
+            // Grok 的 camel 口径：inputTokens 含缓存命中与缓存写入，outputTokens 含推理部分。
+            // 因此输入原样出数，推理量夹准到输出以内后净出，避免推理令牌按输出价重复计价。
+            int cacheHit = Math.min(Math.max(0, cachedRead), Math.max(0, inputTokens));
+            reasoning = Math.max(0, Math.min(reasoning, Math.max(0, outputTokens)));
+            int netOutput = Math.max(0, outputTokens) - reasoning;
             JsonNode meta = node.get("params").get("_meta");
             long startTime = parseGrokTimestamp(meta, node);
             String model = pickGrokModel(usage);
@@ -184,10 +183,10 @@ public class GrokUsageParser extends BaseUsageParser {
             return Optional.of(AiUsage.builder()
                     .provider(PROVIDER_GROK)
                     .model(model)
-                    .inputTokens(nonCachedInput)
+                    .inputTokens(inputTokens > 0 ? Integer.valueOf(inputTokens) : null)
                     .outputTokens(netOutput)
-                    .totalTokens(nonCachedInput + netOutput)
-                    .cacheTokens(cachedRead > 0 ? cachedRead : (cacheCreation > 0 ? cacheCreation : null))
+                    .totalTokens(Math.max(0, inputTokens) + netOutput)
+                    .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                     .reasoningTokens(reasoning > 0 ? reasoning : null)
                     .currency(CURRENCY_USD)
                     .estimated(false)

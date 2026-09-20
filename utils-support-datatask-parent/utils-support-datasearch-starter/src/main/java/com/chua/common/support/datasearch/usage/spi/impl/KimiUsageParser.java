@@ -204,16 +204,17 @@ public class KimiUsageParser extends BaseUsageParser {
             }
             long tsMillis = toMillis(tsNode);
 
-            int cacheTokens = cacheRead > 0 ? cacheRead
-                    : (cacheCreation > 0 ? cacheCreation : 0);
+            // input_tokens 与两段缓存互斥（其和即 total），按口径并回全量输入；写入不是命中。
+            int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheCreation);
+            int cacheTokens = Math.min(cacheRead, promptTokens);
 
             return AiUsage.builder()
                     .provider(PROVIDER_KIMI)
                     .model(model)
                     .requestId(messageId)
-                    .inputTokens(input)
+                    .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                     .outputTokens(output)
-                    .totalTokens(input + output + cacheRead + cacheCreation)
+                    .totalTokens(promptTokens + output)
                     .cacheTokens(cacheTokens > 0 ? cacheTokens : null)
                     .currency("USD")
                     .startTime(tsMillis > 0 ? tsMillis : null)

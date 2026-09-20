@@ -173,16 +173,24 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
             credit = providerData.get("rawUsage").get("credit").toDoubleValue(0.0d);
         }
 
+        int prompt = Math.max(0, inputTokens);
+        // rawUsage 的 reasoning_tokens 含在 completion_tokens 之内（源侧 total = prompt + completion），
+        // 与 output_tokens 同源，按契约净出后单列。
+        int completion = Math.max(0, outputTokens);
+        int reasoning = Math.min(completion, readReasoningTokens(providerData));
+        int netOutput = completion - reasoning;
+        Integer reasoningTokens = reasoning > 0 ? Integer.valueOf(reasoning) : null;
+
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_CODEBUDDY)
                 .model(firstNonBlank(providerData.get("model").toStringValue(), "unknown"))
                 .requestId(firstNonBlank(node.get("id").toStringValue(),
                         node.get("sessionId").toStringValue()))
-                .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
+                .inputTokens(prompt)
+                .outputTokens(netOutput)
+                .totalTokens(prompt + netOutput)
                 .cacheTokens(readCacheTokens(usage))
-                .reasoningTokens(readReasoningTokens(providerData))
+                .reasoningTokens(reasoningTokens)
                 .startTime(startTime > 0 ? startTime : null)
                 .finishReason(node.get("status").toStringValue());
         if (credit > 0) {
@@ -203,24 +211,26 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取 ReasonML-令牌 数量 从 the raw 提供者 usage metadata.
+     * 读取转录行上报的推理令牌数。
      *
-     * @param providerData the 线-级别 提供者数据 block
-     * @return reasoning 令牌, 或 空 When.js.js absent 或 zero
+     * <p>取 {@code providerData.rawUsage.completion_tokens_details.reasoning_tokens}，
+     * 它是 {@code completion_tokens} 的子集而非独立分段。</p>
+     *
+     * @param providerData 行级 provider 数据块
+     * @return 推理令牌数；缺失或为 0 时返回 0
      */
-    private Integer readReasoningTokens(JsonNode providerData) {
+    private int readReasoningTokens(JsonNode providerData) {
         if (providerData.isMissingValue()) {
-            return null;
+            return 0;
         }
         JsonNode rawUsage = providerData.get("rawUsage");
         if (rawUsage.isMissingValue()) {
-            return null;
+            return 0;
         }
         JsonNode details = rawUsage.get("completion_tokens_details");
         if (details.isMissingValue()) {
-            return null;
+            return 0;
         }
-        int reasoning = details.get("reasoning_tokens").toIntValue(0);
-        return reasoning > 0 ? reasoning : null;
+        return Math.max(0, details.get("reasoning_tokens").toIntValue(0));
     }
 }

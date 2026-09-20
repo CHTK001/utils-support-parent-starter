@@ -85,13 +85,13 @@ public class ReasonixUsageParser extends BaseUsageParser {
             int completion = usage.get("completionTokens").toIntValue(0);
             int cacheMiss = usage.get("cacheMissTokens").toIntValue(0);
             int cacheHit = usage.get("cacheHitTokens").toIntValue(0);
-            int cacheWrite = usage.get("cacheWriteTokens").toIntValue(0);
             if (prompt <= 0 && completion <= 0 && reasoning <= 0) {
                 return null;
             }
-            int total = prompt + completion;
-            int input = Math.max(0, prompt - cacheHit - cacheWrite);
+            // promptTokens 已含命中量（cacheHit + cacheMiss），按口径原样出数。
+            int input = prompt;
             int output = Math.max(0, completion - reasoning);
+            int total = input + output;
             long startTime = resolveTimestamp(file);
             String model = resolveModel(file);
             Integer cacheTokens = cacheHit > 0 ? Integer.valueOf(cacheHit) : null;

@@ -34,6 +34,16 @@ public abstract class BaseUsageParser implements UsageParser {
     private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
+     * epoch 秒转毫秒的系数
+     */
+    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
+
+    /**
+     * 秒/毫秒量级门限：epoch 秒在 2001 年之后仍小于 1e12，超过该量级即按毫秒解释
+     */
+    private static final long EPOCH_MILLIS_FLOOR = 1_000_000_000_000L;
+
+    /**
      * 遗留桥接：子类若以 {@link #parseAll()} 提供数据，经此惰性包装为响应式流；
      * 直接覆写 streamAll() 的子类不受影响。
      */
@@ -92,6 +102,31 @@ public abstract class BaseUsageParser implements UsageParser {
     }
 
     /**
+     * 把任意口径的时间值换算为 epoch 毫秒（子类通用工具）。
+     *
+     * <p>各 CLI 的转录/库里时间字段口径不一：epoch 秒、epoch 毫秒、ISO-8601 字符串
+     * 都出现过，逐秒取整还会被误判成毫秒，因此按数值位数区分量级。</p>
+     *
+     * @param raw 时间原始值
+     * @return epoch 毫秒；无法识别时返回 0L
+     */
+    protected static long parseEpochMillis(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return 0L;
+        }
+        String text = raw.trim();
+        if (text.chars().allMatch(Character::isDigit)) {
+            try {
+                long value = Long.parseLong(text);
+                return value > EPOCH_MILLIS_FLOOR ? value : value * EPOCH_SECONDS_TO_MILLIS;
+            } catch (NumberFormatException ignored) {
+                return 0L;
+            }
+        }
+        return parseInstantToMillis(text);
+    }
+
+    /**
      * 解析 yyyy-MM-dd 日期字符串为当天零点的 epoch 毫秒（子类通用工具）。
      *
      * @param dateStr 日期字符串
@@ -122,6 +157,24 @@ public abstract class BaseUsageParser implements UsageParser {
             return value;
         }
         return fallback;
+    }
+
+    /**
+     * 返回第一个正数（子类通用工具）。
+     *
+     * <p>用于"读不到 A 口径就退回 B 口径"的令牌取值。写成 {@code a > 0 ? a : b > 0 ? b : null}
+     * 的嵌套三元会被判为数值条件表达式而对 {@code null} 拆箱，取值时抛 NPE，故统一走本方法。</p>
+     *
+     * @param values 候选值，按优先级排列
+     * @return 第一个正数；全部非正时返回 空
+     */
+    protected static Integer firstPositive(int... values) {
+        for (int value : values) {
+            if (value > 0) {
+                return Integer.valueOf(value);
+            }
+        }
+        return null;
     }
 
     /**

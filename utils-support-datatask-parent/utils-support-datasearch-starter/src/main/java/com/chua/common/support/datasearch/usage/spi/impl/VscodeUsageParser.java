@@ -31,9 +31,10 @@ import java.util.List;
  * }</pre>
  *
  * <p>Cost is reported as {@code total_nano_aiu} — integer nano-AIU where
- * 10_000_000_000 ticks equals one US dollar. This parser converts it to USD
- * and also reads {@code token_details_json} to surface cache read/write
- * breakdown and per-token-type unit prices.</p>
+ * 10_000_000_000 ticks equals one US dollar. This parser converts it to USD and
+ * reads the cache read/write, reasoning and latency figures from their own
+ * columns. 每行即一次请求，但 {@code session_id} 会被同一会话的多次请求共用，
+ * 因此请求号取 {@code session_id + "-" + id}。</p>
  *
  * <p>Rows only appear after successful GitHub authentication
  * (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
@@ -56,8 +57,8 @@ public class VscodeUsageParser extends BaseUsageParser {
     private static final String SQL_USAGE_EVENTS =
             "SELECT created_at, model, input_tokens, output_tokens, "
                     + "cache_read_tokens, cache_write_tokens, reasoning_tokens, "
-                    + "total_nano_aiu, token_details_json, duration_ms, "
-                    + "time_to_first_token_ms, finish_reason, session_id "
+                    + "total_nano_aiu, duration_ms, "
+                    + "time_to_first_token_ms, finish_reason, session_id, id "
                     + "FROM assistant_usage_events "
                     + "WHERE input_tokens > 0 OR output_tokens > 0 "
                     + "ORDER BY created_at ASC";
@@ -122,22 +123,27 @@ public class VscodeUsageParser extends BaseUsageParser {
         int cacheWrite = rs.getInt(6);
         int reasoning = rs.getInt(7);
         long nanoAiu = rs.getLong(8);
-        String tokenDetailsJson = rs.getString(9);
-        long duration = rs.getLong(10);
-        long ttft = rs.getLong(11);
-        String finishReason = rs.getString(12);
-        String sessionId = rs.getString(13);
+        long duration = rs.getLong(9);
+        long ttft = rs.getLong(10);
+        String finishReason = rs.getString(11);
+        String sessionId = rs.getString(12);
+        long eventId = rs.getLong(13);
 
         BigDecimal costUsd = convertNanoAiuToUsd(nanoAiu);
+
+        // reasoning_tokens 含在 output_tokens 之内：token_details_json 只有 input / cache_read /
+        // cache_write / output 四类计价段，output 段计数等于 output_tokens，没有独立推理段。
+        int reasoningHit = Math.max(0, Math.min(reasoning, outputTokens));
+        int netOutput = outputTokens - reasoningHit;
 
         return AiUsage.builder()
                 .provider("copilot")
                 .model(model)
-                .requestId(sessionId)
+                .requestId(sessionId + "-" + eventId)
                 .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .outputTokens(netOutput)
+                .totalTokens(inputTokens + netOutput)
+                .reasoningTokens(reasoningHit > 0 ? reasoningHit : null)
                 .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
                 .totalCost(costUsd)

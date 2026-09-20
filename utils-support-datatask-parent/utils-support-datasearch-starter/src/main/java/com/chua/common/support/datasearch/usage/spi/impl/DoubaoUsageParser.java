@@ -124,20 +124,23 @@ public class DoubaoUsageParser extends BaseUsageParser {
 
         String model = firstNonBlank(asStr(row.get("model")), PROVIDER_DOU_BAO);
         String requestId = firstNonBlank(asStr(row.get("request_id")), asStr(row.get("session_id")));
+        // input_tokens 不含缓存两段，按口径并回全量输入（total 数值不变）。
+        int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheCreation);
+        int cacheTokens = Math.min(promptTokens, Math.max(0, cacheRead) + Math.max(0, cacheCreation));
 
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_DOU_BAO)
                 .model(model)
                 .requestId(requestId)
-                .inputTokens(input > 0 ? input : null)
+                .inputTokens(promptTokens > 0 ? promptTokens : null)
                 .outputTokens(output > 0 ? output : null)
-                .totalTokens(input + output + cacheRead + cacheCreation)
+                .totalTokens(promptTokens + output)
                 .currency("USD")
                 .startTime(createdAt > 0 ? createdAt * 1000L : null)
                 .finishReason(statusCode == 200 ? "stop" : "http-" + statusCode);
 
-        if (cacheRead > 0 || cacheCreation > 0) {
-            builder.cacheTokens(cacheRead + cacheCreation);
+        if (cacheTokens > 0) {
+            builder.cacheTokens(cacheTokens);
         }
         if (totalCost > 0) {
             builder.totalCost(BigDecimal.valueOf(totalCost));

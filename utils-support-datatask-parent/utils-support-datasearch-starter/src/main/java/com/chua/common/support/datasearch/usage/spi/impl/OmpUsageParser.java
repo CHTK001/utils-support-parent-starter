@@ -176,15 +176,17 @@ public class OmpUsageParser extends BaseUsageParser {
                 tsMillis = parseInstantToMillis(entry.get("timestamp").toStringValue());
             }
 
-            int cacheTokens = Math.max(cacheRead, cacheWrite);
+            // input 与两段缓存互斥（其和即 total），按口径并回全量输入；写入不是命中。
+            int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+            int cacheTokens = Math.min(cacheRead, promptTokens);
 
             return AiUsage.builder()
                     .provider(PROVIDER_OMP)
                     .model(model != null && !model.isBlank() ? model : UNKNOWN_MODEL)
                     .requestId(id != null ? id : "")
-                    .inputTokens(input)
+                    .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                     .outputTokens(output)
-                    .totalTokens(input + output + cacheRead + cacheWrite)
+                    .totalTokens(promptTokens + output)
                     .cacheTokens(cacheTokens > 0 ? cacheTokens : null)
                     .reasoningTokens(reasoning > 0 ? reasoning : null)
                     .currency("USD")

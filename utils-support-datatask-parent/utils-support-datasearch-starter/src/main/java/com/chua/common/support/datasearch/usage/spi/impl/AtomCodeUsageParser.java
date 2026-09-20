@@ -49,9 +49,12 @@ import reactor.core.scheduler.Schedulers;
  * 占比最大的条目的 {@code model_id}）；若 meta 文件缺失
  * 或该轮次未记录其中，则回退到 {@code ~/.atomcode/config.toml} 声明的
  * {@code default_model}（再通过其 {@code [models."..."]} 段映射为真实模型名）。
- * {@code prompt} 计数已包含命中缓存的输入，因此 {@code inputTokens}
- * 存放非缓存部分（{@code prompt - cached}），缓存量单独通过
- * {@code cacheTokens} 上报，避免重复计数。此处只提取 token 计数，因此不做费用估算。</p>
+ * {@code prompt} 计数已包含命中缓存的输入，因此 {@code inputTokens} 原样取全量
+ * {@code prompt}，命中量另记于 {@code cacheTokens}（其子集），供补全器按缓存价折算；
+ * 此处只提取 token 计数，因此不做费用估算。</p>
+ *
+ * <p>轮次行的 {@code started_at} 与 {@code ts} 分别是该轮的起止时刻（epoch 毫秒），
+ * 二者之差即请求耗时，落在 {@code durationMillis} 上。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -331,25 +334,30 @@ public class AtomCodeUsageParser extends BaseUsageParser {
         if (inputTokens <= 0 && outputTokens <= 0) {
             return Optional.empty();
         }
-        int cached = Math.max(usage.get("cached").toIntValue(0), 0);
+        // 本机实测有 cached > prompt 的脏行，按口径封顶到输入量以免虚增命中。
+        int cached = Math.min(Math.max(usage.get("cached").toIntValue(0), 0),
+                Math.max(inputTokens, 0));
         long startTime = node.get("ts").toLongValue(0L);
+        long turnStartedAt = node.get("started_at").toLongValue(0L);
         String sessionId = node.get("session_id").toStringValue("unknown");
         int turnId = node.get("turn_id").toIntValue(-1);
 
-        // prompt 口径含缓存输入；非缓存输入 = 全量输入 - 缓存，缓存单列防双计。
-        int nonCachedInput = Math.max(0, inputTokens - cached);
+        // prompt 口径已含缓存命中，按契约原样出数；命中量单列供补全器折算。
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_ATOMCODE)
                 .model(turnModels.getOrDefault(turnId, fallbackModel))
                 .requestId(sessionId + "-" + turnId)
                 .startTime(startTime > 0 ? startTime : null);
-        if (nonCachedInput > 0) {
-            builder.inputTokens(nonCachedInput);
+        if (startTime > turnStartedAt) {
+            builder.durationMillis(startTime - turnStartedAt);
+        }
+        if (inputTokens > 0) {
+            builder.inputTokens(inputTokens);
         }
         if (outputTokens > 0) {
             builder.outputTokens(outputTokens);
         }
-        builder.totalTokens(nonCachedInput + Math.max(outputTokens, 0));
+        builder.totalTokens(Math.max(inputTokens, 0) + Math.max(outputTokens, 0));
         if (cached > 0) {
             builder.cacheTokens(cached);
         }

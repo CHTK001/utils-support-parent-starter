@@ -236,16 +236,19 @@ public class CopilotCliUsageParser extends BaseUsageParser {
                 : null;
 
         int cacheTokens = Math.max(cacheRead, cacheWrite);
+        // outputTokens 含 reasoningTokens，与 session-store.db 同一口径（计价段无独立推理类型）。
+        int reasoningHit = Math.max(0, Math.min(reasoning, outputTokens));
+        int netOutput = outputTokens - reasoningHit;
 
         return AiUsage.builder()
                 .provider(PROVIDER_COPILOT_CLI)
                 .model(modelId)
                 .requestId(requestId + ":" + modelId)
                 .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
-                .totalTokens(inputTokens + outputTokens)
+                .outputTokens(netOutput)
+                .totalTokens(inputTokens + netOutput)
                 .cacheTokens(cacheTokens > 0 ? cacheTokens : null)
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .reasoningTokens(reasoningHit > 0 ? reasoningHit : null)
                 .totalCost(costUsd)
                 .currency("USD")
                 .startTime(startTime > 0 ? startTime : null)

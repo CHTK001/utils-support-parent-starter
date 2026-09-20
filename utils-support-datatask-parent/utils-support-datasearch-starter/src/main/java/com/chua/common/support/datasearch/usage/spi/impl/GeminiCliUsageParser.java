@@ -182,7 +182,7 @@ public class GeminiCliUsageParser extends BaseUsageParser {
                 .requestId(firstNonBlank(node.get("id").toStringValue(), sessionId))
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
-                .totalTokens(tokens.get("total").toIntValue(inputTokens + outputTokens))
+                .totalTokens(inputTokens + outputTokens)
                 .cacheTokens(cached > 0 ? cached : null)
                 .reasoningTokens(thoughts > 0 ? thoughts : null)
                 .startTime(timestamp > 0 ? timestamp : null);

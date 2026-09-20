@@ -250,7 +250,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      */
     @Override
     public Path resolveSkillPath(String skillName) {
-        if (skillName == null || skillName.isBlank()) {
+        if (!isSingleSegmentName(skillName)) {
             return null;
         }
         for (Path base : skillRoots()) {
@@ -263,6 +263,23 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
             }
         }
         return null;
+    }
+
+    /**
+     * 技能名必须是单个路径段。
+     *
+     * <p>解析实现用 {@code resolve(skillName)} 定位目录或 {@code .md} 文件，
+     * 带分隔符或盘符的名称会跳出技能目录，进而读取本机任意 {@code .md} 文件；
+     * {@link #listAgentSkills()} 产出的名称恒为文件名，收紧不影响正常导入。</p>
+     *
+     * @param skillName 技能名
+     * @return 是否为安全的单层名称
+     */
+    private static boolean isSingleSegmentName(String skillName) {
+        if (skillName == null || skillName.isBlank() || ".".equals(skillName) || "..".equals(skillName)) {
+            return false;
+        }
+        return skillName.indexOf('/') < 0 && skillName.indexOf('\\') < 0 && skillName.indexOf('\0') < 0;
     }
 
     /**

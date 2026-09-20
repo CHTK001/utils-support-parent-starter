@@ -130,16 +130,18 @@ public class KimiCodeUsageParser extends BaseUsageParser {
             if (timeMs <= 0) {
                 return null;
             }
-            int total = input + output + cacheRead + cacheWrite;
+            // input_tokens 与两段缓存互斥（其和即 total），按口径并回全量输入。
+            int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+            int cacheHit = Math.min(cacheRead, promptTokens);
+            int total = promptTokens + output;
             return AiUsage.builder()
                     .provider(PROVIDER_KIMI_CODE)
                     .model(model)
                     .requestId(uuid)
-                    .inputTokens(input)
+                    .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                     .outputTokens(output)
                     .totalTokens(total)
-                    .cacheTokens(cacheRead > 0 ? cacheRead
-                            : (cacheWrite > 0 ? cacheWrite : null))
+                    .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                     .currency("USD")
                     .estimated(false)
                     .startTime(timeMs)

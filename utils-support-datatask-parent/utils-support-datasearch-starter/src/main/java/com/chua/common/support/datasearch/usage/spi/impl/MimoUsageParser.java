@@ -138,16 +138,20 @@ public class MimoUsageParser extends BaseUsageParser {
         double cost = asDouble(row.get("cost"));
         long startTime = asLong(row.get("time_created"));
 
+        // tokens.input 只是非缓存段（与 opencode/kilo 同结构），并回全量输入；写入不是命中。
+        int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+        int cacheHit = Math.min(cacheRead, promptTokens);
+
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_MIMO)
                 .model(asStr(row.get("modelID")).isBlank()
                         ? "mimo-unknown" : asStr(row.get("modelID")))
                 .requestId(asStr(row.get("providerID")) + ":" + asStr(row.get("modelID")))
-                .inputTokens(input)
+                .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)
-                .totalTokens(input + output)
+                .totalTokens(promptTokens + output)
                 .reasoningTokens(reasoning > 0 ? reasoning : null)
-                .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
+                .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .currency("USD")
                 .estimated(false)
                 .startTime(startTime > 0 ? startTime : null);

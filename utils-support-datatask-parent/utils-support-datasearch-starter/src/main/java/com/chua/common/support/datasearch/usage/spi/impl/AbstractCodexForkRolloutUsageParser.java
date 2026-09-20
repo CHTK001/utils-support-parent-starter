@@ -38,9 +38,11 @@ import java.util.stream.Stream;
  * }
  * }</pre>
  *
- * <p>本基类以 {@code total_token_usage} 全量为口径（非增量差分），令牌口径对齐
- * TokenTracker {@code normalizeUsage}：{@code input_tokens} 含缓存，需拆出
- * 非缓存输入。</p>
+ * <p>本基类以 {@code total_token_usage} 全量为口径（非增量差分）：{@code input_tokens}
+ * 已含 {@code cached_input_tokens}，按
+ * {@link com.chua.common.support.datasearch.usage.spi.UsageParser} 的 Token 口径原样出数，
+ * 命中量另记于 {@code cacheTokens}；{@code cache_creation_input_tokens} 是写入量、
+ * 不含在 {@code input_tokens} 之内，并入全量输入以免漏计。</p>
  *
  * @author CH
  * @since 4.0.0.45
@@ -158,6 +160,9 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     /**
      * 将 token_count 事件转为用量记录（以 total_token_usage 全量为口径）。
      *
+     * <p>输出按契约净出推理量：{@code outputTokens} 只含可见输出，
+     * {@code reasoning_output_tokens} 单列；{@code totalTokens = 全量输入 + 净输出}。</p>
+     *
      * @param node        行节点
      * @param info        info 节点
      * @param fallbackModel 默认模型
@@ -174,26 +179,29 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
         if (cacheCreation <= 0) {
             cacheCreation = total.get("cache_write_input_tokens").toIntValue(0);
         }
-        int output = total.get("output_tokens").toIntValue(0);
-        int reasoning = total.get("reasoning_output_tokens").toIntValue(0);
-        int uncachedInput = Math.max(0, input - cached);
-        int totalTokens = uncachedInput + cached + cacheCreation + output;
+        int completion = total.get("output_tokens").toIntValue(0);
+        // reasoning_output_tokens 是 output_tokens 的子集（源侧 total = input + output 即证），
+        // 按契约夹住后从输出中扣除，推理量单列于 reasoningTokens。
+        int reasoning = Math.min(Math.max(0, total.get("reasoning_output_tokens").toIntValue(0)),
+                Math.max(0, completion));
+        int output = Math.max(0, completion - reasoning);
+        int promptTokens = input + Math.max(0, cacheCreation);
+        int cachedHit = Math.min(Math.max(0, cached), promptTokens);
+        int totalTokens = promptTokens + output;
         if (totalTokens <= 0) {
             return null;
         }
-        long timeSec = node.get("timestamp").toLongValue(0L);
-        long timeMs = timeSec > 0 ? (timeSec > 1_000_000_000_000L ? timeSec : timeSec * 1000L) : 0L;
+        long timeMs = parseEpochMillis(node.get("timestamp").toStringValue());
         if (timeMs <= 0) {
             return null;
         }
-        Integer cacheTokens = cached > 0 ? Integer.valueOf(cached)
-                : (cacheCreation > 0 ? Integer.valueOf(cacheCreation) : null);
+        Integer cacheTokens = cachedHit > 0 ? Integer.valueOf(cachedHit) : null;
         Integer reasoningTokens = reasoning > 0 ? Integer.valueOf(reasoning) : null;
         return AiUsage.builder()
                 .provider(providerName())
                 .model(fallbackModel)
                 .requestId(node.get("event_id").toStringValue())
-                .inputTokens(uncachedInput)
+                .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)
                 .totalTokens(totalTokens)
                 .cacheTokens(cacheTokens)

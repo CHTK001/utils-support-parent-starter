@@ -186,7 +186,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
                                 .model(currentModel != null ? currentModel : "antigravity-unknown")
                                 .inputTokens((int) inputDelta)
                                 .outputTokens((int) outputTokens)
-                                .totalTokens((int) (inputDelta + outputTokens + reasoningTokens))
+                                .totalTokens((int) (inputDelta + outputTokens))
                                 .reasoningTokens(reasoningTokens > 0 ? (int) reasoningTokens : null)
                                 .currency("USD")
                                 .estimated(true)
