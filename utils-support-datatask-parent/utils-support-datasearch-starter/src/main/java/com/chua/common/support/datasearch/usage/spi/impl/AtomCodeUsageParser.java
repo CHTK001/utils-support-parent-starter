@@ -54,7 +54,11 @@ import reactor.core.scheduler.Schedulers;
  * 此处只提取 token 计数，因此不做费用估算。</p>
  *
  * <p>轮次行的 {@code started_at} 与 {@code ts} 分别是该轮的起止时刻（epoch 毫秒），
- * 二者之差即请求耗时，落在 {@code durationMillis} 上。</p>
+ * 二者之差即请求耗时，落在 {@code durationMillis} 上；{@code startTime} 取起点
+ * {@code started_at}（本机 674 条用量行有 589 条带该字段），缺失时退回 {@code ts}。
+ * 结束原因同样不在转录行里，
+ * 取自 meta 的 {@code turn_stats[].errored}（本机 709/709 条轮次记录都带该标记），
+ * 折算为 {@code error} / {@code completed}。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -149,13 +153,22 @@ public class AtomCodeUsageParser extends BaseUsageParser {
      * @return 流jsonl文件的结果
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
-        Map<Integer, String> turnModels = loadTurnModels(metaFileOf(file));
+        Map<Integer, TurnStat> turnStats = loadTurnStats(metaFileOf(file));
         String fallbackModel = configDefaultModel();
         return streamLines(file)
                 .filter(line -> !line.isBlank())
-                .map(line -> parseLineSafe(line, turnModels, fallbackModel))
+                .map(line -> parseLineSafe(line, turnStats, fallbackModel))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
+    }
+
+    /**
+     * 会话 meta 里按轮次记录的、转录行本身缺失的信息。
+     *
+     * @param model   该轮 token 占比最大的模型标识，未记录时为 空
+     * @param errored 该轮是否以错误结束；meta 未记该字段时为 空
+     */
+    private record TurnStat(String model, Boolean errored) {
     }
 
     /**
@@ -169,12 +182,12 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取会话 meta 文件，建立 turn_id 到模型名的映射。
+     * 读取会话 meta 文件，建立 turn_id 到该轮模型名与结束状态的映射。
      * 每个 turn 的 model_usage 可能含多个模型条目，取 token 总量最大者。
      * @param metaFile meta 文件
-     * @return turn_id 到模型名的映射；文件缺失或解析失败时为空映射
+     * @return turn_id 到轮次补充信息的映射；文件缺失或解析失败时为空映射
      */
-    private Map<Integer, String> loadTurnModels(Path metaFile) {
+    private Map<Integer, TurnStat> loadTurnStats(Path metaFile) {
         if (!Files.isRegularFile(metaFile)) {
             return Map.of();
         }
@@ -183,7 +196,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
             if (turnStats.isMissingValue() || !turnStats.isArray()) {
                 return Map.of();
             }
-            Map<Integer, String> models = new HashMap<>();
+            Map<Integer, TurnStat> stats = new HashMap<>();
             int count = turnStats.size();
             for (int i = 0; i < count; i++) {
                 JsonNode turn = turnStats.get(i);
@@ -191,12 +204,11 @@ public class AtomCodeUsageParser extends BaseUsageParser {
                 if (turnId < 0) {
                     continue;
                 }
-                String model = pickDominantModel(turn.get("model_usage"));
-                if (model != null) {
-                    models.put(turnId, model);
-                }
+                JsonNode errored = turn.get("errored");
+                stats.put(turnId, new TurnStat(pickDominantModel(turn.get("model_usage")),
+                        errored.isBoolean() ? errored.toBooleanValue() : null));
             }
-            return models;
+            return stats;
         } catch (Exception e) {
             log.debug("[atomcode] meta parse failed {}: {}", metaFile, e.getMessage());
             return Map.of();
@@ -301,13 +313,13 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     /**
      * 安全解析单行，失败返回 空。
      * @param line 线
-     * @param turnModels turn_id 到模型名的映射
+     * @param turnStats turn_id 到轮次补充信息的映射
      * @param fallbackModel 兜底模型名
      * @return 解析线safe的结果
      */
-    private Optional<AiUsage> parseLineSafe(String line, Map<Integer, String> turnModels, String fallbackModel) {
+    private Optional<AiUsage> parseLineSafe(String line, Map<Integer, TurnStat> turnStats, String fallbackModel) {
         try {
-            return parseNode(Json.parse(line), turnModels, fallbackModel);
+            return parseNode(Json.parse(line), turnStats, fallbackModel);
         } catch (Exception e) {
             log.debug("[atomcode] line parse failed: {}", e.getMessage());
             return Optional.empty();
@@ -318,13 +330,13 @@ public class AtomCodeUsageParser extends BaseUsageParser {
      * 将一条转录行转换为 AIusage 记录。
      *
      * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。
-     * 模型名按 turn_id 查 meta 映射，查不到用 config 兜底值。</p>
+     * 模型名与结束原因按 turn_id 查 meta 映射，模型查不到用 config 兜底值。</p>
      * @param node 节点
-     * @param turnModels turn_id 到模型名的映射
+     * @param turnStats turn_id 到轮次补充信息的映射
      * @param fallbackModel 兜底模型名
      * @return 解析节点的结果
      */
-    private Optional<AiUsage> parseNode(JsonNode node, Map<Integer, String> turnModels, String fallbackModel) {
+    private Optional<AiUsage> parseNode(JsonNode node, Map<Integer, TurnStat> turnStats, String fallbackModel) {
         JsonNode usage = node.get("usage");
         if (usage.isMissingValue()) {
             return Optional.empty();
@@ -337,20 +349,23 @@ public class AtomCodeUsageParser extends BaseUsageParser {
         // 本机实测有 cached > prompt 的脏行，按口径封顶到输入量以免虚增命中。
         int cached = Math.min(Math.max(usage.get("cached").toIntValue(0), 0),
                 Math.max(inputTokens, 0));
-        long startTime = node.get("ts").toLongValue(0L);
+        long endMillis = node.get("ts").toLongValue(0L);
         long turnStartedAt = node.get("started_at").toLongValue(0L);
         String sessionId = node.get("session_id").toStringValue("unknown");
         int turnId = node.get("turn_id").toIntValue(-1);
+        TurnStat stat = turnStats.get(turnId);
+        Long durationMillis = endMillis > turnStartedAt ? Long.valueOf(endMillis - turnStartedAt) : null;
+        long startTime = startTimeOf(endMillis, durationMillis);
 
         // prompt 口径已含缓存命中，按契约原样出数；命中量单列供补全器折算。
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_ATOMCODE)
-                .model(turnModels.getOrDefault(turnId, fallbackModel))
+                .model(stat == null || stat.model() == null || stat.model().isBlank()
+                        ? fallbackModel : stat.model())
                 .requestId(sessionId + "-" + turnId)
-                .startTime(startTime > 0 ? startTime : null);
-        if (startTime > turnStartedAt) {
-            builder.durationMillis(startTime - turnStartedAt);
-        }
+                .finishReason(finishReasonOf(stat))
+                .startTime(startTime > 0 ? startTime : null)
+                .durationMillis(durationMillis);
         if (inputTokens > 0) {
             builder.inputTokens(inputTokens);
         }
@@ -362,5 +377,20 @@ public class AtomCodeUsageParser extends BaseUsageParser {
             builder.cacheTokens(cached);
         }
         return Optional.of(builder.build());
+    }
+
+    /**
+     * 由 meta 的轮次错误标记折算结束原因。
+     *
+     * <p>转录行不含结束原因，meta 的 {@code turn_stats[].errored} 是唯一信号；
+     * 它只说明该轮有没有以错误收场，不区分正常收束的具体形态，因此成功侧统一记
+     * {@code completed} 而不是套用各厂商的 {@code stop}/{@code end_turn}。</p>
+     *
+     * @param stat 该轮在 meta 里的记录，未命中时为 空
+     * @return 结束原因；meta 未记错误标记时返回 空
+     */
+    private static String finishReasonOf(TurnStat stat) {
+        Boolean errored = stat == null ? null : stat.errored();
+        return errored == null ? null : (errored ? "error" : "completed");
     }
 }

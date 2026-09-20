@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -84,7 +85,8 @@ public abstract class BaseUsageParser implements UsageParser {
     /**
      * 解析 ISO-8601 时间字符串为 epoch 毫秒（子类通用工具）。
      *
-     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式，
+     * <p>兼容形如 {@code 2026-08-24T02:21:53.998Z} 的 Instant 格式与
+     * {@code 2026-09-18T17:43:53.680+08:00} 的带时区偏移格式（qoder 运行日志用后者），
      * 解析失败返回 0L。</p>
      *
      * @param isoTimestamp ISO-8601 时间字符串
@@ -95,10 +97,32 @@ public abstract class BaseUsageParser implements UsageParser {
             return 0L;
         }
         try {
-            return Instant.parse(isoTimestamp).toEpochMilli();
+            return OffsetDateTime.parse(isoTimestamp).toInstant().toEpochMilli();
         } catch (Exception e) {
             return 0L;
         }
+    }
+
+    /**
+     * 把结束时刻折算为请求发起时刻（子类通用工具）。
+     *
+     * <p>{@code AiUsage.startTime} 的契约是客户端发出请求的时刻，而部分转录只落盘
+     * 响应完成的那一刻（atomcode 的 {@code ts}、gemini-cli 与 codebuddy 的回答行）。
+     * 能拿到本次耗时时就回退到起点，让 {@code startTime + durationMillis} 覆盖整次请求；
+     * 拿不到耗时时只能给出结束时刻这一近似值。</p>
+     *
+     * @param endMillis      结束时刻（epoch 毫秒），缺失时为 0
+     * @param durationMillis 本次请求耗时，未知时 null
+     * @return 发起时刻；入参时刻无效时返回 0
+     */
+    protected static long startTimeOf(long endMillis, Long durationMillis) {
+        if (endMillis <= 0L) {
+            return 0L;
+        }
+        if (durationMillis == null || durationMillis <= 0L || durationMillis >= endMillis) {
+            return endMillis;
+        }
+        return endMillis - durationMillis;
     }
 
     /**

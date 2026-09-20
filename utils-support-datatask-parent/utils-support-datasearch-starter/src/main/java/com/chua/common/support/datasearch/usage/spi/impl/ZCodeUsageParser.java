@@ -107,7 +107,6 @@ public class ZCodeUsageParser extends BaseUsageParser {
                 .reasoningTokens(reasoningHit > 0 ? Integer.valueOf(reasoningHit) : null)
                 .cacheTokens(cacheRead > 0 ? Integer.valueOf(cacheRead)
                         : cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null)
-                .currency("CREDITS")
                 .startTime(startedAt > 0 ? startedAt : null)
                 .durationMillis(durationMs > 0 ? durationMs : null)
                 .firstTokenLatencyMillis(ttft > 0 ? ttft : null)
