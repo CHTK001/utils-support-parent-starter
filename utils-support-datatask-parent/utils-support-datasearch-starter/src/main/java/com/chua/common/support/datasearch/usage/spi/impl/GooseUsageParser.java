@@ -26,9 +26,12 @@ import java.util.Map;
  *   total_tokens INTEGER, cache_read_tokens INTEGER,
  *   cache_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
  * )
- * }</pre>_write_tokens INTEGER, cost REAL, cost_source TEXT, ...
- * )
  * }</pre>
+ *
+ * <p>台账本身不记耗时。同一轮请求在 {@code messages} 表里留下一条同
+ * {@code session_id} + {@code created_timestamp} 的 assistant 消息，其
+ * {@code metadata_json.usage} 带 {@code elapsedMs} 与 {@code timeToFirstTokenMs}，
+ * 由查询侧关联取出后落到 {@code durationMillis} / {@code firstTokenLatencyMillis}。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,11 +43,19 @@ public class GooseUsageParser extends BaseUsageParser {
             "Block", "goose", "data", "sessions", "sessions.db");
 
     private static final String SQL_LEDGER =
-            "SELECT session_id, created_timestamp, model, input_tokens, output_tokens, "
-                    + "total_tokens, cache_read_tokens, cache_write_tokens, cost, cost_source "
-                    + "FROM usage_ledger "
-                    + "WHERE input_tokens > 0 OR output_tokens > 0 "
-                    + "ORDER BY created_timestamp ASC";
+            "SELECT l.session_id, l.created_timestamp, l.model, l.input_tokens, l.output_tokens, "
+                    + "l.total_tokens, l.cache_read_tokens, l.cache_write_tokens, l.cost, l.cost_source, "
+                    + "(SELECT CAST(json_extract(m.metadata_json, '$.usage.elapsedMs') AS INTEGER) "
+                    + "   FROM messages m WHERE m.session_id = l.session_id "
+                    + "     AND m.role = 'assistant' AND m.created_timestamp = l.created_timestamp "
+                    + "   LIMIT 1) AS elapsed_ms, "
+                    + "(SELECT CAST(json_extract(m.metadata_json, '$.usage.timeToFirstTokenMs') AS INTEGER) "
+                    + "   FROM messages m WHERE m.session_id = l.session_id "
+                    + "     AND m.role = 'assistant' AND m.created_timestamp = l.created_timestamp "
+                    + "   LIMIT 1) AS ttft_ms "
+                    + "FROM usage_ledger l "
+                    + "WHERE l.input_tokens > 0 OR l.output_tokens > 0 "
+                    + "ORDER BY l.created_timestamp ASC";
 
     private static final String PROVIDER_GOOSE = "goose"; // 提供者goose
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
@@ -87,21 +98,26 @@ public class GooseUsageParser extends BaseUsageParser {
         double cost = asDouble(row.get("cost"));
         int cacheRead = asInt(row.get("cache_read_tokens"));
         int cacheWrite = asInt(row.get("cache_write_tokens"));
+        long elapsedMs = asLong(row.get("elapsed_ms"));
+        long ttftMs = asLong(row.get("ttft_ms"));
 
+        // 台账的 total_tokens 含一段无字段可归的令牌（实测 6156 + 1 而 total 6182），
+        // 按契约只由可见分段相加。
         return AiUsage.builder()
                 .provider(PROVIDER_GOOSE)
                 .model(asStr(row.get("model")))
                 .requestId(asStr(row.get("session_id")))
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
-                .totalTokens(asInt(row.get("total_tokens")) > 0
-                        ? asInt(row.get("total_tokens")) : inputTokens + outputTokens)
-                .cacheTokens(cacheRead > 0 ? cacheRead : null)
+                .totalTokens(inputTokens + outputTokens)
+                .cacheTokens(firstPositive(cacheRead, cacheWrite))
                 .totalCost(cost > 0 ? BigDecimal.valueOf(cost) : null)
                 .currency("USD")
                 .estimated("estimated".equals(asStr(row.get("cost_source"))))
                 .startTime(createdAtSeconds > 0
                         ? createdAtSeconds * EPOCH_SECONDS_TO_MILLIS : null)
+                .durationMillis(elapsedMs > 0 ? elapsedMs : null)
+                .firstTokenLatencyMillis(ttftMs > 0 ? ttftMs : null)
                 .build();
     }
 }

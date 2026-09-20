@@ -49,9 +49,9 @@ import java.util.stream.Stream;
  * }</pre>
  *
  * <p>与 CodeBuddy（其 {@code cache_creation} 通常为 0）不同，WorkBuddy
- * 会把缓存读取<i>和</i>缓存写入都计入 {@code prompt_tokens} 计费，因此
- * 非缓存输入必须同时减去 {@code cache_read} 与
- * {@code cache_creation}；reasoning 包含在
+ * 会把缓存读取<i>和</i>缓存写入都计入 {@code prompt_tokens} 计费；本仓库约定
+ * {@code inputTokens} 含缓存，故 {@code prompt_tokens} 原样出数，命中量另记于
+ * {@code cacheTokens}。reasoning 包含在
  * {@code completion_tokens} 内，再单独拆分出来。</p>
  *
  * <p>去重键为 {@code providerData.messageId}（响应级别，助手消息与其
@@ -180,9 +180,13 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
         int reasoning = rawUsage.get("completion_tokens_details")
                 .get("reasoning_tokens").toIntValue(0);
 
-        int inputTokens = Math.max(0, promptTokens - cacheRead - cacheCreation);
-        int outputTokens = Math.max(0, completionTokens - reasoning);
-        int totalTokens = promptTokens + completionTokens;
+        // prompt_tokens 已含缓存读取与写入两段，按口径原样出数。
+        int inputTokens = Math.max(0, promptTokens);
+        // reasoning_tokens 含在 completion_tokens 之内，夹准后净出，单列的推理量取夹准值。
+        int completion = Math.max(0, completionTokens);
+        int reasoningHit = Math.min(completion, Math.max(0, reasoning));
+        int outputTokens = completion - reasoningHit;
+        int totalTokens = inputTokens + outputTokens;
 
         String model = firstNonBlank(
                 providerData.get("model").toStringValue(),
@@ -203,7 +207,7 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
                 .totalTokens(totalTokens)
                 .cacheTokens(cacheRead > 0 ? cacheRead
                         : (cacheCreation > 0 ? cacheCreation : null))
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .reasoningTokens(reasoningHit > 0 ? reasoningHit : null)
                 .currency("USD")
                 .startTime(startTime > 0 ? startTime : null)
                 .build();

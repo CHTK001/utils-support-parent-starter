@@ -125,15 +125,18 @@ public class DshUsageParser extends BaseUsageParser {
                     if (model == null || model.isBlank()) {
                         model = DEFAULT_MODEL;
                     }
-                    int total = input + output + cacheRead + cacheWrite + reasoning;
-                    Integer cacheTokens = cacheRead > 0 ? Integer.valueOf(cacheRead)
-                            : (cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null);
+                    // 三段互斥，先并回全量输入；写入量不算命中，不参与 cacheTokens。
+                    int promptTokens = Math.max(0, input) + Math.max(0, cacheRead)
+                            + Math.max(0, cacheWrite);
+                    int cacheHit = Math.min(cacheRead, promptTokens);
+                    int total = promptTokens + output;
+                    Integer cacheTokens = cacheHit > 0 ? Integer.valueOf(cacheHit) : null;
                     Integer reasoningTokens = reasoning > 0 ? Integer.valueOf(reasoning) : null;
                     result.add(AiUsage.builder()
                             .provider(PROVIDER_DSH)
                             .model(model)
                             .requestId(node.get("seq").toStringValue() + ":" + file.getFileName())
-                            .inputTokens(input)
+                            .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                             .outputTokens(output)
                             .totalTokens(total)
                             .cacheTokens(cacheTokens)

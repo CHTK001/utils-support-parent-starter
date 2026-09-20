@@ -39,6 +39,8 @@ public class CcswitchUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_CC_SWITCH = "cc-switch";
 
+    private static final String APP_TYPE_OPENCODE = "opencode";
+
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
 
     private static final int HTTP_OK = 200;
@@ -81,18 +83,25 @@ public class CcswitchUsageParser extends BaseUsageParser {
         long createdAtSeconds = asLong(row.get("created_at"));
         long durationMs = asLong(row.get("duration_ms"));
         long firstTokenMs = asLong(row.get("first_token_ms"));
-        int cacheRead = asInt(row.get("cache_read_tokens"));
+        int inputTokens = asInt(row.get("input_tokens"));
+        int outputTokens = asInt(row.get("output_tokens"));
+        int cacheRead = Math.max(0, asInt(row.get("cache_read_tokens")));
 
         String appType = asStr(row.get("app_type"));
+        // 同一张表按客户端混写两套口径：opencode 的 input_tokens 不含命中量（本机实测该口径下
+        // 63% 的行 cache_read > input_tokens），其余客户端入库前已把命中量并进了 input_tokens。
+        int promptTokens = APP_TYPE_OPENCODE.equalsIgnoreCase(appType)
+                ? Math.max(0, inputTokens) + cacheRead : Math.max(0, inputTokens);
+        int cacheHit = Math.min(cacheRead, promptTokens);
 
         return AiUsage.builder()
                 .provider(PROVIDER_CC_SWITCH)
                 .model(asStr(row.get("model")))
                 .requestId(firstNonBlank(asStr(row.get("request_id")), asStr(row.get("session_id"))))
-                .inputTokens(asInt(row.get("input_tokens")))
-                .outputTokens(asInt(row.get("output_tokens")))
-                .totalTokens(asInt(row.get("input_tokens")) + asInt(row.get("output_tokens")))
-                .cacheTokens(cacheRead > 0 ? cacheRead : null)
+                .inputTokens(promptTokens)
+                .outputTokens(outputTokens)
+                .totalTokens(promptTokens + outputTokens)
+                .cacheTokens(cacheHit > 0 ? cacheHit : null)
                 .totalCost(costUsd > 0 ? BigDecimal.valueOf(costUsd) : null)
                 .currency("USD")
                 .startTime(createdAtSeconds > 0

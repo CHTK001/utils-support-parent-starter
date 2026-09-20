@@ -123,20 +123,21 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
 
     /**
      * 将每 令牌 价格换算为 USD / 百万 令牌。
-     *
      * @param node 价格节点
-     * @return 每百万 令牌 价格；缺失/非数值/零时返回 空
+     * @return 每百万 令牌 价格；缺失/空白/非数值时返回 空。API 明确报 0 的免费档按 0 保留
      */
     private BigDecimal perMillion(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
         }
         String text = node.asText(null);
-        if (text == null || text.isEmpty() || "0".equals(text)) {
+        if (text == null || text.isEmpty()) {
             return null;
         }
         try {
-            return new BigDecimal(text).multiply(BigDecimal.valueOf(1_000_000L)).stripTrailingZeros();
+            BigDecimal price = new BigDecimal(text).multiply(BigDecimal.valueOf(1_000_000L)).stripTrailingZeros();
+            // 路由器类条目（auto/fusion/pareto-code）下发 -1 表示"价格不定"，换算后是巨额负价
+            return price.signum() < 0 ? null : price;
         } catch (NumberFormatException e) {
             return null;
         }

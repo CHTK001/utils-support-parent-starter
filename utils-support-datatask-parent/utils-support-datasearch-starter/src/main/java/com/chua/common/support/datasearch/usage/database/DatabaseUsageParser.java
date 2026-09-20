@@ -1,11 +1,10 @@
-package com.chua.common.support.datasearch.usage.spi.impl;
+package com.chua.common.support.datasearch.usage.database;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -20,6 +19,12 @@ import java.util.Map;
  * 数据库用量解析器 — 从关系型数据库读取 AI 用量数据。
  *
  * <p>支持通过 Spring Boot 配置自定义查询和字段映射，默认适配 sys_ai_usage 表结构。</p>
+ *
+ * <p>本类刻意不放在 {@code usage.spi} 包下：SPI 的同包扫描会把该包及其子包内的所有实现
+ * 登记为扩展点，而本类的构造需要注入 {@link DataSource}，反射实例化必然失败并从
+ * {@code list()} 中静默消失；更重要的是它读取的 {@code sys_ai_usage} 正是本地工具用量同步
+ * 的落库目标，一旦进入解析器广播，库里的记录会被当作外部数据源再读回一遍。
+ * 需要它的调用方应从 Spring 容器取得，不要指望 {@code ServiceProvider} 能列出。</p>
  *
  * <p>配置示例：
  * <pre>

@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.datasearch.usage.spi.BaseUsageParser;
+import com.chua.common.support.datasearch.usage.spi.QoderModelCatalog;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
@@ -164,7 +165,8 @@ public class QoderUsageParser extends BaseUsageParser {
         long startTime = parseInstantToMillis(node.get("timestamp").toStringValue());
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_QODER)
-                .model(firstNonBlank(message.get("model").toStringValue(), "unknown"))
+                .model(QoderModelCatalog.resolve(
+                        firstNonBlank(message.get("model").toStringValue(), "unknown")))
                 .requestId(message.get("id").toStringValue())
                 .startTime(startTime > 0 ? startTime : null)
                 .finishReason(message.get("stop_reason").toStringValue());

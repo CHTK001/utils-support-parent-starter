@@ -6,16 +6,14 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.spi.annotations.Spi;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Claude Code 用量解析器——从本地 JSONL 会话文件解析 token 用量。
@@ -45,6 +43,12 @@ import java.util.Optional;
  * output tokens are emitted; cache-only / zero-usage lines are skipped.
  * {@code <synthetic>} model names are normalized to {@code "unknown"}.</p>
  *
+ * <p>一次 API 响应在转录中占多行：流式分块行（{@code stop_reason} 为空、输出令牌
+ * 尚未结算，且 {@code input_tokens} 可能高于结算行）与最终行，最终行还会按响应里的
+ * {@code tool_use} 内容块数量重复若干次。因此本解析器按 {@code message.id} 把相邻的
+ * 同源行折叠为一条记录，Token 取带 {@code stop_reason} 的结算行；转录不含请求耗时，
+ * {@code durationMillis} 由该请求首末分块的时间间隔推出，是模型耗时的下界。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -53,6 +57,16 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
 
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".claude", "projects");
+
+    /**
+     * 缺失 {@code message.id} 时使用的折叠键前缀
+     */
+    private static final String UNKEYED_PREFIX = "unkeyed-";
+
+    /**
+     * 无请求标识记录的折叠键序列，保证此类记录各自独占一窗
+     */
+    private static final AtomicLong UNKEYED_SEQUENCE = new AtomicLong();
 
     /**
      * 返回 SPI 名称。
@@ -70,28 +84,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
      * @return 原始用量记录列表
      */
     public List<AiUsage> parseAll() {
-        if (!Files.isDirectory(PROJECTS_DIR)) {
-            log.debug("[claude-code] projects dir not found: {}", PROJECTS_DIR);
-            return List.of();
-        }
-        List<AiUsage> result = new ArrayList<>();
-        int[] fileCount = {0};
-        try (var stream = Files.walk(PROJECTS_DIR)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".jsonl"))
-                    .forEach(file -> {
-                        fileCount[0]++;
-                        try {
-                            parseJsonlFile(file, result);
-                        } catch (IOException e) {
-                            log.debug("[claude-code] read failed {}: {}", file.getFileName(), e.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            log.warn("[claude-code] walk failed: {}", e.getMessage(), e);
-        }
-        log.info("[claude-code] scanned {} files, parsed {} records", fileCount[0], result.size());
-        return result;
+        return streamAll().collectList().block();
     }
 
     /**
@@ -131,7 +124,94 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
                 .filter(line -> !line.isBlank())
                 .map(this::parseLineSafe)
                 .filter(Optional::isPresent)
-                .map(Optional::get);
+                .map(Optional::get)
+                .windowUntilChanged(ClaudeCodeUsageParser::groupKey)
+                .concatMap(window -> window.reduce(ClaudeCodeUsageParser::merge));
+    }
+
+    /**
+     * 分块行的折叠键；无请求标识的记录各自独占一窗。
+     *
+     * @param usage 用量记录
+     * @return 折叠键
+     */
+    private static String groupKey(AiUsage usage) {
+        String requestId = usage.getRequestId();
+        return requestId == null || requestId.isBlank()
+                ? UNKEYED_PREFIX + UNKEYED_SEQUENCE.getAndIncrement() : requestId;
+    }
+
+    /**
+     * 折叠同一请求的两条分块记录：令牌取结算行，起止时间取首末分块。
+     *
+     * @param left  先到的记录
+     * @param right 后到的记录
+     * @return 折叠后的记录（就地改写载体）
+     */
+    private static AiUsage merge(AiUsage left, AiUsage right) {
+        long leftAt = millis(left.getStartTime());
+        long rightAt = millis(right.getStartTime());
+        long earliest = leftAt == 0L ? rightAt
+                : rightAt == 0L ? leftAt : Math.min(leftAt, rightAt);
+        long latest = Math.max(leftAt, rightAt);
+        AiUsage carrier = pickCarrier(left, right);
+        carrier.setStartTime(earliest > 0L ? earliest : null);
+        if (carrier.getDurationMillis() == null && latest > earliest) {
+            carrier.setDurationMillis(latest - earliest);
+        }
+        return carrier;
+    }
+
+    /**
+     * 选出代表整次请求的分块记录。
+     *
+     * <p>流式分块行的 {@code input_tokens} 可能高于结算行（尚未扣减缓存命中），
+     * 按令牌数选型会留下输出未结算的那一份，故优先取带 {@code stop_reason} 的
+     * 结算行；两侧同样结算时取令牌数更大的一份。</p>
+     *
+     * @param left  先到的记录
+     * @param right 后到的记录
+     * @return 载体记录
+     */
+    private static AiUsage pickCarrier(AiUsage left, AiUsage right) {
+        boolean leftSettled = settled(left);
+        boolean rightSettled = settled(right);
+        if (leftSettled != rightSettled) {
+            return leftSettled ? left : right;
+        }
+        return totalTokensOf(right) > totalTokensOf(left) ? right : left;
+    }
+
+    /**
+     * 该分块行是否已结算（携带 {@code stop_reason}）。
+     *
+     * @param usage 用量记录
+     * @return 已结算返回 true
+     */
+    private static boolean settled(AiUsage usage) {
+        String finishReason = usage.getFinishReason();
+        return finishReason != null && !finishReason.isBlank();
+    }
+
+    /**
+     * 时间戳缺失时按 0 处理。
+     *
+     * @param value 时间戳
+     * @return 毫秒时间戳
+     */
+    private static long millis(Long value) {
+        return value == null || value < 0L ? 0L : value;
+    }
+
+    /**
+     * 记录的总令牌数，用于在同样已结算的重复分块行之间取舍。
+     *
+     * @param usage 用量记录
+     * @return 总令牌数
+     */
+    private static int totalTokensOf(AiUsage usage) {
+        Integer total = usage.getTotalTokens();
+        return total == null ? 0 : total;
     }
 
     /**
@@ -146,30 +226,6 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         } catch (Exception e) {
             log.debug("[claude-code] line parse failed: {}", e.getMessage());
             return Optional.empty();
-        }
-    }
-
-    /**
-     * 逐行读取 JSONL 文件并追加解析结果（旧契约内部实现）。
-     *
-     * @param file   转录文件
-     * @param result 累积结果列表
-     * @throws IOException 文件读取失败
-     */
-    private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.isBlank()) {
-                    continue;
-                }
-                try {
-                    JsonNode node = Json.parse(line);
-                    parseNode(node).ifPresent(result::add);
-                } catch (Exception e) {
-                    log.debug("[claude-code] parse failed {}: {}", file.getFileName(), e.getMessage());
-                }
-            }
         }
     }
 
@@ -205,6 +261,8 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
         return Optional.of(AiUsage.builder()
                 .provider("anthropic")
                 .model(normalizeModel(message.get("model").toStringValue()))
+                .requestId(message.get("id").toStringValue())
+                .finishReason(message.get("stop_reason").toStringValue())
                 .inputTokens(inputTokens)
                 .outputTokens(outputTokens)
                 .totalTokens(inputTokens + outputTokens)

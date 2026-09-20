@@ -263,6 +263,41 @@ public final class NewProviderDataTest {
                     && (r.getOutputTokens() == null || r.getOutputTokens() <= 0)),
                     key + " inputTokens/outputTokens 至少一项 > 0");
         }
+
+        long badTotal = records.stream()
+                .filter(r -> r.getTotalTokens() != null && r.getInputTokens() != null
+                        && r.getOutputTokens() != null)
+                .filter(r -> r.getTotalTokens() != r.getInputTokens() + r.getOutputTokens())
+                .count();
+        check(badTotal == 0, key + " totalTokens = inputTokens + outputTokens（违例 " + badTotal + " 条）");
+        check(records.stream().noneMatch(r -> negative(r.getInputTokens()) || negative(r.getOutputTokens())
+                || negative(r.getCacheTokens()) || negative(r.getReasoningTokens())),
+                key + " 各 Token 分段均非负");
+
+        if ("acode".equals(key) || "every-code".equals(key)) {
+            // 夹具 ev-2 的 output_tokens 30 含 reasoning_output_tokens 8，按契约净出后应剩 22
+            AiUsage reasoned = records.stream()
+                    .filter(r -> "ev-2".equals(r.getRequestId())).findFirst().orElse(null);
+            check(reasoned != null, key + " 夹具 ev-2 记录存在");
+            if (reasoned != null) {
+                check(Integer.valueOf(22).equals(reasoned.getOutputTokens()),
+                        key + " ev-2 净输出 = 22（30 - 8），实际 " + reasoned.getOutputTokens());
+                check(Integer.valueOf(8).equals(reasoned.getReasoningTokens()),
+                        key + " ev-2 推理量单列 = 8，实际 " + reasoned.getReasoningTokens());
+                check(Integer.valueOf(142).equals(reasoned.getTotalTokens()),
+                        key + " ev-2 total = 142（120 + 22），实际 " + reasoned.getTotalTokens());
+            }
+        }
+    }
+
+    /**
+     * 令牌数是否为负值（口径违例，净出算错或源侧脏数据）。
+     *
+     * @param value 令牌数，允许为 空
+     * @return true 表示非空且小于 0
+     */
+    private static boolean negative(Integer value) {
+        return value != null && value < 0;
     }
 
     /**
@@ -677,6 +712,7 @@ public final class NewProviderDataTest {
     /**
      * 为 acode / every-code（Codex fork）写入 rollout JSONL 夹具。
      * 格式：每行 JSON 对象，payload.type=token_count 携带 total_token_usage。
+     * 两行分别用 epoch 秒与 ISO-8601 字符串记录时间，覆盖两种时间量纲。
      *
      * @param home home dir
      * @param env env map
@@ -693,7 +729,16 @@ public final class NewProviderDataTest {
                 + "\"input_tokens\":200,\"cached_input_tokens\":50,"
                 + "\"cache_creation_input_tokens\":10,\"output_tokens\":45,"
                 + "\"reasoning_output_tokens\":0,\"total_tokens\":205}}}}";
-        Files.writeString(sessionsDir.resolve("rollout.jsonl"), jsonLine + "\n", StandardCharsets.UTF_8);
+        String isoLine = "{\"type\":\"response_item\",\"event_id\":\"ev-2\","
+                + "\"timestamp\":\"2026-08-24T02:21:53.998Z\","
+                + "\"payload\":{\"type\":\"token_count\","
+                + "\"model\":\"gpt-5\","
+                + "\"info\":{\"total_token_usage\":{"
+                + "\"input_tokens\":120,\"cached_input_tokens\":20,"
+                + "\"cache_creation_input_tokens\":0,\"output_tokens\":30,"
+                + "\"reasoning_output_tokens\":8,\"total_tokens\":150}}}}";
+        Files.writeString(sessionsDir.resolve("rollout.jsonl"),
+                jsonLine + "\n" + isoLine + "\n", StandardCharsets.UTF_8);
     }
 
     /**

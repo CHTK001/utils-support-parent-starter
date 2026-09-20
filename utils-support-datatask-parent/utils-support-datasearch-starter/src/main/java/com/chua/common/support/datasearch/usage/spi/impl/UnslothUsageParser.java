@@ -29,8 +29,8 @@ import java.util.Map;
  * </ul>
  *
  * <p>token 语义遵循 {@code normalizeLocalStudioTokens}：
- * {@code prompt_tokens} 已包含缓存，因此非缓存输入 = 总量 −
- * completion − cacheRead − cacheWrite；推理 token 包含在
+ * {@code prompt_tokens} 已包含缓存命中与写入，按本仓库口径原样作为 {@code inputTokens}
+ * 出数，命中量另记于 {@code cacheTokens}；推理 token 包含在
  * {@code completion_tokens} 之内，并单独拆分出来。</p>
  *
  * @author CH
@@ -197,8 +197,9 @@ public class UnslothUsageParser extends BaseUsageParser {
     private Tokens normalizeTokens(Map<String, Object> row) {
         int prompt = asInt(row.get("prompt_tokens"));
         int completion = asInt(row.get("completion_tokens"));
-        int total = Math.max(asInt(row.get("total_tokens")), prompt + completion);
-        if (total <= 0) {
+        // 源侧 total_tokens 含推理量，只在 prompt 缺失时用来反推输入，不作为最终总数。
+        int sourceTotal = Math.max(asInt(row.get("total_tokens")), prompt + completion);
+        if (sourceTotal <= 0) {
             return null;
         }
         int cacheRead = Math.min(prompt, Math.max(0, asInt(row.get("cached_tokens"))));
@@ -206,9 +207,9 @@ public class UnslothUsageParser extends BaseUsageParser {
                 Math.max(0, asInt(row.get("cache_write_tokens"))));
         int reasoning = Math.min(completion, Math.max(0, asInt(row.get("reasoning_tokens"))));
         Tokens t = new Tokens();
-        t.total = total;
-        t.input = Math.max(0, total - completion - cacheRead - cacheWrite);
+        t.input = prompt > 0 ? prompt : Math.max(0, sourceTotal - completion);
         t.output = Math.max(0, completion - reasoning);
+        t.total = t.input + t.output;
         t.cacheRead = cacheRead;
         t.cacheWrite = cacheWrite;
         t.reasoning = reasoning;

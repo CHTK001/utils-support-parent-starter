@@ -117,17 +117,21 @@ public class HermesUsageParser extends BaseUsageParser {
         String model = firstNonBlank(asStr(row.get("model")), "unknown");
         String requestId = firstNonBlank(asStr(row.get("id")), "");
 
-        int totalTokens = inputTokens + outputTokens;
+        // reasoning_tokens 是 output_tokens 的拆分明细（与 Copilot session-store 同形制，
+        // 那边由 token_details_json 证过推理量含在 output 之内），按契约净出后单列。
+        int completion = Math.max(0, outputTokens);
+        int reasoningHit = Math.min(completion, Math.max(0, reasoning));
+        int totalTokens = inputTokens + completion - reasoningHit;
 
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER)
                 .model(model)
                 .requestId(requestId)
                 .inputTokens(inputTokens)
-                .outputTokens(outputTokens)
+                .outputTokens(completion - reasoningHit)
                 .totalTokens(totalTokens)
-                .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
-                .reasoningTokens(reasoning > 0 ? reasoning : null)
+                .cacheTokens(firstPositive(cacheRead, cacheWrite))
+                .reasoningTokens(reasoningHit > 0 ? reasoningHit : null)
                 .currency("USD")
                 .estimated(false)
                 .startTime(startedAtSeconds > 0 ? startedAtSeconds * 1000L : null);

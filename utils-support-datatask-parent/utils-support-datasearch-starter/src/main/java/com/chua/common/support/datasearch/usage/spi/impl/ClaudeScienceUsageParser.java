@@ -192,18 +192,15 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
         int mainInput = getInt(rs, present, "input_tokens");
         int mainOutput = getInt(rs, present, "output_tokens");
         int mainCacheRead = getInt(rs, present, "cache_read_tokens");
-        int mainCacheWrite = getInt(rs, present, "cache_write_tokens");
         int auxInput = getInt(rs, present, "aux_input_tokens");
         int auxOutput = getInt(rs, present, "aux_output_tokens");
         int auxCacheRead = getInt(rs, present, "aux_cache_read_tokens");
-        int auxCacheWrite = getInt(rs, present, "aux_cache_write_tokens");
 
-        int uncachedInput = Math.max(0, mainInput - mainCacheRead - mainCacheWrite)
-                + Math.max(0, auxInput - auxCacheRead - auxCacheWrite);
+        // 源的 input_tokens 已含命中量与写入量，按契约原样出数
+        int promptInput = mainInput + auxInput;
         int output = mainOutput + auxOutput;
-        int cacheRead = mainCacheRead + auxCacheRead;
-        int cacheWrite = mainCacheWrite + auxCacheWrite;
-        int total = uncachedInput + output + cacheRead + cacheWrite;
+        int cacheHit = Math.min(Math.max(0, mainCacheRead + auxCacheRead), promptInput);
+        int total = promptInput + output;
         if (total <= 0) {
             return null;
         }
@@ -217,11 +214,10 @@ public class ClaudeScienceUsageParser extends BaseUsageParser {
                 .provider(PROVIDER)
                 .model(firstNonBlank(asStr(rs.getObject("model")), "claude-science"))
                 .requestId(frameId)
-                .inputTokens(uncachedInput)
+                .inputTokens(promptInput > 0 ? Integer.valueOf(promptInput) : null)
                 .outputTokens(output)
                 .totalTokens(total)
-                .cacheTokens(cacheRead > 0 ? cacheRead
-                        : (cacheWrite > 0 ? cacheWrite : null))
+                .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .estimated(false)
                 .finishReason(parentFrameId == null || parentFrameId.isBlank() ? "root-frame" : "child-frame")
                 .startTime(startTime > 0 ? startTime : null)

@@ -2,6 +2,7 @@ package com.chua.common.support.datasearch.pricing.spi;
 
 import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
+import com.chua.common.support.config.loader.FileConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.spi.annotations.Spi;
@@ -29,10 +30,14 @@ import java.util.regex.Pattern;
 /**
  * 定价提供者抽象基类。
  *
- * <p>{@link #getPricing()} 只读本地文件，没有就返回空列表。本地文件需要通过 {@link #syncFromOnline()} 同步填入。</p>
- * <p>{@link #syncFromOnline()} 调用子类 {@link #fetchOnlinePricing()} 获取数据并写入本地文件。</p>
+ * <p>{@link #getMetrics()} 依次取内存缓存、本地文件缓存、classpath 内置 JSON，
+ * 全程不发网络请求；本地文件缓存由 {@link #syncFromOnline()} 写入。</p>
  *
- * <p>兜底机制：若子类需要，可通过 {@link #readClasspathPricing()} 读取 classpath 内置 JSON 作为兜底。</p>
+ * <p>{@link #syncFromOnline()} 调用子类 {@link #fetchOnlinePricing()} 获取数据，
+ * 结果必定驻留内存，能落盘时再写入本地文件。</p>
+ *
+ * <p>构造器不传 {@link ConfigSaveOrLoader} 时（如经 SPI 无参构造实例化），
+ * 首次取数回退到默认的本地文件实现，避免因为无加载器而恒定返回空。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -76,6 +81,11 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     private ConfigSaveOrLoader configSaveOrLoader;
 
     /**
+     * 内存缓存：{@link #syncFromOnline()} 的最近结果，避免无持久化能力时数据丢失
+    */
+    private volatile List<ModelDefinition> memoryCache;
+
+    /**
      * 创建 抽象模型指标提供者 实例
     */
     protected AbstractModelMetricsProvider() {
@@ -106,25 +116,29 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
      * 获取Pricing
     */
     public List<ModelDefinition> getMetrics() {
-        if (configSaveOrLoader == null) {
-            return Collections.emptyList();
+        List<ModelDefinition> cached = memoryCache;
+        if (cached != null) {
+            return cached;
         }
         String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
         try {
-            java.util.Optional<byte[]> opt = configSaveOrLoader.loadBytes(key);
+            java.util.Optional<byte[]> opt = loader().loadBytes(key);
             if (opt.isPresent()) {
                 String json = new String(opt.get(), StandardCharsets.UTF_8);
                 List<ModelDefinition> parsed = Json.fromJson(json,
                         new com.fasterxml.jackson.core.type.TypeReference<List<ModelDefinition>>() {
                         });
                 if (CollectionUtils.isNotEmpty(parsed)) {
+                    memoryCache = parsed;
                     return parsed;
                 }
             }
         } catch (Exception e) {
             log.debug("[{}] 读取本地定价缓存失败: {}", name(), e.getMessage());
         }
-        return Collections.emptyList();
+        List<ModelDefinition> bundled = readClasspathPricing();
+        memoryCache = bundled;
+        return bundled;
     }
 
     @Override
@@ -136,11 +150,32 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
         if (pricing == null || pricing.isEmpty()) {
             return;
         }
-        if (configSaveOrLoader != null) {
-            String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
-            String json = Json.toJson(pricing);
-            configSaveOrLoader.saveBytes(key, json.getBytes(StandardCharsets.UTF_8));
+        memoryCache = pricing;
+        String key = PRICING_KEY_PREFIX + name() + PRICING_KEY_SUFFIX;
+        try {
+            loader().saveBytes(key,
+                    Json.toJson(pricing).getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            log.debug("[{}] 定价缓存落盘失败, 仅保留内存副本: {}", name(), e.getMessage());
         }
+    }
+
+    /**
+     * 取配置加载器：SPI 以无参构造实例化本类时字段为 空，此处回退默认本地文件实现。
+     *
+     * @return 可用的配置加载器
+     */
+    private ConfigSaveOrLoader loader() {
+        ConfigSaveOrLoader loader = configSaveOrLoader;
+        if (loader == null) {
+            synchronized (this) {
+                if (configSaveOrLoader == null) {
+                    configSaveOrLoader = new FileConfigSaveOrLoader();
+                }
+                loader = configSaveOrLoader;
+            }
+        }
+        return loader;
     }
 
     /**

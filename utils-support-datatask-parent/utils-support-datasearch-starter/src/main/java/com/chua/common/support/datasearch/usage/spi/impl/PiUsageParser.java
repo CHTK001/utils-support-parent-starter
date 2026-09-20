@@ -116,6 +116,9 @@ public class PiUsageParser extends BaseUsageParser {
             if (input <= 0 && output <= 0 && cacheRead <= 0 && cacheWrite <= 0 && reasoning <= 0) {
                 return null;
             }
+            // input / cacheRead / cacheWrite 互斥分段，先并回全量输入；写入量不算命中，不参与 cacheTokens。
+            int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+            int cacheHit = Math.min(cacheRead, promptTokens);
             String id = entry.get("id").toStringValue();
             if (id == null || id.isBlank()) {
                 return null;
@@ -124,19 +127,20 @@ public class PiUsageParser extends BaseUsageParser {
             if (tsMillis <= 0) {
                 return null;
             }
-            int total = usage.get("totalTokens").toIntValue(input + output + cacheRead + cacheWrite + reasoning);
+            // 源侧 totalTokens 把 reasoningTokens 另算一段，与 totalTokens = 输入 + 输出 的契约冲突，按分段自算。
+            int total = promptTokens + output;
             String provider = msg.get("provider").toStringValue();
             String model = msg.get("model").toStringValue();
             if (model == null || model.isBlank()) {
                 model = DEFAULT_MODEL;
             }
-            Integer cacheTokens = cacheRead > 0 ? Integer.valueOf(cacheRead) : (cacheWrite > 0 ? Integer.valueOf(cacheWrite) : null);
+            Integer cacheTokens = cacheHit > 0 ? Integer.valueOf(cacheHit) : null;
             Integer reasoningTokens = reasoning > 0 ? Integer.valueOf(reasoning) : null;
             return AiUsage.builder()
                     .provider(firstNonBlank(provider, PROVIDER_PI))
                     .model(model)
                     .requestId(id)
-                    .inputTokens(input)
+                    .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                     .outputTokens(output)
                     .totalTokens(total)
                     .cacheTokens(cacheTokens)

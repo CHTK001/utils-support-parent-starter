@@ -4,10 +4,13 @@ import com.chua.common.support.ai.chat.ModelDefinition;
 import com.chua.common.support.ai.chat.pricing.ModelPricingProvider;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,50 +25,181 @@ import java.util.Map;
  * <p>因此无论注册多少个数据源，上层按 (provider, model) 查询都能拿到合并后的
  * 完整数据，不再依赖单个实现。</p>
  *
+ * <p>合并结果按模型 标识 建索引常驻，查询为一次哈希取值；仅当入参厂商与索引命中的
+ * 厂商不一致（多厂商同名模型）时才回退一次精确匹配。索引按各数据源返回内容的签名
+ * 感知变化，{@code PricingSyncer} 同步进新价后自动重建，无需重启。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
 @Spi("datasearch")
 public class DataSearchModelPricingProvider implements ModelPricingProvider {
 
+    /**
+     * 日志
+    */
+    private static final Logger log = LoggerFactory.getLogger(DataSearchModelPricingProvider.class);
+
+    /**
+     * 定价索引：模型 标识 -> 合并后的模型定义（随数据源内容签名变化而重建）
+    */
+    private volatile Map<String, ModelDefinition> index;
+
+    /**
+     * 构建 {@link #index} 时的数据源内容签名
+    */
+    private volatile String indexSignature;
+
+    /**
+     * 数据源清单快照（仅向 SPI 取一次）
+    */
+    private volatile List<ModelMetricsProvider> sources;
+
     @Override
     /**
      * 获取模型pricing
     */
     public ModelDefinition getModelPricing(String provider, String model) {
-        if (provider == null || model == null) {
+        if (model == null) {
             return null;
         }
-        try {
-            Map<String, ModelMetricsProvider> providers =
-                    ServiceProvider.of(ModelMetricsProvider.class).list();
-            if (providers == null || providers.isEmpty()) {
-                return null;
-            }
-            // 官方价格源(artificialanalysis)优先:官方牌价先占位,其余源(openrouter)仅补齐缺失字段
-            List<Map.Entry<String, ModelMetricsProvider>> ordered =
-                    new ArrayList<>(providers.entrySet());
-            ordered.sort(Comparator.comparing(
-                    e -> "artificialanalysis".equals(e.getKey()) ? 0 : 1));
-            ModelDefinition merged = null;
-            for (Map.Entry<String, ModelMetricsProvider> entry : ordered) {
-                ModelMetricsProvider metricsProvider = entry.getValue();
-                List<ModelDefinition> metrics = metricsProvider.getMetrics();
-                if (metrics == null || metrics.isEmpty()) {
-                    continue;
-                }
-                for (ModelDefinition md : metrics) {
-                    if (model.equals(md.getId())) {
-                        merged = merge(merged, md);
-                        break;
-                    }
-                }
-            }
-            return merged;
-        } catch (Exception e) {
-            // 忽略
+        ModelDefinition hit = loadIndex().get(model);
+        if (hit == null) {
+            return null;
         }
-        return null;
+        // 入参厂商与命中厂商不一致时先按厂商精确匹配；上层传的可能是 SPI 注册名
+        // 或 CLI 工具名，此时精确匹配必然落空，仍需保留按模型标识的命中
+        if (provider != null && hit.getProvider() != null
+                && !provider.equalsIgnoreCase(hit.getProvider())) {
+            ModelDefinition scoped = findAcrossSources(provider, model);
+            return scoped != null ? scoped : hit;
+        }
+        return hit;
+    }
+
+    /**
+     * 按 (provider, model) 在所有数据源中精确匹配并合并。
+     *
+     * @param provider 厂商标识
+     * @param model    模型 标识
+     * @return 合并后的模型定义，无命中时返回 空
+     */
+    private ModelDefinition findAcrossSources(String provider, String model) {
+        ModelDefinition merged = null;
+        for (ModelMetricsProvider metricsProvider : sources()) {
+            for (ModelDefinition md : safeMetrics(metricsProvider)) {
+                if (model.equals(md.getId()) && provider.equalsIgnoreCase(md.getProvider())) {
+                    merged = merge(merged, md);
+                }
+            }
+        }
+        return merged;
+    }
+
+    /**
+     * 加载 model 索引：数据源内容变化（如 {@code PricingSyncer} 同步进新价）时重建。
+     *
+     * @return 模型 标识 -> 合并后的模型定义
+     */
+    private Map<String, ModelDefinition> loadIndex() {
+        String signature = signature();
+        Map<String, ModelDefinition> cached = index;
+        if (cached != null && signature.equals(indexSignature)) {
+            return cached;
+        }
+        synchronized (this) {
+            String current = signature();
+            if (index != null && current.equals(indexSignature)) {
+                return index;
+            }
+            Map<String, ModelDefinition> map = new LinkedHashMap<>();
+            for (ModelMetricsProvider metricsProvider : sources()) {
+                for (ModelDefinition md : safeMetrics(metricsProvider)) {
+                    if (md.getId() == null) {
+                        continue;
+                    }
+                    map.put(md.getId(), merge(map.get(md.getId()), md));
+                }
+            }
+            log.info("[datasearch-pricing] 模型定价索引构建完成: {} 个模型", map.size());
+            index = map;
+            indexSignature = current;
+            return map;
+        }
+    }
+
+    /**
+     * 数据源内容签名：各源返回列表的身份与条数，用于感知同步后的数据替换。
+     *
+     * @return 签名串
+     */
+    private String signature() {
+        StringBuilder builder = new StringBuilder(64);
+        for (ModelMetricsProvider metricsProvider : sources()) {
+            List<ModelDefinition> metrics = safeMetrics(metricsProvider);
+            builder.append(metricsProvider.name()).append('#')
+                    .append(System.identityHashCode(metrics)).append('#')
+                    .append(metrics.size()).append(';');
+        }
+        return builder.toString();
+    }
+
+    /**
+     * 数据源清单（仅向 SPI 取一次）。
+     *
+     * @return 排序后的数据源列表
+     */
+    private List<ModelMetricsProvider> sources() {
+        List<ModelMetricsProvider> cached = sources;
+        if (cached != null) {
+            return cached;
+        }
+        synchronized (this) {
+            if (sources != null) {
+                return sources;
+            }
+            sources = orderedProviders();
+            return sources;
+        }
+    }
+
+    /**
+     * 官方价格源（artificialanalysis）优先，保证官方牌价先占位，其余源仅补齐缺失字段。
+     *
+     * @return 排序后的数据源列表
+     */
+    private List<ModelMetricsProvider> orderedProviders() {
+        Map<String, ModelMetricsProvider> providers;
+        try {
+            providers = ServiceProvider.of(ModelMetricsProvider.class).list();
+        } catch (Exception e) {
+            log.debug("[datasearch-pricing] 加载定价数据源失败: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+        if (providers == null || providers.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<ModelMetricsProvider> ordered = new ArrayList<>(providers.size());
+        providers.forEach((key, value) -> ordered.add(value));
+        ordered.sort(Comparator.comparing(p -> "artificialanalysis".equals(p.name()) ? 0 : 1));
+        return ordered;
+    }
+
+    /**
+     * 取数据源指标，单个数据源异常不影响其余数据源。
+     *
+     * @param metricsProvider 数据源
+     * @return 模型定义列表，异常时返回空列表
+     */
+    private List<ModelDefinition> safeMetrics(ModelMetricsProvider metricsProvider) {
+        try {
+            List<ModelDefinition> metrics = metricsProvider.getMetrics();
+            return metrics == null ? Collections.emptyList() : metrics;
+        } catch (Exception e) {
+            log.debug("[datasearch-pricing] 数据源[{}]取数失败: {}",
+                    metricsProvider.name(), e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     /**

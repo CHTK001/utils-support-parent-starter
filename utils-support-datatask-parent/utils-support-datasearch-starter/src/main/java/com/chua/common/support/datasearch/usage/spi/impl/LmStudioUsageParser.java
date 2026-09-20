@@ -35,8 +35,8 @@ import java.util.regex.Pattern;
  * }</pre>
  *
  * <p>token 语义遵循 {@code normalizeLocalStudioTokens}：
- * {@code prompt_tokens} 是<b>完整</b>提示（含缓存），因此
- * 非缓存输入 = 总量 − completion − cacheRead − cacheWrite；
+ * {@code prompt_tokens} 是<b>完整</b>提示（含缓存命中与写入），按本仓库口径原样作为
+ * {@code inputTokens} 出数，命中量另记于 {@code cacheTokens}；
  * {@code output} 不含 reasoning。</p>
  *
  * <p>每条记录按响应 {@code id}
@@ -213,7 +213,7 @@ public class LmStudioUsageParser extends BaseUsageParser {
                     toInt(outputDetails, "reasoning_tokens"),
                     toInt(usage, "reasoning_tokens")));
 
-            int input = Math.max(0, total - completion - cacheRead - cacheWrite);
+            int input = prompt > 0 ? prompt : Math.max(0, total - completion);
             int output = Math.max(0, completion - reasoning);
 
             // 取 usage 块之前最近的响应 id / model / timestamp
@@ -233,8 +233,8 @@ public class LmStudioUsageParser extends BaseUsageParser {
                     .requestId(fingerprint)
                     .inputTokens(input)
                     .outputTokens(output)
-                    .totalTokens(input + output + cacheRead + cacheWrite)
-                    .cacheTokens(cacheRead > 0 ? cacheRead : (cacheWrite > 0 ? cacheWrite : null))
+                    .totalTokens(input + output)
+                    .cacheTokens(firstPositive(cacheRead, cacheWrite))
                     .reasoningTokens(reasoning > 0 ? reasoning : null)
                     .currency("USD")
                     .estimated(false)

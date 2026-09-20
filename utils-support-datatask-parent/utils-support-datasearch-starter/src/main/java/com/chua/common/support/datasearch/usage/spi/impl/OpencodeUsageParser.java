@@ -19,8 +19,12 @@ import java.util.List;
  * <p>数据源: {@code %USERPROFILE%\.local\share\opencode\opencode.db}
  *
  * <p>解析 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
- * 输入/输出/ReasonML/缓存 令牌、费用、模型及服务商信息，
+ * 输入/输出/推理/缓存 令牌、费用、模型及服务商信息，
  * 映射为标准的 {@link AiUsage} 记录。
+ *
+ * <p>源的 {@code tokens.input} 只记未命中缓存的输入，与 {@code cache.read}、
+ * {@code cache.write} 三段互斥（本机实测输入中位数 988、命中中位数 101376），
+ * 因此三者相加才是全量输入；命中量另记于 {@code cacheTokens} 供补全器折算。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -48,13 +52,11 @@ public class OpencodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * SQL: 从 消息 表按 令牌 用量筛选并返回每条请求的用量字段
-     *
-     * @param rs R
-     * @return 转为AIusage的结果
+     * 消息表用量查询：一次请求一行，附带起止时间（算耗时）、结束原因与消息主键（作请求号）
      */
     private static final String SQL_MESSAGES =
-            "SELECT time_created, "
+            "SELECT time_created, time_updated, "
+            + "CAST(json_extract(data, '$.finish') AS TEXT), "
             + "CAST(json_extract(data, '$.providerID') AS TEXT), "
             + "CAST(json_extract(data, '$.modelID') AS TEXT), "
             + "CAST(json_extract(data, '$.tokens.input') AS INTEGER), "
@@ -62,13 +64,9 @@ public class OpencodeUsageParser extends BaseUsageParser {
             + "CAST(json_extract(data, '$.tokens.reasoning') AS INTEGER), "
             + "CAST(json_extract(data, '$.tokens.cache.read') AS INTEGER), "
             + "CAST(json_extract(data, '$.tokens.cache.write') AS INTEGER), "
-            + "CAST(json_extract(data, '$.cost') AS REAL) "
+            + "CAST(json_extract(data, '$.cost') AS REAL), "
+            + "id "
             + "FROM message "
-            /**
-             * 名称。
-             * @return 名称的结果
-             * @param rs R
-             */
             + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
             + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
             + "ORDER BY time_created ASC";
@@ -113,29 +111,38 @@ public class OpencodeUsageParser extends BaseUsageParser {
      */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         long startTime = rs.getLong(1);
-        String provider = rs.getString(2);
-        String model = rs.getString(3);
-        int inputTokens = rs.getInt(4);
-        int outputTokens = rs.getInt(5);
-        int reasoningTokens = rs.getInt(6);
-        int cacheRead = rs.getInt(7);
-        int cacheWrite = rs.getInt(8);
-        double costDouble = rs.getDouble(9);
+        long endTime = rs.getLong(2);
+        String finishReason = rs.getString(3);
+        String provider = rs.getString(4);
+        String model = rs.getString(5);
+        int inputTokens = rs.getInt(6);
+        int outputTokens = rs.getInt(7);
+        int reasoningTokens = rs.getInt(8);
+        int cacheRead = rs.getInt(9);
+        int cacheWrite = rs.getInt(10);
+        double costDouble = rs.getDouble(11);
+        String requestId = rs.getString(12);
 
-        int totalTokens = inputTokens + outputTokens;
+        int promptTokens = Math.max(0, inputTokens) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
+        int cacheHit = Math.min(cacheRead, promptTokens);
+        int totalTokens = promptTokens + Math.max(0, outputTokens);
         BigDecimal totalCost = BigDecimal.valueOf(costDouble);
+        long duration = endTime > startTime ? endTime - startTime : 0L;
 
         return AiUsage.builder()
                 .provider(provider)
                 .model(model)
-                .inputTokens(inputTokens)
+                .requestId(requestId)
+                .finishReason(finishReason)
+                .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(outputTokens)
                 .totalTokens(totalTokens)
                 .reasoningTokens(reasoningTokens > 0 ? reasoningTokens : null)
-                .cacheTokens(cacheRead > 0 ? cacheRead : null)
+                .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .totalCost(totalCost.compareTo(BigDecimal.ZERO) > 0 ? totalCost : null)
                 .currency("USD")
                 .startTime(startTime > 0 ? startTime : null)
+                .durationMillis(duration > 0 ? duration : null)
                 .build();
     }
 }
