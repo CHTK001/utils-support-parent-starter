@@ -26,7 +26,10 @@ public interface TyphoonProvider {
     /**
      * 获取当前活跃台风列表。
      *
-     * @return 活跃台风列表；数据源不可达时返回空列表
+     * <p>{@code null} 与空列表语义不同：调用方据此区分「数据源不可用」
+     * 与「数据源确认当前无活跃台风」。</p>
+     *
+     * @return 活跃台风列表；数据源不可达时返回 空，确认无活跃台风时返回空列表
      */
     List<TyphoonActivity> getActiveTyphoons();
 
