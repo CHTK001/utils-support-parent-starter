@@ -91,8 +91,8 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
         }
         try {
             ExchangeRateResponse response = api.latestUsd();
-            if (response != null && "success".equals(response.getResult()) && response.getRates() != null) {
-                cachedRates = response.getRates();
+            if (response != null && "success".equals(response.result()) && response.rates() != null) {
+                cachedRates = response.rates();
                 cachedAt = System.currentTimeMillis();
                 return cachedRates;
             }
