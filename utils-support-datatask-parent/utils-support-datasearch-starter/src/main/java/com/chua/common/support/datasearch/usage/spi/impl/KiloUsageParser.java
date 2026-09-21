@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Kilo CLI 用量解析器。
@@ -60,24 +62,31 @@ public class KiloUsageParser extends BaseUsageParser {
      * @return resolvedb路径的结果
      */
     private static Path resolveDbPath() {
+        Path home = Path.of(System.getProperty("user.home"));
+        Path share = home.resolve(Path.of(".local", "share", "kilo", "kilo.db"));
+        Path legacy = home.resolve(Path.of(".kilo", "kilo.db"));
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
-            return Path.of(xdgDataHome, "kilo", "kilo.db");
+            return firstExisting(Path.of(xdgDataHome, "kilo", "kilo.db"), share, legacy);
         }
-        return Path.of(System.getProperty("user.home"), ".local", "share", "kilo", "kilo.db");
+        return firstExisting(share, legacy);
     }
 
     /**
      * v1 schema：助手行携带 data JSON，按 token 量筛选。
      */
     private static final String SQL_V1 =
-            "SELECT time_created, "
+            "SELECT id AS message_id, "
+                    + "time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
                     + "json_extract(data, '$.modelID') AS modelID, "
                     + "json_extract(data, '$.tokens') AS tokens, "
                     + "json_extract(data, '$.cost') AS cost, "
                     + "json_extract(data, '$.time.completed') AS time_completed, "
-                    + "json_extract(data, '$.time.created') AS time_created_inner "
+                    + "json_extract(data, '$.time.created') AS time_created_inner, "
+                    + "(SELECT MIN(p.time_created) FROM part p "
+                    + " WHERE p.message_id = message.id "
+                    + "   AND json_extract(p.data, '$.type') IN ('text', 'reasoning', 'tool')) AS first_part "
                     + "FROM message "
                     + "WHERE json_extract(data, '$.role') = 'assistant' "
                     + "ORDER BY time_created ASC";
@@ -86,13 +95,17 @@ public class KiloUsageParser extends BaseUsageParser {
      * v2 schema（session_message 表，type 列而非 role）。
      */
     private static final String SQL_V2 =
-            "SELECT time_created, "
+            "SELECT id AS message_id, "
+                    + "time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
                     + "json_extract(data, '$.modelID') AS modelID, "
                     + "json_extract(data, '$.tokens') AS tokens, "
                     + "json_extract(data, '$.cost') AS cost, "
                     + "json_extract(data, '$.time.completed') AS time_completed, "
-                    + "json_extract(data, '$.time.created') AS time_created_inner "
+                    + "json_extract(data, '$.time.created') AS time_created_inner, "
+                    + "(SELECT MIN(p.time_created) FROM part p "
+                    + " WHERE p.message_id = session_message.id "
+                    + "   AND json_extract(p.data, '$.type') IN ('text', 'reasoning', 'tool')) AS first_part "
                     + "FROM session_message "
                     + "WHERE type = 'assistant' "
                     + "ORDER BY time_created ASC";
@@ -109,8 +122,8 @@ public class KiloUsageParser extends BaseUsageParser {
 
     /**
      * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
-     * {@code session_message} 表合并，两表并存时由下游按 (session, message)
-     * 去重，避免过渡期双计。
+     * {@code session_message} 表合并，过渡期两表可能装着同一条消息，
+     * 故按消息号在本解析器内去重，避免双计。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -120,12 +133,13 @@ public class KiloUsageParser extends BaseUsageParser {
         }
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("kilo", DB_PATH.toString());
+        Set<String> seenMessageIds = ConcurrentHashMap.newKeySet();
         List<Flux<AiUsage>> streams = new ArrayList<>();
-        streams.add(engine.query(SQL_V1).map(this::toAiUsage).onErrorResume(e -> {
+        streams.add(engine.query(SQL_V1).mapNotNull(row -> toAiUsage(row, seenMessageIds)).onErrorResume(e -> {
             log.debug("[kilo] v1 table read failed: {}", e.getMessage());
             return Flux.empty();
         }));
-        streams.add(engine.query(SQL_V2).map(this::toAiUsage).onErrorResume(e -> {
+        streams.add(engine.query(SQL_V2).mapNotNull(row -> toAiUsage(row, seenMessageIds)).onErrorResume(e -> {
             log.debug("[kilo] v2 table read failed: {}", e.getMessage());
             return Flux.empty();
         }));
@@ -136,10 +150,11 @@ public class KiloUsageParser extends BaseUsageParser {
     /**
      * 将 SQL 行映射为 {@link AiUsage}。
      *
-     * @param row 数据库行
-     * @return 用量记录
+     * @param row            数据库行
+     * @param seenMessageIds 已输出的消息号集合，用于跨 v1/v2 去重
+     * @return 用量记录；没有用量或已经输出过的消息返回 {@code null}
      */
-    private AiUsage toAiUsage(Map<String, Object> row) {
+    private AiUsage toAiUsage(Map<String, Object> row, Set<String> seenMessageIds) {
         String rawTokens = asStr(row.get("tokens"));
         JsonNode tokens = parseJsonOrEmpty(rawTokens);
         int input = tokens.get("input").toIntValue(0);
@@ -150,21 +165,31 @@ public class KiloUsageParser extends BaseUsageParser {
         if (input <= 0 && output <= 0) {
             return null;
         }
+        String messageId = asStr(row.get("message_id"));
+        if (!messageId.isBlank() && !seenMessageIds.add(messageId)) {
+            return null;
+        }
         // tokens.input 只是非缓存段，按本仓库口径把命中与写入并回全量输入；写入不是命中，不进 cacheTokens。
         int promptTokens = Math.max(0, input) + Math.max(0, cacheRead) + Math.max(0, cacheWrite);
         int cacheHit = Math.min(cacheRead, promptTokens);
         double cost = asDouble(row.get("cost"));
         long completed = asLong(row.get("time_completed"));
         long created = asLong(row.get("time_created_inner"));
-        long start = completed > 0 ? completed : (created > 0 ? created
+        // 源里 created 是发起、completed 是回复完成，两枚戳基本每行都齐；只有单枚时无耗时。
+        Long duration = created > 0 && completed > created
+                ? Long.valueOf(completed - created) : null;
+        long endTime = completed > 0 ? completed : (created > 0 ? created
                 : asLong(row.get("time_created")));
+        long startTime = startTimeOf(endTime, duration);
+        long firstPart = asLong(row.get("first_part"));
+        Long firstToken = firstPart > startTime ? Long.valueOf(firstPart - startTime) : null;
         String modelId = asStr(row.get("modelID"));
         String providerId = asStr(row.get("providerID"));
 
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_KILO)
                 .model(modelId.isBlank() ? "kilo-unknown" : modelId)
-                .requestId(providerId + ":" + modelId)
+                .requestId(messageId.isBlank() ? providerId + ":" + modelId : messageId)
                 .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)
                 .totalTokens(promptTokens + output)
@@ -172,7 +197,9 @@ public class KiloUsageParser extends BaseUsageParser {
                 .cacheTokens(cacheHit > 0 ? Integer.valueOf(cacheHit) : null)
                 .currency("USD")
                 .estimated(false)
-                .startTime(start > 0 ? start : null);
+                .durationMillis(duration)
+                .firstTokenLatencyMillis(firstToken)
+                .startTime(startTime > 0 ? startTime : null);
         if (cost > 0) {
             builder.totalCost(BigDecimal.valueOf(cost));
         }

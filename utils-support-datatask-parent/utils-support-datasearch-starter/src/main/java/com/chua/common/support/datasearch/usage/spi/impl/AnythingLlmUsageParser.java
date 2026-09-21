@@ -100,7 +100,7 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("anythingllm", DB_PATH.toString());
         return engine.query(SQL_WORKSPACE_CHATS)
-                .map(this::toAiUsage)
+                .mapNotNull(this::toAiUsage)
                 .doOnComplete(() -> log.info("[anythingllm] stream complete"));
     }
 

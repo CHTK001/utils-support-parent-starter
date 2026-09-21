@@ -130,8 +130,7 @@ public class UnslothUsageParser extends BaseUsageParser {
         return engine.query(SQL_CHAT_MESSAGES)
                 .onErrorResume(e -> engine.query(SQL_CHAT_MESSAGES_NO_THREAD))
                 .onErrorResume(e -> engine.query(SQL_API_USAGE_EVENTS))
-                .map(this::toAiUsage)
-                .filter(java.util.Objects::nonNull)
+                .mapNotNull(this::toAiUsage)
                 .doOnComplete(() -> log.info("[unsloth] stream complete"));
     }
 

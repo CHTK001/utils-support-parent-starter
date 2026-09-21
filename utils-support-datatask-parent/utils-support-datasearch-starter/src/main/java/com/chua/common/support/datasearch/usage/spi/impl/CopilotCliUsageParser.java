@@ -166,7 +166,11 @@ public class CopilotCliUsageParser extends BaseUsageParser {
             }
             long totalNanoAiu = data.get("totalNanoAiu").toLongValue(0L);
             long totalApiDurationMs = data.get("totalApiDurationMs").toLongValue(0L);
-            long startTime = parseInstantToMillis(obj.get("timestamp").toStringValue());
+            long eventMillis = parseInstantToMillis(obj.get("timestamp").toStringValue());
+            // shutdown 事件自带的是完成时刻，源里的 sessionStartTime 才是本段请求的发起时刻。
+            long sessionStart = data.get("sessionStartTime").toLongValue(0L);
+            long startTime = sessionStart > 0 ? sessionStart
+                    : startTimeOf(eventMillis, totalApiDurationMs > 0 ? totalApiDurationMs : null);
 
             List<AiUsage> result = new ArrayList<>();
             Map<String, Object> metricMap = modelMetrics.toJsonObject().toMap();
