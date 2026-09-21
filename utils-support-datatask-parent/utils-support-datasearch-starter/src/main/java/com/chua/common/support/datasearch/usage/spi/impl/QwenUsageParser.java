@@ -116,13 +116,18 @@ public class QwenUsageParser extends BaseUsageParser {
         }
         long timestamp = node.get("timestamp").toLongValue(0L);
         long durationMs = node.get("durationMs").toLongValue(0L);
+        // timestamp 是这条用量记录落盘的时刻；源里的 startTime 才是本段请求的发起时刻。
+        long startedAt = node.get("startTime").toLongValue(0L);
+        if (startedAt <= 0) {
+            startedAt = startTimeOf(timestamp, durationMs > 0 ? durationMs : null);
+        }
         String sessionId = node.get("sessionId").toStringValue();
 
         Map<String, Object> modelStats = models.toJsonObject().toMap();
         List<AiUsage> result = new ArrayList<>(modelStats.size());
         for (Map.Entry<String, Object> entry : modelStats.entrySet()) {
             if (entry.getValue() instanceof Map<?, ?> stats) {
-                AiUsage usage = toAiUsage(entry.getKey(), stats, sessionId, timestamp, durationMs);
+                AiUsage usage = toAiUsage(entry.getKey(), stats, sessionId, startedAt, durationMs);
                 if (usage != null) {
                     result.add(usage);
                 }
@@ -132,12 +137,15 @@ public class QwenUsageParser extends BaseUsageParser {
     }
 
     private AiUsage toAiUsage(String model, Map<?, ?> stats,
-            String sessionId, long timestamp, long durationMs) {
+            String sessionId, long startedAt, long durationMs) {
         int inputTokens = asInt(stats.get("inputTokens"));
         int outputTokens = asInt(stats.get("outputTokens"));
         int cached = asInt(stats.get("cachedTokens"));
         int thoughts = asInt(stats.get("thoughtsTokens"));
-        int requests = asInt(stats.get("requests"));
+        // 本记录是「会话 × 模型」粒度：模型段的 totalLatencyMs 才是这些请求的往返耗时，
+        // 会话级 durationMs 还含人在环路里的空闲时间。
+        long modelLatency = asLong(stats.get("totalLatencyMs"));
+        long effectiveDuration = modelLatency > 0 ? modelLatency : durationMs;
 
         if (inputTokens <= 0 && outputTokens <= 0) {
             return null;
@@ -152,9 +160,8 @@ public class QwenUsageParser extends BaseUsageParser {
                 .totalTokens(inputTokens + outputTokens)
                 .cacheTokens(cached > 0 ? cached : null)
                 .reasoningTokens(thoughts > 0 ? thoughts : null)
-                .startTime(timestamp > 0 ? timestamp : null)
-                .durationMillis(durationMs > 0 ? durationMs : null)
-                .finishReason(requests + "-requests")
+                .startTime(startedAt > 0 ? startedAt : null)
+                .durationMillis(effectiveDuration > 0 ? effectiveDuration : null)
                 .build();
     }
 }

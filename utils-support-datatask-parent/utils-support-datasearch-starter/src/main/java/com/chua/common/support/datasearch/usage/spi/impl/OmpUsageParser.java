@@ -128,8 +128,7 @@ public class OmpUsageParser extends BaseUsageParser {
      */
     private Flux<AiUsage> streamSessionFile(Path file, Set<String> seenIds) {
         return streamLines(file)
-                .map(line -> parseLine(line, seenIds))
-                .filter(java.util.Objects::nonNull);
+                .mapNotNull(line -> parseLine(line, seenIds));
     }
 
     /**

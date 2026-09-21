@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -129,8 +128,7 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
      */
     private Flux<AiUsage> streamTranscriptFile(Path file) {
         return streamLines(file)
-                .map(this::parseLineSafe)
-                .filter(Objects::nonNull)
+                .mapNotNull(this::parseLineSafe)
                 .subscribeOn(Schedulers.boundedElastic());
     }
 

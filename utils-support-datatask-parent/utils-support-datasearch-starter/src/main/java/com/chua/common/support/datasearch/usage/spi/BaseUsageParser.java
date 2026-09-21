@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -101,6 +103,26 @@ public abstract class BaseUsageParser implements UsageParser {
         } catch (Exception e) {
             return 0L;
         }
+    }
+
+    /**
+     * 返回第一个真实存在的候选路径（子类通用工具）。
+     *
+     * <p>数据目录常被告警级环境变量改写：本机 {@code XDG_DATA_HOME=E:\OpenCodeData} 里没有
+     * {@code kilo/kilo.db}，而 {@code ~/.local/share/kilo/kilo.db} 与 {@code ~/.kilo/kilo.db}
+     * 都有同一份数据——只认一个候选就会整表丢数。全部候选都不存在时返回首个候选，
+     * 保持"路径不存在即不解析"的原有行为。</p>
+     *
+     * @param candidates 按优先级排列的候选路径
+     * @return 第一个存在的候选；都不存在时返回首个候选
+     */
+    protected static Path firstExisting(Path... candidates) {
+        for (Path candidate : candidates) {
+            if (Files.isRegularFile(candidate)) {
+                return candidate;
+            }
+        }
+        return candidates[0];
     }
 
     /**
