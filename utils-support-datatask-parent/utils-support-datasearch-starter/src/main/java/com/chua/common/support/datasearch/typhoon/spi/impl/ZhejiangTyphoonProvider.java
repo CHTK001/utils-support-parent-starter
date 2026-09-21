@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,7 +92,7 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
         } catch (Exception e) {
             log.warn("[zhejiang-typhoon] 获取活跃台风失败: {}", e.getMessage());
         }
-        return cachedList == null ? Collections.emptyList() : cachedList;
+        return cachedList;
     }
 
     @Override

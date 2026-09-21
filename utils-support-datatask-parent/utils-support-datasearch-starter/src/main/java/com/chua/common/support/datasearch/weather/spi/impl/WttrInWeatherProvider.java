@@ -15,14 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * wttr.入 天气数据源实现。
+ * wttr.in 天气数据源实现。
  *
  * <p>通过 {@code HttpClientFactory} 调用免费公开接口
  * {@code https://wttr.in/{city}?format=j1}（无需 key，按城市名查询），
- * 解析 当前_条件 实时天气。</p>
+ * 解析 current_condition 实时天气与 3 天预报。</p>
+ *
+ * <p>该源没有 WMO 天气码口径，{@code weatherCode} 留空，
+ * 由上层在多个数据源中优先选择带码的结果。</p>
  *
  * <p>30 分钟内存缓存（惰性刷新，不内置定时任务）。城市路径动态，故使用
- * HTTP客户端 实体请求而非 httpinvoker 声明式代理（后者面向固定 URL 接口）。</p>
+ * HttpClientFactory 实体请求而非 httpinvoker 声明式代理（后者面向固定 URL 接口）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -115,11 +118,13 @@ public class WttrInWeatherProvider implements WeatherProvider {
             }
             WeatherInfo info = new WeatherInfo();
             info.setCity(city);
+            info.setSource(name());
             info.setTempC(num(current.path("temp_C")));
             info.setFeelsLikeC(num(current.path("FeelsLikeC")));
             info.setHumidity(intVal(current.path("humidity")));
             info.setCloudcover(intVal(current.path("cloudcover")));
             info.setWindSpeedKmph(num(current.path("windspeedKmph")));
+            info.setWindDirection(num(current.path("winddirDegree")));
             info.setPressure(intVal(current.path("pressure")));
             info.setObservationTime(current.path("observation_time").asText(null));
             JsonNode desc = current.path("weatherDesc").path(0);
@@ -140,9 +145,9 @@ public class WttrInWeatherProvider implements WeatherProvider {
     }
 
     /**
-     * 解析未来数日预报（天气 数组，3 天）。
+     * 解析未来数日预报（weather 数组，3 天）。
      *
-     * @param weatherNode 天气 数组节点
+     * @param weatherNode weather 数组节点
      * @return 预报列表；非数组时返回空列表
      */
     private List<DailyForecast> parseForecast(JsonNode weatherNode) {
@@ -156,9 +161,9 @@ public class WttrInWeatherProvider implements WeatherProvider {
             forecast.setMaxTempC(num(day.path("maxtempC")));
             forecast.setMinTempC(num(day.path("mintempC")));
             forecast.setAvgTempC(num(day.path("avgtempC")));
-            forecast.setUvIndex(day.path("uvIndex").asText(null));
+            forecast.setUvIndex(num(day.path("uvIndex")));
             forecast.setSunHour(day.path("sunHour").asText(null));
-            forecast.setHourly(parseHourly(day.path("hourly")));
+            forecast.setHourly(parseHourly(day.path("hourly"), forecast.getDate()));
             result.add(forecast);
         }
         return result;
@@ -167,21 +172,25 @@ public class WttrInWeatherProvider implements WeatherProvider {
     /**
      * 解析逐小时天气采样（8 个点，3 小时间隔）。
      *
-     * @param hourlyNode 时薪 数组节点
+     * @param hourlyNode hourly 数组节点
+     * @param date       所属日期（yyyy-MM-dd），用于拼出统一时间格式
      * @return 逐小时列表；非数组时返回空列表
      */
-    private List<HourlyWeather> parseHourly(JsonNode hourlyNode) {
+    private List<HourlyWeather> parseHourly(JsonNode hourlyNode, String date) {
         List<HourlyWeather> result = new ArrayList<>();
         if (hourlyNode == null || !hourlyNode.isArray()) {
             return result;
         }
         for (JsonNode h : hourlyNode) {
             HourlyWeather hw = new HourlyWeather();
-            hw.setTime(h.path("time").asText(null));
+            hw.setTime(toIsoTime(date, h.path("time").asText(null)));
             hw.setTempC(num(h.path("tempC")));
             hw.setFeelsLikeC(num(h.path("FeelsLikeC")));
             hw.setHumidity(intVal(h.path("humidity")));
             hw.setWindSpeedKmph(num(h.path("windspeedKmph")));
+            hw.setWindDirection(num(h.path("winddirDegree")));
+            hw.setPrecipitation(num(h.path("precipMM")));
+            hw.setPrecipitationProbability(intVal(h.path("chanceofrain")));
             JsonNode desc = h.path("weatherDesc").path(0);
             if (!desc.isMissingNode()) {
                 hw.setWeatherDesc(desc.path("value").asText(null));
@@ -189,6 +198,25 @@ public class WttrInWeatherProvider implements WeatherProvider {
             result.add(hw);
         }
         return result;
+    }
+
+    /**
+     * wttr.in 的 3 小时间隔采样戳（0/300/…/2100）换算为 {@code yyyy-MM-ddTHH:mm}。
+     *
+     * @param date 所属日期
+     * @param raw  原始采样戳
+     * @return 统一时间格式；无法换算时返回 空
+     */
+    private String toIsoTime(String date, String raw) {
+        if (date == null || raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            int stamp = Integer.parseInt(raw.trim());
+            return String.format("%sT%02d:00", date, stamp / 100);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**

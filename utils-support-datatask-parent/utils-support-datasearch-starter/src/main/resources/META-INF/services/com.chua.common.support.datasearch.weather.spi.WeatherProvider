@@ -1,2 +1,4 @@
-com.chua.common.support.datasearch.weather.spi.impl.WttrInWeatherProvider
+# open-meteo 优先：提供 WMO 天气码与坐标查询，是天气契约的首选数据源
 com.chua.common.support.datasearch.weather.spi.impl.OpenMeteoWeatherProvider
+# wttr-in 兜底：仅支持城市名查询，且无 WMO 天气码口径
+com.chua.common.support.datasearch.weather.spi.impl.WttrInWeatherProvider
