@@ -44,11 +44,13 @@ public class OpencodeUsageParser extends BaseUsageParser {
      * @return resolvedb路径的结果
      */
     private static Path resolveDbPath() {
+        Path fallback = Path.of(System.getProperty("user.home"),
+                ".local", "share", "opencode", "opencode.db");
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
-            return Path.of(xdgDataHome, "opencode", "opencode.db");
+            return firstExisting(Path.of(xdgDataHome, "opencode", "opencode.db"), fallback);
         }
-        return Path.of(System.getProperty("user.home"), ".local", "share", "opencode", "opencode.db");
+        return firstExisting(fallback);
     }
 
     /**

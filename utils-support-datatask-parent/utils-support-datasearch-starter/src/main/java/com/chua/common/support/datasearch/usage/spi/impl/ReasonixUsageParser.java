@@ -59,8 +59,7 @@ public class ReasonixUsageParser extends BaseUsageParser {
         }
         log.info("[reasonix] scanning {} telemetry files", files.size());
         return Flux.fromIterable(files)
-                .map(this::parseSnapshot)
-                .filter(java.util.Objects::nonNull)
+                .mapNotNull(this::parseSnapshot)
                 .onErrorResume(e -> {
                     log.debug("[reasonix] read failed: {}", e.getMessage());
                     return Flux.empty();

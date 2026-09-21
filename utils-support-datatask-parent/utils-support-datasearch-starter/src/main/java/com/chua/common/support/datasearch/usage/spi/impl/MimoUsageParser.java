@@ -105,8 +105,7 @@ public class MimoUsageParser extends BaseUsageParser {
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("mimo", DB_PATH.toString());
         return engine.query(SQL_MESSAGES)
-                .map(this::toAiUsage)
-                .filter(java.util.Objects::nonNull)
+                .mapNotNull(this::toAiUsage)
                 .doOnComplete(() -> log.info("[mimo] stream complete"));
     }
 
