@@ -1,32 +1,18 @@
 package com.chua.deeplearning.support.onnx.yolo.obb;
 
-import lombok.Data;
-
 import java.util.List;
 
-
 /**
- * OBB             
+ * OBB
  * <p>
- *                            OBB - Oriented Bounding Box                     
+ *                            OBB - Oriented Bounding Box
+ *
+ * @param rotatedBoxList OBB
  *
  * @author CH
  * @since 2025-01-22
  */
-@Data
-public class ObbResult {
-
-    /**
-     * OBB              
-     */
-    private List<YoloRotatedBox> rotatedBoxList;
-
-    /**
-     *             
-     *
-     * @param rotatedBoxList                
-     */
-    public ObbResult(List<YoloRotatedBox> rotatedBoxList) {
-        this.rotatedBoxList = rotatedBoxList;
-    }
+public record ObbResult(
+        List<YoloRotatedBox> rotatedBoxList
+) {
 }
