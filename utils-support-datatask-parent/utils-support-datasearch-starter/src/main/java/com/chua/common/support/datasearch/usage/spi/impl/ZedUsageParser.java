@@ -96,8 +96,7 @@ public class ZedUsageParser extends BaseUsageParser {
                 .addDataSource("zed", DB_PATH.toString());
         return engine.query(SQL_THREADS)
                 .onErrorResume(e -> engine.query(SQL_THREADS_NO_TIME))
-                .map(this::toAiUsage)
-                .filter(java.util.Objects::nonNull)
+                .mapNotNull(this::toAiUsage)
                 .doOnComplete(() -> log.info("[zed] stream complete"));
     }
 

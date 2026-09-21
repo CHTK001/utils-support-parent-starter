@@ -155,8 +155,7 @@ public class KimiUsageParser extends BaseUsageParser {
      */
     private Flux<AiUsage> streamWireFile(Path file, String model, Set<String> seenIds) {
         return streamLines(file)
-                .map(line -> parseLine(line, model, seenIds))
-                .filter(java.util.Objects::nonNull);
+                .mapNotNull(line -> parseLine(line, model, seenIds));
     }
 
     /**
