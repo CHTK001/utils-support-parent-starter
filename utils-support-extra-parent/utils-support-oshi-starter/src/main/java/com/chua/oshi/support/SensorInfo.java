@@ -1,42 +1,26 @@
 package com.chua.oshi.support;
 
-import lombok.Data;
-
 /**
  * 传感器内部信息类，封装单个传感器的读数。
+ *
+ * @param name 名称
+ * @param type 类型
+ * @param currentTemperature 当前temperature
+ * @param maxTemperature 最大值temperature
+ * @param currentFanSpeed 当前fanspeed
+ * @param maxFanSpeed 最大值fanspeed
+ * @param currentVoltage 当前voltage
  *
  * @author CH
  * @since 4.0.0
  */
-@Data
-public class SensorInfo {
-
-    /**
-     * 名称
-    */
-    private String name;
-    /**
-     * 类型
-    */
-    private String type;
-    /**
-     * 当前temperature
-    */
-    private double currentTemperature;
-    /**
-     * 最大值temperature
-    */
-    private double maxTemperature;
-    /**
-     * 当前fanspeed
-    */
-    private double currentFanSpeed;
-    /**
-     * 最大值fanspeed
-    */
-    private double maxFanSpeed;
-    /**
-     * 当前voltage
-    */
-    private double currentVoltage;
+public record SensorInfo(
+        String name,
+        String type,
+        double currentTemperature,
+        double maxTemperature,
+        double currentFanSpeed,
+        double maxFanSpeed,
+        double currentVoltage
+) {
 }
