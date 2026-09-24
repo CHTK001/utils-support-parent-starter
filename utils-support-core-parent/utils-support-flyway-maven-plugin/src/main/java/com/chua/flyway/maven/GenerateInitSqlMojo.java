@@ -18,20 +18,37 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 递归扫描项目目录下的初始化脚本，合并生成一份完整的 init SQL 并覆盖旧文件.
+ * 递归扫描项目目录下的初始化脚本，合并生成完整初始化 SQL 并覆盖旧文件.
  *
- * <p>用途：将按模块拆分的 {@code db/init/*.sql}（各模块全量建表 + 初始化数据）聚合为
- * 单一可直接执行的完整初始化脚本。合并语义为纯文本拼接，按相对路径稳定排序，
+ * <p>两种输出模式：</p>
+ * <ul>
+ *   <li>{@code mode=single}（默认）：全部脚本合并为一份 {@code init-all.sql}，
+ *       适合人工建库/交付；</li>
+ *   <li>{@code mode=initdata}：按运行期 Flyway 分类口径输出两份可直接被运行期扫描的脚本——
+ *       {@code V{版本}__init_all.sql}（结构/补丁，同步执行）与
+ *       {@code V{版本}__initdata_all.sql}（初始化数据，异步执行），版本取被合并脚本中的最高版本。</li>
+ * </ul>
+ *
+ * <p>合并语义为纯文本拼接，默认按「版本号数值升序 + 相对路径」排序（与运行期扫描顺序一致），
  * 不做方言转换，保持脚本的通用性。</p>
  *
- * <p>幂等：每次执行覆盖 {@code outputFile}；生成文件本身会被排除在输入之外，
- * 避免重复合并。</p>
+ * <p>幂等：每次执行覆盖输出的合并文件；生成文件本身会被排除在输入之外，避免重复合并。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Mojo(name = "generate-init-sql", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
 public class GenerateInitSqlMojo extends AbstractMojo {
+
+    /**
+     * 输出模式：单份 init-all.sql.
+     */
+    private static final String MODE_SINGLE = "single";
+
+    /**
+     * 输出模式：init/initdata 两份运行期可执行脚本.
+     */
+    private static final String MODE_INIT_DATA = "initdata";
 
     /**
      * 默认包含模式：递归匹配任意层级的 db/init 目录下 .sql 文件.
@@ -102,6 +119,46 @@ public class GenerateInitSqlMojo extends AbstractMojo {
     private boolean skip;
 
     /**
+     * 输出模式：{@code single}=单份 init-all.sql（默认）；{@code initdata}=输出
+     * {@code V{版本}__init_all.sql} 与 {@code V{版本}__initdata_all.sql} 两份运行期可执行脚本.
+     *
+     * <p>参数命名统一使用 {@code flyway.merge.*} 前缀，避免与 Spring Boot 依赖管理中的
+     * {@code flyway.version} 等项目属性撞名。</p>
+     */
+    @Parameter(defaultValue = "single", property = "flyway.merge.mode")
+    private String mode;
+
+    /**
+     * initdata 模式的输出目录，默认与 {@link #outputFile} 同目录（{@code target/db}）.
+     */
+    @Parameter(property = "flyway.merge.outputDir")
+    private File outputDir;
+
+    /**
+     * 合并文件版本号；默认取被合并脚本中的最高版本，缺省回退 {@code 1.0.0}.
+     */
+    @Parameter(property = "flyway.merge.version")
+    private String version;
+
+    /**
+     * init 合并文件的描述段（{@code V{版本}__{描述}.sql}），需以 {@code init_} 开头.
+     */
+    @Parameter(defaultValue = "init_all", property = "flyway.merge.initDescription")
+    private String initDescription;
+
+    /**
+     * initdata 合并文件的描述段，需以 {@code initdata_} 开头.
+     */
+    @Parameter(defaultValue = "initdata_all", property = "flyway.merge.initDataDescription")
+    private String initDataDescription;
+
+    /**
+     * 是否按「版本号数值升序 + 相对路径」排序（与运行期扫描顺序一致），默认开启.
+     */
+    @Parameter(defaultValue = "true", property = "flyway.merge.versionSort")
+    private boolean versionSort;
+
+    /**
      * 执行脚本扫描与合并.
      *
      * @throws MojoExecutionException 读写文件失败时抛出
@@ -121,11 +178,18 @@ public class GenerateInitSqlMojo extends AbstractMojo {
         final Charset charset = resolveCharset(encoding);
         final List<String> effectiveIncludes = includes == null || includes.isEmpty() ? DEFAULT_INCLUDES : includes;
         final List<String> effectiveExcludes = excludes == null || excludes.isEmpty() ? DEFAULT_EXCLUDES : excludes;
+        if (MODE_INIT_DATA.equalsIgnoreCase(mode)) {
+            generateInitDataFiles(root, output, effectiveIncludes, effectiveExcludes, charset);
+            return;
+        }
         try {
-            final List<Path> scripts = collectScripts(root, output, effectiveIncludes, effectiveExcludes);
+            final List<Path> scripts = collectScripts(root, List.of(output), effectiveIncludes, effectiveExcludes);
             if (scripts.isEmpty()) {
                 handleEmpty();
                 return;
+            }
+            if (versionSort) {
+                InitSqlMerger.sortByVersionThenPath(scripts, root);
             }
             writeMerged(root, output, scripts, charset);
         } catch (IOException e) {
@@ -137,19 +201,22 @@ public class GenerateInitSqlMojo extends AbstractMojo {
      * 扫描并过滤掉输出文件本身，返回待合并脚本列表.
      *
      * @param root              扫描根目录
-     * @param output            输出文件路径（需从输入中排除）
+     * @param excludedOutputs   需要从输入中排除的输出文件路径
      * @param effectiveIncludes 生效的包含模式
      * @param effectiveExcludes 生效的排除模式
      * @return 待合并脚本列表
      * @throws IOException 目录遍历失败时抛出
      */
-    private List<Path> collectScripts(final Path root, final Path output,
+    private List<Path> collectScripts(final Path root, final List<Path> excludedOutputs,
                                       final List<String> effectiveIncludes, final List<String> effectiveExcludes) throws IOException {
-        final Path outputNormalized = output.toAbsolutePath().normalize();
+        final List<Path> excluded = new ArrayList<>(excludedOutputs.size());
+        for (final Path output : excludedOutputs) {
+            excluded.add(output.toAbsolutePath().normalize());
+        }
         final List<Path> scanned = InitSqlMerger.scan(root, effectiveIncludes, effectiveExcludes);
         final List<Path> filtered = new ArrayList<>(scanned.size());
         for (final Path script : scanned) {
-            if (!script.toAbsolutePath().normalize().equals(outputNormalized)) {
+            if (!excluded.contains(script.toAbsolutePath().normalize())) {
                 filtered.add(script);
             }
         }
@@ -179,14 +246,138 @@ public class GenerateInitSqlMojo extends AbstractMojo {
      * @throws IOException 读写失败时抛出
      */
     private void writeMerged(final Path root, final Path output, final List<Path> scripts, final Charset charset) throws IOException {
-        final String merged = InitSqlMerger.merge(scripts, root, charset, header, stampHeader);
+        writeMergedFile(root, output, scripts, charset, null);
+    }
+
+    /**
+     * 合并脚本并写入输出文件（可自定义头部标题）.
+     *
+     * @param root    扫描根目录
+     * @param output  输出文件路径
+     * @param scripts 待合并脚本
+     * @param charset 字符集
+     * @param title   头部标题，为空时用默认标题
+     * @throws IOException 读写失败时抛出
+     */
+    private void writeMergedFile(final Path root, final Path output, final List<Path> scripts,
+                                 final Charset charset, final String title) throws IOException {
+        final String merged = title == null
+                ? InitSqlMerger.merge(scripts, root, charset, header, stampHeader)
+                : InitSqlMerger.merge(scripts, root, charset, header, stampHeader, title);
         final Path parent = output.toAbsolutePath().getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
         Files.write(output, merged.getBytes(charset));
-        getLog().info("已生成合并 init SQL: " + output.toAbsolutePath()
+        getLog().info("已生成合并 SQL: " + output.toAbsolutePath()
                 + "，合并脚本 " + scripts.size() + " 个，共 " + merged.length() + " 字符");
+    }
+
+    /**
+     * 生成运行期可直接执行的 init / initdata 两份合并脚本.
+     *
+     * <p>命名遵循 {@code V{版本}__{描述}.sql}，与运行期分类口径一致：init 组包含全部非 initdata
+     * 脚本（结构、补丁、普通脚本，同步执行），initdata 组仅含 {@code V*__initdata_*}
+     * （表结构之后异步执行）；两份共享被合并脚本中的最高版本号（去发布后缀，保证 STABLE 过滤通过）。</p>
+     *
+     * @param root     扫描根目录
+     * @param single   单文件模式的输出路径（一并从输入中排除）
+     * @param includes 生效的包含模式
+     * @param excludes 生效的排除模式
+     * @param charset  字符集
+     * @throws MojoExecutionException 读写失败时抛出
+     * @throws MojoFailureException   无脚本且配置为失败时抛出
+     */
+    private void generateInitDataFiles(final Path root, final Path single,
+                                       final List<String> includes, final List<String> excludes,
+                                       final Charset charset) throws MojoExecutionException, MojoFailureException {
+        final Path directory = resolveOutputDirectory(single);
+        try {
+            final List<Path> scripts = collectScripts(root, List.of(single), includes, excludes);
+            removePreviousMerged(directory, scripts);
+            if (scripts.isEmpty()) {
+                handleEmpty();
+                return;
+            }
+            if (versionSort) {
+                InitSqlMerger.sortByVersionThenPath(scripts, root);
+            }
+            final List<Path> initScripts = new ArrayList<>();
+            final List<Path> initDataScripts = new ArrayList<>();
+            for (final Path script : scripts) {
+                if (InitSqlMerger.isInitData(script)) {
+                    initDataScripts.add(script);
+                } else {
+                    initScripts.add(script);
+                }
+            }
+            final String resolvedVersion = resolveVersion(scripts);
+            final Path initFile = directory.resolve("V" + resolvedVersion + "__" + initDescription + ".sql");
+            final Path dataFile = directory.resolve("V" + resolvedVersion + "__" + initDataDescription + ".sql");
+            if (initScripts.isEmpty()) {
+                getLog().warn("未扫描到 init 脚本，跳过生成 " + initFile.getFileName());
+            } else {
+                writeMergedFile(root, initFile, initScripts, charset,
+                        "Flyway 合并生成：init（表结构/补丁，运行期同步执行）");
+            }
+            if (initDataScripts.isEmpty()) {
+                getLog().warn("未扫描到 initdata 脚本，跳过生成 " + dataFile.getFileName());
+            } else {
+                writeMergedFile(root, dataFile, initDataScripts, charset,
+                        "Flyway 合并生成：initdata（初始化数据，运行期异步执行）");
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException("生成合并 init/initdata SQL 失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 排除输出目录下上一轮生成的合并文件，避免其被再次当作输入.
+     *
+     * @param directory 输出目录
+     * @param scripts   已扫描脚本列表（原地过滤）
+     */
+    private void removePreviousMerged(final Path directory, final List<Path> scripts) {
+        final Path directoryNormalized = directory.toAbsolutePath().normalize();
+        final String initSuffix = "__" + initDescription + ".sql";
+        final String dataSuffix = "__" + initDataDescription + ".sql";
+        scripts.removeIf(script -> {
+            final Path absolute = script.toAbsolutePath().normalize();
+            final Path parent = absolute.getParent();
+            if (parent == null || !parent.equals(directoryNormalized)) {
+                return false;
+            }
+            final String name = absolute.getFileName().toString();
+            return name.startsWith("V") && (name.endsWith(initSuffix) || name.endsWith(dataSuffix));
+        });
+    }
+
+    /**
+     * 解析 initdata 模式输出目录：优先显式配置，其次与 {@link #outputFile} 同目录.
+     *
+     * @param singleOutput 单文件输出路径
+     * @return 输出目录
+     */
+    private Path resolveOutputDirectory(final Path singleOutput) {
+        if (outputDir != null) {
+            return outputDir.toPath();
+        }
+        final Path parent = singleOutput.toAbsolutePath().getParent();
+        return parent != null ? parent : singleOutput.toAbsolutePath();
+    }
+
+    /**
+     * 解析合并文件版本号：优先显式配置，其次取脚本最高版本，最后回退 {@code 1.0.0}.
+     *
+     * @param scripts 待合并脚本
+     * @return 版本号（已去发布后缀）
+     */
+    private String resolveVersion(final List<Path> scripts) {
+        String resolved = InitSqlMerger.cleanVersion(version);
+        if (resolved == null) {
+            resolved = InitSqlMerger.maxVersion(scripts);
+        }
+        return resolved == null ? "1.0.0" : resolved;
     }
 
     /**
