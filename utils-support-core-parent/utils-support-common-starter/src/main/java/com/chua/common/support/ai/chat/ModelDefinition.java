@@ -88,6 +88,27 @@ public class ModelDefinition {
     private BigDecimal intelligenceIndex;
 
     /**
+     * HLE（Humanity's Last Exam，人类最后考试）得分
+     *
+     * <p>取值 0~1 的小数，来自数据源的 {@code hle} 字段（Artificial Analysis）。</p>
+     */
+    private BigDecimal hleScore;
+
+    /**
+     * 全知指数（Omniscience Index）
+     *
+     * <p>知识准确率与幻觉水平的差值，可为负；来自数据源的 {@code omniscience} 字段
+     * （Artificial Analysis）。</p>
+     */
+    private BigDecimal omniscienceIndex;
+
+    /**
+     * GPQA 得分（0~1） AIME 2025 数学基准得分（0~1） LiveCodeBench 编程基准得分（0~1） SciCode 科学编程基准得分（0~1） IFBench 指令遵循基准得分（0~1） CritPt 物理基准得分（0~1） MMMU-Pro 多模态基准得分（0~1） Tau2-Bench 工具调用基准得分（0~1） Tau-Banking 银行场景基准得分（0~1） LCR 长上下文推理得分（0~1） Terminal-Bench Hard 得分（0~1） Terminal-Bench 2.1 得分（0~1） Terminal-Bench 4.0 得分（0~1） AutomationBench 自动化基准得分（0~1） GDPval 归一化得分（0~1） Briefcase 专业任务基准得分（0~1） Harvey Lab 法律任务基准得分（0~1） Apex Agents 基准得分（0~1） ITBench SRE 运维基准得分（0~1） 全知指数-准确率（0~1） 全知指数-非幻觉率（0~1） Artificial Analysis Elo 评分 单任务平均成本（USD） 是否支持 JSON 输出模式 是否兼容 OpenAI 协议 智能指数是否为估算值
+     */
+    private Boolean gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated;
+
+
+    /**
      * 输出速度（Token/秒，中位数）
      */
     private BigDecimal outputSpeedTokensPerSecond;
