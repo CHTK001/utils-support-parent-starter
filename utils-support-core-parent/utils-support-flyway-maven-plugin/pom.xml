@@ -12,7 +12,7 @@
     <artifactId>utils-support-flyway-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>Utils Support Flyway Maven Plugin</name>
-    <description>Flyway 辅助 Maven 插件：递归扫描项目目录下的初始化脚本，合并生成一份完整的 init SQL 并覆盖旧文件</description>
+    <description>Flyway 辅助 Maven 插件：递归扫描项目目录下的初始化脚本，合并生成单一 init SQL（mode=single）或运行期可直接执行的 init/initdata 两份脚本（mode=initdata）</description>
 
     <properties>
         <maven.api.version>3.9.16</maven.api.version>
