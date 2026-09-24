@@ -132,10 +132,43 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
             BigDecimal intelligence = num(win, "intelligenceIndex\\\\\\\":");
             BigDecimal hle = num(win, "hle\\\\\\\":");
             BigDecimal omniscience = num(win, "omniscience\\\\\\\":");
-            Boolean gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated = null;
-            String gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimatedText = group1(win, "gpqa aime25 livecodebench scicode ifbench critpt mmmuPro tau2 tauBanking lcr terminalbenchHard terminalBench21 terminalBench40 automationBench gdpvalNormalized briefcase harveyLab apexAgents itbenchSre omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexIsEstimated\\\\\\\":(true|false)");
-            if (gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimatedText != null) {
-                gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated = Boolean.parseBoolean(gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimatedText);
+            BigDecimal gpqaScore = num(win, "gpqa\\\\\\\":");
+            BigDecimal aime25Score = num(win, "aime25\\\\\\\":");
+            BigDecimal livecodebenchScore = num(win, "livecodebench\\\\\\\":");
+            BigDecimal scicodeScore = num(win, "scicode\\\\\\\":");
+            BigDecimal ifbenchScore = num(win, "ifbench\\\\\\\":");
+            BigDecimal critptScore = num(win, "critpt\\\\\\\":");
+            BigDecimal mmmuProScore = num(win, "mmmuPro\\\\\\\":");
+            BigDecimal tau2Score = num(win, "tau2\\\\\\\":");
+            BigDecimal tauBankingScore = num(win, "tauBanking\\\\\\\":");
+            BigDecimal lcrScore = num(win, "lcr\\\\\\\":");
+            BigDecimal terminalbenchHardScore = num(win, "terminalbenchHard\\\\\\\":");
+            BigDecimal terminalBench21Score = num(win, "terminalBench21\\\\\\\":");
+            BigDecimal terminalBench40Score = num(win, "terminalBench40\\\\\\\":");
+            BigDecimal automationBenchScore = num(win, "automationBench\\\\\\\":");
+            BigDecimal gdpvalNormalizedScore = num(win, "gdpvalNormalized\\\\\\\":");
+            BigDecimal briefcaseScore = num(win, "briefcase\\\\\\\":");
+            BigDecimal harveyLabScore = num(win, "harveyLab\\\\\\\":");
+            BigDecimal apexAgentsScore = num(win, "apexAgents\\\\\\\":");
+            BigDecimal itbenchSreScore = num(win, "itbenchSre\\\\\\\":");
+            BigDecimal omniscienceAccuracy = num(win, "omniscienceAccuracy\\\\\\\":");
+            BigDecimal omniscienceNonHallucination = num(win, "omniscienceNonHallucination\\\\\\\":");
+            BigDecimal elo = num(win, "elo\\\\\\\":");
+            BigDecimal costPerTask = num(win, "costPerTask\\\\\\\":");
+            Boolean jsonMode = null;
+            String jsonModeText = group1(win, "jsonMode\\\\\\\":(true|false)");
+            if (jsonModeText != null) {
+                jsonMode = Boolean.parseBoolean(jsonModeText);
+            }
+            Boolean openaiCompatible = null;
+            String openaiCompatibleText = group1(win, "openaiCompatible\\\\\\\":(true|false)");
+            if (openaiCompatibleText != null) {
+                openaiCompatible = Boolean.parseBoolean(openaiCompatibleText);
+            }
+            Boolean intelligenceIndexEstimated = null;
+            String intelligenceIndexEstimatedText = group1(win, "intelligenceIndexIsEstimated\\\\\\\":(true|false)");
+            if (intelligenceIndexEstimatedText != null) {
+                intelligenceIndexEstimated = Boolean.parseBoolean(intelligenceIndexEstimatedText);
             }
             BigDecimal in = num(win, "price1mInputTokens\\\\\\\":");
             BigDecimal out = num(win, "price1mOutputTokens\\\\\\\":");
@@ -206,7 +239,32 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
                     .intelligenceIndex(intelligence)
                     .hleScore(hle)
                     .omniscienceIndex(omniscience)
-                    .gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated(gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated)
+                    .gpqaScore(gpqaScore)
+                    .aime25Score(aime25Score)
+                    .livecodebenchScore(livecodebenchScore)
+                    .scicodeScore(scicodeScore)
+                    .ifbenchScore(ifbenchScore)
+                    .critptScore(critptScore)
+                    .mmmuProScore(mmmuProScore)
+                    .tau2Score(tau2Score)
+                    .tauBankingScore(tauBankingScore)
+                    .lcrScore(lcrScore)
+                    .terminalbenchHardScore(terminalbenchHardScore)
+                    .terminalBench21Score(terminalBench21Score)
+                    .terminalBench40Score(terminalBench40Score)
+                    .automationBenchScore(automationBenchScore)
+                    .gdpvalNormalizedScore(gdpvalNormalizedScore)
+                    .briefcaseScore(briefcaseScore)
+                    .harveyLabScore(harveyLabScore)
+                    .apexAgentsScore(apexAgentsScore)
+                    .itbenchSreScore(itbenchSreScore)
+                    .omniscienceAccuracy(omniscienceAccuracy)
+                    .omniscienceNonHallucination(omniscienceNonHallucination)
+                    .elo(elo)
+                    .costPerTask(costPerTask)
+                    .jsonMode(jsonMode)
+                    .openaiCompatible(openaiCompatible)
+                    .intelligenceIndexEstimated(intelligenceIndexEstimated)
                     .outputSpeedTokensPerSecond(speed)
                     .latencyFirstTokenSeconds(ttft)
                     .endToEndResponseTimeSeconds(e2e)
