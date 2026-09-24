@@ -103,9 +103,134 @@ public class ModelDefinition {
     private BigDecimal omniscienceIndex;
 
     /**
-     * GPQA 得分（0~1） AIME 2025 数学基准得分（0~1） LiveCodeBench 编程基准得分（0~1） SciCode 科学编程基准得分（0~1） IFBench 指令遵循基准得分（0~1） CritPt 物理基准得分（0~1） MMMU-Pro 多模态基准得分（0~1） Tau2-Bench 工具调用基准得分（0~1） Tau-Banking 银行场景基准得分（0~1） LCR 长上下文推理得分（0~1） Terminal-Bench Hard 得分（0~1） Terminal-Bench 2.1 得分（0~1） Terminal-Bench 4.0 得分（0~1） AutomationBench 自动化基准得分（0~1） GDPval 归一化得分（0~1） Briefcase 专业任务基准得分（0~1） Harvey Lab 法律任务基准得分（0~1） Apex Agents 基准得分（0~1） ITBench SRE 运维基准得分（0~1） 全知指数-准确率（0~1） 全知指数-非幻觉率（0~1） Artificial Analysis Elo 评分 单任务平均成本（USD） 是否支持 JSON 输出模式 是否兼容 OpenAI 协议 智能指数是否为估算值
+     * GPQA 得分（0~1）
      */
-    private Boolean gpqaScore aime25Score livecodebenchScore scicodeScore ifbenchScore critptScore mmmuProScore tau2Score tauBankingScore lcrScore terminalbenchHardScore terminalBench21Score terminalBench40Score automationBenchScore gdpvalNormalizedScore briefcaseScore harveyLabScore apexAgentsScore itbenchSreScore omniscienceAccuracy omniscienceNonHallucination elo costPerTask jsonMode openaiCompatible intelligenceIndexEstimated;
+    private BigDecimal gpqaScore;
+
+    /**
+     * AIME 2025 数学基准得分（0~1）
+     */
+    private BigDecimal aime25Score;
+
+    /**
+     * LiveCodeBench 编程基准得分（0~1）
+     */
+    private BigDecimal livecodebenchScore;
+
+    /**
+     * SciCode 科学编程基准得分（0~1）
+     */
+    private BigDecimal scicodeScore;
+
+    /**
+     * IFBench 指令遵循基准得分（0~1）
+     */
+    private BigDecimal ifbenchScore;
+
+    /**
+     * CritPt 物理基准得分（0~1）
+     */
+    private BigDecimal critptScore;
+
+    /**
+     * MMMU-Pro 多模态基准得分（0~1）
+     */
+    private BigDecimal mmmuProScore;
+
+    /**
+     * Tau2-Bench 工具调用基准得分（0~1）
+     */
+    private BigDecimal tau2Score;
+
+    /**
+     * Tau-Banking 银行场景基准得分（0~1）
+     */
+    private BigDecimal tauBankingScore;
+
+    /**
+     * LCR 长上下文推理得分（0~1）
+     */
+    private BigDecimal lcrScore;
+
+    /**
+     * Terminal-Bench Hard 得分（0~1）
+     */
+    private BigDecimal terminalbenchHardScore;
+
+    /**
+     * Terminal-Bench 2.1 得分（0~1）
+     */
+    private BigDecimal terminalBench21Score;
+
+    /**
+     * Terminal-Bench 4.0 得分（0~1）
+     */
+    private BigDecimal terminalBench40Score;
+
+    /**
+     * AutomationBench 自动化基准得分（0~1）
+     */
+    private BigDecimal automationBenchScore;
+
+    /**
+     * GDPval 归一化得分（0~1）
+     */
+    private BigDecimal gdpvalNormalizedScore;
+
+    /**
+     * Briefcase 专业任务基准得分（0~1）
+     */
+    private BigDecimal briefcaseScore;
+
+    /**
+     * Harvey Lab 法律任务基准得分（0~1）
+     */
+    private BigDecimal harveyLabScore;
+
+    /**
+     * Apex Agents 基准得分（0~1）
+     */
+    private BigDecimal apexAgentsScore;
+
+    /**
+     * ITBench SRE 运维基准得分（0~1）
+     */
+    private BigDecimal itbenchSreScore;
+
+    /**
+     * 全知指数-准确率（0~1）
+     */
+    private BigDecimal omniscienceAccuracy;
+
+    /**
+     * 全知指数-非幻觉率（0~1）
+     */
+    private BigDecimal omniscienceNonHallucination;
+
+    /**
+     * Artificial Analysis Elo 评分
+     */
+    private BigDecimal elo;
+
+    /**
+     * 单任务平均成本（USD）
+     */
+    private BigDecimal costPerTask;
+
+    /**
+     * 是否支持 JSON 输出模式
+     */
+    private Boolean jsonMode;
+
+    /**
+     * 是否兼容 OpenAI 协议
+     */
+    private Boolean openaiCompatible;
+
+    /**
+     * 智能指数是否为估算值
+     */
+    private Boolean intelligenceIndexEstimated;
 
 
     /**
