@@ -336,20 +336,22 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         fillIfNull(target::getWebSearchPrice, src.getWebSearchPrice(), target::setWebSearchPrice);
         fillIfNull(target::getCurrency, src.getCurrency(), target::setCurrency);
         fillIfNull(target::getIntelligenceIndex, src.getIntelligenceIndex(), target::setIntelligenceIndex);
+        fillIfNull(target::getHleScore, src.getHleScore(), target::setHleScore);
+        fillIfNull(target::getOmniscienceIndex, src.getOmniscienceIndex(), target::setOmniscienceIndex);
         fillIfNull(target::getOutputSpeedTokensPerSecond, src.getOutputSpeedTokensPerSecond(), target::setOutputSpeedTokensPerSecond);
         fillIfNull(target::getLatencyFirstTokenSeconds, src.getLatencyFirstTokenSeconds(), target::setLatencyFirstTokenSeconds);
         fillIfNull(target::getContextWindowTokens, src.getContextWindowTokens(), target::setContextWindowTokens);
         fillIfNull(target::getActiveParams, src.getActiveParams(), target::setActiveParams);
-        fillIfNull(target::getReasoning, src.getReasoning(), target::setReasoning);
+        mergeBoolean(target::getReasoning, src.getReasoning(), target::setReasoning);
         mergeBoolean(target::getImageInput, src.getImageInput(), target::setImageInput);
         mergeBoolean(target::getWebSearch, src.getWebSearch(), target::setWebSearch);
-        fillIfNull(target::getFunctionCalling, src.getFunctionCalling(), target::setFunctionCalling);
+        mergeBoolean(target::getFunctionCalling, src.getFunctionCalling(), target::setFunctionCalling);
         fillIfNull(target::getEndToEndResponseTimeSeconds, src.getEndToEndResponseTimeSeconds(), target::setEndToEndResponseTimeSeconds);
         fillIfNull(target::getInternalReasoningPrice, src.getInternalReasoningPrice(), target::setInternalReasoningPrice);
         fillIfNull(target::getOutputModalities, src.getOutputModalities(), target::setOutputModalities);
         fillIfNull(target::getDeprecated, src.getDeprecated(), target::setDeprecated);
-        if (target.getCapabilities() == null && src.getCapabilities() != null) {
-            target.setCapabilities(src.getCapabilities());
+        if (src.getCapabilities() != null && !src.getCapabilities().isEmpty()) {
+            target.setCapabilities(unionCapabilities(target.getCapabilities(), src.getCapabilities()));
         }
         if (target.isCompress() != src.isCompress()) {
             target.setCompress(src.isCompress());
@@ -395,5 +397,29 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
         if (current == null || (!current && sourceValue)) {
             targetSetter.accept(sourceValue);
         }
+    }
+
+    /**
+     * 合并能力标签列表：目标缺失时直接采用源列表，否则取并集（保持原顺序并去重）。
+     *
+     * <p>数据源各自只声明已知的能力（如 Artificial Analysis 声明 深度思考、
+     * 打开router 声明 图片输入/函数调用），首个源优先时会把后续源的标签丢掉，
+     * 这里按并集补齐。</p>
+     *
+     * @param target 已合并的能力标签列表，可为 空
+     * @param src    当前数据源的能力标签列表
+     * @return 合并后的能力标签列表
+     */
+    private List<String> unionCapabilities(List<String> target, List<String> src) {
+        if (target == null || target.isEmpty()) {
+            return new ArrayList<>(src);
+        }
+        List<String> merged = new ArrayList<>(target);
+        for (String capability : src) {
+            if (capability != null && !merged.contains(capability)) {
+                merged.add(capability);
+            }
+        }
+        return merged;
     }
 }

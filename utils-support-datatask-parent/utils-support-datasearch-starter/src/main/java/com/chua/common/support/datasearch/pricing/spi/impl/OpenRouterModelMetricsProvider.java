@@ -17,7 +17,8 @@ import java.util.List;
  * {@code https://openrouter.ai/api/v1/models}（公开、无需 key）：</p>
  * <ul>
  *   <li>价格：输入/输出（USD / 百万 Token）、缓存读/写、图片（USD / 张）、网络检索（USD / 次）</li>
- *   <li>能力：图片输入（input_modalities）、网络检索（web_search 定价）、上下文窗口</li>
+ *   <li>能力：图片输入（input_modalities）、深度思考（reasoning）、工具调用（tools），
+ *       网络检索（web_search 定价）、上下文窗口</li>
  *   <li>智能：benchmarks.artificial_analysis.intelligence_index（部分模型）</li>
  * </ul>
  *
@@ -90,9 +91,33 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             BigDecimal webSearch = perImage(pricing.path("web_search"));
             BigDecimal internalReasoning = perMillion(pricing.path("internal_reasoning"));
 
+            JsonNode supportedParameters = item.path("supported_parameters");
+            JsonNode reasoningNode = item.path("reasoning");
             boolean imageInput = containsModality(architecture, "image");
             boolean webSearchSupport = webSearch != null;
+            boolean reasoning = reasoningNode.isObject()
+                    || containsText(supportedParameters, "reasoning")
+                    || containsText(supportedParameters, "include_reasoning");
+            boolean functionCalling = containsText(supportedParameters, "tools")
+                    || containsText(supportedParameters, "tool_choice");
+            String reasoningEffort = reasoningNode.isObject()
+                    ? textOf(reasoningNode.path("default_effort")) : null;
             List<String> outputModalities = modalities(architecture.path("output_modalities"));
+
+            List<String> capabilities = new ArrayList<>(5);
+            capabilities.add("chat");
+            if (reasoning) {
+                capabilities.add("reasoning");
+            }
+            if (webSearchSupport) {
+                capabilities.add("web_search");
+            }
+            if (imageInput) {
+                capabilities.add("image_input");
+            }
+            if (functionCalling) {
+                capabilities.add("function_calling");
+            }
 
             long contextLength = item.path("context_length").asLong(0L);
             BigDecimal intelligence = number(benchmarks.path("intelligence_index"));
@@ -110,8 +135,12 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
                     .webSearchPrice(webSearch)
                     .internalReasoningPrice(internalReasoning)
                     .outputModalities(outputModalities)
+                    .capabilities(capabilities)
                     .imageInput(imageInput ? Boolean.TRUE : null)
                     .webSearch(webSearchSupport ? Boolean.TRUE : null)
+                    .reasoning(reasoning ? Boolean.TRUE : null)
+                    .functionCalling(functionCalling ? Boolean.TRUE : null)
+                    .reasoningEffort(reasoningEffort)
                     .contextWindowTokens(contextLength > 0 ? contextLength : null)
                     .intelligenceIndex(intelligence)
                     .currency("USD")
@@ -199,6 +228,39 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
             }
         }
         return false;
+    }
+
+    /**
+     * 判断字符串数组节点是否包含指定取值。
+     *
+     * @param node  数组节点（如 supported_parameters）
+     * @param value 目标取值（如 reasoning、tools）
+     * @return 包含返回 true；节点非数组时返回 false
+     */
+    private boolean containsText(JsonNode node, String value) {
+        if (node == null || !node.isArray()) {
+            return false;
+        }
+        for (JsonNode item : node) {
+            if (value.equals(item.asText())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 读取文本节点。
+     *
+     * @param node 文本节点
+     * @return 文本；缺失或空白时返回 空
+     */
+    private String textOf(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        String text = node.asText(null);
+        return (text == null || text.isEmpty()) ? null : text;
     }
 
     /**
