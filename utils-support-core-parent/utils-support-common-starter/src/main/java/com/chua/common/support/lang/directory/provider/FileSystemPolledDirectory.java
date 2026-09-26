@@ -2,6 +2,7 @@ package com.chua.common.support.lang.directory.provider;
 
 import com.chua.common.support.lang.directory.EventObserver;
 import com.chua.common.support.lang.directory.PolledDirectory;
+import com.chua.common.support.lang.directory.PolledDirectorySupport;
 import com.chua.common.support.lang.directory.PolledListener;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
@@ -19,12 +20,8 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 基于 JDK WatchService 的文件系统目录轮询实现。
@@ -50,14 +47,9 @@ public class FileSystemPolledDirectory implements PolledDirectory {
     private final String path;
 
     /**
-     * 事件监听器列表
+     * 事件监听器与运行状态的公共支撑件
      */
-    private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
-
-    /**
-     * 运行状态
-     */
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final PolledDirectorySupport support = new PolledDirectorySupport(getClass().getSimpleName());
 
     /**
      * JDK WatchService
@@ -88,28 +80,55 @@ public class FileSystemPolledDirectory implements PolledDirectory {
         this.path = path;
     }
 
-    @Override
     /**
      * 是否DelegatedOperatingSystem
-    */
+     */
+    @Override
     public boolean isDelegatedOperatingSystem() {
         return true;
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(PolledListener listener) {
-        listeners.add(listener);
+        support.addListener(listener);
     }
 
+    /**
+     * 移除Listener
+     *
+     * @param listener 监听器
+     * @return 移除前该监听器是否已注册
+     */
+    public boolean removeListener(PolledListener listener) {
+        return support.removeListener(listener);
+    }
+
+    /**
+     * 是否处于运行中
+     */
     @Override
+    public boolean isRunning() {
+        return support.isRunning();
+    }
+
+    /**
+     * 停止
+     */
+    @Override
+    public void stop() {
+        close();
+    }
+
     /**
      * 开始
-    */
+     */
+    @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
-        if (!running.compareAndSet(false, true)) {
+        if (!support.markRunning()) {
+            log.warn("文件系统目录监听已在运行，忽略重复启动: {}", path);
             return;
         }
 
@@ -135,14 +154,14 @@ public class FileSystemPolledDirectory implements PolledDirectory {
             log.info("文件系统目录监听已启动: {}", path);
         } catch (IOException e) {
             log.error("启动文件系统目录监听失败: {}", path, e);
-            running.set(false);
+            support.markStopped();
         }
     }
 
-    @Override
     /**
      * Upgrade
-    */
+     */
+    @Override
     public void upgrade() {
         // WatchService 由事件驱动，无需轮询
     }
@@ -151,7 +170,7 @@ public class FileSystemPolledDirectory implements PolledDirectory {
      * WatchService 事件循环。
      */
     private void watchLoop() {
-        while (running.get()) {
+        while (support.isRunning()) {
             try {
                 WatchKey key = watchService.take();
                 Path watchedDir = watchKeys.get(key);
@@ -162,7 +181,7 @@ public class FileSystemPolledDirectory implements PolledDirectory {
 
                 for (WatchEvent<?> we : key.pollEvents()) {
                     if (we.kind() == StandardWatchEventKinds.OVERFLOW) {
-                        fire(WatcherEvent.OVERFLOW, watchedDir.toString(), "OVERFLOW");
+                        support.fire(overflowObserver(watchedDir));
                         continue;
                     }
 
@@ -177,7 +196,11 @@ public class FileSystemPolledDirectory implements PolledDirectory {
                         continue;
                     }
 
-                    fire(evt, watchedDir.toString(), fileName.toString());
+                    support.fire(EventObserver.builder()
+                            .currentPath(watchedDir.toString())
+                            .triggerFile(fileName.toString())
+                            .eventType(evt)
+                            .build());
                 }
 
                 if (!key.reset()) {
@@ -192,45 +215,34 @@ public class FileSystemPolledDirectory implements PolledDirectory {
                 break;
             } catch (ClosedWatchServiceException e) {
                 break;
+            } catch (RuntimeException e) {
+                // 单个事件处理异常不能终止整个监听循环，否则目录后续变更全部静默丢失
+                log.error("文件系统目录监听事件处理异常: {}", path, e);
+                support.fireError(path, null, e);
             }
         }
     }
 
     /**
-     * 向所有监听器分发事件。
+     * 构造事件队列溢出时的观察者。
      *
-     * @param event      事件类型
-     * @param currentPath 当前目录路径
-     * @param triggerFile 触发文件名
+     * @param watchedDir 溢出的目录
+     * @return 观察者
      */
-    private void fire(WatcherEvent event, String currentPath, String triggerFile) {
-        var observer = com.chua.common.support.lang.directory.EventObserver.builder()
-                .currentPath(currentPath)
-                .triggerFile(triggerFile)
-                .eventType(event)
-                .timestamp(LocalDateTime.now())
+    private EventObserver overflowObserver(Path watchedDir) {
+        return EventObserver.builder()
+                .currentPath(watchedDir.toString())
+                .triggerFile("OVERFLOW")
+                .eventType(WatcherEvent.OVERFLOW)
                 .build();
-
-        for (PolledListener l : listeners) {
-            try {
-                switch (event) {
-                    case CREATE -> l.onCreate(event, observer);
-                    case MODIFY -> l.onModify(event, observer);
-                    case DELETE -> l.onDelete(event, observer);
-                    case OVERFLOW -> l.onOverflow(event, observer);
-                }
-            } catch (Exception e) {
-                log.error("监听器分发异常: {}", event, e);
-            }
-        }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
-        running.set(false);
+        support.markStopped();
         if (watchService != null) {
             try {
                 watchService.close();
@@ -241,6 +253,7 @@ public class FileSystemPolledDirectory implements PolledDirectory {
             watchThread.interrupt();
         }
         watchKeys.clear();
+        support.clearListeners();
         log.info("文件系统目录监听已停止: {}", path);
     }
 }
