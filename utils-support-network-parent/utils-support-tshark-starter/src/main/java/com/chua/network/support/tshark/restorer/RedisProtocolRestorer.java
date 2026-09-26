@@ -38,11 +38,82 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
      * 是否可以Restore
     */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
-        if (rawData == null || rawData.length == 0) {
+        if (rawData == null || rawData.length < 4) {
+            return false;
+        }
+        if (contains(protocolInfo, getProtocolName())) {
+            return true;
+        }
+        int lineEnd = indexOfLineEnd(rawData);
+        if (lineEnd < 2 || (rawData[lineEnd - 1] & 0xff) != '\r') {
             return false;
         }
         int type = rawData[0] & 0xff;
-        return type == '*' || type == '$' || type == ':' || type == '+' || type == '-';
+        if (type == '+' || type == '-') {
+            return isPrintable(rawData, 1, lineEnd - 1);
+        }
+        return (type == '*' || type == '$' || type == ':') && isInteger(rawData, 1, lineEnd - 1);
+    }
+
+    /**
+     * 查找首行换行符下标。
+     *
+     * @param rawData 原始载荷
+     * @return {@code '\n'} 下标，不存在返回 -1
+     */
+    private static int indexOfLineEnd(byte[] rawData) {
+        for (int i = 1; i < rawData.length; i++) {
+            if ((rawData[i] & 0xff) == '\n') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 判断区间内容是否为整数（允许前导负号）。
+     *
+     * @param rawData 原始载荷
+     * @param start   起始下标（含）
+     * @param end     结束下标（不含）
+     * @return true 表示是整数
+     */
+    private static boolean isInteger(byte[] rawData, int start, int end) {
+        int i = start;
+        if (i < end && (rawData[i] & 0xff) == '-') {
+            i++;
+        }
+        if (i >= end) {
+            return false;
+        }
+        for (; i < end; i++) {
+            int b = rawData[i] & 0xff;
+            if (b < '0' || b > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 判断区间内容是否全为可打印 ASCII。
+     *
+     * @param rawData 原始载荷
+     * @param start   起始下标（含）
+     * @param end     结束下标（不含）
+     * @return true 表示可打印
+     */
+    private static boolean isPrintable(byte[] rawData, int start, int end) {
+        if (start >= end) {
+            return false;
+        }
+        for (int i = start; i < end; i++) {
+            int b = rawData[i] & 0xff;
+            if (b < 0x20 || b > 0x7e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

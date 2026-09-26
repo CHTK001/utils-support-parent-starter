@@ -1,0 +1,2 @@
+tshark=com.chua.network.support.tshark.TsharkPolledDirectory
+tshark-capture=com.chua.network.support.tshark.capture.TsharkCapturePolledDirectory

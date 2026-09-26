@@ -1,0 +1,2 @@
+default=com.chua.common.support.network.download.DefaultDownloadService
+aria2=com.chua.common.support.network.download.Aria2DownloadService

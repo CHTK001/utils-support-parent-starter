@@ -10,6 +10,21 @@ package com.chua.network.support.tshark.restorer;
  */
 public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
 
+    /**
+     * IAC 转义字节
+     */
+    private static final int IAC = 0xff;
+
+    /**
+     * IAC 命令码下界（0xF0=SE，上界为 0xFF=IAC 自身的转义）
+     */
+    private static final int MIN_COMMAND = 0xf0;
+
+    /**
+     * 正文可打印字节占比下限，低于该值视为二进制协议而非 telnet 文本
+     */
+    private static final double MIN_PRINTABLE_RATIO = 0.8;
+
     @Override
     /**
      * 获取协议名称
@@ -31,15 +46,53 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
      * 是否可以Restore
     */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
-        if (rawData == null || rawData.length == 0) {
+        if (rawData == null || rawData.length < 3) {
             return false;
         }
-        for (byte b : rawData) {
-            if ((b & 0xff) == 0xff) {
+        return hasIacCommand(rawData) && isMostlyText(rawData);
+    }
+
+    /**
+     * 是否存在完整的 IAC 命令：0xFF 后紧跟 0xF0~0xFF 的命令码。
+     *
+     * @param rawData 原始载荷
+     * @return true 表示含 telnet 命令
+     */
+    private static boolean hasIacCommand(byte[] rawData) {
+        for (int i = 0; i + 1 < rawData.length; i++) {
+            if ((rawData[i] & 0xff) == IAC && (rawData[i + 1] & 0xff) >= MIN_COMMAND) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 扣除 IAC 命令后的正文是否以可打印字符为主。
+     *
+     * <p>纯 IAC 协商包没有正文字节，同样视为 telnet。</p>
+     *
+     * @param rawData 原始载荷
+     * @return true 表示正文可打印比例达标
+     */
+    private static boolean isMostlyText(byte[] rawData) {
+        int printable = 0;
+        int total = 0;
+        int idx = 0;
+        while (idx < rawData.length) {
+            int b = rawData[idx] & 0xff;
+            if (b == IAC && idx + 1 < rawData.length && (rawData[idx + 1] & 0xff) >= MIN_COMMAND) {
+                // IAC + 命令码 [+ 选项码]，命令长度为 2 或 3
+                idx += (rawData[idx + 1] & 0xff) == IAC ? 2 : 3;
+                continue;
+            }
+            total++;
+            if (b >= 0x20 && b < 0x7f) {
+                printable++;
+            }
+            idx++;
+        }
+        return total == 0 || printable >= Math.ceil(total * MIN_PRINTABLE_RATIO);
     }
 
     @Override

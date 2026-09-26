@@ -1,6 +1,7 @@
 package com.chua.network.support.tshark.restorer;
 
 import com.chua.common.support.network.protocol.ProtocolRestorer;
+import com.chua.network.support.tshark.TsharkFields;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -10,9 +11,11 @@ import java.util.Map;
  *
  * <p>封装 {@link ProtocolRestorer} 的样板方法，提供：
  * <ul>
- *   <li>{@link #bytes(Map)} — 安全提取原始字节数组</li>
- *   <li>{@link #string(Map)} — 将字节数组按 UTF-8 转字符串</li>
- *   <li>{@link #toText(byte[])} — 将字节数组转可打印 ASCII（含中文）</li>
+ *   <li>{@link #bytes(Map)} — 提取传输层载荷字节（优先 {@code rawData}，回退层字段解析）</li>
+ *   <li>{@link #layerBytes(Map, String)} — 按层名提取该层原始字节，供链路层/网络层还原器使用</li>
+ *   <li>{@link #string(Map, String)} — 安全读取协议信息中的字符串字段</li>
+ *   <li>{@link #toText(byte[])} — 将字节数组转可打印 ASCII，控制字符替换为 {@code '.'}</li>
+ *   <li>{@link #utf8(byte[])} — 按 UTF-8 解码字节数组</li>
  *   <li>{@link #contains(Map, String)} — 检查 protocolInfo 是否包含指定 layer</li>
  * </ul>
  * 子类仅需实现 {@link #getProtocolName()} 与 {@link #restore(Map, byte[])}。</p>
@@ -26,21 +29,29 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
      * 从 协议信息 中取出原始字节数组。
      *
      * @param protocolInfo 协议信息
-     * @return 字节数组，若不存在返回 空
+     * @return 字节数组，若不存在返回空数组
      */
     protected static byte[] bytes(Map<String, Object> protocolInfo) {
         if (protocolInfo == null) {
             return new byte[0];
         }
-        Object data = protocolInfo.get("rawData");
-        if (data instanceof byte[] bytes) {
-            return bytes;
+        byte[] direct = TsharkFields.decode(protocolInfo.get("rawData"));
+        if (direct != null && direct.length > 0) {
+            return direct;
         }
-        Object frameData = protocolInfo.get("frame.data");
-        if (frameData instanceof byte[] frameBytes) {
-            return frameBytes;
-        }
-        return new byte[0];
+        byte[] payload = TsharkFields.payload(protocolInfo);
+        return payload == null ? new byte[0] : payload;
+    }
+
+    /**
+     * 取出指定协议层的原始字节（链路层/网络层还原器使用）。
+     *
+     * @param protocolInfo 协议信息
+     * @param layerName    层名，如 {@code arp}、{@code icmp}
+     * @return 该层字节，无法提取返回空数组
+     */
+    protected static byte[] layerBytes(Map<String, Object> protocolInfo, String layerName) {
+        return TsharkFields.layerBytes(protocolInfo, layerName);
     }
 
     /**

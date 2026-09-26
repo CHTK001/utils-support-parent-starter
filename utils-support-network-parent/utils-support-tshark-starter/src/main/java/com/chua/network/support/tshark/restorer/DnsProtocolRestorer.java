@@ -10,6 +10,16 @@ package com.chua.network.support.tshark.restorer;
  */
 public class DnsProtocolRestorer extends AbstractProtocolRestorer {
 
+    /**
+     * 各计数段允许的记录数上限，用于快速排除伪造的头字段
+     */
+    private static final int MAX_RECORDS = 100;
+
+    /**
+     * 域名单个标签的最大长度（RFC 1035）
+     */
+    private static final int MAX_LABEL = 63;
+
     @Override
     /**
      * 获取协议名称
@@ -34,10 +44,92 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 12) {
             return false;
         }
-        // DNS header is 12 bytes; TransactionId (2) + Flags (2) + Counts (4*2 = 8)
-        int flags = ((rawData[2] & 0xff) << 8) | (rawData[3] & 0xff);
-        int opcode = (flags >> 11) & 0x0f;
-        return opcode <= 5;
+        if (contains(protocolInfo, getProtocolName())) {
+            return true;
+        }
+        return isDnsMessage(rawData);
+    }
+
+    /**
+     * 逐段走位校验报文是否为结构自洽的 DNS 消息。
+     *
+     * <p>DNS 头仅 12 字节且各字段取值宽泛，只看 flags 会误认任意二进制载荷；
+     * 这里要求问题段与资源记录段都能在报文长度内完整走位。</p>
+     *
+     * @param data 原始载荷
+     * @return true 表示结构自洽
+     */
+    private static boolean isDnsMessage(byte[] data) {
+        int qdCount = u16(data, 4);
+        int anCount = u16(data, 6);
+        int nsCount = u16(data, 8);
+        int arCount = u16(data, 10);
+        if (qdCount < 1 || qdCount > MAX_RECORDS
+                || anCount > MAX_RECORDS || nsCount > MAX_RECORDS || arCount > MAX_RECORDS) {
+            return false;
+        }
+        int flags = u16(data, 2);
+        if (((flags >> 11) & 0x0f) > 5) {
+            return false;
+        }
+        int pos = 12;
+        for (int i = 0; i < qdCount; i++) {
+            pos = skipName(data, pos, false);
+            if (pos < 0 || pos + 4 > data.length) {
+                return false;
+            }
+            pos += 4;
+        }
+        for (int i = 0; i < anCount + nsCount + arCount; i++) {
+            pos = skipName(data, pos, true);
+            if (pos < 0 || pos + 10 > data.length) {
+                return false;
+            }
+            pos += 10 + u16(data, pos + 8);
+            if (pos > data.length) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 走位一个域名。
+     *
+     * @param data     原始载荷
+     * @param pos      起始下标
+     * @param allowPtr 是否允许压缩指针（问题段不允许）
+     * @return 域名结束后的下标，非法返回 -1
+     */
+    private static int skipName(byte[] data, int pos, boolean allowPtr) {
+        while (pos < data.length) {
+            int len = data[pos] & 0xff;
+            if (len == 0) {
+                return pos + 1;
+            }
+            if ((len & 0xc0) == 0xc0) {
+                if (!allowPtr || pos + 2 > data.length) {
+                    return -1;
+                }
+                return pos + 2;
+            }
+            if (len > MAX_LABEL || pos + 1 + len > data.length) {
+                return -1;
+            }
+            pos += 1 + len;
+        }
+        return -1;
+    }
+
+    /**
+     * 读取大端 16 位无符号整数。
+     *
+     * @param data   原始载荷
+     * @param offset 起始下标
+     * @return 数值
+     */
+    private static int u16(byte[] data, int offset) {
+        return ((data[offset] & 0xff) << 8) | (data[offset + 1] & 0xff);
     }
 
     @Override
