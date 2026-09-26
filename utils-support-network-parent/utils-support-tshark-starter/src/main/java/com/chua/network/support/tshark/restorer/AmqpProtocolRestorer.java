@@ -11,6 +11,36 @@ package com.chua.network.support.tshark.restorer;
  */
 public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
 
+    /**
+     * 帧类型：方法帧
+     */
+    private static final int FRAME_METHOD = 0x01;
+
+    /**
+     * 帧类型：头部帧
+     */
+    private static final int FRAME_HEADER = 0x02;
+
+    /**
+     * 帧类型：主体帧
+     */
+    private static final int FRAME_BODY = 0x03;
+
+    /**
+     * 帧类型：心跳帧
+     */
+    private static final int FRAME_HEARTBEAT = 0x08;
+
+    /**
+     * 帧结束标记
+     */
+    private static final int FRAME_END = 0xce;
+
+    /**
+     * 帧固定开销：类型(1) + 通道(2) + 长度(4) + 帧尾(1)
+     */
+    private static final int FRAME_OVERHEAD = 8;
+
     @Override
     /**
      * 获取协议名称
@@ -32,19 +62,45 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
      * 是否可以Restore
     */
     public boolean canRestore(java.util.Map<String, Object> protocolInfo, byte[] rawData) {
-        if (rawData == null || rawData.length < 7) {
+        if (rawData == null || rawData.length < FRAME_OVERHEAD) {
             return false;
+        }
+        // 协议头 "AMQP\0\0majorMinor" 首字节是 'A'，必须先于帧类型判定
+        if (rawData[0] == 'A' && rawData[1] == 'M' && rawData[2] == 'Q' && rawData[3] == 'P') {
+            return rawData.length >= 8 && rawData[4] == 0x00;
         }
         int type = rawData[0] & 0xff;
-        if (type != 0x01 && type != 0x02 && type != 0x03 && type != 0x08) {
+        if (type != FRAME_METHOD && type != FRAME_HEADER && type != FRAME_BODY && type != FRAME_HEARTBEAT) {
             return false;
         }
-        // 0-9-1 magic protocol header: "AMQP"
-        if (rawData.length >= 8
-                && rawData[0] == 'A' && rawData[1] == 'M' && rawData[2] == 'Q' && rawData[3] == 'P') {
-            return rawData[7] == 0x01;
+        if (type == FRAME_HEARTBEAT) {
+            return rawData.length == FRAME_OVERHEAD && readSize(rawData) == 0 && isFrameEnd(rawData, FRAME_OVERHEAD - 1);
         }
-        return true;
+        long size = readSize(rawData);
+        return size >= 0 && FRAME_OVERHEAD + size <= rawData.length
+                && isFrameEnd(rawData, (int) (FRAME_OVERHEAD - 1 + size));
+    }
+
+    /**
+     * 读取帧的 payload 长度字段（偏移 3 起 4 字节无符号）。
+     *
+     * @param rawData 原始载荷
+     * @return 长度值，超出 int 范围返回 -1
+     */
+    private static long readSize(byte[] rawData) {
+        return ((long) (rawData[3] & 0xff) << 24) | ((rawData[4] & 0xff) << 16)
+                | ((rawData[5] & 0xff) << 8) | (rawData[6] & 0xff);
+    }
+
+    /**
+     * 判断指定下标是否为帧尾标记。
+     *
+     * @param rawData 原始载荷
+     * @param index   下标
+     * @return true 表示该处是 0xCE
+     */
+    private static boolean isFrameEnd(byte[] rawData, int index) {
+        return index >= 0 && index < rawData.length && (rawData[index] & 0xff) == FRAME_END;
     }
 
     @Override

@@ -1,0 +1,5 @@
+zip=com.chua.common.support.network.download.extractor.ZipExtractor
+tar=com.chua.common.support.network.download.extractor.TarExtractor
+tar.gz=com.chua.common.support.network.download.extractor.TarGzExtractor
+tgz=com.chua.common.support.network.download.extractor.TarGzExtractor
+gz=com.chua.common.support.network.download.extractor.GZipExtractor

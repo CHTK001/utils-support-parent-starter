@@ -43,10 +43,13 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 4) {
             return false;
         }
+        if (contains(protocolInfo, getProtocolName())) {
+            return true;
+        }
         int version = (rawData[0] >> 6) & 0x03;
-        int type = (rawData[0] >> 4) & 0x03;
         int tokenLen = rawData[0] & 0x0f;
-        return version == 1 && type >= 0 && type <= 3 && tokenLen <= 8;
+        int codeClass = (rawData[1] >> 5) & 0x07;
+        return version == 1 && tokenLen <= 8 && rawData.length >= 4 + tokenLen && codeClass <= 5;
     }
 
     @Override
