@@ -13,7 +13,7 @@
 | `utils-support-springboot-starter` | Spring Boot 自动装配 | | - |
 | `utils-support-datasource-starter` | 数据源引擎（FileEngine/JdbcEngine） | | - |
 | `utils-support-extension-starter` | 扩展功能模块 | | |
-| `utils-support-spider-starter` | 爬虫框架 | | |
+| `utils-support-crawler-starter` | 抓取/解析 SPI（原爬虫框架，已更名） | | |
 | `utils-support-example-starter` | 使用示例与最佳实践 | | |
 | `utils-support-account-starter` | 账户管理 | | |
 | `utils-support-appimage-starter` | 应用镜像 | | |
