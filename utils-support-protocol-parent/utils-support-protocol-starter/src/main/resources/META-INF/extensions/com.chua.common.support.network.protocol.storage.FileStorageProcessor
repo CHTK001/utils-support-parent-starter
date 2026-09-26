@@ -1,3 +1,0 @@
-download=com.chua.common.support.network.protocol.storage.processor.DownloadFileStorageProcessor
-info=com.chua.common.support.network.protocol.storage.processor.InfoFileStorageProcessor
-preview=com.chua.common.support.network.protocol.storage.processor.PreviewFileStorageProcessor
