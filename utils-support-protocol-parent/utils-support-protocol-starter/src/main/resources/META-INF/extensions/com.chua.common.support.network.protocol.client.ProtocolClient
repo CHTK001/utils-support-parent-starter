@@ -1,4 +1,0 @@
-http=com.chua.common.support.network.protocol.client.impl.HttpProtocolClient
-HTTP=com.chua.common.support.network.protocol.client.impl.HttpProtocolClient
-websocket=com.chua.common.support.network.protocol.client.impl.WebSocketProtocolClient
-WEBSOCKET=com.chua.common.support.network.protocol.client.impl.WebSocketProtocolClient
