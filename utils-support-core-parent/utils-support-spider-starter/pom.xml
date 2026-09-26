@@ -10,8 +10,27 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>utils-support-spider-starter</artifactId>
-    <name>Utils Support Spider Starter</name>
-    <description>爬虫模块：Spider 爬虫框架，基于 SPI 可插拔组件 + ChatClient AI 集成</description>
+    <name>Utils Support Crawler SPI Starter</name>
+    <!--
+      2026-09-26 起本模块只承担一件事：抓取/解析的可插拔 SPI 与数据模型
+      （SpiderFetcher / SpiderParser / HttpFetcher / SpiderRequest / SpiderResponse 等）。
+
+      原先内嵌的整套爬虫平台（/spider/definitions、/spider/executions、/spider/proxy-pools
+      三个控制器共 16 个端点、3 个 Store、SpiderRunner 与 SpiderTimerService 定时调度器）
+      已整体下线，能力由 spring-api-support-collect-starter（/v2/collect/**）承接，
+      同时删除了 AutoConfiguration.imports，避免任何依赖本模块的应用被动注册重复端点。
+
+      【不要因为名字里带 spider 就删掉本模块】它仍被两个模块真实依赖：
+        · spring-api-support-collect-starter  —— CollectRequestExecutor 用 HttpFetcher 发起抓取
+        · utils-support-playwright-starter   —— PlaywrightFetcher/PlaywrightParser 实现同一套 SPI
+      抓取层不走 Spring 容器：HttpFetcher 由调用方直接 new，其它实现经 META-INF/services
+      的 ServiceProvider SPI 装配，因此本模块没有也不需要任何自动配置。
+
+      待办：模块名与包名 com.chua.spider.* 已名不符实，计划改为 utils-support-crawler-starter
+      与 com.chua.crawler.*。该重构涉及 29 个类与上述两个消费者，需在仓库改动提交、
+      工作区干净后进行，避免与并行改动抢写同一批文件。
+    -->
+    <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-api-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
 
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>

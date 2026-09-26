@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *   <li>优先尝试 {@code html}（JSoup 解析）</li>
  *   <li>如果无法解析则尝试其他 SPI 注册的 Parser</li>
  *   <li>所有尝试均失败后构造一个基础的"裸"结果（仅含 URL），保证
- *       {@link SpiderRunner} 至少能记录抓取到的一条数据</li>
+ *       调用方至少能记录抓取到的一条数据</li>
  * </ol>
  *
  * @author CH
@@ -87,7 +87,7 @@ public class AutoParser implements SpiderParser {
         }
 
         // 所有 Parser 都没成功 — 构造一个最小可用的基础结果，保证
-        // 爬虫框架至少能记录一条"已抓取"的数据，避免上层 SpiderRunner 误判为失败。
+        // 调用方至少能记录一条"已抓取"的数据，不会把整轮抓取误判为失败。
         log.debug("[spider-parser] AutoParser 所有实现均无法解析，返回裸结果: {}", url);
         return SpiderResult.builder()
                 .url(url)
