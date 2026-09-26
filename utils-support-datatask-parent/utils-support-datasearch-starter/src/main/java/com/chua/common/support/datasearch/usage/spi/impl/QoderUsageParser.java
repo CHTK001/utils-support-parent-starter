@@ -47,10 +47,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * }
  * }</pre>
  *
- * <p>Qoder bills by platform <b>credits</b>, not raw tokens — its proxy reports
- * 全部 令牌 数量 as zero. This parser therefore 映射 {@code credits} 转为
- * {@code totalCost} with currency {@code "CREDITS"} and leaves token fields
- * unset rather than emitting misleading zeros.</p>
+ * <p>Qoder 按平台 <b>credits</b> 计费而非原始 Token：其代理会把令牌数量整体报成 0。
+ * 因此本解析器把 {@code credits} 映射为币种 {@code "CREDITS"} 的 {@code totalCost}；
+ * 令牌缺失时按 assistant 正文估算输出、并按输出的 3~5 倍估算输入（不低于 100），
+ * 同时置 {@code estimated = true}，以免直接输出无意义的 0 干扰用量统计。
+ * 该估算只影响 Token 用量口径：{@code CREDITS} 币种的记录不参与定价折算，
+ * 金额始终以平台抵扣额为准。</p>
  *
  * <p>转录本身不带耗时，但 {@code usage.request_id} 与运行日志
  * {@code ~/.qoder/logs/sessions/<project>/<sessionId>/segments/*.jsonl} 里的

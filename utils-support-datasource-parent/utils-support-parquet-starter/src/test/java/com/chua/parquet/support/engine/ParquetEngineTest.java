@@ -165,7 +165,7 @@ class ParquetEngineTest {
     }
 
     /**
-     * 未注册目录、close 之后调用都必须显式抛错；重新注册可再次使用。
+     * 未注册目录、close 之后调用都必须显式抛错；close 是终态，只能靠新实例复活。
      */
     @Test
     void lifecycleGuards() {
@@ -180,10 +180,15 @@ class ParquetEngineTest {
         assertThrows(IllegalStateException.class,
                 () -> engine.store("profile", List.of(row(1L, "a", 1, 1D, true, null, Level.JUNIOR, null))),
                 "close 之后不得继续写盘");
+        assertThrows(IllegalStateException.class,
+                () -> engine.addDataSource("default", dir.getAbsolutePath()),
+                "父类关闭标记为终态，重新注册数据源也不得让引擎复活");
 
-        engine.addDataSource("default", dir.getAbsolutePath());
-        engine.store("profile", List.of(row(1L, "a", 1, 1D, true, null, Level.JUNIOR, null)));
-        assertEquals(1, engine.query(Profile.class).list().size(), "重新注册数据源即重新开启引擎");
+        ParquetEngine rebuilt = new ParquetEngine();
+        rebuilt.addDataSource("default", dir.getAbsolutePath());
+        rebuilt.store("profile", List.of(row(1L, "a", 1, 1D, true, null, Level.JUNIOR, null)));
+        assertEquals(1, rebuilt.query(Profile.class).list().size(), "重新构造实例即重新开启引擎");
+        rebuilt.close();
     }
 
     /**

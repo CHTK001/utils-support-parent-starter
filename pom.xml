@@ -42,6 +42,12 @@
         <javacv.version>1.5.12</javacv.version>
         <javacv.ffmpeg.version>7.1.1-1.5.12</javacv.ffmpeg.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <!--
+          surefire fork JVM 需要的参数：开启预览特性，与 maven-compiler-plugin 的
+          enable-preview 编译保持一致，否则测试发现阶段抛 UnsupportedClassVersionError。
+          集中在此定义，便于个别模块覆盖。
+        -->
+        <enable.preview.jvm.args>--enable-preview</enable.preview.jvm.args>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -2092,6 +2098,15 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
+                        <!--
+                          全仓主代码与测试代码均开启预览特性编译（见 maven-compiler-plugin 的
+                          compilerArgs 中的 enable-preview），编译产物 class 版本带 preview 标记
+                          （69.65535）。surefire 的 fork JVM 若不显式开启预览特性，测试发现阶段
+                          就会抛 UnsupportedClassVersionError: Preview features are not enabled，
+                          表现为 Tests run: 0 且 BUILD FAILURE。
+                          故此处统一为所有模块的测试 JVM 开启预览特性。
+                        -->
+                        <argLine>${enable.preview.jvm.args}</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*IT.java</include>

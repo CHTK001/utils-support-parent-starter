@@ -160,15 +160,21 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
         // 图片内联为 data URI，避免预览页再发起额外请求（预览沙箱可能禁止外链图片）
         converter.setPicturesManager(new DataUriPicturesManager());
         converter.processDocument(doc);
-        // 取出 body 内的内容，避免把 <html><head> 一并塞进外层页面造成嵌套
+        // 只取 <body> 的「子节点」序列化，不能把 <body> 元素本身写出来：
+        // 本方法产出的是片段，会被拼进外层页面，若带上 <body> 就会形成
+        // <div class="doc"><body>…</body></div> 这样的嵌套 body（无效 HTML，
+        // 且 POI 给 body 加的 class 会被浏览器丢弃）。
         org.w3c.dom.NodeList bodies = xmlDoc.getElementsByTagName("body");
         org.w3c.dom.Node source = bodies.getLength() > 0 ? bodies.item(0) : xmlDoc.getDocumentElement();
-        StringWriter writer = new StringWriter();
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.transform(new DOMSource(source), new StreamResult(writer));
+        StringWriter writer = new StringWriter();
+        org.w3c.dom.NodeList children = source.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            transformer.transform(new DOMSource(children.item(i)), new StreamResult(writer));
+        }
         return writer.toString();
     }
 

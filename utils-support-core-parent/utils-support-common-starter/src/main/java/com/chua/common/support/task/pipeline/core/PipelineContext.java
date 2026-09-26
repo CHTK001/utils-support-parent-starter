@@ -394,8 +394,7 @@ public class PipelineContext<T> {
      *
      * // 带类型转换
      * String result = ctx.getData("validate", String.class);
-     * }</pre>etData("validate", String.class);
-     * }
+     * }</pre>
      *
      * @param taskId 节点 标识
      * @param <V>    数据值类型

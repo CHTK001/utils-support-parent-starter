@@ -105,10 +105,10 @@ class QoderUsageParserTest {
     }
 
     /**
-     * 只有缓存写入量时按写入量出缓存字段；纯抵扣记录不出 Token。
+     * 只有缓存写入量时按写入量出缓存字段；纯抵扣记录出估算 Token 并标记 estimated。
      */
     @Test
-    @DisplayName("缓存写入单列；只有抵扣额时不落 Token 字段")
+    @DisplayName("缓存写入单列；只有抵扣额时出估算 Token")
     void readsCacheWriteAndCreditOnlyRecords() {
         QoderFixture.transcript(
                 QoderFixture.assistant(QoderFixture.instant(COMPLETE), "chatcmpl-3",
@@ -122,9 +122,13 @@ class QoderUsageParserTest {
         assertEquals(Integer.valueOf(550), written.getTotalTokens());
 
         AiUsage creditsOnly = byId.get("chatcmpl-4");
-        assertNull(creditsOnly.getInputTokens(), "Qoder 代理按抵扣出账，Token 全 0 时不该造字段");
-        assertNull(creditsOnly.getTotalTokens());
+        assertTrue(creditsOnly.isEstimated(), "Token 全 0 时按正文估算，须标记 estimated");
+        assertNotNull(creditsOnly.getInputTokens(), "估算输入须出数，不落 null");
+        assertTrue(creditsOnly.getInputTokens() >= 100, "估算输入有 100 的下限");
+        assertEquals(creditsOnly.getInputTokens() + creditsOnly.getOutputTokens(),
+                creditsOnly.getTotalTokens().intValue());
         assertEquals(0, new BigDecimal("0.03285").compareTo(creditsOnly.getTotalCost()));
+        assertEquals("CREDITS", creditsOnly.getCurrency(), "金额口径始终是平台抵扣额");
     }
 
     /**

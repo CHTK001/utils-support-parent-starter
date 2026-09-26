@@ -369,22 +369,10 @@ public class DefaultPipeline implements Pipeline {
 
                 PipelineNode node = nodeMap.get(nodeId);
                 if (node == null) {
-                    // 检查点1：主循环入口 — 目标节点不存在
-                    String nextInOrder = getNextNodeIdInOrder(nodeId);
-                    switch (routeStrategy) {
-                        case EXIT:
-                            ctx.setAction(Action.EXIT);
-                            break;
-                        case NEXT:
-                            ctx.setNextNodeId(nextInOrder);
-                            ctx.setAction(Action.NEXT);
-                            continue;
-                        default:
-                            throw new PipelineException("Node not found: " + nodeId
-                                            + ". Available nodes: " + nodeMap.keySet(),
-                                    nodeId, id, null);
+                    if (!handleMissingNode(ctx, nodeId)) {
+                        break;
                     }
-                    break;
+                    continue;
                 }
 
                 if (ctx.getAction() != Action.REPLAY && ctx.getHistory().contains(nodeId)) {
@@ -397,176 +385,32 @@ public class DefaultPipeline implements Pipeline {
                     ctx.setAction(Action.NEXT);
                 }
 
-                ctx.setCurrentNodeId(nodeId);
- // 注入按顺序的下一个节点 标识（只读，供节点判断逻辑使用）
-                ctx.setNextNodeIdInOrder(getNextNodeIdInOrder(nodeId));
-                // 清空节点本地数据（节点间隔离）
-                ctx.clearNodeLocalData();
- // 注入节点参数到 节点本地数据（JSON 构建时的 参数 字段）
-                if (node.getParams() != null && !node.getParams().isEmpty()) {
-                    ctx.getNodeLocalData().putAll(node.getParams());
-                }
-                // 注入节点环境参数到 nodeLocalData（以 "env." 前缀隔离）
-                if (node.getEnv() != null && !node.getEnv().isEmpty()) {
-                    Map<String, Object> localData = ctx.getNodeLocalData();
-                    for (Map.Entry<String, Object> entry : node.getEnv().entrySet()) {
-                        localData.put("env." + entry.getKey(), entry.getValue());
-                    }
-                }
+                prepareNodeContext(ctx, node, nodeId);
                 fireBeforeNode(ctx);
                 String prevNextId = ctx.getNextNodeId();
-
-                // 校验数据依赖：检查 unit 声明的依赖节点输出是否已存在
-                Set<String> units = node.getUnits();
-                if (units != null && !units.isEmpty()) {
-                    for (String unitId : units) {
-                        if (!ctx.getNodeOutputs().containsKey(unitId)) {
-                            throw new PipelineException(
-                                    "Unit dependency not satisfied: node '" + nodeId
-                                            + "' requires output from '" + unitId
-                                            + "', but it has not been produced yet",
-                                    nodeId, id, null);
-                        }
-                    }
-                    // 将依赖数据注入 nodeLocalData，方便节点通过 getNodeLocalValue("unit:xxx") 获取
-                    Map<String, Object> localData = ctx.getNodeLocalData();
-                    for (String unitId : units) {
-                        localData.put("unit:" + unitId, ctx.getNodeOutputs().get(unitId));
-                    }
-                }
+                injectUnitData(ctx, node, nodeId);
 
                 try {
- // 检查重试配置：有则通过 重试提供者 执行，无则直接执行
-                    String result;
-                    RetryConfig retryConfig = node.getRetryConfig();
-                    if (retryConfig != null && retryConfig.getMaxRetries() > 0) {
-                        result = RETRY_PROVIDER.execute(() -> node.execute(ctx), retryConfig);
-                    } else {
-                        result = node.execute(ctx);
-                    }
-                    // 处理 execute() 返回值：仅当节点未显式设置其他动作时，返回值才触发 JUMP
-                    // 优先级：显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT
-                    if (result != null && !result.isEmpty() && ctx.getAction() == Action.NEXT) {
-                        // 检查点3：execute()返回值目标不存在
-                        if (!nodeMap.containsKey(result)) {
-                            switch (routeStrategy) {
-                                case EXIT:
-                                    ctx.setAction(Action.EXIT);
-                                    break;
-                                case NEXT:
-                                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                                    ctx.setAction(Action.NEXT);
-                                    break;
-                                default:
-                                    throw new PipelineException("Execute result target node not found: " + result
-                                            + " (returned from node: " + nodeId + ")"
-                                            + ". Available nodes: " + nodeMap.keySet(),
-                                            nodeId, id, null);
-                            }
-                        } else {
-                            ctx.setNextNodeId(result);
-                            ctx.setAction(Action.JUMP);
-                        }
-                    }
+                    applyExecuteResult(ctx, nodeId, executeNode(ctx, node));
                 } catch (Exception e) {
                     // 将异常存入上下文，供错误恢复节点判断
                     ctx.setLastError(e);
- // 触发 on错误 回调，获取恢复节点 标识
+                    // 触发 on错误 回调，获取恢复节点 标识
                     String recoveryNodeId = fireOnError(ctx, e);
-                    if (recoveryNodeId != null && !recoveryNodeId.isEmpty()) {
-                        // 验证恢复节点是否存在
-                        if (!nodeMap.containsKey(recoveryNodeId)) {
-                            throw new PipelineException(
-                                    "Recovery node not found: " + recoveryNodeId
-                                            + " (error from node: " + nodeId + ")",
-                                    nodeId, id, e);
-                        }
-                        // 路由到恢复节点继续执行
-                        ctx.setNextNodeId(recoveryNodeId);
-                        ctx.setAction(Action.NEXT);
-                        ctx.addHistory(nodeId);
-                        fireAfterNode(ctx);
-                        fireOnDraw(ctx);
-                        continue;
+                    if (!recoverToNode(ctx, nodeId, e, recoveryNodeId)) {
+                        // 无恢复节点，终止流水线
+                        throw new PipelineException("Node execution failed: " + nodeId, nodeId, id, e);
                     }
-                    // 无恢复节点，终止流水线
-                    throw new PipelineException("Node execution failed: " + nodeId, nodeId, id, e);
+                    continue;
                 }
 
-                ctx.addHistory(nodeId);
- // 自动存储节点输出到 节点输出，方便后续节点跨节点访问（存储契约见类级 Javadoc）：
- // 1. 当前数据 为 空 时不存储 —— 节点输出 为 并发哈希映射，空 值会抛 NPE；
- // 旧版直接崩溃，新版下游对缺失 键 读取到 空，行为更明确
- // 2. 节点已自行存储结构化结果（异步结果/fork结果/subpipeline结果）时不覆盖 ——
- // 旧版用 当前数据 覆盖导致 类型转换异常，新版保留节点自存的结构化结果
-                if (ctx.getCurrentData() != null && !ctx.getNodeOutputs().containsKey(nodeId)) {
-                    ctx.setNodeOutput(nodeId, ctx.getCurrentData());
-                }
-                // WAL：记录节点完成事件
-                if (pipelineWal != null) {
-                    try {
-                        pipelineWal.appendNodeComplete(ctx);
-                    } catch (Exception ignored) {
-                        // WAL 记录失败不影响流水线执行
-                    }
-                }
-                fireAfterNode(ctx);
-                fireOnDraw(ctx);
+                finishNode(ctx, nodeId);
                 if (ctx.getAction() == Action.WAIT) {
-                    if (ctx.getAction() == Action.WAIT
-                            && Objects.equals(prevNextId, ctx.getNextNodeId())) {
-                        // 挂起前推进到下一节点，resume 时从下一节点继续执行
-                        ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                    }
+                    advanceBeforeSuspend(ctx, nodeId, prevNextId);
                     break;
                 }
 
-                if (ctx.getAction() == Action.REPLAY) {
-                    ctx.setNextNodeId(ctx.getCurrentNodeId());
-                } else if (ctx.getAction() == Action.PREV) {
-                    ctx.setAction(Action.NEXT);
-                    List<String> history = ctx.getHistory();
-                    String currId = ctx.getCurrentNodeId();
-                    history.remove(currId);
-                    if (history.size() >= 1) {
-                        String prevId = history.remove(history.size() - 1);
-                        ctx.setNextNodeId(prevId);
-                    } else {
-                        ctx.setNextNodeId(null);
-                    }
-                } else if (ctx.getAction() == Action.JUMP) {
-                    // 验证 JUMP 目标节点是否存在
-                    String jumpTarget = ctx.getNextNodeId();
-                    if (jumpTarget != null && !nodeMap.containsKey(jumpTarget)) {
-                        // 检查点2：JUMP目标节点不存在
-                        switch (routeStrategy) {
-                            case EXIT:
-                                ctx.setAction(Action.EXIT);
-                                break;
-                            case NEXT:
-                                ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                                ctx.setAction(Action.NEXT);
-                                break;
-                            default:
-                                throw new PipelineException("Route target node not found: " + jumpTarget
-                                        + " (routed from node: " + nodeId + ")"
-                                        + ". Available nodes: " + nodeMap.keySet(),
-                                        nodeId, id, null);
-                        }
-                    } else {
-                        ctx.setAction(Action.NEXT);
-                    }
-                } else if (ctx.getAction() == Action.BREAK) {
-                    // 中断当前分支：跳到按顺序的下一个节点继续执行
-                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                    ctx.setAction(Action.NEXT);
-                } else if (Action.NEXT.equals(ctx.getAction()) && Objects.equals(prevNextId, ctx.getNextNodeId())) {
- // 节点未修改 下一个节点标识 且动作为 下一个，按默认顺序前进
-                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
-                }
-
-                if (endNodeId != null && nodeId.equals(endNodeId)) {
-                    ctx.setAction(Action.EXIT);
+                if (!applyTrailingAction(ctx, nodeId, prevNextId)) {
                     break;
                 }
             }
@@ -578,6 +422,286 @@ public class DefaultPipeline implements Pipeline {
             fireOnError(ctx, e);
             throw new PipelineException("Pipeline execution failed", ctx.getCurrentNodeId(), id, e);
         }
+    }
+
+    /**
+     * 处理主循环入口处目标节点不存在的情况（检查点1）。
+     *
+     * <p>按 {@link RouteStrategy} 处理：{@code EXIT} 终止流水线、
+     * {@code NEXT} 回退到按定义顺序的下一节点、其余策略抛出异常。</p>
+     *
+     * @param ctx    流水线上下文
+     * @param nodeId 目标节点 标识
+     * @param <T>    数据类型
+     * @return {@code true} 表示主循环应继续，{@code false} 表示应结束循环
+     */
+    private <T> boolean handleMissingNode(PipelineContext<T> ctx, String nodeId) {
+        switch (routeStrategy) {
+            case EXIT:
+                ctx.setAction(Action.EXIT);
+                return false;
+            case NEXT:
+                ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                ctx.setAction(Action.NEXT);
+                return true;
+            default:
+                throw new PipelineException("Node not found: " + nodeId
+                                + ". Available nodes: " + nodeMap.keySet(),
+                        nodeId, id, null);
+        }
+    }
+
+    /**
+     * 在节点执行前准备上下文：定位当前节点、注入只读的顺序下一节点、
+     * 清空并重建节点本地数据、注入节点参数与环境参数。
+     *
+     * @param ctx    流水线上下文
+     * @param node   当前节点
+     * @param nodeId 当前节点 标识
+     * @param <T>    数据类型
+     */
+    private <T> void prepareNodeContext(PipelineContext<T> ctx, PipelineNode node, String nodeId) {
+        ctx.setCurrentNodeId(nodeId);
+        // 注入按顺序的下一个节点 标识（只读，供节点判断逻辑使用）
+        ctx.setNextNodeIdInOrder(getNextNodeIdInOrder(nodeId));
+        // 清空节点本地数据（节点间隔离）
+        ctx.clearNodeLocalData();
+        // 注入节点参数到 节点本地数据（JSON 构建时的 参数 字段）
+        if (node.getParams() != null && !node.getParams().isEmpty()) {
+            ctx.getNodeLocalData().putAll(node.getParams());
+        }
+        // 注入节点环境参数到 nodeLocalData（以 "env." 前缀隔离）
+        if (node.getEnv() != null && !node.getEnv().isEmpty()) {
+            Map<String, Object> localData = ctx.getNodeLocalData();
+            for (Map.Entry<String, Object> entry : node.getEnv().entrySet()) {
+                localData.put("env." + entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * 校验并注入节点声明的数据依赖。
+     *
+     * <p>依赖节点的输出尚未产生时抛出异常；满足时以 {@code "unit:"} 前缀
+     * 注入节点本地数据，供节点通过 {@code getNodeLocalValue("unit:xxx")} 读取。</p>
+     *
+     * @param ctx    流水线上下文
+     * @param node   当前节点
+     * @param nodeId 当前节点 标识
+     * @param <T>    数据类型
+     */
+    private <T> void injectUnitData(PipelineContext<T> ctx, PipelineNode node, String nodeId) {
+        Set<String> units = node.getUnits();
+        if (units == null || units.isEmpty()) {
+            return;
+        }
+        for (String unitId : units) {
+            if (!ctx.getNodeOutputs().containsKey(unitId)) {
+                throw new PipelineException(
+                        "Unit dependency not satisfied: node '" + nodeId
+                                + "' requires output from '" + unitId
+                                + "', but it has not been produced yet",
+                        nodeId, id, null);
+            }
+        }
+        Map<String, Object> localData = ctx.getNodeLocalData();
+        for (String unitId : units) {
+            localData.put("unit:" + unitId, ctx.getNodeOutputs().get(unitId));
+        }
+    }
+
+    /**
+     * 执行节点：配置了重试策略时经重试提供者执行，否则直接执行。
+     *
+     * @param ctx  流水线上下文
+     * @param node 当前节点
+     * @param <T>  数据类型
+     * @return 节点返回的下一节点 标识
+     * @throws Exception 重试提供者执行过程中抛出的异常，交由主循环的错误恢复流程处理
+     */
+    private <T> String executeNode(PipelineContext<T> ctx, PipelineNode node) throws Exception {
+        RetryConfig retryConfig = node.getRetryConfig();
+        if (retryConfig != null && retryConfig.getMaxRetries() > 0) {
+            return RETRY_PROVIDER.execute(() -> node.execute(ctx), retryConfig);
+        }
+        return node.execute(ctx);
+    }
+
+    /**
+     * 处理 execute() 的返回值（检查点3）。
+     *
+     * <p>仅当节点未显式设置其他动作且返回非空值时，按定义顺序或路由策略
+     * 处理目标节点；目标存在时设置 {@link Action#JUMP}。</p>
+     *
+     * <p><strong>注意：</strong>目标不存在且策略为 THROW 时抛出的异常位于
+     * 主循环的节点执行 try 块内，会被随后的 {@code catch (Exception)} 捕获
+     * 并重新包装为 "Node execution failed"，具体原因需从 {@code getCause()} 读取。</p>
+     *
+     * @param ctx    流水线上下文
+     * @param nodeId 当前节点 标识
+     * @param result 节点返回值
+     * @param <T>    数据类型
+     */
+    private <T> void applyExecuteResult(PipelineContext<T> ctx, String nodeId, String result) {
+        // 优先级：显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT
+        if (result == null || result.isEmpty() || ctx.getAction() != Action.NEXT) {
+            return;
+        }
+        if (!nodeMap.containsKey(result)) {
+            switch (routeStrategy) {
+                case EXIT:
+                    ctx.setAction(Action.EXIT);
+                    break;
+                case NEXT:
+                    ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                    ctx.setAction(Action.NEXT);
+                    break;
+                default:
+                    throw new PipelineException("Execute result target node not found: " + result
+                                    + " (returned from node: " + nodeId + ")"
+                                    + ". Available nodes: " + nodeMap.keySet(),
+                            nodeId, id, null);
+            }
+            return;
+        }
+        ctx.setNextNodeId(result);
+        ctx.setAction(Action.JUMP);
+    }
+
+    /**
+     * 按监听器给出的恢复节点 标识 路由到错误恢复流程。
+     *
+     * @param ctx             流水线上下文
+     * @param nodeId          发生错误的节点 标识
+     * @param error           捕获的异常
+     * @param recoveryNodeId  恢复节点 标识，可为空
+     * @param <T>             数据类型
+     * @return {@code true} 表示已路由到恢复节点，{@code false} 表示无恢复节点应终止
+     */
+    private <T> boolean recoverToNode(PipelineContext<T> ctx, String nodeId,
+                                      Throwable error, String recoveryNodeId) {
+        if (recoveryNodeId == null || recoveryNodeId.isEmpty()) {
+            return false;
+        }
+        // 验证恢复节点是否存在
+        if (!nodeMap.containsKey(recoveryNodeId)) {
+            throw new PipelineException("Recovery node not found: " + recoveryNodeId
+                            + " (error from node: " + nodeId + ")",
+                    nodeId, id, error);
+        }
+        // 路由到恢复节点继续执行
+        ctx.setNextNodeId(recoveryNodeId);
+        ctx.setAction(Action.NEXT);
+        ctx.addHistory(nodeId);
+        fireAfterNode(ctx);
+        fireOnDraw(ctx);
+        return true;
+    }
+
+    /**
+     * 节点正常完成后的收尾：记账、存储节点输出、记录 WAL、触发回调。
+     *
+     * <p><strong>节点输出存储契约</strong>（详见类级 Javadoc）：
+     * 当前数据 为 空 时不存储；节点已自行存储结构化结果时不覆盖。</p>
+     *
+     * @param ctx    流水线上下文
+     * @param nodeId 当前节点 标识
+     * @param <T>    数据类型
+     */
+    private <T> void finishNode(PipelineContext<T> ctx, String nodeId) {
+        ctx.addHistory(nodeId);
+        if (ctx.getCurrentData() != null && !ctx.getNodeOutputs().containsKey(nodeId)) {
+            ctx.setNodeOutput(nodeId, ctx.getCurrentData());
+        }
+        // WAL：记录节点完成事件
+        if (pipelineWal != null) {
+            try {
+                pipelineWal.appendNodeComplete(ctx);
+            } catch (Exception ignored) {
+                // WAL 记录失败不影响流水线执行
+            }
+        }
+        fireAfterNode(ctx);
+        fireOnDraw(ctx);
+    }
+
+    /**
+     * 挂起前把断点推进到按定义顺序的下一节点，使 resume 能从下一节点继续。
+     *
+     * @param ctx        流水线上下文
+     * @param nodeId     当前节点 标识
+     * @param prevNextId 节点执行前的下一节点 标识
+     * @param <T>        数据类型
+     */
+    private <T> void advanceBeforeSuspend(PipelineContext<T> ctx, String nodeId, String prevNextId) {
+        if (Objects.equals(prevNextId, ctx.getNextNodeId())) {
+            ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+        }
+    }
+
+    /**
+     * 节点收尾后按动作推进路由，并处理终止节点。
+     *
+     * <p>依次处理 REPLAY（重播当前节点）、PREV（回退到前一节点）、
+     * JUMP（校验跳转目标，检查点2）、BREAK（按顺序跳过），
+     * 以及节点未修改 下一节点标识 时的默认顺序前进。</p>
+     *
+     * @param ctx        流水线上下文
+     * @param nodeId     当前节点 标识
+     * @param prevNextId 节点执行前的下一节点 标识
+     * @param <T>        数据类型
+     * @return {@code true} 表示主循环应继续，{@code false} 表示命中终止节点应结束
+     */
+    private <T> boolean applyTrailingAction(PipelineContext<T> ctx, String nodeId, String prevNextId) {
+        if (ctx.getAction() == Action.REPLAY) {
+            ctx.setNextNodeId(ctx.getCurrentNodeId());
+        } else if (ctx.getAction() == Action.PREV) {
+            ctx.setAction(Action.NEXT);
+            List<String> history = ctx.getHistory();
+            String currId = ctx.getCurrentNodeId();
+            history.remove(currId);
+            if (history.size() >= 1) {
+                String prevId = history.remove(history.size() - 1);
+                ctx.setNextNodeId(prevId);
+            } else {
+                ctx.setNextNodeId(null);
+            }
+        } else if (ctx.getAction() == Action.JUMP) {
+            // 验证 JUMP 目标节点是否存在
+            String jumpTarget = ctx.getNextNodeId();
+            if (jumpTarget != null && !nodeMap.containsKey(jumpTarget)) {
+                // 检查点2：JUMP目标节点不存在
+                switch (routeStrategy) {
+                    case EXIT:
+                        ctx.setAction(Action.EXIT);
+                        break;
+                    case NEXT:
+                        ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+                        ctx.setAction(Action.NEXT);
+                        break;
+                    default:
+                        throw new PipelineException("Route target node not found: " + jumpTarget
+                                        + " (routed from node: " + nodeId + ")"
+                                        + ". Available nodes: " + nodeMap.keySet(),
+                                nodeId, id, null);
+                }
+            } else {
+                ctx.setAction(Action.NEXT);
+            }
+        } else if (ctx.getAction() == Action.BREAK) {
+            // 中断当前分支：跳到按顺序的下一个节点继续执行
+            ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+            ctx.setAction(Action.NEXT);
+        } else if (Action.NEXT.equals(ctx.getAction()) && Objects.equals(prevNextId, ctx.getNextNodeId())) {
+            // 节点未修改 下一个节点标识 且动作为 下一个，按默认顺序前进
+            ctx.setNextNodeId(getNextNodeIdInOrder(nodeId));
+        }
+
+        if (endNodeId != null && nodeId.equals(endNodeId)) {
+            ctx.setAction(Action.EXIT);
+            return false;
+        }
+        return true;
     }
 
     /**

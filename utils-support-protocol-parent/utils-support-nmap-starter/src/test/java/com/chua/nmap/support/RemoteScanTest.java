@@ -128,15 +128,16 @@ class RemoteScanTest {
     }
 
     /**
-     * detectos。
+     * OS指纹识别在Rust侧未实现，必须显式拒绝而不是回传unknown结论。
      */
     @Test
     @Order(6)
-    @DisplayName("OS 指纹识别")
+    @DisplayName("OS 指纹识别未实现，显式拒绝")
     void detect_os() {
-        NmapScanner.OsInfo os = scanner.detectOs(TARGET);
-        log.info("[扫描] {} OS: name={} family={} accuracy={}",
-                TARGET, os.getName(), os.getFamily(), os.getAccuracy());
+        UnsupportedOperationException e = Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> scanner.detectOs(TARGET));
+        Assertions.assertTrue(e.getMessage().contains("OS 识别尚未实现"),
+                "拒绝原因必须点明 OS 识别未实现，实际为：" + e.getMessage());
     }
 
     /**
