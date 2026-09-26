@@ -53,6 +53,14 @@
         <maven.resolver.transport.http.version>2.0.0-alpha-2</maven.resolver.transport.http.version>
         <maven.invoker.version>3.3.0</maven.invoker.version>
         <slf4j.version>2.0.18</slf4j.version>
+        <!-- ASM：全仓库统一版本，禁止下游硬编码。
+             字节码生成实现统一放在 utils-support-asm-starter
+             （rule/codegen 表达式编译器、BeanCopier、ProxyFactory），
+             避免同进程内出现两份 ASM。
+             utils-support-common-starter 作为最底层模块只提供
+             RuleAssembler.ExpressionCompiler 这个 SPI 接口，
+             不引入任何字节码三方依赖，因此无需在此层声明 asm。 -->
+        <asm.version>9.9.1</asm.version>
         <loki4j.version>2.0.0</loki4j.version>
         <commons.compress.version>1.28.0</commons.compress.version>
         <tukaani.xz.version>1.11</tukaani.xz.version>
@@ -145,7 +153,7 @@
             </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-spider-starter</artifactId>
+                <artifactId>utils-support-crawler-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             
@@ -1657,7 +1665,7 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>9.9.1</version>
+                <version>${asm.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>

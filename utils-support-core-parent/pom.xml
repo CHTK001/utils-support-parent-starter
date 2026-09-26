@@ -23,7 +23,7 @@
         <module>utils-support-osgi-starter</module>
         <module>utils-support-payment-starter</module>
         <module>utils-support-flow-starter</module>
-        <module>utils-support-spider-starter</module>
+        <module>utils-support-crawler-starter</module>
         <module>utils-support-deeplearning-starter</module>
         <module>utils-support-filesystem-starter</module>
         <module>utils-support-maven-starter</module>
@@ -32,6 +32,9 @@
     <properties>
         <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <!-- 传递给子模块：utils-support-common-starter 直接依赖 org.ow2.asm:asm 并引用该属性，
+             若此处不定义则属性无法解析，依赖会以字面量 ${asm.version} 出现在仓库路径中并导致离线构建失败 -->
+        <asm.version>9.9.1</asm.version>
     </properties>
     <dependencyManagement>
         <dependencies>
