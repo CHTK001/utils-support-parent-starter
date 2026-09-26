@@ -26,9 +26,10 @@
       抓取层不走 Spring 容器：HttpFetcher 由调用方直接 new，其它实现经 META-INF/services
       的 ServiceProvider SPI 装配，因此本模块没有也不需要任何自动配置。
 
-      待办：模块名与包名 com.chua.spider.* 已名不符实，计划改为 utils-support-crawler-starter
-      与 com.chua.crawler.*。该重构涉及 29 个类与上述两个消费者，需在仓库改动提交、
-      工作区干净后进行，避免与并行改动抢写同一批文件。
+      更名已完成（2026-09-26）：模块 utils-support-spider-starter 改为
+      utils-support-crawler-starter，包 com.chua.spider.support 改为 com.chua.crawler.support。
+      29 个类、两个消费者、native-image 元数据与 META-INF/extensions 的 SPI 注册文件
+      （文件名本身即接口全限定名）已同步迁移。类名保持不变，故本段仍以 Spider* 描述 API。
     -->
     <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-api-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
 
