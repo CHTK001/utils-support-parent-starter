@@ -92,51 +92,51 @@ public class StringUtils {
             "                ", "                 ", "                  ", "                   ", "                    "};
     /**
      * Thread_本地_构建器
-    */
+     */
     private static final ThreadLocal<Stack<StringBuilder>> THREAD_LOCAL_BUILDERS = new ThreadLocal<Stack<StringBuilder>>() {
-        @Override
         /**
          * initial值
-        */
+         */
+        @Override
         protected Stack<StringBuilder> initialValue() {
             return new Stack<>();
         }
     };
     /**
      * 无
-    */
+     */
     private static final String NONE = "NONE";
     /**
      * 是否为空
-    */
+     */
     private static final String NULL = "NULL";
     /**
      * Sbuf_extra_容量
-    */
+     */
     private static final int SBUF_EXTRA_CAPACITY = 50;
     /**
      * 默认_pad_限制
-    */
+     */
     private static final int DEFAULT_PAD_LIMIT = 30;
     /**
      * Newline
-    */
+     */
     private static final String NEWLINE = "\r\n";
     /**
      * Ascii_限制
-    */
+     */
     private static final int ASCII_LIMIT = 127;
     /**
      * HTML_space
-    */
+     */
     private static final int HTML_SPACE = 160;
     /**
      * Invisible_char_1
-    */
+     */
     private static final char INVISIBLE_CHAR_1 = 8203;
     /**
      * Invisible_char_2
-    */
+     */
     private static final char INVISIBLE_CHAR_2 = 173;
 
     /**
@@ -224,7 +224,7 @@ public class StringUtils {
 
     /**
      * 判断字符串是否"有值"（非 空 且非空白），与 {@link #isNotEmpty} 语义相同，
-     * 但方法名更贴近 期权 的 是否present 习惯用法。
+     * 但方法名更贴近 期权 的 是否存在 习惯用法。
      *
      * <pre>
      * StringUtils.isPresent(null)   = false
@@ -739,11 +739,11 @@ public class StringUtils {
      */
     public static String trim(CharSequence str, int mode) {
         return trim(str, mode, new Predicate<Character>() {
-            @Override
             /**
              * 测试
              * @param c c
              */
+            @Override
             public boolean test(Character c) {
                 return isBlankChar(c);
             }
@@ -1584,7 +1584,9 @@ public class StringUtils {
     /**
      * 返回指定长度的空格填充（默认最大 30）
      *
-     * @param width 填充宽度
+     * <p>宽度小于等于 0 时返回空字符串（与 {@link #padding(int, char)} 口径一致）。</p>
+     *
+     * @param width 填充宽度，小于等于 0 时返回空字符串
      * @return 指定长度的空格字符串
      * @see #padding(int, int)
      */
@@ -1616,13 +1618,19 @@ public class StringUtils {
     /**
      * 返回空格填充，最多不超过指定上限
      *
-     * @param width           填充宽度
+     * <p>宽度小于等于 0 时返回空字符串（与 {@link #padding(int, char)} 口径一致），
+     * 避免以负宽度访问预填充常量表导致数组越界。</p>
+     *
+     * @param width           填充宽度，小于等于 0 时返回空字符串
      * @param maxPaddingWidth 最大填充宽度，{@code -1} 表示无限制
      * @return 空格填充字符串
      */
     public static String padding(int width, int maxPaddingWidth) {
         if (maxPaddingWidth != -1) {
             width = Math.min(width, maxPaddingWidth);
+        }
+        if (width <= 0) {
+            return CommonConstant.SYMBOL_EMPTY;
         }
         if (width < PADDING.length) {
             return PADDING[width];
@@ -2616,15 +2624,26 @@ public class StringUtils {
     }
 
     /**
-     * 检查字符串在指定位置是否与子串匹配
+     * 检查字符串在指定位置是否与子串匹配。
      *
-     * @param str       字符串
-     * @param index     起始索引
+     * <p>空子串视为匹配；起始索引为负或超出字符串范围时返回 {@code false}，
+     * 不会抛出字符串索引越界异常。</p>
+     *
+     * @param str       字符串，不允许为 null
+     * @param index     起始索引，小于 0 或越界时返回 {@code false}
      * @param substring 待匹配的子串
      * @return 如果匹配返回 true
+     * @throws IllegalArgumentException str 或 substring 为 null 时抛出
      */
     public static boolean substringMatch(CharSequence str, int index, CharSequence substring) {
-        if (index + substring.length() > str.length()) {
+        if (str == null || substring == null) {
+            throw new IllegalArgumentException("str 与 substring 不能为空");
+        }
+        if (index < 0 || index > str.length()) {
+            return false;
+        }
+        // 用减法比较避免 index + length 溢出
+        if (substring.length() > str.length() - index) {
             return false;
         }
         for (int i = 0; i < substring.length(); i++) {
@@ -4193,7 +4212,7 @@ public class StringUtils {
      * </ul>
      *
      * @param str 输入字符串
-     * @return sqlinjection替换blank的结果
+     * @return sqlinjection替换空白字符的结果
      */
     public static String sqlInjectionReplaceBlank(String str) {
         if (check(str)) {

@@ -38,27 +38,27 @@ public class NumberUtils {
     }
     /**
      * Long_最小
-    */
+     */
     private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
     /**
      * Long_最大
-    */
+     */
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
     /**
      * A
-    */
+     */
     private static final int A = 'A';
     /**
      * Z 轴
-    */
+     */
     private static final int Z = 'Z';
     /**
      * 中文数字字符 → 数值映射（小写+大写+两）
-    */
+     */
     private static final Map<Character, Integer> CN_DIGITS = new HashMap<>();
     /**
      * 中文单位字符 → 数值映射（十/百/千/万/亿）
-    */
+     */
     private static final Map<Character, Integer> CN_UNITS = new HashMap<>();
     static {
         CN_DIGITS.put('零', 0);
@@ -148,14 +148,21 @@ public class NumberUtils {
         return Long.compare(o1, o2);
     }
     /**
-     * 获取指定范围内的随机整数。
+     * 获取指定范围内的随机整数（闭区间）。
+     *
+     * <p>区间长度用 {@code long} 计算，避免 {@code end - start + 1} 在端点接近
+     * {@link Integer#MAX_VALUE} 时整型溢出得到负数；{@code start > end} 时自动交换两端。</p>
      *
      * @param start 起始值（包含）
      * @param end   结束值（包含）
-     * @return [start, 结束] 区间内的随机整数
+     * @return {@code [min(start, end), max(start, end)]} 区间内的随机整数
      */
     public static int getNum(int start, int end) {
-        return (int) (Math.random() * (end - start + 1) + start);
+        int lo = Math.min(start, end);
+        int hi = Math.max(start, end);
+        // 用 long 计算区间长度，防止 Integer.MAX_VALUE 端点溢出
+        long span = (long) hi - (long) lo + 1L;
+        return (int) ((long) (Math.random() * span) + lo);
     }
     /**
      * 加法运算（float + float）。
@@ -287,12 +294,22 @@ public class NumberUtils {
      * <p>返回大于或等于两数之商的最小整数。JDK 8 无 Math.ceilDiv，此方法用 Math.ceil 模拟。
      *
      * @param v1 被除数
-     * @param v2 除数
+     * @param v2 除数，不允许为 0
      * @return 向上取整后的商
+     * @throws IllegalArgumentException v2 为 0 时抛出（避免静默返回 Integer.MAX_VALUE）
      * @since 5.3.3
      */
     public static int ceilDiv(int v1, int v2) {
-        return (int) Math.ceil((double) v1 / v2);
+        if (v2 == 0) {
+            throw new IllegalArgumentException("除数不能为 0");
+        }
+        // 用整数运算避免 Math.ceil(±Infinity) 强转 int 得到 Integer.MAX_VALUE 的静默错误
+        int quotient = v1 / v2;
+        int remainder = v1 % v2;
+        if (remainder != 0 && ((remainder > 0) == (v2 > 0))) {
+            quotient++;
+        }
+        return quotient;
     }
     /**
      * 除法运算（float / float），精度 10 位。
@@ -594,19 +611,24 @@ public class NumberUtils {
         return divide(numerator, denominator, 2);
     }
     /**
-     *                
+     * 求两个整数的最大公约数（辗转相除法）。
      *
-     * @param m m
-     * @param n n
-     * @return the 结果
+     * <p>约定：{@code divisor(x, 0) = |x|}，与 {@code gcd} 的常见扩展一致；两个参数都为 0 时返回 0。</p>
+     *
+     * @param m 第一个整数
+     * @param n 第二个整数
+     * @return 最大公约数（恒为非负数）
      */
     public static int divisor(int m, int n) {
-        while (m % n != 0) {
-            int temp = m % n;
-            m = n;
-            n = temp;
+        int a = Math.abs(m);
+        int b = Math.abs(n);
+        // 经典辗转相除：b 为 0 时 a 即最大公约数，直接退出避免 % 0
+        while (b != 0) {
+            int temp = a % b;
+            a = b;
+            b = temp;
         }
-        return n;
+        return a;
     }
     /**
      * <p>
@@ -992,43 +1014,64 @@ public class NumberUtils {
         }
     }
     /**
-     *                               N                           <br>
-     *                                  +1
+     * 把总数按份数拆分，返回每份的大小（有余数时向上取整）。
      *
-     * @param total total
-     * @param partCount part数量
-     * @return the 结果
+     * <p>等价于 {@code ceil(total / partCount)}：{@code total=10, partCount=3} 得到 4，
+     * {@code total=9, partCount=3} 得到 3。</p>
+     *
+     * @param total    总数，允许为 0
+     * @param partCount 份数，必须大于 0
+     * @return 每份的大小
+     * @throws IllegalArgumentException partCount 小于等于 0 时抛出
      * @since 4.0.7
      */
     public static int partValue(int total, int partCount) {
         return partValue(total, partCount, true);
     }
+
     /**
-     *                               N                           <br>
-     * 是否plusoneWhen.js是否包含rem   true                                       +1
+     * 把总数按份数拆分，返回每份的大小，可选择有余数时是否向上取整。
      *
-     * @param total total
-     * @param partCount part数量
-     * @param isPlusOneWhenHasRem                            +1
-     * @return the 结果
+     * <p>取整口径由 {@code isPlusOneWhenHasRem} 决定：</p>
+     * <ul>
+     *   <li>{@code true}：有余数（{@code total % partCount != 0}）时向上取整，即
+     *       {@code ceil(total / partCount)}</li>
+     *   <li>{@code false}：一律向下取整，即 {@code total / partCount}</li>
+     * </ul>
+     *
+     * @param total                总数，允许为 0
+     * @param partCount            份数，必须大于 0
+     * @param isPlusOneWhenHasRem  有余数时是否加一（向上取整）
+     * @return 每份的大小
+     * @throws IllegalArgumentException partCount 小于等于 0 时抛出
      * @since 4.0.7
      */
     public static int partValue(int total, int partCount, boolean isPlusOneWhenHasRem) {
+        if (partCount <= 0) {
+            throw new IllegalArgumentException("份数 partCount 必须大于 0，实际: " + partCount);
+        }
         int partValue = total / partCount;
-        if (isPlusOneWhenHasRem && total % partCount == 0) {
+        // 有余数才加一：total % partCount != 0
+        if (isPlusOneWhenHasRem && total % partCount != 0) {
             partValue++;
         }
         return partValue;
     }
     /**
-     *          
+     * 计算当前值占总量的百分比。
      *
-     * @param current 当前
-     * @param total total
-     * @return the 结果
+     * <p>总量为 0 时返回 0，避免把 {@code Infinity} / {@code NaN} 传播到下游统计；
+     * 负总量按其绝对值参与计算，符号由当前值决定。</p>
+     *
+     * @param current 当前值
+     * @param total   总量，为 0 时返回 0
+     * @return 百分比数值（{@code current / total * 100}）
      */
     public static double percentage(double current, double total) {
-        return current / total * 100.;
+        if (total == 0.0d) {
+            return 0.0d;
+        }
+        return current / total * 100.0d;
     }
     /**
      *                
@@ -2053,7 +2096,7 @@ public class NumberUtils {
     /**
      * @param value 值
      * @since 3.8
-     * @return 转为scaledbigdecimal的结果
+     * @return 转为指定精度 BigDecimal 的结果
      */
     public static BigDecimal toScaledBigDecimal(final BigDecimal value) {
         return toScaledBigDecimal(value, 2, RoundingMode.HALF_EVEN);
@@ -2063,7 +2106,7 @@ public class NumberUtils {
      * @param scale scale
      * @param roundingMode roundingmode
      * @since 3.8
-     * @return 转为scaledbigdecimal的结果
+     * @return 转为指定精度 BigDecimal 的结果
      */
     public static BigDecimal toScaledBigDecimal(final BigDecimal value, final int scale, final RoundingMode roundingMode) {
         if (value == null) {
@@ -2072,7 +2115,7 @@ public class NumberUtils {
         return value.setScale(scale, (roundingMode == null) ? RoundingMode.HALF_EVEN : roundingMode);
     }
     /**
-     * 转为scaledbigdecimal
+     * 转为指定精度 BigDecimal
      *
      * @param value 值
      * @return BigDecimal
@@ -2082,7 +2125,7 @@ public class NumberUtils {
         return toScaledBigDecimal(value, 2, RoundingMode.HALF_EVEN);
     }
     /**
-     * 转为scaledbigdecimal
+     * 转为指定精度 BigDecimal
      *
      * @param value 值
      * @param scale scale
@@ -2101,7 +2144,7 @@ public class NumberUtils {
         );
     }
     /**
-     * 转为scaledbigdecimal
+     * 转为指定精度 BigDecimal
      *
      * @param value 值
      * @return BigDecimal
@@ -2111,7 +2154,7 @@ public class NumberUtils {
         return toScaledBigDecimal(value, 2, RoundingMode.HALF_EVEN);
     }
     /**
-     * 转为scaledbigdecimal
+     * 转为指定精度 BigDecimal
      *
      * @param value 值
      * @param scale scale
@@ -2601,9 +2644,9 @@ public class NumberUtils {
         return result.toString();
     }
     /**
-     * 单个num列表   j                        0
+     * 单个数字列表   j                        0
      *
-     * @param singleNumList 单个num列表
+     * @param singleNumList 单个数字列表
      * @param offset 偏移量
      * @return                0
      */

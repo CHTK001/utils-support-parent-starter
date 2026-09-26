@@ -237,17 +237,20 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
                 String error = getString(raw, "error");
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> rawEvents = (List<Map<String, Object>>) raw.get("rawEvents");
-                if (rawEvents == null) {
                 if (listener != null) {
+                    // 脚本同时产出 events（已过滤）与 rawEvents（原始 SSE）；
+                    // 优先用 events，缺失或为空时回退到 rawEvents
                     Object events = raw.get("events");
-                    if (events instanceof List<?> list) {
-                        for (Object o : list) {
-                            if (o instanceof Map<?, ?> m) {
-                                listener.accept(String.valueOf(m.get("type")), String.valueOf(m.get("content")));
+                    List<?> source = (events instanceof List<?> list && !list.isEmpty())
+                            ? list : rawEvents;
+                    if (source != null) {
+                        for (Object o : source) {
+                            if (o instanceof Map<?, ?> m && m.get("type") != null) {
+                                listener.accept(String.valueOf(m.get("type")),
+                                        String.valueOf(m.get("content")));
                             }
                         }
                     }
-                }
                 }
                 if (error != null && !error.isEmpty()) {
                     return DoubaoChatResult.error(error);

@@ -81,30 +81,32 @@ public class CollectionUtils {
     /**
      * 从集合中按多个索引批量获取元素，支持负数索引（从末尾计数）。
      *
-     * @param collection 源集合
-     * @param indexes    要获取的元素索引数组
+     * <p>索引越界时抛出 {@link IndexOutOfBoundsException}，并在消息中标明集合大小与
+     * 越界索引，便于定位；负索引小于等于集合长度的负数时同样视为越界。</p>
+     *
+     * @param collection 源集合，不允许为 null
+     * @param indexes    要获取的元素索引数组，不允许为 null
      * @param <T>        元素类型
-     * @return 对应索引的元素列表
+     * @return 对应索引的元素列表，顺序与 indexes 一致
+     * @throws IllegalArgumentException  collection 为 null 时抛出
+     * @throws IndexOutOfBoundsException 任一索引越界时抛出
      */
-    @SuppressWarnings({"unchecked", "all"})
     public static <T> List<T> getAny(Collection<T> collection, int... indexes) {
+        if (collection == null) {
+            throw new IllegalArgumentException("源集合不能为空");
+        }
+        if (indexes == null) {
+            throw new IllegalArgumentException("索引数组不能为空");
+        }
         final int size = collection.size();
-        final ArrayList<T> result = new ArrayList<>();
-        if (collection instanceof List<T> list) {
-            for (int index : indexes) {
-                if (index < 0) {
-                    index += size;
-                }
-                result.add(list.get(index));
+        final ArrayList<T> result = new ArrayList<>(indexes.length);
+        for (int index : indexes) {
+            // 负索引从末尾计数，越界时给出可定位的消息
+            int real = index < 0 ? index + size : index;
+            if (real < 0 || real >= size) {
+                throw new IndexOutOfBoundsException("索引 " + index + " 越界，集合大小: " + size);
             }
-        } else {
-            final Object[] array = collection.toArray();
-            for (int index : indexes) {
-                if (index < 0) {
-                    index += size;
-                }
-                result.add((T) array[index]);
-            }
+            result.add(find(collection, real));
         }
         return result;
     }
@@ -126,35 +128,47 @@ public class CollectionUtils {
     }
 
     /**
-     * 将 列表 平均分配为指定数量的子列表（前几个列表多一个元素）。
+     * 将 列表 按每组最大元素个数平均分配为多个子列表。
      *
-     * @param source 源列表
-     * @param limit  每组最大元素数
+     * <p>分组规则：先按上限 {@code limit} 算出最少需要的组数
+     * {@code ceil(size / limit)}，再把元素尽量均分到这些组里，前面的组多 1 个元素。
+     * 返回的子列表为 {@link List#subList(int, int)} 视图，随源列表变化。</p>
+     *
+     * <p>例如 {@code size=5, limit=2} 得到 3 组，大小分别为 {@code 2, 2, 1}。</p>
+     *
+     * @param source 源列表，为 空 时返回空列表
+     * @param limit  每组最大元素数，必须大于 0
      * @param <T>    元素类型
      * @return 分组后的列表集合
+     * @throws IllegalArgumentException {@code limit} 小于等于 0 时抛出
      */
     public static <T> List<List<T>> averageAssign(List<T> source, int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("每组最大元素数 limit 必须大于 0，实际: " + limit);
+        }
         if (null == source || source.isEmpty()) {
             return Collections.emptyList();
         }
-        List<List<T>> result = new ArrayList<>();
-        int listCount = (source.size() - 1) / limit + 1;
-        // (                  )
-        int remainder = source.size() % listCount;
-        //
-        int number = source.size() / listCount;
-        //
+        int size = source.size();
+        // 最少需要的组数：向上取整
+        int listCount = (size - 1) / limit + 1;
+        // 前 remainder 组多分配 1 个元素
+        int remainder = size % listCount;
+        int number = size / listCount;
+
+        List<List<T>> result = new ArrayList<>(listCount);
         int offset = 0;
         for (int i = 0; i < listCount; i++) {
-            List<T> value;
+            int from = i * number + offset;
+            int to;
             if (remainder > 0) {
-                value = source.subList(i * number + offset, (i + 1) * number + offset + 1);
+                to = (i + 1) * number + offset + 1;
                 remainder--;
                 offset++;
             } else {
-                value = source.subList(i * number + offset, (i + 1) * number + offset);
+                to = (i + 1) * number + offset;
             }
-            result.add(value);
+            result.add(source.subList(from, to));
         }
         return result;
     }
@@ -446,14 +460,20 @@ public class CollectionUtils {
     /**
      * 对 列表 进行分页，返回指定页码的数据子集。
      *
-     * @param pageNo   页码（从 1 开始）
-     * @param pageSize 每页大小
+     * @param pageNo   页码（从 1 开始）。小于 {@link PageUtils#getFirstPageNo()} 时按首页处理
+     *                  （与 {@link PageUtils#getStart(int, int)} 的钳制口径一致）
+     * @param pageSize 每页大小，小于 1 时视为无有效分页，返回空列表
      * @param list     源列表
      * @param <T>      元素类型
      * @return 指定页的元素列表，越界返回空列表
      */
     public static <T> List<T> page(int pageNo, int pageSize, List<T> list) {
         if (isEmpty(list)) {
+            return new ArrayList<>(0);
+        }
+
+        // 每页大小小于 1 时分页无意义（与 PageUtils.totalPage 的口径保持一致：总页数为 0）
+        if (pageSize < 1) {
             return new ArrayList<>(0);
         }
 
@@ -1431,23 +1451,30 @@ public class CollectionUtils {
     /**
      * 将列表按指定步长分组为子列表。
      *
-     * @param originalList 源列表
-     * @param step         每组元素个数，必须能整除列表长度
+     * <p>分组结果为 {@link List#subList(int, int)} 视图，随源列表变化；需要独立快照时
+     * 请自行复制。步长必须为正数且能整除列表长度，否则抛出
+     * {@link IllegalArgumentException}。</p>
+     *
+     * @param originalList 源列表，不允许为 null
+     * @param step         每组元素个数，必须大于 0 且能整除列表长度
      * @return 分组后的列表集合
+     * @throws IllegalArgumentException 源列表为 null、步长不为正数或不能整除列表长度时抛出
      */
     public static List<List<Integer>> generateGroupList(List<Integer> originalList, int step) {
- // 群体大小
-        if (originalList.size() % step != 0) {
-            throw new IllegalArgumentException("                           step      ");
+        if (originalList == null) {
+            throw new IllegalArgumentException("源列表不能为空");
+        }
+        if (step <= 0) {
+            throw new IllegalArgumentException("每组元素个数 step 必须大于 0，实际: " + step);
+        }
+        int size = originalList.size();
+        if (size % step != 0) {
+            throw new IllegalArgumentException("列表长度 " + size + " 不能被 step " + step + " 整除");
         }
 
-        //                                                           N
-        List<List<Integer>> newList = new ArrayList<>();
-
-        //                             N
-        for (int i = 0; i < originalList.size(); i += step) {
-            List<Integer> group = originalList.subList(i, i + step);
-            newList.add(group);
+        List<List<Integer>> newList = new ArrayList<>(size / step);
+        for (int i = 0; i < size; i += step) {
+            newList.add(originalList.subList(i, i + step));
         }
 
         return newList;
@@ -1463,7 +1490,7 @@ public class CollectionUtils {
      */
     public static <E>E singletonOrThrow(List<E> elements) {
         if(isEmpty(elements)) {
-            throw new IllegalArgumentException("                  ");
+            throw new IllegalArgumentException("列表为空，无法取唯一元素");
         }
         return elements.getFirst();
     }
@@ -1471,12 +1498,22 @@ public class CollectionUtils {
     /**
      * 限制 列表 的大小，返回从头到指定长度的子列表。
      *
-     * @param source 源列表
-     * @param limit  最大长度
+     * <p>返回 {@link List#subList(int, int)} 视图，随源列表变化。{@code limit}
+     * 为负数时按 0 处理（返回空列表），大于源列表长度时截断到源列表长度。</p>
+     *
+     * @param source 源列表，不允许为 null
+     * @param limit  最大长度，小于 0 视为 0
      * @param <T>    元素类型
      * @return 截取后的子列表
+     * @throws IllegalArgumentException 源列表为 null 时抛出
      */
     public static <T>List<T> limit(List<T> source, int limit) {
+        if (source == null) {
+            throw new IllegalArgumentException("源列表不能为空");
+        }
+        if (limit <= 0) {
+            return Collections.emptyList();
+        }
         return source.subList(0, Math.min(limit, source.size()));
     }
 
@@ -1484,14 +1521,27 @@ public class CollectionUtils {
     /**
      * 从指定偏移量开始限制 列表 的大小。
      *
-     * @param source 源列表
-     * @param offset 起始偏移量
-     * @param limit  最大长度
+     * @param source 源列表，不允许为 null
+     * @param offset 起始偏移量，小于 0 视为 0
+     * @param limit  最大长度，小于 0 视为 0
      * @param <T>    元素类型
-     * @return 截取后的子列表
+     * @return 截取后的子列表；偏移量超出源列表长度时返回空列表
+     * @throws IllegalArgumentException 源列表为 null 时抛出
      */
     public static <T>List<T> limit(List<T> source, int offset, int limit) {
-        return source.subList(offset, Math.min(offset + limit, source.size()));
+        if (source == null) {
+            throw new IllegalArgumentException("源列表不能为空");
+        }
+        int size = source.size();
+        if (offset < 0) {
+            offset = 0;
+        }
+        if (offset >= size || limit <= 0) {
+            return Collections.emptyList();
+        }
+        // 用减法而非 offset + limit，避免 limit 极大时整数溢出
+        int end = (int) Math.min((long) offset + limit, size);
+        return source.subList(offset, end);
     }
 
     /**

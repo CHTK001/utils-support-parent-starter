@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_COMMA;
@@ -1339,17 +1340,26 @@ public class MapUtils {
         if (StringUtils.isEmpty(value)) {
             return Collections.emptyMap();
         }
+        if (StringUtils.isEmpty(keyValueSeparator)) {
+            throw new IllegalArgumentException("键值分隔符不能为空");
+        }
 
         Map<String, Object> source = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
         String[] split;
         if (StringUtils.isNotEmpty(valueSeparator)) {
-            split = value.split(valueSeparator);
+            // 分隔符按字面量处理：'.'、'|'、'+' 等作为正则会匹配到完全不同甚至每个位置
+            split = value.split(Pattern.quote(valueSeparator), -1);
         } else {
             split = new String[]{value};
         }
 
+        // 键值分隔符同样按字面量处理
+        String kvPattern = Pattern.quote(keyValueSeparator);
         for (String item : split) {
-            String[] strings = item.split(keyValueSeparator, 2);
+            if (item.isEmpty()) {
+                continue;
+            }
+            String[] strings = item.split(kvPattern, 2);
             if (strings.length == 0) {
                 continue;
             }
@@ -1361,8 +1371,11 @@ public class MapUtils {
                 mapKey = strings[0].trim();
                 mapValue = strings[1].trim();
             }
+            if (mapKey.isEmpty()) {
+                continue;
+            }
 
-            convertToList(source, mapKey, null == mapValue ? null : URLDecoder.decode(mapValue, StandardCharsets.UTF_8));
+            convertToList(source, mapKey, null == mapValue ? null : safeUrlDecode(mapValue));
         }
         Map<String, String> result = new HashMap<>(source.size());
         for (Map.Entry<String, Object> entry : source.entrySet()) {
@@ -1370,6 +1383,29 @@ public class MapUtils {
             result.put(entry.getKey(), value1 instanceof Collection && ((Collection<?>) value1).size() == 1 ? CollectionUtils.findFirst((Collection) value1).toString() : value1.toString());
         }
         return Collections.unmodifiableMap(result);
+    }
+
+    /**
+     * 容错地进行 UTF-8 URL 解码。
+     *
+     * <p>{@link URLDecoder#decode(String, Charset)} 遇到残缺百分号序列（如 {@code "100%"}、
+     * {@code "%zz"}）会抛 {@link IllegalArgumentException}，导致整串解析失败。此处捕获该异常
+     * 并原样返回，保证「个别值格式非法」不会连带丢弃整条配置。</p>
+     *
+     * <p>不含百分号时直接返回原值，避免无谓的解码开销与 {@code '+' → 空格} 的意外改写。</p>
+     *
+     * @param raw 原始值
+     * @return 解码后的值；解码失败时返回原值
+     */
+    private static String safeUrlDecode(String raw) {
+        if (raw.indexOf('%') < 0) {
+            return raw;
+        }
+        try {
+            return URLDecoder.decode(raw, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return raw;
+        }
     }
 
     /**
@@ -1770,15 +1806,38 @@ public class MapUtils {
  * @param oldData 旧数据 映射
  * @return 值发生变化的键值对
  */
+    /**
+     * 剔除 {@code newData} 中与 {@code oldData} 完全相同的条目，返回剩余差异项。
+     *
+     * <p>判定规则（键在 oldData 中存在且值相等 才视为「相同」并剔除）：</p>
+     * <ul>
+     *   <li>键不在 {@code oldData} 中 → 保留（新增项）</li>
+     *   <li>键在但值不相等 → 保留（变更项）</li>
+     *   <li>键在且值相等 → 剔除</li>
+     * </ul>
+     *
+     * @param newData 新数据，不允许为 null
+     * @param oldData 旧数据，不允许为 null
+     * @param <K>     键类型
+     * @param <V>     值类型
+     * @return 差异项构成的新映射（非 null）
+     * @throws IllegalArgumentException 任一参数为 null 时抛出
+     */
     public static <K, V> Map<K, V> removeSameData(Map<K, V> newData, Map<K, V> oldData) {
+        if (newData == null || oldData == null) {
+            throw new IllegalArgumentException("新旧数据不能为空");
+        }
         Map<K, V> rs = new HashMap<>(newData.size());
         for (Map.Entry<K, V> entry : newData.entrySet()) {
-            if (!oldData.containsKey(entry.getKey())) {
+            K key = entry.getKey();
+            // 键不在旧数据中：属于新增项，必须保留
+            if (!oldData.containsKey(key)) {
+                rs.put(key, entry.getValue());
                 continue;
             }
-            V o = oldData.get(entry.getKey());
-            if (!ObjectUtils.equals(o, entry.getValue())) {
-                rs.put(entry.getKey(), entry.getValue());
+            // 键在旧数据中且值相等：属于相同项，剔除；否则保留为变更项
+            if (!ObjectUtils.equals(oldData.get(key), entry.getValue())) {
+                rs.put(key, entry.getValue());
             }
         }
 

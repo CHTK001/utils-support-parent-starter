@@ -467,16 +467,16 @@ public class DoubaoProxyChatClient implements ChatClient {
             history.add(ChatMessage.builder().role("user").content(prompt).build());
 
             DoubaoChatResult result = session.chat(url, body, conversationId, (type, content) -> {
-                ChatResponse.State state = "text".equals(type)
-                        ? ChatResponse.State.STREAMING : ChatResponse.State.STREAMING;
+                // 脚本只推送 text / thinking 两种增量，二者均为流式增量；
+                // 终止态 STOP 在 chat 返回后统一补发
                 consumer.accept(ChatResponse.builder()
-                        .state(state)
+                        .state(ChatResponse.State.STREAMING)
                         .content(content)
                         .reasoningContent("thinking".equals(type) ? content : null)
                         .build());
             });
 
-if (result.isSuccess()) {
+            if (result.isSuccess()) {
                 if (result.conversationId() != null && !result.conversationId().isEmpty()) {
                     this.conversationId = result.conversationId();
                 }

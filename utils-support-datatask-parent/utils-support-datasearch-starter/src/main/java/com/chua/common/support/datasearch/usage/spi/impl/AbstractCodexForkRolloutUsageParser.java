@@ -50,7 +50,8 @@ import java.util.stream.Stream;
 public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParser {
 
     /**
-     * 会话根目录（如 ~/.acode/sessions）。
+     * 提供者根目录（如 {@code ~/.codex}），其下含 {@code sessions/} 与 {@code archived_sessions/}。
+     *
      * @return 路径 对象
      */
     protected abstract Path sessionsRoot();
@@ -104,6 +105,10 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
     private List<AiUsage> parseFile(Path file) {
         List<AiUsage> result = new ArrayList<>();
         String fileModel = null;
+        // requestId 兜底：多数 rollout 事件没有 event_id，用「文件唯一名 + 文件内序号」保证稳定且唯一，
+        // 供用量增量同步按 requestId 去重（缺失会导致每轮重复插入）
+        String fileKey = file.getFileName() == null ? "rollout" : file.getFileName().toString();
+        int eventSeq = 0;
         try (Stream<String> lines = Files.lines(file)) {
             for (String line : lines.map(String::trim).toList()) {
                 if (line.isEmpty()) {
@@ -125,7 +130,8 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
                     if (info == null || info.isMissingValue()) {
                         continue;
                     }
-                    AiUsage usage = toUsage(node, info, firstNonBlank(fileModel, defaultModel()));
+                    AiUsage usage = toUsage(node, info, firstNonBlank(fileModel, defaultModel()),
+                            fileKey + "#" + (eventSeq++));
                     if (usage != null) {
                         result.add(usage);
                     }
@@ -166,9 +172,11 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
      * @param node        行节点
      * @param info        info 节点
      * @param fallbackModel 默认模型
+     * @param fallbackRequestId 缺失 event_id 时的稳定请求号
      * @return 用量记录；全零或无时间戳返回 null
      */
-    private AiUsage toUsage(JsonNode node, JsonNode info, String fallbackModel) {
+    private AiUsage toUsage(JsonNode node, JsonNode info, String fallbackModel,
+                            String fallbackRequestId) {
         JsonNode total = info.get("total_token_usage");
         if (total == null || total.isMissingValue()) {
             total = info;
@@ -200,7 +208,7 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
         return AiUsage.builder()
                 .provider(providerName())
                 .model(fallbackModel)
-                .requestId(node.get("event_id").toStringValue())
+                .requestId(firstNonBlank(node.get("event_id").toStringValue(), fallbackRequestId))
                 .inputTokens(promptTokens > 0 ? Integer.valueOf(promptTokens) : null)
                 .outputTokens(output)
                 .totalTokens(totalTokens)
@@ -219,12 +227,13 @@ public abstract class AbstractCodexForkRolloutUsageParser extends BaseUsageParse
      */
     private List<Path> listRolloutFiles() {
         List<Path> files = new ArrayList<>();
+        // sessionsRoot() 是提供者根目录（如 ~/.codex），sessions/ 与 archived_sessions/ 均在其下
+        Path root = sessionsRoot();
         for (String sub : new String[]{"sessions", "archived_sessions"}) {
-            Path root = sessionsRoot().getParent() == null ? sessionsRoot() : sessionsRoot();
-            if (sub.startsWith("archived") && !Files.isDirectory(root.resolve(sub))) {
+            Path dir = root.resolve(sub);
+            if (sub.startsWith("archived") && !Files.isDirectory(dir)) {
                 continue;
             }
-            Path dir = "sessions".equals(sub) ? root : root.resolve(sub);
             collect(dir, files);
         }
         return files.stream().sorted().toList();

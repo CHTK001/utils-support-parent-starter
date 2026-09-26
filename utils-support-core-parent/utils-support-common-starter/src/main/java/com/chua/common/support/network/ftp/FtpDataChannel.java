@@ -116,11 +116,29 @@ class FtpDataChannel {
     /**
      * 获取当前数据连接的输入流。
      *
-     * @return 输入流，无连接时返回 null
+     * @return 输入流；未建立数据连接或连接已关闭时返回 null
+     * @throws IOException 获取输入流失败
      */
-    InputStream getDataInputStream() {
+    InputStream getDataInputStream() throws IOException {
         Socket s = dataSocket;
-        return s != null && !s.isClosed() ? null : null; // 由调用方从 Socket 获取
+        if (s == null || s.isClosed() || !s.isConnected()) {
+            return null;
+        }
+        return s.getInputStream();
+    }
+
+    /**
+     * 获取当前数据连接的输出流。
+     *
+     * @return 输出流；未建立数据连接或连接已关闭时返回 null
+     * @throws IOException 获取输出流失败
+     */
+    OutputStream getDataOutputStream() throws IOException {
+        Socket s = dataSocket;
+        if (s == null || s.isClosed() || !s.isConnected()) {
+            return null;
+        }
+        return s.getOutputStream();
     }
 
     /**

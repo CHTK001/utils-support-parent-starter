@@ -63,35 +63,35 @@ public class DateUtils {
     public static final int THIRD = 3;
     /**
      * One_day
-    */
+     */
     public static final int ONE_DAY = 24 * 60 * 60;
     /**
      * One_hour
-    */
+     */
     public static final int ONE_HOUR = 60;
     /**
      * One_minute
-    */
+     */
     public static final int ONE_MINUTE = ONE_HOUR;
     /**
      * 准确_hours
-    */
+     */
     public static final int ACCURACY_HOURS = 4;
     /**
      * 准确_minutes
-    */
+     */
     public static final int ACCURACY_MINUTES = 5;
     /**
      * 准确_seconds
-    */
+     */
     public static final int ACCURACY_SECONDS = 6;
     /**
      * 准确_milliseconds
-    */
+     */
     public static final int ACCURACY_MILLISECONDS = 7;
     /**
      * 准确_milliseconds_forced
-    */
+     */
     public static final int ACCURACY_MILLISECONDS_FORCED = 8;
     /**
      * Milliseconds per seconde
@@ -111,15 +111,15 @@ public class DateUtils {
     public static final long MILLISECONDS_PER_DAY = 86400000;
     /**
      * Week
-    */
+     */
     public static final String WEEK = "week";
     /**
      * Week_day
-    */
+     */
     public static final int WEEK_DAY = 7;
     /**
      * 默认_zone_标识
-    */
+     */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
     /**
      * Hours per day.
@@ -183,23 +183,23 @@ public class DateUtils {
     private static final String YEAR = "year";
     /**
      * Month
-    */
+     */
     private static final String MONTH = "month";
     /**
      * DAY
-    */
+     */
     private static final String DAY = "day";
     /**
      * Hour
-    */
+     */
     private static final String HOUR = "hour";
     /**
      * Minute
-    */
+     */
     private static final String MINUTE = "minute";
     /**
      * Second
-    */
+     */
     private static final String SECOND = "second";
     /**
      * Monday 常量
@@ -231,14 +231,14 @@ public class DateUtils {
     private static final String SUNDAY = "SUNDAY";
     /**
      * 模式
-    */
+     */
     private static final Pattern PATTERN =
             Pattern.compile("([-+]?)P(?:([-+]?[0-9]+)D)?" +
                             "(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?",
                     Pattern.CASE_INSENSITIVE);
     /**
      * 日期_格式化
-    */
+     */
     private final static String[] DATE_FORMATS = {
             "yyyy-MM-dd'T'HH:mm:ss.SSS+08:00",
             "E M d H:m:s z yyyy",
@@ -276,7 +276,7 @@ public class DateUtils {
     };
     /**
      * 索引_not_found
-    */
+     */
     private static final int INDEX_NOT_FOUND = -1;
     /**
      * 将 ISO-8601 时长字符串（如 "PT5H30M"）解析为 {@link Duration}。
@@ -326,7 +326,7 @@ public class DateUtils {
      * @param date2 比较基准日期
      * @return date1 在 日期2 之后返回 true；任一参数为 空 返回 false
      */
-    public Boolean after(Date date1, Date date2) {
+    public static Boolean after(Date date1, Date date2) {
         if (null == date1 || null == date2) {
             return false;
         }
@@ -341,7 +341,7 @@ public class DateUtils {
      * @param date2 比较基准日期
      * @return date1 在 日期2 之前返回 true；任一参数为 空 返回 false
      */
-    public Boolean before(Date date1, Date date2) {
+    public static Boolean before(Date date1, Date date2) {
         if (null == date1 || null == date2) {
             return false;
         }
@@ -356,7 +356,7 @@ public class DateUtils {
      * @param date2 比较基准日期
      * @return 两日期相等返回 true；任一参数为 空 返回 false
      */
-    public Boolean equal(Date date1, Date date2) {
+    public static Boolean equal(Date date1, Date date2) {
         if (null == date1 || null == date2) {
             return false;
         }
@@ -371,13 +371,14 @@ public class DateUtils {
      * @param beforeOrAfter 偏移天数，负数表示之前，正数表示之后
      * @return 偏移后的日期
      */
-    public Date getDayOfBeforeOrAfter(Date date, int beforeOrAfter) {
+    public static Date getDayOfBeforeOrAfter(Date date, int beforeOrAfter) {
         if (null == date) {
             date = new Date();
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID);
-        localDateTime.plusDays(beforeOrAfter);
-        return toDate(localDateTime);
+        // LocalDateTime 不可变，plusDays(...) 的返回值必须接住，否则偏移会被丢弃
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
+                .plusDays(beforeOrAfter);
+        return toDate(localDateTime, DEFAULT_ZONE_ID);
     }
     /**
      * {日期}
@@ -385,7 +386,7 @@ public class DateUtils {
      * @param date the 日期
      * @return the 结果
      */
-    public Date getDayOfYearday(Date date) {
+    public static Date getDayOfYearday(Date date) {
         return getDayOfBeforeOrAfter(date, -1);
     }
     /**
@@ -394,7 +395,7 @@ public class DateUtils {
      * @param date 基准日期，为 空 时使用当前时间
      * @return 该月第一天的 日期（时间设为 00:00:00）
      */
-    public Date getFirstDayOfMonth(Date date) {
+    public static Date getFirstDayOfMonth(Date date) {
         if (null == date) {
             date = new Date();
         }
@@ -413,18 +414,19 @@ public class DateUtils {
      * @param date 基准日期，为 空 时使用当前时间
      * @return 该周第一天的 日期（时间设为 00:00:00）
      */
-    public Date getFirstDayOfWeek(Date date) {
+    public static Date getFirstDayOfWeek(Date date) {
         if (null == date) {
             date = new Date();
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID);
-        localDateTime.with(DayOfWeek.MONDAY)
+        // LocalDateTime 不可变，with(...) 的返回值必须接住，否则结果会被丢弃
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                 .withHour(0)
                 .withMinute(0)
                 .withSecond(0)
                 .with(ChronoField.MILLI_OF_SECOND, 0)
                 .withNano(0);
-        return DateUtils.toDate(localDateTime);
+        return toDate(localDateTime, DEFAULT_ZONE_ID);
     }
     /**
      * 获取指定日期当天的起始时刻（00:00:00.000）。
@@ -432,7 +434,7 @@ public class DateUtils {
      * @param date 基准日期，为 空 时返回 空
      * @return 当天起始时刻的 日期
      */
-    public Date getFirstTimeOfDay(Date date) {
+    public static Date getFirstTimeOfDay(Date date) {
         if (null == date) {
             return null;
         }
@@ -447,22 +449,24 @@ public class DateUtils {
         return toDate(localDateTime);
     }
     /**
-     * 获取指定日期对应月份的最后一天的结束时刻（23:59:59）。
+     * 获取指定日期对应月份的最后一天的结束时刻（23:59:59.999）。
      *
      * @param date 基准日期，为 空 时使用当前时间
-     * @return 该月最后一天的 日期（时间设为 23:59:59）
+     * @return 该月最后一天的 日期（时间设为 23:59:59.999）
      */
-    public Date getLastDayOfMonth(Date date) {
+    public static Date getLastDayOfMonth(Date date) {
         if (null == date) {
             date = new Date();
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID);
-        //                           23   59   59
-        localDateTime = localDateTime.with(TemporalAdjusters.lastDayOfMonth())
+        // 毫秒与纳秒一并归零/置满，否则会残留基准日期的毫秒部分
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
+                .with(TemporalAdjusters.lastDayOfMonth())
                 .withHour(23)
                 .withMinute(59)
-                .withSecond(59);
-        return toDate(localDateTime);
+                .withSecond(59)
+                .with(ChronoField.MILLI_OF_SECOND, 999)
+                .withNano(999_000_000);
+        return toDate(localDateTime, DEFAULT_ZONE_ID);
     }
     /**
      * 获取指定日期对应星期的最后一天（周日）的结束时刻（23:59:59.999）。
@@ -470,17 +474,18 @@ public class DateUtils {
      * @param date 基准日期，为 空 时使用当前时间
      * @return 该周最后一天的 日期
      */
-    public Date getLastDayOfWeek(Date date) {
+    public static Date getLastDayOfWeek(Date date) {
         if (null == date) {
             date = new Date();
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID);
-        localDateTime.with(DayOfWeek.SUNDAY)
+        // LocalDateTime 不可变，with(...) 的返回值必须接住，否则结果会被丢弃
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), DEFAULT_ZONE_ID)
+                .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
                 .withHour(23)
                 .withMinute(59)
                 .withSecond(59)
                 .with(ChronoField.MILLI_OF_SECOND, 999);
-        return DateUtils.toDate(localDateTime);
+        return toDate(localDateTime, DEFAULT_ZONE_ID);
     }
     /**
      * 获取指定日期当天的结束时刻（23:59:59.999）。
@@ -488,7 +493,7 @@ public class DateUtils {
      * @param date 基准日期，为 空 时返回 空
      * @return 当天结束时刻的 日期
      */
-    public Date getLastTimeOfDay(Date date) {
+    public static Date getLastTimeOfDay(Date date) {
         if (null == date) {
             return null;
         }
@@ -506,7 +511,7 @@ public class DateUtils {
      *
      * @return 当前星期的整数表示
      */
-    public int getWeek() {
+    public static int getWeek() {
         Date today = new Date();
         Calendar c = getInstance();
         c.setTime(today);
@@ -518,33 +523,43 @@ public class DateUtils {
      * @param date 基准日期
      * @return 星期的整数表示
      */
-    public int getWeek(Date date) {
+    public static int getWeek(Date date) {
         Calendar c = getInstance();
         c.setTime(date);
         return c.get(DAY_OF_WEEK) - 1;
     }
     /**
-     * 获取两个日期之间的所有日期（含起止），按时间升序排列。
+     * 获取两个日期之间的所有日期（含起止两天），按时间升序排列。
      *
-     * @param before 起始日期
-     * @param after  结束日期
-     * @return 包含起止日期的日期列表
+     * <p>返回的元素为每天的零点（00:00:00.000）；若起始日期本身正好是零点，
+     * 则直接复用调用方传入的 {@code Date} 实例，其余按 {@link #toDate(LocalDate)}
+     * 归一化。起始日期晚于结束日期时返回空列表。</p>
+     *
+     * @param before 起始日期，不允许为 null
+     * @param after  结束日期，不允许为 null
+     * @return 包含起止日期的日期列表（升序）；起止颠倒时返回空列表
+     * @throws IllegalArgumentException 任一参数为 null 时抛出
      */
     public static List<Date> asRange(Date before, Date after) {
-        List<Date> result = new ArrayList<>();
+        if (before == null || after == null) {
+            throw new IllegalArgumentException("起始日期与结束日期不能为空");
+        }
         LocalDate beforeLocalDate = toLocalDate(before);
         LocalDate afterLocalDate = toLocalDate(after);
+        if (beforeLocalDate.isAfter(afterLocalDate)) {
+            return new ArrayList<>(0);
+        }
+        List<Date> result = new ArrayList<>();
         long beforeEpochMilli = beforeLocalDate.atStartOfDay(DEFAULT_ZONE_ID).toInstant().toEpochMilli();
-        if (beforeEpochMilli == before.getTime()) {
-            result.add(before);
-            beforeLocalDate = beforeLocalDate.plusDays(1);
+        for (LocalDate day = beforeLocalDate; !day.isAfter(afterLocalDate); day = day.plusDays(1)) {
+            // 起始日若恰为零点则保留原实例，其余统一取当天零点
+            boolean isFirstDay = day.equals(beforeLocalDate);
+            result.add(isFirstDay && beforeEpochMilli == before.getTime()
+                    ? before
+                    : toDate(day, DEFAULT_ZONE_ID));
         }
-        result.add(toDate(afterLocalDate));
-        while (beforeLocalDate.isBefore(afterLocalDate)) {
-            result.add(toDate(beforeLocalDate));
-            beforeLocalDate = beforeLocalDate.plusDays(1);
-        }
-        result.sort((o1, o2) -> o1.after(o2) ? 1 : -1);
+        // Comparator 必须能返回 0，否则违反 TimSort 契约（大列表会抛 IllegalArgumentException）
+        result.sort(Comparator.comparingLong(Date::getTime));
         return result;
     }
     /**
