@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-spider-starter</artifactId>
+            <artifactId>utils-support-crawler-starter</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

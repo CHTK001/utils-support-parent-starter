@@ -2,9 +2,9 @@ package com.chua.playwright.support.spider;
 
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.spider.support.SpiderFetcher;
-import com.chua.spider.support.model.SpiderRequest;
-import com.chua.spider.support.model.SpiderResponse;
+import com.chua.crawler.support.SpiderFetcher;
+import com.chua.crawler.support.model.SpiderRequest;
+import com.chua.crawler.support.model.SpiderResponse;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;

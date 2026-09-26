@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-core-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-crawler-starter</artifactId>
+    <name>Utils Support Crawler SPI Starter</name>
+    <!--
+      2026-09-26 起本模块只承担一件事：抓取/解析的可插拔 SPI 与数据模型
+      （SpiderFetcher / SpiderParser / HttpFetcher / SpiderRequest / SpiderResponse 等）。
+
+      原先内嵌的整套爬虫平台（/spider/definitions、/spider/executions、/spider/proxy-pools
+      三个控制器共 16 个端点、3 个 Store、SpiderRunner 与 SpiderTimerService 定时调度器）
+      已整体下线，能力由 spring-api-support-collect-starter（/v2/collect/**）承接，
+      同时删除了 AutoConfiguration.imports，避免任何依赖本模块的应用被动注册重复端点。
+
+      【不要因为名字里带 spider 就删掉本模块】它仍被两个模块真实依赖：
+        · spring-api-support-collect-starter  —— CollectRequestExecutor 用 HttpFetcher 发起抓取
+        · utils-support-playwright-starter   —— PlaywrightFetcher/PlaywrightParser 实现同一套 SPI
+      抓取层不走 Spring 容器：HttpFetcher 由调用方直接 new，其它实现经 META-INF/services
+      的 ServiceProvider SPI 装配，因此本模块没有也不需要任何自动配置。
+
+      待办：模块名与包名 com.chua.spider.* 已名不符实，计划改为 utils-support-crawler-starter
+      与 com.chua.crawler.*。该重构涉及 29 个类与上述两个消费者，需在仓库改动提交、
+      工作区干净后进行，避免与并行改动抢写同一批文件。
+    -->
+    <description>抓取/解析 SPI 与数据模型（可插拔 Fetcher / Parser）。爬虫平台已下线，能力由 spring-api-support-collect-starter 承接；本模块仍被 collect 与 playwright-starter 依赖，不可删除。</description>
+
+    <properties>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.boot.version>3.2.0</spring.boot.version>
+        <!-- 父 pom 默认 spring 7.0.8 与 spring-boot 3.2 不兼容，强制锁定 spring 6.1.x -->
+        <spring.version>6.1.14</spring.version>
+        <!-- JDK 25 编译的 class 文件版本 69，Spring 6.1 ASM 不识别；
+             目标字节码锁定到 21，兼容 JDK 17-25 运行 -->
+        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>21</source>
+                    <target>21</target>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- 核心依赖 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- HTML 解析与链接提取（运行时调用 Jsoup.parse） -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- HTTP 抓取备选（核心实现使用 JDK HttpClient），未在代码中直接 import -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JSON 序列化（运行时 new ObjectMapper） -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring Boot 自动配置（运行时反射 @AutoConfiguration/@ConditionalOnClass） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring Web 注解（运行时 MVC 反射 @RestController） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Spring Context（运行时反射 @Configuration/@Bean） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- 完整 Spring Boot starter（保证 spring-core 版本一致） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Jakarta 注解（@PostConstruct / @PreDestroy 运行时反射） -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>
