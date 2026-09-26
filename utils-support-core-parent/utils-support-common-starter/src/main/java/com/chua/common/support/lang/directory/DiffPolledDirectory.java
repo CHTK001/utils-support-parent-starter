@@ -57,9 +57,9 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     protected final String listenPath;
 
     /**
-     * 事件监听器列表
+     * 事件监听器与运行状态的公共支撑件
      */
-    private final List<PolledListener> listeners = new ArrayList<>();
+    protected final PolledDirectorySupport support = new PolledDirectorySupport(getClass().getSimpleName());
 
     /**
      * 环境配置
@@ -75,26 +75,41 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
         this.listenPath = listenPath;
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(PolledListener listener) {
-        listeners.add(listener);
+        support.addListener(listener);
     }
 
-    @Override
+    /**
+     * 移除Listener
+     *
+     * @param listener 监听器
+     * @return 移除前该监听器是否已注册
+     */
+    public boolean removeListener(PolledListener listener) {
+        return support.removeListener(listener);
+    }
+
     /**
      * 开始
-    */
+     */
+    @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
+        // 重复 start 会在同一数据源上叠加多个轮询循环，第二次起静默忽略
+        if (!support.markRunning()) {
+            log.warn("轮询目录已处于运行状态，忽略重复启动: {}", listenPath);
+            return;
+        }
         this.environment = environment;
 
         // 初始化缓存快照
         List<T> items = listAndModified(listenPath);
         if (items != null) {
             for (T item : items) {
-                cache.put(getFileName(item), getModified(item));
+                cache.put(getFileName(item), normalized(getModified(item)));
             }
         }
 
@@ -105,12 +120,20 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
         executor.start();
     }
 
-    @Override
     /**
      * Upgrade
-    */
+     */
+    @Override
     public void upgrade() {
-        List<T> current = listAndModified(listenPath);
+        List<T> current;
+        try {
+            current = listAndModified(listenPath);
+        } catch (Exception e) {
+            // 拉取失败不等于条目全部消失，直接当本轮无变更，避免把远端抖动误报成批量删除
+            log.error("拉取快照失败: {}", listenPath, e);
+            support.fireError(listenPath, null, e);
+            return;
+        }
         if (current == null) {
             return;
         }
@@ -119,59 +142,64 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
         for (T item : current) {
             String name = getFileName(item);
             curMap.put(name, item);
+            // 子类的 getModified 允许返回 null（如时间戳不可得），统一归一为 0
+            Long modified = normalized(getModified(item));
             Long prev = cache.get(name);
             if (prev == null) {
-                cache.put(name, getModified(item));
-                fire(WatcherEvent.CREATE, name);
-            } else if (!getModified(item).equals(prev)) {
-                cache.put(name, getModified(item));
-                fire(WatcherEvent.MODIFY, name);
+                cache.put(name, modified);
+                support.fire(listenPath, WatcherEvent.CREATE, name, environment);
+            } else if (!modified.equals(prev)) {
+                cache.put(name, modified);
+                support.fire(listenPath, WatcherEvent.MODIFY, name, environment);
             }
         }
 
-        for (String name : cache.keySet()) {
+        // 快照 key 集合，避免在遍历 cache 时修改 cache
+        for (String name : new ArrayList<>(cache.keySet())) {
             if (!curMap.containsKey(name)) {
                 cache.remove(name);
-                fire(WatcherEvent.DELETE, name);
+                support.fire(listenPath, WatcherEvent.DELETE, name, environment);
             }
         }
     }
 
     /**
-     * 向所有注册的监听器分发事件。
-     *
-     * @param event    事件类型
-     * @param fileName 触发事件的文件名
+     * 是否处于运行中
      */
-    private void fire(WatcherEvent event, String fileName) {
-        EventObserver observer = EventObserver.builder()
-                .currentPath(listenPath)
-                .triggerFile(fileName)
-                .eventType(event)
-                .build();
-
-        for (PolledListener l : listeners) {
-            try {
-                switch (event) {
-                    case CREATE -> l.onCreate(event, observer);
-                    case MODIFY -> l.onModify(event, observer);
-                    case DELETE -> l.onDelete(event, observer);
-                    case OVERFLOW -> l.onOverflow(event, observer);
-                    default -> throw new IllegalArgumentException("未知事件类型: " + event);
-                }
-            } catch (Exception e) {
-                log.error("监听器分发异常: {}", event, e);
-            }
-        }
+    @Override
+    public boolean isRunning() {
+        return support.isRunning();
     }
 
+    /**
+     * 停止
+     */
     @Override
+    public void stop() {
+        close();
+    }
+
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
+        support.markStopped();
         cache.clear();
-        listeners.clear();
+        support.clearListeners();
+    }
+
+    /**
+     * 归一化修改时间戳，把子类返回的 {@code null} 收敛为 {@code 0L}。
+     *
+     * <p>{@code ConcurrentHashMap} 不接受 null 值，且 {@code getModified(item).equals(prev)}
+     * 在时间戳不可得时抛 NPE，导致整轮轮询中断、后续条目全部漏报。</p>
+     *
+     * @param modified 子类返回的修改时间戳
+     * @return 非空的时间戳
+     */
+    private static Long normalized(Long modified) {
+        return modified == null ? 0L : modified;
     }
 
     /**

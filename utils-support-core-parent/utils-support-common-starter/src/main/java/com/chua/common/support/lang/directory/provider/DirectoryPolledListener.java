@@ -117,10 +117,10 @@ public class DirectoryPolledListener implements PolledListener {
         return this;
     }
 
-    @Override
     /**
      * On创建
-    */
+     */
+    @Override
     public void onCreate(WatcherEvent event, EventObserver observer) {
         if (logEnabled) {
             log.info("创建: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
@@ -130,10 +130,10 @@ public class DirectoryPolledListener implements PolledListener {
         }
     }
 
-    @Override
     /**
      * OnModify
-    */
+     */
+    @Override
     public void onModify(WatcherEvent event, EventObserver observer) {
         if (logEnabled) {
             log.info("修改: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
@@ -143,10 +143,10 @@ public class DirectoryPolledListener implements PolledListener {
         }
     }
 
-    @Override
     /**
      * On删除
-    */
+     */
+    @Override
     public void onDelete(WatcherEvent event, EventObserver observer) {
         if (logEnabled) {
             log.info("删除: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());
@@ -156,10 +156,10 @@ public class DirectoryPolledListener implements PolledListener {
         }
     }
 
-    @Override
     /**
      * OnOverflow
-    */
+     */
+    @Override
     public void onOverflow(WatcherEvent event, EventObserver observer) {
         if (logEnabled) {
             log.warn("溢出: {}/{}", observer.getCurrentPath(), observer.getTriggerFile());

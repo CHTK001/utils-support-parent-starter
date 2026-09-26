@@ -33,11 +33,10 @@ public class EventObserver {
 
     /**
      * 事件发生时间戳，默认当前时间
+     *
+     * 时间戳
      */
     @Builder.Default
-    /**
-     * 时间戳
-    */
     private LocalDateTime timestamp = LocalDateTime.now();
 
     /**
@@ -52,11 +51,10 @@ public class EventObserver {
 
     /**
      * 是否为目录事件
+     *
+     * Directory
      */
     @Builder.Default
-    /**
-     * Directory
-    */
     private boolean directory = false;
 
     /**

@@ -58,10 +58,10 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor("DirPoller");
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -91,10 +91,10 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
         log.info("虚拟线程轮询已启动, 间隔={} {}", environment.getPollingInterval(), environment.getTimeUnit());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         running.set(false);
         if (executor != null) {
