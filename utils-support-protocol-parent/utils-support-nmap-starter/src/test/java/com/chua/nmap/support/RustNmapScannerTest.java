@@ -97,14 +97,16 @@ class RustNmapScannerTest {
     }
 
     /**
-     * detectOsgracefulwhennotloaded。
+     * detectOs在Rust侧未实现时显式拒绝。
      */
     @Test
-    @DisplayName("动态库未加载时 detectOs 返回 OsInfo 不抛异常")
-    void detectOs_graceful_when_not_loaded() {
+    @DisplayName("动态库未加载时 detectOs 显式拒绝而非返回桩结果")
+    void detectOs_refuses_when_not_loaded() {
         Assumptions.assumeFalse(NATIVE_LOADED, "跳过：动态库已加载");
-        NmapScanner.OsInfo os = scanner.detectOs("127.0.0.1");
-        assertNotNull(os);
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
+                () -> scanner.detectOs("127.0.0.1"));
+        assertTrue(e.getMessage().contains("OS 识别尚未实现"),
+                "拒绝原因必须点明 OS 识别未实现，实际为：" + e.getMessage());
     }
 
     // ── 集成测试（需要动态库）────────────────────────────────────────────────
@@ -218,14 +220,15 @@ class RustNmapScannerTest {
     }
 
     /**
-     * detectos编号exception。
+     * detectOs在Rust侧为unknown桩时必须拒绝输出结论。
      */
     @Test
-    @DisplayName("detectOs 不抛异常")
-    void detect_os_no_exception() {
+    @DisplayName("detectOs 拒绝输出 unknown 桩结论")
+    void detect_os_refuses_stub_result() {
         Assumptions.assumeTrue(NATIVE_LOADED, "跳过：动态库未加载");
-        NmapScanner.OsInfo os = scanner.detectOs("127.0.0.1");
-        assertNotNull(os);
-        log.info("[RustNmap] OS检测: name={} accuracy={}", os.getName(), os.getAccuracy());
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class,
+                () -> scanner.detectOs("127.0.0.1"));
+        assertTrue(e.getMessage().contains("OS 识别尚未实现"),
+                "拒绝原因必须点明 OS 识别未实现，实际为：" + e.getMessage());
     }
 }

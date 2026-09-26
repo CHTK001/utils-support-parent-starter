@@ -65,8 +65,9 @@ import java.util.regex.Pattern;
  * </p>
  * <p>
  * SPI 键 {@code "parquet"}；使用前需 {@code addDataSource(name, baseDir)} 指定目录，
- * 未初始化目录或 {@code close()} 之后调用读写会直接抛出 {@link IllegalStateException}，
- * 重新调用 {@code addDataSource} 即重新开启引擎。
+ * 未初始化目录或 {@code close()} 之后调用读写会直接抛出 {@link IllegalStateException}。
+ * {@code close()} 是终态：父类 {@code AbstractEngine} 的关闭标记不可复位，
+ * 因此关闭后的引擎无法复活，需要重新构造 {@code ParquetEngine} 实例。
  * </p>
  *
  * @author CH
@@ -172,7 +173,10 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 初始化并校验基础目录；校验通过后才赋值，避免留下不可用的半初始化状态。
-     * <p>重新注册目录同时视为重新开启引擎，复位 {@code close()} 设置的关闭标记。</p>
+     *
+     * <p>此处复位本类的 {@code closed} 标记，仅为让本类校验给出准确提示；
+     * 父类 {@code AbstractEngine} 的关闭标记是终态且不可复位，因此重新注册
+     * 并不能让已 {@code close()} 的引擎复活。</p>
      *
      * @param dirPath dir路径
      */
@@ -210,7 +214,7 @@ public class ParquetEngine extends AbstractEngine {
      */
     private File requireBaseDir() {
         if (closed) {
-            throw new IllegalStateException("ParquetEngine 已关闭，如需继续使用请重新调用 addDataSource");
+            throw new IllegalStateException("ParquetEngine 已关闭，如需继续使用请重新构造 ParquetEngine");
         }
         String dir = baseDir;
         if (dir == null) {

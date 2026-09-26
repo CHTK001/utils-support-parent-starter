@@ -204,9 +204,6 @@ public interface PipelineNode {
      *     })
      *     .taskEnd()
      * }</pre>
-     *     })
-     * .任务结束()
-     * }
      *
      * <p>默认返回空集合，表示无数据依赖。通过 Definition API 的 {@code .unit()} 方法设置。</p>
      *

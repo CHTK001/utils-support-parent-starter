@@ -28,10 +28,7 @@ import java.util.Set;
  *     }
  *     return null;  // 按默认顺序执行
  * })
- * }</pre>  }
- * 返回 空;  // 按默认顺序执行
- * })
- * }
+ * }</pre>
  *
  * <p><strong>动态路由：</strong></p>
  * <pre>{@code
@@ -40,9 +37,7 @@ import java.util.Set;
  *     ctx.setCurrentData(result);
  *     return "validate";  // 跳转到 validate 节点
  * })
- * }</pre>     return "validate";  // 跳转到 validate 节点
- * })
- * }
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42

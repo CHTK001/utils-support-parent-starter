@@ -847,12 +847,24 @@ public final class RuleAsmCompiler implements RuleAssembler.ExpressionCompiler {
          * 典型场景：{@code o.amount > 500} 中 {@code amount} 为 {@code long}，
          * 字面量 500 以 int 入栈，此处补 {@code I2L} 即可精确转换。</p>
          *
-         * @param from 现有类型
-         * @param to   目标类型
-         * @param left 左操作数描述，用于错误信息
+         * <p><b>boolean 与 int 不需要任何转换指令。</b>
+         * 操作栈上的 {@code boolean} 本就以 int 0/1 表示（{@code JVM} 规范），
+         * 因此 {@code INT ↔ BOOLEAN} 是纯粹的 no-op，只需放行。
+         * 这让 {@code o.vip == 1} / {@code o.vip == 0} / {@code o.vip != 0}
+         * 可用，与 {@link #coerceReference} 对 {@code BOOLEAN -> intValue()}
+         * 的既有处理保持一致。</p>
+         *
+         * @param from  右操作数现有类型（栈顶）
+         * @param to    左操作数类型，即统一后的目标类型
+         * @param opTag 用于错误信息的运算符描述
          */
-        private void promoteRight(Kind from, Kind to, String left) {
+        private void promoteRight(Kind from, Kind to, String opTag) {
             if (from == to) {
+                return;
+            }
+            // 栈上表示相同，无需发射指令
+            if ((from == Kind.INT && to == Kind.BOOLEAN)
+                    || (from == Kind.BOOLEAN && to == Kind.INT)) {
                 return;
             }
             if (from == Kind.INT && to == Kind.LONG) {
@@ -862,8 +874,10 @@ public final class RuleAsmCompiler implements RuleAssembler.ExpressionCompiler {
             } else if (from == Kind.LONG && to == Kind.DOUBLE) {
                 mv.visitInsn(Opcodes.L2D);
             } else {
-                throw error("不支持的类型组合：左值 " + left + "(" + from + ")"
-                        + " 与右值 " + from + " → " + to
+                // 修正：此前把 opTag 当成「左值」打印、并把 from 打印了两次，
+                // 报错信息完全指不到真正的操作数类型。
+                throw error("运算符 '" + opTag + "' 不支持的类型组合：左值 " + to
+                        + " 与右值 " + from
                         + "；请显式使用同类型字面量（如 500L / 1.5）");
             }
         }
