@@ -21,12 +21,14 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Rust JNI 桥（运行时必须，JNI 在类加载阶段绑定 native 方法） -->
+        <!-- Rust JNI 桥：绑定类 VideoProcessorBridge 已迁入 native 模块，
+             故必须是 compile scope（原为 runtime，那时类是本模块的源文件），
+             否则编译期看不到 com.chua.video.processor.support.bridge 包 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-video-processor</artifactId>
             <version>${project.version}</version>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
         <!-- FFmpeg Rust 备用（代码未直接 import，可选） -->
         <dependency>
