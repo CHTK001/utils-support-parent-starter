@@ -22,7 +22,7 @@ utils-support-flow-starter
 └── spring-boot-starter               # autoconfigure / web
 ```
 
-可选：依赖 `utils-support-spider-starter` 时，自动注册 `spider` 节点类型。
+可选：依赖 `utils-support-crawler-starter` 时，自动注册 `spider` 节点类型。
 
 ## 快速开始
 
