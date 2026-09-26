@@ -10,9 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,7 +32,7 @@ public final class FailoverTemplate {
 
     /**
      * 创建 FailoverTemplate 实例
-    */
+     */
     private FailoverTemplate() {
     }
 
@@ -51,6 +51,14 @@ public final class FailoverTemplate {
      * 已开始流式输出后，等待整段回复完成的最长时间（略大于底层客户端的 90s 超时）。
      */
     private static final long COMPLETION_WAIT_SECONDS = 100L;
+
+    /**
+     * 流式竞速线程池的并发上限。
+     *
+     * <p>候选客户端数量由上游选择器给出，实际并发不会超过候选数；
+     * 设置上限可避免候选集合异常膨胀时线程数无界增长。
+     */
+    private static final int MAX_STREAM_CANDIDATES = 64;
 
     /**
      * 执行带故障转移的同步对话
@@ -139,11 +147,18 @@ public final class FailoverTemplate {
         Exception lastError = null;
 
         // 每个候选客户端在独立线程执行，主线程只等待“首包/错误”，从而能对“慢但不报错”的密钥快速切换
-        ExecutorService pool = Executors.newCachedThreadPool(r -> {
-            Thread t = new Thread(r, "failover-stream");
-            t.setDaemon(true);
-            return t;
-        });
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                0,
+                MAX_STREAM_CANDIDATES,
+                30L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                r -> {
+                    Thread t = new Thread(r, "failover-stream");
+                    t.setDaemon(true);
+                    return t;
+                },
+                new ThreadPoolExecutor.CallerRunsPolicy());
         try {
             while (!remaining.isEmpty()) {
                 final RouterStrategy.WeightedClient wc;

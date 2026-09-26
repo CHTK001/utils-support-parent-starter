@@ -24,56 +24,56 @@ public class InvocationContext implements ServerRequest, ServerResponse {
 
     /**
      * headers
-    */
+     */
     private final Map<String, String> headers = new LinkedHashMap<>();
     /**
      * queryParams
-    */
+     */
     private final Map<String, String> queryParams = new LinkedHashMap<>();
     /**
      * attributes
-    */
+     */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
     /**
      * 请求体
-    */
+     */
     private byte[] body;
     /**
      * 路径
-    */
+     */
     private String path;
     /**
      * 结果
-    */
+     */
     private Object result;
     /**
      * 状态代码
-    */
+     */
     private int statusCode = 200;
     /**
      * Ended
-    */
+     */
     private boolean ended;
 
     /**
      * 获取Path
-    */
+     */
     public String getPath() { return path; }
     /**
      * 设置Path
-    */
+     */
     public void setPath(String path) { this.path = path; }
     /**
      * 获取Result
-    */
+     */
     public Object getResult() { return result; }
     /**
      * 添加Header
-    */
+     */
     public void addHeader(String name, String value) { if (name != null && value != null) headers.put(name, value); }
     /**
      * 添加Headers
-    */
+     */
     public void addHeaders(Map<String, String> h) { if (h != null) headers.putAll(h); }
 
     @Override public String getUri() { return path; }

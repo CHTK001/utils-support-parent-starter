@@ -48,11 +48,10 @@ public class Discovery implements Serializable {
 
     /**
      * 通信协议 (默认: http)
+     *
+     * 协议
      */
     @Builder.Default
-    /**
-     * 协议
-    */
     private String protocol = "http";
 
     /**
@@ -67,11 +66,10 @@ public class Discovery implements Serializable {
 
     /**
      * 主机地址 (默认: 127.0.0.1)
-     */
-    @Builder.Default
-    /**
+     *
      * 主机名
      */
+    @Builder.Default
     private String host = "127.0.0.1";
 
     /**
@@ -92,11 +90,10 @@ public class Discovery implements Serializable {
 
     /**
      * 运行环境 (默认: prod)
+     *
+     * ENV
      */
     @Builder.Default
-    /**
-     * ENV
-    */
     private String env = "prod";
 
     /**

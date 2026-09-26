@@ -1,8 +1,12 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.lang.datasource.engine.ddl.DialectAware;
+import com.chua.common.support.lang.datasource.engine.ddl.DslManager;
+import com.chua.common.support.lang.datasource.engine.ddl.EngineAware;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -12,9 +16,10 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrappe
 import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.datasource.support.meta.DefaultMetaData;
-import com.chua.datasource.support.ddl.DslManager;
+import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserManager;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.datasource.support.annotation.TableName;
@@ -27,7 +32,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * 抽象引擎基类，提供默认的 Engine 接口实现。
@@ -64,18 +71,31 @@ public abstract class AbstractEngine implements Engine {
     protected String defaultDataSourceName;
 
     /**
+     * 引擎关闭标记，保证 {@link #close()} 幂等。
+     */
+    private final java.util.concurrent.atomic.AtomicBoolean closed = new java.util.concurrent.atomic.AtomicBoolean(false);
+
+    /**
+     * DDL 管理器解析结果缓存，首次解析后持有（含已注入的上下文参数）。
+     */
+    private volatile DslManager dslManagerCache;
+
+    /**
      * 引擎拦截器扩展缓存，首次访问时通过 SPI 加载。
      */
     private volatile List<EngineInterceptor> interceptorCache;
 
+    @Override
     /**
      * 获取引擎拦截器扩展列表（首次调用后缓存）。
      * <p>通过 SPI 查找 {@code engine-interceptor} 扩展点实现，
-     * 结果按 order 降序排列；无注册实现时返回空列表。</p>
+     * 结果按 order 降序排列；无注册实现时返回空列表。
+     * <p>本方法在每条语句的 before/after/error 三个环节都会被调用，
+     * 因此结果必须缓存，否则每次执行都要重扫 SPI 注册表。</p>
      *
-     * @return 拦截器列表（非 null）
+     * @return 拦截器列表（非 null，只读）
      */
-    protected List<EngineInterceptor> interceptors() {
+    public List<EngineInterceptor> interceptors() {
         if (interceptorCache == null) {
             synchronized (this) {
                 if (interceptorCache == null) {
@@ -122,6 +142,7 @@ public abstract class AbstractEngine implements Engine {
      * @return 添加数据源的结果
      */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
+        ensureOpen("添加数据源 " + name);
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
@@ -143,11 +164,24 @@ public abstract class AbstractEngine implements Engine {
      * 存储
     */
     public <T> Engine store(String name, List<T> data) {
+        ensureOpen("写入内存表 " + name);
         dataStores.put(name, new ArrayList<>(data));
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
         }
         return this;
+    }
+
+    /**
+     * 断言引擎仍处于可用状态。
+     *
+     * @param action 触发操作描述，用于异常定位
+     * @throws IllegalStateException 引擎已关闭时抛出
+     */
+    protected void ensureOpen(String action) {
+        if (closed.get()) {
+            throw new IllegalStateException("引擎已关闭，无法执行" + action + ": " + getClass().getSimpleName());
+        }
     }
 
     @Override
@@ -170,18 +204,22 @@ public abstract class AbstractEngine implements Engine {
     @SuppressWarnings("unchecked")
     /**
      * 获取数据源
+     * <p>名称为 null 时返回 null：底层为 {@link ConcurrentHashMap}，
+     * 以 null 键查询会抛 NPE，而"未设置默认数据源"是正常状态，不该让无参调用崩溃。</p>
      *
-     * @param n n
-     * @return 获取数据源的结果
+     * @param n 数据源名称
+     * @return 数据源封装实例，不存在时返回 null
      */
     public <T> EngineDataSource<T> getDataSource(String n) {
+        if (n == null) {
+            return null;
+        }
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     /**
-     * 获取数据源
+     * 获取默认数据源
      *
      * @return 获取数据源的结果
      */
@@ -191,13 +229,55 @@ public abstract class AbstractEngine implements Engine {
 
     @Override
     /**
+     * 列出全部已注册的数据源名称
+     *
+     * @return 数据源名称集合（不可变）
+     */
+    public Set<String> dataSourceNames() {
+        return Set.copyOf(dataSources.keySet());
+    }
+
+    @Override
+    /**
+     * 摘除并关闭指定数据源
+     * <p>被摘除的若是默认数据源，默认数据源名同时置空，避免后续无参调用指向已释放资源。
+     * 关闭失败只记录日志并继续摘除：调用方的意图是"移除"，不能因底层 close 异常而留下悬挂引用。</p>
+     *
+     * @param name 数据源名称
+     * @return this
+     */
+    public Engine removeDataSource(String name) {
+        if (name == null) {
+            return this;
+        }
+        EngineDataSource<Object> removed = dataSources.remove(name);
+        if (removed == null) {
+            return this;
+        }
+        if (name.equals(defaultDataSourceName)) {
+            defaultDataSourceName = null;
+        }
+        try {
+            removed.close();
+        } catch (Exception e) {
+            // 摘除必须生效，关闭异常只留证据
+            log.warn("数据源关闭失败 name={}: {}", name, e.getMessage(), e);
+        }
+        return this;
+    }
+
+    @Override
+    /**
      * 获取Dialect
-     * <p>从已注册的数据源中获取方言，数据源不存在或未设置方言时返回 null。</p>
+     * <p>数据源不存在、名称为 null 或未设置方言时返回 null。</p>
      *
      * @param n 数据源名称
      * @return 方言实例，无匹配时返回 null
      */
     public Dialect getDialect(String n) {
+        if (n == null) {
+            return null;
+        }
         EngineDataSource<?> ds = dataSources.get(n);
         return ds != null ? ds.getDialect() : null;
     }
@@ -230,11 +310,26 @@ public abstract class AbstractEngine implements Engine {
 
     @Override
     /**
+     * 是否已关闭
+     *
+     * @return 已关闭返回 true
+     */
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    @Override
+    /**
      * 关闭引擎，释放所有已注册数据源的底层资源。
      *
-     * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
+     * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。
+     * 整体幂等：重复调用直接返回，不会二次释放；关闭过程中单个数据源失败
+     * 只记录日志，不阻断其余数据源的释放。</p>
      */
     public void close() {
+        if (!closed.compareAndSet(false, true)) {
+            return;
+        }
         for (Map.Entry<String, EngineDataSource<Object>> entry : dataSources.entrySet()) {
             try {
                 entry.getValue().close();
@@ -245,6 +340,7 @@ public abstract class AbstractEngine implements Engine {
         }
         dataStores.clear();
         dataSources.clear();
+        defaultDataSourceName = null;
     }
 
     @Override
@@ -335,22 +431,7 @@ public abstract class AbstractEngine implements Engine {
         var sql = wrapper.buildSql();
         String ql = sql.whereClause();
         Object[] queryParams = sql.params().toArray();
-        List<EngineInterceptor> interceptorList = interceptors();
-        for (EngineInterceptor interceptor : interceptorList) {
-            interceptor.beforeQuery(ql, queryParams);
-        }
-        try {
-            List<T> result = executeQueryFull(sql);
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.afterQuery(ql, queryParams, result);
-            }
-            return result;
-        } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.onError(ql, queryParams, re);
-            }
-            throw re;
-        }
+        return interceptQuery(ql, queryParams, () -> executeQueryFull(sql));
     }
 
     /**
@@ -563,22 +644,7 @@ public abstract class AbstractEngine implements Engine {
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
-        List<EngineInterceptor> interceptorList = interceptors();
-        for (EngineInterceptor interceptor : interceptorList) {
-            interceptor.beforeUpdate(ql, params);
-        }
-        try {
-            int affected = executeUpdateInMemory(sql);
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.afterUpdate(ql, params, affected);
-            }
-            return affected;
-        } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.onError(ql, params, re);
-            }
-            throw re;
-        }
+        return interceptUpdate(ql, params, () -> executeUpdateInMemory(sql));
     }
 
     /**
@@ -593,22 +659,7 @@ public abstract class AbstractEngine implements Engine {
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
-        List<EngineInterceptor> interceptorList = interceptors();
-        for (EngineInterceptor interceptor : interceptorList) {
-            interceptor.beforeUpdate(ql, params);
-        }
-        try {
-            int affected = executeDeleteInMemory(sql);
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.afterUpdate(ql, params, affected);
-            }
-            return affected;
-        } catch (RuntimeException re) {
-            for (EngineInterceptor interceptor : interceptorList) {
-                interceptor.onError(ql, params, re);
-            }
-            throw re;
-        }
+        return interceptUpdate(ql, params, () -> executeDeleteInMemory(sql));
     }
 
     @SuppressWarnings("unchecked")
@@ -808,17 +859,301 @@ public abstract class AbstractEngine implements Engine {
         return sb.toString();
     }
 
+    /* ==================== 插入（渲染 INSERT → 交由引擎语句通道执行） ==================== */
+
+    @Override
+    /**
+     * 插入单个实体
+     *
+     * @param entityClass 实体类类型
+     * @param entity 待插入实体
+     * @param <T> 实体类型
+     * @return 受影响行数
+     */
+    public <T> int insert(Class<T> entityClass, T entity) {
+        if (entityClass == null) {
+            throw new IllegalArgumentException("实体类不能为空");
+        }
+        if (entity == null) {
+            throw new IllegalArgumentException("待插入实体不能为空");
+        }
+        ensureOpen("插入 " + getTableName(entityClass));
+        if (useMemoryChannel(entityClass)) {
+            mutableMemoryRows(entityClass).add(entity);
+            afterMemoryInsert(entityClass, 1);
+            return 1;
+        }
+        return executeInsert(entityClass, List.of(entityRow(entity)));
+    }
+
+    @Override
+    /**
+     * 批量插入实体
+     * <p>有 JDBC 执行器的引擎渲染为单条多行
+     * {@code INSERT INTO t (...) VALUES (?, ?), (?, ?)}，一次网络往返完成；
+     * 无执行器的引擎直接追加实体实例到内存表。</p>
+     *
+     * @param entityClass 实体类类型
+     * @param entities 待插入实体列表
+     * @param <T> 实体类型
+     * @return 受影响行数合计
+     */
+    public <T> int insertBatch(Class<T> entityClass, List<T> entities) {
+        if (entityClass == null) {
+            throw new IllegalArgumentException("实体类不能为空");
+        }
+        if (entities == null || entities.isEmpty()) {
+            return 0;
+        }
+        ensureOpen("批量插入 " + getTableName(entityClass));
+        List<Map<String, Object>> rows = new ArrayList<>(entities.size());
+        for (T entity : entities) {
+            if (entity == null) {
+                throw new IllegalArgumentException("待插入实体列表中存在 null 元素");
+            }
+            rows.add(entityRow(entity));
+        }
+        if (useMemoryChannel(entityClass)) {
+            List<Object> target = mutableMemoryRows(entityClass);
+            for (T entity : entities) {
+                target.add(entity);
+            }
+            afterMemoryInsert(entityClass, entities.size());
+            return entities.size();
+        }
+        return executeInsert(entityClass, rows);
+    }
+
+    /**
+     * 判断本次插入是否走内存通道（直接追加实体实例）而非渲染 INSERT 语句。
+     *
+     * <p>判定规则：有 JDBC 执行器时一律走 SQL，交由数据库落库；
+     * 无执行器（内存/文件引擎）时看目标表既有行的类型——
+     * 空表或已存实体对象才允许直接追加实体实例；
+     * 既有行是映射（常见于先 {@code store} 映射再原生 INSERT）时必须走 SQL 通道，
+     * 否则同一张表会混有两种行类型，Lambda 条件只能匹配到其中一种、静默漏行。</p>
+     *
+     * @param entityClass 实体类类型
+     * @return true 表示走内存通道
+     */
+    private boolean useMemoryChannel(Class<?> entityClass) {
+        if (getExecutor() != null) {
+            return false;
+        }
+        List<?> rows = dataStores.get(getTableName(entityClass));
+        if (rows == null || rows.isEmpty()) {
+            return true;
+        }
+        Object first = rows.getFirst();
+        return first != null && !(first instanceof Map);
+    }
+
+    /**
+     * 获取实体对应内存表的可变行引用，表不存在时按实体表名挂载空表。
+     *
+     * @param entityClass 实体类类型
+     * @return 可变行引用列表
+     */
+    @SuppressWarnings("unchecked")
+    protected List<Object> mutableMemoryRows(Class<?> entityClass) {
+        String table = getTableName(entityClass);
+        return (List<Object>) dataStores.computeIfAbsent(table, k -> new ArrayList<>());
+    }
+
+    /**
+     * 内存通道插入完成后的收尾钩子，默认无操作。
+     * <p>文件引擎据此按 autopersist 配置把新增数据写回源文件。</p>
+     *
+     * @param entityClass 实体类类型
+     * @param affected    本次插入行数
+     */
+    protected void afterMemoryInsert(Class<?> entityClass, int affected) {
+    }
+
+    /**
+     * 把实体摊平为 列名 → 列值 的有序映射，列序按声明顺序（父类字段在前）。
+     *
+     * @param entity 实体实例
+     * @return 列值映射（不可为 null，按声明顺序排列）
+     */
+    private Map<String, Object> entityRow(Object entity) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        for (java.lang.reflect.Field field : ReflectUtils.getPersistentFields(entity.getClass())) {
+            row.put(SqlName.checkSimple(field.getName(), "列名"), MethodCache.getValue(entity, field.getName()));
+        }
+        if (row.isEmpty()) {
+            throw new IllegalArgumentException("实体无可持久化字段: " + entity.getClass().getName());
+        }
+        return row;
+    }
+
+    /**
+     * 渲染并执行多行 INSERT 语句。
+     * <p>列清单取所有行键的并集（首行列序优先，后续行新增列追加），
+     * 保证多行 {@code VALUES} 元数一致；值全部以 {@code ?} 占位符绑定，不做字面量内联。
+     * 表名与列名均经 {@link SqlName} 白名单校验后才参与拼接。</p>
+     *
+     * @param entityClass 实体类类型，用于解析目标表名
+     * @param rows 行数据（列名 → 列值），至少一行
+     * @return 受影响行数
+     */
+    private int executeInsert(Class<?> entityClass, List<Map<String, Object>> rows) {
+        String table = SqlName.check(resolveTableName(entityClass), "表名");
+        List<String> columns = new ArrayList<>(rows.getFirst().keySet());
+        for (Map<String, Object> row : rows) {
+            for (String column : row.keySet()) {
+                if (!columns.contains(column)) {
+                    columns.add(column);
+                }
+            }
+        }
+
+        StringBuilder values = new StringBuilder();
+        List<Object> params = new ArrayList<>(rows.size() * columns.size());
+        for (int i = 0; i < rows.size(); i++) {
+            if (i > 0) {
+                values.append(", ");
+            }
+            values.append('(');
+            for (int j = 0; j < columns.size(); j++) {
+                if (j > 0) {
+                    values.append(", ");
+                }
+                values.append('?');
+                params.add(rows.get(i).get(columns.get(j)));
+            }
+            values.append(')');
+        }
+        return executeSql("INSERT INTO " + table + " (" + String.join(", ", columns)
+                + ") VALUES " + values, params.toArray());
+    }
+
     /* ==================== 能力入口（与 meta() 同模式） ==================== */
 
     /**
      * 获取 DDL 管理器入口（与 meta() 同模式）。
-     * <p>默认实现抛出 UnsupportedOperationException，由具备
-     * DDL 管理能力的引擎子类或 SPI 环境覆盖。</p>
      *
-     * @return DdlManager 实例
+     * <p>通过 SPI 解析，调用方无需手工 {@code new} 实现类：</p>
+     * <ol>
+     *   <li>取默认数据源方言协议名作为扩展键（如 {@code mysql}）查找</li>
+     *   <li>未命中时回退到通用别名 {@link DslManager#DEFAULT_ALIAS}</li>
+     * </ol>
+     * <p>解析成功后自动注入上下文参数：实现 {@link com.chua.datasource.support.user.DataSourceAware}
+     * 的注入 JDBC {@code DataSource}，实现 {@link com.chua.common.support.lang.datasource.engine.ddl.DialectAware}
+     * 的注入当前方言。解析结果按引擎实例缓存，避免每次调用都重扫 SPI 注册表。</p>
+     *
+     * @return DDL 管理器实例
+     * @throws UnsupportedOperationException 未注册任何 {@link DslManager} SPI 实现时抛出
      */
+    @Override
     public DslManager ddl() {
-        throw new UnsupportedOperationException("当前引擎不支持 DDL 管理");
+        DslManager manager = dslManager();
+        if (manager == null) {
+            throw new UnsupportedOperationException("当前引擎不支持 DDL 管理：未注册 DslManager SPI 实现（扩展名 "
+                    + DslManager.SPI_NAME + "），请注册方言专属实现或通用实现 " + DslManager.DEFAULT_ALIAS);
+        }
+        return manager;
+    }
+
+    /**
+     * 解析并缓存 DDL 管理器，完成上下文参数注入。
+     *
+     * <p>解析结果可用性判定：依赖 JDBC 数据源的实现（{@link DataSourceAware}）
+     * 在本引擎没有 JDBC 数据源时视为不可用，继续走兜底别名，
+     * 最终仍无命中则由 {@link #ddl()} 报告"不支持 DDL 管理"——
+     * 这比让调用方拿到一个必然抛异常的管理器更准确。</p>
+     *
+     * @return DDL 管理器实例，无可用实现时返回 null
+     */
+    protected DslManager dslManager() {
+        DslManager cached = dslManagerCache;
+        if (cached != null) {
+            return cached;
+        }
+        DslManager resolved = null;
+        for (String key : ddlSpiKeys()) {
+            // 不传构造参数：上下文一律由 EngineAware / DataSourceAware / DialectAware 注入。
+            // 传参会触发 SPI 按参数个数选构造器，实现类一旦有多个构造器就可能选错签名。
+            resolved = ServiceProvider.of(DslManager.class).getNewExtension(key);
+            if (resolved != null) {
+                break;
+            }
+        }
+        if (resolved != null) {
+            javax.sql.DataSource dataSource = resolveJdbcDataSource();
+            if (resolved instanceof DataSourceAware && dataSource == null) {
+                // 该实现需要 JDBC 数据源，本引擎没有：视为不支持，不缓存
+                return null;
+            }
+            injectDdlContext(resolved, dataSource);
+            dslManagerCache = resolved;
+        }
+        return resolved;
+    }
+
+    /**
+     * DDL 管理器的 SPI 查找键，按顺序尝试。
+     *
+     * <p>默认顺序：方言协议名（JDBC 类引擎）→ {@link DslManager#DEFAULT_ALIAS}。
+     * 非 JDBC 引擎没有方言协议，应覆盖本方法返回自身专属别名，
+     * 避免落进依赖 {@code DataSource} 的通用实现。</p>
+     *
+     * @return SPI 查找键序列（非 null，不含重复项）
+     */
+    protected List<String> ddlSpiKeys() {
+        String protocol = ddlDialectProtocol();
+        List<String> keys = new ArrayList<>(2);
+        if (protocol != null) {
+            keys.add(protocol);
+        }
+        keys.add(DslManager.DEFAULT_ALIAS);
+        return keys;
+    }
+
+    /**
+     * 向 DDL 管理器注入上下文参数。
+     *
+     * <p>注入顺序：先方言后数据源。参数缺失不在此处抛异常——
+     * 非 SQL 数据源本来就没有 {@code DataSource}，是否必需由实现方在使用时
+     * 通过 {@link DslManager#requireContext()} 自行判定。</p>
+     *
+     * @param manager    DDL 管理器实例
+     * @param dataSource 已解析的 JDBC 数据源，可为 null
+     */
+    protected void injectDdlContext(DslManager manager, javax.sql.DataSource dataSource) {
+        Dialect dialect = getDialect();
+        if (dialect != null && manager instanceof DialectAware aware) {
+            aware.setDialect(dialect);
+        }
+        if (dataSource != null && manager instanceof DataSourceAware aware) {
+            aware.setDataSource(dataSource);
+        }
+        if (manager instanceof EngineAware aware) {
+            aware.setEngine(this);
+        }
+    }
+
+    /**
+     * 解析默认数据源中的 JDBC 数据源。
+     *
+     * @return JDBC 数据源；默认数据源缺失或非 JDBC 类型时返回 null
+     */
+    protected javax.sql.DataSource resolveJdbcDataSource() {
+        EngineDataSource<?> dataSource = getDataSource(getDefaultDataSourceName());
+        if (dataSource == null) {
+            return null;
+        }
+        return dataSource.getSource(javax.sql.DataSource.class);
+    }
+
+    /**
+     * 获取默认数据源的方言协议名，供 DDL 管理器按协议查找 SPI 实现。
+     *
+     * @return 协议名（如 {@code mysql}）；方言缺失时返回 null
+     */
+    protected String ddlDialectProtocol() {
+        Dialect dialect = getDialect();
+        return dialect != null ? dialect.protocol() : null;
     }
 
     /**

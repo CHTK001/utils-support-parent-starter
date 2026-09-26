@@ -1,0 +1,2 @@
+yescaptcha=com.chua.captcha.support.YesCaptchaClient
+captcha-run=com.chua.captcha.support.CaptchaRunClient

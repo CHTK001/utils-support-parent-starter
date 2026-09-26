@@ -103,127 +103,127 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     }
 
 
-    @Override
     /**
      * Provider
-    */
+     */
+    @Override
     public ImageClient provider(String provider) {
         return this;
     }
 
 
-    @Override
     /**
      * Model
-    */
+     */
+    @Override
     public ImageClient model(String model) {
         return this;
     }
 
 
-    @Override
     /**
      * 获取大小
-    */
+     */
+    @Override
     public ImageClient size(int width, int height) {
         return this;
     }
 
 
-    @Override
     /**
      * Prompt
-    */
+     */
+    @Override
     public ImageClient prompt(String prompt) {
         return this;
     }
 
 
-    @Override
     /**
      * NegativePrompt
-    */
+     */
+    @Override
     public ImageClient negativePrompt(String negativePrompt) {
         return this;
     }
 
 
-    @Override
     /**
      * Quality
-    */
+     */
+    @Override
     public ImageClient quality(String quality) {
         return this;
     }
 
 
-    @Override
     /**
      * Style
-    */
+     */
+    @Override
     public ImageClient style(String style) {
         return this;
     }
 
 
-    @Override
     /**
      * Seed
-    */
+     */
+    @Override
     public ImageClient seed(Long seed) {
         return this;
     }
 
 
-    @Override
     /**
      * Steps
-    */
+     */
+    @Override
     public ImageClient steps(Integer steps) {
         return this;
     }
 
 
-    @Override
     /**
      * ReferenceImage
-    */
+     */
+    @Override
     public ImageClient referenceImage(byte[] image) {
         return this;
     }
 
 
-    @Override
     /**
      * ReferenceImage
-    */
+     */
+    @Override
     public ImageClient referenceImage(java.awt.image.BufferedImage image) {
         return this;
     }
 
 
-    @Override
     /**
      * ImageStrength
-    */
+     */
+    @Override
     public ImageClient imageStrength(double strength) {
         return this;
     }
 
 
-    @Override
     /**
      * ControlType
-    */
+     */
+    @Override
     public ImageClient controlType(String controlType) {
         return this;
     }
 
 
-    @Override
     /**
      * Generate
-    */
+     */
+    @Override
     public java.awt.image.BufferedImage generate(String prompt) {
         ImageClient inner = borrowClient();
         try {
@@ -235,10 +235,10 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     }
 
 
-    @Override
     /**
      * 创建Task
-    */
+     */
+    @Override
     public String createTask(String prompt) {
         ImageClient inner = borrowClient();
         try {
@@ -250,10 +250,10 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     }
 
 
-    @Override
     /**
      * 查询Task
-    */
+     */
+    @Override
     public ImageResponse queryTask(String taskId) {
         ImageClient inner = borrowClient();
         try {
@@ -265,19 +265,19 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     }
 
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         shutdown();
     }
 
 
-    @Override
     /**
      * Models
-    */
+     */
+    @Override
     public List<com.chua.common.support.ai.chat.ModelDefinition> models() {
         ImageClient inner = borrowClient();
         try {
@@ -289,10 +289,10 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     }
 
 
-    @Override
     /**
      * ListModels
-    */
+     */
+    @Override
     public List<String> listModels() {
         ImageClient inner = borrowClient();
         try {

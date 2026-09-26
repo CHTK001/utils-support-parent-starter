@@ -1,11 +1,13 @@
 package com.chua.winrm.support.client;
 
+import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.network.protocol.client.FileClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -13,87 +15,50 @@ import java.util.List;
 /**
  * winrm 文件客户端，实现 winrm 协议下的文件操作。
  *
- * <p>注意：WinRM 本身不直接提供文件传输功能，本实现通过 PowerShell 命令模拟文件操作。</p>
- *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
 public class WinRmFileClient implements FileClient {
 
-    /**
-     * PowerShell 布尔真值字符串
-     */
-    private static final String POWERSHELL_TRUE = "True";
-
-    /**
-     * 换行符，用于分割命令输出
-     */
-    private static final String NEWLINE = "\n";
-
-    /**
-     * PowerShell 递归创建目录的强制参数
-     */
-    private static final String FORCE_FLAG = " -Force";
-
-    /**
-     * winrm 命令执行客户端
-     */
     private final WinRmExecClient winrmClient;
 
-    /**
-     * 通过客户端设置构造 winrm 文件客户端。
-     *
-     * @param setting 客户端连接配置
-     */
-    public WinRmFileClient(com.chua.common.support.network.protocol.ClientSetting setting) {
-        this.winrmClient = WinRmExecClient.builder()
+    public WinRmFileClient(ClientSetting setting) {
+        this(WinRmExecClient.builder()
                 .host(setting.getHost())
                 .port(setting.getPort())
                 .username(setting.getUsername())
                 .password(setting.getPassword())
-                .build();
+                .connectTimeout((int) Math.max(1, setting.getConnectTimeout() / 1000))
+                .sessionTimeout((int) Math.max(1, setting.getReadTimeout() / 1000))
+                .build());
     }
 
-    /**
-     * 复用已连接的 winrm 命令客户端构造文件客户端，避免重复认证配置。
-     *
-     * @param execClient 已建立连接的 winrm 命令客户端
-     */
     public WinRmFileClient(WinRmExecClient execClient) {
         this.winrmClient = execClient;
     }
 
     @Override
-    /**
-     * 连接
-    */
     public void connect() throws IOException {
-        winrmClient.connect();
-    }
-
-    @Override
-    /**
-     * 关闭Quietly
-    */
-    public void closeQuietly() {
         try {
-            winrmClient.disconnect();
-        } catch (Exception ignored) {
-            // 忽略关闭异常
+            winrmClient.connect();
+        } catch (Exception e) {
+            throw ioFailure("连接 WinRM 失败", e);
         }
     }
 
     @Override
-    /**
-     * 列表文件
-    */
+    public void closeQuietly() {
+        winrmClient.disconnect();
+    }
+
+    @Override
     public List<String> listFiles(String path) throws IOException {
-        String command = "Get-ChildItem -Path \"" + path + "\" | Select-Object -ExpandProperty Name";
-        String output = winrmClient.exec().command(command).executeAndGetOutput();
+        String output = executePowerShell("Get-ChildItem -LiteralPath " + quote(path)
+                + " -ErrorAction Stop | Select-Object -ExpandProperty Name");
         List<String> result = new ArrayList<>();
-        for (String line : output.split(NEWLINE)) {
-            if (!line.trim().isEmpty()) {
+        for (String line : output.split("\\R")) {
+            if (!line.isBlank()) {
                 result.add(line.trim());
             }
         }
@@ -101,87 +66,107 @@ public class WinRmFileClient implements FileClient {
     }
 
     @Override
-    /**
-     * upload文件
-    */
     public void uploadFile(InputStream inputStream, String path) throws IOException {
-        byte[] data = inputStream.readAllBytes();
-        String encoded = Base64.getEncoder().encodeToString(data);
-        String command = "powershell \"[System.IO.File]::WriteAllBytes('"
-                + path + "', [System.Convert]::FromBase64String('" + encoded + "'))\"";
-        winrmClient.exec().command(command).execute();
+        if (inputStream == null) {
+            throw new IOException("上传输入流不能为空");
+        }
+        String encoded = Base64.getEncoder().encodeToString(inputStream.readAllBytes());
+        executePowerShell("[System.IO.File]::WriteAllBytes(" + quote(path)
+                + ", [System.Convert]::FromBase64String(" + quote(encoded) + "))");
         log.info("文件上传成功: {}", path);
     }
 
     @Override
-    /**
-     * download文件
-    */
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
-        String command = "powershell \"[Convert]::ToBase64String([IO.File]::ReadAllBytes('" + path + "'))\"";
-        String output = winrmClient.exec().command(command).executeAndGetOutput();
-        byte[] data = Base64.getDecoder().decode(output.trim());
-        outputStream.write(data);
+        if (outputStream == null) {
+            throw new IOException("下载输出流不能为空");
+        }
+        String output = executePowerShell("[System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes("
+                + quote(path) + "))");
+        try {
+            outputStream.write(Base64.getDecoder().decode(output.trim()));
+        } catch (IllegalArgumentException e) {
+            throw new IOException("远端文件不是有效的 Base64 响应: " + path, e);
+        }
         log.info("文件下载成功: {}", path);
     }
 
     @Override
-    /**
-     * 读取文件
-    */
     public String readFile(String path) throws IOException {
-        String command = "Get-Content -Path \"" + path + "\"";
-        return winrmClient.exec().command(command).executeAndGetOutput();
+        return executePowerShell("Get-Content -LiteralPath " + quote(path)
+                + " -Raw -ErrorAction Stop");
     }
 
     @Override
-    /**
-     * 创建目录
-    */
     public void createDirectory(String path, boolean recursive) throws IOException {
-        String forceFlag = recursive ? FORCE_FLAG : "";
-        String command = "New-Item -ItemType Directory -Path \"" + path + "\"" + forceFlag;
-        winrmClient.exec().command(command).execute();
+        String force = recursive ? " -Force" : "";
+        executePowerShell("New-Item -ItemType Directory -Path " + quote(path) + force
+                + " -ErrorAction Stop | Out-Null");
         log.info("目录创建成功: {}", path);
     }
 
     @Override
-    /**
-     * 删除
-    */
     public void delete(String path) throws IOException {
-        String command = "Remove-Item -Path \"" + path + "\" -Force -Recurse";
-        winrmClient.exec().command(command).execute();
+        executePowerShell("Remove-Item -LiteralPath " + quote(path)
+                + " -Force -Recurse -ErrorAction Stop");
         log.info("删除成功: {}", path);
     }
 
     @Override
-    /**
-     * 重命名
-    */
     public void rename(String oldPath, String newPath) throws IOException {
-        String command = "Move-Item -Path \"" + oldPath + "\" -Destination \"" + newPath + "\"";
-        winrmClient.exec().command(command).execute();
+        executePowerShell("Move-Item -LiteralPath " + quote(oldPath)
+                + " -Destination " + quote(newPath) + " -ErrorAction Stop");
         log.info("重命名成功: {} -> {}", oldPath, newPath);
     }
 
     @Override
-    /**
-     * 是否存在
-    */
     public boolean exists(String path) throws IOException {
-        String command = "Test-Path -Path \"" + path + "\"";
-        String result = winrmClient.exec().command(command).executeAndGetOutput();
-        return result.contains(POWERSHELL_TRUE);
+        return Boolean.parseBoolean(executePowerShell("Test-Path -LiteralPath " + quote(path)
+                + " -ErrorAction Stop").trim());
     }
 
     @Override
-    /**
-     * 是否目录
-    */
     public boolean isDirectory(String path) throws IOException {
-        String command = "(Get-Item -Path \"" + path + "\").PSIsContainer";
-        String result = winrmClient.exec().command(command).executeAndGetOutput();
-        return result.contains(POWERSHELL_TRUE);
+        return Boolean.parseBoolean(executePowerShell("(Test-Path -LiteralPath " + quote(path)
+                + " -PathType Container -ErrorAction Stop)").trim());
+    }
+
+    private String executePowerShell(String script) throws IOException {
+        requirePath(script);
+        byte[] encoded = Base64.getEncoder().encode(script.getBytes(StandardCharsets.UTF_16LE));
+        String command = "powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand "
+                + new String(encoded, StandardCharsets.US_ASCII);
+        try {
+            WinRmExecClient.ExecResult result = winrmClient.exec().command(command).execute();
+            if (result.exitCode() != 0) {
+                String error = result.stderr() == null || result.stderr().isBlank()
+                        ? result.stdout() : result.stderr();
+                throw new IOException("WinRM PowerShell 执行失败，exitCode=" + result.exitCode()
+                        + ", error=" + error);
+            }
+            return result.stdout() == null ? "" : result.stdout();
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw ioFailure("WinRM PowerShell 执行失败", e);
+        }
+    }
+
+    private static String quote(String path) throws IOException {
+        requirePath(path);
+        return "'" + path.replace("'", "''") + "'";
+    }
+
+    private static void requirePath(String path) throws IOException {
+        if (path == null || path.isBlank()) {
+            throw new IOException("远程路径不能为空");
+        }
+    }
+
+    private static IOException ioFailure(String message, Exception cause) {
+        if (cause instanceof IOException ioException) {
+            return ioException;
+        }
+        return new IOException(message + ": " + cause.getMessage(), cause);
     }
 }

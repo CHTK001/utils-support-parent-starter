@@ -26,7 +26,7 @@ import java.util.function.Function;
  *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
  * }</pre>           // 启用熔断（与上述参数同级）
  *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
- * }</pre>
+ * }
  *
  * <p>依赖语义：</p>
  * <ul>

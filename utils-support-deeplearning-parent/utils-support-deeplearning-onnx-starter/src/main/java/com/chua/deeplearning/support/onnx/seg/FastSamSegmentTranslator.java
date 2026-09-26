@@ -6,6 +6,7 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,15 +31,26 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
  * <p>模型来源：HuggingFace 镜像 {@code anakhiu/fastsam-onnx} 的
  * {@code fastsam_s.onnx}（约 45MB，opset 17，FP32）。</p>
  *
+ * <p>实现 {@link ITranslator}{@code <byte[], byte[]>} 契约：对外直接接收编码后的
+ * 图片字节、返回编码后的分割结果字节，便于被 {@code ImageSegmenter} 统一调度；
+ * 内部复用 {@link #segment(Image)}（DJL {@code Image} 入口）。此前本类未实现任何接口，
+ * 导致 {@code ModelRegistry.ensure()} 走 DJL 分支时抛 {@code ClassCastException}，
+ * 图像分割能力实际不可用。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
 @Slf4j
-public class FastSamSegmentTranslator {
+public class FastSamSegmentTranslator implements ITranslator<byte[], byte[]> {
+
+    /**
+     * 框架注入的模型路径 / 外部目录（由 {@code setModelPath} 写入）。
+     */
+    private volatile String injectedPath;
 
     /**
      * 输入尺寸
-    */
+     */
     private static final int INPUT_SIZE = 1024;
     /**
      * 类别数量
@@ -114,11 +126,89 @@ public class FastSamSegmentTranslator {
         if (session != null) {
             return;
         }
+        Path modelPath = resolveModelFile();
+        try {
+            this.ortEnv = OrtEnvironment.getEnvironment();
+            OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+            opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+            com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, name());
+            this.session = ortEnv.createSession(modelPath.toString(), opts);
+            log.info("[FastSAM] ONNX loaded: {}", modelPath);
+        } catch (Exception e) {
+            throw new IOException("Failed to create ORT session for FastSAM: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 解析模型文件位置。
+     *
+     * <p>三级回退，保证「外部目录绑定」与「显式 modelPath」都能生效：</p>
+     * <ol>
+     *   <li><b>外部目录</b>：modelId 本身是绝对目录时，直接取目录内的 {@code model.onnx}；</li>
+     *   <li><b>显式路径 / 注册表</b>：{@code ModelRegistry.resolveModelPath} 解析
+     *       （覆盖绝对路径、模型根目录、下载缓存等）；</li>
+     *   <li><b>classpath 兜底</b>：{@link NativeLoader} 按 {@link #RESOURCE_BASE} 解压
+     *       （内置 jar 场景，OCR 等模块沿用同一约定）。</li>
+     * </ol>
+     *
+     * @return 模型文件绝对路径
+     * @throws Exception 三级均未找到时抛出
+     */
+    private Path resolveModelFile() throws Exception {
+        String modelId = name();
+        // ⓪ 框架注入的路径 / 外部目录（外部目录绑定走这条）
+        String injected = this.injectedPath;
+        if (injected != null && !injected.isBlank()) {
+            Path p = java.nio.file.Paths.get(injected);
+            if (java.nio.file.Files.isDirectory(p)) {
+                Path inside = p.resolve(MODEL_FILE);
+                if (java.nio.file.Files.isRegularFile(inside)) {
+                    log.info("[FastSAM] 使用注入的外部目录: {}", inside);
+                    return inside;
+                }
+                try (java.util.stream.Stream<Path> s = java.nio.file.Files.list(p)) {
+                    Path found = s.filter(x -> x.getFileName().toString().toLowerCase().endsWith(".onnx"))
+                            .findFirst()
+                            .orElseThrow(() -> new IOException("注入目录内无 .onnx: " + p));
+                    log.info("[FastSAM] 使用注入目录内模型: {}", found);
+                    return found;
+                }
+            }
+            if (java.nio.file.Files.isRegularFile(p)) {
+                return p;
+            }
+        }
+        // ① 外部目录：modelId 即目录
+        if (modelId != null && !modelId.isBlank()) {
+            try {
+                Path asPath = java.nio.file.Paths.get(modelId);
+                if (java.nio.file.Files.isDirectory(asPath)) {
+                    Path inside = asPath.resolve(MODEL_FILE);
+                    if (java.nio.file.Files.isRegularFile(inside)) {
+                        log.info("[FastSAM] 使用外部目录模型: {}", inside);
+                        return inside;
+                    }
+                    try (java.util.stream.Stream<Path> s = java.nio.file.Files.list(asPath)) {
+                        return s.filter(p -> p.getFileName().toString()
+                                        .toLowerCase().endsWith(".onnx"))
+                                .findFirst()
+                                .orElseThrow(() -> new IOException("外部目录内无 .onnx 文件: " + asPath));
+                    }
+                }
+            } catch (java.nio.file.InvalidPathException ignored) {
+                // modelId 非路径（如内置 "fastsam"），继续下一级
+            }
+        }
+        // ② 显式路径 / 注册表解析
+        Path resolved = com.chua.deeplearning.support.engine.ModelRegistry.resolveModelPath(modelId);
+        if (resolved != null && java.nio.file.Files.isRegularFile(resolved)) {
+            return resolved;
+        }
+        // ③ classpath 兜底
         Path tmpDir = Files.createTempDirectory("fastsam-onnx-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("fastsam");
         Files.createDirectories(modelDir);
-
         NativeLoader.of("fastsam")
                 .from(FastSamSegmentTranslator.class.getClassLoader())
                 .basePath(RESOURCE_BASE)
@@ -127,20 +217,11 @@ public class FastSamSegmentTranslator {
                 .withMd5(true)
                 .extractOnly(true)
                 .load();
-
         Path modelPath = modelDir.resolve(MODEL_FILE);
-        if (!Files.isRegularFile(modelPath)) {
-            throw new IOException("FastSAM 模型缺失: " + modelPath);
+        if (Files.isRegularFile(modelPath)) {
+            return modelPath;
         }
-        try {
-            this.ortEnv = OrtEnvironment.getEnvironment();
-            OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-            opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-            this.session = ortEnv.createSession(modelPath.toString(), opts);
-            log.info("[FastSAM] ONNX loaded: {}", modelPath.getFileName());
-        } catch (Exception e) {
-            throw new IOException("Failed to create ORT session for FastSAM: " + e.getMessage(), e);
-        }
+        throw new IOException("FastSAM 模型缺失（外部目录 / 注册表 / classpath 均未找到）: " + modelId);
     }
 
     /**
@@ -369,6 +450,17 @@ public class FastSamSegmentTranslator {
         ortEnv = null;
     }
     /**
+     * 默认构造器。
+     *
+     * <p>{@code ModelRegistry.newTranslatorInstance} 的三级回退
+     * （DetectionConfiguration → Map → 无参）需要它；同时用于「未注入任何运行参数」
+     * 的直接实例化场景。</p>
+     */
+    public FastSamSegmentTranslator() {
+        this(null);
+    }
+
+    /**
      * 创建 Translator（支持外部阈值覆盖）。
      *
      * @param configuration 检测配置（可空）
@@ -382,5 +474,49 @@ public class FastSamSegmentTranslator {
         }
     }
 
+    @Override
+    public String name() {
+        return "fastsam";
+    }
+
+    /**
+     * 接收框架注入的模型路径 / 外部目录。
+     *
+     * <p>{@code ModelRegistry.ITranslatorDelegate} 在包装原生 {@link ITranslator} 时，
+     * 会通过反射调用本方法把注册表解析出的路径（绝对文件路径或外部目录）传进来。
+     * 这是「外部目录绑定」对本类生效的关键——否则只能回退到 classpath。</p>
+     *
+     * @param path 模型绝对路径或外部目录路径
+     */
+    public void setModelPath(String path) {
+        if (path == null || path.isBlank()) {
+            return;
+        }
+        this.injectedPath = path.trim();
+    }
+
+    @Override
+    /**
+     * 执行分割。
+     *
+     * @param input 编码后的图片字节（PNG / JPEG 等）
+     * @return 编码后的分割结果（PNG）
+     */
+    public byte[] translate(byte[] input) {
+        try {
+            prepare();
+            BufferedImage src = ImageUtils.toBufferedImage(input);
+            if (src == null) {
+                throw new IllegalArgumentException("无法解码输入图像");
+            }
+            BufferedImage out = toBufferedImage(segment(ImageFactory.getInstance().fromImage(src)));
+            if (out == null) {
+                return input;
+            }
+            return ImageUtils.encode(out);
+        } catch (Exception e) {
+            throw new RuntimeException("[fastsam] 分割失败: " + e.getMessage(), e);
+        }
+    }
 
 }

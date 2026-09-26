@@ -89,20 +89,18 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     public static class SigmoidParams {
         /**
          * 陡度参数，默认15.0
+         *
+         * K
          */
         @Builder.Default
-        /**
-         * K
-        */
         private double k = 15.0;
 
         /**
          * 阈值参数，默认0.75
+         *
+         * T
          */
         @Builder.Default
-        /**
-         * T
-        */
         private double t = 0.75;
     }
 
@@ -151,7 +149,6 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     // ==================== 实现 TrainerPureCalibrator ====================
 
-    @Override
     /**
      * GenerateTrainingData
      * @param notSimilarCount notSimilarCount
@@ -159,6 +156,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
      * @param samePersonCount samePersonCount
      * @param seed seed
      */
+    @Override
     public TrainerPureCalibrator generateTrainingData(int notSimilarCount,
                                                       int lookSimilarCount,
                                                       int samePersonCount,
@@ -183,13 +181,13 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         return this;
     }
 
-    @Override
     /**
      * 设置TrainingData
      * @param notSimilarScores notSimilarScores
      * @param lookSimilarScores lookSimilarScores
      * @param samePersonScores samePersonScores
      */
+    @Override
     public TrainerPureCalibrator setTrainingData(List<Double> notSimilarScores,
                                                  List<Double> lookSimilarScores,
                                                  List<Double> samePersonScores) {
@@ -201,10 +199,10 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         return this;
     }
 
-    @Override
     /**
      * Train
-    */
+     */
+    @Override
     public TrainerPureCalibrator train() {
         if (trainingData == null || trainingData.isEmpty()) {
             throw new IllegalStateException("训练数据为空，请先调用 generateTrainingData() 或 setTrainingData()");
@@ -287,10 +285,10 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         return this;
     }
 
-    @Override
     /**
      * 保存Model
-    */
+     */
+    @Override
     public TrainerPureCalibrator saveModel(String filePath) {
         if (!trained) {
             throw new IllegalStateException("模型尚未训练，请先调用 train()");
@@ -310,10 +308,10 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         return this;
     }
 
-    @Override
     /**
      * 加载Model
-    */
+     */
+    @Override
     public TrainerPureCalibrator loadModel(String filePath) {
         try (FileReader reader = new FileReader(filePath)) {
             ModelData modelData = Json.fromJson(reader, ModelData.class);
@@ -334,44 +332,44 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
         return this;
     }
 
-    @Override
     /**
      * 获取TrainingData
-    */
+     */
+    @Override
     public TrainingData getTrainingData() {
         return trainingData;
     }
 
-    @Override
     /**
      * 获取TrainingStats
-    */
+     */
+    @Override
     public TrainingStats getTrainingStats() {
         return trainingStats;
     }
 
     // ==================== 实现 PureCalibrator ====================
 
-    @Override
     /**
      * Calibrate
-    */
+     */
+    @Override
     public double calibrate(double rawScore) {
         return calibrator.calibrate(rawScore);
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return "Sigmoid可训练校准器";
     }
 
-    @Override
     /**
      * 获取Description
-    */
+     */
+    @Override
     public String getDescription() {
         return "基于Sigmoid函数的可训练校准器。支持生成训练数据、自动拟合参数、保存/加载模型。";
     }
@@ -435,17 +433,17 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     private static class ModelData {
         /**
          * 算法名称
-        */
+         */
         private String algorithm;
 
         /**
          * 陡度参数
-        */
+         */
         private double k;
 
         /**
          * 阈值参数
-        */
+         */
         private double t;
     }
 }

@@ -80,10 +80,10 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
         this.waitDuration = waitDuration;
     }
 
-    @Override
     /**
      * Try获取
-    */
+     */
+    @Override
     public boolean tryAcquire() {
         State current = state.get();
         if (current == State.CLOSED) {
@@ -104,10 +104,10 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
         return true;
     }
 
-    @Override
     /**
      * RecordSuccess
-    */
+     */
+    @Override
     public void recordSuccess() {
         State current = state.get();
         if (current == State.OPEN) {
@@ -125,10 +125,10 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
         }
     }
 
-    @Override
     /**
      * RecordFailure
-    */
+     */
+    @Override
     public void recordFailure() {
         State current = state.get();
         if (current == State.OPEN) {
@@ -148,10 +148,10 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
         }
     }
 
-    @Override
     /**
      * 重置
-    */
+     */
+    @Override
     public void reset() {
         state.set(State.CLOSED);
         failureCount.set(0);
@@ -159,18 +159,18 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
         openTimestamp.set(0);
     }
 
-    @Override
     /**
      * 是否打开
-    */
+     */
+    @Override
     public boolean isOpen() {
         return state.get() == State.OPEN;
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return name;
     }

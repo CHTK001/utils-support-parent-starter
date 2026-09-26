@@ -35,7 +35,43 @@
 
 ## 配置说明
 
-本模块为零配置模块，引入依赖后即可使用。
+本模块**不是零配置**：调用解析服务必须提供 API 令牌。
+
+| 配置项 | 说明 | 缺省 |
+|--------|------|------|
+| `CaptchaSetting.apiToken` | 服务商令牌，缺失时调用点抛 `IllegalStateException` | 无 |
+| `CaptchaSetting.apiUrl` | 服务地址；留空时按解析器取各自缺省端点 | yescaptcha → `https://api.yescaptcha.com`；captcha-run → `https://api.captcha-run.com` |
+| `CaptchaSetting.connectTimeout` / `readTimeout` | 连接与读取超时（毫秒） | 30000 |
+
+通过 SPI 无参实例化时（`ServiceProvider.of(CaptchaParser.class).getExtension("yescaptcha")`），
+配置取自 JVM 参数 `captcha.api-token`、`captcha.api-url`、`captcha.connect-timeout`、`captcha.read-timeout`，
+未给出时回落同名大写环境变量（如 `CAPTCHA_API_TOKEN`）。
+
+```java
+// 编程式配置
+CaptchaSetting setting = CaptchaSetting.builder()
+        .apiToken("your-token")
+        .build();
+CaptchaParser parser = new YesCaptchaClient(setting);
+
+// 提交 + 轮询一次式入口（超时与间隔取自 CaptchaRequest，并回填 executionTime）
+CaptchaResponse result = parser.solve(
+        CaptchaRequest.builder()
+                .type(CaptchaType.TEXT_CAPTCHA)
+                .timeout(60000)
+                .pollInterval(2000)
+                .build(),
+        imageBytes);
+if (result.isSuccess()) {
+    System.out.println("解答: " + result.getToken());
+}
+
+// 走 SPI（令牌来自 -Dcaptcha.api-token=xxx 或 CAPTCHA_API_TOKEN）
+CaptchaParser spi = ServiceProvider.of(CaptchaParser.class).getExtension("captcha-run");
+```
+
+图文类验证码（`TextCaptcha`）必须传入 `imageData`，或在 options 中显式给出 `body`；
+未知 `captchaType` 直接抛 `IllegalArgumentException`，不会静默按 reCAPTCHA 提交。
 
 ---
 

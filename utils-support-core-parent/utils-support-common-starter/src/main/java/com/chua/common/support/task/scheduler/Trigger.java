@@ -27,7 +27,7 @@ import java.util.List;
  * Trigger trigger = new FixedTrigger(5, TimeUnit.SECONDS);
  * List<LocalDateTime> times = trigger.getFireTimes(10);
  * }</pre>FireTimes(10);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

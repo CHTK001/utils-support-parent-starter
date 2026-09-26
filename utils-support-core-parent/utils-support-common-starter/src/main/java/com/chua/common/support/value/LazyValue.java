@@ -35,7 +35,7 @@ import java.util.function.Supplier;
  * ds.reset();
  * }</pre>boolean loaded = ds.isLoaded();
  * ds.reset();
- * }</pre>
+ * }
  *
  * <p>序列化说明：本类通过 {@code Value} 接口实现 {@code Serializable}，
  * 实际能否序列化取决于底层 {@code Loader} 是否可序列化；{@link SingletonLoader} 通常不可序列化。</p>
@@ -51,7 +51,7 @@ public final class LazyValue<T> implements Value<T> {
 
     /**
      * 懒加载器，负责实际计算并缓存值
-    */
+     */
     private final Loader<T> loader;
 
     /**

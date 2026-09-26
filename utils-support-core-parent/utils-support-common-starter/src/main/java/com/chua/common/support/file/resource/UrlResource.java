@@ -29,34 +29,34 @@ public class UrlResource implements Resource {
         this.url = url;
     }
 
-    @Override
     /**
      * 打开Stream
-    */
+     */
+    @Override
     public InputStream openStream() throws IOException {
         return url.openStream();
     }
 
-    @Override
     /**
      * 获取UrlPath
-    */
+     */
+    @Override
     public String getUrlPath() {
         return url.toExternalForm();
     }
 
-    @Override
     /**
      * 获取Url
-    */
+     */
+    @Override
     public URL getUrl() {
         return url;
     }
 
-    @Override
     /**
      * LastModified
-    */
+     */
+    @Override
     public long lastModified() {
         try {
             return url.openConnection().getLastModified();

@@ -47,17 +47,17 @@ public final class CmdExecutors {
 
     /**
      * 默认执行器名称
-    */
+     */
     private static String DEFAULT_NAME = "process";
 
     /**
      * 缓存的 CmdExecutor 实例
-    */
+     */
     private static volatile CmdExecutor executor;
 
     /**
      * 创建 CmdExecutors 实例
-    */
+     */
     private CmdExecutors() {}
 
     /**
@@ -237,18 +237,18 @@ public final class CmdExecutors {
     public static CompletableFuture<CmdResult> executeAsync(String command) {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, new CmdCallback() {
-            @Override
             /**
              * OnComplete
-            */
+             */
+            @Override
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
-            @Override
             /**
              * On记录错误
-            */
+             */
+            @Override
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }
@@ -267,18 +267,18 @@ public final class CmdExecutors {
     public static CompletableFuture<CmdResult> executeAsync(String command, long timeout, TimeUnit unit) {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, timeout, unit, new CmdCallback() {
-            @Override
             /**
              * OnComplete
-            */
+             */
+            @Override
             public void onComplete(CmdResult result) {
                 future.complete(result);
             }
 
-            @Override
             /**
              * On记录错误
-            */
+             */
+            @Override
             public void onError(String cmd, Throwable throwable) {
                 future.completeExceptionally(throwable);
             }

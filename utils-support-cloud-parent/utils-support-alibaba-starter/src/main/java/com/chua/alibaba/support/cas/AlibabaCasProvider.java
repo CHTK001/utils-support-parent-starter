@@ -167,27 +167,17 @@ public class AlibabaCasProvider implements AcmeProvider {
                 log.warn("DescribeCertificateState 返回空");
                 return Collections.emptyList();
             }
-            AcmeValidationInfo info = new AcmeValidationInfo();
-            info.setDomain(domain);
-            info.setChallengeType(toChallengeType(body.getValidateType(), challengeType));
             String recordType = body.getRecordType();
-            String recordDomain = body.getRecordDomain();
-            String recordValue = body.getRecordValue();
+            boolean hasRecord = recordType != null && !recordType.isEmpty();
             String uri = body.getUri();
             String content = body.getContent();
-            if (recordType != null && !recordType.isEmpty()) {
-                info.setDnsName(recordDomain);
-                info.setDnsValue(recordValue);
-            }
-            if (uri != null && !uri.isEmpty()) {
-                info.setHttpPath(uri);
-            }
-            if (content != null && !content.isEmpty()) {
-                info.setHttpContent(content);
-            }
-            if (body.getCertId() != null) {
-                info.setToken(body.getCertId());
-            }
+            AcmeValidationInfo info = new AcmeValidationInfo(null, domain,
+                    toChallengeType(body.getValidateType(), challengeType),
+                    body.getCertId(),
+                    uri != null && !uri.isEmpty() ? uri : null,
+                    content != null && !content.isEmpty() ? content : null,
+                    hasRecord ? body.getRecordDomain() : null,
+                    hasRecord ? body.getRecordValue() : null);
             List<AcmeValidationInfo> result = new ArrayList<>();
             result.add(info);
             return result;

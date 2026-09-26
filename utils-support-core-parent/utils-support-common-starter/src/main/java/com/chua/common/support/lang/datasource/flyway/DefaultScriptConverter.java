@@ -59,7 +59,7 @@ public class DefaultScriptConverter implements ScriptConverter {
 
     /**
      * MySQL 系协议：脚本按 MySQL 风格编写，原样执行
-    */
+     */
     private static final List<String> MYSQL_PROTOCOLS =
             List.of("mysql", "mariadb", "tidb", "oceanbase");
 
@@ -156,24 +156,16 @@ public class DefaultScriptConverter implements ScriptConverter {
         // 表体：逐行剥离行内索引声明
         String[] lines = body.split("\n", -1);
         StringBuilder cleanedBody = new StringBuilder();
-        String prevLine = "";
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 cleanedBody.append(line).append('\n');
                 continue;
             }
             if (INLINE_KEY_LINE.matcher(line).matches()) {
-                // 整行是行内索引声明，删除；若上一行以逗号结尾则去掉悬挂逗号
-                if (prevLine.endsWith(",")) {
-                    int len = cleanedBody.length();
-                    int idx = len - 1;
-                    while (idx > 0 && Character.isWhitespace(cleanedBody.charAt(idx))) {
-                        idx--;
-                    }
-                    if (idx >= 0 && cleanedBody.charAt(idx) == ',') {
-                        cleanedBody.delete(idx, len);
-                    }
-                }
+                // 整行是行内索引声明：连同该行自身的分隔逗号一起整行删除。
+                // 这里绝不能改为删除「上一行」的逗号：上一行的逗号是它与更早列之间的分隔符，
+                // 删掉会让相邻两列粘连成 "... VARCHAR(64) col_id BIGINT ..." 而报语法错误。
+                // KEY 行位于表体末尾时残留的悬挂逗号，由本方法末尾的悬挂逗号清理统一兜底
                 continue;
             }
             // 列内联注释剥离（保留类型/默认值等前缀 + 列分隔逗号，仅删 COMMENT 'xxx' 文本）
@@ -183,7 +175,6 @@ public class DefaultScriptConverter implements ScriptConverter {
             // PRIMARY KEY 行尾 USING BTREE 子句剥离（SHOW CREATE TABLE 导出风格）
             cleaned = PK_USING.matcher(cleaned).replaceAll("");
             cleanedBody.append(cleaned).append('\n');
-            prevLine = cleaned;
         }
 
         // 尾属性剥离

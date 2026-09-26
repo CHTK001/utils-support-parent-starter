@@ -1,6 +1,10 @@
+package com.chua.deeplearning.support.tensorflow;
+
+import com.chua.deeplearning.support.image.ImageEnhancer;
+
 /**
  * tensor流 超分辨率。
- * <p>基于 {@link com.chua.deeplearning.support.image.ImageEnhancer}，使用 tf-super-resolution 模型进行图像超分辨率重建。</p>
+ * <p>基于 {@link ImageEnhancer}，使用 tf-super-resolution 模型进行图像超分辨率重建。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,13 +19,13 @@ public class SuperImageSuperResolution {
     /**
      * 图像增强器
      */
-    private final com.chua.deeplearning.support.image.ImageEnhancer enhancer;
+    private final ImageEnhancer enhancer;
 
     /**
      * 构造 tensor流 超分辨率实例。
      */
     public SuperImageSuperResolution() {
-        this.enhancer = com.chua.deeplearning.support.image.ImageEnhancer.create(MODEL_NAME);
+        this.enhancer = ImageEnhancer.create(MODEL_NAME);
     }
 
     /**

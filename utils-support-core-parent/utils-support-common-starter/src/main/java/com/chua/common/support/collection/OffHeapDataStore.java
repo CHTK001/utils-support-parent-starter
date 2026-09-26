@@ -51,7 +51,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
 
     /**
      * 序列化器，将对象与字节数组互转
-    */
+     */
     private final Serializer<E> serializer;
 
     /**
@@ -77,7 +77,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
 
     /**
      * 关闭标志，volatile 保证可见性
-    */
+     */
     private volatile boolean closed;
 
     /**

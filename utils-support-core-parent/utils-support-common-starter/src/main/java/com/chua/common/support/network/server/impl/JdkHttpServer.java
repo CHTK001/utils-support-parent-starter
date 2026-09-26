@@ -33,11 +33,11 @@ public class JdkHttpServer extends AbstractServer {
 
     /**
      * 服务器
-    */
+     */
     private HttpServer server;
     /**
      * 执行器
-    */
+     */
     private ExecutorService executor;
 
     /**
@@ -48,10 +48,10 @@ public class JdkHttpServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -92,10 +92,10 @@ public class JdkHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         if (server != null) {
             server.stop(0);
@@ -106,10 +106,10 @@ public class JdkHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

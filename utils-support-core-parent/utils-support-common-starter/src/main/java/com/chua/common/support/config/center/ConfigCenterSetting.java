@@ -45,43 +45,39 @@ public class ConfigCenterSetting {
      * 连接超时时间（毫秒）。
      *
      * <p>与配置中心建立连接的最大等待时间，默认 3000ms。</p>
+     *
+     * Connection超时
      */
     @Builder.Default
-    /**
-     * Connection超时
-    */
     private int connectionTimeout = 3000;
 
     /**
      * 读取超时时间（毫秒）。
      *
      * <p>等待配置中心响应的最大时间，默认 5000ms。</p>
-     */
-    @Builder.Default
-    /**
+     *
      * 读取超时时间（毫秒）
      */
+    @Builder.Default
     private int readTimeout = 5000;
 
     /**
      * 重试次数。
      *
      * <p>连接失败时的最大重试次数，默认 3 次。</p>
+     *
+     * 重试数量
      */
     @Builder.Default
-    /**
-     * 重试数量
-    */
     private int retryCount = 3;
 
     /**
      * 是否启用 SSL。
      *
      * <p>启用时使用 HTTPS 协议连接配置中心。</p>
+     *
+     * SSL是否启用
      */
     @Builder.Default
-    /**
-     * SSL是否启用
-    */
     private boolean sslEnabled = false;
 }

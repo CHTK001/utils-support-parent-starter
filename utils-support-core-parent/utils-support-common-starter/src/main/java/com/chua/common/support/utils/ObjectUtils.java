@@ -50,40 +50,40 @@ public class ObjectUtils {
     private static final long serialVersionUID = 1L; // 串行版本uid
     /**
      * Initial_哈希
-    */
+     */
     private static final int INITIAL_HASH = 7;
     /**
      * 倍数
-    */
+     */
     private static final int MULTIPLIER = 31;
 
     /**
      * 空_字符串
-    */
+     */
     private static final String EMPTY_STRING = "";
     /**
      * 空_字符串
-    */
+     */
     private static final String NULL_STRING = "null";
     /**
      * Array_启动
-    */
+     */
     private static final String ARRAY_START = "{";
     /**
      * Array_结束
-    */
+     */
     private static final String ARRAY_END = "}";
     /**
      * 空_array
-    */
+     */
     private static final String EMPTY_ARRAY = ARRAY_START + ARRAY_END;
     /**
      * Array_element_separator
-    */
+     */
     private static final String ARRAY_ELEMENT_SEPARATOR = ", ";
     /**
      * At_标志
-    */
+     */
     private static final char AT_SIGN = '@';
 
 
@@ -228,7 +228,7 @@ public class ObjectUtils {
      * @see #nullSafeHashCode(long[])
      * @see #nullSafeHashCode(short[])
      * @param obj obj
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(Object obj) {
         if (obj == null) {
@@ -271,7 +271,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(Object[] array) {
         if (array == null) {
@@ -288,7 +288,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(boolean[] array) {
         if (array == null) {
@@ -305,7 +305,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(byte[] array) {
         if (array == null) {
@@ -322,7 +322,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(char[] array) {
         if (array == null) {
@@ -339,7 +339,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(double[] array) {
         if (array == null) {
@@ -356,7 +356,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(float[] array) {
         if (array == null) {
@@ -373,7 +373,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(int[] array) {
         if (array == null) {
@@ -390,7 +390,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(long[] array) {
         if (array == null) {
@@ -407,7 +407,7 @@ public class ObjectUtils {
      * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
      * If {@code array} 是否 {@code null}, this 方法 返回 0.
      * @param array array
-     * @return 空safe哈希编码的结果
+     * @return 空安全哈希编码的结果
      */
     public static int nullSafeHashCode(short[] array) {
         if (array == null) {

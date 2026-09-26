@@ -9,10 +9,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 注解定义模型，表示一个注解及其完整元注解链（递归）。
@@ -41,6 +43,46 @@ public record AnnotationDefinition(
     boolean inherited,
     boolean documented
 ) {
+
+    /**
+     * 规范构造器：注解类必填，属性映射、元注解链与目标数组做防御性拷贝。
+     *
+     * <p>value class 前置条件——空值敌对，且集合与数组组件必须深不可变。
+     * {@code AnnotationUtils#extractAttributeMethods} 以 {@code null} 作为属性值的初始值，
+     * 因此属性映射含 null 值，只能用可容纳 null 的不可变包装，不能用 {@code Map.copyOf}。
+     * 元注解链元素为非空记录，可用 {@link List#copyOf}。</p>
+     *
+     * <p>目标元素类型数组保留 null 语义：{@code AnnotationUtils#getTargets} 当前总是返回
+     * 非空数组，但本记录是公开 API，无从证明外部调用方不传 null。</p>
+     *
+     * @param annotationClass 注解类，不允许为 null
+     * @param attributes      注解属性映射（元素名 → 值），不允许为 null
+     * @param metaAnnotations 元注解定义列表（递归展开），不允许为 null
+     * @param retention       保留策略
+     * @param targets         目标元素类型数组，可为 null
+     * @param inherited       是否可继承
+     * @param documented      是否文档化
+     */
+    public AnnotationDefinition {
+        Objects.requireNonNull(annotationClass, "annotationClass 不能为 null");
+        attributes = Collections.unmodifiableMap(
+                new LinkedHashMap<>(Objects.requireNonNull(attributes, "attributes 不能为 null")));
+        metaAnnotations = List.copyOf(
+                Objects.requireNonNull(metaAnnotations, "metaAnnotations 不能为 null"));
+        targets = targets == null ? null : targets.clone();
+    }
+
+    /**
+     * 访问器覆写：返回内部目标元素类型数组的副本。
+     *
+     * <p>value class 前置条件——外部不得持有内部数组引用。</p>
+     *
+     * @return 目标元素类型数组副本；targets 为 null 时返回 null
+     */
+    @Override
+    public ElementType[] targets() {
+        return targets == null ? null : targets.clone();
+    }
 
     /**
      * 获取元注解链的完整路径（含自身），用于调试和日志。

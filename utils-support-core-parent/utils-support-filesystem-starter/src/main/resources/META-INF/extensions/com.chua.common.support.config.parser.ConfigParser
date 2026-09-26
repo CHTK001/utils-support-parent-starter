@@ -1,0 +1,2 @@
+yaml=com.chua.filesystem.support.config.parser.impl.YamlConfigParser
+toml=com.chua.filesystem.support.config.parser.TomlConfigParser

@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *
  * // 构建包含签名的参数 Map
  * Map<String, Object> signedParams = SignUtils.buildSignedParams(params, "secretKey");
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0
@@ -76,7 +76,7 @@ public class SignUtils {
 
     /**
      * 创建 标志工具 实例
-    */
+     */
     private SignUtils() {
     }
 
@@ -130,14 +130,14 @@ public class SignUtils {
      * 对 映射 参数计算 MD5 签名（密钥直接追加在末尾，不使用 {@code key=} 前缀）。
      * @param params 参数
      * @param secretKey secret键
-     * @return 标志direct键的结果
+     * @return 直接标志键的结果
      */
     public static String signDirectKey(Map<String, ?> params, String secretKey) {
         return signDirectKey(params, secretKey, DEFAULT_KEY_VALUE_SEPARATOR, DEFAULT_PARAM_SEPARATOR);
     }
 
     /**
-     * 标志direct键
+     * 直接标志键
      * @param params 参数
      * @param secretKey 密钥
      * @param kvSeparator kvseparator
@@ -149,7 +149,7 @@ public class SignUtils {
     }
 
     /**
-     * 标志direct键
+     * 直接标志键
      * @param params 参数
      * @param secretKey 密钥
      * @param kvSeparator kvseparator
@@ -456,19 +456,19 @@ public class SignUtils {
     }
 
     /**
-     * 验证direct键
+     * 验证直接标志键
      *
      * @param params 参数
      * @param sign 标志
      * @param secretKey secret键
-     * @return 验证direct键的结果
+     * @return 验证直接标志键的结果
      */
     public static boolean verifyDirectKey(Map<String, ?> params, String sign, String secretKey) {
         return verifyDirectKey(params, sign, secretKey, DEFAULT_EXCLUDE_KEYS);
     }
 
     /**
-     * 验证direct键
+     * 验证直接标志键
      * @param params 参数
      * @param sign 标志
      * @param secretKey 密钥

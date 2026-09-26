@@ -22,18 +22,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * MOSS-TTS-nano 多语言 TTS 翻译器（0.1B，48 khz 输出）。
+ * MOSS-TTS-nano 多语言文本转语音翻译器（0.1B，48 kHz 输出）。
  *
- * <p>基于 OpenMOSS 官方 browser_onnx 导出的多图编排管线：
- * <ol>
- *   <li>SentencePiece BPE 文本编码</li>
- *   <li>prefill 全局 Transformer 预填充（输出 12 层 KV cache）</li>
- *   <li>逐帧循环：local_fixed_sampled_frame 采样 16 码本音频 token，
- *       decode_step 推进全局状态</li>
- *   <li>Audio Tokenizer decode_full 将帧序列解码为波形</li>
- * </ol>
- *
- * <p>参考实现：OpenMOSS/MOSS-TTS-Nano Android 示例 MossOnnxDemoEngine.kt。
+ * <p>职责：编排文本分词、全局预填充、逐帧生成和音频解码流程，支持内置音色、长文本分段合成及参考音频声音克隆。</p>
  *
  * @author chua
  * @since 4.0.0.42

@@ -62,17 +62,17 @@ public class AggregateChatClientSetting {
 
     /**
      * 是否启用调用监控
-    */
+     */
     private boolean monitor = true;
 
     /**
      * 多组配置（仅 hybrid 策略使用）
-    */
+     */
     private List<GroupConfig> groups;
 
     /**
      * 顶级客户端列表（非 hybrid 策略使用）
-    */
+     */
     private List<ClientConfig> clients;
 
     /**
@@ -206,40 +206,40 @@ public class AggregateChatClientSetting {
         private List<String> tokenGroups;
         /**
          * 该组的客户端列表
-        */
+         */
         private List<ClientConfig> clients;
 
         /**
          * 获取Name
-        */
+         */
         public String getName() {
             return name;
         }
 
         /**
          * 获取Strategy
-        */
+         */
         public String getStrategy() {
             return strategy;
         }
 
         /**
          * 获取Condition
-        */
+         */
         public String getCondition() {
             return condition;
         }
 
         /**
          * 获取TokenGroups
-        */
+         */
         public List<String> getTokenGroups() {
             return tokenGroups;
         }
 
         /**
          * 获取Clients
-        */
+         */
         public List<ClientConfig> getClients() {
             return clients;
         }
@@ -307,35 +307,35 @@ public class AggregateChatClientSetting {
 
         /**
          * 获取Provider
-        */
+         */
         public String getProvider() {
             return provider;
         }
 
         /**
          * 获取ApiKey
-        */
+         */
         public String getApiKey() {
             return apiKey;
         }
 
         /**
          * 获取System
-        */
+         */
         public String getSystem() {
             return system;
         }
 
         /**
          * 获取Model
-        */
+         */
         public String getModel() {
             return model;
         }
 
         /**
          * 获取Weight
-        */
+         */
         public int getWeight() {
             return weight;
         }
@@ -381,14 +381,14 @@ public class AggregateChatClientSetting {
 
         /**
          * 获取Token
-        */
+         */
         public String getToken() {
             return token;
         }
 
         /**
          * 获取分组
-        */
+         */
         public String getGroup() {
             return group;
         }

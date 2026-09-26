@@ -14,7 +14,7 @@ public final class WalFactory {
 
     /**
      * 创建 wal工厂 实例
-    */
+     */
     private WalFactory() {
     }
 

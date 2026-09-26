@@ -30,10 +30,9 @@ import java.util.Objects;
  * <pre>{@code
  * PlateNumberPipeline pipeline = PlateNumberPipeline.builder()
  *         .model("crnn-plate-rec")
- *         .detector("yolo5-plate-detect")
+ *         .detector("yolov5-plate-detect")
  *         .build();
  * List&lt;PlateResult&gt; results = pipeline.recognize(imageBytes);
- * }</pre>sult&gt; results = pipeline.recognize(imageBytes);
  * }</pre>
  *
  * @author CH

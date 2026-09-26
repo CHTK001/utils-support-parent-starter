@@ -18,22 +18,22 @@ public class SkillDefinition {
 
     /**
      * 技能名称
-    */
+     */
     private final String name;
 
     /**
      * 技能描述
-    */
+     */
     private final String description;
 
     /**
      * 参数 schema
-    */
+     */
     private final List<SkillArgumentSchema> arguments;
 
     /**
      * 技能处理器
-    */
+     */
     private final SkillHandler handler;
 
     /**

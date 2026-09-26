@@ -12,9 +12,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * YAML 配置文件解析器。
@@ -163,6 +165,25 @@ public class YamlConfigFileParser implements ConfigFileParser {
      */
     private record DefaultDataSyncFieldMapping(String sourceField, String targetField, String converter)
             implements DataSyncFieldMapping {
+
+        /**
+         * 规范构造器：三个字段名做 空 值 校验。
+         *
+         * <p>value class 前置条件——值类要求 空 值 敌对。三个组件在本类内唯一构造点
+         * {@code mapToConfig} 中都取自 {@code m.getOrDefault(...)}，而 {@code m} 的值由
+         * {@code String.valueOf(e.getValue())} 归一（空值会变成字符串 {@code "null"}），
+         * 因此恒非 空。</p>
+         *
+         * @param sourceField 源字段
+         * @param targetField 目标字段
+         * @param converter 转换器
+         */
+        public DefaultDataSyncFieldMapping {
+            sourceField = Objects.requireNonNull(sourceField, "sourceField 不能为 null");
+            targetField = Objects.requireNonNull(targetField, "targetField 不能为 null");
+            converter = Objects.requireNonNull(converter, "converter 不能为 null");
+        }
+
         @Override
         /**
          * 源字段
@@ -204,6 +225,29 @@ public class YamlConfigFileParser implements ConfigFileParser {
             Map<String, Object> params,
             String directoryPath
     ) implements DirectoryConfigDefinition {
+
+        /**
+         * 规范构造器：字段映射列表与参数映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个集合在本类唯一构造点
+         * {@code mapToConfig} 中由 {@code new ArrayList<>()} / {@code new LinkedHashMap<>()}
+         * 现地构造，恒非 空 且元素非 空。</p>
+         *
+         * <p>{@code params} 采用 {@link LinkedHashMap} 快照 + {@link Collections#unmodifiableMap}
+         * 而非 {@code Map.copyOf}：YAML 中 {@code key:}（无值）会解析出 空 值，
+         * {@code Map.copyOf} 会因此抛 空指针。</p>
+         *
+         * @param mappings 字段映射列表
+         * @param params 参数映射
+         * @param directoryPath 目录路径
+         */
+        public DefaultDirectoryConfigDefinition {
+            mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
+            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+                    Objects.requireNonNull(params, "params 不能为 null")));
+            directoryPath = Objects.requireNonNull(directoryPath, "directoryPath 不能为 null");
+        }
+
         @Override
         /**
          * 源id
@@ -293,6 +337,29 @@ public class YamlConfigFileParser implements ConfigFileParser {
             Map<String, Object> params,
             String filePath
     ) implements FileConfigDefinition {
+
+        /**
+         * 规范构造器：字段映射列表与参数映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个集合在本类唯一构造点
+         * {@code mapToConfig} 中由 {@code new ArrayList<>()} / {@code new LinkedHashMap<>()}
+         * 现地构造，恒非 空 且元素非 空。</p>
+         *
+         * <p>{@code params} 采用 {@link LinkedHashMap} 快照 + {@link Collections#unmodifiableMap}
+         * 而非 {@code Map.copyOf}：YAML 中 {@code key:}（无值）会解析出 空 值，
+         * {@code Map.copyOf} 会因此抛 空指针。</p>
+         *
+         * @param mappings 字段映射列表
+         * @param params 参数映射
+         * @param filePath 文件路径
+         */
+        public DefaultFileConfigDefinition {
+            mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
+            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+                    Objects.requireNonNull(params, "params 不能为 null")));
+            filePath = Objects.requireNonNull(filePath, "filePath 不能为 null");
+        }
+
         @Override
         /**
          * 源id
@@ -382,6 +449,29 @@ public class YamlConfigFileParser implements ConfigFileParser {
             Map<String, Object> params,
             String text
     ) implements TextConfigDefinition {
+
+        /**
+         * 规范构造器：字段映射列表与参数映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个集合在本类唯一构造点
+         * {@code mapToConfig} 中由 {@code new ArrayList<>()} / {@code new LinkedHashMap<>()}
+         * 现地构造，恒非 空 且元素非 空。</p>
+         *
+         * <p>{@code params} 采用 {@link LinkedHashMap} 快照 + {@link Collections#unmodifiableMap}
+         * 而非 {@code Map.copyOf}：YAML 中 {@code key:}（无值）会解析出 空 值，
+         * {@code Map.copyOf} 会因此抛 空指针。</p>
+         *
+         * @param mappings 字段映射列表
+         * @param params 参数映射
+         * @param text 文本内容
+         */
+        public DefaultTextConfigDefinition {
+            mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
+            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+                    Objects.requireNonNull(params, "params 不能为 null")));
+            text = Objects.requireNonNull(text, "text 不能为 null");
+        }
+
         @Override
         /**
          * 源id
@@ -469,6 +559,27 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String cron,
             Map<String, Object> params
     ) implements DataSyncConfigDefinition {
+
+        /**
+         * 规范构造器：字段映射列表与参数映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个集合在本类唯一构造点
+         * {@code mapToConfig} 中由 {@code new ArrayList<>()} / {@code new LinkedHashMap<>()}
+         * 现地构造，恒非 空 且元素非 空。</p>
+         *
+         * <p>{@code params} 采用 {@link LinkedHashMap} 快照 + {@link Collections#unmodifiableMap}
+         * 而非 {@code Map.copyOf}：YAML 中 {@code key:}（无值）会解析出 空 值，
+         * {@code Map.copyOf} 会因此抛 空指针。</p>
+         *
+         * @param mappings 字段映射列表
+         * @param params 参数映射
+         */
+        public SimpleConfigDefinition {
+            mappings = List.copyOf(Objects.requireNonNull(mappings, "mappings 不能为 null"));
+            params = Collections.unmodifiableMap(new LinkedHashMap<>(
+                    Objects.requireNonNull(params, "params 不能为 null")));
+        }
+
         @Override
         /**
          * 源id

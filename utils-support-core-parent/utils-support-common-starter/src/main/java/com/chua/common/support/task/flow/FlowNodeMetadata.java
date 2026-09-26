@@ -1,7 +1,9 @@
 package com.chua.common.support.task.flow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 流程节点类型元信息。
@@ -25,6 +27,26 @@ public record FlowNodeMetadata(
         String describe,
         List<FlowNodeField> schema
 ) {
+
+    /**
+     * 规范构造器：节点类型标识为空值敌对，配置字段列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 本类型随节点类型清单下发给前端并可由 JSON 反序列化，
+     * 保留 {@code schema} 的 null 语义；元素为 {@link FlowNodeField}，
+     * 不会是 null，故采用可空安全的 unmodifiable 包装。</p>
+     *
+     * @param type     节点类型标识
+     * @param name     节点类型名称
+     * @param describe 节点类型功能描述
+     * @param schema   节点配置表单元信息列表，可为 null
+     */
+    public FlowNodeMetadata {
+        type = Objects.requireNonNull(type, "type 不能为 null");
+        schema = schema == null
+                ? null
+                : Collections.unmodifiableList(new ArrayList<>(schema));
+    }
 
     /**
      * 以空配置字段构建节点元信息。

@@ -147,10 +147,10 @@ public class AnnotationUtils {
     }
 
     /**
-     * 是否注解present。
+     * 是否存在注解。
      * @param clazz clazz
      * @param annotationClass 注解类
-     * @return 是否注解present的结果
+     * @return 是否存在注解的结果
      */
     public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         if (clazz == null || annotationClass == null) {
@@ -160,10 +160,10 @@ public class AnnotationUtils {
     }
 
     /**
-     * 是否注解present。
+     * 是否存在注解。
      * @param method 方法
      * @param annotationClass 注解类
-     * @return 是否注解present的结果
+     * @return 是否存在注解的结果
      */
     public static boolean isAnnotationPresent(Method method, Class<? extends Annotation> annotationClass) {
         if (method == null || annotationClass == null) {
@@ -462,10 +462,10 @@ public class AnnotationUtils {
     }
 
     /**
-     * 是否包含inherited注解。
+     * 是否包含继承注解。
      * @param clazz clazz
      * @param annotationClass 注解类
-     * @return 是否包含inherited注解的结果
+     * @return 是否包含继承注解的结果
      */
     private static boolean hasInheritedAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
@@ -482,13 +482,13 @@ public class AnnotationUtils {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * findinherited注解。
      * @param clazz clazz
      * @param annotationClass 注解类
      * @return findinherited注解的结果
      */
+    @SuppressWarnings("unchecked")
     private static <A extends Annotation> A findInheritedAnnotation(Class<?> clazz, Class<A> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -507,10 +507,10 @@ public class AnnotationUtils {
     }
 
     /**
-     * 是否包含overridden注解。
+     * 是否包含重写注解。
      * @param method 方法
      * @param annotationClass 注解类
-     * @return 是否包含overridden注解的结果
+     * @return 是否包含重写注解的结果
      */
     private static boolean hasOverriddenAnnotation(Method method, Class<? extends Annotation> annotationClass) {
         String name = method.getName();
@@ -532,13 +532,13 @@ public class AnnotationUtils {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * findoverridden注解。
      * @param method 方法
      * @param annotationClass 注解类
      * @return findoverridden注解的结果
      */
+    @SuppressWarnings("unchecked")
     private static <A extends Annotation> A findOverriddenAnnotation(Method method, Class<A> annotationClass) {
         String name = method.getName();
         Class<?>[] paramTypes = method.getParameterTypes();

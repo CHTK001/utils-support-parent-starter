@@ -14,18 +14,18 @@ import java.nio.file.Path;
  */
 public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
 
-    @Override
     /**
      * 转换
-    */
+     */
+    @Override
     public void convert(String sourcePath, String targetPath) throws Exception {
         convert(new File(sourcePath), new File(targetPath));
     }
 
-    @Override
     /**
      * 转换
-    */
+     */
+    @Override
     public void convert(File sourceFile, File targetFile) throws Exception {
         if (!sourceFile.exists()) {
             throw new FileNotFoundException("源文件不存在: " + sourceFile);
@@ -40,18 +40,18 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
         }
     }
 
-    @Override
     /**
      * 转换
-    */
+     */
+    @Override
     public void convert(URL sourceUrl, String targetPath) throws Exception {
         convert(sourceUrl, new File(targetPath));
     }
 
-    @Override
     /**
      * 转换
-    */
+     */
+    @Override
     public void convert(URL sourceUrl, File targetFile) throws Exception {
         if (sourceUrl == null) {
             throw new IllegalArgumentException("源 URL 不能为空");
@@ -80,7 +80,7 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
 
     /**
      * 创建 AbstractConvertFileSystem 实例
-    */
+     */
     protected AbstractConvertFileSystem() {
     }
 

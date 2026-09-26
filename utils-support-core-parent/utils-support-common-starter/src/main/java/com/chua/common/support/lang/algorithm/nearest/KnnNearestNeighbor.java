@@ -150,12 +150,12 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
             throw new IllegalArgumentException("邻居数量 K 必须大于 0，当前值: " + k);
         }
 
-        if (!dataset.isEmpty()) {
-            double[] first = dataset.getFirst();
-            if (first.length != target.length) {
+        for (int i = 0; i < dataset.size(); i++) {
+            double[] sample = dataset.get(i);
+            if (sample.length != target.length) {
                 throw new IllegalArgumentException(String.format(
-                        "目标向量维度 (%d) 与数据集特征维度 (%d) 不一致",
-                        target.length, first.length));
+                        "目标向量维度 (%d) 与数据集第 %d 个样本维度 (%d) 不一致",
+                        target.length, i, sample.length));
             }
         }
     }

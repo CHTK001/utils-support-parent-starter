@@ -1,6 +1,7 @@
 package com.chua.wechat.support.restore.jdbc;
 
 import com.chua.common.support.file.FileSystem;
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.task.restore.DataRestoreConfig;
 import com.chua.common.support.task.restore.DataRestoreResult;
 import com.chua.common.support.task.restore.ExportFormat;
@@ -379,7 +380,7 @@ public final class WechatJdbcExporter {
      * @return 双引号包裹的标识符
      */
     private static String quoteIdentifier(String name) {
-        return "\"" + name.replace("\"", "\"\"") + "\"";
+        return SqlName.escape(name, '"', "SQLite标识符");
     }
 
     /**

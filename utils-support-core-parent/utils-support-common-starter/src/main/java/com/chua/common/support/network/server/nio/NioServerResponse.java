@@ -33,15 +33,15 @@ public class NioServerResponse implements ServerResponse {
 
     /**
      * Crlf
-    */
+     */
     private static final byte[] CRLF = {'\r', '\n'};
     /**
      * Colon_sp
-    */
+     */
     private static final byte[] COLON_SP = {':', ' '};
     /**
      * Zero_chunk
-    */
+     */
     private static final byte[] ZERO_CHUNK = {'0', '\r', '\n', '\r', '\n'};
 
     // ==================== Header 零分配快路径模板 ====================
@@ -59,47 +59,47 @@ public class NioServerResponse implements ServerResponse {
 
     /**
      * 通道
-    */
+     */
     private final SocketChannel channel;
     /**
      * 状态代码
-    */
+     */
     private int statusCode = 200;
     /**
      * headers
-    */
+     */
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     /**
      * 请求体
-    */
+     */
     private byte[] body;
     /**
      * Ended
-    */
+     */
     private boolean ended;
     /**
      * Committed
-    */
+     */
     private boolean committed;
     /**
      * Sent
-    */
+     */
     private boolean sent;
     /**
      * SSE模式
-    */
+     */
     private boolean sseMode;
     /**
      * 通道closed
-    */
+     */
     private boolean channelClosed;
     /**
      * 结果
-    */
+     */
     private Object result;
     /**
      * RAW输出
-    */
+     */
     private ByteArrayOutputStream rawOutput;
 
     /**
@@ -131,10 +131,10 @@ public class NioServerResponse implements ServerResponse {
 
     // ─── ServerResponse 接口实现 ─────────────────────────────
 
-    @Override
     /**
      * 设置Status
-    */
+     */
+    @Override
     public ServerResponse setStatus(int statusCode) {
         if (ended) {
             return this;
@@ -143,18 +143,18 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Status
-    */
+     */
+    @Override
     public int getStatus() {
         return statusCode;
     }
 
-    @Override
     /**
      * 设置Header
-    */
+     */
+    @Override
     public ServerResponse setHeader(String name, String value) {
         if (ended) {
             return this;
@@ -163,44 +163,44 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Header
-    */
+     */
+    @Override
     public String getHeader(String name) {
         return headers.get(name);
     }
 
-    @Override
     /**
      * 获取Headers
-    */
+     */
+    @Override
     public HttpHeader getHeaders() {
         HttpHeader h = HttpHeader.create();
         headers.forEach(h::add);
         return h;
     }
 
-    @Override
     /**
      * 设置ContentType
-    */
+     */
+    @Override
     public ServerResponse setContentType(String contentType) {
         return setHeader("Content-Type", contentType);
     }
 
-    @Override
     /**
      * 获取ContentType
-    */
+     */
+    @Override
     public String getContentType() {
         return getHeader("Content-Type");
     }
 
-    @Override
     /**
      * 设置Body
-    */
+     */
+    @Override
     public ServerResponse setBody(byte[] body) {
         if (ended) {
             return this;
@@ -209,10 +209,10 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 设置Body
-    */
+     */
+    @Override
     public ServerResponse setBody(String body) {
         if (ended) {
             return this;
@@ -221,18 +221,18 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Body
-    */
+     */
+    @Override
     public byte[] getBody() {
         return body;
     }
 
-    @Override
     /**
      * 获取OutputStream
-    */
+     */
+    @Override
     public OutputStream getOutputStream() {
         if (rawOutput == null) {
             rawOutput = new ByteArrayOutputStream();
@@ -240,10 +240,10 @@ public class NioServerResponse implements ServerResponse {
         return rawOutput;
     }
 
-    @Override
     /**
      * 发送Redirect
-    */
+     */
+    @Override
     public ServerResponse sendRedirect(String location) {
         setHeader("Location", location);
         setStatus(302);
@@ -251,10 +251,10 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 发送记录错误
-    */
+     */
+    @Override
     public ServerResponse sendError(int statusCode, String message) {
         setStatus(statusCode);
         setBody(message);
@@ -262,53 +262,53 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 刷新
-    */
+     */
+    @Override
     public void flush() {
         if (sseMode) {
             // SSE 模式下数据已直接写入 channel
         }
     }
 
-    @Override
     /**
      * 是否Committed
-    */
+     */
+    @Override
     public boolean isCommitted() {
         return committed;
     }
 
-    @Override
     /**
      * 是否Ended
-    */
+     */
+    @Override
     public boolean isEnded() {
         return ended;
     }
 
-    @Override
     /**
      * 设置Result
-    */
+     */
+    @Override
     public ServerResponse setResult(Object result) {
         this.result = result;
         return this;
     }
 
-    @Override
     /**
      * 获取Result
-    */
+     */
+    @Override
     public Object getResult() {
         return result;
     }
 
-    @Override
     /**
      * 重置
-    */
+     */
+    @Override
     public ServerResponse reset() {
         if (ended) {
             return this;
@@ -323,18 +323,18 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * End
-    */
+     */
+    @Override
     public void end() {
         ended = true;
     }
 
-    @Override
     /**
      * 写入Raw
-    */
+     */
+    @Override
     public void writeRaw(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -354,10 +354,10 @@ public class NioServerResponse implements ServerResponse {
 
     // ─── SSE ──────────────────────────────────────────────
 
-    @Override
     /**
      * Sse
-    */
+     */
+    @Override
     public ServerResponse sse() {
         if (committed) {
             return this;
@@ -373,10 +373,10 @@ public class NioServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * SseEvent
-    */
+     */
+    @Override
     public void sseEvent(String event, String data) {
         if (!sseMode) {
             return;
@@ -396,10 +396,10 @@ public class NioServerResponse implements ServerResponse {
         writeToChannel(CRLF);
     }
 
-    @Override
     /**
      * Sse关闭
-    */
+     */
+    @Override
     public void sseClose() {
         if (sseMode && !ended) {
             writeToChannel(ZERO_CHUNK);
@@ -564,7 +564,7 @@ public class NioServerResponse implements ServerResponse {
     }
     /**
      * 空字节数组常量
-    */
+     */
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     /**

@@ -572,10 +572,10 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
         applyTokenGroup(request);
         chatClient.chat(fullPrompt, new Consumer<ChatResponse>() {
-            @Override
             /**
              * Accept
-            */
+             */
+            @Override
             public void accept(ChatResponse cr) {
                 if (cr.getState() == ChatResponse.State.STREAMING && cr.getContent() != null) {
                     Map<String, Object> delta = buildOpenAiStreamDelta(cr.getContent(), model);

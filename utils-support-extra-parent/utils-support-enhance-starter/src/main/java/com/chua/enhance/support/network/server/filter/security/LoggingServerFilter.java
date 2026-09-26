@@ -4,17 +4,42 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.network.server.filter.ServerFilter;
 import com.chua.common.support.network.server.filter.ServerFilterChain;
+import com.chua.common.support.network.server.filter.ServerFilterConfig;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 请求日志过滤器，记录每个请求的方法、路径、状态码和耗时。
  *
- * <p>在请求进入时记录开始时间，过滤器链执行完毕后计算耗时并输出日志。
- * 默认使用 STDOUT 输出，可替换为 SLF4J 等日志框架。
+ * <p>在请求进入时记录开始时间，过滤器链执行完毕后计算耗时并输出日志，日志走 SLF4J。
+ *
+ * <p>逐请求日志量较大，需配置 {@code requestlog.enabled=true} 才会参与过滤器链。
  *
  * @author CH
  * @since 2026/07/16
  */
+@Slf4j
 public class LoggingServerFilter implements ServerFilter {
+
+    /**
+     * 是否已显式开启，未开启时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
+    @Override
+    /**
+     * 初始化
+    */
+    public void init(ServerFilterConfig config) throws Exception {
+        this.configured = null != config && "true".equalsIgnoreCase(config.getInitParameter("requestlog.enabled"));
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
+    }
 
     @Override
     /**
@@ -31,7 +56,7 @@ public class LoggingServerFilter implements ServerFilter {
         } finally {
             long elapsed = System.currentTimeMillis() - startTime;
             int status = response.getStatus();
-            System.out.printf("[%s] %s %s → %d (%dms)%n", remoteAddr, method, path, status, elapsed);
+            log.info("[{}] {} {} -> {} ({}ms)", remoteAddr, method, path, status, elapsed);
         }
     }
 
@@ -40,7 +65,8 @@ public class LoggingServerFilter implements ServerFilter {
      * 获取订单
     */
     public int getOrder() {
-        return 0;
+        // StaticResourceServerFilter 占 0，同序会让请求日志与静态资源短路的先后不确定
+        return 7;
     }
 
     @Override

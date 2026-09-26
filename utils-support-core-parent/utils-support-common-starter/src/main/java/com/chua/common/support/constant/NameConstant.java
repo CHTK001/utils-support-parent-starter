@@ -108,51 +108,51 @@ public final class NameConstant {
 
     /**
      * 新增
-    */
+     */
     public static final String SAVE = "SAVE";
     public static final String INSERT = "INSERT";
     public static final String ADD = "ADD";
     /**
      * 修改
-    */
+     */
     public static final String UPDATE = "UPDATE";
     public static final String MODIFY = "MODIFY";
     /**
      * 删除
-    */
+     */
     public static final String DELETE = "DELETE";
     public static final String DROP = "DROP";
     public static final String REMOVE = "REMOVE";
     /**
      * 重置
-    */
+     */
     public static final String RESET = "RESET";
 
     // ==================== HTTP 方法名 ====================
 
     /**
      * HTTP GET
-    */
+     */
     public static final String GET = "GET";
     /**
      * HTTP POST
-    */
+     */
     public static final String POST = "POST";
     /**
      * HTTP PUT
-    */
+     */
     public static final String PUT = "PUT";
     /**
      * HTTP DELETE
-    */
+     */
     public static final String DELETE_METHOD = "DELETE";
     /**
      * HTTP PATCH
-    */
+     */
     public static final String PATCH = "PATCH";
     /**
      * HTTP HEAD
-    */
+     */
     public static final String HEAD = "HEAD";
 
 }

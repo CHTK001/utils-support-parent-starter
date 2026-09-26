@@ -4,6 +4,8 @@ import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * AI 对话流式响应
  *
@@ -69,6 +71,32 @@ public class ChatResponse {
      * 该字段包含模型的推理/思考过程文本。</p>
      */
     private String reasoningContent;
+
+    /**
+     * 工具调用增量（函数调用）
+     *
+     * <p>当模型在流式过程中发起工具调用时，该字段携带本帧的工具调用数据
+     * （序号/id/名称/入参 JSON 增量），与正文 {@link #content} 相互独立。
+     * 协议适配层据此把 OpenAI 的 tool_calls 翻译为 Anthropic 的 tool_use 块。
+     */
+    private List<ChatToolCallData> toolCalls;
+
+    /**
+     * 执行轨迹日志（Agent 运行时）
+     *
+     * <p>当回调承载一条执行轨迹（thinking/输出/轮次/工具/用量/边缘事件）时，
+     * 该字段非空；上层据此把 trace 作为会话内容推送到前端，不计入正文。</p>
+     */
+    private com.chua.common.support.ai.agent.AgentTrace trace;
+
+    /**
+     * 人工确认请求（human-in-the-loop）
+     *
+     * <p>当 Agent 运行到需要人工决策的工具（如规划模式 plan_exit）时，
+     * 该字段非空，携带 replyId 与待确认项；上层据此渲染批准/拒绝卡片，
+     * 用户决策回传后调用 resume 恢复 Agent。
+     */
+    private com.chua.common.support.ai.agent.ConfirmationRequest confirmationRequest;
 
     /**
      * 响应状态枚举

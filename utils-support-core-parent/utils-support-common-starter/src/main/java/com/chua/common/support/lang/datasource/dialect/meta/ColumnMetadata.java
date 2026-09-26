@@ -17,55 +17,55 @@ public class ColumnMetadata {
 
     /**
      * 列名
-    */
+     */
     private String columnName;
     /**
      * 所属表名
-    */
+     */
     private String tableName;
     /**
      * JDBC 类型名称
-    */
+     */
     private String jdbcType;
     /**
      * JDBC 类型代码
-    */
+     */
     private int sqlType;
     /**
      * 字段长度
-    */
+     */
     private int length;
     /**
      * 数字精度
-    */
+     */
     private int precision;
     /**
      * 小数位数
-    */
+     */
     private int scale;
     /**
      * 是否可为空
-    */
+     */
     private boolean nullable = true;
     /**
      * 默认值
-    */
+     */
     private String defaultValue;
     /**
      * 注释
-    */
+     */
     private String comment;
     /**
      * 是否主键
-    */
+     */
     private boolean primaryKey;
     /**
      * 是否自增
-    */
+     */
     private boolean autoIncrement;
     /**
      * 字段位置
-    */
+     */
     private int position;
 
     /**

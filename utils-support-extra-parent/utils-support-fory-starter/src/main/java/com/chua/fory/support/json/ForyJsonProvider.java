@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -317,14 +318,33 @@ public class ForyJsonProvider implements JsonProvider {
         if (hasUnifiedAnnotations(object.getClass())) {
             mapped = JsonBeanMapper.toMap(object);
         }
-        if (null != ignores && ignores.length > 0 && mapped instanceof Map) {
-            Map<String, Object> ignoreMap = (Map<String, Object>) mapped;
+        if (null != ignores && ignores.length > 0) {
+            Map<String, Object> copy = topLevelCopy(mapped);
             for (String ignore : ignores) {
-                ignoreMap.remove(ignore);
+                copy.remove(ignore);
             }
-            return FORY_JSON.toJson(ignoreMap);
+            return FORY_JSON.toJson(copy);
         }
         return FORY_JSON.toJson(mapped);
+    }
+
+    /**
+     * 取一份可安全修改的顶层字段视图。
+     *
+     * <p>fory-json 基于代码生成，没有字段级过滤器，因此普通 bean 只能先序列化再解析回 Map 才能剔除顶层字段；
+     * 入参本身是 Map 时必须复制，否则会删掉调用方持有的数据。</p>
+     *
+     * @param mapped 已完成门户注解映射的对象
+     * @return 顶层字段的可修改副本
+     */
+    private Map<String, Object> topLevelCopy(Object mapped) {
+        if (mapped instanceof Map<?, ?> source) {
+            Map<String, Object> copy = new LinkedHashMap<>(source.size());
+            source.forEach((key, value) -> copy.put(String.valueOf(key), value));
+            return copy;
+        }
+        return FORY_JSON.fromJson(FORY_JSON.toJson(mapped), new TypeRef<LinkedHashMap<String, Object>>() {
+        });
     }
 
     @Override

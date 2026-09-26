@@ -23,17 +23,17 @@ public class CostStrategy implements RouterStrategy {
 
     /**
      * 短文本阈值
-    */
+     */
     private static final int SHORT_THRESHOLD = 100;
     /**
      * 中等文本阈值
-    */
+     */
     private static final int MEDIUM_THRESHOLD = 1000;
 
-    @Override
     /**
      * 选择
-    */
+     */
+    @Override
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

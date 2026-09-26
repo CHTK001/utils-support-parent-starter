@@ -145,7 +145,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                 builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported method: " + request.getMethod());
+                throw new UnsupportedOperationException("不支持的请求方法: " + request.getMethod());
         }
 
         // 根据代理和重定向配置选择合适的客户端实例
@@ -264,7 +264,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
                     builder.method("OPTIONS", HttpRequest.BodyPublishers.noBody());
                     break;
                 default:
-                    throw new UnsupportedOperationException("Unsupported method: " + request.getMethod());
+                    throw new UnsupportedOperationException("不支持的请求方法: " + request.getMethod());
             }
 
             HttpClient targetClient = resolveHttpClient(request);

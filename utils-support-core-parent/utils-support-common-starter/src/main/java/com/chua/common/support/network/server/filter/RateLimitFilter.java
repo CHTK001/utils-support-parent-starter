@@ -37,24 +37,24 @@ public class RateLimitFilter implements ServerFilter {
 
     /**
      * 提供者名称
-    */
+     */
     private final String providerName;
     /**
      * QPS
-    */
+     */
     private final double qps;
     /**
      * 密钥策略
-    */
+     */
     private final KeyStrategy keyStrategy;
     /**
      * 路径prefix
-    */
+     */
     private final String pathPrefix;
 
     /**
      * limiter
-    */
+     */
     private volatile RateLimitProvider.RateLimiter limiter;
 
     /**
@@ -63,15 +63,15 @@ public class RateLimitFilter implements ServerFilter {
     public enum KeyStrategy {
         /**
          * 全局限流
-        */
+         */
         GLOBAL,
         /**
          * 按 IP 限流
-        */
+         */
         BY_IP,
         /**
          * 按路径限流
-        */
+         */
         BY_PATH
     }
 
@@ -123,26 +123,26 @@ public class RateLimitFilter implements ServerFilter {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 30;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         RateLimitProvider provider = ServiceProvider.of(RateLimitProvider.class).getExtension(providerName);
         if (provider == null) {
@@ -155,13 +155,13 @@ public class RateLimitFilter implements ServerFilter {
         log.info("RateLimitFilter 初始化: provider={}, qps={}, strategy={}", providerName, qps, keyStrategy);
     }
 
-    @Override
     /**
      * Do过滤
      * @param request request
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (limiter == null) {

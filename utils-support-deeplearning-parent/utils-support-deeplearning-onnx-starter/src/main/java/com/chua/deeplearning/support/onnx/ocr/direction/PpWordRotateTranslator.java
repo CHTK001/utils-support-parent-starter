@@ -1,4 +1,5 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
+import com.chua.deeplearning.support.ocr.DirectionInfo;
 import com.chua.deeplearning.support.utils.ImageUtils;
 
 import ai.onnxruntime.OnnxTensor;
@@ -89,6 +90,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[PP-OCR-cls] ONNX loaded: {}", modelPath.getFileName());
     }

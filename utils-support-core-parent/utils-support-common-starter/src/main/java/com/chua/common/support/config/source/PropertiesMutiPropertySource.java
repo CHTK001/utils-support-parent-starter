@@ -34,10 +34,10 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
         this.properties = properties;
     }
 
-    @Override
     /**
      * 获取RawProperty
-    */
+     */
+    @Override
     protected Object getRawProperty(String key) {
         if (properties == null) {
             return null;
@@ -50,10 +50,10 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
         return null;
     }
 
-    @Override
     /**
      * 获取Source
-    */
+     */
+    @Override
     protected Object getSource() {
         if (properties == null) {
             return null;

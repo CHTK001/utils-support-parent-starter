@@ -162,13 +162,13 @@ public class JsonArray extends LinkedList<Object> {
   */    @Override
     /**
      * ForEach
-    */
+     */
     public void forEach(Consumer<? super Object> action) {
         super.forEach(new SafeConsumer<Object>() {
-            @Override
             /**
              * SafeAccept
-            */
+             */
+            @Override
             public void safeAccept(Object o) throws Throwable {
                 if (o instanceof Map) {
                     action.accept(Json.createJsonObject((Map) o));

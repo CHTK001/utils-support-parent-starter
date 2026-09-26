@@ -37,18 +37,18 @@ public class TracingFilter implements ServerFilter {
      */
     private static final String TRACE_LOG_KEY = "_traceLog";
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 60;
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         request.setAttribute(TRACE_ID_KEY, traceId);
@@ -59,18 +59,18 @@ public class TracingFilter implements ServerFilter {
         request.setAttribute(TRACE_LOG_KEY, traceLog);
 
         listeners.add(new FilterChainListener() {
-            @Override
             /**
              * Before过滤
-            */
+             */
+            @Override
             public void beforeFilter(ServerFilter filter, ServerRequest req, ServerResponse res) {
                 traceLog.add(filter.getClass().getSimpleName() + " start");
             }
 
-            @Override
             /**
              * After过滤
-            */
+             */
+            @Override
             public void afterFilter(ServerFilter filter, long elapsed, ServerRequest req, ServerResponse res) {
                 String last = traceLog.remove(traceLog.size() - 1);
                 traceLog.add(last + " -> " + (elapsed / 1_000_000) + "ms");

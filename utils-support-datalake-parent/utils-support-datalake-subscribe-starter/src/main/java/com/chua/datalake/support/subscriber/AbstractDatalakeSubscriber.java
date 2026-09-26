@@ -2,16 +2,20 @@ package com.chua.datalake.support.subscriber;
 
 import com.chua.common.support.concurrent.offset.OffsetFlow;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * 数据订阅器抽象类。每个订阅器绑定一个 {@code subscriberId}，
  * 并通过 {@link OffsetFlow} 管理 偏移量。
  *
- * <p>后续内部会加入 reactor 背压、批量推送、订阅续订等能力。</p>
+ * <p>{@link #topics()} 决定该订阅器接收哪些主题，空集合表示全量接收。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
-public abstract class AbstractDatalakeSubscriber {
+public abstract class AbstractDatalakeSubscriber implements Subscriber {
 
     /**
      * 订阅器 标识，唯一标识
@@ -24,14 +28,33 @@ public abstract class AbstractDatalakeSubscriber {
     protected final OffsetFlow offsetFlow;
 
     /**
-     * 构造。
+     * 订阅主题集合，空集合表示不限主题
+     */
+    protected final Set<String> topics;
+
+    /**
+     * 构造（不限主题）。
      *
      * @param subscriberId 订阅器 标识
      * @param offsetFlow   偏移量流 门面
      */
     protected AbstractDatalakeSubscriber(String subscriberId, OffsetFlow offsetFlow) {
+        this(subscriberId, offsetFlow, Collections.emptySet());
+    }
+
+    /**
+     * 构造。
+     *
+     * @param subscriberId 订阅器 标识
+     * @param offsetFlow   偏移量流 门面
+     * @param topics       订阅主题，空表示全量接收
+     */
+    protected AbstractDatalakeSubscriber(String subscriberId, OffsetFlow offsetFlow, Set<String> topics) {
         this.subscriberId = subscriberId;
         this.offsetFlow = offsetFlow;
+        this.topics = topics == null || topics.isEmpty()
+                ? Collections.emptySet()
+                : Collections.unmodifiableSet(new LinkedHashSet<>(topics));
     }
 
     /**
@@ -39,8 +62,17 @@ public abstract class AbstractDatalakeSubscriber {
      *
      * @return 订阅器唯一标识
      */
+    @Override
     public String subscriberId() {
         return subscriberId;
+    }
+
+    @Override
+    /**
+     * topics
+    */
+    public Set<String> topics() {
+        return topics;
     }
 
     /**

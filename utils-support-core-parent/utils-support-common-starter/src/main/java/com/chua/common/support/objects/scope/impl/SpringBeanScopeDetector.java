@@ -26,10 +26,10 @@ import java.lang.annotation.Annotation;
 @SpiDescribe("Spring 作用域检测器")
 public class SpringBeanScopeDetector implements BeanScopeDetector {
 
-    @Override
     /**
      * Detect
-    */
+     */
+    @Override
     public BeanScope detect(Class<?> beanClass) {
         if (beanClass == null) {
             return null;
@@ -51,7 +51,6 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取注解值
      *
@@ -60,6 +59,7 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
      * @param defaultValue 默认值
      * @return 获取注解值的结果
      */
+    @SuppressWarnings("unchecked")
     private static <T> T getAnnotationValue(Annotation annotation, String attribute, T defaultValue) {
         try {
 return (T) ReflectUtils.invoke(annotation, attribute, Object.class, new Class<?>[0]);

@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * VSCode Copilot usage parser.
+ * VS Code Copilot 用量解析器。
  *
- * <p>GitHub Copilot CLI stores per-request usage in a local SQLite database at
- * {@code ~/.copilot/session-store.db}, table {@code assistant_usage_events}:</p>
+ * <p>GitHub Copilot 命令行客户端将每次请求的用量写入本地 SQLite 数据库
+ * {@code ~/.copilot/session-store.db} 的 {@code assistant_usage_events} 表：</p>
  *
  * <pre>{@code
  * CREATE TABLE assistant_usage_events (
@@ -30,15 +30,13 @@ import java.util.List;
  * )
  * }</pre>
  *
- * <p>Cost is reported as {@code total_nano_aiu} — integer nano-AIU where
- * 10_000_000_000 ticks equals one US dollar. This parser converts it to USD and
- * reads the cache read/write, reasoning and latency figures from their own
- * columns. 每行即一次请求，但 {@code session_id} 会被同一会话的多次请求共用，
+ * <p>费用通过 {@code total_nano_aiu} 字段记录，每 10,000,000,000 个计数等于一美元。
+ * 本解析器将计数换算为美元，并从独立字段读取缓存读写量、推理量和延迟。
+ * 每行对应一次请求，但 {@code session_id} 会被同一会话的多次请求共用，
  * 因此请求号取 {@code session_id + "-" + id}。</p>
  *
- * <p>Rows only appear after successful GitHub authentication
- * (fine-grained PAT via {@code GH_TOKEN} or OAuth login). The VSCode IDE
- * extension itself keeps usage server-side; only the CLI persists locally.</p>
+ * <p>完成 GitHub 身份认证后才会写入记录；VS Code 扩展本身仍由服务端保存用量，
+ * 仅命令行客户端会持久化本地记录。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -47,7 +45,7 @@ import java.util.List;
 public class VscodeUsageParser extends BaseUsageParser {
 
     /**
-     * Nano-AIU ticks per US dollar (GitHub's reported cost unit).
+     * 每美元对应的纳诺人工智能单位计数。
      */
     private static final long NANO_AIU_PER_USD = 10_000_000_000L;
 
@@ -64,7 +62,7 @@ public class VscodeUsageParser extends BaseUsageParser {
                     + "ORDER BY created_at ASC";
 
     /**
-     * 返回 SPI 名称（for VSCode Copilot）。
+     * 返回 SPI 名称（用于 VS Code Copilot）。
      *
      * @return {@code "vscode"}
      */
@@ -83,9 +81,9 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析全部用量事件（from the Copilot CLI session store）。
+     * 解析 Copilot 命令行客户端会话存储中的全部用量记录。
      *
-     * @return list of AiUsage records, one per billed API request
+     * @return 每条计费请求对应的用量记录列表
      */
     @Override
     protected List<AiUsage> parseAll() {
@@ -108,11 +106,11 @@ public class VscodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 转换一条 assistant_usage_events 行为 AiUsage 记录。
+     * 将一条 {@code assistant_usage_events} 记录转换为用量对象。
      *
-     * @param rs 结果集（current row）
-     * @return populated AiUsage record
-     * @throws SQLException if column access fails
+     * @param rs 当前记录的结果集
+     * @return 填充完整的用量记录
+     * @throws SQLException 读取字段失败时抛出
      */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         long startTime = parseInstantToMillis(rs.getString(1));
@@ -158,8 +156,8 @@ public class VscodeUsageParser extends BaseUsageParser {
     /**
      * 将 nano-AIU 计数转换为 USD。
      *
-     * @param nanoAiu GitHub reported 整数 nano-AIU
-     * @return USD 金额（0 或负数返回 null）
+     * @param nanoAiu GitHub 记录的纳诺人工智能单位计数
+     * @return 美元金额，计数为零或负数时返回 null
      */
     private BigDecimal convertNanoAiuToUsd(long nanoAiu) {
         if (nanoAiu <= 0) {

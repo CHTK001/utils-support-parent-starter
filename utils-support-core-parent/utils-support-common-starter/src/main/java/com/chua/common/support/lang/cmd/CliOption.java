@@ -61,7 +61,7 @@ public final class CliOption {
 
     /**
      * 选项的值类型枚举
-    */
+     */
     public enum OptionType {
         STRING,
         INTEGER,
@@ -74,43 +74,43 @@ public final class CliOption {
 
     /**
      * 长选项名称
-    */
+     */
     private final String longName;
     /**
      * 短选项名称
-    */
+     */
     private final String shortName;
     /**
      * 描述信息
-    */
+     */
     private final String description;
     /**
      * 选项类型
-    */
+     */
     private final OptionType type;
     /**
      * 是否必填
-    */
+     */
     private final boolean required;
     /**
      * 是否为标志参数
-    */
+     */
     private final boolean flag;
     /**
      * 默认值
-    */
+     */
     private final Object defaultValue;
     /**
      * 枚举类型
-    */
+     */
     private final Class<? extends Enum<?>> enumType;
     /**
      * 枚举常量值数组
-    */
+     */
     private final String[] enumConstants;
     /**
      * 是否忽略枚举大小写
-    */
+     */
     private final boolean enumIgnoreCase;
 
     /**
@@ -289,11 +289,11 @@ public final class CliOption {
         return enumIgnoreCase;
     }
 
-    @Override
     /**
      * 判断相等
      * @param o o
      */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -306,18 +306,18 @@ public final class CliOption {
                 && Objects.equals(shortName, cliOption.shortName);
     }
 
-    @Override
     /**
      * HashCode
-    */
+     */
+    @Override
     public int hashCode() {
         return Objects.hash(longName, shortName);
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return "CliOption{" +
                 "longName='" + longName + '\'' +
@@ -337,49 +337,49 @@ public final class CliOption {
     public static final class Builder {
         /**
          * 长选项名称
-        */
+         */
         private String longName;
         /**
          * 短选项名称
-        */
+         */
         private String shortName;
         /**
          * 描述信息
-        */
+         */
         private String description;
         /**
          * 选项类型
-        */
+         */
         private OptionType type = OptionType.STRING;
         /**
          * 是否必填
-        */
+         */
         private boolean required;
         /**
          * 是否为标志参数
-        */
+         */
         private boolean flag;
         /**
          * 默认值
-        */
+         */
         private Object defaultValue;
 
         /**
          * 枚举类型
-        */
+         */
         private Class<? extends Enum<?>> enumType;
         /**
          * 枚举常量值数组
-        */
+         */
         private String[] enumConstants = new String[0];
         /**
          * 是否忽略枚举大小写
-        */
+         */
         private boolean enumIgnoreCase;
 
         /**
          * 创建 Builder 实例
-        */
+         */
         private Builder() {
         }
 

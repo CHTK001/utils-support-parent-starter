@@ -2,6 +2,9 @@ package com.chua.trae.support.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +42,31 @@ public record ModelConfig(
     */
     @JsonProperty("settings") Settings settings
 ) {
+
+    /**
+     * 规范构造器：对两个映射组件做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。本配置为一次性装载、长期持有的
+     * 共享状态，若直接持有 Jackson 反序列化产出的可变映射，调用方就地改写会串改全局路由。</p>
+     *
+     * <p>配置项在 JSON 中可整体缺省，{@link com.chua.trae.support.ChatClient} 亦显式判空
+     * （{@code models() != null}、{@code mappings() != null}），故两个组件保留 {@code null} 语义；
+     * 映射内的值允许为 {@code null}，故采用可空安全的不可变包装而非会拒绝 null 值的
+     * {@link Map#copyOf(Map)}。</p>
+     *
+     * @param models   模型映射表
+     * @param tiers    分档定义
+     * @param fallback 降级配置
+     * @param settings 运行时设置
+     */
+    public ModelConfig {
+        models = models == null
+                ? null
+                : Collections.unmodifiableMap(new LinkedHashMap<>(models));
+        tiers = tiers == null
+                ? null
+                : Collections.unmodifiableMap(new LinkedHashMap<>(tiers));
+    }
 
     /**
      * 模型条目。
@@ -83,7 +111,28 @@ public record ModelConfig(
         @JsonProperty("name") String name,
         @JsonProperty("models") List<String> models,
         @JsonProperty("description") String description
-    ) {}
+    ) {
+
+        /**
+         * 规范构造器：对档位模型列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。本档位定义由
+         * {@link ModelConfig} 统一持有，若直接持有反序列化产出的可变列表，
+         * 逐档位改写会互相串扰。</p>
+         *
+         * <p>该列表在 JSON 中可缺省，保留 {@code null} 语义；元素允许为 {@code null}，
+         * 故采用可空安全的不可变包装而非 {@link List#copyOf(List)}。</p>
+         *
+         * @param name        档位名称
+         * @param models      该档位包含的模型列表
+         * @param description 档位描述
+         */
+        public TierDef {
+            models = models == null
+                    ? null
+                    : Collections.unmodifiableList(new ArrayList<>(models));
+        }
+    }
 
     /**
      * 降级配置。
@@ -104,6 +153,30 @@ public record ModelConfig(
         @JsonProperty("fallbackModel") String fallbackModel,
         @JsonProperty("mappings") Map<String, List<String>> mappings
     ) {
+
+        /**
+         * 规范构造器：对降级链映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。降级链映射是模型路由的核心配置，
+         * 若直接持有反序列化产出的可变映射，调用方就地增删会静默改变实际降级行为。</p>
+         *
+         * <p>{@link com.chua.trae.support.ChatClient} 显式判空（{@code mappings() != null}）
+         * 后按「无降级链」处理，组件保留 {@code null} 语义；映射内的值允许为 {@code null}，
+         * 故采用可空安全的不可变包装而非会拒绝 null 值的 {@link Map#copyOf(Map)}。</p>
+         *
+         * @param autoFlag 是否启用自动降级
+         * @param queueThresholdValue 排队阈值
+         * @param tieredFlag 是否启用分档降级
+         * @param raceFlag 是否同档竞速
+         * @param fallbackModel 兜底模型
+         * @param mappings 旧版降级链映射
+         */
+        public FallbackConfig {
+            mappings = mappings == null
+                    ? null
+                    : Collections.unmodifiableMap(new LinkedHashMap<>(mappings));
+        }
+
         /**
          * 是否启用自动降级。
          *

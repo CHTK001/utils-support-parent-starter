@@ -63,7 +63,7 @@ public final class CryptoPackCli {
         Crypto crypto = Crypto.create()
                 .keyPolicy(policy)
                 .secret(pin.toCharArray())
-                .serverId(opts.get("serverId"))
+                .serverId(opts.get("server-id"))
                 .memory()
                 .build();
 

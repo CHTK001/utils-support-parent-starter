@@ -41,6 +41,25 @@ public final class HprofParser {
                           List<HprofRefChainWalker.RefChain> refChains,
                           long totalRetainedBytes,
                           long totalObjectCount) {
+
+        /**
+         * 规范构造器：对全部集合组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。唯一构造点
+         * {@link #fromContext(HprofParseContext.ParsedContext)} 传入的列表与映射
+         * 均非空、键与元素均非空，因此使用 {@link List#copyOf(List)} 与
+         * {@link Map#copyOf(Map)}。下游只做读取与再排序（排序在副本上进行），
+         * 不存在对返回集合的写操作。</p>
+         */
+        public Result {
+            objects = List.copyOf(Objects.requireNonNull(objects, "objects 不能为 null"));
+            histogram = List.copyOf(Objects.requireNonNull(histogram, "histogram 不能为 null"));
+            topRetained = List.copyOf(Objects.requireNonNull(topRetained, "topRetained 不能为 null"));
+            gcRoots = List.copyOf(Objects.requireNonNull(gcRoots, "gcRoots 不能为 null"));
+            gcRootsByKind = Map.copyOf(Objects.requireNonNull(gcRootsByKind, "gcRootsByKind 不能为 null"));
+            classDetails = Map.copyOf(Objects.requireNonNull(classDetails, "classDetails 不能为 null"));
+            refChains = List.copyOf(Objects.requireNonNull(refChains, "refChains 不能为 null"));
+        }
     }
 
     /**

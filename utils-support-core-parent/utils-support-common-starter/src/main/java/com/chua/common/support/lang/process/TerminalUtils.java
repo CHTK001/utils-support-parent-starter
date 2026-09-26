@@ -31,7 +31,7 @@ public class TerminalUtils {
 
     /**
      * Cursormovementsupported
-    */
+     */
     private static final boolean cursorMovementSupported = false;
 
     static Queue<ProgressBarConsumer> activeConsumers = new ConcurrentLinkedQueue<>();
@@ -86,7 +86,7 @@ public class TerminalUtils {
 
     /**
      * OS名称
-    */
+     */
     private static String osName;
 
     /**
@@ -193,7 +193,7 @@ public class TerminalUtils {
 
     /**
      * 关闭Terminal
-    */
+     */
     synchronized static void closeTerminal() {
     }
 

@@ -21,16 +21,15 @@ import java.util.function.Function;
 @SpiDescribe("默认服务注入器（@AutoInject）")
 public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(AutoInject.class);
     }
 
-    @Override
     /**
      * Inject
      * @param field 字段
@@ -39,6 +38,7 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
      * @param beanProvider Bean提供者
      * @param typeProvider 类型提供者
      */
+    @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,
                          Function<Class<?>, Object> typeProvider) {

@@ -168,6 +168,6 @@ public class ConvertSupport {
                 return;
             }
         }
-        throw new UnsupportedOperationException("No converter for " + sourceType + " -> " + targetType);
+        throw new UnsupportedOperationException("未找到类型转换器: " + sourceType + " -> " + targetType);
     }
 }

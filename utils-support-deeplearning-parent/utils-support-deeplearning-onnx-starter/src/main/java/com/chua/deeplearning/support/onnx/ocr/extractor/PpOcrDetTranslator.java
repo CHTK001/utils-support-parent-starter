@@ -5,7 +5,9 @@ import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
 import com.chua.common.support.utils.NativeLoader;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.model.DetectionInfo;
+import com.chua.deeplearning.support.onnx.ModelResourceResolver;
 import com.chua.deeplearning.support.translator.ITranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.*;
@@ -151,12 +153,60 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     /**
-     * Prepare
-    */
+     * 准备会话。
+     *
+     * <p>权重按三级回退解析，使「外部目录绑定」与「显式路径」都能生效：</p>
+     * <ol>
+     *   <li>框架注入的路径 / 外部目录（{@code setModelPath}，目录内取 inference.onnx）；</li>
+     *   <li>注册表解析（{@code ModelRegistry.resolveModelPath}，覆盖下载缓存等）；</li>
+     *   <li>classpath 兜底（{@link NativeLoader} 按 {@code resourceBase} 解压，内置 jar 场景）。</li>
+     * </ol>
+     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
         }
+        Path modelPath = resolveModelFile();
+        this.ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        // 按该模型的 device 参数尝试启用 CUDA；缺 CUDA 原生库或初始化失败时静默保持 CPU
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, modelName);
+        this.session = ortEnv.createSession(modelPath.toString(), opts);
+        // 预热：首次推理初始化 ORT 内部状态，避免首次调用结果异常
+        warmup();
+        log.info("[PaddleOCRv6-det] ONNX loaded: {}", modelPath);
+    }
+
+    /**
+     * 接收框架注入的模型路径 / 外部目录。
+     *
+     * @param path 模型绝对路径或外部目录路径
+     */
+    public void setModelPath(String path) {
+        if (path != null && !path.isBlank()) {
+            this.injectedPath = path.trim();
+        }
+    }
+
+    /**
+     * 框架注入的模型路径 / 外部目录。
+     */
+    private volatile String injectedPath;
+
+    /**
+     * 三级回退解析检测模型文件。
+     *
+     * @return 模型文件绝对路径
+     * @throws Exception 三级均未找到时抛出
+     */
+    private Path resolveModelFile() throws Exception {
+        Path external = ModelResourceResolver.resolveOnnx(
+                injectedPath, modelName, resourceBase, MODEL_FILE);
+        if (external != null) {
+            return external;
+        }
+        // classpath 兜底
         Path tmpDir = Files.createTempDirectory("paddleocrv6-det-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("det");
@@ -171,15 +221,9 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                 .load();
         Path modelPath = modelDir.resolve(MODEL_FILE);
         if (!Files.isRegularFile(modelPath)) {
-            throw new IllegalArgumentException("OCR 检测模型缺失: " + modelPath);
+            throw new IllegalArgumentException("OCR 检测模型缺失（外部目录 / 注册表 / classpath 均未找到）: " + modelName);
         }
-        this.ortEnv = OrtEnvironment.getEnvironment();
-        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        this.session = ortEnv.createSession(modelPath.toString(), opts);
-        // 预热：首次推理初始化 ORT 内部状态，避免首次调用结果异常
-        warmup();
-        log.info("[PaddleOCRv6-det] ONNX loaded: {}", modelPath.getFileName());
+        return modelPath;
     }
 
     /**

@@ -25,10 +25,10 @@ public enum ProgressUnitType implements ProgressUnit {
      * 返回空字符串，不显示任何数值。
      */
     NONE() {
-        @Override
         /**
          * 格式化
-        */
+         */
+        @Override
         public String format(long num) {
             return SYMBOL_EMPTY;
         }
@@ -40,10 +40,10 @@ public enum ProgressUnitType implements ProgressUnit {
      * 自动转换为 B、KB、MB、GB 等单位显示，使用 SizeValue 进行格式化。
      */
     BYTE() {
-        @Override
         /**
          * 格式化
-        */
+         */
+        @Override
         public String format(long num) {
             return SizeValue.format(num);
         }
@@ -55,10 +55,10 @@ public enum ProgressUnitType implements ProgressUnit {
      * 直接显示原始数字，不进行单位转换。
      */
     ORIGINAL() {
-        @Override
         /**
          * 格式化
-        */
+         */
+        @Override
         public String format(long num) {
             return String.valueOf(num);
         }
@@ -70,10 +70,10 @@ public enum ProgressUnitType implements ProgressUnit {
      * 使用 SizeValue 格式化为 B、KB、MB、GB 等单位，基于 BigDecimal 计算。
      */
     SIZE() {
-        @Override
         /**
          * 格式化
-        */
+         */
+        @Override
         public String format(long num) {
             return SizeValue.format(NumberUtils.toBigDecimal(num).longValue());
         }

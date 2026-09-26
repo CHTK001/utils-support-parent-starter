@@ -3,6 +3,9 @@ package com.chua.common.support.ai.memory;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,8 +75,32 @@ public record MemoryEntry(
 ) implements Serializable {
 
     /**
+     * 规范构造器：对标签列表与扩展元数据做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * {@code MemoryManager#saveRaw}、{@link MemoryEntryEntity#toEntry}
+     * 以及 {@code FileMemoryStore} 的 JSON 反序列化都可能传入 null，
+     * 故此处保留 null 语义，并采用可容纳 null 元素的可空安全写法。</p>
+     *
+     * @param id         记忆 ID，可为 null（由存储层补齐）
+     * @param content    记忆内容，可为 null
+     * @param type       记忆类型
+     * @param sessionId  会话 ID
+     * @param agentId    Agent 标识
+     * @param createdAt  创建时间戳（毫秒）
+     * @param importance 重要性评分，可为 null
+     * @param tags       标签列表，可为 null
+     * @param metadata   扩展元数据，可为 null
+     */
+    public MemoryEntry {
+        tags = tags == null ? null : Collections.unmodifiableList(new ArrayList<>(tags));
+        metadata = metadata == null ? null
+                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+    }
+
+    /**
      * 序列化版本号
-    */
+     */
     private static final long serialVersionUID = 1L;
 
     /**

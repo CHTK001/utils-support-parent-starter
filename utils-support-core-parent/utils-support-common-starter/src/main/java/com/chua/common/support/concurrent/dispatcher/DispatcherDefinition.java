@@ -23,11 +23,10 @@ public class DispatcherDefinition {
 
     /**
      * 订阅者对象实例
+     *
+     * Subscriber
      */
     @Getter
-    /**
-     * Subscriber
-    */
     private final Object subscriber;
 
     /**
@@ -37,11 +36,10 @@ public class DispatcherDefinition {
 
     /**
      * 订阅的主题列表。
+     *
+     * Topics
      */
     @Getter
-    /**
-     * Topics
-    */
     private final List<String> topics;
 
     /**

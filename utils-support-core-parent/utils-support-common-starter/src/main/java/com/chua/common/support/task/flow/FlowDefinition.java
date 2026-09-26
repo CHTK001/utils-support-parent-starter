@@ -3,9 +3,11 @@ package com.chua.common.support.task.flow;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 流程定义图模型。
@@ -28,7 +30,7 @@ import java.util.Map;
  * }
  * }</pre> ]
  * }
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -109,6 +111,28 @@ public class FlowDefinition {
     ) {
 
         /**
+         * 规范构造器：节点标识与类型为空值敌对，配置参数做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。
+         * 本类型是前后端共享的 JSON 契约（{@code FlowJson} 负责反序列化），
+         * 故保留 {@code props} 的 null 语义：JSON 中缺省 {@code props} 时即为 null。
+         * 配置值取自用户 JSON，可能为 null，故采用可空安全的 unmodifiable 包装。</p>
+         *
+         * @param id    节点唯一标识
+         * @param type  节点类型
+         * @param props 节点配置参数，可为 null
+         * @param x     画布横坐标
+         * @param y     画布纵坐标
+         */
+        public FlowNodeDef {
+            id = Objects.requireNonNull(id, "id 不能为 null");
+            type = Objects.requireNonNull(type, "type 不能为 null");
+            props = props == null
+                    ? null
+                    : Collections.unmodifiableMap(new LinkedHashMap<>(props));
+        }
+
+        /**
          * 创建带默认坐标的节点定义。
          *
          * @param id    节点唯一标识
@@ -149,6 +173,23 @@ public class FlowDefinition {
             String to,
             String label
     ) {
+
+        /**
+         * 规范构造器：两端节点标识为空值敌对。
+         *
+         * <p>value class 前置条件——引用组件不接受 null。
+         * {@link FlowDefinition#findOutEdges(String)} 无条件解引用
+         * {@code edge.from()}，为 null 必然运行期 NPE，故提前拦截。
+         * {@code label} 表示边标签（空串表示顺序边），允许为 null，不校验。</p>
+         *
+         * @param from  源节点标识
+         * @param to    目标节点标识
+         * @param label 边标签，可为 null
+         */
+        public FlowEdgeDef {
+            from = Objects.requireNonNull(from, "from 不能为 null");
+            to = Objects.requireNonNull(to, "to 不能为 null");
+        }
 
         /**
          * 创建顺序连线。

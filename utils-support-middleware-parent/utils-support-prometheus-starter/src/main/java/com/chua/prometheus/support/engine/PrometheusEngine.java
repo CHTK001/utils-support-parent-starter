@@ -473,6 +473,16 @@ public class PrometheusEngine implements Engine {
         }
     }
 
+    @Override
+    /**
+     * 是否已关闭
+     *
+     * @return 已关闭返回 true
+     */
+    public boolean isClosed() {
+        return closed.get();
+    }
+
     /**
      * 关闭单个数据源, 失败仅记录日志
      * <p>关闭阶段必须保证其余数据源继续释放, 因此不上抛; 客户端本身幂等关闭。</p>

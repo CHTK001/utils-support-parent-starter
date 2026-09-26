@@ -338,8 +338,10 @@ public class AiChatConfig {
         Map<Integer, List<AiChatClientBindingEntity>> groupMap =
                 bindings.stream().collect(Collectors.groupingBy(
                         b -> b.getGroupOrder() != null ? b.getGroupOrder() : 0));
-        groupMap.keySet().stream().sorted().forEach(order -> {
-            List<AiChatClientBindingEntity> groupBindings = groupMap.get(order);
+        groupMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+            List<AiChatClientBindingEntity> groupBindings = entry.getValue();
             if (CollectionUtils.isEmpty(groupBindings)) {
                 return;
             }

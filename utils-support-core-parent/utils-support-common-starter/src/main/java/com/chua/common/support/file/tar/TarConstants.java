@@ -26,8 +26,8 @@ public final class TarConstants {
 
     /**
      * 创建 TarConstants 实例
-    */
+     */
     private TarConstants() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+        throw new UnsupportedOperationException("工具类不允许实例化");
     }
 }

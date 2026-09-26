@@ -43,20 +43,18 @@ public class BucketSetting {
 
     /**
      * 连接超时时间（毫秒），默认 10 秒。
+     *
+     * Connection超时mills
      */
     @Builder.Default
-    /**
-     * Connection超时mills
-    */
     private long connectionTimeoutMills = 10 * 1000;
 
     /**
      * 会话超时时间（毫秒），默认 10 秒。
+     *
+     * 会话超时mills
      */
     @Builder.Default
-    /**
-     * 会话超时mills
-    */
     private long sessionTimeoutMills = 10 * 1000;
 
     /**

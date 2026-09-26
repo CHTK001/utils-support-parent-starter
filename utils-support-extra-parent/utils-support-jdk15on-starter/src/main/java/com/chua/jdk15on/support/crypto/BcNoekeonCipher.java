@@ -13,8 +13,11 @@ import java.security.SecureRandom;
  * 基于 bouncycastle 的 Noekeon 对称加解密实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
- * 实现 Noekeon/ECB/zerobytepadding 模式的加密与解密。
+ * 实现 Noekeon/ECB/PKCS7Padding 模式的加密与解密。
  * 密钥长度固定为 16 字节（128 位）。
+ *
+ * <p>不用 ZeroBytePadding：该填充无法区分明文自身的尾部 {@code 0x00} 与填充字节，
+ * 解密时会把明文尾部的零当作填充删掉，造成静默截断。
  *
  * @author CH
  * @since 2026/07/16
@@ -33,7 +36,7 @@ public class BcNoekeonCipher implements NoekeonCipher {
     /**
      * 转变
     */
-    private static final String TRANSFORMATION = "Noekeon/ECB/ZeroBytePadding";
+    private static final String TRANSFORMATION = "Noekeon/ECB/PKCS7Padding";
 
     static {
         if (Security.getProvider(PROVIDER) == null) {

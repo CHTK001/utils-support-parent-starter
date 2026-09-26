@@ -14,12 +14,12 @@ public class OsgiLauncherHolder {
 
     /**
      * INSTANCE
-    */
+     */
     private static volatile OsgiLauncher INSTANCE;
 
     /**
      * 创建 osgilauncherholder 实例
-    */
+     */
     private OsgiLauncherHolder() {}
 
     /**
@@ -38,6 +38,20 @@ public class OsgiLauncherHolder {
      */
     public static OsgiLauncher getInstance() {
         return INSTANCE;
+    }
+
+    /**
+     * 获取全局唯一的 OSGI 启动器实例，未设置时抛出异常。
+     *
+     * @return OSGI 启动器
+     * @throws IllegalStateException 启动器尚未注册时抛出
+     */
+    public static OsgiLauncher requireInstance() {
+        OsgiLauncher launcher = INSTANCE;
+        if (launcher == null) {
+            throw new IllegalStateException("OSGI 启动器尚未启动，无法获取全局实例");
+        }
+        return launcher;
     }
 
     /**

@@ -26,11 +26,11 @@ public class HttpServerResponse implements ServerResponse {
 
     /**
      * Exchange
-    */
+     */
     private final HttpExchange exchange;
     /**
      * 状态代码
-    */
+     */
     private int statusCode = 200;
     /**
      * 请求体
@@ -38,23 +38,23 @@ public class HttpServerResponse implements ServerResponse {
     private byte[] body;
     /**
      * Ended
-    */
+     */
     private boolean ended;
     /**
      * Committed
-    */
+     */
     private boolean committed;
     /**
      * Sent
-    */
+     */
     private boolean sent;
     /**
      * SSE模式
-    */
+     */
     private boolean sseMode;
     /**
      * SSE输出流
-    */
+     */
     private OutputStream sseOutputStream;
     /**
      * 结果
@@ -62,7 +62,7 @@ public class HttpServerResponse implements ServerResponse {
     private Object result;
     /**
      * 输出
-    */
+     */
     private ByteArrayOutputStream output;
 
     /**
@@ -73,10 +73,10 @@ public class HttpServerResponse implements ServerResponse {
         this.exchange = exchange;
     }
 
-    @Override
     /**
      * 设置Status
-    */
+     */
+    @Override
     public ServerResponse setStatus(int code) {
         if (ended) {
             return this;
@@ -85,18 +85,18 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Status
-    */
+     */
+    @Override
     public int getStatus() {
         return statusCode;
     }
 
-    @Override
     /**
      * 设置Header
-    */
+     */
+    @Override
     public ServerResponse setHeader(String name, String value) {
         if (ended) {
             return this;
@@ -105,44 +105,44 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Header
-    */
+     */
+    @Override
     public String getHeader(String name) {
         return exchange.getResponseHeaders().getFirst(name);
     }
 
-    @Override
     /**
      * 获取Headers
-    */
+     */
+    @Override
     public HttpHeader getHeaders() {
         HttpHeader h = HttpHeader.create();
         exchange.getResponseHeaders().forEach((k, v) -> h.add(k, String.join(",", v)));
         return h;
     }
 
-    @Override
     /**
      * 设置ContentType
-    */
+     */
+    @Override
     public ServerResponse setContentType(String ct) {
         return setHeader("Content-Type", ct);
     }
 
-    @Override
     /**
      * 获取ContentType
-    */
+     */
+    @Override
     public String getContentType() {
         return getHeader("Content-Type");
     }
 
-    @Override
     /**
      * 设置Body
-    */
+     */
+    @Override
     public ServerResponse setBody(byte[] b) {
         if (ended) {
             return this;
@@ -151,10 +151,10 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 设置Body
-    */
+     */
+    @Override
     public ServerResponse setBody(String b) {
         if (ended) {
             return this;
@@ -163,18 +163,18 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 获取Body
-    */
+     */
+    @Override
     public byte[] getBody() {
         return body;
     }
 
-    @Override
     /**
      * 获取OutputStream
-    */
+     */
+    @Override
     public OutputStream getOutputStream() {
         if (output == null) {
             output = new ByteArrayOutputStream();
@@ -182,10 +182,10 @@ public class HttpServerResponse implements ServerResponse {
         return output;
     }
 
-    @Override
     /**
      * 发送Redirect
-    */
+     */
+    @Override
     public ServerResponse sendRedirect(String location) {
         setHeader("Location", location);
         setStatus(302);
@@ -193,10 +193,10 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 发送记录错误
-    */
+     */
+    @Override
     public ServerResponse sendError(int code, String msg) {
         setStatus(code);
         setBody(msg);
@@ -204,10 +204,10 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * 刷新
-    */
+     */
+    @Override
     public void flush() {
         if (sseMode && sseOutputStream != null) {
             try {
@@ -218,43 +218,43 @@ public class HttpServerResponse implements ServerResponse {
         }
     }
 
-    @Override
     /**
      * 是否Committed
-    */
+     */
+    @Override
     public boolean isCommitted() {
         return committed;
     }
 
-    @Override
     /**
      * 是否Ended
-    */
+     */
+    @Override
     public boolean isEnded() {
         return ended;
     }
 
-    @Override
     /**
      * 设置Result
-    */
+     */
+    @Override
     public ServerResponse setResult(Object result) {
         this.result = result;
         return this;
     }
 
-    @Override
     /**
      * 获取Result
-    */
+     */
+    @Override
     public Object getResult() {
         return result;
     }
 
-    @Override
     /**
      * 重置
-    */
+     */
+    @Override
     public ServerResponse reset() {
         if (ended) {
             return this;
@@ -267,18 +267,18 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * End
-    */
+     */
+    @Override
     public void end() {
         ended = true;
     }
 
-    @Override
     /**
      * 写入Raw
-    */
+     */
+    @Override
     public void writeRaw(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -306,7 +306,7 @@ public class HttpServerResponse implements ServerResponse {
 
     /**
      * Complete
-    */
+     */
     public void complete() {
         if (sent) {
             return;
@@ -358,7 +358,7 @@ public class HttpServerResponse implements ServerResponse {
 
     /**
      * 关闭SseStream
-    */
+     */
     private void closeSseStream() {
         if (sseOutputStream != null) {
             try {
@@ -370,10 +370,10 @@ public class HttpServerResponse implements ServerResponse {
         }
     }
 
-    @Override
     /**
      * Sse
-    */
+     */
+    @Override
     public ServerResponse sse() {
         if (committed) {
             return this;
@@ -393,10 +393,10 @@ public class HttpServerResponse implements ServerResponse {
         return this;
     }
 
-    @Override
     /**
      * Sse关闭
-    */
+     */
+    @Override
     public void sseClose() {
         if (sseMode && !ended) {
             ServerResponse.super.sseClose();

@@ -20,6 +20,26 @@ public interface BundleStateQuery {
     OsgiBundle getBundle(String symbolicName);
 
     /**
+     * 根据框架内唯一编号获取特定的 osgi 捆绑包。
+     *
+     * @param bundleId 捆绑包在框架内的唯一编号
+     * @return 对应的 osgi 捆绑包对象，如果未找到则返回 空
+     */
+    OsgiBundle getBundle(long bundleId);
+
+    /**
+     * 根据来源位置精确匹配获取 osgi 捆绑包列表。
+     * <p>
+     * 该查询用于版本升级场景：同一符号名称可能存在多个已卸载但仍保留位置记录的实例，
+     * 以位置匹配比以符号名称模糊匹配更精确。
+     * </p>
+     *
+     * @param location 捆绑包的来源位置 URL
+     * @return 匹配的 osgi 捆绑包列表
+     */
+    List<OsgiBundle> getBundlesByLocation(String location);
+
+    /**
      * 根据指定状态获取所有匹配的 osgi 捆绑包列表。
      *
      * @param state 要查询的捆绑包状态字符串

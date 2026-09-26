@@ -31,7 +31,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
 
     /**
      * 允许的最大请求体尺寸(字节)
-    */
+     */
     private final long maxBodyBytes;
 
     /**
@@ -43,31 +43,30 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
         this.maxBodyBytes = maxBodyBytes;
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 20;
     }
 
-    @Override
     /**
      * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
      */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      *
@@ -75,6 +74,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (exceedsLimit(request)) {
@@ -84,7 +84,6 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 响应式Do过滤
      *
@@ -92,6 +91,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
      * @param response response
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (exceedsLimit(request)) {

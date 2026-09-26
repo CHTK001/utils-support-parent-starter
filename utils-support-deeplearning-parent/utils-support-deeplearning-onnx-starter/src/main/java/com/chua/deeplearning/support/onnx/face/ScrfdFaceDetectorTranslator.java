@@ -114,9 +114,9 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
                     keep = false;
                     break;
                 }
-                if (!keep) {
-                    continue;
-                }
+            }
+            if (!keep) {
+                continue;
             }
             names.add("face");
             probs.add(c.score());

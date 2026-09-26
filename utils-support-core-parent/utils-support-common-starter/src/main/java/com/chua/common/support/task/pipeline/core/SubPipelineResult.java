@@ -132,7 +132,7 @@ public class SubPipelineResult {
 
     /**
      * 返回含子流水线执行信息的调试字符串。
-    */
+     */
     @Override
     public String toString() {
         return "SubPipelineResult{" +

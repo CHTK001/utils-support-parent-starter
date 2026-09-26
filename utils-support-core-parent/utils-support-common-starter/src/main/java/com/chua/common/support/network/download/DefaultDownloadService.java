@@ -386,7 +386,7 @@ public class DefaultDownloadService implements DownloadService {
     private static class ThrottledInputStream extends InputStream {
         /**
          * 底层输入流
-        */
+         */
         private final InputStream delegate;
         /**
          * 每秒可消耗的毫秒级速率（bytesPerSecond / 1000）
@@ -394,11 +394,11 @@ public class DefaultDownloadService implements DownloadService {
         private final long bytesPerMs;
         /**
          * 当前可用令牌数（字节）
-        */
+         */
         private long tokens;
         /**
          * 上次令牌补充时间（毫秒时间戳）
-        */
+         */
         private long lastRefill;
 
         /**

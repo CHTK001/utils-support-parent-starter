@@ -1,6 +1,8 @@
 package com.chua.webview.support;
 
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDescribe;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.webview.support.webview.WebViewWindow;
 import dev.webview.Webview;
@@ -25,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author CH
  * @since 4.0.0.42
  */
+@Spi("native")
+@SpiDescribe("原生 webview 窗口（WebView2/WKWebView/WebKitGTK）")
 @ConditionalOnClass("dev.webview.Webview")
 @RequiredArgsConstructor
 @Slf4j

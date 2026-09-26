@@ -46,26 +46,26 @@ public class JsonFileSystem implements FileSystem {
      */
     private static final int EMPTY_RESULT_ROW_COUNT = 0;
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return TYPE_JSON;
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public ReadBuilder read(File file) {
         return new JsonReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public WriteBuilder write(File file) {
         return new JsonWriteBuilder(file);
     }
@@ -81,10 +81,10 @@ public class JsonFileSystem implements FileSystem {
             super(file);
         }
 
-        @Override
         /**
          * WithCharset
-        */
+         */
+        @Override
         public JsonReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -204,10 +204,10 @@ public class JsonFileSystem implements FileSystem {
             }
         }
 
-        @Override
         /**
          * 读取
-        */
+         */
+        @Override
         public Object read() {
             return rows();
         }
@@ -239,19 +239,19 @@ public class JsonFileSystem implements FileSystem {
             return this;
         }
 
-        @Override
         /**
          * WithCharset
-        */
+         */
+        @Override
         public JsonWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
         }
 
-        @Override
         /**
          * 写入
-        */
+         */
+        @Override
         public JsonWriteBuilder write(Object data) {
             if (data instanceof Map || data instanceof List) {
                 pending.add(data);
@@ -281,10 +281,10 @@ public class JsonFileSystem implements FileSystem {
             }
         }
 
-        @Override
         /**
          * Finish
-        */
+         */
+        @Override
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();

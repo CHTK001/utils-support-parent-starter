@@ -71,34 +71,34 @@ public class K6Benchmark implements Benchmark {
 
     /**
      * 配置对象
-    */
+     */
     private BenchmarkConfig config = BenchmarkConfig.builder().build();
     /**
      * 结果对象
-    */
+     */
     private BenchmarkResult result;
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "k6";
     }
 
-    @Override
     /**
      * Configure
-    */
+     */
+    @Override
     public Benchmark configure(BenchmarkConfig config) {
         this.config = config != null ? config : BenchmarkConfig.builder().build();
         return this;
     }
 
-    @Override
     /**
      * Config
-    */
+     */
+    @Override
     public BenchmarkConfig config() {
         return config;
     }
@@ -131,10 +131,10 @@ public class K6Benchmark implements Benchmark {
         return "k6";
     }
 
-    @Override
     /**
      * 运行
-    */
+     */
+    @Override
     public BenchmarkResult run() throws Exception {
         String targetUrl = config.getTargetUrl();
         if (targetUrl == null || targetUrl.isEmpty()) {
@@ -224,10 +224,10 @@ public class K6Benchmark implements Benchmark {
         }
     }
 
-    @Override
     /**
      * Report
-    */
+     */
+    @Override
     public File report(String reportPath) throws Exception {
         if (result == null || result.getRows().isEmpty()) {
             throw new IllegalStateException("请先执行 run() 获取压测结果");
@@ -239,10 +239,10 @@ public class K6Benchmark implements Benchmark {
         return out;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         // k6 为外部 CLI 进程，无需释放本地资源
     }

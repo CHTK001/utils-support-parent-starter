@@ -121,15 +121,15 @@ public final class ImageProcessors {
 
         /**
          * 当前图像数据
-        */
+         */
         private byte[] imageData;
         /**
          * 底层处理器
-        */
+         */
         private final ImageProcessor processor;
         /**
          * 输出格式（默认 png）
-        */
+         */
         private String format = "png";
 
         /**

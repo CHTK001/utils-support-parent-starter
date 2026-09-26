@@ -97,11 +97,11 @@ public class ConfigValueBinding {
      *
      * @param value 要设置的配置值对象
 
-    */
-    @Setter
+     */
     /**
      * 当前值
-    */
+     */
+    @Setter
     private Object currentValue;
 
     /**
@@ -122,10 +122,10 @@ public class ConfigValueBinding {
         return method != null;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         if (isFieldBinding()) {
             return String.format("ConfigValueBinding[key=%s, bean=%s, field=%s, hotReload=%s]",

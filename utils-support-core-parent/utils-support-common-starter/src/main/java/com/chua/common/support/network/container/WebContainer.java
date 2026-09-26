@@ -168,31 +168,31 @@ public interface WebContainer {
     enum ContainerStatus {
         /**
          * 已创建，尚未初始化
-        */
+         */
         NEW,
         /**
          * 已初始化，尚未启动
-        */
+         */
         INITIALIZED,
         /**
          * 正在启动中
-        */
+         */
         STARTING,
         /**
          * 运行中
-        */
+         */
         RUNNING,
         /**
          * 正在停止中
-        */
+         */
         STOPPING,
         /**
          * 已停止
-        */
+         */
         STOPPED,
         /**
          * 失败/异常状态
-        */
+         */
         FAILED
     }
 

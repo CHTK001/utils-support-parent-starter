@@ -105,5 +105,12 @@
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
+        <!--
+          说明：表达式编译（rule 的 expr 节点）所需的 ASM 实现位于
+          utils-support-asm-starter（com.chua.common.support.rule.codegen.RuleAsmCompiler）。
+          本模块只提供 RuleAssembler.ExpressionCompiler 这一个 SPI 接口，
+          不引入任何字节码生成三方依赖——需要 expr 表达式时由使用方
+          显式引入 utils-support-asm-starter 并装配该实现。
+        -->
     </dependencies>
 </project>

@@ -27,15 +27,15 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
 
     /**
      * 魔数字节
-    */
+     */
     byte[] MAGIC = new byte[]{'W', 'A', 'L', '1'};
     /**
      * 当前版本
-    */
+     */
     int VERSION = 1;
     /**
      * 文件头固定大小（魔法+版本+flags+crc = 16B）
-    */
+     */
     int HEADER_SIZE = 16;
 
     // ==================== WAL 核心操作 ====================
@@ -144,6 +144,32 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
      * @return 结果值
      */
     record WalBatchEntry(byte op, byte[] payload) {
+
+        /**
+         * 规范构造器：数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。
+         * 保留原有语义：payload 为 null 时归一化为空数组，而非抛出 NPE。</p>
+         *
+         * @param op      操作类型
+         * @param payload 业务字节流
+         */
+        public WalBatchEntry {
+            payload = payload == null ? new byte[0] : payload.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * <p>value class 前置条件——外部无法通过访问器拿到内部数组引用。</p>
+         *
+         * @return 数组副本
+         */
+        @Override
+        public byte[] payload() {
+            return payload.clone();
+        }
+
         /**
          * 的。
          * @param op op

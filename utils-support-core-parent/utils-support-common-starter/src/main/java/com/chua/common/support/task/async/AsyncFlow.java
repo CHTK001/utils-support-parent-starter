@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * );
  * }</pre>() -> api.call("/c")
  * );
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

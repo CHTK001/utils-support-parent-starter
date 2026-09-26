@@ -70,6 +70,9 @@ public class BcTwofishCipher implements TwofishCipher {
      * Decrypt
     */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
+        if (ciphertext == null || ciphertext.length <= 16) {
+            throw new IllegalArgumentException("Twofish 密文长度不足，缺少 IV 头或密文体");
+        }
         try {
             byte[] iv = new byte[16];
             System.arraycopy(ciphertext, 0, iv, 0, 16);

@@ -31,53 +31,53 @@ public class BTreeNode {
 
         /**
          * 逻辑运算：AND / OR
-        */
+         */
         LOGIC,
 
         /**
          * 逻辑非：NOT
-        */
+         */
         NOT,
 
         /**
          * 比较运算：= / != / > / < / >= / <=
-        */
+         */
         COMPARE,
 
         /**
          * 列引用：如 age、status
-        */
+         */
         COLUMN,
 
         /**
          * 常量值：如 18、'active'、TRUE
-        */
+         */
         VALUE,
 
         /**
          * 函数调用：如 NOW()、UPPER(name)
-        */
+         */
         FUNCTION,
 
         /**
          * 原始表达式（未解析的文本）
-        */
+         */
         RAW
     }
 
     /**
      * 节点类型
-    */
+     */
     private final Type type;
 
     /**
      * 运算符或列名或函数名
-    */
+     */
     private final String operator;
 
     /**
      * 值（VALUE 类型时为实际值，其他类型可能为 null）
-    */
+     */
     private final Object value;
 
     /**
@@ -87,12 +87,12 @@ public class BTreeNode {
 
     /**
      * 右子节点（LOGIC/NOT/COMPARE 时有值）
-    */
+     */
     private BTreeNode right;
 
     /**
      * 子节点列表（FUNCTION 参数等）
-    */
+     */
     private final List<BTreeNode> children = new ArrayList<>();
 
     /**
@@ -328,10 +328,10 @@ public class BTreeNode {
         return null;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return switch (type) {
             case LOGIC -> "(" + left + " " + operator + " " + right + ")";

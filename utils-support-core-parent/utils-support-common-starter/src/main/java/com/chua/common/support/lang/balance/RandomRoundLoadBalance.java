@@ -23,10 +23,10 @@ public class RandomRoundLoadBalance implements LoadBalance {
   */
  private final List<Node> nodes = new ArrayList<>();
 
- @Override
  /**
   * 选择Node
- */
+  */
+ @Override
  public Node selectNode() {
  if (nodes.isEmpty()) {
  return null;
@@ -35,27 +35,27 @@ public class RandomRoundLoadBalance implements LoadBalance {
  return nodes.get(ThreadLocalRandom.current().nextInt(nodes.size()));
  }
 
- @Override
  /**
   * 创建
- */
+  */
+ @Override
  public LoadBalance create() {
  return new RandomRoundLoadBalance();
  }
 
- @Override
  /**
   * Clear
- */
+  */
+ @Override
  public synchronized LoadBalance clear() {
  nodes.clear();
  return this;
  }
 
- @Override
  /**
   * 添加Node
- */
+  */
+ @Override
  public LoadBalance addNode(Node node) {
  if (node != null) {
  nodes.add(node);
@@ -63,10 +63,10 @@ public class RandomRoundLoadBalance implements LoadBalance {
  return this;
  }
 
- @Override
  /**
   * 选择
- */
+  */
+ @Override
  public <T> T select(List<T> values) {
  if (values == null || values.isEmpty()) {
  return null;

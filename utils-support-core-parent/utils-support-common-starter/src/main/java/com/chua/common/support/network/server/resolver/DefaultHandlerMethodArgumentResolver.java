@@ -28,10 +28,10 @@ import java.util.Map;
 @Spi("default")
 public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-    @Override
     /**
      * 是否Support
-    */
+     */
+    @Override
     public boolean isSupport(Method method, int parameterIndex, ServerRequest request) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         return type == ServerRequest.class ||
@@ -42,10 +42,10 @@ public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgume
                 type == boolean.class || type == Boolean.class;
     }
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public Object resolve(Method method, int parameterIndex, ServerRequest request, ServerResponse response) {
         Class<?> type = method.getParameterTypes()[parameterIndex];
         if (type == ServerRequest.class) {

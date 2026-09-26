@@ -5,6 +5,8 @@ import com.chua.common.support.ai.splitter.TextSplitter;
 import com.chua.common.support.vector.VectorStorage;
 import com.chua.common.support.spi.ServiceProvider;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +31,39 @@ public interface KnowledgeClient extends AutoCloseable {
      * @param metadata 扩展元数据
      * @param embedding 向量（为 null 时由 VectorService 计算）
      */
-    record Document(String id, String content, Map<String, Object> metadata, float[] embedding) {}
+    record Document(String id, String content, Map<String, Object> metadata, float[] embedding) {
+
+        /**
+         * 规范构造器：元数据与向量数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合与数组组件必须深不可变。
+         * 本记录是 SPI 扩展点，由外部实现构造；{@code upsert(String, String, Map)}
+         * 显式传入 null 向量，元数据也允许为 null，
+         * 故此处保留 null 语义并采用可容纳 null 值的可空安全写法。</p>
+         *
+         * @param id        文档唯一标识
+         * @param content   文档内容
+         * @param metadata  扩展元数据，可为 null
+         * @param embedding 向量，为 null 时由 VectorService 计算
+         */
+        public Document {
+            metadata = metadata == null ? null
+                    : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+            embedding = embedding == null ? null : embedding.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部向量数组的副本。
+         *
+         * <p>value class 前置条件——外部不得持有内部数组引用。</p>
+         *
+         * @return 向量数组副本，embedding 为 null 时返回 null
+         */
+        @Override
+        public float[] embedding() {
+            return embedding == null ? null : embedding.clone();
+        }
+    }
 
     /**
      * 检索结果。
@@ -126,9 +160,9 @@ public interface KnowledgeClient extends AutoCloseable {
      */
     List<QueryResult> search(float[] vector, int topK);
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     default void close() {}
 }

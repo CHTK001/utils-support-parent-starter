@@ -11,8 +11,7 @@ import org.bytedeco.javacv.Frame;
  * 基于 javacv(ffmpeg) 的屏幕采集器。
  *
  * <p>使用 gdigrab 采集桌面，直接返回 grabber 帧（单平面 BGR/BGRA），由下游
- * {@link com.chua.common.support.media.codec.VideoEncoder#encode(Frame)}
- * 内部的 {@link org.bytedeco.javacv.FFmpegFrameRecorder#record(Frame)} 完成
+ * {@link org.bytedeco.javacv.FFmpegFrameRecorder#record(Frame)} 完成
  * BGR→YUV420P 转换（javacv 自带的 sws_scale 路径，稳定无崩溃）。</p>
  *
  * <p>gdigrab 设备不支持 {@code setPixelFormat}，会在返回像素格式上保持默认

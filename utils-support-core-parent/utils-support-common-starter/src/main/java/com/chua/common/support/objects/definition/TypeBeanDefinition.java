@@ -42,11 +42,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     /**
      * 类加载器
+     *
+     * Classloader
      */
     @Setter
-    /**
-     * Classloader
-    */
     private ClassLoader classLoader;
 
     /**
@@ -145,10 +144,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     // ==================== 类加载器 ====================
 
-    @Override
     /**
      * 获取类加载
-    */
+     */
+    @Override
     public ClassLoader getClassLoader() {
         if (classLoader != null) {
             return classLoader;
@@ -162,10 +161,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     // ==================== 实例创建 ====================
 
-    @Override
     /**
      * 创建Instance
-    */
+     */
+    @Override
     public Object createInstance() {
         Class<?> bc = getBeanClass();
         if (bc == null) {
@@ -312,28 +311,28 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     // ==================== 单例缓存 ====================
 
-    @Override
     /**
      * 执行获取Bean
-    */
+     */
+    @Override
     protected Object doGetBean() {
         return singletonInstance;
     }
 
-    @Override
     /**
      * 设置Bean
-    */
+     */
+    @Override
     protected void setBean(Object bean) {
         if (BeanScope.SINGLETON == getScope()) {
             this.singletonInstance = bean;
         }
     }
 
-    @Override
     /**
      * 销毁Bean
-    */
+     */
+    @Override
     public void destroyBean() {
         if (isDestroyed()) {
             return;
@@ -344,10 +343,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     // ==================== Bean 获取 ====================
 
-    @Override
     /**
      * 获取Bean
-    */
+     */
+    @Override
     public Object getBean() {
         if (BeanScope.SINGLETON == getScope()) {
             return super.getBean();
@@ -355,10 +354,10 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
         return createInstance();
     }
 
-    @Override
     /**
      * 初始化Bean
-    */
+     */
+    @Override
     public Object initializeBean() {
         if (initialized.get()) {
             return doGetBean();

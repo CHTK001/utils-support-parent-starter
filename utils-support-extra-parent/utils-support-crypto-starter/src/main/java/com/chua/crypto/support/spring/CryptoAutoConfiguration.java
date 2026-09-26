@@ -37,6 +37,7 @@ public class CryptoAutoConfiguration {
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public Crypto crypto(CryptoProperties properties) {
-        return Crypto.from(properties.toSetting()).initialize();
+        Crypto shared = CryptoEnvironmentPostProcessor.takeHeld();
+        return shared != null ? shared : Crypto.from(properties.toSetting()).initialize();
     }
 }

@@ -27,7 +27,7 @@ import java.util.List;
  *   BackupResult result = manager.backupPolledDirectory(config);
  * }</pre>*   // 使用轮询目录备份
  *   BackupResult result = manager.backupPolledDirectory(config);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2026/07/16
@@ -126,7 +126,7 @@ public class BackupManager {
 
     /**
      * Restore
-    */
+     */
     private final BackupRestore restore = new DefaultBackupRestore();
 
     /**

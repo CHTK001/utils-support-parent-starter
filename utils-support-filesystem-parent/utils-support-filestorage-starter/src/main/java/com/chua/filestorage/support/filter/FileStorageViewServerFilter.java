@@ -12,6 +12,7 @@ import com.chua.common.support.storage.result.GetObjectResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.cache.PreviewPdfCache;
 import com.chua.filestorage.support.operation.FileOperationSetting;
+import com.chua.filestorage.support.preview.ClientPreviewSupport;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 import com.chua.filestorage.support.setting.FileStorageSetting;
@@ -24,8 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 /**
  * 文件存储预览过滤器。
@@ -37,11 +36,17 @@ import java.util.Set;
  * <p>处理优先级：</p>
  * <ol>
  *   <li>图片 / 音视频 —— 浏览器原生直接返回（可选应用滤镜）</li>
- *   <li>SPI 预览提供者 —— MD、CSV、代码、PDF 等转为 HTML+JS</li>
- *   <li>PDF 转换 —— Office 文档通过 {@link ConvertSupport} 转 PDF，经 PDF.js 渲染</li>
- *   <li>前端插件 —— Office 等返回 {@code X-FileStorage-Preview-Plugin} 头</li>
+ *   <li>客户端直渲染 —— docx / xlsx / xls / pdf / pptx 直接回吐原始字节，
+ *       由前端组件解析，不占用服务端转换资源（见 {@link ClientPreviewSupport}）</li>
+ *   <li>SPI 预览提供者 —— MD、CSV、代码、压缩包等转为 HTML+JS</li>
+ *   <li>PDF 转换 —— 传统 doc / ppt / odt 等经 {@link ConvertSupport} 转 PDF，
+ *       由 PDF.js 渲染（客户端组件无法解析的格式兜底）</li>
+ *   <li>前端插件 —— 3D / CAD 等返回 {@code X-FileStorage-Preview-Plugin} 头</li>
  *   <li>无法支持 —— 415</li>
  * </ol>
+ *
+ * <p>客户端直渲染可通过 {@code ?preview=true&render=server} 显式关闭，
+ * 用于前端组件解析失败后退回服务端渲染链路。</p>
  *
  * @author CH
  * @since 2024/12/28
@@ -50,14 +55,8 @@ import java.util.Set;
 public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter {
 
     /**
-     * 复合扩展名列表（需优先于单扩展名识别）
-    */
-    private static final Set<String> COMPOUND_EXTS = Set.of(
-            "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
-
-    /**
      * 预览请求允许读取的最大内容字节数（防止超大文件拖垮内存与转换线程）
-    */
+     */
     private static final long MAX_PREVIEW_CONTENT_BYTES = 512L * 1024 * 1024;
 
     /**
@@ -146,7 +145,19 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             return;
         }
 
-        // --- 2. SPI 预览提供者 ---
+        // --- 2. 客户端直渲染：docx / xlsx / xls / pdf / pptx 直接回吐原始字节 ---
+        // 必须排在 SPI 提供者之前，否则 Univer / 旧版 Office 提供者会抢先在服务端渲染
+        String renderer = resolveClientRenderer(request, ext, content);
+        if (renderer != null) {
+            response.setStatus(200)
+                    .setContentType(mime)
+                    .setHeader(ClientPreviewSupport.HEADER_PREVIEW, ClientPreviewSupport.CHANNEL_CLIENT)
+                    .setHeader(ClientPreviewSupport.HEADER_CLIENT_RENDERER, renderer)
+                    .end(content);
+            return;
+        }
+
+        // --- 3. SPI 预览提供者 ---
         boolean spiHit = false;
         for (FileStoragePreviewProvider provider : previewProviders) {
             if (!provider.supports(ext, mime)) {
@@ -172,7 +183,8 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             return;
         }
 
- // --- 3. PDF 转换（办公室 等） → 经 PDF.js 渲染 ---
+        // --- 4. PDF 转换（传统 doc / ppt / odt 等） → 经 PDF.js 渲染 ---
+        // 客户端组件无法解析 OLE2 / OpenDocument 格式，此处为兜底链路
         if (MimeTypeUtils.isConvertableToPdf(ext)) {
             byte[] pdfBytes = convertAndCachePdf(storage, key, ext, ops);
             if (pdfBytes != null) {
@@ -195,7 +207,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             }
         }
 
-        // --- 4. 前端插件 ---
+        // --- 5. 前端插件 ---
         if (MimeTypeUtils.isPluginPreviewSupported(ext)) {
             response.setStatus(200)
                     .setContentType("text/plain;charset=utf-8")
@@ -205,8 +217,30 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             return;
         }
 
-        // --- 5. 不支持 ---
+        // --- 6. 不支持 ---
         response.setStatus(415).end("Unsupported preview format: " + ext);
+    }
+
+    /**
+     * 判定本次预览请求应交由客户端直渲染，并解析出对应的渲染器标识。
+     *
+     * <p>命中条件：未显式指定 {@code render=server}，且扩展名在
+     * {@link ClientPreviewSupport} 的客户端可渲染清单内。</p>
+     *
+     * <p>对 {@code doc / xls / ppt} 这类传统扩展名，额外按<b>内容魔数</b>嗅探：
+     * 若文件实际是 OOXML（扩展名写着 doc、内容其实是 docx），则按真实类型
+     * 交给客户端组件渲染，避免误入 POI 二进制解析而失败。</p>
+     *
+     * @param request 请求对象，用于读取 {@code render} 参数
+     * @param ext     文件扩展名（小写，不含点）
+     * @param content 文件字节（用于魔数嗅探）；可为 {@code null}
+     * @return 客户端渲染器标识；应走服务端渲染时返回 {@code null}
+     */
+    private String resolveClientRenderer(ServerRequest request, String ext, byte[] content) {
+        if (!ClientPreviewSupport.isClientPreferred(request.getParam(ClientPreviewSupport.PARAM_RENDER))) {
+            return null;
+        }
+        return ClientPreviewSupport.rendererOfSniffed(content, ext);
     }
 
     // ==================== 内部方法 ====================
@@ -431,22 +465,16 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     }
 
     /**
-     * 从对象键提取小写扩展名，复合扩展名（如 焦油.gz）优先识别。
+     * 从对象键提取小写扩展名，复合扩展名（如 tar.gz）优先识别。
+     *
+     * <p>实现已统一委托给 {@link ClientPreviewSupport#resolveExtension(String)}，
+     * 与 spring 侧 {@code FileStorageServerFilter} 共用同一份逻辑。</p>
      *
      * @param key 对象键（含路径）
      * @return 小写扩展名；无扩展名时返回空串
      */
     private static String getExt(String key) {
-        if (key == null || !key.contains(".")) {
-            return "";
-        }
-        String lower = key.toLowerCase(Locale.ENGLISH);
-        for (String compound : COMPOUND_EXTS) {
-            if (lower.endsWith("." + compound)) {
-                return compound;
-            }
-        }
-        return key.substring(key.lastIndexOf('.') + 1).toLowerCase(Locale.ENGLISH);
+        return ClientPreviewSupport.resolveExtension(key);
     }
 
     /**

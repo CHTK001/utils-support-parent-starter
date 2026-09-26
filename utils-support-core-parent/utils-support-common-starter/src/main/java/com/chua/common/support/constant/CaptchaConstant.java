@@ -17,6 +17,16 @@ public final class CaptchaConstant {
     public static final String CAPTCHA_SESSION_KEY = "CAPTCHA_SESSION_KEY";
 
     /**
+     * 轮询等待解析结果超时（含等待被中断）的错误码
+     */
+    public static final String ERROR_TIMEOUT = "TIMEOUT";
+
+    /**
+     * 提交解析任务未拿到任务标识的错误码
+     */
+    public static final String ERROR_SUBMIT_FAILED = "SUBMIT_FAILED";
+
+    /**
      * 私有构造方法，禁止实例化。
      */
     private CaptchaConstant() {

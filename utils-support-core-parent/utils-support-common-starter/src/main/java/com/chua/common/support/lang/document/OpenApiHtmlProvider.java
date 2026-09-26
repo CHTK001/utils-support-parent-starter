@@ -34,29 +34,29 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /**
      * Id_gen
-    */
+     */
     private static final AtomicLong ID_GEN = new AtomicLong(System.nanoTime());
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "html";
     }
 
-    @Override
     /**
      * 获取Extensions
-    */
+     */
+    @Override
     public String[] getExtensions() {
         return new String[]{".html", ".htm"};
     }
 
-    @Override
     /**
      * Export
-    */
+     */
+    @Override
     public void export(OpenApiDocumentData data, File outputFile) {
         if (data == null) {
             throw new IllegalArgumentException("OpenApiDocumentData 不能为空");
@@ -216,11 +216,11 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
             sb.append("<th>参数名</th><th>类型</th><th>位置</th><th>必填</th><th>说明</th></tr></thead><tbody>");
             if (hasParams) {
                 for (OpenApiParam p : ep.getParameters()) {
-                    sb.append("<tr><td>").append(escape(safeStr(p.getName()))).append("</td>");
-                    sb.append("<td>").append(escape(safeStr(p.getType()))).append("</td>");
-                    sb.append("<td>").append(escape(safeStr(p.getIn()))).append("</td>");
-                    sb.append("<td>").append(p.isRequired() ? "是" : "否").append("</td>");
-                    sb.append("<td>").append(escape(safeStr(p.getDescription()))).append("</td></tr>");
+                    sb.append("<tr><td>").append(escape(safeStr(p.name()))).append("</td>");
+                    sb.append("<td>").append(escape(safeStr(p.type()))).append("</td>");
+                    sb.append("<td>").append(escape(safeStr(p.in()))).append("</td>");
+                    sb.append("<td>").append(p.required() ? "是" : "否").append("</td>");
+                    sb.append("<td>").append(escape(safeStr(p.description()))).append("</td></tr>");
                 }
             }
             if (hasBody) {
@@ -245,9 +245,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
                     sb.append("<table class=\"api-table\"><thead><tr>");
                     sb.append("<th>参数名</th><th>类型</th><th>说明</th></tr></thead><tbody>");
                     for (OpenApiParam f : resp.getFields()) {
-                        sb.append("<tr><td>").append(escape(safeStr(f.getName()))).append("</td>");
-                        sb.append("<td>").append(escape(safeStr(f.getType()))).append("</td>");
-                        sb.append("<td>").append(escape(safeStr(f.getDescription()))).append("</td></tr>");
+                        sb.append("<tr><td>").append(escape(safeStr(f.name()))).append("</td>");
+                        sb.append("<td>").append(escape(safeStr(f.type()))).append("</td>");
+                        sb.append("<td>").append(escape(safeStr(f.description()))).append("</td></tr>");
                     }
                     sb.append("</tbody></table>");
                 }
@@ -374,7 +374,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /**
      * Script
-    */
+     */
     private static final String SCRIPT = """
             (function() {
               const tree = document.getElementById('apiTree');

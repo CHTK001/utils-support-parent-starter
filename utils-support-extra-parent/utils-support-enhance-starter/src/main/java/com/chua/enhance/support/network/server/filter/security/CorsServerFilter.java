@@ -48,31 +48,56 @@ public class CorsServerFilter implements ServerFilter {
     */
     private boolean allowCredentials;
 
+    /**
+     * 是否已收到 cors.* 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
     */
     public void init(ServerFilterConfig config) throws Exception {
         String origin = config.getInitParameter("cors.allowOrigin");
-        if (origin != null && !origin.isEmpty()) {
+        String methods = config.getInitParameter("cors.allowMethods");
+        String headers = config.getInitParameter("cors.allowHeaders");
+        String age = config.getInitParameter("cors.maxAge");
+        String credentials = config.getInitParameter("cors.allowCredentials");
+        // 默认值是通配 *，未显式配置时不挂载，避免对所有响应广播跨域头
+        this.configured = present(origin) || present(methods) || present(headers) || present(age) || present(credentials);
+        if (present(origin)) {
             this.allowOrigin = origin;
         }
-        String methods = config.getInitParameter("cors.allowMethods");
-        if (methods != null && !methods.isEmpty()) {
+        if (present(methods)) {
             this.allowMethods = methods;
         }
-        String headers = config.getInitParameter("cors.allowHeaders");
-        if (headers != null && !headers.isEmpty()) {
+        if (present(headers)) {
             this.allowHeaders = headers;
         }
-        String age = config.getInitParameter("cors.maxAge");
-        if (age != null && !age.isEmpty()) {
+        if (present(age)) {
             this.maxAge = age;
         }
-        String credentials = config.getInitParameter("cors.allowCredentials");
         if ("true".equalsIgnoreCase(credentials)) {
             this.allowCredentials = true;
         }
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
+    }
+
+    /**
+     * 判断配置项是否显式给出。
+     *
+     * @param value 配置值
+     * @return 非空时返回 {@code true}
+     */
+    private static boolean present(String value) {
+        return value != null && !value.isEmpty();
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.netbeans.lib.profiler.heap.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 保留量 Top 类的三层引用链遍历器。
@@ -90,6 +91,18 @@ public final class HprofRefChainWalker {
                            long holderRetained,
                            List<HprofClassDetail.FieldValueDetail> fields,
                            List<ChildRef> children) {
+
+        /**
+         * 规范构造器：对字段值列表与子引用列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；唯一构造点
+         * {@link #walkOne(Heap, HprofParseContext.HprofRecord)} 传入的两个列表
+         * 均非空、元素亦非空，故使用拒绝 null 元素的 {@link List#copyOf(List)}。</p>
+         */
+        public RefChain {
+            fields = List.copyOf(Objects.requireNonNull(fields, "fields 不能为 null"));
+            children = List.copyOf(Objects.requireNonNull(children, "children 不能为 null"));
+        }
     }
 
     /**

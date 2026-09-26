@@ -32,26 +32,26 @@ public class FileSystemResource implements Resource {
         this.file = file;
     }
 
-    @Override
     /**
      * 打开Stream
-    */
+     */
+    @Override
     public InputStream openStream() throws IOException {
         return new FileInputStream(file);
     }
 
-    @Override
     /**
      * 获取UrlPath
-    */
+     */
+    @Override
     public String getUrlPath() {
         return file.getAbsolutePath();
     }
 
-    @Override
     /**
      * 获取Url
-    */
+     */
+    @Override
     public URL getUrl() {
         try {
             return file.toURI().toURL();
@@ -60,10 +60,10 @@ public class FileSystemResource implements Resource {
         }
     }
 
-    @Override
     /**
      * LastModified
-    */
+     */
+    @Override
     public long lastModified() {
         return file.lastModified();
     }

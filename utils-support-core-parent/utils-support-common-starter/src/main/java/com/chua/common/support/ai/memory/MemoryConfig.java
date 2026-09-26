@@ -20,11 +20,10 @@ public class MemoryConfig {
     /**
      * 存储类型：{@code file}（默认）| {@code engine}。
      * <p>为 {@code engine} 时必须提供 {@link #engine}。</p>
+     *
+     * Store类型
      */
     @Builder.Default
-    /**
-     * Store类型
-    */
     private String storeType = "file";
 
     /**
@@ -37,11 +36,10 @@ public class MemoryConfig {
      *
      * <p>记忆体文件存储的根目录，默认为当前目录下的 .agent/memory/。
      * 该目录下按 session 分子目录存储记忆条目。
+     *
+     * Workspace
      */
     @Builder.Default
-    /**
-     * Workspace
-    */
     private String workspace = ".agent/memory";
 
     /**
@@ -49,11 +47,10 @@ public class MemoryConfig {
      *
      * <p>超过此长度的记忆内容将被截断。防止单条记忆过大影响检索效率。
      * 默认 2000 字符。
+     *
+     * 最大值内容长度
      */
     @Builder.Default
-    /**
-     * 最大值内容长度
-    */
     private int maxContentLength = 2000;
 
     /**
@@ -61,11 +58,10 @@ public class MemoryConfig {
      *
      * <p>记忆体中保留的最大条目数量。超出时按时间淘汰最旧的条目。
      * 默认 500 条。
+     *
+     * 最大值entries
      */
     @Builder.Default
-    /**
-     * 最大值entries
-    */
     private int maxEntries = 500;
 
     /**
@@ -98,10 +94,9 @@ public class MemoryConfig {
      *
      * <p>为 true 时，每次对话结束后自动调用 summarizerClient 生成记忆。
      * 默认为 true。
+     *
+     * Autosummarize
      */
     @Builder.Default
-    /**
-     * Autosummarize
-    */
     private boolean autoSummarize = true;
 }

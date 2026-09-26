@@ -36,7 +36,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
 
     /**
      * 健康检查路径集合(精确匹配)
-    */
+     */
     private final Set<String> healthPaths;
 
     /**
@@ -55,31 +55,30 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
         this.healthPaths = Set.copyOf(healthPaths);
     }
 
-    @Override
     /**
      * 获取Order:最先执行,保证探针请求短路整条链
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 10;
     }
 
-    @Override
     /**
      * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
      */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      *
@@ -87,6 +86,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 探针路径命中:直接响应并终止链,不进入路由与业务处理
@@ -97,7 +97,6 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 响应式Do过滤
      *
@@ -105,6 +104,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
      * @param response response
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (isHealthPath(request)) {

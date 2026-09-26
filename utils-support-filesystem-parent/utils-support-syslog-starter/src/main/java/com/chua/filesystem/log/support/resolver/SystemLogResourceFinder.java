@@ -267,6 +267,30 @@ public class SystemLogResourceFinder implements ResourceFinder {
      */
     private record VirtualResourceImpl(LogEntry entry, byte[] content) implements Resource {
 
+        /**
+         * 规范构造器：数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。内容字节数组是可被调用方改写的
+         * 引用类型，资源以只读视图对外提供，故持有副本而非入参本身。</p>
+         *
+         * @param entry   原始 日志 条目
+         * @param content 内容字节
+         */
+        private VirtualResourceImpl {
+            entry = Objects.requireNonNull(entry, "entry 不能为 null");
+            content = content == null ? null : content.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * @return 内容字节副本；为 {@code null} 时返回 {@code null}
+         */
+        @Override
+        public byte[] content() {
+            return content == null ? null : content.clone();
+        }
+
         @Override
         /**
          * 打开流

@@ -12,37 +12,37 @@ public class ModelHealth {
 
     /**
      * 服务商
-    */
+     */
     private final String provider;
 
     /**
      * 模型名称
-    */
+     */
     private final String model;
 
     /**
      * 是否限流
-    */
+     */
     private boolean rateLimited = false;
 
     /**
      * 是否余额不足
-    */
+     */
     private boolean quotaExhausted = false;
 
     /**
      * 连续失败次数
-    */
+     */
     private int consecutiveFailures = 0;
 
     /**
      * 最后检测时间
-    */
+     */
     private long lastCheckTime = System.currentTimeMillis();
 
     /**
      * 最后失败原因
-    */
+     */
     private String lastFailureReason;
 
     /**
@@ -114,14 +114,14 @@ public class ModelHealth {
 
     /**
      * IncrementConsecutiveFailures
-    */
+     */
     public void incrementConsecutiveFailures() {
         this.consecutiveFailures++;
     }
 
     /**
      * 重置ConsecutiveFailures
-    */
+     */
     public void resetConsecutiveFailures() {
         this.consecutiveFailures = 0;
     }
@@ -176,10 +176,10 @@ public class ModelHealth {
         return !rateLimited && !quotaExhausted;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return "ModelHealth{" +
                 "provider='" + provider + '\'' +

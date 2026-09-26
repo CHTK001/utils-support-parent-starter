@@ -149,11 +149,11 @@ public final class CircuitBreakerFlow {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * OnRejected
      * @return T 对象
      */
+    @SuppressWarnings("unchecked")
     private <T> T onRejected() {
         if (fallback != null) {
             return (T) fallback.get();

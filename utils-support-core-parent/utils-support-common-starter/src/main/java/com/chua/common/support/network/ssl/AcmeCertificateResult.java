@@ -17,52 +17,52 @@ public class AcmeCertificateResult {
 
     /**
      * 是否成功
-    */
+     */
     private boolean success;
 
     /**
      * 证书 PEM（含链）
-    */
+     */
     private String certificatePem;
 
     /**
      * 私钥 PEM
-    */
+     */
     private String privateKeyPem;
 
     /**
      * 主域名
-    */
+     */
     private String primaryDomain;
 
     /**
      * 备用域名（逗号分隔）
-    */
+     */
     private String san;
 
     /**
      * 有效期起
-    */
+     */
     private LocalDateTime notBefore;
 
     /**
      * 有效期止
-    */
+     */
     private LocalDateTime notAfter;
 
     /**
      * 错误信息
-    */
+     */
     private String error;
 
     /**
      * 需要验证（首次申请时）
-    */
+     */
     private boolean needsValidation;
 
     /**
      * 验证信息列表
-    */
+     */
     private List<AcmeValidationInfo> validationInfos;
 
     /**

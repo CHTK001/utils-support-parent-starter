@@ -77,10 +77,10 @@ public interface MemoryStore extends AutoCloseable {
      */
     void restore(String backupPath);
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     default void close() {
     }
 }

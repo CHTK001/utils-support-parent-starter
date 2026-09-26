@@ -1,6 +1,5 @@
 package com.chua.crypto.support.launch;
 
-import com.chua.common.support.reflection.ReflectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
@@ -131,6 +132,11 @@ public final class CryptoLauncher {
     private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
     /**
+     * 引导器包路径前缀（打包器以明文注入，由系统类加载器加载，不参与解密写出）
+     */
+    private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
+
+    /**
      * 私有构造
      */
     private CryptoLauncher() {
@@ -165,7 +171,7 @@ public final class CryptoLauncher {
             if (originalMain == null || originalMain.isBlank()) {
                 throw new IllegalStateException("缺少清单属性 " + ATTR_ORIGINAL_MAIN + "，请确认已由 chua-crypto 打包");
             }
- // 兼容：若记录的是 Boot 加载器则回退 启动-类
+            // 兼容：清单记录的是 SpringBoot 加载器时回退到 Start-Class
             if (originalMain.startsWith("org.springframework.boot.loader.")) {
                 String startClass = attrs.getValue("Start-Class");
                 if (startClass != null && !startClass.isBlank()) {
@@ -176,16 +182,20 @@ public final class CryptoLauncher {
             byte[] master = resolveMaster(jar);
             Path tempDir = Files.createTempDirectory("chua-crypto-run");
             harden(tempDir);
-            registerCleanup(tempDir);
 
             URLClassLoader appLoader = Boolean.parseBoolean(System.getProperty(PROP_LAZY, "false"))
                     ? buildLazyLoader(self, master)
                     : buildExtractedLoader(jar, master, tempDir);
+            registerCleanup(tempDir, appLoader);
             KeyShard.wipe(master);
 
             Thread.currentThread().setContextClassLoader(appLoader);
-            Class<?> mainClass = ReflectUtils.forName(originalMain, appLoader);
-            ReflectUtils.invoke(null, "main", void.class, String[].class, args);
+            Class<?> mainClass = Class.forName(originalMain, false, appLoader);
+            try {
+                mainClass.getMethod("main", String[].class).invoke(null, (Object) args);
+            } catch (InvocationTargetException e) {
+                throw e.getCause() == null ? e : e.getCause();
+            }
         }
     }
 
@@ -203,7 +213,7 @@ public final class CryptoLauncher {
                     java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE};
             Files.setPosixFilePermissions(dir, new java.util.HashSet<>(java.util.Arrays.asList(perms)));
         } catch (UnsupportedOperationException | IOException ignored) {
- // 窗口/FAT 等无 POSIX 权限语义的文件系统
+            // Windows/FAT 等无 POSIX 权限语义的文件系统跳过，依赖部署环境访问控制列表
         }
     }
 
@@ -229,7 +239,7 @@ public final class CryptoLauncher {
             if (appId == null) {
                 appId = mainAttributes(jar).getValue(ATTR_ORIGINAL_MAIN);
             }
-                        String licSecret = firstNonBlank(System.getProperty(PROP_LICENSE_SECRET), System.getenv(ENV_LICENSE_SECRET));
+            String licSecret = firstNonBlank(System.getProperty(PROP_LICENSE_SECRET), System.getenv(ENV_LICENSE_SECRET));
             byte[] blob = LicenseKeyClient.fetch(licenseUrl, appId,
                     PayloadCipher.fingerprint(serverId),
                     licSecret == null ? null : licSecret.toCharArray());
@@ -282,16 +292,17 @@ public final class CryptoLauncher {
             throws IOException {
         List<URL> urls = new ArrayList<>();
         Path classesDir = Files.createDirectories(tempDir.resolve("classes"));
+        boolean bootLayout = jar.getEntry(BOOT_CLASSES_PREFIX) != null;
         for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
             JarEntry entry = entries.nextElement();
-            String name = entry.getName();
-            if (entry.isDirectory() || !name.startsWith(BOOT_CLASSES_PREFIX) || name.endsWith("/")) {
+            String relative = appEntryPath(entry, bootLayout);
+            if (relative == null) {
                 continue;
             }
             byte[] raw = readAll(jar.getInputStream(entry));
             byte[] bytes = PayloadCipher.isEncryptedEntry(raw)
                     ? PayloadCipher.decryptEntry(master, raw) : raw;
-            Path target = classesDir.resolve(name.substring(BOOT_CLASSES_PREFIX.length()));
+            Path target = resolveInside(classesDir, relative);
             Files.createDirectories(target.getParent());
             Files.write(target, bytes);
         }
@@ -304,7 +315,47 @@ public final class CryptoLauncher {
             Files.write(libFile, bytes);
             urls.add(libFile.toUri().toURL());
         }
-        return new URLClassLoader(urls.toArray(new URL[0]), CryptoLauncher.class.getClassLoader());
+        return new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getPlatformClassLoader());
+    }
+
+    /**
+     * 判定条目是否属于应用自身内容，并返回其在 classes 目录下的相对路径。
+     *
+     * <p>引导器载荷已由系统加载器以明文加载，密钥块与清单由引导器直接读取，均不参与解密写出。
+     *
+     * @param entry     条目
+     * @param bootLayout 源包是否为 SpringBoot 布局
+     * @return 相对路径；不属于应用内容时返回 空
+     */
+    private static String appEntryPath(JarEntry entry, boolean bootLayout) {
+        String name = entry.getName();
+        if (entry.isDirectory() || name.endsWith("/")
+                || name.startsWith(LAUNCH_PACKAGE)
+                || KEY_BLOB_ENTRY.equals(name)
+                || "META-INF/MANIFEST.MF".equals(name)) {
+            return null;
+        }
+        if (bootLayout) {
+            return name.startsWith(BOOT_CLASSES_PREFIX) ? name.substring(BOOT_CLASSES_PREFIX.length()) : null;
+        }
+        return name.startsWith(BOOT_LIB_PREFIX) ? null : name;
+    }
+
+    /**
+     * 解析临时目录内的写出路径，拒绝包条目越出根目录（防目录穿越）
+     *
+     * @param root     临时根目录
+     * @param relative 条目相对路径
+     * @return 规范化后的绝对路径
+     * @throws IOException 条目试图越出根目录
+     */
+    private static Path resolveInside(Path root, String relative) throws IOException {
+        Path target = root.resolve(relative).normalize();
+        if (!target.startsWith(root.toAbsolutePath().normalize())
+                && !target.startsWith(root.toRealPath())) {
+            throw new IOException("包条目路径越出临时目录: " + relative);
+        }
+        return target;
     }
 
     /**
@@ -317,7 +368,6 @@ public final class CryptoLauncher {
      */
     private static URLClassLoader buildLazyLoader(File self, byte[] master) throws IOException {
         Path libsDir = Files.createTempDirectory("chua-crypto-libs");
-        registerCleanup(libsDir);
 
         List<URL> urls = new ArrayList<>();
         try (JarFile jar = new JarFile(self)) {
@@ -329,7 +379,8 @@ public final class CryptoLauncher {
             }
         }
         URLClassLoader libsLoader = new URLClassLoader(urls.toArray(new URL[0]),
-                CryptoLauncher.class.getClassLoader());
+                ClassLoader.getPlatformClassLoader());
+        registerCleanup(libsDir, libsLoader);
         return new EncryptedAppClassLoader(self, master.clone(), libsLoader);
     }
 
@@ -378,16 +429,34 @@ public final class CryptoLauncher {
     }
 
     /**
-     * 注册 JVM 关闭钩子：递归删除临时目录
+     * 注册 JVM 关闭钩子：先关闭应用类加载器，再递归删除临时目录。
+     * <p>
+     * 类加载器持有解密产物的文件句柄，Windows 下未关闭即删除必然失败，
+     * 明文会在临时目录中长期残留，故关闭动作与删除动作放在同一个钩子里。
      *
-     * @param dir 临时目录
+     * @param dir    临时目录
+     * @param loader 该目录产物的持有者
      */
-    private static void registerCleanup(Path dir) {
+    private static void registerCleanup(Path dir, URLClassLoader loader) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try (var paths = Files.walk(dir)) {
-                paths.sorted(Comparator.reverseOrder()).forEach(p -> p.toFile().delete());
+            try {
+                loader.close();
             } catch (IOException ignored) {
-                // 退出期清理失败可忽略
+                // 关闭失败仍需尝试删除
+            }
+            List<Path> leftovers = new ArrayList<>();
+            try (var paths = Files.walk(dir)) {
+                paths.sorted(Comparator.reverseOrder()).forEach(p -> {
+                    if (!p.toFile().delete()) {
+                        leftovers.add(p);
+                    }
+                });
+            } catch (IOException ignored) {
+                // 退出期遍历失败时按已收集到的残留报告
+            }
+            if (!leftovers.isEmpty()) {
+                System.err.println("[chua-crypto] 解密临时文件未能全部清理，明文残留于 "
+                        + dir + "（共 " + leftovers.size() + " 项，首个: " + leftovers.getLast() + "）");
             }
         }, "chua-crypto-cleaner"));
     }
@@ -403,15 +472,26 @@ public final class CryptoLauncher {
         if (domain == null || domain.getCodeSource() == null) {
             throw new IllegalStateException("无法定位引导器代码源");
         }
-        URI location = URI.create(domain.getCodeSource().getLocation().toString());
-        String raw = location.toString();
-        int bang = raw.indexOf('!');
-        if (bang >= 0) {
-            raw = raw.substring(0, bang);
+        String raw = domain.getCodeSource().getLocation().toString();
+        if (raw.startsWith("jar:")) {
+            raw = raw.substring("jar:".length());
+            int bang = raw.indexOf('!');
+            if (bang >= 0) {
+                raw = raw.substring(0, bang);
+            }
         }
-        File file = new File(URI.create(raw.startsWith("file:") ? raw : "file:" + raw));
-        if (!file.exists()) {
-            throw new IllegalStateException("程序包文件不存在: " + file);
+        if (!raw.startsWith("file:")) {
+            throw new IllegalStateException("引导器代码源不是本地文件: " + raw);
+        }
+        Path location;
+        try {
+            location = Path.of(URI.create(raw));
+        } catch (IllegalArgumentException e) {
+            location = Path.of(URLDecoder.decode(raw.substring("file:".length()), StandardCharsets.UTF_8));
+        }
+        File file = location.toFile();
+        if (!file.isFile()) {
+            throw new IllegalStateException("引导器必须运行于可执行包内，当前代码源不是包文件: " + file);
         }
         return file;
     }

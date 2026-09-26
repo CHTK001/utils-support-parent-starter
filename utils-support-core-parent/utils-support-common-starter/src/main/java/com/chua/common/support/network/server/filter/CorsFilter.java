@@ -18,29 +18,29 @@ public class CorsFilter implements ServerFilter {
 
     /**
      * setting
-    */
+     */
     private volatile ServerSetting setting;
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 50;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         if (config != null) {
             this.setting = config.getServerSetting();
@@ -49,10 +49,10 @@ public class CorsFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (setting == null) {
             chain.doFilter(request, response);
@@ -84,6 +84,10 @@ public class CorsFilter implements ServerFilter {
         String allowedHeaders = cors.getAllowedHeaders();
         if (allowedHeaders != null && !allowedHeaders.isEmpty()) {
             response.setHeader("Access-Control-Allow-Headers", allowedHeaders);
+        }
+        String exposeHeaders = cors.getExposeHeaders();
+        if (exposeHeaders != null && !exposeHeaders.isBlank()) {
+            response.setHeader("Access-Control-Expose-Headers", exposeHeaders);
         }
         if (request.getMethod() == com.chua.common.support.network.http.HttpMethod.OPTIONS
                 && request.getHeader("Access-Control-Request-Method") != null) {

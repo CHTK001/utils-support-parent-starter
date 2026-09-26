@@ -39,7 +39,7 @@ public class NmapTool extends CliTool {
 
     /**
      * 创建 nmap 工具实例，使用预置的工具描述。
-    */
+     */
     public NmapTool() {
         super(CliToolDescriptor.builder("nmap")
                 .displayName("网络端口扫描工具 nmap")

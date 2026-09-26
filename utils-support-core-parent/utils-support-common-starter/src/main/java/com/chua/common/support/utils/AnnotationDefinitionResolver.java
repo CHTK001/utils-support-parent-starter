@@ -82,7 +82,7 @@ public interface AnnotationDefinitionResolver {
      * 注解别名映射，描述窄注解与宽注解的对应关系。
      * @author CH
      * @since 4.0.0
-     * @return 获取wide名称的结果
+     * @return 获取全限定名的结果
      */
     final class AnnotationAliasMapping {
         private final String narrowName; // narrow名称
@@ -90,8 +90,8 @@ public interface AnnotationDefinitionResolver {
 /**
  * 注解别名mapping。
  * @param narrowName narrow名称
- * @param wideName wide名称
- * @return 获取wide名称的结果
+ * @@param wideName 注解全限定名
+ * @return 获取全限定名的结果
  */
 
         public AnnotationAliasMapping(String narrowName, String wideName) {

@@ -25,41 +25,41 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
 
     /**
      * Beandefinitions
-    */
+     */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
     /**
      * closed
-    */
+     */
     private volatile boolean closed;
 
-    @Override
     /**
      * 获取名称
-    */
+     */
+    @Override
     public String getName() {
         return "default";
     }
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 0;
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public boolean register(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -74,10 +74,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return true;
     }
 
-    @Override
     /**
      * 注销
-    */
+     */
+    @Override
     public boolean unregister(BeanDefinition beanDefinition) {
         if (beanDefinition == null || closed) {
             return false;
@@ -90,10 +90,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return true;
     }
 
-    @Override
     /**
      * 注销
-    */
+     */
+    @Override
     public boolean unregister(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -102,10 +102,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return true;
     }
 
-    @Override
     /**
      * 获取Beandefinition
-    */
+     */
+    @Override
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -113,10 +113,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return beanDefinitions.get(beanName);
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
-    */
+     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -134,10 +134,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return result;
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
-    */
+     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -153,26 +153,26 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return getBeanDefinitionOfType(typeName);
     }
 
-    @Override
     /**
      * containsBean
-    */
+     */
+    @Override
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
-    @Override
     /**
      * 获取Beandefinition名称
-    */
+     */
+    @Override
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
-    @Override
     /**
      * 获取Beanwith注解
-    */
+     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -192,10 +192,10 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return result;
     }
 
-    @Override
     /**
      * 获取Beanwith方法注解
-    */
+     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -215,29 +215,29 @@ public class DefaultBeanDefinitionRegister extends BeanSingletonRegistry impleme
         return result;
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void initialize() {
         // 内存注册器无需特殊初始化
         closed = false;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         closed = true;
         destroySingletons();
         beanDefinitions.clear();
     }
 
-    @Override
     /**
      * 是否Closed
-    */
+     */
+    @Override
     public boolean isClosed() {
         return closed;
     }

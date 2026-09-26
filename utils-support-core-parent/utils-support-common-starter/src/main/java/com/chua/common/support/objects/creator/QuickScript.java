@@ -13,7 +13,7 @@ import java.util.Map;
  * Quick quick = Quick.create().variable("x", 10).variable("y", 20);
  * Object result = quick.execute("return variables.get(\"x\") + variables.get(\"y\");");
  * }</pre>(\"x\") + variables.get(\"y\");");
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

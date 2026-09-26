@@ -119,10 +119,10 @@ public class FileTaskStore implements TaskStore {
         log.info("文件任务存储已加载, 任务数: {}", taskCache.size());
     }
 
-    @Override
     /**
      * 保存任务
-    */
+     */
+    @Override
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task == null || task.getTaskId() == null) {
             return;
@@ -132,20 +132,20 @@ public class FileTaskStore implements TaskStore {
         persistTask(task);
     }
 
-    @Override
     /**
      * 更新状态
-    */
+     */
+    @Override
     public void updateStatus(String taskId, TaskStatus status) {
         if (taskId != null) {
             statusCache.put(taskId, status);
         }
     }
 
-    @Override
     /**
      * 保存结果
-    */
+     */
+    @Override
     public void saveResult(TaskResult<?> result) {
         if (result == null || result.getTaskId() == null) {
             return;
@@ -159,10 +159,10 @@ public class FileTaskStore implements TaskStore {
         return taskCache.get(taskId);
     }
 
-    @Override
     /**
      * 获取状态
-    */
+     */
+    @Override
     public TaskStatus getStatus(String taskId) {
         TaskStatus status = statusCache.get(taskId);
         if (status != null) {
@@ -189,10 +189,10 @@ public class FileTaskStore implements TaskStore {
         return result;
     }
 
-    @Override
     /**
      * 移除任务
-    */
+     */
+    @Override
     public void removeTask(String taskId) {
         taskCache.remove(taskId);
         statusCache.remove(taskId);
@@ -205,10 +205,10 @@ public class FileTaskStore implements TaskStore {
         }
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         taskCache.clear();
         statusCache.clear();
@@ -221,10 +221,10 @@ public class FileTaskStore implements TaskStore {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         clear();
     }

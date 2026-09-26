@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * 基于 chinese-xinhua 字库的汉字字典提供器（在线 JSON + 内置兜底）。
  *
  * <p>在线数据源：<a href="https://github.com/pwxcoo/chinese-xinhua">chinese-xinhua</a>
- * 的 word.json（约 3 万字），结构为 {@编码 {"word":..., "oldword":..., "strokes":...,
+ * 的 word.json（约 3 万字），结构为 {@code {"word":..., "oldword":..., "strokes":...,
  * "pinyin":..., "radicals":..., "解释":..., "more":...}}。
  *
  * <p>首次查询时惰性拉取并建立字索引，后续查询复用内存索引；

@@ -45,32 +45,32 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
      * token → AiToken 映射
-    */
+     */
     private final Map<String, AiToken> tokenMap = new ConcurrentHashMap<>();
 
     /**
      * 令牌文件路径
-    */
+     */
     private final Path filePath;
 
     /**
      * 令牌文件所在目录
-    */
+     */
     private final Path watchDir;
 
     /**
      * 是否正在监听文件
-    */
+     */
     private final AtomicBoolean watching = new AtomicBoolean(false);
 
     /**
      * 文件监听线程
-    */
+     */
     private Thread watcherThread;
 
     /**
      * 日期格式
-    */
+     */
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
@@ -105,7 +105,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
      * Do加载FromFile
-    */
+     */
     private synchronized void doLoadFromFile() {
         if (!Files.exists(filePath)) {
             log.warn("[FileAiTokenProvider] 令牌文件不存在，创建空文件: {}", filePath);
@@ -252,10 +252,10 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     // ======================== AiTokenProvider 接口 ========================
 
-    @Override
     /**
      * 获取ValidToken
-    */
+     */
+    @Override
     public AiToken getValidToken(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) {
             return null;
@@ -267,26 +267,26 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         return null;
     }
 
-    @Override
     /**
      * AllTokens
-    */
+     */
+    @Override
     public Map<String, AiToken> allTokens() {
         return Map.copyOf(tokenMap);
     }
 
-    @Override
     /**
      * 计算数量
-    */
+     */
+    @Override
     public int count() {
         return tokenMap.size();
     }
 
-    @Override
     /**
      * Put
-    */
+     */
+    @Override
     public synchronized void put(AiToken token) {
         if (token == null || token.getToken() == null || token.getToken().isBlank()) {
             return;
@@ -296,10 +296,10 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         log.debug("[FileAiTokenProvider] 令牌已添加/更新: {}", maskToken(token.getToken()));
     }
 
-    @Override
     /**
      * PutAll
-    */
+     */
+    @Override
     public synchronized void putAll(List<AiToken> tokens) {
         if (tokens == null) {
             return;
@@ -313,10 +313,10 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         log.info("[FileAiTokenProvider] 批量更新 {} 个令牌", tokens.size());
     }
 
-    @Override
     /**
      * 移除
-    */
+     */
+    @Override
     public synchronized AiToken remove(String tokenValue) {
         if (tokenValue == null || tokenValue.isBlank()) {
             return null;
@@ -329,10 +329,10 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         return removed;
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public synchronized void clear() {
         tokenMap.clear();
         flushToFile();

@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * // 固定频率：每 5 秒执行一次（第一次延迟 1 秒）
  * @Scheduler(initialDelay = 1, fixedRate = 5, timeUnit = TimeUnit.SECONDS)
  * public void periodicTask() { }
- * }</pre></pre>
+ * }</pre>
  *
  * @author CH
  * @since 1.0.0

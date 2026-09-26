@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * timer.cancel(task);
  *
  * timer.shutdown();
- * }</pre>
+ * }
  *
  * <h3>数据结构说明</h3>
  * <pre>

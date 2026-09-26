@@ -14,32 +14,32 @@ public class FurthestPair {
 
     /**
      * 空结果常量
-    */
+     */
     public static final FurthestPair EMPTY = new FurthestPair(-1, -1, new double[0], new double[0], Double.NaN);
 
     /**
      * 第一个点在数据集中的索引
-    */
+     */
     private final int firstIndex;
 
     /**
      * 第二个点在数据集中的索引
-    */
+     */
     private final int secondIndex;
 
     /**
      * 第一个点的特征向量
-    */
+     */
     private final double[] firstVector;
 
     /**
      * 第二个点的特征向量
-    */
+     */
     private final double[] secondVector;
 
     /**
      * 两点间的距离
-    */
+     */
     private final double distance;
 
     /**
@@ -113,10 +113,10 @@ public class FurthestPair {
         return firstIndex >= 0 && secondIndex >= 0;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return String.format("FurthestPair{first=%d, second=%d, distance=%.6f}", firstIndex, secondIndex, distance);
     }

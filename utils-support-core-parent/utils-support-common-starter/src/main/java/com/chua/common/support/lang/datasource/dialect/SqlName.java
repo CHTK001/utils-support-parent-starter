@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.dialect;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -60,6 +61,58 @@ public final class SqlName {
         }
         if (!NAME.matcher(name).matches()) {
             throw new IllegalArgumentException(label + "含非法字符或超长: " + name);
+        }
+        return name;
+    }
+
+    /**
+     * 校验简单标识符是否安全。
+     *
+     * @param name  待校验标识符
+     * @param label 参数用途，用于异常定位
+     * @return 原样返回校验通过的简单标识符
+     * @throws IllegalArgumentException 标识符为空、含限定前缀或不符合白名单
+     */
+    public static String checkSimple(String name, String label) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException(label + "不能为空");
+        }
+        if (!SIMPLE.matcher(name).matches()) {
+            throw new IllegalArgumentException(label + "含非法字符或超长: " + name);
+        }
+        return name;
+    }
+
+    /**
+     * 校验标识符并要求其命中业务白名单。
+     *
+     * @param name    待校验标识符
+     * @param label   参数用途，用于异常定位
+     * @param allowed 允许值集合
+     * @return 原样返回校验通过的标识符
+     * @throws IllegalArgumentException 标识符非法或不在白名单中
+     */
+    public static String checkAllowed(String name, String label, Set<String> allowed) {
+        check(name, label);
+        if (allowed == null || !allowed.contains(name)) {
+            throw new IllegalArgumentException(label + "不在白名单中: " + name);
+        }
+        return name;
+    }
+
+    /**
+     * 校验简单标识符并要求其命中业务白名单。
+     *
+     * @param name    待校验标识符
+     * @param label   参数用途，用于异常定位
+     * @param allowed 允许值集合
+     * @return 原样返回校验通过的标识符
+     * @throws IllegalArgumentException 标识符非法或不在白名单中
+     */
+    public static String checkAllowedSimple(String name, String label, Set<String> allowed) {
+        checkSimple(name, label);
+        if (allowed == null || !allowed.contains(name)) {
+            throw new IllegalArgumentException(label + "不在白名单中: " + name);
         }
         return name;
     }

@@ -16,7 +16,7 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
 
     /**
      * CTX
-    */
+     */
     private final ObjectContext ctx;
     /**
      * 类型
@@ -34,10 +34,10 @@ public class DefaultObjectProvider<T> implements ObjectProvider<T> {
         this.type = type;
     }
 
-    @Override
     /**
      * 获取对象
-    */
+     */
+    @Override
     public T getObject() {
         return ctx.getBeanOfTypeSafely(type);
     }

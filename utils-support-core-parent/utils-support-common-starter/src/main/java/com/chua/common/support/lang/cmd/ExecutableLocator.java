@@ -53,27 +53,27 @@ public final class ExecutableLocator {
 
     /**
      * 环境变量名：PATH
-    */
+     */
     private static final String PATH_ENV = "PATH";
 
     /**
      * PATH 环境变量的分隔符
-    */
+     */
     private static final String PATH_SEPARATOR = java.io.File.pathSeparator;
 
     /**
      * 系统查找命令的超时时间（秒）
-    */
+     */
     private static final long LOOKUP_TIMEOUT_SECONDS = 5L;
 
     /**
      * 定位结果缓存：请求指纹 → 定位结果
-    */
+     */
     private static final ConcurrentHashMap<String, Optional<Path>> CACHE = new ConcurrentHashMap<>();
 
     /**
      * 创建 ExecutableLocator 实例
-    */
+     */
     private ExecutableLocator() {
     }
 
@@ -353,27 +353,27 @@ public final class ExecutableLocator {
 
         /**
          * 候选可执行文件名，按优先级排序
-        */
+         */
         private final List<String> executableNames;
         /**
          * 显式指定的完整路径
-        */
+         */
         private final String explicitPath;
         /**
          * 环境变量键
-        */
+         */
         private final String envKey;
         /**
          * 候选安装目录
-        */
+         */
         private final List<String> candidateDirs;
         /**
          * 是否扫描 PATH
-        */
+         */
         private final boolean searchPath;
         /**
          * 是否使用 which/where 兜底
-        */
+         */
         private final boolean systemLookup;
 
         /**
@@ -488,27 +488,27 @@ public final class ExecutableLocator {
 
             /**
              * 候选可执行文件名，去重且保持顺序
-            */
+             */
             private final Set<String> executableNames = new LinkedHashSet<>();
             /**
              * 候选目录，去重且保持顺序
-            */
+             */
             private final Set<String> candidateDirs = new LinkedHashSet<>();
             /**
              * 显式路径
-            */
+             */
             private String explicitPath;
             /**
              * 环境变量键
-            */
+             */
             private String envKey;
             /**
              * 是否扫描 PATH
-            */
+             */
             private boolean searchPath = true;
             /**
              * 是否使用系统命令兜底
-            */
+             */
             private boolean systemLookup = true;
 
             /**

@@ -3,6 +3,7 @@ package com.chua.cloudflare.support.d1;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * D1 批量查询请求（多条 SQL 一次 HTTP 调用）。
@@ -14,6 +15,19 @@ import java.util.List;
  * @return d1batch请求的结果
  */
 public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
+
+    /**
+     * 规范构造器：对账单做防御性拷贝并拒绝空值。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变，否则调用方持有的可变集合
+     * 会在构造后改变本对象的值语义。</p>
+     *
+     * @param statements 对账单
+     * @param sequential 是否顺序执行
+     */
+    public D1BatchRequest {
+        statements = List.copyOf(Objects.requireNonNull(statements, "statements 不能为 null"));
+    }
 
     /**
      * 构造批量请求。

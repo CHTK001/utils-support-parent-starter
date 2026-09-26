@@ -36,7 +36,7 @@ package com.chua.common.support.task.pipeline.core;
  *     .task("step2", ctx -> null).taskEnd()
  *     .build();
  * }</pre>* .构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

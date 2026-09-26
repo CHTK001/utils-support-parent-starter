@@ -22,11 +22,11 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
 
     /**
      * 线程池执行器
-    */
+     */
     private final ExecutorService executor;
     /**
      * 是否已关闭
-    */
+     */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
@@ -44,10 +44,10 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
         this.executor = executor;
     }
 
-    @Override
     /**
      * 提交
-    */
+     */
+    @Override
     public <T> T submit(Callable<T> task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -60,10 +60,10 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
         }
     }
 
-    @Override
     /**
      * 提交
-    */
+     */
+    @Override
     public void submit(Runnable task) throws Exception {
         if (closed.get()) {
             throw new IllegalStateException("结构化并发已关闭");
@@ -76,19 +76,19 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
         }
     }
 
-    @Override
     /**
      * 合并
-    */
+     */
+    @Override
     public void join() throws Exception {
         executor.shutdown();
         executor.awaitTermination(60, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() throws Exception {
         if (closed.compareAndSet(false, true)) {
             executor.shutdownNow();

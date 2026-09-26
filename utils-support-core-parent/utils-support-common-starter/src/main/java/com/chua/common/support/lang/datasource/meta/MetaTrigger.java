@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.datasource.meta;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.lang.datasource.meta.model.TriggerDef;
 
 import java.util.List;
@@ -81,11 +82,15 @@ public interface MetaTrigger {
      * @return 创建触发器构建器（body 已由方言填充）
      */
     default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName) {
-        String seqName = "seq_" + tableName;
-        return create(triggerName)
+        String safeTriggerName = SqlName.checkSimple(triggerName, "触发器名");
+        String safeTableName = SqlName.checkSimple(tableName, "表名");
+        String safeColumnName = SqlName.checkSimple(columnName, "列名");
+        String seqName = SqlName.checkSimple("seq_" + safeTableName, "序列名");
+        return create(safeTriggerName)
                 .before("INSERT")
-                .onTable(tableName)
-                .body(resolveDialect().getAutoIncrementTriggerBody(triggerName, tableName, columnName, seqName));
+                .onTable(safeTableName)
+                .body(resolveDialect().getAutoIncrementTriggerBody(
+                        safeTriggerName, safeTableName, safeColumnName, seqName));
     }
 
     /**
@@ -98,10 +103,15 @@ public interface MetaTrigger {
      * @return 创建触发器构建器（body 已由方言填充）
      */
     default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName, String sequenceName) {
-        return create(triggerName)
+        String safeTriggerName = SqlName.checkSimple(triggerName, "触发器名");
+        String safeTableName = SqlName.checkSimple(tableName, "表名");
+        String safeColumnName = SqlName.checkSimple(columnName, "列名");
+        String safeSequenceName = SqlName.checkSimple(sequenceName, "序列名");
+        return create(safeTriggerName)
                 .before("INSERT")
-                .onTable(tableName)
-                .body(resolveDialect().getAutoIncrementTriggerBody(triggerName, tableName, columnName, sequenceName));
+                .onTable(safeTableName)
+                .body(resolveDialect().getAutoIncrementTriggerBody(
+                        safeTriggerName, safeTableName, safeColumnName, safeSequenceName));
     }
 
     /**

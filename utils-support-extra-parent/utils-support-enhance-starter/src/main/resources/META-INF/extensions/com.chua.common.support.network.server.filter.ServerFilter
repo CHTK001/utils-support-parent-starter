@@ -1,0 +1,12 @@
+# SPI 配置文件 - 由 utils-support 扩展点登记
+xss=com.chua.enhance.support.network.server.filter.security.XssServerFilter
+path-traversal=com.chua.enhance.support.network.server.filter.security.PathTraversalServerFilter
+request-log=com.chua.enhance.support.network.server.filter.security.LoggingServerFilter
+auth=com.chua.enhance.support.network.server.filter.security.AuthServerFilter
+signature=com.chua.enhance.support.network.server.filter.security.SignatureServerFilter
+crawler=com.chua.enhance.support.network.server.filter.security.CrawlerServerFilter
+dos=com.chua.enhance.support.network.server.filter.security.DosServerFilter
+ip-rate-limit=com.chua.enhance.support.network.server.filter.security.IpRateLimitServerFilter
+qps-limit=com.chua.enhance.support.network.server.filter.security.QpsServerFilter
+ssrf=com.chua.enhance.support.network.server.filter.security.SsrfServerFilter
+cors-header=com.chua.enhance.support.network.server.filter.security.CorsServerFilter

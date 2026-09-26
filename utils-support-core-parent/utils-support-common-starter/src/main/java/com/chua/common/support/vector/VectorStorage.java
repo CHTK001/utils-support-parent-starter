@@ -15,7 +15,7 @@ import java.util.List;
  * storage.add(new Vector("id1", new float[]{...}));
  * var results = storage.search(queryVector, 10);
  * }</pre>var 结果 = storage.搜索(查询向量, 10);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2024/12/12

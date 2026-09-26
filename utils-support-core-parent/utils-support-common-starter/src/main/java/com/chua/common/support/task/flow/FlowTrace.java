@@ -1,5 +1,7 @@
 package com.chua.common.support.task.flow;
 
+import java.util.Objects;
+
 /**
  * 流程执行轨迹记录。
  *
@@ -20,6 +22,24 @@ public record FlowTrace(
         Object output,
         long timestamp
 ) {
+
+    /**
+     * 规范构造器：节点标识为空值敌对。
+     *
+     * <p>value class 前置条件——引用组件不接受 null。
+     * 轨迹按节点标识回放，标识缺失则记录无意义；
+     * 唯一构造点传入的是流程引擎正在执行的节点标识，恒非 null。
+     * {@code input} / {@code output} 是节点执行前后的数据快照，
+     * 允许为 null，不校验。</p>
+     *
+     * @param nodeId    节点唯一标识
+     * @param input     节点执行前当前数据，可为 null
+     * @param output    节点执行后当前数据，可为 null
+     * @param timestamp 执行时间戳（毫秒）
+     */
+    public FlowTrace {
+        nodeId = Objects.requireNonNull(nodeId, "nodeId 不能为 null");
+    }
 
     /**
      * 创建执行轨迹记录。

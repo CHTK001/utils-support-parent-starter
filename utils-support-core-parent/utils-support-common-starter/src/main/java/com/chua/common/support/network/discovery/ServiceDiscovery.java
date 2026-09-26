@@ -128,7 +128,7 @@ public interface ServiceDiscovery extends AutoCloseable {
      * @throws UnsupportedOperationException 如果当前实现不支持该功能
      */
     default void subscribe(String serviceName, ServiceDiscoveryListener listener) {
-        throw new UnsupportedOperationException("Subscription is not supported by this implementation.");
+        throw new UnsupportedOperationException("当前服务发现实现不支持订阅");
     }
 
     /**

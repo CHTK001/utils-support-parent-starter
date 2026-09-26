@@ -20,41 +20,41 @@ public class RestoreResult {
 
     /**
      * 是否成功
-    */
+     */
     private boolean success;
 
     /**
      * 恢复目标目录
-    */
+     */
     private Path targetDir;
 
     /**
      * 恢复的文件列表
-    */
+     */
     @Builder.Default
     private List<Path> files = List.of(); // 文件
 
     /**
      * 恢复的文件总数
-    */
+     */
     @Builder.Default
     private int fileCount = 0; // 文件数量
 
     /**
      * 恢复的总大小（字节）
-    */
+     */
     @Builder.Default
     private long totalSize = 0; // total大小
 
     /**
      * 耗时（毫秒）
-    */
+     */
     @Builder.Default
     private long durationMillis = 0; // 持续时间millis
 
     /**
      * 错误信息
-    */
+     */
     private String errorMessage;
 
     /**

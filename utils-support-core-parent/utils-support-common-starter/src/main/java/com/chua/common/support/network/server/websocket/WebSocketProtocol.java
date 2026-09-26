@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * WebSocket 协议工具类（RFC 6455）。
@@ -28,7 +29,7 @@ public final class WebSocketProtocol {
 
     /**
      * 创建 WebSocketProtocol 实例
-    */
+     */
     private WebSocketProtocol() {
     }
 
@@ -207,5 +208,29 @@ public final class WebSocketProtocol {
      * @return 结果值
      */
     public record Frame(int opcode, byte[] payload) {
+
+        /**
+         * 规范构造器：载荷做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。
+         * 两个构造点（{@code readFrame} 与 {@code AioHttpServer} 的增量解码器）
+         * 传入的均为新建数组，从不为 null，故此处接受空值敌对。</p>
+         *
+         * @param opcode  操作码
+         * @param payload 载荷
+         */
+        public Frame {
+            payload = Objects.requireNonNull(payload, "payload 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部载荷数组的副本。
+         *
+         * @return 载荷数组副本
+         */
+        @Override
+        public byte[] payload() {
+            return payload.clone();
+        }
     }
 }

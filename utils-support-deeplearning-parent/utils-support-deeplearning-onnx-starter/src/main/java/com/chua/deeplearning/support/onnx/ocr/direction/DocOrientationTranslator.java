@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx.ocr.direction;
 
+import com.chua.deeplearning.support.ocr.DirectionInfo;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -62,14 +63,29 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
 
     /**
      * Prepare
-    */
+     */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
         }
-        Path modelPath = ModelRegistry.resolveModelPath("doc-orientation");
-        if (modelPath == null || !Files.isRegularFile(modelPath)) {
-            throw new IllegalArgumentException("文档方向分类模型缺失: " + modelPath);
+        Path tmpDir = java.nio.file.Files.createTempDirectory("doc-orientation-");
+        tmpDir.toFile().deleteOnExit();
+        Path modelDir = tmpDir.resolve("model");
+        java.nio.file.Files.createDirectories(modelDir);
+        com.chua.common.support.utils.NativeLoader.of("doc-orientation")
+                .basePath(RESOURCE_BASE)
+                .toTarget(modelDir)
+                .glob("*.onnx")
+                .withMd5(true)
+                .extractOnly(true)
+                .load();
+        Path modelPath = modelDir.resolve(MODEL_FILE);
+        if (!java.nio.file.Files.isRegularFile(modelPath)) {
+            // 回退：模型根目录直接按 modelId 命名存放的场景
+            modelPath = ModelRegistry.resolveModelPath("doc-orientation");
+        }
+        if (modelPath == null || !java.nio.file.Files.isRegularFile(modelPath)) {
+            throw new IllegalArgumentException("文档方向分类模型缺失，期望 jar 内路径 " + RESOURCE_BASE + MODEL_FILE);
         }
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();

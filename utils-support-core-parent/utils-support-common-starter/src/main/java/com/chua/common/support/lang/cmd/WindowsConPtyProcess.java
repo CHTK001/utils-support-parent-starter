@@ -469,7 +469,7 @@ public final class WindowsConPtyProcess implements Closeable {
      */
     public static WindowsConPtyProcess start(String[] cmdArray, String workDir) throws IOException {
         if (!AVAILABLE) {
-            throw new UnsupportedOperationException("ConPTY is not available on this system");
+            throw new UnsupportedOperationException("当前系统不支持 ConPTY（Windows 伪终端）");
         }
 
         try (var arena = Arena.ofConfined()) {
@@ -727,10 +727,10 @@ public final class WindowsConPtyProcess implements Closeable {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         if (inputStream != null) {
             try {
@@ -822,20 +822,20 @@ public final class WindowsConPtyProcess implements Closeable {
             this.handle = handle;
         }
 
-        @Override
         /**
          * 读取
-        */
+         */
+        @Override
         public int read() throws IOException {
             byte[] b = new byte[1];
             int n = read(b, 0, 1);
             return n == -1 ? -1 : b[0] & 0xFF;
         }
 
-        @Override
         /**
          * 读取
-        */
+         */
+        @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
@@ -871,10 +871,10 @@ public final class WindowsConPtyProcess implements Closeable {
             }
         }
 
-        @Override
         /**
          * 关闭
-        */
+         */
+        @Override
         public void close() {
         }
     }

@@ -176,7 +176,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     @Override
     public List<PermissionInfo> listPermissions(String username) {
         return listPermissions().stream()
-                .filter(p -> username.equals(p.getUser()))
+                .filter(p -> username.equals(p.user()))
                 .toList();
     }
 

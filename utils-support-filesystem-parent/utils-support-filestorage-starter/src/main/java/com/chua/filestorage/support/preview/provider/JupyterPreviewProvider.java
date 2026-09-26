@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -386,5 +387,15 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
      * @return cell信息的结果
      */
     private record CellInfo(String type, String source, List<String> outputs, int executionCount) {
+
+        /**
+         * 规范构造器：对输出列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；输出元素均为非空文本，
+         * 因此使用拒绝 null 元素的 {@link List#copyOf(List)}。</p>
+         */
+        public CellInfo {
+            outputs = List.copyOf(Objects.requireNonNull(outputs, "outputs 不能为 null"));
+        }
     }
 }

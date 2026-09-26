@@ -17,13 +17,13 @@ public class DefaultSkillManager implements SkillManager {
 
     /**
      * 技能注册表，键为技能名称
-    */
+     */
     private final Map<String, SkillDefinition> skills = new ConcurrentHashMap<>();
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public SkillManager register(SkillDefinition skillDefinition) {
         if (skillDefinition == null || skillDefinition.getName() == null || skillDefinition.getName().isBlank()) {
             throw new IllegalArgumentException("skillDefinition name 不能为空");
@@ -32,26 +32,26 @@ public class DefaultSkillManager implements SkillManager {
         return this;
     }
 
-    @Override
     /**
      * 获取
-    */
+     */
+    @Override
     public SkillDefinition get(String name) {
         return name == null ? null : skills.get(name);
     }
 
-    @Override
     /**
      * 获取All
-    */
+     */
+    @Override
     public Map<String, SkillDefinition> getAll() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(skills));
     }
 
-    @Override
     /**
      * ListAllToolDescriptors
-    */
+     */
+    @Override
     public List<Map<String, Object>> listAllToolDescriptors() {
         List<Map<String, Object>> list = new ArrayList<>();
         for (SkillDefinition skill : skills.values()) {
@@ -70,10 +70,10 @@ public class DefaultSkillManager implements SkillManager {
         return list;
     }
 
-    @Override
     /**
      * 执行
-    */
+     */
+    @Override
     public SkillResult execute(String name, Map<String, Object> args) {
         SkillDefinition skill = get(name);
         if (skill == null) {
@@ -86,10 +86,10 @@ public class DefaultSkillManager implements SkillManager {
         }
     }
 
-    @Override
     /**
      * Contains
-    */
+     */
+    @Override
     public boolean contains(String name) {
         return name != null && skills.containsKey(name);
     }

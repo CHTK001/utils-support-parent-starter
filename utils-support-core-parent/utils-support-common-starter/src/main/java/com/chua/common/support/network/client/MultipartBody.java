@@ -39,11 +39,11 @@ public class MultipartBody {
 
     /**
      * Crlf
-    */
+     */
     private static final byte[] CRLF = {'\r', '\n'};
     /**
      * Dashes
-    */
+     */
     private static final byte[] DASHES = {'-', '-'};
 
     /**
@@ -62,10 +62,10 @@ public class MultipartBody {
      *  获取当前使用的 boundary 分隔符。
 
      */
-    @Getter
     /**
      * Boundary
-    */
+     */
+    @Getter
     private final String boundary;
 
     /**

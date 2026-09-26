@@ -32,22 +32,22 @@ public class AgentModelDefinition implements ChatClient {
 
     /**
      * 默认模型名称
-    */
+     */
     private static final String DEFAULT_MODEL = "router-auto";
 
     /**
      * 内部 Agent 实例
-    */
+     */
     private final Agent agent;
 
     /**
      * 模型名称
-    */
+     */
     private String model = DEFAULT_MODEL;
 
     /**
      * 最近一次 Agent 响应
-    */
+     */
     private AgentResponse lastResponse;
 
     /**
@@ -67,33 +67,32 @@ public class AgentModelDefinition implements ChatClient {
         return agent;
     }
 
-    @Override
     /**
      * Model
-    */
+     */
+    @Override
     public ChatClient model(String model) {
         this.model = model != null ? model : DEFAULT_MODEL;
         return this;
     }
 
-    @Override
     /**
      * ChatSync
-    */
+     */
+    @Override
     public String chatSync(String prompt) {
         lastResponse = agent.run(prompt);
         return lastResponse != null ? lastResponse.getOutput() : "";
     }
 
-    @Override
     /**
      * Chat
-    */
+     */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt prompt
@@ -101,6 +100,7 @@ public class AgentModelDefinition implements ChatClient {
      * @param onComplete onComplete
      * @param onError onError
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -126,10 +126,10 @@ public class AgentModelDefinition implements ChatClient {
         }
     }
 
-    @Override
     /**
      * Models
-    */
+     */
+    @Override
     public List<ModelDefinition> models() {
         return List.of(ModelDefinition.builder()
                 .id(DEFAULT_MODEL)
@@ -140,10 +140,10 @@ public class AgentModelDefinition implements ChatClient {
                 .build());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         agent.close();
     }

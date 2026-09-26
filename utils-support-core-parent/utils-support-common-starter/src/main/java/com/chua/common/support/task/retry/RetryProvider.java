@@ -22,7 +22,7 @@ import java.util.function.Predicate;
  * RetryProvider provider = new JdkRetryProvider();
  * String result = provider.execute(() -> httpClient.get("/api"), config);
  * }</pre> httpClient.get("/api"), config);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

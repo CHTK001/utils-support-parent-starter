@@ -38,7 +38,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
 
     /**
      * SET 值映射：列名 → 新值
-    */
+     */
     private final Map<String, Object> setValues = new LinkedHashMap<>();
 
     /**
@@ -144,10 +144,10 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
                 "saveOrUpdate 未实现：更新包装器不携带主键元数据，请显式使用 set(...).eq(主键, 值).update()");
     }
 
-    @Override
     /**
      * NewInstance
-    */
+     */
+    @Override
     protected LambdaUpdateWrapper<T> newInstance() {
         return new LambdaUpdateWrapper<>(entityClass);
     }

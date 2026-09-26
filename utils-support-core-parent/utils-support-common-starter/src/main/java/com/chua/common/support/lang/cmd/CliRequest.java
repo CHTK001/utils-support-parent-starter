@@ -41,34 +41,34 @@ public final class CliRequest {
 
     /**
      * 所属的 CLI 工具
-    */
+     */
     private final CliTool tool;
     /**
      * 参数列表
-    */
+     */
     private final List<String> args = new ArrayList<>();
     /**
      * 超时值，小于等于 0 表示不超时
-    */
+     */
     private long timeout;
     /**
      * 超时单位
-    */
+     */
     private TimeUnit unit;
 
     /**
      * 请求级工作目录，null 表示不指定
-    */
+     */
     private File workingDirectory;
 
     /**
      * 请求级附加环境变量，null 表示不指定
-    */
+     */
     private Map<String, String> environment;
 
     /**
      * 标准输入内容，null 表示不写入
-    */
+     */
     private String input;
 
     /**
@@ -331,36 +331,36 @@ public final class CliRequest {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         if (workingDirectory == null && environment == null && input == null) {
             tool.executeAsyncInternal(toArgArray(), timeout, unit, new CmdCallback() {
-                @Override
                 /**
                  * OnComplete
-                */
+                 */
+                @Override
                 public void onComplete(CmdResult result) {
                     future.complete(result);
                 }
 
-                @Override
                 /**
                  * On记录错误
-                */
+                 */
+                @Override
                 public void onError(String cmd, Throwable throwable) {
                     future.completeExceptionally(throwable);
                 }
             });
         } else {
             tool.executeAsyncInternal(toArgArray(), timeout, unit, new CmdCallback() {
-                @Override
                 /**
                  * OnComplete
-                */
+                 */
+                @Override
                 public void onComplete(CmdResult result) {
                     future.complete(result);
                 }
 
-                @Override
                 /**
                  * On记录错误
-                */
+                 */
+                @Override
                 public void onError(String cmd, Throwable throwable) {
                     future.completeExceptionally(throwable);
                 }

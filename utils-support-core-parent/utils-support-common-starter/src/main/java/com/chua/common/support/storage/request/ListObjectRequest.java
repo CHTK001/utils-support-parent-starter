@@ -27,10 +27,9 @@ public class ListObjectRequest {
 
     /**
      * 每页返回的最大数量，默认 10。
-     */
-    @Builder.Default
-    /**
+     *
      * 限制
      */
+    @Builder.Default
     private int limit = 10;
 }

@@ -1,71 +1,37 @@
 package com.chua.common.support.datasearch.location.model;
 
-import lombok.Data;
-
 /**
  * IP 定位信息实体。
- *
  * <p>含 IP 对应的经纬度、行政地址与物理地址（由 GeocodeProvider 补充）。
  * 字段名与 ip-api.com 响应对齐。</p>
+ *
+ * @param ip IP 地址
+ * @param country 国家
+ * @param countryCode 国家代码（ISO 3166-1）
+ * @param region 省份/州
+ * @param city 城市
+ * @param zip 邮编
+ * @param latitude 纬度
+ * @param longitude 经度
+ * @param timezone 时区
+ * @param isp 运营商
+ * @param address 物理地址（完整展示名，由逆地理编
+ *                码补充）
  *
  * @author CH
  * @since 4.0.0.42
  */
-@Data
-public class LocationInfo {
-
-    /**
-     * IP 地址
-    */
-    private String ip;
-
-    /**
-     * 国家
-    */
-    private String country;
-
-    /**
-     * 国家代码（ISO 3166-1）
-    */
-    private String countryCode;
-
-    /**
-     * 省份/州
-    */
-    private String region;
-
-    /**
-     * 城市
-    */
-    private String city;
-
-    /**
-     * 邮编
-    */
-    private String zip;
-
-    /**
-     * 纬度
-    */
-    private Double latitude;
-
-    /**
-     * 经度
-    */
-    private Double longitude;
-
-    /**
-     * 时区
-    */
-    private String timezone;
-
-    /**
-     * 运营商
-    */
-    private String isp;
-
-    /**
-     * 物理地址（完整展示名，由逆地理编码补充）
-    */
-    private String address;
+public record LocationInfo(
+        String ip,
+        String country,
+        String countryCode,
+        String region,
+        String city,
+        String zip,
+        Double latitude,
+        Double longitude,
+        String timezone,
+        String isp,
+        String address
+) {
 }

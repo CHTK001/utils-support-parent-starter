@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * DJL 模型工厂。
@@ -70,6 +71,11 @@ public class DjlModelFactory implements AutoCloseable {
      * DJL 模型实例。
      */
     private Model model;
+
+    /**
+     * 已创建的 DJL Translator 实例（用于运行期参数热注入）。
+     */
+    private volatile Object translatorInstance;
 
     /**
      * DJL 预测器。
@@ -238,7 +244,40 @@ public class DjlModelFactory implements AutoCloseable {
         } else {
             throw new IllegalArgumentException("模型路径为空: " + modelName);
         }
-        predictor = model.newPredictor(translatorFactory.create());
+        Translator<?, ?> translator = translatorFactory.create();
+        this.translatorInstance = translator;
+        predictor = model.newPredictor(translator);
+    }
+
+    /**
+     * 将运行参数转发给已创建的 DJL Translator，使其支持阈值等参数热更新。
+     *
+     * <p>若模型尚未初始化，则参数在 {@code ensureInitialized()} 创建 Translator 时
+     * 由构造器注入（见 LazyDjlTranslator 的 options 传递）；本方法只处理已初始化
+     * 且 Translator 实现了 {@link DetectionConfigurable} 的场景。</p>
+     *
+     * @param options 参数键值对
+     * @return 已成功转发到 Translator 时返回 true
+     */
+    public boolean configure(Map<String, Object> options) {
+        if (options == null || options.isEmpty()) {
+            return false;
+        }
+        Object target = this.translatorInstance;
+        if (target == null) {
+            return false;
+        }
+        if (target instanceof DetectionConfigurable configurable) {
+            configurable.configure(options);
+            return true;
+        }
+        // 未实现 DetectionConfigurable 的 Translator：按字段名反射回写，
+        // 使 threshold / iouThreshold / threads 等参数在运行期同样可更新
+        int applied = ModelParams.applyTo(target, options);
+        if (applied > 0) {
+            log.info("[deeplearning-engine] 模型 {} 运行参数已热更新: {} 项", modelName, applied);
+        }
+        return applied > 0;
     }
 
     /**

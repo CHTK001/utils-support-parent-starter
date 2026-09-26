@@ -141,6 +141,11 @@ public class CrawlerServerFilter implements ServerFilter {
      */
     private ScheduledExecutorService cleanupExecutor;
 
+    /**
+     * 是否已收到 crawler.* 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
@@ -187,7 +192,31 @@ public class CrawlerServerFilter implements ServerFilter {
         if (cleanupVal != null && !cleanupVal.isEmpty()) {
             this.cleanupIntervalSeconds = Long.parseLong(cleanupVal);
         }
-        startCleanup();
+        // 未收到任何 crawler.* 配置时不挂载，也不起清理线程，避免默认策略拦掉正常流量
+        this.configured = present(enabledVal) || present(blockVal) || present(statusVal)
+                || present(customKeywords) || present(periodEnabledVal) || present(minTimesVal)
+                || present(windowVal) || present(ratioVal) || present(cleanupVal);
+        if (this.configured) {
+            startCleanup();
+        }
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured && enabled;
+    }
+
+    /**
+     * 判断配置项是否显式给出。
+     *
+     * @param value 配置值
+     * @return 非空非空白时返回 {@code true}
+     */
+    private static boolean present(String value) {
+        return value != null && !value.isEmpty();
     }
 
     @Override
@@ -237,7 +266,8 @@ public class CrawlerServerFilter implements ServerFilter {
      * 获取订单
     */
     public int getOrder() {
-        return 30;
+        // 让开 XssServerFilter 的 30：爬虫拦截应在 XSS 解析之前，同序则不确定
+        return 28;
     }
 
     @Override

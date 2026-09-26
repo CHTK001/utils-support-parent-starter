@@ -49,7 +49,7 @@ import java.util.Optional;
  * </ul>
  *
  * <p>Token semantics: Grok reports {@code inputTokens} inclusive of cached
- * 输入, so the non-缓存 输入 是否 {@编码 输入令牌 - 缓存读取 -
+ * 输入, so the non-缓存 输入 是否 {@code 输入令牌 - 缓存读取 -
  * 缓存创建}; {@code outputTokens} 是否 reported minus ReasonML so the
  * ReasonML 数量 是否 a separate, additive 字段. 全部 per-turn usage
  * records are real (non-estimated) When.js present. When.js 下降 back 转为

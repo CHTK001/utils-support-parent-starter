@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * seed 引导模式发现：仅与 seed 同步 hash + 新节点扩散 + 最小 nodeId 选举 + 全掉线降级。
@@ -38,26 +39,42 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /**
      * seed 元数据键
-    */
+     */
     private static final String METADATA_SEED = "seed";
     /**
      * seed 掉线标记
-    */
+     */
     private static final String METADATA_SEED_DOWN = "seedDown";
 
     /**
      * 已扩散过的新节点（去重）
-    */
+     */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
     /**
-     * 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
+     * 降级同步线程池大小（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
      */
-    private static final ExecutorService DEGRADE_SYNC_EXECUTOR = Executors.newFixedThreadPool(
-            4, r -> {
+    private static final int DEGRADE_SYNC_POOL_SIZE = 4;
+
+    /**
+     * 降级同步线程池队列容量：与线程数同量级，队列满时由调用线程兜底执行，避免任务无限堆积。
+     */
+    private static final int DEGRADE_SYNC_QUEUE_SIZE = 4;
+
+    /**
+     * 降级同步专用线程池实例（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
+     */
+    private static final ThreadPoolExecutor DEGRADE_SYNC_EXECUTOR = new ThreadPoolExecutor(
+            DEGRADE_SYNC_POOL_SIZE,
+            DEGRADE_SYNC_POOL_SIZE,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(DEGRADE_SYNC_QUEUE_SIZE),
+            r -> {
                 Thread t = new Thread(r, "scatter-degrade-sync");
                 t.setDaemon(true);
                 return t;
-            });
+            },
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     /**
      * 构造方法，创建 Seed模式Discovery 实例。
@@ -254,7 +271,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /**
      * 注册 seed 引导条目（带 seed 标记，不参与心跳剔除）。
-    */
+     */
     @Override
     public void registerSelf() {
         super.registerSelf();

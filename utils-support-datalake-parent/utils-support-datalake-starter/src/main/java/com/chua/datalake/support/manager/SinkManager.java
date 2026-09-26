@@ -36,8 +36,18 @@ public class SinkManager {
      */
     public void start() {
         log.info("[datalake-server] SinkManager 启动 {} 个 sink", sinkMap.size());
+        int started = 0;
         for (DataSink sink : sinkMap.values()) {
-            sink.start();
+            try {
+                sink.start();
+                started++;
+            } catch (Exception e) {
+                // 单个 Sink 启动失败（如数据源地址不可达）不得影响其余通道
+                log.error("[datalake-server] sink 启动失败: type=" + sink.type(), e);
+            }
+        }
+        if (started < sinkMap.size()) {
+            log.warn("[datalake-server] SinkManager 仅启动 {}/{} 个 sink", started, sinkMap.size());
         }
     }
 
@@ -46,7 +56,12 @@ public class SinkManager {
      */
     public void stop() {
         for (DataSink sink : sinkMap.values()) {
-            sink.stop();
+            try {
+                sink.stop();
+            } catch (Exception e) {
+                // 停机阶段同样隔离，保证每个 sink 都有释放资源的机会
+                log.error("[datalake-server] sink 停止失败: type=" + sink.type(), e);
+            }
         }
     }
 
@@ -58,18 +73,10 @@ public class SinkManager {
     public List<DataSink> storeSinks() {
         List<DataSink> result = new ArrayList<>();
         for (DataSink sink : sinkMap.values()) {
-            if (!(sink instanceof SinkAccessSink) && sink.getDataSource() != null) {
+            if (!(sink instanceof AccessSink) && sink.getDataSource() != null) {
                 result.add(sink);
             }
         }
         return result;
-    }
-
-    /**
-     * 内部标记型接口，用于在包内识别 {@link AccessSink} 类型而避免外部依赖。
-     * @author CH
-     * @since 4.0.0
-     */
-    private interface SinkAccessSink extends com.chua.datalake.support.spi.sink.AccessSink {
     }
 }

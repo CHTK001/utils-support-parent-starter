@@ -24,7 +24,7 @@ package com.chua.common.support.task.taskrunner;
  *         .execute(input);
  * }</pre>-> callB())
  *         .execute(input);
- * }</pre>
+ * }
  *
  * <p>实例为不可变 record，可安全跨线程共享。</p>
  *

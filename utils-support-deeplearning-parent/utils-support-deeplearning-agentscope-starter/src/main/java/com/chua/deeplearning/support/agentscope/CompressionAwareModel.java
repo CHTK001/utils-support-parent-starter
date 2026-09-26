@@ -7,6 +7,8 @@ import com.chua.common.support.ai.context.ContextCompressor;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
+import io.agentscope.core.message.ToolResultBlock;
+import io.agentscope.core.message.ToolUseBlock;
 import io.agentscope.core.model.ChatResponse;
 import io.agentscope.core.model.GenerateOptions;
 import io.agentscope.core.model.Model;
@@ -85,6 +87,10 @@ public class CompressionAwareModel implements Model {
      */
     public Flux<ChatResponse> stream(List<Msg> messages, List<io.agentscope.core.model.ToolSchema> tools,
                                      GenerateOptions options) {
+        if (hasToolBlocks(messages)) {
+            // 压缩以纯文本轮次建模，带工具的轮次原样下发才能保住 tool_call_id 配对
+            return delegate.stream(messages, tools, options);
+        }
         List<ChatMessage> chatMessages = convertToChatMessages(messages);
         List<ChatMessage> compressedMessages = compressor.maybeCompress(chatMessages);
         List<Msg> adaptedMessages = convertToMsg(compressedMessages);
@@ -127,6 +133,26 @@ public class CompressionAwareModel implements Model {
     }
 
     /**
+     * 会话中是否存在工具轮次
+     *
+     * @param messages 消息
+     * @return 含TOOL角色或工具调用/结果块时为 true
+     */
+    private static boolean hasToolBlocks(List<Msg> messages) {
+        if (messages == null) {
+            return false;
+        }
+        for (Msg msg : messages) {
+            if (msg.getRole() == MsgRole.TOOL
+                    || msg.hasContentBlocks(ToolUseBlock.class)
+                    || msg.hasContentBlocks(ToolResultBlock.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 转换转为对话消息
      *
      * @param messages 消息
@@ -143,9 +169,10 @@ public class CompressionAwareModel implements Model {
             }
             String text = msg.getTextContent();
             if (text != null && !text.isBlank()) {
-                result.add(new ChatMessage(
-                        msg.getRole() == MsgRole.USER ? "user" : "assistant",
-                        text));
+                result.add(ChatMessage.builder()
+                        .role(msg.getRole() == MsgRole.USER ? "user" : "assistant")
+                        .content(text)
+                        .build());
             }
         }
         return result;

@@ -28,13 +28,13 @@ import java.util.List;
  *   <li>{@code /} - 步进（如 &#42;/5）</li>
  *   <li>{@code L} - 最后一天或最后一个工作日</li>
  *   <li>{@code W} - 最近的工作日</li>
- *   <li>{@code #} - 第 N 个星期几（如 3#2 表示第二个星期二）</li>
+ *   <li>{@code #} - 第 N 个星期几（如 5#3 表示当月第 3 个星期五）</li>
  * </ul>
  *
  * <p>匹配逻辑：
  * <ol>
  *   <li>按年-月-日-时-分-秒的层级逐级匹配</li>
- *   <li>日和周字段支持互斥匹配：当其中一个未设置时，另一个作为唯一判定条件</li>
+ *   <li>日期与星期各自独立约束，写 {@code ?} 的一侧不参与判定</li>
  *   <li>支持月末（L）和最近工作日（W）等特殊语义</li>
  * </ol>
  *
@@ -89,9 +89,19 @@ public class CronExpression {
     private Integer nearestWeekday;
 
     /**
-     * 第 N 个星期几（如 3#2 表示第二个星期二，# 前的数字表示星期几，# 后的数字表示第几个）
+     * 第几个星期（5#3 表示当月第 3 个星期五，# 后是序号，# 前按本类统一的 0=周日 编号表示星期）
      */
     private Integer nthDayOfWeek;
+
+    /**
+     * 星期字段写成 {@code dL} 时的星期编号（0=周日），表示当月最后一个星期 d
+     */
+    private Integer lastWeekdayOfMonth;
+
+    /**
+     * 计算下一次执行时间的最大回溯年数，超过即认定表达式永不匹配
+     */
+    private static final int MAX_LOOKAHEAD_YEARS = 5;
 
     /**
      * 构造一个 Cron 表达式解析器
@@ -179,22 +189,47 @@ public class CronExpression {
         if ("?".equals(field)) {
             return;
         }
-        String resolved = resolveNames(field, "SUN,MON,TUE,WED,THU,FRI,SAT");
-        resolved = resolved.replace("7", "0");
+        String resolved = resolveWeekdayNames(field).replace("7", "0");
         if ("L".equals(resolved)) {
             lastDayOfWeek = true;
             return;
         }
+        if (resolved.endsWith("L") && resolved.length() > 1) {
+            int weekday = Integer.parseInt(resolved.substring(0, resolved.length() - 1));
+            lastDayOfWeek = true;
+            lastWeekdayOfMonth = weekday;
+            daysOfWeek.set(weekday);
+            return;
+        }
         if (resolved.contains("#")) {
+            // # 前是星期几（本类统一 0/7=周日），# 后是当月第几个
             String[] parts = resolved.split("#");
-            nthDayOfWeek = Integer.parseInt(parts[0]);
-            daysOfWeek.set(Integer.parseInt(parts[1]));
+            nthDayOfWeek = Integer.parseInt(parts[1]);
+            daysOfWeek.set(Integer.parseInt(parts[0]) % 7);
             return;
         }
         parseField(resolved, 0, 7, daysOfWeek);
         if (daysOfWeek.get(7)) {
             daysOfWeek.set(0);
         }
+    }
+
+    /**
+     * 将英文星期名解析为标准 cron 数字（SUN=0、MON=1 … SAT=6）
+     *
+     * <p>不复用 {@link #resolveNames}：该方法按数组下标从 1 开始编号，用于星期字段会让
+     * {@code MON-FRI} 整体偏移一天。</p>
+     *
+     * @param field 原始字段值
+     * @return 名称替换为数字后的字段值
+     */
+    private String resolveWeekdayNames(String field) {
+        String[] names = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+        String result = field.toUpperCase();
+        for (int i = 0; i < names.length; i++) {
+            result = result.replace(names[i], String.valueOf(i));
+        }
+        return result;
     }
 
     /**
@@ -277,17 +312,23 @@ public class CronExpression {
      * </ol>
      *
      * @param from 基准时间
-     * @return 下一个匹配的 Cron 时间点
+     * @return 下一个匹配的 Cron 时间点，表达式永不匹配时返回 {@code null}
      */
     LocalDateTime nextExecutionTime(LocalDateTime from) {
         LocalDateTime candidate = from.truncatedTo(ChronoUnit.SECONDS).plusSeconds(1);
+        LocalDateTime deadline = from.plusYears(MAX_LOOKAHEAD_YEARS);
 
         while (true) {
+            // 2 月 30 日这类永不匹配的表达式若不限步数，会把调用线程拖进死循环
+            if (candidate.isAfter(deadline)) {
+                return null;
+            }
+
             int y = candidate.getYear();
             int m = candidate.getMonthValue();
 
             if (!months.get(m)) {
-                candidate = candidate.withMonth(m + 1).withDayOfMonth(1).with(LocalTime.MIN);
+                candidate = candidate.plusMonths(1).withDayOfMonth(1).with(LocalTime.MIN);
                 continue;
             }
 
@@ -298,15 +339,19 @@ public class CronExpression {
                     || (lastDayOfMonth && dom == lengthOfMonth(y, m));
             boolean dowMatch = daysOfWeek.get(dow)
                     || (lastDayOfWeek && isLastWeekDay(candidate));
-            if (nthDayOfWeek != null && daysOfWeek.get(nthDayOfWeek)) {
+            if (nthDayOfWeek != null) {
                 dowMatch = isNthDayOfWeek(candidate);
+            }
+            if (lastWeekdayOfMonth != null) {
+                dowMatch = dow == lastWeekdayOfMonth && dom + 7 > lengthOfMonth(y, m);
             }
             if (nearestWeekday != null) {
                 domMatch = isNearestWeekday(y, m, candidate);
             }
-            if ((daysOfMonth.isEmpty() && !lastDayOfMonth && nearestWeekday == null)
-                    || (daysOfWeek.isEmpty() && !lastDayOfWeek && nthDayOfWeek == null)) {
+            if (daysOfMonth.isEmpty() && !lastDayOfMonth && nearestWeekday == null) {
                 domMatch = true;
+            }
+            if (daysOfWeek.isEmpty() && !lastDayOfWeek && nthDayOfWeek == null) {
                 dowMatch = true;
             }
 
@@ -317,13 +362,13 @@ public class CronExpression {
 
             int h = candidate.getHour();
             if (!hours.get(h)) {
-                candidate = candidate.withHour(h + 1).withMinute(0).withSecond(0);
+                candidate = candidate.plusHours(1).withMinute(0).withSecond(0);
                 continue;
             }
 
             int min = candidate.getMinute();
             if (!minutes.get(min)) {
-                candidate = candidate.withMinute(min + 1).withSecond(0);
+                candidate = candidate.plusMinutes(1).withSecond(0);
                 continue;
             }
 
@@ -387,7 +432,7 @@ public class CronExpression {
     private boolean isNthDayOfWeek(LocalDateTime dt) {
         int weekOfMonth = (dt.getDayOfMonth() - 1) / 7 + 1;
         int dow = dt.getDayOfWeek().getValue() % 7;
-        return daysOfWeek.get(dow) && dt.getDayOfWeek().getValue() == nthDayOfWeek;
+        return daysOfWeek.get(dow) && weekOfMonth == nthDayOfWeek;
     }
 
     /**

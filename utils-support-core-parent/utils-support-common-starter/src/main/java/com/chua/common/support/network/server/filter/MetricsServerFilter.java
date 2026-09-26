@@ -40,55 +40,55 @@ public class MetricsServerFilter implements ServerFilter {
     public static class MetricsSnapshot {
         /**
          * 总数requests
-        */
+         */
         private final long totalRequests;
         /**
          * 错误数量
-        */
+         */
         private final long errorCount;
         /**
          * 是否激活requests
-        */
+         */
         private final long activeRequests;
         /**
          * AVGlatencyMS
-        */
+         */
         private final double avgLatencyMs;
         /**
          * 最大值latencyMS
-        */
+         */
         private final long maxLatencyMs;
         /**
          * P50ms
-        */
+         */
         private final double p50Ms;
         /**
          * P75ms
-        */
+         */
         private final double p75Ms;
         /**
          * P90ms
-        */
+         */
         private final double p90Ms;
         /**
          * P95ms
-        */
+         */
         private final double p95Ms;
         /**
          * P99ms
-        */
+         */
         private final double p99Ms;
         /**
          * QPS
-        */
+         */
         private final double qps;
         /**
          * TPS
-        */
+         */
         private final double tps;
         /**
          * UptimeMS
-        */
+         */
         private final long uptimeMs;
 
         /**
@@ -128,61 +128,61 @@ public class MetricsServerFilter implements ServerFilter {
 
         /**
          * 获取总计Requests
-        */
+         */
         public long getTotalRequests() { return totalRequests; }
         /**
          * 获取记录错误计算数量
-        */
+         */
         public long getErrorCount() { return errorCount; }
         /**
          * 获取ActiveRequests
-        */
+         */
         public long getActiveRequests() { return activeRequests; }
         /**
          * 获取平均值LatencyMs
-        */
+         */
         public double getAvgLatencyMs() { return avgLatencyMs; }
         /**
          * 获取最大值LatencyMs
-        */
+         */
         public long getMaxLatencyMs() { return maxLatencyMs; }
         /**
          * 获取Ms
-        */
+         */
         public double getP50Ms() { return p50Ms; }
         /**
          * 获取Ms
-        */
+         */
         public double getP75Ms() { return p75Ms; }
         /**
          * 获取Ms
-        */
+         */
         public double getP90Ms() { return p90Ms; }
         /**
          * 获取Ms
-        */
+         */
         public double getP95Ms() { return p95Ms; }
         /**
          * 获取Ms
-        */
+         */
         public double getP99Ms() { return p99Ms; }
         /**
          * 获取Qps
-        */
+         */
         public double getQps() { return qps; }
         /**
          * 获取Tps
-        */
+         */
         public double getTps() { return tps; }
         /**
          * 获取UptimeMs
-        */
+         */
         public long getUptimeMs() { return uptimeMs; }
 
-        @Override
         /**
          * ToString
-        */
+         */
+        @Override
         public String toString() {
             return "MetricsSnapshot{" +
                     "totalRequests=" + totalRequests +
@@ -211,44 +211,44 @@ public class MetricsServerFilter implements ServerFilter {
 
     /**
      * Callback
-    */
+     */
     private final MetricsCallback callback;
     /**
      * Period秒
-    */
+     */
     private final int periodSeconds;
     /**
      * Latencies
-    */
+     */
     private final ConcurrentLinkedQueue<Long> latencies;
     /**
      * 总数requests
-    */
+     */
     private final LongAdder totalRequests = new LongAdder();
     /**
      * 错误数量
-    */
+     */
     private final LongAdder errorCount = new LongAdder();
     /**
      * 总数latencynanos
-    */
+     */
     private final LongAdder totalLatencyNanos = new LongAdder();
     /**
      * 最大值latencynanos
-    */
+     */
     private final AtomicLong maxLatencyNanos = new AtomicLong();
     private volatile ScheduledFuture<?> scheduledFuture;
     /**
      * 开始时间
-    */
+     */
     private final long startTime = System.currentTimeMillis();
     /**
      * lastPeriodRequests
-    */
+     */
     private volatile long lastPeriodRequests = 0;
     /**
      * lastPeriodTimestamp
-    */
+     */
     private volatile long lastPeriodTimestamp;
 
     /**
@@ -264,28 +264,28 @@ public class MetricsServerFilter implements ServerFilter {
         this.lastPeriodTimestamp = System.currentTimeMillis();
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 100;
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         ScheduledExecutorService scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("metrics-scheduler");
         scheduledFuture = scheduler.scheduleAtFixedRate(
                 this::computeAndCallback, 0, periodSeconds, TimeUnit.SECONDS);
     }
 
-    @Override
     /**
      * 销毁
-    */
+     */
+    @Override
     public void destroy() {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
@@ -293,10 +293,10 @@ public class MetricsServerFilter implements ServerFilter {
         computeAndCallback();
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         totalRequests.increment();
         long start = System.nanoTime();
@@ -316,7 +316,7 @@ public class MetricsServerFilter implements ServerFilter {
 
     /**
      * ComputeAndCallback
-    */
+     */
     private void computeAndCallback() {
         long now = System.currentTimeMillis();
         long total = totalRequests.sum();

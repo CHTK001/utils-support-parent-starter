@@ -105,10 +105,10 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;
     }
 
-    @Override
     /**
      * 连接
-    */
+     */
+    @Override
     public void connect() {
         if (connected) {
             return;
@@ -124,10 +124,10 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    @Override
     /**
      * 断开
-    */
+     */
+    @Override
     public void disconnect() {
         if (!connected) {
             return;
@@ -139,26 +139,26 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否Connected
-    */
+     */
+    @Override
     public boolean isConnected() {
         return connected;
     }
 
-    @Override
     /**
      * 获取ClientId
-    */
+     */
+    @Override
     public String getClientId() {
         return clientId;
     }
 
-    @Override
     /**
      * 发送
-    */
+     */
+    @Override
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -194,50 +194,50 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    @Override
     /**
      * 订阅
-    */
+     */
+    @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
-    @Override
     /**
      * 取消订阅
-    */
+     */
+    @Override
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除Listener
-    */
+     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取Metadata
-    */
+     */
+    @Override
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "websocket");
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         disconnect();
     }
@@ -246,7 +246,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * Do连接
-    */
+     */
     private void doConnect() throws Exception {
         String url = serverUrl;
         if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
@@ -283,7 +283,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * 开始接收Thread
-    */
+     */
     private void startReceiveThread() {
         receiveThread = ThreadUtils.newThread(() -> {
             while (connected && socket != null && !socket.isClosed()) {
@@ -304,7 +304,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * 停止接收Thread
-    */
+     */
     private void stopReceiveThread() {
         if (receiveThread != null) {
             receiveThread.interrupt();
@@ -314,7 +314,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * 读取Frames
-    */
+     */
     private void readFrames() throws IOException {
         InputStream in = socket.getInputStream();
         while (connected && !socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -383,7 +383,7 @@ public class WebSocketSyncClient implements com.chua.common.support.network.sync
 
     /**
      * AttemptReconnect
-    */
+     */
     private void attemptReconnect() {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;

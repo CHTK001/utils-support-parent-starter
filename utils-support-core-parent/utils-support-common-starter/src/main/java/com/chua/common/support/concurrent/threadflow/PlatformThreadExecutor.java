@@ -65,10 +65,10 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
         this.executor = executor;
     }
 
-    @Override
     /**
      * 提交Tasks
-    */
+     */
+    @Override
     protected List<Future<Object>> submitTasks() {
         List<Future<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -77,10 +77,10 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
         return futures;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         executor.shutdownNow();
     }

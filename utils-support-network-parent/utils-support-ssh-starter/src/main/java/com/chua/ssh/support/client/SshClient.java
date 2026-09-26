@@ -73,19 +73,23 @@ public class SshClient implements AutoCloseable {
      * 会话超时时间
      */
     private final int sessionTimeout;
+    /**
+     * 命令执行/读取超时时间（秒）：等待 exit-status/CLOSED 的上限，慢链路可调大
+     */
+    private final long execTimeoutSeconds;
 
     /**
      * exec 通道打开超时（秒）
     */
     private static final long EXEC_OPEN_TIMEOUT_SECONDS = 10L;
     /**
-     * exec 通道退出码等待（毫秒）
-    */
-    private static final long EXEC_EXIT_WAIT_MILLIS = 30_000L;
-    /**
      * 取到退出码后等待输出流 EOF 的排空窗口（毫秒），仅在通道仍被后台进程占着时才会用满
     */
     private static final long EXEC_OUTPUT_DRAIN_MILLIS = 250L;
+    /**
+     * 客户端心跳间隔（毫秒）：定期发送 SSH_MSG_IGNORE 保活，穿透 NAT/防火墙并快速暴露死连接
+     */
+    private static final int HEARTBEAT_INTERVAL_MILLIS = 30_000;
 
     /**
      * ssh Client
@@ -108,6 +112,7 @@ public class SshClient implements AutoCloseable {
         this.privateKeyPath = b.privateKeyPath;
         this.connectTimeout = b.connectTimeout;
         this.sessionTimeout = b.sessionTimeout;
+        this.execTimeoutSeconds = b.execTimeoutSeconds;
     }
 
     // ==================== 工厂方法 ====================
@@ -152,17 +157,52 @@ public class SshClient implements AutoCloseable {
             if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
                 var provider = new org.apache.sshd.common.keyprovider.FileKeyPairProvider(
                         java.nio.file.Path.of(privateKeyPath));
+                int loaded = 0;
                 for (java.security.KeyPair kp : provider.loadKeys(session)) {
                     session.addPublicKeyIdentity(kp);
+                    loaded++;
+                }
+                if (loaded == 0) {
+                    // 库层加载失败只打一条 WARN 便返回空集合，不显式抛错会退化成 "No more authentication methods available"
+                    throw new SshClientException("私钥无法加载: " + privateKeyPath
+                            + "（不支持的密钥类型、口令错误或缺少 eddsa 依赖）", null);
                 }
             }
 
             session.auth().verify(sessionTimeout, TimeUnit.SECONDS);
+            org.apache.sshd.core.CoreModuleProperties.HEARTBEAT_INTERVAL.set(session,
+                    java.time.Duration.ofMillis(HEARTBEAT_INTERVAL_MILLIS));
             log.info("SSH 连接成功: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            throw new SshClientException("SSH 连接失败: " + host + ":" + port, e);
+            // 半途失败时 sshClient 已 start，不 stop 则其 Nio2 线程池永久残留
+            disconnect();
+            if (e instanceof SshClientException alreadyWrapped) {
+                throw alreadyWrapped;
+            }
+            throw new SshClientException("SSH 连接失败: " + host + ":" + port + "，" + rootReason(e), e);
         }
         return this;
+    }
+
+    /**
+     * 取异常链最内层的可读原因。
+     *
+     * <p>MINA 的认证失败逐层包装，最外层 message 往往为空或只有类名，可读信息在最里层。</p>
+     *
+     * @param e 原始异常
+     * @return 非空原因文本
+     */
+    private static String rootReason(Throwable e) {
+        Throwable t = e;
+        String last = "";
+        while (t != null) {
+            String msg = t.getMessage();
+            if (msg != null && !msg.isBlank()) {
+                last = msg;
+            }
+            t = t.getCause();
+        }
+        return last.isEmpty() ? e.getClass().getSimpleName() : last;
     }
 
     /**
@@ -263,7 +303,8 @@ public class SshClient implements AutoCloseable {
                 // 后台子进程仍持有通道管道，通道要等它退出才关闭，而退出码其实早已送达。
                 // 先等 exit-status，再给数据流一个短暂的 EOF 窗口，兼顾输出完整与响应速度。
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
-                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED), EXEC_EXIT_WAIT_MILLIS);
+                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
+                        TimeUnit.SECONDS.toMillis(client.execTimeoutSeconds));
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EOF),
                         EXEC_OUTPUT_DRAIN_MILLIS);
                 Integer status = channel.getExitStatus();
@@ -306,7 +347,8 @@ public class SshClient implements AutoCloseable {
 
                 channel.open().verify(EXEC_OPEN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EXIT_STATUS,
-                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED), EXEC_EXIT_WAIT_MILLIS);
+                        org.apache.sshd.client.channel.ClientChannelEvent.CLOSED),
+                        TimeUnit.SECONDS.toMillis(client.execTimeoutSeconds));
                 channel.waitFor(java.util.EnumSet.of(org.apache.sshd.client.channel.ClientChannelEvent.EOF),
                         EXEC_OUTPUT_DRAIN_MILLIS);
                 Integer status = channel.getExitStatus();
@@ -740,31 +782,31 @@ public class SshClient implements AutoCloseable {
 
         /**
          * 开始ReaderThread
-        */
+         * <p>
+         * 使用阻塞式 read：连接建立后远端立即下发的 MOTD / 提示符会被立刻取到。
+         * 不能用 available() 轮询——MINA inverted 流在刚连接时 available() 可能为 0，
+         * 会导致首批输出要等到按键或 resize 才出现。通道关闭时 read() 返回 -1 退出。
+         */
         private void startReaderThread() {
             readerThread = new Thread(() -> {
                 byte[] buf = new byte[4096];
-                while (connected) {
-                    try {
-                        if (inputStream.available() > 0) {
-                            int len = inputStream.read(buf);
-                            if (len > 0) {
-                                String data = new String(buf, 0, len);
-                                synchronized (outputBuffer) { outputBuffer.append(data); }
-                                if (outputCallback != null) {
-                                    outputCallback.accept(data);
-                                }
-                                if (waitingForPrompt && outputBuffer.toString().contains(expectedPrompt)) {
-                                    promptLatch.countDown();
-                                }
+                try {
+                    int len;
+                    while (connected && (len = inputStream.read(buf)) != -1) {
+                        if (len > 0) {
+                            String data = new String(buf, 0, len, StandardCharsets.UTF_8);
+                            synchronized (outputBuffer) { outputBuffer.append(data); }
+                            if (outputCallback != null) {
+                                outputCallback.accept(data);
                             }
-                        } else {
-                            Thread.sleep(10);
+                            if (waitingForPrompt && outputBuffer.toString().contains(expectedPrompt)) {
+                                promptLatch.countDown();
+                            }
                         }
-                    } catch (Exception e) {
-                        if (connected) {
-                            log.debug("终端读取异常: {}", e.getMessage());
-                        }
+                    }
+                } catch (Exception e) {
+                    if (connected) {
+                        log.debug("终端读取异常: {}", e.getMessage());
                     }
                 }
                 if (closeCallback != null) {
@@ -1047,6 +1089,10 @@ public class SshClient implements AutoCloseable {
          * 会话超时时间
          */
         private int sessionTimeout = 30;
+        /**
+         * 命令执行/读取超时时间（秒），默认 60s，慢链路可调大
+         */
+        private long execTimeoutSeconds = 60L;
 
         /**
          * Host
@@ -1095,6 +1141,13 @@ public class SshClient implements AutoCloseable {
         */
         public Builder sessionTimeout(int t) {
             this.sessionTimeout = t;
+            return this;
+        }
+        /**
+         * 命令执行/读取 Timeout（秒）
+        */
+        public Builder execTimeout(long t) {
+            this.execTimeoutSeconds = t;
             return this;
         }
 

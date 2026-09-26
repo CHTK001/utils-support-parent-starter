@@ -30,15 +30,15 @@ public class PackageManager {
 
  /**
   * 命令字符串
- */
+  */
  private final String command;
  /**
   * 安装模板
- */
+  */
  private final String installTemplate;
  /**
   * 是否可用
- */
+  */
  private final boolean available;
 
  Type(String command, String installTemplate, boolean available) {
@@ -49,15 +49,15 @@ public class PackageManager {
 
  /**
   * 获取Command
- */
+  */
  public String getCommand() { return command; }
  /**
   * 获取InstallTemplate
- */
+  */
  public String getInstallTemplate() { return installTemplate; }
  /**
   * 是否Available
- */
+  */
  public boolean isAvailable() { return available; }
  }
 

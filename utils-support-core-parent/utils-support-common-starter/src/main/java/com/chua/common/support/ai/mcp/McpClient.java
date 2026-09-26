@@ -40,10 +40,10 @@ public interface McpClient extends AutoCloseable {
      */
     boolean isInitialized();
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     default void close() {
     }
 }

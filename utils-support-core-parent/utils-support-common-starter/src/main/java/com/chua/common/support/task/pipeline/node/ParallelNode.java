@@ -95,7 +95,7 @@ import java.util.function.BiConsumer;
  * }).taskEnd()
  * }</pre>* 返回 空;
  * }).任务结束()
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -185,7 +185,7 @@ public class ParallelNode implements PipelineNode {
 
     /**
      * 节点类型：并行。
-    */
+     */
     @Override
     public String getType() {
         return "parallel";
@@ -320,7 +320,7 @@ public class ParallelNode implements PipelineNode {
 
     /**
      * 返回节点环境变量表。
-    */
+     */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();

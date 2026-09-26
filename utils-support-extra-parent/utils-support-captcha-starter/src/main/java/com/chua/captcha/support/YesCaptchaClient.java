@@ -8,49 +8,73 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Base64;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * yescaptcha 验证码解析服务客户端
  *
+ * <p>通过 SPI 机制以 "yescaptcha" 名称注册，对接 yescaptcha（2Captcha 兼容）的
+ * {@code /createTask} 与 {@code /getTaskResult} 接口。</p>
+ *
+ * <p>{@link #submitCaptcha(byte[], Map)} 的 {@code imageData} 用于图文类验证码
+ * （{@link CaptchaType#TEXT_CAPTCHA}），按裸 Base64 作为任务的 {@code body} 字段发送；
+ * 若 {@code options} 中显式给出 {@code body}，则以 {@code body} 为准。</p>
+ *
  * @author CH
  * @since 2026-09-07
- * @param map 映射
- * @param key 键
- * @param value 值
- * @param taskId 任务标识
- * @return 方法的结果
- * @param options 期权
- * @param imageData 镜像数据
- * @param setting setting
  */
 @Slf4j
 @Spi("yescaptcha")
 public class YesCaptchaClient implements CaptchaParser {
 
     /**
-     * withpersistence。
-     * @param taskPersistence 任务persistence
-     * @return withPersistence的结果
+     * 各验证码类型对应的 yescaptcha 任务类型；未列出的类型一律拒绝，避免静默降级为 reCAPTCHA 任务
+     */
+    private static final Map<CaptchaType, String> TASK_TYPES = buildTaskTypes();
+
+    /**
+     * 设置
      */
     private final CaptchaSetting setting;
-    private TaskPersistence taskPersistence; // 任务persistence
+    /**
+     * 复用的 HTTP 客户端，每次请求新建会持续堆积选择器线程
+     */
+    private final HttpClient client;
+    /**
+     * 任务persistence
+     */
+    private TaskPersistence taskPersistence;
 
     /**
      * yescaptcha客户端。
-     * @param setting setting
+     *
+     * @param setting 服务配置，不能为 null
      */
     public YesCaptchaClient(CaptchaSetting setting) {
         this.setting = setting;
+        this.client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
+                .build();
+    }
+
+    /**
+     * SPI 无参实例：配置取自 JVM 参数或环境变量（{@code captcha.api-token} 等），
+     * 缺令牌时在调用点由 {@link CaptchaSetting#requireApiToken()} 明确报错
+     */
+    public YesCaptchaClient() {
+        this(CaptchaSetting.fromEnvironment(CaptchaSetting.YESCAPTCHA_API_URL));
     }
 
     /**
      * withPersistence。
      *
-     * @param taskPersistence 方法入参 taskPersistence
-     * @return YesCaptcha客户端 对象
+     * @param taskPersistence 任务持久化
+     * @return 当前客户端
      */
     public YesCaptchaClient withPersistence(TaskPersistence taskPersistence) {
         this.taskPersistence = taskPersistence;
@@ -60,13 +84,8 @@ public class YesCaptchaClient implements CaptchaParser {
     @Override
     public String submitCaptcha(byte[] imageData, Map<String, String> options) {
         Map<String, Object> body = new HashMap<>();
-        /**
-         * 查询结果。
-         * @param taskId 任务标识
-         * @return 查询结果的结果
-         */
-        body.put("clientKey", setting.getApiToken());
-        body.put("task", buildTask(options));
+        body.put("clientKey", setting.requireApiToken());
+        body.put("task", buildTask(imageData, options == null ? Map.of() : options));
         return createTask(body);
     }
 
@@ -84,13 +103,13 @@ public class YesCaptchaClient implements CaptchaParser {
     /**
      * 获取Balance。
      *
-     * @return 结果数值
+     * @return 账户余额
      */
     public double getBalance() {
         try {
             Map<String, Object> body = new HashMap<>();
-            body.put("clientKey", setting.getApiToken());
-            String json = doPost(setting.getApiUrl() + "/getBalance", body);
+            body.put("clientKey", setting.requireApiToken());
+            String json = doPost("/getBalance", body);
             if (json != null) {
                 Map<String, Object> result = Json.fromJson(json, Map.class);
                 if (result != null && "0".equals(String.valueOf(result.get("errorId")))) {
@@ -110,73 +129,91 @@ public class YesCaptchaClient implements CaptchaParser {
     }
 
     /**
-     * 构建Task。
+     * 构建 createTask 的 task 段。
      *
-     * @param options 选项，不允许为 null
-     * @return 结果映射，无数据时为空映射
+     * @param imageData 验证码图片字节，图文类任务用它编码 body 字段，可为 null
+     * @param options   解析选项，不能为 null
+     * @return 任务体
      */
-    private Map<String, Object> buildTask(Map<String, String> options) {
-        String captchaType = options.getOrDefault("captchaType", "ReCaptchaV2");
-        Map<String, Object> task = new HashMap<>();
-        task.put("type", mapToYesCaptchaType(captchaType));
-        if ("ImageToTextTask".equals(task.get("type"))) {
-            String body = options.get("body");
-            putIfNotBlank(task, "body", body);
+    private Map<String, Object> buildTask(byte[] imageData, Map<String, String> options) {
+        String captchaType = options.getOrDefault("captchaType", CaptchaType.RECAPTCHA_V2.getType());
+        CaptchaType type = CaptchaType.parse(captchaType);
+        if (type == null) {
+            throw new IllegalArgumentException("不支持的验证码类型: " + captchaType + "，可选: " + supportedTypes());
         }
-        putIfNotBlank(task, "websiteURL", options.get("url"));
-        putIfNotBlank(task, "websiteKey", options.get("siteKey"));
-        /**
-         * 映射转为yescaptcha类型。
-         * @param captchaType captcha类型
-         * @return 映射转为yescaptcha类型的结果
-         */
-        putIfNotBlank(task, "websiteAction", options.get("action"));
-        putIfNotBlank(task, "proxy", options.get("proxy"));
+        Map<String, Object> task = new HashMap<>();
+        String taskType = TASK_TYPES.get(type);
+        if (taskType == null) {
+            throw new IllegalArgumentException("yescaptcha 暂不支持验证码类型: " + captchaType);
+        }
+        task.put("type", taskType);
+        if (type == CaptchaType.TEXT_CAPTCHA) {
+            putIfNotBlank(task, "body", resolveImageBody(imageData, options));
+        } else {
+            putIfNotBlank(task, "websiteURL", options.get("url"));
+            putIfNotBlank(task, "websiteKey", options.get("siteKey"));
+            putIfNotBlank(task, "websiteAction", options.get("action"));
+            putIfNotBlank(task, "proxy", options.get("proxy"));
+        }
         return task;
     }
 
     /**
-     * 映射转为YesCaptcha类型。
+     * 图文任务的 body：优先取 options 里显式给出的 body，否则由 imageData 裸 Base64 编码。
      *
-     * @param captchaType captcha类型，不允许为 null
-     * @return 结果字符串
+     * @param imageData 验证码图片字节
+     * @param options   解析选项
+     * @return Base64 图片内容
      */
-    private String mapToYesCaptchaType(String captchaType) {
-        switch (captchaType) {
-            case "ReCaptchaV2":
-                return "NoCaptchaTaskProxyless";
-            case "ReCaptchaV3":
-                return "RecaptchaV3TaskProxyless";
-            case "ReCaptchaV2Enterprise":
-                return "RecaptchaV2EnterpriseTaskProxyless";
-            case "ReCaptchaV3Enterprise":
-                return "RecaptchaV3EnterpriseTask";
-            case "HCaptcha":
-                return "HCaptchaTaskProxyless";
-            case "Turnstile":
-                return "TurnstileTaskProxyless";
-            case "TextCaptcha":
-                return "ImageToTextTask";
-            /**
-             * 创建任务。
-             * @param body 主体
-             * @return 创建任务的结果
-             * @param taskId 任务id
-             */
-            default:
-                return "NoCaptchaTaskProxyless";
+    private static String resolveImageBody(byte[] imageData, Map<String, String> options) {
+        String body = options.get("body");
+        if (body != null && !body.isEmpty()) {
+            return body;
         }
+        if (imageData == null || imageData.length == 0) {
+            throw new IllegalArgumentException("TextCaptcha 需要验证码图片：请传入 imageData 或在 options 中给出 body");
+        }
+        return Base64.getEncoder().encodeToString(imageData);
+    }
+
+    /**
+     * 建立类型到任务类型的映射表。
+     *
+     * @return 映射表
+     */
+    private static Map<CaptchaType, String> buildTaskTypes() {
+        Map<CaptchaType, String> map = new EnumMap<>(CaptchaType.class);
+        map.put(CaptchaType.RECAPTCHA_V2, "NoCaptchaTaskProxyless");
+        map.put(CaptchaType.RECAPTCHA_V3, "RecaptchaV3TaskProxyless");
+        map.put(CaptchaType.RECAPTCHA_V2_ENTERPRISE, "RecaptchaV2EnterpriseTaskProxyless");
+        map.put(CaptchaType.RECAPTCHA_V3_ENTERPRISE, "RecaptchaV3EnterpriseTask");
+        map.put(CaptchaType.HCAPTCHA, "HCaptchaTaskProxyless");
+        map.put(CaptchaType.FUNCAPTCHA, "FunCaptchaTaskProxyless");
+        map.put(CaptchaType.TURNSTILE, "TurnstileTaskProxyless");
+        map.put(CaptchaType.GEETEST, "GeeTestTaskProxyless");
+        map.put(CaptchaType.MT_CAPTCHA, "McaptchaTaskProxyless");
+        map.put(CaptchaType.TEXT_CAPTCHA, "ImageToTextTask");
+        return map;
+    }
+
+    /**
+     * 列出本客户端支持的任务类型名，用于错误提示。
+     *
+     * @return 类型名列表
+     */
+    private static String supportedTypes() {
+        return String.join(", ", TASK_TYPES.keySet().stream().map(CaptchaType::getType).toList());
     }
 
     /**
      * 创建Task。
      *
      * @param body 请求体，不允许为 null
-     * @return 结果字符串
+     * @return 任务标识，失败时为 null
      */
     private String createTask(Map<String, Object> body) {
         try {
-            String json = doPost(setting.getApiUrl() + "/createTask", body);
+            String json = doPost("/createTask", body);
             if (json != null) {
                 Map<String, Object> result = Json.fromJson(json, Map.class);
                 Object errorId = result.get("errorId");
@@ -200,10 +237,10 @@ public class YesCaptchaClient implements CaptchaParser {
     private CaptchaResponse getTaskResult(String taskId) {
         try {
             Map<String, Object> body = new HashMap<>();
-            body.put("clientKey", setting.getApiToken());
+            body.put("clientKey", setting.requireApiToken());
             body.put("taskId", taskId);
 
-            String json = doPost(setting.getApiUrl() + "/getTaskResult", body);
+            String json = doPost("/getTaskResult", body);
             if (json != null) {
                 Map<String, Object> result = Json.fromJson(json, Map.class);
                 Object errorId = result.get("errorId");
@@ -254,36 +291,23 @@ public class YesCaptchaClient implements CaptchaParser {
                 .taskId(taskId)
                 .message("Exception")
                 .errorCode("EXCEPTION")
-                /**
-                 * 执行post。
-                 * @param url url
-                 * @param body 主体
-                 * @return 执行post的结果
-                 * @param map 映射
-                 * @param key 键
-                 * @param value 值
-                 */
                 .build();
     }
 
     /**
      * doPost。
      *
-     * @param url URL，不允许为 null
+     * @param path 接口路径
      * @param body 请求体，不允许为 null
-     * @return 结果字符串
+     * @return 响应正文，非 200 时为 null
      * @throws Exception 当执行过程不满足前置条件时
      */
-    private String doPost(String url, Map<String, Object> body) throws Exception {
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
-                .build();
-
+    private String doPost(String path, Map<String, Object> body) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(setting.apiUrlOr(CaptchaSetting.YESCAPTCHA_API_URL) + path))
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofMillis(setting.getReadTimeout()))
-                .POST(HttpRequest.BodyPublishers.ofString(Json.toJson(body)))
+                .POST(HttpRequest.BodyPublishers.ofString(Json.toJson(body), StandardCharsets.UTF_8))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -297,9 +321,9 @@ public class YesCaptchaClient implements CaptchaParser {
     /**
      * 放入IfNotBlank。
      *
-     * @param map 映射，不允许为 null
-     * @param key 键，不允许为 null
-     * @param value 值，不允许为 null
+     * @param map 映射
+     * @param key 键
+     * @param value 值
      */
     private static void putIfNotBlank(Map<String, Object> map, String key, String value) {
         if (value != null && !value.isEmpty()) {

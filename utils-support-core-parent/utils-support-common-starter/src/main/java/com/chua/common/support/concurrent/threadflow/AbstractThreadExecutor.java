@@ -91,10 +91,10 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
         this.semaphore = maxConcurrent > 0 ? new Semaphore(maxConcurrent) : null;
     }
 
-    @Override
     /**
      * 添加Task
-    */
+     */
+    @Override
     public ThreadExecutor<Object> addTask(Runnable runnable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(() -> {
             runnable.run();
@@ -103,28 +103,28 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
         return this;
     }
 
-    @Override
     /**
      * 添加Callable
-    */
+     */
+    @Override
     public ThreadExecutor<Object> addCallable(Callable<Object> callable) {
         tasks.add(wrapWithConcurrency(wrapWithContext(callable)));
         return this;
     }
 
-    @Override
     /**
      * Listener
-    */
+     */
+    @Override
     public ThreadExecutor<Object> listener(ThreadFlowListener listener) {
         this.listener = listener;
         return this;
     }
 
-    @Override
     /**
      * 执行
-    */
+     */
+    @Override
     public ThreadFlowResult<Object> execute() throws Exception {
         long start = System.currentTimeMillis();
         if (listener != null) {

@@ -35,11 +35,10 @@ public class MessageRequest {
 
     /**
      * 消息内容（文本）
-     */
-    @Setter
-    /**
+     *
      * 内容
      */
+    @Setter
     private String content;
 
     /**
@@ -97,11 +96,11 @@ public class MessageRequest {
     public static class Builder {
         /**
          * 转为
-        */
+         */
         private String to;
         /**
          * CC
-        */
+         */
         private List<String> cc;
         /**
          * 主题
@@ -113,11 +112,11 @@ public class MessageRequest {
         private String content;
         /**
          * 内容类型
-        */
+         */
         private String contentType = "text";
         /**
          * Attachments
-        */
+         */
         private List<String> attachments;
         /**
          * 模板 标识
@@ -125,11 +124,11 @@ public class MessageRequest {
         private String templateId;
         /**
          * template参数
-        */
+         */
         private Map<String, String> templateParams;
         /**
          * extra
-        */
+         */
         private Map<String, Object> extra;
 
         /**

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 基于 {@link DataSource} 的 Flyway 兼容迁移器（高优先级 SPI 实现）。
@@ -148,15 +149,40 @@ public class DataSourceFlyway implements Flyway {
 
     @Override
     public int migrate() {
+        return migrateScripts(false);
+    }
+
+    @Override
+    public int migrateInit() {
+        return migrateScripts(false);
+    }
+
+    @Override
+    public int migrateInitData() {
+        return migrateScripts(true);
+    }
+
+    /**
+     * 按脚本类型执行迁移。
+     *
+     * @param initDataOnly 是否仅执行初始化数据脚本
+     * @return 本次执行的脚本数量
+     */
+    private int migrateScripts(boolean initDataOnly) {
         FlywayHistory.ensure(runner);
         Map<String, String> applied = FlywayHistory.loadApplied(runner);
         List<FlywayScripts.Script> scripts = scanScripts();
+        if (initDataOnly) {
+            scripts.removeIf(script -> !FlywayScripts.isInitData(script.fileName(), separator));
+        } else {
+            scripts.removeIf(script -> FlywayScripts.isInitData(script.fileName(), separator));
+        }
         warnIfEmpty(scripts);
         int executed = 0;
         lastFailedStatements.clear();
         for (FlywayScripts.Script script : scripts) {
             if (FlywayHistory.SUCCESS_TRUE.equals(applied.get(script.fileName()))) {
-                continue; // 该脚本已成功执行过，跳过
+                continue;
             }
             String content = FlywayScripts.readContent(script);
             ScriptResult result = executeScript(content, script.fileName());
@@ -195,6 +221,7 @@ public class DataSourceFlyway implements Flyway {
      * @param value true=单条方言差异语句失败时跳过并记录，不中断整体迁移
      * @return this
      */
+    @Override
     public DataSourceFlyway continueOnError(boolean value) {
         this.continueOnError = value;
         return this;
@@ -310,6 +337,16 @@ public class DataSourceFlyway implements Flyway {
      * 以 JDBC {@link DataSource} 为底座的历史表读写执行器。
      */
     private record JdbcRunner(DataSource dataSource) implements FlywayHistory.Runner {
+
+        /**
+         * 规范构造器：数据源不可为空。
+         *
+         * <p>value class 前置条件——引用组件空值敌对；执行器脱离数据源即无意义，
+         * 故在此处快速失败而非等到首次取连接时才抛 空指针。</p>
+         */
+        public JdbcRunner {
+            dataSource = Objects.requireNonNull(dataSource, "dataSource 不能为 null");
+        }
 
         @Override
         public int update(String sql, Object... params) {

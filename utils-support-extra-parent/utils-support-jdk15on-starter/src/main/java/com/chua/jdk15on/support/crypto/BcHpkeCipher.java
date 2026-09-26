@@ -23,12 +23,14 @@ import java.util.Arrays;
  * 手工拼装 RFC 9180 基础 模式（无 PSK）：
  * <ul>
  *   <li><b>KEM（密钥封装）</b>：X25519 椭圆曲线 Diffie-Hellman 密钥协商</li>
- *   <li><b>KDF（密钥派生）</b>：HKDF-SHA256（RFC 5869），由共享密钥派生对称密钥与 nonce</li>
+ *   <li><b>KDF（密钥派生）</b>：HKDF-SHA256（RFC 5869），由共享密钥派生对称密钥</li>
  *   <li><b>AEAD（认证加密）</b>：AES-256-GCM（GCM 自带 16 字节认证标签）</li>
  * </ul>
  *
- * <p>nonce 由 KDF 确定性派生（而非随机），因此发送方与接收方无需额外传输 nonce，
- * 只需随密文传输 32 字节的封装密钥 {@code enc} 即可。</p>
+ * <p>每条消息现取 12 字节随机 nonce 并置于密文头部随密文传输，密文布局为
+ * {@code nonce(12) || AES-256-GCM 密文 || 认证标签(16)}；封装密钥 {@code ek} 只有 32 字节对称密钥。
+ * nonce 不能由 {@code ek} 确定性派生：{@code seal}/{@code open} 是无状态原语，同一把 {@code ek}
+ * 可被调用方反复使用，确定性 nonce 会造成 (key, nonce) 复用，GCM 的机密性与认证同时失效。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -44,8 +46,6 @@ import java.util.Arrays;
  *         .secretKey(keys[1])
  *         .enc(msg.enc())
  *         .aad("order-1024".getBytes())
- *         .open(msg.ciphertext());
- * }</pre>     .aad("order-1024".getBytes())
  *         .open(msg.ciphertext());
  * }</pre>
  *
@@ -125,15 +125,20 @@ public class BcHpkeCipher implements HpkeCipher {
     */
     public byte[] seal(byte[] ek, byte[] aad, byte[] plaintext) {
         try {
+            byte[] nonce = new byte[GCM_NONCE_LEN];
+            random.nextBytes(nonce);
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());
-            gcm.init(true, new ParametersWithIV(new KeyParameter(aesKey(ek)), nonce(ek)));
+            gcm.init(true, new ParametersWithIV(new KeyParameter(Arrays.copyOfRange(ek, 0, SYM_KEY_LEN)), nonce));
             if (aad != null && aad.length > 0) {
                 gcm.processAADBytes(aad, 0, aad.length);
             }
             byte[] out = new byte[gcm.getOutputSize(plaintext.length)];
             int len = gcm.processBytes(plaintext, 0, plaintext.length, out, 0);
             len += gcm.doFinal(out, len);
-            return Arrays.copyOf(out, len);
+            byte[] result = new byte[GCM_NONCE_LEN + len];
+            System.arraycopy(nonce, 0, result, 0, GCM_NONCE_LEN);
+            System.arraycopy(out, 0, result, GCM_NONCE_LEN, len);
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("HPKE 加密失败", e);
         }
@@ -144,14 +149,19 @@ public class BcHpkeCipher implements HpkeCipher {
      * 打开
     */
     public byte[] open(byte[] ek, byte[] aad, byte[] ciphertext) {
+        if (ciphertext == null || ciphertext.length < GCM_NONCE_LEN) {
+            throw new IllegalArgumentException("HPKE 密文缺少 nonce 头");
+        }
         try {
+            byte[] nonce = Arrays.copyOfRange(ciphertext, 0, GCM_NONCE_LEN);
             GCMBlockCipher gcm = new GCMBlockCipher(new AESEngine());
-            gcm.init(false, new ParametersWithIV(new KeyParameter(aesKey(ek)), nonce(ek)));
+            gcm.init(false, new ParametersWithIV(new KeyParameter(Arrays.copyOfRange(ek, 0, SYM_KEY_LEN)), nonce));
             if (aad != null && aad.length > 0) {
                 gcm.processAADBytes(aad, 0, aad.length);
             }
-            byte[] out = new byte[ciphertext.length];
-            int len = gcm.processBytes(ciphertext, 0, ciphertext.length, out, 0);
+            int body = ciphertext.length - GCM_NONCE_LEN;
+            byte[] out = new byte[body];
+            int len = gcm.processBytes(ciphertext, GCM_NONCE_LEN, body, out, 0);
             len += gcm.doFinal(out, len);
             return Arrays.copyOf(out, len);
         } catch (Exception e) {
@@ -160,32 +170,15 @@ public class BcHpkeCipher implements HpkeCipher {
     }
 
     /**
-     * 取对称密钥（ek 前 32 字节）
+     * 由 X25519 共享密钥与可选 ikm 经 HKDF 派生 AES-256 密钥。
      *
-     * @param ek ek
-     * @return aes键的结果
-     */
-    private byte[] aesKey(byte[] ek) {
-        return Arrays.copyOfRange(ek, 0, SYM_KEY_LEN);
-    }
-
-    /**
-     * 取 nonce（ek 第 32~44 字节）
-     *
-     * @param ek ek
-     * @return nonce的结果
-     */
-    private byte[] nonce(byte[] ek) {
-        return Arrays.copyOfRange(ek, SYM_KEY_LEN, SYM_KEY_LEN + GCM_NONCE_LEN);
-    }
-
-    /**
-     * 由 X25519 共享密钥与可选 ikm 经 HKDF 派生对称密钥材料（键||nonce）。
+     * <p>nonce 不参与派生：{@code seal}/{@code open} 是无状态原语，同一把 {@code ek} 可被重复调用，
+     * 若 nonce 由密钥确定性派生则每次都用同一 (key, nonce)，AES-GCM 的机密性与认证会同时失效。</p>
      *
      * @param sk 本地 X25519 私钥
      * @param peerPub 对端 X25519 公钥
      * @param ikm 可选输入密钥材料
-     * @return 长度 {@code SYM_KEY_LEN + GCM_NONCE_LEN} 的密钥材料
+     * @return 长度 {@code SYM_KEY_LEN} 的对称密钥
      */
     private byte[] deriveSharedKey(X25519PrivateKeyParameters sk, byte[] peerPub, byte[] ikm) {
         X25519Agreement agreement = new X25519Agreement();
@@ -194,7 +187,7 @@ public class BcHpkeCipher implements HpkeCipher {
         agreement.calculateAgreement(new X25519PublicKeyParameters(peerPub), shared, 0);
         byte[] ikmInput = ikm == null ? shared : concat(shared, ikm);
         byte[] prk = hkdfExtract(SALT, ikmInput);
-        return hkdfExpand(prk, INFO, SYM_KEY_LEN + GCM_NONCE_LEN);
+        return hkdfExpand(prk, INFO, SYM_KEY_LEN);
     }
 
     /**

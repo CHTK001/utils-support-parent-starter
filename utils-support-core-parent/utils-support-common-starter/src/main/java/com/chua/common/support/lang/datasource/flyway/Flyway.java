@@ -38,7 +38,7 @@ import java.nio.file.Path;
 public interface Flyway {
     /**
      * SPI 名称
-    */
+     */
     String SPI_NAME = "flyway";
 
     /**
@@ -74,6 +74,35 @@ public interface Flyway {
     }
 
     /**
+     * 设置语句级容错开关。
+     *
+     * <p>开启后，单条语句因方言差异执行失败时跳过并记录失败语句，不中断整体迁移；
+     * 关闭时任一语句失败即中断并抛出异常。调用
+     * {@link #getFailedStatements()} 可取回被容错跳过的失败语句用于日志与排查。</p>
+     *
+     * <p>接口默认实现为空操作：{@link DefaultFlyway} 按整脚本粒度执行、不做语句级容错，
+     * 因此该开关仅在支持语句级容错的实现（如 {@code DataSourceFlyway}）中生效。
+     * 跨实现的可移植用法是通过 {@code Engine#flyway()} 取得实例后调用本方法。</p>
+     *
+     * @param value true=单条语句失败时跳过并记录，false=失败即中断
+     * @return this
+     */
+    default Flyway continueOnError(boolean value) {
+        return this;
+    }
+
+    /**
+     * 获取最近一次迁移中被语句级容错跳过的失败语句。
+     *
+     * <p>接口默认实现返回空列表，表示该实现不做语句级容错、不存在被跳过的语句。</p>
+     *
+     * @return 失败语句列表（不可变），无失败语句时为空列表
+     */
+    default java.util.List<String> getFailedStatements() {
+        return java.util.List.of();
+    }
+
+    /**
      * 获取迁移信息，包含已应用与待应用的脚本。
      *
      * @return 迁移信息列表（按版本升序）
@@ -86,6 +115,29 @@ public interface Flyway {
      * @return 本次执行的脚本数量
      */
     int migrate();
+
+    /**
+     * 仅执行结构脚本（建表 / 索引 / 兼容 ALTER），不执行初始化数据脚本。
+     * <p>按仓库 SQL 规范，结构脚本命名固定为 {@code V{版本}__init_all_{模块}.sql}，
+     * 由 {@code spring-support-datasource-starter} 在启动编排阶段调用；
+     * 数据脚本 {@code V{版本}__initdata_all_{模块}.sql} 交由 {@link #migrateInitData()}。</p>
+     * <p>接口默认实现退化为 {@link #migrate()}，仅适用于本身不做脚本类型区分的实现。</p>
+     *
+     * @return 本次执行的脚本数量
+     */
+    default int migrateInit() {
+        return migrate();
+    }
+
+    /**
+     * 仅执行初始化数据脚本（INSERT / 初始化 UPDATE），不执行结构脚本。
+     * <p>接口默认实现退化为 {@link #migrate()}，仅适用于本身不做脚本类型区分的实现。</p>
+     *
+     * @return 本次执行的脚本数量
+     */
+    default int migrateInitData() {
+        return migrate();
+    }
 
     /**
      * 执行单个 SQL 脚本文件，不纳入版本记录。

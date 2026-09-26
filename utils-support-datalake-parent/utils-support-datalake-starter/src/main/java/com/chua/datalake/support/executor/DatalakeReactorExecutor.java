@@ -43,7 +43,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     /**
      * 直接派发用的 sink 注册表（pipelineengine 不可用时 降级）
      */
-    private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
+    private volatile Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
      * 创建 数据湖reactor执行器 实例
@@ -71,6 +71,18 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
         sinkRegistry.put(sink.type(), sink);
     }
 
+    /**
+     * 共享宿主的 sink 注册表。
+     *
+     * <p>降级派发按"当前表内容"实时查找，因此注册顺序不再影响能否命中；
+     * 传入 {@code null} 时退回执行器自持有的空表。</p>
+     *
+     * @param sinkRegistry 类型 → sink 映射
+     */
+    public void useSinkRegistry(Map<String, DataSink> sinkRegistry) {
+        this.sinkRegistry = sinkRegistry == null ? new ConcurrentHashMap<>() : sinkRegistry;
+    }
+
     @Override
     /**
      * 订阅
@@ -80,14 +92,17 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
             log.warn("[datalake-server] ReactorExecutor 订阅跳过: chronicleProvider 未初始化");
             return;
         }
-        String topic = "server-" + getAgentId();
+        String topic = topicOf(sinkId);
         ConsumerDispatcherDefinition<List<Map<String, Object>>> definition =
                 new ConsumerDispatcherDefinition<>(
                         data -> {
                             if (pipelineEngine != null) {
+                                long now = System.currentTimeMillis();
                                 for (Map<String, Object> row : data) {
                                     try {
-                                        pipelineEngine.execute(sinkId, new DataEnvelope(row));
+                                        DataEnvelope envelope = new DataEnvelope(row);
+                                        envelope.setTimestamp(now);
+                                        pipelineEngine.execute(sinkId, envelope);
                                     } catch (Exception e) {
                                         log.error("[datalake-server] 管线处理异常: sinkId={}, error={}", sinkId, e.getMessage(), e);
                                     }
@@ -101,6 +116,22 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
                 );
         chronicleProvider.subscribe(definition);
         log.info("[datalake-server] ReactorExecutor 订阅 topic={}", topic);
+    }
+
+    /**
+     * 计算 sink 对应的跨进程话题。
+     *
+     * <p>取值规则与 {@code ReactorDataSyncExecutor#buildTopic} 保持一致：
+     * 服务端模式下所有 sink 共享一个话题，客户端模式按 Agent 与 sink 隔离。
+     * 订阅端与发布端任何一侧偏离该规则，数据都会静默丢失。</p>
+     *
+     * @param sinkId sink 标识
+     * @return 话题名称
+     */
+    public String topicOf(String sinkId) {
+        return isServerMode()
+                ? "server-" + getAgentId()
+                : "consumer-" + getAgentId() + "-" + sinkId;
     }
 
     @Override

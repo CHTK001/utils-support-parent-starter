@@ -57,7 +57,7 @@ import java.util.Set;
  * // 判断分支
  * .decision("check", ctx -> ctx.getData() != null ? "process" : "error")
  * }</pre>)
- * }</pre>
+ * }
  *
  * <p><strong>内置节点实现：</strong></p>
  * <ul>
@@ -206,7 +206,7 @@ public interface PipelineNode {
      * }</pre>
      *     })
      * .任务结束()
-     * }</pre>
+     * }
      *
      * <p>默认返回空集合，表示无数据依赖。通过 Definition API 的 {@code .unit()} 方法设置。</p>
      *

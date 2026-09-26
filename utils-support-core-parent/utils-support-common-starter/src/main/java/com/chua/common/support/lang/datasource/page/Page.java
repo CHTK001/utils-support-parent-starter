@@ -41,7 +41,7 @@ public class Page<T> {
 
     /**
      * 页NUM
-    */
+     */
     private final int pageNum;
     /**
      * 每页大小
@@ -53,7 +53,7 @@ public class Page<T> {
     private final long total;
     /**
      * Records
-    */
+     */
     private final List<T> records;
 
     /**

@@ -1,5 +1,7 @@
 package com.chua.common.support.task.flow;
 
+import java.util.Objects;
+
 /**
  * 节点配置字段候选选项。
  *
@@ -14,6 +16,20 @@ public record FlowNodeOption(
         String label,
         Object value
 ) {
+
+    /**
+     * 规范构造器：展示文案为空值敌对。
+     *
+     * <p>value class 前置条件——引用组件不接受 null。
+     * 展示文案是下拉选项的必有内容；{@code value} 是提交值，
+     * 允许为 null（表示提交空值），不校验。</p>
+     *
+     * @param label 展示文案
+     * @param value 提交值，可为 null
+     */
+    public FlowNodeOption {
+        label = Objects.requireNonNull(label, "label 不能为 null");
+    }
 
     /**
      * 创建选项。

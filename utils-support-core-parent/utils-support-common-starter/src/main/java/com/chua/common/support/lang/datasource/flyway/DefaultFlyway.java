@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 默认数据库迁移实现，基于 {@link Engine#execute(String, Object...)} 执行 SQL。
@@ -106,10 +107,32 @@ public class DefaultFlyway implements Flyway {
 
     @Override
     public int migrate() {
+        return migrateScripts(false);
+    }
+
+    @Override
+    public int migrateInit() {
+        return migrateScripts(false);
+    }
+
+    @Override
+    public int migrateInitData() {
+        return migrateScripts(true);
+    }
+
+    /**
+     * 按脚本类型执行迁移。
+     *
+     * @param initDataOnly 是否仅执行初始化数据脚本
+     * @return 本次执行的脚本数量
+     */
+    private int migrateScripts(boolean initDataOnly) {
         FlywayHistory.ensure(runner);
         Map<String, String> applied = FlywayHistory.loadApplied(runner);
+        List<FlywayScripts.Script> scripts = scan();
+        scripts.removeIf(script -> initDataOnly != FlywayScripts.isInitData(script.fileName(), separator));
         int executed = 0;
-        for (FlywayScripts.Script script : scan()) {
+        for (FlywayScripts.Script script : scripts) {
             if (FlywayHistory.SUCCESS_TRUE.equals(applied.get(script.fileName()))) {
                 continue;
             }
@@ -186,6 +209,20 @@ public class DefaultFlyway implements Flyway {
      * {@link UnsupportedOperationException}，迁移在首个建表语句即失败，而不是静默无记录。</p>
      */
     private record EngineRunner(Engine engine) implements FlywayHistory.Runner {
+
+        /**
+         * 规范构造器：引擎必填。
+         *
+         * <p>value class 前置条件——空值敌对。
+         * 唯一构造点是 {@link DefaultFlyway#DefaultFlyway(Engine)}，
+         * 本记录的两个读写方法都无条件解引用引擎，故约束为非空，
+         * 让空引擎在构造期即失败而不是在首次读写时失败。</p>
+         *
+         * @param engine 引擎，不允许为 null
+         */
+        private EngineRunner {
+            Objects.requireNonNull(engine, "engine 不能为 null");
+        }
 
         @Override
         public int update(String sql, Object... params) {

@@ -120,6 +120,11 @@ public class ILinkBotClient implements BotClient {
     private final Map<String, String> contextTokens = new ConcurrentHashMap<>();
 
     /**
+     * 上下文令牌加载器：内存缺失（如重启后）时回查持久化的最近令牌。
+    */
+    private volatile ContextTokenLoader contextTokenLoader;
+
+    /**
      * getupdates 游标（会话内的消息拉取续接标记）
     */
     private volatile String getUpdatesBuf = "";
@@ -272,6 +277,31 @@ public class ILinkBotClient implements BotClient {
         this.token = token;
         this.secret = secret;
         this.encodingAesKey = encodingAesKey;
+        return this;
+    }
+
+    /**
+     * 设置机器人自身标识（登录后凭证场景下显式指定）。
+     *
+     * <p>仅 {@link #configure(String, String, String)} 不会设置 botId，
+     * 从已保存令牌启动时需调用本方法补全，用于入站消息 toUser 与令牌回查。</p>
+     *
+     * @param id 机器人唯一标识
+     * @return this
+     */
+    public ILinkBotClient accountId(String id) {
+        this.botId = id;
+        return this;
+    }
+
+    /**
+     * 设置上下文令牌加载器（重启后内存缺失时回查持久化令牌）。
+     *
+     * @param loader 加载器
+     * @return this
+     */
+    public ILinkBotClient contextTokenLoader(ContextTokenLoader loader) {
+        this.contextTokenLoader = loader;
         return this;
     }
 
@@ -450,6 +480,17 @@ public class ILinkBotClient implements BotClient {
             msg.fluentPut("message_type", 2); // 消息类型.机器人
             msg.fluentPut("message_state", 2); // 消息状态.饰面
             String ctx = contextTokens.get(toUser);
+            if (ctx == null && contextTokenLoader != null) {
+                // 重启后内存为空：回查持久化的最近上下文令牌并回填缓存
+                try {
+                    ctx = contextTokenLoader.load(botId, toUser);
+                } catch (Exception ce) {
+                    log.warn("[ILink] 回查 context_token 异常 to={}: {}", toUser, ce.getMessage());
+                }
+                if (ctx != null) {
+                    contextTokens.put(toUser, ctx);
+                }
+            }
             if (ctx != null) {
                 msg.fluentPut("context_token", ctx);
             }
@@ -469,15 +510,16 @@ public class ILinkBotClient implements BotClient {
                     req.toJSONString(), new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() { }));
  // 成功响应仅携带 消息_标识（无 ret）；sendmessage 与 getupdates 判定规则不同
             boolean ok = resp.containsKey("message_id");
+            int ret = intVal(resp, "ret", -1);
             if (ok) {
                 log.info("[ILink] sendmessage 发送成功 to={} message_id={}", toUser, resp.get("message_id"));
             } else {
-                int ret = intVal(resp, "ret", -1);
+                String errmsg = getString(resp, "errmsg");
                 log.warn("[ILink] sendmessage 发送失败 to={} ret={} errcode={} errmsg={} resp={}",
-                        toUser, ret, resp.get("errcode"), getString(resp, "errmsg"), resp);
+                        toUser, ret, resp.get("errcode"), errmsg, resp);
             }
             return ok ? BotSendResult.ok(String.valueOf(resp.get("message_id")))
-                    : BotSendResult.fail(-1, getString(resp, "errmsg"));
+                    : BotSendResult.fail(ret, friendlySendError(ret, getString(resp, "errmsg")));
         } catch (Exception e) {
             return BotSendResult.fail(-1, e.getMessage());
         }
@@ -491,6 +533,25 @@ public class ILinkBotClient implements BotClient {
      */
     private String buildTextBody(String content) {
         return content;
+    }
+
+    /**
+     * 将 sendmessage 服务端错误码 / 文案映射为可读的中文提示。
+     *
+     * <p>ret=-2「prepare failed」表示服务端无法准备本次下发：微信被动回复规则下，
+     * 仅当用户 24 小时内主动发过消息、且 24 小时内 10 条主动消息配额未用完时才能下发；
+     * 否则需等用户再次发消息。原始「prepare failed」含义不清，故在此转写。</p>
+     *
+     * @param ret     服务端 ret 码
+     * @param errmsg  服务端原始文案
+     * @return 友好提示，无已知映射时回退原始文案
+     */
+    private static String friendlySendError(int ret, String errmsg) {
+        if (ret == -2 || (errmsg != null && errmsg.toLowerCase().contains("prepare failed"))) {
+            return "回复窗口不可用：用户超过 24 小时未主动发消息，或 24 小时内 10 条主动消息配额已用完；"
+                    + "需等用户再次发消息后才能回复。";
+        }
+        return (errmsg == null || errmsg.isBlank()) ? ("消息发送失败（ret=" + ret + "）") : errmsg;
     }
 
     /**
@@ -562,12 +623,17 @@ public class ILinkBotClient implements BotClient {
                 if (ctxToken != null) { contextTokens.put(fromUser, ctxToken); }
                 String textContent = extractNestedText(msg);
                 log.info("[ILink] 收到消息 from={} content={}", fromUser, textContent);
+                // 优先取平台真实消息 ID（跨实例稳定）用于幂等；协议未提供时留空，
+                // 由上层按「发送者+内容指纹+时间窗」去重，避免多实例重复回复
+                String platformMsgId = firstNonBlank(msg,
+                        "msg_id", "msgId", "id", "svr_id", "new_msg_id", "msg_seq");
                 result.add(BotInboundMessage.builder()
-                        .msgId(String.valueOf(System.nanoTime()))
+                        .msgId(platformMsgId)
                         .type(BotInboundMessage.Type.TEXT)
                         .content(textContent)
                         .fromUser(fromUser)
                         .toUser(botId)
+                        .contextToken(ctxToken)
                         .createTime(System.currentTimeMillis())
                         .build());
             }

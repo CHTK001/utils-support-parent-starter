@@ -56,25 +56,25 @@ public class DdlBuilder {
     public enum Mode {
         /**
          * 建表模式
-        */
+         */
         CREATE,
         /**
          * 改表模式
-        */
+         */
         ALTER,
         /**
          * 删表模式
-        */
+         */
         DROP
     }
 
     /**
      * 模式
-    */
+     */
     private final Mode mode;
     /**
      * 表名称
-    */
+     */
     private final String tableName;
     /**
      * Schema 名
@@ -82,11 +82,11 @@ public class DdlBuilder {
     private String schema;
     /**
      * Comment
-    */
+     */
     private String comment;
     /**
      * 引擎
-    */
+     */
     private String engine;
     /**
      * 字符集
@@ -94,15 +94,15 @@ public class DdlBuilder {
     private String charset;
     /**
      * Columns
-    */
+     */
     private final List<ColumnDef> columns = new ArrayList<>();
     /**
      * Primarykeys
-    */
+     */
     private final List<String> primaryKeys = new ArrayList<>();
     /**
      * NEW表名称
-    */
+     */
     private String newTableName;
 
     /**

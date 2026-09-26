@@ -6,10 +6,12 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 钉钉 机器人 客户端工厂（SPI 实现）。
+ * 钉钉机器人客户端工厂（SPI 实现）。
  * <p>通过 SPI 机制注册到
  * {@code META-INF/extensions/com.chua.common.support.ai.bot.BotClient$Factory}，
- * 平台名称为 {@code dingtalk}。</p>
+ * 平台名称为 {@code dingtalk}。泛化构建器只有 token/secret 两个凭证位，
+ * 对钉钉即 clientId（AppKey）与 clientSecret（AppSecret）；Stream 订阅主题、
+ * 机器人编码等扩展项须拿到实例后通过 {@link DingTalkBotClient} 的专有方法设置。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,25 +20,19 @@ import lombok.extern.slf4j.Slf4j;
 public class DingTalkBotClientFactory implements BotClient.Factory {
 
     @Override
-    /**
-     * 创建
-    */
     public BotClient create() {
-        log.debug("Creating DingTalk Bot client");
+        log.debug("创建钉钉机器人客户端");
         return new DingTalkBotClient();
     }
 
     @Override
-    /**
-     * 构建器
-    */
     public BotClient.Builder builder() {
-        log.debug("Creating DingTalk Bot client builder");
+        log.debug("创建钉钉机器人客户端构建器");
         return new DingTalkBuilder();
     }
 
     /**
-     * 钉钉 构建器 内部类
+     * 钉钉构建器，收集泛化凭证后装配 {@link DingTalkBotClient}
      *
      * @author CH
      * @since 4.0.0
@@ -44,143 +40,100 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
     static class DingTalkBuilder implements BotClient.Builder {
 
         /**
-         * 平台凭证 令牌
+         * 应用凭证 ID（AppKey）
          */
         private String token;
 
         /**
-         * 密钥
+         * 应用凭证密钥（AppSecret）
          */
         private String secret;
 
         /**
-         * 基础 URL
+         * 开放平台 API 域名
          */
         private String baseUrl;
 
         /**
          * 连接超时时间（毫秒）
          */
-        private long connectTimeoutMillis = 10_000;
+        private long connectTimeoutMillis = 10_000L;
 
         /**
          * 读取超时时间（毫秒）
          */
-        private long readTimeoutMillis = 30_000;
+        private long readTimeoutMillis = 30_000L;
 
         /**
-         * 配置加载器
+         * 配置保存或加载器
          */
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
-        /**
-         * 令牌
-        */
         public BotClient.Builder token(String token) {
             this.token = token;
             return this;
         }
 
         @Override
-        /**
-         * Secret
-        */
         public BotClient.Builder secret(String secret) {
             this.secret = secret;
             return this;
         }
 
         @Override
-        /**
-         * 编码aes键
-         * @param encodingAesKey 编码aes键
-         * @param baseUrl baseurl
-         * @param connectTimeoutMillis 连接超时millis
-         * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param token 令牌
-         * @param baseUrl baseurl
-         */
-        public BotClient.Builder encodingAesKey(
-                String encodingAesKey) {
+        public BotClient.Builder encodingAesKey(String encodingAesKey) {
             return this;
         }
 
         @Override
-        /**
-         * baseurl
-        */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
         @Override
-        /**
-         * 连接超时millis
-         * @param connectTimeoutMillis 连接超时millis
-         * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param token 令牌
-         * @param baseUrl baseurl
-         */
-        public BotClient.Builder connectTimeoutMillis(
-                long connectTimeoutMillis) {
+        public BotClient.Builder connectTimeoutMillis(long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
             return this;
         }
 
         @Override
-        /**
-         * 读取超时millis
-         * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param token 令牌
-         * @param baseUrl baseurl
-         */
-        public BotClient.Builder readTimeoutMillis(
-                long readTimeoutMillis) {
+        public BotClient.Builder readTimeoutMillis(long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
             return this;
         }
 
         @Override
-        /**
-         * 配置保存或加载
-         * @param configSaveOrLoader 配置保存或加载
-         * @param token 令牌
-         * @param baseUrl baseurl
-         */
-        public BotClient.Builder configSaveOrLoader(
-                ConfigSaveOrLoader configSaveOrLoader) {
+        public BotClient.Builder configSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;
             return this;
         }
 
         @Override
-        /**
-         * 构建
-        */
         public BotClient build() {
             DingTalkBotClient client = new DingTalkBotClient();
-            if (token != null) {
-                client.token(token);
-            }
-            if (secret != null) {
-                client.secret(secret);
-            }
-            if (baseUrl != null) {
-                client.baseUrl(baseUrl);
-            }
+            client.token(token);
+            client.secret(secret);
+            client.baseUrl(baseUrl);
             client.connectTimeoutMillis(connectTimeoutMillis);
             client.readTimeoutMillis(readTimeoutMillis);
-            if (configSaveOrLoader != null) {
-                client.configSaveOrLoader(configSaveOrLoader);
-            }
-            log.debug("Built DingTalk Bot client with token={}, "
-                    + "baseUrl={}", token, baseUrl);
+            client.configSaveOrLoader(configSaveOrLoader);
+            log.debug("构建钉钉机器人客户端, clientId={}, apiBaseUrl={}", mask(token), baseUrl);
             return client;
+        }
+
+        /**
+         * 掩码凭证，避免调试日志泄露 AppKey
+         *
+         * @param value 原始值
+         * @return 掩码后的值
+         */
+        private static String mask(String value) {
+            if (value == null || value.length() <= 8) {
+                return value == null ? null : "***";
+            }
+            return value.substring(0, 4) + "***" + value.substring(value.length() - 4);
         }
     }
 }

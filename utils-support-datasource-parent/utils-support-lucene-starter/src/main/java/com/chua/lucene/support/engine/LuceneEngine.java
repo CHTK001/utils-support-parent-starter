@@ -225,9 +225,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
     /**
      * 关闭引擎，释放所有索引目录资源。
+     * <p>索引目录由本类持有，故先委托父类置位关闭标记（父类 close 幂等），
+     * 再释放目录；关闭后 {@link #isClosed()} 为 true，
+     * 且父类的 {@code ensureOpen} 会拒绝后续写入。</p>
      */
     @Override
     public void close() {
+        super.close();
         for (Directory dir : indexDirectories.values()) {
             try {
                 dir.close();
@@ -1012,13 +1016,27 @@ import java.util.concurrent.ConcurrentHashMap;
      * @return 包装后的类型
      */
     private static Class<?> wrapped(Class<?> type) {
-        if (type == int.class) return Integer.class;
-        if (type == long.class) return Long.class;
-        if (type == double.class) return Double.class;
-        if (type == float.class) return Float.class;
-        if (type == short.class) return Short.class;
-        if (type == byte.class) return Byte.class;
-        if (type == boolean.class) return Boolean.class;
+        if (type == int.class) {
+            return Integer.class;
+        }
+        if (type == long.class) {
+            return Long.class;
+        }
+        if (type == double.class) {
+            return Double.class;
+        }
+        if (type == float.class) {
+            return Float.class;
+        }
+        if (type == short.class) {
+            return Short.class;
+        }
+        if (type == byte.class) {
+            return Byte.class;
+        }
+        if (type == boolean.class) {
+            return Boolean.class;
+        }
         return type;
     }
 
@@ -1498,6 +1516,10 @@ import java.util.concurrent.ConcurrentHashMap;
                 T entity = EntityDocumentConverter.toEntity(doc, entityClass);
                 if (entity != null) {
                     results.add(entity);
+                } else {
+                    // 命中却还原不出实体说明 实体类型 与 索引字段 不匹配，
+                    // 静默丢弃会让检索结果少一条而调用方毫无察觉，故显式告警。
+                    log.warn("[lucene] 命中文档无法还原为实体，已跳过: entityClass={}", entityClass.getName());
                 }
             } catch (IOException e) {
                 throw new RuntimeException("读取索引文档失败", e);

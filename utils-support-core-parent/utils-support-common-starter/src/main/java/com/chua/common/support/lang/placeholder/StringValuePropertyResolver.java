@@ -21,7 +21,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
 
     /**
      * Placeholdersupport
-    */
+     */
     private final PlaceholderSupport placeholderSupport;
 
     /**
@@ -73,7 +73,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     }
 /**
  * 获取PlaceholderSupport
-*/
+ */
 @Override
     public PlaceholderSupport getPlaceholderSupport() {
         return placeholderSupport;

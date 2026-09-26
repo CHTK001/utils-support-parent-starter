@@ -3,6 +3,8 @@ package com.chua.common.support.datasearch.exchange.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -27,4 +29,18 @@ public record ExchangeRateResponse(
         @JsonProperty("time_last_update_unix") long timeLastUpdateUnix,
         Map<String, Double> rates
 ) {
+
+    /**
+     * 规范构造器：全量汇率表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。失败应答不含 {@code rates}，
+     * 调用方以 {@code response.rates() != null} 判定成功，保留可空语义；币种汇率取自 JSON，
+     * 允许存在空值（调用方按空值返回"该币种不可换算"），故用可空安全包装而非
+     * {@code Map.copyOf}。</p>
+     *
+     * @param rates 全量汇率表
+     */
+    public ExchangeRateResponse {
+        rates = rates == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(rates));
+    }
 }

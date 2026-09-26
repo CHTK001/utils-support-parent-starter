@@ -2,6 +2,7 @@ package com.chua.common.support.lang.reflect;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 方法定义模型，表示一个方法及其完整信息（注解、参数、返回类型、修饰符）。
@@ -24,10 +25,35 @@ public record MethodDefinition(
     Class<?> declaringClass,
     String methodName,
     Class<?> returnType,
-    List<ParameterDefinition> parameters,
-    List<AnnotationDefinition> annotations,
-    int modifiers
+        List<ParameterDefinition> parameters,
+        List<AnnotationDefinition> annotations,
+        int modifiers
 ) {
+
+    /**
+     * 规范构造器：方法元数据必填，参数与注解定义列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
+     * {@code method} / {@code declaringClass} / {@code methodName} / {@code returnType}
+     * 均被业务方法无条件解引用；两个列表由 {@code AnnotationUtils#getMethodDefinition}
+     * 保证非空且元素非空，因此使用 {@link List#copyOf}。</p>
+     *
+     * @param method         原始 Method 对象，不允许为 null
+     * @param declaringClass 声明类，不允许为 null
+     * @param methodName     方法名，不允许为 null
+     * @param returnType     返回类型，不允许为 null
+     * @param parameters     参数定义列表，不允许为 null
+     * @param annotations    注解定义列表，不允许为 null
+     * @param modifiers      修饰符
+     */
+    public MethodDefinition {
+        Objects.requireNonNull(method, "method 不能为 null");
+        Objects.requireNonNull(declaringClass, "declaringClass 不能为 null");
+        Objects.requireNonNull(methodName, "methodName 不能为 null");
+        Objects.requireNonNull(returnType, "returnType 不能为 null");
+        parameters = List.copyOf(Objects.requireNonNull(parameters, "parameters 不能为 null"));
+        annotations = List.copyOf(Objects.requireNonNull(annotations, "annotations 不能为 null"));
+    }
 
     /**
      * 参数定义模型。
@@ -43,7 +69,22 @@ public record MethodDefinition(
         Class<?> type,
         List<AnnotationDefinition> annotations
     ) {
+
+        /**
+         * 规范构造器：参数名与参数类型必填，参数注解定义列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
+         * 列表由 {@code AnnotationUtils#getMethodDefinition} 保证非空且元素非空，
+         * 因此使用 {@link List#copyOf}。</p>
+         *
+         * @param name        参数名，不允许为 null
+         * @param type        参数类型，不允许为 null
+         * @param annotations 参数注解定义列表，不允许为 null
+         */
         public ParameterDefinition {
+            Objects.requireNonNull(name, "name 不能为 null");
+            Objects.requireNonNull(type, "type 不能为 null");
+            annotations = List.copyOf(Objects.requireNonNull(annotations, "annotations 不能为 null"));
         }
     }
 

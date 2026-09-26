@@ -25,24 +25,24 @@ public class UdpModeProbe implements ProbeStrategy {
 
     /**
      * Receive_timeout_ms
-    */
+     */
     private static final int RECEIVE_TIMEOUT_MS = 2000;
 
     /**
      * 配置
-    */
+     */
     private final MeshConfig config;
     /**
      * 本地服务器ID
-    */
+     */
     private final String localServerId;
     /**
      * Discovered
-    */
+     */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     /**
      * stopped
-    */
+     */
     private volatile boolean stopped;
 
     /**
@@ -56,10 +56,10 @@ public class UdpModeProbe implements ProbeStrategy {
         this.localServerId = localServerId;
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() throws Exception {
         int port = config.getPort();
         try (DatagramSocket socket = new DatagramSocket()) {
@@ -90,18 +90,18 @@ public class UdpModeProbe implements ProbeStrategy {
         }
     }
 
-    @Override
     /**
      * 停止
-    */
+     */
+    @Override
     public void stop() throws Exception {
         stopped = true;
     }
 
-    @Override
     /**
      * 获取DiscoveredNodes
-    */
+     */
+    @Override
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return discovered;
     }

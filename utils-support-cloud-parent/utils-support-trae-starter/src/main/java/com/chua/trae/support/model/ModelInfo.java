@@ -1,6 +1,8 @@
 package com.chua.trae.support.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +53,24 @@ public record ModelInfo(
         */
         @JsonProperty("data") List<ModelInfo> data
     ) {
+
+        /**
+         * 规范构造器：对模型列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。本记录既可由 {@link #of(List)}
+         * 本地构造（已产出不可变列表），也可由 Jackson 从远端响应反序列化得到可变列表；
+         * 后者若直接持有，调用方就地增删会改写已解析的模型清单。</p>
+         *
+         * <p>{@code data} 在远端响应中可缺省，保留 {@code null} 语义；元素允许为
+         * {@code null}，故采用可空安全的不可变包装而非 {@link List#copyOf(List)}。</p>
+         *
+         * @param object 对象类型，固定 列表
+         * @param data   模型信息列表
+         */
+        public ModelList {
+            data = data == null ? null : Collections.unmodifiableList(new ArrayList<>(data));
+        }
+
         /**
          * 从 标识 列表构建模型列表响应。
          *

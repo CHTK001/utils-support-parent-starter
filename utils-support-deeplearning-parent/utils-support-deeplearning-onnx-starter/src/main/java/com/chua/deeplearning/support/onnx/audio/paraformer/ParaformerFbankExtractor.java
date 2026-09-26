@@ -2,6 +2,7 @@ package com.chua.deeplearning.support.onnx.audio.paraformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Paraformer 特征提取器（纯 Java 实现，复刻 kaldi-NAT-fbank + sherpa-onnx 流程）。
@@ -401,5 +402,43 @@ public class ParaformerFbankExtractor {
      * @return MelBank的结果
      */
     private record MelBank(float[][] weights, int[] offsets) {
+
+        /**
+         * 规范构造器：权重矩阵与偏移数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。唯一构造点
+         * {@code buildMelBank} 现地分配这两个数组、构造后不再改动，因此拷贝不改变行为。</p>
+         *
+         * @param weights 每行权重数组
+         * @param offsets 每行起始 fft bin
+         */
+        public MelBank {
+            weights = Objects.requireNonNull(weights, "weights 不能为 null").clone();
+            offsets = Objects.requireNonNull(offsets, "offsets 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回权重矩阵的副本。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @return 权重矩阵副本
+         */
+        @Override
+        public float[][] weights() {
+            return weights.clone();
+        }
+
+        /**
+         * 访问器覆写：返回偏移数组的副本。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @return 偏移数组副本
+         */
+        @Override
+        public int[] offsets() {
+            return offsets.clone();
+        }
     }
 }

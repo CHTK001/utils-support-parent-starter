@@ -44,11 +44,18 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
 
     /**
      * 解析模型
+     * <p>不设默认模型：特征模型由用户在系统配置中显式选择，未配置时抛错。
+     * 早期版本默认 {@code dino-v2}，但其 Translator 已停用；随后改为
+     * {@code clip-image-feature}，同样属于替用户做决定，故一并移除。</p>
      *
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "dino-v2";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定特征模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + FeatureExtractor.listModels());
+        }
+        return modelName;
     }
 
     @Override

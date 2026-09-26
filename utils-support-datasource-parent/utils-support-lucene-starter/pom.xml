@@ -24,12 +24,11 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>8.9.0</version>
+            <!-- 版本由父 pom 的 ${lucene.version} 统一管理，禁止在此硬编码 -->
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>8.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

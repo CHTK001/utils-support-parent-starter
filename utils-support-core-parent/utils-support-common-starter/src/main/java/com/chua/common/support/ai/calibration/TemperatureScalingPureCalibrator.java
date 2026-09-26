@@ -47,17 +47,16 @@ public class TemperatureScalingPureCalibrator implements PureCalibrator {
 
     /**
      * 温度参数T，默认1.0（保持原始分数不变）
+     *
+     * Temperature
      */
     @Builder.Default
-    /**
-     * Temperature
-    */
     private double temperature = 1.0;
 
-    @Override
     /**
      * Calibrate
-    */
+     */
+    @Override
     public double calibrate(double rawScore) {
         // 确保分数在0~1之间
         double clamped = Math.clamp(rawScore, 0.0, 1.0);
@@ -68,18 +67,18 @@ public class TemperatureScalingPureCalibrator implements PureCalibrator {
         return Math.round(scaled * 10000.0) / 100.0;
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return "温度缩放纯校准";
     }
 
-    @Override
     /**
      * 获取Description
-    */
+     */
+    @Override
     public String getDescription() {
         return "基于温度参数的分数缩放。T=1不变，T>1压缩（更保守），T<1拉伸（更激进）。";
     }

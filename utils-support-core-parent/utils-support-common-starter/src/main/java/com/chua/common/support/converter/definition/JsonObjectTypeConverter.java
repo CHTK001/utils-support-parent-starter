@@ -20,10 +20,10 @@ import javax.annotation.Nullable;
  * @since 4.0.0.42
  */
 public class JsonObjectTypeConverter implements TypeConverter<Map> {
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public Class<Map> getType() {
         return Map.class;
     }

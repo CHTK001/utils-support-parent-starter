@@ -149,18 +149,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         definitionFinder.setDynamicResolvers(Collections.unmodifiableList(defaultResolvers), type, classLoader);
     }
 
-    @Override
     /**
      * 获取延伸
-    */
+     */
+    @Override
     public Set<String> getExtensions() {
         return definitions.keySet();
     }
 
-    @Override
     /**
      * 获取新延伸
-    */
+     */
+    @Override
     public List<T> getNewExtensions(String name, Object... args) {
         SortedList<ServiceDefinition> serviceDefinitions = getDefinitions(name);
         List<T> result = new LinkedList<>();
@@ -178,10 +178,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableList(result);
     }
 
-    @Override
     /**
      * 获取延伸
-    */
+     */
+    @Override
     public T getExtension(String name) {
         if (StringUtils.isEmpty(name)) {
             return definitions.size() == 1 ? definitions.values().iterator().next().first().getObj(serviceAutowire) : getDefaultImpl();
@@ -190,10 +190,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return (T) Optional.ofNullable(serviceDefinition.getObj(serviceAutowire)).orElse(getDefaultImpl());
     }
 
-    @Override
     /**
      * 获取延伸
-    */
+     */
+    @Override
     public T getExtension(String... name) {
         for (String s : name) {
             ServiceDefinition definition = definitionFinder.getServiceDefinition(s);
@@ -205,10 +205,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     }
 
 
-    @Override
     /**
      * 获取新延伸
-    */
+     */
+    @Override
     public T getNewExtension(String name, Object... args) {
         if (StringUtils.isEmpty(name)) {
             return definitions.size() == 1 ? definitions.values().iterator().next().first().newInstance(serviceAutowire, args) : getDefaultImpl(args);
@@ -217,10 +217,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(getDefaultImpl(args));
     }
 
-    @Override
     /**
      * 获取新延伸
-    */
+     */
+    @Override
     public T getNewExtension(Class<?> type, Object... args) {
         if (ClassUtils.isVoid(type)) {
             return null;
@@ -229,10 +229,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return null == serviceDefinition ? getDefaultImpl(args) : (T) Optional.ofNullable(serviceDefinition.newInstance(serviceAutowire, args)).orElse(defaultImpl);
     }
 
-    @Override
     /**
      * 获取deep新延伸
-    */
+     */
+    @Override
     public T getDeepNewExtension(String name, Object... args) {
         if (null == name) {
             return getDefaultImpl(args);
@@ -256,10 +256,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     }
 
 
-    @Override
     /**
-     * 获取keep延伸
-    */
+     * 获取保活扩展
+     */
+    @Override
     public T getKeepExtension(String uid, String name, Object... args) {
         checkDaemon();
         Value<T> ifPresent = keepAlive.getIfPresent(uid);
@@ -275,7 +275,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
 
     /**
      * 校验Daemon
-    */
+     */
     private void checkDaemon() {
         if (null == executor) {
             synchronized (DefaultServiceProvider.class) {
@@ -293,10 +293,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
-     * 关闭keep延伸
-    */
+     * 关闭保活扩展
+     */
+    @Override
     public void closeKeepExtension(String uid) {
         Value<T> tValue = keepAlive.getIfPresent(uid);
         if (null != tValue) {
@@ -308,10 +308,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
      * 获取valid提供者
-    */
+     */
+    @Override
     public T getValidProvider(Object... args) {
         Map<String, ServiceDefinition> list = listDefinition(args);
         SortedList<ServiceDefinition> values = new SortedArrayList<>(COMPARATOR);
@@ -336,10 +336,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }));
     }
 
-    @Override
     /**
      * 获取ifpresent
-    */
+     */
+    @Override
     public Optional<T> getIfPresent(String name) {
         if (null == name) {
             return definitions.size() == 1 ? Optional.ofNullable(definitions.values().iterator().next().first().getObj(serviceAutowire)) : Optional.empty();
@@ -348,10 +348,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Optional.ofNullable(definitionFinder.getServiceDefinition(name).newInstance(serviceAutowire));
     }
 
-    @Override
     /**
      * Collect
-    */
+     */
+    @Override
     public List<T> collect() {
         Collection<T> values = list().values();
         if (CollectionUtils.isEmpty(values)) {
@@ -364,10 +364,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.emptyList();
     }
 
-    @Override
     /**
      * 列表类型
-    */
+     */
+    @Override
     public Map<String, Class<T>> listType() {
         if (definitions.isEmpty()) {
             return Collections.emptyMap();
@@ -385,10 +385,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableMap(result);
     }
 
-    @Override
     /**
      * Collect
-    */
+     */
+    @Override
     public List<T> collect(Object... args) {
         Map<T, Integer> temp = new HashMap<>(definitions.size());
         for (SortedList<ServiceDefinition> value : this.definitions.values()) {
@@ -407,10 +407,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableList(rs);
     }
 
-    @Override
     /**
      * 列表
-    */
+     */
+    @Override
     public Map<String, T> list() {
         if (definitions.isEmpty()) {
             return Collections.emptyMap();
@@ -428,10 +428,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableMap(result);
     }
 
-    @Override
     /**
      * 列表
-    */
+     */
+    @Override
     public Map<String, T> list(Object... args) {
         if (definitions.isEmpty()) {
             return Collections.emptyMap();
@@ -458,10 +458,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.emptyList();
     }
 
-    @Override
     /**
      * 获取spi服务
-    */
+     */
+    @Override
     public T getSpiService() {
         String s = SPI_NAME.get(type);
         if (StringUtils.isEmpty(s)) {
@@ -481,26 +481,26 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return getExtension(s);
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(String name) {
         return null != name && definitions.containsKey(name.toUpperCase());
     }
 
-    @Override
     /**
      * foreach
-    */
+     */
+    @Override
     public void forEach(BiConsumer<String, T> consumer, Object... args) {
         list(args).forEach(consumer);
     }
 
-    @Override
     /**
      * fordefinitioneach
-    */
+     */
+    @Override
     public void forDefinitionEach(Consumer<ServiceDefinition> consumer) {
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
@@ -508,10 +508,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
      * for任意definitioneach
-    */
+     */
+    @Override
     public void forAnyDefinitionEach(Consumer<ServiceDefinition> consumer) {
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
@@ -521,10 +521,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
      * moreeach
-    */
+     */
+    @Override
     public void moreEach(BiConsumer<String, T> consumer) {
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
             SortedList<ServiceDefinition> value = entry.getValue();
@@ -539,10 +539,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
      * 注销
-    */
+     */
+    @Override
     public void unregister(String baseName, Class<? extends ServiceResolver> resolverType) {
         Map<String, List<ServiceDefinition>> remove = new HashMap<>(DEFAULT_SIZE);
         for (Map.Entry<String, SortedList<ServiceDefinition>> entry : definitions.entrySet()) {
@@ -594,18 +594,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public void register(ServiceDefinition... definitions) {
         registerDefinition(List.of(definitions));
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public void register(ServiceResolver resolver) {
         List<ServiceDefinition> resolve = resolver.resolve(type, classLoader);
         //                   
@@ -613,10 +613,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     }
 
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public void register(String name, Object ref) {
         name = name.toUpperCase();
         ServiceDefinition serviceDefinition = new ServiceDefinition();
@@ -626,10 +626,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public void register(String name, Class<T> ref) {
         name = name.toUpperCase();
         ServiceDefinition serviceDefinition = new ServiceDefinition();
@@ -638,10 +638,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         definitions.computeIfAbsent(name, it -> new SortedArrayList<>(COMPARATOR)).add(serviceDefinition);
     }
 
-    @Override
     /**
      * 获取对象提供者
-    */
+     */
+    @Override
     public T getObjectProvider(String names, Object... args) {
         List<T> impl = new LinkedList<>();
         for (String name : Splitter.on(',').omitEmptyStrings().trimResults().splitToList(names)) {
@@ -652,10 +652,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }
         Class<T> service = type;
         return ProxyUtils.newProxy(service, classLoader, new DelegateMethodIntercept<>(service, new SafeFunction<ProxyMethod, Object>() {
-            @Override
             /**
              * Safe应用
-            */
+             */
+            @Override
             public Object safeApply(ProxyMethod proxyMethod) throws Throwable {
                 Object rs = null;
                 for (T t : impl) {
@@ -677,10 +677,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         }));
     }
 
-    @Override
     /**
      * 获取Definitions
-    */
+     */
+    @Override
     public SortedList<ServiceDefinition> getDefinitions(String name) {
         if (null == name) {
             SortedList<ServiceDefinition> result = new SortedArrayList<>(COMPARATOR);
@@ -690,10 +690,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return definitions.getOrDefault(name.toUpperCase(), SortedList.emptyList());
     }
 
-    @Override
     /**
      * 获取Definition
-    */
+     */
+    @Override
     public ServiceDefinition getDefinition(String type) {
         type = type.toUpperCase();
         return CollectionUtils.findFirst(definitions.get(type));
@@ -710,20 +710,20 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return definitionFinder.getDefinitions(name, args);
     }
 
-    @Override
     /**
      * 校验
-    */
+     */
+    @Override
     public void check() {
         for (String key : keepAlive.asMap().keySet()) {
             keepAlive.getIfPresent(key);
         }
     }
 
-    @Override
     /**
      * collect新
-    */
+     */
+    @Override
     public List<T> collectNew() {
         if (definitions.isEmpty()) {
             return Collections.emptyList();
@@ -747,26 +747,26 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return Collections.unmodifiableList(result);
     }
 
-    @Override
     /**
      * 监控
-    */
+     */
+    @Override
     public ServiceProvider<T> monitor(boolean open) {
         return this;
     }
 
-    @Override
     /**
      * 是否空
-    */
+     */
+    @Override
     public boolean isEmpty() {
         return definitions.isEmpty();
     }
 
-    @Override
     /**
      * 获取if可用
-    */
+     */
+    @Override
     public T getIfAvailable(String name, Object... args) {
         SortedList<ServiceDefinition> temp = definitionFinder.getDefinitions(name, args);
         for (ServiceDefinition serviceDefinition : temp) {
@@ -778,50 +778,50 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return getDefaultImpl(args);
     }
 
-    @Override
     /**
      * 获取类型
-    */
+     */
+    @Override
     public Class<T> getType() {
         return type;
     }
 
-    @Override
     /**
      * 获取类加载
-    */
+     */
+    @Override
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    @Override
     /**
      * 支持类型
-    */
+     */
+    @Override
     public Set<String> supportedTypes() {
         return definitions.keySet();
     }
 
-    @Override
     /**
      * 获取新默认延伸
-    */
+     */
+    @Override
     public T getNewDefaultExtension(Object... args) {
         return getNewExtension(DEFAULT, args);
     }
 
-    @Override
     /**
      * 获取默认
-    */
+     */
+    @Override
     public T getDefault() {
         return defaultImpl;
     }
 
-    @Override
     /**
      * 获取priority服务definition
-    */
+     */
+    @Override
     public ServiceDefinition getPriorityServiceDefinition() {
         Collection<SortedList<ServiceDefinition>> values = definitions.values();
         SortedList<ServiceDefinition> tempList = new SortedArrayList<>(COMPARATOR);
@@ -832,18 +832,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return tempList.first();
     }
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public T getPriority() {
         return getPriorityServiceDefinition().newInstance(serviceAutowire);
     }
 
-    @Override
     /**
      * 获取priority服务definitions
-    */
+     */
+    @Override
     public List<ServiceDefinition> getPriorityServiceDefinitions() {
         Collection<SortedList<ServiceDefinition>> values = definitions.values();
         SortedList<ServiceDefinition> tempList = new SortedArrayList<>(COMPARATOR);
@@ -854,18 +854,18 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         return tempList;
     }
 
-    @Override
     /**
      * 名称
-    */
+     */
+    @Override
     public Set<String> names() {
         return definitions.keySet();
     }
 
-    @Override
     /**
      * 获取服务autowire
-    */
+     */
+    @Override
     public ServiceAutowire getServiceAutowire() {
         return serviceAutowire;
     }
@@ -873,10 +873,10 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
 
 
 
-    @Override
     /**
      * 之后属性设置
-    */
+     */
+    @Override
     public void afterPropertiesSet() {
         if (Void.class == type) {
             return;

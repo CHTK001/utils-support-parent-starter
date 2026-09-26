@@ -38,27 +38,27 @@ public final class HpkeFlow {
 
     /**
      * 底层 HPKE 原语实例
-    */
+     */
     private final HpkeCipher cipher;
     /**
      * 接收方公钥（发送方路径）
-    */
+     */
     private byte[] receiverPublicKey;
     /**
      * 接收方私钥（接收方路径）
-    */
+     */
     private byte[] secretKey;
     /**
      * 发送方封装密钥（接收方路径）
-    */
+     */
     private byte[] enc;
     /**
      * 可选输入密钥材料（须收发一致）
-    */
+     */
     private byte[] ikm;
     /**
      * 可选附加认证数据（须收发一致）
-    */
+     */
     private byte[] aad;
 
     /**
@@ -211,16 +211,16 @@ public final class HpkeFlow {
 
         /**
          * 封装密钥，须随密文发给接收方
-        */
+         */
         private final byte[] enc;
         /**
          * AEAD 密文（含 16 字节认证标签）
-        */
+         */
         private final byte[] ciphertext;
 
         /**
          * 构造函数
-        */
+         */
         public SealedMessage(byte[] enc, byte[] ciphertext) {
             this.enc = enc;
             this.ciphertext = ciphertext;

@@ -71,6 +71,12 @@ public record FileSearchCriteria(
      */
     public static final int DEFAULT_MAX_DEPTH = 0;
 
+    /**
+     * 规范构造器：归一化排序参数并对排除项数组做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组组件必须深不可变。两个排除项数组允许为
+     * {@code null}（表示不排除任何项），此处保留其 null 语义。</p>
+     */
     public FileSearchCriteria {
         if (maxResults < 0) {
             maxResults = DEFAULT_MAX_RESULTS;
@@ -81,6 +87,28 @@ public record FileSearchCriteria(
         if (sortBy == null || sortBy.isBlank()) {
             sortBy = SORT_BY_SIZE;
         }
+        excludeDirs = excludeDirs == null ? null : excludeDirs.clone();
+        excludePatterns = excludePatterns == null ? null : excludePatterns.clone();
+    }
+
+    /**
+     * 访问器覆写：返回排除目录数组的副本。
+     *
+     * @return 排除目录名数组副本；未设置时返回 {@code null}
+     */
+    @Override
+    public String[] excludeDirs() {
+        return excludeDirs == null ? null : excludeDirs.clone();
+    }
+
+    /**
+     * 访问器覆写：返回排除模式数组的副本。
+     *
+     * @return 排除文件名模式数组副本；未设置时返回 {@code null}
+     */
+    @Override
+    public String[] excludePatterns() {
+        return excludePatterns == null ? null : excludePatterns.clone();
     }
 
     /**

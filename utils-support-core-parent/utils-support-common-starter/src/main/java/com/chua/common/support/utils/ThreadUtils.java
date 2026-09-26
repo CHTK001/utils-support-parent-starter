@@ -33,7 +33,7 @@ public class ThreadUtils {
     public static final int INVALID_EXITVALUE = 0xdeadbeef;
     /**
      * 全局_执行器
-    */
+     */
     public static final Executor GLOBAL_EXECUTOR = newVirtualThreadExecutor();
 
     /**
@@ -48,16 +48,16 @@ public class ThreadUtils {
 
     /**
      * 处理器
-    */
+     */
     private static final int PROCESSOR = processor();
 
     /**
      * Thread_游泳池
-    */
+     */
     private static final ExecutorService THREAD_POOL = newVirtualThreadExecutor();
     /**
      * 调度_执行器_服务
-    */
+     */
     private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = newScheduledThreadPoolExecutor(200, "com-ch-scheduled-thread-pool");
 
     static {
@@ -251,7 +251,7 @@ public class ThreadUtils {
     /**
      * 创建指定名称的固定大小线程池。
      * <p>
-     * 使用 执行器.新fixedthread游泳池 实现。
+     * 使用 执行器.新固定线程池 实现。
      * </p>
      *
      * @param thread 线程数
@@ -287,7 +287,7 @@ public class ThreadUtils {
     /**
      * 使用指定线程工厂创建固定大小线程池。
      * <p>
-     * 委托给 执行器.新fixedthread游泳池。
+     * 委托给 执行器.新固定线程池。
      * </p>
      *
      * @param thread        线程数
@@ -1117,7 +1117,7 @@ public class ThreadUtils {
             implements ScheduledExecutorService {
         /**
          * E
-        */
+         */
         private final ScheduledExecutorService e;
         DelegatedScheduledExecutorServiceImpl(ScheduledExecutorService executor) {
             super(executor);
@@ -1127,10 +1127,10 @@ public class ThreadUtils {
         public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
             return e.schedule(command, delay, unit);
         }
-        @Override
         /**
          * 调度
-        */
+         */
+        @Override
         public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
             return e.schedule(callable, delay, unit);
         }
@@ -1153,38 +1153,38 @@ public class ThreadUtils {
     static class DelegatedExecutorService extends AbstractExecutorService {
         /**
          * E
-        */
+         */
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
-        @Override
         /**
          * 执行
-        */
-        public void execute(Runnable command) { e.execute(command); }
+         */
         @Override
+        public void execute(Runnable command) { e.execute(command); }
         /**
          * 关闭
-        */
-        public void shutdown() { e.shutdown(); }
+         */
         @Override
+        public void shutdown() { e.shutdown(); }
         /**
          * 关闭Now
-        */
-        public List<Runnable> shutdownNow() { return e.shutdownNow(); }
+         */
         @Override
+        public List<Runnable> shutdownNow() { return e.shutdownNow(); }
         /**
          * 是否关闭
-        */
-        public boolean isShutdown() { return e.isShutdown(); }
+         */
         @Override
+        public boolean isShutdown() { return e.isShutdown(); }
         /**
          * 是否Terminated
-        */
-        public boolean isTerminated() { return e.isTerminated(); }
+         */
         @Override
+        public boolean isTerminated() { return e.isTerminated(); }
         /**
          * await终止
-        */
+         */
+        @Override
         public boolean awaitTermination(long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.awaitTermination(timeout, unit);
@@ -1193,55 +1193,55 @@ public class ThreadUtils {
         public Future<?> submit(Runnable task) {
             return e.submit(task);
         }
-        @Override
         /**
          * 提交
-        */
+         */
+        @Override
         public <T> Future<T> submit(Callable<T> task) {
             return e.submit(task);
         }
-        @Override
         /**
          * 提交
-        */
+         */
+        @Override
         public <T> Future<T> submit(Runnable task, T result) {
             return e.submit(task, result);
         }
-        @Override
         /**
          * 调用全部
-        */
+         */
+        @Override
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException {
             return e.invokeAll(tasks);
         }
-        @Override
         /**
          * 调用全部
          * @param tasks 任务
          * @param timeout 超时
          * @param unit unit
          */
+        @Override
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                              long timeout, TimeUnit unit)
                 throws InterruptedException {
             return e.invokeAll(tasks, timeout, unit);
         }
-        @Override
         /**
          * 调用任意
-        */
+         */
+        @Override
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
                 throws InterruptedException, ExecutionException {
             return e.invokeAny(tasks);
         }
-        @Override
         /**
          * 调用任意
          * @param tasks 任务
          * @param timeout 超时
          * @param unit unit
          */
+        @Override
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -1254,7 +1254,7 @@ public class ThreadUtils {
     public static final class DefaultThreadFactory implements ThreadFactory {
         /**
          * 游泳池_数字
-        */
+         */
         private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         /**
          * 用户组
@@ -1262,11 +1262,11 @@ public class ThreadUtils {
         private final ThreadGroup group;
         /**
          * 线程数字
-        */
+         */
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         /**
          * 名称前缀
-        */
+         */
         private final String namePrefix;
 
         /**
@@ -1302,10 +1302,10 @@ public class ThreadUtils {
             namePrefix = name + "-" + POOL_NUMBER.getAndIncrement() + "-";
         }
 
-        @Override
         /**
          * 新thread
-        */
+         */
+        @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
             if (t.isDaemon()) {

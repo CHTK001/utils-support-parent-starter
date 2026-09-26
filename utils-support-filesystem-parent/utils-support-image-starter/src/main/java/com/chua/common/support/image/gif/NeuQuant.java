@@ -1,56 +1,26 @@
 package com.chua.common.support.image.gif;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-
-
 /**
- * neuquant Neural-Net Quantization Algorithm
- * ------------------------------------------
- * <p>
- * Copyright (c) 1994 Anthony Dekker
- * <p>
- * NEUQUANT Neural-Net quantization algorithm by Anthony Dekker, 1994.
- * 参见 "Kohonen neural networks for optimal colour quantization"
- * 入 "Network: Computation 入 Neural 系统" Vol. 5 (1994) pp 351-367.
- * for a discussion 的 the algorithm.
- * <p>
- * 任意 party obtaining a 副本 的 these 文件 从 the 作者, directly 或
- * indirectly, 是否 granted, free 的 charge, a 完整 和 unrestricted irrevocable,
- * world-wide, paid up, royalty-free, nonexclusive right 和 执照 转为 deal
- * 入 this software 和 documentation 文件 (the "Software"), including without
- * limitation the rights 转为 use, 副本, modify, 合并, 发布, distribute, sublicense,
- * 和/或 sell 副本 的 the Software, 和 转为 许可证 persons who 接收
- * 副本 从 任意 such party 转为 执行 so, with the only requirement 存在
- * that this copyright notice remain intact.
- */
-
-
-/**
- * neuquant Neural-Net Quantization Algorithm
+ * 基于 Anthony Dekker 神经网络的颜色量化实现。
+ *
+ * <p>算法通过 Kohonen 神经网络将图像颜色压缩为最多 256 种颜色，
+ * 适用于 GIF 调色板生成等场景。</p>
  *
  * @author Dekker
- * @since 4.0.0.42
  * @author CH
  * @since 4.0.0.42
  */
 public class NeuQuant {
 
     /**
-     * Netsize
-    */
+     * 颜色网络大小。
+     */
     protected static final int NETSIZE = 256;
-/**
- * 数字 的 colours used
-*/
-
-
-/**
- * four primes near 500 - assume no 镜像 是否包含 a 长度 so large
- */
-
     /**
-     * that it 是否 divisible by 全部 four primes
+     * 接近 500 且可整除常规图片总字节数的四个质数。
      */
     protected static final int PRIME1 = 499;
     /**
@@ -67,191 +37,147 @@ public class NeuQuant {
     protected static final int PRIME4 = 503;
 
     /**
-     * Minpicturebytes
-    */
+     * 可供采样的最小图片字节数。
+     */
     protected static final int MINPICTUREBYTES = (3 * PRIME4);
 
-/**
- * minimum 大小 for 输入 镜像
-*/
-
-
-/**Program Skeleton
- ----------------
- [select samplefac in range 1..30]
- [read image from input file]
- pic = (unsigned char*) malloc(3*width*height);
- initnet(pic,3*width*height,samplefac);
- learn();
- unbiasnet();
- [write output image header, using writecolourmap(f)]
- inxbuild();
- write output image using inxsearch(b,g,r)      */
-
-
     /**
-     * Network Definitions
-     * -------------------
+     * 网络定义。
      */
-
-    protected static final int MAXNETPOS = (NETSIZE - 1); // MAXNETPOS
+    protected static final int MAXNETPOS = (NETSIZE - 1);
     /**
-     * Netbiasshift
-    */
+     * 网络值偏置位数。
+     */
     protected static final int NETBIASSHIFT = 4;
     /**
-     * 偏置 for colour 值
+     * 网络学习循环次数。
      */
     protected static final int NCYCLES = 100;
-/**
- * no. 的 学习 循环
-*/
-
-
     /**
-     * defs for freq 和 偏置
+     * 频率统计使用的偏置位数。
      */
     protected static final int INTBIASSHIFT = 16;
     /**
-     * 偏置 for fractions
+     * 频率统计偏置基数。
      */
     protected static final int INTBIAS = (1 << INTBIASSHIFT);
     /**
-     * Gammashift
-    */
+     * 伽马偏置位数。
+     */
     protected static final int GAMMASHIFT = 10;
     /**
-     * gamma = 1024
+     * 伽马偏置基数。
      */
     protected static final int GAMMA = (1 << GAMMASHIFT);
     /**
-     * Betashift
-    */
+     * 频率更新偏置位数。
+     */
     protected static final int BETASHIFT = 10;
     /**
-     * Beta
-    */
+     * 频率更新基数。
+     */
     protected static final int BETA = (INTBIAS >> BETASHIFT);
     /**
-     * beta = 1/1024
+     * 频率更新偏置值。
      */
     protected static final int BETAGAMMA =
             (INTBIAS << (GAMMASHIFT - BETASHIFT));
 
-
     /**
-     * defs for decreasing radius factor
+     * 初始邻域半径。
      */
     protected static final int INITRAD = (NETSIZE >> 3);
     /**
-     * for 256 cols, radius 启动
+     * 邻域半径偏置位数。
      */
     protected static final int RADIUSBIASSHIFT = 6;
     /**
-     * 从 32.0 半径开始，偏置 6 位
+     * 邻域半径偏置基数。
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
     /**
-     * Initradius
-    */
+     * 初始邻域半径值。
+     */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
-     * 和 减少 by a
+     * 邻域半径每轮缩减比例。
      */
     protected static final int RADIUSDEC = 30;
-/**
- * factor 的 1/30 each 循环
-*/
-
 
     /**
-     * defs for decreasing alpha factor
+     * 学习率偏置位数。
      */
     protected static final int ALPHABIASSHIFT = 10;
     /**
-     * alpha 启动 at 1.0
+     * 初始学习率。
      */
     protected static final int INITALPHA = (1 << ALPHABIASSHIFT);
 
     /**
-     * Alphadec
-    */
+     * 学习率衰减计数。
+     */
     protected int alphadec;
-/**
- * 偏置 10 位
-*/
-
-
     /**
-     * radbias 和 alpharadbias used for radpower calculation
+     * 半径衰减偏置位数。
      */
     protected static final int RADBIASSHIFT = 8;
     /**
-     * Radbias
-    */
+     * 半径衰减偏置基数。
+     */
     protected static final int RADBIAS = (1 << RADBIASSHIFT);
     /**
-     * Alpharadbshift
-    */
+     * 邻域衰减综合偏置位数。
+     */
     protected static final int ALPHARADBSHIFT = (ALPHABIASSHIFT + RADBIASSHIFT);
     /**
-     * Alpharadbias
-    */
+     * 邻域衰减综合偏置值。
+     */
     protected static final int ALPHARADBIAS = (1 << ALPHARADBSHIFT);
 
 
     /**
-     * 类型 和 全局 变量
-     * --------------------------
+     * 待量化的图片数据。
      */
-
-    protected byte[] thepicture; // thepicture
+    protected byte[] thepicture;
     /**
-     * the 输入 镜像 itself
+     * 图片总字节数。
      */
     protected int lengthcount;
+
     /**
-     * lengthcount = H*W*3
+     * 图片采样步长。
      */
-
-    protected int samplefac; // samplefac
-/**sampling factor 1..30 */
-
+    protected int samplefac;
 
     /**
-     * bgrc
+     * 颜色网络，每个节点包含蓝、绿、红和索引四个分量。
      */
     protected int[][] network;
     /**
-     * the network itself - [netsize][4]
+     * 按绿色分量预计算的快速查找索引。
      */
-
-    protected int[] netindex = new int[256]; // netindex
+    protected int[] netindex = new int[256];
 
     /**
-     * for network lookup - really 256
+     * 网络节点的偏置数组。
      */
-
-    protected int[] bias = new int[NETSIZE]; // 偏置
+    protected int[] bias = new int[NETSIZE];
 
     /**
-     * 偏置 和 freq arrays for 学习
+     * 网络节点的选择频率数组。
      */
     protected int[] freq = new int[NETSIZE];
     /**
-     * Radpower
-    */
+     * 邻域影响半径的预计算数组。
+     */
     protected int[] radpower = new int[INITRAD];
 
-/**radpower for precomputation */
-
-
     /**
-     * Initialise network 入 范围 (0,0,0) 转为 (255,255,255) 和 设置 参数
-     * -----------------------------------------------------------------------
-     * @param thepic thepic
-     * @param len len
-     * @param sample 样本
+     * 使用指定图片数据初始化颜色网络。
+     *
+     * @param thepic 待量化的图片数据
+     * @param len 图片总字节数
+     * @param sample 采样步长
      */
     public NeuQuant(byte[] thepic, int len, int sample) {
 
@@ -268,15 +194,15 @@ public class NeuQuant {
             p = network[i];
             p[0] = p[1] = p[2] = (i << (NETBIASSHIFT + 8)) / NETSIZE;
             freq[i] = INTBIAS / NETSIZE;
-/**1/netsize */
+            // 每个节点的初始选择频率相同
             bias[i] = 0;
         }
     }
 
     /**
-     * color映射
+     * 生成颜色映射表。
      *
-     * @return color映射的结果
+     * @return 每种颜色对应的蓝、绿、红三字节数据
      */
     public byte[] colorMap() {
         byte[] map = new byte[3 * NETSIZE];
@@ -296,8 +222,7 @@ public class NeuQuant {
 
 
     /**
-     * Insertion 排序 的 network 和 构建 的 netindex[0..255] (转为 执行 之后 unbias)
-     * -------------------------------------------------------------------------------
+     * 对颜色网络执行插入排序并构建快速查找索引。
      */
     public void inxbuild() {
 
@@ -313,30 +238,30 @@ public class NeuQuant {
             smallpos = i;
             smallval = p[1];
 /**
- * 索引 on g
+ * 以绿色分量定位相邻节点
 */
 
 /**
- * 查找 smallest 入 i..netsize-1
-*/
+ * 查找后续范围中绿色分量最小的节点
+ */
             for (j = i + 1; j < NETSIZE; j++) {
                 q = network[j];
                 if (q[1] < smallval) {
 /**
- * 索引 on g
+ * 以绿色分量定位相邻节点
 */
                     smallpos = j;
                     smallval = q[1];
 /**
- * 索引 on g
+ * 以绿色分量定位相邻节点
 */
                 }
             }
             q = network[smallpos];
 
 /**
- * 掉期 p (i) 和 Q (smallpos) entries
-*/
+ * 交换两个网络节点的对应分量
+ */
             if (i != smallpos) {
                 j = q[0];
                 q[0] = p[0];
@@ -353,8 +278,8 @@ public class NeuQuant {
             }
 
 /**
- * smallval entry 是否 now 入 位置 i
-*/
+ * 记录最小绿色分量发生变化时的索引区间
+ */
             if (smallval != previouscol) {
                 netindex[previouscol] = (startpos + i) >> 1;
                 for (j = previouscol + 1; j < smallval; j++) {
@@ -368,14 +293,13 @@ public class NeuQuant {
         netindex[previouscol] = (startpos + MAXNETPOS) >> 1;
         for (j = previouscol + 1; j < s256; j++) {
             netindex[j] = MAXNETPOS;
-/**really 256 */
+            // 补齐最后一段索引
         }
     }
 
 
     /**
-     * Main 学习 循环
-     * ------------------
+     * 执行颜色网络主学习循环。
      */
     public void learn() {
 
@@ -429,7 +353,7 @@ public class NeuQuant {
             altersingle(alpha, j, b, g, r);
             if (rad != 0) {
                 alterneigh(rad, j, b, g, r);
-/**alter neighbours */
+                // 同时调整邻近节点
             }
 
             pix += step;
@@ -459,12 +383,12 @@ public class NeuQuant {
 
 
     /**
-     * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
-     * ----------------------------------------------------------------------------
-     * @param b b
-     * @param g g
-     * @param r r
-     * @return 映射的结果
+     * 为给定蓝、绿、红分量查找最接近的颜色索引。
+     *
+     * @param b 蓝色分量，取值范围为 0 至 255
+     * @param g 绿色分量，取值范围为 0 至 255
+     * @param r 红色分量，取值范围为 0 至 255
+     * @return 最接近的颜色索引
      */
     public int map(int b, int g, int r) {
 
@@ -473,31 +397,29 @@ public class NeuQuant {
         int best;
 
         bestd = 1000;
-/**
- * biggest possible dist 是否 256*3
-*/
+        // 允许的最大颜色距离为 256 乘 3
         best = -1;
         i = netindex[g];
 /**
- * 索引 on g
+ * 以绿色分量定位相邻节点
 */
         j = i - 1;
 /**
- * 启动 at netindex[g] 和 work outwards
-*/
+ * 从绿色分量对应的索引开始向两侧查找
+ */
 
         while ((i < NETSIZE) || (j >= 0)) {
             if (i < NETSIZE) {
                 p = network[i];
                 dist = p[1] - g;
 /**
- * inx 键
+ * 查找正向距离
 */
                 if (dist >= bestd) {
                     i = NETSIZE;
 /**
- * 停止 iter
-*/
+ * 正向距离已超过当前最优值，停止当前方向查找
+ */
                 } else {
                     i++;
                     if (dist < 0) {
@@ -525,13 +447,13 @@ public class NeuQuant {
                 p = network[j];
                 dist = g - p[1];
 /**
- * inx 键 - reverse dif
+ * 查找反向距离
 */
                 if (dist >= bestd) {
                     j = -1;
 /**
- * 停止 iter
-*/
+ * 正向距离已超过当前最优值，停止当前方向查找
+ */
                 } else {
                     j--;
                     if (dist < 0) {
@@ -560,9 +482,9 @@ public class NeuQuant {
     }
 
     /**
-     * 处理
+     * 执行完整颜色量化流程。
      *
-     * @return 处理的结果
+     * @return 量化后的颜色映射表
      */
     public byte[] process() {
         learn();
@@ -573,8 +495,7 @@ public class NeuQuant {
 
 
     /**
-     * Unbias network 转为 give byte 值 0..255 和 record 位置 i 转为 prepare for 排序
-     * -----------------------------------------------------------------------------------
+     * 移除网络偏置并记录节点对应的颜色索引。
      */
     public void unbiasnet() {
         for (int i = 0; i < NETSIZE; i++) {
@@ -582,7 +503,7 @@ public class NeuQuant {
             network[i][1] >>= NETBIASSHIFT;
             network[i][2] >>= NETBIASSHIFT;
             network[i][3] = i;
-/**record colour no */
+            // 记录当前颜色索引
         }
     }
 
@@ -590,11 +511,11 @@ public class NeuQuant {
     /**
      * 将相邻神经元按预计算的 alpha*(1-((i-j)^2/[R]^2)) 移入 radpower[|i-j|]
      * ---------------------------------------------------------------------------------
-     * @param rad rad
-     * @param i i
-     * @param b b
-     * @param g g
-     * @param r r
+     * @param rad 邻域半径，不能为负
+     * @param i 中心节点索引
+     * @param b 蓝色分量
+     * @param g 绿色分量
+     * @param r 红色分量
      */
     protected void alterneigh(int rad, int i, int b, int g, int r) {
 
@@ -640,16 +561,16 @@ public class NeuQuant {
     /**
      * 将神经元 i 以系数 alpha 向 (b,g,R) 移动
      * ----------------------------------------------------
-     * @param alpha alpha
-     * @param i i
-     * @param b b
-     * @param g g
-     * @param r r
+     * @param alpha 学习系数
+     * @param i 节点索引
+     * @param b 蓝色分量
+     * @param g 绿色分量
+     * @param r 红色分量
      */
     protected void altersingle(int alpha, int i, int b, int g, int r) {
 
 
-/**alter hit neuron */
+        // 调整当前命中的节点
         int[] n = network[i];
         n[0] -= (alpha * (n[0] - b)) / INITALPHA;
         n[1] -= (alpha * (n[1] - g)) / INITALPHA;
@@ -658,31 +579,31 @@ public class NeuQuant {
 
 
     /**
-     * 搜索 for 偏置 BGR 值
-     * ----------------------------
-     * @param b b
-     * @param g g
-     * @param r r
-     * @return contest的结果
+     * 按距离和偏置查找最合适的颜色节点。
+     *
+     * @param b 蓝色分量
+     * @param g 绿色分量
+     * @param r 红色分量
+     * @return 最合适的颜色节点索引
      */
     protected int contest(int b, int g, int r) {
 
 
 /**
- * 查找 closest neuron (最小 dist) 和 更新 freq
-*/
-
-/**
- * 查找 best neuron (最小 dist-偏置) 和 返回 位置
-*/
-
-/**
- * for frequently chosen neurons, freq[i] 是否 high 和 偏置[i] 是否 negative
+ * 查找颜色距离最小的节点并更新其选择频率
  */
 
 /**
- * 偏置[i] = gamma*((1/netsize)-freq[i])
-*/
+ * 查找扣除偏置后的最小距离节点并返回索引
+ */
+
+/**
+ * 频繁选中的节点会提高频率并减小偏置
+ */
+
+/**
+ * 偏置值为伽马乘以理论频率与实际频率之差
+ */
 
         int i, dist, a, biasdist, betafreq;
         int bestpos, bestbiaspos, bestd, bestbiasd;

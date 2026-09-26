@@ -16,26 +16,26 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("guava")
 public class GuavaRateLimitProvider implements RateLimitProvider {
 
-    @Override
     /**
      * 创建
-    */
+     */
+    @Override
     public RateLimiter create(double qps) {
         return new GuavaRateLimiter(qps);
     }
 
-    @Override
     /**
      * 创建PerKey
-    */
+     */
+    @Override
     public RateLimiter createPerKey(double qps) {
         return new PerKeyGuavaRateLimiter(qps);
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return "guava";
     }
@@ -46,7 +46,7 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     private static class GuavaRateLimiter implements RateLimiter {
         /**
          * Limiter
-        */
+         */
         private final com.google.common.util.concurrent.RateLimiter limiter;
         /**
          * 容量
@@ -58,34 +58,34 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
             this.capacity = qps;
         }
 
-        @Override
         /**
          * Try获取
-        */
+         */
+        @Override
         public boolean tryAcquire(String key) {
             return limiter.tryAcquire();
         }
 
-        @Override
         /**
          * Try获取
-        */
+         */
+        @Override
         public boolean tryAcquire(String key, long timeout) {
             return limiter.tryAcquire(timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
 
-        @Override
         /**
          * 获取Remaining
-        */
+         */
+        @Override
         public long getRemaining(String key) {
             return (long) capacity;
         }
 
-        @Override
         /**
          * 获取Capacity
-        */
+         */
+        @Override
         public double getCapacity() {
             return capacity;
         }
@@ -97,52 +97,52 @@ public class GuavaRateLimitProvider implements RateLimitProvider {
     private static class PerKeyGuavaRateLimiter implements RateLimiter {
         /**
          * QPS
-        */
+         */
         private final double qps;
         /**
          * limiters
-        */
+         */
         private final Map<String, com.google.common.util.concurrent.RateLimiter> limiters = new ConcurrentHashMap<>();
 
         PerKeyGuavaRateLimiter(double qps) {
             this.qps = qps;
         }
 
-        @Override
         /**
          * Try获取
-        */
+         */
+        @Override
         public boolean tryAcquire(String key) {
             return getOrCreate(key).tryAcquire();
         }
 
-        @Override
         /**
          * Try获取
-        */
+         */
+        @Override
         public boolean tryAcquire(String key, long timeout) {
             return getOrCreate(key).tryAcquire(timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
 
-        @Override
         /**
          * 获取Remaining
-        */
+         */
+        @Override
         public long getRemaining(String key) {
             return (long) qps;
         }
 
-        @Override
         /**
          * 获取Capacity
-        */
+         */
+        @Override
         public double getCapacity() {
             return qps;
         }
 
         /**
          * 获取Or创建
-        */
+         */
         private com.google.common.util.concurrent.RateLimiter getOrCreate(String key) {
             return limiters.computeIfAbsent(key, k -> com.google.common.util.concurrent.RateLimiter.create(qps));
         }

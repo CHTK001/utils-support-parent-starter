@@ -31,7 +31,7 @@ public class JavaxListenerParser implements ListenerParser {
 
     /**
      * javax.websocket 注解类名列表
-    */
+     */
     private static final String[] JAVAX_ANNOTATIONS = {
             "javax.websocket.OnOpen",
             "javax.websocket.OnMessage",
@@ -41,7 +41,7 @@ public class JavaxListenerParser implements ListenerParser {
 
     /**
      * jakarta.websocket 注解类名列表
-    */
+     */
     private static final String[] JAKARTA_ANNOTATIONS = {
             "jakarta.websocket.OnOpen",
             "jakarta.websocket.OnMessage",
@@ -49,10 +49,10 @@ public class JavaxListenerParser implements ListenerParser {
             "jakarta.websocket.OnError"
     };
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public Map<String, Method> parse(Class<?> clazz) {
         Map<String, Method> result = new LinkedHashMap<>();
         for (Method method : clazz.getDeclaredMethods()) {
@@ -68,10 +68,10 @@ public class JavaxListenerParser implements ListenerParser {
         return result;
     }
 
-    @Override
     /**
      * Support
-    */
+     */
+    @Override
     public boolean support(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
             if (hasAnyAnnotation(method, JAVAX_ANNOTATIONS, clazz.getClassLoader())) {
@@ -84,10 +84,10 @@ public class JavaxListenerParser implements ListenerParser {
         return false;
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return 0;
     }

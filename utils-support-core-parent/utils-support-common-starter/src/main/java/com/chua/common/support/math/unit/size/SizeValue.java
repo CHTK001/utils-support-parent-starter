@@ -249,26 +249,26 @@ public final class SizeValue implements Comparable<SizeValue> {
         return this.bytes / BYTES_PER_TB;
     }
 
-    @Override
     /**
      * 比较To
-    */
+     */
+    @Override
     public int compareTo(SizeValue other) {
         return Long.compare(this.bytes, other.bytes);
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return String.format("%dB", this.bytes);
     }
 
-    @Override
     /**
      * 判断相等
-    */
+     */
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -280,10 +280,10 @@ public final class SizeValue implements Comparable<SizeValue> {
         return this.bytes == otherSize.bytes;
     }
 
-    @Override
     /**
      * HashCode
-    */
+     */
+    @Override
     public int hashCode() {
         return Long.hashCode(this.bytes);
     }

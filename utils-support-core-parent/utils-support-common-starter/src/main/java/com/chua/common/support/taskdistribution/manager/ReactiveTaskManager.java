@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 取消任务
  * Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.43
@@ -301,7 +301,7 @@ public class ReactiveTaskManager {
      *         .submit();   // 返回 Mono，订阅后提交
      * }</pre>(2)
      *         .submit();   // 返回 Mono，订阅后提交
-     * }</pre>
+     * }
      *
      * @param taskType 任务类型
      * @param payload  负载数据

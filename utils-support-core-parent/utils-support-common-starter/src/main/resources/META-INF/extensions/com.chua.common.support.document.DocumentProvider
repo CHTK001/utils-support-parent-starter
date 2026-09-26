@@ -1,0 +1,3 @@
+benchmark-html=com.chua.common.support.lang.document.BenchmarkHtmlProvider
+html=com.chua.common.support.lang.document.HtmlRenderer
+markdown=com.chua.common.support.lang.document.MarkdownRenderer

@@ -98,6 +98,11 @@ public class OllamaChatClient implements ChatClient {
     private List<ChatMessage> externalHistory;
 
     /**
+     * 响应格式（text / json_object / json_schema，空表示不约束）
+     */
+    private String responseFormat;
+
+    /**
      * 创建 Ollama 对话 客户端。
      *
      * @param setting 客户端 配置（provider 应为 "ollama"，apiKey 可为 空）
@@ -110,6 +115,7 @@ public class OllamaChatClient implements ChatClient {
         this.temperature = setting != null ? setting.getTemperature() : null;
         this.maxTokens = setting != null ? setting.getMaxTokens() : null;
         this.topP = setting != null ? setting.getTopP() : null;
+        this.responseFormat = setting != null ? setting.getResponseFormat() : null;
     }
 
     @Override
@@ -154,6 +160,18 @@ public class OllamaChatClient implements ChatClient {
     */
     public ChatClient topP(Double topP) {
         this.topP = topP;
+        return this;
+    }
+
+    /**
+     * 设置响应格式。
+     *
+     * @param responseFormat 响应格式（text / json_object / json_schema，传 {@code null} 取消约束）
+     * @return 当前客户端实例，支持链式调用
+     */
+    @Override
+    public ChatClient responseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
         return this;
     }
 
@@ -299,9 +317,29 @@ public class OllamaChatClient implements ChatClient {
         OllamaChatRequest request = OllamaChatRequest.builder()
                 .withModel(model != null && !model.isBlank() ? model : "llama3.2:3b")
                 .withMessages(buildOllamaMessages(prompt))
-                .withOptions(buildOptions())
-                .withGetJsonResponse();
+                .withOptions(buildOptions());
+        applyResponseFormat(request);
         return request;
+    }
+
+    /**
+     * 按 {@code responseFormat} 取值应用响应格式。
+     *
+     * <p>取值口径与 {@code OpenAiChatClient} 保持一致：仅 {@code json_object} 开启 JSON 模式；
+     * {@code json_schema} 需要额外 schema 定义，本客户端不自动构建；其余取值（含空）保持普通文本。</p>
+     *
+     * @param request ollama4j 聊天请求
+     */
+    private void applyResponseFormat(OllamaChatRequest request) {
+        if (responseFormat == null || responseFormat.isBlank()) {
+            return;
+        }
+        String value = responseFormat.trim().toLowerCase();
+        if ("json_object".equals(value)) {
+            request.withGetJsonResponse();
+        } else if ("json_schema".equals(value)) {
+            log.debug("response_format=json_schema 需要额外 schema 定义，OllamaChatClient 暂不自动构建");
+        }
     }
 
     /**

@@ -135,6 +135,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[TextBSR] ONNX loaded: {}", modelPath.getFileName());
     }

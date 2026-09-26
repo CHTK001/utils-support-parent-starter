@@ -40,6 +40,7 @@ public class HpkeCipherSmokeTest {
     public static void main(String[] args) {
         testKeyPair();
         testPrimitivesRoundTrip();
+        testNonceFreshness();
         testFlowChain();
         testIkM();
         testTamperDetection();
@@ -82,7 +83,37 @@ public class HpkeCipherSmokeTest {
         byte[] out = hpke.open(ekReceiver, aad, ct);
         check(Arrays.equals(plain, out), "原语 round-trip 一致");
         check(Arrays.equals(ekSender, ekReceiver), "收发派生的 ek 一致");
-        check(ct.length > plain.length, "密文含 GCM 标签（比明文长）");
+        check(ct.length == plain.length + 12 + 16, "密文信封为 nonce(12) + 密文体 + 标签(16)");
+    }
+
+    /**
+     * nonce 新鲜度：同一封装密钥重复 seal 不得复用密钥流
+    */
+    static void testNonceFreshness() {
+        HpkeCipher hpke = HpkeCipher.create("bc");
+        byte[][] keys = hpke.generateKeyPair();
+        byte[] ek = hpke.encap(keys[0], null)[1];
+        byte[] plain = "amount=1".getBytes(StandardCharsets.UTF_8);
+        byte[] other = "amount=9".getBytes(StandardCharsets.UTF_8);
+
+        byte[] first = hpke.seal(ek, null, plain);
+        byte[] again = hpke.seal(ek, null, plain);
+        check(!Arrays.equals(first, again), "同一 ek 两次 seal 密文不同（nonce 随消息取随机）");
+        check(Arrays.equals(plain, hpke.open(ek, null, first)), "首次密文可正常解开");
+        check(Arrays.equals(plain, hpke.open(ek, null, again)), "重复 seal 的密文可独立解开");
+
+        byte[] second = hpke.seal(ek, null, other);
+        // 偏移 12 = 信封 nonce 头长度（同组信封长度断言已锁定该布局），比较的是密文体而非标签区
+        boolean keystreamReused = true;
+        for (int i = 0; i < plain.length && i < other.length; i++) {
+            int ctXor = (first[i + 12] ^ second[i + 12]) & 0xff;
+            int ptXor = (plain[i] ^ other[i]) & 0xff;
+            if (ctXor != ptXor) {
+                keystreamReused = false;
+                break;
+            }
+        }
+        check(!keystreamReused, "两段密文的异或不等于两段明文的异或（密钥流未被复用）");
     }
 
     /**
@@ -164,7 +195,7 @@ public class HpkeCipherSmokeTest {
         byte[] ekA = hpke.recoverKey(keys[1], e1[0], ikm);
         byte[] ekB = hpke.recoverKey(keys[1], e1[0], ikm);
         check(Arrays.equals(ekA, ekB), "相同输入 recoverKey 幂等");
-        check(ekA.length == 44, "派生密钥材料为 key(32)+nonce(12)=44 字节");
+        check(ekA.length == 32, "对称密钥 ek 为 32 字节（nonce 由每次 seal 现取，不参与派生）");
     }
 
     /**

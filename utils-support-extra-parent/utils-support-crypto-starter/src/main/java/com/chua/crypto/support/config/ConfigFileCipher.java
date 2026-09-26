@@ -2,6 +2,7 @@ package com.chua.crypto.support.config;
 
 import com.chua.crypto.support.Crypto;
 import com.chua.crypto.support.CryptoException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,7 @@ import java.util.Base64;
  * @author CH
  * @since 2026-08-26
  */
+@Slf4j
 public final class ConfigFileCipher {
 
     /**
@@ -93,6 +95,7 @@ public final class ConfigFileCipher {
             if (keepBackup) {
                 Path backup = file.resolveSibling(file.getFileName() + ".bak");
                 Files.copy(file, backup, StandardCopyOption.REPLACE_EXISTING);
+                log.warn("已按配置保留明文备份，验证无误后请尽快清除: {}", backup);
             }
             String cipherText = MARKER + System.lineSeparator()
                     + crypto.encryptToString(plain) + System.lineSeparator();

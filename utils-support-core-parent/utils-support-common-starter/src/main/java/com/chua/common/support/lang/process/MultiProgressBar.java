@@ -236,10 +236,10 @@ public class MultiProgressBar implements AutoCloseable {
         return setExtraMessage(indexOf(name), msg);
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         if (scheduledTask != null && !scheduledTask.isCancelled()) {
             scheduledTask.cancel(false);
@@ -256,7 +256,7 @@ public class MultiProgressBar implements AutoCloseable {
 
     /**
      * Refresh
-    */
+     */
     private void refresh() {
         if (!rendered) {
             // 首次渲染：直接输出所有行
@@ -307,23 +307,23 @@ public class MultiProgressBar implements AutoCloseable {
 
         /**
          * 任务names
-        */
+         */
         private final List<String> taskNames = new ArrayList<>();
         /**
          * 任务maxs
-        */
+         */
         private final List<Long> taskMaxs = new ArrayList<>();
         /**
          * 消费者
-        */
+         */
         private ProgressBarConsumer consumer;
         /**
          * Renderer
-        */
+         */
         private ProgressBarRenderer renderer;
         /**
          * Update间隔毫秒
-        */
+         */
         private int updateIntervalMillis = 100;
 
         Builder() {

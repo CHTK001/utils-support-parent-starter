@@ -3,6 +3,7 @@ package com.chua.metrics.support;
 import com.chua.common.support.lang.directory.DiffPolledDirectory;
 import com.chua.common.support.lang.directory.WatcherEvent;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
+import com.chua.nativemetrics.support.MetricsNativeLibrary;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

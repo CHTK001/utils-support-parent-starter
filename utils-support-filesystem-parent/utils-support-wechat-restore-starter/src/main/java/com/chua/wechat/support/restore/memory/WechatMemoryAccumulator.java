@@ -6,11 +6,13 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -118,6 +120,20 @@ public final class WechatMemoryAccumulator implements AutoCloseable {
     public record Snapshot(WechatMemoryExtractor.ExtractResult merged,
                            List<WechatMemoryMessages.Message> messages,
                            int addedRecords, int addedMessages) {
+
+        /**
+         * 规范构造器：消息列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。这里用可容纳 {@code null} 元素的
+         * 不可变包装，而不是 {@link List#copyOf(List)}：累积文件里读回的历史消息本就可能
+         * 带空字段，用 {@code copyOf} 会把数据问题变成 {@link NullPointerException}。</p>
+         *
+         * @param messages 合并后的可读消息（按时间升序）
+         */
+        public Snapshot {
+            messages = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(messages, "messages 不能为 null")));
+        }
     }
 
     /**

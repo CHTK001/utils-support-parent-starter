@@ -31,7 +31,7 @@ import java.util.Set;
  * }</pre>  }
  * 返回 空;  // 按默认顺序执行
  * })
- * }</pre>
+ * }
  *
  * <p><strong>动态路由：</strong></p>
  * <pre>{@code
@@ -42,7 +42,7 @@ import java.util.Set;
  * })
  * }</pre>     return "validate";  // 跳转到 validate 节点
  * })
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -93,7 +93,7 @@ public class TaskNode implements PipelineNode {
      * }</pre>
      *     })
      * .任务结束()
-     * }</pre>
+     * }
      */
     private Set<String> units;
 
@@ -120,7 +120,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 节点类型：任务。
-    */
+     */
     @Override
     public String getType() {
         return "task";
@@ -137,7 +137,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 返回任务参数表。
-    */
+     */
     @Override
     public Map<String, Object> getParams() {
         return params;
@@ -154,7 +154,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 返回节点环境变量表。
-    */
+     */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
@@ -171,7 +171,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 返回本节点的重试配置；未配置时由引擎按默认策略处理。
-    */
+     */
     @Override
     public RetryConfig getRetryConfig() {
         return retryConfig;
@@ -188,7 +188,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 返回聚合结果的目标节点 标识 集合。
-    */
+     */
     @Override
     public Set<String> getUnits() {
         return units != null ? units : Collections.emptySet();
@@ -196,7 +196,7 @@ public class TaskNode implements PipelineNode {
 
     /**
      * 执行任务处理器逻辑并返回下一节点 标识。
-    */
+     */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

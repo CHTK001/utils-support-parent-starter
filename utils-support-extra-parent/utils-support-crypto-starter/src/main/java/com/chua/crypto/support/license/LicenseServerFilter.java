@@ -90,6 +90,11 @@ public class LicenseServerFilter implements ServerFilter {
     }
 
     /**
+     * 注册表是否存在有效条目，决定自动挂载时是否接管 /license
+     */
+    private volatile boolean enabled;
+
+    /**
      * 初始化：未注入注册表时按配置路径加载；读取签名密钥
      */
     @Override
@@ -105,6 +110,17 @@ public class LicenseServerFilter implements ServerFilter {
                 this.secret = s.trim().toCharArray();
             }
         }
+        this.enabled = !this.registry.snapshot().isEmpty();
+    }
+
+    /**
+     * 自动挂载判据：注册表为空时不接管 /license，避免把 404 变成 403。
+     *
+     * @return 存在可用执照条目时返回 {@code true}
+     */
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**

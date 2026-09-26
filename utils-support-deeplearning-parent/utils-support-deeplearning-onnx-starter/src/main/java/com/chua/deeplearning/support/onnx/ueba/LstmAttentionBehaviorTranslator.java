@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 用户操作行为序列分析 LSTM/GRU + Attention Translator。
@@ -106,6 +107,31 @@ public class LstmAttentionBehaviorTranslator {
      * @return 预测的结果
      */
     public record Prediction(int classIndex, float[] probabilities) {
+
+        /**
+         * 规范构造器：概率向量做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。唯一构造点
+         * {@link #predict(int[], float[][])} 传入的是 {@code softmax} 刚产出的数组、
+         * 构造后不再被改动，调用方 {@code UebaEngine} 也只读不写，因此拷贝不改变行为。</p>
+         *
+         * @param probabilities softmax 后的各类别概率
+         */
+        public Prediction {
+            probabilities = Objects.requireNonNull(probabilities, "probabilities 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部概率向量的副本。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @return 概率向量副本
+         */
+        @Override
+        public float[] probabilities() {
+            return probabilities.clone();
+        }
     }
 
     /**

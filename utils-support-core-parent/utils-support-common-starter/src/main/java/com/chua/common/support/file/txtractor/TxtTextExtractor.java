@@ -27,10 +27,10 @@ import java.util.List;
 @Spi("txt")
 public class TxtTextExtractor implements TextExtractor {
 
-    @Override
     /**
      * ExtractText
-    */
+     */
+    @Override
     public List<TextExtractResult> extractText(File file) {
         StringBuilder sb = new StringBuilder();
 
@@ -49,10 +49,10 @@ public class TxtTextExtractor implements TextExtractor {
         return Collections.singletonList(new TextExtractResult(sb.toString(), "", 0, file.getName()));
     }
 
-    @Override
     /**
      * Type
-    */
+     */
+    @Override
     public String type() {
         return "txt";
     }

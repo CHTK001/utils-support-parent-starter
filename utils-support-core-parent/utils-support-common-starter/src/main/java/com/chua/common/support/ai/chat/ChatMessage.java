@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * AI 对话消息
  *
@@ -38,4 +40,19 @@ public class ChatMessage {
      * <p>该条消息的文本内容。
      */
     private String content;
+
+    /**
+     * 工具调用列表（仅 role=assistant 的消息携带）
+     *
+     * <p>当助手本轮决定调用工具时，记录一个或多个函数调用（id/名称/入参 JSON）。
+     * 后续每个工具的执行结果以 role=tool、{@link #toolCallId} 关联的消息回传。
+     */
+    private List<ChatToolCallData> toolCalls;
+
+    /**
+     * 工具调用关联 ID（仅 role=tool 的消息携带）
+     *
+     * <p>对应此前 assistant 发起的某个工具调用 id，用于把工具执行结果与调用配对。
+     */
+    private String toolCallId;
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -255,6 +256,29 @@ public class FileSearchWalFileSystem implements WalFileSystem {
      * @return wal搜索hit的结果
      */
     public record WalSearchHit(long lsn, byte op, byte[] payload) {
+
+        /**
+         * 规范构造器：载荷 数组 做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * <p>载荷 刻意保留 空 语义：{@link #keySnippet()} 显式处理 {@code payload == null}，
+         * 改成拒绝 空 值会把既有降级路径变成 空指针。</p>
+         */
+        public WalSearchHit {
+            payload = payload == null ? null : payload.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部载荷数组的副本。
+         *
+         * @return 载荷数组副本；payload 为 空 时返回 空
+         */
+        @Override
+        public byte[] payload() {
+            return payload == null ? null : payload.clone();
+        }
+
         /**
          * 键snippet。
          * @return 键snippet的结果
@@ -273,9 +297,9 @@ public class FileSearchWalFileSystem implements WalFileSystem {
 
     // ==================== FileSystem 接口 ====================
     @Override public com.chua.common.support.file.builder.ReadBuilder read(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("文件检索型 WAL 不支持该操作，请由具体实现覆盖对应方法");
     }
     @Override public com.chua.common.support.file.builder.WriteBuilder write(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("文件检索型 WAL 不支持该操作，请由具体实现覆盖对应方法");
     }
 }

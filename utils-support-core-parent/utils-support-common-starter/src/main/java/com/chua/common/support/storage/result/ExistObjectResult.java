@@ -17,7 +17,7 @@ public class ExistObjectResult extends ObjectResult {
 
     /**
      * 空结果实例
-    */
+     */
     public static final ExistObjectResult EMPTY = ExistObjectResult.builder().build();
 
     /**

@@ -24,6 +24,59 @@ public record DepthResult(
         float meanMeters) {
 
     /**
+     * 规范构造器：数组组件做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组组件必须深不可变。距离矩阵是二维数组，仅复制外层
+     * 引用无法阻止调用方改写内层行，故逐行 深拷贝。</p>
+     *
+     * <p>两个组件都保留 {@code null} 语义：无输出时为 {@code null}。</p>
+     *
+     * @param depthImage 深度图字节
+     * @param meters     逐像素距离矩阵
+     */
+    public DepthResult {
+        depthImage = depthImage == null ? null : depthImage.clone();
+        meters = cloneMatrix(meters);
+    }
+
+    /**
+     * 访问器覆写：返回深度图字节的副本。
+     *
+     * @return 深度图字节副本；无则返回 {@code null}
+     */
+    @Override
+    public byte[] depthImage() {
+        return depthImage == null ? null : depthImage.clone();
+    }
+
+    /**
+     * 访问器覆写：返回距离矩阵的 深拷贝。
+     *
+     * @return 距离矩阵副本；无则返回 {@code null}
+     */
+    @Override
+    public float[][] meters() {
+        return cloneMatrix(meters);
+    }
+
+    /**
+     * 逐行 深拷贝 二维浮点矩阵。
+     *
+     * @param src 源矩阵，可为 {@code null}
+     * @return 逐行拷贝后的矩阵；源为 {@code null} 时返回 {@code null}
+     */
+    private static float[][] cloneMatrix(float[][] src) {
+        if (src == null) {
+            return null;
+        }
+        float[][] out = new float[src.length][];
+        for (int i = 0; i < src.length; i++) {
+            out[i] = src[i] == null ? null : src[i].clone();
+        }
+        return out;
+    }
+
+    /**
      * 最近点距离。
      *
      * @return 最近距离（米）

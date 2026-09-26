@@ -24,7 +24,7 @@ package com.chua.common.support.vector;
  * }
  * }</pre>de 公共 int priority() { 返回 50; }
  * }
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

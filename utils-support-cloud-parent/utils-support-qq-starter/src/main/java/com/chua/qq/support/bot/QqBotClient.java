@@ -1,6 +1,5 @@
 package com.chua.qq.support.bot;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -10,38 +9,67 @@ import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.chua.common.support.ai.bot.BotClient;
-import com.chua.common.support.ai.bot.*;
-import com.chua.common.support.ai.bot.BotInboundMessage.Type;
+import com.chua.common.support.ai.bot.BotErrorListener;
+import com.chua.common.support.ai.bot.BotGroupInfo;
+import com.chua.common.support.ai.bot.BotInboundMessage;
+import com.chua.common.support.ai.bot.BotMessageListener;
+import com.chua.common.support.ai.bot.BotOutboundMessage;
+import com.chua.common.support.ai.bot.BotSendResult;
+import com.chua.common.support.ai.bot.BotUserInfo;
+import com.chua.common.support.ai.bot.BotUserStore;
+import com.chua.common.support.ai.bot.InMemoryBotUserStore;
 import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * QQ 机器人 客户端，实现 {@link BotClient} 接口。
- * <p>对接 QQ 开放平台 Bot API（群机器人 / 频道机器人）。
- * 通过 WebSocket 接收事件，通过 REST API 发送消息。</p>
+ * QQ 机器人客户端，实现 {@link BotClient}。
+ * <p>
+ * 对接 QQ 开放平台机器人 API v2：REST 侧以 {@code Authorization: QQBot {access_token}} 调用
+ * {@code /gateway}、{@code /v2/users/{openid}/*}、{@code /v2/groups/{openid}/*}；
+ * 事件侧走 WebSocket 长连接（op10 Hello → op2 Identify 或 op6 Resume → op0 Dispatch，
+ * 并按 Hello 下发的间隔以 op1 心跳上报最新 seq）。
+ * </p>
+ * <p>
+ * 平台未提供群列表接口，{@link #listGroups()} 返回长连接期间观测到的群会话；
+ * 富媒体消息须先经 {@code /files}（URL 上传）或分片上传流程换取 {@code file_info}。
+ * </p>
+ * <pre>{@code
+ * BotClient client = BotClient.auto("qq");
+ * client.configure(appId, appSecret, null);
+ * client.addMessageListener(msg -> client.sendToGroup(msg.getChatId(), "已收到"));
+ * client.start();
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -50,7 +78,216 @@ import lombok.extern.slf4j.Slf4j;
 public class QqBotClient implements BotClient {
 
     /**
-     * 应用 标识
+     * 正式环境 API 域名
+     */
+    private static final String DEFAULT_BASE_URL = "https://api.bot.qq.com";
+
+    /**
+     * 令牌颁发地址（官方仅此域名签发 access_token）
+     */
+    private static final String DEFAULT_TOKEN_URL =
+            "https://bots.qq.com/app/getAppAccessToken";
+
+    /**
+     * 令牌接口路径
+     */
+    private static final String TOKEN_PATH = "/app/getAppAccessToken";
+
+    /**
+     * 剩余有效期低于该秒数时才换取新令牌，过早换取会被平台拒绝
+     */
+    private static final long TOKEN_REFRESH_AHEAD_SECONDS = 600L;
+
+    /**
+     * 换取令牌失败时的兜底有效期
+     */
+    private static final long TOKEN_FALLBACK_EXPIRES_SECONDS = 7200L;
+
+    /**
+     * 令牌最短保留可用秒数，避免到期临界点抖动
+     */
+    private static final long TOKEN_MIN_VALID_SECONDS = 60L;
+
+    /**
+     * 服务端下发事件
+     */
+    private static final int WS_OP_DISPATCH = 0;
+
+    /**
+     * 客户端心跳
+     */
+    private static final int WS_OP_HEARTBEAT = 1;
+
+    /**
+     * 鉴权识别
+     */
+    private static final int WS_OP_IDENTIFY = 2;
+
+    /**
+     * 断线恢复
+     */
+    private static final int WS_OP_RESUME = 6;
+
+    /**
+     * 服务端要求重连
+     */
+    private static final int WS_OP_RECONNECT = 7;
+
+    /**
+     * 会话失效
+     */
+    private static final int WS_OP_INVALID_SESSION = 9;
+
+    /**
+     * 握手成功并下发心跳间隔
+     */
+    private static final int WS_OP_HELLO = 10;
+
+    /**
+     * 心跳应答
+     */
+    private static final int WS_OP_HEARTBEAT_ACK = 11;
+
+    /**
+     * 群聊与单聊事件意图
+     */
+    private static final int INTENT_GROUP_AND_C2C = 1 << 25;
+
+    /**
+     * 默认订阅意图：官方要求未申请到权限的意图不得上报，否则长连接会被拒绝
+     */
+    private static final int DEFAULT_INTENTS = INTENT_GROUP_AND_C2C;
+
+    /**
+     * 服务端未下发心跳间隔时的缺省间隔
+     */
+    private static final long HEARTBEAT_DEFAULT_MS = 45_000L;
+
+    /**
+     * 心跳最小间隔
+     */
+    private static final long HEARTBEAT_MIN_MS = 1_000L;
+
+    /**
+     * 重连退避起始
+     */
+    private static final long BACKOFF_INITIAL_MS = 1_000L;
+
+    /**
+     * 重连退避上限
+     */
+    private static final long BACKOFF_MAX_MS = 30_000L;
+
+    /**
+     * 退避倍数
+     */
+    private static final double BACKOFF_MULTIPLIER = 2.0D;
+
+    /**
+     * md5_10m 的计算窗口
+     */
+    private static final int MD5_HEAD_WINDOW_BYTES = 10 * 1024 * 1024;
+
+    /**
+     * 文本消息类型
+     */
+    private static final int MSG_TYPE_TEXT = 0;
+
+    /**
+     * 富媒体消息类型
+     */
+    private static final int MSG_TYPE_MEDIA = 7;
+
+    /**
+     * 平台文件类型：图片
+     */
+    private static final int FILE_TYPE_IMAGE = 1;
+
+    /**
+     * 平台文件类型：视频
+     */
+    private static final int FILE_TYPE_VIDEO = 2;
+
+    /**
+     * 平台文件类型：语音
+     */
+    private static final int FILE_TYPE_VOICE = 3;
+
+    /**
+     * 平台文件类型：文件
+     */
+    private static final int FILE_TYPE_FILE = 4;
+
+    /**
+     * 群聊被动回复有效窗口
+     */
+    private static final long PASSIVE_TTL_GROUP_MS = 5 * 60 * 1000L;
+
+    /**
+     * 单聊被动回复有效窗口
+     */
+    private static final long PASSIVE_TTL_C2C_MS = 60 * 60 * 1000L;
+
+    /**
+     * 需丢弃会话重新 identify 的关闭码，其余关闭码允许 resume
+     */
+    private static final Set<Integer> REIDENTIFY_CLOSE_CODES =
+            Set.of(4001, 4002, 4004, 4005, 4007, 4009);
+
+    /**
+     * 机器人被封禁，禁止重连
+     */
+    private static final int CLOSE_CODE_BANNED = 4914;
+
+    /**
+     * 正常退出关闭码
+     */
+    private static final int CLOSE_CODE_NORMAL = 1000;
+
+    /**
+     * 会话就绪事件
+     */
+    private static final String EVENT_READY = "READY";
+
+    /**
+     * 消息类事件名（单聊、群聊、频道）
+     */
+    private static final Set<String> MESSAGE_EVENTS = Set.of(
+            "C2C_MESSAGE_CREATE",
+            "GROUP_AT_MESSAGE_CREATE",
+            "AT_MESSAGE_CREATE",
+            "MESSAGE_CREATE",
+            "DIRECT_MESSAGE_CREATE");
+
+    /**
+     * 群聊类事件名
+     */
+    private static final Set<String> GROUP_MESSAGE_EVENTS = Set.of(
+            "GROUP_AT_MESSAGE_CREATE",
+            "AT_MESSAGE_CREATE",
+            "MESSAGE_CREATE");
+
+    /**
+     * 含 @ 提及语义的事件名。单聊与私信事件（C2C_MESSAGE_CREATE、DIRECT_MESSAGE_CREATE）
+     * 天然面向机器人但不存在 @ 动作，故不计入，口径与 FeishuBotClient 一致
+     */
+    private static final Set<String> MENTION_EVENTS = Set.of(
+            "GROUP_AT_MESSAGE_CREATE",
+            "AT_MESSAGE_CREATE");
+
+    /**
+     * 无需转发给监听器的会话与回执类事件名
+     */
+    private static final Set<String> SILENT_EVENTS = Set.of(
+            "READY_OPENID",
+            "RESUMED",
+            "READ_C2C_MSG",
+            "READ_GROUP_MSG",
+            "C2C_MSG_SEND_STATE",
+            "GROUP_MSG_SEND_STATE");
+
+    /**
+     * 应用 ID
      */
     private String appId;
 
@@ -60,567 +297,256 @@ public class QqBotClient implements BotClient {
     private String appSecret;
 
     /**
-     * 机器人 令牌
+     * 预先获取的 access_token，非空时跳过令牌换取
      */
     private String botToken;
 
     /**
      * API 基础地址
      */
-    private String baseUrl = "https://api.sgroup.qq.com";
+    private String baseUrl = DEFAULT_BASE_URL;
 
     /**
-     * 连接超时时间（毫秒）
+     * 令牌地址覆盖值，沙箱或代理环境使用
      */
-    private long connectTimeoutMillis = 10_000;
+    private String tokenUrl;
 
     /**
-     * 读取超时时间（毫秒）
+     * 连接超时（毫秒）
      */
-    private long readTimeoutMillis = 30_000;
+    private long connectTimeoutMillis = 10_000L;
 
     /**
-     * Webhook 验证 令牌
+     * 读取超时（毫秒）
+     */
+    private long readTimeoutMillis = 30_000L;
+
+    /**
+     * Webhook 回调验证令牌
      */
     private String webhookVerifyToken;
 
     /**
-     * 事件意图标识
+     * 订阅意图位掩码
      */
-    private int[] intents;
+    private int intents = DEFAULT_INTENTS;
 
     /**
-     * HTTP 客户端实例
+     * 当前分片序号
+     */
+    private int shardId;
+
+    /**
+     * 分片总数
+     */
+    private int shardCount = 1;
+
+    /**
+     * HTTP 客户端
      */
     private volatile HttpClient httpClient;
 
     /**
-     * WebSocket 实例
+     * 长连接
      */
     private volatile WebSocket webSocket;
 
     /**
-     * 运行状态标识
+     * 运行标记
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * 是否使用 Webhook 模式
+     * 会话结束闩
+     */
+    private volatile CountDownLatch sessionLatch;
+
+    /**
+     * 长连接线程
+     */
+    private volatile Thread wsThread;
+
+    /**
+     * 是否 Webhook 模式
      */
     private volatile boolean useWebhookMode;
 
     /**
-     * 访问令牌
+     * 是否允许继续重连
+     */
+    private volatile boolean reconnectAllowed = true;
+
+    /**
+     * 换取到的 access_token
      */
     private volatile String accessToken;
 
     /**
-     * 会话 标识
+     * access_token 到期时间戳（毫秒）
+     */
+    private volatile long tokenExpireAt;
+
+    /**
+     * 长连接会话 ID，用于 resume
      */
     private volatile String sessionId;
 
     /**
-     * 最后收到的序列号
+     * 最近一次 Dispatch 的 seq，-1 表示尚未收到
      */
-    private final AtomicInteger lastSeq = new AtomicInteger(0);
+    private final AtomicInteger lastSeq = new AtomicInteger(-1);
 
     /**
-     * 心跳调度执行器
+     * 心跳线程池
      */
-    private ScheduledExecutorService heartbeatExecutor;
+    private volatile ScheduledExecutorService heartbeatExecutor;
 
     /**
-     * 配置加载器
+     * 心跳任务
+     */
+    private volatile ScheduledFuture<?> heartbeatTask;
+
+    /**
+     * 长连接发送锁，避免并发写同一连接
+     */
+    private final Object wsSendLock = new Object();
+
+    /**
+     * 配置持久化器
      */
     private ConfigSaveOrLoader configSaveOrLoader;
 
     /**
-     * 消息监听器列表
+     * 消息监听器
      */
-    private final List<BotMessageListener> messageListeners
-            = new CopyOnWriteArrayList<>();
+    private final List<BotMessageListener> messageListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 错误监听器列表
+     * 错误监听器
      */
-    private final List<BotErrorListener> errorListeners
-            = new CopyOnWriteArrayList<>();
+    private final List<BotErrorListener> errorListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 用户存储实例
+     * 用户存储
      */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     /**
-     * WebSocket Hello 操作码
+     * 被动回复窗口，键为会话 ID
      */
-    private static final int WS_OP_HELLO = 10;
+    private final Map<String, PassiveContext> passiveContexts = new ConcurrentHashMap<>();
 
     /**
-     * WebSocket 心跳 ACK 操作码
+     * 观测到的群会话
      */
-    private static final int WS_OP_HEARTBEAT_ACK = 11;
+    private final Map<String, BotGroupInfo> observedGroups = new ConcurrentHashMap<>();
 
     /**
-     * WebSocket Identify 操作码
+     * 观测到的群成员
      */
-    private static final int WS_OP_IDENTIFY = 2;
+    private final Map<String, Set<String>> observedGroupMembers = new ConcurrentHashMap<>();
 
-    /**
-     * WebSocket Dispatch 操作码
-     */
-    private static final int WS_OP_DISPATCH = 0;
-
-    /**
-     * WebSocket Reconnect 操作码
-     */
-    private static final int WS_OP_RECONNECT = 7;
-
-    /**
-     * WebSocket Invalid 会话 操作码
-     */
-    private static final int WS_OP_INVALID_SESSION = 9;
-
-    /**
-     * 退避初始等待时间（毫秒）
-     */
-    private static final long BACKOFF_INITIAL_MS = 1_000;
-
-    /**
-     * 退避最大等待时间（毫秒）
-     */
-    private static final long BACKOFF_MAX_MS = 30_000;
-
-    /**
-     * 退避倍增系数
-     */
-    private static final double BACKOFF_MULTIPLIER = 2.0;
+    // ==================== 配置 ====================
 
     @Override
-    /**
-     * 配置
-     * @param token 令牌
-     * @param secret secret
-     * @param encodingAesKey 编码aes键
-     */
-    public BotClient configure(String token, String secret,
-            String encodingAesKey) {
-        if (StringUtils.isNotEmpty(token)) {
-            this.appId = token;
-        }
-        if (StringUtils.isNotEmpty(secret)) {
-            this.appSecret = secret;
-        }
-        if (StringUtils.isNotEmpty(encodingAesKey)) {
-            this.botToken = encodingAesKey;
-        }
+    public BotClient configure(String token, String secret, String encodingAesKey) {
+        this.appId = token;
+        this.appSecret = secret;
+        this.botToken = encodingAesKey;
         return this;
     }
 
     @Override
-    /**
-     * 令牌
-    */
     public BotClient token(String token) {
         this.appId = token;
         return this;
     }
 
     @Override
-    /**
-     * Secret
-    */
     public BotClient secret(String secret) {
         this.appSecret = secret;
         return this;
     }
 
     @Override
-    /**
-     * 编码aes键
-    */
     public BotClient encodingAesKey(String encodingAesKey) {
         this.botToken = encodingAesKey;
         return this;
     }
 
     @Override
-    /**
-     * baseurl
-    */
     public BotClient baseUrl(String baseUrl) {
-        if (StringUtils.isNotEmpty(baseUrl)) {
-            this.baseUrl = baseUrl;
+        if (StringUtils.isNotBlank(baseUrl)) {
+            this.baseUrl = trimTrailingSlash(baseUrl);
         }
         return this;
     }
 
     @Override
-    /**
-     * 连接超时millis
-     * @param connectTimeoutMillis 连接超时millis
-     * @param readTimeoutMillis 读取超时millis
-     * @param configSaveOrLoader 配置保存或加载
-     * @param intents intents
-     * @param token 令牌
-     * @param ignored ignored
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param appId appid
-     * @param appSecret appsecret
-     * @param authToken 认证令牌
-     * @param authToken 认证令牌
-     * @param sessionId 会话标识
-     * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
-     * @param payload payload
-     * @param array array
-     * @param ws ws
-     * @param ws ws
-     * @param data 数据
-     * @param last 最后一个
-     * @param e e
-     * @param ws ws
-     * @param error 错误
-     * @param error 错误
-     * @param ws ws
-     * @param statusCode 状态编码
-     * @param reason ReasonMLML
-     * @param ws ws
-     * @param message 消息
-     * @param ws ws
-     * @param message 消息
-     * @param rawMessage raw消息
-     * @param d d
-     * @param intervalMs 间隔ms
-     * @param 10_000 10_000
-     * @param interval 间隔
-     * @param interval 间隔
-     * @param ignored ignored
-     * @param message 消息
-     * @param true true
-     * @param eventType 事件类型
-     * @param data 数据
-     * @param data 数据
-     * @param e e
-     * @param e e
-     * @param eventType 事件类型
-     * @param e e
-     * @param eventType 事件类型
-     * @param data 数据
-     * @param List 列表
-     * @param Map 映射
-     * @param timestamp 时间戳
-     * @param e e
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public BotClient connectTimeoutMillis(
-            long connectTimeoutMillis) {
+    public BotClient connectTimeoutMillis(long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
         return this;
     }
 
     @Override
-    /**
-     * 读取超时millis
-    */
     public BotClient readTimeoutMillis(long readTimeoutMillis) {
         this.readTimeoutMillis = readTimeoutMillis;
         return this;
     }
 
     @Override
-    /**
-     * 配置保存或加载
-     * @param configSaveOrLoader 配置保存或加载
-     * @param intents intents
-     * @param token 令牌
-     * @param ignored ignored
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param appId appid
-     * @param appSecret appsecret
-     * @param authToken 认证令牌
-     * @param authToken 认证令牌
-     * @param sessionId 会话标识
-     * @param WS_OP_IDENTIFY WS_OP_IDENTIFY
-     * @param payload payload
-     * @param array array
-     * @param ws ws
-     * @param ws ws
-     * @param data 数据
-     * @param last 最后一个
-     * @param e e
-     * @param ws ws
-     * @param error 错误
-     * @param error 错误
-     * @param ws ws
-     * @param statusCode 状态编码
-     * @param reason ReasonMLML
-     * @param ws ws
-     * @param message 消息
-     * @param ws ws
-     * @param message 消息
-     * @param rawMessage raw消息
-     * @param d d
-     * @param intervalMs 间隔ms
-     * @param 10_000 10_000
-     * @param interval 间隔
-     * @param interval 间隔
-     * @param ignored ignored
-     * @param message 消息
-     * @param true true
-     * @param eventType 事件类型
-     * @param data 数据
-     * @param data 数据
-     * @param e e
-     * @param e e
-     * @param eventType 事件类型
-     * @param e e
-     * @param eventType 事件类型
-     * @param data 数据
-     * @param List 列表
-     * @param Map 映射
-     * @param timestamp 时间戳
-     * @param e e
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public BotClient configSaveOrLoader(
-            ConfigSaveOrLoader configSaveOrLoader) {
+    public BotClient configSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
         return this;
     }
 
-    /**
-     * 设置事件意图
-     *
-     * @param intents 意图数组
-     * @return this
-     */
-    public QqBotClient intents(int... intents) {
-        this.intents = intents;
+    @Override
+    public BotClient userStore(BotUserStore userStore) {
+        this.userStore = userStore == null ? new InMemoryBotUserStore() : userStore;
         return this;
     }
 
     /**
-     * 设置 Webhook 验证 令牌
+     * 设置订阅意图，多个意图按位或合并；不传时恢复默认意图（仅群聊与单聊 1&lt;&lt;25）。
+     * <p>频道公域消息为 {@code 1 << 30}，仅在应用已申请到该权限时才可上报，
+     * 否则长连接会被平台以关闭码 4002 拒绝。</p>
      *
-     * @param token 验证 令牌
+     * @param values 意图位掩码
+     * @return this
+     */
+    public QqBotClient intents(int... values) {
+        this.intents = mergeIntents(values);
+        return this;
+    }
+
+    /**
+     * 设置令牌颁发地址，沙箱环境需与 API 域名分别指定
+     *
+     * @param tokenUrl 令牌地址
+     * @return this
+     */
+    public QqBotClient tokenUrl(String tokenUrl) {
+        this.tokenUrl = trimTrailingSlash(tokenUrl);
+        return this;
+    }
+
+    /**
+     * 设置分片
+     *
+     * @param shardId    当前分片序号
+     * @param shardCount 分片总数
+     * @return this
+     */
+    public QqBotClient shard(int shardId, int shardCount) {
+        this.shardId = shardId;
+        this.shardCount = Math.max(1, shardCount);
+        return this;
+    }
+
+    /**
+     * 设置 Webhook 回调验证令牌，非空时以 Webhook 模式启动
+     *
+     * @param token 验证令牌
      * @return this
      */
     public QqBotClient webhookVerifyToken(String token) {
@@ -628,1682 +554,1464 @@ public class QqBotClient implements BotClient {
         return this;
     }
 
+    // ==================== 生命周期 ====================
+
     @Override
-    /**
-     * 开始
-    */
     public BotClient start() {
-        if (appId == null || appId.isBlank()) {
-            throw new IllegalStateException(
-                    "appId (BotAppID) is required");
+        if (StringUtils.isBlank(appId)) {
+            throw new IllegalStateException("QQ 机器人需要 appId（token）");
+        }
+        if (running.get()) {
+            return this;
         }
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(
-                        connectTimeoutMillis))
+                .connectTimeout(Duration.ofMillis(connectTimeoutMillis))
                 .build();
         running.set(true);
-        if (webhookVerifyToken == null
-                || webhookVerifyToken.isBlank()) {
-            useWebhookMode = false;
-            connectWebSocket();
-            log.info("QQ Bot client started in WebSocket mode");
-        } else {
-            useWebhookMode = true;
-            log.info("QQ Bot client started in webhook mode");
+        this.reconnectAllowed = true;
+        if (StringUtils.isNotBlank(webhookVerifyToken)) {
+            this.useWebhookMode = true;
+            log.info("QQ 机器人以 Webhook 模式启动, appId={}", appId);
+            return this;
         }
+        this.useWebhookMode = false;
+        startWebSocketLoop();
+        log.info("QQ 机器人以 WebSocket 长连接模式启动, appId={}, baseUrl={}", appId, baseUrl);
         return this;
     }
 
     @Override
-    /**
-     * 停止
-    */
     public void stop() {
         running.set(false);
-        if (heartbeatExecutor != null) {
-            heartbeatExecutor.shutdownNow();
-            heartbeatExecutor = null;
-        }
+        reconnectAllowed = false;
+        stopHeartbeat();
         WebSocket ws = webSocket;
+        webSocket = null;
         if (ws != null) {
             try {
-                ws.sendClose(WebSocket.NORMAL_CLOSURE,
-                        "stopped");
+                ws.sendClose(CLOSE_CODE_NORMAL, "stopped");
             } catch (Exception ignored) {
-                // 忽略关闭异常
+                // 连接已断开，无需处理
             }
-            webSocket = null;
         }
-        sessionId = null;
-        accessToken = null;
-        log.info("QQ Bot client stopped");
+        Thread thread = wsThread;
+        wsThread = null;
+        if (thread != null) {
+            thread.interrupt();
+        }
+        CountDownLatch latch = sessionLatch;
+        sessionLatch = null;
+        if (latch != null) {
+            latch.countDown();
+        }
+        this.sessionId = null;
+        this.accessToken = null;
+        this.tokenExpireAt = 0L;
+        this.lastSeq.set(-1);
+        this.passiveContexts.clear();
+        log.info("QQ 机器人已停止");
     }
 
     @Override
-    /**
-     * 是否Running
-    */
     public boolean isRunning() {
         return running.get();
     }
 
     /**
-     * 建立 WebSocket 连接
-     */
-    private void connectWebSocket() {
-        Thread wsThread = new Thread(() -> {
-            long backoff = BACKOFF_INITIAL_MS;
-            while (running.get()) {
-                try {
-                    String authToken = getAccessToken();
-                    String gatewayUrl = getGatewayUrl(authToken);
-                    URI wsUri = URI.create(gatewayUrl);
-                    CompletableFuture<WebSocket> future
-                            = httpClient.newWebSocketBuilder()
-                            .connectTimeout(Duration.ofMillis(
-                                    connectTimeoutMillis))
-                            .buildAsync(wsUri,
-                                    new WebSocketListener());
-                    webSocket = future.get(connectTimeoutMillis,
-                            TimeUnit.MILLISECONDS);
-                    backoff = BACKOFF_INITIAL_MS;
-                    synchronized (QqBotClient.this) {
-                        QqBotClient.this.wait();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    notifyError(e);
-                    backoff = sleepBackoff(backoff);
-                    log.error("WebSocket connection failed: {}",
-                            e.getMessage(), e);
-                }
-            }
-        }, "qq-ws-thread");
-        wsThread.setDaemon(true);
-        wsThread.start();
-    }
-
-    /**
-     * 获取访问令牌
-     * @return 获取access令牌的结果
-     */
-    private String getAccessToken() throws Exception {
-        if (botToken != null && !botToken.isBlank()) {
-            return "QQBot " + botToken;
-        }
-        if (appSecret == null || appSecret.isBlank()) {
-            throw new IllegalStateException(
-                    "appSecret is required when botToken "
-                            + "is not provided");
-        }
-        String url = "https://bots.qq.com/app/getAppAccessToken";
-        JsonObject body = new JsonObject()
-                .fluent("appId", appId)
-                .fluent("clientSecret", appSecret);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(
-                        Json.toJson(body),
-                        StandardCharsets.UTF_8))
-                .build();
-        HttpResponse<String> response = httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString());
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = Json.fromJson(
-                response.body(), Map.class);
-        String token = (String) result.get("access_token");
-        if (token == null || token.isBlank()) {
-            throw new RuntimeException(
-                    "Failed to get access token: "
-                            + response.body());
-        }
-        this.accessToken = token;
-        return "QQBot " + token;
-    }
-
-    /**
-     * 获取网关 URL
-     */
-    private String getGatewayUrl(String authToken)
-            throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + "/v2/oauthme"))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Authorization", authToken)
-                .GET()
-                .build();
-        HttpResponse<String> response = httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString());
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = Json.fromJson(
-                response.body(), Map.class);
-        String wsUrl = (String) result.get("websocket");
-        if (wsUrl == null || wsUrl.isBlank()) {
-            throw new RuntimeException(
-                    "No websocket URL in response: "
-                            + response.body());
-        }
-        return wsUrl;
-    }
-
-    /**
-     * 发送 Identify 帧
-     */
-    private void identify() {
-        if (webSocket == null) {
-            return;
-        }
-        JsonObject payload = new JsonObject()
-                .fluent("token", getEffectiveAuthToken())
-                .fluent("intents", intents != null
-                        ? or(intents)
-                        : 0)
-                .fluent("seq", lastSeq.get());
-        if (sessionId != null) {
-            payload.fluent("session_id", sessionId);
-        }
-        JsonObject frame = new JsonObject()
-                .fluent("op", WS_OP_IDENTIFY)
-                .fluent("d", payload);
-        sendWsMessage(Json.toJson(frame));
-    }
-
-    /**
-     * 获取effective认证令牌
+     * 是否 Webhook 模式
      *
-     * @return 获取effective认证令牌的结果
-     */
-    private String getEffectiveAuthToken() {
-        if (botToken != null && !botToken.isBlank()) {
-            return "QQBot " + botToken;
-        }
-        return "QQBot " + accessToken;
-    }
-
-    /**
-     * 将意图数组按位或合并
-     * @param array array
-     * @return 或的结果
-     */
-    private int or(int[] array) {
-        if (array == null || array.length == 0) {
-            return 0;
-        }
-        int result = 0;
-        for (int v : array) {
-            result |= v;
-        }
-        return result;
-    }
-
-    /**
-     * WebSocket 监听器内部类
-     *
-     * @author CH
-     * @since 4.0.0
-     */
-    private class WebSocketListener implements WebSocket.Listener {
-
-        /**
-         * 文本缓冲区
-         */
-        private final StringBuilder textBuffer
-                = new StringBuilder();
-
-        @Override
-        /**
-         * On打开
-        */
-        public void onOpen(WebSocket ws) {
-            webSocket = ws;
-            ws.request(1);
-        }
-
-        @Override
-        public CompletionStage<?> onText(
-                WebSocket ws,
-                CharSequence data,
-                boolean last) {
-            textBuffer.append(data);
-            if (last) {
-                String message = textBuffer.toString();
-                textBuffer.setLength(0);
-                try {
-                    handleWsMessage(message);
-                } catch (Exception e) {
-                    notifyError(e);
-                }
-            }
-            ws.request(1);
-            return null;
-        }
-
-        @Override
-        /**
-         * On记录错误
-        */
-        public void onError(WebSocket ws, Throwable error) {
-            notifyError(error);
-            log.error("WebSocket error: {}",
-                    error.getMessage(), error);
-        }
-
-        @Override
-        public CompletionStage<?> onClose(
-                WebSocket ws,
-                int statusCode,
-                String reason) {
-            webSocket = null;
-            synchronized (QqBotClient.this) {
-                QqBotClient.this.notifyAll();
-            }
-            return null;
-        }
-
-        @Override
-        public CompletionStage<?> onPing(
-                WebSocket ws,
-                ByteBuffer message) {
-            ws.sendPong(message);
-            return null;
-        }
-
-        @Override
-        public CompletionStage<?> onPong(
-                WebSocket ws,
-                ByteBuffer message) {
-            return null;
-        }
-    }
-
-    /**
-     * 处理 WebSocket 消息
-     * @param rawMessage raw消息
-     */
-    @SuppressWarnings("unchecked")
-    private void handleWsMessage(String rawMessage) {
-        Map<String, Object> frame = Json.fromJson(rawMessage,
-                Map.class);
-        if (frame == null) {
-            return;
-        }
-        int op = toInt(frame.get("op"), -1);
-        Number seqNum = (Number) frame.get("s");
-        if (seqNum != null) {
-            lastSeq.set(seqNum.intValue());
-        }
-        if (op == WS_OP_HELLO) {
-            Map<String, Object> hello
-                    = (Map<String, Object>) frame.get("d");
-            Number heartbeatInterval = hello != null
-                    ? (Number) hello.get("heartbeat_interval")
-                    : null;
-            startHeartbeat(heartbeatInterval != null
-                    ? heartbeatInterval.longValue()
-                    : 45_000);
-            identify();
-        } else if (op == WS_OP_DISPATCH) {
-            Map<String, Object> d
-                    = (Map<String, Object>) frame.get("d");
-            if (d != null) {
-                String eventType = (String) d.get("type");
-                handleEvent(eventType, d);
-            }
-        } else if (op == WS_OP_RECONNECT) {
-            reconnectWebSocket();
-        } else if (op == WS_OP_INVALID_SESSION) {
-            sessionId = null;
-            identify();
-        } else {
-            // 忽略未知操作码
-        }
-    }
-
-    /**
-     * 启动心跳
-     * @param intervalMs 间隔ms
-     */
-    private void startHeartbeat(long intervalMs) {
-        if (heartbeatExecutor != null) {
-            heartbeatExecutor.shutdownNow();
-        }
-        heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(
-                r -> {
-                    Thread t = new Thread(r, "qq-heartbeat");
-                    t.setDaemon(true);
-                    return t;
-                });
-        long interval = Math.max(intervalMs, 10_000);
-        heartbeatExecutor.scheduleAtFixedRate(
-                this::sendHeartbeatAck,
-                interval,
-                interval,
-                TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * 发送心跳确认
-     */
-    private void sendHeartbeatAck() {
-        sendWsMessage("{\"op\":" + WS_OP_HEARTBEAT_ACK
-                + ",\"d\":" + lastSeq.get() + "}");
-    }
-
-    /**
-     * 重连 WebSocket
-     */
-    private void reconnectWebSocket() {
-        WebSocket ws = webSocket;
-        if (ws != null) {
-            try {
-                ws.sendClose(WebSocket.NORMAL_CLOSURE,
-                        "reconnecting");
-            } catch (Exception ignored) {
-                // 忽略关闭异常
-            }
-            webSocket = null;
-        }
-    }
-
-    /**
-     * 发送 WebSocket 消息
-     * @param message 消息
-     */
-    private void sendWsMessage(String message) {
-        WebSocket ws = webSocket;
-        if (ws != null) {
-            ws.sendText(message, true);
-        }
-    }
-
-    /**
-     * 处理业务事件
-     */
-    @SuppressWarnings("unchecked")
-    private void handleEvent(String eventType,
-            Map<String, Object> data) {
-        if (data == null) {
-            return;
-        }
-        try {
-            BotInboundMessage inbound = mapEventToMessage(
-                    eventType, data);
-            if (inbound != null) {
-                String fromUser = inbound.getFromUser();
-                if (fromUser != null && !fromUser.isBlank()) {
-                    Map<String, Object> author
-                            = (Map<String, Object>) data.get(
-                            "author");
-                    String username = author != null
-                            ? (String) author.get("nick")
-                            : fromUser;
-                    userStore.upsert(BotUserInfo.builder()
-                            .userId(fromUser)
-                            .username(username)
-                            .nickname(username)
-                            .build());
-                }
-                for (BotMessageListener listener
-                        : messageListeners) {
-                    try {
-                        listener.onMessage(inbound);
-                    } catch (Exception e) {
-                        notifyError(e);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            notifyError(e);
-            log.error("Error handling event {}: {}",
-                    eventType, e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 将事件映射为入站消息
-     */
-    @SuppressWarnings("unchecked")
-    private BotInboundMessage mapEventToMessage(
-            String eventType,
-            Map<String, Object> data) {
-        if (!"C2C_MSG_RECEIVE".equals(eventType)
-                && !"GROUP_ATBOT".equals(eventType)
-                && !"CHANNEL_MSG_RECEIVE".equals(eventType)
-                && !"FRIEND_MSG_RECEIVE".equals(eventType)
-                && !"GROUP_MSG_RECEIVE".equals(eventType)) {
-            return null;
-        }
-        String msgId = (String) data.get("id");
-        String content = (String) data.get("content");
-        Map<String, Object> author
-                = (Map<String, Object>) data.get("author");
-        String fromUser = author != null
-                ? (String) author.get("openid")
-                : null;
-        String fromUserName = author != null
-                ? (String) author.get("nick")
-                : null;
-        String groupOpenid = (String) data.get(
-                "group_openid");
-        String channelId = (String) data.get("channel_id");
-        String guildId = (String) data.get("guild_id");
-        boolean fromGroup = groupOpenid != null
-                || guildId != null;
-        String chatId = groupOpenid != null
-                ? groupOpenid
-                : channelId;
-        List<String> mentionedList = new ArrayList<>();
-        Object mentionsObj = data.get("mentions");
-        if (mentionsObj instanceof List) {
-            for (Object item : (List<?>) mentionsObj) {
-                if (item instanceof Map) {
-                    Object idObj = ((Map<?, ?>) item).get("id");
-                    if (idObj != null
-                            && !idObj.toString().isBlank()) {
-                        mentionedList.add(idObj.toString());
-                    }
-                }
-            }
-        }
-        String timestamp = (String) data.get("timestamp");
-        long createTime = timestamp != null
-                ? parseTimestamp(timestamp)
-                : System.currentTimeMillis();
-        return BotInboundMessage.builder()
-                .msgId(msgId)
-                .type(BotInboundMessage.Type.TEXT)
-                .content(content != null ? content : "")
-                .fromUser(fromUser)
-                .fromUserName(fromUserName)
-                .fromGroup(fromGroup)
-                .chatId(chatId)
-                .createTime(createTime)
-                .mentionedList(mentionedList)
-                .build();
-    }
-
-    /**
-     * 解析时间戳
-     * @param timestamp 时间戳
-     * @return 解析时间戳的结果
-     */
-    private long parseTimestamp(String timestamp) {
-        try {
-            return Long.parseLong(timestamp) * 1000;
-        } catch (NumberFormatException e) {
-            return System.currentTimeMillis();
-        }
-    }
-
-    @Override
-    /**
-     * 发送文本
-     * @param toUser 转为用户
-     * @param content 内容
-     */
-    public BotSendResult sendText(String toUser,
-            String content) {
-        return send(BotOutboundMessage.text(toUser, content));
-    }
-
-    @Override
-    /**
-     * 发送文本异步
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public CompletableFuture<BotSendResult> sendTextAsync(
-            String toUser,
-            String content) {
-        return CompletableFuture.supplyAsync(
-                () -> sendText(toUser, content));
-    }
-
-    @Override
-    /**
-     * 发送镜像
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     */
-    public BotSendResult sendImage(String toUser,
-            String mediaPath) {
-        return send(BotOutboundMessage.image(toUser, mediaPath));
-    }
-
-    @Override
-    /**
-     * 发送镜像异步
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public CompletableFuture<BotSendResult> sendImageAsync(
-            String toUser,
-            String mediaPath) {
-        return CompletableFuture.supplyAsync(
-                () -> sendImage(toUser, mediaPath));
-    }
-
-    @Override
-    /**
-     * 发送Voice
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     */
-    public BotSendResult sendVoice(String toUser,
-            String mediaPath) {
-        return send(BotOutboundMessage.voice(toUser, mediaPath));
-    }
-
-    @Override
-    /**
-     * 发送视频
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     */
-    public BotSendResult sendVideo(String toUser,
-            String mediaPath,
-            String title,
-            String desc) {
-        log.warn(
-                "QQ bot does not support video messages "
-                        + "directly");
-        return BotSendResult.fail(-1,
-                "QQ bot does not support video messages directly");
-    }
-
-    @Override
-    /**
-     * 发送文件
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     */
-    public BotSendResult sendFile(String toUser,
-            String mediaPath) {
-        return sendFileViaUpload(toUser, mediaPath);
-    }
-
-    @Override
-    /**
-     * 发送
-    */
-    public BotSendResult send(BotOutboundMessage message) {
-        if (!running.get()) {
-            return BotSendResult.fail(-1,
-                    "Client is not running");
-        }
-        if (message.getType() == null) {
-            return BotSendResult.fail(-1,
-                    "Message type is required");
-        }
-        try {
-            if (message.isToGroup()) {
-                if (message.getMentionedUsers() != null
-                        && !message.getMentionedUsers().isEmpty()) {
-                    return sendGroupMentionInternal(
-                            message.getToUser(),
-                            message.getContent(),
-                            message.getMentionedUsers());
-                }
-                return sendGroupTextInternal(
-                        message.getToUser(),
-                        message.getContent());
-            }
-            Type type = message.getType();
-            if (type == Type.TEXT) {
-                return sendTextInternal(message.getToUser(),
-                        message.getContent());
-            } else if (type == Type.IMAGE) {
-                return sendImageInternal(message.getToUser(),
-                        message.getMediaPath());
-            } else if (type == Type.VOICE) {
-                return sendVoiceInternal(message.getToUser(),
-                        message.getMediaPath());
-            } else if (type == Type.FILE) {
-                return sendFileViaUpload(
-                        message.getToUser(),
-                        message.getMediaPath());
-            } else {
-                return BotSendResult.fail(-1,
-                        "Unsupported message type: " + type);
-            }
-        } catch (Exception e) {
-            notifyError(e);
-            log.error("Failed to send message: {}",
-                    e.getMessage(), e);
-            return BotSendResult.fail(-1, e.getMessage());
-        }
-    }
-
-    @Override
-    /**
-     * 发送异步
-     * @param message 消息
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public CompletableFuture<BotSendResult> sendAsync(
-            BotOutboundMessage message) {
-        return CompletableFuture.supplyAsync(() -> send(message));
-    }
-
-    /**
-     * 发送文本内部
-     * @param toUser 转为用户
-     * @param content 内容
-     */
-    private BotSendResult sendTextInternal(String toUser,
-            String content) {
-        JsonObject body = new JsonObject()
-                .fluent("content", content)
-                .fluent("msg_type", 0)
-                .fluent("idempotency_key",
-                        UUID.randomUUID().toString());
-        return sendApi("/v2/users/" + toUser + "/messages",
-                body);
-    }
-
-    /**
-     * 发送分组文本内部
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param 0 0
-     * @param body 主体
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    private BotSendResult sendGroupTextInternal(
-            String groupId, String content) {
-        JsonObject body = new JsonObject()
-                .fluent("content", content)
-                .fluent("msg_type", 0)
-                .fluent("idempotency_key",
-                        UUID.randomUUID().toString());
-        return sendApi("/groups/" + groupId + "/messages",
-                body);
-    }
-
-    /**
-     * 发送分组提及内部
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param 0 0
-     * @param messageReference 消息引用
-     * @param mentionedUserIds 提及用户标识
-     * @param mentionedList 提及列表
-     * @param body 主体
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 1 1
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param 2 2
-     * @param base64 基础64
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    private BotSendResult sendGroupMentionInternal(
-            String groupId,
-            String content,
-            List<String> mentionedUserIds) {
-        JsonObject body = new JsonObject()
-                .fluent("content", content)
-                .fluent("msg_type", 0)
-                .fluent("idempotency_key",
-                        UUID.randomUUID().toString());
-        JsonObject messageReference = new JsonObject()
-                .fluent("idempotency_key",
-                        UUID.randomUUID().toString());
-        body.fluent("message_reference", messageReference);
-        JsonObject mentionedList = new JsonObject();
-        mentionedList.fluent("mentioned_id", mentionedUserIds);
-        messageReference.fluent("mentioned_list",
-                mentionedList);
-        return sendApi("/groups/" + groupId + "/messages",
-                body);
-    }
-
-    /**
-     * 发送镜像内部
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     */
-    private BotSendResult sendImageInternal(String toUser,
-            String mediaPath) {
-        try {
-            String base64 = Base64.getEncoder()
-                    .encodeToString(Files.readAllBytes(
-                            Paths.get(mediaPath)));
-            JsonObject body = new JsonObject()
-                    .fluent("file_info", 1)
-                    .fluent("idempotency_key",
-                            UUID.randomUUID().toString())
-                    .fluent("spec", new JsonObject()
-                            .fluent("key", base64));
-            return sendApi("/v2/users/" + toUser
-                            + "/messages",
-                    body);
-        } catch (IOException e) {
-            log.error("Failed to read image: {}",
-                    e.getMessage(), e);
-            return BotSendResult.fail(-1,
-                    "Failed to read image: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 发送voice内部
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     */
-    private BotSendResult sendVoiceInternal(String toUser,
-            String mediaPath) {
-        try {
-            String base64 = Base64.getEncoder()
-                    .encodeToString(Files.readAllBytes(
-                            Paths.get(mediaPath)));
-            JsonObject body = new JsonObject()
-                    .fluent("file_info", 2)
-                    .fluent("idempotency_key",
-                            UUID.randomUUID().toString())
-                    .fluent("spec", new JsonObject()
-                            .fluent("key", base64));
-            return sendApi("/v2/users/" + toUser
-                            + "/messages",
-                    body);
-        } catch (IOException e) {
-            log.error("Failed to read voice file: {}",
-                    e.getMessage(), e);
-            return BotSendResult.fail(-1,
-                    "Failed to read voice file: "
-                            + e.getMessage());
-        }
-    }
-
-    /**
-     * 发送文件viaupload
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param 7 7
-     * @param fileUuid 文件uuid
-     * @param body 主体
-     * @param e e
-     * @param e e
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param path 路径
-     * @param body 主体
-     * @param 0 0
-     * @param e e
-     * @param e e
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    private BotSendResult sendFileViaUpload(
-            String toUser, String mediaPath) {
-        try {
-            String fileUuid = uploadFile(toUser, mediaPath);
-            if (fileUuid == null) {
-                return BotSendResult.fail(-1,
-                        "Failed to upload file");
-            }
-            JsonObject body = new JsonObject()
-                    .fluent("file_info", 7)
-                    .fluent("idempotency_key",
-                            UUID.randomUUID().toString())
-                    .fluent("spec", new JsonObject()
-                            .fluent("uuid", fileUuid));
-            return sendApi("/v2/users/" + toUser
-                            + "/messages",
-                    body);
-        } catch (Exception e) {
-            notifyError(e);
-            log.error("Failed to send file: {}",
-                    e.getMessage(), e);
-            return BotSendResult.fail(-1, e.getMessage());
-        }
-    }
-
-    /**
-     * 上传文件
-     */
-    private String uploadFile(String toUser,
-            String mediaPath) throws Exception {
-        String boundary = "--" + UUID.randomUUID()
-                .toString().replace("-", "");
-        byte[] fileBytes = Files.readAllBytes(
-                Paths.get(mediaPath));
-        String filename = Paths.get(mediaPath)
-                .getFileName().toString();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write(("--" + boundary + "\r\n").getBytes(
-                StandardCharsets.UTF_8));
-        baos.write(("Content-Disposition: form-data; "
-                + "name=\"file_type\"; filename=\""
-                + filename + "\"\r\n").getBytes(
-                StandardCharsets.UTF_8));
-        baos.write("Content-Type: application/octet-stream\r\n\r\n"
-                .getBytes(StandardCharsets.UTF_8));
-        baos.write(fileBytes);
-        baos.write(("\r\n--" + boundary + "--\r\n").getBytes(
-                StandardCharsets.UTF_8));
-        byte[] multipartBody = baos.toByteArray();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl
-                        + "/v2/users/" + toUser + "/files"))
-                .timeout(Duration.ofMillis(readTimeoutMillis))
-                .header("Authorization",
-                        getEffectiveAuthToken())
-                .header("Content-Type",
-                        "multipart/form-data; boundary="
-                                + boundary)
-                .POST(HttpRequest.BodyPublishers
-                        .ofByteArray(multipartBody))
-                .build();
-        HttpResponse<String> response = httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString());
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = Json.fromJson(
-                response.body(), Map.class);
-        return result != null
-                ? (String) result.get("uuid")
-                : null;
-    }
-
-    /**
-     * 发送 API 请求
-     * @param path 路径
-     * @param body 主体
-     * @return 发送api的结果
-     */
-    private BotSendResult sendApi(String path, JsonObject body) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + path))
-                    .timeout(Duration.ofMillis(readTimeoutMillis))
-                    .header("Authorization",
-                            getEffectiveAuthToken())
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(
-                            Json.toJson(body),
-                            StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString());
-            @SuppressWarnings("unchecked")
-            Map<String, Object> result = Json.fromJson(
-                    response.body(), Map.class);
-            if (result != null) {
-                String msgId = (String) result.get("id");
-                if (msgId != null) {
-                    return BotSendResult.ok(msgId);
-                }
-                Integer code = toInt(result.get("code"), 0);
-                if (code != 0) {
-                    return BotSendResult.fail(code,
-                            (String) result.getOrDefault(
-                                    "message", ""));
-                }
-            }
-            return BotSendResult.ok(null);
-        } catch (Exception e) {
-            notifyError(e);
-            log.error("API request failed: {}",
-                    e.getMessage(), e);
-            return BotSendResult.fail(-1, e.getMessage());
-        }
-    }
-
-    @Override
-    /**
-     * 获取配置
-    */
-    public Map<String, Object> getConfig() {
-        Map<String, Object> config = new ConcurrentHashMap<>();
-        config.put("appId", appId != null ? appId : "");
-        config.put("baseUrl", baseUrl);
-        config.put("running", running.get());
-        config.put("useWebhookMode", useWebhookMode);
-        config.put("sessionId",
-                sessionId != null ? sessionId : "");
-        return config;
-    }
-
-    @Override
-    /**
-     * 用户存储
-    */
-    public BotClient userStore(BotUserStore userStore) {
-        if (userStore != null) {
-            this.userStore = userStore;
-        }
-        return this;
-    }
-
-    @Override
-    /**
-     * 列表用户
-    */
-    public List<BotUserInfo> listUsers() {
-        return userStore.findAll();
-    }
-
-    @Override
-    /**
-     * 列表群体
-    */
-    public List<BotGroupInfo> listGroups() {
-        if (!running.get()) {
-            return Collections.emptyList();
-        }
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/v2/groups"))
-                    .timeout(Duration.ofMillis(readTimeoutMillis))
-                    .header("Authorization",
-                            getEffectiveAuthToken())
-                    .GET()
-                    .build();
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString());
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> groupList = Json.fromJson(
-                    response.body(),
-                    List.class);
-            if (groupList == null) {
-                return Collections.emptyList();
-            }
-            List<BotGroupInfo> groups = new ArrayList<>();
-            for (Map<String, Object> g : groupList) {
-                String groupId = (String) g.getOrDefault(
-                        "group_id",
-                        g.get("gid"));
-                String groupName = (String) g.getOrDefault(
-                        "group_name",
-                        g.get("name"));
-                groups.add(BotGroupInfo.builder()
-                        .groupId(groupId)
-                        .groupName(groupName)
-                        .build());
-            }
-            return groups;
-        } catch (Exception e) {
-            log.error("Failed to list groups: {}",
-                    e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    /**
-     * 发送转为分组
-     * @param groupId 群体标识
-     * @param content 内容
-     */
-    public BotSendResult sendToGroup(String groupId,
-            String content) {
-        return send(BotOutboundMessage.groupText(groupId, content));
-    }
-
-    @Override
-    /**
-     * 发送转为分组异步
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public CompletableFuture<BotSendResult> sendToGroupAsync(
-            String groupId,
-            String content) {
-        return CompletableFuture.supplyAsync(
-                () -> sendToGroup(groupId, content));
-    }
-
-    @Override
-    /**
-     * 发送转为分组提及
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public BotSendResult sendToGroupMention(
-            String groupId,
-            String content,
-            List<String> mentionedUserIds) {
-        return send(BotOutboundMessage.groupTextMention(
-                groupId, content, mentionedUserIds));
-    }
-
-    @Override
-    public CompletableFuture<BotSendResult>
-    sendToGroupMentionAsync(
-            String groupId,
-            String content,
-            List<String> mentionedUserIds) {
-        return CompletableFuture.supplyAsync(
-                () -> sendToGroupMention(groupId, content,
-                        mentionedUserIds));
-    }
-
-    @Override
-    /**
-     * 添加消息监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public BotClient addMessageListener(
-            BotMessageListener listener) {
-        if (listener != null) {
-            messageListeners.add(listener);
-        }
-        return this;
-    }
-
-    @Override
-    /**
-     * 移除消息监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param e e
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param n n
-     * @param e e
-     * @param ignored ignored
-     */
-    public BotClient removeMessageListener(
-            BotMessageListener listener) {
-        messageListeners.remove(listener);
-        return this;
-    }
-
-    @Override
-    /**
-     * 添加记录错误监听器
-    */
-    public BotClient addErrorListener(BotErrorListener listener) {
-        if (listener != null) {
-            errorListeners.add(listener);
-        }
-        return this;
-    }
-
-    /**
-     * 验证 Webhook 挑战令牌
-     *
-     * @param challengeToken 挑战令牌
-     * @return 验证结果
-     */
-    public String verifyChallenge(String challengeToken) {
-        if (webhookVerifyToken == null) {
-            return challengeToken;
-        }
-        return webhookVerifyToken.equals(challengeToken)
-                ? challengeToken
-                : null;
-    }
-
-    /**
-     * 是否使用 Webhook 模式
-     *
-     * @return true 表示使用 Webhook 模式
+     * @return true 表示 Webhook 模式
      */
     public boolean isUseWebhookMode() {
         return useWebhookMode;
     }
 
     /**
-     * sleep退避
+     * 校验 Webhook 回调令牌，匹配时回显 challenge
      *
-     * @param currentBackoff 当前退避
-     * @return sleep退避的结果
+     * @param challengeToken 平台下发的 challenge
+     * @return 验证通过返回 challengeToken，否则 null
      */
-    private long sleepBackoff(long currentBackoff) {
-        long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
-        try {
-            Thread.sleep(wait);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    public String verifyChallenge(String challengeToken) {
+        if (webhookVerifyToken == null || challengeToken == null
+                || !webhookVerifyToken.equals(challengeToken)) {
+            return null;
         }
-        return (long) Math.min(
-                currentBackoff * BACKOFF_MULTIPLIER,
-                BACKOFF_MAX_MS);
+        return challengeToken;
+    }
+
+    // ==================== 长连接 ====================
+
+    /**
+     * 启动长连接线程
+     */
+    private void startWebSocketLoop() {
+        Thread thread = new Thread(this::runWebSocketLoop, "qq-bot-ws");
+        thread.setDaemon(true);
+        wsThread = thread;
+        thread.start();
     }
 
     /**
-     * 转为int
-     *
-     * @param value 值
-     * @param defaultValue 默认值
-     * @return 转为int的结果
+     * 长连接主循环，异常后指数退避重连
      */
-    private static int toInt(Object value, int defaultValue) {
-        if (value instanceof Number n) {
-            return n.intValue();
+    private void runWebSocketLoop() {
+        long backoff = BACKOFF_INITIAL_MS;
+        while (running.get() && reconnectAllowed) {
+            CountDownLatch latch = new CountDownLatch(1);
+            sessionLatch = latch;
+            try {
+                openSession();
+                backoff = BACKOFF_INITIAL_MS;
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            } catch (Exception e) {
+                notifyError(e);
+                if (!running.get() || !reconnectAllowed) {
+                    return;
+                }
+                log.warn("QQ 机器人长连接中断, {}ms 后重试: {}", backoff, e.getMessage());
+                backoff = sleepBackoff(backoff);
+            }
+        }
+    }
+
+    /**
+     * 建立一次会话：取令牌 → 取网关地址 → 建连
+     *
+     * @throws Exception 建连失败
+     */
+    private void openSession() throws Exception {
+        String gateway = getGatewayUrl(getAuthToken());
+        WebSocket ws = httpClient.newWebSocketBuilder()
+                .connectTimeout(Duration.ofMillis(connectTimeoutMillis))
+                .buildAsync(URI.create(gateway), new QqWebSocketListener())
+                .get(connectTimeoutMillis, TimeUnit.MILLISECONDS);
+        webSocket = ws;
+    }
+
+    /**
+     * 拉取 WebSocket 网关地址
+     *
+     * @param authorization 认证头
+     * @return 网关地址
+     */
+    private String getGatewayUrl(String authorization) {
+        Map<String, Object> result = request("GET", "/gateway", null, authorization);
+        String url = stringValue(result.get("url"));
+        if (StringUtils.isBlank(url)) {
+            throw new QqApiException(-1, "网关响应缺少 url 字段: " + Json.toJson(result));
+        }
+        return url;
+    }
+
+    /**
+     * 长连接监听器
+     */
+    private class QqWebSocketListener implements WebSocket.Listener {
+
+        /**
+         * 分片文本缓冲
+         */
+        private final StringBuilder buffer = new StringBuilder();
+
+        @Override
+        public void onOpen(WebSocket ws) {
+            webSocket = ws;
+            log.debug("QQ 机器人长连接已建立");
+            ws.request(1);
+        }
+
+        @Override
+        public CompletionStage<?> onText(WebSocket ws, CharSequence data, boolean last) {
+            buffer.append(data);
+            if (last) {
+                String frame = buffer.toString();
+                buffer.setLength(0);
+                try {
+                    handleWsMessage(frame);
+                } catch (Exception e) {
+                    notifyError(e);
+                    log.error("QQ 机器人处理下行帧失败: {}", e.getMessage(), e);
+                }
+            }
+            ws.request(1);
+            return null;
+        }
+
+        @Override
+        public CompletionStage<?> onClose(WebSocket ws, int statusCode, String reason) {
+            webSocket = null;
+            stopHeartbeat();
+            if (statusCode == CLOSE_CODE_BANNED) {
+                reconnectAllowed = false;
+                log.error("QQ 机器人被封禁, 停止重连: {}", reason);
+            } else if (REIDENTIFY_CLOSE_CODES.contains(statusCode)) {
+                sessionId = null;
+                lastSeq.set(-1);
+                log.warn("QQ 机器人会话失效(关闭码 {}), 重连后重新鉴权: {}", statusCode, reason);
+            } else {
+                log.warn("QQ 机器人长连接关闭(关闭码 {}): {}", statusCode, reason);
+            }
+            endSession();
+            return null;
+        }
+
+        @Override
+        public void onError(WebSocket ws, Throwable error) {
+            webSocket = null;
+            stopHeartbeat();
+            notifyError(error);
+            log.error("QQ 机器人长连接异常: {}", error.getMessage());
+            endSession();
+        }
+
+        @Override
+        public CompletionStage<?> onPing(WebSocket ws, ByteBuffer message) {
+            ws.sendPong(message);
+            return null;
+        }
+
+        @Override
+        public CompletionStage<?> onPong(WebSocket ws, ByteBuffer message) {
+            return null;
+        }
+    }
+
+    /**
+     * 结束当前会话，唤醒主循环
+     */
+    private void endSession() {
+        CountDownLatch latch = sessionLatch;
+        if (latch != null) {
+            latch.countDown();
+        }
+    }
+
+    /**
+     * 处理一条下行帧
+     *
+     * @param rawMessage 帧原文
+     */
+    private void handleWsMessage(String rawMessage) {
+        if (StringUtils.isBlank(rawMessage)) {
+            return;
+        }
+        Map<String, Object> frame = Json.fromJson(rawMessage, Map.class);
+        if (frame == null) {
+            return;
+        }
+        int op = intValue(frame.get("op"), -1);
+        Object payload = frame.get("d");
+        switch (op) {
+            case WS_OP_HELLO -> onHello(payload);
+            case WS_OP_DISPATCH -> onDispatch(frame, payload);
+            case WS_OP_HEARTBEAT_ACK -> log.debug("QQ 机器人心跳已应答");
+            case WS_OP_RECONNECT -> {
+                log.info("QQ 机器人收到重连指令, 保留会话后重连");
+                closeCurrentSocket("reconnect");
+            }
+            case WS_OP_INVALID_SESSION -> onInvalidSession(payload);
+            default -> log.debug("QQ 机器人忽略下行帧 op={}", op);
+        }
+    }
+
+    /**
+     * Hello 帧：按下发间隔启动心跳并鉴权
+     *
+     * @param payload 帧载荷
+     */
+    private void onHello(Object payload) {
+        long interval = HEARTBEAT_DEFAULT_MS;
+        if (payload instanceof Map<?, ?> map) {
+            interval = longValue(map.get("heartbeat_interval"), HEARTBEAT_DEFAULT_MS);
+        }
+        startHeartbeat(interval);
+        if (StringUtils.isNotBlank(sessionId)) {
+            resume();
+        } else {
+            identify();
+        }
+    }
+
+    /**
+     * Invalid Session 帧：d 为 false 时可 resume，否则重新 identify
+     *
+     * @param payload 帧载荷
+     */
+    private void onInvalidSession(Object payload) {
+        boolean resumable = Boolean.FALSE.equals(payload);
+        if (!resumable) {
+            sessionId = null;
+            lastSeq.set(-1);
+        }
+        log.info("QQ 机器人会话被判定失效, 可恢复={}, 重连", resumable);
+        closeCurrentSocket("invalid-session");
+    }
+
+    /**
+     * Dispatch 帧：记录 seq 并分派事件
+     *
+     * @param frame   帧
+     * @param payload 事件体
+     */
+    private void onDispatch(Map<String, Object> frame, Object payload) {
+        int seq = intValue(frame.get("s"), -1);
+        if (seq >= 0) {
+            lastSeq.set(seq);
+        }
+        String event = stringValue(frame.get("t"));
+        if (StringUtils.isBlank(event) || !(payload instanceof Map<?, ?> body)) {
+            return;
+        }
+        if (EVENT_READY.equals(event)) {
+            String id = stringValue(body.get("session_id"));
+            if (StringUtils.isNotBlank(id)) {
+                this.sessionId = id;
+            }
+            log.info("QQ 机器人会话就绪, session_id={}", sessionId);
+            return;
+        }
+        if (SILENT_EVENTS.contains(event)) {
+            return;
+        }
+        Map<String, Object> eventBody = asMap(body);
+        if (MESSAGE_EVENTS.contains(event)) {
+            dispatchMessage(event, eventBody);
+        } else {
+            dispatchEvent(event, eventBody);
+        }
+    }
+
+    /**
+     * 消息类事件转领域模型并广播
+     *
+     * @param event 事件名
+     * @param body  事件体
+     */
+    private void dispatchMessage(String event, Map<String, Object> body) {
+        Map<String, Object> author = asMap(body.get("author"));
+        String fromUser = firstNotBlank(
+                stringValue(author.get("member_openid")),
+                stringValue(author.get("user_openid")),
+                stringValue(author.get("union_openid")),
+                stringValue(author.get("id")));
+        String fromUserName = stringValue(author.get("username"));
+        boolean fromGroup = GROUP_MESSAGE_EVENTS.contains(event)
+                || body.get("group_openid") != null;
+        String chatId = firstNotBlank(
+                fromGroup ? stringValue(body.get("group_openid")) : null,
+                stringValue(body.get("channel_id")),
+                fromUser);
+        String msgId = stringValue(body.get("id"));
+        Map<String, Object> attachment = firstMap(body.get("attachments"));
+        BotInboundMessage.Type type = BotInboundMessage.Type.TEXT;
+        String mediaUrl = null;
+        if (attachment != null) {
+            type = mediaType(intValue(attachment.get("file_type"), 0));
+            mediaUrl = stringValue(attachment.get("url"));
+        }
+        String rawContent = stringValue(body.get("content"));
+        BotInboundMessage message = BotInboundMessage.builder()
+                .msgId(msgId)
+                .type(type)
+                .content(rawContent == null ? null : rawContent.trim())
+                .fromUser(fromUser)
+                .fromUserName(fromUserName)
+                .toUser(chatId)
+                .createTime(parseTimestamp(stringValue(body.get("timestamp"))))
+                .mediaUrl(mediaUrl)
+                .chatId(chatId)
+                .fromGroup(fromGroup)
+                .mentionedList(readMentions(body.get("mentions")))
+                .mentionedBot(MENTION_EVENTS.contains(event))
+                .rawFields(body)
+                .rawField("event", event)
+                .rawField("msg_seq", body.get("msg_seq"))
+                .build();
+        rememberConversation(fromUser, fromUserName, chatId, fromGroup);
+        rememberPassive(chatId, msgId, fromGroup);
+        notifyMessage(message);
+    }
+
+    /**
+     * 非消息类事件转领域模型并广播
+     *
+     * @param event 事件名
+     * @param body  事件体
+     */
+    private void dispatchEvent(String event, Map<String, Object> body) {
+        String groupOpenid = stringValue(body.get("group_openid"));
+        BotInboundMessage message = BotInboundMessage.builder()
+                .msgId(stringValue(body.get("id")))
+                .type(BotInboundMessage.Type.EVENT)
+                .eventType(event)
+                .eventKey(firstNotBlank(stringValue(body.get("op_type")),
+                        stringValue(body.get("type"))))
+                .fromUser(firstNotBlank(stringValue(body.get("operator_openid")),
+                        stringValue(body.get("openid"))))
+                .chatId(firstNotBlank(groupOpenid, stringValue(body.get("channel_id")),
+                        stringValue(body.get("openid"))))
+                .fromGroup(groupOpenid != null)
+                .createTime(System.currentTimeMillis())
+                .rawFields(body)
+                .rawField("event", event)
+                .build();
+        notifyMessage(message);
+    }
+
+    /**
+     * 发送 identify 帧
+     */
+    private void identify() {
+        JsonObject properties = new JsonObject()
+                .fluent("$os", "linux")
+                .fluent("$browser", "utils-support")
+                .fluent("$device", "utils-support");
+        JsonObject payload = new JsonObject()
+                .fluent("token", getAuthToken())
+                .fluent("intents", intents)
+                .fluent("shard", List.of(shardId, shardCount))
+                .fluent("properties", properties);
+        sendFrame(WS_OP_IDENTIFY, payload);
+    }
+
+    /**
+     * 发送 resume 帧
+     */
+    private void resume() {
+        JsonObject payload = new JsonObject()
+                .fluent("token", getAuthToken())
+                .fluent("session_id", sessionId)
+                .fluent("seq", Math.max(0, lastSeq.get()));
+        sendFrame(WS_OP_RESUME, payload);
+    }
+
+    /**
+     * 启动心跳
+     *
+     * @param intervalMs 心跳间隔毫秒
+     */
+    private void startHeartbeat(long intervalMs) {
+        stopHeartbeat();
+        long period = Math.max(HEARTBEAT_MIN_MS, intervalMs);
+        heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "qq-bot-heartbeat");
+            thread.setDaemon(true);
+            return thread;
+        });
+        heartbeatTask = heartbeatExecutor.scheduleAtFixedRate(
+                this::sendHeartbeat, period, period, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 停止心跳
+     */
+    private void stopHeartbeat() {
+        ScheduledFuture<?> task = heartbeatTask;
+        heartbeatTask = null;
+        if (task != null) {
+            task.cancel(false);
+        }
+        ScheduledExecutorService executor = heartbeatExecutor;
+        heartbeatExecutor = null;
+        if (executor != null) {
+            executor.shutdownNow();
+        }
+    }
+
+    /**
+     * 以 op1 上报最新 seq
+     */
+    private void sendHeartbeat() {
+        int seq = lastSeq.get();
+        sendFrame(WS_OP_HEARTBEAT, seq < 0 ? null : seq);
+    }
+
+    /**
+     * 发送一个操作帧
+     *
+     * @param op      操作码
+     * @param payload 载荷，可为 null
+     */
+    private void sendFrame(int op, Object payload) {
+        JsonObject frame = new JsonObject();
+        frame.fluent("op", op);
+        frame.fluent("d", payload);
+        sendWsMessage(Json.toJson(frame));
+    }
+
+    /**
+     * 发送一条文本帧
+     *
+     * @param message 帧原文
+     */
+    private void sendWsMessage(String message) {
+        WebSocket ws = webSocket;
+        if (ws == null) {
+            log.warn("QQ 机器人长连接未就绪, 丢弃帧: {}", message);
+            return;
+        }
+        try {
+            synchronized (wsSendLock) {
+                ws.sendText(message, true)
+                        .get(readTimeoutMillis, TimeUnit.MILLISECONDS);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            notifyError(e);
+            log.warn("QQ 机器人发送帧失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 主动关闭当前长连接，交由主循环重连
+     *
+     * @param reason 关闭原因
+     */
+    private void closeCurrentSocket(String reason) {
+        WebSocket ws = webSocket;
+        webSocket = null;
+        stopHeartbeat();
+        if (ws != null) {
+            try {
+                ws.sendClose(CLOSE_CODE_NORMAL, reason);
+            } catch (Exception ignored) {
+                // 已由服务端断开，无需处理
+            }
+        }
+        endSession();
+    }
+
+    // ==================== 发送 ====================
+
+    @Override
+    public BotSendResult sendText(String toUser, String content) {
+        return sendTextInternal(toUser, content, false, null);
+    }
+
+    @Override
+    public BotSendResult sendImage(String toUser, String mediaPath) {
+        return sendMediaInternal(toUser, mediaPath, FILE_TYPE_IMAGE, false, null);
+    }
+
+    @Override
+    public BotSendResult sendVoice(String toUser, String mediaPath) {
+        return sendMediaInternal(toUser, mediaPath, FILE_TYPE_VOICE, false, null);
+    }
+
+    @Override
+    public BotSendResult sendVideo(String toUser, String mediaPath, String title, String desc) {
+        return sendMediaInternal(toUser, mediaPath, FILE_TYPE_VIDEO, false, null);
+    }
+
+    @Override
+    public BotSendResult sendFile(String toUser, String mediaPath) {
+        return sendMediaInternal(toUser, mediaPath, FILE_TYPE_FILE, false, null);
+    }
+
+    @Override
+    public BotSendResult send(BotOutboundMessage message) {
+        if (message == null) {
+            return BotSendResult.fail(-1, "消息不能为空");
+        }
+        String target = message.getToUser();
+        boolean toGroup = message.isToGroup();
+        String msgId = message.extension("msg_id");
+        BotInboundMessage.Type type = message.getType();
+        if (type == null) {
+            type = StringUtils.isNotBlank(message.getMediaPath())
+                    ? BotInboundMessage.Type.IMAGE : BotInboundMessage.Type.TEXT;
+        }
+        return switch (type) {
+            case IMAGE -> sendMediaInternal(target, message.getMediaPath(),
+                    FILE_TYPE_IMAGE, toGroup, msgId);
+            case VOICE -> sendMediaInternal(target, message.getMediaPath(),
+                    FILE_TYPE_VOICE, toGroup, msgId);
+            case VIDEO -> sendMediaInternal(target, message.getMediaPath(),
+                    FILE_TYPE_VIDEO, toGroup, msgId);
+            case FILE -> sendMediaInternal(target, message.getMediaPath(),
+                    FILE_TYPE_FILE, toGroup, msgId);
+            case TEXT -> sendTextInternal(target, message.getContent(), toGroup, msgId);
+            default -> BotSendResult.fail(-1, "QQ 机器人不支持的消息类型: " + type);
+        };
+    }
+
+    @Override
+    public BotSendResult sendToGroup(String groupId, String content) {
+        return sendTextInternal(groupId, content, true, null);
+    }
+
+    @Override
+    public BotSendResult sendToGroupMention(String groupId, String content,
+                                            List<String> mentionedUserIds) {
+        if (mentionedUserIds == null || mentionedUserIds.isEmpty()) {
+            return sendTextInternal(groupId, content, true, null);
+        }
+        return BotSendResult.fail(-1, "QQ 机器人消息接口无 @ 提及参数, 无法定向提醒成员");
+    }
+
+    @Override
+    public CompletableFuture<BotSendResult> sendTextAsync(String toUser, String content) {
+        return CompletableFuture.supplyAsync(() -> sendText(toUser, content));
+    }
+
+    @Override
+    public CompletableFuture<BotSendResult> sendImageAsync(String toUser, String mediaPath) {
+        return CompletableFuture.supplyAsync(() -> sendImage(toUser, mediaPath));
+    }
+
+    @Override
+    public CompletableFuture<BotSendResult> sendAsync(BotOutboundMessage message) {
+        return CompletableFuture.supplyAsync(() -> send(message));
+    }
+
+    @Override
+    public CompletableFuture<BotSendResult> sendToGroupAsync(String groupId, String content) {
+        return CompletableFuture.supplyAsync(() -> sendToGroup(groupId, content));
+    }
+
+    @Override
+    public CompletableFuture<BotSendResult> sendToGroupMentionAsync(
+            String groupId, String content, List<String> mentionedUserIds) {
+        return CompletableFuture.supplyAsync(
+                () -> sendToGroupMention(groupId, content, mentionedUserIds));
+    }
+
+    /**
+     * 发送文本消息
+     *
+     * @param target  单聊 openid 或群 openid
+     * @param content 文本内容
+     * @param toGroup 是否群聊
+     * @param msgId   指定被动回复的消息 ID，可为 null
+     * @return 发送结果
+     */
+    private BotSendResult sendTextInternal(String target, String content, boolean toGroup,
+                                           String msgId) {
+        if (!running.get()) {
+            return notRunning();
+        }
+        JsonObject body = new JsonObject()
+                .fluent("msg_type", MSG_TYPE_TEXT)
+                .fluent("content", content);
+        applyPassive(body, target, msgId);
+        return postMessage(messagePath(target, toGroup), body);
+    }
+
+    /**
+     * 发送富媒体消息：先上传取 file_info，再以 msg_type=7 下发
+     *
+     * @param target    单聊 openid 或群 openid
+     * @param mediaPath 资源地址或本地文件路径
+     * @param fileType  平台文件类型
+     * @param toGroup   是否群聊
+     * @param msgId     指定被动回复的消息 ID，可为 null
+     * @return 发送结果
+     */
+    private BotSendResult sendMediaInternal(String target, String mediaPath, int fileType,
+                                            boolean toGroup, String msgId) {
+        if (!running.get()) {
+            return notRunning();
+        }
+        if (StringUtils.isBlank(mediaPath)) {
+            return BotSendResult.fail(-1, "资源路径不能为空");
+        }
+        try {
+            String fileInfo = uploadMedia(target, mediaPath, fileType, toGroup);
+            if (StringUtils.isBlank(fileInfo)) {
+                return BotSendResult.fail(-1, "上传未返回 file_info");
+            }
+            JsonObject body = new JsonObject()
+                    .fluent("msg_type", MSG_TYPE_MEDIA)
+                    .fluent("media", new JsonObject().fluent("file_info", fileInfo));
+            applyPassive(body, target, msgId);
+            return postMessage(messagePath(target, toGroup), body);
+        } catch (QqApiException e) {
+            log.warn("QQ 机器人富媒体发送失败 path={} code={} message={}",
+                    mediaPath, e.getCode(), e.getMessage());
+            return BotSendResult.fail(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            notifyError(e);
+            return BotSendResult.fail(-1, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * 上传资源并返回 file_info
+     *
+     * @param target    会话目标
+     * @param mediaPath 资源地址或本地文件路径
+     * @param fileType  平台文件类型
+     * @param toGroup   是否群聊
+     * @return file_info
+     * @throws IOException 本地文件读取失败
+     */
+    private String uploadMedia(String target, String mediaPath, int fileType, boolean toGroup)
+            throws IOException {
+        if (isRemoteUrl(mediaPath)) {
+            JsonObject body = new JsonObject()
+                    .fluent("file_type", fileType)
+                    .fluent("url", mediaPath)
+                    .fluent("srv_send_msg", false);
+            return stringValue(request("POST", filePath(target, toGroup), body).get("file_info"));
+        }
+        return uploadLocalFile(target, mediaPath, fileType, toGroup);
+    }
+
+    /**
+     * 本地文件分片上传：upload_prepare → PUT 分片 → upload_part_finish → /files 合并
+     *
+     * @param target    会话目标
+     * @param mediaPath 本地文件路径
+     * @param fileType  平台文件类型
+     * @param toGroup   是否群聊
+     * @return file_info
+     * @throws IOException 文件读取失败
+     */
+    private String uploadLocalFile(String target, String mediaPath, int fileType,
+                                   boolean toGroup) throws IOException {
+        Path file = Paths.get(mediaPath);
+        byte[] data = Files.readAllBytes(file);
+        String fileName = file.getFileName().toString();
+        Map<String, Object> prepared = request("POST", uploadPreparePath(target, toGroup),
+                new JsonObject()
+                        .fluent("file_type", fileType)
+                        .fluent("file_size", String.valueOf(data.length))
+                        .fluent("md5", DigestUtils.md5(data))
+                        .fluent("sha1", DigestUtils.sha1(data))
+                        .fluent("md5_10m", DigestUtils.md5(headBytes(data)))
+                        .fluent("file_name", fileName));
+        String uploadId = stringValue(prepared.get("upload_id"));
+        long blockSize = longValue(prepared.get("block_size"), data.length);
+        for (Map<String, Object> part : mapList(prepared.get("parts"))) {
+            if (Boolean.TRUE.equals(part.get("uploaded"))) {
+                continue;
+            }
+            int index = intValue(part.get("index"), 0);
+            putChunk(stringValue(part.get("presigned_url")),
+                    slice(data, index, longValue(part.get("block_size"), blockSize)));
+            request("POST", uploadPartFinishPath(target, toGroup), new JsonObject()
+                    .fluent("upload_id", uploadId)
+                    .fluent("file_type", fileType)
+                    .fluent("file_name", fileName)
+                    .fluent("part_index", index));
+        }
+        Map<String, Object> merged = request("POST", filePath(target, toGroup), new JsonObject()
+                .fluent("file_type", fileType)
+                .fluent("url", "")
+                .fluent("file_info", "")
+                .fluent("srv_send_msg", false)
+                .fluent("upload_id", uploadId));
+        return stringValue(merged.get("file_info"));
+    }
+
+    /**
+     * PUT 单个分片到预签名地址
+     *
+     * @param presignedUrl 预签名地址
+     * @param chunk        分片字节
+     */
+    private void putChunk(String presignedUrl, byte[] chunk) {
+        if (StringUtils.isBlank(presignedUrl)) {
+            throw new QqApiException(-1, "分片上传响应缺少 presigned_url");
+        }
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(presignedUrl))
+                .timeout(Duration.ofMillis(readTimeoutMillis))
+                .header("Content-Type", "application/octet-stream")
+                .PUT(HttpRequest.BodyPublishers.ofByteArray(chunk))
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() >= 300) {
+                throw new QqApiException(response.statusCode(),
+                        "分片上传失败 HTTP " + response.statusCode() + ": " + response.body());
+            }
+        } catch (IOException e) {
+            throw new QqApiException(-1, "分片上传失败: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new QqApiException(-1, "分片上传被中断");
+        }
+    }
+
+    /**
+     * 提交消息发送请求
+     *
+     * @param path 接口路径
+     * @param body 请求体
+     * @return 发送结果
+     */
+    private BotSendResult postMessage(String path, JsonObject body) {
+        try {
+            Map<String, Object> result = request("POST", path, body);
+            return BotSendResult.ok(stringValue(result.get("id")));
+        } catch (QqApiException e) {
+            log.warn("QQ 机器人消息发送失败 path={} code={} message={}",
+                    path, e.getCode(), e.getMessage());
+            return BotSendResult.fail(e.getCode(), e.getMessage());
+        } catch (Exception e) {
+            notifyError(e);
+            return BotSendResult.fail(-1, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * 补上被动回复所需的 msg_id 与 msg_seq；无有效窗口时按主动消息发送
+     *
+     * @param body   请求体
+     * @param target 会话目标
+     * @param msgId  显式指定的消息 ID，可为 null
+     */
+    private void applyPassive(JsonObject body, String target, String msgId) {
+        if (target == null) {
+            body.fluent("msg_seq", ThreadLocalRandom.current().nextInt(1, 0x7FFFFFFF));
+            return;
+        }
+        PassiveContext context = passiveContexts.get(target);
+        if (context == null) {
+            PassiveContext fresh = new PassiveContext(null, 0L);
+            PassiveContext prev = passiveContexts.putIfAbsent(target, fresh);
+            context = prev != null ? prev : fresh;
+        }
+        boolean withinWindow = context.expireAt >= System.currentTimeMillis()
+                && StringUtils.isNotBlank(context.msgId);
+        String passiveMsgId = StringUtils.isNotBlank(msgId) ? msgId
+                : (withinWindow ? context.msgId : null);
+        int seq = context.seq.incrementAndGet();
+        if (StringUtils.isNotBlank(passiveMsgId)) {
+            body.fluent("msg_id", passiveMsgId);
+        } else {
+            body.fluent("srv_send_msg", Boolean.TRUE);
+        }
+        body.fluent("msg_seq", seq);
+    }
+
+    /**
+     * 记录入站消息的被动回复窗口
+     *
+     * @param chatId    会话 ID
+     * @param msgId     消息 ID
+     * @param fromGroup 是否群聊
+     */
+    private void rememberPassive(String chatId, String msgId, boolean fromGroup) {
+        if (StringUtils.isBlank(chatId) || StringUtils.isBlank(msgId)) {
+            return;
+        }
+        long expireAt = System.currentTimeMillis()
+                + (fromGroup ? PASSIVE_TTL_GROUP_MS : PASSIVE_TTL_C2C_MS);
+        PassiveContext context = passiveContexts.get(chatId);
+        if (context == null) {
+            PassiveContext fresh = new PassiveContext(msgId, expireAt);
+            PassiveContext prev = passiveContexts.putIfAbsent(chatId, fresh);
+            if (prev != null) {
+                prev.renew(msgId, expireAt);
+            }
+        } else {
+            context.renew(msgId, expireAt);
+        }
+    }
+
+    /**
+     * @return 客户端未启动的失败结果
+     */
+    private static BotSendResult notRunning() {
+        return BotSendResult.fail(-1, "客户端未启动");
+    }
+
+    // ==================== 会话与用户 ====================
+
+    @Override
+    public List<BotGroupInfo> listGroups() {
+        return new ArrayList<>(observedGroups.values());
+    }
+
+    @Override
+    public List<BotUserInfo> listUsers() {
+        return userStore.findAll();
+    }
+
+    /**
+     * 记录入站消息涉及的成员与群会话
+     *
+     * @param userId    成员 openid
+     * @param userName  成员昵称
+     * @param chatId    会话 ID
+     * @param fromGroup 是否群聊
+     */
+    private void rememberConversation(String userId, String userName, String chatId,
+                                      boolean fromGroup) {
+        if (StringUtils.isNotBlank(userId)) {
+            userStore.upsert(BotUserInfo.builder()
+                    .userId(userId)
+                    .username(userName)
+                    .nickname(userName)
+                    .build());
+        }
+        if (!fromGroup || StringUtils.isBlank(chatId)) {
+            return;
+        }
+        Set<String> members = observedGroupMembers.computeIfAbsent(chatId,
+                key -> ConcurrentHashMap.newKeySet());
+        if (StringUtils.isNotBlank(userId)) {
+            members.add(userId);
+        }
+        observedGroups.put(chatId, BotGroupInfo.builder()
+                .groupId(chatId)
+                .memberIds(new ArrayList<>(members))
+                .memberCount(members.size())
+                .build());
+    }
+
+    // ==================== 令牌与 REST ====================
+
+    /**
+     * 取 REST 与长连接鉴权用的认证头
+     *
+     * @return {@code QQBot {access_token}}
+     */
+    private synchronized String getAuthToken() {
+        if (StringUtils.isNotBlank(botToken)) {
+            return "QQBot " + botToken;
+        }
+        if (StringUtils.isBlank(accessToken) || System.currentTimeMillis() >= tokenExpireAt) {
+            fetchAccessToken();
+        }
+        return "QQBot " + accessToken;
+    }
+
+    /**
+     * 换取 access_token 并按有效期安排续期
+     */
+    private void fetchAccessToken() {
+        if (StringUtils.isBlank(appSecret)) {
+            throw new IllegalStateException("未提供 botToken 时必须配置 appSecret");
+        }
+        Map<String, Object> result = request("POST", tokenPath(), new JsonObject()
+                .fluent("appId", appId)
+                .fluent("clientSecret", appSecret), null);
+        String token = stringValue(result.get("access_token"));
+        if (StringUtils.isBlank(token)) {
+            throw new QqApiException(-1, "获取 access_token 失败: " + Json.toJson(result));
+        }
+        long expiresInSeconds = longValue(result.get("expires_in"),
+                TOKEN_FALLBACK_EXPIRES_SECONDS);
+        long validSeconds = Math.max(TOKEN_MIN_VALID_SECONDS,
+                expiresInSeconds - TOKEN_REFRESH_AHEAD_SECONDS);
+        this.accessToken = token;
+        this.tokenExpireAt = System.currentTimeMillis() + validSeconds * 1000L;
+        log.debug("QQ 机器人已换取 access_token, 有效期 {} 秒", expiresInSeconds);
+    }
+
+    /**
+     * @return 令牌接口地址
+     */
+    private String tokenPath() {
+        if (StringUtils.isNotBlank(tokenUrl)) {
+            return tokenUrl;
+        }
+        // 令牌仅由 bots.qq.com 签发；自定义 baseUrl（测试网关、代理、私有部署）时同源发起
+        return DEFAULT_BASE_URL.equals(baseUrl) ? DEFAULT_TOKEN_URL : baseUrl + TOKEN_PATH;
+    }
+
+    /**
+     * 调用平台 REST 接口
+     *
+     * @param method HTTP 方法
+     * @param path   路径
+     * @param body   请求体，可为 null
+     * @return 响应体
+     */
+    private Map<String, Object> request(String method, String path, JsonObject body) {
+        return request(method, path, body, getAuthToken());
+    }
+
+    /**
+     * 调用平台 REST 接口
+     *
+     * @param method        HTTP 方法
+     * @param path          路径
+     * @param body          请求体，可为 null
+     * @param authorization 认证头，null 表示匿名
+     * @return 响应体
+     * @throws QqApiException HTTP 非 2xx 或平台返回业务错误码
+     */
+    private Map<String, Object> request(String method, String path, JsonObject body,
+                                        String authorization) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(absolute(path)))
+                .timeout(Duration.ofMillis(readTimeoutMillis))
+                .header("Content-Type", "application/json;charset=utf-8");
+        if (StringUtils.isNotBlank(authorization)) {
+            builder.header("Authorization", authorization);
+        }
+        HttpRequest.BodyPublisher publisher = body == null
+                ? HttpRequest.BodyPublishers.noBody()
+                : HttpRequest.BodyPublishers.ofString(Json.toJson(body), StandardCharsets.UTF_8);
+        try {
+            HttpResponse<String> response = httpClient.send(
+                    builder.method(method, publisher).build(),
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            return unwrap(method, path, response);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new QqApiException(-1, "请求被中断: " + method + " " + path);
+        } catch (IOException e) {
+            throw new QqApiException(-1, "请求失败: " + method + " " + path + " " + e.getMessage());
+        }
+    }
+
+    /**
+     * 校验响应状态与业务错误码
+     *
+     * @param method   HTTP 方法
+     * @param path     路径
+     * @param response 响应
+     * @return 响应体
+     */
+    private static Map<String, Object> unwrap(String method, String path,
+                                              HttpResponse<String> response) {
+        String raw = response.body();
+        Map<String, Object> parsed = StringUtils.isBlank(raw)
+                ? new LinkedHashMap<>() : Json.fromJson(raw, Map.class);
+        if (parsed == null) {
+            parsed = new LinkedHashMap<>();
+        }
+        int code = intValue(parsed.get("code"), 0);
+        int ret = intValue(parsed.get("ret"), 0);
+        if (response.statusCode() < 300 && code == 0 && ret == 0) {
+            return parsed;
+        }
+        int bizCode = code != 0 ? code : (ret != 0 ? ret : response.statusCode());
+        String message = firstNotBlank(stringValue(parsed.get("message")),
+                stringValue(parsed.get("error")), raw);
+        throw new QqApiException(bizCode, "QQ 平台返回错误 " + method + " " + path
+                + " (HTTP " + response.statusCode() + "): " + message);
+    }
+
+    /**
+     * @param path 路径
+     * @return 绝对地址
+     */
+    private String absolute(String path) {
+        return path.startsWith("http") ? path : baseUrl + path;
+    }
+
+    /**
+     * @param target  会话目标
+     * @param toGroup 是否群聊
+     * @return 会话资源路径前缀
+     */
+    private static String conversationPath(String target, boolean toGroup) {
+        return (toGroup ? "/v2/groups/" : "/v2/users/") + target;
+    }
+
+    /**
+     * @param target  会话目标
+     * @param toGroup 是否群聊
+     * @return 消息发送路径
+     */
+    private static String messagePath(String target, boolean toGroup) {
+        return conversationPath(target, toGroup) + "/messages";
+    }
+
+    /**
+     * @param target  会话目标
+     * @param toGroup 是否群聊
+     * @return 整文件上传/合并路径
+     */
+    private static String filePath(String target, boolean toGroup) {
+        return conversationPath(target, toGroup) + "/files";
+    }
+
+    /**
+     * @param target  会话目标
+     * @param toGroup 是否群聊
+     * @return 分片预上传路径
+     */
+    private static String uploadPreparePath(String target, boolean toGroup) {
+        return conversationPath(target, toGroup) + "/upload_prepare";
+    }
+
+    /**
+     * @param target  会话目标
+     * @param toGroup 是否群聊
+     * @return 分片完成通知路径
+     */
+    private static String uploadPartFinishPath(String target, boolean toGroup) {
+        return conversationPath(target, toGroup) + "/upload_part_finish";
+    }
+
+    // ==================== 配置与监听 ====================
+
+    @Override
+    public Map<String, Object> getConfig() {
+        Map<String, Object> config = new LinkedHashMap<>();
+        config.put("appId", appId);
+        config.put("baseUrl", baseUrl);
+        config.put("tokenUrl", tokenPath());
+        config.put("intents", intents);
+        config.put("connectTimeoutMillis", connectTimeoutMillis);
+        config.put("readTimeoutMillis", readTimeoutMillis);
+        config.put("running", running.get());
+        config.put("webhookMode", useWebhookMode);
+        config.put("websocketConnected", webSocket != null);
+        config.put("sessionId", sessionId);
+        config.put("lastSeq", lastSeq.get());
+        config.put("observedGroups", observedGroups.size());
+        return config;
+    }
+
+    @Override
+    public BotClient addMessageListener(BotMessageListener listener) {
+        if (listener != null && !messageListeners.contains(listener)) {
+            messageListeners.add(listener);
+        }
+        return this;
+    }
+
+    @Override
+    public BotClient removeMessageListener(BotMessageListener listener) {
+        messageListeners.remove(listener);
+        return this;
+    }
+
+    @Override
+    public BotClient addErrorListener(BotErrorListener listener) {
+        if (listener != null && !errorListeners.contains(listener)) {
+            errorListeners.add(listener);
+        }
+        return this;
+    }
+
+    /**
+     * 广播入站消息
+     *
+     * @param message 入站消息
+     */
+    private void notifyMessage(BotInboundMessage message) {
+        for (BotMessageListener listener : messageListeners) {
+            try {
+                listener.onMessage(message);
+            } catch (Exception e) {
+                notifyError(e);
+                log.error("QQ 机器人消息监听器异常: {}", e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * 广播异常
+     *
+     * @param error 异常
+     */
+    private void notifyError(Throwable error) {
+        for (BotErrorListener listener : errorListeners) {
+            try {
+                listener.onError(error);
+            } catch (Exception ignored) {
+                // 错误监听器自身异常不再传播
+            }
+        }
+    }
+
+    /**
+     * 睡眠退避并返回下一次退避时长
+     *
+     * @param currentBackoff 当前退避
+     * @return 下一次退避
+     */
+    private long sleepBackoff(long currentBackoff) {
+        try {
+            Thread.sleep(currentBackoff);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return Math.min((long) (currentBackoff * BACKOFF_MULTIPLIER), BACKOFF_MAX_MS);
+    }
+
+    // ==================== 解析辅助 ====================
+
+    /**
+     * 合并意图位掩码
+     *
+     * @param values 意图数组
+     * @return 合并结果，空数组返回默认意图
+     */
+    private static int mergeIntents(int... values) {
+        if (values == null || values.length == 0) {
+            return DEFAULT_INTENTS;
+        }
+        int merged = 0;
+        for (int value : values) {
+            merged |= value;
+        }
+        return merged;
+    }
+
+    /**
+     * 解析 RFC3339 时间戳
+     *
+     * @param timestamp 时间戳文本
+     * @return 毫秒时间戳，解析失败返回 0
+     */
+    private static long parseTimestamp(String timestamp) {
+        if (StringUtils.isBlank(timestamp)) {
+            return 0L;
+        }
+        try {
+            return OffsetDateTime.parse(timestamp).toInstant().toEpochMilli();
+        } catch (Exception ignored) {
+            // 兼容秒级时间戳
+        }
+        try {
+            return Long.parseLong(timestamp.trim()) * 1000L;
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * 平台文件类型映射领域类型
+     *
+     * @param fileType 平台文件类型
+     * @return 消息类型
+     */
+    private static BotInboundMessage.Type mediaType(int fileType) {
+        return switch (fileType) {
+            case FILE_TYPE_IMAGE -> BotInboundMessage.Type.IMAGE;
+            case FILE_TYPE_VIDEO -> BotInboundMessage.Type.VIDEO;
+            case FILE_TYPE_VOICE -> BotInboundMessage.Type.VOICE;
+            case FILE_TYPE_FILE -> BotInboundMessage.Type.FILE;
+            default -> BotInboundMessage.Type.UNKNOWN;
+        };
+    }
+
+    /**
+     * 解析被 @ 成员列表
+     *
+     * @param mentions 原始 mentions
+     * @return openid 列表
+     */
+    private static List<String> readMentions(Object mentions) {
+        List<String> ids = new ArrayList<>();
+        for (Map<String, Object> mention : mapList(mentions)) {
+            String id = firstNotBlank(stringValue(mention.get("member_openid")),
+                    stringValue(mention.get("user_openid")),
+                    stringValue(mention.get("id")));
+            if (StringUtils.isNotBlank(id)) {
+                ids.add(id);
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * 取列表首个 Map 元素
+     *
+     * @param value 原始值
+     * @return 首个元素，无则 null
+     */
+    private static Map<String, Object> firstMap(Object value) {
+        List<Map<String, Object>> list = mapList(value);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * 转 Map 列表
+     *
+     * @param value 原始值
+     * @return Map 列表，非列表返回空列表
+     */
+    private static List<Map<String, Object>> mapList(Object value) {
+        if (!(value instanceof List<?> list)) {
+            return Collections.emptyList();
+        }
+        List<Map<String, Object>> maps = new ArrayList<>(list.size());
+        for (Object item : list) {
+            if (item instanceof Map<?, ?> map) {
+                maps.add(asMap(map));
+            }
+        }
+        return maps;
+    }
+
+    /**
+     * 转 Map
+     *
+     * @param value 原始值
+     * @return Map，非 Map 返回空 Map
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> asMap(Object value) {
+        return value instanceof Map<?, ?> map ? (Map<String, Object>) map
+                : Collections.emptyMap();
+    }
+
+    /**
+     * @param value 原始值
+     * @return 文本，null 返回 null
+     */
+    private static String stringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * @param value        原始值
+     * @param defaultValue 默认值
+     * @return 整数
+     */
+    private static int intValue(Object value, int defaultValue) {
+        return (int) longValue(value, defaultValue);
+    }
+
+    /**
+     * @param value        原始值
+     * @param defaultValue 默认值
+     * @return 长整数
+     */
+    private static long longValue(Object value, long defaultValue) {
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value instanceof String text && StringUtils.isNotBlank(text)) {
+            try {
+                return Long.parseLong(text.trim());
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
         }
         return defaultValue;
     }
 
     /**
-     * 通知记录错误
-     *
-     * @param e e
+     * @param values 候选文本
+     * @return 首个非空白文本，全部为空返回 null
      */
-    private void notifyError(Throwable e) {
-        for (BotErrorListener listener : errorListeners) {
-            try {
-                listener.onError(e);
-            } catch (Exception ignored) {
-                // 忽略监听器异常
+    private static String firstNotBlank(String... values) {
+        for (String value : values) {
+            if (StringUtils.isNotBlank(value)) {
+                return value;
             }
+        }
+        return null;
+    }
+
+    /**
+     * 取文件头部窗口字节，用于 md5_10m
+     *
+     * @param data 全量字节
+     * @return 窗口内字节
+     */
+    private static byte[] headBytes(byte[] data) {
+        return data.length <= MD5_HEAD_WINDOW_BYTES
+                ? data : Arrays.copyOfRange(data, 0, MD5_HEAD_WINDOW_BYTES);
+    }
+
+    /**
+     * 按下标与块大小切出分片
+     *
+     * @param data      全量字节
+     * @param index     分片下标
+     * @param blockSize 块大小
+     * @return 分片字节
+     */
+    private static byte[] slice(byte[] data, int index, long blockSize) {
+        int block = (int) Math.max(1L, blockSize);
+        int from = Math.min(index * block, data.length);
+        int to = Math.min(from + block, data.length);
+        return Arrays.copyOfRange(data, from, to);
+    }
+
+    /**
+     * @param value 资源地址
+     * @return 是否为远程资源
+     */
+    private static boolean isRemoteUrl(String value) {
+        String lower = value.toLowerCase(Locale.ROOT);
+        return lower.startsWith("http://") || lower.startsWith("https://");
+    }
+
+    /**
+     * @param value 地址
+     * @return 去掉结尾斜杠的地址
+     */
+    private static String trimTrailingSlash(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+    }
+
+    /**
+     * 被动回复窗口
+     */
+    private static final class PassiveContext {
+
+        /**
+         * 入站消息 ID
+         */
+        private String msgId;
+
+        /**
+         * 窗口到期时间戳
+         */
+        private long expireAt;
+
+        /**
+         * 会话目标维度的单调回复序号，跨消息/跨窗口保持递增，避免平台 msg_seq 去重
+         */
+        private final AtomicInteger seq;
+
+        private PassiveContext(String msgId, long expireAt) {
+            this.msgId = msgId;
+            this.expireAt = expireAt;
+            // 随机起始序号，避免重启后从 1 重新计数触发平台去重
+            this.seq = new AtomicInteger(1 + ThreadLocalRandom.current().nextInt(0x10000));
+        }
+
+        /**
+         * 更新为新的入站消息与窗口，保留既有单调序号
+         *
+         * @param newMsgId    新入站消息 ID
+         * @param newExpireAt 新窗口到期时间戳
+         */
+        private void renew(String newMsgId, long newExpireAt) {
+            this.msgId = newMsgId;
+            this.expireAt = newExpireAt;
+        }
+    }
+
+    /**
+     * 平台错误异常
+     */
+    private static final class QqApiException extends RuntimeException {
+
+        /**
+         * 序列化标识
+         */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * 平台错误码
+         */
+        private final int code;
+
+        private QqApiException(int code, String message) {
+            super(message);
+            this.code = code;
+        }
+
+        /**
+         * @return 平台错误码
+         */
+        private int getCode() {
+            return code;
         }
     }
 }

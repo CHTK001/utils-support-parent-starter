@@ -48,10 +48,10 @@ public class JdkSseClient implements SseClient {
             .connectTimeout(Duration.ofSeconds(30))
             .build();
 
-    @Override
     /**
      * 连接
-    */
+     */
+    @Override
     public SseConnection connect(SseRequest request, SseListener listener) {
         // 选择客户端：默认超时用共享实例，自定义超时新建
         HttpClient httpClient = request.getConnectTimeout() == 30000
@@ -157,10 +157,10 @@ public class JdkSseClient implements SseClient {
          */
         private volatile boolean closed;
 
-        @Override
         /**
          * 关闭
-        */
+         */
+        @Override
         public void close() {
             closed = true;
             if (readerThread != null) {
@@ -168,10 +168,10 @@ public class JdkSseClient implements SseClient {
             }
         }
 
-        @Override
         /**
          * 是否Connected
-        */
+         */
+        @Override
         public boolean isConnected() {
             return !closed;
         }
@@ -187,17 +187,17 @@ public class JdkSseClient implements SseClient {
          */
         static final ClosedSseConnection INSTANCE = new ClosedSseConnection();
 
-        @Override
         /**
          * 关闭
-        */
+         */
+        @Override
         public void close() {
         }
 
-        @Override
         /**
          * 是否Connected
-        */
+         */
+        @Override
         public boolean isConnected() {
             return false;
         }

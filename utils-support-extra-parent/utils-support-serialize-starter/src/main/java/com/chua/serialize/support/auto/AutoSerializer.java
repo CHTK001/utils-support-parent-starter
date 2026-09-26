@@ -5,27 +5,36 @@ import com.chua.common.support.serialize.JsonSerializer;
 import com.chua.common.support.serialize.Serializer;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.serialize.support.kryo.KryoSerializer;
-
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 自动降级序列化器。
  * <p>
- * 支持多级序列化策略，按优先级依次尝试：
+ * 按固定优先级依次尝试：
  * <ol>
  *   <li><strong>Kryo</strong> — 高性能二进制序列化（首选）</li>
  *   <li><strong>JSON (Jackson)</strong> — 跨语言兼容（次选）</li>
  *   <li><strong>Java 原生</strong> — JDK ObjectStream（兜底）</li>
  * </ol>
- * <p>
- * 当首选序列化失败时自动降级到下一方案，确保序列化操作的可靠性。
- * 同时支持自定义额外的降级序列化器。
+ * 首选实现抛异常时降级到下一方案，全部失败才抛出异常。
  * </p>
+ *
+ * <p>产出字节流带 3 字节头：{@code 'A' 'S' <编解码编号>}。反序列化只按编号分派到写出该数据的
+ * 那个实现，<strong>不再逐个尝试</strong>——Kryo / JSON / JDK 的字节流之间没有互斥保证，
+ * 猜错实现可能不抛异常却还原出错误对象，静默污染数据。</p>
+ *
+ * <p>跨进程读写两端必须以同样的顺序构造降级链（自定义序列化器的编号按加入先后递增），
+ * 否则编号对不上会直接抛异常。</p>
  *
  * @param <T> 可序列化的目标类型
  * @author CH
@@ -34,16 +43,57 @@ import lombok.extern.slf4j.Slf4j;
 @Spi("auto")
 @Slf4j
 public class AutoSerializer<T extends Serializable> implements Serializer<T> {
-    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 序列化器降级链
+     * 魔数字节 0
+     */
+    private static final byte MAGIC_0 = (byte) 'A';
+
+    /**
+     * 魔数字节 1
+     */
+    private static final byte MAGIC_1 = (byte) 'S';
+
+    /**
+     * 字节头长度
+     */
+    private static final int HEADER_LENGTH = 3;
+
+    /**
+     * Kryo 编解码编号
+     */
+    public static final byte CODE_KRYO = 1;
+
+    /**
+     * JSON 编解码编号
+     */
+    public static final byte CODE_JSON = 2;
+
+    /**
+     * JDK 原生编解码编号
+     */
+    public static final byte CODE_JAVA = 3;
+
+    /**
+     * 自定义序列化器的起始编号
+     */
+    private static final byte CODE_USER_FIRST = 4;
+
+    /**
+     * 序列化器降级链（按优先级排列）
      */
     private final List<Serializer<T>> serializers;
+
     /**
-     * 当前使用的序列化器索引（用于轮询均衡负载）
+     * 编解码编号到序列化器的索引
      */
-    private final AtomicReference<Integer> currentIndex = new AtomicReference<>(0);
+    private final ConcurrentMap<Byte, Serializer<T>> byCode;
+
+    /**
+     * 下一个可分配的自定义编解码编号
+     */
+    private final AtomicInteger nextCode = new AtomicInteger(CODE_USER_FIRST);
+
     /**
      * 目标实体类类型
      */
@@ -52,33 +102,28 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 创建自动降级序列化器。
      * <p>
-     * 默认降级链：Kryo → JSON → Java。
-     * 可通过 降级序列化器 参数添加额外的降级序列化器。
+     * 默认降级链：Kryo → 自定义兜底 → JSON → Java。
+     * 可通过 降级序列化器 参数插入额外的降级序列化器。
      * </p>
      *
-     * @param clazz              目标实体类类型
+     * @param clazz               目标实体类类型
      * @param fallbackSerializers 额外的降级序列化器（可选）
      */
     public AutoSerializer(Class<T> clazz, Serializer<T>... fallbackSerializers) {
         this.clazz = clazz;
         this.serializers = new CopyOnWriteArrayList<>();
-        
-        KryoSerializer<T> kryoSerializer = new KryoSerializer<>(clazz);
-        this.serializers.add(kryoSerializer);
-        
+        this.byCode = new ConcurrentHashMap<>();
+
+        addWithCode(new KryoSerializer<>(clazz), CODE_KRYO);
         if (fallbackSerializers != null) {
-            this.serializers.addAll(Arrays.asList(fallbackSerializers));
+            for (Serializer<T> fallback : fallbackSerializers) {
+                if (fallback != null) {
+                    addWithCode(fallback, (byte) nextCode.getAndIncrement());
+                }
+            }
         }
-        
-        JsonSerializer<T> jsonSerializer = new JsonSerializer<>(clazz);
-        if (!this.serializers.contains(jsonSerializer)) {
-            this.serializers.add(jsonSerializer);
-        }
-        
-        JavaSerializer<T> javaSerializer = new JavaSerializer<>();
-        if (!this.serializers.contains(javaSerializer)) {
-            this.serializers.add(javaSerializer);
-        }
+        addWithCode(new JsonSerializer<>(clazz), CODE_JSON);
+        addWithCode(new JavaSerializer<>(), CODE_JAVA);
     }
 
     /**
@@ -93,26 +138,30 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 序列化对象为字节数组。
      * <p>
-     * 按降级链依次尝试，第一个成功的序列化器返回结果。
+     * 按降级链的固定顺序尝试，第一个成功的实现负责写出，并在结果前拼接编解码编号。
      * 所有序列化器均失败时抛出 runtime异常。
      * </p>
      *
      * @param object 待序列化的对象
-     * @return 序列化后的字节数组
+     * @return 带 3 字节头的序列化结果，入参为 空 时返回空数组
      */
     @Override
     public byte[] serialize(T object) {
-        int start = currentIndex.get();
-        for (int i = 0; i < serializers.size(); i++) {
-            int idx = (start + i) % serializers.size();
+        if (object == null) {
+            return new byte[0];
+        }
+        List<Serializer<T>> chain = new ArrayList<>(serializers);
+        for (int i = 0; i < chain.size(); i++) {
+            Serializer<T> serializer = chain.get(i);
             try {
-                byte[] result = serializers.get(idx).serialize(object);
-                if (idx != start) {
-                    currentIndex.set(idx);
+                byte[] body = serializer.serialize(object);
+                if (body == null) {
+                    continue;
                 }
-                return result;
+                return withHeader(serializer, body);
             } catch (Exception e) {
-                log.warn("[AutoSerializer] Serializer #{} failed: {}", idx, e.getMessage(), e);
+                log.warn("[AutoSerializer] Serializer #{} ({}) failed: {}", i,
+                        serializer.getClass().getSimpleName(), e.getMessage(), e);
             }
         }
         throw new RuntimeException("All serializers failed");
@@ -121,30 +170,28 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 将字节数组反序列化为对象。
      * <p>
-     * 按降级链依次尝试，第一个成功的反序列化器返回结果。
-     * 所有反序列化器均失败时抛出 runtime异常。
+     * 只使用字节头中标注的编解码实现，不做猜测式降级。
      * </p>
      *
-     * @param bytes 序列化后的字节数组
-     * @return 反序列化后的对象
+     * @param bytes 由 {@link #serialize(Serializable)} 产出的字节数组
+     * @return 反序列化后的对象，入参为 空 或空数组时返回 空
+     * @throws IllegalArgumentException 字节头缺失、被篡改或编号未登记
      */
     @Override
-    @SuppressWarnings("unchecked")
     public T deserialize(byte[] bytes) {
-        int start = currentIndex.get();
-        for (int i = 0; i < serializers.size(); i++) {
-            int idx = (start + i) % serializers.size();
-            try {
-                T result = serializers.get(idx).deserialize(bytes);
-                if (idx != start) {
-                    currentIndex.set(idx);
-                }
-                return result;
-            } catch (Exception e) {
-                log.warn("[AutoSerializer] Deserialize with serializer #{} failed: {}", idx, e.getMessage(), e);
-            }
+        if (bytes == null || bytes.length == 0) {
+            return null;
         }
-        throw new RuntimeException("All deserializers failed");
+        if (bytes.length < HEADER_LENGTH || bytes[0] != MAGIC_0 || bytes[1] != MAGIC_1) {
+            throw new IllegalArgumentException("数据缺少 AutoSerializer 字节头，无法确定应由哪个序列化实现解码");
+        }
+        byte code = bytes[2];
+        Serializer<T> serializer = byCode.get(code);
+        if (serializer == null) {
+            throw new IllegalArgumentException("未知的编解码编号 " + code + "，当前可用: " + byCode.keySet());
+        }
+        byte[] body = Arrays.copyOfRange(bytes, HEADER_LENGTH, bytes.length);
+        return serializer.deserialize(body);
     }
 
     /**
@@ -168,13 +215,17 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     }
 
     /**
-     * 向降级链中添加一个自定义序列化器。
+     * 向降级链末尾添加一个自定义序列化器。
      *
      * @param serializer 自定义序列化器
-     * @return 是否添加成功
+     * @return 其被分配的编解码编号；已存在同类型实现时返回 空
      */
-    public boolean addSerializer(Serializer<T> serializer) {
-        return serializers.add(serializer);
+    public Byte addSerializer(Serializer<T> serializer) {
+        if (serializer == null) {
+            return null;
+        }
+        byte code = (byte) nextCode.getAndIncrement();
+        return addWithCode(serializer, code) ? code : null;
     }
 
     /**
@@ -184,6 +235,62 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
      * @return 是否移除成功
      */
     public boolean removeSerializer(Serializer<T> serializer) {
-        return serializers.remove(serializer);
+        if (serializer == null) {
+            return false;
+        }
+        boolean removed = serializers.removeIf(s -> s == serializer);
+        byCode.values().removeIf(s -> s == serializer);
+        return removed;
+    }
+
+    /**
+     * 登记一个序列化器，重复类型会被忽略。
+     *
+     * @param serializer 序列化器
+     * @param code       编解码编号
+     * @return 是否登记成功
+     */
+    private boolean addWithCode(Serializer<T> serializer, byte code) {
+        for (Serializer<T> existing : serializers) {
+            if (existing.getClass() == serializer.getClass()) {
+                return false;
+            }
+        }
+        serializers.add(serializer);
+        byCode.put(code, serializer);
+        return true;
+    }
+
+    /**
+     * 给序列化结果拼上 {@code 'A' 'S' <编号>} 字节头。
+     *
+     * @param serializer 实际产出字节的序列化器
+     * @param body       编解码正文
+     * @return 带头的完整字节数组
+     */
+    private byte[] withHeader(Serializer<T> serializer, byte[] body) {
+        byte code = codeOf(serializer);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(HEADER_LENGTH + body.length);
+        out.write(MAGIC_0);
+        out.write(MAGIC_1);
+        out.write(code);
+        out.write(body, 0, body.length);
+        return out.toByteArray();
+    }
+
+    /**
+     * 查询序列化器登记的编解码编号。
+     *
+     * @param serializer 序列化器
+     * @return 编解码编号
+     * @throws IllegalStateException 该实例未登记编号
+     */
+    private byte codeOf(Serializer<T> serializer) {
+        for (Map.Entry<Byte, Serializer<T>> entry : byCode.entrySet()) {
+            if (entry.getValue() == serializer) {
+                return entry.getKey();
+            }
+        }
+        throw new IllegalStateException("序列化器未登记编解码编号: " + serializer.getClass().getName());
     }
 }

@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DJL 翻译器包装。
@@ -23,7 +24,18 @@ import java.util.List;
  * @since 4.0.0.42
  */
 @Slf4j
-public class DjlModelTranslator implements ITranslator<Object, Object>, AutoCloseable {
+public class DjlModelTranslator implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
+
+    /**
+     * 将运行参数转发给底层 DJL Translator（若其实现了 {@link DetectionConfigurable}），
+     * 使阈值等参数在模型已加载后仍可热更新。
+     *
+     * @param options 参数键值对
+     */
+    @Override
+    public void configure(Map<String, Object> options) {
+        factory.configure(options);
+    }
 
     /**
      * 模型名称。

@@ -46,11 +46,11 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     private static final String TYPE = "daily";
     /**
      * Archive_dir
-    */
+     */
     private static final String ARCHIVE_DIR = "archive";
     /**
      * 日期_fmt
-    */
+     */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -211,7 +211,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             /**
              * 判断字符串是否为空白（空/空串/纯空格）。
              * @param s s
-             * @return 是否blank的结果
+             * @return 是否为空的结果
              */
             private boolean isBlank(String s) {
                 return s == null || s.isBlank();
@@ -231,7 +231,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
                 /**
                  * 将单个文件以相对路径写入 压缩 条目
-                */
+                 */
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String entryName = source.relativize(file).toString().replace("\\", "/");
@@ -255,7 +255,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
         Files.walkFileTree(dir, new SimpleFileVisitor<>() {
             /**
              * 删除单个文件
-            */
+             */
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
@@ -264,7 +264,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
             /**
              * 目录内文件删尽后删除目录本身
-            */
+             */
             @Override
             public FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
                 Files.delete(d);

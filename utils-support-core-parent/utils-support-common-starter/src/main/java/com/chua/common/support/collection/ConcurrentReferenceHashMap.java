@@ -46,32 +46,32 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 默认初始容量
-    */
+     */
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     /**
      * 默认加载因子
-    */
+     */
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
      * 默认并发级别
-    */
+     */
     private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
 
     /**
      * 默认引用类型
-    */
+     */
     private static final ReferenceType DEFAULT_REFERENCE_TYPE = ReferenceType.SOFT;
 
     /**
      * 最大并发级别
-    */
+     */
     private static final int MAXIMUM_CONCURRENCY_LEVEL = 1 << 16;
 
     /**
      * 最大分段大小
-    */
+     */
     private static final int MAXIMUM_SEGMENT_SIZE = 1 << 30;
 
 
@@ -243,7 +243,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 获取
-    */
+     */
     public V get(Object key) {
         Reference<K, V> ref = getReference(key, Restructure.WHEN_NECESSARY);
         Entry<K, V> entry = (ref != null ? ref.get() : null);
@@ -254,7 +254,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 获取OrDefault
-    */
+     */
     public V getOrDefault(Object key, V defaultValue) {
         Reference<K, V> ref = getReference(key, Restructure.WHEN_NECESSARY);
         Entry<K, V> entry = (ref != null ? ref.get() : null);
@@ -264,7 +264,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * ContainsKey
-    */
+     */
     public boolean containsKey(Object key) {
         Reference<K, V> ref = getReference(key, Restructure.WHEN_NECESSARY);
         Entry<K, V> entry = (ref != null ? ref.get() : null);
@@ -289,7 +289,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * Put
-    */
+     */
     public V put(K key, V value) {
         return put(key, value, true);
     }
@@ -298,7 +298,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * PutIfAbsent
-    */
+     */
     public V putIfAbsent(K key, V value) {
         return put(key, value, false);
     }
@@ -317,7 +317,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
             /**
              * 执行
-            */
+             */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry, Entries<V> entries) {
                 if (entry != null) {
                     V oldValue = entry.getValue();
@@ -336,14 +336,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * 移除
-    */
+     */
     public V remove(Object key) {
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_AFTER, TaskOption.SKIP_IF_EMPTY) {
             @Override
 
             /**
              * 执行
-            */
+             */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null) {
                     if (ref != null) {
@@ -359,13 +359,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * 移除
-    */
+     */
     public boolean remove(Object key, final Object value) {
         Boolean result = doTask(key, new AbstractTask<Boolean>(TaskOption.RESTRUCTURE_AFTER, TaskOption.SKIP_IF_EMPTY) {
             @Override
             /**
              * 执行
-            */
+             */
             protected Boolean execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null && ObjectUtils.nullSafeEquals(entry.getValue(), value)) {
                     if (ref != null) {
@@ -382,13 +382,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * Replace
-    */
+     */
     public boolean replace(K key, final V oldValue, final V newValue) {
         Boolean result = doTask(key, new AbstractTask<Boolean>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.SKIP_IF_EMPTY) {
             @Override
             /**
              * 执行
-            */
+             */
             protected Boolean execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null && ObjectUtils.nullSafeEquals(entry.getValue(), oldValue)) {
                     entry.setValue(newValue);
@@ -404,14 +404,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
      * Replace
-    */
+     */
     public V replace(K key, final V value) {
         return doTask(key, new AbstractTask<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.SKIP_IF_EMPTY) {
             @Override
 
             /**
              * 执行
-            */
+             */
             protected V execute(Reference<K, V> ref, Entry<K, V> entry) {
                 if (entry != null) {
                     V oldValue = entry.getValue();
@@ -426,7 +426,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * Clear
-    */
+     */
     public void clear() {
         for (Segment segment : this.segments) {
             segment.clear();
@@ -448,7 +448,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * 获取大小
-    */
+     */
     public int size() {
         int size = 0;
         for (Segment segment : this.segments) {
@@ -460,7 +460,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * 是否Empty
-    */
+     */
     public boolean isEmpty() {
         for (Segment segment : this.segments) {
             if (segment.getCount() > 0) {
@@ -473,7 +473,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     @Override
     /**
      * Entry设置
-    */
+     */
     public Set<Map.Entry<K, V>> entrySet() {
         Set<Map.Entry<K, V>> entrySet = this.entrySet;
         if (entrySet == null) {
@@ -546,12 +546,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 引用管理器
-        */
+         */
         private final ReferenceManager referenceManager;
 
         /**
          * 初始大小
-        */
+         */
         private final int initialSize;
 
         /**
@@ -585,7 +585,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Reference
-        */
+         */
         public Reference<K, V> getReference(Object key, int hash, Restructure restructure) {
             if (restructure == Restructure.WHEN_NECESSARY) {
                 restructureIfNecessary(false);
@@ -672,7 +672,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * Restructure
-        */
+         */
         private void restructure(boolean allowResize, Reference<K, V> ref) {
             boolean needsResize;
             lock();
@@ -734,7 +734,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 查找InChain
-        */
+         */
         private Reference<K, V> findInChain(Reference<K, V> ref, Object key, int hash) {
             Reference<K, V> currRef = ref;
             while (currRef != null) {
@@ -754,14 +754,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 创建ReferenceArray
-        */
+         */
         private Reference<K, V>[] createReferenceArray(int size) {
             return new Reference[size];
         }
 
         /**
          * 获取Index
-        */
+         */
         private int getIndex(int hash, Reference<K, V>[] references) {
             return (hash & (references.length - 1));
         }
@@ -852,7 +852,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Key
-        */
+         */
         public K getKey() {
             return this.key;
         }
@@ -861,7 +861,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Value
-        */
+         */
         public V getValue() {
             return this.value;
         }
@@ -870,7 +870,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 设置Value
-        */
+         */
         public V setValue(V value) {
             V previous = this.value;
             this.value = value;
@@ -880,7 +880,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * ToString
-        */
+         */
         public String toString() {
             return (this.key + "=" + this.value);
         }
@@ -888,7 +888,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 判断相等
-        */
+         */
         public final boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -904,7 +904,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * HashCode
-        */
+         */
         public int hashCode() {
             return (ObjectUtils.nullSafeHashCode(this.key) ^ ObjectUtils.nullSafeHashCode(this.value));
         }
@@ -918,7 +918,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 选项列表
-        */
+         */
         private final EnumSet<TaskOption> options;
 
         /**
@@ -931,7 +931,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 是否拥有Option
-        */
+         */
         public boolean hasOption(TaskOption option) {
             return this.options.contains(option);
         }
@@ -971,19 +971,19 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     private enum TaskOption {
         /**
          * 执行前重构
-        */
+         */
         RESTRUCTURE_BEFORE,
         /**
          * 执行后重构
-        */
+         */
         RESTRUCTURE_AFTER,
         /**
          * 如果为空则跳过
-        */
+         */
         SKIP_IF_EMPTY,
         /**
          * 允许扩容
-        */
+         */
         RESIZE
     }
 
@@ -1010,7 +1010,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * Iterator
-        */
+         */
         public Iterator<Map.Entry<K, V>> iterator() {
             return new EntryIterator();
         }
@@ -1018,7 +1018,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * Contains
-        */
+         */
         public boolean contains(Object o) {
             if (o instanceof Map.Entry<?, ?>) {
                 Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
@@ -1034,7 +1034,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 移除
-        */
+         */
         public boolean remove(Object o) {
             if (o instanceof Map.Entry<?, ?>) {
                 Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
@@ -1046,7 +1046,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 获取大小
-        */
+         */
         public int size() {
             return ConcurrentReferenceHashMap.this.size();
         }
@@ -1054,7 +1054,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * Clear
-        */
+         */
         public void clear() {
             ConcurrentReferenceHashMap.this.clear();
         }
@@ -1068,41 +1068,41 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 分段索引
-        */
+         */
         private int segmentIndex;
 
         /**
          * 引用索引
-        */
+         */
         private int referenceIndex;
 
 
         /**
          * 引用数组
-        */
+         */
         private Reference<K, V>[] references;
 
 
         /**
          * 弱引用节点
-        */
+         */
         private Reference<K, V> reference;
 
 
         /**
          * 第二个迭代器
-        */
+         */
         private Entry<K, V> next;
 
 
         /**
          * 最后一个元素
-        */
+         */
         private Entry<K, V> last;
 
         /**
          * 创建 EntryIterator 实例
-        */
+         */
         public EntryIterator() {
             moveToNextSegment();
         }
@@ -1110,7 +1110,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 是否拥有Next
-        */
+         */
         public boolean hasNext() {
             getNextIfNecessary();
             return (this.next != null);
@@ -1119,7 +1119,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * Next
-        */
+         */
         public Entry<K, V> next() {
             getNextIfNecessary();
             if (this.next == null) {
@@ -1132,7 +1132,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取NextIfNecessary
-        */
+         */
         private void getNextIfNecessary() {
             while (this.next == null) {
                 moveToNextReference();
@@ -1145,7 +1145,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 移动ToNextReference
-        */
+         */
         private void moveToNextReference() {
             if (this.reference != null) {
                 this.reference = this.reference.getNext();
@@ -1163,7 +1163,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 移动ToNextSegment
-        */
+         */
         private void moveToNextSegment() {
             this.reference = null;
             this.references = null;
@@ -1176,7 +1176,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 移除
-        */
+         */
         public void remove() {
             ConcurrentReferenceHashMap.this.remove(this.last.getKey());
             this.last = null;
@@ -1190,11 +1190,11 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     protected enum Restructure {
         /**
          * 必要时重构
-        */
+         */
         WHEN_NECESSARY,
         /**
          * 永不重构
-        */
+         */
         NEVER
     }
 
@@ -1207,7 +1207,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 引用队列
-        */
+         */
         private final ReferenceQueue<Entry<K, V>> queue = new ReferenceQueue<>();
 
         /**
@@ -1246,13 +1246,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 哈希值
-        */
+         */
         private final int hash;
 
 
         /**
          * 下一个引用节点
-        */
+         */
         private final Reference<K, V> nextReference;
 
         /**
@@ -1273,7 +1273,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 获取Hash
-        */
+         */
         public int getHash() {
             return this.hash;
         }
@@ -1282,7 +1282,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 获取Next
-        */
+         */
         public Reference<K, V> getNext() {
             return this.nextReference;
         }
@@ -1290,7 +1290,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 释放
-        */
+         */
         public void release() {
             enqueue();
             clear();
@@ -1305,13 +1305,13 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
          * 哈希值
-        */
+         */
         private final int hash;
 
 
         /**
          * 下一个引用节点
-        */
+         */
         private final Reference<K, V> nextReference;
 
         /**
@@ -1332,7 +1332,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 获取Hash
-        */
+         */
         public int getHash() {
             return this.hash;
         }
@@ -1340,7 +1340,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 获取Next
-        */
+         */
         public Reference<K, V> getNext() {
             return this.nextReference;
         }
@@ -1348,7 +1348,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         @Override
         /**
          * 释放
-        */
+         */
         public void release() {
             enqueue();
             clear();

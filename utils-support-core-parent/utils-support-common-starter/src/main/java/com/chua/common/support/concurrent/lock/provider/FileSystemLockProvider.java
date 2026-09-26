@@ -154,10 +154,10 @@ public class FileSystemLockProvider extends AbstractLockProvider {
         return name;
     }
 
-    @Override
     /**
      * Do获取Type
-    */
+     */
+    @Override
     protected String doGetType() {
         return "filesystem";
     }

@@ -129,19 +129,19 @@ public class TcpProxyServer extends AbstractProxyServer {
         this.preferNonBlockingAccept = true;
     }
 
-    @Override
     /**
      * 添加过滤
-    */
+     */
+    @Override
     public TcpProxyServer addFilter(ServerFilter filter) {
         super.addFilter(filter);
         return this;
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

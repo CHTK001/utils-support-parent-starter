@@ -127,10 +127,10 @@ public class SslSocketChannel extends SocketChannel {
 
     // ==================== 读写 ====================
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public int read(ByteBuffer dst) throws IOException {
         if (closed) {
             return -1;
@@ -184,10 +184,10 @@ public class SslSocketChannel extends SocketChannel {
         }
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public int write(ByteBuffer src) throws IOException {
         if (closed) {
             throw new IOException("Channel is closed");
@@ -218,10 +218,10 @@ public class SslSocketChannel extends SocketChannel {
         return total;
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
         long total = 0;
         for (int i = offset; i < offset + length; i++) {
@@ -237,10 +237,10 @@ public class SslSocketChannel extends SocketChannel {
         return total;
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
         long total = 0;
         for (int i = offset; i < offset + length; i++) {
@@ -325,102 +325,102 @@ public class SslSocketChannel extends SocketChannel {
 
     // ==================== SocketChannel 委托 ====================
 
-    @Override
     /**
      * 绑定
-    */
+     */
+    @Override
     public SocketChannel bind(SocketAddress local) throws IOException {
         delegate.bind(local);
         return this;
     }
 
-    @Override
     /**
      * 获取LocalAddress
-    */
+     */
+    @Override
     public SocketAddress getLocalAddress() throws IOException {
         return delegate.getLocalAddress();
     }
 
-    @Override
     /**
      * 关闭Input
-    */
+     */
+    @Override
     public SocketChannel shutdownInput() throws IOException {
         delegate.shutdownInput();
         return this;
     }
 
-    @Override
     /**
      * 关闭Output
-    */
+     */
+    @Override
     public SocketChannel shutdownOutput() throws IOException {
         delegate.shutdownOutput();
         return this;
     }
 
-    @Override
     /**
      * 是否Connected
-    */
+     */
+    @Override
     public boolean isConnected() {
         return delegate.isConnected();
     }
 
-    @Override
     /**
      * 是否ConnectionPending
-    */
+     */
+    @Override
     public boolean isConnectionPending() {
         return delegate.isConnectionPending();
     }
 
-    @Override
     /**
      * 连接
-    */
+     */
+    @Override
     public boolean connect(SocketAddress remote) throws IOException {
         return delegate.connect(remote);
     }
 
-    @Override
     /**
      * Finish连接
-    */
+     */
+    @Override
     public boolean finishConnect() throws IOException {
         return delegate.finishConnect();
     }
 
-    @Override
     /**
      * 获取RemoteAddress
-    */
+     */
+    @Override
     public SocketAddress getRemoteAddress() throws IOException {
         return delegate.getRemoteAddress();
     }
 
-    @Override
     /**
      * Socket
-    */
+     */
+    @Override
     public Socket socket() {
         return delegate.socket();
     }
 
-    @Override
     /**
      * 设置Option
-    */
+     */
+    @Override
     public <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException {
         delegate.setOption(name, value);
         return this;
     }
 
-    @Override
     /**
      * 获取Option
-    */
+     */
+    @Override
     public <T> T getOption(SocketOption<T> name) throws IOException {
         return delegate.getOption(name);
     }
@@ -430,18 +430,18 @@ public class SslSocketChannel extends SocketChannel {
         return delegate.supportedOptions();
     }
 
-    @Override
     /**
      * ImplConfigureBlocking
-    */
+     */
+    @Override
     protected void implConfigureBlocking(boolean block) throws IOException {
         delegate.configureBlocking(block);
     }
 
-    @Override
     /**
      * Impl关闭SelectableChannel
-    */
+     */
+    @Override
     protected void implCloseSelectableChannel() throws IOException {
         if (closed) {
             return;

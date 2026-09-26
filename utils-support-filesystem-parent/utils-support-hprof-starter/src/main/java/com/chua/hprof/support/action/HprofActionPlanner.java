@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 处置计划生成器：从分析结果映射到"给用户的具体处理步骤"。
@@ -59,6 +60,16 @@ public final class HprofActionPlanner {
      * @return 结果值
      */
     public record ActionPlan(String problemSummary, List<ActionItem> items, boolean ideaSpecific) {
+
+        /**
+         * 规范构造器：对处置步骤列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；处置项元素均为非空记录，
+         * 因此使用拒绝 null 元素的 {@link List#copyOf(List)}。</p>
+         */
+        public ActionPlan {
+            items = List.copyOf(Objects.requireNonNull(items, "items 不能为 null"));
+        }
     }
 
     /**

@@ -13,7 +13,7 @@ package com.chua.common.support.ai.chat.protocol;
 public class AiTokenManager {
     /**
      * 创建 AiTokenManager 实例
-    */
+     */
     private AiTokenManager() {
         throw new UnsupportedOperationException("AiTokenManager 已废弃，请使用 FileAiTokenProvider + AiTokenProvider");
     }

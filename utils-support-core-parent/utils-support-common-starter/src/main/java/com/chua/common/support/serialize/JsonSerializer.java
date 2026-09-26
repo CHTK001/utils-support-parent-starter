@@ -38,22 +38,22 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
         this.type = type;
     }
 
-    @Override
     /**
      * 序列化
-    */
+     */
+    @Override
     public byte[] serialize(T object) {
         return Json.toJsonByte(object);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 反序列化
      *
      * @param bytes bytes
      * @return deserialize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

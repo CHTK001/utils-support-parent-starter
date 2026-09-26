@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
  *     .build();
  * }</pre>结束()
  * .构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -141,7 +141,7 @@ public class ForkNode implements PipelineNode {
 
     /**
      * 节点类型：fork。
-    */
+     */
     @Override
     public String getType() {
         return "fork";
@@ -167,7 +167,7 @@ public class ForkNode implements PipelineNode {
 
     /**
      * 返回分支参数表。
-    */
+     */
     @Override
     public Map<String, Object> getParams() {
         return params;
@@ -193,7 +193,7 @@ public class ForkNode implements PipelineNode {
 
     /**
      * 返回节点环境变量表。
-    */
+     */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
@@ -263,42 +263,7 @@ public class ForkNode implements PipelineNode {
         ConcurrentLinkedQueue<BranchResult> results = new ConcurrentLinkedQueue<>();
 
         if (errorStrategy == ForkErrorStrategy.FAIL_FAST) {
- // 失败_FAST：任一分支失败时取消剩余分支
-            AtomicBoolean failed = new AtomicBoolean(false);
-            try (var scope = StructuredTaskScope.open(
-                    StructuredTaskScope.Joiner.allUntil(subtask -> failed.get()))) {
-                for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
-                    String branchName = entry.getKey();
-                    Pipeline branchPipeline = entry.getValue();
-                    scope.fork(() -> {
-                        PipelineContext<?> branchCtx = context.createBranchContext();
-                        try {
-                            branchPipeline.execute(branchCtx);
-                            results.add(new BranchResult(branchName, branchCtx, null));
-                        } catch (Exception e) {
-                            results.add(new BranchResult(branchName, branchCtx, e));
-                            // 信号失败，触发 scope 取消
-                            failed.set(true);
-                        }
-                        return null;
-                    });
-                }
-                // 等待所有分支完成（含被取消的）
-                scope.join();
-
-                // 检查失败分支
-                for (BranchResult result : results) {
-                    if (result.error != null) {
-                        throw new PipelineException(
-                                "Fork branch '" + result.branchName + "' failed (FAIL_FAST)",
-                                id, context.getPipelineId(), result.error);
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new PipelineException("Fork execution interrupted",
-                        id, context.getPipelineId(), e);
-            }
+            runFailFast(context, results);
         } else {
  // WAIT_全部：等待所有分支完成，汇总异常
             try (var scope = StructuredTaskScope.open(
@@ -344,17 +309,72 @@ public class ForkNode implements PipelineNode {
             }
         }
 
- // 将分支结果以 fork结果 结构化对象存入父上下文 节点输出
+        // 将分支结果以 fork结果 结构化对象存入父上下文 节点输出
+        context.setNodeOutput(id, collectForkResult(results));
+
+        return null;
+    }
+
+    /**
+     * FAIL_FAST 策略：任一分支失败即取消其余分支，等待全部结束后抛出首个失败。
+     *
+     * @param context 父流水线上下文
+     * @param results 分支结果收集队列（由本方法写入）
+     */
+    private void runFailFast(PipelineContext<?> context,
+                             ConcurrentLinkedQueue<BranchResult> results) {
+        // 失败_FAST：任一分支失败时取消剩余分支
+        AtomicBoolean failed = new AtomicBoolean(false);
+        try (var scope = StructuredTaskScope.open(
+                StructuredTaskScope.Joiner.allUntil(subtask -> failed.get()))) {
+            for (Map.Entry<String, Pipeline> entry : branches.entrySet()) {
+                String branchName = entry.getKey();
+                Pipeline branchPipeline = entry.getValue();
+                scope.fork(() -> {
+                    PipelineContext<?> branchCtx = context.createBranchContext();
+                    try {
+                        branchPipeline.execute(branchCtx);
+                        results.add(new BranchResult(branchName, branchCtx, null));
+                    } catch (Exception e) {
+                        results.add(new BranchResult(branchName, branchCtx, e));
+                        // 信号失败，触发 scope 取消
+                        failed.set(true);
+                    }
+                    return null;
+                });
+            }
+            // 等待所有分支完成（含被取消的）
+            scope.join();
+
+            // 检查失败分支
+            for (BranchResult result : results) {
+                if (result.error != null) {
+                    throw new PipelineException(
+                            "Fork branch '" + result.branchName + "' failed (FAIL_FAST)",
+                            id, context.getPipelineId(), result.error);
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new PipelineException("Fork execution interrupted",
+                    id, context.getPipelineId(), e);
+        }
+    }
+
+    /**
+     * 汇总各分支的执行结果为 {@link ForkResult}。
+     *
+     * @param results 分支结果收集队列
+     * @return 结构化的分叉结果
+     */
+    private ForkResult collectForkResult(ConcurrentLinkedQueue<BranchResult> results) {
         Map<String, Object> branchOutputs = new LinkedHashMap<>();
         Map<String, List<String>> branchHistories = new LinkedHashMap<>();
         for (BranchResult result : results) {
             branchOutputs.put(result.branchName, result.context.getCurrentData());
             branchHistories.put(result.branchName, result.context.getHistory());
         }
-        ForkResult forkResult = new ForkResult(id, branchOutputs, branchHistories);
-        context.setNodeOutput(id, forkResult);
-
-        return null;
+        return new ForkResult(id, branchOutputs, branchHistories);
     }
 
     /**

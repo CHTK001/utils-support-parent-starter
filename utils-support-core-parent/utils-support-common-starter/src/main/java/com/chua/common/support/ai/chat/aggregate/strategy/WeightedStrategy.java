@@ -16,13 +16,13 @@ public class WeightedStrategy implements RouterStrategy {
 
     /**
      * 随机数生成器
-    */
+     */
     private final Random random = new Random();
 
-    @Override
     /**
      * 选择
-    */
+     */
+    @Override
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

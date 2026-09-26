@@ -39,11 +39,11 @@ public class FileMemoryStore implements MemoryStore {
 
     /**
      * 配置对象
-    */
+     */
     private final MemoryConfig config;
     /**
      * 内存存储目录
-    */
+     */
     private final Path memoryDir;
 
     /**
@@ -60,10 +60,10 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
-    @Override
     /**
      * 保存
-    */
+     */
+    @Override
     public void save(MemoryEntry entry) {
         String id = entry.getId();
         long createdAt = entry.getCreatedAt();
@@ -90,10 +90,10 @@ public class FileMemoryStore implements MemoryStore {
         evictIfNeeded();
     }
 
-    @Override
     /**
      * 搜索
-    */
+     */
+    @Override
     public List<MemoryEntry> search(String keyword, int limit) {
         if (keyword == null || keyword.isBlank()) {
             return listAll(limit);
@@ -107,10 +107,10 @@ public class FileMemoryStore implements MemoryStore {
                 .collect(Collectors.toList());
     }
 
-    @Override
     /**
      * ListByType
-    */
+     */
+    @Override
     public List<MemoryEntry> listByType(String type, int limit) {
         return listAll(Integer.MAX_VALUE).stream()
                 .filter(e -> type.equals(e.getType()))
@@ -119,10 +119,10 @@ public class FileMemoryStore implements MemoryStore {
                 .collect(Collectors.toList());
     }
 
-    @Override
     /**
      * ListBySession
-    */
+     */
+    @Override
     public List<MemoryEntry> listBySession(String sessionId) {
         return listAll(Integer.MAX_VALUE).stream()
                 .filter(e -> sessionId.equals(e.getSessionId()))
@@ -130,10 +130,10 @@ public class FileMemoryStore implements MemoryStore {
                 .collect(Collectors.toList());
     }
 
-    @Override
     /**
      * 删除
-    */
+     */
+    @Override
     public boolean delete(String id) {
         Path file = memoryDir.resolve(id + ".json");
         try {
@@ -143,10 +143,10 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
-    @Override
     /**
      * 计算数量
-    */
+     */
+    @Override
     public int count() {
         try {
             return (int) Files.list(memoryDir)
@@ -157,10 +157,10 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
-    @Override
     /**
      * Backup
-    */
+     */
+    @Override
     public void backup(String backupPath) {
         try {
             Path target = Paths.get(backupPath);
@@ -173,10 +173,10 @@ public class FileMemoryStore implements MemoryStore {
         }
     }
 
-    @Override
     /**
      * Restore
-    */
+     */
+    @Override
     public void restore(String backupPath) {
         try {
             String json = Files.readString(Paths.get(backupPath));
@@ -221,7 +221,7 @@ public class FileMemoryStore implements MemoryStore {
 
     /**
      * EvictIfNeeded
-    */
+     */
     private void evictIfNeeded() {
         int current = count();
         if (current <= config.getMaxEntries()) {

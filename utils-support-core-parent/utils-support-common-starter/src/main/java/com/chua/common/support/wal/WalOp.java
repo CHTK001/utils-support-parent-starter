@@ -22,6 +22,18 @@ public record WalOp(
     }
 
     /**
+     * 访问器覆写：返回内部数组的副本。
+     *
+     * <p>value class 前置条件——外部无法通过访问器拿到内部数组引用。</p>
+     *
+     * @return 数组副本
+     */
+    @Override
+    public byte[] payload() {
+        return payload.clone();
+    }
+
+    /**
      * 创建指定操作类型的空 payload 操作。
      *
      * @param op 操作类型

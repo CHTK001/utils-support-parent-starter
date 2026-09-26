@@ -21,7 +21,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datalake-sink-starter</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

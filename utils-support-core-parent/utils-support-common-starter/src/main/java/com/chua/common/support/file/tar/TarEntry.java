@@ -71,10 +71,10 @@ public class TarEntry {
 		this.header = header;
 	}
 
-	@Override
 	/**
 	 * 判断相等
-	*/
+  */
+	@Override
 	public boolean equals(Object it) {
 		if (!(it instanceof TarEntry)) {
 			return false;
@@ -83,10 +83,10 @@ public class TarEntry {
 		return this.header.name.toString().equals(other.header.name.toString());
 	}
 
-	@Override
 	/**
 	 * HashCode
-	*/
+  */
+	@Override
 	public int hashCode() {
 		return this.header.name.hashCode();
 	}

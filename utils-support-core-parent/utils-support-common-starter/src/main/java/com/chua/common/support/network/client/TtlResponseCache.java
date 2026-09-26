@@ -289,10 +289,10 @@ public class TtlResponseCache {
         return copy;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return String.format("TtlResponseCache[size=%d, hits=%d, misses=%d, hitRate=%.1f%%, evictions=%d]",
                 store.size(), hitCount.sum(), missCount.sum(), getHitRate() * 100, evictionCount.sum());

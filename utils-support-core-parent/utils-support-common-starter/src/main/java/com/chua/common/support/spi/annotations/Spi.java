@@ -69,7 +69,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>xml处理器;
  * }
- * }</pre>
+ * }
  *
  * <p>相关的 SPI 扩展注解：
  * <ul>
@@ -148,7 +148,7 @@ public @interface Spi {
      * @Spi(value = "file", order = -100)   // 低优先级，作为兜底
      * public class FileCache implements Cache { }
      * }</pre> { }
-     * }</pre>
+     * }
      *
      * @return 优先级顺序，默认为 0
      */

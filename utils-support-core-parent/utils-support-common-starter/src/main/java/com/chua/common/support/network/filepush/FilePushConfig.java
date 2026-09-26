@@ -33,47 +33,47 @@ import java.util.List;
 public class FilePushConfig {
     /**
      * 默认监听主机
-    */
+     */
     public static final String DEFAULT_HOST = "0.0.0.0";
     /**
      * 默认监听端口
-    */
+     */
     public static final int DEFAULT_PORT = 9777;
     /**
      * 默认分片大小（字节），1 MB
-    */
+     */
     public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024;
     /**
      * 目录推送协议魔数，占 4 字节，防止误连到其他 TCP 服务
-    */
+     */
     public static final int MAGIC = 0x46505553;
     /**
      * 协议版本号，占 1 字节
-    */
+     */
     public static final int PROTOCOL_VERSION = 1;
     /**
      * 消息类型：开始传输一个文件
-    */
+     */
     public static final byte MSG_BEGIN = 0x01;
     /**
      * 消息类型：文件数据分片
-    */
+     */
     public static final byte MSG_CHUNK = 0x02;
     /**
      * 消息类型：单个文件传输完成
-    */
+     */
     public static final byte MSG_END = 0x03;
     /**
      * 消息类型：全部文件传输完成（该会话）
-    */
+     */
     public static final byte MSG_DONE = 0x04;
     /**
      * 消息类型：ACK（服务端 → 客户端）
-    */
+     */
     public static final byte MSG_ACK = 0x10;
     /**
      * 消息类型：NACK / 错误（服务端 → 客户端）
-    */
+     */
     public static final byte MSG_ERROR = 0x11;
     /**
      * 消息类型：会话清理指令（客户端 → 服务端，删除目标目录中本地已不存在的文件）
@@ -85,11 +85,11 @@ public class FilePushConfig {
     public static final byte MSG_MANIFEST = 0x13;
     /**
      * 消息类型：目标目录文件清单响应（服务端 → 客户端）
-    */
+     */
     public static final byte MSG_MANIFEST_RESP = 0x14;
     /**
      * 文件总数，占 4 字节
-    */
+     */
     private int fileCount = -1;
     /**
      * 每条 TCP 连接承载的文件数（连接复用）。
@@ -103,51 +103,51 @@ public class FilePushConfig {
     private int filesPerConnection = 1;
     /**
      * 源目录（客户端推送目录）
-    */
+     */
     private Path sourceDir;
     /**
      * 目标目录（服务端接收目录）
-    */
+     */
     private Path targetDir;
     /**
      * 监听/连接主机
-    */
+     */
     private String host = DEFAULT_HOST;
     /**
      * 监听/连接端口
-    */
+     */
     private int port = DEFAULT_PORT;
     /**
      * 连接超时（毫秒）
-    */
+     */
     private int connectTimeoutMs = 10_000;
     /**
      * 读超时（毫秒），覆盖最慢分片的传输等待
-    */
+     */
     private int readTimeoutMs = 60_000;
     /**
      * 分片大小（字节），0/负数 回退默认 1 MB
-    */
+     */
     private int chunkSize = DEFAULT_CHUNK_SIZE;
     /**
      * 客户端并发文件数（默认 CPU × 4，上限 256）
-    */
+     */
     private int clientFileParallelism = 0;
     /**
      * 服务端并发连接数（默认 CPU × 4，上限 256）
-    */
+     */
     private int serverConnectionParallelism = 0;
     /**
      * 服务端写盘并发数（默认 CPU，IO 型）
-    */
+     */
     private int serverWriteParallelism = 0;
     /**
      * 客户端 IO 缓冲大小（字节），0/负数 回退 64 KB
-    */
+     */
     private int ioBufferSize = 0;
     /**
      * 是否清理目标目录中本次未推送的旧文件
-    */
+     */
     private boolean cleanup;
     /**
      * 是否启用增量同步。
@@ -162,7 +162,7 @@ public class FilePushConfig {
     private List<String> excludes;
     /**
      * 包含模式列表（子串匹配），空表示全部包含
-    */
+     */
     private List<String> includes;
     /**
      * 归一化分片大小。

@@ -1,4 +1,4 @@
-﻿SET=com.chua.redis.support.command.SetCommandHandler
+SET=com.chua.redis.support.command.SetCommandHandler
 GET=com.chua.redis.support.command.GetCommandHandler
 DEL=com.chua.redis.support.command.DelCommandHandler
 HSET=com.chua.redis.support.command.HsetCommandHandler

@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  *     .taskEnd()                  // 结束定义
  *     .build();
  * }</pre>   * .构建();
- * }</pre>
+ * }
  *
  * <p><strong>便捷方法：</strong></p>
  * <ul>
@@ -80,7 +80,7 @@ import java.util.function.Consumer;
  *     .taskEnd()
  *     .build();
  * }</pre>   * .构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -90,35 +90,35 @@ public class TaskSubPipelineDefinition {
 
     /**
      * 标识
-    */
+     */
     private final String id;
     /**
      * PRE处理器
-    */
+     */
     private PipelineNode preHandler;
     /**
      * 构建器
-    */
+     */
     private final PipelineBuilder builder;
     /**
      * SUB管道
-    */
+     */
     private final Pipeline subPipeline;
     /**
      * 结束afterexecute
-    */
+     */
     private boolean endAfterExecute;
     /**
      * 开始节点
-    */
+     */
     private String startNode;
     /**
      * 参数
-    */
+     */
     private Map<String, Object> params;
     /**
      * env
-    */
+     */
     private Map<String, Object> env;
 
     /**

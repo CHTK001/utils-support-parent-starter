@@ -39,7 +39,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /**
      * 存储模式。
-    */
+     */
     public enum Mode { MEMORY, FILE, HYBRID }
 
     /**
@@ -51,6 +51,16 @@ public class DefaultVectorStorage implements VectorStorage {
      * @return EntryLoc的结果
      */
     private record EntryLoc(Path path, long offset, int length) {
+
+        /**
+         * 规范构造器：路径 必填。
+         *
+         * <p>value class 前置条件——空值敌对。三个构造点传入的分片路径
+         * 均来自文件流创建与 {@code resolve} 的结果，不可能为 空。</p>
+         */
+        public EntryLoc {
+            Objects.requireNonNull(path, "path 不能为 null");
+        }
     }
 
     /**
@@ -61,6 +71,17 @@ public class DefaultVectorStorage implements VectorStorage {
      * @return shard缓冲的结果
      */
     private record ShardBuffer(MappedByteBuffer buf, FileChannel fc) {
+
+        /**
+         * 规范构造器：映射缓冲 与 文件通道 均必填。
+         *
+         * <p>value class 前置条件——空值敌对。二者是分片映射的 成对 资源，
+         * 且 {@code clear()} / {@code close()} 会无条件调用 {@code fc().isOpen()}。</p>
+         */
+        public ShardBuffer {
+            Objects.requireNonNull(buf, "buf 不能为 null");
+            Objects.requireNonNull(fc, "fc 不能为 null");
+        }
     }
 
     /**
@@ -71,6 +92,27 @@ public class DefaultVectorStorage implements VectorStorage {
      * @return ShardMeta的结果
      */
     private record ShardMeta(float[] centroid, float maxNorm) {
+
+        /**
+         * 规范构造器：质心数组 做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。两个构造点均在
+         * 数组填充与归一化完成之后才构造本记录，归一化不再回写该数组。</p>
+         */
+        public ShardMeta {
+            Objects.requireNonNull(centroid, "centroid 不能为 null");
+            centroid = centroid.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部质心数组的副本。
+         *
+         * @return 质心数组副本
+         */
+        @Override
+        public float[] centroid() {
+            return centroid.clone();
+        }
     }
 
     private final int dimension; // 维度
@@ -82,11 +124,11 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /**
      * 热数据：内存索引（标识 → 向量）。
-    */
+     */
     private final ConcurrentHashMap<String, Vector> hot = new ConcurrentHashMap<>();
     /**
      * 冷数据分片列表（有序，用于定位文件路径）。
-    */
+     */
     private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
     /**
      * 路径 → 分片序号的反向索引，O(1) 查找，避免每次 读取entry 线性扫描。
@@ -94,7 +136,7 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ConcurrentHashMap<Path, Integer> pathToShardIdx = new ConcurrentHashMap<>();
     /**
      * 冷数据索引：标识 → entryloc，用于精确跳跃读取。
-    */
+     */
     private final ConcurrentHashMap<String, EntryLoc> coldIndex = new ConcurrentHashMap<>();
     /**
      * 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。
@@ -102,7 +144,7 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
     /**
      * 分片元数据（centroid），键 为分片序号，用于剪枝。
-    */
+     */
     private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
     /**
      * 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。
@@ -116,7 +158,7 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]); // thread本地读取buf
     /**
      * thread本地 float 缓冲：动态扩容，默认 128 维。
-    */
+     */
     private final ThreadLocal<float[]> vecBuf = ThreadLocal.withInitial(() -> new float[128]);
     /**
      * thread本地 向量累加器：用于计算 centroid，默认 128 维。
@@ -125,7 +167,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /**
      * SIMD 分块宽度：每次处理 16 个 float。
-    */
+     */
     private static final int SIMD = 16;
 
     // ---- 构造 ----
@@ -352,7 +394,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /**
      * 将热数据刷盘为冷分片，并重建 B+ 树 索引。
-    */
+     */
     public void flush() {
         lock.writeLock().lock();
         try {
@@ -672,7 +714,9 @@ public class DefaultVectorStorage implements VectorStorage {
     }
 
     /**
-     * 从 mappedbyte缓冲 指定偏移读取向量到 thread本地 缓冲，返回 向量（不额外分配 float[]）。
+     * 从 mappedbyte缓冲 指定偏移读取向量到 thread本地 缓冲，返回 向量。
+     * <p>thread本地 缓冲 只用于解码 中转；{@link Vector} 规范构造器会再做一次防御性拷贝，
+     * 因此返回值不 与 缓冲 共享底层数组（否则同一线程读出的多个向量会互相覆盖）。</p>
      * @param loc loc
      * @param buf buf
      * @return 读取entry从buf的结果
@@ -845,6 +889,17 @@ public class DefaultVectorStorage implements VectorStorage {
      * @return 向量scored的结果
      */
     private record VectorScored(String id, float score, Vector vector) {
+
+        /**
+         * 规范构造器：标识 与 向量 必填。
+         *
+         * <p>value class 前置条件——空值敌对。三个构造点的 入参 均取自已存储的
+         * {@link Vector} 自身的访问器，不可能为 空。</p>
+         */
+        public VectorScored {
+            Objects.requireNonNull(id, "id 不能为 null");
+            Objects.requireNonNull(vector, "vector 不能为 null");
+        }
     }
 
     /**

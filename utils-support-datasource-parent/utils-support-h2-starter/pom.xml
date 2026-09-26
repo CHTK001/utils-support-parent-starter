@@ -22,6 +22,7 @@
             <artifactId>utils-support-datasource-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 正式嵌入式数据库适配：由具体应用选择并提供 H2 驱动版本 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

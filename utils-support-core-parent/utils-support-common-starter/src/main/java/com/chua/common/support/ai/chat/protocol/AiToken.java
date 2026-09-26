@@ -20,43 +20,38 @@ public class AiToken {
 
     /**
      * 令牌值（如 sk-xxx）
-    */
+     */
     private String token;
 
     /**
      * 令牌分组（如 default、vip、admin），用于路由到对应的模型组
-     */
-    /**
+     *
      * 用户组
      */
     private String group;
 
     /**
      * 过期时间，null 表示永不过期
-    */
+     */
     private Date expireTime;
 
     /**
      * 是否启用
-    */
-    @Builder.Default
-    /**
-     * 是否启用
      */
+    @Builder.Default
     private boolean enabled = true;
 
     /**
      * 备注
-    */
+     */
     private String remark;
 
     /**
      * 创建时间
-    */
-    @Builder.Default
-    /**
+     *
      * Create时间
-    */
+     */
+    @Builder.Default
     private Date createTime = new Date();
 
     /**

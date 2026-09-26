@@ -26,10 +26,10 @@ import java.util.Map;
  * @since 4.0.0.42
  */
 public class JsonArrayTypeConverter implements TypeConverter<List> {
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public Class<List> getType() {
         return List.class;
     }

@@ -24,6 +24,18 @@ public record WalRecord(
     }
 
     /**
+     * 访问器覆写：返回内部数组的副本。
+     *
+     * <p>value class 前置条件——外部无法通过访问器拿到内部数组引用。</p>
+     *
+     * @return 数组副本
+     */
+    @Override
+    public byte[] payload() {
+        return payload.clone();
+    }
+
+    /**
      * 返回 payload 副本，调用方可以安全修改。
      *
      * @return payload 字节数组副本

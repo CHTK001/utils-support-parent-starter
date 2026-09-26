@@ -3,6 +3,7 @@ package com.chua.filestorage.support.spi;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,19 @@ public interface FileStorageFilterSetting {
      * @return 结果值
      */
     record ImageFilterConfig(String id, Map<String, Object> params) {
+
+        /**
+         * 规范构造器：对滤镜参数做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。参数值由 SPI 实现方提供，
+         * 允许为 null，因此采用可空安全的不可变包装（保持插入顺序），而非会拒绝
+         * null 值的 {@link Map#copyOf(Map)}。</p>
+         */
+        public ImageFilterConfig {
+            params = params == null
+                    ? Collections.emptyMap()
+                    : Collections.unmodifiableMap(new LinkedHashMap<>(params));
+        }
 
         /**
          * 的

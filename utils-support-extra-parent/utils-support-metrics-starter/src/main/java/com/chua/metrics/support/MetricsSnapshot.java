@@ -1,5 +1,6 @@
 package com.chua.metrics.support;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -70,5 +71,6 @@ public class MetricsSnapshot {
     /**
      * 系统负载信息
      */
+    @JsonProperty("system_load")
     private SystemLoad load;
 }

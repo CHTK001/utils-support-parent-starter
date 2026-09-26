@@ -17,17 +17,40 @@ import java.util.List;
  * 各搜索引擎通过实现此接口暴露底层能力，再由 {@link MetaSearch} 封装为统一的链式 API。
  * </p>
  * <p>
- * 使用示例：
+ * <b>推荐用法是走 {@code MetaData#search()} 链式 API</b>，由各引擎的
+ * {@code MetaData} 实现负责注入底层客户端；本 SPI 只在需要绕过链式 API 操作
+ * 底层索引时才直接使用。
+ * </p>
+ * <p>
+ * <b>直接使用 SPI 时必须用带构造参数的取法</b>：本接口所有实现都是构造器注入
+ * （接收所属引擎或 {@code DataSource}），没有任何实现提供无参构造，因此
+ * {@code getExtension(name)} 会返回 {@code null}（实测确认），必须写成：
+ * </p>
  * <pre>{@code
- * // 通过 Engine 使用（推荐）
+ * // 推荐：经引擎元数据拿链式 API
  * SearchIndexDef idx = engine.meta().search().create("product").execute();
  *
- * // 直接使用 SearchEngine（高级用法）
- * SearchEngine searchEngine = ServiceProvider.of(SearchEngine.class).getExtension("elasticsearch");
+ * // 高级用法：直接取 SPI 实现，注意必须传构造参数
+ * SearchEngine searchEngine =
+ *         ServiceProvider.of(SearchEngine.class).getNewExtension("elasticsearch", elasticsearchEngine);
  * List<String> indexes = searchEngine.listIndexes();
  * SearchIndexDef def = searchEngine.getIndex("product");
  * searchEngine.createIndex(def);
  * }</pre>
+ * <p>
+ * 已注册的扩展键与其构造参数类型（键名即各实现的 {@link #type()}）：
+ * </p>
+ * <ul>
+ *   <li>{@code h2} → 构造参数为所属 H2 引擎</li>
+ *   <li>{@code sqlite} → 构造参数为所属 Sqlite 引擎</li>
+ *   <li>{@code elasticsearch} → 构造参数为所属 Elasticsearch 引擎</li>
+ *   <li>{@code solr} → 构造参数为所属 Solr 引擎</li>
+ *   <li>{@code redis} → 构造参数为所属 RediSearch 引擎</li>
+ *   <li>{@code mysql} → 构造参数为 {@code DataSource}（而非引擎）</li>
+ * </ul>
+ * </p>
+ * <p>
+ * 未注册到本 SPI 的实现（各数据库的 {@code *MetaSearch}）请经 {@code MetaData#search()} 使用。
  * </p>
  *
  * @author CH

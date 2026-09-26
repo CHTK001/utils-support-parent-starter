@@ -105,10 +105,10 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     }
 
 
-    @Override
     /**
      * configure游泳池
-    */
+     */
+    @Override
     public final void configurePool(Number size) {
         int target = size == null ? MODE_SINGLETON : size.intValue();
         synchronized (this) {
@@ -128,10 +128,10 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     }
 
 
-    @Override
     /**
      * 获取游泳池
-    */
+     */
+    @Override
     public final ObjectPool<T> getPool() {
         return objectPool;
     }
@@ -244,26 +244,26 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
                 .minIdle(0)
                 .build();
         ObjectFactory<T> objectFactory = new ObjectFactory<T>() {
-            @Override
             /**
              * 创建
-            */
+             */
+            @Override
             public T create() {
                 return createAndConfigure();
             }
 
-            @Override
             /**
              * 校验
-            */
+             */
+            @Override
             public boolean validate(T obj) {
                 return obj != null;
             }
 
-            @Override
             /**
              * 销毁
-            */
+             */
+            @Override
             public void destroy(T obj) {
                 if (obj instanceof AutoCloseable) {
                     try {

@@ -2,7 +2,11 @@ package com.chua.solr.support.ddl;
 
 import com.chua.common.support.lang.datasource.table.ColumnDef;
 import com.chua.common.support.lang.datasource.table.TableDef;
-import com.chua.datasource.support.ddl.DslManager;
+import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.ddl.DslManager;
+import com.chua.common.support.lang.datasource.engine.ddl.EngineAware;
+import com.chua.solr.support.engine.SolrEngine;
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -26,7 +30,8 @@ import java.util.Map;
  * @since 4.0.0
  */
 @Slf4j
-public class SolrDdlManager implements DslManager {
+@Spi(DslManager.SPI_NAME)
+public class SolrDdlManager implements DslManager, EngineAware {
 
     /**
      * Solr 集合名白名单：以字母或下划线开头，可含数字、{@code _}、{@code -}，最多限定一层
@@ -35,18 +40,19 @@ public class SolrDdlManager implements DslManager {
             java.util.regex.Pattern.compile("[A-Za-z_][A-Za-z0-9_\\-]{0,99}(?:\\.[A-Za-z_][A-Za-z0-9_\\-]{0,99})?");
 
     /**
-     * Solr 客户端（绑定到 /Solr 根路径）
-    */
-    private final SolrClient client;
+     * Solr 客户端（绑定到 /Solr 根路径）。
+     * <p>经 SPI 解析时由 {@link #setEngine} 从所属引擎取，不走构造参数。</p>
+     */
+    private SolrClient client;
 
     /**
      * 默认分片数
-    */
+     */
     private int numShards = 1;
 
     /**
      * 默认副本数
-    */
+     */
     private int replicationFactor = 1;
 
     /**
@@ -57,6 +63,41 @@ public class SolrDdlManager implements DslManager {
     public SolrDdlManager(SolrClient client) {
         this.client = client;
     }
+
+    /**
+     * 无参构造，供 SPI 解析使用；客户端由 {@link #setEngine} 注入。
+     */
+    public SolrDdlManager() {
+    }
+
+    @Override
+    /**
+     * 注入 所属 引擎
+     *
+     * @param engine 所属 引擎
+     * @throws IllegalArgumentException 引擎类型不匹配时抛出
+     */
+    public void setEngine(Engine engine) {
+        if (!(engine instanceof SolrEngine solrEngine)) {
+            throw new IllegalArgumentException("SolrDdlManager 需要 SolrEngine，实际为: "
+                    + (engine == null ? "null" : engine.getClass().getName()));
+        }
+        this.client = solrEngine.getClient();
+    }
+
+    @Override
+    /**
+     * 校验 必需 参数
+     *
+     * @throws IllegalStateException 客户端未注入时抛出
+     */
+    public void requireContext() {
+        if (client == null) {
+            throw new IllegalStateException("SolrDdlManager 缺少 SolrClient：请通过 Engine#ddl() 获取，"
+                    + "或手工调用构造方法传入客户端");
+        }
+    }
+
 
     @Override
     /**

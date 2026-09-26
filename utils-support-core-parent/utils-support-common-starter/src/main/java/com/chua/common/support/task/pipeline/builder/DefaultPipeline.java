@@ -172,7 +172,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 返回流水线唯一 标识。
-    */
+     */
     @Override
     public String getId() {
         return id;
@@ -180,7 +180,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 执行整条流水线：创建新上下文后进入主循环。
-    */
+     */
     @Override
     public <T> PipelineContext<T> execute(T input) {
         PipelineContext<T> ctx = new PipelineContext<>(id, input);
@@ -245,7 +245,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 从 WAL 断点恢复执行；无 WAL 数据时等同 执行。
-    */
+     */
     @Override
     public <T> PipelineContext<T> resume(T input) {
         // WAL 恢复：尝试从 WAL 回放恢复上下文
@@ -270,7 +270,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 强制终止流水线并销毁 WAL 持久化数据。
-    */
+     */
     @Override
     public void stop() {
         // 终止执行 + 销毁 WAL
@@ -498,7 +498,7 @@ public class DefaultPipeline implements Pipeline {
  // 1. 当前数据 为 空 时不存储 —— 节点输出 为 并发哈希映射，空 值会抛 NPE；
  // 旧版直接崩溃，新版下游对缺失 键 读取到 空，行为更明确
  // 2. 节点已自行存储结构化结果（异步结果/fork结果/subpipeline结果）时不覆盖 ——
- // 旧版用 当前数据 覆盖导致 类cast异常，新版保留节点自存的结构化结果
+ // 旧版用 当前数据 覆盖导致 类型转换异常，新版保留节点自存的结构化结果
                 if (ctx.getCurrentData() != null && !ctx.getNodeOutputs().containsKey(nodeId)) {
                     ctx.setNodeOutput(nodeId, ctx.getCurrentData());
                 }
@@ -607,73 +607,73 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * ANSI 重置
-    */
+     */
     private static final String ANSI_RESET = "\u001B[0m";
     /**
      * ANSI 粗体
-    */
+     */
     private static final String ANSI_BOLD = "\u001B[1m";
     /**
      * ANSI 暗色（降低亮度）
-    */
+     */
     private static final String ANSI_DIM = "\u001B[2m";
     /**
      * ANSI 绿色 — 任务 节点
-    */
+     */
     private static final String ANSI_GREEN = "\u001B[32m";
     /**
      * ANSI 黄色 — Decision 节点
-    */
+     */
     private static final String ANSI_YELLOW = "\u001B[33m";
     /**
      * ANSI 蓝色 — subpipeline 节点
-    */
+     */
     private static final String ANSI_BLUE = "\u001B[34m";
     /**
      * ANSI 青色 — Fork 节点
-    */
+     */
     private static final String ANSI_CYAN = "\u001B[36m";
     /**
      * ANSI 红色 — 错误标记
-    */
+     */
     private static final String ANSI_RED = "\u001B[31m";
 
     /**
      * 重试提供者 — 用于节点级重试执行
-    */
+     */
     private static final RetryProvider RETRY_PROVIDER = new JdkRetryProvider();
 
     /**
      * 节点类型图标：任务
-    */
+     */
     private static final String ICON_TASK = "●";
     /**
      * 节点类型图标：Decision
-    */
+     */
     private static final String ICON_DECISION = "◆";
     /**
      * 节点类型图标：subpipeline
-    */
+     */
     private static final String ICON_SUB = "▶";
     /**
      * 节点类型图标：Fork
-    */
+     */
     private static final String ICON_FORK = "⋈";
     /**
      * 节点类型图标：结束
-    */
+     */
     private static final String ICON_END = "◉";
     /**
      * 执行状态标记：已执行
-    */
+     */
     private static final String MARK_EXECUTED = "✓";
     /**
      * 执行状态标记：未执行
-    */
+     */
     private static final String MARK_PENDING = "○";
     /**
      * 执行状态标记：错误
-    */
+     */
     private static final String MARK_ERROR = "✗";
 
     /**
@@ -839,20 +839,20 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 最后一个树线数量
-    */
+     */
     private transient int lastTreeLineCount = 0;
     /**
      * 树线数量
-    */
+     */
     private transient int treeLineCounter = 0;
     /**
      * 是否处于树行计数模式（draw树 原地刷新用）
-    */
+     */
     private transient boolean countingTreeLines = false;
 
     /**
      * 以纯文本模式打印节点拓扑树。
-    */
+     */
     @Override
     public void printTree(List<String> history) {
         printTree(history, false);
@@ -860,7 +860,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 以可选 ANSI 颜色模式打印节点拓扑树，已执行节点打勾标记。
-    */
+     */
     @Override
     public void printTree(List<String> history, boolean colorEnabled) {
         Set<String> executed = history != null ? new HashSet<>(history) : Collections.emptySet();
@@ -969,7 +969,7 @@ public class DefaultPipeline implements Pipeline {
 
     /**
      * 返回流水线 标识 与节点拓扑摘要。
-    */
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

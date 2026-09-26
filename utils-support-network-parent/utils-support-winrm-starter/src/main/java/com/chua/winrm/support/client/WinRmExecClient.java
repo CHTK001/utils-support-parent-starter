@@ -157,7 +157,13 @@ public class WinRmExecClient implements AutoCloseable {
             if (payloadEncryptionOff) {
                 builder.payloadEncryptionMode(io.cloudsoft.winrm4j.client.PayloadEncryptionMode.OFF);
             }
-            builder.targetAuthSchemes(Arrays.asList(authenticationScheme));
+            // 目标机 401 可能只回 "Negotiate"（SPNEGO）而不回 "NTLM"：NTLM 认证时 winrm4j 已把
+            // "Negotiate" 注册为 NtlmMasqAsSpnego（NTLM 令牌经 Negotiate 头发送），因此目标方案必须
+            // 同时包含 Negotiate 与 NTLM，否则只声明 NTLM 时 Negotiate 质询被过滤，导致认证循环。
+            java.util.List<String> targetSchemes = "NTLM".equalsIgnoreCase(authenticationScheme)
+                    ? Arrays.asList("Negotiate", "NTLM")
+                    : Arrays.asList(authenticationScheme);
+            builder.targetAuthSchemes(targetSchemes);
             builder.disableCertificateChecks(true);
             builder.connectionTimeout(connectTimeout);
             builder.receiveTimeout((long) sessionTimeout);

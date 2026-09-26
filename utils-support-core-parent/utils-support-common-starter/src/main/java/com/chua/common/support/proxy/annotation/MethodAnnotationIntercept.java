@@ -67,7 +67,7 @@ import java.lang.annotation.Annotation;
  * }</pre>果;
  *     }
  * }
- * }</pre>
+ * }
  *
  * @param <A> 注解类型，必须继承自 {@link java.lang.annotation.Annotation}
  * @author CH

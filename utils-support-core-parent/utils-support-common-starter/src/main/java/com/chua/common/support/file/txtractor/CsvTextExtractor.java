@@ -23,10 +23,10 @@ import java.util.List;
 @Spi({"csv", "tsv"})
 public class CsvTextExtractor implements TextExtractor {
 
-    @Override
     /**
      * ExtractText
-    */
+     */
+    @Override
     public List<TextExtractResult> extractText(File file) {
         StringBuilder sb = new StringBuilder();
 
@@ -56,10 +56,10 @@ public class CsvTextExtractor implements TextExtractor {
         return Collections.singletonList(new TextExtractResult(sb.toString(), "", 0, file.getName()));
     }
 
-    @Override
     /**
      * Type
-    */
+     */
+    @Override
     public String type() {
         return "csv";
     }

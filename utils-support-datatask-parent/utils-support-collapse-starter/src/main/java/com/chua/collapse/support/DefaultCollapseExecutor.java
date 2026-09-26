@@ -350,17 +350,13 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
             if (mapped == null) {
                 throw new IllegalStateException("折叠结果映射器返回空结果");
             }
-            System.err.println("[CollapseDiag] runMapped inputs=" + inputs.size() + " mappedSize=" + mapped.size());
             for (Task<INPUT, OUTPUT> task : group) {
                 if (!mapped.containsKey(task.input())) {
-                    System.err.println("[CollapseDiag] 缺调用者结果 input=" + task.input());
                     task.future().completeExceptionally(
                             new IllegalStateException("折叠结果中缺少调用者对应结果"));
                     continue;
                 }
                 OUTPUT value = mapped.get(task.input());
-                System.err.println("[CollapseDiag] 完成 task value="
-                        + (value == null ? "null" : value.getClass().getSimpleName() + ":" + value));
                 task.future().complete(value);
             }
         } catch (Throwable throwable) {

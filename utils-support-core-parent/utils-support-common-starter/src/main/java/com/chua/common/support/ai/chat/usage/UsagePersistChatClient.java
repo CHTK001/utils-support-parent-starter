@@ -54,15 +54,15 @@ public class UsagePersistChatClient implements ChatClient {
 
     /**
      * 委托客户端
-    */
+     */
     private final ChatClient delegate;
     /**
      * 引擎实例
-    */
+     */
     private final Engine engine;
     /**
      * 待处理异步任务列表
-    */
+     */
     private final List<CompletableFuture<?>> pendingFutures = new CopyOnWriteArrayList<>();
 
     /**
@@ -88,25 +88,24 @@ public class UsagePersistChatClient implements ChatClient {
 
     // ======================== 包装的接口方法 ========================
 
-    @Override
     /**
      * ChatSync
-    */
+     */
+    @Override
     public String chatSync(String prompt) {
         return delegate.chatSync(prompt);
     }
 
-    @Override
     /**
      * ChatSyncWithResponse
-    */
+     */
+    @Override
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         ChatSyncResponse response = delegate.chatSyncWithResponse(prompt);
         persistAsync(response != null ? response.getUsage() : null);
         return response;
     }
 
-    @Override
     /**
      * 对话
      * @param prompt prompt
@@ -114,6 +113,7 @@ public class UsagePersistChatClient implements ChatClient {
      * @param onComplete onComplete
      * @param onError onError
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         delegate.chat(prompt, raw -> {
@@ -125,10 +125,10 @@ public class UsagePersistChatClient implements ChatClient {
         }, onComplete, onError);
     }
 
-    @Override
     /**
      * ChatAsync
-    */
+     */
+    @Override
     public CompletableFuture<ChatSyncResponse> chatAsync(String prompt) {
         return delegate.chatAsync(prompt)
                 .thenApply(response -> {
@@ -137,128 +137,128 @@ public class UsagePersistChatClient implements ChatClient {
                 });
     }
 
-    @Override
     /**
      * Models
-    */
+     */
+    @Override
     public List<ModelDefinition> models() {
         return delegate.models();
     }
 
     // ======================== 链式方法 ========================
 
-    @Override
     /**
      * Provider
-    */
+     */
+    @Override
     public ChatClient provider(String provider) {
         delegate.provider(provider);
         return this;
     }
 
-    @Override
     /**
      * Model
-    */
+     */
+    @Override
     public ChatClient model(String model) {
         delegate.model(model);
         return this;
     }
 
-    @Override
     /**
      * System
-    */
+     */
+    @Override
     public ChatClient system(String system) {
         delegate.system(system);
         return this;
     }
 
-    @Override
     /**
      * Temperature
-    */
+     */
+    @Override
     public ChatClient temperature(double temperature) {
         delegate.temperature(temperature);
         return this;
     }
 
-    @Override
     /**
      * 最大值Tokens
-    */
+     */
+    @Override
     public ChatClient maxTokens(int maxTokens) {
         delegate.maxTokens(maxTokens);
         return this;
     }
 
-    @Override
     /**
      * 添加Image
-    */
+     */
+    @Override
     public ChatClient addImage(String imageUrl) {
         delegate.addImage(imageUrl);
         return this;
     }
 
-    @Override
     /**
      * 添加UserHistory
-    */
+     */
+    @Override
     public ChatClient addUserHistory(String content) {
         delegate.addUserHistory(content);
         return this;
     }
 
-    @Override
     /**
      * 添加AssistantHistory
-    */
+     */
+    @Override
     public ChatClient addAssistantHistory(String content) {
         delegate.addAssistantHistory(content);
         return this;
     }
 
-    @Override
     /**
      * History
-    */
+     */
+    @Override
     public ChatClient history(List<ChatMessage> messages) {
         delegate.history(messages);
         return this;
     }
 
-    @Override
     /**
      * 添加Attachment
-    */
+     */
+    @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         delegate.addAttachment(name, data, mimeType);
         return this;
     }
 
-    @Override
     /**
      * 添加AttachmentUrl
-    */
+     */
+    @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         delegate.addAttachmentUrl(name, url, mimeType);
         return this;
     }
 
-    @Override
     /**
      * Session
-    */
+     */
+    @Override
     public ChatClient session(String sessionId) {
         delegate.session(sessionId);
         return this;
     }
 
-    @Override
     /**
      * NewChat
-    */
+     */
+    @Override
     public ChatClient newChat() {
         delegate.newChat();
         return this;
@@ -308,10 +308,10 @@ public class UsagePersistChatClient implements ChatClient {
         log.info("[UsagePersistChatClient] 从外部同步 {} 条用量到 Engine", externalUsage.size());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         flush();
         delegate.close();

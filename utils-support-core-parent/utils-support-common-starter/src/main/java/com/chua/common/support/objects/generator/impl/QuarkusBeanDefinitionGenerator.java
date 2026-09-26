@@ -29,7 +29,7 @@ public class QuarkusBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
     /**
      * Cdi_注解
-    */
+     */
     private static final Set<String> CDI_ANNOTATIONS = Set.of(
             "javax.enterprise.context.ApplicationScoped",
             "javax.enterprise.context.RequestScoped",
@@ -47,18 +47,18 @@ public class QuarkusBeanDefinitionGenerator implements BeanDefinitionGenerator {
             "jakarta.inject.Named"
     );
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 20;
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null || beanClass.isInterface() || beanClass.isEnum()
                 || beanClass.isAnnotation() || Modifier.isAbstract(beanClass.getModifiers())) {
@@ -72,10 +72,10 @@ public class QuarkusBeanDefinitionGenerator implements BeanDefinitionGenerator {
         return false;
     }
 
-    @Override
     /**
      * Generate
-    */
+     */
+    @Override
     public List<BeanDefinition> generate(Class<?> beanClass) {
         List<BeanDefinition> definitions = new ArrayList<>();
         if (beanClass == null) {

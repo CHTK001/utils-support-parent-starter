@@ -29,33 +29,31 @@ public class AiChatConfigEntity {
 
     /**
      * 主键
-    */
+     */
     private Long id;
 
     /**
      * 配置名称（唯一标识，如 "production"、"staging"）
-     */
-    /**
+     *
      * 名称
      */
     private String name;
 
     /**
      * 全局策略（hybrid | failover | round_robin | weighted | cost | latency）
-     */
-    /**
+     *
      * 策略名称
      */
     private String strategy = "hybrid";
 
     /**
      * 是否启用调用监控
-    */
+     */
     private boolean monitor = true;
 
     /**
      * 更新时间
-    */
+     */
     private Long updatedAt;
 
     /**

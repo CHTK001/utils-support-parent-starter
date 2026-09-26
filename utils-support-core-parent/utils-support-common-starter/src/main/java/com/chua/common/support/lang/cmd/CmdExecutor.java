@@ -289,34 +289,34 @@ public interface CmdExecutor extends AutoCloseable {
         CmdResult[] result = new CmdResult[1];
         Object lock = new Object();
         executeAsync(command, timeout, unit, new CmdCallback() {
-            @Override
             /**
              * On开始
-            */
+             */
+            @Override
             public void onStart(String cmd) {
                 callback.onLine("[start] " + cmd);
             }
-            @Override
             /**
              * OnComplete
-            */
+             */
+            @Override
             public void onComplete(CmdResult r) {
                 result[0] = r;
                 callback.onComplete(r.getExitCode());
                 synchronized (lock) { lock.notifyAll(); }
             }
-            @Override
             /**
              * On记录错误
-            */
+             */
+            @Override
             public void onError(String cmd, Throwable t) {
                 callback.onError(cmd, t);
                 synchronized (lock) { lock.notifyAll(); }
             }
-            @Override
             /**
              * OnTimeout
-            */
+             */
+            @Override
             public void onTimeout(String cmd, long t, TimeUnit u) {
                 callback.onLine("[timeout] " + cmd);
                 synchronized (lock) { lock.notifyAll(); }

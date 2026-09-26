@@ -30,28 +30,28 @@ public class CModeProbe implements ProbeStrategy {
 
     /**
      * Connect_timeout_ms
-    */
+     */
     private static final int CONNECT_TIMEOUT_MS = 200;
     /**
      * Max_hosts_per_cidr
-    */
+     */
     private static final int MAX_HOSTS_PER_CIDR = 256;
 
     /**
      * 配置
-    */
+     */
     private final MeshConfig config;
     /**
      * 本地服务器ID
-    */
+     */
     private final String localServerId;
     /**
      * Discovered
-    */
+     */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     /**
      * stopped
-    */
+     */
     private volatile boolean stopped;
 
     /**
@@ -65,10 +65,10 @@ public class CModeProbe implements ProbeStrategy {
         this.localServerId = localServerId;
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() throws Exception {
         List<String> subnets = config.getScanSubnets();
         if (subnets == null || subnets.isEmpty()) {
@@ -98,18 +98,18 @@ public class CModeProbe implements ProbeStrategy {
         executor.shutdownNow();
     }
 
-    @Override
     /**
      * 停止
-    */
+     */
+    @Override
     public void stop() throws Exception {
         stopped = true;
     }
 
-    @Override
     /**
      * 获取DiscoveredNodes
-    */
+     */
+    @Override
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }

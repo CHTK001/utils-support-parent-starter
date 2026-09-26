@@ -43,6 +43,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-libjpeg-turbo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- HEIC/HEIF 支持：纯 Java 实现（依赖 JDK 内置 JPEG 解码）
              可选：引入 utils-support-native-heif 获取 Rust 原生加速 -->
     </dependencies>

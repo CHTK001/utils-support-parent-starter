@@ -21,42 +21,42 @@ public class ImageGenerationSpec {
 
     /**
      * 底层对话客户端
-    */
+     */
     private final ChatClient client;
 
     /**
      * 生成提示词
-    */
+     */
     private String prompt;
 
     /**
      * 宽高比
-    */
+     */
     private String ratio;
 
     /**
      * 生成数量
-    */
+     */
     private int n = 1;
 
     /**
      * 图像宽度（像素）
-    */
+     */
     private int width;
 
     /**
      * 图像高度（像素）
-    */
+     */
     private int height;
 
     /**
      * 图像质量
-    */
+     */
     private String quality;
 
     /**
      * 参考图键
-    */
+     */
     private String refImageKey;
 
     /**
@@ -147,30 +147,30 @@ public class ImageGenerationSpec {
 
     /**
      * Prompt
-    */
+     */
     public String prompt() { return prompt; }
     /**
      * Ratio
-    */
+     */
     public String ratio() { return ratio; }
     /**
      * N
-    */
+     */
     public int n() { return n; }
     /**
      * Width
-    */
+     */
     public int width() { return width; }
     /**
      * Height
-    */
+     */
     public int height() { return height; }
     /**
      * Quality
-    */
+     */
     public String quality() { return quality; }
     /**
      * RefImageKey
-    */
+     */
     public String refImageKey() { return refImageKey; }
 }

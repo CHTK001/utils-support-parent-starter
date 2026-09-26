@@ -2,6 +2,7 @@ package com.chua.common.support.lang.template;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 模板提取得到的单个变量。
@@ -21,6 +22,21 @@ import java.util.Map;
  * @return 结果值
  */
 public record TemplateVar(String name, Object value, String path) {
+
+    /**
+     * 规范构造器：变量名为空值敌对。
+     *
+     * <p>value class 前置条件——引用组件不接受 null。
+     * {@code value} 与 {@code path} 允许为 {@code null}
+     * （提取值本身可能是 JSON null，路径在根节点时为空串），故不校验。</p>
+     *
+     * @param name  变量名
+     * @param value 提取到的值
+     * @param path  变量在输入中的键路径
+     */
+    public TemplateVar {
+        name = Objects.requireNonNull(name, "name 不能为 null");
+    }
 
     /**
      * 以 Map 形态返回该变量。

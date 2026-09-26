@@ -36,7 +36,11 @@ public class OnnxDepthEstimator implements DepthEstimator {
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "depth-anything";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + DepthEstimator.listModels());
+        }
+        return modelName;
     }
 
     @Override

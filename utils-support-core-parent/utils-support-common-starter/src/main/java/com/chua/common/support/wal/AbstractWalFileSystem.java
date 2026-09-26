@@ -112,12 +112,12 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
 
     @Override
     public com.chua.common.support.file.builder.ReadBuilder read(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("当前 WAL 文件系统不支持该操作，请由具体实现覆盖对应方法");
     }
 
     @Override
     public com.chua.common.support.file.builder.WriteBuilder write(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("当前 WAL 文件系统不支持该操作，请由具体实现覆盖对应方法");
     }
 
     @Override
@@ -144,9 +144,9 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     public WalStoreConfig config() { return config; }
 
     /**
-     * 获取segment路径。
+     * 获取分段路径。
      * @param segmentNo segmentno
-     * @return 获取segment路径的结果
+     * @return 获取分段路径的结果
      */
     protected Path getSegmentPath(int segmentNo) {
         return config.baseDir().resolve("_wal")

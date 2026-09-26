@@ -228,29 +228,17 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
                 .get().getBodyString();
         JsonNode root = MAPPER.readTree(json);
 
-        WeatherInfo info = new WeatherInfo();
-        info.setSource(name());
-        info.setCity(city);
-        info.setLatitude(root.path("latitude").asDouble(lat));
-        info.setLongitude(root.path("longitude").asDouble(lon));
-
         JsonNode current = root.path("current");
-        info.setTempC(num(current.path("temperature_2m")));
-        info.setFeelsLikeC(num(current.path("apparent_temperature")));
-        info.setHumidity(intVal(current.path("relative_humidity_2m")));
-        info.setWeatherCode(intVal(current.path("weather_code")));
-        info.setWeatherDesc(describeWmo(current.path("weather_code").asInt(-1)));
-        info.setWindSpeedKmph(num(current.path("wind_speed_10m")));
-        info.setWindDirection(num(current.path("wind_direction_10m")));
-        info.setPressure(intVal(current.path("pressure_msl")));
-        info.setObservationTime(text(current.path("time")));
-
         List<HourlyWeather> hourly = parseHourly(root.path("hourly"));
         List<DailyForecast> forecast = parseDaily(root.path("daily"));
         attachHourly(forecast, hourly);
-        info.setHourly(hourly);
-        info.setForecast(forecast);
-        return info;
+        return new WeatherInfo(city, root.path("latitude").asDouble(lat), root.path("longitude").asDouble(lon),
+                num(current.path("temperature_2m")), num(current.path("apparent_temperature")),
+                intVal(current.path("relative_humidity_2m")), null,
+                describeWmo(current.path("weather_code").asInt(-1)), intVal(current.path("weather_code")),
+                num(current.path("wind_speed_10m")), num(current.path("wind_direction_10m")),
+                intVal(current.path("pressure_msl")), text(current.path("time")),
+                name(), hourly, forecast);
     }
 
     /**

@@ -32,17 +32,17 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
 
     /**
      * 慢请求判定阈值(毫秒)
-    */
+     */
     private final long thresholdMillis;
 
     /**
      * 采样间隔:每 N 条慢请求记录一条日志
-    */
+     */
     private final int sampleEvery;
 
     /**
      * 慢请求累计计数(用于采样与观测)
-    */
+     */
     private final AtomicLong slowCount = new AtomicLong();
 
     /**
@@ -66,31 +66,30 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
         this.sampleEvery = Math.max(sampleEvery, 1);
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return 200;
     }
 
-    @Override
     /**
      * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
      */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      *
@@ -98,6 +97,7 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         long start = System.nanoTime();
@@ -108,7 +108,6 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
         }
     }
 
-    @Override
     /**
      * 响应式Do过滤
      *
@@ -116,6 +115,7 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
      * @param response response
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         long start = System.nanoTime();

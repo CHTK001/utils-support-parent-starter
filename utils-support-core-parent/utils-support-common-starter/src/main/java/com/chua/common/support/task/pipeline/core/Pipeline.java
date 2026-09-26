@@ -19,7 +19,7 @@ import java.util.List;
  * PipelineContext<String> ctx = pipeline.execute("input");
  * pipeline.printTree(ctx.getHistory());
  * }</pre>获取历史());
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -145,7 +145,7 @@ public interface Pipeline {
      *     .build();
      * }</pre>束()
      * .构建();
-     * }</pre>
+     * }
      *
      * <p>终端效果：每个节点执行后，同一棵树原地刷新，已执行节点逐步变为 ✓。</p>
      *

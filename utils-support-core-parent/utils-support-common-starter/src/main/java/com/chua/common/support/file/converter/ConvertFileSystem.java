@@ -73,10 +73,10 @@ public interface ConvertFileSystem {
      * @return 结果值
      */
     record ConvertSupport(String sourceFormat, String targetFormat) {
-        @Override
         /**
          * ToString
-        */
+         */
+        @Override
         public String toString() {
             return sourceFormat + " → " + targetFormat;
         }

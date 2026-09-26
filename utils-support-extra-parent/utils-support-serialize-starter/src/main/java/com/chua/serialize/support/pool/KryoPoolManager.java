@@ -15,8 +15,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Kryo 序列化器对象池管理器。
  * <p>
  * 维护一个 kryo序列化器 对象池，通过 acquire/release 模式复用序列化器实例，
- * 避免频繁创建和销毁 Kryo 实例带来的性能开销。适合高并发序列化场景。
+ * 避免频繁创建和销毁序列化器包装带来的开销。
  * </p>
+ *
+ * <p>池容器是 {@link java.util.ArrayDeque}，本身非线程安全，因此所有触碰容器的方法
+ * （{@link #acquire()}/{@link #release(KryoSerializer)}/{@link #clear()}/
+ * {@link #getPoolSize()}/{@link #stats()}）都同步在实例监视器上，借还动作是串行的。
+ * 被池化的 {@link KryoSerializer} 不持有独占状态，真正的 Kryo 实例由
+ * {@link KryoSerializer} 内部按类型共享的对象池管理。</p>
  *
  * @param <T> 可序列化的目标类型
  * @author CH
@@ -24,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public class KryoPoolManager<T extends Serializable> {
-    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 全局管理器缓存，按实体类类型缓存管理器实例
@@ -112,11 +117,12 @@ public class KryoPoolManager<T extends Serializable> {
      * 将序列化器释放回池中。
      * <p>
      * 如果池未满则回收复用，否则丢弃该实例。
+     * 池容器是非线程安全的双端队列，故与 {@link #acquire()} 共用同一把监视器锁。
      * </p>
      *
      * @param serializer 待释放的序列化器
      */
-    public void release(KryoSerializer<T> serializer) {
+    public synchronized void release(KryoSerializer<T> serializer) {
         if (serializer == null) {
             return;
         }
@@ -133,7 +139,7 @@ public class KryoPoolManager<T extends Serializable> {
      *
      * @return 空闲序列化器数量
      */
-    public int getPoolSize() {
+    public synchronized int getPoolSize() {
         return pool.size();
     }
 
@@ -176,7 +182,7 @@ public class KryoPoolManager<T extends Serializable> {
     /**
      * 清空池中的所有序列化器并重置计数器。
      */
-    public void clear() {
+    public synchronized void clear() {
         pool.clear();
         activeCount.set(0);
         totalCreated.set(0);
@@ -196,7 +202,7 @@ public class KryoPoolManager<T extends Serializable> {
      *
      * @return 统计信息字符串
      */
-    public String stats() {
+    public synchronized String stats() {
         return String.format("KryoPoolManager{clazz=%s, pool=%d, active=%d, totalCreated=%d, max=%d}",
                 clazz.getSimpleName(), pool.size(), activeCount.get(), totalCreated.get(), maxSize);
     }

@@ -1,5 +1,8 @@
 package com.chua.common.support.ai.generation;
 
+import java.util.List;
+import java.util.Objects;
+
 /**
  * 视频生成结果。
  *
@@ -11,7 +14,21 @@ package com.chua.common.support.ai.generation;
  * @since 2026/08/11
  * @return 结果值
  */
-public record VideoGenerationResult(java.util.List<GeneratedVideo> videos, String prompt) {
+public record VideoGenerationResult(List<GeneratedVideo> videos, String prompt) {
+
+    /**
+     * 规范构造器：对视频列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 全部构造点传入的列表均非空且元素非空，
+     * 因此使用 {@link List#copyOf} 拒绝 null 列表与 null 元素。</p>
+     *
+     * @param videos 生成的视频列表
+     * @param prompt 生成提示词
+     */
+    public VideoGenerationResult {
+        videos = List.copyOf(Objects.requireNonNull(videos, "videos 不能为 null"));
+    }
 
     /**
      * 单个生成的视频。

@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
  * // 使用Java原生序列化
  * byte[] javaBytes = flow.use(new JavaSerializer<>()).serialize(object);
  * }</pre> JavaSerializer<>()).serialize(object);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

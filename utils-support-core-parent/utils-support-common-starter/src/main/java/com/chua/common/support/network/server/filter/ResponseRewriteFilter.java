@@ -111,21 +111,21 @@ public class ResponseRewriteFilter implements ServerFilter {
         return Integer.MIN_VALUE + 10;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * Do过滤
      * @param request request
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 先放行完整链路
@@ -196,19 +196,19 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * 创建 RewriteRule 实例
-        */
+         */
         private RewriteRule() {}
 
         /**
          * Builder
-        */
+         */
         public static RewriteRule builder() {
             return new RewriteRule();
         }
 
         /**
          * Condition
-        */
+         */
         public RewriteRule condition(Predicate<ServerRequest> condition) {
             this.condition = condition;
             return this;
@@ -216,7 +216,7 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * StatusRewrite
-        */
+         */
         public RewriteRule statusRewrite(java.util.function.IntUnaryOperator statusRewrite) {
             this.statusRewrite = statusRewrite;
             return this;
@@ -224,7 +224,7 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * BodyRewrite
-        */
+         */
         public RewriteRule bodyRewrite(java.util.function.BiFunction<ServerRequest, String, String> bodyRewrite) {
             this.bodyRewrite = bodyRewrite;
             return this;
@@ -232,7 +232,7 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * BodyRewriteBytes
-        */
+         */
         public RewriteRule bodyRewriteBytes(java.util.function.BiFunction<ServerRequest, byte[], byte[]> bodyRewrite) {
             this.bodyRewriteBytes = bodyRewrite;
             return this;
@@ -240,7 +240,7 @@ public class ResponseRewriteFilter implements ServerFilter {
 
         /**
          * EndImmediately
-        */
+         */
         public RewriteRule endImmediately(boolean endImmediately) {
             this.endImmediately = endImmediately;
             return this;

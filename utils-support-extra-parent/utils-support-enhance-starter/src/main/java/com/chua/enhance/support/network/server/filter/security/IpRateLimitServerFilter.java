@@ -49,19 +49,35 @@ public class IpRateLimitServerFilter implements ServerFilter {
      */
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
+    /**
+     * 是否已收到 ipRateLimit.* 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
     */
     public void init(ServerFilterConfig config) throws Exception {
         String capacity = config.getInitParameter("ipRateLimit.bucketCapacity");
+        String rate = config.getInitParameter("ipRateLimit.refillRate");
         if (capacity != null && !capacity.isEmpty()) {
             this.bucketCapacity = Integer.parseInt(capacity);
         }
-        String rate = config.getInitParameter("ipRateLimit.refillRate");
         if (rate != null && !rate.isEmpty()) {
             this.refillRate = Integer.parseInt(rate);
         }
+        // 未显式配置或速率非正数时保持不挂载，避免默认值/零值拦掉正常业务流量
+        boolean present = (capacity != null && !capacity.isEmpty()) || (rate != null && !rate.isEmpty());
+        this.configured = present && bucketCapacity > 0 && refillRate > 0;
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
     }
 
     @Override

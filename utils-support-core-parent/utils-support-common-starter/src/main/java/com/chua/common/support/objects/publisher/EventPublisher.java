@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * }</pre>: " + event);
  *   });
  * 发布.发布(新 用户login事件("admin"));
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2024/12/20

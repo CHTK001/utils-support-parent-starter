@@ -36,7 +36,7 @@ import java.util.Map;
  *         default: return "defaultNode";
  *     }
  * })
- * }</pre>
+ * }
  *
  * <p>分支映射（可选，用于树打印可视化）可通过 {@link #branches(Map)} 设置。</p>
  *
@@ -149,7 +149,7 @@ public class DecisionNode implements PipelineNode {
 
     /**
      * 节点类型：decision。
-    */
+     */
     @Override
     public String getType() {
         return "decision";
@@ -166,7 +166,7 @@ public class DecisionNode implements PipelineNode {
 
     /**
      * 返回路由参数表。
-    */
+     */
     @Override
     public Map<String, Object> getParams() {
         return params;
@@ -183,7 +183,7 @@ public class DecisionNode implements PipelineNode {
 
     /**
      * 返回节点环境变量表。
-    */
+     */
     @Override
     public Map<String, Object> getEnv() {
         return env != null ? env : Collections.emptyMap();
@@ -200,7 +200,7 @@ public class DecisionNode implements PipelineNode {
 
     /**
      * 返回本节点的重试配置；未配置时由引擎按默认策略处理。
-    */
+     */
     @Override
     public RetryConfig getRetryConfig() {
         return retryConfig;
@@ -208,7 +208,7 @@ public class DecisionNode implements PipelineNode {
 
     /**
      * 执行路由判定，返回下一节点 标识。
-    */
+     */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

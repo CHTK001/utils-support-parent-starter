@@ -80,10 +80,10 @@ public class UrlScriptListener implements Listener {
                 this::fetch, 0, periodMillis, TimeUnit.MILLISECONDS);
     }
 
-    @Override
     /**
      * 是否Change
-    */
+     */
+    @Override
     public boolean isChange() {
         boolean result = changed.getAndSet(false);
         if (lastContent.get() == null) {
@@ -93,10 +93,10 @@ public class UrlScriptListener implements Listener {
         return result;
     }
 
-    @Override
     /**
      * 获取Source
-    */
+     */
+    @Override
     public String getSource() {
         return lastContent.get();
     }
@@ -155,10 +155,10 @@ public class UrlScriptListener implements Listener {
      * <p>创建 daemon 线程，避免阻止 JVM 正常退出。</p>
      */
     private static class UrlScriptThreadFactory implements ThreadFactory {
-        @Override
         /**
          * NewThread
-        */
+         */
+        @Override
         public Thread newThread(Runnable r) {
             Thread thread = ThreadUtils.newThread(r, "url-script-listener-" + r.hashCode());
             thread.setDaemon(true);

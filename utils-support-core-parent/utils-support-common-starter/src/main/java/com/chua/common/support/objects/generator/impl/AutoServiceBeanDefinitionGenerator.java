@@ -22,18 +22,18 @@ import java.util.List;
 @SpiDescribe("AutoService Bean 定义生成器")
 public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 30;
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null) {
             return false;
@@ -45,10 +45,10 @@ public class AutoServiceBeanDefinitionGenerator implements BeanDefinitionGenerat
         return beanClass.isAnnotationPresent(AutoService.class);
     }
 
-    @Override
     /**
      * Generate
-    */
+     */
+    @Override
     public List<BeanDefinition> generate(Class<?> beanClass) {
         List<BeanDefinition> definitions = new ArrayList<>();
         if (beanClass == null) {

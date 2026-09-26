@@ -422,10 +422,10 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
         }
     }
 
-    @Override
     /**
      * 销毁
-    */
+     */
+    @Override
     public void destroy() {
         scheduler.shutdown();
     }

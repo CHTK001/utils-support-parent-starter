@@ -25,10 +25,10 @@ import javax.annotation.Nullable;
  * @since 2024/5/16
  */
 public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public Class<byte[]> getType() {
         return byte[].class;
     }

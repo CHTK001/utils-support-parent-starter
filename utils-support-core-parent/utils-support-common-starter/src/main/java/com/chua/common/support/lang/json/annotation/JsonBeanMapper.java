@@ -36,7 +36,7 @@ public final class JsonBeanMapper {
 
     /**
      * 创建 JsonBeanMapper 实例
-    */
+     */
     private JsonBeanMapper() {
     }
 

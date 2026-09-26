@@ -11,6 +11,7 @@ import org.slf4j.MDC;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -137,10 +138,10 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         this.deduplicator = deduplicator;
     }
 
-    @Override
     /**
      * 接收
-    */
+     */
+    @Override
     public void receive(Task<?> task) {
         if (task == null || cancelledTasks.contains(task.getTaskId())) {
             return;
@@ -152,10 +153,10 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         queue.offer(new QueueEntry(task, priority));
     }
 
-    @Override
     /**
      * 接收
-    */
+     */
+    @Override
     public void receive(TaskResult<?> result) {
         if (result == null) {
             return;
@@ -163,10 +164,10 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         queue.offer(new QueueEntry(result, TaskPriority.HIGH));
     }
 
-    @Override
     /**
      * Cancel
-    */
+     */
+    @Override
     public boolean cancel(String taskId) {
         if (taskId == null) {
             return false;
@@ -176,10 +177,10 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         return true;
     }
 
-    @Override
     /**
      * 暂停
-    */
+     */
+    @Override
     public boolean pause(String taskId) {
         if (taskId == null) {
             return false;
@@ -188,10 +189,10 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         return true;
     }
 
-    @Override
     /**
      * 恢复
-    */
+     */
+    @Override
     public boolean resume(String taskId) {
         if (taskId == null) {
             return false;
@@ -200,55 +201,55 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         return true;
     }
 
-    @Override
     /**
      * 暂停全部
-    */
+     */
+    @Override
     public void pauseAll() {
         globallyPaused = true;
         log.info("全局派发已暂停");
     }
 
-    @Override
     /**
      * 恢复全部
-    */
+     */
+    @Override
     public void resumeAll() {
         globallyPaused = false;
         log.info("全局派发已恢复");
     }
 
-    @Override
     /**
      * 设置批量获取大小
-    */
+     */
+    @Override
     public void setBatchSize(int batchSize) {
         if (batchSize > 0) {
             this.batchSize = batchSize;
         }
     }
 
-    @Override
     /**
      * Pending计算数量
-    */
+     */
+    @Override
     public int pendingCount() {
         return queue.size();
     }
 
-    @Override
     /**
      * 监听器
-    */
+     */
+    @Override
     public DispatcherProvider listener(DispatcherListener listener) {
         this.listener = listener;
         return this;
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public synchronized void start() {
         if (running) {
             return;
@@ -339,20 +340,20 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
         }
     }
 
-    @Override
     /**
      * Await
-    */
+     */
+    @Override
     public void await() throws InterruptedException {
         if (executor != null) {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         running = false;
         queue.clear();
@@ -381,5 +382,17 @@ public class InMemoryDispatcherProvider implements DispatcherProvider {
      * @return 队列entry的结果
      */
     private record QueueEntry(Object data, TaskPriority priority) {
+
+        /**
+         * 规范构造器：载荷 与 优先级 均为必填。
+         *
+         * <p>value class 前置条件——空值敌对。两个构造点（{@code receive(Task)} 与
+         * {@code receive(TaskResult)}）在入队前均已判空并把 优先级 归一化，
+         * 且队列比较器会无条件解引用 {@code priority()}，故此处收紧不改变既有行为。</p>
+         */
+        public QueueEntry {
+            Objects.requireNonNull(data, "data 不能为 null");
+            Objects.requireNonNull(priority, "priority 不能为 null");
+        }
     }
 }

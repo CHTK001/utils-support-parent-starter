@@ -212,15 +212,15 @@ public final class OffsetFlow implements AutoCloseable {
 
     /**
      * Sleep
-    */
+     */
     private void sleep() {
         ThreadUtils.sleep(RETRY_DELAY_MS);
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         if (store != null) {
             store.close();

@@ -26,7 +26,7 @@ import java.util.Map;
  * instance.run(Map.of("bizId", "1"));
  * instance.run(Map.of("bizId", "2"));
  * }</pre>2"));
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

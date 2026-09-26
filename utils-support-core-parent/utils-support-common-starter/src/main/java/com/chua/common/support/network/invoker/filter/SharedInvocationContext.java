@@ -15,20 +15,20 @@ public class SharedInvocationContext {
 
     /**
      * attributes
-    */
+     */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
     /**
      * defaultHeaders
-    */
+     */
     private final Map<String, String> defaultHeaders = new ConcurrentHashMap<>();
     /**
      * Injectrules
-    */
+     */
     private final List<InjectRule> injectRules = new CopyOnWriteArrayList<>();
 
     /**
      * InjectRule
-    */
+     */
     public record InjectRule(String target, InjectCallback callback) {}
 
     /**
@@ -57,12 +57,12 @@ public class SharedInvocationContext {
         attributes.put(key, value);
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取Attribute
      * @param key 键，不允许为 null
      * @return T 对象
      */
+    @SuppressWarnings("unchecked")
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
@@ -96,7 +96,7 @@ public class SharedInvocationContext {
 
     /**
      * Clear
-    */
+     */
     public void clear() {
         attributes.clear();
         defaultHeaders.clear();

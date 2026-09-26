@@ -1,1 +1,6 @@
 tcp=com.chua.common.support.network.sync.impl.TcpSyncServer
+ftp=com.chua.common.support.network.ftp.FtpServer
+ftps=com.chua.common.support.network.ftp.FtpsServer
+sip=com.chua.common.support.network.sip.SipServer
+sniff-tcp=com.chua.common.support.network.tcp.ProtocolSniffingTcpServer
+udp=com.chua.common.support.network.sync.impl.UdpSyncServer

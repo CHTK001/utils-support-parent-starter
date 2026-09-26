@@ -37,8 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 基于 Vert.x 的 HTTP 服务器实现，支持同步阻塞和响应式两种模式。
  *
- * <p>同步模式（默认）：过滤器链在 Vert.x Worker 线程池中执行。</p>
- * <p>响应式模式（{@link ServerSetting#isReactor()} = true）：过滤器链在 Vert.x EventLoop 线程上执行。</p>
+ * <p>职责：初始化 Vert.x HTTP 服务、网络参数、路由和请求响应适配层，并负责过滤器链执行、连接限制、跨域、WebSocket 消息分发及服务生命周期管理。</p>
  *
  * @author CH
  * @since 2026/07/16

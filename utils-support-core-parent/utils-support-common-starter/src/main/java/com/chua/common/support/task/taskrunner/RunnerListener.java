@@ -15,7 +15,7 @@ package com.chua.common.support.task.taskrunner;
  *         .execute(input);
  * }</pre>", ctx -> 执行a())
  * .执行(输入);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

@@ -10,6 +10,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TS 时序存储引擎。
+ *
+ * <p>职责：基于分片分段 WAL 追加时序数据，按度量名和时间窗口查询，支持时序点解码、聚合、索引重建、分段清理及资源关闭。</p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class TsWalStoreSystem implements WalStoreSystem<String> {
 
@@ -298,8 +303,9 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
                     return true;
                 }
                 TsPoint p = decodeTs(payload);
-                if (p != null && p.measure().equals(measure) && p.ts() >= fromTs && p.ts() < toTs)
+                if (p != null && p.measure().equals(measure) && p.ts() >= fromTs && p.ts() < toTs) {
                     result.add(p);
+                }
                 return true;
             });
         }

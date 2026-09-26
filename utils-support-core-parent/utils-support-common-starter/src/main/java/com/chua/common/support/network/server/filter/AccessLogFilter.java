@@ -17,18 +17,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AccessLogFilter implements ServerFilter {
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return 5;
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         long start = System.nanoTime();
         try {
@@ -43,10 +43,10 @@ public class AccessLogFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }

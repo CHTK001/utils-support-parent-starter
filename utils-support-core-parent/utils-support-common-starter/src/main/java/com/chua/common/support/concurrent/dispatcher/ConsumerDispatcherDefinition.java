@@ -52,10 +52,10 @@ public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
         this.bodyType = bodyType;
     }
 
-    @Override
     /**
      * 分发
-    */
+     */
+    @Override
     public void dispatch(Object body) {
         consumer.accept((T) body);
     }

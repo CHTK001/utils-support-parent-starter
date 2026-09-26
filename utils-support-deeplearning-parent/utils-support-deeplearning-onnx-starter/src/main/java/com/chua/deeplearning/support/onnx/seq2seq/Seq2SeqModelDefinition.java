@@ -1,6 +1,7 @@
 package com.chua.deeplearning.support.onnx.seq2seq;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Seq2Seq 模型定义。
@@ -62,6 +63,26 @@ public record Seq2SeqModelDefinition(
          * 解码器 起始 令牌 标识。
          */
         long decoderStartId) {
+
+    /**
+     * 规范构造器：下载文件清单与必需文件清单做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。本 record 的全部构造点
+     * （{@code T5_SMALL} / {@code T5_BASE} / {@code MT5_SMALL} / {@code MT5_BASE} /
+     * {@code MT5_ZH} / {@code BART_ZH}）都用 {@link List#of} 传参，元素非 空，
+     * 拷贝后仍是等价不可变列表。</p>
+     *
+     * <p>{@code modelId} / {@code classpathBase} / {@code modelscopeRepo} 刻意不加 校验：
+     * {@code classpathBase} 的契约是「为空表示无嵌入式模型」，且 {@code MT5_ZH} 显式传
+     * {@code null} 作为 {@code modelscopeRepo}。</p>
+     *
+     * @param downloadFiles modelscope 下载文件清单
+     * @param requiredFiles 必需的文件名清单
+     */
+    public Seq2SeqModelDefinition {
+        downloadFiles = List.copyOf(Objects.requireNonNull(downloadFiles, "downloadFiles 不能为 null"));
+        requiredFiles = List.copyOf(Objects.requireNonNull(requiredFiles, "requiredFiles 不能为 null"));
+    }
 
     /**
      * t5-small 模型定义（modelscope: Xenova/t5-small，int8 量化，6 层 8 头 512 维，词表 32128）。

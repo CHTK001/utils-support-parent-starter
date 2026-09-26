@@ -540,6 +540,35 @@ public class ZmqRpcServer implements RpcServer {
      * @return 方法键的结果
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
+
+        /**
+         * 规范构造器：数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。{@code paramTypes} 来自对端上报的
+         * 请求报文，若直接持有该数组，对端后续复用同一缓冲区改写内容会让方法缓存键静默错配。</p>
+         *
+         * <p>本键是 {@link ConcurrentHashMap} 的缓存键，{@link Arrays#equals(Object[], Object[])}
+         * 与 {@link Arrays#hashCode(Object[])} 均容忍 {@code null} 数组，故此处保留 {@code null}
+         * 语义而不抛 {@link NullPointerException}。</p>
+         *
+         * @param service    服务名
+         * @param method     方法名
+         * @param paramTypes 参数类型名数组
+         */
+        private MethodKey {
+            paramTypes = paramTypes == null ? null : paramTypes.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * @return 参数类型名数组副本；为 {@code null} 时返回 {@code null}
+         */
+        @Override
+        public String[] paramTypes() {
+            return paramTypes == null ? null : paramTypes.clone();
+        }
+
         @Override
         /**
          * 判断相等

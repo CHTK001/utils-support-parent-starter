@@ -108,12 +108,12 @@ public final class KeyFileResolver {
         try {
             URI location = KeyFileResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI();
             String raw = location.toString();
-            int bang = raw.indexOf('!');
-            if (bang >= 0) {
-                raw = raw.substring(0, bang);
-            }
             if (raw.startsWith("jar:")) {
                 raw = raw.substring("jar:".length());
+                int bang = raw.indexOf('!');
+                if (bang >= 0) {
+                    raw = raw.substring(0, bang);
+                }
             }
             if (!raw.startsWith("file:")) {
                 return null;

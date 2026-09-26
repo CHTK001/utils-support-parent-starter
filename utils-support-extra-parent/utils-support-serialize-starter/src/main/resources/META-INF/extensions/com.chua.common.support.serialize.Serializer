@@ -1,0 +1,2 @@
+auto=com.chua.serialize.support.auto.AutoSerializer
+kryo=com.chua.serialize.support.kryo.KryoSerializer

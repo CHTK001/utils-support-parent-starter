@@ -1,9 +1,11 @@
 package com.chua.fory.support.serialize;
 
+import com.chua.common.support.serialize.DeserializationGuard;
 import com.chua.common.support.serialize.Serializer;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fury.Fury;
+import org.apache.fury.ThreadSafeFury;
 import org.apache.fury.config.Language;
 
 import java.io.Serializable;
@@ -20,7 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <ul>
  *   <li><strong>零反射</strong>：Fury 通过 JIT 生成序列化代码，性能远高于 JDK 原生与 JSON</li>
  *   <li><strong>引用跟踪</strong>：{@link #REF_TRACKING} 开启后支持共享引用与循环引用对象图</li>
- *   <li><strong>类型缓存</strong>：每个实体类类型对应一个 Fury 实例，线程安全，避免重复构建开销</li>
+ *   <li><strong>线程安全</strong>：{@code Fury} 本身非线程安全，缓存的是 {@link ThreadSafeFury}，
+ *       按实体类类型各持一个门面，内部为每个线程维护独立编解码器</li>
+ *   <li><strong>类名守卫</strong>：未开启类注册要求，故挂接 {@link DeserializationGuard}
+ *       拦截已知 gadget 类，避免按报文类名还原任意对象</li>
  * </ul>
  *
  * @param <T> 可序列化的目标类型
@@ -30,7 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi({"fory", "fury"})
 @Slf4j
 public class ForySerializer<T extends Serializable> implements Serializer<T> {
-    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 是否启用引用跟踪（支持循环引用 / 共享引用对象图）
@@ -38,9 +42,9 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     private static final boolean REF_TRACKING = true;
 
     /**
-     * Fury 实例缓存池，按实体类类型缓存 Fury 实例
+     * Fury 实例缓存池，按实体类类型缓存线程安全的 Fury 门面
      */
-    private static final ConcurrentHashMap<Class<?>, Fury> FURY_POOL = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ThreadSafeFury> FURY_POOL = new ConcurrentHashMap<>();
 
     /**
      * 全局 Fury 实例计数器
@@ -62,21 +66,22 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     }
 
     /**
-     * 获取或创建线程安全的 Fury 实例。
+     * 获取或创建线程安全的 Fury 门面。
      *
-     * <p>每个实体类类型对应一个唯一的 Fury 实例，通过 ConcurrentHashMap 缓存。
-     * Fury 配置：Java 原生语言模式、允许循环引用、不强制要求注册类（动态序列化更灵活）。
-     * </p>
+     * <p>每个实体类类型对应一个唯一的 {@link ThreadSafeFury}，通过 ConcurrentHashMap 缓存。
+     * Fury 配置：Java 原生语言模式、允许循环引用、不强制要求注册类（动态序列化更灵活），
+     * 并通过 {@code setClassChecker} 接入反序列化类名守卫。</p>
      *
-     * @return Fury 实例
+     * @return 线程安全的 Fury 门面
      */
-    private Fury getFury() {
+    private ThreadSafeFury getFury() {
         return FURY_POOL.computeIfAbsent(clazz, k -> {
-            Fury fury = Fury.builder()
+            ThreadSafeFury fury = Fury.builder()
                     .withLanguage(Language.JAVA)
                     .withRefTracking(REF_TRACKING)
                     .requireClassRegistration(false)
-                    .build();
+                    .buildThreadSafeFury();
+            fury.setClassChecker((classResolver, className) -> DeserializationGuard.isAllowed(className));
             int id = POOL_COUNTER.incrementAndGet();
             log.info("[ForyPool] Created Fury instance #{} for {}", id, k.getName());
             return fury;

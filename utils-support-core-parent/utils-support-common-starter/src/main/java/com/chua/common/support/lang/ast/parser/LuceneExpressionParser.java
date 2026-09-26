@@ -38,31 +38,31 @@ public class LuceneExpressionParser implements ExpressionParser {
 
     /**
      * 委托客户端
-    */
+     */
     private final DefaultExpressionParser delegate = new DefaultExpressionParser();
 
-    @Override
     /**
      * Type
-    */
+     */
+    @Override
     public String type() {
         return TYPE;
     }
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public BTreeNode parse(String expression) {
         // Lucene 语法预处理：将 field:value 转为 field = value
         String normalized = normalizeLucene(expression);
         return delegate.parse(normalized);
     }
 
-    @Override
     /**
      * Generate
-    */
+     */
+    @Override
     public String generate(BTreeNode tree) {
         // 将 B-Tree 还原为 Lucene 查询语法
         if (tree == null) { return ""; }

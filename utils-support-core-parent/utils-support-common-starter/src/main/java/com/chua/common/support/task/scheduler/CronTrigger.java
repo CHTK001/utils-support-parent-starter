@@ -21,7 +21,7 @@ import java.util.List;
  * CronTrigger trigger = new CronTrigger("0 0/5 * * * MON-FRI");
  * List<LocalDateTime> times = trigger.getFireTimes(5);
  * }</pre>ireTimes(5);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

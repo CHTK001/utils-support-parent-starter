@@ -2,6 +2,9 @@ package com.chua.runtime.agent;
 
 import com.chua.runtime.spy.RuntimeSpy;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * 字节码插桩 Bootstrap — 转发到 runtimespy。
  *
@@ -18,6 +21,11 @@ import com.chua.runtime.spy.RuntimeSpy;
  * @since 4.0.0.42
  */
 public final class Bootstrap {
+
+    /**
+     * 插桩入口的自保护日志（仅 FINE 级，避免拖慢业务路径）
+     */
+    private static final Logger LOG = Logger.getLogger(Bootstrap.class.getName());
 
     /**
      * 创建 Bootstrap 实例
@@ -42,7 +50,13 @@ public final class Bootstrap {
      */
     public static void onIntercept(Object thisRef, String className, String methodName,
                                    String descriptor, String point) {
-        RuntimeSpy.onIntercept(className, methodName, descriptor, point, thisRef);
+        try {
+            RuntimeSpy.onIntercept(className, methodName, descriptor, point, thisRef);
+        } catch (Throwable t) {
+            // 插桩自身出错绝不能让业务方法失败：这里是注入到业务字节码里的调用点
+            LOG.log(Level.FINE, "intercept hook failed: " + className + "#" + methodName
+                    + " point=" + point, t);
+        }
     }
 
     /**
@@ -53,6 +67,10 @@ public final class Bootstrap {
      * @param throwable  异常对象
      */
     public static void onException(String className, String methodName, Throwable throwable) {
-        RuntimeSpy.onException(className, methodName, throwable);
+        try {
+            RuntimeSpy.onException(className, methodName, throwable);
+        } catch (Throwable t) {
+            LOG.log(Level.FINE, "exception hook failed: " + className + "#" + methodName, t);
+        }
     }
 }

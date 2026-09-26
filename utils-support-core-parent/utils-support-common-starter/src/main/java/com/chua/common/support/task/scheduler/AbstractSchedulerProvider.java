@@ -19,11 +19,11 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
 
     /**
      * 任务注册表：任务id -> 调度任务
-    */
+     */
     protected final Map<String, ScheduledTask> taskMap = new ConcurrentHashMap<>();
     /**
      * 调度器是否处于运行状态
-    */
+     */
     protected volatile boolean running = true;
 
     /**

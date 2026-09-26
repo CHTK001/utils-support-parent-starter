@@ -17,6 +17,11 @@ import com.chua.common.support.network.server.ServerSetting;
 public interface ServerFilterConfig {
 
     /**
+     * 系统属性前缀：配置载体之外以 {@code -Dserver.filter.<参数名>} 兜底传参时使用
+     */
+    String SYSTEM_PROPERTY_PREFIX = "server.filter.";
+
+    /**
      * 获取过滤器名称。
      *
      * @return 过滤器名称
@@ -44,4 +49,18 @@ public interface ServerFilterConfig {
      * @return 服务器配置
      */
     ServerSetting getServerSetting();
+
+    /**
+     * 派生出限定到指定过滤器的配置视图。
+     *
+     * <p>同一份服务端配置可承载多个过滤器各自的参数，容器在为每个过滤器调用
+     * {@link ServerFilter#init(ServerFilterConfig)} 前用本方法把过滤器标识告知配置，
+     * 使 {@code 过滤器ID.参数名} 形式的键生效。默认返回自身，即所有过滤器共享同一套参数。</p>
+     *
+     * @param filterName 过滤器标识，取自 {@link ServerFilter#getFilterId()}
+     * @return 限定到该过滤器的配置视图
+     */
+    default ServerFilterConfig forFilter(String filterName) {
+        return this;
+    }
 }

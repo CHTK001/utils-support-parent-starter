@@ -12,14 +12,16 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * MQTT 入站适配器：订阅 MQTT Broker → JSON → 数据envelope → pipelineengine。
  *
- * <p>支持 MQTT 5.0 协议，自动将 JSON 消息体解析为 {@code Map<String, Object>}，
- * 包装为 {@link DataEnvelope} 后交给 pipelineengine 执行管线处理。</p>
+ * <p>支持 MQTT 5.0 协议。消息体为 JSON 对象时直接解析为 {@code Map<String, Object>}；
+ * 为数组、标量或非 JSON 文本时包成 {@code {"payload": 原文}}，
+ * 统一包装为 {@link DataEnvelope} 后交给 pipelineengine 执行管线处理。</p>
  *
  * <p>配置示例：</p>
  * <pre>{@code
@@ -31,8 +33,6 @@ import java.util.concurrent.atomic.AtomicLong;
  *     .pipelineEngine(engine)
  *     .qos(1)
  *     .build();
- * adapter.start();
- * }</pre>    .build();
  * adapter.start();
  * }</pre>
  *
@@ -133,6 +133,9 @@ public class MqttInboundAdapter {
         if (running) {
             return;
         }
+        if (topic == null || topic.isEmpty()) {
+            throw new IllegalStateException("datalake-mqtt 订阅主题不能为空");
+        }
         try {
             client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
@@ -181,7 +184,32 @@ public class MqttInboundAdapter {
             running = true;
             log.info("[datalake-mqtt] 启动成功: broker={}, topic={}, clientId={}", brokerUrl, topic, clientId);
         } catch (MqttException e) {
-            log.error("[datalake-mqtt] 启动失败: {}", e.getMessage(), e);
+            releaseClient();
+            throw new IllegalStateException("[datalake-mqtt] 启动失败: broker=" + brokerUrl
+                    + ", topic=" + topic + " — " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 释放 Paho 客户端线程与持久化资源，忽略关闭阶段的异常。
+     */
+    private void releaseClient() {
+        MqttClient current = client;
+        client = null;
+        if (current == null) {
+            return;
+        }
+        try {
+            if (current.isConnected()) {
+                current.disconnect();
+            }
+        } catch (MqttException e) {
+            log.warn("[datalake-mqtt] 断开连接异常: {}", e.getMessage());
+        }
+        try {
+            current.close();
+        } catch (MqttException e) {
+            log.warn("[datalake-mqtt] 关闭客户端异常: {}", e.getMessage());
         }
     }
 
@@ -189,17 +217,13 @@ public class MqttInboundAdapter {
      * 停止 MQTT 订阅。
      */
     public void stop() {
-        if (!running || client == null) {
+        if (client == null) {
+            running = false;
             return;
         }
-        try {
-            client.disconnect();
-            client.close();
-            running = false;
-            log.info("[datalake-mqtt] 已停止, 共接收 {} 条消息", messageCount.get());
-        } catch (MqttException e) {
-            log.warn("[datalake-mqtt] 停止异常: {}", e.getMessage());
-        }
+        releaseClient();
+        running = false;
+        log.info("[datalake-mqtt] 已停止, 共接收 {} 条消息", messageCount.get());
     }
 
     /**
@@ -212,7 +236,7 @@ public class MqttInboundAdapter {
     private void handleMessage(String topic, MqttMessage message) {
         try {
             String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
-            Map<String, Object> data = objectMapper.readValue(payload, Map.class);
+            Map<String, Object> data = toMap(payload);
             data.put("_mqtt_topic", topic);
             data.put("_mqtt_qos", message.getQos());
             data.put("_mqtt_retained", message.isRetained());
@@ -230,6 +254,27 @@ public class MqttInboundAdapter {
         } catch (Exception e) {
             log.error("[datalake-mqtt] 消息处理失败: topic={}, error={}", topic, e.getMessage(), e);
         }
+    }
+
+    /**
+     * 把消息体转为管线可消费的映射。
+     *
+     * <p>JSON 对象直接展开；数组、标量或非 JSON 文本统一包成 {@code {"payload": 原文}}，
+     * 避免纯文本主题的整批消息被静默丢弃。</p>
+     *
+     * @param payload 消息体文本
+     * @return 数据映射
+     * @throws java.io.IOException JSON 对象解析失败
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> toMap(String payload) throws java.io.IOException {
+        String trimmed = payload == null ? "" : payload.trim();
+        if (trimmed.startsWith("{")) {
+            return objectMapper.readValue(trimmed, Map.class);
+        }
+        Map<String, Object> wrapped = new LinkedHashMap<>();
+        wrapped.put("payload", payload);
+        return wrapped;
     }
 
     /**

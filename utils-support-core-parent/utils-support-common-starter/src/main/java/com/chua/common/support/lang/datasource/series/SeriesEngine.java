@@ -108,6 +108,23 @@ public interface SeriesEngine {
     List<List<Object>> series(String target, Long monitorId, int hours, String window);
 
     /**
+     * 删除某 target 在指定时间点之前的时序点（保留期清理）。
+     *
+     * <p>与读写一样与后端无关：关系型实现执行 DELETE，Influx 执行 DELETE FROM ... WHERE time &lt; ?，
+     * Redis 按 ZREMRANGEBYSCORE 清理。默认实现不支持、返回 0，各后端按需覆盖。</p>
+     *
+     * @param target       目标表/测量名
+     * @param monitorId    监控目标标识；{@code null} 表示清理该 target 下全部目标
+     * @param beforeMillis 删除该毫秒时间戳之前的点
+     * @return 删除点数；无法精确统计返回 -1；后端不支持返回 0
+     * @throws IllegalArgumentException target 非法
+     * @throws IllegalStateException    后端清理失败
+     */
+    default int purge(String target, Long monitorId, long beforeMillis) {
+        return 0;
+    }
+
+    /**
      * 解析聚合窗口为毫秒数，供各实现类的降采样统一使用。
      *
      * @param window 窗口字符串，如 30s/1m/5m/1h/2d；空或非法回退 5 分钟

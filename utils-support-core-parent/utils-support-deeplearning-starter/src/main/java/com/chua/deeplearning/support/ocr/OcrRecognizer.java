@@ -302,19 +302,37 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     /**
      * recognizedetail
+     *
+     * <p>按 translator 的实际输出类型分派：仅当返回值确实是 {@code List<OcrResult>} 时才返回。
+     * 单模型 translator 的输出并非该类型（检测模型返回 {@code List<DetectionInfo>}，
+     * 识别模型返回 {@code String}），此时给出可读错误而不是裸 {@link ClassCastException}。</p>
      *
      * @param imageData 镜像数据
      * @return recognizeDetail的结果
      */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
-        ITranslator<byte[], List<OcrResult>> t =
-                (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
+        // 用通配符接收，避免编译器插入 checkcast 造成误判
+        ITranslator<byte[], ?> t = engine.get(modelName, ITranslator.class,
+                DetectOptions.of(threshold, null));
         if (t == null) {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
-        return t.translate(imageData);
+        Object out = t.translate(imageData);
+        if (out instanceof List<?> list) {
+            if (!list.isEmpty() && list.getFirst() instanceof OcrResult) {
+                @SuppressWarnings("unchecked")
+                List<OcrResult> typed = (List<OcrResult>) list;
+                return typed;
+            }
+            throw new IllegalStateException("模型 " + modelName
+                    + " 输出为检测框列表，不含文字结果；recognizeDetail 需要 检测+识别 管线，"
+                    + "请改用管线 API，或对单模型调用 recognize()");
+        }
+        throw new IllegalStateException("模型 " + modelName + " 输出类型为 "
+                + (out == null ? "null" : out.getClass().getSimpleName())
+                + "，不是文字结果列表；recognizeDetail 需要 检测+识别 管线，"
+                + "对单识别模型请调用 recognize()");
     }
 }

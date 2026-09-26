@@ -11,31 +11,31 @@ public class ClientSetting {
 
     /**
      * 主机
-    */
+     */
     private final String host;
     /**
      * 端口
-    */
+     */
     private final int port;
     /**
      * Username
-    */
+     */
     private final String username;
     /**
      * 密码
-    */
+     */
     private final String password;
     /**
      * Connect超时
-    */
+     */
     private final long connectTimeout;
     /**
      * Read超时
-    */
+     */
     private final long readTimeout;
     /**
      * Write超时
-    */
+     */
     private final long writeTimeout;
 
     /**
@@ -130,78 +130,78 @@ public class ClientSetting {
     public static class Builder {
         /**
          * 主机
-        */
+         */
         private String host;
         /**
          * 端口
-        */
+         */
         private int port = 5985;
         /**
          * Username
-        */
+         */
         private String username;
         /**
          * 密码
-        */
+         */
         private String password;
         /**
          * Connect超时
-        */
+         */
         private long connectTimeout = 15_000;
         /**
          * Read超时
-        */
+         */
         private long readTimeout = 30_000;
         /**
          * Write超时
-        */
+         */
         private long writeTimeout = 30_000;
 
         /**
          * Host
-        */
+         */
         public Builder host(String h) {
             host = h;
             return this;
         }
         /**
          * Port
-        */
+         */
         public Builder port(int p) {
             port = p;
             return this;
         }
         /**
          * Username
-        */
+         */
         public Builder username(String u) {
             username = u;
             return this;
         }
         /**
          * Password
-        */
+         */
         public Builder password(String p) {
             password = p;
             return this;
         }
         /**
          * 连接Timeout
-        */
+         */
         public Builder connectTimeout(long t) {
             connectTimeout = t;
             return this;
         }
         /**
          * 读取Timeout
-        */
+         */
         public Builder readTimeout(long t) {
             readTimeout = t;
             return this;
         }
         /**
          * 写入Timeout
-        */
+         */
         public Builder writeTimeout(long t) {
             writeTimeout = t;
             return this;
@@ -209,7 +209,7 @@ public class ClientSetting {
 
         /**
          * 构建
-        */
+         */
         public ClientSetting build() {
             if (host == null || host.isEmpty()) {
                 throw new IllegalArgumentException("host 不能为空");

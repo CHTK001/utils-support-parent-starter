@@ -16,7 +16,7 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
 
     /**
      * instance
-    */
+     */
     private volatile Object instance;
 
     /**
@@ -31,50 +31,50 @@ public class FrameworkBeanDefinition extends AbstractBeanDefinition {
         this.instance = instance;
     }
 
-    @Override
     /**
      * 获取Bean
-    */
+     */
+    @Override
     public Object getBean() {
         return instance;
     }
 
-    @Override
     /**
      * 执行获取Bean
-    */
+     */
+    @Override
     protected Object doGetBean() {
         return instance;
     }
 
-    @Override
     /**
      * 设置Bean
-    */
+     */
+    @Override
     protected void setBean(Object bean) {
         this.instance = bean;
     }
 
-    @Override
     /**
      * 创建Instance
-    */
+     */
+    @Override
     public Object createInstance() {
         return instance;
     }
 
-    @Override
     /**
      * 初始化Bean
-    */
+     */
+    @Override
     public Object initializeBean() {
         return instance;
     }
 
-    @Override
     /**
      * 销毁Bean
-    */
+     */
+    @Override
     public void destroyBean() {
         if (isDestroyed()) {
             return;

@@ -939,10 +939,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 获取sub镜像
+     * 获取子镜像
      *
      * @param options 期权
-     * @return 获取sub镜像的结果
+     * @return 获取子镜像的结果
      */
     public static BufferedImage getSubImage(SubImageOptions options) {
         if (options == null || options.bufferedImage() == null) {

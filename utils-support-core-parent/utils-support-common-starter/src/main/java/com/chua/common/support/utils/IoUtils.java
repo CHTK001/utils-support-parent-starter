@@ -66,21 +66,21 @@ public class IoUtils {
     }
 
     /**
-     * 转为bytearray
+     * 转为字节数组
      *
      * @param input 输入
-     * @return 转为bytearray的结果
+     * @return 转为字节数组的结果
      */
     public static byte[] toByteArray(final InputStream input) throws IOException {
         return asBytes(input);
     }
 
     /**
-     * 转为bytearray
+     * 转为字节数组
      *
      * @param input 输入
      * @param charset 字符集
-     * @return 转为bytearray的结果
+     * @return 转为字节数组的结果
      */
     public static byte[] toByteArray(final InputStream input, final Charset charset) throws IOException {
         return asBytes(input, charset);
@@ -220,7 +220,7 @@ public class IoUtils {
 
     /**
      * 复制
-    */
+     */
     public static void copy(final Reader input, final OutputStream output, final Charset charset)
             throws IOException {
         final OutputStreamWriter out = new OutputStreamWriter(output, charset);

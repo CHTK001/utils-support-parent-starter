@@ -37,7 +37,7 @@ public class HttpProxyServer extends AbstractProxyServer {
     private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
     /**
      * 连接池容量上限
-    */
+     */
     private static final int BACKEND_POOL_MAX = 8;
 
     /**

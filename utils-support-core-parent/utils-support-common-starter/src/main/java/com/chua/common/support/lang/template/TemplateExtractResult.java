@@ -2,10 +2,12 @@ package com.chua.common.support.lang.template;
 
 import com.chua.common.support.lang.json.Json;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 模板提取结果，承载从输入文本中按模板抽取出的变量集合。
@@ -31,6 +33,26 @@ public record TemplateExtractResult(
         List<String> missing,
         List<TemplateVar> vars
 ) {
+
+    /**
+     * 规范构造器：对映射与列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 提取值允许为 {@code null}（输入本身是 JSON null），故采用可空安全的
+     * unmodifiable 包装而非 {@code Map.copyOf} / {@code List.copyOf}。</p>
+     *
+     * @param extracted 已提取的变量名到值的映射
+     * @param missing   模板中声明但未能定位的变量名列表
+     * @param vars      已成功提取的变量有序列表
+     */
+    public TemplateExtractResult {
+        extracted = Collections.unmodifiableMap(
+                new LinkedHashMap<>(Objects.requireNonNull(extracted, "extracted 不能为 null")));
+        missing = Collections.unmodifiableList(
+                new ArrayList<>(Objects.requireNonNull(missing, "missing 不能为 null")));
+        vars = Collections.unmodifiableList(
+                new ArrayList<>(Objects.requireNonNull(vars, "vars 不能为 null")));
+    }
 
     /**
      * 根据已提取的映射构造全部成功的结果（无变量明细）。

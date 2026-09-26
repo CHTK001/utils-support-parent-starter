@@ -22,10 +22,10 @@ import java.util.zip.GZIPInputStream;
 @Spi("gz")
 public class GZipExtractor implements Extractor {
 
-    @Override
     /**
      * Extract
-    */
+     */
+    @Override
     public boolean extract(File sourceFile, File targetDir) {
         if (sourceFile == null || !sourceFile.exists()) {
             log.error("源文件不存在: {}", sourceFile);
@@ -54,10 +54,10 @@ public class GZipExtractor implements Extractor {
         }
     }
 
-    @Override
     /**
      * SupportedExtensions
-    */
+     */
+    @Override
     public String[] supportedExtensions() {
         return new String[]{".gz"};
     }

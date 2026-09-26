@@ -45,10 +45,10 @@ public class WeightLoadBalance implements LoadBalance {
  this.nodes = nodes == null ? new LinkedList<>() : nodes;
  }
 
- @Override
  /**
   * 选择Node
- */
+  */
+ @Override
  public Node selectNode() {
  if (CollectionUtils.isEmpty(nodes)) {
  return null;
@@ -77,27 +77,27 @@ public class WeightLoadBalance implements LoadBalance {
  return node;
  }
 
- @Override
  /**
   * 创建
- */
+  */
+ @Override
  public LoadBalance create() {
  return new WeightLoadBalance(nodes);
  }
 
- @Override
  /**
   * Clear
- */
+  */
+ @Override
  public LoadBalance clear() {
  nodes.clear();
  return this;
  }
 
- @Override
  /**
   * 添加Node
- */
+  */
+ @Override
  public LoadBalance addNode(Node node) {
  if (node != null) {
  nodes.add(node);
@@ -105,10 +105,10 @@ public class WeightLoadBalance implements LoadBalance {
  return this;
  }
 
- @Override
  /**
   * 选择
- */
+  */
+ @Override
  public <T> T select(List<T> values) {
  if (values == null || values.isEmpty()) {
  return null;

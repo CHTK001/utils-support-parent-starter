@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -461,6 +463,26 @@ public class VoiceprintPipeline implements AutoCloseable {
      * @return 匹配的结果
      */
     public record Match(String speakerId, double similarity, Map<String, Object> metadata) {
+
+        /**
+         * 规范构造器：元数据映射做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。</p>
+         *
+         * <p>元数据映射 刻意保留 空 语义：上游 {@code Vector} 的 {@code metadata} 组件
+         * 同样允许为 空（其 规范构造器 已明确保留该语义），此处若拒绝 空 值，
+         * 等于把既有降级路径变成 空指针。</p>
+         *
+         * <p>采用 {@link LinkedHashMap} 快照 + {@link Collections#unmodifiableMap} 而非
+         * {@code Map.copyOf}：后者既拒绝 空 值，也不保证迭代顺序，而 元数据 的键序
+         * 需与写入端（{@code VectorStorage} 落盘）保持一致。</p>
+         *
+         * @param metadata 元数据映射
+         */
+        public Match {
+            metadata = metadata == null ? null
+                    : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+        }
     }
 
     /**

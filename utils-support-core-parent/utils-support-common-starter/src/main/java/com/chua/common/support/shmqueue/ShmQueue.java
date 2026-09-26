@@ -68,15 +68,33 @@ public abstract class ShmQueue implements AutoCloseable {
     public record Message(int type, byte[] bytes) {
         /**
          * 防御性拷贝：空 视为空数组
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。
+         * 原实现只把 null 归一为空数组、未做拷贝，外部仍能拿到内部数组引用，
+         * 故此处补 {@code clone()}，并由同名访问器再返回一份副本。
+         * 保留原有 null 语义：null 归一为空数组，而非拒绝。</p>
+         *
+         * @param type  消息类型
+         * @param bytes 消息字节
          */
         public Message {
-            bytes = bytes == null ? new byte[0] : bytes;
+            bytes = (bytes == null ? new byte[0] : bytes).clone();
         }
 
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * @return 消息字节副本，永不为 null
+         */
         @Override
+        public byte[] bytes() {
+            return bytes.clone();
+        }
+
         /**
          * 转为字符串
-        */
+         */
+        @Override
         public String toString() {
             return "Message{type=" + type + ", len=" + bytes.length + "}";
         }

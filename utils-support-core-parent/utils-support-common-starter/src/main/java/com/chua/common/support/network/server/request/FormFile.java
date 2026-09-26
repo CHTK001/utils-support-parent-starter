@@ -11,22 +11,22 @@ public class FormFile {
 
     /**
      * 表单字段名
-    */
+     */
     private final String fieldName;
 
     /**
      * 原始文件名
-    */
+     */
     private final String fileName;
 
     /**
      * 文件内容类型
-    */
+     */
     private final String contentType;
 
     /**
      * 文件字节数据
-    */
+     */
     private final byte[] data;
 
     /**
@@ -48,22 +48,22 @@ public class FormFile {
 
     /**
      * 获取FieldName
-    */
+     */
     public String getFieldName() { return fieldName; }
     /**
      * 获取FileName
-    */
+     */
     public String getFileName() { return fileName; }
     /**
      * 获取ContentType
-    */
+     */
     public String getContentType() { return contentType; }
     /**
      * 获取Data
-    */
+     */
     public byte[] getData() { return data; }
     /**
      * 获取获取大小
-    */
+     */
     public long getSize() { return data != null ? data.length : 0; }
 }

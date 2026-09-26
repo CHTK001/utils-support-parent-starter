@@ -48,19 +48,19 @@ public class JdkUdpServer extends AbstractServer {
 
     /**
      * DatagramSocket
-    */
+     */
     private DatagramSocket datagramSocket;
     /**
      * Worker池
-    */
+     */
     private ExecutorService workerPool;
     /**
      * handlers
-    */
+     */
     private final Map<String, UdpHandler> handlers = new ConcurrentHashMap<>();
     /**
      * Receiver线程
-    */
+     */
     private Thread receiverThread;
 
     /**
@@ -71,10 +71,10 @@ public class JdkUdpServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -100,10 +100,10 @@ public class JdkUdpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         running = false;
         if (datagramSocket != null && !datagramSocket.isClosed()) {
@@ -123,17 +123,17 @@ public class JdkUdpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.UDP;
     }
 
     /**
      * 接收Loop
-    */
+     */
     private void receiveLoop() {
         byte[] buffer = new byte[65535];
         while (running) {

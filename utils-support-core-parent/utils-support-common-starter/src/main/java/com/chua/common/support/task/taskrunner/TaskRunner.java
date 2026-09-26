@@ -47,7 +47,7 @@ import java.util.function.Function;
  * }</pre>nResult>
  * runner.executeSync(input);    // 同步
  * runner.executeReactor();      // Mono<RunResult>
- * }</pre>
+ * }
  *
  * <p>约束：{@code policy(...)} 为必填项，未设置时任何执行入口都会抛出
  * {@link IllegalStateException}。同一 runner 可多次执行；事件流为有界缓冲

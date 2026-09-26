@@ -50,17 +50,17 @@ public final class BeanUtils {
 
     /**
      * 上下文占位符起始标记：{@code #{}}。
-    */
+     */
     private static final String CONTEXT_PLACEHOLDER_PREFIX = "#{";
 
     /**
      * 上下文占位符结束标记：{@code }}。
-    */
+     */
     private static final String CONTEXT_PLACEHOLDER_SUFFIX = "}";
 
     /**
      * 上下文占位符起始标记长度（"#" + "{" 共 2 字符）。
-    */
+     */
     private static final int CONTEXT_PLACEHOLDER_PREFIX_LENGTH = 2;
 
     /**
@@ -79,7 +79,7 @@ public final class BeanUtils {
 
     /**
      * 创建 Bean工具 实例
-    */
+     */
     private BeanUtils() {
     }
 

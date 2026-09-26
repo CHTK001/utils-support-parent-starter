@@ -5,6 +5,9 @@ import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -27,30 +30,67 @@ import java.util.Set;
 public class UniverPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 支持的 办公室 扩展名（小写）
-     */
-    private static final Set<String> SUPPORTED_EXTS = Set.of(
-            // Excel
-            "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml",
-            // Word
-            "docx", "doc", "dotx", "dotm",
-            // powerpoint
-            "pptx", "ppt", "potx", "potm"
-    );
-
-    /**
      * 表格类扩展名（需要 LuckyExcel 解析）
+     *
+     * <p><b>实测：LuckyExcel 读不了传统 BIFF(.xls)</b>。把真实 BIFF8 文件交给本类，
+     * LuckyExcel 会失败并返回「无法解析文件」占位页，从而把请求挡在真正能解析
+     * BIFF 的 {@link OldOfficePreviewProvider}（Apache POI HSSF）之前。
+     * 故本集合刻意<strong>不含 {@code xls}</strong>，让它落到 POI 链路。</p>
+     *
+     * <p>{@code xlsb}（二进制工作簿）保留在此：它既非 LuckyExcel 也非 POI HSSF
+     * 所支持，两条路都无解，保留可获得更明确的「无法解析文件」提示，
+     * 而非 415。</p>
      */
     private static final Set<String> SHEET_EXTS = Set.of(
-            "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml"
+            "xlsx", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml"
     );
 
     /**
      * 文档类扩展名（Mammoth 仅支持 OOXML 格式，旧版二进制 doc 无法解析）
      */
     private static final Set<String> DOC_EXTS = Set.of(
-            "docx", "dotx"
+            "docx", "dotx", "dotm"
     );
+
+    /**
+     * 演示类扩展名
+     *
+     * <p>Univer Slides 对 OOXML（pptx）可渲染；传统二进制 {@code ppt}
+     * 交由 {@link OldOfficePreviewProvider} 用 POI 处理，本类不认领。</p>
+     */
+    private static final Set<String> SLIDES_EXTS = Set.of(
+            "pptx", "potx", "potm"
+    );
+
+    /**
+     * 支持的 办公室 扩展名（小写）
+     *
+     * <p>由上面三类清单求并集派生，因此<strong>必须声明在它们之后</strong>：
+     * 静态字段按声明顺序初始化，若声明在三类清单之前，
+     * {@link #buildSupportedExts()} 读到的将是 null，导致本类初始化失败、
+     * 整个 Provider 从 SPI 消失。</p>
+     *
+     * <p>之所以要「派生」而非手写：SPI 分发是「首个 supports 为 true 的
+     * 提供者直接返回结果」，不再尝试后续提供者。若本类用一份更大的清单去
+     * 认领自己渲染不了的格式（如传统二进制 {@code doc} / {@code ppt}），
+     * 会返回占位页并把请求挡在真正能处理它的
+     * {@link OldOfficePreviewProvider}（Apache POI）之前，
+     * 导致 .doc 只能看到「暂不支持该格式在线预览」。</p>
+     */
+    private static final Set<String> SUPPORTED_EXTS = buildSupportedExts();
+
+    /**
+     * 合并三类扩展名，得到本类真正能渲染的完整清单。
+     *
+     * @return 支持的扩展名不可变集合
+     */
+    private static Set<String> buildSupportedExts() {
+        Set<String> all = new LinkedHashSet<>();
+        all.addAll(SHEET_EXTS);
+        all.addAll(DOC_EXTS);
+        all.addAll(SLIDES_EXTS);
+        return Collections.unmodifiableSet(all);
+    }
 
     /**
      * Univer 本地资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供）
@@ -138,19 +178,24 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
-        String type = ext.toLowerCase();
-        boolean isSheet = SHEET_EXTS.contains(type);
-        boolean isDoc = DOC_EXTS.contains(type);
+        String type = ext.toLowerCase(Locale.ENGLISH);
 
         String html = "<div id=\"app\" style=\"min-height:100vh;width:100%\"></div>";
 
-        if (isDoc) {
+        if (DOC_EXTS.contains(type)) {
             return buildDocPreview(b64, html);
         }
-        if (isSheet) {
+        if (SHEET_EXTS.contains(type)) {
             return buildSheetPreview(b64, type, html);
         }
-        return buildSlidesPlaceholder(html);
+        if (SLIDES_EXTS.contains(type)) {
+            return buildSlidesPlaceholder(html);
+        }
+        // 理论不可达：supports() 已与上述三类清单严格同步。
+        // 保留兜底而非抛异常，避免清单被误改时整个预览链路 500。
+        return PreviewResult.builder()
+                .htmlContent("<div class=\"unavail\">暂不支持该格式在线预览，请下载后查看</div>")
+                .build();
     }
 
     /**

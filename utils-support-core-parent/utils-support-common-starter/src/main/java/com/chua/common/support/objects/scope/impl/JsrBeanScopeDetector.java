@@ -27,10 +27,10 @@ import java.lang.annotation.Annotation;
 @SpiDescribe("JSR/CDI 作用域检测器")
 public class JsrBeanScopeDetector implements BeanScopeDetector {
 
-    @Override
     /**
      * Detect
-    */
+     */
+    @Override
     public BeanScope detect(Class<?> beanClass) {
         if (beanClass == null) {
             return null;

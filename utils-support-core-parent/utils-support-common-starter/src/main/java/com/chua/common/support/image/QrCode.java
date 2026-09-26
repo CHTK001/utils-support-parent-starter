@@ -19,11 +19,11 @@ public interface QrCode {
     enum BarcodeType {
         /**
          * 二维码（QR Code）
-        */
+         */
         QR_CODE,
         /**
          * 条形码
-        */
+         */
         BARCODE
     }
 

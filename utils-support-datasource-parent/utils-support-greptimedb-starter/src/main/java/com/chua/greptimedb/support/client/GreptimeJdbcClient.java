@@ -10,6 +10,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -61,6 +62,19 @@ public class GreptimeJdbcClient implements AutoCloseable {
      * @param rows    已物化的行数据，每行为与 columns 等长的数组
      */
     public record JdbcResult(List<String> columns, List<Object[]> rows) {
+
+        /**
+         * 规范构造器：对列名列表与行数据列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。唯一构造点
+         * {@link #query(String, List)} 传入的两个列表均非空，且行元素
+         * （{@code Object[]}）本身非空，故使用拒绝 null 元素的
+         * {@link List#copyOf(List)}。</p>
+         */
+        public JdbcResult {
+            columns = List.copyOf(Objects.requireNonNull(columns, "columns 不能为 null"));
+            rows = List.copyOf(Objects.requireNonNull(rows, "rows 不能为 null"));
+        }
     }
 
     /**

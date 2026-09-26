@@ -28,10 +28,10 @@ public interface UsageRecorder extends Consumer<AiUsage> {
     default void reset() {
     }
 
-    @Override
     /**
      * Accept
-    */
+     */
+    @Override
     default void accept(AiUsage usage) {
         if (usage != null) {
             record(usage);

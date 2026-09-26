@@ -32,33 +32,33 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
     /**
      * Post_Construct_javax
-    */
+     */
     private static final String POST_CONSTRUCT_JAVAX = "javax.annotation.PostConstruct";
     /**
      * Post_Construct_jakarta
-    */
+     */
     private static final String POST_CONSTRUCT_JAKARTA = "jakarta.annotation.PostConstruct";
     /**
      * Pre_销毁_javax
-    */
+     */
     private static final String PRE_DESTROY_JAVAX = "javax.annotation.PreDestroy";
     /**
      * Pre_销毁_jakarta
-    */
+     */
     private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -66,10 +66,10 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         invokeAnnotatedMethods(bean, POST_CONSTRUCT_JAVAX, POST_CONSTRUCT_JAKARTA);
     }
 
-    @Override
     /**
      * 销毁
-    */
+     */
+    @Override
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;

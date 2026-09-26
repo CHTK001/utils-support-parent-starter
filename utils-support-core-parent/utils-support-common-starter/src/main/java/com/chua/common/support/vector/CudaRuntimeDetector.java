@@ -39,7 +39,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
 
     /**
      * onnxruntime 类名，用于检测 GPU 构件是否在 类路径
-    */
+     */
     private static final String ORT_GPU_CLASS = "ai.onnxruntime.OrtSession";
 
     @Override
@@ -112,7 +112,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
      *
      * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
      * Linux：检查 /proc/driver/nvidia 是否存在。</p>
-     * @return 检查nvidiadriver的结果
+     * @return 检查 NVIDIA 驱动的结果
      */
     private boolean checkNvidiaDriver() {
         if (isWindows() && checkNvidiaRegistry()) {
@@ -218,7 +218,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
 
     /**
      * Windows 注册表检查 NVIDIA 驱动。
-     * @return 检查nvidiaregistry的结果
+     * @return 检查 NVIDIA 注册表项的结果
      */
     private boolean checkNvidiaRegistry() {
         try {

@@ -64,10 +64,10 @@ public class LinearBackoffProvider implements BackoffProvider {
         return nextDelay(attempt.getAndIncrement());
     }
 
-    @Override
     /**
      * NextDelay
-    */
+     */
+    @Override
     public long nextDelay(int attempt) {
         long delay = initialDelay + (long) attempt * increment;
         return Math.min(delay, maxDelay);

@@ -20,15 +20,15 @@ import java.util.Map;
 public abstract class AbstractWriter implements FileSystem {
     /**
      * 表头列表
-    */
+     */
     protected List<String> headers;
     /**
      * 写入选项
-    */
+     */
     protected WriteOption writeOption;
     /**
      * 是否已初始化
-    */
+     */
     protected boolean initialized;
     /**
      * 文件路径
@@ -37,7 +37,7 @@ public abstract class AbstractWriter implements FileSystem {
 
     /**
      * 创建 AbstractWriter 实例
-    */
+     */
     protected AbstractWriter() {
         this.headers = new ArrayList<>();
         this.writeOption = WriteOption.maps();
@@ -77,28 +77,28 @@ public abstract class AbstractWriter implements FileSystem {
         return this;
     }
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "unknown";
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public ReadBuilder read(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("AbstractWriter 不支持直接读写文件，请由具体写入器实现相应方法");
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public WriteBuilder write(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("AbstractWriter 不支持直接读写文件，请由具体写入器实现相应方法");
     }
 
     /**
@@ -156,11 +156,11 @@ public abstract class AbstractWriter implements FileSystem {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 写入Single
      * @param item 项，不允许为 null
      */
+    @SuppressWarnings("unchecked")
     private void writeSingle(Object item) throws IOException {
         if (item instanceof Map) {
             doWrite((Map<String, Object>) item);
@@ -169,13 +169,13 @@ public abstract class AbstractWriter implements FileSystem {
         } else if (item instanceof String) {
             doWriteText((String) item);
         } else {
-            throw new UnsupportedOperationException("Unsupported write type: " + item.getClass().getName());
+            throw new UnsupportedOperationException("不支持的写入类型: " + item.getClass().getName());
         }
     }
 
     /**
      * EnsureInitialized
-    */
+     */
     protected void ensureInitialized() throws IOException {
         if (initialized) {
             return;
@@ -189,7 +189,7 @@ public abstract class AbstractWriter implements FileSystem {
 
     /**
      * Do初始化
-    */
+     */
     protected abstract void doInitialize() throws IOException;
     /**
      * Do写入Line
@@ -213,16 +213,16 @@ public abstract class AbstractWriter implements FileSystem {
     protected abstract void doWrite(Map<String, Object> data) throws IOException;
     /**
      * Do刷新
-    */
+     */
     protected abstract void doFlush() throws IOException;
     /**
      * DoFinish
-    */
+     */
     protected abstract void doFinish() throws IOException;
 
     /**
      * Finish
-    */
+     */
     public void finish() {
         try {
             doFinish();
@@ -238,7 +238,7 @@ public abstract class AbstractWriter implements FileSystem {
 
     /**
      * 关闭
-    */
+     */
     public void close() throws IOException {
         try {
             if (initialized) {

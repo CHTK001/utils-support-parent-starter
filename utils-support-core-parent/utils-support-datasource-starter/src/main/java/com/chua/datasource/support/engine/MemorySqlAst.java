@@ -696,13 +696,28 @@ final class MemorySqlAst {
     /**
      * 对行引用列表应用 插入 计划。
      *
+     * <p>新行的类型跟随目标表既有行的类型：表里存的是实体对象就实例化同一类型并按列赋值，
+     * 存的是映射就继续产出映射。目标表为空时无类型可跟随，产出映射。
+     * 若不跟随，{@code store} 写入实体后再用原生 INSERT 追加的行会变成映射，
+     * 导致同一张表混有两种行类型，Lambda 条件只匹配得到其中一种、静默漏行。</p>
+     *
+     * <p>实体类型缺少无参构造时无法实例化，此时显式报错而不是退回映射行：
+     * 退回映射同样会造成行类型不一致，且不会留下任何痕迹。</p>
+     *
      * @param plan 插入计划
      * @param rows 目标行引用
      * @return 影响行数
+     * @throws IllegalStateException 实体行类型缺少无参构造时抛出
      */
     public static int applyInsert(InsertPlan plan, List<Object> rows) {
+        Class<?> rowType = rows.isEmpty() ? null : rows.getFirst().getClass();
+        boolean asMap = rowType == null || Map.class.isAssignableFrom(rowType);
+        if (!asMap && !hasNoArgConstructor(rowType)) {
+            throw new IllegalStateException("目标表已存在实体行，但该实体缺少无参构造，"
+                    + "无法按实体类型追加新行: " + rowType.getName()
+                    + "；请为该实体补充无参构造，或改为向映射行表插入");
+        }
         for (List<Object> values : plan.rows()) {
-            LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
             List<String> cols = !plan.columns().isEmpty() ? plan.columns()
                     : (rows.isEmpty()
                             ? List.of()
@@ -714,12 +729,38 @@ final class MemorySqlAst {
                 throw new IllegalArgumentException(
                         "列数与值数不匹配: " + cols.size() + " vs " + values.size());
             }
-            for (int i = 0; i < values.size(); i++) {
-                rowMap.put(cols.get(i), values.get(i));
+            Object row;
+            if (asMap) {
+                LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    rowMap.put(cols.get(i), values.get(i));
+                }
+                row = rowMap;
+            } else {
+                row = com.chua.common.support.reflection.ReflectUtils.instantiate(rowType);
+                for (int i = 0; i < values.size(); i++) {
+                    MethodCache.setValue(row, cols.get(i), values.get(i));
+                }
             }
-            rows.add(rowMap);
+            rows.add(row);
         }
         return plan.rows().size();
+    }
+
+    /**
+     * 判断类型是否具备可直接实例化的无参构造。
+     *
+     * @param type 目标类型
+     * @return 存在无参构造返回 true
+     */
+    private static boolean hasNoArgConstructor(Class<?> type) {
+        for (java.lang.reflect.Constructor<?> c : com.chua.common.support.reflection.ReflectUtils
+                .findDeclaredConstructors(type)) {
+            if (c.getParameterCount() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

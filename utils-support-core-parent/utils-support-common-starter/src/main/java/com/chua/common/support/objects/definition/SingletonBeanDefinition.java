@@ -23,7 +23,7 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
 
     /**
      * 单例实例，volatile 保证多线程可见性
-    */
+     */
     private volatile Object singletonInstance;
 
     /**
@@ -113,10 +113,10 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
         return super.initializeBean();
     }
 
-    @Override
     /**
      * 销毁Bean
-    */
+     */
+    @Override
     public void destroyBean() {
         if (isDestroyed()) {
             return;
@@ -127,10 +127,10 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
         this.singletonInstance = null;
     }
 
-    @Override
     /**
      * 是否销毁
-    */
+     */
+    @Override
     public boolean isDestroyed() {
  // 父类 销毁 标志即销毁完成
         return super.isDestroyed();

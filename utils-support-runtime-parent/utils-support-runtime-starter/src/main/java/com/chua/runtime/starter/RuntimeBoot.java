@@ -388,9 +388,9 @@ public class RuntimeBoot {
      */
     public RuntimeBoot startShell() {
         try {
-            shell.start(config.getShellPort());
+            shell.start(config.getShellHost(), config.getShellPort());
         } catch (IOException e) {
-            LOG.log(Level.WARNING, String.format("Shell 启动失败: %s", e.getMessage()));
+            LOG.log(Level.WARNING, "Shell 启动失败: " + e.getMessage(), e);
         }
         return this;
     }
@@ -548,6 +548,12 @@ public class RuntimeBoot {
          * Shell端口
         */
         private int shellPort = 4567;
+
+        /**
+         * Shell 监听地址；该端口无鉴权，默认只绑回环，跨机访问需显式设置并自行做网络隔离
+         */
+        @Builder.Default
+        private String shellHost = "127.0.0.1";
 
         /**
          * 插件目录

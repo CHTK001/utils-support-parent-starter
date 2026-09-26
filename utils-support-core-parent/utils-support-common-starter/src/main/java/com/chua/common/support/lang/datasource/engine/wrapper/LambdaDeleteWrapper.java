@@ -69,10 +69,10 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
         throw new UnsupportedOperationException("remove() 需由引擎实现类重写");
     }
 
-    @Override
     /**
      * NewInstance
-    */
+     */
+    @Override
     protected LambdaDeleteWrapper<T> newInstance() {
         return new LambdaDeleteWrapper<>(entityClass);
     }

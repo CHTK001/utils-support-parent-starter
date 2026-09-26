@@ -316,6 +316,16 @@ public class TablesawEngine implements Engine {
         defaultDataSourceName = null;
     }
 
+    @Override
+    /**
+     * 是否已关闭
+     *
+     * @return 已关闭返回 true
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+
     /**
      * 加载 CSV 文件到指定名称的数据源
      *
@@ -517,7 +527,7 @@ public class TablesawEngine implements Engine {
              * 列表
             */
             public List<T> list() {
-                return executeQuery(this);
+                return executeTableQuery(this);
             }
 
             @Override
@@ -540,7 +550,7 @@ public class TablesawEngine implements Engine {
              * Page
             */
             public Page<T> page(int pageNum, int pageSize) {
-                return executePage(this, pageNum, pageSize);
+                return executeTablePage(this, pageNum, pageSize);
             }
 
             @Override
@@ -590,7 +600,7 @@ public class TablesawEngine implements Engine {
              * 更新内存表中命中的行
             */
             public int update() {
-                return executeUpdate(this);
+                return executeTableUpdate(this);
             }
         };
     }
@@ -632,7 +642,7 @@ public class TablesawEngine implements Engine {
              * 删除内存表中命中的行
             */
             public int remove() {
-                return executeDelete(this);
+                return executeTableDelete(this);
             }
         };
     }
@@ -649,7 +659,7 @@ public class TablesawEngine implements Engine {
      * @param <T>     实体类型
      * @return 查询结果列表
      */
-    private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper) {
+    private <T> List<T> executeTableQuery(LambdaQueryWrapper<T> wrapper) {
         HitRows<T> hit = prepare(wrapper);
         List<Integer> rows = applyLimitOffset(hit.rows(), wrapper.getLimit(), wrapper.getOffset());
         return materialize(hit.table(), wrapper.getEntityClass(), rows,
@@ -667,7 +677,7 @@ public class TablesawEngine implements Engine {
      * @param <T>      实体类型
      * @return 分页结果
      */
-    private <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, int pageNum, int pageSize) {
+    private <T> Page<T> executeTablePage(LambdaQueryWrapper<T> wrapper, int pageNum, int pageSize) {
         if (pageNum < 1) {
             throw new IllegalArgumentException("页码必须从 1 开始: pageNum=" + pageNum);
         }
@@ -722,7 +732,7 @@ public class TablesawEngine implements Engine {
      * @param <T>     实体类型
      * @return 受影响行数
      */
-    private <T> int executeUpdate(LambdaUpdateWrapper<T> wrapper) {
+    private <T> int executeTableUpdate(LambdaUpdateWrapper<T> wrapper) {
         wrapper.buildSql();
         Table table = requireTable(wrapper.getEntityClass(), "更新");
         Map<String, Object> setValues = wrapper.getSetValues();
@@ -759,7 +769,7 @@ public class TablesawEngine implements Engine {
      * @param <T>     实体类型
      * @return 删除行数
      */
-    private <T> int executeDelete(LambdaDeleteWrapper<T> wrapper) {
+    private <T> int executeTableDelete(LambdaDeleteWrapper<T> wrapper) {
         wrapper.buildSql();
         Table table = requireTable(wrapper.getEntityClass(), "删除");
         List<Integer> rows = matchedRowIndexes(table, conditionsToMatcher(table, wrapper.getConditions()));
@@ -1801,5 +1811,25 @@ public class TablesawEngine implements Engine {
      * @param <T>           实体类型
      */
     private record HitRows<T>(Table table, List<Integer> rows, List<String> selectColumns) {
+
+        /**
+         * 规范构造器：对命中行号与投影列做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。行号列表是
+         * {@link #matchedRowIndexes(Table, BiPredicate)} 产出的可变列表，快照发布后
+         * 若仍被引用，后续排序或裁剪会改写已确定的查询结果。</p>
+         *
+         * <p>{@link QuerySql#selectColumns()} 在投影为空时显式返回 {@code null}，
+         * {@link #resolveProjection(Table, List)} 也按可空处理，故该组件保留 {@code null} 语义。</p>
+         *
+         * @param table         命中的内存表
+         * @param rows          命中行号列表
+         * @param selectColumns SELECT 投影列（{@code null} 表示全列）
+         * @param <T>           实体类型
+         */
+        private HitRows {
+            rows = rows == null ? null : List.copyOf(rows);
+            selectColumns = selectColumns == null ? null : List.copyOf(selectColumns);
+        }
     }
 }

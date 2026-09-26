@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  *     .build();
  * }</pre>       // 结束分叉定义
  * .构建();
- * }</pre>
+ * }
  *
  * <p><strong>方式2：预构建 Pipeline 传入</strong></p>
  * <pre>{@code
@@ -53,7 +53,7 @@ import java.util.function.Consumer;
  *     .build();
  * }</pre>结束()
  * .构建();
- * }</pre>
+ * }
  *
  * <p><strong>方式3：从 taskStart 转换</strong></p>
  * <pre>{@code
@@ -66,7 +66,7 @@ import java.util.function.Consumer;
  *     .build();
  * }</pre>                     // 结束定义
  *     .build();
- * }</pre>
+ * }
  *
  * <p><strong>数据合并模型：</strong></p>
  * <ul>
@@ -93,31 +93,31 @@ public class TaskForkDefinition {
 
     /**
      * 标识
-    */
+     */
     private final String id;
     /**
      * PRE处理器
-    */
+     */
     private PipelineNode preHandler;
     /**
      * 构建器
-    */
+     */
     private final PipelineBuilder builder;
     /**
      * branches
-    */
+     */
     private final Map<String, Pipeline> branches = new LinkedHashMap<>();
     /**
      * 错误策略
-    */
+     */
     private ForkErrorStrategy errorStrategy;
     /**
      * 参数
-    */
+     */
     private Map<String, Object> params;
     /**
      * env
-    */
+     */
     private Map<String, Object> env;
 
     /**
@@ -210,7 +210,7 @@ public class TaskForkDefinition {
      *     .endFork()                            // 结束分支 "b"
      * .taskEnd()
      * }</pre>.任务结束()
-     * }</pre>
+     * }
      *
      * <p>对于复杂分支（含判断节点、子流水线等），请使用
      * {@link #branch(String, Pipeline)} 传入预构建的 Pipeline。</p>
@@ -234,7 +234,7 @@ public class TaskForkDefinition {
      *     .startFork("b").step("b1", ...).endFork()
      * .endFork()    // 等价于 .taskEnd()
      * }</pre>nd()
-     * }</pre>
+     * }
      *
      * @return PipelineBuilder
      */

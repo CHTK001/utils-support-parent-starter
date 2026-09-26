@@ -36,17 +36,17 @@ public class DataSourceSeriesEngine implements SeriesEngine {
 
     /**
      * 默认数据库引擎名
-    */
+     */
     private static final String DEFAULT_ENGINE = "datasource";
 
     /**
      * 单次曲线返回点数上限
-    */
+     */
     private static final int MAX_SERIES_POINTS = 1440;
 
     /**
      * 已知明细表的数值列后缀（不含表名前缀），未登记的表无法推断数值列
-    */
+     */
     private static final Map<String, String> TARGET_VALUE_COLUMN = Map.of(
             "ms_monitor_metric_cpu", "cpu_usage",
             "ms_monitor_metric_memory", "usage_percent",
@@ -54,12 +54,12 @@ public class DataSourceSeriesEngine implements SeriesEngine {
 
     /**
      * SQL 执行器
-    */
+     */
     private final SqlExecutor executor;
 
     /**
      * 是否可用
-    */
+     */
     private final boolean available;
 
     /**

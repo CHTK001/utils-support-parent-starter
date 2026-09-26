@@ -77,11 +77,11 @@ public enum HttpVersion {
 
     /**
      * Major
-    */
+     */
     private final int major;
     /**
      * Minor
-    */
+     */
     private final int minor;
 
     /**

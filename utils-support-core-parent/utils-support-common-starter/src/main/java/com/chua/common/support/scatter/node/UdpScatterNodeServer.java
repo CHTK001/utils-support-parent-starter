@@ -28,11 +28,11 @@ public class UdpScatterNodeServer extends AbstractServer {
     private final ScatterNodeHandler handler;
     /**
      * socket
-    */
+     */
     private DatagramSocket socket;
     /**
      * workerPool
-    */
+     */
     private ExecutorService workerPool;
     private volatile boolean running = false;
 

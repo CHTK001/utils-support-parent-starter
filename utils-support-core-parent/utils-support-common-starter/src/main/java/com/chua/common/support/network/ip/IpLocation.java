@@ -13,28 +13,28 @@ public class IpLocation {
 
     /**
      * 国家或地区
-    */
+     */
     private String country;
 
     /**
      * 省份
-    */
+     */
     private String province;
 
     /**
      * 城市
-    */
+     */
     private String city;
 
     /**
      * 运营商
-    */
+     */
     private String isp;
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return String.format("%s%s%s %s",
                 country != null ? country : "",

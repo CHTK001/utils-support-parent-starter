@@ -39,7 +39,7 @@ import java.lang.annotation.*;
  * }</pre>{
  * // 当 习俗条件.是否条件() 返回 true 时，该实现才会被加载
  * }
- * }</pre>
+ * }
  * </p>
  *
  * @since 2024-01-01

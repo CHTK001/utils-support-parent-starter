@@ -31,29 +31,26 @@ public class ObjectContextConfig {
 
     /**
      * 是否启用 SPI 作为 Beandefinition注册 的发现器，默认 true
+     *
+     * SPI是否启用
      */
     @Builder.Default
-    /**
-     * SPI是否启用
-    */
     private boolean spiEnabled = true;
 
     /**
      * 是否启用注解/包扫描，默认 false；yml 中配置了 扫描-包 时自动为 true
+     *
+     * Annotationscan是否启用
      */
     @Builder.Default
-    /**
-     * Annotationscan是否启用
-    */
     private boolean annotationScanEnabled = false;
 
     /**
      * 需要扫描的基包路径，注解扫描已启用=true 或列表非空时生效
+     *
+     * Scanpackages
      */
     @Builder.Default
-    /**
-     * Scanpackages
-    */
     private List<String> scanPackages = Collections.emptyList();
 
     /**

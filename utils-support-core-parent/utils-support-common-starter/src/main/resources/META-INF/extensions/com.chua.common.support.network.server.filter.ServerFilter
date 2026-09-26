@@ -1,0 +1,2 @@
+invoker_inject=com.chua.common.support.network.invoker.filter.InvokerInjectServerFilter
+ai_token=com.chua.common.support.ai.chat.protocol.AiTokenServerFilter

@@ -34,18 +34,18 @@ public class DefaultExpressionResolver implements ExpressionResolver {
      */
     private static final String SUFFIX = "}";
 
-    @Override
     /**
      * 是否Support
-    */
+     */
+    @Override
     public boolean isSupport(String expression) {
         return expression != null && expression.startsWith(PREFIX) && expression.endsWith(SUFFIX);
     }
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public String resolve(String expression, Object root, Map<String, Object> variables) {
         if (expression == null) {
             return null;

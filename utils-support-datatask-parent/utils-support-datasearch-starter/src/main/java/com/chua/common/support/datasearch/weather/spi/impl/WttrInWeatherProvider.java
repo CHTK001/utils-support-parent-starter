@@ -116,28 +116,18 @@ public class WttrInWeatherProvider implements WeatherProvider {
             if (current.isMissingNode()) {
                 return null;
             }
-            WeatherInfo info = new WeatherInfo();
-            info.setCity(city);
-            info.setSource(name());
-            info.setTempC(num(current.path("temp_C")));
-            info.setFeelsLikeC(num(current.path("FeelsLikeC")));
-            info.setHumidity(intVal(current.path("humidity")));
-            info.setCloudcover(intVal(current.path("cloudcover")));
-            info.setWindSpeedKmph(num(current.path("windspeedKmph")));
-            info.setWindDirection(num(current.path("winddirDegree")));
-            info.setPressure(intVal(current.path("pressure")));
-            info.setObservationTime(current.path("observation_time").asText(null));
             JsonNode desc = current.path("weatherDesc").path(0);
-            if (!desc.isMissingNode()) {
-                info.setWeatherDesc(desc.path("value").asText(null));
-            }
             // 未来数日预报(3 天)与当天逐小时采样
-            info.setForecast(parseForecast(root.path("weather")));
-            if (info.getForecast() != null && !info.getForecast().isEmpty()
-                    && info.getForecast().getFirst().getHourly() != null) {
-                info.setHourly(info.getForecast().getFirst().getHourly());
-            }
-            return info;
+            var forecast = parseForecast(root.path("weather"));
+            var hourly = forecast != null && !forecast.isEmpty()
+                    ? forecast.getFirst().getHourly() : null;
+            return new WeatherInfo(city, null, null,
+                    num(current.path("temp_C")), num(current.path("FeelsLikeC")),
+                    intVal(current.path("humidity")), intVal(current.path("cloudcover")),
+                    desc.isMissingNode() ? null : desc.path("value").asText(null),
+                    null, num(current.path("windspeedKmph")), num(current.path("winddirDegree")),
+                    intVal(current.path("pressure")), current.path("observation_time").asText(null),
+                    name(), hourly, forecast);
         } catch (Exception e) {
             log.debug("[wttr-in] 解析失败: {}", e.getMessage());
             return null;

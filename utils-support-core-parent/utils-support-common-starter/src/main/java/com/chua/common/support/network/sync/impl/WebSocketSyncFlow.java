@@ -71,10 +71,10 @@ public class WebSocketSyncFlow implements SyncFlow {
         this.client = null;
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() {
         if (running) {
             return;
@@ -89,10 +89,10 @@ public class WebSocketSyncFlow implements SyncFlow {
         notifyListeners(SyncFlowListener::onStart);
     }
 
-    @Override
     /**
      * 停止
-    */
+     */
+    @Override
     public void stop() {
         if (!running) {
             return;
@@ -107,66 +107,66 @@ public class WebSocketSyncFlow implements SyncFlow {
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否Running
-    */
+     */
+    @Override
     public boolean isRunning() {
         return running;
     }
 
-    @Override
     /**
      * 获取Server
-    */
+     */
+    @Override
     public SyncServer getServer() {
         return server;
     }
 
-    @Override
     /**
      * 获取Client
-    */
+     */
+    @Override
     public SyncClient getClient() {
         return client;
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
         if (server != null) {
             server.addListener(new SyncServerListener() {
-                @Override
                 /**
                  * OnClientConnected
-                */
+                 */
+                @Override
                 public void onClientConnected(String clientId, Map<String, Object> metadata) {
                     listener.onClientConnected(clientId);
                 }
 
-                @Override
                 /**
                  * OnClientDisconnected
-                */
+                 */
+                @Override
                 public void onClientDisconnected(String clientId) {
                     listener.onClientDisconnected(clientId);
                 }
 
-                @Override
                 /**
                  * OnMessage
-                */
+                 */
+                @Override
                 public void onMessage(String clientId, String topic, Object message) {
                     listener.onMessage(topic, message);
                 }
 
-                @Override
                 /**
                  * On记录错误
-                */
+                 */
+                @Override
                 public void onError(String clientId, Throwable cause) {
                     listener.onError(clientId, cause);
                 }
@@ -177,10 +177,10 @@ public class WebSocketSyncFlow implements SyncFlow {
         }
     }
 
-    @Override
     /**
      * 移除Listener
-    */
+     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
         if (client != null) {
@@ -188,10 +188,10 @@ public class WebSocketSyncFlow implements SyncFlow {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         stop();
     }

@@ -28,7 +28,7 @@ package com.chua.common.support.task.pipeline.core;
  *     .build();
  * }</pre>结束()
  * .构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

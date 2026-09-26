@@ -1,1 +1,1 @@
-com.chua.ffmpeg.rust.support.processor.RustFFmpegProcessor=rust
+rust=com.chua.ffmpeg.rust.support.processor.RustFFmpegProcessor

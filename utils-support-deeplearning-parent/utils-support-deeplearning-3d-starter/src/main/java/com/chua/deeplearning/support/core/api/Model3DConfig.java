@@ -2,16 +2,19 @@ package com.chua.deeplearning.support.core.api;
 
 import com.chua.common.support.constant.CommonConstant;
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
 /**
  * 3D 生成配置
+ * <p>配置前缀 {@code chua.deeplearning.core}，如 {@code chua.deeplearning.core.api-key}。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 @Data
+@ConfigurationProperties(prefix = "chua.deeplearning.core")
 public class Model3DConfig {
 
     /**

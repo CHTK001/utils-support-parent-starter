@@ -146,10 +146,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     // ======================== 生命周期 ========================
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() throws Exception {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -406,10 +406,10 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
         this.diskStore = new DiskStore(config.getPeersFile());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() throws Exception {
         if (!running.compareAndSet(true, false)) {
             return;

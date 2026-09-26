@@ -63,7 +63,7 @@ public interface FileSystem {
     static FileSystem auto(File file) {
         String ext = FileUtils.getExtension(file);
         if (ext.isEmpty()) {
-            throw new UnsupportedOperationException("Unsupported file type: " + file.getName());
+            throw new UnsupportedOperationException("不支持的文件类型: " + file.getName());
         }
         return switch (ext) {
             case "tsv" -> create("csv");

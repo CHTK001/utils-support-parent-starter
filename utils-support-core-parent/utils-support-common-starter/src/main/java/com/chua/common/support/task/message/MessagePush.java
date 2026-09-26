@@ -22,7 +22,7 @@ import java.util.List;
  * }</pre>ubject("通知")
  *       .content("您的订单已发货")
  *       .build());
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2026/07/17

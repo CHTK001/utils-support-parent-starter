@@ -24,18 +24,18 @@ import java.lang.reflect.Method;
 @SpiDescribe("默认生命周期处理器")
 public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;
@@ -50,10 +50,10 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         invokeAnnotatedMethods(bean, AutoPostConstruct.class);
     }
 
-    @Override
     /**
      * 销毁
-    */
+     */
+    @Override
     public void destroy(BeanDefinition beanDefinition, Object bean) throws Exception {
         if (bean == null) {
             return;

@@ -76,9 +76,10 @@ public class CryptoSetting {
     private List<String> configFiles = new ArrayList<>();
 
     /**
-     * 配置文件加密时是否保留明文备份(*.bak)，默认保留以便回滚
+     * 配置文件加密时是否保留明文备份(*.bak)，默认不保留：
+     * 备份会把刚受保护的口令原样留在同目录，需回滚保险时再显式开启
      */
-    private boolean configBackup = true;
+    private boolean configBackup = false;
 
     /**
      * 追加配置文件

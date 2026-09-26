@@ -25,7 +25,7 @@ public class KeyValueViewParser implements ViewParser {
 
     /**
      * 键与值之间的最小间隔列数
-    */
+     */
     private static final int KEY_VALUE_GAP = 2;
 
     @Override

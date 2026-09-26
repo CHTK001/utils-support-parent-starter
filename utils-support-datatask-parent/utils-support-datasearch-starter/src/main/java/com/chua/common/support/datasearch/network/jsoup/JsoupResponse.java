@@ -17,7 +17,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Jsoup 响应封装
+ * Jsoup 响应封装。
+ *
+ * <p>职责：解析 HTML 文档，按 XPath 或 CSS 映射提取字段并将结果转换为目标对象，同时提供文档遍历和元素选择视图。</p>
  *
  * @author CH
  * @since 4.0.0.42

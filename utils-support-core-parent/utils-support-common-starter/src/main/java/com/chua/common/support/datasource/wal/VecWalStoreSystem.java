@@ -245,8 +245,9 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
      * @throws IOException 当执行过程不满足前置条件时
      */
     public long add(String id, float[] data) throws IOException {
-        if (data == null || data.length != dimension)
+        if (data == null || data.length != dimension) {
             throw new IllegalArgumentException("维度不匹配: 期望 " + dimension + ", 实际 " + data.length);
+        }
         byte[] idBytes = id.getBytes(StandardCharsets.UTF_8);
         byte[] payload = new byte[4 + idBytes.length + 4 + dimension * 4];
         ByteBuffer bb = ByteBuffer.wrap(payload);
@@ -352,7 +353,46 @@ public class VecWalStoreSystem implements WalStoreSystem<String> {
         }
     }
 
-    public record VectorScored(String id, float score, float[] data) {}
+    /**
+     * 带相似度评分的向量条目。
+     *
+     * @param id    向量标识
+     * @param score 相似度评分
+     * @param data  向量数据
+     */
+    public record VectorScored(String id, float score, float[] data) {
+
+        /**
+         * 规范构造器：标识必填，向量数据做防御性拷贝。
+         *
+         * <p>value class 前置条件——空值敌对，且数组组件必须深不可变。
+         * 唯一构造点传入 {@code VecWalFileSystem.VecRecord} 的标识与向量数据，
+         * 标识已被该记录约束为非空。</p>
+         *
+         * <p>向量数据保留 null 语义：{@code VecRecord} 的向量数据同样保留 null 语义，
+         * 无从证明外部调用方不传 null。</p>
+         *
+         * @param id    向量标识，不允许为 null
+         * @param score 相似度评分
+         * @param data  向量数据，可为 null
+         */
+        public VectorScored {
+            Objects.requireNonNull(id, "id 不能为 null");
+            data = data == null ? null : data.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部向量数据的副本。
+         *
+         * <p>value class 前置条件——外部不得持有内部数组引用。</p>
+         *
+         * @return 向量数据副本；data 为 null 时返回 null
+         */
+        @Override
+        public float[] data() {
+            return data == null ? null : data.clone();
+        }
+    }
 
     /**
      * 创建。

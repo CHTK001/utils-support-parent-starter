@@ -11,7 +11,7 @@ public class WalException extends RuntimeException {
 
     /**
      * 串行版本UID
-    */
+     */
     private static final long serialVersionUID = 1L;
 
     /**

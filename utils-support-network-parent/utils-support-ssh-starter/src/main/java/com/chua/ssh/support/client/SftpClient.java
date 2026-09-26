@@ -118,7 +118,10 @@ public class SftpClient implements AutoCloseable {
             sftp = org.apache.sshd.sftp.client.SftpClientFactory.instance().createSftpClient(session);
             log.info("SFTP 连接成功: {}@{}:{}", username, host, port);
         } catch (Exception e) {
-            throw new SftpClientException("SFTP 连接失败: " + host + ":" + port, e);
+            String root = (e.getMessage() != null && !e.getMessage().isBlank())
+                    ? e.getMessage()
+                    : (e.getCause() != null ? String.valueOf(e.getCause().getMessage()) : e.getClass().getSimpleName());
+            throw new SftpClientException("SFTP 连接失败: " + host + ":" + port + " - " + root, e);
         }
         return this;
     }
@@ -148,6 +151,19 @@ public class SftpClient implements AutoCloseable {
      * 关闭
     */
     public void close() { disconnect(); }
+
+    /**
+     * 会话是否仍处于打开状态（隐藏底层 ClientSession，调用方无需依赖 sshd 类型）。
+     *
+     * @return 会话打开返回 true；未连接或已关闭返回 false
+     */
+    public boolean isOpen() {
+        try {
+            return session != null && session.isOpen();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     /**
      * Upload

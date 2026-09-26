@@ -35,19 +35,19 @@ public class FlatHashMap implements FlatMap {
 
     /**
      * 路径匹配器
-    */
+     */
     private static final PathMatcher MATCHER = PathMatcher.INSTANCE;
     /**
      * 关闭层级
-    */
+     */
     private transient final LevelsClose levelsClose = new LevelsClose();
     /**
      * 打开层级
-    */
+     */
     private transient final LevelsOpen levelsOpen = new LevelsOpen();
     /**
      * 扁平映射
-    */
+     */
     private final transient Map<String, Object> flatMap;
 
     /**
@@ -66,90 +66,90 @@ public class FlatHashMap implements FlatMap {
         this.flatMap = levelsClose.apply(source);
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         flatMap.clear();
     }
 
-    @Override
     /**
      * ContainsKey
-    */
+     */
+    @Override
     public boolean containsKey(Object key) {
         return flatMap.containsKey(key);
     }
 
-    @Override
     /**
      * ContainsValue
-    */
+     */
+    @Override
     public boolean containsValue(Object value) {
         return flatMap.containsValue(value);
     }
 
-    @Override
     /**
      * Entry设置
-    */
+     */
+    @Override
     public Set<Entry<String, Object>> entrySet() {
         return flatMap.entrySet();
     }
 
-    @Override
     /**
      * 获取
-    */
+     */
+    @Override
     public Object get(Object key) {
         return flatMap.get(key);
     }
 
-    @Override
     /**
      * 是否Empty
-    */
+     */
+    @Override
     public boolean isEmpty() {
         return flatMap.isEmpty();
     }
 
-    @Override
     /**
      * Key设置
-    */
+     */
+    @Override
     public Set<String> keySet() {
         return flatMap.keySet();
     }
 
-    @Override
     /**
      * Put
-    */
+     */
+    @Override
     public Object put(String key, Object value) {
         return flatMap.put(key, value);
     }
 
-    @Override
     /**
      * PutAll
-    */
+     */
+    @Override
     public void putAll(Map<? extends String, ?> m) {
         this.flatMap.putAll(levelsClose.apply((Map<String, Object>) m));
     }
 
-    @Override
     /**
      * Put
-    */
+     */
+    @Override
     public void put(Object entity) {
         this.flatMap.putAll(BeanUtils.objectToMap(entity));
     }
 
-    @Override
     /**
      * Wildcard
-    */
+     */
+    @Override
     public List<Object> wildcard(String key) {
         Map<String, Object> values = new HashMap<>(flatMap.size());
         for (Entry<String, Object> entry : flatMap.entrySet()) {
@@ -171,26 +171,26 @@ public class FlatHashMap implements FlatMap {
         return Collections.singletonList(simpleValue);
     }
 
-    @Override
     /**
      * 移除
-    */
+     */
+    @Override
     public Object remove(Object key) {
         return flatMap.remove(key);
     }
 
-    @Override
     /**
      * 获取大小
-    */
+     */
+    @Override
     public int size() {
         return flatMap.size();
     }
 
-    @Override
     /**
      * Values
-    */
+     */
+    @Override
     public Collection<Object> values() {
         return flatMap.values();
     }

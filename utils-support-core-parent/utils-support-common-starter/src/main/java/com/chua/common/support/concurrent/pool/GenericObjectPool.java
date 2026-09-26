@@ -133,10 +133,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * Borrow
-    */
+     */
+    @Override
     public T borrow() throws Exception {
         if (closed) {
             throw new IllegalStateException("对象池已关闭");
@@ -175,10 +175,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * ReturnObject
-    */
+     */
+    @Override
     public void returnObject(T object) {
         if (object == null) {
             return;
@@ -213,10 +213,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * InvalidateObject
-    */
+     */
+    @Override
     public void invalidateObject(T object) {
         if (object == null) {
             return;
@@ -233,10 +233,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * 获取NumIdle
-    */
+     */
+    @Override
     public int getNumIdle() {
         lock.lock();
         try {
@@ -246,10 +246,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * 获取NumActive
-    */
+     */
+    @Override
     public int getNumActive() {
         lock.lock();
         try {
@@ -265,10 +265,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         lock.lock();
         try {
@@ -285,10 +285,10 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         lock.lock();
         try {

@@ -1,6 +1,9 @@
 package com.chua.common.support.task.flow;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 流程节点配置字段元信息。
@@ -38,6 +41,33 @@ public record FlowNodeField(
         Object defaultValue,
         List<FlowNodeOption> options
 ) {
+
+    /**
+     * 规范构造器：字段键与类型为空值敌对，候选选项做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 六个非 select 工厂方法均显式传 {@code options = null}，
+     * 属本类型的正常状态（无候选列表），故保留 null 语义，
+     * 并采用可空安全的 unmodifiable 包装。</p>
+     *
+     * <p>{@code placeholder} 与 {@code defaultValue} 在多数工厂中传 null，
+     * 同属正常语义，不校验。</p>
+     *
+     * @param key          字段键
+     * @param label        字段展示名
+     * @param type         字段类型
+     * @param required     是否必填
+     * @param placeholder  占位提示，可为 null
+     * @param defaultValue 默认值，可为 null
+     * @param options      候选选项，可为 null
+     */
+    public FlowNodeField {
+        key = Objects.requireNonNull(key, "key 不能为 null");
+        type = Objects.requireNonNull(type, "type 不能为 null");
+        options = options == null
+                ? null
+                : Collections.unmodifiableList(new ArrayList<>(options));
+    }
 
     /**
      * 创建文本输入字段。

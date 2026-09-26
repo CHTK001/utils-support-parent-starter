@@ -22,7 +22,7 @@ public class ListObjectResult extends ObjectResult {
 
     /**
      * 空结果实例
-    */
+     */
     public static final ListObjectResult EMPTY = ListObjectResult.builder().build();
 
     /**

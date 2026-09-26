@@ -191,17 +191,16 @@ public class AiUsage {
      * <p>费用字段的货币单位，遵循 ISO 4217 标准代码。
      * 常见值：
      * <ul>
-     *   <li>"USD" — 美元（OpenAI、Anthropic 等默认币种）</li>
-     *   <li>"CNY" — 人民币（国内服务商常用）</li>
-     *   <li>"EUR" — 欧元</li>
+     * <li>"USD" — 美元（OpenAI、Anthropic 等默认币种）</li>
+     * <li>"CNY" — 人民币（国内服务商常用）</li>
+     * <li>"EUR" — 欧元</li>
      * </ul>
      *
      * <p>默认为 "USD"，实现类可根据服务商返回值覆盖。
+     *
+     * Currency
      */
     @Builder.Default
-    /**
-     * Currency
-    */
     private String currency = "USD";
 
     /**
@@ -212,11 +211,10 @@ public class AiUsage {
      *
      * <p>需要精确计费的场景（如用户账单、财务对账）应优先使用
      * 服务商返回的真实费用数据（当 estimated 为 false 时）。
+     *
+     * Estimated
      */
     @Builder.Default
-    /**
-     * Estimated
-    */
     private boolean estimated = false;
 
     // ==================== 模型标识 ====================

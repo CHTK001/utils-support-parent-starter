@@ -40,46 +40,46 @@ public class SnowflakeIdGenerator {
 
     /**
      * 时间戳占用位数
-    */
+     */
     private static final long DEFAULT_TIMESTAMP_BITS = 41L;
 
     /**
      * 工作节点 ID 占用位数
-    */
+     */
     private static final long DEFAULT_WORKER_ID_BITS = 10L;
 
     /**
      * 序列号占用位数
-    */
+     */
     private static final long DEFAULT_SEQUENCE_BITS = 12L;
 
     // ==================== 移位偏移量 ====================
 
     /**
      * 序列号移位偏移
-    */
+     */
     private static final long SEQUENCE_SHIFT = 0L;
 
     /**
      * 工作节点 ID 移位偏移
-    */
+     */
     private final long workerIdShift;
 
     /**
      * 时间戳移位偏移
-    */
+     */
     private final long timestampShift;
 
     // ==================== 掩码 ====================
 
     /**
      * 序列号掩码（用于截断到指定位数）
-    */
+     */
     private final long sequenceMask;
 
     /**
      * 工作节点 ID 掩码
-    */
+     */
     private final long workerIdMask;
 
     // ==================== 默认值 ====================
@@ -91,34 +91,34 @@ public class SnowflakeIdGenerator {
 
     /**
      * 默认工作节点 ID
-    */
+     */
     private static final long DEFAULT_WORKER_ID = 0L;
 
     // ==================== 实例状态 ====================
 
     /**
      * 纪元起始时间（毫秒）
-    */
+     */
     private final long epoch;
 
     /**
      * 工作节点 ID
-    */
+     */
     private final long workerId;
 
     /**
      * 上次生成 ID 的时间戳（毫秒）
-    */
+     */
     private volatile long lastTimestamp = -1L;
 
     /**
      * 当前毫秒内的序列号
-    */
+     */
     private volatile long sequence = 0L;
 
     /**
      * 序列号同步锁
-    */
+     */
     private final Object lock = new Object();
 
     // ==================== 构造方法 ====================

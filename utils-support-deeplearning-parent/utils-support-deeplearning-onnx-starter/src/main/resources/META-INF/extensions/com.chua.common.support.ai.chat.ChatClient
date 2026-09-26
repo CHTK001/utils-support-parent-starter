@@ -1,1 +1,2 @@
 onnx=com.chua.deeplearning.support.onnx.OnnxChatClient
+florence2=com.chua.deeplearning.support.onnx.florence2.Florence2ChatClient
