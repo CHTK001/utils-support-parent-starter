@@ -1,6 +1,12 @@
-# utils-support-spider-starter — 爬虫模块
+# utils-support-crawler-starter — 抓取/解析 SPI
 
-基于 SPI 的可插拔爬虫框架，支持多线程并发、自动降级、AI 智能解析。
+基于 SPI 的可插拔抓取框架，支持多线程并发、自动降级、AI 智能解析。
+
+> 2026-09-26 起本模块由 `utils-support-spider-starter` 更名而来（包路径同步改为
+> `com.chua.crawler.support`）。原内嵌的爬虫平台（`/spider/definitions`、
+> `/spider/executions`、`/spider/proxy-pools` 共 16 个端点与 SpiderTimerService
+> 定时调度器）已下线，能力由 `spring-api-support-collect-starter`（`/v2/collect/**`）承接。
+> 类名（`Spider`、`SpiderFetcher`、`HttpFetcher` 等）保持不变，只改了包路径与模块坐标。
 
 ---
 
@@ -295,8 +301,8 @@ Spider.create()
 ### 定义 POJO
 
 ```java
-import com.chua.spider.support.annotation.SpiderAi;
-import com.chua.spider.support.annotation.SpiderField;
+import com.chua.crawler.support.annotation.SpiderAi;
+import com.chua.crawler.support.annotation.SpiderField;
 
 // 方式1：CSS 选择器提取（静态页面）
 public class Article {
@@ -349,7 +355,7 @@ public class MixedArticle {
 ### 使用映射
 
 ```java
-import static com.chua.spider.support.mapper.SpiderMappingPipeline.of;
+import static com.chua.crawler.support.mapper.SpiderMappingPipeline.of;
 
 // CSS 提取（不用 AI）
 Spider.create()
