@@ -45,7 +45,16 @@
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-        <nitrite.version>4.4.3</nitrite.version>
+          <nitrite.version>4.4.3</nitrite.version>
+          <!-- Lucene：全仓库统一版本，禁止下游硬编码。
+               版本必须与 utils-support-lucene-starter 源码实际使用的 API 保持一致：
+               Lucene 10 移除了 DirectoryReader#document(int) 等方法，
+               若 dependencyManagement 指向 10.x 而模块源码按 8.9.0 编写，
+               下游模块（含 example-starter）会解析到 10.x 并在运行期抛
+               NoSuchMethodError —— 编译通过、运行即炸。
+               故此处只保留唯一版本号，模块 pom 一律引用 ${lucene.version}。 -->
+          <lucene.version>8.9.0</lucene.version>
+
         <lombok.version>1.18.46</lombok.version>
         <lombok.maven.plugin.version>1.18.46</lombok.maven.plugin.version>
         
@@ -1755,17 +1764,17 @@
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
-                <version>10.3.2</version>
+                <version>${lucene.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-analyzers-common</artifactId>
-                <version>8.11.4</version>
+                <version>${lucene.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-queryparser</artifactId>
-                <version>10.3.2</version>
+                <version>${lucene.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.linecorp.armeria</groupId>

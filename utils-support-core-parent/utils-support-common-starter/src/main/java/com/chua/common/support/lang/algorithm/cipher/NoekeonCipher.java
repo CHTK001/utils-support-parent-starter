@@ -5,7 +5,8 @@ import com.chua.common.support.spi.ServiceProvider;
 /**
  * Noekeon 对称加解密 SPI 接口
  *
- * <p>基于 SPI 机制加载实现，支持 Noekeon/ECB/ZeroBytePadding 模式的加密与解密。
+ * <p>基于 SPI 机制加载实现，支持 Noekeon/ECB/PKCS7Padding 模式的加密与解密
+ * （不能用 ZeroBytePadding，它会把明文自身的尾部 {@code 0x00} 当填充删掉）。
  * Noekeon 是一种轻量级分组密码，密钥长度固定为 16 字节（128 位）。
  *
  * <h2>使用示例</h2>

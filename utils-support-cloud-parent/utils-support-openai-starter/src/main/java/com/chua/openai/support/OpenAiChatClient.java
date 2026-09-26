@@ -2,6 +2,7 @@ package com.chua.openai.support;
 
 import com.chua.common.support.ai.AiUsage;
 import com.chua.common.support.ai.chat.Attachment;
+import com.chua.common.support.ai.chat.AuthHeaders;
 import com.chua.common.support.ai.skill.SkillManager;
 import com.chua.common.support.ai.skill.SkillPrompt;
 import com.chua.common.support.ai.chat.ChatClient;
@@ -10,6 +11,7 @@ import com.chua.common.support.ai.chat.ChatMessage;
 import com.chua.common.support.ai.chat.ChatResponse;
 import com.chua.common.support.ai.chat.ChatSyncResponse;
 import com.chua.common.support.ai.chat.ChatTool;
+import com.chua.common.support.ai.chat.ChatToolCallData;
 import com.chua.common.support.ai.probe.ProbeReport;
 import com.chua.common.support.spi.annotations.Spi;
 import com.openai.client.OpenAIClient;
@@ -22,13 +24,17 @@ import com.openai.models.FunctionParameters;
 import com.openai.models.ResponseFormatJsonObject;
 import com.openai.models.ResponseFormatText;
 import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionAssistantMessageParam;
 import com.openai.models.chat.completions.ChatCompletionChunk;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionFunctionTool;
 import com.openai.models.chat.completions.ChatCompletionMessage;
+import com.openai.models.chat.completions.ChatCompletionMessageFunctionToolCall;
+import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
 import com.openai.models.chat.completions.ChatCompletionNamedToolChoice;
 import com.openai.models.chat.completions.ChatCompletionTool;
 import com.openai.models.chat.completions.ChatCompletionToolChoiceOption;
+import com.openai.models.chat.completions.ChatCompletionToolMessageParam;
 import com.openai.models.chat.completions.ChatCompletionStreamOptions;
 import com.openai.models.completions.CompletionUsage;
 import com.openai.models.completions.CompletionUsage.PromptTokensDetails;
@@ -79,7 +85,7 @@ import java.util.function.Consumer;
  * @since 4.0.0.42
  */
 @Slf4j
-@Spi({"openai", "siliconflow", "sensetime", "github", "gitee"})
+@Spi({"openai", "siliconflow", "sensetime", "github", "gitee", "dots"})
 public class OpenAiChatClient implements ChatClient {
 
     /**
@@ -191,6 +197,11 @@ public class OpenAiChatClient implements ChatClient {
      * 技能管理器
      */
     private SkillManager skillManager;
+
+    /**
+     * 已解析的技能正文块（调用方解析后传入，构建请求时内部并入 system）
+     */
+    private String skillPromptBlock;
 
     /**
      * 图片附件 URL 列表
@@ -470,6 +481,12 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient skillPrompt(String block) {
+        this.skillPromptBlock = block;
+        return this;
+    }
+
+    @Override
     /**
      * 对话同步
     */
@@ -553,6 +570,12 @@ public class OpenAiChatClient implements ChatClient {
         if (skillManager != null) {
             actualSystem = SkillPrompt.inject(system, skillManager);
         }
+        // 调用方解析好的技能正文块：内部并入 system，无需调用方手动拼接
+        if (skillPromptBlock != null && !skillPromptBlock.isEmpty()) {
+            actualSystem = actualSystem == null || actualSystem.isEmpty()
+                    ? skillPromptBlock
+                    : actualSystem + "\n\n" + skillPromptBlock;
+        }
         if (actualSystem != null && !actualSystem.isEmpty()) {
             paramsBuilder.addSystemMessage(actualSystem);
         }
@@ -566,6 +589,30 @@ public class OpenAiChatClient implements ChatClient {
             } else if ("system".equals(role)) {
                 // 摘要上下文等指令性内容必须以 system 下发，降级成 assistant 会被模型当作自己的历史发言
                 paramsBuilder.addSystemMessage(msg.getContent());
+            } else if ("tool".equals(role)) {
+                // 工具执行结果：以 tool 角色回传并关联 tool_call_id
+                paramsBuilder.addMessage(ChatCompletionToolMessageParam.builder()
+                        .toolCallId(msg.getToolCallId())
+                        .content(msg.getContent() == null ? "" : msg.getContent())
+                        .build());
+            } else if (msg.getToolCalls() != null && !msg.getToolCalls().isEmpty()) {
+                // assistant 发起工具调用：携带 tool_calls（正文可空）
+                ChatCompletionAssistantMessageParam.Builder assistantBuilder =
+                        ChatCompletionAssistantMessageParam.builder();
+                if (msg.getContent() != null && !msg.getContent().isEmpty()) {
+                    assistantBuilder.content(msg.getContent());
+                }
+                for (ChatToolCallData toolCall : msg.getToolCalls()) {
+                    assistantBuilder.addToolCall(ChatCompletionMessageFunctionToolCall.builder()
+                            .id(toolCall.getId())
+                            .function(ChatCompletionMessageFunctionToolCall.Function.builder()
+                                    .name(toolCall.getName())
+                                    .arguments(toolCall.getArguments() == null
+                                            ? "{}" : toolCall.getArguments())
+                                    .build())
+                            .build());
+                }
+                paramsBuilder.addMessage(assistantBuilder.build());
             } else {
                 paramsBuilder.addAssistantMessage(msg.getContent());
             }
@@ -640,20 +687,43 @@ public class OpenAiChatClient implements ChatClient {
         try {
  // 构建 打开AI HTTP 客户端
             OpenAIOkHttpClient.Builder clientBuilder = OpenAIOkHttpClient.builder()
-                    .apiKey(actualApiKey)
                     .baseUrl(actualBaseUrl)
-                    .timeout(Duration.ofSeconds(90));
+                    .timeout((setting != null && setting.getTimeoutMillis() != null && setting.getTimeoutMillis() > 0L) ? Duration.ofMillis(setting.getTimeoutMillis()) : Duration.ofSeconds(90));
+
+            // 认证头解析：SDK 的 apiKey() 恒产生 Authorization: Bearer <key>，
+            // 无法表达「api-key: <key>」这类非标准方案（如 Dots Studio 只认 api-key 头）。
+            //
+            // 标准方案交给 SDK 原生通道；非标准方案改用 SDK 的 provider-authentication
+            // 通道（见 OpenAiProviderAuth）——它会抑制 SDK 自动写入的认证头，
+            // 目标认证头再由下面的 putHeader 承载。
+            Map.Entry<String, String> auth = resolveAuthHeader();
+            boolean customAuth = false;
+            if (!AuthHeaders.isDefault(auth)) {
+                customAuth = OpenAiProviderAuth.apply(clientBuilder);
+                if (!customAuth) {
+                    // 反射不可用（SDK 升级改名等）时的降级：退回标准 Bearer，保证请求能发出去
+                    clientBuilder.apiKey(actualApiKey);
+                } else if (auth != null) {
+                    clientBuilder.putHeader(auth.getKey(), auth.getValue());
+                }
+            } else {
+                clientBuilder.apiKey(actualApiKey);
+            }
 
             // 配置 HTTP 代理
             String proxyStr = setting.getProxy();
             if (proxyStr != null && !proxyStr.isBlank()) {
                 clientBuilder.proxy(resolveProxy(proxyStr));
             }
-            // 配置自定义请求头
+            // 配置自定义请求头（认证头由上面统一处理，同名键跳过以免重复）
             Map<String, String> headers = this.extraHeaders != null ? this.extraHeaders
                     : (setting.getExtraHeaders() != null ? setting.getExtraHeaders() : null);
             if (headers != null) {
+                String authName = customAuth && auth != null ? auth.getKey() : null;
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    if (authName != null && authName.equalsIgnoreCase(entry.getKey())) {
+                        continue;
+                    }
                     clientBuilder.putHeader(entry.getKey(), entry.getValue());
                 }
             }
@@ -668,7 +738,9 @@ public class OpenAiChatClient implements ChatClient {
 
             AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
                     .model(model)
-                    .provider("openai")
+                    // 用量归属取实际 provider（本客户端同时承载 openai/siliconflow/dots 等
+                    // 多个 OpenAI 兼容服务商，写死 openai 会让统计串味）
+                    .provider(setting.getProvider() != null ? setting.getProvider() : "openai")
                     .startTime(startTime);
 
             /**
@@ -724,6 +796,29 @@ public class OpenAiChatClient implements ChatClient {
                                         .reasoningContent(reasoning)
                                         .build());
                             }
+                            // 工具调用增量（tool_calls）
+                            Optional<List<ChatCompletionChunk.Choice.Delta.ToolCall>> rawToolCalls =
+                                    delta.toolCalls();
+                            if (rawToolCalls.isPresent() && !rawToolCalls.get().isEmpty()) {
+                                if (firstTokenAt == 0) {
+                                    firstTokenAt = System.currentTimeMillis();
+                                }
+                                List<ChatToolCallData> toolCallData = new ArrayList<>();
+                                for (ChatCompletionChunk.Choice.Delta.ToolCall raw : rawToolCalls.get()) {
+                                    ChatToolCallData.ChatToolCallDataBuilder dataBuilder =
+                                            ChatToolCallData.builder().index(raw.index());
+                                    raw.id().ifPresent(dataBuilder::id);
+                                    raw.function().ifPresent(fn -> {
+                                        fn.name().ifPresent(dataBuilder::name);
+                                        fn.arguments().ifPresent(dataBuilder::arguments);
+                                    });
+                                    toolCallData.add(dataBuilder.build());
+                                }
+                                consumer.accept(ChatResponse.builder()
+                                        .state(ChatResponse.State.STREAMING)
+                                        .toolCalls(toolCallData)
+                                        .build());
+                            }
                         }
                     }
                 }
@@ -740,6 +835,38 @@ public class OpenAiChatClient implements ChatClient {
                                 .content(content)
                                 .reasoningContent(reasoning)
                                 .build()));
+                        // 非流式工具调用：一次性转换为完整工具数据下发
+                        message.toolCalls().ifPresent(rawToolCalls -> {
+                            if (!rawToolCalls.isEmpty()) {
+                                List<ChatToolCallData> toolCallData = new ArrayList<>();
+                                int idx = 0;
+                                for (ChatCompletionMessageToolCall raw : rawToolCalls) {
+                                    if (raw.isFunction()) {
+                                        ChatCompletionMessageFunctionToolCall fn = raw.asFunction();
+                                        ChatToolCallData.ChatToolCallDataBuilder dataBuilder =
+                                                ChatToolCallData.builder().index(idx++);
+                                        if (fn.id() != null) {
+                                            dataBuilder.id(fn.id());
+                                        }
+                                        if (fn.function() != null) {
+                                            if (fn.function().name() != null) {
+                                                dataBuilder.name(fn.function().name());
+                                            }
+                                            if (fn.function().arguments() != null) {
+                                                dataBuilder.arguments(fn.function().arguments());
+                                            }
+                                        }
+                                        toolCallData.add(dataBuilder.build());
+                                    }
+                                }
+                                if (!toolCallData.isEmpty()) {
+                                    consumer.accept(ChatResponse.builder()
+                                            .state(ChatResponse.State.STREAMING)
+                                            .toolCalls(toolCallData)
+                                            .build());
+                                }
+                            }
+                        });
                         if (choice.finishReason() != null) {
                             usageBuilder.finishReason(choice.finishReason().toString());
                         }

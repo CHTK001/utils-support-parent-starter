@@ -324,6 +324,20 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     }
 
     /**
+     * 注入技能指令块（已解析的技能正文）
+     *
+     * <p>与 {@link #skill(SkillManager)} 的区别：调用方已将技能（如宿主文件系统中的
+     * SKILL.md 正文）解析为一段提示词，客户端在构建请求时把它内部并入 system prompt，
+     * 调用方无需再手动拼接 system。传入空串或 null 时忽略。
+     *
+     * @param block 技能正文块
+     * @return 当前客户端实例，支持链式调用
+     */
+    default ChatClient skillPrompt(String block) {
+        return this;
+    }
+
+    /**
      * 追加一个工具（函数调用）定义
      *
      * <p>与 {@link #tools(List)} 不同，此方法向现有工具列表追加单个工具。
@@ -430,6 +444,35 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
      */
     default ChatClient extraHeaders(Map<String, String> headers) {
         return this;
+    }
+
+    /**
+     * 设置认证方案
+     *
+     * <p>决定 API Key 以哪个 HTTP 头发出。取值：{@code api_key} / {@code bearer}
+     * / {@code oauth} / {@code none}；{@code none} 表示不发送认证头。
+     * 头名称与值前缀的差异由 {@link ChatClientSetting#getAuthHeader()} 与
+     * {@link ChatClientSetting#getAuthPrefix()} 承载，例如 Dots Studio 只认
+     * {@code api-key} 头而非标准的 {@code Authorization: Bearer}。</p>
+     *
+     * @param authScheme 认证方案
+     * @return 当前客户端实例，支持链式调用
+     * @see AuthHeaders
+     */
+    default ChatClient authScheme(String authScheme) {
+        return this;
+    }
+
+    /**
+     * 解析当前客户端应发送的认证头
+     *
+     * <p>实现类在拼装出站请求时调用本方法即可，无需自行判断认证方案。
+     * 返回 null 表示本次请求不发送任何认证头。</p>
+     *
+     * @return 认证头键值对；免鉴权或无 Key 时返回 null
+     */
+    default Map.Entry<String, String> resolveAuthHeader() {
+        return AuthHeaders.resolve(getSetting(), getApiKey());
     }
 
     /**

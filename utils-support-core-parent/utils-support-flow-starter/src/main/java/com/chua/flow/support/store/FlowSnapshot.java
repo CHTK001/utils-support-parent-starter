@@ -5,6 +5,7 @@ import com.chua.common.support.task.flow.FlowTrace;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 一次流程执行的完整快照。
@@ -29,6 +30,16 @@ public record FlowSnapshot(
         long startAt,
         long endAt
 ) {
+
+    /**
+     * 规范构造器：对节点执行轨迹列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变；轨迹元素均为非空记录，
+     * 因此使用拒绝 null 元素的 {@link List#copyOf(List)}。</p>
+     */
+    public FlowSnapshot {
+        traces = List.copyOf(Objects.requireNonNull(traces, "traces 不能为 null"));
+    }
 
     /**
      * 计算本次执行总耗时。

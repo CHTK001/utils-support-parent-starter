@@ -59,7 +59,7 @@ public class JdkCompiler implements Compiler {
         // 存储已编译的字节码映射：类名 -> 字节码对象
         /**
          * 字节码缓存集合
-        */
+         */
         private final Map<String, MemoryByteCode> byteCodes = new HashMap<String, MemoryByteCode>();
 
         /**
@@ -128,7 +128,7 @@ public class JdkCompiler implements Compiler {
         // 需要转发给标准文件管理器的位置名称（平台类路径和系统模块）
         /**
          * 父级类路径位置名称
-        */
+         */
         private static final String[] SUPER_LOCATION_NAMES = {StandardLocation.PLATFORM_CLASS_PATH.name(),
                 /**
                  * JPMS StandardLocation.SYSTEM_MODULES *
@@ -138,18 +138,18 @@ public class JdkCompiler implements Compiler {
         // 用于在 ClassLoader 中查找包内部类的工具
         /**
          * 包内部查找器
-        */
+         */
         private final PackageInternalsFinder finder;
 
         // 关联的动态类加载器
         /**
          * 类加载器
-        */
+         */
         private final DynamicClassLoader classLoader;
         // 存储正在编译中的内存字节码列表
         /**
          * 字节码缓存集合
-        */
+         */
         private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
         /**
@@ -241,7 +241,7 @@ public class JdkCompiler implements Compiler {
         static class IterableJoin<T> implements Iterable<T> {
             /**
              * 第一个与第二个迭代器
-            */
+             */
             private final Iterable<T> first, next;
 
             /**
@@ -255,10 +255,10 @@ public class JdkCompiler implements Compiler {
                 this.next = next;
             }
 
-            @Override
             /**
              * Iterator
-            */
+             */
+            @Override
             public Iterator<T> iterator() {
                 return new IteratorJoin<T>(first.iterator(), next.iterator());
             }
@@ -268,7 +268,7 @@ public class JdkCompiler implements Compiler {
         static class IteratorJoin<T> implements Iterator<T> {
             /**
              * 第一个与第二个迭代器
-            */
+             */
             private final Iterator<T> first, next;
 
             /**
@@ -282,18 +282,18 @@ public class JdkCompiler implements Compiler {
                 this.next = next;
             }
 
-            @Override
             /**
              * 是否拥有Next
-            */
+             */
+            @Override
             public boolean hasNext() {
                 return first.hasNext() || next.hasNext();
             }
 
-            @Override
             /**
              * Next
-            */
+             */
+            @Override
             public T next() {
                 if (first.hasNext()) {
                     return first.next();
@@ -301,12 +301,12 @@ public class JdkCompiler implements Compiler {
                 return next.next();
             }
 
-            @Override
             /**
              * 移除
-            */
+             */
+            @Override
             public void remove() {
-                throw new UnsupportedOperationException("remove");
+                throw new UnsupportedOperationException("JDK 动态编译器返回的选项集合不支持修改");
             }
         }
     }
@@ -320,7 +320,7 @@ public class JdkCompiler implements Compiler {
     static class IteratorJoin<T> implements Iterator<T> {
         /**
          * 第一个与第二个迭代器
-        */
+         */
         private final Iterator<T> first, next;
 
         /**
@@ -334,18 +334,18 @@ public class JdkCompiler implements Compiler {
             this.next = next;
         }
 
-        @Override
         /**
          * 是否拥有Next
-        */
+         */
+        @Override
         public boolean hasNext() {
             return first.hasNext() || next.hasNext();
         }
 
-        @Override
         /**
          * Next
-        */
+         */
+        @Override
         public T next() {
             if (first.hasNext()) {
                 return first.next();
@@ -353,12 +353,12 @@ public class JdkCompiler implements Compiler {
             return next.next();
         }
 
-        @Override
         /**
          * 移除
-        */
+         */
+        @Override
         public void remove() {
-            throw new UnsupportedOperationException("remove");
+            throw new UnsupportedOperationException("JDK 动态编译器返回的选项集合不支持修改");
         }
     }
 
@@ -370,20 +370,20 @@ public class JdkCompiler implements Compiler {
     static final class MemoryByteCode extends SimpleJavaFileObject {
         /**
          * 包路径分隔符
-        */
+         */
         private static final char PKG_SEPARATOR = '.';
         /**
          * 目录分隔符
-        */
+         */
         private static final char DIR_SEPARATOR = '/';
         /**
          * 类文件后缀
-        */
+         */
         private static final String CLASS_FILE_SUFFIX = ".class";
 
         /**
          * 字节数组输出流
-        */
+         */
         private ByteArrayOutputStream byteArrayOutputStream;
 
         /**
@@ -423,10 +423,10 @@ public class JdkCompiler implements Compiler {
             return className;
         }
 
-        @Override
         /**
          * 打开OutputStream
-        */
+         */
+        @Override
         public OutputStream openOutputStream() throws IOException {
             if (byteArrayOutputStream == null) {
                 byteArrayOutputStream = new ByteArrayOutputStream();
@@ -444,11 +444,11 @@ public class JdkCompiler implements Compiler {
     static final class PackageInternalsFinder {
         /**
          * 类文件扩展名
-        */
+         */
         private static final String CLASS_FILE_EXTENSION = ".class";
         /**
          * 类加载器
-        */
+         */
         private final ClassLoader classLoader;
 
         /**
@@ -557,37 +557,37 @@ public class JdkCompiler implements Compiler {
     final class DynamicCompiler {
         /**
          * Java 编译器
-        */
+         */
         private final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
         /**
          * 标准文件管理器
-        */
+         */
         private final StandardJavaFileManager standardFileManager;
         /**
          * 选项列表
-        */
+         */
         private final List<String> options = new ArrayList<>();
         /**
          * 动态类加载器
-        */
+         */
         private final DynamicClassLoader dynamicClassLoader;
 
         /**
          * 编译单元集合
-        */
+         */
         private final Collection<JavaFileObject> compilationUnits = new ArrayList<>();
         /**
          * 编译错误列表
-        */
+         */
         private final List<Diagnostic<? extends JavaFileObject>> errors = new ArrayList<>();
         /**
          * 编译警告列表
-        */
+         */
         private final List<Diagnostic<? extends JavaFileObject>> warnings = new ArrayList<>();
 
         /**
          * 写入器
-        */
+         */
         private final Writer writer;
 
         /**
@@ -782,7 +782,7 @@ public class JdkCompiler implements Compiler {
     public static class StringSource extends SimpleJavaFileObject {
         /**
          * 文件内容
-        */
+         */
         private final String contents;
 
         /**
@@ -795,10 +795,10 @@ public class JdkCompiler implements Compiler {
             this.contents = contents;
         }
 
-        @Override
         /**
          * 获取CharContent
-        */
+         */
+        @Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
             return contents;
         }
@@ -811,11 +811,11 @@ public class JdkCompiler implements Compiler {
     public static class CustomJavaFileObject implements JavaFileObject {
         /**
          * 二进制类名
-        */
+         */
         private final String binaryName;
         /**
          * 文件 URI
-        */
+         */
         private final URI uri;
         /**
          * 名称
@@ -833,122 +833,122 @@ public class JdkCompiler implements Compiler {
             this.name = uri.getPath() == null ? uri.getSchemeSpecificPart() : uri.getPath();
         }
 
-        @Override
         /**
          * ToUri
-        */
+         */
+        @Override
         public URI toUri() {
             return this.uri;
         }
 
-        @Override
         /**
          * 打开InputStream
-        */
+         */
+        @Override
         public InputStream openInputStream() throws IOException {
             return this.uri.toURL().openStream();
         }
 
-        @Override
         /**
          * 打开OutputStream
-        */
+         */
+        @Override
         public OutputStream openOutputStream() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 获取Name
-        */
+         */
+        @Override
         public String getName() {
             return this.name;
         }
 
-        @Override
         /**
          * 打开Reader
-        */
+         */
+        @Override
         public Reader openReader(boolean ignoreEncodingErrors) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 获取CharContent
-        */
+         */
+        @Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 打开Writer
-        */
+         */
+        @Override
         public Writer openWriter() throws IOException {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 获取LastModified
-        */
+         */
+        @Override
         public long getLastModified() {
             return 0L;
         }
 
-        @Override
         /**
          * 删除
-        */
+         */
+        @Override
         public boolean delete() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 获取Kind
-        */
+         */
+        @Override
         public Kind getKind() {
             return Kind.CLASS;
         }
 
-        @Override
         /**
          * 是否NameCompatible
-        */
+         */
+        @Override
         public boolean isNameCompatible(String simpleName, Kind kind) {
             String baseName = simpleName + kind.extension;
             return kind.equals(this.getKind()) && (baseName.equals(this.getName()) || this.getName().endsWith("/" + baseName));
         }
 
-        @Override
         /**
          * 获取NestingKind
-        */
+         */
+        @Override
         public NestingKind getNestingKind() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
-        @Override
         /**
          * 获取AccessLevel
-        */
+         */
+        @Override
         public Modifier getAccessLevel() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("JDK 动态编译器不支持该操作");
         }
 
         /**
          * BinaryName
-        */
+         */
         public String binaryName() {
             return this.binaryName;
         }
 
-        @Override
         /**
          * ToString
-        */
+         */
+        @Override
         public String toString() {
             return this.getClass().getName() + CommonConstant.SYMBOL_LEFT_SQUARE_BRACKET + this.toUri() + CommonConstant.SYMBOL_RIGHT_SQUARE_BRACKET;
         }

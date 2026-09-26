@@ -75,26 +75,26 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         super(name, beanClass, scope);
     }
 
-    @Override
     /**
      * 获取script类加载
-    */
+     */
+    @Override
     public ClassLoader getScriptClassLoader() {
         return scriptClassLoader.get();
     }
 
-    @Override
     /**
      * 设置script类加载
-    */
+     */
+    @Override
     public void setScriptClassLoader(ClassLoader classLoader) {
         this.scriptClassLoader.set(classLoader);
     }
 
-    @Override
     /**
      * 获取script记号笔
-    */
+     */
+    @Override
     public ScriptMarker getScriptMarker() {
         return scriptMarker;
     }
@@ -108,10 +108,10 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         this.scriptMarker = scriptMarker;
     }
 
-    @Override
     /**
      * 获取监听器
-    */
+     */
+    @Override
     public Listener getListener() {
         return listener;
     }
@@ -125,7 +125,6 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         this.listener = listener;
     }
 
-    @Override
     /**
      * 创建脚本对象实例（线程安全）。
      *
@@ -134,6 +133,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
      *
      * <p>热重载时，先断开旧实例引用再编译新实例，确保旧实例及其关联的类可被 GC 回收。</p>
      */
+    @Override
     public Object createInstance() {
         if (listener == null || scriptMarker == null) {
             return null;
@@ -176,10 +176,10 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         }
     }
 
-    @Override
     /**
-     * 是否assignable从
-    */
+     * 是否可赋值从
+     */
+    @Override
     public boolean isAssignableFrom(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -196,10 +196,10 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         return isAssignableFromTypeHierarchy(beanClass, clazz.getName());
     }
 
-    @Override
     /**
-     * 是否assignable从
-    */
+     * 是否可赋值从
+     */
+    @Override
     public boolean isAssignableFrom(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -235,18 +235,18 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
         return isAssignableFromTypeHierarchy(source.getSuperclass(), targetName);
     }
 
-    @Override
     /**
      * 执行获取Bean
-    */
+     */
+    @Override
     protected Object doGetBean() {
         return scriptInstance;
     }
 
-    @Override
     /**
      * 设置Bean
-    */
+     */
+    @Override
     protected void setBean(Object bean) {
         this.scriptInstance = bean;
     }

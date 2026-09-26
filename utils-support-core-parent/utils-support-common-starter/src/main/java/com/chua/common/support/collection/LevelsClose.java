@@ -26,12 +26,12 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_BUFFER_SIZ
 public class LevelsClose implements Levels {
     /**
      * 默认分隔符
-    */
+     */
     private static final String DEFAULT_SEPARATOR = ".";
 
     /**
      * 分隔符字符串
-    */
+     */
     private String sp = DEFAULT_SEPARATOR;
 
     /**

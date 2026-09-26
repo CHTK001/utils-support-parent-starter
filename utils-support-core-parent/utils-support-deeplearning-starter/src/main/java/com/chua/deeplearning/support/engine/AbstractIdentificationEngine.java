@@ -224,6 +224,46 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
         return result;
     }
 
+    /**
+     * 按模型标识即时构建定义（用于启动后才注册的外部目录模型）。
+     *
+     * <p>与 {@link #discoverModels()} 内单条构建逻辑一致：从 {@link ModelRegistry} 取条目，
+     * 创建懒加载 Translator，组装并注册 {@link TranslatorModelDefinition}。</p>
+     *
+     * @param modelId 模型标识
+     * @return 已注册的定义；条目不存在或构建失败返回 空
+     */
+    protected TranslatorModelDefinition buildDefinitionForModelId(String modelId) {
+        ModelRegistry.Entry entry = ModelRegistry.get(modelId);
+        if (entry == null) {
+            return null;
+        }
+        try {
+            ITranslator<?, ?> translator = ModelRegistry.createTranslator(entry.modelId(), null);
+            String provider = resolveProvider(entry.relativePath());
+            String pathText = entry.relativePath() != null ? entry.relativePath() : "";
+            TranslatorModelDefinition def = TranslatorModelDefinition.builder()
+                    .modelDefinition(ModelDefinition.builder()
+                            .id(entry.modelId())
+                            .name(entry.modelId())
+                            .provider(provider)
+                            .description(provider.toUpperCase() + ": " + entry.modelId())
+                            .capabilities(capabilityLabels(entry))
+                            .downloadUrl(entry.downloadUrl())
+                            .compress(entry.compress())
+                            .downloadFileName(entry.downloadFileName())
+                            .build())
+                    .translator(translator)
+                    .config(Map.of("path", pathText))
+                    .build();
+            register(def);
+            return def;
+        } catch (Exception e) {
+            log.warn("[deeplearning-engine] 懒加载模型 [{}] 失败: {}", modelId, e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     /**
@@ -236,9 +276,17 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
+            def = buildDefinitionForModelId(name);
+        }
+        if (def == null) {
             return null;
         }
+        // 无显式 options 时，同样应用该 modelId 的模型级持久化参数
+        java.util.Map<String, Object> merged = ModelParams.merge(name, null);
         Object translator = def.getTranslator();
+        if (!merged.isEmpty() && translator instanceof DetectionConfigurable configurable) {
+            configurable.configure(merged);
+        }
         if (target.isInstance(translator)) {
             return (T) translator;
         }
@@ -258,11 +306,17 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     public <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
+            def = buildDefinitionForModelId(name);
+        }
+        if (def == null) {
             return null;
         }
+        // 合并该 modelId 的模型级持久化参数（device / threshold / 模型特有参数等）。
+        // 调用方显式传入的键优先级更高；无任何配置时不产生额外开销语义。
+        java.util.Map<String, Object> merged = ModelParams.merge(name, options);
         Object translator = def.getTranslator();
         if (translator instanceof DetectionConfigurable configurable) {
-            configurable.configure(options);
+            configurable.configure(merged);
         }
         if (target.isInstance(translator)) {
             return (T) translator;

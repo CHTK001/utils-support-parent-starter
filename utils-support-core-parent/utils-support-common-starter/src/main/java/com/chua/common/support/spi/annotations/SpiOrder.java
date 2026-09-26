@@ -48,7 +48,7 @@ import java.lang.annotation.*;
  * @SpiOrder(0)
  * public interface ImageCorrector { }
  * }</pre>}
- * }</pre>
+ * }
  * <p>
  * 优先级规则说明：
  * <ul>

@@ -5,8 +5,6 @@ import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherProvider;
 import com.chua.common.support.concurrent.offset.OffsetFlow;
 import com.chua.common.support.network.server.Server;
-import com.chua.common.support.network.server.ServerSetting;
-import com.chua.common.support.network.server.impl.JdkHttpServer;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.datalake.support.engine.DefaultPipelineEngine;
 import com.chua.datalake.support.executor.DatalakeExecutorManager;
@@ -66,7 +64,7 @@ public class DatalakeServerBuilder {
     private OffsetFlow offsetFlow;
 
     /**
-     * 启动期注入的 API 服务端
+     * 宿主注入的 API 服务端；未注入时构建结果为空，数据湖服务本身不监听任何端口
      */
     private Server apiServer;
 
@@ -170,6 +168,16 @@ public class DatalakeServerBuilder {
             offsetFlow = OffsetFlow.create().start();
         }
 
+        // SPI Sink 必须先于引擎与执行器装配：构建期内即可能被执行的管线要看到全量 Sink，
+        // 未解析到的类型不会进编译缓存，晚注册的 Sink 下次执行才生效
+        ServiceProvider<DataSink> sinkProvider = ServiceProvider.of(DataSink.class);
+        for (String ext : sinkProvider.getExtensions()) {
+            DataSink sink = sinkProvider.getNewExtension(ext);
+            if (sink != null) {
+                sinkRegistry.putIfAbsent(sink.type(), sink);
+            }
+        }
+
         PipelineEngine pipelineEngine = new DefaultPipelineEngine(
                 pipelineManager,
                 sinkRegistry,
@@ -187,21 +195,8 @@ public class DatalakeServerBuilder {
             log.info("[datalake-server] 已注入 DatalakeExecutorManager 到 DataSyncServer，共享 DispatcherProvider");
         }
 
-        ServiceProvider<DataSink> sinkProvider = ServiceProvider.of(DataSink.class);
-        for (String ext : sinkProvider.getExtensions()) {
-            DataSink sink = sinkProvider.getNewExtension(ext);
-            if (sink != null) {
-                sinkRegistry.putIfAbsent(sink.type(), sink);
-            }
-        }
-
-        if (apiServer == null) {
-            ServerSetting setting = ServerSetting.defaults();
-            setting.setPort(8700);
-            apiServer = new JdkHttpServer(setting);
-            apiServer.setObjectContext(com.chua.common.support.objects.DefaultObjectContext.create());
-        }
-
+        // 不默认开设 API 端口：本库不登记任何路由，自建监听只会暴露一个全 404 的端口，
+        // 并可能因端口占用导致整个数据湖服务起不来。需要 HTTP 面时由 apiServer(Server) 注入。
         return new DatalakeServer(
                 pipelineManager,
                 pipelineEngine,

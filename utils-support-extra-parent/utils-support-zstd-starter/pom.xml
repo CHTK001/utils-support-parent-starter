@@ -23,19 +23,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- zstd native library（通过 JNA 封装） -->
-        <!-- 生产环境请引入对应 native library，此处仅作 SPI 契约声明 -->
+        <!-- zstd native library（通过 JNI 封装） -->
         <dependency>
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
             <version>1.5.5-3</version>
-        </dependency>
-
-        <!-- JNA 用于 native library 调用 -->
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.13.0</version>
         </dependency>
 
         <!-- 日志 -->

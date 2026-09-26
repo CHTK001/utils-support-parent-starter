@@ -369,7 +369,7 @@ public class PipelineContext<T> {
      * 获取指定节点的输出数据（带类型转换）。
      *
      * <p>与 {@link #getNodeOutput(String)} 类似，但支持指定目标类型。
-     * 如果节点输出数据不是指定类型，将抛出 类cast异常。</p>
+     * 如果节点输出数据不是指定类型，将抛出 类型转换异常。</p>
      *
      * @param nodeId 节点 标识
      * @param type   期望的数据类型
@@ -395,7 +395,7 @@ public class PipelineContext<T> {
      * // 带类型转换
      * String result = ctx.getData("validate", String.class);
      * }</pre>etData("validate", String.class);
-     * }</pre>
+     * }
      *
      * @param taskId 节点 标识
      * @param <V>    数据值类型

@@ -11,8 +11,8 @@ import java.util.Map;
  * <p>两类 Sink：</p>
  * <ul>
  *   <li><b>存储型 Sink（如 JdbcSink）</b> — 对齐外部存储，返回有效 {@link #getDataSource()}</li>
- *   <li><b>访问型 Sink（如 RealTimeSink）</b> — 通过 {@link AccessSink} 标记，供 {@code SubscriberManager}
- *       实时推送，{@link #getDataSource()} 应返回 {@code null}</li>
+ *   <li><b>访问型 Sink（如 RealTimeSink）</b> — 通过 {@link AccessSink} 标记，数据经
+ *       {@code RealTimeChannel} 扩展点实时投递，{@link #getDataSource()} 应返回 {@code null}</li>
  * </ul>
  *
  * @author CH
@@ -21,9 +21,9 @@ import java.util.Map;
 public interface DataSink {
 
     /**
-     * 返回 Sink 类型标识，同时对应发布到 dispatcher提供者 的 topic
+     * 返回 Sink 类型标识，管线 DSL 的 {@code sink[].type} 按此查找实现
      *
-     * @return 类型标识（例如 "JDBC"、"real-时间"、"stats"、"日志"）
+     * @return 类型标识（例如 "jdbc"、"realtime"、"statistic"、"log"）
      */
     String type();
 

@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -295,6 +296,24 @@ public class DataSyncAgentServer implements AgentServerManager {
      * @return 远程Agent代理的结果
      */
     private record RemoteAgentProxy(String agentId, List<String> sourceIds, List<String> sinkIds, SyncServer syncServer) implements DataSyncAgent {
+
+        /**
+         * 规范构造器：源/Sink 标识列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；两个列表由
+         * {@code AgentSyncListener.parseStringArray} 产出，元素非 空，可直接
+         * {@link List#copyOf}。</p>
+         *
+         * @param agentId Agent标识
+         * @param sourceIds 源标识
+         * @param sinkIds sink标识
+         * @param syncServer 同步服务端，允许为 空（仅本地模式）
+         */
+        public RemoteAgentProxy {
+            agentId = Objects.requireNonNull(agentId, "agentId 不能为 null");
+            sourceIds = List.copyOf(Objects.requireNonNull(sourceIds, "sourceIds 不能为 null"));
+            sinkIds = List.copyOf(Objects.requireNonNull(sinkIds, "sinkIds 不能为 null"));
+        }
 
         @Override
         /**

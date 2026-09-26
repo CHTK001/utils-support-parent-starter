@@ -41,60 +41,59 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     /**
      * Keytool
-    */
+     */
     private static final String KEYTOOL = "keytool";
     /**
      * Default_key_alg
-    */
+     */
     private static final String DEFAULT_KEY_ALG = "RSA";
     /**
      * Default_key_size
-    */
+     */
     private static final int DEFAULT_KEY_SIZE = 2048;
     /**
      * Default_keystore_type
-    */
+     */
     private static final String DEFAULT_KEYSTORE_TYPE = "PKCS12";
     /**
      * Default_validity_days
-    */
+     */
     private static final int DEFAULT_VALIDITY_DAYS = 365;
 
     /**
      * 密钥ALG
-    */
+     */
     private String keyAlg = DEFAULT_KEY_ALG;
     /**
      * 密钥尺寸
-    */
+     */
     private int keySize = DEFAULT_KEY_SIZE;
     /**
      * Keystore类型
-    */
+     */
     private String keystoreType = DEFAULT_KEYSTORE_TYPE;
     /**
      * Validitydays
-    */
+     */
     private int validityDays = DEFAULT_VALIDITY_DAYS;
     /**
      * Keystore路径
-    */
+     */
     private String keystorePath;
     /**
      * Keystore密码
-    */
+     */
     private String keystorePassword = "";
 
     /**
      * Temp目录
-    */
+     */
     private Path tempDir;
     /**
      * Account私有密钥PEM
-    */
+     */
     private String accountPrivateKeyPem;
 
-    @Override
     /**
      * 连接
      * @param serverUrl serverUrl
@@ -103,6 +102,7 @@ public class JdkCertificateProvider implements AcmeProvider {
      * @param eabKid eabKid
      * @param eabHmacKey eabHmacKey
      */
+    @Override
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                          String eabKid, String eabHmacKey) {
         try {
@@ -116,20 +116,20 @@ public class JdkCertificateProvider implements AcmeProvider {
         }
     }
 
-    @Override
     /**
      * 获取ValidationInfo
-    */
+     */
+    @Override
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
         // JDK 自签名证书无需域名验证
         log.info("JDK 自签名证书无需域名验证，直接返回空列表");
         return Collections.emptyList();
     }
 
-    @Override
     /**
      * RequestCertificate
-    */
+     */
+    @Override
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
         if (domains == null || domains.isEmpty()) {
             return AcmeCertificateResult.fail("域名列表不能为空");
@@ -162,38 +162,38 @@ public class JdkCertificateProvider implements AcmeProvider {
         }
     }
 
-    @Override
     /**
      * RenewCertificate
-    */
+     */
+    @Override
     public AcmeCertificateResult renewCertificate(List<String> domains, String challengeType) {
         // 续签即重新生成
         log.info("JDK 自签名证书续签，将重新生成证书");
         return requestCertificate(domains, challengeType);
     }
 
-    @Override
     /**
      * RevokeCertificate
-    */
+     */
+    @Override
     public boolean revokeCertificate(String certificatePem) {
         // JDK 自签名证书无需吊销
         log.info("JDK 自签名证书无需吊销操作");
         return true;
     }
 
-    @Override
     /**
      * 获取AccountPrivateKeyPem
-    */
+     */
+    @Override
     public String getAccountPrivateKeyPem() {
         return accountPrivateKeyPem;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         // 清理临时目录
         if (tempDir != null) {

@@ -90,7 +90,7 @@ public abstract class AbstractReader implements FileSystem {
      */
     @Override
     public ReadBuilder read(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("AbstractReader 不支持直接读取文件，请由具体读取器实现 read 方法");
     }
 
     /**
@@ -102,7 +102,7 @@ public abstract class AbstractReader implements FileSystem {
      */
     @Override
     public WriteBuilder write(File file) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("AbstractReader 不支持直接读取文件，请由具体读取器实现 read 方法");
     }
 
     /**

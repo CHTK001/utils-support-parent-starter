@@ -1,6 +1,6 @@
 package com.chua.playwright.support;
 
-import com.chua.playwright.support.spi.Engine;
+import com.chua.playwright.support.engine.Engine;
 
 import java.util.*;
 

@@ -39,7 +39,9 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
 /**
- * j向量 向量存储门面，根据 {@link JVectorStorageProperties} 的 mode 选择底层策略。
+ * JVector 向量存储门面，根据存储模式选择底层策略。
+ *
+ * <p>职责：统一提供向量新增、更新、删除、搜索、清空、重建和关闭能力，并协调内存图、磁盘图及 PQ 压缩策略。</p>
  *
  * @author CH
  * @since 2025/01/15

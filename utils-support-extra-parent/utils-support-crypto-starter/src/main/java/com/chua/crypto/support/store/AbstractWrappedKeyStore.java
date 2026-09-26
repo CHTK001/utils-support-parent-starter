@@ -84,7 +84,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
             Set<PosixFilePermission> ownerOnly = PosixFilePermissions.fromString("rw-------");
             Files.setPosixFilePermissions(target, ownerOnly);
         } catch (UnsupportedOperationException | IOException ignored) {
- // 窗口/FAT 等无 POSIX 权限语义的文件系统，依赖部署目录 访问控制列表
+            // Windows/FAT 等无 POSIX 权限语义的文件系统跳过，依赖部署目录访问控制列表
         }
     }
 

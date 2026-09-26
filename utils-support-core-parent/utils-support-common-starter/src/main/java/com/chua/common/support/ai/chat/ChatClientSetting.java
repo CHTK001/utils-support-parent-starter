@@ -131,12 +131,46 @@ public class ChatClientSetting {
     private String proxy;
 
     /**
+     * 请求超时时间（毫秒）
+     *
+     * <p>控制单次 HTTP 请求的整体超时（含连接、读取以及流式首包/空闲等待）。
+     * null 或 &lt;=0 表示使用提供商实现的默认超时。
+     */
+    private Long timeoutMillis;
+
+    /**
      * 自定义 HTTP 请求头
      *
      * <p>每次请求都会携带这些额外的 HTTP 头，用于服务商要求的自定义认证头、
      * 路由头等场景。优先级高于 SDK 默认头。</p>
      */
     private Map<String, String> extraHeaders;
+
+    /**
+     * 认证方案
+     *
+     * <p>取值：{@code api_key} / {@code bearer} / {@code oauth} / {@code none}。
+     * {@code none} 表示不发送任何认证头（本地模型或内网免鉴权服务）。
+     * 为空时按 {@code api_key} 处理。</p>
+     *
+     * @see AuthHeaders
+     */
+    private String authScheme;
+
+    /**
+     * 认证头名称覆盖
+     *
+     * <p>为空时使用标准 {@code Authorization}。部分服务商只认特定头，
+     * 例如 Dots Studio 只接受 {@code api-key}。</p>
+     */
+    private String authHeader;
+
+    /**
+     * 认证值前缀覆盖
+     *
+     * <p>为空时使用标准 {@code "Bearer "}。需要「无前缀」时显式传空串。</p>
+     */
+    private String authPrefix;
 
     /**
      * 是否使用 GPU（本地推理引擎专用：llama.cpp / onnxruntime / pytorch 等）

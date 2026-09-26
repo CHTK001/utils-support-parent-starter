@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * after(obj, method, args, proxy)            ← 后置处理（finally 中执行）
  * handleException(...)                       ← 异常处理
  * }</pre>...)                       ← 异常处理
- * }</pre>
+ * }
  * <p>
  * 注解扫描 SPI 约定：
  * </p>
@@ -119,11 +119,10 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
      * <p>
      * 用于与 IOC 容器集成，提供 Bean 的查找和注入能力。
      * </p>
+     *
+     * 对象上下文
      */
     @Getter
-    /**
-     * 对象上下文
-    */
     private ObjectContext objectContext;
 
     /**
@@ -228,19 +227,19 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         return this;
     }
 
-    @Override
     /**
      * 尝试asm
-    */
+     */
+    @Override
     public ProxyProvider<T> tryAsm(boolean enable) {
         this.tryAsm = enable;
         return this;
     }
 
-    @Override
     /**
      * 尝试javassist
-    */
+     */
+    @Override
     public ProxyProvider<T> tryJavassist(boolean enable) {
         this.tryJavassist = enable;
         return this;
@@ -361,18 +360,18 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
             return delegate;
         }
         return new MethodIntercept<>() {
-            @Override
             /**
              * 之前
-            */
+             */
+            @Override
             public void before(Object obj, Method method, Object[] args, T proxy) {
                 delegate.before(obj, method, args, proxy);
             }
 
-            @Override
             /**
              * 调用
-            */
+             */
+            @Override
             public Object invoke(Object obj, Method method, Object[] args, T proxy) throws Throwable {
                 ProxyMethod proxyMethod = ProxyMethod.builder()
                         .args(args)
@@ -396,18 +395,18 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
                 return invocation.proceed();
             }
 
-            @Override
             /**
              * 之后
-            */
+             */
+            @Override
             public void after(Object obj, Method method, Object[] args, T proxy) {
                 delegate.after(obj, method, args, proxy);
             }
 
-            @Override
             /**
              * 处理异常
-            */
+             */
+            @Override
             public Object handleException(Object obj, Method method, Object[] args, T proxy, Throwable throwable) {
                 return delegate.handleException(obj, method, args, proxy, throwable);
             }
@@ -662,19 +661,19 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     private static class ArroundHandler {
         /**
          * Intercept
-        */
+         */
         private final MethodArroundIntercept intercept;
         /**
          * 模式
-        */
+         */
         private final String[] patterns;
         /**
          * 匹配类型
-        */
+         */
         private final MatchUtils.MatchType matchType;
         /**
          * 排序
-        */
+         */
         private final int order;
 
         /**

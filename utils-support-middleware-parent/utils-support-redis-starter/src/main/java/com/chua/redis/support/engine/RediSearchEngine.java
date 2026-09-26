@@ -35,7 +35,8 @@ import java.util.*;
  */
 @Slf4j
 @Spi("redis")
-public class RediSearchEngine extends RedisEngine implements Engine {
+  public class RediSearchEngine extends RedisEngine implements Engine {
+
 
     @Override
     /**
@@ -201,7 +202,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
              * 列表
             */
             public List<T> list() {
-                return executeQuery(this, entityClass);
+                return executeRedisQuery(this, entityClass);
             }
 
             @Override
@@ -209,7 +210,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
              * One
             */
             public T one() {
-                List<T> r = executeQuery(this, entityClass);
+                List<T> r = executeRedisQuery(this, entityClass);
                 return r.isEmpty() ? null : r.getFirst();
             }
 
@@ -218,7 +219,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
              * Page
             */
             public Page<T> page(int pageNum, int pageSize) {
-                return executePage(this, entityClass, pageNum, pageSize);
+                return executeRedisPage(this, entityClass, pageNum, pageSize);
             }
         };
     }
@@ -258,7 +259,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
              * 更新
             */
             public int update() {
-                return executeUpdate(this);
+                return executeRedisUpdate(this);
             }
         };
     }
@@ -298,7 +299,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
              * 移除
             */
             public int remove() {
-                return executeDelete(this);
+                return executeRedisDelete(this);
             }
         };
     }
@@ -573,12 +574,24 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
-    /**
-     * 关闭
-    */
-    public void close() {
-        super.close();
-    }
+      /**
+       * 关闭：委托父类释放连接池，关闭标记由父类维护。
+       */
+      public void close() {
+          super.close();
+      }
+
+      @Override
+      /**
+       * 是否已关闭
+       * <p>关闭状态由父类 {@link RedisEngine} 统一维护，此处如实透传。</p>
+       *
+       * @return 已关闭返回 true
+       */
+      public boolean isClosed() {
+          return super.isClosed();
+      }
+
 
     @Override
     /**
@@ -678,7 +691,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @param entityClass 实体类
      * @return 执行查询的结果
      */
-    private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
+    private <T> List<T> executeRedisQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         QuerySql<T> sql = wrapper.buildSql();
         return executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
     }
@@ -718,10 +731,10 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @param <T>         实体泛型
      * @return 分页结果
      */
-    private <T> Page<T> executePage(
+    private <T> Page<T> executeRedisPage(
             LambdaQueryWrapper<T> wrapper,
             Class<T> entityClass, int pageNum, int pageSize) {
-        List<T> all = executeQuery(wrapper, entityClass);
+        List<T> all = executeRedisQuery(wrapper, entityClass);
         int total = all.size();
         int from = (pageNum - 1) * pageSize;
         int to = Math.min(from + pageSize, total);
@@ -735,7 +748,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @param wrapper 包装器
      * @return 执行更新的结果
      */
-    private <T> int executeUpdate(LambdaUpdateWrapper<T> wrapper) {
+    private <T> int executeRedisUpdate(LambdaUpdateWrapper<T> wrapper) {
         throw new UnsupportedOperationException("RediSearch 引擎不支持条件更新");
     }
 
@@ -745,7 +758,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
      * @param wrapper 包装器
      * @return 执行删除的结果
      */
-    private <T> int executeDelete(LambdaDeleteWrapper<T> wrapper) {
+    private <T> int executeRedisDelete(LambdaDeleteWrapper<T> wrapper) {
         throw new UnsupportedOperationException("RediSearch 引擎不支持条件删除");
     }
 

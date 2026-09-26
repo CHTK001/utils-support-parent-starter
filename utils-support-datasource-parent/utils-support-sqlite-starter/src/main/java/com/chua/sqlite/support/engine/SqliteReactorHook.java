@@ -393,7 +393,9 @@ public final class SqliteReactorHook implements AutoCloseable {
             return 0L;
         }
         int end = ci + 1;
-        while (end < json.length() && Character.isDigit(json.charAt(end))) end++;
+        while (end < json.length() && Character.isDigit(json.charAt(end))) {
+            end++;
+        }
         try {
             return Long.parseLong(json.substring(ci + 1, end));
         } catch (NumberFormatException e) {

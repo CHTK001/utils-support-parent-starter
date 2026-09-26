@@ -29,7 +29,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *     .endFork()
  * .taskEnd()
  * }</pre> .任务结束()
- * }</pre>
+ * }
  *
  * <p><strong>复杂用法 — builder() 获取完整编排能力：</strong></p>
  * <pre>{@code
@@ -54,7 +54,7 @@ import com.chua.common.support.task.pipeline.core.PipelineNode;
  *     .endFork()
  * .taskEnd()
  * }</pre> .任务结束()
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -65,17 +65,17 @@ public class ForkBranchBuilder {
 
     /**
      * 分支名称
-    */
+     */
     private final String branchName;
 
     /**
      * 内部构建器，用于构建分支流水线
-    */
+     */
     private final PipelineBuilder innerBuilder;
 
     /**
      * 父分叉定义，结束fork() 时返回
-    */
+     */
     private final TaskForkDefinition parent;
 
     /**
@@ -189,7 +189,7 @@ public class ForkBranchBuilder {
      *             .endFork()
      *         .taskEnd()
      * .endFork()                                  // 结束分支 "a"
-     * }</pre>   * }</pre>
+     * }</pre>   * }
      *
      * @return 内部 pipeline构建器
      */

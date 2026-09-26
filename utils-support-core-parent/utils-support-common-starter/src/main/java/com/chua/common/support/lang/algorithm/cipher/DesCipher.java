@@ -38,7 +38,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     private static final String ALGORITHM = "DES";
     /**
      * 加密转换算法
-    */
+     */
     private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
 
     /**

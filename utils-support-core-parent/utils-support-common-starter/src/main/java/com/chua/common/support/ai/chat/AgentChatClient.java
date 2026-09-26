@@ -37,32 +37,32 @@ public class AgentChatClient implements ChatClient {
 
     /**
      * 从模型注册表，键为 Agent 标识
-    */
+     */
     private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>(); // [P3C 3.15 豁免] 运行期 slave() 动态注册，规模不可预估
 
     /**
      * 主模型客户端（负责路由决策）
-    */
+     */
     private ChatClient masterClient;
 
     /**
      * 主模型名称
-    */
+     */
     private String masterModel = "default";
 
     /**
      * 执行模式
-    */
+     */
     private AgentMode mode = AgentMode.ROUTER;
 
     /**
      * 内部 Agent 实例
-    */
+     */
     private Agent agent;
 
     /**
      * 是否启用 MCP 工具
-    */
+     */
     private boolean mcp = false;
 
     /**
@@ -137,24 +137,23 @@ public class AgentChatClient implements ChatClient {
         return agent;
     }
 
-    @Override
     /**
      * ChatSync
-    */
+     */
+    @Override
     public String chatSync(String prompt) {
         AgentResponse result = getOrCreateAgent().run(prompt);
         return result != null ? result.getOutput() : "";
     }
 
-    @Override
     /**
      * Chat
-    */
+     */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {}, e -> { throw new RuntimeException(e); });
     }
 
-    @Override
     /**
      * 对话
      * @param prompt prompt
@@ -162,6 +161,7 @@ public class AgentChatClient implements ChatClient {
      * @param onComplete onComplete
      * @param onError onError
      */
+    @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -184,10 +184,10 @@ public class AgentChatClient implements ChatClient {
         }
     }
 
-    @Override
     /**
      * Models
-    */
+     */
+    @Override
     public List<ModelDefinition> models() {
         Map<String, AgentDefinition> defs = getOrCreateAgent().getSubAgents().stream()
                 .collect(java.util.stream.Collectors.toMap(
@@ -201,10 +201,10 @@ public class AgentChatClient implements ChatClient {
                 .build());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         if (agent != null) {
             agent.close();
@@ -213,6 +213,6 @@ public class AgentChatClient implements ChatClient {
 
     /**
      * SlaveConfig
-    */
+     */
     private record SlaveConfig(String id, String name, String description, ChatClient client) {}
 }

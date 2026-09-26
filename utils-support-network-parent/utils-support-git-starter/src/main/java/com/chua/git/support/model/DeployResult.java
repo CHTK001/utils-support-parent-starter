@@ -21,6 +21,19 @@ public record DeployResult(
 ) {
 
     /**
+     * 规范构造器：对编译产物路径列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。产物列表由外部
+     * {@code Deployer} 实现传入，允许缺省，故先把 {@code null} 归一化为空列表，
+     * 再做不可变拷贝（元素非空）。</p>
+     */
+    public DeployResult {
+        artifacts = artifacts == null
+                ? java.util.List.of()
+                : java.util.List.copyOf(artifacts);
+    }
+
+    /**
      * 创建成功结果。
      * @param message 消息
      * @param artifacts artifacts

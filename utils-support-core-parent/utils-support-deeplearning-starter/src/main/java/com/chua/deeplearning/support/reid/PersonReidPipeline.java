@@ -100,7 +100,30 @@ public class PersonReidPipeline {
      * @param bbox    检测框（可为 空）
      * @return GalleryEntry的结果
      */
-    public record GalleryEntry(float[] feature, String label, DetectionInfo bbox) {}
+    public record GalleryEntry(float[] feature, String label, DetectionInfo bbox) {
+
+        /**
+         * 规范构造器：特征向量做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。特征提取器未配置或返回
+         * {@code null} 时保留其 {@code null} 语义。</p>
+         *
+         * @param feature 特征向量
+         */
+        public GalleryEntry {
+            feature = feature == null ? null : feature.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部特征向量的副本。
+         *
+         * @return 特征向量副本；无则返回 {@code null}
+         */
+        @Override
+        public float[] feature() {
+            return feature == null ? null : feature.clone();
+        }
+    }
 
     /**
      * 检索结果。

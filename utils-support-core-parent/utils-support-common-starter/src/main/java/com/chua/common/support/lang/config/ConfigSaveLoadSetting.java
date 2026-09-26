@@ -24,20 +24,18 @@ public class ConfigSaveLoadSetting {
     /**
      * 配置文件的根目录路径，默认为用户主目录下的 .config 文件夹。
      * 格式：{user.home}/.config
+     *
+     * 根级路径
      */
     @Builder.Default
-    /**
-     * 根级路径
-    */
     private String rootPath = System.getProperty("user.home", ".") + "/.config";
 
     /**
      * 文件读写使用的字符集，默认为 UTF-8。
-     */
-    @Builder.Default
-    /**
+     *
      * 字符集
      */
+    @Builder.Default
     private Charset charset = StandardCharsets.UTF_8;
 
     /**
@@ -62,29 +60,26 @@ public class ConfigSaveLoadSetting {
 
     /**
      * 连接超时时间（毫秒），默认值为 5000ms (5秒)。
+     *
+     * Connect超时毫秒
      */
     @Builder.Default
-    /**
-     * Connect超时毫秒
-    */
     private long connectTimeoutMillis = 5000;
 
     /**
      * 读取超时时间（毫秒），默认值为 5000ms (5秒)。
+     *
+     * Read超时毫秒
      */
     @Builder.Default
-    /**
-     * Read超时毫秒
-    */
     private long readTimeoutMillis = 5000;
 
     /**
      * 内容类型（Content-Type），默认值为 application/octet-stream。
+     *
+     * 内容类型
      */
     @Builder.Default
-    /**
-     * 内容类型
-    */
     private String contentType = "application/octet-stream";
 
     /**

@@ -248,12 +248,24 @@ public class JdbcReactorEngine implements ReactorEngine {
 
         // 复制所有已解析的选项
         Object val;
-        if ((val = parsed.getValue(DRIVER)) != null) builder.option(DRIVER, (String) val);
-        if ((val = parsed.getValue(HOST)) != null) builder.option(HOST, (String) val);
-        if ((val = parsed.getValue(PORT)) != null) builder.option(PORT, (Integer) val);
-        if ((val = parsed.getValue(DATABASE)) != null) builder.option(DATABASE, (String) val);
-        if ((val = parsed.getValue(PROTOCOL)) != null) builder.option(PROTOCOL, (String) val);
-        if ((val = parsed.getValue(SSL)) != null) builder.option(SSL, (Boolean) val);
+        if ((val = parsed.getValue(DRIVER)) != null) {
+            builder.option(DRIVER, (String) val);
+        }
+        if ((val = parsed.getValue(HOST)) != null) {
+            builder.option(HOST, (String) val);
+        }
+        if ((val = parsed.getValue(PORT)) != null) {
+            builder.option(PORT, (Integer) val);
+        }
+        if ((val = parsed.getValue(DATABASE)) != null) {
+            builder.option(DATABASE, (String) val);
+        }
+        if ((val = parsed.getValue(PROTOCOL)) != null) {
+            builder.option(PROTOCOL, (String) val);
+        }
+        if ((val = parsed.getValue(SSL)) != null) {
+            builder.option(SSL, (Boolean) val);
+        }
 
         // 特殊处理：H2 mem/file 模式，URL 解析会把 database 当成 host
         // 例如 r2dbc:h2:mem://testdb → host=testdb, database=null

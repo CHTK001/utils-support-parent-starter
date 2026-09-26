@@ -427,38 +427,78 @@ public class FileEngine extends AbstractEngine {
     /**
      * 执行原生 选择：SQL 编译为 AST 后在表行引用上求值。
      *
+     * <p>本引擎没有 {@code SqlExecutor}，原生语句能力完全由本方法提供，
+     * 因此必须覆写接口规范入口 {@link Engine#querySql(String, Object...)}；
+     * 执行前后由基类的 {@code interceptQuery} 统一回调 {@code EngineInterceptor}。</p>
+     *
      * @param sql    选择 语句（支持 WHERE/订单 BY/限制/数量(*)）
      * @param params ? 绑定参数
      * @return 结果行
      */
+    @Override
     public List<Map<String, Object>> querySql(String sql, Object... params) {
         Objects.requireNonNull(sql, "sql must not be null");
         String table = extractTable(sql);
         List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
-        return new MemorySqlParser().executeQuery(sql, rows, params);
+        return interceptQuery(sql, params, () -> new MemorySqlParser().executeQuery(sql, rows, params));
     }
 
     /**
      * 执行原生 DML：插入 / 更新 / 删除 作用于表行引用，
      * 影响行数大于零时按 autopersist 配置自动写回源文件。
      *
+     * <p>覆写接口规范入口 {@link Engine#executeSql(String, Object...)}，
+     * 执行前后由基类的 {@code interceptUpdate} 统一回调 {@code EngineInterceptor}。</p>
+     *
      * @param sql    DML 语句
      * @param params ? 绑定参数
      * @return 影响行数
      */
+    @Override
     public int executeSql(String sql, Object... params) {
         Objects.requireNonNull(sql, "sql must not be null");
-        var plan = new MemorySqlParser().parseDml(sql);
-        List<Object> plist = Arrays.asList(params == null ? new Object[0] : params);
-        List<Object> rows = resolveMutableRows(plan.table());
-        int affected = MemorySqlAst.executeDml(plan, plist, () -> rows);
-        if (affected > 0) {
-            TableMeta meta = resolveMeta(plan.table());
-            if (meta != null && meta.autoPersist) {
-                save(plan.table());
+        Object[] args = params == null ? new Object[0] : params;
+        return interceptUpdate(sql, args, () -> {
+            var plan = new MemorySqlParser().parseDml(sql);
+            List<Object> plist = Arrays.asList(args);
+            List<Object> rows = resolveMutableRows(plan.table());
+            int affected = MemorySqlAst.executeDml(plan, plist, () -> rows);
+            if (affected > 0) {
+                TableMeta meta = resolveMeta(plan.table());
+                if (meta != null && meta.autoPersist) {
+                    save(plan.table());
+                }
             }
+            return affected;
+        });
+    }
+
+    @Override
+    /**
+     * 是否支持原生语句执行
+     * <p>文件引擎自带完整 SQL 解析与求值链路（{@link MemorySqlParser}），
+     * 只是没有 JDBC 执行器，因此必须显式覆写返回 true，
+     * 否则调用方会按 {@code getExecutor() == null} 误判为不支持 SQL。</p>
+     *
+     * @return 恒为 true
+     */
+    public boolean supportsSql() {
+        return true;
+    }
+
+    @Override
+    /**
+     * 内存通道插入后的收尾
+     * <p>文件引擎的内存表是源文件的投影，插入后需按 autopersist 配置写回，
+     * 否则新数据只存在于内存、下次 load 就消失。</p>
+     *
+     * @param entityClass 实体类类型
+     * @param affected 本次插入行数
+     */
+    protected void afterMemoryInsert(Class<?> entityClass, int affected) {
+        if (affected > 0) {
+            persistIfAuto(entityClass);
         }
-        return affected;
     }
 
     /**

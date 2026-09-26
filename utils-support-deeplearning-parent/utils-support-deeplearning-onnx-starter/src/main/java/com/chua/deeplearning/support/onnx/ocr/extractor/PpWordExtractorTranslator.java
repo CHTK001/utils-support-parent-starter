@@ -108,6 +108,53 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         if (session != null) {
             return;
         }
+        Path modelPath = resolveModelFile();
+        Path configPath = modelPath.getParent().resolve(CONFIG_FILE);
+        if (!Files.isRegularFile(configPath)) {
+            // 目录内缺少 inference.yml 时，字典退化为空表（识别结果为空串但不再抛错）
+            log.warn("[PaddleOCRv6-rec] 缺少字符字典配置 {}，识别结果将为空", configPath);
+            dict = new ArrayList<>();
+        } else {
+            dict = loadCharacterDict(configPath);
+        }
+        this.ortEnv = OrtEnvironment.getEnvironment();
+        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
+        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        // 按该模型的 device 参数尝试启用 CUDA；缺 CUDA 原生库或初始化失败时静默保持 CPU
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, modelName);
+        this.session = ortEnv.createSession(modelPath.toString(), opts);
+        log.info("[PaddleOCRv6-rec] ONNX loaded: {} dict_size={}", modelPath, dict.size());
+    }
+
+    /**
+     * 接收框架注入的模型路径 / 外部目录。
+     *
+     * @param path 模型绝对路径或外部目录路径
+     */
+    public void setModelPath(String path) {
+        if (path != null && !path.isBlank()) {
+            this.injectedPath = path.trim();
+        }
+    }
+
+    /**
+     * 框架注入的模型路径 / 外部目录。
+     */
+    private volatile String injectedPath;
+
+    /**
+     * 三级回退解析识别模型文件。
+     *
+     * @return 模型文件绝对路径
+     * @throws Exception 三级均未找到时抛出
+     */
+    private Path resolveModelFile() throws Exception {
+        Path external = com.chua.deeplearning.support.onnx.ModelResourceResolver
+                .resolveOnnx(injectedPath, modelName, resourceBase, MODEL_FILE);
+        if (external != null) {
+            return external;
+        }
+        // classpath 兜底
         Path tmpDir = Files.createTempDirectory("paddleocrv6-rec-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("rec");
@@ -121,16 +168,10 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                 .extractOnly(true)
                 .load();
         Path modelPath = modelDir.resolve(MODEL_FILE);
-        Path configPath = modelDir.resolve(CONFIG_FILE);
-        if (!Files.isRegularFile(modelPath) || !Files.isRegularFile(configPath)) {
-            throw new IllegalArgumentException("OCR 资源缺失: model=" + modelPath + " config=" + configPath);
+        if (!Files.isRegularFile(modelPath)) {
+            throw new IllegalArgumentException("OCR 资源缺失（外部目录 / 注册表 / classpath 均未找到）: " + modelName);
         }
-        dict = loadCharacterDict(configPath);
-        this.ortEnv = OrtEnvironment.getEnvironment();
-        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-        opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        this.session = ortEnv.createSession(modelPath.toString(), opts);
-        log.info("[PaddleOCRv6-rec] ONNX loaded: {} dict_size={}", modelPath.getFileName(), dict.size());
+        return modelPath;
     }
 
     /**

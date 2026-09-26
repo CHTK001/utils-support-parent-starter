@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * DataSource ds = loader.get();
  * }</pre>g));
  * DataSource ds = loader.get();
- * }</pre>
+ * }
  * </p>
  *
  * @param <T> 被加载的对象类型
@@ -25,7 +25,7 @@ public class SingletonLoader<T> extends AbstractLoaderProvider<T> {
 
     /**
      * 供应商
-    */
+     */
     private final Supplier<T> supplier;
 
     /**

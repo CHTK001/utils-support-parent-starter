@@ -53,11 +53,10 @@ public abstract class AbstractServer implements ConfigServer {
      * WebSocket Server 在会话建立时派发 "open" 事件等。</p>
      *
      * @return 监听器条目列表，可能为 null
+     *
+     * 过滤器管理器
      */
     @Getter
-    /**
-     * 过滤器管理器
-    */
     protected final ServerFilterManager filterManager;
 
     /**
@@ -67,11 +66,10 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
      * 服务器运行指标统计。
+     *
+     * Metrics
      */
     @Getter
-    /**
-     * Metrics
-    */
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
@@ -119,6 +117,12 @@ public abstract class AbstractServer implements ConfigServer {
         addFilter(new TracingFilter());
         addFilter(new AccessLogFilter());
         addFilter(new CorsFilter());
+        // 安全响应头过滤器始终挂载，但是否真正下发响应头由
+        // ServerSetting.SecurityHeadersConfig.enabled 在「请求时」判定。
+        // 之所以不在此按 enabled 决定挂载与否：内置过滤器在构造期完成挂载，
+        // 而使用方通常在 ServerBuilder.build() 之后才通过 getSetting() 回填配置，
+        // 若在构造期判定会导致回填永远不生效。此处传入配置引用，过滤器每次请求实时读取。
+        addFilter(new SecurityHeadersServerFilter(setting.getSecurityHeaders()));
         if (urlMappingFilter != null) {
             addFilter(urlMappingFilter);
         }
@@ -136,10 +140,10 @@ public abstract class AbstractServer implements ConfigServer {
         }
     }
 
-    @Override
     /**
      * SupportsReactor
-    */
+     */
+    @Override
     public boolean supportsReactor() {
         return true;
     }
@@ -252,8 +256,7 @@ public abstract class AbstractServer implements ConfigServer {
      * 将 response.getResult() 转换为响应体并 end()。
      * <p>优先走 {@link ResponseConverter} SPI，
      * 找不到则直接 toString()。</p>
-     */
-    /**
+     *
      * 响应转换器缓存:SPI 列表在运行期稳定,首次加载后缓存,
      * 避免每个请求重复 SPI 扫描 + 排序(高并发热点)。
      */
@@ -310,10 +313,10 @@ public abstract class AbstractServer implements ConfigServer {
         }
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public final synchronized void start() {
         if (running) {
             return;
@@ -346,10 +349,10 @@ public abstract class AbstractServer implements ConfigServer {
      */
     protected abstract void doStart();
 
-    @Override
     /**
      * 停止
-    */
+     */
+    @Override
     public final synchronized void stop() {
         if (!running) {
             return;
@@ -389,50 +392,50 @@ public abstract class AbstractServer implements ConfigServer {
     protected void doStopAccepting() {
     }
 
-    @Override
     /**
      * 是否Running
-    */
+     */
+    @Override
     public boolean isRunning() {
         return running;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         stop();
     }
 
-    @Override
     /**
      * 获取Port
-    */
+     */
+    @Override
     public int getPort() {
         return setting.getPort();
     }
 
-    @Override
     /**
      * 获取Setting
-    */
+     */
+    @Override
     public ServerSetting getSetting() {
         return setting;
     }
 
-    @Override
     /**
      * 获取ObjectContext
-    */
+     */
+    @Override
     public ObjectContext getObjectContext() {
         return objectContext;
     }
 
-    @Override
     /**
      * 设置ObjectContext
-    */
+     */
+    @Override
     public void setObjectContext(ObjectContext objectContext) {
         this.objectContext = objectContext;
         this.urlMappingFilter = new UrlMappingServerFilter(objectContext);
@@ -449,18 +452,18 @@ public abstract class AbstractServer implements ConfigServer {
         }
     }
 
-    @Override
     /**
      * 获取Filters
-    */
+     */
+    @Override
     public List<ServerFilter> getFilters() {
         return filterManager.getStaticFilters();
     }
 
-    @Override
     /**
      * 添加过滤
-    */
+     */
+    @Override
     public Server addFilter(ServerFilter filter) {
         filterManager.addFilter(filter);
         if (filter instanceof ReactiveServerFilter reactiveFilter) {
@@ -469,46 +472,46 @@ public abstract class AbstractServer implements ConfigServer {
         return this;
     }
 
-    @Override
     /**
      * 移除过滤
-    */
+     */
+    @Override
     public Server removeFilter(ServerFilter filter) {
         filterManager.removeFilter(filter);
         return this;
     }
 
-    @Override
     /**
      * 注册Mapping
-    */
+     */
+    @Override
     public Server registerMapping(String path, HttpMethod method, ServerHandler handler) {
         urlMappingFilter.route(path, method, handler);
         return this;
     }
 
-    @Override
     /**
      * 注册Mapping
-    */
+     */
+    @Override
     public Server registerMapping(String path, ServerHandler handler) {
         urlMappingFilter.route(path, handler);
         return this;
     }
 
-    @Override
     /**
      * 移除Mapping
-    */
+     */
+    @Override
     public Server removeMapping(String path) {
         urlMappingFilter.removeRoute(path);
         return this;
     }
 
-    @Override
     /**
      * RefreshFilters
-    */
+     */
+    @Override
     public Server refreshFilters() {
         filterManager.refreshSpiFilters();
         if (objectContext != null) {
@@ -520,10 +523,10 @@ public abstract class AbstractServer implements ConfigServer {
         return this;
     }
 
-    @Override
     /**
      * 注册Bean
-    */
+     */
+    @Override
     public Server registerBean(Object bean) {
         if (bean == null) {
             return this;
@@ -552,41 +555,41 @@ public abstract class AbstractServer implements ConfigServer {
     private static class SimpleServerFilterConfig implements ServerFilterConfig {
         /**
          * 设置
-        */
+         */
         private final ServerSetting setting;
 
         SimpleServerFilterConfig(ServerSetting setting) {
             this.setting = setting;
         }
 
-        @Override
         /**
          * 获取过滤Name
-        */
+         */
+        @Override
         public String getFilterName() {
             return "default";
         }
 
-        @Override
         /**
          * 获取初始化Parameter
-        */
+         */
+        @Override
         public String getInitParameter(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取初始化Parameters
-        */
+         */
+        @Override
         public Map<String, String> getInitParameters() {
             return Map.of();
         }
 
-        @Override
         /**
          * 获取ServerSetting
-        */
+         */
+        @Override
         public ServerSetting getServerSetting() {
             return setting;
         }

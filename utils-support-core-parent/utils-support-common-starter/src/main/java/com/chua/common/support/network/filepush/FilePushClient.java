@@ -16,9 +16,11 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -95,12 +97,12 @@ public class FilePushClient implements AutoCloseable {
 
     /**
      * 客户端配置
-    */
+     */
     private final FilePushConfig config;
 
     /**
      * 连接虚拟线程池
-    */
+     */
     private final ExecutorService executor;
 
     /**
@@ -110,12 +112,12 @@ public class FilePushClient implements AutoCloseable {
 
     /**
      * 统计：成功推送的文件数
-    */
+     */
     private final AtomicLong filesPushed = new AtomicLong();
 
     /**
      * 统计：成功推送的总字节数
-    */
+     */
     private final AtomicLong bytesPushed = new AtomicLong();
 
     /**
@@ -125,7 +127,7 @@ public class FilePushClient implements AutoCloseable {
 
     /**
      * 运行标记
-    */
+     */
     private volatile boolean closed;
 
     /**
@@ -999,6 +1001,21 @@ public class FilePushClient implements AutoCloseable {
      * @return 结果值
      */
     public record FileTaskResult(String relativePath, boolean success, long fileSize, String error) {
+
+        /**
+         * 规范构造器：相对路径为空值敌对。
+         *
+         * <p>value class 前置条件——引用组件不接受 null。
+         * {@code error} 在推送成功时显式传 {@code null}，属正常语义，故不校验。</p>
+         *
+         * @param relativePath 文件相对路径
+         * @param success      是否推送成功
+         * @param fileSize     文件字节数
+         * @param error        失败原因，成功时为 null
+         */
+        public FileTaskResult {
+            relativePath = Objects.requireNonNull(relativePath, "relativePath 不能为 null");
+        }
     }
 
     /**
@@ -1013,6 +1030,25 @@ public class FilePushClient implements AutoCloseable {
      */
     public record PushResult(List<FileTaskResult> tasks, long successCount, long failedCount,
                              long skippedCount, long elapsedMs, double throughputMbs) {
+
+        /**
+         * 规范构造器：任务明细列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。
+         * 采用可空安全的 unmodifiable 包装而非 {@code List.copyOf}，
+         * 以免历史调用点传入含 null 元素的列表时行为由静默变为抛 NPE。</p>
+         *
+         * @param tasks         每个文件的任务结果
+         * @param successCount  成功文件数
+         * @param failedCount   失败文件数
+         * @param skippedCount  跳过的未变更文件数
+         * @param elapsedMs     总耗时（毫秒）
+         * @param throughputMbs 吞吐（MB/s）
+         */
+        public PushResult {
+            tasks = Collections.unmodifiableList(
+                    new ArrayList<>(Objects.requireNonNull(tasks, "tasks 不能为 null")));
+        }
 
         /**
          * 是否有失败。

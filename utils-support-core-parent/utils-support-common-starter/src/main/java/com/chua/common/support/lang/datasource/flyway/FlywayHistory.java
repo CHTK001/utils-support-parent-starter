@@ -29,33 +29,34 @@ public final class FlywayHistory {
 
     /**
      * 版本记录表名（与内置 Spring 侧记录表默认值一致，避免记录表分裂）
+     * <p>列名统一使用 {@code sys_database_version_} 前缀，与 Spring 数据源脚本执行器创建的表结构一致。</p>
      */
     public static final String HISTORY_TABLE = "sys_database_version";
 
     /**
      * 列名：版本
      */
-    public static final String COL_VERSION = "version";
+    public static final String COL_VERSION = "sys_database_version_version";
 
     /**
      * 列名：描述
      */
-    public static final String COL_DESCRIPTION = "description";
+    public static final String COL_DESCRIPTION = "sys_database_version_description";
 
     /**
      * 列名：脚本文件名
      */
-    public static final String COL_SCRIPT_NAME = "script_name";
+    public static final String COL_SCRIPT_NAME = "sys_database_version_script_name";
 
     /**
      * 列名：内容校验和
      */
-    public static final String COL_CHECKSUM = "checksum";
+    public static final String COL_CHECKSUM = "sys_database_version_checksum";
 
     /**
      * 列名：成功标志
      */
-    public static final String COL_SUCCESS = "success";
+    public static final String COL_SUCCESS = "sys_database_version_success";
 
     /**
      * 成功标志取值
@@ -81,6 +82,8 @@ public final class FlywayHistory {
             + COL_SCRIPT_NAME + " VARCHAR(255) NOT NULL, "
             + COL_CHECKSUM + " VARCHAR(64), "
             + COL_SUCCESS + " VARCHAR(8), "
+            + "sys_database_version_script_type VARCHAR(16), "
+            + "sys_database_version_executed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
             + "CONSTRAINT pk_" + HISTORY_TABLE + " PRIMARY KEY (" + COL_VERSION + ", " + COL_SCRIPT_NAME + "))";
 
     /**

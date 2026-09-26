@@ -22,18 +22,18 @@ public interface VectorService {
      */
     static VectorService from(EmbeddingClient embeddingClient) {
         return new VectorService() {
-            @Override
             /**
              * Embed
-            */
+             */
+            @Override
             public float[] embed(String text) {
                 return embeddingClient.embedding(text);
             }
 
-            @Override
             /**
              * EmbedBatch
-            */
+             */
+            @Override
             public float[][] embedBatch(String[] texts) {
                 return embeddingClient.embeddingBatch(texts);
             }

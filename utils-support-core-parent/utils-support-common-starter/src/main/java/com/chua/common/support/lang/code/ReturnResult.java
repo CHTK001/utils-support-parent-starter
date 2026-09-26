@@ -56,7 +56,7 @@ public class ReturnResult<T> implements Serializable {
 
     /**
      * 创建 ReturnResult 实例
-    */
+     */
     public ReturnResult() {
     }
 

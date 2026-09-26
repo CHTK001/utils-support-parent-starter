@@ -1,1 +1,1 @@
-onnx=com.chua.deeplearning.support.onnx.audio.OnnxSpeakerDiarizer
+onnx=com.chua.deeplearning.support.onnx.OnnxSpeakerDiarizer

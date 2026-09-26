@@ -45,10 +45,10 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);
     }
 
-    @Override
     /**
      * 提交Tasks
-    */
+     */
+    @Override
     protected List<Future<Object>> submitTasks() {
         List<CompletableFuture<Object>> futures = new ArrayList<>(tasks.size());
         for (var task : tasks) {
@@ -64,10 +64,10 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
         return new ArrayList<>(futures);
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         // 无需显式释放
     }

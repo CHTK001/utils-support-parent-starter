@@ -43,7 +43,7 @@ import java.util.Map;
  * quick.fromXml("<user><name>li</name><age>30</age></user>");
  * }</pre>age\":25}");
  * quick.从xml("<user><name>li</name><age>30</age></user>");
- * }</pre>
+ * }
  *
  * <h2>完整链式调用示例（importPackage + fromXml + dynamic + execute 组合）</h2>
  * <pre>{@code
@@ -85,7 +85,7 @@ import java.util.Map;
  *
  * // 7. 用完释放内部上下文
  * quick.关闭();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

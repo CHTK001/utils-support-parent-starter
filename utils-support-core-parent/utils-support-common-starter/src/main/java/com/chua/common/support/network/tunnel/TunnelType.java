@@ -11,16 +11,16 @@ public enum TunnelType {
 
     /**
      * 正向隧道：本地端口 → 远程主机端口
-    */
+     */
     LOCAL,
 
     /**
      * 反向隧道：远程端口 → 本地主机端口
-    */
+     */
     REMOTE,
 
     /**
      * 动态隧道：本地 SOCKS5 代理
-    */
+     */
     DYNAMIC
 }

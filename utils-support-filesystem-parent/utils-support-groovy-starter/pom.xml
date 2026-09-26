@@ -36,11 +36,20 @@
         <groovy.version>4.0.21</groovy.version>
     </properties>
     <dependencies>
+        <!-- groovy-all 是 pom 聚合包，会把 groovy-test 一并以 compile 作用域引入主代码编译类路径，
+             而 groovy-test 仅用于 Groovy 单元测试，并会再传递引入 JUnit 4（junit:junit）。
+             本模块只做 Groovy 脚本编译与运行，不需要测试件，故显式排除。 -->
         <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
             <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.groovy</groupId>
+                    <artifactId>groovy-test</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

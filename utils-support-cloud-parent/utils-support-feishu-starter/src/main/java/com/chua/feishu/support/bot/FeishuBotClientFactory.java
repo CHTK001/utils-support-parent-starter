@@ -54,6 +54,11 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         private String appSecret;
 
         /**
+         * 事件订阅 Encrypt Key
+         */
+        private String webhookEncryptKey;
+
+        /**
          * 基础 URL
          */
         private String baseUrl;
@@ -88,17 +93,13 @@ public class FeishuBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * 编码aes键
+         * 编码aes键，对应飞书事件订阅的 Encrypt Key
          * @param encodingAesKey 编码aes键
-         * @param baseUrl baseurl
-         * @param connectTimeoutMillis 连接超时millis
-         * @param readTimeoutMillis 读取超时millis
-         * @param configSaveOrLoader 配置保存或加载
-         * @param appId appid
-         * @param baseUrl baseurl
+         * @return 构建器
          */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
+            this.webhookEncryptKey = encodingAesKey;
             return this;
         }
 
@@ -166,6 +167,9 @@ public class FeishuBotClientFactory implements BotClient.Factory {
             }
             if (baseUrl != null) {
                 client.baseUrl(baseUrl);
+            }
+            if (webhookEncryptKey != null) {
+                client.webhookEncryptKey(webhookEncryptKey);
             }
             client.connectTimeoutMillis(connectTimeoutMillis);
             client.readTimeoutMillis(readTimeoutMillis);

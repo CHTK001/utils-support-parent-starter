@@ -54,7 +54,7 @@ public class DatalakeServer {
     private final OffsetFlow offsetFlow;
 
     /**
-     * API 服务器
+     * API 服务器，由宿主注入；为空表示本服务不开设任何 HTTP 端口
      */
     private final Server apiServer;
 
@@ -65,15 +65,13 @@ public class DatalakeServer {
 
     /**
      * 创建 数据湖服务端 实例
-     * @param pipelineManager pipeline管理器
-     * @param pipelineEngine pipelineengine
-     * @param dispatcher dispatcher
-     * @param sinkManager sink管理器
-     * @param subscriberManager subscriber管理器
-     * @param offsetFlow 偏移量流
-     * @param apiServer api服务端
-     * @param true true
-     * @param false false
+     * @param pipelineManager   管线配置管理器
+     * @param pipelineEngine    管线执行引擎
+     * @param dispatcher        数据分发器
+     * @param sinkManager       Sink 管理器
+     * @param subscriberManager 订阅管理器
+     * @param offsetFlow        位点门面
+     * @param apiServer         对外 API 服务端
      */
     public DatalakeServer(
             PipelineManager pipelineManager,
@@ -102,7 +100,9 @@ public class DatalakeServer {
         log.info("[datalake-server] DatalakeServer 启动中");
         sinkManager.start();
         subscriberManager.start();
-        apiServer.start();
+        if (apiServer != null) {
+            apiServer.start();
+        }
         log.info("[datalake-server] DatalakeServer 启动完成");
     }
 
@@ -114,7 +114,9 @@ public class DatalakeServer {
             return;
         }
         log.info("[datalake-server] DatalakeServer 停止中");
-        apiServer.stop();
+        if (apiServer != null) {
+            apiServer.stop();
+        }
         subscriberManager.stop();
         sinkManager.stop();
         if (dispatcher != null) {

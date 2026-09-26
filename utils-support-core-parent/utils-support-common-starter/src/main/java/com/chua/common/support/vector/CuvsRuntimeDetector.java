@@ -36,7 +36,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
 
     /**
      * cuvs Java API 类名前缀，用于检测包是否已加载
-    */
+     */
     private static final String CUVS_PACKAGE_PREFIX = "com.nvidia.cuvs.";
 
     @Override
@@ -131,7 +131,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      *
      * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
      * Linux：检查 /proc/driver/nvidia 是否存在。</p>
-     * @return 检查nvidiadriver的结果
+     * @return 检查 NVIDIA 驱动的结果
      */
     private boolean checkNvidiaDriver() {
  // 窗口 registry 降级
@@ -178,7 +178,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
 
     /**
      * Windows 注册表检查 NVIDIA 驱动。
-     * @return 检查nvidiaregistry的结果
+     * @return 检查 NVIDIA 注册表项的结果
      */
     private boolean checkNvidiaRegistry() {
         try {

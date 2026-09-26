@@ -1,7 +1,7 @@
 package com.chua.playwright.support;
 
-import com.chua.playwright.support.spi.Engine;
-import com.chua.playwright.support.spi.JavaEngine;
+import com.chua.playwright.support.engine.Engine;
+import com.chua.playwright.support.engine.JavaEngine;
 
 /**
  * 对应 playwright-Java 的 {@code Playwright} 入口。

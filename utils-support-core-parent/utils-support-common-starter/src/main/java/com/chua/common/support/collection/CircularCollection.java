@@ -110,26 +110,26 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         this.size = 0;
     }
 
-    @Override
     /**
      * Capacity
-    */
+     */
+    @Override
     public int capacity() {
         return capacity;
     }
 
-    @Override
     /**
      * Policy
-    */
+     */
+    @Override
     public OverflowPolicy policy() {
         return policy;
     }
 
-    @Override
     /**
      * 设置Policy
-    */
+     */
+    @Override
     public void setPolicy(OverflowPolicy policy) {
         if (policy == null) {
             throw new NullPointerException("溢出策略不允许为 null");
@@ -137,10 +137,10 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         this.policy = policy;
     }
 
-    @Override
     /**
      * 查看Eldest
-    */
+     */
+    @Override
     public E peekEldest() {
         if (isEmpty()) {
             throw new NoSuchElementException("环状集合为空");
@@ -148,10 +148,10 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         return (E) elements[head];
     }
 
-    @Override
     /**
      * 取出Eldest
-    */
+     */
+    @Override
     public E pollEldest() {
         if (isEmpty()) {
             throw new NoSuchElementException("环状集合为空");
@@ -172,26 +172,26 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         return lastEvicted;
     }
 
-    @Override
     /**
      * 获取大小
-    */
+     */
+    @Override
     public int size() {
         return size;
     }
 
-    @Override
     /**
      * 是否Empty
-    */
+     */
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     /**
      * Contains
-    */
+     */
+    @Override
     public boolean contains(Object o) {
         for (int i = 0; i < size; i++) {
             if (Objects.equals(elements[(head + i) % capacity], o)) {
@@ -201,29 +201,29 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         return false;
     }
 
-    @Override
     /**
      * Iterator（按加入顺序：最早 -> 最新）
-    */
+     */
+    @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
             /**
              * 当前偏移量（相对队首）
-            */
+             */
             private int offset = 0;
 
-            @Override
             /**
              * 是否拥有Next
-            */
+             */
+            @Override
             public boolean hasNext() {
                 return offset < size;
             }
 
-            @Override
             /**
              * Next
-            */
+             */
+            @Override
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -233,20 +233,20 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
                 return e;
             }
 
-            @Override
             /**
              * 移除
-            */
+             */
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("环状集合迭代器不支持 remove()");
             }
         };
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         for (int i = 0; i < size; i++) {
             elements[(head + i) % capacity] = null;
@@ -256,10 +256,10 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
         lastEvicted = null;
     }
 
-    @Override
     /**
      * 添加（队尾入，按策略处理容量满溢出）
-    */
+     */
+    @Override
     public boolean add(E e) {
         int tail = (head + size) % capacity;
         if (size < capacity) {

@@ -768,6 +768,40 @@ public final class SqlCipherDecryptor {
     public record KeyProbe(byte[] salt, byte[] page, SqlCipherProfile profile) {
 
         /**
+         * 规范构造器：数组组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。首页字节被 HMAC 校验反复读取，
+         * 外部若能改到内部数组就能把校验结果操纵掉，因此构造与读取两侧都要拷贝。</p>
+         *
+         * @param salt 文件头 16 字节 salt
+         * @param page 首页原始字节
+         */
+        public KeyProbe {
+            salt = Objects.requireNonNull(salt, "salt 不能为 null").clone();
+            page = Objects.requireNonNull(page, "page 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部 salt 数组的副本。
+         *
+         * @return salt 副本
+         */
+        @Override
+        public byte[] salt() {
+            return salt.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部首页字节数组的副本。
+         *
+         * @return 首页字节副本
+         */
+        @Override
+        public byte[] page() {
+            return page.clone();
+        }
+
+        /**
          * 校验候选密钥是否通过首页 HMAC 校验。
          *
          * @param encKey 32 字节候选密钥

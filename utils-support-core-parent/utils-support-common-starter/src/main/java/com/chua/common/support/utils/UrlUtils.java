@@ -45,7 +45,7 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 public class UrlUtils {
     /**
      * 创建 url工具 实例
-    */
+     */
     private UrlUtils() {
     }
 

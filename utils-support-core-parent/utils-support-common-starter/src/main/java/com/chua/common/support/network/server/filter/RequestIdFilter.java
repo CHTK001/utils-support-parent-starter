@@ -20,30 +20,30 @@ import java.util.UUID;
  */
 public class RequestIdFilter implements ServerFilter {
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 20;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         // e[0]; // 所有协议
         return new ProtocolType[] {};
     }
 
-    @Override
     /**
      * Do过滤
      * @param request request
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 优先使用客户端传入的 X-Request-Id

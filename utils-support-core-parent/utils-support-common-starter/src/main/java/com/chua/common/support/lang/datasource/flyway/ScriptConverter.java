@@ -47,7 +47,7 @@ public interface ScriptConverter {
 
     /**
      * SPI 名称（{@code @Spi} 扩展键）
-    */
+     */
     String SPI_NAME = "script-converter";
 
     /**

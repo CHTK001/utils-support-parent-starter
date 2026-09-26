@@ -1,0 +1,2 @@
+apng2gif=com.chua.apng.support.converter.ApngToGifConvertFileSystem
+gif2apng=com.chua.apng.support.converter.GifToApngConvertFileSystem

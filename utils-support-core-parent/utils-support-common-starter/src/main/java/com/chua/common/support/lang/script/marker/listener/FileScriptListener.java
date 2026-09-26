@@ -48,10 +48,10 @@ public class FileScriptListener implements Listener {
         this.scriptPath = scriptPath;
     }
 
-    @Override
     /**
      * 是否Change
-    */
+     */
+    @Override
     public boolean isChange() {
         if (!Files.exists(scriptPath)) {
             return false;
@@ -69,10 +69,10 @@ public class FileScriptListener implements Listener {
         }
     }
 
-    @Override
     /**
      * 获取Source
-    */
+     */
+    @Override
     public String getSource() {
         if (lastContent == null) {
             isChange();

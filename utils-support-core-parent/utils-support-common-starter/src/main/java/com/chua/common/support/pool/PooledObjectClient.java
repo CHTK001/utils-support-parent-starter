@@ -29,7 +29,7 @@ import com.chua.common.support.concurrent.pool.ObjectPool;
  *   client.pool(0);
  * }</pre>池化
  *   client.pool(0);
- * }</pre>
+ * }
  *
  * @param <T> 客户端自身类型, 用于链式调用
  * @author CH

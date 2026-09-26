@@ -36,7 +36,11 @@ public class OnnxTextTranslator implements TextTranslator {
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "opus-mt-zh-en";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + TextTranslator.listModels());
+        }
+        return modelName;
     }
 
     @Override

@@ -22,9 +22,7 @@ import java.util.List;
  *
  * <p>两种输出模式：</p>
  * <ul>
- *   <li>{@code mode=single}（默认）：全部脚本合并为一份 {@code init-all.sql}，
- *       适合人工建库/交付；</li>
- *   <li>{@code mode=initdata}：按运行期 Flyway 分类口径输出两份可直接被运行期扫描的脚本——
+ *   <li>{@code mode=initdata}（默认）：按运行期 Flyway 分类口径输出两份可直接被运行期扫描的脚本——
  *       {@code V{版本}__init_all.sql}（结构/补丁，同步执行）与
  *       {@code V{版本}__initdata_all.sql}（初始化数据，异步执行），版本取被合并脚本中的最高版本。</li>
  * </ul>
@@ -119,13 +117,13 @@ public class GenerateInitSqlMojo extends AbstractMojo {
     private boolean skip;
 
     /**
-     * 输出模式：{@code single}=单份 init-all.sql（默认）；{@code initdata}=输出
+     * 输出模式：{@code single}=单份 init-all.sql；{@code initdata}=输出
      * {@code V{版本}__init_all.sql} 与 {@code V{版本}__initdata_all.sql} 两份运行期可执行脚本.
      *
      * <p>参数命名统一使用 {@code flyway.merge.*} 前缀，避免与 Spring Boot 依赖管理中的
      * {@code flyway.version} 等项目属性撞名。</p>
      */
-    @Parameter(defaultValue = "single", property = "flyway.merge.mode")
+    @Parameter(defaultValue = "initdata", property = "flyway.merge.mode")
     private String mode;
 
     /**

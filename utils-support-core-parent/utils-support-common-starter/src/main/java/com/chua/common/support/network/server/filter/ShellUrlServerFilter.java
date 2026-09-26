@@ -135,10 +135,10 @@ public class ShellUrlServerFilter implements EndServerFilter {
         return factory;
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String path = request.getPath();
         if (path == null || path.isEmpty()) {
@@ -153,34 +153,34 @@ public class ShellUrlServerFilter implements EndServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MAX_VALUE - 100;
     }
 
-    @Override
     /**
      * 获取过滤Id
-    */
+     */
+    @Override
     public String getFilterId() {
         return "ShellUrlServerFilter";
     }
 
-    @Override
     /**
      * SupportPath
-    */
+     */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.SSH};
     }

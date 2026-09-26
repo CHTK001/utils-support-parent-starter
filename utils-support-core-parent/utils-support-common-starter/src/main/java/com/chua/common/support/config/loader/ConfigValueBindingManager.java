@@ -87,7 +87,7 @@ public class ConfigValueBindingManager implements ConfigListener {
 
     /**
      * 创建 ConfigValueBindingManager 实例
-    */
+     */
     private ConfigValueBindingManager() {
     }
 
@@ -329,23 +329,23 @@ public class ConfigValueBindingManager implements ConfigListener {
 
     // ==================== ConfigListener 接口实现 ====================
 
-    @Override
     /**
      * OnChange
      * @param key key
      * @param oldValue oldValue
      * @param newValue newValue
      */
+    @Override
     public void onChange(String key, String oldValue, String newValue) {
         // 由 onUpdate 处理即可
     }
 
-    @Override
     /**
      * On删除
      * @param key key
      * @param oldValue oldValue
      */
+    @Override
     public void onDelete(String key, String oldValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
         if (bindings == null || bindings.isEmpty()) {
@@ -362,13 +362,13 @@ public class ConfigValueBindingManager implements ConfigListener {
         }
     }
 
-    @Override
     /**
      * On更新
      * @param key key
      * @param oldValue oldValue
      * @param newValue newValue
      */
+    @Override
     public void onUpdate(String key, String oldValue, String newValue) {
         List<ConfigValueBinding> bindings = bindingsByKey.get(key);
         if (bindings == null || bindings.isEmpty()) {

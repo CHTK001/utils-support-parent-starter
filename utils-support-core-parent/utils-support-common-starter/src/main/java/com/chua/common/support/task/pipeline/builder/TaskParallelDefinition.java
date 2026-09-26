@@ -47,7 +47,7 @@ import java.util.function.Consumer;
  *     .build();
  * }</pre> // 结束定义
  * .构建();
- * }</pre>
+ * }
  *
  * <p><strong>便捷方法：</strong></p>
  * <ul>
@@ -71,39 +71,39 @@ public class TaskParallelDefinition {
 
     /**
      * 标识
-    */
+     */
     private final String id;
     /**
      * PRE处理器
-    */
+     */
     private PipelineNode preHandler;
     /**
      * 构建器
-    */
+     */
     private final PipelineBuilder builder;
     /**
      * SUB管道
-    */
+     */
     private final Pipeline subPipeline;
     /**
      * 开始节点
-    */
+     */
     private String startNode;
     /**
      * 参数
-    */
+     */
     private Map<String, Object> params;
     /**
      * env
-    */
+     */
     private Map<String, Object> env;
     /**
      * 环境
-    */
+     */
     private Map<String, Object> environment;
     /**
      * 合并当前数据
-    */
+     */
     private boolean mergeCurrentData = true;
     private BiConsumer<PipelineContext<?>, AsyncResult> completionHandler; // 完成处理器
 

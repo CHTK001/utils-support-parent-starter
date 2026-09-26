@@ -14,6 +14,7 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -66,24 +67,82 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
      */
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        try {
-            CryptoProperties properties = bindProperties(environment);
-            if (!properties.isEnabled()) {
-                return;
-            }
-            Crypto crypto = Crypto.from(properties.toSetting()).initialize();
-            MutablePropertySources sources = environment.getPropertySources();
-
-            int[] decryptedFiles = {0};
-            Map<String, Object> decrypted = decryptWholeFileConfigs(crypto, properties.getConfigFiles(), decryptedFiles);
-            if (!decrypted.isEmpty()) {
-                sources.addFirst(new MapPropertySource(DECRYPTED_SOURCE_NAME, decrypted));
-                log.info("已解密装载 {} 个加密配置文件", decryptedFiles[0]);
-            }
-            wrapValueDecryption(sources, crypto);
-        } catch (Exception e) {
-            log.warn("加密配置装载失败，按未加密继续启动: {}", e.getMessage());
+        CryptoProperties properties = bindProperties(environment);
+        if (!properties.isEnabled()) {
+            return;
         }
+        Crypto crypto;
+        try {
+            crypto = Crypto.from(properties.toSetting()).initialize();
+        } catch (Exception e) {
+            throw new IllegalStateException("chua.crypto 已启用但主密钥初始化失败（口令/密钥载体/服务器指纹不匹配）: "
+                    + e.getMessage(), e);
+        }
+        hold(crypto);
+        MutablePropertySources sources = environment.getPropertySources();
+
+        Map<String, Object> decrypted = decryptWholeFileConfigs(crypto, properties.getConfigFiles());
+        if (!decrypted.isEmpty()) {
+            sources.addFirst(new MapPropertySource(DECRYPTED_SOURCE_NAME, decrypted));
+        }
+        wrapValueDecryption(sources, crypto);
+    }
+
+    /**
+     * 启动期已解密的加密门面，交由自动装配复用。
+     *
+     * <p>一次性生命周期下密钥载体在首次加载后即被销毁，若自动装配再独立 {@code initialize()}
+     * 一次会重新引导出一把无关的新密钥，因此整个进程只允许存在一个门面实例。
+     */
+    private static volatile Crypto held;
+
+    /**
+     * 持有已初始化的门面
+     *
+     * @param crypto 门面
+     */
+    static void hold(Crypto crypto) {
+        held = crypto;
+    }
+
+    /**
+     * 取走（并解除持有）启动期门面
+     *
+     * @return 门面；启动期未初始化时返回 空
+     */
+    static Crypto takeHeld() {
+        Crypto current = held;
+        held = null;
+        return current;
+    }
+
+    /**
+     * 解密全部整文件加密的配置文件并展平为属性键值，单个文件失败仅告警不阻断其余装载
+     *
+     * @param crypto 加密门面
+     * @param files  配置文件列表
+     * @return 属性键值
+     */
+    private Map<String, Object> decryptWholeFileConfigs(Crypto crypto, List<String> files) {
+        Map<String, Object> flat = new LinkedHashMap<>();
+        int loaded = 0;
+        for (String name : files) {
+            Path path = KeyFileResolver.resolve(name);
+            try {
+                if (!Files.exists(path) || !ConfigFileCipher.isEncrypted(path)) {
+                    continue;
+                }
+                String content = ConfigFileCipher.decryptFile(path, crypto);
+                flat.putAll(parse(content, path.getFileName().toString()));
+                loaded++;
+            } catch (Exception e) {
+                log.warn("加密配置文件装载失败，跳过该文件: {} ({})", path, e.getMessage());
+            }
+        }
+        if (loaded > 0) {
+            log.info("已解密装载 {} 个加密配置文件", loaded);
+        }
+        return flat;
     }
 
     /**
@@ -97,28 +156,6 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
                 .get(environment)
                 .bind("chua.crypto", org.springframework.boot.context.properties.bind.Bindable.of(CryptoProperties.class))
                 .orElseGet(CryptoProperties::new);
-    }
-
-    /**
-     * 解密全部整文件加密的配置文件并展平为属性键值
-     *
-     * @param crypto        加密门面
-     * @param files         配置文件列表
-     * @param decryptedFile 计数器（出 参数，记录实际解密文件数）
-     * @return 属性键值
-     */
-    private Map<String, Object> decryptWholeFileConfigs(Crypto crypto, List<String> files, int[] decryptedFile) {
-        Map<String, Object> flat = new LinkedHashMap<>();
-        for (String name : files) {
-            Path path = KeyFileResolver.resolve(name);
-            if (!Files.exists(path) || !ConfigFileCipher.isEncrypted(path)) {
-                continue;
-            }
-            String content = ConfigFileCipher.decryptFile(path, crypto);
-            flat.putAll(parse(content, path.getFileName().toString()));
-            decryptedFile[0]++;
-        }
-        return flat;
     }
 
     /**
@@ -212,16 +249,19 @@ public class CryptoEnvironmentPostProcessor implements EnvironmentPostProcessor,
         for (PropertySource<?> source : sources) {
             snapshot.add(source);
         }
+        int wrapped = 0;
         for (PropertySource<?> source : snapshot) {
-            if (!(source.getSource() instanceof EnumerablePropertySource<?>)) {
-                continue;
-            }
             String name = source.getName();
-            if (DECRYPTED_SOURCE_NAME.equals(name) || sources.get(name) instanceof EncryptedPropertySource) {
+            if (DECRYPTED_SOURCE_NAME.equals(name)
+                    || source instanceof EncryptedPropertySource
+                    || source instanceof SystemEnvironmentPropertySource
+                    || !(source instanceof EnumerablePropertySource<?>)) {
                 continue;
             }
-            sources.replace(name, new EncryptedPropertySource(sources.get(name), crypto));
+            sources.replace(name, new EncryptedPropertySource(source, crypto));
+            wrapped++;
         }
+        log.info("已为 {} 个属性源启用 ENC(...) 透明解密", wrapped);
     }
 
     /**

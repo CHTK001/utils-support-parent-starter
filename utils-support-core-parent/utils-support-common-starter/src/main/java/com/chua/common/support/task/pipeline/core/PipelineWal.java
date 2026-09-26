@@ -46,7 +46,7 @@ import java.util.*;
  * // 终止并销毁 WAL
  * pipeline.stop();
  * }</pre>line.停止();
- * }</pre>
+ * }
  *
  * <p><strong>序列化解耦：</strong>WAL 的上下文快照序列化直接使用 Jackson
  * （{@code JacksonJsonProvider.getMapper()}），不经过 {@code Json} 静态门面，
@@ -112,36 +112,36 @@ public class PipelineWal implements AutoCloseable {
     public static class ContextSnapshot {
         /**
          * 当前节点 标识
-        */
+         */
         public String currentNodeId;
         /**
          * 下一节点 标识
-        */
+         */
         public String nextNodeId;
         /**
          * 当前数据（JSON 序列化形式）
-        */
+         */
         public Object currentData;
         /**
          * 执行历史
-        */
+         */
         public List<String> history;
         /**
          * 当前动作
-        */
+         */
         public String action;
         /**
          * 扩展属性（JSON 序列化形式）
-        */
+         */
         public Map<String, Object> attributes;
         /**
          * 节点输出（JSON 序列化形式）
-        */
+         */
         public Map<String, Object> nodeOutputs;
 
         /**
          * 默认构造器（JSON 反序列化用）
-        */
+         */
         public ContextSnapshot() {}
 
         /**

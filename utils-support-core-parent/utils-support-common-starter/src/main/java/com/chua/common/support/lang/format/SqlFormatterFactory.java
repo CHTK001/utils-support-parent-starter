@@ -30,7 +30,7 @@ public class SqlFormatterFactory {
      * 不应被实例化。
      */
     private SqlFormatterFactory() {
-        throw new UnsupportedOperationException("Utility class");
+        throw new UnsupportedOperationException("工具类不允许实例化");
     }
 
     /**

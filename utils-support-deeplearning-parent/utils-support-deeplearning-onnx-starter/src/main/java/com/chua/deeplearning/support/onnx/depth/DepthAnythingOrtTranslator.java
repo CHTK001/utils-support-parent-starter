@@ -93,6 +93,7 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
         SessionOptions opts = new SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         opts.setOptimizationLevel(SessionOptions.OptLevel.NO_OPT);
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
         session = ortEnv.createSession(modelPath.toString(), opts);
         initialized = true;
         log.info("[DepthAnything] ORT ready, model={}", modelPath);

@@ -3,7 +3,7 @@ package com.chua.smb.server;
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.network.server.AbstractServer;
 import com.chua.common.support.network.server.ServerSetting;
-import com.chua.smb.bridge.RustSmbServerBridge;
+import com.chua.nativesmb.support.RustSmbServerBridge;
 import lombok.extern.slf4j.Slf4j;
 
 /**

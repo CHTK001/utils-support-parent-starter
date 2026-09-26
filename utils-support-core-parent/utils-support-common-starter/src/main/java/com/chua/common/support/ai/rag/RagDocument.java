@@ -1,5 +1,7 @@
 package com.chua.common.support.ai.rag;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -28,6 +30,30 @@ public record RagDocument(
         long createTime,
         Map<String, Object> metadata
 ) {
+
+    /**
+     * 规范构造器：对扩展元数据做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * {@link #processing(String, String, String, long)} 固定写入 {@code Map.of()}，
+     * 但 {@code RagDocumentLifeCycle} 会从持久化 JSON 反序列化本记录，
+     * 缺失字段会得到 null，故保留 null 语义并采用可容纳 null 值的可空安全写法。</p>
+     *
+     * @param id           文档唯一标识
+     * @param fileName     文件名
+     * @param fileType     文件扩展名（pdf/docx/xlsx/txt 等）
+     * @param fileSize     文件大小（字节）
+     * @param chunkCount   分块数量
+     * @param status       处理状态：PROCESSING / READY / FAILED
+     * @param errorMessage 处理失败时的错误信息
+     * @param createTime   创建时间（Unix 毫秒时间戳）
+     * @param metadata     扩展元数据，可为 null
+     */
+    public RagDocument {
+        metadata = metadata == null ? null
+                : Collections.unmodifiableMap(new LinkedHashMap<>(metadata));
+    }
+
     /**
      * 创建处理中的文档记录。
      * @param id ID，不允许为 null

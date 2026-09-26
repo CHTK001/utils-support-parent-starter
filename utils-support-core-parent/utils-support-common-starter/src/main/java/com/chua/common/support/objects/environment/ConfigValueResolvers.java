@@ -16,7 +16,7 @@ public final class ConfigValueResolvers {
 
     /**
      * 解析器
-    */
+     */
     private static final List<ConfigValueExpressionResolver> RESOLVERS;
 
     static {
@@ -31,7 +31,7 @@ public final class ConfigValueResolvers {
 
     /**
      * 创建 配置值解析器 实例
-    */
+     */
     private ConfigValueResolvers() {
     }
 

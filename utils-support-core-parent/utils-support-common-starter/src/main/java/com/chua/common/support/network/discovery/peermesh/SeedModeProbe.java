@@ -26,32 +26,32 @@ public class SeedModeProbe implements ProbeStrategy {
 
     /**
      * Connect_timeout_ms
-    */
+     */
     private static final int CONNECT_TIMEOUT_MS = 500;
 
     /**
      * 配置
-    */
+     */
     private final MeshConfig config;
     /**
      * 本地服务器ID
-    */
+     */
     private final String localServerId;
     /**
      * 本地主机
-    */
+     */
     private final String localHost;
     /**
      * 本地端口
-    */
+     */
     private final int localPort;
     /**
      * Discovered
-    */
+     */
     private final List<NodeTable.NodeEntry> discovered = new ArrayList<>();
     /**
      * stopped
-    */
+     */
     private volatile boolean stopped;
 
     /**
@@ -69,10 +69,10 @@ public class SeedModeProbe implements ProbeStrategy {
         this.localPort = localPort;
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() throws Exception {
         List<String> seeds = config.getSeeds();
         if (seeds == null || seeds.isEmpty()) {
@@ -86,18 +86,18 @@ public class SeedModeProbe implements ProbeStrategy {
         }
     }
 
-    @Override
     /**
      * 停止
-    */
+     */
+    @Override
     public void stop() throws Exception {
         stopped = true;
     }
 
-    @Override
     /**
      * 获取DiscoveredNodes
-    */
+     */
+    @Override
     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
         return Collections.unmodifiableList(discovered);
     }

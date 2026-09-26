@@ -44,23 +44,23 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 心跳失败计数：serverId -> 连续失败次数
-    */
+     */
     protected final Map<String, Integer> heartbeatFailCounts = new ConcurrentHashMap<>();
 
     protected final ScatterSetting setting;
     /**
      * remote客户端
-    */
+     */
     protected ScatterRemoteClient remoteClient;
 
     /**
      * discoveryExecutor
-    */
+     */
     private ScheduledExecutorService discoveryExecutor;
     private volatile boolean started = false;
     /**
      * 请求 ID 生成器（线程安全单调递增）
-    */
+     */
     private final AtomicInteger requestIdSeq = new AtomicInteger(0);
 
     /**
@@ -80,7 +80,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 设置远程客户端（未启动前）。
-    */
+     */
     @Override
     public ScatterServiceDiscovery remoteClient(ScatterRemoteClient remoteClient) {
         this.remoteClient = remoteClient;
@@ -125,7 +125,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 每轮同步：注册自身 → 子类发现/扩散 → 心跳探活 → 持久化。
-    */
+     */
     private void discoveryRound() {
         try {
             updateSelfWeight();
@@ -151,7 +151,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 注册自身到本地 hash 表。
-    */
+     */
     public void registerSelf() {
         // scatterPort > 0 说明 nodeServer 已启动（由 DefaultScatter 在 start() 中填充）
         // 使用 scatter 通信端口注册，确保对端可通过该端口连接到本节点的 scatter 服务
@@ -172,7 +172,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 更新自身动态权重（同步即心跳）。
-    */
+     */
     protected void updateSelfWeight() {
         // 使用 scatter 通信端口（与 registerSelf 保持一致），确保对端通过该端口可连接
         int selfPort = setting.getScatterPort() > 0 ? setting.getScatterPort() : setting.getPort();
@@ -273,7 +273,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 心跳探活：对表内非自身节点逐心跳，连续失败达阈值剔除。
-    */
+     */
     protected void healthCheck() {
         if (setting.getHeartbeatIntervalMillis() <= 0) {
             return;
@@ -395,7 +395,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 持久化：服务表 + seed 列表落盘。
-    */
+     */
     protected void persistNodes() {
         if (!setting.isPersistenceEnabled()) {
             return;
@@ -418,7 +418,7 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
 
     /**
      * 启动加载持久化节点。
-    */
+     */
     @SuppressWarnings("unchecked")
     protected void loadPersistedNodes() {
         if (!setting.isPersistenceEnabled()) {

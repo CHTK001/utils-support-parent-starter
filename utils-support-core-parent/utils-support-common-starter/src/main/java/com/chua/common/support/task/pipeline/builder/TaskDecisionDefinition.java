@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  *     .branch("no", "errorNode")
  *     .taskEnd()                     // 结束定义
  * }</pre>                     // 结束定义
- * }</pre>
+ * }
  *
  * <p><strong>便捷方法：</strong></p>
  * <ul>
@@ -82,7 +82,7 @@ import java.util.function.Consumer;
  *     .exit()
  *     .taskEnd()
  *     .build();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -92,43 +92,43 @@ public class TaskDecisionDefinition {
 
     /**
      * 标识
-    */
+     */
     private final String id;
     /**
      * 处理器
-    */
+     */
     private PipelineNode handler;
     /**
      * 构建器
-    */
+     */
     private final PipelineBuilder builder;
     /**
      * branches
-    */
+     */
     private final Map<String, String> branches = new LinkedHashMap<>();
     /**
      * 默认分支
-    */
+     */
     private String defaultBranch;
     /**
      * 结束afterexecute
-    */
+     */
     private boolean endAfterExecute;
     /**
      * 参数
-    */
+     */
     private Map<String, Object> params;
     /**
      * env
-    */
+     */
     private Map<String, Object> env;
     /**
      * 开始节点
-    */
+     */
     private boolean startNode;
     /**
      * 重试配置
-    */
+     */
     private RetryConfig retryConfig;
 
     /**
@@ -221,7 +221,7 @@ public class TaskDecisionDefinition {
      * .branch("retry").toSubPipeline("retryFlow") // 目标是子流水线
      * .branch("fallback").toNode("defaultNode")  // 通用写法
      * }</pre>ack").toNode("defaultNode")  // 通用写法
-     * }</pre>
+     * }
      *
      * <p>与 {@link #branch(String, String)} 功能等价，但链式风格语义更清晰。</p>
      *
@@ -362,7 +362,7 @@ public class TaskDecisionDefinition {
      *     .taskEnd()
      * }</pre>h("yes", "processNode")
      *     .taskEnd()
-     * }</pre>
+     * }
      *
      * @param retryConfig 重试配置，空 表示不重试
      * @return this

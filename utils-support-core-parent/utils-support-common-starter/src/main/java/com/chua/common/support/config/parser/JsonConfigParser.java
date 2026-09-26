@@ -33,10 +33,10 @@ import java.util.Map;
 @Spi({"json", "json5"})
 public class JsonConfigParser implements ConfigParser {
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             String content = IoUtils.asString(is, StandardCharsets.UTF_8);

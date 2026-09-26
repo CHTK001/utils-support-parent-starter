@@ -34,7 +34,7 @@ import java.lang.reflect.InvocationHandler;
  * 系统.出.println("调用方法: " + 方法.获取名称());
  * 返回 方法.invoke(TargetBean, 参数);
  *     });
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

@@ -7,6 +7,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.document.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.RecordComponent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +63,11 @@ public final class EntityDocumentConverter {
         String idStr = idValue != null ? String.valueOf(idValue) : String.valueOf(System.identityHashCode(entity));
         doc.add(new StringField(LuceneFields.ID, idStr, org.apache.lucene.document.Field.Store.YES));
 
+        // 自由文本检索的聚合字段：把所有可检索文本拼进 CONTENT。
+        // LuceneEngine#search(String, Class) 把用户关键词解析到 CONTENT 字段上，
+        // 若这里不写 CONTENT，该入口对任何关键词都恒返回 0 条（全文检索形同虚设）。
+        StringBuilder content = new StringBuilder();
+
         while (cls != null && cls != Object.class) {
             for (java.lang.reflect.Field field : cls.getDeclaredFields()) {
                 String fieldName = field.getName();
@@ -71,11 +77,43 @@ public final class EntityDocumentConverter {
                 Object value = ReflectUtils.getField(entity, fieldName);
                 if (value != null) {
                     addFieldToDocument(doc, fieldName, value);
+                    appendSearchableText(content, fieldName, value);
                 }
             }
             cls = cls.getSuperclass();
         }
+        if (!content.isEmpty()) {
+            doc.add(new org.apache.lucene.document.TextField(
+                    LuceneFields.CONTENT, content.toString(), org.apache.lucene.document.Field.Store.NO));
+        }
         return doc;
+    }
+
+    /**
+     * 把字段值追加到 聚合 文本。
+     * <p>只收录字符型与可转字符串的标量：数值、布尔、日期对关键词检索无意义，
+     * 全量塞入只会稀释分词权重。</p>
+     *
+     * @param content 聚合文本缓冲
+     * @param fieldName 字段名
+     * @param value 字段值
+     */
+    private static void appendSearchableText(StringBuilder content, String fieldName, Object value) {
+        String text = null;
+        if (value instanceof CharSequence cs) {
+            text = cs.toString();
+        } else if (value instanceof Character ch) {
+            text = ch.toString();
+        } else if (value instanceof Enum<?> en) {
+            text = en.name();
+        }
+        if (text == null || text.isBlank()) {
+            return;
+        }
+        if (!content.isEmpty()) {
+            content.append(' ');
+        }
+        content.append(text);
     }
 
     /**
@@ -91,7 +129,12 @@ public final class EntityDocumentConverter {
         if (doc == null || entityClass == null) {
             return null;
         }
- // 使用 ReflectUtils 无参构造反射实例化，避免 方法处理 对部分类的访问限制
+        // record 没有无参构造，组件又是 final，必须走规范构造器回填；
+        // 否则 ReflectUtils.instantiate 返回 null，检索命中的文档会被静默丢弃。
+        if (entityClass.isRecord()) {
+            return toRecordEntity(doc, entityClass);
+        }
+  // 使用 ReflectUtils 无参构造反射实例化，避免 方法处理 对部分类的访问限制
         T entity = ReflectUtils.instantiate(entityClass);
         if (entity == null) {
             return null;
@@ -105,6 +148,72 @@ public final class EntityDocumentConverter {
         }
         return entity;
     }
+
+    /**
+     * 以 规范构造器 把文档还原为 record。
+     * <p>缺失组件按类型零值填充（null / 0 / false），与 record 的默认语义一致。</p>
+     *
+     * @param doc Lucene 文档
+     * @param recordClass record 类型
+     * @param <T> record 类型
+     * @return 还原出的 record 实例
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T toRecordEntity(Document doc, Class<T> recordClass) {
+        RecordComponent[] components = recordClass.getRecordComponents();
+        Class<?>[] paramTypes = new Class<?>[components.length];
+        Object[] args = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            RecordComponent rc = components[i];
+            paramTypes[i] = rc.getType();
+            String valueStr = extractStoredValue(doc, rc.getName());
+            args[i] = valueStr == null
+                    ? defaultValue(rc.getType())
+                    : Converter.convertIfNecessary(valueStr, rc.getType());
+        }
+        try {
+            java.lang.reflect.Constructor<T> ctor = recordClass.getDeclaredConstructor(paramTypes);
+            ctor.setAccessible(true);
+            return ctor.newInstance(args);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("record 还原失败: " + recordClass.getName(), e);
+        }
+    }
+
+    /**
+     * 取类型的默认零值。
+     *
+     * @param type 类型
+     * @return 引用类型为 null，基本类型为其零值
+     */
+    private static Object defaultValue(Class<?> type) {
+        if (!type.isPrimitive()) {
+            return null;
+        }
+        if (type == boolean.class) {
+            return Boolean.FALSE;
+        }
+        if (type == char.class) {
+            return (char) 0;
+        }
+        if (type == byte.class) {
+            return (byte) 0;
+        }
+        if (type == short.class) {
+            return (short) 0;
+        }
+        if (type == int.class) {
+            return 0;
+        }
+        if (type == long.class) {
+            return 0L;
+        }
+        if (type == float.class) {
+            return 0F;
+        }
+        return 0D;
+    }
+
 
     /**
      * 从 文档 中提取指定字段的首个已存储值。

@@ -36,7 +36,11 @@ public class OnnxSpeechEnhancer implements SpeechEnhancer {
      * @return 模型名
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "dfsmn-ans";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + SpeechEnhancer.listModels());
+        }
+        return modelName;
     }
 
     @Override

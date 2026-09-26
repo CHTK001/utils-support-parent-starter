@@ -626,6 +626,33 @@ public class OcrPipeline {
      * @return ocrrecognize结果的结果
      */
     public record OcrRecognizeResult(byte[] image, List<OcrResult> results) {
+
+        /**
+         * 规范构造器：图片字节 与 结果列表 做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组与集合组件必须深不可变。结果列表由
+         * {@code recognizeFrom} 保证非空且元素非空，故直接 {@code List.copyOf}。</p>
+         *
+         * <p>图片字节保留 {@code null} 语义：未配置方向模型时 {@code correct} 原样返回
+         * 入参，入参本身可能为 {@code null}。</p>
+         *
+         * @param image   实际识别使用的图
+         * @param results 识别结果
+         */
+        public OcrRecognizeResult {
+            image = image == null ? null : image.clone();
+            results = List.copyOf(results);
+        }
+
+        /**
+         * 访问器覆写：返回图片字节的副本。
+         *
+         * @return 图片字节副本；无则返回 {@code null}
+         */
+        @Override
+        public byte[] image() {
+            return image == null ? null : image.clone();
+        }
     }
 
     /**

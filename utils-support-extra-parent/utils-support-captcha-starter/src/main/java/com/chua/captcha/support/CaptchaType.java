@@ -90,4 +90,22 @@ public enum CaptchaType {
         }
         return RECAPTCHA_V2;
     }
+
+    /**
+     * 严格解析验证码类型，供解析器校验调用方传入的类型使用。
+     *
+     * <p>与 {@link #fromType} 的「未知即按 reCAPTCHA V2 处理」不同，本方法不猜测：
+     * 类型拼错时若静默降级，会向服务商提交错误的任务类型并照常计费。</p>
+     *
+     * @param type 类型标识字符串
+     * @return 匹配的验证码类型，未匹配时返回 {@code null}
+     */
+    public static CaptchaType parse(String type) {
+        for (CaptchaType t : values()) {
+            if (t.type.equals(type)) {
+                return t;
+            }
+        }
+        return null;
+    }
 }

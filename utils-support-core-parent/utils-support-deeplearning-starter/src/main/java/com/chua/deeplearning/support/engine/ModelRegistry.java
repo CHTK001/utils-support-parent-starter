@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -215,6 +216,21 @@ public final class ModelRegistry {
                         com.chua.deeplearning.support.model.HardwareConfig hardwareConfig) {
 
         /**
+         * 规范构造器：对备用镜像地址列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。此处保留 {@code null} 语义
+         * （{@code registerExternalDirectory} 与无镜像的注册入口均显式传 {@code null}），
+         * 且元素可能为 {@code null}（下载侧对空元素显式跳过），故采用可空安全的不可变包装
+         * 而非 {@link List#copyOf}。</p>
+         *
+         * @param downloadMirrors 备用镜像地址列表，可为 {@code null}
+         */
+        public Entry {
+            downloadMirrors = downloadMirrors == null ? null
+                    : Collections.unmodifiableList(new ArrayList<>(downloadMirrors));
+        }
+
+        /**
          * 是否作为对应能力类型的推荐模型（便捷方法）。
          *
          * @return true 表示推荐
@@ -222,6 +238,97 @@ public final class ModelRegistry {
         public boolean isRecommended() {
             return hardwareConfig != null && hardwareConfig.recommended();
         }
+    }
+
+    /**
+     * 注册表中是否已存在该模型键。
+     *
+     * @param modelId 模型标识
+     * @return true 表示已注册
+     */
+    public static boolean isRegistered(String modelId) {
+        return modelId != null && REGISTRY.containsKey(modelId);
+    }
+
+    /**
+     * 判断给定值是否为已存在的服务器目录（绝对路径）。仅绝对路径才视为外部目录，
+     * 避免把普通 modelId 误判。
+     *
+     * @param value 配置值
+     * @return true 表示该值指向一个已存在的服务器目录
+     */
+    public static boolean isExistingDirectory(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        // 非文件系统路径（如「提供者id:模型名」复合键）在 Windows 下解析会抛 InvalidPathException；
+        // 这类值显然不是目录，安全返回 false，避免向上传播为 400。
+        Path p;
+        try {
+            p = Paths.get(value.trim());
+        } catch (InvalidPathException e) {
+            return false;
+        }
+        return p.isAbsolute() && Files.isDirectory(p);
+    }
+
+    /**
+     * 注册一个外部服务器目录模型：复用模板模型（同字段默认 / 同族模型）的 Translator、
+     * 输入输出类型与能力接口，仅把模型键与解析路径覆盖为该目录。供 ONNX「服务器目录」选择使用。
+     *
+     * <p>目录内模型结构需与模板模型同族（相同 Translator 可解析）。</p>
+     *
+     * @param dirPath         服务器模型目录绝对路径
+     * @param templateModelId 模板模型标识
+     * @return 注册后的模型键（即目录路径）；模板缺失时原样返回
+     */
+    public static String registerExternalDirectory(String dirPath, String templateModelId) {
+        if (dirPath == null || dirPath.isBlank()) {
+            return dirPath;
+        }
+        String key = dirPath.trim();
+        if (REGISTRY.containsKey(key)) {
+            return key;
+        }
+        Entry template = templateModelId == null ? null : REGISTRY.get(templateModelId);
+        if (template == null) {
+            log.warn("[deeplearning-engine] 外部目录模板模型未注册: {} (template={})", key, templateModelId);
+            return key;
+        }
+        Entry external = new Entry(
+                key,
+                template.translatorClassName(),
+                template.inputType(),
+                template.outputType(),
+                template.capabilityInterface(),
+                key,
+                null,
+                null,
+                false,
+                null,
+                template.hardwareConfig());
+        REGISTRY.put(key, external);
+        log.info("[deeplearning-engine] 已注册外部目录模型: {} (template={})", key, templateModelId);
+        return key;
+    }
+
+    /**
+     * 注销一个外部目录模型（仅移除键为绝对路径、且相对路径指向该目录的外部注册项，
+     * 内置模型不受影响）。
+     *
+     * @param key 外部模型键（服务器目录绝对路径）
+     * @return true 表示已移除
+     */
+    public static boolean unregisterExternal(String key) {
+        if (key == null || key.isBlank()) {
+            return false;
+        }
+        String k = key.trim();
+        Entry e = REGISTRY.get(k);
+        if (e != null && k.equals(e.relativePath()) && Paths.get(k).isAbsolute()) {
+            return REGISTRY.remove(k, e);
+        }
+        return false;
     }
 
     /**
@@ -1046,7 +1153,10 @@ public final class ModelRegistry {
         }
 
         /**
-         * 注入运行参数（仅首次实例化前生效）。
+         * 注入运行参数。
+         * <p>模型尚未实例化时，记录参数供构造期注入；已实例化时，若底层 Translator
+         * 实现了 {@link DetectionConfigurable}，则转发给其实例，从而让阈值等参数
+         * 在运行期热更新（否则仅首次调用前生效，改配置不会生效）。</p>
          *
          * @param options 参数键值对
          */
@@ -1056,11 +1166,15 @@ public final class ModelRegistry {
                 return;
             }
             synchronized (this) {
-                if (delegate != null) {
-                    log.warn("[deeplearning-engine] 模型 {} 已初始化，运行参数注入被忽略: {}", modelId, options.keySet());
+                if (delegate == null) {
+                    this.options = new java.util.LinkedHashMap<>(options);
                     return;
                 }
-                this.options = options == null ? null : new java.util.LinkedHashMap<>(options);
+                if (delegate instanceof DetectionConfigurable configurable) {
+                    configurable.configure(options);
+                    return;
+                }
+                log.warn("[deeplearning-engine] 模型 {} 已初始化且不支持运行期参数注入: {}", modelId, options.keySet());
             }
         }
 
@@ -1077,12 +1191,20 @@ public final class ModelRegistry {
                         if (path == null || !Files.exists(path)) {
                             path = resolveModelPath(modelId);
                         }
-                        Object translator = newTranslatorInstance(translatorClassName, options);
-                        // options 中可注入 per-model 设备设置：device=auto|cpu|gpu|cuda
-                        String deviceSetting = (options != null && options.get("device") != null)
-                                ? String.valueOf(options.get("device")) : null;
+                        // 合并模型级持久化参数：显式 options 优先
+                        Map<String, Object> effective = ModelParams.merge(modelId, options);
+                        String deviceSetting = ModelParams.deviceOf(modelId);
+                        if (deviceSetting == null && effective.get(ModelParams.KEY_DEVICE) != null) {
+                            deviceSetting = String.valueOf(effective.get(ModelParams.KEY_DEVICE));
+                        }
+                        // 归一化后的设备名交给 DJL 工厂（cpu / gpu）
+                        if (deviceSetting != null && !deviceSetting.isBlank()) {
+                            effective.put(ModelParams.KEY_DEVICE, DeviceSelector.resolve(deviceSetting));
+                        }
+                        Object translator = newTranslatorInstance(translatorClassName,
+                                effective.isEmpty() ? null : effective);
                         if (translator instanceof ITranslator<?, ?> itranslator) {
- // 原生 itranslator：直接包装，不经过 DJL
+    // 原生 itranslator：直接包装，不经过 DJL
                             delegate = new ITranslatorDelegate(modelId, path, itranslator);
                         } else {
                             Translator<?, ?> djlTranslator = (Translator<?, ?>) translator;
@@ -1198,13 +1320,33 @@ public final class ModelRegistry {
      * {@link DjlModelTranslator} 兼容的委托。此类与 {@link DjlModelTranslator}
      * 具有相同的对外形态（名称/translate/关闭），便于 lazydjltranslator 统一持有。</p>
      */
-    private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable {
+    private static final class ITranslatorDelegate implements ITranslator<Object, Object>, AutoCloseable, DetectionConfigurable {
 
         /**
          * 模型标识
-        */
+         */
         private final String modelId;
         private final ITranslator<?, ?> translator;
+
+        /**
+         * 将运行参数转发给底层 Translator。
+         *
+         * <p>优先走 {@link DetectionConfigurable}；未实现该接口时按字段名反射回写，
+         * 使裸 ONNX Runtime 链路（OCR 检测/识别、方向分类等）的阈值类参数
+         * 在模型已加载后仍可热更新。</p>
+         *
+         * @param options 参数键值对
+         */
+        @Override
+        public void configure(Map<String, Object> options) {
+            if (translator instanceof DetectionConfigurable configurable) {
+                configurable.configure(options);
+                return;
+            }
+            if (options != null && !options.isEmpty()) {
+                ModelParams.applyTo(translator, options);
+            }
+        }
 
         /**
          * 创建 itranslatordelegate 实例

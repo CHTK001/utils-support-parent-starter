@@ -34,23 +34,23 @@ public class RpcInvoker implements Invoker {
 
     /**
      * Class_level_annotations
-    */
+     */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
 
-    @Override
     /**
      * 创建
-    */
+     */
+    @Override
     public <T> T create(Class<T> apiClass) {
         return createProxy(apiClass, false);
     }
 
-    @Override
     /**
      * 创建New
-    */
+     */
+    @Override
     public <T> T createNew(Class<T> apiClass) {
         return createProxy(apiClass, true);
     }
@@ -60,13 +60,13 @@ public class RpcInvoker implements Invoker {
      */
     private static final String DEFAULT_CLIENT = "json";
 
-    @SuppressWarnings("unchecked")
     /**
      * 创建Proxy
      * @param apiClass 方法入参 apiClass
      * @param isNew 是否新建（布尔开关）
      * @return T 对象
      */
+    @SuppressWarnings("unchecked")
     private <T> T createProxy(Class<T> apiClass, boolean isNew) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {

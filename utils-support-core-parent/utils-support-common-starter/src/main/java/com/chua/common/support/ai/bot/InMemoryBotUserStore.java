@@ -18,48 +18,48 @@ public class InMemoryBotUserStore implements BotUserStore {
 
     /**
      * 用户数据存储
-    */
+     */
     private final ConcurrentHashMap<String, BotUserInfo> users
             = new ConcurrentHashMap<>();
 
-    @Override
     /**
      * Upsert
-    */
+     */
+    @Override
     public void upsert(BotUserInfo user) {
         if (user != null && user.getUserId() != null) {
             users.put(user.getUserId(), user);
         }
     }
 
-    @Override
     /**
      * 查找ByUserId
-    */
+     */
+    @Override
     public Optional<BotUserInfo> findByUserId(String userId) {
         return Optional.ofNullable(users.get(userId));
     }
 
-    @Override
     /**
      * 查找All
-    */
+     */
+    @Override
     public List<BotUserInfo> findAll() {
         return List.copyOf(users.values());
     }
 
-    @Override
     /**
      * 删除
-    */
+     */
+    @Override
     public void delete(String userId) {
         users.remove(userId);
     }
 
-    @Override
     /**
      * 计算数量
-    */
+     */
+    @Override
     public long count() {
         return users.size();
     }

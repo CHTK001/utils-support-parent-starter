@@ -21,14 +21,14 @@ public class JsonPathBeanPath implements BeanPath {
 
     /**
      * 回退解析器
-    */
+     */
     private final ObjectBeanPath fallback = new ObjectBeanPath();
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取Value
-    */
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T getValue(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -39,11 +39,11 @@ public class JsonPathBeanPath implements BeanPath {
         return fallback.getValue(source, path);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 设置Value
-    */
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public void setValue(Object source, String path, Object value) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();
@@ -55,10 +55,10 @@ public class JsonPathBeanPath implements BeanPath {
         fallback.setValue(source, path, value);
     }
 
-    @Override
     /**
      * 是否存在
-    */
+     */
+    @Override
     public boolean exists(Object source, String path) {
         if (source instanceof String json) {
             JsonPath jsonPath = JsonPath.getInstance();

@@ -49,12 +49,12 @@ public class MemoryMcpPlugin {
 
     /**
      * 工具名称前缀
-    */
+     */
     private static final String PREFIX = "memory_";
 
     /**
      * 记忆管理器
-    */
+     */
     private final MemoryManager manager;
 
     /**
@@ -77,19 +77,19 @@ public class MemoryMcpPlugin {
         mcpManager.register("memory", new com.chua.common.support.ai.mcp.McpClient() {
             /**
              * 是否已初始化
-            */
+             */
             private boolean initialized = false;
 
-            @Override
             /**
              * 初始化
-            */
+             */
+            @Override
             public void init() { initialized = true; }
 
-            @Override
             /**
              * ListTools
-            */
+             */
+            @Override
             public List<McpToolDescriptor> listTools() {
                 return List.of(
                     new McpToolDescriptor(PREFIX + "save",
@@ -131,10 +131,10 @@ public class MemoryMcpPlugin {
                 );
             }
 
-            @Override
             /**
              * 调用Tool
-            */
+             */
+            @Override
             public McpToolResult callTool(McpToolCall toolCall) {
                 String toolName = toolCall.getToolName();
                 Map<String, Object> args = toolCall.getArguments();
@@ -148,16 +148,16 @@ public class MemoryMcpPlugin {
                 };
             }
 
-            @Override
             /**
              * 是否Initialized
-            */
+             */
+            @Override
             public boolean isInitialized() { return initialized; }
 
-            @Override
             /**
              * 关闭
-            */
+             */
+            @Override
             public void close() {}
         });
     }

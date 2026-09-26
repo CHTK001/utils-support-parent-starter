@@ -95,27 +95,27 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
             return null;
         }
         // 优先经纬度逆编码；定位不到经纬度时回退行政信息拼接
-        if (info.getLatitude() != null && info.getLongitude() != null) {
-            String address = reverseGeocode(info.getLatitude(), info.getLongitude());
+        if (info.latitude() != null && info.longitude() != null) {
+            String address = reverseGeocode(info.latitude(), info.longitude());
             if (address != null) {
                 return address;
             }
         }
         StringBuilder sb = new StringBuilder();
-        if (info.getCity() != null && !info.getCity().isBlank()) {
-            sb.append(info.getCity());
+        if (info.city() != null && !info.city().isBlank()) {
+            sb.append(info.city());
         }
-        if (info.getRegion() != null && !info.getRegion().isBlank()) {
+        if (info.region() != null && !info.region().isBlank()) {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(info.getRegion());
+            sb.append(info.region());
         }
-        if (info.getCountry() != null && !info.getCountry().isBlank()) {
+        if (info.country() != null && !info.country().isBlank()) {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(info.getCountry());
+            sb.append(info.country());
         }
         return sb.length() > 0 ? sb.toString() : null;
     }

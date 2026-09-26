@@ -29,11 +29,11 @@ public class HybridStrategy implements RouterStrategy {
 
     /**
      * 路由组列表
-    */
+     */
     private final List<GroupRouter> groups;
     /**
      * 健康状态过滤器
-    */
+     */
     private final Predicate<WeightedClient> healthFilter;
 
     /**
@@ -55,22 +55,22 @@ public class HybridStrategy implements RouterStrategy {
         this(groups, null);
     }
 
-    @Override
     /**
      * 选择
-    */
+     */
+    @Override
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         throw new UnsupportedOperationException(
                 "HybridStrategy: use executeSync/executeStream, not select()");
     }
 
-    @Override
     /**
      * 执行Sync
      * @param clients clients
      * @param prompt prompt
      * @param usageCallback usageCallback
      */
+    @Override
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {
         if (groups.isEmpty()) {
@@ -100,13 +100,13 @@ public class HybridStrategy implements RouterStrategy {
         throw new RuntimeException("All groups failed in hybrid strategy", lastError);
     }
 
-    @Override
     /**
      * 执行流式输出
      * @param clients clients
      * @param prompt prompt
      * @param consumer consumer
      */
+    @Override
     public void executeStream(List<WeightedClient> clients, String prompt,
                               Consumer<ChatResponse> consumer) throws Exception {
         if (groups.isEmpty()) {
@@ -158,9 +158,26 @@ public class HybridStrategy implements RouterStrategy {
             RouterStrategy strategy,
             List<WeightedClient> clients
     ) {
+
+        /**
+         * 规范构造器：对集合组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。
+         * {@code condition} 在现有调用点显式传 null 表示「无分组条件」，
+         * {@code name} 取自配置且可能缺省，故二者均保留 null 语义。</p>
+         *
+         * @param name      组名称，允许为 null
+         * @param condition 组匹配条件，允许为 null
+         * @param strategy  子路由策略
+         * @param clients   候选客户端列表，不允许为 null
+         */
+        public GroupRouter {
+            clients = List.copyOf(clients);
+        }
+
         /**
          * Matches
-        */
+         */
         public boolean matches(String prompt) {
             return condition == null || condition.test(prompt);
         }

@@ -25,16 +25,16 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
 
     /**
      * Object上下文
-    */
+     */
     private final ObjectContext objectContext;
     private final Class<?> targetClass;
     /**
      * Method
-    */
+     */
     private final Method method;
     /**
      * 路径
-    */
+     */
     private final String path;
 
     /**
@@ -54,26 +54,26 @@ public class IpcMethodServerHandler implements HttpDefaultServerHandler {
         this.path = path;
     }
 
-    @Override
     /**
      * Path
-    */
+     */
+    @Override
     public String path() {
         return path;
     }
 
-    @Override
     /**
      * Method
-    */
+     */
+    @Override
     public HttpMethod method() {
         return null;
     }
 
-    @Override
     /**
      * 处理
-    */
+     */
+    @Override
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         Object bean = objectContext.getBeanOfType(targetClass);
         if (bean == null) {

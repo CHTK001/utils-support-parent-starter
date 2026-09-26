@@ -10,10 +10,10 @@ import java.io.Serializable;
  */
 public class DefaultSerializerProvider implements SerializerProvider {
 
-    @Override
     /**
      * 获取序列化器
-    */
+     */
+    @Override
     public <T extends Serializable> Serializer<T> getSerializer(Class<T> type) {
         return new JsonSerializer<>(type);
     }

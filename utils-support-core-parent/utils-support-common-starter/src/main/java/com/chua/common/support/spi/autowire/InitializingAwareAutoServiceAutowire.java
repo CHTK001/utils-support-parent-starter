@@ -30,10 +30,10 @@ public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
         }
     }
 
-    @Override
     /**
      * Autowire
-    */
+     */
+    @Override
     public Object autowire(Object object) {
         if (null != SPRING_TYPE && SPRING_TYPE.isAssignableFrom(object.getClass())) {
             ObjectDescribe typeDescribe = ObjectDescribe.of(object);
@@ -48,10 +48,10 @@ public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
         return null;
     }
 
-    @Override
     /**
      * 创建Bean
-    */
+     */
+    @Override
     public Object createBean(Class<?> implClass) {
         return null;
     }

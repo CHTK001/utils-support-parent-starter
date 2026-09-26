@@ -3,7 +3,10 @@ package com.chua.common.support.reflection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -44,27 +47,27 @@ public final class ReflectUtils {
 
     /**
      * 字段 getter 方法处理 缓存
-    */
+     */
     private static final ConcurrentMap<String, MethodHandle> FIELD_GETTER_CACHE = new ConcurrentHashMap<>(256);
 
     /**
      * 字段 setter 方法处理 缓存
-    */
+     */
     private static final ConcurrentMap<String, MethodHandle> FIELD_SETTER_CACHE = new ConcurrentHashMap<>(256);
 
     /**
      * 类加载 缓存
-    */
+     */
     private static final ConcurrentMap<String, Class<?>> CLASS_NAME_CACHE = new ConcurrentHashMap<>(256);
 
     /**
      * 方法处理.Lookup 实例
-    */
+     */
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
     /**
      * 私有构造，禁止实例化
-    */
+     */
     private ReflectUtils() {
     }
 
@@ -216,6 +219,38 @@ public final class ReflectUtils {
      */
     public static Object invoke(Object target, String methodName, Class<?> returnType) {
         return invoke(target, methodName, returnType, new Class<?>[0], new Object[0]);
+    }
+
+    /**
+     * 代理调用：按 JDK 动态代理传入的方法元数据在目标对象上调用。
+     *
+     * <p>与 {@link #invoke(Object, String, Class<?>, Class[], Object...)} 的"失败返回 null"不同，
+     * 本方法把目标方法的原始异常（解开 {@code InvocationTargetException}）原样抛出，
+     * 供 JDBC {@code InvocationHandler} 这类必须保留异常语义的场景使用。</p>
+     *
+     * @param target 目标对象
+     * @param method 方法元数据
+     * @param args   实参，可为空
+     * @return 方法返回值
+     * @throws Throwable 目标方法抛出的原始异常
+     */
+    public static Object invokeProxy(Object target, java.lang.reflect.Method method, Object[] args) throws Throwable {
+        try {
+            method.setAccessible(true);
+            return method.invoke(target, args);
+        } catch (java.lang.reflect.InvocationTargetException ex) {
+            throw ex.getTargetException();
+        }
+    }
+
+    /**
+     * 取方法名（空安全）。
+     *
+     * @param method 方法元数据，可为空
+     * @return 方法名；method 为空时返回空串
+     */
+    public static String methodName(java.lang.reflect.Method method) {
+        return method == null ? "" : method.getName();
     }
 
     /**
@@ -538,6 +573,45 @@ public final class ReflectUtils {
     }
 
     /**
+     * 列出可持久化字段（沿继承链，父类字段在前）。
+     *
+     * <p>供需要“按声明顺序枚举实体列”的场景使用，如 ORM 插入语句的列清单构建。
+     * 过滤规则：跳过 {@code static}、{@code transient}、合成字段（如 Groovy
+     * {@code $staticClassInfo}、lambda 捕获类字段）与匿名内部类捕获字段，
+     * 避免把运行时结构当成业务列写入。</p>
+     *
+     * <p>父类字段排在子类之前：多数 ORM 的列顺序约定为继承层次自顶向下，
+     * 保持该顺序可让生成的 INSERT 稳定可预期。</p>
+     *
+     * @param clazz 目标类，null 返回空列表
+     * @return 可持久化字段列表（不可变，非 null）
+     */
+    public static java.util.List<java.lang.reflect.Field> getPersistentFields(Class<?> clazz) {
+        if (clazz == null) {
+            return java.util.List.of();
+        }
+        java.util.Deque<Class<?>> hierarchy = new java.util.ArrayDeque<>();
+        for (Class<?> c = clazz; c != null && c != Object.class; c = c.getSuperclass()) {
+            hierarchy.addFirst(c);
+        }
+        java.util.List<java.lang.reflect.Field> fields = new java.util.ArrayList<>();
+        for (Class<?> c : hierarchy) {
+            for (java.lang.reflect.Field f : c.getDeclaredFields()) { // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（getPersistentFields 对外封装）
+                int mods = f.getModifiers();
+                if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || f.isSynthetic()) {
+                    continue;
+                }
+                // 匿名/局部内部类为访问外部变量而生成的 final 合成字段不属于业务列
+                if (c.isAnonymousClass() || c.isLocalClass()) {
+                    continue;
+                }
+                fields.add(f);
+            }
+        }
+        return java.util.List.copyOf(fields);
+    }
+
+    /**
      * 查找包含子串的字段名（用于 Kafka broker 等模糊匹配场景）。
      *
      * @param target        目标对象，为 null 时返回 null
@@ -558,6 +632,71 @@ public final class ReflectUtils {
             }
         } catch (Throwable e) {
             log.debug("[ReflectUtils] 按子串查找字段异常: {}", nameSubstring, e);
+        }
+        return null;
+    }
+
+    // ==================== 注解查找 ====================
+
+    /**
+     * 查找类上的注解（含父类与接口继承）。
+     *
+     * @param clazz           目标类，为 null 时返回 null
+     * @param annotationType  注解类型
+     * @param <A>             注解泛型
+     * @return 命中的注解实例，未标注或入参非法时返回 null
+     */
+    public static <A extends java.lang.annotation.Annotation> A findClassAnnotation(
+            Class<?> clazz, Class<A> annotationType) {
+        if (clazz == null || annotationType == null) {
+            return null;
+        }
+        for (Class<?> current = clazz; null != current; current = current.getSuperclass()) {
+            A annotation = current.getAnnotation(annotationType);
+            if (null != annotation) {
+                return annotation;
+            }
+            for (Class<?> iface : current.getInterfaces()) {
+                A fromInterface = iface.getAnnotation(annotationType);
+                if (null != fromInterface) {
+                    return fromInterface;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 查找方法上的注解（先精确签名，再按方法名匹配任一重载）。
+     *
+     * @param clazz           目标类，为 null 时返回 null
+     * @param methodName      方法名，为 null 时返回 null
+     * @param annotationType  注解类型
+     * @param <A>             注解泛型
+     * @return 命中的注解实例，未标注或入参非法时返回 null
+     */
+    public static <A extends java.lang.annotation.Annotation> A findMethodAnnotation(
+            Class<?> clazz, String methodName, Class<A> annotationType) {
+        if (clazz == null || methodName == null || annotationType == null) {
+            return null;
+        }
+        for (java.lang.reflect.Method method : clazz.getMethods()) {
+            if (method.getName().equals(methodName)) {
+                A annotation = method.getAnnotation(annotationType);
+                if (null != annotation) {
+                    return annotation;
+                }
+            }
+        }
+        for (Class<?> current = clazz; null != current; current = current.getSuperclass()) {
+            for (java.lang.reflect.Method method : current.getDeclaredMethods()) {
+                if (method.getName().equals(methodName)) {
+                    A annotation = method.getAnnotation(annotationType);
+                    if (null != annotation) {
+                        return annotation;
+                    }
+                }
+            }
         }
         return null;
     }
@@ -921,6 +1060,165 @@ public final class ReflectUtils {
             types[i] = args[i] == null ? Object.class : args[i].getClass();
         }
         return types;
+    }
+
+    // ==================== 函数表与数组 ====================
+
+    /**
+     * 枚举目标类的公开静态方法。
+     *
+     * <p>用于把某个类整体登记成函数表：调用方拿到方法名与形参类型后自行组织成
+     * 按名字索引的结构，再交给 {@link #invokeStaticStrict} 调用，因此本方法只做
+     * 元数据枚举，不预建任何句柄。合成方法（桥接方法）会被跳过，避免编译器生成的
+     * 桥接重载污染函数表。</p>
+     *
+     * @param clazz 目标类，为 null 时返回空列表
+     * @return 公开静态方法描述列表，按 {@code getMethods()} 的返回顺序
+     */
+    public static List<MethodDescriptor> publicStaticMethods(Class<?> clazz) {
+        List<MethodDescriptor> methods = new ArrayList<>();
+        if (clazz == null) {
+            return methods;
+        }
+        for (java.lang.reflect.Method method : clazz.getMethods()) {
+            int modifiers = method.getModifiers();
+            if (!Modifier.isPublic(modifiers) || !Modifier.isStatic(modifiers) || method.isSynthetic()) {
+                continue;
+            }
+            methods.add(new MethodDescriptor(method.getName(), method.getParameterTypes()));
+        }
+        return methods;
+    }
+
+    /**
+     * 严格调用静态方法：找不到方法直接抛异常，方法自身抛出的异常原样透出。
+     *
+     * <p>与 {@link #invokeStatic} 的区别在于不吞异常。返回值语义上抛的是被调方法
+     * 真正的异常，而不是包装过的 {@code InvocationTargetException}，因此调用方
+     * 直接读 {@code getMessage()} 就能拿到业务原因。</p>
+     *
+     * @param clazz  目标类
+     * @param method 方法描述
+     * @param args   实参数组，为 null 时按空参调用
+     * @return 方法返回值
+     * @throws NoSuchMethodException 目标类上没有同名同形参的静态方法
+     * @throws Throwable            被调方法自身抛出的异常，或方法不可访问
+     */
+    public static Object invokeStaticStrict(Class<?> clazz, MethodDescriptor method, Object[] args)
+            throws Throwable {
+        if (clazz == null || method == null) {
+            throw new IllegalArgumentException("静态方法调用缺少目标类或方法描述");
+        }
+        java.lang.reflect.Method target = findStaticMethod(clazz, method);
+        if (target == null) {
+            throw new NoSuchMethodException(clazz.getName() + "." + method.name()
+                    + formatTypes(method.parameterTypes()));
+        }
+        if (!target.canAccess(null)) {
+            target.setAccessible(true);
+        }
+        return LOOKUP.unreflect(target).invokeWithArguments(args == null ? new Object[0] : args);
+    }
+
+    /**
+     * 取数组长度，非数组按 0 处理。
+     *
+     * <p>数组在泛型里被擦成 {@code Object}，遍历长度必须走反射；对外统一走本方法，
+     * 业务代码不直接调用 {@code java.lang.reflect.Array}。</p>
+     *
+     * @param array 数组实例
+     * @return 数组长度，非数组或入参为 null 时返回 0
+     */
+    public static int arrayLength(Object array) {
+        if (array == null || !array.getClass().isArray()) {
+            return 0;
+        }
+        return java.lang.reflect.Array.getLength(array);
+    }
+
+    /**
+     * 取数组元素，下标越界返回 null。
+     *
+     * <p>越界返回 null 而不是抛下标异常，是为了与 {@code elementAt} 这类
+     * 「取不到就是取不到」的语义保持一致，采集流程里一次越界不该中断整条链路。</p>
+     *
+     * @param array 数组实例
+     * @param index 下标
+     * @return 元素值，非数组、入参为 null 或下标越界时返回 null
+     */
+    public static Object arrayGet(Object array, int index) {
+        if (array == null || !array.getClass().isArray()) {
+            return null;
+        }
+        if (index < 0 || index >= java.lang.reflect.Array.getLength(array)) {
+            return null;
+        }
+        return java.lang.reflect.Array.get(array, index);
+    }
+
+    /**
+     * 按方法名与形参类型定位静态方法。
+     *
+     * @param clazz       目标类
+     * @param descriptor  方法描述
+     * @return 定位到的方法，声明类上也没有时返回 null
+     */
+    private static java.lang.reflect.Method findStaticMethod(Class<?> clazz, MethodDescriptor descriptor) {
+        try {
+            return clazz.getMethod(descriptor.name(), descriptor.parameterTypes());
+        } catch (NoSuchMethodException e) {
+            try {
+                return clazz.getDeclaredMethod(descriptor.name(), descriptor.parameterTypes());
+            } catch (NoSuchMethodException ex) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * 静态方法描述：方法名 + 形参类型。
+     *
+     * <p>刻意不携带返回类型：函数表的调用方只按名字匹配，拿到描述后交给
+     * {@link #invokeStaticStrict} 解析，返回类型由目标方法自身决定。形参类型数组
+     * 进出都做防御性拷贝，描述因此是不可变值对象。</p>
+     *
+     * @param name           方法名
+     * @param parameterTypes 形参类型
+     */
+    public record MethodDescriptor(String name, Class<?>[] parameterTypes) {
+
+        /**
+         * 规范化入参。
+         *
+         * @param name           方法名
+         * @param parameterTypes 形参类型，为 null 时按空参处理
+         */
+        public MethodDescriptor {
+            parameterTypes = parameterTypes == null ? new Class<?>[0] : parameterTypes.clone();
+        }
+
+        /**
+         * 取形参类型副本，避免外部改动描述内部状态。
+         *
+         * @return 形参类型数组副本
+         */
+        @Override
+        public Class<?>[] parameterTypes() {
+            return parameterTypes.clone();
+        }
+
+        /**
+         * 可读的描述文本，供日志使用。
+         *
+         * <p>形参列表带括号，避免 {@code joinString} 与 {@code join(String)} 这类
+         * 描述在日志里长得一样。</p>
+         *
+         * @return 方法名与形参列表，形参为空时形如 {@code answer()}
+         */
+        @Override
+        public String toString() {
+            return name + "(" + formatTypes(parameterTypes) + ")";
+        }
     }
 
     // ==================== 缓存清理 ====================

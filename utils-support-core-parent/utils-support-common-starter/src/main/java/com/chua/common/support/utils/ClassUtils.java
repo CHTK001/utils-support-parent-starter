@@ -620,7 +620,7 @@ public class ClassUtils {
      * @param consumer                                                             
      * @param <T>                            
      * @since 1.0
-     * @return 是否present的结果
+     * @return 是否存在的结果
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
         if (!isPresent(className)) { return; }
@@ -2033,11 +2033,11 @@ public class ClassUtils {
      */
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
         return cacheMethod.computeIfAbsent(clazz.hashCode() + name.hashCode() + paramTypes.hashCode(), new Function<Integer, Method>() {
-            @Override
             /**
              * 应用
              * @param integer integer
              */
+            @Override
             public Method apply(Integer integer) {
                 Method[] allMethod = getAllMethod(clazz);
                 for (Method method : allMethod) {
@@ -2073,11 +2073,11 @@ public class ClassUtils {
      */
     private static Method[] getAllMethod(Class<?> clazz) {
         return DECLARED_METHODS_CACHE.computeIfAbsent(clazz, new Function<Class<?>, Method[]>() {
-            @Override
             /**
              * 应用
              * @param aClass a类
              */
+            @Override
             public Method[] apply(Class<?> aClass) {
                 List<Method> rs = new LinkedList<>();
                 // 防止循环引用（递归注册时同一类型重复出现）
@@ -2768,10 +2768,10 @@ public class ClassUtils {
     public static Map<String, Method> getMethodsByName(Class<?> type, Predicate<Method> predicate) {
             Map<String, Method> rs = new LinkedHashMap<>(64);
         doWithMethods(type, new SafeConsumer<Method>() {
-            @Override
             /**
              * 安全回调：注册方法的原始名与驼峰名映射
-            */
+             */
+            @Override
             public void safeAccept(Method method) throws Throwable {
                 if (!predicate.test(method)) {
                     return;
@@ -2804,10 +2804,8 @@ public class ClassUtils {
      * @param clazz 目标类，为 null 时返回空数组
      * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
      * @since 2024/12/21
-     */
-    /**
-     * 获取对象的泛型实际类型参数（按索引）。
      *
+     * 获取对象的泛型实际类型参数（按索引）。
      * @param declaredClass 目标类，其泛型父类必须是 {@link ParameterizedType}
      * @param index         泛型参数索引（0-based）
      * @param <T>           目标类型泛型
@@ -3176,7 +3174,7 @@ public class ClassUtils {
     static class SetAccessibleAction<T extends AccessibleObject> implements PrivilegedAction<T> {
         /**
          * 待设置可访问性的反射对象
-        */
+         */
         private final T obj;
         /**
          * 创建设置 accessible 动作实例。
@@ -3186,10 +3184,10 @@ public class ClassUtils {
         public SetAccessibleAction(T obj) {
             this.obj = obj;
         }
-        @Override
         /**
          * 执行动作：设置目标对象可访问性并返回
-        */
+         */
+        @Override
         public T run() {
             setAccessible(obj);
             return obj;

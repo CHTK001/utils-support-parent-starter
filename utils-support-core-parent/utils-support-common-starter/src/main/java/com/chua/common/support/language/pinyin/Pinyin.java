@@ -28,11 +28,10 @@ public class Pinyin {
     /**
      * 原始汉字字符串。
      * <p>需要转换拼音的中文字符，支持单个汉字或已确认的词语。</p>
+     *
+     * 词
      */
     @NonNull
-    /**
-     * 词
-    */
     private String word;
 
     /**

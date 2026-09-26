@@ -10,6 +10,9 @@ import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.task.message.TemplateInfo;
 import com.aliyun.dysmsapi20170525.Client;
+import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListRequest;
+import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListResponse;
+import com.aliyun.dysmsapi20170525.models.QuerySmsTemplateListResponseBody.QuerySmsTemplateListResponseBodySmsTemplateList;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
@@ -59,16 +62,16 @@ public class AlibabaSmsMessagePush implements MessagePush {
 
     /**
      * 消息环境
-    */
+     */
     private final MessageEnvironment environment;
     /**
      * 模板映射
-    */
+     */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
      * 创建 alibabasms消息push 实例
-    */
+     */
     public AlibabaSmsMessagePush() {
         this(new MessageEnvironment());
     }
@@ -84,7 +87,7 @@ public class AlibabaSmsMessagePush implements MessagePush {
     @Override
     /**
      * 获取提供者
-    */
+     */
     public String getProvider() {
         return "alibaba-sms";
     }
@@ -97,26 +100,12 @@ public class AlibabaSmsMessagePush implements MessagePush {
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
-        String accessKey = environment.get("sms.accessKey");
-        String secretKey = environment.get("sms.secretKey");
         String signName = environment.get("sms.signName");
-
-        if (accessKey == null || accessKey.isBlank()) {
-            throw new IllegalArgumentException("sms.accessKey 配置项必填");
-        }
-        if (secretKey == null || secretKey.isBlank()) {
-            throw new IllegalArgumentException("sms.secretKey 配置项必填");
-        }
         if (signName == null || signName.isBlank()) {
             throw new IllegalArgumentException("sms.signName 配置项必填");
         }
 
-        Config config = new Config()
-                .setAccessKeyId(accessKey)
-                .setAccessKeySecret(secretKey)
-                .setEndpoint("dysmsapi.aliyuncs.com");
-
-        Client client = new Client(config);
+        Client client = buildClient();
 
         SendSmsRequest req = new SendSmsRequest();
         req.setPhoneNumbers(request.getTo());
@@ -151,12 +140,65 @@ public class AlibabaSmsMessagePush implements MessagePush {
         }
     }
 
+    /**
+     * 拉取运营商已审核通过的短信模板列表
+     *
+     * <p>调用阿里云 QuerySmsTemplateList 分页拉取，仅保留审核状态为 AUDIT_PASS 的模板，
+     * 模板内容中的 ${var} 占位符由调用方解析为变量 schema。AK 无权限或查询失败时抛出异常，
+     * 由上层捕获后转成运营商错误信息返回。手工登记模板码作为兜底。
+     *
+     * @return 运营商已审核模板列表
+     */
     @Override
     /**
      * 列表templates
-    */
+     */
     public List<TemplateInfo> listTemplates() {
-        return new ArrayList<>(templates.values());
+        List<TemplateInfo> result = new ArrayList<>();
+        try {
+            Client client = buildClient();
+            int pageIndex = 1;
+            int pageSize = 50;
+            while (true) {
+                QuerySmsTemplateListRequest req = new QuerySmsTemplateListRequest()
+                        .setPageIndex(pageIndex)
+                        .setPageSize(pageSize);
+                QuerySmsTemplateListResponse resp = client.querySmsTemplateList(req);
+                if (null == resp || null == resp.getBody()) {
+                    break;
+                }
+                if (!"OK".equals(resp.getBody().getCode())) {
+                    throw new RuntimeException("查询短信模板列表失败: " + resp.getBody().getCode()
+                            + ": " + resp.getBody().getMessage());
+                }
+                List<QuerySmsTemplateListResponseBodySmsTemplateList> list = resp.getBody().getSmsTemplateList();
+                if (null == list || list.isEmpty()) {
+                    break;
+                }
+                for (QuerySmsTemplateListResponseBodySmsTemplateList item : list) {
+                    String templateCode = item.getTemplateCode();
+                    if (null == templateCode || templateCode.isBlank()) {
+                        continue;
+                    }
+                    // 仅同步审核通过的模板
+                    if (null != item.getAuditStatus() && !"AUDIT_PASS".equals(item.getAuditStatus())) {
+                        continue;
+                    }
+                    result.add(new TemplateInfo(templateCode, item.getTemplateName(),
+                            item.getTemplateContent(), "sms", null));
+                }
+                Long total = resp.getBody().getTotalCount();
+                if (null == total || (long) pageIndex * pageSize >= total) {
+                    break;
+                }
+                pageIndex++;
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("查询短信模板列表失败: " + e.getMessage(), e);
+        }
+        return result;
     }
 
     @Override
@@ -190,5 +232,27 @@ public class AlibabaSmsMessagePush implements MessagePush {
                 .templateParams(params)
                 .build();
         return send(request);
+    }
+
+    /**
+     * 依据环境中的 AccessKey/SecretKey 构造 Dysmsapi Client
+     *
+     * @return 阿里云短信 Client
+     * @throws Exception 配置缺失或构造失败
+     */
+    private Client buildClient() throws Exception {
+        String accessKey = environment.get("sms.accessKey");
+        String secretKey = environment.get("sms.secretKey");
+        if (null == accessKey || accessKey.isBlank()) {
+            throw new IllegalArgumentException("sms.accessKey 配置项必填");
+        }
+        if (null == secretKey || secretKey.isBlank()) {
+            throw new IllegalArgumentException("sms.secretKey 配置项必填");
+        }
+        Config config = new Config()
+                .setAccessKeyId(accessKey)
+                .setAccessKeySecret(secretKey)
+                .setEndpoint("dysmsapi.aliyuncs.com");
+        return new Client(config);
     }
 }

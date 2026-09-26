@@ -1,0 +1,2 @@
+derby=com.chua.datasource.support.flyway.DerbyScriptConverter
+hive=com.chua.datasource.support.flyway.HiveScriptConverter

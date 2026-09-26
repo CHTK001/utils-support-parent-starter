@@ -57,12 +57,12 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
 
         var successCount = new AtomicInteger();
         var failedCount = new AtomicInteger();
-        var values = new ConcurrentHashMap<String, Object>();
-        var errors = new ConcurrentHashMap<String, Throwable>();
-        var skipReasons = new ConcurrentHashMap<String, String>();
-        var nodeDurations = new ConcurrentHashMap<String, Long>();
+        var values = new ConcurrentHashMap<String, Object>(total);
+        var errors = new ConcurrentHashMap<String, Throwable>(total);
+        var skipReasons = new ConcurrentHashMap<String, String>(total);
+        var nodeDurations = new ConcurrentHashMap<String, Long>(total);
         var failureTrail = new ConcurrentLinkedQueue<Throwable>();
-        var futures = new ConcurrentHashMap<String, CompletableFuture<TaskResult>>();
+        var futures = new ConcurrentHashMap<String, CompletableFuture<TaskResult>>(total);
 
         // 先注册全部结果槽位，再统一 fork，保证后继等待时槽位必然存在
         for (var def : ordered) {

@@ -26,29 +26,29 @@ public class ObjectBeanPath implements BeanPath {
      */
     private NamingStyle namingStyle = NamingStyle.RAW;
 
-    @Override
     /**
      * IgnoreCase
-    */
+     */
+    @Override
     public ObjectBeanPath ignoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
         return this;
     }
 
-    @Override
     /**
      * NamingStyle
-    */
+     */
+    @Override
     public ObjectBeanPath namingStyle(NamingStyle style) {
         this.namingStyle = style != null ? style : NamingStyle.RAW;
         return this;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 获取Value
-    */
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T getValue(Object source, String path) {
         if (source == null || path == null || path.isEmpty()) {
             return null;
@@ -57,11 +57,11 @@ public class ObjectBeanPath implements BeanPath {
         return (T) resolve(source, parts, 0, parts.length);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 设置Value
-    */
+     */
+    @Override
+    @SuppressWarnings("unchecked")
     public void setValue(Object source, String path, Object value) {
         if (source == null || path == null || path.isEmpty()) {
             return;
@@ -96,15 +96,14 @@ public class ObjectBeanPath implements BeanPath {
         }
     }
 
-    @Override
     /**
      * 是否存在
-    */
+     */
+    @Override
     public boolean exists(Object source, String path) {
         return getValue(source, path) != null;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 解析
      * @param source 来源，不允许为 null
@@ -113,6 +112,7 @@ public class ObjectBeanPath implements BeanPath {
      * @param end 结束，不允许为 null
      * @return 对象 对象
      */
+    @SuppressWarnings("unchecked")
     private Object resolve(Object source, String[] parts, int start, int end) {
         Object current = source;
         for (int i = start; i < end; i++) {

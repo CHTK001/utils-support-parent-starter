@@ -27,7 +27,7 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
 
     /**
      * targetMap
-    */
+     */
     private final Map<K, List<V>> targetMap = new LinkedHashMap<>();
 
     /**
@@ -248,26 +248,26 @@ public class MultiLinkedValueMap<K, V> implements MultiValueMap<K, V>, Serializa
         return this.targetMap.containsKey(key);
     }
 
-    @Override
     /**
      * 判断相等
-    */
+     */
+    @Override
     public boolean equals(Object other) {
         return (this == other || this.targetMap.equals(other));
     }
 
-    @Override
     /**
      * HashCode
-    */
+     */
+    @Override
     public int hashCode() {
         return this.targetMap.hashCode();
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return this.targetMap.toString();
     }

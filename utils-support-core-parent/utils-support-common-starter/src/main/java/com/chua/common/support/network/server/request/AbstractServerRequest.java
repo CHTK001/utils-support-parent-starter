@@ -28,56 +28,56 @@ public abstract class AbstractServerRequest implements ServerRequest {
 
     /**
      * 请求属性，用于 Filter 间传递数据
-    */
+     */
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
      * 缓存的请求体，避免重复读取输入流
-    */
+     */
     private byte[] cachedBody;
 
     /**
      * 是否已读取请求体
-    */
+     */
     private boolean bodyRead;
 
-    @Override
     /**
      * 获取Params
-    */
+     */
+    @Override
     public Map<String, String> getParams() {
         return Collections.emptyMap();
     }
 
-    @Override
     /**
      * 获取Param
-    */
+     */
+    @Override
     public String getParam(String name) {
         return getParams().get(name);
     }
 
-    @Override
     /**
      * 获取ContentType
-    */
+     */
+    @Override
     public String getContentType() {
         return getHeader("Content-Type");
     }
 
-    @Override
     /**
      * 获取Content获取长度
-    */
+     */
+    @Override
     public long getContentLength() {
         String len = getHeader("Content-Length");
         return len != null ? Long.parseLong(len) : -1;
     }
 
-    @Override
     /**
      * 获取Body
-    */
+     */
+    @Override
     public byte[] getBody() {
         if (!bodyRead) {
             cachedBody = readBody();
@@ -86,42 +86,42 @@ public abstract class AbstractServerRequest implements ServerRequest {
         return cachedBody != null ? cachedBody : new byte[0];
     }
 
-    @Override
     /**
      * 获取BodyString
-    */
+     */
+    @Override
     public String getBodyString() {
         return new String(getBody(), StandardCharsets.UTF_8);
     }
 
-    @Override
     /**
      * 获取InputStream
-    */
+     */
+    @Override
     public InputStream getInputStream() {
         return new ByteArrayInputStream(getBody());
     }
 
-    @Override
     /**
      * 获取Attributes
-    */
+     */
+    @Override
     public Map<String, Object> getAttributes() {
         return new HashMap<>(attributes);
     }
 
-    @Override
     /**
      * 获取Attribute
-    */
+     */
+    @Override
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
 
-    @Override
     /**
      * 设置Attribute
-    */
+     */
+    @Override
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }

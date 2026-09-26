@@ -44,11 +44,10 @@ public class SseRequest {
      *
      * <p>SSE 通常使用 GET 或 POST。AI 对话流式接口通常使用 POST。
      * 默认为 {@link HttpMethod#GET}。
-     */
-    @Builder.Default
-    /**
+     *
      * 方法名
      */
+    @Builder.Default
     private HttpMethod method = HttpMethod.GET;
 
     /**
@@ -74,9 +73,6 @@ public class SseRequest {
      * <p>建立 TCP 连接的最大等待时间。默认 30 秒。
      */
     @Builder.Default
-    /**
-     * 连接超时时间（毫秒）
-     */
     private long connectTimeout = 30000;
 
     /**
@@ -86,20 +82,16 @@ public class SseRequest {
      * 因此默认 0（不超时）。
      */
     @Builder.Default
-    /**
-     * 读取超时时间（毫秒）
-     */
     private long readTimeout = 0;
 
     /**
      * 是否自动重连。
      *
      * <p>SSE 连接断开后是否自动重新建立连接。默认 false。
+     *
+     * Reconnect
      */
     @Builder.Default
-    /**
-     * Reconnect
-    */
     private boolean reconnect = false;
 
     /**

@@ -48,11 +48,10 @@ public class ServerSetting {
      * <p>开启后，{@link AbstractServer} 启动前会基于 CPU 核数、JVM 可用堆内存与
      * 操作系统类型自动调整线程数、连接数、等待队列、缓冲区等性能参数，
      * 使服务器在各环境中都能获得较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
+     *
+     * Auto
      */
     @Builder.Default
-    /**
-     * Auto
-    */
     private boolean auto = true;
 
     /**
@@ -122,56 +121,48 @@ public class ServerSetting {
 
     /**
      * 主机名
+     *
+     * 主机
      */
     @Builder.Default
-    /**
-     * 主机
-    */
     private String host = "0.0.0.0";
 
     /**
      * 端口号
+     *
+     * 端口
      */
     @Builder.Default
-    /**
-     * 端口
-    */
     private int port = 8080;
 
     /**
      * 协议类型名称
+     *
+     * 协议
      */
     @Builder.Default
-    /**
-     * 协议
-    */
     private String protocol = "http";
 
     /**
      * 上下文路径
      */
     @Builder.Default
-    /**
-     * 上下文路径
-    */
     private String contextPath = "/";
 
     /**
      * Boss 线程数
+     *
+     * Bossthreads
      */
     @Builder.Default
-    /**
-     * Bossthreads
-    */
     private int bossThreads = Math.max(1, Runtime.getRuntime().availableProcessors());
 
     /**
      * Worker 线程数
+     *
+     * Workerthreads
      */
     @Builder.Default
-    /**
-     * Workerthreads
-    */
     private int workerThreads = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
@@ -179,65 +170,56 @@ public class ServerSetting {
      *
      * <p>默认 0 表示由实现自行确定；{@link #autoConfig()} 会根据 CPU 核数与平台
      * 自动生成最优值。Windows 平台实测 4 分片为最优，Linux/macOS 按核数扩展。</p>
+     *
+     * IoThreads
      */
     @Builder.Default
-    /**
-     * IoThreads
-    */
     private int ioThreads = 0;
 
     /**
      * 等待队列长度
+     *
+     * Backlog
      */
     @Builder.Default
-    /**
-     * Backlog
-    */
     private int backlog = 128;
 
     /**
      * 最大请求体/消息大小（字节）
+     *
+     * 最大值请求尺寸
      */
     @Builder.Default
-    /**
-     * 最大值请求尺寸
-    */
     private long maxRequestSize = 10 * 1024 * 1024;
 
     /**
      * 最大连接数
+     *
+     * 最大值connections
      */
     @Builder.Default
-    /**
-     * 最大值connections
-    */
     private int maxConnections = 10000;
 
     /**
      * 字符集
      */
     @Builder.Default
-    /**
-     * 字符集
-    */
     private String charset = "UTF-8";
 
     /**
      * 读取超时时间（毫秒）
+     *
+     * Read超时
      */
     @Builder.Default
-    /**
-     * Read超时
-    */
     private int readTimeout = 30000;
 
     /**
      * 写超时时间（毫秒）
+     *
+     * Write超时
      */
     @Builder.Default
-    /**
-     * Write超时
-    */
     private int writeTimeout = 30000;
 
     /**
@@ -285,47 +267,42 @@ public class ServerSetting {
 
     /**
      * 响应超时时间（毫秒）
+     *
+     * 响应超时
      */
     @Builder.Default
-    /**
-     * 响应超时
-    */
     private long responseTimeout = 60000;
 
     /**
      * 是否启用 Reactor 处理模式
+     *
+     * Reactor
      */
     @Builder.Default
-    /**
-     * Reactor
-    */
     private boolean reactor = false;
 
     /**
      * 最大 Keep-Alive 请求数
+     *
+     * 最大值keepaliverequests
      */
     @Builder.Default
-    /**
-     * 最大值keepaliverequests
-    */
     private int maxKeepAliveRequests = 100;
 
     /**
      * 优雅关闭等待时间（秒）
+     *
+     * Shutdownquietperiod
      */
     @Builder.Default
-    /**
-     * Shutdownquietperiod
-    */
     private int shutdownQuietPeriod = 30;
 
     /**
      * TCP_NODELAY
+     *
+     * TCPNOdelay
      */
     @Builder.Default
-    /**
-     * TCPNOdelay
-    */
     private boolean tcpNoDelay = true;
 
     /**
@@ -334,111 +311,109 @@ public class ServerSetting {
      * <p>开启后 {@link JdkTcpServer} 流式协议模式会在连接建立时自动将
      * 输入输出流包装为解密/加密流，处理器无感知；帧式（NIO 拼帧）协议不支持。
      * 需与客户端侧共享同一 {@link #encryptKey}。</p>
+     *
+     * 加密是否启用
      */
     @Builder.Default
-    /**
-     * 加密是否启用
-    */
     private boolean encrypt = false;
 
     /**
      * 流加密密钥短语（与客户端共享；AES-256 密钥由其 SHA-256 派生）。
      *
      * <p>{@link #encrypt} 为 true 时必须提供，未提供时服务端启动告警并按未加密处理。</p>
-     */
-    /**
+     *
      * 加密密钥短语
-    */
+     */
     private String encryptKey;
 
     /**
      * SO_REUSEADDR
+     *
+     * SOreuseaddr
      */
     @Builder.Default
-    /**
-     * SOreuseaddr
-    */
     private boolean soReuseAddr = true;
 
     /**
      * 默认 Content-Type
+     *
+     * 内容类型
      */
     @Builder.Default
-    /**
-     * 内容类型
-    */
     private String contentType = "text/html; charset=utf-8";
 
     /**
      * 缓冲区大小（字节）
+     *
+     * 缓冲区尺寸
      */
     @Builder.Default
-    /**
-     * 缓冲区尺寸
-    */
     private int bufferSize = 8192;
 
     /**
      * WebSocket/消息协议最大帧大小（字节）
+     *
+     * 最大值frame尺寸
      */
     @Builder.Default
-    /**
-     * 最大值frame尺寸
-    */
     private int maxFrameSize = 65536;
 
     /**
      * 是否启用 Gzip 压缩
+     *
+     * Gzip是否启用
      */
     @Builder.Default
-    /**
-     * Gzip是否启用
-    */
     private boolean gzipEnabled = false;
 
     /**
      * Gzip 压缩等级（1-9）
+     *
+     * Gzip级别
      */
     @Builder.Default
-    /**
-     * Gzip级别
-    */
     private int gzipLevel = 6;
 
     /**
      * Gzip 最小压缩大小（字节），小于此值不压缩
+     *
+     * Gzip最小值尺寸
      */
     @Builder.Default
-    /**
-     * Gzip最小值尺寸
-    */
     private int gzipMinSize = 1024;
 
     /**
-     * CORS 配置
+     * CORS 跨域配置
+     *
+     * Cors
      */
     @Builder.Default
-    /**
-     * Cors
-    */
     private CorsConfig cors = new CorsConfig();
 
     /**
-     * SSL/TLS 配置
+     * 安全响应头配置
+     *
+     * <p>默认 {@code enabled=false}，不挂载安全头过滤器（保持既有行为）。</p>
+     *
+     * Securityheaders
      */
     @Builder.Default
+    private SecurityHeadersConfig securityHeaders = new SecurityHeadersConfig();
+
     /**
+     * SSL/TLS 配置
+     *
      * SSL
-    */
+     */
+    @Builder.Default
     private SslConfig ssl = new SslConfig();
 
     /**
      * HTTP 协议专用配置
+     *
+     * HTTP
      */
     @Builder.Default
-    /**
-     * HTTP
-    */
     private HttpConfig http = new HttpConfig();
 
     /**
@@ -454,39 +429,118 @@ public class ServerSetting {
 
         /**
          * CORS 开关
+         *
+         * Alloworigin
          */
         @Builder.Default
-        /**
-         * Alloworigin
-        */
         private boolean allowOrigin = false;
 
         /**
          * 允许的源
+         *
+         * Allowedorigins
          */
         @Builder.Default
-        /**
-         * Allowedorigins
-        */
         private String allowedOrigins = "*";
 
         /**
          * 允许的方法
+         *
+         * Allowedmethods
          */
         @Builder.Default
-        /**
-         * Allowedmethods
-        */
         private String allowedMethods = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
 
         /**
          * 允许的请求头
+         *
+         * Allowedheaders
          */
         @Builder.Default
-        /**
-         * Allowedheaders
-        */
         private String allowedHeaders = "Content-Type,Authorization";
+
+        /**
+         * 允许前端 JavaScript 读取的响应头
+         *
+         * <p>对应 {@code Access-Control-Expose-Headers}。跨域场景下浏览器默认只暴露
+         * CORS  safelist 响应头，自定义头（{@code Content-Disposition}、
+         * {@code X-FileStorage-Preview} 等）若不在此声明，前端
+         * {@code response.headers.get(...)} 将读不到。</p>
+         * <p>留空表示不追加该响应头（默认行为，保持既有实现不变）。</p>
+         *
+         * Exposeheaders
+         */
+        @Builder.Default
+        private String exposeHeaders = "";
+    }
+
+    /**
+     * 安全响应头配置。
+     *
+     * <p>供 {@link com.chua.common.support.network.server.filter.SecurityHeadersServerFilter}
+     * 使用。默认 {@code enabled=false}，即默认不下发任何安全头，
+     * 以保证既有服务在升级后行为不变；需要时由各 Server 显式开启。</p>
+     *
+     * @since 4.0.0.42
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SecurityHeadersConfig {
+
+        /**
+         * 是否启用安全响应头过滤器
+         *
+         * <p>默认关闭：{@link com.chua.common.support.network.server.AbstractServer}
+         * 仅在本项为 true 时才挂载安全头过滤器。</p>
+         */
+        @Builder.Default
+        private boolean enabled = false;
+
+        /**
+         * X-Content-Type-Options 开关（防 MIME 嗅探）
+         */
+        @Builder.Default
+        private boolean nosniff = true;
+
+        /**
+         * X-Frame-Options 取值
+         *
+         * <p>默认 {@code DENY}（禁止被 iframe 嵌入）；置为空串表示不下发该响应头，
+         * 供需要被前端页面以 iframe 嵌入的场景（如独立文件服务器）使用。</p>
+         */
+        @Builder.Default
+        private String frameOptions = "DENY";
+
+        /**
+         * CSP frame-ancestors 取值
+         *
+         * <p>留空表示不下发；例如 {@code *} 表示允许任意来源嵌入，
+         * {@code 'self' https://example.com} 表示白名单。</p>
+         */
+        @Builder.Default
+        private String frameAncestors = "";
+
+        /**
+         * Referrer-Policy 取值
+         *
+         * <p>默认 {@code strict-origin-when-cross-origin}；置为空串表示不下发。</p>
+         */
+        @Builder.Default
+        private String referrerPolicy = "strict-origin-when-cross-origin";
+
+        /**
+         * 是否下发 Strict-Transport-Security（仅 TLS 部署有意义）
+         */
+        @Builder.Default
+        private boolean hstsEnabled = false;
+
+        /**
+         * Strict-Transport-Security 取值
+         */
+        @Builder.Default
+        private String hstsValue = "max-age=31536000; includeSubDomains";
     }
 
     /**
@@ -504,9 +558,6 @@ public class ServerSetting {
          * 是否启用
          */
         @Builder.Default
-        /**
-         * 是否启用
-        */
         private boolean enabled = false;
 
         /**
@@ -536,11 +587,10 @@ public class ServerSetting {
 
         /**
          * 是否信任所有证书（开发环境）
+         *
+         * TrustALL
          */
         @Builder.Default
-        /**
-         * TrustALL
-        */
         private boolean trustAll = false;
 
         /**
@@ -550,11 +600,10 @@ public class ServerSetting {
          * 使用默认域名（localhost, 127.0.0.1）和默认有效期（365天）。</p>
          *
          * <p>示例：{@code .selfSignedAuto(true)} 即可启动 HTTPS。</p>
+         *
+         * Selfsignedauto
          */
         @Builder.Default
-        /**
-         * Selfsignedauto
-        */
         private boolean selfSignedAuto = false;
 
         /**
@@ -562,11 +611,10 @@ public class ServerSetting {
          *
          * <p>启用后，若未配置 keyStorePath 或 certPath/keyPath，
          * 将自动使用 JDK keytool 生成自签名证书。</p>
+         *
+         * Selfsigned
          */
         @Builder.Default
-        /**
-         * Selfsigned
-        */
         private boolean selfSigned = false;
 
         /**
@@ -574,38 +622,34 @@ public class ServerSetting {
          *
          * <p>默认包含 localhost 和 127.0.0.1。
          * 多个域名将作为 SAN（Subject Alternative Name）扩展添加到证书中。</p>
+         *
+         * Selfsigneddomains
          */
         @Builder.Default
-        /**
-         * Selfsigneddomains
-        */
         private List<String> selfSignedDomains = List.of("localhost", "127.0.0.1");
 
         /**
          * 自签名证书有效期（天），默认 365 天
+         *
+         * Selfsignedvalidity
          */
         @Builder.Default
-        /**
-         * Selfsignedvalidity
-        */
         private int selfSignedValidity = 365;
 
         /**
          * 自签名证书密钥算法（RSA / EC），默认 RSA
+         *
+         * Selfsigned密钥ALG
          */
         @Builder.Default
-        /**
-         * Selfsigned密钥ALG
-        */
         private String selfSignedKeyAlg = "RSA";
 
         /**
          * 自签名证书密钥大小，默认 2048
+         *
+         * Selfsigned密钥尺寸
          */
         @Builder.Default
-        /**
-         * Selfsigned密钥尺寸
-        */
         private int selfSignedKeySize = 2048;
     }
 
@@ -622,11 +666,10 @@ public class ServerSetting {
 
         /**
          * 是否启用 WebSocket 升级
+         *
+         * Websocket是否启用
          */
         @Builder.Default
-        /**
-         * Websocket是否启用
-        */
         private boolean websocketEnabled = false;
     }
 }

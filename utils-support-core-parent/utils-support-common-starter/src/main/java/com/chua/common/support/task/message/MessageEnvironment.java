@@ -49,7 +49,7 @@ public class MessageEnvironment {
 
     /**
      * 属性
-    */
+     */
     private final Map<String, String> properties = new ConcurrentHashMap<>();
 
     /**

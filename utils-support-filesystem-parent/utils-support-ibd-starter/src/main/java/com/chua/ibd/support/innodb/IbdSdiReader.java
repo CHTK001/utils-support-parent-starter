@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -79,6 +80,27 @@ public final class IbdSdiReader {
      * @return 结果值
      */
     public record SdiRecord(int type, long id, byte[] json) {
+
+        /**
+         * 规范构造器：JSON 字节做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。唯一构造点
+         * {@link #parseRecord(byte[], int)} 传入的解压结果非空，
+         * 且不是调用方预分配后回填的出参，故做整体拷贝。</p>
+         */
+        public SdiRecord {
+            json = Objects.requireNonNull(json, "json 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回解压后 JSON 字节的副本。
+         *
+         * @return JSON 字节副本
+         */
+        @Override
+        public byte[] json() {
+            return json.clone();
+        }
 
         /**
          * 取 JSON 文本。

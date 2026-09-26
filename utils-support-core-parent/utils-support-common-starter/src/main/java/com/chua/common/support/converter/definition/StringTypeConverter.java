@@ -36,10 +36,10 @@ import java.util.Map;
  */
 public class StringTypeConverter implements TypeConverter<String> {
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public Class<String> getType() {
         return String.class;
     }

@@ -378,8 +378,8 @@ public class RuntimeSpy {
                     ctx.setTraceStack(traceStack);
                 }
                 interceptor.onIntercept(ctx);
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("拦截器执行异常: %s", key, e));
+            } catch (Throwable e) {
+                LOG.log(Level.SEVERE, "拦截器执行异常: " + key, e);
             }
         }
 
@@ -855,6 +855,25 @@ public class RuntimeSpy {
             String traceId,
             List<TraceStackFrame> frames
     ) {
+
+        /**
+         * 规范构造器：对追踪栈列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。{@link #capture()} 传入的是从
+         * {@link Deque} 拷出的可变列表，若直接持有，调用方后续的压栈/弹栈会改写已发布的快照，
+         * 使跨线程传递的追踪上下文与捕获时刻不符。</p>
+         *
+         * <p>栈元素为 {@link TraceStackFrame} 且 {@link Deque} 不接受 null 元素，
+         * 故可直接使用 {@link List#copyOf(List)}；组件本身允许为 {@code null}
+         * （栈空时 {@link #capture()} 传空列表、{@link #restore(TraceContextSnapshot)}
+         * 亦显式判空），该语义保留。</p>
+         *
+         * @param traceId 根 追踪标识，可为空
+         * @param frames  追踪栈（按从栈底到栈顶顺序），可为空
+         */
+        public TraceContextSnapshot {
+            frames = frames == null ? null : List.copyOf(frames);
+        }
     }
 
     /**

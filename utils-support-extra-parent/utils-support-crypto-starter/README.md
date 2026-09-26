@@ -10,7 +10,7 @@
 | 生命周期（链式） | `ONE_TIME` 一次性读取即销毁（落盘副本安全擦除）；`PERSISTENT` 持久 |
 | 密钥隐私存储 | 载体中仅存 KEK(AES-256-GCM) 封装后的主密钥密文 + HMAC 防篡改，明文只存活于进程内存，关闭即擦除 |
 | 数据加密 | AES-256-GCM 认证加密，每次随机 IV，Base64 输入输出 |
-| 配置文件加密（链式） | 支持整文件加密（`#!CHKF-CONFIG:1` 标记）与单值加密（`ENC(...)` 包裹），可保留 `*.bak` 明文备份 |
+| 配置文件加密（链式） | 支持整文件加密（`#!CHKF-CONFIG:1` 标记）与单值加密（`ENC(...)` 包裹）；默认不在原目录留 `*.bak` 明文备份，可按需显式开启 |
 | 密钥文件 | 默认 `{user.home}/.chua/crypto/master.key`；相对路径按 工作目录 → Jar 目录(FatJar) → 用户目录 解析 |
 | SpringBoot | 自动装配 `Crypto` Bean；启动期透明解密已加密配置文件与 `ENC(...)` 配置值 |
 | **程序包加密** | **对 SpringBoot FatJar / 可执行 Jar 整体加密：类文件逐条目加密、依赖包(BOOT-INF/lib/*.jar)整体加密、配置文件随包加密；注入零依赖引导器，运行期透明解密加载** |
@@ -49,7 +49,7 @@ Crypto mem = Crypto.create().memory().build();
 Crypto crypto = Crypto.create()
         .encryptConfig(true)                                   // 是否一起处理配置文件
         .configFile("application.yml", "application-prod.yml") // 参与加密的配置
-        .configBackup(true)                                    // 保留 *.bak 明文备份
+        .configBackup(true)                                    // 显式保留 *.bak 明文备份（默认关闭）
         .keyFile("security/master.key")
         .build();
 

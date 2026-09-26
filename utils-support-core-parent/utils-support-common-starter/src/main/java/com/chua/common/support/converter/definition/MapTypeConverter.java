@@ -44,7 +44,7 @@ public class MapTypeConverter implements TypeConverter<Map> {
 
     /**
      * 单例实例
-    */
+     */
     public static final MapTypeConverter INSTANCE = new MapTypeConverter();
 
     /**

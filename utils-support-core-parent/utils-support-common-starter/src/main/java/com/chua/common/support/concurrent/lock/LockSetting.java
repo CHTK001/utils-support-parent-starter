@@ -24,11 +24,10 @@ public class LockSetting {
      * true：请求锁的线程将严格按照请求顺序获得锁（FIFO）。
      * false：不保证顺序，性能通常优于公平锁。
      * 默认值为 false（非公平锁）。
-     */
-    @Builder.Default
-    /**
+     *
      * 是否公平模式
      */
+    @Builder.Default
     private boolean fair = false;
 
     /**
@@ -36,11 +35,10 @@ public class LockSetting {
      * 如果在此时间内无法获取锁，则抛出异常或返回失败。
      * 值为 0 表示立即尝试获取，不等待。
      * 默认值为 0。
-     */
-    @Builder.Default
-    /**
+     *
      * 等待时间（毫秒）
      */
+    @Builder.Default
     private long waitTime = 0;
 
     /**
@@ -48,11 +46,10 @@ public class LockSetting {
      * 表示获取锁后，锁保持有效的时间长度。
      * 值为 -1 表示永不过期，需手动释放；正值表示超时自动释放或需要续期。
      * 默认值为 -1（永不过期）。
-     */
-    @Builder.Default
-    /**
+     *
      * 租约时间（毫秒）
      */
+    @Builder.Default
     private long leaseTime = -1;
 
     /**
@@ -60,11 +57,10 @@ public class LockSetting {
      * true：同一线程可以多次获取该锁而不阻塞。
      * false：不可重入，同一线程再次获取会阻塞。
      * 默认值为 true（可重入）。
+     *
+     * Reentrant
      */
     @Builder.Default
-    /**
-     * Reentrant
-    */
     private boolean reentrant = true;
 
     /**
@@ -102,11 +98,10 @@ public class LockSetting {
      *
      * <p>建立与远程服务连接的最大等待时间。
      * 默认 5000ms，值为 0 表示不超时。
+     *
+     * Connection超时
      */
     @Builder.Default
-    /**
-     * Connection超时
-    */
     private long connectionTimeout = 5000;
 
     /**

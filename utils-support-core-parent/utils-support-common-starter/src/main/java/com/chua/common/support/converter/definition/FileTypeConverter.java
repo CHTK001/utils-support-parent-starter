@@ -36,7 +36,7 @@ public class FileTypeConverter implements TypeConverter<File> {
 
     /**
      * 操作系统默认临时目录
-    */
+     */
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
     /**
      * 数据
@@ -44,19 +44,19 @@ public class FileTypeConverter implements TypeConverter<File> {
     private static final String DATA = "data:";
     /**
      * base64 数据前缀
-    */
+     */
     private static final CharSequence BASE64 = "base64,";
     /**
      * HTTP 协议前缀
-    */
+     */
     private static final String HTTP_PREFIX = "http";
     /**
      * classpath 资源路径前缀
-    */
+     */
     private static final String CLASSPATH_URL_PREFIX = "classpath:";
     /**
      * classpath 通配资源路径前缀
-    */
+     */
     private static final String CLASSPATH_URL_ALL_PREFIX = "classpath*:";
 
     /**

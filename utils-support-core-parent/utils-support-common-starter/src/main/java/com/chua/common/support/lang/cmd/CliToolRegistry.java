@@ -37,12 +37,12 @@ public final class CliToolRegistry {
 
     /**
      * 单例实例
-    */
+     */
     private static final CliToolRegistry INSTANCE = new CliToolRegistry();
 
     /**
      * 工具名到工具实例的索引
-    */
+     */
     private final Map<String, CliTool> tools = new ConcurrentHashMap<>();
 
     /**

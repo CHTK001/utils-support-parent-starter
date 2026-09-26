@@ -48,6 +48,7 @@ public final class SelfDefense {
             "com.sun.tools.attach",
             "javassist.util.proxy",
             "org.jmockit",
+            // 仅作为运行时注入检测的特征串，本模块不依赖也不调用任何 mock 框架
             "org.mockito.internal.creation.bytebuddy",
     };
 

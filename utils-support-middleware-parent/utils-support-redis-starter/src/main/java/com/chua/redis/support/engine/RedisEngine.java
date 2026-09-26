@@ -33,6 +33,12 @@ public class RedisEngine {
     protected final Map<String, EngineDataSource<JedisPool>> dataSources = new ConcurrentHashMap<>();
 
     /**
+     * 关闭标记：{@link #close()} 后置位，使 close() 幂等且 {@link #isClosed()} 可查询。
+     */
+    protected final java.util.concurrent.atomic.AtomicBoolean closed =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
+    /**
      * 默认数据源名称。
      */
     protected String defaultDataSourceName;
@@ -185,8 +191,12 @@ public class RedisEngine {
 
     /**
      * 关闭引擎，释放所有连接池。
+     * <p>幂等：重复调用直接返回，不重复关闭连接池。</p>
      */
     public void close() {
+        if (!closed.compareAndSet(false, true)) {
+            return;
+        }
         for (EngineDataSource<JedisPool> eds : dataSources.values()) {
             try {
                 eds.getSource().close();
@@ -195,6 +205,15 @@ public class RedisEngine {
             }
         }
         dataSources.clear();
+    }
+
+    /**
+     * 是否已关闭
+     *
+     * @return 已关闭返回 true
+     */
+    public boolean isClosed() {
+        return closed.get();
     }
 
     /**

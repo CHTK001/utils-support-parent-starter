@@ -115,7 +115,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * 合并缓冲池:复用直接内存,消除每响应分配
-    */
+     */
     private static final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> COMBINE_POOL =
             new java.util.concurrent.ConcurrentLinkedQueue<>();
 
@@ -149,12 +149,12 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * 合并写阈值
-    */
+     */
     private static final int COMBINE_THRESHOLD = 65536;
 
     /**
      * 监听通道
-    */
+     */
     private AsynchronousServerSocketChannel serverChannel;
 
     /**
@@ -177,12 +177,12 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * 当前活跃的 WebSocket 连接
-    */
+     */
     private final List<AioWsConnection> wsConnections = new CopyOnWriteArrayList<>();
 
     /**
      * 当前活跃连接数(观测用,验证高并发连接目标)
-    */
+     */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
@@ -192,12 +192,12 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * 写完成处理器(单例复用)
-    */
+     */
     private final WriteHandler writeHandler = new WriteHandler();
 
     /**
      * 接受连接处理器(acceptDepth 个实例各自循环补位)
-    */
+     */
     private final AcceptHandler acceptHandler = new AcceptHandler();
 
     /**
@@ -209,10 +209,10 @@ public class AioHttpServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             // SSL/TLS:selfSigned/KeyStore/PEM 统一经 SslUtils 构建,
@@ -672,7 +672,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
      * 握手期空缓冲(wrap 方向输入)
-    */
+     */
     private static final ByteBuffer TLS_EMPTY = ByteBuffer.allocate(0);
 
     /**
@@ -1060,21 +1060,21 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 阶段
-        */
+         */
         private enum Stage { LEN0, LEN16, LEN64, MASK, PAYLOAD }
 
         private Stage stage = Stage.LEN0;
         /**
          * 操作码
-        */
+         */
         int opcode;
         /**
          * 载荷
-        */
+         */
         final ByteArrayOutputStream payload = new ByteArrayOutputStream();
         /**
          * 完整帧就绪标志
-        */
+         */
         boolean complete;
 
         private long len;
@@ -1243,10 +1243,10 @@ public class AioHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * 注册Bean
-    */
+     */
+    @Override
     public AioHttpServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -1455,10 +1455,10 @@ public class AioHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止Accepting
-    */
+     */
+    @Override
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -1468,10 +1468,10 @@ public class AioHttpServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         if (group != null) {
             try {
@@ -1482,10 +1482,10 @@ public class AioHttpServer extends AbstractServer {
         log.info("AIO HttpServer stopped");
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
@@ -1510,32 +1510,32 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 底层异步通道
-        */
+         */
         final AsynchronousSocketChannel channel;
 
         /**
          * WS 升级完成后的帧协议模式
-        */
+         */
         volatile boolean wsMode;
 
         /**
          * SSE 流式进行中(写链排空不收尾)
-        */
+         */
         volatile boolean sseActive;
 
         /**
          * SSE 已关闭(零分块已入队,可安全断开送 EOF)
-        */
+         */
         volatile boolean sseEnd;
 
         /**
          * WS 连接发送器
-        */
+         */
         volatile AioWsConnection wsConn;
 
         /**
          * WS 帧解码器(懒建)
-        */
+         */
         private WsDecoder wsDec;
 
         /**
@@ -1555,12 +1555,12 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 懒分配 direct 读缓冲(首次读到数据才分配)
-        */
+         */
         ByteBuffer readBuf;
 
         /**
          * 是否保持连接(每条响应处理后更新)
-        */
+         */
         volatile boolean keepAlive = true;
 
         /**
@@ -1571,7 +1571,7 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 连接关闭标志(幂等关闭)
-        */
+         */
         final AtomicBoolean closed = new AtomicBoolean(false);
 
         /**
@@ -1622,17 +1622,17 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 每连接 SSL 引擎(服务端模式)
-        */
+         */
         final SSLEngine engine;
 
         /**
          * 网络密文读缓冲(direct,容量=会话包大小)
-        */
+         */
         final ByteBuffer netIn;
 
         /**
          * 握手期网络密文写缓冲(direct,容量=会话包大小)
-        */
+         */
         final ByteBuffer netOut;
 
         /**
@@ -1642,17 +1642,17 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * 会话密文包大小(WS/数据面加密分片依据)
-        */
+         */
         final int packetSize;
 
         /**
          * 握手 UNDERFLOW 后强制补读标志
-        */
+         */
         volatile boolean hsForceRead;
 
         /**
          * 握手完成标志(观测用)
-        */
+         */
         volatile boolean handshakeDone;
 
         TlsState(SSLEngine engine) {
@@ -1674,7 +1674,7 @@ public class AioHttpServer extends AbstractServer {
 
         /**
          * OUT
-        */
+         */
         private final java.util.function.Consumer<byte[]> sender;
 
         AioWsConnection(java.util.function.Consumer<byte[]> sender) {
@@ -1705,15 +1705,15 @@ public class AioHttpServer extends AbstractServer {
     private static final class AioWsRequest implements ServerRequest {
         /**
          * Topic
-        */
+         */
         private final String topic;
         /**
          * 请求体
-        */
+         */
         private final String body;
         /**
          * attributes
-        */
+         */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         AioWsRequest(String topic, String body) {
@@ -1757,23 +1757,23 @@ public class AioHttpServer extends AbstractServer {
     private static final class AioWsResponse implements ServerResponse {
         /**
          * Connection
-        */
+         */
         private final AioWsConnection connection;
         /**
          * 状态
-        */
+         */
         private int status = 200;
         /**
          * Ended
-        */
+         */
         private boolean ended;
         /**
          * Committed
-        */
+         */
         private boolean committed;
         /**
          * 结果
-        */
+         */
         private Object result;
 
         AioWsResponse(AioWsConnection connection) {

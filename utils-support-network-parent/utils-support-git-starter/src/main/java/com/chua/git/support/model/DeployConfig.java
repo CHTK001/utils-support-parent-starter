@@ -26,6 +26,18 @@ public record DeployConfig(
 ) {
 
     /**
+     * 规范构造器：对编译目标与配置文件列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。两个列表的构造点
+     * （{@link #ofDefault(String)} 与 {@code DeployOperation}）均传入非空不可变列表，
+     * 元素亦非空，故使用拒绝 null 元素的 {@link java.util.List#copyOf(java.util.Collection)}。</p>
+     */
+    public DeployConfig {
+        goals = java.util.List.copyOf(java.util.Objects.requireNonNull(goals, "goals 不能为 null"));
+        profiles = java.util.List.copyOf(java.util.Objects.requireNonNull(profiles, "profiles 不能为 null"));
+    }
+
+    /**
      * 创建默认编译参数（compile + 包）。
      *
      * @param projectPath Maven pom.xml 路径

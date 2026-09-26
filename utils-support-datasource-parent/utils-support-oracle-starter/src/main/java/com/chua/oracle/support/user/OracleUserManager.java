@@ -68,9 +68,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
              Statement s = c.createStatement();
              ResultSet rs = s.executeQuery("SELECT username FROM dba_users ORDER BY username")) {
             while (rs.next()) {
-                UserInfo ui = new UserInfo();
-                ui.setUser(rs.getString("username"));
-                ui.setHost("");
+                UserInfo ui = new UserInfo(rs.getString("username"), "", null);
                 list.add(ui);
             }
         } catch (SQLException e) {
@@ -122,3 +120,4 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     }
 
 }
+

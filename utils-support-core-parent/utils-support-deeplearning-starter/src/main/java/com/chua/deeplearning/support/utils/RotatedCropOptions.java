@@ -23,4 +23,26 @@ public record RotatedCropOptions(
         double rh,
         double angle
 ) {
+
+    /**
+     * 规范构造器：原图字节做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组组件必须深不可变。原图字节仅被解码读取，
+     * 允许安全拷贝；保留其 {@code null} 语义。</p>
+     *
+     * @param imageData 原图字节
+     */
+    public RotatedCropOptions {
+        imageData = imageData == null ? null : imageData.clone();
+    }
+
+    /**
+     * 访问器覆写：返回原图字节的副本。
+     *
+     * @return 原图字节副本；无则返回 {@code null}
+     */
+    @Override
+    public byte[] imageData() {
+        return imageData == null ? null : imageData.clone();
+    }
 }

@@ -98,7 +98,7 @@ public class ServiceDefinitionUtils {
         }
 
         List<ServiceDefinition> rs = new LinkedList<>(buildDefinitionType(service, resolverType, obj, implType, url));
-        if (null == alias || alias.isEmpty() || !rs.isEmpty()) {
+        if (null == alias || alias.isEmpty()) {
             return rs;
         }
         SpiOrder spiOrder = implType.getDeclaredAnnotation(SpiOrder.class);
@@ -106,9 +106,8 @@ public class ServiceDefinitionUtils {
         if (null != spiOrder) {
             orderValue = spiOrder.value();
         }
-        if (StringUtils.isNotEmpty(alias)) {
-            rs.add(buildDefinitionAlias(service, resolverType, obj, implType, url, alias, orderValue));
-        }
+        // 登记文件里的别名与注解名同为查找入口：注解已命名时别名不能作废，否则 key=impl 契约失效
+        rs.add(buildDefinitionAlias(service, resolverType, obj, implType, url, alias, orderValue));
         return rs;
     }
 

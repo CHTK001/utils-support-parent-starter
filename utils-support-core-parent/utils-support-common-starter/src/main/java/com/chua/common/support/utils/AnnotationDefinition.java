@@ -22,7 +22,7 @@ public final class AnnotationDefinition<A extends Annotation> {
     public enum Source {
         /**
          * 直接在当前元素上声明
-        */
+         */
         DIRECT,
         /**
          * 从父类/父接口继承（{@link java.lang.annotation.Inherited}）
@@ -30,14 +30,14 @@ public final class AnnotationDefinition<A extends Annotation> {
         INHERITED,
         /**
          * 从父类方法重写继承
-        */
+         */
         OVERRIDDEN_METHOD,
         /**
          * 通过别名解析找到（如 {@code @GetMapping} → {@code @RequestMapping}）
          *
          * @param annotation 注解
          * @param annotationClass 注解类
-         * @return 的overridden方法的结果
+         * @return 被重写方法的结果
          */
         ALIAS_RESOLVED
     }
@@ -54,10 +54,10 @@ public final class AnnotationDefinition<A extends Annotation> {
         this.annotationClass = annotationClass;
         this.subclassOverridesParent = subclassOverridesParent;
     /**
-     * 的inherited。
+     * 是否可继承。
      * @param annotation 注解
      * @param annotationClass 注解类
-     * @return 的inherited的结果
+     * @return 是否可继承的结果
      */
     }
 

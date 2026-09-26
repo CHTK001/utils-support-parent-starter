@@ -33,10 +33,10 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
      */
     private static final int MIN_POINTS_FOR_EXTENT = 1;
 
-    @Override
     /**
      * Boundary
-    */
+     */
+    @Override
     public double boundary(List<double[]> points) {
         validatePoints(points, MIN_POINTS_FOR_BOUNDARY);
 
@@ -52,10 +52,10 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
         return maxDistance;
     }
 
-    @Override
     /**
      * FurthestPair
-    */
+     */
+    @Override
     public FurthestPair furthestPair(List<double[]> points) {
         validatePoints(points, MIN_POINTS_FOR_BOUNDARY);
 
@@ -82,10 +82,10 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
                 points.get(firstIndex), points.get(secondIndex), maxDistance);
     }
 
-    @Override
     /**
      * Extent
-    */
+     */
+    @Override
     public double extent(List<double[]> points) {
         validatePoints(points, MIN_POINTS_FOR_EXTENT);
 

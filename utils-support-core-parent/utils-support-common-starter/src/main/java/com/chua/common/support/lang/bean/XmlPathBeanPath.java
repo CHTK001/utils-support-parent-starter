@@ -18,10 +18,10 @@ import com.chua.common.support.spi.annotations.Spi;
 @ConditionalOnClass("javax.xml.xpath.XPathFactory")
 public class XmlPathBeanPath implements BeanPath {
 
-    @Override
     /**
      * 获取Value
-    */
+     */
+    @Override
     public <T> T getValue(Object source, String path) {
         if (!(source instanceof String xml)) {
             return null;
@@ -34,17 +34,17 @@ public class XmlPathBeanPath implements BeanPath {
         return value != null ? (T) value : null;
     }
 
-    @Override
     /**
      * 设置Value
-    */
+     */
+    @Override
     public void setValue(Object source, String path, Object value) {
     }
 
-    @Override
     /**
      * 是否存在
-    */
+     */
+    @Override
     public boolean exists(Object source, String path) {
         if (!(source instanceof String xml)) {
             return false;

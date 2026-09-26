@@ -26,15 +26,15 @@ public class DefaultServerFilterChain implements ServerFilterChain {
 
     /**
      * Filters
-    */
+     */
     private final List<ServerFilter> filters;
     /**
      * 处理器
-    */
+     */
     private final ServerHandler handler;
     /**
      * Listeners
-    */
+     */
     private final List<FilterChainListener> listeners;
     /**
      * 索引名
@@ -66,10 +66,10 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         this.index = 0;
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response) throws Exception {
         if (index < filters.size()) {
             ServerFilter filter = filters.get(index++);
@@ -164,12 +164,12 @@ public class DefaultServerFilterChain implements ServerFilterChain {
         }
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取Listeners
      * @param request 请求，不允许为 null
      * @return 结果列表，无数据时为空列表
      */
+    @SuppressWarnings("unchecked")
     private List<FilterChainListener> getListeners(ServerRequest request) {
         Object value = request.getAttribute("_chainListeners");
         if (value instanceof List<?>) {

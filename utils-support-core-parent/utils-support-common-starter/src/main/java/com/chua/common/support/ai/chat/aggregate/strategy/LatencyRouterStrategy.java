@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /**
  * 低延迟策略 — 并行发起所有请求，取最先成功返回的。
  *
- * <p>适用于对延迟敏感的场景。�️ 会同时消耗多个 Key 的配额。
+ * <p>适用于对延迟敏感的场景。注意：会同时消耗多个 Key 的配额。
  * 同步使用并行竞速，流式回退到 {@link FailoverTemplate}。</p>
  *
  * @author CH
@@ -42,10 +42,10 @@ public class LatencyRouterStrategy implements RouterStrategy {
      */
     private static final String EMPTY_TEXT = "";
 
-    @Override
     /**
      * 选择
-    */
+     */
+    @Override
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

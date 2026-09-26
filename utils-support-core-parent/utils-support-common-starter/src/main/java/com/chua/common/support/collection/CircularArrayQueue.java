@@ -139,26 +139,26 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         this.size = 0;
     }
 
-    @Override
     /**
      * Capacity
-    */
+     */
+    @Override
     public int capacity() {
         return capacity;
     }
 
-    @Override
     /**
      * Policy
-    */
+     */
+    @Override
     public OverflowPolicy policy() {
         return policy;
     }
 
-    @Override
     /**
      * 设置Policy
-    */
+     */
+    @Override
     public void setPolicy(OverflowPolicy policy) {
         if (policy == null) {
             throw new NullPointerException("溢出策略不允许为 null");
@@ -166,34 +166,34 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         this.policy = policy;
     }
 
-    @Override
     /**
      * LastEvicted
-    */
+     */
+    @Override
     public E lastEvicted() {
         return lastEvicted;
     }
 
-    @Override
     /**
      * 获取大小
-    */
+     */
+    @Override
     public int size() {
         return size;
     }
 
-    @Override
     /**
      * 是否Empty
-    */
+     */
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     /**
      * 是否包含（用于 AbstractQueue 的 add 等）
-    */
+     */
+    @Override
     public boolean contains(Object o) {
         for (int i = 0; i < size; i++) {
             if (java.util.Objects.equals(elements[(head + i) % capacity], o)) {
@@ -203,29 +203,29 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         return false;
     }
 
-    @Override
     /**
      * Iterator（按入队顺序：队首 -> 队尾）
-    */
+     */
+    @Override
     public Iterator<E> iterator() {
         return new Iterator<E>() {
             /**
              * 当前偏移量（相对队首）
-            */
+             */
             private int offset = 0;
 
-            @Override
             /**
              * 是否拥有Next
-            */
+             */
+            @Override
             public boolean hasNext() {
                 return offset < size;
             }
 
-            @Override
             /**
              * Next
-            */
+             */
+            @Override
             public E next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -235,20 +235,20 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
                 return e;
             }
 
-            @Override
             /**
              * 移除
-            */
+             */
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("环状队列迭代器不支持 remove()");
             }
         };
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         for (int i = 0; i < size; i++) {
             elements[(head + i) % capacity] = null;
@@ -259,10 +259,10 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         lastEvicted = null;
     }
 
-    @Override
     /**
      * 出队（FIFO，队首），覆盖 AbstractQueue 默认实现
-    */
+     */
+    @Override
     public E poll() {
         if (isEmpty()) {
             throw new NoSuchElementException("环状队列为空");
@@ -274,10 +274,10 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         return e;
     }
 
-    @Override
     /**
      * 查看队首（FIFO 头部），覆盖 AbstractQueue 默认实现
      */
+    @Override
     public E peek() {
         if (isEmpty()) {
             throw new NoSuchElementException("环状队列为空");
@@ -285,10 +285,10 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
         return (E) elements[head];
     }
 
-    @Override
     /**
      * 入队（队尾），按策略处理队满溢出
-    */
+     */
+    @Override
     public boolean offer(E e) {
         if (size < capacity) {
             elements[tail] = e;

@@ -104,26 +104,26 @@ public class TarFileSystem implements FileSystem {
      */
     private static final String ERROR_ENTRY_OUTSIDE_TARGET = "TAR entry outside target: ";
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "tar";
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public ReadBuilder read(File file) {
         return new TarReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public WriteBuilder write(File file) {
         return new TarWriteBuilder(file);
     }
@@ -137,12 +137,12 @@ public class TarFileSystem implements FileSystem {
 
         /**
          * 是否启用 GZIP 解包
-        */
+         */
         private boolean gzipEnabled;
 
         /**
          * 是否启用分卷读取模式
-        */
+         */
         private boolean splitMode = false;
 
         TarReadBuilder(File file) {

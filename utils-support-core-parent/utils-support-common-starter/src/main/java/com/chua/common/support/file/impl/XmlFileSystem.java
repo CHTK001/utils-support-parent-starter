@@ -140,26 +140,26 @@ public class XmlFileSystem implements FileSystem {
      */
     private static final int CLOSE_TAG_TOTAL_EXTRA = CLOSE_TAG_PREFIX_LENGTH + CLOSE_TAG_SUFFIX.length();
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return TYPE_XML;
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public ReadBuilder read(File file) {
         return new XmlReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public WriteBuilder write(File file) {
         return new XmlWriteBuilder(file);
     }
@@ -180,10 +180,10 @@ public class XmlFileSystem implements FileSystem {
             super(file);
         }
 
-        @Override
         /**
          * WithCharset
-        */
+         */
+        @Override
         public XmlReadBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
@@ -279,10 +279,10 @@ public class XmlFileSystem implements FileSystem {
             return result;
         }
 
-        @Override
         /**
          * 读取
-        */
+         */
+        @Override
         public Object read() {
             return rows();
         }
@@ -337,19 +337,19 @@ public class XmlFileSystem implements FileSystem {
             super(file);
         }
 
-        @Override
         /**
          * WithCharset
-        */
+         */
+        @Override
         public XmlWriteBuilder withCharset(String charset) {
             super.withCharset(charset);
             return this;
         }
 
-        @Override
         /**
          * 写入
-        */
+         */
+        @Override
         public XmlWriteBuilder write(Object data) {
             if (data instanceof Map) {
                 pending.add(data);
@@ -378,10 +378,10 @@ public class XmlFileSystem implements FileSystem {
             return this;
         }
 
-        @Override
         /**
          * Finish
-        */
+         */
+        @Override
         public void finish() {
             callback.onStart();
             callback.onBeginWrite();

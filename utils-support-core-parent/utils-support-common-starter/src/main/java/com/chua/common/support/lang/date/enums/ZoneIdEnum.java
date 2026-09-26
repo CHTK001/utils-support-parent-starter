@@ -155,11 +155,11 @@ public enum ZoneIdEnum {
 
     /**
      * ZoneID名称
-    */
+     */
     private final String zoneIdName;
     /**
      * ZoneID名称CN
-    */
+     */
     private final String zoneIdNameCn;
 
     /**

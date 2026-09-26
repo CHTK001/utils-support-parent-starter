@@ -2,7 +2,9 @@ package com.chua.fastjson.support.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.chua.common.support.lang.json.JsonArray;
 import com.chua.common.support.lang.json.JsonNode;
 import com.chua.common.support.lang.json.JsonObject;
@@ -25,6 +27,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -319,13 +322,20 @@ public class FastjsonJsonProvider implements JsonProvider {
         if (hasUnifiedAnnotations(object.getClass())) {
             mapped = JsonBeanMapper.toMap(object);
         }
-        if (null != ignores && ignores.length > 0 && mapped instanceof Map) {
-            JSONObject tree = new JSONObject(true);
-            tree.putAll((Map<? extends String, ?>) mapped);
-            for (String ignore : ignores) {
-                tree.remove(ignore);
+        if (null != ignores && ignores.length > 0) {
+            if (mapped instanceof Map<?, ?> source) {
+                // 剔除必须作用在副本上，入参 Map 由调用方持有
+                JSONObject tree = new JSONObject(true);
+                tree.putAll((Map<? extends String, ?>) source);
+                for (String ignore : ignores) {
+                    tree.remove(ignore);
+                }
+                return JSON.toJSONString(tree, SerializerFeature.WriteDateUseDateFormat);
             }
-            return JSON.toJSONString(tree);
+            // 普通 bean 交给属性前置过滤器剔除字段，否则 ignores 会被静默丢弃导致敏感字段照常输出
+            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
+            filter.getExcludes().addAll(Arrays.asList(ignores));
+            return JSON.toJSONString(mapped, new SerializeFilter[] {filter}, SerializerFeature.WriteDateUseDateFormat);
         }
         return JSON.toJSONString(mapped, SerializerFeature.WriteDateUseDateFormat);
     }

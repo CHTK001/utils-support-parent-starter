@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *         .batchSize(100)
  *         .build();
  * flow.start();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2026/07/28
@@ -199,10 +199,10 @@ public class SyncFlow implements AutoCloseable {
         return syncedCount.get();
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         stop();
     }
@@ -212,18 +212,18 @@ public class SyncFlow implements AutoCloseable {
      */
     private void initializeComponents() {
         sink.setExecutor(new SinkExecutor() {
-            @Override
             /**
              * Wakeup
-            */
+             */
+            @Override
             public void wakeup() {
                 // 消费循环基于轮询, 无需显式唤醒
             }
 
-            @Override
             /**
              * 是否Running
-            */
+             */
+            @Override
             public boolean isRunning() {
                 return running.get();
             }

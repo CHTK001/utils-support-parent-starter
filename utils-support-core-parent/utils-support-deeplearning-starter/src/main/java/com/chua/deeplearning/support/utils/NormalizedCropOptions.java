@@ -20,4 +20,26 @@ public record NormalizedCropOptions(
         float width,
         float height
 ) {
+
+    /**
+     * 规范构造器：图像字节做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组组件必须深不可变。图像字节仅被解码读取，
+     * 允许安全拷贝；保留其 {@code null} 语义。</p>
+     *
+     * @param imageData 图像字节
+     */
+    public NormalizedCropOptions {
+        imageData = imageData == null ? null : imageData.clone();
+    }
+
+    /**
+     * 访问器覆写：返回图像字节的副本。
+     *
+     * @return 图像字节副本；无则返回 {@code null}
+     */
+    @Override
+    public byte[] imageData() {
+        return imageData == null ? null : imageData.clone();
+    }
 }

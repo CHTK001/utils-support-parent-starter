@@ -73,7 +73,7 @@ import java.util.function.Consumer;
  * // JSON 构建
  * Pipeline pipeline = PipelineBuilder.fromJson(jsonString).build();
  * }</pre>e pipeline = pipeline构建器.从json(json字符串).构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -205,7 +205,7 @@ public class PipelineBuilder {
      *     .taskEnd()
      * }</pre>")
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param id      节点唯一标识
      * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
@@ -221,7 +221,7 @@ public class PipelineBuilder {
      * <p>语义上表示"开始一个任务定义"，与 {@link TaskDefinition#taskEnd()} 配对使用：</p>
      * <pre>{@code
      * .taskStart("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
-     * }</pre>  * }</pre>
+     * }</pre>  * }
      *
      * @param id      节点唯一标识
      * @param handler 业务逻辑处理器
@@ -253,7 +253,7 @@ public class PipelineBuilder {
      * .exit()
      * .taskEnd()
      * }</pre>* .taskEnd()
-     * }</pre>
+     * }
      *
      * @param id 节点唯一标识
      * @return TaskDefinition 任务节点定义（处理器 为空实现）
@@ -283,7 +283,7 @@ public class PipelineBuilder {
      * .exit()
      * .taskEnd()
      * }</pre>skEnd()
-     * }</pre>
+     * }
      *
      * @param id 节点唯一标识
      * @return TaskDefinition 任务节点定义（处理器 为空实现）
@@ -319,7 +319,7 @@ public class PipelineBuilder {
      *         default: return "defaultNode";
      *     }
      * })
-     * }</pre>
+     * }
      *
      * @param id     节点唯一标识
      * @param router 路由处理器，返回目标节点 标识；返回 空 表示按默认顺序执行
@@ -356,7 +356,7 @@ public class PipelineBuilder {
      * }</pre>   ctx.setNextNodeId(target);
      *     })
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param id 节点唯一标识
      * @return TaskDefinition 任务节点定义（处理器 为空实现，需配合 step/onstep 使用）
@@ -403,7 +403,7 @@ public class PipelineBuilder {
      *     .taskEnd()
      *     .build();
      * }</pre> * .构建();
-     * }</pre>
+     * }
      *
      * @param id          节点唯一标识
      * @param subPipeline 子流水线实例
@@ -436,7 +436,7 @@ public class PipelineBuilder {
      *     .build();
      * }</pre>束()
      * .构建();
-     * }</pre>
+     * }
      *
      * @param id          节点唯一标识
      * @param subPipeline 并行子流水线实例
@@ -471,7 +471,7 @@ public class PipelineBuilder {
      *     .build();
      * }</pre>    // 结束分叉定义
      * .构建();
-     * }</pre>
+     * }
      *
      * <p><strong>方式2：预构建 Pipeline 传入</strong></p>
      * <pre>{@code
@@ -486,7 +486,7 @@ public class PipelineBuilder {
      *     .taskEnd()
      *     .build();
      * }</pre>      * .构建();
-     * }</pre>
+     * }
      *
      * @param id 节点唯一标识
      * @return TaskForkDefinition 分叉节点定义
@@ -599,7 +599,7 @@ public class PipelineBuilder {
      *     .build();
      * }</pre>).任务结束()
      * .构建();
-     * }</pre>
+     * }
      *
      * @param onDraw 绘制回调，参数为当前流水线上下文
      * @return this
@@ -641,7 +641,7 @@ public class PipelineBuilder {
      *     .build();
      * }</pre>)
      * .构建();
-     * }</pre>
+     * }
      *
      * @param onError 异常回调函数，参数为 (上下文, 异常)，返回恢复节点 标识 或 空
      * @return this
@@ -703,7 +703,7 @@ public class PipelineBuilder {
      *     .build();
      * }</pre>ctx -> null).taskEnd()
      *     .build();
-     * }</pre>
+     * }
      *
      * @param strategy 路由策略
      * @return this
@@ -849,7 +849,7 @@ public class PipelineBuilder {
      * .taskStart("done", handler).taskEnd()
      * .pipelineEnd()
      * }</pre>lineEnd()
-     * }</pre>
+     * }
      *
      * @return 构建完成的 Pipeline 实例
      * @throws IllegalStateException 当验证失败或重复构建时抛出

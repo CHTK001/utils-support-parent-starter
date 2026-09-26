@@ -227,7 +227,7 @@ public interface Dialect {
      * @return 完整的 DROP TABLE 语句，例如 {@code drop table if exists `user`}
      */
     default String getDropTableString(String tableName) {
-        return "drop table if exists " + quote(tableName);
+        return "drop table if exists " + quote(SqlName.check(tableName, "表名"));
     }
 
     /**
@@ -237,7 +237,7 @@ public interface Dialect {
      * @return 例如 {@code alter table `user`}
      */
     default String getAlterTableString(String tableName) {
-        return "alter table " + quote(tableName);
+        return "alter table " + quote(SqlName.check(tableName, "表名"));
     }
 
     /**
@@ -266,7 +266,9 @@ public interface Dialect {
      * @return 完整的 RENAME 语句，例如 {@code alter table `user` rename to `user_new`}
      */
     default String getRenameTableString(String oldName, String newName) {
-        return "alter table " + quote(oldName) + " rename to " + quote(newName);
+        String safeOldName = SqlName.check(oldName, "原表名");
+        String safeNewName = SqlName.check(newName, "新表名");
+        return "alter table " + quote(safeOldName) + " rename to " + quote(safeNewName);
     }
 
     // ==================== DML 片段 ====================
@@ -281,7 +283,8 @@ public interface Dialect {
      * @return INSERT 语句
      */
     default String getInsertSql(String tableName, String columns, String values) {
-        return "insert into " + quote(tableName) + " (" + columns + ") values (" + values + ")";
+        return "insert into " + quote(SqlName.check(tableName, "表名"))
+                + " (" + columns + ") values (" + values + ")";
     }
 
     /**
@@ -294,7 +297,8 @@ public interface Dialect {
      * @return UPDATE 语句
      */
     default String getUpdateSql(String tableName, String setClause, String whereClause) {
-        StringBuilder sb = new StringBuilder("update ").append(quote(tableName)).append(" set ").append(setClause);
+        StringBuilder sb = new StringBuilder("update ").append(quote(SqlName.check(tableName, "表名")))
+                .append(" set ").append(setClause);
         if (whereClause != null && !whereClause.isEmpty()) {
             sb.append(" where ").append(whereClause);
         }
@@ -310,7 +314,7 @@ public interface Dialect {
      * @return DELETE 语句
      */
     default String getDeleteSql(String tableName, String whereClause) {
-        StringBuilder sb = new StringBuilder("delete from ").append(quote(tableName));
+        StringBuilder sb = new StringBuilder("delete from ").append(quote(SqlName.check(tableName, "表名")));
         if (whereClause != null && !whereClause.isEmpty()) {
             sb.append(" where ").append(whereClause);
         }
@@ -365,15 +369,23 @@ public interface Dialect {
      * @return 数据库名，无法解析返回 null
      */
     default String getDatabaseName(String url) {
-        if (url == null || url.isEmpty()) { return null; }
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
         int protocolEnd = url.indexOf("://");
-        if (protocolEnd < 0) { return null; }
+        if (protocolEnd < 0) {
+            return null;
+        }
         String rest = url.substring(protocolEnd + 3);
         int slashIndex = rest.indexOf('/');
-        if (slashIndex < 0) { return null; }
+        if (slashIndex < 0) {
+            return null;
+        }
         String db = rest.substring(slashIndex + 1);
         int paramIndex = db.indexOf('?');
-        if (paramIndex >= 0) { db = db.substring(0, paramIndex); }
+        if (paramIndex >= 0) {
+            db = db.substring(0, paramIndex);
+        }
         return db.isEmpty() ? null : db;
     }
 
@@ -397,7 +409,10 @@ public interface Dialect {
      * @return 重命名语句
      */
     default String getRenameTableString(String schemaName, String oldTableName, String newTableName) {
-        return "rename table " + quote(oldTableName) + " to " + quote(newTableName);
+        SqlName.checkSimple(schemaName, "schema 名");
+        String safeOldName = SqlName.checkSimple(oldTableName, "原表名");
+        String safeNewName = SqlName.checkSimple(newTableName, "新表名");
+        return "rename table " + quote(safeOldName) + " to " + quote(safeNewName);
     }
 
     /**
@@ -446,7 +461,7 @@ public interface Dialect {
         throw new UnsupportedOperationException("当前数据库不需要触发器实现自增: " + protocol());
     }
 
-    // ==================== 分区支持 ====================
+    // ==================== 注释支持 ====================
 
     /**
      * 判断当前数据库是否支持内联注释。
@@ -542,16 +557,18 @@ public interface Dialect {
         } else {
             sql.append("CREATE INDEX ");
         }
-        sql.append(quote(indexMetadata.getName()))
+        String safeIndexName = SqlName.checkSimple(indexMetadata.getName(), "索引名");
+        String safeTableName = SqlName.check(indexMetadata.getTableName(), "索引表名");
+        sql.append(quote(safeIndexName))
                 .append(" ON ")
-                .append(quote(indexMetadata.getTableName()))
+                .append(quote(safeTableName))
                 .append(" (");
         if (indexMetadata.getColumns() != null && !indexMetadata.getColumns().isEmpty()) {
             sql.append(indexMetadata.getColumns().stream()
-                    .map(this::quote)
+                    .map(column -> quote(SqlName.checkSimple(column, "索引列")))
                     .collect(Collectors.joining(", ")));
         } else if (indexMetadata.getColumnName() != null && !indexMetadata.getColumnName().isEmpty()) {
-            sql.append(quote(indexMetadata.getColumnName()));
+            sql.append(quote(SqlName.checkSimple(indexMetadata.getColumnName(), "索引列")));
         }
         sql.append(")");
         return sql.toString();
@@ -565,7 +582,9 @@ public interface Dialect {
      * @return DROP INDEX 语句
      */
     default String getDropIndexString(String indexName, String tableName) {
-        return "DROP INDEX " + indexName;
+        SqlName.checkSimple(indexName, "索引名");
+        SqlName.checkSimple(tableName, "索引表名");
+        return "DROP INDEX " + quote(SqlName.checkSimple(indexName, "索引名"));
     }
 
     /**
@@ -577,7 +596,10 @@ public interface Dialect {
      * @return RENAME INDEX 语句
      */
     default String getRenameIndexString(String oldIndexName, String newIndexName, String tableName) {
-        return "ALTER INDEX " + oldIndexName + " RENAME TO " + newIndexName;
+        String safeOldName = SqlName.checkSimple(oldIndexName, "原索引名");
+        String safeNewName = SqlName.checkSimple(newIndexName, "新索引名");
+        SqlName.checkSimple(tableName, "索引表名");
+        return "ALTER INDEX " + quote(safeOldName) + " RENAME TO " + quote(safeNewName);
     }
 
     // ==================== 存储引擎 ====================
@@ -758,7 +780,7 @@ public interface Dialect {
      * {@code META-INF/extensions/…Dialect} 注册即可零侵入接入。</p>
      *
      * @param protocol 数据库协议名（如 {@code mysql}、{@code postgresql}）
-     * @return 方言实例，永不为 空
+     * @return 方言实例，不会为 null
      * @throws IllegalStateException 协议未注册方言实现
      */
     static Dialect require(String protocol) {

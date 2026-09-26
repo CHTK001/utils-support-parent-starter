@@ -29,7 +29,7 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
     /**
      * Spring_注解
-    */
+     */
     private static final Set<String> SPRING_ANNOTATIONS = Set.of(
             "org.springframework.stereotype.Component",
             "org.springframework.stereotype.Service",
@@ -41,18 +41,18 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
             "org.springframework.web.bind.annotation.ControllerAdvice"
     );
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 20;
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null || beanClass.isInterface() || beanClass.isEnum()
                 || beanClass.isAnnotation() || Modifier.isAbstract(beanClass.getModifiers())) {
@@ -66,10 +66,10 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
         return false;
     }
 
-    @Override
     /**
      * Generate
-    */
+     */
+    @Override
     public List<BeanDefinition> generate(Class<?> beanClass) {
         List<BeanDefinition> definitions = new ArrayList<>();
         if (beanClass == null) {

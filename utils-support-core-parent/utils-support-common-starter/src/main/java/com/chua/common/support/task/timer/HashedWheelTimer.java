@@ -210,9 +210,19 @@ public class HashedWheelTimer implements Timer {
                     }
                     int idx = (int) (currentTick % slots);
                     List<TimerTask> due = wheel[idx].drain();
+                    long now = System.currentTimeMillis();
                     for (TimerTask tt : due) {
+                        if (tt.isCancelled()) {
+                            continue;
+                        }
+                        // 延迟超过一圈时，取模只会把任务落到 (offset % slots) 槽，不能视为到期：
+                        // 未到期则按剩余时间重新落槽，等真正到期再执行，避免长延迟被压缩成一圈内触发
+                        if (!tt.isDeadline(now)) {
+                            schedule(tt);
+                            continue;
+                        }
                         // 周期重排在提交执行前完成：fixed-rate 语义，不因执行慢而丢拍
-                        if (!tt.isCancelled() && tt.getPeriod() > 0) {
+                        if (tt.getPeriod() > 0) {
                             tt.advanceDeadline();
                             schedule(tt);
                         }

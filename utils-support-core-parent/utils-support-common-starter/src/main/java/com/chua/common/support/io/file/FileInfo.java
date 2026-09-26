@@ -23,55 +23,55 @@ public class FileInfo {
 
     /**
      * 名称
-    */
+     */
     private String name;
     /**
      * 文件路径
-    */
+     */
     private String path;
     /**
      * 是否为目录
-    */
+     */
     private boolean directory;
     /**
      * 是否为文件
-    */
+     */
     private boolean file;
     /**
      * 是否隐藏
-    */
+     */
     private boolean hidden;
     /**
      * 大小
-    */
+     */
     private long size;
     /**
      * 最后修改时间
-    */
+     */
     private long lastModified;
     /**
      * 文件扩展名
-    */
+     */
     private String extension;
     /**
      * 创建时间
-    */
+     */
     private LocalDateTime createTime;
     /**
      * 更新时间
-    */
+     */
     private LocalDateTime updateTime;
     /**
      * 文件所有者
-    */
+     */
     private String owner;
     /**
      * 所属组
-    */
+     */
     private String group;
     /**
      * 文件权限字符串
-    */
+     */
     private String permissions;
 
     /**

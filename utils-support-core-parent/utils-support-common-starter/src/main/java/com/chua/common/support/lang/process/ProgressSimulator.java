@@ -211,10 +211,10 @@ public final class ProgressSimulator {
     private static double clamp(double v, double min, double max) {
         return Math.max(min, Math.min(max, v));
     }
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return "ProgressSimulator{" +
                 "type=" + type +

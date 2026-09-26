@@ -44,6 +44,11 @@ public class QpsServerFilter implements ServerFilter {
      */
     private volatile long windowStartTime = System.currentTimeMillis();
 
+    /**
+     * 是否已收到 qps.max 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
@@ -52,7 +57,19 @@ public class QpsServerFilter implements ServerFilter {
         String max = config.getInitParameter("qps.max");
         if (max != null && !max.isEmpty()) {
             this.maxQps = Integer.parseInt(max);
+            // 阈值非正数等价于拒绝全部请求，按未配置处理
+            this.configured = this.maxQps > 0;
+        } else {
+            this.configured = false;
         }
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
     }
 
     @Override

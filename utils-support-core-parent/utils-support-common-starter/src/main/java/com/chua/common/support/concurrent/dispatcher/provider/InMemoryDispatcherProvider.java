@@ -27,25 +27,25 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
 
     /**
      * 主题队列映射
-    */
+     */
     private final Map<String, LinkedBlockingQueue<Object>> topicQueues = new ConcurrentHashMap<>();
     /**
      * 分发定义映射
-    */
+     */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
     /**
      * 线程池执行器
-    */
+     */
     private final ExecutorService executor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("inmem-dispatcher-", 0).factory());
     /**
      * 是否已关闭
-    */
+     */
     private volatile boolean closed = false;
 
     /**
      * 队列容量
-    */
+     */
     private static final int QUEUE_CAPACITY = 50000;
 
     /**
@@ -56,10 +56,10 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
         super(config);
     }
 
-    @Override
     /**
      * 发布
-    */
+     */
+    @Override
     public void publish(String topic, Object body) {
         if (closed) {
             return;
@@ -70,10 +70,10 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
         }
     }
 
-    @Override
     /**
      * 订阅
-    */
+     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -84,10 +84,10 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
         }
     }
 
-    @Override
     /**
      * 取消订阅
-    */
+     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -100,10 +100,10 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         closed = true;
         topicQueues.clear();

@@ -136,7 +136,7 @@ public abstract class SqlFormatter implements Formatter {
     }
     /**
      * Highlight配置
-    */
+     */
     protected HighlightConfig highlightConfig = new HighlightConfig();
 
     // ==================== 构造函数 ====================
@@ -270,7 +270,7 @@ public abstract class SqlFormatter implements Formatter {
      * @return 格式化后的关键字
      */
     protected String formatKeyword(String word) {
-        // 防御性检查：如果word为null或空，直接返回
+        // 防御性检查：如果 {@code word} 为 null 或空，直接返回
         if (word == null || word.isEmpty()) {
             return word;
         }

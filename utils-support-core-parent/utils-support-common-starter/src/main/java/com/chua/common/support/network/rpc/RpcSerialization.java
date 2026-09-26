@@ -36,9 +36,7 @@ public final class RpcSerialization {
 
     /**
      * 日志
-     */
-
-    /**
+     *
      * 支持的序列化名称（映射到实现类全限定名）
      */
     private static final String[][] SUPPORTED = {
@@ -213,18 +211,18 @@ public final class RpcSerialization {
      */
     private static final class JdkSerialization implements Serialization {
 
-        @Override
         /**
          * Name
-        */
+         */
+        @Override
         public String name() {
             return "java";
         }
 
-        @Override
         /**
          * 序列化
-        */
+         */
+        @Override
         public byte[] serialize(Object obj) throws Exception {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
             try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -233,11 +231,11 @@ public final class RpcSerialization {
             return bos.toByteArray();
         }
 
-        @SuppressWarnings("unchecked")
-        @Override
         /**
          * 反序列化
-        */
+         */
+        @SuppressWarnings("unchecked")
+        @Override
         public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
                 ois.setObjectInputFilter(RpcSerialization.objectInputFilter());

@@ -17,31 +17,31 @@ public class BootstrapProbe {
 
     /**
      * 配置
-    */
+     */
     private final MeshConfig config;
     /**
      * 节点表
-    */
+     */
     private final NodeTable nodeTable;
     /**
      * Selector
-    */
+     */
     private final InterfaceSelector selector;
     /**
      * 本地服务器ID
-    */
+     */
     private final String localServerId;
     /**
      * 本地端口
-    */
+     */
     private final int localPort;
     /**
      * Diskstore
-    */
+     */
     private final DiskStore diskStore;
     /**
      * 本地主机
-    */
+     */
     private final String localHost;
 
     /**
@@ -123,24 +123,24 @@ public class BootstrapProbe {
                 }
                 all.addAll(seedMode.getDiscoveredNodes());
                 return new ProbeStrategy() {
-                    @Override
                     /**
                      * 开始
-                    */
+                     */
+                    @Override
                     public void start() {
                     }
 
-                    @Override
                     /**
                      * 停止
-                    */
+                     */
+                    @Override
                     public void stop() {
                     }
 
-                    @Override
                     /**
                      * 获取DiscoveredNodes
-                    */
+                     */
+                    @Override
                     public List<NodeTable.NodeEntry> getDiscoveredNodes() {
                         return Collections.unmodifiableList(all);
                     }

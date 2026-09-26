@@ -24,19 +24,19 @@ import java.lang.reflect.Parameter;
 @SpiDescribe("默认配置注入器（@ConfigValue）")
 public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(ConfigValue.class);
     }
 
-    @Override
     /**
      * Inject
-    */
+     */
+    @Override
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null || environment == null) { return null; }
         ConfigValue configValue = field.getAnnotation(ConfigValue.class);
@@ -44,10 +44,10 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return rawValue(configValue.value(), configValue.defaultValue());
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -60,10 +60,10 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
         return false;
     }
 
-    @Override
     /**
      * Inject
-    */
+     */
+    @Override
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null || environment == null) {
             return null;

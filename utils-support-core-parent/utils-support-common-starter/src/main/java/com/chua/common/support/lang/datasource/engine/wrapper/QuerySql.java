@@ -1,6 +1,9 @@
 package com.chua.common.support.lang.datasource.engine.wrapper;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 查询 SQL 信息记录，包含构建查询所需的所有结构化数据。
@@ -38,6 +41,52 @@ public record QuerySql<T>(
         String havingClause,
         List<Object> havingParams
 ) {
+
+    /**
+     * 规范构造器：实体类型必填，五个列表组件做防御性拷贝。
+     *
+     * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
+     * {@code selectColumns} / {@code orderBys} / {@code joins} 分别由
+     * {@link #hasSelect()}、{@link #hasOrderBy()}、{@link #hasJoins()} 显式判空，
+     * 允许为 null；{@code params} 与 {@code havingParams} 是 SQL 绑定值，
+     * 既可能整体为 null，也可能含 null 绑定值。因此五个列表均保留 null 语义
+     * 并采用可空安全写法。</p>
+     *
+     * @param entityClass   实体类类型，不允许为 null
+     * @param selectColumns SELECT 投影列列表，可为 null
+     * @param whereClause   WHERE 条件片段，可为 null
+     * @param params        WHERE 参数列表，可为 null
+     * @param groupByColumn GROUP BY 列，可为 null
+     * @param orderBys      ORDER BY 列表，可为 null
+     * @param limit         返回行数上限
+     * @param offset        偏移行数
+     * @param joins         JOIN 关联子句列表，可为 null
+     * @param havingClause  HAVING 条件片段，可为 null
+     * @param havingParams  HAVING 参数列表，可为 null
+     * @param <T>           实体类型
+     */
+    public QuerySql {
+        Objects.requireNonNull(entityClass, "entityClass 不能为 null");
+        selectColumns = copyList(selectColumns);
+        params = copyList(params);
+        orderBys = copyList(orderBys);
+        joins = copyList(joins);
+        havingParams = copyList(havingParams);
+    }
+
+    /**
+     * 复制列表组件：只做外层防御性拷贝，不改变元素本身，允许元素为 null。
+     *
+     * @param values 列表组件，可为 null
+     * @param <E>    元素类型
+     * @return 不可变列表，入参为 null 时返回 null
+     */
+    private static <E> List<E> copyList(List<E> values) {
+        if (values == null) {
+            return null;
+        }
+        return Collections.unmodifiableList(new ArrayList<>(values));
+    }
 
     /**
      * 兼容构造器：不含 JOIN 与 HAVING 的旧版查询。

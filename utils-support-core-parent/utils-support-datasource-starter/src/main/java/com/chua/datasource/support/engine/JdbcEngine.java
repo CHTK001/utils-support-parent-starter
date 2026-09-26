@@ -595,13 +595,16 @@ public abstract class JdbcEngine extends AbstractEngine {
             sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
         String updateSql = sqlBuilder.toString();
-        try (Connection conn = getJdbcConnection();
-             PreparedStatement ps = conn.prepareStatement(updateSql)) {
-            bindParams(ps, sql.params());
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("执行更新失败: " + updateSql, e);
-        }
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        return interceptUpdate(sql.whereClause(), params, () -> {
+            try (Connection conn = getJdbcConnection();
+                 PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                bindParams(ps, sql.params());
+                return ps.executeUpdate();
+            } catch (Exception e) {
+                throw new RuntimeException("执行更新失败: " + updateSql, e);
+            }
+        });
     }
 
     /**
@@ -622,13 +625,16 @@ public abstract class JdbcEngine extends AbstractEngine {
             sqlBuilder.append(" WHERE ").append(sql.whereClause());
         }
         String deleteSql = sqlBuilder.toString();
-        try (Connection conn = getJdbcConnection();
-             PreparedStatement ps = conn.prepareStatement(deleteSql)) {
-            bindParams(ps, sql.params());
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("执行删除失败: " + deleteSql, e);
-        }
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        return interceptUpdate(sql.whereClause(), params, () -> {
+            try (Connection conn = getJdbcConnection();
+                 PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                bindParams(ps, sql.params());
+                return ps.executeUpdate();
+            } catch (Exception e) {
+                throw new RuntimeException("执行删除失败: " + deleteSql, e);
+            }
+        });
     }
 
     /**
@@ -975,11 +981,9 @@ public abstract class JdbcEngine extends AbstractEngine {
      */
     private String resolveCreateDatabaseSql(String dbName) {
         String protocol = currentDialectProtocol();
-        for (DdlProvider provider : ServiceProvider.of(DdlProvider.class)
-                .getNewExtensions(DdlProvider.SPI_NAME, this)) {
-            if (provider.supports(protocol)) {
-                return provider.createDatabase(dbName);
-            }
+        DdlProvider provider = resolveDdlProvider(protocol);
+        if (provider != null) {
+            return provider.createDatabase(dbName);
         }
         String ident = escapeIdentifier(dbName);
         if ("mysql".equals(protocol) || "mariadb".equals(protocol)) {
@@ -988,6 +992,178 @@ public abstract class JdbcEngine extends AbstractEngine {
         }
         return "CREATE DATABASE IF NOT EXISTS " + ident;
     }
+
+    /**
+     * 解析支持当前方言协议的 DDL 生成器扩展。
+     *
+     * <p>遍历 {@code ddl-provider} SPI 扩展，取首个 {@code supports} 当前协议的实现。
+     * 兜底注册的 {@code DefaultDdlProvider#supports} 恒为 false，因此不会占用该位置。</p>
+     *
+     * @param protocol 方言协议名
+     * @return 命中的扩展；无匹配时返回 null，由调用方走内置语法兜底
+     */
+    private DdlProvider resolveDdlProvider(String protocol) {
+        for (DdlProvider provider : ServiceProvider.of(DdlProvider.class)
+                .getNewExtensions(DdlProvider.SPI_NAME, this)) {
+            if (provider.supports(protocol)) {
+                return provider;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 删除数据库。
+     * <p>与 {@link #createDatabase(String)} 对称：优先走 {@code ddl-provider} SPI 扩展，
+     * 无匹配时使用内置 {@code DROP DATABASE IF EXISTS} 兜底。</p>
+     *
+     * @param dbName 数据库名称
+     * @return true 删除成功
+     * @throws IllegalArgumentException 数据库名为空时抛出
+     */
+    public boolean dropDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) {
+            throw new IllegalArgumentException("数据库名不能为空");
+        }
+        String protocol = currentDialectProtocol();
+        DdlProvider provider = resolveDdlProvider(protocol);
+        String sql = provider != null
+                ? provider.dropDatabase(dbName)
+                : "DROP DATABASE IF EXISTS " + escapeIdentifier(dbName);
+        try (Connection conn = getJdbcConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("删除数据库失败: " + dbName, e);
+        }
+    }
+
+    /**
+     * 创建表。
+     * <p>列名经 {@link com.chua.common.support.lang.datasource.dialect.SqlName} 白名单校验，
+     * 类型名与约束由 {@code ddl-provider} SPI 扩展按方言生成；
+     * 无匹配扩展时使用内置标准 SQL 兜底。</p>
+     *
+     * @param tableName 表名
+     * @param columns   列定义列表
+     * @return true 创建成功
+     * @throws IllegalArgumentException 表名为空或列定义为空时抛出
+     */
+    public boolean createTable(String tableName, List<com.chua.common.support.lang.datasource.engine.ddl.ColumnDef> columns) {
+        if (tableName == null || tableName.isBlank()) {
+            throw new IllegalArgumentException("表名不能为空");
+        }
+        if (columns == null || columns.isEmpty()) {
+            throw new IllegalArgumentException("列定义不能为空");
+        }
+        String protocol = currentDialectProtocol();
+        DdlProvider provider = resolveDdlProvider(protocol);
+        String sql = provider != null
+                ? provider.createTable(tableName, columns)
+                : buildFallbackCreateTableSql(tableName, columns);
+        try (Connection conn = getJdbcConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("创建表失败: " + tableName, e);
+        }
+    }
+
+    /**
+     * 生成 内置 建表 语句（无 SPI 扩展时的标准 SQL 兜底）。
+     *
+     * @param tableName 表名
+     * @param columns   列定义列表
+     * @return 完整建表 DDL 语句
+     */
+    private String buildFallbackCreateTableSql(String tableName,
+                                               List<com.chua.common.support.lang.datasource.engine.ddl.ColumnDef> columns) {
+        String ident = escapeIdentifier(tableName);
+        StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
+                .append(ident).append(" (\n");
+        for (int i = 0; i < columns.size(); i++) {
+            com.chua.common.support.lang.datasource.engine.ddl.ColumnDef c = columns.get(i);
+            if (c.getName() == null || c.getType() == null) {
+                throw new IllegalArgumentException("列定义缺少 name 或 type: " + c);
+            }
+            sb.append("  ").append(SqlName.checkSimple(c.getName(), "列名"))
+                    .append(' ').append(c.getType());
+            if (c.isAutoIncrement()) {
+                sb.append(" AUTO_INCREMENT");
+            }
+            if (!c.isNullable()) {
+                sb.append(" NOT NULL");
+            }
+            // 默认值是 SQL 表达式而非绑定参数，无法用占位符，只能按标识符/字面量白名单放行
+            if (c.getDefaultValue() != null && !c.getDefaultValue().isEmpty()) {
+                sb.append(" DEFAULT ").append(escapeDefaultValue(c.getDefaultValue()));
+            }
+            if (c.isPrimaryKey()) {
+                sb.append(" PRIMARY KEY");
+            }
+            if (i < columns.size() - 1) {
+                sb.append(',');
+            }
+            sb.append('\n');
+        }
+        return sb.append(')').toString();
+    }
+
+    /**
+     * 校验 默认值 表达式。
+     *
+     * <p>DDL 位置无法使用占位符，默认值只能拼进语句，因此按"调用方传入的已是
+     * SQL 字面量文本"这一既有约定（见 {@code ColumnDef#defaultValue} 与
+     * {@code Dialect#getColumnComment}）做白名单校验后<b>原样输出</b>，不再二次转义。</p>
+     *
+     * <p>放行三类：数字字面量、受限关键字（{@code NULL} / 时间函数 / 布尔）、
+     * 以及引号配平的字符串字面量。第三类是关键——配平的引号意味着内容整体位于
+     * 字符串内，即使内容含分号也不构成注入；引号不配平（如 {@code 'a'); DROP TABLE t; --}）
+     * 会被拒绝。</p>
+     *
+     * @param raw 原始 默认值
+     * @return 校验通过的 默认值（原样输出）
+     * @throws IllegalArgumentException 默认值不在白名单内时抛出
+     */
+    private static String escapeDefaultValue(String raw) {
+        String v = raw.trim();
+        if (v.isEmpty()) {
+            throw new IllegalArgumentException("默认值不能为空");
+        }
+        if (SAFE_DEFAULT_KEYWORDS.contains(v.toUpperCase(java.util.Locale.ROOT))) {
+            return v;
+        }
+        if (NUMERIC_LITERAL.matcher(v).matches()) {
+            return v;
+        }
+        if (STRING_LITERAL.matcher(v).matches()) {
+            return v;
+        }
+        throw new IllegalArgumentException(
+                "默认值必须是数字字面量、受限关键字（NULL/CURRENT_TIMESTAMP 等）或引号配平的字符串字面量: " + raw);
+    }
+
+    /**
+     * 默认值允许的受限关键字（全大写比较）。
+     */
+    private static final java.util.Set<String> SAFE_DEFAULT_KEYWORDS = java.util.Set.of(
+            "NULL", "TRUE", "FALSE",
+            "CURRENT_TIMESTAMP", "CURRENT_DATE", "CURRENT_TIME",
+            "NOW()", "LOCALTIMESTAMP", "LOCALTIME");
+
+    /**
+     * 数字字面量：整数或小数，可带符号。
+     */
+    private static final java.util.regex.Pattern NUMERIC_LITERAL =
+            java.util.regex.Pattern.compile("[+-]?\\d+(\\.\\d+)?");
+
+    /**
+     * 字符串字面量：整体被一对单引号包裹，内部引号只能以 {@code ''} 成对出现。
+     */
+    private static final java.util.regex.Pattern STRING_LITERAL =
+            java.util.regex.Pattern.compile("'([^']|'')*'");
 
     /**
      * 检查数据库是否存在。

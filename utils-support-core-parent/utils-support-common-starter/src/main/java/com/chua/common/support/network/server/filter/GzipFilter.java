@@ -26,26 +26,26 @@ public class GzipFilter implements ServerFilter {
      */
     private volatile ServerSetting setting;
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void init(ServerFilterConfig config) throws Exception {
         if (config != null) {
             this.setting = config.getServerSetting();
@@ -54,10 +54,10 @@ public class GzipFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 更新Config
-    */
+     */
+    @Override
     public void updateConfig(java.util.Map<String, Object> config) {
         if (setting == null || config == null) {
             return;
@@ -76,10 +76,10 @@ public class GzipFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);
 

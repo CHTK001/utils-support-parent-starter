@@ -46,11 +46,10 @@ public class ConfigSaveResult {
      * <p>
      * 默认为当前时间。
      * </p>
+     *
+     * Update时间
      */
     @Builder.Default
-    /**
-     * Update时间
-    */
     private LocalDateTime updateTime = LocalDateTime.now();
 
     /**

@@ -1,6 +1,6 @@
 package com.chua.playwright.support;
 
-import com.chua.playwright.support.spi.Engine;
+import com.chua.playwright.support.engine.Engine;
 
 /**
  * 双模式 {@code APIRequestContext}。

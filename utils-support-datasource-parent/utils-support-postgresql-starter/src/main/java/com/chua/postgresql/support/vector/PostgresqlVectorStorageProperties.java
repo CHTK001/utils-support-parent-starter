@@ -45,6 +45,9 @@ public record PostgresqlVectorStorageProperties(
     private static final int DEFAULT_HNSW_M = 16;
     private static final int DEFAULT_HNSW_EF_SEARCH = 40;
 
+    /**
+     * 使用默认配置创建向量存储属性。
+     */
     public PostgresqlVectorStorageProperties() {
         this(DEFAULT_TABLE, DEFAULT_ID_COLUMN, DEFAULT_VECTOR_COLUMN,
                 DEFAULT_IVFFLAT_LISTS, DEFAULT_HNSW_M, DEFAULT_HNSW_EF_SEARCH);

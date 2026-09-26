@@ -44,27 +44,27 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
 
     /**
      * 实体类类型
-    */
+     */
     protected final Class<T> entityClass;
 
     /**
      * 条件列表，每个条件是一个列名 + 操作符 + 值的组合
-    */
+     */
     protected final List<Condition> conditions = new ArrayList<>();
 
     /**
      * 排序列列表，每项格式为 "列名 ASC" 或 "列名 DESC"
-    */
+     */
     protected final List<String> orderBys = new ArrayList<>();
 
     /**
      * 表别名，用于多表关联查询
-    */
+     */
     protected String tableAlias;
 
     /**
      * 是否允许无 WHERE 条件的全表更新/删除（allowFullTable() 显式开启）
-    */
+     */
     protected boolean fullTableAllowed;
 
     /**

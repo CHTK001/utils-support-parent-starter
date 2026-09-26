@@ -25,20 +25,20 @@ public class LoggingListener implements PipelineListener {
 
     /**
      * 日志记录器
-    */
+     */
     private static final Logger LOGGER = Logger.getLogger(LoggingListener.class.getName());
 
     /**
      * 节点级别
-    */
+     */
     private final Level nodeLevel;
     /**
      * 完成级别
-    */
+     */
     private final Level completeLevel;
     /**
      * 错误级别
-    */
+     */
     private final Level errorLevel;
 
     /**
@@ -64,7 +64,7 @@ public class LoggingListener implements PipelineListener {
 
     /**
      * 节点进入时按节点级别输出进入日志。
-    */
+     */
     @Override
     public void beforeNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
@@ -75,7 +75,7 @@ public class LoggingListener implements PipelineListener {
 
     /**
      * 节点离开时按节点级别输出离开日志。
-    */
+     */
     @Override
     public void afterNode(PipelineContext<?> context) {
         if (LOGGER.isLoggable(nodeLevel)) {
@@ -97,7 +97,7 @@ public class LoggingListener implements PipelineListener {
 
     /**
      * 流水线完成时按完成级别输出历史轨迹。
-    */
+     */
     @Override
     public void onComplete(PipelineContext<?> context) {
         if (LOGGER.isLoggable(completeLevel)) {

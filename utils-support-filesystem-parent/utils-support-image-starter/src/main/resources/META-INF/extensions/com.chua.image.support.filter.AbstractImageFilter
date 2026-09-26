@@ -9,12 +9,7 @@ com.chua.image.support.filter.ImageMosaicFilter
 com.chua.image.support.filter.ImageNegativeImageFilter
 com.chua.image.support.filter.ImageOldFashionImageFilter
 com.chua.image.support.filter.ImagePixelImageFilter
-com.chua.image.support.filter.ImageSizedFilter
 com.chua.image.support.filter.ImageSobelFilter
 com.chua.image.support.filter.ImageTransparentFilter
-com.chua.image.support.filter.ImageWaterImageFilter
-com.chua.image.support.filter.ImageWidthFilter
 com.chua.image.support.filter.LaplaceImageFilter
 com.chua.image.support.filter.SudokuImageFilter
-com.chua.image.support.filter.TextImgWaterImageFilter
-com.chua.image.support.filter.TextWaterImageFilter

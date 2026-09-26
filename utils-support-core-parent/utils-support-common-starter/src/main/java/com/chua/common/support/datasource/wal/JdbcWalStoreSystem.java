@@ -17,7 +17,7 @@ public class JdbcWalStoreSystem implements WalStoreSystem<String> {
     private final WalStoreConfig config;
     /**
      * joinStrategy名称
-    */
+     */
     private String joinStrategyName;
     final SegmentWalLog[] walLogs;
     private final Map<String, AtomicLong> rowIdCounters = new ConcurrentHashMap<>();

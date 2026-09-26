@@ -85,11 +85,14 @@ public interface BoundaryDistanceAlgorithm {
     double extent(List<double[]> points);
 
     /**
-     * 计算两个点之间的 Elo 距离
+     * 计算两个点之间的距离
+     *
+     * <p>具体度量由实现决定（欧氏、曼哈顿、切比雪夫）。</p>
      *
      * @param a 点 a 的特征向量
-     * @param b 点 b 的特征向量
+     * @param b 点 b 的特征向量，长度必须与 a 一致
      * @return 两点间的距离
+     * @throws IllegalArgumentException 两个向量长度不一致时抛出
      */
     double distance(double[] a, double[] b);
 }

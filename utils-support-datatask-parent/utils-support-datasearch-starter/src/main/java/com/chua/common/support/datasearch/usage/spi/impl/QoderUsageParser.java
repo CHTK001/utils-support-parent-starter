@@ -272,15 +272,51 @@ public class QoderUsageParser extends BaseUsageParser {
             builder.totalCost(BigDecimal.valueOf(credits))
                     .currency(CURRENCY_CREDITS);
         }
-        if (inputTokens > 0 || outputTokens > 0) {
-            builder.inputTokens(inputTokens)
-                    .outputTokens(outputTokens)
-                    .totalTokens(inputTokens + outputTokens)
-                    .cacheTokens(readCacheTokens(usage));
+        // Qoder 按 credits 计费，token 字段常为 0；此时按内容估算并标记
+        if (inputTokens <= 0 && outputTokens <= 0) {
+            String assistantText = extractAssistantText(message);
+            outputTokens = estimateTokens(assistantText);
+            // 输入粗略估算：每次对话输入约为输出的 3-5 倍
+            inputTokens = Math.max(100, outputTokens * 4);
+            builder.estimated(true);
         }
+        builder.inputTokens(inputTokens)
+                .outputTokens(outputTokens)
+                .totalTokens(inputTokens + outputTokens)
+                .cacheTokens(readCacheTokens(usage));
         return java.util.Optional.of(builder.build());
     }
 
+    /**
+     * 从 assistant message 中提取文本内容用于 token 估算。
+     */
+    private String extractAssistantText(JsonNode message) {
+        JsonNode content = message.get("content");
+        if (content == null) {
+            return "";
+        }
+        return content.toStringValue();
+    }
+
+    /**
+     * 按字符启发式估算 token 数：中文约 1 字/token，英文约 4 字符/token。
+     */
+    private int estimateTokens(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+        int cjk = 0;
+        int other = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch >= 0x4E00 && ch <= 0x9FFF) {
+                cjk++;
+            } else {
+                other++;
+            }
+        }
+        return cjk + Math.max(1, other / 4);
+    }
     /**
      * 读取缓存Tokens。
      *

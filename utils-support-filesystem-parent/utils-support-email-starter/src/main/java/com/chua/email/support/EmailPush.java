@@ -187,6 +187,7 @@ public class EmailPush implements MessagePush {
         String port = environment.get("smtp.port", "587");
         boolean auth = Boolean.parseBoolean(environment.get("smtp.auth", "true"));
         boolean starttls = Boolean.parseBoolean(environment.get("smtp.starttls", "true"));
+        boolean ssl = Boolean.parseBoolean(environment.get("smtp.ssl.enable", "false"));
 
         props.setProperty("mail.smtp.host", host);
         props.setProperty("mail.smtp.port", port);
@@ -195,7 +196,10 @@ public class EmailPush implements MessagePush {
         props.setProperty("mail.smtp.timeout", "30000");
         props.setProperty("mail.smtp.writetimeout", "30000");
 
-        if (starttls) {
+        // 隐式 TLS(465/SMTPS) 与 STARTTLS(587) 互斥，同时开启会让握手在已加密信道上再次发起
+        if (ssl) {
+            props.setProperty("mail.smtp.ssl.enable", "true");
+        } else if (starttls) {
             props.setProperty("mail.smtp.starttls.enable", "true");
         }
 

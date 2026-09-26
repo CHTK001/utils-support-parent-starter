@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -123,6 +124,18 @@ public final class CliModelRunner {
      */
     public record CliDescriptor(String cliId, String binaryName, List<String> downloadUrls,
                                 String sha256FileName, String entryPathIn) {
+
+        /**
+         * 规范构造器：对下载地址列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个工厂方法产出的地址均由
+         * 字符串拼接生成，元素不会是 {@code null}，故使用 {@link List#copyOf}。</p>
+         *
+         * @param downloadUrls 按平台顺序的下载 URL 列表（前者优先）
+         */
+        public CliDescriptor {
+            downloadUrls = List.copyOf(Objects.requireNonNull(downloadUrls, "downloadUrls 不能为 null"));
+        }
     }
 
     /**

@@ -58,39 +58,32 @@ public class PluginClassLoader extends URLClassLoader {
         this.pluginName = pluginName;
         this.pluginDir = pluginDir;
         this.parent = parent;
-        this.loadedClasses = new HashSet<>();
+        this.loadedClasses = java.util.concurrent.ConcurrentHashMap.newKeySet();
     }
 
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        // Bootstrap 类直接委派
-        if (isBootstrapClass(name)) {
-            return super.loadClass(name);
-        }
-        // 已加载的插件类直接返回
-        Class<?> loaded = findLoadedClass(name);
-        if (loaded != null) {
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        // child-first：先查本插件目录，再委派父加载器；注意不能再重写 findClass，
+        // 否则 ClassLoader.loadClass 回调 findClass 会与本类形成无限互调
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> loaded = findLoadedClass(name);
+            if (loaded == null) {
+                if (isBootstrapClass(name)) {
+                    loaded = getParent().loadClass(name);
+                } else {
+                    try {
+                        loaded = super.findClass(name);
+                    } catch (ClassNotFoundException e) {
+                        loaded = super.loadClass(name, false);
+                    }
+                }
+            }
+            if (resolve) {
+                resolveClass(loaded);
+            }
             loadedClasses.add(name);
             return loaded;
         }
-        // 插件自己的类先加载
-        try {
-            Class<?> clazz = findClass(name);
-            loadedClasses.add(name);
-            return clazz;
-        } catch (ClassNotFoundException e) {
-            // 委派给父加载器
-            return super.loadClass(name);
-        }
-    }
-
-    @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
-        // 插件自己的包优先加载
-        if (name.startsWith("com.chua.runtime.plugin")) {
-            return super.findClass(name);
-        }
-        return super.loadClass(name);
     }
 
     /**
@@ -127,14 +120,14 @@ public class PluginClassLoader extends URLClassLoader {
                                     try {
                                         urls.add(p.toUri().toURL());
                                     } catch (Exception e) {
-                                        LOG.log(Level.WARNING, String.format("添加 lib 目录 JAR 失败: %s", p, e));
+                                        LOG.log(Level.WARNING, "添加 lib 目录 JAR 失败: " + p, e);
                                     }
                                 });
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.log(Level.WARNING, String.format("构建插件 URL 失败: %s", pluginDir, e));
+            LOG.log(Level.WARNING, "构建插件 URL 失败: " + pluginDir, e);
         }
         return urls.toArray(new URL[0]);
     }
@@ -161,9 +154,15 @@ public class PluginClassLoader extends URLClassLoader {
         Path spiPath = pluginDir.resolve("META-INF/services/com.chua.runtime.plugin.Plugin");
         if (Files.exists(spiPath)) {
             try {
-                Files.readAllLines(spiPath).forEach(plugins::add);
+                for (String line : Files.readAllLines(spiPath)) {
+                    String trimmed = line.trim();
+                    if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                        continue;
+                    }
+                    plugins.add(trimmed);
+                }
             } catch (IOException e) {
-                LOG.log(Level.WARNING, String.format("扫描 SPI 配置失败", e));
+                LOG.log(Level.WARNING, "扫描 SPI 配置失败: " + spiPath, e);
             }
         }
         return plugins;

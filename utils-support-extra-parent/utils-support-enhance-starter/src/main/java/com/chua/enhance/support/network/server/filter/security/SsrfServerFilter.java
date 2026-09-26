@@ -38,12 +38,20 @@ public class SsrfServerFilter implements ServerFilter {
      */
     private boolean blockInternal = true;
 
+    /**
+     * 是否已收到 ssrf.* 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
     */
     public void init(ServerFilterConfig config) throws Exception {
         String domains = config.getInitParameter("ssrf.allowedDomains");
+        String block = config.getInitParameter("ssrf.blockInternal");
+        // 未显式配置时保持不挂载，避免默认的封锁内网策略拦掉合法的内部调用
+        this.configured = (domains != null && !domains.isEmpty()) || (block != null && !block.isEmpty());
         if (domains != null) {
             for (String domain : domains.split(",")) {
                 String trimmed = domain.trim().toLowerCase();
@@ -52,10 +60,17 @@ public class SsrfServerFilter implements ServerFilter {
                 }
             }
         }
-        String block = config.getInitParameter("ssrf.blockInternal");
         if ("false".equalsIgnoreCase(block)) {
             this.blockInternal = false;
         }
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
     }
 
     @Override

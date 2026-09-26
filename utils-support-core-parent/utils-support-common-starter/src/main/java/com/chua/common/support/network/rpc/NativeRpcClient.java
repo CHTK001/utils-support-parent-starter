@@ -44,9 +44,7 @@ public class NativeRpcClient implements RpcClient {
 
     /**
      * 日志
-     */
-
-    /**
+     *
      * 默认端口
      */
     private static final int DEFAULT_PORT = 18866;
@@ -164,11 +162,11 @@ public class NativeRpcClient implements RpcClient {
         this.tcpClient = new JdkTcpClient(poolSize, connectTimeout, readTimeout);
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     /**
      * 获取
-    */
+     */
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -182,10 +180,10 @@ public class NativeRpcClient implements RpcClient {
             this.targetType = targetType;
         }
 
-        @Override
         /**
          * 应用
-        */
+         */
+        @Override
         public Object apply(ProxyMethod pm) {
             // 同 JVM 直调：目标服务已在本进程注册时直接调用，跳过网络与序列化
             Object localService = inlineEnabled ? LocalServiceRegistry.INSTANCE.get(targetType.getName()) : null;
@@ -241,7 +239,7 @@ public class NativeRpcClient implements RpcClient {
 
         /**
          * 调用
-        */
+         */
         private Object call(String addr, RpcRequest req) throws Exception {
             String host = addr.contains(":") ? addr.split(":")[0] : addr;
             int port = addr.contains(":") ? Integer.parseInt(addr.split(":")[1]) : DEFAULT_PORT;
@@ -280,10 +278,10 @@ public class NativeRpcClient implements RpcClient {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         proxyCache.clear();
         try {

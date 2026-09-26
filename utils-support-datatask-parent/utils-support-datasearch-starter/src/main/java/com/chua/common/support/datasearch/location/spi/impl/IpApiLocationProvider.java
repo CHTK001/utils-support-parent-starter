@@ -89,17 +89,19 @@ public class IpApiLocationProvider implements LocationProvider {
             if (!"success".equals(root.path("status").asText())) {
                 return null;
             }
-            LocationInfo info = new LocationInfo();
-            info.setIp(root.path("query").asText(null));
-            info.setCountry(root.path("country").asText(null));
-            info.setCountryCode(root.path("countryCode").asText(null));
-            info.setRegion(root.path("regionName").asText(null));
-            info.setCity(root.path("city").asText(null));
-            info.setZip(root.path("zip").asText(null));
-            info.setLatitude(num(root.path("lat")));
-            info.setLongitude(num(root.path("lon")));
-            info.setTimezone(root.path("timezone").asText(null));
-            info.setIsp(root.path("isp").asText(null));
+            LocationInfo info = new LocationInfo(
+                    root.path("query").asText(null),
+                    root.path("country").asText(null),
+                    root.path("countryCode").asText(null),
+                    root.path("regionName").asText(null),
+                    root.path("city").asText(null),
+                    root.path("zip").asText(null),
+                    num(root.path("lat")),
+                    num(root.path("lon")),
+                    root.path("timezone").asText(null),
+                    root.path("isp").asText(null),
+                    null
+            );
             cache.put(key, info);
             cachedAt.put(key, System.currentTimeMillis());
             return info;
@@ -122,3 +124,4 @@ public class IpApiLocationProvider implements LocationProvider {
         return node.asDouble();
     }
 }
+

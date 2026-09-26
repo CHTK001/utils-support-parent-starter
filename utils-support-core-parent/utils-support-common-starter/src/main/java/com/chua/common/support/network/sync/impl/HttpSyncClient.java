@@ -112,10 +112,10 @@ public class HttpSyncClient implements SyncClient {
                 .build();
     }
 
-    @Override
     /**
      * 连接
-    */
+     */
+    @Override
     public void connect() {
         if (connected) {
             return;
@@ -132,10 +132,10 @@ public class HttpSyncClient implements SyncClient {
         notifyListeners(SyncFlowListener::onStart);
     }
 
-    @Override
     /**
      * 断开
-    */
+     */
+    @Override
     public void disconnect() {
         if (!connected) {
             return;
@@ -147,26 +147,26 @@ public class HttpSyncClient implements SyncClient {
         notifyListeners(SyncFlowListener::onStop);
     }
 
-    @Override
     /**
      * 是否Connected
-    */
+     */
+    @Override
     public boolean isConnected() {
         return connected;
     }
 
-    @Override
     /**
      * 获取ClientId
-    */
+     */
+    @Override
     public String getClientId() {
         return clientId;
     }
 
-    @Override
     /**
      * 发送
-    */
+     */
+    @Override
     public void send(String topic, Object message) {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -186,50 +186,50 @@ public class HttpSyncClient implements SyncClient {
         }
     }
 
-    @Override
     /**
      * 订阅
-    */
+     */
+    @Override
     public void subscribe(String topic, SyncMessageHandler handler) {
         subscriptions.put(topic, handler);
     }
 
-    @Override
     /**
      * 取消订阅
-    */
+     */
+    @Override
     public void unsubscribe(String topic) {
         subscriptions.remove(topic);
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
-    @Override
     /**
      * 移除Listener
-    */
+     */
+    @Override
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
     /**
      * 获取Metadata
-    */
+     */
+    @Override
     public Map<String, Object> getMetadata() {
         return Map.of("clientId", clientId, "serverUrl", serverUrl, "protocol", "http");
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         disconnect();
     }
@@ -238,7 +238,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 开始Heartbeat
-    */
+     */
     private void startHeartbeat() {
         heartbeatThread = ThreadUtils.newThread(() -> {
             while (connected) {
@@ -261,7 +261,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 停止Heartbeat
-    */
+     */
     private void stopHeartbeat() {
         if (heartbeatThread != null) {
             heartbeatThread.interrupt();
@@ -271,7 +271,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 发送Heartbeat
-    */
+     */
     private void sendHeartbeat() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -291,7 +291,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 开始拉取
-    */
+     */
     private void startPull() {
         pullThread = ThreadUtils.newThread(() -> {
             while (connected) {
@@ -313,7 +313,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 停止拉取
-    */
+     */
     private void stopPull() {
         if (pullThread != null) {
             pullThread.interrupt();
@@ -323,7 +323,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 拉取Messages
-    */
+     */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {
             ThreadUtils.sleep(500);
@@ -362,7 +362,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * AttemptReconnect
-    */
+     */
     private void attemptReconnect() {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
@@ -380,7 +380,7 @@ public class HttpSyncClient implements SyncClient {
 
     /**
      * 注册Client
-    */
+     */
     private void registerClient() throws Exception {
         String body = "clientId=" + java.net.URLEncoder.encode(clientId, "UTF-8");
         HttpRequest request = HttpRequest.newBuilder()

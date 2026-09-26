@@ -3,6 +3,7 @@ package com.chua.mqtt.support.dispatcher;
 import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
+import com.chua.common.support.network.protocol.MqttTopics;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
@@ -72,10 +73,13 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
      * 开始
     */
     public void start() {
+        if (config.getUrl() == null || config.getUrl().isBlank()) {
+            throw new IllegalStateException("MQTT 分发器缺少 url 配置，无法连接 Broker");
+        }
         try {
             String clientId = config.getClientId() != null ? config.getClientId() : DEFAULT_CLIENT_ID_PREFIX + System.currentTimeMillis();
             client = new MqttClient(config.getUrl(), clientId, new MemoryPersistence());
-            client.connect();
+            // 回调必须在 connect 之前注册，否则握手完成瞬间到达的消息会被 Paho 默认处理器丢弃
             client.setCallback(new MqttCallback() {
                 @Override
                 /**
@@ -90,10 +94,13 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                  * 消息arrived
                 */
                 public void messageArrived(String topic, MqttMessage message) {
-                    var defs = definitionMap.get(topic);
-                    if (defs != null) {
-                        String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                        for (var def : defs) {
+                    String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
+                    // 订阅登记的是主题过滤器（可含 +/#），按匹配规则投递
+                    for (Map.Entry<String, List<DispatcherDefinition>> entry : definitionMap.entrySet()) {
+                        if (!MqttTopics.matches(entry.getKey(), topic)) {
+                            continue;
+                        }
+                        for (var def : entry.getValue()) {
                             def.dispatch(payload);
                         }
                     }
@@ -106,10 +113,23 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
                 public void deliveryComplete(IMqttDeliveryToken token) {
                 }
             });
+            client.connect();
             log.info("MQTT 分发器已连接到 Broker: {}", config.getUrl());
         } catch (MqttException e) {
             throw new RuntimeException("MQTT 分发器连接 Broker 失败: " + config.getUrl(), e);
         }
+    }
+
+    /**
+     * 取出已连接的客户端。
+     *
+     * @return MQTT 客户端
+     */
+    private MqttClient requireClient() {
+        if (client == null) {
+            throw new IllegalStateException("MQTT 分发器未启动，请先调用 start()");
+        }
+        return client;
     }
 
     /**
@@ -124,18 +144,20 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
      */
     @Override
     public void publish(String topic, Object body) {
+        requireClient();
         try {
             byte[] payload = body == null ? new byte[0] : body.toString().getBytes(StandardCharsets.UTF_8);
             client.publish(topic, payload, 1, false);
         } catch (MqttException e) {
-            log.error("MQTT 发布消息失败, topic={}, error={}", topic, e.getMessage(), e);
+            throw new IllegalStateException("MQTT 发布消息失败, topic=" + topic + ": " + e.getMessage(), e);
         }
     }
 
     /**
      * 订阅分发定义中声明的所有主题。
      * <p>
-     * 将分发定义注册到本地映射表，并向 MQTT Broker 订阅对应主题。
+     * 先向 MQTT Broker 发起订阅，成功后才登记到本地映射表，
+     * 避免 Broker 拒绝订阅时本地看似已订阅却收不到消息。
      * 同一个主题允许多个分发定义共存。
      * </p>
      *
@@ -143,14 +165,18 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
      */
     @Override
     public void subscribe(DispatcherDefinition definition) {
+        requireClient();
         for (var topic : definition.getTopics()) {
-            try {
-                definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
-                client.subscribe(topic);
-                log.debug("MQTT 已订阅主题: {}", topic);
-            } catch (MqttException e) {
-                log.error("MQTT 订阅主题失败, topic={}, error={}", topic, e.getMessage(), e);
+            if (!MqttTopics.isValidFilter(topic)) {
+                throw new IllegalArgumentException("非法的 MQTT 主题过滤器: " + topic);
             }
+            try {
+                client.subscribe(topic);
+            } catch (MqttException e) {
+                throw new IllegalStateException("MQTT 订阅主题失败, topic=" + topic + ": " + e.getMessage(), e);
+            }
+            definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).add(definition);
+            log.debug("MQTT 已订阅主题: {}", topic);
         }
     }
 

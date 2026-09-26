@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
  * }</pre>eckCodeOpen;
  *     ...
  * }
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2024/8/13

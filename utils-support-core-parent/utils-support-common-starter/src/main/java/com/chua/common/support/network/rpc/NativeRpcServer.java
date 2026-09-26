@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,9 +40,7 @@ public class NativeRpcServer implements RpcServer {
 
     /**
      * 日志
-     */
-
-    /**
+     *
      * 默认端口
      */
     private static final int DEFAULT_PORT = 18866;
@@ -129,10 +128,10 @@ public class NativeRpcServer implements RpcServer {
         initServiceDiscovery();
     }
 
-    @Override
     /**
      * AfterProperties设置
-    */
+     */
+    @Override
     public void afterPropertiesSet() {
         // 传输层只负责帧收发，RPC 语义（反序列化/方法调用/序列化）在这里挂接
         ServerSetting serverSetting = ServerSetting.defaults();
@@ -167,7 +166,7 @@ public class NativeRpcServer implements RpcServer {
 
     /**
      * 初始化ServiceDiscovery
-    */
+     */
     private void initServiceDiscovery() {
         if (registryConfigs == null || registryConfigs.isEmpty()) {
             return;
@@ -274,10 +273,10 @@ public class NativeRpcServer implements RpcServer {
         return err;
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public RpcServer register(String name, Object bean) {
         services.put(name, bean);
         // 注册到同 JVM 直调共享注册表（多实例语义，精确按引用注销）
@@ -297,10 +296,10 @@ public class NativeRpcServer implements RpcServer {
         return this;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         if (tcpServer != null) {
             try {
@@ -316,7 +315,7 @@ public class NativeRpcServer implements RpcServer {
         }
         methodCache.clear();
         // 从同 JVM 直调共享注册表移除本服务端注册的服务（仅移除自己注册的实例）
-        services.keySet().forEach(name -> LocalServiceRegistry.INSTANCE.unregister(name, services.get(name)));
+        services.forEach((name, service) -> LocalServiceRegistry.INSTANCE.unregister(name, service));
         log.info("NativeRpcServer closed");
     }
 
@@ -330,10 +329,38 @@ public class NativeRpcServer implements RpcServer {
      * @return 结果值
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
+
+        /**
+         * 规范构造器：参数类型名数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。
+         * 保留 null 语义：{@code request.getParamTypes()} 可能返回 null，
+         * 且 equals/hashCode 依赖 {@link Arrays#equals} 对 null 的处理。</p>
+         *
+         * @param service    服务名
+         * @param method     方法名
+         * @param paramTypes 参数类型名数组
+         */
+        private MethodKey {
+            service = Objects.requireNonNull(service, "service 不能为 null");
+            method = Objects.requireNonNull(method, "method 不能为 null");
+            paramTypes = paramTypes == null ? null : paramTypes.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * @return 参数类型名数组副本，构造时为 null 则返回 null
+         */
         @Override
+        public String[] paramTypes() {
+            return paramTypes == null ? null : paramTypes.clone();
+        }
+
         /**
          * 判断相等
-        */
+         */
+        @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -345,10 +372,10 @@ public class NativeRpcServer implements RpcServer {
                     && Arrays.equals(paramTypes, other.paramTypes);
         }
 
-        @Override
         /**
          * HashCode
-        */
+         */
+        @Override
         public int hashCode() {
             int result = service.hashCode();
             result = 31 * result + method.hashCode();

@@ -48,10 +48,10 @@ public abstract class AbstractPropertySource implements PropertySource {
      */
     protected abstract Object getSource();
 
-    @Override
     /**
      * 获取Property
-    */
+     */
+    @Override
     public Object getProperty(String key) {
         if (key == null || key.isEmpty()) {
             return null;

@@ -82,18 +82,18 @@ public class DefaultHttpServerHandler implements HttpDefaultServerHandler {
         response.setResult(ReflectUtils.invoke(bean, method.getName(), method.getReturnType(), method.getParameterTypes(), request, response));
     }
 
-    @Override
     /**
      * Path
-    */
+     */
+    @Override
     public String path() {
         return path;
     }
 
-    @Override
     /**
      * Method
-    */
+     */
+    @Override
     public HttpMethod method() {
         return httpMethod;
     }

@@ -14,7 +14,7 @@ import java.util.Map;
  * <pre>{@code
  * Runnable decorated = MdcDecorator.decorate(original, "taskId", task.getTaskId());
  * decorated.run();
- * }</pre> * }</pre>
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,7 +33,7 @@ public final class MdcDecorator {
 
     /**
      * 创建 mdcdecorator 实例
-    */
+     */
     private MdcDecorator() {
     }
 

@@ -89,21 +89,25 @@ public interface HpkeCipher extends Cipher {
     byte[] recoverKey(byte[] receiverPrivateKey, byte[] enc, byte[] ikm);
 
     /**
-     * AEAD 加密（GCM，密文末尾自动拼接 16 字节认证标签）。
+     * AEAD 加密（GCM）。
+     *
+     * <p>每次调用现取 12 字节随机 nonce 并作为密文头部输出，返回布局为
+     * {@code nonce(12) || 密文 || 认证标签(16)}。nonce 不得由 {@code ek} 推导：
+     * 本原语无状态，同一把 {@code ek} 可被反复调用，(key, nonce) 复用会让 GCM 同时失去机密性与认证。</p>
      *
      * @param ek 对称密钥，见 {@link #encap} 返回值的 {@code [1]}
      * @param aad 可选附加认证数据，可为 null
      * @param plaintext 待加密明文
-     * @return 密文（含 16 字节认证标签）
+     * @return 密文信封（含 12 字节 nonce 头与 16 字节认证标签）
      */
     byte[] seal(byte[] ek, byte[] aad, byte[] plaintext);
 
     /**
-     * AEAD 解密（输入密文须含 16 字节认证标签）。
+     * AEAD 解密（输入须为 {@link #seal} 产出的完整信封）。
      *
      * @param ek 对称密钥，见 {@link #recoverKey}
      * @param aad 可选附加认证数据，须与加密时一致，可为 null
-     * @param ciphertext 待解密密文（含 16 字节认证标签）
+     * @param ciphertext 待解密信封（含 12 字节 nonce 头与 16 字节认证标签）
      * @return 解密后的明文
      */
     byte[] open(byte[] ek, byte[] aad, byte[] ciphertext);

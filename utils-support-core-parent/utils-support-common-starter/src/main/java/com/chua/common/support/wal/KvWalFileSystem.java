@@ -6,6 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -115,5 +116,37 @@ public class KvWalFileSystem extends AbstractWalFileSystem {
         return Optional.of(new KvPair(new String(kb, StandardCharsets.UTF_8), val));
     }
 
-    public record KvPair(String key, byte[] value) {}
+    /**
+     * WAL 中一条 KV 记录。
+     *
+     * @param key   键
+     * @param value 值 数组
+     */
+    public record KvPair(String key, byte[] value) {
+
+        /**
+         * 规范构造器：键 必填，值 数组 做防御性拷贝。
+         *
+         * <p>value class 前置条件——空值敌对，且数组组件必须深不可变。
+         * {@link #decode(byte[])} 只会用 反解 出的键与新分配的数组构造本记录。</p>
+         *
+         * <p>值 数组 刻意保留 空 语义：本仓库唯一的构造点不会传入 空 数组，
+         * 但本类型是对外发布的记录，无从证明外部调用方不传 空，
+         * 故只做拷贝而不改成拒绝 空 值。</p>
+         */
+        public KvPair {
+            Objects.requireNonNull(key, "key 不能为 null");
+            value = value == null ? null : value.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部值数组的副本。
+         *
+         * @return 值数组副本；value 为 空 时返回 空
+         */
+        @Override
+        public byte[] value() {
+            return value == null ? null : value.clone();
+        }
+    }
 }

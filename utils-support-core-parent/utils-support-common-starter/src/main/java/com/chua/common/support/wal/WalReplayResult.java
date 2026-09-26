@@ -18,6 +18,22 @@ public record WalReplayResult(
 ) {
 
     /**
+     * 规范构造器：记录列表做防御性拷贝，并对必填引用组件做空值校验。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变，且表示对空值敌对。
+     * 全部构造点（SimpleWalLog / SegmentWalLog / KafkaWalLog / ChronicleWalLog）
+     * 传入的列表元素均非 null，因此可使用 {@code List.copyOf}。</p>
+     *
+     * @param checkpoint 回放起点 checkpoint
+     * @param records    实际回放的记录列表（按 LSN 升序）
+     */
+    public WalReplayResult {
+        checkpoint = java.util.Objects.requireNonNull(checkpoint, "checkpoint 不能为 null");
+        records = java.util.List.copyOf(
+                java.util.Objects.requireNonNull(records, "records 不能为 null"));
+    }
+
+    /**
      * 实际回放的记录数量。
      *
      * @return 数量

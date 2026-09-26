@@ -23,37 +23,37 @@ public class BotInboundMessage {
 
     /**
      * 消息类型枚举
-    */
+     */
     public enum Type {
 
         /**
          * 文本类型
-        */
+         */
         TEXT,
 
         /**
          * 图片类型
-        */
+         */
         IMAGE,
 
         /**
          * 语音类型
-        */
+         */
         VOICE,
 
         /**
          * 视频类型
-        */
+         */
         VIDEO,
 
         /**
          * 文件类型
-        */
+         */
         FILE,
 
         /**
          * 位置类型
-        */
+         */
         LOCATION,
 
         /** 事件类型（订阅、点击等）*/
@@ -61,18 +61,18 @@ public class BotInboundMessage {
 
         /**
          * 未知类型
-        */
+         */
         UNKNOWN
     }
 
     /**
      * 消息唯一标识 ID
-    */
+     */
     private String msgId;
 
     /**
      * 消息类型
-    */
+     */
     private Type type;
 
     /**
@@ -119,7 +119,7 @@ public class BotInboundMessage {
 
     /**
      * 事件 Key
-    */
+     */
     private String eventKey;
 
     /**
@@ -130,17 +130,25 @@ public class BotInboundMessage {
 
     /**
      * 是否来自群组
-    */
+     */
     private boolean fromGroup;
 
     /**
      * @ 提及的用户 ID 列表
-    */
-    @Singular("mentionedItem")
-    /**
+     *
      * Mentioned列表
-    */
+     */
+    @Singular("mentionedItem")
     private List<String> mentionedList;
+
+    /**
+     * 会话上下文令牌
+     * <p>
+     * 平台（如微信 iLink）在入站消息上携带的 context_token，回复 / 主动发送时必须原样回传，
+     * 否则平台返回 {@code ret=-2 prepare failed}。仅入站消息携带，平台未提供时为 null。
+     * </p>
+     */
+    private String contextToken;
 
     /**
      * 消息是否 @ 了 Bot 自身

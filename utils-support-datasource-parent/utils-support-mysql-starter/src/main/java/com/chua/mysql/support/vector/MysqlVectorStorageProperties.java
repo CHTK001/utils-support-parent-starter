@@ -1,5 +1,7 @@
 package com.chua.mysql.support.vector;
 
+import java.util.Objects;
+
 /**
  * MySQL 向量存储配置属性。
  *
@@ -35,6 +37,19 @@ public record MysqlVectorStorageProperties(
      * 默认向量列名
     */
     private static final String DEFAULT_VECTOR_COLUMN = "vec";
+
+    /**
+     * 规范构造器：表名与两个列名不可为空。
+     *
+     * <p>value class 前置条件——引用组件空值敌对。三个组件都会被
+     * {@code MysqlVectorStorage} 当作 SQL 标识符校验，空值本就不可用，
+     * 故在此处快速失败。</p>
+     */
+    public MysqlVectorStorageProperties {
+        tableName = Objects.requireNonNull(tableName, "tableName 不能为 null");
+        idColumn = Objects.requireNonNull(idColumn, "idColumn 不能为 null");
+        vectorColumn = Objects.requireNonNull(vectorColumn, "vectorColumn 不能为 null");
+    }
 
     /**
      * 无参构造，使用默认列名和表名。

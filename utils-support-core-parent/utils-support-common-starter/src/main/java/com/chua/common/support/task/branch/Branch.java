@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,7 +40,7 @@ import java.util.function.Predicate;
  *         .get();
  * }</pre>
  * .获取();
- * }</pre>
+ * }
  *
  * <h2>语义契约</h2>
  * <ol>
@@ -91,13 +92,13 @@ public final class Branch<T> {
 
         /**
          * 组内候选分支。
-        */
+         */
         final List<Case> cases = new ArrayList<>();
     }
 
     /**
      * 阶段抽象。
-    */
+     */
     private interface Stage {
     }
 
@@ -108,6 +109,20 @@ public final class Branch<T> {
      * @return 群体Stage的结果
      */
     private record GroupStage(Group group) implements Stage {
+
+        /**
+         * 规范构造器：条件组为空值敌对。
+         *
+         * <p>value class 前置条件——引用组件不接受 null。
+         * 唯一构造点传入的是紧邻上一行新建的 {@code new Group()}，恒非 null。
+         * 本记录为链式构建器的私有实现细节，{@code get()} 会直接解引用
+         * {@code group.cases}，故此处提前失败比运行期 NPE 更可诊断。</p>
+         *
+         * @param group 条件组
+         */
+        private GroupStage {
+            group = Objects.requireNonNull(group, "group 不能为 null");
+        }
     }
 
     /**
@@ -139,22 +154,22 @@ public final class Branch<T> {
 
     /**
      * 初始种子。
-    */
+     */
     private final Object seed;
 
     /**
      * 已登记的阶段序列。
-    */
+     */
     private final List<Stage> stages = new ArrayList<>();
 
     /**
      * 当前未封组的条件组；空 表示无开放组。
-    */
+     */
     private Group openGroup;
 
     /**
      * 是否已设置过任意条件分支（规范校验依据）。
-    */
+     */
     private boolean hasCondition;
 
     /**
@@ -580,7 +595,7 @@ public final class Branch<T> {
 
         /**
          * 宿主链（裸类型操作内部结构）。
-        */
+         */
         private final Branch<R> owner;
 
         /**

@@ -120,7 +120,7 @@ public class DdlFormatter extends SqlFormatter {
 
     /**
      * Constraint_keywords
-    */
+     */
     private static final Set<String> CONSTRAINT_KEYWORDS = Set.of(
             "PRIMARY KEY", "FOREIGN KEY", "UNIQUE", "CHECK", "CONSTRAINT"
     );

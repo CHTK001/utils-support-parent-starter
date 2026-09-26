@@ -21,7 +21,7 @@ public final class SemaphoreRegistry {
 
     /**
      * 创建 SemaphoreRegistry 实例
-    */
+     */
     private SemaphoreRegistry() {
     }
 

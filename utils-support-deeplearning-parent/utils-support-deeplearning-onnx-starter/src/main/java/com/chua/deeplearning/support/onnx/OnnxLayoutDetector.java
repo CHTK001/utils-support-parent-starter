@@ -59,7 +59,12 @@ public class OnnxLayoutDetector implements LayoutDetector {
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "doc-layout-yolo-imgsz640";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定版面分析模型，请通过 .model(\"模型ID\") 指定，"
+                    + "或在系统配置 layout 分组的 layout_model 中选择，可用模型: "
+                    + LayoutDetector.listModels());
+        }
+        return modelName;
     }
 
     @Override

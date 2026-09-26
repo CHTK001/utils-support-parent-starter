@@ -39,7 +39,7 @@ public class Response {
      *
      * @param d 方法入参 d
      */
-    Response(com.chua.playwright.support.spi.Engine.ResponseData d) {
+    Response(com.chua.playwright.support.engine.Engine.ResponseData d) {
         this.status = d.status;
         this.url = d.url;
     }

@@ -30,42 +30,42 @@ public interface ScriptDefinition extends BeanDefinition {
      * 空的脚本定义实例。
      */
     ScriptDefinition EMPTY_SCRIPT_DEFINITION = new AbstractScriptDefinition() {
-        @Override
         /**
          * 获取名称
-        */
+         */
+        @Override
         public String getName() {
             return "";
         }
 
-        @Override
         /**
          * 获取类型
-        */
+         */
+        @Override
         public String getType() {
             return "";
         }
 
-        @Override
         /**
          * 获取script类加载
-        */
+         */
+        @Override
         public ClassLoader getScriptClassLoader() {
             return null;
         }
 
-        @Override
         /**
          * 获取script记号笔
-        */
+         */
+        @Override
         public ScriptMarker getScriptMarker() {
             return null;
         }
 
-        @Override
         /**
          * 获取监听器
-        */
+         */
+        @Override
         public Listener getListener() {
             return null;
         }

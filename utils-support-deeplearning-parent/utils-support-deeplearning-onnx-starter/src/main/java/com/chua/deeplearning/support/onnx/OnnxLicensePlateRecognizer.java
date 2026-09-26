@@ -54,7 +54,11 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "yolov5-plate-detect";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定车牌模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + LicensePlateRecognizer.listModels());
+        }
+        return modelName;
     }
 
     /**

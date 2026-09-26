@@ -165,7 +165,7 @@ public class PipelineJsonParser {
     static class JsonNode {
         /**
          * data
-        */
+         */
         private final Map<String, Object> data;
 
         JsonNode(Map<String, Object> data) {

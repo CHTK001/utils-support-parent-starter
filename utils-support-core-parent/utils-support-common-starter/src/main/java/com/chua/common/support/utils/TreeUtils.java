@@ -47,7 +47,7 @@ import java.util.function.Predicate;
  * Dept found = TreeUtils.findById(roots, 42L, d -> d.id, d -> d.children);
  * List<Dept> ancestors = TreeUtils.getParents(roots, found, d -> d.children);
  * }</pre>
- * }</pre>
+ * }
  *
  * <p>约定与限制：</p>
  * <ul>

@@ -9,9 +9,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -28,26 +29,41 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
     /**
      * 全量兜底周期（轮）
-    */
+     */
     private static final int FULL_PROBE_INTERVAL_ROUNDS = 10;
     /**
      * 并发同步线程池（固定大小，避免节点数过多时线程爆炸）
-    */
+     */
     private static final int SYNC_POOL_SIZE = 8;
-    private static final ExecutorService syncExecutor = Executors.newFixedThreadPool(
-            SYNC_POOL_SIZE, r -> {
+
+    /**
+     * 并发同步线程池队列容量：与线程数同量级，队列满时由调用线程兜底执行，避免任务无限堆积。
+     */
+    private static final int SYNC_QUEUE_SIZE = 8;
+
+    /**
+     * 并发同步线程池实例。
+     */
+    private static final ThreadPoolExecutor syncExecutor = new ThreadPoolExecutor(
+            SYNC_POOL_SIZE,
+            SYNC_POOL_SIZE,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(SYNC_QUEUE_SIZE),
+            r -> {
                 Thread t = new Thread(r, "scatter-sync");
                 t.setDaemon(true);
                 return t;
-            });
+            },
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     /**
      * probeRound
-    */
+     */
     private long probeRound = 0;
     /**
      * 每轮同步请求 ID 计数器
-    */
+     */
     private final AtomicInteger roundRequestIdSeq = new AtomicInteger(0);
 
     /**

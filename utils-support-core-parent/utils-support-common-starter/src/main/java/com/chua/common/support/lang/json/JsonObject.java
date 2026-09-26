@@ -342,13 +342,13 @@ public class JsonObject extends LinkedHashMap<String, Object> {
   @Override
   public void forEach(BiConsumer<? super String, ? super Object> action) {
     super.forEach(new BiConsumer<String, Object>() {
-      @Override
       /**
        * 接受键值对并执行消费操作。
        *
        * @param s 键
        * @param o 值
        */
+      @Override
       public void accept(String s, Object o) {
         if (o instanceof Map) {
           action.accept(s, Json.createJsonObject((Map) o));

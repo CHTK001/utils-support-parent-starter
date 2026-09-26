@@ -104,13 +104,26 @@ public class OnnxFaceDetector implements FaceDetector {
         return this;
     }
 
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
+    private String resolveModel() {
+        if (modelName == null) {
+            throw new IllegalStateException("未指定人脸检测模型，请通过 .model(\"模型ID\") 指定，"
+                    + "或在系统配置 face 分组的 detector_model 中选择，可用模型: "
+                    + FaceDetector.listModels());
+        }
+        return modelName;
+    }
+
     @Override
     /**
      * Detect
     */
     public List<PredictRectangle> detect(byte[] imageData) {
-        String name = modelName != null ? modelName : "scrfd-face-detector";
-        return FaceDetector.create(name)
+        return FaceDetector.create(resolveModel())
                 .threshold(threshold)
                 .nms(nms)
                 .minFaceSize(minFaceSize)

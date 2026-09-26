@@ -4,6 +4,7 @@ import com.chua.common.support.ai.AiUsage;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * AI 嵌入向量响应。
@@ -31,6 +32,20 @@ public record EmbeddingResponse(
 ) {
 
     /**
+     * 规范构造器：对嵌入向量列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 全部构造点（各 EmbeddingClient 实现）传入的列表均非空且元素非空，
+     * 因此使用 {@link List#copyOf} 拒绝 null 列表与 null 元素。</p>
+     *
+     * @param embeddings 嵌入向量列表
+     * @param usage     用量信息，可为 null
+     */
+    public EmbeddingResponse {
+        embeddings = List.copyOf(Objects.requireNonNull(embeddings, "embeddings 不能为 null"));
+    }
+
+    /**
      * 单个文本的嵌入向量。
      *
      * @author CH
@@ -54,5 +69,32 @@ public record EmbeddingResponse(
              */
             Integer dimensions
     ) {
+
+        /**
+         * 规范构造器：向量数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。
+         * {@link EmbeddingClient} 各实现显式判空 {@code vector != null}，
+         * 说明 vector 允许为 null，故此处保留 null 语义。</p>
+         *
+         * @param vector     向量数据，可为 null
+         * @param index      向量索引
+         * @param dimensions 向量维度
+         */
+        public Embedding {
+            vector = vector == null ? null : vector.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部向量数组的副本。
+         *
+         * <p>value class 前置条件——外部不得持有内部数组引用。</p>
+         *
+         * @return 向量数组副本，vector 为 null 时返回 null
+         */
+        @Override
+        public float[] vector() {
+            return vector == null ? null : vector.clone();
+        }
     }
 }

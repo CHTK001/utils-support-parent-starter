@@ -38,55 +38,49 @@ public class WalConfig {
 
     /**
      * WAL 目录路径
+     *
+     * WAL目录
      */
     @Builder.Default
-    /**
-     * WAL目录
-    */
     private String walDir = "./wal";
 
     /**
      * WAL 文件名
+     *
+     * WAL文件
      */
     @Builder.Default
-    /**
-     * WAL文件
-    */
     private String walFile = "queue.wal";
 
     /**
      * 是否使用内存映射（mmap）写入，默认 true
+     *
+     * Mmap
      */
     @Builder.Default
-    /**
-     * Mmap
-    */
     private boolean mmap = true;
 
     /**
      * 是否同步刷盘，默认 false（异步降级以提高吞吐）
+     *
+     * 同步
      */
     @Builder.Default
-    /**
-     * 同步
-    */
     private boolean sync = false;
 
     /**
      * 异步刷盘后台线程刷新间隔（毫秒），仅 sync=false 时生效
+     *
+     * Flush间隔毫秒
      */
     @Builder.Default
-    /**
-     * Flush间隔毫秒
-    */
     private long flushIntervalMillis = DEFAULT_FLUSH_INTERVAL_MILLIS;
 
     /**
      * mmap 初始文件大小（字节）
+     *
+     * Initial文件尺寸
      */
     @Builder.Default
-    /**
-     * Initial文件尺寸
-    */
     private int initialFileSize = DEFAULT_INITIAL_FILE_SIZE;
 }

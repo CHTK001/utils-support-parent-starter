@@ -20,7 +20,7 @@ public class NetAddress implements Serializable {
 
     /**
      * 协议
-    */
+     */
     private String protocol;
     /**
      * 主机名
@@ -32,7 +32,7 @@ public class NetAddress implements Serializable {
     private Integer port;
     /**
      * 地址
-    */
+     */
     private String address;
     /**
      * 路径
@@ -40,11 +40,11 @@ public class NetAddress implements Serializable {
     private String path;
     /**
      * Query
-    */
+     */
     private String query;
     /**
      * Fragment
-    */
+     */
     private String fragment;
     /**
      * 用户名
@@ -65,7 +65,7 @@ public class NetAddress implements Serializable {
 
     /**
      * 创建 NetAddress 实例
-    */
+     */
     public NetAddress() {}
 
     /**
@@ -291,10 +291,10 @@ public class NetAddress implements Serializable {
         };
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(protocol)) {

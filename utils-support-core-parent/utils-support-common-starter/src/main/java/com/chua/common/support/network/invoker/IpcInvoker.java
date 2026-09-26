@@ -36,7 +36,7 @@ public class IpcInvoker implements Invoker {
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
     /**
      * 全局injectrules
-    */
+     */
     private final List<SharedInvocationContext.InjectRule> globalInjectRules = new java.util.ArrayList<>();
 
     @Override
@@ -133,12 +133,12 @@ public class IpcInvoker implements Invoker {
         return "";
     }
 
-    @Override
     /**
      * 添加Inject
      * @param target target
      * @param callback callback
      */
+    @Override
     public Invoker addInject(String target, InjectCallback callback) {
         globalInjectRules.add(new SharedInvocationContext.InjectRule(target, callback));
         return this;
@@ -168,23 +168,23 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
 
         /**
          * BaseURL
-        */
+         */
         private final String baseUrl;
         /**
          * Namespace
-        */
+         */
         private final String namespace;
         /**
          * Filters
-        */
+         */
         private final List<ServerFilter> filters;
         /**
          * Shared上下文
-        */
+         */
         private final SharedInvocationContext sharedContext;
         /**
          * Property解析器
-        */
+         */
         private final StringValuePropertyResolver propertyResolver = new StringValuePropertyResolver(null);
 
         IpcInvocationHandler(String baseUrl, String namespace, List<ServerFilter> filters, SharedInvocationContext sharedContext) {
@@ -194,13 +194,13 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             this.sharedContext = sharedContext;
         }
 
-        @Override
         /**
          * 调用
          * @param proxy proxy
          * @param method method
          * @param args args
          */
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) {
             if (method.getDeclaringClass() == Object.class) {
                 try {
@@ -360,14 +360,14 @@ Object r = ReflectUtils.invoke(ann, "value", Object.class, new Class<?>[0], new 
             ServerFilterChain chain = new ServerFilterChain() {
                 /**
                  * 索引
-                */
+                 */
                 private int index = 0;
-                @Override
                 /**
                  * Do过滤
                  * @param request request
                  * @param response response
                  */
+                @Override
                 public void doFilter(com.chua.common.support.network.server.request.ServerRequest request,
                                      com.chua.common.support.network.server.response.ServerResponse response) {
                     if (index < filters.size()) {

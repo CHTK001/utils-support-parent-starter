@@ -34,70 +34,69 @@ public class ChatConfigEntity {
 
     /**
      * 主键
-    */
+     */
     private Long id;
 
     /**
      * 配置名称（唯一标识，如 "production"、"my-openai"）
-     */
-    /**
+     *
      * 名称
      */
     private String name;
 
     /**
      * AI 服务商名称
-    */
+     */
     private String provider;
 
     /**
      * API 密钥
-    */
+     */
     private String appKey;
 
     /**
      * API 密钥（备用）
-    */
+     */
     private String appSecret;
 
     /**
      * API 请求基础地址
-    */
+     */
     private String baseUrl;
 
     /**
      * 默认模型名称
-    */
+     */
     private String model;
 
     /**
      * 默认温度参数
-    */
+     */
     private Double temperature;
 
     /**
      * 默认最大输出 Token 数
-    */
+     */
     private Integer maxTokens;
 
     /**
      * 默认 Top-P 采样参数
-    */
+     */
     private Double topP;
 
     /**
      * 默认系统提示词
-    */
+     */
     private String system;
 
     /**
      * HTTP 代理地址
-    */
+     */
     private String proxy;
 
     /**
      * 更新时间
-    */
+     */
     private Long updatedAt;
 
     // ======================== 转换方法 ========================

@@ -341,16 +341,14 @@ public class SwaggerOpenApiParser implements DocumentParser {
      * @return 解析参数的结果
      */
     private static OpenApiParam parseParam(JsonObject node) {
-        OpenApiParam p = new OpenApiParam();
-        p.setName(node.getType("name", "", String.class));
-        p.setIn(node.getType("in", "query", String.class));
         JsonObject schema = node.getJsonObject("schema");
         String type = schema != null ? schema.getType("type", null, String.class) : node.getType("type", null, String.class);
-        p.setType(type != null ? type : "string");
-        p.setRequired(Boolean.TRUE.equals(node.getType("required", false, Boolean.class)));
-        p.setDescription(node.getType("description", null, String.class));
-        p.setExample(node.getType("example", null, String.class));
-        return p;
+        return new OpenApiParam(node.getType("name", "", String.class),
+                node.getType("in", "query", String.class),
+                type != null ? type : "string",
+                Boolean.TRUE.equals(node.getType("required", false, Boolean.class)),
+                node.getType("description", null, String.class),
+                node.getType("example", null, String.class));
     }
 
     /**
@@ -416,11 +414,14 @@ public class SwaggerOpenApiParser implements DocumentParser {
                                     if (!(fieldNode instanceof JsonObject f)) {
                                         return;
                                     }
-                                    OpenApiParam fParam = new OpenApiParam();
-                                    fParam.setName(fieldName);
-                                    fParam.setType(f.getType("type", "string", String.class));
-                                    fParam.setDescription(f.getType("description", null, String.class));
-                                    fParam.setExample(f.getType("example", null, String.class));
+                                    OpenApiParam fParam = new OpenApiParam(
+                                            fieldName,
+                                            null,
+                                            f.getType("type", "string", String.class),
+                                            false,
+                                            f.getType("description", null, String.class),
+                                            f.getType("example", null, String.class)
+                                    );
                                     fields.add(fParam);
                                 });
                                 resp.setFields(fields);
@@ -479,3 +480,4 @@ public class SwaggerOpenApiParser implements DocumentParser {
         return sb.toString();
     }
 }
+

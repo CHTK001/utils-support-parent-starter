@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * scheduler.shutdown();
  * }</pre>"心跳"), 5, TimeUnit.SECONDS);
  * scheduler.shutdown();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0.0

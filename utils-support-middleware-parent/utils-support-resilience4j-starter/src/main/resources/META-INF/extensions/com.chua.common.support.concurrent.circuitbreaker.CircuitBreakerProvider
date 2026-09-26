@@ -1,0 +1,1 @@
+default=com.chua.resilience4j.support.circuitbreaker.Resilience4jCircuitBreakerProvider

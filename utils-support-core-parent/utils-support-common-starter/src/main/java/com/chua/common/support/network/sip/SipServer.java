@@ -140,12 +140,11 @@ public class SipServer extends AbstractServer implements TcpServer {
      *
      * @param config SIP 配置
      * @return 服务器配置
+     *
+     * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
+     * @param config 配置，不允许为 null
+     * @return 结果字符串
      */
-        /**
-         * 解析 token：优先 --token-file 文件，其次 SipConfig.token。
-         * @param config 配置，不允许为 null
-         * @return 结果字符串
-         */
     private static String resolveToken(SipConfig config) {
         String file = config.getTokenFile();
         if (file != null && !file.isEmpty()) {
@@ -442,13 +441,9 @@ private static ServerSetting serverSetting(SipConfig config) {
      * 冲刷暂存帧：新复用连接注册后，补发等它的一切帧。
      *
      * @param conn 新注册的连接
-     */
-
-
-    /**
+     *
      * 逐字节读取首行（遇换行停止），不预读缓冲后续字节，保证数据平面业务字节不被吞掉。
      * <p>超过 {@link #MAX_HEAD_LINE} 字节直接视为非法连接并断开，防止恶意客户端打爆内存。</p>
-     *
      * @param in 输入流
      * @return 首行内容（不含换行符），读不到或超长时返回 null
      * @throws IOException IO 异常
@@ -872,8 +867,7 @@ onSignalClosed(clientId);
 
     /**
      * 单条隧道的数据桥接器：负责访问方与提供方两条数据连接的裸字节流双向转发。
-     */
-    /**
+     *
      * 多路复用服务端连接：单条连接承载同角色全部通道的帧收发。
      */
     private final class MuxServerConn {
@@ -949,10 +943,8 @@ onSignalClosed(clientId);
          *
          * @param channelId 通道标识
          * @param payload   负载（空为关闭标记）
-         */
-        /**
-         * 直接写出完整帧（含长度头与 channelId）。
          *
+         * 直接写出完整帧（含长度头与 channelId）。
          * @param fullFrame 完整帧
          */
         void sendRaw(byte[] fullFrame) {

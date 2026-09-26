@@ -26,7 +26,7 @@ public class ServerBuilder {
 
     /**
      * 设置
-    */
+     */
     private ServerSetting setting;
     /**
      * 类型
@@ -34,16 +34,16 @@ public class ServerBuilder {
     private String type = "jdk";
     /**
      * Object上下文
-    */
+     */
     private ObjectContext objectContext;
     /**
      * 服务器
-    */
+     */
     private Server server;
 
     /**
      * 创建 ServerBuilder 实例
-    */
+     */
     private ServerBuilder() {
     }
 
@@ -159,7 +159,7 @@ public class ServerBuilder {
 
     /**
      * EnsureServer
-    */
+     */
     private void ensureServer() {
         if (server == null) {
             if (setting == null) {

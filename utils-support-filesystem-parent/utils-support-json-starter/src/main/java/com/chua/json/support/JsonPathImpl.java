@@ -15,11 +15,9 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
  *
  * <p>提供声明式 JSON 路径查询与操作能力，支持一次性调用和链式操作两种模式。</p>
  *
- * <p><b>线程安全说明：</b></p>
- * <ul>
- *   <li>一次性方法（{@link #read(String, String)} 等）— 线程安全</li>
- *   <li>链式方法（{@link #parse(String)} 后的操作）— 非线程安全，每个线程应使用独立的 {@code parse()} 调用链</li>
- * </ul>
+ * <p><b>线程安全说明：</b>本实现由 {@code ServiceProvider} 作为单例缓存，因此全部方法均无共享可变状态。
+ * 一次性方法（{@link #read(String, String)} 等）线程安全；链式方法 {@link #parse(String)} 每次返回
+ * 持有独立文档上下文的新实例，链上其余方法只作用于该实例，可在多线程下并发使用。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,9 +41,25 @@ public class JsonPathImpl implements JsonPath {
     private static final ParseContext PARSE_CTX = com.jayway.jsonpath.JsonPath.using(DEFAULT_CONFIG);
 
     /**
-     * 链式模式下存储的内部文档上下文
+     * 链式模式下持有的文档上下文，单例实例中为 空
      */
-    private DocumentContext documentContext;
+    private final DocumentContext documentContext;
+
+    /**
+     * SPI 单例构造器，仅用于一次性方法。
+     */
+    public JsonPathImpl() {
+        this.documentContext = null;
+    }
+
+    /**
+     * 链式实例构造器。
+     *
+     * @param documentContext 已解析的文档上下文
+     */
+    private JsonPathImpl(DocumentContext documentContext) {
+        this.documentContext = documentContext;
+    }
 
     // ==================== 一次性方法 ====================
 
@@ -81,7 +95,7 @@ public class JsonPathImpl implements JsonPath {
         try {
             return PARSE_CTX.parse(json).set(jsonPath, value).jsonString();
         } catch (Exception e) {
-            return json;
+            throw new IllegalStateException("JSONPath 设置失败: " + jsonPath, e);
         }
     }
 
@@ -93,7 +107,7 @@ public class JsonPathImpl implements JsonPath {
         try {
             return PARSE_CTX.parse(json).delete(jsonPath).jsonString();
         } catch (Exception e) {
-            return json;
+            throw new IllegalStateException("JSONPath 删除失败: " + jsonPath, e);
         }
     }
 
@@ -105,7 +119,7 @@ public class JsonPathImpl implements JsonPath {
         try {
             return PARSE_CTX.parse(json).add(jsonPath, value).jsonString();
         } catch (Exception e) {
-            return json;
+            throw new IllegalStateException("JSONPath 添加失败: " + jsonPath, e);
         }
     }
 
@@ -117,7 +131,7 @@ public class JsonPathImpl implements JsonPath {
         try {
             return PARSE_CTX.parse(json).put(jsonPath, key, value).jsonString();
         } catch (Exception e) {
-            return json;
+            throw new IllegalStateException("JSONPath 放入失败: " + jsonPath + "." + key, e);
         }
     }
 
@@ -162,8 +176,7 @@ public class JsonPathImpl implements JsonPath {
      * 解析
     */
     public JsonPath parse(String json) {
-        this.documentContext = PARSE_CTX.parse(json);
-        return this;
+        return new JsonPathImpl(PARSE_CTX.parse(json));
     }
 
     @Override

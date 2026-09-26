@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * 基于 chinese-xinhua 语料库的成语提供器（在线 JSON + 内置兜底）。
  *
  * <p>在线数据源：<a href="https://github.com/pwxcoo/chinese-xinhua">chinese-xinhua</a>
- * 的 idiom.json（约 3 万词条），结构为 {@编码 {"word":..., "pinyin":..., "abbreviation":...,
+ * 的 idiom.json（约 3 万词条），结构为 {@code {"word":..., "pinyin":..., "abbreviation":...,
  * "derivation":..., "解释":..., "example":...}}。
  *
  * <p>首次查询时惰性拉取并建立词形索引，后续查询复用内存索引；

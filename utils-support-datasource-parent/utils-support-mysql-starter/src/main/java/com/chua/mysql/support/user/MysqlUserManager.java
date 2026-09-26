@@ -64,15 +64,13 @@ public class MysqlUserManager implements UserManager, DataSourceAware {
              Statement s = c.createStatement();
              ResultSet rs = s.executeQuery("SELECT user, host, authentication_string FROM mysql.user")) {
             while (rs.next()) {
-                UserInfo ui = new UserInfo();
-                ui.setUser(rs.getString("user"));
-                ui.setHost(rs.getString("host"));
+                String password = null;
                 try {
-                    ui.setPassword(rs.getString("authentication_string"));
+                    password = rs.getString("authentication_string");
                 } catch (SQLException ignored) {
                     log.debug("跳过 authentication_string 列：当前账号无权读取该列");
                 }
-                list.add(ui);
+                list.add(new UserInfo(rs.getString("user"), rs.getString("host"), password));
             }
         } catch (SQLException e) {
             throw new IllegalStateException("列出 MySQL 用户失败", e);

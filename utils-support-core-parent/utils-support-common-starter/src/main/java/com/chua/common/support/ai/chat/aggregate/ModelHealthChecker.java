@@ -22,27 +22,27 @@ public class ModelHealthChecker {
 
     /**
      * 定时调度器
-    */
+     */
     private final TimeScheduler scheduler;
     /**
      * 客户端健康状态映射
-    */
+     */
     private final Map<ChatClient, ModelHealth> clientHealthMap = new ConcurrentHashMap<>();
     /**
      * 客户端列表
-    */
+     */
     private final List<ChatClient> clients = new CopyOnWriteArrayList<>();
     /**
      * 是否运行中
-    */
+     */
     private final AtomicBoolean running = new AtomicBoolean(false);
     /**
      * 健康检查函数
-    */
+     */
     private final Function<ChatClient, ModelHealthCheckResult> healthCheckFunction;
     /**
      * 健康检查间隔（毫秒）
-    */
+     */
     private final long checkIntervalMs;
 
     /**
@@ -200,15 +200,15 @@ public class ModelHealthChecker {
     public static class ModelHealthCheckResult {
         /**
          * 是否健康
-        */
+         */
         private final boolean healthy;
         /**
          * 问题类型
-        */
+         */
         private final IssueType issueType;
         /**
          * 消息内容
-        */
+         */
         private final String message;
 
         /**
@@ -225,56 +225,56 @@ public class ModelHealthChecker {
 
         /**
          * Healthy
-        */
+         */
         public static ModelHealthCheckResult healthy() {
             return new ModelHealthCheckResult(true, IssueType.NONE, null);
         }
 
         /**
          * Healthy
-        */
+         */
         public static ModelHealthCheckResult healthy(String message) {
             return new ModelHealthCheckResult(true, IssueType.NONE, message);
         }
 
         /**
          * RateLimited
-        */
+         */
         public static ModelHealthCheckResult rateLimited(String message) {
             return new ModelHealthCheckResult(false, IssueType.RATE_LIMITED, message);
         }
 
         /**
          * QuotaExhausted
-        */
+         */
         public static ModelHealthCheckResult quotaExhausted(String message) {
             return new ModelHealthCheckResult(false, IssueType.QUOTA_EXHAUSTED, message);
         }
 
         /**
          * 记录错误
-        */
+         */
         public static ModelHealthCheckResult error(String message) {
             return new ModelHealthCheckResult(false, IssueType.OTHER_ERROR, message);
         }
 
         /**
          * 是否Healthy
-        */
+         */
         public boolean isHealthy() {
             return healthy;
         }
 
         /**
          * 获取IssueType
-        */
+         */
         public IssueType getIssueType() {
             return issueType;
         }
 
         /**
          * 获取Message
-        */
+         */
         public String getMessage() {
             return message;
         }

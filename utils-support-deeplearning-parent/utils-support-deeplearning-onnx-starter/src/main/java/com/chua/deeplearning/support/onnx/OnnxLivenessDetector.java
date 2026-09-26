@@ -48,7 +48,12 @@ public class OnnxLivenessDetector implements LivenessDetector {
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "face-liveness-flrgb";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定活体检测模型，请通过 .model(\"模型ID\") 指定，"
+                    + "或在系统配置 face 分组的 liveness_model 中选择，可用模型: "
+                    + LivenessDetector.listModels());
+        }
+        return modelName;
     }
 
     @Override

@@ -87,9 +87,9 @@ public class CryptoProperties {
     private List<String> configFiles = new ArrayList<>();
 
     /**
-     * 配置文件加密时是否保留明文备份(*.bak)
+     * 配置文件加密时是否保留明文备份(*.bak)，默认 false，与 {@link com.chua.crypto.support.CryptoSetting} 一致
      */
-    private boolean configBackup = true;
+    private boolean configBackup = false;
 
     /**
      * 转换为通用加密配置

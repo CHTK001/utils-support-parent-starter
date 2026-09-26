@@ -75,11 +75,10 @@ public class CircuitBreaker {
 
     /**
      * B-Tree 根节点
+     *
+     * Tree
      */
     @Getter
-    /**
-     * Tree
-    */
     private final BTreeNode tree;
 
     /**
@@ -218,19 +217,19 @@ public class CircuitBreaker {
 
         /**
          * 熔断表达式
-        */
+         */
         private String expression;
         /**
          * 上下文对象
-        */
+         */
         private Map<String, Object> context;
         /**
          * 熔断判定器
-        */
+         */
         private BreakerJudge judge;
         /**
          * 表达式类型
-        */
+         */
         private String expressionType = "expr";
 
         Builder() {

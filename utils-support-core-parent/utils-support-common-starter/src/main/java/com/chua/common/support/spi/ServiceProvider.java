@@ -60,7 +60,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 注册新服务
  * provider.register("custom", new CustomDataProcessor());
- * }</pre>
+ * }
  *
  * @param <T> 服务接口类型
  * @author CH
@@ -597,10 +597,10 @@ public interface ServiceProvider<T> {
             return null;
         }
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
-            @Override
             /**
              * 应用
-            */
+             */
+            @Override
             public Object apply(ProxyMethod proxyMethod) {
                 Object result = null;
                 for (T t : collect) {
@@ -674,10 +674,10 @@ public interface ServiceProvider<T> {
         // 记录「实现类 → 失败方法名集合」，用于实现内部避让
         Map<Class<?>, Set<String>> failedMethods = new ConcurrentHashMap<>();
         return ProxyUtils.newProxy(getType(), getClassLoader(), new DelegateMethodIntercept<>(getType(), new Function<ProxyMethod, Object>() {
-            @Override
             /**
              * 应用
-            */
+             */
+            @Override
             public Object apply(ProxyMethod proxyMethod) {
                 String methodName = proxyMethod.getMethodName();
                 Exception last = null;

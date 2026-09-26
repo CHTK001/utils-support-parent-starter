@@ -2,6 +2,8 @@ package com.chua.common.support.lang.datasource.engine;
 
 import com.chua.common.support.network.tunnel.Tunnel;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -31,6 +33,28 @@ public record DataSourceOptions(
         Tunnel tunnel,
         Map<String, String> jtdsUrlParams
 ) {
+
+    /**
+     * 规范构造器：对 jTDS URL 参数做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。
+     * 七参构造器显式传入 null，且 {@link #jtdsUrlParams()} 对 null 返回空映射，
+     * 说明该组件允许为 null，故保留 null 语义并采用可空安全写法。</p>
+     *
+     * @param name          数据源名称
+     * @param host          主机地址
+     * @param port          端口号
+     * @param database      数据库名
+     * @param username      用户名
+     * @param password      密码
+     * @param tunnel        隧道（可为 null 表示直连）
+     * @param jtdsUrlParams jTDS 驱动的额外 URL 参数，可为 null
+     */
+    public DataSourceOptions {
+        jtdsUrlParams = jtdsUrlParams == null ? null
+                : Collections.unmodifiableMap(new LinkedHashMap<>(jtdsUrlParams));
+    }
+
     /**
      * 构造方法，创建 数据来源选项 实例。
      *

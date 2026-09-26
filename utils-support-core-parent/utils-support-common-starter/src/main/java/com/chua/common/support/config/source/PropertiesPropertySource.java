@@ -48,10 +48,10 @@ public class PropertiesPropertySource extends AbstractPropertySource {
         this.properties = properties;
     }
 
-    @Override
     /**
      * 获取RawProperty
-    */
+     */
+    @Override
     protected Object getRawProperty(String key) {
         if (properties == null) {
             return null;
@@ -59,10 +59,10 @@ public class PropertiesPropertySource extends AbstractPropertySource {
         return properties.getProperty(key);
     }
 
-    @Override
     /**
      * 获取Source
-    */
+     */
+    @Override
     protected Object getSource() {
         if (properties == null) {
             return null;

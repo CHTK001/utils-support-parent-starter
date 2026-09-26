@@ -16,7 +16,6 @@ import com.chua.deeplearning.support.utils.ImageUtils;
  *         .blurThreshold(100)
  *         .assess(imageBytes);
  * boolean ok = info.sharpnessOk() && info.brightnessOk();
- * }</pre>essOk() && info.brightnessOk();
  * }</pre>
  *
  * @author CH

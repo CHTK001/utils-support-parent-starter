@@ -75,7 +75,16 @@ public class ElasticsearchEngine implements Engine {
     /**
      * 本引擎创建的 RestClient，close() 时统一回收（外部传入的客户端不归本引擎管）
      */
-    private final List<RestClient> ownedRestClients = new ArrayList<>();
+      private final List<RestClient> ownedRestClients = new ArrayList<>();
+
+      /**
+       * 关闭标记：{@link #close()} 后置位，使 close() 幂等且 {@link #isClosed()} 可查询。
+       * <p>ElasticsearchEngine 直接实现 {@code Engine} 而非继承 {@code AbstractEngine}，
+       * 因此不继承基类的关闭标记，需自行维护。</p>
+       */
+      private final java.util.concurrent.atomic.AtomicBoolean closed =
+              new java.util.concurrent.atomic.AtomicBoolean(false);
+
 
     @Override
     /**
@@ -240,18 +249,32 @@ public class ElasticsearchEngine implements Engine {
     /**
      * 关闭
     */
-    public void close() {
-        for (RestClient restClient : ownedRestClients) {
-            try {
-                restClient.close();
-            } catch (Exception e) {
-                log.warn("[elasticsearch-datasource] RestClient 关闭失败: {}", e.getMessage());
-            }
-        }
-        ownedRestClients.clear();
-        client = null;
-        dataSources.clear();
-    }
+      public void close() {
+          if (!closed.compareAndSet(false, true)) {
+              return;
+          }
+          for (RestClient restClient : ownedRestClients) {
+              try {
+                  restClient.close();
+              } catch (Exception e) {
+                  log.warn("[elasticsearch-datasource] RestClient 关闭失败: {}", e.getMessage());
+              }
+          }
+          ownedRestClients.clear();
+          client = null;
+          dataSources.clear();
+      }
+
+      @Override
+      /**
+       * 是否已关闭
+       *
+       * @return 已关闭返回 true
+       */
+      public boolean isClosed() {
+          return closed.get();
+      }
+
 
     @Override
     /**

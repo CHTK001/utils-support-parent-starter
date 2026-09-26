@@ -28,11 +28,11 @@ public abstract class AbstractFileStorage implements FileStorage {
 
     /**
      * 存储桶设置
-    */
+     */
     protected final BucketSetting bucketSetting;
     /**
      * 存储桶
-    */
+     */
     protected final String bucket;
     /**
      * 区域
@@ -65,10 +65,10 @@ public abstract class AbstractFileStorage implements FileStorage {
         this.accessKeySecret = bucketSetting.getAccessKeySecret();
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         // 子类可覆盖实现资源释放
     }
@@ -96,11 +96,11 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         /**
          * 文件存储
-        */
+         */
         private final FileStorage fileStorage;
         /**
          * 上下文
-        */
+         */
         private final Map<String, MultipartContext> contexts;
 
         LocalTmpMultipartStorage(FileStorage fileStorage) {
@@ -108,11 +108,11 @@ public abstract class AbstractFileStorage implements FileStorage {
             this.contexts = new ConcurrentHashMap<>();
         }
 
-        @Override
         /**
          * Initiate
          * @param request 请求
          */
+        @Override
         public MultipartPartResult initiate(PutObjectRequest request) {
             String uploadId = IdUtils.simpleUuid();
             try {
@@ -130,11 +130,11 @@ public abstract class AbstractFileStorage implements FileStorage {
             }
         }
 
-        @Override
         /**
          * uploadpart
          * @param request 请求
          */
+        @Override
         public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
             if (ctx == null) {
@@ -160,12 +160,12 @@ public abstract class AbstractFileStorage implements FileStorage {
             }
         }
 
-        @Override
         /**
          * 完成
          * @param uploadId uploadid
          * @param parts parts
          */
+        @Override
         public PutObjectResult complete(String uploadId, List<PartETag> parts) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {
@@ -195,11 +195,11 @@ public abstract class AbstractFileStorage implements FileStorage {
             }
         }
 
-        @Override
         /**
          * Abort
          * @param uploadId uploadid
          */
+        @Override
         public DeleteObjectResult abort(String uploadId) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {

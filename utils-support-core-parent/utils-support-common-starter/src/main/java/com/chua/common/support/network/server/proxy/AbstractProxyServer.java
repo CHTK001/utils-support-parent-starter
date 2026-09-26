@@ -98,10 +98,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
         return activeConnections.get();
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             InetSocketAddress addr = new InetSocketAddress(setting.getHost(), setting.getPort());
@@ -158,10 +158,10 @@ public abstract class AbstractProxyServer extends AbstractServer {
         return maxConn > 0 ? new Semaphore(maxConn) : null;
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         running = false;
         if (preferNonBlockingAccept && acceptChannel != null) {
@@ -422,8 +422,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
      * @param count 字节数
      * @return 字节数组
      * @throws IOException IO 异常
-     */
-    /**
+     *
      * readBytes 复用缓冲：调用点均立即消费返回值（不跨调用持有），
      * 避免热路径（每连接多次小结构读取）反复分配小数组。
      */

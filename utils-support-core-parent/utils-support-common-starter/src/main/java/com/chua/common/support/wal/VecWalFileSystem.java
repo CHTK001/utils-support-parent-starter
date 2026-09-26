@@ -6,11 +6,13 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * VEC（向量）格式 WAL 文件系统实现。
- * payload: int32 键len + 键(utf8) + int32 dim + float[dim] + int32 metalen + meta(utf8)
+ *
+ * <p>职责：使用 WAL 操作码写入向量记录，并负责向量标识、维度、浮点向量和元数据的编码与解码。</p>
  *
  * @author CH
  * @since 4.0.0
@@ -138,5 +140,38 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         return Optional.of(new VecRecord(id, dim, data, metadata));
     }
 
-    public record VecRecord(String id, int dim, float[] data, String metadata) {}
+    /**
+     * WAL 中一条向量记录。
+     *
+     * @param id       向量 标识
+     * @param dim      向量维度
+     * @param data     向量浮点数组
+     * @param metadata 元数据原文，可为 空
+     */
+    public record VecRecord(String id, int dim, float[] data, String metadata) {
+
+        /**
+         * 规范构造器：标识 必填，向量浮点数组 做防御性拷贝。
+         *
+         * <p>value class 前置条件——空值敌对，且数组组件必须深不可变。
+         * {@link #decode(byte[])} 只会用 反解 出的标识与新分配的数组构造本记录。</p>
+         *
+         * <p>浮点数组 与 元数据原文 均保留 空 语义：{@link #decode(byte[])} 在分片尾部
+         * 缺少元数据长度时会显式置 空，而浮点数组 无从证明外部调用方不传 空。</p>
+         */
+        public VecRecord {
+            Objects.requireNonNull(id, "id 不能为 null");
+            data = data == null ? null : data.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部浮点数组的副本。
+         *
+         * @return 浮点数组副本；data 为 空 时返回 空
+         */
+        @Override
+        public float[] data() {
+            return data == null ? null : data.clone();
+        }
+    }
 }

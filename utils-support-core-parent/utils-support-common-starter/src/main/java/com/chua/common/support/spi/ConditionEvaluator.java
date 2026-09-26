@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
  * }
  * }</pre>以加载服务
  * }
- * }</pre>
+ * }
  *
  * @author CH
  * @since 1.0
@@ -44,7 +44,7 @@ public class ConditionEvaluator {
 
     /**
      * 创建 条件evaluator 实例
-    */
+     */
     public ConditionEvaluator() {
     }
 

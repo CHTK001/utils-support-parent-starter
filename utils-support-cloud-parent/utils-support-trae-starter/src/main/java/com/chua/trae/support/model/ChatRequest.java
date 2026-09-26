@@ -2,6 +2,8 @@ package com.chua.trae.support.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -663,7 +665,30 @@ public class ChatRequest {
             @JsonProperty("name") String name,
             @JsonProperty("description") String description,
             @JsonProperty("parameters") Map<String, Object> parameters
-        ) {}
+        ) {
+
+            /**
+             * 规范构造器：对参数模式做防御性拷贝。
+             *
+             * <p>value class 前置条件——集合组件必须深不可变。参数模式是 JSON Schema 片段，
+             * 既可能由业务方就地构造后继续改写，也可能由 Jackson 反序列化得到后被复用，
+             * 两种情况都会让已发布的工具定义失真。</p>
+             *
+             * <p>模式内的值允许为 {@code null}（如 {@code default: null}），
+             * 且 {@link com.chua.trae.support.ChatClient} 显式判空后按「无模式」处理，
+             * 故此处采用可空安全的不可变包装并保留 {@code null} 语义，
+             * 而非会拒绝 null 值的 {@link Map#copyOf(Map)}。</p>
+             *
+             * @param name        函数名
+             * @param description 函数描述
+             * @param parameters  参数 JSON 模式
+             */
+            public FunctionDef {
+                parameters = parameters == null
+                        ? null
+                        : Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
+            }
+        }
 
         /**
          * 创建函数工具定义。

@@ -79,10 +79,10 @@ import java.util.Map;
 @Slf4j
 @Spi({"xml"})
 public class XmlConfigParser implements ConfigParser {
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

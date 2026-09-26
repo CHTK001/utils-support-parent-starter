@@ -17,10 +17,10 @@ import java.io.Serializable;
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
-    @Override
     /**
      * 序列化
-    */
+     */
+    @Override
     public byte[] serialize(T object) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
@@ -33,14 +33,14 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
      * 反序列化
      *
      * @param bytes bytes
      * @return deserialize的结果
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

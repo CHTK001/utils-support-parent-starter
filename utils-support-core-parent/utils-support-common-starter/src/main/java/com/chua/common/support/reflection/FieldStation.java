@@ -18,12 +18,12 @@ public final class FieldStation {
 
     /**
      * 实例
-    */
+     */
     private final Object instance;
 
     /**
      * 类型
-    */
+     */
     private final Class<?> type;
 
     /**

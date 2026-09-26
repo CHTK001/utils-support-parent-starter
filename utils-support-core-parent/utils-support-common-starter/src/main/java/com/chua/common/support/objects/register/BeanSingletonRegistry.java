@@ -19,11 +19,11 @@ public abstract class BeanSingletonRegistry {
 
     /**
      * 单例Bean
-    */
+     */
     private final Map<String, BeanDefinition> singletonBeans = new ConcurrentHashMap<>();
     /**
      * 单例instances
-    */
+     */
     private final Map<String, Object> singletonInstances = new ConcurrentHashMap<>();
 
     /**

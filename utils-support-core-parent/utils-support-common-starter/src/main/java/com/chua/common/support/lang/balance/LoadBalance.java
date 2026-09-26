@@ -123,9 +123,9 @@ public interface LoadBalance extends AutoCloseable {
  return this;
  }
 
- @Override
  /**
   * 关闭
- */
+  */
+ @Override
  default void close() throws Exception { }
 }

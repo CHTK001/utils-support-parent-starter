@@ -300,9 +300,9 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
      */
     void setEmbeddingClient(EmbeddingClient embeddingClient);
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     default void close() {}
 }

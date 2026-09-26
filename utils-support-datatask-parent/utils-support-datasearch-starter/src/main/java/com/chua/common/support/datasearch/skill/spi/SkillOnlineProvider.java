@@ -1,6 +1,7 @@
 package com.chua.common.support.datasearch.skill.spi;
 
 import com.chua.common.support.ai.skill.SkillDefinition;
+import com.chua.common.support.datasearch.skill.model.SkillMarketListing;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,22 @@ public interface SkillOnlineProvider {
      * @return 搜索结果技能定义列表
      */
     default List<SkillDefinition> search(String keyword) {
+        return Collections.emptyList();
+    }
+
+    /**
+     * 搜索该市场源的技能清单，供控制台的在线市场搜索使用。
+     *
+     * <p>与 {@link #search(String)} 的区别：本方法返回可安装的市场条目元信息，
+     * 而非面向模型的工具体；源侧没有公开查询接口时返回空列表，不伪造数据。</p>
+     *
+     * @param keyword 搜索关键词，可为空表示浏览该源榜单
+     * @param page    页码，从 1 开始
+     * @param limit   每页条数
+     * @param sortBy  排序方式（stars/forks/updated），源侧不支持时由实现自行忽略
+     * @return 市场技能条目列表
+     */
+    default List<SkillMarketListing> searchMarket(String keyword, int page, int limit, String sortBy) {
         return Collections.emptyList();
     }
 

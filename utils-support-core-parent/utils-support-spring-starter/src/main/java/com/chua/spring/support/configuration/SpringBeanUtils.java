@@ -73,6 +73,8 @@ public class SpringBeanUtils {
      */
     private static final ThreadLocal<ApplicationContext> APPLICATION_CONTEXT = new ThreadLocal<>();
 
+    private static volatile ApplicationContext globalApplicationContext;
+
     /**
      * 请求映射处理器映射静态引用。
      */
@@ -85,6 +87,7 @@ public class SpringBeanUtils {
      * @param applicationContext 应用上下文实例
      */
     public static void setApplicationContext(ApplicationContext applicationContext) {
+        globalApplicationContext = applicationContext;
         APPLICATION_CONTEXT.set(applicationContext);
     }
 
@@ -96,6 +99,9 @@ public class SpringBeanUtils {
      */
     public static ApplicationContext getApplicationContext() {
         ApplicationContext applicationContext = APPLICATION_CONTEXT.get();
+        if (applicationContext == null) {
+            applicationContext = globalApplicationContext;
+        }
         if (applicationContext == null) {
             throw new IllegalStateException("ApplicationContext 未初始化，请先调用 setApplicationContext()");
         }
@@ -109,7 +115,8 @@ public class SpringBeanUtils {
      * @return 应用上下文实例，未初始化则返回 空
      */
     public static ApplicationContext getApplicationContextOrNull() {
-        return APPLICATION_CONTEXT.get();
+        ApplicationContext applicationContext = APPLICATION_CONTEXT.get();
+        return applicationContext == null ? globalApplicationContext : applicationContext;
     }
 
     /**
@@ -126,7 +133,23 @@ public class SpringBeanUtils {
      * @return RequestMappingHandlerMapping 实例
      */
     public static RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
-        return requestMappingHandlerMappingStatic;
+        RequestMappingHandlerMapping mapping = requestMappingHandlerMappingStatic;
+        if (mapping != null) {
+            return mapping;
+        }
+        ApplicationContext applicationContext = getApplicationContextOrNull();
+        if (applicationContext == null) {
+            return null;
+        }
+        try {
+            Object bean = applicationContext.getBean("requestMappingHandlerMapping");
+            if (bean instanceof RequestMappingHandlerMapping handlerMapping) {
+                requestMappingHandlerMappingStatic = handlerMapping;
+                return handlerMapping;
+            }
+        } catch (BeansException ignored) {
+        }
+        return null;
     }
 
     /**

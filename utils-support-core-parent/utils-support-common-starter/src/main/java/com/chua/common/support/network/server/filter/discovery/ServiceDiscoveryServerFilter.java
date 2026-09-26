@@ -34,19 +34,19 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     private final String discoveryName;
     /**
      * balance
-    */
+     */
     private String balance = "weight";
     /**
      * protocol
-    */
+     */
     private String protocol;
     /**
      * scatterID
-    */
+     */
     private String scatterId;
     /**
      * exclude服务端ID
-    */
+     */
     private String excludeServerId;
     private volatile ServiceDiscovery serviceDiscovery;
 

@@ -4,6 +4,7 @@ import com.chua.common.support.wal.WalSegmentInfo;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -77,8 +78,42 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
 
     /**
      * 追加条目
-    */
-    record WalAppendItem<K>(K key, byte[] payload) {}
+     *
+     * @param key     索引键
+     * @param payload 业务 payload
+     */
+    record WalAppendItem<K>(K key, byte[] payload) {
+
+        /**
+         * 规范构造器：索引键必填，payload 做防御性拷贝。
+         *
+         * <p>value class 前置条件——空值敌对，且数组组件必须深不可变。
+         * 索引键是 WAL 追加的定位依据，各实现均直接解引用，故约束为非空。</p>
+         *
+         * <p>payload 保留 null 语义：{@code AbstractWalStoreSystem#append} 与
+         * {@code VecWalStoreSystem#append} 都显式判空 {@code payload == null}，
+         * 证明 null 是受支持的输入。</p>
+         *
+         * @param key     索引键，不允许为 null
+         * @param payload 业务 payload，可为 null
+         */
+        public WalAppendItem {
+            Objects.requireNonNull(key, "key 不能为 null");
+            payload = payload == null ? null : payload.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部 payload 的副本。
+         *
+         * <p>value class 前置条件——外部不得持有内部数组引用。</p>
+         *
+         * @return payload 副本；payload 为 null 时返回 null
+         */
+        @Override
+        public byte[] payload() {
+            return payload == null ? null : payload.clone();
+        }
+    }
 
     // ==================== 点查 ====================
 

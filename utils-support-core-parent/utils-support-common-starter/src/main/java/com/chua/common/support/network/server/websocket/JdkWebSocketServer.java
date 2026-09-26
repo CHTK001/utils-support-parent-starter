@@ -46,23 +46,23 @@ public class JdkWebSocketServer extends AbstractServer {
 
     /**
      * 服务器Socket
-    */
+     */
     private ServerSocket serverSocket;
     /**
      * 执行器
-    */
+     */
     private ExecutorService executor;
     /**
      * topicHandlers
-    */
+     */
     private final Map<String, List<ServerHandler>> topicHandlers = new ConcurrentHashMap<>();
     /**
      * Connections
-    */
+     */
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
     /**
      * ConnectionIDSEQ
-    */
+     */
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
@@ -73,10 +73,10 @@ public class JdkWebSocketServer extends AbstractServer {
         super(setting);
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             serverSocket = new ServerSocket();
@@ -93,10 +93,10 @@ public class JdkWebSocketServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
@@ -118,18 +118,18 @@ public class JdkWebSocketServer extends AbstractServer {
         log.info("JDK WebSocketServer stopped");
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
 
-    @Override
     /**
      * 注册Bean
-    */
+     */
+    @Override
     public JdkWebSocketServer registerBean(Object handler) {
         super.registerBean(handler);
         if (handler == null) {
@@ -185,7 +185,7 @@ public class JdkWebSocketServer extends AbstractServer {
 
     /**
      * AcceptLoop
-    */
+     */
     private void acceptLoop() {
         while (!serverSocket.isClosed() && !Thread.currentThread().isInterrupted()) {
             try {
@@ -513,7 +513,7 @@ public class JdkWebSocketServer extends AbstractServer {
         private final String body;
         /**
          * attributes
-        */
+         */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         SimpleServerRequest(String topic, String body) {
@@ -521,138 +521,138 @@ public class JdkWebSocketServer extends AbstractServer {
             this.body = body;
         }
 
-        @Override
         /**
          * 获取Uri
-        */
+         */
+        @Override
         public String getUri() {
             return "/ws/" + topic;
         }
 
-        @Override
         /**
          * 获取Path
-        */
+         */
+        @Override
         public String getPath() {
             return "/ws/" + topic;
         }
 
-        @Override
         /**
          * 获取Method
-        */
+         */
+        @Override
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
-        @Override
         /**
          * 获取Header
-        */
+         */
+        @Override
         public String getHeader(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取Headers
-        */
+         */
+        @Override
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
-        @Override
         /**
          * 获取Params
-        */
+         */
+        @Override
         public Map<String, String> getParams() {
             return Collections.emptyMap();
         }
 
-        @Override
         /**
          * 获取Param
-        */
+         */
+        @Override
         public String getParam(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取ContentType
-        */
+         */
+        @Override
         public String getContentType() {
             return "text/plain";
         }
 
-        @Override
         /**
          * 获取Content获取长度
-        */
+         */
+        @Override
         public long getContentLength() {
             return body != null ? body.getBytes().length : -1;
         }
 
-        @Override
         /**
          * 获取Body
-        */
+         */
+        @Override
         public byte[] getBody() {
             return body != null ? body.getBytes() : new byte[0];
         }
 
-        @Override
         /**
          * 获取BodyString
-        */
+         */
+        @Override
         public String getBodyString() {
             return body;
         }
 
-        @Override
         /**
          * 获取InputStream
-        */
+         */
+        @Override
         public java.io.InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
         }
 
-        @Override
         /**
          * 获取RemoteAddress
-        */
+         */
+        @Override
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
-        @Override
         /**
          * 获取RemotePort
-        */
+         */
+        @Override
         public int getRemotePort() {
             return 0;
         }
 
-        @Override
         /**
          * 获取Attributes
-        */
+         */
+        @Override
         public Map<String, Object> getAttributes() {
             return attributes;
         }
 
-        @Override
         /**
          * 获取Attribute
-        */
+         */
+        @Override
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
-        @Override
         /**
          * 设置Attribute
-        */
+         */
+        @Override
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
@@ -662,15 +662,15 @@ public class JdkWebSocketServer extends AbstractServer {
 
         /**
          * Connection
-        */
+         */
         private final Connection connection;
         /**
          * ended
-        */
+         */
         private volatile boolean ended;
         /**
          * committed
-        */
+         */
         private volatile boolean committed;
         /**
          * 状态
@@ -682,116 +682,116 @@ public class JdkWebSocketServer extends AbstractServer {
         private Object result;
         /**
          * Close消息
-        */
+         */
         private String closeMessage;
 
         SimpleServerResponse(Connection connection) {
             this.connection = connection;
         }
 
-        @Override
         /**
          * 获取Status
-        */
+         */
+        @Override
         public int getStatus() {
             return status;
         }
 
-        @Override
         /**
          * 设置Status
-        */
+         */
+        @Override
         public ServerResponse setStatus(int status) {
             this.status = status;
             return this;
         }
 
-        @Override
         /**
          * 设置Body
-        */
+         */
+        @Override
         public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
 
-        @Override
         /**
          * 设置Body
-        */
+         */
+        @Override
         public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
 
-        @Override
         /**
          * 设置Header
-        */
+         */
+        @Override
         public ServerResponse setHeader(String name, String value) {
             return this;
         }
 
-        @Override
         /**
          * 获取Header
-        */
+         */
+        @Override
         public String getHeader(String name) {
             return null;
         }
 
-        @Override
         /**
          * 获取Headers
-        */
+         */
+        @Override
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
-        @Override
         /**
          * 获取ContentType
-        */
+         */
+        @Override
         public String getContentType() {
             return null;
         }
 
-        @Override
         /**
          * 设置ContentType
-        */
+         */
+        @Override
         public ServerResponse setContentType(String contentType) {
             return this;
         }
 
-        @Override
         /**
          * 获取Body
-        */
+         */
+        @Override
         public byte[] getBody() {
             return result instanceof byte[] ? (byte[]) result : null;
         }
 
-        @Override
         /**
          * 获取OutputStream
-        */
+         */
+        @Override
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
-        @Override
         /**
          * 发送Redirect
-        */
+         */
+        @Override
         public ServerResponse sendRedirect(String location) {
             return this;
         }
 
-        @Override
         /**
          * 发送记录错误
-        */
+         */
+        @Override
         public ServerResponse sendError(int code, String message) {
             this.status = code;
             this.result = message;
@@ -799,41 +799,41 @@ public class JdkWebSocketServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 刷新
-        */
+         */
+        @Override
         public void flush() {
         }
 
-        @Override
         /**
          * 是否Committed
-        */
+         */
+        @Override
         public boolean isCommitted() {
             return committed;
         }
 
-        @Override
         /**
          * 是否Ended
-        */
+         */
+        @Override
         public boolean isEnded() {
             return ended;
         }
 
-        @Override
         /**
          * End
-        */
+         */
+        @Override
         public void end() {
             this.ended = true;
         }
 
-        @Override
         /**
          * 重置
-        */
+         */
+        @Override
         public ServerResponse reset() {
             if (!committed) {
                 status = 200;
@@ -843,26 +843,26 @@ public class JdkWebSocketServer extends AbstractServer {
             return this;
         }
 
-        @Override
         /**
          * 写入Raw
-        */
+         */
+        @Override
         public void writeRaw(byte[] bytes) {
         }
 
-        @Override
         /**
          * 设置Result
-        */
+         */
+        @Override
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
-        @Override
         /**
          * 获取Result
-        */
+         */
+        @Override
         public Object getResult() {
             return result;
         }

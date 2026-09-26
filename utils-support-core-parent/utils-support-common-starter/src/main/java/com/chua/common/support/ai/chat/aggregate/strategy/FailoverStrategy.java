@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class FailoverStrategy implements RouterStrategy {
 
-    @Override
     /**
      * 选择
-    */
+     */
+    @Override
     public WeightedClient select(List<WeightedClient> clients, String prompt) {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");

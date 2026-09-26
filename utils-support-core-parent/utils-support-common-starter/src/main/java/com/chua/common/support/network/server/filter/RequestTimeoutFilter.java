@@ -24,7 +24,7 @@ public class RequestTimeoutFilter implements ServerFilter {
 
     /**
      * 超时毫秒
-    */
+     */
     private final long timeoutMillis;
 
     /**
@@ -45,29 +45,29 @@ public class RequestTimeoutFilter implements ServerFilter {
         return new RequestTimeoutFilter(seconds * 1000L);
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 5;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      * @param request request
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         ExecutorService executor = ThreadUtils.newSingleThreadExecutor();

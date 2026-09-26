@@ -179,25 +179,32 @@ public class Acme4jProvider implements AcmeProvider {
                     Optional<Dns01Challenge> challengeOptional = auth.findChallenge(Dns01Challenge.class);
                     if (challengeOptional.isPresent()) {
                         Dns01Challenge challenge = challengeOptional.get();
-                        AcmeValidationInfo info = new AcmeValidationInfo();
-                        info.setOrderUrl(orderUrl);
-                        info.setDomain(domain);
-                        info.setChallengeType(CHALLENGE_NAME_DNS_01);
-                        info.setDnsName(Dns01Challenge.toRRName(domain));
-                        info.setDnsValue(challenge.getDigest());
+                        AcmeValidationInfo info = new AcmeValidationInfo(
+                                orderUrl,
+                                domain,
+                                CHALLENGE_NAME_DNS_01,
+                                null,
+                                null,
+                                null,
+                                Dns01Challenge.toRRName(domain),
+                                challenge.getDigest()
+                        );
                         result.add(info);
                     }
                 } else {
                     Optional<Http01Challenge> challengeOptional = auth.findChallenge(Http01Challenge.class);
                     if (challengeOptional.isPresent()) {
                         Http01Challenge challenge = challengeOptional.get();
-                        AcmeValidationInfo info = new AcmeValidationInfo();
-                        info.setOrderUrl(orderUrl);
-                        info.setDomain(domain);
-                        info.setChallengeType(CHALLENGE_NAME_HTTP_01);
-                        info.setToken(challenge.getToken());
-                        info.setHttpPath("/.well-known/acme-challenge/" + challenge.getToken());
-                        info.setHttpContent(challenge.getAuthorization());
+                        AcmeValidationInfo info = new AcmeValidationInfo(
+                                orderUrl,
+                                domain,
+                                CHALLENGE_NAME_HTTP_01,
+                                challenge.getToken(),
+                                "/.well-known/acme-challenge/" + challenge.getToken(),
+                                challenge.getAuthorization(),
+                                null,
+                                null
+                        );
                         result.add(info);
                     }
                 }
@@ -440,3 +447,4 @@ public class Acme4jProvider implements AcmeProvider {
         }
     }
 }
+

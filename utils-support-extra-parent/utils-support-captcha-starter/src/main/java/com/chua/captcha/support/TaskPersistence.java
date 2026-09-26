@@ -6,7 +6,7 @@ import java.util.Optional;
  * 验证码任务持久化存储接口
  * <p>
  * 提供验证码解析任务的缓存能力，避免重复请求。
- * 内置文件存储和 sqlite 两种实现，通过 任务id 进行
+ * 内置实现为 {@link FileTaskPersistence}（文件存储），通过 任务id 进行
  * 任务的保存、查询和删除。
  * </p>
  *

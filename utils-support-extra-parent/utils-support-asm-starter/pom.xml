@@ -15,7 +15,11 @@
     <properties>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <asm.version>9.7.1</asm.version>
+        <!--
+          ASM 与 Javassist 版本统一由 utils-support-parent-starter 管理（见父 pom 的
+          asm.version / dependencyManagement）。此处不再自定义 asm.version，
+          否则会覆盖父级版本，导致同一进程出现两个 ASM 版本。
+        -->
         <javassist.version>3.30.2-GA</javassist.version>
     </properties>
     <dependencies>

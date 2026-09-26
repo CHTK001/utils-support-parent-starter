@@ -61,26 +61,26 @@ import java.util.zip.ZipInputStream;
 @Spi({"zip"})
 public class ZipFileSystem implements FileSystem {
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "zip";
     }
 
-    @Override
     /**
      * 读取
-    */
+     */
+    @Override
     public ReadBuilder read(File file) {
         return new ZipReadBuilder(file);
     }
 
-    @Override
     /**
      * 写入
-    */
+     */
+    @Override
     public WriteBuilder write(File file) {
         return new ZipWriteBuilder(file);
     }
@@ -94,7 +94,7 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * 是否启用分卷读取模式
-        */
+         */
         private boolean splitMode = false;
 
         ZipReadBuilder(File file) {
@@ -462,18 +462,18 @@ public class ZipFileSystem implements FileSystem {
             return null;
         }
 
-        @Override
         /**
          * 读取
-        */
+         */
+        @Override
         public Object read() {
             return listEntries();
         }
 
-        @Override
         /**
          * AsString
-        */
+         */
+        @Override
         public String asString() {
             return String.join("\n", listEntries());
         }
@@ -490,17 +490,17 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * ZIP 条目列表
-        */
+         */
         private final List<ZipEntryData> entries = new ArrayList<>();
 
         /**
          * 压缩级别（0~9，-1 为默认）
-        */
+         */
         private int compressionLevel = Deflater.DEFAULT_COMPRESSION;
 
         /**
          * 分卷大小（字节），0 表示不分卷
-        */
+         */
         private long splitSize = 0;
 
         ZipWriteBuilder(File file) {
@@ -565,10 +565,10 @@ public class ZipFileSystem implements FileSystem {
             return this;
         }
 
-        @Override
         /**
          * Finish
-        */
+         */
+        @Override
         public void finish() {
             if (file.getParentFile() != null && !file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -750,7 +750,7 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * 写入File
-        */
+         */
         private void writeFile(ZipOutputStream zos, File file) throws IOException {
             try (FileInputStream fis = new FileInputStream(file)) {
                 writeStream(zos, fis);
@@ -759,7 +759,7 @@ public class ZipFileSystem implements FileSystem {
 
         /**
          * 写入Stream
-        */
+         */
         private void writeStream(ZipOutputStream zos, InputStream in) throws IOException {
             byte[] buffer = new byte[8192];
             int len;
@@ -769,10 +769,10 @@ public class ZipFileSystem implements FileSystem {
             in.close();
         }
 
-        @Override
         /**
          * 写入
-        */
+         */
+        @Override
         public ZipWriteBuilder write(Object data) {
             if (data instanceof File) {
                 addFile(((File) data).getName(), (File) data);
@@ -789,7 +789,7 @@ public class ZipFileSystem implements FileSystem {
         private static class ZipEntryData {
             /**
              * 条目名称
-            */
+             */
             private final String entryName;
             /**
              * 数据源
@@ -797,11 +797,11 @@ public class ZipFileSystem implements FileSystem {
             private final File source;
             /**
              * 输入流
-            */
+             */
             private final InputStream inputStream;
             /**
              * 字节数组
-            */
+             */
             private final byte[] bytes;
 
             ZipEntryData(String entryName, File source) {

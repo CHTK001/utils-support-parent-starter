@@ -10,6 +10,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * 图像抠图（matting）能力接口。
@@ -66,6 +67,18 @@ public interface MattingService {
      */
     static MattingService create(String name) {
         return new DefaultMattingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
+    }
+
+    /**
+     * 枚举可用的抠图模型标识。
+     *
+     * <p>供门面在未指定模型时提示可选清单，避免在代码里写死默认模型。</p>
+     *
+     * @return 模型标识列表
+     */
+    static List<String> listModels() {
+        return com.chua.deeplearning.support.engine.ModelRegistry
+                .getModelIdsByCapability(MattingService.class);
     }
 
     /**

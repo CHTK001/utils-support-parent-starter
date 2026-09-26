@@ -40,7 +40,7 @@ public class EndNode implements PipelineNode {
 
     /**
      * 节点类型：结束。
-    */
+     */
     @Override
     public String getType() {
         return "end";
@@ -48,7 +48,7 @@ public class EndNode implements PipelineNode {
 
     /**
      * 进入终止节点：置 EXIT 动作结束流水线。
-    */
+     */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);

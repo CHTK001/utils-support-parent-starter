@@ -44,3 +44,5 @@ com.chua.common.support.datasearch.usage.spi.impl.VscodeUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.WorkBuddyUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ZCodeUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ZedUsageParser
+com.chua.common.support.datasearch.usage.spi.impl.CodexCliUsageParser
+com.chua.common.support.datasearch.usage.spi.impl.TraeCnUsageParser

@@ -102,58 +102,58 @@ public class FilePushServer implements AutoCloseable {
 
     /**
      * SLF4J 日志
-    */
+     */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(FilePushServer.class);
 
     /**
      * 清单条数上限，防止损坏或恶意的 count 值导致巨额预分配
-    */
+     */
     private static final int MAX_MANIFEST_ENTRIES = 2_000_000;
 
     /**
      * 单个分片字节数上限，防止损坏或恶意的 len 值导致巨额预分配
-    */
+     */
     private static final int MAX_CHUNK_BYTES = 256 * 1024 * 1024;
 
     /**
      * 服务端配置
-    */
+     */
     private final FilePushConfig config;
 
     /**
      * 监听Socket
-    */
+     */
     private volatile ServerSocket serverSocket;
 
     /**
      * 连接数信号量
-    */
+     */
     private volatile Semaphore connectionLimiter;
 
     /**
      * 写盘虚拟线程池
-    */
+     */
     private volatile ExecutorService writeExecutor;
 
     /**
      * 运行标记
-    */
+     */
     private volatile boolean running;
 
     /**
      * 统计：成功接收的文件数
-    */
+     */
     private final AtomicLong filesReceived = new AtomicLong();
 
     /**
      * 统计：成功接收的总字节数
-    */
+     */
     private final AtomicLong bytesReceived = new AtomicLong();
 
     /**
      * 统计：发生的错误数
-    */
+     */
     private final AtomicLong errors = new AtomicLong();
 
     /**
@@ -324,7 +324,7 @@ public class FilePushServer implements AutoCloseable {
 
     /**
      * 接受连接循环（虚拟线程 accept，虚拟线程池处理连接）
-    */
+     */
     private void acceptLoop() {
         while (running) {
             try {

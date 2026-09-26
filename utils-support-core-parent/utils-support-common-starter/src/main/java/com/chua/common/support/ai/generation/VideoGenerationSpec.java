@@ -21,32 +21,32 @@ public class VideoGenerationSpec {
 
     /**
      * 底层对话客户端
-    */
+     */
     private final ChatClient client;
 
     /**
      * 生成提示词
-    */
+     */
     private String prompt;
 
     /**
      * 宽高比
-    */
+     */
     private String ratio;
 
     /**
      * 镜头运动描述
-    */
+     */
     private String cameraMovement;
 
     /**
      * 参考图键
-    */
+     */
     private String refImageKey;
 
     /**
      * 超时时间（秒）
-    */
+     */
     private int timeoutSeconds = 300;
 
     /**
@@ -117,22 +117,22 @@ public class VideoGenerationSpec {
 
     /**
      * Prompt
-    */
+     */
     public String prompt() { return prompt; }
     /**
      * Ratio
-    */
+     */
     public String ratio() { return ratio; }
     /**
      * CameraMovement
-    */
+     */
     public String cameraMovement() { return cameraMovement; }
     /**
      * RefImageKey
-    */
+     */
     public String refImageKey() { return refImageKey; }
     /**
      * TimeoutSeconds
-    */
+     */
     public int timeoutSeconds() { return timeoutSeconds; }
 }

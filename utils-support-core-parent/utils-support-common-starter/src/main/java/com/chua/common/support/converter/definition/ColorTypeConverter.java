@@ -37,7 +37,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
 
     /**
      * 十六进制前缀
-    */
+     */
     private static final String HEX_16 = "0x";
 
     /**
@@ -205,7 +205,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     public static class ColorName {
         /**
          * RGB 颜色分量
-        */
+         */
         public int r, g, b;
         /**
          * 名称

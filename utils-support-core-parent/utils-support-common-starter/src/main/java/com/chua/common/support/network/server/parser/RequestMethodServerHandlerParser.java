@@ -29,18 +29,18 @@ import java.util.Map;
 @Slf4j
 public class RequestMethodServerHandlerParser implements ServerHandlerAnnotationParser {
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 0;
     }
 
-    @Override
     /**
      * 解析
-    */
+     */
+    @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if(!(serverFilter instanceof UrlMappingServerFilter)) {
             return List.of();

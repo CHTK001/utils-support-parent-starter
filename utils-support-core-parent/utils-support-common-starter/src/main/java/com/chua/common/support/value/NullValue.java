@@ -15,12 +15,12 @@ final class NullValue implements Value<Object> {
 
     /**
      * 全局单例实例
-    */
+     */
     static final NullValue INSTANCE = new NullValue();
 
     /**
      * 私有构造函数，防止外部实例化
-    */
+     */
     private NullValue() {
     }
 

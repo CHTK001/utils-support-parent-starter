@@ -50,10 +50,10 @@ public class FixedBackoffProvider implements BackoffProvider {
         return delay;
     }
 
-    @Override
     /**
      * NextDelay
-    */
+     */
+    @Override
     public long nextDelay(int attempt) {
         return delay;
     }

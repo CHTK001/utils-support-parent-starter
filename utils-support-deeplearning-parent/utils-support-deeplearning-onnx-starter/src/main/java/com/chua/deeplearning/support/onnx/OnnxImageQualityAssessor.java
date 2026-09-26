@@ -45,11 +45,19 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
 
     /**
      * 解析模型
+     * <p>ONNX 侧当前没有任何模型注册为 {@link ImageQualityAssessor} 能力
+     * （NIMA 注册的是 FeatureExtractor，输出 float[]，与 ImageQualityInfo 契约不符），
+     * 因此此处不再提供默认值，必须由调用方显式指定可用模型，避免运行时
+     * ClassCastException。质量评估可改用 LaplacianImageQualityAssessor。</p>
      *
      * @return resolve模型的结果
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "nima";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: "
+                    + ImageQualityAssessor.listModels());
+        }
+        return modelName;
     }
 
     @Override

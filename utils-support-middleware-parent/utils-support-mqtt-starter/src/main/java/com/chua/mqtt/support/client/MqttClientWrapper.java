@@ -1,5 +1,6 @@
 package com.chua.mqtt.support.client;
 
+import com.chua.common.support.network.protocol.MqttTopics;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
@@ -53,9 +54,6 @@ import java.util.function.Consumer;
  *     &#64;OnClose
  *     public void onDisconnect() { System.out.println("已断开"); }
  * });
- * }</pre>n关闭
- * 公共 Void Linux on断开连接() { 系统.出.println("已断开"); }
- * });
  * }</pre>
  *
  * @author CH
@@ -64,6 +62,11 @@ import java.util.function.Consumer;
 @Slf4j
 @Getter
 public class MqttClientWrapper implements AutoCloseable {
+
+    /**
+     * 注解订阅默认 QoS —— {@code @OnMessage} 无法声明 QoS，按"至少一次"订阅
+     */
+    private static final int ANNOTATED_QOS = 1;
 
     /**
      * Broker
@@ -106,6 +109,13 @@ public class MqttClientWrapper implements AutoCloseable {
      * topic处理器
     */
     private final Map<String, List<BiConsumer<String, String>>> topicHandlers = new ConcurrentHashMap<>();
+    /**
+     * 期望订阅表：主题过滤器 -> 请求 QoS。
+     *
+     * <p>{@code cleanSession=true} 时 Broker 侧订阅随连接一同丢失，
+     * 自动重连成功后必须按此表重新订阅，否则客户端会静默变成只发不收。</p>
+    */
+    private final Map<String, Integer> subscriptions = new ConcurrentHashMap<>();
     /**
      * Connectlisteners
     */
@@ -176,7 +186,19 @@ public class MqttClientWrapper implements AutoCloseable {
     public MqttClientWrapper start() {
         try {
             mqttClient = new MqttClient(broker, clientId, new MemoryPersistence());
-            mqttClient.setCallback(new MqttCallback() {
+            mqttClient.setCallback(new MqttCallbackExtended() {
+                @Override
+                /**
+                 * connect完成
+                */
+                public void connectComplete(boolean reconnect, String serverURI) {
+                    connected.set(true);
+                    if (reconnect && !subscriptions.isEmpty()) {
+                        // Paho 在回调派发线程上处理后续控制包，阻塞式 subscribe 放在独立线程执行
+                        Thread.startVirtualThread(MqttClientWrapper.this::resubscribeAll);
+                    }
+                }
+
                 @Override
                 /**
                  * connectionlost
@@ -191,13 +213,7 @@ public class MqttClientWrapper implements AutoCloseable {
                             log.error("断开回调异常", e);
                         }
                     }
-                    for (Consumer<Throwable> listener : errorListeners) {
-                        try {
-                            listener.accept(cause);
-                        } catch (Exception e) {
-                            log.error("错误回调异常", e);
-                        }
-                    }
+                    notifyError(cause);
                 }
 
                 @Override
@@ -206,40 +222,17 @@ public class MqttClientWrapper implements AutoCloseable {
                 */
                 public void messageArrived(String topic, MqttMessage message) {
                     String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                    // 精确匹配
-                    List<BiConsumer<String, String>> exactHandlers = topicHandlers.get(topic);
-                    if (exactHandlers != null) {
-                        for (BiConsumer<String, String> h : exactHandlers) {
+                    // 精确主题与通配符过滤器统一按 matches 判定，一个过滤器最多投递一次
+                    for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicHandlers.entrySet()) {
+                        if (!MqttTopics.matches(entry.getKey(), topic)) {
+                            continue;
+                        }
+                        for (BiConsumer<String, String> h : entry.getValue()) {
                             try {
                                 h.accept(topic, payload);
                             } catch (Exception e) {
                                 log.error("消息处理异常", e);
-                                for (Consumer<Throwable> listener : errorListeners) {
-                                    try {
-                                        listener.accept(e);
-                                    } catch (Exception ex) {
-                                        log.error("错误回调异常", ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // 通配符匹配
-                    for (Map.Entry<String, List<BiConsumer<String, String>>> entry : topicHandlers.entrySet()) {
-                        if (!entry.getKey().equals(topic) && matchTopic(entry.getKey(), topic)) {
-                            for (BiConsumer<String, String> h : entry.getValue()) {
-                                try {
-                                    h.accept(topic, payload);
-                                } catch (Exception e) {
-                                    log.error("消息处理异常", e);
-                                    for (Consumer<Throwable> listener : errorListeners) {
-                                        try {
-                                            listener.accept(e);
-                                        } catch (Exception ex) {
-                                            log.error("错误回调异常", ex);
-                                        }
-                                    }
-                                }
+                                notifyError(e);
                             }
                         }
                     }
@@ -266,6 +259,8 @@ public class MqttClientWrapper implements AutoCloseable {
             mqttClient.connect(options);
             connected.set(true);
             log.info("MQTT 客户端连接成功: {}", broker);
+            // 覆盖"先 register/onMessage 登记过滤器、后 start()"的用法：断开期间的登记在此下发
+            resubscribeAll();
 
             // 触发连接回调
             for (Runnable listener : connectListeners) {
@@ -353,11 +348,10 @@ public class MqttClientWrapper implements AutoCloseable {
             } else if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
-                if (topic != null && !topic.isEmpty()) {
-                    onMessage(topic, (t, msg) -> invokeMethod(handler, method, msg));
-                } else {
-                    onMessage("#", (t, msg) -> invokeMethod(handler, method, msg));
-                }
+                String filter = (topic == null || topic.isEmpty()) ? "#" : topic;
+                onMessage(filter, (t, msg) -> invokeMethod(handler, method, msg));
+                // 注解侧只登记回调不会收到消息，必须同时把过滤器下发到 Broker
+                declareSubscription(filter, ANNOTATED_QOS);
                 found = true;
             } else if (method.isAnnotationPresent(OnError.class)) {
                 errorListeners.add(t -> {
@@ -619,21 +613,20 @@ public class MqttClientWrapper implements AutoCloseable {
          * 开始
         */
         public void start() {
-            try {
-                client.mqttClient.subscribe(topic, qos);
-                if (handler != null) {
-                    client.onMessage(topic, handler);
-                }
-                log.info("MQTT 订阅: topic={}, qos={}", topic, qos);
-            } catch (MqttException e) {
-                throw new MqttClientException("订阅失败: " + topic, e);
+            client.requireClient();
+            client.declareSubscription(topic, qos);
+            if (handler != null) {
+                client.onMessage(topic, handler);
             }
+            log.info("MQTT 订阅: topic={}, qos={}", topic, qos);
         }
 
         /**
          * 停止
         */
         public void stop() {
+            client.requireClient();
+            client.subscriptions.remove(topic);
             try { client.mqttClient.unsubscribe(topic); }
             catch (MqttException e) { throw new MqttClientException("取消订阅失败", e); }
         }
@@ -753,25 +746,23 @@ public class MqttClientWrapper implements AutoCloseable {
          * 发送
         */
         public void send() {
+            requireValidTopic();
             try {
-                MqttMessage msg = new MqttMessage(payload);
-                msg.setQos(qos);
-                msg.setRetained(retained);
-                client.mqttClient.publish(topic, msg);
+                client.requireClient().publish(topic, message());
             } catch (MqttException e) {
                 throw new MqttClientException("发布失败: " + topic, e);
             }
         }
 
         /**
-         * 发送异步
-        */
-        public void sendAsync() {
+         * 异步发送：立即返回投递令牌，不等待 Broker 应答。
+         *
+         * @return 投递令牌，需要确认结果时自行 waitForCompletion 或注册回调
+         */
+        public IMqttDeliveryToken sendAsync() {
+            requireValidTopic();
             try {
-                MqttMessage msg = new MqttMessage(payload);
-                msg.setQos(qos);
-                msg.setRetained(retained);
-                client.mqttClient.publish(topic, msg);
+                return client.requireClient().getTopic(topic).publish(message());
             } catch (MqttException e) {
                 throw new MqttClientException("异步发布失败: " + topic, e);
             }
@@ -783,14 +774,33 @@ public class MqttClientWrapper implements AutoCloseable {
          * @param timeoutMs 最大等待毫秒
          */
         public void sendAndWait(long timeoutMs) {
+            requireValidTopic();
             try {
-                MqttMessage msg = new MqttMessage(payload);
-                msg.setQos(qos);
-                msg.setRetained(retained);
-                org.eclipse.paho.client.mqttv3.MqttDeliveryToken token = client.mqttClient.getTopic(topic).publish(msg);
+                MqttDeliveryToken token = client.requireClient().getTopic(topic).publish(message());
                 token.waitForCompletion(timeoutMs);
             } catch (MqttException e) {
                 throw new MqttClientException("同步发布失败: " + topic, e);
+            }
+        }
+
+        /**
+         * 按当前参数组装报文。
+         *
+         * @return MQTT 报文
+         */
+        private MqttMessage message() {
+            MqttMessage msg = new MqttMessage(payload == null ? new byte[0] : payload);
+            msg.setQos(qos);
+            msg.setRetained(retained);
+            return msg;
+        }
+
+        /**
+         * 校验发布主题 —— 发布主题不得为空或携带通配符。
+         */
+        private void requireValidTopic() {
+            if (!MqttTopics.isValidTopic(topic)) {
+                throw new IllegalArgumentException("非法的 MQTT 发布主题: " + topic);
             }
         }
     }
@@ -798,31 +808,71 @@ public class MqttClientWrapper implements AutoCloseable {
     // ==================== 内部方法 ====================
 
     /**
-     * 匹配topic
+     * 取出底层 Paho 客户端。
      *
-     * @param pattern 模式
-     * @param topic topic
-     * @return 匹配topic的结果
+     * @return MQTT 客户端
      */
-    private static boolean matchTopic(String pattern, String topic) {
-        String[] patternParts = pattern.split("/");
-        String[] topicParts = topic.split("/");
-        int p = 0, t = 0;
-        while (p < patternParts.length && t < topicParts.length) {
-            if ("#".equals(patternParts[p])) {
-                return true;
-            }
-            if ("+".equals(patternParts[p])) {
-                p++;
-                t++;
-            } else if (patternParts[p].equals(topicParts[t])) {
-                p++;
-                t++;
-            } else {
-                return false;
+    private MqttClient requireClient() {
+        MqttClient client = mqttClient;
+        if (client == null) {
+            throw new IllegalStateException("MQTT 客户端未启动，请先调用 start()");
+        }
+        return client;
+    }
+
+    /**
+     * 登记期望订阅，已连接时立即下发到 Broker。
+     *
+     * @param filter 主题过滤器
+     * @param qos    请求 QoS
+     */
+    private void declareSubscription(String filter, int qos) {
+        if (!MqttTopics.isValidFilter(filter)) {
+            throw new IllegalArgumentException("非法的 MQTT 主题过滤器: " + filter);
+        }
+        subscriptions.put(filter, qos);
+        MqttClient client = mqttClient;
+        if (client == null || !client.isConnected()) {
+            return;
+        }
+        try {
+            client.subscribe(filter, qos);
+        } catch (MqttException e) {
+            throw new MqttClientException("订阅失败: " + filter, e);
+        }
+    }
+
+    /**
+     * 按期望订阅表重新下发全部过滤器，用于启动后补发与自动重连后恢复。
+     */
+    private void resubscribeAll() {
+        MqttClient client = mqttClient;
+        if (client == null) {
+            return;
+        }
+        for (Map.Entry<String, Integer> entry : subscriptions.entrySet()) {
+            try {
+                client.subscribe(entry.getKey(), entry.getValue());
+                log.info("MQTT 重新订阅: topic={}, qos={}", entry.getKey(), entry.getValue());
+            } catch (MqttException e) {
+                log.error("MQTT 重新订阅失败: topic=" + entry.getKey(), e);
             }
         }
-        return p == patternParts.length && t == topicParts.length;
+    }
+
+    /**
+     * 派发错误回调，回调自身异常只记录不上抛。
+     *
+     * @param cause 异常原因
+     */
+    private void notifyError(Throwable cause) {
+        for (Consumer<Throwable> listener : errorListeners) {
+            try {
+                listener.accept(cause);
+            } catch (Exception e) {
+                log.error("错误回调异常", e);
+            }
+        }
     }
 
     /**

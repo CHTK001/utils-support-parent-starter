@@ -34,7 +34,7 @@ import com.chua.common.support.task.pipeline.core.PipelineContext;
  * }</pre>  // 终止流水线
  *     }
  * })
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -117,7 +117,7 @@ public interface PipelineListener {
      *     .build();
      * }</pre>).任务结束()
      * .构建();
-     * }</pre>
+     * }
      *
      * @param context 当前流水线上下文（含 历史 等执行状态）
      */

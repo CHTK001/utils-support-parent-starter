@@ -2,6 +2,7 @@ package com.chua.metrics.support;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,6 +27,8 @@ public class MetricsJsonParser {
     public MetricsJsonParser() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // native 侧输出 snake_case（cpu_cores / mount_point / received_bytes），模型为 camelCase
+        this.objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
 
     /**

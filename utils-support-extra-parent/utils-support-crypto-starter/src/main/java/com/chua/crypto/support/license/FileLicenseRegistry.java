@@ -71,7 +71,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
      */
     @Override
     public synchronized void register(String fingerprint, byte[] blob) {
-        store.put(fingerprint, Base64.getMimeEncoder().encodeToString(blob));
+        store.put(fingerprint, Base64.getEncoder().encodeToString(blob));
         persist();
     }
 
@@ -131,8 +131,9 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     private void persistInternal() throws IOException {
         StringBuilder sb = new StringBuilder();
         store.forEach((fp, blob) -> sb.append(fp).append('=').append(blob).append(System.lineSeparator()));
-        Files.createDirectories(file.getParent());
-        Path tmp = Files.createTempFile(file.getParent(), "lic", ".tmp");
+        Path dir = file.toAbsolutePath().getParent();
+        Files.createDirectories(dir);
+        Path tmp = Files.createTempFile(dir, "lic", ".tmp");
         try {
             Files.writeString(tmp, sb.toString(), StandardCharsets.UTF_8);
             try {

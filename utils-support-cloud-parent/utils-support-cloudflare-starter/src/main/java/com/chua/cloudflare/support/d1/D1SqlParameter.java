@@ -1,9 +1,11 @@
 package com.chua.cloudflare.support.d1;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +24,31 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
      * 命名参数占位符匹配（{@code :name}）
      */
     private static final Pattern NAMED_PARAM = Pattern.compile(":([a-zA-Z_][a-zA-Z0-9_]*)");
+
+    /**
+     * 规范构造器：数组与映射均做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组与集合组件必须深不可变。此处保留元素可空性，
+     * 因此使用 unmodifiable 包装而非 {@code copyOf}。</p>
+     *
+     * @param positional 位置参数数组
+     * @param named 命名参数映射
+     */
+    public D1SqlParameter {
+        positional = Objects.requireNonNull(positional, "positional 不能为 null").clone();
+        named = Collections.unmodifiableMap(
+                new HashMap<>(Objects.requireNonNull(named, "named 不能为 null")));
+    }
+
+    /**
+     * 位置参数访问器：返回内部数组的副本，避免调用方改写内部状态。
+     *
+     * @return 位置参数数组副本
+     */
+    @Override
+    public Object[] positional() {
+        return positional.clone();
+    }
 
     /**
      * 构造位置参数。

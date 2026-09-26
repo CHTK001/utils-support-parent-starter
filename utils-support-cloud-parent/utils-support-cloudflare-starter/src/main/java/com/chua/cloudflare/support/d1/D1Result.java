@@ -1,9 +1,11 @@
 package com.chua.cloudflare.support.d1;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * D1 查询结果包装。
@@ -33,9 +35,21 @@ import java.util.Map;
  */
 public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows, boolean success) {
 
+    /**
+     * 规范构造器：对元数据与行集合做防御性拷贝并拒绝空值。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。此处保留元素可空性
+     * （JSON 响应可能含 null 值），因此使用 unmodifiable 包装而非 copyOf。</p>
+     *
+     * @param meta 响应元数据
+     * @param rows 结果行集合
+     * @param success 是否成功
+     */
     public D1Result {
-        meta = meta == null ? new LinkedHashMap<>() : meta;
-        rows = rows == null ? new ArrayList<>() : rows;
+        meta = Collections.unmodifiableMap(
+                new LinkedHashMap<>(Objects.requireNonNull(meta, "meta 不能为 null")));
+        rows = Collections.unmodifiableList(
+                new ArrayList<>(Objects.requireNonNull(rows, "rows 不能为 null")));
     }
 
     /**

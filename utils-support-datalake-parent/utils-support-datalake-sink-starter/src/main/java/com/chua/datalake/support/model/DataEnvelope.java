@@ -22,7 +22,8 @@ import java.util.Set;
  * <ul>
  *   <li>{@code parsed} 存储当前阶段的业务数据 Map</li>
  *   <li>{@code pipelineId} 绑定所属管线 ID，用于追踪/路由</li>
- *   <li>{@code timestamp} 用作全序 offset，{@code SubscriberManager} 严格有序消费</li>
+ *   <li>{@code timestamp} 为受理时刻，推送时作为 {@code PushPayload.offset} 的取值</li>
+ *   <li>{@code topics} 决定该条数据可被哪些订阅器命中，含 {@code log} 前缀视为日志型数据</li>
  *   <li>{@code state} 对应当前阶段 PipelineState 状态类型</li>
  * </ul>
  *

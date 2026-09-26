@@ -86,6 +86,14 @@ public class SignatureServerFilter implements ServerFilter {
 
     @Override
     /**
+     * 是否启用：缺少 signature.secret 时无法计算签名，配置到位前不介入业务流量
+    */
+    public boolean isEnabled() {
+        return secret != null && !secret.isEmpty();
+    }
+
+    @Override
+    /**
      * 执行过滤
     */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {

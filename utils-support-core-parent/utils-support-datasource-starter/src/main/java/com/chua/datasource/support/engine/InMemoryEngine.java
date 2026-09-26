@@ -1,6 +1,7 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor;
 import com.chua.common.support.lang.datasource.engine.wrapper.Condition;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
@@ -153,29 +154,54 @@ public class InMemoryEngine extends AbstractEngine {
     /**
      * 执行原生 选择：SQL 编译为 AST 后在表行引用上求值。
      *
+     * <p>本引擎没有 {@code SqlExecutor}，原生语句能力完全由本方法提供，
+     * 因此必须覆写接口规范入口 {@link Engine#querySql(String, Object...)}；
+     * 执行前后由基类的 {@code interceptQuery} 统一回调 {@link EngineInterceptor}。</p>
+     *
      * @param sql    选择 语句（支持 WHERE/订单 BY/限制/数量(*)）
      * @param params ? 绑定参数
      * @return 结果行
      */
+    @Override
     public List<Map<String, Object>> querySql(String sql, Object... params) {
         String table = extractTable(sql);
         List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
-        return new MemorySqlParser().executeQuery(sql, rows, params);
+        return interceptQuery(sql, params, () -> new MemorySqlParser().executeQuery(sql, rows, params));
     }
 
     /**
      * 执行原生 DML：插入 / 更新 / 删除 直接作用于表行引用。
      *
+     * <p>覆写接口规范入口 {@link Engine#executeSql(String, Object...)}，
+     * 执行前后由基类的 {@code interceptUpdate} 统一回调 {@link EngineInterceptor}。</p>
+     *
      * @param sql    DML 语句
      * @param params ? 绑定参数
      * @return 影响行数
      */
+    @Override
     public int executeSql(String sql, Object... params) {
         Objects.requireNonNull(sql, "sql must not be null");
-        var plan = new MemorySqlParser().parseDml(sql);
-        return MemorySqlAst.executeDml(plan,
-                java.util.Arrays.asList(params == null ? new Object[0] : params),
-                () -> mutableRowsFor(plan.table()));
+        Object[] args = params == null ? new Object[0] : params;
+        return interceptUpdate(sql, args, () -> {
+            var plan = new MemorySqlParser().parseDml(sql);
+            return MemorySqlAst.executeDml(plan,
+                    java.util.Arrays.asList(args),
+                    () -> mutableRowsFor(plan.table()));
+        });
+    }
+
+    @Override
+    /**
+     * 是否支持原生语句执行
+     * <p>内存引擎自带完整 SQL 解析与求值链路（{@link MemorySqlParser}），
+     * 只是没有 JDBC 执行器，因此必须显式覆写返回 true，
+     * 否则调用方会按 {@code getExecutor() == null} 误判为不支持 SQL。</p>
+     *
+     * @return 恒为 true
+     */
+    public boolean supportsSql() {
+        return true;
     }
 
     /**
@@ -564,6 +590,18 @@ public class InMemoryEngine extends AbstractEngine {
          */
         public Page<T> page(int pn, int ps) {
             return evaluatePage(this, pn, ps);
+        }
+
+        @Override
+        /**
+         * Count
+         * <p>内存引擎无物理 COUNT 可下推，直接复用 {@link #list()} 的内存求值结果计数，
+         * 与 {@code page()} 保持同一套过滤语义。</p>
+         *
+         * @return 命中行数
+         */
+        public long count() {
+            return list().size();
         }
     }
 

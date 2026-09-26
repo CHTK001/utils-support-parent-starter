@@ -24,11 +24,11 @@ public final class ScatterSyncHelper {
 
     /**
      * 最大重试次数
-    */
+     */
     private static final int MAX_RETRIES = 3;
     /**
      * 请求 ID 原子计数（线程安全，按目标节点隔离）
-    */
+     */
     private static final ConcurrentHashMap<String, Integer> REQUEST_ID_SEQ = new ConcurrentHashMap<>();
     /**
      * 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建
@@ -51,7 +51,7 @@ public final class ScatterSyncHelper {
 
     /**
      * 测试后清理静态状态，防止跨测试干扰。
-    */
+     */
     public static void resetForTest() {
         customClient = null;
         REQUEST_ID_SEQ.clear();

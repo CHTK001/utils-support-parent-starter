@@ -49,6 +49,27 @@ public final class InitSqlMerger {
     private static final String VERSION_SEPARATOR = "__";
 
     /**
+     * 版本号段首字符（Flyway 版本化脚本以 {@code V} 开头）.
+     */
+    private static final char VERSION_PREFIX = 'V';
+
+    /**
+     * SQL 语句结束符（合并输出时补齐，保证每条脚本可独立执行）.
+     */
+    private static final String STATEMENT_TERMINATOR = ";";
+
+    /**
+     * 脚本类型前缀与类型名（{@code V{版本}__<前缀>...} 的分类口径）.
+     */
+    private static final String TYPE_INITDATA_PREFIX = "initdata_";
+    private static final String TYPE_INIT_PREFIX = "init_";
+    private static final String TYPE_ADD_PREFIX = "add_";
+    private static final String TYPE_INITDATA = "initdata";
+    private static final String TYPE_INIT = "init";
+    private static final String TYPE_ADD = "add";
+    private static final String TYPE_NORMAL = "normal";
+
+    /**
      * 工具类禁止实例化.
      */
     private InitSqlMerger() {
@@ -155,8 +176,8 @@ public final class InitSqlMerger {
         builder.append("-- source: ").append(relative).append('\n');
         divider(builder);
         builder.append(content);
-        if (!content.endsWith(";")) {
-            builder.append(';');
+        if (!content.endsWith(STATEMENT_TERMINATOR)) {
+            builder.append(STATEMENT_TERMINATOR);
         }
         builder.append("\n\n");
     }
@@ -180,7 +201,7 @@ public final class InitSqlMerger {
      */
     public static String versionOf(final Path script) {
         final String name = script.getFileName().toString();
-        if (name.isEmpty() || name.charAt(0) != 'V') {
+        if (name.isEmpty() || name.charAt(0) != VERSION_PREFIX) {
             return null;
         }
         final int end = name.indexOf(VERSION_SEPARATOR);
@@ -212,16 +233,16 @@ public final class InitSqlMerger {
             return null;
         }
         final String after = fileName.substring(index + VERSION_SEPARATOR.length());
-        if (after.startsWith("initdata_")) {
-            return "initdata";
+        if (after.startsWith(TYPE_INITDATA_PREFIX)) {
+            return TYPE_INITDATA;
         }
-        if (after.startsWith("init_")) {
-            return "init";
+        if (after.startsWith(TYPE_INIT_PREFIX)) {
+            return TYPE_INIT;
         }
-        if (after.startsWith("add_")) {
-            return "add";
+        if (after.startsWith(TYPE_ADD_PREFIX)) {
+            return TYPE_ADD;
         }
-        return "normal";
+        return TYPE_NORMAL;
     }
 
     /**

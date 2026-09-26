@@ -101,10 +101,10 @@ public interface ObjectPool<T> extends AutoCloseable {
         return new PoolGuard<>(this, borrow());
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     default void close() {
         clear();
     }

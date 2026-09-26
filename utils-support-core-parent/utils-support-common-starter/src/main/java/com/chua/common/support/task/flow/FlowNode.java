@@ -35,7 +35,6 @@ import java.util.List;
  * };
  *
  * Flow flow = FlowEngine.createFlow("demo").addNode("n1", node);
- * }</pre>建流("demo").添加节点("n1", 节点);
  * }</pre>
  *
  * <p>内置了常用二级节点接口，直接使用即可：{@link StartNode}、{@link EndNode}、
@@ -66,25 +65,23 @@ public interface FlowNode {
      */
     void execute(FlowContext context);
 
-/**
- * ��¡�ڵ�ʵ����
- *
- * <p>Ĭ�Ϸ��ص�ǰʵ������״̬�ڵ�Ӧ��д���������ض���������
- * ���� JSON ���봴������ʱ�����̹����ɱ�ڵ�״̬��</p>
- *
- * @return �ڵ�ʵ������
- */
+    /**
+     * 创建节点实例。
+     *
+     * <p>默认返回当前实例；有状态要求的节点实现可覆写此方法，返回适合并发执行的独立实例。</p>
+     *
+     * @return 节点实例
+     */
     default FlowNode cloneNode() {
         return this;
     }
 
     /**
-     * ��ȡ�ڵ����ñ��ε�Ԫ��Ϣ��
+     * 获取节点配置字段列表。
      *
-     * <p>�ڵ�������嵥չʾʱ��ǰ�˸��ݷ��ص��ֶ��б���̬��ɸñ��εı���
-     * ��Լ�������ǰ�� re流 ���������һ�¡�δ�ṩ����ֶ�ʱ默�Ϸ��ؿ��б���</p>
+     * <p>用于流程清单展示时展示当前节点的配置项。未提供配置字段时返回空列表。</p>
      *
-     * @return �ڵ����ñ��ε�Ԫ��Ϣ�б�
+     * @return 节点配置字段列表
      */
     default List<FlowNodeField> configSchema() {
         return new ArrayList<>();

@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  * Object data = result.getOutput();
  * }</pre>/ 非阻塞获取（返回空如果未完成）
  * 对象 数据 = 结果.获取输出();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -254,7 +254,7 @@ public class AsyncResult {
 
     /**
      * 返回含 节点id 与状态的调试字符串。
-    */
+     */
     @Override
     public String toString() {
         return "AsyncResult{" +

@@ -40,26 +40,24 @@ public class BetaPureCalibrator implements PureCalibrator {
 
     /**
      * Beta分布形状参数α，默认2.0
+     *
+     * 透明度
      */
     @Builder.Default
-    /**
-     * 透明度
-    */
     private double alpha = 2.0;
 
     /**
      * Beta分布形状参数β，默认2.0
+     *
+     * Beta
      */
     @Builder.Default
-    /**
-     * Beta
-    */
     private double beta = 2.0;
 
-    @Override
     /**
      * Calibrate
-    */
+     */
+    @Override
     public double calibrate(double rawScore) {
         double prob = regularizedIncompleteBeta(rawScore, alpha, beta);
         return Math.round(prob * 10000.0) / 100.0;
@@ -162,18 +160,18 @@ public class BetaPureCalibrator implements PureCalibrator {
         return -tmp + Math.log(2.5066282746310005 * ser / x);
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return "Beta纯校准";
     }
 
-    @Override
     /**
      * 获取Description
-    */
+     */
+    @Override
     public String getDescription() {
         return "基于Beta累积分布函数的分数校准。参数α和β控制分布形状，适合两端密集中间稀疏的分布。";
     }

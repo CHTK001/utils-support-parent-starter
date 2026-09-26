@@ -179,7 +179,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     /**
      * 获取Describe
      *
-     * @return 获取describe的结果
+     * @return 获取描述的结果
      */
     public String getDescribe() {
         return describe;
@@ -195,16 +195,16 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     }
 
     /**
-     * 获取describe类型
+     * 获取描述类型
      *
-     * @return 获取describe类型的结果
+     * @return 获取描述类型的结果
      */
     public String getDescribeType() {
         return describeType;
     }
 
     /**
-     * 设置describe类型
+     * 设置描述类型
      *
      * @param describeType describe类型
      */
@@ -249,16 +249,16 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     }
 
     /**
-     * 获取describe期权
+     * 获取描述选项
      *
-     * @return 获取describe期权的结果
+     * @return 获取描述选项的结果
      */
     public List<DescribeOptional> getDescribeOptional() {
         return describeOptional;
     }
 
     /**
-     * 设置describe期权
+     * 设置描述选项
      *
      * @param describeOptional describe期权
      */
@@ -695,10 +695,10 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
     public boolean isAssignableFrom(Class<?> parentType) {
         return null != parentType && parentType.isAssignableFrom(implClass);
     }
-    @Override
     /**
      * 比较转为
-    */
+     */
+    @Override
     public int compareTo(ServiceDefinition o) {
         return Integer.compare(o.order, this.order);
     }

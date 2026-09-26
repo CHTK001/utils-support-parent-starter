@@ -26,7 +26,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     protected final ConfigCenterSetting configCenterSetting;
     /**
      * 配置监听器列表
-    */
+     */
     protected List<ConfigListener> listeners;
 
     /**
@@ -53,43 +53,43 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
         log.info("配置中心已关闭，地址: {}", configCenterSetting.getAddress());
     }
 
-    @Override
     /**
      * 是否SupportListener
-    */
+     */
+    @Override
     public boolean isSupportListener() {
         return true;
     }
 
-    @Override
     /**
      * 是否Support发布
-    */
+     */
+    @Override
     public boolean isSupportPublish() {
         return true;
     }
 
-    @Override
     /**
      * 发布
-    */
+     */
+    @Override
     public boolean publish(String dataId, String key, String value) {
         return publish(dataId, "DEFAULT_GROUP", key, value);
     }
 
-    @Override
     /**
      * 发布
-    */
+     */
+    @Override
     public boolean publish(String dataId, String group, String key, String value) {
         log.warn("当前配置中心不支持发布操作: {}", this.getClass().getSimpleName());
         return false;
     }
 
-    @Override
     /**
      * 发布Batch
-    */
+     */
+    @Override
     public boolean publishBatch(String dataId, Map<String, String> configs) {
         if (configs == null || configs.isEmpty()) {
             return true;
@@ -103,19 +103,19 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
         return success;
     }
 
-    @Override
     /**
      * 移除
-    */
+     */
+    @Override
     public boolean remove(String dataId, String key) {
         log.warn("当前配置中心不支持移除操作: {}", this.getClass().getSimpleName());
         return false;
     }
 
-    @Override
     /**
      * 添加Listener
-    */
+     */
+    @Override
     public void addListener(String dataId, ConfigListener listener) {
         this.listeners.add(listener);
     }

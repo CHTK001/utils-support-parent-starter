@@ -1,6 +1,7 @@
 package com.chua.common.support.lang.reflect;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 类定义模型，表示一个类的完整信息（继承关系、注解、方法、字段）。
@@ -27,6 +28,30 @@ public record ClassDefinition(
     List<FieldDefinition> fields,
     int modifiers
 ) {
+
+    /**
+     * 规范构造器：类对象必填，四个列表组件做防御性拷贝。
+     *
+     * <p>value class 前置条件——空值敌对，且集合组件必须深不可变。
+     * {@code superclass} 对接口与 Object 恒为 null，{@link #toString()} 也显式判空，
+     * 故保留 null 语义不加约束。其余四个列表由 {@code AnnotationUtils#getClassDefinition}
+     * 保证非空且元素非空，因此使用 {@link List#copyOf}。</p>
+     *
+     * @param clazz       原始 Class 对象，不允许为 null
+     * @param superclass  父类，可为 null
+     * @param interfaces  实现的接口列表，不允许为 null
+     * @param annotations 类注解定义列表，不允许为 null
+     * @param methods     方法定义列表，不允许为 null
+     * @param fields      字段定义列表，不允许为 null
+     * @param modifiers   修饰符
+     */
+    public ClassDefinition {
+        Objects.requireNonNull(clazz, "clazz 不能为 null");
+        interfaces = List.copyOf(Objects.requireNonNull(interfaces, "interfaces 不能为 null"));
+        annotations = List.copyOf(Objects.requireNonNull(annotations, "annotations 不能为 null"));
+        methods = List.copyOf(Objects.requireNonNull(methods, "methods 不能为 null"));
+        fields = List.copyOf(Objects.requireNonNull(fields, "fields 不能为 null"));
+    }
 
     /**
      * 判断是否为公开类。

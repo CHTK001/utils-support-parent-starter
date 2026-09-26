@@ -54,7 +54,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>募 消息服务 默认消息服务;
  * }
- * }</pre>
+ * }
  *
  * <p> 注意事项：
  * <ul>

@@ -6,12 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -86,6 +88,39 @@ public final class WechatMemoryExtractor {
      */
     public record ExtractedRecord(int pid, long pageAddress, String table,
                                   long rowid, String[] values, int[] serialTypes) {
+
+        /**
+         * 规范构造器：数组组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @param values      各列值
+         * @param serialTypes 序列类型
+         */
+        public ExtractedRecord {
+            values = Objects.requireNonNull(values, "values 不能为 null").clone();
+            serialTypes = Objects.requireNonNull(serialTypes, "serialTypes 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部列值数组的副本。
+         *
+         * @return 列值副本
+         */
+        @Override
+        public String[] values() {
+            return values.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部序列类型数组的副本。
+         *
+         * @return 序列类型副本
+         */
+        @Override
+        public int[] serialTypes() {
+            return serialTypes.clone();
+        }
     }
 
     /**
@@ -93,6 +128,12 @@ public final class WechatMemoryExtractor {
      *
      * <p>一个库的 Name2Id 表行数超过一页容量时会被 SQLite 分裂成多个叶子页，
      * 必须按「地址相邻 + id 空间不冲突」合并，否则一张表会被当成两个库。</p>
+     *
+     * <p><b>例外：集合组件刻意保持可变</b>，不满足 value class 的深不可变要求。
+     * 本类的 {@code buildClusters(List)} 与 {@code mergeContiguous(List)} 都必须在本对象
+     * 构造<b>之后</b>继续往 {@code pages} 追加页地址、往 {@code idMap} 并入 id 空间，
+     * 一旦改成不可变集合，库簇归并算法会在运行期抛
+     * {@link UnsupportedOperationException}。这是算法本身的有状态归并，不是疏漏。</p>
      *
      * @param pid         进程号
      * @param pageAddress 代表页地址
@@ -114,6 +155,33 @@ public final class WechatMemoryExtractor {
     public record ExtractResult(List<ProcessScan> processes, List<ExtractedRecord> records,
                                 Map<String, WechatMemoryPageParser.TableSchema> schemas,
                                 List<IdCluster> clusters) {
+
+        /**
+         * 规范构造器：集合组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。三个列表用可容纳 {@code null} 元素的
+         * 不可变包装；表结构映射同样用包装而<b>不</b>用 {@link Map#copyOf(Map)}，因为
+         * {@code copyOf} 不保证迭代顺序，而 {@link WechatMemoryPageParser#attribute} 正是
+         * 按插入顺序遍历并用「先到先得」打破同分歧义平局的，顺序变了表归属就会变。</p>
+         *
+         * <p>注意列表里的 {@link IdCluster} 仍是可变对象（见其类注释），因此这里保证的是
+         * 「顶层列表不可变」，不是深度不可变。</p>
+         *
+         * @param processes 各进程扫描统计
+         * @param records   全部记录（跨进程已按 rowid + 内容去重）
+         * @param schemas   还原出的表结构
+         * @param clusters  Name2Id 库簇
+         */
+        public ExtractResult {
+            processes = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(processes, "processes 不能为 null")));
+            records = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(records, "records 不能为 null")));
+            schemas = Collections.unmodifiableMap(new LinkedHashMap<>(
+                    Objects.requireNonNull(schemas, "schemas 不能为 null")));
+            clusters = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(clusters, "clusters 不能为 null")));
+        }
     }
 
     /**

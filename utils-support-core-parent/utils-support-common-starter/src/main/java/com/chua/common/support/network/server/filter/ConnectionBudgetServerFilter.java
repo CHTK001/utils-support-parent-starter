@@ -46,7 +46,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
 
     /**
      * 单 IP 允许的最大在途并发请求数
-    */
+     */
     private final int maxConcurrentPerIp;
 
     /**
@@ -64,31 +64,30 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
         this.maxConcurrentPerIp = Math.max(maxConcurrentPerIp, 1);
     }
 
-    @Override
     /**
      * 获取Order:尽早拦截,避免超预算请求占用下游资源
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 40;
     }
 
-    @Override
     /**
      * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
      */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      *
@@ -96,6 +95,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         AtomicInteger counter = acquire(request);
@@ -116,7 +116,6 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
         }
     }
 
-    @Override
     /**
      * 响应式Do过滤
      *
@@ -124,6 +123,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
      * @param response response
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         AtomicInteger counter = acquire(request);

@@ -15,7 +15,7 @@ package com.chua.common.support.task.loader;
  * DataSource same = loader.get(); // 返回缓存实例
  * loader.reset();                 // 清除缓存
  * }</pre>loader.reset();                 // 清除缓存
- * }</pre>
+ * }
  *
  * @param <T> 被加载的对象类型
  * @author CH

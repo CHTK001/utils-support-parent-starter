@@ -27,10 +27,10 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
         this.setting = setting == null ? ConfigSaveLoadSetting.builder().build() : setting;
     }
 
-    @Override
     /**
      * Charset
-    */
+     */
+    @Override
     public Charset charset() {
         return setting.getCharset();
     }

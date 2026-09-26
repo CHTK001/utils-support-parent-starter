@@ -154,6 +154,7 @@ public class VitGpt2CaptioningTranslator implements ITranslator<byte[], String> 
         ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
+        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
         encoderSession = ortEnv.createSession(encoderPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[ViT-GPT2] 模型加载完成: encoder={} decoder={}", encoderPath, decoderPath);

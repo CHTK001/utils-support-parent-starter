@@ -18,19 +18,19 @@ public final class NetUtils {
 
     /**
      * Local_host_cache
-    */
+     */
     private static final String LOCAL_HOST_CACHE;
     /**
      * Any_host
-    */
+     */
     private static final String ANY_HOST = "0.0.0.0";
     /**
      * Localhost
-    */
+     */
     private static final String LOCALHOST = "127.0.0.1";
     /**
      * Localhost_ipv6
-    */
+     */
     private static final String LOCALHOST_IPV6 = "0:0:0:0:0:0:0:1";
 
     static {
@@ -40,7 +40,7 @@ public final class NetUtils {
 
     /**
      * 创建 NetUtils 实例
-    */
+     */
     private NetUtils() {
     }
 
@@ -139,6 +139,29 @@ public final class NetUtils {
             // 网卡枚举失败——返回空列表
         }
         return ips;
+    }
+
+    /**
+     * 获取「本机对外首选 IPv4」。
+     *
+     * <p>与 {@link #getLocalHost()} 的区别：后者只是 {@code InetAddress.getLocalHost()} 的结果，
+     * 在多网卡 / 回环优先的机器上可能拿到 {@code 127.0.0.1}，而本方法会跳过回环网卡，
+     * 取第一张可用网卡的 IPv4 —— 这才是「别的机器访问本机」应该填的地址。
+     * 典型用途：把连接串里的 {@code 127.0.0.1} 替换为真实地址后再转给远端的
+     * guacd / websockify 之类代理进程。</p>
+     *
+     * @return 非回环 IPv4；无可用网卡时退回 {@link #getLocalHost()}，再退回 {@code 127.0.0.1}
+     */
+    public static String getPreferredLocalIp() {
+        java.util.List<String> ips = getLocalIps();
+        if (!ips.isEmpty()) {
+            return ips.getFirst();
+        }
+        String localHost = getLocalHost();
+        if (localHost != null && !localHost.isBlank() && !isLocalHost(localHost)) {
+            return localHost;
+        }
+        return LOCALHOST;
     }
 
     /**

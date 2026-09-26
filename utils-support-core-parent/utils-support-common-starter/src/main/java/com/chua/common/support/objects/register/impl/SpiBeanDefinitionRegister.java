@@ -31,85 +31,85 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
 
     /**
      * Beandefinitions
-    */
+     */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
     /**
      * closed
-    */
+     */
     private volatile boolean closed;
 
-    @Override
     /**
      * 获取名称
-    */
+     */
+    @Override
     public String getName() {
         return "spi";
     }
 
-    @Override
     /**
      * 获取Priority
-    */
+     */
+    @Override
     public int getPriority() {
         return 20;
     }
 
-    @Override
     /**
      * 是否支持
-    */
+     */
+    @Override
     public boolean isSupport(BeanDefinition beanDefinition) {
  // SPI 注册器不支持手动注册，由 服务提供者 自动发现服务
         return false;
     }
 
-    @Override
     /**
      * 注册
-    */
+     */
+    @Override
     public boolean register(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注册，Bean 应由 ServiceProvider 自动发现");
     }
 
-    @Override
     /**
      * 注销
-    */
+     */
+    @Override
     public boolean unregister(BeanDefinition beanDefinition) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注销");
     }
 
-    @Override
     /**
      * 注销
-    */
+     */
+    @Override
     public boolean unregister(String beanName) {
         throw new UnsupportedOperationException(
                 "SPI Bean 定义注册器不支持手动注销");
     }
 
-    @Override
     /**
      * 是否Writable
-    */
+     */
+    @Override
     public boolean isWritable() {
         return false;
     }
 
-    @Override
     /**
      * 获取Beandefinition
-    */
+     */
+    @Override
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanName != null && !closed ? beanDefinitions.get(beanName) : null;
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
-    */
+     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -126,10 +126,10 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
         return result;
     }
 
-    @Override
     /**
      * 获取Beandefinition的类型
-    */
+     */
+    @Override
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -145,26 +145,26 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
         return getBeanDefinitionOfType(typeName);
     }
 
-    @Override
     /**
      * containsBean
-    */
+     */
+    @Override
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
-    @Override
     /**
      * 获取Beandefinition名称
-    */
+     */
+    @Override
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
-    @Override
     /**
      * 获取Beanwith注解
-    */
+     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -184,10 +184,10 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
         return result;
     }
 
-    @Override
     /**
      * 获取Beanwith方法注解
-    */
+     */
+    @Override
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -207,28 +207,28 @@ public class SpiBeanDefinitionRegister extends BeanSingletonRegistry implements 
         return result;
     }
 
-    @Override
     /**
      * 初始化
-    */
+     */
+    @Override
     public void initialize() {
         closed = false;
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         closed = true;
         destroySingletons();
         beanDefinitions.clear();
     }
 
-    @Override
     /**
      * 是否Closed
-    */
+     */
+    @Override
     public boolean isClosed() {
         return closed;
     }

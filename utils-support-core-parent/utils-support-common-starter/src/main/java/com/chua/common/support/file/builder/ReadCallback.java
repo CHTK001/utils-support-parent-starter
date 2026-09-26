@@ -9,7 +9,7 @@ import java.util.List;
 public interface ReadCallback {
     /**
      * OnHeader
-    */
+     */
     default void onHeader(List<String> headers) {}
     /**
      * 响应请求体。
@@ -19,6 +19,6 @@ public interface ReadCallback {
     void onBody(Object row);
     /**
      * OnComplete
-    */
+     */
     default void onComplete(long total) {}
 }

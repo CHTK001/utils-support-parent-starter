@@ -368,6 +368,16 @@ public class AggregateChatClient implements ChatClient {
     }
 
     @Override
+    public ChatClient skill(SkillManager skillManager) {
+        return skillManager == null ? this : broadcast(c -> c.skill(skillManager));
+    }
+
+    @Override
+    public ChatClient skillPrompt(String block) {
+        return block == null || block.isEmpty() ? this : broadcast(c -> c.skillPrompt(block));
+    }
+
+    @Override
     public ChatClient temperature(double temperature) {
         return broadcast(c -> c.temperature(temperature));
     }
@@ -415,6 +425,54 @@ public class AggregateChatClient implements ChatClient {
     @Override
     public ChatClient history(List<com.chua.common.support.ai.chat.ChatMessage> messages) {
         return broadcast(c -> c.history(messages));
+    }
+
+    @Override
+    public ChatClient tools(List<com.chua.common.support.ai.chat.ChatTool> tools) {
+        return tools == null || tools.isEmpty() ? this : broadcast(c -> c.tools(tools));
+    }
+
+    @Override
+    public ChatClient toolChoice(String toolChoice) {
+        return toolChoice == null || toolChoice.isBlank() ? this : broadcast(c -> c.toolChoice(toolChoice));
+    }
+
+    @Override
+    public ChatClientSetting getSetting() {
+        ChatClient representative = representativeClient();
+        return representative != null ? representative.getSetting() : null;
+    }
+
+    @Override
+    public String getModel() {
+        ChatClient representative = representativeClient();
+        return representative != null ? representative.getModel() : null;
+    }
+
+    @Override
+    public String getApiKey() {
+        ChatClient representative = representativeClient();
+        return representative != null ? representative.getApiKey() : null;
+    }
+
+    @Override
+    public String getBaseUrl() {
+        ChatClient representative = representativeClient();
+        return representative != null ? representative.getBaseUrl() : null;
+    }
+
+    /**
+     * 选取一个可用的底层客户端作为代表，用于读取密钥、地址、模型等单一值。
+     *
+     * @return 首个底层客户端，无可用时返回 null
+     */
+    private ChatClient representativeClient() {
+        for (RouterStrategy.WeightedClient weighted : allClients) {
+            if (weighted != null && weighted.client() != null) {
+                return weighted.client();
+            }
+        }
+        return null;
     }
 
     /**
@@ -538,12 +596,10 @@ public class AggregateChatClient implements ChatClient {
 
     /**
      * 同步对话并返回完整响应（含用量信息）。
-    @Override
-     * @param prompt 提示词，不允许为 null
-     * @return ChatSync响应 对象
-    /**
-     * ChatSyncWithResponse
-    */
+     *
+     * @param prompt 用户输入，不允许为 null
+     * @return 同步对话响应 对象
+     */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder().text(text).usage(aggregateUsage()).build();
@@ -1112,5 +1168,20 @@ public class AggregateChatClient implements ChatClient {
             List<RouterStrategy.WeightedClient> allClients,
             List<HybridStrategy.GroupRouter> groupRouters
     ) {
+
+        /**
+         * 规范构造器：对集合组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。
+         * 两个列表均在 {@code parseGroups} 内构建完成、元素非空且构造后不再被改写，
+         * 故可直接取不可变快照。</p>
+         *
+         * @param allClients   所有客户端实例，不允许为 null
+         * @param groupRouters 分组路由器列表，不允许为 null
+         */
+        private AllParsed {
+            allClients = List.copyOf(allClients);
+            groupRouters = List.copyOf(groupRouters);
+        }
     }
 }

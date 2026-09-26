@@ -82,34 +82,34 @@ public final class CommandLine {
 
     /**
      * 默认帮助选项的长名称
-    */
+     */
     private static final String HELP_LONG = "help";
 
     /**
      * 默认帮助选项的短名称
-    */
+     */
     private static final String HELP_SHORT = "h";
 
     /**
      * 默认帮助选项的描述
-    */
+     */
     private static final String HELP_DESC = "显示帮助信息";
 
     /**
      * 选项列表
-    */
+     */
     private final List<CliOption> options;
     /**
      * 程序名称
-    */
+     */
     private final String programName;
     /**
      * 程序描述
-    */
+     */
     private final String programDescription;
     /**
      * 是否启用帮助选项
-    */
+     */
     private final boolean helpOptionEnabled;
 
     /**
@@ -123,20 +123,20 @@ public final class CommandLine {
         this.helpOptionEnabled = builder.helpOptionEnabled;
     }
 
-    @Nonnull
     /**
      * ProgramName
      * @return 结果字符串
      */
+    @Nonnull
     public String programName() {
         return programName;
     }
 
-    @Nonnull
     /**
      * ProgramDescription
      * @return 结果字符串
      */
+    @Nonnull
     public String programDescription() {
         return programDescription;
     }
@@ -714,24 +714,24 @@ public final class CommandLine {
     public static final class Builder {
         /**
          * 选项列表
-        */
+         */
         private final List<CliOption> options = new ArrayList<>();
         /**
          * 程序名称
-        */
+         */
         private String programName;
         /**
          * 程序描述
-        */
+         */
         private String programDescription;
         /**
          * 是否启用帮助选项
-        */
+         */
         private boolean helpOptionEnabled = true;
 
         /**
          * 创建 Builder 实例
-        */
+         */
         private Builder() {
         }
 
@@ -869,19 +869,19 @@ public final class CommandLine {
 
         /**
          * 选项列表
-        */
+         */
         private final List<CliOption> options;
         /**
          * 值映射
-        */
+         */
         private final Map<String, Object> values;
         /**
          * 位置参数列表
-        */
+         */
         private final List<String> positionalArgs;
         /**
          * 已解析选项集合
-        */
+         */
         private final Set<String> seenOptions;
 
         /**
@@ -1134,23 +1134,23 @@ public final class CommandLine {
 
         /**
          * 命令行实例
-        */
+         */
         private final CommandLine commandLine;
         /**
          * 已解析选项值映射
-        */
+         */
         private final Map<String, Object> optionValues = new LinkedHashMap<>();
         /**
          * 位置参数列表
-        */
+         */
         private final List<String> positionalArgs = new ArrayList<>();
         /**
          * 是否使用长选项名
-        */
+         */
         private boolean useLongNames = true;
         /**
          * 是否使用等号格式
-        */
+         */
         private boolean useEqualsFormat = false;
 
         /**

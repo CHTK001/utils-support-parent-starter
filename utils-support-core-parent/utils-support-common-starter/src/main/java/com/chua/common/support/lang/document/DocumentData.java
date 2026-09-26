@@ -26,53 +26,50 @@ public class DocumentData {
 
     /**
      * 数据库名称（JDBC 连接 catalog）
-    */
+     */
     private String databaseName;
 
     /**
      * 数据库产品名称，例如 H2、MySQL、PostgreSQL
-    */
+     */
     private String productName;
 
     /**
      * 数据库产品版本号
-    */
+     */
     private String productVersion;
 
     /**
      * JDBC 连接 URL
-    */
+     */
     private String url;
 
     /**
      * 文档标题，默认值为 "数据库设计文档"
-    */
-    @Builder.Default
-    /**
+     *
      * 标题
-    */
+     */
+    @Builder.Default
     private String title = "数据库设计文档";
 
     /**
      * 文档描述说明
-    */
+     */
     private String description;
 
     /**
      * 文档版本号，默认 "1.0.0"
-    */
-    @Builder.Default
-    /**
+     *
      * 版本号
      */
+    @Builder.Default
     private String version = "1.0.0";
 
     /**
      * 所有表结构的集合
-    */
-    @Builder.Default
-    /**
+     *
      * Tables
-    */
+     */
+    @Builder.Default
     private List<TableData> tables = new ArrayList<>();
 }

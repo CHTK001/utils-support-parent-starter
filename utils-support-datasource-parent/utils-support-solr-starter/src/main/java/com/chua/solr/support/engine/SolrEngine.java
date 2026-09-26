@@ -936,7 +936,32 @@ public class SolrEngine extends AbstractEngine {
         return search(entityClass, conditions, null, 0, 1000).list();
     }
 
+    /**
+     * 搜索结果。
+     *
+     * @param list  实体列表，已防御性拷贝
+     * @param total 命中总数
+     * @param <T>   实体类型
+     */
     private record SearchResult<T>(List<T> list, long total) {
+
+        /**
+         * 规范构造器：对实体列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。本列表会随
+         * {@link Page} 一并交给调用方，若直接持有查询过程的可变列表，
+         * 后续改写会污染已返回的分页数据。</p>
+         *
+         * <p>元素由 {@link #documentToEntity(SolrDocument, Class)} 产出，可能为
+         * {@code null}（实体无法实例化时反射工具返回 {@code null}），故采用可空安全的
+         * 不可变包装而非 {@link List#copyOf(List)}。</p>
+         *
+         * @param list  实体列表
+         * @param total 命中总数
+         */
+        private SearchResult {
+            list = Collections.unmodifiableList(new ArrayList<>(list));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1231,11 +1256,18 @@ public class SolrEngine extends AbstractEngine {
     }
 
     /**
-     * 获取客户端
-    */
-    public com.chua.datasource.support.ddl.DslManager ddl() {
-        return new com.chua.solr.support.ddl.SolrDdlManager(getClient());
+     * DDL 管理器的 SPI 查找键。
+     * <p>Solr 无 JDBC 方言，因此不能落进依赖 {@code DataSource} 的通用实现，
+     * 固定使用 {@code solr} 别名；{@link com.chua.solr.support.ddl.SolrDdlManager}
+     * 通过 {@code EngineAware} 从本引擎取客户端。</p>
+     *
+     * @return SPI 查找键序列
+     */
+    @Override
+    protected List<String> ddlSpiKeys() {
+        return List.of("solr");
     }
+
 
     /**
      * 获取客户端

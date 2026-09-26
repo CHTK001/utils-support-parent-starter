@@ -38,44 +38,42 @@ public class SigmoidPureCalibrator implements PureCalibrator {
 
     /**
      * 陡度参数，默认15
+     *
+     * K
      */
     @Builder.Default
-    /**
-     * K
-    */
     private double k = 15.0;
 
     /**
      * 阈值参数，默认0.75
+     *
+     * T
      */
     @Builder.Default
-    /**
-     * T
-    */
     private double t = 0.75;
 
-    @Override
     /**
      * Calibrate
-    */
+     */
+    @Override
     public double calibrate(double rawScore) {
         double expVal = Math.exp(-k * (rawScore - t));
         double prob = 1.0 / (1.0 + expVal);
         return Math.round(prob * 10000.0) / 100.0;
     }
 
-    @Override
     /**
      * 获取Name
-    */
+     */
+    @Override
     public String getName() {
         return "Sigmoid纯校准";
     }
 
-    @Override
     /**
      * 获取Description
-    */
+     */
+    @Override
     public String getDescription() {
         return "基于Sigmoid函数的分数校准。参数k控制陡度，t控制阈值。";
     }

@@ -19,7 +19,7 @@ public class ObjectDescribe {
 
     /**
      * 对象
-    */
+     */
     private final Object object;
     private final Class<?> objectClass; // 对象类
 
@@ -46,7 +46,7 @@ public class ObjectDescribe {
      * 获取方法描述
      *
      * @param methodName 方法名称
-     * @return 获取方法describe的结果
+     * @return 获取方法描述的结果
      */
     public MethodDescribe getMethodDescribe(String methodName) {
         if (objectClass == null || methodName == null) { return null; }
@@ -57,7 +57,7 @@ public class ObjectDescribe {
     /**
      * 获取所有方法描述
      *
-     * @return 获取方法describes的结果
+     * @return 获取方法描述的结果
      */
     public List<MethodDescribe> getMethodDescribes() {
         if (objectClass == null) { return Collections.emptyList(); }

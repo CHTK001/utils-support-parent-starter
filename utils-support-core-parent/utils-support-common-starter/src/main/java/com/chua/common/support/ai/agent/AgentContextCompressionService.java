@@ -35,52 +35,52 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
 
     /**
      * 基线快照类型标识
-    */
+     */
     private static final String BASELINE_TYPE = "context_baseline";
 
     /**
      * 基线摘要类型标识
-    */
+     */
     private static final String BASELINE_SUMMARY_TYPE = "context_baseline_summary";
 
     /**
      * 轮数计数器类型标识
-    */
+     */
     private static final String ROUNDS_COUNTER_TYPE = "context_rounds_counter";
 
     /**
      * 压缩配置
-    */
+     */
     private final AgentCompressionConfig config;
 
     /**
      * 压缩用聊天客户端
-    */
+     */
     private final ChatClient compressionChatClient;
 
     /**
      * 备用聊天客户端
-    */
+     */
     private final ChatClient fallbackChatClient;
 
     /**
      * 工作空间路径
-    */
+     */
     private final String workspace;
 
     /**
      * 是否已保存基线
-    */
+     */
     private boolean baselineSaved = false;
 
     /**
      * 基线之后经过的轮数
-    */
+     */
     private int roundsAfterBaseline = 0;
 
     /**
      * 缓存的基线摘要
-    */
+     */
     private String cachedBaselineSummary = null;
 
     /**
@@ -116,10 +116,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         this.roundsAfterBaseline = loadRoundsAfterBaseline();
     }
 
-    @Override
     /**
      * OnFirstCompression
-    */
+     */
+    @Override
     public void onFirstCompression(List<ChatMessage> fullContext) {
         if (!config.isEnabled() || baselineSaved) {
             return;
@@ -136,12 +136,12 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         roundsAfterBaseline = 0;
     }
 
-    @Override
     /**
      * OnDeviationCompression
      * @param baselineContext baselineContext
      * @param currentContext currentContext
      */
+    @Override
     public List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                                      List<ChatMessage> currentContext) {
         if (!config.isEnabled()) {
@@ -201,7 +201,8 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                 baselineSaved = true;
                 roundsAfterBaseline = 0;
             }
-            ChatMessage compressedMsg = new ChatMessage("system", "[COMPRESSED_CONTEXT] " + summary);
+            ChatMessage compressedMsg = ChatMessage.builder().role("system")
+                    .content("[COMPRESSED_CONTEXT] " + summary).build();
             List<ChatMessage> result = new ArrayList<>(retained.size());
             result.add(compressedMsg);
             result.addAll(retained);
@@ -210,7 +211,8 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
 
         List<ChatMessage> toCompress = new ArrayList<>(fullContext.subList(0, fullContext.size() - retain));
         String compressedText = buildCompressedText(toCompress);
-        ChatMessage compressedMsg = new ChatMessage("system", "[COMPRESSED_CONTEXT] " + compressedText);
+        ChatMessage compressedMsg = ChatMessage.builder().role("system")
+                .content("[COMPRESSED_CONTEXT] " + compressedText).build();
 
         List<ChatMessage> result = new ArrayList<>(retained.size());
         result.add(compressedMsg);
@@ -341,7 +343,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
 
     /**
      * 保存RoundsAfterBaseline
-    */
+     */
     private void saveRoundsAfterBaseline() {
         try {
             MemoryEntry entry = MemoryEntry.builder()
@@ -490,12 +492,13 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                 if (cleanRole.isEmpty()) {
                     cleanRole = role;
                 }
-                result.add(new ChatMessage(cleanRole, roleAndContent));
+                result.add(ChatMessage.builder().role(cleanRole).content(roleAndContent).build());
             } else if (!line.startsWith("\u3010") && !line.startsWith("```")) {
                 if (!result.isEmpty()) {
                     ChatMessage last = result.get(result.size() - 1);
                     result.set(result.size() - 1,
-                            new ChatMessage(last.getRole(), last.getContent() + "\n" + line));
+                            ChatMessage.builder().role(last.getRole())
+                                    .content(last.getContent() + "\n" + line).build());
                 }
             }
         }

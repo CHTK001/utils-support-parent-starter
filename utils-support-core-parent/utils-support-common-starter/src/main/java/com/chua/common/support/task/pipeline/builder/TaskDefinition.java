@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  *     .exit()                    // 便捷方法
  *     .taskEnd()                // 结束定义，返回 builder
  * }</pre>回 builder
- * }</pre>
+ * }
  *
  * <p><strong>核心设计：</strong></p>
  * <ul>
@@ -102,7 +102,7 @@ import java.util.function.Consumer;
  *     .taskEnd()
  *     .build();
  * }</pre>   * .构建();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42
@@ -113,35 +113,35 @@ public class TaskDefinition {
 
     /**
      * 标识
-    */
+     */
     private final String id;
     /**
      * 处理器
-    */
+     */
     private PipelineNode handler;
     /**
      * 构建器
-    */
+     */
     private final PipelineBuilder builder;
     /**
      * 结束afterexecute
-    */
+     */
     private boolean endAfterExecute;
     /**
      * 开始节点
-    */
+     */
     private boolean startNode;
     /**
      * env
-    */
+     */
     private Map<String, Object> env;
     /**
      * 重试配置
-    */
+     */
     private RetryConfig retryConfig;
     /**
      * Units
-    */
+     */
     private Set<String> units;
 
     /**
@@ -205,7 +205,7 @@ public class TaskDefinition {
      *     .taskStart("done", ctx -> { cleanup(ctx); return null; }).pipelineEnd();
      *     // ↑ 等价于 .taskEnd().end("done").build()
      * }</pre>束("done").构建()
-     * }</pre>
+     * }
      *
      * @return 构建完成的 Pipeline 实例
      */
@@ -224,7 +224,7 @@ public class TaskDefinition {
      * <p>等价于：</p>
      * <pre>{@code
      * .task("name", ctx -> { doWork(ctx); return null; })
-     * }</pre> * }</pre>
+     * }</pre> * }
      *
      * <p>用法示例：</p>
      * <pre>{@code
@@ -236,7 +236,7 @@ public class TaskDefinition {
      * .taskEnd()
      * }</pre>)
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param action Consumer 回调，无返回值
      * @return this
@@ -272,7 +272,7 @@ public class TaskDefinition {
      * })
      * .taskEnd()
      * }</pre>    * .任务结束()
-     * }</pre>
+     * }
      *
      * @param handler pipeline节点 处理器，返回值决定路由
      * @return this
@@ -296,7 +296,7 @@ public class TaskDefinition {
      *     return null;
      * })
      * }</pre>    * })
-     * }</pre>
+     * }
      *
      * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
      *
@@ -378,7 +378,7 @@ public class TaskDefinition {
      *         // 校验...
      *     })
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param unitIds 依赖的节点 标识 列表
      * @return this
@@ -404,7 +404,7 @@ public class TaskDefinition {
      * .branch("no", "errorNode")
      * .taskEnd()                         // 完成定义
      * }</pre>          // 完成定义
-     * }</pre>
+     * }
      *
      * @return TaskDecisionDefinition
      */
@@ -450,7 +450,7 @@ public class TaskDefinition {
      *     .errorStrategy(ForkErrorStrategy.WAIT_ALL)
      * .taskEnd()                                 // 完成定义
      * }</pre>       // 完成定义
-     * }</pre>
+     * }
      *
      * @return TaskForkDefinition
      * @see TaskForkDefinition
@@ -485,7 +485,7 @@ public class TaskDefinition {
      * .taskEnd()
      * }</pre>})
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param subPipeline 并行子流水线实例
      * @return TaskParallelDefinition
@@ -510,7 +510,7 @@ public class TaskDefinition {
      *     return null;
      * })
      * }</pre>    * })
-     * }</pre>
+     * }
      *
      * <p>与 {@link #ext()} 完全等价。</p>
      *
@@ -544,7 +544,7 @@ public class TaskDefinition {
         this.handler = new PipelineNode() {
             /**
              * 委托原处理器执行节点逻辑。
-            */
+             */
             @Override
             public String execute(com.chua.common.support.task.pipeline.core.PipelineContext<?> context) {
                 return original.execute(context);
@@ -552,7 +552,7 @@ public class TaskDefinition {
 
             /**
              * 返回任务注册的参数表。
-            */
+             */
             @Override
             public Map<String, Object> getParams() {
                 return params;
@@ -584,7 +584,7 @@ public class TaskDefinition {
      * .taskEnd()
      * }</pre>路径", "/模型/ocr-v3.onnx", "阈值", 0.85))
      * .任务结束()
-     * }</pre>
+     * }
      *
      * @param env 环境参数映射
      * @return this
@@ -605,7 +605,7 @@ public class TaskDefinition {
      * .env("modelPath", "/models/ocr-v3.onnx")
      * .env("threshold", 0.85)
      * .taskEnd()
-     * }</pre>  * }</pre>
+     * }</pre>  * }
      *
      * @param key   参数键
      * @param value 参数值

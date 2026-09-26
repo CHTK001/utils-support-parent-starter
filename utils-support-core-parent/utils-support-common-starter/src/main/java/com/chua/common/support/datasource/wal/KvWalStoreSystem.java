@@ -26,11 +26,11 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private volatile boolean closed = false;
     /**
      * KV 写入记录的操作码
-    */
+     */
     private static final byte OP_PUT = 0x01;
     /**
      * 墓碑标记位，与写入操作码按位或后表示删除
-    */
+     */
     private static final byte OP_TOMBSTONE = AbstractWalFileSystem.OP_TOMBSTONE;
     private final ScheduledExecutorService scheduler =
             ThreadUtils.newDaemonSingleThreadScheduledExecutor("kv-compact");
@@ -217,7 +217,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
     private static final int KV_WRITE_BUF_SIZE = 1024;
     /**
      * 写入Buf
-    */
+     */
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
     /**
@@ -379,7 +379,7 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     /**
      * 供测试访问内部 walLogs，生产环境不应暴露
-    */
+     */
     SegmentWalLog[] getWalLogs() { return walLogs; }
 
     /**

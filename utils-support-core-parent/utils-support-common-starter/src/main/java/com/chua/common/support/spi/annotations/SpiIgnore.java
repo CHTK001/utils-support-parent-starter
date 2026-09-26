@@ -29,7 +29,7 @@ import java.lang.annotation.*;
  * }
  * }</pre>被自动加载
  * }
- * }</pre>
+ * }
  * </p>
  *
  * @author CH

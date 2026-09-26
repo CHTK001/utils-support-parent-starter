@@ -47,7 +47,11 @@ public class OnnxActionDetector implements ActionDetector {
      * @return 结果字符串
      */
     private String resolveModel() {
-        return modelName != null ? modelName : "c3d-action-detection";
+        if (modelName == null) {
+            throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 指定，可用模型: "
+                    + ActionDetector.listModels());
+        }
+        return modelName;
     }
 
     @Override

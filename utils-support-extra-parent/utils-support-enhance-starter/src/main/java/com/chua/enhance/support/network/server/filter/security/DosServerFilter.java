@@ -54,19 +54,35 @@ public class DosServerFilter implements ServerFilter {
      */
     private final Map<String, Long> windowStartTimes = new ConcurrentHashMap<>();
 
+    /**
+     * 是否已收到 dos.* 配置，未收到时不参与过滤器链。
+     */
+    private volatile boolean configured;
+
     @Override
     /**
      * 初始化
     */
     public void init(ServerFilterConfig config) throws Exception {
         String max = config.getInitParameter("dos.maxRequests");
+        String window = config.getInitParameter("dos.windowSeconds");
         if (max != null && !max.isEmpty()) {
             this.maxRequests = Integer.parseInt(max);
         }
-        String window = config.getInitParameter("dos.windowSeconds");
         if (window != null && !window.isEmpty()) {
             this.windowSeconds = Integer.parseInt(window);
         }
+        // 未显式配置或阈值非正数时保持不挂载，避免默认值/零值拦掉正常业务流量
+        boolean present = (max != null && !max.isEmpty()) || (window != null && !window.isEmpty());
+        this.configured = present && maxRequests > 0 && windowSeconds > 0;
+    }
+
+    @Override
+    /**
+     * 是否启用
+    */
+    public boolean isEnabled() {
+        return configured;
     }
 
     @Override

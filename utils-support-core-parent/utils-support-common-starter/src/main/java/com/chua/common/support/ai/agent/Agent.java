@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import reactor.core.publisher.Flux;
+
 /**
  * AI Agent 接口
  *
@@ -146,6 +148,81 @@ public interface Agent extends AutoCloseable {
      */
     default CompletableFuture<AgentResponse> runAsync(String input) {
         return CompletableFuture.supplyAsync(() -> run(input));
+    }
+
+    /**
+     * 流式执行 Agent
+     *
+     * <p>返回响应式事件流，实时推送正文/思考增量、工具步骤与聚合用量，
+     * 用于将 Agent 运行时桥接为逐字流式对话。
+     *
+     * <p>默认实现基于阻塞 {@link #run(String)} 包装：执行完成后一次性下发正文与聚合用量。
+     * 实现类应覆写为真正的流式执行（如桥接底层 ChatClient 的流式 chunk）。
+     *
+     * @param input 用户输入
+     * @return 流式事件 Flux
+     */
+    default Flux<AgentStreamEvent> runStream(String input) {
+        return Flux.defer(() -> {
+            AgentResponse response;
+            try {
+                response = run(input);
+            } catch (Exception e) {
+                return Flux.just(AgentStreamEvent.builder()
+                        .type(AgentStreamEvent.Type.ERROR)
+                        .toolOutput(e.getMessage())
+                        .timestamp(System.currentTimeMillis())
+                        .build());
+            }
+            List<AgentStreamEvent> events = new ArrayList<>();
+            String output = response != null ? response.getOutput() : "";
+            if (output != null && !output.isEmpty()) {
+                events.add(AgentStreamEvent.reasoningDelta(null, output));
+            }
+            events.add(AgentStreamEvent.builder()
+                    .type(AgentStreamEvent.Type.COMPLETE)
+                    .usage(response != null ? response.getUsage() : null)
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+            return Flux.fromIterable(events);
+        });
+    }
+
+    /**
+     * 恢复执行：回传用户对人工确认（human-in-the-loop）的决策。
+     *
+     * <p>当 {@link #runStream(String)} 因等待用户确认（CONFIRMATION_REQUEST）而正常暂停后，
+     * 调用方在用户点击「批准 / 拒绝」后调用本方法，携带 replyId 与各工具的决策，
+     * Agent 据此恢复：批准则继续执行（如规划模式进入 BUILD），拒绝则回到上一阶段（如继续 PLAN）。
+     *
+     * <p>默认实现不支持恢复，直接返回错误事件；支持人工确认的实现应覆写本方法。
+     *
+     * @param replyId   待确认请求回复 ID（CONFIRMATION_REQUEST 原样带回）
+     * @param decisions 各待确认工具的决策
+     * @return 恢复后的流式事件 Flux
+     */
+    default Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions) {
+        return resumeStream(replyId, decisions, null);
+    }
+
+    /**
+     * 携带用户修改意见恢复人工确认（如规划模式点「需要修改」）。
+     *
+     * <p>{@code feedback} 非空时，实现应把修改意见注入 Agent 上下文，使模型据此重新规划；
+     * 为空时退化为普通批准 / 拒绝恢复。默认实现不支持恢复，直接返回错误事件。
+     *
+     * @param replyId   待确认请求回复 ID（CONFIRMATION_REQUEST 原样带回）
+     * @param decisions 各待确认工具的决策
+     * @param feedback  用户修改意见（可空）
+     * @return 恢复后的流式事件 Flux
+     */
+    default Flux<AgentStreamEvent> resumeStream(String replyId, List<ConfirmationDecision> decisions,
+                                               String feedback) {
+        return Flux.just(AgentStreamEvent.builder()
+                .type(AgentStreamEvent.Type.ERROR)
+                .toolOutput("当前 Agent 实现不支持人工确认恢复")
+                .timestamp(System.currentTimeMillis())
+                .build());
     }
 
     /**
@@ -455,6 +532,50 @@ public interface Agent extends AutoCloseable {
      * @return 当前 Agent 实例，支持链式调用
      */
     default Agent plan(boolean plan) {
+        return this;
+    }
+
+    /**
+     * 设置是否在运行开始时即进入 Plan 只读模式。
+     *
+     * <p>仅调用 {@link #plan(boolean)} 只会「注册」Plan 工具与中间件，模型仍需自行调用
+     * {@code plan_enter} 才会真正只读；本方法置 true 后，实现类应在 {@link #run(String)} /
+     * {@link #runStream(String)} 实际调用模型前，对同一个运行上下文预先进入 Plan，
+     * 使首轮即处于只读状态（不产生文件写入、命令执行等副作用）。
+     * 置 true 时通常也应同时启用 {@link #plan(boolean)}。
+     *
+     * @param active 是否首轮即进入 Plan 只读模式，默认 false
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent startInPlanMode(boolean active) {
+        return this;
+    }
+
+    /**
+     * 设置默认会话标识（defaultSessionId）。
+     *
+     * <p>AgentScope 的 ReActAgent 按 sessionId 维护/读取 Agent 状态（如进入 Plan 模式时
+     * 需要读取 AgentState）；未设置时相关操作会抛「sessionId must not be null」。
+     * 通常传入业务会话 ID，使同一对话跨轮复用状态。
+     *
+     * @param sessionId 会话标识，不应为 null
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent sessionId(String sessionId) {
+        return this;
+    }
+
+    /**
+     * 设置工作目录（workspace）。
+     *
+     * <p>Agent 的文件类工具（write_file / list_files 等）与 shell 工具将以该目录为根，
+     * 相对路径都在该目录下解析。通常由系统设置「通用设置 - 工作目录基路径」结合会话标识
+     * 解析得到；不设置时由底层使用其默认工作目录。
+     *
+     * @param workspace 工作目录绝对路径，不应为 null
+     * @return 当前 Agent 实例，支持链式调用
+     */
+    default Agent workspace(String workspace) {
         return this;
     }
 

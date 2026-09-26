@@ -7,10 +7,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
  * 实时订阅器：基于 Reactor 推背压处理实时数据流。
+ *
+ * <p>投递有两条入口，语义同源：响应式侧走 {@link #push(DataEnvelope)}，
+ * 由 {@code RealTimeSink} 经 {@code SubscriberChannel} 触发的同步侧走 {@link #onPush(PushPayload)}。
+ * 两者都遵循"消费成功才推进位点"的至少一次语义。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,7 +29,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     private final Consumer<DataEnvelope> consumer;
 
     /**
-     * 构造。
+     * 构造（不限主题）。
      *
      * @param subscriberId 订阅器 标识
      * @param offsetFlow   偏移量流 门面
@@ -38,18 +43,50 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
         this.consumer = consumer;
     }
 
+    /**
+     * 构造。
+     *
+     * @param subscriberId 订阅器 标识
+     * @param offsetFlow   偏移量流 门面
+     * @param consumer     实际数据消费函数
+     * @param topics       订阅主题，空表示全量接收
+     */
+    public RealTimeDatalakeSubscriber(
+            String subscriberId,
+            OffsetFlow offsetFlow,
+            Consumer<DataEnvelope> consumer,
+            Set<String> topics) {
+        super(subscriberId, offsetFlow, topics);
+        this.consumer = consumer;
+    }
+
     @Override
     /**
      * 订阅
     */
     public void subscribe() {
-        log.info("[datalake-subscribe] 订阅器已订阅: subscriberId={}, offset={}",
-                subscriberId, currentOffset());
+        SubscriberRegistry.getInstance().register(this);
+        log.info("[datalake-subscribe] 订阅器已订阅: subscriberId={}, topics={}, offset={}",
+                subscriberId, topics, currentOffset());
+    }
+
+    @Override
+    /**
+     * on推送
+    */
+    public void onPush(PushPayload payload) {
+        if (payload == null || payload.getEnvelope() == null) {
+            return;
+        }
+        consume(payload.getEnvelope());
     }
 
     /**
-     * 推送一条数据。先推进 偏移量，再调用 consumer。
+     * 推送一条数据：消费成功后才推进 偏移量（至少一次语义）。
      * 由 数据湖服务端 内部用。返回 {@link Mono} 以适配 响应式 背压。
+     *
+     * <p>消费方抛错时 偏移量 保持原位，本条数据会在重启后重投；
+     * 反之若先推进再消费，这条记录就永久丢失。</p>
      *
      * @param envelope envelope
      * @return push的结果
@@ -58,19 +95,15 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
         if (envelope == null) {
             return Mono.empty();
         }
-        long newOffset = advance();
-        return Mono.fromRunnable(() -> consumer.accept(envelope))
-                .subscribeOn(Schedulers.boundedElastic())
-                .then(Mono.fromRunnable(() -> {
-                    if (envelope.getTimestamp() > newOffset) {
-                        reset(envelope.getTimestamp());
-                    }
-                }))
-                .then();
+        return Mono.<Void>fromRunnable(() -> consume(envelope))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
      * 批量推送。
+     *
+     * <p>必须串行：位点是共享自增序号，{@code flatMap} 的并发消费会让快的那条先把位点推过去，
+     * 慢的那条失败时已经"看起来被消费过"，至少一次语义随即失效。</p>
      *
      * @param envelopes envelope 数据流
      * @return 表示批量推送完成的 {@link Mono}
@@ -80,7 +113,17 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
             return Mono.empty();
         }
         return envelopes
-                .flatMap(this::push)
+                .concatMap(this::push)
                 .then();
+    }
+
+    /**
+     * 消费一条并推进位点，失败时位点保持原位。
+     *
+     * @param envelope 数据信封
+     */
+    private void consume(DataEnvelope envelope) {
+        consumer.accept(envelope);
+        advance();
     }
 }

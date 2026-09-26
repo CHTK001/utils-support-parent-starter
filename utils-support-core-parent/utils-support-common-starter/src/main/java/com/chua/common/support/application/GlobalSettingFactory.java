@@ -29,12 +29,12 @@ public class GlobalSettingFactory {
 
     /**
      * 单例实例
-    */
+     */
     private static final GlobalSettingFactory INSTANCE = new GlobalSettingFactory();
 
     /**
      * 配置项前缀
-    */
+     */
     public static volatile String PREFIX = "";
 
     static final Map<String, Object> CONFIG = new ConcurrentHashMap<>();
@@ -89,13 +89,13 @@ public class GlobalSettingFactory {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * 获取
      * @param group 分组，不允许为 null
      * @param clazz 类，不允许为 null
      * @return T 对象
      */
+    @SuppressWarnings("unchecked")
     public <T> T get(String group, Class<T> clazz) {
         List<T> t = (List<T>) GROUP.get(PREFIX + group);
         if (t == null) {
@@ -220,13 +220,13 @@ public class GlobalSettingFactory {
         CONFIG.put(PREFIX + key, value == null ? CommonConstant.SYMBOL_EMPTY : value);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     /**
      * 设置
      * @param group 分组，不允许为 null
      * @param name 名称，不允许为 null
      * @param value 值，不允许为 null
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, String name, Object value) {
         List<T> ts = get(group);
         if (null == ts) {
@@ -243,7 +243,6 @@ public class GlobalSettingFactory {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     /**
      * 设置
      * @param group 分组，不允许为 null
@@ -251,6 +250,7 @@ public class GlobalSettingFactory {
      * @param name 名称，不允许为 null
      * @param value 值，不允许为 null
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public synchronized <T> void set(String group, Class<T> type, String name, Object value) {
         T t = get(group, type);
         if (null == t) {

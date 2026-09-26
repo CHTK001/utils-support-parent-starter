@@ -65,6 +65,25 @@ public final class HprofParseContext {
                                 Map<String, Long> gcRootsByKind,
                                 Map<String, HprofClassDetail> classDetails,
                                 List<HprofRefChainWalker.RefChain> refChains) {
+
+        /**
+         * 规范构造器：对全部集合组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。唯一构造点
+         * {@link #parse(Heap)} 传入的列表与映射均非空、键与元素均非空，
+         * 因此使用 {@link List#copyOf(List)} 与 {@link Map#copyOf(Map)}。
+         * 三个映射的原始类型均为 {@link HashMap}（本无顺序语义），
+         * 故改用不可变映射不会改变任何迭代顺序相关行为。</p>
+         */
+        public ParsedContext {
+            objects = List.copyOf(Objects.requireNonNull(objects, "objects 不能为 null"));
+            retainedByClass = Map.copyOf(Objects.requireNonNull(retainedByClass, "retainedByClass 不能为 null"));
+            countByClass = Map.copyOf(Objects.requireNonNull(countByClass, "countByClass 不能为 null"));
+            gcRoots = List.copyOf(Objects.requireNonNull(gcRoots, "gcRoots 不能为 null"));
+            gcRootsByKind = Map.copyOf(Objects.requireNonNull(gcRootsByKind, "gcRootsByKind 不能为 null"));
+            classDetails = Map.copyOf(Objects.requireNonNull(classDetails, "classDetails 不能为 null"));
+            refChains = List.copyOf(Objects.requireNonNull(refChains, "refChains 不能为 null"));
+        }
     }
 
     /**

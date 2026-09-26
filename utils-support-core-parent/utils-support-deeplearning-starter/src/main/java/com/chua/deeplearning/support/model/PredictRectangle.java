@@ -26,6 +26,22 @@ public record PredictRectangle(
         java.util.List<float[]> keypoints) {
 
     /**
+     * 规范构造器：关键点列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。关键点列表的元素本身是可变数组，
+     * {@code List.copyOf} 只冻结外层引用，故逐项 拷贝 元素数组。</p>
+     *
+     * <p>刻意保留 {@code null} 语义：关键点模型未配置或该目标无关键点时为 {@code null}，
+     * {@code FacePipeline} 与 {@code ImageUtils} 均显式判空后按“关键点不足”降级。</p>
+     *
+     * @param keypoints 关键点列表
+     */
+    public PredictRectangle {
+        keypoints = keypoints == null ? null
+                : keypoints.stream().map(point -> point == null ? null : point.clone()).toList();
+    }
+
+    /**
      * 兼容无关键点的构造。
      * @param x x
      * @param y y

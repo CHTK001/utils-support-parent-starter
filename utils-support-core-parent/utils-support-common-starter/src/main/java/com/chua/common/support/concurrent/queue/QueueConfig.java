@@ -19,19 +19,17 @@ public class QueueConfig {
 
     /**
      * 队列类型，默认 MPMC
+     *
+     * 类型
      */
     @Builder.Default
-    /**
-     * 类型
-    */
     private QueueType type = QueueType.MPMC;
 
     /**
      * 有界队列容量，默认 1024；UNBOUNDED 类型时忽略该值
+     *
+     * 容量
      */
     @Builder.Default
-    /**
-     * 容量
-    */
     private int capacity = 1024;
 }

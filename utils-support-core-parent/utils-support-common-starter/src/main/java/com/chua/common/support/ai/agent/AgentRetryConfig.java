@@ -19,49 +19,45 @@ public class AgentRetryConfig {
     /**
      * 最大重试次数。
      * <ul>
-     *   <li>-1 = 无限重试</li>
-     *   <li>0 = 不重试（默认）</li>
-     *   <li>N = 重试 N 次</li>
+     * <li>-1 = 无限重试</li>
+     * <li>0 = 不重试（默认）</li>
+     * <li>N = 重试 N 次</li>
      * </ul>
-     */
-    @Builder.Default
-    /**
+     *
      * 最大重试次数
      */
+    @Builder.Default
     private int maxRetries = 0;
 
     /**
      * 退避策略。
      * <ul>
-     *   <li>FIXED     — 固定间隔，每次等待相同时间</li>
-     *   <li>LINEAR    — 线性递增，第 N 次等待 N × baseDelay</li>
-     *   <li>EXPONENTIAL — 指数退避，第 N 次等待 baseDelay × 2^N</li>
+     * <li>FIXED     — 固定间隔，每次等待相同时间</li>
+     * <li>LINEAR    — 线性递增，第 N 次等待 N × baseDelay</li>
+     * <li>EXPONENTIAL — 指数退避，第 N 次等待 baseDelay × 2^N</li>
      * </ul>
+     *
+     * Backoff策略
      */
     @Builder.Default
-    /**
-     * Backoff策略
-    */
     private BackoffStrategy backoffStrategy = BackoffStrategy.EXPONENTIAL;
 
     /**
      * 基础延迟（毫秒）。
      * <p>退避计算的基准值。</p>
+     *
+     * Basedelay毫秒
      */
     @Builder.Default
-    /**
-     * Basedelay毫秒
-    */
     private long baseDelayMillis = 1000;
 
     /**
      * 最大延迟（毫秒）。
      * <p>退避等待的上限，防止等待时间过长。</p>
+     *
+     * 最大值delay毫秒
      */
     @Builder.Default
-    /**
-     * 最大值delay毫秒
-    */
     private long maxDelayMillis = 30000;
 
     /**
@@ -77,15 +73,15 @@ public class AgentRetryConfig {
     public enum BackoffStrategy {
         /**
          * 固定间隔
-        */
+         */
         FIXED,
         /**
          * 线性递增
-        */
+         */
         LINEAR,
         /**
          * 指数退避
-        */
+         */
         EXPONENTIAL
     }
 

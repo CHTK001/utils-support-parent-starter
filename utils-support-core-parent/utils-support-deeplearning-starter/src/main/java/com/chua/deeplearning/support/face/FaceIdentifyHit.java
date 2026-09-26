@@ -25,6 +25,33 @@ public record FaceIdentifyHit(
         float liveScore) {
 
     /**
+     * 规范构造器：特征向量 与 命中列表 做防御性拷贝。
+     *
+     * <p>value class 前置条件——数组与集合组件必须深不可变。</p>
+     *
+     * <p>两个组件都刻意保留 {@code null} 语义：{@code FaceIdentify} 在活体不通过时
+     * 显式传入 {@code null} 特征与空命中列表，而 {@link #bestId()}、{@link #bestScore()}、
+     * {@link #bestMetadata()} 也按可空设计（命中列表可能为 {@code null}）。</p>
+     *
+     * @param feature 人脸特征
+     * @param hits    命中列表
+     */
+    public FaceIdentifyHit {
+        feature = feature == null ? null : feature.clone();
+        hits = hits == null ? null : List.copyOf(hits);
+    }
+
+    /**
+     * 访问器覆写：返回内部特征向量的副本。
+     *
+     * @return 特征向量副本；活体失败未取特征时返回 {@code null}
+     */
+    @Override
+    public float[] feature() {
+        return feature == null ? null : feature.clone();
+    }
+
+    /**
      * 兼容旧构造（默认活体通过）。
      *
      * @param box     框

@@ -41,7 +41,7 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
  * .enable注解扫描(true)
  * .enablearround(true)
  * .构建();
- * }</pre>
+ * }
  *
  * @param <T> 代理接口类型
  * @author CH
@@ -219,7 +219,7 @@ public interface ProxyProvider<T> {
      * }</pre>.println("后置: " + 方法.获取名称());
      *     }
      * });
-     * }</pre>
+     * }
      *
      * @param methodIntercept 方法拦截器实例，传入 空 会使用空拦截器
      * @return 当前代理提供者实例（支持链式调用）

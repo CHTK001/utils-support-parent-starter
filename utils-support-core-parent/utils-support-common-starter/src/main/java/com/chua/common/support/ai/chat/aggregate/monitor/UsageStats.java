@@ -14,17 +14,17 @@ import lombok.Data;
 public class UsageStats {
     /**
      * 总调用次数
-    */
+     */
     private long totalCalls;
 
     /**
      * 总 Token 数
-    */
+     */
     private long totalTokens;
 
     /**
      * 平均延迟（毫秒）
-    */
+     */
     private double avgLatencyMs;
 
     /**

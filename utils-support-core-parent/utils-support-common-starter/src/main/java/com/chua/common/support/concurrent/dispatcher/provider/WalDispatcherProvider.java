@@ -170,10 +170,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         return new JacksonSerialization();
     }
 
-    @Override
     /**
      * 发布
-    */
+     */
+    @Override
     public void publish(String topic, Object body) {
         if (closed.get()) {
             return;
@@ -197,10 +197,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(FAST_QUEUE_TYPE, FAST_QUEUE_CAPACITY));
     }
 
-    @Override
     /**
      * 订阅
-    */
+     */
+    @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var isFirst = definitionMap.computeIfAbsent(topic, t -> new CopyOnWriteArrayList<>()).isEmpty();
@@ -211,10 +211,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    @Override
     /**
      * 取消订阅
-    */
+     */
+    @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
             var list = definitionMap.get(topic);
@@ -227,10 +227,10 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         closed.set(true);
         logs.values().forEach(WalLog::close);

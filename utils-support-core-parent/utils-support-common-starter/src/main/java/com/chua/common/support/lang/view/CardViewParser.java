@@ -26,22 +26,22 @@ public class CardViewParser implements ViewParser {
 
     /**
      * 卡片最小宽度
-    */
+     */
     private static final int MIN_WIDTH = 40;
 
     /**
      * 单元格左右内边距
-    */
+     */
     private static final int PADDING = 2;
 
     /**
      * 键与值之间的最小间隔列数
-    */
+     */
     private static final int KEY_VALUE_GAP = 1;
 
     /**
      * Map 类型专用标题
-    */
+     */
     private static final String MAP_TITLE = "Map";
 
     /**

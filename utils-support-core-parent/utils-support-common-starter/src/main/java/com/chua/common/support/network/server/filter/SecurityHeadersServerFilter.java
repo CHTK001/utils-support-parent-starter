@@ -1,6 +1,7 @@
 package com.chua.common.support.network.server.filter;
 
 import com.chua.common.support.network.ProtocolType;
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
@@ -61,15 +62,29 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     private static final String VALUE_HSTS = "max-age=31536000; includeSubDomains";
 
     /**
+     * CSP frame-ancestors 指令名
+     */
+    private static final String HEADER_CSP = "Content-Security-Policy";
+
+    /**
      * 是否附加 HSTS 头(TLS 部署时开启)
-    */
+     */
     private final boolean hstsEnabled;
+
+    /**
+     * 安全响应头配置
+     *
+     * <p>非空时以该配置为准下发响应头；为 空 时沿用本类历史硬编码行为，
+     * 以保证既有显式挂载本过滤器的服务不受影响。</p>
+     */
+    private final ServerSetting.SecurityHeadersConfig config;
 
     /**
      * 创建安全响应头过滤器(默认不启用 HSTS)。
      */
     public SecurityHeadersServerFilter() {
         this.hstsEnabled = false;
+        this.config = null;
     }
 
     /**
@@ -79,33 +94,43 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
      */
     public SecurityHeadersServerFilter(boolean hstsEnabled) {
         this.hstsEnabled = hstsEnabled;
+        this.config = null;
     }
 
-    @Override
+    /**
+     * 创建按配置下发的安全响应头过滤器。
+     *
+     * @param config 安全响应头配置；为 空 时表示不下发任何安全头
+     */
+    public SecurityHeadersServerFilter(ServerSetting.SecurityHeadersConfig config) {
+        this.config = config;
+        this.hstsEnabled = config != null && config.isHstsEnabled();
+    }
+
     /**
      * 获取Order:早于业务链执行,保证所有响应携带安全头
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 30;
     }
 
-    @Override
     /**
      * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
      */
+    @Override
     public String supportPath() {
         return null;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
 
-    @Override
     /**
      * Do过滤
      *
@@ -113,13 +138,13 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         applyHeaders(response);
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 响应式Do过滤
      *
@@ -127,6 +152,7 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
      * @param response response
      * @param chain chain
      */
+    @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         // 先置响应头再放行:后续 handler 仍可覆盖同名头
@@ -137,14 +163,46 @@ public class SecurityHeadersServerFilter implements ServerFilter, ReactiveServer
     /**
      * 向响应附加安全头集合。
      *
+     * <p>配置模式下逐项判断：开关型看布尔取值，字符串型为空则不下发。
+     * {@code frame-ancestors} 以 CSP 指令形式下发，仅在配置非空时附加。</p>
+     *
      * @param response 响应对象
      */
     private void applyHeaders(ServerResponse response) {
-        response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
-        response.setHeader(HEADER_FRAME_OPTIONS, VALUE_FRAME_DENY);
-        response.setHeader(HEADER_REFERRER_POLICY, VALUE_REFERRER);
-        if (hstsEnabled) {
-            response.setHeader(HEADER_HSTS, VALUE_HSTS);
+        if (config == null) {
+            // 历史硬编码行为：保持不变，避免影响已显式挂载本过滤器的服务
+            response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
+            response.setHeader(HEADER_FRAME_OPTIONS, VALUE_FRAME_DENY);
+            response.setHeader(HEADER_REFERRER_POLICY, VALUE_REFERRER);
+            if (hstsEnabled) {
+                response.setHeader(HEADER_HSTS, VALUE_HSTS);
+            }
+            return;
+        }
+        // 配置模式下 enabled 为 false 时不下发任何安全头：
+        // 这是默认值，保证既有服务升级后响应头行为完全不变
+        if (!config.isEnabled()) {
+            return;
+        }
+        if (config.isNosniff()) {
+            response.setHeader(HEADER_NOSNIFF, VALUE_NOSNIFF);
+        }
+        String frameOptions = config.getFrameOptions();
+        if (frameOptions != null && !frameOptions.isBlank()) {
+            response.setHeader(HEADER_FRAME_OPTIONS, frameOptions);
+        }
+        String referrerPolicy = config.getReferrerPolicy();
+        if (referrerPolicy != null && !referrerPolicy.isBlank()) {
+            response.setHeader(HEADER_REFERRER_POLICY, referrerPolicy);
+        }
+        if (config.isHstsEnabled()) {
+            String hsts = config.getHstsValue();
+            response.setHeader(HEADER_HSTS,
+                    hsts == null || hsts.isBlank() ? VALUE_HSTS : hsts);
+        }
+        String frameAncestors = config.getFrameAncestors();
+        if (frameAncestors != null && !frameAncestors.isBlank()) {
+            response.setHeader(HEADER_CSP, "frame-ancestors " + frameAncestors.trim());
         }
     }
 }

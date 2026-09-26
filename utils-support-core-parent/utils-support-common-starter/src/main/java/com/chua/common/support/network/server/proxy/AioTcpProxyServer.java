@@ -36,15 +36,15 @@ public class AioTcpProxyServer extends AbstractServer {
 
     /**
      * 监听通道
-    */
+     */
     private AsynchronousServerSocketChannel serverChannel;
     /**
      * IOCP 线程组
-    */
+     */
     private AsynchronousChannelGroup group;
     /**
      * 虚拟线程池
-    */
+     */
     private ExecutorService executor;
     /**
      * 固定后端目标(null 则回退 setting host/port)
@@ -53,7 +53,7 @@ public class AioTcpProxyServer extends AbstractServer {
 
     /**
      * 活跃连接数
-    */
+     */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
     /**
@@ -89,10 +89,10 @@ public class AioTcpProxyServer extends AbstractServer {
         return new InetSocketAddress(setting.getHost(), setting.getPort());
     }
 
-    @Override
     /**
      * Do开始
-    */
+     */
+    @Override
     protected void doStart() {
         try {
             int threads = setting.getEventLoops() > 0
@@ -196,15 +196,15 @@ public class AioTcpProxyServer extends AbstractServer {
 
         /**
          * 源通道
-        */
+         */
         private final AsynchronousSocketChannel src;
         /**
          * 目标通道
-        */
+         */
         private final AsynchronousSocketChannel dst;
         /**
          * 中转缓冲
-        */
+         */
         private final ByteBuffer buf;
 
         /**
@@ -283,10 +283,10 @@ public class AioTcpProxyServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止Accepting
-    */
+     */
+    @Override
     protected void doStopAccepting() {
         if (serverChannel != null) {
             try {
@@ -296,10 +296,10 @@ public class AioTcpProxyServer extends AbstractServer {
         }
     }
 
-    @Override
     /**
      * Do停止
-    */
+     */
+    @Override
     protected void doStop() {
         if (executor != null) {
             executor.shutdownNow();
@@ -313,10 +313,10 @@ public class AioTcpProxyServer extends AbstractServer {
         log.info("AIO TcpProxy stopped");
     }
 
-    @Override
     /**
      * 获取ProtocolType
-    */
+     */
+    @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
     }

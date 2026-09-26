@@ -25,7 +25,7 @@ import java.util.List;
  *   }
  * }</pre> + result.getFileCount() + " 个文件");
  *   }
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2026/07/16

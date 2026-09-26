@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
  *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
  * }</pre>n(...)                 ← 异常处理
  *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
- * }</pre>
+ * }
  *
  * @param <T> 代理接口类型
  * @author CH

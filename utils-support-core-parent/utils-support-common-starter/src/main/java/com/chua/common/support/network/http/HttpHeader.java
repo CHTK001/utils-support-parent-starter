@@ -36,19 +36,19 @@ public class HttpHeader {
 
     /**
      * Content-Type
-    */
+     */
     public static final String CONTENT_TYPE = "Content-Type";
     /**
      * Cache-Control
-    */
+     */
     public static final String CACHE_CONTROL = "Cache-Control";
     /**
      * Connection
-    */
+     */
     public static final String CONNECTION = "Connection";
     /**
      * application/json
-    */
+     */
     public static final String APPLICATION_JSON = "application/json";
 
     /**

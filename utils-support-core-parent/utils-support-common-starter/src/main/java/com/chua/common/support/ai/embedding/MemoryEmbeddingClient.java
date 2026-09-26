@@ -17,26 +17,26 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
 
     /**
      * 默认向量维度
-    */
+     */
     private static final int DEFAULT_DIMENSIONS = 1536;
 
     /**
      * 当前向量维度
-    */
+     */
     private int dimensions = DEFAULT_DIMENSIONS;
 
-    @Override
     /**
      * Embedding
-    */
+     */
+    @Override
     public float[] embedding(String text) {
         return generatePseudoVector(text, dimensions);
     }
 
-    @Override
     /**
      * EmbeddingBatch
-    */
+     */
+    @Override
     public float[][] embeddingBatch(String[] texts) {
         float[][] results = new float[texts.length][];
         for (int i = 0; i < texts.length; i++) {
@@ -45,10 +45,10 @@ public class MemoryEmbeddingClient implements EmbeddingClient {
         return results;
     }
 
-    @Override
     /**
      * Dimensions
-    */
+     */
+    @Override
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;

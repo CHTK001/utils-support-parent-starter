@@ -19,7 +19,7 @@ public enum DeployUnitType {
 
     /**
      * Java Archive - Java 归档
-    */
+     */
     JAR("jar"),
 
     /**
@@ -29,22 +29,22 @@ public enum DeployUnitType {
 
     /**
      * 可执行 FAT-JAR（含所有依赖的独立 JAR）
-    */
+     */
     FAT_JAR("jar"),
 
     /**
      * Spring Boot 可执行 JAR
-    */
+     */
     SPRING_BOOT("jar"),
 
     /**
      * Main 类部署（将 Main 方法作为 Web 入口启动）
-    */
+     */
     MAIN("class");
 
     /**
      * Extension
-    */
+     */
     private final String extension;
 
     /**

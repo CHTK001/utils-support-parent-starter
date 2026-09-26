@@ -125,7 +125,7 @@ public class DefaultPipelineManager implements PipelineManager {
         }
         // 通知引擎失效对应管线的 Sink 编译缓存，确保重新保存后新配置生效
         if (engine != null) {
-            engine.invalidatePipelineSinkCache(pipelineId);
+            engine.invalidateSinkCache(pipelineId);
         }
     }
 

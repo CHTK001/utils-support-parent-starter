@@ -23,15 +23,15 @@ public class IpFilter implements ServerFilter {
 
     /**
      * Whitelist
-    */
+     */
     private final Set<String> whitelist = ConcurrentHashMap.newKeySet();
     /**
      * Blacklist
-    */
+     */
     private final Set<String> blacklist = ConcurrentHashMap.newKeySet();
     /**
      * Whitelist模式
-    */
+     */
     private boolean whitelistMode = false;
 
     /**
@@ -60,44 +60,44 @@ public class IpFilter implements ServerFilter {
 
     /**
      * 添加Whitelist
-    */
+     */
     public void addWhitelist(String ip) { whitelist.add(ip); }
     /**
      * 添加Blacklist
-    */
+     */
     public void addBlacklist(String ip) { blacklist.add(ip); }
     /**
      * 移除Whitelist
-    */
+     */
     public void removeWhitelist(String ip) { whitelist.remove(ip); }
     /**
      * 移除Blacklist
-    */
+     */
     public void removeBlacklist(String ip) { blacklist.remove(ip); }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 40;
     }
 
-    @Override
     /**
      * SupportProtocols
-    */
+     */
+    @Override
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
 
-    @Override
     /**
      * Do过滤
      * @param request request
      * @param response response
      * @param chain chain
      */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         String clientIp = extractIp(request.getRemoteAddress());

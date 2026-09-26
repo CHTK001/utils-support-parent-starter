@@ -17,19 +17,19 @@ public class EvictionManager {
 
     /**
      * 配置
-    */
+     */
     private final MeshConfig config;
     /**
      * 节点表
-    */
+     */
     private final NodeTable nodeTable;
     /**
      * 本地服务器ID
-    */
+     */
     private final String localServerId;
     /**
      * Discovery
-    */
+     */
     private final PeerMeshDiscovery discovery;
 
     /**

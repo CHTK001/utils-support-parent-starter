@@ -58,7 +58,16 @@ public class Neo4jEngine implements Engine {
     /**
      * Neo4j 驱动实例。
      */
-    private Driver driver;
+      private Driver driver;
+
+      /**
+       * 关闭标记：{@link #close()} 后置位，使 close() 幂等且 {@link #isClosed()} 可查询。
+       * <p>Neo4jEngine 直接实现 {@code Engine} 而非继承 {@code AbstractEngine}，
+       * 因此不继承基类的关闭标记，需自行维护。</p>
+       */
+      private final java.util.concurrent.atomic.AtomicBoolean closed =
+              new java.util.concurrent.atomic.AtomicBoolean(false);
+
 
     /**
      * 方言（从 META-INF/dialect-env/neo4j.env 加载）。
@@ -300,12 +309,26 @@ public class Neo4jEngine implements Engine {
     /**
      * 关闭
     */
-    public void close() {
-        if (driver != null) {
-            driver.close();
-        }
-        dataSources.clear();
-    }
+      public void close() {
+          if (!closed.compareAndSet(false, true)) {
+              return;
+          }
+          if (driver != null) {
+              driver.close();
+          }
+          dataSources.clear();
+      }
+
+      @Override
+      /**
+       * 是否已关闭
+       *
+       * @return 已关闭返回 true
+       */
+      public boolean isClosed() {
+          return closed.get();
+      }
+
 
     @Override
     /**

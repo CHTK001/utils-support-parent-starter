@@ -25,6 +25,12 @@
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-core</artifactId>
         </dependency>
+        <!-- sshd-core 将其声明为 optional：不显式引入则 ssh-ed25519 私钥加载不到密钥对，
+             认证以 "No more authentication methods available" 静默失败 -->
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+        </dependency>
 
     </dependencies>
 </project>

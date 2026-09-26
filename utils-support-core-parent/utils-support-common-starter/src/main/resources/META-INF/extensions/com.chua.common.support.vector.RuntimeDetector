@@ -1,0 +1,1 @@
+wal-store-detector=com.chua.common.support.datasource.wal.WalStoreEnvDetector

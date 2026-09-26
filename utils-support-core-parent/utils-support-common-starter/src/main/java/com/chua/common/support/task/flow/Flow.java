@@ -35,7 +35,7 @@ import java.util.Map;
  *
  * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
  * instance.run();
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

@@ -42,7 +42,7 @@ import java.util.function.Function;
  * MyService service = context.getBean(MyService.class);
  * }</pre>an(new MyService());
  * MyService service = context.getBean(MyService.class);
- * }</pre>
+ * }
  *
  * @author CH
  * @since 2024/12/20
@@ -118,7 +118,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 初始化
-        */
+         */
 @Override
     public void init() {
         init(config != null ? config : ObjectContextConfig.defaults());
@@ -126,7 +126,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 初始化
-        */
+         */
 @Override
     public void init(ObjectContextConfig config) {
         if (config == null) {
@@ -172,7 +172,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 设置配置
-        */
+         */
 @Override
     public void setConfig(ObjectContextConfig config) {
         this.config = config;
@@ -180,7 +180,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取配置
-        */
+         */
 @Override
     public ObjectContextConfig getConfig() {
         if (config != null) {
@@ -194,7 +194,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Registry
-        */
+         */
 @Override
     public BeanDefinitionRegistry getRegistry() {
         return getRegistry(getConfig().isSpiEnabled());
@@ -202,7 +202,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Registry
-        */
+         */
 @Override
     public BeanDefinitionRegistry getRegistry(boolean spiEnabled) {
         if (registry == null) {
@@ -220,7 +220,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 发布
-        */
+         */
 @Override
     public int publish(Object event) {
         if (event == null) {
@@ -231,7 +231,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean提供者
-        */
+         */
 @Override
     public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
         return new DefaultObjectProvider<>(this, requiredType);
@@ -241,7 +241,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 注册Bean
-        */
+         */
 @Override
     public void registerBean(Object bean) {
         if (bean == null) {
@@ -311,7 +311,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 注销Bean
-        */
+         */
 @Override
     public boolean unregisterBean(Object bean) {
         if (bean == null) {
@@ -335,10 +335,10 @@ public class DefaultObjectContext implements ObjectContext {
 
     // ==================== Bean 获取 ====================
 
-    @SuppressWarnings("unchecked")
         /**
          * 获取Bean
-        */
+         */
+    @SuppressWarnings("unchecked")
 @Override
     public <T> T getBean(String name, Class<T> type) {
         if (name == null || closed) {
@@ -362,7 +362,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean的类型
-        */
+         */
 @Override
     public <T> T getBeanOfType(Class<T> type) {
         if (type == null || closed) {
@@ -393,7 +393,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean的类型safely
-        */
+         */
 @Override
     public <T> T getBeanOfTypeSafely(Class<T> type) {
         try {
@@ -405,7 +405,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean的类型
-        */
+         */
 @Override
     public <T> Map<String, T> getBeanOfTypes(Class<T> type) {
         if (type == null || closed || registry == null) {
@@ -431,7 +431,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean的类型集合
-        */
+         */
 @Override
     public <T> Collection<T> getBeanOfTypeCollection(Class<T> type) {
         return getBeanOfTypes(type).values();
@@ -439,7 +439,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Beanwith注解
-        */
+         */
 @Override
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
@@ -464,8 +464,8 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
         /**
-         * 获取方法with注解
-        */
+         * 获取带指定注解的方法列表
+         */
 @Override
     public List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed || registry == null) {
@@ -501,7 +501,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * Autowire
-        */
+         */
 @Override
     public void autowire(Object bean) {
         if (bean == null) {
@@ -516,7 +516,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * containsBean
-        */
+         */
 @Override
     public boolean containsBean(String name) {
         if (closed) {
@@ -527,7 +527,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 是否单例
-        */
+         */
 @Override
     public boolean isSingleton(String name) {
         if (closed || name == null) {
@@ -539,7 +539,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Beandefinition名称
-        */
+         */
 @Override
     public Collection<String> getBeanDefinitionNames() {
         if (closed) {
@@ -550,7 +550,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Beandefinition计算数量
-        */
+         */
 @Override
     public int getBeanDefinitionCount() {
         if (closed) {
@@ -561,7 +561,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 是否拥有Bean的类型
-        */
+         */
 @Override
     public <T> boolean hasBeanOfType(Class<T> type) {
         if (type == null || closed) {
@@ -572,7 +572,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取Bean名称
-        */
+         */
 @Override
     public Collection<String> getBeanNames(Class<?> type) {
         if (type == null || closed) {
@@ -586,7 +586,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取环境
-        */
+         */
 @Override
     public Environment getEnvironment() {
         return environment;
@@ -594,7 +594,7 @@ public class DefaultObjectContext implements ObjectContext {
 
         /**
          * 获取事件发布
-        */
+         */
 @Override
     public EventPublisher getEventPublisher() {
         return eventPublisher;

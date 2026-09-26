@@ -19,10 +19,10 @@ import com.chua.common.support.spi.annotations.Spi;
 @Spi("invoker_inject")
 public class InvokerInjectServerFilter implements ServerFilter {
 
-    @Override
     /**
      * Do过滤
-    */
+     */
+    @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (request instanceof InvocationContext ctx) {
             SharedInvocationContext shared = getSharedContext(ctx);
@@ -38,10 +38,10 @@ public class InvokerInjectServerFilter implements ServerFilter {
         chain.doFilter(request, response);
     }
 
-    @Override
     /**
      * 获取Order
-    */
+     */
+    @Override
     public int getOrder() {
         return Integer.MIN_VALUE + 1000;
     }
@@ -73,10 +73,10 @@ public class InvokerInjectServerFilter implements ServerFilter {
         }
     }
 
-    @Override
     /**
      * 是否Enabled
-    */
+     */
+    @Override
     public boolean isEnabled() {
         return true;
     }

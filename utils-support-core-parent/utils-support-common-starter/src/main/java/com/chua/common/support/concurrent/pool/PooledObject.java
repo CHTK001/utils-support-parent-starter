@@ -20,43 +20,43 @@ class PooledObject<T> {
 
         /**
          * 空闲，可被借出
-        */
+         */
         IDLE,
 
         /**
          * 已借出，正在被使用
-        */
+         */
         BORROWED,
 
         /**
          * 已失效，待销毁
-        */
+         */
         INVALID
     }
 
     /**
      * 被包装的实际对象
-    */
+     */
     private final T object;
 
     /**
      * 当前状态
-    */
+     */
     private volatile Status status;
 
     /**
      * 最后一次借出时间（毫秒时间戳）
-    */
+     */
     private volatile long lastBorrowTime;
 
     /**
      * 最后一次归还时间（毫秒时间戳）
-    */
+     */
     private volatile long lastReturnTime;
 
     /**
      * 累计借出次数
-    */
+     */
     private volatile int borrowCount;
 
     /**
@@ -155,10 +155,10 @@ class PooledObject<T> {
         return System.currentTimeMillis() - lastReturnTime;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return "PooledObject{status=" + status
                 + ", borrowCount=" + borrowCount

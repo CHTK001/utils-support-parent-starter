@@ -14,12 +14,12 @@ public class McpToolCall {
 
     /**
      * 工具名称
-    */
+     */
     private final String toolName;
 
     /**
      * 调用参数
-    */
+     */
     private final Map<String, Object> arguments;
 
     /**

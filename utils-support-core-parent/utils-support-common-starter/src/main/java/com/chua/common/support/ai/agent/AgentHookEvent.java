@@ -20,7 +20,7 @@ public class AgentHookEvent implements Serializable {
 
     /**
      * 序列化版本号
-    */
+     */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,52 +33,52 @@ public class AgentHookEvent implements Serializable {
 
     /**
      * Agent 标识
-    */
+     */
     private String agentId;
 
     /**
      * 事件描述或提示消息
-    */
+     */
     private String message;
 
     /**
      * 事件时间戳（毫秒）
-    */
+     */
     private long timestamp;
 
     /**
      * 扩展属性（工具名、输入摘要、错误信息等）
-    */
+     */
     private Map<String, Object> attributes;
 
     /**
      * 当前执行轮次（从 1 开始，每完成一次完整 LLM 调用循环递增）
-    */
+     */
     private Integer iteration;
 
     /**
      * 本次轮次已调用的工具次数
-    */
+     */
     private Integer toolCallCount;
 
     /**
      * 累计输入 Token 数（所有轮次合计）
-    */
+     */
     private Long totalInputTokens;
 
     /**
      * 累计输出 Token 数（所有轮次合计）
-    */
+     */
     private Long totalOutputTokens;
 
     /**
      * 累计总 Token 数（所有轮次合计）
-    */
+     */
     private Long totalTokens;
 
     /**
      * 从 Agent 启动到本事件时刻的耗时（毫秒）
-    */
+     */
     private Long elapsedMillis;
 
     /**

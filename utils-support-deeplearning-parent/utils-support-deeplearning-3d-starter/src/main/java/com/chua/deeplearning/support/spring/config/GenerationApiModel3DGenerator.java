@@ -7,11 +7,11 @@ import com.chua.deeplearning.support.core.api.ImageTo3DGenerator;
 import com.chua.deeplearning.support.core.api.SketchTo3DGenerator;
 import com.chua.deeplearning.support.core.api.Model3DStylizer;
 import com.chua.deeplearning.support.core.provider.ForgeStyleApiModel3DGenerator;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * 3D 生成自动配置
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * @author CH
  * @since 4.0.0.42
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnClass({Model3DGenerator.class, ForgeStyleApiModel3DGenerator.class})
 @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "enable", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(Model3DConfig.class)

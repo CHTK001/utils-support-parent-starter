@@ -14,22 +14,22 @@ public class AcmeConnectionResult {
 
     /**
      * 是否成功
-    */
+     */
     private boolean success;
 
     /**
      * 账户 URL
-    */
+     */
     private String accountUrl;
 
     /**
      * 账户私钥 PEM
-    */
+     */
     private String privateKeyPem;
 
     /**
      * 错误信息
-    */
+     */
     private String error;
 
     /**

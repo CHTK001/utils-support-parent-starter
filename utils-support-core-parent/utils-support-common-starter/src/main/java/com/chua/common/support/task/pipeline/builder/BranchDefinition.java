@@ -42,7 +42,7 @@ package com.chua.common.support.task.pipeline.builder;
  *     .branch("yes", "processNode")
  *     .branch("no", "errorNode")
  *     .taskEnd()
- * }</pre>
+ * }
  *
  * @author CH
  * @since 4.0.0.42

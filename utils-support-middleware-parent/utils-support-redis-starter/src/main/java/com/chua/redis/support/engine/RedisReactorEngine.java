@@ -559,6 +559,10 @@ public class RedisReactorEngine implements ReactorEngine {
                 case "PING":
                     result = conn.ping();
                     break;
+                case "INFO":
+ // Lettuce 直接返回原始 INFO 文本（逐行 key:value），调用方按行解析
+                    result = args.length == 0 ? conn.info() : conn.info(args[0]);
+                    break;
                 case "SETEX":
                     conn.setex(args[0], parseLong(Converter.convertIfNecessary(args[1], Long.class), args[1]), args[2]);
                     result = "OK";

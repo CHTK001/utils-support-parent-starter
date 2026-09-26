@@ -113,12 +113,12 @@ public class BotOutboundMessage {
 
     /**
      * 消息类型
-    */
+     */
     private BotInboundMessage.Type type;
 
     /**
      * 目标用户 ID
-    */
+     */
     private String toUser;
 
     /**
@@ -135,12 +135,12 @@ public class BotOutboundMessage {
 
     /**
      * 视频标题
-    */
+     */
     private String title;
 
     /**
      * 视频描述
-    */
+     */
     private String description;
 
     /**
@@ -151,7 +151,7 @@ public class BotOutboundMessage {
 
     /**
      * @ 提及的用户 ID 列表
-    */
+     */
     private List<String> mentionedUsers;
 
     /**

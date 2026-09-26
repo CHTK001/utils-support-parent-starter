@@ -81,6 +81,11 @@ public class JarEncryptor {
     private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
 
     /**
+     * 本厂商包根前缀（引导器闭包校验的扫描起点）
+     */
+    private static final String CHUA_PACKAGE_ROOT = "com/chua/";
+
+    /**
      * fatjar 依赖目录前缀
      */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
@@ -345,6 +350,7 @@ public class JarEncryptor {
                 throw new IOException("引导器载荷缺失: " + resource);
             }
             byte[] bytes = readAll(in);
+            verifyLaunchClosure(resource, bytes);
             if (obfuscate) {
                 bytes = ClassObfuscator.stripDebug(bytes);
             }
@@ -353,6 +359,43 @@ public class JarEncryptor {
         for (Class<?> inner : type.getDeclaredClasses()) {
             writeClassHierarchy(out, classLoader, inner);
         }
+    }
+
+    /**
+     * 校验引导器载荷的依赖闭包：载荷以明文写入包根、由系统类加载器在应用类加载器建立前运行，
+     * 因此除 JDK 与引导器包自身外不得引用任何应用类路径上的类型。
+     *
+     * @param resource 载荷类资源名
+     * @param bytes    类字节
+     * @throws IOException 存在越界引用
+     */
+    private static void verifyLaunchClosure(String resource, byte[] bytes) throws IOException {
+        String text = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1);
+        int cursor = 0;
+        while ((cursor = text.indexOf(CHUA_PACKAGE_ROOT, cursor)) >= 0) {
+            int end = cursor;
+            while (end < text.length() && isInternalNameChar(text.charAt(end))) {
+                end++;
+            }
+            String reference = text.substring(cursor, end);
+            if (!reference.startsWith(LAUNCH_PACKAGE)) {
+                throw new IOException("引导器载荷 " + resource + " 引用了包外类型 "
+                        + reference.replace('/', '.')
+                        + "；加密包以 java -jar 启动时该类不可见，必然 NoClassDefFoundError。"
+                        + "请把该类型并入 launch 包，或改用 JDK 实现。");
+            }
+            cursor = end;
+        }
+    }
+
+    /**
+     * 是否为 JVM 内部名字合法字符
+     *
+     * @param ch 字符
+     * @return true 表示属于类名/包名字符集
+     */
+    private static boolean isInternalNameChar(char ch) {
+        return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$' || ch == '/';
     }
 
     /**
@@ -473,7 +516,9 @@ public class JarEncryptor {
         }
         if ("META-INF/MANIFEST.MF".equals(name)
                 || KEY_BLOB_ENTRY.equals(name)
+                || name.startsWith(LAUNCH_PACKAGE)
                 || SIGNATURE_FILE.matcher(name).matches()) {
+            // 引导器载荷由 injectLaunchPayload 按打包时类路径统一写入，源包副本必须丢弃，否则同名条目报错
             return;
         }
 
@@ -505,17 +550,13 @@ public class JarEncryptor {
     }
 
     /**
-     * 判定条目是否保持明文：引导器载荷、显式排除前缀、非目标类型
+     * 判定条目是否保持明文：显式排除前缀、非目标类型
      *
      * @param name 条目名
      * @param raw  条目内容
      * @return true 表示保留明文
      */
     private boolean shouldKeepPlain(String name, byte[] raw) {
-        // 引导器必须明文（先于类加载器工作）
-        if (name.startsWith(LAUNCH_PACKAGE)) {
-            return true;
-        }
         for (String prefix : excludes) {
             if (name.startsWith(prefix)) {
                 return true;

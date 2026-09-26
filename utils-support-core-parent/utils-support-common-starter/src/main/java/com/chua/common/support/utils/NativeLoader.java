@@ -61,32 +61,32 @@ public class NativeLoader {
 
     /**
      * 加载
-    */
+     */
     private static final Map<String, Boolean> LOADED = new ConcurrentHashMap<>();
 
     /**
      * 任务标识
-    */
+     */
     private final String taskId;
     /**
      * Classloader
-    */
+     */
     private ClassLoader classLoader;
     /**
      * 目标目录
-    */
+     */
     private Path targetDir;
     /**
      * Glob
-    */
+     */
     private String glob;
     /**
      * MD5
-    */
+     */
     private boolean md5;
     /**
      * Extractonly
-    */
+     */
     private boolean extractOnly;
     /**
      * 是否启用全局 任务id 缓存（默认 true；同一 JVM 内同 任务id 只提取一次）
@@ -246,7 +246,7 @@ public class NativeLoader {
 
     /**
      * 执行加载
-    */
+     */
     private void doLoad() {
         if (targetDir == null) {
             throw new IllegalStateException("targetDir 未设置，请先调用 toTarget()");
@@ -489,15 +489,15 @@ public class NativeLoader {
     private static final class ResourceItem {
         /**
          * 名称
-        */
+         */
         private final String name;
         /**
          * 尺寸
-        */
+         */
         private final long size;
         /**
          * 供应商
-        */
+         */
         private final StreamSupplier supplier;
 
         /**

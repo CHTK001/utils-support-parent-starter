@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -688,5 +689,33 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
      * @return Beam的结果
      */
     private record Beam(List<Long> ids, float score, float[][][] dKv, int decSeq, boolean finished) {
+
+        /**
+         * 规范构造器：已生成 令牌 列表 与 解码器 KV 缓存 做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合与数组组件必须深不可变。</p>
+         *
+         * <p>拷贝不改变行为：扩展假设时先 {@code new ArrayList<>(b.ids)} 再追加，
+         * {@code newDkv} 也在每轮扩展时重新分配，两者都不会在构造后再被修改。</p>
+         *
+         * @param ids 已生成 令牌
+         * @param dKv 解码器 KV 缓存
+         */
+        public Beam {
+            ids = List.copyOf(Objects.requireNonNull(ids, "ids 不能为 null"));
+            dKv = Objects.requireNonNull(dKv, "dKv 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回 解码器 KV 缓存 的副本。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @return 解码器 KV 缓存副本
+         */
+        @Override
+        public float[][][] dKv() {
+            return dKv.clone();
+        }
     }
 }

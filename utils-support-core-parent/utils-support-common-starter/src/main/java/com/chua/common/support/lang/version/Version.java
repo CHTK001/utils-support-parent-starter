@@ -50,52 +50,48 @@ public class Version implements Comparable<Version> {
 
     /**
      * Ver1_0_0
-    */
+     */
     public static final Version VER1_0_0 = new Version("1.0.0");
     /**
      * Ver0_0_1
-    */
+     */
     public static final Version VER0_0_1 = new Version("0.0.1");
 
     /**
      * 原始版本字符串。
      * 保存用户传入的原始版本字符串，用于后续解析和比较。
+     *
+     * Original字符串
      */
     @Getter
-    /**
-     * Original字符串
-    */
     private final String originalString;
 
     /**
      * 子版本号列表。
      * 存储版本字符串中所有数值部分的列表，例如 "1.7.3" 对应 [1, 7, 3]。
+     *
+     * Subversionnumbers
      */
     @Getter
-    /**
-     * Subversionnumbers
-    */
     private final List<Long> subversionNumbers = new ArrayList<>();
 
     /**
      * 修剪后的子版本号列表。
      * 移除尾部零后的子版本号列表，用于版本比较。
      * 例如 "1.7.0" 对应 [1, 7]。
+     *
+     * Trimmedsubversionnumbers
      */
     @Getter
-    /**
-     * Trimmedsubversionnumbers
-    */
     private final List<Long> trimmedSubversionNumbers = new ArrayList<>();
 
     /**
      * 后缀字符串。
      * 存储版本号中的后缀部分，例如 "-rc2.xyz" 中的 "rc2.xyz"。
-     */
-    @Getter
-    /**
+     *
      * 后缀
      */
+    @Getter
     private final String suffix;
 
     /**
@@ -502,10 +498,10 @@ public class Version implements Comparable<Version> {
         return compareTo(otherVersion, ignoreSuffix) >= 0;
     }
 
-    @Override
     /**
      * 比较To
-    */
+     */
+    @Override
     public final int compareTo(Version version) {
         return compareTo(version, false);
     }
@@ -532,10 +528,10 @@ public class Version implements Comparable<Version> {
         }
     }
 
-    @Override
     /**
      * 判断相等
-    */
+     */
+    @Override
     public final boolean equals(Object o) {
         if (o instanceof Version && isEqual((Version) o)) {
             return true;
@@ -543,10 +539,10 @@ public class Version implements Comparable<Version> {
         return false;
     }
 
-    @Override
     /**
      * HashCode
-    */
+     */
+    @Override
     public final int hashCode() {
         int result = trimmedSubversionNumbers.hashCode();
         result = 31 * result + releaseType.hashCode();
@@ -554,10 +550,10 @@ public class Version implements Comparable<Version> {
         return result;
     }
 
-    @Override
     /**
      * ToString
-    */
+     */
+    @Override
     public String toString() {
         return String.valueOf(originalString);
     }
@@ -570,23 +566,23 @@ public class Version implements Comparable<Version> {
 
         /**
          * Snapshot_string
-        */
+         */
         private static final String SNAPSHOT_STRING = "snapshot";
         /**
          * Pre_string
-        */
+         */
         private static final String PRE_STRING = "pre";
         /**
          * Alpha_string
-        */
+         */
         private static final String ALPHA_STRING = "alpha";
         /**
          * Beta_string
-        */
+         */
         private static final String BETA_STRING = "beta";
         /**
          * Rc_string
-        */
+         */
         private static final String RC_STRING = "rc";
 
         /**

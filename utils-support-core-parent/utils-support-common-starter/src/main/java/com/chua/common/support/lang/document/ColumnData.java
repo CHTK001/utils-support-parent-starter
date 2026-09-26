@@ -16,39 +16,39 @@ import lombok.Builder;
 public record ColumnData(
         /**
          * 列序号（从 1 开始）
-        */
+         */
         int ordinalPosition,
         /**
          * 列名
-        */
+         */
         String columnName,
         /**
          * 数据类型名称，例如 VARCHAR、INTEGER、TEXT
-        */
+         */
         String typeName,
         /**
          * 列大小/长度
-        */
+         */
         int columnSize,
         /**
          * 小数位数（仅数值类型）
-        */
+         */
         Integer decimalDigits,
         /**
          * 是否允许为空
-        */
+         */
         boolean nullable,
         /**
          * 是否为主键
-        */
+         */
         boolean primaryKey,
         /**
          * 默认值
-        */
+         */
         String defaultValue,
         /**
          * 列备注/注释
-        */
+         */
         String remark
 ) {
 

@@ -31,12 +31,12 @@ public final class ContextCompressor {
 
     /**
      * 压缩配置
-    */
+     */
     private final ContextCompressionConfig config;
 
     /**
      * 底层压缩服务
-    */
+     */
     private final AgentContextCompressionService delegate;
 
     /**
@@ -171,7 +171,8 @@ public final class ContextCompressor {
         if (!isEnabled() || prompt == null) {
             return prompt;
         }
-        List<ChatMessage> compressed = maybeCompress(List.of(new ChatMessage("user", prompt)));
+        List<ChatMessage> compressed = maybeCompress(
+                List.of(ChatMessage.builder().role("user").content(prompt).build()));
         if (compressed == null || compressed.isEmpty()) {
             return prompt;
         }

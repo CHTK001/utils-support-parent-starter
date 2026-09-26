@@ -89,8 +89,20 @@ public final class HprofDiffer {
                        List<ClassGrowth> byInstanceDelta,
                        long beforeRetainedTotal,
                        long afterRetainedTotal,
-                       long beforeObjectCount,
-                       long afterObjectCount) {
+                        long beforeObjectCount,
+                        long afterObjectCount) {
+
+        /**
+         * 规范构造器：对两个增长排行列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；排行元素均为非空记录，
+         * 因此使用拒绝 null 元素的 {@link List#copyOf(List)}。
+         * {@link #topGrowths(int)} 基于不可变列表取子视图，行为不变。</p>
+         */
+        public Diff {
+            byRetainedDelta = List.copyOf(Objects.requireNonNull(byRetainedDelta, "byRetainedDelta 不能为 null"));
+            byInstanceDelta = List.copyOf(Objects.requireNonNull(byInstanceDelta, "byInstanceDelta 不能为 null"));
+        }
 
         /**
          * 按保留增量取 Top N。

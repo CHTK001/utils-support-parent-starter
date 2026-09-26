@@ -40,10 +40,10 @@ public class InMemoryTaskStore implements TaskStore {
         }
     }
 
-    @Override
     /**
      * 保存任务
-    */
+     */
+    @Override
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task != null && task.getTaskId() != null) {
             tasks.compute(task.getTaskId(), (k, v) -> {
@@ -57,10 +57,10 @@ public class InMemoryTaskStore implements TaskStore {
         }
     }
 
-    @Override
     /**
      * 更新状态
-    */
+     */
+    @Override
     public void updateStatus(String taskId, TaskStatus status) {
         TaskEntry entry = tasks.get(taskId);
         if (entry != null) {
@@ -68,10 +68,10 @@ public class InMemoryTaskStore implements TaskStore {
         }
     }
 
-    @Override
     /**
      * 保存结果
-    */
+     */
+    @Override
     public void saveResult(TaskResult<?> result) {
         if (result != null && result.getTaskId() != null) {
             TaskEntry entry = tasks.computeIfAbsent(result.getTaskId(),
@@ -86,10 +86,10 @@ public class InMemoryTaskStore implements TaskStore {
         return entry != null ? entry.task : null;
     }
 
-    @Override
     /**
      * 获取状态
-    */
+     */
+    @Override
     public TaskStatus getStatus(String taskId) {
         TaskEntry entry = tasks.get(taskId);
         return entry != null ? entry.status : null;
@@ -112,26 +112,26 @@ public class InMemoryTaskStore implements TaskStore {
         return result;
     }
 
-    @Override
     /**
      * 移除任务
-    */
+     */
+    @Override
     public void removeTask(String taskId) {
         tasks.remove(taskId);
     }
 
-    @Override
     /**
      * Clear
-    */
+     */
+    @Override
     public void clear() {
         tasks.clear();
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         tasks.clear();
     }

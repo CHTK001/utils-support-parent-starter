@@ -18,26 +18,26 @@ import java.nio.charset.StandardCharsets;
 @Spi("markdown")
 public class MarkdownRenderer implements DocumentProvider {
 
-    @Override
     /**
      * 获取Type
-    */
+     */
+    @Override
     public String getType() {
         return "markdown";
     }
 
-    @Override
     /**
      * 获取Extensions
-    */
+     */
+    @Override
     public String[] getExtensions() {
         return new String[]{".md", ".markdown"};
     }
 
-    @Override
     /**
      * Export
-    */
+     */
+    @Override
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         DocumentExportConfig resolved = config == null
                 ? DocumentExportConfig.builder().format("markdown").templateType(DocumentTemplateType.DEFAULT).build()

@@ -49,11 +49,10 @@ public class BenchmarkConfig {
 
     /**
      * 压测模式，默认并发。
+     *
+     * 模式
      */
     @Builder.Default
-    /**
-     * 模式
-    */
     private Mode mode = Mode.CONCURRENCY;
 
     /**
@@ -64,42 +63,38 @@ public class BenchmarkConfig {
     /**
      * 并发等级数组（VUS / 连接数）。
      * <p>并发模式：VUS 数；吞吐模式：同时连接数。</p>
+     *
+     * Concurrencylevels
      */
     @Builder.Default
-    /**
-     * Concurrencylevels
-    */
     private int[] concurrencyLevels = {100, 500, 1000, 2000, 5000};
 
     /**
      * 每 VU 迭代次数。
      * <ul>
-     *   <li>并发模式：默认 1（flash，每 VU 各发 1 次）</li>
-     *   <li>吞吐模式：每连接请求数，如 500</li>
+     * <li>并发模式：默认 1（flash，每 VU 各发 1 次）</li>
+     * <li>吞吐模式：每连接请求数，如 500</li>
      * </ul>
+     *
+     * IterationsPERVUS
      */
     @Builder.Default
-    /**
-     * IterationsPERVUS
-    */
     private int iterationsPerVus = 1;
 
     /**
      * 压测时长（秒），吞吐模式可选（>0 时按时长而非迭代数压测）。
+     *
+     * 持续时间秒
      */
     @Builder.Default
-    /**
-     * 持续时间秒
-    */
     private int durationSeconds = 0;
 
     /**
      * 报告指标列表，动态控制报告中展示的指标。
+     *
+     * Metrics
      */
     @Builder.Default
-    /**
-     * Metrics
-    */
     private Metric[] metrics = {Metric.SUCCESS_RATE, Metric.RPS, Metric.P95, Metric.P99};
 
     /**
@@ -129,11 +124,10 @@ public class BenchmarkConfig {
 
     /**
      * 报告输出路径。
+     *
+     * Report路径
      */
     @Builder.Default
-    /**
-     * Report路径
-    */
     private String reportPath = "target/http-server-benchmark.html";
 
     /**
@@ -148,11 +142,10 @@ public class BenchmarkConfig {
 
     /**
      * 是否保留 k6 summary JSON 中间文件。
+     *
+     * KeepsummaryJSON
      */
     @Builder.Default
-    /**
-     * KeepsummaryJSON
-    */
     private boolean keepSummaryJson = false;
 
     /**

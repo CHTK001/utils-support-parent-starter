@@ -8,9 +8,13 @@ import com.chua.starter.datasync.ExecutorManager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 数据湖 侧的 执行器管理器 实现。每次返回同一个 数据湖reactor执行器。
+ *
+ * <p>{@link #start()} 会把生命周期真正下发给执行器：未注入外部分发器时，执行器会自建
+ * Chronicle 通道，否则沿用宿主注入的共享分发器。{@link #stop()} 反向释放。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,6 +26,11 @@ public class DatalakeExecutorManager implements ExecutorManager {
      * 内部的唯一执行器实例
      */
     private final DatalakeReactorExecutor executor;
+
+    /**
+     * 是否已启动，避免重复启动分发器
+     */
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
      * 注入 dispatcher提供者，使 执行器 能共享 Chronicle 队列。
@@ -40,7 +49,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     /**
-     * 注入管线引擎，并同时为执行器注册 sink（用于 降级 直接派发）。
+     * 注入管线引擎，并让执行器共享同一张 sink 注册表（用于 降级 直接派发）。
      *
      * @param unused 兼容参数
      * @param engine 管线引擎
@@ -48,9 +57,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
      */
     public void setPipelineEngine(ReactorDataSyncExecutor unused, PipelineEngine engine, Map<String, DataSink> sinks) {
         executor.setPipelineEngine(engine);
-        if (sinks != null) {
-            sinks.values().forEach(executor::registerSink);
-        }
+        executor.useSinkRegistry(sinks);
     }
 
     /**
@@ -68,7 +75,10 @@ public class DatalakeExecutorManager implements ExecutorManager {
      * 开始
     */
     public void start() {
-        log.info("[datalake-server] ExecutorManager 启动");
+        if (started.compareAndSet(false, true)) {
+            executor.start();
+        }
+        log.info("[datalake-server] ExecutorManager 启动，agentId={}", executor.getAgentId());
     }
 
     @Override
@@ -76,6 +86,12 @@ public class DatalakeExecutorManager implements ExecutorManager {
      * 停止
     */
     public void stop() {
+        started.set(false);
+        try {
+            executor.stop();
+        } catch (Exception e) {
+            log.warn("[datalake-server] 执行器停止异常", e);
+        }
         log.info("[datalake-server] ExecutorManager 停止");
     }
 
@@ -90,10 +106,13 @@ public class DatalakeExecutorManager implements ExecutorManager {
     /**
      * 获取内部执行器的 topic（用于跨进程 Chronicle 订阅）。
      *
+     * <p>取值规则必须与 {@code ReactorDataSyncExecutor} 的发布端一致，
+     * 否则订阅方落在一个永远无人发布的话题上。</p>
+     *
      * @param sinkId sink 标识
      * @return topic 字符串
      */
     public String getTopic(String sinkId) {
-        return "server:" + executor.getAgentId();
+        return executor.topicOf(sinkId);
     }
 }

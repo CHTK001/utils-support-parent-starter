@@ -1,0 +1,3 @@
+aspose-excel=com.chua.aspose.support.converter.AsposeExcelFileConvertSystem
+aspose-ppt=com.chua.aspose.support.converter.AsposePptFileConvertSystem
+aspose-word=com.chua.aspose.support.converter.AsposeWordFileConvertSystem

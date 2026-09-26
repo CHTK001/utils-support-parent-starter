@@ -54,18 +54,18 @@ public class FileOffsetStore implements OffsetStore {
         this.config = config;
     }
 
-    @Override
     /**
      * 获取Offset
-    */
+     */
+    @Override
     public Offset getOffset(String subscriberId) {
         return cache.computeIfAbsent(subscriberId, this::createOffset);
     }
 
-    @Override
     /**
      * 移除Offset
-    */
+     */
+    @Override
     public Offset removeOffset(String subscriberId) {
         Offset removed = cache.remove(subscriberId);
         if (removed != null) {
@@ -74,10 +74,10 @@ public class FileOffsetStore implements OffsetStore {
         return removed;
     }
 
-    @Override
     /**
      * Truncate
-    */
+     */
+    @Override
     public void truncate() {
         cache.values().forEach(Offset::close);
         cache.clear();
@@ -101,10 +101,10 @@ public class FileOffsetStore implements OffsetStore {
         }
     }
 
-    @Override
     /**
      * 开始
-    */
+     */
+    @Override
     public void start() {
         if (running.compareAndSet(false, true)) {
             if (config.isPersistent()) {
@@ -118,10 +118,10 @@ public class FileOffsetStore implements OffsetStore {
         }
     }
 
-    @Override
     /**
      * 关闭
-    */
+     */
+    @Override
     public void close() {
         running.set(false);
         cache.values().forEach(Offset::close);
@@ -168,53 +168,53 @@ public class FileOffsetStore implements OffsetStore {
             this.value = loadFromFile();
         }
 
-        @Override
         /**
          * SubscriberId
-        */
+         */
+        @Override
         public String subscriberId() {
             return subscriberId;
         }
 
-        @Override
         /**
          * Value
-        */
+         */
+        @Override
         public long value() {
             return value;
         }
 
-        @Override
         /**
          * IncrementAnd获取
-        */
+         */
+        @Override
         public synchronized long incrementAndGet() {
             value++;
             flush();
             return value;
         }
 
-        @Override
         /**
          * 重置
-        */
+         */
+        @Override
         public synchronized void reset(long newValue) {
             value = newValue;
             flush();
         }
 
-        @Override
         /**
          * OffsetPath
-        */
+         */
+        @Override
         public String offsetPath() {
             return offsetPath.toString();
         }
 
-        @Override
         /**
          * 刷新
-        */
+         */
+        @Override
         public void flush() {
             if (!config.isPersistent() || closed) {
                 return;
@@ -240,10 +240,10 @@ public class FileOffsetStore implements OffsetStore {
             }
         }
 
-        @Override
         /**
          * 关闭
-        */
+         */
+        @Override
         public void close() {
             closed = true;
             flush();
@@ -251,7 +251,7 @@ public class FileOffsetStore implements OffsetStore {
 
         /**
          * 加载FromFile
-        */
+         */
         private long loadFromFile() {
             if (!config.isPersistent()) {
                 return 0L;

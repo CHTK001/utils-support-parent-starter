@@ -21,7 +21,7 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 
     /**
      * 桥接目标对象，方法调用将被委托给该对象
-    */
+     */
     private final Object bridging;
 
     /**
@@ -29,10 +29,10 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
      */
     private final Class<?> type;
 
-    @Override
     /**
      * 调用
-    */
+     */
+    @Override
     public Object invoke(Object obj, Method method, Object[] args, T proxy) throws Throwable {
         if (MethodIntercept.isToString(method)) {
             return ObjectUtils.withNull(bridging, () -> "void", Object::toString);

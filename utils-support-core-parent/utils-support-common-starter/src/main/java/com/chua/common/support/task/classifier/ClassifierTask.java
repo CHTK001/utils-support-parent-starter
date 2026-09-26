@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 分类建模任务接口（SPI）。
@@ -100,6 +101,22 @@ public interface ClassifierTask {
      * @return 结果值
      */
     record Result(String label, double confidence, Map<String, Double> probabilities) {
+
+        /**
+         * 规范构造器：标签为空值敌对，概率分布做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。
+         * 概率分布的键为类别名、值为 {@code Double}，实现侧不会写入 null，
+         * 且无分布信息时为空映射而非 null，故采用 {@link Map#copyOf}。</p>
+         *
+         * @param label         预测标签
+         * @param confidence    预测置信度
+         * @param probabilities 各类别概率分布
+         */
+        public Result {
+            label = Objects.requireNonNull(label, "label 不能为 null");
+            probabilities = Map.copyOf(Objects.requireNonNull(probabilities, "probabilities 不能为 null"));
+        }
     }
 
     /**

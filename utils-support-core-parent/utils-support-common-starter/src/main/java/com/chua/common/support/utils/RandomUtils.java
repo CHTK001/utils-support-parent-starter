@@ -46,6 +46,44 @@ public final class RandomUtils {
     }
 
     /**
+     * 返回 [0.0, 1.0) 之间的随机概率值。
+     *
+     * @return 随机概率
+     */
+    public static double randomProbability() {
+        return ThreadLocalRandom.current().nextDouble();
+    }
+
+    /**
+     * 以指定概率命中（伯努利试验）。
+     *
+     * <p>当 {@code probability <= 0} 时恒为 {@code false}，{@code >= 1} 时恒为 {@code true}；
+     * 其余情况返回 {@code randomProbability() < probability}。</p>
+     *
+     * @param probability 命中概率，取值 [0.0, 1.0]
+     * @return 是否命中
+     */
+    public static boolean hit(double probability) {
+        if (probability <= 0.0) {
+            return false;
+        }
+        if (probability >= 1.0) {
+            return true;
+        }
+        return ThreadLocalRandom.current().nextDouble() < probability;
+    }
+
+    /**
+     * 以百分比形式命中（{@code percent} 取值 [0, 100]）。
+     *
+     * @param percent 命中概率百分比
+     * @return 是否命中
+     */
+    public static boolean hitPercent(double percent) {
+        return hit(percent / 100.0);
+    }
+
+    /**
      * 从指定枚举类中随机选取一个常量。
      *
      * @param enumClass 枚举类对象

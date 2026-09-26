@@ -7,10 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 微信内存明文页解析器。
@@ -95,6 +97,18 @@ public final class WechatMemoryPageParser {
      * @return 结果值
      */
     public record LeafPage(long address, boolean strict, List<LeafRecord> records) {
+
+        /**
+         * 规范构造器：记录列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。</p>
+         *
+         * @param records 解析出的记录
+         */
+        public LeafPage {
+            records = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(records, "records 不能为 null")));
+        }
     }
 
     /**
@@ -106,6 +120,39 @@ public final class WechatMemoryPageParser {
      * @return 结果值
      */
     public record LeafRecord(long rowid, String[] values, int[] serialTypes) {
+
+        /**
+         * 规范构造器：数组组件做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变。</p>
+         *
+         * @param values      各列的值
+         * @param serialTypes SQLite 序列类型
+         */
+        public LeafRecord {
+            values = Objects.requireNonNull(values, "values 不能为 null").clone();
+            serialTypes = Objects.requireNonNull(serialTypes, "serialTypes 不能为 null").clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部列值数组的副本。
+         *
+         * @return 列值副本
+         */
+        @Override
+        public String[] values() {
+            return values.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部序列类型数组的副本。
+         *
+         * @return 序列类型副本
+         */
+        @Override
+        public int[] serialTypes() {
+            return serialTypes.clone();
+        }
 
         /**
          * 列数。
@@ -127,6 +174,24 @@ public final class WechatMemoryPageParser {
      */
     public record TableSchema(String name, List<String> columns, List<String> declarations,
                               String ddl) {
+
+        /**
+         * 规范构造器：列名与列声明列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变。两个列表都用可容纳 {@code null}
+         * 元素的不可变包装，而不是 {@link List#copyOf(List)}：声明类型允许为空，
+         * 本类 {@code compat(String, int)} 本身就按「声明为 {@code null} 时不冲突」处理，
+         * 用 {@code copyOf} 会把这种数据变成 {@link NullPointerException}。</p>
+         *
+         * @param columns      列名
+         * @param declarations 列声明类型
+         */
+        public TableSchema {
+            columns = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(columns, "columns 不能为 null")));
+            declarations = Collections.unmodifiableList(new ArrayList<>(
+                    Objects.requireNonNull(declarations, "declarations 不能为 null")));
+        }
     }
 
     /**

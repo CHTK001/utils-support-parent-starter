@@ -345,6 +345,36 @@ public final class FlywayScripts {
     }
 
     /**
+     * 判断脚本是否为初始化数据脚本。
+     *
+     * @param fileName 脚本文件名
+     * @return 文件名以 {@code initdata_} 开头时返回 {@code true}
+     */
+    public static boolean isInitData(String fileName) {
+        return isInitData(fileName, DEFAULT_SEPARATOR);
+    }
+
+    /**
+     * 按指定分隔符判断脚本是否为初始化数据脚本。
+     *
+     * @param fileName 脚本文件名
+     * @param separator 版本与描述分隔符
+     * @return 文件名以 {@code initdata_} 开头时返回 {@code true}
+     */
+    public static boolean isInitData(String fileName, String separator) {
+        if (fileName == null) {
+            return false;
+        }
+        String actualSeparator = separator == null || separator.isEmpty() ? DEFAULT_SEPARATOR : separator;
+        int index = fileName.indexOf(actualSeparator);
+        if (index < 0) {
+            return false;
+        }
+        String description = fileName.substring(index + actualSeparator.length());
+        return description.startsWith("initdata_");
+    }
+
+    /**
      * 计算脚本内容校验和（MD5 十六进制小写）。
      *
      * <p>MD5 仅用于检测脚本内容是否被改动，不承担安全职责。

@@ -41,10 +41,10 @@ public class ProgressBarWrappedIterable<T> implements Iterable<T> {
         return pbb;
     }
 
-    @Override
     /**
      * Iterator
-    */
+     */
+    @Override
     public ProgressBarWrappedIterator<T> iterator() {
         Iterator<T> it = underlying.iterator();
         long exactSizeIfKnown = underlying.spliterator().getExactSizeIfKnown();
