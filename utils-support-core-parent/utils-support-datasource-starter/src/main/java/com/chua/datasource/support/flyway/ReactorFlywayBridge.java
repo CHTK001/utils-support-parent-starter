@@ -137,10 +137,12 @@ public class ReactorFlywayBridge implements Engine {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     /**
      * 不支持元数据操作
-    */
+     *
+     * @return 固定为 false
+     */
+    @Override
     public boolean supportsMeta() {
         return false;
     }
@@ -148,5 +150,22 @@ public class ReactorFlywayBridge implements Engine {
     @Override
     public void close() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 查询关闭状态。
+     *
+     * <p>本桥接不持有任何数据源，资源归 {@link JdbcReactorEngine} 所有者；
+     * 且 {@link #close()} 明确不支持（抛 UnsupportedOperationException），
+     * 因此桥接自身永远处于「未关闭」状态。</p>
+     *
+     * <p>目标引擎实现的是独立的 {@link ReactorEngine} 接口，不含关闭状态语义，
+     * 故此处无法透传，按 {@link Engine} 的默认约定返回 false。</p>
+     *
+     * @return 固定为 false
+     */
+    @Override
+    public boolean isClosed() {
+        return false;
     }
 }

@@ -154,16 +154,22 @@ public class ArrayUtils {
     }
 
     /**
+     * 安全获取数组指定下标的元素，越界或下标为负时返回默认值。
      *
+     * <p>下标为负时同样返回默认值（不做负数倒序索引），避免调用方误以为
+     * {@code -1} 表示末元素。</p>
      *
-     * @param stringArray  字符串array
-     * @param index        索引
+     * @param stringArray  源数组，允许为 null
+     * @param index        索引，小于 0 或越界时返回默认值
      * @param defaultValue 默认值
-     * @return the 结果
-     * @see NullPointerException
+     * @param <T>          元素类型
+     * @return 指定下标的元素；越界或数组为空时返回 {@code defaultValue}
      */
     public static <T> T getIndex(T[] stringArray, int index, T defaultValue) {
-        return stringArray == null || stringArray.length == 0 || stringArray.length <= index ? defaultValue : stringArray[index];
+        if (stringArray == null || index < 0 || index >= stringArray.length) {
+            return defaultValue;
+        }
+        return stringArray[index];
     }
 
     /**
@@ -746,26 +752,45 @@ public class ArrayUtils {
     }
 
     /**
+     * 合并两个数组并按首次出现顺序去重，返回新数组。
      *
+     * <p>去重规则基于 {@link Object#equals(Object)}，先遍历 {@code target} 再遍历
+     * {@code source}，因此 {@code target} 中的元素总排在前面。两个数组均为空时返回
+     * 空数组（不返回 null）。</p>
      *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+     * @param target 基础数组，不允许为 null
+     * @param source 待合并的数组，不允许为 null
+     * @param <T>     元素类型
+     * @return 合并去重后的新数组
+     * @throws IllegalArgumentException 任一参数为 null 时抛出
      */
     public static <T> T[] mergeOfDistince(T[] target, T... source) {
+        if (target == null || source == null) {
+            throw new IllegalArgumentException("待合并的数组不能为空");
+        }
         if (target.length == 0 && source.length == 0) {
-            return null;
+            @SuppressWarnings("unchecked")
+            T[] empty = (T[]) Array.newInstance(target.getClass().getComponentType(), 0);
+            return empty;
         }
 
-        List<T> objects = new ArrayList<>(target.length + source.length);
+        List<T> merged = new ArrayList<>(target.length + source.length);
+        // 先加入 target，保证其元素排在前面
         for (T t : target) {
-            if (objects.contains(t)) {
-                continue;
+            if (!merged.contains(t)) {
+                merged.add(t);
             }
-            objects.add(t);
+        }
+        // 再补上 source 中尚未出现的元素
+        for (T t : source) {
+            if (!merged.contains(t)) {
+                merged.add(t);
+            }
         }
 
-        return objects.toArray(target);
+        @SuppressWarnings("unchecked")
+        T[] result = (T[]) Array.newInstance(target.getClass().getComponentType(), merged.size());
+        return merged.toArray(result);
     }
 
     /**
@@ -799,43 +824,50 @@ public class ArrayUtils {
     }
 
     /**
+     * 在数组头部插入一个元素，返回新数组（不修改入参）。
      *
+     * <p>返回长度为 {@code target.length + 1} 的新数组，{@code source} 位于下标 0，
+     * 原数组元素整体后移一位。传入空数组时返回仅含 {@code source} 的新数组。
+     * 语义与 {@link #addLastElement(Object[], Object)} 对称。</p>
      *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+     * @param target 原数组，不允许为 null
+     * @param source 待插入到头部的元素
+     * @param <E>     元素类型
+     * @return 插入后的新数组
+     * @throws IllegalArgumentException target 为 null 时抛出
      */
     public static <E> E[] addFirstElement(E[] target, E source) {
-        if (target.length == 0) {
-            return target;
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
         }
-
         int oldLength = target.length;
-        Class<? extends E[]> aClass = (Class<? extends E[]>) target.getClass();
-        E[] copy = (E[]) Array.newInstance(aClass.getComponentType(), oldLength + 1);
-        System.arraycopy(target, 0, copy, 1, oldLength);
-        target[0] = source;
-
-        return target;
+        Class<?> componentType = target.getClass().getComponentType();
+        E[] result = (E[]) Array.newInstance(componentType, oldLength + 1);
+        result[0] = source;
+        System.arraycopy(target, 0, result, 1, oldLength);
+        return result;
     }
 
     /**
+     * 在数组尾部追加一个元素，返回新数组（不修改入参）。
      *
+     * <p>传入空数组时返回仅含 {@code source} 的新数组，语义与
+     * {@link #addFirstElement(Object[], Object)} 对称。</p>
      *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+     * @param target 原数组，不允许为 null
+     * @param source 待追加到尾部的元素
+     * @param <E>     元素类型
+     * @return 追加后的新数组
+     * @throws IllegalArgumentException target 为 null 时抛出
      */
     public static <E> E[] addLastElement(E[] target, E source) {
-        if (target.length == 0) {
-            return target;
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
         }
-
         int oldLength = target.length;
-        target = Arrays.copyOf(target, oldLength + 1);
-        target[oldLength] = source;
-
-        return target;
+        E[] result = Arrays.copyOf(target, oldLength + 1);
+        result[oldLength] = source;
+        return result;
     }
 
     /**
@@ -888,15 +920,23 @@ public class ArrayUtils {
     }
 
     /**
+     * 就地替换数组指定下标的元素。
      *
+     * <p>下标越界（小于 0 或不小于数组长度）时原样返回入参、不做修改，
+     * 避免抛出数组越界异常打断调用方流程。</p>
      *
-     * @param target Target
-     * @param source 源
-     * @param index  索引
-     * @return the 结果
+     * @param target 原数组，不允许为 null
+     * @param source 新的元素值
+     * @param index  目标下标，越界时不做修改
+     * @param <E>     元素类型
+     * @return 被修改的 target（越界时为未改动的 target）
+     * @throws IllegalArgumentException target 为 null 时抛出
      */
     public static <E> E[] setElement(E[] target, E source, int index) {
-        if (target.length == 0) {
+        if (target == null) {
+            throw new IllegalArgumentException("原数组不能为空");
+        }
+        if (index < 0 || index >= target.length) {
             return target;
         }
         target[index] = source;
@@ -1186,10 +1226,10 @@ public class ArrayUtils {
     }
 
     /**
-     * trans转为bytearray
+     * trans转为字节数组
      *
      * @param value 值
-     * @return trans转为bytearray的结果
+     * @return trans转为字节数组的结果
      */
     public static byte[] transToByteArray(float[] value) {
         if (value == null) {
@@ -1834,10 +1874,9 @@ public class ArrayUtils {
      *
      * @param values 值
      * @param sortedFields 排序字段
-     * @param direction             /      
+     * @param direction             /
      * @return the 结果
-     */
-    /**
+     *
      * 排序条件.排序direction
      * @author CH
      * @since 4.0.0
@@ -1845,11 +1884,11 @@ public class ArrayUtils {
     public enum SortDirection {
         /**
          * 升序
-        */
+         */
         ASC,
         /**
          * 降序
-        */
+         */
         DESC
     }
 
