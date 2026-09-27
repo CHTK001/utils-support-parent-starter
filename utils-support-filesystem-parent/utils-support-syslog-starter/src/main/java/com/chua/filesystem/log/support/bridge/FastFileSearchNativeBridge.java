@@ -23,6 +23,19 @@ import java.util.function.BiConsumer;
  * 窗口 NTFS MFT 直读搜索（需要管理员权限）。
  * </p>
  *
+ * <p><b>当前无可用的原生库实现。</b>本桥接声明并在 classpath 的
+ * {@code /native/{platform}/} 下查找逻辑名为 {@code fast_file_search} 的动态库
+ * （匹配 {@code *fast_file_search*}），但本仓库没有任何模块提供它，
+ * 本模块也未声明任何 native 依赖。因此静态块加载必然失败、
+ * {@link #isLoaded()} 恒为 {@code false}，{@link #searchMft} 会抛
+ * {@link IllegalStateException}。</p>
+ *
+ * <p>要让它可用，需要提供导出了 {@code fast_search_mft} 与
+ * {@code fast_search_cancel} 两个符号的动态库：可新建 native 模块按
+ * {@code src/main/resources/native/{platform}/} 布局打包，并在本模块 pom 中
+ * 以 compile scope 声明该依赖；也可自行把库放到 {@code java.library.path}
+ * 覆盖的目录。失败原因可经 {@link #getLoadError()} 获取。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -40,20 +53,24 @@ public final class FastFileSearchNativeBridge {
 
     /**
      * 搜索mfthandle
-    */
+     */
     private static MethodHandle searchMftHandle;
     /**
      * Cancelhandle
-    */
+     */
     private static MethodHandle cancelHandle;
 
     /**
      * 加载
-    */
+     */
     private static volatile boolean loaded = false;
     /**
+     * 加载失败原因；加载成功时为 null
+     */
+    private static volatile Throwable loadError;
+    /**
      * 加载_锁
-    */
+     */
     private static final Object LOAD_LOCK = new Object();
 
     /**
@@ -110,8 +127,10 @@ public final class FastFileSearchNativeBridge {
                 loaded = true;
                 log.info("Fast file search native library loaded successfully: {}", libPath);
             } catch (Throwable t) {
-                log.error("Failed to load fast file search native library, MFT search unavailable: {}", t.getMessage(), t);
+                loadError = t;
                 loaded = false;
+                log.error("Failed to load fast file search native library, MFT search unavailable: {}",
+                        t.getMessage(), t);
             }
         }
     }
@@ -224,12 +243,29 @@ public final class FastFileSearchNativeBridge {
     }
 
     /**
+     * 获取原生库加载失败的原因。
+     *
+     * <p>本仓库未提供 {@code fast_file_search} 原生库，故正常部署下这里返回的是
+     * 加载失败的底层异常；调用方据此判断是"库缺失"还是"符号不匹配"。</p>
+     *
+     * @return 失败异常；加载成功或尚未尝试时返回 {@code null}
+     * @author CH
+     * @since 4.0.0.42
+     */
+    public static Throwable getLoadError() {
+        return loadError;
+    }
+
+    /**
      * 校验加载
     */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(
-                    "Fast file search native library not loaded. Check fast_file_search.dll in classpath:/native/ or java.library.path.");
+                    "Fast file search native library not loaded. 本仓库未提供 fast_file_search 动态库"
+                            + "（native-parent 中无对应模块，本模块也未声明 native 依赖），"
+                            + "需自行提供导出了 fast_search_mft 与 fast_search_cancel 的库后重试。"
+                            + "加载失败原因：" + (loadError == null ? "未知" : loadError.getMessage()));
         }
     }
 
