@@ -1,7 +1,6 @@
 package com.chua.deeplearning.support.onnx.feature;
 
 import ai.djl.modality.cv.Image;
-import ai.djl.modality.cv.util.NDImageUtils;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.types.DataType;
@@ -93,18 +92,20 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) throws Exception {
-        NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        // 缩放与裁剪一律走 DJL Image API（BufferedImage 实现），不使用 NDImageUtils.resize/centerCrop：
+        // 后两者内部走各引擎的 NDArrayEx（如 ai.djl.engine.rust.RsNDArrayEx.resize、
+        // 部分 onnx 引擎实现），在缺实现时会直接抛 UnsupportedOperationException。Image API 与引擎无关。
+        int width = input.getWidth();
+        int height = input.getHeight();
+        float percent = (float) IMAGE_SIZE / Math.min(width, height);
+        int resizedWidth = Math.round(width * percent);
+        int resizedHeight = Math.round(height * percent);
+        Image resized = input.resize(resizedWidth, resizedHeight, false);
+        int cropX = Math.max(0, (resizedWidth - IMAGE_SIZE) / 2);
+        int cropY = Math.max(0, (resizedHeight - IMAGE_SIZE) / 2);
+        Image cropped = resized.getSubImage(cropX, cropY, IMAGE_SIZE, IMAGE_SIZE);
 
-        //                            
-        float percent = (float) IMAGE_SIZE / Math.min(input.getWidth(), input.getHeight());
-        int resizedWidth = Math.round(input.getWidth() * percent);
-        int resizedHeight = Math.round(input.getHeight() * percent);
-
-        //        BICUBIC                   
-        array = NDImageUtils.resize(array, resizedWidth, resizedHeight, Image.Interpolation.BICUBIC);
-
-        //                            
-        array = NDImageUtils.centerCrop(array, IMAGE_SIZE, IMAGE_SIZE);
+        NDArray array = cropped.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
         //                       FLOAT32
         if (!array.getDataType().equals(DataType.FLOAT32)) {
