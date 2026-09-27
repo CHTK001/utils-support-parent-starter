@@ -219,6 +219,28 @@ public final class CmdExecutors {
         getExecutor().executeAsync(command, timeout, unit, callback);
     }
 
+    /**
+     * 异步执行数组形式的命令，通过回调接收结果。
+     *
+     * @param command  程序名与参数数组
+     * @param callback 结果回调
+     */
+    public static void executeAsync(String[] command, CmdCallback callback) {
+        getExecutor().executeAsync(command, callback);
+    }
+
+    /**
+     * 异步执行数组形式的命令（带超时），通过回调接收结果。
+     *
+     * @param command  程序名与参数数组
+     * @param timeout  超时时间值
+     * @param unit     超时时间单位
+     * @param callback 结果回调
+     */
+    public static void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
+        getExecutor().executeAsync(command, timeout, unit, callback);
+    }
+
     // ==================== 便捷异步执行 ====================
 
     /**

@@ -155,11 +155,11 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
             tempOutput = Files.createTempFile("pandoc_result_", "." + targetExt);
 
-            String command = pandoc + " -f " + fromFormat + " -t " + toFormat
-                + " -o \"" + tempOutput.toAbsolutePath() + "\""
-                + " \"" + tempInput.toAbsolutePath() + "\"";
+            String[] command = {pandoc, "-f", fromFormat, "-t", toFormat,
+                "-o", tempOutput.toAbsolutePath().toString(),
+                tempInput.toAbsolutePath().toString()};
 
-            log.info("执行 Pandoc 转换: {}", command);
+            log.info("执行 Pandoc 转换: {}", String.join(" ", command));
             CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
             if (!result.isSuccess()) {

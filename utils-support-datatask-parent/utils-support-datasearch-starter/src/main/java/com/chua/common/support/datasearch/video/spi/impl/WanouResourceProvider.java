@@ -108,6 +108,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
                                 String vodDownUrl = item.getVodDownUrl();
                                 List<VideoDownload> videoDownloads = new ArrayList<>();
                                 registerDownload(videoDownloads, vodDownFrom, vodDownUrl);
+                                result.setDownloadList(videoDownloads);
                                 return result;
                             })
                             .toList()
@@ -133,7 +134,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
 
         List<String> froms = Splitter.on("$$$").splitToList(vodDownFrom);
         List<String> urls = Splitter.on("$$$").splitToList(vodDownUrl);
-        for (int i = 0; i < froms.size(); i++) {
+        for (int i = 0; i < froms.size() && i < urls.size(); i++) {
             VideoDownload videoDownload = new VideoDownload();
             videoDownload.setVideoDownloadName(transferName(froms.get(i)));
             videoDownload.setVideoDownloadUrl(urls.get(i));

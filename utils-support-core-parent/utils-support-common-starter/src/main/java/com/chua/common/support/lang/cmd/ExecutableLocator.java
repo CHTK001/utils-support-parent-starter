@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -276,10 +277,41 @@ public final class ExecutableLocator {
     }
 
     /**
+     * 解析可直接交给进程创建 API 启动的程序名。
+     *
+     * <p>Windows 的 CreateProcess 不套用 {@code PATHEXT}，只提供批处理外壳的 CLI（如 {@code npm}、
+     * {@code gem}、{@code composer}）以裸名启动会以 {@code CreateProcess error=2} 失败。
+     * 此处仅在这种情况下把裸名替换为定位到的 {@code .cmd}/{@code .bat} 路径；
+     * 存在同名 {@code .exe} 时原样返回，保持系统原有的查找顺序。</p>
+     *
+     * @param program 参数数组首元素，即程序名
+     * @return 可启动的程序名，无需替换时返回原值
+     */
+    @Nonnull
+    public static String resolveProgram(@Nonnull String program) {
+        if (!OsFamily.current().isWindows()) {
+            return program;
+        }
+        if (program.indexOf('\\') >= 0 || program.indexOf('/') >= 0 || program.indexOf('.') >= 0) {
+            return program;
+        }
+        Path found = locate(program).orElse(null);
+        if (found == null) {
+            return program;
+        }
+        String name = found.getFileName().toString().toLowerCase(Locale.ROOT);
+        if (name.equals(program + ".cmd") || name.equals(program + ".bat")) {
+            return found.toString();
+        }
+        return program;
+    }
+
+    /**
      * 在单个目录中按可执行名匹配文件。
      *
      * <p>若可执行名已带扩展名则直接匹配；否则按当前平台的候选扩展名依次尝试。
-     * Windows 下还会尝试 {@code .exe}、{@code .bat}、{@code .cmd}。</p>
+     * Windows 下会先尝试 {@code .exe}、{@code .bat}、{@code .cmd}，再退回无扩展名文件，
+     * 否则会命中随批处理外壳一起分发的同名为 shell 脚本的文件，这类文件无法启动。</p>
      *
      * @param dir            目录路径
      * @param executableName 可执行文件名
@@ -290,9 +322,11 @@ public final class ExecutableLocator {
         if (directory == null) {
             return Optional.empty();
         }
-        Optional<Path> direct = toExecutableFile(directory.resolve(executableName).toString());
-        if (direct.isPresent()) {
-            return direct;
+        if (executableName.indexOf('.') >= 0) {
+            Optional<Path> direct = toExecutableFile(directory.resolve(executableName).toString());
+            if (direct.isPresent()) {
+                return direct;
+            }
         }
         for (String suffix : OsFamily.current().executableSuffixes()) {
             if (suffix.isEmpty()) {
@@ -303,7 +337,7 @@ public final class ExecutableLocator {
                 return found;
             }
         }
-        return Optional.empty();
+        return toExecutableFile(directory.resolve(executableName).toString());
     }
 
     /**

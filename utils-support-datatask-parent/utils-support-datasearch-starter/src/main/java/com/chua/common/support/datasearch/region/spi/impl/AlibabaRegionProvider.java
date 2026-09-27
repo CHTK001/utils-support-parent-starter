@@ -210,9 +210,14 @@ public class AlibabaRegionProvider implements RegionProvider {
                 }
                 String adcode = text(p, "adcode");
                 String name = text(p, "name");
+                if (adcode.isEmpty() || name.isEmpty()) {
+                    // 纯几何要素（properties 为空对象）不是行政区划，跳过
+                    continue;
+                }
                 String lv = text(p, "level");
+                String parent = text(p.path("parent"), "adcode");
                 double[] center = parseCenter(p.get("center"));
-                list.add(new RegionInfo(adcode, name, mapLevel(lv), lv, null, center[0], center[1]));
+                list.add(new RegionInfo(adcode, name, mapLevel(lv), lv, parent, center[0], center[1]));
             }
         } catch (Exception e) {
             log.warn("行政区划解析失败: {}", e.getMessage());

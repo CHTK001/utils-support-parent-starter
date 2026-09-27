@@ -143,7 +143,7 @@ public class JdkCertificateProvider implements AcmeProvider {
             String keystoreFile = getKeystorePath(primaryDomain);
 
             // 构建 keytool 命令
-            String command = buildKeytoolCommand(primaryDomain, domains, keystoreFile);
+            String[] command = buildKeytoolCommand(primaryDomain, domains, keystoreFile);
 
             // 执行 keytool 命令
             CmdResult cmdResult = CmdExecutors.execute(command, 60, TimeUnit.SECONDS);
@@ -213,32 +213,48 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 构建 keytool 命令字符串
+     * 构建 keytool 命令参数数组
+     *
+     * <p>参数数组不经 shell 解析，因此域名等外部输入中的引号、分号都按字面量传给
+     * keytool，不会再被拆分成新的参数或命令。</p>
+     *
      * @param primaryDomain 方法入参 primaryDomain
      * @param domains 方法入参 domains
      * @param keystoreFile keystore文件，不允许为 null
-     * @return 结果字符串
+     * @return keytool 命令与参数
      */
-    private String buildKeytoolCommand(String primaryDomain, List<String> domains, String keystoreFile) {
-        StringBuilder cmd = new StringBuilder(KEYTOOL);
-        cmd.append(" -genkeypair");
-        cmd.append(" -alias ").append(primaryDomain);
-        cmd.append(" -keyalg ").append(keyAlg);
-        cmd.append(" -keysize ").append(keySize);
-        cmd.append(" -sigalg ").append(getSigAlg());
-        cmd.append(" -dname \"").append(buildDName(primaryDomain)).append("\"");
-        cmd.append(" -validity ").append(validityDays);
-        cmd.append(" -storetype ").append(keystoreType);
-        cmd.append(" -keystore \"").append(keystoreFile).append("\"");
-        cmd.append(" -storepass ").append(keystorePassword);
-        cmd.append(" -keypass ").append(keystorePassword);
+    private String[] buildKeytoolCommand(String primaryDomain, List<String> domains, String keystoreFile) {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(KEYTOOL);
+        cmd.add("-genkeypair");
+        cmd.add("-alias");
+        cmd.add(primaryDomain);
+        cmd.add("-keyalg");
+        cmd.add(keyAlg);
+        cmd.add("-keysize");
+        cmd.add(String.valueOf(keySize));
+        cmd.add("-sigalg");
+        cmd.add(getSigAlg());
+        cmd.add("-dname");
+        cmd.add(buildDName(primaryDomain));
+        cmd.add("-validity");
+        cmd.add(String.valueOf(validityDays));
+        cmd.add("-storetype");
+        cmd.add(keystoreType);
+        cmd.add("-keystore");
+        cmd.add(keystoreFile);
+        cmd.add("-storepass");
+        cmd.add(keystorePassword);
+        cmd.add("-keypass");
+        cmd.add(keystorePassword);
 
         // 添加 SAN 扩展
         if (domains.size() > 1 || !isIpAddress(primaryDomain)) {
-            cmd.append(" -ext san=").append(buildSanExtension(domains));
+            cmd.add("-ext");
+            cmd.add("san=" + buildSanExtension(domains));
         }
 
-        return cmd.toString();
+        return cmd.toArray(new String[0]);
     }
 
     /**

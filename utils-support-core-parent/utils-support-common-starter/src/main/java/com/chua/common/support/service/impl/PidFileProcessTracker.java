@@ -1,5 +1,7 @@
 package com.chua.common.support.service.impl;
 
+import com.chua.common.support.lang.cmd.CmdExecutors;
+import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.service.ServiceProcessTracker;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
@@ -10,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * PID 文件式进程追踪器（默认实现）。
@@ -23,6 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @SpiDefault
 @Spi("pidfile")
 public class PidFileProcessTracker implements ServiceProcessTracker {
+
+    /**
+     * 进程管理命令超时（秒）
+     */
+    private static final int PID_CMD_TIMEOUT_SECONDS = 15;
 
     private final ConcurrentHashMap<String, Long> pidCache = new ConcurrentHashMap<>(); // pid缓存
 
@@ -53,8 +61,10 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             return;
         }
         try {
-            String cmd = isWindows() ? "taskkill /PID " + pid + " /F" : "kill " + pid;
-            Runtime.getRuntime().exec(cmd).waitFor();
+            String[] cmd = isWindows()
+                    ? new String[]{"taskkill", "/PID", String.valueOf(pid), "/F"}
+                    : new String[]{"kill", String.valueOf(pid)};
+            CmdExecutors.execute(cmd, PID_CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             log.info("[service] 进程已停止: pid={}", pid);
         } catch (Exception e) {
             log.warn("[service] 停止进程失败 pid={}: {}", pid, e.getMessage());
@@ -74,13 +84,15 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
             return false;
         }
         try {
-            String cmd = isWindows() ? "tasklist /FI \"PID eq " + pid + "\"" : "kill -0 " + pid + " 2>&1";
-            Process p = Runtime.getRuntime().exec(cmd);
-            int exit = p.waitFor();
-            boolean running = isWindows()
-                    ? exit == 0
-                    : exit == 0;
-            return running;
+            if (isWindows()) {
+                // tasklist 即使没有匹配进程也返回 0，只能看输出里有没有这一行 PID
+                CmdResult result = CmdExecutors.execute(
+                        new String[]{"tasklist", "/FI", "PID eq " + pid},
+                        PID_CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                return result.isSuccess() && result.getStdout().contains(String.valueOf(pid));
+            }
+            return CmdExecutors.execute(new String[]{"kill", "-0", String.valueOf(pid)},
+                    PID_CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS).isSuccess();
         } catch (Exception e) {
             return false;
         }

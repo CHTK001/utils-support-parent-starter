@@ -147,7 +147,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
      */
     private String getMainClassName(int pid) {
         CmdResult result = CmdExecutors.execute(
-                "ps -o comm= -p " + pid,
+                new String[]{"ps", "-o", "comm=", "-p", String.valueOf(pid)},
                 CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         return result.getStdout().trim();
     }

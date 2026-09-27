@@ -154,6 +154,7 @@ utils-support-extra-parent/utils-support-example-starter/out_dedup2/
 utils-support-extra-parent/utils-support-example-starter/out_verify*/
 utils-support-extra-parent/utils-support-example-starter/probe_dedup/
 utils-support-extra-parent/utils-support-example-starter/.agentscope/
+utils-support-deeplearning-parent/utils-support-deeplearning-agentscope-starter/.agentscope/
 utils-support-extra-parent/utils-support-example-starter/assembly/
 utils-support-extra-parent/utils-support-example-starter/lib/
 utils-support-extra-parent/utils-support-example-starter/*-on-disk

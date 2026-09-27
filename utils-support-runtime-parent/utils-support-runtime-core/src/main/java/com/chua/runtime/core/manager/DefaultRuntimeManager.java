@@ -466,14 +466,19 @@ public class DefaultRuntimeManager implements RuntimeManager {
         Map<Integer, String> jvms = new java.util.LinkedHashMap<>();
         try {
             CmdResult r = CmdExecutors.execute(
-                    "ps -eo pid,comm,args | grep -E '[j]ava|sun.tools.launcher' | grep -v grep",
+                    new String[]{"ps", "-eo", "pid,comm,args"},
                     10, TimeUnit.SECONDS);
             if (r.isSuccess()) {
                 for (String line : r.getStdout().split("\n")) {
-                    String[] parts = line.trim().split("\\s+");
+                    String trimmed = line.trim();
+                    String lower = trimmed.toLowerCase();
+                    if (!lower.contains("java") && !lower.contains("sun.tools.launcher")) {
+                        continue;
+                    }
+                    String[] parts = trimmed.split("\\s+");
                     if (parts.length >= 2) {
                         try {
-                            jvms.put(Integer.parseInt(parts[0]), line.trim());
+                            jvms.put(Integer.parseInt(parts[0]), trimmed);
                         } catch (NumberFormatException ignored) {
                         }
                     }
@@ -495,7 +500,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
         if (os.contains("win")) {
             return new WindowsServiceManager();
         }
-        CmdResult r = CmdExecutors.execute("which systemctl", 5, TimeUnit.SECONDS);
+        CmdResult r = CmdExecutors.execute(new String[]{"which", "systemctl"}, 5, TimeUnit.SECONDS);
         if (r.isSuccess()) {
             return new SystemdServiceManager();
         }

@@ -345,7 +345,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                                       File workingDirectory, Map<String, String> environment, String input) {
         try {
             // 构建 ProcessBuilder 并设置工作目录与流合并策略
-            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            ProcessBuilder pb = new ProcessBuilder(launchable(cmdArray));
             if (workingDirectory != null) {
                 pb.directory(workingDirectory);
             } else if (workDirectory != null) {
@@ -428,6 +428,25 @@ public class ProcessCmdExecutor implements CmdExecutor {
                 .endTime(System.currentTimeMillis())
                 .throwable(throwable)
                 .build();
+    }
+
+    /**
+     * 将参数数组的命令名替换为当前平台可直接启动的形式，仅 Windows 下批处理外壳会触发替换。
+     *
+     * @param command 参数数组
+     * @return 可启动的参数数组，无需替换时返回原数组
+     */
+    private static String[] launchable(String[] command) {
+        if (command == null || command.length == 0 || command[0] == null) {
+            return command;
+        }
+        String program = ExecutableLocator.resolveProgram(command[0]);
+        if (program.equals(command[0])) {
+            return command;
+        }
+        String[] copy = command.clone();
+        copy[0] = program;
+        return copy;
     }
 
     /**
@@ -604,6 +623,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                                                 long timeout, TimeUnit unit,
                                                 LineCallback callback, long startTime) {
         try {
+            cmdArray = launchable(cmdArray);
             // 优先使用 ConPTY（Windows 10 1809+ 支持进度条与 ANSI 转义）
             if (WindowsConPtyProcess.isAvailable() && WindowsConPtyProcess.isWindows()) {
                 return doExecuteWithOutputConPty(cmdArray, displayCommand, workDirectory,
@@ -670,7 +690,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
                                                 File workingDirectory, Map<String, String> environment,
                                                 String input) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            ProcessBuilder pb = new ProcessBuilder(launchable(cmdArray));
             if (workingDirectory != null) {
                 pb.directory(workingDirectory);
             } else if (workDirectory != null) {

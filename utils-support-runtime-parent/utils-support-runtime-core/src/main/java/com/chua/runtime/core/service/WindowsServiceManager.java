@@ -54,15 +54,17 @@ public class WindowsServiceManager implements ServiceManager {
         String args = CollectionUtils.isNotEmpty(service.getArgs())
                 ? " " + String.join(" ", service.getArgs()) : "";
         String startup = mapStartup(service.getStartupType());
-        String cmd = String.format("sc create \"%s\" binPath= \"%s%s\" start= %s DisplayName= \"%s\"",
-                service.getServiceName(), exec, args, startup,
-                service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName());
-        CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT, TimeUnit.SECONDS);
+ // sc.exe 要求等号后留空格，因此 "binPath=" 与取值是两个独立参数
+        CmdResult result = CmdExecutors.execute(sc("create", service.getServiceName(),
+                "binPath=", exec + args,
+                "start=", startup,
+                "DisplayName=", service.getDisplayName() != null ? service.getDisplayName() : service.getServiceName()),
+                CMD_TIMEOUT, TimeUnit.SECONDS);
         if (result.isSuccess()) {
             LOG.log(Level.INFO, String.format("Windows 服务[%s] 安装成功", service.getServiceName()));
             if (service.getDescription() != null && !service.getDescription().isBlank()) {
                 CmdExecutors.execute(
-                        "sc description \"" + service.getServiceName() + "\" \"" + service.getDescription() + "\"",
+                        sc("description", service.getServiceName(), service.getDescription()),
                         CMD_TIMEOUT, TimeUnit.SECONDS);
             }
         } else {
@@ -77,7 +79,7 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public CmdResult uninstall(String serviceName) {
         LOG.log(Level.INFO, String.format("正在卸载 Windows 服务[%s]", serviceName));
-        return CmdExecutors.execute("sc delete \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("delete", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 开始
     */
     public CmdResult start(String serviceName) {
-        return CmdExecutors.execute("sc start \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("start", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -93,7 +95,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 停止
     */
     public CmdResult stop(String serviceName) {
-        return CmdExecutors.execute("sc stop \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("stop", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -115,7 +117,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 状态
     */
     public CmdResult status(String serviceName) {
-        return CmdExecutors.execute("sc query \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("query", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -123,7 +125,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 启用
     */
     public CmdResult enable(String serviceName) {
-        return CmdExecutors.execute("sc config \"" + serviceName + "\" start= auto", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("config", serviceName, "start=", "auto"), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -131,7 +133,7 @@ public class WindowsServiceManager implements ServiceManager {
      * 禁用
     */
     public CmdResult disable(String serviceName) {
-        return CmdExecutors.execute("sc config \"" + serviceName + "\" start= disabled", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(sc("config", serviceName, "start=", "disabled"), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -153,6 +155,19 @@ public class WindowsServiceManager implements ServiceManager {
     */
     public boolean isInstalled(String serviceName) {
         return status(serviceName).isSuccess();
+    }
+
+    /**
+     * 组装 sc.exe 参数数组，避免服务名经 shell 二次解析。
+     *
+     * @param args sc 子命令及其参数
+     * @return 命令数组
+     */
+    private static String[] sc(String... args) {
+        String[] cmd = new String[args.length + 1];
+        cmd[0] = "sc";
+        System.arraycopy(args, 0, cmd, 1, args.length);
+        return cmd;
     }
 
     /**

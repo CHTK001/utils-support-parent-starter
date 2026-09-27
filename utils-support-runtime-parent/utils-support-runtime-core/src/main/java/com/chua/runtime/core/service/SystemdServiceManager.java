@@ -2,6 +2,7 @@ package com.chua.runtime.core.service;
 
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
+import com.chua.common.support.lang.cmd.LineCallback;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.runtime.core.model.ManagedService;
 import java.util.logging.Level;
@@ -35,6 +36,11 @@ public class SystemdServiceManager implements ServiceManager {
      */
     private static final int CMD_TIMEOUT = 30;
 
+    /**
+     * 让 systemd 重新读取单元文件的固定参数
+     */
+    private static final String[] SYSTEMCTL_RELOAD = {"systemctl", "daemon-reload"};
+
     @Override
     /**
      * 名称
@@ -52,7 +58,7 @@ public class SystemdServiceManager implements ServiceManager {
         if (!os.contains("nix") && !os.contains("nux")) {
             return false;
         }
-        return CmdExecutors.execute("which systemctl", 5, TimeUnit.SECONDS).isSuccess();
+        return CmdExecutors.execute(new String[]{"which", "systemctl"}, 5, TimeUnit.SECONDS).isSuccess();
     }
 
     @Override
@@ -63,14 +69,14 @@ public class SystemdServiceManager implements ServiceManager {
         LOG.log(Level.INFO, String.format("正在安装 systemd 服务[%s]", service.getServiceName()));
         try {
             String content = generateServiceFile(service);
+            Path svc = unitFile(service.getServiceName());
             String tmp = "/tmp/" + service.getServiceName() + ".service";
             Files.writeString(Path.of(tmp), content);
-            Path svc = Paths.get(SYSTEMD_DIR, service.getServiceName() + ".service");
-            CmdResult r = CmdExecutors.execute("cp " + tmp + " " + svc, CMD_TIMEOUT, TimeUnit.SECONDS);
+            CmdResult r = CmdExecutors.execute(new String[]{"cp", tmp, svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
             if (!r.isSuccess()) {
-                r = CmdExecutors.execute("sudo cp " + tmp + " " + svc, CMD_TIMEOUT, TimeUnit.SECONDS);
+                r = CmdExecutors.execute(new String[]{"sudo", "cp", tmp, svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
             }
-            CmdExecutors.execute("rm -f " + tmp, 5, TimeUnit.SECONDS);
+            CmdExecutors.execute(new String[]{"rm", "-f", tmp}, 5, TimeUnit.SECONDS);
             if (!r.isSuccess()) {
                 return CmdResult.builder()
                         .exitCode(r.getExitCode())
@@ -78,7 +84,7 @@ public class SystemdServiceManager implements ServiceManager {
                         .command("install service " + service.getServiceName())
                         .build();
             }
-            CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT, TimeUnit.SECONDS);
+            CmdExecutors.execute(SYSTEMCTL_RELOAD, CMD_TIMEOUT, TimeUnit.SECONDS);
             if ("auto".equalsIgnoreCase(service.getStartupType())) {
                 enable(service.getServiceName());
             }
@@ -105,13 +111,13 @@ public class SystemdServiceManager implements ServiceManager {
     */
     public CmdResult uninstall(String serviceName) {
         stop(serviceName);
-        CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
-        Path svc = Paths.get(SYSTEMD_DIR, serviceName + ".service");
-        CmdResult r = CmdExecutors.execute("rm -f " + svc, CMD_TIMEOUT, TimeUnit.SECONDS);
+        CmdExecutors.execute(systemctl("disable", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
+        Path svc = unitFile(serviceName);
+        CmdResult r = CmdExecutors.execute(new String[]{"rm", "-f", svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
         if (!r.isSuccess()) {
-            CmdExecutors.execute("sudo rm -f " + svc, CMD_TIMEOUT, TimeUnit.SECONDS);
+            CmdExecutors.execute(new String[]{"sudo", "rm", "-f", svc.toString()}, CMD_TIMEOUT, TimeUnit.SECONDS);
         }
-        CmdExecutors.execute("systemctl daemon-reload", CMD_TIMEOUT, TimeUnit.SECONDS);
+        CmdExecutors.execute(SYSTEMCTL_RELOAD, CMD_TIMEOUT, TimeUnit.SECONDS);
         LOG.log(Level.INFO, String.format("systemd 服务[%s] 卸载完成", serviceName));
         return r;
     }
@@ -121,7 +127,7 @@ public class SystemdServiceManager implements ServiceManager {
      * 开始
     */
     public CmdResult start(String serviceName) {
-        return CmdExecutors.execute("systemctl start \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("start", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -129,7 +135,7 @@ public class SystemdServiceManager implements ServiceManager {
      * 停止
     */
     public CmdResult stop(String serviceName) {
-        return CmdExecutors.execute("systemctl stop \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("stop", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -137,7 +143,7 @@ public class SystemdServiceManager implements ServiceManager {
      * Restart
     */
     public CmdResult restart(String serviceName) {
-        return CmdExecutors.execute("systemctl restart \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("restart", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -145,7 +151,10 @@ public class SystemdServiceManager implements ServiceManager {
      * 状态
     */
     public CmdResult status(String serviceName) {
-        return CmdExecutors.execute("systemctl status \"" + serviceName + "\" 2>&1", CMD_TIMEOUT, TimeUnit.SECONDS);
+        // 状态输出含错误流，走已合并 stderr 的实时输出通道
+        return CmdExecutors.executeWithOutput(systemctl("status", serviceName),
+                CMD_TIMEOUT, TimeUnit.SECONDS, new LineCallback() {
+                });
     }
 
     @Override
@@ -153,7 +162,7 @@ public class SystemdServiceManager implements ServiceManager {
      * 启用
     */
     public CmdResult enable(String serviceName) {
-        return CmdExecutors.execute("systemctl enable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("enable", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -161,7 +170,7 @@ public class SystemdServiceManager implements ServiceManager {
      * 禁用
     */
     public CmdResult disable(String serviceName) {
-        return CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
+        return CmdExecutors.execute(systemctl("disable", serviceName), CMD_TIMEOUT, TimeUnit.SECONDS);
     }
 
     @Override
@@ -169,8 +178,9 @@ public class SystemdServiceManager implements ServiceManager {
      * 是否已启用
     */
     public boolean isEnabled(String serviceName) {
-        CmdResult r = CmdExecutors.execute("systemctl is-enabled \"" + serviceName + "\" 2>&1",
-                CMD_TIMEOUT, TimeUnit.SECONDS);
+        CmdResult r = CmdExecutors.executeWithOutput(systemctl("is-enabled", serviceName),
+                CMD_TIMEOUT, TimeUnit.SECONDS, new LineCallback() {
+                });
         return r.isSuccess() && "enabled".equals(r.getStdout().trim());
     }
 
@@ -179,10 +189,36 @@ public class SystemdServiceManager implements ServiceManager {
      * 是否Installed
     */
     public boolean isInstalled(String serviceName) {
-        Path svc = Paths.get(SYSTEMD_DIR, serviceName + ".service");
-        CmdResult r = CmdExecutors.execute(
-                "test -f " + svc + " && echo yes || echo no", CMD_TIMEOUT, TimeUnit.SECONDS);
-        return r.isSuccess() && "yes".equals(r.getStdout().trim());
+        Path svc = unitFile(serviceName);
+        return Files.isRegularFile(svc);
+    }
+
+    /**
+     * 组装 systemctl 子命令，服务名独占一个参数位。
+     *
+     * @param verb 子命令
+     * @param serviceName 服务名
+     * @return 进程参数数组
+     */
+    private static String[] systemctl(String verb, String serviceName) {
+        return new String[]{"systemctl", verb, serviceName};
+    }
+
+    /**
+     * 解析 systemd 单元文件路径，并拒绝含路径分隔符的服务名。
+     *
+     * <p>服务名会拼进单元文件路径并交给 {@code cp} / {@code rm -f}，若允许 {@code ../}
+     * 就能读写删除 {@code /etc/systemd/system} 之外的任意文件。</p>
+     *
+     * @param serviceName 服务名
+     * @return 单元文件路径
+     */
+    private static Path unitFile(String serviceName) {
+        if (serviceName == null || serviceName.isBlank()
+                || serviceName.indexOf('/') >= 0 || serviceName.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("非法的 systemd 服务名: " + serviceName);
+        }
+        return Paths.get(SYSTEMD_DIR, serviceName + ".service");
     }
 
     /**
