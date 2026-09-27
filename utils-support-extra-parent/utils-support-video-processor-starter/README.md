@@ -43,3 +43,14 @@ utils-support-video-processor-starter
 ├── utils-support-native-video-processor
 ├── utils-support-ffmpeg-rust-starter
 ```
+
+---
+
+## 原生库与构建
+
+Rust 源码与 JNI 绑定 `VideoProcessorBridge` 均由 `utils-support-native-video-processor` 提供：
+
+- 源码 / 构建脚本：`utils-support-native-video-processor/src/main/rust/build.sh`
+- 四平台产物：`utils-support-native-video-processor/src/main/resources/native/`
+
+本模块不再包含任何原生源码。

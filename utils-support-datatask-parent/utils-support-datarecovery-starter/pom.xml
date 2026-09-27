@@ -12,9 +12,6 @@
     <artifactId>utils-support-datarecovery-starter</artifactId>
     <name>Utils Support DataRecovery Starter</name>
     <description>Data recovery native FFI (Rust JNI)</description>
-    <properties>
-        <rust.skip>true</rust.skip>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
@@ -26,10 +23,10 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- DataRecovery JNI 绑定已迁入 native 模块，包名仍为
+        <!-- DataRecovery JNI 绑定与 Rust 源码均已迁入 native 模块，包名仍为
              com.chua.datarecovery.support（原生符号写死了该全限定名）。
-             本模块此前未声明任何 native 依赖，native 库实际不在 classpath 上；
-             绑定迁出后必须显式声明，否则编译期找不到该类。 -->
+             本模块只保留业务侧，原生库与构建由 utils-support-native-datarecovery
+             提供（其 src/main/rust + CI native-datarecovery.yml）。 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-datarecovery</artifactId>
@@ -44,109 +41,4 @@
         </dependency>
 
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>build-native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>cmd</executable>
-                                    <arguments>
-                                        <argument>/c</argument>
-                                        <argument>build.bat</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                    <environmentVariables>
-                                        <CARGO_HTTP_CHECK_REVOKE>false</CARGO_HTTP_CHECK_REVOKE>
-                                    </environmentVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>build-native-linux</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>bash</executable>
-                                    <arguments>
-                                        <argument>build.sh</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>build-native-macos</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>bash</executable>
-                                    <arguments>
-                                        <argument>build.sh</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

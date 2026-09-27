@@ -12,18 +12,16 @@
     <artifactId>utils-support-video-processor-starter</artifactId>
     <name>Utils Support Video Processor Starter</name>
     <description>视频转 HLS 处理器（Rust JNI）</description>
-    <properties>
-        <rust.skip>true</rust.skip>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Rust JNI 桥：绑定类 VideoProcessorBridge 已迁入 native 模块，
-             故必须是 compile scope（原为 runtime，那时类是本模块的源文件），
-             否则编译期看不到 com.chua.video.processor.support.bridge 包 -->
+        <!-- Rust JNI 桥与 Rust 源码均已迁入 native 模块：绑定类 VideoProcessorBridge
+             位于 utils-support-native-video-processor，并且是该模块的源文件，故必须是
+             compile scope，否则编译期看不到 com.chua.video.processor.support.bridge 包。
+             原生库构建（src/main/rust/build.sh）同样由 native 模块负责。 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-native-video-processor</artifactId>
@@ -39,109 +37,4 @@
         </dependency>
 
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>build-native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>cmd</executable>
-                                    <arguments>
-                                        <argument>/c</argument>
-                                        <argument>build.bat</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                    <environmentVariables>
-                                        <CARGO_HTTP_CHECK_REVOKE>false</CARGO_HTTP_CHECK_REVOKE>
-                                    </environmentVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>build-native-linux</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>bash</executable>
-                                    <arguments>
-                                        <argument>build.sh</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>build-native-macos</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>build-rust-native</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${rust.skip}</skip>
-                                    <executable>bash</executable>
-                                    <arguments>
-                                        <argument>build.sh</argument>
-                                        <argument>release</argument>
-                                    </arguments>
-                                    <workingDirectory>${project.basedir}/src/main/rust</workingDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
