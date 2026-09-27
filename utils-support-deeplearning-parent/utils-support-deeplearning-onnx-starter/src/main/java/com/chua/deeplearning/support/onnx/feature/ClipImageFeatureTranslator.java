@@ -105,23 +105,34 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
         int cropY = Math.max(0, (resizedHeight - IMAGE_SIZE) / 2);
         Image cropped = resized.getSubImage(cropX, cropY, IMAGE_SIZE, IMAGE_SIZE);
 
-        NDArray array = cropped.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        NDArray hwc = cropped.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
-        //                       FLOAT32
-        if (!array.getDataType().equals(DataType.FLOAT32)) {
-            array = array.toType(DataType.FLOAT32, false);
+        // 归一化在 Java 侧完成，避免使用 transpose / div / sub / expandDims 等 NDArray 运算：
+        // 这些运算在 NDArrayAdapter（ONNX Runtime 引擎的 NDArray 实现）下需要借助「替代引擎」
+        // 转换（getAlternativeArray），而当前类路径只有 onnxruntime 与 tokenizers(Rust) 两个引擎，
+        // Rust 引擎几乎未实现这些算子，会直接抛 UnsupportedOperationException。
+        // 这里只保留 toNDArray / toFloatArray / create 这类各引擎都支持的基础能力。
+        float[] pixels = hwc.toFloatArray();
+        int h = cropped.getHeight();
+        int w = cropped.getWidth();
+        float[] nchw = new float[3 * h * w];
+        int planeSize = h * w;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int hwcIndex = (y * w + x) * 3;
+                int spatial = y * w + x;
+                for (int c = 0; c < 3; c++) {
+                    float v = pixels[hwcIndex + c];
+                    if (v > 1f) {
+                        v = v / 255f;
+                    }
+                    nchw[c * planeSize + spatial] = (v - IMAGE_MEAN[c]) / IMAGE_STD[c];
+                }
+            }
         }
 
-        // HWC -> CHW                 [0, 1]
-        array = array.transpose(2, 0, 1).div(255f);
-
-        //             (x - mean) / std
-        NDArray mean = ctx.getNDManager().create(IMAGE_MEAN, new Shape(3, 1, 1));
-        NDArray std = ctx.getNDManager().create(IMAGE_STD, new Shape(3, 1, 1));
-        array = array.sub(mean).div(std);
-
-        //                    [C, H, W] -> [1, C, H, W]
-        array = array.expandDims(0);
+        // [1, C, H, W]
+        NDArray array = ctx.getNDManager().create(nchw, new Shape(1, 3, h, w));
 
         return new NDList(array);
     }
