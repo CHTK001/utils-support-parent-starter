@@ -29,7 +29,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.invoker.version>3.3.0</maven.invoker.version>
         <maven.shared.utils.version>4.0</maven.shared.utils.version>
-        <slf4j.version>2.1.0-alpha2</slf4j.version>
+        <!-- slf4j 版本统一由根 pom 的 ${slf4j.version} 管理，本模块不得覆盖：
+             2.1.0-alpha2 在 alimaven / central / huaweicloud 等所有仓库均不存在，会导致依赖解析失败。 -->
     </properties>
     <dependencies>
         <dependency>

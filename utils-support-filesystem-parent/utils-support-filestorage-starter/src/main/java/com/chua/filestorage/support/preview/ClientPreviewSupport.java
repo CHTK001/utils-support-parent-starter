@@ -229,15 +229,15 @@ public final class ClientPreviewSupport {
      * <p>判定顺序：</p>
      * <ol>
      *   <li>扩展名属于传统二进制家族（doc / xls / ppt）时<strong>只看魔数</strong>：
-     *       命中 OLE2 头则确认是传统格式（交服务端 POI 处理，返回 {@ 空}）；
+     *       命中 OLE2 头则确认是传统格式（交服务端 POI 处理，返回 {@code null}）；
      *       命中 ZIP 头则进一步扫描 OOXML 部件路径，按真实类型给出渲染器
      *       （{@code .doc} 里装的是 docx → 返回 {@link #RENDERER_DOCX}）。</li>
      *   <li>其他扩展名仍按扩展名判定（{@code docx / xlsx / pdf} 等无需嗅探）。</li>
      * </ol>
      *
-     * @param content   文件字节；可为 {@ 空}（此时退化为纯扩展名判定）
-     * @param extension 文件扩展名（小写，不含点）；可为 {@ 空}
-     * @return 渲染器标识；应走服务端渲染时返回 {@ 空}
+     * @param content   文件字节；可为 {@code null}（此时退化为纯扩展名判定）
+     * @param extension 文件扩展名（小写，不含点）；可为 {@code null}
+     * @return 渲染器标识；应走服务端渲染时返回 {@code null}
      */
     public static String rendererOfSniffed(byte[] content, String extension) {
         String ext = extension == null ? "" : extension.toLowerCase(Locale.ENGLISH);
@@ -264,8 +264,8 @@ public final class ClientPreviewSupport {
     /**
      * 判断是否可由客户端组件直渲染（结合内容魔数）。
      *
-     * @param content   文件字节；可为 {@ 空}
-     * @param extension 文件扩展名（小写，不含点）；可为 {@ 空}
+     * @param content   文件字节；可为 {@code null}
+     * @param extension 文件扩展名（小写，不含点）；可为 {@code null}
      * @return true 表示支持客户端直渲染
      */
     public static boolean isClientRenderableSniffed(byte[] content, String extension) {
@@ -276,7 +276,7 @@ public final class ClientPreviewSupport {
      * 扫描 ZIP 容器内的部件路径，识别真实 OOXML 类型。
      *
      * @param content ZIP 字节
-     * @return 渲染器标识；非已知 OOXML 返回 {@ 空}
+     * @return 渲染器标识；非已知 OOXML 返回 {@code null}
      */
     private static String sniffOoxmlRenderer(byte[] content) {
         int limit = Math.min(content.length, OOXML_SNIFF_LIMIT);

@@ -32,7 +32,7 @@ final class CRC {
     private int crc = 0xffffffff;
 
     static {
- // 初始化 CRC table
+        // initialize CRC table
         for (int n = 0; n < 256; n++) {
             int c = n;
             for (int k = 0; k < 8; k++) {
@@ -60,8 +60,8 @@ final class CRC {
      * 更新。
      *
      * @param data 数据，不允许为 null
-     * @param off 方法入参 off
-     * @param len 方法入参 len
+     * @param off  起始偏移
+     * @param len  字节数
      */
     void update(byte[] data, int off, int len) {
         int c = crc;

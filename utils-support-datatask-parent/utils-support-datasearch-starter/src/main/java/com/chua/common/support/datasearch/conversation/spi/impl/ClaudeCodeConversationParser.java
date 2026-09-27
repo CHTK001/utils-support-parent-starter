@@ -16,9 +16,9 @@ import java.util.List;
  *
  * <p>Claude Code persists every session as a JSONL transcript under
  * {@code ~/.claude/projects/<encoded-path>/<sessionId>.jsonl}; user and
- * assistant 事件 carry the 对话 内容. 文本 blocks are emitted with
- * 完整 内容; thinking / tool_use / tool_结果 blocks are emitted as
- * 类型 记号笔 with 空 内容.</p>
+ * assistant events carry the conversation content. Text blocks are emitted with
+ * full content; thinking / tool_use / tool_result blocks are emitted as
+ * typed markers with empty content.</p>
  *
  * @author CH
  * @since 4.0.0.42

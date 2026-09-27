@@ -55,7 +55,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
 
     // 支持的图像写入服务提供者名称列表
     /**
-     * 写入器spinames
+     * 对应的写出器 SPI 名称列表
     */
     private static final String[] writerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageWriterSpi"
@@ -63,7 +63,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
 
     /**
      * 构造函数
-     * 初始化 镜像读取spi 的基本信息
+     * 初始化图像读取 SPI 的基本信息
      */
     public PNGImageReaderSpi() {
         super(vendorName,
@@ -136,7 +136,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
      * 创建图像阅读器实例
      *
      * @param extension 扩展对象，可以为空
-     * @return 返回新PNGImageReader 实例
+     * @return 新建的 PNGImageReader 实例
      */
     public ImageReader createReaderInstance(Object extension) {
         return new PNGImageReader(this);

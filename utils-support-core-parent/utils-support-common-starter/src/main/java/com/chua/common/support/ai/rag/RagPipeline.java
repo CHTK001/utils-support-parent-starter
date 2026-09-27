@@ -368,6 +368,10 @@ public class RagPipeline implements RagClient {
                 }).taskEnd()
                 .task(NODE_GENERATE, ctx -> {
                     RagContext rc = current(ctx);
+                    // 纯检索场景：跳过 LLM 调用，来源已由 过滤 节点产出
+                    if (rc.skipGenerate()) {
+                        return null;
+                    }
                     String prompt = buildPrompt(rc);
                     String answer = setting.getChatClient().chatSync(prompt);
                     rc.currentAnswer(answer);
@@ -696,6 +700,18 @@ public class RagPipeline implements RagClient {
         rc.query(query);
         rc.topK(topK);
         rc.threshold(similarityThreshold);
+        runQuery(rc);
+        return rc.currentResponse();
+    }
+
+    @Override
+    public RagResponse search(String query, int topK, double similarityThreshold) {
+        RagContext rc = new RagContext();
+        rc.query(query);
+        rc.topK(topK);
+        rc.threshold(similarityThreshold);
+        // 纯检索：跳过 生成 节点，只走 嵌入→检索→过滤→收集
+        rc.skipGenerate(true);
         runQuery(rc);
         return rc.currentResponse();
     }
@@ -1113,6 +1129,10 @@ public class RagPipeline implements RagClient {
          */
         private RagResponse currentResponse;
         /**
+         * 是否跳过 生成 节点（纯检索场景：只做 嵌入→检索→过滤→收集，不调用 LLM）
+         */
+        private boolean skipGenerate;
+        /**
          * 是否处理中（预留）
          */
         private boolean processing;
@@ -1257,6 +1277,18 @@ public class RagPipeline implements RagClient {
          * 设置查询响应
          */
         public void currentResponse(RagResponse currentResponse) { this.currentResponse = currentResponse; }
+        /**
+         * 获取跳过生成标志
+         *
+         * @return 为 true 时只检索不调用 LLM
+         */
+        public boolean skipGenerate() { return skipGenerate; }
+        /**
+         * 设置跳过生成标志
+         *
+         * @param skipGenerate 为 true 时只检索不调用 LLM
+         */
+        public void skipGenerate(boolean skipGenerate) { this.skipGenerate = skipGenerate; }
         /**
          * 获取处理中标志
          */

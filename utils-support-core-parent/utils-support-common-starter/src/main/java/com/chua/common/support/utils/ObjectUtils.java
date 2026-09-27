@@ -268,10 +268,10 @@ public class ObjectUtils {
 
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(Object[] array) {
         if (array == null) {
@@ -285,10 +285,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(boolean[] array) {
         if (array == null) {
@@ -302,10 +302,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(byte[] array) {
         if (array == null) {
@@ -319,10 +319,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(char[] array) {
         if (array == null) {
@@ -336,10 +336,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(double[] array) {
         if (array == null) {
@@ -353,10 +353,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(float[] array) {
         if (array == null) {
@@ -370,10 +370,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(int[] array) {
         if (array == null) {
@@ -387,10 +387,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(long[] array) {
         if (array == null) {
@@ -404,10 +404,10 @@ public class ObjectUtils {
     }
 
     /**
-     * 返回 a 哈希 编码 基础 on the 内容 的 the specified array.
-     * If {@code array} 是否 {@code null}, this 方法 返回 0.
+     * Returns a hash code based on the contents of the specified array.
+     * If {@code array} is {@code null}, this method returns 0.
      * @param array array
-     * @return 空安全哈希编码的结果
+     * @return a null safe hash code based on the content of the array
      */
     public static int nullSafeHashCode(short[] array) {
         if (array == null) {
@@ -554,12 +554,12 @@ public class ObjectUtils {
 
 
     /**
-     * 返回 a 字符串 representation 的 the specified 对象.
+     * Returns a String representation of the specified object.
      * <p>Builds a String representation of the contents in case of an array.
-     * 返回 a {@code "null"} 字符串 if {@code obj} 是否 {@code null}.
+     * Returns a {@code "null"} String if {@code obj} is {@code null}.
      *
-     * @param obj the 对象 转为 构建 a 字符串 representation for
-     * @return a 字符串 representation 的 {@code obj}
+     * @param obj the object to build a String representation for
+     * @return a String representation of {@code obj}
      */
     public static String nullSafeToString(Object obj) {
         if (obj == null) {

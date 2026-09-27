@@ -37,14 +37,14 @@ import javax.annotation.Nullable;
  */
 public class PNGMetadata extends IIOMetadata implements Cloneable {
 
- // 包 scope
+    // Package scope
     public static final String
-        nativeMetadataFormatName = "javax_imageio_png_1.0"; // natmetadata格式化名称
+        nativeMetadataFormatName = "javax_imageio_png_1.0"; // Native metadata format name
 
     protected static final String nativeMetadataFormatClassName
         = "com.tianscar.imageio.plugins.png.PNGMetadataFormat";
 
- // Color 类型 for IHDR chunk
+    // Color type for IHDR chunk
     static final String[] IHDR_colorTypeNames = {
         "Grayscale", null, "RGB", "Palette",
         "GrayAlpha", null, "RGBAlpha"
@@ -54,32 +54,32 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         1, 0, 3, 3, 2, 0, 4
     };
 
- // 位深度 for IHDR chunk
+    // Bit depth for IHDR chunk
     static final String[] IHDR_bitDepths = {
         "1", "2", "4", "8", "16"
     };
 
- // Compression 方法 for IHDR chunk
+    // Compression method for IHDR chunk
     static final String[] IHDR_compressionMethodNames = {
         "deflate"
     };
 
- // 过滤器 方法 for IHDR chunk
+    // Filter method for IHDR chunk
     static final String[] IHDR_filterMethodNames = {
         "adaptive"
     };
 
- // Interlace 方法 for IHDR chunk
+    // Interlace method for IHDR chunk
     static final String[] IHDR_interlaceMethodNames = {
         "none", "adam7"
     };
 
- // Compression 方法 for iccp chunk
+    // Compression method for iccp chunk
     static final String[] iCCP_compressionMethodNames = {
         "deflate"
     };
 
- // Compression 方法 for ztxt chunk
+    // Compression method for ztxt chunk
     static final String[] zTXt_compressionMethodNames = {
         "deflate"
     };
@@ -92,11 +92,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
 
     // "Meter" unit for pHYs chunk
     /**
-     * Phys_unit_节拍
+     * Phys_unit_meter
     */
     public static final int PHYS_UNIT_METER = 1;
 
- // Unit specifiers for phys chunk
+    // Unit specifiers for phys chunk
     static final String[] unitSpecifierNames = {
         "unknown", "meter"
     };
@@ -148,7 +148,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public int IHDR_bitDepth;
     /**
-     * Ihdr_color类型
+     * Ihdr_colorType
     */
     public int IHDR_colorType;
     /**
@@ -190,7 +190,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     // 除非 'initialize' 被传入
  // 索引颜色模型，否则 PLTE_order 为 null。
     /**
-     * Plte_订单
+     * Plte_order
     */
     public int[] PLTE_order = null;
 
@@ -204,11 +204,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
     // ;
     /**
-     * Bkgd_color类型
+     * Bkgd_colorType
     */
     public int bKGD_colorType;
     /**
-     * Bkgd_索引
+     * Bkgd_index
     */
     public int bKGD_index;
     /**
@@ -234,35 +234,35 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public boolean cHRM_present;
     /**
-     * Chrm_whitepointx坐标
+     * Chrm_whitePointX coordinate
     */
     public int cHRM_whitePointX;
     /**
-     * Chrm_whitepointy坐标
+     * Chrm_whitePointY coordinate
     */
     public int cHRM_whitePointY;
     /**
-     * Chrm_Rx坐标
+     * Chrm_redX coordinate
     */
     public int cHRM_redX;
     /**
-     * Chrm_Ry坐标
+     * Chrm_redY coordinate
     */
     public int cHRM_redY;
     /**
-     * Chrm_greenx坐标
+     * Chrm_greenX coordinate
     */
     public int cHRM_greenX;
     /**
-     * Chrm_greeny坐标
+     * Chrm_greenY coordinate
     */
     public int cHRM_greenY;
     /**
-     * Chrm_bluex坐标
+     * Chrm_blueX coordinate
     */
     public int cHRM_blueX;
     /**
-     * Chrm_bluey坐标
+     * Chrm_blueY coordinate
     */
     public int cHRM_blueY;
 
@@ -300,7 +300,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public int iCCP_compressionMethod;
     /**
-     * Iccp_compressed配置文件
+     * Iccp_compressedProfile
     */
     public byte[] iCCP_compressedProfile;
 
@@ -322,7 +322,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public int cICP_matrixCoefficients;
     /**
-     * Cicp_videofullrange标记
+     * Cicp_videoFullRangeFlag
     */
     public boolean cICP_videoFullRangeFlag;
 
@@ -332,7 +332,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public boolean eXIf_present;
     /**
-     * Exif_数据
+     * Exif_data
     */
     public byte[] eXIf_data;
 
@@ -342,7 +342,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public ArrayList<String> iTXt_keyword = new ArrayList<String>();
     /**
-     * Itxt_compression标记
+     * Itxt_compressionFlag
     */
     public ArrayList<Boolean> iTXt_compressionFlag = new ArrayList<Boolean>();
     /**
@@ -350,7 +350,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public ArrayList<Integer> iTXt_compressionMethod = new ArrayList<Integer>();
     /**
-     * Itxt_language标签
+     * Itxt_languageTag
     */
     public ArrayList<String> iTXt_languageTag = new ArrayList<String>();
     /**
@@ -358,7 +358,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public ArrayList<String> iTXt_translatedKeyword = new ArrayList<String>();
     /**
-     * Itxt_文本
+     * Itxt_text
     */
     public ArrayList<String> iTXt_text = new ArrayList<String>();
 
@@ -368,11 +368,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     */
     public boolean pHYs_present;
     /**
-     * Phys_pixelsper单位xaxis
+     * Phys_pixelsPerUnitXAxis
     */
     public int pHYs_pixelsPerUnitXAxis;
     /**
-     * Phys_pixelsper单位yaxis
+     * Phys_pixelsPerUnitYAxis
     */
     public int pHYs_pixelsPerUnitYAxis;
         // 0 == unknown, 1 == meter
@@ -390,7 +390,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
         // ;
         /**
-         * Sbit_color类型
+         * Sbit_colorType
         */
         public int sBIT_colorType;
     /**
@@ -422,7 +422,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         // 1-79 characters
         // ;
         /**
-         * Splt_palette名称
+         * Splt_paletteName
         */
         public String sPLT_paletteName;
  // 8 或 16
@@ -560,7 +560,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
     */
     /**
-     * tEXtcreation时间present
+     * tEXtCreationTime present
     */
     public boolean tEXt_creation_time_present;
     /**
@@ -582,7 +582,7 @@ public boolean tRNS_present;
  // PNG_COLOR_GRAY, _RGB, 或 _PALETTE
     // ;
     /**
-     * Trns_color类型
+     * Trns_colorType
     */
     public int tRNS_colorType;
  // 条目数可能少于 PLTE_R 等表
@@ -610,11 +610,11 @@ public boolean tRNS_present;
 
  // ztxt chunk
     /**
-     * Z 轴txt_keyword
+     * ZTXt_keyword
     */
     public ArrayList<String> zTXt_keyword = new ArrayList<String>();
     /**
-     * Z 轴txt_compressionmethod
+     * ZTXt_compressionMethod
     */
     public ArrayList<Integer> zTXt_compressionMethod = new ArrayList<Integer>();
     /**
@@ -642,7 +642,7 @@ public boolean tRNS_present;
     */
     public boolean fcTL_present;
     /**
-     * fctl_sequence_数字
+     * fctl_sequence_number
     */
     public int fcTL_sequence_number;
     /**
@@ -684,22 +684,22 @@ public boolean tRNS_present;
     */
     public boolean fdAT_present;
     /**
-     * fdat_sequence_数字
+     * fdat_sequence_number
     */
     public int fdAT_sequence_number;
 
     // Unknown chunks
     /**
-     * Unknownchunk类型
+     * UnknownChunk_type
     */
     public ArrayList<String> unknownChunkType = new ArrayList<String>();
     /**
-     * Unknownchunk数据
+     * UnknownChunk_data
     */
     public ArrayList<byte[]> unknownChunkData = new ArrayList<byte[]>();
 
     /**
-     * 创建 pngmetadata 实例
+     * 创建 PNGMetadata 实例
     */
     public PNGMetadata() {
         super(true,
@@ -709,7 +709,7 @@ public boolean tRNS_present;
     }
 
     /**
-     * 创建 pngmetadata 实例。
+     * 创建 PNGMetadata 实例。
      * @param metadata metadata
      */
     public PNGMetadata(IIOMetadata metadata) {
@@ -717,20 +717,21 @@ public boolean tRNS_present;
               invokeString(metadata, "getNativeMetadataFormatName"),
               invokeString(metadata, "getNativeMetadataFormatClassName"),
               /**
-               * invoke布尔值。
-               * @param target Target
-               * @param methodName 方法名称
-               * @return invoke布尔值的结果
+               * 读取 {@code isNativeFormat} 布尔值。
+               *
+               * @param target     目标对象
+               * @param methodName 方法名
+               * @return 布尔值
                */
               null, null);
     }
 
     /**
-     * 调用Boolean。
+     * 反射调用无参 {@code boolean} 返回值的方法。
      *
      * @param target 目标，不允许为 null
      * @param methodName 方法名称，不允许为 null
-     * @return Boolean 对象
+     * @return 布尔值，调用失败时返回 {@code null}
      */
     private static Boolean invokeBoolean(Object target, String methodName) {
         try {
@@ -741,7 +742,7 @@ public boolean tRNS_present;
     }
 
     /**
-     * 调用字符串。
+     * 反射调用无参 {@code String} 返回值的方法。
      *
      * @param target 目标，不允许为 null
      * @param methodName 方法名称，不允许为 null
@@ -756,10 +757,10 @@ public boolean tRNS_present;
     }
 
     /**
-     * 初始化
+     * 按图像类型初始化元数据。
      *
      * @param imageType 图像类型
-     * @param numBands numbands
+     * @param numBands  通道数
      */
     public void initialize(ImageTypeSpecifier imageType, int numBands) {
         initialize(imageType.getColorModel(), imageType.getSampleModel(), numBands);
@@ -767,25 +768,26 @@ public boolean tRNS_present;
 
     /**
      * 设置 IHDR_bitDepth 和 IHDR_colorType 变量。
-     * The {@code numBands} 参数 是否 necessary 自
-     * 可能仅写入图像波段的一个子集。
-     * @param colorModel color模型
+     *
+     * <p>{@code numBands} 参数是必需的，因为可能只写入图像波段的一个子集。</p>
+     *
+     * @param colorModel 色彩模型
      * @param sampleModel 样本模型
-     * @param numBands numbands
+     * @param numBands   通道数
      */
     public void initialize(ColorModel colorModel, SampleModel sampleModel, int numBands) {
 
- // 初始化 IHDR_bitDepth
+        // Initialize IHDR_bitDepth
         int[] sampleSize = sampleModel.getSampleSize();
         int bitDepth = sampleSize[0];
- // 在所有通道中选择最大的位深
+        // 选择所有通道中最大的位深
         // Fixes bug 4413109
         for (int i = 1; i < sampleSize.length; i++) {
             if (sampleSize[i] > bitDepth) {
                 bitDepth = sampleSize[i];
             }
         }
- // 多通道图像必须具有 8 或 16 的位深
+        // 多通道图像的位深必须为 8 或 16
         if (sampleSize.length > 1 && bitDepth < 8) {
             bitDepth = 8;
         }
@@ -802,7 +804,7 @@ public boolean tRNS_present;
         }
         IHDR_bitDepth = bitDepth;
 
- // 初始化 IHDR_color类型
+        // Initialize IHDR_colorType
         if (colorModel instanceof IndexColorModel icm) {
             int size = icm.getMapSize();
 
@@ -814,7 +816,7 @@ public boolean tRNS_present;
             icm.getBlues(blues);
 
             // 判断颜色表是否实际上就是一条灰度渐变
- // if the color 类型 是否包含 not been 设置 上一个
+            // if the color type has not been set above
             boolean isGray = false;
             if (!IHDR_present ||
                 (IHDR_colorType != PNG.PNG_COLOR_PALETTE)) {
@@ -841,12 +843,12 @@ public boolean tRNS_present;
             }
 
             /*
-              * 注意: PNG_COLOR_GRAY_ALPHA 颜色类型可能不适合用于图像
-              * contained more than 1024 pixels (或 even than 768 pixels 入 大小写 的
-              * 单个 transparent pixel 入 palette).
-              * 对于此类图像, alpha 样本在光栅中将占用比
-              * 所需更多的空间来存储调色板,因此可以考虑
-              * 对大图像使用 PNG_COLOR_PALETTE 颜色类型。
+              * Note that the PNG_COLOR_GRAY_ALPHA color type may not be suitable
+              * for images contained more than 1024 pixels (or even than 768 pixels in
+              * the case of a single transparent pixel in palette).
+              * For such images, the alpha samples in the raster will take up more
+              * space than required to store the palette, thus it's better to consider
+              * using the PNG_COLOR_PALETTE color type for large images.
              */
 
             if (isGray && hasAlpha && (bitDepth == 8 || bitDepth == 16)) {
@@ -876,8 +878,8 @@ public boolean tRNS_present;
 
                     byte[] newAlpha = new byte[alpha.length];
 
- // 扫描 for non-opaque entries 和 assign them
- // 位置 启动 at 0.
+                    // Scan for non-opaque entries and assign them
+                    // positions starting at 0.
                     int newIndex = 0;
                     for (int i = 0; i < alpha.length; i++) {
                         if (alpha[i] != (byte)255) {
@@ -888,8 +890,8 @@ public boolean tRNS_present;
                     }
                     int numTransparent = newIndex;
 
- // 扫描 for opaque entries 和 assign them
- // 位置 following the non-opaque entries.
+                    // Scan for opaque entries and assign them
+                    // positions following the non-opaque entries.
                     for (int i = 0; i < alpha.length; i++) {
                         if (alpha[i] == (byte)255) {
                             PLTE_order[i] = newIndex++;
@@ -900,7 +902,7 @@ public boolean tRNS_present;
                     byte[] oldRed = PLTE_red;
                     byte[] oldGreen = PLTE_green;
                     byte[] oldBlue = PLTE_blue;
- // 全部 have the same 长度
+                    // All have the same length
                     // = oldRed.length;
                     int len = oldRed.length;
                     PLTE_red = new byte[len];
@@ -912,7 +914,7 @@ public boolean tRNS_present;
                         PLTE_blue[PLTE_order[i]] = oldBlue[i];
                     }
 
- // 副本 only the transparent entries into trns_alpha
+                    // Copy only the transparent entries into trns_alpha
                     tRNS_alpha = new byte[numTransparent];
                     System.arraycopy(newAlpha, 0,
                                      tRNS_alpha, 0, numTransparent);
@@ -945,10 +947,10 @@ public boolean tRNS_present;
     }
 
     /**
-     * clonebytesarray列表
+     * 克隆 {@code byte[]} 列表，每个元素做深拷贝。
      *
-     * @param in 入
-     * @return clonebytesarray列表的结果
+     * @param in 原始列表
+     * @return 克隆后的列表，入参为 {@code null} 时返回 {@code null}
      */
     private ArrayList<byte[]> cloneBytesArrayList(ArrayList<byte[]> in) {
         if (in == null) {
@@ -966,7 +968,7 @@ public boolean tRNS_present;
     /**
      * Clone
      *
-     * @return clone的结果
+     * @return 深拷贝后的元数据对象
      */
     public Object clone() {
         PNGMetadata metadata;
@@ -976,7 +978,7 @@ public boolean tRNS_present;
             return null;
         }
 
- // unknownchunk数据 needs deep clone
+        // unknownChunkData needs deep clone
         metadata.unknownChunkData =
             cloneBytesArrayList(this.unknownChunkData);
 
@@ -984,10 +986,10 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取as树
+     * 按指定格式名称获取元数据树。
      *
-     * @param formatName 格式化名称
-     * @return 获取as树的结果
+     * @param formatName 格式名称，取 {@code javax_imageio_png_1.0} 或标准格式名
+     * @return 对应格式的元数据树
      */
     public Node getAsTree(String formatName) {
         if (formatName.equals(nativeMetadataFormatName)) {
@@ -1001,9 +1003,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取NAT树
+     * 获取 PNG 原生格式元数据树。
      *
-     * @return 获取NAT树的结果
+     * @return 原生格式元数据树
      */
     private Node getNativeTree() {
  // scratch 节点
@@ -1020,10 +1022,10 @@ public boolean tRNS_present;
                                    Integer.toString(IHDR_bitDepth));
             IHDR_node.setAttribute("colorType",
                                    IHDR_colorTypeNames[IHDR_colorType]);
- // IHDR_compression方法 must be 0 入 PNG 1.1
+        // IHDR_compressionMethod must be 0 in PNG 1.1
             IHDR_node.setAttribute("compressionMethod",
                           IHDR_compressionMethodNames[IHDR_compressionMethod]);
- // IHDR_过滤器方法 must be 0 入 PNG 1.1
+        // IHDR_filterMethod must be 0 in PNG 1.1
             IHDR_node.setAttribute("filterMethod",
                                     IHDR_filterMethodNames[IHDR_filterMethod]);
             IHDR_node.setAttribute("interlaceMethod",
@@ -1396,12 +1398,12 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取num通道
+     * 获取通道数。
      *
-     * @return 获取num通道的结果
+     * @return 当前图像的通道数，调色板带透明时为 4
      */
     private int getNumChannels() {
- // Determine 数字 的 通道
+        // Determine number of channels
         // Be careful about palette color with transparency
         int numChannels = IHDR_numChannels[IHDR_colorType];
         if (IHDR_colorType == PNG.PNG_COLOR_PALETTE &&
@@ -1412,9 +1414,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准chroma节点
+     * 获取标准格式的 Chroma 节点。
      *
-     * @return 获取标准chroma节点的结果
+     * @return 标准格式 Chroma 节点
      */
     public IIOMetadataNode getStandardChromaNode() {
         IIOMetadataNode chroma_node = new IIOMetadataNode("Chroma");
@@ -1491,9 +1493,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准compression节点
+     * 获取标准格式的 Compression 节点。
      *
-     * @return 获取标准compression节点的结果
+     * @return 标准格式 Compression 节点
      */
     public IIOMetadataNode getStandardCompressionNode() {
         IIOMetadataNode compression_node = new IIOMetadataNode("Compression");
@@ -1521,8 +1523,9 @@ public boolean tRNS_present;
      * Repeat
      *
      * @param s s
-     * @param times 时间
-     * @return repeat的结果
+     * @param s     待重复的字符串
+     * @param times 重复次数
+     * @return 以空格分隔重复 {@code times} 次的字符串
      */
     private String repeat(String s, int times) {
         if (times == 1) {
@@ -1735,9 +1738,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准transparency节点
+     * 获取标准格式的 Transparency 节点。
      *
-     * @return 获取标准transparency节点的结果
+     * @return 标准格式 Transparency 节点
      */
     public IIOMetadataNode getStandardTransparencyNode() {
         IIOMetadataNode transparency_node =
@@ -1773,7 +1776,7 @@ public boolean tRNS_present;
         return transparency_node;
     }
 
- // Shorthand for 抛出 an iioinvalid树异常
+        // Shorthand for throwing an IIOInvalidTreeException
     /**
      * Fatal
     */
@@ -1782,7 +1785,7 @@ public boolean tRNS_present;
         throw new IIOInvalidTreeException(reason, node);
     }
 
- // 获取 an integer-值 attribute
+        // Get an integer-valued attribute
     private static String getStringAttribute(Node node, String name,
                                       String defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1798,7 +1801,7 @@ public boolean tRNS_present;
     }
 
 
- // 获取 an integer-值 attribute
+        // Get an integer-valued attribute
     private static int getIntAttribute(Node node, String name,
                                 int defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1809,7 +1812,7 @@ public boolean tRNS_present;
         return Integer.parseInt(value);
     }
 
- // 获取 a float-值 attribute
+        // Get a float-valued attribute
     private static float getFloatAttribute(Node node, String name,
                                     float defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1820,25 +1823,35 @@ public boolean tRNS_present;
         return Float.parseFloat(value);
     }
 
- // 获取 a required integer-值 attribute
+        // Get a required integer-valued attribute
     /**
-     * 获取intattribute
-    */
+     * 获取必需的整型属性。
+     *
+     * @param node  元数据节点
+     * @param name  属性名
+     * @return 属性值
+     * @throws IIOInvalidTreeException 属性缺失或非整数
+     */
     private static int getIntAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getIntAttribute(node, name, -1, true);
     }
 
- // 获取 a required float-值 attribute
+        // Get a required float-valued attribute
     /**
-     * 获取floatattribute
-    */
+     * 获取必需的浮点型属性。
+     *
+     * @param node  元数据节点
+     * @param name  属性名
+     * @return 属性值
+     * @throws IIOInvalidTreeException 属性缺失或非浮点数
+     */
     private static float getFloatAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getFloatAttribute(node, name, -1.0F, true);
     }
 
- // 获取 a 布尔值-值 attribute
+        // Get a boolean-valued attribute
     private static boolean getBooleanAttribute(Node node, String name,
                                         boolean defaultValue,
                                         boolean required)
@@ -1852,7 +1865,7 @@ public boolean tRNS_present;
             }
         }
         String value = attr.getNodeValue();
- // Allow 降低 大小写 布尔值 for backward compatibility, #5082756
+        // Allow lower case boolean for backward compatibility, #5082756
         if (value.equals("TRUE") || value.equals("true")) {
             return true;
         } else if (value.equals("FALSE") || value.equals("false")) {
@@ -1863,16 +1876,21 @@ public boolean tRNS_present;
         }
     }
 
- // 获取 a required 布尔值-值 attribute
+        // Get a required boolean-valued attribute
     /**
-     * 获取布尔值attribute
-    */
+     * 获取必需的布尔型属性。
+     *
+     * @param node  元数据节点
+     * @param name  属性名
+     * @return 属性值
+     * @throws IIOInvalidTreeException 属性缺失或非 {@code TRUE}/{@code FALSE}
+     */
     private static boolean getBooleanAttribute(Node node, String name)
         throws IIOInvalidTreeException {
         return getBooleanAttribute(node, name, false, true);
     }
 
- // 获取 an enumerated attribute as an 索引 into a 字符串 array
+        // Get an enumerated attribute as an index into a String array
     private static int getEnumeratedAttribute(Node node,
                                        String name, String[] legalNames,
                                        int defaultValue, boolean required)
@@ -1896,14 +1914,14 @@ public boolean tRNS_present;
         return -1;
     }
 
- // 获取 a required enumerated attribute as an 索引 into a 字符串 array
+        // Get a required enumerated attribute as an index into a String array
     private static int getEnumeratedAttribute(Node node,
                                        String name, String[] legalNames)
         throws IIOInvalidTreeException {
         return getEnumeratedAttribute(node, name, legalNames, -1, true);
     }
 
- // 获取 a 字符串-值 attribute
+        // Get a String-valued attribute
     private static String getAttribute(Node node, String name,
                                 String defaultValue, boolean required)
         throws IIOInvalidTreeException {
@@ -1918,16 +1936,21 @@ public boolean tRNS_present;
         return attr.getNodeValue();
     }
 
- // 获取 a required 字符串-值 attribute
+        // Get a required String-valued attribute
     /**
-     * 获取Attribute
-    */
+     * 获取必需的字符串属性。
+     *
+     * @param node 元数据节点
+     * @param name 属性名
+     * @return 属性值
+     * @throws IIOInvalidTreeException 属性缺失
+     */
     private static String getAttribute(Node node, String name)
         throws IIOInvalidTreeException {
             return getAttribute(node, name, null, true);
     }
 
- // 获取 an 字符串-值 attribute
+        // Get an String-valued attribute
     private static String getStringAttribute(Node node, String name,
                                              String defaultValue,
                                              boolean required,
@@ -1967,7 +1990,7 @@ public boolean tRNS_present;
         return value;
     }
 
- // 获取 an integer-值 attribute
+        // Get an integer-valued attribute
     private static int getIntAttribute(Node node, String name,
                                        int defaultValue, boolean required,
                                        boolean bounded, int min, int max)
@@ -2093,7 +2116,7 @@ public boolean tRNS_present;
                 System.arraycopy(blue, 0, PLTE_blue, 0, numEntries);
                 PLTE_present = true;
             } else if (name.equals("bKGD")) {
- // Guard against 部分 overwrite
+        // Guard against partial overwrite
                 // sent = false;
                 bKGD_present = true;
                 Node bKGD_node = node.getFirstChild();
@@ -2243,7 +2266,7 @@ public boolean tRNS_present;
                                     iTXt_text.listIterator(index));
                         }
                     }
- // silently 跳过 invalid 文本 entry
+        // silently skip invalid text entry
 
                     iTXt_node = iTXt_node.getNextSibling();
                 }
@@ -2258,7 +2281,7 @@ public boolean tRNS_present;
 
                 pHYs_present = true;
             } else if (name.equals("sBIT")) {
- // Guard against 部分 overwrite
+        // Guard against partial overwrite
                 // sent = false;
                 sBIT_present = true;
                 Node sBIT_node = node.getFirstChild();
@@ -2390,7 +2413,7 @@ public boolean tRNS_present;
 
                 tIME_present = true;
             } else if (name.equals("tRNS")) {
- // Guard against 部分 overwrite
+        // Guard against partial overwrite
                 // sent = false;
                 tRNS_present = true;
                 Node tRNS_node = node.getFirstChild();
@@ -2569,18 +2592,18 @@ public boolean tRNS_present;
     }
 
     /*
-    * Accrding 转为 PNG spec, keywords are restricted 转为 1 转为 79 bytes
-    * 入 长度. Keywords shall contain only printable Latin-1 characters
-    * 和 spaces; 转为 reduce the chances for human misreading 的 a keyword,
-    * 铅 spaces, trailing spaces, 和 consecutive spaces are not
-    * permitted 入 keywords.
+    * <p>According to the PNG spec, keywords are restricted to 1 to 79 bytes
+    * in length. Keywords shall contain only printable Latin-1 characters
+    * and spaces; to reduce the chances for human misreading of a keyword,
+    * leading spaces, trailing spaces, and consecutive spaces are not
+    * permitted in keywords.</p>
     *
     * 参见: http://www.w3.org/TR/PNG/#11keywords
     */
     /**
      * 是否为有效关键字。
-     * @param s s
-     * @return 是否为有效关键字的结果
+     * @param s 候选关键字
+     * @return 长度在 1~79 且无首尾空格、无连续空格、字符均在 ISO Latin-1 范围内时返回 {@code true}
      */
     private boolean isValidKeyword(String s) {
         int len = s.length();
@@ -2594,26 +2617,27 @@ public boolean tRNS_present;
     }
 
     /*
-      * According 转为 PNG spec, keyword shall contain only printable
-      * Latin-1 [ISO-8859-1] characters 和 spaces; that 是否, only
-      * character 编码 32-126 和 161-255 decimal are allowed.
-      * For Latin-1 值 字段 the 0x10 (linefeed) control
-      * character 是否 aloowed too.
+      * <p>According to the PNG spec, keyword shall contain only printable
+      * Latin-1 [ISO-8859-1] characters and spaces; that is, only
+      * character codes 32-126 and 161-255 decimal are allowed.
+      * For Latin-1 values the 0x10 (linefeed) control
+      * character is allowed too.</p>
      *
       * 参见: http://www.w3.org/TR/PNG/#11keywords
      */
     /**
-     * 是否isolatin。
-     * @param s s
-     * @param isLineFeedAllowed 是否线feedallowed
-     * @return 是否为 ISO 拉丁字符的结果
+     * 是否为 ISO Latin-1 字符串。
+     *
+     * @param s                待检查的字符串
+     * @param isLineFeedAllowed 是否允许 0x10 (linefeed) 控制字符
+     * @return 全部字符均在 ISO Latin-1 可打印范围内返回 {@code true}
      */
     private boolean isISOLatin(String s, boolean isLineFeedAllowed) {
         int len = s.length();
         for (int i = 0; i < len; i++) {
             char c = s.charAt(i);
             if (c < 32 || c > 255 || (c > 126 && c < 161)) {
- // not printable. 检查 whether this 是否 an allowed
+                // not printable. Check whether this is an allowed
                 // control char
                 if (!isLineFeedAllowed || c != 0x10) {
                     return false;
@@ -2856,7 +2880,7 @@ public boolean tRNS_present;
                             getIntAttribute(child, "second", 0, false);
 //                  } else if (childName.equals("SubimageInterpretation")) {
                     } else if (childName.equals("ImageCreationTime")) {
- // Extract the 创建 时间 值
+        // Extract the Creation Time value
                         int year  = getIntAttribute(child, "year");
                         int month = getIntAttribute(child, "month");
                         int day   = getIntAttribute(child, "day");
@@ -2888,10 +2912,10 @@ public boolean tRNS_present;
                             getAttribute(child, "compression", "none", false);
 
                         if (!isValidKeyword(keyword)) {
- // Just ignore this 节点, PNG requires keywords
+        // Just ignore this node, PNG requires keywords
                         } else if (isISOLatin(value, true)) {
                             if (compression.equals("zip")) {
- // Use a ztxt 节点
+        // Use a zTXt node
                                 zTXt_keyword.add(keyword);
                                 zTXt_text.add(value);
                                 zTXt_compressionMethod.add(Integer.valueOf(0));
@@ -2901,7 +2925,7 @@ public boolean tRNS_present;
                                 tEXt_text.add(value);
                             }
                         } else {
- // Use an itxt 节点
+        // Use an iTXt node
                             iTXt_keyword.add(keyword);
                             iTXt_compressionFlag.add(Boolean.valueOf(compression.equals("zip")));
                             iTXt_compressionMethod.add(Integer.valueOf(0));
@@ -2941,7 +2965,7 @@ public boolean tRNS_present;
      * @param offsetDateTime 偏移量日期时间，不允许为 null
      */
     void initImageCreationTime(OffsetDateTime offsetDateTime) {
- // 检查 for 收入 参数
+        // Check for Creation Time entry
         if (offsetDateTime != null) {
  // 设置构成标准/文档/图像创建时间的各个值
             creation_time_present = true;
@@ -2976,12 +3000,12 @@ public boolean tRNS_present;
      * @param iterChunk iter分块，不允许为 null
      */
     void decodeImageCreationTimeFromTextChunk(ListIterator<String> iterChunk) {
- // 检查 for 收入 参数
+        // Check for Creation Time entry
         if (iterChunk != null && iterChunk.hasNext()) {
             /*
               * 保存迭代器,以标记最后一个解码的含创建时间的文本块
-              * 创建 时间. The 内容 的 this chunk will be 更新 When.js
-              * 用户 provides 创建 时间 by 合并 a 标准 树 with
+              * Creation Time. The contents of this chunk will be updated when the
+              * user provides a Creation Time by merging a standard tree with
               * 标准/文档/镜像创建时间.
              */
             setCreationTimeChunk(iterChunk);
@@ -2998,7 +3022,7 @@ public boolean tRNS_present;
     void encodeImageCreationTimeToTextChunk() {
  // 检查标准/文档/图像创建时间是否存在。
         if (creation_time_present) {
- // 检查 if a 文本 chunk with 创建 时间 exists.
+        // Check if a text chunk with Creation Time exists.
             if (!tEXt_creation_time_present) {
  // 不存在包含图像创建时间的文本块。添加一项。
                 this.tEXt_keyword.add(tEXt_creationTimeKey);
@@ -3036,13 +3060,13 @@ public boolean tRNS_present;
     /**
      * 设置encoded时间
      *
-     * @param encodedTime encoded时间
+     * @param encodedTime 编码后的时间字符串
      */
     private void setEncodedTime(String encodedTime) {
         if (tEXt_creation_time_iter != null
                 && tEXt_creation_time_iter.hasNext()
                 && encodedTime != null) {
- // 设置 the 值 at the 迭代器 和 reset its 状态
+        // Set the value at the iterator and reset its state
             tEXt_creation_time_iter.next();
             tEXt_creation_time_iter.set(encodedTime);
             tEXt_creation_time_iter.previous();
@@ -3052,13 +3076,13 @@ public boolean tRNS_present;
     /**
      * 获取encoded时间
      *
-     * @return 获取encoded时间的结果
+     * @return 编码后的时间字符串
      */
     private String getEncodedTime() {
         String encodedTime = null;
         if (tEXt_creation_time_iter != null
                 && tEXt_creation_time_iter.hasNext()) {
- // 获取 the 值 at 迭代器 和 reset its 状态
+        // Get the value at iterator and reset its state
             encodedTime = tEXt_creation_time_iter.next();
             tEXt_creation_time_iter.previous();
         }
@@ -3068,31 +3092,31 @@ public boolean tRNS_present;
     /**
      * 解析encoded时间
      *
-     * @param encodedTime encoded时间
-     * @return 解析encoded时间的结果
+     * @param encodedTime 编码后的时间字符串
+     * @return 解析出的时间
      */
     private OffsetDateTime parseEncodedTime(String encodedTime) {
         OffsetDateTime retVal = null;
         boolean timeDecoded = false;
 
         /*
-          * PNG 规范建议图像编码器使用 RFC1123 格式化
-          * 转为 represent 时间 入 字符串 but doesn't mandate. 编码器 could
-          * use 任意 convenient 格式化. Hence, we extract 时间 provided the
-          * encoded 时间 complies with either RFC1123 或 ISO 标准.
+          * The PNG spec recommends that image encoders use RFC1123 format to
+          * represent time in a string but doesn't mandate it. Encoders could
+          * use any convenient format. Hence, we extract time provided the
+          * encoded time complies with either RFC1123 or ISO standard.
          */
         try {
- // 检查 if the encoded 时间 complies with RFC1123
+        // Check if the encoded time complies with RFC1123
             retVal = OffsetDateTime.parse(encodedTime,
                                           DateTimeFormatter.RFC_1123_DATE_TIME);
             timeDecoded = true;
         } catch (DateTimeParseException exception) {
- // No Op. Encoded 时间 did not comply with RFC1123 标准.
+        // No Op. Encoded time did not comply with RFC1123 standard.
         }
 
         if (!timeDecoded) {
             try {
- // 检查 if the encoded 时间 complies with ISO 标准.
+        // Check if the encoded time complies with ISO standard.
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
                 TemporalAccessor dt = formatter.parseBest(encodedTime,
                         OffsetDateTime::from, LocalDateTime::from);
@@ -3108,7 +3132,7 @@ public boolean tRNS_present;
                     retVal = OffsetDateTime.of(locDT, ZoneOffset.UTC);
                 }
             }  catch (DateTimeParseException exception) {
- // No Op. Encoded 时间 did not comply with ISO 标准.
+        // No Op. Encoded time did not comply with ISO standard.
             }
         }
         return retVal;

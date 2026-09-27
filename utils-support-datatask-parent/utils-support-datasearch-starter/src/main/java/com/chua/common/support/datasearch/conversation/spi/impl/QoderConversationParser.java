@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>Qoder CLI persists sessions as Claude-Code-style JSONL transcripts under
  * {@code ~/.qoder/projects/<project>/<sessionId>.jsonl}: user content is a
- * plain 字符串 while assistant 内容 是否 an array 的 类型 blocks.</p>
+ * plain string while assistant content is an array of typed blocks.</p>
  *
  * @author CH
  * @since 4.0.0.42

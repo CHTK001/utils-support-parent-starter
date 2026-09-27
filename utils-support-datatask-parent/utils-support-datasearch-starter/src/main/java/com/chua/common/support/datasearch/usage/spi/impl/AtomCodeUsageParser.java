@@ -21,10 +21,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * Atom编码 usage parser - 解析 令牌 usage 从 本地 会话 turn transcripts.
+ * AtomCode usage parser - parses token usage from local session turn transcripts.
  *
  * <p>Data source is {@code ~/.atomcode/sessions/<session-dir>/<session-id>.jsonl}.
- * Each 线 records one turn 的 a 会话; every turn carries a top-级别
+ * Each line records one turn of a session; every turn carries a top-level
  * {@code usage} block with real per-turn token counts:</p>
  *
  * <pre>{@code

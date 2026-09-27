@@ -124,8 +124,8 @@ public class GifEncoder {
 
     /**
      * 设置每一帧的间隔时间
-     * 设置 the 延迟 时间 between each 帧, 或 改变 it
-     * for subsequent 帧 (applies 转为 最后一个 帧 添加).
+     * Sets the delay time between each frame, or change it
+     * for subsequent frames (applies to last frame added).
      *
      * @param ms 间隔时间，单位毫秒
      */
@@ -134,11 +134,11 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 the GIF 帧 disposal 编码 for the 最后一个 添加 帧
-     * 和 任意 subsequent 帧.  默认hotp生成器 是否 0 if no transparent
-     * color 是否包含 been 设置, otherwise 2.
+     * Sets the GIF frame disposal code for the last added frame
+     * and any subsequent frames.  Default is 0 if no transparent
+     * color has been set, otherwise 2.
      *
-     * @param code int disposal 编码.
+     * @param code int disposal code.
      */
     public void setDispose(int code) {
         if (code >= 0) {
@@ -147,12 +147,12 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 the 数字 的 时间 the 设置 的 GIF 帧
-     * should be played.  默认hotp生成器 是否 1; 0 means play
-     * indefinitely.  Must be invoked 之前 the 第一个
-     * 镜像 是否 添加.
+     * Sets the number of times the set of GIF frames
+     * should be played.  Default is 1; 0 means play
+     * indefinitely.  Must be invoked before the first
+     * image is added.
      *
-     * @param iter int 数字 的 iterations.
+     * @param iter int number of iterations.
      */
     public void setRepeat(int iter) {
         if (iter >= 0) {
@@ -161,34 +161,34 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 the transparent color for the 最后一个 添加 帧
-     * 和 任意 subsequent 帧.
-     * 自 全部 colors are 主题 转为 修改
-     * 入 the quantization 处理, the color 入 the 最终
-     * palette for each 帧 closest 转为 the given color
-     * becomes the transparent color for that 帧.
-     * May be 设置 转为 空 转为 indicate no transparent color.
+     * Sets the transparent color for the last added frame
+     * and any subsequent frames.
+     * Since all colors are subject to modification
+     * in the quantization process, the color in the final
+     * palette for each frame closest to the given color
+     * becomes the transparent color for that frame.
+     * May be set to null to indicate no transparent color.
      *
-     * @param c Color 转为 be treated as transparent on display.
+     * @param c Color to be treated as transparent on display.
      */
     public void setTransparent(Color c) {
         setTransparent(c, false);
     }
 
     /**
-     * 设置 the transparent color for the 最后一个 添加 帧
-     * 和 任意 subsequent 帧.
-     * 自 全部 colors are 主题 转为 修改
-     * 入 the quantization 处理, the color 入 the 最终
-     * palette for each 帧 closest 转为 the given color
-     * becomes the transparent color for that 帧.
-     * If exact匹配 是否 设置 转为 true, transparent color 索引
-     * 是否 搜索 with exact 匹配, 和 not looking for the
+     * Sets the transparent color for the last added frame
+     * and any subsequent frames.
+     * Since all colors are subject to modification
+     * in the quantization process, the color in the final
+     * palette for each frame closest to the given color
+     * becomes the transparent color for that frame.
+     * If exact match is set to true, transparent color index
+     * is searched for exact match, and not looking for the
      * closest one.
-     * May be 设置 转为 空 转为 indicate no transparent color.
+     * May be set to null to indicate no transparent color.
      *
-     * @param c          Color 转为 be treated as transparent on display.
-     * @param exactMatch If exact匹配 是否 设置 转为 true, transparent color 索引 是否 搜索 with exact 匹配
+     * @param c          Color to be treated as transparent on display.
+     * @param exactMatch If exact match is set to true, transparent color index is searched for exact match
      */
     public void setTransparent(Color c, boolean exactMatch) {
         transparent = c;
@@ -197,29 +197,29 @@ public class GifEncoder {
 
 
     /**
-     * 设置 the background color for the 最后一个 添加 帧
-     * 和 任意 subsequent 帧.
-     * 自 全部 colors are 主题 转为 修改
-     * 入 the quantization 处理, the color 入 the 最终
-     * palette for each 帧 closest 转为 the given color
-     * becomes the background color for that 帧.
-     * May be 设置 转为 空 转为 indicate no background color
-     * which will 默认 转为 black.
+     * Sets the background color for the last added frame
+     * and any subsequent frames.
+     * Since all colors are subject to modification
+     * in the quantization process, the color in the final
+     * palette for each frame closest to the given color
+     * becomes the background color for that frame.
+     * May be set to null to indicate no background color
+     * which will default to black.
      *
-     * @param c Color 转为 be treated as background on display.
+     * @param c Color to be treated as background on display.
      */
     public void setBackground(Color c) {
         background = c;
     }
 
     /**
-     * 添加 下一个 GIF 帧.  The 帧 是否 not written immediately, but 是否
-     * actually deferred until the 下一个 帧 是否 接收 so that 时间
-     * 数据 能否 be 插入.  Invoking {@code finish()} flushes 全部
-     * 帧.  If {@code setSize} was not invoked, the 大小 的 the
-     * 第一个 镜像 是否 used for 全部 subsequent 帧.
+     * Adds next GIF frame.  The frame is not written immediately, but is
+     * actually deferred until the next frame is received so that timing data
+     * can be inserted.  Invoking {@code finish()} flushes all
+     * frames.  If {@code setSize} was not invoked, the size of the
+     * first image is used for all subsequent frames.
      *
-     * @param im 缓冲镜像 containing 帧 转为 写入.
+     * @param im BufferedImage containing frame to write.
      * @return true if successful.
      */
     public boolean addFrame(BufferedImage im) {
@@ -268,8 +268,8 @@ public class GifEncoder {
     }
 
     /**
-     * Flushes 任意 pending 数据 和 关闭 输出 文件.
-     * If 写入 转为 an 输出流, the 流 是否 not
+     * Flushes any pending data and closes output file.
+     * If writing to an OutputStream, the stream is not
      * closed.
      *
      * @return is ok
@@ -305,10 +305,10 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 帧 rate 入 帧 per second.  Equivalent 转为
+     * Sets frame rate in frames per second.  Equivalent to
      * {@code setDelay(1000/fps)}.
      *
-     * @param fps float 帧 rate (帧 per second)
+     * @param fps float frame rate (frames per second)
      */
     public void setFrameRate(float fps) {
         Float s0 = 0f;
@@ -318,12 +318,12 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 quality 的 color quantization (转换 的 镜像
-     * 转为 the maximum 256 colors allowed by the GIF specification).
-     * 降低 值 (minimum = 1) produce better colors, but slow
-     * 处理 significantly.  10 是否 the 默认, 和 produces
-     * good color mapping at ReasonML 速度.  值 greater
-     * than 20 执行 not yield significant improvements 入 速度.
+     * Sets quality of color quantization (conversion of images to the
+     * maximum 256 colors allowed by the GIF specification).
+     * Lower values (minimum = 1) produce better colors, but slow
+     * processing significantly.  10 is the default, and produces
+     * good color mapping at reasonable speed.  Values greater
+     * than 20 do not yield significant improvements in speed.
      *
      * @param quality int greater than 0.
      */
@@ -335,12 +335,12 @@ public class GifEncoder {
     }
 
     /**
-     * 设置 the GIF 帧 大小.  The 默认 大小 是否 the
-     * 大小 的 the 第一个 帧 添加 if this 方法 是否
+     * Sets the GIF frame size.  The default size is the
+     * size of the first frame added if this method is
      * not invoked.
      *
-     * @param w int 帧 width.
-     * @param h int 帧 width.
+     * @param w int frame width.
+     * @param h int frame height.
      */
     public void setSize(int w, int h) {
         if (started && !firstFrame) {
@@ -358,11 +358,11 @@ public class GifEncoder {
     }
 
     /**
-     * Initiates GIF 文件 创建 on the given 流.  The 流
-     * 是否 not 关闭 automatically.
+     * Initiates GIF file creation on the given stream.  The stream
+     * is not closed automatically.
      *
-     * @param os 输出流 on which GIF 镜像 are written.
-     * @return false if initial 写入 失败.
+     * @param os output stream on which GIF images are written.
+     * @return false if initial write failed.
      */
     public boolean start(OutputStream os) {
         if (os == null) {
@@ -381,10 +381,10 @@ public class GifEncoder {
     }
 
     /**
-     * Initiates 写入 的 a GIF 文件 with the specified 名称.
+     * Initiates writing of a GIF file with the specified name.
      *
-     * @param file 字符串 containing 输出 文件 名称.
-     * @return false if 打开 或 initial 写入 失败.
+     * @param file String containing output file name.
+     * @return false if open or initial write failed.
      */
     public boolean start(String file) {
         boolean ok;
@@ -443,7 +443,7 @@ public class GifEncoder {
     }
 
     /**
-     * 返回 索引 的 palette color closest 转为 C
+     * Returns index of palette color closest to c
      *
      * @param c Color
      * @return index
@@ -474,19 +474,20 @@ public class GifEncoder {
     }
 
     /**
-     * 返回 true if the exact 匹配 color 是否 existing, 和 used 入 the color palette, otherwise, 返回 false.
-     * This 方法 是否包含 转为 be called 之前 饰面 the 镜像,
-     * because 之后 饰面 the palette 是否 销毁 和 it will always 返回 false.
+     * Returns true if the exact match color is existing, and used in the color palette, otherwise, returns false.
+     * This method should not be called before finish the image,
+     * because after finish the palette is destroyed and it will always return false.
      *
-     * @param c 颜色
-     * @return 颜色是否存在
+     * @param c color
+     * @return true if the color is used in the palette
      */
     boolean isColorUsed(Color c) {
         return findExact(c) != -1;
     }
 
     /**
-     * 返回 索引 的 palette exactly 匹配 转为 color C 或 -1 if there 是否 no exact 匹配.
+     * Returns index of palette exactly matching color c
+     * or -1 if there is no exact match.
      *
      * @param c Color
      * @return index
@@ -512,7 +513,7 @@ public class GifEncoder {
     }
 
     /**
-     * Extracts 镜像 pixels into byte array "pixels"
+     * Extracts image pixels into byte array "pixels"
      */
     protected void getImagePixels() {
         int w = image.getWidth();
@@ -535,9 +536,9 @@ public class GifEncoder {
     }
 
     /**
-     * 写入 Graphic Control 延伸
+     * Writes Graphic Control Extension
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeGraphicCtrlExt() throws IOException {
         out.write(0x21);
@@ -583,7 +584,7 @@ public class GifEncoder {
     /**
      * 写入 镜像 Descriptor
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeImageDesc() throws IOException {
         out.write(0x2c);
@@ -619,7 +620,7 @@ public class GifEncoder {
     /**
      * 写入 逻辑 屏幕 Descriptor
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeLsd() throws IOException {
         writeShort(width);
@@ -630,10 +631,10 @@ public class GifEncoder {
     }
 
     /**
-     * 写入 Netscape application 延伸 转为 define
-     * repeat 数量.
+     * Writes Netscape application extension to define
+     * repeat count.
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeNetscapeExt() throws IOException {
         out.write(0x21);
@@ -657,7 +658,7 @@ public class GifEncoder {
     /**
      * 写入 color table
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writePalette() throws IOException {
         out.write(colorTab, 0, colorTab.length);
@@ -670,7 +671,7 @@ public class GifEncoder {
     /**
      * Encodes 和 写入 pixel 数据
      *
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writePixels() throws IOException {
         LzwEncoder encoder = new LzwEncoder(width, height, indexedPixels, colorDepth);
@@ -681,7 +682,7 @@ public class GifEncoder {
      * 将 16 位值写入输出流，LSB 在前
      *
      * @param value 16 位值
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeShort(int value) throws IOException {
         out.write(value & 0xff);
@@ -692,7 +693,7 @@ public class GifEncoder {
      * 写入 字符串 转为 输出 流
      *
      * @param s 字符串
-     * @throws IOException IO异常
+     * @throws IOException IO exception
      */
     protected void writeString(String s) throws IOException {
         for (int i = 0; i < s.length(); i++) {

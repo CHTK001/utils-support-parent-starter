@@ -8,6 +8,8 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.vector.RuntimeDetector;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 import com.chua.common.support.vector.VectorStorage;
+import com.chua.common.support.vector.VectorStorageDescriptor;
+import com.chua.common.support.vector.VectorStorageField;
 import com.chua.common.support.vector.VectorStorageProvider;
 import com.chua.vector.support.configuration.VectorStorageProperties;
 import com.chua.vector.support.storage.CuvsVectorStorage;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 向量存储 SPI 工厂，通过 {@link RuntimeDetector} SPI 自动选择最优后端。
@@ -34,9 +37,116 @@ import java.util.List;
 @Spi(value = "vector", order = 50)
 public class VectorStorageProviderFactory implements VectorStorageProvider {
 
+    /**
+     * 配置键：后端类型。
+     */
+    public static final String KEY_BACKEND = "backend";
+
+    /**
+     * 配置键：强制 CPU。
+     */
+    public static final String KEY_FORCE_CPU = "forceCpu";
+
+    /**
+     * 配置键：必须有 GPU。
+     */
+    public static final String KEY_REQUIRE_GPU = "requireGpu";
+
     @Override
     public String name() {
         return "vector";
+    }
+
+    /**
+     * 声明本工厂需要的配置项。
+     *
+     * <p>本 SPI 不是具体向量库，而是「按硬件条件自动选后端」的工厂：有 cuVS 就用 GPU，
+     * 否则降级 jvector。因此表单只需暴露后端选择与两个开关，不含任何连接信息。</p>
+     *
+     * @return 配置描述
+     */
+    @Override
+    public VectorStorageDescriptor descriptor() {
+        return new VectorStorageDescriptor("vector", "自动选择（cuVS GPU / JVector CPU）",
+                "按硬件自动挑后端：有 NVIDIA GPU 且装 cuVS 就用 GPU，否则用 JVector CPU；"
+                        + "不指定时自动探测",
+                List.of(
+                        VectorStorageField.select(KEY_BACKEND, "后端类型", "AUTO",
+                                List.of("AUTO", "CUVS", "JVECTOR"), false,
+                                "AUTO 自动探测（优先 GPU）；CUVS 强制 GPU；JVECTOR 强制 CPU"),
+                        VectorStorageField.bool(KEY_FORCE_CPU, "强制 CPU", "false",
+                                "开启后跳过 GPU 探测，直接用 JVector"),
+                        VectorStorageField.bool(KEY_REQUIRE_GPU, "必须有 GPU", "false",
+                                "开启后 GPU 不可用直接报错，不降级")),
+                false);
+    }
+
+    /**
+     * 由键值配置构造 {@link VectorStorageProperties}。
+     *
+     * @param config 键值配置
+     * @return 向量存储属性
+     */
+    @Override
+    public Object toProperties(Map<String, Object> config) {
+        VectorStorageProperties props = new VectorStorageProperties();
+        if (config == null) {
+            return props;
+        }
+        String backend = str(config.get(KEY_BACKEND));
+        if (backend != null) {
+            try {
+                props.backend(VectorStorageProperties.Backend.valueOf(backend.toUpperCase()));
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("vector 不支持的后端类型: " + backend
+                        + "，可选: AUTO / CUVS / JVECTOR");
+            }
+        }
+        Boolean forceCpu = boolv(config.get(KEY_FORCE_CPU));
+        if (forceCpu != null) {
+            props.forceCpu(forceCpu);
+        }
+        Boolean requireGpu = boolv(config.get(KEY_REQUIRE_GPU));
+        if (requireGpu != null) {
+            props.requireGpu(requireGpu);
+        }
+        return props;
+    }
+
+    /**
+     * 取字符串配置项。
+     *
+     * @param value 原始值
+     * @return 去空白后的字符串；空值返回 null
+     */
+    private static String str(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String s = String.valueOf(value).trim();
+        return s.isEmpty() ? null : s;
+    }
+
+    /**
+     * 取布尔配置项。
+     *
+     * @param value 原始值
+     * @return 布尔值；无法解析时返回 null
+     */
+    private static Boolean boolv(Object value) {
+        String s = str(value);
+        if (s == null) {
+            return null;
+        }
+        if ("true".equalsIgnoreCase(s) || "1".equals(s) || "on".equalsIgnoreCase(s)
+                || "yes".equalsIgnoreCase(s)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equalsIgnoreCase(s) || "0".equals(s) || "off".equalsIgnoreCase(s)
+                || "no".equalsIgnoreCase(s)) {
+            return Boolean.FALSE;
+        }
+        return null;
     }
 
     @Override

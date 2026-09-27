@@ -161,10 +161,22 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     @Override
     /**
      * 移除
-    */
+     */
     public synchronized boolean remove(String id) {
         checkNotClosed();
         return delegate.doRemove(id);
+    }
+
+    @Override
+    /**
+     * 按标识前缀批量移除。
+     * <p>知识库删除时按知识库ID前缀清理其全部向量，避免向量随知识库删除而残留。</p>
+     * @param idPrefix 标识前缀
+     * @return 实际删除条数
+     */
+    public synchronized int removeByIdPrefix(String idPrefix) {
+        checkNotClosed();
+        return delegate.doRemoveByIdPrefix(idPrefix);
     }
 
     @Override
@@ -262,6 +274,37 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         boolean doRemove(String id);
         boolean doUpdate(String id, float[] vector);
         void rebuild();
+
+        /**
+         * 列出 标识 前缀匹配的全部 标识 快照。
+         *
+         * @param idPrefix 标识 前缀
+         * @return 匹配到的 标识 列表
+         */
+        List<String> idsWithPrefix(String idPrefix);
+
+        /**
+         * 按 标识 前缀批量移除向量。
+         *
+         * <p>复用 {@link #doRemove(String)} 逐条删除，保证 swap-remove 后的
+         * 序数映射与图索引失效逻辑与单条删除完全一致；三个策略因此无需各写一份。</p>
+         *
+         * @param idPrefix 标识 前缀；为空时不做任何删除
+         * @return 实际删除条数
+         */
+        default int doRemoveByIdPrefix(String idPrefix) {
+            if (idPrefix == null || idPrefix.isEmpty()) {
+                return 0;
+            }
+            int removed = 0;
+            // idsWithPrefix 返回快照，可在遍历期间安全地执行 swap-remove
+            for (String id : idsWithPrefix(idPrefix)) {
+                if (doRemove(id)) {
+                    removed++;
+                }
+            }
+            return removed;
+        }
     }
 
     private static class EagerMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {

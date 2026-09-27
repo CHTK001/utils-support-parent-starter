@@ -949,24 +949,24 @@ public class NumberUtils {
         }
     }
     /**
-     *  an <em>overflow</em> 异常 for the given 数字 和 Target 类.
+     * Raises an <em>overflow</em> exception for the given number and Target class.
      *
-     * @param number      the 数字 we tried 转为 转换
-     * @param targetClass the Target 类 we tried 转为 转换 转为
-     * @throws IllegalArgumentException if there 是否 an overflow
+     * @param number      the number we tried to convert
+     * @param targetClass the Target class we tried to convert to
+     * @throws IllegalArgumentException if there is an overflow
      */
     private static void raiseOverflowException(Number number, Class<?> targetClass) {
         throw new IllegalArgumentException("Could not convert number [" + number + "] of type [" +
                 number.getClass().getName() + "] to target class [" + targetClass.getName() + "]: overflow");
     }
     /**
-     * 检查 for a {@code BigInteger}/{@code BigDecimal} long overflow
-     * 之前 返回 the given 数字 as a long 值.
+     * Checks for a {@code BigInteger}/{@code BigDecimal} long overflow
+     * before returning the given number as a long value.
      *
-     * @param number      the 数字 转为 转换
-     * @param targetClass the Target 类 转为 转换 转为
-     * @return the long 值, if 转换 without overflow
-     * @throws IllegalArgumentException if there 是否 an overflow
+     * @param number      the number to convert
+     * @param targetClass the Target class to convert to
+     * @return the long value, if no overflow
+     * @throws IllegalArgumentException if there is an overflow
      * @see #raiseOverflowException
      */
     private static long checkedLongValue(Number number, Class<? extends Number> targetClass) {
@@ -1186,13 +1186,14 @@ public class NumberUtils {
         return round(Double.toString(v), scale, roundingMode);
     }
     /**
-     *                         <br>
-     *                            123.456789 =    123.4567
+     * 按指定精度与舍入模式处理字符串形式的数值。
      *
-     * @param numberStr 数字str
-     * @param scale                                               0            0
-     * @param roundingMode                       {@link RoundingMode}               空
-     * @return the 结果
+     * <p>精度为负时按 0 处理。</p>
+     *
+     * @param numberStr    待处理的十进制字符串
+     * @param scale        保留小数位数, 负值按 0 处理
+     * @param roundingMode 舍入模式
+     * @return 处理后的 {@link BigDecimal}
      */
     public static BigDecimal round(String numberStr, int scale, RoundingMode roundingMode) {
         if (scale < 0) {
@@ -1201,13 +1202,15 @@ public class NumberUtils {
         return round(toBigDecimal(numberStr), scale, roundingMode);
     }
     /**
-     *                         <br>
-     *                            123.456789 =    123.4567
+     * 按指定精度与舍入模式处理数值。
      *
-     * @param number 数字
-     * @param scale                                               0            0
-     * @param roundingMode                       {@link RoundingMode}               空
-     * @return the 结果
+     * <p>{@code number} 为 {@code null} 时按零处理; 精度为负时按 0 处理;
+     * {@code roundingMode} 为 {@code null} 时按 {@link RoundingMode#HALF_UP} 处理。</p>
+     *
+     * @param number        待处理的值, {@code null} 视为 0
+     * @param scale         保留小数位数, 负值按 0 处理
+     * @param roundingMode  舍入模式, {@code null} 视为 {@link RoundingMode#HALF_UP}
+     * @return 处理后的 {@link BigDecimal}
      */
     public static BigDecimal round(BigDecimal number, int scale, RoundingMode roundingMode) {
         if (null == number) {
@@ -1647,8 +1650,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @return the byte represented by the 字符串, 或 <code>zero</code> if
-     * 转换 失败
+     * @return the byte represented by the string, or <code>zero</code> if
+     * conversion fails
      * @since 2.5
      */
     public static byte toByte(final String str) {
@@ -1667,7 +1670,7 @@ public class NumberUtils {
      *
      * @param str str
      * @param defaultValue 默认值
-     * @return the byte represented by the 字符串, 或 the 默认 if 转换 失败
+     * @return the byte represented by the string, or the default if conversion fails
      * @since 2.5
      */
     public static byte toByte(final String str, final byte defaultValue) {
@@ -1693,8 +1696,8 @@ public class NumberUtils {
      *   NumberHelper.toDouble("1.5")  = 1.5d
      * </pre>
      *
-     * @param str the 字符串 转为 转换, may be <code>空</code>
-     * @return the double represented by the 字符串, 或 <code>0.0d</code>
+     * @param str the string to convert, may be <code>null</code>
+     * @return the double represented by the string, or <code>0.0d</code>
      * if 转换 失败
      * @since 2.1
      */
@@ -1729,9 +1732,9 @@ public class NumberUtils {
      *   NumberHelper.toDouble("1.5", 0.0d)  = 1.5d
      * </pre>
      *
-     * @param str          the 字符串 转为 转换, may be <code>空</code>
-     * @param defaultValue the 默认 值
-     * @return the double represented by the 字符串, 或 默认值
+     * @param str          the string to convert, may be <code>null</code>
+     * @param defaultValue the default value
+     * @return the double represented by the string, or the default value
      * if 转换 失败
      * @since 2.1
      */
@@ -1756,7 +1759,7 @@ public class NumberUtils {
      *   NumberHelper.toDouble(BigDecimal.valueOf(8.5d)) = 8.5d
      * </pre>
      *
-     * @param value the <code>bigdecimal</code> 转为 转换, may be <code>空</code>.
+     * @param value the <code>bigdecimal</code> to convert, may be <code>null</code>.
      * @return <code>bigdecimal</code> 所表示的 double 值，若
      * <code>BigDecimal</code> 为 <code>null</code> 则返回 <code>0.0d</code>。
      * @since 3.8
@@ -1770,10 +1773,10 @@ public class NumberUtils {
      *   NumberHelper.toDouble(BigDecimal.valueOf(8.5d), 1.1d) = 8.5d
      * </pre>
      *
-     * @param value        the <code>bigdecimal</code> 转为 转换, may be <code>空</code>.
-     * @param defaultValue the 默认 值
-     * @return the double represented by the <code>bigdecimal</code> 或 the
-     * 默认值 if the <code>bigdecimal</code> 是否 <code>空</code>.
+     * @param value        the <code>bigdecimal</code> to convert, may be <code>null</code>.
+     * @param defaultValue the default value
+     * @return the double represented by the <code>bigdecimal</code> or the
+     * default value if the <code>bigdecimal</code> is <code>null</code>.
      * @since 3.8
      */
     public static double toDouble(final BigDecimal value, final double defaultValue) {
@@ -1792,8 +1795,8 @@ public class NumberUtils {
      *   NumberHelper.toDoubleValue("1.5")  = 1.5d
      * </pre>
      *
-     * @param str the 字符串 转为 转换, may be <code>空</code>
-     * @return the double represented by the 字符串, 或 <code>0.0d</code>
+     * @param str the string to convert, may be <code>null</code>
+     * @return the double represented by the string, or <code>0.0d</code>
      * if 转换 失败
      * @since 2.1
      */
@@ -1813,9 +1816,9 @@ public class NumberUtils {
      *   NumberHelper.toDoubleValue("1.5", 0.0d)  = 1.5d
      * </pre>
      *
-     * @param str          the 字符串 转为 转换, may be <code>空</code>
-     * @param defaultValue the 默认 值
-     * @return the double represented by the 字符串, 或 默认值
+     * @param str          the string to convert, may be <code>null</code>
+     * @param defaultValue the default value
+     * @return the double represented by the string, or the default value
      * if 转换 失败
      * @since 2.1
      */
@@ -1842,8 +1845,8 @@ public class NumberUtils {
      *   NumberHelper.toFloat("1.5")  = 1.5f
      * </pre>
      *
-     * @param str the 字符串 转为 转换, may be <code>空</code>
-     * @return the float represented by the 字符串, 或 <code>0.0f</code>
+     * @param str the string to convert, may be <code>null</code>
+     * @return the float represented by the string, or <code>0.0f</code>
      * if 转换 失败
      * @since 2.1
      */
@@ -1863,9 +1866,9 @@ public class NumberUtils {
      *   NumberHelper.toFloat("1.5", 0.0f)  = 1.5f
      * </pre>
      *
-     * @param str          the 字符串 转为 转换, may be <code>空</code>
-     * @param defaultValue the 默认 值
-     * @return the float represented by the 字符串, 或 默认值
+     * @param str          the string to convert, may be <code>null</code>
+     * @param defaultValue the default value
+     * @return the float represented by the string, or the default value
      * if 转换 失败
      * @since 2.1
      */
@@ -1892,8 +1895,8 @@ public class NumberUtils {
      *   NumberHelper.toFloatValue("1.5")  = 1.5f
      * </pre>
      *
-     * @param str the 字符串 转为 转换, may be <code>空</code>
-     * @return the float represented by the 字符串, 或 <code>0.0f</code>
+     * @param str the string to convert, may be <code>null</code>
+     * @return the float represented by the string, or <code>0.0f</code>
      * if 转换 失败
      * @since 2.1
      */
@@ -1913,9 +1916,9 @@ public class NumberUtils {
      *   NumberHelper.toFloatValue("1.5", 0.0f)  = 1.5f
      * </pre>
      *
-     * @param str          the 字符串 转为 转换, may be <code>空</code>
-     * @param defaultValue the 默认 值
-     * @return the float represented by the 字符串, 或 默认值
+     * @param str          the string to convert, may be <code>null</code>
+     * @param defaultValue the default value
+     * @return the float represented by the string, or the default value
      * if 转换 失败
      * @since 2.1
      */
@@ -2044,7 +2047,7 @@ public class NumberUtils {
      *
      * @param str str
      * @param defaultValue 默认值
-     * @return the long represented by the 字符串, 或 the 默认 if 转换 失败
+     * @return the long represented by the string, or the default if conversion fails
      * @since 2.1
      */
     public static Long toLong(final String str, final Long defaultValue) {
@@ -2080,7 +2083,7 @@ public class NumberUtils {
      *
      * @param str str
      * @param defaultValue 默认值
-     * @return the long represented by the 字符串, 或 the 默认 if 转换 失败
+     * @return the long represented by the string, or the default if conversion fails
      * @since 2.1
      */
     public static long toLongValue(final String str, final long defaultValue) {
@@ -2185,8 +2188,8 @@ public class NumberUtils {
      * </pre>
      *
      * @param str str
-     * @return the short represented by the 字符串, 或 <code>zero</code> if
-     * 转换 失败
+     * @return the short represented by the string, or <code>zero</code> if
+     * conversion fails
      * @since 2.5
      */
     public static short toShort(final String str) {
@@ -2206,7 +2209,7 @@ public class NumberUtils {
      *
      * @param str str
      * @param defaultValue 默认值
-     * @return the short represented by the 字符串, 或 the 默认 if 转换 失败
+     * @return the short represented by the string, or the default if conversion fails
      * @since 2.5
      */
     public static short toShort(final String str, final short defaultValue) {
@@ -2732,14 +2735,14 @@ public class NumberUtils {
         return null == value || value <= 0 ? defaultValue : value;
     }
     /**
-     * 空            0
+     * 取值兜底: 目标值为 {@code null} 或不大于 0 时返回默认值。
      *
-     * @param value                            空
-     * @param defaultValue                      空         0
-     * @return                      null               0                                          
+     * @param value        待判定值
+     * @param defaultValue 兜底默认值
+     * @return {@code value} 为 {@code null} 或不大于 0 时返回 {@code defaultValue}, 否则返回 {@code value}
      */
     public static Number defaultIfNullOrPositive(Number value, Number defaultValue) {
- // 空         0
+        // value 为 null 或不大于 0 时返回默认值
         return null == value || value.intValue() <= 0 ? defaultValue : value;
     }
     /**

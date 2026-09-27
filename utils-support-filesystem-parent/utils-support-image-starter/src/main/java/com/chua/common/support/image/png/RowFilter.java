@@ -116,7 +116,7 @@ final class RowFilter {
                          int bytesPerRow,
                          int bytesPerPixel) {
 
- // Use 类型 0 for palette 镜像
+        // Use type 0 for palette images
         if (colorType != PNG.PNG_COLOR_PALETTE) {
             System.arraycopy(currRow, bytesPerPixel,
                              scratchRows[0], bytesPerPixel,

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BGE 文本嵌入 Translator（registry 路径，ORT 原生 + huggingface Tokenizer）。
@@ -86,38 +88,66 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
                     modelDir = dir;
                     break;
                 }
-            } catch (Exception ignore) {
+            } catch (Throwable ignore) {
+                // NativeLoader 在 jar 内资源缺失时抛的是 UnsatisfiedLinkError（属于 Error 而非
+                // Exception），必须连 Error 一起吞掉，否则会绕过下面的 registry 探测直接失败。
                 // 尝试下一个候选
             }
         }
  // 2. 若 jar 内未找到，尝试从 模型registry 下载缓存读取（新模型如 bge-基础-zh）
         if (modelDir == null) {
-            String registryModelId = System.getProperty("bge.registry.model", "");
-            if (!registryModelId.isBlank()) {
+            // 2.1 显式指定优先（系统属性，便于多模型并存时精确选择）
+            List<String> candidateIds = new ArrayList<>(2);
+            String explicit = System.getProperty("bge.registry.model", "");
+            if (!explicit.isBlank()) {
+                candidateIds.add(explicit.trim());
+            }
+            // 2.2 未指定时按注册表常见顺序探测：只认「已注册 / 已下载」的模型，命中即用。
+            //     不依赖外部系统属性，避免部署方必须额外配置才能用上本地模型。
+            candidateIds.add("bge-large-zh-embedding");
+            candidateIds.add("bge-small-zh-embedding");
+            for (String registryModelId : candidateIds) {
                 try {
-                    java.nio.file.Path resolved = com.chua.deeplearning.support.engine.ModelRegistry.resolveModelPath(registryModelId);
-                    if (resolved != null) {
-                        Path dir = Files.isDirectory(resolved) ? resolved : resolved.getParent();
-                        if (dir != null) {
-                            Path model = dir.resolve("model.onnx");
-                            Path tk = dir.resolve("tokenizer.json");
-                            if (Files.isRegularFile(model) && Files.isRegularFile(tk)) {
-                                translator.loadLocal(model.toString());
-                                tokenizer = HuggingFaceTokenizer.builder()
-                                        .optTokenizerPath(tk)
-                                        .optPadding(true)
-                                        .optMaxLength(DEFAULT_MAX_LEN)
-                                        .build();
-                                modelDir = dir;
-                            }
-                        }
+                    // 优先用「服务器本地已注册」的外部模型目录：模型已经放在盘上时，
+                    // 不应再去下载缓存或联网。resolveModelPath 只认模板自身登记的
+                    // classpath / 下载路径，看不到 registerExternalDirectory 注册的目录。
+                    Path resolved = com.chua.deeplearning.support.engine.ModelRegistry
+                            .findExternalDirectory(registryModelId);
+                    if (resolved == null) {
+                        resolved = com.chua.deeplearning.support.engine.ModelRegistry
+                                .resolveModelPath(registryModelId);
                     }
-                } catch (Exception ignore) {
+                    if (resolved == null) {
+                        continue;
+                    }
+                    Path dir = Files.isDirectory(resolved) ? resolved : resolved.getParent();
+                    if (dir == null) {
+                        continue;
+                    }
+                    Path model = dir.resolve("model.onnx");
+                    Path tk = dir.resolve("tokenizer.json");
+                    if (!Files.isRegularFile(model) || !Files.isRegularFile(tk)) {
+                        continue;
+                    }
+                    translator.loadLocal(model.toString());
+                    tokenizer = HuggingFaceTokenizer.builder()
+                            .optTokenizerPath(tk)
+                            .optPadding(true)
+                            .optMaxLength(DEFAULT_MAX_LEN)
+                            .build();
+                    modelDir = dir;
+                    log.info("[BGE] 使用 registry 模型: id={} dir={}", registryModelId, dir);
+                    break;
+                } catch (Throwable ignore) {
+                    // 同上：模型加载失败可能抛 Error，不能只捕获 Exception
+                    // 尝试下一个候选
                 }
             }
         }
         if (modelDir == null || tokenizer == null) {
-            throw new IllegalStateException("BGE 模型资源未就绪（jar 内缺少 bge-small-en/zh 模型，且未配置 bge.registry.model）");
+            throw new IllegalStateException("BGE 模型资源未就绪（jar 内缺少 bge-small-en/zh 模型，"
+                    + "且 registry 中未找到 bge-large-zh-embedding / bge-small-zh-embedding 的 "
+                    + "model.onnx + tokenizer.json；如需指定其它模型请设置系统属性 bge.registry.model）");
         }
         loaded = true;
     }

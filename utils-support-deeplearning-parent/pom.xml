@@ -32,6 +32,11 @@
         <module>utils-support-deeplearning-needle-starter</module>
         <module>utils-support-deeplearning-dl4j-starter</module>
         <module>utils-support-weka-starter</module>
+        <!-- utils-support-deeplearning-jev-starter 已于 2026-09-27 退役：决策能力改为走自研实现，
+             不再需要 JEV 远程概率决策服务。通用决策 SPI 仍在 utils-support-common-starter 的
+             com.chua.common.support.ai.decision 包下，可独立使用，不依赖本模块。
+             如需恢复，源码见 D:\ch\project\backups\jev-retire-20260927（该模块从未受 git 跟踪，
+             备份目录是唯一还原源）。 -->
         <!-- utils-support-deeplearning-arcsoft-starter 依赖商业闭源 SDK (com.arcsoft.face:arcsoft-sdk-face)，
              离线仓库不可用，暂从聚合移除；如需使用请手动安装 SDK 后恢复此模块。 -->
         </modules>

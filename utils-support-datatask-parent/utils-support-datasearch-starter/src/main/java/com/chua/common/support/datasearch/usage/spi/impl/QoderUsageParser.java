@@ -117,7 +117,7 @@ public class QoderUsageParser extends BaseUsageParser {
     /**
      * 解析 全部 Qoder 会话 transcripts 和 extracts 账单 抵免.
      *
-     * @return list 的 aiusage records, one per assistant 响应
+     * @return AiUsage 记录列表，每个 assistant 响应一条
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -216,12 +216,12 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取 one transcript 文件 线 by 线, extracting assistant usage.
+     * 读取 one transcript 文件 line by line, extracting assistant usage.
      *
-     * @param file    路径 转为 the 会话 JSONL 文件
-     * @param result  accumulator 列表 for 解析 records
+     * @param file    路径 to the session JSONL file
+     * @param result  accumulator list for parsed records
      * @param timings 请求号时间线索引
-     * @throws IOException if the 文件 cannot be 读取
+     * @throws IOException if the file cannot be read
      */
     private void parseJsonlFile(Path file, List<AiUsage> result, Map<String, long[]> timings) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {

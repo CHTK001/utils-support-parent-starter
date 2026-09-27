@@ -129,6 +129,27 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     RagResponse query(String query, int topK, double similarityThreshold);
 
     /**
+     * RAG 纯检索（不调用 LLM）。
+     *
+     * <p>只执行 嵌入→检索→过滤→收集，返回的 {@link RagResponse#answer()} 为 {@code null}，
+     * 命中片段见 {@link RagResponse#sources()}。用于「只校验召回效果」的场景：
+     * 上游 LLM 不可用、限流或未配置时，仍能验证入库与向量检索链路。</p>
+     *
+     * <p>默认实现退化为 {@link #query(String, int, double)} 并丢弃回答，
+     * 因此 {@link MemoryRagClient} 等未覆写者仍会调用 LLM；需要真正不调 LLM 的实现
+     * 须覆写本方法（如 {@link RagPipeline}）。</p>
+     *
+     * @param query               用户查询文本
+     * @param topK                检索数量
+     * @param similarityThreshold 相似度阈值
+     * @return 检索响应，{@code answer} 为 {@code null}，{@code sources} 为命中片段
+     */
+    default RagResponse search(String query, int topK, double similarityThreshold) {
+        RagResponse response = query(query, topK, similarityThreshold);
+        return new RagResponse(null, response.sources(), response.metadata());
+    }
+
+    /**
      * RAG 流式查询。
      *
      * @param query    用户查询文本

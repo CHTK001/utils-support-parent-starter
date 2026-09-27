@@ -1,5 +1,7 @@
 package com.chua.common.support.vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -115,5 +117,28 @@ public abstract class AbstractIdOrdinalStorage {
     protected void resetOrdinals() {
         idToOrd.clear();
         ordToId.clear();
+    }
+
+    /**
+     * 列出 标识 前缀匹配的全部 标识 快照。
+     *
+     * <p>返回快照而非视图：调用方通常在遍历期间执行 swap-remove（会改动
+     * {@code idToOrd} 与 {@code ordToId}），直接遍历 {@code keySet()} 会抛
+     * {@link java.util.ConcurrentModificationException}。</p>
+     *
+     * @param idPrefix 标识 前缀；为空时返回空列表
+     * @return 匹配到的 标识 快照列表，按 无序 顺序返回
+     */
+    public List<String> idsWithPrefix(String idPrefix) {
+        if (idPrefix == null || idPrefix.isEmpty()) {
+            return List.of();
+        }
+        List<String> matched = new ArrayList<>();
+        for (String id : idToOrd.keySet()) {
+            if (id.startsWith(idPrefix)) {
+                matched.add(id);
+            }
+        }
+        return matched;
     }
 }

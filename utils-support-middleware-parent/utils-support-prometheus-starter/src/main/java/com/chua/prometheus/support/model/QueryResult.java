@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Prometheus 查询结果
  * <p>
- * 对应 {@code /api/v1/query} 与 {@code /api/v1/query_range} 的 data 结构,
+ * 对应 {@code /api/v1/query} 与 {@code /api/v1/query_range} 的 data 结构，
  * 具体语义由 {@link #resultType} 决定。
  * </p>
  *

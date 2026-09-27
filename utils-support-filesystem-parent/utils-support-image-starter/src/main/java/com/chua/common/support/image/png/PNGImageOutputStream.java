@@ -28,7 +28,7 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     */
     protected ImageOutputStream stream;
     /**
-     * 开始采购订单
+     * chunk 起始位置
     */
     protected long startPos;
     /**
@@ -41,21 +41,21 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     protected final CRC crc = new CRC();
 
     /**
-     * DEF
+     * 压缩器
     */
     private final Deflater def;
     /**
-     * BUF
+     * 缓冲区
     */
     private final byte[] buf = new byte[512];
     // reused 1 byte[] array:
     /**
-     * Wbuf1
+     * 单字节写入缓冲
     */
     private final byte[] wbuf1 = new byte[1];
 
     /**
-     * Bytes剩余
+     * 剩余待写字节数
     */
     protected int bytesRemaining;
 
@@ -65,7 +65,7 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         this.chunkLength = chunkLength;
         this.def = new Deflater(deflaterLevel);
 
- // 启动 chunk later
+        // start chunk later
         //startChunk();
     }
 
@@ -75,26 +75,26 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     protected abstract void startChunk() throws IOException;
 
     /**
-     * 饰面chunk
+     * 收尾 chunk
     */
     protected void finishChunk() throws IOException {
  // 写入 CRC
         stream.writeInt(crc.getValue());
 
- // 写入 长度
+        // 写入长度
         long pos = stream.getStreamPosition();
         stream.seek(startPos);
         stream.writeInt((int)(pos - startPos) - 12);
 
- // 返回 转为 结束 的 chunk 和 flush 转为 最小化 缓冲
+        // 返回 chunk 结束位置并尽量减少 flush 缓冲
         stream.seek(pos);
         try {
             stream.flushBefore(pos);
         } catch (IOException e) {
             /*
-    * If flush之前() 失败 we 尝试 转为 access 启动采购订单 入 最终
-    * block 的 写入_IDAT(). We should 更新 启动采购订单 转为 avoid
-    * 索引出的bound异常 while seek() 是否 happening.
+     * If flushBefore() fails we try to access the start position of the final
+     * block by write_IDAT(). We should update the start position to avoid
+     * an IndexOutOfBoundsException while seek() is happening.
     */
             this.startPos = stream.getStreamPosition();
             throw e;
