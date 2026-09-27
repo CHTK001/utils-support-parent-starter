@@ -11,36 +11,63 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.needle.NeedleNative;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 基于 Needle 推理引擎的本地对话客户端。
+ * 基于 Needle 推理引擎的本地客户端（工具调用 / 结构化抽取）。
  *
- * <p>通过 Java 25 FFM 直接调用 Needle C 动态库，提供无网络的本地对话能力，
- * 无需外部模型文件（权重内嵌于引擎）。</p>
+ * <p><b>注意：Needle 不是对话模型，本类也不是对话客户端。</b>
+ * 官方明确说明引擎只产生结构化结果，不生成自由文本：对域外输入返回空的
+ * {@code function_calls} 作为拒答，没有自由文本兜底。因此
+ * {@link #chatSync(String)} 返回的是引擎的原始 JSON envelope，
+ * <b>不是自然语言回答</b>。挂在 {@link ChatClient} 上只是为了复用该 SPI，
+ * 调用方应按结构化数据解析返回值。</p>
+ *
+ * <p>envelope 的关键字段：</p>
+ * <ul>
+ *   <li>{@code type} — {@code call} 表示模型给出工具调用或拒答</li>
+ *   <li>{@code function_calls} — 工具调用数组；<b>为空数组即拒答</b></li>
+ *   <li>{@code confidence} — 0-1 的校准分，可自行设阈值决定是否执行</li>
+ *   <li>{@code validation.ungrounded} — 未在输入中找到依据的字段名</li>
+ * </ul>
+ *
+ * <h3>部署要求</h3>
+ * <p>引擎动态库与权重归档是<b>两个独立文件</b>（引擎约 1.2MB，
+ * 权重 {@code needle3.cact} 约 34MB），都必须自行提供，不能只给其一。
+ * 详见 {@code utils-support-native-needle} 的 README。</p>
  *
  * <h3>输入参数</h3>
  * <ul>
- *   <li>{@link #chatSync(String)} — 用户提示文本（必填）</li>
- *   <li>{@link #system(String)} — 系统提示词 / 环境事实，如 {@code "date: 2026-07-21 Tue 14:30"}</li>
- *   <li>{@link #model(String)} — 模型名称，默认 {@code needle2}</li>
+ *   <li>{@link #chatSync(String)} — 用户指令文本（必填）</li>
+ *   <li>{@link #system(String)} — 系统提示词 / 环境事实，如
+ *       {@code "date: 2026-07-21 Tue 14:30; locale: zh-CN"}</li>
+ *   <li>{@link #tools(List)} — 工具声明；{@link ChatTool} 的
+ *       name / description / parameters 与引擎所需格式一一对应</li>
+ *   <li>{@link #model(String)} — 模型标识，仅作展示；实际权重由加载的
+ *       {@code .cact} 归档决定</li>
  * </ul>
  *
- * <h3>输出参数</h3>
- * <ul>
- *   <li>{@link #chatSync(String)} 返回 {@code String} — 引擎生成的文本响应</li>
- *   <li>{@link #chatSyncWithResponse(String)} 返回 {@link ChatSyncResponse} — 含 text 字段的结构化响应</li>
- * </ul>
- *
- * <p>用法：
+ * <p>用法：</p>
  * <pre>{@code
- *   String answer = ChatClient.create("needle", "")
+ *   ChatClient client = ChatClient.create("needle", "")
  *       .system("date: 2026-07-21 Tue 14:30")
- *       .chatSync("你好，今天星期几？");
- * }</pre>tSync("你好，今天星期几？");
+ *       .tools(List.of(setLightsTool));
+ *   String envelope = client.chatSync("turn off the bedroom lights");
  * }</pre>
- * </p>
+ *
+ * <p><b>多轮语义：</b>引擎会把新指令当作上一轮的后续并沿用历史参数（实测连续
+ * 三条互不相关的指令都返回同一个 room）。{@link ChatClient#history(List)}
+ * 在本实现中是空操作，无法建立显式上下文，故 {@link #chatSync(String)}
+ * 在每次调用前 {@code reset()}，使每条指令相互独立。</p>
+ *
+ * <p><b>线程模型：</b>引擎是进程级单例且权重不可卸载，
+ * {@code utils-support-native-needle} 已把所有原生调用串行化，
+ * 多线程会排队而非并行。</p>
+ *
+ * <p><b>模型能力：</b>官方 README 自述其内置基础模型在六个评测套件中五个不达标
+ * （漏掉用户明说的调用、编造未给出的值），实测英文工具调用正常、中文明显偏弱。
+ * 另有 CPU 上解码较慢（本次实测约 1-2 tokens/s），不适合延迟敏感场景。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,6 +80,11 @@ public class NeedleChatClient implements ChatClient {
      * 默认最大生成 令牌 数
      */
     private static final int DEFAULT_MAX_TOKENS = 256;
+
+    /**
+     * 默认模型标识；实际权重由加载的 .cact 归档决定，此名仅作展示
+     */
+    private static final String DEFAULT_MODEL = "needle3";
 
     /**
      * 系统提示词（环境事实）
@@ -68,6 +100,12 @@ public class NeedleChatClient implements ChatClient {
      * 最大生成 令牌 数
      */
     private int maxTokens = DEFAULT_MAX_TOKENS;
+
+    /**
+     * 工具声明。{@link ChatTool} 的 name / description / parameters
+     * 与引擎所需的工具 JSON 格式一一对应，序列化后直接交给引擎。
+     */
+    private final List<ChatTool> tools = new ArrayList<>();
 
     /**
      * 构造 Needle 对话客户端。
@@ -107,7 +145,21 @@ public class NeedleChatClient implements ChatClient {
      * Tools
     */
     public ChatClient tools(List<ChatTool> tools) {
-        // Needle 引擎暂不支持工具调用
+        this.tools.clear();
+        if (tools != null) {
+            this.tools.addAll(tools);
+        }
+        return this;
+    }
+
+    @Override
+    /**
+     * Tool
+    */
+    public ChatClient tool(ChatTool tool) {
+        if (tool != null) {
+            this.tools.add(tool);
+        }
         return this;
     }
 
@@ -120,18 +172,51 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     /**
      * 对话同步
      *
-     * @param prompt 提示符
-     * @param timeoutMillis 超时millis
-     * @return 对话同步的结果
+     * <p>返回引擎的原始 JSON envelope，不是自然语言回答；调用方需按结构化
+     * 数据解析（见类注释）。每次调用前会清空引擎历史，使各条指令相互独立。</p>
+     *
+     * @param prompt 用户指令文本
+     * @param timeoutMillis 超时毫秒；本实现不透传该参数（原生调用是阻塞的）
+     * @return 引擎的原始 JSON envelope
+     * @throws IllegalStateException 引擎动态库未部署时抛出
      */
     public String chatSync(String prompt, long timeoutMillis) {
-        NeedleNative.init(system, "[]", null);
-        String raw = NeedleNative.complete(prompt, maxTokens);
-        return extractText(raw);
+        requireReady();
+        NeedleNative.init(system, toolsJson(), model);
+        // 引擎会把新指令当作上一轮后续并沿用历史参数（实测连续三条互不相关的
+        // 指令都返回同一个 room）；而 history(List) 是空操作、无法建立显式
+        // 上下文，故每条指令前 reset，避免串味。
+        NeedleNative.reset();
+        return NeedleNative.complete(prompt, maxTokens);
+    }
+
+    /**
+     * 把工具声明序列化为引擎所需的 JSON 数组。
+     *
+     * @return 工具 JSON；未声明工具时返回空数组字面量
+     */
+    private String toolsJson() {
+        if (tools.isEmpty()) {
+            return "[]";
+        }
+        return Json5.toJson(tools);
+    }
+
+    /**
+     * 校验引擎已部署，未部署时给出可定位的错误。
+     *
+     * @throws IllegalStateException 动态库未加载时抛出
+     */
+    private void requireReady() {
+        if (!NeedleNative.isLoaded()) {
+            Throwable cause = NeedleNative.getLoadError();
+            throw new IllegalStateException("needle 引擎不可用，请按 utils-support-native-needle "
+                    + "的 README 提供引擎动态库与 .cact 权重后重试："
+                    + (cause == null ? "动态库未加载" : cause.getMessage()), cause);
+        }
     }
 
     @Override
@@ -156,60 +241,15 @@ public class NeedleChatClient implements ChatClient {
     @Override
     /**
      * 模型
-    */
+     */
     public List<ModelDefinition> models() {
         ModelDefinition definition = ModelDefinition.builder()
-                .id(model != null ? model : "needle2")
-                .name("Needle 2")
+                .id(model != null ? model : DEFAULT_MODEL)
+                .name("Needle 3")
                 .provider("cactus-compute")
-                .description("14MB foundation model for local chat and structured extraction")
-                .capabilities(List.of("chat", "extraction", "json"))
+                .description("45M 参数本地工具调用模型：文本进、结构化工具调用出，不生成自由文本")
+                .capabilities(List.of("tool-calling", "extraction", "json"))
                 .build();
         return List.of(definition);
-    }
-
-    /**
-     * 从引擎 JSON envelope 中提取文本响应。
-     *
-     * <p>引擎返回格式：
-     * <ul>
-     *   <li>{@code type=respond} — 含 {@code text} 字段，直接返回</li>
-     *   <li>{@code type=call} — 工具调用类型，提取 {@code reasoning} 或返回原始 JSON</li>
-     * </ul>
-     *
-     * @param raw 引擎原始输出
-     * @return 用户可读的文本响应
-     */
-    @SuppressWarnings("unchecked")
-    private String extractText(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return "";
-        }
-        try {
-            Map<String, Object> envelope = Json5.fromJson(raw);
-            String type = String.valueOf(envelope.get("type"));
-
-            // type=respond：标准文本响应
-            if ("respond".equals(type)) {
-                Object text = envelope.get("text");
-                return text != null ? String.valueOf(text) : raw;
-            }
-
-            // type=call：提取 reasoning 作为回复（无工具声明时引擎以此返回推理内容）
-            if ("call".equals(type)) {
-                Object reasoning = envelope.get("reasoning");
-                if (reasoning != null && !String.valueOf(reasoning).isBlank()) {
-                    return String.valueOf(reasoning);
-                }
- // 有 function_calls 但无 ReasonMLML，返回原始 JSON
-                return raw;
-            }
-
-            // 未知类型，原样返回
-            return raw;
-        } catch (Exception e) {
-            // 非 JSON 格式，直接作为文本返回
-            return raw;
-        }
     }
 }
