@@ -73,9 +73,22 @@ public final class TreeUtils {
     /**
      * DFS 遍历帧：记录当前节点、其子列表与已消费的游标位置。
      *
-     * @param <T> 节点类型
+     * <p>value class 前置条件——集合组件必须深不可变，故紧凑构造器对
+     * {@code children} 做防御性拷贝。{@link #locatePath} 全程只读取
+     * {@code children()} 的 {@code size()} / {@code get()}，并在每步用
+     * {@code new Frame<>(top.node(), top.children(), cursor + 1)} 重新包装同一子列表，
+     * 不依赖活引用，因此拷贝不改变遍历结果。{@code childrenOf} 对 null 子列表
+     * 兜底为 {@code List.of()}，故入参恒非 null，可安全使用 {@code copyOf}。</p>
+     *
+     * @param node     当前节点
+     * @param children 当前节点的子列表
+     * @param cursor   已消费的游标位置
+     * @param <T>      节点类型
      */
     private record Frame<T>(T node, List<T> children, int cursor) {
+        private Frame {
+            children = List.copyOf(children);
+        }
     }
 
     // ==================== 构建 ====================

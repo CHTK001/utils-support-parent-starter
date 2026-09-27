@@ -2,8 +2,8 @@ package com.chua.common.support.image.png;
 
 import javax.imageio.ImageReadParam;
 /**
- * png镜像读取参数类是镜像读取参数的子类，专门用于处理PNG图像的读取参数
- * 该类提供了一个特定的功能：强制读取IDAT（图像数据）块，即使它在文件的中间位置
+ * PNG 图像读取参数类是图像读取参数的子类，专门用于处理 PNG 图像的读取参数。
+ * <p>该类提供了一个特定的功能：强制读取 IDAT（图像数据）块，即使它在文件的中间位置。</p>
  *
  * @author CH
  * @since 4.0.0.42

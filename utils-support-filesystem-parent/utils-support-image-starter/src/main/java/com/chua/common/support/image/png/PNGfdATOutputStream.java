@@ -30,11 +30,11 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     };
 
     /**
-     * Sequence数字
+     * 序列号
     */
     public int sequenceNumber;
     /**
-     * Sequence数字BUF
+     * 序列号大端字节缓冲
     */
     private final byte[] sequenceNumberBuf = new byte[4];
 
@@ -61,7 +61,7 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();
- // 长度, will backpatch
+        // length, will backpatch
         // (-1);
         stream.writeInt(-1);
 

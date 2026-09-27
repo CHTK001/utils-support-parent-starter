@@ -60,14 +60,14 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
 
     // 图像读取器服务提供者名称
     /**
-     * 读取器spinames
+     * 对应的读取器 SPI 名称列表
     */
     private static final String[] readerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageReaderSpi"
     };
 
     /**
-     * 构造函数，初始化 镜像writerspi 的基类信息。
+     * 构造函数，初始化图像写出器 SPI 的基类信息。
      */
     public PNGImageWriterSpi() {
         super(vendorName,
@@ -120,7 +120,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
 
         boolean hasAlpha = colorModel.hasAlpha();
         // 修复 4464413: PNG 透明度测试失败
- // 因为对于具有 alpha 通道的 索引color模型，
+        // 因为对于具有 alpha 通道的调色板颜色模型，
         // numBands == 1 && hasAlpha == true，从而导致下面的检查失败并返回 false。
         if (colorModel instanceof IndexColorModel) {
             return true;

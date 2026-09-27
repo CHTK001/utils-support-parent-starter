@@ -7,18 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This 类 contains 工具 方法 that may be useful 转为 镜像读取
- * plugins.  Ideally these 方法 would be 入 the 镜像读取 基础 类
- * so that 全部 subclasses could 福利 从 them, but that would be an
- * addition 转为 the existing API, 和 it 是否 not yet clear whether these 方法
- * are universally useful, so for now we will 请假 them here.
+ * 本类收录若干对图像读取插件有实用价值的工具方法。理想情况下这些方法应放在
+ * 图像读取的基础类中，以便所有子类都能直接复用；但那会构成对既有 API 的
+ * 扩展，且这些方法是否普遍适用尚不明确，因此暂时先放在这里。
  *
  * @author CH
  * @since 4.0.0.42
  */
 final class ReaderUtils {
 
- // 助手 for compute更新pixels 方法
+    // 辅助 computeUpdatedPixels 方法
     private static void computeUpdatedPixels(int sourceOffset,
                                              int sourceExtent,
                                              int destinationOffset,
@@ -31,13 +29,13 @@ final class ReaderUtils {
                                              int[] vals,
                                              int offset)
     {
- // We need 转为 satisfy the congruences:
+        // We need to satisfy the congruences:
         // dst = destinationOffset + (src - sourceOffset)/sourceSubsampling
         //
         // src - passStart == 0 (mod passPeriod)
         // src - sourceOffset == 0 (mod sourceSubsampling)
         //
- // 主题 转为 the inequalities:
+        // Subject to the inequalities:
         //
         // src >= passStart
         // src < passStart + passExtent
@@ -100,14 +98,14 @@ final class ReaderUtils {
 
         vals[offset] = firstDst;
 
- // If we 从不 锯 a valid pixel, 设置 width 转为 0
+        // If we never saw a valid pixel, set width to 0
         if (!gotPixel) {
             vals[offset + 2] = 0;
         } else {
             vals[offset + 2] = lastDst - firstDst + 1;
         }
 
- // The 周期 是否 given by the difference 的 任意 two adjacent pixels
+        // The period is given by the difference of any two adjacent pixels
         vals[offset + 4] = Math.max(secondDst - firstDst, 1);
     }
 
@@ -170,7 +168,12 @@ final class ReaderUtils {
     }
 
     /**
-     * 读取multibyteinteger
+     * 读取 PNG 多字节整数：每字节贡献 7 位，高字节在前，
+     * 除最后一个字节外高位均为 1 作为续位标志。
+     *
+     * @param iis 流，从当前读取位置按 PNG 多字节整数编码取值
+     * @return 解出的整数值
+     * @throws IOException 流读取失败
     */
     public static int readMultiByteInteger(ImageInputStream iis)
         throws IOException
@@ -186,18 +189,15 @@ final class ReaderUtils {
     }
 
     /**
-     * An 工具 方法 转为 allocate 和 初始化 a byte array
-     * step by step with pre-defined 限制, instead 的 allocating
-     * a large array up-front 基础 on the 长度 derived 从
-     * an 镜像 头部.
+     * 分段分配并初始化字节数组：按固定上限分批读取，
+     * 而不是依据图像头推导出的长度一次性分配大数组。
      *
-     * @param iis a {@code ImageInputStream} 转为 decode 数据 和 存储
-     * it 入 byte array.
-     * @param length the 大小 的 数据 转为 decode
+     * @param iis 待解码并写入字节数组的 {@code ImageInputStream}
+     * @param length 待解码的数据长度
      *
-     * @return array 的 大小 长度 When.js.js decode succeeeds
+     * @return 解码成功时返回的数组长度
      *
-     * @throws IOException if decoding 的 流 失败
+     * @throws IOException 解码过程中流读取失败
      */
     public static byte[] staggeredReadByteStream(ImageInputStream iis,
         int length) throws IOException {

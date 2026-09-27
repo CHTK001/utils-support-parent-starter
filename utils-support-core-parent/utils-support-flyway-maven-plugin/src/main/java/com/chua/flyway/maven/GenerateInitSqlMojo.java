@@ -49,9 +49,14 @@ public class GenerateInitSqlMojo extends AbstractMojo {
     private static final String MODE_INIT_DATA = "initdata";
 
     /**
-     * 默认包含模式：递归匹配任意层级的 db/init 目录下 .sql 文件.
+     * 默认包含模式：仅匹配本模块 {@code src/main/resources/db/init} 下的 .sql 文件.
+     *
+     * <p>刻意不写成 {@code **}{@code /db/init/**}{@code /*.sql}：那样会以 {@code project.basedir}
+     * 为根递归整棵目录树，把兄弟模块、已退出 reactor 但目录仍在的退役模块的 SQL 一起卷进
+     * 同一份产物，父工程（packaging=pom，自身没有 db/init）也会因此产出一份覆盖全树的聚合脚本。
+     * 收窄到本模块相对路径后，「谁的模块的 SQL 放谁那里」，无 db/init 的工程只告警跳过。</p>
      */
-    private static final List<String> DEFAULT_INCLUDES = Arrays.asList("**/db/init/**/*.sql");
+    private static final List<String> DEFAULT_INCLUDES = Arrays.asList("src/main/resources/db/init/**/*.sql");
 
     /**
      * 默认排除模式：构建产物与依赖目录.
@@ -63,7 +68,10 @@ public class GenerateInitSqlMojo extends AbstractMojo {
             "**/node_modules/**");
 
     /**
-     * 扫描根目录，默认当前模块基于目录.
+     * 扫描根目录，默认为当前模块的 basedir.
+     *
+     * <p>配合 {@link #DEFAULT_INCLUDES} 的本模块相对路径使用：扫描范围限于该目录下的
+     * {@code src/main/resources/db/init}，因此不会把兄弟模块或已退役模块目录的 SQL 合并进来。</p>
      */
     @Parameter(defaultValue = "${project.basedir}", property = "flyway.sourceRoot", required = true)
     private File sourceRoot;
@@ -183,7 +191,7 @@ public class GenerateInitSqlMojo extends AbstractMojo {
         try {
             final List<Path> scripts = collectScripts(root, List.of(output), effectiveIncludes, effectiveExcludes);
             if (scripts.isEmpty()) {
-                handleEmpty();
+                handleEmpty(effectiveIncludes);
                 return;
             }
             if (versionSort) {
@@ -224,10 +232,12 @@ public class GenerateInitSqlMojo extends AbstractMojo {
     /**
      * 处理未扫描到脚本的情况.
      *
+     * @param effectiveIncludes 生效的包含模式（打印它而不是可能为 null 的 {@link #includes}，
+     *                          否则日志会显示 {@code includes=[]} 而实际用的是默认模式）
      * @throws MojoFailureException 配置为失败时抛出
      */
-    private void handleEmpty() throws MojoFailureException {
-        final String message = "未扫描到任何初始化脚本: root=" + sourceRoot + " includes=" + includes;
+    private void handleEmpty(final List<String> effectiveIncludes) throws MojoFailureException {
+        final String message = "未扫描到任何初始化脚本: root=" + sourceRoot + " includes=" + effectiveIncludes;
         if (failIfNoScripts) {
             throw new MojoFailureException(message);
         }
@@ -294,7 +304,7 @@ public class GenerateInitSqlMojo extends AbstractMojo {
             final List<Path> scripts = collectScripts(root, List.of(single), includes, excludes);
             removePreviousMerged(directory, scripts);
             if (scripts.isEmpty()) {
-                handleEmpty();
+                handleEmpty(includes);
                 return;
             }
             if (versionSort) {

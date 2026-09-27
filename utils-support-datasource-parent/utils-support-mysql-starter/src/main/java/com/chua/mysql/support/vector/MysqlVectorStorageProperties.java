@@ -53,6 +53,11 @@ public record MysqlVectorStorageProperties(
 
     /**
      * 无参构造，使用默认列名和表名。
+     *
+     * <p>刻意保留的无参构造器：它只是把三个默认常量转发给规范构造器，
+     * 不引入第二种状态。与 {@code PostgresqlVectorStorageProperties} 保持一致，
+     * 供未配置向量存储时零参数构造。</p>
+     *
      * @return mysql向量storage属性的结果
      */
     public MysqlVectorStorageProperties() {

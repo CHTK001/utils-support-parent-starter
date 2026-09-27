@@ -46,7 +46,27 @@ public record PostgresqlVectorStorageProperties(
     private static final int DEFAULT_HNSW_EF_SEARCH = 40;
 
     /**
+     * 规范构造器：三个标识列名不可为空。
+     *
+     * <p>value class 前置条件——引用组件空值敌对。三个组件都会被
+     * {@code PostgresqlVectorStorage} 当作 SQL 标识符校验，空值本就不可用，
+     * 故在此处快速失败。全部构造点（无参构造 / {@link #of(Object)} /
+     * 业务侧显式列名）传入的均为非 null 值，因此不改变既有行为。
+     * 三个 {@code int} 组件为基本类型，无需空值校验。</p>
+     */
+    public PostgresqlVectorStorageProperties {
+        tableName = java.util.Objects.requireNonNull(tableName, "tableName 不能为 null");
+        idColumn = java.util.Objects.requireNonNull(idColumn, "idColumn 不能为 null");
+        vectorColumn = java.util.Objects.requireNonNull(vectorColumn, "vectorColumn 不能为 null");
+    }
+
+    /**
      * 使用默认配置创建向量存储属性。
+     *
+     * <p>刻意保留的无参构造器：它只是把六个默认常量转发给规范构造器，
+     * 不引入第二种状态。与 {@code MysqlVectorStorageProperties} 保持一致，
+     * 供 {@link PostgresqlVectorStorageProvider} 与
+     * {@link PostgresqlVectorStorage} 在未配置时零参数构造。</p>
      */
     public PostgresqlVectorStorageProperties() {
         this(DEFAULT_TABLE, DEFAULT_ID_COLUMN, DEFAULT_VECTOR_COLUMN,

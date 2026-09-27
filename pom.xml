@@ -323,7 +323,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>2.1.0-alpha1</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.lingala.zip4j</groupId>
@@ -608,7 +608,7 @@
             <dependency>
                 <groupId>com.github.luben</groupId>
                 <artifactId>zstd-jni</artifactId>
-                <version>1.5.7-3</version>
+                <version>${zstd-jni.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
@@ -623,7 +623,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
-                <version>5.6</version>
+                <version>${httpclient5.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -708,7 +708,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>6.3.0</version>
+                <version>${hikaricp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -723,7 +723,7 @@
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
-                <version>3.50.0</version>
+                <version>${redisson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
@@ -953,17 +953,17 @@
             <dependency>
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-core</artifactId>
-                <version>5.0.0.CR7</version>
+                <version>${vertx.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-mysql-client</artifactId>
-                <version>5.0.0.CR7</version>
+                <version>${vertx.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.vertx</groupId>
                 <artifactId>vertx-pg-client</artifactId>
-                <version>5.0.0.CR7</version>
+                <version>${vertx.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.lmax</groupId>

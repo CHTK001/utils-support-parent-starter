@@ -28,7 +28,7 @@ final class ChunkStream extends ImageOutputStreamImpl {
     */
     private final ImageOutputStream stream;
     /**
-     * 开始采购订单
+     * chunk 起始位置
     */
     private final long startPos;
     /**
@@ -47,7 +47,7 @@ final class ChunkStream extends ImageOutputStreamImpl {
         this.stream = stream;
         this.startPos = stream.getStreamPosition();
 
- // 长度, will backpatch
+        // length, will backpatch
         // (-1);
         stream.writeInt(-1);
 
@@ -94,15 +94,15 @@ final class ChunkStream extends ImageOutputStreamImpl {
      * @throws IOException 当执行过程不满足前置条件时
      */
     void finish() throws IOException {
- // 写入 CRC
+        // 写入 CRC
         stream.writeInt(crc.getValue());
 
- // 写入 长度
+        // 写入长度
         long pos = stream.getStreamPosition();
         stream.seek(startPos);
         stream.writeInt((int)(pos - startPos) - 12);
 
- // 返回 转为 结束 的 chunk 和 flush 转为 最小化 缓冲
+        // 返回 chunk 结束位置并尽量减少 flush 缓冲
         stream.seek(pos);
         stream.flushBefore(pos);
     }

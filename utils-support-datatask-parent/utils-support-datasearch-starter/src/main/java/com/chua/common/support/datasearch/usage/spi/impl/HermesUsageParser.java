@@ -39,8 +39,8 @@ import java.util.Map;
  *
  * <p>Token counts are per-session aggregates (not per-request), so
  * this parser emits one {@link AiUsage} record per 会话 with the
- * cumulative breakdown. 时间戳 are 轮次 seconds; cost 是否 USD
- * When.js.js present.</p>
+ * cumulative breakdown. Timestamps are in seconds; cost is USD
+ * when present.</p>
  *
  * @author CH
  * @since 4.0.0.44

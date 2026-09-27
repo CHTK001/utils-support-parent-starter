@@ -71,6 +71,16 @@ public final class ModelRegistry {
      * REGISTRY
     */
     private static final Map<String, Entry> REGISTRY = new ConcurrentHashMap<>();
+
+    /**
+     * 外部模型目录 → 其模板模型标识 的反查表。
+     *
+     * <p>{@link #registerExternalDirectory} 以「目录绝对路径」为键写入 {@link #REGISTRY}，
+     * 因此按模板模型标识（如 {@code bge-large-zh-embedding}）反查其外部目录时，
+     * {@link #resolveModelPath(String)} 查不到——两者不是同一个键。这里单独记录
+     * 「目录 → 模板」关系，供按模型标识定位服务器本地模型目录使用。</p>
+     */
+    private static final Map<String, String> EXTERNAL_TEMPLATE = new ConcurrentHashMap<>();
     /**
      * CLASSPATCACHE
     */
@@ -308,8 +318,39 @@ public final class ModelRegistry {
                 null,
                 template.hardwareConfig());
         REGISTRY.put(key, external);
+        EXTERNAL_TEMPLATE.put(key, templateModelId);
         log.info("[deeplearning-engine] 已注册外部目录模型: {} (template={})", key, templateModelId);
         return key;
+    }
+
+    /**
+     * 按模板模型标识查找为其注册的外部模型目录。
+     *
+     * <p>用于「服务器本地已放好模型、但 jar 内未打包」的部署形态：
+     * {@link #resolveModelPath(String)} 只认模板自身登记的 classpath / 下载缓存路径，
+     * 不会去看 {@link #registerExternalDirectory} 注册的目录。</p>
+     *
+     * @param templateModelId 模板模型标识，如 {@code bge-large-zh-embedding}
+     * @return 已注册且目录真实存在的外部模型目录；无匹配时返回 {@code null}
+     */
+    public static Path findExternalDirectory(String templateModelId) {
+        if (templateModelId == null || templateModelId.isBlank()) {
+            return null;
+        }
+        String want = templateModelId.trim();
+        for (Map.Entry<String, String> mapped : EXTERNAL_TEMPLATE.entrySet()) {
+            if (want.equals(mapped.getValue())) {
+                try {
+                    Path dir = Paths.get(mapped.getKey());
+                    if (Files.isDirectory(dir)) {
+                        return dir;
+                    }
+                } catch (Exception ignore) {
+                    // 非法路径，跳过
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -326,6 +367,7 @@ public final class ModelRegistry {
         String k = key.trim();
         Entry e = REGISTRY.get(k);
         if (e != null && k.equals(e.relativePath()) && Paths.get(k).isAbsolute()) {
+            EXTERNAL_TEMPLATE.remove(k);
             return REGISTRY.remove(k, e);
         }
         return false;
@@ -590,6 +632,7 @@ public final class ModelRegistry {
      *   <li>classpath: 前缀或 classpath 资源（含 JAR 内嵌，自动解压到临时目录）</li>
      *   <li>{modelRoot}/{modelId}.{ext}</li>
      *   <li>递归扫描 modelRoot</li>
+     *   <li>为该模型注册的外部目录（{@link #registerExternalDirectory}）</li>
      *   <li>Entry 中配置 downloadUrl 时，自动下载到缓存目录（compress=true 时解压 zip）</li>
      * </ol>
      *
@@ -669,6 +712,14 @@ public final class ModelRegistry {
             } catch (Exception ex) {
                 return root.resolve(modelId + ".onnx");
             }
+        }
+
+        // 联网下载前最后一道本地兜底：运维已通过 registerExternalDirectory 把模型放到盘上时，
+        // 直接用该目录。不可达镜像的连接/读取超时会耗掉数十秒，且下载到的也是同一模型的另一份拷贝。
+        // 放在此处而非方法开头，是为了不打乱上面 classpath / modelRoot 的既有解析顺序。
+        Path external = findExternalDirectory(modelId);
+        if (external != null) {
+            return external;
         }
 
         // 本地全部未命中，尝试远程下载

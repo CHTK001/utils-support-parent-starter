@@ -71,7 +71,7 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     private static final String VALUE_MAX_32 = "2147483647";
 
     /**
-     * 创建 pngmetadata格式化 实例
+     * 创建 PNG 元数据格式实例。
     */
     private PNGMetadataFormat() {
         super(PNGMetadata.nativeMetadataFormatName,
@@ -589,9 +589,10 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     }
 
     /**
-     * 是否可以节点appear
-     * @param elementName element名称
-     * @param imageType 镜像类型
+     * 节点是否允许出现
+     *
+     * @param elementName 元素名
+     * @param imageType   图像类型
      */
     public boolean canNodeAppear(String elementName,
                                  ImageTypeSpecifier imageType) {
@@ -599,9 +600,9 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     }
 
     /**
-     * 获取Instance
+     * 获取单例实例
      *
-     * @return 获取instance的结果
+     * @return PNG 元数据格式单例
      */
     public static synchronized IIOMetadataFormat getInstance() {
         if (instance == null) {

@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
- * 系统 日志 resource查找 implementation - 注册 "syslog:" 协议
+ * 系统日志 resource 查找实现 - 注册 "syslog:" 协议
  * <p>
- * Integrates 系统 日志 retrieval into the resource提供者 框架,
- * 查询 系统 日志 on each platform via the unified syslog: 协议.
+ * Integrates system log retrieval into the resource provider framework,
+ * querying system logs on each platform via the unified syslog: protocol.
  * </p>
  *
  * <h3>Ant-style glob syntax:</h3>

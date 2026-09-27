@@ -18,7 +18,11 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.hwpf.usermodel.PictureType;
-
+import org.apache.poi.poifs.filesystem.DirectoryEntry;
+import org.apache.poi.poifs.filesystem.DocumentEntry;
+import org.apache.poi.poifs.filesystem.DocumentInputStream;
+import org.apache.poi.poifs.filesystem.Entry;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -65,15 +69,34 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     private static final int MAX_INLINE_IMAGE_BYTES = 512 * 1024;
 
     /**
+     * 单个内嵌对象（附件）内联下载的上限；超过则只列出名称与大小，
+     * 避免把整个附件 base64 进 HTML 造成页面膨胀。
+     */
+    private static final int MAX_INLINE_ATTACHMENT_BYTES = 2 * 1024 * 1024;
+
+    /**
      * 是否内联 .doc 内嵌图片。
      *
-     * <p><b>默认关闭</b>。实测 POI 的 HWPF 图片抽取对多个真实 .doc
-     * （Apache POI 测试集 pictures_escher.doc / picture.doc）产出的字节
-     * 无法被浏览器解码：PNG 结构校验（IEND）可通过，但 Chrome 仍渲染为
-     * 16×16 破图；EMF/WMF 则浏览器根本无法显示。展示破图比不展示更糟，
-     * 故默认不内联。确认抽取字节可靠后（如改用图片资源流单独读取）可置为 true。</p>
+     * <p><b>已开启</b>。此前一度关闭，是因为把
+     * {@code PicturesManager.savePicture} 的返回值当成了"可拼接属性的 HTML 片段"，
+     * 在 data URI 后面追加 {@code " width="..." height="..."}，
+     * 导致该字符串整体成为 {@code src} 属性值（拼接的引号被序列化为
+     * {@code &quot;}），data URI 非法、浏览器渲染成 16×16 破图。
+     * 经反汇编确认 POI 的约定是「返回值即 src 取值」，改为只返回纯 data URI 后正常。</p>
+     *
+     * <p>配套约束见 {@link #detectWebImageMime}（仅内联浏览器可渲染格式）、
+     * {@link #isCompleteImage}（丢弃不完整字节）与 {@link #MAX_INLINE_IMAGE_BYTES}
+     * （单图体积上限，防止 HTML 膨胀）。</p>
      */
-    private static final boolean INLINE_DOC_IMAGES = false;
+    private static final boolean INLINE_DOC_IMAGES = true;
+
+    /**
+     * OLE2 复合文档中存放内嵌对象（附件）的存储名。
+     *
+     * <p>与 {@code HWPFDocumentCore.STREAM_OBJECT_POOL} 取值一致，
+     * 但该常量是 protected，跨类不可见，故此处重新声明。</p>
+     */
+    private static final String OBJECT_POOL_STREAM = "ObjectPool";
 
 
     @Override
@@ -123,9 +146,10 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                 log.debug("Word 富文本转换失败，降级为纯文本: {}", e.getMessage());
             }
             if (html != null && !html.isBlank()) {
-                return PreviewResult.builder()
-                        .htmlContent(page(header("Word 文档预览") + "<div class=\"doc\">" + html + "</div>"))
-                        .build();
+                StringBuilder out = new StringBuilder(header("Word 文档预览"))
+                        .append("<div class=\"doc\">").append(html).append("</div>");
+                appendEmbeddedObjectsSection(out, content);
+                return PreviewResult.builder().htmlContent(page(out.toString())).build();
             }
             return PreviewResult.builder()
                     .htmlContent(page(header("Word 文档预览") + extractDocText(doc)))
@@ -216,18 +240,13 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                 return "";
             }
             if (!isCompleteImage(pictureData, mime)) {
-                // POI 从 .doc 抽取出的图片字节可能不完整（实测 PNG 缺失 IEND 结束块），
-                // 内联后浏览器只会显示破图，不如不显示
                 log.debug("跳过不完整图片: mime={} bytes={}", mime, pictureData.length);
                 return "";
             }
-            int[] size = readImageSize(pictureData, mime);
-            if (size == null) {
-                return "";
-            }
-            String base64 = Base64.getEncoder().encodeToString(pictureData);
-            return "data:" + mime + ";base64," + base64
-                    + "\" width=\"" + size[0] + "\" height=\"" + size[1];
+            // 返回值即 <img> 的 src 取值：只能返回纯 data URI，
+            // 绝不可在其中拼接 width/height 等属性文本，否则 src 会变成非法 URI
+            // （拼接的引号会被序列化成 &quot;，浏览器整张图都解不出来）。
+            return "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(pictureData);
         }
     }
 
@@ -260,10 +279,10 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 识别浏览器可渲染的图片 MIME；不可渲染时返回 {@ 空}。
+     * 识别浏览器可渲染的图片 MIME；不可渲染时返回 {@code null}。
      *
      * @param data 图片字节
-     * @return MIME；不可渲染返回 {@ 空}
+     * @return MIME；不可渲染返回 {@code null}
      */
     private static String detectWebImageMime(byte[] data) {
         if (data.length >= 8
@@ -284,115 +303,6 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             return "image/webp";
         }
         return null;
-    }
-
-    /**
-     * 从图片文件头解析真实像素尺寸。
-     *
-     * @param data 图片字节
-     * @param mime 图片 MIME
-     * @return {宽, 高}；解析失败返回 {@ 空}
-     */
-    private static int[] readImageSize(byte[] data, String mime) {
-        switch (mime) {
-            case "image/png":
-                if (data.length >= 24) {
-                    return new int[]{readInt32BE(data, 16), readInt32BE(data, 20)};
-                }
-                return null;
-            case "image/gif":
-                if (data.length >= 10) {
-                    return new int[]{readUInt16LE(data, 6), readUInt16LE(data, 8)};
-                }
-                return null;
-            case "image/bmp":
-                if (data.length >= 26) {
-                    return new int[]{readInt32LE(data, 18), Math.abs(readInt32LE(data, 22))};
-                }
-                return null;
-            case "image/jpeg":
-                return readJpegSize(data);
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * 解析 JPEG 尺寸：遍历段直到 SOFn。
-     *
-     * @param data 图片字节
-     * @return {宽, 高}；解析失败返回 {@ 空}
-     */
-    private static int[] readJpegSize(byte[] data) {
-        int i = 2;
-        while (i + 9 < data.length) {
-            if ((data[i] & 0xFF) != 0xFF) {
-                i++;
-                continue;
-            }
-            int marker = data[i + 1] & 0xFF;
-            // SOF0..SOF15，排除 DHT(C4) / JPG(C8) / DAC(CC)
-            if (marker >= 0xC0 && marker <= 0xCF && marker != 0xC4 && marker != 0xC8 && marker != 0xCC) {
-                int height = readUInt16BE(data, i + 5);
-                int width = readUInt16BE(data, i + 7);
-                if (width > 0 && height > 0) {
-                    return new int[]{width, height};
-                }
-                return null;
-            }
-            int segLen = readUInt16BE(data, i + 2);
-            if (segLen <= 0) {
-                return null;
-            }
-            i += 2 + segLen;
-        }
-        return null;
-    }
-
-    /**
-     * 读取大端 32 位无符号整数。
-     *
-     * @param d      字节数组
-     * @param offset 偏移
-     * @return 数值
-     */
-    private static int readInt32BE(byte[] d, int offset) {
-        return ((d[offset] & 0xFF) << 24) | ((d[offset + 1] & 0xFF) << 16)
-                | ((d[offset + 2] & 0xFF) << 8) | (d[offset + 3] & 0xFF);
-    }
-
-    /**
-     * 读取大端 16 位无符号整数。
-     *
-     * @param d      字节数组
-     * @param offset 偏移
-     * @return 数值
-     */
-    private static int readUInt16BE(byte[] d, int offset) {
-        return ((d[offset] & 0xFF) << 8) | (d[offset + 1] & 0xFF);
-    }
-
-    /**
-     * 读取小端 16 位无符号整数。
-     *
-     * @param d      字节数组
-     * @param offset 偏移
-     * @return 数值
-     */
-    private static int readUInt16LE(byte[] d, int offset) {
-        return (d[offset] & 0xFF) | ((d[offset + 1] & 0xFF) << 8);
-    }
-
-    /**
-     * 读取小端 32 位有符号整数。
-     *
-     * @param d      字节数组
-     * @param offset 偏移
-     * @return 数值
-     */
-    private static int readInt32LE(byte[] d, int offset) {
-        return (d[offset] & 0xFF) | ((d[offset + 1] & 0xFF) << 8)
-                | ((d[offset + 2] & 0xFF) << 16) | ((d[offset + 3] & 0xFF) << 24);
     }
 
     /**
@@ -458,6 +368,155 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
+     * 将图片字节转为可内联的 data URI。
+     *
+     * <p>统一承担三重把关，供 doc / xls / ppt 三条链路复用：</p>
+     * <ul>
+     *   <li>格式白名单：仅 PNG / JPEG / GIF / BMP / WebP（EMF、WMF、TIFF 等
+     *       浏览器无法渲染，直接放弃）</li>
+     *   <li>完整性校验：丢弃结构不完整的字节，避免内联出破图</li>
+     *   <li>体积上限：超过 {@link #MAX_INLINE_IMAGE_BYTES} 的图片不内联</li>
+     * </ul>
+     *
+     * @param data 图片字节
+     * @return data URI；不可内联时返回 {@code null}
+     */
+    private static String inlineImage(byte[] data) {
+        if (data == null || data.length == 0 || data.length > MAX_INLINE_IMAGE_BYTES) {
+            return null;
+        }
+        String mime = detectWebImageMime(data);
+        if (mime == null || !isCompleteImage(data, mime)) {
+            return null;
+        }
+        return "data:" + mime + ";base64," + Base64.getEncoder().encodeToString(data);
+    }
+
+    /**
+     * 向页面追加「文档内嵌图片」区块。
+     *
+     * <p>用于 Excel / PowerPoint 预览：表格文本与每页文字之外，
+     * 把工作簿 / 演示文稿里内嵌的图片一并展示，避免用户以为内容缺失。</p>
+     *
+     * @param body   输出缓冲区
+     * @param images 图片字节列表
+     * @param source 来源描述（如 "工作簿" / "演示文稿"）
+     */
+    private void appendImagesSection(StringBuilder body, List<byte[]> images, String source) {
+        List<String> inlined = new ArrayList<>();
+        int skipped = 0;
+        for (byte[] data : images) {
+            String uri = inlineImage(data);
+            if (uri == null) {
+                skipped++;
+            } else {
+                inlined.add(uri);
+            }
+        }
+        if (inlined.isEmpty() && skipped == 0) {
+            return;
+        }
+        body.append("<div class=\"sheet\"><div class=\"sheet-head\">")
+                .append(escape(source))
+                .append("内嵌图片 (").append(inlined.size()).append(" 张");
+        if (skipped > 0) {
+            body.append("，").append(skipped).append(" 张为不支持的格式或过大已跳过");
+        }
+        body.append(")</div><div class=\"images\">");
+        for (String uri : inlined) {
+            body.append("<img src=\"").append(uri).append("\" alt=\"内嵌图片\"/>");
+        }
+        body.append("</div></div>");
+    }
+
+    /**
+     * 向页面追加「内嵌对象（附件）」区块。
+     *
+     * <p>列出 OLE2 复合文档 ObjectPool 下的内嵌对象。传统 .doc / .xls / .ppt
+     * 中嵌入的其它文件（如文档里插入的 Excel 表、PDF 附件）保存在该存储下，
+     * 用户在页面上看不到时会误以为文档内容缺失。</p>
+     *
+     * <p>不超过 {@link #MAX_INLINE_ATTACHMENT_BYTES} 的对象同时给出下载链接
+     * （内联为 data URI），使其可直接取用而非仅"看得到名字"。</p>
+     *
+     * @param body    输出缓冲区
+     * @param content 原文件字节
+     */
+    private void appendEmbeddedObjectsSection(StringBuilder body, byte[] content) {
+        // 注意：内嵌对象的字节必须在 POIFSFileSystem 打开期间读取。
+        // Entry 只是句柄，一旦文件系统关闭再读就会失败（曾因此导致下载链接静默丢失）。
+        try (POIFSFileSystem fs = new POIFSFileSystem(new ByteArrayInputStream(content))) {
+            List<Entry> objects = new ArrayList<>();
+            collectEmbeddedObjects(fs.getRoot(), objects);
+            if (objects.isEmpty()) {
+                return;
+            }
+            body.append("<div class=\"sheet\"><div class=\"sheet-head\">内嵌对象 / 附件 (")
+                    .append(objects.size()).append(")</div><div class=\"attach\">");
+            for (Entry obj : objects) {
+                long size = obj instanceof DocumentEntry de ? de.getSize() : 0L;
+                body.append("<div class=\"attach-item\">").append(escape(obj.getName()))
+                        .append(" <span class=\"attach-size\">").append(size).append(" 字节</span>");
+                String link = buildAttachmentLink(obj, size);
+                if (link != null) {
+                    body.append(" ").append(link);
+                }
+                body.append("</div>");
+            }
+            body.append("</div></div>");
+        } catch (Exception e) {
+            log.debug("读取内嵌对象失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 为内嵌对象构建下载链接（小对象内联为 data URI）。
+     *
+     * @param obj  内嵌对象条目
+     * @param size 字节数
+     * @return 下载链接 HTML；对象过大或不可读时返回 {@code null}
+     */
+    private String buildAttachmentLink(Entry obj, long size) {
+        if (!(obj instanceof DocumentEntry de) || size <= 0 || size > MAX_INLINE_ATTACHMENT_BYTES) {
+            return null;
+        }
+        try (DocumentInputStream in = new DocumentInputStream(de)) {
+            byte[] data = in.readAllBytes();
+            String base64 = Base64.getEncoder().encodeToString(data);
+            return "<a class=\"attach-dl\" download=\"" + escape(obj.getName())
+                    + "\" href=\"data:application/octet-stream;base64," + base64 + "\">下载</a>";
+        } catch (Exception e) {
+            log.debug("读取内嵌对象 {} 失败: {}", obj.getName(), e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 递归收集 ObjectPool 下的内嵌对象。
+     *
+     * @param dir     当前目录
+     * @param objects 收集器
+     * @throws Exception 遍历异常
+     */
+    private void collectEmbeddedObjects(DirectoryEntry dir, List<Entry> objects) throws Exception {
+        java.util.Iterator<Entry> it = dir.getEntries();
+        while (it.hasNext()) {
+            Entry e = it.next();
+            if (!(e instanceof DirectoryEntry sub)) {
+                continue;
+            }
+            if (OBJECT_POOL_STREAM.equals(sub.getName())) {
+                java.util.Iterator<Entry> objs = sub.getEntries();
+                while (objs.hasNext()) {
+                    objects.add(objs.next());
+                }
+            } else {
+                collectEmbeddedObjects(sub, objects);
+            }
+        }
+    }
+
+    /**
      * 预览 Excel 工作表，渲染各表前 200 行。
      *
      * @param content 工作簿字节
@@ -474,10 +533,16 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             for (int i = 0; i < sheetCount; i++) {
                 renderSheet(body, wb.getSheetAt(i));
             }
+            List<byte[]> images = new ArrayList<>();
+            for (org.apache.poi.hssf.usermodel.HSSFPictureData pic : wb.getAllPictures()) {
+                images.add(pic.getData());
+            }
+            appendImagesSection(body, images, "工作簿");
         } catch (org.apache.poi.OldFileFormatException e) {
             return PreviewResult.builder()
                     .htmlContent(page(unavailableHtml("Excel 97-2003 (.xls) 解析失败: " + escape(e.getMessage())))).build();
         }
+        appendEmbeddedObjectsSection(body, content);
         return PreviewResult.builder().htmlContent(page(body.toString())).build();
     }
 
@@ -579,6 +644,18 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
             return PreviewResult.builder()
                     .htmlContent(page(unavailableHtml("PowerPoint (.ppt) 解析失败: " + escape(e.getMessage())))).build();
         }
+        // 演示文稿内嵌图片与内嵌对象
+        List<byte[]> pptImages = new ArrayList<>();
+        try (InputStream in = new ByteArrayInputStream(content);
+             HSLFSlideShow show = new HSLFSlideShow(in)) {
+            for (org.apache.poi.hslf.usermodel.HSLFPictureData pic : show.getPictureData()) {
+                pptImages.add(pic.getData());
+            }
+        } catch (Exception e) {
+            log.debug("读取 ppt 内嵌图片失败: {}", e.getMessage());
+        }
+        appendImagesSection(body, pptImages, "演示文稿");
+        appendEmbeddedObjectsSection(body, content);
         return PreviewResult.builder().htmlContent(page(body.toString())).build();
     }
 
@@ -620,6 +697,13 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
                 + ".doc td,.doc th{border:1px solid #e5e7eb;padding:6px 10px;vertical-align:top}"
                 + ".doc pre{background:#f3f4f6;border-radius:6px;padding:12px;overflow:auto}"
                 + ".warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:13px}"
+                // Excel / PPT 内嵌图片与内嵌对象（附件）
+                + ".images{padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}"
+                + ".images img{max-width:220px;max-height:220px;border:1px solid #e5e7eb;border-radius:6px;background:#fff}"
+                + ".attach{padding:8px 16px 14px}"
+                + ".attach-item{padding:6px 0;border-bottom:1px dashed #f0f0f0;font-size:13px}"
+                + ".attach-size{color:#9ca3af;font-size:12px;margin-left:6px}"
+                + ".attach-dl{margin-left:8px;color:#2563eb;font-size:12px;text-decoration:underline;cursor:pointer}"
                 + ".sheet,.slide{background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:16px;overflow:hidden}"
                 + ".sheet-head,.slide-head{padding:10px 16px;font-weight:600;border-bottom:1px solid #f0f0f0;background:#f9fafb}"
                 + "table{border-collapse:collapse;width:100%;font-size:13px}"

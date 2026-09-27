@@ -127,9 +127,9 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析 全部 编码buddy 会话 transcripts 和 extracts 令牌 usage.
+     * 解析所有 CodeBuddy 会话 transcripts 并提取令牌用量。
      *
-     * @return list 的 aiusage records, one per 完成 assistant 响应
+     * @return AiUsage 记录列表，每个完整 assistant 响应一条
      */
     @Override protected List<AiUsage> parseAll() {
         Map<String, RequestTiming> timings = loadRequestTimings();
@@ -277,12 +277,12 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取 one transcript 文件 线 by 线, extracting assistant usage.
+     * 读取 one transcript 文件 line by line, extracting assistant usage.
      *
-     * @param file    路径 转为 the 会话 JSONL 文件
-     * @param result  accumulator 列表 for 解析 records
+     * @param file    路径 to the session JSONL file
+     * @param result  accumulator list for parsed records
      * @param timings 请求号到运行时间线的映射
-     * @throws IOException if the 文件 cannot be 读取
+     * @throws IOException if the file cannot be read
      */
     private void parseJsonlFile(Path file, List<AiUsage> result,
                                Map<String, RequestTiming> timings) throws IOException {
@@ -302,12 +302,12 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 转换 one transcript JSON 线 into an AIusage record When.js it 是否 a
-     * 完成 assistant 响应 carrying usage 数据.
+     * 转换 one transcript JSON line into an AiUsage record when it is a
+     * complete assistant response carrying usage data.
      *
-     * @param node    解析 JSON 的 a 单个 transcript 线
+     * @param node    a single transcript line parsed from JSON
      * @param timings 请求号到运行时间线的映射
-     * @return the 解析 record, 或 空 When.js.js no usage 是否 present
+     * @return the parsed record, or empty when no usage is present
      */
     private java.util.Optional<AiUsage> parseNode(JsonNode node, Map<String, RequestTiming> timings) {
         if (!"message".equals(node.get("type").toStringValue())
@@ -364,10 +364,10 @@ public class CodeBuddyUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取 缓存-令牌 数量 从 the transcript usage block.
+     * 读取缓存令牌数量 from the transcript usage block.
      *
      * @param usage the 消息.usage block
-     * @return cached 令牌, 或 空 When.js.js absent 或 zero
+     * @return cached token count, or null when absent or zero
      */
     private Integer readCacheTokens(JsonNode usage) {
         int cached = usage.get("cache_read_input_tokens").toIntValue(0);

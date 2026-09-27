@@ -26,50 +26,50 @@ import java.util.zip.DeflaterOutputStream;
  */
 public final class PNGImageWriter extends ImageWriter {
     /**
-     * 默认hotp生成器 compression 级别 = 4 ie medium compression
+     * 默认压缩级别 = 4 即中等压缩
      */
     private static final int DEFAULT_COMPRESSION_LEVEL = 4;
 
-    ImageOutputStream stream = null; // 流
+    ImageOutputStream stream = null; // 输出流
 
-    PNGMetadata metadata = null; // metadata
+    PNGMetadata metadata = null; // 元数据
 
     /**
-     * Whether a sequence 是否 存在 written.
+     * 是否已开始写入图像序列。
      */
     private boolean isWritingSequence = false;
 
     /**
-     * Whether the 头部 是否包含 been written.
+     * 是否已写入序列头。
      */
     private boolean wroteSequenceHeader = false;
 
     /**
-     * The 索引 的 the 镜像 存在 written.
+     * 当前正在写入的图像索引。
      */
     private int imageIndex = 0;
 
     /**
-     * The 索引 的 当前 sequence 数字.
+     * 当前序列号。
      */
     private int nextSequenceNumber = 0;
 
- // Factors 从 the 镜像写入参数
+    // 来自写入参数的图像采样因子
     int sourceXOffset = 0;
-    int sourceYOffset = 0; // 源y偏移量
-    int sourceWidth = 0; // 源width
-    int sourceHeight = 0; // 源height
-    int[] sourceBands = null; // 源bands
-    int periodX = 1; // 周期x
-    int periodY = 1; // 周期y
+    int sourceYOffset = 0; // 源 Y 偏移量
+    int sourceWidth = 0; // 源宽度
+    int sourceHeight = 0; // 源高度
+    int[] sourceBands = null; // 源波段
+    int periodX = 1; // X 方向周期
+    int periodY = 1; // Y 方向周期
 
-    int numBands; // numbands
-    int bpp; // bpp
+    int numBands; // 波段数
+    int bpp; // 每像素字节数
 
-    RowFilter rowFilter = new RowFilter(); // row过滤器
-    byte[] prevRow = null; // prevrow
-    byte[] currRow = null; // currrow
-    byte[][] filteredRows = null; // 过滤器rows
+    RowFilter rowFilter = new RowFilter(); // 行过滤器
+    byte[] prevRow = null; // 上一行数据
+    byte[] currRow = null; // 当前行数据
+    byte[][] filteredRows = null; // 过滤后各行数据
 
     // Per-band scaling tables
     //
@@ -90,28 +90,29 @@ public final class PNGImageWriter extends ImageWriter {
  // 8 位表
     // ;
     byte[][] scale = null;
- // equivalent 转为 scale[0]
+    // 等价于 scale[0]
     // ;
     byte[] scale0 = null;
 
  // 16 位输出的缩放表
- // High bytes 的 输出
+    // 高字节输出
     // ;
     byte[][] scaleh = null;
- // Low bytes 的 输出
+    // 低字节输出
     // ;
     byte[][] scalel = null;
 
- // Total 数字 的 pixels 转为 be written by 写入_IDAT 和 写入_fdat
+    // 由 write_IDAT 和 write_fdat 写入的像素总数
     // ;
     int totalPixels = 0;
- // Running 数量 的 pixels written by 写入_IDAT 和 写入_fdat
+    // 由 write_IDAT 和 write_fdat 已写入的像素数
     // ;
     int pixelsDone = 0;
 
     /**
-     * 创建 png镜像writer 实例
-     * @param originatingProvider originating提供者
+     * 创建 PNG 图像写出器实例。
+     *
+     * @param originatingProvider 触发本次创建的 SPI 提供者
      */
     public PNGImageWriter(ImageWriterSpi originatingProvider) {
         super(originatingProvider);
@@ -146,8 +147,9 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 获取默认流式输出Metadata
-     * @param param 参数
+     * 获取默认流式输出元数据
+     *
+     * @param param 写入参数
      */
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         
@@ -157,9 +159,11 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 获取默认镜像metadata
-     * @param imageType 镜像类型
-     * @param param 参数
+     * 获取默认图像元数据
+     *
+     * @param imageType 图像类型
+     * @param param     参数
+     * @return 按图像类型初始化好的 PNG 元数据
      */
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType,
                                                ImageWriteParam param) {
@@ -170,9 +174,10 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 转换流式输出Metadata
-     * @param inData 入数据
-     * @param param 参数
+     * 转换流式输出元数据
+     *
+     * @param inData 输入元数据
+     * @param param  写入参数
      */
     public IIOMetadata convertStreamMetadata(IIOMetadata inData,
                                              ImageWriteParam param) {
@@ -183,10 +188,12 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 转换镜像metadata
-     * @param inData 入数据
-     * @param imageType 镜像类型
-     * @param param 参数
+     * 转换图像元数据
+     *
+     * @param inData    输入元数据
+     * @param imageType 图像类型
+     * @param param     参数
+     * @return 转换后的元数据
      */
     public IIOMetadata convertImageMetadata(IIOMetadata inData,
                                             ImageTypeSpecifier imageType,
@@ -202,7 +209,7 @@ public final class PNGImageWriter extends ImageWriter {
      * 写入魔法
     */
     private void write_magic() throws IOException {
- // 写入 签名
+        // write signature
         byte[] magic = { (byte)137, 80, 78, 71, 13, 10, 26, 10 };
         stream.write(magic);
     }
@@ -211,7 +218,7 @@ public final class PNGImageWriter extends ImageWriter {
      * 写入IHDR
     */
     private void write_IHDR() throws IOException {
- // 写入 IHDR chunk
+        // write IHDR chunk
         ChunkStream cs = new ChunkStream(PNGImageReader.IHDR_TYPE, stream);
         cs.writeInt(metadata.IHDR_width);
         cs.writeInt(metadata.IHDR_height);
@@ -289,7 +296,7 @@ public final class PNGImageWriter extends ImageWriter {
                 throw new IIOException("iCCP profile name is longer than 79");
             }
             cs.writeBytes(metadata.iCCP_profileName);
- // 空 Terminator
+        // null Terminator
             cs.writeByte(0);
 
             cs.writeByte(metadata.iCCP_compressionMethod);
@@ -349,7 +356,7 @@ public final class PNGImageWriter extends ImageWriter {
         if (metadata.PLTE_present) {
             if (metadata.IHDR_colorType == PNG.PNG_COLOR_GRAY ||
               metadata.IHDR_colorType == PNG.PNG_COLOR_GRAY_ALPHA) {
- // PLTE cannot occur 入 a gray 镜像
+                // PLTE cannot occur in a gray image
 
                 processWarningOccurred(0,
 "A PLTE chunk may not appear in a gray or gray alpha image.\n" +
@@ -399,8 +406,8 @@ public final class PNGImageWriter extends ImageWriter {
             int colorType = metadata.IHDR_colorType;
             int chunkType = metadata.tRNS_colorType;
 
- // Special 大小写: 镜像 是否 RGB 和 chunk 是否 Gray
- // Promote chunk 内容 转为 RGB
+            // Special case: image is RGB but chunk is Gray
+            // Promote chunk contents to RGB
             int chunkRed = metadata.tRNS_red;
             int chunkGreen = metadata.tRNS_green;
             int chunkBlue = metadata.tRNS_blue;
@@ -449,16 +456,16 @@ public final class PNGImageWriter extends ImageWriter {
             int chunkGreen = metadata.bKGD_green;
             int chunkBlue = metadata.bKGD_blue;
             // 特殊情况：图像为 RGB(A) 而 chunk 为 Gray
- // 把 chunk 内容提升为 RGB
+            // 把 chunk 内容提升为 RGB
             if (colorType == PNG.PNG_COLOR_RGB &&
                 chunkType == PNG.PNG_COLOR_GRAY) {
- // 让灰度的 bkgd chunk 表现得像 RGB
+                // 让灰度的 bkgd chunk 表现得像 RGB
                 chunkType = colorType;
                 chunkRed = chunkGreen = chunkBlue =
                     metadata.bKGD_gray;
             }
 
- // 忽略与 color 类型不一致的 alpha
+            // 忽略与 color 类型不一致的 alpha
             if (chunkType != colorType) {
                 processWarningOccurred(0,
 "bKGD metadata has incompatible color type.\n" +
@@ -506,7 +513,7 @@ public final class PNGImageWriter extends ImageWriter {
                 throw new IIOException("sPLT palette name is longer than 79");
             }
             cs.writeBytes(metadata.sPLT_paletteName);
- // 空 Terminator
+        // null Terminator
             cs.writeByte(0);
 
             cs.writeByte(metadata.sPLT_sampleDepth);
@@ -573,9 +580,10 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-     * Deflate
-     * @param b b
-     * @return deflate的结果
+     * 对字节数组做 deflate 压缩。
+     *
+     * @param b 待压缩数据
+     * @return 压缩后的字节数组
      */
     private byte[] deflate(byte[] b) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -686,7 +694,7 @@ public final class PNGImageWriter extends ImageWriter {
      * 分块类型。
      *
      * @param typeString 类型字符串，不允许为 null
-     * @return 结果数值
+     * @return 打包后的 4 字节块类型值
      */
     private static int chunkType(String typeString) {
         char c0 = typeString.charAt(0);
@@ -699,13 +707,14 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-     * 编码通过
-     * @param os os
-     * @param image 镜像
-     * @param xOffset x偏移量
-     * @param yOffset y偏移量
-     * @param xSkip x跳过
-     * @param ySkip y跳过
+     * 编码一个扫描通道。
+     *
+     * @param os      输出流
+     * @param image   源图像
+     * @param xOffset X 偏移量
+     * @param yOffset Y 偏移量
+     * @param xSkip   X 方向步长
+     * @param ySkip   Y 方向步长
      */
     private void encodePass(ImageOutputStream os,
                             RenderedImage image,
@@ -722,7 +731,7 @@ public final class PNGImageWriter extends ImageWriter {
         yOffset *= periodY;
         ySkip *= periodY;
 
- // Early exit if no 数据 for this 通过
+        // Early exit if no data for this pass
         int hpixels = (width - xOffset + xSkip - 1)/xSkip;
         int vpixels = (height - yOffset + ySkip - 1)/ySkip;
         if (hpixels == 0 || vpixels == 0) {
@@ -749,9 +758,9 @@ public final class PNGImageWriter extends ImageWriter {
         if (metadata.IHDR_colorType == PNG.PNG_COLOR_GRAY_ALPHA &&
             image.getColorModel() instanceof IndexColorModel) {
             {
-            // reserve space for alpha 样本
+            // reserve space for alpha samples
             bytesPerRow *= 2;
-            // will be used 转为 calculate alpha 值 for the pixel
+            // will be used to calculate alpha value for the pixel
             icm_gray_alpha = (IndexColorModel)image.getColorModel();
             }
             currRow = new byte[bytesPerRow + bpp];
@@ -782,7 +791,7 @@ public final class PNGImageWriter extends ImageWriter {
                              samples);
             }
 
- // Reorder palette 数据 if necessary
+            // Reorder palette data if necessary
             int[] paletteOrder = metadata.PLTE_order;
             if (paletteOrder != null) {
                 for (int i = 0; i < numSamples; i++) {
@@ -798,7 +807,7 @@ public final class PNGImageWriter extends ImageWriter {
 
             switch (bitDepth) {
             case 1: case 2: case 4:
- // 镜像 能否 only have a 单个 band
+                // image can only have a single band
 
                 int mask = samplesPerByte - 1;
                 for (int s = xOffset; s < numSamples; s += xSkip) {
@@ -812,7 +821,7 @@ public final class PNGImageWriter extends ImageWriter {
                     }
                 }
 
- // Left Shift the 最后一个 byte
+                // Left Shift the last byte
                 if ((pos & mask) != 0) {
                     tmp <<= ((8/bitDepth) - pos)*bitDepth;
                     currRow[count++] = (byte)tmp;
@@ -871,11 +880,12 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
- // 使用源 x 偏移量等
+    // 使用源 x 偏移量等
     /**
-     * 写入IDAT
-     * @param image 镜像
-     * @param deflaterLevel deflater级别
+     * 写入 IDAT 块
+     *
+     * @param image         源图像
+     * @param deflaterLevel deflater 压缩级别
      */
     private void write_IDAT(RenderedImage image, int deflaterLevel)
         throws IOException
@@ -910,13 +920,14 @@ public final class PNGImageWriter extends ImageWriter {
         cs.finish();
     }
 
- // 检查 two int arrays for 值 equality, always 返回 false
- // if either array 是否 空
+    // Check two int arrays for value equality, always returns false
+    // if either array is null
     /**
-     * 判断相等
-     * @param s0 s0
-     * @param s1 s1
-     * @return equals的结果
+     * 判断两个 {@code int} 数组是否相等。
+     *
+     * @param s0 第一个数组
+     * @param s1 第二个数组
+     * @return 两者非 {@code null} 且逐元素相同返回 {@code true}
      */
     private boolean equals(int[] s0, int[] s1) {
         if (s0 == null || s1 == null) {
@@ -936,19 +947,20 @@ public final class PNGImageWriter extends ImageWriter {
  // 初始化 scale/scale0 或 scaleh/scalel 数组，
  // 用于将输入值缩放到所需的输出位深
     /**
-     * 初始化scaletables
-     * @param sampleSize 样本大小
+     * 初始化缩放表
+     *
+     * @param sampleSize 各波段样本大小（位）
      */
     private void initializeScaleTables(int[] sampleSize) {
         int bitDepth = metadata.IHDR_bitDepth;
 
- // If the existing tables are still valid, just 返回
+        // If the existing tables are still valid, just return
         if (bitDepth == scalingBitDepth &&
             equals(sampleSize, this.sampleSize)) {
             return;
         }
 
- // Compute 新 tables
+        // Compute new tables
         this.sampleSize = sampleSize;
         this.scalingBitDepth = bitDepth;
         int maxOutSample = (1 << bitDepth) - 1;
@@ -967,7 +979,7 @@ public final class PNGImageWriter extends ImageWriter {
             scaleh = scalel = null;
         // lse { // bitDepth == 16
         }
- // Divide scaling table into high 和 low bytes
+            // Divide scaling table into high and low bytes
             scaleh = new byte[numBands][];
             scalel = new byte[numBands][];
 
@@ -988,10 +1000,11 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 写入
-     * @param streamMetadata 流metadata
-     * @param image 镜像
-     * @param param 参数
+     * 写出单张图像。
+     *
+     * @param streamMetadata 流元数据
+     * @param image           待写图像
+     * @param param           写入参数
      */
     public void write(IIOMetadata streamMetadata,
                       IIOImage image,
@@ -1029,10 +1042,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-     * 写入fdat
-     * @param image 镜像
-     * @param deflaterLevel deflater级别
-     * @param currentSequence 当前sequence
+     * 写入 fdAT 块
+     *
+     * @param image           源图像
+     * @param deflaterLevel   deflater 压缩级别
+     * @param currentSequence 当前序列号
      */
     private void write_fdAT(RenderedImage image, int deflaterLevel, int currentSequence)
             throws IOException
@@ -1082,7 +1096,7 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 是否可以写入Sequence
+     * 是否支持写入图像序列。
     */
     public boolean canWriteSequence() {
         
@@ -1092,8 +1106,9 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * Prepare写入Sequence
-     * @param streamMetadata 流metadata
+     * 准备写入图像序列
+     *
+     * @param streamMetadata 流元数据
      */
     public void prepareWriteSequence(IIOMetadata streamMetadata) throws IOException {
 
@@ -1107,10 +1122,11 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-     * 写入转为sequence
-     * @param image 镜像
-     * @param param 参数
-     * @param acTL_present actl_present
+     * 写入图像序列中的一帧。
+     *
+     * @param image         待写图像
+     * @param param         写入参数
+     * @param acTL_present  是否写入 acTL 块
      */
     private void writeToSequence0(IIOImage image, ImageWriteParam param, boolean acTL_present) throws IOException {
 
@@ -1131,7 +1147,7 @@ public final class PNGImageWriter extends ImageWriter {
         SampleModel sampleModel = im.getSampleModel();
         this.numBands = sampleModel.getNumBands();
 
- // 设置 源 region 和 subsampling 转为 默认 值
+               // 初始化源区域与子采样为默认值
         this.sourceXOffset = im.getMinX();
         this.sourceYOffset = im.getMinY();
         this.sourceWidth = im.getWidth();
@@ -1142,14 +1158,14 @@ public final class PNGImageWriter extends ImageWriter {
 
         if (param != null) {
 
- // 获取 源 region 和 subsampling factors
+            // 读取源区域与子采样因子
             Rectangle sourceRegion = param.getSourceRegion();
             if (sourceRegion != null) {
                 Rectangle imageBounds = new Rectangle(im.getMinX(),
                         im.getMinY(),
                         im.getWidth(),
                         im.getHeight());
- // Clip 转为 actual 镜像 bounds
+                // Clip to actual image bounds
                 sourceRegion = sourceRegion.intersection(imageBounds);
                 sourceXOffset = sourceRegion.x;
                 sourceYOffset = sourceRegion.y;
@@ -1165,7 +1181,7 @@ public final class PNGImageWriter extends ImageWriter {
             sourceWidth -= gridX;
             sourceHeight -= gridY;
 
- // 获取 subsampling factors
+            // 读取子采样因子
             periodX = param.getSourceXSubsampling();
             periodY = param.getSourceYSubsampling();
 
@@ -1176,18 +1192,18 @@ public final class PNGImageWriter extends ImageWriter {
             }
         }
 
- // Compute 输出 维度
+        // Compute output dimensions
         int destWidth = (sourceWidth + periodX - 1)/periodX;
         int destHeight = (sourceHeight + periodY - 1)/periodY;
         if (destWidth <= 0 || destHeight <= 0) {
             throw new IllegalArgumentException("Empty source region!");
         }
 
- // Compute total 数字 的 pixels for 进步 notification
+        // Compute total number of pixels for progress notification
         this.totalPixels = destWidth*destHeight;
         this.pixelsDone = 0;
 
- // 创建 metadata
+        // Create metadata
         if (metadata == null) {
             IIOMetadata imd = image.getMetadata();
             if (imd != null) {
@@ -1201,7 +1217,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
 
 
- // reset compression 级别 转为 默认:
+        // reset compression level to default:
         int deflaterLevel = DEFAULT_COMPRESSION_LEVEL;
 
         if (param != null) {
@@ -1218,7 +1234,7 @@ public final class PNGImageWriter extends ImageWriter {
                 default:
             }
 
- // Use Adam7 interlacing if 设置 入 写入 参数
+            // Use Adam7 interlacing if set in write param
             switch (param.getProgressiveMode()) {
                 case ImageWriteParam.MODE_DEFAULT:
                     metadata.IHDR_interlaceMethod = 1;
@@ -1226,8 +1242,8 @@ public final class PNGImageWriter extends ImageWriter {
                 case ImageWriteParam.MODE_DISABLED:
                     metadata.IHDR_interlaceMethod = 0;
                     break;
- // MODE_副本_从_METADATA should already be taken care 的
- // MODE_EXPLICIT 是否 not allowed
+                // MODE_COPY_FROM_METADATA should already be taken care of
+                // MODE_EXPLICIT is not allowed
                 default:
             }
         }
@@ -1235,13 +1251,13 @@ public final class PNGImageWriter extends ImageWriter {
  // 初始化位深度和颜色类型
         metadata.initialize(new ImageTypeSpecifier(im), numBands);
 
- // Overwrite IHDR width 和 height 值 with 值 从 镜像
+        // Overwrite IHDR width and height values with values from image
         metadata.IHDR_width = destWidth;
         metadata.IHDR_height = destHeight;
 
         this.bpp = numBands*((metadata.IHDR_bitDepth == 16) ? 2 : 1);
 
- // 初始化 scaling tables for this 镜像
+        // Initialize scaling tables for this image
         initializeScaleTables(sampleModel.getSampleSize());
 
         clearAbortRequest();
@@ -1252,7 +1268,7 @@ public final class PNGImageWriter extends ImageWriter {
         } else {
             if (wroteSequenceHeader) {
                 PNGMetadata metadata;
- // 创建 metadata
+        // Create metadata
                 IIOMetadata imd = image.getMetadata();
                 if (imd != null) {
                     metadata = (PNGMetadata) convertImageMetadata(imd,
@@ -1302,7 +1318,7 @@ public final class PNGImageWriter extends ImageWriter {
 
                 if (param != null && ((PNGImageWriteParam) param).isAnimContainsIDAT()) {
                     PNGMetadata metadata;
- // 创建 metadata
+        // Create metadata
                     IIOMetadata imd = image.getMetadata();
                     if (imd != null) {
                         metadata = (PNGMetadata) convertImageMetadata(imd,
@@ -1331,9 +1347,10 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 写入转为sequence
-     * @param image 镜像
-     * @param param 参数
+     * 向序列追加一帧。
+     *
+     * @param image 待写图像
+     * @param param 写入参数
      */
     public void writeToSequence(IIOImage image, ImageWriteParam param) throws IOException {
         writeToSequence0(image, param, true);
@@ -1341,7 +1358,7 @@ public final class PNGImageWriter extends ImageWriter {
 
     @Override
     /**
-     * 结束写入Sequence
+     * 结束写入序列。
     */
     public void endWriteSequence() throws IOException {
         if (stream == null) {
@@ -1350,7 +1367,7 @@ public final class PNGImageWriter extends ImageWriter {
         if (!isWritingSequence) {
             throw new IllegalStateException("prepareWriteSequence() was not invoked!");
         }
- // 饰面 up 和 inform the 监听器 we are done
+        // 收尾并通知监听器写入完成
         write_IEND();
         processImageComplete();
         resetStreamSettings();
@@ -1366,7 +1383,7 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-     * Reset流式输出Settings
+     * 重置流式输出设置
     */
     private void resetStreamSettings() {
         this.isWritingSequence = false;
@@ -1376,5 +1393,3 @@ public final class PNGImageWriter extends ImageWriter {
         this.nextSequenceNumber = 0;
     }
 }
-
-

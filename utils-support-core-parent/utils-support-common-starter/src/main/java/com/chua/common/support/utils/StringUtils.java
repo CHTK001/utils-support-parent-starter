@@ -992,11 +992,11 @@ public class StringUtils {
     /**
      * <p>检查 CharSequence 是否以指定前缀开头（可选是否忽略大小写）。</p>
      *
-     * @param str        the charsequence 转为 检查, may be 空
-     * @param prefix     the 前缀 转为 查找, may be 空
-     * @param ignoreCase indicates whether the compare should ignore 大小写
-     * (大小写 insensitive) 或 not.
-     * @return {@code true} if the charsequence 启动 with the 前缀 或
+     * @param str        the charsequence to check, may be null
+     * @param prefix     the prefix to find, may be null
+     * @param ignoreCase indicates whether the compare should ignore case
+     * (case insensitive) or not.
+     * @return {@code true} if the charsequence starts with the prefix or
      * both {@code null}
      * @see String#startsWith(String)
      */
@@ -3047,10 +3047,10 @@ public class StringUtils {
     }
 
     /**
-     * 测试 that a 字符串 contains only ASCII characters.
+     * Tests that a String contains only ASCII characters.
      *
-     * @param string scanned 字符串
-     * @return true if 全部 characters are 入 范围 0 - 127
+     * @param string scanned String
+     * @return true if all characters are in range 0 - 127
      */
     public static boolean isAscii(String string) {
         for (int i = 0; i < string.length(); i++) {
@@ -3064,10 +3064,10 @@ public class StringUtils {
 
 
     /**
-     * 测试 if a 编码 point 是否 "whitespace" as defined 入 the HTML spec. Used for 输出 HTML.
+     * Tests if a code point is "whitespace" as defined in the HTML spec. Used for HTML output.
      *
-     * @param c 编码 point 转为 测试
-     * @return true if 编码 point 是否 whitespace, false otherwise
+     * @param c code point to test
+     * @return true if code point is whitespace, false otherwise
      * @see #isActuallyWhitespace(int)
      */
     public static boolean isWhitespace(int c) {
@@ -3075,10 +3075,10 @@ public class StringUtils {
     }
 
     /**
-     * 测试 if a 编码 point 是否 "whitespace" as defined by what it looks like. Used for Element.文本 etc.
+     * Tests if a code point is "whitespace" as defined by what it looks like. Used for Element.text etc.
      *
-     * @param c 编码 point 转为 测试
-     * @return true if 编码 point 是否 whitespace, false otherwise
+     * @param c code point to test
+     * @return true if code point is whitespace, false otherwise
      */
     public static boolean isActuallyWhitespace(int c) {
         return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == 160;
@@ -3174,11 +3174,11 @@ public class StringUtils {
 
 
     /**
-     * 创建 a 新 absolute URL, 从 a provided existing absolute URL 和 a relative URL 组件.
+     * Creates a new absolute URL, from a provided existing absolute URL and a relative URL component.
      *
-     * @param baseUrl the existing absolute 基础 URL
-     * @param relUrl  the relative URL 转为 resolve. (If it's already absolute, it will be 返回)
-     * @return an absolute URL if one was able 转为 be generated, 或 the 空 字符串 if not
+     * @param baseUrl the existing absolute base URL
+     * @param relUrl  the relative URL to resolve. (If it's already absolute, it will be returned)
+     * @return an absolute URL if one was able to be generated, or the empty String if not
      */
     public static String resolve(String baseUrl, String relUrl) {
 
@@ -3202,12 +3202,12 @@ public class StringUtils {
     }
 
     /**
-     * 创建 a 新 absolute URL, 从 a provided existing absolute URL 和 a relative URL 组件.
+     * Creates a new absolute URL, from a provided existing absolute URL and a relative URL component.
      *
-     * @param base   the existing absolute 基础 URL
-     * @param relUrl the relative URL 转为 resolve. (If it's already absolute, it will be 返回)
+     * @param base   the existing absolute base URL
+     * @param relUrl the relative URL to resolve. (If it's already absolute, it will be returned)
      * @return the resolved absolute URL
-     * @throws MalformedURLException if an 错误 occurred generating the URL
+     * @throws MalformedURLException if an error occurred generating the URL
      */
     public static URL resolve(URL base, String relUrl) throws MalformedURLException {
         relUrl = stripControlChars(relUrl);
@@ -3239,11 +3239,11 @@ public class StringUtils {
      * Prepends the 前缀 转为 the 启动 的 the 字符串 if the 字符串 执行 not
      * already 启动 with 任意 的 the 前缀.
      *
-     * @param str        The 字符串.
-     * @param prefix     The 前缀 转为 prepend 转为 the 启动 的 the 字符串.
-     * @param ignoreCase Indicates whether the compare should ignore 大小写.
+     * @param str        The string.
+     * @param prefix     The prefix to prepend to the start of the string.
+     * @param ignoreCase Indicates whether the compare should ignore case.
      * @param prefixes   其他合法的前缀（可选）。
-     * @return A 新 字符串 if 前缀 was prepended, the same 字符串 otherwise.
+     * @return A new string if prefix was prepended, the same string otherwise.
      */
     private static String prependIfMissing(final String str, final CharSequence prefix, final boolean ignoreCase, final CharSequence... prefixes) {
         if (str == null || isEmpty(prefix) || startsWith(str, prefix, ignoreCase)) {

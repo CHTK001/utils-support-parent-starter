@@ -115,10 +115,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Extracts a 上下文-大小 estimate 从 one 日志 线 if present.
+     * Extracts a context-size estimate from one log line if present.
      *
-     * @param line   the 日志 线 转为 inspect
-     * @param result accumulator 列表 for 解析 records
+     * @param line   the log line to inspect
+     * @param result accumulator list for parsed records
      */
     private void parseLine(String line, List<AiUsage> result) {
         Matcher nonMsgMatcher = NON_MSG_TOKENS.matcher(line);
@@ -147,10 +147,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Extracts the 铅 yyyy-MM-dd 时间戳 的 a 日志 线.
+     * Extracts the leading yyyy-MM-dd timestamp of a log line.
      *
-     * @param line the 日志 线
-     * @return epoch millis at day 启动, 或 0L When.js.js absent 或 malformed
+     * @param line the log line
+     * @return epoch millis at day start, or 0L when absent or malformed
      */
     private long extractDayStart(String line) {
         Matcher m = TIMESTAMP.matcher(line);
