@@ -4,8 +4,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.nmap.support.bridge.RustNmapBridge;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -31,9 +33,17 @@ import java.util.function.Consumer;
 public class RustNmapScanner implements NmapScanner {
 
     /**
-     * JSON 解析器
+     * JSON 解析器。
+     *
+     * <p>开启 ALLOW_UNESCAPED_CONTROL_CHARS：Rust 侧的服务探测把 banner 原文直接
+     * 嵌入 JSON 字符串，其中的 CR/LF 未做转义，严格模式下整段结果会被拒收——实测
+     * {@code detectService("127.0.0.1", 80)} 抛
+     * {@code Illegal unquoted character ((CTRL-CHAR, code 13))}。开启后这些字符按
+     * 原样保留在字符串值内，不丢数据。</p>
      */
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final ObjectMapper JSON = JsonMapper.builder()
+            .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+            .build();
 
     /**
      * 单次网段/网段范围扫描的主机数上限
