@@ -78,7 +78,6 @@ sysWatcher.start(DirectoryPollerEnvironment.defaults());
 
 | 类/接口 | 说明 |
 |---------|------|
-| `FastFileSearchNativeBridge` | 快速文件搜索原生库桥接 - Java 25 FFM (Panama) 绑定 Windows NTFS MFT 直读搜索（需要管理员权限）。 |
 | `NativeFunctionRegistry` | FFM 原生函数注册表 - 缓存 MethodHandle 避免重复 downcall 开销 基于 Java 25 FFM API，在运行时动态绑定系统库函数。 |
 | `PlatformSystems` | 平台检测工具类 |
 | `SystemLogBridge` | 系统日志桥接器 - 统一管理各平台 FFM FunctionRegistry 负责： 识别当前运行平台 初始化对应平台的 FFM 绑定 提供统一的原生函数注册表 |
@@ -90,7 +89,11 @@ sysWatcher.start(DirectoryPollerEnvironment.defaults());
 | `SystemLogResourceFinder` | System log ResourceFinder implementation - registers "syslog:" protocol Integrat |
 | `LinuxJournaldProvider` | Linux 系统日志提供者 - libsystemd FFM + /var/log 文件回退 (SPI: `linux`) |
 | `MacOSUnifiedLogProvider` | macOS 系统日志提供者 - log show 命令 + /var/log 文件回退 (SPI: `macos`) |
-| ... | 共 14 个类 |
+| ... | 共 13 个类 |
+
+> 说明：`FastFileSearchNativeBridge`（Windows NTFS MFT 直读搜索）已迁至
+> `utils-support-native-fastfilesearch`（Java 25 FFM 绑定；Java 8 见其 `-java8` 模块），
+> 本模块通过依赖使用，不再自带绑定与原生库。
 
 ---
 
