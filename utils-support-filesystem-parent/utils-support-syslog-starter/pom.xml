@@ -25,12 +25,11 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Windows NTFS MFT 快速文件搜索：绑定类 FastFileSearchNativeBridge 与
-             预编译原生库 fast_file_search.dll 均已迁入 utils-support-native-fastfilesearch，
-             本模块只声明依赖一次，不再自带绑定或二进制。 -->
+        <!-- Windows NTFS MFT 快速文件搜索能力并入 utils-support-native-filesearch
+             （Windows 走 MFT、其它平台 walkdir），本模块只声明该 native 依赖一次。 -->
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-native-fastfilesearch</artifactId>
+            <artifactId>utils-support-native-filesearch</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
