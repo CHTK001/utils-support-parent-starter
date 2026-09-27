@@ -36,5 +36,19 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.36</version>
         </dependency>
+
+        <!-- RustFileSearchBridge JNI 绑定已迁入 native 模块，包名仍为
+             com.chua.filesearch.support.bridge（原生符号写死了该全限定名）。
+             本模块此前未声明任何 native 依赖，native 库实际不在 classpath 上；
+             绑定迁出后必须显式声明，否则编译期找不到该类。
+             注：同包的 RustFileSearchHelper（含 JDK walkdir 降级）仍留在本模块，
+             故该包在两个 jar 间分裂（split package）。无 module-info，classpath
+             模式下合法。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-filesearch</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
