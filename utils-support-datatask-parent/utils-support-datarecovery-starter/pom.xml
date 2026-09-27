@@ -26,6 +26,17 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- DataRecovery JNI 绑定已迁入 native 模块，包名仍为
+             com.chua.datarecovery.support（原生符号写死了该全限定名）。
+             本模块此前未声明任何 native 依赖，native 库实际不在 classpath 上；
+             绑定迁出后必须显式声明，否则编译期找不到该类。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-datarecovery</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
