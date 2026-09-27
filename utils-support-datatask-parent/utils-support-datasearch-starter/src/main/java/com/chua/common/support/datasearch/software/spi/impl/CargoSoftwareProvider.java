@@ -49,7 +49,7 @@ public class CargoSoftwareProvider implements SoftwareProvider {
     */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
-        String cmd = "cargo search " + keyword + " --limit 10";
+        String[] cmd = {"cargo", "search", keyword, "--limit", "10"};
 
         log.info("cargo 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
@@ -91,7 +91,7 @@ public class CargoSoftwareProvider implements SoftwareProvider {
      * Install
     */
     public boolean install(String packageId) {
-        String cmd = "cargo install " + packageId;
+        String[] cmd = {"cargo", "install", packageId};
         log.info("cargo 安装: {}", packageId);
         return executeCommand(cmd, "安装", packageId);
     }
@@ -101,7 +101,7 @@ public class CargoSoftwareProvider implements SoftwareProvider {
      * Uninstall
     */
     public boolean uninstall(String packageId) {
-        String cmd = "cargo uninstall " + packageId;
+        String[] cmd = {"cargo", "uninstall", packageId};
         log.info("cargo 卸载: {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
@@ -114,7 +114,7 @@ public class CargoSoftwareProvider implements SoftwareProvider {
      * @param packageId 包标识
      * @return 执行命令的结果
      */
-    private boolean executeCommand(String cmd, String action, String packageId) {
+    private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**

@@ -50,7 +50,7 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
     */
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
-        String cmd = "composer search " + keyword + " 2>&1";
+        String[] cmd = {"composer", "search", keyword};
 
         log.info("composer 搜索: keyword={}", keyword);
         StringBuilder outputBuffer = new StringBuilder();
@@ -92,7 +92,7 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
      * Install
     */
     public boolean install(String packageId) {
-        String cmd = "composer global require " + packageId;
+        String[] cmd = {"composer", "global", "require", packageId};
         log.info("composer 安装: {}", packageId);
         return executeCommand(cmd, "安装", packageId);
     }
@@ -102,7 +102,7 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
      * Uninstall
     */
     public boolean uninstall(String packageId) {
-        String cmd = "composer global remove " + packageId;
+        String[] cmd = {"composer", "global", "remove", packageId};
         log.info("composer 卸载: {}", packageId);
         return executeCommand(cmd, "卸载", packageId);
     }
@@ -115,7 +115,7 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
      * @param packageId 包标识
      * @return 执行命令的结果
      */
-    private boolean executeCommand(String cmd, String action, String packageId) {
+    private boolean executeCommand(String[] cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
             /**

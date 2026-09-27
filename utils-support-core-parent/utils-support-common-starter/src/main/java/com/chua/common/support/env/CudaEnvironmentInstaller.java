@@ -105,8 +105,8 @@ public final class CudaEnvironmentInstaller {
             }
             return;
         }
-        String command = buildCommand(script);
-        log.info("[cuda-env] 执行安装脚本: {}", command);
+        String[] command = buildCommand(script);
+        log.info("[cuda-env] 执行安装脚本: {}", String.join(" ", command));
         long timeoutSec = CudaEnvLoader.getInt("DOWNLOAD_TIMEOUT_SEC", 600);
 
         CmdExecutors.executeAsync(command, timeoutSec, TimeUnit.SECONDS, new CmdCallback() {
@@ -155,8 +155,8 @@ public final class CudaEnvironmentInstaller {
         if (script == null) {
             return;
         }
-        String command = buildCommand(script);
-        log.info("[cuda-env] 执行安装脚本(行日志): {}", command);
+        String[] command = buildCommand(script);
+        log.info("[cuda-env] 执行安装脚本(行日志): {}", String.join(" ", command));
         CmdExecutors.executeAsync(command, new CmdCallback() {
             @Override
             public void onComplete(CmdResult result) {
@@ -224,15 +224,18 @@ public final class CudaEnvironmentInstaller {
     /**
      * 组装平台执行命令。
      *
+     * <p>脚本路径由临时目录拼接而来，可能含空格，因此以参数数组整体下传，
+     * 避免路径被 shell 拆分或二次解析。</p>
+     *
      * @param script 脚本路径
-     * @return 命令字符串
+     * @return 命令数组
      */
-    private static String buildCommand(Path script) {
+    private static String[] buildCommand(Path script) {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) {
-            return "cmd /c \"" + script.toAbsolutePath() + "\"";
+            return new String[]{"cmd", "/c", script.toAbsolutePath().toString()};
         }
-        return "sh " + script.toAbsolutePath();
+        return new String[]{"sh", script.toAbsolutePath().toString()};
     }
 
     /**

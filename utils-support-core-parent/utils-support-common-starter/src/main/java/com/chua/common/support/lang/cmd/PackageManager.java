@@ -2,7 +2,9 @@ package com.chua.common.support.lang.cmd;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,13 +82,71 @@ public class PackageManager {
   */
  private static boolean isAvailable(String command) {
  try {
- String checkCmd = System.getProperty("os.name").toLowerCase().contains("win")
- ? "where " + command : "which " + command;
- CmdResult result = CmdExecutors.execute(checkCmd, 5, TimeUnit.SECONDS);
+ boolean win = System.getProperty("os.name").toLowerCase().contains("win");
+ CmdResult result = CmdExecutors.execute(win
+ ? new String[]{"where", command} : new String[]{"which", command}, 5, TimeUnit.SECONDS);
  return result.isSuccess();
  } catch (Exception e) {
  return false;
  }
+ }
+
+ /**
+  * 把安装模板拆成进程参数数组，{@code %s} 位置整体替换为包 ID。
+  *
+  * <p>数组形式不经 shell 解析，包 ID 里的 {@code &}、{@code |} 等字符不会被当成命令执行；
+  * 模板开头 {@code KEY=VALUE} 形式的前缀（如 apt 的 DEBIAN_FRONTEND）不属于命令，
+  * 由 {@link #installEnv(Type)} 单独作为环境变量下传。</p>
+  *
+  * @param type 包管理器类型
+  * @param packageId 包 ID
+  * @return 进程参数数组
+  */
+ static String[] installArgs(Type type, String packageId) {
+ String[] tokens = type.getInstallTemplate().trim().split("\\s+");
+ List<String> args = new ArrayList<>();
+ for (int i = 0; i < tokens.length; i++) {
+ if (i == 0 && isEnvPrefix(tokens[i])) {
+ continue;
+ }
+ args.add("%s".equals(tokens[i]) ? packageId : tokens[i]);
+ }
+ return args.toArray(String[]::new);
+ }
+
+ /**
+  * 安装模板开头的环境变量。
+  *
+  * @param type 包管理器类型
+  * @return 环境变量；模板无 {@code KEY=VALUE} 前缀时返回 null
+  */
+ static Map<String, String> installEnv(Type type) {
+ String first = type.getInstallTemplate().trim().split("\\s+")[0];
+ if (!isEnvPrefix(first)) {
+ return null;
+ }
+ int split = first.indexOf('=');
+ return Map.of(first.substring(0, split), first.substring(split + 1));
+ }
+
+ /**
+  * 判断是否为 {@code KEY=VALUE} 形式的环境变量前缀。
+  *
+  * @param token 模板首 token
+  * @return 判断结果
+  */
+ private static boolean isEnvPrefix(String token) {
+ int split = token.indexOf('=');
+ if (split <= 0) {
+ return false;
+ }
+ for (int i = 0; i < split; i++) {
+ char c = token.charAt(i);
+ if (!Character.isLetter(c) && c != '_' && !Character.isDigit(c)) {
+ return false;
+ }
+ }
+ return true;
  }
 
  /**
@@ -104,9 +164,9 @@ public class PackageManager {
  .throwable(new UnsupportedOperationException("未检测到可用的包管理器"))
  .build();
  }
- String cmd = String.format(pm.getInstallTemplate(), packageId);
- log.info("使用 {} 安装 {}: {}", pm.getCommand(), packageId, cmd);
- return CmdExecutors.execute(cmd, 300, TimeUnit.SECONDS);
+ String[] args = installArgs(pm, packageId);
+ log.info("使用 {} 安装 {}: {}", pm.getCommand(), packageId, String.join(" ", args));
+ return CmdExecutors.execute(args, 300, TimeUnit.SECONDS, null, installEnv(pm), null);
  }
 
  /**
@@ -128,9 +188,9 @@ public class PackageManager {
  callback.onComplete(result.getExitCode());
  return result;
  }
- String cmd = String.format(pm.getInstallTemplate(), packageId);
+ String[] args = installArgs(pm, packageId);
  callback.onLine("[" + pm.getCommand() + "] 开始安装 " + packageId + "...");
- return CmdExecutors.executeWithOutput(cmd, 300, TimeUnit.SECONDS, callback);
+ return CmdExecutors.executeWithOutput(args, 300, TimeUnit.SECONDS, callback, null, installEnv(pm), null);
  }
 
  /**
@@ -145,8 +205,8 @@ public class PackageManager {
  callback.onError(packageId, new UnsupportedOperationException("未检测到可用的包管理器"));
  return;
  }
- String cmd = String.format(pm.getInstallTemplate(), packageId);
- CmdExecutors.executeAsync(cmd, 300, TimeUnit.SECONDS, callback);
+ String[] args = installArgs(pm, packageId);
+ CmdExecutors.executeAsync(args, 300, TimeUnit.SECONDS, callback, null, installEnv(pm), null);
  }
 
  /**
@@ -157,7 +217,7 @@ public class PackageManager {
   * @return 安装结果
   */
  public static CmdResult installWith(Type type, String packageId) {
- String cmd = String.format(type.getInstallTemplate(), packageId);
- return CmdExecutors.execute(cmd, 300, TimeUnit.SECONDS);
+ String[] args = installArgs(type, packageId);
+ return CmdExecutors.execute(args, 300, TimeUnit.SECONDS, null, installEnv(type), null);
  }
 }

@@ -61,6 +61,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 转录行的 {@code timestamp} 实测比完成事件晚约 40ms，即它是响应<b>完成</b>时刻，
  * 只用作无法关联到日志时的兜底开始时间。</p>
  *
+ * <p>转录本身不带耗时，但 {@code usage.request_id} 与运行日志
+ * {@code ~/.qoder/logs/sessions/<project>/<sessionId>/segments/*.jsonl} 里的
+ * {@code model.request.started} / {@code model.response.completed} 事件严格一一对应
+ * （本机 37682 条用量全部带 request_id），因此按该 标识 关联出请求开始时间与单次耗时。
+ * 转录行的 {@code timestamp} 实测比完成事件晚约 40ms，即它是响应<b>完成</b>时刻，
+ * 只用作无法关联到日志时的兜底开始时间。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */

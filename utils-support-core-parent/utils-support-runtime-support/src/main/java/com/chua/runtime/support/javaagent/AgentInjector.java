@@ -292,9 +292,12 @@ public class AgentInjector {
      * @return 注入结果
      */
     private CmdResult injectByJattach(int pid, String agentJarPath) {
-        String cmd = String.format("jattach %d load %s %s", pid, agentJarPath,
-                options != null ? options : "");
-        return CmdExecutors.execute(cmd, timeoutMs, TimeUnit.MILLISECONDS);
+        List<String> cmd = new ArrayList<>(List.of(
+                "jattach", String.valueOf(pid), "load", agentJarPath));
+        if (options != null && !options.isEmpty()) {
+            cmd.add(options);
+        }
+        return CmdExecutors.execute(cmd.toArray(new String[0]), timeoutMs, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -305,9 +308,12 @@ public class AgentInjector {
      * @return 注入结果
      */
     private CmdResult injectByJpigeon(int pid, String agentJarPath) {
-        String cmd = String.format("java -jar jpigeon.jar %d load %s %s", pid, agentJarPath,
-                options != null ? options : "");
-        return CmdExecutors.execute(cmd, timeoutMs, TimeUnit.MILLISECONDS);
+        List<String> cmd = new ArrayList<>(List.of(
+                "java", "-jar", "jpigeon.jar", String.valueOf(pid), "load", agentJarPath));
+        if (options != null && !options.isEmpty()) {
+            cmd.add(options);
+        }
+        return CmdExecutors.execute(cmd.toArray(new String[0]), timeoutMs, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -341,7 +347,7 @@ public class AgentInjector {
      */
     public static java.util.Map<Integer, String> listJavaProcesses() {
         CmdResult result = CmdExecutors.execute(
-                "ps -eo pid,comm,args | grep -E '[j]ava|sun.tools.launcher' | grep -v grep",
+                new String[]{"ps", "-eo", "pid,comm,args"},
                 10, TimeUnit.SECONDS);
 
         java.util.Map<Integer, String> jvms = new java.util.LinkedHashMap<>();
@@ -349,11 +355,15 @@ public class AgentInjector {
         if (result.isSuccess()) {
             String[] lines = result.getStdout().split("\n");
             for (String line : lines) {
-                String[] parts = line.trim().split("\\s+");
+                String desc = line.trim();
+                String lower = desc.toLowerCase();
+                if (!lower.contains("java") && !lower.contains("sun.tools.launcher")) {
+                    continue;
+                }
+                String[] parts = desc.split("\\s+");
                 if (parts.length >= 2) {
                     try {
                         int pid = Integer.parseInt(parts[0]);
-                        String desc = line.trim();
                         jvms.put(pid, desc);
                     } catch (NumberFormatException ignored) {
                     }
