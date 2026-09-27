@@ -106,6 +106,9 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
         Image cropped = resized.getSubImage(cropX, cropY, IMAGE_SIZE, IMAGE_SIZE);
 
         NDArray hwc = cropped.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
+        if (!hwc.getDataType().equals(DataType.FLOAT32)) {
+            hwc = hwc.toType(DataType.FLOAT32, false);
+        }
 
         // 归一化在 Java 侧完成，避免使用 transpose / div / sub / expandDims 等 NDArray 运算：
         // 这些运算在 NDArrayAdapter（ONNX Runtime 引擎的 NDArray 实现）下需要借助「替代引擎」
@@ -153,11 +156,13 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.getFirst();
 
-        //                                           
-        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
-            output = output.squeeze(0);
+        // 不使用 squeeze/reshape 等运算：NDArrayAdapter 下这些算子需要「替代引擎」转换而当前环境没有，
+        // 会抛 UnsupportedOperationException 甚至 StackOverflowError。特征向量取扁平结果即可，
+        // [1, N] 与 [N] 对后续余弦相似度等价。
+        if (!output.getDataType().equals(DataType.FLOAT32)) {
+            output = output.toType(DataType.FLOAT32, false);
         }
-        return NDArrayUtils.safeToFloatArray(output);
+        return output.toFloatArray();
     }
 
     /**
