@@ -21,6 +21,16 @@
             <artifactId>utils-support-common-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- RustNmapBridge JNI 绑定已迁入 native 模块，包名仍为
+             com.chua.nmap.support.bridge（原生符号写死了该全限定名）。
+             本模块此前未声明任何 native 依赖，native 库实际不在 classpath 上；
+             绑定迁出后必须显式声明，否则编译期找不到该类。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-native-nmap</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
