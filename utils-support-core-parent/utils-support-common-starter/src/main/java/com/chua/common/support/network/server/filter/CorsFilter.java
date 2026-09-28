@@ -75,8 +75,15 @@ public class CorsFilter implements ServerFilter {
             chain.doFilter(request, response);
             return;
         }
-        response.setHeader("Access-Control-Allow-Origin", "*".equals(allowedOrigins) ? "*" : origin);
+        // 允许携带凭据时必须回显实际来源：规范禁止「凭据 + 通配来源」并用，
+        // 同时出现会让浏览器判定非法并拒绝响应。因此配置为通配时也只回显 origin。
+        boolean credentials = cors.isAllowCredentials();
+        boolean wildcard = "*".equals(allowedOrigins == null ? null : allowedOrigins.trim());
+        response.setHeader("Access-Control-Allow-Origin", (wildcard && !credentials) ? "*" : origin);
         response.setHeader("Vary", "Origin");
+        if (credentials) {
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+        }
         String allowedMethods = cors.getAllowedMethods();
         if (allowedMethods != null && !allowedMethods.isEmpty()) {
             response.setHeader("Access-Control-Allow-Methods", allowedMethods);

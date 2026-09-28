@@ -436,6 +436,22 @@ public class ServerSetting {
         private boolean allowOrigin = false;
 
         /**
+         * 允许携带凭据（Cookie / Authorization）。
+         *
+         * <p>对应 {@code Access-Control-Allow-Credentials}。默认 false，保持既有行为。</p>
+         *
+         * <p><b>开启后不能再回 {@code *}</b>：规范禁止「凭据 + 通配来源」并用，
+         * 一旦同时出现，浏览器会直接判定为非法组合并拒绝该响应
+         * （报错形如 {@code The value of the 'Access-Control-Allow-Credentials' header
+         * in the response is '' which must be 'true'}）。因此开启本项时，
+         * {@code allowedOrigins=*} 会被解释为「回显实际请求来源」而不是字面 {@code *}。</p>
+         *
+         * Allowcredentials
+         */
+        @Builder.Default
+        private boolean allowCredentials = false;
+
+        /**
          * 允许的源
          *
          * Allowedorigins
