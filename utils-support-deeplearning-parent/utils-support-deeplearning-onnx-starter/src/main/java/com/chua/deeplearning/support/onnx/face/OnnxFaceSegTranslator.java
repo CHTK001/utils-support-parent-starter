@@ -15,6 +15,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import java.awt.image.BufferedImage;
+import org.opencv.core.Scalar;
 
 /**
  * 解析net 人脸分割 Translator（ONNX 版，AIAS 追踪 导出）。
@@ -62,8 +64,8 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
         NDManager manager = ctx.getNDManager();
         int w = input.getWidth();
         int h = input.getHeight();
-        java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
-        java.awt.image.BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage src = (BufferedImage) input.getWrappedImage();
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {
@@ -125,16 +127,16 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
 
  // 去除 10Px 黑边
         if (THRESHOLD < hh && THRESHOLD < ww) {
-            blur2.submat(0, THRESHOLD, 0, ww).setTo(org.opencv.core.Scalar.all(0));
-            blur2.submat(hh - THRESHOLD, hh, 0, ww).setTo(org.opencv.core.Scalar.all(0));
-            blur2.submat(0, hh, 0, THRESHOLD).setTo(org.opencv.core.Scalar.all(0));
-            blur2.submat(0, hh, ww - THRESHOLD, ww).setTo(org.opencv.core.Scalar.all(0));
+            blur2.submat(0, THRESHOLD, 0, ww).setTo(Scalar.all(0));
+            blur2.submat(hh - THRESHOLD, hh, 0, ww).setTo(Scalar.all(0));
+            blur2.submat(0, hh, 0, THRESHOLD).setTo(Scalar.all(0));
+            blur2.submat(0, hh, ww - THRESHOLD, ww).setTo(Scalar.all(0));
         }
 
         byte[] outBytes = new byte[hh * ww];
         blur2.get(0, 0, outBytes);
         blur2.release();
-        java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(ww, hh, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        BufferedImage img = new BufferedImage(ww, hh, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < hh; y++) {
             for (int x = 0; x < ww; x++) {
                 int v = outBytes[y * ww + x] & 0xff;

@@ -12,6 +12,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
 
 
 /**
@@ -101,7 +102,7 @@ public class VggtTranslator implements Translator<Image, Image> {
         float[] gaussianData = output.toFloatArray();
 
         log.info("       3D             : {}    float   ,       : {}",
-                gaussianData.length, java.util.Arrays.toString(outputShape));
+                gaussianData.length, Arrays.toString(outputShape));
 
  // vggt输出
         VggtOutput vggtOutput = new VggtOutput(gaussianData, outputShape);

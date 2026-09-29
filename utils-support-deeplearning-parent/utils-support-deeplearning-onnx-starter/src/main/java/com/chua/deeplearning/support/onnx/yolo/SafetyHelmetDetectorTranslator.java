@@ -30,12 +30,12 @@ public class SafetyHelmetDetectorTranslator extends YoloTranslator {
      *
      * @param configuration 检测配置（可空）
      */
-    public SafetyHelmetDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public SafetyHelmetDetectorTranslator(DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.05f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.05f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.05f),
                 configuration == null ? 0.50f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD, 0.50f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_IOU_THRESHOLD, 0.50f),
                 SAFETY_HELMET_3_CLASSES, true);
     }
 

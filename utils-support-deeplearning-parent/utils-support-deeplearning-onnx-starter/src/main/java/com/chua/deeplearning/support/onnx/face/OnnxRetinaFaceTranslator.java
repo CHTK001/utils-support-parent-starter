@@ -85,8 +85,8 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
         width = input.getWidth();
         height = input.getHeight();
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        java.awt.image.BufferedImage rgb = src;
-        if (src.getType() != java.awt.image.BufferedImage.TYPE_INT_RGB) {
+        BufferedImage rgb = src;
+        if (src.getType() != BufferedImage.TYPE_INT_RGB) {
             rgb = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             rgb.getGraphics().drawImage(src, 0, 0, width, height, null);
         }

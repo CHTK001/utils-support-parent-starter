@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Pocket-TTS 专用 tokenizer（基于 vocab.json 的 BPE 分词器）。
@@ -84,7 +85,7 @@ public class PocketTtsTokenizer {
             inner = inner.substring(0, inner.length() - 1);
         }
 
-        java.util.regex.Matcher matcher = VOCAB_PATTERN.matcher(inner);
+        Matcher matcher = VOCAB_PATTERN.matcher(inner);
         while (matcher.find()) {
             String key = matcher.group(1);
             int id = Integer.parseInt(matcher.group(2));

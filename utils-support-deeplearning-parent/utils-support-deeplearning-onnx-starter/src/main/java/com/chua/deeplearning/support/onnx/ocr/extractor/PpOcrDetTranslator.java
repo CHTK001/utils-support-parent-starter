@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import org.opencv.core.CvType;
+import org.opencv.core.Scalar;
 
 /**
  * PP-ocrv6 文字检测（DB 算法，ORT 原生 + 打开cv）。
@@ -73,10 +76,10 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
      *
      * @param configuration 检测配置（可空）
      */
-    public PpOcrDetTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public PpOcrDetTranslator(DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }
@@ -171,7 +174,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         // 按该模型的 device 参数尝试启用 CUDA；缺 CUDA 原生库或初始化失败时静默保持 CPU
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, modelName);
+        GpuHelper.apply(opts, modelName);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         // 预热：首次推理初始化 ORT 内部状态，避免首次调用结果异常
         warmup();
@@ -389,7 +392,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         float scaleX = (float) srcWidth / mapW;
         float scaleY = (float) srcHeight / mapH;
  // 概率图 → 二值图（一次性写入 byte 数组，避免逐像素 放入 的边界问题）
-        Mat binary = new Mat(mapH, mapW, org.opencv.core.CvType.CV_8UC1);
+        Mat binary = new Mat(mapH, mapW, CvType.CV_8UC1);
         byte[] binData = new byte[mapH * mapW];
         for (int y = 0; y < mapH; y++) {
             for (int x = 0; x < mapW; x++) {
@@ -441,7 +444,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
             float y2 = (rect.y + rect.height) * scaleY;
             // 置信度：旋转框掩码内概率均值（排除轴对齐框中的背景干扰）
             float conf = 0;
-            Mat mask = new Mat(rect.height, rect.width, org.opencv.core.CvType.CV_8UC1, new org.opencv.core.Scalar(0));
+            Mat mask = new Mat(rect.height, rect.width, CvType.CV_8UC1, new Scalar(0));
             Point[] rotPts = new Point[4];
             rotatedRect.points(rotPts);
             for (int i = 0; i < 4; i++) {

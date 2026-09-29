@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.onnx.GpuHelper;
 
 /**
  * PP-OCR 文本方向分类（ORT 原生 + 打开cv）。
@@ -90,7 +91,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
+        GpuHelper.apply(opts);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[PP-OCR-cls] ONNX loaded: {}", modelPath.getFileName());
     }

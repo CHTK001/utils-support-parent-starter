@@ -30,12 +30,12 @@ public class FaceMaskDetectorTranslator extends YoloTranslator {
      *
      * @param configuration 检测配置（可空）
      */
-    public FaceMaskDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public FaceMaskDetectorTranslator(DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.05f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, 0.05f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.05f),
                 configuration == null ? 0.50f
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD, 0.50f),
+                        : configuration.optFloat(DetectionConfiguration.KEY_IOU_THRESHOLD, 0.50f),
                 FACE_MASK_2_CLASSES, true);
     }
 

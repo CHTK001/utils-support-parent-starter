@@ -13,6 +13,7 @@ import ai.djl.translate.TranslatorContext;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import lombok.extern.slf4j.Slf4j;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -64,9 +65,9 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
 
         //           NDArray (HWC       )
  // Rust 引擎未实现 ndarray.resize，先用 Java2D 缩放到目标尺寸
-        java.awt.image.BufferedImage src = (java.awt.image.BufferedImage) input.getWrappedImage();
-        java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(
-                INPUT_SIZE, INPUT_SIZE, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        BufferedImage src = (BufferedImage) input.getWrappedImage();
+        BufferedImage scaled = new BufferedImage(
+                INPUT_SIZE, INPUT_SIZE, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = scaled.createGraphics();
         try {
             graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -188,10 +189,10 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
             if (log.isDebugEnabled()) {
                 log.debug("                      {}x{}     {}x{}", result.getWidth(), result.getHeight(), originalWidth, originalHeight);
             }
-            java.awt.image.BufferedImage outBi =
-                    (java.awt.image.BufferedImage) result.getWrappedImage();
-            java.awt.image.BufferedImage scaledBack = new java.awt.image.BufferedImage(
-                    originalWidth, originalHeight, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            BufferedImage outBi =
+                    (BufferedImage) result.getWrappedImage();
+            BufferedImage scaledBack = new BufferedImage(
+                    originalWidth, originalHeight, BufferedImage.TYPE_INT_RGB);
             Graphics2D backGraphics = scaledBack.createGraphics();
             try {
                 backGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

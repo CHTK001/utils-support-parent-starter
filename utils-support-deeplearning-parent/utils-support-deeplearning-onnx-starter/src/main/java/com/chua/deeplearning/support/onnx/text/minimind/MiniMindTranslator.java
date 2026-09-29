@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * minimind 因果语言模型 Translator。
@@ -355,7 +356,7 @@ public class MiniMindTranslator implements Translator<String, String> {
         if (Files.exists(onnxPath)) {
             return onnxPath;
         }
-        try (java.util.stream.Stream<Path> stream = Files.list(modelRoot)) {
+        try (Stream<Path> stream = Files.list(modelRoot)) {
             return stream
                     .filter(p -> p.toString().endsWith(".onnx"))
                     .findFirst()

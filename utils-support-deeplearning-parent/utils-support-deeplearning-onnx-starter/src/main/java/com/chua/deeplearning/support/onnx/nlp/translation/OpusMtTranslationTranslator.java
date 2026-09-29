@@ -17,6 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 /**
  * 通用 marianmt 嵌入式机器翻译器（ORT 原生 + huggingface Tokenizer）。
@@ -215,10 +221,10 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
             String url = downloadBaseUrl + "/" + file;
             log.info("[{}] 下载模型文件: {}", modelId, url);
             Path tmp = cacheDir.resolve(file + ".part");
-            try (java.io.InputStream in = new java.net.URL(url).openStream()) {
-                Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream in = new URL(url).openStream()) {
+                Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
             }
-            Files.move(tmp, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
             log.info("[{}] 模型文件下载完成: {}", modelId, target);
         }
         return cacheDir;
@@ -251,8 +257,8 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
 
             // 1. encoder: input_ids + attention_mask -> last_hidden_state
             float[] encoderHidden;
-            try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(ids), new long[]{1, ids.length});
-                 OnnxTensor tAttn = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(attn), new long[]{1, ids.length});
+            try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), new long[]{1, ids.length});
+                 OnnxTensor tAttn = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(attn), new long[]{1, ids.length});
                  OrtSession.Result r = encoderSession.run(Map.of("input_ids", tIds, "attention_mask", tAttn))) {
                 OnnxTensor encOut = (OnnxTensor) r.get("last_hidden_state").get();
                 encoderHidden = encOut.getFloatBuffer().array().clone();
@@ -264,10 +270,10 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
 
  // 2. 解码器 首步：解码器_启动_令牌 + 编码器_hidden_状态
             Map<String, OnnxTensor> feed = new HashMap<>();
-            feed.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
-            feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(encMask), new long[]{1, ids.length}));
+            feed.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{DECODER_START_ID}), new long[]{1, 1}));
+            feed.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
             feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
-                    java.nio.FloatBuffer.wrap(encoderHidden), new long[]{1, ids.length, 512}));
+                    FloatBuffer.wrap(encoderHidden), new long[]{1, ids.length, 512}));
             try (OrtSession.Result first = decoderSession.run(feed)) {
                 long next = argmax(first, generated);
                 if (next == EOS_ID) {
@@ -288,18 +294,18 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
  // 3. 解码器_with_past 循环：自回归生成
                 for (int step = 0; step < MAX_GENERATE_STEPS; step++) {
                     Map<String, OnnxTensor> f2 = new HashMap<>();
-                    f2.put("input_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
-                    f2.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(encMask), new long[]{1, ids.length}));
+                    f2.put("input_ids", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(new long[]{next}), new long[]{1, 1}));
+                    f2.put("encoder_attention_mask", OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(encMask), new long[]{1, ids.length}));
                     long[] dShape = {1, NUM_HEADS, decSeq, HEAD_DIM};
                     for (int layer = 0; layer < NUM_LAYERS; layer++) {
                         f2.put("past_key_values." + layer + ".decoder.key",
-                                OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(dKv[layer][0]), dShape));
+                                OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(dKv[layer][0]), dShape));
                         f2.put("past_key_values." + layer + ".decoder.value",
-                                OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(dKv[layer][1]), dShape));
+                                OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(dKv[layer][1]), dShape));
                         f2.put("past_key_values." + layer + ".encoder.key",
-                                OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(eKv[layer][0]), eKvShape));
+                                OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(eKv[layer][0]), eKvShape));
                         f2.put("past_key_values." + layer + ".encoder.value",
-                                OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(eKv[layer][1]), eKvShape));
+                                OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(eKv[layer][1]), eKvShape));
                     }
                     try (OrtSession.Result stepResult = decoderPastSession.run(f2)) {
                         next = argmax(stepResult, generated);
@@ -327,7 +333,7 @@ public class OpusMtTranslationTranslator implements ITranslator<String, String>,
             }
             String decoded = tokenizer.decode(tokenIds).trim();
             if (Boolean.getBoolean(modelId + ".debug")) {
-                log.info("[{}] raw decoded: {} | ids: {}", modelId, decoded, java.util.Arrays.toString(tokenIds));
+                log.info("[{}] raw decoded: {} | ids: {}", modelId, decoded, Arrays.toString(tokenIds));
             }
             return postProcess(decoded);
         } catch (Exception e) {

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import ai.djl.inference.Predictor;
 
 /**
  * mobilebert MNLI                       Translator
@@ -148,7 +149,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
      * @return                                        
      */
     public static Classifications zeroShotClassify(
-            ai.djl.inference.Predictor<Map<String, String>, Classifications> predictor,
+            Predictor<Map<String, String>, Classifications> predictor,
             String text,
             List<String> candidateLabels) throws Exception {
 

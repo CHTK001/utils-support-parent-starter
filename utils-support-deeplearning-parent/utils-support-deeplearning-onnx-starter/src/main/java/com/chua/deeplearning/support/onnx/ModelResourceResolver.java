@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
+import java.io.IOException;
 
 /**
  * ONNX 权重位置解析工具。
@@ -134,7 +135,7 @@ public final class ModelResourceResolver {
                     if (!onnx.isEmpty()) {
                         return onnx.getFirst();
                     }
-                } catch (java.io.IOException e) {
+                } catch (IOException e) {
                     // 目录不可读，按未命中处理
                     return null;
                 }

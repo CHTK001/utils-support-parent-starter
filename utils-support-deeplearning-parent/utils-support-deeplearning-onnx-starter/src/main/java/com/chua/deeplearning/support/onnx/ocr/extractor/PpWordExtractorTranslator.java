@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import com.chua.deeplearning.support.onnx.ModelResourceResolver;
 
 /**
  * PP-ocrv6 文字识别（ORT 原生 + 打开cv）。
@@ -121,7 +123,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
         // 按该模型的 device 参数尝试启用 CUDA；缺 CUDA 原生库或初始化失败时静默保持 CPU
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts, modelName);
+        GpuHelper.apply(opts, modelName);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[PaddleOCRv6-rec] ONNX loaded: {} dict_size={}", modelPath, dict.size());
     }
@@ -149,7 +151,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
      * @throws Exception 三级均未找到时抛出
      */
     private Path resolveModelFile() throws Exception {
-        Path external = com.chua.deeplearning.support.onnx.ModelResourceResolver
+        Path external = ModelResourceResolver
                 .resolveOnnx(injectedPath, modelName, resourceBase, MODEL_FILE);
         if (external != null) {
             return external;

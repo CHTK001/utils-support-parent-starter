@@ -18,6 +18,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import ai.onnxruntime.OnnxValue;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.LongBuffer;
+import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Whisper ONNX Translator（音频文件 → 转写文本）。
@@ -163,10 +174,10 @@ public class WhisperTranslator {
     private static void extractFromJar(Path modelDir) throws Exception {
         final String basePath = "audio/asr/whisper-tiny";
         ClassLoader cl = WhisperTranslator.class.getClassLoader();
-        java.util.Enumeration<java.net.URL> resources = cl.getResources(basePath);
+        Enumeration<URL> resources = cl.getResources(basePath);
         int extracted = 0;
         while (resources.hasMoreElements()) {
-            java.net.URL url = resources.nextElement();
+            URL url = resources.nextElement();
             if ("file".equals(url.getProtocol())) {
                 // dev mode: 直接从 filesystem 拷贝
                 Path src = Path.of(url.toURI());
@@ -179,7 +190,7 @@ public class WhisperTranslator {
                             } else {
                                 Path dest = modelDir.resolve(src.relativize(p).toString());
                                 Files.createDirectories(dest.getParent());
-                                Files.copy(p, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                Files.copy(p, dest, StandardCopyOption.REPLACE_EXISTING);
                             }
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -192,10 +203,10 @@ public class WhisperTranslator {
                 String urlPath = url.getPath();
                 String jarPath = urlPath.substring(5, urlPath.indexOf("!"));
                 String entryPrefix = urlPath.substring(urlPath.indexOf("!") + 2);
-                try (java.util.jar.JarFile jar = new java.util.jar.JarFile(java.net.URLDecoder.decode(jarPath, "UTF-8"))) {
-                    java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+                try (JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"))) {
+                    Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
-                        java.util.jar.JarEntry entry = entries.nextElement();
+                        JarEntry entry = entries.nextElement();
                         String name = entry.getName();
                         if (!name.startsWith(entryPrefix + "/") && !name.startsWith(entryPrefix)) {
                             continue;
@@ -213,7 +224,7 @@ public class WhisperTranslator {
                         } else {
                             Files.createDirectories(dest.getParent());
                             try (var in = jar.getInputStream(entry)) {
-                                Files.copy(in, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
                             }
                         }
                         extracted++;
@@ -265,7 +276,7 @@ public class WhisperTranslator {
         try (OnnxTensor ft = OnnxTensor.createTensor(ortEnv,
                 FloatBuffer.wrap(melFlat), new long[]{1, N_MELS, N_FRAMES});
              OrtSession.Result r = encoderSession.run(Map.of("input_features", ft))) {
-            ai.onnxruntime.OnnxValue encVal = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            OnnxValue encVal = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             OnnxTensor encOut = (OnnxTensor) encVal;
             encoderHidden = encOut.getFloatBuffer().array();
                         long[] shape = encOut.getInfo().getShape();
@@ -320,13 +331,13 @@ public class WhisperTranslator {
             Map<String, OnnxTensor> feed = new HashMap<>();
             try {
                 feed.put("input_ids", OnnxTensor.createTensor(ortEnv,
-                        java.nio.LongBuffer.wrap(ids), new long[]{1, ids.length}));
+                        LongBuffer.wrap(ids), new long[]{1, ids.length}));
                 feed.put("encoder_hidden_states", OnnxTensor.createTensor(ortEnv,
                         FloatBuffer.wrap(encoderHidden),
                         new long[]{1, ENC_SEQ_OUT, HIDDEN_SIZE}));
 
                 try (OrtSession.Result r = decoderSession.run(feed)) {
-                    ai.onnxruntime.OnnxValue logitsValue = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+                    OnnxValue logitsValue = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                     float[] logits;
                     long[] shape;
                     if (logitsValue instanceof OnnxTensor) {
@@ -397,7 +408,7 @@ public class WhisperTranslator {
             boolean bigEndian = fmt.isBigEndian();
 
             byte[] bytes;
-            try (var baos = new java.io.ByteArrayOutputStream()) {
+            try (var baos = new ByteArrayOutputStream()) {
                 byte[] buf = new byte[8192];
                 int n;
                 while ((n = in.read(buf)) > 0) {
@@ -423,8 +434,8 @@ public class WhisperTranslator {
                     } else if (sampleSizeInBits == 8) {
                         s = (bytes[idx] - 128) / 128.0f;
                     } else if (sampleSizeInBits == 32 && fmt.getEncoding() == AudioFormat.Encoding.PCM_FLOAT) {
-                        int v = java.nio.ByteBuffer.wrap(bytes, idx, 4)
-                                .order(bigEndian ? java.nio.ByteOrder.BIG_ENDIAN : java.nio.ByteOrder.LITTLE_ENDIAN)
+                        int v = ByteBuffer.wrap(bytes, idx, 4)
+                                .order(bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN)
                                 .getInt();
                         s = Float.intBitsToFloat(v);
                     } else {

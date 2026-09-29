@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.awt.Color;
 
 
 /**
@@ -322,7 +323,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
                 BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = image.createGraphics();
                 try {
-                    graphics.setColor(java.awt.Color.WHITE);
+                    graphics.setColor(Color.WHITE);
                     graphics.fillRect(0, 0, width, height);
                 } finally {
                     graphics.dispose();

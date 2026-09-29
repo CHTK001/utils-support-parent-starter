@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * YOLO-uniow 通用开世界目标检测（打开-World 对象 Detection）Translator。
@@ -410,7 +413,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
      */
     private static float[] readFloats(InputStream is) throws IOException {
         // 可靠读取全部字节（available() 在流上不可靠）
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buf = new byte[4096];
         int n;
         while ((n = is.read(buf)) != -1) {
@@ -422,8 +425,8 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
         }
         float[] arr = new float[all.length / 4];
         // numpy .tobytes() 平台小端（x86 little-endian）
-        java.nio.ByteBuffer.wrap(all)
-                .order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        ByteBuffer.wrap(all)
+                .order(ByteOrder.LITTLE_ENDIAN)
                 .asFloatBuffer()
                 .get(arr);
         return arr;

@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.chua.deeplearning.support.onnx.GpuHelper;
+import java.util.Map;
 
 /**
  * 文本bsr 文字超分辨率（ORT 原生 + 打开cv）。
@@ -135,7 +137,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
         this.ortEnv = OrtEnvironment.getEnvironment();
         OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
         opts.setIntraOpNumThreads(Math.min(8, Runtime.getRuntime().availableProcessors()));
-        com.chua.deeplearning.support.onnx.GpuHelper.apply(opts);
+        GpuHelper.apply(opts);
         this.session = ortEnv.createSession(modelPath.toString(), opts);
         log.info("[TextBSR] ONNX loaded: {}", modelPath.getFileName());
     }
@@ -206,7 +208,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
                 long[] shape = {1, 3, inH, inW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
-                    try (OrtSession.Result result = session.run(java.util.Map.of("input", tensor))) {
+                    try (OrtSession.Result result = session.run(Map.of("input", tensor))) {
                         Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[][][][] output;
                         if (out instanceof float[][][][]) {

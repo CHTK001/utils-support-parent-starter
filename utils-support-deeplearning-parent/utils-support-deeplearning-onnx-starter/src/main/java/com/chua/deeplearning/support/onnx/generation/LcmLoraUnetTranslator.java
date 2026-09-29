@@ -10,6 +10,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
+import ai.djl.modality.cv.ImageFactory;
 
 
 
@@ -127,7 +128,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
             output = output.transpose(1, 2, 0);
 
  // ndarray
-            var img = ai.djl.modality.cv.ImageFactory.getInstance().fromNDArray(output);
+            var img = ImageFactory.getInstance().fromNDArray(output);
 
             if (log.isDebugEnabled()) {
                 log.debug("[LCM-LoRA][Translator]                  : width={}, height={}", img.getWidth(), img.getHeight());

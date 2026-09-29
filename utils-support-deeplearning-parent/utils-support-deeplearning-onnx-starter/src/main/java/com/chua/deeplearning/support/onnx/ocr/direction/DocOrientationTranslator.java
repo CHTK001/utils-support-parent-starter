@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import org.opencv.core.MatOfByte;
+import org.opencv.imgcodecs.Imgcodecs;
 
 /**
  * 文档方向分类（PP-lcnet_x1_0_doc_ori，4 类：0°/90°/180°/270°）。
@@ -81,11 +83,11 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
                 .extractOnly(true)
                 .load();
         Path modelPath = modelDir.resolve(MODEL_FILE);
-        if (!java.nio.file.Files.isRegularFile(modelPath)) {
+        if (!Files.isRegularFile(modelPath)) {
             // 回退：模型根目录直接按 modelId 命名存放的场景
             modelPath = ModelRegistry.resolveModelPath("doc-orientation");
         }
-        if (modelPath == null || !java.nio.file.Files.isRegularFile(modelPath)) {
+        if (modelPath == null || !Files.isRegularFile(modelPath)) {
             throw new IllegalArgumentException("文档方向分类模型缺失，期望 jar 内路径 " + RESOURCE_BASE + MODEL_FILE);
         }
         this.ortEnv = OrtEnvironment.getEnvironment();
@@ -124,8 +126,8 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();
-            Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(
-                    new org.opencv.core.MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
+            Mat src = Imgcodecs.imdecode(
+                    new MatOfByte(imageData), Imgcodecs.IMREAD_COLOR);
             if (src == null || src.empty()) {
                 throw new IllegalArgumentException("无法解码图像");
             }

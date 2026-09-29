@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import ai.djl.modality.cv.ImageFactory;
 
 /**
  * YOLO-World zero-shot detector with 打开-vocabulary 支持.
@@ -172,7 +173,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         originalHeight = input.getHeight();
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         BufferedImage resized = letterbox(original, inputSize, inputSize);
-        ai.djl.modality.cv.Image djlImg = ai.djl.modality.cv.ImageFactory.getInstance().fromImage(resized);
+        Image djlImg = ImageFactory.getInstance().fromImage(resized);
         NDArray array = djlImg.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = array.toType(DataType.FLOAT32, false);
         Shape shape = array.getShape();

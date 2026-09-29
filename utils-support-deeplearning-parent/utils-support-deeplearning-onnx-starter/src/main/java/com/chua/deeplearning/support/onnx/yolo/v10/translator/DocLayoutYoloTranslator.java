@@ -15,6 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import ai.djl.modality.cv.BufferedImageFactory;
+import ai.djl.ndarray.types.Shape;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 
 /**
@@ -128,10 +133,10 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
          *
          * @param configuration 检测配置（可空）
          */
-    public DocLayoutYoloTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public DocLayoutYoloTranslator(DetectionConfiguration configuration) {
         this(DEFAULT_INPUT_SIZE,
                 configuration == null ? DEFAULT_THRESHOLD
-                        : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, DEFAULT_THRESHOLD),
+                        : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, DEFAULT_THRESHOLD),
                 DOCSTRUCTBENCH_CLASSES);
     }
 
@@ -197,10 +202,10 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
 
  // 提取 缓冲镜像，AWT 缩放至 输入大小（规避 DJL 镜像.resize 走 ndarray）
         Object wrapped = input.getWrappedImage();
-        java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
+        BufferedImage src = wrapped instanceof BufferedImage b
                 ? b
-                : (java.awt.image.BufferedImage) ai.djl.modality.cv.BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
-        java.awt.image.BufferedImage resized = ImageUtils.resize(src, inputSize, inputSize, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+                : (BufferedImage) BufferedImageFactory.getInstance().fromImage(input).getWrappedImage();
+        BufferedImage resized = ImageUtils.resize(src, inputSize, inputSize, Imgproc.INTER_CUBIC);
 
         // 提取 HWC 像素（RGB [0,255]），手动转 CHW + /255，规避 onnxruntime 不支持的 transpose/div
         int w = resized.getWidth();
@@ -213,7 +218,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             chw[2 * h * w + i] = (rgb[i] & 0xFF) / 255f;
         }
 
-        NDArray array = ctx.getNDManager().create(chw, new ai.djl.ndarray.types.Shape(1, 3, h, w));
+        NDArray array = ctx.getNDManager().create(chw, new Shape(1, 3, h, w));
 
         if (log.isDebugEnabled()) {
             log.debug("DocLayout-YOLO 输入: shape={}, dtype={}", array.getShape(), array.getDataType());

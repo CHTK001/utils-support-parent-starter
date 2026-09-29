@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.opencv.core.MatOfByte;
 
 /**
  * PP-ocrv6 文字识别 — 纯 打开cv DNN 实现（无 ONNX Runtime 依赖）
@@ -286,7 +287,7 @@ public class PpOcrOpencvTranslator {
     private static Mat decodeImage(byte[] data) {
         Mat mob = new Mat();
         try {
-            return Imgcodecs.imdecode(new org.opencv.core.MatOfByte(data), Imgcodecs.IMREAD_COLOR);
+            return Imgcodecs.imdecode(new MatOfByte(data), Imgcodecs.IMREAD_COLOR);
         } finally {
             mob.release();
         }

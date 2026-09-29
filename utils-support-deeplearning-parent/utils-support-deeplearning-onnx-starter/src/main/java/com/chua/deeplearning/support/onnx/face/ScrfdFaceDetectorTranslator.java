@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * SCRFD 2.5G BNKPS              Translator   
@@ -75,7 +76,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
         int[] rgb = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < rgb.length; i++) {
@@ -235,10 +236,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
  *
  * @param configuration 检测配置（可空）
  */
-    public ScrfdFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public ScrfdFaceDetectorTranslator(DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

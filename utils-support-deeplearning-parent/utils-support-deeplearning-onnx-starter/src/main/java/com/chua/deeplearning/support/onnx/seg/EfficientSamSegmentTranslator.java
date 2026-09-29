@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * efficientsam-Ti 分割 Translator（提示框 → 前景掩码）。
@@ -183,7 +184,7 @@ public class EfficientSamSegmentTranslator {
     private float[][] preprocess(Image input) {
         BufferedImage src = toBufferedImage(input);
 
-        BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage canvas = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
 
         float[][] out = new float[3][INPUT_SIZE * INPUT_SIZE];
         int h = INPUT_SIZE;

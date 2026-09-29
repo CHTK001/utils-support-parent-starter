@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * hfl/chinese-t5-基础 Seq2Seq ONNX 翻译器
@@ -114,7 +115,7 @@ public class ChineseT5BaseTranslator implements Translator<String, String> {
             }
         }
 
-        String text = tokenizer.decode(java.util.Arrays.copyOf(ids, eosPos));
+        String text = tokenizer.decode(Arrays.copyOf(ids, eosPos));
         return text.trim();
     }
 

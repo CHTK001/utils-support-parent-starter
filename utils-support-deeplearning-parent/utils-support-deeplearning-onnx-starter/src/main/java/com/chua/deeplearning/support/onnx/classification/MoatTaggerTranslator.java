@@ -19,6 +19,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import ai.djl.ndarray.types.Shape;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.StandardCopyOption;
 
 /**
  * WD-v1-4 moat Tagger V2 自动标签 Translator（448×448，NHWC BGR→RGB，9083 标签）。
@@ -70,11 +74,11 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
         if (!Files.exists(csv)) {
             // 尝试 jar 内资源
             try {
-                java.net.URL url = MoatTaggerTranslator.class.getClassLoader().getResource("vision/tagging/wd-v1-4-moat/wd-v1-4-moat-tagger-v2.csv");
+                URL url = MoatTaggerTranslator.class.getClassLoader().getResource("vision/tagging/wd-v1-4-moat/wd-v1-4-moat-tagger-v2.csv");
                 if (url != null) {
-                    java.io.InputStream is = url.openStream();
+                    InputStream is = url.openStream();
                     Path tmp = Files.createTempFile("moat-csv", ".csv");
-                    Files.copy(is, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(is, tmp, StandardCopyOption.REPLACE_EXISTING);
                     is.close();
                     tmp.toFile().deleteOnExit();
                     csv = tmp;
@@ -105,7 +109,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
             bgr[i * 3 + 2] = b;
         }
         // HWC -> 添加 batch [1, H, W, 3]
-        NDArray nhwc = ctx.getNDManager().create(bgr, new ai.djl.ndarray.types.Shape(1, INPUT_SIZE, INPUT_SIZE, 3));
+        NDArray nhwc = ctx.getNDManager().create(bgr, new Shape(1, INPUT_SIZE, INPUT_SIZE, 3));
         // ImageNet normalize (NHWC 最后一维)
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
@@ -115,7 +119,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
             nhwc = nhwc; // 占位，避免未用
             bgr[i] = (bgr[i] - mean[c]) / std[c];
         }
-        nhwc = ctx.getNDManager().create(bgr, new ai.djl.ndarray.types.Shape(1, INPUT_SIZE, INPUT_SIZE, 3));
+        nhwc = ctx.getNDManager().create(bgr, new Shape(1, INPUT_SIZE, INPUT_SIZE, 3));
         nhwc.setName("input_1:0");
         return new NDList(nhwc);
     }
@@ -147,7 +151,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
             return Path.of(".");
         }
         Path n = modelPath.toAbsolutePath().normalize();
-        return java.nio.file.Files.isDirectory(n) ? n : (n.getParent() == null ? n : n.getParent());
+        return Files.isDirectory(n) ? n : (n.getParent() == null ? n : n.getParent());
     }
 
     /**

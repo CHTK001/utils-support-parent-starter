@@ -16,6 +16,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import ai.onnxruntime.OnnxJavaType;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import org.opencv.core.Size;
 
 /**
  * Florence-2 视觉理解翻译器，支持多种图像理解任务。
@@ -101,15 +109,15 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 continue;
             }
             try {
-                Files.copy(java.net.URI.create(base + f).toURL().openStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(URI.create(base + f).toURL().openStream(), target, StandardCopyOption.REPLACE_EXISTING);
                 log.info("[Florence-2] Downloaded: {} ({}MB)", f, target.toFile().length() / 1024 / 1024);
             } catch (Exception e) { log.warn("[Florence-2] Download failed {}: {}", f, e.getMessage()); }
         }
         Path tokenizerPath = modelDir.resolve("tokenizer.json");
         if (!Files.exists(tokenizerPath)) {
             try {
-                java.net.URI uri = new java.net.URI("https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/tokenizer.json");
-                Files.copy(uri.toURL().openStream(), tokenizerPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                URI uri = new URI("https://huggingface.co/onnx-community/Florence-2-base-ft/resolve/main/tokenizer.json");
+                Files.copy(uri.toURL().openStream(), tokenizerPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception e) { log.warn("[Florence-2] Tokenizer download failed: {}", e.getMessage()); }
         }
     }
@@ -157,7 +165,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         }
         try {
             Mat resized = new Mat();
-            Imgproc.resize(src, resized, new org.opencv.core.Size(IMAGE_SIZE, IMAGE_SIZE), 0, 0, Imgproc.INTER_CUBIC);
+            Imgproc.resize(src, resized, new Size(IMAGE_SIZE, IMAGE_SIZE), 0, 0, Imgproc.INTER_CUBIC);
             if (resized.channels() == 3) {
                 Imgproc.cvtColor(resized, resized, Imgproc.COLOR_BGR2RGB);
             }
@@ -189,7 +197,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
      * @throws Exception 当执行过程不满足前置条件时
      */
     private float[][] inferVision(float[] pixels) throws Exception {
-        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(pixels), new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
+        try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), new long[]{1, 3, IMAGE_SIZE, IMAGE_SIZE})) {
             try (OrtSession.Result result = visionSession.run(Map.of("pixel_values", tensor))) {
                 OnnxTensor features = (OnnxTensor) result.get("image_features").get();
                 long[] s = features.getInfo().getShape();
@@ -214,16 +222,16 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private String generate(float[][] encoderHidden, String taskPrompt) throws Exception {
         int seqLen = ENCODER_SEQ_LEN;
         long[] encMask = new long[seqLen];
-        java.util.Arrays.fill(encMask, 1L);
+        Arrays.fill(encMask, 1L);
         OnnxTensor encoderMaskTensor = OnnxTensor.createTensor(ortEnv,
-                java.nio.LongBuffer.wrap(encMask), new long[]{1, seqLen});
+                LongBuffer.wrap(encMask), new long[]{1, seqLen});
         List<Long> tokens = new ArrayList<>();
         try { Encoding enc = tokenizer.encode(taskPrompt); for (long t : enc.getIds()) tokens.add(t); }
         catch (Exception e) { log.warn("[Florence-2] tokenizer failed: {}", e.getMessage()); for (char c : taskPrompt.toCharArray()) tokens.add((long) c); }
         List<Long> generatedTokens = new ArrayList<>(tokens);
         try {
             long[] currentIds = tokens.stream().mapToLong(Long::longValue).toArray();
-            OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(currentIds), new long[]{1, currentIds.length});
+            OnnxTensor idsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(currentIds), new long[]{1, currentIds.length});
             try (OrtSession.Result embedResult = embedSession.run(Map.of("input_ids", idsTensor))) {
                 OnnxTensor embedOut = (OnnxTensor) embedResult.get("inputs_embeds").get();
                 int embedSeqLen = (int) embedOut.getInfo().getShape()[1];
@@ -232,14 +240,14 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 for (int i = 0; i < embedSeqLen; i++) {
                     System.arraycopy(embedFlat, i * HIDDEN_SIZE, embeds[i], 0, HIDDEN_SIZE);
                 }
-                OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
-                OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
+                OnnxTensor embedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(embeds)), new long[]{1, embedSeqLen, HIDDEN_SIZE});
+                OnnxTensor encoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
                 Map<String, OnnxTensor> decoderInputs = new HashMap<>();
                 decoderInputs.put("inputs_embeds", embedsTensor);
                 decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
                 decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
                 decoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv,
-                        java.nio.ByteBuffer.wrap(new byte[]{0}), new long[]{1}, ai.onnxruntime.OnnxJavaType.BOOL));
+                        ByteBuffer.wrap(new byte[]{0}), new long[]{1}, OnnxJavaType.BOOL));
                 try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
                     OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
                     float[] logits = logitsTensor.getFloatBuffer().array();
@@ -256,7 +264,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                     }
                     for (int step = 1; step < MAX_NEW_TOKENS; step++) {
                         long[] stepIds = generatedTokens.stream().mapToLong(Long::longValue).toArray();
-                        OnnxTensor stepIdsTensor = OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(stepIds), new long[]{1, stepIds.length});
+                        OnnxTensor stepIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(stepIds), new long[]{1, stepIds.length});
                         try (OrtSession.Result stepEmbedResult = embedSession.run(Map.of("input_ids", stepIdsTensor))) {
                             OnnxTensor stepEmbedOut = (OnnxTensor) stepEmbedResult.get("inputs_embeds").get();
                             int stepSeqLen = (int) stepEmbedOut.getInfo().getShape()[1];
@@ -265,14 +273,14 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             for (int i = 0; i < stepSeqLen; i++) {
                                 System.arraycopy(stepEmbedFlat, i * HIDDEN_SIZE, stepEmbeds[i], 0, HIDDEN_SIZE);
                             }
-                            OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
-                            OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, java.nio.FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
+                            OnnxTensor stepEmbedsTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(stepEmbeds)), new long[]{1, stepSeqLen, HIDDEN_SIZE});
+                            OnnxTensor stepEncoderHiddenTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(floatArrayFrom2D(encoderHidden)), new long[]{1, seqLen, HIDDEN_SIZE});
                             Map<String, OnnxTensor> stepDecoderInputs = new HashMap<>();
                             stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
                             stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);
                             stepDecoderInputs.put("encoder_attention_mask", encoderMaskTensor);
                             stepDecoderInputs.put("use_cache_branch", OnnxTensor.createTensor(ortEnv,
-                                        java.nio.ByteBuffer.wrap(new byte[]{1}), new long[]{1}, ai.onnxruntime.OnnxJavaType.BOOL));
+                                        ByteBuffer.wrap(new byte[]{1}), new long[]{1}, OnnxJavaType.BOOL));
                             for (int l = 0; l < NUM_LAYERS; l++) {
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.key", pastKV[l][0]);
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.value", pastKV[l][1]);

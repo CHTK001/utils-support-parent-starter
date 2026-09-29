@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.io.ByteArrayInputStream;
+import javax.sound.sampled.AudioFileFormat;
 
 /**
  * 音频通用工具类。
@@ -153,9 +155,9 @@ public final class AudioUtils {
         byte[] pcm = pcmOut.toByteArray();
         AudioFormat fmt = new AudioFormat(sampleRate, 16, 1, true, false);
         try (AudioInputStream ais = new AudioInputStream(
-                new java.io.ByteArrayInputStream(pcm), fmt, samples.length)) {
+                new ByteArrayInputStream(pcm), fmt, samples.length)) {
             ByteArrayOutputStream wavOut = new ByteArrayOutputStream(pcm.length + 44);
-            AudioSystem.write(ais, javax.sound.sampled.AudioFileFormat.Type.WAVE, wavOut);
+            AudioSystem.write(ais, AudioFileFormat.Type.WAVE, wavOut);
             return wavOut.toByteArray();
         }
     }

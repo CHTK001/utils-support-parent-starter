@@ -16,6 +16,8 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * ultraface/ultralight        ONNX Translator
@@ -192,12 +194,12 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
-        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+        if (!(wrapped instanceof BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
  // AWT 缩放（ONNX Runtime 引擎的 ndarray 不支持 resize/transpose/flip）
-        java.awt.image.BufferedImage resized = ImageUtils.resize(
-                bufferedImage, inputWidth, inputHeight, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(
+                bufferedImage, inputWidth, inputHeight, Imgproc.INTER_LINEAR);
         int[] rgb = resized.getRGB(0, 0, inputWidth, inputHeight, null, 0, inputWidth);
 
  // 模型输入为 BGR 归一化（减 BGR_MEAN），无 镜像net/255 缩放（原生 onnx 用像素直接减）

@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import javax.sound.sampled.AudioSystem;
 
 /**
  * MOSS-TTS-nano 多语言文本转语音翻译器（0.1B，48 kHz 输出）。
@@ -257,7 +261,7 @@ public class MossTtsTranslator implements AutoCloseable {
      * @param dstRate dstrate
      */
     private float[][] loadStereo48k(Path path) throws Exception {
-        try (var ais = javax.sound.sampled.AudioSystem.getAudioInputStream(path.toFile())) {
+        try (var ais = AudioSystem.getAudioInputStream(path.toFile())) {
             var fmt = ais.getFormat();
             byte[] bytes = ais.readAllBytes();
             int bytesPer = fmt.getSampleSizeInBits() / 8;
@@ -559,7 +563,7 @@ public class MossTtsTranslator implements AutoCloseable {
         for (int token : tokens) {
             int[] row = new int[rowWidth];
             row[0] = token;
-            java.util.Arrays.fill(row, 1, rowWidth, audioPadTokenId);
+            Arrays.fill(row, 1, rowWidth, audioPadTokenId);
             rows.add(row);
         }
     }
@@ -643,7 +647,7 @@ public class MossTtsTranslator implements AutoCloseable {
             }
         }
         int[] mask = new int[seqLen];
-        java.util.Arrays.fill(mask, 1);
+        Arrays.fill(mask, 1);
 
         OnnxTensor idsTensor = OnnxTensor.createTensor(env,
                 IntBuffer.wrap(flat), new long[]{1, seqLen, rowWidth});
@@ -685,9 +689,9 @@ public class MossTtsTranslator implements AutoCloseable {
         List<int[]> audioTokens = new ArrayList<>();
         int rowWidth = nVq + 1;
         Random random = new Random(1234L);
-        java.util.Set<Integer>[] seen = new java.util.Set[nVq];
+        Set<Integer>[] seen = new Set[nVq];
         for (int q = 0; q < nVq; q++) {
-            seen[q] = new java.util.HashSet<>();
+            seen[q] = new HashSet<>();
         }
 
         List<String> pastInputNames = new ArrayList<>();
@@ -708,7 +712,7 @@ public class MossTtsTranslator implements AutoCloseable {
             }
             int[] audioRow = new int[rowWidth];
             audioRow[0] = audioAssistantSlotTokenId;
-            java.util.Arrays.fill(audioRow, 1, rowWidth, audioPadTokenId);
+            Arrays.fill(audioRow, 1, rowWidth, audioPadTokenId);
             for (int q = 0; q < nVq; q++) {
                 audioRow[q + 1] = frame.tokens[q];
                 seen[q].add(frame.tokens[q]);
@@ -750,7 +754,7 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     private LocalFrame runLocalFixedSampledFrame(OnnxTensor globalHidden,
-                                                 java.util.Set<Integer>[] seen,
+                                                 Set<Integer>[] seen,
                                                  Random random) throws OrtException {
         int[] seenMask = new int[nVq * audioCodebookSize];
         for (int channel = 0; channel < nVq; channel++) {

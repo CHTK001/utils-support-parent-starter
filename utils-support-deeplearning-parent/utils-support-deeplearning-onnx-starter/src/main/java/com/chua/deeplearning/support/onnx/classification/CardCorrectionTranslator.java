@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import java.util.Arrays;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 
 /**
  * 卡片矫正检测（centernet，ORT 原生 + 打开cv）。
@@ -212,11 +215,11 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
                 }
                 float[][] quad = quads.getFirst();
                 // 4 角点按左上/右上/右下/左下排序（模型输出顺序：0 右下,1 左下,2 左上,3 右上）
-                org.opencv.core.MatOfPoint2f srcPts = new org.opencv.core.MatOfPoint2f(
-                        new org.opencv.core.Point(quad[2][0], quad[2][1]), // 左上
-                        new org.opencv.core.Point(quad[3][0], quad[3][1]), // 右上
-                        new org.opencv.core.Point(quad[0][0], quad[0][1]), // 右下
-                        new org.opencv.core.Point(quad[1][0], quad[1][1])); // 左下
+                MatOfPoint2f srcPts = new MatOfPoint2f(
+                        new Point(quad[2][0], quad[2][1]), // 左上
+                        new Point(quad[3][0], quad[3][1]), // 右上
+                        new Point(quad[0][0], quad[0][1]), // 右下
+                        new Point(quad[1][0], quad[1][1])); // 左下
                 double w = Math.max(
                         Math.sqrt(Math.pow(quad[3][0] - quad[2][0], 2) + Math.pow(quad[3][1] - quad[2][1], 2)),
                         Math.sqrt(Math.pow(quad[0][0] - quad[1][0], 2) + Math.pow(quad[0][1] - quad[1][1], 2)));
@@ -225,12 +228,12 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
                         Math.sqrt(Math.pow(quad[0][0] - quad[3][0], 2) + Math.pow(quad[0][1] - quad[3][1], 2)));
                 int outW = Math.max(1, (int) Math.round(w));
                 int outH = Math.max(1, (int) Math.round(h));
-                org.opencv.core.MatOfPoint2f dstPts = new org.opencv.core.MatOfPoint2f(
-                        new org.opencv.core.Point(0, 0),
-                        new org.opencv.core.Point(outW - 1, 0),
-                        new org.opencv.core.Point(outW - 1, outH - 1),
-                        new org.opencv.core.Point(0, outH - 1));
-                org.opencv.core.Mat perspective = Imgproc.getPerspectiveTransform(srcPts, dstPts);
+                MatOfPoint2f dstPts = new MatOfPoint2f(
+                        new Point(0, 0),
+                        new Point(outW - 1, 0),
+                        new Point(outW - 1, outH - 1),
+                        new Point(0, outH - 1));
+                Mat perspective = Imgproc.getPerspectiveTransform(srcPts, dstPts);
                 Mat corrected = new Mat();
                 Imgproc.warpPerspective(src, corrected, perspective, new Size(outW, outH), Imgproc.INTER_LINEAR);
                 byte[] result = ImageUtils.encode(corrected);
@@ -356,7 +359,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
         for (int i = 0; i < idx.length; i++) {
             idx[i] = i;
         }
-        java.util.Arrays.sort(idx, (a, b) -> Float.compare(vals.get(b), vals.get(a)));
+        Arrays.sort(idx, (a, b) -> Float.compare(vals.get(b), vals.get(a)));
         // NMS：抑制距离过近的峰（半径 8 像素）
         List<int[]> kept = new ArrayList<>();
         for (int i : idx) {
@@ -455,10 +458,10 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
  *
  * @param configuration 检测配置（可空）
  */
-    public CardCorrectionTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public CardCorrectionTranslator(DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
-            float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);
+            float t = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, -1f);
             if (t > 0) {
                 this.thresholdOverride = t;
             }

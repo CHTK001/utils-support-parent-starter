@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.common.support.ai.audio.VirtualClient;
+import com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder;
 
 /**
  * 本地离线语音识别管线。
@@ -154,8 +156,8 @@ public final class AsrPipeline {
         }
 
         List<String> parts = new ArrayList<>(segments.size());
-        try (com.chua.common.support.ai.audio.VirtualClient client =
-                     com.chua.common.support.ai.audio.VirtualClient.create(engineId, "")) {
+        try (VirtualClient client =
+                     VirtualClient.create(engineId, "")) {
             if (language != null && !language.isBlank()) {
                 client.language(language);
             }
@@ -307,7 +309,7 @@ public final class AsrPipeline {
             float[] up = AudioUtils.resample(s, TARGET_SR, 48000);
             byte[] wavIn = AudioUtils.toWavBytes(up, 48000);
             byte[] wavOut = denoiseEnhancer.enhance(wavIn);
-            float[] enhanced48k = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
+            float[] enhanced48k = WavDecoder
                     .decodeToFloat(wavOut, 48000);
             float[] down = AudioUtils.resample(enhanced48k, 48000, TARGET_SR);
             log.info("[AsrPipeline] 降噪完成: {} → {} 采样", s.length, down.length);

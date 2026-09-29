@@ -19,6 +19,16 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Random;
 import java.util.Set;
+import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Small Stable Diffusion v0 文生图全流程编排（文本编码 → CFG 引导 DDIM 去噪 → VAE 解码）。
@@ -191,7 +201,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     /**
      * 分词器（懒加载）
      */
-    private volatile ai.djl.huggingface.tokenizers.HuggingFaceTokenizer tokenizer;
+    private volatile HuggingFaceTokenizer tokenizer;
 
     /**
      * 默认构造（512×512，20 步，引导 7.5）。
@@ -210,7 +220,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      *
      * @param config 检测/推理配置
      */
-    public SmallStableDiffusionCombinedTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration config) {
+    public SmallStableDiffusionCombinedTranslator(DetectionConfiguration config) {
         this(optInt(config, "width", Integer.getInteger("small.sd.width", 512)),
                 optInt(config, "height", Integer.getInteger("small.sd.height", 512)),
                 optInt(config, "steps", Integer.getInteger("small.sd.steps", LCM_MODE ? 4 : 20)),
@@ -231,7 +241,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @param def def
      * @return optInt的结果
      */
-    private static int optInt(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, int def) {
+    private static int optInt(DetectionConfiguration c, String k, int def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
             return def;
         }
@@ -246,7 +256,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @param def def
      * @return optDbl的结果
      */
-    private static double optDbl(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, double def) {
+    private static double optDbl(DetectionConfiguration c, String k, double def) {
         if (c == null || c.systemOption() == null || !c.systemOption().containsKey(k)) {
             return def;
         }
@@ -260,7 +270,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @param def def
      * @return optStr的结果
      */
-    private static String optStr(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, String def) {
+    private static String optStr(DetectionConfiguration c, String k, String def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
             return def;
         }
@@ -274,7 +284,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @param def def
      * @return optLng的结果
      */
-    private static Long optLng(com.chua.deeplearning.support.ai.DetectionConfiguration c, String k, Long def) {
+    private static Long optLng(DetectionConfiguration c, String k, Long def) {
         if (c == null || c.systemOption() == null || c.systemOption().get(k) == null) {
             return def;
         }
@@ -566,7 +576,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      *
      * @return 基准目录
      */
-    private static final Path D_DRIVE_BASE = java.nio.file.Paths.get("D:\\chua-dl-models\\small-sd");
+    private static final Path D_DRIVE_BASE = Paths.get("D:\\chua-dl-models\\small-sd");
 
     /**
      * resolvebasedir。
@@ -581,7 +591,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             return D_DRIVE_BASE;
         }
         String tmpDir = System.getProperty("java.io.tmpdir");
-        return java.nio.file.Paths.get(tmpDir, "chua-dl-models", "download");
+        return Paths.get(tmpDir, "chua-dl-models", "download");
     }
 
     /**
@@ -673,7 +683,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
             synchronized (lock) {
                 if (tokenizer == null) {
                     Path p = weightDir().resolve("tokenizer.json");
-                    tokenizer = ai.djl.huggingface.tokenizers.HuggingFaceTokenizer.builder()
+                    tokenizer = HuggingFaceTokenizer.builder()
                             .optTokenizerPath(p)
                             .optTruncation(true)
                             .build();
@@ -683,7 +693,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         long[] ids = tokenizer.encode(text == null ? "" : text).getIds();
         long[] fixed = new long[MAX_SEQUENCE_LENGTH];
         System.arraycopy(ids, 0, fixed, 0, Math.min(ids.length, MAX_SEQUENCE_LENGTH));
-        java.util.Arrays.fill(fixed, Math.min(ids.length, MAX_SEQUENCE_LENGTH), MAX_SEQUENCE_LENGTH, PAD_TOKEN_ID);
+        Arrays.fill(fixed, Math.min(ids.length, MAX_SEQUENCE_LENGTH), MAX_SEQUENCE_LENGTH, PAD_TOKEN_ID);
         return fixed;
     }
 
@@ -714,7 +724,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         }
         try (OnnxTensor t = OnnxTensor.createTensor(env, ids32);
              OrtSession.Result result = textEncoderSession.run(
-                     java.util.Map.of("input_ids", t),
+                     Map.of("input_ids", t),
                      Set.of(textEncoderOutput))) {
             float[][][] out = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[out[0].length * out[0][0].length];
@@ -742,13 +752,13 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         int latentW = width / 8;
         float[] flatSample = new float[latent.length];
         System.arraycopy(latent, 0, flatSample, 0, latent.length);
-        try (OnnxTensor x = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(flatSample),
+        try (OnnxTensor x = OnnxTensor.createTensor(env, FloatBuffer.wrap(flatSample),
                      new long[]{1, LATENT_CHANNELS, latentH, latentW});
-             OnnxTensor tT = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(new float[]{(float) t}),
+             OnnxTensor tT = OnnxTensor.createTensor(env, FloatBuffer.wrap(new float[]{(float) t}),
                      new long[]{1});
-             OnnxTensor e = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(emb),
+             OnnxTensor e = OnnxTensor.createTensor(env, FloatBuffer.wrap(emb),
                      new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH});
-             OrtSession.Result r = unetSession.run(java.util.Map.of(
+             OrtSession.Result r = unetSession.run(Map.of(
                      "sample", x, "timestep", tT, "encoder_hidden_states", e))) {
             float[][][][] out = (float[][][][]) r.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
@@ -770,9 +780,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
      * @param data 原始数据
      * @return 半精度缓冲
      */
-    private static java.nio.ShortBuffer toHalfBuffer(float[] data) {
-        java.nio.ShortBuffer buf = java.nio.ByteBuffer.allocateDirect(data.length * 2)
-                .order(java.nio.ByteOrder.nativeOrder())
+    private static ShortBuffer toHalfBuffer(float[] data) {
+        ShortBuffer buf = ByteBuffer.allocateDirect(data.length * 2)
+                .order(ByteOrder.nativeOrder())
                 .asShortBuffer();
         for (float v : data) {
             buf.put(floatToHalf(v));
@@ -795,9 +805,9 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         for (int i = 0; i < latent.length; i++) {
             scaled[i] = latent[i] / VAE_SCALE_FACTOR;
         }
-        try (OnnxTensor t = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(scaled),
+        try (OnnxTensor t = OnnxTensor.createTensor(env, FloatBuffer.wrap(scaled),
                      new long[]{1, LATENT_CHANNELS, latentH, latentW});
-             OrtSession.Result r = vaeSession.run(java.util.Map.of("latent_sample", t))) {
+             OrtSession.Result r = vaeSession.run(Map.of("latent_sample", t))) {
             Object raw = r.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             int imgH = height;
             int imgW = width;
@@ -959,7 +969,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
     private byte[] encodePng(int[] rgb) throws IOException {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         image.setRGB(0, 0, width, height, rgb, 0, width);
-        try (var bos = new java.io.ByteArrayOutputStream()) {
+        try (var bos = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", bos);
             return bos.toByteArray();
         }

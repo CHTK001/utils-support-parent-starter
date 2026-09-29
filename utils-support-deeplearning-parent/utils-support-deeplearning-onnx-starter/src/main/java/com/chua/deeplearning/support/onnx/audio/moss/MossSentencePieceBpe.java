@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.text.Normalizer;
 
 /**
  * sentencepiece BPE 分词器的纯 Java 最小实现。
@@ -106,8 +107,8 @@ public class MossSentencePieceBpe implements AutoCloseable {
                 ids.add(pieceToId.get(segment));
                 continue;
             }
-            String normalized = java.text.Normalizer.normalize(
-                    segment, java.text.Normalizer.Form.NFKC);
+            String normalized = Normalizer.normalize(
+                    segment, Normalizer.Form.NFKC);
             normalized = normalized.replace(" ", SPACE_MARK)
                     .replace("\n", SPACE_MARK);
             if (firstNormal && !normalized.startsWith(SPACE_MARK)) {

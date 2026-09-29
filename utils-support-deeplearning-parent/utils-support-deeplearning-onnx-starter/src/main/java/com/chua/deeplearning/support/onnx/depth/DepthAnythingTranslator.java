@@ -15,6 +15,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * 深度-Anything V2 ONNX
@@ -122,7 +123,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
             }
         }
 
-        BufferedImage scaled = ImageUtils.resize(buf, width, height, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage scaled = ImageUtils.resize(buf, width, height, Imgproc.INTER_LINEAR);
 
         return ImageFactory.getInstance().fromImage(scaled);
     }

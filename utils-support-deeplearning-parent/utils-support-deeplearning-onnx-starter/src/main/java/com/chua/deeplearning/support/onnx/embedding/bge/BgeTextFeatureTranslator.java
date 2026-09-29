@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
  * BGE 文本嵌入 Translator（registry 路径，ORT 原生 + huggingface Tokenizer）。
@@ -111,10 +112,10 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
                     // 优先用「服务器本地已注册」的外部模型目录：模型已经放在盘上时，
                     // 不应再去下载缓存或联网。resolveModelPath 只认模板自身登记的
                     // classpath / 下载路径，看不到 registerExternalDirectory 注册的目录。
-                    Path resolved = com.chua.deeplearning.support.engine.ModelRegistry
+                    Path resolved = ModelRegistry
                             .findExternalDirectory(registryModelId);
                     if (resolved == null) {
-                        resolved = com.chua.deeplearning.support.engine.ModelRegistry
+                        resolved = ModelRegistry
                                 .resolveModelPath(registryModelId);
                     }
                     if (resolved == null) {

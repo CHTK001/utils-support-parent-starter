@@ -11,6 +11,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
 
 
 /**
@@ -96,7 +97,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         NDArray pixelAttentionMask;
         try {
             boolean[] boolData = new boolean[(int) totalSize];
-            java.util.Arrays.fill(boolData, true);
+            Arrays.fill(boolData, true);
             //                                        
             pixelAttentionMask = manager.create(boolData, maskShapeObj);
             log.info("      1      :                                  , shape={}, rank={}, dtype={}",
@@ -121,7 +122,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
                 log.warn("      2      : {}", e2.getMessage());
                 //       3         1               reshape
                 boolean[] boolData = new boolean[(int) totalSize];
-                java.util.Arrays.fill(boolData, true);
+                Arrays.fill(boolData, true);
                 NDArray tempArray = manager.create(boolData);
                 pixelAttentionMask = tempArray.reshape(maskShapeObj);
                 //                         

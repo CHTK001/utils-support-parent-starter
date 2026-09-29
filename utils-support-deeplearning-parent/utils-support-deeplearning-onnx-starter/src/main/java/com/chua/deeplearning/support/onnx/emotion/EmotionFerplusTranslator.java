@@ -9,6 +9,8 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.ai.result.PredictResult;
 import com.chua.deeplearning.support.utils.ImageUtils;
+import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 
 /**
@@ -57,12 +59,12 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
-        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+        if (!(wrapped instanceof BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
  // AWT 缩放（ONNX Runtime 引擎的 ndarray 不支持 resize）
-        java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, 224, 224,
-                org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(bufferedImage, 224, 224,
+                Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, 224, 224, null, 0, 224);
         float[] chw = new float[3 * 224 * 224];
         int total = 224 * 224;

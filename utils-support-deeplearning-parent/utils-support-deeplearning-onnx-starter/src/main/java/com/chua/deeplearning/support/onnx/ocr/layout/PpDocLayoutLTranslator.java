@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import com.chua.deeplearning.support.engine.DetectionConfigurable;
+import java.awt.image.BufferedImage;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * PP-doclayout-L / PP-doclayout_plus-L  ONNX Translator
@@ -37,7 +42,7 @@ import java.util.Map;
  */
 @Slf4j
 public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects>,
-        com.chua.deeplearning.support.engine.DetectionConfigurable {
+        DetectionConfigurable {
 
     /**
      * 默认输入尺寸（640）。
@@ -202,13 +207,13 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
         height = input.getHeight();
 
         Object wrapped = input.getWrappedImage();
-        if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
+        if (!(wrapped instanceof BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
 
         resolveModelConfig(ctx.getModel().getModelPath());
 
-        scale = java.awt.image.BufferedImage.SCALE_SMOOTH;
+        scale = BufferedImage.SCALE_SMOOTH;
         lowInformationInput = isLowInformationBuffered(bufferedImage);
         scoreThreshold = configuredScoreThreshold != null
                 ? configuredScoreThreshold
@@ -400,7 +405,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      * @param buf 图像
      * @return 是否为低信息量
      */
-    private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
+    private boolean isLowInformationBuffered(BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
         if (w <= 0 || h <= 0) {
@@ -435,15 +440,15 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      * @param size 目标尺寸
      * @return CHW 数组，长度 3 * 大小 * 大小
      */
-    private float[] toChwFloatsOpenCv(java.awt.image.BufferedImage buf, int size) {
-        org.opencv.core.Mat src = ImageUtils.toMat(buf);
+    private float[] toChwFloatsOpenCv(BufferedImage buf, int size) {
+        Mat src = ImageUtils.toMat(buf);
         try {
             if (src.empty()) {
                 return toChwFloats(ImageUtils.resize(buf, size, size, scale));
             }
-            org.opencv.core.Mat resized = new org.opencv.core.Mat();
-            org.opencv.imgproc.Imgproc.resize(src, resized,
-                    new org.opencv.core.Size(size, size), 0, 0, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+            Mat resized = new Mat();
+            Imgproc.resize(src, resized,
+                    new Size(size, size), 0, 0, Imgproc.INTER_CUBIC);
             try {
                 float[] chw = new float[3 * size * size];
                 int idx = 0;
@@ -471,7 +476,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      * @param buf 缓冲镜像
      * @return CHW 数组，长度 3 * H * W
      */
-    private float[] toChwFloats(java.awt.image.BufferedImage buf) {
+    private float[] toChwFloats(BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
         int[] pixels = new int[w * h];

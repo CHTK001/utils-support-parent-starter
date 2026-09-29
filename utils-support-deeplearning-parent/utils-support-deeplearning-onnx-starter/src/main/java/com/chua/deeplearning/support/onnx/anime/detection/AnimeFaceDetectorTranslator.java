@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import java.util.Arrays;
 
 /**
  * Anime Face yolov8 ONNX Translator（嵌入式，纯 Java 预处理，兼容 onnxruntime engine）。
@@ -47,9 +49,9 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
     /**
      * 置信度阈值（默认 0.5），可经 detection配置 覆盖。
     */
-    public AnimeFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public AnimeFaceDetectorTranslator(DetectionConfiguration configuration) {
         if (configuration != null) {
-            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+            this.confThreshold = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
         }
     }
 
@@ -57,7 +59,7 @@ public class AnimeFaceDetectorTranslator implements Translator<Image, DetectedOb
      * 无参构造：使用默认阈值（SPI/反射实例化要求）。
      */
     public AnimeFaceDetectorTranslator() {
-        this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
+        this((DetectionConfiguration) null);
     }
 
 private float confThreshold = 0.45f; // conf阈值
@@ -120,7 +122,7 @@ private float confThreshold = 0.45f; // conf阈值
         int[] pixels = scaled.getRGB(0, 0, newW, newH, null, 0, newW);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         // 灰边填充 114（归一化后 ~0.447）
-        java.util.Arrays.fill(data, 114f / 255f);
+        Arrays.fill(data, 114f / 255f);
         for (int y = 0; y < newH; y++) {
             for (int x = 0; x < newW; x++) {
                 int p = pixels[y * newW + x];
@@ -168,7 +170,7 @@ private float confThreshold = 0.45f; // conf阈值
                 return processNch(dim, shape, data);
             }
         } else {
-            throw new IllegalStateException("AnimeFace 输出维度异常: " + java.util.Arrays.toString(shape));
+            throw new IllegalStateException("AnimeFace 输出维度异常: " + Arrays.toString(shape));
         }
         return processNcm(data, numDets, numChannels);
     }
@@ -285,7 +287,7 @@ private float confThreshold = 0.45f; // conf阈值
         for (int i = 0; i < n; i++) {
             idx[i] = i;
         }
-        java.util.Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
+        Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
         List<Integer> keep = new ArrayList<>();
         boolean[] removed = new boolean[n];
         for (int ii = 0; ii < n; ii++) {

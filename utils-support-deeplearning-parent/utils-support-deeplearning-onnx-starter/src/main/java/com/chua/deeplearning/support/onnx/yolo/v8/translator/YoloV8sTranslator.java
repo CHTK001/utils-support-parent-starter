@@ -14,6 +14,9 @@ import com.chua.deeplearning.support.utils.NMSUtils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import ai.djl.modality.cv.output.BoundingBox;
+import ai.djl.modality.cv.output.Rectangle;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
  * yolov8s COCO ͨ用Ŀ标检测 Translator。
@@ -92,12 +95,12 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
      *
      * @param configuration 检测配置（可空）
      */
-    public YoloV8sTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public YoloV8sTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? DEFAULT_THRESHOLD
-                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
+                : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD,
                         DEFAULT_THRESHOLD),
                 configuration == null ? DEFAULT_NMS_THRESHOLD
-                : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_IOU_THRESHOLD,
+                : configuration.optFloat(DetectionConfiguration.KEY_IOU_THRESHOLD,
                         DEFAULT_NMS_THRESHOLD), CLASSES);
     }
 
@@ -164,7 +167,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
-        List<ai.djl.modality.cv.output.BoundingBox> boxes = new ArrayList<>();
+        List<BoundingBox> boxes = new ArrayList<>();
 
         for (int i = 0; i < numBoxes; i++) {
             float cx, cy, w, h;
@@ -222,7 +225,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             origW = Math.max(1, Math.min(imageWidth - origX, origW));
             origH = Math.max(1, Math.min(imageHeight - origY, origH));
 
-            boxes.add(new ai.djl.modality.cv.output.Rectangle(origX, origY, origW, origH));
+            boxes.add(new Rectangle(origX, origY, origW, origH));
             names.add(classes.get(classId));
             probs.add((double) maxScore);
         }
@@ -231,7 +234,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
         List<String> finalNames = new ArrayList<>();
         List<Double> finalProbs = new ArrayList<>();
-        List<ai.djl.modality.cv.output.BoundingBox> finalBoxes = new ArrayList<>();
+        List<BoundingBox> finalBoxes = new ArrayList<>();
 
         for (int idx : keep) {
             finalNames.add(names.get(idx));

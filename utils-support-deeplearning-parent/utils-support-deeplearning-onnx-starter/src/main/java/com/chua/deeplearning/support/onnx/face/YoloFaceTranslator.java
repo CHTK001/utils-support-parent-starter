@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import com.chua.deeplearning.support.ai.DetectionConfiguration;
+import java.util.Arrays;
 
 /**
  * yolov11n Face ONNX Translator（嵌入 jar，纯 Java 预处理，兼容 onnxruntime engine）。
@@ -50,9 +52,9 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
      *
      * @param configuration 检测配置（可空）
      */
-    public YoloFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
+    public YoloFaceTranslator(DetectionConfiguration configuration) {
         if (configuration != null) {
-            this.confThreshold = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
+            this.confThreshold = configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, this.confThreshold);
         }
     }
 
@@ -60,7 +62,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
      * 无参构造：使用默认阈值（SPI/反射实例化要求）。
      */
     public YoloFaceTranslator() {
-        this((com.chua.deeplearning.support.ai.DetectionConfiguration) null);
+        this((DetectionConfiguration) null);
     }
 
     /**
@@ -125,7 +127,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
 
         int[] pixels = scaled.getRGB(0, 0, newW, newH, null, 0, newW);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
-        java.util.Arrays.fill(data, 114f / 255f);
+        Arrays.fill(data, 114f / 255f);
         for (int y = 0; y < newH; y++) {
             for (int x = 0; x < newW; x++) {
                 int p = pixels[y * newW + x];
@@ -173,7 +175,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                 transpose = true;
             }
         } else {
-            throw new IllegalStateException("YoloFace 输出维度异常: " + java.util.Arrays.toString(shape));
+            throw new IllegalStateException("YoloFace 输出维度异常: " + Arrays.toString(shape));
         }
         if (numChannels < 5) {
             throw new IllegalStateException("YoloFace 输出通道异常: " + numChannels);
@@ -255,7 +257,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
                     (x2 - x1) / imageWidth, (y2 - y1) / imageHeight));
         }
         // 后处理：去重（中心点距离过滤 + 嵌套框过滤）
-        java.util.List<Integer> finalKeep = new java.util.ArrayList<>();
+        List<Integer> finalKeep = new ArrayList<>();
         boolean[] suppressed = new boolean[names.size()];
         for (int i = 0; i < names.size(); i++) {
             if (suppressed[i]) {
@@ -327,7 +329,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
         for (int i = 0; i < n; i++) {
             idx[i] = i;
         }
-        java.util.Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
+        Arrays.sort(idx, (a, b) -> Float.compare(scores.get(b), scores.get(a)));
         List<Integer> keep = new ArrayList<>();
         boolean[] removed = new boolean[n];
         for (int ii = 0; ii < n; ii++) {

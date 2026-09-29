@@ -22,6 +22,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.chua.common.support.utils.NativeLoader;
+import org.opencv.core.CvType;
+import org.opencv.videoio.Videoio;
 
 /**
  * C3D 视频动作检测 ONNX 翻译器。
@@ -110,7 +113,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         .resolve("chua-models").resolve(MODEL_ID);
                 if (!Files.isRegularFile(cache.resolve(MODEL_FILE))) {
                     Files.createDirectories(cache);
-                    com.chua.common.support.utils.NativeLoader.of(MODEL_ID)
+                    NativeLoader.of(MODEL_ID)
                             .from(getClass().getClassLoader())
                             .basePath(RESOURCE_BASE)
                             .toTarget(cache)
@@ -157,8 +160,8 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         log.warn("无法打开视频文件");
                         return List.of();
                     }
-                    double fps = capture.get(org.opencv.videoio.Videoio.CAP_PROP_FPS);
-                    double totalFrames = capture.get(org.opencv.videoio.Videoio.CAP_PROP_FRAME_COUNT);
+                    double fps = capture.get(Videoio.CAP_PROP_FPS);
+                    double totalFrames = capture.get(Videoio.CAP_PROP_FRAME_COUNT);
                     if (fps <= 0 || totalFrames <= 0) {
                         return List.of();
                     }
@@ -245,7 +248,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
             Imgproc.resize(frames.get(f), resized, new Size(INPUT_WIDTH, INPUT_HEIGHT));
             Mat rgb = new Mat();
             Imgproc.cvtColor(resized, rgb, Imgproc.COLOR_BGR2RGB);
-            rgb.convertTo(rgb, org.opencv.core.CvType.CV_32F);
+            rgb.convertTo(rgb, CvType.CV_32F);
             for (int y = 0; y < INPUT_HEIGHT; y++) {
                 for (int x = 0; x < INPUT_WIDTH; x++) {
                     double[] pixel = rgb.get(y, x);

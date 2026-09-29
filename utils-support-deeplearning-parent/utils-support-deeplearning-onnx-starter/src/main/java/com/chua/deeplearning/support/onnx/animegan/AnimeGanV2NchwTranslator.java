@@ -10,6 +10,8 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
+import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * animeganv2 Face Portrait V2 Translator（NCHW 布局）。
@@ -81,7 +83,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
             float b = data[2 * wh + i] * 127.5f + 127.5f;
             rgb[i] = (clip(r) << 16) | (clip(g) << 8) | clip(b);
         }
-        java.awt.image.BufferedImage result = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, w, h, rgb, 0, w);
         if (w != originalWidth || h != originalHeight) {
             result = resizeBuffered(result, originalWidth, originalHeight);
@@ -115,7 +117,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
      */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
-        if (wrapped instanceof java.awt.image.BufferedImage bi) {
+        if (wrapped instanceof BufferedImage bi) {
             int w = bi.getWidth();
             int h = bi.getHeight();
             float[] out = new float[w * h * 3];
@@ -166,7 +168,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
      * @param dh dh
      * @return resize缓冲的结果
      */
-    private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
-        return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
+    private static BufferedImage resizeBuffered(BufferedImage src, int dw, int dh) {
+        return ImageUtils.resize(src, dw, dh, Imgproc.INTER_CUBIC);
     }
 }

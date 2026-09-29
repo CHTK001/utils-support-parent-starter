@@ -12,6 +12,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.BufferedImage;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * FLRGB 人脸活体检测 Translator（模型scope iic/cv_manual_face-liveness_flrgb）。
@@ -38,7 +39,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
         int w = input.getWidth();
         int h = input.getHeight();
         BufferedImage src = (BufferedImage) input.getWrappedImage();
-        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, org.opencv.imgproc.Imgproc.INTER_LINEAR);
+        BufferedImage resized = ImageUtils.resize(src, INPUT_SIZE, INPUT_SIZE, Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, INPUT_SIZE, INPUT_SIZE, null, 0, INPUT_SIZE);
         float[] data = new float[3 * INPUT_SIZE * INPUT_SIZE];
         for (int i = 0; i < pixels.length; i++) {

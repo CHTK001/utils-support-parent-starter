@@ -14,6 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.chua.common.support.vector.VectorCompareAlgorithm;
+import com.chua.common.support.vector.VectorStorageBuilder;
+import com.chua.deeplearning.support.engine.AbstractIdentificationEngine;
+import com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder;
+import com.chua.deeplearning.support.translator.ITranslator;
 
 /**
  * 声纹识别管线（CAM++ 神经模型，192 维嵌入）。
@@ -68,7 +73,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     /**
      * 声纹嵌入翻译器（模型registry 方式）。
     */
-    private final com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> embedderTranslator;
+    private final ITranslator<byte[], float[]> embedderTranslator;
 
     /**
      * 检索结果上限（与 搜索 的 topk 取 最小）。
@@ -100,7 +105,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     private VoiceprintPipeline(VectorStorage storage,
-                               com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> translator,
+                               ITranslator<byte[], float[]> translator,
                                int maxResults, SpeechEnhancer denoiseEnhancer, String vadType) {
         this.storage = Objects.requireNonNull(storage, "vectorStorage");
         this.campplus = null;
@@ -191,7 +196,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             float[] up = AudioUtils.resample(s, 16000, 48000);
             byte[] wavIn = AudioUtils.toWavBytes(up, 48000);
             byte[] wavOut = denoiseEnhancer.enhance(wavIn);
-            float[] enhanced48k = com.chua.deeplearning.support.onnx.audio.denoise.WavDecoder
+            float[] enhanced48k = WavDecoder
                     .decodeToFloat(wavOut, 48000);
             float[] down = AudioUtils.resample(enhanced48k, 48000, 16000);
             log.info("[Voiceprint] 降噪完成: {} → {} 采样", s.length, down.length);
@@ -502,7 +507,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     */
     public static final class Builder {
         private CampplusEmbedding embedder;
-        private com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> translator;
+        private ITranslator<byte[], float[]> translator;
         private VectorStorage vectorStorage;
         private Path storageDir;
         private int maxResults = 100;
@@ -538,8 +543,8 @@ public class VoiceprintPipeline implements AutoCloseable {
             if (modelId == null || modelId.isBlank()) {
                 return this;
             }
-            this.translator = com.chua.deeplearning.support.engine.AbstractIdentificationEngine.getInstance()
-                    .get(modelId, com.chua.deeplearning.support.translator.ITranslator.class);
+            this.translator = AbstractIdentificationEngine.getInstance()
+                    .get(modelId, ITranslator.class);
             if (this.translator == null) {
                 throw new IllegalArgumentException("声纹模型未注册: " + modelId);
             }
@@ -558,7 +563,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             String token = null;
             String collection = null;
             if (config != null) {
-                if (!(config instanceof java.util.Map<?, ?> map)) {
+                if (!(config instanceof Map<?, ?> map)) {
                     throw new IllegalArgumentException("config 需为 Map<String,Object>");
                 }
                 host = trimOrNull(map.get("host"));
@@ -584,9 +589,9 @@ public class VoiceprintPipeline implements AutoCloseable {
                     throw new IllegalArgumentException(provider + " 缺少必填配置: " + missing);
                 }
             }
-            var b = com.chua.common.support.vector.VectorStorageBuilder.newBuilder()
+            var b = VectorStorageBuilder.newBuilder()
                     .type(provider).dimension(192)
-                    .algorithm(com.chua.common.support.vector.VectorCompareAlgorithm.cosine());
+                    .algorithm(VectorCompareAlgorithm.cosine());
             if (host != null) {
                 b.host(host);
             }
