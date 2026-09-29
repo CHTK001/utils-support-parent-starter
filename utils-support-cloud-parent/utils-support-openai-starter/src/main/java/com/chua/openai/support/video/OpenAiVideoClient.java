@@ -84,10 +84,36 @@ public class OpenAiVideoClient extends AbstractOpenAiVideosClient {
                 .header("Content-Type", "application/json")
                 .connectTimeout(60000)
                 .get();
-        if (standard.getStatusCode() != 404) {
+        if (standard.isSuccess()) {
             return standard;
         }
-        return fallback().fetchTask(taskId);
+        // 实测：Agnes 对标准路径 /v1/videos/{video_id} 返回的是 400 task_not_exist，
+        // 不是 404 —— 因为该路径按 task_id 查，而创建响应里 id/task_id 是 task_xxx、
+        // video_id 是 video_xxx，两者不同。仅判 404 会让降级永不触发，轮询直接失败。
+        // 故判据放宽为「404」或「400 且 code=task_not_exist」：后者同样表示
+        // 「这条路径不认识这个 id」，而其它 400 是真的参数错误，必须原样暴露。
+        if (shouldFallback(standard)) {
+            return fallback().fetchTask(taskId);
+        }
+        return standard;
+    }
+
+    /**
+     * 判断该响应是否应改走非标准实现。
+     *
+     * @param resp 标准路径的响应
+     * @return true 表示降级
+     */
+    private static boolean shouldFallback(ClientResponse resp) {
+        int code = resp.getStatusCode();
+        if (code == 404) {
+            return true;
+        }
+        if (code != 400) {
+            return false;
+        }
+        String body = resp.getBodyString();
+        return body != null && body.contains("task_not_exist");
     }
 
     /**
